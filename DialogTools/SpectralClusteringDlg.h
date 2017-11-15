@@ -45,12 +45,16 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
+    void OnCheckPowerIteration(wxCommandEvent& event);
+    void OnWeightsCheck(wxCommandEvent& event);
+    void OnKernelCheck(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     
     virtual void InitVariableCombobox(wxListBox* var_box);
-    
+   
+    virtual wxString _printConfiguration();
 protected:
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
@@ -66,6 +70,17 @@ protected:
 
     wxChoice* m_method;
     wxChoice* m_distance;
+    wxCheckBox* chk_kernel;
+    wxStaticText* lbl_kernel;
+    wxStaticText* lbl_gamma;
+    
+    wxStaticText* lbl_weights;
+    wxCheckBox* chk_weights;
+    wxChoice* combo_weights;
+    
+    wxCheckBox* chk_poweriteration;
+    wxTextCtrl* txt_poweriteration;
+    wxStaticText* lbl_poweriteration;
     
     wxButton* seedButton;
     

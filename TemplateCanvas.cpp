@@ -374,13 +374,13 @@ void TemplateCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
     if (last_scale_trans.IsValid()) {
 		BOOST_FOREACH( GdaShape* ms, background_shps ) {
-			ms->applyScaleTrans(last_scale_trans);
+			if (ms) ms->applyScaleTrans(last_scale_trans);
 		}
 		BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-			ms->applyScaleTrans(last_scale_trans);
+			if (ms) ms->applyScaleTrans(last_scale_trans);
 		}
     	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-    		ms->applyScaleTrans(last_scale_trans);
+    		if (ms) ms->applyScaleTrans(last_scale_trans);
     	}
 	}
     layer0_valid = false;
@@ -1573,8 +1573,8 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 	vector<int> sub_menu_id(num_sub_menus);
 	vector<int> base_id(num_sub_menus);
 	menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
-	menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B");
-	menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C");
+	menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
+	menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
 	sub_menu_id[0] = XRCID("ID_CAT_CLASSIF_A_MENU");
 	sub_menu_id[1] = XRCID("ID_CAT_CLASSIF_B_MENU");
 	sub_menu_id[2] = XRCID("ID_CAT_CLASSIF_C_MENU");
@@ -1583,18 +1583,39 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 	base_id[2] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
 	
 	for (int i=0; i<num_sub_menus; i++) {
-		wxMenuItem* smi = menu->FindItem(sub_menu_id[i]);
+		wxMenuItem* smii = menu->FindItem(sub_menu_id[i]);
+		if (!smii) continue;
+		wxMenu* smi = smii->GetSubMenu();
 		if (!smi) continue;
-		wxMenu* sm = smi->GetSubMenu();
-		if (!sm) continue;
+        int m_id = smi->FindItem("Custom Breaks");
+        wxMenuItem* mi = smi->FindItem(m_id);
+        if (!mi) continue;
+       
+        wxMenu* sm = mi->GetSubMenu();
+        // clean
+        wxMenuItemList items = sm->GetMenuItems();
+        for (int i=0; i<items.size(); i++) {
+            sm->Delete(items[i]);
+        }
+        
+		sm->Append(menu_id[i], "Create New Custom", "Create new custom categories classification.");
 		sm->AppendSeparator();
-		sm->Append(menu_id[i], "Create New Custom",
-				   "Create new custom categories classification.");
+        
 		vector<wxString> titles;
 		ccm->GetTitles(titles);
 		for (size_t j=0; j<titles.size(); j++) {
 			wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
 		}
+        if (i==0) {
+            // regular map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+        } else if (i==1) {
+            // conditional horizontal map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+        } else if (i==2) {
+            // conditional verticle map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+        }
 	}
 }
 
@@ -2183,6 +2204,7 @@ void TemplateCanvas::NotifyObservables()
 void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
+    hover_obs.clear();
 	int total_obs = selectable_shps.size();
 	if (selectable_shps_type == circles) {
 		// slightly faster than GdaCircle::pointWithin
@@ -2193,7 +2215,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 			if (s==NULL || s->isNull()) continue;
 			if (GenUtils::distance_sqrd(s->center, pt) <=
 				s->radius*s->radius) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}			
 		}
 	} else if (selectable_shps_type == polygons ||
@@ -2204,7 +2227,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
             if ( !_IsShpValid(i))
                 continue;
 			if (selectable_shps[i]->pointWithin(pt)) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}
 		}
 	} else { // selectable_shps_type == points or anything without pointWithin
@@ -2214,7 +2238,8 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
                 continue;
 			if (GenUtils::distance_sqrd(selectable_shps[i]->center, pt)
 				<= 16.5) {
-				hover_obs[total_hover_obs++] = i;
+                hover_obs.push_back(i);
+                total_hover_obs++;
 			}
 		}
 	}

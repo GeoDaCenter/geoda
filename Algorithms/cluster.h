@@ -46,7 +46,11 @@
 
 /* If an integer is given, it fixes the seed. Defaults to the global numpy random number generator. */
 static int random_state = -1;
+static int reset_random = 0;
 void setrandomstate(int seed);
+void resetrandom();
+double uniform(int& s1, int& s2);
+
 double uniform(void);
 
 /* Chapter 2 */
@@ -64,7 +68,7 @@ void getclustermedoids(int nclusters, int nelements, double** distance,
   int clusterid[], int centroids[], double errors[]);
 void kcluster (int nclusters, int ngenes, int ndata, double** data,
   int** mask, double weight[], int transpose, int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound);
+  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int& s1, int& s2);
 void kmedoids (int nclusters, int nelements, double** distance,
   int npass, int clusterid[], double* error, int* ifound);
 

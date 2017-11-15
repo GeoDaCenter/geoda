@@ -193,6 +193,13 @@ void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
     double pval;
     bool is_valid = val.ToDouble(&pval);
     if (is_valid) {
+        if (pval > 1 ) {
+            m_txt_pval->SetValue("1.0");
+            pval = 1;
+        } else if (pval < 0) {
+            m_txt_pval->SetValue("0");
+            pval = 0;
+        }
         user_input = pval;
         Init(p_vals, n, pval);
     }

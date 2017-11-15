@@ -98,7 +98,7 @@ public:
 	
 	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
-    void ShowOpenDatasourceDlg(wxPoint pos);
+    void ShowOpenDatasourceDlg(wxPoint pos, bool init=false);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
     
@@ -161,6 +161,7 @@ public:
     void OnToolsDataKMeans(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
+    void OnToolsDataSkater(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);
@@ -250,6 +251,7 @@ public:
 	void OnOpenGetisOrdStar(wxCommandEvent& event);
 	void OnOpenUniLocalGeary(wxCommandEvent& event);
 	void OnOpenMultiLocalGeary(wxCommandEvent& event);
+	void OnOpenMultiLJC(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
@@ -257,97 +259,6 @@ public:
 	void OnCCClassifA(int cc_menu_num);
 	void OnCCClassifB(int cc_menu_num);
 	void OnCCClassifC(int cc_menu_num);
-	void OnCCClassifA0(wxCommandEvent& e);
-	void OnCCClassifA1(wxCommandEvent& e);
-	void OnCCClassifA2(wxCommandEvent& e);
-	void OnCCClassifA3(wxCommandEvent& e);
-	void OnCCClassifA4(wxCommandEvent& e);
-	void OnCCClassifA5(wxCommandEvent& e);
-	void OnCCClassifA6(wxCommandEvent& e);
-	void OnCCClassifA7(wxCommandEvent& e);
-	void OnCCClassifA8(wxCommandEvent& e);
-	void OnCCClassifA9(wxCommandEvent& e);
-	void OnCCClassifA10(wxCommandEvent& e);
-	void OnCCClassifA11(wxCommandEvent& e);
-	void OnCCClassifA12(wxCommandEvent& e);
-	void OnCCClassifA13(wxCommandEvent& e);
-	void OnCCClassifA14(wxCommandEvent& e);
-	void OnCCClassifA15(wxCommandEvent& e);
-	void OnCCClassifA16(wxCommandEvent& e);
-	void OnCCClassifA17(wxCommandEvent& e);
-	void OnCCClassifA18(wxCommandEvent& e);
-	void OnCCClassifA19(wxCommandEvent& e);
-	void OnCCClassifA20(wxCommandEvent& e);
-	void OnCCClassifA21(wxCommandEvent& e);
-	void OnCCClassifA22(wxCommandEvent& e);
-	void OnCCClassifA23(wxCommandEvent& e);
-	void OnCCClassifA24(wxCommandEvent& e);
-	void OnCCClassifA25(wxCommandEvent& e);
-	void OnCCClassifA26(wxCommandEvent& e);
-	void OnCCClassifA27(wxCommandEvent& e);
-	void OnCCClassifA28(wxCommandEvent& e);
-	void OnCCClassifA29(wxCommandEvent& e);
-	void OnCCClassifB0(wxCommandEvent& e);
-	void OnCCClassifB1(wxCommandEvent& e);
-	void OnCCClassifB2(wxCommandEvent& e);
-	void OnCCClassifB3(wxCommandEvent& e);
-	void OnCCClassifB4(wxCommandEvent& e);
-	void OnCCClassifB5(wxCommandEvent& e);
-	void OnCCClassifB6(wxCommandEvent& e);
-	void OnCCClassifB7(wxCommandEvent& e);
-	void OnCCClassifB8(wxCommandEvent& e);
-	void OnCCClassifB9(wxCommandEvent& e);
-	void OnCCClassifB10(wxCommandEvent& e);
-	void OnCCClassifB11(wxCommandEvent& e);
-	void OnCCClassifB12(wxCommandEvent& e);
-	void OnCCClassifB13(wxCommandEvent& e);
-	void OnCCClassifB14(wxCommandEvent& e);
-	void OnCCClassifB15(wxCommandEvent& e);
-	void OnCCClassifB16(wxCommandEvent& e);
-	void OnCCClassifB17(wxCommandEvent& e);
-	void OnCCClassifB18(wxCommandEvent& e);
-	void OnCCClassifB19(wxCommandEvent& e);
-	void OnCCClassifB20(wxCommandEvent& e);
-	void OnCCClassifB21(wxCommandEvent& e);
-	void OnCCClassifB22(wxCommandEvent& e);
-	void OnCCClassifB23(wxCommandEvent& e);
-	void OnCCClassifB24(wxCommandEvent& e);
-	void OnCCClassifB25(wxCommandEvent& e);
-	void OnCCClassifB26(wxCommandEvent& e);
-	void OnCCClassifB27(wxCommandEvent& e);
-	void OnCCClassifB28(wxCommandEvent& e);
-	void OnCCClassifB29(wxCommandEvent& e);
-	void OnCCClassifC0(wxCommandEvent& e);
-	void OnCCClassifC1(wxCommandEvent& e);
-	void OnCCClassifC2(wxCommandEvent& e);
-	void OnCCClassifC3(wxCommandEvent& e);
-	void OnCCClassifC4(wxCommandEvent& e);
-	void OnCCClassifC5(wxCommandEvent& e);
-	void OnCCClassifC6(wxCommandEvent& e);
-	void OnCCClassifC7(wxCommandEvent& e);
-	void OnCCClassifC8(wxCommandEvent& e);
-	void OnCCClassifC9(wxCommandEvent& e);
-	void OnCCClassifC10(wxCommandEvent& e);
-	void OnCCClassifC11(wxCommandEvent& e);
-	void OnCCClassifC12(wxCommandEvent& e);
-	void OnCCClassifC13(wxCommandEvent& e);
-	void OnCCClassifC14(wxCommandEvent& e);
-	void OnCCClassifC15(wxCommandEvent& e);
-	void OnCCClassifC16(wxCommandEvent& e);
-	void OnCCClassifC17(wxCommandEvent& e);
-	void OnCCClassifC18(wxCommandEvent& e);
-	void OnCCClassifC19(wxCommandEvent& e);
-	void OnCCClassifC20(wxCommandEvent& e);
-	void OnCCClassifC21(wxCommandEvent& e);
-	void OnCCClassifC22(wxCommandEvent& e);
-	void OnCCClassifC23(wxCommandEvent& e);
-	void OnCCClassifC24(wxCommandEvent& e);
-	void OnCCClassifC25(wxCommandEvent& e);
-	void OnCCClassifC26(wxCommandEvent& e);
-	void OnCCClassifC27(wxCommandEvent& e);
-	void OnCCClassifC28(wxCommandEvent& e);
-	void OnCCClassifC29(wxCommandEvent& e);
-	
 	void OnOpenThemelessMap(wxCommandEvent& event);
 	void OnThemelessMap(wxCommandEvent& event);
 	
@@ -671,14 +582,16 @@ public:
 	void OnRecentDSClick(wxCommandEvent& event);
     
     void SetEncodingCheckmarks(wxFontEncoding e);
-    void SetBasemapCheckmarks(int idx);
-    
 	void DisplayRegression(const wxString dump);
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
    
     void RemoveInvalidRecentDS();
+   
+    void OnCustomCategoryClick(wxCommandEvent& event);
+    void OnCustomCategoryClick_B(wxCommandEvent& event);
+    void OnCustomCategoryClick_C(wxCommandEvent& event);
     
     void UpdateRecentDatasourceMenu();
 

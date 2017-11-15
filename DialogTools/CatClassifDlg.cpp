@@ -37,6 +37,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GenGeomAlgs.h"
 #include "../Project.h"
+#include "../GeoDa.h"
 #include "../SaveButtonManager.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
@@ -72,6 +73,7 @@ CatClassifHistCanvas::CatClassifHistCanvas(wxWindow *parent,
                                            const wxSize& size)
 :TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
                 pos, size, false, true),
+project(project_s),
 num_obs(project_s->GetNumRecords()),
 y_axis(0), data(0), default_data(project_s->GetNumRecords()),
 breaks(0), default_breaks(default_intervals-1),
@@ -283,9 +285,7 @@ wxString CatClassifHistCanvas::GetCanvasTitle()
 	return s;
 }
 
-void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
-                                      std::vector<double>& x_left_pos,
-                                      std::vector<double>& x_right_pos)
+void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, std::vector<double>& x_left_pos, std::vector<double>& x_right_pos)
 {
     int n = x_center_pos.size();
     
@@ -298,16 +298,31 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos,
     
     std::vector<double> ticks;
     ticks.push_back(val_min);
-    for(int i=0; i<breaks->size();i++)
+    for(int i=0; i<breaks->size();i++) {
         ticks.push_back((*breaks)[i]);
+    }
     ticks.push_back(val_max);
     
     int j=0;
     for (int i=0; i<ticks.size()-1; i++) {
-        x_left_pos[j] = x_max * (ticks[i] - left) / val_range;
-        x_right_pos[j] = x_max * (ticks[i+1] - left) / val_range;
+        int x_left = 0;
+        int x_right = 0;
         
-        x_center_pos[j] = (x_right_pos[j] + x_left_pos[j]) / 2.0;
+        if (val_range == 0 && ival_obs_cnt[i] > 0) {
+            x_right = x_max;
+        } else {
+            x_left = val_range==0 ? 0 : x_max * (ticks[i] - left) / val_range;
+            x_right = val_range==0 ? 0 : x_max * (ticks[i+1] - left) / val_range;
+           
+            if (x_left == x_right && ival_obs_cnt[i] > 0 && j>0) {
+                for (int k=j-1; k>=0; k--)
+                    if (x_left_pos[k] != x_left)
+                        x_left = x_left_pos[j];
+            }
+        }
+        x_left_pos[j] = x_left;
+        x_right_pos[j] = x_right;
+        x_center_pos[j] = (x_left + x_right) / 2.0;
         j++;
     }
 }
@@ -341,20 +356,25 @@ void CatClassifHistCanvas::PopulateCanvas()
 						wxRealPoint(0,0), wxRealPoint(0, y_max),
 						-9, 0);
 	foreground_shps.push_back(y_axis);
-
-    last_scale_trans.SetMargin(45, 25+32, 25+35, 25);
 	
 	selectable_shps.resize(cur_intervals);
+    
+    wxClientDC dc(this);
+    
+    int max_label_height = 0;
+    
 	for (int i=0; i<cur_intervals; i++) {
-        double x0 = orig_x_pos_left[i];//orig_x_pos[i] - interval_width_const/2.0;
-        double x1 = orig_x_pos_right[i]; //orig_x_pos[i] + interval_width_const/2.0;
+        double x0 = orig_x_pos_left[i];
+        double x1 = orig_x_pos_right[i];
 		double y0 = 0;
 		double y1 = ival_obs_cnt[i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
-											 wxRealPoint(x1, y1));
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0), wxRealPoint(x1, y1));
 		selectable_shps[i]->setPen((*colors)[i]);
 		selectable_shps[i]->setBrush((*colors)[i]);
 		
+        int s_w =0;
+        int s_h = 0;
+        
         if (i==0) {
             GdaShapeText* brk =
             new GdaShapeText(GenUtils::DblToStr(min_val),
@@ -362,6 +382,7 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x0, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
             foreground_shps.push_back(brk);
         }
 		if (i<cur_intervals-1) {
@@ -371,6 +392,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 wxRealPoint(x1, y0), 90,
 								 GdaShapeText::right,
 								 GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
 			foreground_shps.push_back(brk);
 		}
         if (i==cur_intervals-1) {
@@ -380,9 +402,13 @@ void CatClassifHistCanvas::PopulateCanvas()
                              wxRealPoint(x1, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
+            brk->GetSize(dc, s_w, s_h);
             foreground_shps.push_back(brk);
         }
+        if (s_w > max_label_height) max_label_height = s_w;
 	}
+    
+    last_scale_trans.SetMargin(45, 15+max_label_height, 25+35, 25);
 	
     ResizeSelectableShps();
 }
@@ -419,7 +445,7 @@ void CatClassifHistCanvas::InitIntervals()
 		int ind;
         
         max_val = (*data)[0].first;
-        min_val = (*data)[0].second;
+        min_val = (*data)[num_obs-1].first;
         
 		for (int i=0; i<num_obs; i++) {
 			val = (*data)[i].first;
@@ -842,7 +868,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 	if (!all_init)
         return 0;
 	wxString msg = _("New Custom Categories Title:");
-	wxString new_title = (suggested_title.IsEmpty() ? GetDefaultTitle() : suggested_title);
+	wxString new_title = (suggested_title.IsEmpty() ? GetDefaultTitle(field_name) : suggested_title);
 	bool retry = true;
 	bool success = false;
     
@@ -889,13 +915,16 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
             assoc_var_choice->SetSelection(f_sel);
             if (table_int->IsColTimeVariant(field_name)) {
                 assoc_var_tm_choice->SetSelection(field_tm);
+                assoc_var_tm_choice->Show();
             } else {
-                assoc_var_tm_choice->Enable(false);
+                assoc_var_tm_choice->Hide();
             }
         }
         cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
         SetSyncVars(true);
         InitFromCCData();
+        UpdateCCState();
+        
         cc_state->SetCatClassif(cc_data);
         cur_cats_choice->Append(new_title);
         cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
@@ -1051,7 +1080,11 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     wxLogMessage(cur_fc_str);
     
 	bool is_tm_var = table_int->IsColTimeVariant(cur_fc_str);
-	assoc_var_tm_choice->Enable(is_tm_var);
+    if (is_tm_var)
+        assoc_var_tm_choice->Show();
+    else
+        assoc_var_tm_choice->Hide();
+    
 	if (is_tm_var && assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
 		assoc_var_tm_choice->SetSelection(0);
 	}
@@ -1698,7 +1731,7 @@ void CatClassifPanel::ResetValuesToDefault()
 	unif_dist_mode = true;
 	assoc_var_choice->SetSelection(0);
 	assoc_var_tm_choice->SetSelection(0);
-	assoc_var_tm_choice->Enable(false);
+	assoc_var_tm_choice->Hide();
 
 	preview_var_choice->SetSelection(0);
 	preview_var_tm_choice->SetSelection(0);
@@ -1846,10 +1879,10 @@ void CatClassifPanel::InitFromCCData()
 		int sel = assoc_var_choice->FindString(table_int->GetColName(col));
 		assoc_var_choice->SetSelection(sel);
 		if (table_int->IsColTimeVariant(col)) {
-			assoc_var_tm_choice->Enable(true);
+			assoc_var_tm_choice->Show();
 			assoc_var_tm_choice->SetSelection(tm);
 		} else {
-			assoc_var_tm_choice->Enable(false);
+			assoc_var_tm_choice->Hide();
 		}
 		if (IsSyncVars()) {
 			preview_var_choice->SetSelection(sel);
@@ -1893,7 +1926,7 @@ void CatClassifPanel::InitFromCCData()
     }
     
 	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
-	Refresh();
+    Refresh();
 }
 
 /**
@@ -1926,7 +1959,12 @@ void CatClassifPanel::InitAssocVarChoices()
 	}
     
 	assoc_var_choice->SetSelection(assoc_var_choice->FindString(cur_fc_str));
-	assoc_var_tm_choice->Enable(table_int->IsColTimeVariant(cur_fc_str));
+    
+    bool is_time_var = table_int->IsColTimeVariant(cur_fc_str);
+    if (is_time_var)
+        assoc_var_tm_choice->Show();
+    else
+        assoc_var_tm_choice->Hide();
     
 	if (table_int->IsColTimeVariant(cur_fc_str) &&
 		assoc_var_tm_choice->GetSelection() == wxNOT_FOUND) {
@@ -2375,6 +2413,36 @@ bool CatClassifPanel::IsOkToDelete(const wxString& custom_cat_title)
  notifyObservers. */
 void CatClassifPanel::UpdateCCState()
 {
+    // try to add toolbar/menu items
+    wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
+    int mPos = mb->FindMenu("Map");
+    if (mPos > wxNOT_FOUND) {
+        wxMenu* menu = mb->GetMenu(mPos);
+        int m_id = menu->FindItem("Custom Breaks");
+        wxMenuItem* mi = menu->FindItem(m_id);
+        if (mi) {
+            wxMenu* sm = mi->GetSubMenu();
+            if (sm) {
+                // clean
+                wxMenuItemList items = sm->GetMenuItems();
+                for (int i=0; i<items.size(); i++) {
+                    sm->Delete(items[i]);
+                }
+                vector<wxString> titles;
+                CatClassifManager* ccm = project->GetCatClassifManager();
+                ccm->GetTitles(titles);
+               
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->AppendSeparator();
+                
+                for (size_t j=0; j<titles.size(); j++) {
+                    wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
+                }
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            }
+        }
+    }
+    
 	if (!cc_state) return;
 	cc_state->SetCatClassif(cc_data);
 	cc_state->notifyObservers();
@@ -2395,6 +2463,7 @@ END_EVENT_TABLE()
 
 CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
                                  bool useScientificNotation,
+                                 bool promptNew,
 								 const wxString& title, const wxPoint& pos,
 								 const wxSize& size, const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
@@ -2483,6 +2552,11 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
+    
+    if (promptNew) {
+        wxCommandEvent ev;
+        panel->OnButtonNew(ev);
+    }
 }
 
 ///MMM: Sort out in all Frames: what should be in the destructor?

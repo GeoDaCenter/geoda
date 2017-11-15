@@ -5562,7 +5562,7 @@
                   <object class="sizeritem">
                       <object class="wxCheckBox" name="ID_LAG_INCLUDE_DIAGNOAL_W">
                           <checked>0</checked>
-                          <label>Include diagnoal of weights matrix</label>
+                          <label>Include diagonal of weights matrix</label>
                       </object>
                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>

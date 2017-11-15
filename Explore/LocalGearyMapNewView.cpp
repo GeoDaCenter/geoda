@@ -995,11 +995,17 @@ void LocalGearyMapFrame::OnSelectCores(wxCommandEvent& event)
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
 	
+    double user_sig = local_geary_coord->significance_cutoff;
 	// add all cores to elem list.
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
 			elem[i] = true;
 		}
 	}
@@ -1016,12 +1022,20 @@ void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
 	
+    double user_sig = local_geary_coord->significance_cutoff;
+    
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = true;
 			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -1031,7 +1045,12 @@ void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	// remove all cores
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = false;
 		}
 	}
@@ -1048,12 +1067,20 @@ void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
+   
+    double user_sig = local_geary_coord->significance_cutoff;
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4 ) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = true;
 			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {

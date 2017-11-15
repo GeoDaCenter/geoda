@@ -71,7 +71,7 @@ void CartoDBProxy::SetUserName(const string& name) {
 string CartoDBProxy::buildBaseUrl()
 {
     ostringstream url;
-    url << "https://" << user_name << ".cartodb.com/api/v2/sql";
+    url << "https://" << user_name << ".carto.com/api/v2/sql";
     return url.str();
 }
 
@@ -202,7 +202,7 @@ void CartoDBProxy::_doPost(string parameter)
         // Grab image 
         res = curl_easy_perform(curl);
         if( res ) {
-            printf("Cannot connect cartodb.com!\n");
+            printf("Cannot connect carto.com!\n");
         } 
         
         int res_code = 0;

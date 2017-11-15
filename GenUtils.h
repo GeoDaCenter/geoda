@@ -259,6 +259,7 @@ struct SampleStatistics {
 						   double& max);
 	static double CalcMean(const std::vector<double>& data);
 	static double CalcMean(const std::vector<Gda::dbl_int_pair_type>& data);
+    
 };
 
 struct SimpleLinearRegression {
@@ -350,9 +351,12 @@ namespace GenUtils {
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
+	double Sum(std::vector<double>& data);
+	double SumOfSquares(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, std::vector<bool>& undef);
 	bool StandardizeData(std::vector<double>& data);
+    double Correlation(std::vector<double>& x, std::vector<double>& y);
     double GetVariance(std::vector<double>& data);
 	template<class T> T abs(const T& x);
 	template<class T> const T& max(const T& x, const T& y);

@@ -31,40 +31,64 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../logger.h"
 #include "../GenUtils.h"
-#include "cluster.h"
 #include "maxp.h"
 
 using namespace boost;
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<size_t> _seeds, int _rnd_seed, char _dist, bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial), seeds(_seeds), LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _rnd_seed, char _dist, bool _test )
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
 {
     num_obs = z.size();
     num_vars = z[0].size();
-    
+
     if (test) {
         initial = 2;
         floor = 5;
         init_test();
     }
-    
+
+    // setup random number
     if (rnd_seed<0) {
         unsigned int initseed = (unsigned int) time(0);
         srand(initseed);
     } else {
         srand(rnd_seed);
     }
+    seed_start = rand();
+    seed_increment = MAX_ATTEMPTS * num_obs * 10;
     
     // init solution
-    init_solution();
+    if (_seeds.empty()) {
+        init_solution(-1);
+    } else {
+        map<int, vector<int> > region_dict;
+        for (int i=0; i< _seeds.size(); i++) {
+            int rgn = _seeds[i];
+            this->area2region[i] = rgn;
+            if (region_dict.find(rgn) == region_dict.end()) {
+                vector<int> ids;
+                ids.push_back(i);
+                region_dict[rgn] = ids;
+            } else {
+                region_dict[rgn].push_back(i);
+            }
+        }
+        map<int, vector<int> >::iterator it;
+        for (it = region_dict.begin(); it!= region_dict.end(); it++) {
+            this->regions.push_back(it->second);
+        }
+        this->p = this->regions.size();
+        
+        GenUtils::sort(_seeds, _seeds, seeds);
+    }
     
     if (p == 0)
         feasible = false;
     else {
         feasible = true;
         
-        double best_val = objective_function();
+        best_ss = objective_function();
         vector<vector<int> > best_regions;
         unordered_map<int, int> best_area2region;
 
@@ -78,30 +102,26 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
             vector<vector<int> >& current_regions = regions_group[i];
             unordered_map<int, int>& current_area2region = area2region_group[i];
             
+            //print_regions(current_regions);
+            LOG_MSG(initial_wss[i]);
+            
             if (p_group[i] > 0) {
                 double val = initial_wss[i];
                 
-                wxString str;
-                str << "initial solution";
-                str << i;
-                str << val;
-                str << best_val;
-                LOG_MSG(str.ToStdString());
-                
-                if (val < best_val) {
+                if (val < best_ss) {
                     best_regions = current_regions;
                     best_area2region = current_area2region;
-                    best_val = val;
+                    best_ss = val;
                 }
                 attemps += 1;
             }
         }
         
-        regions = best_regions;
-        p = regions.size();
-        area2region = best_area2region;
-        
-        swap();
+        if (!best_regions.empty()) {
+            regions = best_regions;
+            p = regions.size();
+            area2region = best_area2region;
+        }
     }
 }
 
@@ -110,25 +130,35 @@ Maxp::~Maxp()
     
 }
 
-void Maxp::run(int a, int b, uint64_t seed_start)
+wxString Maxp::print_regions(vector<vector<int> >& _regions)
 {
-    //wxString msg = wxString::Format("Maxp:run(%d, %d)", a, b);
-    //LOG_MSG(msg.mb_str());
-    
-    for (int i=a; i<b; i++) {
-        init_solution(i, seed_start);
+    wxString txt;
+    txt << "regions:\n";
+    for (int i=0; i<_regions.size(); i++) {
+        txt << "(" << i+1 << "):";
+        for (int j=0; j< _regions[i].size(); j++) {
+            txt << _regions[i][j] << ", ";
+        }
+        txt << "\n";
+    }
+    return txt;
+}
+
+void Maxp::run(int a, int b)
+{
+    for (int i=a; i<=b; i++) {
+        init_solution(i);
     }
 }
 
 void Maxp::run_threaded()
 {
-    int nCPUs = wxThread::GetCPUCount();
+    int nCPUs = boost::thread::hardware_concurrency();;
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     boost::thread_group threadPool;
-    uint64_t seed_start = rnd_seed;
     for (int i=0; i<tot_threads; i++) {
         int a=0;
         int b=0;
@@ -139,9 +169,7 @@ void Maxp::run_threaded()
             a = remainder*(quotient+1) + (i-remainder)*quotient;
             b = a+quotient-1;
         }
-        
-        seed_start = seed_start + MAX_ATTEMPTS * (num_obs *3);
-        boost::thread* worker = new boost::thread(boost::bind(&Maxp::run, this, a, b, seed_start));
+        boost::thread* worker = new boost::thread(boost::bind(&Maxp::run,this,a,b));
         threadPool.add_thread(worker);
     }
     
@@ -153,30 +181,34 @@ vector<vector<int> >& Maxp::GetRegions()
     return regions;
 }
 
-void Maxp::init_solution(int solution_idx, uint64_t seed_start)
+void Maxp::init_solution(int solution_idx)
 {
+    uint64_t seed_local = seed_start + (solution_idx+1) * seed_increment;
     int p = 0;
     bool solving = true;
     int attempts = 0;
-    double objective_val = 0;
     
     vector<vector<int> > _regions;
     unordered_map<int, int> _area2region;
     
-    if (seed_start > 0) srand(seed_start);
-    
     while (solving && attempts <= MAX_ATTEMPTS) {
-        vector<vector<int> > regions;
+        vector<vector<int> > regn;
         list<int> enclaves;
         list<int> candidates;
         if (seeds.empty()) {
-            vector<int> _candidates;
-            for (int i=0; i<num_obs;i++) _candidates.push_back(i);
-            random_shuffle (_candidates.begin(), _candidates.end());
-    
+            vector<int> _candidates(num_obs);
+            for (int i=0; i<num_obs;i++) _candidates[i] = i;
+            
+            //random_shuffle (_candidates.begin(), _candidates.end());
+            for (int i=num_obs-1; i>=1; --i) {
+                int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+                while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+                if (k != i) std::iter_swap(_candidates.begin() + k, _candidates.begin()+i);
+            }
+            
             if (test) _candidates = test_get_random();
             
-            for (int i=0; i<num_obs;i++) candidates.push_back(_candidates[i]);
+            for (int i=0; i<num_obs;i++) candidates.push_back( _candidates[i] );
         } else {
             //nonseeds = [i for i in self.w.id_order if i not in seeds]
             // candidates.extend(nonseeds)
@@ -208,7 +240,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
             while (building_region) {
                 // check if floor is satisfied
                 if (check_floor(region)) {
-                    regions.push_back(region);
+                    regn.push_back(region);
                     building_region = false;
                 } else {
                     vector<int> potential;
@@ -231,7 +263,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
                     }
                     if (!potential.empty()) {
                         // add a random neighbor
-                        int neigID = rand() % potential.size();//(int) (uniform() * potential.size()); //0
+                        int neigID = Gda::ThomasWangHashDouble(seed_local++) * potential.size();
                         if (test ) {
                             neigID = test_random_numbers.front();
                             test_random_numbers.pop_front();
@@ -253,7 +285,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         }
         // check to see if any regions were made before going to enclave stage
         bool feasible =false;
-        if (!regions.empty())
+        if (!regn.empty())
             feasible = true;
         else {
             attempts += 1;
@@ -261,9 +293,9 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         }
         // self.enclaves = enclaves[:]
         unordered_map<int, int> a2r;
-        for (int i=0; i<regions.size(); i++) {
-            for (int j=0; j<regions[i].size(); j++) {
-                a2r[ regions[i][j] ] = i;
+        for (int i=0; i<regn.size(); i++) {
+            for (int j=0; j<regn[i].size(); j++) {
+                a2r[ regn[i][j] ] = i;
             }
         }
         int encCount = enclaves.size();
@@ -291,7 +323,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
             
             if (!candidates.empty()) {
                 // add enclave to random region
-                int regID = (int) (uniform() * candidates.size());
+                int regID = Gda::ThomasWangHashDouble(seed_local++) * candidates.size();
                 if (test)   {
                     regID = enclave_random_number.front();
                     enclave_random_number.pop_front();
@@ -299,7 +331,7 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
                 
                 int rid = candidates[regID];
                 
-                regions[rid].push_back(enclave);
+                regn[rid].push_back(enclave);
                 a2r[enclave] = rid;
                 
                 // structure to loop over enclaves until no more joining is possible
@@ -317,10 +349,10 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
         
         if (feasible) {
             solving = false;
-            p = regions.size();
-            _regions = regions;
+            p = regn.size();
+            _regions = regn;
             _area2region = a2r;
-            objective_val = objective_function(_regions);
+            //objective_val = objective_function(_regions);
         } else {
             if (attempts == MAX_ATTEMPTS) {
                 LOG_MSG("No initial solution found");
@@ -331,31 +363,44 @@ void Maxp::init_solution(int solution_idx, uint64_t seed_start)
     }
     
     if (solution_idx >=0 ) {
+        // apply local search
+        swap(_regions, _area2region);
+        
         regions_group[solution_idx] = _regions;
         area2region_group[solution_idx] = _area2region;
         p_group[solution_idx] = p;
-        initial_wss[solution_idx] = objective_val;
+        initial_wss[solution_idx] = objective_function(_regions);
     } else {
-        this->regions = _regions;
-        this->area2region = _area2region;
-        this->p = p;
+        if (this->regions.empty()) {
+            this->regions = _regions;
+            this->area2region = _area2region;
+            this->p = p;
+        } else {
+            best_ss = objective_function();
+            if (objective_function(_regions) < best_ss) {
+                this->regions = _regions;
+                this->area2region = _area2region;
+                this->p = p;
+            }
+        }
+        
     }
 }
 
-void Maxp::swap()
+void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region)
 {
+    // local search ?
+    
     bool swapping = true;
     int swap_iteration = 0;
-    
-    LOG_MSG("Initial solution, objective function:");
-    
     int total_move = 0;
-    int k = regions.size();
+    int k = init_regions.size();
     
     vector<int>::iterator iter;
     vector<int> changed_regions(k, 1);
     
     // nr = range(k)
+    uint64_t seed_local = seed_start + (initial+1) * seed_increment;;
     
     while (swapping) {
         int moves_made = 0;
@@ -367,7 +412,12 @@ void Maxp::swap()
             }
         }
         //random_shuffle(regionIds.begin(), regionIds.end());
-        
+        /*for (int i=regionIds.size()-1; i>=1; --i) {
+            int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+            while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+            
+            if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
+        }*/
         for (int r=0; r<k; r++) changed_regions[r] = 0;
         swap_iteration += 1;
         for (int i=0; i<regionIds.size(); i++) {
@@ -377,7 +427,7 @@ void Maxp::swap()
             while (local_swapping) {
                 int local_moves = 0;
                 // get neighbors
-                vector<int>& members = regions[seed];
+                vector<int>& members = init_regions[seed];
                 vector<int> neighbors;
                 for (int j=0; j<members.size(); j++) {
                     int member = members[j];
@@ -393,7 +443,7 @@ void Maxp::swap()
                 vector<int> candidates;
                 for (int j=0; j<neighbors.size(); j++) {
                     int nbr = neighbors[j];
-                    vector<int> block = regions[ area2region[ nbr ] ]; // deep copy
+                    vector<int> block = init_regions[ init_area2region[ nbr ] ]; // deep copy
                     if (check_contiguity(w, block, nbr)) {
                         block.erase(remove(block.begin(),block.end(),nbr), block.end()); // remove frm vector
                         if (check_floor(block)) {
@@ -412,8 +462,8 @@ void Maxp::swap()
                     
                     for (int j=0; j<candidates.size(); j++) {
                         int area = candidates[j];
-                        vector<int>& current_internal = regions[seed];
-                        vector<int>& current_outter = regions[area2region[area]];
+                        vector<int>& current_internal = init_regions[seed];
+                        vector<int>& current_outter = init_regions[init_area2region[area]];
                         double change = objective_function_change(area, current_internal, current_outter);
                         if (change < cv) {
                             best = area;
@@ -425,12 +475,12 @@ void Maxp::swap()
                     if (best_found) {
                         // make the move
                         int area = best;
-                        int old_region = area2region[area];
-                        vector<int>& rgn = regions[old_region];
+                        int old_region = init_area2region[area];
+                        vector<int>& rgn = init_regions[old_region];
                         rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
                         
-                        area2region[area] = seed;
-                        regions[seed].push_back(area);
+                        init_area2region[area] = seed;
+                        init_regions[seed].push_back(area);
                         moves_made += 1;
                         changed_regions[seed] = 1;
                         changed_regions[old_region] = 1;
@@ -493,10 +543,10 @@ double Maxp::objective_function(const vector<vector<int> >& solution)
         }
         double sum = 0.0;
         for (int n=0; n<num_vars; n++) {
-            double var = GenUtils::GetVariance(selected_z[n]);
+            double var = GenUtils::SumOfSquares(selected_z[n]);
             sum += var;
         }
-        wss += sum * solution[i].size();
+        wss += sum ;
     }
     
     return wss;

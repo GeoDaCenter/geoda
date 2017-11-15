@@ -110,12 +110,10 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalMapFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
 	
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -131,7 +129,6 @@ void ConditionalMapCanvas::OnScrollChanged(wxScrollWinEvent& event)
 	event.Skip();
 }
 
-
 void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
@@ -143,37 +140,23 @@ void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 					GetCatType() == CatClassification::no_theme);
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
+    
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCatType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCatType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCatType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
 	
     GeneralWxUtils::CheckMenuItem(menu,
 					XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
@@ -187,91 +170,6 @@ void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 					GetCatType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 					GetCatType() == CatClassification::unique_values);
-	
-    // since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
-	
 }
 
 wxString ConditionalMapCanvas::GetCategoriesTitle()
@@ -914,6 +812,8 @@ void ConditionalMapCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+    if (var_info.empty()) return;
+    if (cat_var_undef.empty()) return;
     
     int t = var_info[CAT_VAR].time;
     
@@ -925,7 +825,9 @@ void ConditionalMapCanvas::UpdateStatusBar()
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
-            if (cat_var_undef[t][i] && hl[i]) {
+            // here cat_var_undef is always size 1, since num_time_vals is hard coded = 1
+            // see in ConditionalNewView.cpp/.h, since there is only
+            if (cat_var_undef[0][i] && hl[i]) {
                 n_undefs += 1;
             }
         }

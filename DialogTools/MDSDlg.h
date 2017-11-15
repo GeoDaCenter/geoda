@@ -41,16 +41,23 @@ public:
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice( wxCommandEvent& event );
+    void OnCheckPowerIteration( wxCommandEvent& event );
+   
+    void InitVariableCombobox(wxListBox* var_box);
+    
+    virtual wxString _printConfiguration();
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
-private:
+protected:
     FramesManager* frames_manager;
    
     wxChoice* m_distance;
     wxChoice* combo_transform;
-    
+    wxCheckBox* chk_poweriteration;
+    wxTextCtrl* txt_poweriteration;
+    wxStaticText* lbl_poweriteration;
     
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;

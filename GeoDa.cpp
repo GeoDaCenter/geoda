@@ -125,6 +125,7 @@
 #include "DialogTools/AggregateDlg.h"
 #include "DialogTools/GeocodingDlg.h"
 #include "DialogTools/PCASettingsDlg.h"
+#include "DialogTools/SkaterDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -145,6 +146,8 @@
 #include "Explore/ConditionalHistogramView.h"
 #include "Explore/CartogramNewView.h"
 #include "Explore/GStatCoordinator.h"
+#include "Explore/MLJCMapNewView.h"
+#include "Explore/MLJCCoordinator.h"
 #include "Explore/ScatterNewPlotView.h"
 #include "Explore/ScatterPlotMatView.h"
 #include "Explore/MapNewView.h"
@@ -463,7 +466,7 @@ bool GdaApp::OnInit(void)
     }
     
     // show open file dialog
-    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos);
+    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos, true);
 
 	return true;
 }
@@ -619,6 +622,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_KMEANS"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HCLUSTER"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SKATER"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
@@ -664,6 +668,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_MULTI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MULTI_LISA"), shp_proj);
+	EnableTool(XRCID("IDM_DIFF_LISA"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DIFF_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_LISA_EBRATE"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LISA_EBRATE"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_G"), shp_proj);
@@ -672,6 +678,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
+	EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
 
     
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
@@ -1086,6 +1094,34 @@ void GdaFrame::RemoveInvalidRecentDS()
     recent_ds.DeleteLastRecord();
 }
 
+void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+       
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+        if (idx < 0 || idx >= titles.size()) return;
+            
+        wxString cc_title = titles[idx];
+        
+        VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
+        if (dlg.ShowModal() != wxID_OK) return;
+        MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                    dlg.var_info, dlg.col_ids,
+                                    CatClassification::no_theme,
+                                    MapCanvas::no_smoothing, 1,
+                                    boost::uuids::nil_uuid(),
+                                    wxDefaultPosition,
+                                    GdaConst::map_default_size);
+        nf->ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4, boost::uuids::nil_uuid(), true, dlg.var_info, dlg.col_ids, cc_title);
+        nf->UpdateTitle();
+    }
+}
+
 void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnRecentDSClick");
@@ -1188,9 +1224,12 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
     ShowOpenDatasourceDlg(wxPoint(80, 220));
 }
 
-void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos)
+void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 {
 	wxLogMessage(" GdaFrame::ShowOpenDatasourceDlg()");
+
+	if (init && project_p) return;
+
 	// check if dialog has already been opened
 	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
     while (node) {
@@ -1355,6 +1394,19 @@ void GdaFrame::InitWithProject()
 	wxLogMessage("Click GdaFrame::InitWithProject()");
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
+   
+    // close existing OpenDatasourceDialog
+    wxWindowList::compatibility_iterator node_ds = wxTopLevelWindows.GetFirst();
+    while (node_ds) {
+        wxWindow* win = node_ds->GetData();
+        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+            if (w->GetType() == 0) {
+                w->Hide();
+                break;
+            }
+        }
+        node_ds = node_ds->GetNext();
+    }
     
     // This call is very improtant because we need the wxGrid to
     // take ownership of the TableBase instance (due to bug in wxWidgets)
@@ -1584,7 +1636,6 @@ void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(false,0);
-    SetBasemapCheckmarks(0);
 }
 void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
 {
@@ -1594,7 +1645,6 @@ void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,1);
-    SetBasemapCheckmarks(1);
 }
 void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
 {
@@ -1604,7 +1654,6 @@ void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,2);
-    SetBasemapCheckmarks(2);
 }
 void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
 {
@@ -1614,7 +1663,6 @@ void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,3);
-    SetBasemapCheckmarks(3);
 }
 void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
 {
@@ -1624,7 +1672,6 @@ void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,4);
-    SetBasemapCheckmarks(4);
 }
 void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
 {
@@ -1634,7 +1681,6 @@ void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,5);
-    SetBasemapCheckmarks(5);
 }
 void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
 {
@@ -1644,7 +1690,6 @@ void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,6);
-    SetBasemapCheckmarks(6);
 }
 void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
 {
@@ -1654,7 +1699,6 @@ void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,7);
-    SetBasemapCheckmarks(7);
 }
 
 void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
@@ -1665,7 +1709,6 @@ void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
     
     MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(true,8);
-    SetBasemapCheckmarks(8);
 }
 
 void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
@@ -1884,6 +1927,36 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (SkaterDlg* w = dynamic_cast<SkaterDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+    
+    SkaterDlg* dlg = new SkaterDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2057,7 +2130,32 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
 		popupMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_CHOICES_NO_ICONS");
 	}
 	
-	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+    if (popupMenu) {
+        int m_id = popupMenu->FindItem("Custom Breaks");
+        wxMenuItem* mi = popupMenu->FindItem(m_id);
+        if (mi) {
+            wxMenu* sm = mi->GetSubMenu();
+            if (sm) {
+                // clean
+                wxMenuItemList items = sm->GetMenuItems();
+                for (int i=0; i<items.size(); i++) {
+                    sm->Delete(items[i]);
+                }
+                vector<wxString> titles;
+                CatClassifManager* ccm = project_p->GetCatClassifManager();
+                ccm->GetTitles(titles);
+               
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->AppendSeparator();
+                
+                for (size_t j=0; j<titles.size(); j++) {
+                    wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
+                }
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            }
+        }
+        PopupMenu(popupMenu, wxDefaultPosition);
+    }
 }
 
 #include "DialogTools/ASC2SHPDlg.h"
@@ -2196,7 +2294,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 		}
 	}
 	
-	CatClassifFrame* dlg = new CatClassifFrame(this, project_p);
+	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, false, true);
 }
 
 CatClassifFrame* GdaFrame::GetCatClassifFrame(bool useScientificNotation)
@@ -2751,6 +2849,9 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
                                        proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,
                                        XRCID("ID_TOOLS_DATA_MAXP"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_TOOLS_DATA_SKATER"),
                                        proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,
                                        XRCID("ID_TOOLS_DATA_REDCAP"),
@@ -3756,6 +3857,73 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
+{
+    wxLogMessage("Enter OnOpenMultiLJC()");
+    
+    Project* p = GetProject();
+    if (!p) return;
+   
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+        
+    }
+    
+    VariableSettingsDlg VS(project_p, VariableSettingsDlg::bivariate, true, false);
+    if (VS.ShowModal() != wxID_OK) return;
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+    
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    // check if binary data
+    std::vector<double> data;
+    TableInterface* table_int = p->GetTableInt();
+    table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
+    for (int i=0; i<data.size(); i++) {
+        if (data[i] !=0 && data[i] != 1) {
+            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, data);
+    for (int i=0; i<data.size(); i++) {
+        if (data[i] !=0 && data[i] != 1) {
+            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
+	LocalGearyWhat2OpenDlg LWO(this);
+	if (LWO.ShowModal() != wxID_OK) return;
+	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
+	
+    
+	JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
+
+	if (LWO.m_ClustMap) {
+		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, true);
+	}
+	if (LWO.m_SigMap) {
+		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
+	}
+}
+
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
 {
     wxLogMessage("Open GetisOrdMapFrame (OnOpenGetisOrdStar).");
@@ -3951,6 +4119,39 @@ void GdaFrame::OnCCClassifA(int cc_menu_num)
 	}
 }
 
+void GdaFrame::OnCustomCategoryClick_B(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+        if (idx < 0 || idx >= titles.size()) return;
+        
+        OnCCClassifB(idx);
+    }
+}
+
+void GdaFrame::OnCustomCategoryClick_C(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+        if (idx < 0 || idx >= titles.size()) return;
+        
+        OnCCClassifC(idx);
+    }
+}
 void GdaFrame::OnCCClassifB(int cc_menu_num)
 {
     wxLogMessage("In GdaFrame::OnCCClassifB()");
@@ -3984,99 +4185,6 @@ void GdaFrame::OnCCClassifC(int cc_menu_num)
 		f->OnCustomCatClassifC(titles[cc_menu_num]);
 	}	
 }
-
-void GdaFrame::OnCCClassifA0(wxCommandEvent& e) { OnCCClassifA(0); }
-void GdaFrame::OnCCClassifA1(wxCommandEvent& e) { OnCCClassifA(1); }
-void GdaFrame::OnCCClassifA2(wxCommandEvent& e) { OnCCClassifA(2); }
-void GdaFrame::OnCCClassifA3(wxCommandEvent& e) { OnCCClassifA(3); }
-void GdaFrame::OnCCClassifA4(wxCommandEvent& e) { OnCCClassifA(4); }
-void GdaFrame::OnCCClassifA5(wxCommandEvent& e) { OnCCClassifA(5); }
-void GdaFrame::OnCCClassifA6(wxCommandEvent& e) { OnCCClassifA(6); }
-void GdaFrame::OnCCClassifA7(wxCommandEvent& e) { OnCCClassifA(7); }
-void GdaFrame::OnCCClassifA8(wxCommandEvent& e) { OnCCClassifA(8); }
-void GdaFrame::OnCCClassifA9(wxCommandEvent& e) { OnCCClassifA(9); }
-void GdaFrame::OnCCClassifA10(wxCommandEvent& e) { OnCCClassifA(10); }
-void GdaFrame::OnCCClassifA11(wxCommandEvent& e) { OnCCClassifA(11); }
-void GdaFrame::OnCCClassifA12(wxCommandEvent& e) { OnCCClassifA(12); }
-void GdaFrame::OnCCClassifA13(wxCommandEvent& e) { OnCCClassifA(13); }
-void GdaFrame::OnCCClassifA14(wxCommandEvent& e) { OnCCClassifA(14); }
-void GdaFrame::OnCCClassifA15(wxCommandEvent& e) { OnCCClassifA(15); }
-void GdaFrame::OnCCClassifA16(wxCommandEvent& e) { OnCCClassifA(16); }
-void GdaFrame::OnCCClassifA17(wxCommandEvent& e) { OnCCClassifA(17); }
-void GdaFrame::OnCCClassifA18(wxCommandEvent& e) { OnCCClassifA(18); }
-void GdaFrame::OnCCClassifA19(wxCommandEvent& e) { OnCCClassifA(19); }
-void GdaFrame::OnCCClassifA20(wxCommandEvent& e) { OnCCClassifA(20); }
-void GdaFrame::OnCCClassifA21(wxCommandEvent& e) { OnCCClassifA(21); }
-void GdaFrame::OnCCClassifA22(wxCommandEvent& e) { OnCCClassifA(22); }
-void GdaFrame::OnCCClassifA23(wxCommandEvent& e) { OnCCClassifA(23); }
-void GdaFrame::OnCCClassifA24(wxCommandEvent& e) { OnCCClassifA(24); }
-void GdaFrame::OnCCClassifA25(wxCommandEvent& e) { OnCCClassifA(25); }
-void GdaFrame::OnCCClassifA26(wxCommandEvent& e) { OnCCClassifA(26); }
-void GdaFrame::OnCCClassifA27(wxCommandEvent& e) { OnCCClassifA(27); }
-void GdaFrame::OnCCClassifA28(wxCommandEvent& e) { OnCCClassifA(28); }
-void GdaFrame::OnCCClassifA29(wxCommandEvent& e) { OnCCClassifA(29); }
-
-void GdaFrame::OnCCClassifB0(wxCommandEvent& e) { OnCCClassifB(0); }
-void GdaFrame::OnCCClassifB1(wxCommandEvent& e) { OnCCClassifB(1); }
-void GdaFrame::OnCCClassifB2(wxCommandEvent& e) { OnCCClassifB(2); }
-void GdaFrame::OnCCClassifB3(wxCommandEvent& e) { OnCCClassifB(3); }
-void GdaFrame::OnCCClassifB4(wxCommandEvent& e) { OnCCClassifB(4); }
-void GdaFrame::OnCCClassifB5(wxCommandEvent& e) { OnCCClassifB(5); }
-void GdaFrame::OnCCClassifB6(wxCommandEvent& e) { OnCCClassifB(6); }
-void GdaFrame::OnCCClassifB7(wxCommandEvent& e) { OnCCClassifB(7); }
-void GdaFrame::OnCCClassifB8(wxCommandEvent& e) { OnCCClassifB(8); }
-void GdaFrame::OnCCClassifB9(wxCommandEvent& e) { OnCCClassifB(9); }
-void GdaFrame::OnCCClassifB10(wxCommandEvent& e) { OnCCClassifB(10); }
-void GdaFrame::OnCCClassifB11(wxCommandEvent& e) { OnCCClassifB(11); }
-void GdaFrame::OnCCClassifB12(wxCommandEvent& e) { OnCCClassifB(12); }
-void GdaFrame::OnCCClassifB13(wxCommandEvent& e) { OnCCClassifB(13); }
-void GdaFrame::OnCCClassifB14(wxCommandEvent& e) { OnCCClassifB(14); }
-void GdaFrame::OnCCClassifB15(wxCommandEvent& e) { OnCCClassifB(15); }
-void GdaFrame::OnCCClassifB16(wxCommandEvent& e) { OnCCClassifB(16); }
-void GdaFrame::OnCCClassifB17(wxCommandEvent& e) { OnCCClassifB(17); }
-void GdaFrame::OnCCClassifB18(wxCommandEvent& e) { OnCCClassifB(18); }
-void GdaFrame::OnCCClassifB19(wxCommandEvent& e) { OnCCClassifB(19); }
-void GdaFrame::OnCCClassifB20(wxCommandEvent& e) { OnCCClassifB(20); }
-void GdaFrame::OnCCClassifB21(wxCommandEvent& e) { OnCCClassifB(21); }
-void GdaFrame::OnCCClassifB22(wxCommandEvent& e) { OnCCClassifB(22); }
-void GdaFrame::OnCCClassifB23(wxCommandEvent& e) { OnCCClassifB(23); }
-void GdaFrame::OnCCClassifB24(wxCommandEvent& e) { OnCCClassifB(24); }
-void GdaFrame::OnCCClassifB25(wxCommandEvent& e) { OnCCClassifB(25); }
-void GdaFrame::OnCCClassifB26(wxCommandEvent& e) { OnCCClassifB(26); }
-void GdaFrame::OnCCClassifB27(wxCommandEvent& e) { OnCCClassifB(27); }
-void GdaFrame::OnCCClassifB28(wxCommandEvent& e) { OnCCClassifB(28); }
-void GdaFrame::OnCCClassifB29(wxCommandEvent& e) { OnCCClassifB(29); }
-
-void GdaFrame::OnCCClassifC0(wxCommandEvent& e) { OnCCClassifC(0); }
-void GdaFrame::OnCCClassifC1(wxCommandEvent& e) { OnCCClassifC(1); }
-void GdaFrame::OnCCClassifC2(wxCommandEvent& e) { OnCCClassifC(2); }
-void GdaFrame::OnCCClassifC3(wxCommandEvent& e) { OnCCClassifC(3); }
-void GdaFrame::OnCCClassifC4(wxCommandEvent& e) { OnCCClassifC(4); }
-void GdaFrame::OnCCClassifC5(wxCommandEvent& e) { OnCCClassifC(5); }
-void GdaFrame::OnCCClassifC6(wxCommandEvent& e) { OnCCClassifC(6); }
-void GdaFrame::OnCCClassifC7(wxCommandEvent& e) { OnCCClassifC(7); }
-void GdaFrame::OnCCClassifC8(wxCommandEvent& e) { OnCCClassifC(8); }
-void GdaFrame::OnCCClassifC9(wxCommandEvent& e) { OnCCClassifC(9); }
-void GdaFrame::OnCCClassifC10(wxCommandEvent& e) { OnCCClassifC(10); }
-void GdaFrame::OnCCClassifC11(wxCommandEvent& e) { OnCCClassifC(11); }
-void GdaFrame::OnCCClassifC12(wxCommandEvent& e) { OnCCClassifC(12); }
-void GdaFrame::OnCCClassifC13(wxCommandEvent& e) { OnCCClassifC(13); }
-void GdaFrame::OnCCClassifC14(wxCommandEvent& e) { OnCCClassifC(14); }
-void GdaFrame::OnCCClassifC15(wxCommandEvent& e) { OnCCClassifC(15); }
-void GdaFrame::OnCCClassifC16(wxCommandEvent& e) { OnCCClassifC(16); }
-void GdaFrame::OnCCClassifC17(wxCommandEvent& e) { OnCCClassifC(17); }
-void GdaFrame::OnCCClassifC18(wxCommandEvent& e) { OnCCClassifC(18); }
-void GdaFrame::OnCCClassifC19(wxCommandEvent& e) { OnCCClassifC(19); }
-void GdaFrame::OnCCClassifC20(wxCommandEvent& e) { OnCCClassifC(20); }
-void GdaFrame::OnCCClassifC21(wxCommandEvent& e) { OnCCClassifC(21); }
-void GdaFrame::OnCCClassifC22(wxCommandEvent& e) { OnCCClassifC(22); }
-void GdaFrame::OnCCClassifC23(wxCommandEvent& e) { OnCCClassifC(23); }
-void GdaFrame::OnCCClassifC24(wxCommandEvent& e) { OnCCClassifC(24); }
-void GdaFrame::OnCCClassifC25(wxCommandEvent& e) { OnCCClassifC(25); }
-void GdaFrame::OnCCClassifC26(wxCommandEvent& e) { OnCCClassifC(26); }
-void GdaFrame::OnCCClassifC27(wxCommandEvent& e) { OnCCClassifC(27); }
-void GdaFrame::OnCCClassifC28(wxCommandEvent& e) { OnCCClassifC(28); }
-void GdaFrame::OnCCClassifC29(wxCommandEvent& e) { OnCCClassifC(29); }
 
 void GdaFrame::OnOpenThemelessMap(wxCommandEvent& event)
 {
@@ -4488,7 +4596,7 @@ void GdaFrame::OnOpenColocationMap(wxCommandEvent& event)
         }
     }
     
-    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p, project_p->GetTableState());
+    ColocationSelectDlg* dlg = new ColocationSelectDlg(this, project_p);
     dlg->Show(true);
 }
 
@@ -5062,6 +5170,8 @@ void GdaFrame::OnRan99Per(wxCommandEvent& event)
 		f->OnRan99Per(event);
 	} else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
 		f->OnRan99Per(event);
+	} else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+		f->OnRan99Per(event);
 	}
 }
 
@@ -5078,6 +5188,8 @@ void GdaFrame::OnRan199Per(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan199Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan199Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnRan199Per(event);
     }
 }
@@ -5096,6 +5208,8 @@ void GdaFrame::OnRan499Per(wxCommandEvent& event)
 		f->OnRan499Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnRan499Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnRan499Per(event);
     }
 }
 
@@ -5112,6 +5226,8 @@ void GdaFrame::OnRan999Per(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnRan999Per(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnRan999Per(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnRan999Per(event);
     }
 }
@@ -5130,6 +5246,8 @@ void GdaFrame::OnRanOtherPer(wxCommandEvent& event)
 		f->OnRanOtherPer(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnRanOtherPer(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnRanOtherPer(event);
     }
 }
 
@@ -5146,6 +5264,8 @@ void GdaFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
         f->OnUseSpecifiedSeed(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnUseSpecifiedSeed(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnUseSpecifiedSeed(event);
     }
 }
 
@@ -5161,6 +5281,8 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	} else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
 		f->OnSpecifySeedDlg(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSpecifySeedDlg(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSpecifySeedDlg(event);
     }
 }
@@ -5186,6 +5308,8 @@ void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 		f->OnSigFilter05(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter05(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter05(event);
     }
 }
 
@@ -5199,6 +5323,8 @@ void GdaFrame::OnSigFilter01(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSigFilter01(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilter01(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSigFilter01(event);
     }
 }
@@ -5214,6 +5340,8 @@ void GdaFrame::OnSigFilter001(wxCommandEvent& event)
 		f->OnSigFilter001(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter001(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter001(event);
     }
 }
 
@@ -5228,6 +5356,8 @@ void GdaFrame::OnSigFilter0001(wxCommandEvent& event)
 		f->OnSigFilter0001(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSigFilter0001(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSigFilter0001(event);
     }
 }
 
@@ -5241,6 +5371,8 @@ void GdaFrame::OnSigFilterSetup(wxCommandEvent& event)
     } else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
         f->OnSigFilterSetup(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSigFilterSetup(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSigFilterSetup(event);
     }
 }
@@ -5344,7 +5476,9 @@ void GdaFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	if (!t) return;
 	if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSaveGetisOrd(event);
-	}
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSaveMLJC(event);
+    }
 }
 
 void GdaFrame::OnSaveLisa(wxCommandEvent& event)
@@ -5380,6 +5514,8 @@ void GdaFrame::OnSelectCores(wxCommandEvent& event)
 		f->OnSelectCores(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSelectCores(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSelectCores(event);
     }
 }
 
@@ -5393,6 +5529,8 @@ void GdaFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnSelectNeighborsOfCores(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnSelectNeighborsOfCores(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnSelectNeighborsOfCores(event);
     }
 }
@@ -5408,6 +5546,8 @@ void GdaFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 		f->OnSelectCoresAndNeighbors(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSelectCoresAndNeighbors(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
+        f->OnSelectCoresAndNeighbors(event);
     }
     
 }
@@ -5417,11 +5557,15 @@ void GdaFrame::OnAddNeighborToSelection(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnAddNeighborToSelection()");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
-	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
+	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+		f->OnAddNeighborToSelection(event);
+    } else if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
 		f->OnAddNeighborToSelection(event);
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnAddNeighborToSelection(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnAddNeighborToSelection(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnAddNeighborToSelection(event);
     }
 }
@@ -5436,6 +5580,8 @@ void GdaFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 	} else if (GetisOrdMapFrame* f = dynamic_cast<GetisOrdMapFrame*>(t)) {
 		f->OnShowAsConditionalMap(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
+        f->OnShowAsConditionalMap(event);
+    } else if (MLJCMapFrame* f = dynamic_cast<MLJCMapFrame*>(t)) {
         f->OnShowAsConditionalMap(event);
     }
 }
@@ -5626,6 +5772,8 @@ void GdaFrame::OnDisplayStatistics(wxCommandEvent& event)
 	} else if (WeightsManFrame* f = dynamic_cast<WeightsManFrame*>(t)) {
 		f->OnDisplayStatistics(event);
 	} else if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+		f->OnDisplayStatistics(event);
+	} else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
 		f->OnDisplayStatistics(event);
 	} else if (LineChartFrame* f = dynamic_cast<LineChartFrame*>(t)) {
 		LineChartEventDelay* l=new LineChartEventDelay(f, "ID_DISPLAY_STATISTICS");
@@ -6177,22 +6325,6 @@ void GdaFrame::SetEncodingCheckmarks(wxFontEncoding e)
 	m->FindItem(XRCID("ID_ENCODING_EUC_KR"))->Check(e==wxFONTENCODING_EUC_KR);
 }
 
-void GdaFrame::SetBasemapCheckmarks(int idx)
-{
-    /*
-    wxMenuBar* m = GetMenuBar();
-    m->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
-    m->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
-    m->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
-    m->FindItem(XRCID("ID_BASEMAP_3"))->Check(idx==3);
-    m->FindItem(XRCID("ID_BASEMAP_4"))->Check(idx==4);
-    m->FindItem(XRCID("ID_BASEMAP_5"))->Check(idx==5);
-    m->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
-    m->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
-    m->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
-     */
-}
-
 bool GdaFrame::GetHtmlMenuItems()
 {
 	return GetHtmlMenuItemsJson();
@@ -6200,131 +6332,11 @@ bool GdaFrame::GetHtmlMenuItems()
 
 bool GdaFrame::GetHtmlMenuItemsJson()
 {
-    /*
-	using namespace json_spirit;
-	using namespace GdaJson;
-	
-	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFnPath(wxStandardPaths::Get().GetExecutablePath());
-	wxString prefs_fn = exeFnPath.GetPathWithSep() 
-		+ GdaConst::gda_prefs_fname_json;
-	if (!wxFileExists(prefs_fn)) {
-		return false;
-	}
-	
-	htmlMenuItems.clear();
-	std::ifstream ifs;
-	try {
-		ifs.open(GET_ENCODED_FILENAME(prefs_fn), std::ifstream::in);
-		if (!(ifs.is_open() && ifs.good())) {
-			wxString msg("Could not read JSON prefs file: ");
-			msg << prefs_fn;
-			throw std::runtime_error(prefs_fn.ToStdString());
-		}
-		//ifs.close();
-		const wxString ent_key(GdaConst::gda_prefs_html_table);
-		const wxString menu_col(GdaConst::gda_prefs_html_table_menu);
-		const wxString url_col(GdaConst::gda_prefs_html_table_url);
-		
-		Value pf_val;
-		if (!json_spirit::read(ifs, pf_val)) {
-			wxString msg("Could not parse JSON prefs file: ");
-			msg << prefs_fn;
-			throw std::runtime_error(prefs_fn.ToStdString());
-		}
-		if (pf_val.type() != json_spirit::obj_type) {
-			throw std::runtime_error("JSON pref content not a JSON Object");
-		}
-		Value html_ents;
-		if (!findValue(pf_val, html_ents, ent_key)) return true;
-		if (html_ents.type() != json_spirit::array_type) {
-			throw std::runtime_error("Html menu entries must be an array");
-		}
-		Array& html_ents_a(html_ents.get_array());
-		for (Array::const_iterator i=html_ents_a.begin(); i!=html_ents_a.end();
-			 ++i)
-		{
-			wxString title = getStrValFromObj((*i), menu_col);
-			wxString url = getStrValFromObj((*i), url_col);
-			wxString wp("web_plugins");
-			// if url begins with "web_plugins", we assume the file is a
-			// path relative to the geoda_prefs.json resource file location.
-			// In this case, we must convert to an absolute path.
-			if (url.Left(wp.length()) == wp) {
-				wxString cpy_url = url;
-				url = "file://";
-				url << exeFnPath.GetPathWithSep() << cpy_url;
-			}
-			if (!title.IsEmpty()) htmlMenuItems.push_back(MenuItem(title, url));
-		}
-	}
-	catch (std::runtime_error e) {
-		wxString msg("Error reading JSON prefs file: ");
-		msg << e.what();
-		return false;
-	}
-	
-	for (size_t i=0; i<htmlMenuItems.size(); ++i) {
-		wxString msg;
-		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
-		msg << "url: " << htmlMenuItems[i].url;
-	}
-	*/
 	return true;
 }
 
 bool GdaFrame::GetHtmlMenuItemsSqlite()
 {
-  /*
-	LOG_MSG("Entering GdaFrame::GetHtmlMenuItemsSqlite");
-	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName temp(wxStandardPaths::Get().GetExecutablePath());
-	wxString prefs_fn = temp.GetPathWithSep() +GdaConst::gda_prefs_fname_sqlite;
-	if (!wxFileExists(prefs_fn)) {
-		LOG_MSG("Could not find " + prefs_fn);
-		return false;
-	}
-	LOG_MSG("Found and opening " + prefs_fn);
-	
-	sqlite3* db;
-	int rc; // sqlite3 result code
-	char *zErrMsg = 0;
-	const char* data = "Callback function called";
-	
-	// Open DB
-	rc = sqlite3_open(prefs_fn.c_str(), &db);
-	if (rc) {
-		wxString err_msg(sqlite3_errmsg(db));
-		LOG_MSG("Can't open database: " + err_msg);
-		return false;
-	}
-	LOG_MSG("Database open success.");
-		
-	// Execute SQL statement
-	htmlMenuItems.clear();
-	rc = sqlite3_exec(db, "SELECT * from html_entries",
-					  GdaFrame::sqlite3_GetHtmlMenuItemsCB,
-					  (void*)data, &zErrMsg);
-	if ( rc != SQLITE_OK ){
-		wxString sql_err_msg(zErrMsg);
-		sqlite3_free(zErrMsg);
-		LOG_MSG("SQL error: " + sql_err_msg);
-		return false;
-	} else {
-		LOG_MSG("SQL success.");
-	}
-	LOG_MSG("html_entries:");
-	for (size_t i=0; i<htmlMenuItems.size(); ++i) {
-		wxString msg;
-		msg << "title: " << htmlMenuItems[i].menu_title << ", ";
-		msg << "url: " << htmlMenuItems[i].url;
-		LOG_MSG(msg);
-	}
-	
-	sqlite3_close(db);
-	LOG_MSG("Exiting GdaFrame::GetHtmlMenuItemsSqlite");
-	return true;
-  */
   return false;
 }
 
@@ -6469,6 +6481,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_KMEANS"), GdaFrame::OnToolsDataKMeans)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HCLUSTER"), GdaFrame::OnToolsDataHCluster)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_SKATER"), GdaFrame::OnToolsDataSkater)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
     EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MDS"), GdaFrame::OnToolsDataMDS)
@@ -6587,26 +6600,41 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
     EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
     EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
+
     EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
     EVT_TOOL(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
     EVT_BUTTON(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
+
     EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
     EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
     EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+
     EVT_MENU(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
     EVT_TOOL(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
     EVT_BUTTON(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
+
     EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
     EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
+
+    EVT_MENU(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
     EVT_TOOL(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
+    EVT_BUTTON(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
+
+    EVT_MENU(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
     EVT_TOOL(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
+    EVT_BUTTON(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
 
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
     EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
+
     EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
     EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
     EVT_MENU(XRCID("IDM_LOCAL_JOINT_COUNT"), GdaFrame::OnOpenLocalJoinCount)
+
+    EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
+    EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
+
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
     EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"), GdaFrame::OnSaveConnectivityToTable)
     EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)
@@ -6653,96 +6681,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_7, GdaFrame::OnHtmlEntry7)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_8, GdaFrame::OnHtmlEntry8)
     EVT_MENU(GdaConst::ID_HTML_MENU_ENTRY_CHOICE_9, GdaFrame::OnHtmlEntry9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaFrame::OnCCClassifA0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A1, GdaFrame::OnCCClassifA1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A2, GdaFrame::OnCCClassifA2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A3, GdaFrame::OnCCClassifA3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A4, GdaFrame::OnCCClassifA4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A5, GdaFrame::OnCCClassifA5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A6, GdaFrame::OnCCClassifA6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A7, GdaFrame::OnCCClassifA7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A8, GdaFrame::OnCCClassifA8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A9, GdaFrame::OnCCClassifA9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A10, GdaFrame::OnCCClassifA10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A11, GdaFrame::OnCCClassifA11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A12, GdaFrame::OnCCClassifA12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A13, GdaFrame::OnCCClassifA13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A14, GdaFrame::OnCCClassifA14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A15, GdaFrame::OnCCClassifA15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A16, GdaFrame::OnCCClassifA16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A17, GdaFrame::OnCCClassifA17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A18, GdaFrame::OnCCClassifA18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A19, GdaFrame::OnCCClassifA19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A20, GdaFrame::OnCCClassifA20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A21, GdaFrame::OnCCClassifA21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A22, GdaFrame::OnCCClassifA22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A23, GdaFrame::OnCCClassifA23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A24, GdaFrame::OnCCClassifA24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A25, GdaFrame::OnCCClassifA25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A26, GdaFrame::OnCCClassifA26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A27, GdaFrame::OnCCClassifA27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A28, GdaFrame::OnCCClassifA28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A29, GdaFrame::OnCCClassifA29)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaFrame::OnCCClassifB0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B1, GdaFrame::OnCCClassifB1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B2, GdaFrame::OnCCClassifB2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B3, GdaFrame::OnCCClassifB3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B4, GdaFrame::OnCCClassifB4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B5, GdaFrame::OnCCClassifB5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B6, GdaFrame::OnCCClassifB6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B7, GdaFrame::OnCCClassifB7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B8, GdaFrame::OnCCClassifB8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B9, GdaFrame::OnCCClassifB9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B10, GdaFrame::OnCCClassifB10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B11, GdaFrame::OnCCClassifB11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B12, GdaFrame::OnCCClassifB12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B13, GdaFrame::OnCCClassifB13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B14, GdaFrame::OnCCClassifB14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B15, GdaFrame::OnCCClassifB15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B16, GdaFrame::OnCCClassifB16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B17, GdaFrame::OnCCClassifB17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B18, GdaFrame::OnCCClassifB18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B19, GdaFrame::OnCCClassifB19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B20, GdaFrame::OnCCClassifB20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B21, GdaFrame::OnCCClassifB21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B22, GdaFrame::OnCCClassifB22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B23, GdaFrame::OnCCClassifB23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B24, GdaFrame::OnCCClassifB24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B25, GdaFrame::OnCCClassifB25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B26, GdaFrame::OnCCClassifB26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B27, GdaFrame::OnCCClassifB27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B28, GdaFrame::OnCCClassifB28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B29, GdaFrame::OnCCClassifB29)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaFrame::OnCCClassifC0)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C1, GdaFrame::OnCCClassifC1)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C2, GdaFrame::OnCCClassifC2)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C3, GdaFrame::OnCCClassifC3)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C4, GdaFrame::OnCCClassifC4)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C5, GdaFrame::OnCCClassifC5)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C6, GdaFrame::OnCCClassifC6)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C7, GdaFrame::OnCCClassifC7)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C8, GdaFrame::OnCCClassifC8)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C9, GdaFrame::OnCCClassifC9)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C10, GdaFrame::OnCCClassifC10)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C11, GdaFrame::OnCCClassifC11)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C12, GdaFrame::OnCCClassifC12)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C13, GdaFrame::OnCCClassifC13)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C14, GdaFrame::OnCCClassifC14)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C15, GdaFrame::OnCCClassifC15)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C16, GdaFrame::OnCCClassifC16)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C17, GdaFrame::OnCCClassifC17)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C18, GdaFrame::OnCCClassifC18)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C19, GdaFrame::OnCCClassifC19)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C20, GdaFrame::OnCCClassifC20)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C21, GdaFrame::OnCCClassifC21)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C22, GdaFrame::OnCCClassifC22)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C23, GdaFrame::OnCCClassifC23)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C24, GdaFrame::OnCCClassifC24)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C25, GdaFrame::OnCCClassifC25)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C26, GdaFrame::OnCCClassifC26)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C27, GdaFrame::OnCCClassifC27)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C28, GdaFrame::OnCCClassifC28)
-    EVT_MENU(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C29, GdaFrame::OnCCClassifC29)
+
     EVT_TOOL(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
     EVT_MENU(XRCID("ID_OPEN_MAPANALYSIS_THEMELESS"), GdaFrame::OnOpenThemelessMap)
     EVT_MENU(XRCID("ID_MAPANALYSIS_THEMELESS"), GdaFrame::OnThemelessMap)
@@ -6959,6 +6898,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_COMPARE_TIME_PERIODS"), GdaFrame::OnCompareTimePeriods)
     EVT_MENU(XRCID("ID_COMPARE_REG_AND_TM_PER"), GdaFrame::OnCompareRegAndTmPer)
     EVT_MENU(XRCID("ID_DISPLAY_STATISTICS"), GdaFrame::OnDisplayStatistics)
+    EVT_MENU(XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), GdaFrame::OnDisplayStatistics)
+
     EVT_MENU(XRCID("ID_SHOW_AXES_THROUGH_ORIGIN"), GdaFrame::OnShowAxesThroughOrigin)
     EVT_MENU(XRCID("ID_DISPLAY_AXES_SCALE_VALUES"), GdaFrame::OnDisplayAxesScaleValues)
     EVT_MENU(XRCID("ID_DISPLAY_SLOPE_VALUES"),GdaFrame::OnDisplaySlopeValues)

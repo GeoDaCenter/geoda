@@ -174,7 +174,11 @@ public:
     void UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters);
     void OnSplitLineChange(int x);
     
+    void SetActive(bool flag);
+    
 private:
+    bool isWindowActive;
+    
     int leaves;
     int levels;
     int nelements;
@@ -236,17 +240,19 @@ public:
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnClusterChoice(wxCommandEvent& event);
-    
+    void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
     
     virtual void update(HLStateInt* o);
+    
+    virtual wxString _printConfiguration();
     
     HLStateInt* highlight_state;
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
     
-private:
+protected:
     int max_n_clusters;
     
     double cutoffDistance;

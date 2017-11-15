@@ -62,7 +62,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<size_t> seeds, int rnd_seed=-1, char dist='e', bool test=false);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds, int rnd_seed=-1, char dist='e', bool test=false);
     
     
     //! A Deconstructor
@@ -138,6 +138,8 @@ protected:
     vector<vector<int> > regions;
     
     vector<vector<vector<int> > > regions_group;
+   
+    double best_ss;
     
     //! A integer number of regions.
     /*!
@@ -181,7 +183,11 @@ protected:
     /*!
      Details.
      */
-    const int MAX_ATTEMPTS;
+    int MAX_ATTEMPTS;
+   
+    uint64_t seed_start;
+    
+    uint64_t seed_increment;
     
     vector<double> initial_wss;
     
@@ -189,9 +195,9 @@ protected:
     /*!
      Details.
      */
-    void init_solution(int solution_idx=-1, uint64_t seed_start = 0);
+    void init_solution(int solution_idx=-1);
     
-    void run(int a, int b, uint64_t seed_start = 0);
+    void run(int a, int b);
     
     void run_threaded();
     
@@ -199,7 +205,7 @@ protected:
     /*!
      Details.
      */
-    void swap();
+    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region);
     
     //! A protected member function: init_solution(void). return
     /*!
@@ -215,7 +221,8 @@ protected:
     double objective_function(const vector<int>& current_internal, const vector<int>& current_outter);
     
     double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
-    
+   
+    wxString print_regions(vector<vector<int> >& _regions);
     //! xxx
     /* !
      \param block

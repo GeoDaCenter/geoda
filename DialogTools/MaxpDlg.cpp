@@ -57,7 +57,6 @@ MaxpDlg::MaxpDlg(wxFrame* parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("Max-p Settings"))
 {
     wxLogMessage("Open Max-p dialog.");
-    
     CreateControls();
 }
 
@@ -69,7 +68,7 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,720), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -77,8 +76,7 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"), wxDefaultPosition, wxDefaultSize);
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(250,250), 0, NULL,
@@ -90,15 +88,21 @@ void MaxpDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                wxSize(200,-1));
-    
+	// Weights Control
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"), wxDefaultPosition, wxSize(128,-1));
+    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
    
-    AddMinBound(panel, &chk_floor, &combo_floor, &txt_floor, &slider_floor, &txt_floor_pct, gbox, false);
+	// Minimum Bound Control
+    AddMinBound(panel, gbox);
+
+    // Min regions
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"), wxDefaultPosition, wxSize(128,-1));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
+    txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_minregions, 1, wxEXPAND);
     
     wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Groups:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -112,7 +116,7 @@ void MaxpDlg::CreateControls()
     gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox18, 1, wxEXPAND);
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Initialization #:"),
+	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# Iterations:"),
                                           wxDefaultPosition, wxSize(128,-1));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("99"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -149,14 +153,12 @@ void MaxpDlg::CreateControls()
     gbox->Add(hbox17, 1, wxEXPAND);
     
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
     hbox->Add(gbox, 1, wxEXPAND);
-    
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
@@ -167,16 +169,13 @@ void MaxpDlg::CreateControls()
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     
-    
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
@@ -185,9 +184,14 @@ void MaxpDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
-    
+	// Summary control 
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+	wxNotebook* notebook = AddSimpleReportCtrls(panel);
+	vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
     
@@ -207,7 +211,7 @@ void MaxpDlg::CreateControls()
     Centre();
 
     // Content
-    InitVariableCombobox(combo_var);
+    InitVariableCombobox(combo_var, false);
   
     // init weights
     vector<boost::uuids::uuid> weights_ids;
@@ -231,15 +235,17 @@ void MaxpDlg::CreateControls()
 
 }
 
-void MaxpDlg::OnFloorCheck(wxCommandEvent& event)
+void MaxpDlg::OnCheckMinBound(wxCommandEvent& event)
 {
     wxLogMessage("On MaxpDlg::OnLISACheck");
-    bool use_floor = chk_floor->GetValue();
-    
-    if (use_floor) {
-        combo_floor->Enable();
+    AbstractClusterDlg::OnCheckMinBound(event);
+   
+    if (chk_floor->IsChecked()) {
+        st_minregions->Disable();
+        txt_minregions->Disable();
     } else {
-        combo_floor->Disable();
+        st_minregions->Enable();
+        txt_minregions->Enable();
     }
 }
 
@@ -267,7 +273,6 @@ void MaxpDlg::OnSeedCheck(wxCommandEvent& event)
             return;
         }
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
@@ -298,7 +303,6 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
         uint64_t new_seed_val = val;
         GdaConst::gda_user_seed = new_seed_val;
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         wxString str_gda_user_seed;
@@ -316,11 +320,15 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
+void MaxpDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
 {
     wxLogMessage("On MaxpDlg::InitVariableCombobox");
     wxArrayString items;
-   
+ 
+    var_box->Clear();
+    combo_floor->Clear();
+    combo_lisa->Clear();
+    
     int cnt_lisa = 0;
     int cnt_floor = 0;
     std::vector<int> col_id_map;
@@ -355,7 +363,13 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box)
     
     combo_floor->SetSelection(-1);
     combo_lisa->SetSelection(-1);
-    txt_floor->SetValue("");
+    
+    for (int i=0; i<select_vars.size(); i++) {
+        var_box->SetStringSelection(select_vars[i], true);
+    }
+
+    combo_floor->SetStringSelection(select_floor);
+    combo_lisa->SetStringSelection(select_lisa);
 }
 
 void MaxpDlg::OnClickClose(wxCommandEvent& event )
@@ -375,34 +389,55 @@ void MaxpDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
+wxString MaxpDlg::_printConfiguration()
+{
+    wxString txt;
+    
+    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    } else {
+        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
+    }
+   
+    if (chk_lisa->IsChecked() && combo_lisa->GetSelection() >=0) {
+        txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
+    }
+    
+    txt << "# iterations:\t" << m_iterations->GetValue() << "\n";
+    
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    
+    return txt;
+}
+
 void MaxpDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MaxpDlg::OnOK");
-    
-    
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 1) {
-        // show message box
-        wxString err_msg = _("Please select at least 1 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+   
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate(GdaConst::gda_user_seed);
+        resetrandom();
+    } else {
+        setrandomstate(-1);
+        resetrandom();
     }
     
-    wxString str_floor = txt_floor->GetValue();
-    if (str_floor.IsEmpty()) {
-        wxString err_msg = _("Please enter minimum bound value");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
+    // Get input data
+    int transform = combo_tranform->GetSelection();
+	bool success = GetInputData(transform, 1);
+    if (!success) {
         return;
     }
     
     wxString str_initial = m_iterations->GetValue();
     if (str_initial.IsEmpty()) {
-        wxString err_msg = _("Please enter initialization number");
+        wxString err_msg = _("Please enter iteration number");
         wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -416,59 +451,13 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
+	// Get Distance Selection
     char dist = 'e'; // euclidean
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
     
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
-        
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
-        
-        col_ids[i] = col;
-        var_info[i].time = tm;
-        
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    int rows = project->GetNumRecords();
-    int columns =  0;
-    
-    std::vector<d_array_type> data; // data[variable][time][obs]
-    data.resize(col_ids.size());
-    for (int i=0; i<var_info.size(); i++) {
-        table_int->GetColData(col_ids[i], data[i]);
-    }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
-    
+    // Weights selection
     vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
@@ -485,63 +474,55 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-
-    int transform = combo_tranform->GetSelection();
     
-    vector<vector<double> > _z;
-    // assign value
-    int col_ii = 0;
-    for (int i=0; i<data.size(); i++ ){ // col
-        for (int j=0; j<data[i].size(); j++) { // time
-            std::vector<double> vals;
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
-            }
-            _z.push_back(vals);
-        }
-    }
-    for (int i=0; i<rows; i++) {
-        vector<double> vals;
-        for (int j=0; j<_z.size(); j++) { // cols
-            vals.push_back(_z[j][i]);
-        }
-        z.push_back(vals);
-    }
-   
-    /*
-    int idx = combo_floor->GetSelection();
-    wxString nm = name_to_nm[combo_floor->GetString(idx)];
-    int col = table_int->FindColId(nm);
-    if (col == wxNOT_FOUND) {
-        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-     */
-   
+	// Get Bounds
     double min_bound = GetMinBound();
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        select_floor = combo_floor->GetString(combo_floor->GetSelection());
+    } else {
+        wxString str_floor = txt_minregions->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
     double* bound_vals = GetBoundVals();
-    
+    if (bound_vals == NULL) {
+        wxString str_min_regions = txt_minregions->GetValue();
+        long val_min_regions;
+        if (str_min_regions.ToLong(&val_min_regions)) {
+            min_bound = val_min_regions;
+        }
+        bound_vals = new double[rows];
+        for (int i=0; i<rows; i++) bound_vals[i] = 1;
+    }
+        
+	// Get iteration numbers
     int initial = 99;
     long value_initial;
     if(str_initial.ToLong(&value_initial)) {
         initial = value_initial;
     }
     
-    vector<size_t> seeds;
+	// Get initial seed e.g LISA clusters
+    vector<wxInt64> seeds;
     bool use_lisa_seed = chk_lisa->GetValue();
     if (use_lisa_seed) {
         int idx = combo_lisa->GetSelection();
         if (idx < 0) {
             use_lisa_seed = false;
         } else {
-            wxString nm = name_to_nm[combo_lisa->GetString(idx)];
+            select_lisa = combo_lisa->GetString(idx);
+            wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
@@ -551,17 +532,27 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             }
             int tm = name_to_tm_id[combo_lisa->GetString(idx)];
             
-            std::vector<wxInt64> _data;
-            table_int->GetColData(col, tm, _data);
-            GenUtils::sort(_data, _data, seeds);
+            table_int->GetColData(col, tm, seeds);
         }
     }
     
+	// Get random seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
+	// Run MaxP
+	vector<vector<double> > z;
+	for (int i=0; i<rows; i++) {
+		vector<double> vals;
+		for (int j=0; j<columns; j++) {
+			vals.push_back(input_data[i][j]);
+		}
+		z.push_back(vals);
+	}
     Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
     
+	delete[] bound_vals;
+
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();
     
@@ -578,6 +569,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+    
+    // summary
+    CreateSummary(clusters);
     
     // save to table
     int time=0;
@@ -629,4 +623,9 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
+    wxString ttl;
+    ttl << "Max-p Cluster Map (";
+    ttl << ncluster;
+    ttl << " clusters)";
+    nf->SetTitle(ttl);
 }

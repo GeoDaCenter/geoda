@@ -26,22 +26,15 @@
 
 using namespace std;
 
-class ColocationSelectDlg : public AbstractClusterDlg, public TableStateObserver
+class ColocationSelectDlg : public AbstractClusterDlg
 {
 public:
-    ColocationSelectDlg(wxFrame *parent, Project* project,TableState* table_state_s);
+    ColocationSelectDlg(wxFrame *parent, Project* project);
     virtual ~ColocationSelectDlg();
    
     void CreateControls();
     
     virtual void update(TableState* o);
-    /** This method is only here temporarily until all observer classes
-     support dynamic time changes such as swap, rename and add/remove. */
-    virtual bool AllowTimelineChanges() { return true; }
-    /** Does this observer allow data modifications to named group. */
-    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
-    /** Does this observer allow Table/Geometry row additions and deletions. */
-    virtual bool AllowObservationAddDelete(){ return true; }
     
     void OnVarSelect( wxCommandEvent& event );
     void OnOK( wxCommandEvent& event );
@@ -51,7 +44,8 @@ public:
     void OnRightUp(wxMouseEvent& ev);
     void OnPopupClick( wxCommandEvent& event );
     void OnSchemeSelect( wxCommandEvent& event );
-  
+ 
+    virtual wxString _printConfiguration();
     void clear_colo_control();
     void add_colo_control(bool is_new=false);
     wxColour get_a_color(wxString label);
@@ -61,7 +55,6 @@ public:
     void update_grid();
     
 protected:
-    TableState* table_state;
     
     wxPanel *panel;
     wxFlexGridSizer *gbox;

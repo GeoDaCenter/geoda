@@ -43,8 +43,15 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
 {
     ds_name = _ds_name;
     ds_type = _ds_type;
-    
+   
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
+
+    wxString msg;
+    msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
+    
+    if (ds_type == GdaConst::ds_unknown) {
+        throw GdaException(GET_ENCODED_FILENAME(msg));
+    }
     
     CPLErrorReset();
     
@@ -58,7 +65,6 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         } else {
             const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-            
         }
 
     } else {
@@ -71,25 +77,16 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR, NULL, NULL, NULL);
         
         if (ds==0) {
-			//wxString drv_name(ds->GetDriverName());
-			//if (drv_name == "OpenFileGDB") {
-            // raise open fialed
-            // we don't use OpenFileGDB since it has some bugs
             wxString error_detail(CPLGetLastErrorMsg(), wxConvUTF8);
-            wxString msg;
-			msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
-            
             if ( error_detail.length() == 0 || error_detail == "Unknown") {
             } else {
                 msg << _("\n\nDetails: ") << error_detail;
             }
-
             throw GdaException(GET_ENCODED_FILENAME(msg));
-			//}
         }
         is_writable = false;
 	}
-
+    
     std::string driver_name = ds->GetDriverName();
     
     if (ds_type == GdaConst::ds_unknown &&
@@ -172,8 +169,8 @@ OGRDatasourceProxy::GetGdaDataSourceType(GDALDriver *poDriver)
     const char* drv_name = GDALGetDriverShortName(poDriver);
     string ogr_ds_type(drv_name);
     
-    if (ogr_ds_type.find("CartoDB") != std::string::npos) {
-       return GdaConst::datasrc_str_to_type["CartoDB"];
+    if (ogr_ds_type.find("Carto") != std::string::npos) {
+       return GdaConst::datasrc_str_to_type["Carto"];
         
     } else if (GdaConst::datasrc_str_to_type.find(ogr_ds_type) == GdaConst::datasrc_str_to_type.end()) {
 		return GdaConst::ds_unknown;

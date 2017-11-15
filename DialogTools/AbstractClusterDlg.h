@@ -24,39 +24,42 @@
 #include <map>
 #include <wx/choice.h>
 #include <wx/checklst.h>
+#include <wx/notebook.h>
 
-
+#include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../VarTools.h"
+#include "../DataViewer/TableStateObserver.h"
 
 using namespace std;
 
 class Project;
 class TableInterface;
-	
-class AbstractClusterDlg : public wxDialog, public FramesManagerObserver
+
+class AbstractClusterDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
     virtual ~AbstractClusterDlg();
+   
+    void CleanData();
     
     /** Implementation of FramesManagerObserver interface */
     virtual void update(FramesManager* o);
     
-    double intra_group_distance(const vector<vector<int> >& solution,
-                                vector<double> group_distances);
+    /** Implementation of TableStateObserver interface */
+    virtual void update(TableState* o);
+    virtual bool AllowTimelineChanges() { return true; }
+    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
+    virtual bool AllowObservationAddDelete() { return false; }
     
-    void get_centroids(const vector<vector<int> >& solution,
-                       vector<GdaPoint*>& centroids);
-    
-    void get_mean_centers(const vector<vector<int> >& solution,
-                          vector<GdaPoint*>& centers);
     
 protected:
     wxFrame *parent;
     Project* project;
     TableInterface* table_int;
     FramesManager* frames_manager;
+    TableState* table_state;
     
     vector<vector<double> > z;
     vector<bool> undefs;
@@ -65,7 +68,8 @@ protected:
     int rows;
     int columns;
     int num_obs;
-    
+   
+    vector<wxString> col_names;
     std::vector<wxString> tm_strs;
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
@@ -85,25 +89,28 @@ protected:
     // Input related
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
+    std::vector<wxString> select_vars;
     double* weight;
     double** input_data;
     int** mask;
-    
+    // -- controls
     wxListBox* combo_var;
     wxCheckBox* m_use_centroids;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
-    
-    virtual void AddInputCtrls(wxPanel *panel,
-                               wxListBox** combo_var,
-                               wxCheckBox** m_use_centroids,
-                               wxSlider** m_weight_centroids,
-                               wxTextCtrl** m_wc_txt,
-                               wxBoxSizer* vbox);
-    virtual void AddSimpleInputCtrls(wxPanel *panel,
-                                     wxListBox** combo_var,
-                                     wxBoxSizer* vbox,
-                                     bool integer_only = false);
+    // -- functions
+    virtual void AddInputCtrls(
+       wxPanel *panel,
+       wxListBox** combo_var,
+       wxCheckBox** m_use_centroids,
+       wxSlider** m_weight_centroids,
+       wxTextCtrl** m_wc_txt,
+       wxBoxSizer* vbox);
+    virtual void AddSimpleInputCtrls(
+        wxPanel *panel,
+        wxListBox** combo_var,
+        wxBoxSizer* vbox,
+        bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
@@ -111,16 +118,42 @@ protected:
     void OnInputWeights(wxCommandEvent& event);
    
     // Minimum Bound related
+	// -- variables
     wxCheckBox* chk_floor;
     wxChoice* combo_floor;
     wxTextCtrl* txt_floor;
     wxTextCtrl* txt_floor_pct;
     wxSlider* slider_floor;
-    virtual void AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct,wxFlexGridSizer* gbox, bool show_checkbox=true);
+	// -- functions
+    virtual void AddMinBound(
+        wxPanel *panel,
+        wxFlexGridSizer* gbox,
+        bool show_checkbox=true);
     virtual void  OnCheckMinBound(wxCommandEvent& event);
     virtual void  OnSelMinBound(wxCommandEvent& event);
     virtual void  OnTypeMinBound(wxCommandEvent& event);
     virtual void  OnSlideMinBound(wxCommandEvent& event);
+    
+    // Summary related
+    // The main statistics should be:
+    // - mean centers or centroids of each cluster in terms of the variables involved
+    // - the total sum of squares
+    // - the within sum of squares
+    // - the between sum of squares
+    // - the ratio of between to total sum of squares
+	// -- variables
+    SimpleReportTextCtrl* m_reportbox;
+	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
+	// -- functions
+    double _getTotalSumOfSquares();
+    double _calcSumOfSquares(const vector<int>& cluster_ids);
+    vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);
+    wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
+    wxString _printWithinSS(const vector<double>& within_ss);
+    virtual wxString _printConfiguration()=0;
+    void CreateSummary(const vector<wxInt64>& clusters);
+    void CreateSummary(const vector<vector<int> >& solution);
 };
 
 #endif

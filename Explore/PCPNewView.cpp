@@ -233,38 +233,23 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);	
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
+
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
 	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
@@ -278,89 +263,6 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    // since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
 }
 
 
@@ -569,7 +471,7 @@ void PCPCanvas::PopulateCanvas()
 	}
 	
     last_scale_trans.SetData(0, 0, 100, 100);
-    last_scale_trans.SetMargin(25,virtual_screen_marg_bottom, 135, 25);
+    last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, 135, 25);
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
     
 	selectable_shps.resize(num_obs);
@@ -612,6 +514,12 @@ void PCPCanvas::PopulateCanvas()
 	}
 	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
 	control_line_pen.SetWidth(2);
+    
+    int max_label_width = 0;
+    wxClientDC dc(this);
+    int s_w =0;
+    int s_h = 0;
+    
 	for (int v=0; v<num_vars; v++) {
 		int y_del = display_stats ? -8 : 0;
 		int vv = var_order[v];
@@ -633,6 +541,9 @@ void PCPCanvas::PopulateCanvas()
         s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
                              wxRealPoint(0, y_pos), 0, GdaShapeText::right,
                              GdaShapeText::v_center, -25, 0+y_del);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
+        
 		foreground_shps.push_back(s);
 		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
@@ -660,6 +571,8 @@ void PCPCanvas::PopulateCanvas()
 			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 			int cols = 2;
 			int rows = 2;
@@ -673,6 +586,8 @@ void PCPCanvas::PopulateCanvas()
 							wxRealPoint(0, y_pos), GdaShapeText::right,
 							GdaShapeText::top, GdaShapeText::right, GdaShapeText::v_center,
 							3, 7, -25, 25+y_del);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 		}
 	}
@@ -685,6 +600,8 @@ void PCPCanvas::PopulateCanvas()
 		s = new GdaShapeText(wxString::Format("%d", 0),
 					   *GdaConst::small_font, wxRealPoint(50, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
 		foreground_shps.push_back(s);
 		int sd_abs = overall_abs_max_std;
 		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
@@ -700,6 +617,8 @@ void PCPCanvas::PopulateCanvas()
 			s = new GdaShapeText(wxString::Format("%d", i),
 						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
@@ -707,10 +626,14 @@ void PCPCanvas::PopulateCanvas()
 			s = new GdaShapeText(wxString::Format("%d", -i),
 						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
 			foreground_shps.push_back(s);
 		}
 	}
-	
+    
+	last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, max_label_width + 30, 25);
+    
 	delete [] pts;
 	
 	ResizeSelectableShps();

@@ -295,6 +295,8 @@ void SpatialContiguousTree::Split()
 
 bool SpatialContiguousTree::quickCheck(RedCapNode* node, RedCapNode* exclude_node)
 {
+    if (controls == NULL) return false;
+    
     double check_val = 0;
     unordered_map<int, bool> visited;
     
@@ -476,7 +478,7 @@ void AbstractRedcap::init( GalElement * w)
             int nbr = nbrs[j];
             if (undefs[nbr] || i == nbr) continue;
             if (fo_edge_dict.find(make_pair(i,nbr)) == fo_edge_dict.end()) {
-                double w = nbrs_w[nbr];
+                double w = nbrs_w[j];
                 RedCapNode* a = all_nodes[i];
                 RedCapNode* b = all_nodes[nbr];
                 RedCapEdge* e = new RedCapEdge(a, b, w);

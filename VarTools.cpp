@@ -367,6 +367,7 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 	
 	if (ref_var == -1)
         return ref_var;
+    
 	int ref_time = var_info[ref_var].time;
 	int min_time = ref_time;
 	int max_time = ref_time;
@@ -379,6 +380,7 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
                 max_time = var_info[i].time;
 		}
 	}
+    // TODO the following is mystery
 	int global_max_time = var_info[ref_var].max.size()-1;
 	int min_ref_time = ref_time - min_time;
 	int max_ref_time = global_max_time - (max_time - ref_time);
@@ -401,7 +403,6 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 
 void GdaVarTools::PrintVarInfoVector(std::vector<VarInfo>& var_info)
 {
-    /*
 	LOG_MSG("Entering GdaVarTools::PrintVarInfoVector");
 	LOG(var_info.size());
 	for (int i=0; i<var_info.size(); i++) {
@@ -418,5 +419,4 @@ void GdaVarTools::PrintVarInfoVector(std::vector<VarInfo>& var_info)
 		LOG_MSG("\n");
 	}
 	LOG_MSG("Exiting GdaVarTools::PrintVarInfoVector");
-     */
 }

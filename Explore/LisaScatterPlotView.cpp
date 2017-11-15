@@ -103,6 +103,7 @@ LisaScatterPlotCanvas::~LisaScatterPlotCanvas()
 void LisaScatterPlotCanvas::ShowRegimesRegression(bool flag)
 {
     is_show_regimes_regression = flag;
+    isResize = true;
     PopulateCanvas();
 }
 
@@ -272,7 +273,9 @@ void LisaScatterPlotCanvas::TimeChange()
 	sp_var_info[1].time = var_info[ref_var_index].time;
 	//SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
-	PopulateCanvas();
+    isResize = true;
+	//PopulateCanvas();
+    Refresh();
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -403,7 +406,7 @@ void LisaScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
-        isResize = false;
+        
         
         int vs_w, vs_h;
         
@@ -416,6 +419,8 @@ void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
         ResizeSelectableShps();
         
         PopulateCanvas();
+        
+        isResize = false;
         
         event.RequestMore(); // render continuously, not only once on idle
     }
@@ -500,8 +505,8 @@ void LisaScatterPlotCanvas::PopulateCanvas()
        
         GdaScaleTrans sub_scale;
         sub_scale = last_scale_trans;
-        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
-        sub_scale.left_margin = 40;
+        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 65;
+        sub_scale.left_margin = 45;
         sub_scale.calcAffineParams();
         
         for (int i=0; i<X.size(); i++){
@@ -526,13 +531,12 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         GdaScaleTrans ex_scale;
         ex_scale = last_scale_trans;
         ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
-        ex_scale.right_margin = 5;
+        ex_scale.right_margin = 35;
         ex_scale.calcAffineParams();
         
         for (int i=0; i<X_ex.size(); i++){
             GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
-                                        (Y_ex[i] - axis_scale_y.scale_min) * scaleY
-                                        );
+                                        (Y_ex[i] - axis_scale_y.scale_min) * scaleY);
             pt->setPen(wxPen(wxColour(100,100,100)));
             pt->setBrush(*wxTRANSPARENT_BRUSH);
             pt->applyScaleTrans(ex_scale);
@@ -541,6 +545,9 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         
         UpdateRegSelectedLine();
         UpdateRegExcludedLine();
+        
+        //GdaSpline* lowess_reg_line_sel = new GdaSpline;
+        //foreground_shps.push_back(lowess_reg_line_sel);
       
         
         GdaAxis* x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
@@ -653,8 +660,8 @@ void LisaScatterPlotCanvas::UpdateRegSelectedLine()
                                            *pens.GetRegSelPen());
         GdaScaleTrans sub_scale;
         sub_scale = last_scale_trans;
-        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
-        sub_scale.left_margin = 40;
+        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 65;
+        sub_scale.left_margin = 45;
         sub_scale.calcAffineParams();
         
         reg_line_selected->applyScaleTrans(sub_scale);
@@ -682,7 +689,7 @@ void LisaScatterPlotCanvas::UpdateRegExcludedLine()
         GdaScaleTrans ex_scale;
         ex_scale = last_scale_trans;
         ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
-        ex_scale.right_margin = 5;
+        ex_scale.right_margin = 35;
         ex_scale.calcAffineParams();
         
        
@@ -753,75 +760,7 @@ void LisaScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     int n_hl = highlight_state->GetTotalHighlighted();
     
     if (n_hl > 0 && is_show_regimes_regression) {
-        /*
-        const std::vector<bool>& hl = highlight_state->GetHighlight();
-
-        int t = project->GetTimeState()->GetCurrTime();
-        int num_obs = lisa_coord->num_obs;
-        
-        std::vector<bool> undefs(num_obs, false);
-        for (int i=0; i<num_obs; i++) {
-            undefs[i] = lisa_coord->undef_tms[t][i] || !hl[i];
-            foreground_shps.pop_front();
-        }
-        std::vector<double> X;
-        std::vector<double> Y;
-        RegimeMoran(undefs, regressionXYselected, X, Y);
-        
-        GdaScaleTrans sub_scale;
-        sub_scale = last_scale_trans;
-        sub_scale.right_margin= sub_scale.screen_width - sub_scale.trans_x + 50;
-        sub_scale.left_margin = 40;
-        sub_scale.calcAffineParams();
-        
-        for (int i=0; i<X.size(); i++){
-            GdaPoint* pt = new GdaPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-                                        (Y[i] - axis_scale_y.scale_min) * scaleY);
-            pt->setPen(wxPen(wxColour(245,140,140)));
-            pt->setBrush(*wxTRANSPARENT_BRUSH);
-            pt->applyScaleTrans(sub_scale);
-            
-            foreground_shps.insert(foreground_shps.begin(), pt);
-        }
-        
-        undefs.clear();
-        undefs.resize(num_obs, false);
-        for (int i=0; i<num_obs; i++) {
-            undefs[i] = lisa_coord->undef_tms[t][i] || hl[i];
-        }
-        std::vector<double> X_ex;
-        std::vector<double> Y_ex;
-        RegimeMoran(undefs, regressionXYexcluded, X_ex, Y_ex);
-        
-        GdaScaleTrans ex_scale;
-        ex_scale = last_scale_trans;
-        ex_scale.left_margin= ex_scale.trans_x + ex_scale.data_x_max * ex_scale.scale_x + 45;
-        ex_scale.right_margin = 5;
-        ex_scale.calcAffineParams();
-        
-        for (int i=0; i<X_ex.size(); i++){
-            GdaPoint* pt = new GdaPoint((X_ex[i] - axis_scale_x.scale_min) * scaleX,
-                                        (Y_ex[i] - axis_scale_y.scale_min) * scaleY
-                                        );
-            pt->setPen(wxPen(wxColour(100,100,100)));
-            pt->setBrush(*wxTRANSPARENT_BRUSH);
-            pt->applyScaleTrans(ex_scale);
-            foreground_shps.insert(foreground_shps.begin(),pt);
-        }
-        
-        
-        UpdateRegSelectedLine();
-        UpdateRegExcludedLine();
-        
-        if (morans_sel_text) {
-            wxString str = wxString::Format("selected: %.4f", regressionXYselected.beta);
-            morans_sel_text->setText(str);
-        }
-        if (morans_unsel_text) {
-            wxString str1 = wxString::Format("unselected: %.4f", regressionXYexcluded.beta);
-            morans_unsel_text->setText(str1);
-        }
-         */
+        isResize = true;
         PopulateCanvas();
     }
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
@@ -1167,4 +1106,89 @@ void LisaScatterPlotFrame::closeObserver(LisaCoordinator* o)
 	Close(true);
 }
 
+void LisaScatterPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    wxLogMessage("Entering LisaScatterPlotFrame::ExportImage");
+    
+    wxString default_fname(project->GetProjectTitle() + type);
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    int filter_index = 1;
+    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    dialog.SetFilterIndex(filter_index);
+    
+    if (dialog.ShowModal() != wxID_OK) return;
+    
+    wxSize sz =  canvas->GetDrawingSize();
+    int new_bmp_w = sz.x + canvas->GetMarginLeft() + canvas->GetMarginRight();
+    int new_bmp_h = sz.y + canvas->GetMarginTop() + canvas->GetMarginBottom();
+    
+    int offset_x = 0;
+    
+    if (template_legend) {
+        int legend_width = template_legend->GetDrawingWidth();
+        new_bmp_w += legend_width;
+        offset_x += legend_width;
+    }
+    
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+    
+    switch (dialog.GetFilterIndex()) {
+        case 0:
+        {
+            wxLogMessage("BMP selected");
+            wxBitmap bitmap(new_bmp_w, new_bmp_h);
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            image.Destroy();
+        }
+            break;
+            
+        case 1:
+        {
+            wxLogMessage("PNG selected");
+            wxBitmap bitmap(new_bmp_w, new_bmp_h);
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, 0);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, 1.0);
+            }
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            
+            image.Destroy();
+        }
+            break;
+            
+        default:
+        {
+            LOG_MSG("Error: A non-recognized type selected.");
+        }
+            break;
+    }
+    return;
+    
+    LOG_MSG("Exiting LisaScatterPlotFrame::ExportImage");
+}
 

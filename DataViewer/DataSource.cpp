@@ -353,8 +353,14 @@ void FileDataSource::ReadPtree(const ptree& pt,
         file_repository_path = tmp;
 		file_repository_path = GenUtils::RestorePath(proj_path,
 													 file_repository_path);
+       
+        bool file_exist_flag = false;
+        if (ds_type == GdaConst::ds_esri_file_geodb)
+            file_exist_flag = wxDirExists(file_repository_path);
+        else
+            file_exist_flag = wxFileExists(file_repository_path);
         
-        if (!wxFileExists(file_repository_path)) {
+        if (file_exist_flag == false) {
             wxString msg;
             msg << _("The GeoDa project file cannot find one or more associated data sources.\n\n");
             msg << _("Details: GeoDa is looking for: ") << file_repository_path;

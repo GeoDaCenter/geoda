@@ -37,11 +37,14 @@ namespace CatClassification {
 	
 	const int max_num_categories = 20;
 	
-	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
-		stddev, excess_risk_theme, unique_values, colocation, natural_breaks,
-		equal_intervals, lisa_categories, lisa_significance,
+	enum CatClassifType {
+        no_theme, hinge_15, hinge_30, quantile, percentile,
+		stddev, excess_risk_theme, unique_values, colocation, natural_breaks, equal_intervals,
+        lisa_categories, lisa_significance, custom,
 		getis_ord_categories, getis_ord_significance,
-        local_geary_categories, local_geary_significance,custom };
+        local_geary_categories, local_geary_significance,
+        local_join_count_categories, local_join_count_significance
+    };
 	
 	/** When CatClassifType != custom, BreakValsType is assumed to
 	  be by_cat_classif_type.  Otherwise, if CatClassifType == custom,

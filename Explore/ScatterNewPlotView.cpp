@@ -387,38 +387,22 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
-	
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 								  GetCcType() == CatClassification::percentile);
@@ -431,94 +415,8 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
-    
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enableLowess);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EDIT_LOWESS_PARAMS"), enableLowess);
-    
 }
 
 void ScatterNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -838,10 +736,10 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
  and refresh the canvas. */
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
-	//wxSize size(GetVirtualSize());
-    //int screen_w = size.GetWidth();
-    //int screen_h = size.GetHeight();
-    //last_scale_trans.SetView(screen_w, screen_h);
+	wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
 
     
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
@@ -942,12 +840,20 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	sse_c = regressionXY.error_sum_squares;
 	
     if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
-        x_max = var_info[0].max[var_info[0].time];
-        x_min = var_info[0].min[var_info[0].time];
+        x_max = var_info[0].max[var_info[0].time - var_info[0].time_min];
+        x_min = var_info[0].min[var_info[0].time - var_info[0].time_min];
+    } else if (var_info[0].fixed_scale) {
+        // this is for fixed x-axis over time
+        x_max = var_info[0].max_over_time;
+        x_min = var_info[0].min_over_time;
     }
     if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
-        y_max = var_info[1].max[var_info[1].time];
-        y_min = var_info[1].min[var_info[1].time];
+        y_max = var_info[1].max[var_info[1].time_max - var_info[1].time];
+        y_min = var_info[1].min[var_info[1].time_min - var_info[1].time];
+    } else if (var_info[1].fixed_scale){
+        // this is for fixed y-axis over time
+        y_max = var_info[1].max_over_time;
+        y_min = var_info[1].min_over_time;
     }
 	
 	double x_pad = 0.1 * (x_max - x_min);
@@ -1360,8 +1266,7 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 
 void ScatterNewPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	var_info[var_index].sync_with_global_time =
-		!var_info[var_index].sync_with_global_time;
+	var_info[var_index].sync_with_global_time = !var_info[var_index].sync_with_global_time;
 	
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
@@ -1399,12 +1304,14 @@ void ScatterNewPlotCanvas::ShowLinearSmoother(bool display)
 	show_linear_smoother = display;
 	UpdateDisplayStats();
 	UpdateDisplayLinesAndMargins();
+    isResize = true;
 	PopulateCanvas();
 }
 
 void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 {
 	show_lowess_smoother = display;
+    isResize = true;
 	PopulateCanvas();
 }
 
@@ -1416,7 +1323,10 @@ void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
 	lowess.SetF(f);
 	lowess.SetIter(iter);
 	lowess.SetDeltaFactor(delta_factor);
-	if (IsShowLowessSmoother()) PopulateCanvas();
+    if (IsShowLowessSmoother()) {
+        isResize = true;
+        PopulateCanvas();
+    }
 }
 
 void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)

@@ -36,8 +36,8 @@ class Project;
 class SimpleBinsHistCanvasCbInt
 {
 public:
-	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-																	int total_hover_obs) = 0;
+	virtual void notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs) = 0;
+    virtual void OnRightClick(const wxPoint& pos) = 0;
 };
 
 
@@ -74,9 +74,10 @@ public:
 	void ShowAxes(bool show_axes);
 	bool IsShowAxes() { return show_axes; }
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void UpdateStatusBar();
+    
+protected:
 	
 	std::vector<SimpleBin> hist_bins;
 	wxString Xname;

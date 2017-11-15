@@ -316,7 +316,9 @@ void TemplateLegend::OnDraw(wxDC& dc)
     dc.SetFont(*GdaConst::small_font);
     wxString title = template_canvas->GetCategoriesTitle();
     dc.DrawText(title, px, 13);
-    wxSize title_sz = dc.GetTextExtent(title);
+    
+    wxString save_png_ttl = title.BeforeFirst(':');
+    wxSize title_sz = dc.GetTextExtent(save_png_ttl);
     title_width = title_sz.GetWidth();
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();

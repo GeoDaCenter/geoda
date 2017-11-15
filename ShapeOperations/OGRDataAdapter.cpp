@@ -122,12 +122,13 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-vector<wxString> OGRDataAdapter::GetLayerNames(wxString ds_name, GdaConst::DataSourceType& ds_type)
+GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names)
 {	
 	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
-    if (ds_type == GdaConst::ds_unknown) ds_type = ds_proxy->ds_type;
+    ds_type = ds_proxy->ds_type;
+	layer_names = ds_proxy->GetLayerNames();
     
-	return ds_proxy->GetLayerNames();
+    return ds_type;
 }
 
 // Read OGR Layer using datasource name "ds_name" and layer name "layer_name"

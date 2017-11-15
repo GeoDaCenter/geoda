@@ -57,7 +57,7 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
-hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0)
+hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), display_statistics(false)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -137,8 +137,10 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
     if (!optMenu) return;
     
     UpdateContextMenuItems(optMenu);
+    GeneralWxUtils::CheckMenuItem(optMenu, XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), display_statistics);
     PopupMenu(optMenu, pos);
     UpdateOptionMenuItems();
+   
     
     wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_CORRELOGRAM_STATS"));
     Connect(save_menu->GetId(), wxEVT_MENU,
@@ -169,7 +171,8 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     lbls.push_back("Min");
     lbls.push_back("Max");
     lbls.push_back("# Pairs");
-   
+  
+    
     wxString header = "";
     int total_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
@@ -259,7 +262,19 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
     wxLogMessage("In CorrelogramFrame::OnDisplayStatistics()");
+    display_statistics = !display_statistics;
+    if (shs_plot) {
+        if (display_statistics) shs_plot->Show();
+        else shs_plot->Hide();
+        top_h_sizer->RecalcSizes();
+    }
+    Refresh();
 	UpdateOptionMenuItems();
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
+    if (!optMenu) return;
+    void *data = reinterpret_cast<void *>(display_statistics);
+    optMenu->SetClientData( data );
 }
 
 /** Implementation of TableStateObserver interface */
@@ -627,10 +642,16 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
 			stringstream ss;
 			if (h_axs.tics[i] < 10000000) {
-				ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+				else
+                    ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			} else {
-				ss << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+                else 
+                    ss << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			}
 			h_axs.tics_str_show[i] = true;
@@ -736,7 +757,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     stats.push_back(range_left);
     stats.push_back(range_right);
     stats.push_back(est_dist);
-    
+   
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
                                         lbls, vals, stats,
@@ -747,6 +768,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     //bag_szr->Add(shs_can, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1), wxEXPAND);
     
     shs_plot = shs_can;
+   
+    if (display_statistics) shs_plot->Show();
+    else shs_plot->Hide();
     
     panel_v_szr->Add(shs_can, 0, wxLEFT | wxRIGHT | wxEXPAND);
    
@@ -760,6 +784,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     }
 }
 
+
 double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
                                                     double& rng_right)
 {
@@ -767,6 +792,14 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
     for (size_t i=0; i<cbins.size()-1; ++i) {
         double a1 = cbins[i].corr_avg;
         double a2 = cbins[i+1].corr_avg;
+        
+        if (a1 == 0) {
+            rng_left = cbins[i].dist_min;
+            rng_right = cbins[i].dist_max;
+            rst = 0;
+            break;
+        }
+        
         bool cross_axis_down = a1 == abs(a1) && a2 != abs(a2);
         bool cross_axis_up = a1 != abs(a1) && a2 == abs(a2);
         
@@ -774,12 +807,18 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
             double d1 = (cbins[i].dist_max + cbins[i].dist_min) / 2.0;
             double d2 = (cbins[i+1].dist_max + cbins[i+1].dist_min) / 2.0;
           
-            rng_left = d1;
-            rng_right = d2;
-            
             //(d2 - d) / (a2 -0) = (d2 - d1) / (a2 - a1) ;
             double d = d2 - (d2 - d1) / (a2 - a1) * a2;
             rst = d;
+           
+            if (abs(a1) < abs(a2)) {
+                rng_left = cbins[i].dist_min;
+                rng_right = cbins[i].dist_max;
+            } else {
+                rng_left = cbins[i+1].dist_min;
+                rng_right = cbins[i+1].dist_max;
+            }
+            
             break;
         }
     }

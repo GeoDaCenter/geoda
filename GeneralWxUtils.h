@@ -55,7 +55,7 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
-    
+   
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
 };
 
@@ -66,7 +66,16 @@ public:
                          const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
                          long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
                          const wxString& name = wxTextCtrlNameStr)
-    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
+    : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
+    {
+        if (GeneralWxUtils::isWindows()) {
+            wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            SetFont(font);
+        } else {
+            wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            SetFont(font);
+        }
+    }
 protected:
     void OnContextMenu(wxContextMenuEvent& event);
     void OnSaveClick( wxCommandEvent& event );

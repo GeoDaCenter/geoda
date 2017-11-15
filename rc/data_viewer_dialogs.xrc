@@ -1176,31 +1176,6 @@ All Rights Reserved</label>
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
           </object>
           <object class="sizeritem">
-            <object class="wxStaticText">
-              <label>Multiple time periods</label>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <object class="wxBoxSizer">
-              <orient>wxHORIZONTAL</orient>
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="ID_TIME_VARIANT_NO">
-                  <label>no</label>
-                  <value>1</value>
-                  <style>wxRB_GROUP</style>
-                </object>
-              </object>
-              <object class="spacer">
-                <size>5,5d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="ID_TIME_VARIANT_YES">
-                  <label>yes</label>
-                </object>
-              </object>
-            </object>
-          </object>
-          <object class="sizeritem">
             <object class="wxStaticText" name="ID_STATIC_TYPE">
               <label>Type</label>
             </object>
@@ -1321,31 +1296,6 @@ All Rights Reserved</label>
               <size>110,-1d</size>
             </object>
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
-          </object>
-          <object class="sizeritem">
-            <object class="wxStaticText">
-              <label>Multiple time periods</label>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <object class="wxBoxSizer">
-              <orient>wxHORIZONTAL</orient>
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="ID_TIME_VARIANT_NO">
-                  <label>no</label>
-                  <value>1</value>
-                  <style>wxRB_GROUP</style>
-                </object>
-              </object>
-              <object class="spacer">
-                <size>5,5d</size>
-              </object>
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="ID_TIME_VARIANT_YES">
-                  <label>yes</label>
-                </object>
-              </object>
-            </object>
           </object>
           <object class="sizeritem">
             <object class="wxStaticText" name="ID_STATIC_TYPE">

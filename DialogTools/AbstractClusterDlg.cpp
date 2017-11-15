@@ -39,6 +39,8 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+
+#include "../Algorithms/texttable.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -47,9 +49,9 @@
 
 
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
-: frames_manager(project_s->GetFramesManager()),
+: frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState()),
 wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL)
+validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL), m_reportbox(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -75,9 +77,17 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
         EndDialog(wxID_CANCEL);
     }
     frames_manager->registerObserver(this);
+    table_state->registerObserver(this);
 }
 
 AbstractClusterDlg::~AbstractClusterDlg()
+{
+    CleanData();
+    frames_manager->removeObserver(this);
+    table_state->removeObserver(this);
+}
+
+void AbstractClusterDlg::CleanData()
 {
     if (input_data) {
         for (int i=0; i<rows; i++) delete[] input_data[i];
@@ -92,98 +102,6 @@ AbstractClusterDlg::~AbstractClusterDlg()
     if (weight) {
         delete[] weight;
         weight = NULL;
-    }
-    frames_manager->removeObserver(this);
-}
-
-double AbstractClusterDlg::intra_group_distance(const vector<vector<int> >& solution, vector<double> group_distances)
-{
-    double wss = 0;
-    int count = 0;
-    double sum = 0.0;
-    
-    // for every variable, calc the variance using selected neighbors
-    for (int i=0; i<solution.size(); i++ ) {
-        sum = 0.0;
-        size_t n_items = solution[i].size();
-        const vector<int>& sel_idx = solution[i];
-        
-        for (int n=0; n<num_vars; n++) {
-            count = 0;
-            vector<double> selected_z(n_items);
-            for (int j=0; j<n_items; j++) selected_z[count++] = z[sel_idx[j]][n];
-            double var = GenUtils::GetVariance(selected_z);
-            sum += var;
-        }
-        sum = sum * n_items;
-        group_distances.push_back(sum);
-        wss += sum;
-    }
-    
-    return wss;
-}
-
-void AbstractClusterDlg::get_centroids(const vector<vector<int> >& solutions, vector<GdaPoint*>& centroids)
-{
-    project->GetCentroids();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centroids.empty())
-        for (int i=0; i<centroids.size(); i++)
-            delete centroids[i];
-    
-    centroids.clear();
-    centroids.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->centroids[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centroids[i] = new GdaPoint(mx, my);
-    }
-}
-
-void AbstractClusterDlg::get_mean_centers(const vector<vector<int> >& solutions, vector<GdaPoint*>& centers)
-{
-    project->GetMeanCenters();
-    
-    int n_clusters = solutions.size();
-    
-    if (!centers.empty())
-        for (int i=0; i<centers.size(); i++)
-            delete centers[i];
-    
-    centers.clear();
-    centers.resize(n_clusters);
-    
-    for (int i=0; i<n_clusters; i++ ) {
-        double mx = 0;
-        double my = 0;
-        const vector<int>& sol = solutions[i];
-        int nn = sol.size();
-        for (int j=0; j<nn; j++) {
-            int idx = sol[j];
-            GdaPoint* pt = project->mean_centers[idx];
-            double x = pt->GetX();
-            double y = pt->GetY();
-            mx += x;
-            my += y;
-        }
-        mx /= nn;
-        my /= nn;
-        centers[i] = new GdaPoint(mx, my);
     }
 }
 
@@ -205,6 +123,11 @@ bool AbstractClusterDlg::Init()
 void AbstractClusterDlg::update(FramesManager* o)
 {
     
+}
+
+void AbstractClusterDlg::update(TableState* o)
+{
+    InitVariableCombobox(combo_var);
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxListBox** combo_var, wxBoxSizer* vbox, bool integer_only)
@@ -285,33 +208,33 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     if (m_use_centroids->IsChecked()) {
         m_weight_centroids->Enable();
         m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.00");
         m_wc_txt->Enable();
     } else {
         m_weight_centroids->SetValue(false);
         m_weight_centroids->Disable();
+        m_wc_txt->SetValue("0.00");
         m_wc_txt->Disable();
     }
 }
 
-void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxChoice** combo_floor, wxTextCtrl** txt_floor, wxSlider** slider_floor, wxTextCtrl** txt_floor_pct, wxFlexGridSizer* gbox, bool show_checkbox)
+void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox)
 {
-    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"), wxDefaultPosition, wxSize(128,-1));
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
-    *chk_floor = new wxCheckBox(panel, wxID_ANY, "");
-    *combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
-    *txt_floor = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(70,-1), 0, validator);
-    hbox0->Add(*chk_floor);
-    hbox0->Add(*combo_floor);
-    hbox0->Add(*txt_floor);
+    chk_floor = new wxCheckBox(panel, wxID_ANY, "");
+    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
+    txt_floor = new wxTextCtrl(panel, wxID_ANY, _("1"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    hbox0->Add(chk_floor);
+    hbox0->Add(combo_floor);
+    hbox0->Add(txt_floor);
     
-   
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    (*slider_floor) = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
-    (*txt_floor_pct) = new wxTextCtrl(panel, wxID_ANY, wxT("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
-    hbox1->Add(*slider_floor);
-    hbox1->Add(*txt_floor_pct);
+    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, _("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    hbox1->Add(slider_floor);
+    hbox1->Add(txt_floor_pct);
     
     wxBoxSizer *hbox = new wxBoxSizer(wxVERTICAL);
     hbox->Add(hbox0);
@@ -320,21 +243,21 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxCheckBox** chk_floor, wxC
     gbox->Add(st, 0, wxALIGN_TOP| wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox, 1, wxEXPAND);
     
-    (*chk_floor)->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnCheckMinBound, this);
-    (*combo_floor)->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
-    (*txt_floor)->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
-	(*slider_floor)->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
+    chk_floor->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnCheckMinBound, this);
+    combo_floor->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
+    txt_floor->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
+	slider_floor->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
     
     if (!show_checkbox) {
-        (*chk_floor)->SetValue(true);
-        (*chk_floor)->Hide();
-        (*combo_floor)->SetSelection(-1);
+        chk_floor->SetValue(true);
+        chk_floor->Hide();
+        combo_floor->SetSelection(-1);
     } else {
-        (*combo_floor)->Disable();
-        (*txt_floor)->Disable();
+        combo_floor->Disable();
+        txt_floor->Disable();
     }
-    (*slider_floor)->Disable();
-    (*txt_floor_pct)->Disable();
+    slider_floor->Disable();
+    txt_floor_pct->Disable();
     
 }
 void AbstractClusterDlg::OnSlideMinBound(wxCommandEvent& event)
@@ -445,10 +368,16 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
     }
     if (!var_items.IsEmpty())
         var_box->InsertItems(var_items,0);
+    
+    for (int i=0; i<select_vars.size(); i++) {
+        var_box->SetStringSelection(select_vars[i], true);
+    }
 }
 
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 {
+    CleanData();
+    
     bool use_centroids = false;
    
     if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
@@ -467,6 +396,9 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         dlg.ShowModal();
         return false;
     }
+   
+    col_names.clear();
+    select_vars.clear();
     
     if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
     {
@@ -475,7 +407,10 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         for (int i=0; i<num_var; i++) {
             int idx = selections[i];
-            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            wxString sel_str = combo_var->GetString(idx);
+            select_vars.push_back(sel_str);
+            
+            wxString nm = name_to_nm[sel_str];
             
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
@@ -486,6 +421,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             }
             
             int tm = name_to_tm_id[combo_var->GetString(idx)];
+            col_names.push_back(nm);
             
             col_ids[i] = col;
             var_info[i].time = tm;
@@ -515,6 +451,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         // if use centroids
         if (use_centroids) {
             columns += 2;
+            col_names.insert(col_names.begin(), "CENTY");
+            col_names.insert(col_names.begin(), "CENTX");
         }
         
         // get columns (if time variables show)
@@ -526,13 +464,14 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         if (m_weight_centroids && m_use_centroids)
             weight = GetWeights(columns);
+        else {
+            weight = new double[columns];
+            for (int j=0; j<columns; j++){
+                weight[j] = 1;
+            }
+        }
         
         // init input_data[rows][cols]
-        if (input_data) {
-            for (int i=0; i<rows; i++) delete[] input_data[i];
-            delete[] input_data;
-            input_data = NULL;
-        }
         input_data = new double*[rows];
         mask = new int*[rows];
         for (int i=0; i<rows; i++) {
@@ -626,8 +565,9 @@ double* AbstractClusterDlg::GetBoundVals()
 {
     int rows = project->GetNumRecords();
     int idx = combo_floor->GetSelection();
-    double* vals = new double[rows];
+    double* vals = NULL;
     if (idx >= 0) {
+        vals = new double[rows];
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         int col = table_int->FindColId(nm);
         if (col != wxNOT_FOUND) {
@@ -640,4 +580,237 @@ double* AbstractClusterDlg::GetBoundVals()
         }
     }
     return vals;
+}
+
+
+wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
+{
+	wxNotebook* notebook = new wxNotebook( panel, wxID_ANY, wxDefaultPosition);
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
+    notebook->AddPage(m_reportbox, "Summary");
+	return notebook;
+}
+
+
+////////////////////////////////////////////////////////////////
+//
+// Clustering Stats
+//
+////////////////////////////////////////////////////////////////
+
+void AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters)
+{
+    vector<vector<int> > solution;
+    
+    for (int i=0; i<clusters.size(); i++) {
+        int c = clusters[i];
+        if (c > solution.size()) solution.resize(c);
+        
+        if (c-1 >= 0)
+            solution[c-1].push_back(i);
+    }
+    CreateSummary(solution);
+}
+
+void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
+{
+    // mean centers
+    vector<vector<double> > mean_centers = _getMeanCenters(solution);
+    // totss
+    double totss = _getTotalSumOfSquares();
+    // withinss
+    vector<double> withinss = _getWithinSumOfSquares(solution);
+    // tot.withiness
+    double totwithiness = GenUtils::Sum(withinss);
+    // betweenss
+    double betweenss = totss - totwithiness;
+    // ratio
+    double ratio = betweenss / totss;
+    
+    wxString summary;
+    summary << "------\n";
+    summary << _printConfiguration();
+    summary << _printMeanCenters(mean_centers);
+    summary << "The total sum of squares:\t" << totss << "\n";
+    summary << _printWithinSS(withinss);
+    summary << "The total within-cluster sum of squares:\t" << totwithiness << "\n";
+    summary << "The between-cluster sum of squares:\t" << betweenss << "\n";
+    summary << "The ratio of between to total sum of squares:\t" << ratio << "\n\n";
+    
+    if (m_reportbox) {
+        wxString report = m_reportbox->GetValue();
+        report = summary + report;
+        m_reportbox->SetValue(report);
+    }
+}
+
+vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters, 0);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> means;
+        for (int c=0; c<columns; c++) {
+            double sum = 0;
+            double n = 0;
+            for (int j=0; j<solutions[i].size(); j++) {
+                int r = solutions[i][j];
+                if (mask[r][c] == 1) {
+                    sum += input_data[r][c] ;
+                    n += 1;
+                }
+            }
+            double mean = n > 0 ? sum / n : 0;
+            //if (weight) mean = mean * weight[c];
+            means.push_back(mean);
+        }
+        result[i] = means;
+    }
+    
+    return result;
+}
+
+double AbstractClusterDlg::_getTotalSumOfSquares()
+{
+    if (columns <= 0 || rows <= 0) return 0;
+   
+    double ssq = 0.0;
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+            continue;
+        vector<double> vals;
+        for (int j=0; j<rows; j++) {
+            if (mask[j][i] == 1)
+                vals.push_back(input_data[j][i]);
+        }
+        double ss = GenUtils::SumOfSquares(vals);
+        ssq += ss;
+    }
+    return ssq;
+}
+
+vector<double> AbstractClusterDlg::_getWithinSumOfSquares(const vector<vector<int> >& solution)
+{
+    // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
+    // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
+    // on. cluster_ids does not have to be exhaustive
+    vector<double> wss;
+    for (int i=0; i<solution.size(); i++ ) {
+        double ss = _calcSumOfSquares(solution[i]);
+        wss.push_back(ss);
+    }
+    return wss;
+}
+
+
+double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+            continue;
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfSquares(vals);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+
+wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
+{
+    wxString txt;
+    txt << "Cluster centers:\n";
+    
+    stringstream ss;
+    TextTable t( TextTable::MD );
+   
+    //       v1     v2    v3
+    //  c1   1      2      3
+    //  c2   1      2      3
+    
+    // first row
+    t.add("");
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+            continue;
+        t.add(col_names[i].ToStdString());
+    }
+    t.endOfRow();
+    
+    // second row
+    for (int i=0; i<mean_centers.size(); i++) {
+        ss.str("");
+        ss << "C" << i+1;
+        t.add(ss.str());
+        
+        const vector<double>& vals = mean_centers[i];
+        for (int j=0; j<vals.size(); j++) {
+            if (col_names[j] == "CENTX" || col_names[j] == "CENTY")
+                continue;
+            ss.str("");
+            ss << vals[j];
+            t.add(ss.str());
+        }
+        t.endOfRow();
+    }
+    
+    stringstream ss1;
+    ss1 << t;
+    txt << ss1.str();
+    txt << "\n";
+    return txt;
+}
+
+wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss)
+{
+    wxString summary;
+    summary << "Within-cluster sum of squares:\n";
+    
+    //            # obs  Within cluster SS
+    // C1          12            62.1
+    // C2          3             42.3
+    // C3
+    
+    stringstream ss;
+    TextTable t( TextTable::MD );
+    
+    // first row
+    t.add("");
+    //t.add("#obs");
+    t.add("Within cluster S.S.");
+    t.endOfRow();
+   
+    // second row
+    for (int i=0; i<within_ss.size(); i++) {
+        ss.str("");
+        ss << "C" << i+1;
+        t.add(ss.str());
+        
+        ss.str("");
+        ss << within_ss[i];
+        t.add(ss.str());
+        t.endOfRow();
+    }
+    //t.setAlignment( 4, TextTable::Alignment::RIGHT );
+    
+    stringstream ss1;
+    ss1 << t;
+    summary << ss1.str();
+    summary << "\n";
+    
+    return summary;
 }

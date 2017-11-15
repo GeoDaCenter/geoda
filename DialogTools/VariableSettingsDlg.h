@@ -42,7 +42,7 @@ class TableInterface;
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
+// class DiffMoranVarSettingDlg
 //
 ////////////////////////////////////////////////////////////////////////////
 class DiffMoranVarSettingDlg : public wxDialog
@@ -80,7 +80,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
+// class MultiVariableSettingsDlg
 //
 ////////////////////////////////////////////////////////////////////////////
 class MultiVariableSettingsDlg : public wxDialog
@@ -122,9 +122,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
+// class VariableSettingsDlg
 //
 ////////////////////////////////////////////////////////////////////////////
+
 
 class VariableSettingsDlg: public wxDialog
 {
@@ -177,7 +178,7 @@ public:
 	WeightsMetaInfo::DistanceMetricEnum GetDistanceMetric();
 	WeightsMetaInfo::DistanceUnitsEnum GetDistanceUnits();
 	
-private:
+protected:
 	int m_theme; // for rate_smoothed
 
     bool var1_str;
@@ -198,6 +199,10 @@ private:
 	wxString v2_name;
 	wxString v3_name;
 	wxString v4_name;
+    wxString default_var_name1;
+    wxString default_var_name2;
+    wxString default_var_name3;
+    wxString default_var_name4;
 	int v1_time;
 	int v2_time;
 	int v3_time;
@@ -268,4 +273,97 @@ private:
 	DECLARE_EVENT_TABLE()
 };
 
+/*
+class UniVarSettingsDlg: public VariableSettingsDlg
+{
+    UniVarSettingsDlg(Project* project,
+                      VarType v_type,
+                      bool show_weights = false,
+                      bool show_distance = false,
+                      bool show_time = true,
+                      bool var1_str = false // if show string fields
+    );
+    virtual ~UniVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+
+class BiVarSettingsDlg: public VariableSettingsDlg
+{
+    BiVarSettingsDlg(Project* project,
+                     VarType v_type,
+                     bool show_weights = false,
+                     bool show_distance = false,
+                     bool show_time = true,
+                     bool var1_str = false, // if show string fields
+                     bool var2_str = false, // if show string fields
+                     bool set_second_from_first_mode = false);
+    virtual ~BiVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class TriVarSettingsDlg: public VariableSettingsDlg
+{
+    TriVarSettingsDlg(Project* project,
+                      VarType v_type,
+                      bool show_weights = false,
+                      bool show_distance = false,
+                      bool show_time = true,
+                      bool var1_str = false, // if show string fields
+                      bool var2_str = false, // if show string fields
+                      bool var3_str = false);
+    virtual ~TriVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class QuadVarSettingsDlg: public VariableSettingsDlg
+{
+    QuadVarSettingsDlg(Project* project,
+                       VarType v_type,
+                       bool show_weights = false,
+                       bool show_distance = false,
+                       bool show_time = true,
+                       bool var1_str = false, // if show string fields
+                       bool var2_str = false, // if show string fields
+                       bool var3_str = false);
+    virtual ~QuadVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class RateSmoothedSettingsDlg: public VariableSettingsDlg
+{
+    RateSmoothedSettingsDlg(Project* project,
+                            VarType v_type,
+                            bool show_weights = false,
+                            bool show_time = true
+                            );
+    virtual ~RateSmoothedSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+*/
 #endif

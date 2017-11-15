@@ -693,6 +693,33 @@
     <ClInclude Include="..\..\Explore\ColocationMapView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCMapNewView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\DataUtils.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\texttable.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\mds.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\skater.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SkaterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1270,6 +1297,24 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\mds.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\skater.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

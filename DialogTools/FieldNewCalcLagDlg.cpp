@@ -180,24 +180,26 @@ void FieldNewCalcLagDlg::Apply()
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			double lag = 0;
 			const GalElement& elm_i = W[i];
-			if (elm_i.Size() == 0) r_undefined[i] = true;
+			if (elm_i.Size() == 0)
+                r_undefined[i] = true;
+           
+            double nn = 0;
 			for (int j=0, sz=W[i].Size(); j<sz && !r_undefined[i]; j++) {
-				if (undefined[elm_i[j]]) {
-					r_undefined[i] = true;
-				} else {
+				if (undefined[elm_i[j]] == false) {
 					lag += data[elm_i[j]];
+                    nn += 1;
 				}
 			}
             r_data[i] =  0;
+            
             if (r_undefined[i]==false) {
                 if (m_self_neighbor->IsChecked() ) {
                     lag += data[i];
-                }
-                int nn = W[i].Size();
-                if (m_self_neighbor)
                     nn += 1;
-                if (m_row_stand->IsChecked())
+                }
+                if (m_row_stand->IsChecked()) {
                     lag = nn > 0 ? lag / nn : 0;
+                }
                 r_data[i] = lag;
             }
 			//r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();

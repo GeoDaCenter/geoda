@@ -198,6 +198,8 @@ public:
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
     
+	virtual void UpdateStatusBar();
+    
 protected:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -242,7 +244,6 @@ protected:
     
     void show_empty_shps_msgbox();
     
-	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
 };
@@ -324,7 +325,7 @@ public:
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
     
-     void OnClose(wxCloseEvent& event);
+    void OnClose(wxCloseEvent& event);
     
     void CleanBasemap();
     
@@ -335,7 +336,8 @@ public:
                     std::vector<wxString>& clrs,
                     std::vector<double>& bins);
     
-protected:
+    void OnAddNeighborToSelection(wxCommandEvent& event);
+    
     
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
@@ -347,8 +349,6 @@ protected:
     //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
     
-	
-protected:
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
@@ -358,6 +358,7 @@ protected:
 					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
 	
+protected:
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;
 	

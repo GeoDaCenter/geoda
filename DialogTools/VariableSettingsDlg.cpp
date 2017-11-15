@@ -623,6 +623,11 @@ var3_str(_var3_str),
 var4_str(_var4_str)
 {
     wxLogMessage("Open VariableSettingsDlg");
+   
+    default_var_name1 = project->GetDefaultVarName(0);
+    default_var_name2 = project->GetDefaultVarName(1);
+    default_var_name3 = project->GetDefaultVarName(2);
+    default_var_name4 = project->GetDefaultVarName(3);
     
 	if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
 		no_weights_found_fail = true;
@@ -970,6 +975,11 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb1_cur_sel = lb1->GetSelection();
+    if (lb1_cur_sel >= 0) {
+        int x_pos = sel1_idx_map[lb1_cur_sel];
+        if (x_pos >= 0)
+            default_var_name1 = table_int->GetColName(col_id_map[x_pos]);
+    }
 	if (num_var >= 2 && set_second_from_first_mode) {
 		lb2->SetSelection(lb1_cur_sel);
 		lb2_cur_sel = lb1_cur_sel;
@@ -985,6 +995,11 @@ void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb2_cur_sel = lb2->GetSelection();
+    if (lb2_cur_sel >= 0) {
+        int x_pos = sel2_idx_map[lb2_cur_sel];
+        if (x_pos >= 0)
+            default_var_name2 = table_int->GetColName(col_id_map[x_pos]);
+    }
 }
 
 void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
@@ -992,6 +1007,12 @@ void VariableSettingsDlg::OnVar3Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb3_cur_sel = lb3->GetSelection();
+    if (lb3_cur_sel >= 0) {
+        int x_pos = sel3_idx_map[lb3_cur_sel];
+        if (x_pos >= 0)
+            default_var_name3 = table_int->GetColName(col_id_map[x_pos]);
+    }
+    
 	if (num_var >= 4 && set_fourth_from_third_mode) {
 		lb4->SetSelection(lb3_cur_sel);
 		lb4_cur_sel = lb3_cur_sel;
@@ -1007,6 +1028,11 @@ void VariableSettingsDlg::OnVar4Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb4_cur_sel = lb4->GetSelection();
+    if (lb4_cur_sel >= 0) {
+        int x_pos = sel4_idx_map[lb4_cur_sel];
+        if (x_pos >= 0)
+            default_var_name4 = table_int->GetColName(col_id_map[x_pos]);
+    }
 }
 
 void VariableSettingsDlg::OnSpinCtrl( wxSpinEvent& event )
@@ -1048,6 +1074,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
+    
 	v1_col_id = col_id_map[sel1_idx_map[lb1->GetSelection()]];
     
 	v1_name = table_int->GetColName(v1_col_id);
@@ -1059,6 +1086,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
             v1_time = 0;
 	}
     wxLogMessage(v1_name);
+    
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
 			wxString msg(_T("No field chosen for second variable."));
@@ -1066,7 +1094,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v2_col_id = col_id_map[lb2->GetSelection()];
+		v2_col_id = col_id_map[sel2_idx_map[lb2->GetSelection()]];
 		v2_name = table_int->GetColName(v2_col_id);
 		project->SetDefaultVarName(1, v2_name);
 		if (is_time) {
@@ -1084,7 +1112,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v3_col_id = col_id_map[lb3->GetSelection()];
+		v3_col_id = col_id_map[sel3_idx_map[lb3->GetSelection()]];
 		v3_name = table_int->GetColName(v3_col_id);
 		project->SetDefaultVarName(2, v3_name);
 		if (is_time) {
@@ -1102,7 +1130,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v4_col_id = col_id_map[lb4->GetSelection()];
+		v4_col_id = col_id_map[sel4_idx_map[lb4->GetSelection()]];
 		v4_name = table_int->GetColName(v4_col_id);
 		project->SetDefaultVarName(3, v4_name);
 		if (is_time) {
@@ -1116,8 +1144,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	
     wxString emptyVar = FillData();
     if (emptyVar.empty()== false) {
-        wxString msg = wxString::Format(_("The selected variable %s is not valid. Please elect another variable."), emptyVar);
-        wxMessageDialog dlg (this, msg.mb_str(), _T("Invalid Variable"), wxOK | wxICON_ERROR);
+        wxString msg = wxString::Format(_("The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."), emptyVar);
+        wxMessageDialog dlg (this, msg.mb_str(), _("Invalid Variable"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         
     } else {
@@ -1132,7 +1160,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
     		project->SetDefaultDistUnits(GetDistanceUnits());
     	}
     	
-        
         bool check_group_var = true;
         try {
             for (int i=0; i<col_ids.size(); i++) {
@@ -1140,7 +1167,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
             }
         } catch(GdaException& ex) {
             // place holder found
-            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
             wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             check_group_var = false;
@@ -1149,7 +1176,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         if (check_group_var == true)
             EndDialog(wxID_OK);
     }
-    
 }
 
 // Theme choice for Rate Smoothed variable settings
@@ -1297,6 +1323,7 @@ void VariableSettingsDlg::InitFieldChoices()
         
 		if (table_int->IsColTimeVariant(col_id_map[i]))
             name << t1;
+        
         if ((var1_str) ||
             (!var1_str && ftype == GdaConst::double_type) ||
             (!var1_str && ftype == GdaConst::long64_type))
@@ -1321,6 +1348,7 @@ void VariableSettingsDlg::InitFieldChoices()
                 sel2_idx += 1;
             }
 		}
+        
 		if (num_var >= 3) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
@@ -1335,6 +1363,7 @@ void VariableSettingsDlg::InitFieldChoices()
                 sel3_idx += 1;
             }
 		}
+        
 		if (num_var >= 4) {
 			wxString name = table_int->GetColName(col_id_map[i]);
 			if (table_int->IsColTimeVariant(col_id_map[i]))
@@ -1353,31 +1382,25 @@ void VariableSettingsDlg::InitFieldChoices()
 	}
     
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-        if (table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(0)) {
-            LOG_MSG(project->GetDefaultVarName(0));
+        wxString item_str = table_int->GetColName(col_id_map[i]);
+        if (item_str == default_var_name1) {
             lb1_cur_sel = idx_sel1_map[i];
             if (set_second_from_first_mode && num_var >= 2) {
                 lb2_cur_sel = idx_sel1_map[i];
             }
         }
-        if (num_var >= 2 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(1))
-        {
+        if (num_var >= 2 && item_str == default_var_name2) {
             if (!set_second_from_first_mode) {
                 lb2_cur_sel = idx_sel2_map[i];
             }
         }
-        if (num_var >= 3 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(2))
-        {
+        if (num_var >= 3 && item_str == default_var_name3){
             lb3_cur_sel = idx_sel3_map[i];
             if (set_fourth_from_third_mode && num_var >= 4) {
                 lb4_cur_sel = idx_sel3_map[i];
             }
         }
-        if (num_var >= 4 &&
-            table_int->GetColName(col_id_map[i]) == project->GetDefaultVarName(3))
-        {
+        if (num_var >= 4 && item_str == default_var_name4) {
             if (!set_fourth_from_third_mode) {
                 lb4_cur_sel = idx_sel4_map[i];
             }
@@ -1463,7 +1486,6 @@ wxString VariableSettingsDlg::FillData()
         if (emptyVar.empty() && CheckEmptyColumn(v3_col_id, v3_time)) {
             emptyVar =  v3_name;
         }
-
 	}
 	if (num_var >= 4) {
 		//v4_col_id = col_id_map[lb4->GetSelection()];
@@ -1484,6 +1506,12 @@ wxString VariableSettingsDlg::FillData()
 		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
 		var_info[i].is_time_variant = table_int->IsColTimeVariant(col_ids[i]);
+       
+        if (var_info[i].is_time_variant) {
+            int n_timesteps = table_int->GetColTimeSteps(col_ids[i]);
+            var_info[i].time_min = 0;
+            var_info[i].time_max = n_timesteps>0 ? n_timesteps - 1 : 0;
+        }
         
 		// var_info[i].time already set above
 		table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
@@ -1492,7 +1520,7 @@ wxString VariableSettingsDlg::FillData()
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	//GdaVarTools::PrintVarInfoVector(var_info);
+	GdaVarTools::PrintVarInfoVector(var_info);
     
     return emptyVar;
 }

@@ -52,6 +52,7 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "Basemap.h"
 #include "MapNewView.h"
 
@@ -444,7 +445,7 @@ bool MapCanvas::InitBasemap()
 
 bool MapCanvas::DrawBasemap(bool flag, int map_type_)
 {
-    ResetShapes();
+    //ResetShapes();
     ResetBrushing();
     map_type = map_type_;
     isDrawBasemap = flag;
@@ -811,9 +812,6 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
                                    GetCcType() != CatClassification::no_theme);
-    
-    
-    
 	if (template_frame) {
 		template_frame->UpdateContextMenuItems(optMenu);
 		template_frame->PopupMenu(optMenu, pos + GetPosition());
@@ -853,7 +851,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_QUANTILE_SUBMENU"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_BOX_SUBMENU"), !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_15"), !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_30"), !IS_VAR_STRING);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"), !IS_VAR_STRING);
     //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_SUBMENU"), !IS_VAR_STRING);
@@ -866,39 +865,24 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     for (size_t j=0; j<titles.size(); j++) {
         GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 +j, !IS_VAR_STRING);
     }
+   
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
     
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
-
     GeneralWxUtils::CheckMenuItem(menu,
 					XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 					GetCcType() == CatClassification::percentile);
@@ -913,70 +897,6 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 					GetCcType() == CatClassification::unique_values);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_COLOCATION"),
 					GetCcType() == CatClassification::colocation);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-						(GetCcType() == CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-						(GetCcType() == CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
 	
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SMOOTH_RAWRATE"),
 								  smoothing_type == raw_rate);
@@ -2249,6 +2169,62 @@ void MapFrame::closeObserver(boost::uuids::uuid id)
 		}
 		Close(true);
 	}
+}
+
+void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+{
+    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+        
+    }
+    boost::uuids::uuid w_id = w_man_int->GetDefault();
+    
+    GalWeight* gal_weights = w_man_int->GetGal(w_id);
+    if (gal_weights== NULL) {
+        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+   
+    int num_obs = project->GetNumRecords();
+    
+    HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& h = hs.GetHighlight();
+    int nh_cnt = 0;
+    std::vector<bool> add_elem(gal_weights->num_obs, false);
+    
+    std::vector<int> new_highlight_ids;
+    
+    for (int i=0; i<gal_weights->num_obs; i++) {
+        if (h[i]) {
+            GalElement& e = gal_weights->gal[i];
+            for (int j=0, jend=e.Size(); j<jend; j++) {
+                int obs = e[j];
+                if (!h[obs] && !add_elem[obs]) {
+                    add_elem[obs] = true;
+                    new_highlight_ids.push_back(obs);
+                }
+            }
+        }
+    }
+    
+    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
+        h[ new_highlight_ids[i] ] = true;
+        nh_cnt ++;
+    }
+    
+    if (nh_cnt > 0) {
+        hs.SetEventType(HLStateInt::delta);
+        hs.notifyObservers();
+    }
 }
 
 void MapFrame::OnNewCustomCatClassifA()

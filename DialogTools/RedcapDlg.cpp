@@ -96,40 +96,21 @@ bool RedcapDlg::Init()
 void RedcapDlg::CreateControls()
 {
     wxLogMessage("On RedcapDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,720), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(820,720), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
-
-    
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"),
-                                         wxDefaultPosition, wxDefaultSize);
-    
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250),
-                              0, NULL, wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"), wxDefaultPosition, wxDefaultSize);
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250), 0, NULL, wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
-    if (project->IsTableOnlyProject()) {
-        m_use_centroids->Disable();
-    }
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
-
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(120,-1), 3, _transform);
-    combo_tranform->SetSelection(2);
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_tranform, 1, wxEXPAND);
     
     wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -140,35 +121,40 @@ void RedcapDlg::CreateControls()
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices20[] = {"First-Order-SLK", "First-Order-ALK", "First-Order-CLK","Full-Order-SLK", "Full-Order-ALK", "Full-Order-CLK"};
-    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                wxSize(200,-1), 6, choices20);
+    //wxString choices20[] = {"First-Order-SLK", "First-Order-ALK", "First-Order-CLK","Full-Order-SLK", "Full-Order-ALK", "Full-Order-CLK"};
+    wxString choices20[] = {"First-Order-SLK", "First-Order-ALK"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices20);
     combo_method->SetSelection(0);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
     
-    wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Set control variable:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    wxBoxSizer *hbox19 = new wxBoxSizer(wxHORIZONTAL);
-    combo_control_var = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
-    gbox->Add(st19, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_control_var, 1, wxEXPAND);
+    // Minimum Bound Control
+    AddMinBound(panel, gbox);
 
-    
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Min value per region:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    m_min_val_region = new wxTextCtrl(panel, wxID_ANY, wxT("0"),
-                                      wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_min_val_region, 1, wxEXPAND);
-
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum of regions:"),
+	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"),
                                           wxDefaultPosition, wxSize(128,-1));
     m_max_region = new wxTextCtrl(panel, wxID_ANY, wxT("5"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
     
+	 wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
+    gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_distance, 1, wxEXPAND);
+
+	wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
+                                          wxDefaultPosition, wxSize(120,-1));
+    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
+    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                   wxSize(120,-1), 3, _transform);
+    combo_tranform->SetSelection(2);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_tranform, 1, wxEXPAND);
+
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
@@ -182,7 +168,6 @@ void RedcapDlg::CreateControls()
     gbox->Add(hbox17, 1, wxEXPAND);
     
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
@@ -196,7 +181,6 @@ void RedcapDlg::CreateControls()
                                          wxDefaultPosition, wxDefaultSize);
     m_textbox = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
-    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL |wxLEFT, 10);
     
@@ -204,12 +188,10 @@ void RedcapDlg::CreateControls()
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
@@ -218,9 +200,14 @@ void RedcapDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
-    
+	// Summary control 
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+	wxNotebook* notebook = AddSimpleReportCtrls(panel);
+	vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    
@@ -274,7 +261,6 @@ void RedcapDlg::OnSeedCheck(wxCommandEvent& event)
             return;
         }
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
@@ -305,7 +291,6 @@ void RedcapDlg::OnChangeSeed(wxCommandEvent& event)
         uint64_t new_seed_val = val;
         GdaConst::gda_user_seed = new_seed_val;
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         wxString str_gda_user_seed;
@@ -328,6 +313,7 @@ void RedcapDlg::InitVariableCombobox(wxListBox* var_box)
     wxLogMessage("On RedcapDlg::InitVariableCombobox");
     wxArrayString items;
     
+	int cnt_floor = 0;
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
@@ -340,21 +326,19 @@ void RedcapDlg::InitVariableCombobox(wxListBox* var_box)
                 name_to_nm[nm] = name;
                 name_to_tm_id[nm] = t;
                 items.Add(nm);
+				combo_floor->Insert(nm, cnt_floor++);
             }
         } else {
             name_to_nm[name] = name;
             name_to_tm_id[name] = 0;
             items.Add(name);
+			combo_floor->Insert(name, cnt_floor++);
         }
     }
     if (!items.IsEmpty())
         var_box->InsertItems(items,0);
     
-    combo_control_var->Insert("",0);
-    for (int i=0; i<items.size(); i++) {
-        combo_control_var->Insert(items[i],i+1);
-    }
-    combo_control_var->SetSelection(0);
+    combo_floor->SetSelection(-1);
 }
 
 void RedcapDlg::OnClickClose(wxCommandEvent& event )
@@ -374,29 +358,40 @@ void RedcapDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
+wxString RedcapDlg::_printConfiguration()
+{
+    wxString txt;
+    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+   
+    txt << "Method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked()) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    }
+    
+    txt << "Minimum region size:\t" << m_textbox->GetValue() << "\n";
+    
+    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    
+    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    return txt;
+}
+
 void RedcapDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click RedcapDlg::OnOK");
-    
-    bool use_centroids = m_use_centroids->GetValue();
-    
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 1 && !use_centroids) {
-        // show message box
-        wxString err_msg = _("Please select at least 1 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+   
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate(GdaConst::gda_user_seed);
+        resetrandom();
     }
     
-    wxString str_minval_region = m_min_val_region->GetValue();
-    if (str_minval_region.IsEmpty()) {
-        wxString err_msg = _("Please enter minimum value of a region.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
+    // Get input data
+    int transform = combo_tranform->GetSelection();
+	bool success = GetInputData(transform, 1);
+    if (!success) {
         return;
     }
     
@@ -407,7 +402,16 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
@@ -416,59 +420,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
-        
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
-        
-        col_ids[i] = col;
-        var_info[i].time = tm;
-        
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    int rows = project->GetNumRecords();
-    int columns =  0;
-    
-    std::vector<d_array_type> data; // data[variable][time][obs]
-    data.resize(col_ids.size());
-    for (int i=0; i<var_info.size(); i++) {
-        table_int->GetColData(col_ids[i], data[i]);
-    }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
-    
-    // if use centroids
-    if (use_centroids) {
-        columns += 2;
-    }
-    
+	// Get Weights Selection
     vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
@@ -485,97 +437,52 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+       
+    // Get Bounds
+    double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
+   
+	// Get Distance Selection
+    char dist = 'e'; // euclidean
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','b'};
+    dist = dist_choices[dist_sel];
 
-    int transform = combo_tranform->GetSelection();
-    
-    vector<vector<double> > z;
-    // assign value
-    int col_ii = 0;
-    for (int i=0; i<data.size(); i++ ){ // col
-        for (int j=0; j<data[i].size(); j++) { // time
-            std::vector<double> vals;
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
-            }
-            z.push_back(vals);
-        }
-    }
-    vector<vector<double> > z_t;
-    for (int i=0; i<rows; i++) {
-        vector<double> vals;
-        for (int j=0; j<z.size(); j++) { // cols
-            vals.push_back(z[j][i]);
-        }
-        z_t.push_back(vals);
-    }
-    if (use_centroids) {
-        std::vector<GdaPoint*> cents = project->GetCentroids();
-        std::vector<double> cent_xs;
-        std::vector<double> cent_ys;
-        
-        for (int i=0; i< rows; i++) {
-            cent_xs.push_back(cents[i]->GetX());
-            cent_ys.push_back(cents[i]->GetY());
-        }
-        
-        if (transform == 2) {
-            GenUtils::StandardizeData(cent_xs );
-            GenUtils::StandardizeData(cent_ys );
-        } else if (transform == 1 ) {
-            GenUtils::DeviationFromMean(cent_xs );
-            GenUtils::DeviationFromMean(cent_ys );
-        }
-        
-        for (int i=0; i< rows; i++) {
-            z_t[i].push_back(cent_xs[i]);
-            z_t[i].push_back(cent_ys[i]);
-        }
-    }
-   
-    // minimum value per region
-    double min_val_per_region = 0;
-    str_minval_region.ToDouble(&min_val_per_region);
-    
-    // get control variables
-    vector<double> control_variable(rows, 1);
-    double* controls = NULL;
-    int idx = combo_control_var->GetSelection();
-    if ( idx > 0) {
-        wxString str_ctrl_var = combo_control_var->GetString(idx);
-        wxString nm = name_to_nm[str_ctrl_var];
-        int col = table_int->FindColId(nm);
-        int tm = name_to_tm_id[str_ctrl_var];
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        table_int->GetColData(col, tm, control_variable);
-        controls = new double[rows];
-        for (int i=0; i<rows; i++) controls[i] = control_variable[i];
-    }
-   
-    // get number of regions
+    // Get number of regions
     int n_regions = 0;
     long value_n_region;
     if(str_max_region.ToLong(&value_n_region)) {
         n_regions = value_n_region;
     }
     
-    // get user specified seed
+    // Get user specified seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
    
     // run RedCap
+	vector<vector<double> > z;
+	for (int i=0; i<rows; i++) {
+		vector<double> vals;
+		for (int j=0; j<columns; j++) {
+			vals.push_back(input_data[i][j]);
+		}
+		z.push_back(vals);
+	}
     std::vector<bool> undefs(rows, false);
-    FirstOrderSLKRedCap* redcap = new FirstOrderSLKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
-    //AbstractRedcap* redcap = new FirstOrderALKRedCap(z_t, undefs, gw->gal, controls, min_val_per_region);
+    
+    AbstractRedcap* redcap = NULL;
+    int method_idx = combo_method->GetSelection();
+    if (method_idx == 0) 
+        redcap = new FirstOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 1)
+        redcap = new FirstOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+   
+    if (redcap==NULL) {
+        delete[] bound_vals;
+        bound_vals = NULL;
+        return;
+    }
+    
     redcap->Partitioning(n_regions);
     
     vector<vector<int> > cluster_ids = redcap->GetRegions();
@@ -586,7 +493,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         // show message dialog to user
         wxString warn_str = _("The number of identified clusters is less than ");
         warn_str << n_regions;
-        wxMessageDialog dlg(NULL, "Warning", warn_str, wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(NULL, warn_str, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
     vector<wxInt64> clusters(rows, 0);
@@ -602,6 +509,16 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+    
+    // in case c == 0
+    for (int i=0; i<clusters.size(); i++) {
+        if (clusters[i] == 0) {
+            clusters[i] = ncluster + 1;
+        }
+    }
+    
+    // summary
+    CreateSummary(clusters);
     
     // save to table
     int time=0;
@@ -629,8 +546,9 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
     // free memory
-    delete[] controls;
     delete redcap;
+	delete[] bound_vals;
+	bound_vals = NULL;
     
     // show a cluster map
     if (project->IsTableOnlyProject()) {
@@ -657,4 +575,9 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
+    wxString ttl;
+    ttl << "REDCAP Cluster Map (";
+    ttl << n_regions;
+    ttl << " clusters)";
+    nf->SetTitle(ttl);
 }

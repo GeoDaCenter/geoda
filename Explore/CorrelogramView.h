@@ -116,7 +116,9 @@ protected:
 	SimpleBinsHistCanvas* hist_plot;
     SimpleHistStatsCanvas* shs_plot;
 	HLStateInt* local_hl_state;
-	
+
+    bool display_statistics;
+    
 	wxBoxSizer* top_h_sizer;
 	wxPanel* panel;
 	wxBoxSizer* panel_v_szr;

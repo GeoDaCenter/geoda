@@ -33,53 +33,6 @@
 #include "MLJCCoordinatorObserver.h"
 #include "MLJCCoordinator.h"
 
-/*
- Example data: x = {2, 3, 3.2, 5, 8, 7}
- locations = {(10, 10), (20, 10), (40, 10), (15, 20), (30, 20), (30, 30)}
- distances:
-	 0      1      2      3      4      5
- 0  0.00  10.00  30.00  11.18  22.36  28.28
- 1 10.00   0.00  20.00  11.18  14.14  22.36 
- 2 30.00  20.00   0.00  26.93  14.14  22.36
- 3 11.18  11.18  26.93   0.00  15.00  18.03
- 4 22.36  14.14  14.14  15.00   0.00  10.00
- 5 28.28  22.36  22.46  18.03  10.00   0.00
- 
- W for threshold distance = 15
- 0: 1 3
- 1: 0 3 4
- 2: 4
- 3: 0 1 4
- 4: 1 2 3 5
- 5: 4
- 
- W_i = [1, 1, 1, 1, 1]
- 
- G_i = (lag_i)/(x_star-x_i)
-  = {0.152671756, 0.198412698, 0.32, 0.186781609, 0.225247525, 0.377358491}
- 
- n = 6
- ExG = E[G*_i] = 1/(n-1) = 0.2
- ExGstar = E[G_i] = 1/n = 1.6666666
- x_star = 2 + 3 + 3.2 + 5 + 8 + 7 = 28.2
- x_sstar = 2^2 + 3^2 + (3.2)^2 + 5^2 + 8^2 + 7^2 = 161.24
- x_hat = x_star/n = 28.2/6 = 4.7
- s2 = x_sstar/n - (x_hat)^2 = 4.783333
- s = sqrt(s^2) = 2.18708329
- 
- x_hat_i = {5.24, 5.04, 5, 4.64, 4.04, 4.24}
- s2_i = (x_sstar-x_i^2)/(n-1) - (x_hat_i)^2
-   = {3.9904, 5.0464, 5.2, 5.7184, 3.1264, 4.4704}
- Var[G_i] = (1/(n-1)^2) * (s_i/x_hat_i)^2
-  = {0.00581318105, 0.00794658604, 0.00832, 0.0106242568, 0.00766199392,
-      0.00994660021  }
- z_i = (G_i - E[G_i]) / sqrt(Var[G_i])
-  = {-0.620745338, -0.0178061189, 1.31558703,
-     -0.128241714, 0.288434967, 1.77833941}
- 
- */
-
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // JCWorkerThread
@@ -126,18 +79,16 @@ wxThread::ExitCode JCWorkerThread::Entry()
 // JCCoordinator
 //
 ///////////////////////////////////////////////////////////////////////////////
-JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids, bool row_standardize_weights, bool _is_local_joint_count)
+JCCoordinator::JCCoordinator(boost::uuids::uuid weights_id, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info_s, const std::vector<int>& col_ids)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
 num_obs(project->GetNumRecords()),
-row_standardize(row_standardize_weights),
 permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
 data_undef(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true),
-is_local_joint_count(_is_local_joint_count)
+last_seed_used(123456789), reuse_last_seed(true)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
     if ( GdaConst::use_gda_user_seed) {
@@ -159,24 +110,19 @@ is_local_joint_count(_is_local_joint_count)
 
 JCCoordinator::~JCCoordinator()
 {
-	w_man_state->removeObserver(this);
+    if (w_man_state) {
+        w_man_state->removeObserver(this);
+        w_man_state = NULL;
+    }
 	DeallocateVectors();
 }
 
 void JCCoordinator::DeallocateVectors()
 {
-	for (int i=0; i<G_vecs.size(); i++) if (G_vecs[i]) delete [] G_vecs[i];
+	for (int i=0; i<G_vecs.size(); i++) if (G_vecs[i]) delete[] G_vecs[i];
 	G_vecs.clear();
 
-	for (int i=0; i<G_defined_vecs.size(); i++) {
-		if (G_defined_vecs[i]) delete [] G_defined_vecs[i];
-	}
-	G_defined_vecs.clear();
-
-	for (int i=0; i<z_vecs.size(); i++) if (z_vecs[i]) delete [] z_vecs[i];
-	z_vecs.clear();
-
-	for (int i=0; i<p_vecs.size(); i++) if (p_vecs[i]) delete [] p_vecs[i];
+	for (int i=0; i<p_vecs.size(); i++) if (p_vecs[i]) delete[] p_vecs[i];
 	p_vecs.clear();
 	
 	for (int i=0; i<pseudo_p_vecs.size(); i++) {
@@ -184,129 +130,124 @@ void JCCoordinator::DeallocateVectors()
 	}
 	pseudo_p_vecs.clear();
 	
-	for (int i=0; i<c_vecs.size(); i++) if (c_vecs[i]) delete [] c_vecs[i];
-	c_vecs.clear();
-    
-	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
+	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete[] x_vecs[i];
 	x_vecs.clear();
     
-	for (int i=0; i<y_vecs.size(); i++) if (y_vecs[i]) delete [] y_vecs[i];
+	for (int i=0; i<y_vecs.size(); i++) if (y_vecs[i]) delete[] y_vecs[i];
 	y_vecs.clear();
     
-	for (int i=0; i<ep_vals.size(); i++) if (ep_vals[i]) delete [] ep_vals[i];
-	ep_vals.clear();
+	for (int i=0; i<c_vecs.size(); i++) if (c_vecs[i]) delete[] c_vecs[i];
+	c_vecs.clear();
+   
+    /*
+	for (int i=0; i<num_neighbors.size(); i++) if (num_neighbors[i]) delete[] num_neighbors[i];
+	num_neighbors.clear();
     
-	for (int i=0; i<num_neighbors_1.size(); i++) if (num_neighbors_1[i]) delete [] num_neighbors_1[i];
-	num_neighbors_1.clear();
+	for (int i=0; i<num_neighbors_x1.size(); i++) if (num_neighbors_x1[i]) delete[] num_neighbors_x1[i];
+	for (int i=0; i<num_neighbors_y1.size(); i++) if (num_neighbors_y1[i]) delete[] num_neighbors_y1[i];
+	for (int i=0; i<num_neighbors_xy1.size(); i++) if (num_neighbors_xy1[i]) delete[] num_neighbors_xy1[i];
+    */
+    num_neighbors.clear();
+	num_neighbors_x1.clear();
+	num_neighbors_y1.clear();
+	num_neighbors_xy1.clear();
     
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
-        if (has_undefined[i]) {
-            delete Gal_vecs[i];
-        }
+        if (has_undefined[i])  delete Gal_vecs[i];
     }
     Gal_vecs.clear();
-    x_undefs.clear();
+    Gal_vecs_orig.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
 void JCCoordinator::AllocateVectors()
 {
 	int tms = num_time_vals;
+    
 	G_vecs.resize(tms);
-	G_defined_vecs.resize(tms);
-	z_vecs.resize(tms);
 	p_vecs.resize(tms);
 	pseudo_p_vecs.resize(tms);
 	x_vecs.resize(tms);
 	y_vecs.resize(tms);
-    
+    c_vecs.resize(tms);
     x_undefs.resize(tms);
-    y_undefs.resize(tms);
-    
     Gal_vecs.resize(tms);
     Gal_vecs_orig.resize(tms);
-	
-	n.resize(tms, 0);
-	x_star.resize(tms, 0);
-	x_sstar.resize(tms, 0);
-	ExG.resize(tms);
-	ExGstar.resize(tms);
-	mean_x.resize(tms);
-	var_x.resize(tms);
-	VarGstar.resize(tms);
-	sdGstar.resize(tms);
-	
+    num_neighbors.resize(tms);
+    num_neighbors_x1.resize(tms);
+    num_neighbors_y1.resize(tms);
+    num_neighbors_xy1.resize(tms);
+    
 	map_valid.resize(tms);
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
     
-    num_neighbors.resize(num_obs);
-    num_neighbors_1.resize(tms);
-    ep_vals.resize(tms);
-   
-    c_vecs.resize(tms);
-    
 	for (int i=0; i<tms; i++) {
-        num_neighbors_1[i] = new wxInt64[num_obs];
-        ep_vals[i] = new double[num_obs];
 		G_vecs[i] = new double[num_obs];
-		G_defined_vecs[i] = new bool[num_obs];
-		for (int j=0; j<num_obs; j++) G_defined_vecs[i][j] = true;
-		z_vecs[i] = new double[num_obs];
 		p_vecs[i] = new double[num_obs];
 		pseudo_p_vecs[i] = new double[num_obs];
 		x_vecs[i] = new double[num_obs];
 		y_vecs[i] = new double[num_obs];
+        c_vecs[i] = new int[num_obs];
+        /*
+        num_neighbors[i] = new wxInt64[num_obs];
+        num_neighbors_x1[i] = new wxInt64[num_obs];
+        num_neighbors_y1[i] = new wxInt64[num_obs];
+        num_neighbors_xy1[i] = new wxInt64[num_obs];
+         */
+        num_neighbors[i].resize(num_obs);
+        num_neighbors_x1[i].resize(num_obs);
+        num_neighbors_y1[i].resize(num_obs);
+        num_neighbors_xy1[i].resize(num_obs);
         
-        c_vecs[i] = new int(num_obs);
-		
+        for (int j=0; j<num_obs;j++){
+            x_undefs[i][j] = false;
+            x_vecs[i][j] = 0;
+            y_vecs[i][j] = 0;
+            c_vecs[i][j] = 0;
+            num_neighbors[i][j] = 0;
+            num_neighbors_x1[i][j] = 0;
+            num_neighbors_y1[i][j] = 0;
+            num_neighbors_xy1[i][j] = 0;
+        }
+        
 		map_valid[i] = true;
 		map_error_message[i] = wxEmptyString;
-        
-        Gal_vecs[i] = NULL;
+        has_isolates[i] = false;
+        has_undefined[i] = false;
+       
+        Gal_vecs[i] = 0;
+        Gal_vecs_orig[i] = 0;
 	}
 }
 
-/** We assume only that var_info is initialized correctly.
- ref_var_index, is_any_time_variant, is_any_sync_with_global_time and
- num_time_vals are first updated based on var_info */ 
 void JCCoordinator::InitFromVarInfo()
 {
 	DeallocateVectors();
 	
-	num_time_vals = 1;
-	is_any_time_variant = var_info[0].is_time_variant;
+	num_time_vals = 1; // for multivariate, time variable is not supported
+	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
 	ref_var_index = -1;
-	if (var_info[0].is_time_variant &&
-		var_info[0].sync_with_global_time) {
-		num_time_vals = (var_info[0].time_max - var_info[0].time_min) + 1;
-		is_any_sync_with_global_time = true;
-		ref_var_index = 0;
-	}
-
+    
 	AllocateVectors();
 	
-    bool has_undef = false;
+    int x_idx = var_info[0].time - var_info[0].time_min;
+    int y_idx = var_info[1].time - var_info[1].time_min;
     
-	for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
-		int d_t = t - var_info[0].time_min;
-        vector<bool> undefs(num_obs);
+	for (int t=0; t<num_time_vals; t++) {
+        bool has_undef = false;
         for (int i=0; i<num_obs; i++) {
-            x_vecs[d_t][i] = data[0][t][i];
-            y_vecs[d_t][i] = data[1][t][i];
+            x_vecs[t][i] = data[0][x_idx][i];
+            y_vecs[t][i] = data[1][y_idx][i];
             
-            undefs[i] = data_undef[0][t][i] || data_undef[1][t][i];
-            
-            G_defined_vecs[d_t][i] = !undefs[i];
-            if (undefs[i]) {
-                has_undef = true;
-            }
+            bool is_undef = data_undef[0][x_idx][i] || data_undef[1][y_idx][i];
+            x_undefs[t][i] = is_undef;
+            if (is_undef) has_undef = true;
         }
-        x_undefs[d_t] = undefs;
-        has_undefined[d_t] = has_undef;
+        has_undefined[t] = has_undef;
 	}
     
 	for (int t=0; t<num_time_vals; t++) {
@@ -324,17 +265,6 @@ void JCCoordinator::InitFromVarInfo()
             Gal_vecs[t] = gw;
             Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
-        
-		x = x_vecs[t];
-		y = y_vecs[t];
-       
-        for (int i=0; i<num_obs; i++) {
-            if ( W[i].Size() > 0 ) {
-                n[t]++;
-                x_star[t] += x[i];
-                x_sstar[t] += x[i] * x[i];
-            }
-        }
 	}
 	
 	CalcGs();
@@ -346,50 +276,32 @@ void JCCoordinator::InitFromVarInfo()
 void JCCoordinator::VarInfoAttributeChange()
 {
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) is_any_time_variant = true;
-		if (var_info[i].sync_with_global_time) {
-			is_any_sync_with_global_time = true;
-		}
-	}
 	ref_var_index = -1;
 	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
-	}
-	if (ref_var_index != -1) {
-		num_time_vals = (var_info[ref_var_index].time_max -
-						 var_info[ref_var_index].time_min) + 1;
-	}
 }
 
 /** The category vector c_val will be filled based on the current
  significance filter and significance values corresponding to specified
  canvas_time.  */
-void JCCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm, std::vector<wxInt64>& c_val)
+void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val)
 {
-	int t = canvas_time;
+	int t = 0;
 	double* p_val = pseudo_p_vecs[t];
-    double* z_val = z_vecs[t];
-	
     const GalElement* W = Gal_vecs[t]->gal;
-    
 	c_val.resize(num_obs);
+    
 	for (int i=0; i<num_obs; i++) {
-        if (!G_defined_vecs[t][i]) {
-            c_val[i] = 4; // undefined
+        if (x_undefs[t][i]) {
+            c_val[i] = 5; // undefined
             
         } else if (W[i].Size() == 0) {
-			c_val[i] = 3; // isolate
+			c_val[i] = 4; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
-            if (x_vecs[t][i] == 1 && z_val[i] > 0)
-                c_val[i] = 1;
-            else
-                c_val[i] = 0;
+            c_val[i] = c_vecs[t][i]; // 1,2,3
+            
         } else {
 			c_val[i] = 0; // not significant
 		}
@@ -398,108 +310,123 @@ void JCCoordinator::FillClusterCats(int canvas_time, bool is_gi, bool is_perm, s
 
 void JCCoordinator::CalcGs()
 {
-	using boost::math::normal; // typedef provides default type is double.
-	// Construct a standard normal distribution std_norm_dist
-	normal std_norm_dist; // default mean = zero, and s.d. = unity
-	
 	for (int t=0; t<num_time_vals; t++) {
 		G = G_vecs[t];
-		G_defined = G_defined_vecs[t];
-		z = z_vecs[t];
 		p = p_vecs[t];
 		pseudo_p = pseudo_p_vecs[t];
 		x = x_vecs[t];
-		
-		has_undefined[t] = false;
-		has_isolates[t] = false;
-        
+		y = y_vecs[t];
+	
         const GalElement* W = Gal_vecs[t]->gal;
 
-		double n_expr = sqrt((n[t]-1)*(n[t]-1)*(n[t]-2));
+        int all_y_1 = 0;
+        int all_x_y_1 = 0;
+        for (long i=0; i<num_obs; i++) {
+            if (y[i] == 1) all_y_1++;
+            if (y[i] == 1 && x[i] == 1) all_x_y_1++;
+        }
+        
 		for (long i=0; i<num_obs; i++) {
-            if (x_undefs[t][i]) {
-                G_defined[i] = false;
-                has_undefined[t] = true;
-                continue;
-            }
-            
+            if (x_undefs[t][i]) continue;
             // NOTE: the roles of x and z can be reversed
-            
             // 1. no colocation: x_i == 1 but z_i == 0
             // JC_i = x_i * ( 1 - z_i) * Sum (w_ij * z_j)
-            
             // 2. has colocation: x_i == 1 && z_i == 1
             // JC_i = x_i * z_i * Sum(w_ij * z_j)
-            
             // 3. co-location cluster: (2) && x_j == z_j == 1 for the neighbors
             // JC_i = x_i * z_i * Sum(w_ij * x_j * z_j)
-            
             int jc_type_i = 0;
-            double jc_i = 0;
-            const GalElement& elm_i = W[i];
-            
-            if (x[i] == 1 && y[i] == 0) {
-                jc_type_i = 1;
-            } else if (x[i] == 1 && y[i] == 1) {
-                jc_type_i = 3;
+            G[i] = 0;
+            p[i] = 0;
+            pseudo_p[i] = 0;
+            if (x[i] == 1) {
+                if (y[i] == 0)
+                    jc_type_i = 1;
+                else if (y[i] == 1)
+                    jc_type_i = 3; // 2 or 3 will determined later
             }
+           
+            num_neighbors[t][i] = W[i].Size();
             
-			if ( elm_i.Size() > 0 ) {
+            int x_1_y_1 = 0;
+            int y_1 = 0;
+            
+            if (W[i].Size() == 0) {
+                has_isolates[t] = true;
+            } else if (x[i] == 1) {
 				double lag = 0;
 				bool self_neighbor = false;
 				for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
-					if (elm_i[j] != i) {
-                        if (jc_type_i == 3 && x[i] != y[i])
+                    int n_id = W[i][j];
+					if (W[i][j] != i) {
+                        if (jc_type_i == 3 && x[n_id] != y[n_id]) {
                             jc_type_i = 2;
+                        }
 					} else {
 						self_neighbor = true;
 					}
+                    if (x[n_id]==1) num_neighbors_x1[t][i]++;
+                    if (y[n_id]==1) {
+                        y_1 += 0;
+                        num_neighbors_y1[t][i]++;
+                    }
+                    if (x[n_id]==1&&y[n_id]==1) {
+                        x_1_y_1 += 1;
+                        num_neighbors_xy1[t][i]++;
+                    }
 				}
+                
                 for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
+                    int n_id = W[i][j];
                     if (jc_type_i == 3 ){
-                        if (x[j] == y[j]) lag += y[j];
+                        if (x[n_id] == y[n_id]) lag += y[n_id];
                     } else {
-                        if (y[j] == 1) lag += y[j];
+                        if (y[n_id] == 1) lag += y[n_id];
                     }
                 }
-				double Wi = self_neighbor ? W[i].Size()-1 : W[i].Size();
-				double xd_i = x_star[t] - x[i];
-				if (xd_i != 0) {
-					G[i] = lag / xd_i;
-				} else {
-					G_defined[i] = false;
-				}
-				double x_hat_i = xd_i * ExG[t]; // (x_star - x[i])/(n-1)
-
-				double ExGi = Wi/(n[t]-1);
-				// location-specific variance
-				double ss_i = ((x_sstar[t] - x[i]*x[i])/(n[t]-1) - x_hat_i*x_hat_i);
-				double sdG_i = sqrt(Wi*(n[t]-1-Wi)*ss_i)/(n_expr * x_hat_i);
-				
-				// compute z and one-sided p-val from standard-normal table
-				if (G_defined[i]) {
-					z[i] = (G[i] - ExGi)/sdG_i;
-					if (z[i] >= 0) {
-						p[i] = 1.0-cdf(std_norm_dist, z[i]);
-					} else {
-						p[i] = cdf(std_norm_dist, z[i]);
-					}
-				} else {
-					has_undefined[t] = true;
-				}
-			} else {
-				has_isolates[t] = true;
+                G[i] = lag;
 			}
-            
             c_vecs[t][i] = jc_type_i;
-		}
-	
-		if (x_star[t] == 0) {
-            for (long i=0; i<num_obs; i++) {
-                G_defined[i] = false;
+            
+            // compute exact inference
+            if (jc_type_i == 1) {
+                // no colocation
+                int k_i = num_neighbors[t][i];
+                int qq = all_y_1;
+                int q = y_1;
+                
+                double mm_0s = Gda::nChoosek(qq, q);
+                double mm_1s = Gda::nChoosek(num_obs - qq - 1, k_i - q);
+                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
+                
+                double hg = (mm_1s * mm_0s) / mm_all;
+                p[i] = hg;
+            } else if (jc_type_i == 2) {
+                // co-location
+                int k_i = num_neighbors[t][i];
+                int qq = all_y_1;
+                int q = y_1;
+            
+                double mm_0s = Gda::nChoosek(qq-1, q);
+                double mm_1s = Gda::nChoosek(num_obs - qq - 2, k_i - q);
+                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
+                
+                double hg = (mm_1s * mm_0s) / mm_all;
+                p[i] = hg;
+
+            } else if (jc_type_i == 3) {
+                // co-location cluster
+                int k_i = num_neighbors[t][i];
+                int v = all_x_y_1;
+                int q = x_1_y_1;
+                
+                double mm_0s = Gda::nChoosek(v-1, q);
+                double mm_1s = Gda::nChoosek(num_obs - v - 2, k_i - q);
+                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
+                
+                double hg = (mm_1s * mm_0s) / mm_all;
+                p[i] = hg;
             }
-			has_undefined[t] = true;
-			break;
 		}
 	}
 }
@@ -517,23 +444,17 @@ void JCCoordinator::CalcPseudoP()
 	// 3. copy results into results array
 	
 	for (int t=0; t<num_time_vals; t++) {
-        std::vector<bool>& undefs = x_undefs[t];
 		G = G_vecs[t];
-		G_defined = G_defined_vecs[t];
-		z = z_vecs[t];
-		p = p_vecs[t];
-		pseudo_p = pseudo_p_vecs[t];
-		x = x_vecs[t];
-		y = y_vecs[t];
+        x = x_vecs[t];
+        y = y_vecs[t];
         c = c_vecs[t];
-		x_star_t = x_star[t];
-        nn_1_t = num_neighbors_1[t];
-        e_p = ep_vals[t];
+		pseudo_p = pseudo_p_vecs[t];
+        CalcPseudoP_range(Gal_vecs[t]->gal, x_undefs[t], 0, num_obs-1, last_seed_used);
 		if (nCPUs <= 1) {
 			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
+			CalcPseudoP_range(Gal_vecs[t]->gal, x_undefs[t], 0, num_obs-1, last_seed_used);
 		} else {
-			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
+			CalcPseudoP_threaded(Gal_vecs[t]->gal, x_undefs[t]);
 		}
 	}
 	LOG_MSG("Exiting JCCoordinator::CalcPseudoP");
@@ -579,9 +500,6 @@ void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<
 		uint64_t seed_start = last_seed_used+a;
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
 		int thread_id = i+1;
-		wxString msg;
-		msg << "thread " << thread_id << ": " << a << "->" << b;
-		msg << ", seed: " << seed_start << "->" << seed_end;
 		
 		JCWorkerThread* thread =
 			new JCWorkerThread(W, undefs, a, b, seed_start, this,
@@ -611,7 +529,6 @@ void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<
 			// alarm (spurious signal), the loop will exit.
 		}
 	}
-	
 	LOG_MSG("Exiting JCCoordinator::CalcPseudoP_threaded");
 }
 
@@ -628,13 +545,9 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
         if (undefs[i]) continue;
 
 		const int numNeighsI = W[i].Size();
-		const double numNeighsD = W[i].Size();
         
         //only compute for non-isolates
-		if (numNeighsI > 0 && G_defined[i]) {
-            // know != 0 since G_defined[i] true
-			double xd_i = x_star_t - x[i];
-			
+		if (numNeighsI > 0) {
 			int countGLarger = 0;
 			double permutedG = 0;
             
@@ -669,7 +582,7 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 				}
 		
                 // binary weights
-                permutedG = perm_jc_i / xd_i;
+                permutedG = perm_jc_i;
 				if (permutedG >= G[i]) countGLarger++;
 			}
 			// pick the smallest
@@ -677,20 +590,6 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 				countGLarger=permutations-countGLarger;
 			}
 			pseudo_p[i] = (countGLarger + 1.0)/(permutations+1.0);
-			
-            // compute exact probability
-            if (is_local_joint_count) {
-                int nn = num_neighbors[i];
-                int n_1s = nn_1_t[i];
-                int n_0s = nn - n_1s;
-                
-                double mm_all = Gda::nChoosek(num_obs-1, nn);
-                double mm_1s = Gda::nChoosek(num_obs_1s-1, n_1s);
-                double mm_0s = Gda::nChoosek(num_obs_0s, n_0s);
-                                        
-                double hg = (mm_1s * mm_0s) / mm_all;
-                e_p[i] = hg;
-            }
 		}
 	}
 }
@@ -741,7 +640,6 @@ void JCCoordinator::registerObserver(JCCoordinatorObserver* o)
 void JCCoordinator::removeObserver(JCCoordinatorObserver* o)
 {
     observers.remove(o);
-    LOG(observers.size());
     if (observers.size() == 0) {
         delete this;
     }

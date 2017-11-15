@@ -16,6 +16,7 @@
 
 #include "cluster.h"
 #include "spectral.h"
+#include "DataUtils.h"
 
 using namespace Eigen;
 using namespace std;
@@ -103,8 +104,10 @@ void SpectralClustering::clusterKmeans(int numClusters) {
     
     double error;
     int ifound;
-    
-    kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0);
+   
+    int s1 =0;
+    int s2 =0;
+    kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
     
@@ -136,6 +139,18 @@ void Spectral::set_data(double** input_data, int nrows, int  ncols)
     }
 }
 
+void Spectral::set_data(vector<vector<double> >& distances)
+{
+    int nrows = distances.size();
+    int ncols = distances[0].size();
+    X.resize(nrows, ncols);
+    for (unsigned int i = 0; i < nrows; ++i) {
+        for (unsigned int j = 0; j < ncols; ++j) {
+            X(i, j) = distances[i][j];
+        }
+    }
+}
+
 double Spectral::kernel(const VectorXd& a, const VectorXd& b){
    
     //http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html
@@ -151,8 +166,37 @@ double Spectral::kernel(const VectorXd& a, const VectorXd& b){
     
 }
 
+void Spectral::affinity_matrix()
+{
+    //If you have an affinity matrix, such as a distance matrix, for which 0 means identical elements, and high values means very dissimilar elements, it can be transformed in a similarity matrix that is well suited for the algorithm by applying the Gaussian (RBF, heat) kernel:
+    //np.exp(- X ** 2 / (2. * delta ** 2))
+
+    double delta = X.maxCoeff() - X.minCoeff();
+    
+    K.resize(X.rows(),X.rows());
+    for(unsigned int i = 0; i < X.rows(); i++){
+        for(unsigned int j = i; j < X.rows(); j++){
+            K(i,j) = K(j,i) = exp(-gamma * X(i, j) * X(i,j) / (2 * delta * delta));
+        }
+    }
+    
+    // Normalise kernel matrix
+    VectorXd d = K.rowwise().sum();
+    for(unsigned int i = 0; i < d.rows(); i++){
+        d(i) = 1.0/sqrt(d(i));
+    }
+    MatrixXd l = (K * d.asDiagonal());
+    for(unsigned int i = 0; i < l.rows(); i++){
+        for(unsigned int j = 0; j < l.cols(); j++){
+            l(i,j) = l(i,j) * d(i);
+        }
+    }
+    K = l;
+}
+
 void Spectral::generate_kernel_matrix(){
     
+    // construct_affinity matrix
     // Fill kernel matrix
     K.resize(X.rows(),X.rows());
     for(unsigned int i = 0; i < X.rows(); i++){
@@ -179,6 +223,37 @@ void Spectral::generate_kernel_matrix(){
 static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)
 {
     return a.first > b.first;
+}
+
+void Spectral::fast_eigendecomposition()
+{
+    // get top N = centers eigen values/vectors
+    int n = K.rows();
+    vector<vector<double> > matrix(n);
+    for (int i=0; i< n; i++) {
+        matrix[i].resize(n);
+        for (int j=0; j<n; j++) matrix[i][j] = K(i,j);
+    }
+   
+    vector<vector<double> > evecs(centers);
+    for (int i=0; i<centers; i++) evecs[i].resize(n);
+    DataUtils::randomize(evecs);
+   
+    vector<double> lambda(centers);
+   
+    int maxiter = 100;
+    
+    DataUtils::eigen(matrix, evecs, lambda, maxiter);
+    
+    eigenvectors.resize(n, centers);
+    eigenvalues.resize(centers);
+   
+    for (int c=0; c<centers; c++) {
+        for (int i=0; i<n; i++) {
+            eigenvectors(i, c) = evecs[c][i];
+        }
+        eigenvalues[c] = lambda[c];
+    }
 }
 
 void Spectral::eigendecomposition(){
@@ -209,18 +284,6 @@ void Spectral::eigendecomposition(){
         cumulative(i) = c;
         eigenvectors.col(i) = eigen_pairs[i].second;
     }
-    
-    /*
-     cout << "Sorted eigenvalues:" << endl;
-     for(unsigned int i = 0; i < eigenvalues.rows(); i++){
-     if(eigenvalues(i) > 0){
-     cout << "PC " << i+1 << ": Eigenvalue: " << eigenvalues(i);
-     printf("\t(%3.3f of variance, cumulative =  %3.3f)\n",eigenvalues(i)/eigenvalues.sum(),cumulative(i)/eigenvalues.sum());
-     //cout << eigenvectors.col(i) << endl;
-     }
-     }
-     cout << endl;
-     */
     MatrixXd tmp = eigenvectors;
     
     // Select top K eigenvectors where K = centers
@@ -229,10 +292,12 @@ void Spectral::eigendecomposition(){
 }
 
 
-void Spectral::cluster(){
-    
-    generate_kernel_matrix();
-    eigendecomposition();
+void Spectral::cluster(int maxiter){
+   
+    //generate_kernel_matrix();
+    affinity_matrix();
+    if (maxiter>0) fast_eigendecomposition();
+    else eigendecomposition();
     kmeans();
     
 }
@@ -261,8 +326,9 @@ void Spectral::kmeans()
     
     double error;
     int ifound;
-    
-    kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0);
+    int s1=0;
+    int s2 =0;
+    kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
     

@@ -508,12 +508,11 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     continue;
                 }
                 wxString col_nm(var_man.GetName(col));
-                int col_tm(var_man.GetTime(col));
-                
-                if (data_map[row_nm].size() == 1)
-                    col_tm = 0;
-                
-                const vector<bool>& X_undef(data_undef_map[col_nm][col_tm]);
+                int col_tm = 0;
+                if (!var_man.IsTimeVariant(col)) {
+                    col_tm = var_man.GetTime(col);
+                }
+                const vector<bool>& X_undef = data_undef_map[col_nm][col_tm];
                 for (size_t ii=0; ii<X_undef.size(); ii++) {
                     XY_undef[ii] = XY_undef[ii] || X_undef[ii];
                 }

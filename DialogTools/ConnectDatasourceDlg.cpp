@@ -988,7 +988,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         CartoDBProxy::GetInstance().SetKey(key);
         CartoDBProxy::GetInstance().SetUserName(user);
         
-        wxString url = "CartoDB:" + user;
+        wxString url = "Carto:" + user;
         
         datasource = new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }

@@ -1128,7 +1128,10 @@ wxString GenUtils::DblToStr(double x, int precision)
         ss << std::fixed;
     }
 	ss << std::setprecision(precision);
-	ss << x;
+    if (x == (int)x)
+        ss << wxString::Format("%d", (int)x);
+    else
+        ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
@@ -1184,6 +1187,63 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
 }
 
+double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
+{
+    int nObs = x.size();
+    double sum_x = 0;
+    double sum_y = 0;
+    for (int i=0; i<nObs; i++) {
+        sum_x += x[i];
+        sum_y += y[i];
+    }
+    double mean_x = sum_x / nObs;
+    double mean_y = sum_y / nObs;
+   
+    double ss_x = 0;
+    double ss_y = 0;
+    double ss_xy = 0;
+    double d_x = 0, d_y = 0;
+    for (int i=0; i<nObs; i++) {
+        d_x = x[i] - mean_x;
+        d_y = y[i] - mean_y;
+        ss_x += d_x * d_x;
+        ss_y += d_y * d_y;
+        ss_xy += d_x * d_y;
+    }
+    
+    double r = pow(ss_x * ss_y, 0.5);
+    r = ss_xy / r;
+    return r;
+}
+
+double GenUtils::Sum(std::vector<double>& data)
+{
+    double sum = 0;
+    int nObs = data.size();
+    for (int i=0; i<nObs; i++) sum += data[i];
+    return sum;
+}
+
+double GenUtils::SumOfSquares(std::vector<double>& data)
+{
+    int nObs = data.size();
+    if (nObs <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
+    return ssum;
+}
+
+
+double GenUtils::GetVariance(std::vector<double>& data)
+{
+    if (data.size() <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
+    return ssum / data.size();
+}
+
 bool GenUtils::StandardizeData(int nObs, double* data)
 {
 	if (nObs <= 1) return false;
@@ -1222,14 +1282,6 @@ bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
 	return true;
 }
 
-double GenUtils::GetVariance(std::vector<double>& data)
-{
-    if (data.size() <= 1) return 0;
-    GenUtils::DeviationFromMean(data);
-    double ssum = 0.0;
-    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
-    return ssum / data.size();
-}
 
 bool GenUtils::StandardizeData(std::vector<double>& data)
 {

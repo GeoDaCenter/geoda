@@ -58,10 +58,6 @@ public:
 	 */
 	~OGRDatasourceProxy();
 
-private:
-    boost::thread* create_layer_thread;
-	
-public:
     bool is_writable;
    
     GdaConst::DataSourceType ds_type;
@@ -76,7 +72,6 @@ public:
     
 	vector<wxString> layer_names;
     
-public:
 	/**
 	 * This function clean the memory (geometies and table) of contained layers
 	 */
@@ -124,6 +119,8 @@ public:
     
     void StopCreateLayer();
     bool DeleteLayer(string layer_name);
+private:
+    boost::thread* create_layer_thread;
 };
 
 

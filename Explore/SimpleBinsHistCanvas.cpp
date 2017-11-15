@@ -37,6 +37,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/ShapeUtils.h"
+#include "CorrelogramView.h"
 #include "SimpleBinsHistCanvas.h"
 
 IMPLEMENT_CLASS(SimpleBinsHistCanvas, TemplateCanvas)
@@ -105,17 +106,10 @@ SimpleBinsHistCanvas::~SimpleBinsHistCanvas()
 void SimpleBinsHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering SimpleBinsHistCanvas::DisplayRightClickMenu");
-	if (right_click_menu_id.IsEmpty()) return;	
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	template_frame->OnActivate(ae);
-
-	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
-
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
+	if (right_click_menu_id.IsEmpty()) return;
+    if (sbh_canv_cb) {
+        sbh_canv_cb->OnRightClick(pos+ GetPosition());
+    }
 	LOG_MSG("Exiting SimpleBinsHistCanvas::DisplayRightClickMenu");
 }
 
@@ -210,7 +204,10 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
 			std::ostringstream ss;
-			ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
+            if ( axis_scale_x.tics[i] == (int) axis_scale_x.tics[i])
+                ss << wxString::Format("%d", (int)axis_scale_x.tics[i]);
+            else
+                ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
 			axis_scale_x.tics_str[i] = ss.str();
 			axis_scale_x.tics_str_show[i] = false;
 		}

@@ -49,9 +49,8 @@ BEGIN_EVENT_TABLE( ColocationSelectDlg, wxDialog )
 EVT_CLOSE( ColocationSelectDlg::OnClose )
 END_EVENT_TABLE()
 
-ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s, TableState* table_state_s)
-: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings")),
-table_state(table_state_s)
+ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
+: AbstractClusterDlg(parent_s, project_s, _("Co-location Settings"))
 {
     wxLogMessage("Open ColocationSelectDlg.");
     
@@ -63,12 +62,12 @@ table_state(table_state_s)
     
     CreateControls();
     
-    table_state->registerObserver(this);
+    
 }
 
 ColocationSelectDlg::~ColocationSelectDlg()
 {
-    table_state->removeObserver(this);
+    
 }
 
 void ColocationSelectDlg::update(TableState* o)
@@ -288,6 +287,8 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
 {
     co_val_dict.clear();
     var_selections.Clear();
+    select_vars.clear();
+    
     clear_colo_control();
     
     combo_var->GetSelections(var_selections);
@@ -299,7 +300,10 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         col_names.resize(num_var);
         for (int i=0; i<num_var; i++) {
             int idx = var_selections[i];
-            wxString nm = name_to_nm[combo_var->GetString(idx)];
+            wxString sel_str = combo_var->GetString(idx);
+            select_vars.push_back(sel_str);
+            
+            wxString nm = name_to_nm[sel_str];
             col_names.push_back(nm);
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
@@ -406,6 +410,10 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
     container->Layout();
 }
 
+wxString ColocationSelectDlg::_printConfiguration()
+{
+    return "";
+}
 
 void ColocationSelectDlg::OnClickColor( wxMouseEvent& event)
 {

@@ -28,8 +28,8 @@
  in GetisOrdMapNewView::GMapType.
  */
 
-#ifndef __GEODA_CENTER_M_LOCALJOINCOUNT_COORDINATOR_H__
-#define __GEODA_CENTER_M_LOCALJOINCOUNT_COORDINATOR_H__
+#ifndef __GEODA_CENTER_MLJC_COORDINATOR_H__
+#define __GEODA_CENTER_MLJC_COORDINATOR_H__
 
 #include <list>
 #include <vector>
@@ -42,7 +42,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 
 
-class GetisOrdMapFrame; // instead of JCCoordinatorObserver
+class JCCoordinatorObserver; 
 class JCCoordinator;
 class Project;
 class WeightsManState;
@@ -82,9 +82,7 @@ class JCCoordinator : public WeightsManStateObserver
 public:
     JCCoordinator(boost::uuids::uuid weights_id, Project* project,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
-                  const std::vector<int>& col_ids,
-                  bool row_standardize_weights,
-                  bool is_local_joint_count=false);
+                  const std::vector<int>& col_ids);
 	virtual ~JCCoordinator();
 	
 	bool IsOk() { return true; }
@@ -99,9 +97,7 @@ public:
     double fdr; //False Discovery Rate
     double user_sig_cutoff; // user defined cutoff
 
-	uint64_t GetLastUsedSeed() {
-        return last_seed_used;
-    }
+	uint64_t GetLastUsedSeed() { return last_seed_used;}
     
 	void SetLastUsedSeed(uint64_t seed) {
         reuse_last_seed = true;
@@ -133,67 +129,26 @@ public:
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
 	
-	std::vector<double> n; // # non-neighborless observations
 
-    // a special case Local Join Count
-    bool is_local_joint_count;
-    int num_obs_1s;
-    int num_obs_0s;
-    
-	double x_star_t; // temporary x_star for use in worker threads
-	std::vector<double> x_star; // sum of all x_i // threaded
-	std::vector<double> x_sstar; // sum of all (x_i)^2
-		
-	std::vector<double> ExG; // same for all i since we row-standardize W
-	std::vector<double> ExGstar; // same for all i since we row-standardize W
-	std::vector<double> mean_x; // x hat (overall)
-	std::vector<double> var_x; // s^2 overall
-	// since W is row-standardized, VarGstar same for all i
-	// same as s^2 / (n^2 mean_x ^2)
-	std::vector<double> VarGstar;
-	// since W is row-standardized, sdGstar same for all i
-	std::vector<double> sdGstar;
-    // number of neighbors
-    vector<wxInt64> num_neighbors;
-    // number of neighbors with 1
-    std::vector<wxInt64* > num_neighbors_1;
-    std::vector<double*> ep_vals;
-    
-protected:
-	// The following ten are just temporary pointers into the corresponding
-	// space-time data arrays below
-	double* G; //threaded
-	bool* G_defined; // check for divide-by-zero //threaded
-	double* z;
-	// p-val from z_i using standard normal table
-	double* p;
-	double* pseudo_p; //threaded
-	double* x; //threaded
-	double* y; //threaded
-    int* c;
-	double* e_p; //threaded
-    wxInt64* nn_1_t;
 	
-public:
 	std::vector<double*> G_vecs; //threaded
-	std::vector<bool*> G_defined_vecs; // check for divide-by-zero //threaded
-                                       // as well as undefined values
-	// z-val corresponding to each G_i
-	std::vector<double*> z_vecs;
-	// p-val from z_i using standard normal table
 	std::vector<double*> p_vecs;
-	std::vector<double*> pseudo_p_vecs; //threaded
-   
-    std::vector<int* > c_vecs;
-    
-	std::vector<double*> x_vecs; //threaded
+	std::vector<double*> pseudo_p_vecs;
+	std::vector<double*> x_vecs;
+	std::vector<double*> y_vecs;
+    std::vector<int*> c_vecs;
     std::vector<std::vector<bool> > x_undefs;
-	std::vector<double*> y_vecs; //threaded
-    std::vector<std::vector<bool> > y_undefs;
-
-	boost::uuids::uuid w_id;
     std::vector<GalWeight*> Gal_vecs;
     std::vector<GalWeight*> Gal_vecs_orig;
+    std::vector<std::vector<wxInt64> > num_neighbors;
+    std::vector<std::vector<wxInt64> > num_neighbors_x1;
+    std::vector<std::vector<wxInt64> > num_neighbors_y1;
+    std::vector<std::vector<wxInt64> > num_neighbors_xy1;
+    
+	std::vector<bool> has_isolates;
+	std::vector<bool> has_undefined;
+
+	boost::uuids::uuid w_id;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
@@ -203,14 +158,14 @@ public:
 	std::vector<d_array_type> data; // data[variable][time][obs]
 	std::vector<b_array_type> data_undef; // data[variable][time][obs]
 	
-	// All GetisOrdMapCanvas objects synchronize themselves
-	// from the following 6 variables.
+	// All objects synchronize themselves from the following 6 variables.
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;
 	std::vector<wxString> map_error_message;
+    
 	
 	bool GetHasIsolates(int time) { return has_isolates[time]; }
 	bool GetHasUndefined(int time) { return has_undefined[time]; }
@@ -233,22 +188,28 @@ public:
     
 	void VarInfoAttributeChange();
 	
-	void FillClusterCats(int canvas_time, bool is_gi, bool is_perm,
-						 std::vector<wxInt64>& c_val);
+	void FillClusterCats(int canvas_time,std::vector<wxInt64>& c_val);
+    
 protected:
-	void DeallocateVectors();
-	void AllocateVectors();
-	
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
-	void CalcGs();
-	std::vector<bool> has_undefined;
-	std::vector<bool> has_isolates;
-	bool row_standardize;
+	// The following ten are just temporary pointers into the corresponding
+	// space-time data arrays below
+	double* G; //threaded
+	double* p;
+	double* pseudo_p;
+    double* x;
+	double* y;
+    int* c;
+    
 	uint64_t last_seed_used;
 	bool reuse_last_seed;
 	
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
+    
+	void DeallocateVectors();
+	void AllocateVectors();
+	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
+	void CalcGs();
 };
 
 #endif

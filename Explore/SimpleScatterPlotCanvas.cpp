@@ -121,18 +121,10 @@ SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 void SimpleScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering SimpleScatterPlotCanvas::DisplayRightClickMenu");
-	if (right_click_menu_id.IsEmpty()) return;	
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	template_frame->OnActivate(ae);
-	
-	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
-	if (!optMenu) return;
-	
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
+	if (right_click_menu_id.IsEmpty()) return;
+    if (ssp_canv_cb) {
+        ssp_canv_cb->OnRightClick(pos+ GetPosition());
+    }
 	LOG_MSG("Exiting SimpleScatterPlotCanvas::DisplayRightClickMenu");
 }
 
@@ -216,6 +208,7 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 {
 	if (template_frame) {
 		wxStatusBar* sb = template_frame->GetStatusBar();
+        if (sb == NULL) return;
 		if (mousemode == select && selectstate == start) {
 			if (template_frame->GetStatusBarStringFromFrame()) {
                 wxString str = template_frame->GetUpdateStatusBarString(hover_obs, total_hover_obs);

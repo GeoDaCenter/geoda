@@ -53,13 +53,13 @@ public:
     
     void InitVariableCombobox(wxListBox* var_box);
     
+    virtual wxString _printConfiguration();
+    
 protected:
     wxChoice* combo_method;
-    wxChoice* combo_control_var;
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     
-    wxTextCtrl* m_min_val_region;
     wxTextCtrl* m_max_region;
     
     wxCheckBox* chk_seed;
@@ -67,6 +67,8 @@ protected:
     wxTextCtrl* m_textbox;
 
     wxChoice* m_method;
+
+	wxChoice* m_distance;
     
     wxButton* seedButton;
     

@@ -27,9 +27,11 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include <wx/grid.h>
 #include "../GenUtils.h"
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TableFrame.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../logger.h"
@@ -202,17 +204,36 @@ void FieldNewCalcSpecialDlg::Apply()
 				break;
 			case enumerate:
 			{
+                std::vector<int> row_order;
+                TableFrame* tf = 0;
+                wxGrid* g = project->FindTableGrid();
+                if (g) tf = (TableFrame*) g->GetParent()->GetParent(); // wxPanel<wxFrame
+                if (tf) {
+                    row_order = tf->GetRowOrder();
+                }
+                
                 if (col_type == GdaConst::double_type) {
                     std::vector<double> data(n_rows, 0);
-                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    else
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = i+1;
+                    
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::long64_type) {
                     std::vector<wxInt64> data(n_rows, 0);
-                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    else
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = i+1;
+                    
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::string_type) {
                     std::vector<wxString> data(n_rows, wxEmptyString);
-                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%d", i+1);
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%d", i+1);
+                    else 
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = wxString::Format("%d", i+1);
                     table_int->SetColData(result_col, time_list[t], data);
                 }                
                 table_int->SetColUndefined(result_col, time_list[t], undefined);

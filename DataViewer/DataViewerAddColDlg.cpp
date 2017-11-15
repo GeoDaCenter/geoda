@@ -113,18 +113,7 @@ void DataViewerAddColDlg::CreateControls()
 	name_validator.SetCharIncludes(name_chars);
 	m_name->SetValidator(name_validator);
 	m_name_valid = false;
-	
-	m_time_variant_no = 0;
-	m_time_variant_yes = 0;
-	if (FindWindow(XRCID("ID_TIME_VARIANT_NO"))) {
-		m_time_variant_no = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_NO")), wxRadioButton);
-		m_time_variant_yes = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_YES")), wxRadioButton);
-		m_time_variant_no->SetValue(time_variant_no_as_default);
-		m_time_variant_yes->SetValue(!time_variant_no_as_default);
-		m_time_variant_no->Enable(can_change_time_variant);
-		m_time_variant_yes->Enable(can_change_time_variant);
-	}
-	
+		
 	m_type = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_TYPE")), wxChoice);
 	// add options for Float, Integer, String, or Date
 	m_type->Append("real (eg 1.03, 45.7)");
@@ -372,9 +361,6 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     }
 
 	int time_steps = 1; // non-space-time column by default	
-	if (m_time_variant_yes && m_time_variant_yes->GetValue()) {
-		time_steps = table_int->GetTimeSteps();
-	}
 
 	wxLogMessage(wxString::Format("Inserting new column %s into Table", colname.Upper()));
 	

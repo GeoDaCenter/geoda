@@ -48,15 +48,16 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
-    void OnFloorCheck(wxCommandEvent& event);
+    virtual void OnCheckMinBound(wxCommandEvent& event);
     
-    void InitVariableCombobox(wxListBox* var_box);
+    virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only);
+    
+    virtual wxString _printConfiguration();
     
 private:
     wxCheckBox* chk_seed;
     wxCheckBox* chk_lisa;
     
-    wxListBox* combo_var;
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     wxChoice* combo_lisa;
@@ -64,8 +65,14 @@ private:
     wxChoice* m_distance;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
+    
+    wxStaticText* st_minregions;
+    wxTextCtrl* txt_minregions;
 
     wxButton* seedButton;
+    
+    wxString select_floor;
+    wxString select_lisa;
     
     DECLARE_EVENT_TABLE()
 };
