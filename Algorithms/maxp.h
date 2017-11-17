@@ -131,6 +131,8 @@ protected:
     
     vector<unordered_map<int, int> > area2region_group;
     
+    unordered_map<vector<int>, double> objval_dict;
+    
     //! A vector of vector<int> list of lists of regions.
     /*!
      Details. each list has the ids of areas in that region.
@@ -206,6 +208,16 @@ protected:
      Details.
      */
     void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region);
+   
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
+    void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region);
+    
+    void getIntraBorderingAreas(vector<vector<int> >& init_regions);
     
     //! A protected member function: init_solution(void). return
     /*!
@@ -214,13 +226,19 @@ protected:
      */
     bool check_floor(const vector<int>& region);
     
+    bool check_floor(const vector<int>& region, int leaver);
+    
     double objective_function();
     
-    double objective_function(const vector<vector<int> >& solution);
+    double objective_function(vector<int>& solution);
     
-    double objective_function(const vector<int>& current_internal, const vector<int>& current_outter);
+    double objective_function(vector<int>& region1, int leaver, vector<int>& region2, int comer);
     
-    double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
+    double objective_function(vector<vector<int> >& solution);
+    
+    double objective_function(vector<int>& current_internal, vector<int>& current_outter);
+    
+    double objective_function_change(int area, vector<int>& current_internal, vector<int>& current_outter);
    
     wxString print_regions(vector<vector<int> >& _regions);
     //! xxx
@@ -237,8 +255,6 @@ protected:
     list<int> test_random_numbers;
     list<int> enclave_random_number;
     list<vector<int> > test_random_cand;
-    vector<int> test_get_random();
-    void init_test();
 };
 
 #endif

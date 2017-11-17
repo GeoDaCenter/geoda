@@ -37,7 +37,7 @@ using namespace boost;
 using namespace std;
 
 Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _rnd_seed, char _dist, bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist)
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(__DBL_MAX__)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -45,7 +45,6 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
     if (test) {
         initial = 2;
         floor = 5;
-        init_test();
     }
 
     // setup random number
@@ -56,7 +55,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         srand(rnd_seed);
     }
     seed_start = rand();
-    seed_increment = MAX_ATTEMPTS * num_obs * 10;
+    seed_increment = MAX_ATTEMPTS * num_obs * 100;
     
     // init solution
     if (_seeds.empty()) {
@@ -195,6 +194,8 @@ void Maxp::init_solution(int solution_idx)
         vector<vector<int> > regn;
         list<int> enclaves;
         list<int> candidates;
+        unordered_map<int, bool> candidates_dict;
+        
         if (seeds.empty()) {
             vector<int> _candidates(num_obs);
             for (int i=0; i<num_obs;i++) _candidates[i] = i;
@@ -205,10 +206,10 @@ void Maxp::init_solution(int solution_idx)
                 while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
                 if (k != i) std::iter_swap(_candidates.begin() + k, _candidates.begin()+i);
             }
-            
-            if (test) _candidates = test_get_random();
-            
-            for (int i=0; i<num_obs;i++) candidates.push_back( _candidates[i] );
+            for (int i=0; i<num_obs;i++) {
+                candidates.push_back( _candidates[i] );
+                candidates_dict[ _candidates[i] ] = true;
+            }
         } else {
             //nonseeds = [i for i in self.w.id_order if i not in seeds]
             // candidates.extend(nonseeds)
@@ -222,6 +223,7 @@ void Maxp::init_solution(int solution_idx)
             }
             for (it = cand_dict.begin(); it != cand_dict.end(); it++) {
                 candidates.push_back(it->first);
+                candidates_dict[ it->first ] = true;
             }
         }
         
@@ -235,53 +237,92 @@ void Maxp::init_solution(int solution_idx)
             // try to grow it till threshold constraint is satisfied
             vector<int> region;
             region.push_back(seed);
-
-            bool building_region = true;
-            while (building_region) {
-                // check if floor is satisfied
-                if (check_floor(region)) {
-                    regn.push_back(region);
-                    building_region = false;
-                } else {
-                    vector<int> potential;
-                    for (int i=0; i<region.size(); i++) {
-                        int area = region[i];
-                        for ( int n=0; n<w[area].Size(); n++) {
-                            int nbr = w[area][n];
-                            
-                            iter = find(candidates.begin(), candidates.end(), nbr);
-                            if (iter == candidates.end()) continue;
-                            
-                            vector_iter = find(region.begin(), region.end(), nbr);
-                            if (vector_iter != region.end()) continue;
-                            
-                            vector_iter = find(potential.begin(), potential.end(), nbr);
-                            if (vector_iter != potential.end()) continue;
-                            
-                            potential.push_back(nbr);
+            unordered_map<int, bool> region_dict;
+            region_dict[seed] = true;
+            
+            // check floor and enclave
+            bool is_enclave = true;
+            double cv = floor_variable[ seed ];
+           
+            while (is_enclave && cv < floor && !region.empty()) {
+                int area = region.back();
+                region.pop_back();
+               
+                for ( int n=0; n<w[area].Size(); n++) {
+                    int nbr = w[area][n];
+                    if (region_dict[nbr] != true && candidates_dict[nbr] == true) {
+                        region.push_back(nbr);
+                        region_dict[nbr] = true;
+                        candidates.remove(nbr);
+                        candidates_dict[nbr] = false;
+                        cv += floor_variable[ nbr];
+                        if (cv >= floor) {
+                            is_enclave = false;
+                            break;
                         }
-                    }
-                    if (!potential.empty()) {
-                        // add a random neighbor
-                        int neigID = Gda::ThomasWangHashDouble(seed_local++) * potential.size();
-                        if (test ) {
-                            neigID = test_random_numbers.front();
-                            test_random_numbers.pop_front();
-                        }
-                        
-                        int neigAdd = potential[neigID];
-                        potential.erase(potential.begin() + neigID);
-                        region.push_back(neigAdd);
-                        // remove it from candidate
-                        candidates.remove(neigAdd);
-                    } else {
-                        for (int i=0; i<region.size(); i++) {
-                            enclaves.push_back(region[i]);
-                        }
-                        building_region = false;
                     }
                 }
             }
+            
+            unordered_map<int, bool>::iterator rit;
+            if (is_enclave) {
+                for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
+                    if (rit->second) enclaves.push_back(rit->first);
+                }
+            } else {
+                vector<int> _region;
+                for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
+                    if (rit->second) _region.push_back(rit->first);
+                }
+                regn.push_back(_region);
+            }
+           
+            /*
+            bool building_region = true;
+            while (building_region) {
+                // check if floor is satisfied
+                if (cv >= floor)  {
+                    regn.push_back(region);
+                    break;
+                }
+                
+                //vector<int> potential;
+                unordered_map<int, bool> potential;
+                for (int i=0; i<region.size(); i++) {
+                    int area = region[i];
+                    for ( int n=0; n<w[area].Size(); n++) {
+                        int nbr = w[area][n];
+                        
+                        if (candidates_dict.find(nbr) == candidates_dict.end()) continue;
+                        
+                        if (candidates_dict[nbr] == false) continue;
+                        
+                        if (region_dict.find(nbr) != region_dict.end()) continue;
+                        
+                        if (potential.find(nbr) != potential.end()) continue;
+                        
+                        potential[nbr] = true;
+                    }
+                }
+                if (!potential.empty()) {
+                    // add a random neighbor
+                    int neigID = Gda::ThomasWangHashDouble(seed_local++) * potential.size();
+                    int neigAdd = potential[neigID];
+                    potential.erase(potential.find(neigID));
+                    region.push_back(neigAdd);
+                    region_dict[neigAdd] = true;
+                    // remove it from candidate
+                    candidates.remove(neigAdd);
+                    candidates_dict[neigAdd] = false;
+                    
+                } else {
+                    for (int i=0; i<region.size(); i++) {
+                        enclaves.push_back(region[i]);
+                    }
+                    building_region = false;
+                }
+            }
+             */
         }
         // check to see if any regions were made before going to enclave stage
         bool feasible =false;
@@ -348,28 +389,34 @@ void Maxp::init_solution(int solution_idx)
         }
         
         if (feasible) {
-            solving = false;
-            p = regn.size();
-            _regions = regn;
-            _area2region = a2r;
-            //objective_val = objective_function(_regions);
+            double ss = objective_function(regn);
+            if (ss < best_ss) {
+                solving = false;
+                p = regn.size();
+                _regions = regn;
+                _area2region = a2r;
+            }
         } else {
             if (attempts == MAX_ATTEMPTS) {
                 LOG_MSG("No initial solution found");
                 p = 0;
             }
-            attempts += 1;
         }
+        attempts += 1;
     }
     
-    if (solution_idx >=0 ) {
-        // apply local search
-        swap(_regions, _area2region);
-        
-        regions_group[solution_idx] = _regions;
-        area2region_group[solution_idx] = _area2region;
-        p_group[solution_idx] = p;
-        initial_wss[solution_idx] = objective_function(_regions);
+    if (solution_idx >=0) {
+        if (_regions.empty()) {
+            p_group[solution_idx] = 0;
+            initial_wss[solution_idx] = 0;
+        } else {
+            // apply local search
+            swap(_regions, _area2region);
+            regions_group[solution_idx] = _regions;
+            area2region_group[solution_idx] = _area2region;
+            p_group[solution_idx] = p;
+            initial_wss[solution_idx] = objective_function(_regions);
+        }
     } else {
         if (this->regions.empty()) {
             this->regions = _regions;
@@ -387,110 +434,236 @@ void Maxp::init_solution(int solution_idx)
     }
 }
 
+void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region)
+{
+    int nr = init_regions.size();
+    
+    vector<int>::iterator iter;
+    vector<int> changed_regions(nr, 1);
+    
+    bool bRandom = false;
+    // tabuLength: Number of times a reverse move is prohibited. Default value tabuLength = 85.
+    int max_p = init_regions.size();
+    int tabuLength = 85;
+    int convTabu = std::min(10, num_obs / max_p);
+    // convTabu=230*numpy.sqrt(maxP)
+    // rm.tabuMove(tabuLength, convTabu = convTabu, typeTabu=typeTabu)
+    // chooses the best neighbouring solution for evaluation (it implies the enumeration of all the neighbouring solution at each iteration)
+    
+    double bestAdmisable = 9999999.0;
+    vector<pair<int, int> > tabuList(tabuLength, 0);
+    vector<pair<int, int> >::iterator tabu_iter;
+    //cBreak = [];
+    int c = 1;
+    int round = 0;
+    //resList = []
+    double epsilon = 1e-10;
+    
+    while ( c<=convTabu ) {
+       
+        vector<int> regionIds;
+        for (int r=0; r<nr; r++) {
+            if (changed_regions[r] >0) {
+                regionIds.push_back(r);
+            }
+        }
+        for (int r=0; r<nr; r++) changed_regions[r] = 0;
+        for (int i=0; i<regionIds.size(); i++) {
+            int seed = regionIds[i];
+            int local_moves = 0;
+            // get neighbors
+            
+            unordered_map<int, bool>::iterator m_it, n_it;
+            unordered_map<int, bool> member_dict, neighbors_dict;
+            
+            for (int j=0; j<init_regions[seed].size();j++) {
+                int member = init_regions[seed][j];
+                member_dict[member]=true;
+            }
+            for (int j=0; j<init_regions[seed].size();j++) {
+                int member = init_regions[seed][j];
+                for (int k=0; k<w[member].Size(); k++) {
+                    int cand = w[member][k];
+                    if (member_dict.find(cand) == member_dict.end())
+                        neighbors_dict[cand] = true;
+                }
+            }
+            int m_size = member_dict.size();
+            int n_size = neighbors_dict.size();
+            
+            vector<int> candidates;
+            for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
+                int nbr = n_it->first;
+                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                if (check_floor(block, nbr)) {
+                    if (check_contiguity(w, block, nbr)) {
+                        candidates.push_back(nbr);
+                    }
+                }
+            }
+            // find the best local move
+            while (!candidates.empty()) {
+                double cv = 0.0;
+                int best = 0;
+                bool best_found = false;
+                for (int j=0; j<candidates.size(); j++) {
+                    int area = candidates[j];
+                    vector<int>& current_internal = init_regions[seed];
+                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    double change = objective_function_change(area, current_internal, current_outter);
+                    if (change <= cv) {
+                        best = area;
+                        cv = change;
+                        best_found = true;
+                    }
+                }
+                candidates.clear();
+                if (best_found) {
+                    int area = best;
+                    int old_region = init_area2region[area];
+                  
+                    // make the move
+                    vector<int>& rgn = init_regions[old_region];
+                    rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+                    init_area2region[area] = seed;
+                    init_regions[seed].push_back(area);
+                    
+                    pair<int, int> tabu(area, old_region);
+                    tabu_iter = find (tabuList.begin(), tabuList.end(), tabu);
+                    if (tabu_iter == tabuList.end()) {
+                        tabuList.push_back(tabu);
+                    }
+                    
+                } else {
+                    // if no improving move can be made, then see if a tabu move can be made which improves on the current local best (termed an aspiration move)
+                }
+            }
+        }
+    }
+}
+
+void Maxp::getIntraBorderingAreas(vector<vector<int> >& init_regions)
+{
+    for (int i=0; i<init_regions.size(); i++) {
+        vector<int>& area = init_regions[i];
+    }
+}
 void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region)
 {
-    // local search ?
+    // local search AZP
     
     bool swapping = true;
     int swap_iteration = 0;
     int total_move = 0;
-    int k = init_regions.size();
+    int nr = init_regions.size();
     
     vector<int>::iterator iter;
-    vector<int> changed_regions(k, 1);
+    vector<int> changed_regions(nr, 1);
     
     // nr = range(k)
     uint64_t seed_local = seed_start + (initial+1) * seed_increment;;
     
     while (swapping) {
         int moves_made = 0;
+        
+        //selects a neighbouring solution at random
         // regionIds = [r for r in nr if changed_regions[r]]
+        
         vector<int> regionIds;
-        for (int r=0; r<k; r++) {
+        for (int r=0; r<nr; r++) {
             if (changed_regions[r] >0) {
                 regionIds.push_back(r);
             }
         }
         //random_shuffle(regionIds.begin(), regionIds.end());
-        /*for (int i=regionIds.size()-1; i>=1; --i) {
-            int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
-            while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
-            
-            if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
-        }*/
-        for (int r=0; r<k; r++) changed_regions[r] = 0;
+        //for (int i=regionIds.size()-1; i>=1; --i) {
+        //    int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+        //    while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+        //    if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
+        //}
+        
+        for (int r=0; r<nr; r++) changed_regions[r] = 0;
         swap_iteration += 1;
         for (int i=0; i<regionIds.size(); i++) {
             int seed = regionIds[i];
-            bool local_swapping = true;
-            int local_attempts = 0;
-            while (local_swapping) {
-                int local_moves = 0;
-                // get neighbors
-                vector<int>& members = init_regions[seed];
-                vector<int> neighbors;
-                for (int j=0; j<members.size(); j++) {
-                    int member = members[j];
-                    for (int k=0; k<w[member].Size(); k++) {
-                        int candidate = w[member][k];
-                        iter = find(members.begin(), members.end(), candidate);
-                        if (iter != members.end()) continue;// not in members
-                        iter = find(neighbors.begin(), neighbors.end(), candidate);
-                        if (iter != neighbors.end()) continue; // not in neighbors
-                        neighbors.push_back(candidate);
-                    }
-                }
-                vector<int> candidates;
-                for (int j=0; j<neighbors.size(); j++) {
-                    int nbr = neighbors[j];
-                    vector<int> block = init_regions[ init_area2region[ nbr ] ]; // deep copy
-                    if (check_contiguity(w, block, nbr)) {
-                        block.erase(remove(block.begin(),block.end(),nbr), block.end()); // remove frm vector
-                        if (check_floor(block)) {
-                            candidates.push_back(nbr);
-                        }
-                    }
-                }
-                // find the best local move
-                if (candidates.empty()) {
-                    local_swapping = false;
-                } else {
-                    int nc = candidates.size();
-                    double cv = 0.0;
-                    int best = 0;
-                    bool best_found = false;
-                    
-                    for (int j=0; j<candidates.size(); j++) {
-                        int area = candidates[j];
-                        vector<int>& current_internal = init_regions[seed];
-                        vector<int>& current_outter = init_regions[init_area2region[area]];
-                        double change = objective_function_change(area, current_internal, current_outter);
-                        if (change < cv) {
-                            best = area;
-                            cv = change;
-                            best_found = true;
-                        }
-                    }
-                    
-                    if (best_found) {
-                        // make the move
-                        int area = best;
-                        int old_region = init_area2region[area];
-                        vector<int>& rgn = init_regions[old_region];
-                        rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
-                        
-                        init_area2region[area] = seed;
-                        init_regions[seed].push_back(area);
-                        moves_made += 1;
-                        changed_regions[seed] = 1;
-                        changed_regions[old_region] = 1;
-                    } else {
-                        // no move improves the solution
-                        local_swapping = false;
-                    }
-                }
-                local_attempts += 1;
+            int local_moves = 0;
+            // get neighbors
             
+            unordered_map<int, bool>::iterator m_it, n_it;
+            unordered_map<int, bool> member_dict, neighbors_dict;
+           
+            for (int j=0; j<init_regions[seed].size();j++) {
+                int member = init_regions[seed][j];
+                member_dict[member]=true;
+            }
+            for (int j=0; j<init_regions[seed].size();j++) {
+                int member = init_regions[seed][j];
+                for (int k=0; k<w[member].Size(); k++) {
+                    int cand = w[member][k];
+                    if (member_dict.find(cand) == member_dict.end())
+                        neighbors_dict[cand] = true;
+                }
+            }
+            int m_size = member_dict.size();
+            int n_size = neighbors_dict.size();
+            
+            vector<int> candidates;
+            for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
+                int nbr = n_it->first;
+                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                if (check_floor(block, nbr)) {
+                    if (check_contiguity(w, block, nbr)) {
+                        candidates.push_back(nbr);
+                    }
+                }
+            }
+            // find the best local move
+            while (!candidates.empty()) {
+                double cv = 0.0;
+                int best = 0;
+                bool best_found = false;
+                for (int j=0; j<candidates.size(); j++) {
+                    int area = candidates[j];
+                    vector<int>& current_internal = init_regions[seed];
+                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    double change = objective_function_change(area, current_internal, current_outter);
+                    if (change <= cv) {
+                        best = area;
+                        cv = change;
+                        best_found = true;
+                    }
+                }
+                candidates.clear();
+                if (best_found) {
+                    // make the move
+                    int area = best;
+                    int old_region = init_area2region[area];
+                    vector<int>& rgn = init_regions[old_region];
+                    rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+                    
+                    init_area2region[area] = seed;
+                    init_regions[seed].push_back(area);
+                    
+                    moves_made += 1;
+                    changed_regions[seed] = 1;
+                    changed_regions[old_region] = 1;
+                   
+                    // update candidates list after move in
+                    /*
+                    member_dict[area] = true;
+                    neighbors_dict[area] = false;
+                    for (int k=0; k<w[area].Size(); k++) {
+                        int nbr = w[area][k];
+                        if (member_dict[nbr] || neighbors_dict[nbr]) continue;
+                        vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                        if (check_floor(block, nbr)) {
+                            if (check_contiguity(w, block, nbr)) {
+                                candidates.push_back(nbr);
+                                neighbors_dict[nbr] = true;
+                            }
+                        }
+                    }*/
+                }
             }
         }
         total_move += moves_made;
@@ -500,6 +673,21 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
             total_moves = total_move;
         }
     }
+}
+
+bool Maxp::check_floor(const vector<int>& region, int leaver)
+{
+    // selectionIDs = [self.w.id_order.index(i) for i in region]
+    double cv = 0;
+    for (size_t i=0; i<region.size(); i++) {
+        int selectionID = region[i];
+        if (selectionID == leaver) continue;
+        cv += floor_variable[ selectionID ];
+    }
+    if (cv >= floor)
+        return true;
+    else
+        return false;
 }
 
 bool Maxp::check_floor(const vector<int>& region)
@@ -522,7 +710,70 @@ double Maxp::objective_function()
     return objective_function(regions);
 }
 
-double Maxp::objective_function(const vector<vector<int> >& solution)
+double Maxp::objective_function(vector<int>& solution)
+{
+    //if (objval_dict.find(solution) != objval_dict.end()) {
+    //    return objval_dict[solution];
+    //}
+    
+    // solution is a list of region ids [1,7,2]
+    double wss = 0;
+    
+    int n_size = solution.size();
+    
+    // for every variable, calc the variance using selected neighbors
+    for (int m=0; m<num_vars; m++) {
+        
+        vector<double> selected_z(n_size);
+        
+        for (int i=0; i<solution.size(); i++ ) {
+            int selectionID = solution[i];
+            selected_z[i] =  z[selectionID][m];
+        }
+        
+        double ssd = GenUtils::SumOfSquares(selected_z);
+        wss += ssd;
+    }
+    
+    //objval_dict[solution] = wss;
+    return wss;
+}
+
+double Maxp::objective_function(vector<int>& region1, int leaver, vector<int>& region2, int comer )
+{
+    // solution is a list of region ids [1,7,2]
+    double wss = 0;
+    int j=0;
+    int n_size = region1.size();
+    // for every variable, calc the variance using selected neighbors
+    for (int m=0; m<num_vars; m++) {
+        vector<double> selected_z(n_size-1);
+        j = 0;
+        for (int i=0; i<n_size; i++ ) {
+            if (region1[i] == leaver) continue;
+            int selectionID = region1[i];
+            selected_z[j++] =  z[selectionID][m];
+        }
+        double ssd = GenUtils::SumOfSquares(selected_z);
+        wss += ssd;
+    }
+    
+    n_size = region2.size();
+    // for every variable, calc the variance using selected neighbors
+    for (int m=0; m<num_vars; m++) {
+        vector<double> selected_z(n_size+1);
+        for (int i=0; i<n_size; i++ ) {
+            int selectionID = region2[i];
+            selected_z[i] =  z[selectionID][m];
+        }
+        selected_z[n_size] = z[comer][m];
+        double ssd = GenUtils::SumOfSquares(selected_z);
+        wss += ssd;
+    }
+    return wss;
+}
+
+double Maxp::objective_function(vector<vector<int> >& solution)
 {
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
     // that the first region has areas 1,7,2 the second region 0,4,3 and so
@@ -552,7 +803,7 @@ double Maxp::objective_function(const vector<vector<int> >& solution)
     return wss;
 }
 
-double Maxp::objective_function(const vector<int>& current_internal, const vector<int>& current_outter)
+double Maxp::objective_function(vector<int>& current_internal, vector<int>& current_outter)
 {
     vector<vector<int> > composed_region;
     composed_region.push_back(current_internal);
@@ -562,14 +813,18 @@ double Maxp::objective_function(const vector<int>& current_internal, const vecto
 }
 
 
-double Maxp::objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter)
+double Maxp::objective_function_change(int area, vector<int>& current_internal, vector<int>& current_outter)
 {
-    double current = objective_function(current_internal, current_outter);
-    vector<int> new_internal = current_internal;
-    vector<int> new_outter = current_outter;
-    new_internal.push_back(area);
-    new_outter.erase(remove(new_outter.begin(),new_outter.end(), area), new_outter.end());
-    double new_val = objective_function(new_internal, new_outter);
+    double current = objective_function(current_internal) + objective_function(current_outter);
+    double new_val = objective_function(current_outter, area, current_internal, area);
+    
+    //double current = objective_function(current_internal, current_outter);
+    //vector<int> new_internal = current_internal;
+    //vector<int> new_outter = current_outter;
+    //new_internal.push_back(area);
+    //new_outter.erase(remove(new_outter.begin(),new_outter.end(), area), new_outter.end());
+    //double new_val = objective_function(new_internal, new_outter);
+    
     double change = new_val - current;
     return change;
 }
@@ -583,7 +838,6 @@ bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
     
     list<int> q;
     list<int>::iterator iter;
-    vector<int>::iterator vector_iter;
     for (int i=0; i<ids.size(); i++)
     {
         int node = ids[i];
@@ -613,167 +867,43 @@ bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
     return true;
 }
 
-bool Maxp::check_contiguity(const GalElement* w, vector<int>& neighbors, int leaver)
+bool Maxp::check_contiguity(const GalElement* w, vector<int>& ids, int leaver)
 {
-    vector<int> ids = neighbors;
-    ids.erase(remove(ids.begin(),ids.end(), leaver), ids.end());
+    //vector<int> ids = neighbors;
+    //ids.erase(remove(ids.begin(),ids.end(), leaver), ids.end());
+    //return is_component(w, ids);
+    list<int> q;
+    unordered_map<int, bool> marks;
+    for (int i=0; i<ids.size(); i++) {
+        if (ids[i]!=leaver) {
+            marks[ids[i]] = false;
+            if (q.empty()) {
+                q.push_back(ids[i]);
+                marks[ids[i]] = true;
+            }
+        }
+    }
     
-    return is_component(w, ids);
-}
-
-void Maxp::init_test()
-{
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(4);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(5);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(4);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(3);
-    enclave_random_number.push_back(2);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(6);
-    test_random_numbers.push_back(5);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(4);
-    test_random_numbers.push_back(4);
-    test_random_numbers.push_back(5);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(7);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(6);
-    test_random_numbers.push_back(3);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(2);
-    test_random_numbers.push_back(1);
-    test_random_numbers.push_back(0);
-    test_random_numbers.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(1);
-    enclave_random_number.push_back(0);
-    enclave_random_number.push_back(2);
-    
-    int test[48] = {6, 28, 32, 26, 41, 47, 5, 40, 18, 31, 0, 11, 36, 17, 43, 35, 33, 7, 45, 20, 25, 19, 21, 13, 1, 4, 12, 38, 22, 29, 9, 27, 16, 42, 46, 37, 14, 44, 2, 34, 30, 10, 15, 23, 39, 3, 24, 8};
-    vector<int> cand;
-    for (int i=0; i<num_obs;i++) cand.push_back(test[i]);
-    test_random_cand.push_back(cand);
-    
-    int test1[48] = {37, 8, 27, 14, 17, 1, 35, 13, 28, 40, 32, 11, 45, 15, 29, 10, 24, 42, 6, 44, 16, 9, 46, 25, 18, 4, 21, 19, 2, 47, 26, 0, 39, 33, 12, 31, 20, 34, 30, 22, 38, 7, 5, 36, 43, 41, 3, 23};
-    vector<int> cand1;
-    for (int i=0; i<num_obs;i++) cand1.push_back(test1[i]);
-    test_random_cand.push_back(cand1);
-    
-    int test2[48] = {44, 9, 8, 16, 27, 31, 45, 35, 19, 4, 42, 22, 11, 41, 12, 15, 32, 39, 25, 34, 6, 36, 5, 3, 21, 10, 0, 38, 26, 47, 17, 23, 43, 2, 30, 7, 37, 18, 28, 29, 24, 40, 46, 33, 14, 1, 20, 13};
-    vector<int> cand2;
-    for (int i=0; i<num_obs;i++) cand2.push_back(test2[i]);
-    test_random_cand.push_back(cand2);
-}
-
-vector<int> Maxp::test_get_random()
-{
-    vector<int> val = test_random_cand.front();
-    test_random_cand.pop_front();
-    return val;
+    int nbr, node;
+    while (!q.empty()) {
+        node = q.front();
+        q.pop_front();
+        
+        marks[node] = true;
+        for (int n=0; n<w[node].Size(); n++) {
+            nbr = w[node][n];
+            if (marks.find(nbr) != marks.end()) {
+                if (marks[nbr] == false) {
+                    marks[nbr] = true;
+                    q.push_back(nbr);
+                }
+            }
+        }
+    }
+    unordered_map<int, bool>::iterator it;
+    for (it=marks.begin(); it!=marks.end(); it++) {
+        if (it->second == false)
+            return false;
+    }
+    return true;
 }

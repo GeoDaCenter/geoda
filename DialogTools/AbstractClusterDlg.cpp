@@ -159,7 +159,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
     wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"), wxDefaultPosition, wxDefaultSize);
     wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, _("0"));
     wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, _("1"));
-    (*m_weight_centroids) = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    (*m_weight_centroids) = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(140, -1), wxSL_HORIZONTAL);
     (*m_wc_txt) = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(40,-1), 0, validator);
     wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
     hbox_w->Add(st_wc, 0, wxLEFT, 20);
@@ -231,7 +231,7 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool
     hbox0->Add(txt_floor);
     
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL);
+    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxSize(150,-1), wxSL_HORIZONTAL);
     txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, _("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
     hbox1->Add(slider_floor);
     hbox1->Add(txt_floor_pct);
