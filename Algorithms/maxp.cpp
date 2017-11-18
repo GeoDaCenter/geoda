@@ -55,7 +55,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         srand(rnd_seed);
     }
     seed_start = rand();
-    seed_increment = MAX_ATTEMPTS * num_obs * 100;
+    seed_increment = MAX_ATTEMPTS * num_obs * 1000;
     
     // init solution
     if (_seeds.empty()) {
@@ -276,53 +276,6 @@ void Maxp::init_solution(int solution_idx)
                 }
                 regn.push_back(_region);
             }
-           
-            /*
-            bool building_region = true;
-            while (building_region) {
-                // check if floor is satisfied
-                if (cv >= floor)  {
-                    regn.push_back(region);
-                    break;
-                }
-                
-                //vector<int> potential;
-                unordered_map<int, bool> potential;
-                for (int i=0; i<region.size(); i++) {
-                    int area = region[i];
-                    for ( int n=0; n<w[area].Size(); n++) {
-                        int nbr = w[area][n];
-                        
-                        if (candidates_dict.find(nbr) == candidates_dict.end()) continue;
-                        
-                        if (candidates_dict[nbr] == false) continue;
-                        
-                        if (region_dict.find(nbr) != region_dict.end()) continue;
-                        
-                        if (potential.find(nbr) != potential.end()) continue;
-                        
-                        potential[nbr] = true;
-                    }
-                }
-                if (!potential.empty()) {
-                    // add a random neighbor
-                    int neigID = Gda::ThomasWangHashDouble(seed_local++) * potential.size();
-                    int neigAdd = potential[neigID];
-                    potential.erase(potential.find(neigID));
-                    region.push_back(neigAdd);
-                    region_dict[neigAdd] = true;
-                    // remove it from candidate
-                    candidates.remove(neigAdd);
-                    candidates_dict[neigAdd] = false;
-                    
-                } else {
-                    for (int i=0; i<region.size(); i++) {
-                        enclaves.push_back(region[i]);
-                    }
-                    building_region = false;
-                }
-            }
-             */
         }
         // check to see if any regions were made before going to enclave stage
         bool feasible =false;
@@ -365,10 +318,6 @@ void Maxp::init_solution(int solution_idx)
             if (!candidates.empty()) {
                 // add enclave to random region
                 int regID = Gda::ThomasWangHashDouble(seed_local++) * candidates.size();
-                if (test)   {
-                    regID = enclave_random_number.front();
-                    enclave_random_number.pop_front();
-                }
                 
                 int rid = candidates[regID];
                 
@@ -411,7 +360,8 @@ void Maxp::init_solution(int solution_idx)
             initial_wss[solution_idx] = 0;
         } else {
             // apply local search
-            swap(_regions, _area2region);
+            //swap(_regions, _area2region, seed_local);
+            tabu_search(_regions, _area2region, 85, seed_local);
             regions_group[solution_idx] = _regions;
             area2region_group[solution_idx] = _area2region;
             p_group[solution_idx] = p;
@@ -434,45 +384,44 @@ void Maxp::init_solution(int solution_idx)
     }
 }
 
-void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region)
+void Maxp::shuffle(vector<int>& arry, uint64_t& seed)
 {
+    //random_shuffle
+    for (int i=arry.size()-1; i>=1; --i) {
+        int k = Gda::ThomasWangHashDouble(seed++) * (i+1);
+        while (k>=i) k = Gda::ThomasWangHashDouble(seed++) * (i+1);
+        if (k != i) std::iter_swap(arry.begin() + k, arry.begin()+i);
+    }
+}
+
+void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
+{
+    
     int nr = init_regions.size();
     
-    vector<int>::iterator iter;
     vector<int> changed_regions(nr, 1);
-    
-    bool bRandom = false;
     // tabuLength: Number of times a reverse move is prohibited. Default value tabuLength = 85.
-    int max_p = init_regions.size();
-    int tabuLength = 85;
-    int convTabu = std::min(10, num_obs / max_p);
+    int convTabu = std::min(10, num_obs / nr);
     // convTabu=230*numpy.sqrt(maxP)
-    // rm.tabuMove(tabuLength, convTabu = convTabu, typeTabu=typeTabu)
-    // chooses the best neighbouring solution for evaluation (it implies the enumeration of all the neighbouring solution at each iteration)
+    vector<TabuMove> tabuList;
     
-    double bestAdmisable = 9999999.0;
-    vector<pair<int, int> > tabuList(tabuLength, 0);
-    vector<pair<int, int> >::iterator tabu_iter;
-    //cBreak = [];
-    int c = 1;
-    int round = 0;
-    //resList = []
-    double epsilon = 1e-10;
+    bool use_tabu = false;
+    int c = 0;
     
-    while ( c<=convTabu ) {
-       
+    while ( c<convTabu ) {
+        int num_move = 0;
         vector<int> regionIds;
         for (int r=0; r<nr; r++) {
-            if (changed_regions[r] >0) {
+            //if (changed_regions[r] >0) {
                 regionIds.push_back(r);
-            }
+            //}
         }
+        shuffle(regionIds, seed_local);
         for (int r=0; r<nr; r++) changed_regions[r] = 0;
         for (int i=0; i<regionIds.size(); i++) {
             int seed = regionIds[i];
-            int local_moves = 0;
-            // get neighbors
             
+            // get neighbors of current region
             unordered_map<int, bool>::iterator m_it, n_it;
             unordered_map<int, bool> member_dict, neighbors_dict;
             
@@ -488,9 +437,6 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
                         neighbors_dict[cand] = true;
                 }
             }
-            int m_size = member_dict.size();
-            int n_size = neighbors_dict.size();
-            
             vector<int> candidates;
             for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
                 int nbr = n_it->first;
@@ -501,15 +447,20 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
                     }
                 }
             }
-            // find the best local move
-            while (!candidates.empty()) {
+            // find the best local move to improve current region
+            if (use_tabu == false) {
                 double cv = 0.0;
-                int best = 0;
+                int best = -1;
                 bool best_found = false;
                 for (int j=0; j<candidates.size(); j++) {
                     int area = candidates[j];
                     vector<int>& current_internal = init_regions[seed];
                     vector<int>& current_outter = init_regions[init_area2region[area]];
+                    if (!tabuList.empty()) {
+                        TabuMove tabu(area, init_area2region[area], seed);
+                        if ( find(tabuList.begin(), tabuList.end(), tabu) != tabuList.end() )
+                            continue;
+                    }
                     double change = objective_function_change(area, current_internal, current_outter);
                     if (change <= cv) {
                         best = area;
@@ -517,38 +468,92 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
                         best_found = true;
                     }
                 }
-                candidates.clear();
+                
                 if (best_found) {
                     int area = best;
-                    int old_region = init_area2region[area];
-                  
-                    // make the move
-                    vector<int>& rgn = init_regions[old_region];
-                    rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
-                    init_area2region[area] = seed;
-                    init_regions[seed].push_back(area);
-                    
-                    pair<int, int> tabu(area, old_region);
-                    tabu_iter = find (tabuList.begin(), tabuList.end(), tabu);
-                    if (tabu_iter == tabuList.end()) {
-                        tabuList.push_back(tabu);
+                    if (init_area2region.find(area) != init_area2region.end()) {
+                        int old_region = init_area2region[area];
+                        // make the move
+                        move(area, old_region, seed, init_regions, init_area2region, tabuList,tabuLength);
+                        use_tabu = false;
+                        num_move ++;
+                        changed_regions[seed] = 1;
+                        changed_regions[old_region] = 1;
                     }
-                    
-                } else {
-                    // if no improving move can be made, then see if a tabu move can be made which improves on the current local best (termed an aspiration move)
                 }
+            } else {
+                double cv = 0.0;
+                int best = -1;
+                bool best_found = false;
+                for (int j=0; j<candidates.size(); j++) {
+                    int area = candidates[j];
+                    vector<int>& current_internal = init_regions[seed];
+                    vector<int>& current_outter = init_regions[init_area2region[area]];
+                    // prohibit tabu
+                    TabuMove tabu(area, init_area2region[area], seed);
+                    if ( find(tabuList.begin(), tabuList.end(), tabu) != tabuList.end() )
+                        continue;
+                    double change = objective_function_change(area, current_internal, current_outter);
+                    if (j ==0 || change <= cv) {
+                        best = area;
+                        cv = change;
+                        best_found = true;
+                    }
+                }
+                
+                if (best_found) {
+                    int area = best;
+                    if (init_area2region.find(area) != init_area2region.end()) {
+                        int old_region = init_area2region[area];
+                        // make the move
+                        move(area, old_region, seed, init_regions, init_area2region, tabuList,tabuLength);
+                        num_move ++;
+                        changed_regions[seed] = 1;
+                        changed_regions[old_region] = 1;
+                    }
+                }
+                c++;
+                use_tabu = false; // switch to regular
             }
+        }
+        
+        // all regions are checked with possible moves
+        if (num_move ==0) {
+            // if no improving move can be made, then see if a tabu move can be made (relaxing its basic rule) which improves on the current local best (termed an aspiration move)
+            use_tabu = true;
         }
     }
 }
 
-void Maxp::getIntraBorderingAreas(vector<vector<int> >& init_regions)
+
+void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, unordered_map<int, int>& _area2region)
 {
-    for (int i=0; i<init_regions.size(); i++) {
-        vector<int>& area = init_regions[i];
+    vector<int>& rgn = _regions[from_region];
+    rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+    
+    _area2region[area] = to_region;
+    _regions[to_region].push_back(area);
+}
+
+void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, unordered_map<int, int>& _area2region, vector<TabuMove>& tabu_list, int max_labu_length)
+{
+    vector<int>& rgn = _regions[from_region];
+    rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+    
+    _area2region[area] = to_region;
+    _regions[to_region].push_back(area);
+    
+    TabuMove tabu(area, from_region, to_region);
+    
+    if ( find(tabu_list.begin(), tabu_list.end(), tabu) == tabu_list.end() ) {
+        if (tabu_list.size() >= max_labu_length) {
+            tabu_list.pop_back();
+        }
+        tabu_list.insert(tabu_list.begin(), tabu);
     }
 }
-void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region)
+
+void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, uint64_t seed_local)
 {
     // local search AZP
     
@@ -561,8 +566,6 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
     vector<int> changed_regions(nr, 1);
     
     // nr = range(k)
-    uint64_t seed_local = seed_start + (initial+1) * seed_increment;;
-    
     while (swapping) {
         int moves_made = 0;
         
@@ -576,17 +579,17 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
             }
         }
         //random_shuffle(regionIds.begin(), regionIds.end());
-        //for (int i=regionIds.size()-1; i>=1; --i) {
-        //    int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
-        //    while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
-        //    if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
-        //}
+        for (int i=regionIds.size()-1; i>=1; --i) {
+            int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+            while (k>=i) k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
+            if (k != i) std::iter_swap(regionIds.begin() + k, regionIds.begin()+i);
+        }
         
         for (int r=0; r<nr; r++) changed_regions[r] = 0;
+        
         swap_iteration += 1;
         for (int i=0; i<regionIds.size(); i++) {
             int seed = regionIds[i];
-            int local_moves = 0;
             // get neighbors
             
             unordered_map<int, bool>::iterator m_it, n_it;
@@ -817,14 +820,6 @@ double Maxp::objective_function_change(int area, vector<int>& current_internal, 
 {
     double current = objective_function(current_internal) + objective_function(current_outter);
     double new_val = objective_function(current_outter, area, current_internal, area);
-    
-    //double current = objective_function(current_internal, current_outter);
-    //vector<int> new_internal = current_internal;
-    //vector<int> new_outter = current_outter;
-    //new_internal.push_back(area);
-    //new_outter.erase(remove(new_outter.begin(),new_outter.end(), area), new_outter.end());
-    //double new_val = objective_function(new_internal, new_outter);
-    
     double change = new_val - current;
     return change;
 }

@@ -48,6 +48,23 @@ protected:
     unordered_map<int, int>::iterator m_iter;
 };
 
+struct TabuMove
+{
+    int area;
+    int from_region;
+    int to_region;
+    
+    TabuMove(int _a, int _f, int _t) {
+        area = _a;
+        from_region = _f;
+        to_region = _t;
+    }
+    bool operator==(const TabuMove& t) const {
+        return t.area == area &&
+            t.from_region == from_region &&
+            t.to_region == to_region;
+    }
+};
 /*! A Max-p class */
 
 class Maxp
@@ -207,7 +224,7 @@ protected:
     /*!
      Details.
      */
-    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region);
+    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region, uint64_t seed_local);
    
     //! xxx
     /* !
@@ -215,9 +232,11 @@ protected:
      \param neighbor
      \return boolean
      */
-    void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region);
+    void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
     
-    void getIntraBorderingAreas(vector<vector<int> >& init_regions);
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region);
+    
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
     
     //! A protected member function: init_solution(void). return
     /*!
@@ -250,6 +269,8 @@ protected:
     bool check_contiguity(const GalElement* w, vector<int>& block, int neighbor);
     
     bool is_component(const GalElement* w, const vector<int>& ids);
+   
+    void shuffle(vector<int>& arry, uint64_t& seed);
     
     bool test;
     list<int> test_random_numbers;
