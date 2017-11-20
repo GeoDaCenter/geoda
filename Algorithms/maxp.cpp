@@ -37,7 +37,7 @@ using namespace boost;
 using namespace std;
 
 Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _method, int _tabu_length, double _cool_rate,int _rnd_seed, char _dist,  bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(__DBL_MAX__), method(_method), tabu_length(_tabu_length), cooling_rate(_cool_rate)
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(DBL_MAX), method(_method), tabu_length(_tabu_length), cooling_rate(_cool_rate)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -597,7 +597,7 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
     
     vector<int> changed_regions(nr, 1);
     // tabuLength: Number of times a reverse move is prohibited. Default value tabuLength = 85.
-    int convTabu = 230 * sqrt(nr);
+    int convTabu = 230 * sqrt((double)nr);
     // convTabu=230*numpy.sqrt(maxP)
     vector<TabuMove> tabuList;
     
