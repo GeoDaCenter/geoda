@@ -48,6 +48,23 @@ protected:
     unordered_map<int, int>::iterator m_iter;
 };
 
+struct TabuMove
+{
+    int area;
+    int from_region;
+    int to_region;
+    
+    TabuMove(int _a, int _f, int _t) {
+        area = _a;
+        from_region = _f;
+        to_region = _t;
+    }
+    bool operator==(const TabuMove& t) const {
+        return t.area == area &&
+            t.from_region == from_region &&
+            t.to_region == to_region;
+    }
+};
 /*! A Max-p class */
 
 class Maxp
@@ -62,7 +79,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds, int rnd_seed=-1, char dist='e', bool test=false);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds,int _method, int _tabu_lenght, double _cool_rate, int rnd_seed=-1, char dist='e',  bool test=false);
     
     
     //! A Deconstructor
@@ -86,6 +103,12 @@ protected:
      Details.
      */
     const GalElement* w;
+    
+    int method;
+    
+    int tabu_length;
+    
+    double cooling_rate;
     
     char dist;
     
@@ -130,6 +153,8 @@ protected:
     unordered_map<int, int> area2region;
     
     vector<unordered_map<int, int> > area2region_group;
+    
+    unordered_map<vector<int>, double> objval_dict;
     
     //! A vector of vector<int> list of lists of regions.
     /*!
@@ -205,7 +230,33 @@ protected:
     /*!
      Details.
      */
-    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region);
+    void swap(vector<vector<int> >& init_regions, unordered_map<int, int>& area2region, uint64_t seed_local);
+   
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
+    void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
+  
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
+    void simulated_annealing(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
+    
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region);
+    
+    void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
     
     //! A protected member function: init_solution(void). return
     /*!
@@ -214,13 +265,19 @@ protected:
      */
     bool check_floor(const vector<int>& region);
     
+    bool check_floor(const vector<int>& region, int leaver);
+    
     double objective_function();
     
-    double objective_function(const vector<vector<int> >& solution);
+    double objective_function(vector<int>& solution);
     
-    double objective_function(const vector<int>& current_internal, const vector<int>& current_outter);
+    double objective_function(vector<int>& region1, int leaver, vector<int>& region2, int comer);
     
-    double objective_function_change(int area, const vector<int>& current_internal, const vector<int>& current_outter);
+    double objective_function(vector<vector<int> >& solution);
+    
+    double objective_function(vector<int>& current_internal, vector<int>& current_outter);
+    
+    double objective_function_change(int area, vector<int>& current_internal, vector<int>& current_outter);
    
     wxString print_regions(vector<vector<int> >& _regions);
     //! xxx
@@ -232,13 +289,13 @@ protected:
     bool check_contiguity(const GalElement* w, vector<int>& block, int neighbor);
     
     bool is_component(const GalElement* w, const vector<int>& ids);
+   
+    void shuffle(vector<int>& arry, uint64_t& seed);
     
     bool test;
     list<int> test_random_numbers;
     list<int> enclave_random_number;
     list<vector<int> > test_random_cand;
-    vector<int> test_get_random();
-    void init_test();
 };
 
 #endif

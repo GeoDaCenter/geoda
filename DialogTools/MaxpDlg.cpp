@@ -68,7 +68,7 @@ MaxpDlg::~MaxpDlg()
 void MaxpDlg::CreateControls()
 {
     wxLogMessage("On MaxpDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(800,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -122,6 +122,27 @@ void MaxpDlg::CreateControls()
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
     
+	wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Local Search:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    wxString choices19[] = {"Greedy", "Tabu Search", "Simulated Annealing"};
+    m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices19);
+    m_localsearch->SetSelection(0);
+    wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:"), wxDefaultPosition, wxSize(108,-1)));
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, wxT("85"));
+    hbox19_1->Add(m_tabulength);
+    m_tabulength->Disable();
+    wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:"), wxDefaultPosition, wxSize(108,-1)));
+    m_coolrate= new wxTextCtrl(panel, wxID_ANY, wxT("0.85"));
+    hbox19_2->Add(m_coolrate);
+    m_coolrate->Disable();
+    wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);
+    vbox19->Add(m_localsearch, 1, wxEXPAND);
+    vbox19->Add(hbox19_1, 1, wxEXPAND);
+    vbox19->Add(hbox19_2, 1, wxEXPAND);
+    gbox->Add(st19, 0, wxALIGN_TOP | wxRIGHT | wxLEFT, 10);
+    gbox->Add(vbox19, 1, wxEXPAND);
     
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -232,9 +253,24 @@ void MaxpDlg::CreateControls()
     chk_seed->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &MaxpDlg::OnChangeSeed, this);
     chk_lisa->Bind(wxEVT_CHECKBOX, &MaxpDlg::OnLISACheck, this);
+    m_localsearch->Bind(wxEVT_CHOICE, &MaxpDlg::OnLocalSearch, this);
 
 }
 
+void MaxpDlg::OnLocalSearch(wxCommandEvent& event)
+{
+    wxLogMessage("On MaxpDlg::OnLocalSearch");
+    if ( m_localsearch->GetSelection() == 0) {
+        m_tabulength->Disable();
+        m_coolrate->Disable();
+    } else if ( m_localsearch->GetSelection() == 1) {
+        m_tabulength->Enable();
+        m_coolrate->Disable();
+    } else if ( m_localsearch->GetSelection() == 2) {
+        m_tabulength->Disable();
+        m_coolrate->Enable();
+    }
+}
 void MaxpDlg::OnCheckMinBound(wxCommandEvent& event)
 {
     wxLogMessage("On MaxpDlg::OnLISACheck");
@@ -535,7 +571,37 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             table_int->GetColData(col, tm, seeds);
         }
     }
-    
+   
+    // Get local search method
+    int local_search_method = m_localsearch->GetSelection();
+    int tabu_length = 85;
+    double cool_rate = 0.85;
+    if ( local_search_method == 0) {
+        m_tabulength->Disable();
+        m_coolrate->Disable();
+    } else if ( local_search_method == 1) {
+        wxString str_tabulength= m_tabulength->GetValue();
+        long n_tabulength;
+        if (str_tabulength.ToLong(&n_tabulength)) {
+            tabu_length = n_tabulength;
+        }
+        if (tabu_length < 1) {
+            wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85).");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    } else if ( local_search_method == 2) {
+        wxString str_coolrate = m_coolrate->GetValue();
+        str_coolrate.ToDouble(&cool_rate);
+        if ( cool_rate > 1 || cool_rate <= 0) {
+            wxString err_msg = _("Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85).");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+
 	// Get random seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
@@ -549,7 +615,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 		}
 		z.push_back(vals);
 	}
-    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, rnd_seed, dist);
+    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, local_search_method, tabu_length, cool_rate, rnd_seed, dist);
     
 	delete[] bound_vals;
 
