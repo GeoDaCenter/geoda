@@ -44,7 +44,7 @@ public:
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    
+    void OnLocalSearch(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
@@ -61,14 +61,16 @@ private:
     wxChoice* combo_weights;
     wxChoice* combo_tranform;
     wxChoice* combo_lisa;
-    
+   
+    wxChoice* m_localsearch;
     wxChoice* m_distance;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
     
     wxStaticText* st_minregions;
     wxTextCtrl* txt_minregions;
-
+    wxTextCtrl* m_tabulength;
+    wxTextCtrl* m_coolrate;
     wxButton* seedButton;
     
     wxString select_floor;

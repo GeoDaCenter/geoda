@@ -36,8 +36,8 @@
 using namespace boost;
 using namespace std;
 
-Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _rnd_seed, char _dist, bool _test )
-: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(__DBL_MAX__)
+Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _floor, double* _floor_variable, int _initial, vector<wxInt64> _seeds, int _method, int _tabu_length, double _cool_rate,int _rnd_seed, char _dist,  bool _test )
+: w(_w), z(_z), floor(_floor), floor_variable(_floor_variable), initial(_initial),  LARGE(1000000), MAX_ATTEMPTS(100), rnd_seed(_rnd_seed), test(_test), initial_wss(_initial), regions_group(_initial), area2region_group(_initial), p_group(_initial), dist(_dist), best_ss(__DBL_MAX__), method(_method), tabu_length(_tabu_length), cooling_rate(_cool_rate)
 {
     num_obs = z.size();
     num_vars = z[0].size();
@@ -55,7 +55,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         srand(rnd_seed);
     }
     seed_start = rand();
-    seed_increment = MAX_ATTEMPTS * num_obs * 1000;
+    seed_increment = MAX_ATTEMPTS * num_obs * 10000;
     
     // init solution
     if (_seeds.empty()) {
@@ -339,7 +339,7 @@ void Maxp::init_solution(int solution_idx)
         
         if (feasible) {
             double ss = objective_function(regn);
-            if (ss < best_ss) {
+            if (ss < best_ss) { // just need to be better than first initial solution
                 solving = false;
                 p = regn.size();
                 _regions = regn;
@@ -360,8 +360,15 @@ void Maxp::init_solution(int solution_idx)
             initial_wss[solution_idx] = 0;
         } else {
             // apply local search
-            //swap(_regions, _area2region, seed_local);
-            tabu_search(_regions, _area2region, 85, seed_local);
+            if (method == 0) {
+                swap(_regions, _area2region, seed_local);
+            } else if (method == 1) {
+                tabu_search(_regions, _area2region, tabu_length, seed_local);
+            } else {
+                double temperature = 1.0;
+                simulated_annealing(_regions, _area2region, cooling_rate, temperature, seed_local);
+            }
+            
             regions_group[solution_idx] = _regions;
             area2region_group[solution_idx] = _area2region;
             p_group[solution_idx] = p;
@@ -394,14 +401,203 @@ void Maxp::shuffle(vector<int>& arry, uint64_t& seed)
     }
 }
 
+
+void Maxp::simulated_annealing(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local)
+{
+    vector<vector<int> > local_best_solution;
+    unordered_map<int, int> local_best_area2region;
+    double local_best_ssd = 1;
+    
+    int nr = init_regions.size();
+    vector<int> changed_regions(nr, 1);
+   
+    bool use_sa = false;
+    double T = 1; // temperature
+    // Openshaw's Simulated Annealing for AZP algorithm
+    int maxit = 0;
+    
+    while ( T > 0.1 || maxit < 3 ) {
+    //while ( maxit < 3 ) {
+        int improved = 0;
+       
+        bool swapping = true;
+        int total_move = 0;
+        int nr = init_regions.size();
+        vector<int>::iterator iter;
+        vector<int> changed_regions(nr, 1);
+        while (swapping) {
+            int moves_made = 0;
+            vector<int> regionIds;
+            for (int r=0; r<nr; r++) {
+                //if (changed_regions[r] >0) {
+                regionIds.push_back(r);
+                //}
+            }
+            shuffle(regionIds, seed_local);
+            for (int r=0; r<nr; r++) changed_regions[r] = 0;
+            for (int i=0; i<regionIds.size(); i++) {
+                int seed = regionIds[i];
+                unordered_map<int, bool>::iterator m_it, n_it;
+                unordered_map<int, bool> member_dict, neighbors_dict;
+                for (int j=0; j<init_regions[seed].size();j++) {
+                    int member = init_regions[seed][j];
+                    member_dict[member]=true;
+                }
+                for (int j=0; j<init_regions[seed].size();j++) {
+                    int member = init_regions[seed][j];
+                    for (int k=0; k<w[member].Size(); k++) {
+                        int cand = w[member][k];
+                        if (member_dict.find(cand) == member_dict.end())
+                            neighbors_dict[cand] = true;
+                    }
+                }
+                int m_size = member_dict.size();
+                int n_size = neighbors_dict.size();
+                
+                vector<int> candidates;
+                for (n_it=neighbors_dict.begin(); n_it!=neighbors_dict.end(); n_it++) {
+                    int nbr = n_it->first;
+                    vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                    if (check_floor(block, nbr)) {
+                        if (check_contiguity(w, block, nbr)) {
+                            candidates.push_back(nbr);
+                        }
+                    }
+                }
+                // find the best local move
+                if (use_sa) {
+                    // use Simulated Annealing
+                    double cv = 0.0;
+                    int best = 0;
+                    bool best_found = false;
+                    for (int j=0; j<candidates.size() && best_found == false; j++) {
+                        int area = candidates[j];
+                        vector<int>& current_internal = init_regions[seed];
+                        vector<int>& current_outter = init_regions[init_area2region[area]];
+                        double change = objective_function_change(area, current_internal, current_outter);
+                        change = -change / (local_best_ssd * T);
+                        if (exp(change) > Gda::ThomasWangHashDouble(seed_local++)) {
+                            best = area;
+                            cv = change;
+                            best_found = true;
+                        }
+                    }
+                    if (best_found) {
+                        // make the move
+                        int area = best;
+                        int old_region = init_area2region[area];
+                        vector<int>& rgn = init_regions[old_region];
+                        rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+                        
+                        init_area2region[area] = seed;
+                        init_regions[seed].push_back(area);
+                      
+                        moves_made += 1;
+                        changed_regions[seed] = 1;
+                        changed_regions[old_region] = 1;
+                    }
+                } else {
+                    while (!candidates.empty()) {
+                        double cv = 0.0;
+                        int best = 0;
+                        bool best_found = false;
+                        for (int j=0; j<candidates.size(); j++) {
+                            int area = candidates[j];
+                            vector<int>& current_internal = init_regions[seed];
+                            vector<int>& current_outter = init_regions[init_area2region[area]];
+                            double change = objective_function_change(area, current_internal, current_outter);
+                            if (change <= cv) {
+                                best = area;
+                                cv = change;
+                                best_found = true;
+                            }
+                        }
+                        candidates.clear();
+                        if (best_found) {
+                            // make the move
+                            int area = best;
+                            int old_region = init_area2region[area];
+                            vector<int>& rgn = init_regions[old_region];
+                            rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
+                            
+                            init_area2region[area] = seed;
+                            init_regions[seed].push_back(area);
+                            
+                            moves_made += 1;
+                            changed_regions[seed] = 1;
+                            changed_regions[old_region] = 1;
+                            
+                            // update candidates list after move in
+                            member_dict[area] = true;
+                            neighbors_dict[area] = false;
+                            for (int k=0; k<w[area].Size(); k++) {
+                                int nbr = w[area][k];
+                                if (member_dict[nbr] || neighbors_dict[nbr]) continue;
+                                vector<int>& block = init_regions[ init_area2region[ nbr ] ];
+                                if (check_floor(block, nbr)) {
+                                    if (check_contiguity(w, block, nbr)) {
+                                        candidates.push_back(nbr);
+                                        neighbors_dict[nbr] = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            total_move += moves_made;
+            if (moves_made == 0) {
+                swapping = false;
+                total_moves = total_move;
+            } else {
+                if (use_sa) use_sa = false; // a random move is made using SA
+            }
+        }
+       
+        if (local_best_solution.empty()) {
+            improved = 1;
+            local_best_solution = init_regions;
+            local_best_area2region = init_area2region;
+            local_best_ssd = objective_function(init_regions);
+        } else {
+            double current_ssd = objective_function(init_regions);
+            if ( current_ssd < local_best_ssd) {
+                improved = 1;
+                local_best_solution = init_regions;
+                local_best_area2region = init_area2region;
+                local_best_ssd = current_ssd;
+            }
+        }
+
+        if (improved == 1) {
+            use_sa = false;
+            T = 1;
+            maxit = 0;
+        } else {
+            maxit += 1;
+            T *= alpha;
+            use_sa = true;
+        }
+    }
+    // make sure tabu result is no worse than greedy research
+    double search_best_ssd = objective_function(init_regions);
+    if (local_best_ssd < search_best_ssd) {
+        init_regions = local_best_solution;
+        init_area2region = local_best_area2region;
+    }
+}
+
 void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
 {
+    vector<vector<int> > local_best_solution;
+    unordered_map<int, int> local_best_area2region;
+    double local_best_ssd;
     
     int nr = init_regions.size();
     
     vector<int> changed_regions(nr, 1);
     // tabuLength: Number of times a reverse move is prohibited. Default value tabuLength = 85.
-    int convTabu = std::min(10, num_obs / nr);
+    int convTabu = 230 * sqrt(nr);
     // convTabu=230*numpy.sqrt(maxP)
     vector<TabuMove> tabuList;
     
@@ -412,7 +608,7 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
         int num_move = 0;
         vector<int> regionIds;
         for (int r=0; r<nr; r++) {
-            //if (changed_regions[r] >0) {
+            //if (changed_regions[r] >0 || use_tabu) {
                 regionIds.push_back(r);
             //}
         }
@@ -475,7 +671,6 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
                         int old_region = init_area2region[area];
                         // make the move
                         move(area, old_region, seed, init_regions, init_area2region, tabuList,tabuLength);
-                        use_tabu = false;
                         num_move ++;
                         changed_regions[seed] = 1;
                         changed_regions[old_region] = 1;
@@ -513,7 +708,6 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
                     }
                 }
                 c++;
-                use_tabu = false; // switch to regular
             }
         }
         
@@ -521,7 +715,33 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
         if (num_move ==0) {
             // if no improving move can be made, then see if a tabu move can be made (relaxing its basic rule) which improves on the current local best (termed an aspiration move)
             use_tabu = true;
+           
+            if (local_best_solution.empty()) {
+                local_best_solution = init_regions;
+                local_best_area2region = init_area2region;
+                local_best_ssd = objective_function(init_regions);
+            } else {
+                double current_ssd = objective_function(init_regions);
+                if ( current_ssd < local_best_ssd ) {
+                    local_best_solution = init_regions;
+                    local_best_area2region = init_area2region;
+                    local_best_ssd = current_ssd;
+                }
+            }
+            
+        } else {
+            // some moves just made
+            if (use_tabu == true)
+                use_tabu = false; // switch from tabu to regular move
+            else
+                c = 0; // always reset tabu since a move is just made
         }
+    }
+    // make sure tabu result is no worse than greedy research
+    double search_best_ssd = objective_function(init_regions);
+    if (local_best_ssd < search_best_ssd) {
+        init_regions = local_best_solution;
+        init_area2region = local_best_area2region;
     }
 }
 
@@ -574,9 +794,9 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
         
         vector<int> regionIds;
         for (int r=0; r<nr; r++) {
-            if (changed_regions[r] >0) {
+            //if (changed_regions[r] >0) {
                 regionIds.push_back(r);
-            }
+            //}
         }
         //random_shuffle(regionIds.begin(), regionIds.end());
         for (int i=regionIds.size()-1; i>=1; --i) {
@@ -652,7 +872,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
                     changed_regions[old_region] = 1;
                    
                     // update candidates list after move in
-                    /*
+                    
                     member_dict[area] = true;
                     neighbors_dict[area] = false;
                     for (int k=0; k<w[area].Size(); k++) {
@@ -665,7 +885,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
                                 neighbors_dict[nbr] = true;
                             }
                         }
-                    }*/
+                    }
                 }
             }
         }

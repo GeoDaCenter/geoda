@@ -79,7 +79,7 @@ public:
      \param initial int number of initial solutions to generate
      \param seed list ids of observations to form initial seeds. If len(ids) is less than the number of observations, the complementary ids are added to the end of seeds. Thus the specified seeds get priority in the solution
      */
-    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds, int rnd_seed=-1, char dist='e', bool test=false);
+    Maxp(const GalElement* w, const vector<vector<double> >& z, double floor, double* floor_variable, int initial, vector<wxInt64> seeds,int _method, int _tabu_lenght, double _cool_rate, int rnd_seed=-1, char dist='e',  bool test=false);
     
     
     //! A Deconstructor
@@ -103,6 +103,12 @@ protected:
      Details.
      */
     const GalElement* w;
+    
+    int method;
+    
+    int tabu_length;
+    
+    double cooling_rate;
     
     char dist;
     
@@ -233,7 +239,21 @@ protected:
      \return boolean
      */
     void tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local);
+  
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
+    void simulated_annealing(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local);
     
+    //! xxx
+    /* !
+     \param
+     \param neighbor
+     \return boolean
+     */
     void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region);
     
     void move(int area, int from_region, int to_region, vector<vector<int> >& regions, unordered_map<int, int>& area2region, vector<TabuMove>& tabu_list, int max_tabu_length);
