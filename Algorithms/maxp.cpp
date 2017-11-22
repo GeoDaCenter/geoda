@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <vector>
 #include <map>
+#include <float.h>
 #include <list>
 #include <cstdlib>
 #include <boost/unordered_map.hpp>

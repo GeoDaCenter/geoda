@@ -1090,7 +1090,8 @@ Otherwise, the distance between two columns in the matrix is calculated.
   }
   if (!tweight) return 0; /* usually due to empty clusters */
   //result /= tweight;
-  return sqrt(result);
+  //return sqrt(result);
+    return result;
 }
 
 /* ********************************************************************* */
@@ -4866,7 +4867,14 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
             E[j][i] =distmatrix[i][j];
         }
     }
-   
+  
+    if (dist == 'b')
+        for (i=0; i<n; i++) {
+            for (j=0; j<n; j++) {
+                E[i][j] *=  E[i][j];
+            }
+        }
+    
     // double centering
     for(int i = 0; i < n; i++) {
         double sum = 0;

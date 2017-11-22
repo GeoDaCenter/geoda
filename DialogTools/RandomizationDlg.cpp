@@ -495,6 +495,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 		freq_back[i] = int(df);
 	}
 
+    // blue is outlirs_colour, dark cherry is GdaConst::textColor
 	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
 		if (freq_back[i] > 0) {
@@ -518,7 +519,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
 				  //GdaConst::highlight_color );
-                  wxColour(49, 163, 84));
+                  wxColour(49, 163, 84));  // green for origial Moran's I
 
 	wxPen drawPen(*wxBLACK_PEN);
 	drawPen.SetColour(GdaConst::textColor);
@@ -527,7 +528,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	//dc->DrawLine(Left, Top, Left, Top+Height); // Vertical axis
 	dc->DrawLine(Left, Top+Height, Left+Width, Top+Height); // Horizontal axis
 
-	drawPen.SetColour(wxColour(20, 20, 20));
+	drawPen.SetColour(wxColour(20, 20, 20)); // black
 	dc->SetPen(drawPen);
 	dc->SetBrush(*wxWHITE_BRUSH);
 	const int hZero= (int)(Left+(0-start)/(stop-start)*Width);
