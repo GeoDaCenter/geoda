@@ -355,7 +355,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         if (dist == 'b') {
             for (int i=0; i<distances.size(); i++) {
                 for (int j=0; j<distances.size(); j++) {
-                    distances[i][j] *= distances[i][j];
+                    distances[i][j] = distances[i][j]*distances[i][j];
+                    distances[i][j] = distances[i][j]*distances[i][j];
                 }
             }
         }
