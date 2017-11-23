@@ -249,6 +249,24 @@ double GalElement::SpatialLag(const std::vector<double>& x,
 	return lag;
 }
 
+double GalElement::SpatialLag(const std::vector<double>& x,
+                              const int* perm, const std::vector<bool>& undefs) const
+{
+    // todo: this should also handle ReadGWtAsGAL like previous 2 functions
+	double lag = 0;
+	size_t sz = Size();
+    size_t valid_sz = 0;
+    
+    for (size_t i=0; i<sz; ++i) {
+        if (undefs[nbr[i]])
+            continue;
+        valid_sz++;
+        lag += x[perm[nbr[i]]];
+    }
+	if (sz>1) lag /= (double) valid_sz;
+	return lag;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // GalWeight

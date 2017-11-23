@@ -44,6 +44,7 @@ public:
 	double SpatialLag(const std::vector<double>& x) const;
 	double SpatialLag(const double* x) const;
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
+    double SpatialLag(const std::vector<double>& x, const int* perm, const std::vector<bool>& undefs) const;
     double GetRW(int idx);
     bool Check(long nbrIdx);
    

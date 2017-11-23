@@ -396,20 +396,26 @@ void RandomizationPanel::RunRandomTrials()
 	
 	for (int i=0; i<Permutations; i++) {
 		//create a random permutation
-		rng->Perm(num_obs, perm, theRands);
+		rng->Perm(undefs, num_obs, perm, theRands);
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[i])
+                    continue;
 				newMoran += (W[i].SpatialLag(raw_data2, perm)
 							 * raw_data1[perm[i]]);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[perm[i]])
+                    continue;
 				newMoran += (W[i].SpatialLag(raw_data1, perm)
 							 * raw_data1[perm[i]]);
 			}
 		}
-		newMoran /= (double) num_obs - 1.0;
+        int valid_num_obs = 0;
+        for (int i=0; i<num_obs; i++) if (!undefs[i]) valid_num_obs++;
+		newMoran /= (double) valid_num_obs - 1.0;
 		// find its place in the distribution
 		MoranI[ totFrequency++ ] = newMoran;
 		int newBin = (int)floor( (newMoran - start)/range );
