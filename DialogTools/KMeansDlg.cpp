@@ -327,7 +327,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int method_
 wxString KMeansDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
+    txt << "Number of clusters:\t" << combo_n->GetSelection() + 2 << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();

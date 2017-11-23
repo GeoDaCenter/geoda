@@ -409,7 +409,7 @@ void HClusterDlg::OnClose(wxCloseEvent& ev)
 wxString HClusterDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of cluster:\t" << m_cluster->GetValue() << "\n";
+    txt << "Number of clusters:\t" << m_cluster->GetValue() << "\n";
     
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     

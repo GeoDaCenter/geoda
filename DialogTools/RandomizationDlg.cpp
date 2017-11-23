@@ -400,7 +400,7 @@ void RandomizationPanel::RunRandomTrials()
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
-                if (undefs[i])
+                if (undefs[perm[i]])
                     continue;
 				newMoran += (W[i].SpatialLag(raw_data2, perm)
 							 * raw_data1[perm[i]]);
