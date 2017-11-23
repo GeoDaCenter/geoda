@@ -50,6 +50,8 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
+    void OnMethodChoice(wxCommandEvent& event);
+    void OnInitMethodChoice(wxCommandEvent& event);
     
     virtual wxString _printConfiguration();
     
