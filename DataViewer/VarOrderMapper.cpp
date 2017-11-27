@@ -306,7 +306,8 @@ void VarOrderMapper::Ungroup(int grp_pos, TableDeltaList_type& tdl)
 	for (size_t i=0; i<e.vars.size(); ++i) {
 		// insert in reverse order, one position after current grp_pos
 		wxString name = e.vars[(e.vars.size()-1) - i];
-		if (name == "") continue;
+		if (name == "")
+            continue;
 		VarGroup_container::iterator it = FindVarGroupIt(grp_name);
 		++it;
 		var_grps.insert(it, VarGroup(name));
