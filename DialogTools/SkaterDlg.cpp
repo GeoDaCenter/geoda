@@ -133,17 +133,18 @@ void SkaterDlg::CreateControls()
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, wxT("Change Seed"));
-    
     hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
     hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
     seedButton->Disable();
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox17, 1, wxEXPAND);
-    
     if (GdaConst::use_gda_user_seed) {
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
+    st17->Hide();
+    chk_seed->Hide();
+    seedButton->Hide();
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
     hbox->Add(gbox, 1, wxEXPAND);
