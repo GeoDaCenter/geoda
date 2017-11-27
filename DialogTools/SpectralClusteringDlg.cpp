@@ -494,7 +494,7 @@ void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 wxString SpectralClusteringDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of cluster:\t" << combo_n->GetString(combo_n->GetSelection()) << "\n";
+    txt << "Number of clusters:\t" << combo_n->GetString(combo_n->GetSelection()) << "\n";
    
     if (chk_kernel->IsChecked())  {
         txt << "Gamm (Guassian Kernel):\t" << m_gamma->GetValue() << "\n";

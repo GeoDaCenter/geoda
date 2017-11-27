@@ -396,20 +396,26 @@ void RandomizationPanel::RunRandomTrials()
 	
 	for (int i=0; i<Permutations; i++) {
 		//create a random permutation
-		rng->Perm(num_obs, perm, theRands);
+		rng->Perm(undefs, num_obs, perm, theRands);
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[perm[i]])
+                    continue;
 				newMoran += (W[i].SpatialLag(raw_data2, perm)
 							 * raw_data1[perm[i]]);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[perm[i]])
+                    continue;
 				newMoran += (W[i].SpatialLag(raw_data1, perm)
 							 * raw_data1[perm[i]]);
 			}
 		}
-		newMoran /= (double) num_obs - 1.0;
+        int valid_num_obs = 0;
+        for (int i=0; i<num_obs; i++) if (!undefs[i]) valid_num_obs++;
+		newMoran /= (double) valid_num_obs - 1.0;
 		// find its place in the distribution
 		MoranI[ totFrequency++ ] = newMoran;
 		int newBin = (int)floor( (newMoran - start)/range );
@@ -495,6 +501,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 		freq_back[i] = int(df);
 	}
 
+    // blue is outlirs_colour, dark cherry is GdaConst::textColor
 	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
 		if (freq_back[i] > 0) {
@@ -518,7 +525,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
 				  //GdaConst::highlight_color );
-                  wxColour(49, 163, 84));
+                  wxColour(49, 163, 84));  // green for origial Moran's I
 
 	wxPen drawPen(*wxBLACK_PEN);
 	drawPen.SetColour(GdaConst::textColor);
@@ -527,7 +534,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	//dc->DrawLine(Left, Top, Left, Top+Height); // Vertical axis
 	dc->DrawLine(Left, Top+Height, Left+Width, Top+Height); // Horizontal axis
 
-	drawPen.SetColour(wxColour(20, 20, 20));
+	drawPen.SetColour(wxColour(20, 20, 20)); // black
 	dc->SetPen(drawPen);
 	dc->SetBrush(*wxWHITE_BRUSH);
 	const int hZero= (int)(Left+(0-start)/(stop-start)*Width);

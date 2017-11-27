@@ -212,7 +212,44 @@ void KMeansDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
-    //m_distance->Bind(wxEVT_CHOICE, &KMeansDlg::OnDistanceChoice, this);
+    m_method->Bind(wxEVT_CHOICE, &KMeansDlg::OnMethodChoice, this);
+    combo_method->Bind(wxEVT_CHOICE, &KMeansDlg::OnInitMethodChoice, this);
+    m_distance->Bind(wxEVT_CHOICE, &KMeansDlg::OnDistanceChoice, this);
+}
+
+void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
+{
+    if (m_distance->GetSelection() == 1) {
+        // when Manhattan
+        // make sure no KMedian is select
+        m_method->SetSelection(0);
+    }
+}
+
+void KMeansDlg::OnMethodChoice(wxCommandEvent& event)
+{
+    int method_idx = m_method->GetSelection();
+    if (method_idx == 1) {
+        // when KMedian select
+        combo_method->SetSelection(1); // only Random
+        combo_method->Disable();
+        m_distance->SetSelection(1); // only Manhattan
+        m_distance->Disable();
+    } else {
+        // when KMeans
+        combo_method->Enable();
+        m_distance->Enable();
+        
+    }
+}
+
+void KMeansDlg::OnInitMethodChoice(wxCommandEvent& event)
+{
+    if (combo_method->GetSelection()== 0) {
+        // when KMeans++
+        // make sure no KMedian is select
+        m_method->SetSelection(0);
+    }
 }
 
 void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
@@ -276,10 +313,6 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
-{
-}
-
 void KMeansDlg::OnClickClose(wxCommandEvent& event )
 {
     wxLogMessage("OnClickClose KMeansDlg.");
@@ -327,7 +360,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int method_
 wxString KMeansDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of cluster:\t" << combo_n->GetSelection() + 2 << "\n";
+    txt << "Number of clusters:\t" << combo_n->GetSelection() + 2 << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();

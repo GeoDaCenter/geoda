@@ -1399,36 +1399,40 @@ bool OGRTable::DeleteCol(int pos)
     }
 	
 	// Must remove all items from var_map first
-	VarGroup vg = var_order.FindVarGroup(pos);
-	vector<wxString> col_nms;
-	vg.GetVarNames(col_nms);
-	BOOST_FOREACH(const wxString& s, col_nms) {
-		if (s != "") {
-            for( size_t i=0; i<columns.size(); ++i) {
-                if (columns[i]->GetName().CmpNoCase(s) == 0) {
-                    operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
-                    columns.erase(columns.begin()+i);
-                    break;
-                }
+    // Note: the following vector<wxString> col_nms is not needes, since
+    // there is a checkup function for "Grouped Variable", which requires use
+    // to ungroup any "Grouped Variable" first before delete a column.
+	//VarGroup vg = var_order.FindVarGroup(pos);
+	//vector<wxString> col_nms;
+	//vg.GetVarNames(col_nms);
+    //wxString col_name = col_nms[0];
+    wxString col_name = var_order.GetGroupName(pos);
+	if (!col_name.IsEmpty()) {
+        for( size_t i=0; i<columns.size(); ++i) {
+            if (columns[i]->GetName().CmpNoCase(col_name) == 0) {
+                operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
+                columns.erase(columns.begin()+i);
+                break;
             }
-		}
+        }
 	}
     
-    /*
-    // depcrecated in 1.8.8
-    var_map.clear();
-    for (int i=0; i<columns.size();i++) {
-        var_map[columns[i]->GetName()] = i;
+    // the following two lines will be INCORRECT if there is any grouped variable
+    // in var_order, which is used to get the value of "pos",
+    // so here we need to search the exact match and erase it from "org_var_names"
+    //vector<wxString>::iterator iter = org_var_names.begin() + pos;
+    //org_var_names.erase(iter);
+    for (size_t i=0; i<org_var_names.size(); i++) {
+        if (org_var_names[i].CmpNoCase(col_name) == 0) {
+            org_var_names.erase( org_var_names.begin() + i );
+            break;
+        }
     }
-    */
-    vector<wxString>::iterator iter = org_var_names.begin() + pos;
-    org_var_names.erase(iter);
-	
-	wxString name = var_order.GetGroupName(pos);
+		
 	var_order.RemoveVarGroup(pos);
 	
 	TableDeltaList_type tdl;
-	TableDeltaEntry tde(name, false, pos);
+	TableDeltaEntry tde(col_name, false, pos);
 	tde.change_to_db = true;
 	tdl.push_back(tde);
 	table_state->SetColsDeltaEvtTyp(tdl);
@@ -1441,7 +1445,7 @@ bool OGRTable::DeleteCol(int pos)
 
 void OGRTable::UngroupCol(int col) 
 {
-	LOG_MSG("Inside OGRTable::UngroupCol");
+	wxLogMessage("Inside OGRTable::UngroupCol");
 	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
 	if (GetColTimeSteps(col) <= 1) return;
 	
@@ -1450,7 +1454,8 @@ void OGRTable::UngroupCol(int col)
 		GdaConst::FieldInfo fi;
 		fi.type = GetColType(col, t);
 		if (fi.type == GdaConst::placeholder_type ||
-			fi.type == GdaConst::unknown_type) continue;
+			fi.type == GdaConst::unknown_type)
+            continue;
 		fi.field_len = GetColLength(col, t);
 		fi.decimals = GetColDecimals(col, t);
 		nm_to_fi[GetColName(col, t)] = fi;
@@ -1462,7 +1467,8 @@ void OGRTable::UngroupCol(int col)
 	
 	// Add missing information to tdl entries.
 	for (TableDeltaList_type::iterator i=tdl.begin(); i!=tdl.end(); ++i) {
-		if (!i->insert) continue;
+		if (!i->insert)
+            continue;
 		GdaConst::FieldInfo& fi = nm_to_fi[i->group_name];
 		i->type = fi.type;
 		i->decimals = fi.decimals;

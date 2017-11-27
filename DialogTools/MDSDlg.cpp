@@ -351,6 +351,15 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
         for (int i = 1; i < rows; i++) free(ragged_distances[i]);
         free(ragged_distances);
+        
+        if (dist == 'b') {
+            for (int i=0; i<distances.size(); i++) {
+                for (int j=0; j<distances.size(); j++) {
+                    distances[i][j] = distances[i][j]*distances[i][j];
+                    distances[i][j] = distances[i][j]*distances[i][j];
+                }
+            }
+        }
        
         wxString str_iterations;
         str_iterations = txt_poweriteration->GetValue();

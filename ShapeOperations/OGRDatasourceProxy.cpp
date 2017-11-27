@@ -385,7 +385,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 wxString fname = table->GetColName(col_id_map[id], t);
                 if (fname.empty()) {
                     error_message << "Can't create layer \"" << layer_name.mb_str()
-                    << "\" with empty field name.";
+                    << "\" with empty field(" << id << ") name.";
                     throw GdaException(error_message.str().c_str());
                 }
                 
