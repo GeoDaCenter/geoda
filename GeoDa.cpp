@@ -1460,7 +1460,7 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
             // do nothing
         }        
 	} catch (GdaException& e) {
-		wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, e.what(), "", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
