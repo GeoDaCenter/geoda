@@ -294,9 +294,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     m_Yname.Trim(true);
     
     double** dt = new double* [sz + 1];
-    for (int i = 0; i < sz + 1; i++) {
+    for (int i = 0; i < sz + 1; i++)
         dt[i] = new double[m_obs];
-    }
     
     // WS1447
     // fill in each field from m_independentlist and tack on
@@ -317,6 +316,9 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
             wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
             dlg.ShowModal();
+            // free memory of dt[][]
+            for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+            delete[] dt;
             return;
         }
         int tm = name_to_tm_id[m_independentlist->GetString(i)];
@@ -335,13 +337,15 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         wxString err_msg = wxString::Format("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data.", name_to_nm[m_Yname]);
         wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
         dlg.ShowModal();
+        // free memory of dt[][]
+        for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+        delete[] dt;
         return;
     }
     
     table_int->GetColData(y_col_id, name_to_tm_id[m_Yname], vec);
-    for (int j=0; j<m_obs; j++) {
+    for (int j=0; j<m_obs; j++)
         dt[sz][j] = vec[j];
-    }
     
     std::vector<bool> vec_undef(m_obs);
     table_int->GetColUndefined(y_col_id, name_to_tm_id[m_Yname], vec_undef);
@@ -370,6 +374,16 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         }
     }
 
+    if (valid_obs == 0) {
+        wxString err_msg = _("Please check the selected variables are all valid.");
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        // free memory of dt[][]
+        for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+        delete[] dt;
+        return;
+    }
+    
 	if (m_constant_term) {
 		nX = nX + 1;
 		ix = 1; 
