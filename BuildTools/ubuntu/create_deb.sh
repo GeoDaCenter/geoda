@@ -11,8 +11,13 @@ if ! [ -f build/GeoDa ]; then
     exit
 fi
 
+
 rm -rf product
-cp -rf package product
+if [ $# -ne 1 ]; then
+    cp -rf package product
+else
+    cp -rf package_$1 product
+fi
 
 chmod +x product/DEBIAN/postinst
 mkdir product/usr/local
@@ -32,6 +37,9 @@ if [ $MACHINE_TYPE == 'x86_64' ]; then
     mv product/DEBIAN/control64 product/DEBIAN/control
 fi
 
-rm -f GeoDa-1.10-Ubuntu-XXbit.deb
-dpkg -b product/ GeoDa-1.10-Ubuntu-XXbit.deb
-
+rm -f *.deb
+if [ $# -ne 1 ]; then
+    dpkg -b product/ geoda_1.12-1xenial1.deb
+else
+    dpkg -b product/ geoda_1.12-1$1.deb
+fi

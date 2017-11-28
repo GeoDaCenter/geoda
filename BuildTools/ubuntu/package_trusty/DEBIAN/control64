@@ -1,10 +1,10 @@
 Package: geoda
-Version: 1.12-1xenial1
-Architecture: i386
+Version: 1.12-1trusty1
+Architecture: amd64
 Priority: optional
 Section: graphics
 Installed-Size: 88128
-Depends: zlib1g, libexpat1, freeglut3, libreadline6, libgtk-3-0, libc-dev-bin, libssl0.9.8, libwebkitgtk-1.0-0
+Depends: zlib1g, libexpat1, freeglut3, libreadline6, libgtk-3-0, libc-dev-bin, libssl1.0.0, libwebkitgtk-1.0-0
 Maintainer: Luc Anselin < anselin@uchicago.edu >
 Provides: geoda
 Homepage: http://spatial.uchicago.edu

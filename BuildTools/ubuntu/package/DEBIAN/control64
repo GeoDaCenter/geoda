@@ -1,5 +1,5 @@
 Package: geoda
-Version: 1.10
+Version: 1.12-1xenial1
 Architecture: amd64
 Priority: optional
 Section: graphics
