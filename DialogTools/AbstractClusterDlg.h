@@ -133,6 +133,7 @@ protected:
     virtual void  OnSelMinBound(wxCommandEvent& event);
     virtual void  OnTypeMinBound(wxCommandEvent& event);
     virtual void  OnSlideMinBound(wxCommandEvent& event);
+    virtual bool  CheckMinBound();
     
     // Summary related
     // The main statistics should be:

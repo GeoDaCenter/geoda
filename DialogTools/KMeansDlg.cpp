@@ -407,7 +407,10 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     if (!success) {
         return;
     }
-    
+   
+    if (!CheckMinBound()) {
+        return;
+    }
     int npass = 10;
     wxString str_pass = m_pass->GetValue();
     long value_pass;

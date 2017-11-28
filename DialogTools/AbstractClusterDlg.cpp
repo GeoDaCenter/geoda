@@ -340,6 +340,18 @@ void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
     if (is_valid) {
     }
 }
+bool AbstractClusterDlg::CheckMinBound()
+{
+    if (chk_floor->IsChecked()) {
+        if (combo_floor->GetSelection() < 0 || txt_floor->GetValue().Trim() == wxEmptyString) {
+            wxString err_msg = _("Please input minimum bound value.");
+            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return false;
+        }
+    }
+    return true;
+}
 
 void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
 {
@@ -428,7 +440,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             
             // Set Primary GdaVarTools::VarInfo attributes
             var_info[i].name = nm;
-            var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+            var_info[i].is_time_variant = table_int->IsColTimeVariant(nm);
             
             // var_info[i].time already set above
             table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
@@ -455,12 +467,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             col_names.insert(col_names.begin(), "CENTX");
         }
         
-        // get columns (if time variables show)
-        for (int i=0; i<data.size(); i++ ){
-            for (int j=0; j<data[i].size(); j++) {
-                columns += 1;
-            }
-        }
+        // get columns (time variables always show upgrouped)
+        columns += data.size();
         
         if (m_weight_centroids && m_use_centroids)
             weight = GetWeights(columns);
@@ -507,21 +515,23 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             col_ii = 2;
         }
         for (int i=0; i<data.size(); i++ ){ // col
-            for (int j=0; j<data[i].size(); j++) { // time
-                std::vector<double> vals;
-                for (int k=0; k< rows;k++) { // row
-                    vals.push_back(data[i][j][k]);
-                }
-                if (transform == 2) {
-                    GenUtils::StandardizeData(vals);
-                } else if (transform == 1 ) {
-                    GenUtils::DeviationFromMean(vals);
-                }
-                for (int k=0; k< rows;k++) { // row
-                    input_data[k][col_ii] = vals[k];
-                }
-                col_ii += 1;
+            std::vector<double> vals;
+            int c_t = 0;
+            if (var_info[i].is_time_variant) {
+                c_t = var_info[i].time;
             }
+            for (int k=0; k< rows;k++) { // row
+                vals.push_back(data[i][c_t][k]);
+            }
+            if (transform == 2) {
+                GenUtils::StandardizeData(vals);
+            } else if (transform == 1 ) {
+                GenUtils::DeviationFromMean(vals);
+            }
+            for (int k=0; k< rows;k++) { // row
+                input_data[k][col_ii] = vals[k];
+            }
+            col_ii += 1;
         }
         return true;
     }
@@ -554,7 +564,7 @@ double* AbstractClusterDlg::GetWeights(int columns)
 double AbstractClusterDlg::GetMinBound()
 {
     double bound = 0;
-    if (chk_floor->IsChecked()) {
+    if (chk_floor->IsChecked() && combo_floor->GetSelection()>-1) {
         wxString tmp_val = txt_floor->GetValue();
         tmp_val.ToDouble(&bound);
     }

@@ -274,7 +274,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         
         // Set Primary GdaVarTools::VarInfo attributes
         var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
+        var_info[i].is_time_variant = table_int->IsColTimeVariant(nm);
         
         // var_info[i].time already set above
         table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
@@ -293,12 +293,9 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     for (int i=0; i<var_info.size(); i++) {
         table_int->GetColData(col_ids[i], data[i]);
     }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
+    // get columns (time variables always show upgrouped)
+    columns += data.size();
+
    
     // init input_data[rows][cols]
     input_data = new double*[rows];
@@ -314,21 +311,23 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     // assign value
     int col_ii = 0;
     for (int i=0; i<data.size(); i++ ){ // col
-        for (int j=0; j<data[i].size(); j++) { // time
-            std::vector<double> vals;
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
-            }
-            for (int k=0; k< rows;k++) { // row
-                input_data[k][col_ii] = vals[k];
-            }
-            col_ii += 1;
+        std::vector<double> vals;
+        int c_t = 0;
+        if (var_info[i].is_time_variant) {
+            c_t = var_info[i].time;
         }
+        for (int k=0; k< rows;k++) { // row
+            vals.push_back(data[i][c_t][k]);
+        }
+        if (transform == 2) {
+            GenUtils::StandardizeData(vals);
+        } else if (transform == 1 ) {
+            GenUtils::DeviationFromMean(vals);
+        }
+        for (int k=0; k< rows;k++) { // row
+            input_data[k][col_ii] = vals[k];
+        }
+        col_ii += 1;
     }
     
     double* weight = new double[columns];
