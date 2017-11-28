@@ -203,6 +203,7 @@ private:
     bool isLeftMove;
     bool isMovingSplitLine;
     wxPoint startPos;
+    std::vector<int> hl_ids;
     
     std::map<int, int> accessed_node;
     std::map<int, double> level_node;
@@ -251,6 +252,7 @@ public:
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
+    void Highlight(vector<int>& ids);
     
 protected:
     int max_n_clusters;

@@ -90,6 +90,7 @@ table_state(project_s->GetTableState())
 
 DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
 {
+    wxLogMessage("Close DataViewerEditFieldPropertiesDlg");
 	//frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 }

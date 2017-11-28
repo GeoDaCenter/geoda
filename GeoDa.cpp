@@ -1457,14 +1457,17 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
         try {
             project_p->SaveProjectConf();
         } catch( GdaException& e) {
-            // do nothing
+            // do nothing if save project configuration failed, since it's not critical
         }        
 	} catch (GdaException& e) {
+        // the title of the message dialog is empty, because
+        // the message could be an "eror" message or an "info" message
+        // e.g. "Saving data source cancelled"
 		wxMessageDialog dlg (this, e.what(), "", wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
-	// We know Data Source data was saved successfully
+	// here, we know Data Source data was saved successfully
 	SaveButtonManager* sbm = project_p->GetSaveButtonManager();
 	if (sbm) {
 		sbm->SetAllowEnableSave(true);

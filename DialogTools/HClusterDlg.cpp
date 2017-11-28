@@ -88,6 +88,17 @@ void HClusterDlg::Highlight(int id)
     highlight_state->notifyObservers(this);
 }
 
+void HClusterDlg::Highlight(vector<int>& ids)
+{
+    vector<bool>& hs = highlight_state->GetHighlight();
+    
+    for (int i=0; i<hs.size(); i++) hs[i] = false;
+    for (int i=0; i<ids.size(); i++) hs[ids[i]] = true;
+    
+    highlight_state->SetEventType(HLStateInt::delta);
+    highlight_state->notifyObservers(this);
+}
+
 bool HClusterDlg::Init()
 {
     if (project == NULL)
@@ -539,21 +550,25 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
         }
         if (!isMovingSplitLine) {
 			// test end_nodes
+            if ( !event.ShiftDown() && !event.CmdDown() ) {
+                hl_ids.clear();
+            }
 			for (int i=0;i<end_nodes.size();i++) {
-				if (end_nodes[i]->contains(startPos)){
-					// highlight i selected
-					wxWindow* parent = GetParent();
-					while (parent) {
-						wxWindow* w = parent;
-						HClusterDlg* dlg = dynamic_cast<HClusterDlg*>(w);
-						if (dlg) {
-							dlg->Highlight(end_nodes[i]->idx);
-							break;
-						}
-						parent = w->GetParent();
-					}
+				if (end_nodes[i]->contains(startPos)) {
+                    hl_ids.push_back(end_nodes[i]->idx);
 				}
 			}
+            // highlight i selected
+            wxWindow* parent = GetParent();
+            while (parent) {
+                wxWindow* w = parent;
+                HClusterDlg* dlg = dynamic_cast<HClusterDlg*>(w);
+                if (dlg) {
+                    dlg->Highlight(hl_ids);
+                    break;
+                }
+                parent = w->GetParent();
+            }
         }
     } else if (event.Dragging()) {
         if (isLeftDown) {
