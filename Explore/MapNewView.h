@@ -366,6 +366,8 @@ public:
         if (!template_canvas) return;
         MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
         map_canvs_ref->SetLegendLabel(cat, label);
+        if (!template_legend) return;
+        template_legend->Recreate();
     }
 	
 protected:
