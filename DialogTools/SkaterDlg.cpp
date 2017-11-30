@@ -418,23 +418,21 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
-
     int sel = combo_weights->GetSelection();
     if (sel < 0) sel = 0;
     if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-    
     boost::uuids::uuid w_id = weights_ids[sel];
     GalWeight* gw = w_man_int->GetGal(w_id);
-
     if (gw == NULL) {
         wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
-   
-    bool check_floor = false;
+    // check any islands
+    
     
 	// Get Bounds
+    bool check_floor = false;
     double min_bound = GetMinBound();
     if (chk_floor->IsChecked()) {
         wxString str_floor = txt_floor->GetValue();
@@ -496,7 +494,6 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
-    
 	// Run Skater
     Skater skater(rows, columns, initial, input_data, distances, check_floor, min_bound, bound_vals);
     
@@ -510,13 +507,25 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    
     for (int i=0; i < ncluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
             clusters[idx] = c;
         }
+    }
+   
+    // check island
+    int n_island = 0;
+    for (int i=0; i<clusters.size(); i++) {
+        if (clusters[i] == 0) {
+            n_island++;
+        }
+    }
+    if (n_island > 0) {
+        wxString msg = wxString::Format(_("There are %d isolated observations can not be clustered."), n_island);
+        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+        dlg.ShowModal();
     }
     
     // summary
@@ -577,4 +586,8 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);
+    
+    if (n_island>0) {
+        nf->SetLegendLabel(0, "Isolated");
+    }
 }

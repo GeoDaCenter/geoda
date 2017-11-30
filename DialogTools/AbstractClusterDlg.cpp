@@ -610,19 +610,22 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 
 void AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters)
 {
-    vector<vector<int> > solution;
     
+    vector<vector<int> > solution;
+    vector<int> isolated;
     for (int i=0; i<clusters.size(); i++) {
         int c = clusters[i];
         if (c > solution.size()) solution.resize(c);
         
         if (c-1 >= 0)
             solution[c-1].push_back(i);
+        else
+            isolated.push_back(i);
     }
-    CreateSummary(solution);
+    CreateSummary(solution, isolated);
 }
 
-void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
+void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated)
 {
     // mean centers
     vector<vector<double> > mean_centers = _getMeanCenters(solution);
@@ -639,6 +642,8 @@ void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution)
     
     wxString summary;
     summary << "------\n";
+    if (isolated.size()>0)
+        summary << "Isolated observations: " << isolated.size() << "\n";
     summary << _printConfiguration();
     summary << _printMeanCenters(mean_centers);
     summary << "The total sum of squares:\t" << totss << "\n";

@@ -200,6 +200,10 @@ public:
     
 	virtual void UpdateStatusBar();
     
+    void SetLegendLabel(int cat, wxString label) {
+        cat_data.SetCategoryLabel(0, cat, label);
+    }
+    
 protected:
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -357,6 +361,12 @@ public:
 					   const std::vector<GdaVarTools::VarInfo>& new_var_info,
 					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
+    
+    void SetLegendLabel(int cat, wxString label) {
+        if (!template_canvas) return;
+        MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;
+        map_canvs_ref->SetLegendLabel(cat, label);
+    }
 	
 protected:
 	WeightsManState* w_man_state;

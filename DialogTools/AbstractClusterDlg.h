@@ -154,7 +154,7 @@ protected:
     wxString _printWithinSS(const vector<double>& within_ss);
     virtual wxString _printConfiguration()=0;
     void CreateSummary(const vector<wxInt64>& clusters);
-    void CreateSummary(const vector<vector<int> >& solution);
+    void CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>());
 };
 
 #endif

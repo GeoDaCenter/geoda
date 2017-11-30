@@ -336,6 +336,7 @@ void SpatialContiguousTree::subSplit(int start, int end)
     bool is_first = true;
     //for (int i=0; i<edges.size(); i++) {
     for (int i=start; i<end; i++) {
+        if (i >= edges.size()) continue;
         RedCapEdge* out_edge = edges[i];
         RedCapNode* a = out_edge->a;
         RedCapNode* b = out_edge->b;

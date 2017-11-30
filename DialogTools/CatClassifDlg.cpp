@@ -895,7 +895,6 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
             }
         }
     }
-
     
     wxLogMessage("In CatClassifPanel::PromptNew");
     wxLogMessage(_("suggested title:") + suggested_title);
