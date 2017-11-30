@@ -642,7 +642,7 @@ void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, con
     
     wxString summary;
     summary << "------\n";
-    if (isolated.size()>0)
+    if (isolated.size()>0 && isolated.size() < rows)
         summary << "Isolated observations: " << isolated.size() << "\n";
     summary << _printConfiguration();
     summary << _printMeanCenters(mean_centers);
