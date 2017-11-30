@@ -21,6 +21,7 @@
 
 #include <algorithm>
 #include <vector>
+#include <set>
 #include <map>
 #include <float.h>
 #include <list>
@@ -318,7 +319,7 @@ void Maxp::init_solution(int solution_idx)
                 // add enclave to random region
                 int regID = Gda::ThomasWangHashDouble(seed_local++) * _cand.size();
                
-                set<int>::iterator iter_s = _cand.begin();
+                std::set<int>::iterator iter_s = _cand.begin();
                 std::advance(iter_s, regID);
                 int rid = *iter_s;
                 
