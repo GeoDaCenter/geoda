@@ -240,40 +240,35 @@ void Maxp::init_solution(int solution_idx)
             region.push_back(seed);
             unordered_map<int, bool> region_dict;
             region_dict[seed] = true;
+            candidates_dict[seed] = false;
             
             // check floor and enclave
-            bool is_enclave = true;
+            bool is_floor = false;
             double cv = floor_variable[ seed ];
-           
-            while (is_enclave && cv < floor && !region.empty()) {
+            while (cv < floor && !region.empty()) {
                 int area = region.back();
                 region.pop_back();
                
-                for ( int n=0; n<w[area].Size(); n++) {
+                for ( int n=0; n<w[area].Size() && !is_floor; n++) {
                     int nbr = w[area][n];
-                    if (region_dict[nbr] != true && candidates_dict[nbr] == true) {
+                    if (region_dict.find(nbr)==region_dict.end() && candidates_dict[nbr] == true) {
                         region.push_back(nbr);
                         region_dict[nbr] = true;
                         candidates.remove(nbr);
                         candidates_dict[nbr] = false;
                         cv += floor_variable[ nbr];
                         if (cv >= floor) {
-                            is_enclave = false;
-                            break;
+                            is_floor = true;
                         }
                     }
                 }
             }
-            
-            unordered_map<int, bool>::iterator rit;
-            if (is_enclave) {
-                for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
-                    if (rit->second) enclaves.push_back(rit->first);
-                }
-            } else {
+            if (is_floor) {
+                unordered_map<int, bool>::iterator rit;
                 vector<int> _region;
                 for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
-                    if (rit->second) _region.push_back(rit->first);
+                    if (rit->second)
+                        _region.push_back(rit->first);
                 }
                 regn.push_back(_region);
             }
@@ -293,34 +288,39 @@ void Maxp::init_solution(int solution_idx)
                 a2r[ regn[i][j] ] = i;
             }
         }
+        
+        // get enclaves: areas that are not assigned to a region are known as “enclaves.”
+        for (int i=0; i<num_obs;i++) {
+            if (a2r.find(i) == a2r.end()) {
+                enclaves.push_back(i);
+            }
+        }
         int encCount = enclaves.size();
         int encAttempts = 0;
         
-        while (encCount > 0 && encAttempts != encCount) {
+        while (enclaves.size() > 0 && encAttempts != encCount) {
             int enclave = enclaves.front();
             enclaves.pop_front();
-            
-            vector<int> candidates;
+            // find regions that close to this enclaved region
+            set<int> _cand;
             
             for ( int n=0; n<w[enclave].Size(); n++) {
                 int nbr = w[enclave][n];
-                
-                iter = find(enclaves.begin(), enclaves.end(), nbr);
-                if (iter != enclaves.end()) continue;
-                
-                int region = a2r[nbr];
-                
-                vector_iter = find(candidates.begin(), candidates.end(), region);
-                if (vector_iter != candidates.end()) continue;
-
-                candidates.push_back(region);
+                //iter = find(enclaves.begin(), enclaves.end(), nbr);
+                //if (iter != enclaves.end()) continue;
+                if (a2r.find(nbr) != a2r.end()) {
+                    int region = a2r[nbr];
+                    _cand.insert(region);
+                }
             }
             
-            if (!candidates.empty()) {
+            if (!_cand.empty()) {
                 // add enclave to random region
-                int regID = Gda::ThomasWangHashDouble(seed_local++) * candidates.size();
-                
-                int rid = candidates[regID];
+                int regID = Gda::ThomasWangHashDouble(seed_local++) * _cand.size();
+               
+                set<int>::iterator iter_s = _cand.begin();
+                std::advance(iter_s, regID);
+                int rid = *iter_s;
                 
                 regn[rid].push_back(enclave);
                 a2r[enclave] = rid;
@@ -787,7 +787,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
     vector<int> changed_regions(nr, 1);
     
     // nr = range(k)
-    while (swapping) {
+    while (swapping && total_move<10000) {
         int moves_made = 0;
         
         //selects a neighbouring solution at random
