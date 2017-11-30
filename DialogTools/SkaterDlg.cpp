@@ -522,7 +522,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             n_island++;
         }
     }
-    if (n_island > 0) {
+    if (n_island > 0 && n_island < rows) {
         wxString msg = wxString::Format(_("There are %d isolated observations can not be clustered."), n_island);
         wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
         dlg.ShowModal();
@@ -587,7 +587,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     ttl << " clusters)";
     nf->SetTitle(ttl);
     
-    if (n_island>0) {
+    if (n_island>0 && n_island < rows) {
         nf->SetLegendLabel(0, "Isolated");
     }
 }
