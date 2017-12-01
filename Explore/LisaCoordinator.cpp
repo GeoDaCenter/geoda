@@ -36,9 +36,7 @@
 #include "LisaCoordinatorObserver.h"
 #include "LisaCoordinator.h"
 
-LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
-                                   const std::vector<bool>& undefs_,
-                                   int obs_start_s, int obs_end_s,
+LisaWorkerThread::LisaWorkerThread(int obs_start_s, int obs_end_s,
 								   uint64_t	seed_start_s,
 								   LisaCoordinator* lisa_coord_s,
 								   wxMutex* worker_list_mutex_s,
@@ -46,8 +44,6 @@ LisaWorkerThread::LisaWorkerThread(const GalElement* W_,
 								   std::list<wxThread*> *worker_list_s,
 								   int thread_id_s)
 : wxThread(),
-W(W_),
-undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 lisa_coord(lisa_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -66,7 +62,7 @@ wxThread::ExitCode LisaWorkerThread::Entry()
 	LOG_MSG(wxString::Format("LisaWorkerThread %d started", thread_id));
 
 	// call work for assigned range of observations
-	lisa_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
+	lisa_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
     
@@ -634,8 +630,9 @@ void LisaCoordinator::CalcLisa()
 void LisaCoordinator::CalcPseudoP()
 {
 	wxLogMessage("Entering LisaCoordinator::CalcPseudoP()");
-	if (!calc_significances) return;
-	wxStopWatch sw;
+	if (!calc_significances)
+        return;
+    
 	int nCPUs = wxThread::GetCPUCount();
 	
 	// To ensure thread safety, only work on one time slice of data
@@ -643,47 +640,19 @@ void LisaCoordinator::CalcPseudoP()
 	// 1. copy data for time period t into data1 and data2 arrays
 	// 2. Perform multi-threaded computation
 	// 3. copy results into results array
-	
-	
-	for (int t=0; t<num_time_vals; t++) {
-	
-        std::vector<bool>& undefs = undef_tms[t];
-		data1 = data1_vecs[t];
-		if (isBivariate) {
-			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time)
-                data2 = data2_vecs[t];
-		}
-		lags = lags_vecs[t];
-		localMoran = local_moran_vecs[t];
-		sigLocalMoran = sig_local_moran_vecs[t];
-		sigCat = sig_cat_vecs[t];
-		cluster = cluster_vecs[t];
-		
-		if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
-            if (!reuse_last_seed) {
-                last_seed_used = time(0);
-            }
-			CalcPseudoP_range(Gal_vecs[t]->gal, undefs,
-                              0, num_obs-1, last_seed_used);
-		} else {
-			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
-		}
-	}
-    
-    
-	{
-		wxString m;
-		m << "LISA on " << num_obs << " obs with " << permutations;
-		m << " perms over " << num_time_vals << " time periods took ";
-		m << sw.Time() << " ms. Last seed used: " << last_seed_used;
-	}
+
+    if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
+        if (!reuse_last_seed) {
+            last_seed_used = time(0);
+        }
+        CalcPseudoP_range(0, num_obs-1, last_seed_used);
+    } else {
+        CalcPseudoP_threaded();
+    }
 	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP()");
 }
 
-void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
-                                           const std::vector<bool>& undefs)
+void LisaCoordinator::CalcPseudoP_threaded()
 {
 	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_threaded()");
 	int nCPUs = wxThread::GetCPUCount();
@@ -730,64 +699,59 @@ void LisaCoordinator::CalcPseudoP_threaded(const GalElement* W,
 		}
 		uint64_t seed_start = last_seed_used+a;
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-		int thread_id = i+1;
-		wxString msg;
-		msg << "thread " << thread_id << ": " << a << "->" << b;
-		msg << ", seed: " << seed_start << "->" << seed_end;
-		
-        /*
-         boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, W, undefs, a, b, seed_start));
-         threadPool.add_thread(worker);
-         */
-		LisaWorkerThread* thread =
-			new LisaWorkerThread(W, undefs, a, b, seed_start, this,
-								 &worker_list_mutex,
-								 &worker_list_empty_cond,
-								 &worker_list, thread_id);
-		if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-			delete thread;
-			is_thread_error = true;
-		} else {
-			worker_list.push_front(thread);
-		}
+        int thread_id = i+1;
+        //boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, a, b, seed_start));
+        //threadPool.add_thread(worker);
+        LisaWorkerThread* thread =
+        new LisaWorkerThread(a, b, seed_start, this,
+                             &worker_list_mutex,
+                             &worker_list_empty_cond,
+                             &worker_list, thread_id);
+        if ( thread->Create() != wxTHREAD_NO_ERROR ) {
+            delete thread;
+            is_thread_error = true;
+        } else {
+            worker_list.push_front(thread);
+        }
 	}
-	if (is_thread_error) {
-		// fall back to single thread calculation mode
-		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
-	} else {
-		std::list<wxThread*>::iterator it;
-		for (it = worker_list.begin(); it != worker_list.end(); it++) {
-			(*it)->Run();
-		}
-	
-		while (!worker_list.empty()) {
-			// wait until thread_list might be empty
-			worker_list_empty_cond.Wait();
-			// We have been woken up. If this was not a false
-			// alarm (sprious signal), the loop will exit.
-		}
-	}
+    if (is_thread_error) {
+        // fall back to single thread calculation mode
+        CalcPseudoP_range(0, num_obs-1, last_seed_used);
+    } else {
+        std::list<wxThread*>::iterator it;
+        for (it = worker_list.begin(); it != worker_list.end(); it++) {
+            (*it)->Run();
+        }
+        
+        while (!worker_list.empty()) {
+            // wait until thread_list might be empty
+            worker_list_empty_cond.Wait();
+            // We have been woken up. If this was not a false
+            // alarm (sprious signal), the loop will exit.
+        }
+    }
     //threadPool.join_all();
 	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP_threaded()");
 }
 
-void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
-                                        const std::vector<bool>& undefs,
-                                        int obs_start, int obs_end,
-										uint64_t seed_start)
+void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
 	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_range()");
+    
 	GeoDaSet workPermutation(num_obs);
-	//Randik rng;
-	int max_rand = num_obs-1;
+    int max_rand = num_obs-1;
+    
 	for (int cnt=obs_start; cnt<=obs_end; cnt++) {
+        std::vector<uint64_t> countLarger(num_time_vals, 0);
         
-        if (undefs[cnt])
-            continue;
-        
-		const int numNeighbors = W[cnt].Size();
-		
-		uint64_t countLarger = 0;
+        // get full neighbors even if has undefined value
+        int numNeighbors = 0;
+        for (int t=0; t<num_time_vals; t++) {
+            GalElement* w = Gal_vecs[t]->gal;
+            if (w[cnt].Size() > numNeighbors)
+                numNeighbors = w[cnt].Size();
+        }
+	
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
 			while (rand < numNeighbors) {
@@ -795,56 +759,84 @@ void LisaCoordinator::CalcPseudoP_range(const GalElement* W,
                 double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
-				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
-				if (newRandom != cnt &&
-                    !workPermutation.Belongs(newRandom) &&
-                    undefs[newRandom] == false)
-				{
+				int newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));
+				if (newRandom != cnt && !workPermutation.Belongs(newRandom)) {
 					workPermutation.Push(newRandom);
 					rand++;
 				}
 			}
-			double permutedLag=0;
-			// use permutation to compute the lag
-			// compute the lag for binary weights
-			if (isBivariate) {
-				for (int cp=0; cp<numNeighbors; cp++) {
-					permutedLag += data2[workPermutation.Pop()];
-				}
-			} else {
-				for (int cp=0; cp<numNeighbors; cp++) {
-					permutedLag += data1[workPermutation.Pop()];
-				}
-			}
+            std::vector<int> permNeighbors(numNeighbors);
+            for (int cp=0; cp<numNeighbors; cp++) {
+                permNeighbors[cp] = workPermutation.Pop();
+            }
+            // for each time step, reuse permuation
+            for (int t=0; t<num_time_vals; t++) {
+                std::vector<bool>& undefs = undef_tms[t];
+                data1 = data1_vecs[t];
+                if (isBivariate) {
+                    data2 = data2_vecs[0];
+                    if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
+                        data2 = data2_vecs[t];
+                }
+               
+                int validNeighbors = 0;
+                double permutedLag=0;
+                // use permutation to compute the lag
+                // compute the lag for binary weights
+                if (isBivariate) {
+                    for (int cp=0; cp<numNeighbors; cp++) {
+                        int nb = permNeighbors[cp];
+                        if (!undefs[nb]) {
+                            permutedLag += data2[nb];
+                            validNeighbors ++;
+                        }
+                    }
+                } else {
+                    for (int cp=0; cp<numNeighbors; cp++) {
+                        int nb = permNeighbors[cp];
+                        if (!undefs[nb]) {
+                            permutedLag += data1[nb];
+                            validNeighbors ++;
+                        }
+                    }
+                }
+                
+                //NOTE: we shouldn't have to row-standardize or
+                // multiply by data1[cnt]
+                if (validNeighbors && row_standardize) {
+                    permutedLag /= validNeighbors;
+                }
+                const double localMoranPermuted = permutedLag * data1[cnt];
+                if (localMoranPermuted >= localMoran[cnt]) {
+                    countLarger[t]++;
+                }
+            }
+            
 			
-			//NOTE: we shouldn't have to row-standardize or
-			// multiply by data1[cnt]
-            if (numNeighbors && row_standardize) {
-                permutedLag /= numNeighbors;
-            }
-			const double localMoranPermuted = permutedLag * data1[cnt];
-            if (localMoranPermuted >= localMoran[cnt]) {
-                countLarger++;
-            }
 		}
-		// pick the smallest
-		if (permutations-countLarger <= countLarger) { 
-			countLarger = permutations-countLarger;
-		}
-		
-		sigLocalMoran[cnt] = (countLarger+1.0)/(permutations+1);
-		// 'significance' of local Moran
-		if (sigLocalMoran[cnt] <= 0.0001) sigCat[cnt] = 4;
-		else if (sigLocalMoran[cnt] <= 0.001) sigCat[cnt] = 3;
-		else if (sigLocalMoran[cnt] <= 0.01) sigCat[cnt] = 2;
-		else if (sigLocalMoran[cnt] <= 0.05) sigCat[cnt]= 1;
-		else sigCat[cnt]= 0;
-		
-		// observations with no neighbors get marked as isolates
-        // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
-		if (numNeighbors == 0) {
-			sigCat[cnt] = 5;
-		}
+        for (int t=0; t<num_time_vals; t++) {
+            sigLocalMoran = sig_local_moran_vecs[t];
+            sigCat = sig_cat_vecs[t];
+
+    		// pick the smallest
+    		if (permutations-countLarger[t] <= countLarger[t]) {
+    			countLarger[t] = permutations-countLarger[t];
+    		}
+    		
+    		sigLocalMoran[cnt] = (countLarger[t]+1.0)/(permutations+1);
+    		// 'significance' of local Moran
+    		if (sigLocalMoran[cnt] <= 0.0001) sigCat[cnt] = 4;
+    		else if (sigLocalMoran[cnt] <= 0.001) sigCat[cnt] = 3;
+    		else if (sigLocalMoran[cnt] <= 0.01) sigCat[cnt] = 2;
+    		else if (sigLocalMoran[cnt] <= 0.05) sigCat[cnt]= 1;
+    		else sigCat[cnt]= 0;
+    		
+    		// observations with no neighbors get marked as isolates
+            // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
+    		if (numNeighbors == 0) {
+    			sigCat[cnt] = 5;
+    		}
+        }
 	}
 	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP_range()");
 }

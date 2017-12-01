@@ -42,9 +42,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class LisaWorkerThread : public wxThread
 {
 public:
-	LisaWorkerThread(const GalElement* W,
-                     const std::vector<bool>& undefs,
-                     int obs_start, int obs_end, uint64_t seed_start,
+	LisaWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
 					 LisaCoordinator* lisa_coord,
 					 wxMutex* worker_list_mutex,
 					 wxCondition* worker_list_empty_cond,
@@ -53,8 +51,6 @@ public:
 	virtual ~LisaWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
-    const GalElement* W;
-    const std::vector<bool>& undefs;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -207,8 +203,7 @@ public:
 	std::list<LisaCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs,
-                           int obs_start, int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
 
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -219,7 +214,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
+	void CalcPseudoP_threaded();
 	void CalcLisa();
 	void StandardizeData();
 	std::vector<bool> has_undefined;
