@@ -30,6 +30,7 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/GalWeight.h"
 
 using namespace std;
 
@@ -85,6 +86,9 @@ protected:
     virtual double GetMinBound();
    
     virtual double* GetBoundVals();
+   
+    // Utils
+    bool CheckConnectivity(GalWeight* gw);
     
     // Input related
     std::vector<GdaVarTools::VarInfo> var_info;

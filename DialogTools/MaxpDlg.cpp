@@ -511,6 +511,13 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         return;
     }
     
+    // Check connectivity
+    if (!CheckConnectivity(gw)) {
+        wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
+        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+        dlg.ShowModal();
+    }
+    
 	// Get Bounds
     double min_bound = GetMinBound();
     if (chk_floor->IsChecked()) {

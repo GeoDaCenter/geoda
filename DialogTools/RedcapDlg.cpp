@@ -437,7 +437,14 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-       
+    
+    // Check connectivity
+    if (!CheckConnectivity(gw)) {
+        wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
+        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+        dlg.ShowModal();
+    }
+    
     // Get Bounds
     double min_bound = GetMinBound();
     double* bound_vals = GetBoundVals();

@@ -18,6 +18,7 @@
  */
 
 #include <vector>
+#include <list>
 #include <map>
 #include <algorithm>
 #include <limits>
@@ -122,12 +123,47 @@ bool AbstractClusterDlg::Init()
 
 void AbstractClusterDlg::update(FramesManager* o)
 {
-    
 }
 
 void AbstractClusterDlg::update(TableState* o)
 {
     InitVariableCombobox(combo_var);
+}
+
+bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
+{
+    if (num_obs == 0 || gw == NULL) return false;
+    
+    GalElement* W = gw->gal;
+    if (W == NULL) return false;
+    
+    // start from first node in W
+    if (W[0].Size() == 0) return false;
+   
+    std::map<int, bool> access_dict; // prevent loop
+    access_dict[0] = true;
+    
+    std::list<int> magzine;
+    for (int i=0; i<W[0].Size(); i++) {
+        if (access_dict.find(W[0][i]) == access_dict.end()) {
+            magzine.push_back(W[0][i]);
+            access_dict[W[0][i]] = true;
+        }
+    }
+    // breadth first traversal (BFS)
+    while (!magzine.empty()) {
+        int nbr = magzine.front();
+        magzine.pop_front();
+        for (int i=0; i<W[nbr].Size(); i++) {
+            if (access_dict.find(W[nbr][i]) == access_dict.end()) {
+                magzine.push_back(W[nbr][i]);
+                access_dict[W[nbr][i]] = true;
+            }
+        }
+    }
+   
+    bool b_connect = access_dict.size() == num_obs;
+    return b_connect;
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxListBox** combo_var, wxBoxSizer* vbox, bool integer_only)
@@ -642,8 +678,8 @@ void AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, con
     
     wxString summary;
     summary << "------\n";
-    if (isolated.size()>0 && isolated.size() < rows)
-        summary << "Isolated observations: " << isolated.size() << "\n";
+    if (isolated.size()>0)
+        summary << "Number of not clustered observations: " << isolated.size() << "\n";
     summary << _printConfiguration();
     summary << _printMeanCenters(mean_centers);
     summary << "The total sum of squares:\t" << totss << "\n";

@@ -428,8 +428,13 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    // check any islands
     
+    // Check connectivity
+    if (!CheckConnectivity(gw)) {
+        wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
+        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+        dlg.ShowModal();
+    }
     
 	// Get Bounds
     bool check_floor = false;
@@ -454,7 +459,8 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             check_floor = true;
         }
         bound_vals = new double[rows];
-        for (int i=0; i<rows; i++) bound_vals[i] = 1;
+        for (int i=0; i<rows; i++)
+            bound_vals[i] = 1;
     }
     
 	// Get region numbers
@@ -463,7 +469,6 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     if(str_initial.ToLong(&value_initial)) {
         initial = value_initial;
     }
-    
     
 	// Get random seed
     int rnd_seed = -1;
@@ -515,17 +520,12 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         }
     }
    
-    // check island
+    // check not clustered
     int n_island = 0;
     for (int i=0; i<clusters.size(); i++) {
         if (clusters[i] == 0) {
             n_island++;
         }
-    }
-    if (n_island > 0 && n_island < rows) {
-        wxString msg = wxString::Format(_("There are %d isolated observations can not be clustered."), n_island);
-        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
-        dlg.ShowModal();
     }
     
     // summary
@@ -587,7 +587,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     ttl << " clusters)";
     nf->SetTitle(ttl);
     
-    if (n_island>0 && n_island < rows) {
-        nf->SetLegendLabel(0, "Isolated");
+    if (n_island>0) {
+        nf->SetLegendLabel(0, "Not Clustered");
     }
 }
