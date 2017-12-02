@@ -167,9 +167,11 @@ void Skater::run()
         best_score_2 = ssw(best_pair[1]) - best_score_2;
         if (t2_size == 0) {
             set<int>& tmp_set = best_cids[1];
+			if (!tmp_set.empty()) {
             int tmp_id = *tmp_set.begin();
             E tmp_e(tmp_id, tmp_id);
             best_pair[1].push_back(tmp_e);
+			}
         }
         solution.push( ClusterEl(best_score_2, best_pair[1]));
     }
