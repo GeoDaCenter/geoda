@@ -736,8 +736,6 @@ void LisaCoordinator::CalcPseudoP_threaded()
 
 void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
-	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_range()");
-    
 	GeoDaSet workPermutation(num_obs);
     int max_rand = num_obs-1;
     
@@ -838,7 +836,6 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t see
     		}
         }
 	}
-	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP_range()");
 }
 
 void LisaCoordinator::SetSignificanceFilter(int filter_id)

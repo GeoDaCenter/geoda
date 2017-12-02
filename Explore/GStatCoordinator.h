@@ -52,9 +52,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class GStatWorkerThread : public wxThread
 {
 public:
-    GStatWorkerThread(const GalElement* W,
-                      const std::vector<bool>& undefs,
-                      int obs_start, int obs_end, uint64_t seed_start,
+    GStatWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
                       GStatCoordinator* gstat_coord,
                       wxMutex* worker_list_mutex,
                       wxCondition* worker_list_empty_cond,
@@ -63,8 +61,6 @@ public:
 	virtual ~GStatWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
-    const GalElement* W;
-    const std::vector<bool>& undefs;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -227,8 +223,7 @@ public:
 	std::vector<GetisOrdMapFrame*> maps;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs,
-                           int obs_start, int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
 	
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -239,7 +234,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
+	void CalcPseudoP_threaded();
 	void CalcGs();
 	std::vector<bool> has_undefined;
 	std::vector<bool> has_isolates;
