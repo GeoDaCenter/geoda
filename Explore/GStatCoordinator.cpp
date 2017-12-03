@@ -702,15 +702,15 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 std::vector<bool>& undefs = x_undefs[t];
                 double permutedG = 0;
                 double permutedGStar = 0;
-                G = G_vecs[t];
-                G_star = G_star_vecs[t];
-                x = x_vecs[t];
-                x_star_t = x_star[t];
+                double* _G = G_vecs[t];
+                double* _G_star = G_star_vecs[t];
+                double* _x = x_vecs[t];
+                double _x_star_t = x_star[t];
                
                 if (undefs[i])
                     continue;
                 
-                double xd_i = x_star_t - x[i];
+                double xd_i = _x_star_t - _x[i];
                 int validNeighbors = 0;
                 double lag_i=0;
                 
@@ -718,35 +718,37 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 for (int j=0; j<numNeighbors; j++) {
                     int nb = permNeighbors[j];
                     if (!undefs[nb]) {
-                        lag_i += x[nb];
+                        lag_i += _x[nb];
                         validNeighbors ++;
                     }
                 }
                 if (validNeighbors > 0 && row_standardize) {
                     permutedG = lag_i / (validNeighbors * xd_i);
-                    permutedGStar = (lag_i+x[i]) / ((validNeighbors+1.0)*x_star_t);
+                    permutedGStar = (lag_i+_x[i]) / ((validNeighbors+1.0)*_x_star_t);
                 } else { // binary weights
                     // Wi = numNeighsD // assume no self-neighbors
                     permutedG = lag_i / xd_i;
-                    permutedGStar = (lag_i+x[i]) / x_star_t;
+                    permutedGStar = (lag_i+_x[i]) / _x_star_t;
                 }
                 
-                if (permutedG >= G[i]) countGLarger[t]++;
-                if (permutedGStar >= G_star[i]) countGStarLarger[t]++;
+                if (permutedG >= _G[i]) countGLarger[t]++;
+                if (permutedGStar >= _G_star[i]) countGStarLarger[t]++;
             }
         }
         
         for (int t=0; t<num_time_vals; t++) {
+            double* p_t = pseudo_p_vecs[t];
+            double* ps_t = pseudo_p_star_vecs[t];
             // pick the smallest
             if (permutations-countGLarger[t] < countGLarger[t]) {
                 countGLarger[t] = permutations-countGLarger[t];
             }
-            pseudo_p_vecs[t][i] = (countGLarger[t] + 1.0)/(permutations+1.0);
+            p_t[i] = (countGLarger[t] + 1.0)/(permutations+1.0);
             
             if (permutations-countGStarLarger[t] < countGStarLarger[t]) {
                 countGStarLarger[t] = permutations-countGStarLarger[t];
             }
-            pseudo_p_star_vecs[t][i] = (countGStarLarger[t] + 1.0)/(permutations+1.0);
+            ps_t[i] = (countGStarLarger[t] + 1.0)/(permutations+1.0);
         }
 	}
 }

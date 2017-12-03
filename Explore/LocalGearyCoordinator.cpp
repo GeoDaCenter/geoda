@@ -844,24 +844,26 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
             for (int t=0; t<num_time_vals; t++) {
                 gci[t].resize(permutations, 0);
                 std::vector<bool>& undefs = undef_tms[t];
-              
-                vector<double*> current_data;
-                vector<double*> current_data_square;
+                double* _data1 = NULL;
+                double* _data1_square = NULL;
+                double* _data2 = NULL;
+                vector<double*> current_data(num_vars);
+                vector<double*> current_data_square(num_vars);
+                
                 if (local_geary_type == multivariate) {
-                    current_data.resize(num_vars);
-                    current_data_square.resize(num_vars);
                     for (int v=0; v<num_vars; v++) {
                         int _t = data_vecs[v].size() == 1 ? 0 : t;
                         current_data[v] = data_vecs[v][_t];
                         current_data_square[v] = data_square_vecs[v][_t];
                     }
                 } else {
-                    data1 = data1_vecs[t];
+                    _data1 = data1_vecs[t];
+                    _data1_square = data1_square_vecs[t];
                     if (isBivariate) {
-                        data2 = data2_vecs[0];
+                        _data2 = data2_vecs[0];
                         if (var_info[1].is_time_variant &&
                             var_info[1].sync_with_global_time)
-                            data2 = data2_vecs[t];
+                            _data2 = data2_vecs[t];
                     }
                 }
                 
@@ -904,7 +906,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                permutedLag += data2[perm_idx];
+                                permutedLag += _data2[perm_idx];
                             }
                         }
                     } else {
@@ -913,14 +915,14 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                wwx += data1[perm_idx];
-                                wwx2 += data1_square[perm_idx];
+                                wwx += _data1[perm_idx];
+                                wwx2 += _data1_square[perm_idx];
                             }
                         }
                     }
                     //NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
                     if (validNeighbors && row_standardize) {
-                        gci[t][perm] = data1_square[cnt] - 2.0*data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                        gci[t][perm] = _data1_square[cnt] - 2.0*_data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
                     }
                 }
                 gci_sum[t] += gci[t][perm];
@@ -928,60 +930,60 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
 		}
         // for each time step, reuse permuation
         for (int t=0; t<num_time_vals; t++) {
-            localGeary = local_geary_vecs[t];
-            siglocalGeary = sig_local_geary_vecs[t];
-            sigCat = sig_cat_vecs[t];
-            cluster = cluster_vecs[t];
+            double* _localGeary = local_geary_vecs[t];
+            double* _siglocalGeary = sig_local_geary_vecs[t];
+            int* _sigCat = sig_cat_vecs[t];
+            int* _cluster = cluster_vecs[t];
             // calc mean of gci
             double gci_mean = gci_sum[t] / permutations;
-            if (localGeary[cnt] <= gci_mean) {
+            if (_localGeary[cnt] <= gci_mean) {
                 // positive lisasign[cnt] = 1
                 for (int perm=0; perm<permutations; perm++) {
-                    if (gci[t][perm] <= localGeary[cnt]) {
+                    if (gci[t][perm] <= _localGeary[cnt]) {
                         countLarger[t] += 1;
                     }
                 }
                 if (local_geary_type == multivariate) {
-                    if (cluster[cnt] < 2 ) { // ignore neighborless & undefined
-                        cluster[cnt] = 1;
+                    if (_cluster[cnt] < 2 ) { // ignore neighborless & undefined
+                        _cluster[cnt] = 1;
                     }
                 } else {
                     // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
                     // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
                     // positive && but in outlier qudrant: other pos
-                    if (cluster[cnt] > 2 && cluster[cnt] < 5) // ignore neighborless & undefined
-                        cluster[cnt] = 3;
+                    if (_cluster[cnt] > 2 && _cluster[cnt] < 5) // ignore neighborless & undefined
+                        _cluster[cnt] = 3;
                 }
             } else {
                 // negative lisasign[cnt] = -1
                 for (int perm=0; perm<permutations; perm++) {
-                    if (gci[t][perm] > localGeary[cnt]) {
+                    if (gci[t][perm] > _localGeary[cnt]) {
                         countLarger[t] += 1;
                     }
                 }
                 if (local_geary_type == multivariate) {
-                    if (cluster[cnt] < 2) // ignore neighborless & undefined
-                        cluster[cnt] = 0; // for multivar, only show significant positive (similar)
+                    if (_cluster[cnt] < 2) // ignore neighborless & undefined
+                        _cluster[cnt] = 0; // for multivar, only show significant positive (similar)
                 } else {
                     // negative
-                    if (cluster[cnt] < 5) // ignore neighborless & undefined
-                        cluster[cnt] = 4;
+                    if (_cluster[cnt] < 5) // ignore neighborless & undefined
+                        _cluster[cnt] = 4;
                 }
             }
             int kp = local_geary_type == multivariate ? num_vars : 1;
-            siglocalGeary[cnt] = (countLarger[t]+1.0)/(permutations+1);
+            _siglocalGeary[cnt] = (countLarger[t]+1.0)/(permutations+1);
             
             // 'significance' of local Moran
-            if (siglocalGeary[cnt] <= 0.0001) sigCat[cnt] = 4;
-            else if (siglocalGeary[cnt] <= 0.001) sigCat[cnt] = 3;
-            else if (siglocalGeary[cnt] <= 0.01) sigCat[cnt] = 2;
-            else if (siglocalGeary[cnt] <= 0.05) sigCat[cnt]= 1;
-            else sigCat[cnt]= 0;
+            if (_siglocalGeary[cnt] <= 0.0001) _sigCat[cnt] = 4;
+            else if (_siglocalGeary[cnt] <= 0.001) _sigCat[cnt] = 3;
+            else if (_siglocalGeary[cnt] <= 0.01) _sigCat[cnt] = 2;
+            else if (_siglocalGeary[cnt] <= 0.05) _sigCat[cnt]= 1;
+            else _sigCat[cnt]= 0;
             
             // observations with no neighbors get marked as isolates
             // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
             if (numNeighbors == 0) {
-                sigCat[cnt] = 5;
+                _sigCat[cnt] = 5;
             }
 
         }

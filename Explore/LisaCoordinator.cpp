@@ -769,7 +769,11 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t see
             }
             // for each time step, reuse permuation
             for (int t=0; t<num_time_vals; t++) {
+                double *data1;
+                double *data2;
+                double *localMoran = local_moran_vecs[t];
                 std::vector<bool>& undefs = undef_tms[t];
+                
                 data1 = data1_vecs[t];
                 if (isBivariate) {
                     data2 = data2_vecs[0];
@@ -813,26 +817,26 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t see
 			
 		}
         for (int t=0; t<num_time_vals; t++) {
-            sigLocalMoran = sig_local_moran_vecs[t];
-            sigCat = sig_cat_vecs[t];
+            double* _sigLocalMoran = sig_local_moran_vecs[t];
+            int* _sigCat = sig_cat_vecs[t];
 
     		// pick the smallest
     		if (permutations-countLarger[t] <= countLarger[t]) {
     			countLarger[t] = permutations-countLarger[t];
     		}
     		
-    		sigLocalMoran[cnt] = (countLarger[t]+1.0)/(permutations+1);
+    		_sigLocalMoran[cnt] = (countLarger[t]+1.0)/(permutations+1);
     		// 'significance' of local Moran
-    		if (sigLocalMoran[cnt] <= 0.0001) sigCat[cnt] = 4;
-    		else if (sigLocalMoran[cnt] <= 0.001) sigCat[cnt] = 3;
-    		else if (sigLocalMoran[cnt] <= 0.01) sigCat[cnt] = 2;
-    		else if (sigLocalMoran[cnt] <= 0.05) sigCat[cnt]= 1;
-    		else sigCat[cnt]= 0;
+    		if (_sigLocalMoran[cnt] <= 0.0001) _sigCat[cnt] = 4;
+    		else if (_sigLocalMoran[cnt] <= 0.001) _sigCat[cnt] = 3;
+    		else if (_sigLocalMoran[cnt] <= 0.01) _sigCat[cnt] = 2;
+    		else if (_sigLocalMoran[cnt] <= 0.05) _sigCat[cnt]= 1;
+    		else _sigCat[cnt]= 0;
     		
     		// observations with no neighbors get marked as isolates
             // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
     		if (numNeighbors == 0) {
-    			sigCat[cnt] = 5;
+    			_sigCat[cnt] = 5;
     		}
         }
 	}
