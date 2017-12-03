@@ -43,9 +43,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class LocalGearyWorkerThread : public wxThread
 {
 public:
-    LocalGearyWorkerThread(const GalElement* W,
-                           const std::vector<bool>& undefs,
-                           int obs_start, int obs_end, uint64_t seed_start,
+    LocalGearyWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
                            LocalGearyCoordinator* local_geary_coord,
                            wxMutex* worker_list_mutex,
                            wxCondition* worker_list_empty_cond,
@@ -54,8 +52,6 @@ public:
     virtual ~LocalGearyWorkerThread();
     virtual void* Entry();  // thread execution starts here
     
-    const GalElement* W;
-    const std::vector<bool>& undefs;
     int obs_start;
     int obs_end;
     uint64_t seed_start;
@@ -168,8 +164,7 @@ protected:
 	double* data1_square;
 	double* data2;
     
-    vector<double*> current_data;
-    vector<double*> current_data_square;
+    
 	
 public:
 	vector<double*> lags_vecs;
@@ -224,9 +219,7 @@ public:
 	list<LocalGearyCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W,
-                           const vector<bool>& undefs,
-                           int obs_start,
+	void CalcPseudoP_range(int obs_start,
                            int obs_end,
                            uint64_t seed_start);
 
@@ -239,7 +232,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded(const GalElement* W, const vector<bool>& undefs);
+	void CalcPseudoP_threaded();
 	void CalcLocalGeary();
 	void CalcMultiLocalGeary();
 	void StandardizeData();

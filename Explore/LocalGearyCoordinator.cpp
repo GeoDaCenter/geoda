@@ -36,9 +36,7 @@
 
 using namespace std;
 
-LocalGearyWorkerThread::LocalGearyWorkerThread(const GalElement* W_,
-                                               const std::vector<bool>& undefs_,
-                                               int obs_start_s, int obs_end_s,
+LocalGearyWorkerThread::LocalGearyWorkerThread(int obs_start_s, int obs_end_s,
                                                uint64_t	seed_start_s,
                                                LocalGearyCoordinator* local_geary_coord_s,
                                                wxMutex* worker_list_mutex_s,
@@ -46,8 +44,6 @@ LocalGearyWorkerThread::LocalGearyWorkerThread(const GalElement* W_,
                                                std::list<wxThread*> *worker_list_s,
                                                int thread_id_s)
 : wxThread(),
-W(W_),
-undefs(undefs_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 local_geary_coord(local_geary_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -66,7 +62,7 @@ wxThread::ExitCode LocalGearyWorkerThread::Entry()
     LOG_MSG(wxString::Format("LocalGearyWorkerThread %d started", thread_id));
     
     // call work for assigned range of observations
-    local_geary_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
+    local_geary_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
     
     wxMutexLocker lock(*worker_list_mutex);
     
@@ -727,46 +723,16 @@ void LocalGearyCoordinator::CalcPseudoP()
     
 	int nCPUs = wxThread::GetCPUCount();
 	
-    if (local_geary_type == multivariate) {
-        current_data.resize(num_vars);
-        current_data_square.resize(num_vars);
+    if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
+        if (!reuse_last_seed)  last_seed_used = time(0);
+        CalcPseudoP_range(0, num_obs-1, last_seed_used);
+    } else {
+        CalcPseudoP_threaded();
     }
-	
-	for (int t=0; t<num_time_vals; t++) {
-        vector<bool>& undefs = undef_tms[t];
-        if (local_geary_type == multivariate) {
-            for (int v=0; v<num_vars; v++) {
-                int _t = data_vecs[v].size() == 1 ? 0 : t;
-                current_data[v] = data_vecs[v][_t];
-                current_data_square[v] = data_square_vecs[v][_t];
-            }
-        } else {
-    		data1 = data1_vecs[t];
-    		if (isBivariate) {
-    			data2 = data2_vecs[0];
-    			if (var_info[1].is_time_variant &&
-    				var_info[1].sync_with_global_time)
-                    data2 = data2_vecs[t];
-    		}
-        }
-        
-		lags = lags_vecs[t];
-		localGeary = local_geary_vecs[t];
-		siglocalGeary = sig_local_geary_vecs[t];
-		sigCat = sig_cat_vecs[t];
-		cluster = cluster_vecs[t];
-		
-		if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
-            if (!reuse_last_seed)  last_seed_used = time(0);
-			CalcPseudoP_range(Gal_vecs[t]->gal, undefs, 0, num_obs-1, last_seed_used);
-		} else {
-			CalcPseudoP_threaded(Gal_vecs[t]->gal, undefs);
-		}
-	}
     wxLogMessage("End LocalGearyCoordinator::CalcPseudoP()");
 }
 
-void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vector<bool>& undefs)
+void LocalGearyCoordinator::CalcPseudoP_threaded()
 {
     wxLogMessage("In LocalGearyCoordinator::CalcPseudoP_threaded()");
 	int nCPUs = wxThread::GetCPUCount();
@@ -809,7 +775,7 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vect
 		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
         int thread_id = i+1;
         LocalGearyWorkerThread* thread =
-        new LocalGearyWorkerThread(W, undefs, a, b, seed_start, this,
+        new LocalGearyWorkerThread(a, b, seed_start, this,
                                    &worker_list_mutex,
                                    &worker_list_empty_cond,
                                    &worker_list, thread_id);
@@ -822,7 +788,7 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vect
 	}
     if (is_thread_error) {
         // fall back to single thread calculation mode
-        CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
+        CalcPseudoP_range(0, num_obs-1, last_seed_used);
     } else {
         std::list<wxThread*>::iterator it;
         for (it = worker_list.begin(); it != worker_list.end(); it++) {
@@ -839,150 +805,188 @@ void LocalGearyCoordinator::CalcPseudoP_threaded(const GalElement* W, const vect
     wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_threaded()");
 }
 
-void LocalGearyCoordinator::CalcPseudoP_range(const GalElement* W, const vector<bool>& undefs, int obs_start, int obs_end, uint64_t seed_start)
+void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
-    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP_range()");
 	GeoDaSet workPermutation(num_obs);
-	//Randik rng;
 	int max_rand = num_obs-1;
+    
 	for (int cnt=obs_start; cnt<=obs_end; cnt++) {
-        
-        if (undefs[cnt])
-            continue;
-        
-		uint64_t countLarger = 0;
-		const int numNeighbors = W[cnt].Size();
-        
-        double *gci = new double[permutations];
-        double gci_sum = 0.0;
+        std::vector<uint64_t> countLarger(num_time_vals, 0);
+        std::vector<std::vector<double> > gci(num_time_vals);
+        std::vector<double> gci_sum(num_time_vals, 0);
        
-        uint64_t o_seed = seed_start;
-        
+        // get full neighbors even if has undefined value
+        int numNeighbors = 0;
+        for (int t=0; t<num_time_vals; t++) {
+            GalElement* w = Gal_vecs[t]->gal;
+            if (w[cnt].Size() > numNeighbors)
+                numNeighbors = w[cnt].Size();
+        }
+       
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
-            gci[perm] = 0;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
                 double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
 				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
-				if (newRandom != cnt &&
-                    !workPermutation.Belongs(newRandom) &&
-                    undefs[newRandom] == false)
-				{
+				if (newRandom != cnt && !workPermutation.Belongs(newRandom) ) {
 					workPermutation.Push(newRandom);
 					rand++;
 				}
 			}
-			double permutedLag=0;
-			// use permutation to compute the lag
-			// compute the lag for binary weights
-            if (local_geary_type == multivariate) {
-                double* m_wwx = new double[num_vars];
-                double* m_wwx2 = new double[num_vars];
-                for (int v=0; v<num_vars; v++) {
-                    m_wwx[v] = 0;
-                    m_wwx2[v] = 0;
-                }
-                
-                for (int cp=0; cp<numNeighbors; cp++) {
-                    // xx2 - 2.0 * xx * wwx + wwx2
-                    int perm_idx = workPermutation.Pop();
+            std::vector<int> permNeighbors(numNeighbors);
+            for (int cp=0; cp<numNeighbors; cp++) {
+                permNeighbors[cp] = workPermutation.Pop();
+            }
+            // for each time step, reuse permuation
+            for (int t=0; t<num_time_vals; t++) {
+                gci[t].resize(permutations, 0);
+                std::vector<bool>& undefs = undef_tms[t];
+              
+                vector<double*> current_data;
+                vector<double*> current_data_square;
+                if (local_geary_type == multivariate) {
+                    current_data.resize(num_vars);
+                    current_data_square.resize(num_vars);
                     for (int v=0; v<num_vars; v++) {
-                        m_wwx[v] += current_data[v][perm_idx];
-                        m_wwx2[v] += current_data_square[v][perm_idx];
+                        int _t = data_vecs[v].size() == 1 ? 0 : t;
+                        current_data[v] = data_vecs[v][_t];
+                        current_data_square[v] = data_square_vecs[v][_t];
+                    }
+                } else {
+                    data1 = data1_vecs[t];
+                    if (isBivariate) {
+                        data2 = data2_vecs[0];
+                        if (var_info[1].is_time_variant &&
+                            var_info[1].sync_with_global_time)
+                            data2 = data2_vecs[t];
                     }
                 }
                 
-                if (numNeighbors && row_standardize) {
-                    double var_gci = 0;
+                double permutedLag=0;
+                int validNeighbors = 0;
+                if (local_geary_type == multivariate) {
+                    double* m_wwx = new double[num_vars];
+                    double* m_wwx2 = new double[num_vars];
                     for (int v=0; v<num_vars; v++) {
-                        var_gci += current_data_square[v][cnt] - 2.0* current_data[v][cnt]*m_wwx[v]/numNeighbors + m_wwx2[v]/numNeighbors;
+                        m_wwx[v] = 0;
+                        m_wwx2[v] = 0;
                     }
-                    var_gci /= num_vars;
-                    gci[perm] = var_gci;
-                }
-				delete[] m_wwx;
-				delete[] m_wwx2;
-                
-            } else {
-                double wwx =0;
-                double wwx2 = 0;
-    			if (isBivariate) {
-    				for (int cp=0; cp<numNeighbors; cp++) {
-    					permutedLag += data2[workPermutation.Pop()];
-    				}
-    			} else {
-    				for (int cp=0; cp<numNeighbors; cp++) {
+                    for (int cp=0; cp<numNeighbors; cp++) {
                         // xx2 - 2.0 * xx * wwx + wwx2
-                        int perm_idx = workPermutation.Pop();
-    					wwx += data1[perm_idx];
-                        wwx2 += data1_square[perm_idx];
-    				}
-    			}
-    			//NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
-                if (numNeighbors && row_standardize) {
-                    gci[perm] = data1_square[cnt] - 2.0*data1[cnt]*wwx/numNeighbors + wwx2/numNeighbors;
+                        int perm_idx = permNeighbors[cp];
+                        if (!undefs[perm_idx]) {
+                            validNeighbors ++;
+                            for (int v=0; v<num_vars; v++) {
+                                m_wwx[v] += current_data[v][perm_idx];
+                                m_wwx2[v] += current_data_square[v][perm_idx];
+                            }
+                        }
+                    }
+                    if (validNeighbors && row_standardize) {
+                        double var_gci = 0;
+                        for (int v=0; v<num_vars; v++) {
+                            var_gci += current_data_square[v][cnt] - 2.0* current_data[v][cnt]*m_wwx[v]/validNeighbors + m_wwx2[v]/validNeighbors;
+                        }
+                        var_gci /= num_vars;
+                        gci[t][perm] = var_gci;
+                    }
+                    delete[] m_wwx;
+                    delete[] m_wwx2;
+                    
+                } else {
+                    double wwx =0;
+                    double wwx2 = 0;
+                    if (isBivariate) {
+                        for (int cp=0; cp<numNeighbors; cp++) {
+                            int perm_idx = permNeighbors[cp];
+                            if (!undefs[perm_idx]) {
+                                validNeighbors ++;
+                                permutedLag += data2[perm_idx];
+                            }
+                        }
+                    } else {
+                        for (int cp=0; cp<numNeighbors; cp++) {
+                            // xx2 - 2.0 * xx * wwx + wwx2
+                            int perm_idx = permNeighbors[cp];
+                            if (!undefs[perm_idx]) {
+                                validNeighbors ++;
+                                wwx += data1[perm_idx];
+                                wwx2 += data1_square[perm_idx];
+                            }
+                        }
+                    }
+                    //NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
+                    if (validNeighbors && row_standardize) {
+                        gci[t][perm] = data1_square[cnt] - 2.0*data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                    }
                 }
+                gci_sum[t] += gci[t][perm];
             }
-            gci_sum += gci[perm];
 		}
-        
-        // calc mean of gci
-        double gci_mean = gci_sum / permutations;
-        if (localGeary[cnt] <= gci_mean) {
-            // positive lisasign[cnt] = 1
-            for (int perm=0; perm<permutations; perm++) {
-                if (gci[perm] <= localGeary[cnt]) {
-                    countLarger++;
+        // for each time step, reuse permuation
+        for (int t=0; t<num_time_vals; t++) {
+            localGeary = local_geary_vecs[t];
+            siglocalGeary = sig_local_geary_vecs[t];
+            sigCat = sig_cat_vecs[t];
+            cluster = cluster_vecs[t];
+            // calc mean of gci
+            double gci_mean = gci_sum[t] / permutations;
+            if (localGeary[cnt] <= gci_mean) {
+                // positive lisasign[cnt] = 1
+                for (int perm=0; perm<permutations; perm++) {
+                    if (gci[t][perm] <= localGeary[cnt]) {
+                        countLarger[t] += 1;
+                    }
                 }
-            }
-            if (local_geary_type == multivariate) {
-                if (cluster[cnt] < 2 ) { // ignore neighborless & undefined
-                    cluster[cnt] = 1;
+                if (local_geary_type == multivariate) {
+                    if (cluster[cnt] < 2 ) { // ignore neighborless & undefined
+                        cluster[cnt] = 1;
+                    }
+                } else {
+                    // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
+                    // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
+                    // positive && but in outlier qudrant: other pos
+                    if (cluster[cnt] > 2 && cluster[cnt] < 5) // ignore neighborless & undefined
+                        cluster[cnt] = 3;
                 }
             } else {
-                // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
-                // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
-                // positive && but in outlier qudrant: other pos
-                if (cluster[cnt] > 2 && cluster[cnt] < 5) // ignore neighborless & undefined
-                    cluster[cnt] = 3;
-            }
-        } else {
-            // negative lisasign[cnt] = -1
-            for (int perm=0; perm<permutations; perm++) {
-                if (gci[perm] > localGeary[cnt]) {
-                    countLarger++;
+                // negative lisasign[cnt] = -1
+                for (int perm=0; perm<permutations; perm++) {
+                    if (gci[t][perm] > localGeary[cnt]) {
+                        countLarger[t] += 1;
+                    }
+                }
+                if (local_geary_type == multivariate) {
+                    if (cluster[cnt] < 2) // ignore neighborless & undefined
+                        cluster[cnt] = 0; // for multivar, only show significant positive (similar)
+                } else {
+                    // negative
+                    if (cluster[cnt] < 5) // ignore neighborless & undefined
+                        cluster[cnt] = 4;
                 }
             }
-            if (local_geary_type == multivariate) {
-                if (cluster[cnt] < 2) // ignore neighborless & undefined
-                    cluster[cnt] = 0; // for multivar, only show significant positive (similar)
-            } else {
-                // negative
-                if (cluster[cnt] < 5) // ignore neighborless & undefined
-                    cluster[cnt] = 4;
+            int kp = local_geary_type == multivariate ? num_vars : 1;
+            siglocalGeary[cnt] = (countLarger[t]+1.0)/(permutations+1);
+            
+            // 'significance' of local Moran
+            if (siglocalGeary[cnt] <= 0.0001) sigCat[cnt] = 4;
+            else if (siglocalGeary[cnt] <= 0.001) sigCat[cnt] = 3;
+            else if (siglocalGeary[cnt] <= 0.01) sigCat[cnt] = 2;
+            else if (siglocalGeary[cnt] <= 0.05) sigCat[cnt]= 1;
+            else sigCat[cnt]= 0;
+            
+            // observations with no neighbors get marked as isolates
+            // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
+            if (numNeighbors == 0) {
+                sigCat[cnt] = 5;
             }
+
         }
-        delete[] gci;
-        int kp = local_geary_type == multivariate ? num_vars : 1;
-		siglocalGeary[cnt] = (countLarger+1.0)/(permutations+1);
         
-		// 'significance' of local Moran
-		if (siglocalGeary[cnt] <= 0.0001) sigCat[cnt] = 4;
-		else if (siglocalGeary[cnt] <= 0.001) sigCat[cnt] = 3;
-		else if (siglocalGeary[cnt] <= 0.01) sigCat[cnt] = 2;
-		else if (siglocalGeary[cnt] <= 0.05) sigCat[cnt]= 1;
-		else sigCat[cnt]= 0;
-		
-		// observations with no neighbors get marked as isolates
-        // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
-		if (numNeighbors == 0) {
-            sigCat[cnt] = 5;
-        }
-	}
-    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_range()");
+    }
 }
 
 void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)

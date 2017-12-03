@@ -304,10 +304,19 @@ void GStatCoordinator::InitFromVarInfo()
         }
 		x = x_vecs[t];
         if (is_local_joint_count) {
-            num_obs_1s = 0;
-            num_obs_0s = 0;
+            int num_obs_1s = 0;
+            int num_obs_0s = 0;
+            int valid_num_obs = 0;
+            
+            for (int i=0; i<num_obs; i++) {
+                if (x_undefs[t][i])
+                    continue;
+                valid_num_obs ++;
+            }
             // count neighbors and neighors with 1
             for (int i=0; i<num_obs; i++) {
+                if (x_undefs[t][i])
+                    continue;
                 num_neighbors[i] = W[i].Size();
                 num_neighbors_1[t][i] = 0;
                 for (int j=0; j< W[i].Size(); j++) {
@@ -319,11 +328,15 @@ void GStatCoordinator::InitFromVarInfo()
                 else num_obs_0s += 1;
             }
             for (int i=0; i<num_obs; i++) {
+                if (x_undefs[t][i]) {
+                    ep_vals[t][i] = 0;
+                    continue;
+                }
                 int nn = W[i].Size();
                 int n_1s = num_neighbors_1[t][i];
                 int n_0s = nn - n_1s;
                 
-                double mm_all = Gda::nChoosek(num_obs-1, nn);
+                double mm_all = Gda::nChoosek(valid_num_obs-1, nn);
                 double mm_1s = Gda::nChoosek(num_obs_1s-1, n_1s);
                 double mm_0s = Gda::nChoosek(num_obs_0s, n_0s);
                 
@@ -332,6 +345,8 @@ void GStatCoordinator::InitFromVarInfo()
             }
         }
 		for (int i=0; i<num_obs; i++) {
+            if (x_undefs[t][i])
+                continue;
 			if ( W[i].Size() > 0 ) {
 				n[t]++;
 				x_star[t] += x[i];
@@ -446,18 +461,13 @@ void GStatCoordinator::CalcGs()
 		pseudo_p_star = pseudo_p_star_vecs[t];
 		x = x_vecs[t];
 		
-		has_undefined[t] = false;
 		has_isolates[t] = false;
         
         const GalElement* W = Gal_vecs[t]->gal;
 		double n_expr = sqrt((n[t]-1)*(n[t]-1)*(n[t]-2));
         
 		for (long i=0; i<num_obs; i++) {
-            if (x_undefs[t][i]) {
-                G_defined[i] = false;
-                has_undefined[t] = true;
-                continue;
-            }
+            if (x_undefs[t][i]) continue;
             
 			const GalElement& elm_i = W[i];
 			if ( elm_i.Size() > 0 ) {
@@ -478,11 +488,8 @@ void GStatCoordinator::CalcGs()
 				double xd_i = x_star[t] - x[i];
 				if (xd_i != 0) {
 					G[i] = lag / xd_i;
-				} else {
-					G_defined[i] = false;
 				}
 				double x_hat_i = xd_i * ExG[t]; // (x_star - x[i])/(n-1)
-
 				double ExGi = Wi/(n[t]-1);
 				// location-specific variance
 				double ss_i = ((x_sstar[t] - x[i]*x[i])/(n[t]-1)-x_hat_i*x_hat_i);
@@ -496,19 +503,10 @@ void GStatCoordinator::CalcGs()
 					} else {
 						p[i] = cdf(std_norm_dist, z[i]);
 					}
-				} else {
-					has_undefined[t] = true;
 				}
 			} else {
 				has_isolates[t] = true;
 			}
-		}
-		if (x_star[t] == 0) {
-            for (long i=0; i<num_obs; i++) {
-                G_defined[i] = false;
-            }
-			has_undefined[t] = true;
-			break;
 		}
 		if (row_standardize) {
 			for (long i=0; i<num_obs; i++) {
@@ -527,8 +525,7 @@ void GStatCoordinator::CalcGs()
                     }
 					lag += x[elm_i[j]];
 				}
-				G_star[i] = self_neighbor ? lag / (sz_i * x_star[t]) :
-					(lag+x[i]) / ((sz_i+1) * x_star[t]);
+				G_star[i] = self_neighbor ? lag / (sz_i * x_star[t]) : (lag+x[i]) / ((sz_i+1) * x_star[t]);
 				z_star[i] = (G_star[i] - ExGstar[t])/sdGstar[t];
 			}
             
@@ -580,37 +577,12 @@ void GStatCoordinator::CalcPseudoP()
 	wxStopWatch sw;
 	int nCPUs = wxThread::GetCPUCount();
 	
-	// To ensure thread safety, only work on one time slice of data
-	// at a time.  For each time period t:
-	// 1. copy data for time period t into data1 and data2 arrays
-	// 2. Perform multi-threaded computation
-	// 3. copy results into results array
-	
-	for (int t=0; t<num_time_vals; t++) {
-
-        std::vector<bool>& undefs = x_undefs[t];
-        
-		G = G_vecs[t];
-		G_defined = G_defined_vecs[t];
-		G_star = G_star_vecs[t];
-		z = z_vecs[t];
-		p = p_vecs[t];
-		z_star = z_star_vecs[t];
-		p_star = p_star_vecs[t];
-		pseudo_p = pseudo_p_vecs[t];
-		pseudo_p_star = pseudo_p_star_vecs[t];
-		x = x_vecs[t];
-		x_star_t = x_star[t];
-        nn_1_t = num_neighbors_1[t];
-        e_p = ep_vals[t];
-		
-		if (nCPUs <= 1) {
-			if (!reuse_last_seed) last_seed_used = time(0);
-			CalcPseudoP_range(0, num_obs-1, last_seed_used);
-		} else {
-			CalcPseudoP_threaded();
-		}
-	}
+    if (nCPUs <= 1) {
+        if (!reuse_last_seed) last_seed_used = time(0);
+        CalcPseudoP_range(0, num_obs-1, last_seed_used);
+    } else {
+        CalcPseudoP_threaded();
+    }
 	wxLogMessage("Exiting GStatCoordinator::CalcPseudoP");
 }
 
@@ -705,7 +677,9 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
             if (w[i].Size() > numNeighbors)
                 numNeighbors = w[i].Size();
         }
-
+        if (numNeighbors == 0)
+            continue;
+        
         for (int perm=0; perm < permutations; perm++) {
             int rand = 0;
             while (rand < numNeighbors) {
@@ -732,8 +706,9 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 G_star = G_star_vecs[t];
                 x = x_vecs[t];
                 x_star_t = x_star[t];
-                nn_1_t = num_neighbors_1[t];
-                e_p = ep_vals[t];
+               
+                if (undefs[i])
+                    continue;
                 
                 double xd_i = x_star_t - x[i];
                 int validNeighbors = 0;
@@ -747,9 +722,9 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                         validNeighbors ++;
                     }
                 }
-                if (row_standardize) {
+                if (validNeighbors > 0 && row_standardize) {
                     permutedG = lag_i / (validNeighbors * xd_i);
-                    permutedGStar = (lag_i+x[i]) / ((validNeighbors+1)*x_star_t);
+                    permutedGStar = (lag_i+x[i]) / ((validNeighbors+1.0)*x_star_t);
                 } else { // binary weights
                     // Wi = numNeighsD // assume no self-neighbors
                     permutedG = lag_i / xd_i;

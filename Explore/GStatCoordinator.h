@@ -132,8 +132,6 @@ public:
 
     // a special case Local Join Count
     bool is_local_joint_count;
-    int num_obs_1s;
-    int num_obs_0s;
     
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded

@@ -801,7 +801,7 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t see
                 
                 //NOTE: we shouldn't have to row-standardize or
                 // multiply by data1[cnt]
-                if (validNeighbors && row_standardize) {
+                if (validNeighbors > 0 && row_standardize) {
                     permutedLag /= validNeighbors;
                 }
                 const double localMoranPermuted = permutedLag * data1[cnt];
