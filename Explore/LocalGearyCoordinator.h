@@ -143,29 +143,6 @@ public:
     
 	virtual void closeObserver(boost::uuids::uuid id);
 	
-protected:
-	// The following seven are just temporary pointers into the corresponding
-	// space-time data arrays below
-	double* lags;
-	double*	localGeary;		// The LocalGeary
-	double* siglocalGeary;	// The significances / pseudo p-vals
-	// The significance category, generated from siglocalGeary and
-	// significance cuttoff values below.  When saving results to Table,
-	// only results below significance_cuttoff are non-zero, but sigCat
-	// results themeslves never change.
-	//0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	int* sigCat;
-	// not-sig=0 HH=1, LL=2, HL=3, LH=4, isolate=5, undef=6.  Note: value of
-	// 0 never appears in cluster itself, it only appears when
-	// saving results to the Table and indirectly in the map legend
-	int* cluster;
-    
-	double* data1;
-	double* data1_square;
-	double* data2;
-    
-    
-	
 public:
 	vector<double*> lags_vecs;
 	vector<double*> local_geary_vecs;

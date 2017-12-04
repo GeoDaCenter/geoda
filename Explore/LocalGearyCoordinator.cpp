@@ -585,10 +585,10 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
       
         
         // local geary
-        lags = lags_vecs[t];
+        double* lags = lags_vecs[t];
         has_isolates[t] = false;
-        cluster = cluster_vecs[t];
-        localGeary = local_geary_vecs[t];
+        int* cluster = cluster_vecs[t];
+        double* localGeary = local_geary_vecs[t];
         
         vector<int> local_t;
         for (int v=0; v<num_vars; v++) {
@@ -637,17 +637,18 @@ void LocalGearyCoordinator::CalcLocalGeary()
 {
     wxLogMessage("In LocalGearyCoordinator::CalcLocalGeary()");
 	for (int t=0; t<num_time_vals; t++) {
-		data1 = data1_vecs[t];
-        data1_square = data1_square_vecs[t];
+		double* data1 = data1_vecs[t];
+        double* data1_square = data1_square_vecs[t];
+        double* data2 = NULL;
         
 		if (isBivariate) {
 			data2 = data2_vecs[0];
 			if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
                 data2 = data2_vecs[t];
 		}
-		lags = lags_vecs[t];
-		localGeary = local_geary_vecs[t];
-		cluster = cluster_vecs[t];
+		double* lags = lags_vecs[t];
+		double* localGeary = local_geary_vecs[t];
+		int* cluster = cluster_vecs[t];
 	
 		has_isolates[t] = false;
     
@@ -814,6 +815,8 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
         std::vector<uint64_t> countLarger(num_time_vals, 0);
         std::vector<std::vector<double> > gci(num_time_vals);
         std::vector<double> gci_sum(num_time_vals, 0);
+        
+        for (int t=0; t<num_time_vals; t++) gci[t].resize(permutations, 0);
        
         // get full neighbors even if has undefined value
         int numNeighbors = 0;
@@ -842,7 +845,6 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
             }
             // for each time step, reuse permuation
             for (int t=0; t<num_time_vals; t++) {
-                gci[t].resize(permutations, 0);
                 std::vector<bool>& undefs = undef_tms[t];
                 double* _data1 = NULL;
                 double* _data1_square = NULL;
@@ -928,6 +930,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 gci_sum[t] += gci[t][perm];
             }
 		}
+        // end permutation
         // for each time step, reuse permuation
         for (int t=0; t<num_time_vals; t++) {
             double* _localGeary = local_geary_vecs[t];
