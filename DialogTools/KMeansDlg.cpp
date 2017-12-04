@@ -112,7 +112,7 @@ void KMeansDlg::CreateControls()
     
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_pass = new wxTextCtrl(panel, wxID_ANY, wxT("50"), wxDefaultPosition, wxSize(200,-1));
+    m_pass = new wxTextCtrl(panel, wxID_ANY, wxT("150"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_pass, 1, wxEXPAND);
     
