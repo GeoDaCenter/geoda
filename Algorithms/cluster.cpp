@@ -1833,7 +1833,7 @@ double uniform(int& s1, int& s2)
 
 /* ************************************************************************ */
 
-static int binomial(int n, double p)
+static int binomial(int n, double p, int& s1, int& s2)
 /*
 Purpose
 =======
@@ -1871,7 +1871,7 @@ An integer drawn from a binomial distribution with parameters (p, n).
     const double a = (n+1)*s;
     double r = exp(n*log(q)); /* pow() causes a crash on AIX */
     int x = 0;
-    double u = uniform();
+    double u = uniform(s1, s2);
     while(1)
     { if (u < r) return x;
       u-=r;
@@ -1899,8 +1899,8 @@ An integer drawn from a binomial distribution with parameters (p, n).
     { /* Step 1 */
       int y;
       int k;
-      double u = uniform();
-      double v = uniform();
+      double u = uniform(s1, s2);
+      double v = uniform(s1, s2);
       u *= p4;
       if (u <= p1) return (int)(xm-p1*v+u);
       /* Step 2 */
@@ -2105,7 +2105,7 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
 
 /* ************************************************************************ */
 
-static void randomassign (int nclusters, int nelements, int clusterid[])
+static void randomassign (int nclusters, int nelements, int clusterid[], int& s1, int& s2)
 /*
 Purpose
 =======
@@ -2141,7 +2141,7 @@ The cluster number to which an element was assigned.
    */
   for (i = 0; i < nclusters-1; i++)
   { p = 1.0/(nclusters-i);
-    j = binomial(n, p);
+    j = binomial(n, p, s1, s2);
     n -= j;
     j += k+1; /* Assign at least one element to cluster i */
     for ( ; k < j; k++) clusterid[k] = i;
@@ -2151,7 +2151,7 @@ The cluster number to which an element was assigned.
 
   /* Create a random permutation of the cluster assignments */
   for (i = 0; i < nelements; i++)
-  { j = (int) (i + (nelements-i)*uniform());
+  { j = (int) (i + (nelements-i)*uniform(s1, s2));
     k = clusterid[j];
     clusterid[j] = clusterid[i];
     clusterid[i] = k;
@@ -2527,7 +2527,7 @@ static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound, int& s1, int& s2)
+  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound, int s1, int s2)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2550,14 +2550,16 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
+      int _s1 = s1+ipass;
+      int _s2 = s2+ipass;
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
     if (method == 0) {
         /* Perform the EM algorithm. First, randomly assign elements to clusters. */
         //if (npass!=0)
-        randomassign (nclusters, nelements, tclusterid);
+        randomassign (nclusters, nelements, tclusterid, _s1, _s2);
     } else {
         /* Perform the kmeans++ algorithm: finding init centers */
-        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist, s1, s2);
+        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist, _s1, _s2);
     }
 
     for (i = 0; i < nclusters; i++) counts[i] = 0;
@@ -2681,9 +2683,9 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
+      int s1=0, s2=0;
     /* Perform the EM algorithm. First, randomly assign elements to clusters. */
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid);
+    if (npass!=0) randomassign (nclusters, nelements, tclusterid, s1, s2);
 
     for (i = 0; i < nclusters; i++) counts[i]=0;
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
@@ -3046,8 +3048,8 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid);
+      int s1=0, s2=0;
+    if (npass!=0) randomassign (nclusters, nelements, tclusterid, s1, s2);
     while(1)
     { double previous = total;
       total = 0.0;

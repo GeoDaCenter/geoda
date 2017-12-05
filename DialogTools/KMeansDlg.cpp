@@ -344,7 +344,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int method_
     double error;
     int ifound;
     int* clusterid = new int[rows];
-   
+  
     int s2 = s1==0 ? 0 : s1 + npass;
     kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
     
@@ -426,19 +426,10 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     }
     
     // start working
-    int n_threads = boost::thread::hardware_concurrency();
-    if (n_threads > npass) n_threads = 1;
-    
-    int n_lines = npass / (double)n_threads; // 10/8 = 1, 1,3,5,7,9,11,12,
-    int* dividers  = (int*)malloc((n_threads+1) *sizeof(int));
-    
-    int tot = 1;
-    int idx = 0;
-    while (tot < npass || npass == 1) {
-        dividers[idx++] = tot;
-        tot += n_lines;
-    }
-    dividers[n_threads] = npass;
+    int nCPUs = 1;//boost::thread::hardware_concurrency();
+    int quotient = npass / nCPUs;
+    int remainder = npass % nCPUs;
+    int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     map<double, vector<wxInt64> >::iterator it;
     for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
@@ -455,21 +446,34 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
 	double min_bound = GetMinBound();
     double* bound_vals = GetBoundVals();
 
+    int s1 = 0;
+    if (GdaConst::use_gda_user_seed) {
+        srand(GdaConst::gda_user_seed);
+        s1 = rand();
+    }
+    
     boost::thread_group threadPool;
-    for (int i=0; i<n_threads; i++) {
-        int a = dividers[i];
-        int b = dividers[i+1];
-        int s1 = 0;
-        if (GdaConst::use_gda_user_seed) {
-            srand(GdaConst::gda_user_seed + a);
-            s1 = rand();
+    for (int i=0; i<tot_threads; i++) {
+        int a=0;
+        int b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
         }
-        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, s1, ncluster, b-a+1, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
+     
+        int n_runs = b - a + 1;
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, a, ncluster, n_runs, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
+        
+        if (s1 > 0) {
+            s1 += n_runs * (ncluster*ncluster + 1 + rows * ncluster);
+        }
         
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
-    free(dividers);
 
 	delete[] bound_vals;
    
