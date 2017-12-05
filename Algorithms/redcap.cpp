@@ -248,23 +248,26 @@ void SpatialContiguousTree::AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b)
 void SpatialContiguousTree::Split()
 {
     int n_tasks = edges.size();
-    int n_threads = boost::thread::hardware_concurrency();
-    int n_sub_tasks = n_tasks / n_threads;
-    if (n_sub_tasks<1) n_sub_tasks = 1;
+
+    int nCPUs = boost::thread::hardware_concurrency();
+    int quotient = n_tasks / nCPUs;
+    int remainder = n_tasks % nCPUs;
+    int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
-    int start = 0;
     cand_trees.clear();
     boost::thread_group threadPool;
-    for (int i=0; i<n_threads; i++) {
-        int a = start;
-        int b = a + n_sub_tasks;
-        if (i==n_threads-1) {
-            b = n_tasks;
+    for (int i=0; i<tot_threads; i++) {
+        int a=0;
+        int b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
         }
-        printf("a=%d,b=%d\n", a, b);
         boost::thread* worker = new boost::thread(boost::bind(&SpatialContiguousTree::subSplit, this, a, b));
         threadPool.add_thread(worker);
-        start = b;
     }
     threadPool.join_all();
     
@@ -335,7 +338,7 @@ void SpatialContiguousTree::subSplit(int start, int end)
     
     bool is_first = true;
     //for (int i=0; i<edges.size(); i++) {
-    for (int i=start; i<end; i++) {
+    for (int i=start; i<=end; i++) {
         if (i >= edges.size()) continue;
         RedCapEdge* out_edge = edges[i];
         RedCapNode* a = out_edge->a;
