@@ -104,9 +104,16 @@ void SpectralClustering::clusterKmeans(int numClusters) {
     
     double error;
     int ifound;
-   
     int s1 =0;
     int s2 =0;
+    if (GdaConst::use_gda_user_seed) {
+        srand(GdaConst::gda_user_seed);
+        s1 = rand();
+    }
+    if (s1 > 0) {
+        s2 = s1 + rows;
+        for (int i = 0; i < rows; i++) uniform(s1, s2);
+    }
     kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
@@ -328,6 +335,14 @@ void Spectral::kmeans()
     int ifound;
     int s1=0;
     int s2 =0;
+    if (GdaConst::use_gda_user_seed) {
+        srand(GdaConst::gda_user_seed);
+        s1 = rand();
+    }
+    if (s1 > 0) {
+        s2 = s1 + rows;
+        for (int i = 0; i < rows; i++) uniform(s1, s2);
+    }
     kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
     
     //vector<bool> clusters_undef;
