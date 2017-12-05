@@ -403,7 +403,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     
     int transform = combo_tranform->GetSelection();
     
-    bool success = GetInputData(transform);
+    bool success = GetInputData(transform,1);
     if (!success) {
         return;
     }

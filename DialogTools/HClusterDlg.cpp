@@ -440,7 +440,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     m_cluster->GetValue().ToLong(&ncluster);
     
     int transform = combo_tranform->GetSelection();
-    bool success = GetInputData(transform);
+    bool success = GetInputData(transform,1);
     if (!success) {
         return;
     }
