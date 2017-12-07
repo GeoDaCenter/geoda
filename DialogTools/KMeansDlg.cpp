@@ -463,13 +463,11 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             a = remainder*(quotient+1) + (i-remainder)*quotient;
             b = a+quotient-1;
         }
-     
+    
+        if (s1 >0) s1 = a + 1;
         int n_runs = b - a + 1;
-        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, a, ncluster, n_runs, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
         
-        if (s1 > 0) {
-            s1 += n_runs * (ncluster*ncluster + 1 + rows * ncluster);
-        }
+        boost::thread* worker = new boost::thread(boost::bind(&KMeansDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, method_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }

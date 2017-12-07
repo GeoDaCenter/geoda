@@ -1809,7 +1809,8 @@ A double-precison number between 0.0 and 1.0.
 
 double uniform(int& s1, int& s2)
 {
-    if (s1 == 0 || s2 == 0) return uniform();
+    if (s1 == 0 || s2 == 0)
+        return uniform();
     
     int z;
     static const int m1 = 2147483563;
@@ -2550,9 +2551,15 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-      int _s1 = s1+ipass;
-      int _s2 = s2+ipass;
+      
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
       for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
     if (method == 0) {
         /* Perform the EM algorithm. First, randomly assign elements to clusters. */
         //if (npass!=0)
@@ -2619,7 +2626,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       break;
     }
 ////////////////////////////////////////////
-        if (min_bound > 0) {
+    if (min_bound > 0) {
         for (j = 0; j < nclusters; j++) bounds[j] = 0;
         for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
         bool not_good = false;
@@ -2632,7 +2639,7 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
         }
         if (not_good)
             continue;
-        }
+    }
 ////////////////////////////////////////////
     for (i = 0; i < nclusters; i++) mapping[i] = -1;
     for (i = 0; i < nelements; i++)
@@ -2649,6 +2656,8 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       }
     }
     if (i==nelements) ifound++; /* break statement not encountered */
+      
+      printf("s1:%d-%d/%d \t, %f\n", s1, npass, ipass, *error);
   } while (++ipass < npass);
 
   free(bounds);
