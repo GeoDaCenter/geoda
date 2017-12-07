@@ -882,20 +882,30 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		wxString title;
         
 		if (unsaved_ds_data || unsaved_meta_data) {
-
-			title = _("Do you want to save your data?");
-			msg << "\n";
-			msg << _("There are unsaved data source or weights/time definition changes.");
-			
-			wxMessageDialog msgDlg(this, msg, title,
-								   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+            title = _("Do you want to save your data?");
+            msg << "\n";
+            msg << _("There are unsaved data source or weights/time definition changes.");
+            
+            wxMessageDialog msgDlg(this, msg, title,
+                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
             if (msgDlg.ShowModal() == wxID_YES) {
                 if (project_p) {
                     if (unsaved_ds_data) {
-                        project_p->SaveDataSourceData();
+                        try {
+                            project_p->SaveDataSourceData();
+                            try {
+                                project_p->SaveProjectConf();
+                            } catch( GdaException& e) {
+                                // do nothing if save project configuration failed, since it's not critical
+                            }
+                        } catch (GdaException& e) {
+                            // the title of the message dialog is empty, because
+                            // the message could be an "eror" message or an "info" message
+                            // e.g. "Saving data source cancelled"
+                            wxMessageDialog dlg (this, e.what(), "", wxOK | wxICON_ERROR);
+                            dlg.ShowModal();
+                        }
                     }
-                    // always try to save a project file for user, if time or weights
-                    project_p->SaveProjectConf();
                 }
             }
 		}

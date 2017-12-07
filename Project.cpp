@@ -651,6 +651,8 @@ void Project::SaveDataSourceData()
 	GdaConst::DataSourceType ds_type = datasource->GetType();
 	if (ds_type == GdaConst::ds_wfs ||
         ds_type == GdaConst::ds_kml ||
+        ds_type == GdaConst::ds_xlsx ||
+        ds_type == GdaConst::ds_xls ||
         ds_type == GdaConst::ds_esri_arc_sde )
     {
 		wxString msg = "The data source is read only. Please try to save as other data source.";
