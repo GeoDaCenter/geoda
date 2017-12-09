@@ -159,6 +159,8 @@ public:
 	
 	void OnToolsDataPCA(wxCommandEvent& event);
     void OnToolsDataKMeans(wxCommandEvent& event);
+    void OnToolsDataKMedians(wxCommandEvent& event);
+    void OnToolsDataKMedoids(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
     void OnToolsDataSkater(wxCommandEvent& event);

@@ -2671,7 +2671,7 @@ static int
 kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[], double cache[])
+  int tclusterid[], int counts[], int mapping[], double cache[], double bound_vals[], double min_bound, int s1, int s2)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2687,14 +2687,23 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   if (saved==NULL) return -1;
 
   *error = DBL_MAX;
-
+  double* bounds = (double*)malloc(nclusters*sizeof(double));
+    
   do
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-      int s1=0, s2=0;
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
+      
     /* Perform the EM algorithm. First, randomly assign elements to clusters. */
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid, s1, s2);
+    if (npass!=0) randomassign (nclusters, nelements, tclusterid, _s1, _s2);
 
     for (i = 0; i < nclusters; i++) counts[i]=0;
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
@@ -2750,7 +2759,22 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     { *error = total;
       break;
     }
-
+      ////////////////////////////////////////////
+      if (min_bound > 0) {
+          for (j = 0; j < nclusters; j++) bounds[j] = 0;
+          for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+          bool not_good = false;
+          for (j = 0; j < nclusters; j++)
+          {
+              if (bounds[j] < min_bound) {
+                  not_good = true;
+                  break;
+              }
+          }
+          if (not_good)
+              continue;
+      }
+      ////////////////////////////////////////////
     for (i = 0; i < nclusters; i++) mapping[i] = -1;
     for (i = 0; i < nelements; i++)
     { j = tclusterid[i];
@@ -2768,6 +2792,7 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     if (i==nelements) ifound++; /* break statement not encountered */
   } while (++ipass < npass);
 
+  free(bounds);
   free(saved);
   return ifound;
 }
@@ -2781,7 +2806,7 @@ void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, dou
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
   int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int& s1, int& s2)
+  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
 /*
 Purpose
 =======
@@ -2924,7 +2949,7 @@ number of clusters is larger than the number of elements being clustered,
     if(cache)
     { *ifound = kmedians(nclusters, nrows, ncolumns, data, mask, weight,
                          transpose, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                         tclusterid, counts, mapping, cache);
+                         tclusterid, counts, mapping, cache, bound_vals, min_bound, s1, s2);
       free(cache);
     }
   }
@@ -2953,7 +2978,7 @@ number of clusters is larger than the number of elements being clustered,
 /* *********************************************************************** */
 
 void kmedoids (int nclusters, int nelements, double** distmatrix,
-  int npass, int clusterid[], double* error, int* ifound)
+  int npass, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
 /*
 Purpose
 =======
@@ -3051,14 +3076,23 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
       return;
     }
   }
-
+    double* bounds = (double*)malloc(nclusters*sizeof(double));
   *error = DBL_MAX;
   do /* Start the loop */
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-      int s1=0, s2=0;
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid, s1, s2);
+      
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
+    if (npass!=0)
+        randomassign (nclusters, nelements, tclusterid, _s1, _s2);
     while(1)
     { double previous = total;
       total = 0.0;
@@ -3101,6 +3135,23 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
         break; /* Identical solution found; break out of this loop */
     }
 
+      ////////////////////////////////////////////
+      if (min_bound > 0) {
+          for (j = 0; j < nclusters; j++) bounds[j] = 0;
+          for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+          bool not_good = false;
+          for (j = 0; j < nclusters; j++)
+          {
+              if (bounds[j] < min_bound) {
+                  not_good = true;
+                  break;
+              }
+          }
+          if (not_good)
+              continue;
+      }
+      ////////////////////////////////////////////
+      
     for (i = 0; i < nelements; i++)
     { if (clusterid[i]!=centroids[tclusterid[i]])
       { if (total < *error)
@@ -3119,6 +3170,7 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
   /* Deallocate temporarily used space */
   if (npass > 1) free(tclusterid);
 
+    free(bounds);
   free(saved);
   free(centroids);
   free(errors);

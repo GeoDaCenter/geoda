@@ -34,12 +34,12 @@ using namespace std;
 
 class Project;
 class TableInterface;
-	
-class KMeansDlg : public AbstractClusterDlg
+
+class KClusterDlg : public AbstractClusterDlg
 {
 public:
-    KMeansDlg(wxFrame *parent, Project* project);
-    virtual ~KMeansDlg();
+    KClusterDlg(wxFrame *parent, Project* project, wxString title="");
+    virtual ~KClusterDlg();
     
     void CreateControls();
     
@@ -50,17 +50,21 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
-    void OnMethodChoice(wxCommandEvent& event);
     void OnInitMethodChoice(wxCommandEvent& event);
     
+    virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
     
-    void doRun(int s1, int ncluster, int npass, int n_maxiter, int method_sel, int dist_sel, double min_bound, double* bound_vals);
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals)=0;
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
 
 protected:
+    bool show_initmethod;
+    bool show_distance;
+    bool show_iteration;
+    
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
     wxChoice* combo_tranform;
@@ -69,23 +73,48 @@ protected:
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
-    
-    wxChoice* m_method;
     wxChoice* m_distance;
-    
     wxButton* seedButton;
-    
+   
+    wxString cluster_method;
     
     unsigned int row_lim;
     unsigned int col_lim;
     std::vector<float> scores;
     double thresh95;
-   
     int max_n_clusters;
+    double** distmatrix;
     
     map<double, vector<wxInt64> > sub_clusters;
     
     DECLARE_EVENT_TABLE()
 };
 
+class KMeansDlg : public KClusterDlg
+{
+public:
+    KMeansDlg(wxFrame *parent, Project* project);
+    virtual ~KMeansDlg();
+    
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+};
+
+class KMediansDlg : public KClusterDlg
+{
+public:
+    KMediansDlg(wxFrame *parent, Project* project);
+    virtual ~KMediansDlg();
+    
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+};
+
+class KMedoidsDlg : public KClusterDlg
+{
+public:
+    KMedoidsDlg(wxFrame *parent, Project* project);
+    virtual ~KMedoidsDlg();
+   
+    virtual void ComputeDistMatrix(int dist_sel);
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+};
 #endif

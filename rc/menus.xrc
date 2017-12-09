@@ -438,6 +438,12 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
             <label>K Means</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEDIANS">
+            <label>K Medians</label>
+        </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEDOIDS">
+            <label>K Medoids</label>
+        </object>
         <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
             <label>Hierarchical</label>
         </object>
@@ -4317,6 +4323,12 @@
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
           <label>K Means</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEDIANS">
+          <label>K Medians</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEDOIDS">
+          <label>K Medoids</label>
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
           <label>Hierarchical</label>

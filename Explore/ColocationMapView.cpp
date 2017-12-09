@@ -318,17 +318,20 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         columns =  0;
         
         std::vector<l_array_type> data;
+        std::vector<b_array_type> data_undef;
         data.resize(col_ids.size()); // data[variable][time][obs]
         for (int i=0; i<col_ids.size(); i++) {
             table_int->GetColData(col_ids[i], data[i]);
+            table_int->GetColUndefined(col_ids[i], data_undef[i]);
         }
         
         vector<set<wxInt64> > same_val_counts(rows);
-        
+        vector<bool> same_undef(rows, false);
         for (int i=0; i<data.size(); i++ ){ // col
             for (int j=0; j<data[i].size(); j++) { // time
                 columns += 1;
                 for (int k=0; k< rows;k++) { // row
+                    same_undef[k] = same_undef[k] || data_undef[i][j][k];
                     same_val_counts[k].insert(data[i][j][k]);
                 }
             }
@@ -336,7 +339,7 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         
         wxInt64 val;
         for (int i=0; i<rows; i++) {
-            if (same_val_counts[i].size() == 1) {
+            if (!same_undef[i] && same_val_counts[i].size() == 1) {
                 val = *(same_val_counts[i].begin());
                 co_val_dict[val].push_back(i);
             }
