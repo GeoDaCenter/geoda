@@ -2657,7 +2657,6 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     }
     if (i==nelements) ifound++; /* break statement not encountered */
       
-      printf("s1:%d-%d/%d \t, %f\n", s1, npass, ipass, *error);
   } while (++ipass < npass);
 
   free(bounds);
@@ -3151,7 +3150,6 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
               continue;
       }
       ////////////////////////////////////////////
-      
     for (i = 0; i < nelements; i++)
     { if (clusterid[i]!=centroids[tclusterid[i]])
       { if (total < *error)
@@ -4992,7 +4990,6 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
                 Y[i][j] = E[i][j] * S[j];
       
     }
-    printf("Y[0][0]=%f,Y[0][1]=%f\n", Y[0][0], Y[0][1]);
     for (i = 1; i < n; i++) free(distmatrix[i]);
     for (i = 0; i < n; i++) free(E[i]);
     for (i = 0; i < n; i++) free(V[i]);

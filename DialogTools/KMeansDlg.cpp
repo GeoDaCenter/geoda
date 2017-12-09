@@ -392,7 +392,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     // start working
-    int nCPUs = boost::thread::hardware_concurrency();
+    int nCPUs = 1;//boost::thread::hardware_concurrency();
     int quotient = npass / nCPUs;
     int remainder = npass % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
