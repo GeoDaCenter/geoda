@@ -19,45 +19,13 @@
 using namespace Eigen;
 using namespace std;
 
-class SpectralClustering {
-public:
-    /**
-     * Performs eigenvector decomposition of an affinity matrix
-     *
-     * @param data 		the affinity matrix
-     * @param numDims	the number of dimensions to consider when clustering
-     */
-    SpectralClustering(double** input_data, int nrows, int  ncols, int numDims);
-    virtual ~SpectralClustering();
-    
-    /**
-     * Cluster by kmeans
-     *
-     * @param numClusters	the number of clusters to assign
-     */
-    void clusterKmeans(int numClusters);
-    
-    const std::vector<wxInt64> &get_assignments() const {return assignments;};
-    
-protected:
-    int mNumDims;
-    Eigen::MatrixXd mEigenVectors;
-    int mNumClusters;
-    
-    // parameters for KMeans
-    char method, dist;
-    int npass, n_maxiter; // max iteration of EM
-    std::vector<wxInt64> assignments;
-};
-
-
 class Spectral{
     
 public:
     Spectral() : centers(2), kernel_type(1), normalise(1), max_iters(1000), gamma(0.001), constant(1.0), order(2.0), method('a'), dist('e'), npass(10), n_maxiter(300) {}
     explicit Spectral(MatrixXd& d) : centers(2), kernel_type(1), normalise(1), max_iters(1000), gamma(0.001), constant(1.0), order(2.0), method('a'), dist('e'), npass(10), n_maxiter(300) {X = d;}
     
-    void set_data(vector<vector<double> >& distances);
+    //void affinity_matrix(vector<vector<double> >& distances);
     void set_data(double** input_data, int nrows, int  ncols);
     void set_centers(const unsigned int i){centers = i;};
     void set_kernel(const unsigned int i){kernel_type = i;};
@@ -66,11 +34,11 @@ public:
     void set_constant(const double i){constant = i;};
     void set_order(const double i){order = i;};
     void set_max_iters(const unsigned int i){max_iters = i;};
+    void set_power_iters(const unsigned int i){power_iter = i;};
     void cluster(int maxiter=0);
     const std::vector<wxInt64> &get_assignments() const {return assignments;};
     
 private:
-    void affinity_matrix();
     void generate_kernel_matrix();
     double kernel(const VectorXd& a, const VectorXd& b);
     void eigendecomposition();
@@ -79,10 +47,11 @@ private:
     MatrixXd X, K, eigenvectors;
     VectorXd eigenvalues, cumulative;
     unsigned int centers, kernel_type, normalise, max_iters;
-    double gamma, constant, order;
+    double gamma, constant, order, delta;
     // parameters for KMeans
     char method, dist;
     int npass, n_maxiter; // max iteration of EM
+    int power_iter;
     std::vector<wxInt64> assignments;
 };
 

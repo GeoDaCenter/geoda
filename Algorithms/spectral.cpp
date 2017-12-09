@@ -22,138 +22,12 @@ using namespace Eigen;
 using namespace std;
 
 
-/**
- * Performs eigenvector decomposition of an affinity matrix
- *
- * @param data 		the affinity matrix
- * @param numDims	the number of dimensions to consider when clustering
- */
-SpectralClustering::SpectralClustering(double** input_data, int nrows, int  ncols, int numDims):
-mNumDims(numDims),
-mNumClusters(0),
-method('a'), dist('e'), npass(10), n_maxiter(300)
-{
-    Eigen::MatrixXd data;
-    data.resize(nrows, ncols);
-    for (unsigned int i = 0; i < nrows; ++i) {
-        for (unsigned int j = 0; j < ncols; ++j) {
-            data(i, j) = input_data[i][j];
-        }
-    }
-    Eigen::MatrixXd Deg = Eigen::MatrixXd::Zero(data.rows(),data.cols());
-    
-    // calc normalised laplacian
-    for ( int i=0; i < data.cols(); i++) {
-        Deg(i,i)=1/(sqrt((data.row(i).sum())) );
-    }
-    Eigen::MatrixXd Lapla = Deg * data * Deg;
-    
-    Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> s(Lapla, true);
-    Eigen::VectorXd val = s.eigenvalues();
-    Eigen::MatrixXd vec = s.eigenvectors();
-    
-    //sort eigenvalues/vectors
-    int n = data.cols();
-    for (int i = 0; i < n - 1; ++i) {
-        int k;
-        val.segment(i, n - i).maxCoeff(&k);
-        if (k > 0) {
-            std::swap(val[i], val[k + i]);
-            vec.col(i).swap(vec.col(k + i));
-        }
-    }
-    
-    //choose the number of eigenvectors to consider
-    if (mNumDims < vec.cols()) {
-        mEigenVectors = vec.block(0,0,vec.rows(),mNumDims);
-    } else {
-        mEigenVectors = vec;
-    }
-}
-
-SpectralClustering::~SpectralClustering() {
-}
-
-/**
- * Cluster by kmeans
- *
- * @param numClusters	the number of clusters to assign
- */
-void SpectralClustering::clusterKmeans(int numClusters) {
-    mNumClusters = numClusters;
-    //return Kmeans::cluster(mEigenVectors, numClusters);
-    int rows = mEigenVectors.rows();
-    int columns = mEigenVectors.cols();
-    
-    int transpose = 0; // row wise
-    int* clusterid = new int[rows];
-    double* weight = new double[columns];
-    for (int j=0; j<columns; j++){ weight[j] = 1;}
-    
-    // init input_data[rows][cols]
-    double** input_data = new double*[rows];
-    int** mask = new int*[rows];
-    for (int i=0; i<rows; i++) {
-        input_data[i] = new double[columns];
-        mask[i] = new int[columns];
-        for (int j=0; j<columns; j++){
-            input_data[i][j] = mEigenVectors(i,j);
-            mask[i][j] = 1;
-        }
-    }
-    
-    double error;
-    int ifound;
-    int s1 =0;
-    int s2 =0;
-    if (GdaConst::use_gda_user_seed) {
-        srand(GdaConst::gda_user_seed);
-        s1 = rand();
-    }
-    if (s1 > 0) {
-        s2 = s1 + rows;
-        for (int i = 0; i < rows; i++) uniform(s1, s2);
-    }
-    kcluster(numClusters, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
-    
-    //vector<bool> clusters_undef;
-    
-    // clean memory
-    for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
-        assignments.push_back(clusterid[i] + 1);
-        //clusters_undef.push_back(ifound == -1);
-    }
-    delete[] input_data;
-    delete[] weight;
-    delete[] clusterid;
-    delete[] mask;
-    input_data = NULL;
-    weight = NULL;
-    clusterid = NULL;
-    mask = NULL;
-}
-
-
 void Spectral::set_data(double** input_data, int nrows, int  ncols)
 {
     X.resize(nrows, ncols);
     for (unsigned int i = 0; i < nrows; ++i) {
         for (unsigned int j = 0; j < ncols; ++j) {
             X(i, j) = input_data[i][j];
-        }
-    }
-}
-
-void Spectral::set_data(vector<vector<double> >& distances)
-{
-    int nrows = distances.size();
-    int ncols = distances[0].size();
-    X.resize(nrows, ncols);
-    for (unsigned int i = 0; i < nrows; ++i) {
-        for (unsigned int j = 0; j < ncols; ++j) {
-            X(i, j) = distances[i][j];
         }
     }
 }
@@ -169,41 +43,18 @@ double Spectral::kernel(const VectorXd& a, const VectorXd& b){
             return(pow(a.dot(b)+constant,order));
         default :
             return(exp(-gamma*((a-b).squaredNorm())));
+            //return exp(- gamma * ((a-b).squaredNorm()/(2 * delta * delta)) );
     }
     
-}
-
-void Spectral::affinity_matrix()
-{
-    //If you have an affinity matrix, such as a distance matrix, for which 0 means identical elements, and high values means very dissimilar elements, it can be transformed in a similarity matrix that is well suited for the algorithm by applying the Gaussian (RBF, heat) kernel:
-    //np.exp(- X ** 2 / (2. * delta ** 2))
-
-    double delta = X.maxCoeff() - X.minCoeff();
-    
-    K.resize(X.rows(),X.rows());
-    for(unsigned int i = 0; i < X.rows(); i++){
-        for(unsigned int j = i; j < X.rows(); j++){
-            K(i,j) = K(j,i) = exp(-gamma * X(i, j) * X(i,j) / (2 * delta * delta));
-        }
-    }
-    
-    // Normalise kernel matrix
-    VectorXd d = K.rowwise().sum();
-    for(unsigned int i = 0; i < d.rows(); i++){
-        d(i) = 1.0/sqrt(d(i));
-    }
-    MatrixXd l = (K * d.asDiagonal());
-    for(unsigned int i = 0; i < l.rows(); i++){
-        for(unsigned int j = 0; j < l.cols(); j++){
-            l(i,j) = l(i,j) * d(i);
-        }
-    }
-    K = l;
 }
 
 void Spectral::generate_kernel_matrix(){
     
-    // construct_affinity matrix
+    //If you have an affinity matrix, such as a distance matrix, for which 0 means identical elements, and high values means very dissimilar elements, it can be transformed in a similarity matrix that is well suited for the algorithm by applying the Gaussian (RBF, heat) kernel:
+    //np.exp(- X ** 2 / (2. * delta ** 2))
+   
+    delta = X.maxCoeff() - X.minCoeff();
+    
     // Fill kernel matrix
     K.resize(X.rows(),X.rows());
     for(unsigned int i = 0; i < X.rows(); i++){
@@ -241,16 +92,12 @@ void Spectral::fast_eigendecomposition()
         matrix[i].resize(n);
         for (int j=0; j<n; j++) matrix[i][j] = K(i,j);
     }
-   
+  
     vector<vector<double> > evecs(centers);
     for (int i=0; i<centers; i++) evecs[i].resize(n);
     DataUtils::randomize(evecs);
-   
     vector<double> lambda(centers);
-   
-    int maxiter = 100;
-    
-    DataUtils::eigen(matrix, evecs, lambda, maxiter);
+    DataUtils::eigen(matrix, evecs, lambda, power_iter);
     
     eigenvectors.resize(n, centers);
     eigenvalues.resize(centers);
@@ -291,6 +138,15 @@ void Spectral::eigendecomposition(){
         cumulative(i) = c;
         eigenvectors.col(i) = eigen_pairs[i].second;
     }
+     cout << "Sorted eigenvalues:" << endl;
+     for(unsigned int i = 0; i < eigenvalues.rows(); i++){
+         if(eigenvalues(i) > 0){
+             cout << "PC " << i+1 << ": Eigenvalue: " << eigenvalues(i);
+             printf("\t(%3.3f of variance, cumulative =  %3.3f)\n",eigenvalues(i)/eigenvalues.sum(),cumulative(i)/eigenvalues.sum());
+             cout << eigenvectors.col(i) << endl;
+         }
+     }
+     cout << endl;
     MatrixXd tmp = eigenvectors;
     
     // Select top K eigenvectors where K = centers
@@ -300,10 +156,11 @@ void Spectral::eigendecomposition(){
 
 
 void Spectral::cluster(int maxiter){
-   
-    //generate_kernel_matrix();
-    affinity_matrix();
-    if (maxiter>0) fast_eigendecomposition();
+ 
+    power_iter = maxiter;
+    
+    generate_kernel_matrix();
+    if (power_iter>0) fast_eigendecomposition();
     else eigendecomposition();
     kmeans();
     

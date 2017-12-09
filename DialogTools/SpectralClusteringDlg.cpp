@@ -148,7 +148,7 @@ void SpectralClusteringDlg::CreateControls()
     txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "100",wxDefaultPosition, wxSize(70,-1));
     txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
     chk_poweriteration->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnCheckPowerIteration, this);
-    if (project->GetNumRecords() < 150) {
+    if (project->GetNumRecords() < 3000) {
         lbl_poweriteration->Disable();
         txt_poweriteration->Disable();
     } else {
@@ -579,13 +579,9 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         value_gamma = value_gamma;
     }
 
+    
     int kernel_sel = 0;
 
-    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
-    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-    free(ragged_distances);
-    
     long l_iterations = 0;
     if (chk_poweriteration->IsChecked()) {
         wxString str_iterations;
@@ -594,10 +590,11 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     }
     
     Spectral spectral;
-    spectral.set_data(distances);
+    spectral.set_data(input_data, rows, columns);
     spectral.set_gamma(value_gamma);
     spectral.set_centers(ncluster);
     spectral.set_kernel(kernel_sel);
+    spectral.set_power_iters(l_iterations);
     spectral.cluster(l_iterations);
     
     
