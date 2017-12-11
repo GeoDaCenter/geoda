@@ -109,6 +109,8 @@ namespace Gda {
 	 good random numbers. This is useful for doing parallel Monte Carlo
 	 simulations with a common random seed for reproducibility. */
 	double ThomasWangHashDouble(uint64_t key);
+    
+	double ThomasWangDouble(uint64_t& key);
 	
 	inline bool IsNaN(double x) { return x != x; }
 	inline bool IsFinite(double x) { return x-x == 0; }

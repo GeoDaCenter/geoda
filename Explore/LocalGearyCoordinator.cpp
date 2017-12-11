@@ -772,11 +772,9 @@ void LocalGearyCoordinator::CalcPseudoP_threaded()
 			a = remainder*(quotient+1) + (i-remainder)*quotient;
 			b = a+quotient-1;
 		}
-		uint64_t seed_start = last_seed_used + a;
-		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
         int thread_id = i+1;
         LocalGearyWorkerThread* thread =
-        new LocalGearyWorkerThread(a, b, seed_start, this,
+        new LocalGearyWorkerThread(a, b, last_seed_used, this,
                                    &worker_list_mutex,
                                    &worker_list_empty_cond,
                                    &worker_list, thread_id);
@@ -826,11 +824,14 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 numNeighbors = w[cnt].Size();
         }
        
+        uint64_t seed = seed_start + cnt;
+        seed = Gda::ThomasWangHashUInt64(seed);
+        
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
-                double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                double rng_val = Gda::ThomasWangDouble(seed) * max_rand;
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
 				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
