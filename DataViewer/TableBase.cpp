@@ -378,16 +378,19 @@ void TableBase::MoveSelectedToTop()
 
 bool TableBase::FromGridIsSelectedCol(int col)
 {
+	if (hs_col.size() -1 <col) return false;
 	return hs_col[col];
 }
 
 void TableBase::FromGridSelectCol(int col)
 {
+	if (hs_col.size() -1 <col) 
     hs_col[col] = true;
 }
 
 void TableBase::FromGridDeselectCol(int col)
 {
+	if (hs_col.size() -1 <col)
     hs_col[col] = false;
 }
 
