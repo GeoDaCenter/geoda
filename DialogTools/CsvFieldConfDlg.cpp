@@ -98,7 +98,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview - number of preview records:"));
     prev_spin = new wxSpinCtrl(panel, wxID_ANY, "");
     n_max_rows = 10;
-    prev_spin->SetRange(0, 1000);
+    prev_spin->SetRange(0, 100);
     prev_spin->SetValue(n_max_rows);
     prev_spin->Connect(wxEVT_SPINCTRL,
                        wxCommandEventHandler(CsvFieldConfDlg::OnSampleSpinClick),
@@ -306,7 +306,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
     poLayer->ResetReading();
     while( (poFeature = poLayer->GetNextFeature()) != NULL )
     {
-        if (cnt > n_max_rows)
+        if (cnt >= n_max_rows)
             break;
       
         if (cnt == 0)
@@ -345,8 +345,9 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
         prev_data.push_back(poFeature);
         cnt += 1;
     }
-    n_prev_rows = cnt;
     GDALClose(poDS);
+    
+    n_prev_rows = cnt;
     
     if (msg_shown && lat_box) {
         wxString lat_col_name = lat_box->GetValue();
@@ -477,8 +478,10 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
     
     int n_new_row = n_prev_rows;
     
-    if (n_max_rows < n_new_row) n_new_row = n_max_rows;
-        
+    if (n_max_rows > n_new_row) n_new_row = n_max_rows;
+    
+    if (n_new_row > prev_data.size()) n_new_row = prev_data.size();
+    
     if (n_grid_row < n_new_row) {
         previewGrid->InsertRows(0, n_new_row - n_grid_row);
     }
@@ -644,5 +647,6 @@ void CsvFieldConfDlg::OnSampleSpinClick( wxCommandEvent& event )
 {
 	wxLogMessage("CsvFieldConfDlg::OnSampleSpinClick()");
     n_max_rows = prev_spin->GetValue();
+    PrereadCSV(HEADERS);
     UpdatePreviewGrid();
 }
