@@ -320,6 +320,7 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         std::vector<l_array_type> data;
         std::vector<b_array_type> data_undef;
         data.resize(col_ids.size()); // data[variable][time][obs]
+        data_undef.resize(col_ids.size()); // data_undef[variable][time][obs]
         for (int i=0; i<col_ids.size(); i++) {
             table_int->GetColData(col_ids[i], data[i]);
             table_int->GetColUndefined(col_ids[i], data_undef[i]);
