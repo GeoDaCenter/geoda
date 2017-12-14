@@ -148,7 +148,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, "System");
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(17, 2, 12, 15);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(18, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -307,6 +307,17 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(txt_seed, 0, wxALIGN_RIGHT);
     txt_seed->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnSeedEnter, this);
 
+	wxString lbl18 = _("Set number of CPU cores manually:");
+	wxStaticText* lbl_txt18 = new wxStaticText(vis_page, wxID_ANY, lbl18);
+    wxBoxSizer* box18 = new wxBoxSizer(wxHORIZONTAL);
+	cbox18 = new wxCheckBox(vis_page, XRCID("PREF_SET_CPU_CORES"), "", wxDefaultPosition);
+	txt_cores = new wxTextCtrl(vis_page, XRCID("PREF_TXT_CPU_CORES"), "", wxDefaultPosition, wxSize(85, -1));
+    box18->Add(cbox18);
+    box18->Add(txt_cores);
+	grid_sizer1->Add(lbl_txt18, 1, wxEXPAND);
+	grid_sizer1->Add(box18, 0, wxALIGN_RIGHT);
+	cbox18->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnSetCPUCores, this);
+    txt_cores->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnCPUCoresEnter, this);
     
 	grid_sizer1->AddGrowableCol(0, 1);
 
@@ -323,7 +334,7 @@ void PreferenceDlg::Init()
 	gdal_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(gdal_page, "Data Source");
-	wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 15, 20);
+	wxFlexGridSizer* grid_sizer2 = new wxFlexGridSizer(10, 2, 8, 10);
 
 	wxString lbl21 = _("Hide system table in Postgresql connection:");
 	wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);
@@ -391,6 +402,8 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+	GdaConst::gda_set_cpu_cores = true;
+	GdaConst::gda_cpu_cores = 8;
 	GdaConst::use_cross_hatching = false;
 	GdaConst::transparency_highlighted = 255;
 	GdaConst::transparency_unhighlighted = 100;
@@ -442,6 +455,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
 	ogr_adapt.AddEntry("gda_user_seed", "123456789");
 	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S");
+	ogr_adapt.AddEntry("gda_cpu_cores", "8");
+	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 }
 
 void PreferenceDlg::SetupControls()
@@ -479,6 +494,11 @@ void PreferenceDlg::SetupControls()
     wxString t_seed;
     t_seed << GdaConst::gda_user_seed;
     txt_seed->SetValue(t_seed);
+    
+    cbox18->SetValue(GdaConst::gda_set_cpu_cores);
+    wxString t_cores;
+    t_cores << GdaConst::gda_cpu_cores;
+    txt_cores->SetValue(t_cores);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -654,6 +674,26 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::use_gda_user_seed = true;
             else if (sel_l == 0)
                 GdaConst::use_gda_user_seed = false;
+        }
+    }
+    
+    vector<string> gda_set_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_set_cpu_cores");
+    if (!gda_set_cpu_cores.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_set_cpu_cores[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::gda_set_cpu_cores = true;
+            else if (sel_l == 0)
+                GdaConst::gda_set_cpu_cores = false;
+        }
+    }
+    vector<string> gda_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_cpu_cores");
+    if (!gda_cpu_cores.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_cpu_cores[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_cpu_cores = sel_l;
         }
     }
     
@@ -905,6 +945,30 @@ void PreferenceDlg::OnSeedEnter(wxCommandEvent& ev)
         OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
     }
 }
+void PreferenceDlg::OnSetCPUCores(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::gda_set_cpu_cores = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_set_cpu_cores", "0");
+        txt_cores->Disable();
+    }
+    else {
+        GdaConst::gda_set_cpu_cores = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_set_cpu_cores", "1");
+        txt_cores->Enable();
+    }
+}
+void PreferenceDlg::OnCPUCoresEnter(wxCommandEvent& ev)
+{
+    wxString val = txt_cores->GetValue();
+    long _val;
+    if (val.ToLong(&_val)) {
+        GdaConst::gda_cpu_cores = _val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_cpu_cores", val.ToStdString());
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 //

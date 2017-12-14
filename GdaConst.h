@@ -239,6 +239,8 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static int gda_cpu_cores;
+    static bool gda_set_cpu_cores;
     static wxString gda_user_email;
     static uint64_t gda_user_seed;
     static bool use_gda_user_seed;

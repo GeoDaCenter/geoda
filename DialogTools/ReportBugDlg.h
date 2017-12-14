@@ -118,6 +118,9 @@ protected:
     wxTextCtrl* txt23;
     // data/tome 
     wxTextCtrl* txt24;
+    // cpu cores
+    wxCheckBox* cbox18;
+    wxTextCtrl* txt_cores;
     
     void Init();
     void SetupControls();
@@ -143,6 +146,9 @@ protected:
     
     void OnUseSpecifiedSeed(wxCommandEvent& ev);
     void OnSeedEnter(wxCommandEvent& ev);
+    
+    void OnSetCPUCores(wxCommandEvent& ev);
+    void OnCPUCoresEnter(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

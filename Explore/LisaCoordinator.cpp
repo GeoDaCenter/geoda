@@ -632,30 +632,16 @@ void LisaCoordinator::CalcPseudoP()
 	wxLogMessage("Entering LisaCoordinator::CalcPseudoP()");
 	if (!calc_significances)
         return;
-    
-    int nCPUs = wxThread::GetCPUCount();
-	
-	// To ensure thread safety, only work on one time slice of data
-	// at a time.  For each time period t:
-	// 1. copy data for time period t into data1 and data2 arrays
-	// 2. Perform multi-threaded computation
-	// 3. copy results into results array
-
-    if (nCPUs <= 1 || num_obs <= nCPUs * 10) {
-        if (!reuse_last_seed) {
-            last_seed_used = time(0);
-        }
-        CalcPseudoP_range(0, num_obs-1, last_seed_used);
-    } else {
-        CalcPseudoP_threaded();
-    }
+    CalcPseudoP_threaded();
 	wxLogMessage("Exiting LisaCoordinator::CalcPseudoP()");
 }
 
 void LisaCoordinator::CalcPseudoP_threaded()
 {
 	wxLogMessage("Entering LisaCoordinator::CalcPseudoP_threaded()");
-    int nCPUs = wxThread::GetCPUCount();
+    int nCPUs = GdaConst::gda_cpu_cores;
+    if (!GdaConst::gda_set_cpu_cores)
+        nCPUs = wxThread::GetCPUCount();
 
 	// mutext protects access to the worker_list
     wxMutex worker_list_mutex;
@@ -698,12 +684,13 @@ void LisaCoordinator::CalcPseudoP_threaded()
 			a = remainder*(quotient+1) + (i-remainder)*quotient;
 			b = a+quotient-1;
 		}
-		uint64_t seed = last_seed_used;
+		uint64_t seed_start = last_seed_used+a;
+		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
         int thread_id = i+1;
         //boost::thread* worker = new boost::thread(boost::bind(&LisaCoordinator::CalcPseudoP_range,this, a, b, seed_start));
         //threadPool.add_thread(worker);
         LisaWorkerThread* thread =
-        new LisaWorkerThread(a, b, seed, this,
+        new LisaWorkerThread(a, b, seed_start, this,
                              &worker_list_mutex,
                              &worker_list_empty_cond,
                              &worker_list, thread_id);
@@ -749,15 +736,12 @@ void LisaCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t see
             if (w[cnt].Size() > numNeighbors)
                 numNeighbors = w[cnt].Size();
         }
-        
-        uint64_t seed = seed_start + cnt;
-        seed = Gda::ThomasWangHashUInt64(seed);
-        
+	
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
-                double rng_val = Gda::ThomasWangDouble(seed) * max_rand;
+                double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
 				int newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));

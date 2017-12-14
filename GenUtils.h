@@ -350,9 +350,15 @@ namespace GenUtils {
 	wxString DblToStr(double x, int precision = 3);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
+    
+	void MeanAbsoluteDeviation(int nObs, double* data);
+    void MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef);
+	void MeanAbsoluteDeviation(std::vector<double>& data);
+    
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
+    
 	double Sum(std::vector<double>& data);
 	double SumOfSquares(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);

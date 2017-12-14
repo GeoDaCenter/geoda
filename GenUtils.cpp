@@ -1161,7 +1161,6 @@ wxString GenUtils::PtToStr(const wxRealPoint& p)
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
-// NOTE: should take into account undefined values.
 void GenUtils::DeviationFromMean(int nObs, double* data)
 {
 	if (nObs == 0) return;
@@ -1197,6 +1196,44 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	const double mean = sum / (double) data.size();
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
 }
+
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
+{
+    if (nObs == 0) return;
+    double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) sum += data[i];
+    const double mean = sum / (double) nObs;
+    for (int i=0, iend=nObs; i<iend; i++)
+        data[i] = std::abs(data[i] - mean) / (double) nObs;
+}
+
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef)
+{
+    if (nObs == 0) return;
+    
+    double nValid = 0;
+    double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
+        sum += data[i];
+        nValid += 1;
+    }
+    const double mean = sum / nValid;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] = std::abs(data[i] - mean) / nValid;
+    }
+}
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
+{
+	if (data.size() == 0) return;
+	double sum = 0.0;
+    double nn = data.size();
+	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
+    const double mean = sum / nn;
+	for (int i=0, iend=data.size(); i<iend; i++)
+        data[i] = std::abs(data[i] - mean) / nn;
+}
+
 
 double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
 {
