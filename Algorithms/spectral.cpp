@@ -9,7 +9,7 @@
 
 #include <map>
 #include <math.h>
-
+#include <boost/heap/priority_queue.hpp>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <Eigen/QR>
@@ -32,8 +32,8 @@ void Spectral::set_data(double** input_data, int nrows, int  ncols)
     }
 }
 
-double Spectral::kernel(const VectorXd& a, const VectorXd& b){
-   
+double Spectral::kernel(const VectorXd& a, const VectorXd& b)
+{
     //http://scikit-learn.org/stable/modules/generated/sklearn.cluster.SpectralClustering.html
     //  gamma : float, default=1.0 (Radial basis function kernel)
     // Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels. Ignored for
@@ -42,25 +42,93 @@ double Spectral::kernel(const VectorXd& a, const VectorXd& b){
         case 1  :
             return(pow(a.dot(b)+constant,order));
         default :
-            return(exp(-gamma*((a-b).squaredNorm())));
-            //return exp(- gamma * ((a-b).squaredNorm()/(2 * delta * delta)) );
+            //return(exp(-gamma*((a-b).squaredNorm())));
+            return exp(-((a-b).squaredNorm()/(2 * sigma * sigma)) );
     }
     
 }
 
-void Spectral::generate_kernel_matrix(){
+void Spectral::affinity_matrix()
+{
+    // Fill Laplacian matrix
+    K.resize(X.rows(),X.rows());
+    for(unsigned int i = 0; i < X.rows(); i++){
+        for(unsigned int j = i; j < X.rows(); j++){
+            K(i,j) = K(j,i) = kernel(X.row(i),X.row(j));
+        }
+    }
     
+    // Normalise Laplacian
+    VectorXd d = K.rowwise().sum();
+    MatrixXd _D = d.asDiagonal();
+    MatrixXd U = _D - K;
+    
+    for(unsigned int i = 0; i < d.rows(); i++){
+        d(i) = 1.0/sqrt(d(i));
+    }
+    MatrixXd l = d.asDiagonal() * U * d.asDiagonal();
+    K = l;
+}
+
+void Spectral::generate_kernel_matrix()
+{
     //If you have an affinity matrix, such as a distance matrix, for which 0 means identical elements, and high values means very dissimilar elements, it can be transformed in a similarity matrix that is well suited for the algorithm by applying the Gaussian (RBF, heat) kernel:
     //np.exp(- X ** 2 / (2. * delta ** 2))
-   
-    delta = X.maxCoeff() - X.minCoeff();
+    //delta = X.maxCoeff() - X.minCoeff();
     
     // Fill kernel matrix
     K.resize(X.rows(),X.rows());
     for(unsigned int i = 0; i < X.rows(); i++){
         for(unsigned int j = i; j < X.rows(); j++){
             K(i,j) = K(j,i) = kernel(X.row(i),X.row(j));
-            //if(i == 0) cout << K(i,j) << " ";
+        }
+    }
+    
+    // Normalise kernel matrix
+    VectorXd d = K.rowwise().sum();
+    for(unsigned int i = 0; i < d.rows(); i++){
+        d(i) = 1.0/sqrt(d(i));
+    }
+    MatrixXd l = (K * d.asDiagonal());
+    for(unsigned int i = 0; i < l.rows(); i++){
+        for(unsigned int j = 0; j < l.cols(); j++){
+            l(i,j) = l(i,j) * d(i);
+        }
+    }
+    K = l;
+}
+
+struct CompareDist
+{
+    bool operator()(const pair<int, double>& lhs, const pair<int, double>& rhs) const { return lhs.second > rhs.second;}
+};
+
+void Spectral::generate_knn_matrix()
+{
+    typedef boost::heap::priority_queue<pair<int, double>, boost::heap::compare<CompareDist> > PriorityQueue;
+    
+    // Fill euclidean dista matrix and filter using KNN
+    K.resize(X.rows(),X.rows());
+    double squared_dist = 0;
+    for (unsigned int i = 0; i < X.rows(); i++){
+        PriorityQueue top_K;
+        for(unsigned int j = i; j < X.rows(); j++){
+            squared_dist =  (X.row(i) - X.row(j)).norm();
+            K(i,j) = K(j,i) = squared_dist;
+            top_K.push(std::make_pair(j,squared_dist));
+        }
+        if (top_K.size() > knn) {
+            std::set<int> ids;
+            for (int j=0; j<knn; j++) {
+                std::pair<int, double> item = top_K.top();
+                ids.insert(item.first);
+                top_K.pop();
+            }
+            for(unsigned int j = i; j < X.rows(); j++){
+                if (ids.find(j) == ids.end()) {
+                    K(i,j) = K(j,i) = 0;
+                }
+            }
         }
     }
     
@@ -98,6 +166,23 @@ void Spectral::fast_eigendecomposition()
     DataUtils::randomize(evecs);
     vector<double> lambda(centers);
     DataUtils::eigen(matrix, evecs, lambda, power_iter);
+    for (int i = 0; i < evecs.size(); i++) {
+        for (int j = 0; j < evecs[0].size(); j++) {
+            evecs[i][j] *= sqrt(lambda[i]);
+        }
+    }
+   
+    // normalise eigenvectors
+    for (int i = 0; i < evecs.size(); i++) {
+        double norm = 0;
+        for (int j = 0; j < evecs[0].size(); j++) {
+            norm += evecs[i][j] * evecs[i][j];
+        }
+        norm = sqrt(norm);
+        for (int j = 0; j < evecs[0].size(); j++) {
+            evecs[i][j] /= norm;
+        }
+    }
     
     eigenvectors.resize(n, centers);
     eigenvalues.resize(centers);
@@ -117,6 +202,9 @@ void Spectral::eigendecomposition(){
     EigenSolver<MatrixXd> edecomp(K);
     eigenvalues = edecomp.eigenvalues().real();
     eigenvectors = edecomp.eigenvectors().real();
+    for(unsigned int i = 0; i < eigenvalues.rows(); i++){
+        cout << "Eigenvalue: " << eigenvalues(i) << endl;
+    }
     cumulative.resize(eigenvalues.rows());
     vector<pair<double,VectorXd> > eigen_pairs;
     double c = 0.0;
@@ -140,7 +228,7 @@ void Spectral::eigendecomposition(){
     }
      cout << "Sorted eigenvalues:" << endl;
      for(unsigned int i = 0; i < eigenvalues.rows(); i++){
-         if(eigenvalues(i) > 0){
+         if(i<2){
              cout << "PC " << i+1 << ": Eigenvalue: " << eigenvalues(i);
              printf("\t(%3.3f of variance, cumulative =  %3.3f)\n",eigenvalues(i)/eigenvalues.sum(),cumulative(i)/eigenvalues.sum());
              cout << eigenvectors.col(i) << endl;
@@ -155,15 +243,21 @@ void Spectral::eigendecomposition(){
 }
 
 
-void Spectral::cluster(int maxiter){
- 
-    power_iter = maxiter;
+void Spectral::cluster(int affinity_type)
+{
+    if (affinity_type == 0) {
+        // kernel
+        //affinity_matrix();
+        generate_kernel_matrix();
+        
+    } else {
+        // KNN
+        generate_knn_matrix();
+    }
     
-    generate_kernel_matrix();
     if (power_iter>0) fast_eigendecomposition();
     else eigendecomposition();
     kmeans();
-    
 }
 
 void Spectral::kmeans()

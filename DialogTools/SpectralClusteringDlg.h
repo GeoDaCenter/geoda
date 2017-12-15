@@ -48,6 +48,7 @@ public:
     void OnCheckPowerIteration(wxCommandEvent& event);
     void OnWeightsCheck(wxCommandEvent& event);
     void OnKernelCheck(wxCommandEvent& event);
+    void OnKNNCheck(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
@@ -65,14 +66,18 @@ protected:
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     
-    wxTextCtrl* m_gamma;
+    wxTextCtrl* m_sigma;
     wxChoice* combo_kernel;
-
     wxChoice* m_method;
     wxChoice* m_distance;
     wxCheckBox* chk_kernel;
     wxStaticText* lbl_kernel;
-    wxStaticText* lbl_gamma;
+    wxStaticText* lbl_sigma;
+    
+    wxCheckBox* chk_knn;
+    wxStaticText* lbl_knn;
+    wxStaticText* lbl_neighbors;
+    wxTextCtrl* m_knn;
     
     wxStaticText* lbl_weights;
     wxCheckBox* chk_weights;

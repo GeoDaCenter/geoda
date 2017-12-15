@@ -143,10 +143,9 @@ vector<double> FastMDS::lmds(vector<vector<double> >& P, vector<vector<double> >
     }
    
     //result = temp;
-    
     for (int m = 0; m < d; m++) {
         for (int i = 0; i < n; i++) {
-            result[m][i] = -temp[m][i];
+            result[m][i] = temp[m][i];
         }
     }
     return lambda;

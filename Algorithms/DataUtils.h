@@ -13,7 +13,6 @@
 #include "../GdaConst.h"
 using namespace std;
 
-
 class DataUtils {
 public:
     static void doubleCenter(vector<vector<double> >& matrix)
@@ -86,6 +85,41 @@ public:
         
         int d = evals.size();
         int k = matrix.size();
+        double eps = 1.0E-10;
+        for (int m = 0; m < d; m++) {
+            if (m > 0)
+                for (int i = 0; i < k; i++)
+                    for (int j = 0; j < k; j++)
+                        matrix[i][j] -= evals[(m - 1)] * evecs[(m - 1)][i] * evecs[(m - 1)][j];
+            for (int i = 0; i < k; i++)
+                evecs[m][i] = (double) rand() / RAND_MAX;
+            normalize(evecs[m]);
+            
+            double r = 0.0;
+            
+            //for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
+            for (int iter = 0; iter < maxiter; iter++) {
+                vector<double> q(k,0);
+                for (int i = 0; i < k; i++) {
+                    for (int j = 0; j < k; j++)
+                        q[i] += matrix[i][j] * evecs[m][j];
+                }
+                evals[m] = prod(evecs[m], q);
+                normalize(q);
+                r = abs(prod(evecs[m], q));
+                evecs[m] = q;
+            }
+        }
+    }
+    
+    static void reverse_eigen(vector<vector<double> >& matrix, vector<vector<double> >& evecs, vector<double>& evals, int maxiter) {
+        
+        if ( GdaConst::use_gda_user_seed) {
+            srand(GdaConst::gda_user_seed);
+        }
+        double rho = largestEigenvalue(matrix);
+        int d = evals.size();
+        int k = matrix.size();
         double eps = 1.0E-6;
         for (int m = 0; m < d; m++) {
             if (m > 0)
@@ -101,6 +135,7 @@ public:
             for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
                 vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
+                    q[i] -= rho * evecs[m][i];
                     for (int j = 0; j < k; j++)
                         q[i] += matrix[i][j] * evecs[m][j];
                 }
@@ -111,31 +146,7 @@ public:
             }
         }
     }
-  
-    static double largestEigenvalue(vector<vector<double> >& matrix)
-    {
-        int n = matrix.size();
-        double eps = 1.0E-6;
-        int maxiter = 100;
-        double lambda = 0.0;
-        vector<double> x(n,1.0);
-        double r = 0.0;
-        
-        for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
-            vector<double> q(n,0);
-            
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < n; j++)
-                    q[i] += matrix[i][j] * x[j];
-            }
-            lambda = prod(x, q);
-            normalize(q);
-            r = fabs(prod(x, q));
-            x = q;
-        }
-        return lambda;
-    }
-    
+ 
     static double smallestEigenvalue(vector<vector<double> >& matrix)
     {
         int n = matrix.size();
@@ -164,6 +175,30 @@ public:
             x = q;
         }
         return lambda + rho;
+    }
+    
+    static double largestEigenvalue(vector<vector<double> >& matrix)
+    {
+        int n = matrix.size();
+        double eps = 1.0E-6;
+        int maxiter = 100;
+        double lambda = 0.0;
+        vector<double> x(n,1.0);
+        double r = 0.0;
+        
+        for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < 100); iter++) {
+            vector<double> q(n,0);
+            
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++)
+                    q[i] += matrix[i][j] * x[j];
+            }
+            lambda = prod(x, q);
+            normalize(q);
+            r = fabs(prod(x, q));
+            x = q;
+        }
+        return lambda;
     }
     
     static void randomize(vector<vector<double> >& matrix) {

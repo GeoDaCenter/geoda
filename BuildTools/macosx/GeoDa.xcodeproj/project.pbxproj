@@ -1756,6 +1756,7 @@
 					"-D__WXOSX_COCOA__",
 					"-D__WXDEBUG__",
 					"-DDEBUG",
+					"-DEIGEN_NO_DEBUG",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
@@ -1823,6 +1824,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = "";
+				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "GeoDa-Xcode-Info.plist";
@@ -1845,6 +1847,7 @@
 					"-D__WXMAC__",
 					"-D__WXOSX__",
 					"-D__WXOSX_COCOA__",
+					"-DEIGEN_NO_DEBUG",
 				);
 				OTHER_LDFLAGS = (
 					"-L/usr/lib",
