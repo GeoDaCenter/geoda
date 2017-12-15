@@ -501,7 +501,7 @@ wxString SpectralClusteringDlg::_printConfiguration()
         txt << "Affinity with Guassian Kernel:\tSigma=" << m_sigma->GetValue() << "\n";
     }
     if (chk_knn->IsChecked()) {
-        txt << "Affinity with K-Nearest Neighbors:\tK=" << m_sigma->GetValue() << "\n";
+        txt << "Affinity with K-Nearest Neighbors:\tK=" << m_knn->GetValue() << "\n";
     }
     
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";

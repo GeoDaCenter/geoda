@@ -115,17 +115,17 @@ void Spectral::generate_knn_matrix()
         for(unsigned int j = i; j < X.rows(); j++){
             squared_dist =  (X.row(i) - X.row(j)).norm();
             K(i,j) = K(j,i) = squared_dist;
-            top_K.push(std::make_pair(j,squared_dist));
+            if (i != j) top_K.push(std::make_pair(j,squared_dist));
         }
         if (top_K.size() > knn) {
-            std::set<int> ids;
+            double min_dist = 0;
             for (int j=0; j<knn; j++) {
                 std::pair<int, double> item = top_K.top();
-                ids.insert(item.first);
                 top_K.pop();
+                min_dist = item.second;
             }
             for(unsigned int j = i; j < X.rows(); j++){
-                if (ids.find(j) == ids.end()) {
+                if (K(j,i) > min_dist) {
                     K(i,j) = K(j,i) = 0;
                 }
             }
