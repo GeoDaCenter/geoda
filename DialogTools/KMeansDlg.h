@@ -55,7 +55,7 @@ public:
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
     
-    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals)=0;
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)=0;
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
@@ -96,7 +96,7 @@ public:
     KMeansDlg(wxFrame *parent, Project* project);
     virtual ~KMeansDlg();
     
-    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
 };
 
 class KMediansDlg : public KClusterDlg
@@ -105,7 +105,7 @@ public:
     KMediansDlg(wxFrame *parent, Project* project);
     virtual ~KMediansDlg();
     
-    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
 };
 
 class KMedoidsDlg : public KClusterDlg
@@ -115,6 +115,6 @@ public:
     virtual ~KMedoidsDlg();
    
     virtual void ComputeDistMatrix(int dist_sel);
-    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals);
+    virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
 };
 #endif

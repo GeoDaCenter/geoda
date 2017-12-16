@@ -391,8 +391,10 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         n_maxiter = value;
     }
     
+	int meth_sel = combo_method->GetSelection();
+
     // start working
-    int nCPUs = 1;//boost::thread::hardware_concurrency();
+    int nCPUs = boost::thread::hardware_concurrency();
     int quotient = npass / nCPUs;
     int remainder = npass % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
@@ -431,7 +433,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         if (s1 >0) s1 = a + 1;
         int n_runs = b - a + 1;
         
-        boost::thread* worker = new boost::thread(boost::bind(&KClusterDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, dist_sel, min_bound, bound_vals));
+        boost::thread* worker = new boost::thread(boost::bind(&KClusterDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }
@@ -558,10 +560,10 @@ KMeansDlg::~KMeansDlg()
     wxLogMessage("In ~KMeansDlg()");
 }
 
-void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals)
+void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     char method = 'a'; // 'a' mean/random, 'b' kmeans++ 'm' median
-    if (combo_method->GetSelection() == 0) method = 'b';
+    if (meth_sel == 0) method = 'b';
     
     char dist_choices[] = {'e','b'};
     char dist = 'e'; // euclidean
@@ -607,7 +609,7 @@ KMediansDlg::~KMediansDlg()
     wxLogMessage("In ~KMedians()");
 }
 
-void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals)
+void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     char method = 'm'; // 'm' median/random
     int transpose = 0; // row wise
@@ -664,7 +666,7 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
     distmatrix = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 }
 
-void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int dist_sel, double min_bound, double* bound_vals)
+void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     double error;
     int ifound;
