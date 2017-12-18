@@ -203,7 +203,7 @@ void SpectralClusteringDlg::CreateControls()
     
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("50"), wxDefaultPosition, wxSize(160,-1));
+    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("150"), wxDefaultPosition, wxSize(160,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
     
@@ -229,7 +229,8 @@ void SpectralClusteringDlg::CreateControls()
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("300"));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
-    
+   
+    /*
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices12[] = {"Arithmetic Mean", "Arithmetic Median"};
@@ -238,7 +239,7 @@ void SpectralClusteringDlg::CreateControls()
 	box12->SetSelection(0);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
-    
+   */
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices13[] = {"Euclidean", "Manhattan"};
@@ -320,7 +321,7 @@ void SpectralClusteringDlg::CreateControls()
     m_textbox = box3;
     m_iterations = box11;
     m_pass = box10;
-    m_method = box12;
+    //m_method = box12;
     m_distance = box13;
     combo_tranform = box01;
     
@@ -511,7 +512,7 @@ wxString SpectralClusteringDlg::_printConfiguration()
     txt << "(K-Means) Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
     txt << "(K-Means) Initialization re-runs:\t" << m_pass->GetValue() << "\n";
     txt << "(K-Means) Maximal iterations:\t" << m_iterations->GetValue() << "\n";
-    txt << "(K-Means) Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
+    //txt << "(K-Means) Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
     return txt;
 }
 
@@ -569,9 +570,6 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     if(str_pass.ToLong(&value_pass)) {
         npass = value_pass;
     }
-    
-    int method_sel = m_method->GetSelection();
-    if (method_sel == 1) method = 'm';
     
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
