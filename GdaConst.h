@@ -239,6 +239,7 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static double gda_eigen_tol;
     static int gda_cpu_cores;
     static bool gda_set_cpu_cores;
     static wxString gda_user_email;

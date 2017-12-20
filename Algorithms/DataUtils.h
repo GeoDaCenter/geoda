@@ -85,7 +85,8 @@ public:
         
         int d = evals.size();
         int k = matrix.size();
-        double eps = 1.0E-10;
+        //double eps = 1.0E-10;
+        double eps = GdaConst::gda_eigen_tol;
         for (int m = 0; m < d; m++) {
             if (m > 0)
                 for (int i = 0; i < k; i++)
@@ -97,8 +98,8 @@ public:
             
             double r = 0.0;
             
-            //for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
-            for (int iter = 0; iter < maxiter; iter++) {
+            for (int iter = 0; (fabs(1.0 - r) > eps) && (iter < maxiter); iter++) {
+            //for (int iter = 0; iter < maxiter; iter++) {
                 vector<double> q(k,0);
                 for (int i = 0; i < k; i++) {
                     for (int j = 0; j < k; j++)

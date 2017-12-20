@@ -148,7 +148,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, "System");
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(18, 2, 8, 10);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(19, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -289,7 +289,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(cbox5, 0, wxALIGN_RIGHT);
 	cbox5->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableAutoUpgrade, this);
 
-    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Randomization:")), 1,
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Method:")), 1,
                      wxTOP | wxBOTTOM, 10);
     grid_sizer1->AddSpacer(10);
     
@@ -318,6 +318,13 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(box18, 0, wxALIGN_RIGHT);
 	cbox18->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnSetCPUCores, this);
     txt_cores->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnCPUCoresEnter, this);
+    
+	wxString lbl19 = _("Stopping criterion for power iteration:");
+	wxStaticText* lbl_txt19 = new wxStaticText(vis_page, wxID_ANY, lbl19);
+	txt_poweriter_eps = new wxTextCtrl(vis_page, XRCID("PREF_POWER_EPS"), "", wxDefaultPosition, wxSize(85, -1));
+	grid_sizer1->Add(lbl_txt19, 1, wxEXPAND);
+	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
+    txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
 	grid_sizer1->AddGrowableCol(0, 1);
 
@@ -402,6 +409,7 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+    GdaConst::gda_eigen_tol = 1.0E-8;
 	GdaConst::gda_set_cpu_cores = true;
 	GdaConst::gda_cpu_cores = 8;
 	GdaConst::use_cross_hatching = false;
@@ -457,6 +465,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S");
 	ogr_adapt.AddEntry("gda_cpu_cores", "8");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
+	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
 }
 
 void PreferenceDlg::SetupControls()
@@ -499,6 +508,10 @@ void PreferenceDlg::SetupControls()
     wxString t_cores;
     t_cores << GdaConst::gda_cpu_cores;
     txt_cores->SetValue(t_cores);
+    
+    wxString t_power_eps;
+    t_power_eps << GdaConst::gda_eigen_tol;
+    txt_poweriter_eps->SetValue(t_power_eps);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -694,6 +707,15 @@ void PreferenceDlg::ReadFromCache()
         wxString sel = gda_cpu_cores[0];
         if (sel.ToLong(&sel_l)) {
             GdaConst::gda_cpu_cores = sel_l;
+        }
+    }
+    
+    vector<string> gda_eigen_tol = OGRDataAdapter::GetInstance().GetHistory("gda_eigen_tol");
+    if (!gda_eigen_tol.empty()) {
+        double sel_l = 0;
+        wxString sel = gda_eigen_tol[0];
+        if (sel.ToDouble(&sel_l)) {
+            GdaConst::gda_eigen_tol = sel_l;
         }
     }
     
@@ -969,6 +991,15 @@ void PreferenceDlg::OnCPUCoresEnter(wxCommandEvent& ev)
     }
 }
 
+void PreferenceDlg::OnPowerEpsEnter(wxCommandEvent& ev)
+{
+    wxString val = txt_poweriter_eps->GetValue();
+    double _val;
+    if (val.ToDouble(&_val)) {
+        GdaConst::gda_eigen_tol = _val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_eigen_tol", val.ToStdString());
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 //

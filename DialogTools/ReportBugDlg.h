@@ -121,6 +121,8 @@ protected:
     // cpu cores
     wxCheckBox* cbox18;
     wxTextCtrl* txt_cores;
+    // eps of power iteration
+    wxTextCtrl* txt_poweriter_eps;
     
     void Init();
     void SetupControls();
@@ -149,6 +151,8 @@ protected:
     
     void OnSetCPUCores(wxCommandEvent& ev);
     void OnCPUCoresEnter(wxCommandEvent& ev);
+   
+    void OnPowerEpsEnter(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

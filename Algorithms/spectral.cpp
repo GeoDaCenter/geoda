@@ -129,6 +129,11 @@ void Spectral::generate_knn_matrix()
                     K(i,j) = K(j,i) = 0;
                 }
             }
+            for(unsigned int j = i; j < X.rows(); j++){
+                if (K(j,i) != 0 ) {
+                    K(i,j) = K(j,i) = 1;
+                }
+            }
         }
     }
     

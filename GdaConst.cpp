@@ -319,6 +319,7 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+double GdaConst::gda_eigen_tol = 1.0E-8;
 bool GdaConst::gda_set_cpu_cores = true;
 int GdaConst::gda_cpu_cores = 8;
 wxString GdaConst::gda_user_email = "";
