@@ -158,7 +158,7 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
     chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
     lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
-    txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "100",wxDefaultPosition, wxSize(70,-1));
+    txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "300",wxDefaultPosition, wxSize(70,-1));
     txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
     chk_poweriteration->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnCheckPowerIteration, this);
     if (project->GetNumRecords() < 2000) {
