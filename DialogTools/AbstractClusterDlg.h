@@ -123,7 +123,7 @@ protected:
    
     // Transformation control
     // -- variables
-    wxChoice* combo_transform;
+    wxChoice* combo_tranform;
     // -- functions;
     virtual void AddTransformation(
         wxPanel* panel,
