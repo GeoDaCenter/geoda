@@ -254,6 +254,17 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     }
 }
 
+void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
+{
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
+    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
+    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                  wxSize(120,-1), 3, _transform);
+    combo_tranform->SetSelection(2);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_tranform, 1, wxEXPAND);
+}
+
 void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox)
 {
     wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"), wxDefaultPosition, wxSize(128,-1));

@@ -152,14 +152,8 @@ void MaxpDlg::CreateControls()
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
 
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(120,-1), 3, _transform);
-    combo_tranform->SetSelection(2);
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_tranform, 1, wxEXPAND);
+    // Transformation
+    AddTransformation(panel, gbox);
     
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));

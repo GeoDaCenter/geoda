@@ -77,6 +77,7 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
 	op_string[log_e_op] = "LOG (base e)";
 	op_string[dev_from_mean_op] = "DEVIATION FROM MEAN";
 	op_string[standardize_op] = "STANDARDIZED";
+    op_string[mad_op] = "MEAN ABSOLUTE DEVIATION";
 	op_string[shuffle_op] = "SHUFFLE";
 	
 	for (int i=0, iend=op_string.size(); i<iend; i++) {
@@ -282,6 +283,16 @@ void FieldNewCalcUniDlg::Apply()
 				GenUtils::StandardizeData(r_data);
 			}
 				break;
+            case mad_op:
+            {
+                for (int i=0; i<rows; i++) {
+                    r_data[i] = data[i];
+                    r_undefined[i] = undefined[i];
+                    
+                    GenUtils::MeanAbsoluteDeviation(r_data, r_undefined);
+                }
+            }
+                break;
 			case shuffle_op:
 			{
 				for (int i=0; i<rows; i++) {

@@ -121,6 +121,15 @@ protected:
     bool GetInputData(int transform, int min_num_var=2);
     void OnInputWeights(wxCommandEvent& event);
    
+    // Transformation control
+    // -- variables
+    wxChoice* combo_transform;
+    // -- functions;
+    virtual void AddTransformation(
+        wxPanel* panel,
+        wxFlexGridSizer* gbox);
+    
+    
     // Minimum Bound related
 	// -- variables
     wxCheckBox* chk_floor;

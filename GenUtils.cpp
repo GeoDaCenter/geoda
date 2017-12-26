@@ -1220,6 +1220,7 @@ void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& 
     }
     const double mean = sum / nValid;
     for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
         data[i] = std::abs(data[i] - mean) / nValid;
     }
 }
@@ -1233,7 +1234,23 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
 	for (int i=0, iend=data.size(); i<iend; i++)
         data[i] = std::abs(data[i] - mean) / nn;
 }
-
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef)
+{
+    if (data.size() == 0) return;
+    double sum = 0.0;
+    double nValid = 0;
+    double nn = data.size();
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        sum += data[i];
+        nValid += 1;
+    }
+    const double mean = sum / nValid;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = std::abs(data[i] - mean) / nValid;
+    }
+}
 
 double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
 {

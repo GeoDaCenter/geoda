@@ -128,13 +128,8 @@ void HClusterDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
 
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 3, _transform);
-    combo_tranform->SetSelection(2);
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_tranform, 1, wxEXPAND);
+    // Transformation
+    AddTransformation(panel, gbox);
     
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(120,-1));

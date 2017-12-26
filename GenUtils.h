@@ -354,6 +354,7 @@ namespace GenUtils {
 	void MeanAbsoluteDeviation(int nObs, double* data);
     void MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef);
 	void MeanAbsoluteDeviation(std::vector<double>& data);
+    void MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef);
     
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);

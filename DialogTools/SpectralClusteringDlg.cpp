@@ -173,14 +173,8 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox15, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(120,-1), 3, _transform);
-    box01->SetSelection(2);
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box01, 1, wxEXPAND);
+    // Transformation
+    AddTranformation(panel, gbox);
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("(K-Means)"),
                                           wxDefaultPosition, wxSize(128,-1));
