@@ -364,14 +364,12 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     
     int transform = combo_tranform->GetSelection();
     
-    bool success = GetInputData(transform,1);
-    if (!success) {
+    if (!GetInputData(transform,1))
         return;
-    }
-   
-    if (!CheckMinBound()) {
+
+    if (!CheckMinBound())
         return;
-    }
+    
     int npass = 10;
     wxString str_pass = m_pass->GetValue();
     long value_pass;

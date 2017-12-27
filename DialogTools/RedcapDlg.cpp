@@ -147,7 +147,7 @@ void RedcapDlg::CreateControls()
     gbox->Add(m_distance, 1, wxEXPAND);
 
     // Transformation
-    AddTranformation(panel, gbox);
+    AddTransformation(panel, gbox);
     
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));

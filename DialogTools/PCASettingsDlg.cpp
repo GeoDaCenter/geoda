@@ -45,59 +45,16 @@ BEGIN_EVENT_TABLE( PCASettingsDlg, wxDialog )
 EVT_CLOSE( PCASettingsDlg::OnClose )
 END_EVENT_TABLE()
 
-PCASettingsDlg::PCASettingsDlg(Project* project_s)
-: wxDialog(NULL, -1, _("PCA Settings"), wxDefaultPosition, wxSize(860, 600), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState())
+PCASettingsDlg::PCASettingsDlg(wxFrame *parent_s, Project* project_s)
+: AbstractClusterDlg(parent_s, project_s, _("PCA Settings"))
 {
     wxLogMessage("Open PCASettingsDlg.");
     
-    project = project_s;
-   
-    if (project_s->GetTableInt()->GetNumberCols() == 0) {
-        wxString err_msg = _("No numeric variables found in table.");
-        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    }
-
-    bool init_success = Init();
-    
-    if (init_success == false) {
-        EndDialog(wxID_CANCEL);
-    } else {
-        CreateControls();
-    }
-
-    frames_manager->registerObserver(this);
-    table_state->registerObserver(this);
+    CreateControls();
 }
 
 PCASettingsDlg::~PCASettingsDlg()
 {
-    frames_manager->removeObserver(this);
-    table_state->removeObserver(this);
-}
-
-void PCASettingsDlg::update(FramesManager* o)
-{
-}
-void PCASettingsDlg::update(TableState* o)
-{
-    InitVariableCombobox(combo_var);
-}
-
-bool PCASettingsDlg::Init()
-{
-    if (project == NULL)
-        return false;
-    
-    table_int = project->GetTableInt();
-    if (table_int == NULL)
-        return false;
-    
-    
-    table_int->GetTimeStrings(tm_strs);
-    
-    return true;
 }
 
 void PCASettingsDlg::CreateControls()
@@ -110,50 +67,32 @@ void PCASettingsDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
-                                         wxDefaultPosition, wxDefaultSize);
-    
-    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(250,250), 0, NULL,
-                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
-    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    
+    AddSimpleInputCtrls(panel, &combo_var, vbox);
+
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
     
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(120,-1));
     const wxString _methods[2] = {"SVD", "Eigen"};
-    wxChoice* box0 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                   wxSize(120,-1), 2, _methods);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box0, 1, wxEXPAND);
+    gbox->Add(combo_method, 1, wxEXPAND);
     
-    
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(120,-1), 3, _transform);
-    
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box01, 1, wxEXPAND);
-    
+    // Transformation
+    AddTransformation(panel, gbox);
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"));
-    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 0, NULL);
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box1, 1, wxEXPAND);
+    hbox1->Add(combo_n, 1, wxEXPAND);
     
     
     // buttons
@@ -169,11 +108,9 @@ void PCASettingsDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
-    
     
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
     m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
@@ -198,67 +135,15 @@ void PCASettingsDlg::CreateControls()
     
     Centre();
     
-    // Content
-    InitVariableCombobox(box);
-    
     saveButton->Enable(false);
-    combo_var = box;
-    combo_n = box1;
-    
-    combo_method = box0;
-    combo_transform = box01;
-    
+
     combo_method->SetSelection(0);
-    combo_transform->SetSelection(2);
+    combo_tranform->SetSelection(2);
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnOK, this);
     saveButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &PCASettingsDlg::OnCloseClick, this);
-    
-    combo_method->Connect(wxEVT_CHOICE,
-                          wxCommandEventHandler(PCASettingsDlg::OnMethodChoice),
-                          NULL, this);
-    
-}
-
-void PCASettingsDlg::OnMethodChoice(wxCommandEvent& event)
-{
-    /*
-     if (combo_method->GetSelection() == 0) {
-     combo_transform->Enable();
-     } else if (combo_method->GetSelection() == 1) {
-     combo_transform->SetSelection(2);
-     combo_transform->Disable();
-     }
-     */
-}
-
-void PCASettingsDlg::InitVariableCombobox(wxListBox* var_box)
-{
-    wxArrayString items;
-    
-    std::vector<int> col_id_map;
-    table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-        int id = col_id_map[i];
-        wxString name = table_int->GetColName(id);
-        if (table_int->IsColTimeVariant(id)) {
-            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
-                wxString nm = name;
-                nm << " (" << table_int->GetTimeString(t) << ")";
-                name_to_nm[nm] = name;// table_int->GetColName(id, t);
-                name_to_tm_id[nm] = t;
-                items.Add(nm);
-            }
-        } else {
-            name_to_nm[name] = name;
-            name_to_tm_id[name] = 0;
-            items.Add(name);
-        }
-    }
-    if (!items.IsEmpty())
-        var_box->InsertItems(items,0);
 }
 
 void PCASettingsDlg::OnClose(wxCloseEvent& ev)
@@ -315,98 +200,45 @@ void PCASettingsDlg::OnSave(wxCommandEvent& event )
     
 }
 
+wxString PCASettingsDlg::_printConfiguration()
+{
+    return wxEmptyString;
+}
+
 void PCASettingsDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click PCASettingsDlg::OnOK");
     
-    wxArrayString sel_names;
-    int max_sel_name_len = 0;
+    int transform = combo_tranform->GetSelection();
     
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 2) {
-        // show message box
-        wxString err_msg = _("Please select at least 2 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
+    if (!GetInputData(transform,1))
         return;
-    }
-    
-    int rows = project->GetNumRecords();
-    int columns =  num_var;
-    
-    col_ids.resize(num_var);
-    std::vector<std::vector<double> > data;
-    data.resize(num_var);
-    
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString sel_name = combo_var->GetString(idx);
-        
-        sel_names.Add(sel_name);
-        if (sel_name.length() > max_sel_name_len) {
-            max_sel_name_len = sel_name.length();
-        }
-        
-        wxString nm = name_to_nm[sel_name];
-        
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[sel_name];
-        
-        data[i].resize(rows);
-        
-        table_int->GetColData(col, tm, data[i]);
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    //GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    
-    vector<float> vec;
-    
-    for (int k=0; k< rows;k++) {
-        for (int i=0; i<data.size(); i++ ){
-            vec.push_back(data[i][k]);
+   
+    int max_sel_name_len = 0;
+    for (int i=0; i<col_names.size(); i++) {
+        if (col_names[i].length() > max_sel_name_len) {
+            max_sel_name_len = col_names[i].length();
         }
     }
     
-    
-    
-    Pca pca;
-    
-    bool is_corr = combo_method->GetSelection() == 1;
-    
-    bool is_center = false;
-    bool is_scale = false;
-    
-    if (combo_transform->GetSelection() == 1) {
-        is_center = true;
-        is_scale = false;
-        
-    } else if (combo_transform->GetSelection() == 2) {
-        is_center = true;
-        is_scale = true;
-    }
-    
-    if (rows < columns && is_corr == true) {
+
+    if (rows < columns) {
         wxString msg = _("SVD will be automatically used for PCA since the number of rows is less than the number of columns.");
         wxMessageDialog dlg(NULL, msg, "Information", wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         combo_method->SetSelection(0);
-        is_corr = false;
     }
     
-    int init_result = pca.Calculate(vec, rows, columns, is_corr, is_center, is_scale);
+    int pca_method = combo_method->GetSelection();
+    
+    Pca pca(input_data, rows, columns);
+    int init_result = 0;
+    
+    if (pca_method == 0)
+        init_result = pca.CalculateSVD();
+    else
+        init_result = pca.Calculate();
+    
     if (0 != init_result) {
         wxString msg = _("There is an error during PCA calculation. Please check if the data is valid.");
         wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
@@ -429,7 +261,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     wxString method = pca.method();
     
     wxString pca_log;
-    //pca_log << "\n\nPCA method: " << method;
+    pca_log << "---\n\nPCA method: " << method;
     
     pca_log << "\n\nStandard deviation:\n";
     for (int i=0; i<sd.size();i++) pca_log << sd[i] << " ";
@@ -494,7 +326,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     
     for (int k=0; k<items.size();k++) {
-        pca_log << wxString::Format("%-*s", max_sel_name_len+4, sel_names[k]) << items[k] << "\n";
+        pca_log << wxString::Format("%-*s", max_sel_name_len+4, col_names[k]) << items[k] << "\n";
     }
     
     if (scores.size() != nrows * ncols) {
@@ -528,12 +360,14 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     
     vector<int> col_size(num_pc, 0);
-    vector<vector<wxString> > corr_matrix(num_var);
+    vector<vector<wxString> > corr_matrix(columns);
     double corr, corr_sqr;
-    for (int i=0; i<num_var; i++) {
+    for (int i=0; i<columns; i++) {
+        vector<double> col_data;
+        for (int j=0; j<rows; j++) col_data.push_back(input_data[j][i]);
         corr_matrix[i].resize(num_pc);
         for (int j=0; j<num_pc; j++) {
-            corr = GenUtils::Correlation(data[i], pc_data[j]);
+            corr = GenUtils::Correlation(col_data, pc_data[j]);
             corr_sqr = corr * corr;
             wxString tmp;
             tmp << corr_sqr;
@@ -552,14 +386,16 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     pca_log << "\n";
     
-    for (int i=0; i<num_var; i++) {
-        pca_log << wxString::Format("%-*s", max_sel_name_len+4, sel_names[i]);
+    for (int i=0; i<columns; i++) {
+        pca_log << wxString::Format("%-*s", max_sel_name_len+4, col_names[i]);
         for (int j=0; j<num_pc; j++) {
             pca_log <<   wxString::Format("%*s", col_size[j]+4, corr_matrix[i][j]);
         }
         pca_log << "\n";
     }
+    pca_log << "\n";
     
+    pca_log << m_textbox->GetValue();
     m_textbox->SetValue(pca_log);
     
     combo_n->Clear();

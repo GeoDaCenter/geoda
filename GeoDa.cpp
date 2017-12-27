@@ -1887,7 +1887,7 @@ void GdaFrame::OnToolsDataPCA(wxCommandEvent& WXUNUSED(event) )
         }
     }
     
-    PCASettingsDlg* dlg = new PCASettingsDlg(p);
+    PCASettingsDlg* dlg = new PCASettingsDlg(this, p);
     dlg->Show(true);
 }
 

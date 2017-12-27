@@ -119,7 +119,7 @@ void SkaterDlg::CreateControls()
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
 
-    AddTranformation(panel, gbox);
+    AddTransformation(panel, gbox);
     
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));

@@ -59,7 +59,6 @@ public:
 protected:
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    wxChoice* combo_tranform;
     wxChoice* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;

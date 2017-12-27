@@ -51,21 +51,11 @@ public:
     std::vector<int> col_ids;
     
 protected:
-    FramesManager* frames_manager;
-   
+
     wxChoice* m_distance;
-    wxChoice* combo_transform;
     wxCheckBox* chk_poweriteration;
     wxTextCtrl* txt_poweriteration;
     wxStaticText* lbl_poweriteration;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    float thresh95;
     
     DECLARE_EVENT_TABLE()
 };

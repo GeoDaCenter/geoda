@@ -268,7 +268,6 @@ protected:
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
-    wxChoice* combo_tranform;
     wxTextCtrl* m_cluster;
     
     DECLARE_EVENT_TABLE()

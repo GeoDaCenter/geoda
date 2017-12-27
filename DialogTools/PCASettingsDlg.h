@@ -25,65 +25,37 @@
 #include <wx/combobox.h>
 #include <wx/gauge.h>
 
+#include "../DataViewer/TableStateObserver.h"
 #include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../FramesManagerObserver.h"
 #include "../Project.h"
 #include "../VarTools.h"
-#include "../DataViewer/TableStateObserver.h"
+#include "AbstractClusterDlg.h"
 
-class PCASettingsDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
+class PCASettingsDlg : public AbstractClusterDlg
 {
 public:
-    PCASettingsDlg(Project* project);
+    PCASettingsDlg(wxFrame* parent, Project* project);
     virtual ~PCASettingsDlg();
     
     void CreateControls();
-    bool Init();
-    
+
     void OnOK( wxCommandEvent& event );
     void OnSave( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnMethodChoice( wxCommandEvent& event );
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    
-    //boost::uuids::uuid GetWeightsId();
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-    
-    /** Implementation of TableStateObserver interface */
-    virtual void update(TableState* o);
-    virtual bool AllowTimelineChanges() { return true; }
-    virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
-    virtual bool AllowObservationAddDelete() { return false; }
+
+    virtual wxString _printConfiguration();
     
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 private:
-    FramesManager* frames_manager;
-    TableState* table_state;
-    
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    //std::vector<boost::uuids::uuid> weights_ids;
-    
-    wxListBox* combo_var;
     wxChoice* combo_n;
-    
-    SimpleReportTextCtrl* m_textbox;
-    wxButton *saveButton;
-    
     wxChoice* combo_method;
-    wxChoice* combo_transform;
-    
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
+    wxButton* saveButton;
+    SimpleReportTextCtrl* m_textbox;
     
     unsigned int row_lim;
     unsigned int col_lim;

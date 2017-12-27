@@ -174,7 +174,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(hbox15, 1, wxEXPAND);
     
     // Transformation
-    AddTranformation(panel, gbox);
+    AddTransformation(panel, gbox);
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("(K-Means)"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -319,7 +319,6 @@ void SpectralClusteringDlg::CreateControls()
     m_pass = box10;
     //m_method = box12;
     m_distance = box13;
-    combo_tranform = box01;
     
     // Events
     chk_kernel->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnKernelCheck, this);

@@ -257,9 +257,9 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
 {
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
+    const wxString _transform[4] = {"Raw", "Demean", "Standardize", "Mean Absolute Deviation"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 3, _transform);
+                                  wxSize(120,-1), 4, _transform);
     combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);
@@ -548,7 +548,10 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
                 cent_xs.push_back(cents[i]->GetX());
                 cent_ys.push_back(cents[i]->GetY());
             }
-            if (transform == 2) {
+            if (transform == 3) {
+                GenUtils::MeanAbsoluteDeviation(cent_xs);
+                GenUtils::MeanAbsoluteDeviation(cent_ys);
+            } else if (transform == 2) {
                 GenUtils::StandardizeData(cent_xs );
                 GenUtils::StandardizeData(cent_ys );
             } else if (transform == 1 ) {
@@ -570,7 +573,9 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             for (int k=0; k< rows;k++) { // row
                 vals.push_back(data[i][c_t][k]);
             }
-            if (transform == 2) {
+            if (transform == 3) {
+                GenUtils::MeanAbsoluteDeviation(vals);
+            } else if (transform == 2) {
                 GenUtils::StandardizeData(vals);
             } else if (transform == 1 ) {
                 GenUtils::DeviationFromMean(vals);
@@ -589,8 +594,11 @@ double* AbstractClusterDlg::GetWeights(int columns)
 {
     double* weight = new double[columns];
     double wc = 1;
-    int sel_wc = m_weight_centroids->GetValue();
-    if ( sel_wc > 0 && m_use_centroids->IsChecked() ) {
+    for (int j=0; j<columns; j++){
+        weight[j] = 1;
+    }
+    if ( m_weight_centroids && m_weight_centroids->GetValue() > 0 && m_use_centroids->IsChecked() ) {
+        double sel_wc = m_weight_centroids->GetValue();
         wc = sel_wc / 100.0;
         double n_var_cols = (double)(columns - 2);
         for (int j=0; j<columns; j++){
@@ -599,10 +607,6 @@ double* AbstractClusterDlg::GetWeights(int columns)
             else {
                 weight[j] = (1 - wc) / n_var_cols;
             }
-        }
-    } else {
-        for (int j=0; j<columns; j++){
-            weight[j] = 1;
         }
     }
     return weight;
