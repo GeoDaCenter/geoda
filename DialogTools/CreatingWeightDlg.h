@@ -101,7 +101,7 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id) {};
 	
 private:
-	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN };
+	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN, INVERSE };
 	
 	bool all_init;
 	wxChoice* m_id_field;
@@ -123,6 +123,11 @@ private:
 	wxRadioButton* m_radio_knn;  // IDC_RADIO_KNN
 	wxTextCtrl* m_neighbors;
 	wxSpinButton* m_spinneigh;
+    wxRadioButton* m_radio_inverse;  // IDC_RADIO_INVERSE
+    wxTextCtrl* m_inverse;
+    wxTextCtrl* m_power;
+    wxSpinButton* m_spinn_inverse;
+    wxSlider* m_inverse_sliderdistance;
 	
 	FramesManager* frames_manager;
 	Project* project;
@@ -170,6 +175,7 @@ private:
 	void UpdateThresholdValues();
 	void ResetThresXandYCombo();
 	void EnableThresholdControls(bool b);
+    void EnableInverseControls(bool b);
 	void EnableContiguityRadioButtons(bool b);
 	void EnableDistanceRadioButtons(bool b);
 	void SetRadioButtons(RadioBtnId id);
