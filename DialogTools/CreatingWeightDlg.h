@@ -84,6 +84,8 @@ public:
 	void OnCSpinKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
 	void OnPrecisionThresholdCheck( wxCommandEvent& event );
+    void OnCRadioInverseSelected( wxCommandEvent& event );
+    void OnCRadioKernelSelected( wxCommandEvent& event );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -101,7 +103,7 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id) {};
 	
 private:
-	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN, INVERSE };
+	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN, INVERSE, KERNEL };
 	
 	bool all_init;
 	wxChoice* m_id_field;
@@ -128,6 +130,10 @@ private:
     wxTextCtrl* m_power;
     wxSpinButton* m_spinn_inverse;
     wxSlider* m_inverse_sliderdistance;
+    wxRadioButton* m_radio_kernel;  // IDC_RADIO_KNN
+    wxTextCtrl* m_kernel_neighbors;
+    wxSpinButton* m_spinn_kernel;
+    wxChoice* m_kernel_methods;
 	
 	FramesManager* frames_manager;
 	Project* project;
@@ -174,6 +180,7 @@ private:
 	void SetRadioBtnAndAssocWidgets(RadioBtnId radio);
 	void UpdateThresholdValues();
 	void ResetThresXandYCombo();
+    void EnableKernelControls(bool b);
 	void EnableThresholdControls(bool b);
     void EnableInverseControls(bool b);
 	void EnableContiguityRadioButtons(bool b);

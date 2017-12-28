@@ -3716,7 +3716,7 @@
                                   <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                                   <border>2</border>
                                   <object class="wxTextCtrl" name="IDC_INVERSE_THRESHOLD_EDIT">
-                                      <size>90,-1d</size>
+                                      <size>60,-1d</size>
                                       <style>wxTE_RIGHT</style>
                                   </object>
                               </object>
@@ -3863,7 +3863,7 @@
                       <object class="spacer">
                           <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
                           <border>2</border>
-                          <size>60,5d</size>
+                          <size>63,5d</size>
                       </object>
                       <object class="sizeritem">
                           <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>

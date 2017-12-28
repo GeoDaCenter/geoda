@@ -145,6 +145,10 @@ bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
     m_inverse = 0;
     m_spinn_inverse = 0;
     m_inverse_sliderdistance = 0;
+    m_radio_kernel = 0;
+    m_kernel_neighbors = 0;
+    m_spinn_kernel = 0;
+    m_kernel_methods = 0;
 	
 	SetParent(parent);
 	CreateControls();
@@ -187,6 +191,11 @@ void CreatingWeightDlg::CreateControls()
     m_inverse = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_EDIT", wxTextCtrl);
     m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
     m_inverse_sliderdistance = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_SLIDER", wxSlider);
+    
+    m_radio_kernel = XRCCTRL(*this, "IDC_RADIO_KERNEL", wxRadioButton);
+    m_kernel_neighbors = XRCCTRL(*this, "IDC_EDIT_KERNEL_KNN", wxTextCtrl);
+    m_spinn_kernel = XRCCTRL(*this, "IDC_SPIN_KERNEL_KNN", wxSpinButton);
+    m_kernel_methods = XRCCTRL(*this, "IDC_KERNEL_METHODS", wxChoice);
     
 	InitDlg();
 }
@@ -546,15 +555,40 @@ void CreatingWeightDlg::EnableThresholdControls( bool b )
 	}
 }
 
+void CreatingWeightDlg::EnableKernelControls( bool b )
+{
+    // This either enable the Threshold distance controls.  This does not
+    // affect the state of the Theshold button itself.
+    FindWindow(XRCID("IDC_STATIC_KERNEL"))->Enable(b);
+    FindWindow(XRCID("IDC_STATIC_KERNEL_KNN"))->Enable(b);
+    m_radio_kernel->Enable(b);
+    //m_kernel_neighbors->Enable(b);
+    //m_spinn_kernel->Enable(b);
+    //m_kernel_methods->Enable(b);
+}
+
 void CreatingWeightDlg::EnableInverseControls( bool b )
 {
     // This either enable the Threshold distance controls.  This does not
     // affect the state of the Theshold button itself.
     FindWindow(XRCID("IDC_STATIC_POWER"))->Enable(b);
     m_radio_inverse->Enable(b);
-    m_inverse->Enable(b);
-    m_inverse_sliderdistance->Enable(b);
-    m_spinn_inverse->Enable(b);
+    //m_inverse->Enable(b);
+    //m_inverse_sliderdistance->Enable(b);
+    //m_spinn_inverse->Enable(b);
+    //m_power->Enable(b);
+}
+
+void CreatingWeightDlg::OnCRadioInverseSelected( wxCommandEvent& event )
+{
+    SetRadioBtnAndAssocWidgets(INVERSE);
+    SetRadioButtons(INVERSE);
+}
+
+void CreatingWeightDlg::OnCRadioKernelSelected( wxCommandEvent& event )
+{
+    SetRadioBtnAndAssocWidgets(KERNEL);
+    SetRadioButtons(KERNEL);
 }
 
 void CreatingWeightDlg::UpdateTmSelEnableState()
@@ -592,8 +626,11 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(RadioBtnId radio)
 	FindWindow(XRCID("IDC_STATIC_KNN"))->Enable(false);
 	m_neighbors->Enable(false);
 	m_spinneigh->Enable(false);
-	
-	if (radio == QUEEN || radio == ROOK || radio == THRESH || radio == KNN || radio == INVERSE) {
+    m_inverse->Enable(false);
+    m_power->Enable(false);
+    m_spinn_inverse->Enable(false);
+
+	if (radio == QUEEN || radio == ROOK || radio == THRESH || radio == KNN || radio == INVERSE || radio == KERNEL) {
 		m_radio = radio;
 	} else {
 		m_radio = NO_RADIO;
@@ -631,6 +668,10 @@ void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(RadioBtnId radio)
 			break;
         case INVERSE: {
             EnableInverseControls(true);
+        }
+            break;
+        case KERNEL: {
+            EnableKernelControls(true);
         }
             break;
 		default:
@@ -1010,6 +1051,17 @@ void CreatingWeightDlg::InitDlg()
     m_spinn_inverse->SetValue(1);
     m_inverse_sliderdistance->SetRange(0, 100);
     
+    m_kernel_neighbors->SetValue( "4");
+    m_kernel_methods->Clear();
+    m_kernel_methods->Append("uniform");
+    m_kernel_methods->Append("quadratic");
+    m_kernel_methods->Append("gaussian");
+    m_kernel_methods->Append("triangular");
+    m_kernel_methods->Append("epanechnikov");
+    m_kernel_methods->Append("quartic");
+    m_kernel_methods->Append("bisquare");
+    m_kernel_methods->SetSelection(0);
+
 	FindWindow(XRCID("wxID_OK"))->Enable(false);
 	FindWindow(XRCID("ID_ID_VAR_STAT_TXT"))->Enable(false);
 	m_id_field->Enable(false);
@@ -1033,6 +1085,7 @@ void CreatingWeightDlg::InitDlg()
 	m_txt_precision_threshold->Enable(false);
 	
     EnableInverseControls(false);
+    EnableKernelControls(false);
     
 	col_id_map.clear();
 	table_int->FillColIdMap(col_id_map);
@@ -1191,6 +1244,8 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         return;
     }
     
+    EnableInverseControls(isValid);
+    EnableKernelControls(isValid);
     EnableThresholdControls(isValid);
 	EnableDistanceRadioButtons(isValid);
 	EnableContiguityRadioButtons(isValid && !project->IsTableOnlyProject());
