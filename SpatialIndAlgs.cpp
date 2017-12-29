@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include <math.h>
 #include <wx/wx.h>
 
 #include <boost/foreach.hpp>
@@ -624,7 +624,8 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 
 GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
                                         const std::vector<double>& y,
-                                        double th, bool is_arc, bool is_mi)
+                                        double th, double power,
+                                        bool is_arc, bool is_mi)
 {
 	using namespace GenGeomAlgs;
 	size_t nobs = x.size();
@@ -642,7 +643,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 			}
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = thresh_build(rtree, u_th, is_mi);
+		gwt = thresh_build(rtree, u_th, power, is_mi);
 	} else {
 		rtree_pt_2d_t rtree;
 		{
@@ -652,12 +653,12 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
             }
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = thresh_build(rtree, th);
+		gwt = thresh_build(rtree, th, power);
 	}
 	return gwt;
 }
 
-GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
+GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, double power)
 {
 	wxStopWatch sw;
     
@@ -711,7 +712,9 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th)
 		BOOST_FOREACH(pt_2d_val const& w, l) {
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
-			neigh.weight = bg::distance(v.first, w.first);
+			double w_val = bg::distance(v.first, w.first);
+            if (power != 1) w_val = pow(w_val, power);
+            neigh.weight = w_val;
 			e.Push(neigh);
 			++cnt;
 		}
@@ -763,7 +766,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 
 /** threshold th is the radius of intersection sphere with
   respect to the unit shpere of the 3d point rtree */
-GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, bool is_mi)
+GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, double power, bool is_mi)
 {
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
@@ -825,6 +828,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, b
 			} else {
 				d = ComputeArcDistKm(lon_v, lat_v, lon_w, lat_w);
 			}
+            if (power!=1) d = pow(d, power);
 			neigh.weight = d;
 			e.Push(neigh);
 			++cnt;

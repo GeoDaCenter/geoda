@@ -80,12 +80,15 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
                                  wxString dist_units_str_,
 								 DistanceValuesEnum dist_values_,
 								 double threshold_val_,
+                                 double power_,
 								 wxString dist_var1_, long dist_tm1_,
 								 wxString dist_var2_, long dist_tm2_)
 {
 	SetToDefaults();
 	id_var = idv;
 	weights_type = WT_threshold;
+    power = power_;
+    if (power!=1) weights_type = WT_inverse;
 	sym_type = SYM_symmetric;
 	dist_metric = dist_metric_;
 	dist_units = dist_units_;
@@ -176,6 +179,10 @@ wxString WeightsMetaInfo::TypeToStr() const
 		return "queen";
 	} else if (weights_type == WT_threshold) {
 		return "threshold";
+    } else if (weights_type == WT_inverse) {
+        return "inverse";
+    } else if (weights_type == WT_kernel) {
+        return "kernel";
 	} else if (weights_type == WT_knn) {
 		return "k-NN";
 	}

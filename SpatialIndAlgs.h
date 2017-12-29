@@ -81,14 +81,16 @@ double est_median_distance(const std::vector<double>& x,
  the threshold input parameter is assumed to be in earth arc miles or kms
  according to is_mi. */
 GwtWeight* thresh_build(const std::vector<double>& x,
-												const std::vector<double>& y,
-												double th, bool is_arc, bool is_mi);
-GwtWeight* thresh_build(const rtree_pt_2d_t& rtree, double th);
+                        const std::vector<double>& y,
+                        double th,
+                        double power,
+                        bool is_arc, bool is_mi);
+GwtWeight* thresh_build(const rtree_pt_2d_t& rtree, double th, double power);
 double est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree, double th,
 								size_t trials=100);
 /** threshold th is the radius of intersection sphere with
   respect to the unit shpere of the 3d point rtree */
-GwtWeight* thresh_build(const rtree_pt_3d_t& rtree, double th, bool is_mi);
+GwtWeight* thresh_build(const rtree_pt_3d_t& rtree, double th, double power, bool is_mi);
 /** Find the nearest neighbor for all points and return the maximum
  distance of all of these nearest neighbor pairs.  This is the minimum
  threshold distance such that all points have at least one neighbor.

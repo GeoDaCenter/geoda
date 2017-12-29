@@ -79,7 +79,9 @@ public:
 	void OnCRadioRookSelected( wxCommandEvent& event );
 	void OnCRadioDistanceSelected( wxCommandEvent& event );
 	void OnCThresholdTextEdit( wxCommandEvent& event );
+    void OnCInverseThresholdTextEdit( wxCommandEvent& event );
 	void OnCThresholdSliderUpdated( wxCommandEvent& event );
+    void OnCInverseThresholdSliderUpdated( wxCommandEvent& event );
 	void OnCRadioKnnSelected( wxCommandEvent& event );
 	void OnCSpinKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
@@ -154,6 +156,8 @@ private:
 	double				m_thres_max; // maxiumum to include everything
 	double				m_threshold_val;
 	double				m_thres_val_valid;
+    double              m_inverse_thres_val;
+    double              m_inverse_thres_val_valid;
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
 	
@@ -180,15 +184,17 @@ private:
 	void SetRadioBtnAndAssocWidgets(RadioBtnId radio);
 	void UpdateThresholdValues();
 	void ResetThresXandYCombo();
-    void EnableKernelControls(bool b);
+    void EnableDistanceControls(bool b);
+    void EnableKernelControls(bool b, bool is_init=false);
 	void EnableThresholdControls(bool b);
-    void EnableInverseControls(bool b);
+    void EnableInverseControls(bool b, bool is_init=false);
 	void EnableContiguityRadioButtons(bool b);
 	void EnableDistanceRadioButtons(bool b);
 	void SetRadioButtons(RadioBtnId id);
 	void InitFields();
 	void InitDlg();
 	bool CheckID(const wxString& id);
+    bool CheckThresholdInput(RadioBtnId radio);
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
                          const wxString& ifn, const wxString& ofn,

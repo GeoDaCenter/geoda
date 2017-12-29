@@ -26,7 +26,7 @@
 struct WeightsMetaInfo
 {
 	enum WeightTypeEnum {
-		WT_custom, WT_rook, WT_queen, WT_threshold, WT_knn
+		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel, WT_knn
 	};
 	enum SymmetryEnum {
 		SYM_unknown, SYM_symmetric, SYM_asymmetric
@@ -54,8 +54,11 @@ struct WeightsMetaInfo
                     wxString dist_units_str,
 					DistanceValuesEnum dist_values,
 					double threshold_val,
-					wxString dist_var_1 = "", long dist_tm_1 = -1,
-					wxString dist_var_2 = "", long dist_tm_2 = -1);
+                    double power,
+					wxString dist_var_1 = "",
+                    long dist_tm_1 = -1,
+					wxString dist_var_2 = "",
+                    long dist_tm_2 = -1);
 	void SetToKnn(const wxString& id_var,
 				  DistanceMetricEnum dist_metric,
 				  DistanceUnitsEnum dist_units,
@@ -82,6 +85,8 @@ struct WeightsMetaInfo
     
     wxString dist_units_str;
 	
+    double power;
+    
 	wxString dist_var1; // x-coord
 	wxString dist_var2; // y-coord
 	// optional time period for x and y.  -1 indicates that variable is
