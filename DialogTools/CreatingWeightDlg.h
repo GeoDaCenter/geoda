@@ -79,15 +79,18 @@ public:
 	void OnCRadioRookSelected( wxCommandEvent& event );
 	void OnCRadioDistanceSelected( wxCommandEvent& event );
 	void OnCThresholdTextEdit( wxCommandEvent& event );
+    void OnCBandwidthThresholdTextEdit( wxCommandEvent& event );
     void OnCInverseThresholdTextEdit( wxCommandEvent& event );
 	void OnCThresholdSliderUpdated( wxCommandEvent& event );
     void OnCInverseThresholdSliderUpdated( wxCommandEvent& event );
+    void OnCBandwidthThresholdSliderUpdated( wxCommandEvent& event );
 	void OnCRadioKnnSelected( wxCommandEvent& event );
 	void OnCSpinKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
 	void OnPrecisionThresholdCheck( wxCommandEvent& event );
     void OnCRadioInverseSelected( wxCommandEvent& event );
     void OnCRadioKernelSelected( wxCommandEvent& event );
+    void OnCRadioManuBandwidth( wxCommandEvent& event );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -132,11 +135,16 @@ private:
     wxTextCtrl* m_power;
     wxSpinButton* m_spinn_inverse;
     wxSlider* m_inverse_sliderdistance;
-    wxRadioButton* m_radio_kernel;  // IDC_RADIO_KNN
+    wxRadioButton* m_radio_kernel;  // IDC_RADIO_KERNEL
     wxTextCtrl* m_kernel_neighbors;
     wxSpinButton* m_spinn_kernel;
     wxChoice* m_kernel_methods;
-	
+    wxRadioButton* m_radio_adaptive_bandwidth;
+    wxRadioButton* m_radio_auto_bandwidth;
+    wxRadioButton* m_radio_manu_bandwdith;
+    wxTextCtrl* m_manu_bandwidth;
+    wxSlider* m_bandwidth_slider;
+
 	FramesManager* frames_manager;
 	Project* project;
 	TableInterface* table_int;
@@ -158,6 +166,8 @@ private:
 	double				m_thres_val_valid;
     double              m_inverse_thres_val;
     double              m_inverse_thres_val_valid;
+    double              m_bandwidth_thres_val;
+    double              m_bandwidth_thres_val_valid;
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
 	
@@ -195,6 +205,7 @@ private:
 	void InitDlg();
 	bool CheckID(const wxString& id);
     bool CheckThresholdInput(RadioBtnId radio);
+    double GetBandwidth();
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
                          const wxString& ifn, const wxString& ofn,

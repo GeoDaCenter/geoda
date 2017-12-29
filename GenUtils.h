@@ -359,7 +359,7 @@ namespace GenUtils {
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
-    
+   
 	double Sum(std::vector<double>& data);
 	double SumOfSquares(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);

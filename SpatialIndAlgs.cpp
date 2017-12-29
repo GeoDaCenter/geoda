@@ -291,7 +291,11 @@ void SpatialIndAlgs::knn_query(const rtree_pt_2d_t& rtree, int nn)
 
 GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
                                      const vector<double>& y,
-                                     int nn, bool is_arc, bool is_mi)
+                                     int nn,
+                                     bool is_arc, bool is_mi,
+                                     const wxString& kernel,
+                                     double bandwidth,
+                                     bool adaptive_bandwidth)
 {
 	size_t nobs = x.size();
 	GwtWeight* gwt = 0;
@@ -306,7 +310,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			}
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn, true, is_mi);
+		gwt = knn_build(rtree, nn, true, is_mi, kernel, bandwidth, adaptive_bandwidth);
         
 	} else {
 		rtree_pt_2d_t rtree;
@@ -315,13 +319,38 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			for (int i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn);
+		gwt = knn_build(rtree, nn, kernel, bandwidth, adaptive_bandwidth);
         
 	}
 	return gwt;
 }
 
-GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn)
+void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel)
+{
+    // apply kernel
+    double gaussian_const = pow(M_PI * 2.0, -0.5);
+    
+    for (int i=0; i<Wp->num_obs; i++) {
+        GwtElement& e = Wp->gwt[i];
+        GwtNeighbor* nbrs = e.dt();
+        for (int j=0; j<e.Size(); j++) {
+            // functions follow Anselin and Rey (2010) table 5.4
+            if (kernel.IsSameAs("triangular",false)) {
+                nbrs[j].weight = 1 - nbrs[j].weight;
+            } else if (kernel.IsSameAs("uniform", false)) {
+                nbrs[j].weight = 0.5;
+            } else if (kernel.IsSameAs("quadratic", false)) {
+                nbrs[j].weight = (3.0 / 4.0) * (1.0 - pow(nbrs[j].weight,2.0));
+            } else if (kernel.IsSameAs("quartic", false)) {
+                nbrs[j].weight = (15.0 / 16.0) * pow((1.0 - pow(nbrs[j].weight,2.0)), 2.0);
+            } else if (kernel.IsSameAs("gaussian", false)) {
+                nbrs[j].weight = gaussian_const * exp( pow(nbrs[j].weight, 2.0) / 2.0 );
+            }
+        }
+    }
+}
+
+GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_)
 {
 	GwtWeight* Wp = new GwtWeight;
 	Wp->num_obs = rtree.size();
@@ -331,31 +360,60 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn)
 	
 	int cnt=0;
 	const int k=nn+1;
+    double bandwidth = bandwidth_;
+    bool adaptive_bandwidth = adaptive_bandwidth_;
+
 	for (rtree_pt_2d_t::const_query_iterator it =
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
 	{
 		const pt_2d_val& v = *it;
-		size_t obs = v.second;		
+		size_t obs = v.second;
+        // each point "v" with index "obs"
 		vector<pt_2d_val> q;
 		rtree.query(bgi::nearest(v.first, k), std::back_inserter(q));
 		GwtElement& e = Wp->gwt[obs];
 		e.alloc(q.size());
+        double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if (w.second == v.second) continue;
+			if (w.second == v.second)
+                continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
-			neigh.weight = bg::distance(v.first, w.first);
+            double d = bg::distance(v.first, w.first);
+            if (bandwidth_ ==0 && d > bandwidth) bandwidth = d;
+            if (d > local_bandwidth) local_bandwidth = d;
+            neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
 		}
+        if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.IsEmpty()) {
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / local_bandwidth;
+            }
+        }
 	}
 
+    if (!adaptive_bandwidth && bandwidth > 0 && !kernel.IsEmpty()) {
+        // use max knn distance as bandwidth
+        for (int i=0; i<Wp->num_obs; i++) {
+            GwtElement& e = Wp->gwt[i];
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / bandwidth;
+            }
+        }
+    }
+    if (!kernel.IsEmpty()) {
+        apply_kernel(Wp, kernel);
+    }
+    
 	return Wp;
 }
 
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
-					 bool is_arc, bool is_mi)
+					 bool is_arc, bool is_mi, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_)
 {
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
@@ -368,6 +426,10 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 	
 	int cnt=0;
 	const int k=nn+1;
+    double bandwidth = bandwidth_;
+    bool adaptive_bandwidth = adaptive_bandwidth_;
+    // if not set,  use max knn distance as bandwidth
+    
 	for (rtree_pt_3d_t::const_query_iterator it =
 			 rtree.qbegin(bgi::intersects(rtree.bounds()));
 		 it != rtree.qend() ; ++it)
@@ -387,6 +449,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 			x_v = bg::get<0>(v.first);
 			y_v = bg::get<1>(v.first);
 		}
+        double local_bandwidth = 0;
 		BOOST_FOREACH(pt_3d_val const& w, q) {
 			if (w.second == v.second) continue;
 			GwtNeighbor neigh;
@@ -406,11 +469,35 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 											  bg::get<0>(w.first),
                                               bg::get<1>(w.first));
 			}
+            if (bandwidth_ == 0 && neigh.weight > bandwidth)
+                bandwidth = neigh.weight;
+            if (neigh.weight > local_bandwidth)
+                local_bandwidth = neigh.weight;
 			e.Push(neigh);
 			++cnt;
 		}
+        if (adaptive_bandwidth && local_bandwidth > 0 && !kernel.IsEmpty()) {
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / local_bandwidth;
+            }
+        }
 	}
 
+    if (!adaptive_bandwidth && bandwidth > 0 && !kernel.IsEmpty()) {
+        // use max knn distance as bandwidth
+        for (int i=0; i<Wp->num_obs; i++) {
+            GwtElement& e = Wp->gwt[i];
+            GwtNeighbor* nbrs = e.dt();
+            for (int j=0; j<e.Size(); j++) {
+                nbrs[j].weight = nbrs[j].weight / bandwidth;
+            }
+        }
+    }
+    if (!kernel.IsEmpty()) {
+        apply_kernel(Wp, kernel);
+    }
+    
 	stringstream ss;
 	ss << "Time to create 3D " << (is_arc ? " arc " : "")
 	   << nn << "-NN GwtWeight "
