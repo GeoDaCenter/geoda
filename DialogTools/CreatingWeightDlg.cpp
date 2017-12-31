@@ -72,6 +72,7 @@ EVT_RADIOBUTTON( XRCID("IDC_RADIO_KERNEL"), CreatingWeightDlg::OnCRadioKernelSel
 EVT_RADIOBUTTON( XRCID("IDC_RADIO_INVERSE_DISTANCE"), CreatingWeightDlg::OnCRadioInverseSelected )
 EVT_RADIOBUTTON( XRCID("IDC_RADIO_KNN"), CreatingWeightDlg::OnCRadioKnnSelected )
 EVT_SPIN( XRCID("IDC_SPIN_KNN"), CreatingWeightDlg::OnCSpinKnnUpdated )
+EVT_SPIN( XRCID("IDC_SPIN_KERNEL_KNN"), CreatingWeightDlg::OnCSpinKernelKnnUpdated )
 EVT_BUTTON( XRCID("wxID_OK"), CreatingWeightDlg::OnCreateClick )
 EVT_CHECKBOX( XRCID("IDC_PRECISION_CBX"), CreatingWeightDlg::OnPrecisionThresholdCheck)
 EVT_RADIOBUTTON( XRCID("IDC_RADIO_MANU_BANDWIDTH"), CreatingWeightDlg::OnCRadioManuBandwidth)
@@ -157,6 +158,7 @@ bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
     m_kernel_neighbors = 0;
     m_spinn_kernel = 0;
     m_kernel_methods = 0;
+    m_kernel_diagnals = 0;
 	
 	SetParent(parent);
 	CreateControls();
@@ -210,6 +212,7 @@ void CreatingWeightDlg::CreateControls()
     m_radio_manu_bandwdith = XRCCTRL(*this, "IDC_RADIO_MANU_BANDWIDTH", wxRadioButton);
     m_manu_bandwidth = XRCCTRL(*this, "IDC_BANDWIDTH_EDIT", wxTextCtrl);
     m_bandwidth_slider = XRCCTRL(*this, "IDC_BANDWIDTH_SLIDER", wxSlider);
+    m_kernel_diagnals = XRCCTRL(*this, "IDC_KERNEL_DIAGNAL_CHECK", wxCheckBox);
     
 	InitDlg();
 }
@@ -227,9 +230,12 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
     	
     	InitFields();
 		m_id_field->SetSelection(0);
-        
-		EnableDistanceRadioButtons(m_id_field->GetSelection() != wxNOT_FOUND);
-		EnableContiguityRadioButtons((m_id_field->GetSelection() != wxNOT_FOUND) && !project->IsTableOnlyProject());
+       
+        bool valid = m_id_field->GetSelection() != wxNOT_FOUND;
+        EnableKernelControls(valid, true);
+        EnableInverseControls(valid, true);
+        EnableDistanceRadioButtons(valid);
+		EnableContiguityRadioButtons(valid && !project->IsTableOnlyProject());
 		UpdateCreateButtonState();
 	} else {
 		// A new id was not added to the dbf file, so do nothing.
@@ -738,6 +744,15 @@ void CreatingWeightDlg::OnCSpinKnnUpdated( wxSpinEvent& event )
 	m_neighbors->SetValue(val);
 }
 
+void CreatingWeightDlg::OnCSpinKernelKnnUpdated( wxSpinEvent& event )
+{
+    wxLogMessage("Click CreatingWeightDlg::OnCSpinKernelKnnUpdated");
+    
+    wxString val;
+    val << m_spinn_kernel->GetValue();
+    m_kernel_neighbors->SetValue(val);
+}
+
 // updates the enable/disable state of the Create button based
 // on the values of various other controls.
 void CreatingWeightDlg::UpdateCreateButtonState()
@@ -933,16 +948,16 @@ void CreatingWeightDlg::InitDlg()
     m_power->SetValue("1");
     m_spinn_inverse->SetValue(1);
     m_inverse_sliderdistance->SetRange(0, 100);
-    
+  
+    m_spinn_kernel->SetRange(1,20);
+    m_spinn_kernel->SetValue(4);
     m_kernel_neighbors->SetValue( "4");
     m_kernel_methods->Clear();
-    m_kernel_methods->Append("uniform");
-    m_kernel_methods->Append("quadratic");
     m_kernel_methods->Append("gaussian");
-    m_kernel_methods->Append("triangular");
-    m_kernel_methods->Append("epanechnikov");
+    m_kernel_methods->Append("quadratic");
     m_kernel_methods->Append("quartic");
-    m_kernel_methods->Append("bisquare");
+    m_kernel_methods->Append("triangular");
+    m_kernel_methods->Append("uniform");
     m_kernel_methods->SetSelection(0);
 
 	FindWindow(XRCID("wxID_OK"))->Enable(false);
@@ -1124,7 +1139,7 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         m_id_field->SetSelection(-1);
         return;
     }
-    
+   
     EnableInverseControls(isValid, true);
     EnableKernelControls(isValid, true);
     EnableThresholdControls(isValid);
@@ -1303,7 +1318,8 @@ void CreatingWeightDlg::CreateWeights()
                     wxString kernel = m_kernel_methods->GetString(m_kernel_methods->GetSelection());
                     double bandwidth = GetBandwidth();
                     bool is_adaptive_kernel = m_radio_adaptive_bandwidth->GetValue();
-                    Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, kernel, bandwidth, is_adaptive_kernel);
+                    bool use_kernel_diagnals = m_kernel_diagnals->IsChecked();
+                    Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
                 } else {
                     Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, is_arc, is_mile);
                 }

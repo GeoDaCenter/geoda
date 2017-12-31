@@ -3893,6 +3893,15 @@
                               <max>100</max>
                           </object>
                       </object>
+                      <object class="spacer">
+                          <size>2,2</size>
+                      </object>
+                      <object class="sizeritem">
+                          <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
+                              <label>Apply kernel on diagnal weights</label>
+                          </object>
+                          <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                      </object>
                   </object>
               </object>
               <object class="sizeritem">

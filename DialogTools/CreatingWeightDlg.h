@@ -86,6 +86,7 @@ public:
     void OnCBandwidthThresholdSliderUpdated( wxCommandEvent& event );
 	void OnCRadioKnnSelected( wxCommandEvent& event );
 	void OnCSpinKnnUpdated( wxSpinEvent& event );
+    void OnCSpinKernelKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
 	void OnPrecisionThresholdCheck( wxCommandEvent& event );
     void OnCRadioInverseSelected( wxCommandEvent& event );
@@ -144,6 +145,7 @@ private:
     wxRadioButton* m_radio_manu_bandwdith;
     wxTextCtrl* m_manu_bandwidth;
     wxSlider* m_bandwidth_slider;
+    wxCheckBox* m_kernel_diagnals;
 
 	FramesManager* frames_manager;
 	Project* project;

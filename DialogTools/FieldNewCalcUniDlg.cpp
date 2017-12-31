@@ -60,7 +60,7 @@ FieldNewCalcUniDlg::FieldNewCalcUniDlg(Project* project_s,
 									   wxWindowID id, const wxString& caption,
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
-: all_init(false), op_string(9), project(project_s),
+: all_init(false), op_string(10), project(project_s),
 table_int(project_s->GetTableInt()),
 m_valid_const(false), m_const(1), m_var_sel(wxNOT_FOUND),
 is_space_time(project_s->GetTableInt()->IsTimeVariant())

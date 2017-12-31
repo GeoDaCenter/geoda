@@ -295,7 +295,8 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
                                      bool is_arc, bool is_mi,
                                      const wxString& kernel,
                                      double bandwidth,
-                                     bool adaptive_bandwidth)
+                                     bool adaptive_bandwidth,
+                                     bool use_kernel_diagnals)
 {
 	size_t nobs = x.size();
 	GwtWeight* gwt = 0;
@@ -310,7 +311,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			}
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn, true, is_mi, kernel, bandwidth, adaptive_bandwidth);
+		gwt = knn_build(rtree, nn, true, is_mi, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
         
 	} else {
 		rtree_pt_2d_t rtree;
@@ -319,13 +320,13 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			for (int i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn, kernel, bandwidth, adaptive_bandwidth);
+		gwt = knn_build(rtree, nn, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
         
 	}
 	return gwt;
 }
 
-void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel)
+void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel, bool use_kernel_diagnals)
 {
     // apply kernel
     double gaussian_const = pow(M_PI * 2.0, -0.5);
@@ -334,6 +335,10 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel)
         GwtElement& e = Wp->gwt[i];
         GwtNeighbor* nbrs = e.dt();
         for (int j=0; j<e.Size(); j++) {
+            if (!use_kernel_diagnals && i==nbrs[j].nbx) {
+                nbrs[j].weight = 1.0;
+                continue;
+            }
             // functions follow Anselin and Rey (2010) table 5.4
             if (kernel.IsSameAs("triangular",false)) {
                 nbrs[j].weight = 1 - nbrs[j].weight;
@@ -344,13 +349,13 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel)
             } else if (kernel.IsSameAs("quartic", false)) {
                 nbrs[j].weight = (15.0 / 16.0) * pow((1.0 - pow(nbrs[j].weight,2.0)), 2.0);
             } else if (kernel.IsSameAs("gaussian", false)) {
-                nbrs[j].weight = gaussian_const * exp( pow(nbrs[j].weight, 2.0) / 2.0 );
+                nbrs[j].weight = gaussian_const * exp( -pow(nbrs[j].weight, 2.0) / 2.0 );
             }
         }
     }
 }
 
-GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_)
+GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
 	GwtWeight* Wp = new GwtWeight;
 	Wp->num_obs = rtree.size();
@@ -376,7 +381,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const w
 		e.alloc(q.size());
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if (w.second == v.second)
+			if (kernel.IsEmpty() && w.second == v.second)
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -406,14 +411,14 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const w
         }
     }
     if (!kernel.IsEmpty()) {
-        apply_kernel(Wp, kernel);
+        apply_kernel(Wp, kernel, use_kernel_diagnals);
     }
     
 	return Wp;
 }
 
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
-					 bool is_arc, bool is_mi, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_)
+					 bool is_arc, bool is_mi, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
@@ -451,7 +456,8 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 		}
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_3d_val const& w, q) {
-			if (w.second == v.second) continue;
+			if (kernel.IsEmpty() && w.second == v.second)
+                continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
 			if (is_arc) {
@@ -495,7 +501,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
         }
     }
     if (!kernel.IsEmpty()) {
-        apply_kernel(Wp, kernel);
+        apply_kernel(Wp, kernel, use_kernel_diagnals);
     }
     
 	stringstream ss;

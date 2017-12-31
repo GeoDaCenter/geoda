@@ -54,23 +54,26 @@ void knn_query(const rtree_pt_2d_t& rtree, int nn=6);
  is_mi ignored.  If is_arc is true, then arc distances are used and distances
  reported in either kms or miles according to is_mi. */
     
-void apply_kernel(const GwtWeight* Wp, const wxString& kernel);
+void apply_kernel(const GwtWeight* Wp, const wxString& kernel, bool use_kernel_diagnals = false);
 GwtWeight* knn_build(const std::vector<double>& x,
                      const std::vector<double>& y,
                      int nn,
                      bool is_arc, bool is_mi,
                      const wxString& kernel = "",
                      double bandwidth = 0,
-                     bool adaptive_bandwidth = false);
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
 GwtWeight* knn_build(const rtree_pt_2d_t& rtree, int nn=6,
                      const wxString& kernel = "",
                      double bandwidth = 0,
-                     bool adaptive_bandwidth = false);
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
 GwtWeight* knn_build(const rtree_pt_3d_t& rtree, int nn=6,
 					 bool is_arc=false, bool is_mi=true,
                      const wxString& kernel = "",
                      double bandwidth = 0,
-                     bool adaptive_bandwidth = false);
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
 double est_thresh_for_num_pairs(const rtree_pt_2d_t& rtree, double num_pairs);
 double est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree, double avg_n);
 double est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree, double th,
