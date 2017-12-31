@@ -1381,7 +1381,10 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
         project_p = 0;
 		return;
     }
-	
+
+    RecentDatasource recent_ds;
+    recent_ds.Add(project_p->GetDataSource(), project_p->GetProjectTitle());
+    
     InitWithProject();
 }
 
