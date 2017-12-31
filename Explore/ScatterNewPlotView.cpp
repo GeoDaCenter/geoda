@@ -799,18 +799,30 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     }
     
     if (standardized) {
+        double local_x_max = DBL_MIN;
+        double local_x_min = DBL_MAX;
+        double local_y_max = DBL_MIN;
+        double local_y_min = DBL_MAX;
         for (int i=0, iend=X.size(); i<iend; i++) {
             X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
             Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
             if (is_bubble_plot) {
                 Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
             }
+            if (local_x_max < X[i]) local_x_max = X[i];
+            if (local_x_min > X[i]) local_x_min = X[i];
+            if (local_y_max < Y[i]) local_y_max = Y[i];
+            if (local_y_min > Y[i]) local_y_min = Y[i];
         }
+        x_max = local_x_max;
+        x_min = local_x_min;
+        y_max = local_y_max;
+        y_min = local_y_min;
         // we are ignoring the global scaling option here
-        x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
-        x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
-        y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
-        y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
+        //x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
+        //x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
+        //y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
+        //y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
         
         statsX = SampleStatistics(X, XYZ_undef);
         statsY = SampleStatistics(Y, XYZ_undef);
@@ -842,7 +854,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
         x_max = var_info[0].max[var_info[0].time - var_info[0].time_min];
         x_min = var_info[0].min[var_info[0].time - var_info[0].time_min];
-    } else if (var_info[0].fixed_scale) {
+    } else if (var_info[0].fixed_scale && !standardized) {
         // this is for fixed x-axis over time
         x_max = var_info[0].max_over_time;
         x_min = var_info[0].min_over_time;
@@ -850,7 +862,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
         y_max = var_info[1].max[var_info[1].time_max - var_info[1].time];
         y_min = var_info[1].min[var_info[1].time_min - var_info[1].time];
-    } else if (var_info[1].fixed_scale){
+    } else if (var_info[1].fixed_scale&& !standardized){
         // this is for fixed y-axis over time
         y_max = var_info[1].max_over_time;
         y_min = var_info[1].min_over_time;
