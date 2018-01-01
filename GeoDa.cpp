@@ -4238,12 +4238,12 @@ void GdaFrame::OnOpenThemelessMap(wxCommandEvent& event)
 	std::vector<int> col_ids;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  var_info, col_ids,
-									  CatClassification::no_theme,
-									  MapCanvas::no_smoothing, 1,
-									  boost::uuids::nil_uuid(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+                              var_info, col_ids,
+                              CatClassification::no_theme,
+                              MapCanvas::no_smoothing, 1,
+                              boost::uuids::nil_uuid(),
+                              wxDefaultPosition,
+                              GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 
@@ -5451,6 +5451,16 @@ void GdaFrame::OnDisplayMeanCenters(wxCommandEvent& event)
 	if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
 		f->OnDisplayMeanCenters();
 	}
+}
+
+void GdaFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnDisplayWeightsGraph()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnDisplayWeightsGraph();
+    }
 }
 
 void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
@@ -6705,6 +6715,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SELECT_CORES"), GdaFrame::OnSelectCores)
     EVT_MENU(XRCID("ID_SHOW_AS_COND_MAP"), GdaFrame::OnShowAsConditionalMap)
     EVT_MENU(XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"), GdaFrame::OnAddNeighborToSelection)
+    EVT_MENU(XRCID("ID_DISPLAY_WEIGHTS_GRAPH"), GdaFrame::OnDisplayWeightsGraph)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

@@ -488,6 +488,7 @@ public:
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 	void OnAddNeighborToSelection(wxCommandEvent& event);
 	void OnShowAsConditionalMap(wxCommandEvent& event);
+    void OnDisplayWeightsGraph(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);

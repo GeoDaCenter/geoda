@@ -41,6 +41,7 @@
 #include "../VarTools.h"
 #include "../GdaShape.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
+#include "../ShapeOperations/GalWeight.h"
 
 class CatClassifState;
 class MapFrame;
@@ -100,7 +101,6 @@ public:
     
 	virtual ~MapCanvas();
 
-
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
@@ -154,17 +154,15 @@ public:
     virtual void ResetShapes();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
-
     virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
                                       int virtual_scrn_h = 0);
-    
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	virtual void CreateAndUpdateCategories();
-
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void DisplayMeanCenters();
 	virtual void DisplayCentroids();
+    virtual void DisplayWeightsGraph();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -174,15 +172,17 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    	
+    
+    CatClassification::CatClassifType GetCcType();
+    
 	CatClassifDef cat_classif_def;
-	CatClassification::CatClassifType GetCcType();
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;
 	bool display_mean_centers;
 	bool display_centroids;
 	bool display_voronoi_diagram;
 	bool voronoi_diagram_duplicates_exist;
+    bool display_weights_graph;
 	
 	std::vector<GdaVarTools::VarInfo> var_info;
     
@@ -209,10 +209,6 @@ protected:
     static bool has_thumbnail_saved;
     wxString layer_name;
     wxString ds_name;
-    void SaveThumbnail();
-    
-    bool InitBasemap();
-    
     int map_type;
 	bool layerbase_valid; // if false, then needs to be redrawn
     
@@ -247,8 +243,9 @@ protected:
 	GDA::Basemap* basemap;
     
     void show_empty_shps_msgbox();
-    
-		
+    void SaveThumbnail();
+    bool InitBasemap();
+
 	DECLARE_EVENT_TABLE()
 };
 
@@ -320,6 +317,7 @@ public:
 	virtual void OnSaveCategories();
 	virtual void OnDisplayMeanCenters();
 	virtual void OnDisplayCentroids();
+    virtual void OnDisplayWeightsGraph();
 	virtual void OnDisplayVoronoiDiagram();
 	virtual void OnExportVoronoi();
 	virtual void OnExportMeanCntrs();
@@ -341,6 +339,7 @@ public:
                     std::vector<double>& bins);
     
     void OnAddNeighborToSelection(wxCommandEvent& event);
+    void OnDisplayWeightsGraph(wxCommandEvent& event);
     
     
     void OnMapSelect(wxCommandEvent& e);
@@ -374,6 +373,8 @@ protected:
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;
 	
+    GalWeight* checkWeights();
+    
     DECLARE_EVENT_TABLE()
 };
 

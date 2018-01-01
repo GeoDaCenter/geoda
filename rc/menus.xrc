@@ -2494,6 +2494,9 @@
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
     </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+        <label>Display Weights Graph</label>
+    </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
@@ -2672,6 +2675,9 @@
     </object>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+        <label>Display Weights Graph</label>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
@@ -3048,6 +3054,9 @@
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
+    </object>
+    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+        <label>Display Weights Graph</label>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">

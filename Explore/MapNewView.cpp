@@ -52,7 +52,6 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
-#include "../ShapeOperations/GalWeight.h"
 #include "Basemap.h"
 #include "MapNewView.h"
 
@@ -171,6 +170,7 @@ is_rate_smoother(false),
 full_map_redraw_needed(true),
 display_mean_centers(false), 
 display_centroids(false),
+display_weights_graph(false),
 display_voronoi_diagram(false), 
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
@@ -1333,8 +1333,8 @@ void MapCanvas::PopulateCanvas()
 			empty_shps_ids = CreateSelShpsFromProj(selectable_shps, project);
 			full_map_redraw_needed = false;
 			
-			if (selectable_shps_type == polygons &&
-				(display_mean_centers || display_centroids)) {
+			if (selectable_shps_type == polygons && (display_mean_centers || display_centroids || display_weights_graph))
+            {
 				GdaPoint* p;
 				wxPen cent_pen(wxColour(20, 20, 20));
 				wxPen cntr_pen(wxColour(55, 55, 55));
@@ -1356,6 +1356,34 @@ void MapCanvas::PopulateCanvas()
 						foreground_shps.push_back(p);
 					}
 				}
+                if (display_weights_graph) {
+                    // use men centers to draw graph
+                    WeightsManInterface* w_man_int = project->GetWManInt();
+                    GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+                    const vector<GdaPoint*>& c = project->GetMeanCenters();
+                    if (!display_mean_centers) {
+                        for (int i=0; i<num_obs; i++) {
+                            p = new GdaPoint(*c[i]);
+                            p->setPen(cntr_pen);
+                            p->setBrush(*wxTRANSPARENT_BRUSH);
+                            foreground_shps.push_back(p);
+                        }
+                    }
+                    GdaPolyLine* edge;
+                    for (int i=0; i<gal_weights->num_obs; i++) {
+                        GalElement& e = gal_weights->gal[i];
+                        for (int j=0, jend=e.Size(); j<jend; j++) {
+                            int nbr = e[j];
+                            if (i!=nbr) {
+                                // connect i<->nbr
+                                edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
+                                edge->setPen(cntr_pen);
+                                edge->setBrush(*wxTRANSPARENT_BRUSH);
+                                foreground_shps.push_back(edge);
+                            }
+                        }
+                    }
+                }
 			}
 			if (selectable_shps_type == points && display_voronoi_diagram) {
 				GdaPolygon* p;
@@ -1689,6 +1717,14 @@ void MapCanvas::DisplayCentroids()
 	PopulateCanvas();
 }
 
+void MapCanvas::DisplayWeightsGraph()
+{
+    wxLogMessage("MapCanvas::DisplayWeightsGraph()");
+    full_map_redraw_needed = true;
+    display_weights_graph = !display_weights_graph;
+    PopulateCanvas();
+}
+
 void MapCanvas::DisplayVoronoiDiagram()
 {
     wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
@@ -1909,6 +1945,8 @@ w_man_state(project->GetWManState()), export_dlg(NULL)
 
     template_legend = NULL;
     template_canvas = NULL;
+   
+    weights_id = w_man_state->GetWeightsId();
     
 	int width, height;
 	GetClientSize(&width, &height);
@@ -2143,8 +2181,11 @@ void  MapFrame::update(TimeState* o)
 /** Implementation of WeightsManStateObserver interface */
 void MapFrame::update(WeightsManState* o)
 {
-	if (o->GetWeightsId() !=
-		((MapCanvas*) template_canvas)->GetWeightsId()) return;
+    if (o->GetWeightsId() != ((MapCanvas*) template_canvas)->GetWeightsId()) {
+        // add_evt
+        ((MapCanvas*) template_canvas)->SetWeightsId(o->GetWeightsId());
+        return;
+    }
 	if (o->GetEventType() == WeightsManState::name_change_evt) {
 		UpdateTitle();
 		return;
@@ -2171,17 +2212,15 @@ void MapFrame::closeObserver(boost::uuids::uuid id)
 	}
 }
 
-void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+GalWeight* MapFrame::checkWeights()
 {
-    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    
     std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
         wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        return;
+        return NULL;
         
     }
     boost::uuids::uuid w_id = w_man_int->GetDefault();
@@ -2191,8 +2230,26 @@ void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
-        return;
+        return NULL;
     }
+    return gal_weights;
+}
+
+void MapFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+    
+}
+
+void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
+{
+    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
    
     int num_obs = project->GetNumRecords();
     
@@ -2502,6 +2559,12 @@ void MapFrame::OnDisplayCentroids()
 {
 	((MapCanvas*) template_canvas)->DisplayCentroids();
 	UpdateOptionMenuItems();
+}
+
+void MapFrame::OnDisplayWeightsGraph()
+{
+    ((MapCanvas*) template_canvas)->DisplayWeightsGraph();
+    UpdateOptionMenuItems();
 }
 
 void MapFrame::OnDisplayVoronoiDiagram()
