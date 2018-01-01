@@ -5459,7 +5459,7 @@ void GdaFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
-        f->OnDisplayWeightsGraph();
+        f->OnDisplayWeightsGraph(event);
     }
 }
 

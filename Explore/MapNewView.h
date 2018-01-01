@@ -317,7 +317,6 @@ public:
 	virtual void OnSaveCategories();
 	virtual void OnDisplayMeanCenters();
 	virtual void OnDisplayCentroids();
-    virtual void OnDisplayWeightsGraph();
 	virtual void OnDisplayVoronoiDiagram();
 	virtual void OnExportVoronoi();
 	virtual void OnExportMeanCntrs();

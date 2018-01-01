@@ -366,6 +366,8 @@ public:
     
 	wxRealPoint* points_o;
 	//wxRegion region;
+    int from;
+    int to;
 };
 
 class GdaSpline: public GdaShape {

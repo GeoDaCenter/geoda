@@ -728,6 +728,19 @@ void MapCanvas::DrawLayer2()
     dc.DrawBitmap(*layer1_bm, 0, 0);
     
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        if (boost::uuids::nil_uuid() != weights_id) {
+            GdaPolyLine* e = dynamic_cast<GdaPolyLine*>(shp);
+            wxPen cntr_pen(wxColour(55, 55, 55));
+            wxPen cent_pen(wxColour(200, 200, 200));
+            if ( e ) {
+                e->setPen(cntr_pen);
+                vector<bool>& hs = highlight_state->GetHighlight();
+                for (int i=0; highlight_state->GetTotalHighlighted() >0 && i<hs.size(); i++) {
+                    if (!hs[e->from] || !hs[e->to])
+                        e->setPen(*wxTRANSPARENT_PEN);
+                }
+            }
+        }
         shp->paintSelf(dc);
     }
     
@@ -1361,7 +1374,7 @@ void MapCanvas::PopulateCanvas()
                     WeightsManInterface* w_man_int = project->GetWManInt();
                     GalWeight* gal_weights = w_man_int->GetGal(weights_id);
                     const vector<GdaPoint*>& c = project->GetMeanCenters();
-                    if (!display_mean_centers) {
+                    if (!display_mean_centers && gal_weights) {
                         for (int i=0; i<num_obs; i++) {
                             p = new GdaPoint(*c[i]);
                             p->setPen(cntr_pen);
@@ -1369,14 +1382,17 @@ void MapCanvas::PopulateCanvas()
                             foreground_shps.push_back(p);
                         }
                     }
+                    vector<bool>& hs = highlight_state->GetHighlight();
                     GdaPolyLine* edge;
-                    for (int i=0; i<gal_weights->num_obs; i++) {
+                    for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
                         GalElement& e = gal_weights->gal[i];
                         for (int j=0, jend=e.Size(); j<jend; j++) {
                             int nbr = e[j];
                             if (i!=nbr) {
                                 // connect i<->nbr
                                 edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
+                                edge->from = i;
+                                edge->to = nbr;
                                 edge->setPen(cntr_pen);
                                 edge->setBrush(*wxTRANSPARENT_BRUSH);
                                 foreground_shps.push_back(edge);
@@ -2240,7 +2256,9 @@ void MapFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-    
+   
+    ((MapCanvas*) template_canvas)->DisplayWeightsGraph();
+    UpdateOptionMenuItems();
 }
 
 void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
@@ -2559,12 +2577,6 @@ void MapFrame::OnDisplayCentroids()
 {
 	((MapCanvas*) template_canvas)->DisplayCentroids();
 	UpdateOptionMenuItems();
-}
-
-void MapFrame::OnDisplayWeightsGraph()
-{
-    ((MapCanvas*) template_canvas)->DisplayWeightsGraph();
-    UpdateOptionMenuItems();
 }
 
 void MapFrame::OnDisplayVoronoiDiagram()
