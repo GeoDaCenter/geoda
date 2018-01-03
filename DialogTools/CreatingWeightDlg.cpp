@@ -344,6 +344,7 @@ void CreatingWeightDlg::EnableKernelControls( bool b, bool is_init )
         m_radio_manu_bandwdith->Enable(b);
         m_manu_bandwidth->Enable(b);
         m_bandwidth_slider->Enable(b);
+        m_kernel_diagnals->Enable(b);
     }
 }
 

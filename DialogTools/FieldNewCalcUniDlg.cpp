@@ -288,9 +288,8 @@ void FieldNewCalcUniDlg::Apply()
                 for (int i=0; i<rows; i++) {
                     r_data[i] = data[i];
                     r_undefined[i] = undefined[i];
-                    
-                    GenUtils::MeanAbsoluteDeviation(r_data, r_undefined);
                 }
+                GenUtils::MeanAbsoluteDeviation(r_data, r_undefined);
             }
                 break;
 			case shuffle_op:
@@ -428,6 +427,8 @@ void FieldNewCalcUniDlg::Display()
 		if (!var.IsEmpty()) rhs << "dev from mean of " << var;
 	} else if (op_sel == standardize_op) {
 		if (!var.IsEmpty()) rhs << "standardized dev from mean of " << var;
+    } else if (op_sel == mad_op) {
+        if (!var.IsEmpty()) rhs << "mean abosolute deviation of " << var;
 	} else { // op_sel == shuffle_op
 		if (!var.IsEmpty()) rhs << "randomly permute values in " << var;
 	}
