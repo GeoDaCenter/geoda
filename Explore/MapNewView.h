@@ -205,6 +205,7 @@ public:
     }
     
 protected:
+    std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;

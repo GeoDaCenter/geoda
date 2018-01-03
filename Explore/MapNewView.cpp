@@ -715,6 +715,23 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
             }
         }
     }
+    
+    if (boost::uuids::nil_uuid() != weights_id) {
+        wxPen cntr_pen(wxColour(55, 55, 55));
+        wxPen cent_pen(wxColour(200, 200, 200));
+        vector<bool>& hs = highlight_state->GetHighlight();
+        for (int i=0; i<w_graph.size(); i++) {
+            GdaPolyLine* e = w_graph[i];
+            if (highlight_state->GetTotalHighlighted() >0) {
+                if (hs[e->from] && hs[e->to]) {
+                    e->setPen(cntr_pen);
+                    e->paintSelf(dc);
+                } else {
+                    e->setPen(*wxTRANSPARENT_PEN);
+                }
+            }
+        }
+    }
 }
 
 void MapCanvas::DrawLayer2()
@@ -726,21 +743,13 @@ void MapCanvas::DrawLayer2()
     dc.Clear();
     
     dc.DrawBitmap(*layer1_bm, 0, 0);
-    
-    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-        if (boost::uuids::nil_uuid() != weights_id) {
-            GdaPolyLine* e = dynamic_cast<GdaPolyLine*>(shp);
-            wxPen cntr_pen(wxColour(55, 55, 55));
-            wxPen cent_pen(wxColour(200, 200, 200));
-            if ( e ) {
-                e->setPen(cntr_pen);
-                vector<bool>& hs = highlight_state->GetHighlight();
-                for (int i=0; highlight_state->GetTotalHighlighted() >0 && i<hs.size(); i++) {
-                    if (!hs[e->from] || !hs[e->to])
-                        e->setPen(*wxTRANSPARENT_PEN);
-                }
-            }
+   
+    if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
+        for (int i=0; i<w_graph.size(); i++) {
+            w_graph[i]->setPen(wxColour(55, 55, 55));
         }
+    }
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
     
@@ -1384,6 +1393,7 @@ void MapCanvas::PopulateCanvas()
                     }
                     vector<bool>& hs = highlight_state->GetHighlight();
                     GdaPolyLine* edge;
+                    w_graph.clear();
                     for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
                         GalElement& e = gal_weights->gal[i];
                         for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -1396,6 +1406,7 @@ void MapCanvas::PopulateCanvas()
                                 edge->setPen(cntr_pen);
                                 edge->setBrush(*wxTRANSPARENT_BRUSH);
                                 foreground_shps.push_back(edge);
+                                w_graph.push_back(edge);
                             }
                         }
                     }
