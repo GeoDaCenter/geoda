@@ -222,14 +222,14 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
 	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
-					 "Weights Files (*.gal, *.gwt)|*.gal;*.gwt");
+                     "Weights Files (*.gal, *.gwt, *.kwt)|*.gal;*.gwt;*.kwt");
 	
     if (dlg.ShowModal() != wxID_OK) return;
 	wxString path  = dlg.GetPath();
 	wxString ext = GenUtils::GetFileExt(path).Lower();
 	
-	if (ext != "gal" && ext != "gwt") {
-		wxString msg("Only 'gal' and 'gwt' weights files supported.");
+	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
+		wxString msg("Only 'gal', 'gwt', and 'kwt' weights files supported.");
 		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		return;
