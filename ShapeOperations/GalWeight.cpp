@@ -205,7 +205,6 @@ double GalElement::SpatialLag(const std::vector<double>& x) const
         lag = 0;
     else {
         for (size_t i=0; i<sz; ++i) {
-            
             lag += x[nbr[i]] * nbrWeight[i] / sumW;
         }
     }
@@ -295,6 +294,16 @@ bool GalWeight::HasIsolates(GalElement *gal, int num_obs)
         }
     }
 	return false;
+}
+
+double GalWeight::GetSparsity()
+{
+    double empties = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (gal[i].Size() == 0)
+            empties += 1;
+    }
+    return empties / (num_obs * num_obs);
 }
 
 bool GalWeight::SaveDIDWeights(Project* project, int num_obs,

@@ -74,16 +74,19 @@ public:
     
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
     
-    void Update(const std::vector<bool>& undefs);
+    virtual void Update(const std::vector<bool>& undefs);
     
     virtual bool SaveDIDWeights(Project* project,
                                 int num_obs,
                                 std::vector<wxInt64>& newids,
                                 std::vector<wxInt64>& stack_ids,
                                 const wxString& ofname);
+    
     virtual bool SaveSpaceTimeWeights(const wxString& ofname,
                                       WeightsManInterface* wmi,
                                       TableInterface* table_int);
+    
+    virtual double GetSparsity();
 };
 
 namespace Gda {

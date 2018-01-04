@@ -40,6 +40,12 @@ void WeightsMetaInfo::SetToDefaults()
 	dist_var2 = "";
 	dist_tm1 = -1;
 	dist_tm2 = -1;
+    sparsity_val = -1;
+}
+
+void WeightsMetaInfo::SetSparsity(double sparsity)
+{
+    sparsity_val = sparsity;
 }
 
 void WeightsMetaInfo::SetToCustom(const wxString& idv)
@@ -48,8 +54,7 @@ void WeightsMetaInfo::SetToCustom(const wxString& idv)
 	id_var = idv;
 }
 
-void WeightsMetaInfo::SetToRook(const wxString& idv,
-								long order_, bool inc_lower_orders_)
+void WeightsMetaInfo::SetToRook(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();
 	id_var = idv;
@@ -61,8 +66,7 @@ void WeightsMetaInfo::SetToRook(const wxString& idv,
     //    inc_lower_orders = true;
 }
 
-void WeightsMetaInfo::SetToQueen(const wxString& idv,
-								 long order_, bool inc_lower_orders_)
+void WeightsMetaInfo::SetToQueen(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();
 	id_var = idv;

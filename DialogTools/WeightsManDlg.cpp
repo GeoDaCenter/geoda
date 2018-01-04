@@ -475,6 +475,12 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 	
 	row_title.push_back("id variable");
 	row_content.push_back(wmi.id_var);
+   
+    wxString sp = ("unknown");
+    if (wmi.sparsity_val>=0)
+        sp = wxString::Format("%.2f", wmi.sparsity_val);
+    row_title.push_back("sparsity");
+    row_content.push_back(sp);
 	
 	if (wmi.weights_type == WeightsMetaInfo::WT_rook ||
 		wmi.weights_type == WeightsMetaInfo::WT_queen) {

@@ -33,27 +33,35 @@ public:
 	GeoDaWeight(const GeoDaWeight& gw);
     
 	virtual ~GeoDaWeight() {}
-
-public:
-	virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
-	virtual wxString GetTitle(); // returns portion of wflnm if title empty
-	virtual bool HasIsolates() { return true; } // implement in
-   
-    
+	
     // following functions implemented in inherited classes: GalWeights and GwtWeights
     virtual bool SaveDIDWeights(Project* project,
                                 int num_obs,
                                 std::vector<wxInt64>& newids,
                                 std::vector<wxInt64>& stack_ids,
                                 const wxString& ofname)=0;
-    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)=0;
+    
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname,
+                                      WeightsManInterface* wmi,
+                                      TableInterface* table_int)=0;
    
     virtual void Update(const std::vector<bool>& undefs)=0;
     
-public:
+    virtual double GetSparsity()=0;
+    
+    virtual bool HasIsolates()=0;
+    
+    // Others
+    virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
+   
+    virtual wxString GetTitle(); // returns portion of wflnm if title empty
+   
+
+    virtual wxString GetIDName() { return id_field;}
+  
+
+    // Properties
 	enum WeightType { gal_type, gwt_type };
-	// subclasses
-	
 	WeightType weight_type;
 	wxString wflnm; // filename
     wxString id_field; 
@@ -62,7 +70,6 @@ public:
 	bool is_symmetric; // true iff matrix is symmetric
 	int num_obs;
     
-    wxString GetIDName() { return id_field;}
 };
 
 #endif

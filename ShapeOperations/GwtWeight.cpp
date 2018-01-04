@@ -79,8 +79,21 @@ void GwtWeight::Update(const std::vector<bool>& undefs)
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {
 	if (!gwt) return false;
-	for (int i=0; i<num_obs; i++) { if (gwt[i].Size() <= 0) return true; }
+	for (int i=0; i<num_obs; i++) {
+        if (gwt[i].Size() <= 0)
+            return true;
+    }
 	return false;
+}
+
+double GwtWeight::GetSparsity()
+{
+    double empties = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (gwt[i].Size() == 0)
+            empties += 1;
+    }
+    return empties / (num_obs * num_obs);
 }
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)

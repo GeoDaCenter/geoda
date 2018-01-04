@@ -68,6 +68,8 @@ struct WeightsMetaInfo
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
 
+    void SetSparsity(double sparsity);
+    
 	wxString filename; // weights file filename if exists
 	wxString id_var; // if empty, then record order assumed
 	SymmetryEnum sym_type;
@@ -100,6 +102,9 @@ struct WeightsMetaInfo
 	
 	// Used by threshold distance
 	double threshold_val; // any real
+    
+    // Sparsity
+    double sparsity_val;
 	
 	wxString ToStr() const;
 	wxString TypeToStr() const;

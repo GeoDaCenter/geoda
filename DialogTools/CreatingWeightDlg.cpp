@@ -1298,7 +1298,7 @@ void CreatingWeightDlg::CreateWeights()
                     dlg.ShowModal();
                     return;
                 }
-                
+                wmi.SetSparsity(Wp->GetSparsity());
                 WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
                 if (Wp) delete Wp;
                 done = true;
@@ -1328,7 +1328,7 @@ void CreatingWeightDlg::CreateWeights()
                 if (!Wp->gwt)
                     return;
                 Wp->id_field = id;
-                
+                wmi.SetSparsity(Wp->GetSparsity());
                 WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
                 if (Wp) delete Wp;
                 done = true;
@@ -1343,7 +1343,11 @@ void CreatingWeightDlg::CreateWeights()
         case ROOK:
         case QUEEN:
         {
-            GalElement *gal = 0;
+            GalWeight* Wp = new GalWeight;
+            Wp->num_obs = project->GetNumRecords();
+            Wp->is_symmetric = true;
+            Wp->symmetry_checked = true;
+
             bool is_rook = (m_radio == ROOK);
             if (is_rook) {
                 wmi.SetToRook(id, m_ooC, m_check1);
@@ -1361,8 +1365,8 @@ void CreatingWeightDlg::CreateWeights()
                 } else {
                     project->GetVoronoiQueenNeighborMap(nbr_map);
                 }
-                gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
-                if (!gal) {
+                Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
+                if (!Wp->gal) {
                     wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
                     wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
                     dlg.ShowModal();
@@ -1382,14 +1386,14 @@ void CreatingWeightDlg::CreateWeights()
                         precision_threshold = 0.0;
                     }
                 }
-                gal = PolysToContigWeights(project->main_data, !is_rook, precision_threshold);
+                Wp->gal = PolysToContigWeights(project->main_data, !is_rook, precision_threshold);
             }
             
             bool empty_w = true;
             bool has_island = false;
             
             for (size_t i=0; i<m_num_obs; ++i) {
-                if (gal[i].Size() >0) {
+                if (Wp->gal[i].Size() >0) {
                     empty_w = false;
                 } else {
                     has_island = true;
@@ -1428,13 +1432,14 @@ void CreatingWeightDlg::CreateWeights()
                 wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
                 dlg.ShowModal();
             }
+            wmi.SetSparsity(Wp->GetSparsity());
             if (m_ooC > 1) {
-                Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, gal, m_check1);
-                WriteWeightFile(gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
+                Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, Wp->gal, m_check1);
+                WriteWeightFile(Wp->gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
             } else {
-                WriteWeightFile(gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
+                WriteWeightFile(Wp->gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
             }
-            if (gal) delete [] gal; gal = 0;
+            if (Wp) delete Wp;
             done = true;
         }
             break;
