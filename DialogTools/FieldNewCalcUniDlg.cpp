@@ -76,8 +76,8 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
 	op_string[log_10_op] = "LOG (base 10)";
 	op_string[log_e_op] = "LOG (base e)";
 	op_string[dev_from_mean_op] = "DEVIATION FROM MEAN";
-	op_string[standardize_op] = "STANDARDIZED";
-    op_string[mad_op] = "MEAN ABSOLUTE DEVIATION";
+	op_string[standardize_op] = "STANDARDIZED (Z)";
+    op_string[mad_op] = "STANDARDIZED (MAD)";
 	op_string[shuffle_op] = "SHUFFLE";
 	
 	for (int i=0, iend=op_string.size(); i<iend; i++) {

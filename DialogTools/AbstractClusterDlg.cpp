@@ -257,7 +257,7 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
 {
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[4] = {"Raw", "Demean", "Standardize", "Mean Absolute Deviation"};
+    const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)", "Standardize (MAD)"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                   wxSize(120,-1), 4, _transform);
     combo_tranform->SetSelection(2);
