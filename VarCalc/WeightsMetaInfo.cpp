@@ -41,11 +41,17 @@ void WeightsMetaInfo::SetToDefaults()
 	dist_tm1 = -1;
 	dist_tm2 = -1;
     sparsity_val = -1;
+    density_val = -1;
 }
 
 void WeightsMetaInfo::SetSparsity(double sparsity)
 {
     sparsity_val = sparsity;
+}
+
+void WeightsMetaInfo::SetDensity(double density)
+{
+    density_val = density;
 }
 
 void WeightsMetaInfo::SetToCustom(const wxString& idv)

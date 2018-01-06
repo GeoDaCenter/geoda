@@ -87,6 +87,8 @@ public:
                                       TableInterface* table_int);
     
     virtual double GetSparsity();
+    
+    virtual double GetDensity();
 };
 
 namespace Gda {

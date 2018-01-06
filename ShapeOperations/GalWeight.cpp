@@ -303,7 +303,27 @@ double GalWeight::GetSparsity()
         if (gal[i].Size() == 0)
             empties += 1;
     }
-    return empties / (num_obs * num_obs);
+    sparsity = empties / (num_obs * num_obs);
+    return sparsity;
+}
+
+double GalWeight::GetDensity()
+{
+    // https://en.wikipedia.org/wiki/Dense_graph
+    std::map<int, int> e_dict;
+    for (int i=0; i<num_obs; i++) {
+        const std::vector<long>& nbrs = gal[i].GetNbrs();
+        for (int j=0; j<nbrs.size();j++) {
+            int nbr = nbrs[j];
+            if (i != nbr) {
+                e_dict[i] = nbr;
+                e_dict[nbr] = i;
+            }
+        }
+    }
+    double n_edges = e_dict.size() / 2.0;
+    density = 2 * n_edges / (num_obs * (num_obs - 1));
+    return density;
 }
 
 bool GalWeight::SaveDIDWeights(Project* project, int num_obs,

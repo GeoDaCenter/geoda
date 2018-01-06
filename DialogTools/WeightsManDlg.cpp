@@ -482,6 +482,12 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
     row_title.push_back("sparsity");
     row_content.push_back(sp);
 	
+    wxString de = ("unknown");
+    if (wmi.density_val>=0)
+        de = wxString::Format("%.2f", wmi.density_val);
+    row_title.push_back("density");
+    row_content.push_back(de);
+    
 	if (wmi.weights_type == WeightsMetaInfo::WT_rook ||
 		wmi.weights_type == WeightsMetaInfo::WT_queen) {
 		row_title.push_back("order");

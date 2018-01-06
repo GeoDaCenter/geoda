@@ -69,6 +69,7 @@ struct WeightsMetaInfo
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
 
     void SetSparsity(double sparsity);
+    void SetDensity(double density);
     
 	wxString filename; // weights file filename if exists
 	wxString id_var; // if empty, then record order assumed
@@ -105,6 +106,9 @@ struct WeightsMetaInfo
     
     // Sparsity
     double sparsity_val;
+    
+    // Density
+    double density_val;
 	
 	wxString ToStr() const;
 	wxString TypeToStr() const;

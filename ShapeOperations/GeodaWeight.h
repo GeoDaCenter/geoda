@@ -48,6 +48,8 @@ public:
     virtual void Update(const std::vector<bool>& undefs)=0;
     
     virtual double GetSparsity()=0;
+   
+    virtual double GetDensity()=0;
     
     virtual bool HasIsolates()=0;
     
@@ -69,7 +71,8 @@ public:
 	bool symmetry_checked; // indicates validity of is_symmetric bool
 	bool is_symmetric; // true iff matrix is symmetric
 	int num_obs;
-    
+    double sparsity;
+    double density;
 };
 
 #endif

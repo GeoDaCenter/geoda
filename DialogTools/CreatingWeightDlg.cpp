@@ -1299,6 +1299,7 @@ void CreatingWeightDlg::CreateWeights()
                     return;
                 }
                 wmi.SetSparsity(Wp->GetSparsity());
+                wmi.SetDensity(Wp->GetDensity());
                 WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
                 if (Wp) delete Wp;
                 done = true;
@@ -1329,6 +1330,7 @@ void CreatingWeightDlg::CreateWeights()
                     return;
                 Wp->id_field = id;
                 wmi.SetSparsity(Wp->GetSparsity());
+                wmi.SetDensity(Wp->GetDensity());
                 WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
                 if (Wp) delete Wp;
                 done = true;
@@ -1433,6 +1435,7 @@ void CreatingWeightDlg::CreateWeights()
                 dlg.ShowModal();
             }
             wmi.SetSparsity(Wp->GetSparsity());
+            wmi.SetDensity(Wp->GetDensity());
             if (m_ooC > 1) {
                 Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, Wp->gal, m_check1);
                 WriteWeightFile(Wp->gal, 0, project->GetProjectTitle(), outputfile, id, wmi);

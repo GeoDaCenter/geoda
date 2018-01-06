@@ -81,6 +81,7 @@ public:
                                       TableInterface* table_int);
     virtual void Update(const std::vector<bool>& undefs);
     virtual double GetSparsity();
+    virtual double GetDensity();
 };
 
 namespace Gda {

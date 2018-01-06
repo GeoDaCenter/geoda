@@ -93,7 +93,27 @@ double GwtWeight::GetSparsity()
         if (gwt[i].Size() == 0)
             empties += 1;
     }
-    return empties / (num_obs * num_obs);
+    sparsity = empties / (num_obs * num_obs);
+    return sparsity;
+}
+
+double GwtWeight::GetDensity()
+{
+    // https://en.wikipedia.org/wiki/Dense_graph
+    std::map<int, int> e_dict;
+    for (int i=0; i<num_obs; i++) {
+        GwtNeighbor* nbrs = gwt[i].dt();
+        for (int j=0; j<gwt[i].Size();j++) {
+            int nbr = nbrs[j].nbx;
+            if (i != nbr) {
+                e_dict[i] = nbr;
+                e_dict[nbr] = i;
+            }
+        }
+    }
+    double n_edges = e_dict.size() / 2.0;
+    density = 2 * n_edges / (num_obs * (num_obs - 1));
+    return density;
 }
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
