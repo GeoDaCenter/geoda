@@ -2199,3 +2199,58 @@ void ScatterNewPlotFrame::GetVizInfo(wxString& x, wxString& y)
 	}
 }
 
+/////////////////////////////////////////////////////
+IMPLEMENT_CLASS(MDSPlotCanvas, TemplateCanvas)
+BEGIN_EVENT_TABLE(MDSPlotCanvas, TemplateCanvas)
+END_EVENT_TABLE()
+
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const wxPoint& pos, const wxSize& size)
+: ScatterNewPlotCanvas(parent, t_frame, project, pos, size)
+{
+    
+}
+
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
+: ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+{
+    
+}
+
+MDSPlotCanvas::~MDSPlotCanvas()
+{
+    
+}
+
+IMPLEMENT_CLASS(MDSPlotFrame, TemplateFrame)
+BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
+EVT_ACTIVATE(MDSPlotFrame::OnActivate)
+END_EVENT_TABLE()
+
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const wxPoint& pos, const wxSize& size, const long style)
+: ScatterNewPlotFrame(parent, project, pos, size, style)
+{
+    
+}
+
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids, bool is_bubble_plot, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
+: ScatterNewPlotFrame(parent, project, var_info, col_ids, is_bubble_plot, title, pos, size, style)
+{
+    
+}
+
+MDSPlotFrame::~MDSPlotFrame()
+{
+    
+}
+
+void MDSPlotFrame::MapMenus()
+{
+    wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
+    // Map Options Menus
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
+    ((ScatterNewPlotCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+    ((ScatterNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
+    GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);
+    UpdateOptionMenuItems();
+}

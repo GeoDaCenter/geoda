@@ -319,8 +319,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             
             wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
-            ScatterNewPlotFrame* subframe =
-            new ScatterNewPlotFrame(parent, project,
+            MDSPlotFrame* subframe =
+            new MDSPlotFrame(parent, project,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,

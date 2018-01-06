@@ -339,5 +339,49 @@ protected:
 	DECLARE_EVENT_TABLE()
 };
 
+class MDSPlotCanvas : public ScatterNewPlotCanvas
+{
+    DECLARE_CLASS(MDSPlotCanvas)
+public:
+    MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                  Project* project,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
+                  Project* project,
+                  const std::vector<GdaVarTools::VarInfo>& var_info,
+                  const std::vector<int>& col_ids,
+                  bool is_bubble_plot = false,
+                  bool standardized = false,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    virtual ~MDSPlotCanvas();
+    DECLARE_EVENT_TABLE()
+};
+
+class MDSPlotFrame : public ScatterNewPlotFrame
+{
+    DECLARE_CLASS(MDSPlotFrame)
+public:
+    MDSPlotFrame(wxFrame *parent, Project* project,
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
+                 const long style = wxDEFAULT_FRAME_STYLE);
+    
+    MDSPlotFrame(wxFrame *parent, Project* project,
+                 const std::vector<GdaVarTools::VarInfo>& var_info,
+                 const std::vector<int>& col_ids,
+                 bool is_bubble_plot,
+                 const wxString& title = _("MDS Plot"),
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
+                 const long style = wxDEFAULT_FRAME_STYLE);
+    
+    virtual ~MDSPlotFrame();
+   
+    virtual void MapMenus();
+    
+    DECLARE_EVENT_TABLE()
+};
 
 #endif
