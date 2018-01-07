@@ -98,16 +98,8 @@ public:
 	/// Override from TemplateCanvas
 	virtual void SetSelectableOutlineColor(wxColour color);
 	
-protected:
-	virtual void TimeChange();
-	virtual void PopulateCanvas();
-	virtual void PopCanvPreResizeShpsHook();
-	void VarInfoAttributeChange();
-    
-public:
 	void CreateAndUpdateCategories();
 	
-public:
     virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
@@ -147,8 +139,13 @@ public:
 	void UpdateAxesThroughOrigin();
 	
 	virtual void UpdateStatusBar();
-	
+
 protected:
+    virtual void TimeChange();
+    virtual void PopulateCanvas();
+    virtual void PopCanvPreResizeShpsHook();
+    void VarInfoAttributeChange();
+    
 	ScatterPlotPens pens;
 	bool is_bubble_plot;
 	Project* project;
@@ -250,16 +247,16 @@ protected:
 	int table_display_lines;
 	bool UpdateDisplayLinesAndMargins();
 	bool all_init;
-    
-	
+
 	DECLARE_EVENT_TABLE()
 };
 
 class ScatterNewPlotLegend : public TemplateLegend
 {
 public:
-	ScatterNewPlotLegend(wxWindow *parent, TemplateCanvas* template_canvas,
-											 const wxPoint& pos, const wxSize& size);
+	ScatterNewPlotLegend(wxWindow *parent,
+                         TemplateCanvas* template_canvas,
+                         const wxPoint& pos, const wxSize& size);
 	virtual ~ScatterNewPlotLegend();
 };
 
@@ -279,7 +276,8 @@ public:
                         const wxString& title = _("Scatter Plot"),
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize,
-                        const long style = wxDEFAULT_FRAME_STYLE);
+                        const long style = wxDEFAULT_FRAME_STYLE,
+                        bool no_init = false);
     
 	virtual ~ScatterNewPlotFrame();
 	
@@ -327,9 +325,11 @@ public:
 	void GetVizInfo(wxString& x, wxString& y);
 	
 protected:
-	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-											 int num_categories,
-											 const wxString& custom_classif_title = wxEmptyString);
+    void Init(const std::vector<GdaVarTools::VarInfo>& var_info,
+              const std::vector<int>& col_ids, const wxString& title);
+    void ChangeThemeType(CatClassification::CatClassifType new_theme,
+                         int num_categories,
+                         const wxString& custom_classif_title = wxEmptyString);
 	bool is_bubble_plot;
 	
 	LowessParamFrame* lowess_param_frame;
@@ -356,6 +356,20 @@ public:
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     virtual ~MDSPlotCanvas();
+    
+    virtual void DisplayRightClickMenu(const wxPoint& pos);
+    
+    void OnCreateWeightsKNN();
+    
+    void OnCreateWeightsRook();
+    
+    void OnCreateWeightsQueen();
+   
+protected:
+    bool GetKNNInput(long& k);
+    
+    wxString GetOutputWeightsPath(bool is_gal);
+    
     DECLARE_EVENT_TABLE()
 };
 
@@ -379,7 +393,11 @@ public:
     
     virtual ~MDSPlotFrame();
    
-    virtual void MapMenus();
+    void OnCreateWeightsKNN(wxCommandEvent& event);
+    
+    void OnCreateWeightsRook(wxCommandEvent& event);
+    
+    void OnCreateWeightsQueen(wxCommandEvent& event);
     
     DECLARE_EVENT_TABLE()
 };
