@@ -177,7 +177,7 @@ void PCASettingsDlg::OnSave(wxCommandEvent& event )
     std::vector<std::vector<double> > vals(new_col);
     std::vector<std::vector<bool> > undefs(new_col);
     
-    for (unsigned int j = 0; j < new_col; ++j) {
+    for (int j = 0; j < new_col; ++j) {
         vals[j].resize(row_lim);
         undefs[j].resize(row_lim);
         for (unsigned int i = 0; i < row_lim; ++i) {

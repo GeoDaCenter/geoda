@@ -407,6 +407,7 @@ double AggregationDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs, ve
         }
         return v_min;
     }
+	return 0;
 }
 
 OGRColumn* AggregationDlg::CreateNewOGRColumn(int new_rows, TableInterface* table_int, std::map<int, vector<int> >& key_map, wxString f_name)

@@ -1128,7 +1128,6 @@ void OGRColumnDate::FillData(vector<wxInt64> &data)
 void OGRColumnDate::FillData(vector<unsigned long long> &data)
 {
     if (is_new) {
-        int year, month, day, hour, minute, second, tzflag;
         for (int i=0; i<rows; ++i) {
             data[i] =  new_data[i];
         }

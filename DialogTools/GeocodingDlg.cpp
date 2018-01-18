@@ -119,25 +119,29 @@ void GeocodingDlg::CreateControls()
     hbox0->Add(hbox01, 1, wxEXPAND | wxALL, 10);
     
     // parameters
-    wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    wxNotebook* notebook = new wxNotebook(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
     wxNotebookPage* google_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 380));
-    notebook->AddPage(google_page, "Google Places API");
+    notebook->AddPage(google_page, _("Google Places API"));
     
-    //wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(5,1,10,0);
     
     wxStaticText* st11 = new wxStaticText(google_page, wxID_ANY, _("Enter your Google API keys (one key per line)"));
-    m_google_input = new wxTextCtrl(google_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE);
+    m_google_input = new wxTextCtrl(google_page, wxID_ANY, "", wxDefaultPosition, wxSize(500, 320), wxTE_MULTILINE);
     wxHyperlinkCtrl* lnk = new wxHyperlinkCtrl(google_page, wxID_ANY, _("Click here to get a Google API key"), "https://developers.google.com/maps/documentation/geocoding/start");
     
     wxBoxSizer *vbox10 = new wxBoxSizer(wxVERTICAL);
     vbox10->Add(st11, 0, wxALL, 5);
     vbox10->Add(m_google_input, 1, wxEXPAND|wxALL, 5);
     vbox10->Add(lnk, 0, wxALL, 5);
-    vbox10->Fit(google_page);
-    google_page->SetSizer(vbox10);
+
+	wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
+	nb_box1->Add(vbox10, 1, wxEXPAND | wxALL, 20);
+	nb_box1->Fit(google_page);
+
+    google_page->SetSizer(nb_box1);
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
-    hbox->Add(notebook, 1, wxEXPAND);
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
+    hbox->Add(notebook, 0, wxEXPAND);
 
     // output
     wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, _("Save latitude to field:"));
@@ -152,8 +156,9 @@ void GeocodingDlg::CreateControls()
     grid_sizer1->Add(st22);
     grid_sizer1->Add(m_lng);
     
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
-    hbox1->Add(grid_sizer1, 1, wxEXPAND | wxALL, 10);
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+	//hbox1->Add(st21);
+    hbox1->Add(grid_sizer1, 0, wxEXPAND | wxALL, 10);
     
     // buttons
     okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
@@ -185,7 +190,7 @@ void GeocodingDlg::CreateControls()
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
-    SetAutoLayout(true);
+    //SetAutoLayout(true);
     sizerAll->Fit(this);
     
     Centre();

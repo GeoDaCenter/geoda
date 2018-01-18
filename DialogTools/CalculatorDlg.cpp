@@ -563,7 +563,7 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 		int num_obs_sel = 0;
 		vector<bool> selected(obs);
 		if (V_obs == 1) {
-			bool val = (bool) V[t];
+			bool val = V[t]!=0 ? true : false;
 			for (size_t i=0; i<obs; ++i) {
 				selected[i] = val;
 			}
@@ -571,7 +571,7 @@ void CalculatorDlg::AssignOrSelect(bool assign)
 		} else {
 			// fill t_vec from V for time period t.
 			for (size_t i=0; i<obs; ++i) {
-				selected[i] = (bool) V[t+i*V_tms];
+				selected[i] = V[t+i*V_tms]!=0 ? true : false;
 				if (selected[i]) ++num_obs_sel;
 			}
 		}
