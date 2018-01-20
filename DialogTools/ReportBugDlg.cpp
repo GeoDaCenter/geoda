@@ -147,7 +147,7 @@ void PreferenceDlg::Init()
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
-	notebook->AddPage(vis_page, "System");
+	notebook->AddPage(vis_page, _("System"));
 	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(19, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);

@@ -36,6 +36,7 @@
 #include <curl/curl.h>
 #include <wx/string.h>
 #include <wx/gauge.h>
+#include <wx/uri.h>
 
 #include "../logger.h"
 #include "../GdaJson.h"
@@ -113,9 +114,11 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
             continue;
         const wxString& addr = addresses[i];
         wxString url = create_request_url(addr);
+        wxURI uri(url);
+        wxString encoded_url = uri.BuildURI();
         string response;
         // send request to server
-        doGet(curl, url.c_str(), response);
+        doGet(curl, encoded_url.c_str(), response);
         double lat=0;
         double lng=0;
         int rtn = retrive_latlng(response, &lat, &lng);
@@ -127,7 +130,7 @@ void GeoCodingInterface::geocoding(vector<wxString>& _addresses, vector<double>&
         lngs[i] = lng;
         undefs[i] = (rtn != 1);
         _prg->SetValue(i+1);
-        LOG_MSG(url);
+        LOG_MSG(encoded_url);
         LOG_MSG(lat);
         //wxMilliSleep(50);
     }
