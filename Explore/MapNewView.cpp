@@ -716,10 +716,12 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
     
-    if (boost::uuids::nil_uuid() != weights_id) {
+    if (boost::uuids::nil_uuid() != weights_id && !w_graph.empty()) {
+        // draw connectivity graph if needed
         wxPen cntr_pen(wxColour(55, 55, 55));
         wxPen cent_pen(wxColour(200, 200, 200));
         vector<bool>& hs = highlight_state->GetHighlight();
+        const vector<GdaPoint*>& c = project->GetMeanCenters();
         for (int i=0; i<w_graph.size(); i++) {
             GdaPolyLine* e = w_graph[i];
             if (highlight_state->GetTotalHighlighted() >0) {
@@ -1349,6 +1351,8 @@ void MapCanvas::PopulateCanvas()
 	
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
+    
+    w_graph.clear();
 
 	if (map_valid[canvas_ts]) {		
 		if (full_map_redraw_needed) {
@@ -1383,17 +1387,9 @@ void MapCanvas::PopulateCanvas()
                     WeightsManInterface* w_man_int = project->GetWManInt();
                     GalWeight* gal_weights = w_man_int->GetGal(weights_id);
                     const vector<GdaPoint*>& c = project->GetMeanCenters();
-                    if (!display_mean_centers && gal_weights) {
-                        for (int i=0; i<num_obs; i++) {
-                            p = new GdaPoint(*c[i]);
-                            p->setPen(cntr_pen);
-                            p->setBrush(*wxTRANSPARENT_BRUSH);
-                            foreground_shps.push_back(p);
-                        }
-                    }
                     vector<bool>& hs = highlight_state->GetHighlight();
                     GdaPolyLine* edge;
-                    w_graph.clear();
+                    std::set<int> w_nodes;
                     for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
                         GalElement& e = gal_weights->gal[i];
                         for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -1407,6 +1403,8 @@ void MapCanvas::PopulateCanvas()
                                 edge->setBrush(*wxTRANSPARENT_BRUSH);
                                 foreground_shps.push_back(edge);
                                 w_graph.push_back(edge);
+                                w_nodes.insert(i);
+                                w_nodes.insert(nbr);
                             }
                         }
                     }
