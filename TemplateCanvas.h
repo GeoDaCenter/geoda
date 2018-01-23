@@ -130,7 +130,7 @@ public:
 	virtual void OnScrollDown(wxScrollWinEvent& event);
 #endif
     
-	void OnSize(wxSizeEvent& event);
+	virtual void OnSize(wxSizeEvent& event);
     void OnIdle(wxIdleEvent& event);
 	
 	/** Where all the drawing action happens.  Should do something similar
@@ -218,7 +218,7 @@ public:
 	virtual void SetFixedAspectRatioMode(bool mode);
 	virtual void SetDisplayPrecision(int n);
 		
-	/** generic function to create and initialized the selectable_shps vector
+    /** generic function to create and initialized th*e selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
 	    screen size. */
     static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
@@ -272,19 +272,25 @@ public:
 	// draw unhighlighted sel shapes
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
     
-    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false,
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc,
+                                         bool hl_only=false,
                                          bool revert=false);
     
-    void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false,
+    void helper_DrawSelectableShapes_dc(wxDC &dc,
+                                        vector<bool>& hs,
+                                        bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
-                                        bool is_print = false);
-    void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc, bool hl_only=false,
+                                        bool is_print = false,
+                                        const wxColour& fixed_pen_color = *wxWHITE);
+    
+    void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
+                                        vector<bool>& hs,
+                                        bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
 										int alpha=255);
     
-
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
 	
     void GetVizInfo(wxString& shape_type,

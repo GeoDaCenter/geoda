@@ -134,6 +134,7 @@ BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
 	// in Linux, windows using old paint function without transparency support
 	EVT_PAINT(TemplateCanvas::OnPaint)
     EVT_IDLE(MapCanvas::OnIdle)
+    EVT_SIZE(MapCanvas::OnSize)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	//EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	//EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
@@ -171,6 +172,7 @@ full_map_redraw_needed(true),
 display_mean_centers(false), 
 display_centroids(false),
 display_weights_graph(false),
+display_neighbors(false),
 display_voronoi_diagram(false), 
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
@@ -232,6 +234,8 @@ MapCanvas::~MapCanvas()
         delete basemap;
         basemap = NULL;
     }
+    
+    w_graph.clear();
 }
 
 int MapCanvas::GetEmptyNumber()
@@ -265,6 +269,67 @@ void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_co
             lbl_color_dict[predefined_lbl] = new_color;
         }
     }
+}
+
+void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
+{
+    if (gal_weights == NULL)
+        return;
+    
+    int ts = cat_data.GetCurrentCanvasTmStep();
+    int num_obs = project->GetNumRecords();
+    HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& h = hs.GetHighlight();
+    std::vector<bool> add_elem(gal_weights->num_obs, false);
+    std::set<int>::iterator it;
+    ids_wo_nbrs.clear();
+    
+    for (int i=0; i<gal_weights->num_obs; i++) {
+        if (h[i]) {
+            GalElement& e = gal_weights->gal[i];
+            for (int j=0, jend=e.Size(); j<jend; j++) {
+                int obs = e[j];
+                if (!h[obs] && !add_elem[obs]) {
+                    add_elem[obs] = true;
+                    ids_wo_nbrs.insert(obs);
+                }
+            }
+        }
+    }
+    if (dc.IsOk()) {
+        vector<bool> new_hs(num_obs, false);
+        for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
+            h[*it] = true;
+            new_hs[*it] = true;
+            // draw new highlighted in dc
+            //selectable_shps[*it]->setPen(GdaConst::conn_graph_outline_colour);
+            //selectable_shps[*it]->setBrush(GdaConst::selectable_fill_color);
+            //selectable_shps[*it]->paintSelf(dc);
+        }
+        bool hl_only = true;
+        bool revert = false;
+        bool crosshatch = false;
+        bool is_print = false;
+        helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print, GdaConst::conn_graph_outline_colour);
+    }
+}
+
+void MapCanvas::OnSize(wxSizeEvent& event)
+{
+    if (!ids_wo_nbrs.empty() && (display_neighbors || display_weights_graph)) {
+        // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
+        HighlightState& hs = *project->GetHighlightState();
+        std::vector<bool>& h = hs.GetHighlight();
+        std::set<int>::iterator it;
+        for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
+            h[*it] = false;
+        }
+        ids_wo_nbrs.clear();
+    }
+    
+    ResetBrushing();
+    isResize = true;
+    event.Skip();
 }
 
 void MapCanvas::deleteLayerBms()
@@ -635,10 +700,6 @@ void MapCanvas::DrawLayer1()
 				DrawHighlightedShapes(dc, revert);
 			} else {
 				// draw a highlight with transparency
-				//wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
-				//wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDirect2DRenderer(); 
-				//wxGraphicsContext* context = renderer->CreateContext (dc);
-				//helper_DrawSelectableShapes_gc(*context, true, false, false, hl_alpha_value);
 				wxBitmap map_hl_bm(sz.GetWidth(), sz.GetHeight());
 				wxMemoryDC _dc;
 
@@ -703,12 +764,13 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     if (selectable_shps.size() == 0)
         return;
     
+    vector<bool>& hs = highlight_state->GetHighlight();
+    
     if (use_category_brushes) {
         bool highlight_only = true;
         DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
         
     } else {
-        vector<bool>& hs = GetSelBitVec();
         for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (hs[i] == !revert && _IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
@@ -716,23 +778,28 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
     
-    if (boost::uuids::nil_uuid() != weights_id && !w_graph.empty()) {
+    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    if (show_graph) {
         // draw connectivity graph if needed
-        wxPen cntr_pen(wxColour(55, 55, 55));
-        wxPen cent_pen(wxColour(200, 200, 200));
-        vector<bool>& hs = highlight_state->GetHighlight();
         const vector<GdaPoint*>& c = project->GetMeanCenters();
-        for (int i=0; i<w_graph.size(); i++) {
-            GdaPolyLine* e = w_graph[i];
-            if (highlight_state->GetTotalHighlighted() >0) {
-                if (hs[e->from] && hs[e->to]) {
-                    e->setPen(cntr_pen);
+        if (highlight_state->GetTotalHighlighted() >0) {
+            for (int i=0; i<w_graph.size(); i++) {
+                GdaPolyLine* e = w_graph[i];
+                if (hs[e->from] || hs[e->to]) {
+                    e->setPen(GdaConst::conn_graph_outline_colour);
                     e->paintSelf(dc);
                 } else {
                     e->setPen(*wxTRANSPARENT_PEN);
                 }
             }
         }
+    }
+   
+    if (show_graph || display_neighbors) {
+        // draw neighbors of selection if needed
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+        AddNeighborsToSelection(gal_weights, dc);
     }
 }
 
@@ -748,7 +815,7 @@ void MapCanvas::DrawLayer2()
    
     if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
         for (int i=0; i<w_graph.size(); i++) {
-            w_graph[i]->setPen(wxColour(55, 55, 55));
+            w_graph[i]->setPen(GdaConst::conn_graph_outline_colour);
         }
     }
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
@@ -796,13 +863,14 @@ void MapCanvas::SaveThumbnail()
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
                                         bool use_crosshatch)
 {
+    vector<bool>& hs = highlight_state->GetHighlight();
 #ifdef __WXOSX__
     wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
     wxGraphicsContext* gc= renderer->CreateContext (_dc);
     
-    helper_DrawSelectableShapes_gc(*gc, hl_only, revert, use_crosshatch);
+    helper_DrawSelectableShapes_gc(*gc, hs, hl_only, revert, use_crosshatch);
 #else
-    helper_DrawSelectableShapes_dc(_dc, hl_only, revert, use_crosshatch);
+    helper_DrawSelectableShapes_dc(_dc, hs, hl_only, revert, use_crosshatch);
     
 #endif
 }
@@ -1140,7 +1208,9 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
     wxLogMessage("MapCanvas::ChangeMapType()");
 	// We only ask for variables when changing from no_theme or smoothed (with theme).
 	num_categories = num_categories_s;
-	weights_id = weights_id_s;
+    if (!weights_id_s.is_nil()) {
+        weights_id = weights_id_s;
+    }
 	
 	if (new_map_theme == CatClassification::custom) {
 		new_map_smoothing = no_smoothing;
@@ -1750,6 +1820,14 @@ void MapCanvas::DisplayWeightsGraph()
     PopulateCanvas();
 }
 
+void MapCanvas::DisplayNeighbors()
+{
+    wxLogMessage("MapCanvas::DisplayNeighbors()");
+    full_map_redraw_needed = true;
+    display_neighbors = !display_neighbors;
+    PopulateCanvas();
+}
+
 void MapCanvas::DisplayVoronoiDiagram()
 {
     wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
@@ -1970,8 +2048,11 @@ w_man_state(project->GetWManState()), export_dlg(NULL)
 
     template_legend = NULL;
     template_canvas = NULL;
-   
-    weights_id = w_man_state->GetWeightsId();
+  
+    if (weights_id.is_nil()) {
+        weights_id = w_man_state->GetWeightsId();
+        //weights_id = w_man_state->GetDefault();
+    }
     
 	int width, height;
 	GetClientSize(&width, &height);
@@ -2272,43 +2353,12 @@ void MapFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
 
 void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
 {
-    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-   
-    int num_obs = project->GetNumRecords();
     
-    HighlightState& hs = *project->GetHighlightState();
-    std::vector<bool>& h = hs.GetHighlight();
-    int nh_cnt = 0;
-    std::vector<bool> add_elem(gal_weights->num_obs, false);
-    
-    std::vector<int> new_highlight_ids;
-    
-    for (int i=0; i<gal_weights->num_obs; i++) {
-        if (h[i]) {
-            GalElement& e = gal_weights->gal[i];
-            for (int j=0, jend=e.Size(); j<jend; j++) {
-                int obs = e[j];
-                if (!h[obs] && !add_elem[obs]) {
-                    add_elem[obs] = true;
-                    new_highlight_ids.push_back(obs);
-                }
-            }
-        }
-    }
-    
-    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
-        h[ new_highlight_ids[i] ] = true;
-        nh_cnt ++;
-    }
-    
-    if (nh_cnt > 0) {
-        hs.SetEventType(HLStateInt::delta);
-        hs.notifyObservers();
-    }
+    ((MapCanvas*) template_canvas)->DisplayNeighbors();
+    UpdateOptionMenuItems();
 }
 
 void MapFrame::OnNewCustomCatClassifA()

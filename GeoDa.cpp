@@ -1450,11 +1450,16 @@ void GdaFrame::InitWithProject()
     if (!project_p->IsTableOnlyProject()) {
         std::vector<int> col_ids;
         std::vector<GdaVarTools::VarInfo> var_info;
+        WeightsManInterface* w_int = project_p->GetWManInt();
+        boost::uuids::uuid w_id = boost::uuids::nil_uuid();
+        if (w_int) {
+            w_id = w_int->GetDefault();
+        }
         MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
                                     var_info, col_ids,
                                     CatClassification::no_theme,
                                     MapCanvas::no_smoothing, 1,
-                                    boost::uuids::nil_uuid(),
+                                    w_id,
                                     wxPoint(80,160),
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
@@ -6427,8 +6432,11 @@ wxConnectionBase* GdaClient::OnMakeConnection()
 
 bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
 {
+    wxLogMessage("In GdaConnection::OnExec()");
 	GdaFrame* frame = wxDynamicCast(wxGetApp().GetTopWindow(), GdaFrame);
 	wxString filename(data);
+    wxLogMessage(topic);
+    wxLogMessage(filename);
 	if (filename.IsEmpty()) {
 		if (frame) frame->Raise();
 	} else {

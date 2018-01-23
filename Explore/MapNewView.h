@@ -121,6 +121,7 @@ public:
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
+    virtual void OnSize(wxSizeEvent& event);
 	
     int  GetBasemapType();
     
@@ -163,6 +164,7 @@ public:
 	virtual void DisplayMeanCenters();
 	virtual void DisplayCentroids();
     virtual void DisplayWeightsGraph();
+    virtual void DisplayNeighbors();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -172,6 +174,8 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
+    
+    void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
     
     CatClassification::CatClassifType GetCcType();
     
@@ -183,14 +187,16 @@ public:
 	bool display_voronoi_diagram;
 	bool voronoi_diagram_duplicates_exist;
     bool display_weights_graph;
-	
+    bool display_neighbors;
+    std::set<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
-    
 	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
     
-    static void ResetThumbnail() { MapCanvas::has_thumbnail_saved = false;}
+    static void ResetThumbnail() {
+        MapCanvas::has_thumbnail_saved = false;
+    }
     
     static vector<int> empty_shps_ids;
     static std::map<int, bool> empty_dict;
