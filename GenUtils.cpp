@@ -1139,10 +1139,7 @@ wxString GenUtils::DblToStr(double x, int precision)
         ss << std::fixed;
     }
 	ss << std::setprecision(precision);
-    if (x == (int)x)
-        ss << wxString::Format("%d", (int)x);
-    else
-        ss << x;
+    ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
