@@ -188,7 +188,8 @@ public:
 	bool voronoi_diagram_duplicates_exist;
     bool display_weights_graph;
     bool display_neighbors;
-    std::set<int> ids_wo_nbrs;
+    std::set<int> ids_of_nbrs;
+    std::vector<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	int num_obs;
 	bool isDrawBasemap;

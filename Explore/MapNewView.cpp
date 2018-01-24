@@ -282,7 +282,10 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
     std::vector<bool>& h = hs.GetHighlight();
     std::vector<bool> add_elem(gal_weights->num_obs, false);
     std::set<int>::iterator it;
+    ids_of_nbrs.clear();
     ids_wo_nbrs.clear();
+    
+    for (int i=0; i<h.size(); i++) if (h[i]) ids_wo_nbrs.push_back(i);
     
     for (int i=0; i<gal_weights->num_obs; i++) {
         if (h[i]) {
@@ -291,15 +294,15 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
                 int obs = e[j];
                 if (!h[obs] && !add_elem[obs]) {
                     add_elem[obs] = true;
-                    ids_wo_nbrs.insert(obs);
+                    ids_of_nbrs.insert(obs);
                 }
             }
         }
     }
     if (dc.IsOk()) {
         vector<bool> new_hs(num_obs, false);
-        for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
-            h[*it] = true;
+        for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
+            //h[*it] = true;
             new_hs[*it] = true;
             // draw new highlighted in dc
             if (display_neighbors) {
@@ -320,15 +323,12 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 
 void MapCanvas::OnSize(wxSizeEvent& event)
 {
-    if (!ids_wo_nbrs.empty() && (display_neighbors || display_weights_graph)) {
+    if (!ids_of_nbrs.empty() && (display_neighbors || display_weights_graph)) {
         // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
         HighlightState& hs = *project->GetHighlightState();
         std::vector<bool>& h = hs.GetHighlight();
-        std::set<int>::iterator it;
-        for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
-            h[*it] = false;
-        }
-        ids_wo_nbrs.clear();
+        for (int i=0; i<h.size(); i++) h[i] = false;
+        for (int i=0; i<ids_wo_nbrs.size(); i++) h[ids_wo_nbrs[i]] = true;
     }
     
     ResetBrushing();
@@ -1927,17 +1927,7 @@ void MapCanvas::update(HLStateInt* o)
             ResetFadedLayer();
         }
         
-        if (!ids_wo_nbrs.empty() && (display_neighbors || display_weights_graph)) {
-            // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
-            HighlightState& hs = *project->GetHighlightState();
-            std::vector<bool>& h = hs.GetHighlight();
-            std::set<int>::iterator it;
-            for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
-                h[*it] = false;
-            }
-            ids_wo_nbrs.clear();
-        }
-        
+
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
@@ -2071,8 +2061,8 @@ w_man_state(project->GetWManState()), export_dlg(NULL)
     template_canvas = NULL;
   
     if (weights_id.is_nil()) {
-        weights_id = w_man_state->GetWeightsId();
-        //weights_id = w_man_state->GetDefault();
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        weights_id = w_man_int->GetDefault();
     }
     
 	int width, height;
