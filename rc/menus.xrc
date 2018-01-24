@@ -3054,9 +3054,11 @@
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
+        <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Weights Graph</label>
+        <label>Display Connectivity Graph</label>
+        <checkable>1</checkable>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">

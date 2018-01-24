@@ -302,15 +302,19 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
             h[*it] = true;
             new_hs[*it] = true;
             // draw new highlighted in dc
-            //selectable_shps[*it]->setPen(GdaConst::conn_graph_outline_colour);
-            //selectable_shps[*it]->setBrush(GdaConst::selectable_fill_color);
-            //selectable_shps[*it]->paintSelf(dc);
+            if (display_neighbors) {
+                selectable_shps[*it]->setPen(GdaConst::conn_graph_outline_colour);
+                selectable_shps[*it]->setBrush(*wxTRANSPARENT_BRUSH);
+                selectable_shps[*it]->paintSelf(dc);
+            }
         }
-        bool hl_only = true;
-        bool revert = false;
-        bool crosshatch = false;
-        bool is_print = false;
-        helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print, GdaConst::conn_graph_outline_colour);
+        if (display_weights_graph) {
+            bool hl_only = true;
+            bool revert = false;
+            bool crosshatch = false;
+            bool is_print = false;
+            helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
+        }
     }
 }
 
@@ -895,8 +899,7 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	if (MapFrame* f = dynamic_cast<MapFrame*>(template_frame)) {
 		f->OnActivate(ae);
 	}
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
@@ -1018,6 +1021,10 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 								  display_centroids);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_VORONOI_DIAGRAM"),
 								  display_voronoi_diagram);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_WEIGHTS_GRAPH"),
+                                  display_weights_graph);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"),
+                                  display_neighbors);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -1919,6 +1926,18 @@ void MapCanvas::update(HLStateInt* o)
             tran_unhighlighted = GdaConst::transparency_unhighlighted;
             ResetFadedLayer();
         }
+        
+        if (!ids_wo_nbrs.empty() && (display_neighbors || display_weights_graph)) {
+            // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
+            HighlightState& hs = *project->GetHighlightState();
+            std::vector<bool>& h = hs.GetHighlight();
+            std::set<int>::iterator it;
+            for (it=ids_wo_nbrs.begin(); it!= ids_wo_nbrs.end(); it++) {
+                h[*it] = false;
+            }
+            ids_wo_nbrs.clear();
+        }
+        
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
@@ -1935,7 +1954,10 @@ void MapCanvas::UpdateStatusBar()
 	}
 	if (!sb) 
         return;
+    
+    std::vector<bool>& hl = highlight_state->GetHighlight();
 	wxString s;
+    
     if (GetCcType() == CatClassification::no_theme)
         s << "#obs=" << project->GetNumRecordsNoneEmpty() <<" ";
     else
@@ -1945,7 +1967,6 @@ void MapCanvas::UpdateStatusBar()
         // for highlight from other windows
         if (GetCcType() == CatClassification::no_theme) {
             int selected_cnt = 0;
-            std::vector<bool>& hl = highlight_state->GetHighlight();
             for (int i=0; i<hl.size(); i++) {
                 if ( hl[i] && empty_dict.find(i) == empty_dict.end()) {
                     selected_cnt += 1;
@@ -1958,18 +1979,18 @@ void MapCanvas::UpdateStatusBar()
         
     }
 	if (mousemode == select && selectstate == start) {
-		if (total_hover_obs >= 1) {
+		if (hover_obs.size() >= 1) {
 			s << "hover obs " << hover_obs[0]+1;
 		}
-		if (total_hover_obs >= 2) {
+		if (hover_obs.size() >= 2) {
 			s << ", ";
 			s << "obs " << hover_obs[1]+1;
 		}
-		if (total_hover_obs >= 3) {
+		if (hover_obs.size() >= 3) {
 			s << ", ";
 			s << "obs " << hover_obs[2]+1;
 		}
-		if (total_hover_obs >= 4) {
+		if (hover_obs.size() >= 4) {
 			s << ", ...";
 		}
 	}
@@ -2333,7 +2354,7 @@ GalWeight* MapFrame::checkWeights()
     
     GalWeight* gal_weights = w_man_int->GetGal(w_id);
     if (gal_weights== NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return NULL;
@@ -2480,7 +2501,8 @@ void MapFrame::OnUniqueValues()
         bool show_str_var = true;
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate,
                                 // default values
-                                false,false,_("Variable Settings"),"","","","",false,false,false,
+                                false,false,_("Variable Settings"),
+                                "","","","",false,false,false,
                                 show_str_var);
 		if (dlg.ShowModal() != wxID_OK) return;
 		ChangeMapType(CatClassification::unique_values,
@@ -2540,8 +2562,8 @@ void MapFrame::OnSaveCategories()
 void MapFrame::OnRawrate()
 {
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false, false,
-							"Raw Rate Smoothed Variable Settings",
-							"Event Variable", "Base Variable");
+							_("Raw Rate Smoothed Variable Settings"),
+							_("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	ChangeMapType(dlg.GetCatClassifType(),
 				  MapCanvas::raw_rate, dlg.GetNumCategories(),
@@ -2552,8 +2574,8 @@ void MapFrame::OnRawrate()
 void MapFrame::OnExcessRisk()
 {
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate, false, false,
-							"Excess Risk Map Variable Settings",
-							"Event Variable", "Base Variable");
+							_("Excess Risk Map Variable Settings"),
+							_("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	ChangeMapType(CatClassification::excess_risk_theme,
 				  MapCanvas::excess_risk, 6, boost::uuids::nil_uuid(),
@@ -2563,8 +2585,8 @@ void MapFrame::OnExcessRisk()
 void MapFrame::OnEmpiricalBayes()
 {
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, false, false,
-							"Empirical Bayes Smoothed Variable Settings",
-							"Event Variable", "Base Variable");
+							_("Empirical Bayes Smoothed Variable Settings"),
+							_("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	ChangeMapType(dlg.GetCatClassifType(),
 				  MapCanvas::empirical_bayes, dlg.GetNumCategories(),
@@ -2577,8 +2599,8 @@ void MapFrame::OnSpatialRate()
     
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, true,
 													false,
-							"Spatial Rate Smoothed Variable Settings",
-							"Event Variable", "Base Variable");
+							_("Spatial Rate Smoothed Variable Settings"),
+							_("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 
 	ChangeMapType(dlg.GetCatClassifType(),
@@ -2591,8 +2613,8 @@ void MapFrame::OnSpatialEmpiricalBayes()
 {
 	VariableSettingsDlg dlg(project, VariableSettingsDlg::rate_smoothed, true,
 													false,
-							"Empirical Spatial Rate Smoothed Variable Settings",
-							"Event Variable", "Base Variable");
+							_("Empirical Spatial Rate Smoothed Variable Settings"),
+							_("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	ChangeMapType(dlg.GetCatClassifType(),
 				  MapCanvas::spatial_empirical_bayes,

@@ -3898,7 +3898,7 @@
                       </object>
                       <object class="sizeritem">
                           <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
-                              <label>Apply kernel on diagnal weights</label>
+                              <label>Apply kernel to diagonal weights</label>
                           </object>
                           <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
                       </object>

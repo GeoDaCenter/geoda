@@ -71,12 +71,15 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
     histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
     connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"), "Connectivity Graph", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	
 	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
 	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
 	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
     Connect(XRCID("ID_HISTOGRAM_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnHistogramBtn));
     Connect(XRCID("ID_CONNECT_MAP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectMapBtn));
+    Connect(XRCID("ID_CONNECT_GRAPH_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectGraphBtn));
 
 	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition, wxSize(-1, 100), wxLC_REPORT);
     
@@ -107,6 +110,8 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
     btns_row2_h_szr->AddSpacer(5);
     btns_row2_h_szr->Add(connectivity_map_btn, 0, wxALIGN_CENTER_VERTICAL);
     btns_row2_h_szr->AddSpacer(5);
+    btns_row2_h_szr->Add(connectivity_graph_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row2_h_szr->AddSpacer(5);
  
     
 	wxBoxSizer* wghts_list_h_szr = new wxBoxSizer(wxHORIZONTAL);
@@ -124,19 +129,6 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
 	panel->SetSizer(panel_h_szr);
-	
-	
-	//wxBoxSizer* right_v_szr = new wxBoxSizer(wxVERTICAL);
-	//conn_hist_canvas = new ConnectivityHistCanvas(this, this, project, boost::uuids::nil_uuid());
-	//right_v_szr->Add(conn_hist_canvas, 1, wxEXPAND);
-	
-	// We have decided not to display the ConnectivityMapCanvas.  Uncomment
-	// the following 4 lines to re-enable for shape-enabled projects.
-	//if (!project->IsTableOnlyProject()) {
-	//	conn_map_canvas = new ConnectivityMapCanvas(this, this, project,
-	//												boost::uuids::nil_uuid());
-	//	right_v_szr->Add(conn_map_canvas, 1, wxEXPAND);
-	//}
 	
 	boost::uuids::uuid default_id = w_man_int->GetDefault();
 	SelectId(default_id);
@@ -177,9 +169,39 @@ void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
 void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
 {
     wxLogMessage("WeightsManFrame::OnConnectMapBtn()");
-    boost::uuids::uuid id = GetHighlightId();
-    if (id.is_nil()) return;
-    ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
+    boost::uuids::uuid w_id = GetHighlightId();
+    if (w_id.is_nil()) return;
+    //ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
+    std::vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    MapFrame* nf = new MapFrame(this, project_p,
+                                var_info, col_ids,
+                                CatClassification::no_theme,
+                                MapCanvas::no_smoothing, 1,
+                                w_id,
+                                wxPoint(80,160),
+                                GdaConst::map_default_size);
+    nf->SetTitle("Connectivity Map");
+    nf->OnAddNeighborToSelection(ev);
+}
+
+void WeightsManFrame::OnConnectGraphBtn(wxCommandEvent& ev)
+{
+    wxLogMessage("WeightsManFrame::OnConnectGraphBtn()");
+    boost::uuids::uuid w_id = GetHighlightId();
+    if (w_id.is_nil()) return;
+    //
+    std::vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    MapFrame* nf = new MapFrame(this, project_p,
+                                var_info, col_ids,
+                                CatClassification::no_theme,
+                                MapCanvas::no_smoothing, 1,
+                                w_id,
+                                wxPoint(80,160),
+                                GdaConst::map_default_size);
+    nf->SetTitle("Connectivity Graph");
+    nf->OnDisplayWeightsGraph(ev);
 }
 
 void WeightsManFrame::OnActivate(wxActivateEvent& event)
