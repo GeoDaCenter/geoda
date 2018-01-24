@@ -350,6 +350,8 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel, b
                 nbrs[j].weight = (15.0 / 16.0) * pow((1.0 - pow(nbrs[j].weight,2.0)), 2.0);
             } else if (kernel.IsSameAs("gaussian", false)) {
                 nbrs[j].weight = gaussian_const * exp( -pow(nbrs[j].weight, 2.0) / 2.0 );
+            } else if (kernel.IsSameAs("epanechnikov", false)) {
+                nbrs[j].weight = 1.0 - pow(nbrs[j].weight, 2.0);
             }
         }
     }

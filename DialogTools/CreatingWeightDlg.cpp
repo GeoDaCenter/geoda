@@ -954,11 +954,11 @@ void CreatingWeightDlg::InitDlg()
     m_spinn_kernel->SetValue(4);
     m_kernel_neighbors->SetValue( "4");
     m_kernel_methods->Clear();
-    m_kernel_methods->Append("gaussian");
-    m_kernel_methods->Append("quadratic");
-    m_kernel_methods->Append("quartic");
-    m_kernel_methods->Append("triangular");
-    m_kernel_methods->Append("uniform");
+    m_kernel_methods->Append("Uniform");
+    m_kernel_methods->Append("Triangular");
+    m_kernel_methods->Append("Epanechnikov");
+    m_kernel_methods->Append("Quartic");
+    m_kernel_methods->Append("Gaussian");
     m_kernel_methods->SetSelection(0);
 
 	FindWindow(XRCID("wxID_OK"))->Enable(false);
