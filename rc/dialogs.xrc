@@ -3454,7 +3454,7 @@
         <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxStaticText" name="ID_ID_VAR_STAT_TXT">
-              <label>Weights File ID Variable</label>
+              <label>Select ID Variable</label>
             </object>
             <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
             <border>5</border>
@@ -3466,7 +3466,7 @@
             <flag>wxALIGN_CENTRE_VERTICAL</flag>
           </object>
           <object class="spacer">
-            <size>20,5d</size>
+            <size>10,5d</size>
           </object>
           <object class="sizeritem">
             <object class="wxButton" name="ID_CREATE_ID">
@@ -3476,550 +3476,469 @@
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
-        <flag>wxTOP|wxALIGN_CENTRE_HORIZONTAL</flag>
-        <border>12</border>
+        <flag>wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
+        <border>20</border>
       </object>
       <object class="sizeritem">
-        <object class="wxStaticBoxSizer" name="wxID_ANY">
-          <object class="sizeritem">
-            <object class="wxFlexGridSizer">
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="IDC_RADIO_QUEEN">
-                  <label>Queen contiguity</label>
-                  <style>wxRB_GROUP</style>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxBoxSizer">
-                  <object class="sizeritem">
-                    <flag>wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                    <border>2</border>
-                    <object class="wxStaticText" name="IDC_STATIC_OOC1">
-                      <label>Order of contiguity</label>
-                    </object>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxTextCtrl" name="IDC_EDIT_ORDEROFCONTIGUITY">
-                      <size>25,-1d</size>
-                      <style>wxTE_READONLY|wxTE_RIGHT</style>
-                    </object>
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="spacer">
-                    <size>2,2</size>
-                  </object>
-                  <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                    <object class="wxSpinButton" name="IDC_SPIN_ORDEROFCONTIGUITY">
-                      <style>wxSP_VERTICAL</style>
-                      <value>0</value>
-                      <min>0</min>
-                      <max>100</max>
-                    </object>
-                  </object>
-                  <orient>wxHORIZONTAL</orient>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxRadioButton" name="IDC_RADIO_ROOK">
-                  <label>Rook contiguity</label>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxCheckBox" name="IDC_CHECK1">
-                  <label>Include lower orders</label>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxCheckBox" name="IDC_PRECISION_CBX">
-                  <label>Precision threshold</label>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <object class="sizeritem">
-                <object class="wxTextCtrl" name="IDC_PRECISION_THRESHOLD_EDIT">
-                  <size>90,-1d</size>
-                  <value>0</value>
-                  <style>wxTE_RIGHT</style>
-                </object>
-                <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-              </object>
-              <cols>2</cols>
-              <rows>3</rows>
-              <vgap>5</vgap>
-              <hgap>40</hgap>
-            </object>
-            <flag>wxALIGN_CENTER</flag>
-          </object>
-          <label>Contiguity Weight</label>
-          <orient>wxHORIZONTAL</orient>
-        </object>
-        <flag>wxALIGN_LEFT|wxALL</flag>
-        <border>7</border>
-      </object>
-      <object class="sizeritem">
-        <object class="wxStaticBoxSizer">
-          <object class="sizeritem">
-            <object class="wxBoxSizer" name="wxID_ANY">
-              <orient>wxVERTICAL</orient>
-              <label>Distance Weight</label>
-              <object class="sizeritem">
-                <object class="wxFlexGridSizer">
-                  <object class="sizeritem">
-                    <object class="wxStaticText" name="IDC_STATIC3">
-                      <label>Distance metric</label>
-                    </object>
-                    <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="IDC_DISTANCE_METRIC">
-                      <size>98,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTER</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="spacer"/>
-                  <object class="sizeritem">
-                    <object class="wxStaticText" name="IDC_STATIC1">
-                      <label>X-coordinate variable</label>
-                    </object>
-                    <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="IDC_XCOORDINATES">
-                      <size>98,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTER</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="IDC_XCOORD_TIME">
-                      <size>80,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTER</flag>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxStaticText" name="IDC_STATIC2">
-                      <label>Y-coordinate variable</label>
-                    </object>
-                    <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="IDC_YCOORDINATES">
-                      <size>98,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTER</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxChoice" name="IDC_YCOORD_TIME">
-                      <size>80,-1d</size>
-                    </object>
-                    <flag>wxALIGN_CENTER</flag>
-                  </object>
-                  <cols>3</cols>
-                  <rows>3</rows>
-                  <vgap>5</vgap>
-                  <hgap>5</hgap>
-                </object>
-                <flag>wxALIGN_LEFT|wxALL</flag>
-                <border>2</border>
-              </object>
-              <object class="sizeritem">
-                <flag>wxALIGN_LEFT|wxALL</flag>
-                <border>2</border>
-                <object class="wxBoxSizer">
-                  <orient>wxVERTICAL</orient>
-                  <object class="sizeritem">
-                    <flag>wxALIGN_LEFT|wxALL</flag>
-                    <border>2</border>
-                    <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="sizeritem">
-                        <object class="wxRadioButton" name="IDC_RADIO_DISTANCE">
-                          <label>Distance band</label>
-                          <value>1</value>
-                        </object>
-                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                        <border>2</border>
-                      </object>
-                      <object class="spacer">
-                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                        <border>2</border>
-                        <size>5,5d</size>
-                      </object>
-                      <object class="spacer">
-                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                        <border>2</border>
-                        <size>5,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                        <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                        <border>2</border>
-                        <object class="wxTextCtrl" name="IDC_THRESHOLD_EDIT">
-                          <size>90,-1d</size>
-                          <style>wxTE_RIGHT</style>
-                        </object>
-                      </object>
-                    </object>
-                  </object>
-                  <object class="sizeritem">
+          <object class="wxNotebook" name="IDC_NB_WEIGHTS_CREATION">
+              <object class="notebookpage">
+                  <object class="wxPanel">
                       <object class="wxBoxSizer">
-                          <orient>wxHORIZONTAL</orient>
-                          <object class="spacer">
-                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                              <border>2</border>
-                              <size>23,5d</size>
-                          </object>
+                          <orient>wxVERTICAL</orient>
                           <object class="sizeritem">
-                              <object class="wxSlider" name="IDC_THRESHOLD_SLIDER">
-                                  <size>470,-1</size>
-                                  <value>0</value>
-                                  <min>0</min>
-                                  <max>100</max>
-                                  <style>wxSL_HORIZONTAL</style>
-                              </object>
-                          </object>
-                      </object>
-                      <flag>wxALIGN_LEFT|wxALL</flag>
-                      <border>2</border>
-                  </object>
-                </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxVERTICAL</orient>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_LEFT|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxBoxSizer">
-                              <orient>wxHORIZONTAL</orient>
-                              <object class="sizeritem">
-                                  <object class="wxRadioButton" name="IDC_RADIO_INVERSE_DISTANCE">
-                                      <label>Inverse distance</label>
-                                      <value>0</value>
+                              <object class="wxFlexGridSizer">
+                                  <object class="sizeritem">
+                                      <object class="wxRadioButton" name="IDC_RADIO_QUEEN">
+                                          <label>Queen contiguity</label>
+                                          <style>wxRB_GROUP</style>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
                                   </object>
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
+                                  <object class="sizeritem">
+                                      <object class="wxBoxSizer">
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_RIGHT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                              <border>2</border>
+                                              <object class="wxStaticText" name="IDC_STATIC_OOC1">
+                                                  <label>Order of contiguity</label>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_EDIT_ORDEROFCONTIGUITY">
+                                                  <size>25,-1d</size>
+                                                  <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                              </object>
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="spacer">
+                                              <size>2,2</size>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                              <object class="wxSpinButton" name="IDC_SPIN_ORDEROFCONTIGUITY">
+                                                  <style>wxSP_VERTICAL</style>
+                                                  <value>0</value>
+                                                  <min>0</min>
+                                                  <max>100</max>
+                                              </object>
+                                          </object>
+                                          <orient>wxHORIZONTAL</orient>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxRadioButton" name="IDC_RADIO_ROOK">
+                                          <label>Rook contiguity</label>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxCheckBox" name="IDC_CHECK1">
+                                          <label>Include lower orders</label>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxCheckBox" name="IDC_PRECISION_CBX">
+                                          <label>Precision threshold</label>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxTextCtrl" name="IDC_PRECISION_THRESHOLD_EDIT">
+                                          <size>90,-1d</size>
+                                          <value>0</value>
+                                          <style>wxTE_RIGHT</style>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                  </object>
+                                  <cols>2</cols>
+                                  <rows>3</rows>
+                                  <vgap>10</vgap>
+                                  <hgap>40</hgap>
                               </object>
-                              <object class="spacer">
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
-                                  <size>5,5d</size>
-                              </object>
-                              <object class="spacer">
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
-                                  <size>5,5d</size>
-                              </object>
-                              <object class="sizeritem">
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
-                                  <object class="wxTextCtrl" name="IDC_INVERSE_THRESHOLD_EDIT">
-                                      <size>60,-1d</size>
-                                      <style>wxTE_RIGHT</style>
+                              <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
+                              <border>15</border>
+                          </object>
+                      </object>
+                  </object>
+                  <label>Contiguity Weight</label>
+                  <flag>wxALL|wxEXPAND</flag>
+              </object>
+              <object class="notebookpage">
+                  <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                          <orient>wxVERTICAL</orient>
+                          <object class="sizeritem">
+                              <object class="wxBoxSizer" name="wxID_ANY">
+                                  <orient>wxVERTICAL</orient>
+                                  <label>Distance Weight</label>
+                                  <object class="sizeritem">
+                                      <object class="wxFlexGridSizer">
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC3">
+                                                  <label>Distance metric</label>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_DISTANCE_METRIC">
+                                                  <size>98,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="spacer"/>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC1">
+                                                  <label>X-coordinate variable</label>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_XCOORDINATES">
+                                                  <size>98,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_XCOORD_TIME">
+                                                  <size>80,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER</flag>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC2">
+                                                  <label>Y-coordinate variable</label>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_YCOORDINATES">
+                                                  <size>98,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxChoice" name="IDC_YCOORD_TIME">
+                                                  <size>80,-1d</size>
+                                              </object>
+                                              <flag>wxALIGN_CENTER</flag>
+                                          </object>
+                                          <cols>3</cols>
+                                          <rows>3</rows>
+                                          <vgap>5</vgap>
+                                          <hgap>5</hgap>
+                                      </object>
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>2</border>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxNotebook" name="IDC_NB_DISTANCE_WEIGHTS">
+                                          <object class="notebookpage" name="IDC_RADIO_DISTANCE">
+                                              <object class="wxPanel">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText">
+                                                                      <label>Specify bandwidth</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <size>5,5d</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxTextCtrl" name="IDC_THRESHOLD_EDIT">
+                                                                      <size>90,-1d</size>
+                                                                      <style>wxTE_RIGHT</style>
+                                                                  </object>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <object class="wxSlider" name="IDC_THRESHOLD_SLIDER">
+                                                              <value>0</value>
+                                                              <min>0</min>
+                                                              <max>100</max>
+                                                              <style>wxSL_HORIZONTAL</style>
+                                                          </object>
+                                                          <flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                      </object>
+                                                  </object>
+                                              </object>
+                                              <label>Distance band</label>
+                                              <flag>wxALL|wxEXPAND</flag>
+                                          </object>
+                                          <object class="notebookpage">
+                                              <object class="wxPanel">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxStaticText" name="IDC_STATIC_KNN">
+                                                                      <label>Number of neighbors</label>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxTextCtrl" name="IDC_EDIT_KNN">
+                                                                      <size>25,-1d</size>
+                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxSpinButton" name="IDC_SPIN_KNN">
+                                                                      <style>wxSP_VERTICAL</style>
+                                                                      <value>0</value>
+                                                                      <min>0</min>
+                                                                      <max>100</max>
+                                                                  </object>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                  </object>
+                                              </object>
+                                              <label>K-Nearest neighbors</label>
+                                              <flag>wxALL|wxEXPAND</flag>
+                                          </object>
+                                          <object class="notebookpage" name="IDC_RADIO_KERNEL">
+                                              <object class="wxPanel">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxStaticText" name="IDC_STATIC_KERNEL">
+                                                                      <label>Kernel function</label>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_KERNEL_METHODS">
+                                                                      <size>68,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxStaticText" name="IDC_STATIC_KERNEL_KNN">
+                                                                      <label>Number of neighbors</label>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxTextCtrl" name="IDC_EDIT_KERNEL_KNN">
+                                                                      <size>25,-1d</size>
+                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxSpinButton" name="IDC_SPIN_KERNEL_KNN">
+                                                                      <style>wxSP_VERTICAL</style>
+                                                                      <value>0</value>
+                                                                      <min>0</min>
+                                                                      <max>100</max>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
+                                                                      <label>Apply kernel to diagonal weights</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxRadioButton" name="IDC_RADIO_ADAPTIVE_BANDWIDTH">
+                                                              <label>Adaptive bandwidth</label>
+                                                              <style>wxRB_GROUP</style>
+                                                              <value>0</value>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
+                                                              <label>Use max knn distance as bandwidth</label>
+                                                              <value>1</value>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxRadioButton" name="IDC_RADIO_MANU_BANDWIDTH">
+                                                                      <label>Specify bandwidth</label>
+                                                                      <value>0</value>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <size>5,5d</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxTextCtrl" name="IDC_BANDWIDTH_EDIT">
+                                                                      <size>60,-1d</size>
+                                                                      <style>wxTE_RIGHT</style>
+                                                                  </object>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxSlider" name="IDC_BANDWIDTH_SLIDER">
+                                                              <value>0</value>
+                                                              <min>0</min>
+                                                              <max>100</max>
+                                                              <style>wxSL_HORIZONTAL</style>
+                                                          </object>
+                                                      </object>
+                                                  </object>
+                                              </object>
+                                              <label>Adaptive kernel</label>
+                                              <flag>wxALL|wxEXPAND</flag>
+                                          </object>
+                                          <size>500,280</size>
+                                          <flag>wxALL|wxEXPAND</flag>
+                                      </object>
+                                      <flag>wxALL|wxEXPAND</flag>
+                                      <border>5</border>
+                                      <option>1</option>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>2</border>
+                                      <object class="wxBoxSizer">
+                                          <orient>wxHORIZONTAL</orient>
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                              <object class="wxCheckBox" name="IDC_CHK_INVERSE_DISTANCE">
+                                                  <value>0</value>
+                                              </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_USE_INVERSE_DISTANCE">
+                                                  <label>Use inverse distance?</label>
+                                              </object>
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="spacer">
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                              <size>10,2d</size>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxStaticText" name="IDC_STATIC_POWER">
+                                                  <label>Power</label>
+                                              </object>
+                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <object class="wxTextCtrl" name="IDC_EDIT_POWER">
+                                                  <size>25,-1d</size>
+                                                  <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                              </object>
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                          </object>
+                                          <object class="sizeritem">
+                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                              <border>2</border>
+                                              <object class="wxSpinButton" name="IDC_SPIN_POWER">
+                                                  <style>wxSP_VERTICAL</style>
+                                                  <value>0</value>
+                                                  <min>1</min>
+                                                  <max>100</max>
+                                              </object>
+                                          </object>
+                                      </object>
                                   </object>
                               </object>
-                              <object class="spacer">
-                                  <size>2,2</size>
-                              </object>
-                              <object class="sizeritem">
-                                  <object class="wxStaticText" name="IDC_STATIC_POWER">
-                                      <label>Power</label>
-                                  </object>
-                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                  <border>5</border>
-                              </object>
-                              <object class="spacer">
-                                  <size>2,2</size>
-                              </object>
-                              <object class="sizeritem">
-                                  <object class="wxTextCtrl" name="IDC_EDIT_POWER">
-                                      <size>25,-1d</size>
-                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                  </object>
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
-                              </object>
-                              <object class="spacer">
-                                  <size>2,2</size>
-                              </object>
-                              <object class="sizeritem">
-                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                  <border>2</border>
-                                  <object class="wxSpinButton" name="IDC_SPIN_POWER">
-                                      <style>wxSP_VERTICAL</style>
-                                      <value>0</value>
-                                      <min>1</min>
-                                      <max>100</max>
-                                  </object>
-                              </object>
+                              <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
+                              <border>15</border>
                           </object>
-                      </object>
-                      <object class="sizeritem">
-                          <object class="wxSlider" name="IDC_INVERSE_THRESHOLD_SLIDER">
-                              <size>500,-1</size>
-                              <value>0</value>
-                              <min>0</min>
-                              <max>100</max>
-                              <style>wxSL_HORIZONTAL</style>
-                          </object>
-                          <flag>wxALIGN_LEFT|wxALL</flag>
-                          <border>2</border>
                       </object>
                   </object>
+                  <label>Distance Weight</label>
+                  <flag>wxALL|wxEXPAND</flag>
               </object>
-              <object class="sizeritem">
-                <flag>wxALIGN_LEFT|wxALL</flag>
-                <border>2</border>
-                <object class="wxBoxSizer">
-                  <orient>wxHORIZONTAL</orient>
-                  <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                    <object class="wxRadioButton" name="IDC_RADIO_KNN">
-                      <label>k-Nearest Neighbors</label>
-                      <value>0</value>
-                    </object>
-                  </object>
-                  <object class="spacer">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                    <size>5,5d</size>
-                  </object>
-                  <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                    <border>2</border>
-                    <object class="wxStaticText" name="IDC_STATIC_KNN">
-                      <label>Number of neighbors</label>
-                    </object>
-                  </object>
-                  <object class="sizeritem">
-                    <object class="wxTextCtrl" name="IDC_EDIT_KNN">
-                      <size>25,-1d</size>
-                      <style>wxTE_READONLY|wxTE_RIGHT</style>
-                    </object>
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                  </object>
-                  <object class="spacer">
-                    <size>2,2</size>
-                  </object>
-                  <object class="sizeritem">
-                    <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                    <border>2</border>
-                    <object class="wxSpinButton" name="IDC_SPIN_KNN">
-                      <style>wxSP_VERTICAL</style>
-                      <value>0</value>
-                      <min>0</min>
-                      <max>100</max>
-                    </object>
-                  </object>
-                </object>
-              </object>
-              
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxRadioButton" name="IDC_RADIO_KERNEL">
-                              <label>Adaptive Kernel</label>
-                              <value>0</value>
-                          </object>
-                      </object>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>2,2d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                          <border>2</border>
-                          <object class="wxStaticText" name="IDC_STATIC_KERNEL">
-                              <label>Kernel function</label>
-                          </object>
-                      </object>
-                      <object class="spacer">
-                          <size>2,2</size>
-                      </object>
-                      <object class="sizeritem">
-                          <object class="wxChoice" name="IDC_KERNEL_METHODS">
-                              <size>68,-1d</size>
-                          </object>
-                          <flag>wxALIGN_CENTER</flag>
-                          <border>2</border>
-                      </object>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>23,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                          <border>2</border>
-                          <object class="wxStaticText" name="IDC_STATIC_KERNEL_KNN">
-                              <label>Number of neighbors</label>
-                          </object>
-                      </object>
-                      <object class="sizeritem">
-                          <object class="wxTextCtrl" name="IDC_EDIT_KERNEL_KNN">
-                              <size>25,-1d</size>
-                              <style>wxTE_READONLY|wxTE_RIGHT</style>
-                          </object>
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                      </object>
-                      <object class="spacer">
-                          <size>2,2</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxSpinButton" name="IDC_SPIN_KERNEL_KNN">
-                              <style>wxSP_VERTICAL</style>
-                              <value>0</value>
-                              <min>0</min>
-                              <max>100</max>
-                          </object>
-                      </object>
-                      <object class="spacer">
-                          <size>2,2</size>
-                      </object>
-                      <object class="sizeritem">
-                          <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
-                              <label>Apply kernel to diagonal weights</label>
-                          </object>
-                          <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                      </object>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>23,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxRadioButton" name="IDC_RADIO_ADAPTIVE_BANDWIDTH">
-                              <label>Adaptive bandwidth</label>
-                              <style>wxRB_GROUP</style>
-                              <value>0</value>
-                          </object>
-                      </object>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>23,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
-                              <label>Use max knn distance as bandwidth</label>
-                              <value>1</value>
-                          </object>
-                      </object>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>23,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxRadioButton" name="IDC_RADIO_MANU_BANDWIDTH">
-                              <label>Specify bandwidth</label>
-                              <value>0</value>
-                          </object>
-                      </object>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>5,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <object class="wxTextCtrl" name="IDC_BANDWIDTH_EDIT">
-                              <size>60,-1d</size>
-                              <style>wxTE_RIGHT</style>
-                          </object>
-                      </object>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>2</border>
-                  <object class="wxBoxSizer">
-                      <orient>wxHORIZONTAL</orient>
-                      <object class="spacer">
-                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          <border>2</border>
-                          <size>23,5d</size>
-                      </object>
-                      <object class="sizeritem">
-                          <object class="wxSlider" name="IDC_BANDWIDTH_SLIDER">
-                              <size>470,-1</size>
-                              <value>0</value>
-                              <min>0</min>
-                              <max>100</max>
-                              <style>wxSL_HORIZONTAL</style>
-                          </object>
-                          <flag>wxALIGN_LEFT|wxALL</flag>
-                          <border>2</border>
-                      </object>
-                  </object>
-              </object>
-              
-            </object>
+              <size>520,480</size>
+              <flag>wxALL|wxEXPAND</flag>
           </object>
-          <label>Distance Weight</label>
-          <orient>wxHORIZONTAL</orient>
-        </object>
-        <flag>wxLEFT|wxALL</flag>
-        <border>7</border>
+          <flag>wxALL|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
+          <border>5</border>
       </object>
+
+
+
       <object class="sizeritem">
         <object class="wxBoxSizer">
           <object class="sizeritem">

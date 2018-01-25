@@ -191,30 +191,30 @@ void CreatingWeightDlg::CreateControls()
 	m_sliderdistance = XRCCTRL(*this, "IDC_THRESHOLD_SLIDER", wxSlider);
 	m_radio_queen = XRCCTRL(*this, "IDC_RADIO_QUEEN", wxRadioButton);
 	m_radio_rook = XRCCTRL(*this, "IDC_RADIO_ROOK", wxRadioButton);
-	m_radio_thresh = XRCCTRL(*this, "IDC_RADIO_DISTANCE", wxRadioButton);
-	m_radio_knn = XRCCTRL(*this, "IDC_RADIO_KNN", wxRadioButton);
-	m_neighbors = XRCCTRL(*this, "IDC_EDIT_KNN", wxTextCtrl);
+	//m_radio_thresh = XRCCTRL(*this, "IDC_RADIO_DISTANCE", wxRadioButton);
+	//m_radio_knn = XRCCTRL(*this, "IDC_RADIO_KNN", wxRadioButton);
+    m_neighbors = XRCCTRL(*this, "IDC_EDIT_KNN", wxTextCtrl);
 	m_spinneigh = XRCCTRL(*this, "IDC_SPIN_KNN", wxSpinButton);
     m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
 
-    m_radio_inverse = XRCCTRL(*this, "IDC_RADIO_INVERSE_DISTANCE", wxRadioButton);
+    //m_radio_inverse = XRCCTRL(*this, "IDC_RADIO_INVERSE_DISTANCE", wxRadioButton);
     m_inverse = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_EDIT", wxTextCtrl);
     m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
     m_inverse_sliderdistance = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_SLIDER", wxSlider);
     
-    m_radio_kernel = XRCCTRL(*this, "IDC_RADIO_KERNEL", wxRadioButton);
+    //m_radio_kernel = XRCCTRL(*this, "IDC_RADIO_KERNEL", wxRadioButton);
     m_kernel_neighbors = XRCCTRL(*this, "IDC_EDIT_KERNEL_KNN", wxTextCtrl);
     m_spinn_kernel = XRCCTRL(*this, "IDC_SPIN_KERNEL_KNN", wxSpinButton);
     m_kernel_methods = XRCCTRL(*this, "IDC_KERNEL_METHODS", wxChoice);
     
-    m_radio_adaptive_bandwidth = XRCCTRL(*this, "IDC_RADIO_ADAPTIVE_BANDWIDTH", wxRadioButton);
+    //m_radio_adaptive_bandwidth = XRCCTRL(*this, "IDC_RADIO_ADAPTIVE_BANDWIDTH", wxRadioButton);
     m_radio_auto_bandwidth = XRCCTRL(*this, "IDC_RADIO_AUTO_BANDWIDTH", wxRadioButton);
     m_radio_manu_bandwdith = XRCCTRL(*this, "IDC_RADIO_MANU_BANDWIDTH", wxRadioButton);
     m_manu_bandwidth = XRCCTRL(*this, "IDC_BANDWIDTH_EDIT", wxTextCtrl);
     m_bandwidth_slider = XRCCTRL(*this, "IDC_BANDWIDTH_SLIDER", wxSlider);
     m_kernel_diagnals = XRCCTRL(*this, "IDC_KERNEL_DIAGNAL_CHECK", wxCheckBox);
     
-	InitDlg();
+	//InitDlg();
 }
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
@@ -332,16 +332,16 @@ void CreatingWeightDlg::EnableThresholdControls( bool b )
 void CreatingWeightDlg::EnableKernelControls( bool b, bool is_init )
 {
     if (is_init) {
-        m_radio_kernel->Enable(b);
+        //m_radio_kernel->Enable(b);
     } else {
         FindWindow(XRCID("IDC_STATIC_KERNEL"))->Enable(b);
         FindWindow(XRCID("IDC_STATIC_KERNEL_KNN"))->Enable(b);
         m_kernel_neighbors->Enable(b);
         m_spinn_kernel->Enable(b);
         m_kernel_methods->Enable(b);
-        m_radio_adaptive_bandwidth->Enable(b);
-        m_radio_auto_bandwidth->Enable(b);
-        m_radio_manu_bandwdith->Enable(b);
+        //m_radio_adaptive_bandwidth->Enable(b);
+        //m_radio_auto_bandwidth->Enable(b);
+        //m_radio_manu_bandwdith->Enable(b);
         m_manu_bandwidth->Enable(b);
         m_bandwidth_slider->Enable(b);
         m_kernel_diagnals->Enable(b);
@@ -351,7 +351,7 @@ void CreatingWeightDlg::EnableKernelControls( bool b, bool is_init )
 void CreatingWeightDlg::EnableInverseControls( bool b, bool is_init)
 {
     if (is_init) {
-        m_radio_inverse->Enable(b);
+        //m_radio_inverse->Enable(b);
     } else {
         FindWindow(XRCID("IDC_STATIC_POWER"))->Enable(b);
         m_inverse->Enable(b);
@@ -772,23 +772,23 @@ void CreatingWeightDlg::UpdateCreateButtonState()
 
 void CreatingWeightDlg::EnableContiguityRadioButtons(bool b)
 {
-	FindWindow(XRCID("IDC_RADIO_ROOK"))->Enable(b);
-	FindWindow(XRCID("IDC_RADIO_QUEEN"))->Enable(b);
+	//FindWindow(XRCID("IDC_RADIO_ROOK"))->Enable(b);
+	//FindWindow(XRCID("IDC_RADIO_QUEEN"))->Enable(b);
 }
 
 void CreatingWeightDlg::EnableDistanceRadioButtons(bool b)
 {
-	FindWindow(XRCID("IDC_RADIO_DISTANCE"))->Enable(b);
-	FindWindow(XRCID("IDC_RADIO_KNN"))->Enable(b);
+	//FindWindow(XRCID("IDC_RADIO_DISTANCE"))->Enable(b);
+	//FindWindow(XRCID("IDC_RADIO_KNN"))->Enable(b);
 }
 
 void CreatingWeightDlg::SetRadioButtons(CreatingWeightDlg::RadioBtnId id)
 {
-	m_radio_queen->SetValue(id == CreatingWeightDlg::QUEEN);
-	m_radio_rook->SetValue(id == CreatingWeightDlg::ROOK);
-	m_radio_thresh->SetValue(id == CreatingWeightDlg::THRESH);
-	m_radio_knn->SetValue(id == CreatingWeightDlg::KNN);
-    m_radio_inverse->SetValue(id == CreatingWeightDlg::INVERSE);
+	//m_radio_queen->SetValue(id == CreatingWeightDlg::QUEEN);
+	//m_radio_rook->SetValue(id == CreatingWeightDlg::ROOK);
+	//m_radio_thresh->SetValue(id == CreatingWeightDlg::THRESH);
+	//m_radio_knn->SetValue(id == CreatingWeightDlg::KNN);
+    //m_radio_inverse->SetValue(id == CreatingWeightDlg::INVERSE);
     
 	if (id != QUEEN && id != ROOK && id != THRESH && id != KNN && id != INVERSE && id != KERNEL) {
 		m_radio = NO_RADIO;
