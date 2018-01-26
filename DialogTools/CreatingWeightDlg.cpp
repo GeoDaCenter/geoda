@@ -53,24 +53,15 @@ BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
 EVT_CLOSE( CreatingWeightDlg::OnClose )
 EVT_BUTTON( XRCID("ID_CREATE_ID"), CreatingWeightDlg::OnCreateNewIdClick )
 EVT_CHOICE(XRCID("IDC_IDVARIABLE"), CreatingWeightDlg::OnIdVariableSelected )
-EVT_CHOICE(XRCID("IDC_DISTANCE_METRIC"), CreatingWeightDlg::OnDistanceChoiceSelected )
 EVT_CHOICE(XRCID("IDC_XCOORDINATES"), CreatingWeightDlg::OnXSelected )
 EVT_CHOICE(XRCID("IDC_YCOORDINATES"), CreatingWeightDlg::OnYSelected )
 EVT_CHOICE(XRCID("IDC_XCOORD_TIME"), CreatingWeightDlg::OnXTmSelected )
 EVT_CHOICE(XRCID("IDC_YCOORD_TIME"), CreatingWeightDlg::OnYTmSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_QUEEN"), CreatingWeightDlg::OnCRadioQueenSelected )
 EVT_SPIN( XRCID("IDC_SPIN_ORDEROFCONTIGUITY"), CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_ROOK"), CreatingWeightDlg::OnCRadioRookSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_DISTANCE"), CreatingWeightDlg::OnCRadioDistanceSelected )
 EVT_TEXT( XRCID("IDC_THRESHOLD_EDIT"), CreatingWeightDlg::OnCThresholdTextEdit )
 EVT_TEXT( XRCID("IDC_BANDWIDTH_EDIT"), CreatingWeightDlg::OnCBandwidthThresholdTextEdit )
-EVT_TEXT( XRCID("IDC_INVERSE_THRESHOLD_EDIT"), CreatingWeightDlg::OnCInverseThresholdTextEdit )
 EVT_SLIDER( XRCID("IDC_THRESHOLD_SLIDER"), CreatingWeightDlg::OnCThresholdSliderUpdated )
-EVT_SLIDER( XRCID("IDC_INVERSE_THRESHOLD_SLIDER"), CreatingWeightDlg::OnCInverseThresholdSliderUpdated )
 EVT_SLIDER( XRCID("IDC_BANDWIDTH_SLIDER"), CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_KERNEL"), CreatingWeightDlg::OnCRadioKernelSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_INVERSE_DISTANCE"), CreatingWeightDlg::OnCRadioInverseSelected )
-EVT_RADIOBUTTON( XRCID("IDC_RADIO_KNN"), CreatingWeightDlg::OnCRadioKnnSelected )
 EVT_SPIN( XRCID("IDC_SPIN_KNN"), CreatingWeightDlg::OnCSpinKnnUpdated )
 EVT_SPIN( XRCID("IDC_SPIN_KERNEL_KNN"), CreatingWeightDlg::OnCSpinKernelKnnUpdated )
 EVT_BUTTON( XRCID("wxID_OK"), CreatingWeightDlg::OnCreateClick )
@@ -92,8 +83,6 @@ m_is_arc(false),
 m_arc_in_km(false), 
 m_thres_val_valid(false),
 m_threshold_val(0.01),
-m_inverse_thres_val(0.01),
-m_inverse_thres_val_valid(false),
 project(project_s),
 frames_manager(project_s->GetFramesManager()),
 table_int(project_s->GetTableInt()),
@@ -127,9 +116,7 @@ void CreatingWeightDlg::OnClose(wxCloseEvent& ev)
 	Destroy();
 }
 
-bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
-                             const wxString& caption, const wxPoint& pos,
-                             const wxSize& size, long style )
+bool CreatingWeightDlg::Create(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style)
 {
 	m_id_field = 0;
 	m_radio_queen = 0;
@@ -144,17 +131,11 @@ bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
 	m_Y = 0;
 	m_X_time = 0;
 	m_Y_time = 0;
-	m_radio_thresh = 0;
 	m_threshold = 0;
 	m_sliderdistance = 0;
-	m_radio_knn = 0;
 	m_neighbors = 0;
 	m_spinneigh = 0;
-    m_radio_inverse = 0;
-    m_inverse = 0;
     m_spinn_inverse = 0;
-    m_inverse_sliderdistance = 0;
-    m_radio_kernel = 0;
     m_kernel_neighbors = 0;
     m_spinn_kernel = 0;
     m_kernel_methods = 0;
@@ -171,50 +152,47 @@ bool CreatingWeightDlg::Create( wxWindow* parent, wxWindowID id,
 
 void CreatingWeightDlg::CreateControls()
 {    
-	wxXmlResource::Get()->LoadDialog(this, GetParent(),
-                                     "IDD_WEIGHTS_FILE_CREATION");
+	wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_WEIGHTS_FILE_CREATION");
 	m_id_field = XRCCTRL(*this, "IDC_IDVARIABLE", wxChoice);
-	m_contiguity = XRCCTRL(*this, "IDC_EDIT_ORDEROFCONTIGUITY", wxTextCtrl);
-	m_spincont = XRCCTRL(*this, "IDC_SPIN_ORDEROFCONTIGUITY", wxSpinButton);
+    // contiguity weight
+    m_nb_weights_type = XRCCTRL(*this, "IDC_NB_WEIGHTS_CREATION", wxNotebook);
+    m_radio_queen = XRCCTRL(*this, "IDC_RADIO_QUEEN", wxRadioButton);
+    m_contiguity = XRCCTRL(*this, "IDC_EDIT_ORDEROFCONTIGUITY", wxTextCtrl);
+    m_spincont = XRCCTRL(*this, "IDC_SPIN_ORDEROFCONTIGUITY", wxSpinButton);
+    m_radio_rook = XRCCTRL(*this, "IDC_RADIO_ROOK", wxRadioButton);
 	m_include_lower = XRCCTRL(*this, "IDC_CHECK1", wxCheckBox);
 	m_cbx_precision_threshold= XRCCTRL(*this, "IDC_PRECISION_CBX", wxCheckBox);
+    m_txt_precision_threshold = XRCCTRL(*this, "IDC_PRECISION_THRESHOLD_EDIT", wxTextCtrl);
+    // distance weight
 	m_dist_choice = XRCCTRL(*this, "IDC_DISTANCE_METRIC", wxChoice);
 	m_X = XRCCTRL(*this, "IDC_XCOORDINATES", wxChoice);
+    m_X_time = XRCCTRL(*this, "IDC_XCOORD_TIME", wxChoice);
 	m_Y = XRCCTRL(*this, "IDC_YCOORDINATES", wxChoice);
-	m_X_time = XRCCTRL(*this, "IDC_XCOORD_TIME", wxChoice);
 	m_Y_time = XRCCTRL(*this, "IDC_YCOORD_TIME", wxChoice);
-	m_X_time->Show(false);
-	m_Y_time->Show(false);
+    m_nb_distance_methods = XRCCTRL(*this, "IDC_NB_DISTANCE_WEIGHTS", wxNotebook);
 	m_threshold = XRCCTRL(*this, "IDC_THRESHOLD_EDIT", wxTextCtrl);
-	m_txt_precision_threshold = XRCCTRL(*this, "IDC_PRECISION_THRESHOLD_EDIT",
-                                        wxTextCtrl);
 	m_sliderdistance = XRCCTRL(*this, "IDC_THRESHOLD_SLIDER", wxSlider);
-	m_radio_queen = XRCCTRL(*this, "IDC_RADIO_QUEEN", wxRadioButton);
-	m_radio_rook = XRCCTRL(*this, "IDC_RADIO_ROOK", wxRadioButton);
-	//m_radio_thresh = XRCCTRL(*this, "IDC_RADIO_DISTANCE", wxRadioButton);
-	//m_radio_knn = XRCCTRL(*this, "IDC_RADIO_KNN", wxRadioButton);
     m_neighbors = XRCCTRL(*this, "IDC_EDIT_KNN", wxTextCtrl);
 	m_spinneigh = XRCCTRL(*this, "IDC_SPIN_KNN", wxSpinButton);
-    m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
-
-    //m_radio_inverse = XRCCTRL(*this, "IDC_RADIO_INVERSE_DISTANCE", wxRadioButton);
-    m_inverse = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_EDIT", wxTextCtrl);
-    m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
-    m_inverse_sliderdistance = XRCCTRL(*this, "IDC_INVERSE_THRESHOLD_SLIDER", wxSlider);
-    
-    //m_radio_kernel = XRCCTRL(*this, "IDC_RADIO_KERNEL", wxRadioButton);
+    m_kernel_methods = XRCCTRL(*this, "IDC_KERNEL_METHODS", wxChoice);
     m_kernel_neighbors = XRCCTRL(*this, "IDC_EDIT_KERNEL_KNN", wxTextCtrl);
     m_spinn_kernel = XRCCTRL(*this, "IDC_SPIN_KERNEL_KNN", wxSpinButton);
-    m_kernel_methods = XRCCTRL(*this, "IDC_KERNEL_METHODS", wxChoice);
-    
-    //m_radio_adaptive_bandwidth = XRCCTRL(*this, "IDC_RADIO_ADAPTIVE_BANDWIDTH", wxRadioButton);
+    m_radio_adaptive_bandwidth = XRCCTRL(*this, "IDC_RADIO_ADAPTIVE_BANDWIDTH", wxRadioButton);
     m_radio_auto_bandwidth = XRCCTRL(*this, "IDC_RADIO_AUTO_BANDWIDTH", wxRadioButton);
     m_radio_manu_bandwdith = XRCCTRL(*this, "IDC_RADIO_MANU_BANDWIDTH", wxRadioButton);
     m_manu_bandwidth = XRCCTRL(*this, "IDC_BANDWIDTH_EDIT", wxTextCtrl);
     m_bandwidth_slider = XRCCTRL(*this, "IDC_BANDWIDTH_SLIDER", wxSlider);
     m_kernel_diagnals = XRCCTRL(*this, "IDC_KERNEL_DIAGNAL_CHECK", wxCheckBox);
+    m_use_inverse = XRCCTRL(*this, "IDC_CHK_INVERSE_DISTANCE", wxCheckBox);
+    m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
+    m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
     
-	//InitDlg();
+    m_btn_ok = XRCCTRL(*this, "wxID_OK", wxButton);
+    
+    m_X_time->Show(false);
+    m_Y_time->Show(false);
+    
+	InitDlg();
 }
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
@@ -227,15 +205,9 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 		// We know that the new id has been added to the the table in memory
     	col_id_map.clear();
     	table_int->FillColIdMap(col_id_map);
-    	
     	InitFields();
 		m_id_field->SetSelection(0);
-       
         bool valid = m_id_field->GetSelection() != wxNOT_FOUND;
-        EnableKernelControls(valid, true);
-        EnableInverseControls(valid, true);
-        EnableDistanceRadioButtons(valid);
-		EnableContiguityRadioButtons(valid && !project->IsTableOnlyProject());
 		UpdateCreateButtonState();
 	} else {
 		// A new id was not added to the dbf file, so do nothing.
@@ -265,34 +237,21 @@ void CreatingWeightDlg::OnPrecisionThresholdCheck( wxCommandEvent& event )
 	}
 }
 
-void CreatingWeightDlg::OnCRadioRookSelected( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCRadioRookSelected");
-	SetRadioBtnAndAssocWidgets(ROOK);
-	SetRadioButtons(ROOK);
-}
-
-void CreatingWeightDlg::OnCRadioQueenSelected( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCRadioQueenSelected");
-	SetRadioBtnAndAssocWidgets(QUEEN);
-	SetRadioButtons(QUEEN);
-}
-
 void CreatingWeightDlg::update(FramesManager* o)
 {
 }
 
 void CreatingWeightDlg::update(TableState* o)
 {
-	if (suspend_table_state_updates) return;
+	if (suspend_table_state_updates)
+        return;
 	if (o->GetEventType() == TableState::cols_delta ||
-			o->GetEventType() == TableState::col_rename ||
-			o->GetEventType() == TableState::col_data_change ||
-			o->GetEventType() == TableState::col_order_change ||
-			o->GetEventType() == TableState::time_ids_add_remove ||
-			o->GetEventType() == TableState::time_ids_rename ||
-			o->GetEventType() == TableState::time_ids_swap)
+        o->GetEventType() == TableState::col_rename ||
+        o->GetEventType() == TableState::col_data_change ||
+        o->GetEventType() == TableState::col_order_change ||
+        o->GetEventType() == TableState::time_ids_add_remove ||
+        o->GetEventType() == TableState::time_ids_rename ||
+        o->GetEventType() == TableState::time_ids_swap)
 	{
 		InitDlg();
 	}
@@ -304,81 +263,8 @@ void CreatingWeightDlg::update(WeightsManState* o)
 	Refresh();
 }
 
-void CreatingWeightDlg::EnableDistanceControls( bool b)
-{
-    FindWindow(XRCID("IDC_STATIC1"))->Enable(b);
-    FindWindow(XRCID("IDC_STATIC2"))->Enable(b);
-    FindWindow(XRCID("IDC_STATIC3"))->Enable(b);
-    m_X->Enable(b);
-    m_Y->Enable(b);
-    m_dist_choice->Enable(b);
-}
-
-void CreatingWeightDlg::EnableThresholdControls( bool b )
-{
-	// This either enable the Threshold distance controls.  This does not
-	// affect the state of the Theshold button itself.
-    EnableDistanceControls(b);
-    
-	m_sliderdistance->Enable(b);
-	m_threshold->Enable(b);
-	UpdateTmSelEnableState();
-	if (!b) {
-		m_X_time->Disable();
-		m_Y_time->Disable();
-	}
-}
-
-void CreatingWeightDlg::EnableKernelControls( bool b, bool is_init )
-{
-    if (is_init) {
-        //m_radio_kernel->Enable(b);
-    } else {
-        FindWindow(XRCID("IDC_STATIC_KERNEL"))->Enable(b);
-        FindWindow(XRCID("IDC_STATIC_KERNEL_KNN"))->Enable(b);
-        m_kernel_neighbors->Enable(b);
-        m_spinn_kernel->Enable(b);
-        m_kernel_methods->Enable(b);
-        //m_radio_adaptive_bandwidth->Enable(b);
-        //m_radio_auto_bandwidth->Enable(b);
-        //m_radio_manu_bandwdith->Enable(b);
-        m_manu_bandwidth->Enable(b);
-        m_bandwidth_slider->Enable(b);
-        m_kernel_diagnals->Enable(b);
-    }
-}
-
-void CreatingWeightDlg::EnableInverseControls( bool b, bool is_init)
-{
-    if (is_init) {
-        //m_radio_inverse->Enable(b);
-    } else {
-        FindWindow(XRCID("IDC_STATIC_POWER"))->Enable(b);
-        m_inverse->Enable(b);
-        m_inverse_sliderdistance->Enable(b);
-        m_spinn_inverse->Enable(b);
-        m_power->Enable(b);
-    }
-}
-
-void CreatingWeightDlg::OnCRadioInverseSelected( wxCommandEvent& event )
-{
-    SetRadioBtnAndAssocWidgets(INVERSE);
-    SetRadioButtons(INVERSE);
-    UpdateThresholdValues();
-}
-
 void CreatingWeightDlg::OnCRadioManuBandwidth( wxCommandEvent& event )
 {
-    SetRadioBtnAndAssocWidgets(KERNEL);
-    SetRadioButtons(KERNEL);
-    UpdateThresholdValues();
-}
-
-void CreatingWeightDlg::OnCRadioKernelSelected( wxCommandEvent& event )
-{
-    SetRadioBtnAndAssocWidgets(KERNEL);
-    SetRadioButtons(KERNEL);
     UpdateThresholdValues();
 }
 
@@ -399,74 +285,6 @@ void CreatingWeightDlg::UpdateTmSelEnableState()
 		m_Y_time->Enable(table_int->IsColTimeVariant(col));
 	} else {
 		m_Y_time->Disable();
-	}
-}
-
-void CreatingWeightDlg::SetRadioBtnAndAssocWidgets(RadioBtnId radio)
-{
-	// Updates the value of m_radio and disables
-	// wigets associated with deslectd radio buttons.
-	
-	// Disable everything to begin.	
-	FindWindow(XRCID("IDC_STATIC_OOC1"))->Enable(false);
-	m_contiguity->Enable(false);
-	m_spincont->Enable(false);
-	m_cbx_precision_threshold->Enable(false);
-	m_include_lower->Enable(false);
-	EnableThresholdControls(false);
-    
-	FindWindow(XRCID("IDC_STATIC_KNN"))->Enable(false);
-	m_neighbors->Enable(false);
-	m_spinneigh->Enable(false);
-    m_inverse->Enable(false);
-    m_power->Enable(false);
-    
-    EnableKernelControls(false);
-    EnableInverseControls(false);
-
-	if (radio == QUEEN || radio == ROOK || radio == THRESH || radio == KNN || radio == INVERSE || radio == KERNEL) {
-		m_radio = radio;
-	} else {
-		m_radio = NO_RADIO;
-	}
-	UpdateCreateButtonState();
-	
-	switch (m_radio) {
-		case QUEEN:
-		case ROOK: {
-			FindWindow(XRCID("IDC_STATIC_OOC1"))->Enable(true);
-			m_contiguity->Enable(true);
-			m_spincont->Enable(true);
-			m_cbx_precision_threshold->Enable(true);
-			m_include_lower->Enable(true);
-		}
-			break;
-		case THRESH: {
-			EnableThresholdControls(true);
-		}
-			break;
-		case KNN: {
-            EnableDistanceControls(true);
-			//SetDistChoiceEuclid(true);
-			m_sliderdistance->Enable(false);
-			FindWindow(XRCID("IDC_STATIC_KNN"))->Enable(true);
-			m_neighbors->Enable(true);
-			m_spinneigh->Enable(true);
-			UpdateTmSelEnableState();
-		}
-			break;
-        case INVERSE: {
-            EnableDistanceControls(true);
-            EnableInverseControls(true);
-        }
-            break;
-        case KERNEL: {
-            EnableDistanceControls(true);
-            EnableKernelControls(true);
-        }
-            break;
-		default:
-			break;
 	}
 }
 
@@ -564,18 +382,15 @@ void CreatingWeightDlg::UpdateThresholdValues()
 
 	m_threshold_val = (m_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
 	m_thres_val_valid = true;
-    if (m_threshold->GetValue().IsEmpty())
+    if (!m_threshold->GetValue().IsEmpty()) {
         m_threshold->ChangeValue( wxString::Format("%f", m_threshold_val));
-    
-    m_inverse_thres_val = (m_inverse_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
-    m_inverse_thres_val_valid = true;
-    if (m_inverse->GetValue().IsEmpty())
-        m_inverse->ChangeValue( wxString::Format("%f", m_inverse_thres_val) );
+    }
     
     m_bandwidth_thres_val = (m_bandwidth_slider->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
     m_bandwidth_thres_val_valid = true;
-    if (m_manu_bandwidth->GetValue().IsEmpty())
+    if (!m_manu_bandwidth->GetValue().IsEmpty()) {
         m_manu_bandwidth->ChangeValue( wxString::Format("%f", m_bandwidth_thres_val) );
+    }
 }
 
 void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
@@ -630,32 +445,6 @@ void CreatingWeightDlg::OnCBandwidthThresholdTextEdit( wxCommandEvent& event )
     }
 }
 
-void CreatingWeightDlg::OnCInverseThresholdTextEdit( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCInverseThresholdTextEdit:");
-    
-    if (!all_init) return;
-    wxString val = m_inverse->GetValue();
-    val.Trim(false);
-    val.Trim(true);
-    
-    wxLogMessage(val);
-    
-    double t = m_inverse_thres_val;
-    m_inverse_thres_val_valid = val.ToDouble(&t);
-    if (m_inverse_thres_val_valid) {
-        m_inverse_thres_val = t;
-        if (t <= m_thres_min) {
-            m_inverse_sliderdistance->SetValue(0);
-        } else if (t >= m_thres_max) {
-            m_inverse_sliderdistance->SetValue(100);
-        } else {
-            double s = (t-m_thres_min)/(m_thres_max-m_thres_min) * 100;
-            m_inverse_sliderdistance->SetValue((int) s);
-        }
-    }
-}
-
 void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
 {
     wxLogMessage("Click CreatingWeightDlg::OnCThresholdSliderUpdated:");
@@ -674,23 +463,6 @@ void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
     wxLogMessage(str_val);
 }
 
-void CreatingWeightDlg::OnCInverseThresholdSliderUpdated( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCInverseThresholdSliderUpdated:");
-    
-    if (!all_init) return;
-
-    m_inverse_thres_val = (m_inverse_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
-    m_inverse->ChangeValue( wxString::Format("%f", (double) m_inverse_thres_val));
-    if (m_inverse_thres_val > 0)  {
-        FindWindow(XRCID("wxID_OK"))->Enable(true);
-    }
-    
-    wxString str_val;
-    str_val << m_inverse_thres_val;
-    wxLogMessage(str_val);
-}
-
 void CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated( wxCommandEvent& event )
 {
     wxLogMessage("Click CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated:");
@@ -706,25 +478,6 @@ void CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated( wxCommandEvent& even
     wxString str_val;
     str_val << m_bandwidth_thres_val;
     wxLogMessage(str_val);
-}
-
-void CreatingWeightDlg::OnCRadioDistanceSelected( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCRadioDistanceSelected");
-    
-	// Threshold Distance radio button selected
-	SetRadioBtnAndAssocWidgets(THRESH);
-	SetRadioButtons(THRESH);
-	UpdateThresholdValues();
-}
-
-void CreatingWeightDlg::OnCRadioKnnSelected( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCRadioKnnSelected");
-    
-	SetRadioBtnAndAssocWidgets(KNN);
-	SetRadioButtons(KNN);
-	UpdateThresholdValues();
 }
 
 void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
@@ -765,36 +518,10 @@ void CreatingWeightDlg::UpdateCreateButtonState()
 	// Check that a weight type radio button choice is selected.
 	if (m_radio == NO_RADIO) enable = false;
 	if (m_X->GetSelection() == wxNOT_FOUND ||
-			m_Y->GetSelection() == wxNOT_FOUND) enable = false;
+        m_Y->GetSelection() == wxNOT_FOUND) enable = false;
 	
-	FindWindow(XRCID("wxID_OK"))->Enable(enable);
-}
-
-void CreatingWeightDlg::EnableContiguityRadioButtons(bool b)
-{
-	//FindWindow(XRCID("IDC_RADIO_ROOK"))->Enable(b);
-	//FindWindow(XRCID("IDC_RADIO_QUEEN"))->Enable(b);
-}
-
-void CreatingWeightDlg::EnableDistanceRadioButtons(bool b)
-{
-	//FindWindow(XRCID("IDC_RADIO_DISTANCE"))->Enable(b);
-	//FindWindow(XRCID("IDC_RADIO_KNN"))->Enable(b);
-}
-
-void CreatingWeightDlg::SetRadioButtons(CreatingWeightDlg::RadioBtnId id)
-{
-	//m_radio_queen->SetValue(id == CreatingWeightDlg::QUEEN);
-	//m_radio_rook->SetValue(id == CreatingWeightDlg::ROOK);
-	//m_radio_thresh->SetValue(id == CreatingWeightDlg::THRESH);
-	//m_radio_knn->SetValue(id == CreatingWeightDlg::KNN);
-    //m_radio_inverse->SetValue(id == CreatingWeightDlg::INVERSE);
-    
-	if (id != QUEEN && id != ROOK && id != THRESH && id != KNN && id != INVERSE && id != KERNEL) {
-		m_radio = NO_RADIO;
-	} else {
-		m_radio = id;
-	}
+	m_btn_ok->Enable(enable);
+    m_nb_weights_type->Enable(enable);
 }
 
 void CreatingWeightDlg::ResetThresXandYCombo()
@@ -945,14 +672,13 @@ void CreatingWeightDlg::InitDlg()
 	m_spinneigh->SetValue(4);
 	m_neighbors->SetValue( "4");
     
-    m_inverse->SetValue("0.0");
     m_power->SetValue("1");
     m_spinn_inverse->SetValue(1);
-    m_inverse_sliderdistance->SetRange(0, 100);
-  
+
     m_spinn_kernel->SetRange(1,20);
     m_spinn_kernel->SetValue(4);
-    m_kernel_neighbors->SetValue( "4");
+    int n_kernel_nbrs = pow(project->GetNumRecords(), 1.0/3.0);
+    m_kernel_neighbors->SetValue(wxString::Format("%d", n_kernel_nbrs));
     m_kernel_methods->Clear();
     m_kernel_methods->Append("Uniform");
     m_kernel_methods->Append("Triangular");
@@ -970,11 +696,7 @@ void CreatingWeightDlg::InitDlg()
 	m_dist_choice->Append("Arc Distance (mi)");
 	m_dist_choice->Append("Arc Distance (km)");
 	m_dist_choice->SetSelection(0);
-	SetRadioButtons(NO_RADIO);
-	SetRadioBtnAndAssocWidgets(NO_RADIO);
-	EnableContiguityRadioButtons(false);
-	EnableDistanceRadioButtons(false);
-	
+
 	// Previously from OpenShapefile:
 	FindWindow(XRCID("ID_ID_VAR_STAT_TXT"))->Enable(true);
 	m_id_field->Enable(true);
@@ -983,9 +705,6 @@ void CreatingWeightDlg::InitDlg()
 	m_cbx_precision_threshold->Enable(false);
 	m_txt_precision_threshold->Enable(false);
 	
-    EnableInverseControls(false, true);
-    EnableKernelControls(false, true);
-    
 	col_id_map.clear();
 	table_int->FillColIdMap(col_id_map);
 	
@@ -1002,6 +721,9 @@ void CreatingWeightDlg::InitDlg()
 	
 	m_XCOO.resize(m_num_obs);
 	m_YCOO.resize(m_num_obs);
+    
+    m_nb_weights_type->Enable(false);
+    
 	Refresh();
 }
 
@@ -1075,23 +797,6 @@ void CreatingWeightDlg::OnYTmSelected(wxCommandEvent& event )
 	UpdateThresholdValues();
 }
 
-void CreatingWeightDlg::OnDistanceChoiceSelected(wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnDistanceChoiceSelected");
-    
-	wxString s = m_dist_choice->GetStringSelection();
-	if (s == "Euclidean Distance") {
-		SetDistChoiceEuclid(false);
-		UpdateThresholdValues();
-	} else if (s == "Arc Distance (mi)") {
-		SetDistChoiceArcMiles(false);
-		UpdateThresholdValues();
-	} else if (s == "Arc Distance (km)") {
-		SetDistChoiceArcKms(false);
-		UpdateThresholdValues();
-	}
-}
-
 void CreatingWeightDlg::SetDistChoiceEuclid(bool update_sel)
 {
 	if (update_sel) m_dist_choice->SetSelection(0);
@@ -1140,31 +845,14 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
         m_id_field->SetSelection(-1);
         return;
     }
-   
-    EnableInverseControls(isValid, true);
-    EnableKernelControls(isValid, true);
-    EnableThresholdControls(isValid);
-	EnableDistanceRadioButtons(isValid);
-	EnableContiguityRadioButtons(isValid && !project->IsTableOnlyProject());
+  
+    UpdateTmSelEnableState();
+    UpdateThresholdValues();
 	UpdateCreateButtonState();
     
     wxString msg;
     msg << _("selected:") << m_id_field->GetSelection();
     wxLogMessage(msg);
-}
-
-
-void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
-{
-    wxLogMessage("Click CreatingWeightDlg::OnCreateClick");
-    try {
-        CreateWeights();
-    } catch(GdaException e) {
-        wxString msg;
-        msg << e.what();
-        wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    }
 }
 
 double CreatingWeightDlg::GetBandwidth()
@@ -1179,8 +867,7 @@ double CreatingWeightDlg::GetBandwidth()
 
 bool CreatingWeightDlg::CheckThresholdInput(RadioBtnId radio)
 {
-    if ( (radio== THRESH  && !m_thres_val_valid) ||
-         (radio== INVERSE && !m_inverse_thres_val_valid) )
+    if (radio== THRESH  && !m_thres_val_valid)
     {
         wxString msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
         wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
@@ -1188,8 +875,7 @@ bool CreatingWeightDlg::CheckThresholdInput(RadioBtnId radio)
         return false;
     }
     
-    if ((radio== THRESH  && m_threshold_val*m_thres_delta_factor < m_thres_min) ||
-        (radio== INVERSE && m_inverse_thres_val*m_thres_delta_factor < m_thres_min) )
+    if (radio== THRESH  && m_threshold_val*m_thres_delta_factor < m_thres_min)
     {
         wxString msg = wxString::Format(_("The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."), m_threshold_val, m_thres_min);
         wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
@@ -1199,6 +885,18 @@ bool CreatingWeightDlg::CheckThresholdInput(RadioBtnId radio)
     return true;
 }
 
+void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
+{
+    wxLogMessage("Click CreatingWeightDlg::OnCreateClick");
+    try {
+        CreateWeights();
+    } catch(GdaException e) {
+        wxString msg;
+        msg << e.what();
+        wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+}
 void CreatingWeightDlg::CreateWeights()
 {
     WeightsMetaInfo wmi;
@@ -1274,7 +972,6 @@ void CreatingWeightDlg::CreateWeights()
             double t_val = m_threshold_val;
             double power = 1.0;
             if (m_radio == INVERSE) {
-                t_val = m_inverse_thres_val;
                 wxString inverse_val = m_power->GetValue();
                 if (inverse_val.ToDouble(&power)) {
                     power = -power;

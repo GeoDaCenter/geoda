@@ -3674,6 +3674,7 @@
                                                       </object>
                                                       <object class="sizeritem">
                                                           <object class="wxSlider" name="IDC_THRESHOLD_SLIDER">
+                                                              <size>380,-1d</size>
                                                               <value>0</value>
                                                               <min>0</min>
                                                               <max>100</max>
@@ -3762,63 +3763,10 @@
                                                       <object class="sizeritem">
                                                           <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
-                                                          <object class="wxBoxSizer">
-                                                              <orient>wxHORIZONTAL</orient>
-                                                              <object class="sizeritem">
-                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-                                                                  <border>2</border>
-                                                                  <object class="wxStaticText" name="IDC_STATIC_KERNEL_KNN">
-                                                                      <label>Number of neighbors</label>
-                                                                  </object>
-                                                              </object>
-                                                              <object class="sizeritem">
-                                                                  <object class="wxTextCtrl" name="IDC_EDIT_KERNEL_KNN">
-                                                                      <size>25,-1d</size>
-                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                                                  </object>
-                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                                  <border>2</border>
-                                                              </object>
-                                                              <object class="spacer">
-                                                                  <size>2,2</size>
-                                                              </object>
-                                                              <object class="sizeritem">
-                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                                  <border>2</border>
-                                                                  <object class="wxSpinButton" name="IDC_SPIN_KERNEL_KNN">
-                                                                      <style>wxSP_VERTICAL</style>
-                                                                      <value>0</value>
-                                                                      <min>0</min>
-                                                                      <max>100</max>
-                                                                  </object>
-                                                              </object>
-                                                              <object class="spacer">
-                                                                  <size>2,2</size>
-                                                              </object>
-                                                              <object class="sizeritem">
-                                                                  <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
-                                                                      <label>Apply kernel to diagonal weights</label>
-                                                                  </object>
-                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                                              </object>
+                                                          <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
+                                                              <label>Apply kernel to diagonal weights</label>
                                                           </object>
-                                                      </object>
-                                                      <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                                                          <border>10</border>
-                                                          <object class="wxRadioButton" name="IDC_RADIO_ADAPTIVE_BANDWIDTH">
-                                                              <label>Adaptive bandwidth</label>
-                                                              <style>wxRB_GROUP</style>
-                                                              <value>0</value>
-                                                          </object>
-                                                      </object>
-                                                      <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                                                          <border>10</border>
-                                                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
-                                                              <label>Use max knn distance as bandwidth</label>
-                                                              <value>1</value>
-                                                          </object>
+                                                          <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
                                                       </object>
                                                       <object class="sizeritem">
                                                           <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
@@ -3856,6 +3804,63 @@
                                                               <min>0</min>
                                                               <max>100</max>
                                                               <style>wxSL_HORIZONTAL</style>
+                                                          </object>
+                                                      </object>
+                                                      
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxRadioButton" name="IDC_RADIO_ADAPTIVE_BANDWIDTH">
+                                                              <label>Adaptive bandwidth</label>
+                                                              <style>wxRB_GROUP</style>
+                                                              <value>0</value>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
+                                                              <label>Use max knn distance as bandwidth</label>
+                                                              <value>1</value>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxStaticText" name="IDC_STATIC_KERNEL_KNN">
+                                                                      <label>Number of neighbors</label>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxTextCtrl" name="IDC_EDIT_KERNEL_KNN">
+                                                                      <size>25,-1d</size>
+                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxSpinButton" name="IDC_SPIN_KERNEL_KNN">
+                                                                      <style>wxSP_VERTICAL</style>
+                                                                      <value>0</value>
+                                                                      <min>0</min>
+                                                                      <max>100</max>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <size>2,2</size>
+                                                              </object>
+                                                              
                                                           </object>
                                                       </object>
                                                   </object>

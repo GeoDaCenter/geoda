@@ -23,6 +23,7 @@
 #include <vector>
 #include <wx/checkbox.h>
 #include <wx/choice.h>
+#include <wx/notebook.h>
 #include <wx/dialog.h>
 #include <wx/radiobut.h>
 #include <wx/slider.h>
@@ -57,15 +58,15 @@ public:
                     long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~CreatingWeightDlg();
 	void OnClose(wxCloseEvent& ev);
-	bool Create( wxWindow* parent, wxWindowID id = -1,
-							const wxString& caption = _("Weights File Creation"),
-							const wxPoint& pos = wxDefaultPosition,
-							const wxSize& size = wxDefaultSize,
-							long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+	bool Create(wxWindow* parent, wxWindowID id = -1,
+                const wxString& caption = _("Weights File Creation"),
+                const wxPoint& pos = wxDefaultPosition,
+                const wxSize& size = wxDefaultSize,
+                long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+							
 	void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
 	
-	void OnDistanceChoiceSelected(wxCommandEvent& event );
 	void SetDistChoiceEuclid(bool update_sel);
 	void SetDistChoiceArcMiles(bool update_sel);
 	void SetDistChoiceArcKms(bool update_sel);
@@ -76,22 +77,15 @@ public:
 	void OnYTmSelected(wxCommandEvent& event );
 	void OnCRadioQueenSelected( wxCommandEvent& event );
 	void OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event );
-	void OnCRadioRookSelected( wxCommandEvent& event );
-	void OnCRadioDistanceSelected( wxCommandEvent& event );
 	void OnCThresholdTextEdit( wxCommandEvent& event );
     void OnCBandwidthThresholdTextEdit( wxCommandEvent& event );
-    void OnCInverseThresholdTextEdit( wxCommandEvent& event );
-	void OnCThresholdSliderUpdated( wxCommandEvent& event );
-    void OnCInverseThresholdSliderUpdated( wxCommandEvent& event );
     void OnCBandwidthThresholdSliderUpdated( wxCommandEvent& event );
-	void OnCRadioKnnSelected( wxCommandEvent& event );
 	void OnCSpinKnnUpdated( wxSpinEvent& event );
     void OnCSpinKernelKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
 	void OnPrecisionThresholdCheck( wxCommandEvent& event );
-    void OnCRadioInverseSelected( wxCommandEvent& event );
-    void OnCRadioKernelSelected( wxCommandEvent& event );
     void OnCRadioManuBandwidth( wxCommandEvent& event );
+    void OnCThresholdSliderUpdated( wxCommandEvent& event );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -104,48 +98,49 @@ public:
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
-	virtual int numMustCloseToRemove(boost::uuids::uuid id) const {
-		return 0; }
+	virtual int numMustCloseToRemove(boost::uuids::uuid id) const { return 0;}
 	virtual void closeObserver(boost::uuids::uuid id) {};
 	
 private:
 	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN, INVERSE, KERNEL };
 	
 	bool all_init;
+    
+    // controls
 	wxChoice* m_id_field;
+    // contiguity weight
+    wxNotebook* m_nb_weights_type;
 	wxRadioButton* m_radio_queen; // IDC_RADIO_QUEEN
 	wxTextCtrl* m_contiguity;
 	wxSpinButton* m_spincont;
 	wxRadioButton* m_radio_rook; // IDC_RADIO_ROOK
 	wxCheckBox* m_include_lower;
+    wxCheckBox* m_cbx_precision_threshold;
+    wxTextCtrl* m_txt_precision_threshold;
+    // distance weight
 	wxChoice* m_dist_choice;
 	wxChoice* m_X;
 	wxChoice* m_X_time;
 	wxChoice* m_Y;
 	wxChoice* m_Y_time;
-	wxRadioButton* m_radio_thresh;  // IDC_RADIO_DISTANCE
+	wxNotebook* m_nb_distance_methods;
 	wxTextCtrl* m_threshold;
-	wxCheckBox* m_cbx_precision_threshold;
-	wxTextCtrl* m_txt_precision_threshold;
 	wxSlider* m_sliderdistance;
-	wxRadioButton* m_radio_knn;  // IDC_RADIO_KNN
 	wxTextCtrl* m_neighbors;
 	wxSpinButton* m_spinneigh;
-    wxRadioButton* m_radio_inverse;  // IDC_RADIO_INVERSE
-    wxTextCtrl* m_inverse;
-    wxTextCtrl* m_power;
-    wxSpinButton* m_spinn_inverse;
-    wxSlider* m_inverse_sliderdistance;
-    wxRadioButton* m_radio_kernel;  // IDC_RADIO_KERNEL
+    wxChoice* m_kernel_methods;
     wxTextCtrl* m_kernel_neighbors;
     wxSpinButton* m_spinn_kernel;
-    wxChoice* m_kernel_methods;
     wxRadioButton* m_radio_adaptive_bandwidth;
     wxRadioButton* m_radio_auto_bandwidth;
     wxRadioButton* m_radio_manu_bandwdith;
     wxTextCtrl* m_manu_bandwidth;
     wxSlider* m_bandwidth_slider;
     wxCheckBox* m_kernel_diagnals;
+    wxCheckBox* m_use_inverse;
+    wxTextCtrl* m_power;
+    wxSpinButton* m_spinn_inverse;
+    wxButton* m_btn_ok;
 
 	FramesManager* frames_manager;
 	Project* project;
@@ -166,13 +161,10 @@ private:
 	double				m_thres_max; // maxiumum to include everything
 	double				m_threshold_val;
 	double				m_thres_val_valid;
-    double              m_inverse_thres_val;
-    double              m_inverse_thres_val_valid;
     double              m_bandwidth_thres_val;
     double              m_bandwidth_thres_val_valid;
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
-	
 	bool				m_is_arc; // true = Arc Dist, false = Euclidean Dist
 	bool				m_arc_in_km; // true if Arc Dist in km, else miles
 	std::vector<double>	m_XCOO;
@@ -185,24 +177,16 @@ private:
     wxString dist_units_str;
     
 	wxString dist_var_1;
-	long dist_tm_1;
+	long     dist_tm_1;
 	wxString dist_var_2;
-	long dist_tm_2;
+	long     dist_tm_2;
 	
 	// updates the enable/disable state of the Create button based
 	// on the values of various other controls.
 	void UpdateCreateButtonState();
 	void UpdateTmSelEnableState();
-	void SetRadioBtnAndAssocWidgets(RadioBtnId radio);
 	void UpdateThresholdValues();
 	void ResetThresXandYCombo();
-    void EnableDistanceControls(bool b);
-    void EnableKernelControls(bool b, bool is_init=false);
-	void EnableThresholdControls(bool b);
-    void EnableInverseControls(bool b, bool is_init=false);
-	void EnableContiguityRadioButtons(bool b);
-	void EnableDistanceRadioButtons(bool b);
-	void SetRadioButtons(RadioBtnId id);
 	void InitFields();
 	void InitDlg();
 	bool CheckID(const wxString& id);
