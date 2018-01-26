@@ -298,8 +298,8 @@ void CreatingWeightDlg::UpdateThresholdValues()
     
 	int sl_x, sl_y;
 	m_sliderdistance->GetPosition(&sl_x, &sl_y);
-	wxSize sl_size = m_sliderdistance->GetSize();
-	m_sliderdistance->SetSize(sl_x, sl_y, 500, sl_size.GetHeight());
+	//wxSize sl_size = m_sliderdistance->GetSize();
+	//m_sliderdistance->SetSize(sl_x, sl_y, 500, sl_size.GetHeight());
 	
 	if (m_X->GetSelection() == wxNOT_FOUND ||
         m_Y->GetSelection() == wxNOT_FOUND) {
@@ -516,7 +516,6 @@ void CreatingWeightDlg::UpdateCreateButtonState()
 	// Check that a Weights File ID variable is selected.
 	if (m_id_field->GetSelection() == wxNOT_FOUND) enable = false;
 	// Check that a weight type radio button choice is selected.
-	if (m_radio == NO_RADIO) enable = false;
 	if (m_X->GetSelection() == wxNOT_FOUND ||
         m_Y->GetSelection() == wxNOT_FOUND) enable = false;
 	

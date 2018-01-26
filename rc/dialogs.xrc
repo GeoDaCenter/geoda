@@ -3673,15 +3673,21 @@
                                                           </object>
                                                       </object>
                                                       <object class="sizeritem">
-                                                          <object class="wxSlider" name="IDC_THRESHOLD_SLIDER">
-                                                              <size>380,-1d</size>
-                                                              <value>0</value>
-                                                              <min>0</min>
-                                                              <max>100</max>
-                                                              <style>wxSL_HORIZONTAL</style>
-                                                          </object>
                                                           <flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxSlider" name="IDC_THRESHOLD_SLIDER">
+                                                                      <size>350,-1</size>
+                                                                      <value>0</value>
+                                                                      <min>0</min>
+                                                                      <max>100</max>
+                                                                      <style>wxSL_HORIZONTAL</style>
+                                                                  </object>
+                                                                  <flag>wxEXPAND</flag>
+                                                              </object>
+                                                          </object>
                                                       </object>
                                                   </object>
                                               </object>
@@ -3763,8 +3769,18 @@
                                                       <object class="sizeritem">
                                                           <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
-                                                          <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
-                                                              <label>Apply kernel to diagonal weights</label>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
+                                                                      <label>Apply kernel to diagonal weights</label>
+                                                                  </object>
+                                                              </object>
                                                           </object>
                                                           <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
                                                       </object>
@@ -3778,6 +3794,7 @@
                                                                   <border>2</border>
                                                                   <object class="wxRadioButton" name="IDC_RADIO_MANU_BANDWIDTH">
                                                                       <label>Specify bandwidth</label>
+                                                                      <style>wxRB_GROUP</style>
                                                                       <value>0</value>
                                                                   </object>
                                                               </object>
@@ -3799,20 +3816,28 @@
                                                       <object class="sizeritem">
                                                           <flag>wxEXPAND|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
-                                                          <object class="wxSlider" name="IDC_BANDWIDTH_SLIDER">
-                                                              <value>0</value>
-                                                              <min>0</min>
-                                                              <max>100</max>
-                                                              <style>wxSL_HORIZONTAL</style>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxSlider" name="IDC_BANDWIDTH_SLIDER">
+                                                                      <size>320,-1</size>
+                                                                      <value>0</value>
+                                                                      <min>0</min>
+                                                                      <max>100</max>
+                                                                      <style>wxSL_HORIZONTAL</style>
+                                                                  </object>
+                                                                  <flag>wxEXPAND</flag>
+                                                              </object>
                                                           </object>
                                                       </object>
-                                                      
                                                       <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
                                                           <object class="wxRadioButton" name="IDC_RADIO_ADAPTIVE_BANDWIDTH">
                                                               <label>Adaptive bandwidth</label>
-                                                              <style>wxRB_GROUP</style>
                                                               <value>0</value>
                                                           </object>
                                                       </object>
@@ -3825,10 +3850,13 @@
                                                           </object>
                                                       </object>
                                                       <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
                                                           <object class="wxBoxSizer">
                                                               <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
                                                               <object class="sizeritem">
                                                                   <flag>wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
                                                                   <border>2</border>
@@ -3868,7 +3896,7 @@
                                               <label>Adaptive kernel</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
-                                          <size>500,280</size>
+                                          <size>480,280</size>
                                           <flag>wxALL|wxEXPAND</flag>
                                       </object>
                                       <flag>wxALL|wxEXPAND</flag>
@@ -3935,14 +3963,12 @@
                   <label>Distance Weight</label>
                   <flag>wxALL|wxEXPAND</flag>
               </object>
-              <size>520,480</size>
+              <size>500,480</size>
               <flag>wxALL|wxEXPAND</flag>
           </object>
           <flag>wxALL|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
           <border>5</border>
       </object>
-
-
 
       <object class="sizeritem">
         <object class="wxBoxSizer">
