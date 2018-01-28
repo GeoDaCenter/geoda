@@ -86,34 +86,44 @@ bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 	return false;
 }
 
-double GwtWeight::GetSparsity()
+void GwtWeight::GetNbrStats()
 {
     double empties = 0;
     for (int i=0; i<num_obs; i++) {
         if (gwt[i].Size() == 0)
-            empties += 1;
+        empties += 1;
     }
-    sparsity = empties / (num_obs * num_obs);
-    return sparsity;
-}
-
-double GwtWeight::GetDensity()
-{
-    // https://en.wikipedia.org/wiki/Dense_graph
+    sparsity = empties / (double)num_obs;
+    // others
+    int sum_nnbrs = 0;
+    vector<int> nnbrs_array;
     std::map<int, int> e_dict;
     for (int i=0; i<num_obs; i++) {
         GwtNeighbor* nbrs = gwt[i].dt();
+        int n_nbrs = 0;
         for (int j=0; j<gwt[i].Size();j++) {
             int nbr = nbrs[j].nbx;
             if (i != nbr) {
+                n_nbrs++;
                 e_dict[i] = nbr;
                 e_dict[nbr] = i;
             }
         }
+        sum_nnbrs += n_nbrs;
+        if (i==0 || n_nbrs < min_nbrs) min_nbrs = n_nbrs;
+        if (i==0 || n_nbrs > max_nbrs) max_nbrs = n_nbrs;
+        nnbrs_array.push_back(n_nbrs);
     }
     double n_edges = e_dict.size() / 2.0;
     density = 2 * n_edges / (num_obs * (num_obs - 1));
-    return density;
+    
+    if (num_obs > 0) mean_nbrs = sum_nnbrs / num_obs;
+    std::sort(nnbrs_array.begin(), nnbrs_array.end());
+    if (num_obs % 2 ==0) {
+        median_nbrs = (nnbrs_array[num_obs/2-1] + nnbrs_array[num_obs/2]) / 2;
+    } else {
+        median_nbrs = nnbrs_array[num_obs/2];
+    }
 }
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)

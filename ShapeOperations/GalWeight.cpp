@@ -296,34 +296,47 @@ bool GalWeight::HasIsolates(GalElement *gal, int num_obs)
 	return false;
 }
 
-double GalWeight::GetSparsity()
+void GalWeight::GetNbrStats()
 {
+    // sparsity
     double empties = 0;
     for (int i=0; i<num_obs; i++) {
         if (gal[i].Size() == 0)
-            empties += 1;
+        empties += 1;
     }
-    sparsity = empties / (num_obs * num_obs);
-    return sparsity;
-}
-
-double GalWeight::GetDensity()
-{
-    // https://en.wikipedia.org/wiki/Dense_graph
+    sparsity = empties / (double)num_obs;
+    
+    // density
+    // other
+    int sum_nnbrs = 0;
+    vector<int> nnbrs_array;
     std::map<int, int> e_dict;
     for (int i=0; i<num_obs; i++) {
+        int n_nbrs = 0;
         const std::vector<long>& nbrs = gal[i].GetNbrs();
         for (int j=0; j<nbrs.size();j++) {
             int nbr = nbrs[j];
             if (i != nbr) {
+                n_nbrs++;
                 e_dict[i] = nbr;
                 e_dict[nbr] = i;
             }
         }
+        sum_nnbrs += n_nbrs;
+        if (i==0 || n_nbrs < min_nbrs) min_nbrs = n_nbrs;
+        if (i==0 || n_nbrs > max_nbrs) max_nbrs = n_nbrs;
+        nnbrs_array.push_back(n_nbrs);
     }
     double n_edges = e_dict.size() / 2.0;
     density = 2 * n_edges / (num_obs * (num_obs - 1));
-    return density;
+    
+    if (num_obs > 0) mean_nbrs = sum_nnbrs / num_obs;
+    std::sort(nnbrs_array.begin(), nnbrs_array.end());
+    if (num_obs % 2 ==0) {
+        median_nbrs = (nnbrs_array[num_obs/2-1] + nnbrs_array[num_obs/2]) / 2;
+    } else {
+        median_nbrs = nnbrs_array[num_obs/2];
+    }
 }
 
 bool GalWeight::SaveDIDWeights(Project* project, int num_obs,

@@ -86,9 +86,7 @@ public:
                                       WeightsManInterface* wmi,
                                       TableInterface* table_int);
     
-    virtual double GetSparsity();
-    
-    virtual double GetDensity();
+    virtual void GetNbrStats();    
 };
 
 namespace Gda {

@@ -68,9 +68,6 @@ struct WeightsMetaInfo
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
 
-    void SetSparsity(double sparsity);
-    void SetDensity(double density);
-    
 	wxString filename; // weights file filename if exists
 	wxString id_var; // if empty, then record order assumed
 	SymmetryEnum sym_type;
@@ -109,6 +106,18 @@ struct WeightsMetaInfo
     
     // Density
     double density_val;
+    
+    int num_obs;
+    
+    int min_nbrs;
+    
+    int max_nbrs;
+    
+    int mean_nbrs;
+    
+    int median_nbrs;
+    
+    double non_zero_percent;
 	
 	wxString ToStr() const;
 	wxString TypeToStr() const;
@@ -125,6 +134,15 @@ struct WeightsMetaInfo
 						   const WeightsMetaInfo& rh);
 	friend bool operator!=(const WeightsMetaInfo& lh,
 						   const WeightsMetaInfo& rh);
+    
+    
+    void SetSparsity(double sparsity);
+    void SetDensity(double density);
+    void SetMinNumNbrs(int val);
+    void SetMaxNumNbrs(int val);
+    void SetMeanNumNbrs(int val);
+    void SetMedianNumNbrs(int val);
+    
 };
 
 #endif

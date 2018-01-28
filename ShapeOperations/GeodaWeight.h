@@ -47,21 +47,26 @@ public:
    
     virtual void Update(const std::vector<bool>& undefs)=0;
     
-    virtual double GetSparsity()=0;
-   
-    virtual double GetDensity()=0;
-    
+
     virtual bool HasIsolates()=0;
+    
+    virtual void GetNbrStats() = 0;
+    
+    virtual double GetSparsity();
+    virtual double GetDensity();
+    virtual int GetMinNumNbrs();
+    virtual int GetMaxNumNbrs();
+    virtual int GetMeanNumNbrs();
+    virtual int GetMedianNumNbrs();
+    virtual int GetNumObs();
     
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
    
     virtual wxString GetTitle(); // returns portion of wflnm if title empty
    
-
     virtual wxString GetIDName() { return id_field;}
   
-
     // Properties
 	enum WeightType { gal_type, gwt_type };
 	WeightType weight_type;
@@ -73,6 +78,10 @@ public:
 	int num_obs;
     double sparsity;
     double density;
+    int min_nbrs;
+    int max_nbrs;
+    int mean_nbrs;
+    int median_nbrs;
 };
 
 #endif

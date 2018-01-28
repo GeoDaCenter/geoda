@@ -1083,13 +1083,12 @@ void CreatingWeightDlg::CreateWeights()
             wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
             dlg.ShowModal();
         }
-        wmi.SetSparsity(Wp->GetSparsity());
-        wmi.SetDensity(Wp->GetDensity());
+        
         if (m_ooC > 1) {
             Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, Wp->gal, m_check1);
-            WriteWeightFile(Wp->gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile, id, wmi);
         } else {
-            WriteWeightFile(Wp->gal, 0, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile, id, wmi);
         }
         if (Wp) delete Wp;
         done = true;
@@ -1124,9 +1123,7 @@ void CreatingWeightDlg::CreateWeights()
                 dlg.ShowModal();
                 return;
             }
-            wmi.SetSparsity(Wp->GetSparsity());
-            wmi.SetDensity(Wp->GetDensity());
-            WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
             if (Wp) delete Wp;
             done = true;
         }
@@ -1163,9 +1160,7 @@ void CreatingWeightDlg::CreateWeights()
             
             if (!Wp->gwt) return;
             Wp->id_field = id;
-            wmi.SetSparsity(Wp->GetSparsity());
-            wmi.SetDensity(Wp->GetDensity());
-            WriteWeightFile(0, Wp->gwt, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
             if (Wp) delete Wp;
             done = true;
             
@@ -1184,23 +1179,26 @@ void CreatingWeightDlg::CreateWeights()
  * id: id column vector
  * WeightsMetaInfo contains all meta info.
  */
-bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
+bool CreatingWeightDlg::WriteWeightFile(GalWeight* Wp_gal, GwtWeight* Wp_gwt,
                                         const wxString& layer_name,
                                         const wxString& ofn,
                                         const wxString& idd,
-                                        const WeightsMetaInfo& wmi)
+                                        WeightsMetaInfo& wmi)
 {
     FindWindow(XRCID("wxID_OK"))->Enable(false);
     
     bool success = false;
     bool flag = false;
     //bool geodaL=true; // always save as "Legacy" format.
-    
+    GalElement *gal = NULL;
+    GwtElement *gwt = NULL;
+    GeoDaWeight *Wp = NULL;
     
     int col = table_int->FindColId(idd);
-    
-    if (gal) { // gal
-        
+
+    if (Wp_gal) { // gal
+        gal = Wp_gal->gal;
+        Wp = (GeoDaWeight*)Wp_gal;
         if (table_int->GetColType(col) == GdaConst::long64_type){
             std::vector<wxInt64> id_vec(m_num_obs);
             table_int->GetColData(col, 0, id_vec);
@@ -1213,6 +1211,8 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
         }
         
     } else {
+        gwt = Wp_gwt->gwt;
+        Wp = (GeoDaWeight*)Wp_gwt;
         if (table_int->GetColType(col) == GdaConst::long64_type){
             std::vector<wxInt64> id_vec(m_num_obs);
             table_int->GetColData(col, 0, id_vec);
@@ -1237,6 +1237,15 @@ bool CreatingWeightDlg::WriteWeightFile(GalElement *gal, GwtElement *gwt,
         dlg.ShowModal();
         success = true;
     }
+   
+    Wp->GetNbrStats();
+    wmi.num_obs = Wp->GetNumObs();
+    wmi.SetMinNumNbrs(Wp->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(Wp->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(Wp->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(Wp->GetMedianNumNbrs());
+    wmi.SetSparsity(Wp->GetSparsity());
+    wmi.SetDensity(Wp->GetDensity());
     
     if (success) {
         wxFileName t_ofn(ofn);

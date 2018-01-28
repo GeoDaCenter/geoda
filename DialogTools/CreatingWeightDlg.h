@@ -37,8 +37,8 @@
 
 class wxSpinButton;
 class FramesManager;
-class GalElement;
-class GwtElement;
+class GalWeight;
+class GwtWeight;
 class Project;
 class TableInterface;
 class TableState;
@@ -197,10 +197,10 @@ private:
     bool CheckThresholdInput();
     double GetBandwidth();
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
-	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
+	bool WriteWeightFile(GalWeight* Wp_gal, GwtWeight* Wp_gwt,
                          const wxString& ifn, const wxString& ofn,
                          const wxString& idd,
-                         const WeightsMetaInfo& wmi);
+                         WeightsMetaInfo& wmi);
     void CreateWeights();
 	
 	wxString s_int;

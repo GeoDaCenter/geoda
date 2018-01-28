@@ -497,19 +497,7 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 	
 	row_title.push_back("id variable");
 	row_content.push_back(wmi.id_var);
-   
-    wxString sp = ("unknown");
-    if (wmi.sparsity_val>=0)
-        sp = wxString::Format("%.2f", wmi.sparsity_val);
-    row_title.push_back("sparsity");
-    row_content.push_back(sp);
 	
-    wxString de = ("unknown");
-    if (wmi.density_val>=0)
-        de = wxString::Format("%.2f", wmi.density_val);
-    row_title.push_back("density");
-    row_content.push_back(de);
-    
 	if (wmi.weights_type == WeightsMetaInfo::WT_rook ||
 		wmi.weights_type == WeightsMetaInfo::WT_queen) {
 		row_title.push_back("order");
@@ -549,6 +537,42 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 			row_content.push_back(rs);
 		}
 	}
+    row_title.push_back("# observations");
+    if (wmi.num_obs > 0)
+    row_content.push_back(wxString::Format("%d", wmi.num_obs));
+    else
+    row_content.push_back("unknown");
+    
+    row_title.push_back("min neighbors");
+    if (wmi.min_nbrs>0)
+    row_content.push_back(wxString::Format("%d", wmi.min_nbrs));
+    else
+    row_content.push_back("unknown");
+    
+    row_title.push_back("max neighbors");
+    if (wmi.max_nbrs > 0)
+    row_content.push_back(wxString::Format("%d", wmi.max_nbrs));
+    else
+    row_content.push_back("unknown");
+    
+    row_title.push_back("mean neighbors");
+    if (wmi.mean_nbrs>0)
+    row_content.push_back(wxString::Format("%d", wmi.mean_nbrs));
+    else
+    row_content.push_back("unknown");
+    
+    row_title.push_back("median neighbors");
+    if (wmi.median_nbrs >0)
+    row_content.push_back(wxString::Format("%d", wmi.median_nbrs));
+    else
+    row_content.push_back("unknown");
+    
+    wxString sp = ("unknown");
+    if (wmi.sparsity_val>=0)
+    sp = wxString::Format("%.2f", 1-wmi.sparsity_val);
+    row_title.push_back("% non-zero");
+    row_content.push_back(sp);
+    
 	SetDetailsWin(row_title, row_content);
 }
 

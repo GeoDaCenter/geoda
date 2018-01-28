@@ -42,6 +42,32 @@ void WeightsMetaInfo::SetToDefaults()
 	dist_tm2 = -1;
     sparsity_val = -1;
     density_val = -1;
+    num_obs = -1;
+    min_nbrs = -1;
+    max_nbrs = -1;
+    mean_nbrs = -1;
+    median_nbrs = -1;
+    non_zero_percent = -1;
+}
+
+void WeightsMetaInfo::SetMinNumNbrs(int val)
+{
+    min_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMaxNumNbrs(int val)
+{
+    max_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMeanNumNbrs(int val)
+{
+    mean_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMedianNumNbrs(int val)
+{
+    median_nbrs = val;
 }
 
 void WeightsMetaInfo::SetSparsity(double sparsity)
