@@ -293,6 +293,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
                                      const vector<double>& y,
                                      int nn,
                                      bool is_arc, bool is_mi,
+                                     bool is_inverse, double power,
                                      const wxString& kernel,
                                      double bandwidth,
                                      bool adaptive_bandwidth,
@@ -311,7 +312,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			}
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn, true, is_mi, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
+		gwt = knn_build(rtree, nn, true, is_mi, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
         
 	} else {
 		rtree_pt_2d_t rtree;
@@ -320,7 +321,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const vector<double>& x,
 			for (int i=0; i<nobs; ++i) pts[i] = pt_2d(x[i], y[i]);
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = knn_build(rtree, nn, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
+		gwt = knn_build(rtree, nn, is_inverse, power, kernel, bandwidth, adaptive_bandwidth, use_kernel_diagnals);
         
 	}
 	return gwt;
@@ -357,7 +358,7 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel, b
     }
 }
 
-GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
+GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is_inverse, double power, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
 	GwtWeight* Wp = new GwtWeight;
 	Wp->num_obs = rtree.size();
@@ -390,6 +391,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const w
             double d = bg::distance(v.first, w.first);
             if (bandwidth_ ==0 && d > bandwidth) bandwidth = d;
             if (d > local_bandwidth) local_bandwidth = d;
+            if (is_inverse) d = pow(d, power);
             neigh.weight =  d;
 			e.Push(neigh);
 			++cnt;
@@ -420,7 +422,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, const w
 }
 
 GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
-					 bool is_arc, bool is_mi, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
+					 bool is_arc, bool is_mi,  bool is_inverse, double power, const wxString& kernel, double bandwidth_, bool adaptive_bandwidth_, bool use_kernel_diagnals)
 {
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
@@ -477,10 +479,13 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_3d_t& rtree, int nn,
 											  bg::get<0>(w.first),
                                               bg::get<1>(w.first));
 			}
+            if (is_inverse) neigh.weight = pow(neigh.weight, power);
+            
             if (bandwidth_ == 0 && neigh.weight > bandwidth)
                 bandwidth = neigh.weight;
             if (neigh.weight > local_bandwidth)
                 local_bandwidth = neigh.weight;
+           
 			e.Push(neigh);
 			++cnt;
 		}

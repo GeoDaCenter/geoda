@@ -3646,7 +3646,7 @@
                                                   <object class="wxBoxSizer">
                                                       <orient>wxVERTICAL</orient>
                                                       <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
                                                           <object class="wxBoxSizer">
                                                               <orient>wxHORIZONTAL</orient>
@@ -3689,6 +3689,57 @@
                                                               </object>
                                                           </object>
                                                       </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_LEFT|wxALL</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxCheckBox" name="IDC_CHK_INVERSE_DISTANCE">
+                                                                      <value>0</value>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_USE_INVERSE_DISTANCE">
+                                                                      <label>Use inverse distance?</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <size>10,2d</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_POWER">
+                                                                      <label>Power</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxTextCtrl" name="IDC_EDIT_POWER">
+                                                                      <size>25,-1d</size>
+                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxSpinButton" name="IDC_SPIN_POWER">
+                                                                      <style>wxSP_VERTICAL</style>
+                                                                      <value>0</value>
+                                                                      <min>1</min>
+                                                                      <max>100</max>
+                                                                  </object>
+                                                              </object>
+                                                          </object>
+                                                      </object>
                                                   </object>
                                               </object>
                                               <label>Distance band</label>
@@ -3728,6 +3779,57 @@
                                                                       <style>wxSP_VERTICAL</style>
                                                                       <value>0</value>
                                                                       <min>0</min>
+                                                                      <max>100</max>
+                                                                  </object>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_LEFT|wxALL</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxCheckBox" name="IDC_CHK_INVERSE_DISTANCE_KNN">
+                                                                      <value>0</value>
+                                                                  </object>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_USE_INVERSE_DISTANCE_KNN">
+                                                                      <label>Use inverse distance?</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="spacer">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <size>10,2d</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_POWER">
+                                                                      <label>Power</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxTextCtrl" name="IDC_EDIT_POWER_KNN">
+                                                                      <size>25,-1d</size>
+                                                                      <style>wxTE_READONLY|wxTE_RIGHT</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                                  <object class="wxSpinButton" name="IDC_SPIN_POWER_KNN">
+                                                                      <style>wxSP_VERTICAL</style>
+                                                                      <value>0</value>
+                                                                      <min>1</min>
                                                                       <max>100</max>
                                                                   </object>
                                                               </object>
@@ -3902,57 +4004,6 @@
                                       <flag>wxALL|wxEXPAND</flag>
                                       <border>5</border>
                                       <option>1</option>
-                                  </object>
-                                  <object class="sizeritem">
-                                      <flag>wxALIGN_LEFT|wxALL</flag>
-                                      <border>2</border>
-                                      <object class="wxBoxSizer">
-                                          <orient>wxHORIZONTAL</orient>
-                                          <object class="sizeritem">
-                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>2</border>
-                                              <object class="wxCheckBox" name="IDC_CHK_INVERSE_DISTANCE">
-                                                  <value>0</value>
-                                              </object>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_USE_INVERSE_DISTANCE">
-                                                  <label>Use inverse distance?</label>
-                                              </object>
-                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="spacer">
-                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>2</border>
-                                              <size>10,2d</size>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC_POWER">
-                                                  <label>Power</label>
-                                              </object>
-                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxTextCtrl" name="IDC_EDIT_POWER">
-                                                  <size>25,-1d</size>
-                                                  <style>wxTE_READONLY|wxTE_RIGHT</style>
-                                              </object>
-                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                              <border>2</border>
-                                              <object class="wxSpinButton" name="IDC_SPIN_POWER">
-                                                  <style>wxSP_VERTICAL</style>
-                                                  <value>0</value>
-                                                  <min>1</min>
-                                                  <max>100</max>
-                                              </object>
-                                          </object>
-                                      </object>
                                   </object>
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>

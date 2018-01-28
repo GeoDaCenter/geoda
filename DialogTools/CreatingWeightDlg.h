@@ -84,8 +84,11 @@ public:
     void OnCSpinKernelKnnUpdated( wxSpinEvent& event );
 	void OnCreateClick( wxCommandEvent& event );
 	void OnPrecisionThresholdCheck( wxCommandEvent& event );
-    void OnCRadioManuBandwidth( wxCommandEvent& event );
+    void OnInverseDistCheck( wxCommandEvent& event );
+    void OnInverseKNNCheck( wxCommandEvent& event );
     void OnCThresholdSliderUpdated( wxCommandEvent& event );
+    void OnCSpinPowerInverseDistUpdated( wxSpinEvent& event );
+    void OnCSpinPowerInverseKNNUpdated( wxSpinEvent& event );
 	
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
@@ -102,8 +105,7 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id) {};
 	
 private:
-	enum RadioBtnId { NO_RADIO, QUEEN, ROOK, THRESH, KNN, INVERSE, KERNEL };
-	
+
 	bool all_init;
     
     // controls
@@ -126,8 +128,14 @@ private:
 	wxNotebook* m_nb_distance_methods;
 	wxTextCtrl* m_threshold;
 	wxSlider* m_sliderdistance;
+    wxCheckBox* m_use_inverse;
+    wxTextCtrl* m_power;
+    wxSpinButton* m_spinn_inverse;
 	wxTextCtrl* m_neighbors;
 	wxSpinButton* m_spinneigh;
+    wxCheckBox* m_use_inverse_knn;
+    wxTextCtrl* m_power_knn;
+    wxSpinButton* m_spinn_inverse_knn;
     wxChoice* m_kernel_methods;
     wxTextCtrl* m_kernel_neighbors;
     wxSpinButton* m_spinn_kernel;
@@ -137,9 +145,6 @@ private:
     wxTextCtrl* m_manu_bandwidth;
     wxSlider* m_bandwidth_slider;
     wxCheckBox* m_kernel_diagnals;
-    wxCheckBox* m_use_inverse;
-    wxTextCtrl* m_power;
-    wxSpinButton* m_spinn_inverse;
     wxButton* m_btn_ok;
 
 	FramesManager* frames_manager;
@@ -155,14 +160,13 @@ private:
 	// in wxGrid
 	std::vector<int> col_id_map;
 	
-	RadioBtnId			m_radio;
 	int					m_num_obs;
 	double				m_thres_min; // minimum to avoid isolates
 	double				m_thres_max; // maxiumum to include everything
 	double				m_threshold_val;
-	double				m_thres_val_valid;
+	bool				m_thres_val_valid;
     double              m_bandwidth_thres_val;
-    double              m_bandwidth_thres_val_valid;
+    bool                m_bandwidth_thres_val_valid;
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
 	bool				m_is_arc; // true = Arc Dist, false = Euclidean Dist
@@ -190,7 +194,7 @@ private:
 	void InitFields();
 	void InitDlg();
 	bool CheckID(const wxString& id);
-    bool CheckThresholdInput(RadioBtnId radio);
+    bool CheckThresholdInput();
     double GetBandwidth();
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalElement *gal, GwtElement *gwt,
