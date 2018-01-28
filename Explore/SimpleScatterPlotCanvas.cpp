@@ -124,6 +124,13 @@ void SimpleScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	if (right_click_menu_id.IsEmpty()) return;
     if (ssp_canv_cb) {
         ssp_canv_cb->OnRightClick(pos+ GetPosition());
+    } else {
+        wxMenu* optMenu;
+        optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
+        
+        template_frame->UpdateContextMenuItems(optMenu);
+        template_frame->PopupMenu(optMenu, pos + GetPosition());
+        template_frame->UpdateOptionMenuItems();
     }
 	LOG_MSG("Exiting SimpleScatterPlotCanvas::DisplayRightClickMenu");
 }
