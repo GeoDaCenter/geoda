@@ -1128,10 +1128,10 @@ void CreatingWeightDlg::CreateWeights()
             done = true;
         }
         
-    } else {
-        // knn or kernel
+    } else if (m_nb_distance_methods->GetSelection() == 1) {
+        // knn
         wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values, m_kNN, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
-       
+        
         double power = 1.0;
         bool is_inverse = m_use_inverse_knn->IsChecked();
         if ( is_inverse) {
@@ -1146,29 +1146,44 @@ void CreatingWeightDlg::CreateWeights()
             GwtWeight* Wp = 0;
             bool is_arc = dist_metric == WeightsMetaInfo::DM_arc;
             bool is_mile = dist_units == WeightsMetaInfo::DU_mile;
-            if (m_nb_distance_methods->GetSelection() == 2) {
-                // kernel
-                wxString kernel = m_kernel_methods->GetString(m_kernel_methods->GetSelection());
-                double bandwidth = GetBandwidth();
-                bool is_adaptive_kernel = m_radio_adaptive_bandwidth->GetValue();
-                bool use_kernel_diagnals = m_kernel_diagnals->IsChecked();
-                Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, is_inverse, power, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
-            } else {
-                // knn
-                Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, is_arc, is_mile, is_inverse, power);
-            }
+            // knn
+            Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, is_arc, is_mile, is_inverse, power);
             
             if (!Wp->gwt) return;
             Wp->id_field = id;
             WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
             if (Wp) delete Wp;
             done = true;
-            
         } else {
             wxString s = wxString::Format(_("Error: Maximum number of neighbors %d exceeded."), m_num_obs-1);
             wxMessageBox(s);
         }
+            
+    } else {
+        // kernel
+        bool is_arc = dist_metric == WeightsMetaInfo::DM_arc;
+        bool is_mile = dist_units == WeightsMetaInfo::DU_mile;
+        // kernel
+        wxString kernel = m_kernel_methods->GetString(m_kernel_methods->GetSelection());
+        double bandwidth = GetBandwidth();
+        bool is_adaptive_kernel = m_radio_adaptive_bandwidth->GetValue();
+        bool use_kernel_diagnals = m_kernel_diagnals->IsChecked();
         
+        wmi.SetToKernel(id, dist_metric, dist_units, dist_units_str, dist_values, kernel, m_kernel_kNN, bandwidth, is_adaptive_kernel, use_kernel_diagnals, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+       
+        if (m_kernel_kNN > 0 && m_kernel_kNN < m_num_obs) {
+            GwtWeight* Wp = 0;
+            Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, false, 1.0, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
+            
+            if (!Wp->gwt) return;
+            Wp->id_field = id;
+            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
+            if (Wp) delete Wp;
+            done = true;
+        } else {
+            wxString s = wxString::Format(_("Error: Maximum number of neighbors %d exceeded."), m_num_obs-1);
+            wxMessageBox(s);
+        }
     }
 }
 

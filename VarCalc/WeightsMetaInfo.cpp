@@ -48,6 +48,10 @@ void WeightsMetaInfo::SetToDefaults()
     mean_nbrs = -1;
     median_nbrs = -1;
     non_zero_percent = -1;
+    k = 0;
+    bandwidth = -1;
+    is_adaptive_kernel = false;
+    use_kernel_diagnals = false;
 }
 
 void WeightsMetaInfo::SetMinNumNbrs(int val)
@@ -124,7 +128,6 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
 	id_var = idv;
 	weights_type = WT_threshold;
     power = power_;
-    if (power!=1) weights_type = WT_inverse;
 	sym_type = SYM_symmetric;
 	dist_metric = dist_metric_;
 	dist_units = dist_units_;
@@ -167,6 +170,31 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
 		dist_var2 = dist_var2_;
 		if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
 	}
+}
+
+void WeightsMetaInfo::SetToKernel(const wxString &id_var_, WeightsMetaInfo::DistanceMetricEnum dist_metric_, WeightsMetaInfo::DistanceUnitsEnum dist_units_, wxString dist_units_str_, WeightsMetaInfo::DistanceValuesEnum dist_values_, wxString kernel_, long k_, double bandwidth_, bool is_adaptive_kernel_, bool use_kernel_diagnals_,wxString dist_var1_, long dist_tm1_, wxString dist_var2_, long dist_tm2_)
+{
+    SetToDefaults();
+    id_var = id_var_;
+    weights_type = WT_kernel;
+    sym_type = SYM_asymmetric;
+    dist_metric = dist_metric_;
+    dist_units = dist_units_;
+    dist_units_str = dist_units_str_;
+    dist_values = dist_values_;
+    kernel = kernel_;
+    k = k_;
+    bandwidth = bandwidth_;
+    is_adaptive_kernel = is_adaptive_kernel_;
+    use_kernel_diagnals = use_kernel_diagnals_;
+    if (!dist_var1_.IsEmpty()) {
+        dist_var1 = dist_var1_;
+        if (dist_tm1_ >= 0) dist_tm1 = dist_tm1_;
+    }
+    if (!dist_var2_.IsEmpty()) {
+        dist_var2 = dist_var2_;
+        if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
+    }
 }
 
 wxString WeightsMetaInfo::ToStr() const

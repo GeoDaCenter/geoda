@@ -67,6 +67,18 @@ struct WeightsMetaInfo
 				  long k,
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
+    void SetToKernel(const wxString& id_var,
+                     DistanceMetricEnum dist_metric,
+                     DistanceUnitsEnum dist_units,
+                     wxString dist_units_str,
+                     DistanceValuesEnum dist_values,
+                     wxString kernel,
+                     long k,
+                     double bandwidth,
+                     bool is_adaptive_kernel,
+                     bool use_kernel_diagnals,
+                     wxString dist_var_1 = "", long dist_tm_1 = -1,
+                     wxString dist_var_2 = "", long dist_tm_2 = -1);
 
 	wxString filename; // weights file filename if exists
 	wxString id_var; // if empty, then record order assumed
@@ -86,6 +98,13 @@ struct WeightsMetaInfo
     wxString dist_units_str;
 	
     double power;
+    
+    // kernel
+    wxString kernel;
+    long k;
+    double bandwidth;
+    bool is_adaptive_kernel;
+    bool use_kernel_diagnals;
     
 	wxString dist_var1; // x-coord
 	wxString dist_var2; // y-coord

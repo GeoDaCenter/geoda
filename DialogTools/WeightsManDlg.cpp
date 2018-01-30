@@ -483,6 +483,38 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 	
 	row_title.push_back("type");
 	row_content.push_back(wmi.TypeToStr());
+    
+    if (wmi.TypeToStr() == "kernel") {
+        row_title.push_back("kernel method");
+        row_content.push_back(wmi.kernel);
+       
+        if (wmi.bandwidth >0) {
+            row_title.push_back("bandwidth");
+            wxString ss;
+            ss << wmi.bandwidth;
+            row_content.push_back(ss);
+        } else  {
+            row_title.push_back("knn");
+            wxString ss;
+            ss << wmi.k;
+            row_content.push_back(ss);
+            if (wmi.is_adaptive_kernel) {
+                row_title.push_back("adaptive kernel");
+                row_content.push_back( wmi.is_adaptive_kernel? "true":"false");
+            }
+        }
+        row_title.push_back("kernel to diagonal");
+        row_content.push_back( wmi.use_kernel_diagnals ? "true":"false");
+    } else {
+        if (wmi.power > 0) {
+            row_title.push_back("inverse distance");
+            row_content.push_back("true");
+            row_title.push_back("power");
+            wxString ss;
+            ss << wmi.power;
+            row_content.push_back(ss);
+        }
+    }
 	
 	row_title.push_back("symmetry");
 	row_content.push_back(wmi.SymToStr());

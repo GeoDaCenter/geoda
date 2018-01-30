@@ -985,6 +985,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Vertical Bins Breaks</label>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
@@ -1134,6 +1141,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Horizontal Bins Breaks</label>
     </object>
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
@@ -1330,7 +1344,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Vertical Bins Breaks</label>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
@@ -1479,6 +1499,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Horizontal Bins Breaks</label>
     </object>
     
@@ -1705,7 +1732,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Vertical Bins Breaks</label>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_C_MENU">
@@ -1855,7 +1888,13 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
+      <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
+          <label>Custom Breaks</label>
+          <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
+              <label>Create New Custom</label>
+          </object>
+          <object class="separator"/>
+      </object>
       <label>Horizontal Bins Breaks</label>
     </object>
     <object class="wxMenuItem" name="ID_HISTOGRAM_INTERVALS">

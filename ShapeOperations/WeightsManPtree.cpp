@@ -104,6 +104,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.weights_type = WeightsMetaInfo::WT_threshold;
 								} else if (s == "knn") {
 									e.wmi.weights_type = WeightsMetaInfo::WT_knn;
+                                } else if (s == "kernel") {
+                                    e.wmi.weights_type = WeightsMetaInfo::WT_kernel;
 								} else { // s == "custom"
 									e.wmi.weights_type = WeightsMetaInfo::WT_custom;
 								}
@@ -213,7 +215,53 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								double d;
 								wxString(v.second.data()).ToDouble(&d);
 								e.wmi.threshold_val = d;
-							}
+                            } else if (key == "num_observations") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.num_obs = l;
+                            } else if (key == "min_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.min_nbrs = l;
+                            } else if (key == "max_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.max_nbrs = l;
+                            } else if (key == "mean_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.mean_nbrs = l;
+                            } else if (key == "median_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.median_nbrs = l;
+                            } else if (key == "non_zero_perc") {
+                                double d;
+                                wxString(v.second.data()).ToDouble(&d);
+                                e.wmi.sparsity_val= 1-d;
+                            } else if (key == "kernel") {
+                                e.wmi.kernel = wxString(v.second.data());
+                            } else if (key == "bandwidth") {
+                                double d;
+                                wxString(v.second.data()).ToDouble(&d);
+                                e.wmi.bandwidth = d;
+                            } else if (key == "knn") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.k= l;
+                            } else if (key == "adaptive_kernel") {
+                                e.wmi.is_adaptive_kernel = false;
+                                wxString s = v.second.data();
+                                if (s.CmpNoCase("true") == 0) {
+                                    e.wmi.is_adaptive_kernel = true;
+                                }
+                            } else if (key == "kernel_to_diagonal") {
+                                e.wmi.use_kernel_diagnals = false;
+                                wxString s = v.second.data();
+                                if (s.CmpNoCase("true") == 0) {
+                                    e.wmi.use_kernel_diagnals = true;
+                                }
+                            }
 						}
 					} else {
 						// ignore unrecognized key
@@ -264,11 +312,18 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 					sssub.put("inc_lower_orders", "false");
 				}
 			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold ||
-					   e.wmi.weights_type == WeightsMetaInfo::WT_knn)
+					   e.wmi.weights_type == WeightsMetaInfo::WT_knn ||
+                       e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
 			{
-				sssub.put("weights_type", (e.wmi.weights_type ==
-										  WeightsMetaInfo::WT_knn ? "knn"
-										  : "threshold"));
+                if (e.wmi.weights_type == WeightsMetaInfo::WT_knn)
+                    sssub.put("weights_type", "knn");
+                else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold)
+                    sssub.put("weights_type", "threshold");
+                else if (e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+                    sssub.put("weights_type", "kernel");
+                else
+                    sssub.put("weights_type", "custom");
+                
 				if (e.wmi.dist_metric == WeightsMetaInfo::DM_euclidean) {
 					sssub.put("dist_metric", "euclidean");
 				} else if (e.wmi.dist_metric == WeightsMetaInfo::DM_arc) {
@@ -307,6 +362,18 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 				} else {
 					sssub.put("threshold_val", e.wmi.threshold_val);
 				}
+                
+                if (!e.wmi.kernel.IsEmpty()) {
+                    sssub.put("kernel", e.wmi.kernel);
+                    if (e.wmi.bandwidth >=0)  {
+                        sssub.put("bandwidth", e.wmi.bandwidth);
+                    }
+                    if (e.wmi.k > 0) {
+                        sssub.put("adaptive_kernel", e.wmi.is_adaptive_kernel? "true":"false");
+                        sssub.put("knn", e.wmi.k);
+                    }
+                    sssub.put("kernel_to_diagonal", e.wmi.use_kernel_diagnals ? "true":"false");
+                }
 			}
 			if (!e.wmi.filename.IsEmpty()) {
 				sssub.put("path",
@@ -317,9 +384,27 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 			}
 			if (e.wmi.sym_type == WeightsMetaInfo::SYM_symmetric) {
 				sssub.put("symmetry", "symmetric");
-			} else if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
+            } else {// if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
 				sssub.put("symmetry", "asymmetric");
 			}
+            if (e.wmi.num_obs >=0) {
+                sssub.put("num_observations", e.wmi.num_obs);
+            }
+            if (e.wmi.min_nbrs>=0) {
+                sssub.put("min_neighbors", e.wmi.min_nbrs);
+            }
+            if (e.wmi.max_nbrs>=0) {
+                sssub.put("max_neighbors", e.wmi.max_nbrs);
+            }
+            if (e.wmi.mean_nbrs>=0) {
+                sssub.put("mean_neighbors", e.wmi.mean_nbrs);
+            }
+            if (e.wmi.median_nbrs>=0) {
+                sssub.put("median_neighbors", e.wmi.median_nbrs);
+            }
+            if (e.wmi.sparsity_val>=0) {
+                sssub.put("non_zero_perc", 1-e.wmi.sparsity_val);
+            }
 		}	
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
