@@ -52,6 +52,7 @@ void WeightsMetaInfo::SetToDefaults()
     bandwidth = -1;
     is_adaptive_kernel = false;
     use_kernel_diagnals = false;
+    power = -1;
 }
 
 void WeightsMetaInfo::SetMinNumNbrs(int val)
