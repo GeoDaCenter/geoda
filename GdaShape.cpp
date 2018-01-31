@@ -1471,8 +1471,6 @@ GdaPolyLine::GdaPolyLine(wxPoint pt1, wxPoint pt2)
     
 }
 
-
-
 /** This constructs a potentially multi-part polyline. Only a pointer to the
  original data is kept, and this memory is not deleted in the destructor. */
 GdaPolyLine::GdaPolyLine(Shapefile::PolyLineContents* pc_s)
@@ -1518,6 +1516,13 @@ GdaPolyLine::~GdaPolyLine()
 	if (points) delete [] points; points = 0;
 	if (points_o) delete [] points_o; points_o = 0;
 	if (count) delete [] count; count = 0;
+}
+
+void GdaPolyLine::projectToBasemap(GDA::Basemap* basemap)
+{
+    for (int i=0; i<n; i++) {
+        basemap->LatLngToXY(points_o[i].x, points_o[i].y, points[i].x, points[i].y);
+    }
 }
 
 void GdaPolyLine::Offset(double dx, double dy)

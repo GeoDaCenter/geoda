@@ -126,6 +126,7 @@
 #include "DialogTools/GeocodingDlg.h"
 #include "DialogTools/PCASettingsDlg.h"
 #include "DialogTools/SkaterDlg.h"
+#include "DialogTools/PreferenceDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"

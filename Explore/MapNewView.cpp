@@ -452,6 +452,12 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             if (ms)
                 ms->projectToBasemap(basemap);
         }
+        if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+            for (int i=0; i<w_graph.size(); i++) {
+                GdaPolyLine* e = w_graph[i];
+                e->projectToBasemap(basemap);
+            }
+        }
         
         layerbase_valid = false;
         layer0_valid = false;

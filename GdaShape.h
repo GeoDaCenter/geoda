@@ -346,6 +346,8 @@ public:
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
+   
+    virtual void projectToBasemap(GDA::Basemap* basemap);
     
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);

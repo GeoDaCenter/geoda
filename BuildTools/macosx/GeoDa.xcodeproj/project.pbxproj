@@ -37,6 +37,7 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
+		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
 		A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018051FB4CF980029709C /* SkaterDlg.cpp */; };
@@ -323,6 +324,8 @@
 		A1F1BA98178D46B8005A46E5 /* cache.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; name = cache.sqlite; path = BuildTools/CommonDistFiles/cache.sqlite; sourceTree = "<group>"; };
 		A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CustomClassifPtree.cpp; path = DataViewer/CustomClassifPtree.cpp; sourceTree = "<group>"; };
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
+		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
+		A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferenceDlg.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
 		A416A1761F84122B001F2884 /* PCASettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCASettingsDlg.h; sourceTree = "<group>"; };
 		A42018011FB3C0AC0029709C /* skater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skater.cpp; path = Algorithms/skater.cpp; sourceTree = "<group>"; };
@@ -933,6 +936,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */,
+				A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */,
 				A42018041FB4CF980029709C /* SkaterDlg.h */,
 				A42018051FB4CF980029709C /* SkaterDlg.cpp */,
 				A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */,
@@ -1486,6 +1491,7 @@
 				DD7975830F1D296F00496A84 /* PermutationCounterDlg.cpp in Sources */,
 				DD7975850F1D296F00496A84 /* RandomizationDlg.cpp in Sources */,
 				DD7975890F1D296F00496A84 /* RegressionDlg.cpp in Sources */,
+				A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */,
 				DD79758B0F1D296F00496A84 /* RegressionReportDlg.cpp in Sources */,
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
 				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,

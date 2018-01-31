@@ -2536,7 +2536,7 @@
         <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Weights Graph</label>
+        <label>Display Connectivity Graph</label>
         <checkable>1</checkable>
     </object>
     <object class="separator"/>
@@ -2722,7 +2722,7 @@
         <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Weights Graph</label>
+        <label>Display Connectivity Graph</label>
         <checkable>1</checkable>
     </object>
     <object class="separator"/>
@@ -3105,6 +3105,10 @@
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
         <label>Display Connectivity Graph</label>
+        <checkable>1</checkable>
+    </object>
+    <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+        <label>Hide Map</label>
         <checkable>1</checkable>
     </object>
     <object class="separator"/>
