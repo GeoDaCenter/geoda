@@ -789,7 +789,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         if (highlight_state->GetTotalHighlighted() >0) {
             for (int i=0; i<w_graph.size(); i++) {
                 GdaPolyLine* e = w_graph[i];
-                if (hs[e->from] || hs[e->to]) {
+                if (hs[e->from]) {
                     e->setPen(GdaConst::conn_graph_outline_colour);
                     e->paintSelf(dc);
                 } else {
