@@ -173,6 +173,7 @@ display_mean_centers(false),
 display_centroids(false),
 display_weights_graph(false),
 display_neighbors(false),
+display_map_with_graph(true),
 display_voronoi_diagram(false), 
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
@@ -453,6 +454,7 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
                 ms->projectToBasemap(basemap);
         }
         if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+            // this is for resizing window with basemap + connectivity graph
             for (int i=0; i<w_graph.size(); i++) {
                 GdaPolyLine* e = w_graph[i];
                 e->projectToBasemap(basemap);
@@ -873,6 +875,8 @@ void MapCanvas::SaveThumbnail()
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
                                         bool use_crosshatch)
 {
+    if (!display_map_with_graph) return;
+    
     vector<bool>& hs = highlight_state->GetHighlight();
 #ifdef __WXOSX__
     wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
@@ -1031,6 +1035,9 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                   display_weights_graph);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"),
                                   display_neighbors);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HIDE_MAP_WITH_GRAPH"),
+                                  !display_map_with_graph);
+    
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -1841,6 +1848,16 @@ void MapCanvas::DisplayNeighbors()
     PopulateCanvas();
 }
 
+void MapCanvas::DisplayMapWithGraph()
+{
+    wxLogMessage("MapCanvas::DisplayMapWithGraph()");
+    if (display_weights_graph) {
+        full_map_redraw_needed = true;
+        display_map_with_graph = !display_map_with_graph;
+        PopulateCanvas();
+    }
+}
+
 void MapCanvas::DisplayVoronoiDiagram()
 {
     wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
@@ -2375,6 +2392,16 @@ void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
         return;
     
     ((MapCanvas*) template_canvas)->DisplayNeighbors();
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnDisplayMapWithGraph(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+    
+    ((MapCanvas*) template_canvas)->DisplayMapWithGraph();
     UpdateOptionMenuItems();
 }
 

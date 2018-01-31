@@ -5469,6 +5469,16 @@ void GdaFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnDisplayMapWithGraph(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnDisplayMapWithGraph()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnDisplayMapWithGraph(event);
+    }
+}
+
 void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnDisplayCentroids()");
@@ -6725,6 +6735,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SHOW_AS_COND_MAP"), GdaFrame::OnShowAsConditionalMap)
     EVT_MENU(XRCID("ID_ADD_NEIGHBORS_TO_SELECTION"), GdaFrame::OnAddNeighborToSelection)
     EVT_MENU(XRCID("ID_DISPLAY_WEIGHTS_GRAPH"), GdaFrame::OnDisplayWeightsGraph)
+    EVT_MENU(XRCID("ID_HIDE_MAP_WITH_GRAPH"), GdaFrame::OnDisplayMapWithGraph)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

@@ -165,6 +165,7 @@ public:
 	virtual void DisplayCentroids();
     virtual void DisplayWeightsGraph();
     virtual void DisplayNeighbors();
+    virtual void DisplayMapWithGraph();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -188,6 +189,7 @@ public:
 	bool voronoi_diagram_duplicates_exist;
     bool display_weights_graph;
     bool display_neighbors;
+    bool display_map_with_graph;
     std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
@@ -347,8 +349,8 @@ public:
     
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
-    
-    
+    void OnDisplayMapWithGraph(wxCommandEvent& event);
+
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);
