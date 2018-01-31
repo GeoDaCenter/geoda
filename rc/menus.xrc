@@ -2530,12 +2530,16 @@
     <object class="wxMenuItem" name="ID_SHOW_AS_COND_MAP">
         <label>Show As Conditional Map</label>
     </object>
+    <object class="separator"/>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
+        <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
         <label>Display Weights Graph</label>
+        <checkable>1</checkable>
     </object>
+    <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">
@@ -2712,12 +2716,16 @@
     <object class="wxMenuItem" name="ID_SHOW_AS_COND_MAP">
         <label>Show As Conditional Map</label>
     </object>
+    <object class="separator"/>
     <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
         <label>Selection and Neighbors</label>
+        <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
         <label>Display Weights Graph</label>
+        <checkable>1</checkable>
     </object>
+    <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Select All...</label>
       <object class="wxMenuItem" name="ID_SELECT_CORES">

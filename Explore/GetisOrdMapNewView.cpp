@@ -35,7 +35,7 @@
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
-
+#include "../VarCalc/WeightsManInterface.h"
 #include "ConditionalClusterMapView.h"
 #include "GStatCoordinator.h"
 #include "GetisOrdMapNewView.h"
@@ -551,6 +551,9 @@ row_standardize(row_standardize_s)
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
     
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    ((MapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+    
     wxPanel* lpanel = new wxPanel(splitter_win);
 	template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
@@ -1054,42 +1057,6 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	CoreSelectHelper(elem);
 	
 	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
-}
-
-void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
-{
-    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    GalWeight* gal_weights = gs_coord->Gal_vecs_orig[ts];
-    
-    HighlightState& hs = *project->GetHighlightState();
-    std::vector<bool>& h = hs.GetHighlight();
-    int nh_cnt = 0;
-    std::vector<bool> add_elem(gal_weights->num_obs, false);
-    
-    std::vector<int> new_highlight_ids;
-    
-    for (int i=0; i<gal_weights->num_obs; i++) {
-        if (h[i]) {
-            GalElement& e = gal_weights->gal[i];
-            for (int j=0, jend=e.Size(); j<jend; j++) {
-                int obs = e[j];
-                if (!h[obs] && !add_elem[obs]) {
-                    add_elem[obs] = true;
-                    new_highlight_ids.push_back(obs);
-                }
-            }
-        }
-    }
-    
-    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
-        h[ new_highlight_ids[i] ] = true;
-        nh_cnt ++;
-    }
-    
-    if (nh_cnt > 0) {
-        hs.SetEventType(HLStateInt::delta);
-        hs.notifyObservers();
-    }
 }
 
 void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)

@@ -118,8 +118,7 @@ public:
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
-	void OnAddNeighborToSelection(wxCommandEvent& event);
-    
+
     void OnShowAsConditionalMap(wxCommandEvent& event);
 	
 	virtual void update(LocalGearyCoordinator* o);
