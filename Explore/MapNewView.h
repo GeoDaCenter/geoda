@@ -166,6 +166,8 @@ public:
     virtual void DisplayWeightsGraph();
     virtual void DisplayNeighbors();
     virtual void DisplayMapWithGraph();
+    virtual void ChangeGraphThickness(int val);
+    virtual void ChangeGraphColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -190,6 +192,8 @@ public:
     bool display_weights_graph;
     bool display_neighbors;
     bool display_map_with_graph;
+    int  weights_graph_thickness;
+    wxColour graph_color;
     std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
@@ -350,6 +354,8 @@ public:
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
     void OnDisplayMapWithGraph(wxCommandEvent& event);
+    void OnChangeGraphThickness(wxCommandEvent& event);
+    void OnChangeGraphColor(wxCommandEvent& event);
 
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);

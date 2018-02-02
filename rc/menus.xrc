@@ -2535,9 +2535,34 @@
         <label>Selection and Neighbors</label>
         <checkable>1</checkable>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Connectivity Graph</label>
-        <checkable>1</checkable>
+    <object class="wxMenu" name="ID_MENU">
+        <label>Connectivity Graph</label>
+        <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+            <label>Show Graph</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenu" name="ID_MENU">
+            <label>Change Edge Thickness</label>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_LIGHT">
+                <label>Light</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_NORM">
+                <label>Normal</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_STRONG">
+                <label>Strong</label>
+                <checkable>1</checkable>
+            </object>
+        </object>
+        <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_COLOR">
+            <label>Change Edge Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+            <label>Hide Map</label>
+            <checkable>1</checkable>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -2721,9 +2746,34 @@
         <label>Selection and Neighbors</label>
         <checkable>1</checkable>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Connectivity Graph</label>
-        <checkable>1</checkable>
+    <object class="wxMenu" name="ID_MENU">
+        <label>Connectivity Graph</label>
+        <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+            <label>Show Graph</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenu" name="ID_MENU">
+            <label>Change Edge Thickness</label>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_LIGHT">
+                <label>Light</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_NORM">
+                <label>Normal</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_STRONG">
+                <label>Strong</label>
+                <checkable>1</checkable>
+            </object>
+        </object>
+        <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_COLOR">
+            <label>Change Edge Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+            <label>Hide Map</label>
+            <checkable>1</checkable>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -3103,13 +3153,34 @@
         <label>Selection and Neighbors</label>
         <checkable>1</checkable>
     </object>
-    <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
-        <label>Display Connectivity Graph</label>
-        <checkable>1</checkable>
-    </object>
-    <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
-        <label>Hide Map</label>
-        <checkable>1</checkable>
+    <object class="wxMenu" name="ID_MENU">
+        <label>Connectivity Graph</label>
+        <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+            <label>Show Graph</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenu" name="ID_MENU">
+            <label>Change Edge Thickness</label>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_LIGHT">
+                <label>Light</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_NORM">
+                <label>Normal</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_STRONG">
+                <label>Strong</label>
+                <checkable>1</checkable>
+            </object>
+        </object>
+        <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_COLOR">
+            <label>Change Edge Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+            <label>Hide Map</label>
+            <checkable>1</checkable>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">

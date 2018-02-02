@@ -174,7 +174,9 @@ display_centroids(false),
 display_weights_graph(false),
 display_neighbors(false),
 display_map_with_graph(true),
-display_voronoi_diagram(false), 
+display_voronoi_diagram(false),
+graph_color(GdaConst::conn_graph_outline_colour),
+weights_graph_thickness(1),
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
 weights_id(weights_id_s),
@@ -272,6 +274,7 @@ void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_co
     }
 }
 
+
 void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 {
     if (gal_weights == NULL)
@@ -302,14 +305,20 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
     }
     if (dc.IsOk()) {
         vector<bool> new_hs(num_obs, false);
+        wxPen pen(graph_color, weights_graph_thickness);
         for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
             //h[*it] = true;
             new_hs[*it] = true;
             // draw new highlighted in dc
             if (display_neighbors) {
-                selectable_shps[*it]->setPen(GdaConst::conn_graph_outline_colour);
+                selectable_shps[*it]->setPen(pen);
                 selectable_shps[*it]->setBrush(*wxTRANSPARENT_BRUSH);
                 selectable_shps[*it]->paintSelf(dc);
+            }
+        }
+        if (!display_map_with_graph) {
+            for (int i=0; i<gal_weights->num_obs; i++) {
+                if (h[i]) new_hs[i] = true;
             }
         }
         if (display_weights_graph) {
@@ -791,27 +800,29 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     }
     
     bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    
+    if (show_graph || display_neighbors) {
+        // draw neighbors of selection if needed
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+        AddNeighborsToSelection(gal_weights, dc);
+    }
+    
     if (show_graph) {
         // draw connectivity graph if needed
         const vector<GdaPoint*>& c = project->GetMeanCenters();
         if (highlight_state->GetTotalHighlighted() >0) {
+            wxPen pen(graph_color, weights_graph_thickness);
             for (int i=0; i<w_graph.size(); i++) {
                 GdaPolyLine* e = w_graph[i];
                 if (hs[e->from]) {
-                    e->setPen(GdaConst::conn_graph_outline_colour);
+                    e->setPen(pen);
                     e->paintSelf(dc);
                 } else {
                     e->setPen(*wxTRANSPARENT_PEN);
                 }
             }
         }
-    }
-   
-    if (show_graph || display_neighbors) {
-        // draw neighbors of selection if needed
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        GalWeight* gal_weights = w_man_int->GetGal(weights_id);
-        AddNeighborsToSelection(gal_weights, dc);
     }
 }
 
@@ -826,8 +837,10 @@ void MapCanvas::DrawLayer2()
     dc.DrawBitmap(*layer1_bm, 0, 0);
    
     if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
+        wxPen pen(graph_color, weights_graph_thickness);
         for (int i=0; i<w_graph.size(); i++) {
-            w_graph[i]->setPen(GdaConst::conn_graph_outline_colour);
+            w_graph[i]->setPen(pen);
+            w_graph[i]->setBrush(*wxTRANSPARENT_BRUSH);
         }
     }
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
@@ -1007,13 +1020,11 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 								  smoothing_type == raw_rate);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SMOOTH_EXCESSRISK"),
 								  smoothing_type == excess_risk);
-    GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_RATES_EMPIRICAL_BAYES_SMOOTHER"),
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_EMPIRICAL_BAYES_SMOOTHER"),
 								  smoothing_type == empirical_bayes);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SPATIAL_RATE_SMOOTHER"),
 								  smoothing_type == spatial_rate);
-    GeneralWxUtils::CheckMenuItem(menu,
-								  XRCID("ID_RATES_SPATIAL_EMPIRICAL_BAYES"),
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SPATIAL_EMPIRICAL_BAYES"),
 								  smoothing_type == spatial_empirical_bayes);
 	GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_MEAN_CENTERS"),
 								  selectable_shps_type != points);
@@ -1037,7 +1048,12 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                   display_neighbors);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HIDE_MAP_WITH_GRAPH"),
                                   !display_map_with_graph);
-    
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_LIGHT"),
+                                  weights_graph_thickness==0);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"),
+                                  weights_graph_thickness==1);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"),
+                                  weights_graph_thickness==2);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -1480,6 +1496,7 @@ void MapCanvas::PopulateCanvas()
                     vector<bool>& hs = highlight_state->GetHighlight();
                     GdaPolyLine* edge;
                     std::set<int> w_nodes;
+                    wxPen pen(graph_color, weights_graph_thickness);
                     for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
                         GalElement& e = gal_weights->gal[i];
                         for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -1489,7 +1506,7 @@ void MapCanvas::PopulateCanvas()
                                 edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
                                 edge->from = i;
                                 edge->to = nbr;
-                                edge->setPen(cntr_pen);
+                                edge->setPen(pen);
                                 edge->setBrush(*wxTRANSPARENT_BRUSH);
                                 foreground_shps.push_back(edge);
                                 w_graph.push_back(edge);
@@ -1837,6 +1854,12 @@ void MapCanvas::DisplayWeightsGraph()
     wxLogMessage("MapCanvas::DisplayWeightsGraph()");
     full_map_redraw_needed = true;
     display_weights_graph = !display_weights_graph;
+    if (display_weights_graph) {
+        display_neighbors = false;
+        
+    } else {
+        display_map_with_graph = true;
+    }
     PopulateCanvas();
 }
 
@@ -1845,6 +1868,10 @@ void MapCanvas::DisplayNeighbors()
     wxLogMessage("MapCanvas::DisplayNeighbors()");
     full_map_redraw_needed = true;
     display_neighbors = !display_neighbors;
+    if (display_neighbors) {
+        display_map_with_graph = true;
+        display_weights_graph = false;
+    }
     PopulateCanvas();
 }
 
@@ -1854,6 +1881,25 @@ void MapCanvas::DisplayMapWithGraph()
     if (display_weights_graph) {
         full_map_redraw_needed = true;
         display_map_with_graph = !display_map_with_graph;
+        PopulateCanvas();
+    }
+}
+
+void MapCanvas::ChangeGraphThickness(int val)
+{
+    wxLogMessage("MapCanvas::ChangeGraphThickness()");
+    if (display_weights_graph) {
+        weights_graph_thickness = val;
+        full_map_redraw_needed = true;
+        PopulateCanvas();
+    }
+}
+
+void MapCanvas::ChangeGraphColor()
+{
+    if (display_weights_graph) {
+        graph_color = GeneralWxUtils::PickColor(this, graph_color);
+        full_map_redraw_needed = true;
         PopulateCanvas();
     }
 }
@@ -2402,6 +2448,32 @@ void MapFrame::OnDisplayMapWithGraph(wxCommandEvent& event)
         return;
     
     ((MapCanvas*) template_canvas)->DisplayMapWithGraph();
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnChangeGraphThickness(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+    
+    if (event.GetId() == XRCID("ID_WEIGHTS_GRAPH_THICKNESS_LIGHT"))
+        ((MapCanvas*) template_canvas)->ChangeGraphThickness(0);
+    else if (event.GetId() == XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"))
+        ((MapCanvas*) template_canvas)->ChangeGraphThickness(1);
+    else if (event.GetId() == XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"))
+        ((MapCanvas*) template_canvas)->ChangeGraphThickness(2);
+    
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnChangeGraphColor(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+  
+    ((MapCanvas*) template_canvas)->ChangeGraphColor();
     UpdateOptionMenuItems();
 }
 

@@ -24,6 +24,7 @@
 #include <wx/string.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/colour.h>
 
 #include "DialogTools/VariableSettingsDlg.h"
 
@@ -55,7 +56,7 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
-   
+    static wxColour PickColor(wxWindow* parent, wxColour& col);
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
 };
 

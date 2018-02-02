@@ -490,6 +490,8 @@ public:
 	void OnShowAsConditionalMap(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
     void OnDisplayMapWithGraph(wxCommandEvent& event);
+    void OnChangeGraphThickness(wxCommandEvent& event);
+    void OnChangeGraphColor(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);

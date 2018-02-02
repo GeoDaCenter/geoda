@@ -24,6 +24,7 @@
 #include <wx/window.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/wfstream.h>
+#include <wx/colordlg.h>
 #include <wx/txtstrm.h>
 
 
@@ -447,4 +448,24 @@ wxMenu* GeneralWxUtils::FindMenu(wxMenuBar* mb,	const wxString& menuTitle)
 	int menu = mb->FindMenu(menuTitle);
 	if (menu == wxNOT_FOUND) return 0;
 	return mb->GetMenu(menu);
+}
+
+wxColour GeneralWxUtils::PickColor(wxWindow *parent, wxColour& col)
+{
+    wxColourData data;
+    data.SetColour(col);
+    data.SetChooseFull(true);
+    int ki;
+    for (ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        data.SetCustomColour(ki, colour);
+    }
+    
+    wxColourDialog dialog(parent, &data);
+    dialog.SetTitle(_("Choose Cateogry Color"));
+    if (dialog.ShowModal() == wxID_OK) {
+        wxColourData retData = dialog.GetColourData();
+        return retData.GetColour();
+    }
+    return col;
 }
