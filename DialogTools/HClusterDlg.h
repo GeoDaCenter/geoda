@@ -269,6 +269,7 @@ protected:
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxTextCtrl* m_cluster;
+    wxNotebook* notebook;
     
     DECLARE_EVENT_TABLE()
 };

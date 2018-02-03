@@ -194,20 +194,19 @@ void HClusterDlg::CreateControls()
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
 	// Summary control 
-    wxNotebook* notebook = new wxNotebook( panel, wxID_ANY);
+    notebook = new wxNotebook( panel, wxID_ANY);
     m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
     notebook->AddPage(m_panel, "Dendrogram");
-    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "(Please click Save button to generate summary report.)");
     notebook->AddPage(m_reportbox, "Summary");
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HClusterDlg::OnNotebookChange), NULL, this);
-    
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
     container->Add(notebook,1, wxEXPAND | wxALL);
     
     panel->SetSizerAndFit(container);
     
-   
     wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
     panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
     
@@ -284,7 +283,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     
     // summary
     CreateSummary(clusters);
-    
+
     // show a cluster map
     if (project->IsTableOnlyProject()) {
         return;
