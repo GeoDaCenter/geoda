@@ -720,6 +720,9 @@
     <ClInclude Include="..\..\DialogTools\SkaterDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PreferenceDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1314,6 +1317,9 @@
       <Filter>Algorithms</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
