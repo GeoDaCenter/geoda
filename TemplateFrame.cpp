@@ -722,6 +722,7 @@ void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
         canvas->CreateAndUpdateCategories();
     }
     template_legend->Recreate();
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
@@ -745,6 +746,7 @@ void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
         template_legend->SetBackgroundColour(col);
         template_legend->Refresh();
     }
+    UpdateOptionMenuItems();
 }
 
 
@@ -782,6 +784,7 @@ void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 						  "Background Color") ) {
 		template_canvas->SetCanvasBackgroundColor(new_color);
 	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
@@ -794,7 +797,8 @@ void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 						  new_color,
 						  "Fill Color") ) {
 		template_canvas->SetSelectableFillColor(new_color);
-	}	
+	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
@@ -807,7 +811,8 @@ void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 						  new_color,
 						  "Outline Color") ) {
 		template_canvas->SetSelectableOutlineColor(new_color);
-	}	
+	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
@@ -815,6 +820,7 @@ void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
 	if (!template_canvas) return;
 	template_canvas->SetBackgroundColorVisible(
 						!template_canvas->user_canvas_background_color);
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
@@ -823,6 +829,7 @@ void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 	if (!template_canvas) return;
 	template_canvas->SetSelectableOutlineVisible(
 						!template_canvas->selectable_outline_visible);
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
@@ -836,6 +843,7 @@ void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
 						  "Highlight Color") ) {
 		template_canvas->SetHighlightColor(new_color);
 	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::update(FramesManager* o)
