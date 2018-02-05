@@ -88,10 +88,13 @@ public:
 	virtual TableInterface* GetTableInt();
 	
     void UpdateStatusBar();
+   
+    template <class T>
+    void SortColumn(int col, int tm, bool ascending);
     
     std::vector<int> GetRowOrder();
     
-private:
+protected:
 	HighlightState* highlight_state;
 	std::vector<bool>& hs; //shortcut to HighlightState::highlight, read only!
     std::vector<bool> hs_col;
