@@ -391,7 +391,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 4) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else if (p_val[i] <= sig_cutoff) {
+                    } else if (p_val[i] <= sig_cutoff && cluster[i] == 1) {
                         cat_data.AppendIdToCategory(t, 1, i);
                     } else {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
