@@ -1012,6 +1012,7 @@ void HistogramCanvas::InitIntervals()
             }
             double range = max_ival_val[t] - min_ival_val[t];
             double ival_size = range/((double) cur_intervals);
+            const std::vector<bool>& undefs = undef_tms[t];
             
             if (!is_custom_category) {
                 cat_classif_def.breaks.resize(cur_intervals-1);
@@ -1019,31 +1020,52 @@ void HistogramCanvas::InitIntervals()
                     ival_breaks[t][i] = min_ival_val[t]+ival_size*((double) (i+1));
                     cat_classif_def.breaks[i] = ival_breaks[t][i];
                 }
+                for (int i=0, cur_ival=0; i<num_obs; i++) {
+                    std::pair<double, int>& data_item = data_sorted[t][i];
+                    double val = data_item.first;
+                    int idx = data_item.second;
+                    if (undefs[idx])
+                        continue;
+                    // detect if need to jump to next interval
+                    while (cur_ival <= cur_intervals-2 &&
+                           val >= ival_breaks[t][cur_ival])
+                    {
+                        cur_ival++;
+                    }
+                    // add current [id] to ival_to_obs_ids
+                    ival_to_obs_ids[t][cur_ival].push_front(idx);
+                    obs_id_to_ival[t][idx] = cur_ival;
+                    ival_obs_cnt[t][cur_ival]++;
+                    
+                    if (hs[data_sorted[t][i].second]) {
+                        ival_obs_sel_cnt[t][cur_ival]++;
+                    }
+                }
             } else {
                 for (int i=0; i<cur_intervals-1; i++) {
                     ival_breaks[t][i] = cat_classif_def.breaks[i];
                 }
-            }
-            const std::vector<bool>& undefs = undef_tms[t];
-            for (int i=0, cur_ival=0; i<num_obs; i++) {
-                std::pair<double, int>& data_item = data_sorted[t][i];
-                double val = data_item.first;
-                int idx = data_item.second;
-                if (undefs[idx])
-                    continue;
-                // detect if need to jump to next interval
-                while (cur_ival <= cur_intervals-2 &&
-                       val >= ival_breaks[t][cur_ival])
-                {
-                    cur_ival++;
-                }
-                // add current [id] to ival_to_obs_ids
-                ival_to_obs_ids[t][cur_ival].push_front(idx);
-                obs_id_to_ival[t][idx] = cur_ival;
-                ival_obs_cnt[t][cur_ival]++;
-                
-                if (hs[data_sorted[t][i].second]) {
-                    ival_obs_sel_cnt[t][cur_ival]++;
+                int num_cats = cat_classif_def.num_cats;
+                int num_breaks = num_cats-1;
+                int num_breaks_lower = (num_breaks+1)/2;
+                for (int i=0, cur_ival=0; i<num_obs; i++) {
+                    std::pair<double, int>& data_item = data_sorted[t][i];
+                    double val = data_item.first;
+                    int idx = data_item.second;
+                    if (undefs[idx]) continue;
+                    // detect if need to jump to next interval
+                    if (cur_ival <= cur_intervals-2) {
+                        if ( (cur_ival == num_breaks_lower &&val > ival_breaks[t][cur_ival]) || (cur_ival != num_breaks_lower &&val >= ival_breaks[t][cur_ival]) )
+                            cur_ival++;
+                    }
+                    // add current [id] to ival_to_obs_ids
+                    ival_to_obs_ids[t][cur_ival].push_front(idx);
+                    obs_id_to_ival[t][idx] = cur_ival;
+                    ival_obs_cnt[t][cur_ival]++;
+                    
+                    if (hs[data_sorted[t][i].second]) {
+                        ival_obs_sel_cnt[t][cur_ival]++;
+                    }
                 }
             }
         }
