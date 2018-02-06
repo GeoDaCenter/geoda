@@ -559,6 +559,7 @@ void TemplateCanvas::SetBackgroundColorVisible(bool visible)
 	user_canvas_background_color = visible;
     
 	layer0_valid = false;
+    ReDraw();
 }
 
 bool TemplateCanvas::IsUserBackgroundColorVisible()
@@ -585,18 +586,21 @@ void TemplateCanvas::SetSelectableFillColor(wxColour color)
 	layer0_valid = false;
 	layer1_valid = false;
 	layer2_valid = false;
+    ReDraw();
 }
 
 void TemplateCanvas::SetHighlightColor(wxColour color)
 {
 	highlight_color = color;
 	layer1_valid = false;
+    ReDraw();
 }
 
 void TemplateCanvas::SetCanvasBackgroundColor(wxColour color)
 {
 	canvas_background_color = color;
 	layer0_valid = false;
+    ReDraw();
 }
 
 void TemplateCanvas::UpdateSelectableOutlineColors()

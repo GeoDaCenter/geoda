@@ -327,6 +327,7 @@
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
@@ -428,6 +429,7 @@
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
     <ClInclude Include="..\..\DialogTools\RedcapDlg.h" />

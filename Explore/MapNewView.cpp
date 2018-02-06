@@ -444,7 +444,6 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                      int virtual_scrn_h)
 {
-   
     if (isDrawBasemap) {
         if ( virtual_scrn_w > 0 && virtual_scrn_h> 0) {
             basemap->ResizeScreen(virtual_scrn_w, virtual_scrn_h);
@@ -624,7 +623,10 @@ void MapCanvas::DrawLayerBase()
 void MapCanvas::DrawLayer0()
 {
     wxMemoryDC dc;
-
+    dc.SelectObject(*layer0_bm);
+    dc.Clear();
+    wxSize sz = dc.GetSize();
+    
 	if (isDrawBasemap || (highlight_state->GetTotalHighlighted()>0 &&
 						  GdaConst::use_cross_hatching == false)) 
 	{
@@ -632,13 +634,12 @@ void MapCanvas::DrawLayer0()
         wxColour maskColor(MASK_R, MASK_G, MASK_B);
         wxBrush maskBrush(maskColor);
         dc.SetBackground(maskBrush);
-	}
+    } else {
+        dc.SetPen(canvas_background_color);
+        dc.SetBrush(canvas_background_color);
+        dc.DrawRectangle(wxPoint(0,0), sz);
+    }
 
-	dc.SelectObject(*layer0_bm);
-	dc.Clear();
-
-	wxSize sz = dc.GetSize();
-    
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
@@ -661,11 +662,7 @@ void MapCanvas::DrawLayer1()
     
     if (isDrawBasemap) {
         dc.DrawBitmap(*basemap_bm,0,0);
-	} else {
-        dc.SetPen(canvas_background_color);
-        dc.SetBrush(canvas_background_color);
-        dc.DrawRectangle(wxPoint(0,0), sz);
-    }
+	}
     
     bool revert = GdaConst::transparency_highlighted < tran_unhighlighted;
     int  alpha_value = 255;
