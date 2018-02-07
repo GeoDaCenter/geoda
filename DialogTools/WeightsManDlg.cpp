@@ -290,6 +290,21 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		suspend_w_man_state_updates = false;
 		return;
 	}
+   
+    GalWeight* gw = new GalWeight();
+    gw->num_obs = table_int->GetNumberRows();
+    gw->wflnm = wmi.filename;
+    gw->id_field = id_field;
+    gw->gal = tempGal;
+    
+    gw->GetNbrStats();
+    wmi.num_obs = gw->GetNumObs();
+    wmi.SetMinNumNbrs(gw->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(gw->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(gw->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(gw->GetMedianNumNbrs());
+    wmi.SetSparsity(gw->GetSparsity());
+    wmi.SetDensity(gw->GetDensity());
     
     id = w_man_int->RequestWeights(wmi);
     if (id.is_nil()) {
@@ -300,12 +315,6 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
         return;
     }
 	
-	GalWeight* gw = new GalWeight();
-	gw->num_obs = table_int->GetNumberRows();
-	gw->wflnm = wmi.filename;
-    gw->id_field = id_field;
-	gw->gal = tempGal;
-
 	if (!((WeightsNewManager*) w_man_int)->AssociateGal(id, gw)) {
 		wxString msg("There was a problem associating the weights file.");
 		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
