@@ -5499,6 +5499,16 @@ void GdaFrame::OnChangeGraphColor(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnChangeNeighborColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeNeighborColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnChangeNeighborColor(event);
+    }
+}
+
 void GdaFrame::OnDisplayCentroids(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnDisplayCentroids()");
@@ -6760,6 +6770,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
+    EVT_MENU(XRCID("ID_CONN_NEIGHBOR_COLOR"), GdaFrame::OnChangeNeighborColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

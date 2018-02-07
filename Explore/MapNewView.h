@@ -124,24 +124,13 @@ public:
     virtual void OnSize(wxSizeEvent& event);
 	
     int  GetBasemapType();
-    
     void CleanBasemapCache();
-    
 	bool DrawBasemap(bool flag, int map_type);
-    
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
-   
     void OnIdle(wxIdleEvent& event);
-    
     virtual void deleteLayerBms();
-    
 	virtual void DrawLayerBase();
-    
 	virtual void DrawLayers();
-    
-	// in linux, windows use old style drawing without transparency support
-	// the commented out functions are inherited from TemplateCanvas class
-	// TODO will be replace by wxImage drawing code
     virtual void resizeLayerBms(int width, int height);
 	virtual void DrawLayer0();
 	virtual void DrawLayer1();
@@ -151,7 +140,6 @@ public:
     virtual void DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only=false,
                                          bool revert=false,
                                          bool use_crosshatch=false);
-    
     virtual void ResetShapes();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
@@ -168,6 +156,7 @@ public:
     virtual void DisplayMapWithGraph();
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
+    virtual void ChangeNeighborColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -177,7 +166,6 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    
     void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
     
     CatClassification::CatClassifType GetCcType();
@@ -194,6 +182,7 @@ public:
     bool display_map_with_graph;
     int  weights_graph_thickness;
     wxColour graph_color;
+    wxColour neighbor_color;
     std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
@@ -356,6 +345,7 @@ public:
     void OnDisplayMapWithGraph(wxCommandEvent& event);
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
+    void OnChangeNeighborColor(wxCommandEvent& event);
 
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);

@@ -2531,12 +2531,16 @@
         <label>Show As Conditional Map</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Selection and Neighbors</label>
-        <checkable>1</checkable>
-    </object>
     <object class="wxMenu" name="ID_MENU">
-        <label>Connectivity Graph</label>
+        <label>Connectivity</label>
+        <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+            <label>Show Selection and Neighbors</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
+            <label>Change Outline Color of Neighbors</label>
+        </object>
+        <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
             <label>Show Graph</label>
             <checkable>1</checkable>
@@ -2742,12 +2746,16 @@
         <label>Show As Conditional Map</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Selection and Neighbors</label>
-        <checkable>1</checkable>
-    </object>
     <object class="wxMenu" name="ID_MENU">
-        <label>Connectivity Graph</label>
+        <label>Connectivity</label>
+        <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+            <label>Show Selection and Neighbors</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
+            <label>Change Outline Color of Neighbors</label>
+        </object>
+        <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
             <label>Show Graph</label>
             <checkable>1</checkable>
@@ -3149,12 +3157,16 @@
       <label>Save Rates</label>
     </object>
     <object class="separator"/>
-    <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
-        <label>Selection and Neighbors</label>
-        <checkable>1</checkable>
-    </object>
     <object class="wxMenu" name="ID_MENU">
-        <label>Connectivity Graph</label>
+        <label>Connectivity</label>
+        <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+            <label>Show Selection and Neighbors</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
+            <label>Change Outline Color of Neighbors</label>
+        </object>
+        <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
             <label>Show Graph</label>
             <checkable>1</checkable>

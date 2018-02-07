@@ -176,6 +176,7 @@ display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
 graph_color(GdaConst::conn_graph_outline_colour),
+neighbor_color(GdaConst::conn_neighbor_outline_colour),
 weights_graph_thickness(1),
 voronoi_diagram_duplicates_exist(false),
 num_categories(num_categories_s), 
@@ -305,7 +306,7 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
     }
     if (dc.IsOk()) {
         vector<bool> new_hs(num_obs, false);
-        wxPen pen(graph_color, weights_graph_thickness);
+        wxPen pen(neighbor_color);
         for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
             //h[*it] = true;
             new_hs[*it] = true;
@@ -1051,6 +1052,18 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                   weights_graph_thickness==1);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"),
                                   weights_graph_thickness==2);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HIDE_MAP_WITH_GRAPH"),
+                                  display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_LIGHT"),
+                                  display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"),
+                                  display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"),
+                                  display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_COLOR"),
+                                   display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_COLOR"),
+                                   display_neighbors);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -1901,6 +1914,15 @@ void MapCanvas::ChangeGraphColor()
     }
 }
 
+void MapCanvas::ChangeNeighborColor()
+{
+    if (display_neighbors) {
+        neighbor_color = GeneralWxUtils::PickColor(this, neighbor_color);
+        full_map_redraw_needed = true;
+        PopulateCanvas();
+    }
+}
+
 void MapCanvas::DisplayVoronoiDiagram()
 {
     wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
@@ -2471,6 +2493,16 @@ void MapFrame::OnChangeGraphColor(wxCommandEvent& event)
         return;
   
     ((MapCanvas*) template_canvas)->ChangeGraphColor();
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnChangeNeighborColor(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+    
+    ((MapCanvas*) template_canvas)->ChangeNeighborColor();
     UpdateOptionMenuItems();
 }
 

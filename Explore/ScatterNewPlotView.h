@@ -30,6 +30,7 @@
 #include "LowessParamDlg.h"
 #include "LowessParamObserver.h"
 #include "../ShapeOperations/Lowess.h"
+#include "../DialogTools/CreatingWeightDlg.h"
 #include "../ShapeOperations/SmoothingUtils.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
@@ -362,7 +363,8 @@ public:
     void OnCreateWeights();
     
 protected:
-
+    CreatingWeightDlg* dlg;
+    
     DECLARE_EVENT_TABLE()
 };
 

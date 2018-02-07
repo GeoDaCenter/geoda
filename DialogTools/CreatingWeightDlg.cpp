@@ -117,7 +117,8 @@ void CreatingWeightDlg::OnClose(wxCloseEvent& ev)
 	wxLogMessage("Close CreatingWeightDlg");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
-	Destroy();
+    if (!user_xy)
+        Destroy();
 }
 
 bool CreatingWeightDlg::Create(wxWindow* parent, wxWindowID id, const wxString& caption, const wxPoint& pos, const wxSize& size, long style)
