@@ -50,7 +50,8 @@ public TableStateObserver, public WeightsManStateObserver
 {
 public:
 	CreatingWeightDlg(wxWindow* parent,
-                    Project* project,
+                      Project* project,
+                      bool user_xy = false,
                     wxWindowID id = -1,
                     const wxString& caption = _("Weights File Creation"),
                     const wxPoint& pos = wxDefaultPosition,
@@ -103,6 +104,9 @@ public:
 	virtual void update(WeightsManState* o);
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const { return 0;}
 	virtual void closeObserver(boost::uuids::uuid id) {};
+    
+    void SetXCOO(const std::vector<double>& xx);
+    void SetYCOO(const std::vector<double>& yy);
 	
 private:
 
@@ -153,7 +157,8 @@ private:
 	TableState* table_state;
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
-	
+
+    bool user_xy;
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items
 	// in the fields dropdown are in the order displayed

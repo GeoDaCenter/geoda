@@ -34,6 +34,7 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
+#include "../DialogTools/CreatingWeightDlg.h"
 #include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../SpatialIndAlgs.h"
@@ -2242,24 +2243,12 @@ void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     wxMenu* optMenu = wxXmlResource::Get()->
         LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
     AddTimeVariantOptionsToMenu(optMenu);
-   
-    // Add MDS only menu items
-    wxMenu* menu2 = new wxMenu(wxEmptyString);
-    wxString menu_knn_txt = _("K Nearest Neighbors");
-    wxMenuItem* mi_knn = menu2->Append(XRCID("MDS_KNN_W"), menu_knn_txt, menu_knn_txt);
-    template_frame->Connect(XRCID("MDS_KNN_W"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeightsKNN));
-  
-    wxMenu* cont_menu = new wxMenu;
-    cont_menu->Append(XRCID("MDS_ROOK_W"), _("Rook"));
-    cont_menu->Append(XRCID("MDS_QUEEN_W"), _("Queen"));
-    wxString menu_contiguity_txt = _("Contiguity");
-    wxMenuItem* mi_contiguity = menu2->AppendSubMenu(cont_menu, menu_contiguity_txt);
-    template_frame->Connect(XRCID("MDS_ROOK_W"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeightsRook));
-    template_frame->Connect(XRCID("MDS_QUEEN_W"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeightsQueen));
     
     wxString menu_txt = _("Create Weights");
-    optMenu->Prepend(wxID_ANY, menu_txt, menu2, menu_txt);
+    optMenu->Prepend(XRCID("MDS_WEIGHTS"), menu_txt);
     optMenu->AppendSeparator();
+    
+    template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
     
     SetCheckMarks(optMenu);
     
@@ -2268,130 +2257,16 @@ void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     template_frame->UpdateOptionMenuItems();
 }
 
-bool MDSPlotCanvas::GetKNNInput(long& k)
+void MDSPlotCanvas::OnCreateWeights()
 {
-    wxString msg = _("Please input an integer number for K Nearest Neighbors:");
-    wxTextEntryDialog kDlg(this, msg, _("MDS: Create KNN Weights"), _("4"));
-    kDlg.SetTextValidator(wxFILTER_DIGITS);
-    if (kDlg.ShowModal() != wxID_OK)
-        return false;
-    wxString k_val = kDlg.GetValue();
-    if (!k_val.ToLong(&k))
-        return false;
-    return true;
+    wxLogMessage("On MDSPlotCanvas::OnCreateWeights()");
+    
+    CreatingWeightDlg dlg(this, project, true);
+    dlg.SetXCOO(X);
+    dlg.SetYCOO(Y);
+    dlg.ShowModal();
 }
 
-wxString MDSPlotCanvas::GetOutputWeightsPath(bool is_gal)
-{
-    wxString suffix = ".gwt";
-    wxString wildcard = "GWT files (*.gwt)|*.gwt";
-    if (is_gal) {
-        suffix = ".gal";
-        wildcard = "GAL files (*.gal)|*.gal";
-    }
-    wxFileDialog dlg(this,
-                     _("Choose an output weights file name."),
-                     project->GetWorkingDir().GetPath(),
-                     suffix, wildcard,
-                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-    wxString outputfile;
-    if (dlg.ShowModal() != wxID_OK)
-        return wxEmptyString;
-    outputfile = dlg.GetPath();
-    return outputfile;
-}
-
-void MDSPlotCanvas::OnCreateWeightsKNN()
-{
-    wxLogMessage("On MDSPlotCanvas::OnCreateWeightsKNN()");
-    long k = 0;
-    if (!GetKNNInput(k))
-        return;
-    wxString outputfile = GetOutputWeightsPath(false);
-    if (outputfile.IsEmpty())
-        return;
-    int kk = k;
-    GwtWeight* Wp = 0;
-    bool is_arc = false;
-    bool is_mile = false;
-    Wp = SpatialIndAlgs::knn_build(X, Y, kk, is_arc, is_mile);
-    wxString id = "id";
-    std::vector<wxInt64> id_vec(num_obs);
-    for (int i=0; i<num_obs; i++) id_vec[i] = i + 1;
-    bool flag = Gda::SaveGwt(Wp->gwt, "mds", outputfile, id, id_vec);
-    if (!flag) {
-        wxString msg = _("Failed to create the weights file.");
-        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    }
-    if (Wp) delete Wp;
-}
-
-void MDSPlotCanvas::OnCreateWeightsRook()
-{
-    wxLogMessage("On MDSPlotCanvas::OnCreateWeightsRook()");
-    wxString outputfile = GetOutputWeightsPath(true);
-    if (outputfile.IsEmpty())
-        return;
-    std::vector<std::set<int> > nbr_map;
-    Gda::VoronoiUtils::PointsToContiguity(X, Y, false, nbr_map);
-    GalWeight* Wp = new GalWeight;
-    Wp->num_obs = num_obs;
-    Wp->is_symmetric = true;
-    Wp->symmetry_checked = true;
-    Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
-    if (!Wp->gal) {
-        wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
-        wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        if (Wp) delete Wp;
-        return;
-    }
-    //Gda::MakeHigherOrdContiguity(m_ooC, num_obs, Wp->gal, false);
-    wxString id = "id";
-    std::vector<wxInt64> id_vec(num_obs);
-    for (int i=0; i<num_obs; i++) id_vec[i] = i + 1;
-    bool flag = Gda::SaveGal(Wp->gal, "mds", outputfile, id, id_vec);
-    if (!flag) {
-        wxString msg = _("Failed to create the weights file.");
-        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    }
-    if (Wp) delete Wp;
-}
-
-void MDSPlotCanvas::OnCreateWeightsQueen()
-{
-    wxLogMessage("On MDSPlotCanvas::OnCreateWeightsQueen()");
-    wxString outputfile = GetOutputWeightsPath(true);
-    if (outputfile.IsEmpty())
-        return;
-    std::vector<std::set<int> > nbr_map;
-    Gda::VoronoiUtils::PointsToContiguity(X, Y, true, nbr_map);
-    GalWeight* Wp = new GalWeight;
-    Wp->num_obs = num_obs;
-    Wp->is_symmetric = true;
-    Wp->symmetry_checked = true;
-    Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
-    if (!Wp->gal) {
-        wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
-        wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        if (Wp) delete Wp;
-        return;
-    }
-    //Gda::MakeHigherOrdContiguity(m_ooC, num_obs, Wp->gal, false);
-    wxString id = "id";
-    std::vector<wxInt64> id_vec(num_obs);
-    for (int i=0; i<num_obs; i++) id_vec[i] = i + 1;
-    bool flag = Gda::SaveGal(Wp->gal, "mds", outputfile, id, id_vec);
-    if (!flag) {
-        wxString msg = _("Failed to create the weights file.");
-        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    }
-    if (Wp) delete Wp;
-}
 
 IMPLEMENT_CLASS(MDSPlotFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
@@ -2432,20 +2307,8 @@ MDSPlotFrame::~MDSPlotFrame()
     wxLogMessage("Close ~MDSPlotFrame.");
 }
 
-void MDSPlotFrame::OnCreateWeightsKNN(wxCommandEvent& event)
+void MDSPlotFrame::OnCreateWeights(wxCommandEvent& event)
 {
-    wxLogMessage("In MDSPlotFrame::OnCreateWeightsKNN()");
-    ((MDSPlotCanvas*) template_canvas)->OnCreateWeightsKNN();
-}
-
-void MDSPlotFrame::OnCreateWeightsRook(wxCommandEvent& event)
-{
-    wxLogMessage("In MDSPlotFrame::OnCreateWeightsRook()");
-    ((MDSPlotCanvas*) template_canvas)->OnCreateWeightsRook();
-}
-
-void MDSPlotFrame::OnCreateWeightsQueen(wxCommandEvent& event)
-{
-    wxLogMessage("In MDSPlotFrame::OnCreateWeightsQueen()");
-    ((MDSPlotCanvas*) template_canvas)->OnCreateWeightsQueen();
+    wxLogMessage("In MDSPlotFrame::OnCreateWeights()");
+    ((MDSPlotCanvas*) template_canvas)->OnCreateWeights();
 }

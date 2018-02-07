@@ -3578,7 +3578,7 @@
                                   <object class="sizeritem">
                                       <object class="wxFlexGridSizer">
                                           <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC3">
+                                              <object class="wxStaticText" name="IDC_STATIC_DIST_METRIC">
                                                   <label>Distance metric</label>
                                               </object>
                                               <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3592,7 +3592,7 @@
                                           </object>
                                           <object class="spacer"/>
                                           <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC1">
+                                              <object class="wxStaticText" name="IDC_STATIC_XCOORD_VAR">
                                                   <label>X-coordinate variable</label>
                                               </object>
                                               <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3612,7 +3612,7 @@
                                               <flag>wxALIGN_CENTER</flag>
                                           </object>
                                           <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC2">
+                                              <object class="wxStaticText" name="IDC_STATIC_YCOORD_VAR">
                                                   <label>Y-coordinate variable</label>
                                               </object>
                                               <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>

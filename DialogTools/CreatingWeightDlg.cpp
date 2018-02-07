@@ -75,12 +75,13 @@ END_EVENT_TABLE()
 
 CreatingWeightDlg::CreatingWeightDlg(wxWindow* parent,
                                      Project* project_s,
+                                     bool user_xy_s,
                                      wxWindowID id,
                                      const wxString& caption,
                                      const wxPoint& pos, 
                                      const wxSize& size,
                                      long style )
-: all_init(false), 
+: all_init(false), user_xy(user_xy_s),
 m_thres_delta_factor(1.00001),
 m_is_arc(false), 
 m_arc_in_km(false), 
@@ -334,7 +335,8 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	}
 	dist_var_1 = v1;
 	dist_var_2 = v2;
-	
+
+    if (!user_xy) {
 	if (v1 == wxEmptyString || v2 == wxEmptyString) {
 		if (mean_center) {
 			project->GetMeanCenters(m_XCOO, m_YCOO);
@@ -369,6 +371,7 @@ void CreatingWeightDlg::UpdateThresholdValues()
 			table_int->GetColData(col_id, tm, m_YCOO);
 		}
 	}
+    }
 	
 	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO,
                                                     m_is_arc,
@@ -735,6 +738,17 @@ void CreatingWeightDlg::InitDlg()
 
     m_nb_weights_type->Enable(false);
     
+    if (user_xy) {
+        m_X_time->Hide();
+        m_Y_time->Hide();
+        m_dist_choice->Hide();
+        m_X->Hide();
+        m_Y->Hide();
+        FindWindow(XRCID("IDC_STATIC_DIST_METRIC"))->Hide();
+        FindWindow(XRCID("IDC_STATIC_XCOORD_VAR"))->Hide();
+        FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
+    }
+    
 	Refresh();
 }
 
@@ -914,6 +928,16 @@ bool CreatingWeightDlg::CheckThresholdInput()
     return true;
 }
 
+void CreatingWeightDlg::SetXCOO(const std::vector<double>& xx)
+{
+    m_XCOO = xx;
+}
+
+void CreatingWeightDlg::SetYCOO(const std::vector<double>& yy)
+{
+    m_YCOO = yy;
+}
+
 void CreatingWeightDlg::OnCreateClick( wxCommandEvent& event )
 {
     wxLogMessage("Click CreatingWeightDlg::OnCreateClick");
@@ -1006,7 +1030,17 @@ void CreatingWeightDlg::CreateWeights()
         } else {
             wmi.SetToQueen(id, m_ooC, m_check1);
         }
-        if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
+        if (user_xy) {
+            std::vector<std::set<int> > nbr_map;
+            Gda::VoronoiUtils::PointsToContiguity(m_XCOO, m_YCOO, false, nbr_map);
+            Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
+            if (!Wp->gal) {
+                wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
+                wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+            }
+            
+        } else if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
             if (project->IsPointDuplicates()) {
                 project->DisplayPointDupsWarning();
             }
@@ -1051,7 +1085,7 @@ void CreatingWeightDlg::CreateWeights()
             }
         }
         
-        if (empty_w) {
+        if (empty_w && !user_xy) {
             // could be an empty weights file, and should prompt user
             // to setup Precision Threshold
             wxString msg = _("None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold.");

@@ -359,17 +359,10 @@ public:
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     
-    void OnCreateWeightsKNN();
+    void OnCreateWeights();
     
-    void OnCreateWeightsRook();
-    
-    void OnCreateWeightsQueen();
-   
 protected:
-    bool GetKNNInput(long& k);
-    
-    wxString GetOutputWeightsPath(bool is_gal);
-    
+
     DECLARE_EVENT_TABLE()
 };
 
@@ -393,11 +386,7 @@ public:
     
     virtual ~MDSPlotFrame();
    
-    void OnCreateWeightsKNN(wxCommandEvent& event);
-    
-    void OnCreateWeightsRook(wxCommandEvent& event);
-    
-    void OnCreateWeightsQueen(wxCommandEvent& event);
+    void OnCreateWeights(wxCommandEvent& event);
     
     DECLARE_EVENT_TABLE()
 };
