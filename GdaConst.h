@@ -161,7 +161,9 @@ public:
 	static const int ID_HTML_MENU_ENTRY_CHOICE_7 = ID_HTML_SUBMENU + 8;
 	static const int ID_HTML_MENU_ENTRY_CHOICE_8 = ID_HTML_SUBMENU + 9;
 	static const int ID_HTML_MENU_ENTRY_CHOICE_9 = ID_HTML_SUBMENU + 10;
-	
+
+    static const int ID_CONNECT_POPUP_MENU = wxID_HIGHEST + 6000;
+    
 	// Standard wxFont pointers.
 	static wxFont* extra_small_font;
 	static wxFont* small_font;

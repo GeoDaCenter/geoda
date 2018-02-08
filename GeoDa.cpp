@@ -972,10 +972,6 @@ bool GdaFrame::OnCloseProject(bool ignore_unsaved_changes)
 		if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
 			w->DisconnectFromProject();
 		}
-		if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
-            w->EndDialog();
-            w->Close();
-		}
         if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
             w->Close(true);
         }
@@ -1030,14 +1026,6 @@ void GdaFrame::OnClose(wxCloseEvent& event)
 			w->Close(true);
 		}
         if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
-            w->Close(true);
-        }
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            w->EndDialog();
-            w->Close(true);
-        }
-        if (ExportDataDlg* w = dynamic_cast<ExportDataDlg*>(win)) {
-            w->EndDialog();
             w->Close(true);
         }
         node = node->GetNext();
@@ -1243,21 +1231,6 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 
 	if (init && project_p) return;
 
-	// check if dialog has already been opened
-	wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            if (w->GetType() == 0) {
-    			w->Show(true);
-    			w->Maximize(false);
-    			w->Raise();
-    			return;
-            }
-        }
-        node = node->GetNext();
-    }
-
     ConnectDatasourceDlg dlg(this, pos);
     if (dlg.ShowModal() != wxID_OK) {
         return;
@@ -1411,19 +1384,6 @@ void GdaFrame::InitWithProject()
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
    
-    // close existing OpenDatasourceDialog
-    wxWindowList::compatibility_iterator node_ds = wxTopLevelWindows.GetFirst();
-    while (node_ds) {
-        wxWindow* win = node_ds->GetData();
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            if (w->GetType() == 0) {
-                w->Hide();
-                break;
-            }
-        }
-        node_ds = node_ds->GetNext();
-    }
-    
     // This call is very improtant because we need the wxGrid to
     // take ownership of the TableBase instance (due to bug in wxWidgets)
     TableFrame* tf;

@@ -173,7 +173,7 @@ void TableFrame::OnMouseEvent(wxMouseEvent& event)
         
         TableInterface* ti = table_base->GetTableInt();
         SetEncodingCheckmarks(optMenu, ti->GetFontEncoding());
-        PopupMenu(optMenu, event.GetPosition());
+        PopupMenu(optMenu);
     }
 }
 

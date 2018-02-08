@@ -209,7 +209,7 @@ void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
 void InferenceSettingsDlg::OnOkClick( wxCommandEvent& event )
 {
     wxLogMessage("In InferenceSettingsDlg::OnOkClick()");
-    
+   
     if (chk_pval->GetValue()) {
         wxString p_val = m_txt_pval->GetValue();
         p_val.ToDouble(&user_input);

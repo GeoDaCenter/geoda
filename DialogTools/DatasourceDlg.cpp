@@ -50,64 +50,6 @@
 
 using namespace std;
 
-DatasourceDlg::DatasourceDlg()
-: is_ok_clicked(false), eventLoop(NULL)
-{
-	Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(DatasourceDlg::OnExit) );
-}
-
-DatasourceDlg::~DatasourceDlg()
-{
-    if (eventLoop) {
-        delete eventLoop;
-        eventLoop = NULL;
-    }
-}
-
-int DatasourceDlg::GetType()
-{
-    return type;
-}
-
-int DatasourceDlg::ShowModal()
-{
-    Show(true);
-    
-    // mow to stop execution start a event loop
-    eventLoop = new wxEventLoop;
-    if (eventLoop == NULL)
-        return wxID_CANCEL;
-    
-    eventLoop->Run();
-    
-    if (is_ok_clicked)
-        return wxID_OK;
-    else
-        return wxID_CANCEL;
-}
-
-void DatasourceDlg::EndDialog()
-{
-    if (eventLoop->IsRunning()) {
-        eventLoop->Exit();
-        Show(false);
-    } else {
-        //if (eventLoop && eventLoop->IsInsideRun())
-        //    eventLoop->ScheduleExit();
-        Show(false);
-    }
-}
-
-void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
-{
-    EndDialog();
-}
-
-void DatasourceDlg::OnExit(wxCloseEvent& e)
-{
-    EndDialog();
-}
-
 void DatasourceDlg::Init()
 {
     m_ds_menu = NULL;
@@ -345,15 +287,12 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             if (ds_names[i].IsEmpty()) {
                 m_ds_menu->AppendSeparator();
             } else {
-                m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+                m_ds_menu->Append( GdaConst::ID_CONNECT_POPUP_MENU + i, ds_names[i].BeforeFirst('|'));
             }
         }
     }
-
-    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-    OnActivate(ae);
     
-    PopupMenu(m_ds_menu);
+   PopupMenu(m_ds_menu);
     
     event.Skip();
 }
@@ -368,7 +307,7 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
 void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
 {
     
-	int index = event.GetId() - ID_DS_START;
+    int index = event.GetId() - GdaConst::ID_CONNECT_POPUP_MENU;
     wxString name = ds_names[index];
     
     if (name.Contains("gdb")) {

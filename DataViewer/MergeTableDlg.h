@@ -91,8 +91,6 @@ public:
 	wxRadioButton* m_outer_join;
 	wxCheckBox* m_overwrite_field;
 
-    ExportDataDlg* export_dlg;
-    
 	//TableBase* table_base;
     Project* project_s;
 	TableInterface* table_int;
@@ -101,7 +99,6 @@ public:
 	std::set<wxString> table_fnames;
 	
 private:
-    ConnectDatasourceDlg* connect_dlg;
 	FramesManager* frames_manager;
     
 	std::map<wxString, int> dedup_to_id;

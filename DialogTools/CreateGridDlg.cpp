@@ -57,33 +57,19 @@ END_EVENT_TABLE()
 
 CreateGridDlg::~CreateGridDlg( )
 {
-    if (export_dlg) {
-        export_dlg->Destroy();
-        delete export_dlg;
-    }
-    if (connect_dlg) {
-        connect_dlg->Destroy();
-        delete connect_dlg;
-    }
 }
 
 void CreateGridDlg::OnClose(wxCloseEvent& event)
 {
-    if (export_dlg) {
-        export_dlg->Close();
-    }
-    if (connect_dlg) {
-        connect_dlg->Close();
-    }
-    event.Skip();
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    Destroy();
 }
 
 CreateGridDlg::CreateGridDlg( wxWindow* parent, wxWindowID id,
 							   const wxString& caption, const wxPoint& pos,
 							   const wxSize& size, long style )
 {
-    connect_dlg = NULL;
-    export_dlg = NULL;
 	isCreated = false;
 
     Create(parent, id, caption, pos, size, style);
@@ -260,19 +246,13 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCReferencefile2Click()");
     
     try{
-        if (connect_dlg != NULL) {
-            connect_dlg->EndDialog();
-            connect_dlg->Destroy();
-            delete connect_dlg;
-        }
-        
-        connect_dlg = new ConnectDatasourceDlg(this);
-        if (connect_dlg->ShowModal() != wxID_OK)
+         ConnectDatasourceDlg connect_dlg(this);
+        if (connect_dlg.ShowModal() != wxID_OK)
             return;
         
-        wxString proj_title = connect_dlg->GetProjectTitle();
-        wxString layer_name = connect_dlg->GetLayerName();
-        IDataSource* datasource = connect_dlg->GetDataSource();
+        wxString proj_title = connect_dlg.GetProjectTitle();
+        wxString layer_name = connect_dlg.GetLayerName();
+        IDataSource* datasource = connect_dlg.GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
         
@@ -407,14 +387,10 @@ bool CreateGridDlg::CreateGrid()
         }
     }
     
-    if (export_dlg != NULL) {
-        export_dlg->Destroy();
-        delete export_dlg;
-    }
+
+    ExportDataDlg export_dlg(this, grids, Shapefile::POLYGON);
     
-    export_dlg = new ExportDataDlg(NULL, grids, Shapefile::POLYGON);
-    
-    bool result = export_dlg->ShowModal() == wxID_OK;
+    bool result = export_dlg.ShowModal() == wxID_OK;
     
 	m_nCount = nMaxCount;
 

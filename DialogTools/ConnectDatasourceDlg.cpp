@@ -376,15 +376,15 @@ wxString RecentDatasource::GetLayerName(wxString ds_name)
 // Class ConnectDatasourceDlg
 ////////////////////////////////////////////////////////////////////////////////
 
-BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxFrame )
+BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
 	//EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
-    EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
-    EVT_BUTTON(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
-    EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_BUTTON(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 
@@ -401,7 +401,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
     
     // init controls defined in parent class
     DatasourceDlg::Init();
-    type = dialogType;
+    //type = dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
 
 	SetParent(parent);
@@ -423,15 +423,14 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
         }
        
         InitSamplePanel();
-    } else {
     }
-    
+
     m_drag_drop_box->SetDropTarget(new DnDFile(this));
    
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
-         this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+         this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
 	Centre();
     Move(pos);
@@ -558,7 +557,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             layer_name = project->layername;
         }
         recent_ds.Add(ds_name, ds_name, layer_name);
-        EndDialog();
+        EndDialog(wxID_CANCEL);
     } else {
     
         IDataSource* ds = recent_ds.GetDatasource(ds_name);
@@ -573,8 +572,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             SaveRecentDataSource(ds, layername);
             layer_name = layername;
             datasource = ds;
-            is_ok_clicked = true;
-            EndDialog();
+            EndDialog(wxID_OK);
         }
     }
 }
@@ -615,13 +613,13 @@ void ConnectDatasourceDlg::InitRecentPanel()
 void ConnectDatasourceDlg::CreateControls()
 {
     if (showRecentPanel) {
-        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
+        wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
         recent_nb->SetSelection(1);
         recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
         smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
     } else {
-        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+        wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
     }
     
     FindWindow(XRCID("wxID_OK"))->Enable(true);
@@ -749,7 +747,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 } catch( GdaException ex) {
                     wxLogMessage(ex.what());
                 }
-                EndDialog();
+                EndDialog(wxID_CANCEL);
             }
             return;
         }
@@ -816,8 +814,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         
         SaveRecentDataSource(datasource, layer_name);
         
-        is_ok_clicked = true;
-        EndDialog();
+        EndDialog(wxID_OK);
 		
 	} catch (GdaException& e) {
 		wxString msg;
@@ -1143,8 +1140,7 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     } else {
         datasource = ds;
         layer_name = layername;
-        is_ok_clicked = true;
-        EndDialog();
+        EndDialog(wxID_OK);
     }
 
 }

@@ -64,7 +64,7 @@ END_EVENT_TABLE()
 using namespace std;
 
 MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
-: connect_dlg(NULL), merge_datasource_proxy(NULL), project_s(_project_s), export_dlg(NULL)
+: merge_datasource_proxy(NULL), project_s(_project_s)
 {
     wxLogMessage("Open MergeTableDlg.");
 	SetParent(parent);
@@ -91,18 +91,6 @@ MergeTableDlg::~MergeTableDlg()
     }
 	
     frames_manager->removeObserver(this);
-    
-    if (connect_dlg) {
-        connect_dlg->EndDialog();
-        connect_dlg->Close(true);
-        delete connect_dlg;
-        connect_dlg = NULL;
-    }
-    if (export_dlg) {
-        export_dlg->Destroy();
-        delete export_dlg;
-        export_dlg = NULL;
-    }
 }
 
 void MergeTableDlg::update(FramesManager* o)
@@ -218,15 +206,15 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
        
         int dialog_type = 1;
 
-        connect_dlg = new ConnectDatasourceDlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
         
-        if (connect_dlg->ShowModal() != wxID_OK) {
+        if (connect_dlg.ShowModal() != wxID_OK) {
             return;
         }
         
-        wxString proj_title = connect_dlg->GetProjectTitle();
-        wxString layer_name = connect_dlg->GetLayerName();
-        IDataSource* datasource = connect_dlg->GetDataSource();
+        wxString proj_title = connect_dlg.GetProjectTitle();
+        wxString layer_name = connect_dlg.GetLayerName();
+        IDataSource* datasource = connect_dlg.GetDataSource();
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
@@ -270,11 +258,6 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
             m_exclude_list->Append(dedup_name);
         }
         
-        connect_dlg->EndDialog();
-        connect_dlg->Destroy();
-        delete connect_dlg;
-        connect_dlg = NULL;
-       
         m_left_join->Enable();
         m_outer_join->Enable();
         m_key_val_rb->Enable();
@@ -701,12 +684,8 @@ void MergeTableDlg::OuterJoinMerge()
             mem_table->AddOGRColumn(new_fields_dict[new_fields[i]]);
         }
         
-        if (export_dlg != NULL) {
-            export_dlg->Destroy();
-            delete export_dlg;
-        }
-        export_dlg = new ExportDataDlg(this, shape_type, new_geoms, spatial_ref, mem_table);
-        if (export_dlg->ShowModal() == wxID_OK) {
+        ExportDataDlg export_dlg(this, shape_type, new_geoms, spatial_ref, mem_table);
+        if (export_dlg.ShowModal() == wxID_OK) {
             wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
             dlg.ShowModal();
         }
@@ -932,32 +911,12 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
-    if (connect_dlg) {
-        connect_dlg->EndDialog();
-        connect_dlg->Close(true);
-        connect_dlg = NULL;
-    }
-    if (export_dlg) {
-        export_dlg->Destroy();
-        delete export_dlg;
-        export_dlg = NULL;
-    }
 	EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnClose( wxCloseEvent& ev)
 {
     wxLogMessage("In MergeTableDlg::OnClose()");
-    if (connect_dlg) {
-        connect_dlg->EndDialog();
-        connect_dlg->Close(true);
-        connect_dlg = NULL;
-    }
-    if (export_dlg) {
-        export_dlg->Destroy();
-        delete export_dlg;
-        export_dlg = NULL;
-    }
     Destroy();
 }
 

@@ -70,9 +70,6 @@ public:
     wxTextCtrl* m_rows;
     wxTextCtrl* m_cols;
     
-    ConnectDatasourceDlg* connect_dlg;
-    ExportDataDlg* export_dlg;
-
 	void EnableItems();
 	bool CheckBBox();
 	bool CreateGrid();

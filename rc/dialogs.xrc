@@ -7583,7 +7583,7 @@
       <bg>#FFFFFF</bg>
   </object>
 
-  <object class="wxFrame" name="IDD_CONNECT_DATASOURCE" subclass="ConnectDatasourceDlg">
+  <object class="wxDialog" name="IDD_CONNECT_DATASOURCE" subclass="ConnectDatasourceDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
@@ -7779,7 +7779,7 @@
                                               </object>
                                           </object>
                                           <object class="sizeritem">
-                                              <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE">
+                                              <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE" subclass="AutoTextCtrl">
                                                   <size>170,-1d</size>
                                                   <enabled>0</enabled>
                                               </object>
@@ -8008,7 +8008,7 @@
     <style>wxCAPTION|wxSYSTEM_MENU|wxCLOSE_BOX</style>
   </object>
   
-  <object class="wxFrame" name="IDD_CONNECT_DATASOURCE_SIMPLE" subclass="ConnectDatasourceDlg">
+  <object class="wxDialog" name="IDD_CONNECT_DATASOURCE_SIMPLE" subclass="ConnectDatasourceDlg">
       <object class="wxBoxSizer">
           <orient>wxVERTICAL</orient>
           <object class="sizeritem">
@@ -8204,7 +8204,7 @@
                                                   </object>
                                               </object>
                                               <object class="sizeritem">
-                                                  <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE">
+                                                  <object class="wxTextCtrl" name="IDC_CDS_DB_TABLE" subclass="AutoTextCtrl">
                                                       <size>170,-1d</size>
                                                       <enabled>0</enabled>
                                                   </object>
@@ -8510,7 +8510,7 @@
     <title>Time Setup</title>
     <style>wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
-  <object class="wxFrame" name="IDD_EXPORT_OGRDATA" subclass="ExportDataDlg">
+  <object class="wxDialog" name="IDD_EXPORT_OGRDATA" subclass="ExportDataDlg">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">

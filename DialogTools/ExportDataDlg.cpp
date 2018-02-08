@@ -52,10 +52,10 @@
 
 using namespace std;
 
-BEGIN_EVENT_TABLE( ExportDataDlg, wxFrame )
+BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), ExportDataDlg::OnBrowseDSfileBtn )
     EVT_BUTTON( wxID_OK, ExportDataDlg::OnOkClick )
-    EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
+    //EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -79,7 +79,6 @@ spatial_ref(NULL)
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
-    type = 2;
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -96,14 +95,12 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
-    type = 2;
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent, Shapefile::ShapeType _shape_type, std::vector<GdaShape*>& _geometries, OGRSpatialReference* _spatial_ref, OGRTable* table, const wxPoint& pos, const wxSize& size)
 : is_selected_only(false), project_p(NULL), geometries(_geometries), shape_type(_shape_type), is_saveas_op(true), is_geometry_only(false), table_p(table), is_table_only(false), is_save_centroids(false), spatial_ref(_spatial_ref)
 {
     Init(parent, pos);
-    type = 2;
 }
 
 // Export POINT data only, e.g. centroids/mean centers
@@ -127,7 +124,6 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
         geometries.push_back((GdaShape*)_geometries[i]);
     }
     Init(parent, pos);
-    type = 2;
 }
 
 // Export in-memory table (e.g. space-time table)
@@ -138,7 +134,6 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
 : is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false), spatial_ref(NULL)
 {
     Init(parent, pos);
-    type = 2;
 }
 
 
@@ -162,7 +157,7 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     if( GeneralWxUtils::isWindows())
 		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
     
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource, this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource, this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
     SetParent(parent);
 	CreateControls();
@@ -173,11 +168,10 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 
 void ExportDataDlg::CreateControls()
 {
-    wxXmlResource::Get()->LoadFrame(this, GetParent(), "IDD_EXPORT_OGRDATA");
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_EXPORT_OGRDATA");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
     m_chk_create_project = XRCCTRL(*this, "IDC_CREATE_PROJECT_FILE",wxCheckBox);
-    
     if (!is_create_project) {
         m_chk_create_project->SetValue(false);
         m_chk_create_project->Hide();
@@ -197,7 +191,7 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
     // for datasource file, we should support many file types:
     // SHP, DBF, CSV, GML, ...
     //bool table_only = m_chk_table_only->IsChecked();
-    int index = event.GetId() - ID_DS_START;
+    int index = event.GetId() - GdaConst::ID_CONNECT_POPUP_MENU;
     wxString name = ds_names[index];
     wxString wildcard;
     wildcard << name ;
@@ -430,8 +424,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 	//wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
     //dlg.ShowModal();
     
-    is_ok_clicked = true;
-    EndDialog();
+    EndDialog(wxID_OK);
 }
 
 /**
