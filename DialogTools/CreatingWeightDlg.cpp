@@ -1143,6 +1143,7 @@ void CreatingWeightDlg::CreateWeights()
         if (t_val <= 0) {
             t_val = std::numeric_limits<float>::min();
         }
+        if (user_xy) dist_units_str = wxEmptyString;
         wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, power, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
         
         if (m_is_arc && m_arc_in_km) {
