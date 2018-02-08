@@ -783,7 +783,7 @@ void MapCanvas::SetWeightsId(boost::uuids::uuid id)
     
     bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
     
-    if (show_graph) {
+    if (show_graph || display_neighbors) {
         full_map_redraw_needed = true;
         PopulateCanvas();
     }

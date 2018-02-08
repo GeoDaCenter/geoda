@@ -50,6 +50,7 @@ public:
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
+    virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
     
     double bo;
     double fdr;
