@@ -30,7 +30,7 @@
 #include <wx/checkbox.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
-#include <wx/dnd.h>
+
 #include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <wx/artprov.h>
@@ -50,22 +50,20 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
 #include "../GeoDa.h"
-#include "ConnectDatasourceDlg.h"
-#include "DatasourceDlg.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
+#include "ConnectDatasourceDlg.h"
 
 using namespace std;
 
-class DnDFile : public wxFileDropTarget
+DnDFile::DnDFile(ConnectDatasourceDlg *pOwner)
 {
-public:
-    DnDFile(ConnectDatasourceDlg *pOwner = NULL) { m_pOwner = pOwner; }
+    m_pOwner = pOwner;
+}
+
+DnDFile::~DnDFile()
+{
     
-    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
-    
-private:
-    ConnectDatasourceDlg *m_pOwner;
-};
+}
 
 bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 {
@@ -74,15 +72,10 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     if (m_pOwner != NULL && nFiles > 0)
     {
         wxString fpath = filenames[0];
-        //wxString msg = "Seems you drag-n-drop a directory. Please drag-n- drop a file.";
-        //wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
-        //dlg.ShowModal();
-        
         wxFileName fn = wxFileName::FileName(fpath);
         m_pOwner->ds_file_path = fn;
-        //wxCommandEvent ev;
-        //m_pOwner->OnOkClick(ev);
-        m_pOwner->TriggerOKClick();
+        wxCommandEvent ev;
+        m_pOwner->OnOkClick(ev);
     }
     
     return true;
@@ -425,7 +418,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
         InitSamplePanel();
     }
 
-    m_drag_drop_box->SetDropTarget(new DnDFile(this));
+    m_dnd = new DnDFile(this);
+    m_drag_drop_box->SetDropTarget(m_dnd);
    
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
@@ -712,13 +706,6 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
     } catch(GdaException& e) {
         
     }
-}
-
-
-void ConnectDatasourceDlg::TriggerOKClick()
-{
-    wxCommandEvent evt = wxCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK );
-	AddPendingEvent(evt);
 }
 
 /**
