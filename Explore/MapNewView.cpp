@@ -777,6 +777,18 @@ void MapCanvas::DrawLayer1()
     layer2_valid = false;
 }
 
+void MapCanvas::SetWeightsId(boost::uuids::uuid id)
+{
+    weights_id = id;
+    
+    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    
+    if (show_graph) {
+        full_map_redraw_needed = true;
+        PopulateCanvas();
+    }
+}
+
 // draw highlighted selectable shapes
 void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
 {

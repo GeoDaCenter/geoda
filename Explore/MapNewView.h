@@ -122,7 +122,7 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
     virtual void OnSize(wxSizeEvent& event);
-	
+    virtual void SetWeightsId(boost::uuids::uuid id);
     int  GetBasemapType();
     void CleanBasemapCache();
 	bool DrawBasemap(bool flag, int map_type);
@@ -161,8 +161,7 @@ public:
 	virtual int GetNumVars();
 	virtual int GetNumCats();
 	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
-	virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
-    
+
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);

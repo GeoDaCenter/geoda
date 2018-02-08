@@ -700,6 +700,12 @@ void WeightsManFrame::SelectId(boost::uuids::uuid id)
 {
 	w_man_int->MakeDefault(id);
 	SetDetailsForId(id);
+    
+    if (w_man_state) {
+        w_man_state->SetAddEvtTyp(id);
+        w_man_state->notifyObservers(this);
+    }
+    
 	if (conn_hist_canvas) conn_hist_canvas->ChangeWeights(id);
 	if (conn_map_canvas) conn_map_canvas->ChangeWeights(id);
 }
