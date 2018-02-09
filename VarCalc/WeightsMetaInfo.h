@@ -132,9 +132,9 @@ struct WeightsMetaInfo
     
     int max_nbrs;
     
-    int mean_nbrs;
+    double mean_nbrs;
     
-    int median_nbrs;
+    double median_nbrs;
     
     double non_zero_percent;
 	
@@ -159,8 +159,8 @@ struct WeightsMetaInfo
     void SetDensity(double density);
     void SetMinNumNbrs(int val);
     void SetMaxNumNbrs(int val);
-    void SetMeanNumNbrs(int val);
-    void SetMedianNumNbrs(int val);
+    void SetMeanNumNbrs(double val);
+    void SetMedianNumNbrs(double val);
     
 };
 

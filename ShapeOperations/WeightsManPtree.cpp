@@ -228,17 +228,17 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
                                 wxString(v.second.data()).ToLong(&l);
                                 e.wmi.max_nbrs = l;
                             } else if (key == "mean_neighbors") {
-                                long l;
-                                wxString(v.second.data()).ToLong(&l);
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
                                 e.wmi.mean_nbrs = l;
                             } else if (key == "median_neighbors") {
-                                long l;
-                                wxString(v.second.data()).ToLong(&l);
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
                                 e.wmi.median_nbrs = l;
                             } else if (key == "non_zero_perc") {
                                 double d;
                                 wxString(v.second.data()).ToDouble(&d);
-                                e.wmi.sparsity_val= 1-d;
+                                e.wmi.density_val = d;
                             } else if (key == "kernel") {
                                 e.wmi.kernel = wxString(v.second.data());
                             } else if (key == "bandwidth") {
