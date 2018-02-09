@@ -609,7 +609,7 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
     row_content.push_back("unknown");
     
     wxString sp = ("unknown");
-    if (wmi.sparsity_val>=0)
+    if (wmi.density_val>=0)
     sp = wxString::Format("%.2f%%", wmi.density_val);
     row_title.push_back("% non-zero");
     row_content.push_back(sp);

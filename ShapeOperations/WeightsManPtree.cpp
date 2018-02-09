@@ -402,8 +402,8 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
             if (e.wmi.median_nbrs>=0) {
                 sssub.put("median_neighbors", e.wmi.median_nbrs);
             }
-            if (e.wmi.sparsity_val>=0) {
-                sssub.put("non_zero_perc", 1-e.wmi.sparsity_val);
+            if (e.wmi.density_val>=0) {
+                sssub.put("non_zero_perc", e.wmi.density_val);
             }
 		}	
 	} catch (std::exception &e) {

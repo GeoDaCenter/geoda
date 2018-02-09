@@ -753,10 +753,11 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			dlg.ShowModal();
 			return 0;
 		}
-		if (table_int->GetColType(col) != GdaConst::long64_type) {
+		if (table_int->GetColType(col) != GdaConst::long64_type &&
+            table_int->GetColType(col) != GdaConst::string_type) {
 			wxString msg = "Specified key value field \"";
 			msg << key_field << "\" on first line of weights file is ";
-			msg << " not an integer type in the currently loaded Table.";
+			msg << " not an integer/String type in the currently loaded Table.";
 			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;

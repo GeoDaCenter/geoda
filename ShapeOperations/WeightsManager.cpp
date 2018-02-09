@@ -387,7 +387,8 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
         return 0;
     }
     
-	if (ext == "gal" && e.gal_weight) return e.gal_weight;
+	if (e.geoda_weight)
+        return e.geoda_weight;
 	
 	// Load file for first use
 	
