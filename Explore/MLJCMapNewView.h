@@ -93,6 +93,7 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
+    virtual void update(WeightsManState* o){}
 	
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
