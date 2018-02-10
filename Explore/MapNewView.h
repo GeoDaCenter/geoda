@@ -161,6 +161,8 @@ public:
 	virtual int GetNumVars();
 	virtual int GetNumCats();
 	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
+    
+    virtual void DetermineMouseHoverObjects(wxPoint pt);
 
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);

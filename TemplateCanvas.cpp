@@ -1259,7 +1259,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
         ReleaseMouse();
 	
 	if (mousemode == select) {
-        is_showing_brush = true;
+        
 		if (selectstate == start) {
 			if (event.LeftDown()) {
                 prev = GetActualPos(event);
@@ -1284,7 +1284,9 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         // cancel brushing since click outside, restore leftdown
                         ResetBrushing();
                         sel1 = prev;
+                        sel2 = prev;
                         selectstate = leftdown;
+                        is_showing_brush = false;
                         //UpdateSelection();
                     }
                     delete brush_shape;
@@ -1309,6 +1311,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
             
 		} else if (selectstate == leftdown) {
 			if (event.Moving() || event.Dragging()) {
+                is_showing_brush = true;
 				wxPoint act_pos = GetActualPos(event);
 				if (fabs((double) (sel1.x - act_pos.x)) +
 					fabs((double) (sel1.y - act_pos.y)) > 2) {

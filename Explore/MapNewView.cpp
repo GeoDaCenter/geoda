@@ -258,6 +258,23 @@ void MapCanvas::SetupColor()
 {
 }
 
+void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
+{
+    TemplateCanvas::DetermineMouseHoverObjects(pointsel);
+    if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 && sel2.x==0 && sel2.y==0) {
+        vector<bool>& hs = GetSelBitVec();
+        for (int i=0; i<hs.size(); i++) hs[i] = false;
+        if (hover_obs.empty()) {
+            highlight_state->SetTotalHighlighted(0);
+        } else {
+            hs[hover_obs[0]] = true;
+            highlight_state->SetTotalHighlighted(1);
+        }
+        layer1_valid = false;
+        DrawLayers();
+    }
+}
+
 void MapCanvas::SetPredefinedColor(const wxString& lbl, const wxColor& new_color)
 {
     lbl_color_dict[lbl] = new_color;
@@ -1893,6 +1910,7 @@ void MapCanvas::DisplayNeighbors()
     if (display_neighbors) {
         display_map_with_graph = true;
         display_weights_graph = false;
+    } else {
     }
     PopulateCanvas();
 }
