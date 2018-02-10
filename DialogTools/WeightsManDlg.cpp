@@ -598,19 +598,19 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
     
     row_title.push_back("mean neighbors");
     if (wmi.mean_nbrs>0)
-    row_content.push_back(wxString::Format("%d", wmi.mean_nbrs));
+    row_content.push_back(wxString::Format("%.2f", wmi.mean_nbrs));
     else
     row_content.push_back("unknown");
     
     row_title.push_back("median neighbors");
     if (wmi.median_nbrs >0)
-    row_content.push_back(wxString::Format("%d", wmi.median_nbrs));
+    row_content.push_back(wxString::Format("%.2f", wmi.median_nbrs));
     else
     row_content.push_back("unknown");
     
     wxString sp = ("unknown");
-    if (wmi.sparsity_val>=0)
-    sp = wxString::Format("%.2f", 1-wmi.sparsity_val);
+    if (wmi.density_val>=0)
+    sp = wxString::Format("%.2f%%", wmi.density_val);
     row_title.push_back("% non-zero");
     row_content.push_back(sp);
     

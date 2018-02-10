@@ -65,12 +65,12 @@ void WeightsMetaInfo::SetMaxNumNbrs(int val)
     max_nbrs = val;
 }
 
-void WeightsMetaInfo::SetMeanNumNbrs(int val)
+void WeightsMetaInfo::SetMeanNumNbrs(double val)
 {
     mean_nbrs = val;
 }
 
-void WeightsMetaInfo::SetMedianNumNbrs(int val)
+void WeightsMetaInfo::SetMedianNumNbrs(double val)
 {
     median_nbrs = val;
 }

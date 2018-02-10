@@ -228,17 +228,17 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
                                 wxString(v.second.data()).ToLong(&l);
                                 e.wmi.max_nbrs = l;
                             } else if (key == "mean_neighbors") {
-                                long l;
-                                wxString(v.second.data()).ToLong(&l);
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
                                 e.wmi.mean_nbrs = l;
                             } else if (key == "median_neighbors") {
-                                long l;
-                                wxString(v.second.data()).ToLong(&l);
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
                                 e.wmi.median_nbrs = l;
                             } else if (key == "non_zero_perc") {
                                 double d;
                                 wxString(v.second.data()).ToDouble(&d);
-                                e.wmi.sparsity_val= 1-d;
+                                e.wmi.density_val = d;
                             } else if (key == "kernel") {
                                 e.wmi.kernel = wxString(v.second.data());
                             } else if (key == "bandwidth") {
@@ -402,8 +402,8 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
             if (e.wmi.median_nbrs>=0) {
                 sssub.put("median_neighbors", e.wmi.median_nbrs);
             }
-            if (e.wmi.sparsity_val>=0) {
-                sssub.put("non_zero_perc", 1-e.wmi.sparsity_val);
+            if (e.wmi.density_val>=0) {
+                sssub.put("non_zero_perc", e.wmi.density_val);
             }
 		}	
 	} catch (std::exception &e) {

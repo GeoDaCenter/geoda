@@ -64,11 +64,11 @@ int GeoDaWeight::GetMaxNumNbrs()
 {
     return max_nbrs;
 }
-int GeoDaWeight::GetMeanNumNbrs()
+double GeoDaWeight::GetMeanNumNbrs()
 {
     return mean_nbrs;
 }
-int GeoDaWeight::GetMedianNumNbrs()
+double GeoDaWeight::GetMedianNumNbrs()
 {
     return median_nbrs;
 }

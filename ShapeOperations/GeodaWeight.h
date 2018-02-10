@@ -56,8 +56,8 @@ public:
     virtual double GetDensity();
     virtual int GetMinNumNbrs();
     virtual int GetMaxNumNbrs();
-    virtual int GetMeanNumNbrs();
-    virtual int GetMedianNumNbrs();
+    virtual double GetMeanNumNbrs();
+    virtual double GetMedianNumNbrs();
     virtual int GetNumObs();
     
     // Others
@@ -80,8 +80,8 @@ public:
     double density;
     int min_nbrs;
     int max_nbrs;
-    int mean_nbrs;
-    int median_nbrs;
+    double mean_nbrs;
+    double median_nbrs;
 };
 
 #endif
