@@ -36,12 +36,12 @@
 #include "../VarCalc/WeightsManInterface.h"
 
 #include "ConditionalClusterMapView.h"
-#include "LisaCoordinator.h"
-#include "LisaMapNewView.h"
+#include "AbstractCoordinator.h"
+#include "AbstractClusterMap.h"
 #include "../ShpFile.h"
 
-IMPLEMENT_CLASS(LisaMapCanvas, MapCanvas)
-BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)
+IMPLEMENT_CLASS(AbstractMapCanvas, MapCanvas)
+BEGIN_EVENT_TABLE(AbstractMapCanvas, MapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
@@ -50,71 +50,43 @@ END_EVENT_TABLE()
 
 using namespace std;
 
-LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+AbstractMapCanvas::AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
-                             LisaCoordinator* lisa_coordinator,
+                             AbstractCoordinator* a_coordinator,
                              CatClassification::CatClassifType theme_type_s,
-                             bool isBivariate, bool isEBRate,
                              const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project,
            vector<GdaVarTools::VarInfo>(0), vector<int>(0),
            CatClassification::no_theme,
            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
-lisa_coord(lisa_coordinator),
-is_clust(theme_type_s==CatClassification::lisa_categories),
-is_bi(isBivariate),
-is_rate(isEBRate),
-is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
+a_coord(a_coordinator),
+is_clust(true)
 {
-	LOG_MSG("Entering LisaMapCanvas::LisaMapCanvas");
+	LOG_MSG("Entering AbstractMapCanvas::AbstractMapCanvas");
 
-    str_not_sig = _("Not Significant");
-    str_highhigh = _("High-High");
-    str_highlow = _("High-Low");
-    str_lowlow = _("Low-Low");
-    str_lowhigh= _("Low-High");
-    str_undefined = _("Undefined");
-    str_neighborless = _("Neighborless");
-    str_p005 = _("p = 0.05");
-    str_p001 = _("p = 0.01");
-    str_p0001 = _("p = 0.001");
-    str_p00001 = _("p = 0.00001");
-    
-    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
-    SetPredefinedColor(str_highhigh, wxColour(255, 0, 0));
-    SetPredefinedColor(str_highlow, wxColour(255, 150, 150));
-    SetPredefinedColor(str_lowlow, wxColour(0, 0, 255));
-    SetPredefinedColor(str_lowhigh, wxColour(150, 150, 255));
-    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
-    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
-    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
-    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
-    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
-    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
-    
 	cat_classif_def.cat_classif_type = theme_type_s;
-	// must set var_info times from LisaCoordinator initially
-	var_info = lisa_coordinator->var_info;
+	// must set var_info times from AbstractCoordinator initially
+	var_info = a_coordinator->var_info;
 	template_frame->ClearAllGroupDependencies();
 	for (int t=0, sz=var_info.size(); t<sz; ++t) {
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
 	CreateAndUpdateCategories();
     UpdateStatusBar();
-	LOG_MSG("Exiting LisaMapCanvas::LisaMapCanvas");
+	LOG_MSG("Exiting AbstractMapCanvas::AbstractMapCanvas");
 }
 
-LisaMapCanvas::~LisaMapCanvas()
+AbstractMapCanvas::~AbstractMapCanvas()
 {
-	LOG_MSG("In LisaMapCanvas::~LisaMapCanvas");
+	LOG_MSG("In AbstractMapCanvas::~AbstractMapCanvas");
 }
 
-void LisaMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
+void AbstractMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering LisaMapCanvas::DisplayRightClickMenu");
+	LOG_MSG("Entering AbstractMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((LisaMapFrame*) template_frame)->OnActivate(ae);
+	((AbstractMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
@@ -124,51 +96,26 @@ void LisaMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting LisaMapCanvas::DisplayRightClickMenu");
+	LOG_MSG("Exiting AbstractMapCanvas::DisplayRightClickMenu");
 }
 
-wxString LisaMapCanvas::GetCanvasTitle()
+wxString AbstractMapCanvas::GetCanvasTitle()
 {
-	wxString lisa_t;
-	if (is_clust && !is_bi) lisa_t = " LISA Cluster Map";
-	if (is_clust && is_bi) lisa_t = " BiLISA Cluster Map";
-    if (is_clust && is_diff) lisa_t = " Differential LISA Cluster Map";
-    
-	if (!is_clust && !is_bi) lisa_t = " LISA Significance Map";
-	if (!is_clust && is_bi) lisa_t = " BiLISA Significance Map";
-    if (!is_clust && is_diff) lisa_t = " Differential Significance Map";
-	
-	wxString field_t;
-	if (is_bi) {
-		field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
-    } else if (is_diff) {
-        field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
-    }else {
-		field_t << "I_" << GetNameWithTime(0);
-	}
-	if (is_rate) {
-		field_t << "EB Rate: " << GetNameWithTime(0);
-		field_t << " / " << GetNameWithTime(1);
-	}
-	
-	wxString ret;
-	ret << lisa_t << ": " << lisa_coord->weight_name << ", ";
-	ret << field_t << " (" << lisa_coord->permutations << " perm)";
-	return ret;
+	return "";
 }
 
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
- supported by LISA maps */
+ supported by Abstract maps */
 bool
-LisaMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
+AbstractMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                              SmoothingType new_map_smoothing)
 {
-	LOG_MSG("In LisaMapCanvas::ChangeMapType");
+	LOG_MSG("In AbstractMapCanvas::ChangeMapType");
 	return false;
 }
 
-void LisaMapCanvas::SetCheckMarks(wxMenu* menu)
+void AbstractMapCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -177,7 +124,7 @@ void LisaMapCanvas::SetCheckMarks(wxMenu* menu)
 	
 	MapCanvas::SetCheckMarks(menu);
 	
-	int sig_filter = lisa_coord->GetSignificanceFilter();
+	int sig_filter = a_coord->GetSignificanceFilter();
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_05"),
 								  sig_filter == 1);
@@ -190,12 +137,12 @@ void LisaMapCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
                                   sig_filter == -1);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
-								  lisa_coord->IsReuseLastSeed());
+								  a_coord->IsReuseLastSeed());
 }
 
-void LisaMapCanvas::TimeChange()
+void AbstractMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering LisaMapCanvas::TimeChange");
+	LOG_MSG("Entering AbstractMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -222,20 +169,20 @@ void LisaMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LisaMapCanvas::TimeChange");
+	LOG_MSG("Exiting AbstractMapCanvas::TimeChange");
 }
 
-/** Update Categories based on info in LisaCoordinator */
-void LisaMapCanvas::CreateAndUpdateCategories()
+/** Update Categories based on info in AbstractCoordinator */
+void AbstractMapCanvas::CreateAndUpdateCategories()
 {
 	SyncVarInfoFromCoordinator();
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 
     
-    double sig_cutoff = lisa_coord->significance_cutoff;
-    int    s_f = lisa_coord->GetSignificanceFilter();
-    int    set_perm = lisa_coord->permutations;
-    int    num_obs = lisa_coord->num_obs;
+    double sig_cutoff = a_coord->significance_cutoff;
+    int    s_f = a_coord->GetSignificanceFilter();
+    int    set_perm = a_coord->permutations;
+    int    num_obs = a_coord->num_obs;
     double stop_sig = 1.0 / (1.0 + set_perm);
     Shapefile::Header& hdr = project->main_data.header;
     wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
@@ -276,11 +223,11 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++) {
 		if (!map_valid[t]) break;
 		
-        bool has_isolates = lisa_coord->GetHasIsolates(t);
-        bool has_undefined = lisa_coord->GetHasUndefined(t);
-        double* p = lisa_coord->sig_local_moran_vecs[t];
-        int* cluster = lisa_coord->cluster_vecs[t];
-        int* sigCat = lisa_coord->sig_cat_vecs[t];
+        bool has_isolates = a_coord->GetHasIsolates(t);
+        bool has_undefined = a_coord->GetHasUndefined(t);
+        double* p = a_coord->sig_local_moran_vecs[t];
+        int* cluster = a_coord->cluster_vecs[t];
+        int* sigCat = a_coord->sig_cat_vecs[t];
         
 		int undefined_cat = -1;
 		int isolates_cat = -1;
@@ -436,38 +383,38 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 /** Copy everything in var_info except for current time field for each
  variable.  Also copy over is_any_time_variant, is_any_sync_with_global_time,
  ref_var_index, num_time_vales, map_valid and map_error_message */
-void LisaMapCanvas::SyncVarInfoFromCoordinator()
+void AbstractMapCanvas::SyncVarInfoFromCoordinator()
 {
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
-	var_info = lisa_coord->var_info;
+	var_info = a_coord->var_info;
 	template_frame->ClearAllGroupDependencies();
 	for (int t=0; t<var_info.size(); t++) {
 		var_info[t].time = my_times[t];
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
-	is_any_time_variant = lisa_coord->is_any_time_variant;
-	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
-	ref_var_index = lisa_coord->ref_var_index;
-	num_time_vals = lisa_coord->num_time_vals;
-	map_valid = lisa_coord->map_valid;
-	map_error_message = lisa_coord->map_error_message;
+	is_any_time_variant = a_coord->is_any_time_variant;
+	is_any_sync_with_global_time = a_coord->is_any_sync_with_global_time;
+	ref_var_index = a_coord->ref_var_index;
+	num_time_vals = a_coord->num_time_vals;
+	map_valid = a_coord->map_valid;
+	map_error_message = a_coord->map_error_message;
 }
 
-void LisaMapCanvas::TimeSyncVariableToggle(int var_index)
+void AbstractMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In LisaMapCanvas::TimeSyncVariableToggle");
-	lisa_coord->var_info[var_index].sync_with_global_time =
-		!lisa_coord->var_info[var_index].sync_with_global_time;
+	LOG_MSG("In AbstractMapCanvas::TimeSyncVariableToggle");
+	a_coord->var_info[var_index].sync_with_global_time =
+		!a_coord->var_info[var_index].sync_with_global_time;
 	for (int i=0; i<var_info.size(); i++) {
-		lisa_coord->var_info[i].time = var_info[i].time;
+		a_coord->var_info[i].time = var_info[i].time;
 	}
-	lisa_coord->VarInfoAttributeChange();
-	lisa_coord->InitFromVarInfo();
-	lisa_coord->notifyObservers();
+	a_coord->VarInfoAttributeChange();
+	a_coord->InitFromVarInfo();
+	a_coord->notifyObservers();
 }
 
-void LisaMapCanvas::UpdateStatusBar()
+void AbstractMapCanvas::UpdateStatusBar()
 {
     wxStatusBar* sb = 0;
     if (template_frame) {
@@ -498,31 +445,31 @@ void LisaMapCanvas::UpdateStatusBar()
             s << ", ...";
         }
     }
-    if (is_clust && lisa_coord) {
-        double p_val = lisa_coord->significance_cutoff;
+    if (is_clust && a_coord) {
+        double p_val = a_coord->significance_cutoff;
         wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
     sb->SetStatusText(s);
 }
 
-IMPLEMENT_CLASS(LisaMapFrame, MapFrame)
-	BEGIN_EVENT_TABLE(LisaMapFrame, MapFrame)
-	EVT_ACTIVATE(LisaMapFrame::OnActivate)
+IMPLEMENT_CLASS(AbstractMapFrame, MapFrame)
+	BEGIN_EVENT_TABLE(AbstractMapFrame, MapFrame)
+	EVT_ACTIVATE(AbstractMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-LisaMapFrame::LisaMapFrame(wxFrame *parent, Project* project,
-                           LisaCoordinator* lisa_coordinator,
+AbstractMapFrame::AbstractMapFrame(wxFrame *parent, Project* project,
+                           AbstractCoordinator* a_coordinator,
                            bool isClusterMap, bool isBivariate,
                            bool isEBRate,
                            const wxPoint& pos, const wxSize& size,
                            const long style)
 : MapFrame(parent, project, pos, size, style),
-lisa_coord(lisa_coordinator)
+a_coord(a_coordinator)
 {
-	LOG_MSG("Entering LisaMapFrame::LisaMapFrame");
+	LOG_MSG("Entering AbstractMapFrame::AbstractMapFrame");
 
-    //weights_id = lisa_coord->Gal_vecs_orig[ts]->;
+    //weights_id = a_coord->Gal_vecs_orig[ts]->;
     
 	int width, height;
 	GetClientSize(&width, &height);
@@ -537,8 +484,8 @@ lisa_coord(lisa_coordinator)
     DisplayStatusBar(true);
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new LisaMapCanvas(rpanel, this, project,
-                                        lisa_coordinator,
+    template_canvas = new AbstractMapCanvas(rpanel, this, project,
+                                        a_coordinator,
                                         theme_type_s,
                                         isBivariate,
                                         isEBRate,
@@ -550,7 +497,7 @@ lisa_coord(lisa_coordinator)
     rpanel->SetSizer(rbox);
     
     WeightsManInterface* w_man_int = project->GetWManInt();
-    ((LisaMapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+    ((AbstractMapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
     
 
 	wxPanel* lpanel = new wxPanel(splitter_win);
@@ -581,32 +528,32 @@ lisa_coord(lisa_coordinator)
 	SetTitle(template_canvas->GetCanvasTitle());
     
     
-	lisa_coord->registerObserver(this);
+	a_coord->registerObserver(this);
 	Show(true);
-	LOG_MSG("Exiting LisaMapFrame::LisaMapFrame");
+	LOG_MSG("Exiting AbstractMapFrame::AbstractMapFrame");
 }
 
-LisaMapFrame::~LisaMapFrame()
+AbstractMapFrame::~AbstractMapFrame()
 {
-	LOG_MSG("In LisaMapFrame::~LisaMapFrame");
-	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
-		lisa_coord = 0;
+	LOG_MSG("In AbstractMapFrame::~AbstractMapFrame");
+	if (a_coord) {
+		a_coord->removeObserver(this);
+		a_coord = 0;
 	}
 }
 
-void LisaMapFrame::OnActivate(wxActivateEvent& event)
+void AbstractMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In LisaMapFrame::OnActivate");
+	LOG_MSG("In AbstractMapFrame::OnActivate");
 	if (event.GetActive()) {
-		RegisterAsActive("LisaMapFrame", GetTitle());
+		RegisterAsActive("AbstractMapFrame", GetTitle());
 	}
     if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
-void LisaMapFrame::MapMenus()
+void AbstractMapFrame::MapMenus()
 {
-	LOG_MSG("In LisaMapFrame::MapMenus");
+	LOG_MSG("In AbstractMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -618,20 +565,20 @@ void LisaMapFrame::MapMenus()
 	UpdateOptionMenuItems();
 }
 
-void LisaMapFrame::UpdateOptionMenuItems()
+void AbstractMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("LisaMapFrame::UpdateOptionMenuItems: "
+        LOG_MSG("AbstractMapFrame::UpdateOptionMenuItems: "
 				"Options menu not found");
 	} else {
-		((LisaMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+		((AbstractMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
-void LisaMapFrame::UpdateContextMenuItems(wxMenu* menu)
+void AbstractMapFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
@@ -641,36 +588,36 @@ void LisaMapFrame::UpdateContextMenuItems(wxMenu* menu)
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-void LisaMapFrame::RanXPer(int permutation)
+void AbstractMapFrame::RanXPer(int permutation)
 {
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
-	lisa_coord->permutations = permutation;
-	lisa_coord->CalcPseudoP();
-	lisa_coord->notifyObservers();
+	a_coord->permutations = permutation;
+	a_coord->CalcPseudoP();
+	a_coord->notifyObservers();
 }
 
-void LisaMapFrame::OnRan99Per(wxCommandEvent& event)
+void AbstractMapFrame::OnRan99Per(wxCommandEvent& event)
 {
 	RanXPer(99);
 }
 
-void LisaMapFrame::OnRan199Per(wxCommandEvent& event)
+void AbstractMapFrame::OnRan199Per(wxCommandEvent& event)
 {
 	RanXPer(199);
 }
 
-void LisaMapFrame::OnRan499Per(wxCommandEvent& event)
+void AbstractMapFrame::OnRan499Per(wxCommandEvent& event)
 {
 	RanXPer(499);
 }
 
-void LisaMapFrame::OnRan999Per(wxCommandEvent& event)
+void AbstractMapFrame::OnRan999Per(wxCommandEvent& event)
 {
 	RanXPer(999);  
 }
 
-void LisaMapFrame::OnRanOtherPer(wxCommandEvent& event)
+void AbstractMapFrame::OnRanOtherPer(wxCommandEvent& event)
 {
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
@@ -684,14 +631,14 @@ void LisaMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	}
 }
 
-void LisaMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+void AbstractMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
-	lisa_coord->SetReuseLastSeed(!lisa_coord->IsReuseLastSeed());
+	a_coord->SetReuseLastSeed(!a_coord->IsReuseLastSeed());
 }
 
-void LisaMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+void AbstractMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
-	uint64_t last_seed = lisa_coord->GetLastUsedSeed();
+	uint64_t last_seed = a_coord->GetLastUsedSeed();
 	wxString m;
 	m << "The last seed used by the pseudo random\nnumber ";
 	m << "generator was " << last_seed << ".\n";
@@ -709,9 +656,9 @@ void LisaMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;
 	if (dlg_val.ToULongLong(&val)) {
-		if (!lisa_coord->IsReuseLastSeed()) lisa_coord->SetLastUsedSeed(true);
+		if (!a_coord->IsReuseLastSeed()) a_coord->SetLastUsedSeed(true);
 		uint64_t new_seed_val = val;
-		lisa_coord->SetLastUsedSeed(new_seed_val);
+		a_coord->SetLastUsedSeed(new_seed_val);
 	} else {
 		wxString m;
 		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
@@ -720,64 +667,64 @@ void LisaMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	}
 }
 
-void LisaMapFrame::SetSigFilterX(int filter)
+void AbstractMapFrame::SetSigFilterX(int filter)
 {
-	if (filter == lisa_coord->GetSignificanceFilter()) return;
-	lisa_coord->SetSignificanceFilter(filter);
-	lisa_coord->notifyObservers();
+	if (filter == a_coord->GetSignificanceFilter()) return;
+	a_coord->SetSignificanceFilter(filter);
+	a_coord->notifyObservers();
 	UpdateOptionMenuItems();
 }
 
-void LisaMapFrame::OnSigFilter05(wxCommandEvent& event)
+void AbstractMapFrame::OnSigFilter05(wxCommandEvent& event)
 {
 	SetSigFilterX(1);
 }
 
-void LisaMapFrame::OnSigFilter01(wxCommandEvent& event)
+void AbstractMapFrame::OnSigFilter01(wxCommandEvent& event)
 {
 	SetSigFilterX(2);
 }
 
-void LisaMapFrame::OnSigFilter001(wxCommandEvent& event)
+void AbstractMapFrame::OnSigFilter001(wxCommandEvent& event)
 {
 	SetSigFilterX(3);
 }
 
-void LisaMapFrame::OnSigFilter0001(wxCommandEvent& event)
+void AbstractMapFrame::OnSigFilter0001(wxCommandEvent& event)
 {
 	SetSigFilterX(4);
 }
 
-void LisaMapFrame::OnSigFilterSetup(wxCommandEvent& event)
+void AbstractMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
-    LisaMapCanvas* lc = (LisaMapCanvas*)template_canvas;
+    AbstractMapCanvas* lc = (AbstractMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p = lisa_coord->sig_local_moran_vecs[t];
-    int n = lisa_coord->num_obs;
+    double* p = a_coord->sig_local_moran_vecs[t];
+    int n = a_coord->num_obs;
     wxString ttl = _("Inference Settings");
-    ttl << "  (" << lisa_coord->permutations << " perm)";
+    ttl << "  (" << a_coord->permutations << " perm)";
     
-    double user_sig = lisa_coord->significance_cutoff;
-    if (lisa_coord->GetSignificanceFilter()<0) user_sig = lisa_coord->user_sig_cutoff;
+    double user_sig = a_coord->significance_cutoff;
+    if (a_coord->GetSignificanceFilter()<0) user_sig = a_coord->user_sig_cutoff;
     
     InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
-        lisa_coord->SetSignificanceFilter(-1);
-        lisa_coord->significance_cutoff = dlg.GetAlphaLevel();
-        lisa_coord->user_sig_cutoff = dlg.GetUserInput();
-        lisa_coord->notifyObservers();
-        lisa_coord->bo = dlg.GetBO();
-        lisa_coord->fdr = dlg.GetFDR();
+        a_coord->SetSignificanceFilter(-1);
+        a_coord->significance_cutoff = dlg.GetAlphaLevel();
+        a_coord->user_sig_cutoff = dlg.GetUserInput();
+        a_coord->notifyObservers();
+        a_coord->bo = dlg.GetBO();
+        a_coord->fdr = dlg.GetFDR();
         UpdateOptionMenuItems();
     }
 }
 
 
-void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
+void AbstractMapFrame::OnSaveAbstract(wxCommandEvent& event)
 {
     
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    LisaMapCanvas* lc = (LisaMapCanvas*)template_canvas;
+    AbstractMapCanvas* lc = (AbstractMapCanvas*)template_canvas;
     
     std::vector<SaveToTableEntry> data;
     
@@ -787,14 +734,14 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
         data.resize(3);
     }
    
-    std::vector<bool> undefs(lisa_coord->num_obs, false);
-    for (int i=0; i<lisa_coord->undef_data[0][t].size(); i++){
-        undefs[i] = undefs[i] || lisa_coord->undef_data[0][t][i];
+    std::vector<bool> undefs(a_coord->num_obs, false);
+    for (int i=0; i<a_coord->undef_data[0][t].size(); i++){
+        undefs[i] = undefs[i] || a_coord->undef_data[0][t][i];
     }
     
-	std::vector<double> tempLocalMoran(lisa_coord->num_obs);
-	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
-		tempLocalMoran[i] = lisa_coord->local_moran_vecs[t][i];
+	std::vector<double> tempLocalMoran(a_coord->num_obs);
+	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
+		tempLocalMoran[i] = a_coord->local_moran_vecs[t][i];
 	}
 	data[0].d_val = &tempLocalMoran;
 	data[0].label = "Lisa Indices";
@@ -802,11 +749,11 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &undefs;
 	
-	double cuttoff = lisa_coord->significance_cutoff;
-	double* p = lisa_coord->sig_local_moran_vecs[t];
-	int* cluster = lisa_coord->cluster_vecs[t];
-	std::vector<wxInt64> clust(lisa_coord->num_obs);
-	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
+	double cuttoff = a_coord->significance_cutoff;
+	double* p = a_coord->sig_local_moran_vecs[t];
+	int* cluster = a_coord->cluster_vecs[t];
+	std::vector<wxInt64> clust(a_coord->num_obs);
+	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
 		if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
 			clust[i] = 0; // not significant
 		} else {
@@ -819,17 +766,17 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[1].type = GdaConst::long64_type;
     data[1].undefined = &undefs;
 	
-	std::vector<double> sig(lisa_coord->num_obs);
-    std::vector<double> diff(lisa_coord->num_obs);
+	std::vector<double> sig(a_coord->num_obs);
+    std::vector<double> diff(a_coord->num_obs);
     
-	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
+	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
 		sig[i] = p[i];
         
         
         if (lc->is_diff ) {
-            int t0 =  lisa_coord->var_info[0].time;
-            int t1 =  lisa_coord->var_info[1].time;
-            diff[i] = lisa_coord->data[0][t0][i] - lisa_coord->data[0][t1][i];
+            int t0 =  a_coord->var_info[0].time;
+            int t1 =  a_coord->var_info[1].time;
+            diff[i] = a_coord->data[0][t0][i] - a_coord->data[0][t1][i];
         }
 	}
 	
@@ -853,13 +800,13 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-void LisaMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
+void AbstractMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
 	
-	for (int i=0; i<lisa_coord->num_obs; i++) {
+	for (int i=0; i<a_coord->num_obs; i++) {
 		if (!hs[i] && elem[i]) {
             hs[i] = true;
             selection_changed  = true;
@@ -874,21 +821,21 @@ void LisaMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 	}
 }
 
-void LisaMapFrame::OnSelectCores(wxCommandEvent& event)
+void AbstractMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LisaMapFrame::OnSelectCores");
+	LOG_MSG("Entering AbstractMapFrame::OnSelectCores");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
+	std::vector<bool> elem(a_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
+	int* clust = a_coord->cluster_vecs[ts];
+	int* sig_cat = a_coord->sig_cat_vecs[ts];
+    double* sig_val = a_coord->sig_local_moran_vecs[ts];
+	int sf = a_coord->significance_filter;
 
-    double user_sig = lisa_coord->significance_cutoff;
+    double user_sig = a_coord->significance_cutoff;
     
 	// add all cores to elem list.
-	for (int i=0; i<lisa_coord->num_obs; i++) {
+	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4) {
             bool cont = true;
             if (sf >=0 && sig_cat[i] >= sf) cont = false;
@@ -900,25 +847,25 @@ void LisaMapFrame::OnSelectCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectCores");
+	LOG_MSG("Exiting AbstractMapFrame::OnSelectCores");
 }
 
-void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
+void AbstractMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LisaMapFrame::OnSelectNeighborsOfCores");
+	LOG_MSG("Entering AbstractMapFrame::OnSelectNeighborsOfCores");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
+	std::vector<bool> elem(a_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
+	int* clust = a_coord->cluster_vecs[ts];
+	int* sig_cat = a_coord->sig_cat_vecs[ts];
+    double* sig_val = a_coord->sig_local_moran_vecs[ts];
+	int sf = a_coord->significance_filter;
+    const GalElement* W = a_coord->Gal_vecs_orig[ts]->gal;
     
-    double user_sig = lisa_coord->significance_cutoff;
+    double user_sig = a_coord->significance_cutoff;
 	
 	// add all cores and neighbors of cores to elem list
-	for (int i=0; i<lisa_coord->num_obs; i++) {
+	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
             if (sf >=0 && sig_cat[i] >= sf) cont = false;
@@ -933,7 +880,7 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 		}
 	}
 	// remove all cores
-	for (int i=0; i<lisa_coord->num_obs; i++) {
+	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
             if (sf >=0 && sig_cat[i] >= sf) cont = false;
@@ -945,25 +892,25 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectNeighborsOfCores");
+	LOG_MSG("Exiting AbstractMapFrame::OnSelectNeighborsOfCores");
 }
 
-void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
+void AbstractMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LisaMapFrame::OnSelectCoresAndNeighbors");
+	LOG_MSG("Entering AbstractMapFrame::OnSelectCoresAndNeighbors");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
+	std::vector<bool> elem(a_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
+	int* clust = a_coord->cluster_vecs[ts];
+	int* sig_cat = a_coord->sig_cat_vecs[ts];
+    double* sig_val = a_coord->sig_local_moran_vecs[ts];
+	int sf = a_coord->significance_filter;
+    const GalElement* W = a_coord->Gal_vecs_orig[ts]->gal;
     
-    double user_sig = lisa_coord->significance_cutoff;
+    double user_sig = a_coord->significance_cutoff;
     
 	// add all cores and neighbors of cores to elem list
-	for (int i=0; i<lisa_coord->num_obs; i++) {
+	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
             if (sf >=0 && sig_cat[i] >= sf) cont = false;
@@ -980,15 +927,15 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectCoresAndNeighbors");
+	LOG_MSG("Exiting AbstractMapFrame::OnSelectCoresAndNeighbors");
 }
 
 
-void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
+void AbstractMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
                             false, false,
-                            _("Conditional LISA Map Variables"),
+                            _("Conditional Abstract Map Variables"),
                             _("Horizontal Cells"), _("Vertical Cells"),
                             "", "", false, false, false, // default
                             true, true, false, false);
@@ -997,23 +944,23 @@ void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
         return;
     }
     
-	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
+	AbstractMapCanvas* lc = (AbstractMapCanvas*) template_canvas;
     wxString title = lc->GetCanvasTitle();
     ConditionalClusterMapFrame* subframe =
     new ConditionalClusterMapFrame(this, project,
-                                   dlg.var_info, dlg.col_ids, lisa_coord,
+                                   dlg.var_info, dlg.col_ids, a_coord,
                                    title, wxDefaultPosition,
                                    GdaConst::cond_view_default_size);
 }
 
-/** Called by LisaCoordinator to notify that state has changed.  State changes
+/** Called by AbstractCoordinator to notify that state has changed.  State changes
  can include:
    - variable sync change and therefore all lisa categories have changed
    - significance level has changed and therefore categories have changed
    - new randomization for p-vals and therefore categories have changed */
-void LisaMapFrame::update(LisaCoordinator* o)
+void AbstractMapFrame::update(AbstractCoordinator* o)
 {
-	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
+	AbstractMapCanvas* lc = (AbstractMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
 	if (template_legend) template_legend->Recreate();
@@ -1022,22 +969,22 @@ void LisaMapFrame::update(LisaCoordinator* o)
     lc->UpdateStatusBar();
 }
 
-void LisaMapFrame::closeObserver(LisaCoordinator* o)
+void AbstractMapFrame::closeObserver(AbstractCoordinator* o)
 {
-	LOG_MSG("In LisaMapFrame::closeObserver(LisaCoordinator*)");
-	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
-		lisa_coord = 0;
+	LOG_MSG("In AbstractMapFrame::closeObserver(AbstractCoordinator*)");
+	if (a_coord) {
+		a_coord->removeObserver(this);
+		a_coord = 0;
 	}
 	Close(true);
 }
 
-void LisaMapFrame::GetVizInfo(std::vector<int>& clusters)
+void AbstractMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
-	if (lisa_coord) {
-		if(lisa_coord->sig_cat_vecs.size()>0) {
-			for (int i=0; i<lisa_coord->num_obs;i++) {
-				clusters.push_back(lisa_coord->sig_cat_vecs[0][i]);
+	if (a_coord) {
+		if(a_coord->sig_cat_vecs.size()>0) {
+			for (int i=0; i<a_coord->num_obs;i++) {
+				clusters.push_back(a_coord->sig_cat_vecs[0][i]);
 			}
 		}
 	}
