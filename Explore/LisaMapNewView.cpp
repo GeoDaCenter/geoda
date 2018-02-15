@@ -152,8 +152,8 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	}
 	
 	wxString ret;
-	ret << lisa_t << ": " << lisa_coord->weight_name << ", ";
-	ret << field_t << " (" << lisa_coord->permutations << " perm)";
+	ret << lisa_t << ": " << lisa_coord->GetWeightsName() << ", ";
+	ret << field_t << " (" << lisa_coord->GetNumPermutations() << " perm)";
 	return ret;
 }
 
@@ -232,9 +232,9 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 
     
-    double sig_cutoff = lisa_coord->significance_cutoff;
+    double sig_cutoff = lisa_coord->GetSignificanceCutoff();
     int    s_f = lisa_coord->GetSignificanceFilter();
-    int    set_perm = lisa_coord->permutations;
+    int    set_perm = lisa_coord->GetNumPermutations();
     int    num_obs = lisa_coord->num_obs;
     double stop_sig = 1.0 / (1.0 + set_perm);
     Shapefile::Header& hdr = project->main_data.header;
@@ -278,10 +278,9 @@ void LisaMapCanvas::CreateAndUpdateCategories()
 		
         bool has_isolates = lisa_coord->GetHasIsolates(t);
         bool has_undefined = lisa_coord->GetHasUndefined(t);
-        double* p = lisa_coord->sig_local_moran_vecs[t];
-        int* cluster = lisa_coord->cluster_vecs[t];
-        int* sigCat = lisa_coord->sig_cat_vecs[t];
-        
+        double* p = lisa_coord->GetLocalSignificanceValues(t);
+        int* cluster = lisa_coord->GetClusterIndicators(t);
+
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
@@ -499,7 +498,7 @@ void LisaMapCanvas::UpdateStatusBar()
         }
     }
     if (is_clust && lisa_coord) {
-        double p_val = lisa_coord->significance_cutoff;
+        double p_val = lisa_coord->GetSignificanceCutoff();
         wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
@@ -581,7 +580,7 @@ lisa_coord(lisa_coordinator)
 	SetTitle(template_canvas->GetCanvasTitle());
     
     
-	lisa_coord->registerObserver(this);
+	//lisa_coord->registerObserver(this);
 	Show(true);
 	LOG_MSG("Exiting LisaMapFrame::LisaMapFrame");
 }
@@ -590,7 +589,7 @@ LisaMapFrame::~LisaMapFrame()
 {
 	LOG_MSG("In LisaMapFrame::~LisaMapFrame");
 	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
+		//lisa_coord->removeObserver(this);
 		lisa_coord = 0;
 	}
 }
@@ -645,7 +644,7 @@ void LisaMapFrame::RanXPer(int permutation)
 {
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
-	lisa_coord->permutations = permutation;
+	lisa_coord->SetNumPermutations(permutation);
 	lisa_coord->CalcPseudoP();
 	lisa_coord->notifyObservers();
 }
@@ -750,26 +749,7 @@ void LisaMapFrame::OnSigFilter0001(wxCommandEvent& event)
 
 void LisaMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
-    LisaMapCanvas* lc = (LisaMapCanvas*)template_canvas;
-    int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p = lisa_coord->sig_local_moran_vecs[t];
-    int n = lisa_coord->num_obs;
-    wxString ttl = _("Inference Settings");
-    ttl << "  (" << lisa_coord->permutations << " perm)";
     
-    double user_sig = lisa_coord->significance_cutoff;
-    if (lisa_coord->GetSignificanceFilter()<0) user_sig = lisa_coord->user_sig_cutoff;
-    
-    InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
-    if (dlg.ShowModal() == wxID_OK) {
-        lisa_coord->SetSignificanceFilter(-1);
-        lisa_coord->significance_cutoff = dlg.GetAlphaLevel();
-        lisa_coord->user_sig_cutoff = dlg.GetUserInput();
-        lisa_coord->notifyObservers();
-        lisa_coord->bo = dlg.GetBO();
-        lisa_coord->fdr = dlg.GetFDR();
-        UpdateOptionMenuItems();
-    }
 }
 
 
@@ -802,9 +782,9 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &undefs;
 	
-	double cuttoff = lisa_coord->significance_cutoff;
-	double* p = lisa_coord->sig_local_moran_vecs[t];
-	int* cluster = lisa_coord->cluster_vecs[t];
+	double cuttoff = lisa_coord->GetSignificanceCutoff();
+	double* p = lisa_coord->GetLocalSignificanceValues(t);
+	int* cluster = lisa_coord->GetClusterIndicators(t);
 	std::vector<wxInt64> clust(lisa_coord->num_obs);
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
@@ -878,27 +858,6 @@ void LisaMapFrame::OnSelectCores(wxCommandEvent& event)
 {
 	LOG_MSG("Entering LisaMapFrame::OnSelectCores");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
-
-    double user_sig = lisa_coord->significance_cutoff;
-    
-	// add all cores to elem list.
-	for (int i=0; i<lisa_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4) {
-            bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
-            if (cont)  continue;
-            
-			elem[i] = true;
-		}
-	}
-	CoreSelectHelper(elem);
 	
 	LOG_MSG("Exiting LisaMapFrame::OnSelectCores");
 }
@@ -907,43 +866,6 @@ void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
 	LOG_MSG("Entering LisaMapFrame::OnSelectNeighborsOfCores");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
-    
-    double user_sig = lisa_coord->significance_cutoff;
-	
-	// add all cores and neighbors of cores to elem list
-	for (int i=0; i<lisa_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 ) {
-            bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
-            if (cont)  continue;
-            
-			elem[i] = true;
-			const GalElement& e = W[i];
-			for (int j=0, jend=e.Size(); j<jend; j++) {
-				elem[e[j]] = true;
-			}
-		}
-	}
-	// remove all cores
-	for (int i=0; i<lisa_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 ) {
-            bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
-            if (cont)  continue;
-            
-			elem[i] = false;
-		}
-	}
-	CoreSelectHelper(elem);
 	
 	LOG_MSG("Exiting LisaMapFrame::OnSelectNeighborsOfCores");
 }
@@ -952,33 +874,7 @@ void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
 	LOG_MSG("Entering LisaMapFrame::OnSelectCoresAndNeighbors");
 	
-	std::vector<bool> elem(lisa_coord->num_obs, false);
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = lisa_coord->cluster_vecs[ts];
-	int* sig_cat = lisa_coord->sig_cat_vecs[ts];
-    double* sig_val = lisa_coord->sig_local_moran_vecs[ts];
-	int sf = lisa_coord->significance_filter;
-    const GalElement* W = lisa_coord->Gal_vecs_orig[ts]->gal;
-    
-    double user_sig = lisa_coord->significance_cutoff;
-    
-	// add all cores and neighbors of cores to elem list
-	for (int i=0; i<lisa_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 ) {
-            bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
-            if (cont)  continue;
-
-            
-			elem[i] = true;
-			const GalElement& e = W[i];
-			for (int j=0, jend=e.Size(); j<jend; j++) {
-				elem[e[j]] = true;
-			}
-		}
-	}
-	CoreSelectHelper(elem);
+	
 	
 	LOG_MSG("Exiting LisaMapFrame::OnSelectCoresAndNeighbors");
 }
@@ -1025,20 +921,11 @@ void LisaMapFrame::update(LisaCoordinator* o)
 void LisaMapFrame::closeObserver(LisaCoordinator* o)
 {
 	LOG_MSG("In LisaMapFrame::closeObserver(LisaCoordinator*)");
-	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
-		lisa_coord = 0;
-	}
+	
 	Close(true);
 }
 
 void LisaMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
-	if (lisa_coord) {
-		if(lisa_coord->sig_cat_vecs.size()>0) {
-			for (int i=0; i<lisa_coord->num_obs;i++) {
-				clusters.push_back(lisa_coord->sig_cat_vecs[0][i]);
-			}
-		}
-	}
+	
 }

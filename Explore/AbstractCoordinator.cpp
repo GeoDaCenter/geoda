@@ -35,15 +35,18 @@
 #include "../Project.h"
 #include "AbstractCoordinator.h"
 
-AbstractWorkerThread::AbstractWorkerThread(int obs_start_s, int obs_end_s,
-								   uint64_t	seed_start_s,
-								   AbstractCoordinator* a_coord_s,
-								   wxMutex* worker_list_mutex_s,
-								   wxCondition* worker_list_empty_cond_s,
-								   std::list<wxThread*> *worker_list_s,
-								   int thread_id_s)
+AbstractWorkerThread::AbstractWorkerThread(int obs_start_s,
+                                           int obs_end_s,
+                                           uint64_t	seed_start_s,
+                                           AbstractCoordinator* a_coord_s,
+                                           wxMutex* worker_list_mutex_s,
+                                           wxCondition* worker_list_empty_cond_s,
+                                           std::list<wxThread*> *worker_list_s,
+                                           int thread_id_s)
 : wxThread(),
-obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
+obs_start(obs_start_s),
+obs_end(obs_end_s),
+seed_start(seed_start_s),
 a_coord(a_coord_s),
 worker_list_mutex(worker_list_mutex_s),
 worker_list_empty_cond(worker_list_empty_cond_s),
@@ -58,50 +61,27 @@ AbstractWorkerThread::~AbstractWorkerThread()
 
 wxThread::ExitCode AbstractWorkerThread::Entry()
 {
-	LOG_MSG(wxString::Format("AbstractWorkerThread %d started", thread_id));
-
 	// call work for assigned range of observations
 	a_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
-	
 	wxMutexLocker lock(*worker_list_mutex);
-    
 	// remove ourself from the list
 	worker_list->remove(this);
-	
     // if empty, signal on empty condition since only main thread
 	// should be waiting on this condition
 	if (worker_list->empty()) {
 		worker_list_empty_cond->Signal();
 	}
-	
 	return NULL;
 }
 
-/** 
- Since the user has the ability to synchronise either variable over time,
- we must be able to reapply weights and recalculate lisa values as needed.
- 
- 1. We will have original data as complete space-time data for both variables
- 
- 2. From there we will work from info in var_info for both variables.  Must
-    determine number of time_steps for canvas.
- 
- 3. Adjust data1(2)_vecs sizes and initialize from data.
- 
- 3.5. Resize localMoran, sigLocalMoran, sigCat, and cluster arrays
- 
- 4. If rates, then calculate rates for working_data1
- 
- 5. Standardize working_data1 (and 2 if bivariate)
- 
- 6. Compute LISA for all time-stesp and save in localMoran sp/time array
- 
- 7. Calc Pseudo P for all time periods.  Results saved in sigLocalMoran,
-    sigCat and cluster arrays
- 
- 8. Notify clients that values have been updated.
-   
- */
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+AbstractCoordinator::AbstractCoordinator()
+{
+    
+}
 
 AbstractCoordinator::
 AbstractCoordinator(boost::uuids::uuid weights_id,
@@ -119,7 +99,8 @@ calc_significances(calc_significances_s),
 var_info(var_info_s),
 data(var_info_s.size()),
 undef_data(var_info_s.size()),
-last_seed_used(123456789), reuse_last_seed(true),
+last_seed_used(123456789),
+reuse_last_seed(true),
 row_standardize(row_standardize_s),
 user_sig_cutoff(0)
 {
@@ -133,7 +114,6 @@ user_sig_cutoff(0)
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
         table_int->GetColUndefined(col_ids[i], undef_data[i]);
-        var_info[i].is_moran = true;
 	}
     
     undef_tms.resize(var_info_s[0].time_max - var_info_s[0].time_min + 1);
@@ -144,83 +124,11 @@ user_sig_cutoff(0)
     
 	SetSignificanceFilter(1);
     
-	InitFromVarInfo();
 	w_man_state->registerObserver(this);
+   
+    AllocateVectors();
+    
     wxLogMessage("Exiting AbstractCoordinator::AbstractCoordinator().");
-}
-
-
-AbstractCoordinator::
-AbstractCoordinator(wxString weights_path,
-                int n,
-                std::vector<double> vals_1,
-                std::vector<double> vals_2,
-                int lisa_type_s,
-                int permutations_s,
-                bool calc_significances_s,
-                bool row_standardize_s)
-{
-    wxLogMessage("Entering AbstractCoordinator::AbstractCoordinator()2.");
-    num_obs = n;
-    num_time_vals = 1;
-    permutations = permutations_s;
-    calc_significances = calc_significances_s;
-    row_standardize = row_standardize_s;
-    last_seed_used = 0;
-    reuse_last_seed = false;
-    isBivariate = false;
- 
-    // std::vector<GdaVarTools::VarInfo> var_info;
-    int num_vars = 1;
-    undef_tms.resize(num_time_vals);
-    data.resize(num_vars);
-    undef_data.resize(num_vars);
-    var_info.resize(num_vars);
-    
-    // don't handle time variable for now
-    for (int i=0; i<var_info.size(); i++) {
-        data[i].resize(boost::extents[num_time_vals][num_obs]);
-        undef_data[i].resize(boost::extents[num_time_vals][num_obs]);
-        var_info[i].is_moran = true;
-        var_info[i].is_time_variant = false;
-        var_info[i].fixed_scale = true;
-        var_info[i].sync_with_global_time  = false;
-        var_info[i].time_max = 0;
-        var_info[i].time_min = 0;
-    }
-    
-    for (int i=0; i<num_obs; i++) {
-        data[0][0][i] = vals_1[i];
-        undef_data[0][0][i] = false;
-    }
-    if (num_vars == 2) {
-        for (int i=0; i<num_obs; i++) {
-            data[1][0][i] = vals_1[i];
-            undef_data[1][0][i] = false;
-        }
-    }
-    
-    // create weights
-    w_man_state = NULL;
-    w_man_int = NULL;
-    
-    wxString ext = GenUtils::GetFileExt(weights_path).Lower();
-    GalElement* tempGal = 0;
-    if (ext == "gal") {
-        tempGal = WeightUtils::ReadGal(weights_path, NULL);
-    } else {
-        tempGal = WeightUtils::ReadGwtAsGal(weights_path, NULL);
-    }
-    
-    weights = new GalWeight();
-    weights->num_obs = num_obs;
-    weights->wflnm = weights_path;
-    weights->id_field = "ogc_fid";
-    weights->gal = tempGal;
-    
-    SetSignificanceFilter(1);
-    InitFromVarInfo();
-    wxLogMessage("Exiting AbstractCoordinator::AbstractCoordinator()2.");
 }
 
 AbstractCoordinator::~AbstractCoordinator()
@@ -235,36 +143,22 @@ AbstractCoordinator::~AbstractCoordinator()
 void AbstractCoordinator::DeallocateVectors()
 {
     wxLogMessage("Entering AbstractCoordinator::DeallocateVectors()");
-	for (int i=0; i<lags_vecs.size(); i++) {
-		if (lags_vecs[i]) delete [] lags_vecs[i];
+
+	for (int i=0; i<sig_local_vecs.size(); i++) {
+		if (sig_local_vecs[i]) delete [] sig_local_vecs[i];
 	}
-	lags_vecs.clear();
+	sig_local_vecs.clear();
     
-	for (int i=0; i<local_moran_vecs.size(); i++) {
-		if (local_moran_vecs[i]) delete [] local_moran_vecs[i];
-	}
-	local_moran_vecs.clear();
-	for (int i=0; i<sig_local_moran_vecs.size(); i++) {
-		if (sig_local_moran_vecs[i]) delete [] sig_local_moran_vecs[i];
-	}
-	sig_local_moran_vecs.clear();
 	for (int i=0; i<sig_cat_vecs.size(); i++) {
 		if (sig_cat_vecs[i]) delete [] sig_cat_vecs[i];
 	}
 	sig_cat_vecs.clear();
+    
 	for (int i=0; i<cluster_vecs.size(); i++) {
 		if (cluster_vecs[i]) delete [] cluster_vecs[i];
 	}
 	cluster_vecs.clear();
-	for (int i=0; i<data1_vecs.size(); i++) {
-		if (data1_vecs[i]) delete [] data1_vecs[i];
-	}
-	data1_vecs.clear();
-	for (int i=0; i<data2_vecs.size(); i++) {
-		if (data2_vecs[i]) delete [] data2_vecs[i];
-	}
-	data2_vecs.clear();
-    
+
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
         if (has_undefined[i]) {
@@ -284,12 +178,9 @@ void AbstractCoordinator::AllocateVectors()
     wxLogMessage("Entering AbstractCoordinator::AllocateVectors()");
 	int tms = num_time_vals;
     
-	lags_vecs.resize(tms);
-	local_moran_vecs.resize(tms);
-	sig_local_moran_vecs.resize(tms);
+	sig_local_vecs.resize(tms);
 	sig_cat_vecs.resize(tms);
 	cluster_vecs.resize(tms);
-	data1_vecs.resize(tms);
 	map_valid.resize(tms);
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
@@ -298,24 +189,15 @@ void AbstractCoordinator::AllocateVectors()
     Gal_vecs_orig.resize(tms);
     
 	for (int i=0; i<tms; i++) {
-		lags_vecs[i] = new double[num_obs];
-		local_moran_vecs[i] = new double[num_obs];
 		if (calc_significances) {
-			sig_local_moran_vecs[i] = new double[num_obs];
+			sig_local_vecs[i] = new double[num_obs];
 			sig_cat_vecs[i] = new int[num_obs];
 		}
 		cluster_vecs[i] = new int[num_obs];
-		data1_vecs[i] = new double[num_obs];
 		map_valid[i] = true;
 		map_error_message[i] = wxEmptyString;
 	}
-	
-	if (lisa_type == bivariate) {
-		data2_vecs.resize((var_info[1].time_max - var_info[1].time_min) + 1);
-		for (int i=0; i<data2_vecs.size(); i++) {
-			data2_vecs[i] = new double[num_obs];
-		}
-	}
+    
     wxLogMessage("Exiting AbstractCoordinator::AllocateVectors()");
 }
 
@@ -326,149 +208,143 @@ void AbstractCoordinator::InitFromVarInfo()
 {
     wxLogMessage("Entering AbstractCoordinator::InitFromVarInfo()");
 	DeallocateVectors();
-	
-	num_time_vals = 1;
-    is_any_time_variant = false;
-    is_any_sync_with_global_time = false;
-    ref_var_index = -1;
-    
-    if (lisa_type != differential) {
-        for (int i=0; i<var_info.size(); i++) {
-            if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
-                num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
-                is_any_sync_with_global_time = true;
-                ref_var_index = i;
-                break;
-            }
-        }
-        for (int i=0; i<var_info.size(); i++) {
-            if (var_info[i].is_time_variant) {
-                is_any_time_variant = true;
-                break;
-            }
-        }
-    }
-	
 	AllocateVectors();
-	
-    if (lisa_type == differential) {
-        int t=0;
-        for (int i=0; i<num_obs; i++) {
-            int t0 = var_info[0].time;
-            int t1 = var_info[1].time;
-            data1_vecs[0][i] = data[0][t0][i] - data[0][t1][i];
-        }
-        
-    } else if (lisa_type == univariate || lisa_type == bivariate) {
-		for (int t=var_info[0].time_min; t<=var_info[0].time_max; t++) {
-			int d1_t = t - var_info[0].time_min;
-            for (int i=0; i<num_obs; i++) {
-                data1_vecs[d1_t][i] = data[0][t][i];
-            }
-		}
-		if (lisa_type == bivariate) {
-			for (int t=var_info[1].time_min; t<=var_info[1].time_max; t++) {
-				int d2_t = t - var_info[1].time_min;
-				for (int i=0; i<num_obs; i++) {
-					data2_vecs[d2_t][i] = data[1][t][i];
-				}
-			}
-		}
-	} else { // lisa_type == eb_rate_standardized
-		std::vector<bool> undef_res(num_obs, false);
-		double* smoothed_results = new double[num_obs];
-		double* E = new double[num_obs]; // E corresponds to var_info[0]
-		double* P = new double[num_obs]; // P corresponds to var_info[1]
-		// we will only fill data1 for eb_rate_standardized and
-		// further lisa calcs will treat as univariate
-		for (int t=0; t<num_time_vals; t++) {
-			int v0_t = var_info[0].time_min;
-			if (var_info[0].is_time_variant &&
-				var_info[0].sync_with_global_time) {
-				v0_t += t;
-			}
-			for (int i=0; i<num_obs; i++) E[i] = data[0][v0_t][i];
-			int v1_t = var_info[1].time_min;
-			if (var_info[1].is_time_variant &&
-				var_info[1].sync_with_global_time) {
-				v1_t += t;
-			}
-			for (int i=0; i<num_obs; i++) P[i] = data[1][v1_t][i];
-			bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
-														smoothed_results,
-														undef_res);
-			if (!success) {
-				map_valid[t] = false;
-				map_error_message[t] << "Emprical Bayes Rate ";
-				map_error_message[t] << "Standardization failed.";
-			} else {
-				for (int i=0; i<num_obs; i++) {
-					data1_vecs[t][i] = smoothed_results[i];
-				}
-			}
-		}
-		if (smoothed_results) delete [] smoothed_results;
-		if (E) delete [] E;
-		if (P) delete [] P;
-	}
-	
-	StandardizeData();
-	
-    CalcLisa();
+   
+    Init();
     
+    Calc();
     if (calc_significances) {
         CalcPseudoP();
     }
-    
     wxLogMessage("Exiting AbstractCoordinator::InitFromVarInfo()");
 }
 
-void AbstractCoordinator::GetRawData(int time, double* data1, double* data2)
+void AbstractCoordinator::SetLastUsedSeed(uint64_t seed)
 {
-    wxLogMessage("Entering AbstractCoordinator::GetRawData()");
-    if (lisa_type == differential) {
-        int t=0;
-        for (int i=0; i<num_obs; i++) {
-            int t0 = var_info[0].time;
-            int t1 = var_info[1].time;
-            data1[i] = data[0][t0][i] - data[0][t1][i];
-        }
-        
-    } else if (lisa_type == univariate || lisa_type == bivariate) {
-        for (int i=0; i<num_obs; i++) {
-            data1[i] = data[0][time][i];
-        }
-        if (lisa_type == bivariate) {
-            for (int i=0; i<num_obs; i++) {
-                data2[i] = data[1][time][i];
-            }
-        }
-    } else { // lisa_type == eb_rate_standardized
-        std::vector<bool> undef_res(num_obs, false);
-        double* smoothed_results = new double[num_obs];
-        double* E = new double[num_obs]; // E corresponds to var_info[0]
-        double* P = new double[num_obs]; // P corresponds to var_info[1]
-        // we will only fill data1 for eb_rate_standardized and
-        // further lisa calcs will treat as univariate
-        for (int i=0; i<num_obs; i++) {
-            E[i] = data[0][time][i];
-        }
-        for (int i=0; i<num_obs; i++) {
-            P[i] = data[1][time][i];
-        }
-        bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
-                                                  smoothed_results,
-                                                  undef_res);
-        if (success) {
-            for (int i=0; i<num_obs; i++) {
-                data1[i] = smoothed_results[i];
-            }
-        }
-        if (smoothed_results) delete [] smoothed_results;
-        if (E) delete [] E;
-        if (P) delete [] P;
+    reuse_last_seed = true;
+    last_seed_used = seed;
+    // update global one
+    GdaConst::use_gda_user_seed = true;
+    OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+    GdaConst::gda_user_seed =  last_seed_used;
+    wxString val;
+    val << last_seed_used;
+    OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+}
+
+bool AbstractCoordinator::GetHasIsolates(int time)
+{
+    return has_isolates[time];
+}
+
+bool AbstractCoordinator::GetHasUndefined(int time)
+{
+    return has_undefined[time];
+    
+}
+
+bool AbstractCoordinator::IsOk()
+{
+    return true;
+}
+
+wxString AbstractCoordinator::GetErrorMessage()
+{
+    return "Error Message";
+}
+
+int AbstractCoordinator::GetSignificanceFilter()
+{
+    return significance_filter;
+}
+
+double AbstractCoordinator::GetSignificanceCutoff()
+{
+    return significance_cutoff;
+}
+
+void AbstractCoordinator::SetSignificanceCutoff(double val)
+{
+    significance_cutoff = val;
+}
+
+double AbstractCoordinator::GetUserCutoff()
+{
+    return user_sig_cutoff;
+}
+void AbstractCoordinator::SetUserCutoff(double val)
+{
+    user_sig_cutoff = val;
+}
+
+double AbstractCoordinator::GetFDR()
+{
+    return fdr;
+}
+void AbstractCoordinator::SetFDR(double val)
+{
+    fdr = val;
+}
+
+double AbstractCoordinator::GetBO()
+{
+    return bo;
+}
+void AbstractCoordinator::SetBO(double val)
+{
+    bo = val;
+}
+
+int AbstractCoordinator::GetNumPermutations()
+{
+    return permutations;
+}
+void AbstractCoordinator::SetNumPermutations(int val)
+{
+    permutations = val;
+}
+
+double* AbstractCoordinator::GetLocalSignificanceValues(int t)
+{
+    return sig_local_vecs[t];
+}
+
+int* AbstractCoordinator::GetClusterIndicators(int t)
+{
+    return cluster_vecs[t];
+}
+
+boost::uuids::uuid AbstractCoordinator::GetWeightsID()
+{
+    return w_id;
+}
+
+wxString AbstractCoordinator::GetWeightsName()
+{
+    return weight_name;
+}
+
+uint64_t AbstractCoordinator::GetLastUsedSeed()
+{
+    return last_seed_used;
+}
+
+bool AbstractCoordinator::IsReuseLastSeed()
+{
+    return reuse_last_seed;
+}
+
+void AbstractCoordinator::SetReuseLastSeed(bool reuse)
+{
+    reuse_last_seed = reuse;
+    // update global one
+    GdaConst::use_gda_user_seed = reuse;
+    if (reuse) {
+        last_seed_used = GdaConst::gda_user_seed;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+    } else {
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
     }
-    wxLogMessage("Exiting AbstractCoordinator::GetRawData()");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -481,7 +357,9 @@ void AbstractCoordinator::VarInfoAttributeChange()
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
 	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) is_any_time_variant = true;
+        if (var_info[i].is_time_variant) {
+            is_any_time_variant = true;
+        }
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
@@ -498,111 +376,6 @@ void AbstractCoordinator::VarInfoAttributeChange()
     wxLogMessage("Exiting AbstractCoordinator::VarInfoAttributeChange()");
 }
 
-void AbstractCoordinator::StandardizeData()
-{
-    wxLogMessage("Entering AbstractCoordinator::StandardizeData()");
-	for (int t=0; t<data1_vecs.size(); t++) {
-        undef_tms[t].resize(num_obs);
-        
-        for (int i=0; i<num_obs; i++) {
-            undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
-        }
-        if (isBivariate) {
-            for (int i=0; i<num_obs; i++) {
-                if ( undef_data[1].size() > t ) {
-                    undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
-                }
-            }
-        }
-    }
-    
-	for (int t=0; t<data1_vecs.size(); t++) {
-		GenUtils::StandardizeData(num_obs, data1_vecs[t], undef_tms[t]);
-        if (isBivariate) {
-            if (data2_vecs.size() > t)
-                GenUtils::StandardizeData(num_obs, data2_vecs[t], undef_tms[t]);
-        }
-	}
-    wxLogMessage("Exiting AbstractCoordinator::StandardizeData()");
-}
-
-/** assumes StandardizeData already called on data1 and data2 */
-void AbstractCoordinator::CalcLisa()
-{
-    wxLogMessage("Entering AbstractCoordinator::CalcLisa()");
-	for (int t=0; t<num_time_vals; t++) {
-		data1 = data1_vecs[t];
-		if (isBivariate) {
-			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
-                data2 = data2_vecs[t];
-		}
-		lags = lags_vecs[t];
-		localMoran = local_moran_vecs[t];
-		cluster = cluster_vecs[t];
-	
-		has_isolates[t] = false;
-    
-        // get undefs of objects/values at this time step
-        std::vector<bool> undefs;
-        bool has_undef = false;
-        for (int i=0; i<undef_data[0][t].size(); i++){
-            bool is_undef = undef_data[0][t][i];
-            if (isBivariate) {
-                if (undef_data[1].size() > t)
-                    is_undef = is_undef || undef_data[1][t][i];
-            }
-            if (is_undef && !has_undef) {
-                has_undef = true;
-            }
-            undefs.push_back(is_undef);
-        }
-        has_undefined[t] = has_undef;
-       
-        // local weights copy
-        GalWeight* gw = NULL;
-        if ( has_undef ) {
-            gw = new GalWeight(*weights);
-            gw->Update(undefs);
-        } else {
-            gw = weights;
-        }
-        GalElement* W = gw->gal;
-        Gal_vecs[t] = gw;
-        Gal_vecs_orig[t] = weights;
-	
-		for (int i=0; i<num_obs; i++) {
-            
-            if (undefs[i] == true) {
-                lags[i] = 0;
-                localMoran[i] = 0;
-                cluster[i] = 6; // undefined value
-                continue;
-            }
-            
-			double Wdata = 0;
-			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2);
-			} else {
-				Wdata = W[i].SpatialLag(data1);
-			}
-			lags[i] = Wdata;
-			localMoran[i] = data1[i] * Wdata;
-				
-			// assign the cluster
-			if (W[i].Size() > 0) {
-				if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
-				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-				else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
-			} else {
-				has_isolates[t] = true;
-				cluster[i] = 5; // neighborless
-			}
-		}
-	}
-    wxLogMessage("Exiting AbstractCoordinator::CalcLisa()");
-}
 
 void AbstractCoordinator::CalcPseudoP()
 {
@@ -668,9 +441,9 @@ void AbstractCoordinator::CalcPseudoP_threaded()
         //threadPool.add_thread(worker);
         AbstractWorkerThread* thread =
         new AbstractWorkerThread(a, b, seed_start, this,
-                             &worker_list_mutex,
-                             &worker_list_empty_cond,
-                             &worker_list, thread_id);
+                                 &worker_list_mutex,
+                                 &worker_list_empty_cond,
+                                 &worker_list, thread_id);
         if ( thread->Create() != wxTHREAD_NO_ERROR ) {
             delete thread;
             is_thread_error = true;
@@ -686,7 +459,6 @@ void AbstractCoordinator::CalcPseudoP_threaded()
         for (it = worker_list.begin(); it != worker_list.end(); it++) {
             (*it)->Run();
         }
-        
         while (!worker_list.empty()) {
             // wait until thread_list might be empty
             worker_list_empty_cond.Wait();
@@ -698,7 +470,8 @@ void AbstractCoordinator::CalcPseudoP_threaded()
 	wxLogMessage("Exiting AbstractCoordinator::CalcPseudoP_threaded()");
 }
 
-void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
+void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
+                                            uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
     int max_rand = num_obs-1;
@@ -716,12 +489,14 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t
 	
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
+            double rng_val;
+            int newRandom;
 			while (rand < numNeighbors) {
 				// computing 'perfect' permutation of given size
-                double rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+                rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
                 // round is needed to fix issue
-                //https://github.com/GeoDaCenter/geoda/issues/488
-				int newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));
+                // https://github.com/GeoDaCenter/geoda/issues/488
+				newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));
 				if (newRandom != cnt && !workPermutation.Belongs(newRandom)) {
 					workPermutation.Push(newRandom);
 					rand++;
@@ -732,56 +507,10 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t
                 permNeighbors[cp] = workPermutation.Pop();
             }
             // for each time step, reuse permuation
-            for (int t=0; t<num_time_vals; t++) {
-                double *data1;
-                double *data2;
-                double *localMoran = local_moran_vecs[t];
-                std::vector<bool>& undefs = undef_tms[t];
-                
-                data1 = data1_vecs[t];
-                if (isBivariate) {
-                    data2 = data2_vecs[0];
-                    if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
-                        data2 = data2_vecs[t];
-                }
-               
-                int validNeighbors = 0;
-                double permutedLag=0;
-                // use permutation to compute the lag
-                // compute the lag for binary weights
-                if (isBivariate) {
-                    for (int cp=0; cp<numNeighbors; cp++) {
-                        int nb = permNeighbors[cp];
-                        if (!undefs[nb]) {
-                            permutedLag += data2[nb];
-                            validNeighbors ++;
-                        }
-                    }
-                } else {
-                    for (int cp=0; cp<numNeighbors; cp++) {
-                        int nb = permNeighbors[cp];
-                        if (!undefs[nb]) {
-                            permutedLag += data1[nb];
-                            validNeighbors ++;
-                        }
-                    }
-                }
-                
-                //NOTE: we shouldn't have to row-standardize or
-                // multiply by data1[cnt]
-                if (validNeighbors > 0 && row_standardize) {
-                    permutedLag /= validNeighbors;
-                }
-                const double localMoranPermuted = permutedLag * data1[cnt];
-                if (localMoranPermuted >= localMoran[cnt]) {
-                    countLarger[t]++;
-                }
-            }
-            
-			
+            ComputeLarger(cnt, permNeighbors, countLarger);
 		}
         for (int t=0; t<num_time_vals; t++) {
-            double* _sigLocalMoran = sig_local_moran_vecs[t];
+            double* _sigLocal = sig_local_vecs[t];
             int* _sigCat = sig_cat_vecs[t];
 
     		// pick the smallest
@@ -789,12 +518,12 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t
     			countLarger[t] = permutations-countLarger[t];
     		}
     		
-    		_sigLocalMoran[cnt] = (countLarger[t]+1.0)/(permutations+1);
+    		_sigLocal[cnt] = (countLarger[t]+1.0)/(permutations+1);
     		// 'significance' of local Moran
-    		if (_sigLocalMoran[cnt] <= 0.0001) _sigCat[cnt] = 4;
-    		else if (_sigLocalMoran[cnt] <= 0.001) _sigCat[cnt] = 3;
-    		else if (_sigLocalMoran[cnt] <= 0.01) _sigCat[cnt] = 2;
-    		else if (_sigLocalMoran[cnt] <= 0.05) _sigCat[cnt]= 1;
+    		if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
+    		else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
+    		else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
+    		else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
     		else _sigCat[cnt]= 0;
     		
     		// observations with no neighbors get marked as isolates

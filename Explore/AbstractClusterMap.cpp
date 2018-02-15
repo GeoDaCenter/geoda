@@ -60,9 +60,15 @@ AbstractMapCanvas::AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
            CatClassification::no_theme,
            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 a_coord(a_coordinator),
-is_clust(true)
+is_clust(true),
+menu_xrcid("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS"),
+str_not_sig(_("Not Significant")),
+str_undefined(_("Undefined")),
+str_neighborless(_("Neighborless")),
+clr_not_sig_point(wxColour(190, 190, 190)),
+clr_not_sig_polygon(wxColour(240, 240, 240))
 {
-	LOG_MSG("Entering AbstractMapCanvas::AbstractMapCanvas");
+	wxLogMessage("Entering AbstractMapCanvas::AbstractMapCanvas");
 
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from AbstractCoordinator initially
@@ -73,30 +79,29 @@ is_clust(true)
 	}
 	CreateAndUpdateCategories();
     UpdateStatusBar();
-	LOG_MSG("Exiting AbstractMapCanvas::AbstractMapCanvas");
+	wxLogMessage("Exiting AbstractMapCanvas::AbstractMapCanvas");
 }
 
 AbstractMapCanvas::~AbstractMapCanvas()
 {
-	LOG_MSG("In AbstractMapCanvas::~AbstractMapCanvas");
+	wxLogMessage("In AbstractMapCanvas::~AbstractMapCanvas");
 }
 
 void AbstractMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering AbstractMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Entering AbstractMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((AbstractMapFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu(menu_xrcid);
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting AbstractMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Exiting AbstractMapCanvas::DisplayRightClickMenu");
 }
 
 wxString AbstractMapCanvas::GetCanvasTitle()
@@ -111,7 +116,7 @@ bool
 AbstractMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                              SmoothingType new_map_smoothing)
 {
-	LOG_MSG("In AbstractMapCanvas::ChangeMapType");
+	wxLogMessage("In AbstractMapCanvas::ChangeMapType");
 	return false;
 }
 
@@ -142,7 +147,7 @@ void AbstractMapCanvas::SetCheckMarks(wxMenu* menu)
 
 void AbstractMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering AbstractMapCanvas::TimeChange");
+	wxLogMessage("Entering AbstractMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -169,7 +174,7 @@ void AbstractMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting AbstractMapCanvas::TimeChange");
+	wxLogMessage("Exiting AbstractMapCanvas::TimeChange");
 }
 
 /** Update Categories based on info in AbstractCoordinator */
@@ -179,14 +184,13 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
 
     
-    double sig_cutoff = a_coord->significance_cutoff;
+    double sig_cutoff = a_coord->GetSignificanceCutoff();
     int    s_f = a_coord->GetSignificanceFilter();
-    int    set_perm = a_coord->permutations;
+    int    set_perm = a_coord->GetNumPermutations();
     int    num_obs = a_coord->num_obs;
     double stop_sig = 1.0 / (1.0 + set_perm);
-    Shapefile::Header& hdr = project->main_data.header;
-    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+    std::vector<wxString> def_cats = a_coord->GetDefaultCategories();
+    std::vector<double> def_cutoffs = a_coord->GetDefaultCutoffs();
    
     bool is_cust_cutoff = true;
     for (int i=0; i<4; i++) {
@@ -225,10 +229,9 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
 		
         bool has_isolates = a_coord->GetHasIsolates(t);
         bool has_undefined = a_coord->GetHasUndefined(t);
-        double* p = a_coord->sig_local_moran_vecs[t];
-        int* cluster = a_coord->cluster_vecs[t];
-        int* sigCat = a_coord->sig_cat_vecs[t];
-        
+        double* p = a_coord->GetLocalSignificanceValues(t);
+        int* cluster = a_coord->GetClusterIndicators(t);
+
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
@@ -241,58 +244,13 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
         
 		if (is_clust) {
             // NotSig LL HH LH HL
-            num_cats += 5;
-            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-            
-			cat_data.SetCategoryLabel(t, 0, str_not_sig);
-            
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-            }
-			cat_data.SetCategoryLabel(t, 1, str_highhigh);
-            cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
-            cat_data.SetCategoryLabel(t, 2, str_lowlow);
-            cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]);
-            cat_data.SetCategoryLabel(t, 3, str_lowhigh);
-            cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_lowhigh]);
-            cat_data.SetCategoryLabel(t, 4, str_highlow);
-            cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_highlow]);
-            
-			if (has_isolates && has_undefined) {
-				isolates_cat = 5;
-				undefined_cat = 6;
-			} else if (has_undefined) {
-				undefined_cat = 5;
-			} else if (has_isolates) {
-				isolates_cat = 5;
-			}
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
-                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
-            }
-            for (int i=0; i<num_obs; i++) {
-                if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 5) {
-                    cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 6) {
-                    cat_data.AppendIdToCategory(t, undefined_cat, i);
-                } else {
-                    cat_data.AppendIdToCategory(t, cluster[i], i);
-                }
-            }
-            
+            SetLabelsAndColorForClusters(cat_data);
+
 		} else {
             // significance map
             // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
             num_cats = 5;
-            for (int j=0; j < 4; j++) {
+            for (int j=0; j < def_cats.size(); j++) {
                 if (sig_cutoff < def_cutoffs[j])
                     num_cats -= 1;
             }
@@ -310,17 +268,14 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
             }
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
             
-			cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            wxColour not_sig_clr = clr_not_sig_polygon;
+            if (project->IsPointTypeData()) not_sig_clr = clr_not_sig_point;
+            cat_data.SetCategoryColor(t, 0, not_sig_clr);
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
 
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-            }
-  
             int cat_idx = 1;
             std::map<int, int> level_cat_dict;
-            for (int j=0; j < 4; j++) {
+            for (int j=0; j < def_cats.size(); j++) {
                 if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
                     cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
                     cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
@@ -357,7 +312,7 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
                     cat_data.AppendIdToCategory(t, undefined_cat, i);
                 } else {
                     //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                    for ( int c = 3; c >= 0; c-- ) {
+                    for ( int c = def_cats.size()-1; c >= 0; c-- ) {
                         if ( p[i] <= def_cutoffs[c] ) {
                             cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
                             break;
@@ -446,7 +401,7 @@ void AbstractMapCanvas::UpdateStatusBar()
         }
     }
     if (is_clust && a_coord) {
-        double p_val = a_coord->significance_cutoff;
+        double p_val = a_coord->GetSignificanceCutoff();
         wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
@@ -459,47 +414,36 @@ IMPLEMENT_CLASS(AbstractMapFrame, MapFrame)
 END_EVENT_TABLE()
 
 AbstractMapFrame::AbstractMapFrame(wxFrame *parent, Project* project,
-                           AbstractCoordinator* a_coordinator,
-                           bool isClusterMap, bool isBivariate,
-                           bool isEBRate,
-                           const wxPoint& pos, const wxSize& size,
-                           const long style)
+                                   AbstractCoordinator* a_coordinator,
+                                   const wxPoint& pos, const wxSize& size,
+                                   const long style)
 : MapFrame(parent, project, pos, size, style),
 a_coord(a_coordinator)
 {
 	LOG_MSG("Entering AbstractMapFrame::AbstractMapFrame");
+    Init();
+}
 
-    //weights_id = a_coord->Gal_vecs_orig[ts]->;
-    
-	int width, height;
-	GetClientSize(&width, &height);
-    
+void AbstractMapFrame::Init()
+{
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
-    CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::lisa_categories : CatClassification::lisa_significance;
-    
-    DisplayStatusBar(true);
+    CatClassification::CatClassifType theme_type = GetThemeType();
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new AbstractMapCanvas(rpanel, this, project,
-                                        a_coordinator,
-                                        theme_type_s,
-                                        isBivariate,
-                                        isEBRate,
-                                        wxDefaultPosition,
-                                        wxDefaultSize);
+    template_canvas = CreateMapCanvas();
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
     
     WeightsManInterface* w_man_int = project->GetWManInt();
-    ((AbstractMapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+    boost::uuids::uuid w_id = w_man_int->GetDefault();
+    ((AbstractMapCanvas*) template_canvas)->SetWeightsId(w_id);
     
-
 	wxPanel* lpanel = new wxPanel(splitter_win);
     template_legend = new MapNewLegend(lpanel, template_canvas,
                                        wxPoint(0,0), wxSize(0,0));
@@ -521,15 +465,15 @@ a_coord(a_coordinator)
     sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL); 
 	sizer->Add(splitter_win, 1, wxEXPAND|wxALL); 
     SetSizer(sizer);
-    //splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
-    
-	
+
 	SetTitle(template_canvas->GetCanvasTitle());
     
-    
 	a_coord->registerObserver(this);
+    
 	Show(true);
+    DisplayStatusBar(true);
+    
 	LOG_MSG("Exiting AbstractMapFrame::AbstractMapFrame");
 }
 
@@ -538,7 +482,7 @@ AbstractMapFrame::~AbstractMapFrame()
 	LOG_MSG("In AbstractMapFrame::~AbstractMapFrame");
 	if (a_coord) {
 		a_coord->removeObserver(this);
-		a_coord = 0;
+		a_coord = NULL;
 	}
 }
 
@@ -556,8 +500,7 @@ void AbstractMapFrame::MapMenus()
 	LOG_MSG("In AbstractMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu(menu_xrcid);
 	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
@@ -592,7 +535,7 @@ void AbstractMapFrame::RanXPer(int permutation)
 {
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
-	a_coord->permutations = permutation;
+	a_coord->SetNumPermutations(permutation);
 	a_coord->CalcPseudoP();
 	a_coord->notifyObservers();
 }
@@ -699,105 +642,27 @@ void AbstractMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
     AbstractMapCanvas* lc = (AbstractMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p = a_coord->sig_local_moran_vecs[t];
+    double* p = a_coord->GetLocalSignificanceValues(t);
     int n = a_coord->num_obs;
-    wxString ttl = _("Inference Settings");
-    ttl << "  (" << a_coord->permutations << " perm)";
-    
-    double user_sig = a_coord->significance_cutoff;
-    if (a_coord->GetSignificanceFilter()<0) user_sig = a_coord->user_sig_cutoff;
+    wxString ttl = _("Inference Settings (%d perm)");
+    ttl = wxString::Format(ttl, a_coord->GetNumPermutations());
+
+    double user_sig = a_coord->GetSignificanceCutoff();
+    int sig_filter = a_coord->GetSignificanceFilter();
+    if (sig_filter < 0) user_sig = a_coord->GetUserCutoff();
     
     InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         a_coord->SetSignificanceFilter(-1);
-        a_coord->significance_cutoff = dlg.GetAlphaLevel();
-        a_coord->user_sig_cutoff = dlg.GetUserInput();
+        a_coord->SetSignificanceCutoff(dlg.GetAlphaLevel());
+        a_coord->SetUserCutoff(dlg.GetUserInput());
+        
         a_coord->notifyObservers();
-        a_coord->bo = dlg.GetBO();
-        a_coord->fdr = dlg.GetFDR();
+        
+        a_coord->SetBO(dlg.GetBO());
+        a_coord->SetFDR(dlg.GetFDR());
         UpdateOptionMenuItems();
     }
-}
-
-
-void AbstractMapFrame::OnSaveAbstract(wxCommandEvent& event)
-{
-    
-	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    AbstractMapCanvas* lc = (AbstractMapCanvas*)template_canvas;
-    
-    std::vector<SaveToTableEntry> data;
-    
-    if (lc->is_diff) {
-        data.resize(4);
-    } else {
-        data.resize(3);
-    }
-   
-    std::vector<bool> undefs(a_coord->num_obs, false);
-    for (int i=0; i<a_coord->undef_data[0][t].size(); i++){
-        undefs[i] = undefs[i] || a_coord->undef_data[0][t][i];
-    }
-    
-	std::vector<double> tempLocalMoran(a_coord->num_obs);
-	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
-		tempLocalMoran[i] = a_coord->local_moran_vecs[t][i];
-	}
-	data[0].d_val = &tempLocalMoran;
-	data[0].label = "Lisa Indices";
-	data[0].field_default = "LISA_I";
-	data[0].type = GdaConst::double_type;
-    data[0].undefined = &undefs;
-	
-	double cuttoff = a_coord->significance_cutoff;
-	double* p = a_coord->sig_local_moran_vecs[t];
-	int* cluster = a_coord->cluster_vecs[t];
-	std::vector<wxInt64> clust(a_coord->num_obs);
-	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
-		if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
-			clust[i] = 0; // not significant
-		} else {
-			clust[i] = cluster[i];
-		}
-	}
-	data[1].l_val = &clust;
-	data[1].label = "Clusters";
-	data[1].field_default = "LISA_CL";
-	data[1].type = GdaConst::long64_type;
-    data[1].undefined = &undefs;
-	
-	std::vector<double> sig(a_coord->num_obs);
-    std::vector<double> diff(a_coord->num_obs);
-    
-	for (int i=0, iend=a_coord->num_obs; i<iend; i++) {
-		sig[i] = p[i];
-        
-        
-        if (lc->is_diff ) {
-            int t0 =  a_coord->var_info[0].time;
-            int t1 =  a_coord->var_info[1].time;
-            diff[i] = a_coord->data[0][t0][i] - a_coord->data[0][t1][i];
-        }
-	}
-	
-	data[2].d_val = &sig;
-	data[2].label = "Significance";
-	data[2].field_default = "LISA_P";
-	data[2].type = GdaConst::double_type;
-    data[2].undefined = &undefs;
-	
-    if (lc->is_diff) {
-        data[3].d_val = &diff;
-        data[3].label = "Diff Values";
-        data[3].field_default = "DIFF_VAL2";
-        data[3].type = GdaConst::double_type;
-        data[3].undefined = &undefs;
-    }
-    
-	SaveToTableDlg dlg(project, this, data,
-					   "Save Results: LISA",
-					   wxDefaultPosition, wxSize(400,400));
-	dlg.ShowModal();
 }
 
 void AbstractMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
@@ -823,53 +688,44 @@ void AbstractMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 
 void AbstractMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering AbstractMapFrame::OnSelectCores");
+	wxLogMessage("Entering AbstractMapFrame::OnSelectCores");
 	
 	std::vector<bool> elem(a_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = a_coord->cluster_vecs[ts];
-	int* sig_cat = a_coord->sig_cat_vecs[ts];
-    double* sig_val = a_coord->sig_local_moran_vecs[ts];
-	int sf = a_coord->significance_filter;
-
-    double user_sig = a_coord->significance_cutoff;
+	int* clust = a_coord->GetClusterIndicators(ts);
+	double* sig_val = a_coord->GetLocalSignificanceValues(ts);
+    double user_sig = a_coord->GetSignificanceCutoff();
     
 	// add all cores to elem list.
 	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4) {
             bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (sig_val[i] < user_sig) cont = false;
             if (cont)  continue;
-            
 			elem[i] = true;
 		}
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting AbstractMapFrame::OnSelectCores");
+	wxLogMessage("Exiting AbstractMapFrame::OnSelectCores");
 }
 
 void AbstractMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering AbstractMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering AbstractMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(a_coord->num_obs, false);
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = a_coord->cluster_vecs[ts];
-	int* sig_cat = a_coord->sig_cat_vecs[ts];
-    double* sig_val = a_coord->sig_local_moran_vecs[ts];
-	int sf = a_coord->significance_filter;
+    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int* clust = a_coord->GetClusterIndicators(ts);
+    double* sig_val = a_coord->GetLocalSignificanceValues(ts);
+    double user_sig = a_coord->GetSignificanceCutoff();
     const GalElement* W = a_coord->Gal_vecs_orig[ts]->gal;
     
-    double user_sig = a_coord->significance_cutoff;
-	
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (sig_val[i] < user_sig) cont = false;
             if (cont)  continue;
             
 			elem[i] = true;
@@ -883,8 +739,7 @@ void AbstractMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (sig_val[i] < user_sig) cont = false;
             if (cont)  continue;
             
 			elem[i] = false;
@@ -892,29 +747,25 @@ void AbstractMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting AbstractMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Exiting AbstractMapFrame::OnSelectNeighborsOfCores");
 }
 
 void AbstractMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering AbstractMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering AbstractMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(a_coord->num_obs, false);
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = a_coord->cluster_vecs[ts];
-	int* sig_cat = a_coord->sig_cat_vecs[ts];
-    double* sig_val = a_coord->sig_local_moran_vecs[ts];
-	int sf = a_coord->significance_filter;
+    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int* clust = a_coord->GetClusterIndicators(ts);
+    double* sig_val = a_coord->GetLocalSignificanceValues(ts);
+    double user_sig = a_coord->GetSignificanceCutoff();
     const GalElement* W = a_coord->Gal_vecs_orig[ts]->gal;
-    
-    double user_sig = a_coord->significance_cutoff;
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<a_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4 ) {
             bool cont = true;
-            if (sf >=0 && sig_cat[i] >= sf) cont = false;
-            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (sig_val[i] < user_sig) cont = false;
             if (cont)  continue;
 
             
@@ -927,30 +778,7 @@ void AbstractMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting AbstractMapFrame::OnSelectCoresAndNeighbors");
-}
-
-
-void AbstractMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
-{
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
-                            false, false,
-                            _("Conditional Abstract Map Variables"),
-                            _("Horizontal Cells"), _("Vertical Cells"),
-                            "", "", false, false, false, // default
-                            true, true, false, false);
-    
-    if (dlg.ShowModal() != wxID_OK) {
-        return;
-    }
-    
-	AbstractMapCanvas* lc = (AbstractMapCanvas*) template_canvas;
-    wxString title = lc->GetCanvasTitle();
-    ConditionalClusterMapFrame* subframe =
-    new ConditionalClusterMapFrame(this, project,
-                                   dlg.var_info, dlg.col_ids, a_coord,
-                                   title, wxDefaultPosition,
-                                   GdaConst::cond_view_default_size);
+	wxLogMessage("Exiting AbstractMapFrame::OnSelectCoresAndNeighbors");
 }
 
 /** Called by AbstractCoordinator to notify that state has changed.  State changes
@@ -971,7 +799,7 @@ void AbstractMapFrame::update(AbstractCoordinator* o)
 
 void AbstractMapFrame::closeObserver(AbstractCoordinator* o)
 {
-	LOG_MSG("In AbstractMapFrame::closeObserver(AbstractCoordinator*)");
+	wxLogMessage("In AbstractMapFrame::closeObserver(AbstractCoordinator*)");
 	if (a_coord) {
 		a_coord->removeObserver(this);
 		a_coord = 0;
@@ -981,11 +809,14 @@ void AbstractMapFrame::closeObserver(AbstractCoordinator* o)
 
 void AbstractMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
+    // function called by PublishDlg, not used
 	if (a_coord) {
+        /*
 		if(a_coord->sig_cat_vecs.size()>0) {
 			for (int i=0; i<a_coord->num_obs;i++) {
 				clusters.push_back(a_coord->sig_cat_vecs[0][i]);
 			}
 		}
+         */
 	}
 }

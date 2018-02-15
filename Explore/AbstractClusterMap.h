@@ -38,6 +38,7 @@ public:
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize);
 	virtual ~AbstractMapCanvas();
+    
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
@@ -50,11 +51,18 @@ public:
     virtual void UpdateStatusBar();
     virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
     
-
+    virtual void SetLabelsAndColorForClusters(CatClassifData& cat_data) = 0;
+    
 protected:
 	AbstractCoordinator* a_coord;
 	bool is_clust; // true = Cluster Map, false = Significance Map
-
+    wxString menu_xrcid;
+    wxString str_undefined;
+    wxString str_neighborless;
+    wxString str_not_sig;
+    wxColour clr_not_sig_point;
+    wxColour clr_not_sig_polygon;
+    
 	DECLARE_EVENT_TABLE()
 };
 
@@ -64,12 +72,18 @@ class AbstractMapFrame : public MapFrame, public AbstractCoordinatorObserver
 public:
     AbstractMapFrame(wxFrame *parent, Project* project,
 					AbstractCoordinator* a_coordinator,
-					bool isClusterMap,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::map_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~AbstractMapFrame();
-	
+
+    void Init();
+    
+    virtual CatClassification::CatClassifType GetThemeType() = 0;
+    virtual TemplateCanvas* CreateMapCanvas() = 0;
+    virtual void OnSaveResult(wxCommandEvent& event) = 0;
+    virtual void OnShowAsConditionalMap(wxCommandEvent& event) = 0;
+    
     void OnActivate(wxActivateEvent& event);
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
@@ -92,23 +106,22 @@ public:
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
 	void OnSigFilterSetup(wxCommandEvent& event);
-    
-	void OnSaveAbstract(wxCommandEvent& event);
-	
+
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
 
-    void OnShowAsConditionalMap(wxCommandEvent& event);
-	
 	virtual void update(AbstractCoordinator* o);
 	virtual void closeObserver(AbstractCoordinator* o);
 	
 	void GetVizInfo(std::vector<int>& clusters);
+    void CoreSelectHelper(const std::vector<bool>& elem);
+    
 protected:
-	void CoreSelectHelper(const std::vector<bool>& elem);
+    CatClassification::CatClassifType theme_type;
 	AbstractCoordinator* a_coord;
-	
+    wxString menu_xrcid;
+    
     DECLARE_EVENT_TABLE()
 };
 

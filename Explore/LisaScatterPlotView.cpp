@@ -165,7 +165,7 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 			v1 << ")";
 		}
 	}	
-	wxString w(lisa_coord->weight_name);
+	wxString w(lisa_coord->GetWeightsName());
 	if (is_bi) {
 		s << "Bivariate Moran's I (" << w << "): ";
 		s << v0 << " and lagged " << v1;
@@ -935,7 +935,7 @@ lisa_coord(lisa_coordinator)
 	template_canvas->SetScrollRate(1,1);
 	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
-	lisa_coord->registerObserver(this);
+	//lisa_coord->registerObserver(this);
 	Show(true);
 	
 	LOG_MSG("Exiting LisaScatterPlotFrame::LisaScatterPlotFrame");
@@ -945,7 +945,7 @@ LisaScatterPlotFrame::~LisaScatterPlotFrame()
 {
 	LOG_MSG("In LisaScatterPlotFrame::~LisaScatterPlotFrame");
 	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
+		//lisa_coord->removeObserver(this);
 		lisa_coord = 0;
 	}
 }
@@ -1100,7 +1100,7 @@ void LisaScatterPlotFrame::update(LisaCoordinator* o)
 void LisaScatterPlotFrame::closeObserver(LisaCoordinator* o)
 {
 	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
+		//lisa_coord->removeObserver(this);
 		lisa_coord = 0;
 	}
 	Close(true);

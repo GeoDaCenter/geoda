@@ -1076,8 +1076,9 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
         
+        int* clst = lisa_coord->GetClusterIndicators(t);
         for (int i=0; i<num_obs; i++) {
-            cat_var_sorted[t][i].first = lisa_coord->cluster_vecs[t][i];
+            cat_var_sorted[t][i].first = clst[i];
             cat_var_sorted[t][i].second = i;
             
             cat_var_undef[t][i] = lisa_coord->undef_data[0][t][i];
@@ -1158,10 +1159,10 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
-        double cuttoff = lisa_coord->significance_cutoff;
-        double* p = lisa_coord->sig_local_moran_vecs[t];
-        int* cluster = lisa_coord->cluster_vecs[t];
-        int* sigCat = lisa_coord->sig_cat_vecs[t];
+        double cuttoff = lisa_coord->GetSignificanceCutoff();
+        double* p = lisa_coord->GetLocalSignificanceValues(t);
+        int* cluster = lisa_coord->GetClusterIndicators(t);
+        //int* sigCat = lisa_coord->sig_cat_vecs[t];
         
         for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
             if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
@@ -1221,19 +1222,20 @@ void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
         }
     }
     if (mousemode == select && selectstate == start) {
+        int* clst = lisa_coord->GetClusterIndicators(t);
         if (total_hover_obs >= 1) {
             s << "hover obs " << hover_obs[0]+1 << " = ";
-            s << lisa_coord->cluster_vecs[t][hover_obs[0]];
+            s << clst[hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
             s << "obs " << hover_obs[1]+1 << " = ";
-            s << lisa_coord->cluster_vecs[t][hover_obs[1]];
+            s << clst[hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
             s << "obs " << hover_obs[2]+1 << " = ";
-            s << lisa_coord->cluster_vecs[t][hover_obs[2]];
+            s << clst[hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
             s << ", ...";

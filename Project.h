@@ -85,11 +85,11 @@ public:
 	bool IsTableOnlyProject();
 	bool isTableOnly; // variable data only, no geometry layers
     bool IsDataTypeChanged();
-    
     bool IsFileDataSource();
-    
     bool HasUnsavedChange();
     
+    bool IsPointTypeData() { return main_data.header.shape_type == Shapefile::POINT_TYP;}
+
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
