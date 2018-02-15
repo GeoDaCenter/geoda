@@ -21,112 +21,75 @@
 #define __GEODA_CENTER_LISA_MAP_NEW_VIEW_H__
 
 #include "MapNewView.h"
-#include "LisaCoordinatorObserver.h"
+#include "AbstractClusterMap.h"
 #include "../GdaConst.h"
 
 class LisaMapFrame;
 class LisaMapCanvas;
 class LisaCoordinator;
 
-class LisaMapCanvas : public MapCanvas
+class LisaMapCanvas : public AbstractMapCanvas
 {
 	DECLARE_CLASS(LisaMapCanvas)
 public:	
-	LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-					 Project* project,
-					 LisaCoordinator* lisa_coordinator,
-					 CatClassification::CatClassifType theme_type,
-					 bool isBivariate, bool isEBRate,
-					 const wxPoint& pos = wxDefaultPosition,
-					 const wxSize& size = wxDefaultSize);
+    LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                  Project* project,
+                  LisaCoordinator* lisa_coordinator,
+                  CatClassification::CatClassifType theme_type,
+                  bool isClust,
+                  bool isBivariate,
+                  bool isEBRate,
+                  wxString menu_xrcid,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
 	virtual ~LisaMapCanvas();
-	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	virtual wxString GetCanvasTitle();
-	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
-							   SmoothingType new_map_smoothing);
-	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void TimeChange();
-	void SyncVarInfoFromCoordinator();
-	virtual void CreateAndUpdateCategories();
-	virtual void TimeSyncVariableToggle(int var_index);
-    virtual void UpdateStatusBar();
-    virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
     
+    virtual void SetLabelsAndColorForClusters(int& num_cats, int t,
+                                              CatClassifData& cat_data);
+
+	virtual wxString GetCanvasTitle();
+
     bool is_diff;
     
 protected:
 	LisaCoordinator* lisa_coord;
-	bool is_clust; // true = Cluster Map, false = Significance Map
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
 	
-    wxString str_not_sig;
     wxString str_highhigh;
     wxString str_highlow;
     wxString str_lowlow;
     wxString str_lowhigh;
-    wxString str_undefined;
-    wxString str_neighborless;
-    wxString str_p005;
-    wxString str_p001;
-    wxString str_p0001;
-    wxString str_p00001;
     
 	DECLARE_EVENT_TABLE()
 };
 
-class LisaMapFrame : public MapFrame, public LisaCoordinatorObserver
+class LisaMapFrame : public AbstractMapFrame
 {
 	DECLARE_CLASS(LisaMapFrame)
 public:
     LisaMapFrame(wxFrame *parent, Project* project,
-					LisaCoordinator* lisa_coordinator,
-					bool isClusterMap, bool isBivariate,
-					bool isEBRate,
-					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GdaConst::map_default_size,
-					const long style = wxDEFAULT_FRAME_STYLE);
+                 LisaCoordinator* lisa_coordinator,
+                 bool isClusterMap,
+                 bool isBivariate,
+                 bool isEBRate,
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = GdaConst::map_default_size,
+                 const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaMapFrame();
 	
-    void OnActivate(wxActivateEvent& event);
-	virtual void MapMenus();
-    virtual void UpdateOptionMenuItems();
-    virtual void UpdateContextMenuItems(wxMenu* menu);
-    virtual void update(WeightsManState* o){}
-	
-	void RanXPer(int permutation);
-	void OnRan99Per(wxCommandEvent& event);
-	void OnRan199Per(wxCommandEvent& event);
-	void OnRan499Per(wxCommandEvent& event);
-	void OnRan999Per(wxCommandEvent& event);
-	void OnRanOtherPer(wxCommandEvent& event);
-	
-	void OnUseSpecifiedSeed(wxCommandEvent& event);
-	void OnSpecifySeedDlg(wxCommandEvent& event);
-	
-	void SetSigFilterX(int filter);
-	void OnSigFilter05(wxCommandEvent& event);
-	void OnSigFilter01(wxCommandEvent& event);
-	void OnSigFilter001(wxCommandEvent& event);
-	void OnSigFilter0001(wxCommandEvent& event);
-	void OnSigFilterSetup(wxCommandEvent& event);
-    
-	void OnSaveLisa(wxCommandEvent& event);
-	
-	void OnSelectCores(wxCommandEvent& event);
-	void OnSelectNeighborsOfCores(wxCommandEvent& event);
-	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
+    virtual CatClassification::CatClassifType GetThemeType();
+    virtual TemplateCanvas* CreateMapCanvas(wxPanel* rpanel);
+    virtual void OnSaveResult(wxCommandEvent& event);
+    virtual void OnShowAsConditionalMap(wxCommandEvent& event);
 
-    void OnShowAsConditionalMap(wxCommandEvent& event);
-	
-	virtual void update(LisaCoordinator* o);
-	virtual void closeObserver(LisaCoordinator* o);
-	
-	void GetVizInfo(std::vector<int>& clusters);
 protected:
-	void CoreSelectHelper(const std::vector<bool>& elem);
 	LisaCoordinator* lisa_coord;
-	
+    CatClassification::CatClassifType theme_type;
+    bool is_clust;
+    bool is_bivariate;
+    bool is_ebrate;
+    
     DECLARE_EVENT_TABLE()
 };
 

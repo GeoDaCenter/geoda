@@ -40,8 +40,8 @@
 #include "LisaMapNewView.h"
 #include "../ShpFile.h"
 
-IMPLEMENT_CLASS(LisaMapCanvas, MapCanvas)
-BEGIN_EVENT_TABLE(LisaMapCanvas, MapCanvas)
+IMPLEMENT_CLASS(LisaMapCanvas, AbstractMapCanvas)
+BEGIN_EVENT_TABLE(LisaMapCanvas, AbstractMapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
@@ -54,77 +54,38 @@ LisaMapCanvas::LisaMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
                              LisaCoordinator* lisa_coordinator,
                              CatClassification::CatClassifType theme_type_s,
-                             bool isBivariate, bool isEBRate,
+                             bool isClust,
+                             bool isBivariate,
+                             bool isEBRate,
+                             wxString menu_xrcid_s,
                              const wxPoint& pos, const wxSize& size)
-:MapCanvas(parent, t_frame, project,
-           vector<GdaVarTools::VarInfo>(0), vector<int>(0),
-           CatClassification::no_theme,
-           no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+: AbstractMapCanvas(parent, t_frame, project, lisa_coordinator, theme_type_s, isClust),
 lisa_coord(lisa_coordinator),
-is_clust(theme_type_s==CatClassification::lisa_categories),
 is_bi(isBivariate),
 is_rate(isEBRate),
 is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
 {
-	LOG_MSG("Entering LisaMapCanvas::LisaMapCanvas");
+	wxLogMessage("Entering LisaMapCanvas::LisaMapCanvas");
 
-    str_not_sig = _("Not Significant");
+    menu_xrcid = menu_xrcid_s;
     str_highhigh = _("High-High");
     str_highlow = _("High-Low");
     str_lowlow = _("Low-Low");
     str_lowhigh= _("Low-High");
-    str_undefined = _("Undefined");
-    str_neighborless = _("Neighborless");
-    str_p005 = _("p = 0.05");
-    str_p001 = _("p = 0.01");
-    str_p0001 = _("p = 0.001");
-    str_p00001 = _("p = 0.00001");
     
-    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_highhigh, wxColour(255, 0, 0));
     SetPredefinedColor(str_highlow, wxColour(255, 150, 150));
     SetPredefinedColor(str_lowlow, wxColour(0, 0, 255));
     SetPredefinedColor(str_lowhigh, wxColour(150, 150, 255));
-    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
-    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
-    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
-    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
-    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
-    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
-    
-	cat_classif_def.cat_classif_type = theme_type_s;
-	// must set var_info times from LisaCoordinator initially
-	var_info = lisa_coordinator->var_info;
-	template_frame->ClearAllGroupDependencies();
-	for (int t=0, sz=var_info.size(); t<sz; ++t) {
-		template_frame->AddGroupDependancy(var_info[t].name);
-	}
+
 	CreateAndUpdateCategories();
-    UpdateStatusBar();
-	LOG_MSG("Exiting LisaMapCanvas::LisaMapCanvas");
+
+	wxLogMessage("Exiting LisaMapCanvas::LisaMapCanvas");
 }
 
 LisaMapCanvas::~LisaMapCanvas()
 {
 	LOG_MSG("In LisaMapCanvas::~LisaMapCanvas");
-}
-
-void LisaMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
-{
-	LOG_MSG("Entering LisaMapCanvas::DisplayRightClickMenu");
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((LisaMapFrame*) template_frame)->OnActivate(ae);
-	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
-	AddTimeVariantOptionsToMenu(optMenu);
-	SetCheckMarks(optMenu);
-	
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting LisaMapCanvas::DisplayRightClickMenu");
 }
 
 wxString LisaMapCanvas::GetCanvasTitle()
@@ -157,431 +118,84 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	return ret;
 }
 
-/** This method definition is empty.  It is here to override any call
- to the parent-class method since smoothing and theme changes are not
- supported by LISA maps */
-bool
-LisaMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
-                             SmoothingType new_map_smoothing)
-{
-	LOG_MSG("In LisaMapCanvas::ChangeMapType");
-	return false;
-}
-
-void LisaMapCanvas::SetCheckMarks(wxMenu* menu)
-{
-	// Update the checkmarks and enable/disable state for the
-	// following menu items if they were specified for this particular
-	// view in the xrc file.  Items that cannot be enable/disabled,
-	// or are not checkable do not appear.
-	
-	MapCanvas::SetCheckMarks(menu);
-	
-	int sig_filter = lisa_coord->GetSignificanceFilter();
-	
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_05"),
-								  sig_filter == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_01"),
-								  sig_filter == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_001"),
-								  sig_filter == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
-								  sig_filter == 4);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
-                                  sig_filter == -1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
-								  lisa_coord->IsReuseLastSeed());
-}
-
-void LisaMapCanvas::TimeChange()
-{
-	LOG_MSG("Entering LisaMapCanvas::TimeChange");
-	if (!is_any_sync_with_global_time) return;
-	
-	int cts = project->GetTimeState()->GetCurrTime();
-	int ref_time = var_info[ref_var_index].time;
-	int ref_time_min = var_info[ref_var_index].time_min;
-	int ref_time_max = var_info[ref_var_index].time_max; 
-	
-	if ((cts == ref_time) ||
-		(cts > ref_time_max && ref_time == ref_time_max) ||
-		(cts < ref_time_min && ref_time == ref_time_min)) return;
-	if (cts > ref_time_max) {
-		ref_time = ref_time_max;
-	} else if (cts < ref_time_min) {
-		ref_time = ref_time_min;
-	} else {
-		ref_time = cts;
-	}
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].sync_with_global_time) {
-			var_info[i].time = ref_time + var_info[i].ref_time_offset;
-		}
-	}
-	cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
-	invalidateBms();
-	PopulateCanvas();
-	Refresh();
-	LOG_MSG("Exiting LisaMapCanvas::TimeChange");
-}
-
 /** Update Categories based on info in LisaCoordinator */
-void LisaMapCanvas::CreateAndUpdateCategories()
+void LisaMapCanvas::SetLabelsAndColorForClusters(int& num_cats, int t, CatClassifData& cat_data)
 {
-	SyncVarInfoFromCoordinator();
-	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
-
+    // NotSig LL HH LH HL
+    num_cats += 5;
+    cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
     
-    double sig_cutoff = lisa_coord->GetSignificanceCutoff();
-    int    s_f = lisa_coord->GetSignificanceFilter();
-    int    set_perm = lisa_coord->GetNumPermutations();
-    int    num_obs = lisa_coord->num_obs;
-    double stop_sig = 1.0 / (1.0 + set_perm);
-    Shapefile::Header& hdr = project->main_data.header;
-    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
-   
-    bool is_cust_cutoff = true;
-    for (int i=0; i<4; i++) {
-        if (sig_cutoff == def_cutoffs[i]) {
-            is_cust_cutoff = false;
-            break;
-        }
+    int undefined_cat = -1;
+    int isolates_cat = -1;
+    bool has_isolates = a_coord->GetHasIsolates(t);
+    bool has_undefined = a_coord->GetHasUndefined(t);
+    double sig_cutoff = a_coord->GetSignificanceCutoff();
+    double* p = a_coord->GetLocalSignificanceValues(t);
+    int* cluster = a_coord->GetClusterIndicators(t);
+    
+    wxColour not_sig_clr = clr_not_sig_polygon;
+    if (project->IsPointTypeData()) not_sig_clr = clr_not_sig_point;
+    cat_data.SetCategoryColor(t, 0, not_sig_clr);
+    cat_data.SetCategoryLabel(t, 0, str_not_sig);
+    
+    cat_data.SetCategoryLabel(t, 1, str_highhigh);
+    cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
+    cat_data.SetCategoryLabel(t, 2, str_lowlow);
+    cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]);
+    cat_data.SetCategoryLabel(t, 3, str_lowhigh);
+    cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_lowhigh]);
+    cat_data.SetCategoryLabel(t, 4, str_highlow);
+    cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_highlow]);
+    
+    if (has_isolates && has_undefined) {
+        isolates_cat = 5;
+        undefined_cat = 6;
+    } else if (has_undefined) {
+        undefined_cat = 5;
+    } else if (has_isolates) {
+        isolates_cat = 5;
     }
-    
-    if ( is_cust_cutoff ) {
-        // if set customized cutoff value
-        wxString lbl = wxString::Format("p = %g", sig_cutoff);
-        if ( sig_cutoff > 0.05 ) {
-            def_cutoffs[0] = sig_cutoff;
-            lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
-            def_cats[0] = lbl;
+    if (undefined_cat != -1) {
+        cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+        cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+    }
+    if (isolates_cat != -1) {
+        cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+        cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+    }
+    for (int i=0; i<num_obs; i++) {
+        if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
+            cat_data.AppendIdToCategory(t, 0, i); // not significant
+        } else if (cluster[i] == 5) {
+            cat_data.AppendIdToCategory(t, isolates_cat, i);
+        } else if (cluster[i] == 6) {
+            cat_data.AppendIdToCategory(t, undefined_cat, i);
         } else {
-            for (int i = 1; i < 4; i++) {
-                if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
-                    def_cutoffs[i-1] = sig_cutoff;
-                    def_cats[i-1] = lbl;
-                    break;
-                } else {
-                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
-                    def_cutoffs[i] = sig_cutoff;
-                    def_cats[i] = lbl;
-                    break;
-                }
-            }
+            cat_data.AppendIdToCategory(t, cluster[i], i);
         }
     }
-    
-	for (int t=0; t<num_time_vals; t++) {
-		if (!map_valid[t]) break;
-		
-        bool has_isolates = lisa_coord->GetHasIsolates(t);
-        bool has_undefined = lisa_coord->GetHasUndefined(t);
-        double* p = lisa_coord->GetLocalSignificanceValues(t);
-        int* cluster = lisa_coord->GetClusterIndicators(t);
-
-		int undefined_cat = -1;
-		int isolates_cat = -1;
-		int num_cats = 0;
-
-		if ( has_isolates )
-            num_cats++;
-        
-		if ( has_undefined )
-            num_cats++;
-        
-		if (is_clust) {
-            // NotSig LL HH LH HL
-            num_cats += 5;
-            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-            
-			cat_data.SetCategoryLabel(t, 0, str_not_sig);
-            
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-            }
-			cat_data.SetCategoryLabel(t, 1, str_highhigh);
-            cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
-            cat_data.SetCategoryLabel(t, 2, str_lowlow);
-            cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]);
-            cat_data.SetCategoryLabel(t, 3, str_lowhigh);
-            cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_lowhigh]);
-            cat_data.SetCategoryLabel(t, 4, str_highlow);
-            cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_highlow]);
-            
-			if (has_isolates && has_undefined) {
-				isolates_cat = 5;
-				undefined_cat = 6;
-			} else if (has_undefined) {
-				undefined_cat = 5;
-			} else if (has_isolates) {
-				isolates_cat = 5;
-			}
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
-                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
-            }
-            for (int i=0; i<num_obs; i++) {
-                if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 5) {
-                    cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 6) {
-                    cat_data.AppendIdToCategory(t, undefined_cat, i);
-                } else {
-                    cat_data.AppendIdToCategory(t, cluster[i], i);
-                }
-            }
-            
-		} else {
-            // significance map
-            // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-            num_cats = 5;
-            for (int j=0; j < 4; j++) {
-                if (sig_cutoff < def_cutoffs[j])
-                    num_cats -= 1;
-            }
-            // issue #474 only show significance levels that can
-            // be mapped for the given number of permutations,
-            // e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
-                num_cats -= 1;
-            }
-            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-            
-			cat_data.SetCategoryLabel(t, 0, str_not_sig);
-
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-            }
-  
-            int cat_idx = 1;
-            std::map<int, int> level_cat_dict;
-            for (int j=0; j < 4; j++) {
-                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
-                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
-                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                    level_cat_dict[j] = cat_idx;
-                    cat_idx += 1;
-                }
-            }
-            
-            if (has_isolates && has_undefined) {
-                isolates_cat = cat_idx++;
-                undefined_cat = cat_idx++;
-                
-            } else if (has_undefined) {
-                undefined_cat = cat_idx++;
-                
-            } else if (has_isolates) {
-                isolates_cat = cat_idx++;
-            }
-            
-            if (undefined_cat != -1) {
-                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-            }
-            if (isolates_cat != -1) {
-                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
-            }
-            for (int i=0; i<num_obs; i++) {
-                if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 5) {
-                    cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 6) {
-                    cat_data.AppendIdToCategory(t, undefined_cat, i);
-                } else {
-                    //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                    for ( int c = 3; c >= 0; c-- ) {
-                        if ( p[i] <= def_cutoffs[c] ) {
-                            cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
-                            break;
-                        }
-                    }
-                }
-            }
-		}
-		
-		for (int cat=0; cat<num_cats; cat++) {
-            int cnt = cat_data.GetNumObsInCategory(t, cat);
-            cat_data.SetCategoryCount(t, cat, cnt);
-		}
-	}
-	
-	if (ref_var_index != -1) {
-        int stps = var_info[ref_var_index].time - var_info[ref_var_index].time_min;
-		cat_data.SetCurrentCanvasTmStep(stps);
-	}
-	PopulateCanvas();
 }
 
-/** Copy everything in var_info except for current time field for each
- variable.  Also copy over is_any_time_variant, is_any_sync_with_global_time,
- ref_var_index, num_time_vales, map_valid and map_error_message */
-void LisaMapCanvas::SyncVarInfoFromCoordinator()
-{
-	std::vector<int>my_times(var_info.size());
-	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
-	var_info = lisa_coord->var_info;
-	template_frame->ClearAllGroupDependencies();
-	for (int t=0; t<var_info.size(); t++) {
-		var_info[t].time = my_times[t];
-		template_frame->AddGroupDependancy(var_info[t].name);
-	}
-	is_any_time_variant = lisa_coord->is_any_time_variant;
-	is_any_sync_with_global_time = lisa_coord->is_any_sync_with_global_time;
-	ref_var_index = lisa_coord->ref_var_index;
-	num_time_vals = lisa_coord->num_time_vals;
-	map_valid = lisa_coord->map_valid;
-	map_error_message = lisa_coord->map_error_message;
-}
-
-void LisaMapCanvas::TimeSyncVariableToggle(int var_index)
-{
-	LOG_MSG("In LisaMapCanvas::TimeSyncVariableToggle");
-	lisa_coord->var_info[var_index].sync_with_global_time =
-		!lisa_coord->var_info[var_index].sync_with_global_time;
-	for (int i=0; i<var_info.size(); i++) {
-		lisa_coord->var_info[i].time = var_info[i].time;
-	}
-	lisa_coord->VarInfoAttributeChange();
-	lisa_coord->InitFromVarInfo();
-	lisa_coord->notifyObservers();
-}
-
-void LisaMapCanvas::UpdateStatusBar()
-{
-    wxStatusBar* sb = 0;
-    if (template_frame) {
-        sb = template_frame->GetStatusBar();
-    }
-    if (!sb)
-        return;
-    wxString s;
-    s << "#obs=" << project->GetNumRecords() <<" ";
-    
-    if ( highlight_state->GetTotalHighlighted() > 0) {
-        // for highlight from other windows
-        s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
-    }
-    if (mousemode == select && selectstate == start) {
-        if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1;
-        }
-        if (total_hover_obs >= 2) {
-            s << ", ";
-            s << "obs " << hover_obs[1]+1;
-        }
-        if (total_hover_obs >= 3) {
-            s << ", ";
-            s << "obs " << hover_obs[2]+1;
-        }
-        if (total_hover_obs >= 4) {
-            s << ", ...";
-        }
-    }
-    if (is_clust && lisa_coord) {
-        double p_val = lisa_coord->GetSignificanceCutoff();
-        wxString inf_str = wxString::Format(" p <= %g", p_val);
-        s << inf_str;
-    }
-    sb->SetStatusText(s);
-}
-
-IMPLEMENT_CLASS(LisaMapFrame, MapFrame)
-	BEGIN_EVENT_TABLE(LisaMapFrame, MapFrame)
+IMPLEMENT_CLASS(LisaMapFrame, AbstractMapFrame)
+	BEGIN_EVENT_TABLE(LisaMapFrame, AbstractMapFrame)
 	EVT_ACTIVATE(LisaMapFrame::OnActivate)
 END_EVENT_TABLE()
 
 LisaMapFrame::LisaMapFrame(wxFrame *parent, Project* project,
                            LisaCoordinator* lisa_coordinator,
-                           bool isClusterMap, bool isBivariate,
+                           bool isClusterMap,
+                           bool isBivariate,
                            bool isEBRate,
                            const wxPoint& pos, const wxSize& size,
                            const long style)
-: MapFrame(parent, project, pos, size, style),
-lisa_coord(lisa_coordinator)
+: AbstractMapFrame(parent, project, lisa_coordinator),
+lisa_coord(lisa_coordinator),
+is_clust(isClusterMap),
+is_bivariate(isBivariate),
+is_ebrate(isEBRate)
 {
 	LOG_MSG("Entering LisaMapFrame::LisaMapFrame");
-
-    //weights_id = lisa_coord->Gal_vecs_orig[ts]->;
-    
-	int width, height;
-	GetClientSize(&width, &height);
-    
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
-        wxDefaultPosition, wxDefaultSize,
-        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
-	splitter_win->SetMinimumPaneSize(10);
-	
-    CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::lisa_categories : CatClassification::lisa_significance;
-    
-    DisplayStatusBar(true);
-    
-    wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new LisaMapCanvas(rpanel, this, project,
-                                        lisa_coordinator,
-                                        theme_type_s,
-                                        isBivariate,
-                                        isEBRate,
-                                        wxDefaultPosition,
-                                        wxDefaultSize);
-	template_canvas->SetScrollRate(1,1);
-    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
-    rbox->Add(template_canvas, 1, wxEXPAND);
-    rpanel->SetSizer(rbox);
-    
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    ((LisaMapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
-    
-
-	wxPanel* lpanel = new wxPanel(splitter_win);
-    template_legend = new MapNewLegend(lpanel, template_canvas,
-                                       wxPoint(0,0), wxSize(0,0));
-	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
-    template_legend->GetContainingSizer()->Detach(template_legend);
-    lbox->Add(template_legend, 1, wxEXPAND);
-    lpanel->SetSizer(lbox);
-    
-	splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
-    
-    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
-	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
-    SetupToolbar();
-	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
-	toolbar_panel->SetSizerAndFit(toolbar_sizer);
-    
-    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
-    sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL); 
-	sizer->Add(splitter_win, 1, wxEXPAND|wxALL); 
-    SetSizer(sizer);
-    //splitter_win->SetSize(wxSize(width,height));
-    SetAutoLayout(true);
-    
-	
-	SetTitle(template_canvas->GetCanvasTitle());
-    
-    
-	//lisa_coord->registerObserver(this);
-	Show(true);
+    Init();
 	LOG_MSG("Exiting LisaMapFrame::LisaMapFrame");
 }
 
@@ -589,171 +203,30 @@ LisaMapFrame::~LisaMapFrame()
 {
 	LOG_MSG("In LisaMapFrame::~LisaMapFrame");
 	if (lisa_coord) {
-		//lisa_coord->removeObserver(this);
+		lisa_coord->removeObserver(this);
 		lisa_coord = 0;
 	}
 }
 
-void LisaMapFrame::OnActivate(wxActivateEvent& event)
+CatClassification::CatClassifType LisaMapFrame::GetThemeType()
 {
-	LOG_MSG("In LisaMapFrame::OnActivate");
-	if (event.GetActive()) {
-		RegisterAsActive("LisaMapFrame", GetTitle());
-	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    theme_type = is_clust ? CatClassification::lisa_categories : CatClassification::lisa_significance;
+    return theme_type;
 }
 
-void LisaMapFrame::MapMenus()
+TemplateCanvas* LisaMapFrame::CreateMapCanvas(wxPanel* panel)
 {
-	LOG_MSG("In LisaMapFrame::MapMenus");
-	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
-	((MapCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
-	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
-	UpdateOptionMenuItems();
+    menu_xrcid = "ID_LISAMAP_NEW_VIEW_MENU_OPTIONS";
+    return new LisaMapCanvas(panel, this, project,
+                             lisa_coord,
+                             theme_type,
+                             is_clust,
+                             is_bivariate,
+                             is_ebrate,
+                             menu_xrcid);
 }
 
-void LisaMapFrame::UpdateOptionMenuItems()
-{
-	TemplateFrame::UpdateOptionMenuItems(); // set common items first
-	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
-    if (menu == wxNOT_FOUND) {
-        LOG_MSG("LisaMapFrame::UpdateOptionMenuItems: "
-				"Options menu not found");
-	} else {
-		((LisaMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
-	}
-}
-
-void LisaMapFrame::UpdateContextMenuItems(wxMenu* menu)
-{
-	// Update the checkmarks and enable/disable state for the
-	// following menu items if they were specified for this particular
-	// view in the xrc file.  Items that cannot be enable/disabled,
-	// or are not checkable do not appear.
-	
-	TemplateFrame::UpdateContextMenuItems(menu); // set common items
-}
-
-void LisaMapFrame::RanXPer(int permutation)
-{
-	if (permutation < 9) permutation = 9;
-	if (permutation > 99999) permutation = 99999;
-	lisa_coord->SetNumPermutations(permutation);
-	lisa_coord->CalcPseudoP();
-	lisa_coord->notifyObservers();
-}
-
-void LisaMapFrame::OnRan99Per(wxCommandEvent& event)
-{
-	RanXPer(99);
-}
-
-void LisaMapFrame::OnRan199Per(wxCommandEvent& event)
-{
-	RanXPer(199);
-}
-
-void LisaMapFrame::OnRan499Per(wxCommandEvent& event)
-{
-	RanXPer(499);
-}
-
-void LisaMapFrame::OnRan999Per(wxCommandEvent& event)
-{
-	RanXPer(999);  
-}
-
-void LisaMapFrame::OnRanOtherPer(wxCommandEvent& event)
-{
-	PermutationCounterDlg dlg(this);
-	if (dlg.ShowModal() == wxID_OK) {
-		long num;
-		wxString input = dlg.m_number->GetValue();
-        
-        wxLogMessage(input);
-        
-        input.ToLong(&num);
-		RanXPer(num);
-	}
-}
-
-void LisaMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
-{
-	lisa_coord->SetReuseLastSeed(!lisa_coord->IsReuseLastSeed());
-}
-
-void LisaMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
-{
-	uint64_t last_seed = lisa_coord->GetLastUsedSeed();
-	wxString m;
-	m << "The last seed used by the pseudo random\nnumber ";
-	m << "generator was " << last_seed << ".\n";
-	m << "\nEnter a seed value to use between\n0 and ";
-	m << std::numeric_limits<uint64_t>::max() << ".";
-	long long unsigned int val;
-	wxString dlg_val;
-	wxString cur_val;
-	cur_val << last_seed;
-	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
-	if (dlg.ShowModal() != wxID_OK) return;
-	dlg_val = dlg.GetValue();
-	dlg_val.Trim(true);
-	dlg_val.Trim(false);
-	if (dlg_val.IsEmpty()) return;
-	if (dlg_val.ToULongLong(&val)) {
-		if (!lisa_coord->IsReuseLastSeed()) lisa_coord->SetLastUsedSeed(true);
-		uint64_t new_seed_val = val;
-		lisa_coord->SetLastUsedSeed(new_seed_val);
-	} else {
-		wxString m;
-		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-	}
-}
-
-void LisaMapFrame::SetSigFilterX(int filter)
-{
-	if (filter == lisa_coord->GetSignificanceFilter()) return;
-	lisa_coord->SetSignificanceFilter(filter);
-	lisa_coord->notifyObservers();
-	UpdateOptionMenuItems();
-}
-
-void LisaMapFrame::OnSigFilter05(wxCommandEvent& event)
-{
-	SetSigFilterX(1);
-}
-
-void LisaMapFrame::OnSigFilter01(wxCommandEvent& event)
-{
-	SetSigFilterX(2);
-}
-
-void LisaMapFrame::OnSigFilter001(wxCommandEvent& event)
-{
-	SetSigFilterX(3);
-}
-
-void LisaMapFrame::OnSigFilter0001(wxCommandEvent& event)
-{
-	SetSigFilterX(4);
-}
-
-void LisaMapFrame::OnSigFilterSetup(wxCommandEvent& event)
-{
-    
-}
-
-
-void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
+void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
 {
     
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -833,53 +306,6 @@ void LisaMapFrame::OnSaveLisa(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
-void LisaMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
-{
-	HighlightState* highlight_state = project->GetHighlightState();
-	std::vector<bool>& hs = highlight_state->GetHighlight();
-    bool selection_changed = false;
-	
-	for (int i=0; i<lisa_coord->num_obs; i++) {
-		if (!hs[i] && elem[i]) {
-            hs[i] = true;
-            selection_changed  = true;
-		} else if (hs[i] && !elem[i]) {
-            hs[i] = false;
-            selection_changed  = true;
-		}
-	}
-    if (selection_changed) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
-	}
-}
-
-void LisaMapFrame::OnSelectCores(wxCommandEvent& event)
-{
-	LOG_MSG("Entering LisaMapFrame::OnSelectCores");
-	
-	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectCores");
-}
-
-void LisaMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
-{
-	LOG_MSG("Entering LisaMapFrame::OnSelectNeighborsOfCores");
-	
-	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectNeighborsOfCores");
-}
-
-void LisaMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
-{
-	LOG_MSG("Entering LisaMapFrame::OnSelectCoresAndNeighbors");
-	
-	
-	
-	LOG_MSG("Exiting LisaMapFrame::OnSelectCoresAndNeighbors");
-}
-
-
 void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
@@ -900,32 +326,4 @@ void LisaMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
                                    dlg.var_info, dlg.col_ids, lisa_coord,
                                    title, wxDefaultPosition,
                                    GdaConst::cond_view_default_size);
-}
-
-/** Called by LisaCoordinator to notify that state has changed.  State changes
- can include:
-   - variable sync change and therefore all lisa categories have changed
-   - significance level has changed and therefore categories have changed
-   - new randomization for p-vals and therefore categories have changed */
-void LisaMapFrame::update(LisaCoordinator* o)
-{
-	LisaMapCanvas* lc = (LisaMapCanvas*) template_canvas;
-	lc->SyncVarInfoFromCoordinator();
-	lc->CreateAndUpdateCategories();
-	if (template_legend) template_legend->Recreate();
-	SetTitle(lc->GetCanvasTitle());
-	lc->Refresh();
-    lc->UpdateStatusBar();
-}
-
-void LisaMapFrame::closeObserver(LisaCoordinator* o)
-{
-	LOG_MSG("In LisaMapFrame::closeObserver(LisaCoordinator*)");
-	
-	Close(true);
-}
-
-void LisaMapFrame::GetVizInfo(std::vector<int>& clusters)
-{
-	
 }

@@ -5549,7 +5549,7 @@ void GdaFrame::OnSaveLisa(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	if (LisaMapFrame* f = dynamic_cast<LisaMapFrame*>(t)) {
-		f->OnSaveLisa(event);
+		f->OnSaveResult(event);
     } else if (LocalGearyMapFrame* f = dynamic_cast<LocalGearyMapFrame*>(t)) {
         f->OnSaveLocalGeary(event);
     }

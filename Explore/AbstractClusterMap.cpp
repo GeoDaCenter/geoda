@@ -54,22 +54,34 @@ AbstractMapCanvas::AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              Project* project,
                              AbstractCoordinator* a_coordinator,
                              CatClassification::CatClassifType theme_type_s,
+                                     bool is_clust_s,
                              const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project,
            vector<GdaVarTools::VarInfo>(0), vector<int>(0),
            CatClassification::no_theme,
            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 a_coord(a_coordinator),
-is_clust(true),
-menu_xrcid("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS"),
+is_clust(is_clust_s),
 str_not_sig(_("Not Significant")),
 str_undefined(_("Undefined")),
 str_neighborless(_("Neighborless")),
+str_p005(_("p = 0.05")),
+str_p001(_("p = 0.01")),
+str_p0001(_("p = 0.001")),
+str_p00001(_("p = 0.00001")),
 clr_not_sig_point(wxColour(190, 190, 190)),
 clr_not_sig_polygon(wxColour(240, 240, 240))
 {
 	wxLogMessage("Entering AbstractMapCanvas::AbstractMapCanvas");
 
+    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from AbstractCoordinator initially
 	var_info = a_coordinator->var_info;
@@ -77,7 +89,7 @@ clr_not_sig_polygon(wxColour(240, 240, 240))
 	for (int t=0, sz=var_info.size(); t<sz; ++t) {
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
-	CreateAndUpdateCategories();
+	
     UpdateStatusBar();
 	wxLogMessage("Exiting AbstractMapCanvas::AbstractMapCanvas");
 }
@@ -244,7 +256,7 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
         
 		if (is_clust) {
             // NotSig LL HH LH HL
-            SetLabelsAndColorForClusters(cat_data);
+            SetLabelsAndColorForClusters(num_cats, t, cat_data);
 
 		} else {
             // significance map
@@ -421,7 +433,6 @@ AbstractMapFrame::AbstractMapFrame(wxFrame *parent, Project* project,
 a_coord(a_coordinator)
 {
 	LOG_MSG("Entering AbstractMapFrame::AbstractMapFrame");
-    Init();
 }
 
 void AbstractMapFrame::Init()
@@ -434,7 +445,7 @@ void AbstractMapFrame::Init()
     CatClassification::CatClassifType theme_type = GetThemeType();
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = CreateMapCanvas();
+    template_canvas = CreateMapCanvas(rpanel);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);

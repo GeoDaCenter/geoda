@@ -126,8 +126,6 @@ user_sig_cutoff(0)
     
 	w_man_state->registerObserver(this);
    
-    AllocateVectors();
-    
     wxLogMessage("Exiting AbstractCoordinator::AbstractCoordinator().");
 }
 
@@ -207,11 +205,11 @@ void AbstractCoordinator::AllocateVectors()
 void AbstractCoordinator::InitFromVarInfo()
 {
     wxLogMessage("Entering AbstractCoordinator::InitFromVarInfo()");
-	DeallocateVectors();
-	AllocateVectors();
-   
     Init();
     
+	DeallocateVectors();
+	AllocateVectors();
+
     Calc();
     if (calc_significances) {
         CalcPseudoP();

@@ -21,22 +21,20 @@
 #define __GEODA_CENTER_ABSTRACT_CLUSTER_MAP_H__
 
 #include "MapNewView.h"
+#include "AbstractCoordinator.h"
 #include "../GdaConst.h"
-
-class AbstractMapFrame;
-class AbstractMapCanvas;
-class AbstractCoordinator;
 
 class AbstractMapCanvas : public MapCanvas
 {
 	DECLARE_CLASS(AbstractMapCanvas)
 public:	
-	AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
-					 Project* project,
-					 AbstractCoordinator* a_coordinator,
-					 CatClassification::CatClassifType theme_type,
-					 const wxPoint& pos = wxDefaultPosition,
-					 const wxSize& size = wxDefaultSize);
+    AbstractMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                      Project* project,
+                      AbstractCoordinator* a_coordinator,
+                      CatClassification::CatClassifType theme_type,
+                      bool is_clust,
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize);
 	virtual ~AbstractMapCanvas();
     
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
@@ -51,7 +49,8 @@ public:
     virtual void UpdateStatusBar();
     virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
     
-    virtual void SetLabelsAndColorForClusters(CatClassifData& cat_data) = 0;
+    virtual void SetLabelsAndColorForClusters(int& num_cats, int t,
+                                              CatClassifData& cat_data) = 0;
     
 protected:
 	AbstractCoordinator* a_coord;
@@ -60,6 +59,11 @@ protected:
     wxString str_undefined;
     wxString str_neighborless;
     wxString str_not_sig;
+    wxString str_p005;
+    wxString str_p001;
+    wxString str_p0001;
+    wxString str_p00001;
+    
     wxColour clr_not_sig_point;
     wxColour clr_not_sig_polygon;
     
@@ -78,9 +82,9 @@ public:
     virtual ~AbstractMapFrame();
 
     void Init();
-    
+   
     virtual CatClassification::CatClassifType GetThemeType() = 0;
-    virtual TemplateCanvas* CreateMapCanvas() = 0;
+    virtual TemplateCanvas* CreateMapCanvas(wxPanel* rpanel) = 0;
     virtual void OnSaveResult(wxCommandEvent& event) = 0;
     virtual void OnShowAsConditionalMap(wxCommandEvent& event) = 0;
     
@@ -114,7 +118,7 @@ public:
 	virtual void update(AbstractCoordinator* o);
 	virtual void closeObserver(AbstractCoordinator* o);
 	
-	void GetVizInfo(std::vector<int>& clusters);
+	virtual void GetVizInfo(std::vector<int>& clusters);
     void CoreSelectHelper(const std::vector<bool>& elem);
     
 protected:
