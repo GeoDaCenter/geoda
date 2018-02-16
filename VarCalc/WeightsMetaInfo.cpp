@@ -52,7 +52,7 @@ void WeightsMetaInfo::SetToDefaults()
     bandwidth = -1;
     is_adaptive_kernel = false;
     use_kernel_diagnals = false;
-    power = -1;
+    power = 0;
 }
 
 void WeightsMetaInfo::SetMinNumNbrs(int val)
@@ -151,6 +151,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
                                wxString dist_units_str_,
 							   DistanceValuesEnum dist_values_,
 							   long k,
+                               double power_s,
 							   wxString dist_var1_, long dist_tm1_,
 							   wxString dist_var2_, long dist_tm2_)
 {
@@ -163,6 +164,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
     dist_units_str = dist_units_str_;
 	dist_values = dist_values_;
 	num_neighbors = k;
+    power = power_s;
 	if (!dist_var1_.IsEmpty()) {
 		dist_var1 = dist_var1_;
 		if (dist_tm1_ >= 0) dist_tm1 = dist_tm1_;

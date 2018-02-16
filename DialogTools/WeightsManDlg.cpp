@@ -527,12 +527,12 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
         row_title.push_back("kernel to diagonal");
         row_content.push_back( wmi.use_kernel_diagnals ? "true":"false");
     } else {
-        if (wmi.power > 0) {
+        if (wmi.power < 0) {
             row_title.push_back("inverse distance");
             row_content.push_back("true");
             row_title.push_back("power");
             wxString ss;
-            ss << wmi.power;
+            ss << -wmi.power;
             row_content.push_back(ss);
         }
     }

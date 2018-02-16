@@ -1166,8 +1166,6 @@ void CreatingWeightDlg::CreateWeights()
         
     } else if (m_nb_distance_methods->GetSelection() == 1) {
         // knn
-        wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values, m_kNN, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
-        
         double power = 1.0;
         bool is_inverse = m_use_inverse_knn->IsChecked();
         if ( is_inverse) {
@@ -1177,6 +1175,8 @@ void CreatingWeightDlg::CreateWeights()
                 power = -power;
             }
         }
+        
+        wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values, m_kNN, power, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
         
         if (m_kNN > 0 && m_kNN < m_num_obs) {
             GwtWeight* Wp = 0;

@@ -261,6 +261,10 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
                                 if (s.CmpNoCase("true") == 0) {
                                     e.wmi.use_kernel_diagnals = true;
                                 }
+                            } else if (key == "inverse_distance") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.power = -l;
                             }
 						}
 					} else {
@@ -373,6 +377,9 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
                         sssub.put("knn", e.wmi.k);
                     }
                     sssub.put("kernel_to_diagonal", e.wmi.use_kernel_diagnals ? "true":"false");
+                }
+                if (e.wmi.power < 0) {
+                    sssub.put("inverse_distance", abs(e.wmi.power));
                 }
 			}
 			if (!e.wmi.filename.IsEmpty()) {

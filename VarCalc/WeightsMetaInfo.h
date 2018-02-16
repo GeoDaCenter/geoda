@@ -65,6 +65,7 @@ struct WeightsMetaInfo
                   wxString dist_units_str,
 				  DistanceValuesEnum dist_values,
 				  long k,
+                  double power,
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
     void SetToKernel(const wxString& id_var,
