@@ -166,12 +166,20 @@ void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
     ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
 }
 
+wxString WeightsManFrame::GetMapTitle(wxString title, boost::uuids::uuid w_id)
+{
+    wxString weights_title = w_man_int->GetTitle(w_id);
+    wxString map_title = _("%s (Weights: %s)");
+    map_title = wxString::Format(map_title, title, weights_title);
+    return map_title;
+}
+
 void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
 {
     wxLogMessage("WeightsManFrame::OnConnectMapBtn()");
     boost::uuids::uuid w_id = GetHighlightId();
     if (w_id.is_nil()) return;
-    //ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
+    
     std::vector<int> col_ids;
     std::vector<GdaVarTools::VarInfo> var_info;
     MapFrame* nf = new MapFrame(this, project_p,
@@ -181,7 +189,9 @@ void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
                                 w_id,
                                 wxPoint(80,160),
                                 GdaConst::map_default_size);
-    nf->SetTitle("Connectivity Map");
+    wxString title = GetMapTitle(_("Connectivity Map"), w_id);
+    nf->SetTitle(title);
+    ev.SetString("Connectivity");
     nf->OnAddNeighborToSelection(ev);
 }
 
@@ -190,7 +200,7 @@ void WeightsManFrame::OnConnectGraphBtn(wxCommandEvent& ev)
     wxLogMessage("WeightsManFrame::OnConnectGraphBtn()");
     boost::uuids::uuid w_id = GetHighlightId();
     if (w_id.is_nil()) return;
-    //
+    
     std::vector<int> col_ids;
     std::vector<GdaVarTools::VarInfo> var_info;
     MapFrame* nf = new MapFrame(this, project_p,
@@ -200,7 +210,9 @@ void WeightsManFrame::OnConnectGraphBtn(wxCommandEvent& ev)
                                 w_id,
                                 wxPoint(80,160),
                                 GdaConst::map_default_size);
-    nf->SetTitle("Connectivity Graph");
+    wxString title = GetMapTitle(_("Connectivity Graph"), w_id);
+    nf->SetTitle(title);
+    ev.SetString("Connectivity");
     nf->OnDisplayWeightsGraph(ev);
 }
 

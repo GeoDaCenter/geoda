@@ -168,9 +168,10 @@ public:
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
     void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
-    
+
     CatClassification::CatClassifType GetCcType();
-    
+   
+
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;
@@ -380,6 +381,7 @@ protected:
     ExportDataDlg*   export_dlg;
 	
     GalWeight* checkWeights();
+    bool no_update_weights;
     
     DECLARE_EVENT_TABLE()
 };

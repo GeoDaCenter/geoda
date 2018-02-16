@@ -79,7 +79,7 @@ public:
 	void OnSaveConnectivityToTable(wxCommandEvent& event);
 	void OnSelectIsolates(wxCommandEvent& event);
 	
-private:
+protected:
 	void InitWeightsList();
 	void SetDetailsForId(boost::uuids::uuid id);
 	void SetDetailsWin(const std::vector<wxString>& row_title,
@@ -87,6 +87,7 @@ private:
 	void SelectId(boost::uuids::uuid id);
 	void HighlightId(boost::uuids::uuid id);
 	boost::uuids::uuid GetHighlightId();
+    wxString GetMapTitle(wxString title, boost::uuids::uuid id);
 	void UpdateButtons();
 	
 	ConnectivityHistCanvas* conn_hist_canvas;

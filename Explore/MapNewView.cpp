@@ -270,6 +270,9 @@ void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
             hs[hover_obs[0]] = true;
             highlight_state->SetTotalHighlighted(1);
         }
+        HighlightState& h_state = *project->GetHighlightState();
+        h_state.SetEventType(HLStateInt::delta);
+        h_state.notifyObservers();
         layer1_valid = false;
         DrawLayers();
     }
@@ -291,7 +294,6 @@ void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_co
         }
     }
 }
-
 
 void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 {
@@ -1014,7 +1016,6 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     for (int i=1; i<=10; i++) {
         wxString str_xrcid;
         bool flag;
-        
         str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
         flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
         GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
@@ -2044,7 +2045,6 @@ void MapCanvas::update(HLStateInt* o)
             tran_unhighlighted = GdaConst::transparency_unhighlighted;
             ResetFadedLayer();
         }
-        
 
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
@@ -2171,7 +2171,8 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
 : TemplateFrame(parent, project, "Map", pos, size, style),
-w_man_state(project->GetWManState()), export_dlg(NULL)
+w_man_state(project->GetWManState()), export_dlg(NULL),
+no_update_weights(false)
 {
 	wxLogMessage("Open MapFrame.");
 
@@ -2361,7 +2362,6 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
         
         PopupMenu(popupMenu, wxDefaultPosition);
     }
-    
 }
 
 void MapFrame::OnActivate(wxActivateEvent& event)
@@ -2416,7 +2416,7 @@ void  MapFrame::update(TimeState* o)
 /** Implementation of WeightsManStateObserver interface */
 void MapFrame::update(WeightsManState* o)
 {
-    if (o->GetWeightsId() != ((MapCanvas*) template_canvas)->GetWeightsId()) {
+    if (!no_update_weights && o->GetWeightsId() != ((MapCanvas*) template_canvas)->GetWeightsId()) {
         // add_evt
         ((MapCanvas*) template_canvas)->SetWeightsId(o->GetWeightsId());
         return;
@@ -2475,7 +2475,10 @@ void MapFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-   
+  
+    if (event.GetString() == "Connectivity")
+        no_update_weights = true;
+    
     ((MapCanvas*) template_canvas)->DisplayWeightsGraph();
     UpdateOptionMenuItems();
 }
@@ -2486,6 +2489,9 @@ void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
     if (gal_weights == NULL)
         return;
     
+    if (event.GetString() == "Connectivity")
+        no_update_weights = true;
+    
     ((MapCanvas*) template_canvas)->DisplayNeighbors();
     UpdateOptionMenuItems();
 }
@@ -2495,7 +2501,7 @@ void MapFrame::OnDisplayMapWithGraph(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-    
+   
     ((MapCanvas*) template_canvas)->DisplayMapWithGraph();
     UpdateOptionMenuItems();
 }
