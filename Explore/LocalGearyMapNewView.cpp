@@ -242,19 +242,64 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
     wxLogMessage("Entering LocalGearyMapCanvas::CreateAndUpdateCategories()");
 	SyncVarInfoFromCoordinator();
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    
+    double sig_cutoff = local_geary_coord->significance_cutoff;
+    int s_f = local_geary_coord->GetSignificanceFilter();
+    int set_perm = local_geary_coord->permutations;
+    double stop_sig = 1.0 / (1.0 + set_perm);
+    
+    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
+    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
 	
+    bool is_cust_cutoff = true;
+    for (int i=0; i<4; i++) {
+        if (sig_cutoff == def_cutoffs[i]) {
+            is_cust_cutoff = false;
+            break;
+        }
+    }
+    
+    if ( is_cust_cutoff ) {
+        // if set customized cutoff value
+        wxString lbl = wxString::Format("p = %g", sig_cutoff);
+        if ( sig_cutoff > 0.05 ) {
+            def_cutoffs[0] = sig_cutoff;
+            lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
+            def_cats[0] = lbl;
+        } else {
+            for (int i = 1; i < 4; i++) {
+                if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
+                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
+                    def_cutoffs[i-1] = sig_cutoff;
+                    def_cats[i-1] = lbl;
+                    break;
+                } else {
+                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
+                    def_cutoffs[i] = sig_cutoff;
+                    def_cats[i] = lbl;
+                    break;
+                }
+            }
+        }
+    }
+    
 	for (int t=0; t<num_time_vals; t++) {
 		if (!map_valid[t]) break;
-		
+	
+        double* p = local_geary_coord->sig_local_geary_vecs[t];
+        int* cluster = local_geary_coord->cluster_vecs[t];
+        int* sigCat = local_geary_coord->sig_cat_vecs[t];
+        
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-        double stop_sig = 0;
+        Shapefile::Header& hdr = project->main_data.header;
         
 		if (local_geary_coord->GetHasIsolates(t))
             num_cats++;
 		if (local_geary_coord->GetHasUndefined(t))
             num_cats++;
+        
 		if (is_clust) {
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 num_cats += 2;
@@ -263,38 +308,8 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             } else {
                 num_cats += 5;
             }
-		} else {
-            if (local_geary_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                num_cats += 2;
-            }else {
-                // significance map
-                // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-                int s_f = local_geary_coord->GetSignificanceFilter();
-                num_cats += 6 - s_f;
-                
-                // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-                double sig_cutoff = local_geary_coord->significance_cutoff;
-                int set_perm = local_geary_coord->permutations;
-                stop_sig = 1.0 / (1.0 + set_perm);
-                
-                if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
-                    num_cats -= 1;
-                }
-                if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
-                    num_cats -= 1;
-                }
-                if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
-                    num_cats -= 1;
-                }
-            }
-		}
-		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-		
-        Shapefile::Header& hdr = project->main_data.header;
-        
-		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
             
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -302,7 +317,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-    			cat_data.SetCategoryLabel(t, 1, str_positive);
+                cat_data.SetCategoryLabel(t, 1, str_positive);
                 cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
@@ -351,81 +366,17 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                     isolates_cat = 5;
                 }
             }
-			
-            
-		} else {
-			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-			int s_f = local_geary_coord->GetSignificanceFilter();
-            cat_data.SetCategoryLabel(t, 0, str_not_sig);
-
-            if (hdr.shape_type == Shapefile::POINT_TYP) {
-                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
-            } else {
-                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
             }
-   
-            if (local_geary_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                wxString lbl = wxString::Format("p = %g", local_geary_coord->significance_cutoff);
-                cat_data.SetCategoryLabel(t, 1, lbl);
-                cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
-                
-                if (local_geary_coord->GetHasIsolates(t) &&
-                    local_geary_coord->GetHasUndefined(t))
-                {
-                    isolates_cat = 2;
-                    undefined_cat = 3;
-                } else if (local_geary_coord->GetHasUndefined(t)) {
-                    undefined_cat = 2;
-                } else if (local_geary_coord->GetHasIsolates(t)) {
-                    isolates_cat = 2;
-                }
-
-            }  else {
-                int set_perm = local_geary_coord->permutations;
-                stop_sig = 1.0 / (1.0 + set_perm);
-                
-                wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-                double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
-                
-                int cat_idx = 1;
-                for (int j=s_f-1; j < 4; j++) {
-                    if (def_cutoffs[j] >= stop_sig) {
-                        cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                        cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
-                    }
-                }
-                if (local_geary_coord->GetHasIsolates(t) &&
-                    local_geary_coord->GetHasUndefined(t)) {
-                    isolates_cat = cat_idx++;
-                    undefined_cat = cat_idx++;
-                    
-                } else if (local_geary_coord->GetHasUndefined(t)) {
-                    undefined_cat = cat_idx++;
-                    
-                } else if (local_geary_coord->GetHasIsolates(t)) {
-                    isolates_cat = cat_idx++;
-                }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
             }
-		}
-		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-			cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-		}
-		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
-		}
-		
-		double cuttoff = local_geary_coord->significance_cutoff;
-		double* p = local_geary_coord->sig_local_geary_vecs[t];
-		int* cluster = local_geary_coord->cluster_vecs[t];
-		int* sigCat = local_geary_coord->sig_cat_vecs[t];
-		
-		if (is_clust) {
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 2 && cluster[i] != 3) {
+                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
                     } else if (cluster[i] == 2) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
@@ -437,7 +388,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
             } else {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
+                    if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
                     } else if (cluster[i] == 5) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
@@ -448,66 +399,109 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                     }
                 }
             }
+            
 		} else {
-            if (local_geary_coord->GetSignificanceFilter() < 0) {
-                // user specified cutoff
-                int s_f = 1;
-                double sig_cutoff = local_geary_coord->significance_cutoff;
-                if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-                    for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                        if (cluster[i] == 2) {
-                            cat_data.AppendIdToCategory(t, isolates_cat, i);
-                        } else if (cluster[i] == 3) {
-                            cat_data.AppendIdToCategory(t, undefined_cat, i);
-                        } else if (p[i] <= sig_cutoff) {
-                            cat_data.AppendIdToCategory(t, 1, i);
-                        } else {
-                            cat_data.AppendIdToCategory(t, 0, i); // not significant
-                        }
-                    }
-                } else {
-                    for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                        if (cluster[i] == 5) {
-                            cat_data.AppendIdToCategory(t, isolates_cat, i);
-                        } else if (cluster[i] == 6) {
-                            cat_data.AppendIdToCategory(t, undefined_cat, i);
-                        } else if (p[i] <= sig_cutoff) {
-                            cat_data.AppendIdToCategory(t, 1, i);
-                        } else {
-                            cat_data.AppendIdToCategory(t, 0, i); // not significant
+            // significance map
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            
+            num_cats = 5;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff < def_cutoffs[j])
+                    num_cats -= 1;
+            }
+            
+            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
+                num_cats -= 1;
+            }
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            
+            if (hdr.shape_type == Shapefile::POINT_TYP) {
+                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+            } else {
+                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            }
+            
+            int cat_idx = 1;
+            std::map<int, int> level_cat_dict;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
+                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                    level_cat_dict[j] = cat_idx;
+                    cat_idx += 1;
+                }
+            }
+            
+            if (local_geary_coord->GetHasIsolates(t) &&
+                local_geary_coord->GetHasUndefined(t)) {
+                isolates_cat = cat_idx++;
+                undefined_cat = cat_idx++;
+                
+            } else if (local_geary_coord->GetHasUndefined(t)) {
+                undefined_cat = cat_idx++;
+                
+            } else if (local_geary_coord->GetHasIsolates(t)) {
+                isolates_cat = cat_idx++;
+            }
+            
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            }
+            int s_f = local_geary_coord->GetSignificanceFilter();
+            if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
+                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
+                        cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    } else if (cluster[i] == 2) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 3) {
+                        cat_data.AppendIdToCategory(t, undefined_cat, i);
+                    } else {
+                        //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                        for ( int c = 4-1; c >= 0; c-- ) {
+                            if ( p[i] <= def_cutoffs[c] ) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
                         }
                     }
                 }
-                
             } else {
-                int s_f = local_geary_coord->GetSignificanceFilter();
-                if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-                    for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                        if (p[i] > cuttoff && cluster[i] != 2 && cluster[i] != 3) {
-                            cat_data.AppendIdToCategory(t, 0, i); // not significant
-                        } else if (cluster[i] == 2) {
-                            cat_data.AppendIdToCategory(t, isolates_cat, i);
-                        } else if (cluster[i] == 3) {
-                            cat_data.AppendIdToCategory(t, undefined_cat, i);
-                        } else {
-                            cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                        }
-                    }
-                } else {
-                    for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                        if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
-                            cat_data.AppendIdToCategory(t, 0, i); // not significant
-                        } else if (cluster[i] == 5) {
-                            cat_data.AppendIdToCategory(t, isolates_cat, i);
-                        } else if (cluster[i] == 6) {
-                            cat_data.AppendIdToCategory(t, undefined_cat, i);
-                        } else {
-                            cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
+                    if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
+                        cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    } else if (cluster[i] == 5) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 6) {
+                        cat_data.AppendIdToCategory(t, undefined_cat, i);
+                    } else {
+                        //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                        for ( int c = 4-1; c >= 0; c-- ) {
+                            if ( p[i] <= def_cutoffs[c] ) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
                         }
                     }
                 }
             }
 		}
+		
 		for (int cat=0; cat<num_cats; cat++) {
 			cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
 		}

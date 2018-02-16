@@ -61,7 +61,7 @@ protected:
 	bool is_perm; // true = pseudo-p-val, false = normal distribution p-val
 	bool row_standardize; // true = row standardize, false = binary
 	
-    wxString str_sig;
+    wxString str_not_sig;
     wxString str_high;
     wxString str_low;
     wxString str_undefined;
