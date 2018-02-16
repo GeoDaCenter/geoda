@@ -33,7 +33,6 @@
 #include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "../Project.h"
-#include "LisaCoordinatorObserver.h"
 #include "LisaCoordinator.h"
 
 
@@ -234,25 +233,6 @@ void LisaCoordinator::AllocateVectors()
     wxLogMessage("Exiting LisaCoordinator::AllocateVectors()");
 }
 
-std::vector<wxString> LisaCoordinator::GetDefaultCategories()
-{
-    std::vector<wxString> cats;
-    cats.push_back("p = 0.05");
-    cats.push_back("p = 0.01");
-    cats.push_back("p = 0.001");
-    cats.push_back("p = 0.0001");
-    return cats;
-}
-
-std::vector<double> LisaCoordinator::GetDefaultCutoffs()
-{
-    std::vector<double> cutoffs;
-    cutoffs.push_back(0.05);
-    cutoffs.push_back(0.01);
-    cutoffs.push_back(0.001);
-    cutoffs.push_back(0.0001);
-    return cutoffs;
-}
 /** We assume only that var_info is initialized correctly.
  ref_var_index, is_any_time_variant, is_any_sync_with_global_time and
  num_time_vals are first updated based on var_info */ 

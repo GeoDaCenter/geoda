@@ -26,24 +26,14 @@
 #include <wx/string.h>
 #include <wx/thread.h>
 #include "../VarTools.h"
-#include "../ShapeOperations/GeodaWeight.h"
-#include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/WeightsManStateObserver.h"
-#include "../ShapeOperations/OGRDataAdapter.h"
 #include "AbstractCoordinator.h"
 
 
-class LisaCoordinatorObserver;
-class LisaCoordinator;
 class Project;
-class WeightsManState;
-typedef boost::multi_array<double, 2> d_array_type;
-typedef boost::multi_array<bool, 2> b_array_type;
 
 class LisaCoordinator : public AbstractCoordinator
 {
 public:
-    // #9
 	enum LisaType { univariate, bivariate, eb_rate_standardized, differential };
 	
 	LisaCoordinator(boost::uuids::uuid weights_id,
@@ -86,8 +76,6 @@ public:
                                std::vector<uint64_t>& countLarger);
 	virtual void Init();
     virtual void Calc();
-    virtual std::vector<wxString> GetDefaultCategories();
-    virtual std::vector<double> GetDefaultCutoffs();
 	virtual void DeallocateVectors();
 	virtual void AllocateVectors();
 	

@@ -36,81 +36,19 @@
 
 using namespace std;
 
-LocalGearyWorkerThread::LocalGearyWorkerThread(int obs_start_s, int obs_end_s,
-                                               uint64_t	seed_start_s,
-                                               LocalGearyCoordinator* local_geary_coord_s,
-                                               wxMutex* worker_list_mutex_s,
-                                               wxCondition* worker_list_empty_cond_s,
-                                               std::list<wxThread*> *worker_list_s,
-                                               int thread_id_s)
-: wxThread(),
-obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
-local_geary_coord(local_geary_coord_s),
-worker_list_mutex(worker_list_mutex_s),
-worker_list_empty_cond(worker_list_empty_cond_s),
-worker_list(worker_list_s),
-thread_id(thread_id_s)
-{
-}
-
-LocalGearyWorkerThread::~LocalGearyWorkerThread()
-{
-}
-
-wxThread::ExitCode LocalGearyWorkerThread::Entry()
-{
-    LOG_MSG(wxString::Format("LocalGearyWorkerThread %d started", thread_id));
-    
-    // call work for assigned range of observations
-    local_geary_coord->CalcPseudoP_range(obs_start, obs_end, seed_start);
-    
-    wxMutexLocker lock(*worker_list_mutex);
-    
-    // remove ourself from the list
-    worker_list->remove(this);
-    
-    // if empty, signal on empty condition since only main thread
-    // should be waiting on this condition
-    if (worker_list->empty()) {
-        worker_list_empty_cond->Signal();
-    }
-    
-    return NULL;
-}
-
-LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id, Project* project, const vector<GdaVarTools::VarInfo>& var_info_s, const vector<int>& col_ids, LocalGearyType local_geary_type_s, bool calc_significances_s, bool row_standardize_s)
-: w_man_state(project->GetWManState()),
-w_man_int(project->GetWManInt()),
-w_id(weights_id),
-num_obs(project->GetNumRecords()),
-permutations(999),
+LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id,
+                                             Project* project, const
+                                             vector<GdaVarTools::VarInfo>& var_info_s,
+                                             const vector<int>& col_ids,
+                                             LocalGearyType local_geary_type_s,
+                                             bool calc_significances_s,
+                                             bool row_standardize_s)
+: AbstractCoordinator(weights_id, project, var_info_s, col_ids, calc_significances_s, row_standardize_s),
 local_geary_type(local_geary_type_s),
-calc_significances(calc_significances_s),
-isBivariate(local_geary_type_s == bivariate),
-var_info(var_info_s),
-data(var_info_s.size()),
-undef_data(var_info_s.size()),
-last_seed_used(123456789),
-reuse_last_seed(true),
-row_standardize(row_standardize_s)
+isBivariate(local_geary_type_s == bivariate)
 {
     wxLogMessage("In LocalGearyCoordinator::LocalGearyCoordinator()");
-    reuse_last_seed = GdaConst::use_gda_user_seed;
-    if ( GdaConst::use_gda_user_seed) {
-        last_seed_used = GdaConst::gda_user_seed;
-    }
-	TableInterface* table_int = project->GetTableInt();
-	for (int i=0; i<var_info.size(); i++) {
-		table_int->GetColData(col_ids[i], data[i]);
-        table_int->GetColUndefined(col_ids[i], undef_data[i]);
-        var_info[i].is_moran = true;
-	}
-    num_vars = var_info.size();
-	weight_name = w_man_int->GetLongDispName(w_id);
-    weights = w_man_int->GetGal(w_id);
-	SetSignificanceFilter(1);
 	InitFromVarInfo();
-	w_man_state->registerObserver(this);
 }
 
 LocalGearyCoordinator::LocalGearyCoordinator(wxString weights_path, int n, vector<vector<double> >& vars, int permutations_s, bool calc_significances_s, bool row_standardize_s)
@@ -181,9 +119,6 @@ LocalGearyCoordinator::LocalGearyCoordinator(wxString weights_path, int n, vecto
 LocalGearyCoordinator::~LocalGearyCoordinator()
 {
     wxLogMessage("In LocalGearyCoordinator::~LocalGearyCoordinator()");
-    if (w_man_state) {
-        w_man_state->removeObserver(this);
-    }
 	DeallocateVectors();
 }
 
@@ -199,27 +134,17 @@ void LocalGearyCoordinator::DeallocateVectors()
 		if (local_geary_vecs[i]) delete [] local_geary_vecs[i];
 	}
 	local_geary_vecs.clear();
-	for (int i=0; i<sig_local_geary_vecs.size(); i++) {
-		if (sig_local_geary_vecs[i]) delete [] sig_local_geary_vecs[i];
-	}
-	sig_local_geary_vecs.clear();
-	for (int i=0; i<sig_cat_vecs.size(); i++) {
-		if (sig_cat_vecs[i]) delete [] sig_cat_vecs[i];
-	}
-	sig_cat_vecs.clear();
-	for (int i=0; i<cluster_vecs.size(); i++) {
-		if (cluster_vecs[i]) delete [] cluster_vecs[i];
-	}
-	cluster_vecs.clear();
+    
 	for (int i=0; i<data1_vecs.size(); i++) {
 		if (data1_vecs[i]) delete [] data1_vecs[i];
 	}
-    
 	data1_vecs.clear();
+    
 	for (int i=0; i<data1_square_vecs.size(); i++) {
 		if (data1_square_vecs[i]) delete [] data1_square_vecs[i];
 	}
 	data1_square_vecs.clear();
+    
 	for (int i=0; i<data2_vecs.size(); i++) {
 		if (data2_vecs[i]) delete [] data2_vecs[i];
 	}
@@ -239,17 +164,6 @@ void LocalGearyCoordinator::DeallocateVectors()
         data_square_vecs[i].clear();
     }
     data_square_vecs.clear();
-    
-    // clear W_vecs
-    for (size_t i=0; i<has_undefined.size(); i++) {
-        if (has_undefined[i]) {
-            // clean the copied weights
-            delete Gal_vecs[i];
-        }
-    }
-    Gal_vecs.clear();
-    
-    Gal_vecs_orig.clear();
 }
 
 /** allocate based on var_info and num_time_vals **/
@@ -260,13 +174,7 @@ void LocalGearyCoordinator::AllocateVectors()
     
 	lags_vecs.resize(tms);
 	local_geary_vecs.resize(tms);
-	sig_local_geary_vecs.resize(tms);
-	sig_cat_vecs.resize(tms);
-	cluster_vecs.resize(tms);
-    undef_tms.resize(tms);
-    Gal_vecs.resize(tms);
-    Gal_vecs_orig.resize(tms);
-   
+
     if (local_geary_type == multivariate) {
         data_vecs.resize(num_vars);
         data_square_vecs.resize(num_vars);
@@ -284,39 +192,24 @@ void LocalGearyCoordinator::AllocateVectors()
     	data1_square_vecs.resize(tms);
     }
     
-	map_valid.resize(tms);
-	map_error_message.resize(tms);
-	has_isolates.resize(tms);
-	has_undefined.resize(tms);
-    
 	for (int i=0; i<tms; i++) {
-        undef_tms[i].resize(num_obs, false);
 		lags_vecs[i] = new double[num_obs];
 		local_geary_vecs[i] = new double[num_obs];
-		if (calc_significances) {
-			sig_local_geary_vecs[i] = new double[num_obs];
-			sig_cat_vecs[i] = new int[num_obs];
-		}
-		cluster_vecs[i] = new int[num_obs];
-        
+
         if (local_geary_type != multivariate) {
     		data1_vecs[i] = new double[num_obs];
     		data1_square_vecs[i] = new double[num_obs];
         }
-        
-		map_valid[i] = true;
-		map_error_message[i] = wxEmptyString;
 	}
 }
 
 /** We assume only that var_info is initialized correctly.
  ref_var_index, is_any_time_variant, is_any_sync_with_global_time and
  num_time_vals are first updated based on var_info */ 
-void LocalGearyCoordinator::InitFromVarInfo()
+void LocalGearyCoordinator::Init()
 {
-    wxLogMessage("In LocalGearyCoordinator::InitFromVarInfo()");
-	DeallocateVectors();
-	
+    wxLogMessage("In LocalGearyCoordinator::Init()");
+
 	num_time_vals = 1;
     is_any_time_variant = false;
     is_any_sync_with_global_time = false;
@@ -338,6 +231,8 @@ void LocalGearyCoordinator::InitFromVarInfo()
             }
         }
     }
+    
+    DeallocateVectors();
 	AllocateVectors();
 	
     if (local_geary_type == differential) {
@@ -415,7 +310,10 @@ void LocalGearyCoordinator::InitFromVarInfo()
 	}
 	
 	StandardizeData();
+}
 
+void LocalGearyCoordinator::Calc()
+{
     if (local_geary_type == multivariate) {
         for (int v=0; v<data_vecs.size(); v++) {
             for (int t=0; t<data_vecs[v].size(); t++) {
@@ -433,10 +331,6 @@ void LocalGearyCoordinator::InitFromVarInfo()
             }
         }
         CalcLocalGeary();
-    }
-    
-    if (calc_significances) {
-        CalcPseudoP();
     }
 }
 
@@ -483,32 +377,6 @@ void LocalGearyCoordinator::GetRawData(int time, double* data1, double* data2)
         if (E) delete [] E;
         if (P) delete [] P;
     }
-}
-
-/** Update Secondary Attributes based on Primary Attributes.
- Update num_time_vals and ref_var_index based on Secondary Attributes. */
-void LocalGearyCoordinator::VarInfoAttributeChange()
-{
-    wxLogMessage("In LocalGearyCoordinator::VarInfoAttributeChange()");
-	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	
-	is_any_time_variant = false;
-	is_any_sync_with_global_time = false;
-	for (int i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) is_any_time_variant = true;
-		if (var_info[i].sync_with_global_time) {
-			is_any_sync_with_global_time = true;
-		}
-	}
-	ref_var_index = -1;
-	num_time_vals = 1;
-	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
-	}
-	if (ref_var_index != -1) {
-		num_time_vals = (var_info[ref_var_index].time_max -
-						 var_info[ref_var_index].time_min) + 1;
-	}
 }
 
 void LocalGearyCoordinator::StandardizeData()
@@ -716,90 +584,6 @@ void LocalGearyCoordinator::CalcLocalGeary()
     wxLogMessage("End LocalGearyCoordinator::CalcLocalGeary()");
 }
 
-void LocalGearyCoordinator::CalcPseudoP()
-{
-    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP()");
-	if (!calc_significances)
-        return;
-    
-    CalcPseudoP_threaded();
-    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP()");
-}
-
-void LocalGearyCoordinator::CalcPseudoP_threaded()
-{
-    wxLogMessage("In LocalGearyCoordinator::CalcPseudoP_threaded()");
-    int nCPUs = GdaConst::gda_cpu_cores;
-    if (!GdaConst::gda_set_cpu_cores)
-        nCPUs = wxThread::GetCPUCount();
-	
-	// mutext protects access to the worker_list
-    wxMutex worker_list_mutex;
-	// signals that worker_list is empty
-	wxCondition worker_list_empty_cond(worker_list_mutex);
-	worker_list_mutex.Lock(); // mutex should be initially locked
-	
-    // List of all the threads currently alive.  As soon as the thread
-	// terminates, it removes itself from the list.
-	list<wxThread*> worker_list;
-	
-	// divide up work according to number of observations
-	// and number of CPUs
-	int work_chunk = num_obs / nCPUs;
-    if (work_chunk == 0) work_chunk = 1;
-    
-	int obs_start = 0;
-	int obs_end = obs_start + work_chunk;
-
-    bool is_thread_error = false;
-	int quotient = num_obs / nCPUs;
-	int remainder = num_obs % nCPUs;
-	int tot_threads = (quotient > 0) ? nCPUs : remainder;
-	if (!reuse_last_seed) last_seed_used = time(0);
-    
-	for (int i=0; i<tot_threads && !is_thread_error; i++) {
-		int a=0;
-		int b=0;
-		if (i < remainder) {
-			a = i*(quotient+1);
-			b = a+quotient;
-		} else {
-			a = remainder*(quotient+1) + (i-remainder)*quotient;
-			b = a+quotient-1;
-		}
-		uint64_t seed_start = last_seed_used + a;
-		uint64_t seed_end = seed_start + ((uint64_t) (b-a));
-        int thread_id = i+1;
-        LocalGearyWorkerThread* thread =
-        new LocalGearyWorkerThread(a, b, seed_start, this,
-                                   &worker_list_mutex,
-                                   &worker_list_empty_cond,
-                                   &worker_list, thread_id);
-        if ( thread->Create() != wxTHREAD_NO_ERROR ) {
-            delete thread;
-            is_thread_error = true;
-        } else {
-            worker_list.push_front(thread);
-        }
-	}
-    if (is_thread_error) {
-        // fall back to single thread calculation mode
-        CalcPseudoP_range(0, num_obs-1, last_seed_used);
-    } else {
-        std::list<wxThread*>::iterator it;
-        for (it = worker_list.begin(); it != worker_list.end(); it++) {
-            (*it)->Run();
-        }
-        
-        while (!worker_list.empty()) {
-            // wait until thread_list might be empty
-            worker_list_empty_cond.Wait();
-            // We have been woken up. If this was not a false
-            // alarm (sprious signal), the loop will exit.
-        }
-    }
-    wxLogMessage("End LocalGearyCoordinator::CalcPseudoP_threaded()");
-}
 
 void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start)
 {
@@ -929,7 +713,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
         // for each time step, reuse permuation
         for (int t=0; t<num_time_vals; t++) {
             double* _localGeary = local_geary_vecs[t];
-            double* _siglocalGeary = sig_local_geary_vecs[t];
+            double* _siglocalGeary = sig_local_vecs[t];
             int* _sigCat = sig_cat_vecs[t];
             int* _cluster = cluster_vecs[t];
             // calc mean of gci
@@ -988,74 +772,3 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
         
     }
 }
-
-void LocalGearyCoordinator::SetSignificanceFilter(int filter_id)
-{
-    wxLogMessage("In LocalGearyCoordinator::SetSignificanceFilter()");
-    if (filter_id == -1) {
-        // user input cutoff
-        significance_filter = filter_id;
-        return;
-    }
-	// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-	if (filter_id < 1 || filter_id > 4) return;
-	significance_filter = filter_id;
-    
-    //int kp = local_geary_type == multivariate ? num_vars : 1;
-    
-	if (filter_id == 1) significance_cutoff = 0.05;
-	if (filter_id == 2) significance_cutoff = 0.01;
-	if (filter_id == 3) significance_cutoff = 0.001;
-	if (filter_id == 4) significance_cutoff = 0.0001;
-}
-
-void LocalGearyCoordinator::update(WeightsManState* o)
-{
-    wxLogMessage("In LocalGearyCoordinator::update(WeightsManState)");
-    if (w_man_int) {
-        weight_name = w_man_int->GetLongDispName(w_id);
-    }
-}
-
-int LocalGearyCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
-{
-    wxLogMessage("In LocalGearyCoordinator::numMustCloseToRemove()");
-	return id == w_id ? observers.size() : 0;
-}
-
-void LocalGearyCoordinator::closeObserver(boost::uuids::uuid id)
-{
-    wxLogMessage("In LocalGearyCoordinator::closeObserver()");
-	if (numMustCloseToRemove(id) == 0) return;
-	list<LocalGearyCoordinatorObserver*> obs_cpy = observers;
-	for (list<LocalGearyCoordinatorObserver*>::iterator i=obs_cpy.begin();
-		 i != obs_cpy.end(); ++i) {
-		(*i)->closeObserver(this);
-	}
-}
-
-void LocalGearyCoordinator::registerObserver(LocalGearyCoordinatorObserver* o)
-{
-    wxLogMessage("In LocalGearyCoordinator::registerObserver()");
-    
-	observers.push_front(o);
-}
-
-void LocalGearyCoordinator::removeObserver(LocalGearyCoordinatorObserver* o)
-{
-    wxLogMessage("In LocalGearyCoordinator::removeObserver()");
-	observers.remove(o);
-	if (observers.size() == 0) {
-		delete this;
-	}
-}
-
-void LocalGearyCoordinator::notifyObservers()
-{
-    wxLogMessage("In LocalGearyCoordinator::notifyObservers()");
-	for (list<LocalGearyCoordinatorObserver*>::iterator it=observers.begin();
-		 it != observers.end(); ++it) {
-		(*it)->update(this);
-	}
-}
-

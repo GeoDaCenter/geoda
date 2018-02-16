@@ -1507,7 +1507,7 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         cat_var_undef[t].resize(num_obs);
         
         for (int i=0; i<num_obs; i++) {
-            cat_var_sorted[t][i].first = local_geary_coord->cluster_vecs[t][i];
+            cat_var_sorted[t][i].first = local_geary_coord->GetClusterIndicators(t)[i];
             cat_var_sorted[t][i].second = i;
             
             cat_var_undef[t][i] = local_geary_coord->undef_data[0][t][i];
@@ -1588,10 +1588,10 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
-        double cuttoff = local_geary_coord->significance_cutoff;
-        double* p = local_geary_coord->sig_local_geary_vecs[t];
-        int* cluster = local_geary_coord->cluster_vecs[t];
-        int* sigCat = local_geary_coord->sig_cat_vecs[t];
+        double cuttoff = local_geary_coord->GetSignificanceCutoff();
+        double* p = local_geary_coord->GetLocalSignificanceValues(t);
+        int* cluster = local_geary_coord->GetClusterIndicators(t);
+        int* sigCat = local_geary_coord->GetSigCatIndicators(t);
         
         for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
             if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
@@ -1653,17 +1653,17 @@ void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
             s << "hover obs " << hover_obs[0]+1 << " = ";
-            s << local_geary_coord->cluster_vecs[t][hover_obs[0]];
+            s << local_geary_coord->GetClusterIndicators(t)[hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
             s << "obs " << hover_obs[1]+1 << " = ";
-            s << local_geary_coord->cluster_vecs[t][hover_obs[1]];
+            s << local_geary_coord->GetClusterIndicators(t)[hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
             s << "obs " << hover_obs[2]+1 << " = ";
-            s << local_geary_coord->cluster_vecs[t][hover_obs[2]];
+            s << local_geary_coord->GetClusterIndicators(t)[hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
             s << ", ...";

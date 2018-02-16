@@ -162,8 +162,8 @@ wxString LocalGearyMapCanvas::GetCanvasTitle()
 	}
 	
 	wxString ret;
-	ret << local_geary_t << ": " << local_geary_coord->weight_name << ", ";
-	ret << field_t << " (" << local_geary_coord->permutations << " perm)";
+    ret << local_geary_t << ": " << local_geary_coord->GetWeightsName() << ", ";
+	ret << field_t << " (" << local_geary_coord->GetNumPermutations() << " perm)";
 	return ret;
 }
 
@@ -274,8 +274,8 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 num_cats += 6 - s_f;
                 
                 // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-                double sig_cutoff = local_geary_coord->significance_cutoff;
-                int set_perm = local_geary_coord->permutations;
+                double sig_cutoff = local_geary_coord->GetSignificanceCutoff();
+                int set_perm = local_geary_coord->GetNumPermutations();
                 stop_sig = 1.0 / (1.0 + set_perm);
                 
                 if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
@@ -366,7 +366,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
    
             if (local_geary_coord->GetSignificanceFilter() < 0) {
                 // user specified cutoff
-                wxString lbl = wxString::Format("p = %g", local_geary_coord->significance_cutoff);
+                wxString lbl = wxString::Format("p = %g", local_geary_coord->GetSignificanceCutoff());
                 cat_data.SetCategoryLabel(t, 1, lbl);
                 cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
                 
@@ -382,7 +382,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
 
             }  else {
-                int set_perm = local_geary_coord->permutations;
+                int set_perm = local_geary_coord->GetNumPermutations();
                 stop_sig = 1.0 / (1.0 + set_perm);
                 
                 wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
@@ -417,10 +417,10 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
 			cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
 		}
 		
-		double cuttoff = local_geary_coord->significance_cutoff;
-		double* p = local_geary_coord->sig_local_geary_vecs[t];
-		int* cluster = local_geary_coord->cluster_vecs[t];
-		int* sigCat = local_geary_coord->sig_cat_vecs[t];
+		double cuttoff = local_geary_coord->GetSignificanceCutoff();
+		double* p = local_geary_coord->GetLocalSignificanceValues(t);
+		int* cluster = local_geary_coord->GetClusterIndicators(t);
+		int* sigCat = local_geary_coord->GetSigCatIndicators(t);
 		
 		if (is_clust) {
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
@@ -452,7 +452,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             if (local_geary_coord->GetSignificanceFilter() < 0) {
                 // user specified cutoff
                 int s_f = 1;
-                double sig_cutoff = local_geary_coord->significance_cutoff;
+                double sig_cutoff = local_geary_coord->GetSignificanceCutoff();
                 if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                     for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
                         if (cluster[i] == 2) {
@@ -589,7 +589,7 @@ void LocalGearyMapCanvas::UpdateStatusBar()
         }
     }
     if (is_clust && local_geary_coord) {
-        double p_val = local_geary_coord->significance_cutoff;
+        double p_val = local_geary_coord->GetSignificanceCutoff();
         wxString inf_str = wxString::Format(" p <= %g", p_val);
         s << inf_str;
     }
@@ -668,7 +668,7 @@ local_geary_coord(local_geary_coordinator)
 	SetTitle(template_canvas->GetCanvasTitle());
     
     
-	local_geary_coord->registerObserver(this);
+	//local_geary_coord->registerObserver(this);
 	Show(true);
 	wxLogMessage("Exiting LocalGearyMapFrame::LocalGearyMapFrame");
 }
@@ -677,7 +677,7 @@ LocalGearyMapFrame::~LocalGearyMapFrame()
 {
 	wxLogMessage("In LocalGearyMapFrame::~LocalGearyMapFrame");
 	if (local_geary_coord) {
-		local_geary_coord->removeObserver(this);
+		//local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
 	}
 }
@@ -735,7 +735,7 @@ void LocalGearyMapFrame::RanXPer(int permutation)
     
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
-	local_geary_coord->permutations = permutation;
+	local_geary_coord->SetNumPermutations(permutation);
 	local_geary_coord->CalcPseudoP();
 	local_geary_coord->notifyObservers();
     
@@ -861,23 +861,24 @@ void LocalGearyMapFrame::OnSigFilterSetup(wxCommandEvent& event)
     
     LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p = local_geary_coord->sig_local_geary_vecs[t];
+    double* p = local_geary_coord->GetLocalSignificanceValues(t);
     int n = local_geary_coord->num_obs;
     
     wxString ttl = _("Inference Settings");
-    ttl << "  (" << local_geary_coord->permutations << " perm)";
+    ttl << "  (" << local_geary_coord->GetNumPermutations() << " perm)";
     
-    double user_sig = local_geary_coord->significance_cutoff;
-    if (local_geary_coord->GetSignificanceFilter()<0) user_sig = local_geary_coord->user_sig_cutoff;
+    double user_sig = local_geary_coord->GetSignificanceCutoff();
+    if (local_geary_coord->GetSignificanceFilter()<0)
+        user_sig = local_geary_coord->GetUserCutoff();
     
     InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
     if (dlg.ShowModal() == wxID_OK) {
         local_geary_coord->SetSignificanceFilter(-1);
-        local_geary_coord->significance_cutoff = dlg.GetAlphaLevel();
-        local_geary_coord->user_sig_cutoff = dlg.GetUserInput();
+        local_geary_coord->SetSignificanceCutoff(dlg.GetAlphaLevel());
+        local_geary_coord->SetUserCutoff(dlg.GetUserInput());
         local_geary_coord->notifyObservers();
-        local_geary_coord->bo = dlg.GetBO();
-        local_geary_coord->fdr = dlg.GetFDR();
+        local_geary_coord->SetBO( dlg.GetBO());
+        local_geary_coord->SetFDR( dlg.GetFDR());
         UpdateOptionMenuItems();
     }
     wxLogMessage("Exiting LocalGearyMapFrame::OnSigFilterSetup()");
@@ -913,9 +914,9 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &undefs;
 	
-	double cuttoff = local_geary_coord->significance_cutoff;
-	double* p = local_geary_coord->sig_local_geary_vecs[t];
-	int* cluster = local_geary_coord->cluster_vecs[t];
+	double cuttoff = local_geary_coord->GetSignificanceCutoff();
+	double* p = local_geary_coord->GetLocalSignificanceValues(t);
+	int* cluster = local_geary_coord->GetClusterIndicators(t);
 	std::vector<wxInt64> clust(local_geary_coord->num_obs);
 	for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
 		if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
@@ -996,12 +997,12 @@ void LocalGearyMapFrame::OnSelectCores(wxCommandEvent& event)
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = local_geary_coord->cluster_vecs[ts];
-	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
-    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
-	int sf = local_geary_coord->significance_filter;
+	int* clust = local_geary_coord->GetClusterIndicators(ts);
+	int* sig_cat = local_geary_coord->GetSigCatIndicators(ts);
+    double* sig_val = local_geary_coord->GetLocalSignificanceValues(ts);
+	int sf = local_geary_coord->GetSignificanceFilter();
 	
-    double user_sig = local_geary_coord->significance_cutoff;
+    double user_sig = local_geary_coord->GetSignificanceCutoff();
 	// add all cores to elem list.
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
 		if (clust[i] >= 1 && clust[i] <= 4) {
@@ -1023,13 +1024,13 @@ void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = local_geary_coord->cluster_vecs[ts];
-	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
-    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
-	int sf = local_geary_coord->significance_filter;
+	int* clust = local_geary_coord->GetClusterIndicators(ts);
+	int* sig_cat = local_geary_coord->GetSigCatIndicators(ts);
+    double* sig_val = local_geary_coord->GetLocalSignificanceValues(ts);
+	int sf = local_geary_coord->GetSignificanceFilter();
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
 	
-    double user_sig = local_geary_coord->significance_cutoff;
+    double user_sig = local_geary_coord->GetSignificanceCutoff();
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
@@ -1068,13 +1069,13 @@ void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-	int* clust = local_geary_coord->cluster_vecs[ts];
-	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
-    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
-	int sf = local_geary_coord->significance_filter;
+    int* clust = local_geary_coord->GetClusterIndicators(ts);
+    int* sig_cat = local_geary_coord->GetSigCatIndicators(ts);
+    double* sig_val = local_geary_coord->GetLocalSignificanceValues(ts);
+    int sf = local_geary_coord->GetSignificanceFilter();
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
    
-    double user_sig = local_geary_coord->significance_cutoff;
+    double user_sig = local_geary_coord->GetSignificanceCutoff();
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
@@ -1141,7 +1142,7 @@ void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 {
 	wxLogMessage("In LocalGearyMapFrame::closeObserver(LocalGearyCoordinator*)");
 	if (local_geary_coord) {
-		local_geary_coord->removeObserver(this);
+		//local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
 	}
 	Close(true);
@@ -1150,7 +1151,7 @@ void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 void LocalGearyMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
 	wxLogMessage("In LocalGearyMapFrame::GetVizInfo()");
-    
+    /*
 	if (local_geary_coord) {
 		if(local_geary_coord->sig_cat_vecs.size()>0) {
 			for (int i=0; i<local_geary_coord->num_obs;i++) {
@@ -1158,4 +1159,5 @@ void LocalGearyMapFrame::GetVizInfo(std::vector<int>& clusters)
 			}
 		}
 	}
+     */
 }

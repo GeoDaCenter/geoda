@@ -148,9 +148,9 @@ public:
     virtual void ComputeLarger(int cnt, std::vector<int> permNeighbors,
                                std::vector<uint64_t>& countLarger) = 0;
     
-    virtual std::vector<wxString> GetDefaultCategories() = 0;
+    virtual std::vector<wxString> GetDefaultCategories();
     
-    virtual std::vector<double> GetDefaultCutoffs() = 0;
+    virtual std::vector<double> GetDefaultCutoffs();
     
     void InitFromVarInfo();
     
@@ -163,6 +163,8 @@ public:
     double* GetLocalSignificanceValues(int t);
     
     int* GetClusterIndicators(int t);
+    
+    int* GetSigCatIndicators(int t);
     
     boost::uuids::uuid GetWeightsID();
     

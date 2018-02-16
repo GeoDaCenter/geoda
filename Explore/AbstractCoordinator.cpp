@@ -138,6 +138,26 @@ AbstractCoordinator::~AbstractCoordinator()
 	DeallocateVectors();
 }
 
+std::vector<wxString> AbstractCoordinator::GetDefaultCategories()
+{
+    std::vector<wxString> cats;
+    cats.push_back("p = 0.05");
+    cats.push_back("p = 0.01");
+    cats.push_back("p = 0.001");
+    cats.push_back("p = 0.0001");
+    return cats;
+}
+
+std::vector<double> AbstractCoordinator::GetDefaultCutoffs()
+{
+    std::vector<double> cutoffs;
+    cutoffs.push_back(0.05);
+    cutoffs.push_back(0.01);
+    cutoffs.push_back(0.001);
+    cutoffs.push_back(0.0001);
+    return cutoffs;
+}
+
 void AbstractCoordinator::DeallocateVectors()
 {
     wxLogMessage("Entering AbstractCoordinator::DeallocateVectors()");
@@ -310,6 +330,11 @@ double* AbstractCoordinator::GetLocalSignificanceValues(int t)
 int* AbstractCoordinator::GetClusterIndicators(int t)
 {
     return cluster_vecs[t];
+}
+
+int* AbstractCoordinator::GetSigCatIndicators(int t)
+{
+    return sig_cat_vecs[t];
 }
 
 boost::uuids::uuid AbstractCoordinator::GetWeightsID()
