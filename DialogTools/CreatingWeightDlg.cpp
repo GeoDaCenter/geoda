@@ -977,10 +977,10 @@ void CreatingWeightDlg::CreateWeights()
     wxString defaultFile(project->GetProjectTitle());
     if (IsSaveAsGwt()) {
         defaultFile += ".gwt";
-        wildcard = "GWT files (*.gwt)|*.gwt";
+        wildcard = _("GWT files (*.gwt)|*.gwt");
     } else {
         defaultFile += ".gal";
-        wildcard = "GAL files (*.gal)|*.gal";
+        wildcard = _("GAL files (*.gal)|*.gal");
     }
     
     wxFileDialog dlg(this,
@@ -1062,8 +1062,7 @@ void CreatingWeightDlg::CreateWeights()
             double precision_threshold = 0.0;
             if ( m_cbx_precision_threshold->IsChecked()) {
                 if (!m_txt_precision_threshold->IsEmpty()) {
-                    wxString prec_thres =
-                    m_txt_precision_threshold->GetValue();
+                    wxString prec_thres = m_txt_precision_threshold->GetValue();
                     double value;
                     if ( prec_thres.ToDouble(&value) ) {
                         precision_threshold = value;
@@ -1072,7 +1071,8 @@ void CreatingWeightDlg::CreateWeights()
                     precision_threshold = 0.0;
                 }
             }
-            Wp->gal = PolysToContigWeights(project->main_data, !is_rook, precision_threshold);
+            Wp->gal = PolysToContigWeights(project->main_data, !is_rook,
+                                           precision_threshold);
         }
         
         bool empty_w = true;

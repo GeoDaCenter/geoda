@@ -345,14 +345,12 @@ void SpatialIndAlgs::apply_kernel(const GwtWeight* Wp, const wxString& kernel, b
                 nbrs[j].weight = 1 - nbrs[j].weight;
             } else if (kernel.IsSameAs("uniform", false)) {
                 nbrs[j].weight = 0.5;
-            } else if (kernel.IsSameAs("quadratic", false)) {
+            } else if (kernel.IsSameAs("epanechnikov", false)) {
                 nbrs[j].weight = (3.0 / 4.0) * (1.0 - pow(nbrs[j].weight,2.0));
             } else if (kernel.IsSameAs("quartic", false)) {
                 nbrs[j].weight = (15.0 / 16.0) * pow((1.0 - pow(nbrs[j].weight,2.0)), 2.0);
             } else if (kernel.IsSameAs("gaussian", false)) {
                 nbrs[j].weight = gaussian_const * exp( -pow(nbrs[j].weight, 2.0) / 2.0 );
-            } else if (kernel.IsSameAs("epanechnikov", false)) {
-                nbrs[j].weight = 1.0 - pow(nbrs[j].weight, 2.0);
             }
         }
     }
