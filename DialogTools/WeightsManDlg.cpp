@@ -591,31 +591,31 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 		}
 	}
     row_title.push_back("# observations");
-    if (wmi.num_obs > 0)
+    if (wmi.num_obs >= 0)
     row_content.push_back(wxString::Format("%d", wmi.num_obs));
     else
     row_content.push_back("unknown");
     
     row_title.push_back("min neighbors");
-    if (wmi.min_nbrs>0)
+    if (wmi.min_nbrs>=0)
     row_content.push_back(wxString::Format("%d", wmi.min_nbrs));
     else
     row_content.push_back("unknown");
     
     row_title.push_back("max neighbors");
-    if (wmi.max_nbrs > 0)
+    if (wmi.max_nbrs >= 0)
     row_content.push_back(wxString::Format("%d", wmi.max_nbrs));
     else
     row_content.push_back("unknown");
     
     row_title.push_back("mean neighbors");
-    if (wmi.mean_nbrs>0)
+    if (wmi.mean_nbrs>=0)
     row_content.push_back(wxString::Format("%.2f", wmi.mean_nbrs));
     else
     row_content.push_back("unknown");
     
     row_title.push_back("median neighbors");
-    if (wmi.median_nbrs >0)
+    if (wmi.median_nbrs >=0)
     row_content.push_back(wxString::Format("%.2f", wmi.median_nbrs));
     else
     row_content.push_back("unknown");
