@@ -145,6 +145,7 @@ bool CreatingWeightDlg::Create(wxWindow* parent, wxWindowID id, const wxString& 
     m_spinn_kernel = 0;
     m_kernel_methods = 0;
     m_kernel_diagnals = 0;
+    m_const_diagnals = 0;
 	
 	SetParent(parent);
 	CreateControls();
@@ -187,7 +188,8 @@ void CreatingWeightDlg::CreateControls()
     m_radio_manu_bandwdith = XRCCTRL(*this, "IDC_RADIO_MANU_BANDWIDTH", wxRadioButton);
     m_manu_bandwidth = XRCCTRL(*this, "IDC_BANDWIDTH_EDIT", wxTextCtrl);
     m_bandwidth_slider = XRCCTRL(*this, "IDC_BANDWIDTH_SLIDER", wxSlider);
-    m_kernel_diagnals = XRCCTRL(*this, "IDC_KERNEL_DIAGNAL_CHECK", wxCheckBox);
+    m_kernel_diagnals = XRCCTRL(*this, "IDC_KERNEL_DIAGNAL_CHECK", wxRadioButton);
+    m_const_diagnals = XRCCTRL(*this, "IDC_CONST_DIAGNAL_CHECK", wxRadioButton);
     m_use_inverse = XRCCTRL(*this, "IDC_CHK_INVERSE_DISTANCE", wxCheckBox);
     m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
     m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
@@ -1203,7 +1205,7 @@ void CreatingWeightDlg::CreateWeights()
         wxString kernel = m_kernel_methods->GetString(m_kernel_methods->GetSelection());
         double bandwidth = GetBandwidth();
         bool is_adaptive_kernel = m_radio_adaptive_bandwidth->GetValue();
-        bool use_kernel_diagnals = m_kernel_diagnals->IsChecked();
+        bool use_kernel_diagnals = m_kernel_diagnals->GetValue();
         
         wmi.SetToKernel(id, dist_metric, dist_units, dist_units_str, dist_values, kernel, m_kernel_kNN, bandwidth, is_adaptive_kernel, use_kernel_diagnals, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
        

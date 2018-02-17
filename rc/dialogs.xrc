@@ -3877,10 +3877,25 @@
                                                                   <size>30,2</size>
                                                               </object>
                                                               <object class="sizeritem">
-                                                                  <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                                                                  <border>2</border>
-                                                                  <object class="wxCheckBox" name="IDC_KERNEL_DIAGNAL_CHECK">
-                                                                      <label>Apply kernel to diagonal weights</label>
+                                                                  <object class="wxBoxSizer">
+                                                                      <orient>wxVERTICAL</orient>
+                                                                      <object class="sizeritem">
+                                                                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                          <border>2</border>
+                                                                          <object class="wxRadioButton" name="IDC_CONST_DIAGNAL_CHECK">
+                                                                              <label>Diagonal weights = 1</label>
+                                                                              <style>wxRB_GROUP</style>
+                                                                              <value>1</value>
+                                                                          </object>
+                                                                      </object>
+                                                                      <object class="sizeritem">
+                                                                          <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                                                          <border>2</border>
+                                                                          <object class="wxRadioButton" name="IDC_KERNEL_DIAGNAL_CHECK">
+                                                                              <label>Apply kernel to diagonal weights</label>
+                                                                              <value>0</value>
+                                                                          </object>
+                                                                      </object>
                                                                   </object>
                                                               </object>
                                                           </object>
@@ -3943,14 +3958,7 @@
                                                               <value>0</value>
                                                           </object>
                                                       </object>
-                                                      <object class="sizeritem">
-                                                          <flag>wxALIGN_CENTER_VERTICAL|wxTOP|wxLEFT|wxRIGHT</flag>
-                                                          <border>10</border>
-                                                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
-                                                              <label>Use max knn distance as bandwidth</label>
-                                                              <value>1</value>
-                                                          </object>
-                                                      </object>
+                                                      
                                                       <object class="sizeritem">
                                                           <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
                                                           <border>10</border>
@@ -3991,6 +3999,14 @@
                                                                   <size>2,2</size>
                                                               </object>
                                                               
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxRadioButton" name="IDC_RADIO_AUTO_BANDWIDTH">
+                                                              <label>Use max knn distance as bandwidth</label>
+                                                              <value>1</value>
                                                           </object>
                                                       </object>
                                                   </object>

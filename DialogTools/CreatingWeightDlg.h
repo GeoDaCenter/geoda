@@ -148,7 +148,8 @@ private:
     wxRadioButton* m_radio_manu_bandwdith;
     wxTextCtrl* m_manu_bandwidth;
     wxSlider* m_bandwidth_slider;
-    wxCheckBox* m_kernel_diagnals;
+    wxRadioButton* m_kernel_diagnals;
+    wxRadioButton* m_const_diagnals;
     wxButton* m_btn_ok;
 
 	FramesManager* frames_manager;
