@@ -1428,6 +1428,10 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 	smoothing_type = new_map_smoothing;
 	VarInfoAttributeChange();	
 	CreateAndUpdateCategories();
+    
+    if (display_weights_graph && !w_graph.empty()) {
+        full_map_redraw_needed = true;
+    }
 	PopulateCanvas();
     
     TemplateLegend* legend = template_frame->GetTemplateLegend();
