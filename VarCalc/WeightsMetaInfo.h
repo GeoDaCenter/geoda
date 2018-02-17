@@ -32,7 +32,7 @@ struct WeightsMetaInfo
 		SYM_unknown, SYM_symmetric, SYM_asymmetric
 	};
 	enum DistanceValuesEnum {
-		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars
+		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars, DV_coordinates
 	};
 	enum DistanceMetricEnum {
 		DM_unspecified, DM_euclidean, DM_arc

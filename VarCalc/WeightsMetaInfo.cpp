@@ -272,6 +272,8 @@ wxString WeightsMetaInfo::DistValsToStr() const
 		return "centroids";
 	} else if (dist_values == DV_mean_centers) {
 		return "mean centers";
+    } else if (dist_values == DV_coordinates) {
+        return "coordinates";
 	} else if (dist_values == DV_vars) {
 		wxString s;
 		if (!dist_var1.IsEmpty()) {

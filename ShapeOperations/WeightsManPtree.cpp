@@ -182,6 +182,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.dist_values = WeightsMetaInfo::DV_centroids;
 								} else if (s == "mean_centers") {
 									e.wmi.dist_values = WeightsMetaInfo::DV_mean_centers;
+                                } else if (s == "coordinates") {
+                                    e.wmi.dist_values = WeightsMetaInfo::DV_coordinates;
 								} else if (s == "vars") {
 									e.wmi.dist_values = WeightsMetaInfo::DV_vars;
 								} else if (s == "unspecified" || s.IsEmpty()) {
@@ -345,6 +347,9 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 				} else if (e.wmi.dist_values ==
 						   WeightsMetaInfo::DV_mean_centers) {
 					sssub.put("dist_values", "mean_centers");
+                } else if (e.wmi.dist_values ==
+                           WeightsMetaInfo::DV_coordinates) {
+                    sssub.put("dist_values", "coordinates");
 				} else if (e.wmi.dist_values == WeightsMetaInfo::DV_vars) {
 					sssub.put("dist_values", "vars");
 					if (!e.wmi.dist_var1.IsEmpty()) {

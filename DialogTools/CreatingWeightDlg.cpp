@@ -1012,8 +1012,12 @@ void CreatingWeightDlg::CreateWeights()
         dist_values = WeightsMetaInfo::DV_unspecified;
     } else if (m_X->GetSelection() == 0) {
         dist_values = WeightsMetaInfo::DV_centroids;
+        if (project->IsPointTypeData())
+            dist_values = WeightsMetaInfo::DV_coordinates;
     } else if (m_X->GetSelection() == 1) {
         dist_values = WeightsMetaInfo::DV_mean_centers;
+        if (project->IsPointTypeData())
+            dist_values = WeightsMetaInfo::DV_coordinates;
     } else {
         dist_values = WeightsMetaInfo::DV_vars;
     }
