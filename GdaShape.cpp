@@ -528,7 +528,15 @@ wxRealPoint GdaShapeAlgs::calculateCentroid(GdaPolygon* poly)
 	if (poly->points_o) {
 		return calculateCentroid(poly->n, poly->points_o);
 	} else {
-		return calculateCentroid(poly->count[0], poly->pc->points);
+        int start = 0;
+        int n_size = poly->count[0];
+        for (int i=1; i<poly->pc->num_parts; i++) {
+            if (poly->count[i] > n_size) {
+                start = n_size;
+                n_size = poly->count[i];
+            }
+        }
+		return calculateCentroid(start, poly->pc->points);
 	}
 }
 
@@ -549,15 +557,16 @@ wxRealPoint GdaShapeAlgs::calculateCentroid(int n, wxRealPoint* pts)
 	return wxRealPoint(cx, cy);
 }
 
-wxRealPoint GdaShapeAlgs::calculateCentroid(int n,
+wxRealPoint GdaShapeAlgs::calculateCentroid(int start,
 	const std::vector<Shapefile::Point>& pts)
 {
+    int n = pts.size() - start;
 	double area = GdaShapeAlgs::calculateArea(n, pts);
-	if (area == 0) return wxRealPoint(pts[0].x, pts[0].y);
+	if (area == 0) return wxRealPoint(pts[start].x, pts[start].y);
 	// polygon is a p-gon. Handle case when polygon is not closed
-	int p = (pts[0].x==pts[n-1].x && pts[0].y==pts[n-1].y) ? n-1 : n;
+	int p = (pts[0].x==pts[n-1 + start].x && pts[0 + start].y==pts[n-1 + start].y) ? n-1 : n;
 	double cx=0, cy=0, d;
-	for (int i=0, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
+	for (int i=start, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
 		d = (pts[i].x * pts[j].y) - (pts[j].x * pts[i].y);
 		cx += (pts[i].x + pts[j].x)*d;
 		cy += (pts[i].y + pts[j].y)*d;
@@ -583,13 +592,14 @@ double GdaShapeAlgs::calculateArea(int n, wxRealPoint* pts)
 	return a/2.0f;
 }
 
-double GdaShapeAlgs::calculateArea(int n,
+double GdaShapeAlgs::calculateArea(int start,
 								  const std::vector<Shapefile::Point>& pts)
 {
+    int n = pts.size() - start;
 	if (n <= 2) return 0;
 	double a = 0;
-	int p = (pts[0].x==pts[n-1].x && pts[0].y==pts[n-1].y) ? n-1 : n;
-	for (int i=0, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
+	int p = (pts[0+start].x==pts[n-1+start].x && pts[0+start].y==pts[n-1+start].y) ? n-1 : n;
+	for (int i=start, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
 		a += (pts[i].x * pts[j].y - pts[j].x * pts[i].y);
 	}
 	return a/2.0f;

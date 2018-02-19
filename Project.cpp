@@ -1069,36 +1069,9 @@ void Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)
 const std::vector<GdaPoint*>& Project::GetCentroids()
 {
 	wxLogMessage("Project::GetCentroids()");
-	int num_obs = main_data.records.size();
-	if (centroids.size() == 0 && num_obs > 0) {
-		if (main_data.header.shape_type == Shapefile::POINT_TYP) {
-			centroids.resize(num_obs);
-			Shapefile::PointContents* pc;
-			for (int i=0; i<num_obs; i++) {
-				pc = (Shapefile::PointContents*)
-				main_data.records[i].contents_p;
-				if (pc->shape_type == 0) {
-					centroids[i] = new GdaPoint();
-				} else {
-					centroids[i] = new GdaPoint(wxRealPoint(pc->x, pc->y));
-				}
-			}
-		} else if (main_data.header.shape_type == Shapefile::POLYGON) {
-			centroids.resize(num_obs);
-			Shapefile::PolygonContents* pc;
-			for (int i=0; i<num_obs; i++) {
-				pc = (Shapefile::PolygonContents*)
-				main_data.records[i].contents_p;
-				GdaPolygon poly(pc);
-				if (poly.isNull()) {
-					centroids[i] = new GdaPoint();
-				} else {
-					centroids[i] =
-					new GdaPoint(GdaShapeAlgs::calculateCentroid(&poly));
-				}
-			}
-		}
-	}
+   
+    layer_proxy->GetCentroids(centroids);
+
 	return centroids;	
 }
 

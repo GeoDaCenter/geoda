@@ -140,6 +140,8 @@ public:
 	 */
 	bool ReadGeometries(Shapefile::Main& p_main);
     bool AddGeometries(Shapefile::Main& p_main);
+    
+    void GetCentroids(std::vector<GdaPoint*>& centroids);
 
     Shapefile::ShapeType GetGdaGeometries(std::vector<GdaShape*>& geoms);
     
