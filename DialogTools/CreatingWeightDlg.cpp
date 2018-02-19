@@ -974,15 +974,21 @@ void CreatingWeightDlg::CreateWeights()
     wxString id = m_id_field->GetString(m_id_field->GetSelection());
     if (!CheckID(id))
         return;
-        
+    
     wxString wildcard;
     wxString defaultFile(project->GetProjectTitle());
-    if (IsSaveAsGwt()) {
-        defaultFile += ".gwt";
-        wildcard = _("GWT files (*.gwt)|*.gwt");
-    } else {
+   
+    if (m_nb_weights_type->GetSelection()== 0) {
         defaultFile += ".gal";
         wildcard = _("GAL files (*.gal)|*.gal");
+    } else {
+        if (m_nb_distance_methods->GetSelection() == 0) {
+            defaultFile += ".gwt";
+            wildcard = _("GWT files (*.gwt)|*.gwt");
+        } else {
+            defaultFile += ".kwt";
+            wildcard = _("KWT files (*.kwt)|*.kwt");
+        }
     }
     
     wxFileDialog dlg(this,
@@ -1308,7 +1314,7 @@ bool CreatingWeightDlg::WriteWeightFile(GalWeight* Wp_gal, GwtWeight* Wp_gwt,
         wxFileName t_ofn(ofn);
         wxString ext = t_ofn.GetExt().Lower();
         GalWeight* w = 0;
-        if (ext != "gal" && ext != "gwt") {
+        if (ext != "gal" && ext != "gwt" && ext != "kwt") {
             //LOG_MSG("File extention not gal or gwt");
         } else {
             GalElement* tempGal = 0;

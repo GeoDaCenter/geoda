@@ -273,7 +273,9 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	wxString id_field = WeightUtils::ReadIdField(path);
 	wmi.SetToCustom(id_field);
 	wmi.filename = path;
-	
+    if (path.EndsWith("kwt"))
+        wmi.weights_type = WeightsMetaInfo::WT_kernel;
+    
 	suspend_w_man_state_updates = true;
 	
 	// Check if weights already loaded and simply select and set as

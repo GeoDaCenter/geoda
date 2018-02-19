@@ -175,13 +175,13 @@ void HClusterDlg::CreateControls()
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
     
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     hbox1->Add(gbox1, 1, wxEXPAND);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition, wxSize(70, 30));
-    saveButton = new wxButton(panel, wxID_SAVE, wxT("Save/Show Map"), wxDefaultPosition, wxDefaultSize);
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
+    saveButton = new wxButton(panel, wxID_SAVE, _("Save/Show Map"), wxDefaultPosition, wxDefaultSize);
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
@@ -196,9 +196,9 @@ void HClusterDlg::CreateControls()
 	// Summary control 
     notebook = new wxNotebook( panel, wxID_ANY);
     m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
-    notebook->AddPage(m_panel, "Dendrogram");
-    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "(Please save results to see the summary report.)");
-    notebook->AddPage(m_reportbox, "Summary");
+    notebook->AddPage(m_panel, _("Dendrogram"));
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, _("(Please save results to see the summary report.)"));
+    notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HClusterDlg::OnNotebookChange), NULL, this);
 
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
