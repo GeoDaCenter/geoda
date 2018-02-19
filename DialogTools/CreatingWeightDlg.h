@@ -49,14 +49,14 @@ class CreatingWeightDlg: public wxDialog, public FramesManagerObserver,
 public TableStateObserver, public WeightsManStateObserver
 {
 public:
-	CreatingWeightDlg(wxWindow* parent,
+    CreatingWeightDlg(wxWindow* parent,
                       Project* project,
                       bool user_xy = false,
-                    wxWindowID id = -1,
-                    const wxString& caption = _("Weights File Creation"),
-                    const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize,
-                    long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
+                      wxWindowID id = -1,
+                      const wxString& caption = _("Weights File Creation"),
+                      const wxPoint& pos = wxDefaultPosition,
+                      const wxSize& size = wxDefaultSize,
+                      long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~CreatingWeightDlg();
 	void OnClose(wxCloseEvent& ev);
 	bool Create(wxWindow* parent, wxWindowID id = -1,

@@ -34,6 +34,7 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
+#include "../DialogTools/CreatingWeightDlg.h"
 #include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../SpatialIndAlgs.h"
@@ -2218,7 +2219,6 @@ END_EVENT_TABLE()
 
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const wxPoint& pos, const wxSize& size)
 : ScatterNewPlotCanvas(parent, t_frame, project, pos, size)
-,dlg(NULL)
 {
     
 }
@@ -2261,16 +2261,6 @@ void MDSPlotCanvas::OnCreateWeights()
 {
     wxLogMessage("On MDSPlotCanvas::OnCreateWeights()");
   
-    /*
-    if (dlg == NULL) {
-        dlg = new CreatingWeightDlg(this, project, true);
-        dlg->SetXCOO(X);
-        dlg->SetYCOO(Y);
-    } else {
-        dlg->Raise();
-    }
-    dlg->Show(true);
-     */
     CreatingWeightDlg dlg(this, project, true);
     dlg.SetXCOO(X);
     dlg.SetYCOO(Y);

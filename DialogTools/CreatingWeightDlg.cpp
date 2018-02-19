@@ -50,7 +50,6 @@
 #include "CreatingWeightDlg.h"
 
 BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
-EVT_CLOSE( CreatingWeightDlg::OnClose )
 EVT_BUTTON( XRCID("ID_CREATE_ID"), CreatingWeightDlg::OnCreateNewIdClick )
 EVT_CHOICE(XRCID("IDC_IDVARIABLE"), CreatingWeightDlg::OnIdVariableSelected )
 EVT_CHOICE(XRCID("IDC_XCOORDINATES"), CreatingWeightDlg::OnXSelected )
@@ -103,6 +102,8 @@ suspend_table_state_updates(false)
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
 	w_man_state->registerObserver(this);
+    if (!user_xy)
+        Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(CreatingWeightDlg::OnClose) );
 }
 
 CreatingWeightDlg::~CreatingWeightDlg()
