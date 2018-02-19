@@ -607,6 +607,7 @@ local_geary_coord(local_geary_coordinator)
 {
 	wxLogMessage("Entering LocalGearyMapFrame::LocalGearyMapFrame");
 	
+    no_update_weights = true;
 	int width, height;
 	GetClientSize(&width, &height);
     

@@ -255,7 +255,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	wxLogMessage("In WeightsManFrame::OnLoadBtn");
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
-	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
+	wxFileDialog dlg( this, _("Choose Weights File"), default_path, "",
                      "Weights Files (*.gal, *.gwt, *.kwt)|*.gal;*.gwt;*.kwt");
 	
     if (dlg.ShowModal() != wxID_OK) return;
@@ -263,7 +263,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	wxString ext = GenUtils::GetFileExt(path).Lower();
 	
 	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
-		wxString msg("Only 'gal', 'gwt', and 'kwt' weights files supported.");
+		wxString msg = _("Only 'gal', 'gwt', and 'kwt' weights files supported.");
 		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		return;
@@ -322,16 +322,16 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
     
     id = w_man_int->RequestWeights(wmi);
     if (id.is_nil()) {
-        wxString msg("There was a problem requesting the weights file.");
-        wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+        wxString msg = _("There was a problem requesting the weights file.");
+        wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
         dlg.ShowModal();
         suspend_w_man_state_updates = false;
         return;
     }
 	
 	if (!((WeightsNewManager*) w_man_int)->AssociateGal(id, gw)) {
-		wxString msg("There was a problem associating the weights file.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+		wxString msg = _("There was a problem associating the weights file.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		delete gw;
 		suspend_w_man_state_updates = false;
@@ -355,25 +355,22 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	if (id.is_nil()) return;
 	int nb = w_man_state->NumBlockingRemoveId(id);
 	if (nb > 0) {
-		wxString msg;
-		msg << "There " << (nb==1 ? "is" : "are") << " ";
-		if (nb==1) { msg << "one"; } else { msg << nb; }
-		msg << " other " << (nb==1 ? "view" : "views");
-		msg << " open that depend" << (nb==1 ? "s" : "");
-		msg << " on this matrix. ";
-		msg << "OK to close " << (nb==1 ? "this view" : "these views");
-		msg << " and remove?";
-		wxMessageDialog dlg(this, msg, "Notice", 
-							wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        wxString msg = _("There is one other view open that depends on this matrix. Ok to close this view and remove?");
+        if (nb > 1) {
+            wxString tmp = _("There are %d other views open that depends on this matrix. Ok to close these views and remove?");
+            msg = wxString::Format(tmp, nb);
+        }
+		wxMessageDialog dlg(this, msg, _("Notice"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
 		if (dlg.ShowModal() == wxID_YES) {
 			w_man_state->closeObservers(id, this);
 			int nb = w_man_state->NumBlockingRemoveId(id);
 			if (nb > 0) {
 				// there was a problem closing some views
-				wxString s;
-				s << nb << " " << (nb==1 ? "view" : "views");
-				s << " could not be closed. ";
-				s << "Please manually close and try again.";
+                wxString s = _("There is a view could not be closed. Please manually close and try again.");
+                if (nb > 1) {
+                    wxString tmp = _("There are %d views could not be closed. Please manually close and try again.");
+                    s = wxString::Format(tmp, nb);
+                }
 				wxMessageDialog dlg(this, s, "Error", wxICON_ERROR | wxOK);
 				dlg.ShowModal();
 			} else {

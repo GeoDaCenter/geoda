@@ -195,6 +195,7 @@ is_bivariate(isBivariate),
 is_ebrate(isEBRate)
 {
 	LOG_MSG("Entering LisaMapFrame::LisaMapFrame");
+    no_update_weights = true;
     Init();
 	LOG_MSG("Exiting LisaMapFrame::LisaMapFrame");
 }
@@ -202,10 +203,11 @@ is_ebrate(isEBRate)
 LisaMapFrame::~LisaMapFrame()
 {
 	LOG_MSG("In LisaMapFrame::~LisaMapFrame");
-	if (lisa_coord) {
-		lisa_coord->removeObserver(this);
-		lisa_coord = 0;
-	}
+    // the following code block will be exceuted in AbstractClusterMapFrame
+	//if (lisa_coord) {
+	//	lisa_coord->removeObserver(this);
+	//	lisa_coord = 0;
+	//}
 }
 
 CatClassification::CatClassifType LisaMapFrame::GetThemeType()

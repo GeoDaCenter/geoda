@@ -54,7 +54,7 @@ MLJCMapCanvas::MLJCMapCanvas(wxWindow *parent, TemplateFrame* t_frame, bool is_c
 gs_coord(gs_coordinator), is_clust(is_clust_p)
 {
 	LOG_MSG("Entering MLJCMapCanvas::MLJCMapCanvas");
-
+    
     str_sig = _("Not Significant");
     str_low = _("No Colocation");
     str_med = _("Has Colocation");
@@ -483,6 +483,7 @@ is_clust(isClusterMap)
 {
 	wxLogMessage("Entering MLJCMapFrame::MLJCMapFrame");
 	
+    no_update_weights = true;
 	int width, height;
 	GetClientSize(&width, &height);
 

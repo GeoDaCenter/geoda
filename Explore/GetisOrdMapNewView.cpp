@@ -526,6 +526,8 @@ row_standardize(row_standardize_s)
 {
 	wxLogMessage("Entering GetisOrdMapFrame::GetisOrdMapFrame");
 	
+    no_update_weights = true;
+    
 	int width, height;
 	GetClientSize(&width, &height);
 

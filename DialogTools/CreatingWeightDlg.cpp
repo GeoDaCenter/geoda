@@ -102,6 +102,7 @@ suspend_table_state_updates(false)
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
 	w_man_state->registerObserver(this);
+    // use_xy is for MDS creating weights only
     if (!user_xy)
         Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(CreatingWeightDlg::OnClose) );
 }

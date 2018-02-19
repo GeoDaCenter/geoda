@@ -353,7 +353,7 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	// Load file for first use
 	wxFileName t_fn(e.wpte.wmi.filename);
 	wxString ext = t_fn.GetExt().Lower();
-	if (ext != "gal" && ext != "gwt") {
+	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
 		return 0;
 	}
 	GalElement* gal=0;
@@ -383,7 +383,7 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
     
     wxFileName t_fn(tmpName);
     wxString ext = t_fn.GetExt().Lower();
-    if (ext != "gal" && ext != "gwt") {
+    if (ext != "gal" && ext != "gwt" && ext != "kwt") {
         return 0;
     }
     

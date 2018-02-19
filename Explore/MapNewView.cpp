@@ -123,7 +123,7 @@ void SliderDialog::OnSliderChange( wxCommandEvent & event )
 {
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
-    slider_text->SetLabel(wxString::Format("Current Transparency: %.2f", trasp));
+    slider_text->SetLabel(wxString::Format(_("Current Transparency: %.2f"), trasp));
     //GdaConst::transparency_unhighlighted = (1-trasp) * 255;
     canvas->tran_unhighlighted = (1-trasp) * 255;
     canvas->ReDraw();
@@ -1161,9 +1161,9 @@ void MapCanvas::OnSaveCategories()
     
 	if (data_undef.size()>0) {
 		wxString label;
-		label << t_name << " Categories";
+		label << t_name << _(" Categories");
 		wxString title;
-		title << "Save " << label;
+		title << _("Save ") << label;
 		vector<bool> undefs(num_obs);
 		for (int t=0; t<num_time_vals; t++) {
 			for (int i=0; i<num_obs; i++) {
@@ -1294,7 +1294,7 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 	
 	if (smoothing_type != no_smoothing && new_map_smoothing == no_smoothing) {
 		wxString msg = _T("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
-		wxMessageDialog dlg (this, msg, "Information", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg (this, msg, _("Information"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         return false;
 	}
@@ -1467,7 +1467,7 @@ void MapCanvas::show_empty_shps_msgbox()
 
 void MapCanvas::update(CatClassifState* o)
 {
-	LOG_MSG("In MapCanvas::update(CatClassifState*)");
+	wxLogMessage("In MapCanvas::update(CatClassifState*)");
 	cat_classif_def = o->GetCatClassif();
 	CreateAndUpdateCategories();
 	PopulateCanvas();
@@ -1988,8 +1988,8 @@ void MapCanvas::SaveRates()
     wxLogMessage("MapCanvas::SaveRates()");
 	if (smoothing_type == no_smoothing) {
 		wxString msg;
-		msg << "No rates currently calculated to save.";
-		wxMessageDialog dlg (this, msg, "Information",
+		msg << _("No rates currently calculated to save.");
+		wxMessageDialog dlg (this, msg, _("Information"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
@@ -2025,8 +2025,8 @@ void MapCanvas::SaveRates()
 		return;
 	}
 
-	wxString title = "Save Rates - ";
-	title << GetNameWithTime(0) << " over " << GetNameWithTime(1);
+	wxString title = _("Save Rates - %s over %s");
+    title = wxString::Format(title, GetNameWithTime(0), GetNameWithTime(1));
 	
     SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
@@ -2430,13 +2430,20 @@ void MapFrame::update(WeightsManState* o)
 		return;
 	}
 	if (o->GetEventType() == WeightsManState::remove_evt) {
-		Destroy();
+        Destroy();
 	}
 }
 
 int MapFrame::numMustCloseToRemove(boost::uuids::uuid id) const
 {
-	return id == ((MapCanvas*) template_canvas)->GetWeightsId() ? 1 : 0;
+    if (no_update_weights == false)
+        return 0;
+    else {
+        if (id == ((MapCanvas*) template_canvas)->GetWeightsId())
+            return 1;
+        else
+            return 0;
+    }
 }
 
 void MapFrame::closeObserver(boost::uuids::uuid id)
