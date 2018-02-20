@@ -241,13 +241,17 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
 		if (type == GdaConst::double_type || type == GdaConst::long64_type) {
 			type_str << "num";
 		} else if (type == GdaConst::string_type) {
-			type_str << "str";
+            //type_str << "str";
+            continue;
 		} else if (type == GdaConst::date_type) {
-			type_str << "date";
+			//type_str << "date";
+            continue;
 		} else if (type == GdaConst::time_type) {
-			type_str << "time";
+			//type_str << "time";
+            continue;
 		} else if (type == GdaConst::datetime_type) {
-			type_str << "datetime";
+			//type_str << "datetime";
+            continue;
 		}
 		ungrouped_list->InsertItem(ug_cnt, wxEmptyString);
 		ungrouped_list->SetItem(ug_cnt, 0, table_int->GetColName(col));
@@ -260,7 +264,9 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
             pos_ungrouped_list = ug_cnt -1;
         }
         ungrouped_list->EnsureVisible(pos_ungrouped_list);
-        ungrouped_list->SetItemState(pos_ungrouped_list, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED);
+        ungrouped_list->SetItemState(pos_ungrouped_list,
+                                     wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED,
+                                     wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED);
         
     }
 }
@@ -962,18 +968,17 @@ void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
 {
 	wxLogMessage("In VarGroupingEditorDlg::OnIncludeListRightUp");
     if (!is_editing) {
-    wxMenu mnu;
-    int id1 = XRCID("INCLUDE_ADD_TIME");
-    mnu.Append(id1, _("Add Time"));
-    mnu.Append(XRCID("INCLUDE_DELETE_TIME"), _("Remove Time"));
-    mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
-                wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
-                NULL, this);
-    if (GetListSel(include_list).size() == 0) {
-        mnu.Enable(XRCID("INCLUDE_DELETE_TIME"), false);
-    }
-    
-    PopupMenu(&mnu);
+        wxMenu mnu;
+        int id1 = XRCID("INCLUDE_ADD_TIME");
+        mnu.Append(id1, _("Add Time"));
+        mnu.Append(XRCID("INCLUDE_DELETE_TIME"), _("Remove Time"));
+        mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
+                    wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
+                    NULL, this);
+        if (GetListSel(include_list).size() == 0) {
+            mnu.Enable(XRCID("INCLUDE_DELETE_TIME"), false);
+        }
+        PopupMenu(&mnu);
     }
     
     event.Skip();
