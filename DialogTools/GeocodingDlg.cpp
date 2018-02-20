@@ -97,7 +97,9 @@ void GeocodingDlg::Init()
     m_choice_vars->SetSelection(0);
     
     m_google_input->Clear();
-    //m_google_input->SetValue("");
+    m_google_input->SetValue("");
+    m_google_input->SetFocus();
+    m_google_input->SetCanFocus(true);
     
     m_prg->SetValue(0);
 }
@@ -120,13 +122,13 @@ void GeocodingDlg::CreateControls()
     
     // parameters
     wxNotebook* notebook = new wxNotebook(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-    wxNotebookPage* google_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 380));
+    wxNotebookPage* google_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 180));
     notebook->AddPage(google_page, _("Google Places API"));
     
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,1,10,0);
     
     wxStaticText* st11 = new wxStaticText(google_page, wxID_ANY, _("Enter your Google API keys (one key per line)"));
-    m_google_input = new wxTextCtrl(google_page, wxID_ANY, "", wxDefaultPosition, wxSize(500, 320), wxTE_MULTILINE);
+    m_google_input = new wxTextCtrl(google_page, wxID_ANY, "", wxDefaultPosition, wxSize(500, 120), wxTE_MULTILINE);
     wxHyperlinkCtrl* lnk = new wxHyperlinkCtrl(google_page, wxID_ANY, _("Click here to get a Google API key"), "https://developers.google.com/maps/documentation/geocoding/start");
     
     wxBoxSizer *vbox10 = new wxBoxSizer(wxVERTICAL);

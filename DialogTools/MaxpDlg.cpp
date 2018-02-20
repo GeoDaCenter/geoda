@@ -76,14 +76,7 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (for intra-regional homogeneity)"), wxDefaultPosition, wxDefaultSize);
-    
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(250,250), 0, NULL,
-                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
-    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    AddSimpleInputCtrls(panel, &combo_var, vbox);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
@@ -115,6 +108,8 @@ void MaxpDlg::CreateControls()
     combo_lisa->Disable();
     gbox->Add(st18, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox18, 1, wxEXPAND);
+    
+    InitLISACombobox();
     
 	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# Iterations:"),
                                           wxDefaultPosition, wxSize(128,-1));
@@ -194,7 +189,6 @@ void MaxpDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
@@ -350,17 +344,14 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void MaxpDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
+void MaxpDlg::InitLISACombobox()
 {
     wxLogMessage("On MaxpDlg::InitVariableCombobox");
     wxArrayString items;
  
-    var_box->Clear();
-    combo_floor->Clear();
     combo_lisa->Clear();
     
     int cnt_lisa = 0;
-    int cnt_floor = 0;
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
@@ -376,7 +367,6 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
                 items.Add(nm);
                 if (ftype == GdaConst::long64_type)
                     combo_lisa->Insert(nm, cnt_lisa++);
-                combo_floor->Insert(nm, cnt_floor++);
             }
         } else {
             name_to_nm[name] = name;
@@ -384,21 +374,10 @@ void MaxpDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
             items.Add(name);
             if (ftype == GdaConst::long64_type)
                 combo_lisa->Insert(name, cnt_lisa++);
-            combo_floor->Insert(name, cnt_floor++);
         }
     }
     
-    if (!items.IsEmpty())
-        var_box->InsertItems(items,0);
-    
-    combo_floor->SetSelection(-1);
     combo_lisa->SetSelection(-1);
-    
-    for (int i=0; i<select_vars.size(); i++) {
-        var_box->SetStringSelection(select_vars[i], true);
-    }
-
-    combo_floor->SetStringSelection(select_floor);
     combo_lisa->SetStringSelection(select_lisa);
 }
 

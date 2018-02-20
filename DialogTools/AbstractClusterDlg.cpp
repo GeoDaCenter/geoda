@@ -175,11 +175,15 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxListBox** combo_v
                                wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(*combo_var, integer_only);
     
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(*combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
+    wxStaticText* note_st = new wxStaticText (panel, wxID_ANY,
+                                              _("(Please note: Only supported for smaller datasets.)"),
+                                         wxDefaultPosition, wxDefaultSize);
+    vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
+    vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wxCheckBox** m_use_centroids,wxSlider** m_weight_centroids, wxTextCtrl** m_wc_txt, wxBoxSizer* vbox)
@@ -211,6 +215,11 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
     hbox0->Add(*m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
     hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
     
+    
+    wxStaticText* note_st = new wxStaticText (panel, wxID_ANY,
+                                              _("(Please note: Only supported for smaller datasets.)"),
+                                              wxDefaultPosition, wxDefaultSize);
+    vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     
     if (project->IsTableOnlyProject()) {
