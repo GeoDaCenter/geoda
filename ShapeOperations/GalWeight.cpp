@@ -196,18 +196,10 @@ double GalElement::SpatialLag(const std::vector<double>& x) const
 	double lag = 0;
 	size_t sz = Size();
    
-    double sumW = 0;
-	for (size_t i=0; i<sz; ++i) {
-        sumW += nbrWeight[i];
+    for (size_t i=0; i<sz; ++i) {
+        lag += x[nbr[i]];
     }
-    
-    if (sumW == 0)
-        lag = 0;
-    else {
-        for (size_t i=0; i<sz; ++i) {
-            lag += x[nbr[i]] * nbrWeight[i] / sumW;
-        }
-    }
+    if (sz>1) lag /= (double) sz;
 	
 	return lag;
 }
@@ -219,21 +211,9 @@ double GalElement::SpatialLag(const double *x) const
 	double lag = 0;
 	size_t sz = Size();
     
-    double sumW = 0;
-	for (size_t i=0; i<sz; ++i) {
-        sumW += nbrWeight[i];
-    }
-    
-    if (sumW == 0)
-        lag = 0;
-    else {
-        for (size_t i=0; i<sz; ++i) {
-            lag += x[nbr[i]] * nbrWeight[i] / sumW;
-        }
-    }
-	
-	//for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-	//if (sz>1) lag /= (double) sz;
+    for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
+    if (sz>1) lag /= (double) sz;
+
 	return lag;
 }
 

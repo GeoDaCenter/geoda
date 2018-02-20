@@ -984,12 +984,12 @@ void CreatingWeightDlg::CreateWeights()
         defaultFile += ".gal";
         wildcard = _("GAL files (*.gal)|*.gal");
     } else {
-        if (m_nb_distance_methods->GetSelection() == 0) {
-            defaultFile += ".gwt";
-            wildcard = _("GWT files (*.gwt)|*.gwt");
-        } else {
+        if (m_nb_distance_methods->GetSelection() == 2) {
             defaultFile += ".kwt";
             wildcard = _("KWT files (*.kwt)|*.kwt");
+        } else {
+            defaultFile += ".gwt";
+            wildcard = _("GWT files (*.gwt)|*.gwt");
         }
     }
     
