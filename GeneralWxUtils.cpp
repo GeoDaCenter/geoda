@@ -469,3 +469,53 @@ wxColour GeneralWxUtils::PickColor(wxWindow *parent, wxColour& col)
     }
     return col;
 }
+
+void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
+{
+    //Create a DC for the whole screen area
+    wxWindowDC dcScreen(win);
+    
+    //Get the size of the screen/DC
+    wxCoord screenWidth, screenHeight;
+    dcScreen.GetSize(&screenWidth, &screenHeight);
+    
+    //Create a Bitmap that will later on hold the screenshot image
+    //Note that the Bitmap must have a size big enough to hold the screenshot
+    //-1 means using the current default colour depth
+    wxBitmap screenshot(screenWidth, screenHeight,-1);
+    
+    //Create a memory DC that will be used for actually taking the screenshot
+    wxMemoryDC memDC;
+    //Tell the memory DC to use our Bitmap
+    //all drawing action on the memory DC will go to the Bitmap now
+    memDC.SelectObject(screenshot);
+    //Blit (in this case copy) the actual screen on the memory DC
+    //and thus the Bitmap
+    memDC.Blit( 0, //Copy to this X coordinate
+               0, //Copy to this Y coordinate
+               screenWidth, //Copy this width
+               screenHeight, //Copy this height
+               &dcScreen, //From where do we copy?
+               0, //What's the X offset in the original DC?
+               0  //What's the Y offset in the original DC?
+               );
+    //Select the Bitmap out of the memory DC by selecting a new
+    //uninitialized Bitmap
+    memDC.SelectObject(wxNullBitmap);
+    
+    //Our Bitmap now has the screenshot, so let's save it :-)
+    wxString default_fname(title);
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    wxFileDialog dialog(NULL, "Save Image to File", wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dialog.ShowModal() != wxID_OK) return;
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+    
+    if (dialog.GetFilterIndex() == 0) {
+        screenshot.SaveFile(str_fname + ".bmp", wxBITMAP_TYPE_BMP);
+    } else if (dialog.GetFilterIndex() == 1) {
+        screenshot.SaveFile(str_fname + ".png", wxBITMAP_TYPE_PNG);
+    }
+}

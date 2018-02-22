@@ -127,6 +127,8 @@ public:
 	virtual void notifyOfClosing(VarsChooserObservable* o);
 
     virtual void OnSetDisplayPrecision(wxCommandEvent& event);
+   
+    void OnSaveScreen(wxCommandEvent& event);
     
 	void GetVizInfo(vector<wxString>& vars);
 	

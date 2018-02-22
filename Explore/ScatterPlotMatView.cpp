@@ -22,6 +22,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include "../GeneralWxUtils.h"
 #include "../DialogTools/AdjustYAxisDlg.h"
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
@@ -133,6 +134,12 @@ void ScatterPlotMatFrame::OnActivate(wxActivateEvent& event)
 	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
+void ScatterPlotMatFrame::OnSaveScreen(wxCommandEvent& event)
+{
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(panel, title);
+}
+
 void ScatterPlotMatFrame::MapMenus()
 {
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
@@ -140,7 +147,6 @@ void ScatterPlotMatFrame::MapMenus()
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
 	ScatterPlotMatFrame::UpdateContextMenuItems(optMenu);
-
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
 }
@@ -161,6 +167,13 @@ void ScatterPlotMatFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
+    menu->AppendSeparator();
+    wxString menu_txt = _("Save Image As");
+    menu->Append(XRCID("SAVE_SCATTER_MAT"), menu_txt);
+    
+    
+    Connect(XRCID("SAVE_SCATTER_MAT"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ScatterPlotMatFrame::OnSaveScreen));
+    
     
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
 								  brush_rectangle);

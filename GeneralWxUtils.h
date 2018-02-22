@@ -57,6 +57,7 @@ public:
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
     static wxColour PickColor(wxWindow* parent, wxColour& col);
+    static void SaveWindowAsImage(wxWindow* win, wxString title);
     //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
 };
 
