@@ -1356,9 +1356,6 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		return;
     }
 
-    RecentDatasource recent_ds;
-    recent_ds.Add(project_p->GetDataSource(), project_p->GetProjectTitle());
-    
     InitWithProject();
 }
 
@@ -1384,6 +1381,9 @@ void GdaFrame::InitWithProject()
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
    
+    RecentDatasource recent_ds;
+    recent_ds.Add(project_p->GetDataSource(), project_p->GetProjectTitle());
+    
     // This call is very improtant because we need the wxGrid to
     // take ownership of the TableBase instance (due to bug in wxWidgets)
     TableFrame* tf;
