@@ -52,7 +52,6 @@ public:
     void OnDistanceChoice(wxCommandEvent& event);
     void OnInitMethodChoice(wxCommandEvent& event);
    
-    void OnAutoWeightCentroids(wxCommandEvent& event);
     void BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs);
     bool CheckContiguity(double w, double& ss);
     void Run(vector<wxInt64>& clusters);
@@ -66,6 +65,8 @@ public:
     std::vector<int> col_ids;
 
 protected:
+    virtual void OnAutoWeightCentroids(wxCommandEvent& event);
+    
     bool show_initmethod;
     bool show_distance;
     bool show_iteration;
@@ -90,6 +91,7 @@ protected:
     double** distmatrix;
     
     map<double, vector<wxInt64> > sub_clusters;
+    GalElement* gal;
     
     DECLARE_EVENT_TABLE()
 };

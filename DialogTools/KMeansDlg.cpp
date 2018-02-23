@@ -39,6 +39,7 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+#include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
@@ -59,6 +60,7 @@ KClusterDlg::KClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
     wxLogMessage("In KClusterDlg()");
     distmatrix = NULL;
     show_iteration = true;
+    gal = NULL;
 }
 
 KClusterDlg::~KClusterDlg()
@@ -344,10 +346,54 @@ bool KClusterDlg::CheckContiguity(double w, double& ssd)
 {
     int val = w * 100;
     m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
+    
     vector<wxInt64> clusters;
     Run(clusters);
+  
+    if (gal== NULL) {
+        bool is_queen = true;
+        gal = PolysToContigWeights(project->main_data, is_queen);
+    }
+   
+    map<int, set<wxInt64> > groups;
+    map<int, set<wxInt64> >::iterator it;
+    for (int i=0; i<clusters.size(); i++) {
+        int c = clusters[i];
+        if (groups.find(c)==groups.end()) {
+            set<wxInt64> g;
+            g.insert(i);
+            groups[c] = g;
+        } else {
+            groups[c].insert(i);
+        }
+    }
     
-    return false;
+    bool is_cont = true;
+    set<wxInt64>::iterator item_it;
+    for (it = groups.begin(); it != groups.end(); it++) {
+        // check each group if contiguity
+        set<wxInt64> g = it->second;
+        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
+            int idx = *item_it;
+            const vector<long>& nbrs = gal[idx].GetNbrs();
+            bool not_in_group = true;
+            for (int i=0; i<nbrs.size(); i++ ) {
+                if (g.find(nbrs[i]) != g.end()) {
+                    not_in_group = false;
+                    break;
+                }
+            }
+            if (not_in_group) {
+                is_cont = false;
+                break;
+            }
+        }
+        if (!is_cont)
+            break;
+    }
+    
+    return is_cont;
 }
 
 void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs)
@@ -392,6 +438,8 @@ void KClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
             w = ssd_pairs[i].first;
         }
     }
+    
+    
 }
 
 void KClusterDlg::Run(vector<wxInt64>& clusters)

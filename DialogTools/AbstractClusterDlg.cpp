@@ -196,6 +196,12 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
     InitVariableCombobox(*combo_var);
     
     (*m_use_centroids) = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
+    auto_btn = new wxButton(panel, wxID_OK, wxT("Auto Weighting"));
+    auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids, this);
+    wxBoxSizer *hbox_c = new wxBoxSizer(wxHORIZONTAL);
+    hbox_c->Add(*m_use_centroids, 0);
+    hbox_c->Add(auto_btn, 0);
+    
     wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"), wxDefaultPosition, wxDefaultSize);
     wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, _("0"));
     wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, _("1"));
@@ -212,7 +218,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxListBox** combo_var, wx
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(*combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(*m_use_centroids, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(hbox_c, 0, wxLEFT | wxRIGHT, 10);
     hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
     
     
@@ -261,6 +267,11 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
         m_wc_txt->SetValue("0.00");
         m_wc_txt->Disable();
     }
+}
+
+void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
+{
+    
 }
 
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)

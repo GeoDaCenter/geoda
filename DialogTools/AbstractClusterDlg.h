@@ -100,6 +100,7 @@ protected:
     // -- controls
     wxListBox* combo_var;
     wxCheckBox* m_use_centroids;
+    wxButton* auto_btn;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
     // -- functions
@@ -117,9 +118,11 @@ protected:
         bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
     void OnSlideWeight(wxCommandEvent& event);
-    virtual void InitVariableCombobox(wxListBox* var_box, bool integer_only=false);
+    virtual void InitVariableCombobox(wxListBox* var_box,
+                                      bool integer_only=false);
     bool GetInputData(int transform, int min_num_var=2);
     void OnInputWeights(wxCommandEvent& event);
+    virtual void OnAutoWeightCentroids(wxCommandEvent& event);
    
     // Transformation control
     // -- variables
