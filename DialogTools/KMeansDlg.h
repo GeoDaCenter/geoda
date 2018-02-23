@@ -51,6 +51,11 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnInitMethodChoice(wxCommandEvent& event);
+   
+    void OnAutoWeightCentroids(wxCommandEvent& event);
+    void BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs);
+    bool CheckContiguity(double w, double& ss);
+    void Run(vector<wxInt64>& clusters);
     
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();

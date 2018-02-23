@@ -340,10 +340,57 @@ void KClusterDlg::ComputeDistMatrix(int dist_sel)
     
 }
 
-void KClusterDlg::OnOK(wxCommandEvent& event )
+bool KClusterDlg::CheckContiguity(double w, double& ssd)
 {
-    wxLogMessage("Click KClusterDlg::OnOK");
+    return false;
+}
+
+void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs)
+{
+    double delta = right - left;
+    
+    if ( delta < 0.01 )
+        return;
+    
+    double mid = left + delta /2.0;
+    
+    // assume left is always not contiguity and right is always contiguity
+    //bool l_conti = CheckContiguity(left);
+    double m_ssd = 0;
+    bool m_conti = CheckContiguity(mid, m_ssd);
+    
+    if ( m_conti ) {
+        ssd_pairs.push_back( std::make_pair(mid, m_ssd) );
+        return BinarySearch(left, mid, ssd_pairs);
+        
+    } else {
+        return BinarySearch(mid, right, ssd_pairs);
+    }
+}
+
+void KClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
+{
+    // apply custom algorithm to find optimal weighting value between 0 and 1
+    // when w = 1 (fully geometry based)
+    // when w = 0 (fully attributes based)
+    std::vector<std::pair<double, double> > ssd_pairs;
+    BinarySearch(0.0, 1.0, ssd_pairs);
    
+    if (ssd_pairs.empty()) return;
+    
+    double w = ssd_pairs[0].first;
+    double ssd = ssd_pairs[0].second;
+    
+    for (int i=1; i<ssd_pairs.size(); i++) {
+        if (ssd_pairs[i].second > ssd) {
+            ssd = ssd_pairs[i].second;
+            w = ssd_pairs[i].first;
+        }
+    }
+}
+
+void KClusterDlg::Run(vector<wxInt64>& clusters)
+{
     if (GdaConst::use_gda_user_seed) {
         setrandomstate(GdaConst::gda_user_seed);
         resetrandom();
@@ -353,20 +400,11 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     int ncluster = combo_n->GetSelection() + 2;
-   
-    wxString field_name = m_textbox->GetValue();
-    if (field_name.IsEmpty()) {
-        wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
     int transform = combo_tranform->GetSelection();
     
     if (!GetInputData(transform,1))
         return;
-
+    
     if (!CheckMinBound())
         return;
     
@@ -384,8 +422,8 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         n_maxiter = value;
     }
     
-	int meth_sel = combo_method->GetSelection();
-
+    int meth_sel = combo_method->GetSelection();
+    
     // start working
     int nCPUs = boost::thread::hardware_concurrency();
     int quotient = npass / nCPUs;
@@ -397,14 +435,14 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         it->second.clear();
     }
     sub_clusters.clear();
-
+    
     int dist_sel = m_distance->GetSelection();
-  
+    
     ComputeDistMatrix(dist_sel);
     
-	double min_bound = GetMinBound();
+    double min_bound = GetMinBound();
     double* bound_vals = GetBoundVals();
-
+    
     int s1 = 0;
     if (GdaConst::use_gda_user_seed) {
         srand(GdaConst::gda_user_seed);
@@ -422,7 +460,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
             a = remainder*(quotient+1) + (i-remainder)*quotient;
             b = a+quotient-1;
         }
-    
+        
         if (s1 >0) s1 = a + 1;
         int n_runs = b - a + 1;
         
@@ -431,13 +469,12 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         threadPool.add_thread(worker);
     }
     threadPool.join_all();
-
-	delete[] bound_vals;
-   
+    
+    delete[] bound_vals;
+    
     bool start = false;
     double min_error = 0;
-    vector<wxInt64> clusters;
-    vector<bool> clusters_undef(num_obs, false);
+
     for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
         double error = it->first;
         vector<wxInt64>& clst = it->second;
@@ -452,6 +489,26 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
             }
         }
     }
+}
+
+void KClusterDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click KClusterDlg::OnOK");
+   
+    int ncluster = combo_n->GetSelection() + 2;
+   
+    wxString field_name = m_textbox->GetValue();
+    if (field_name.IsEmpty()) {
+        wxString err_msg = _("Please enter a field name for saving clustering results.");
+        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    vector<bool> clusters_undef(num_obs, false);
+    
+    vector<wxInt64> clusters;
+    Run(clusters);
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
