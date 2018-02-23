@@ -342,6 +342,11 @@ void KClusterDlg::ComputeDistMatrix(int dist_sel)
 
 bool KClusterDlg::CheckContiguity(double w, double& ssd)
 {
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    vector<wxInt64> clusters;
+    Run(clusters);
+    
     return false;
 }
 

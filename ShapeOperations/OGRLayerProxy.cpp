@@ -1118,8 +1118,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     pc->parts.resize(pc->num_parts);
                     
                     for (size_t j=0; j < ni_rings; j++) {
-                        pLinearRing = j==0 ? 
-                            p->getExteriorRing() : p->getInteriorRing(j-1);
+                        pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
                         pc->parts[part_idx++] = numPoints;
                         numPoints += pLinearRing->getNumPoints();
                     }
@@ -1128,8 +1127,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     pc->points.resize(pc->num_points);
                     // read points
                     for (size_t j=0; j < ni_rings; j++) {
-                        pLinearRing = j==0 ? 
-                            p->getExteriorRing() : p->getInteriorRing(j-1);
+                        pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
                         for (int k=0; k < pLinearRing->getNumPoints(); k++) {
                             pc->points[pidx].x = pLinearRing->getX(k);
                             pc->points[pidx++].y = pLinearRing->getY(k);
