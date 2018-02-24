@@ -61,6 +61,7 @@ protected:
     TableInterface* table_int;
     FramesManager* frames_manager;
     TableState* table_state;
+    GalElement* gal;
     
     vector<vector<double> > z;
     vector<bool> undefs;
@@ -78,7 +79,9 @@ protected:
     
     wxTextValidator validator;
     wxArrayString var_items;
-   
+  
+    virtual bool GetDefaultContiguity();
+    
     virtual bool Init();
     
     virtual double* GetWeights(int columns);
@@ -106,14 +109,10 @@ protected:
     // -- functions
     virtual void AddInputCtrls(
        wxPanel *panel,
-       wxListBox** combo_var,
-       wxCheckBox** m_use_centroids,
-       wxSlider** m_weight_centroids,
-       wxTextCtrl** m_wc_txt,
-       wxBoxSizer* vbox);
+       wxBoxSizer* vbox,
+       bool show_auto_button = false);
     virtual void AddSimpleInputCtrls(
         wxPanel *panel,
-        wxListBox** combo_var,
         wxBoxSizer* vbox,
         bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
@@ -169,8 +168,8 @@ protected:
     wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
     wxString _printWithinSS(const vector<double>& within_ss);
     virtual wxString _printConfiguration()=0;
-    void CreateSummary(const vector<wxInt64>& clusters);
-    void CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>());
+    double CreateSummary(const vector<wxInt64>& clusters, bool show_print = true);
+    double CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>(), bool show_print = true);
 };
 
 #endif

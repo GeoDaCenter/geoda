@@ -54,7 +54,7 @@ public:
    
     void BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs);
     bool CheckContiguity(double w, double& ss);
-    void Run(vector<wxInt64>& clusters);
+    bool Run(vector<wxInt64>& clusters);
     
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
@@ -91,7 +91,7 @@ protected:
     double** distmatrix;
     
     map<double, vector<wxInt64> > sub_clusters;
-    GalElement* gal;
+    
     
     DECLARE_EVENT_TABLE()
 };

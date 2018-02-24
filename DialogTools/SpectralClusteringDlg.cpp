@@ -99,7 +99,7 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
+    AddInputCtrls(panel, vbox);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(14,2,5,0);

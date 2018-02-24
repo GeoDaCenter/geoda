@@ -39,7 +39,6 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
-#include "../ShapeOperations/PolysToContigWeights.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
@@ -60,7 +59,6 @@ KClusterDlg::KClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
     wxLogMessage("In KClusterDlg()");
     distmatrix = NULL;
     show_iteration = true;
-    gal = NULL;
 }
 
 KClusterDlg::~KClusterDlg()
@@ -77,16 +75,19 @@ void KClusterDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddInputCtrls(panel, &combo_var, &m_use_centroids, &m_weight_centroids, &m_wc_txt, vbox);
+    AddInputCtrls(panel, vbox, true);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
     
 	// NumberOfCluster Control
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"), wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY,
+                                         _("Number of Clusters:"),
+                                         wxDefaultPosition, wxSize(128,-1));
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
     max_n_clusters = num_obs < 60 ? num_obs : 60;
-    for (int i=2; i<max_n_clusters+1; i++) combo_n->Append(wxString::Format("%d", i));
+    for (int i=2; i<max_n_clusters+1; i++)
+        combo_n->Append(wxString::Format("%d", i));
     combo_n->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_n, 1, wxEXPAND);
@@ -98,7 +99,8 @@ void KClusterDlg::CreateControls()
     AddTransformation(panel, gbox);
     
     // Initialization Method
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"),
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY,
+                                          _("Initialization Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices16[] = {"KMeans++", "Random"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
@@ -114,13 +116,15 @@ void KClusterDlg::CreateControls()
         combo_method->SetSelection(1); // use Random if hide init
     } 
     
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"),
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY,
+                                          _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
     m_pass = new wxTextCtrl(panel, wxID_ANY, wxT("150"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_pass, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY,
+                                          _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
@@ -137,7 +141,8 @@ void KClusterDlg::CreateControls()
         seedButton->Enable();
     }
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
+                                          _("Maximal Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("1000"), wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -148,7 +153,8 @@ void KClusterDlg::CreateControls()
         m_iterations->Hide();
     }
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
+                                          _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
@@ -314,7 +320,6 @@ void KClusterDlg::OnClose(wxCloseEvent& ev)
     Destroy();
 }
 
-
 wxString KClusterDlg::_printConfiguration()
 {
     wxString txt;
@@ -349,12 +354,17 @@ bool KClusterDlg::CheckContiguity(double w, double& ssd)
     m_wc_txt->SetValue(wxString::Format("%f", w));
     
     vector<wxInt64> clusters;
-    Run(clusters);
-  
-    if (gal== NULL) {
-        bool is_queen = true;
-        gal = PolysToContigWeights(project->main_data, is_queen);
+    if (Run(clusters) == false) {
+        m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.0");
+        return false;
     }
+  
+    // not show print
+    ssd = CreateSummary(clusters, false);
+  
+    if (GetDefaultContiguity() == false)
+        return false;
    
     map<int, set<wxInt64> > groups;
     map<int, set<wxInt64> >::iterator it;
@@ -439,10 +449,12 @@ void KClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
         }
     }
     
-    
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
 }
 
-void KClusterDlg::Run(vector<wxInt64>& clusters)
+bool KClusterDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
         setrandomstate(GdaConst::gda_user_seed);
@@ -456,10 +468,10 @@ void KClusterDlg::Run(vector<wxInt64>& clusters)
     int transform = combo_tranform->GetSelection();
     
     if (!GetInputData(transform,1))
-        return;
+        return false;
     
     if (!CheckMinBound())
-        return;
+        return false;
     
     int npass = 10;
     wxString str_pass = m_pass->GetValue();
@@ -542,6 +554,7 @@ void KClusterDlg::Run(vector<wxInt64>& clusters)
             }
         }
     }
+    return true;
 }
 
 void KClusterDlg::OnOK(wxCommandEvent& event )
@@ -561,15 +574,14 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     vector<bool> clusters_undef(num_obs, false);
     
     vector<wxInt64> clusters;
-    Run(clusters);
+    if (Run(clusters) == false)
+        return;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
-    
     for (int i=0; i < clusters.size(); i++) {
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
-
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
     for (int i=0; i < ncluster; i++) {

@@ -76,7 +76,7 @@ void MaxpDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, &combo_var, vbox);
+    AddSimpleInputCtrls(panel, vbox);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);

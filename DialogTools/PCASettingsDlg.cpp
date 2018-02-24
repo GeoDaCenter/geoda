@@ -67,7 +67,7 @@ void PCASettingsDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // input
-    AddSimpleInputCtrls(panel, &combo_var, vbox);
+    AddSimpleInputCtrls(panel, vbox);
 
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);

@@ -113,7 +113,7 @@ void ColocationSelectDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, &combo_var, vbox, true);
+    AddSimpleInputCtrls(panel, vbox, true);
   
     // Parameters
     wxBoxSizer *vvbox = new wxBoxSizer(wxVERTICAL);
