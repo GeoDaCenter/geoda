@@ -26,6 +26,7 @@
 #include <set>
 
 #include <boost/unordered_map.hpp>
+#include <boost/heap/priority_queue.hpp>
 
 #include "../ShapeOperations/GalWeight.h"
 
@@ -43,9 +44,9 @@ public:
     void push_back(T* node);
    
     T* pop(); // pop with largest node->items
-    
-    
 };
+
+
 /////////////////////////////////////////////////////////////////////////
 //
 // RedCapNode
@@ -95,11 +96,11 @@ protected:
     
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // RedCapCluster
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class RedCapCluster {
 public:
     RedCapCluster(RedCapEdge* edge);
@@ -107,6 +108,10 @@ public:
     RedCapCluster(RedCapNode* node);
     
     ~RedCapCluster();
+    
+    int size();
+    
+    RedCapNode* GetNode(int i);
     
     bool Has(RedCapNode* node);
     
@@ -121,43 +126,54 @@ public:
     unordered_map<RedCapEdge*, bool> edge_dict;
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // RedCapClusterManager
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class RedCapClusterManager {
 
 public:
     RedCapClusterManager();
     ~RedCapClusterManager();
    
-    unordered_map<RedCapCluster*, bool> clusters;
+    unordered_map<RedCapCluster*, bool> clusters_dict;
     unordered_map<RedCapCluster*, bool>::iterator it;
     
     bool HasCluster(RedCapCluster* cluster);
     
-    RedCapCluster* Update(RedCapEdge* edge);
+    RedCapCluster* UpdateByAdd(RedCapEdge* edge);
     
-    bool CheckConnectivity(RedCapEdge* edge, vector<RedCapCluster*>& l_m);
+    bool CheckContiguity(RedCapCluster* c1, RedCapCluster* c2, GalElement* w);
     
-    bool CheckConnectivity(RedCapEdge* edge, RedCapCluster* c1, RedCapCluster* c2);
+    bool CheckConnectivity(RedCapEdge* edge, GalElement* w,
+                           RedCapCluster* c1,
+                           RedCapCluster* c2);
     
     RedCapCluster* getCluster(RedCapNode* node);
+    
+    RedCapCluster* createCluster(RedCapNode* node);
     
     RedCapCluster* createCluster(RedCapEdge* edge);
     
     RedCapCluster* mergeToCluster(RedCapNode* node, RedCapCluster* cluster);
     
-    RedCapCluster* mergeClusters(RedCapCluster* cluster1, RedCapCluster* cluster2);
+    RedCapCluster* mergeClusters(RedCapCluster* cluster1,
+                                 RedCapCluster* cluster2);
     
-    bool GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length,
-                            unordered_map<pair<int, int>, double>& fo_edge_dict);
+    bool GetAvgEdgeLength(RedCapCluster* c1,
+                          RedCapCluster* c2,
+                          double* length,
+                          unordered_map<pair<int, int>, double>& fo_edge_dict);
     
-    bool GetMaxEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length,
-                            unordered_map<pair<int, int>, double>& fo_edge_dict);
+    bool GetMaxEdgeLength(RedCapCluster* c1,
+                          RedCapCluster* c2,
+                          double* length,
+                          unordered_map<pair<int, int>, double>& fo_edge_dict);
     
-    void UpdateEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double length,
+    void UpdateEdgeLength(RedCapCluster* c1,
+                          RedCapCluster* c2,
+                          double length,
                           vector<RedCapEdge*>& edges);
 };
 
@@ -241,18 +257,30 @@ protected:
     // check if all odes are included in the graph
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // AbstractRedcap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 /*! A REDCAP class */
+
+struct CompareCluster
+{
+public:
+    bool operator() (const SpatialContiguousTree* lhs, const SpatialContiguousTree* rhs) const
+    {
+        return lhs->heterogeneity < rhs->heterogeneity;
+    }
+};
+
+typedef heap::priority_queue<SpatialContiguousTree*, heap::compare<CompareCluster> > PriorityQueue;
+
 
 class AbstractRedcap
 {
 public:
     
-    AbstractRedcap(const vector<vector<double> >& data, const vector<bool>& undefs);
+    AbstractRedcap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w);
     
     //! A Deconstructor
     /*!
@@ -260,7 +288,7 @@ public:
      */
     virtual ~AbstractRedcap();
 
-    void init(GalElement* w);
+    void init();
     
     // check if complete graph, no islands
     bool checkFirstOrderEdges();
@@ -271,11 +299,15 @@ public:
     
     vector<vector<int> >& GetRegions();
     
+    void createFullOrderEdges(vector<RedCapEdge*>& e);
+    
 protected:
     
     int num_obs;
     
     int num_vars;
+    
+    GalElement* w;
     
     const vector<vector<double> >& data;
     
@@ -287,93 +319,125 @@ protected:
 
     vector<RedCapNode*> all_nodes;
     
-    vector<RedCapEdge*> first_order_edges;
+    vector<RedCapEdge*> order_edges;
     
     unordered_map<pair<int, int>, double> fo_edge_dict;
     
-    //vector<RedCapEdge*> full_order_edges;
-    
-    SpatialContiguousTree* tree;
+    SpatialContiguousTree* mstree;
     
     vector<SpatialContiguousTree*> regions;
     
     vector<vector<int> > cluster_ids;
+    
+    RedCapClusterManager cm; // manage to create a MST
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 1 FirstOrderSLKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FirstOrderSLKRedCap : public AbstractRedcap
 {
 public:
     FirstOrderSLKRedCap();
-    FirstOrderSLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
+    FirstOrderSLKRedCap(const vector<vector<double> >& data,
+                        const vector<bool>& undefs,
+                        GalElement * w,
+                        double* controls,
+                        double control_thres);
     virtual ~FirstOrderSLKRedCap();
     
     virtual void Clustering();
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 2 FirstOrderALKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FirstOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderALKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs,GalElement * w, double* controls, double control_thres);
+    FirstOrderALKRedCap(const vector<vector<double> >& data,
+                        const vector<bool>& undefs,
+                        GalElement * w,
+                        double* controls,
+                        double control_thres);
     
     virtual ~FirstOrderALKRedCap();
     
     virtual void Clustering();
     
-     double** distance_matrix;
+protected:
+    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> avgDist;
+    
+    double getALKDistance(RedCapCluster* l, RedCapCluster* m);
+    
+    bool updateALKDistanceToCluster(RedCapCluster* l,
+                                    vector<RedCapEdge*>& E);
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 3 FirstOrderCLKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FirstOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
+    FirstOrderCLKRedCap(const vector<vector<double> >& data,
+                        const vector<bool>& undefs,
+                        GalElement * w,
+                        double* controls,
+                        double control_thres);
     
     virtual ~FirstOrderCLKRedCap();
     
     virtual void Clustering();
     
-    double** distance_matrix;
+protected:
+    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
+    
+    double getCLKDistance(RedCapCluster* l, RedCapCluster* m);
+    
+    bool updateCLKDistanceToCluster(RedCapCluster* l,
+                                    vector<RedCapEdge*>& E);
 };
 
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 4 FullOrderSLKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FullOrderSLKRedCap : public AbstractRedcap
 {
 public:
     FullOrderSLKRedCap();
-    FullOrderSLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
+    FullOrderSLKRedCap(const vector<vector<double> >& data,
+                       const vector<bool>& undefs,
+                       GalElement * w,
+                       double* controls,
+                       double control_thres);
     virtual ~FullOrderSLKRedCap();
     
     virtual void Clustering();
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 5 FullOrderALKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FullOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderALKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
+    FullOrderALKRedCap(const vector<vector<double> >& data,
+                       const vector<bool>& undefs,
+                       GalElement * w,
+                       double* controls,
+                       double control_thres);
     
     virtual ~FullOrderALKRedCap();
     
@@ -382,21 +446,31 @@ public:
     double** distance_matrix;
 };
 
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 // 6 FullOrderCLKRedCap
 //
-//////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 class FullOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderCLKRedCap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w, double* controls, double control_thres);
+    FullOrderCLKRedCap(const vector<vector<double> >& data,
+                       const vector<bool>& undefs,
+                       GalElement * w,
+                       double* controls,
+                       double control_thres);
     
     virtual ~FullOrderCLKRedCap();
     
     virtual void Clustering();
+   
+protected:
+    double getCLKDistance(RedCapCluster* l, RedCapCluster* m);
     
-    double** distance_matrix;
+    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
+    
+    bool updateCLKDistanceToCluster(RedCapCluster* l,
+                                    vector<RedCapEdge*>& E);
 };
 
 
