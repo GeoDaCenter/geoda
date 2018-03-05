@@ -723,6 +723,12 @@
     <ClInclude Include="..\..\DialogTools\PreferenceDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Explore\AbstractClusterMap.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\AbstractCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1321,6 +1327,12 @@
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp">
       <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp">
+      <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

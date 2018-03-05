@@ -336,6 +336,8 @@
     <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
+    <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp" />
+    <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp" />
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
@@ -442,6 +444,8 @@
     <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h" />
     <ClInclude Include="..\..\DialogTools\WeightsManDlg.h" />
+    <ClInclude Include="..\..\Explore\AbstractClusterMap.h" />
+    <ClInclude Include="..\..\Explore\AbstractCoordinator.h" />
     <ClInclude Include="..\..\Explore\Basemap.h" />
     <ClInclude Include="..\..\Explore\ColocationMapView.h" />
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
