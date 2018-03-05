@@ -24,7 +24,8 @@
 
 #include <vector>
 #include <set>
-
+#include <float.h>
+#include <boost/thread/mutex.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/heap/priority_queue.hpp>
 
@@ -46,6 +47,7 @@ public:
     T* pop(); // pop with largest node->items
 };
 
+typedef std::pair<int, int> E;
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -66,6 +68,8 @@ public:
     void AddNeighbor(RedCapNode* node);
     
     void RemoveNeighbor(RedCapNode* node);
+    
+    void RemoveNeighbor(int node_id);
     
     int id; // mapping to record id
     
@@ -110,6 +114,8 @@ public:
     ~RedCapCluster();
     
     int size();
+   
+    bool IsConnectWith(RedCapCluster* c);
     
     RedCapNode* GetNode(int i);
     
@@ -179,82 +185,93 @@ public:
 
 /////////////////////////////////////////////////////////////////////////
 //
-// SpatialContiguousTree
+// SpanningTree
 //
 /////////////////////////////////////////////////////////////////////////
+typedef std::pair<int, int> E;
 
-class SpatialContiguousTree
+static unordered_map<std::set<int>, double> ssd_dict; // <start, end>: ssd value
+
+class SpanningTree
 {
 public:
-    SpatialContiguousTree(const vector<RedCapNode*>& all_nodes,
-                          const vector<vector<double> >& _data,
-                          const vector<bool>& _undefs,
-                          double* controls = NULL,
-                          double control_thres = 0);
-    
-    SpatialContiguousTree(RedCapNode* graph,
-                          RedCapNode* exclude_node,
-                          unordered_map<int, RedCapNode*> ids_dict,
-                          const vector<vector<double> >& _data,
-                          const vector<bool>& _undefs,
-                          double* controls = NULL,
-                          double control_thres = 0);
-    
-    ~SpatialContiguousTree();
-    
-    // all nodes info
-    unordered_map<RedCapNode*, bool> all_nodes_dict;
-    
-    unordered_map<RedCapNode*, bool>::iterator it_all_nodes;
-    
-    unordered_map<int, RedCapNode*> ids_dict;
-    
-    double heterogeneity;
-    
-    void AddNode(RedCapNode* node);
-    
-    // should be a set of edges
     vector<RedCapEdge*> edges;
     
-    bool AddEdge(RedCapEdge* edge);
-   
-    void AddEdgeDirectly(RedCapNode* _a, RedCapNode* _b);
-   
-    void Split();
+    unordered_map<E, bool> edge_dict;
     
-    void subSplit(int start, int end);
+    unordered_map<int, bool> node_dict;
     
-    SpatialContiguousTree* GetLeftChild();
+    boost::mutex mutex;
     
-    SpatialContiguousTree* GetRightChild();
-    
-    bool quickCheck(RedCapNode* node, RedCapNode* exclude_node);
-    
-protected:
+    double ssd;
     
     RedCapNode* root;
     
     const vector<vector<double> >& data;
     
     const vector<bool>& undefs;
-   
+    
     double* controls;
     
     double control_thres;
     
-    SpatialContiguousTree* left_child;
+    SpanningTree* left_child;
     
-    SpatialContiguousTree* right_child;
+    SpanningTree* right_child;
     
-    map<pair<SpatialContiguousTree*, SpatialContiguousTree*>, double> cand_trees;
+    map<RedCapEdge*, double> cand_trees;
     
-    vector<RedCapNode*> new_nodes;
+    unordered_map<int, RedCapNode*> new_nodes;
+    
     vector<RedCapEdge*> new_edges;
+
+public:
+    SpanningTree(const vector<RedCapNode*>& all_nodes,
+                 const vector<vector<double> >& _data,
+                 const vector<bool>& _undefs,
+                 double* controls = NULL,
+                 double control_thres = 0);
     
-    double calcHeterogeneity();
+    SpanningTree(RedCapNode* node,
+                 RedCapNode* exclude_node,
+                 const vector<vector<double> >& _data,
+                 const vector<bool>& _undefs,
+                 double* controls = NULL,
+                 double control_thres = 0);
+
+    ~SpanningTree();
+   
     
-    bool checkControl();
+    void AddEdge(RedCapEdge* edge);
+  
+    bool IsFullyCovered();
+    
+    void Split();
+    
+    void subSplit(int start, int end);
+    
+    SpanningTree* GetLeftChild();
+    
+    SpanningTree* GetRightChild();
+    
+    double GetSSD();
+    
+    std::set<int> getSubTree(RedCapNode* a, RedCapNode* exclude_node);
+
+    bool quickCheck(RedCapNode* node, RedCapNode* exclude_node);
+    
+    bool checkEdge(RedCapEdge* edge);
+    
+protected:
+    
+    double computeSSD(std::set<int>& ids);
+    
+    bool checkControl(std::set<int>& ids);
     // check if all odes are included in the graph
+    
+    RedCapNode* getNewNode(RedCapNode* old_node, bool copy_nbrs=false);
+    
+    void addNewEdge(RedCapNode* a, RedCapNode* b);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -267,13 +284,13 @@ protected:
 struct CompareCluster
 {
 public:
-    bool operator() (const SpatialContiguousTree* lhs, const SpatialContiguousTree* rhs) const
+    bool operator() (const SpanningTree* lhs, const SpanningTree* rhs) const
     {
-        return lhs->heterogeneity < rhs->heterogeneity;
+        return lhs->ssd < rhs->ssd;
     }
 };
 
-typedef heap::priority_queue<SpatialContiguousTree*, heap::compare<CompareCluster> > PriorityQueue;
+typedef heap::priority_queue<SpanningTree*, heap::compare<CompareCluster> > PriorityQueue;
 
 
 class AbstractRedcap
@@ -290,8 +307,8 @@ public:
 
     void init();
     
-    // check if complete graph, no islands
-    bool checkFirstOrderEdges();
+    // check if mst is a spanning tree
+    bool CheckSpanningTree();
    
     void Partitioning(int k);
     
@@ -300,6 +317,10 @@ public:
     vector<vector<int> >& GetRegions();
     
     void createFullOrderEdges(vector<RedCapEdge*>& e);
+    
+    void createFirstOrderEdges(vector<RedCapEdge*>& e);
+    
+    bool checkFirstOrderEdge(int node_i, int node_j);
     
 protected:
     
@@ -319,13 +340,13 @@ protected:
 
     vector<RedCapNode*> all_nodes;
     
-    vector<RedCapEdge*> order_edges;
+    vector<RedCapEdge*> first_order_edges;
     
     unordered_map<pair<int, int>, double> fo_edge_dict;
     
-    SpatialContiguousTree* mstree;
+    SpanningTree* mstree;
     
-    vector<SpatialContiguousTree*> regions;
+    vector<SpanningTree*> regions;
     
     vector<vector<int> > cluster_ids;
     
