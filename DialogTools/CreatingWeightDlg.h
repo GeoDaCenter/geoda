@@ -67,7 +67,7 @@ public:
 							
 	void CreateControls();
 	void OnCreateNewIdClick( wxCommandEvent& event );
-	
+    void OnDistanceChoiceSelected(wxCommandEvent& event );
 	void SetDistChoiceEuclid(bool update_sel);
 	void SetDistChoiceArcMiles(bool update_sel);
 	void SetDistChoiceArcKms(bool update_sel);

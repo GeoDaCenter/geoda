@@ -50,6 +50,7 @@
 #include "CreatingWeightDlg.h"
 
 BEGIN_EVENT_TABLE( CreatingWeightDlg, wxDialog )
+EVT_CHOICE(XRCID("IDC_DISTANCE_METRIC"), CreatingWeightDlg::OnDistanceChoiceSelected )
 EVT_BUTTON( XRCID("ID_CREATE_ID"), CreatingWeightDlg::OnCreateNewIdClick )
 EVT_CHOICE(XRCID("IDC_IDVARIABLE"), CreatingWeightDlg::OnIdVariableSelected )
 EVT_CHOICE(XRCID("IDC_XCOORDINATES"), CreatingWeightDlg::OnXSelected )
@@ -722,6 +723,8 @@ void CreatingWeightDlg::InitDlg()
 	m_dist_choice->Append("Arc Distance (km)");
 	m_dist_choice->SetSelection(0);
 
+    m_radio_queen->SetValue(true);
+    
 	// Previously from OpenShapefile:
 	FindWindow(XRCID("ID_ID_VAR_STAT_TXT"))->Enable(true);
 	m_id_field->Enable(true);
@@ -821,6 +824,23 @@ void CreatingWeightDlg::OnYTmSelected(wxCommandEvent& event )
     wxLogMessage("Click CreatingWeightDlg::OnYTmSelected");
     
 	UpdateThresholdValues();
+}
+
+void CreatingWeightDlg::OnDistanceChoiceSelected(wxCommandEvent& event )
+{
+    wxLogMessage("Click CreatingWeightDlg::OnDistanceChoiceSelected");
+    
+    wxString s = m_dist_choice->GetStringSelection();
+    if (s == "Euclidean Distance") {
+        SetDistChoiceEuclid(false);
+        UpdateThresholdValues();
+    } else if (s == "Arc Distance (mi)") {
+        SetDistChoiceArcMiles(false);
+        UpdateThresholdValues();
+    } else if (s == "Arc Distance (km)") {
+        SetDistChoiceArcKms(false);
+        UpdateThresholdValues();
+    }
 }
 
 void CreatingWeightDlg::SetDistChoiceEuclid(bool update_sel)
