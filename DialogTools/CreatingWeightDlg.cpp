@@ -706,7 +706,7 @@ void CreatingWeightDlg::InitDlg()
 
     m_spinn_kernel->SetRange(1,20);
     m_spinn_kernel->SetValue(4);
-    int n_kernel_nbrs = pow(project->GetNumRecords(), 1.0/3.0);
+    int n_kernel_nbrs = ceil(pow(project->GetNumRecords(), 1.0/3.0));
     m_kernel_neighbors->SetValue(wxString::Format("%d", n_kernel_nbrs));
     m_kernel_methods->Clear();
     m_kernel_methods->Append("Uniform");
