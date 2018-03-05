@@ -294,6 +294,7 @@ public:
     
     static const wxColour conn_graph_outline_colour;
     static const wxColour conn_neighbor_outline_colour;
+    static const wxColour conn_neighbor_fill_colour;
 	
 	// Map Movie
 	static const wxColour map_movie_default_fill_colour;

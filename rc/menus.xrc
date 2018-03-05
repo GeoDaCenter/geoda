@@ -2537,6 +2537,9 @@
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
             <label>Change Outline Color of Neighbors</label>
         </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
+            <label>Change Fill Color of Neighbors</label>
+        </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
             <label>Show Graph</label>
@@ -2751,6 +2754,9 @@
         </object>
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
             <label>Change Outline Color of Neighbors</label>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
+            <label>Change Fill Color of Neighbors</label>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
@@ -3162,6 +3168,9 @@
         </object>
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
             <label>Change Outline Color of Neighbors</label>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
+            <label>Change Fill Color of Neighbors</label>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
