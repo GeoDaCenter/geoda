@@ -2107,20 +2107,46 @@ void MapCanvas::UpdateStatusBar()
         
     }
 	if (mousemode == select && selectstate == start) {
-		if (hover_obs.size() >= 1) {
-			s << "hover obs " << hover_obs[0]+1;
-		}
-		if (hover_obs.size() >= 2) {
-			s << ", ";
-			s << "obs " << hover_obs[1]+1;
-		}
-		if (hover_obs.size() >= 3) {
-			s << ", ";
-			s << "obs " << hover_obs[2]+1;
-		}
-		if (hover_obs.size() >= 4) {
-			s << ", ...";
-		}
+        if (!ids_of_nbrs.empty() && (display_neighbors || display_weights_graph))
+        {
+            WeightsManInterface* w_man_int = project->GetWManInt();
+            weights_id = w_man_int->GetDefault();
+            
+            if (hover_obs.size() == 1) {
+                long cid = hover_obs[0];
+                s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
+                s << " has " << ids_of_nbrs.size() << " neighbor";
+                if (ids_of_nbrs.size() != 1) s << "s";
+                if (ids_of_nbrs.size() > 0) {
+                    s << ": ";
+                    int n_cnt = 0;
+                    for (std::set<int>::const_iterator it = ids_of_nbrs.begin();
+                         it != ids_of_nbrs.end() && n_cnt <= 20; ++it) {
+                        s << w_man_int->RecNumToId(GetWeightsId(), (*it));
+                        if (n_cnt+1 < ids_of_nbrs.size()) s << ", ";
+                        ++n_cnt;
+                    }
+                    if (ids_of_nbrs.size() > 20) s << "...";
+                } else {
+                    s << ".";
+                }
+            }
+        } else {
+            if (hover_obs.size() >= 1) {
+                s << "hover obs " << hover_obs[0]+1;
+            }
+            if (hover_obs.size() >= 2) {
+                s << ", ";
+                s << "obs " << hover_obs[1]+1;
+            }
+            if (hover_obs.size() >= 3) {
+                s << ", ";
+                s << "obs " << hover_obs[2]+1;
+            }
+            if (hover_obs.size() >= 4) {
+                s << ", ...";
+            }
+        }
 	}
 	sb->SetStatusText(s);
 }
