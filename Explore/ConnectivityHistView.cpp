@@ -398,8 +398,8 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			} else if (ival_min > mean && sd > 0) {
 				sd_d = (ival_min - mean)/sd;
 			}
-			vals[0] << GenUtils::DblToStr(ival_min, 3);
-			vals[1] << GenUtils::DblToStr(ival_max, 3);
+			vals[0] << GenUtils::DblToStr(ival_min, 0);
+			vals[1] << GenUtils::DblToStr(ival_max, 0);
 			vals[2] << ival_obs_cnt[i];
 			vals[3] << GenUtils::DblToStr(p, 3);
 			vals[4] << GenUtils::DblToStr(sd_d, 3);

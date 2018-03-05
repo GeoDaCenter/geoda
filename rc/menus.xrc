@@ -2215,9 +2215,6 @@
     </object>
     <object class="wxMenu" name="ID_HIST_VIEW_MENU">
         <label>View</label>
-        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
-            <label>Set Display Precision on Axes</label>
-        </object>
         <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
           <label>Display Statistics</label>
           <checkable>1</checkable>
