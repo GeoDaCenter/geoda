@@ -396,9 +396,11 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 			}
 			if (e.wmi.sym_type == WeightsMetaInfo::SYM_symmetric) {
 				sssub.put("symmetry", "symmetric");
-            } else {// if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
+            } else if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
 				sssub.put("symmetry", "asymmetric");
-			}
+            } else {
+                sssub.put("symmetry", "unknown");
+            }
             if (e.wmi.num_obs >=0) {
                 sssub.put("num_observations", e.wmi.num_obs);
             }
