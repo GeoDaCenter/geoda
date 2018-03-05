@@ -1120,7 +1120,6 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
     }
 
     wxFileName gwtfn(ofname);
-    gwtfn.SetExt("gwt");
     wxString gwt_ofn(gwtfn.GetFullPath());
 
 #ifdef __WIN32__

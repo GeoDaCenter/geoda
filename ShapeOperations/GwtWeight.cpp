@@ -265,7 +265,6 @@ bool Gda::SaveGwt(const GwtElement* g,
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
-	wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
 
 #ifdef __WIN32__
@@ -311,8 +310,6 @@ bool Gda::SaveGwt(const GwtElement* g,
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
-    if (!ofname.EndsWith("gwt") && !ofname.EndsWith("kwt"))
-        wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
 
 #ifdef __WIN32__
