@@ -117,9 +117,8 @@ void RedcapDlg::CreateControls()
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    //wxString choices20[] = {"First-Order-SLK", "First-Order-ALK", "First-Order-CLK","Full-Order-SLK", "Full-Order-ALK", "Full-Order-CLK"};
-    wxString choices20[] = {"First-Order-SLK", "First-Order-ALK"};
-    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices20);
+    wxString choices20[] = {"Single-Linkage (first-order)", "Average-Linkage (first-order)", "Complete-Linkage (first-order)", "Single-Linkage (full-order)", "Average-Linkage (full-order)", "Complete-Linkage (full-order)"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 6, choices20);
     combo_method->SetSelection(0);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -472,6 +471,14 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         redcap = new FirstOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 1)
         redcap = new FirstOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 2)
+        redcap = new FirstOrderCLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 3)
+        redcap = new FullOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 4)
+        redcap = new FullOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+    else if (method_idx == 5)
+        redcap = new FullOrderCLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
    
     if (redcap==NULL) {
         delete[] bound_vals;

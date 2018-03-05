@@ -271,7 +271,7 @@ void SpanningTree::Split()
 {
     int n_tasks = edges.size();
 
-    int nCPUs = 1;//boost::thread::hardware_concurrency();
+    int nCPUs = boost::thread::hardware_concurrency();
     int quotient = n_tasks / nCPUs;
     int remainder = n_tasks % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
@@ -303,7 +303,7 @@ void SpanningTree::Split()
         RedCapEdge* e = it->first;
         double hg = it->second;
 
-        if (is_first || (hg >=0 && hg < best_hg) ) {
+        if (is_first || (best_hg >0 && best_hg < hg) ) {
             best_hg = hg;
             is_first = false;
             best_e = e;
@@ -455,13 +455,15 @@ double SpanningTree::computeSSD(set<int>& ids)
     int n_vars = data[0].size();
     for (int i=0; i<n_vars; i++) {
         vector<double> tmp_data;
+        int n =0;
         for (it=ids.begin(); it!=ids.end(); it++) {
             int id = *it;
             if (undefs[id]) continue;
             tmp_data.push_back(data[id][i]);
+            n += 1;
         }
         double ssd = GenUtils::GetVariance(tmp_data);
-        sum_ssd += ssd;
+        sum_ssd += ssd * n;
     }
    
     boost::mutex::scoped_lock scoped_lock(mutex);
@@ -1181,7 +1183,7 @@ void FullOrderSLKRedCap::Clustering()
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
             if (cm.CheckConnectivity(tmp_e, w, l, m)) {
-                if (tmp_e->length < e->length)
+                if (tmp_e->length < tmp_e->length)
                     e = tmp_e;
             }
         }
@@ -1253,7 +1255,7 @@ void FullOrderALKRedCap::Clustering()
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
             if (cm.CheckConnectivity(tmp_e, w, l, m)) {
-                if (tmp_e->length < e->length)
+                if (tmp_e->length < tmp_e->length)
                     e = tmp_e;
             }
         }
