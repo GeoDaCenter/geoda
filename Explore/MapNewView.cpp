@@ -2471,7 +2471,8 @@ void MapFrame::update(WeightsManState* o)
 		UpdateTitle();
 		return;
 	}
-	if (o->GetEventType() == WeightsManState::remove_evt) {
+	if (no_update_weights == true &&
+        o->GetEventType() == WeightsManState::remove_evt) {
         Destroy();
 	}
 }
