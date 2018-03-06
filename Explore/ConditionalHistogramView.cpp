@@ -1076,3 +1076,10 @@ void ConditionalHistogramFrame::OnHistogramIntervals(wxCommandEvent& ev)
 		(ConditionalHistogramCanvas*) template_canvas;
 	t->HistogramIntervals();
 }
+
+void ConditionalHistogramFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
+{
+    if (!template_canvas) return;
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(template_canvas, title);
+}

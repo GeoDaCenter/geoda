@@ -924,3 +924,11 @@ void ConditionalScatterPlotFrame::OnDisplaySlopeValues(wxCommandEvent& ev)
 	c->DisplaySlopeValues(!c->IsDisplaySlopeValues());
 	UpdateOptionMenuItems();
 }
+
+void ConditionalScatterPlotFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
+{
+    if (!template_canvas) return;
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(template_canvas, title);
+}
+

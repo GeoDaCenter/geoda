@@ -143,7 +143,7 @@ public:
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
-	
+    virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	
