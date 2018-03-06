@@ -3607,7 +3607,7 @@
                                           </object>
                                           <object class="sizeritem">
                                               <object class="wxChoice" name="IDC_XCOORD_TIME">
-                                                  <size>80,-1d</size>
+                                                  <size>40,-1d</size>
                                               </object>
                                               <flag>wxALIGN_CENTER</flag>
                                           </object>
@@ -3627,7 +3627,7 @@
                                           </object>
                                           <object class="sizeritem">
                                               <object class="wxChoice" name="IDC_YCOORD_TIME">
-                                                  <size>80,-1d</size>
+                                                  <size>40,-1d</size>
                                               </object>
                                               <flag>wxALIGN_CENTER</flag>
                                           </object>
