@@ -2086,6 +2086,8 @@ void MapCanvas::UpdateStatusBar()
     std::vector<bool>& hl = highlight_state->GetHighlight();
 	wxString s;
     
+    int selected_cnt = 0;
+    
     if (GetCcType() == CatClassification::no_theme)
         s << "#obs=" << project->GetNumRecordsNoneEmpty() <<" ";
     else
@@ -2094,7 +2096,6 @@ void MapCanvas::UpdateStatusBar()
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows
         if (GetCcType() == CatClassification::no_theme) {
-            int selected_cnt = 0;
             for (int i=0; i<hl.size(); i++) {
                 if ( hl[i] && empty_dict.find(i) == empty_dict.end()) {
                     selected_cnt += 1;
@@ -2106,32 +2107,37 @@ void MapCanvas::UpdateStatusBar()
         }
         
     }
-	if (mousemode == select && selectstate == start) {
-        if (!ids_of_nbrs.empty() && (display_neighbors || display_weights_graph))
-        {
-            WeightsManInterface* w_man_int = project->GetWManInt();
-            weights_id = w_man_int->GetDefault();
+    if (display_neighbors || display_weights_graph)
+    {
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        weights_id = w_man_int->GetDefault();
+        GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+        
+        if (hover_obs.size() == 1 || selected_cnt == 1) {
+            long cid = hover_obs[0];
             
-            if (hover_obs.size() == 1) {
-                long cid = hover_obs[0];
-                s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
-                s << " has " << ids_of_nbrs.size() << " neighbor";
-                if (ids_of_nbrs.size() != 1) s << "s";
-                if (ids_of_nbrs.size() > 0) {
-                    s << ": ";
-                    int n_cnt = 0;
-                    for (std::set<int>::const_iterator it = ids_of_nbrs.begin();
-                         it != ids_of_nbrs.end() && n_cnt <= 20; ++it) {
-                        s << w_man_int->RecNumToId(GetWeightsId(), (*it));
-                        if (n_cnt+1 < ids_of_nbrs.size()) s << ", ";
-                        ++n_cnt;
-                    }
-                    if (ids_of_nbrs.size() > 20) s << "...";
-                } else {
-                    s << ".";
+            GalElement& e = gal_weights->gal[cid];
+            
+            s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
+            s << " has " << e.Size() << " neighbor";
+            if (e.Size() != 1) s << "s";
+            if (e.Size() > 0) {
+                s << ": ";
+                int n_cnt = 0;
+                for (int j=0, jend=e.Size(); j<jend; j++) {
+                    int obs = e[j];
+                    ids_of_nbrs.insert(obs);
+                    s << w_man_int->RecNumToId(GetWeightsId(), obs);
+                    if (n_cnt+1 < e.Size()) s << ", ";
+                    ++n_cnt;
                 }
+                if (e.Size() > 20) s << "...";
+            } else {
+                s << ".";
             }
-        } else {
+        }
+    } else {
+        if (mousemode == select && selectstate == start) {
             if (hover_obs.size() >= 1) {
                 s << "hover obs " << hover_obs[0]+1;
             }
@@ -2147,7 +2153,8 @@ void MapCanvas::UpdateStatusBar()
                 s << ", ...";
             }
         }
-	}
+    }
+	
 	sb->SetStatusText(s);
 }
 
