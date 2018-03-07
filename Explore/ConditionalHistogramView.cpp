@@ -466,7 +466,8 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-			wxString flt = wxString::Format("%.2g", axis_scale_x.tics[i]);
+			//wxString flt = wxString::Format("%.2g", axis_scale_x.tics[i]);
+            wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i], axis_display_precision);
 			axis_scale_x.tics_str[i] = flt.ToStdString();
 			axis_scale_x.tics_str_show[i] = false;
 		}

@@ -407,7 +407,7 @@ const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);
-const wxColour GdaConst::conn_graph_outline_colour(55,55,55);
+const wxColour GdaConst::conn_graph_outline_colour(55,55,55,100);
 const wxColour GdaConst::conn_neighbor_outline_colour(55,55,55);
 const wxColour GdaConst::conn_neighbor_fill_colour(255,255,255);
 

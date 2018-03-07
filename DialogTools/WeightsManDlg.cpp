@@ -357,7 +357,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	if (nb > 0) {
         wxString msg = _("There is one other view open that depends on this matrix. Ok to close this view and remove?");
         if (nb > 1) {
-            wxString tmp = _("There are %d other views open that depends on this matrix. Ok to close these views and remove?");
+            wxString tmp = _("There are some other views open that depends on this matrix. Ok to close these views and remove?");
             msg = wxString::Format(tmp, nb);
         }
 		wxMessageDialog dlg(this, msg, _("Notice"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);

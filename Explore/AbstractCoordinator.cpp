@@ -587,8 +587,8 @@ void AbstractCoordinator::update(WeightsManState* o)
 int AbstractCoordinator::numMustCloseToRemove(boost::uuids::uuid id) const
 {
 	wxLogMessage("In AbstractCoordinator::numMustCloseToRemove()");
-	//return id == w_id ? observers.size() : 0;
-    return 0;
+	return id == w_id ? observers.size() : 0;
+    //return 0;
 }
 
 void AbstractCoordinator::closeObserver(boost::uuids::uuid id)

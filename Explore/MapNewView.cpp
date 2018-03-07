@@ -1539,34 +1539,6 @@ void MapCanvas::PopulateCanvas()
 						foreground_shps.push_back(p);
 					}
 				}
-                if (display_weights_graph) {
-                    // use men centers to draw graph
-                    WeightsManInterface* w_man_int = project->GetWManInt();
-                    GalWeight* gal_weights = w_man_int->GetGal(weights_id);
-                    const vector<GdaPoint*>& c = project->GetMeanCenters();
-                    vector<bool>& hs = highlight_state->GetHighlight();
-                    GdaPolyLine* edge;
-                    std::set<int> w_nodes;
-                    wxPen pen(graph_color, weights_graph_thickness);
-                    for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
-                        GalElement& e = gal_weights->gal[i];
-                        for (int j=0, jend=e.Size(); j<jend; j++) {
-                            int nbr = e[j];
-                            if (i!=nbr) {
-                                // connect i<->nbr
-                                edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
-                                edge->from = i;
-                                edge->to = nbr;
-                                edge->setPen(pen);
-                                edge->setBrush(*wxTRANSPARENT_BRUSH);
-                                foreground_shps.push_back(edge);
-                                w_graph.push_back(edge);
-                                w_nodes.insert(i);
-                                w_nodes.insert(nbr);
-                            }
-                        }
-                    }
-                }
 			}
 			if (selectable_shps_type == points && display_voronoi_diagram) {
 				GdaPolygon* p;
@@ -1576,6 +1548,34 @@ void MapCanvas::PopulateCanvas()
 					background_shps.push_back(p);
 				}
 			}
+            if (display_weights_graph) {
+                // use men centers to draw graph
+                WeightsManInterface* w_man_int = project->GetWManInt();
+                GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+                const vector<GdaPoint*>& c = project->GetCentroids();
+                vector<bool>& hs = highlight_state->GetHighlight();
+                GdaPolyLine* edge;
+                std::set<int> w_nodes;
+                wxPen pen(graph_color, weights_graph_thickness);
+                for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
+                    GalElement& e = gal_weights->gal[i];
+                    for (int j=0, jend=e.Size(); j<jend; j++) {
+                        int nbr = e[j];
+                        if (i!=nbr) {
+                            // connect i<->nbr
+                            edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
+                            edge->from = i;
+                            edge->to = nbr;
+                            edge->setPen(pen);
+                            edge->setBrush(*wxTRANSPARENT_BRUSH);
+                            foreground_shps.push_back(edge);
+                            w_graph.push_back(edge);
+                            w_nodes.insert(i);
+                            w_nodes.insert(nbr);
+                        }
+                    }
+                }
+            }
 		}
 	} else {
 		wxRealPoint cntr_ref_pnt = last_scale_trans.GetDataCenter();

@@ -457,6 +457,17 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 	selectable_shps.resize(num_obs);
 	selectable_shps_undefs.clear();
 	selectable_shps_undefs.resize(num_obs);
+   
+    double x_max = var_info[IND_VAR].max_over_time;
+    double x_min = var_info[IND_VAR].min_over_time;
+    double y_max = var_info[DEP_VAR].max_over_time;
+    double y_min = var_info[DEP_VAR].min_over_time;
+    double x_pad = 0.1 * (x_max - x_min);
+    double y_pad = 0.1 * (y_max - y_min);
+    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4, axis_display_precision);
+    axis_scale_x.SkipEvenTics();
+    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4, axis_display_precision);
+    axis_scale_y.SkipEvenTics();
     
 	for (int i=0; i<num_obs; i++) {
 		X[i] = data[IND_VAR][var_info[IND_VAR].time][i];
