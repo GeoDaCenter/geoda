@@ -519,3 +519,5 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
         screenshot.SaveFile(str_fname + ".png", wxBITMAP_TYPE_PNG);
     }
 }
+
+

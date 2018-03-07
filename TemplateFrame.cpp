@@ -485,7 +485,10 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	
 	wxFileName fname = wxFileName(dialog.GetPath());
 	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
-	
+
+    double font_scale = 1.0;
+    if ( GeneralWxUtils::isWindows()) font_scale = 0.6;
+    
 	switch (dialog.GetFilterIndex()) {
 		case 0:
 		{
@@ -497,7 +500,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
             dc.Clear();
 			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
             if (template_legend) {
-                template_legend->RenderToDC(dc, 1.0);
+                template_legend->RenderToDC(dc, font_scale);
             }
 			dc.SelectObject( wxNullBitmap );
 			
@@ -519,7 +522,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
             dc.Clear();
 			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
             if (template_legend) {
-                template_legend->RenderToDC(dc, 1.0);
+                template_legend->RenderToDC(dc, font_scale);
             }
 			dc.SelectObject( wxNullBitmap );
 			
@@ -612,7 +615,6 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
                 dc.SetDeviceOrigin( originX + legend_w + 100, originY);
                 
                 template_canvas->RenderToDC(dc, map_w, map_h);
-                
                 
 				dc.EndDoc();
                 
