@@ -357,7 +357,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	if (nb > 0) {
         wxString msg = _("There is one other view open that depends on this matrix. Ok to close this view and remove?");
         if (nb > 1) {
-            wxString tmp = _("There are some other views open that depends on this matrix. Ok to close these views and remove?");
+            wxString tmp = _("There is at least one view open that depends on this matrix. Ok to close these views and remove?");
             msg = wxString::Format(tmp, nb);
         }
 		wxMessageDialog dlg(this, msg, _("Notice"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
@@ -368,7 +368,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 				// there was a problem closing some views
                 wxString s = _("There is a view could not be closed. Please manually close and try again.");
                 if (nb > 1) {
-                    wxString tmp = _("There are %d views could not be closed. Please manually close and try again.");
+                    wxString tmp = _("There is at least one view could not be closed. Please manually close and try again.");
                     s = wxString::Format(tmp, nb);
                 }
 				wxMessageDialog dlg(this, s, "Error", wxICON_ERROR | wxOK);
@@ -380,7 +380,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	} else {
 		w_man_int->Remove(id);
 	}
-	LOG_MSG("Exiting WeightsManFrame::OnRemoveBtn");
+	wxLogMessage("Exiting WeightsManFrame::OnRemoveBtn");
 }
 
 /** Implementation of WeightsManStateObserver interface */

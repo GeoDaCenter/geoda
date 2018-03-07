@@ -85,19 +85,19 @@ is_diff(lisa_coordinator->lisa_type == LisaCoordinator::differential)
 
 LisaMapCanvas::~LisaMapCanvas()
 {
-	LOG_MSG("In LisaMapCanvas::~LisaMapCanvas");
+	wxLogMessage("In LisaMapCanvas::~LisaMapCanvas");
 }
 
 wxString LisaMapCanvas::GetCanvasTitle()
 {
 	wxString lisa_t;
-	if (is_clust && !is_bi) lisa_t = " LISA Cluster Map";
-	if (is_clust && is_bi) lisa_t = " BiLISA Cluster Map";
-    if (is_clust && is_diff) lisa_t = " Differential LISA Cluster Map";
+	if (is_clust && !is_bi) lisa_t = _(" LISA Cluster Map");
+	if (is_clust && is_bi) lisa_t = _(" BiLISA Cluster Map");
+    if (is_clust && is_diff) lisa_t = _(" Differential LISA Cluster Map");
     
-	if (!is_clust && !is_bi) lisa_t = " LISA Significance Map";
-	if (!is_clust && is_bi) lisa_t = " BiLISA Significance Map";
-    if (!is_clust && is_diff) lisa_t = " Differential Significance Map";
+	if (!is_clust && !is_bi) lisa_t = _(" LISA Significance Map");
+	if (!is_clust && is_bi) lisa_t = _(" BiLISA Significance Map");
+    if (!is_clust && is_diff) lisa_t = _(" Differential Significance Map");
 	
 	wxString field_t;
 	if (is_bi) {
@@ -194,15 +194,15 @@ is_clust(isClusterMap),
 is_bivariate(isBivariate),
 is_ebrate(isEBRate)
 {
-	LOG_MSG("Entering LisaMapFrame::LisaMapFrame");
+	wxLogMessage("Entering LisaMapFrame::LisaMapFrame");
     no_update_weights = true;
     Init();
-	LOG_MSG("Exiting LisaMapFrame::LisaMapFrame");
+	wxLogMessage("Exiting LisaMapFrame::LisaMapFrame");
 }
 
 LisaMapFrame::~LisaMapFrame()
 {
-	LOG_MSG("In LisaMapFrame::~LisaMapFrame");
+	wxLogMessage("In LisaMapFrame::~LisaMapFrame");
     // the following code block will be exceuted in AbstractClusterMapFrame
 	//if (lisa_coord) {
 	//	lisa_coord->removeObserver(this);
