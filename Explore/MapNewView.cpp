@@ -2087,6 +2087,7 @@ void MapCanvas::UpdateStatusBar()
 	wxString s;
     
     int selected_cnt = 0;
+    int selected_idx = 0;
     
     if (GetCcType() == CatClassification::no_theme)
         s << "#obs=" << project->GetNumRecordsNoneEmpty() <<" ";
@@ -2099,6 +2100,7 @@ void MapCanvas::UpdateStatusBar()
             for (int i=0; i<hl.size(); i++) {
                 if ( hl[i] && empty_dict.find(i) == empty_dict.end()) {
                     selected_cnt += 1;
+                    selected_idx = i;
                 }
             }
             s << "#selected=" << selected_cnt << "  ";
@@ -2112,10 +2114,16 @@ void MapCanvas::UpdateStatusBar()
     {
         WeightsManInterface* w_man_int = project->GetWManInt();
         GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+       
+        long cid = -1;
         
-        if (hover_obs.size() == 1 || selected_cnt == 1) {
-            long cid = hover_obs[0];
-            
+        if (hover_obs.size() == 1)
+            cid = hover_obs[0];
+        else if (selected_cnt == 1) {
+            cid = selected_idx;
+        }
+        
+        if (cid >= 0) {
             GalElement& e = gal_weights->gal[cid];
             
             s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
