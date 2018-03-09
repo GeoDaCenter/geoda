@@ -2107,10 +2107,10 @@ void MapCanvas::UpdateStatusBar()
         }
         
     }
-    if (display_neighbors || display_weights_graph)
+    if ((display_neighbors || display_weights_graph) &&
+        boost::uuids::nil_uuid() != weights_id )
     {
         WeightsManInterface* w_man_int = project->GetWManInt();
-        weights_id = w_man_int->GetDefault();
         GalWeight* gal_weights = w_man_int->GetGal(weights_id);
         
         if (hover_obs.size() == 1 || selected_cnt == 1) {
