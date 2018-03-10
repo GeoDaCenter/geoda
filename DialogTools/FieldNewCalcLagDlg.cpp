@@ -167,8 +167,7 @@ void FieldNewCalcLagDlg::Apply()
 		}
 	}
 
-    WeightsMetaInfo::WeightTypeEnum w_type = w_man_int->GetWeightsType(id);
-    bool not_binary_w = w_type == WeightsMetaInfo::WT_kernel || w_type == WeightsMetaInfo::WT_inverse;
+    bool not_binary_w = w_man_int->GetWeightsType(id);
 
 	for (int t=0; t<time_list.size(); t++) {
 		for (int i=0; i<rows; i++) {

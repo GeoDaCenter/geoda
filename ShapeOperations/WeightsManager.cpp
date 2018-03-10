@@ -338,12 +338,20 @@ wxString WeightsNewManager::RecNumToId(boost::uuids::uuid w_uuid, long rec_num)
 	return it->second.rec_num_to_id[rec_num];
 }
 
-WeightsMetaInfo::WeightTypeEnum WeightsNewManager::GetWeightsType(boost::uuids::uuid w_uuid)
+bool WeightsNewManager::GetWeightsType(boost::uuids::uuid w_uuid)
 {
     EmType::iterator it = entry_map.find(w_uuid);
     if (it == entry_map.end()) return WeightsMetaInfo::WT_custom;
     Entry& e = it->second;
-    return e.wpte.wmi.weights_type;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+        return true;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo:: WT_knn ||
+        e.wpte.wmi.weights_type == WeightsMetaInfo::WT_threshold) {
+        if (e.wpte.wmi.power != 1 && e.wpte.wmi.power != 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /** If gal_weight doesn't yet exist, then create it from meta-data if
