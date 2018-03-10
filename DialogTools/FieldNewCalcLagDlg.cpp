@@ -49,6 +49,8 @@ BEGIN_EVENT_TABLE( FieldNewCalcLagDlg, wxPanel )
 	EVT_CHOICE( XRCID("IDC_LAG_OPERAND_TM"),
 			   FieldNewCalcLagDlg::OnLagOperandTmUpdated )
 	EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
+EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE"), FieldNewCalcLagDlg::OnInverseDistCheck)
+EVT_SPIN( XRCID("IDC_SPIN_POWER"), FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated )
 END_EVENT_TABLE()
 
 FieldNewCalcLagDlg::FieldNewCalcLagDlg(Project* project_s,
@@ -88,7 +90,28 @@ void FieldNewCalcLagDlg::CreateControls()
     // ID_LAG_USE_ROWSTAND_W  ID_LAG_INCLUDE_DIAGNOAL_W
     m_row_stand = XRCCTRL(*this, "ID_LAG_USE_ROWSTAND_W", wxCheckBox);
     m_self_neighbor = XRCCTRL(*this, "ID_LAG_INCLUDE_DIAGNOAL_W", wxCheckBox);
+    m_use_inverse = XRCCTRL(*this, "IDC_CHK_INVERSE_DISTANCE", wxCheckBox);
     
+    m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
+    m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
+    m_power->Enable(false);
+    m_spinn_inverse->Enable(false);
+}
+
+void FieldNewCalcLagDlg::OnInverseDistCheck( wxCommandEvent& event )
+{
+    wxLogMessage("Click FieldNewCalcLagDlg::OnInverseDistCheck");
+    m_power->Enable( m_use_inverse->IsChecked() );
+    m_spinn_inverse->Enable( m_use_inverse->IsChecked() );
+}
+
+void FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated( wxSpinEvent& event )
+{
+    wxLogMessage("Click FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated");
+    
+    wxString val;
+    val << m_spinn_inverse->GetValue();
+    m_power->SetValue(val);
 }
 
 void FieldNewCalcLagDlg::Apply()
@@ -176,7 +199,7 @@ void FieldNewCalcLagDlg::Apply()
 			table_int->GetColData(var_col, time_list[t], data);
 			table_int->GetColUndefined(var_col, time_list[t], undefined);
 		}
-		// Row-standardized lag calculation.
+		
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			double lag = 0;
 			const GalElement& elm_i = W[i];
@@ -184,25 +207,39 @@ void FieldNewCalcLagDlg::Apply()
                 r_undefined[i] = true;
            
             double nn = 0;
+            const std::vector<double> & w_values = W[i].GetNbrWeights();
+            
+            int self_idx = -1;
 			for (int j=0, sz=W[i].Size(); j<sz && !r_undefined[i]; j++) {
 				if (undefined[elm_i[j]] == false) {
-					lag += data[elm_i[j]];
-                    nn += 1;
+                    if (elm_i[j] == i) {
+                        self_idx = j;
+                    } else {
+                        if (m_row_stand->IsChecked()) {
+                            // Row-standardized lag calculation. Simply the average
+                            lag += data[elm_i[j]];
+                        } else {
+                            lag += data[elm_i[j]] * w_values[j];
+                        }
+                        nn += 1;
+                    }
 				}
 			}
             r_data[i] =  0;
             
             if (r_undefined[i]==false) {
                 if (m_self_neighbor->IsChecked() ) {
-                    lag += data[i];
+                    if(m_row_stand->IsChecked()) {
+                        lag += data[i];
+                    } else {
+                        if (self_idx >= 0) lag += data[i] * w_values[self_idx];
+                        else lag += data[i];
+                    }
                     nn += 1;
                 }
-                if (m_row_stand->IsChecked()) {
-                    lag = nn > 0 ? lag / nn : 0;
-                }
+                lag = nn > 0 ? lag/nn : 0;
                 r_data[i] = lag;
             }
-			//r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();
 		}
 		table_int->SetColData(result_col, time_list[t], r_data);
 		table_int->SetColUndefined(result_col, time_list[t], r_undefined);
