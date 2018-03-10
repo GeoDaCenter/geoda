@@ -48,9 +48,7 @@ BEGIN_EVENT_TABLE( FieldNewCalcLagDlg, wxPanel )
 			   FieldNewCalcLagDlg::OnLagOperandUpdated )
 	EVT_CHOICE( XRCID("IDC_LAG_OPERAND_TM"),
 			   FieldNewCalcLagDlg::OnLagOperandTmUpdated )
-	EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
-EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE"), FieldNewCalcLagDlg::OnInverseDistCheck)
-EVT_SPIN( XRCID("IDC_SPIN_POWER"), FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated )
+    EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
 END_EVENT_TABLE()
 
 FieldNewCalcLagDlg::FieldNewCalcLagDlg(Project* project_s,
@@ -90,28 +88,7 @@ void FieldNewCalcLagDlg::CreateControls()
     // ID_LAG_USE_ROWSTAND_W  ID_LAG_INCLUDE_DIAGNOAL_W
     m_row_stand = XRCCTRL(*this, "ID_LAG_USE_ROWSTAND_W", wxCheckBox);
     m_self_neighbor = XRCCTRL(*this, "ID_LAG_INCLUDE_DIAGNOAL_W", wxCheckBox);
-    m_use_inverse = XRCCTRL(*this, "IDC_CHK_INVERSE_DISTANCE", wxCheckBox);
     
-    m_power = XRCCTRL(*this, "IDC_EDIT_POWER", wxTextCtrl);
-    m_spinn_inverse = XRCCTRL(*this, "IDC_SPIN_POWER", wxSpinButton);
-    m_power->Enable(false);
-    m_spinn_inverse->Enable(false);
-}
-
-void FieldNewCalcLagDlg::OnInverseDistCheck( wxCommandEvent& event )
-{
-    wxLogMessage("Click FieldNewCalcLagDlg::OnInverseDistCheck");
-    m_power->Enable( m_use_inverse->IsChecked() );
-    m_spinn_inverse->Enable( m_use_inverse->IsChecked() );
-}
-
-void FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated( wxSpinEvent& event )
-{
-    wxLogMessage("Click FieldNewCalcLagDlg::OnCSpinPowerInverseDistUpdated");
-    
-    wxString val;
-    val << m_spinn_inverse->GetValue();
-    m_power->SetValue(val);
 }
 
 void FieldNewCalcLagDlg::Apply()
@@ -189,7 +166,10 @@ void FieldNewCalcLagDlg::Apply()
 			return;
 		}
 	}
-	
+
+    WeightsMetaInfo::WeightTypeEnum w_type = w_man_int->GetWeightsType(id);
+    bool not_binary_w = w_type == WeightsMetaInfo::WT_kernel || w_type == WeightsMetaInfo::WT_inverse;
+
 	for (int t=0; t<time_list.size(); t++) {
 		for (int i=0; i<rows; i++) {
 			r_data[i] = 0;
@@ -215,11 +195,10 @@ void FieldNewCalcLagDlg::Apply()
                     if (elm_i[j] == i) {
                         self_idx = j;
                     } else {
-                        if (m_row_stand->IsChecked()) {
-                            // Row-standardized lag calculation. Simply the average
-                            lag += data[elm_i[j]];
-                        } else {
+                        if (not_binary_w) {
                             lag += data[elm_i[j]] * w_values[j];
+                        } else {
+                            lag += data[elm_i[j]];
                         }
                         nn += 1;
                     }
@@ -229,15 +208,16 @@ void FieldNewCalcLagDlg::Apply()
             
             if (r_undefined[i]==false) {
                 if (m_self_neighbor->IsChecked() ) {
-                    if(m_row_stand->IsChecked()) {
-                        lag += data[i];
+                    if(not_binary_w && self_idx >= 0) {
+                        lag += data[i] * w_values[self_idx];
                     } else {
-                        if (self_idx >= 0) lag += data[i] * w_values[self_idx];
-                        else lag += data[i];
+                        lag += data[i];
                     }
                     nn += 1;
                 }
-                lag = nn > 0 ? lag/nn : 0;
+                if (m_row_stand->IsChecked()) {
+                    lag = nn > 0 ? lag / nn : 0;
+                }
                 r_data[i] = lag;
             }
 		}

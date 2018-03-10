@@ -69,7 +69,8 @@ public:
 	virtual wxString SuggestTitleFromFileName(const wxString& fname) const = 0;
 	virtual wxString GetTitle(boost::uuids::uuid w_uuid) const = 0;
 	virtual void SetTitle(boost::uuids::uuid w_uuid, const wxString& s) = 0;
-	virtual bool IsValid(boost::uuids::uuid w_uuid) = 0;	
+	virtual bool IsValid(boost::uuids::uuid w_uuid) = 0;
+    virtual WeightsMetaInfo::WeightTypeEnum GetWeightsType(boost::uuids::uuid w_uuid) = 0;
 };
 
 #endif

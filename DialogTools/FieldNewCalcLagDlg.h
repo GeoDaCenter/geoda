@@ -23,8 +23,6 @@
 #include <vector>
 #include <wx/string.h>
 #include <wx/panel.h>
-#include <wx/spinctrl.h>
-#include <wx/textctrl.h>
 
 class Project;
 class TableInterface;
@@ -56,9 +54,6 @@ public:
 	void OnLagOperandTmUpdated( wxCommandEvent& event );
 	void OnOpenWeightClick( wxCommandEvent& event );
     
-    void OnInverseDistCheck( wxCommandEvent& event );
-    void OnCSpinPowerInverseDistUpdated( wxSpinEvent& event );
-    
 	void UpdateOtherPanels();
 	void SetOtherPanelPointers(FieldNewCalcSpecialDlg* s_panel_s,
 							   FieldNewCalcUniDlg* u_panel_s,
@@ -83,16 +78,13 @@ public:
     wxChoice* m_result;
 	wxChoice* m_result_tm;
     wxChoice* m_weights;
-
 	std::vector<boost::uuids::uuid> w_ids;
     wxChoice* m_var;
 	wxChoice* m_var_tm;
     wxTextCtrl* m_text;
     wxCheckBox* m_row_stand;
     wxCheckBox* m_self_neighbor;
-    wxCheckBox* m_use_inverse;
-    wxTextCtrl* m_power;
-    wxSpinButton* m_spinn_inverse;
+    
     
 	Project* project;
 	WeightsManInterface* w_man_int;

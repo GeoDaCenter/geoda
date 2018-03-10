@@ -5866,44 +5866,6 @@
                       </object>
                       <flag>wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
-                  <object class="sizeritem">
-                      <object class="wxBoxSizer">
-                          <orient>wxHORIZONTAL</orient>
-                          <object class="sizeritem">
-                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                              <object class="wxCheckBox" name="IDC_CHK_INVERSE_DISTANCE">
-                                  <value>0</value>
-                                  <label>Use inverse distance?</label>
-                              </object>
-                          </object>
-                          <object class="spacer">
-                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                              <size>10,1d</size>
-                          </object>
-                          <object class="sizeritem">
-                              <object class="wxStaticText" name="IDC_STATIC_POWER">
-                                  <label>Power</label>
-                              </object>
-                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                          </object>
-                          <object class="sizeritem">
-                              <object class="wxTextCtrl" name="IDC_EDIT_POWER">
-                                  <size>25,-1d</size>
-                                  <style>wxTE_READONLY|wxTE_RIGHT</style>
-                              </object>
-                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                          </object>
-                          <object class="sizeritem">
-                              <flag>wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                              <object class="wxSpinButton" name="IDC_SPIN_POWER">
-                                  <style>wxSP_VERTICAL</style>
-                                  <value>0</value>
-                                  <min>1</min>
-                                  <max>100</max>
-                              </object>
-                          </object>
-                      </object>
-                  </object>
                   <orient>wxVERTICAL</orient>
               </object>
             <flag>wxTOP|wxALIGN_CENTER</flag>

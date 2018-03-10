@@ -143,6 +143,7 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
 		dist_var2 = dist_var2_;
 		if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
 	}
+    if (power != 1) weights_type = WT_inverse;
 }
 
 void WeightsMetaInfo::SetToKnn(const wxString& idv,
@@ -173,6 +174,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
 		dist_var2 = dist_var2_;
 		if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
 	}
+    if (power != 1) weights_type = WT_inverse;
 }
 
 void WeightsMetaInfo::SetToKernel(const wxString &id_var_, WeightsMetaInfo::DistanceMetricEnum dist_metric_, WeightsMetaInfo::DistanceUnitsEnum dist_units_, wxString dist_units_str_, WeightsMetaInfo::DistanceValuesEnum dist_values_, wxString kernel_, long k_, double bandwidth_, bool is_adaptive_kernel_, bool use_kernel_diagnals_,wxString dist_var1_, long dist_tm1_, wxString dist_var2_, long dist_tm2_)

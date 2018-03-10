@@ -506,14 +506,17 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
     
     if (wmi.TypeToStr() == "kernel") {
         row_title.push_back("kernel method");
-        row_content.push_back(wmi.kernel);
+        if (wmi.kernel.IsEmpty())
+            row_content.push_back("unknown");
+        else
+            row_content.push_back(wmi.kernel);
        
         if (wmi.bandwidth >0) {
             row_title.push_back("bandwidth");
             wxString ss;
             ss << wmi.bandwidth;
             row_content.push_back(ss);
-        } else  {
+        } else  if (wmi.k > 0) {
             row_title.push_back("knn");
             wxString ss;
             ss << wmi.k;
@@ -523,8 +526,11 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
                 row_content.push_back( wmi.is_adaptive_kernel? "true":"false");
             }
         }
-        row_title.push_back("kernel to diagonal");
-        row_content.push_back( wmi.use_kernel_diagnals ? "true":"false");
+        
+        if (!wmi.kernel.IsEmpty()) {
+            row_title.push_back("kernel to diagonal");
+            row_content.push_back( wmi.use_kernel_diagnals ? "true":"false");
+        }
     } else {
         if (wmi.power < 0) {
             row_title.push_back("inverse distance");
