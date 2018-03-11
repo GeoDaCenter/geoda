@@ -196,27 +196,42 @@ void FieldNewCalcLagDlg::Apply()
                     } else {
                         if (not_binary_w) {
                             lag += data[elm_i[j]] * w_values[j];
+                            nn += w_values[j];
                         } else {
                             lag += data[elm_i[j]];
+                            nn += 1;
                         }
-                        nn += 1;
                     }
 				}
 			}
             r_data[i] =  0;
             
             if (r_undefined[i]==false) {
-                if (m_self_neighbor->IsChecked() ) {
-                    if(not_binary_w && self_idx >= 0) {
-                        lag += data[i] * w_values[self_idx];
-                    } else {
+                if ( not_binary_w == false) {
+                    // contiguity weights
+                    if (m_self_neighbor->IsChecked() ) {
                         lag += data[i];
+                        nn += 1;
                     }
-                    nn += 1;
+                    if (m_row_stand->IsChecked()) {
+                        lag = nn > 0 ? lag / nn : 0;
+                    }
+                    
+                } else {
+                    // inverse or kernel weights
+                    if (m_row_stand->IsChecked()) {
+                        lag = nn > 0 ? lag / nn : 0;
+                    }
+                    if (m_self_neighbor->IsChecked() ) {
+                        if (self_idx > 0) {
+                            // only case: kernel weights with diagonal
+                            lag += data[i] * w_values[self_idx];
+                        } else {
+                            lag += data[i];
+                        }
+                    }
                 }
-                if (m_row_stand->IsChecked()) {
-                    lag = nn > 0 ? lag / nn : 0;
-                }
+                
                 r_data[i] = lag;
             }
 		}

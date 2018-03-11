@@ -382,7 +382,8 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 		e.alloc(q.size());
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if (kernel.IsEmpty() && w.second == v.second)
+			if ( (kernel.IsEmpty() && w.second == v.second) ||
+                 (!kernel.IsEmpty() && !use_kernel_diagnals && w.second == v.second) )
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -413,6 +414,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
         }
     }
     if (!kernel.IsEmpty()) {
+        
         apply_kernel(Wp, kernel, use_kernel_diagnals);
     }
     
