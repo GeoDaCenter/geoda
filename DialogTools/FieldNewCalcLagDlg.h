@@ -53,7 +53,7 @@ public:
     void OnLagOperandUpdated( wxCommandEvent& event );
 	void OnLagOperandTmUpdated( wxCommandEvent& event );
 	void OnOpenWeightClick( wxCommandEvent& event );
-    
+
 	void UpdateOtherPanels();
 	void SetOtherPanelPointers(FieldNewCalcSpecialDlg* s_panel_s,
 							   FieldNewCalcUniDlg* u_panel_s,
@@ -98,7 +98,7 @@ public:
 	void Apply();
 	void InitFieldChoices();
 	void InitTime(wxChoice* time_list);
-
+    void SetupRowstandControls();
 	void Display();
 };
 

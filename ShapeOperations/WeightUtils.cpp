@@ -611,9 +611,10 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			if (gal[gwt_obs1].Size() == 0) {
 				gal[gwt_obs1].SetSizeNbrs(nbr_histogram[obs1].size());
 			}
-            //if (obs2 != obs1) {
+            if (fname.EndsWith("kwt") ||
+                (fname.EndsWith("gwt") && obs2 != obs1) ) {
                 gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2, wVal);
-            //}
+            }
 		}
 		line_num++;
 	}	

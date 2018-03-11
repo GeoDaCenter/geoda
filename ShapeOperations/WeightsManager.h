@@ -78,7 +78,8 @@ public:
 	virtual wxString GetTitle(boost::uuids::uuid w_uuid) const;
 	virtual void SetTitle(boost::uuids::uuid w_uuid, const wxString& s);
 	virtual bool IsValid(boost::uuids::uuid w_uuid);
-    virtual bool GetWeightsType(boost::uuids::uuid w_uuid);
+    virtual bool IsBinaryWeights(boost::uuids::uuid w_uuid);
+    virtual WeightsMetaInfo::WeightTypeEnum GetWeightsType(boost::uuids::uuid w_uuid);
 	
 private:
 	struct Entry {

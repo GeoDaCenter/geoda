@@ -48,6 +48,7 @@ BEGIN_EVENT_TABLE( FieldNewCalcLagDlg, wxPanel )
 			   FieldNewCalcLagDlg::OnLagOperandUpdated )
 	EVT_CHOICE( XRCID("IDC_LAG_OPERAND_TM"),
 			   FieldNewCalcLagDlg::OnLagOperandTmUpdated )
+
     EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
 END_EVENT_TABLE()
 
@@ -167,7 +168,7 @@ void FieldNewCalcLagDlg::Apply()
 		}
 	}
 
-    bool not_binary_w = w_man_int->GetWeightsType(id);
+    bool not_binary_w = w_man_int->IsBinaryWeights(id);
 
 	for (int t=0; t<time_list.size(); t++) {
 		for (int i=0; i<rows; i++) {
@@ -354,6 +355,7 @@ void FieldNewCalcLagDlg::InitWeightsList()
 			if (w_ids[i] == old_id) m_weights->SetSelection(i);
 		}
 	}
+    SetupRowstandControls();
 }
 
 /** Returns weights selection or nil if none selected */
@@ -364,6 +366,31 @@ boost::uuids::uuid FieldNewCalcLagDlg::GetWeightsId()
 		return boost::uuids::nil_uuid();
 	}
 	return w_ids[sel];
+}
+
+void FieldNewCalcLagDlg::SetupRowstandControls()
+{
+    long sel = m_weights->GetSelection();
+    if (sel >= 0) {
+        bool flag = true;
+        m_row_stand->SetValue(true);
+        m_self_neighbor->SetValue(false);
+        
+        boost::uuids::uuid id = GetWeightsId();
+        WeightsMetaInfo::WeightTypeEnum type = w_man_int->GetWeightsType(id);
+        if (type == WeightsMetaInfo::WT_kernel) {
+            m_row_stand->SetValue(false);
+            m_self_neighbor->SetValue(true);
+            flag = false;
+        } else if (type == WeightsMetaInfo::WT_knn || type == WeightsMetaInfo::WT_threshold) {
+            if (w_man_int->IsBinaryWeights(id)) {
+                m_row_stand->SetValue(false);
+                m_self_neighbor->SetValue(false);
+            }
+        }
+        m_row_stand->Enable(flag);
+        m_self_neighbor->Enable(flag);
+    }
 }
 
 void FieldNewCalcLagDlg::OnLagResultUpdated( wxCommandEvent& event )
@@ -383,6 +410,7 @@ void FieldNewCalcLagDlg::OnLagResultTmUpdated( wxCommandEvent& event )
 void FieldNewCalcLagDlg::OnCurrentusedWUpdated( wxCommandEvent& event )
 {
     Display();
+    SetupRowstandControls();
 }
 
 void FieldNewCalcLagDlg::OnLagOperandUpdated( wxCommandEvent& event )
