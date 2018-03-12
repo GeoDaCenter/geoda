@@ -95,22 +95,22 @@ void FieldNewCalcLagDlg::CreateControls()
 void FieldNewCalcLagDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a results field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select a results field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (GetWeightsId().is_nil()) {
-		wxString msg("Please specify a Weights matrix.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please specify a Weights matrix.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (m_var->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select an Variable field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select an Variable field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -125,9 +125,9 @@ void FieldNewCalcLagDlg::Apply()
 	if (is_space_time &&
 		!IsAllTime(result_col, m_result_tm->GetSelection()) &&
 		IsAllTime(var_col, m_var_tm->GetSelection())) {
-		wxString msg("When \"all times\" selected for variable, result "
+		wxString msg = _("When \"all times\" selected for variable, result "
 					 "field must also be \"all times.\"");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -161,8 +161,8 @@ void FieldNewCalcLagDlg::Apply()
 		GalWeight* gw = w_man_int->GetGal(id);
 		W = gw ? gw->gal : NULL;
 		if (W == NULL) {
-			wxString msg("Was not able to load weights matrix.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Was not able to load weights matrix.");
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}

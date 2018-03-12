@@ -80,8 +80,10 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	table_int->FillColIdMap(col_id_map);
     
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
-		curr_col_labels.insert(table_int->GetColName(i).Upper());
-		m_insert_pos->Append(table_int->GetColName(i).Upper());
+        int actual_idx = col_id_map[i];
+        wxString col_name = table_int->GetColName(actual_idx);
+        curr_col_labels.insert(col_name.Upper());
+        m_insert_pos->Append(col_name);
 	}
     
 	m_insert_pos->Append("after last variable");
@@ -293,17 +295,16 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	colname.Trim(false); // trim white-space from left of string
 	
 	if (colname == wxEmptyString) {
-		wxString msg("Error: The table variable name is empty.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Error: The table variable name is empty.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (curr_col_labels.find(colname.Upper()) != curr_col_labels.end()) {
-		wxString msg;
-		msg += "Error: \"" + colname.Upper();
-		msg += "\" already exists in Table, please specify a different name.";
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Error: \"%s\" already exists in Table, please specify a different name.");
+        msg = wxString::Format(msg, colname);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -311,9 +312,9 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     bool m_name_valid = table_int->IsValidDBColName(colname);
 	//if ( !DbfFileUtils::isValidFieldName(colname) ) {
     if (!m_name_valid) {
-		wxString msg;
-		msg += "Error: \"" + colname + "\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.";
+        msg = wxString::Format(msg, colname);
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -332,13 +333,9 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 			DbfFileUtils::SuggestDoubleParams(m_length_val, m_decimals_val,
 											  &suggest_len, &suggest_dec);
 			if (m_length_val != suggest_len || m_decimals_val != suggest_dec) {
-				wxString m;
-				m << "Error: Due to restrictions on the DBF file format, the ";
-				m << "particular combination of length and decimals entered is ";
-				m << "not valid.  Based on your current choices, we recommend ";
-				m << "length = " << suggest_len;
-				m << " and decimals = " << suggest_dec;
-				wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+				wxString m = _("Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d");
+                m = wxString::Format(m, suggest_len, suggest_dec);
+				wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				return;
 			}
@@ -362,15 +359,15 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 
 	int time_steps = 1; // non-space-time column by default	
 
-	wxLogMessage(wxString::Format("Inserting new column %s into Table", colname.Upper()));
+	wxLogMessage(wxString::Format(_("Inserting new column %s into Table"), colname));
 	
 	bool success;
 	if (fixed_lengths) {
-		success = (table_int->InsertCol(cur_type, colname.Upper(),
+		success = (table_int->InsertCol(cur_type, colname,
 									   col_insert_pos, time_steps,
 									   m_length_val, m_decimals_val) != -1);
 	} else {
-		success = (table_int->InsertCol(cur_type, colname.Upper(),
+		success = (table_int->InsertCol(cur_type, colname,
 									   col_insert_pos, time_steps) != -1);
 	}
 	
@@ -380,7 +377,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		dlg.ShowModal();
 		return;
 	}
-	final_col_name = colname.Upper();
+    final_col_name = colname;
 	final_col_id = col_insert_pos;
     
 
