@@ -1185,11 +1185,8 @@ void MapCanvas::NewCustomCatClassif()
 {
     wxLogMessage("MapCanvas::NewCustomCatClassif()");
 	// Begin by asking for a variable if none yet chosen
-    vector<vector<bool> > var_undefs(num_time_vals);
+    vector<vector<bool> > var_undefs;
     
-	for (int t=0; t<num_time_vals; t++) {
-        var_undefs[t].resize(num_obs);
-	}
 	if (var_info.size() == 0) {
 		VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
 		if (dlg.ShowModal() != wxID_OK)
@@ -1204,6 +1201,13 @@ void MapCanvas::NewCustomCatClassif()
 		table_int->GetColUndefined(dlg.col_ids[0], data_undef[0]);
         
 		VarInfoAttributeChange();
+        
+        var_undefs.resize(num_time_vals);
+        
+        for (int t=0; t<num_time_vals; t++) {
+            var_undefs[t].resize(num_obs);
+        }
+        
 		cat_var_sorted.resize(num_time_vals);
         if (IS_VAR_STRING) cat_str_var_sorted.resize(num_time_vals);
         
@@ -1221,9 +1225,12 @@ void MapCanvas::NewCustomCatClassif()
 		}
 	}
 	
+    if (var_info.empty())
+        return;
+    
 	// Fully update cat_classif_def fields according to current
 	// categorization state
-	if (cat_classif_def.cat_classif_type != CatClassification::custom)
+	if (cat_classif_def.cat_classif_type != CatClassification::custom )
     {
 		CatClassification::ChangeNumCats(cat_classif_def.num_cats, cat_classif_def);
 		vector<wxString> temp_cat_labels; // will be ignored
@@ -1242,8 +1249,9 @@ void MapCanvas::NewCustomCatClassif()
 		int tm = var_info[0].time;
 		cat_classif_def.assoc_db_fld_name = table_int->GetColName(col, tm);
 	}
-	
-	CatClassifFrame* ccf = GdaFrame::GetGdaFrame()->GetCatClassifFrame(this->useScientificNotation);
+
+    GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
+	CatClassifFrame* ccf = gda_frame->GetCatClassifFrame(this->useScientificNotation);
     
 	if (!ccf)
         return;
