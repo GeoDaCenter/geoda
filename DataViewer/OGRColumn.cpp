@@ -53,12 +53,13 @@ is_new(true), is_deleted(false)
     rows = ogr_layer->GetNumRecords();
 }
 
-OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer, int idx)
+OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer, int _idx)
 {
     // note: idx is only valid when create a OGRColumn. It's value could be
     // updated when delete columns in OGRLayer. Therefore, return current
     // column index will always dynamically fetch from GetColIndex() by using
     // the column name.
+    idx = _idx;
     is_new = false;
     is_deleted = false;
     ogr_layer = _ogr_layer;
@@ -70,8 +71,13 @@ OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer, int idx)
 
 int OGRColumn::GetColIndex()
 {
-    if (is_new) return -1;
-    return ogr_layer->GetFieldPos(name);
+    if (is_new)
+        return -1;
+    
+    if (name == ogr_layer->GetFieldName(idx))
+        return idx;
+    else
+        return ogr_layer->GetFieldPos(name);
 }
 
 int OGRColumn::GetLength()

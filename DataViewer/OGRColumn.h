@@ -40,6 +40,7 @@ class OGRColumn
 {
 protected:
     wxString name;
+    int  idx; // idx in ogr_layer
     int  length;
     int  decimals;
     bool is_new;

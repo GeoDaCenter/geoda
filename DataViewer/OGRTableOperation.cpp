@@ -46,7 +46,8 @@ void OGRTableOpInsertColumn::Commit()
     // insert ogr column is only applied for appending new column
     if (ogr_col->IsNewColumn()) {
         int pos = ogr_layer->AddField(ogr_col->GetName().ToStdString(),
-                                      ogr_col->GetType(),ogr_col->GetLength(),
+                                      ogr_col->GetType(),
+                                      ogr_col->GetLength(),
                                       ogr_col->GetDecimals());
         // column content will be done in OGRTableUpdateColumn
     }
@@ -183,7 +184,7 @@ OGRTableOpRenameColumn::OGRTableOpRenameColumn( OGRColumn* col,
 : OGRTableOperation(col)
 {
     old_col_name = old_name;
-    new_col_name = new_name;
+    new_col_name = new_name;    
 }
 
 void OGRTableOpRenameColumn::Commit()

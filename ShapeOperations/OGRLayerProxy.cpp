@@ -167,7 +167,9 @@ int OGRLayerProxy::GetFieldDecimals(int pos)
 int OGRLayerProxy::GetFieldPos(const wxString& field_name)
 {
 	for (size_t i=0, iend=fields.size(); i<iend; ++i) {
-		if (fields[i]->GetName().CmpNoCase(field_name)==0) return i;
+        wxString fname = fields[i]->GetName();
+		if (fname.CmpNoCase(field_name)==0)
+            return i;
 	}
     return -1;
 }

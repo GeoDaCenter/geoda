@@ -54,11 +54,8 @@ private:
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
     
-    // var_map will be deprecate in 1.8.8, and replace by _var_names
-	map<wxString, int> var_map;
     vector<wxString> org_var_names;
-    vector<wxString> new_var_names;
-    
+
     // queues of table operations
     queue<OGRTableOperation*> operations_queue;
     stack<OGRTableOperation*> completed_stack;
