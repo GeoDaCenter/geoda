@@ -1199,32 +1199,32 @@ void MapCanvas::NewCustomCatClassif()
         
 		table_int->GetColData(dlg.col_ids[0], data[0]);
 		table_int->GetColUndefined(dlg.col_ids[0], data_undef[0]);
-        
-		VarInfoAttributeChange();
-        
-        var_undefs.resize(num_time_vals);
-        
-        for (int t=0; t<num_time_vals; t++) {
-            var_undefs[t].resize(num_obs);
-        }
-        
-		cat_var_sorted.resize(num_time_vals);
-        if (IS_VAR_STRING) cat_str_var_sorted.resize(num_time_vals);
-        
-		for (int t=0; t<num_time_vals; t++) {
-			cat_var_sorted[t].resize(num_obs);
-            
-			for (int i=0; i<num_obs; i++) {
-                int ts = t+var_info[0].time_min;
-				cat_var_sorted[t][i].first = data[0][ts][i];
-				cat_var_sorted[t][i].second = i;
-                var_undefs[t][i] = var_undefs[t][i] || data_undef[0][ts][i];
-			}
-			std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
-					  Gda::dbl_int_pair_cmp_less);
-		}
-	}
+    }
 	
+    VarInfoAttributeChange();
+    
+    var_undefs.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        var_undefs[t].resize(num_obs);
+    }
+    
+    cat_var_sorted.resize(num_time_vals);
+    if (IS_VAR_STRING) cat_str_var_sorted.resize(num_time_vals);
+    
+    for (int t=0; t<num_time_vals; t++) {
+        cat_var_sorted[t].resize(num_obs);
+        
+        for (int i=0; i<num_obs; i++) {
+            int ts = t+var_info[0].time_min;
+            cat_var_sorted[t][i].first = data[0][ts][i];
+            cat_var_sorted[t][i].second = i;
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[0][ts][i];
+        }
+        std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
+                  Gda::dbl_int_pair_cmp_less);
+    }
+
     if (var_info.empty())
         return;
     
