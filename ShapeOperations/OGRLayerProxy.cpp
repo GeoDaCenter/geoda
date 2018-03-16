@@ -240,9 +240,8 @@ int OGRLayerProxy::AddField(const wxString& field_name,
 	OGRFieldProxy *oField = new OGRFieldProxy(field_name, ogr_type, 
 											  field_length, field_precision);
 	if ( layer->CreateField( oField->GetFieldDefn() ) != OGRERR_NONE ) {
-		wxString msg;
-		msg << "Internal Error: Add new field (" << field_name <<") failed."
-            << "\n\nDetails:" << CPLGetLastErrorMsg();
+        wxString msg = wxString::Format(_("Internal Error: Add new field (%s) failed.\n\nDetails:"), field_name);
+        msg << CPLGetLastErrorMsg();
 		throw GdaException(msg.mb_str());
 	}					
 	n_cols++;

@@ -372,17 +372,17 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     // create fields using TableInterface:table
     if ( table != NULL ) {
         
-        std::vector<int> col_id_map;
+        std::vector<int> col_id_map; // using orders in wxGrid
         table->FillColIdMap(col_id_map);
         
-        for (int id=0; id < table->GetNumberCols(); id++) {
-            
+        for (int _id=0; _id < table->GetNumberCols(); _id++) {
+            int id = col_id_map[_id];
             bool is_time_var = table->IsColTimeVariant(id);
             int time_steps = is_time_var ? table->GetTimeSteps() : 1;
             
             for ( int t=0; t < time_steps; t++ ) {
                 
-                wxString fname = table->GetColName(col_id_map[id], t);
+                wxString fname = table->GetColName(id, t);
                 if (fname.empty()) {
                     error_message << "Can't create layer \"" << layer_name.mb_str()
                     << "\" with empty field(" << id << ") name.";
@@ -390,9 +390,9 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 }
                 
                 OGRFieldType ogr_type;
-                int ogr_fwidth = table->GetColLength(col_id_map[id], t);
-                int ogr_fprecision = table->GetColDecimals(col_id_map[id], t);
-                GdaConst::FieldType ftype = table->GetColType(col_id_map[id], t);
+                int ogr_fwidth = table->GetColLength(id, t);
+                int ogr_fprecision = table->GetColDecimals(id, t);
+                GdaConst::FieldType ftype = table->GetColType(id, t);
                 if (ftype == GdaConst::string_type){
                     ogr_type = OFTString;
                 } else if (ftype == GdaConst::long64_type){

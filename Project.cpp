@@ -475,7 +475,6 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	wxLogMessage("Entering Project::SaveDataSourceAs");
 	wxLogMessage("New Datasource Name:" + new_ds_name);
    
-    
 	vector<GdaShape*> geometries;
 	try {
 		// SaveAs only to same datasource
@@ -488,11 +487,8 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
-			std::ostringstream error_message;
-			error_message << "GeoDa does not support creating data "
-			<< "of " << ds_format << ". Please try to 'Export' to other "
-			<< "supported data source format.";
-			throw GdaException(error_message.str().c_str());
+            wxString error_message = wxString::Format(_("GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."), ds_format);
+			throw GdaException(error_message.mb_str());
 		}
 		// call to initial OGR instance
 		OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
@@ -511,10 +507,11 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	
         // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
-		OGRwkbGeometryType geom_type = ogr_adapter.MakeOGRGeometries(geometries,
-                                                                     shape_type,
-                                                                     ogr_geometries,
-                                                                     selected_rows);
+        OGRwkbGeometryType geom_type;
+        geom_type = ogr_adapter.MakeOGRGeometries(geometries,
+                                                  shape_type,
+                                                  ogr_geometries,
+                                                  selected_rows);
         
         // NOTE: for GeoJSON, automatically transform to WGS84
         if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
@@ -530,8 +527,8 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		// Start saving
 		int prog_n_max = 0;
 		if (table_int) prog_n_max = table_int->GetNumberRows();
-		wxProgressDialog prog_dlg("Save data source progress dialog",
-                                  "Saving data...",
+		wxProgressDialog prog_dlg(_("Save data source progress dialog"),
+                                  _("Saving data..."),
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
         OGRLayerProxy* new_layer;
@@ -551,13 +548,6 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         
         bool cont = true;
         while ( new_layer && new_layer->export_progress < prog_n_max ) {
-            /*if (new_layer->export_progress <0) {
-             std::ostringstream msg;
-             msg << "Save as data source (" << new_ds_name.ToStdString()
-             << ") failed." << "\n\nDetails:"
-             << new_layer->error_message.str();
-             throw GdaException(msg.str().c_str());
-             }*/
             cont = prog_dlg.Update(new_layer->export_progress);
             if ( !cont ) {
                 new_layer->stop_exporting = true;
@@ -565,11 +555,9 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                 return;
             }
             if ( new_layer->export_progress == -1 ) {
-                std::ostringstream msg;
-                msg << "Save as data source (" << new_ds_name.ToStdString()
-                << ") failed." << "\n\nDetails:"
-                << new_layer->error_message.str();
-                throw GdaException(msg.str().c_str());
+                wxString msg = wxString::Format(_("Save as data source (%s) failed.\n\nDetails:"),new_ds_name);
+                msg << new_layer->error_message.str();
+                throw GdaException(msg.mb_str());
             }
             wxMilliSleep(100);
         }
@@ -593,7 +581,8 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 {
 	wxLogMessage("Project::SpecifyProjectConfFile()");
 	if (proj_fname.IsEmpty()) {
-		throw GdaException("Project filename not specified.");
+        wxString msg = _("Project filename not specified.");
+		throw GdaException(msg.mb_str());
 	}
 	project_conf->SetFilePath(proj_fname);
 	SetProjectFullPath(proj_fname);
@@ -655,7 +644,7 @@ void Project::SaveDataSourceData()
         ds_type == GdaConst::ds_xls ||
         ds_type == GdaConst::ds_esri_arc_sde )
     {
-		wxString msg = "The data source is read only. Please try to save as other data source.";
+		wxString msg = _("The data source is read only. Please try to save as other data source.");
 		throw GdaException(msg.mb_str());
 	}
 	
@@ -787,8 +776,8 @@ void Project::DisplayPointDupsWarning()
 	wxLogMessage("Project::DisplayPointDupsWarning()");
 
 	if (point_dups_warn_prev_displayed) return;
-	wxString msg("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
-	wxMessageDialog dlg(NULL, msg, "Duplicate Thiessen Polygons Found", wxOK | wxCANCEL | wxICON_INFORMATION);
+	wxString msg = _("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
+	wxMessageDialog dlg(NULL, msg, _("Duplicate Thiessen Polygons Found"), wxOK | wxCANCEL | wxICON_INFORMATION);
 	if (dlg.ShowModal() == wxID_OK) SaveVoronoiDupsToTable();
 	point_dups_warn_prev_displayed = true;
 }
@@ -846,11 +835,11 @@ void Project::SaveVoronoiDupsToTable()
 	}
 	data[0].l_val = &dup_ids;
 	data[0].undefined = &undefined;
-	data[0].label = "Duplicate IDs";
-	data[0].field_default = "DUP_IDS";
+	data[0].label = _("Duplicate IDs");
+	data[0].field_default = _("DUP_IDS");
 	data[0].type = GdaConst::long64_type;
 	
-	wxString title("Save Duplicate Thiessen Polygon Ids");
+	wxString title = _("Save Duplicate Thiessen Polygon Ids");
 	SaveToTableDlg dlg(this, NULL, data, title, wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 }
@@ -964,17 +953,17 @@ void Project::AddMeanCenters()
 	std::vector<SaveToTableEntry> data(2);
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
-	data[0].label = "X-Coordinates";
-	data[0].field_default = "COORD_X";
+	data[0].label = _("X-Coordinates");
+	data[0].field_default = _("COORD_X");
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
-	data[1].label = "Y-Coordinates";
-	data[1].field_default = "COORD_Y";
+	data[1].label = _("Y-Coordinates");
+	data[1].field_default = _("COORD_Y");
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data, "Add Mean Centers to Table", wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, _("Add Mean Centers to Table"), wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
@@ -1003,17 +992,17 @@ void Project::AddCentroids()
 	std::vector<SaveToTableEntry> data(2);
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
-	data[0].label = "X-Coordinates";
-	data[0].field_default = "COORD_X";
+	data[0].label = _("X-Coordinates");
+	data[0].field_default = _("COORD_X");
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
-	data[1].label = "Y-Coordinates";
-	data[1].field_default = "COORD_Y";
+	data[1].label = _("Y-Coordinates");
+	data[1].field_default = _("COORD_Y");
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data, "Add Centroids to Table", wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, _("Add Centroids to Table"), wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
@@ -1230,7 +1219,7 @@ bool Project::CanModifyGrpAndShowMsgIfNot(TableState* table_state,
 	if (n == 0)
         return true;
 	wxString msg(table_state->GetDisallowGroupModifyMsg(grp_nm));
-	wxMessageDialog dlg(NULL, msg, "Warning", wxOK | wxICON_WARNING);
+	wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
 	dlg.ShowModal();
 	return false;
 }
