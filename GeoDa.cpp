@@ -5060,14 +5060,14 @@ void GdaFrame::OnOpenSpatialRate(wxCommandEvent& event)
                             _("Spatial Rate Smoothed Variable Settings"),
                             _("Event Variable"), _("Base Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
-	MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
-									  dlg.var_info, dlg.col_ids,
-									  dlg.GetCatClassifType(),
-									  MapCanvas::spatial_rate,
-									  dlg.GetNumCategories(),
-									  dlg.GetWeightsId(),
-									  wxDefaultPosition,
-									  GdaConst::map_default_size);
+    MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                dlg.GetCatClassifType(),
+                                MapCanvas::spatial_rate,
+                                dlg.GetNumCategories(),
+                                dlg.GetWeightsId(),
+                                wxDefaultPosition,
+                                GdaConst::map_default_size);
 	nf->UpdateTitle();
 }
 

@@ -657,8 +657,7 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
             return v[i].first;
 		if (x < p_i) {
 			double p_im1 = (100.0/Nd) * ((((double) i))-0.5);
-			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first
-														-v[i-1].first);
+			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first-v[i-1].first);
 		}
 	}
 	return v[N-1].first; // execution should never get here

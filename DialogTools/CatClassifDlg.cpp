@@ -1063,6 +1063,16 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int, IsAutomaticLabels());
+   
+    // check if breaks have same values
+    std::set<double> brks;
+    for (int i=0; i<cc_data.breaks.size(); i++)
+        brks.insert(cc_data.breaks[i]);
+    if (brks.size() < cc_data.breaks.size()) {
+        wxString msg = _("Breaks with same values were created. Please choose a smaller categories.");
+        wxMessageDialog ed(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        ed.ShowModal();
+    }
     
 	InitFromCCData();
 	UpdateCCState();
@@ -1489,7 +1499,7 @@ void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 	}
 	
 	wxColourDialog dialog(this, &clr_data);
-	dialog.SetTitle("Choose Cateogry Color");
+	dialog.SetTitle(_("Choose Cateogry Color"));
 	if (dialog.ShowModal() != wxID_OK) return;
 	wxColourData retData = dialog.GetColourData();
 	if (cc_data.colors[obj_id] == retData.GetColour()) return;
@@ -1520,13 +1530,12 @@ void CatClassifPanel::OnButtonChangeTitle(wxCommandEvent& event)
 {
     wxLogMessage("CatClassifPanel::OnButtonChangeTitle");
 	if (!all_init) return;
-	wxString msg;
 	wxString cur_title = cur_cats_choice->GetStringSelection();
 	wxString new_title = cur_title;
-	msg << "Change title \"" << cur_title << "\" to";
+    wxString msg = wxString::Format(_("Change title \"%s\" to"), cur_title);
 	bool retry = true;
 	while (retry) {
-		wxTextEntryDialog dlg(this, msg, "Change Categories Title");
+		wxTextEntryDialog dlg(this, msg, _("Change Categories Title"));
 		dlg.SetValue(new_title);
 		if (dlg.ShowModal() == wxID_OK) {
 			new_title = dlg.GetValue();
@@ -1535,9 +1544,8 @@ void CatClassifPanel::OnButtonChangeTitle(wxCommandEvent& event)
 			if (new_title.IsEmpty() || new_title == cur_title) {
 				retry = false;
 			} else if (IsDuplicateTitle(new_title)) {
-				wxString es;
-				es << "Categories title \"" << new_title << "\" already ";
-				es << "exists. Please choose a different title.";
+				wxString es = _("Categories title \"%s\" already exists. Please choose a different title.");
+                es = wxString::Format(es, new_title);
 				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
 				ed.ShowModal();
 			} else {
@@ -1557,12 +1565,11 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 {
     wxLogMessage("CatClassifPanel::OnButtonNew");
 	if (!all_init) return;
-	wxString msg;
-	msg << "New Custom Categories Title:";
+	wxString msg = _("New Custom Categories Title:");
 	wxString new_title = GetDefaultTitle();
 	bool retry = true;
 	while (retry) {
-		wxTextEntryDialog dlg(this, msg, "New Categories Title");
+		wxTextEntryDialog dlg(this, msg, _("New Categories Title"));
 		dlg.SetValue(new_title);
 		if (dlg.ShowModal() == wxID_OK) {
 			new_title = dlg.GetValue();
@@ -1572,10 +1579,9 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 				retry = false;
                 
 			} else if (IsDuplicateTitle(new_title)) {
-				wxString es;
-				es << "Categories title \"" << new_title << "\" already ";
-				es << "exists. Please choose a different title.";
-				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+				wxString es = _("Categories title \"%s\" already exists. Please choose a different title.");
+                es = wxString::Format(es, new_title);
+				wxMessageDialog ed(NULL, es, _("Error"), wxOK | wxICON_ERROR);
 				ed.ShowModal();
                 
 			} else {
@@ -1628,10 +1634,8 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 			EnableControls(false);
 		}
 	} else {
-		wxString es;
-		es << "Categories \"" << custom_cat_title << "\" is currently ";
-		es << "in use by another view. Please close or change all views ";
-		es << "using this custom categories before deleting.";
+		wxString es = _("Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting.");
+        es = wxString::Format(es, custom_cat_title);
 		wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
 		ed.ShowModal();
 	}
