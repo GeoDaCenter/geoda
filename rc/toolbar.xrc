@@ -109,7 +109,7 @@
     <object class="tool" name="IDM_CORRELOGRAM">
         <bitmap>color/32x32/22.png</bitmap>
         <bitmap2>gray/32x32/22.png</bitmap2>
-      <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
+      <tooltip>Spatial Correlogram</tooltip>
     </object>
     <object class="tool" name="ID_LISA_MENU">
         <bitmap>color/32x32/23.png</bitmap>

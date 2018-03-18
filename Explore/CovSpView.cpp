@@ -184,7 +184,7 @@ void CovSpFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void CovSpFrame::UpdateTitle()
 {
-	wxString s = _("Nonparametric Spatial Autocorrelation");
+	wxString s = _("Spatial Correlogram");
 	if (var_man.GetVarsCount() > 0) s << " - " << var_man.GetNameWithTime(0);
 	SetTitle(s);
 }
@@ -517,22 +517,17 @@ void CovSpFrame::UpdateMessageWin()
 	if (too_many_obs) {
 		long n_obs = project->GetNumRecords();
 		long n_pairs = (n_obs*(n_obs-1))/2;
-		s << "This view currently supports data with at most 1000 observations. ";
-		s << "The Nonparametric Spatial Autocorrelation Scatterplot plots ";
-		s << "distances between all pairs of observations. ";
-		s << "The current data set has " << n_obs << " observations and ";
-		s << n_pairs << " unordered pairs of observations.";
+        wxString msg = wxString::Format(_("This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."), n_obs, n_pairs);
+        s << msg;
 	} else {
 		int count = var_man.GetVarsCount();
 		if (count == 0) {
-			s << "Please use<br />";
-			s << "<font color=\"blue\">Options > Change Variable<br /></font>";
-			s << "to specify a variable.";
+			s << _("Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable.");
 		} if (Z_error_msg[var_man.GetTime(0)].IsEmpty()) {
-			s << "Variable <font color=\"blue\">" << var_man.GetName(0);
-			s << "</font> is specified. ";
+            wxString msg = wxString::Format(_("Variable <font color=\"blue\">%s</font> is specified. "), var_man.GetName(0));
+			s << msg;
 		} else {
-			s << "Error: " << Z_error_msg[var_man.GetTime(0)];
+			s << _("Error: ") << Z_error_msg[var_man.GetTime(0)];
 		}
 	}
 	s << "  </font></p></center>";

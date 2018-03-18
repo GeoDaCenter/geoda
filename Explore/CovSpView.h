@@ -94,7 +94,7 @@ public:
 						 const GdaVarTools::Manager& var_man,
 						 WeightsMetaInfo::DistanceMetricEnum dist_metric,
 						 WeightsMetaInfo::DistanceUnitsEnum dist_units,
-						 const wxString& title = _("Nonparametric Spatial Autocorrelation"),
+						 const wxString& title = _("Spatial Correlogram"),
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = GdaConst::scatterplot_default_size);
 	virtual ~CovSpFrame();

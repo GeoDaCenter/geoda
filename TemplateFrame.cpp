@@ -487,7 +487,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
 
     double font_scale = 1.0;
-    if ( GeneralWxUtils::isWindows()) font_scale = 0.6;
+    if ( GeneralWxUtils::isWindows()) font_scale = 1.5;
     
 	switch (dialog.GetFilterIndex()) {
 		case 0:

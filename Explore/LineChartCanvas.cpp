@@ -370,15 +370,15 @@ void LineChartCanvas::PopulateCanvas()
         axis_min = prev_y_axis_min;
         axis_max = prev_y_axis_max;
     }
+   
+    prev_y_axis_min = axis_min;
+    prev_y_axis_max = axis_max;
     
     if (!def_y_min.IsEmpty())
           def_y_min.ToDouble(&axis_min);
     
     if (!def_y_max.IsEmpty())
           def_y_max.ToDouble(&axis_max);
-
-    prev_y_axis_min = axis_min;
-    prev_y_axis_max = axis_max;
 
 	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
 	
