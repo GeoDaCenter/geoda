@@ -133,12 +133,12 @@ void LocalGearyMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString LocalGearyMapCanvas::GetCanvasTitle()
 {
 	wxString local_geary_t;
-	if (is_clust && !is_bi) local_geary_t = " LocalGeary Cluster Map";
-	if (is_clust && is_bi) local_geary_t = " BiLocalGeary Cluster Map";
-    if (is_clust && is_diff) local_geary_t = " Differential LocalGeary Cluster Map";
+	if (is_clust && !is_bi) local_geary_t = " Local Geary Cluster Map";
+	if (is_clust && is_bi) local_geary_t = " Bivariate Local Geary Cluster Map";
+    if (is_clust && is_diff) local_geary_t = " Differential Local Geary Cluster Map";
     
-	if (!is_clust && !is_bi) local_geary_t = " LocalGeary Significance Map";
-	if (!is_clust && is_bi) local_geary_t = " BiLocalGeary Significance Map";
+	if (!is_clust && !is_bi) local_geary_t = " Local Geary Significance Map";
+	if (!is_clust && is_bi) local_geary_t = " Bivariate LocalGeary Significance Map";
     if (!is_clust && is_diff) local_geary_t = " Differential Significance Map";
 	
 	wxString field_t;
@@ -1097,7 +1097,7 @@ void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
     
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
                             false, false,
-                            _("Conditional LocalGeary Map Variables"),
+                            _("Conditional Local Geary Map Variables"),
                             _("Horizontal Cells"),
                             _("Vertical Cells"));
     

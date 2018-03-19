@@ -140,9 +140,9 @@ popup_col(-1)
 		}
 	}
 	
-    if (!project->IsFileDataSource()) {
-        grid->DisableDragColMove();
-    }
+    //if (!project->IsFileDataSource()) {
+    //    grid->DisableDragColMove();
+    //}
     
     //grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
     grid->ForceRefresh();

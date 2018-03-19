@@ -126,10 +126,10 @@ void DataViewerAddColDlg::CreateControls()
 	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
 	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);
     
-    if ( !project->IsFileDataSource()) {
-        mt->Disable();
-        m_insert_pos->Disable();
-    }
+    //if ( !project->IsFileDataSource()) {
+    //    mt->Disable();
+    //    m_insert_pos->Disable();
+    //}
 
 	m_displayed_decimals_lable =  wxDynamicCast(FindWindow(XRCID("ID_STATIC_DISPLAYED_DECIMALS")), wxStaticText);
 	m_displayed_decimals = wxDynamicCast(FindWindow(XRCID("ID_DISPLAYED_DECIMALS")), wxChoice);
