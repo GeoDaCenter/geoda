@@ -238,16 +238,15 @@ void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 void CovSpFrame::OnEditLowessParams(wxCommandEvent& event)
 {
 	wxLogMessage("In CovSpFrame::OnEditLowessParams");
-	if (too_many_obs) return;
+	if (too_many_obs)
+        return;
 	if (lowess_param_frame) {
 		lowess_param_frame->Iconize(false);
 		lowess_param_frame->Raise();
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l; // = t->GetLowess();  // should be shared by all cells
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
@@ -256,14 +255,13 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
 	wxLogMessage("In CovSpFrame::OnShowVarsChooser");
 	if (too_many_obs) return;
-	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, "Variable Choice", "Variable");
+	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, _("Variable Choice"), _("Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
 	vector<wxString> tm_strs;
 	project->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager t_var_man(tm_strs);
-	t_var_man.AppendVar(v.name, v.min, v.max, v.time,
-										v.sync_with_global_time, v.fixed_scale);
+	t_var_man.AppendVar(v.name, v.min, v.max, v.time, v.sync_with_global_time, v.fixed_scale);
 	var_man = t_var_man;
 	
 	// If distance metric or units changed, then reinit distance as well

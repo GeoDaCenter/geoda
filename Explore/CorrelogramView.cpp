@@ -55,7 +55,7 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
                                    const wxPoint& pos,
                                    const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
-correl_params_frame(0), panel(0),
+correl_params_frame(0), panel(0),lowess_param_frame(0), sp_can(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
 hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), display_statistics(false)
 {
@@ -109,6 +109,10 @@ hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), 
 
 CorrelogramFrame::~CorrelogramFrame()
 {
+    if (lowess_param_frame) {
+        lowess_param_frame->removeObserver(this);
+        lowess_param_frame->closeAndDeleteWhenEmpty();
+    }
 	if (correl_params_frame) {
 		correl_params_frame->removeObserver(this);
 		correl_params_frame->closeAndDeleteWhenEmpty();
@@ -116,6 +120,32 @@ CorrelogramFrame::~CorrelogramFrame()
 	if (local_hl_state) local_hl_state->closeAndDeleteWhenEmpty();
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
+}
+
+void CorrelogramFrame::update(LowessParamObservable* o)
+{
+    if (sp_can) {
+        sp_can->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
+    }
+}
+
+void CorrelogramFrame::notifyOfClosing(LowessParamObservable* o)
+{
+    lowess_param_frame = 0;
+}
+
+void CorrelogramFrame::OnEditLowessParams(wxCommandEvent& event)
+{
+    wxLogMessage("In CorrelogramFrame::OnEditLowessParams");
+    if (lowess_param_frame) {
+        lowess_param_frame->Iconize(false);
+        lowess_param_frame->Raise();
+        lowess_param_frame->SetFocus();
+    } else {
+        Lowess l;
+        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
+        lowess_param_frame->registerObserver(this);
+    }
 }
 
 void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
@@ -384,6 +414,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
                                    &CorrelogramFrame::OnMouseEvent,
                                    this);
 			scatt_plots[i]->Destroy();
+            scatt_plots[i] = 0;
 		}
 	}
 	scatt_plots.clear();
@@ -523,7 +554,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
                 X_undef[i] = false;
 			}
             
-			SimpleScatterPlotCanvas* sp_can = 0;
+			//SimpleScatterPlotCanvas* sp_can = 0;
 			sp_can = new SimpleScatterPlotCanvas(panel, this, project,
 												 local_hl_state, this,
 												 X, Y, X_undef, Y_undef,
@@ -539,7 +570,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 												 valid_sampling, // show LOWESS fit
 												 false);
             sp_can->SetFixedAspectRatioMode(false);
-			sp_can->ChangeLoessParams(0.2,5,0.02);
+			//sp_can->ChangeLoessParams(0.2,5,0.02);
 			bag_szr->Add(sp_can, wxGBPosition(row, 1), wxGBSpan(1,1), wxEXPAND);
 			scatt_plots.push_back(sp_can);
 		}
@@ -572,7 +603,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			{
 				sa_can = new SimpleAxisCanvas(panel, this, project, 
 											  local_hl_state,
-											  freq_vals, "Frequency",
+											  freq_vals, _("Frequency"),
 											  freq_min, freq_max,
 											  false, // is horizontal ?
 											  true, // show axes
@@ -981,8 +1012,8 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	}
     
     if (success == false) {
-        wxString msg = "Please select another variable with values more suitable for computing a correlogram.";
-        wxString title = "Variable Value Error";
+        wxString msg = _("Please select another variable with values more suitable for computing a correlogram.");
+        wxString title = _("Variable Value Error");
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return success;

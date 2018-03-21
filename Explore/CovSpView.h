@@ -90,13 +90,13 @@ typedef std::vector<vec_bool_type> vec_vec_bool_type;
 class CovSpFrame : public TemplateFrame, public LowessParamObserver
 {
 public:
-	CovSpFrame(wxFrame *parent, Project* project,
-						 const GdaVarTools::Manager& var_man,
-						 WeightsMetaInfo::DistanceMetricEnum dist_metric,
-						 WeightsMetaInfo::DistanceUnitsEnum dist_units,
-						 const wxString& title = _("Spatial Correlogram"),
-						 const wxPoint& pos = wxDefaultPosition,
-						 const wxSize& size = GdaConst::scatterplot_default_size);
+    CovSpFrame(wxFrame *parent, Project* project,
+               const GdaVarTools::Manager& var_man,
+               WeightsMetaInfo::DistanceMetricEnum dist_metric,
+               WeightsMetaInfo::DistanceUnitsEnum dist_units,
+               const wxString& title = _("Spatial Correlogram"),
+               const wxPoint& pos = wxDefaultPosition,
+               const wxSize& size = GdaConst::scatterplot_default_size);
 	virtual ~CovSpFrame();
 	
 	void OnMouseEvent(wxMouseEvent& event);

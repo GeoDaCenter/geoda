@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <boost/foreach.hpp>
 #include <wx/textdlg.h>
 #include <wx/valnum.h>
@@ -28,14 +29,13 @@
 #include "../DialogTools/WebViewHelpWin.h"
 #include "LowessParamDlg.h"
 
-LowessParamFrame::LowessParamFrame(double f, int iter, double delta_factor,
-                                   Project* project_)
-: wxFrame((wxWindow*) 0, wxID_ANY, "LOWESS Smoother Parameters",
+LowessParamFrame::LowessParamFrame(double f, int iter, double delta_factor, Project* project_)
+: wxFrame((wxWindow*) 0, wxID_ANY, _("LOWESS Smoother Parameters"),
           wxDefaultPosition, wxSize(400, -1), wxDEFAULT_FRAME_STYLE),
 LowessParamObservable(f, iter, delta_factor), 
 project(project_)
 {
-	LOG_MSG("Entering LowessParamFrame::LowessParamFrame");
+	wxLogMessage("Entering LowessParamFrame::LowessParamFrame");
 	
 	wxPanel* panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
@@ -43,24 +43,24 @@ project(project_)
 
 	wxButton* help_btn = new wxButton(panel, 
                                       XRCID("ID_HELP_BTN"), 
-                                      "Help",
+                                      _("Help"),
                                       wxDefaultPosition, 
                                       wxDefaultSize,
                                       wxBU_EXACTFIT);
 	wxButton* apply_btn = new wxButton(panel, 
                                        XRCID("ID_APPLY_BTN"), 
-                                       "Apply",
+                                       _("Apply"),
                                        wxDefaultPosition, 
                                        wxDefaultSize,
                                        wxBU_EXACTFIT);
 	wxButton* reset_defaults_btn = new wxButton(panel,
                                                 XRCID("ID_RESET_DEFAULTS_BTN"),
-                                                "Reset",
+                                                _("Reset"),
                                                 wxDefaultPosition, 
                                                 wxDefaultSize,
                                                 wxBU_EXACTFIT);
 
-	wxStaticText* f_stat_t = new wxStaticText(panel, wxID_ANY, "Bandwidth:");
+	wxStaticText* f_stat_t = new wxStaticText(panel, wxID_ANY, _("Bandwidth:"));
 	f_text = new wxTextCtrl(panel, 
                             XRCID("ID_F_TEXT"),
                             wxString::Format("%f", GetF()),
@@ -73,7 +73,7 @@ project(project_)
     Connect(XRCID("ID_F_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
             wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 
-	wxStaticText* iter_stat_t = new wxStaticText(panel, wxID_ANY, "Iterations:");
+	wxStaticText* iter_stat_t = new wxStaticText(panel, wxID_ANY, _("Iterations:"));
 	iter_text = new wxTextCtrl(panel, 
                                XRCID("ID_ITER_TEXT"),
                                wxString::Format("%d", GetIter()),
@@ -88,7 +88,7 @@ project(project_)
             wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 	
 	wxStaticText* delta_factor_stat_t =
-		new wxStaticText(panel, wxID_ANY, "Delta Factor:");
+		new wxStaticText(panel, wxID_ANY, _("Delta Factor:"));
 	delta_factor_text = new wxTextCtrl(panel, 
                                        XRCID("ID_DELTA_FACTOR_TEXT"),
                                        wxString::Format("%.4f", GetDeltaFactor()),
@@ -153,32 +153,32 @@ project(project_)
 	
 	Show(true);
 	
-	LOG_MSG("Exiting LowessParamFrame::LowessParamFrame");
+	wxLogMessage("Exiting LowessParamFrame::LowessParamFrame");
 }
 
 LowessParamFrame::~LowessParamFrame()
 {
-	LOG_MSG("In LowessParamFrame::~LowessParamFrame");
+	wxLogMessage("In LowessParamFrame::~LowessParamFrame");
 	notifyObserversOfClosing();
 }
 
 void LowessParamFrame::OnHelpBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In LowessParamFrame::OnHelpBtn");
+	wxLogMessage("In LowessParamFrame::OnHelpBtn");
 	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
                                              wxID_ANY, _("LOWESS Smoother Help"));
 }
 
 void LowessParamFrame::OnApplyBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In LowessParamFrame::OnApplyBtn");
+	wxLogMessage("In LowessParamFrame::OnApplyBtn");
 	UpdateParamsFromFields();
 	notifyObservers();
 }
 
 void LowessParamFrame::OnResetDefaultsBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In LowessParamFrame::OnResetDefaultsBtn");
+	wxLogMessage("In LowessParamFrame::OnResetDefaultsBtn");
 	f = Lowess::default_f;
 	iter = Lowess::default_iter;
 	delta_factor = Lowess::default_delta_factor;
@@ -208,7 +208,7 @@ void LowessParamFrame::closeAndDeleteWhenEmpty()
 
 void LowessParamFrame::UpdateParamsFromFields()
 {
-	LOG_MSG("Entering LowessParamFrame::UpdateParamsFromFields");
+	wxLogMessage("Entering LowessParamFrame::UpdateParamsFromFields");
 	Lowess temp_l(GetF(), GetIter(), GetDeltaFactor());
 	{
 		wxString s = f_text->GetValue();
@@ -237,7 +237,7 @@ void LowessParamFrame::UpdateParamsFromFields()
 		wxString sf = wxString::Format("%.4f", GetDeltaFactor());
 		delta_factor_text->ChangeValue(sf);
 	}
-	LOG_MSG("Exiting LowessParamFrame::UpdateParamsFromFields");
+	wxLogMessage("Exiting LowessParamFrame::UpdateParamsFromFields");
 }
 
 wxString LowessParamFrame::GetHelpPageHtml() const
