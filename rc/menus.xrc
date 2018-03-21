@@ -3682,6 +3682,10 @@
       <label>Change Parameters</label>
       <checkable>0</checkable>
     </object>
+    <object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+        <label>Edit LOWESS Parameters</label>
+        <checkable>0</checkable>
+    </object>
 	<object class="wxMenuItem" name="ID_CORRELOGRAM_DISPLAY_STATS">
       <label>Display Statistics</label>
       <checkable>1</checkable>

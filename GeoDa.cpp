@@ -394,7 +394,7 @@ bool GdaApp::OnInit(void)
             std::string no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally.     \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
                 wxString ttl = _("Send Crash Report");
                 wxString user_email = GdaConst::gda_user_email;
                 wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
@@ -405,7 +405,7 @@ bool GdaApp::OnInit(void)
                         OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
                         GdaConst::gda_user_email = user_email;
                     }
-                    wxString ttl = "Crash Report";
+                    wxString ttl = _("Crash Report");
                     wxString body;
                     body << "From: " << user_email << "\n Details:";
                     ReportBugDlg::CreateIssue(ttl, body);
@@ -5729,6 +5729,8 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 		f->OnEditLowessParams(event);
 	} else if (CovSpFrame* f = dynamic_cast<CovSpFrame*>(t)) {
 		f->OnEditLowessParams(event);
+    } else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+        f->OnEditLowessParams(event);
 	} else if (ConditionalScatterPlotFrame* f =
 						 dynamic_cast<ConditionalScatterPlotFrame*>(t)) {
 		f->OnEditLowessParams(event);
