@@ -243,15 +243,13 @@ void RegressionDlg::CreateControls()
 
 void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 {
-	wxString m;
-	m << "Please specify the p-value to be used in tests; \n";
-	m << "default: p-value = 0.01";
+	wxString m = _("Please specify the p-value to be used in tests; \ndefault: p-value = 0.01");
     
 	double val;
 	wxString dlg_val;
 	wxString cur_val;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) 
         return;
     
@@ -264,10 +262,9 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 	if (dlg_val.ToDouble(&val)) {
 		autoPVal = val;
 	} else {
-		wxString m;
-		m << "\"" << dlg_val << 
-            "\" is not a valid p-value. Default p-value (0.01) is used";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxString m = _("\"%s\" is not a valid p-value. Default p-value (0.01) is used");
+        m = wxString::Format(m, dlg_val);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 
@@ -314,7 +311,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             // free memory of dt[][]
             for (int i = 0; i < sz + 1; i++) delete[] dt[i];
@@ -335,7 +332,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     int y_col_id = table_int->FindColId(name_to_nm[m_Yname]);
     if (y_col_id == wxNOT_FOUND) {
         wxString err_msg = wxString::Format("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data.", name_to_nm[m_Yname]);
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         // free memory of dt[][]
         for (int i = 0; i < sz + 1; i++) delete[] dt[i];
@@ -376,7 +373,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 
     if (valid_obs == 0) {
         wxString err_msg = _("Please check the selected variables are all valid.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         // free memory of dt[][]
         for (int i = 0; i < sz + 1; i++) delete[] dt[i];
@@ -523,13 +520,19 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             bool HetFlag = false;
 
             DiagnosticReport m_DR(n, nX, m_constant_term, true, 1);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
             
             if (gal_weight &&
 				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
 									 do_white_test)) 
             {
-                wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
+                wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
                 m_OpenDump = false;
                 OnCResetClick(event);
                 UpdateMessageBox("");
@@ -591,6 +594,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		if (RegressModel == 1) {
             wxLogMessage("OLS model");
 			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -598,8 +606,12 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			if (gal_weight &&
 				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
-									 do_white_test)) {
-				wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
+									 do_white_test))
+            {
+                wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -629,18 +641,25 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Show();
 				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
-				p_dlg->StatusUpdate(1, "Finished");
+				p_dlg->StatusUpdate(1, _("Finished"));
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
+                wxString s = _("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                
 				UpdateMessageBox("");
 				return;
 			}
 			
 			DiagnosticReport m_DR(n, nX + 1, m_constant_term, true,
 								  RegressModel);
-			
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -678,11 +697,13 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Show();
 				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
-				p_dlg->StatusUpdate(1, "Finished");
+				p_dlg->StatusUpdate(1, _("Finished"));
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
+                wxString s = _("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
 				UpdateMessageBox("");
 				return;
 			}			
@@ -690,6 +711,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			// Error Model
 			DiagnosticReport m_DR(n, nX + 1, m_constant_term, true,
 								  RegressModel);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -697,7 +723,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			if (gal_weight && !spatialErrorRegression(gal_weight, valid_obs,
 													  y, n, x, nX,
 													  &m_DR, true, m_gauge)) {
-				wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
+				wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -735,6 +764,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         
 	} else {
 		DiagnosticReport m_DR(n, nX, m_constant_term, false, RegressModel);
+        if ( false == m_DR.GetDiagStatus()) {
+            UpdateMessageBox("");
+            return;
+        }
 		SetXVariableNames(&m_DR);
 		m_DR.SetMeanY(ComputeMean(y, n));
 		m_DR.SetSDevY(ComputeSdev(y, n));
@@ -742,7 +775,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		if (!classicalRegression((GalElement*)NULL, m_obs, y, n, x, nX, &m_DR, 
 								 m_constant_term, false, m_gauge,
 								 do_white_test)) {
-			wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
+            wxString s = _("Error: the inverse matrix is ill-conditioned.");
+            wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            
 			m_OpenDump = false;
 			OnCResetClick(event);
 			UpdateMessageBox("");
@@ -858,7 +894,7 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 	if (failed) {
 		wxString msg;
 		msg << _("Unable to overwrite ") << new_txt;
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 }
@@ -1053,7 +1089,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	}
 	
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Regression Results",
+					   _("Save Regression Results"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 	
@@ -1111,7 +1147,9 @@ void RegressionDlg::InitVariableList()
  
 	m_obs = project->GetNumRecords();
 	if (m_obs <= 0) {
-		wxMessageBox("Error: no records found in DBF file");
+        wxString s = _("Error: no records found in data source.");
+        wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
 		return;
 	}
 	

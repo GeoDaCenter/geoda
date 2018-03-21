@@ -25,9 +25,7 @@ DiagnosticReport::DiagnosticReport(long obs, int nvar,
 								   bool inclconst, bool w, int m)
 : nObs(obs), nVar(nvar), inclConstant(inclconst), model(m), hasWeight(w)
 {
-	if (Allocate()) {
-		SetDiagStatus(false);
-	}
+    diagStatus = Allocate();
 	return;
 }
 
@@ -36,9 +34,19 @@ DiagnosticReport::~DiagnosticReport()
 
 }
 
+bool DiagnosticReport::GetDiagStatus()
+{
+    return diagStatus;
+}
+
 bool DiagnosticReport::Allocate()
 {
-	if (nObs < nVar || nVar < 1) return false;
+    if (nObs < nVar || nVar < 1) {
+        wxString s = _("The number of covariates should be more than the number of observations.");
+        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
 
 	varNames.resize(nVar+1);
 	typedef double* double_ptr_type;
@@ -57,7 +65,9 @@ bool DiagnosticReport::Allocate()
 	eigval	= new double[nVar];
 
 	if (resid == NULL) {
-		wxMessageBox("Not enough memory!");
+        wxString s = _("Not enough memory!");
+        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        dlg.ShowModal();
 		return false;
 	}
 
