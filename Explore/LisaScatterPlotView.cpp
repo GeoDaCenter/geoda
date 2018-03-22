@@ -134,8 +134,8 @@ void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (int i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant && (i==0 || is_bi || is_rate)) {
-			wxString s;
-			s << "Synchronize " << var_info[i].name << " with Time Control";
+			wxString s = _("Synchronize %s with Time Control");
+            s = wxString::Format(s, var_info[i].name);
 			wxMenuItem* mi =
 			menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
@@ -143,8 +143,8 @@ void LisaScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	}
 
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 wxString LisaScatterPlotCanvas::GetCanvasTitle()
@@ -167,15 +167,17 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 	}	
 	wxString w(lisa_coord->GetWeightsName());
 	if (is_bi) {
-		s << "Bivariate Moran's I (" << w << "): ";
-		s << v0 << " and lagged " << v1;
+        s = _("Bivariate Moran's I (%s): %s and lagged %s");
+        s = wxString::Format(s, w, v0, v1);
 	} else if (is_rate) {
-		s << "Emp Bayes Rate Std Moran's I (" << w << "): ";
-		s << v0 << " / " << v1;
+        s = _("Emp Bayes Rate Std Moran's I (%s): %s / %s");
+        s = wxString::Format(s, w, v0, v1);
     } else if (is_diff) {
-        s << "Differential Moran's I (" << w << "): " << v0 << " - " << v1;
+        s = _("Differential Moran's I (%s): %s - %s");
+        s = wxString::Format(s, w, v0, v1);
     } else {
-		s << "Moran's I (" << w << "): " << v0;
+        s = _("Moran's I (%s): %s");
+        s = wxString::Format(s, w, v0);
 	}
 	return s;
 }
@@ -857,7 +859,7 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 
 void LisaScatterPlotCanvas::SaveMoranI()
 {
-	wxString title = "Save Results: Moran's I";
+	wxString title = _("Save Results: Moran's I");
 	std::vector<double> std_data(num_obs);
 	std::vector<double> lag(num_obs);
     std::vector<double> diff(num_obs);
@@ -887,20 +889,20 @@ void LisaScatterPlotCanvas::SaveMoranI()
     }
     
 	data[0].d_val = &std_data;
-	data[0].label = "Standardized Data";
+	data[0].label = _("Standardized Data");
 	data[0].field_default = "MORAN_STD";
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &XYZ_undef;
     
 	data[1].d_val = &lag;
-	data[1].label = "Spatial Lag";
+	data[1].label = _("Spatial Lag");
 	data[1].field_default = "MORAN_LAG";
 	data[1].type = GdaConst::double_type;
     data[1].undefined = &XYZ_undef;
     
     if (is_diff) {
         data[2].d_val = &diff;
-        data[2].label = "Diff Values";
+        data[2].label = _("Diff Values");
         data[2].field_default = "DIFF_VAL";
         data[2].type = GdaConst::double_type;
         data[2].undefined = &XYZ_undef;
@@ -924,7 +926,7 @@ LisaScatterPlotFrame::LisaScatterPlotFrame(wxFrame *parent, Project* project,
 : ScatterNewPlotFrame(parent, project, pos, size, style),
 lisa_coord(lisa_coordinator)
 {
-	LOG_MSG("Entering LisaScatterPlotFrame::LisaScatterPlotFrame");
+	wxLogMessage("Entering LisaScatterPlotFrame::LisaScatterPlotFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -938,7 +940,7 @@ lisa_coord(lisa_coordinator)
 	//lisa_coord->registerObserver(this);
 	Show(true);
 	
-	LOG_MSG("Exiting LisaScatterPlotFrame::LisaScatterPlotFrame");
+	wxLogMessage("Exiting LisaScatterPlotFrame::LisaScatterPlotFrame");
 }
 
 LisaScatterPlotFrame::~LisaScatterPlotFrame()
@@ -965,17 +967,19 @@ void LisaScatterPlotFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
 	uint64_t last_seed = lisa_coord->GetLastUsedSeed();
-	wxString m;
-	m << "The last seed used by the pseudo random\nnumber ";
-	m << "generator was " << last_seed << ".\n";
-	m << "Enter a seed value to use between\n0 and ";
-	m << std::numeric_limits<uint64_t>::max() << ".";
+    wxString m = _("The last seed used by the pseudo random\nnumber generator was ");
+    //wxLongLongFmtSpec
+    m << last_seed;
+    m << _(".\nEnter a seed value to use between\n0 and ");
+    m << std::numeric_limits<uint64_t>::max();
+    m << ".";
+    
 	long long unsigned int val;
 	wxString dlg_val;
 	wxString cur_val;
 	cur_val << last_seed;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
 	dlg_val.Trim(true);
@@ -987,9 +991,9 @@ void LisaScatterPlotFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 		uint64_t new_seed_val = val;
 		lisa_coord->SetLastUsedSeed(new_seed_val);
 	} else {
-		wxString m;
-		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 }
@@ -1113,7 +1117,7 @@ void LisaScatterPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& t
     wxString default_fname(project->GetProjectTitle() + type);
     wxString filter = "BMP|*.bmp|PNG|*.png";
     int filter_index = 1;
-    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
+    wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
                         default_fname, filter,
                         wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     dialog.SetFilterIndex(filter_index);
@@ -1152,7 +1156,7 @@ void LisaScatterPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& t
             
             wxImage image = bitmap.ConvertToImage();
             if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
-                wxMessageBox("GeoDa was unable to save the file.");
+                wxMessageBox(_("GeoDa was unable to save the file."));
             }
             image.Destroy();
         }
@@ -1174,7 +1178,7 @@ void LisaScatterPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& t
             
             wxImage image = bitmap.ConvertToImage();
             if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
-                wxMessageBox("GeoDa was unable to save the file.");
+                wxMessageBox(_("GeoDa was unable to save the file."));
             }
             
             image.Destroy();

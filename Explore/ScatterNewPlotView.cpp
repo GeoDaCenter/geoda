@@ -345,10 +345,9 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
-			wxString s;
-			s << "Synchronize " << var_info[i].name << " with Time Control";
-			wxMenuItem* mi =
-				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			wxString s = _("Synchronize %s with Time Control");
+            s = wxString::Format(s, var_info[i].name);
+			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -506,19 +505,25 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 
 wxString ScatterNewPlotCanvas::GetCanvasTitle()
 {
-	wxString s(is_bubble_plot ? "Bubble Chart" : "Scatter Plot");	
-	s << " - x: " << GetNameWithTime(0) << ", y: " << GetNameWithTime(1);
+    wxString s;
+    wxString x_name = GetNameWithTime(0);
+    wxString y_name = GetNameWithTime(1);
+    
 	if (is_bubble_plot) {
-		s << ", size: " << GetNameWithTime(2);
-		s << ", " << GetCategoriesTitle();
-	}
+        s = _("Bubble Chart - x: %s, y: %s, size: %s, %s");
+        s = wxString::Format(s, x_name, y_name, GetNameWithTime(2), GetCategoriesTitle());
+    } else {
+        s = _("Scatter Plot - x: %s, y: %s");
+        s = wxString::Format(s, x_name, y_name);
+    }
+    
 	return s;
 }
 
 wxString ScatterNewPlotCanvas::GetCategoriesTitle()
 {
 	if (GetCcType() == CatClassification::no_theme) {
-		return "Themeless";
+		return _("Themeless");
 	}
 	wxString s;
 	if (GetCcType() == CatClassification::custom) {
@@ -865,8 +870,8 @@ void ScatterNewPlotCanvas::PopulateCanvas()
         x_min = var_info[0].min_over_time;
     }
     if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
-        y_max = var_info[1].max[var_info[1].time_max - var_info[1].time];
-        y_min = var_info[1].min[var_info[1].time_min - var_info[1].time];
+        y_max = var_info[1].max[var_info[1].time - var_info[1].time_min];
+        y_min = var_info[1].min[var_info[1].time - var_info[1].time_min];
     } else if (var_info[1].fixed_scale&& !standardized){
         // this is for fixed y-axis over time
         y_max = var_info[1].max_over_time;
