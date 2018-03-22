@@ -1519,8 +1519,8 @@ wxString VariableSettingsDlg::FillData()
 		var_info[i].fixed_scale = true;
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
-	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	GdaVarTools::PrintVarInfoVector(var_info);
+	//GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+	//GdaVarTools::PrintVarInfoVector(var_info);
     
     return emptyVar;
 }

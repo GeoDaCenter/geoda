@@ -186,6 +186,7 @@ basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
 map_type(0),
+ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
@@ -1602,40 +1603,33 @@ void MapCanvas::TimeChange()
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
-	int ref_time = var_info[ref_var_index].time;
-	int ref_time_min = var_info[ref_var_index].time_min;
-	int ref_time_max = var_info[ref_var_index].time_max; 
 	
-	if ((cts == ref_time) ||
-		(cts > ref_time_max && ref_time == ref_time_max) ||
-		(cts < ref_time_min && ref_time == ref_time_min)) return;
-	if (cts > ref_time_max) {
-		ref_time = ref_time_max;
-	} else if (cts < ref_time_min) {
-		ref_time = ref_time_min;
-	} else {
-		ref_time = cts;
-	}
 	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].sync_with_global_time) {
-			var_info[i].time = ref_time + var_info[i].ref_time_offset;
+			var_info[i].time = cts;
 		}
 	}
-	cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
+	cat_data.SetCurrentCanvasTmStep(cts);
 	invalidateBms();
 	PopulateCanvas();
-	LOG_MSG("Exiting MapCanvas::TimeChange");
+	wxLogMessage("Exiting MapCanvas::TimeChange");
 }
 
 void MapCanvas::VarInfoAttributeChange()
 {
     wxLogMessage("MapCanvas::VarInfoAttributeChange()");
+    if (var_info.empty()) {
+        return;
+    }
+    
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
 	is_any_sync_with_global_time = false;
 	for (size_t i=0; i<var_info.size(); i++) {
-		if (var_info[i].is_time_variant) is_any_time_variant = true;
+        if (var_info[i].is_time_variant) {
+            is_any_time_variant = true;
+        }
 		if (var_info[i].sync_with_global_time) {
 			is_any_sync_with_global_time = true;
 		}
@@ -1646,13 +1640,14 @@ void MapCanvas::VarInfoAttributeChange()
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
+        if (var_info[i].is_ref_variable) {
+            ref_var_index = i;
+        }
 	}
-	if (ref_var_index != -1) {
-		num_time_vals = (var_info[ref_var_index].time_max -
-						 var_info[ref_var_index].time_min) + 1;
-	}
-	//GdaVarTools::PrintVarInfoVector(var_info);
+	if (ref_var_index == -1) {
+        ref_var_index = 0;
+    }
+    num_time_vals = (var_info[ref_var_index].time_max - var_info[ref_var_index].time_min) + 1;
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index.
@@ -1664,16 +1659,20 @@ void MapCanvas::CreateAndUpdateCategories()
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
 
-    for (int t=0; t<num_time_vals; t++)
+    for (int t=0; t<num_time_vals; t++) {
         map_valid[t] = true;
+    }
     
 	map_error_message.resize(num_time_vals);
     
-	for (int t=0; t<num_time_vals; t++)
+    for (int t=0; t<num_time_vals; t++) {
         map_error_message[t] = wxEmptyString;
-	
+    }
+    
     empty_dict.clear();
-    for (int i=0; i<empty_shps_ids.size(); i++) empty_dict[empty_shps_ids[i]] = true;
+    for (int i=0; i<empty_shps_ids.size(); i++) {
+        empty_dict[empty_shps_ids[i]] = true;
+    }
 
 	if (GetCcType() == CatClassification::no_theme) {
 		 // 1 = #cats

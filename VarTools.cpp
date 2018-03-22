@@ -341,6 +341,7 @@ VarInfo::VarInfo() : min(1, 0), max(1, 0)
 	time_max = 0;
 	min_over_time = 0;
 	max_over_time = 0;
+    ref_time_offset = 0;
 }
 
 
@@ -353,6 +354,7 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 	//PrintVarInfoVector(var_info);
 	int num_vars = var_info.size();
 	int ref_var = -1;
+    /*
 	for (int i=0; i<num_vars; i++) {
 		if (ref_var == -1 && var_info[i].sync_with_global_time)
             ref_var = i;
@@ -398,6 +400,7 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 			}
 		}
 	}
+     */
 	return ref_var;
 }
 
