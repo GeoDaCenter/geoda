@@ -79,7 +79,7 @@ bool GdaAlgs::RateStandardizeEB(const int obs, const double* P,
 		}
 	}
 	delete [] p;
-	return has_undef;
+	return !has_undef;
 }
 
 bool GdaAlgs::RateSmoother_RawRate(int obs, double *P, double *E,
