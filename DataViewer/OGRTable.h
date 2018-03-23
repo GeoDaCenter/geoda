@@ -151,7 +151,7 @@ public:
 								 std::vector<bool>& undefined);
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals);
-	virtual void GetMinMaxVals(int col, int time,
+	virtual bool GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val);
 	virtual void SetColData(int col, int time,
                             const std::vector<double>& data);

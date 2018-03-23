@@ -967,20 +967,24 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
 	}
 }
 
-void OGRTable::GetMinMaxVals(int col, int time,
+bool OGRTable::GetMinMaxVals(int col, int time,
 							 double& min_val, double& max_val)
 {
 	min_val = 0;
 	max_val = 0;
-	if (col < 0 || col >= GetNumberCols()) return;
-	if (!IsColNumeric(col)) return;
-	if (time < 0 || time > GetColTimeSteps(col)) return;
+	if (col < 0 || col >= GetNumberCols()) return false;
+	if (!IsColNumeric(col)) return false;
+	if (time < 0 || time > GetColTimeSteps(col)) return false;
 
 	std::vector<double> t_min;
 	std::vector<double> t_max;
-	GetMinMaxVals(col, t_min, t_max);
-	min_val = t_min[time];
-	max_val = t_max[time];
+    GetMinMaxVals(col, t_min, t_max);
+    if (t_min.empty() || t_max.empty()) {
+        return false;
+    }
+    min_val = t_min[time];
+    max_val = t_max[time];
+    return true;
 }
 
 void OGRTable::SetColData(int col, int time,

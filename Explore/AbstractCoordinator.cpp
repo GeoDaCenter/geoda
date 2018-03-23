@@ -390,7 +390,9 @@ void AbstractCoordinator::VarInfoAttributeChange()
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (int i=0; i<var_info.size() && ref_var_index == -1; i++) {
-		if (var_info[i].is_ref_variable) ref_var_index = i;
+        if (var_info[i].is_ref_variable) {
+            ref_var_index = i;
+        }
 	}
 	if (ref_var_index != -1) {
 		num_time_vals = (var_info[ref_var_index].time_max -

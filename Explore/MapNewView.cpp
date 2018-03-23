@@ -213,7 +213,7 @@ tran_unhighlighted(GdaConst::transparency_unhighlighted)
 	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories,
 					   weights_id, true, var_info_s, col_ids_s))
     {
-		// The user possibly clicked cancel, try again with themeless map
+		// The user possibly clicked cancel, so try again with themeless map
 		vector<GdaVarTools::VarInfo> vi(0);
 		vector<int> cids(0);
 		ChangeMapType(CatClassification::no_theme, no_smoothing, 1,
@@ -224,7 +224,9 @@ tran_unhighlighted(GdaConst::transparency_unhighlighted)
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     
     isDrawBasemap = GdaConst::use_basemap_by_default;
-    if (isDrawBasemap) map_type = GdaConst::default_basemap_selection;
+    if (isDrawBasemap) {
+        map_type = GdaConst::default_basemap_selection;
+    }
 }
 
 MapCanvas::~MapCanvas()
@@ -363,8 +365,12 @@ void MapCanvas::OnSize(wxSizeEvent& event)
         // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
         HighlightState& hs = *project->GetHighlightState();
         std::vector<bool>& h = hs.GetHighlight();
-        for (int i=0; i<h.size(); i++) h[i] = false;
-        for (int i=0; i<ids_wo_nbrs.size(); i++) h[ids_wo_nbrs[i]] = true;
+        for (int i=0; i<h.size(); i++) {
+            h[i] = false;
+        }
+        for (int i=0; i<ids_wo_nbrs.size(); i++) {
+            h[ids_wo_nbrs[i]] = true;
+        }
     }
     
     ResetBrushing();
@@ -374,7 +380,10 @@ void MapCanvas::OnSize(wxSizeEvent& event)
 
 void MapCanvas::deleteLayerBms()
 {
-    if (basemap_bm) delete basemap_bm; basemap_bm = 0;
+    if (basemap_bm) {
+        delete basemap_bm;
+        basemap_bm = 0;
+    }
     
     TemplateCanvas::deleteLayerBms();
 }
@@ -394,9 +403,9 @@ void MapCanvas::ResetShapes()
 
 void MapCanvas::ZoomShapes(bool is_zoomin)
 {
-    if (sel2.x == 0 && sel2.y==0)
+    if (sel2.x == 0 && sel2.y==0) {
         return;
-
+    }
     if (faded_layer_bm) {
         delete faded_layer_bm;
         faded_layer_bm = NULL;
@@ -405,7 +414,6 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
     if (isDrawBasemap) {
         basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
         ResizeSelectableShps();
-        
         return;
     }
     
@@ -975,14 +983,16 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
     //wxLogMessage("MapCanvas::AddTimeVariantOptionsToMenu()");
-	if (!is_any_time_variant) return;
+    if (!is_any_time_variant){
+        return;
+    }
+    
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
 		if (var_info[i].is_time_variant) {
 			wxString s;
 			s << _("Synchronize ") << var_info[i].name << _(" with Time Control");
-			wxMenuItem* mi =
-				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -1603,13 +1613,26 @@ void MapCanvas::TimeChange()
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
+    int ref_time = var_info[ref_var_index].time;
+    int ref_time_min = var_info[ref_var_index].time_min;
+    int ref_time_max = var_info[ref_var_index].time_max;
 	
+    if ((cts == ref_time) ||
+        (cts > ref_time_max && ref_time == ref_time_max) ||
+        (cts < ref_time_min && ref_time == ref_time_min)) return;
+    if (cts > ref_time_max) {
+        ref_time = ref_time_max;
+    } else if (cts < ref_time_min) {
+        ref_time = ref_time_min;
+    } else {
+        ref_time = cts;
+    }
 	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].sync_with_global_time) {
-			var_info[i].time = cts;
+            var_info[i].time = ref_time + var_info[i].ref_time_offset;
 		}
 	}
-	cat_data.SetCurrentCanvasTmStep(cts);
+    cat_data.SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
 	PopulateCanvas();
 	wxLogMessage("Exiting MapCanvas::TimeChange");
@@ -1618,10 +1641,6 @@ void MapCanvas::TimeChange()
 void MapCanvas::VarInfoAttributeChange()
 {
     wxLogMessage("MapCanvas::VarInfoAttributeChange()");
-    if (var_info.empty()) {
-        return;
-    }
-    
 	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
 	
 	is_any_time_variant = false;
@@ -1640,14 +1659,13 @@ void MapCanvas::VarInfoAttributeChange()
 	ref_var_index = -1;
 	num_time_vals = 1;
 	for (size_t i=0; i<var_info.size() && ref_var_index == -1; i++) {
-        if (var_info[i].is_ref_variable) {
-            ref_var_index = i;
-        }
-	}
-	if (ref_var_index == -1) {
-        ref_var_index = 0;
+        if (var_info[i].is_ref_variable) ref_var_index = i;
     }
-    num_time_vals = (var_info[ref_var_index].time_max - var_info[ref_var_index].time_min) + 1;
+    if (ref_var_index != -1) {
+        num_time_vals = (var_info[ref_var_index].time_max -
+                         var_info[ref_var_index].time_min) + 1;
+    }
+    //GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 /** Update Categories based on num_time_vals, num_categories and ref_var_index.

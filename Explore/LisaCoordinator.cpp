@@ -308,14 +308,15 @@ void LisaCoordinator::Init()
 				var_info[1].sync_with_global_time) {
 				v1_t += t;
 			}
-			for (int i=0; i<num_obs; i++) P[i] = data[1][v1_t][i];
+            for (int i=0; i<num_obs; i++) {
+                P[i] = data[1][v1_t][i];
+            }
 			bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
 														smoothed_results,
 														undef_res);
 			if (!success) {
 				map_valid[t] = false;
-				map_error_message[t] << "Emprical Bayes Rate ";
-				map_error_message[t] << "Standardization failed.";
+				map_error_message[t] << _("Emprical Bayes Rate Standardization failed.");
 			} else {
 				for (int i=0; i<num_obs; i++) {
 					data1_vecs[t][i] = smoothed_results[i];

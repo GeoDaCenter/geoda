@@ -354,35 +354,44 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 	//PrintVarInfoVector(var_info);
 	int num_vars = var_info.size();
 	int ref_var = -1;
-    /*
 	for (int i=0; i<num_vars; i++) {
 		if (ref_var == -1 && var_info[i].sync_with_global_time)
             ref_var = i;
 		var_info[i].is_ref_variable = (i == ref_var);
 		// The following parameters are set to default values here
 		var_info[i].ref_time_offset = 0;
-		var_info[i].time_min = var_info[i].time;
-		var_info[i].time_max = var_info[i].time;
 		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
 		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
 	}
 	
-	if (ref_var == -1)
+    if (ref_var == -1) {
+        // if no ref_variable, return
         return ref_var;
+    }
     
+    // update other variables (besides ref_variable): ref_time_offset
 	int ref_time = var_info[ref_var].time;
 	int min_time = ref_time;
 	int max_time = ref_time;
 	for (int i=0; i<num_vars; i++) {
-		if (var_info[i].sync_with_global_time) {
+		if (!var_info[i].is_ref_variable && var_info[i].sync_with_global_time) {
 			var_info[i].ref_time_offset = var_info[i].time - ref_time;
-			if (var_info[i].time < min_time)
+            if (var_info[i].time < min_time) {
                 min_time = var_info[i].time;
-			if (var_info[i].time > max_time)
+            }
+            if (var_info[i].time > max_time) {
                 max_time = var_info[i].time;
+            }
 		}
 	}
-    // TODO the following is mystery
+    
+    //
+    // e.g. hr06 hr07 hr08 hr09
+    // var_info[0]: hr06
+    // var_info[1]: hr07
+    // the following code will update:
+    // var_info[0].time_min = 0  time_max = 2
+    // var_info[1].time_min = 1  time_max = 3
 	int global_max_time = var_info[ref_var].max.size()-1;
 	int min_ref_time = ref_time - min_time;
 	int max_ref_time = global_max_time - (max_time - ref_time);
@@ -400,7 +409,6 @@ int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 			}
 		}
 	}
-     */
 	return ref_var;
 }
 

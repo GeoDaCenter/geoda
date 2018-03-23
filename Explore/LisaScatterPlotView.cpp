@@ -385,6 +385,10 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 				sp_var_info[i].max_over_time = sp_var_info[i].max[t];
 			}
 		}
+        
+        if (is_diff) {
+            sp_var_info[i].time = sp_var_info[i].time_min;
+        }
 	}
 }
 

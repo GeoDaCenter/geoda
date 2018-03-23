@@ -377,8 +377,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
     if (num_cats > num_obs) {
         for (int t=0; t<num_time_vals; t++) {
             cats_valid[t] = false;
-            cats_error_message[t] << "Error: Chosen theme requires more ";
-            cats_error_message[t] << "cateogries than observations.";
+            cats_error_message[t] << _("Error: Chosen theme requires more cateogries than observations.");
         }
         return;
     }
@@ -1578,10 +1577,7 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	
 	int col = -1, tm = 0;
 	// first ensure that assoc_db_fld_name exists in table
-	bool field_removed = (cc.assoc_db_fld_name != "" &&
-						  (!table_int->DbColNmToColAndTm(cc.assoc_db_fld_name,
-														 col, tm) ||
-						   !table_int->IsColNumeric(col)));
+	bool field_removed = (cc.assoc_db_fld_name != "" && (!table_int->DbColNmToColAndTm(cc.assoc_db_fld_name, col, tm) || !table_int->IsColNumeric(col)));
 	
 	if (field_removed) {
 		// use min/max breaks as min/max for uniform dist
@@ -1680,7 +1676,9 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	if (!uni_dist_mode) {
 		// ensure that min/max and breaks are consistent with actual min/max
 		double col_min = 0, col_max = 0;
-		table_int->GetMinMaxVals(col, tm, col_min, col_max);
+        if (!table_int->GetMinMaxVals(col, tm, col_min, col_max)) {
+            return false;
+        }
 		cc.uniform_dist_min = col_min;
 		cc.uniform_dist_max = col_max;
 		for (int i=0, sz=cc.breaks.size(); i<sz; ++i) {

@@ -1501,7 +1501,7 @@ wxString VariableSettingsDlg::FillData()
         }
 	}
     
-	
+
 	for (int i=0; i<num_var; i++) {
 		// Set Primary GdaVarTools::VarInfo attributes
 		var_info[i].name = table_int->GetColName(col_ids[i]);
@@ -1519,8 +1519,8 @@ wxString VariableSettingsDlg::FillData()
 		var_info[i].fixed_scale = true;
 	}
 	// Call function to set all Secondary Attributes based on Primary Attributes
-	//GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-	//GdaVarTools::PrintVarInfoVector(var_info);
+	GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
+	GdaVarTools::PrintVarInfoVector(var_info);
     
     return emptyVar;
 }
