@@ -127,6 +127,8 @@ public:
     
     void Merge(RedCapCluster* cluster);
     
+    unordered_map<int, bool> node_id_dict;
+    
     unordered_map<RedCapNode*, bool> node_dict;
     
     unordered_map<RedCapEdge*, bool> edge_dict;
@@ -153,8 +155,8 @@ public:
     bool CheckContiguity(RedCapCluster* c1, RedCapCluster* c2, GalElement* w);
     
     bool CheckConnectivity(RedCapEdge* edge, GalElement* w,
-                           RedCapCluster* c1,
-                           RedCapCluster* c2);
+                           RedCapCluster** c1,
+                           RedCapCluster** c2);
     
     RedCapCluster* getCluster(RedCapNode* node);
     
