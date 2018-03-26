@@ -137,7 +137,7 @@ regReportDlg(0)
     
     if (project_s->GetTableInt()->GetNumberCols() == 0) {
         wxString err_msg = _("No numeric variables found in table.");
-        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         EndDialog(wxID_CANCEL);
     }
@@ -275,7 +275,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	wxLogMessage("Click RegressionDlg::OnRunClick");
 
     m_gauge->Show();
-	UpdateMessageBox("calculating...");
+	UpdateMessageBox(_("calculating..."));
 	
 	wxString m_Yname = m_dependent->GetValue();
    

@@ -6870,7 +6870,7 @@
             <size>5,5d</size>
           </object>
           <object class="sizeritem">
-            <object class="wxButton" name="wxID_CANCEL">
+            <object class="wxButton" name="wxID_CLOSE">
               <label>Close</label>
               <style>wxBU_EXACTFIT</style>
             </object>
