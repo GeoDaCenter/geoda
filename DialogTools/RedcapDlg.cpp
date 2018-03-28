@@ -40,6 +40,7 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
+#include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/redcap.h"
 
@@ -453,7 +454,13 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // Get user specified seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
-   
+ 
+    int transpose = 0; // row wise
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+    free(ragged_distances);
+    
     // run RedCap
 	vector<vector<double> > z;
 	for (int i=0; i<rows; i++) {
@@ -468,17 +475,17 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     AbstractRedcap* redcap = NULL;
     int method_idx = combo_method->GetSelection();
     if (method_idx == 0) 
-        redcap = new FirstOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderSLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 1)
-        redcap = new FirstOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderALKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 2)
-        redcap = new FirstOrderCLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderCLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 3)
-        redcap = new FullOrderSLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderSLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 4)
-        redcap = new FullOrderALKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderALKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 5)
-        redcap = new FullOrderCLKRedCap(z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderCLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
    
     if (redcap==NULL) {
         delete[] bound_vals;

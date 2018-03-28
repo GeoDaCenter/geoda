@@ -26,6 +26,8 @@
 #include <iterator>
 #include <cstdlib>
 
+#include <wx/textfile.h>
+
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp>
@@ -88,20 +90,12 @@ void RedCapNode::RemoveNeighbor(int node_id)
 // RedCapEdge
 //
 /////////////////////////////////////////////////////////////////////////
-RedCapEdge::RedCapEdge(RedCapNode* _a, RedCapNode* _b, double _w)
+RedCapEdge::RedCapEdge(RedCapNode* _a, RedCapNode* _b, double _l, double _w)
 {
     a = _a;
     b = _b;
     weight = _w;
-    length = 0;
-    
-    // no smooth
-    int n_vars = a->value.size();
-    
-    for (int i=0; i<n_vars; i++) {
-        double diff = a->value[i] - b->value[i];
-        length += diff * diff;
-    }
+    length = _l;
 }
 
 RedCapEdge::~RedCapEdge()
@@ -114,7 +108,10 @@ RedCapEdge::~RedCapEdge()
 // SpanningTree
 //
 /////////////////////////////////////////////////////////////////////////
-SpanningTree::SpanningTree(const vector<RedCapNode*>& all_nodes, const vector<vector<double> >& _data, const vector<bool>& _undefs, double* _controls, double _control_thres)
+SpanningTree::SpanningTree(const vector<RedCapNode*>& all_nodes,
+                           const vector<vector<double> >& _data,
+                           const vector<bool>& _undefs,
+                           double* _controls, double _control_thres)
 : data(_data), undefs(_undefs), controls(_controls), control_thres(_control_thres)
 {
     left_child = NULL;
@@ -127,7 +124,11 @@ SpanningTree::SpanningTree(const vector<RedCapNode*>& all_nodes, const vector<ve
     }
 }
 
-SpanningTree::SpanningTree(RedCapNode* node, RedCapNode* exclude_node, const vector<vector<double> >& _data, const vector<bool>& _undefs, double* _controls, double _control_thres)
+SpanningTree::SpanningTree(RedCapNode* node,
+                           RedCapNode* exclude_node,
+                           const vector<vector<double> >& _data,
+                           const vector<bool>& _undefs,
+                           double* _controls, double _control_thres)
 : data(_data), undefs(_undefs),controls(_controls), control_thres(_control_thres)
 {
     left_child = NULL;
@@ -197,10 +198,10 @@ bool SpanningTree::checkEdge(RedCapEdge *edge)
 
 void SpanningTree::addNewEdge(RedCapNode* a, RedCapNode* b)
 {
-    if ( edge_dict.find(make_pair(a->id, b->id)) == edge_dict.end() &&
+    if (edge_dict.find(make_pair(a->id, b->id)) == edge_dict.end() &&
         edge_dict.find(make_pair(b->id, a->id)) == edge_dict.end() )
     {
-        RedCapEdge* e = new RedCapEdge(a, b);
+        RedCapEdge* e = new RedCapEdge(a, b, -1);
         edge_dict[ make_pair(a->id, b->id)] = true;
         edges.push_back(e);
         new_edges.push_back(e); // clean memeory
@@ -259,15 +260,37 @@ bool SpanningTree::AddEdge(RedCapEdge *e)
 bool SpanningTree::IsFullyCovered()
 {
     // check if fully covered
-    bool is_fully_covered = true;
-    unordered_map<int, bool>::iterator it;
-    for (it = node_dict.begin(); it != node_dict.end(); it++) {
-        if (it->second == false) {
-            is_fully_covered = false;
-            break;
+    unordered_map<int, bool>::iterator _it;
+    for (_it = node_dict.begin(); _it != node_dict.end(); _it++) {
+        if (_it->second == false) {
+            return false;
         }
     }
-    return is_fully_covered;
+    
+    // breath-first search
+    unordered_map<int, bool> nd;
+    list<RedCapNode*> stack;
+    stack.push_back(root);
+    std::set<RedCapNode*>::iterator it;
+    
+    int cnt = 0;
+    while (!stack.empty()) {
+        RedCapNode* node = stack.front();
+        stack.pop_front();
+        
+        cout << node->id << endl;
+        cnt ++;
+        
+        nd[node->id] = true;
+        
+        for (it = node->neighbors.begin(); it != node->neighbors.end(); it++) {
+            if (nd.find((*it)->id) == nd.end()) {
+                stack.push_back(*it);
+                nd[(*it)->id] = true;
+            }
+        }
+    }
+    return cnt == data.size();
 }
 
 void SpanningTree::Split()
@@ -382,9 +405,7 @@ void SpanningTree::subSplit(int start, int end)
     SpanningTree* right_best=NULL;
     
     bool is_first = true;
-    //for (int i=0; i<edges.size(); i++) {
     for (int i=start; i<=end; i++) {
-        //if (i >= edges.size()) continue;
         RedCapEdge* e = edges[i];
         // remove i-th edge, there should be two sub-trees created (left, right)
         set<int> left_ids = getSubTree(e->a, e->b);
@@ -488,20 +509,78 @@ double SpanningTree::GetSSD()
     return ssd;
 }
 
+bool SpanningTree::isSpanningTree()
+{
+    vector<RedCapEdge*>::iterator eit;
+    
+    wxTextFile file("/Users/xun/Desktop/frequence.gwt");
+    file.Create("/Users/xun/Desktop/frequence.gwt");
+    file.Open("/Users/xun/Desktop/frequence.gwt");
+    file.Clear();
+    file.AddLine("0 85 Guerry poly_id");
+    
+    for (eit=edges.begin(); eit!=edges.end(); eit++) {
+        wxString line;
+        line << (*eit)->a->id+1 << " " << (*eit)->b->id+1 << " 1" ;
+        file.AddLine(line);
+    }
+    file.Write();
+    file.Close();
+    
+    if (root == NULL) {
+        return false;
+    }
+    /*
+    // breath-first search
+    list<RedCapNode*> stack;
+    stack.push_back(root);
+    std::set<RedCapNode*>::iterator it;
+   
+    int cnt = 0;
+    while (!stack.empty()) {
+        RedCapNode* node = stack.front();
+        stack.pop_front();
+        cout << node->id << endl;
+        cnt ++;
+        
+        for (it = node->neighbors.begin(); it != node->neighbors.end(); it++) {
+            stack.push_back(*it);
+        }
+    }
+    return cnt == data.size();
+    */
+    return true;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // AbstractRedcap
 //
 ////////////////////////////////////////////////////////////////////////////////
-AbstractRedcap::AbstractRedcap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * _w)
-: data(_data), undefs(_undefs), w(_w)
+AbstractRedcap::AbstractRedcap(const vector<vector<double> >& _distances,
+                               const vector<vector<double> >& _data,
+                               const vector<bool>& _undefs,
+                               GalElement * _w)
+: distances(_distances), data(_data), undefs(_undefs), w(_w)
 {
+    mstree = NULL;
+    num_obs = data.size();
+    num_vars = data[0].size();
     
+    first_order_dict.resize(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        first_order_dict[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            first_order_dict[i][j] = false;
+        }
+    }
 }
 
 AbstractRedcap::~AbstractRedcap()
 {
-    delete mstree;
+    if (mstree) {
+        delete mstree;
+    }
     for (int i=0; i<first_order_edges.size(); i++) {
         delete first_order_edges[i];
     }
@@ -522,45 +601,34 @@ bool RedCapEdgeLarger(RedCapEdge* a, RedCapEdge* b)
 
 void AbstractRedcap::init()
 {
-    num_obs = data.size();
-    num_vars = data[0].size();
-    
     for (int i=0; i<num_obs; i++) {
-        if (undefs[i]) continue;
+        if (undefs[i]) {
+            continue;
+        }
         RedCapNode* node = new RedCapNode(i, data[i]);
         all_nodes.push_back(node);
-    }
-  
-    // get full-order edges
-    for (int i=0; i<num_obs; i++) {
-        if (undefs[i])
-            continue;
-        for (int j=0; j<num_obs; j++) {
-            if (i == j)
-                continue;
-            RedCapNode* a = all_nodes[i];
-            RedCapNode* b = all_nodes[j];
-            RedCapEdge* e = new RedCapEdge(a, b, 1);
-            fullorder_edge_dict[make_pair(a->id, b->id)] = e->length;
-        }
     }
     
     // create first_order_edges
     for (int i=0; i<num_obs; i++) {
-        if (undefs[i]) continue;
+        if (undefs[i]) {
+            continue;
+        }
         const vector<long>& nbrs = w[i].GetNbrs();
         const vector<double>& nbrs_w = w[i].GetNbrWeights();
         for (int j=0; j<nbrs.size(); j++) {
             int nbr = nbrs[j];
-            if (undefs[nbr] || i == nbr)
+            if (undefs[nbr] || i == nbr) {
                 continue;
+            }
             if (checkFirstOrderEdge(i, nbr) == false) {
                 double w = nbrs_w[j];
                 RedCapNode* a = all_nodes[i];
                 RedCapNode* b = all_nodes[nbr];
-                RedCapEdge* e = new RedCapEdge(a, b, w);
+                RedCapEdge* e = new RedCapEdge(a, b, distances[a->id][b->id]);
                 first_order_edges.push_back(e);
-                fo_edge_dict[make_pair(i,nbr)] = e->length;
+                first_order_dict[a->id][b->id] = true;
+                first_order_dict[b->id][a->id] = true;
             }
         }
     }
@@ -569,14 +637,17 @@ void AbstractRedcap::init()
     mstree = new SpanningTree(all_nodes, data, undefs, controls, control_thres);
     
     Clustering();
+    
+    if (mstree->isSpanningTree()) {
+        cout << "spanning tree" << endl;
+    }
 }
 
 bool AbstractRedcap::checkFirstOrderEdge(int node_i, int node_j)
 {
-    if (fo_edge_dict.find(make_pair(node_i, node_j)) != fo_edge_dict.end() ||
-        fo_edge_dict.find(make_pair(node_j, node_i)) != fo_edge_dict.end() )
+    if (first_order_dict[node_i][node_j] || first_order_dict[node_j][node_i]) {
         return true;
-    
+    }
     return false;
 }
 
@@ -686,6 +757,8 @@ RedCapCluster::RedCapCluster(RedCapEdge* edge)
 RedCapCluster::RedCapCluster(RedCapNode* node)
 {
     // single node cluster
+    root = node;
+    
     node_dict[node] = true;
     
     node_id_dict[node->id] = true;
@@ -727,11 +800,6 @@ void RedCapCluster::AddNode(RedCapNode* node)
 {
     node_dict[node] = true;
     node_id_dict[node->id] = true;
-}
-
-void RedCapCluster::AddEdge(RedCapEdge* e)
-{
-    edge_dict[e] = true;
 }
 
 void RedCapCluster::Merge(RedCapCluster* cluster)
@@ -776,30 +844,11 @@ bool RedCapClusterManager::HasCluster(RedCapCluster* c)
     return clusters_dict.find(c) != clusters_dict.end();
 }
 
-bool RedCapClusterManager::CheckContiguity(RedCapCluster* l, RedCapCluster* m, GalElement* w)
-{
-    unordered_map<int, bool> l_nbrs;
-    for (int i=0; i< l->size(); i++) {
-        RedCapNode* node = l->GetNode(i);
-        vector<long> nbrs = w[node->id].GetNbrs();
-        for (int j=0; j< nbrs.size(); j++) {
-            l_nbrs[ nbrs[j] ] = true;
-        }
-    }
-    
-    // check if any match between l_nbrs and m
-    for (int i=0; i< m->size(); i++) {
-        RedCapNode* node = m->GetNode(i);
-        if (l_nbrs.find( node->id ) != l_nbrs.end()) {
-            return true;
-        }
-    }
-    return false;
-}
 
-bool RedCapClusterManager::CheckConnectivity(RedCapEdge* edge, GalElement* w, RedCapCluster** l, RedCapCluster** m)
+
+bool RedCapClusterManager::CheckConnectivity(RedCapEdge* edge, RedCapCluster** l, RedCapCluster** m)
 {
-    // check if edge connects two clusters, if yes, then return l and m
+    // check if edge connects two DIFFERENT clusters, if yes, then return l and m
     if (*l == 0 ) {
         *l = getCluster(edge->a);
     }
@@ -807,12 +856,15 @@ bool RedCapClusterManager::CheckConnectivity(RedCapEdge* edge, GalElement* w, Re
         *m = getCluster(edge->b);
     }
    
+    if (*l == *m) {
+        return false;
+    }
+    
     if (((*l)->Has(edge->a) && (*m)->Has(edge->b)) ||
         ((*l)->Has(edge->b) && (*m)->Has(edge->a)) ) {
         return true;
     }
     
-    //return !(*l)->IsConnectWith(*m);
     return false;
 }
 
@@ -834,13 +886,6 @@ RedCapCluster* RedCapClusterManager::createCluster(RedCapNode *node)
     return new_cluster;
 }
 
-RedCapCluster* RedCapClusterManager::createCluster(RedCapEdge *edge)
-{
-    RedCapCluster* new_cluster = new RedCapCluster(edge);
-    clusters_dict[new_cluster] = true;
-    return new_cluster;
-}
-
 RedCapCluster* RedCapClusterManager::mergeToCluster(RedCapNode* node, RedCapCluster* cluster)
 {
     cluster->AddNode(node);
@@ -857,18 +902,20 @@ RedCapCluster* RedCapClusterManager::mergeClusters(RedCapCluster* cluster1, RedC
     return cluster1;
 }
 
-bool RedCapClusterManager::GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length, unordered_map<pair<int, int>, double>& e_dict)
+bool RedCapClusterManager::GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length, const vector<vector<double> >& distances, const vector<vector<bool> >& first_order_dict)
 {
     double nn = 0;
     double e_length = 0;
     unordered_map<RedCapNode*, bool>::iterator it1;
     unordered_map<RedCapNode*, bool>::iterator it2;
+    int a,b;
     for (it1=c1->node_dict.begin(); it1!=c1->node_dict.end(); it1++) {
         for (it2=c2->node_dict.begin(); it2!=c2->node_dict.end(); it2++) {
-            pair<int, int> p = make_pair((it1->first)->id, (it2->first)->id);
-            if (e_dict.find(p) != e_dict.end()) {
+            a = (it1->first)->id;
+            b = (it2->first)->id;
+            if (first_order_dict.empty() || first_order_dict[a][b]) {
                 nn += 1;
-                e_length += e_dict[p];
+                e_length += distances[a][b];
             }
         }
     }
@@ -879,19 +926,22 @@ bool RedCapClusterManager::GetAvgEdgeLength(RedCapCluster* c1, RedCapCluster* c2
     return false;
 }
 
-bool RedCapClusterManager::GetMaxEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length, unordered_map<pair<int, int>, double>& e_dict)
+bool RedCapClusterManager::GetMaxEdgeLength(RedCapCluster* c1, RedCapCluster* c2, double* length, const vector<vector<double> >& distances, const vector<vector<bool> >& first_order_dict)
 {
     double nn = 0;
     double max_length = 0;
     unordered_map<RedCapNode*, bool>::iterator it1;
     unordered_map<RedCapNode*, bool>::iterator it2;
+    int a,b;
     for (it1=c1->node_dict.begin(); it1!=c1->node_dict.end(); it1++) {
         for (it2=c2->node_dict.begin(); it2!=c2->node_dict.end(); it2++) {
-            pair<int, int> p = make_pair((it1->first)->id, (it2->first)->id);
-            if (e_dict.find(p) != e_dict.end()) {
-                if (e_dict[p] > max_length)
+            a = (it1->first)->id;
+            b = (it2->first)->id;
+            if (first_order_dict.empty() || first_order_dict[a][b]) {
+                if (distances[a][b] > max_length) {
                     nn += 1;
-                    max_length = e_dict[p];
+                    max_length = distances[a][b];
+                }
             }
         }
     }
@@ -919,8 +969,8 @@ void RedCapClusterManager::UpdateEdgeLength(RedCapCluster* c1, RedCapCluster* c2
 // 1 FirstOrderSLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderSLKRedCap::FirstOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FirstOrderSLKRedCap::FirstOrderSLKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -945,7 +995,7 @@ void FirstOrderSLKRedCap::Clustering()
         // and the two clusters are merged;
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
         cm.UpdateByAdd(edge);
@@ -964,8 +1014,8 @@ void FirstOrderSLKRedCap::Clustering()
 // The First-Order-ALK method also starts with the spatially contiguous graph G*. However, after each merge, the distance between the new cluster and every other cluster is recalculated. Therefore, edges that connect the new cluster and every other cluster are updated with new length values. Edges in G* are then re-sorted and re-evaluated from the beginning. The procedure stops when all objects are in one cluster. The algorithm is shown in figure 3. The complexity is O(n2log n) due to the sorting after each merge.
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderALKRedCap::FirstOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FirstOrderALKRedCap::FirstOrderALKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -979,8 +1029,11 @@ FirstOrderALKRedCap::~FirstOrderALKRedCap()
 
 double FirstOrderALKRedCap::getALKDistance(RedCapCluster* l, RedCapCluster* m)
 {
-    if (avgDist.find(make_pair(l, m)) == avgDist.end())
-        return 0;
+    if (avgDist.find(make_pair(l, m)) == avgDist.end()) {
+        double avg_length=0;
+        bool is_connect = cm.GetAvgEdgeLength(l, m, &avg_length, distances, first_order_dict);
+        avgDist[make_pair(l, m)] = avg_length;
+    }
     return avgDist[make_pair(l, m)];
 }
 
@@ -989,18 +1042,20 @@ bool FirstOrderALKRedCap::updateALKDistanceToCluster(RedCapCluster* l, vector<Re
     bool dist_changed = false;
     unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
     
+    int n = cm.clusters_dict.size();
+    
     for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
         RedCapCluster* c = it->first;
         if (c != l) {
             // avgDist(c, l) = average length of edges in E that connects c and l
             double avg_length=0;
-            bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, fo_edge_dict);
+            bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, distances, first_order_dict);
             if (is_connect == false)
                 continue;
             avgDist[make_pair(c, l)] = avg_length;
             avgDist[make_pair(l, c)] = avg_length;
             // update the legnth of edge(c,l) in E with avgDist(c, l)
-            cm.UpdateEdgeLength(c, l, avg_length, E);
+            //cm.UpdateEdgeLength(c, l, avg_length, E);
             dist_changed = true;
         }
     }
@@ -1030,26 +1085,33 @@ void FirstOrderALKRedCap::Clustering()
         // If e connects two different clusters l, m, and e.length >= avgDist(l,m)
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
         if ( edge->length < getALKDistance(l, m) ) {
             continue;
         }
+       
+        // The following code never work as purpose
         
         // (1) find shortest edge e' in E that connnect cluster l and m
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
-            if (cm.CheckConnectivity(tmp_e, w, &l, &m)) {
+            if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 if (tmp_e->length < edge->length)
                     edge = tmp_e;
             }
         }
         
+        
         // (2) add e'to T ane merge m to l (l is now th new cluster)
         l = cm.UpdateByAdd(edge);
         mstree->AddEdge(edge);
         bool b_all_node_covered = mstree->IsFullyCovered();
+        
+        // stop when all nodes are covered by this tree
+        if (b_all_node_covered)
+            break;
         
         // (3) for each cluster c that is not l
         //      update avgDist(c, l) in E that connects c and l
@@ -1059,9 +1121,7 @@ void FirstOrderALKRedCap::Clustering()
         if (dist_changed)
             sort(E.begin(), E.end(), RedCapEdgeLarger);
         
-        // stop when all nodes are covered by this tree
-        if (b_all_node_covered)
-            break;
+        
     }
 }
 
@@ -1070,8 +1130,8 @@ void FirstOrderALKRedCap::Clustering()
 // 3 FirstOrderCLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FirstOrderCLKRedCap::FirstOrderCLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FirstOrderCLKRedCap::FirstOrderCLKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -1083,35 +1143,12 @@ FirstOrderCLKRedCap::~FirstOrderCLKRedCap()
     
 }
 
-double FirstOrderCLKRedCap::getCLKDistance(RedCapCluster* l, RedCapCluster* m)
+double FirstOrderCLKRedCap::getMaxDist(RedCapCluster* l, RedCapCluster* m)
 {
-    if (maxDist.find(make_pair(l, m)) == maxDist.end())
-        return 0;
-    return maxDist[make_pair(l, m)];
+    return maxDist[l->root->id][m->root->id];
 }
 
-bool FirstOrderCLKRedCap::updateCLKDistanceToCluster(RedCapCluster* l, vector<RedCapEdge*>& E)
-{
-    bool dist_changed = false;
-    unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
-    
-    for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
-        RedCapCluster* c = it->first;
-        if (c != l) {
-            // maxDist(c, l) = max length of edges in E that connects c and l
-            double max_length=0;
-            bool is_connect = cm.GetMaxEdgeLength(c, l, &max_length, fo_edge_dict);
-            if (is_connect == false)
-                continue;
-            maxDist[make_pair(c, l)] = max_length;
-            maxDist[make_pair(l, c)] = max_length;
-            // update the legnth of edge(c,l) in E with maxDist(c, l)
-            cm.UpdateEdgeLength(c, l, max_length, E);
-            dist_changed = true;
-        }
-    }
-    return dist_changed;
-}
+
 
 void FirstOrderCLKRedCap::Clustering()
 {
@@ -1123,6 +1160,13 @@ void FirstOrderCLKRedCap::Clustering()
     
     // 2. construct an nxn matrix maxDist to store distances between clusters
     // maxDist
+    maxDist.resize(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        maxDist[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            maxDist[i][j] = first_order_dict[i][j] ? distances[i][j] : 0;
+        }
+    }
     
     // 3. For each edge e in the sorted list (shortest first)
     while (!E.empty()) {
@@ -1133,10 +1177,13 @@ void FirstOrderCLKRedCap::Clustering()
         // If e connects two different clusters l, m, and e.length >= maxDist(l,m)
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
-        if ( edge->length < getCLKDistance(l, m) ) {
+        int l_id = l->root->id;
+        int m_id = m->root->id;
+        
+        if ( edge->length < maxDist[l_id][m_id] ) {
             continue;
         }
        
@@ -1145,7 +1192,7 @@ void FirstOrderCLKRedCap::Clustering()
         RedCapEdge* copy_e =  edge;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
-            if (cm.CheckConnectivity(tmp_e, w, &l, &m)) {
+            if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 if (tmp_e->length < edge->length) {
                     edge = tmp_e;
                     e_idx = j;
@@ -1153,7 +1200,7 @@ void FirstOrderCLKRedCap::Clustering()
             }
         }
         
-        // (2) add e'to T ane merge m to l (l is now th new cluster)
+        // (2) add e'to T ane merge m to l (l is now th new cluster) m be removed
         l = cm.UpdateByAdd(edge);
         mstree->AddEdge(edge);
         
@@ -1162,16 +1209,23 @@ void FirstOrderCLKRedCap::Clustering()
             //E.erase(E.begin() + e_idx);
         }
         
-        bool b_all_node_covered = mstree->IsFullyCovered();
-        
         // (3) for each cluster c that is not l
         //      update maxDist(c, l) in E that connects c and l
-        updateCLKDistanceToCluster(l, E);
-        
-        
+        //      maxDist(c,l) = max( maxDist(c,l), maxDist(c,m) )
+        unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
+        for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
+            RedCapCluster* c = it->first;
+            if (c != l) {
+                int c_id = c->root->id;
+                maxDist[c_id][l_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+                maxDist[l_id][c_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+            }
+        }
+        bool b_all_node_covered = mstree->IsFullyCovered();
         // stop when all nodes are covered by this tree
-        if (b_all_node_covered)
+        if (b_all_node_covered) {
             break;
+        }
     }
 }
 
@@ -1180,8 +1234,8 @@ void FirstOrderCLKRedCap::Clustering()
 // 4 FullOrderSLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderSLKRedCap::FullOrderSLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FullOrderSLKRedCap::FullOrderSLKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -1215,7 +1269,7 @@ void FullOrderSLKRedCap::Clustering()
         // If e connects two different clusters l, m, and C(l,m) = contiguity
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             i += 1;
             continue;
         }
@@ -1228,7 +1282,7 @@ void FullOrderSLKRedCap::Clustering()
         double elen = DBL_MAX;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
-            if (cm.CheckConnectivity(tmp_e, w, &l, &m)) {
+            if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 if (tmp_e->length < elen) {
                     e = tmp_e;
                     elen = tmp_e->length;
@@ -1270,8 +1324,8 @@ void FullOrderSLKRedCap::Clustering()
 // 5 FullOrderALKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderALKRedCap::FullOrderALKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs,  GalElement * w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FullOrderALKRedCap::FullOrderALKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs,  GalElement * w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -1294,13 +1348,13 @@ bool FullOrderALKRedCap::updateALKDistanceToCluster(RedCapCluster* l, vector<Red
 {
     bool dist_changed = false;
     unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
-    
+    vector<vector<bool> > full_order_dict;
     for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
         RedCapCluster* c = it->first;
         if (c != l) {
             // avgDist(c, l) = average length of edges in E that connects c and l
             double avg_length=0;
-            bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, fullorder_edge_dict);
+            bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, distances, full_order_dict);
             if (is_connect == false)
                 continue;
             avgDist[make_pair(c, l)] = avg_length;
@@ -1331,7 +1385,7 @@ void FullOrderALKRedCap::Clustering()
         // If e connects two different clusters l, m, and C(l,m) = contiguity
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
         
@@ -1344,7 +1398,7 @@ void FullOrderALKRedCap::Clustering()
         int e_idx = -1;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
-            if (cm.CheckConnectivity(tmp_e, w, &l, &m)) {
+            if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 if (tmp_e->length < e->length) {
                     e = tmp_e;
                     e_idx = j;
@@ -1382,8 +1436,8 @@ void FullOrderALKRedCap::Clustering()
 // 6 FullOrderCLKRedCap
 //
 ////////////////////////////////////////////////////////////////////////////////
-FullOrderCLKRedCap::FullOrderCLKRedCap(const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
-: AbstractRedcap(_data, _undefs, w)
+FullOrderCLKRedCap::FullOrderCLKRedCap(const vector<vector<double> >& _distances, const vector<vector<double> >& _data, const vector<bool>& _undefs, GalElement * w, double* _controls, double _control_thres)
+: AbstractRedcap(_distances, _data, _undefs, w)
 {
     controls = _controls;
     control_thres = _control_thres;
@@ -1406,12 +1460,13 @@ bool FullOrderCLKRedCap::updateCLKDistanceToCluster(RedCapCluster* l, vector<Red
 {
     bool dist_changed = false;
     unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
+    vector<vector<bool> > full_order_dict;
     
     for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
         RedCapCluster* c = it->first;
         if (c != l) {
             double max_length=0;
-            bool is_connect = cm.GetMaxEdgeLength(c, l, &max_length, fullorder_edge_dict);
+            bool is_connect = cm.GetMaxEdgeLength(c, l, &max_length, distances, full_order_dict);
             if (is_connect == false)
                 continue;
             maxDist[make_pair(c, l)] = max_length;
@@ -1444,7 +1499,7 @@ void FullOrderCLKRedCap::Clustering()
         // If e connects two different clusters l, m, and e.length >= maxDist(l,m)
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
-        if (!cm.CheckConnectivity(edge, w, &l, &m) ) {
+        if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
         if ( edge->length < getCLKDistance(l, m) ) {
@@ -1456,7 +1511,7 @@ void FullOrderCLKRedCap::Clustering()
         RedCapEdge* copy_e =  edge;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
-            if (cm.CheckConnectivity(tmp_e, w, &l, &m)) {
+            if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 if (tmp_e->length < edge->length) {
                     edge = tmp_e;
                     e_idx = j;

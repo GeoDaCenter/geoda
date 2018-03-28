@@ -693,7 +693,6 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 
 double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters, bool show_print)
 {
-    
     vector<vector<int> > solution;
     vector<int> isolated;
     for (int i=0; i<clusters.size(); i++) {

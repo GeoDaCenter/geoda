@@ -514,7 +514,14 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             n_island++;
         }
     }
+    // complete/ward/single-order single linkage 0.505
+    //int cc[49] = {2,2,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,1,4,4,4,4,4,4,4,0,1,4,4,4,0,4,4,0,1,1,0,4,4,4,0,1,4,4};
+    // average 0.465
+    int cc[49] = {2,2,3,3,3,3,3,3,3,4,3,3,3,3,3,3,0,3,3,0,3,3,0,3,3,3,3,3,3,3,1,0,3,3,3,1,3,3,1,0,0,1,3,3,3,1,0,3,3 };
+    // single linkage
     
+    
+    //for (int i=0; i<49; i++) clusters[i] = cc[i]+1;
     // summary
     CreateSummary(clusters);
     

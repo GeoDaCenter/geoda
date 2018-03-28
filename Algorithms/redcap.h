@@ -88,7 +88,7 @@ public:
 class RedCapEdge
 {
 public:
-    RedCapEdge(RedCapNode* a, RedCapNode* b, double weight=1.0);
+    RedCapEdge(RedCapNode* a, RedCapNode* b, double length, double weight=1.0);
     ~RedCapEdge();
     
     RedCapNode* a;
@@ -123,9 +123,9 @@ public:
     
     void AddNode(RedCapNode* node);
     
-    void AddEdge(RedCapEdge* node);
-    
     void Merge(RedCapCluster* cluster);
+    
+    RedCapNode* root;
     
     unordered_map<int, bool> node_id_dict;
     
@@ -152,17 +152,14 @@ public:
     
     RedCapCluster* UpdateByAdd(RedCapEdge* edge);
     
-    bool CheckContiguity(RedCapCluster* c1, RedCapCluster* c2, GalElement* w);
-    
-    bool CheckConnectivity(RedCapEdge* edge, GalElement* w,
+
+    bool CheckConnectivity(RedCapEdge* edge,
                            RedCapCluster** c1,
                            RedCapCluster** c2);
     
     RedCapCluster* getCluster(RedCapNode* node);
     
     RedCapCluster* createCluster(RedCapNode* node);
-    
-    RedCapCluster* createCluster(RedCapEdge* edge);
     
     RedCapCluster* mergeToCluster(RedCapNode* node, RedCapCluster* cluster);
     
@@ -172,12 +169,14 @@ public:
     bool GetAvgEdgeLength(RedCapCluster* c1,
                           RedCapCluster* c2,
                           double* length,
-                          unordered_map<pair<int, int>, double>& fo_edge_dict);
+                          const vector<vector<double> >& distances,
+                          const vector<vector<bool> >& first_order_dict);
     
     bool GetMaxEdgeLength(RedCapCluster* c1,
                           RedCapCluster* c2,
                           double* length,
-                          unordered_map<pair<int, int>, double>& fo_edge_dict);
+                          const vector<vector<double> >& distances,
+                          const vector<vector<bool> >& first_order_dict);
     
     void UpdateEdgeLength(RedCapCluster* c1,
                           RedCapCluster* c2,
@@ -264,6 +263,8 @@ public:
     
     bool checkEdge(RedCapEdge* edge);
     
+    bool isSpanningTree();
+    
 protected:
     
     double computeSSD(std::set<int>& ids);
@@ -274,6 +275,7 @@ protected:
     RedCapNode* getNewNode(RedCapNode* old_node, bool copy_nbrs=false);
     
     void addNewEdge(RedCapNode* a, RedCapNode* b);
+    
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -299,7 +301,10 @@ class AbstractRedcap
 {
 public:
     
-    AbstractRedcap(const vector<vector<double> >& data, const vector<bool>& undefs, GalElement * w);
+    AbstractRedcap(const vector<vector<double> >& distances,
+                   const vector<vector<double> >& data,
+                   const vector<bool>& undefs,
+                   GalElement * w);
     
     //! A Deconstructor
     /*!
@@ -332,6 +337,10 @@ protected:
     
     GalElement* w;
     
+    vector<vector<bool> > first_order_dict;
+    
+    const vector<vector<double> >& distances;
+    
     const vector<vector<double> >& data;
     
     const vector<bool>& undefs; // undef = any one item is undef in all variables
@@ -344,10 +353,6 @@ protected:
     
     vector<RedCapEdge*> first_order_edges;
     
-    unordered_map<pair<int, int>, double> fo_edge_dict;
-    
-    unordered_map<pair<int, int>, double> fullorder_edge_dict;
-    
     SpanningTree* mstree;
     
     vector<SpanningTree*> regions;
@@ -355,6 +360,7 @@ protected:
     vector<vector<int> > cluster_ids;
     
     RedCapClusterManager cm; // manage to create a MST
+    
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -365,8 +371,8 @@ protected:
 class FirstOrderSLKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderSLKRedCap();
-    FirstOrderSLKRedCap(const vector<vector<double> >& data,
+    FirstOrderSLKRedCap(const vector<vector<double> >& _distances,
+                        const vector<vector<double> >& data,
                         const vector<bool>& undefs,
                         GalElement * w,
                         double* controls,
@@ -384,7 +390,8 @@ public:
 class FirstOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderALKRedCap(const vector<vector<double> >& data,
+    FirstOrderALKRedCap(const vector<vector<double> >& _distances,
+                        const vector<vector<double> >& data,
                         const vector<bool>& undefs,
                         GalElement * w,
                         double* controls,
@@ -411,7 +418,8 @@ protected:
 class FirstOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FirstOrderCLKRedCap(const vector<vector<double> >& data,
+    FirstOrderCLKRedCap(const vector<vector<double> >& _distances,
+                        const vector<vector<double> >& data,
                         const vector<bool>& undefs,
                         GalElement * w,
                         double* controls,
@@ -422,12 +430,11 @@ public:
     virtual void Clustering();
     
 protected:
-    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
+    vector<vector<double> > maxDist;
+    //unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
     
-    double getCLKDistance(RedCapCluster* l, RedCapCluster* m);
+    double getMaxDist(RedCapCluster* l, RedCapCluster* m);
     
-    bool updateCLKDistanceToCluster(RedCapCluster* l,
-                                    vector<RedCapEdge*>& E);
 };
 
 
@@ -439,8 +446,8 @@ protected:
 class FullOrderSLKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderSLKRedCap();
-    FullOrderSLKRedCap(const vector<vector<double> >& data,
+    FullOrderSLKRedCap(const vector<vector<double> >& _distances,
+                       const vector<vector<double> >& data,
                        const vector<bool>& undefs,
                        GalElement * w,
                        double* controls,
@@ -458,7 +465,8 @@ public:
 class FullOrderALKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderALKRedCap(const vector<vector<double> >& data,
+    FullOrderALKRedCap(const vector<vector<double> >& _distances,
+                       const vector<vector<double> >& data,
                        const vector<bool>& undefs,
                        GalElement * w,
                        double* controls,
@@ -485,7 +493,8 @@ protected:
 class FullOrderCLKRedCap : public AbstractRedcap
 {
 public:
-    FullOrderCLKRedCap(const vector<vector<double> >& data,
+    FullOrderCLKRedCap(const vector<vector<double> >& _distances,
+                       const vector<vector<double> >& data,
                        const vector<bool>& undefs,
                        GalElement * w,
                        double* controls,
