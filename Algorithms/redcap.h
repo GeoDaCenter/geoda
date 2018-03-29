@@ -171,22 +171,6 @@ public:
     RedCapCluster* mergeClusters(RedCapCluster* cluster1,
                                  RedCapCluster* cluster2);
     
-    bool GetAvgEdgeLength(RedCapCluster* c1,
-                          RedCapCluster* c2,
-                          double* length,
-                          const vector<vector<double> >& distances,
-                          const vector<vector<bool> >& first_order_dict);
-    
-    bool GetMaxEdgeLength(RedCapCluster* c1,
-                          RedCapCluster* c2,
-                          double* length,
-                          const vector<vector<double> >& distances,
-                          const vector<vector<bool> >& first_order_dict);
-    
-    void UpdateEdgeLength(RedCapCluster* c1,
-                          RedCapCluster* c2,
-                          double length,
-                          vector<RedCapEdge*>& edges);
 };
 
 /////////////////////////////////////////////////////////////////////////
@@ -268,7 +252,7 @@ public:
     
     bool checkEdge(RedCapEdge* edge);
     
-    bool isSpanningTree();
+    void save();
     
 protected:
     
@@ -472,14 +456,6 @@ public:
     virtual ~FullOrderALKRedCap();
     
     virtual void Clustering();
-    
-protected:
-    bool updateALKDistanceToCluster(RedCapCluster* l,
-                                    vector<RedCapEdge*>& E);
-    
-    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> avgDist;
-    
-    double getALKDistance(RedCapCluster* l, RedCapCluster* m);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
