@@ -471,6 +471,12 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
 		z.push_back(vals);
 	}
     std::vector<bool> undefs(rows, false);
+   
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<rows; j++) {
+            distances[i][j] = abs(z[i][0] - z[j][0]);
+        }
+    }
     
     AbstractRedcap* redcap = NULL;
     int method_idx = combo_method->GetSelection();

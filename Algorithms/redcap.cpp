@@ -517,11 +517,11 @@ bool SpanningTree::isSpanningTree()
     file.Create("/Users/xun/Desktop/frequence.gwt");
     file.Open("/Users/xun/Desktop/frequence.gwt");
     file.Clear();
-    file.AddLine("0 85 Guerry poly_id");
+    file.AddLine("0 9 redcap fid");
     
     for (eit=edges.begin(); eit!=edges.end(); eit++) {
         wxString line;
-        line << (*eit)->a->id+1 << " " << (*eit)->b->id+1 << " 1" ;
+        line << (*eit)->a->id << " " << (*eit)->b->id << " 1" ;
         file.AddLine(line);
     }
     file.Write();
@@ -661,12 +661,12 @@ void AbstractRedcap::createFullOrderEdges(vector<RedCapEdge*>& edges)
     for (int i=0; i<num_obs; i++) {
         if (undefs[i])
             continue;
-        for (int j=0; j<num_obs; j++) {
+        for (int j=i+1; j<num_obs; j++) {
             if (i == j)
                 continue;
             RedCapNode* a = all_nodes[i];
             RedCapNode* b = all_nodes[j];
-            RedCapEdge* e = new RedCapEdge(a, b, 1);
+            RedCapEdge* e = new RedCapEdge(a, b, distances[a->id][b->id]);
             edges.push_back(e);
         }
     }
@@ -794,6 +794,11 @@ RedCapNode* RedCapCluster::GetNode(int i)
 bool RedCapCluster::Has(RedCapNode* node)
 {
     return node_id_dict.find(node->id) != node_id_dict.end();
+}
+
+bool RedCapCluster::Has(int id)
+{
+    return node_id_dict.find(id) != node_id_dict.end();
 }
 
 void RedCapCluster::AddNode(RedCapNode* node)
@@ -1027,41 +1032,6 @@ FirstOrderALKRedCap::~FirstOrderALKRedCap()
     
 }
 
-double FirstOrderALKRedCap::getALKDistance(RedCapCluster* l, RedCapCluster* m)
-{
-    if (avgDist.find(make_pair(l, m)) == avgDist.end()) {
-        double avg_length=0;
-        bool is_connect = cm.GetAvgEdgeLength(l, m, &avg_length, distances, first_order_dict);
-        avgDist[make_pair(l, m)] = avg_length;
-    }
-    return avgDist[make_pair(l, m)];
-}
-
-bool FirstOrderALKRedCap::updateALKDistanceToCluster(RedCapCluster* l, vector<RedCapEdge*>& E)
-{
-    bool dist_changed = false;
-    unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
-    
-    int n = cm.clusters_dict.size();
-    
-    for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
-        RedCapCluster* c = it->first;
-        if (c != l) {
-            // avgDist(c, l) = average length of edges in E that connects c and l
-            double avg_length=0;
-            bool is_connect = cm.GetAvgEdgeLength(c, l, &avg_length, distances, first_order_dict);
-            if (is_connect == false)
-                continue;
-            avgDist[make_pair(c, l)] = avg_length;
-            avgDist[make_pair(l, c)] = avg_length;
-            // update the legnth of edge(c,l) in E with avgDist(c, l)
-            //cm.UpdateEdgeLength(c, l, avg_length, E);
-            dist_changed = true;
-        }
-    }
-    return dist_changed;
-}
-
 /**
  *
  */
@@ -1075,6 +1045,13 @@ void FirstOrderALKRedCap::Clustering()
     
     // 2. construct an nxn matrix avgDist to store distances between clusters
     // avgDist
+    vector<vector<double> > avgDist(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        avgDist[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            avgDist[i][j] = first_order_dict[i][j] ? distances[i][j] : 0;
+        }
+    }
     
     // 3. For each edge e in the sorted list (shortest first)
     while (!E.empty()) {
@@ -1088,12 +1065,15 @@ void FirstOrderALKRedCap::Clustering()
         if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
-        if ( edge->length < getALKDistance(l, m) ) {
+        int l_id = l->root->id;
+        int m_id = m->root->id;
+        
+        if ( edge->length < avgDist[l_id][m_id] ) {
             continue;
         }
-       
-        // The following code never work as purpose
-        
+
+        // The following code never works
+        /*
         // (1) find shortest edge e' in E that connnect cluster l and m
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
@@ -1102,26 +1082,57 @@ void FirstOrderALKRedCap::Clustering()
                     edge = tmp_e;
             }
         }
-        
+         */
         
         // (2) add e'to T ane merge m to l (l is now th new cluster)
         l = cm.UpdateByAdd(edge);
         mstree->AddEdge(edge);
+
+        
+        // (3) for each cluster c that is not l
+        //      update avgDist(c, l) in E that connects c and l
+        unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
+        int n = cm.clusters_dict.size();
+        bool dist_changed = false;
+        for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
+            RedCapCluster* c = it->first;
+            if (c != l) {
+                int c_id = c->root->id;
+                double d = 0;
+                double nn = 0;
+                for (int i=0; i<E.size(); i++) {
+                    if ((c->Has(E[i]->a) && l->Has(E[i]->b)) ||
+                        (c->Has(E[i]->b) && l->Has(E[i]->a)) ) {
+                        d += E[i]->length;
+                        nn += 1;
+                    }
+                }
+                if (nn > 0) {
+                    d = d / nn;
+                    avgDist[c_id][l_id] = d;
+                    avgDist[l_id][c_id] = d;
+                    // update e
+                    for (int i=0; i<E.size(); i++) {
+                        if ((c->Has(E[i]->a) && l->Has(E[i]->b)) ||
+                            (c->Has(E[i]->b) && l->Has(E[i]->a)) ) {
+                            E[i]->length = d;
+                            dist_changed = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // (4) sort all edges in E and set e = shortest one in the list
+        if (dist_changed) {
+            sort(E.begin(), E.end(), RedCapEdgeLarger);
+        }
+        
         bool b_all_node_covered = mstree->IsFullyCovered();
         
         // stop when all nodes are covered by this tree
         if (b_all_node_covered)
             break;
-        
-        // (3) for each cluster c that is not l
-        //      update avgDist(c, l) in E that connects c and l
-        bool dist_changed = updateALKDistanceToCluster(l, E);
-        
-        // (4) sort all edges in E and set e = shortest one in the list
-        if (dist_changed)
-            sort(E.begin(), E.end(), RedCapEdgeLarger);
-        
-        
     }
 }
 
@@ -1188,6 +1199,7 @@ void FirstOrderCLKRedCap::Clustering()
         }
        
         // (1) find shortest edge e' in E that connnect cluster l and m
+        /*
         int e_idx = -1;
         RedCapEdge* copy_e =  edge;
         for (int j=0; j<E.size(); j++) {
@@ -1199,15 +1211,10 @@ void FirstOrderCLKRedCap::Clustering()
                 }
             }
         }
-        
+        */
         // (2) add e'to T ane merge m to l (l is now th new cluster) m be removed
         l = cm.UpdateByAdd(edge);
         mstree->AddEdge(edge);
-        
-        if (e_idx >=0) {
-            //E.push_back(copy_e);
-            //E.erase(E.begin() + e_idx);
-        }
         
         // (3) for each cluster c that is not l
         //      update maxDist(c, l) in E that connects c and l
@@ -1255,63 +1262,76 @@ void FullOrderSLKRedCap::Clustering()
     vector<RedCapEdge*> FE;
     createFullOrderEdges(FE);
     
+    vector<vector<bool> > conn(num_obs);
+    for (int i=0; i< num_obs; i++) {
+        conn[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            conn[i][j] = first_order_dict[i][j];
+        }
+    }
+    
     // 1. sort edges based on length
-    std::sort(E.begin(), E.end(), RedCapEdgeLarger);
-    std::sort(FE.begin(), FE.begin(), RedCapEdgeLarger);
+    std::sort(E.begin(), E.end(), RedCapEdgeLess);
+    std::sort(FE.begin(), FE.end(), RedCapEdgeLess);
     
     // 2 Repeat until all nodes in MSTree
-    int i = 0;
-    bool b_all_node_covered = false;
-    while (b_all_node_covered == false) {
+    int n_fe = FE.size();
+    int idx = 0;
+    while (idx < n_fe) {
         // e is the i-th edge in E
-        RedCapEdge* edge = FE[i];
+        RedCapEdge* edge = FE[idx++];
 
         // If e connects two different clusters l, m, and C(l,m) = contiguity
         RedCapCluster* l = NULL;
         RedCapCluster* m = NULL;
         if (!cm.CheckConnectivity(edge, &l, &m) ) {
-            i += 1;
             continue;
         }
-        if (edge->a->id == 40 && edge->b->id ==45) {
-            
+        
+        int l_id = l->root->id;
+        int m_id = m->root->id;
+        if (conn[l_id][m_id] == false) {
+            continue;
         }
+        
         // (1) find shortest edge e' in E that connnect cluster l and m
-        RedCapEdge* e = NULL;
-        int e_idx = 0;
-        double elen = DBL_MAX;
+        int e_idx = -1;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
             if (cm.CheckConnectivity(tmp_e, &l, &m)) {
-                if (tmp_e->length < elen) {
-                    e = tmp_e;
-                    elen = tmp_e->length;
-                    e_idx = j;
-                }
+                edge = tmp_e;
+                e_idx = j;
+                break;
             }
         }
         
-        if (e == NULL) {
-            i += 1;
+        if (e_idx < 0) {
             continue;
         }
         
         // (2) add e'to T
-        mstree->AddEdge(e);
+        mstree->AddEdge(edge);
         E.erase(E.begin()+e_idx);
-        
-        bool b_all_node_covered = mstree->IsFullyCovered();
-        
+    
         // (3) for each existing cluster c, c <> l , c <> m
         // Set C(c,l) = 1 if C(c,l) == 1 or C(c,m) == 1
+        unordered_map<int, bool>::iterator lit;
+        unordered_map<int, bool>::iterator mit;
+        for (lit=l->node_id_dict.begin(); lit!=l->node_id_dict.end(); lit++) {
+            for (mit=m->node_id_dict.begin(); mit!=m->node_id_dict.end(); mit++) {
+                conn[lit->first][mit->first] = true;
+                conn[mit->first][lit->first] = true;
+            }
+        }
         
         // (4) Merge cluster m to cluster l (l is now th new cluster)
         l = cm.UpdateByAdd(edge);
 
         // (5) reset i = 0
-        i = 0;
+        idx  = 0;
         
         // stop when all nodes are covered by this tree
+        bool b_all_node_covered = mstree->IsFullyCovered();
         if (b_all_node_covered)
             break;
     }
@@ -1449,52 +1469,44 @@ FullOrderCLKRedCap::~FullOrderCLKRedCap()
     
 }
 
-double FullOrderCLKRedCap::getCLKDistance(RedCapCluster* l, RedCapCluster* m)
-{
-    if (maxDist.find(make_pair(l, m)) == maxDist.end())
-        return 0;
-    return maxDist[make_pair(l, m)];
-}
-
-bool FullOrderCLKRedCap::updateCLKDistanceToCluster(RedCapCluster* l, vector<RedCapEdge*>& E)
-{
-    bool dist_changed = false;
-    unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
-    vector<vector<bool> > full_order_dict;
-    
-    for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
-        RedCapCluster* c = it->first;
-        if (c != l) {
-            double max_length=0;
-            bool is_connect = cm.GetMaxEdgeLength(c, l, &max_length, distances, full_order_dict);
-            if (is_connect == false)
-                continue;
-            maxDist[make_pair(c, l)] = max_length;
-            maxDist[make_pair(l, c)] = max_length;
-            // update the legnth of edge(c,l) in E with maxDist(c, l)
-            cm.UpdateEdgeLength(c, l, max_length, E);
-            dist_changed = true;
-        }
-    }
-    return dist_changed;
-}
 
 void FullOrderCLKRedCap::Clustering()
 {
     // make a copy of first_order_edges
     vector<RedCapEdge*> E = first_order_edges;
     
+    // create a full_order_deges
+    vector<RedCapEdge*> FE;
+    createFullOrderEdges(FE);
+    
     // 1. sort edges based on length
-    std::sort(E.begin(), E.end(), RedCapEdgeLarger);
+    std::sort(E.begin(), E.end(), RedCapEdgeLess);
+    std::sort(FE.begin(), FE.end(), RedCapEdgeLess);
     
     // 2. construct an nxn matrix maxDist to store distances between clusters
     // maxDist
+    maxDist.resize(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        maxDist[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            maxDist[i][j] = distances[i][j];
+        }
+    }
+    
+    vector<vector<bool> > conn(num_obs);
+    for (int i=0; i< num_obs; i++) {
+        conn[i].resize(num_obs);
+        for (int j=0; j<num_obs; j++) {
+            conn[i][j] = first_order_dict[i][j];
+        }
+    }
     
     // 3. For each edge e in the sorted list (shortest first)
-    while (!E.empty()) {
+    int idx = 0;
+    int n_fe = FE.size();
+    while (idx < n_fe) {
         // get shortest edge
-        RedCapEdge* edge = E.back();
-        E.pop_back();
+        RedCapEdge* edge = FE[idx++];
         
         // If e connects two different clusters l, m, and e.length >= maxDist(l,m)
         RedCapCluster* l = NULL;
@@ -1502,41 +1514,61 @@ void FullOrderCLKRedCap::Clustering()
         if (!cm.CheckConnectivity(edge, &l, &m) ) {
             continue;
         }
-        if ( edge->length < getCLKDistance(l, m) ) {
+        int l_id = l->root->id;
+        int m_id = m->root->id;
+        if ( l->size() == 1 && m->size() == 1 && conn[l_id][m_id] == false) {
+            continue;
+        }
+
+        if ( edge->length < maxDist[l_id][m_id] ) {
             continue;
         }
         
         // (1) find shortest edge e' in E that connnect cluster l and m
         int e_idx = -1;
-        RedCapEdge* copy_e =  edge;
         for (int j=0; j<E.size(); j++) {
             RedCapEdge* tmp_e = E[j];
             if (cm.CheckConnectivity(tmp_e, &l, &m)) {
-                if (tmp_e->length < edge->length) {
-                    edge = tmp_e;
-                    e_idx = j;
-                }
+                edge = tmp_e;
+                e_idx = j;
+                break; // E is already sorted, so the first found is the shortest
             }
         }
-        
-        // (2) add e'to T ane merge m to l (l is now th new cluster)
-        l = cm.UpdateByAdd(edge);
-        mstree->AddEdge(edge);
-        
-        if (e_idx >=0) {
-            //E.push_back(copy_e);
-            //E.erase(E.begin() + e_idx);
+       
+        if ( e_idx < 0) {
+            // there is no way to connect l and m using current weights
+            continue;
         }
         
-        bool b_all_node_covered = mstree->IsFullyCovered();
+        // (2) add e'to T ane merge m to l (l is now th new cluster) m be removed
+        unordered_map<int, bool>::iterator lit;
+        unordered_map<int, bool>::iterator mit;
+        for (lit=l->node_id_dict.begin(); lit!=l->node_id_dict.end(); lit++) {
+            for (mit=m->node_id_dict.begin(); mit!=m->node_id_dict.end(); mit++) {
+                conn[lit->first][mit->first] = true;
+                conn[mit->first][lit->first] = true;
+            }
+        }
+        l = cm.UpdateByAdd(edge);
+        mstree->AddEdge(edge);
+        E.erase(E.begin() + e_idx);
         
         // (3) for each cluster c that is not l
         //      update maxDist(c, l) in E that connects c and l
-        updateCLKDistanceToCluster(l, E);
-        
-        
+        //      maxDist(c,l) = max( maxDist(c,l), maxDist(c,m) )
+        unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
+        for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
+            RedCapCluster* c = it->first;
+            if (c != l) {
+                int c_id = c->root->id;
+                maxDist[c_id][l_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+                maxDist[l_id][c_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+            }
+        }
+        bool b_all_node_covered = mstree->IsFullyCovered();
         // stop when all nodes are covered by this tree
-        if (b_all_node_covered)
+        if (b_all_node_covered) {
             break;
+        }
     }
 }

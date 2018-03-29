@@ -95,6 +95,9 @@ public:
     RedCapNode* b;
     double length; // legnth of the edge |a.val - b.val|
     
+    bool Has(int id1) {
+        return a->id == id1 || b->id == id1;
+    }
 protected:
     double weight;
     
@@ -120,6 +123,8 @@ public:
     RedCapNode* GetNode(int i);
     
     bool Has(RedCapNode* node);
+    
+    bool Has(int id);
     
     void AddNode(RedCapNode* node);
     
@@ -401,13 +406,6 @@ public:
     
     virtual void Clustering();
     
-protected:
-    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> avgDist;
-    
-    double getALKDistance(RedCapCluster* l, RedCapCluster* m);
-    
-    bool updateALKDistanceToCluster(RedCapCluster* l,
-                                    vector<RedCapEdge*>& E);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -431,8 +429,7 @@ public:
     
 protected:
     vector<vector<double> > maxDist;
-    //unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
-    
+
     double getMaxDist(RedCapCluster* l, RedCapCluster* m);
     
 };
@@ -505,12 +502,7 @@ public:
     virtual void Clustering();
    
 protected:
-    double getCLKDistance(RedCapCluster* l, RedCapCluster* m);
-    
-    unordered_map<pair<RedCapCluster*, RedCapCluster*>, double> maxDist;
-    
-    bool updateCLKDistanceToCluster(RedCapCluster* l,
-                                    vector<RedCapEdge*>& E);
+    vector<vector<double> > maxDist;
 };
 
 
