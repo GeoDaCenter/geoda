@@ -1401,6 +1401,9 @@ void FullOrderCLKRedCap::Clustering()
 {
     // make a copy of first_order_edges
     vector<RedCapEdge*> E = first_order_edges;
+    for (int i=0; i<num_obs; i++) {
+        cm.createCluster(all_nodes[i]);
+    }
     
     // create a full_order_deges
     vector<RedCapEdge*> FE;
@@ -1408,7 +1411,7 @@ void FullOrderCLKRedCap::Clustering()
     
     // 1. sort edges based on length
     std::sort(E.begin(), E.end(), RedCapEdgeLess);
-    std::sort(FE.begin(), FE.end(), RedCapEdgeLess);
+    std::sort(FE.begin(), FE.end(), RedCapEdgeLarger);
     
     // 2. construct an nxn matrix maxDist to store distances between clusters
     // maxDist
@@ -1420,20 +1423,16 @@ void FullOrderCLKRedCap::Clustering()
         }
     }
     
-    vector<vector<bool> > conn(num_obs);
-    for (int i=0; i< num_obs; i++) {
-        conn[i].resize(num_obs);
-        for (int j=0; j<num_obs; j++) {
-            conn[i][j] = first_order_dict[i][j];
-        }
-    }
-    
     // 3. For each edge e in the sorted list (shortest first)
     int idx = 0;
     int n_fe = FE.size();
-    while (idx < n_fe) {
+    //while (idx < n_fe) {
+    while (!FE.empty()) {
         // get shortest edge
-        RedCapEdge* edge = FE[idx++];
+        RedCapEdge* edge = FE.back();
+        FE.pop_back();
+        // get shortest edge
+        //RedCapEdge* edge = FE[idx++];
         
         // If e connects two different clusters l, m, and e.length >= maxDist(l,m)
         RedCapCluster* l = NULL;
@@ -1443,9 +1442,6 @@ void FullOrderCLKRedCap::Clustering()
         }
         int l_id = l->root->id;
         int m_id = m->root->id;
-        if ( l->size() == 1 && m->size() == 1 && conn[l_id][m_id] == false) {
-            continue;
-        }
 
         if ( edge->length < maxDist[l_id][m_id] ) {
             continue;
@@ -1458,40 +1454,34 @@ void FullOrderCLKRedCap::Clustering()
             if (cm.CheckConnectivity(tmp_e, &l, &m)) {
                 edge = tmp_e;
                 e_idx = j;
-                break; // E is already sorted, so the first found is the shortest
+                break;
             }
         }
-       
-        if ( e_idx < 0) {
-            // there is no way to connect l and m using current weights
+        
+        if (e_idx < 0) {
             continue;
         }
         
         // (2) add e'to T ane merge m to l (l is now th new cluster) m be removed
-        unordered_map<int, bool>::iterator lit;
-        unordered_map<int, bool>::iterator mit;
-        for (lit=l->node_id_dict.begin(); lit!=l->node_id_dict.end(); lit++) {
-            for (mit=m->node_id_dict.begin(); mit!=m->node_id_dict.end(); mit++) {
-                conn[lit->first][mit->first] = true;
-                conn[mit->first][lit->first] = true;
-            }
-        }
         l = cm.UpdateByAdd(edge);
         mstree->AddEdge(edge);
-        E.erase(E.begin() + e_idx);
-        
+        E.erase(E.begin()+e_idx);
+
         // (3) for each cluster c that is not l
         //      update maxDist(c, l) in E that connects c and l
         //      maxDist(c,l) = max( maxDist(c,l), maxDist(c,m) )
+        bool dist_changed = false;
         unordered_map<RedCapCluster*, bool>::iterator it; // cluster iterator
         for (it=cm.clusters_dict.begin(); it!=cm.clusters_dict.end(); it++) {
             RedCapCluster* c = it->first;
             if (c != l) {
                 int c_id = c->root->id;
-                maxDist[c_id][l_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
-                maxDist[l_id][c_id] = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+                double d = max(maxDist[c_id][l_id], maxDist[c_id][m_id]);
+                maxDist[c_id][l_id] = d;
+                maxDist[l_id][c_id] = d;
             }
         }
+        
         bool b_all_node_covered = mstree->IsFullyCovered();
         // stop when all nodes are covered by this tree
         if (b_all_node_covered) {
