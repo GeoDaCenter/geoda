@@ -372,6 +372,7 @@ void FieldNewCalcUniDlg::InitFieldChoices()
 		// only the time field changed
 		if (m_var_sel != wxNOT_FOUND) {
 			m_var->SetSelection(m_var_sel);
+            m_var->SetValue(m_var->GetStringSelection());
 		} else {
 			m_var->SetValue(var_val_orig);
 		}
@@ -506,7 +507,7 @@ void FieldNewCalcUniDlg::OnUnaryOperandUpdated( wxCommandEvent& event )
 		m_var_sel = m_var->GetSelection();
 	}
 	m_var_tm->Enable(m_var_sel != wxNOT_FOUND &&
-					 table_int->GetColTimeSteps(col_id_map[m_var_sel]) > 1);
+                     table_int->GetColTimeSteps(col_id_map[m_var_sel]) > 1);
 	Display();
 }
 

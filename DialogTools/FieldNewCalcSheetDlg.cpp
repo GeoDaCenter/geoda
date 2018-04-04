@@ -123,12 +123,20 @@ void FieldNewCalcSheetDlg::OnPageChange( wxBookCtrlEvent& event )
 		var_sel_idx = pDT->m_result->GetCurrentSelection();
 	
 	{
+        /*
 		pSpecial->m_result->SetSelection(var_sel_idx);
+        pSpecial->InitFieldChoices();
 		pUni->m_result->SetSelection(var_sel_idx);
+        pUni->InitFieldChoices();
 		pBin->m_result->SetSelection(var_sel_idx);
+        pBin->InitFieldChoices();
 		pLag->m_result->SetSelection(var_sel_idx);
+        pLag->InitFieldChoices();
 		pRate->m_result->SetSelection(var_sel_idx);
+        pRate->InitFieldChoices();
 		pDT->m_result->SetSelection(var_sel_idx);
+        pDT->InitFieldChoices();
+         */
 	}
     wxString msg;
     msg << "page idx: " << var_sel_idx;

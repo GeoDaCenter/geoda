@@ -273,6 +273,13 @@ void FieldNewCalcSpecialDlg::InitFieldChoices()
 	} else {
 		m_result->SetSelection(m_result->FindString(r_str_sel));
 	}
+    
+    int sel = m_result->GetSelection();
+    if (sel != wxNOT_FOUND) {
+        m_result_tm->Enable(IsTimeVariant(col_id_map[sel]));
+    } else {
+        m_result_tm->Disable();
+    }
 	
 	Display();
 }
@@ -405,7 +412,12 @@ void FieldNewCalcSpecialDlg::InitTime(wxChoice* time_list)
 	}
 	time_list->Append("all times");
 	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
-	time_list->Disable();
+    int sel = m_result->GetSelection();
+    if (sel != wxNOT_FOUND) {
+        time_list->Enable(IsTimeVariant(col_id_map[sel]));
+    } else {
+        time_list->Disable();
+    }
 	time_list->Show(is_space_time);
 }
 

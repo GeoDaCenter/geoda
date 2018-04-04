@@ -321,6 +321,8 @@ void FieldNewCalcBinDlg::InitFieldChoices()
 		// only the time field changed
 		if (m_var1_sel != wxNOT_FOUND) {
 			m_var1->SetSelection(m_var1_sel);
+            m_var1->SetSelection(m_var1_sel);
+            m_var1->SetValue(m_var1->GetStringSelection());
 		} else {
 			m_var1->SetValue(var1_val_orig);
 		}
@@ -338,6 +340,8 @@ void FieldNewCalcBinDlg::InitFieldChoices()
 		// only the time field changed
 		if (m_var2_sel != wxNOT_FOUND) {
 			m_var2->SetSelection(m_var2_sel);
+            m_var2->SetSelection(m_var2_sel);
+            m_var2->SetValue(m_var2->GetStringSelection());
 		} else {
 			m_var2->SetValue(var2_val_orig);
 		}
