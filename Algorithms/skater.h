@@ -40,6 +40,92 @@ typedef std::pair<double, std::vector<E> > ClusterEl;
 typedef heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > PriorityQueue;
 
 static unordered_map<std::set<int>, double> ssd_dict; // <start, end>: ssd value
+double compute_ssd(vector<E>& cluster, double** data, int num_vars);
+double compute_ssd(set<int>& ids, double** data, int num_vars);
+
+void prunemst(vector<E>& edges, set<int>& vex1, set<int>& vex2, vector<E>& part1, vector<E>& part2);
+void prunecost(double** data, int num_vars, vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates, bool check_floor, double* floor_variable, double floor);
+bool bound_check(set<int>& cluster, double* floor_variable, double floor);
+
+
+
+class SRegion {
+public:
+    SRegion(vector<E>& _edges, double** _data, int _num_vars,bool _check_floor, double _floor, double* _floor_variable) {
+        edges = _edges;
+        data = _data;
+        num_vars = _num_vars;
+        check_floor = _check_floor;
+        floor = _floor;
+        floor_variable = _floor_variable;
+        
+        not_splitable = false;
+    }
+    SRegion(int _node, double** _data, int _num_vars,bool _check_floor, double _floor, double* _floor_variable) {
+
+        node = _node;
+        data = _data;
+        num_vars = _num_vars;
+        check_floor = _check_floor;
+        floor = _floor;
+        floor_variable = _floor_variable;
+        
+        not_splitable = true;
+        score = DBL_MAX;
+    }
+    
+    ~SRegion(){}
+
+    void UpdateTotalSSD(double _total_ssd) {
+        if (!not_splitable) {
+            total_ssd = _total_ssd;
+            score = total_ssd - ssd + sub_ssd;
+        }
+    }
+    
+    set<int> GetIds()
+    {
+        set<int> ids;
+        if (not_splitable) {
+            ids.insert(node);
+        } else {
+            for (int i=0; i< edges.size(); i++) {
+                ids.insert(edges[i].first);
+                ids.insert(edges[i].second);
+            }
+        }
+        return ids;
+    }
+    
+    void findBestCut();
+    
+    bool not_splitable;
+    double** data;
+    int num_vars;
+    bool check_floor;
+    double floor;
+    double* floor_variable;
+    
+    int node;
+    vector<E> edges;
+    SRegion* left;
+    SRegion* right;
+    ClusterPair children;
+    
+    double total_ssd;
+    double ssd;
+    double sub_ssd;
+    int best_cut; //idx
+    
+    double score;
+};
+
+struct {
+    bool operator()(SRegion* a, SRegion* b) const
+    {
+        return a->score > b->score;
+    }
+} RegionLess;
 
 class Skater {
 public:
@@ -49,7 +135,7 @@ public:
     ~Skater();
     
     vector<vector<int> > GetRegions();
-    
+    vector<vector<int> > GetRegions1();
 protected:
     int num_obs;
     int num_clusters;
@@ -61,22 +147,18 @@ protected:
     vector<E> mst_edges;
     
     heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > solution;
+    vector<SRegion*> sorted_solution;
     
     void get_MST(const Graph &in);
     
     void run();
     
+    void run1();
+    
     void run_threads(vector<E> tree, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates);
-   
-    void prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates);
     
-    void prunemst(vector<E>& edges, set<int>& vex1, set<int>& vex2, vector<E>& part1, vector<E>& part2);
-   
-    double ssw(vector<E>& cluster);
+    void prune(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates);
     
-    double ssw(set<int>& ids);
-    
-    bool bound_check(set<int>& cluster);
 };
 
 #endif
