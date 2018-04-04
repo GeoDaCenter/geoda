@@ -181,6 +181,7 @@ public:
 typedef std::pair<int, int> E;
 
 static unordered_map<std::set<int>, double> ssd_dict; // <start, end>: ssd value
+static unordered_map<std::set<int>, vector<double> > avg_dict; // <start, end>: ssd value
 
 class SpanningTree
 {

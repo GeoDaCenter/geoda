@@ -27,7 +27,7 @@
 #include <cstdlib>
 
 #include <wx/textfile.h>
-
+#include <wx/stopwatch.h>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/unordered_map.hpp>
@@ -440,8 +440,10 @@ void SpanningTree::subSplit(int start, int end)
 
 bool SpanningTree::checkControl(set<int>& ids)
 {
-    if (controls == NULL) return true;
-   
+    if (controls == NULL) {
+        return true;
+    }
+    
     double val = 0;
     set<int>::iterator it;
     for (it=ids.begin(); it!=ids.end(); it++) {
@@ -468,32 +470,52 @@ double SpanningTree::computeSSD(set<int>& ids)
     }
     
     // sum of squared deviations (ssd)
-    if (ssd_dict.find(ids) != ssd_dict.end())
+    if (ssd_dict.find(ids) != ssd_dict.end()) {
         return ssd_dict[ids];
+    }
     
     double sum_ssd = 0;
-    if (checkControl(ids) == false)
+    if (controls != NULL && checkControl(ids) == false) {
         return 0; // doesn't satisfy control variable
-   
-    set<int>::iterator it;
+    }
+    
     int n_vars = data[0].size();
-    for (int i=0; i<n_vars; i++) {
-        vector<double> tmp_data;
-        int n =0;
-        for (it=ids.begin(); it!=ids.end(); it++) {
-            int id = *it;
-            if (undefs[id]) continue;
-            tmp_data.push_back(data[id][i]);
-            n += 1;
+    int nn = ids.size();
+    
+    vector<double> avg(n_vars);
+    if (avg_dict.find(ids) != avg_dict.end()) {
+        avg = avg_dict[ids];
+    }
+    
+    set<int>::iterator it;
+    
+    if (avg.empty()) {
+        double _s = 0;
+        for (int i=0; i<n_vars; i++) {
+            _s = 0;
+            for (it=ids.begin(); it!=ids.end(); it++) {
+                _s += data[*it][i];
+            }
+            avg.push_back(_s/nn);
         }
-        double ssd = GenUtils::GetVariance(tmp_data);
-        sum_ssd += ssd * n;
+        boost::mutex::scoped_lock scoped_lock(mutex);
+        avg_dict[ids] = avg;
+    }
+    
+    for (int i=0; i<n_vars; i++) {
+        double delta = 0;
+        double ssd = 0;
+        for (it=ids.begin(); it!=ids.end(); it++) {
+            delta = data[*it][i] - avg[i];
+            ssd += delta * delta;
+        }
+        sum_ssd += ssd;
     }
    
     boost::mutex::scoped_lock scoped_lock(mutex);
     ssd_dict[ids]  = sum_ssd;
     
-    return sum_ssd; // * n
+    return sum_ssd;
 }
 
 double SpanningTree::GetSSD()
@@ -539,6 +561,9 @@ AbstractRedcap::AbstractRedcap(const vector<vector<double> >& _distances,
                                GalElement * _w)
 : distances(_distances), data(_data), undefs(_undefs), w(_w)
 {
+    ssd_dict.clear();
+    avg_dict.clear();
+    
     mstree = NULL;
     num_obs = data.size();
     num_vars = data[0].size();
@@ -664,6 +689,8 @@ bool RedCapTreeLess(SpanningTree* a, SpanningTree* b)
 
 void AbstractRedcap::Partitioning(int k)
 {
+    wxStopWatch sw;
+    
     PriorityQueue sub_trees;
     sub_trees.push(mstree);
    
@@ -712,6 +739,8 @@ void AbstractRedcap::Partitioning(int k)
         }
         cluster_ids.push_back(cluster);
     }
+    
+    wxString time = wxString::Format("The long running function took %ldms to execute", sw.Time());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

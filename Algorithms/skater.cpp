@@ -19,6 +19,8 @@
 Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, vector<vector<double> >& dist_matrix, bool _check_floor, double _floor, double* _floor_variable)
 : num_obs(_num_obs), num_vars(_num_vars), num_clusters(_num_clusters),data(_data), check_floor(_check_floor), floor(_floor), floor_variable(_floor_variable)
 {
+    ssd_dict.clear();
+    
     Graph g(num_obs);
     for (int i=0; i<num_obs; i++) {
         for (int j=i; j<num_obs; j++) {
@@ -136,7 +138,9 @@ void Skater::run()
         vector<double> scores1(t1_size);
         vector<vector<set<int> > > cids1(t1_size);
         vector<ClusterPair> cand1(t1_size);
+        
         run_threads(best_pair[0], scores1, cids1, cand1);
+        
         double best_score_1 = DBL_MAX;
         for (int i=0; i<scores1.size(); i++) {
             if (scores1[i] < best_score_1 && !cand1[i].empty()) {
@@ -157,7 +161,9 @@ void Skater::run()
         vector<double> scores2(t2_size);
         vector<vector<set<int> > > cids2(t2_size);
         vector<ClusterPair> cand2(t2_size);
+        
         run_threads(best_pair[1], scores2, cids2, cand2);
+        
         double best_score_2 = DBL_MAX;
         for (int i=0; i<scores2.size(); i++) {
             if (scores2[i] < best_score_2 && !cand2[i].empty()) {
@@ -168,9 +174,9 @@ void Skater::run()
         if (t2_size == 0) {
             set<int>& tmp_set = best_cids[1];
 			if (!tmp_set.empty()) {
-            int tmp_id = *tmp_set.begin();
-            E tmp_e(tmp_id, tmp_id);
-            best_pair[1].push_back(tmp_e);
+                int tmp_id = *tmp_set.begin();
+                E tmp_e(tmp_id, tmp_id);
+                best_pair[1].push_back(tmp_e);
 			}
         }
         solution.push( ClusterEl(best_score_2, best_pair[1]));
@@ -254,7 +260,15 @@ double Skater::ssw(set<int>& ids)
     // This function computes the sum of dissimilarity between each
     // observation and the mean (scalar of vector) of the observations.
     // sum((x_i - x_min)^2)
-  
+    
+    if (ids.empty()) {
+        return 0;
+    }
+    
+    if (ssd_dict.find(ids) != ssd_dict.end()) {
+        return ssd_dict[ids];
+    }
+    
     double n = ids.size();
     vector<double> means(num_vars);
     set<int>::iterator it;
@@ -281,6 +295,10 @@ double Skater::ssw(set<int>& ids)
         
         ssw_val += sqrt(sum);
     }
+        
+    boost::mutex::scoped_lock scoped_lock(mutex);
+    ssd_dict[ids]  = ssw_val;
+    
     return ssw_val;
 }
 

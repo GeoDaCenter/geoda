@@ -39,6 +39,8 @@ typedef std::vector<std::vector<E> > ClusterPair;
 typedef std::pair<double, std::vector<E> > ClusterEl;
 typedef heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > PriorityQueue;
 
+static unordered_map<std::set<int>, double> ssd_dict; // <start, end>: ssd value
+
 class Skater {
 public:
     Skater(int num_obs, int num_vars, int num_clusters, double** _data,
