@@ -486,6 +486,9 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
+    vector<wxInt64> clusters(rows, 0);
+    vector<bool> clusters_undef(rows, false);
+    
 	// Run Skater
     Skater skater(rows, columns, initial, input_data, distances, check_floor, min_bound, bound_vals);
     
@@ -493,9 +496,6 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
 
     vector<vector<int> > cluster_ids = skater.GetRegions();
     int ncluster = cluster_ids.size();
-    
-    vector<wxInt64> clusters(rows, 0);
-    vector<bool> clusters_undef(rows, false);
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
@@ -514,16 +514,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             n_island++;
         }
     }
-    // complete/ward/single-order single linkage 0.505
-    //int cc[49] = {2,2,4,4,4,4,3,4,4,4,4,4,4,4,4,4,4,4,4,1,4,4,1,4,4,4,4,4,4,4,0,1,4,4,4,0,4,4,0,1,1,0,4,4,4,0,1,4,4};
-    // average 0.465
-    //int cc[49] = {2,2,3,3,3,3,3,3,3,4,3,3,3,3,3,3,0,3,3,0,3,3,0,3,3,3,3,3,3,3,1,0,3,3,3,1,3,3,1,0,0,1,3,3,3,1,0,3,3 };
-    // single linkage
     
-    int cc[85] = {3,1,3,0,0,0,1,0,1,0,0,0,2,0,2,2,2,2,1,2,3,0,1,0,1,1,2,0,0,0,0,0,2,2,2,0,1,0,2,3,3,2,1,0,0,0,2,2,1,1,2,1,1,2,1,2,1,1,2,1,3,0,0,0,1,1,0,1,3,2,1,1,1,1,2,1,0,0,0,0,2,2,2,1,1 };
-    
-    for (int i=0; i<85; i++) clusters[i] = cc[i]+1;
-    // summary
     CreateSummary(clusters);
     
     // save to table

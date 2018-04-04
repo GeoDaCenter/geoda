@@ -16,69 +16,9 @@
 #include "../GenUtils.h"
 #include "skater.h"
 
-
-void SRegion::findBestCut()
-{
-    if (not_splitable) {
-        return;
-    }
-    
-    int n_edges = edges.size();
-    
-    set<int> ids;
-    for (int i=0; i<edges.size(); i++) {
-        ids.insert(edges[i].first);
-        ids.insert(edges[i].second);
-    }
-    ssd = compute_ssd(ids, data, num_vars);
-    
-    if (n_edges <= 1) {
-        sub_ssd = 0;
-        int node1 = edges[0].first;
-        int node2 = edges[0].second;
-        left = new SRegion(node1, data, num_vars, check_floor, floor, floor_variable);
-        right = new SRegion(node2, data, num_vars, check_floor, floor, floor_variable);
-        return;
-    }
-
-    int tree_size = edges.size();
-    vector<double> scores(tree_size);
-    vector<vector<set<int> > > cids(tree_size);
-    vector<ClusterPair> candidates(tree_size);
-    
-    //prunecost(data, num_vars, edges, 0, tree_size-1, scores, cids, candidates, check_floor, floor_variable, floor);
-    //run_threads(edges, scores, cids, candidates);
-    
-    sub_ssd = scores[0];
-    best_cut = 0;
-    
-    for (int i=1; i<scores.size(); i++) {
-        if (scores[i] < sub_ssd) {
-            sub_ssd = scores[i];
-            best_cut = i;
-        }
-    }
-    if (cids[best_cut][0].size() == 1) {
-        int node = *cids[best_cut][0].begin();
-        left = new SRegion(node, data, num_vars, check_floor, floor, floor_variable);
-    } else {
-        left =new SRegion(candidates[best_cut][0], data, num_vars, check_floor, floor, floor_variable);
-    }
-    
-    if (cids[best_cut][1].size() == 1) {
-        int node = *cids[best_cut][1].begin();
-        right = new SRegion(node, data, num_vars, check_floor, floor, floor_variable);
-    } else {
-        right =new SRegion(candidates[best_cut][1], data, num_vars, check_floor, floor, floor_variable);
-    }
-}
-
-
 Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, vector<vector<double> >& dist_matrix, bool _check_floor, double _floor, double* _floor_variable)
 : num_obs(_num_obs), num_vars(_num_vars), num_clusters(_num_clusters),data(_data), check_floor(_check_floor), floor(_floor), floor_variable(_floor_variable)
 {
-    //ssd_dict.clear();
-    
     Graph g(num_obs);
     for (int i=0; i<num_obs; i++) {
         for (int j=i; j<num_obs; j++) {
@@ -120,8 +60,8 @@ void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<s
             b = a+quotient-1;
         }
        
-        //prunecost(data, num_vars, tree, a, b, scores, cids, candidates, check_floor, floor_variable, floor);
-        boost::thread* worker = new boost::thread(boost::bind(&Skater::prune, this, tree, a, b, boost::ref(scores), boost::ref(cids), boost::ref(candidates)));
+        //prunecost(tree, a, b, scores, candidates);
+        boost::thread* worker = new boost::thread(boost::bind(&Skater::prunecost, this, tree, a, b, boost::ref(scores), boost::ref(cids), boost::ref(candidates)));
         threadPool.add_thread(worker);
     }
     
@@ -151,65 +91,6 @@ vector<vector<int> > Skater::GetRegions()
     return regions;
 }
 
-vector<vector<int> > Skater::GetRegions1()
-{
-    vector<vector<int> > regions;
-
-    set<int>::iterator set_it;
-    for (int i=0; i<sorted_solution.size(); i++) {
-        set<int> ids = sorted_solution[i]->GetIds();
-        vector<int> reg;
-        for (set_it=ids.begin(); set_it!=ids.end(); set_it++) {
-            reg.push_back(*set_it);
-        }
-        regions.push_back(reg);
-    }
-    return regions;
-}
-
-
-void Skater::run1()
-{
-
-    SRegion* root = new SRegion(mst_edges, data, num_vars, check_floor, floor, floor_variable);
-    root->findBestCut();
-    root->UpdateTotalSSD(root->ssd);
-   
-    sorted_solution.clear();
-    sorted_solution.push_back(root);
-    
-    int nclst = 1;
-    while (nclst < num_clusters) {
-        SRegion* region = sorted_solution.back();
-        
-        SRegion* left = region->left;
-        SRegion* right = region->right;
-        
-        sorted_solution.pop_back();
-        delete region;
-        nclst--;
-        
-            left->findBestCut();
-            right->findBestCut();
-        
-        sorted_solution.push_back(left);
-        nclst++;
-        sorted_solution.push_back(right);
-        nclst++;
-        
-        double total_ssd = 0;
-        for (int i=0; i<sorted_solution.size(); i++) {
-            total_ssd += sorted_solution[i]->ssd;
-        }
-        // update total_ssd for every regions
-        for (int i=0; i<sorted_solution.size(); i++) {
-            sorted_solution[i]->UpdateTotalSSD(total_ssd);
-        }
-        
-        std::sort(sorted_solution.begin(), sorted_solution.end(), RegionLess);
-    }
-}
-
 void Skater::run()
 {
     ClusterEl c(0, mst_edges);
@@ -220,7 +101,7 @@ void Skater::run()
         const ClusterEl& cluster = solution.top();
         vector<E> tree = cluster.second;
        
-        double sswt = compute_ssd(tree, data, num_vars);
+        double sswt = ssw(tree);
         // check where to split
         int tree_size = tree.size();
         vector<double> scores(tree_size);
@@ -255,16 +136,14 @@ void Skater::run()
         vector<double> scores1(t1_size);
         vector<vector<set<int> > > cids1(t1_size);
         vector<ClusterPair> cand1(t1_size);
-        
         run_threads(best_pair[0], scores1, cids1, cand1);
-        
         double best_score_1 = DBL_MAX;
         for (int i=0; i<scores1.size(); i++) {
             if (scores1[i] < best_score_1 && !cand1[i].empty()) {
                 best_score_1 = scores1[i];
             }
         }
-        best_score_1 = compute_ssd(best_pair[0], data, num_vars) - best_score_1;
+        best_score_1 = ssw(best_pair[0]) - best_score_1;
         if (t1_size == 0) {
             set<int>& tmp_set = best_cids[0];
             int tmp_id = *tmp_set.begin();
@@ -278,25 +157,68 @@ void Skater::run()
         vector<double> scores2(t2_size);
         vector<vector<set<int> > > cids2(t2_size);
         vector<ClusterPair> cand2(t2_size);
-        
         run_threads(best_pair[1], scores2, cids2, cand2);
-        
         double best_score_2 = DBL_MAX;
         for (int i=0; i<scores2.size(); i++) {
             if (scores2[i] < best_score_2 && !cand2[i].empty()) {
                 best_score_2 = scores2[i];
             }
         }
-        best_score_2 = compute_ssd(best_pair[1], data, num_vars) - best_score_2;
+        best_score_2 = ssw(best_pair[1]) - best_score_2;
         if (t2_size == 0) {
             set<int>& tmp_set = best_cids[1];
 			if (!tmp_set.empty()) {
-                int tmp_id = *tmp_set.begin();
-                E tmp_e(tmp_id, tmp_id);
-                best_pair[1].push_back(tmp_e);
+            int tmp_id = *tmp_set.begin();
+            E tmp_e(tmp_id, tmp_id);
+            best_pair[1].push_back(tmp_e);
 			}
         }
         solution.push( ClusterEl(best_score_2, best_pair[1]));
+    }
+}
+
+void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
+{
+    //prune mst by removing one edge and get the best cut
+    
+    for (int i=start; i<=end; i++) {
+        // move i-th edge to top: used by prunemst()
+        E e_i = tree[i];
+        tree.erase(tree.begin() + i);
+        tree.insert(tree.begin(), e_i);
+        
+        // prune tree to get two groups
+        set<int> vex1, vex2;
+        vector<E> part1, part2;
+        prunemst(tree, vex1, vex2, part1, part2);
+        
+        // compute objective function
+        double ssw1 = ssw(vex1);
+        double ssw2 = ssw(vex2);
+        scores[i] = ssw1 + ssw2;
+        
+        // check by bound
+        bool valid = true;
+        if (check_floor && valid) {
+            if (bound_check(vex1) == false || bound_check(vex2) == false) {
+                valid = false;
+            }
+        }
+       
+        if (valid) {
+            vector<set<int> > pts;
+            pts.push_back(vex1);
+            pts.push_back(vex2);
+            cids[i] = pts;
+            
+            ClusterPair c;
+            c.push_back(part1);
+            c.push_back(part2);
+            candidates[i] = c;
+        }
+        // restore tree
+        tree.erase(tree.begin());
+        tree.insert(tree.begin() + i, e_i);
     }
 }
 
@@ -317,80 +239,22 @@ void Skater::get_MST(const Graph &in)
     }
 }
 
-void Skater::prune(vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates)
-{
-    prunecost(data, num_vars, tree, start, end, scores, cids, candidates, check_floor, floor_variable, floor);
-}
-
-void prunecost(double** data, int num_vars, vector<E> tree, int start, int end, vector<double>& scores, vector<vector<set<int> > >& cids, vector<ClusterPair>& candidates, bool check_floor, double* floor_variable, double floor)
-{
-    //prune mst by removing one edge and get the best cut
-    
-    for (int i=start; i<=end; i++) {
-        // move i-th edge to top: used by prunemst()
-        E e_i = tree[i];
-        tree.erase(tree.begin() + i);
-        tree.insert(tree.begin(), e_i);
-        
-        // prune tree to get two groups
-        set<int> vex1, vex2;
-        vector<E> part1, part2;
-        prunemst(tree, vex1, vex2, part1, part2);
-        
-        // check by bound
-        bool valid = true;
-        if (check_floor && valid) {
-            if (bound_check(vex1, floor_variable, floor) == false || bound_check(vex2, floor_variable, floor) == false) {
-                valid = false;
-            }
-        }
-        
-        // compute objective function
-        double ssw1 = compute_ssd(vex1, data, num_vars);
-        double ssw2 = compute_ssd(vex2, data, num_vars);
-        scores[i] = ssw1 + ssw2;
-        
-        if (valid) {
-            vector<set<int> > pts;
-            pts.push_back(vex1);
-            pts.push_back(vex2);
-            cids[i] = pts;
-            
-            ClusterPair c;
-            c.push_back(part1);
-            c.push_back(part2);
-            candidates[i] = c;
-        }
-        // restore tree
-        tree.erase(tree.begin());
-        tree.insert(tree.begin() + i, e_i);
-    }
-}
-
-double compute_ssd(vector<E>& cluster, double** data, int num_vars)
+double Skater::ssw(vector<E>& cluster)
 {
     set<int> ids;
     for (int i=0; i<cluster.size(); i++) {
         ids.insert(cluster[i].first);
         ids.insert(cluster[i].second);
     }
-    return compute_ssd(ids, data, num_vars);
+    return ssw(ids);
 }
 
-double compute_ssd(set<int>& ids, double** data, int num_vars)
+double Skater::ssw(set<int>& ids)
 {
     // This function computes the sum of dissimilarity between each
     // observation and the mean (scalar of vector) of the observations.
     // sum((x_i - x_min)^2)
-    
-    if (ids.empty()) {
-        return 0;
-    }
-    
-    if (ssd_dict.find(ids) != ssd_dict.end()) {
-        return ssd_dict[ids];
-    }
-    
+  
     double n = ids.size();
     vector<double> means(num_vars);
     set<int>::iterator it;
@@ -417,14 +281,10 @@ double compute_ssd(set<int>& ids, double** data, int num_vars)
         
         ssw_val += sqrt(sum);
     }
-        
-    boost::mutex::scoped_lock scoped_lock(mutex);
-    ssd_dict[ids]  = ssw_val;
-    
     return ssw_val;
 }
 
-bool bound_check(set<int>& cluster, double* floor_variable, double floor)
+bool Skater::bound_check(set<int>& cluster)
 {
     set<int>::iterator it;
     double sum=0;
@@ -437,7 +297,7 @@ bool bound_check(set<int>& cluster, double* floor_variable, double floor)
 
 // This function deletes a first edge and makes two subsets of edges. Each
 // subset is a Minimun Spanning Treee.
-void prunemst(vector<E>& edges, set<int>& set1, set<int>& set2, vector<E>& part1, vector<E>& part2)
+void Skater::prunemst(vector<E>& edges, set<int>& set1, set<int>& set2, vector<E>& part1, vector<E>& part2)
 {
     // first edge is going to be removed
     int num_edges = edges.size();
