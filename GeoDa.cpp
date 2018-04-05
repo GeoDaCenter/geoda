@@ -183,7 +183,6 @@
 #include "TemplateFrame.h"
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
-
 #include "version.h"
 
 

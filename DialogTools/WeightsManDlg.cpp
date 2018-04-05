@@ -39,6 +39,7 @@
 #include "../ShapeOperations/WeightsManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
+#include "../io/arcgis_swm.h"
 #include "WeightsManDlg.h"
 
 BEGIN_EVENT_TABLE(WeightsManFrame, TemplateFrame)
@@ -256,25 +257,31 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
 	wxFileDialog dlg( this, _("Choose Weights File"), default_path, "",
-                     "Weights Files (*.gal, *.gwt, *.kwt)|*.gal;*.gwt;*.kwt");
+                     "Weights Files (*.gal, *.gwt, *.kwt, *.swm)|*.gal;*.gwt;*.kwt;*.swm");
 	
     if (dlg.ShowModal() != wxID_OK) return;
 	wxString path  = dlg.GetPath();
 	wxString ext = GenUtils::GetFileExt(path).Lower();
 	
-	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
-		wxString msg = _("Only 'gal', 'gwt', and 'kwt' weights files supported.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+	if (ext != "gal" && ext != "gwt" && ext != "kwt" && ext != "swm") {
+		wxString msg = _("Only 'gal', 'gwt', 'kwt' and 'swm' weights files supported.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	WeightsMetaInfo wmi;
-	wxString id_field = WeightUtils::ReadIdField(path);
+    wxString id_field;
+    if (ext == "swm") {
+        id_field = ReadIdFieldFromSwm(path);
+    } else {
+        id_field = WeightUtils::ReadIdField(path);
+    }
 	wmi.SetToCustom(id_field);
 	wmi.filename = path;
-    if (path.EndsWith("kwt"))
+    if (path.EndsWith("kwt")) {
         wmi.weights_type = WeightsMetaInfo::WT_kernel;
+    }
     
 	suspend_w_man_state_updates = true;
 	
@@ -295,6 +302,8 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	GalElement* tempGal = 0;
 	if (ext == "gal") {
 		tempGal = WeightUtils::ReadGal(path, table_int);
+    } else if (ext == "swm") {
+        tempGal = ReadSwmAsGal(path, table_int);
 	} else {
 		tempGal = WeightUtils::ReadGwtAsGal(path, table_int);
 	}

@@ -36,7 +36,9 @@ wxString WeightUtils::ReadIdField(const wxString& fname)
 {
 	using namespace std;
 	wxString ext = GenUtils::GetFileExt(fname).Lower();
-	if (ext != "gal" && ext != "gwt" && ext != "kwt") return "";
+    if (ext != "gal" && ext != "gwt" && ext != "kwt") {
+        return "";
+    }
 	
 #ifdef __WIN32__
 	ifstream file(fname.wc_str());
