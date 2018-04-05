@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+
+#include <boost/unordered_map.hpp>
 #include <wx/wx.h>
+
 #include "arcgis_swm.h"
 #include "../GenUtils.h"
 #include "../Project.h"
@@ -142,12 +145,16 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     uint32_t row_std = 0;
     istream.read((char*)&row_std, 4);
     
-    GalElement* gal = new GalElement[no_obs];
+    boost::unordered_map<int, uint32_t> id_map;
+    vector<vector<int> > nbr_ids(no_obs);
+    vector<vector<double> > nbr_ws(no_obs);
     
     for (int i=0; i<no_obs; i++) {
         // origin length = 4
         uint32_t origin = 0;
         istream.read((char*)&origin, 4);
+        
+        id_map[i] = origin;
         
         // no_nghs length = 4
         uint32_t no_nghs = 0;
@@ -162,11 +169,25 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         double sum_w;
         istream.read((char*)&sum_w, 8);
         
-        gal[i].SetSizeNbrs(no_nghs);
+        nbr_ids[i].resize(no_nghs);
+        nbr_ws[i].resize(no_nghs);
         for (int j=0; j<no_nghs; j++) {
-            gal[i].SetNbr(j, n_ids[j], n_w[j]);
+            nbr_ids[i][j] = n_ids[j];
+            nbr_ws[i][j] = n_w[j];
         }
     }
+    
+    GalElement* gal = new GalElement[no_obs];
+    for (int i=0; i<no_obs; i++) {
+        int no_nghs = nbr_ids[i].size();
+        gal[i].SetSizeNbrs(no_nghs);
+        vector<int>& n_ids = nbr_ids[i];
+        vector<double>& n_w = nbr_ws[i];
+        for (int j=0; j<no_nghs; j++) {
+            gal[i].SetNbr(j, id_map[n_ids[j]], n_w[j]);
+        }
+    }
+    
     
     istream.close();
     
