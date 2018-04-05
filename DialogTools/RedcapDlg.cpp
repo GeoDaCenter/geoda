@@ -216,7 +216,7 @@ void RedcapDlg::CreateControls()
     Centre();
 
     // Content
-    InitVariableCombobox(combo_var);
+    //InitVariableCombobox(combo_var);
     
     // init weights
     vector<boost::uuids::uuid> weights_ids;
