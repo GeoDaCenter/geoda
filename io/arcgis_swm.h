@@ -1,4 +1,4 @@
-#include <fstream.h>
+#include <fstream>
 
 #include "../ShapeOperations/GalWeight.h"
 

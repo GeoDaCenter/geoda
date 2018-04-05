@@ -369,6 +369,7 @@
     <ClCompile Include="..\..\GdaJson.cpp" />
     <ClCompile Include="..\..\GdaShape.cpp" />
     <ClCompile Include="..\..\HighlightState.cpp" />
+    <ClCompile Include="..\..\io\arcgis_swm.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
@@ -486,6 +487,7 @@
     <ClInclude Include="..\..\HighlightState.h" />
     <ClInclude Include="..\..\HighlightStateObserver.h" />
     <ClInclude Include="..\..\HLStateInt.h" />
+    <ClInclude Include="..\..\io\arcgis_swm.h" />
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />

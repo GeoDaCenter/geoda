@@ -32,6 +32,9 @@
     <Filter Include="Algorithms">
       <UniqueIdentifier>{26d19d80-b064-41d9-80e5-37e967c05d8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{6f1478f1-4816-4219-a7a3-da8b22086f01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -729,6 +732,9 @@
     <ClInclude Include="..\..\Explore\AbstractCoordinator.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\io\arcgis_swm.h">
+      <Filter>io</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1333,6 +1339,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\arcgis_swm.cpp">
+      <Filter>io</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
