@@ -193,3 +193,53 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
     
     return gal;
 }
+
+GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
+{
+#ifdef __WIN32__
+    ifstream istream;
+    istream.open(fname.wc_str(), ios::binary|ios::in);
+#else
+    ifstream istream;
+    istream.open(GET_ENCODED_FILENAME(fname), ios::binary|ios::in);  // a text file
+#endif
+    
+    if (!(istream.is_open() && istream.good())) {
+        return 0;
+    }
+    // first line
+    string line;
+
+    // # Mat4 files have a zero somewhere in first 4 bytes (e.g. MATL)
+    uint32_t no_obs = 0;
+    istream.read((char*)&line, 4); // reads 4 bytes into
+    
+    if (line.empty()) {
+        // Mat file appears to be empty
+    }
+    
+    // # For 5 format or 7.3 format we need to read an integer in the
+    // header. Bytes 124 through 128 contain a version integer and an
+    // endian test string
+    istream.seekg(124, ios::beg);
+    char tst_str[4] = {0,0};
+    istream.read((char*)&tst_str, 4);
+    int maj_ind = tst_str[2] == 'I';
+    int maj_val = tst_str[maj_ind];
+    int min_val = tst_str[1-maj_ind];
+    
+    // maj_val should be either 1 or 2
+    // otherwise, Unknown mat file type, version
+    istream.seekg(0, ios::beg);
+    if (maj_val == 0) {
+        // MatFile4Reader
+    } else if (maj_val == 1) {
+        // MatFile5Reader
+    } else if (maj_val == 2) {
+        // Please use HDF reader for matlab v7.3 files
+    } else {
+        // Did not recognize version
+    }
+    //'spat0x2Dsym0x2Dus': array()
+    return 0;
+}

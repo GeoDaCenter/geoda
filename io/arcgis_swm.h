@@ -9,3 +9,6 @@ GalElement* read();
 wxString ReadIdFieldFromSwm(const wxString& fname);
 
 GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int);
+
+
+GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int);

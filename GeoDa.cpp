@@ -185,6 +185,7 @@
 #include "GeoDa.h"
 #include "version.h"
 
+#include "io/matlab_mat.h"
 
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
@@ -225,6 +226,7 @@ GdaApp::~GdaApp()
 
 bool GdaApp::OnInit(void)
 {
+    
 	if (!wxApp::OnInit())
         return false;
     
