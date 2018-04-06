@@ -375,7 +375,7 @@ MatfileReader::MatfileReader(string matfile)
       _version(0), _endianIndicator(), _endianSwap(false) {
     _inputStream.open(_matfile.c_str(), ios_base::in | ios_base::binary);
     if(!_inputStream.is_open()) {
-        cerr << "open " << _matfile << " error!\n";
+        cerr << "open " << _matfile.c_str() << " error!\n";
         exit(1);
     }
 }
@@ -392,7 +392,7 @@ void MatfileReader::parseHeader() {
     memcpy(&_subsysDataOffset, _header+116, 8);
     memcpy(&_version, _header+124, 2);
     _endianIndicator.assign(_header+126, 2);
-    if (_endianIndicator == "IM")
+    if (_endianIndicator.compare("IM"))
         _endianSwap = true;
     else
         _endianSwap = false;

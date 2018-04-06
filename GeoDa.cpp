@@ -226,7 +226,6 @@ GdaApp::~GdaApp()
 
 bool GdaApp::OnInit(void)
 {
-    
 	if (!wxApp::OnInit())
         return false;
     

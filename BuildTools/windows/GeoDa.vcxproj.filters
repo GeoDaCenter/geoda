@@ -735,6 +735,9 @@
     <ClInclude Include="..\..\io\arcgis_swm.h">
       <Filter>io</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\io\matlab_mat.h">
+      <Filter>io</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1341,6 +1344,9 @@
       <Filter>Explore</Filter>
     </ClCompile>
     <ClCompile Include="..\..\io\arcgis_swm.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\matlab_mat.cpp">
       <Filter>io</Filter>
     </ClCompile>
   </ItemGroup>
