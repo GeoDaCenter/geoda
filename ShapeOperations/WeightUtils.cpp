@@ -443,11 +443,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	}
 	
 	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
-		wxString msg = "The number of observations specified in chosen ";
-		msg << "weights file is " << num_obs << ", but the number in the ";
-		msg << "current Table is " << table_int->GetNumberRows();
-		msg << ", which is incompatible.";
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        wxString msg = _("The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible.");
+        msg = wxString::Format(msg, num_obs, table_int->GetNumberRows());
+		wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return 0;
 	}
@@ -482,12 +480,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			}
 		}
 		if (max_val - min_val != num_obs - 1) {
-			wxString msg = "Record order specified, but found minimum";
-			msg << " and maximum observation values of " << min_val;
-			msg << " and " << max_val << " which is incompatible with";
-			msg << " number of observations specified in first line of";
-			msg << " weights file: " << num_obs << ".";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d .");
+            msg = wxString::Format(msg, min_val, max_val, num_obs);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -501,19 +496,17 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
 		if (table_int->GetColType(col) != GdaConst::long64_type &&
             table_int->GetColType(col) != GdaConst::string_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is";
-			msg << " not an integer type in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -537,10 +530,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
         }
 
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -593,16 +585,17 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
                     obs = obs1;
 				if (it2 == id_map.end())
                     obs = obs2;
-				wxString msg = "On line ";
-				msg << line_num+1 << " of weights file, observation id " << obs;
+                
+                wxString msg;
 				if (use_rec_order) {
-					msg << " encountered which is out of allowed observation ";
-					msg << "range of 1 through " << num_obs << ".";
+                    msg = _("On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d.");
+                    msg = wxString::Format(msg, line_num+1, obs, num_obs);
 				} else {
-					msg << " encountered which does not exist in field \"";
-					msg << key_field << "\" of the Table.";
+                    msg = _("On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table.");
+                    msg = wxString::Format(msg, line_num+1, obs, key_field);
 				}
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+                
+				wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				delete [] gal;
 				return 0;

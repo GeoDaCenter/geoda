@@ -228,7 +228,7 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-    
+   
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
     
@@ -405,7 +405,7 @@ bool GdaApp::OnInit(void)
                         OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
                         GdaConst::gda_user_email = user_email;
                     }
-                    wxString ttl = _("Crash Report");
+                    wxString ttl = "Crash Report";
                     wxString body;
                     body << "From: " << user_email << "\n Details:";
                     ReportBugDlg::CreateIssue(ttl, body);

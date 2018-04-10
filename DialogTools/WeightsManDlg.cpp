@@ -40,6 +40,8 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../io/arcgis_swm.h"
+#include "../io/matlab_mat.h"
+#include "../io/weights_interface.h"
 #include "WeightsManDlg.h"
 
 BEGIN_EVENT_TABLE(WeightsManFrame, TemplateFrame)
@@ -257,14 +259,14 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
 	wxFileDialog dlg( this, _("Choose Weights File"), default_path, "",
-                     "Weights Files (*.gal, *.gwt, *.kwt, *.swm)|*.gal;*.gwt;*.kwt;*.swm");
+                     "Weights Files (*.gal, *.gwt, *.kwt, *.swm, *.mat)|*.gal;*.gwt;*.kwt;*.swm;*.mat");
 	
     if (dlg.ShowModal() != wxID_OK) return;
 	wxString path  = dlg.GetPath();
 	wxString ext = GenUtils::GetFileExt(path).Lower();
 	
-	if (ext != "gal" && ext != "gwt" && ext != "kwt" && ext != "swm") {
-		wxString msg = _("Only 'gal', 'gwt', 'kwt' and 'swm' weights files supported.");
+	if (ext != "gal" && ext != "gwt" && ext != "kwt" && ext != "mat" && ext != "swm") {
+		wxString msg = _("Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported.");
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		return;
@@ -272,13 +274,16 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	
 	WeightsMetaInfo wmi;
     wxString id_field;
-    if (ext == "swm") {
+    if (ext == "mat") {
+        id_field = "";
+    } else if (ext == "swm") {
         id_field = ReadIdFieldFromSwm(path);
     } else {
         id_field = WeightUtils::ReadIdField(path);
     }
 	wmi.SetToCustom(id_field);
-	wmi.filename = path;
+	
+    wmi.filename = path;
     if (path.EndsWith("kwt")) {
         wmi.weights_type = WeightsMetaInfo::WT_kernel;
     }
@@ -300,13 +305,38 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	}
 	
 	GalElement* tempGal = 0;
-	if (ext == "gal") {
-		tempGal = WeightUtils::ReadGal(path, table_int);
-    } else if (ext == "swm") {
-        tempGal = ReadSwmAsGal(path, table_int);
-	} else {
-		tempGal = WeightUtils::ReadGwtAsGal(path, table_int);
-	}
+    try {
+        if (ext == "gal") {
+            tempGal = WeightUtils::ReadGal(path, table_int);
+        } else if (ext == "swm") {
+            tempGal = ReadSwmAsGal(path, table_int);
+        } else if (ext == "mat") {
+            tempGal = ReadMatAsGal(path, table_int);
+        } else {
+            tempGal = WeightUtils::ReadGwtAsGal(path, table_int);
+        }
+    } catch (WeightsMismatchObsException& e) {
+        wxString msg = _("The number of observations specified in chosen weights file is incompatible with current Table.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsKeyNotFoundException& e) {
+        wxString msg = _("Specified key value field not found in currently loaded Table.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsIdNotFoundException& e) {
+        wxString msg = _("Specified key field not found in currently loaded Table.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsNoteValidException& e) {
+        wxString msg = _("Weights file/format is not valid.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    }
+    
 	if (tempGal == NULL) {
 		// WeightsUtils read functions already reported any issues
 		// to user when NULL returned.

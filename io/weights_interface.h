@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_CENTER_DBF_FILE_H__
-#define __GEODA_CENTER_DBF_FILE_H__
+#ifndef __GEODA_CENTER_WEIGHTS_INTERFACE_H__
+#define __GEODA_CENTER_WEIGHTS_INTERFACE_H__
 #include <fstream>
 #include <exception>
 
@@ -26,9 +26,41 @@
 
 using namespace std;
 
+class WeightsNoteValidException: public exception {
+    virtual const char* what() const throw() {
+        return "weights exception: weights file not valid";
+    }
+};
+
+class WeightsMismatchObsException: public exception {
+    virtual const char* what() const throw() {
+        return "weights exception: mismatch obervations";
+    }
+};
+
+class WeightsKeyNotFoundException: public exception {
+    virtual const char* what() const throw() {
+        return "weights exception: key not found";
+    }
+};
+
+class WeightsIdNotFoundException: public exception {
+    virtual const char* what() const throw() {
+        return "weights exception: id not found";
+    }
+};
+
+class WeightsInterface
+{
+    virtual char* ReadIdField() = 0;
+    virtual GalElement* Read() = 0;
+};
+
 
 wxString ReadIdFieldFromSwm(const wxString& fname);
 
 GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int);
+
+GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int);
 
 #endif

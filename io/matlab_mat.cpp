@@ -1,443 +1,123 @@
-#include <cassert>
 #include <vector>
-#include <cstdlib>
-#include <cstring>
 #include <iostream>
-using namespace std;
-#include <zlib.h>
+#include <cstdlib>
+
+#include "../GenUtils.h"
+#include "../DataViewer/TableInterface.h"
+#include "MatfileReader.h"
+#include "weights_interface.h"
 #include "matlab_mat.h"
 
-// endian_swap utility
-inline void endianSwap(uint16_t& x) {
-    x = (x>>8) | 
-        (x<<8);
-}
-inline void endianSwap(uint32_t& x) {
-    x = (x>>24) | 
-        ((x<<8) & 0x00FF0000) |
-        ((x>>8) & 0x0000FF00) |
-        (x<<24);
-}
-inline void endianSwap(uint64_t& x) {
-    x = (x>>56) | 
-        ((x<<40) & 0x00FF000000000000) |
-        ((x<<24) & 0x0000FF0000000000) |
-        ((x<<8)  & 0x000000FF00000000) |
-        ((x>>8)  & 0x00000000FF000000) |
-        ((x>>24) & 0x0000000000FF0000) |
-        ((x>>40) & 0x000000000000FF00) |
-        (x<<56);
+using namespace std;
+
+wxString ReadIdFieldFromMat(const wxString& fname)
+{
+    return "ogc_fid";
 }
 
-//=========================================
-pair<EDataType, EMatrixClass> classify(char* data, bool endianSwap) {
-    uint32_t dataType;
-    bool isSmallDataElement = (data[2] & 0xFF) || (data[3] & 0xFF);
-    if (isSmallDataElement)
-        dataType = *(reinterpret_cast<uint16_t*>(data));
-    else
-        dataType = *(reinterpret_cast<uint32_t*>(data));
-    if (static_cast<EDataType>(dataType) != miMATRIX)
-        return make_pair(static_cast<EDataType>(dataType), mxINVALID);
-    // miMATRIX must not be small element
-    assert(!isSmallDataElement);
+GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
+{
+#ifdef __WIN32__
+    ifstream istream;
+    istream.open(fname.wc_str(), ios::binary|ios::in);
+#else
+    ifstream istream;
+    istream.open(GET_ENCODED_FILENAME(fname), ios::binary|ios::in);  // a text file
+#endif
+    
+    if (!(istream.is_open() && istream.good())) {
+        return 0;
+    }
+    MatfileReader mmr(istream);
+    mmr.parseHeader();
+    // cout << mmr->descriptiveText() << endl;
+    // cout << mmr->subsysDataOffset() << endl;
+    // cout << mmr->version() << endl;
+    // cout << mmr->endianIndicator() << endl;
+    mmr.gotoData();
+    mmr.parseDataElement();
+    vector<DataElement*> des = mmr.dataElements();
+    // cout << des[0]->dataType() << endl;
+    DataElement* de = des[0];
+    CompressedDataElement* cde;
+    if (des[0]->dataType() == miCOMPRESSED) {
+        cde = dynamic_cast<CompressedDataElement*>(des[0]);
+        assert(cde);
+        // fstream fo("compressed.dat", ios_base::out | ios_base::binary);
+        // assert(fo);
+        // fo.write(cde->decompressedData(), cde->decompressedSize());
+        de = cde->reparse();
+    }
+    
+    // get row & col #
+    MatrixDataElement* mde = (MatrixDataElement*)de;
+    DimensionsArray* da = mde->dimensionsArray();
+    vector<int32_t>& dim = da->dimensions();
+    if (dim.size() != 2) {
+        throw WeightsNoteValidException();
+    }
+    int n_rows = dim[0];
+    int n_cols = dim[1];
+    if (n_rows != n_cols) {
+        throw WeightsNoteValidException();
+    }
+  
+    int num_obs = table_int->GetNumberRows();
+    if (n_rows != num_obs) {
+        throw WeightsMismatchObsException();
+    }
+   
+    // prepare output
+    GalElement* gal = new GalElement[num_obs];
 
-    ArrayFlags* af = new ArrayFlags(data+8, endianSwap);
-
-    EMatrixClass matrixClass;
-    matrixClass = af->klass();
-    return make_pair(static_cast<EDataType>(dataType), matrixClass);
-}
-
-DataElement* parse(char* data, bool endianSwap) {
-    DataElement* de = NULL;
-    // dispatch
-    pair<EDataType, EMatrixClass> kind = classify(data, endianSwap);
-    EDataType dataType = kind.first;
-    EMatrixClass matrixClass = kind.second;
-    switch (dataType) {
-    case miINT8:
-        de = new FlatDataElement<int8_t>(data, endianSwap);
-        break;
-    case miUINT8:
-        de = new FlatDataElement<uint8_t>(data, endianSwap);
-        break;
-    case miINT16:
-        de = new FlatDataElement<int16_t>(data, endianSwap);
-        break;
-    case miUINT16:
-        de = new FlatDataElement<uint16_t>(data, endianSwap);
-        break;
-    case miINT32:
-        de = new FlatDataElement<int32_t>(data, endianSwap);
-        break;
-    case miUINT32:
-        de = new FlatDataElement<uint32_t>(data, endianSwap);
-        break;
-    case miINT64:
-        de = new FlatDataElement<int64_t>(data, endianSwap);
-        break;
-    case miUINT64:
-        de = new FlatDataElement<uint64_t>(data, endianSwap);
-        break;
-    case miSINGLE:
-        de = new FlatDataElement<float>(data, endianSwap);
-        break;
-    case miDOUBLE:
-        de = new FlatDataElement<double>(data, endianSwap);
-        break;
-    case miCOMPRESSED:
-        de = new CompressedDataElement(data, endianSwap);
-        break;
-    case miUTF8:
-        de = new UnicodeDataElement<miUTF8>(data, endianSwap);
-        break;
-    case miUTF16:
-        de = new UnicodeDataElement<miUTF16>(data, endianSwap);
-        break;
-    case miUTF32:
-        de = new UnicodeDataElement<miUTF32>(data, endianSwap);
-        break;
-    case miMATRIX:
-        switch (matrixClass) {
-        case mxCELL_CLASS:
-            de = new Cell(data, endianSwap);
-            break;
-        case mxSTRUCT_CLASS:
-            de = new Struct(data, endianSwap);
-            break;
-        case mxOBJECT_CLASS:
-            de = new Object(data, endianSwap);
-            break;
-        case mxCHAR_CLASS:
-            de = new NumericArray<char>(data, endianSwap);
-            break;
-        case mxSPARSE_CLASS:
-            de = new SparseArray<double>(data, endianSwap);
-            break;
-        case mxDOUBLE_CLASS:
-            de = new NumericArray<double>(data, endianSwap);
-            break;
-        case mxSINGLE_CLASS:
-            de = new NumericArray<float>(data, endianSwap);
-            break;
-        case mxINT8_CLASS:
-            de = new NumericArray<int8_t>(data, endianSwap);
-            break;
-        case mxUINT8_CLASS:
-            de = new NumericArray<uint8_t>(data, endianSwap);
-            break;
-        case mxINT16_CLASS:
-            de = new NumericArray<int8_t>(data, endianSwap);
-            break;
-        case mxUINT16_CLASS:
-            de = new NumericArray<uint8_t>(data, endianSwap);
-            break;
-        case mxINT32_CLASS:
-            de = new NumericArray<int8_t>(data, endianSwap);
-            break;
-        case mxUINT32_CLASS:
-            de = new NumericArray<uint8_t>(data, endianSwap);
-            break;
-        case mxINT64_CLASS:
-            de = new NumericArray<int8_t>(data, endianSwap);
-            break;
-        case mxUINT64_CLASS:
-            de = new NumericArray<uint8_t>(data, endianSwap);
-            break;
-        default:
-            cerr << "invalid EMatrixClass!\n";
-            exit(1);
+    // get weights matrix
+    vector<double> data(num_obs * num_obs);
+    NumericArray<double>* sde = (NumericArray<double>*)mde;
+    DataElement* real = sde->real();
+    EDataType dt = real->dataType();
+    if (dt == miSINGLE) {
+        // float
+        FlatDataElement<float>* flatdata = ( FlatDataElement<float>*)real;
+        vector<float>& _data = flatdata->data();
+        for (int i=0; i< data.size(); i++) {
+            data[i] = _data[i];
         }
-        break;
-    default:
-        cerr << "invalid EDataType!\n";
-        exit(1);
-    }
-    if (!de) {
-        cerr << "failed to parse!\n";
-        exit(1);
-    }
-    return de;
-}
-//===========================================================
-
-void DataElement::parseTag(char* tag) {
-    _isSmallDataElement = (tag[2] & 0xFF) || (tag[3] & 0xFF);
-    if (_isSmallDataElement) {
-        _dataType = static_cast<EDataType>(*(reinterpret_cast<uint16_t*>(tag)));
-        _numberOfBytes = *(reinterpret_cast<uint16_t*>(tag+2));
+    } else if (dt == miDOUBLE) {
+        // double
+        FlatDataElement<double>* flatdata = ( FlatDataElement<double>*)real;
+        vector<double>& _data = flatdata->data();
+        for (int i=0; i< data.size(); i++) {
+            data[i] = _data[i];
+        }
     } else {
-        _dataType = static_cast<EDataType>(*(reinterpret_cast<uint32_t*>(tag)));
-        _numberOfBytes = *(reinterpret_cast<uint32_t*>(tag+4));
-    }
-}
-
-template <typename T>
-FlatDataElement<T>::FlatDataElement(char* data, bool endianSwap) : DataElement(endianSwap), _data() {
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;
-    else
-        data += 8;
-    T* p = reinterpret_cast<T*>(data);
-    int size = _numberOfBytes / sizeof(T);
-    _data.reserve(size);
-    _data.insert(_data.begin(), p, p+size);
-}
-
-FieldNames::FieldNames(char* data, bool endianSwap, int32_t fieldNameLength) :
-    FlatDataElement<int8_t>(data, endianSwap), _fieldNameLength(fieldNameLength), _fieldNames() {
-    string name;
-    for (vector<int8_t>::iterator iter = _data.begin();
-         iter + _fieldNameLength <= _data.end();
-         iter += _fieldNameLength) {
-        name.assign(iter, iter+_fieldNameLength);
-        _fieldNames.push_back(name);
-    }
-}
-
-CompressedDataElement::CompressedDataElement(char* data, bool endianSwap) :
-    _decompressedData(NULL), DataElement(endianSwap) {
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    unsigned long size = _numberOfBytes * 2; // 4x as a hint
-    unsigned long rsize = 0;
-    int res = Z_BUF_ERROR;
-    while (res != Z_OK) {
-        if (res == Z_BUF_ERROR) {
-            if (_decompressedData) {
-                delete[] _decompressedData;
-            }
-            size *= 2;
-            _decompressedData = new char[size];
-            if (!_decompressedData) {
-                cerr << "FlatDataElement::parseData new failed!\n";
-                exit(1);
-            }
-            rsize = size;
-            res = uncompress(reinterpret_cast<unsigned char*>(_decompressedData), &size,
-                             reinterpret_cast<unsigned char*>(data), _numberOfBytes);
-        } else {
-            cerr << "FlatDataElement::parseData uncompress failed!\n";
-            exit(1);
+        // INT8 UINT8 INT16 UINT16 INT32 UINT32
+        FlatDataElement<uint8_t>* flatdata = ( FlatDataElement<uint8_t>*)real;
+        vector<uint8_t>& _data = flatdata->data();
+        for (int i=0; i< data.size(); i++) {
+            data[i] = _data[i];
         }
     }
-    _decompressedSize = static_cast<uint32_t>(rsize);
-}
-
-DataElement* CompressedDataElement::reparse() {
-    DataElement* res = parse(_decompressedData, _endianSwap);
-    return res;
-}
-
-template <typename T>
-NumericArray<T>::NumericArray(char* data, bool endianSwap) :
-    MatrixDataElement(endianSwap), _real(NULL), _imag(NULL)  {
-    char* start = data;
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    parseFlags(data);
-    data += _flags->totalBytes();
-    parseDimensionsArray(data);
-    data += _dimensionsArray->totalBytes();
-    parseArrayName(data);
-    data += _name->totalBytes();
-    parseReal(data);
-    data += _real->totalBytes();
-    if (data < start + _numberOfBytes + 8) {
-        parseImag(data);
-        data += _imag->totalBytes();
-    }
-    assert(data == start+_numberOfBytes+8);
-}
-
-template <typename T>
-SparseArray<T>::SparseArray(char* data, bool endianSwap) :
-    MatrixDataElement(endianSwap), _rows(NULL), _cols(NULL), _real(NULL), _imag(NULL) {
-    char* start = data;
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    parseFlags(data);
-    data += _flags->totalBytes();
-    parseDimensionsArray(data);
-    data += _dimensionsArray->totalBytes();
-    parseArrayName(data);
-    data += _name->totalBytes();
-    parseRows(data);
-    data += _rows->totalBytes();
-    parseCols(data);
-    data += _cols->totalBytes();
-    parseReal(data);
-    data += _real->totalBytes();
-    if (data < start + _numberOfBytes + 8) {
-        parseImag(data);
-        data += _imag->totalBytes();
-    }
-    assert(data == start+_numberOfBytes+8);
-}
-
-Cell::Cell(char* data, bool endianSwap) : MatrixDataElement(endianSwap), _cells() {
-    char* start = data;
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    parseFlags(data);
-    data += _flags->totalBytes();
-    parseDimensionsArray(data);
-    data += _dimensionsArray->totalBytes();
-    parseArrayName(data);
-    data += _name->totalBytes();
-    MatrixDataElement* cell = NULL;
-    while(data < start + _numberOfBytes + 8) {
-        // create matrix and add to _cells
-        cell = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(cell);
-        _cells.push_back(cell);
-        data += cell->totalBytes();
-    }
-    assert(data == start+_numberOfBytes+8);
-}
-
-Struct::Struct(char* data, bool endianSwap) :
-    MatrixDataElement(endianSwap), _fieldNameLength(NULL), _fieldNames(NULL), _fields() {
-    char* start = data;
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    parseFlags(data);
-    data += _flags->totalBytes();
-    parseDimensionsArray(data);
-    data += _dimensionsArray->totalBytes();
-    parseArrayName(data);
-    data += _name->totalBytes();
-    parseFieldNameLength(data);
-    data += _fieldNameLength->totalBytes();
-    parseFieldNames(data);
-    data += _fieldNames->totalBytes();
-    MatrixDataElement* field = NULL;
-    while(data < start + _numberOfBytes + 8) {
-        // create matrix and add to _fields
-        field = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(field);
-        _fields.push_back(field);
-        data += field->totalBytes();
-    }
-    assert(data == start+_numberOfBytes+8);
-}
-
-Object::Object(char* data, bool endianSwap) : _className(NULL), Struct(endianSwap) {
-    char* start = data;
-    parseTag(data);
-    if (_isSmallDataElement)
-        data += 4;              // not likely to happen
-    else
-        data += 8;
-    parseFlags(data);
-    data += _flags->totalBytes();
-    parseDimensionsArray(data);
-    data += _dimensionsArray->totalBytes();
-    parseArrayName(data);
-    data += _name->totalBytes();
-    parseClassName(data);
-    data += _className->totalBytes();
-    parseFieldNameLength(data);
-    data += _fieldNameLength->totalBytes();
-    parseFieldNames(data);
-    data += _fieldNames->totalBytes();
-    MatrixDataElement* field = NULL;
-    while(data < start + _numberOfBytes + 8) {
-        // create matrix and add to _fields
-        field = dynamic_cast<MatrixDataElement*>(parse(data, endianSwap));
-        assert(field);
-        _fields.push_back(field);
-        data += field->totalBytes();
-    }
-    assert(data == start+_numberOfBytes+8);
-}
-
-
-MatfileReader::MatfileReader(string matfile)
-    : _matfile(matfile), _inputStream(), _descriptiveText(), _subsysDataOffset(0),
-      _version(0), _endianIndicator(), _endianSwap(false) {
-    _inputStream.open(_matfile.c_str(), ios_base::in | ios_base::binary);
-    if(!_inputStream.is_open()) {
-        cerr << "open " << _matfile.c_str() << " error!\n";
-        exit(1);
-    }
-}
-
-MatfileReader::~MatfileReader() {
-    for (int i = 0; i < _dataElements.size(); ++i)
-        delete _dataElements[i];
-}
-
-void MatfileReader::parseHeader() {
-    gotoHeader();
-    _inputStream.read(_header, 128);
-    _descriptiveText.assign(_header, 116);
-    memcpy(&_subsysDataOffset, _header+116, 8);
-    memcpy(&_version, _header+124, 2);
-    _endianIndicator.assign(_header+126, 2);
-    if (_endianIndicator.compare("IM"))
-        _endianSwap = true;
-    else
-        _endianSwap = false;
-}
-
-void MatfileReader::parseDataElement() {
-    if (_inputStream.eof())
-        return;
-    uint32_t dataType;
-    uint32_t numberOfBytes;
-    bool isSmallDataElement;
-    char tag[8];
-    _inputStream.read(reinterpret_cast<char*>(&tag[0]), 4);
-    isSmallDataElement = tag[0] && tag[1]; // test the lower two bytes
-    if (isSmallDataElement) {
-        dataType = *(reinterpret_cast<uint16_t*>(&tag[2]));
-        numberOfBytes = *(reinterpret_cast<uint16_t*>(&tag[0]));
-    } else {
-        dataType = *(reinterpret_cast<uint32_t*>(&tag[0]));
-        _inputStream.read(reinterpret_cast<char*>(&tag[4]), 4);
-        numberOfBytes = *(reinterpret_cast<uint32_t*>(&tag[4]));
-    }
-    char* data = NULL;
-    DataElement* de = NULL;
-    if (isSmallDataElement)
-        de = parse(tag, _endianSwap);
-    else {
-        data = new char[numberOfBytes+8];
-        if (!data) {
-            cerr << "MatfileReader::parseDataElement new failed!\n";
-            exit(1);
+    
+    for (int i=0; i<num_obs; i++) {
+        // row
+        int row = i * num_obs;
+        int no_nbrs = 0;
+        for (int j=0; j<num_obs; j++) {
+            // col
+            float w = data[j + row];
+            if ( w != 0) {
+                no_nbrs += 1;
+            }
         }
-        memcpy(data, tag, 8);
-        _inputStream.read(reinterpret_cast<char*>(data+8), numberOfBytes);
-        de = parse(data, _endianSwap);
+        gal[i].SetSizeNbrs(no_nbrs);
+        for (int j=0; j<num_obs; j++) {
+            float w = data[j + row];
+            if ( w != 0) {
+                gal[i].SetNbr(j, i, w);
+            }
+        }
     }
-    assert(de);
-    _dataElements.push_back(de);
-    // padding
-    if (numberOfBytes % 8)
-        _inputStream.ignore(8 - numberOfBytes % 8);
+    
+    return gal;
 }
 
-void MatfileReader::parseAllDataElements() {
-    gotoData();
-    while (!_inputStream.eof())
-        parseDataElement();
-}

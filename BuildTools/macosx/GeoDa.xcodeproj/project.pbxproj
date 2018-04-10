@@ -38,6 +38,7 @@
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
+		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
 		A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018051FB4CF980029709C /* SkaterDlg.cpp */; };
@@ -330,6 +331,8 @@
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
 		A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferenceDlg.cpp; sourceTree = "<group>"; };
+		A414C889207BED2700520546 /* MatfileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MatfileReader.h; path = io/MatfileReader.h; sourceTree = "<group>"; };
+		A414C88A207BED2700520546 /* MatfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatfileReader.cpp; path = io/MatfileReader.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
 		A416A1761F84122B001F2884 /* PCASettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCASettingsDlg.h; sourceTree = "<group>"; };
 		A42018011FB3C0AC0029709C /* skater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skater.cpp; path = Algorithms/skater.cpp; sourceTree = "<group>"; };
@@ -395,6 +398,7 @@
 		A4A763F31F69FB3B00EE79DD /* ColocationMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColocationMapView.h; sourceTree = "<group>"; };
 		A4B1F992207730FA00905246 /* matlab_mat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matlab_mat.cpp; path = io/matlab_mat.cpp; sourceTree = "<group>"; };
 		A4B1F9952077311F00905246 /* matlab_mat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matlab_mat.h; path = io/matlab_mat.h; sourceTree = "<group>"; };
+		A4B1F99620783CC100905246 /* weights_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = weights_interface.h; path = io/weights_interface.h; sourceTree = "<group>"; };
 		A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCMapNewView.cpp; sourceTree = "<group>"; };
 		A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCMapNewView.h; sourceTree = "<group>"; };
 		A4D5423B1F45037B00572878 /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
@@ -851,6 +855,9 @@
 		A47614AC20759E6100D9F3BE /* io */ = {
 			isa = PBXGroup;
 			children = (
+				A414C88A207BED2700520546 /* MatfileReader.cpp */,
+				A414C889207BED2700520546 /* MatfileReader.h */,
+				A4B1F99620783CC100905246 /* weights_interface.h */,
 				A4B1F9952077311F00905246 /* matlab_mat.h */,
 				A4B1F992207730FA00905246 /* matlab_mat.cpp */,
 				A47614AD20759EAD00D9F3BE /* arcgis_swm.cpp */,
@@ -1536,6 +1543,7 @@
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
 				DD7976BD0F1D2CA800496A84 /* ML_im.cpp in Sources */,
 				DD7976BE0F1D2CA800496A84 /* PowerLag.cpp in Sources */,
+				A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */,
 				DD7976BF0F1D2CA800496A84 /* PowerSymLag.cpp in Sources */,
 				DD7976C10F1D2CA800496A84 /* smile2.cpp in Sources */,
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,

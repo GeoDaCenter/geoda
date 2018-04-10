@@ -1,0 +1,187 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-04-06 19:32-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#, c-format
+msgid "\t(%3.3f of variance, cumulative =  %3.3f)\n"
+msgstr ""
+
+msgid "\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"95% threshold: PC #"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Cumulative proportions:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Eigen vectors:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: PC #"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Rotated values (scores):\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Scores in vector:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Standard deviations for PCs:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"\n"
+"Thresh95 criterion: PC #"
+msgstr ""
+
+msgid ""
+"\n"
+"Cumulative proportion:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"Kaiser criterion: PC #"
+msgstr ""
+
+msgid ""
+"\n"
+"Proportion of variance:\n"
+msgstr ""
+
+msgid ""
+"\n"
+"Standard deviations for PCs:\n"
+msgstr ""
+
+msgid " "
+msgstr ""
+
+msgid " 1"
+msgstr ""
+
+msgid "("
+msgstr ""
+
+msgid "):"
+msgstr ""
+
+msgid ", "
+msgstr ""
+
+msgid "--"
+msgstr ""
+
+msgid "/Users/xun/Desktop/frequence.gwt"
+msgstr ""
+
+msgid "0 9 redcap fid"
+msgstr ""
+
+msgid ": "
+msgstr ""
+
+msgid ": Eigenvalue: "
+msgstr ""
+
+msgid "AutoUpdate::ReadUrlContent()"
+msgstr ""
+
+msgid "Could not parse recent ds string"
+msgstr ""
+
+msgid "Eigenvalue: "
+msgstr ""
+
+msgid "No initial solution found"
+msgstr ""
+
+msgid "OVER_QUERY_LIMIT"
+msgstr ""
+
+msgid "PC "
+msgstr ""
+
+msgid "REQUEST_DENIED"
+msgstr ""
+
+msgid "Sorted eigenvalues:"
+msgstr ""
+
+#, c-format
+msgid "The long running function took %ldms to execute"
+msgstr ""
+
+msgid "eigen"
+msgstr ""
+
+msgid "geometry"
+msgstr ""
+
+#, c-format
+msgid "https://maps.googleapis.com/maps/api/geocode/json?address=%s&key=%s"
+msgstr ""
+
+msgid "lat"
+msgstr ""
+
+msgid "lng"
+msgstr ""
+
+msgid "location"
+msgstr ""
+
+msgid "regions:\n"
+msgstr ""
+
+msgid "results"
+msgstr ""
+
+msgid "status"
+msgstr ""
+
+msgid "svd"
+msgstr ""
