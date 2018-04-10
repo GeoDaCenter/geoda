@@ -1,8 +1,0 @@
-./mds.cpp
-./pca.cpp
-./spectral.cpp
-./redcap.cpp
-./skater.cpp
-./maxp.cpp
-./cluster.cpp
-./geocoding.cpp

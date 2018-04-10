@@ -290,6 +290,11 @@ bool GdaApp::OnInit(void)
     
     // load preferences
     PreferenceDlg::ReadFromCache();
+    
+    // load language here:
+    // GdaConst::gda_ui_language
+    // value 0: english
+    // value 1: chinese
    
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {

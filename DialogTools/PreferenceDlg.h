@@ -102,10 +102,14 @@ protected:
     wxTextCtrl* txt_cores;
     // eps of power iteration
     wxTextCtrl* txt_poweriter_eps;
+    // lanuage
+    wxComboBox* cmb113;
     
     void Init();
     void SetupControls();
     
+    
+    void OnChooseLanguage(wxCommandEvent& ev);
     void OnCrossHatch(wxCommandEvent& ev);
     void OnSlider1(wxCommandEvent& ev);
     void OnSlider2(wxCommandEvent& ev);

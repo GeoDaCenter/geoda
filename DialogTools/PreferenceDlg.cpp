@@ -103,7 +103,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, _("System"));
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(19, 2, 8, 10);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -209,6 +209,16 @@ void PreferenceDlg::Init()
 	grid_sizer1->AddSpacer(10);
 
 
+    wxString lbl113 = _("Language:");
+    wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
+    cmb113 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+    cmb113->Append("English");
+    cmb113->Append("Chinese");
+    cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
+    
+    grid_sizer1->Add(lbl_txt113, 1, wxEXPAND);
+    grid_sizer1->Add(cmb113, 0, wxALIGN_RIGHT);
+    
 	wxString lbl8 = _("Show Recent/Sample Data panel in Connect Datasource Dialog:");
 	wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
 	cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", wxDefaultPosition);
@@ -364,6 +374,7 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+    GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
 	GdaConst::gda_set_cpu_cores = true;
 	GdaConst::gda_cpu_cores = 8;
@@ -421,6 +432,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_cpu_cores", "8");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
+    ogr_adapt.AddEntry("gda_ui_language", "0");
 }
 
 void PreferenceDlg::SetupControls()
@@ -467,6 +479,8 @@ void PreferenceDlg::SetupControls()
     wxString t_power_eps;
     t_power_eps << GdaConst::gda_eigen_tol;
     txt_poweriter_eps->SetValue(t_power_eps);
+    
+    cmb113->SetSelection(GdaConst::gda_ui_language);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -674,6 +688,15 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
+    vector<string> gda_ui_language = OGRDataAdapter::GetInstance().GetHistory("gda_ui_language");
+    if (!gda_ui_language.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_ui_language[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_ui_language = sel_l;
+        }
+    }
+    
     // following are not in this UI, but still global variable
     vector<string> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
@@ -683,6 +706,17 @@ void PreferenceDlg::ReadFromCache()
     
 }
 
+void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
+{
+    int lan_sel = ev.GetSelection();
+    GdaConst::gda_ui_language = lan_sel;
+    wxString sel_str;
+    sel_str << GdaConst::gda_ui_language;
+    OGRDataAdapter::GetInstance().AddEntry("gda_ui_language", sel_str.ToStdString());
+    wxString msg = _("Please restart GeoDa to apply the language setup.");
+    wxMessageDialog dlg(NULL, msg, _("Info"), wxOK | wxICON_ERROR);
+    dlg.ShowModal();
+}
 void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
 {
     GdaConst::gda_datetime_formats.clear();
