@@ -385,7 +385,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
                                            bool showRecentPanel_,
-                                           int dialogType)
+                                           int _dialogType)
 :DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_), showRecentPanel(showRecentPanel_)
 {
 
@@ -395,6 +395,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
     // init controls defined in parent class
     DatasourceDlg::Init();
     //type = dialogType;
+    dialogType = _dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
 
 	SetParent(parent);
@@ -720,6 +721,13 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 	try {
         // Open GeoDa project file direclty
         if (ds_file_path.GetExt().Lower() == "gda") {
+            if (dialogType == 1) {
+                // in Merge/Stack (when dialogType == 1), user can't open gda file
+                wxString msg = _("Please open a datasource directly rather than a *.gda project file.");
+                wxMessageDialog dlg(this, msg, "Info", wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
                 gda_frame->OpenProject(ds_file_path.GetFullPath());

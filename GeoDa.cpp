@@ -1238,6 +1238,9 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 
     ConnectDatasourceDlg dlg(this, pos);
     if (dlg.ShowModal() != wxID_OK) {
+        //  here when open a gda file, which already handles in
+        // 
+        // the dlg will return wxID_CANCLE
         return;
 	}
     
@@ -1295,21 +1298,20 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
     wxString msg;
     wxFileName fn(full_proj_path);
     if (fn.GetExt().CmpNoCase("gda") != 0) {
+        // open a geoda project file
         if (IsProjectOpen()) {
             Raise();
-            wxString msg;
-            msg << _("You have requested to create a new file project ");
-            msg << full_proj_path;
-            msg << _(" while another project is open.  Please close project ");
-            msg << project_p->GetProjectTitle();
-            msg << _(" and try again.");
+            msg = _("You have requested to create a new file project %s  while another project is open. Please close project %s and try again.");
+            msg = wxString::Format(msg, full_proj_path, project_p->GetProjectTitle());
             return;
         }
         NewProjectFromFile(full_proj_path);
         return;
     }
+    
     if (!wxFileExists(full_proj_path)) {
-        msg << "Error: \"" << full_proj_path << "\" not found.";
+        msg = _("Error: \"%s\" not found.");
+        msg = wxString::Format(msg, full_proj_path);
     }
     if (!msg.IsEmpty()) {
         LOG_MSG(msg);
@@ -1326,11 +1328,8 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		}
 		Raise();
 		wxString msg;
-		msg << _("You have requested to open project ");
-		msg << full_proj_path;
-		msg << _(" while another project is open.  Please close project ");
-		msg << project_p->GetProjectTitle();
-		msg << _(" and try again.");
+        msg = _("You have requested to create a new file project %s  while another project is open. Please close project %s and try again.");
+        msg = wxString::Format(msg, full_proj_path, project_p->GetProjectTitle());
 		return;
 	}
 
@@ -1373,7 +1372,7 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
             return;
 	}
 	wxString wildcard = "GeoDa Project (*.gda)|*.gda";
-	wxFileDialog dlg(this, "GeoDa Project File to Open", "", "", wildcard);
+	wxFileDialog dlg(this, _("GeoDa Project File to Open"), "", "", wildcard);
 	if (dlg.ShowModal() != wxID_OK)
         return;
 

@@ -866,6 +866,46 @@
 			name = io;
 			sourceTree = "<group>";
 		};
+		A4CFF027207D6D7500E2E6DE /* internationalization */ = {
+			isa = PBXGroup;
+			children = (
+				A4CFF028207D6D7500E2E6DE /* bin */,
+				A4CFF02B207D6D7500E2E6DE /* lang */,
+			);
+			name = internationalization;
+			path = ../../internationalization;
+			sourceTree = SOURCE_ROOT;
+		};
+		A4CFF028207D6D7500E2E6DE /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				A4CFF029207D6D7500E2E6DE /* chinese */,
+				A4CFF02A207D6D7500E2E6DE /* en */,
+			);
+			path = bin;
+			sourceTree = "<group>";
+		};
+		A4CFF029207D6D7500E2E6DE /* chinese */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = chinese;
+			sourceTree = "<group>";
+		};
+		A4CFF02A207D6D7500E2E6DE /* en */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = en;
+			sourceTree = "<group>";
+		};
+		A4CFF02B207D6D7500E2E6DE /* lang */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = lang;
+			sourceTree = "<group>";
+		};
 		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
 			isa = PBXGroup;
 			children = (
@@ -878,6 +918,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
 				A45DBDEF1EDDDD2600C2AA8A /* Algorithms */,
 				A45DBDF61EDDEDC400C2AA8A /* _SampleImages */,

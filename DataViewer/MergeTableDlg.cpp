@@ -205,8 +205,8 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         pos.x += sz.GetWidth();
        
         int dialog_type = 1;
-
-        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
+        bool showRecentPanel = false;
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
         
         if (connect_dlg.ShowModal() != wxID_OK) {
             return;

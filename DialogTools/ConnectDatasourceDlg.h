@@ -110,6 +110,7 @@ public:
     
     
 protected:
+    int dialogType;
     bool showCsvConfigure;
     bool showRecentPanel;
     
