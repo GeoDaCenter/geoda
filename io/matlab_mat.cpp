@@ -54,17 +54,17 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
     DimensionsArray* da = mde->dimensionsArray();
     vector<int32_t>& dim = da->dimensions();
     if (dim.size() != 2) {
-        throw WeightsNoteValidException();
+        throw WeightsNotValidException();
     }
     int n_rows = dim[0];
     int n_cols = dim[1];
     if (n_rows != n_cols) {
-        throw WeightsNoteValidException();
+        throw WeightsNotValidException();
     }
   
     int num_obs = table_int->GetNumberRows();
     if (n_rows != num_obs) {
-        throw WeightsMismatchObsException();
+        throw WeightsMismatchObsException(n_rows);
     }
    
     // prepare output
@@ -110,10 +110,11 @@ GalElement* ReadMatAsGal(const wxString& fname, TableInterface* table_int)
             }
         }
         gal[i].SetSizeNbrs(no_nbrs);
+        int nbr_idx = 0;
         for (int j=0; j<num_obs; j++) {
             float w = data[j + row];
             if ( w != 0) {
-                gal[i].SetNbr(j, i, w);
+                gal[i].SetNbr(nbr_idx++, j, w);
             }
         }
     }

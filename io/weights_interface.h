@@ -26,7 +26,7 @@
 
 using namespace std;
 
-class WeightsNoteValidException: public exception {
+class WeightsNotValidException: public exception {
     virtual const char* what() const throw() {
         return "weights exception: weights file not valid";
     }
@@ -36,19 +36,40 @@ class WeightsMismatchObsException: public exception {
     virtual const char* what() const throw() {
         return "weights exception: mismatch obervations";
     }
+public:
+    WeightsMismatchObsException(int _num_obs) { num_obs = _num_obs; }
+    int num_obs;
 };
 
-class WeightsKeyNotFoundException: public exception {
+class WeightsStringKeyNotFoundException: public exception {
     virtual const char* what() const throw() {
         return "weights exception: key not found";
     }
+public:
+    WeightsStringKeyNotFoundException(const char* _key) { key = _key; }
+    const char* key;
+};
+
+class WeightsIntegerKeyNotFoundException: public exception {
+    virtual const char* what() const throw() {
+        return "weights exception: key not found";
+    }
+public:
+    WeightsIntegerKeyNotFoundException(int _key) { key = _key; }
+    int key;
 };
 
 class WeightsIdNotFoundException: public exception {
     virtual const char* what() const throw() {
         return "weights exception: id not found";
     }
+public:
+    WeightsIdNotFoundException(const char* _id) { id = _id; }
+    const char* id;
 };
+
+
+
 
 class WeightsInterface
 {

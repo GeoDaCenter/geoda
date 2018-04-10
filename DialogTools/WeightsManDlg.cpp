@@ -275,7 +275,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	WeightsMetaInfo wmi;
     wxString id_field;
     if (ext == "mat") {
-        id_field = "";
+        id_field = "Unknown";
     } else if (ext == "swm") {
         id_field = ReadIdFieldFromSwm(path);
     } else {
@@ -320,17 +320,25 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
         wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         tempGal = 0;
-    } catch (WeightsKeyNotFoundException& e) {
-        wxString msg = _("Specified key value field not found in currently loaded Table.");
+    } catch (WeightsIntegerKeyNotFoundException& e) {
+        wxString msg = _("Specified key (%d) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.key);
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsStringKeyNotFoundException& e) {
+        wxString msg = _("Specified key (%s) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.key);
         wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         tempGal = 0;
     } catch (WeightsIdNotFoundException& e) {
-        wxString msg = _("Specified key field not found in currently loaded Table.");
+        wxString msg = _("Specified id field (%s) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.id);
         wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         tempGal = 0;
-    } catch (WeightsNoteValidException& e) {
+    } catch (WeightsNotValidException& e) {
         wxString msg = _("Weights file/format is not valid.");
         wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();

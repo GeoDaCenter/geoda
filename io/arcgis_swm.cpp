@@ -53,26 +53,24 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         return 0;
     }
     // first line
-    string line;
     // ID_VAR_NAME;ESRI_SRS\n
+    string line;
     getline(istream, line, '\n');
-    
-    wxString first_line(line);
-    int pos = first_line.First(';');
-    wxString id_name = first_line.SubString(0, pos-1);
+    string id_name = line.substr(0, line.find(';'));
     
     // NO_OBS length=4
     uint32_t no_obs = 0;
     istream.read((char*)&no_obs, 4); // reads 4 bytes into
-    
-    if (table_int != NULL && no_obs != table_int->GetNumberRows()) {
-        throw WeightsMismatchObsException();
+   
+    int num_obs_tbl = table_int->GetNumberRows();
+    if (table_int != NULL && no_obs != num_obs_tbl) {
+        throw WeightsMismatchObsException(no_obs);
     }
-    if (table_int != NULL) {
+    if (id_name != "Unknown" && table_int != NULL) {
         int col, tm;
         table_int->DbColNmToColAndTm(id_name, col, tm);
         if (col == wxNOT_FOUND) {
-            throw WeightsKeyNotFoundException();
+            throw WeightsIdNotFoundException(id_name.c_str());
         }
     }
     
@@ -89,7 +87,7 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         uint32_t origin = 0;
         istream.read((char*)&origin, 4);
         
-        id_map[i] = origin;
+        id_map[origin] = i;
         
         // no_nghs length = 4
         uint32_t no_nghs = 0;
@@ -119,7 +117,11 @@ GalElement* ReadSwmAsGal(const wxString& fname, TableInterface* table_int)
         vector<int>& n_ids = nbr_ids[i];
         vector<double>& n_w = nbr_ws[i];
         for (int j=0; j<no_nghs; j++) {
-            gal[i].SetNbr(j, id_map[n_ids[j]], n_w[j]);
+            int nid = n_ids[j];
+            if ( id_map.find(nid) == id_map.end() ) {
+                throw WeightsIntegerKeyNotFoundException(nid);
+            }
+            gal[ i ].SetNbr(j, id_map[nid], n_w[j]);
         }
     }
     
