@@ -360,7 +360,7 @@ bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
             }
         }
         
-        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, details);
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, details);
         dlg->Show(true);
         return false;
     }

@@ -447,7 +447,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                 
                 if (new_type == GdaConst::unknown_type) {
                     wxString m = _("GeoDa can't change the variable type to DATE/TIME. Please select another type.");
-                    wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+                    wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
                     ev.Veto();
@@ -524,7 +524,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->DeleteCol(tmp_col);
                     }
                     wxString m = wxString::Format(_("Change variable type for \"%s\" has failed. Please check all values are valid for conversion."), var_name);
-                    wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+                    wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
                     ev.Veto();
@@ -540,7 +540,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
-			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
 			return;
@@ -557,7 +557,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidGroupName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
-			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
 			return;

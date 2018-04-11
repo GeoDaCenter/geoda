@@ -109,7 +109,7 @@ void FieldNewCalcSpecialDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
 		wxString msg("Please choose a result field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -127,7 +127,7 @@ void FieldNewCalcSpecialDlg::Apply()
 		wxString msg("Normal distribution requires valid real numbers for "
 					 "mean and standard deviation.  The standard "
 					 "deviation must be positive and non-zero.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}

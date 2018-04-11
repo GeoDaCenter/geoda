@@ -97,7 +97,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 		if (!wxRemoveFile(new_csv)) {
 			wxString msg("Unable to overwrite ");
 			msg << new_main_name + ".csv";
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -115,7 +115,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 	if (!(out_file.is_open() && out_file.good())) {
 		wxString msg;
 		msg << "Unable to create CSV file.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}

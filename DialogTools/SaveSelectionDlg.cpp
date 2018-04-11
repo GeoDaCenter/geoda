@@ -293,7 +293,7 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
     wxString field_name = m_save_sel_var_name->GetValue();
     if (field_name.empty()) {
         wxMessageDialog dlg(this, "Variable name can't be empty.",
-                            "Error", wxOK | wxICON_ERROR );
+                            _("Error"), wxOK | wxICON_ERROR );
         dlg.ShowModal();
         return;
     }
@@ -391,7 +391,7 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 	} else {
 		wxString msg = "Chosen field is not a numeric type.  Please select a numeric type field.";
 
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}

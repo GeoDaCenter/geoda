@@ -68,7 +68,7 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
    
     if (project_s->GetTableInt()->GetNumberCols() == 0) {
         wxString err_msg = _("No numeric variables found in table.");
-        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         EndDialog(wxID_CANCEL);
     }
@@ -384,7 +384,7 @@ void AbstractClusterDlg::OnSelMinBound(wxCommandEvent& event)
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -424,7 +424,7 @@ bool AbstractClusterDlg::CheckMinBound()
     if (chk_floor->IsChecked()) {
         if (combo_floor->GetSelection() < 0 || txt_floor->GetValue().Trim() == wxEmptyString) {
             wxString err_msg = _("Please input minimum bound value.");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return false;
         }
@@ -483,7 +483,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     int num_var = selections.size();
     if (num_var < min_num_var && !use_centroids) {
         wxString err_msg = wxString::Format(_("Please select at least %d variables."), min_num_var);
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
@@ -506,7 +506,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return false;
             }

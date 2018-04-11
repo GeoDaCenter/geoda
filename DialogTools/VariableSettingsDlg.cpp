@@ -220,7 +220,7 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     if (col_name.IsEmpty()) {
         wxMessageDialog dlg (this,
                              "Please select a variable first.",
-                             "Warning",
+                             _("Warning"),
                              wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -231,7 +231,7 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
     if (time1 < 0 || time2 < 0 || time1 == time2) {
         wxMessageDialog dlg (this,
                              "Please choose two different time periods.",
-                             "Warning", wxOK | wxICON_WARNING);
+                             _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -496,7 +496,7 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
     if (num_var < 2) {
         // show message box
         wxString err_msg = _("Please select at least 2 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -511,7 +511,7 @@ void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
         wxLogMessage(nm);
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -691,7 +691,7 @@ void VariableSettingsDlg::Init(VarType var_type)
 	
 	if (col_id_map.size() == 0) {
 		wxString msg("No numeric variables found.");
-		wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+		wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
 		dlg.ShowModal();
 		return;
 	}
@@ -1108,7 +1108,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
 			wxString msg(_T("No field chosen for third variable."));
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -1126,7 +1126,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
 			wxString msg(_T("No field chosen for fourth variable."));
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -1427,7 +1427,7 @@ void VariableSettingsDlg::InitFieldChoices()
     
     if (sel1_idx == 0 && sel2_idx == 0 && sel3_idx == 0 && sel4_idx == 0) {
         wxString msg("No numeric variables found.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
 }

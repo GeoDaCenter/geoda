@@ -225,7 +225,7 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
     wxString ext_str;
     if (ds_file_path.GetExt().IsEmpty()) {
         wxString msg = wxString::Format(_("Can't get datasource type from: %s\n\nPlease select datasource supported by GeoDa or add extension  to file datasource."),  ds_file_path.GetFullPath());
-        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     } else { 
@@ -421,7 +421,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 	//wxString msg = "Export successfully.";
     //msg << "\n\nTips: if you want to use exported project/datasource, please"
     //    << " close current project and then open exported project/datasource.";
-	//wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+	//wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
     //dlg.ShowModal();
     
     EndDialog(wxID_OK);

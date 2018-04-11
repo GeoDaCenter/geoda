@@ -85,7 +85,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             check_success = false;
             break;
@@ -115,7 +115,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
     	} catch (GdaException e) {
     		wxString msg;
     		msg << "Delete " << nm << ". " <<e.what();
-    		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+    		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
     		dlg.ShowModal();
     		return;
     	}

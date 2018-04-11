@@ -550,7 +550,7 @@ void TableFrame::OnCellChanged( wxGridEvent& ev )
 	wxLogMessage("In TableFrame::OnCellChanged()");
 	TableInterface* ti = table_base->GetTableInt();
 	if (ti->IsSetCellFromStringFail()) {
-		wxMessageDialog dlg(this, ti->GetSetCellFromStringFailMsg(), "Warning",
+		wxMessageDialog dlg(this, ti->GetSetCellFromStringFailMsg(), _("Warning"),
 							wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		ev.Veto();
@@ -600,7 +600,7 @@ void TableFrame::OnGroupVariables( wxCommandEvent& event)
 		if (ti->GetTimeSteps() == 1 && sel_cols.size() > 1) {
 			if (table_state->GetNumDisallowTimelineChanges() > 0) {
 				wxString msg = table_state->GetDisallowTimelineChangesMsg();
-				wxMessageDialog dlg (this, msg, "Warning",
+				wxMessageDialog dlg (this, msg, _("Warning"),
 									 wxOK | wxICON_INFORMATION);
 				dlg.ShowModal();
 				return;

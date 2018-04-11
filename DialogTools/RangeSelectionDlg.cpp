@@ -295,7 +295,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
 		}
 	} else {
 		wxString msg("Selected field is should be numeric.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -538,7 +538,7 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 	} else {
 		wxString msg = "Chosen field is not a numeric type. Please select a numeric type field.";
 
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}

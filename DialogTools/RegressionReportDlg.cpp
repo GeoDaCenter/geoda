@@ -167,7 +167,7 @@ void RegressionReportDlg::OnSaveToFile(wxCommandEvent& event)
     if (failed) {
         wxString msg;
         msg << "Unable to overwrite " << new_txt;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
     }
 }

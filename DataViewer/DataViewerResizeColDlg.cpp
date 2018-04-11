@@ -64,7 +64,7 @@ void DataViewerResizeColDlg::OnOkClick( wxCommandEvent& event )
 	
 	if (id < 0 || id >= grid->GetNumberCols()) {
 		wxString msg("Error: Col ID not specified or out-of-range.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}

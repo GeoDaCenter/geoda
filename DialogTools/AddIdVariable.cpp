@@ -77,7 +77,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		msg << "variable name. The first character must be alphabetic,";
 		msg << " and the remaining characters can be either alphanumeric ";
 		msg << "or underscores.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -88,7 +88,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		wxString msg;
 		msg << "Variable name \"" + new_id_var_name;
 		msg	<< "\" already exists. Please choose a different name.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -105,7 +105,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	} else {
 		wxString msg("Could not create a new variable. "
 					 "Possibly a read-only data source.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}

@@ -43,7 +43,7 @@ bool DiagnosticReport::Allocate()
 {
     if (nObs < nVar || nVar < 1) {
         wxString s = _("The number of covariates should be more than the number of observations.");
-        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
@@ -66,7 +66,7 @@ bool DiagnosticReport::Allocate()
 
 	if (resid == NULL) {
         wxString s = _("Not enough memory!");
-        wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
 		return false;
 	}

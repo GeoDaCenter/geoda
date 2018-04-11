@@ -373,7 +373,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	
 	if (!success) {
 		wxString msg = _("Could not create a new variable. Possibly a read-only data source.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}

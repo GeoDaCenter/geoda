@@ -861,7 +861,7 @@ void GdaFrame::OnOpenNewTable()
 	if (g) tf = (TableFrame*) g->GetParent()->GetParent(); // wxPanel<wxFrame
 	if (!tf) {
 		wxString msg = _("The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers.");
-		wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING);
+		wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
 		dlg.ShowModal();
 		tf = new TableFrame(gda_frame, project_p,
 							GdaConst::table_frame_title,
@@ -1160,7 +1160,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
     if (ds == NULL) {
         // raise message dialog show can't connect to datasource
         wxString msg = _("Can't connect to datasource: ") + ds_name;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -1175,7 +1175,7 @@ void GdaFrame::OnRecentDSClick(wxCommandEvent& event)
         
     } catch (GdaException& e) {
         RemoveInvalidRecentDS();
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -1200,7 +1200,7 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
         project_p = new Project(proj_title, layer_name, &fds);
     } catch (GdaException& e) {
         RemoveInvalidRecentDS();
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }
@@ -1214,7 +1214,7 @@ void GdaFrame::NewProjectFromFile(const wxString& full_file_path)
     }
 	if (!error_msg.IsEmpty()) {
 
-        wxMessageDialog dlg (this, error_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, error_msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }
@@ -1318,7 +1318,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
     }
     if (!msg.IsEmpty()) {
         LOG_MSG(msg);
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -1356,7 +1356,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 
     } catch (GdaException &e) {
         wxString msg( e.what() ) ;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		delete project_p;
         project_p = 0;
@@ -1487,7 +1487,7 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
     try {
         project_p->SpecifyProjectConfFile(dlg.GetPath());
     } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -1502,10 +1502,10 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
             // case: users create geometries in a table-only project
             msg << _("\n\nWarning: Geometries will not be saved. Please use \"File->Save As\" to save geometries and related data.");
         }
-        wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+        wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
 	} catch (GdaException& e) {
-		wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -3638,7 +3638,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3720,7 +3720,7 @@ void GdaFrame::OnOpenDiffLisa(wxCommandEvent& event)
     
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3774,7 +3774,7 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3830,7 +3830,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -3842,7 +3842,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
             wxString msg = _T("Please select a binary variable for Local Join Count.");
-            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
@@ -3913,7 +3913,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
             wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
-            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
@@ -3922,7 +3922,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
             wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
-            wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+            wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
@@ -3969,7 +3969,7 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -4028,7 +4028,7 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     
     if (gw == NULL) {
         wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }

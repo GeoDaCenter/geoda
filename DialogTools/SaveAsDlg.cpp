@@ -112,7 +112,7 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     IDataSource* datasource = project_p->GetDataSource();
     if ( datasource == NULL ) {
         msg = "Datasource in project is not valid.";
-        wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_INFORMATION);
+        wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
@@ -132,7 +132,7 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
         msg << "Save is not supported on current data source type: "
         << ds_format << ". Please try to use \"File->Save As\" other data source. "
         << "However, the project file can still be saved as other project file.";
-		wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         m_datasource_path_txt->SetValue("");
         m_chk_create_datasource->SetValue(false);
@@ -143,7 +143,7 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     if ( suffix.empty() ) {
         msg << "The original datasource " << ds_path << " is not a valid file."
         "GeoDa \"Save\" only works on file datasource.";
-        wxMessageDialog dlg(this, msg , "Warning", wxOK | wxICON_INFORMATION);
+        wxMessageDialog dlg(this, msg , _("Warning"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
@@ -239,17 +239,17 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
         }
         
         if ( !msg.empty() ) {
-            wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+            wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
             dlg.ShowModal();
             return;
         }
         msg = "Saved successfully.";
-        wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+        wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         EndDialog(wxID_OK);
         
     } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }

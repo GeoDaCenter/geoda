@@ -308,7 +308,7 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;
             }
@@ -358,7 +358,7 @@ bool ColocationSelectDlg::check_colocations()
 {
     if (co_val_dict.empty()) {
         wxString err_msg =_("The categories of the selected variables do not overlap in space. Please select other variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Warning", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
@@ -485,7 +485,7 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
     
     if (sel_vals.empty()) {
         wxString err_msg = _("Please setup co-locations first.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }

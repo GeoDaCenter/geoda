@@ -448,7 +448,7 @@ void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
         FindWindow(XRCID("IDC_FIELD_ASC"))->Enable(true);
         FindWindow(XRCID("IDC_KEYVAR"))->Enable(true);
     } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }

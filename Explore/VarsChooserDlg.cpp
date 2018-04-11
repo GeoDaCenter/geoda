@@ -299,7 +299,7 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
         // no min_vals and max_vals, this might be an exceptional case:
         // e.g. selected variable is not valid
         wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), name);
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }

@@ -106,7 +106,7 @@ void FieldNewCalcBinDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
 		wxString msg("Please choose a result field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -124,7 +124,7 @@ void FieldNewCalcBinDlg::Apply()
 		|| (var2_col == wxNOT_FOUND && !m_valid_const2)) {
 		wxString msg("Operation requires two valid "
 					 "variable names or constants.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -137,7 +137,7 @@ void FieldNewCalcBinDlg::Apply()
 	{
 		wxString msg("When \"all times\" selected for either variable, result "
 					 "field must also be \"all times.\"");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}

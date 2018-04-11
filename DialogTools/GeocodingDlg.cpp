@@ -268,7 +268,7 @@ void GeocodingDlg::run()
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col_lat) != GdaConst::double_type ) {
             wxString msg = _("This field name already exists (non-float type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
             dlg.ShowModal();
             return;
         }
@@ -278,7 +278,7 @@ void GeocodingDlg::run()
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col_lng) != GdaConst::double_type ) {
             wxString msg = _("This field name already exists (non-float type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
             dlg.ShowModal();
             return;
         }
@@ -330,7 +330,7 @@ void GeocodingDlg::run()
         msg << "\n\nDetails:\n\n";
         msg << coder.error_msg;
     }
-    wxMessageDialog dlg(this, msg, "Info", wxOK | wxICON_INFORMATION);
+    wxMessageDialog dlg(this, msg, _("Info"), wxOK | wxICON_INFORMATION);
     dlg.ShowModal();
     stop = false;
     

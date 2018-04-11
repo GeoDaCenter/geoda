@@ -723,7 +723,7 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	} else {
 		wxString m;
 		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 }

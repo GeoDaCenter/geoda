@@ -295,7 +295,7 @@ void KClusterDlg::OnChangeSeed(wxCommandEvent& event)
     } else {
         wxString m;
         m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
@@ -566,7 +566,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -609,7 +609,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col) != GdaConst::long64_type ) {
             wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
             dlg.ShowModal();
             return;
         }

@@ -1485,7 +1485,7 @@ void MapCanvas::show_empty_shps_msgbox()
         for (int i=0; i<empty_shps_ids.size(); i++) {
             empty_shps_msg << empty_shps_ids[i] + 1 << "\n";
         }
-        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog("Warning", msg, empty_shps_msg);
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, empty_shps_msg);
         dlg->Show(true);
         has_shown_empty_shps_msg = true;
     }
@@ -2557,7 +2557,7 @@ GalWeight* MapFrame::checkWeights()
     GalWeight* gal_weights = w_man_int->GetGal(w_id);
     if (gal_weights== NULL) {
         wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
-        wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return NULL;
     }

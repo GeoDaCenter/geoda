@@ -418,7 +418,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
                     wxString tmp = _("There is at least one view could not be closed. Please manually close and try again.");
                     s = wxString::Format(tmp, nb);
                 }
-				wxMessageDialog dlg(this, s, "Error", wxICON_ERROR | wxOK);
+				wxMessageDialog dlg(this, s, _("Error"), wxICON_ERROR | wxOK);
 				dlg.ShowModal();
 			} else {
 				w_man_int->Remove(id);

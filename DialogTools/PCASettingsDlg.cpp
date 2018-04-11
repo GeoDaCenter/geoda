@@ -241,7 +241,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     
     if (0 != init_result) {
         wxString msg = _("There is an error during PCA calculation. Please check if the data is valid.");
-        wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }

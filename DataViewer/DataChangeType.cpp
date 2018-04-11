@@ -432,7 +432,7 @@ void DataChangeTypeFrame::OnCopyBtn(wxCommandEvent& ev)
         to_type == GdaConst::placeholder_type)
 	{
 		wxString s = _("An unknown problem occurred. Could not copy data.");
-		wxMessageDialog dlg(NULL, s, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		//copy_btn->Disable();
 		return;

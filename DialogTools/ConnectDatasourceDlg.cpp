@@ -559,7 +559,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
         if (ds == NULL) {
             // raise message dialog show can't connect to datasource
             wxString msg = _("Can't connect to datasource: ") + ds_name;
-            wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         } else {
@@ -682,7 +682,7 @@ void ConnectDatasourceDlg::OnLookupDSTableBtn( wxCommandEvent& event )
 	} catch (GdaException& e) {
 		wxString msg;
 		msg << e.what();
-		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         if( datasource!= NULL &&
             msg.StartsWith("Failed to open data source") ) {
@@ -724,7 +724,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             if (dialogType == 1) {
                 // in Merge/Stack (when dialogType == 1), user can't open gda file
                 wxString msg = _("Please open a data file rather than a project file (*.gda).");
-                wxMessageDialog dlg(this, msg, "Info", wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(this, msg, _("Info"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;
             }
@@ -814,12 +814,12 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 	} catch (GdaException& e) {
 		wxString msg;
 		msg << e.what();
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         
 	} catch (...) {
 		wxString msg = "Unknow exception. Please contact GeoDa support.";
-		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 	wxLogMessage("Exiting ConnectDatasourceDlg::OnOkClick");
@@ -1129,7 +1129,7 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     if (ds == NULL) {
         // raise message dialog show can't connect to datasource
         wxString msg = _("Can't connect to datasource: ") + ds_name;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     } else {

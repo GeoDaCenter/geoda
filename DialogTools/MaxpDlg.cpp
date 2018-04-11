@@ -336,7 +336,7 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
     } else {
         wxString m;
         m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
@@ -447,7 +447,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     wxString str_initial = m_iterations->GetValue();
     if (str_initial.IsEmpty()) {
         wxString err_msg = _("Please enter iteration number");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -455,7 +455,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -487,7 +487,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
     // Check connectivity
     if (!CheckConnectivity(gw)) {
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
-        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
         dlg.ShowModal();
     }
     
@@ -497,7 +497,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         wxString str_floor = txt_floor->GetValue();
         if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
             wxString err_msg = _("Please enter minimum bound value");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -506,7 +506,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         wxString str_floor = txt_minregions->GetValue();
         if (str_floor.IsEmpty()) {
             wxString err_msg = _("Please enter minimum number of observations per regions, or use minimum bound instead.");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -542,7 +542,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;
             }
@@ -567,7 +567,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         }
         if (tabu_length < 1) {
             wxString err_msg = _("Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85).");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -576,7 +576,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         str_coolrate.ToDouble(&cool_rate);
         if ( cool_rate > 1 || cool_rate <= 0) {
             wxString err_msg = _("Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85).");
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -633,7 +633,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col) != GdaConst::long64_type ) {
             wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
             dlg.ShowModal();
             return;
         }

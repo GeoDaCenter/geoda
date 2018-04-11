@@ -884,7 +884,7 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
                     retry = false;
                 } else if (IsDuplicateTitle(new_title)) {
                     wxString es = wxString::Format(_("Categories title \"%s\" already exists. Please choose a different title."), new_title);
-                    wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+                    wxMessageDialog ed(NULL, es, _("Error"), wxOK | wxICON_ERROR);
                     ed.ShowModal();
                 } else {
                     success = true;
@@ -1070,7 +1070,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
         brks.insert(cc_data.breaks[i]);
     if (brks.size() < cc_data.breaks.size()) {
         wxString msg = _("Breaks with same values were created. Please choose a smaller categories.");
-        wxMessageDialog ed(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog ed(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
         ed.ShowModal();
     }
     
@@ -1546,7 +1546,7 @@ void CatClassifPanel::OnButtonChangeTitle(wxCommandEvent& event)
 			} else if (IsDuplicateTitle(new_title)) {
 				wxString es = _("Categories title \"%s\" already exists. Please choose a different title.");
                 es = wxString::Format(es, new_title);
-				wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+				wxMessageDialog ed(NULL, es, _("Error"), wxOK | wxICON_ERROR);
 				ed.ShowModal();
 			} else {
 				int sel = cur_cats_choice->GetSelection();
@@ -1636,7 +1636,7 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 	} else {
 		wxString es = _("Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting.");
         es = wxString::Format(es, custom_cat_title);
-		wxMessageDialog ed(NULL, es, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog ed(NULL, es, _("Error"), wxOK | wxICON_ERROR);
 		ed.ShowModal();
 	}
 }

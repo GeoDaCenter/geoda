@@ -488,7 +488,7 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 		m << "Variable name \"" << grp_nm << "\" is either a duplicate\n";
 		m << "or is invalid. Please enter an alternative,\n";
 		m << "non-duplicate variable name.";
-		wxMessageDialog dlg (this, m, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg (this, m, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -508,7 +508,7 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 		if (table_int->GetTimeSteps() == 1 && tot_items > 1) {
 			if (table_state->GetNumDisallowTimelineChanges() > 0) {
 				wxString msg = table_state->GetDisallowTimelineChangesMsg();
-				wxMessageDialog dlg (this, msg, "Warning",
+				wxMessageDialog dlg (this, msg, _("Warning"),
 									 wxOK | wxICON_INFORMATION);
 				dlg.ShowModal();
 				return;
@@ -1084,7 +1084,7 @@ void VarGroupingEditorDlg::OnIncludeListEditEnd( wxListEvent& event )
     if (item_new.IsEmpty() || is_dup || is_disallow) {
         if (is_disallow && !(item_new.IsEmpty() || is_dup)) {
             wxString msg = table_state->GetDisallowTimelineChangesMsg();
-            wxMessageDialog dlg(this, msg, "Warning",
+            wxMessageDialog dlg(this, msg, _("Warning"),
                                 wxOK | wxICON_INFORMATION);
             dlg.ShowModal();
         }
@@ -1300,7 +1300,7 @@ void VarGroupingEditorDlg::OnLoadFromGda( wxCommandEvent& event )
         ProjectConfiguration* project_conf = new ProjectConfiguration(full_proj_path);
         project->UpdateProjectConf(project_conf);
     } catch( GdaException& ex) {
-        wxMessageDialog dlg (this, ex.what(), "Error", wxOK | wxICON_ERROR );
+        wxMessageDialog dlg (this, ex.what(), _("Error"), wxOK | wxICON_ERROR );
         dlg.ShowModal();
     }
 
