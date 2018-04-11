@@ -52,7 +52,19 @@ class wxDC;
 class TableState;
 
 namespace StringUtils {
-    int utf8_strlen(const string& str);
+    int utf8_strlen(const std::string& str);
+}
+
+namespace DbfFileUtils {
+    void SuggestDoubleParams(int length, int decimals, int* suggest_len, int* suggest_dec);
+    double GetMaxDouble(int length, int decimals,int* suggest_len=0, int* suggest_dec=0);
+    wxString GetMaxDoubleString(int length, int decimals);
+    double GetMinDouble(int length, int decimals, int* suggest_len=0, int* suggest_dec=0);
+    wxString GetMinDoubleString(int length, int decimals);
+    wxInt64 GetMaxInt(int length);
+    wxString GetMaxIntString(int length);
+    wxInt64 GetMinInt(int length);
+    wxString GetMinIntString(int length);
 }
 
 namespace GdaColorUtils {

@@ -35,7 +35,7 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalScatterPlotView.h"
 
 

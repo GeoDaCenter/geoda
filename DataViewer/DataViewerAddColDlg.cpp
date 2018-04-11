@@ -29,7 +29,6 @@
 #include "TimeState.h"
 #include "../Project.h"
 #include "../logger.h"
-#include "../DbfFile.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"

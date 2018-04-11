@@ -24,7 +24,6 @@
 #include <wx/listbox.h>
 #include <wx/textctrl.h>
 #include <vector>
-#include "../DbfFile.h"
 
 class TableInterface;
 
@@ -46,7 +45,7 @@ private:
 	wxString new_id_var_name;
 	wxTextCtrl *new_id_var;
 	wxListBox *existing_vars_list;
-	std::vector<DbfFieldDesc> fields;
+	//std::vector<DbfFieldDesc> fields;
 	TableInterface* table_int;
     
 	DECLARE_EVENT_TABLE();

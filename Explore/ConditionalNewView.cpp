@@ -37,7 +37,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../TemplateLegend.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalNewView.h"
 
 

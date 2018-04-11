@@ -36,7 +36,7 @@
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "LisaCoordinator.h"
 #include "LisaScatterPlotView.h"
 

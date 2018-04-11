@@ -26,7 +26,6 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../GeoDa.h"
-#include "../DbfFile.h"
 #include "../FramesManager.h"
 #include "../GdaException.h"
 

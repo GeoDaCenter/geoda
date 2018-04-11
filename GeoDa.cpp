@@ -71,8 +71,6 @@
 #include <wx/settings.h>
 #include <wx/uri.h>
 
-#include "DataViewer/DataChangeType.h"
-#include "DataViewer/DbfTable.h"
 #include "DataViewer/DataViewerAddColDlg.h"
 #include "DataViewer/DataViewerDeleteColDlg.h"
 #include "DataViewer/DataViewerEditFieldPropertiesDlg.h"
@@ -163,7 +161,6 @@
 #include "Regression/DiagnosticReport.h"
 
 #include "ShapeOperations/CsvFileUtils.h"
-#include "ShapeOperations/ShapeUtils.h"
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManState.h"
 #include "ShapeOperations/OGRDataAdapter.h"
@@ -2191,14 +2188,6 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
     }
 }
 
-#include "DialogTools/ASC2SHPDlg.h"
-void GdaFrame::OnShapePointsFromASCII(wxCommandEvent& WXUNUSED(event) )
-{
-    wxLogMessage("Open ASC2SHPDlg");
-	ASC2SHPDlg dlg(this);
-	dlg.ShowModal();
-}
-
 #include "DialogTools/CreateGridDlg.h"
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
@@ -2225,14 +2214,6 @@ void GdaFrame::OnShapePolygonsFromBoundary(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open Bnd2ShpDlg");
 	Bnd2ShpDlg dlg(this);
-	dlg.ShowModal();
-}
-
-#include "DialogTools/SHP2ASCDlg.h" 
-void GdaFrame::OnShapeToBoundary(wxCommandEvent& WXUNUSED(event) )
-{
-    wxLogMessage("Open SHP2ASCDlg");
-	SHP2ASCDlg dlg(this);
 	dlg.ShowModal();
 }
 
@@ -2519,6 +2500,7 @@ void GdaFrame::OnEditFieldProperties(wxCommandEvent& event)
 	dlg.ShowModal();
 }
 
+/*
 void GdaFrame::OnChangeFieldType(wxCommandEvent& event)
 {
 	Project* p = GetProject();
@@ -2538,6 +2520,7 @@ void GdaFrame::OnChangeFieldType(wxCommandEvent& event)
 	
 	DataChangeTypeFrame* dlg = new DataChangeTypeFrame(this, p);
 }
+ */
 
 
 void GdaFrame::OnMergeTableData(wxCommandEvent& event)
@@ -6584,10 +6567,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_BUTTON(XRCID("ID_CONNECTIVITY_MAP_VIEW"), GdaFrame::OnConnectivityMapView)
     EVT_MENU(XRCID("ID_SHOW_AXES"), GdaFrame::OnShowAxes)
     EVT_TOOL(XRCID("ID_MAP_CHOICES"), GdaFrame::OnMapChoices)
-    EVT_MENU(XRCID("ID_SHAPE_POINTS_FROM_ASCII"), GdaFrame::OnShapePointsFromASCII)
     EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_GRID"), GdaFrame::OnShapePolygonsFromGrid)
     EVT_MENU(XRCID("ID_SHAPE_POLYGONS_FROM_BOUNDARY"), GdaFrame::OnShapePolygonsFromBoundary)
-    EVT_MENU(XRCID("ID_SHAPE_TO_BOUNDARY"), GdaFrame::OnShapeToBoundary)
     EVT_MENU(XRCID("ID_POINTS_FROM_TABLE"), GdaFrame::OnGeneratePointShpFile)
     // Table menu items
     EVT_MENU(XRCID("ID_SHOW_TIME_CHOOSER"), GdaFrame::OnShowTimeChooser)
@@ -6608,7 +6589,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_ADD_COLUMN"), GdaFrame::OnAddCol)
     EVT_MENU(XRCID("ID_TABLE_DELETE_COLUMN"), GdaFrame::OnDeleteCol)
     EVT_MENU(XRCID("ID_TABLE_EDIT_FIELD_PROP"), GdaFrame::OnEditFieldProperties)
-    EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
+    //EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_GEOCODING"), GdaFrame::OnGeocoding)

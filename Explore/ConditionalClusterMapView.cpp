@@ -36,7 +36,6 @@
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
 
 #include "CatClassifState.h"
 #include "CatClassifManager.h"

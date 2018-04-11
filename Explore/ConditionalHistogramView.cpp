@@ -36,7 +36,7 @@
 #include "../FramesManager.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalHistogramView.h"
 
 

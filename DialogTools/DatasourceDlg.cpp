@@ -37,7 +37,6 @@
 
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
-#include "../DataViewer/DbfTable.h"
 #include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
 #include "../logger.h"

@@ -39,19 +39,4 @@ double Box::range_y(int method) const
 	}
 }
 
-/*
- Operators on Box
-  */
-
-std::istream& operator>>(std::istream &s, Box &b)
-{ return s >> b.Bmin >> b.Bmax; }
-
-std::ostream& operator<<(std::ostream &s, const Box &b)
-{ return s << b.Bmin << ' ' << b.Bmax;  }
-
-iShapeFile& operator>>(iShapeFile &s, Box &b)
-{ return s >> b.Bmin >> b.Bmax; }
-
-oShapeFile& operator<<(oShapeFile &s, const Box &b)
-{  return s << b.Bmin << b.Bmax; }
 

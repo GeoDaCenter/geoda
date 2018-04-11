@@ -46,7 +46,7 @@
 #include "../Project.h"
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/Lowess.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ScatterNewPlotView.h"
 
 

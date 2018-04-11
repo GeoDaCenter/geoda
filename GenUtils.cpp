@@ -50,6 +50,102 @@ int StringUtils::utf8_strlen(const string& str)
     return q;
 }
 
+void DbfFileUtils::SuggestDoubleParams(int length, int decimals,
+                                       int* suggest_len, int* suggest_dec)
+{
+    // doubles have 52 bits for the mantissa, so we can allow at most
+    // floor(log(2^52)) = 15 digits of precision.
+    // We require that there length-2 >= decimals to allow for "x." . when
+    // writing to disk, and when decimals = 15, require length >= 17 to
+    // allow for "0." prefex. If length-2 == decimals, then negative numbers
+    // are not allowed since there is not room for the "-0." prefix.
+    if (GdaConst::max_dbf_double_len < length) {
+        length = GdaConst::max_dbf_double_len;
+    }
+    if (length < 3) length = 3;
+    if (decimals < 1) decimals = 1;
+    if (decimals > 15) decimals = 15;
+    if (length-2 < decimals) length = decimals + 2;
+    
+    *suggest_len = length;
+    *suggest_dec = decimals;
+}
+
+double DbfFileUtils::GetMaxDouble(int length, int decimals,
+                                  int* suggest_len, int* suggest_dec)
+{
+    // make sure that length and decimals have legal values
+    SuggestDoubleParams(length, decimals, &length, &decimals);
+    
+    int len_inter = length - (1+decimals);
+    if (len_inter + decimals > 15) len_inter = 15-decimals;
+    double r = 0;
+    for (int i=0; i<len_inter+decimals; i++) r = r*10 + 9;
+    for (int i=0; i<decimals; i++) r /= 10;
+    
+    if (suggest_len) *suggest_len = length;
+    if (suggest_dec) *suggest_dec = decimals;
+    return r;
+}
+
+wxString DbfFileUtils::GetMaxDoubleString(int length, int decimals)
+{
+    double x = GetMaxDouble(length, decimals, &length, &decimals);
+    return wxString::Format("%.*f", decimals, x);
+}
+
+double DbfFileUtils::GetMinDouble(int length, int decimals,
+                                  int* suggest_len, int* suggest_dec)
+{
+    SuggestDoubleParams(length, decimals, &length, &decimals);
+    if (length-2 == decimals) return 0;
+    if (suggest_len) *suggest_len = length;
+    if (suggest_dec) *suggest_dec = decimals;
+    return -DbfFileUtils::GetMaxDouble(length-1, decimals);
+}
+
+wxString DbfFileUtils::GetMinDoubleString(int length, int decimals)
+{
+    double x = GetMinDouble(length, decimals, &length, &decimals);
+    if (length-2 == decimals) {
+        wxString s("0.");
+        for (int i=0; i<decimals; i++) s += "0";
+        return s;
+    }
+    return wxString::Format("%.*f", decimals, x);
+}
+
+wxInt64 DbfFileUtils::GetMaxInt(int length)
+{
+    // We want to allow the user to enter a string of
+    // all 9s for the largest value reported.  So, we must
+    // limit the length of the string to be floor(log(2^63)) = 18
+    if (length < 1) return 0;
+    if (length > 18) length = 18;
+    wxInt64 r=0;
+    for (int i=0; i<length; i++) r = r*10 + 9;
+    return r;
+}
+
+wxString DbfFileUtils::GetMaxIntString(int length)
+{
+    return wxString::Format("%lld", GetMaxInt(length));
+}
+
+wxInt64 DbfFileUtils::GetMinInt(int length)
+{
+    // This is generally the -GetMaxInt(length-1), because we must
+    // allow one character for the minus sign unless the length
+    // is greater than 18;
+    if (length > 19) length = 19;
+    return -GetMaxInt(length-1);
+}
+
+wxString DbfFileUtils::GetMinIntString(int length)
+{
+    return wxString::Format("%lld", GetMinInt(length));
+}
+
 wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
 {
     // input s could be sth. like: %Y-%m-%d %H:%M:%S

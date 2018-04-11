@@ -36,7 +36,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "CartogramNewView.h"
 

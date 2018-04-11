@@ -44,7 +44,6 @@
 #include "../DataViewer/TimeState.h"
 #include "../Explore/CatClassifState.h"
 #include "../HighlightState.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "SaveToTableDlg.h"
 #include "CatClassifDlg.h"
 

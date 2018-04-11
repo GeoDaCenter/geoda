@@ -24,8 +24,6 @@
 #include <vector>
 #include "BasePoint.h"
 #include "Box.h"
-#include "DBF.h"
-#include "ShapeFile.h"
 #include "../GdaConst.h"
 
 using namespace std;
@@ -48,24 +46,14 @@ public:
 	bool IsEmpty() { return !strcmp(Id, "0"); }
 	bool IsEqual(AbstractShape& a) { return !strcmp(Id, a.Id); }
 	void ReadID(std::istream& s);
-	void ReadDbf(iDBF& s) {
-		char st [GdaConst::ShpObjIdLen+1];
-		s.Read(st, GdaConst::ShpObjIdLen);
-		Assign(st);
-	}
-	void WriteDbf(oDBF& s) const { s.Write(Id); }
-	
+
 	virtual Box ShapeBox() const = 0;
 	virtual BasePoint Centroid() const = 0;
 	virtual BasePoint MeanCenter() const = 0;
 	virtual void AssignPointData(double x, double y) = 0;
 	virtual long ContentsLength() const = 0;
-	virtual std::ostream& WriteShape(std::ostream& s) const = 0;
-	virtual std::istream& ReadShape(std::istream& s) = 0;
 	virtual Box SetData(int nParts, int* Part, int nPoints,
 						const vector<BasePoint>& P) = 0;
-	virtual oShapeFile& WriteShape(oShapeFile& s) const = 0;
-	virtual iShapeFile& ReadShape(iShapeFile& s) = 0;
 };
 
 #endif

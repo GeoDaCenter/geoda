@@ -25,7 +25,6 @@
 #include <wx/textctrl.h>
 #include <wx/stattext.h>
 
-#include "../DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"

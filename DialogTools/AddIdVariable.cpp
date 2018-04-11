@@ -25,7 +25,6 @@
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
-#include "../DbfFile.h"
 #include "AddIdVariable.h"
 
 BEGIN_EVENT_TABLE( AddIdVariable, wxDialog )

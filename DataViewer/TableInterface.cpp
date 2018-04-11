@@ -20,7 +20,6 @@
 
 #include "../GenUtils.h"
 #include "../logger.h"
-#include "../DbfFile.h"
 #include "TableInterface.h"
 
 namespace bt = boost::posix_time;

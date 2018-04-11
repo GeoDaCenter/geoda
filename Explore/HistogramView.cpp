@@ -41,7 +41,6 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../FramesManager.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "CatClassifManager.h"
 #include "CatClassifState.h"
 #include "HistogramView.h"

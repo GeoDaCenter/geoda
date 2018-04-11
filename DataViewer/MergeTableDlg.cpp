@@ -28,12 +28,10 @@
 #include <wx/textdlg.h>
 #include "MergeTableDlg.h"
 #include "DataSource.h"
-#include "DbfColContainer.h"
 #include "TableBase.h"
 #include "TableInterface.h"
 #include "../FramesManagerObserver.h"
 #include "../FramesManager.h"
-#include "../DbfFile.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"

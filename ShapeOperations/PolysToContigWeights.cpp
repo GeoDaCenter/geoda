@@ -35,8 +35,6 @@
 #include "BasePoint.h"
 #include "Box.h"
 #include "../ShpFile.h"
-#include "ShapeFile.h"
-#include "ShapeFileHdr.h"
 
 #include "../logger.h"
 #include "../GenUtils.h"

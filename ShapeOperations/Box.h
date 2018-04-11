@@ -21,7 +21,6 @@
 #define __GEODA_CENTER_BOX_H__
 
 #include <iostream>
-#include "ShapeFile.h"
 #include "BasePoint.h"
 
 /*
@@ -36,10 +35,6 @@ public:
 		: Bmin(minP), Bmax(maxP) {}
 	Box (const BasePoint p= 0) : Bmin(p), Bmax(p) {}
 	Box (const Box& a) { Bmin = a.Bmin; Bmax = a.Bmax; }
-	friend std::istream& operator>>(std::istream& s, Box& b);
-	friend std::ostream& operator<<(std::ostream& s, const Box& b);
-	friend iShapeFile& operator>>(iShapeFile& s, Box& b);
-	friend oShapeFile& operator<<(oShapeFile& s, const Box& b);
 	Box operator=(const Box& a) { Bmin= a.Bmin;	Bmax= a.Bmax; return *this; }
 	Box operator+=(const Box& a) {
 		Bmin= pmin(Bmin, a.Bmin);

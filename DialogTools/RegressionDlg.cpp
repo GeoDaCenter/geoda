@@ -37,7 +37,6 @@
 #include "SaveToTableDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
-#include "../DbfFile.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/GeodaWeight.h"

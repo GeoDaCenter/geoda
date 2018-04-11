@@ -41,7 +41,6 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "PCPNewView.h"
 
 IMPLEMENT_CLASS(PCPCanvas, TemplateCanvas)

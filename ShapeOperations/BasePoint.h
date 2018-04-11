@@ -21,7 +21,6 @@
 #define __GEODA_CENTER_BASE_POINT_H__
 
 #include <iostream>
-#include "ShapeFile.h"
 
 /*
  BasePoint
@@ -44,10 +43,6 @@ public:
 	friend BasePoint pmin(const BasePoint &a, const BasePoint &b);
 	friend BasePoint pmax(const BasePoint &a, const BasePoint &b);
 	friend BasePoint& operator+= (BasePoint &a, const BasePoint &b);
-	friend std::istream& operator>>(std::istream &s, BasePoint &p);
-	friend std::ostream& operator<<(std::ostream &s, const BasePoint &p);
-	friend iShapeFile& operator>>(iShapeFile &s, BasePoint &p);
-	friend oShapeFile& operator<<(oShapeFile &s, const BasePoint &p);
 	void setXY(double a, double b) { x=a; y=b;};
 };
 

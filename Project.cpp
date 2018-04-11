@@ -33,6 +33,7 @@
 #include <wx/progdlg.h>
 #include <wx/dir.h>
 #include <wx/textfile.h>
+#include <boost/foreach.hpp>
 
 #include "ogr_srs_api.h"
 #include "logger.h"
@@ -42,7 +43,6 @@
 #include "DefaultVarsPtree.h"
 #include "DataViewer/CustomClassifPtree.h"
 #include "DataViewer/OGRTable.h"
-#include "DataViewer/DbfTable.h"
 #include "DataViewer/TableBase.h"
 #include "DataViewer/TableFrame.h"
 #include "DataViewer/TableInterface.h"
@@ -59,9 +59,7 @@
 #include "GenGeomAlgs.h"
 #include "SpatialIndAlgs.h"
 #include "PointSetAlgs.h"
-#include "DbfFile.h"
 #include "ShapeOperations/GalWeight.h"
-#include "ShapeOperations/ShapeUtils.h"
 #include "ShapeOperations/VoronoiUtils.h"
 #include "VarCalc/WeightsManInterface.h"
 #include "ShapeOperations/WeightsManState.h"

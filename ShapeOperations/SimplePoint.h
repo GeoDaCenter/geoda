@@ -44,11 +44,6 @@ class SimplePoint :  public virtual AbstractShape
 	virtual BasePoint MeanCenter() const { return p; }
 	virtual BasePoint* GetPoints() const { return NULL; }
 	virtual long ContentsLength() const  { return 20; }
-	virtual ostream& WriteShape(ostream &s) const
-	{  WriteID(s);  return s << p << endl; }
-	virtual istream& ReadShape(istream &s);
-	virtual oShapeFile& WriteShape(oShapeFile &s) const;
-	virtual iShapeFile& ReadShape(iShapeFile &s);
 	virtual void AssignPointData(double x, double y) { p.setXY(x,y); }
 };
 

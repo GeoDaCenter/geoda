@@ -47,7 +47,6 @@ typedef boost::multi_array<int, 2> i_array_type;
 
 //using namespace boost::geometry;
 class OGRTable;
-class DbfTable;
 class TableInterface;
 class TableBase;
 class CatClassifManager;

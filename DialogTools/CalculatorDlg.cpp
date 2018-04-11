@@ -25,8 +25,8 @@
 #include <wx/sizer.h>
 #include <wx/button.h>
 #include "../FramesManager.h"
-#include "../DbfFile.h"
-#include "../DataViewer/DbfTable.h"
+
+
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"

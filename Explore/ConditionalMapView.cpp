@@ -37,7 +37,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalMapView.h"
 
 using namespace std;

@@ -48,7 +48,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/RateSmoothing.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"

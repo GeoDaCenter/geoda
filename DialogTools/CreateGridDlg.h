@@ -79,7 +79,6 @@ public:
 	int	m_nCount;
 	int	m_nTimer;
 	enum { nMaxCount = 10000 };
-	Box	m_BigBox;
 	double m_xBot,m_yBot,m_xTop,m_yTop;
 	bool hasCreated;
 
