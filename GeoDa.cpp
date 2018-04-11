@@ -1234,13 +1234,15 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 {
 	wxLogMessage(" GdaFrame::ShowOpenDatasourceDlg()");
 
-	if (init && project_p) return;
+    if (init && project_p) {
+        return;
+    }
 
     ConnectDatasourceDlg dlg(this, pos);
     if (dlg.ShowModal() != wxID_OK) {
-        //  here when open a gda file, which already handles in
-        // 
-        // the dlg will return wxID_CANCLE
+        // when open a gda file, which already handles in
+        // ConnectDatasoureDlg()
+        // and the dlg will return wxID_CANCLE
         return;
 	}
     
@@ -1254,7 +1256,8 @@ void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
         project_p = new Project(proj_title, layer_name, datasource);
        
         if (!project_p->IsValid()) {
-            
+            // do noting
+            return;
         }
     } catch (GdaException& e) {
         RemoveInvalidRecentDS();

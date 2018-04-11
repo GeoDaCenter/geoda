@@ -46,8 +46,14 @@
  #endif
 #endif
 
+using namespace std;
+
 class wxDC;
 class TableState;
+
+namespace StringUtils {
+    int utf8_strlen(const string& str);
+}
 
 namespace GdaColorUtils {
 	/** Returns colour in 6-hex-digit HTML format.

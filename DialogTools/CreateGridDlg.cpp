@@ -246,9 +246,14 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
     wxLogMessage("In CreateGridDlg::OnCReferencefile2Click()");
     
     try{
-         ConnectDatasourceDlg connect_dlg(this);
-        if (connect_dlg.ShowModal() != wxID_OK)
+        wxPoint pos = GetPosition();
+        int dialog_type = 1; // no gda is allowed
+        bool showCsvConfigure = false;
+        bool showRecentPanel = false;
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
+        if (connect_dlg.ShowModal() != wxID_OK) {
             return;
+        }
         
         wxString proj_title = connect_dlg.GetProjectTitle();
         wxString layer_name = connect_dlg.GetLayerName();

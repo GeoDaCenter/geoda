@@ -723,7 +723,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         if (ds_file_path.GetExt().Lower() == "gda") {
             if (dialogType == 1) {
                 // in Merge/Stack (when dialogType == 1), user can't open gda file
-                wxString msg = _("Please open a datasource directly rather than a *.gda project file.");
+                wxString msg = _("Please open a data file rather than a project file (*.gda).");
                 wxMessageDialog dlg(this, msg, "Info", wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return;

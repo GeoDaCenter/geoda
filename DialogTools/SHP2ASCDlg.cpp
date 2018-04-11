@@ -402,8 +402,14 @@ void SHP2ASCDlg::OnCOpenIshpClick( wxCommandEvent& event )
 {
     wxLogMessage("In SHP2ASCDlg::OnCOpenIshpClick()");
     try{
-        ConnectDatasourceDlg dlg(this);
-        if (dlg.ShowModal() != wxID_OK) return;
+        wxPoint pos = GetPosition();
+        int dialog_type = 1; // means no gda is allowed
+        bool showCsvConfigure = false;
+        bool showRecentPanel = false;
+        ConnectDatasourceDlg dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
+        if (dlg.ShowModal() != wxID_OK) {
+            return;
+        }
         
         wxString proj_title = dlg.GetProjectTitle();
         wxString layer_name = dlg.GetLayerName();

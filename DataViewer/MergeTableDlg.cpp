@@ -204,7 +204,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxSize sz = GetSize();
         pos.x += sz.GetWidth();
        
-        int dialog_type = 1;
+        int dialog_type = 1; // no gda is allowed
         bool showRecentPanel = false;
         ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
         
