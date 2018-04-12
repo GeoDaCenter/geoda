@@ -1292,8 +1292,10 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	logReport = wxEmptyString; // reset log report
 	int cnt = 0;
 	
-	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
-	slog << "Data set            :  " << datasetname << "\n"; cnt++;
+	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n";
+    cnt++;
+	slog << "Data set            :  " << datasetname << "\n";
+    cnt++;
 	slog << "Dependent Variable  :";
     
     if (m_dependent->GetValue().length() > 12 )
@@ -1301,56 +1303,79 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
     else
         slog << GenUtils::Pad(m_dependent->GetValue(), 12) <<  "  ";
         
-	slog << "Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
+	slog << "Number of Observations:" << wxString::Format("%5d\n",Obs);
+    cnt++;
 	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
-	slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
+	slog << wxString::Format(f, r->GetMeanY(), nX);
+    cnt++;
 	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
-	slog << wxString::Format(f, r->GetSDevY(), Obs-nX); cnt++;
-	slog << "\n"; cnt++;
+	slog << wxString::Format(f, r->GetSDevY(), Obs-nX);
+    cnt++;
+	slog << "\n";
+    cnt++;
 	
-	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n"; cnt++;
+	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetR2(), r->GetFtest());
-	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n"; cnt++;
+	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetR2_adjust(), r->GetFtestProb());
-	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n"; cnt++;
+	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetRSS() ,r->GetLIK());
-	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n"; cnt++;
+	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQ(), r->GetAIC());
-	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n"; cnt++;
+	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
-	f = "Sigma-square ML     :%12.6g\n"; cnt++;
+	f = "Sigma-square ML     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQLM());
-	f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
+	f = "S.E of regression ML:%12.6g\n\n";
+    cnt++;
+    cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
 	
 	slog << "--------------------------------------";
-	slog << "---------------------------------------\n"; cnt++;
+	slog << "---------------------------------------\n";
+    cnt++;
 	slog << "       Variable      Coefficient      ";
-	slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
+	slog << "Std.Error    t-Statistic   Probability\n";
+    cnt++;
 	slog << "--------------------------------------";
-	slog << "---------------------------------------\n"; cnt++;
+	slog << "---------------------------------------\n";
+    cnt++;
 	
 	for (int i=0; i<nX; i++) {
 		slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
 		slog << wxString::Format("  %12.6g   %12.6g   %12.6g   %9.5f\n",
 								 r->GetCoefficient(i), r->GetStdError(i),
-								 r->GetZValue(i), r->GetProbability(i)); cnt++;
+								 r->GetZValue(i), r->GetProbability(i));
+        cnt++;
 	}
 	slog << "----------------------------------------";
-	slog << "-------------------------------------\n\n"; cnt++; cnt++;
+	slog << "-------------------------------------\n\n";
+    cnt++;
+    cnt++;
 	
-	slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
+	slog << "REGRESSION DIAGNOSTICS  \n";
+    cnt++;
 	double *rr = r->GetBPtest();
 	if (rr[1] > 1) {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber()); cnt++;
+								 r->GetConditionNumber());
+        cnt++;
 	} else {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber()); cnt++;
+								 r->GetConditionNumber());
+        cnt++;
 		slog << "                                ";
-		slog << "      (Extreme Multicollinearity)\n"; cnt++;
+		slog << "      (Extreme Multicollinearity)\n";
+        cnt++;
 	}
-	slog << "TEST ON NORMALITY OF ERRORS\n"; cnt++;
+	slog << "TEST ON NORMALITY OF ERRORS\n";
+    cnt++;
 	slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
 	rr = r->GetJBtest();
 	f = "Jarque-Bera           %2.0f        %11.4f        %9.5f\n"; cnt++;

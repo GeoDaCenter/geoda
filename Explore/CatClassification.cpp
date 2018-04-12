@@ -227,12 +227,12 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		breaks[3] = hinge_stats.Q3;
 		breaks[4] = (theme == hinge_15 ? hinge_stats.extreme_upper_val_15 :
 						   hinge_stats.extreme_upper_val_30);
-		cat_labels[0] = "Lower outlier";
+		cat_labels[0] = _("Lower outlier");
 		cat_labels[1] = "< 25%";
 		cat_labels[2] = "25% - 50%";
 		cat_labels[3] = "50% - 75%";
 		cat_labels[4] = "> 75%";
-		cat_labels[5] = "Upper outlier";
+		cat_labels[5] = _("Upper outlier");
         
 	} else if (theme == quantile) {
 		if (num_cats == 1) {

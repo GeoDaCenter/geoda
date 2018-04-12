@@ -38,7 +38,7 @@
 #include "ConditionalClusterMapView.h"
 #include "AbstractCoordinator.h"
 #include "AbstractClusterMap.h"
-#include "../ShpFile.h"
+
 
 IMPLEMENT_CLASS(AbstractMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(AbstractMapCanvas, MapCanvas)

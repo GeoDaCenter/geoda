@@ -34,7 +34,7 @@
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
 #include "../VarCalc/WeightsManInterface.h"
-#include "../ShpFile.h"
+
 #include "ConditionalClusterMapView.h"
 #include "LocalGearyCoordinator.h"
 #include "LocalGearyMapNewView.h"
@@ -133,13 +133,24 @@ void LocalGearyMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString LocalGearyMapCanvas::GetCanvasTitle()
 {
 	wxString local_geary_t;
-	if (is_clust && !is_bi) local_geary_t = " Local Geary Cluster Map";
-	if (is_clust && is_bi) local_geary_t = " Bivariate Local Geary Cluster Map";
-    if (is_clust && is_diff) local_geary_t = " Differential Local Geary Cluster Map";
-    
-	if (!is_clust && !is_bi) local_geary_t = " Local Geary Significance Map";
-	if (!is_clust && is_bi) local_geary_t = " Bivariate LocalGeary Significance Map";
-    if (!is_clust && is_diff) local_geary_t = " Differential Significance Map";
+    if (is_clust && !is_bi) {
+        local_geary_t = _(" Local Geary Cluster Map");
+    }
+    if (is_clust && is_bi) {
+        local_geary_t = _(" Bivariate Local Geary Cluster Map");
+    }
+    if (is_clust && is_diff) {
+        local_geary_t = _(" Differential Local Geary Cluster Map");
+    }
+    if (!is_clust && !is_bi) {
+        local_geary_t = _(" Local Geary Significance Map");
+    }
+    if (!is_clust && is_bi) {
+        local_geary_t = _(" Bivariate LocalGeary Significance Map");
+    }
+    if (!is_clust && is_diff)  {
+        local_geary_t = _(" Differential Significance Map");
+    }
 	
 	wxString field_t;
 	if (is_bi) {
@@ -904,7 +915,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	}
 	data[0].d_val = &tempLocalMoran;
 	data[0].label = "LocalGeary Indices";
-	data[0].field_default = "LocalGeary_I";
+	data[0].field_default = "Geary_I";
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &undefs;
 	
@@ -921,7 +932,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	}
 	data[1].l_val = &clust;
 	data[1].label = "Clusters";
-	data[1].field_default = "LocalGeary_CL";
+	data[1].field_default = "Geary_CL";
 	data[1].type = GdaConst::long64_type;
     data[1].undefined = &undefs;
 	
@@ -941,7 +952,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	
 	data[2].d_val = &sig;
 	data[2].label = "Significance";
-	data[2].field_default = "LocalGeary_P";
+	data[2].field_default = "Geary_P";
 	data[2].type = GdaConst::double_type;
     data[2].undefined = &undefs;
 	
@@ -954,7 +965,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
     }
     
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Results: LocalGeary",
+					   _("Save Results: LocalGeary"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
     

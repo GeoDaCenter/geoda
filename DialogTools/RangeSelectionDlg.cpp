@@ -536,14 +536,14 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
-		wxString msg = "Chosen field is not a numeric type. Please select a numeric type field.";
+		wxString msg = _("Chosen field is not a numeric type. Please select a numeric type field.");
 
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
 	
-	wxString msg = "Values assigned to target field successfully.";
+	wxString msg = _("Values assigned to target field successfully.");
 	wxMessageDialog dlg(this, msg, "Success", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 }
@@ -614,9 +614,6 @@ boost::uuids::uuid RangeSelectionDlg::GetWeightsId()
 	if (!m_weights_choice) return boost::uuids::nil_uuid();
 	int sel = m_weights_choice->GetSelection();
 	if (sel < 0 || sel >= weights_ids.size()) return boost::uuids::nil_uuid();
-	wxString s;
-	s << "RangeSelectionDlg::GetWeightsId() weight: ";
-	s << w_man_int->GetShortDispName(weights_ids[sel]);
 
 	return weights_ids[sel];
 }

@@ -19,7 +19,7 @@
 
 #include <sstream>
 #include <boost/functional/hash.hpp>
-#include "ShpFile.h"
+
 #include "GenUtils.h"
 
 bool Shapefile::operator==(Point const& a, Point const& b)

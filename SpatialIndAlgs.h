@@ -25,25 +25,17 @@
 #include <sstream>
 #include <vector>
 #include "SpatialIndTypes.h"
-#include "ShpFile.h"
+
 #include "GdaShape.h"
 #include "ShapeOperations/GwtWeight.h"
 
 
 namespace SpatialIndAlgs {
 
-void get_centroids(std::vector<pt_2d>& centroids,
-				   const Shapefile::Main& main_data);
-void get_centroids(std::vector<pt_lonlat>& centroids,
-				   const Shapefile::Main& main_data);
 void to_3d_centroids(const std::vector<pt_2d>& pt2d,
 										 std::vector<pt_3d>& pt3d);
 void to_3d_centroids(const std::vector<pt_lonlat>& ptll,
 										 std::vector<pt_3d>& pt3d);
-void get_shp_bb(Shapefile::PolygonContents* p,
-				double& xmin, double& ymin, double& xmax, double& ymax);
-bool comp_polys(Shapefile::PolygonContents* p1, Shapefile::PolygonContents* p2,
-				bool rook, double prec);
 void default_test();
 void print_rtree_stats(rtree_box_2d_t& rtree);
 void query_all_boxes(rtree_box_2d_t& rtree);
@@ -127,8 +119,6 @@ GwtWeight* knn_build(const rtree_pt_lonlat_t& rtree, int nn=6);
 bool write_gwt(const GwtWeight* W, const wxString& layer_name, 
 			   const wxString& ofname, const wxString& vname,
 			   const std::vector<wxInt64>& id_vec);
-void fill_box_rtree(rtree_box_2d_t& rtree,
-					const Shapefile::Main& main_data);
 void fill_pt_rtree(rtree_pt_2d_t& rtree,
 				   const std::vector<pt_2d>& pts);
 void fill_pt_rtree(rtree_pt_lonlat_t& rtree,

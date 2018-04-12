@@ -169,7 +169,7 @@
 #include "Algorithms/redcap.h"
 #include "Algorithms/geocoding.h"
 
-#include "ShpFile.h"
+
 #include "GdaException.h"
 #include "FramesManager.h"
 #include "GdaConst.h"

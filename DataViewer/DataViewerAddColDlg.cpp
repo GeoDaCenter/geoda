@@ -311,7 +311,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     bool m_name_valid = table_int->IsValidDBColName(colname);
 	//if ( !DbfFileUtils::isValidFieldName(colname) ) {
     if (!m_name_valid) {
-		wxString msg = "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.";
+		wxString msg = _("Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.");
         msg = wxString::Format(msg, colname.Upper());
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();

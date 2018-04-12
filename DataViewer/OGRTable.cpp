@@ -178,7 +178,7 @@ void OGRTable::AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx)
         ogr_col = new OGRColumnDateTime(ogr_layer_proxy,idx);
         
     } else {
-        wxString msg = "Add OGR column error. Field type is unknown.";
+        wxString msg = _("Add OGR column error. Field type is unknown.");
         throw GdaException(msg.mb_str());
     }
     columns.push_back(ogr_col);
@@ -1290,8 +1290,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
             ogr_col = new OGRColumnDateTime(ogr_layer, names[t], field_len, decimals);
             
         } else {
-            wxString msg = "Add OGR column error. Field type is unknown "
-            "or not supported.";
+            wxString msg = _("Add OGR column error. Field type is unknown or not supported.");
             throw GdaException(msg.mb_str());
         }
         columns.insert(columns.begin()+pos, ogr_col);

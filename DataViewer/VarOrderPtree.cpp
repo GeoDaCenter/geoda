@@ -20,6 +20,8 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <wx/wx.h>
+
 #include "../GdaException.h"
 #include "../logger.h"
 #include "VarOrderPtree.h"
@@ -109,13 +111,12 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
                     }
 				}
 				if (ent.name.empty()) {
-                    wxString msg = "space-time variable found with no name";
+                    wxString msg = _("space-time variable found with no name");
 					throw GdaException(msg.mb_str());
 				}
 				if (grp_set.find(ent.name) != grp_set.end()) {
-					wxString ss;
-					ss << "Space-time variables with duplicate name \"";
-					ss << ent.name << "\" found.";
+					wxString ss = _("Space-time variables with duplicate name \"%s\" found.");
+                    ss = wxString::Format(ss, ent.name);
 					throw GdaException(ss.mb_str());
 				}
                 if (valid_group) {

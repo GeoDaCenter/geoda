@@ -39,7 +39,7 @@
 #include "../DataViewer/DataSource.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
 #include "../GdaShape.h"
-#include "../ShpFile.h"
+
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../GdaException.h"

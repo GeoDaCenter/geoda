@@ -26,7 +26,7 @@
 #include <boost/multi_array.hpp>
 #include <boost/thread.hpp>
 
-#include "../ShpFile.h"
+
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"

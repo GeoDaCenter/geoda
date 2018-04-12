@@ -561,7 +561,7 @@ void ColocationMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString ColocationMapCanvas::GetCanvasTitle()
 {
 	wxString title;
-	title = "Co-location Map";
+	title = _("Co-location Map");
 	return title;
 }
 

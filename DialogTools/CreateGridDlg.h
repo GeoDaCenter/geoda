@@ -20,8 +20,6 @@
 #ifndef __GEODA_CENTER_CREATE_GRID_DLG_H__
 #define __GEODA_CENTER_CREATE_GRID_DLG_H__
 
-#include "../ShapeOperations/Box.h"
-
 class ExportDataDlg;
 class ConnectDatasourceDlg;
 

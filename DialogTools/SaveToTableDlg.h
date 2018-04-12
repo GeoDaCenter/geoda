@@ -52,7 +52,7 @@ class SaveToTableDlg: public wxDialog
 public:
     SaveToTableDlg( Project* project, wxWindow* parent,
 				   const std::vector<SaveToTableEntry>& data,
-				   const wxString& title = "Save Results", 
+				   const wxString& title = _("Save Results"), 
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
 				   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );

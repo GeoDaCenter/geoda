@@ -31,10 +31,7 @@
 #include <wx/wx.h>
 #endif
 
-#include "AbstractShape.h"
-#include "BasePoint.h"
-#include "Box.h"
-#include "../ShpFile.h"
+
 
 #include "../logger.h"
 #include "../GenUtils.h"
@@ -152,12 +149,7 @@ PolygonPartition::~PolygonPartition()   {
 	return;
 }
 
-wxString getPointStr(const BasePoint& point)
-{
-	wxString s;
-	s << "(" << point.x << "," << point.y << ")";
-	return s;
-}
+
 
 /** Method for detecting if an edge is shared between a host and guest polygon.
  */
@@ -168,12 +160,10 @@ bool PolygonPartition::edge(PolygonPartition &p, const int host,
 
 	
 	Point* guestPrev = p.GetPoint(p.prev(guest));
-	//BasePoint hostPoint = Points[ succ(host) ];
 	Point* hostPoint = this->GetPoint(succ(host));
 	
 	if (hostPoint->equals(guestPrev, precision_threshold)) return true;
 	
-	//BasePoint guestSucc= p.Points[ p.succ(guest) ];
 	Point* guestSucc= p.GetPoint(p.succ(guest));
 	if (hostPoint->equals( guestSucc, precision_threshold) ) return true;
 	
@@ -192,8 +182,8 @@ bool PolygonPartition::edge(PolygonPartition &p, const int host,
 int PolygonPartition::MakePartition(int mX, int mY)  {
 	if (mX == 0) mX = NumPoints/4 + 2;
 	if (mY == 0) mY = (int)(sqrt((long double)NumPoints) + 2);
-	pX.alloc(NumPoints, mX, GetMaxX() - GetMinX());// bBox._max().x - bBox._min().x);
-	pY.alloc(NumPoints, mY, GetMaxY() - GetMinY());//bBox._max().y - bBox._min().y);
+	pX.alloc(NumPoints, mX, GetMaxX() - GetMinX());
+	pY.alloc(NumPoints, mY, GetMaxY() - GetMinY());
 	double xStart= GetMinX(), yStart= GetMinY();
 	for (int cnt= 0; cnt < NumPoints; ++cnt)  {
 		pX.include(cnt, GetPoint(cnt)->x - xStart);
@@ -411,7 +401,6 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
     // locations of the polygon records in the shp file
     long* gOffset= NULL;
     // bounding box for the entire map
-    Box gBigBox;
     // partition constructed on lower(x) and upper(x) for each polygon
     BasePartition  gMinX, gMaxX;
     // partition constructed on y for each polygon

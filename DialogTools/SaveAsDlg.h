@@ -38,7 +38,7 @@ public:
 	SaveAsDlg(wxWindow* parent,
 		      Project* project,
               wxWindowID id = wxID_ANY,
-              const wxString& title = "Save Project File As...",
+              const wxString& title = _("Save Project File As..."),
 			  const wxPoint& pos = wxDefaultPosition,
 			  const wxSize& size = wxDefaultSize );
     void OnOkClick( wxCommandEvent& event );

@@ -380,7 +380,7 @@ void OGRTableOpUpdateCell::Commit()
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
     if (col_idx < 0) {
-        wxString msg = "Internal Error: can't update an in-memory cell.";
+        wxString msg = _("Internal Error: can't update an in-memory cell.");
         throw GdaException(msg.mb_str());
     }
     

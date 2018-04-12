@@ -38,7 +38,7 @@
 #include "ConditionalClusterMapView.h"
 #include "LisaCoordinator.h"
 #include "LisaMapNewView.h"
-#include "../ShpFile.h"
+
 
 IMPLEMENT_CLASS(LisaMapCanvas, AbstractMapCanvas)
 BEGIN_EVENT_TABLE(LisaMapCanvas, AbstractMapCanvas)

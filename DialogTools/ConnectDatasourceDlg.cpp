@@ -818,7 +818,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
         
 	} catch (...) {
-		wxString msg = "Unknow exception. Please contact GeoDa support.";
+		wxString msg = _("Unknow exception. Please contact GeoDa support.");
 		wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
@@ -886,7 +886,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         else if (cur_sel == DBTYPE_MYSQL) ds_type = GdaConst::ds_mysql;
         //else if (cur_sel == 4) ds_type = GdaConst::ds_ms_sql;
         else {
-            wxString msg = "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection.";
+            wxString msg = _("The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection.");
             throw GdaException(msg.mb_str());
         }
         
@@ -908,14 +908,15 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         wxRegEx regex;
         regex.Compile("[0-9]+");
         if (!regex.Matches( dbport )){
-            throw GdaException(wxString("Database port is empty. Please input one.").mb_str());
+            wxString msg = _("Database port is empty. Please input one.");
+            throw GdaException(msg.mb_str());
         }
 		wxString error_msg;
-		if (dbhost.IsEmpty()) error_msg = "Please input database host.";
-		else if (dbname.IsEmpty()) error_msg = "Please input database name.";
-		else if (dbport.IsEmpty()) error_msg = "Please input database port.";
-		else if (dbuser.IsEmpty()) error_msg = "Please input user name.";
-        else if (dbpwd.IsEmpty()) error_msg = "Please input password.";
+		if (dbhost.IsEmpty()) error_msg = _("Please input database host.");
+		else if (dbname.IsEmpty()) error_msg = _("Please input database name.");
+		else if (dbport.IsEmpty()) error_msg = _("Please input database port.");
+		else if (dbuser.IsEmpty()) error_msg = _("Please input user name.");
+        else if (dbpwd.IsEmpty()) error_msg = _("Please input password.");
 		if (!error_msg.IsEmpty()) {
 			throw GdaException(error_msg.mb_str() );
 		}
@@ -941,10 +942,12 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         wxRegEx regex;
         regex.Compile("^(https|http)://");
         if (!regex.Matches( ws_url )){
-            throw GdaException(wxString("Please input a valid url address.").mb_str());
+            wxString msg = _("Please input a valid url address.");
+            throw GdaException(msg.mb_str());
         }
         if (ws_url.IsEmpty()) {
-            throw GdaException(wxString("Please input a valid url.").mb_str());
+            wxString msg = _("Please input a valid url.");
+            throw GdaException(msg.mb_str());
         } else {
             OGRDataAdapter::GetInstance().AddHistory("ws_url", ws_url.ToStdString());
         }
@@ -968,10 +971,12 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         std::string key(m_cartodb_key->GetValue().Trim().mb_str());
         
         if (user.empty()) {
-           throw GdaException("Please input Carto User Name.");
+            wxString msg = _("Please input Carto User Name.");
+           throw GdaException(msg.mb_str());
         }
         if (key.empty()) {
-           throw GdaException("Please input Carto App Key.");
+            wxString msg = _("Please input Carto App Key.");
+           throw GdaException(msg.mb_str());
         }
         
         CPLSetConfigOption("CARTODB_API_KEY", key.c_str());

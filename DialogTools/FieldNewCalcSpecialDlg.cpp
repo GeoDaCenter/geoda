@@ -310,13 +310,14 @@ void FieldNewCalcSpecialDlg::Display()
 	
 	if (op_sel == normal_rand) {
 		if (!var1.IsEmpty() && !var2.IsEmpty()) {
-			rhs << "Random Gaussian dist with mean=" << var1;
-			rhs << ", sd=" << var2;
+            rhs = _("Random Gaussian dist with mean=%s, sd=%s");
+            rhs = wxString::Format(rhs, var1, var2);
+
 		}
 	} else if (op_sel == uniform_rand) {
-		rhs = "Random uniform dist on unit interval";
+		rhs = _("Random uniform dist on unit interval");
 	} else { // op_sel == enumerate
-		rhs = "enumerate as 1, 2, 3, ...";
+		rhs = _("enumerate as 1, 2, 3, ...");
 	}
 	
 	if (lhs.IsEmpty() && rhs.IsEmpty()) {

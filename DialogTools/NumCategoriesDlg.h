@@ -33,8 +33,8 @@ public:
 				   int min_categories_s,
 				   int max_categories_s,
 				   int default_categories_s,
-				   const wxString& title = "Number of Categories",
-				   const wxString& text = "Categories");
+				   const wxString& title = _("Number of Categories"),
+				   const wxString& text = _("Categories"));
 	
 	void OnSpinCtrl( wxSpinEvent& event );
     void OnOkClick( wxCommandEvent& event );

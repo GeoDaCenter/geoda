@@ -39,7 +39,7 @@ public:
     FieldNewCalcLagDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY, 
-					   const wxString& caption = "Spatial Lag",
+					   const wxString& caption = _("Spatial Lag"),
 					   const wxPoint& pos = wxDefaultPosition, 
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );

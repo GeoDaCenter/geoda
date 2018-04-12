@@ -165,8 +165,7 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Add Variable button was "
-			"pressed. Please report this error.";
+		wxString msg = "Could not determine which Add Variable button was pressed. Please report this error.";
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
@@ -226,8 +225,7 @@ void SaveToTableDlg::OnFieldChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Field Choice was "
-		"selected. Please report this error.";
+		wxString msg = "Could not determine which Field Choice was selected. Please report this error.";
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
@@ -249,8 +247,7 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Time Choice was "
-		"selected. Please report this error.";
+		wxString msg = "Could not determine which Time Choice was selected. Please report this error.";
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;

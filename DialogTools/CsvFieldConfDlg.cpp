@@ -328,7 +328,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
                 if (rtn == 0) {
                     if (!msg_shown) {
                         wxString msg = _("Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property");
-                        wxMessageDialog dlg(NULL, msg, "CSV Configuration Warning", wxOK | wxICON_ERROR);
+                        wxMessageDialog dlg(NULL, msg, _("CSV Configuration Warning"), wxOK | wxICON_ERROR);
                         dlg.ShowModal();
                         msg_shown = true;
                     }

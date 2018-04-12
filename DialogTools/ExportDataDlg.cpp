@@ -691,11 +691,11 @@ IDataSource* ExportDataDlg::GetDatasource()
         }
         
         // check if empty, prompt user to input
-        if (dbhost.IsEmpty()) error_msg = "Please input database host.";
-        else if (dbname.IsEmpty()) error_msg= "Please input database name.";
-        else if (dbport.IsEmpty()) error_msg= "Please input database port.";
-        else if (dbuser.IsEmpty()) error_msg= "Please input user name.";
-        else if (layer_name.IsEmpty()) error_msg= "Please input table name.";
+        if (dbhost.IsEmpty()) error_msg = _("Please input database host.");
+        else if (dbname.IsEmpty()) error_msg= _("Please input database name.");
+        else if (dbport.IsEmpty()) error_msg= _("Please input database port.");
+        else if (dbuser.IsEmpty()) error_msg= _("Please input user name.");
+        else if (layer_name.IsEmpty()) error_msg= _("Please input table name.");
         
         if (!error_msg.IsEmpty()) throw GdaException(error_msg.mb_str());
         
@@ -708,10 +708,12 @@ IDataSource* ExportDataDlg::GetDatasource()
         std::string key(m_cartodb_key->GetValue().Trim().mb_str());
         
         if (user.empty()) {
-            throw GdaException("Please input Carto User Name.");
+            wxString msg = _("Please input Carto User Name.");
+            throw GdaException(msg.mb_str());
         }
         if (key.empty()) {
-            throw GdaException("Please input Carto App Key.");
+            wxString msg = _("Please input Carto App Key.");
+            throw GdaException(msg.mb_str());
         }
         
         CPLSetConfigOption("CARTODB_API_KEY", key.c_str());

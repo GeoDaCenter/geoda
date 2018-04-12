@@ -150,7 +150,9 @@ std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, w
 wxString TableInterface::GetUniqueGroupName(wxString grp_nm) const
 {
 	const int MAX_TRIES = 100000;
-	if (grp_nm.IsEmpty()) grp_nm = "Group";
+    if (grp_nm.IsEmpty()) {
+        grp_nm = "Group";
+    }
 	wxString u(grp_nm);
 	for (int i=0; i<MAX_TRIES; ++i) {
 		if (!DoesNameExist(u, cols_case_sensitive)) return u;
@@ -169,7 +171,9 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
         return ret;
 	
 	const int MAX_TRIES = 100000;
-	if (col_nm.IsEmpty()) col_nm = "VAR";
+    if (col_nm.IsEmpty()) {
+        col_nm = "VAR";
+    }
 	if (col_nm.length() > cols_max_length) {
 		col_nm = col_nm.substr(0, cols_max_length);
 	}

@@ -27,7 +27,7 @@
 #include <wx/filename.h>
 #include <wx/string.h>
 #include <wx/stopwatch.h>
-#include "ShpFile.h"
+
 #include "PointSetAlgs.h"
 #include "GenGeomAlgs.h"
 #include "SpatialIndAlgs.h"
@@ -37,71 +37,7 @@
 
 using namespace std;
 
-void SpatialIndAlgs::get_centroids(std::vector<pt_2d>& centroids,
-                                   const Shapefile::Main& main_data)
-{
-	size_t num_obs = main_data.records.size();
-	if (centroids.size() != num_obs) centroids.resize(num_obs);
-	if (main_data.header.shape_type == Shapefile::POINT_TYP) {
-		Shapefile::PointContents* pc;
-		for (size_t i=0; i<num_obs; ++i) {
-			pc = (Shapefile::PointContents*) main_data.records[i].contents_p;
-			if (pc->shape_type == 0) {
-				centroids[i] = pt_2d(0, 0);
-			} else {
-				centroids[i] = pt_2d(pc->x, pc->y);
-			}
-		}
-	} else if (main_data.header.shape_type == Shapefile::POLYGON) {
-		Shapefile::PolygonContents* pc;
-		for (size_t i=0; i<num_obs; ++i) {
-			pc = (Shapefile::PolygonContents*) main_data.records[i].contents_p;
-			GdaPolygon poly(pc);
-			if (poly.isNull()) {
-				centroids[i] = pt_2d(0, 0);
-			} else {
-				wxRealPoint rp(GdaShapeAlgs::calculateCentroid(&poly));
-				centroids[i] = pt_2d(rp.x, rp.y);
-			}
-		}
-	}
-}
 
-void SpatialIndAlgs::get_centroids(std::vector<pt_lonlat>& centroids,
-                                   const Shapefile::Main& main_data)
-{
-	// Note: Boost Geometry Spherical Equatorial system uses
-	// points in order longitude, latitude as does Shapefiles. This
-	// is so that arc points can be plotted as-is on an x/y plane,
-	// although doing this results in some distortion.
-	size_t num_obs = main_data.records.size();
-	if (centroids.size() != num_obs)
-        centroids.resize(num_obs);
-    
-	if (main_data.header.shape_type == Shapefile::POINT_TYP) {
-		Shapefile::PointContents* pc;
-		for (size_t i=0; i<num_obs; ++i) {
-			pc = (Shapefile::PointContents*) main_data.records[i].contents_p;
-			if (pc->shape_type == 0) {
-				centroids[i] = pt_lonlat(0, 0);
-			} else {
-				centroids[i] = pt_lonlat(pc->x, pc->y);
-			}
-		}
-	} else if (main_data.header.shape_type == Shapefile::POLYGON) {
-		Shapefile::PolygonContents* pc;
-		for (size_t i=0; i<num_obs; ++i) {
-			pc = (Shapefile::PolygonContents*) main_data.records[i].contents_p;
-			GdaPolygon poly(pc);
-			if (poly.isNull()) {
-				centroids[i] = pt_lonlat(0, 0);
-			} else {
-				wxRealPoint rp(GdaShapeAlgs::calculateCentroid(&poly));
-				centroids[i] = pt_lonlat(rp.x, rp.y);
-			}
-		}
-	}
-}
 
 void SpatialIndAlgs::to_3d_centroids(const vector<pt_2d>& pt2d,
                                      vector<pt_3d>& pt3d)
@@ -127,49 +63,8 @@ void SpatialIndAlgs::to_3d_centroids(const vector<pt_lonlat>& ptll,
 	}
 }
 
-void SpatialIndAlgs::get_shp_bb(Shapefile::PolygonContents* p,
-                                double& xmin, double& ymin,
-                                double& xmax, double& ymax)
-{
-	if (!p || p->num_points <= 0) {
-		xmin = 0; ymin = 0; xmax = 0; ymax = 0;
-		return;
-	}
-    
-	xmin = p->points[0].x;
-	ymin = p->points[0].y;
-	xmax = p->points[0].x;
-	ymax = p->points[0].y;
-    
-	for (int i=0; i<p->num_points; ++i) {
-		if (p->points[i].x < xmin) {
-			xmin = p->points[i].x;
-		} else if (p->points[i].x > xmax) {
-			xmax = p->points[i].x;
-		}
-		if (p->points[i].y < ymin) {
-			ymin = p->points[i].y;
-		} else if (p->points[i].y > ymax) {
-			ymax = p->points[i].y;
-		}
-	}
-}
 
-bool comp_polys(Shapefile::PolygonContents* p1,
-                Shapefile::PolygonContents* p2,
-				bool rook, double prec)
-{
-	if (!p1 || !p2)
-        return false;
-    
-	for (int i=0; i<p1->num_points; ++i) {
-		for (int j=0; j<p1->num_points; ++j) {
-			if (p1->points[i] == p2->points[j])
-                return true;
-		}
-	}
-	return false;
-}
+
 
 void SpatialIndAlgs::default_test()
 {
@@ -1154,22 +1049,6 @@ bool SpatialIndAlgs::write_gwt(const GwtWeight* W,
         }
     }
     return true;
-}
-
-void SpatialIndAlgs::fill_box_rtree(rtree_box_2d_t& rtree,
-									const Shapefile::Main& main_data)
-{
-	wxStopWatch sw;
-	namespace sf = Shapefile;
-	size_t obs = main_data.records.size();
-	sf::PolygonContents* p;
-	for (size_t i=0; i<obs; ++i) {
-		p = (sf::PolygonContents*) main_data.records[i].contents_p;
-		double xmin, ymin, xmax, ymax;
-		get_shp_bb(p, xmin, ymin, xmax, ymax);
-		box_2d b(pt_2d(xmin, ymin), pt_2d(xmax, ymax));
-		rtree.insert(std::make_pair(b, i));
-	}
 }
 
 void SpatialIndAlgs::fill_pt_rtree(rtree_pt_2d_t& rtree,

@@ -56,7 +56,7 @@ public:
 	static bool GetColorFromUser(wxWindow* parent,
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
-								 const wxString& title = "Choose A Color");
+								 const wxString& title = _("Choose A Color"));
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     virtual void OnChangeMapTransparency();

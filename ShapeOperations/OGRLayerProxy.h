@@ -28,7 +28,6 @@
 
 // This is for Shapfile/DBF direct operation
 #include "../DataViewer/TableInterface.h"
-#include "../ShpFile.h"
 #include "../GdaShape.h"
 #include "../GdaException.h"
 #include "OGRFieldProxy.h"

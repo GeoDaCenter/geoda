@@ -49,7 +49,7 @@ class WeightsManFrame : public TemplateFrame, public WeightsManStateObserver
 {
 public:
     WeightsManFrame(wxFrame *parent, Project* project,
-					const wxString& title = "Weights Manager",
+					const wxString& title = _("Weights Manager"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::weights_man_dlg_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);

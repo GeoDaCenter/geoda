@@ -75,6 +75,7 @@
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
 		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
+		A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A6AD7A207F198E00D29677 /* ShpFile.cpp */; };
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
 		A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B1F992207730FA00905246 /* matlab_mat.cpp */; };
 		A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */; };
@@ -186,7 +187,6 @@
 		DD92851F17F5FD4500B9481A /* VarOrderMapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD92851D17F5FD4500B9481A /* VarOrderMapper.cpp */; };
 		DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD92853B17F5FE2E00B9481A /* VarGroup.cpp */; };
 		DD92D22417BAAF2300F8FE01 /* TimeEditorDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD92D22317BAAF2300F8FE01 /* TimeEditorDlg.cpp */; };
-		DD9373B61AC1F99D0066AF21 /* SimplePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD9373B41AC1F99D0066AF21 /* SimplePoint.cpp */; };
 		DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD9373F51AC1FEAA0066AF21 /* PolysToContigWeights.cpp */; };
 		DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DD9C1B351910267900C0A427 /* GdaConst.cpp */; };
 		DDA462FF164D785500EBBD8F /* TableState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDA462FC164D785500EBBD8F /* TableState.cpp */; };
@@ -210,9 +210,6 @@
 		DDC9DD9C15937C0200A0E5BA /* ImportCsvDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDC9DD9A15937C0200A0E5BA /* ImportCsvDlg.cpp */; };
 		DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDCCB5CA1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp */; };
 		DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD13F050F2F8BE1009F7F13 /* GenGeomAlgs.cpp */; };
-		DDD13F930F2FD641009F7F13 /* BasePoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD13F920F2FD641009F7F13 /* BasePoint.cpp */; };
-		DDD13FAB0F30B2E4009F7F13 /* Box.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD13FAA0F30B2E4009F7F13 /* Box.cpp */; };
-		DDD140540F310324009F7F13 /* AbstractShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD140530F310324009F7F13 /* AbstractShape.cpp */; };
 		DDD2392D1AB86D8F00E4E1BF /* NumericTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD2392B1AB86D8F00E4E1BF /* NumericTests.cpp */; };
 		DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD593AB12E9F34C00F7A7C4 /* GeodaWeight.cpp */; };
 		DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDD593AF12E9F42100F7A7C4 /* WeightsManager.cpp */; };
@@ -223,7 +220,6 @@
 		DDDBF2AE163AD3AB0070610C /* ConditionalHistogramView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDDBF2AC163AD3AB0070610C /* ConditionalHistogramView.cpp */; };
 		DDE3F5081677C46500D13A2C /* CatClassification.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDE3F5061677C46500D13A2C /* CatClassification.cpp */; };
 		DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDE4DFD41A963B07005B9158 /* GdaShape.cpp */; };
-		DDE4DFE91A96411A005B9158 /* ShpFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDE4DFE71A96411A005B9158 /* ShpFile.cpp */; };
 		DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDEA3CB7193CEE5C0028B746 /* GdaFlexValue.cpp */; };
 		DDEA3CBE193CEE5C0028B746 /* GdaLexer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDEA3CB9193CEE5C0028B746 /* GdaLexer.cpp */; };
 		DDEA3CBF193CEE5C0028B746 /* GdaParser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = DDEA3CBB193CEE5C0028B746 /* GdaParser.cpp */; };
@@ -383,6 +379,8 @@
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
 		A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
 		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
+		A4A6AD79207F198D00D29677 /* ShpFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShpFile.h; sourceTree = "<group>"; };
+		A4A6AD7A207F198E00D29677 /* ShpFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShpFile.cpp; sourceTree = "<group>"; };
 		A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColocationMapView.cpp; sourceTree = "<group>"; };
 		A4A763F31F69FB3B00EE79DD /* ColocationMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ColocationMapView.h; sourceTree = "<group>"; };
 		A4B1F992207730FA00905246 /* matlab_mat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matlab_mat.cpp; path = io/matlab_mat.cpp; sourceTree = "<group>"; };
@@ -621,8 +619,6 @@
 		DD92853C17F5FE2E00B9481A /* VarGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VarGroup.h; path = DataViewer/VarGroup.h; sourceTree = "<group>"; };
 		DD92D22217BAAF2300F8FE01 /* TimeEditorDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimeEditorDlg.h; sourceTree = "<group>"; };
 		DD92D22317BAAF2300F8FE01 /* TimeEditorDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TimeEditorDlg.cpp; sourceTree = "<group>"; };
-		DD9373B41AC1F99D0066AF21 /* SimplePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SimplePoint.cpp; sourceTree = "<group>"; };
-		DD9373B51AC1F99D0066AF21 /* SimplePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimplePoint.h; sourceTree = "<group>"; };
 		DD9373F51AC1FEAA0066AF21 /* PolysToContigWeights.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PolysToContigWeights.cpp; sourceTree = "<group>"; };
 		DD9373F61AC1FEAA0066AF21 /* PolysToContigWeights.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PolysToContigWeights.h; sourceTree = "<group>"; };
 		DD93748F1AC2086B0066AF21 /* Link.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Link.h; sourceTree = "<group>"; };
@@ -677,12 +673,6 @@
 		DDCCB5CB1AD47C200067D6C4 /* SimpleBinsHistCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SimpleBinsHistCanvas.h; sourceTree = "<group>"; };
 		DDD13F040F2F8BE1009F7F13 /* GenGeomAlgs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenGeomAlgs.h; sourceTree = "<group>"; };
 		DDD13F050F2F8BE1009F7F13 /* GenGeomAlgs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenGeomAlgs.cpp; sourceTree = "<group>"; };
-		DDD13F910F2FD641009F7F13 /* BasePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasePoint.h; sourceTree = "<group>"; };
-		DDD13F920F2FD641009F7F13 /* BasePoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasePoint.cpp; sourceTree = "<group>"; };
-		DDD13FA90F30B2E4009F7F13 /* Box.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Box.h; sourceTree = "<group>"; };
-		DDD13FAA0F30B2E4009F7F13 /* Box.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Box.cpp; sourceTree = "<group>"; };
-		DDD140520F310324009F7F13 /* AbstractShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractShape.h; sourceTree = "<group>"; };
-		DDD140530F310324009F7F13 /* AbstractShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractShape.cpp; sourceTree = "<group>"; };
 		DDD2392B1AB86D8F00E4E1BF /* NumericTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = NumericTests.cpp; path = VarCalc/NumericTests.cpp; sourceTree = "<group>"; };
 		DDD2392C1AB86D8F00E4E1BF /* NumericTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NumericTests.h; path = VarCalc/NumericTests.h; sourceTree = "<group>"; };
 		DDD593AA12E9F34C00F7A7C4 /* GeodaWeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeodaWeight.h; sourceTree = "<group>"; };
@@ -704,8 +694,6 @@
 		DDE3F5071677C46500D13A2C /* CatClassification.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatClassification.h; sourceTree = "<group>"; };
 		DDE4DFD41A963B07005B9158 /* GdaShape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaShape.cpp; sourceTree = "<group>"; };
 		DDE4DFD51A963B07005B9158 /* GdaShape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaShape.h; sourceTree = "<group>"; };
-		DDE4DFE71A96411A005B9158 /* ShpFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShpFile.cpp; sourceTree = "<group>"; };
-		DDE4DFE81A96411A005B9158 /* ShpFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShpFile.h; sourceTree = "<group>"; };
 		DDEA3CB7193CEE5C0028B746 /* GdaFlexValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GdaFlexValue.cpp; path = VarCalc/GdaFlexValue.cpp; sourceTree = "<group>"; };
 		DDEA3CB8193CEE5C0028B746 /* GdaFlexValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GdaFlexValue.h; path = VarCalc/GdaFlexValue.h; sourceTree = "<group>"; };
 		DDEA3CB9193CEE5C0028B746 /* GdaLexer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GdaLexer.cpp; path = VarCalc/GdaLexer.cpp; sourceTree = "<group>"; };
@@ -915,6 +903,8 @@
 				A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */,
 				DD64A2870F20FE06006B1E6D /* GeneralWxUtils.h */,
 				DD64A2860F20FE06006B1E6D /* GeneralWxUtils.cpp */,
+				A4A6AD7A207F198E00D29677 /* ShpFile.cpp */,
+				A4A6AD79207F198D00D29677 /* ShpFile.h */,
 				DD64925B16DFF63400B3B0AB /* GeoDa.h */,
 				DD64925A16DFF63400B3B0AB /* GeoDa.cpp */,
 				DDD13F040F2F8BE1009F7F13 /* GenGeomAlgs.h */,
@@ -930,8 +920,6 @@
 				DD64A5540F291027006B1E6D /* logger.h */,
 				DD64A5570F2910D2006B1E6D /* logger.cpp */,
 				DD64A5760F2911A4006B1E6D /* nullstream.h */,
-				DDE4DFE71A96411A005B9158 /* ShpFile.cpp */,
-				DDE4DFE81A96411A005B9158 /* ShpFile.h */,
 				DD72C1971AAE95480000420B /* SpatialIndAlgs.cpp */,
 				DD72C1981AAE95480000420B /* SpatialIndAlgs.h */,
 				DD72C1991AAE95480000420B /* SpatialIndTypes.h */,
@@ -1272,12 +1260,6 @@
 		DD7976E10F1D2D3100496A84 /* ShapeOperations */ = {
 			isa = PBXGroup;
 			children = (
-				DDD140520F310324009F7F13 /* AbstractShape.h */,
-				DDD140530F310324009F7F13 /* AbstractShape.cpp */,
-				DDD13F910F2FD641009F7F13 /* BasePoint.h */,
-				DDD13F920F2FD641009F7F13 /* BasePoint.cpp */,
-				DDD13FA90F30B2E4009F7F13 /* Box.h */,
-				DDD13FAA0F30B2E4009F7F13 /* Box.cpp */,
 				DDC9DD8815937B2F00A0E5BA /* CsvFileUtils.cpp */,
 				DDC9DD8915937B2F00A0E5BA /* CsvFileUtils.h */,
 				DD579B68160BDAFE00BF8D53 /* DorlingCartogram.cpp */,
@@ -1306,8 +1288,6 @@
 				DD694684130307C00072386B /* RateSmoothing.cpp */,
 				DD9373F51AC1FEAA0066AF21 /* PolysToContigWeights.cpp */,
 				DD9373F61AC1FEAA0066AF21 /* PolysToContigWeights.h */,
-				DD9373B41AC1F99D0066AF21 /* SimplePoint.cpp */,
-				DD9373B51AC1F99D0066AF21 /* SimplePoint.h */,
 				DD307DB719F0483B001E5E89 /* SmoothingUtils.cpp */,
 				DD307DB819F0483B001E5E89 /* SmoothingUtils.h */,
 				DDD593AE12E9F42100F7A7C4 /* WeightsManager.h */,
@@ -1521,9 +1501,6 @@
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				A42018031FB3C0AC0029709C /* skater.cpp in Sources */,
 				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
-				DDD13F930F2FD641009F7F13 /* BasePoint.cpp in Sources */,
-				DDD13FAB0F30B2E4009F7F13 /* Box.cpp in Sources */,
-				DDD140540F310324009F7F13 /* AbstractShape.cpp in Sources */,
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
 				DDB0E42C10B34DBB00F96D57 /* AddIdVariable.cpp in Sources */,
@@ -1648,6 +1625,7 @@
 				A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */,
 				DD2AE42A19D4F4CA00B23FB9 /* GdaJson.cpp in Sources */,
 				A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */,
+				A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */,
 				DD30798E19ED80E0001E5E89 /* Lowess.cpp in Sources */,
 				DD3079C719ED9F61001E5E89 /* LowessParamObservable.cpp in Sources */,
 				DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */,
@@ -1667,7 +1645,6 @@
 				DD88CF0B1A4254D000803196 /* CovSpHLStateProxy.cpp in Sources */,
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
 				DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */,
-				DDE4DFE91A96411A005B9158 /* ShpFile.cpp in Sources */,
 				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
 				A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */,
@@ -1682,7 +1659,6 @@
 				DDFFC7CD1AC0E58B00F7DD6D /* CorrelParamsObservable.cpp in Sources */,
 				DDFFC7D51AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp in Sources */,
 				DDFFC7F21AC1C7CF00F7DD6D /* HighlightState.cpp in Sources */,
-				DD9373B61AC1F99D0066AF21 /* SimplePoint.cpp in Sources */,
 				DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */,
 				DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */,
 				A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */,
