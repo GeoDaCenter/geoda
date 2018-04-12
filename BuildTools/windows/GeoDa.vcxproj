@@ -312,8 +312,6 @@
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
     <ClCompile Include="..\..\Algorithms\skater.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
-    <ClCompile Include="..\..\DataViewer\DataChangeType.cpp" />
-    <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\DialogTools\AbstractClusterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AggregateDlg.cpp" />
@@ -370,12 +368,12 @@
     <ClCompile Include="..\..\GdaShape.cpp" />
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\io\arcgis_swm.cpp" />
+    <ClCompile Include="..\..\io\MatfileReader.cpp" />
     <ClCompile Include="..\..\io\matlab_mat.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\SimplePoint.cpp" />
     <ClCompile Include="..\..\ShapeOperations\SmoothingUtils.cpp" />
     <ClCompile Include="..\..\ShapeOperations\WeightsManState.cpp" />
     <ClCompile Include="..\..\ShapeOperations\WeightUtils.cpp" />
@@ -399,9 +397,7 @@
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
-    <ClInclude Include="..\..\DataViewer\DataChangeType.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />
-    <ClInclude Include="..\..\DataViewer\DbfTable.h" />
     <ClInclude Include="..\..\DataViewer\OGRColumn.h" />
     <ClInclude Include="..\..\DataViewer\OGRTable.h" />
     <ClInclude Include="..\..\DataViewer\OGRTableOperation.h" />
@@ -411,7 +407,6 @@
     <ClInclude Include="..\..\DataViewer\VarGroup.h" />
     <ClInclude Include="..\..\DataViewer\VarOrderPtree.h" />
     <ClInclude Include="..\..\DataViewer\VarOrderMapper.h" />
-    <ClInclude Include="..\..\DbfFile.h" />
     <ClInclude Include="..\..\DefaultVarsPtree.h" />
     <ClInclude Include="..\..\DialogTools\AbstractClusterDlg.h" />
     <ClInclude Include="..\..\DialogTools\AdjustYAxisDlg.h" />
@@ -489,7 +484,9 @@
     <ClInclude Include="..\..\HighlightStateObserver.h" />
     <ClInclude Include="..\..\HLStateInt.h" />
     <ClInclude Include="..\..\io\arcgis_swm.h" />
+    <ClInclude Include="..\..\io\MatfileReader.h" />
     <ClInclude Include="..\..\io\matlab_mat.h" />
+    <ClInclude Include="..\..\io\weights_interface.h" />
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
@@ -497,11 +494,7 @@
     <ClInclude Include="..\..\ProjectConf.h" />
     <ClInclude Include="..\..\resource.h" />
     <ClInclude Include="..\..\SaveButtonManager.h" />
-    <ClInclude Include="..\..\ShapeOperations\AbstractShape.h" />
-    <ClInclude Include="..\..\ShapeOperations\BasePoint.h" />
-    <ClInclude Include="..\..\ShapeOperations\Box.h" />
     <ClInclude Include="..\..\ShapeOperations\CsvFileUtils.h" />
-    <ClInclude Include="..\..\ShapeOperations\DBF.h" />
     <ClInclude Include="..\..\ShapeOperations\DorlingCartogram.h" />
     <ClInclude Include="..\..\shapeoperations\GalWeight.h" />
     <ClInclude Include="..\..\ShapeOperations\GdaCache.h" />
@@ -514,12 +507,6 @@
     <ClInclude Include="..\..\ShapeOperations\PolysToContigWeights.h" />
     <ClInclude Include="..\..\shapeoperations\Randik.h" />
     <ClInclude Include="..\..\shapeoperations\RateSmoothing.h" />
-    <ClInclude Include="..\..\ShapeOperations\ShapeFile.h" />
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileHdr.h" />
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileTriplet.h" />
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileType.h" />
-    <ClInclude Include="..\..\ShapeOperations\ShapeUtils.h" />
-    <ClInclude Include="..\..\ShapeOperations\SimplePoint.h" />
     <ClInclude Include="..\..\ShapeOperations\SmoothingUtils.h" />
     <ClInclude Include="..\..\ShapeOperations\VoronoiUtils.h" />
     <ClInclude Include="..\..\shapeoperations\WeightsManager.h" />
@@ -544,7 +531,6 @@
     <ClInclude Include="..\..\regression\Weights.h" />
     <ClInclude Include="..\..\dialogtools\3DControlPan.h" />
     <ClInclude Include="..\..\dialogtools\AddIdVariable.h" />
-    <ClInclude Include="..\..\dialogtools\ASC2SHPDlg.h" />
     <ClInclude Include="..\..\dialogtools\Bnd2ShpDlg.h" />
     <ClInclude Include="..\..\DialogTools\CatClassifDlg.h" />
     <ClInclude Include="..\..\dialogtools\CreateGridDlg.h" />
@@ -569,12 +555,10 @@
     <ClInclude Include="..\..\dialogtools\RegressionReportDlg.h" />
     <ClInclude Include="..\..\dialogtools\SaveSelectionDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveToTableDlg.h" />
-    <ClInclude Include="..\..\dialogtools\SHP2ASCDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeChooserDlg.h" />
     <ClInclude Include="..\..\dialogtools\VariableSettingsDlg.h" />
     <ClCompile Include="..\..\DataViewer\CustomClassifPtree.cpp" />
     <ClCompile Include="..\..\DataViewer\DataSource.cpp" />
-    <ClCompile Include="..\..\DataViewer\DbfTable.cpp" />
     <ClCompile Include="..\..\DataViewer\OGRColumn.cpp" />
     <ClCompile Include="..\..\DataViewer\OGRTable.cpp" />
     <ClCompile Include="..\..\DataViewer\OGRTableOperation.cpp" />
@@ -615,7 +599,6 @@
     <ClInclude Include="..\..\DataViewer\DataViewerDeleteColDlg.h" />
     <ClInclude Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.h" />
     <ClInclude Include="..\..\DataViewer\DataViewerResizeColDlg.h" />
-    <ClInclude Include="..\..\DataViewer\DbfColContainer.h" />
     <ClInclude Include="..\..\DataViewer\MergeTableDlg.h" />
     <ClInclude Include="..\..\DataViewer\TableState.h" />
     <ClInclude Include="..\..\DataViewer\TableStateObserver.h" />
@@ -666,18 +649,7 @@
     <ClCompile Include="..\..\ProjectConf.cpp" />
     <ClCompile Include="..\..\rc\GdaAppResources.cpp" />
     <ClCompile Include="..\..\SaveButtonManager.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\AbstractShape.cpp">
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug2017|Win32'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\BasePoint.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\Box.cpp" />
     <ClCompile Include="..\..\ShapeOperations\CsvFileUtils.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\DBF.cpp" />
     <ClCompile Include="..\..\ShapeOperations\DorlingCartogram.cpp" />
     <ClCompile Include="..\..\shapeoperations\GalWeight.cpp" />
     <ClCompile Include="..\..\ShapeOperations\GdaCache.cpp" />
@@ -688,10 +660,6 @@
     <ClCompile Include="..\..\ShapeOperations\OGRLayerProxy.cpp" />
     <ClCompile Include="..\..\shapeoperations\Randik.cpp" />
     <ClCompile Include="..\..\shapeoperations\RateSmoothing.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\ShapeFile.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileHdr.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileTriplet.cpp" />
-    <ClCompile Include="..\..\ShapeOperations\ShapeUtils.cpp" />
     <ClCompile Include="..\..\ShapeOperations\VoronoiUtils.cpp" />
     <ClCompile Include="..\..\shapeoperations\WeightsManager.cpp" />
     <ClCompile Include="..\..\shapeoperations\OGRDataAdapter.cpp" />
@@ -710,7 +678,6 @@
     <ClCompile Include="..\..\dialogtools\ConnectDatasourceDlg.cpp" />
     <ClCompile Include="..\..\dialogtools\3DControlPan.cpp" />
     <ClCompile Include="..\..\dialogtools\AddIdVariable.cpp" />
-    <ClCompile Include="..\..\dialogtools\ASC2SHPDlg.cpp" />
     <ClCompile Include="..\..\dialogtools\Bnd2ShpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CatClassifDlg.cpp" />
     <ClCompile Include="..\..\dialogtools\CreateGridDlg.cpp" />
@@ -735,7 +702,6 @@
     <ClCompile Include="..\..\dialogtools\RegressionReportDlg.cpp" />
     <ClCompile Include="..\..\dialogtools\SaveSelectionDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SaveToTableDlg.cpp" />
-    <ClCompile Include="..\..\dialogtools\SHP2ASCDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\TimeChooserDlg.cpp" />
     <ClCompile Include="..\..\dialogtools\VariableSettingsDlg.cpp" />
     <ClCompile Include="..\..\explore\3DPlotView.cpp" />
@@ -764,7 +730,6 @@
     <ClCompile Include="..\..\DataViewer\DataViewerDeleteColDlg.cpp" />
     <ClCompile Include="..\..\DataViewer\DataViewerEditFieldPropertiesDlg.cpp" />
     <ClCompile Include="..\..\DataViewer\DataViewerResizeColDlg.cpp" />
-    <ClCompile Include="..\..\DataViewer\DbfColContainer.cpp" />
     <ClCompile Include="..\..\DataViewer\MergeTableDlg.cpp" />
     <ClCompile Include="..\..\DataViewer\TableState.cpp" />
     <ClCompile Include="..\..\DataViewer\TimeState.cpp" />

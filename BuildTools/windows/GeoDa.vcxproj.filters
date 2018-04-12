@@ -63,19 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\resource.h" />
-    <ClInclude Include="..\..\ShapeOperations\AbstractShape.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\BasePoint.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\Box.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\CsvFileUtils.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\DBF.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\DorlingCartogram.h">
@@ -94,21 +82,6 @@
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\shapeoperations\RateSmoothing.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFile.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileHdr.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileTriplet.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileType.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeUtils.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\VoronoiUtils.h">
@@ -178,9 +151,6 @@
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dialogtools\AddIdVariable.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dialogtools\ASC2SHPDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dialogtools\Bnd2ShpDlg.h">
@@ -253,9 +223,6 @@
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\SaveToTableDlg.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dialogtools\SHP2ASCDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\TimeChooserDlg.h">
@@ -368,16 +335,10 @@
     <ClInclude Include="..\..\TemplateCanvas.h" />
     <ClInclude Include="..\..\TemplateFrame.h" />
     <ClInclude Include="..\..\TemplateLegend.h" />
-    <ClInclude Include="..\..\DataViewer\DbfColContainer.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\DataViewer\TimeState.h">
       <Filter>DataViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\TimeStateObserver.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DataViewer\DbfTable.h">
       <Filter>DataViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\OGRTable.h">
@@ -507,9 +468,6 @@
     <ClInclude Include="..\..\Explore\WebViewExampleWin.h">
       <Filter>Explore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DataViewer\DataChangeType.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\GdaJson.h" />
     <ClInclude Include="..\..\ShapeOperations\Lowess.h">
       <Filter>ShapeOperations</Filter>
@@ -572,7 +530,6 @@
     <ClInclude Include="..\..\libgdiam\gdiam.hpp">
       <Filter>libgdiam</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DbfFile.h" />
     <ClInclude Include="..\..\ShpFile.h" />
     <ClInclude Include="..\..\SpatialIndAlgs.h" />
     <ClInclude Include="..\..\SpatialIndTypes.h" />
@@ -599,9 +556,6 @@
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
     <ClInclude Include="..\..\ShapeOperations\PolysToContigWeights.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\SimplePoint.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Explore\SimpleBinsHistCanvas.h">
@@ -738,24 +692,18 @@
     <ClInclude Include="..\..\io\matlab_mat.h">
       <Filter>io</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\io\weights_interface.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\MatfileReader.h">
+      <Filter>io</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
       <Filter>rc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\AbstractShape.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\BasePoint.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\Box.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\CsvFileUtils.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\DBF.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\DorlingCartogram.cpp">
@@ -774,18 +722,6 @@
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\shapeoperations\RateSmoothing.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFile.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileHdr.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileTriplet.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeUtils.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\VoronoiUtils.cpp">
@@ -837,9 +773,6 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\AddIdVariable.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dialogtools\ASC2SHPDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\Bnd2ShpDlg.cpp">
@@ -912,9 +845,6 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\SaveToTableDlg.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dialogtools\SHP2ASCDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\TimeChooserDlg.cpp">
@@ -1017,17 +947,11 @@
     <ClCompile Include="..\..\TemplateCanvas.cpp" />
     <ClCompile Include="..\..\TemplateFrame.cpp" />
     <ClCompile Include="..\..\TemplateLegend.cpp" />
-    <ClCompile Include="..\..\DataViewer\DbfColContainer.cpp">
-      <Filter>DataViewer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\DataViewer\TimeState.cpp">
       <Filter>DataViewer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\ConnectDatasourceDlg.cpp">
       <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\DataViewer\DbfTable.cpp">
-      <Filter>DataViewer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DataViewer\OGRTable.cpp">
       <Filter>DataViewer</Filter>
@@ -1145,9 +1069,6 @@
     <ClCompile Include="..\..\Explore\WebViewExampleWin.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DataViewer\DataChangeType.cpp">
-      <Filter>DataViewer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\GdaJson.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp">
       <Filter>ShapeOperations</Filter>
@@ -1204,7 +1125,6 @@
     <ClCompile Include="..\..\libgdiam\gdiam.cpp">
       <Filter>libgdiam</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\ShpFile.cpp" />
     <ClCompile Include="..\..\SpatialIndAlgs.cpp" />
     <ClCompile Include="..\..\GdaShape.cpp" />
@@ -1223,9 +1143,6 @@
     </ClCompile>
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\SimplePoint.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\SimpleBinsHistCanvas.cpp">
@@ -1347,6 +1264,9 @@
       <Filter>io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\io\matlab_mat.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\MatfileReader.cpp">
       <Filter>io</Filter>
     </ClCompile>
   </ItemGroup>
