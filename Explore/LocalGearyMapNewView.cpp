@@ -76,10 +76,10 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
     str_positive = _("Positive");
     str_undefined = _("Undefined");
     str_neighborless = _("Neighborless");
-    str_p005 = _("p = 0.05");
-    str_p001 = _("p = 0.01");
-    str_p0001 = _("p = 0.001");
-    str_p00001 = _("p = 0.00001");
+    str_p005 = "p = 0.05";
+    str_p001 = "p = 0.01";
+    str_p0001 = "p = 0.001";
+    str_p00001 = "p = 0.00001";
     
     SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_highhigh, wxColour(178,24,43));

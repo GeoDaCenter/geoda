@@ -113,7 +113,7 @@ void MaxpDlg::CreateControls()
     
 	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# Iterations:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("99"), wxDefaultPosition, wxSize(200,-1));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "99", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
     
@@ -124,12 +124,12 @@ void MaxpDlg::CreateControls()
     m_localsearch->SetSelection(0);
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
     hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:"), wxDefaultPosition, wxSize(108,-1)));
-    m_tabulength = new wxTextCtrl(panel, wxID_ANY, wxT("85"));
+    m_tabulength = new wxTextCtrl(panel, wxID_ANY, "85");
     hbox19_1->Add(m_tabulength);
     m_tabulength->Disable();
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
     hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:"), wxDefaultPosition, wxSize(108,-1)));
-    m_coolrate= new wxTextCtrl(panel, wxID_ANY, wxT("0.85"));
+    m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
     hbox19_2->Add(m_coolrate);
     m_coolrate->Disable();
     wxBoxSizer *vbox19 = new wxBoxSizer(wxVERTICAL);

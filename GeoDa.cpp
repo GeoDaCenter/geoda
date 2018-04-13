@@ -496,7 +496,7 @@ const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
 void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
 {
 	parser.SetDesc (GdaApp::globalCmdLineDesc);
-    parser.SetSwitchChars (wxT("-"));
+    parser.SetSwitchChars ("-");
 }
 
 bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)

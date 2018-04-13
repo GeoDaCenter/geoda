@@ -102,20 +102,20 @@ void DiffMoranVarSettingDlg::CreateControls()
     wxStaticText  *st = new wxStaticText (panel, wxID_ANY, _("Select variable "),
                                           wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxComboBox* box = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                      var_size, 0, NULL, wxCB_READONLY);
     
     wxStaticText  *st1 = new wxStaticText (panel, wxID_ANY,
                                            _(" and two time periods: "),
                                            wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxComboBox* box1 = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                       time_size, 0, NULL, wxCB_READONLY);
     
     wxStaticText  *st2 = new wxStaticText (panel, wxID_ANY, _(" and "),
                                            wxDefaultPosition, wxDefaultSize);
     
-    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxComboBox* box2 = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                       time_size, 0, NULL, wxCB_READONLY);
     
     hbox->Add(st, 1, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);

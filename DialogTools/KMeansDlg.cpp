@@ -119,7 +119,7 @@ void KClusterDlg::CreateControls()
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY,
                                           _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_pass = new wxTextCtrl(panel, wxID_ANY, wxT("150"), wxDefaultPosition, wxSize(200,-1));
+    m_pass = new wxTextCtrl(panel, wxID_ANY, "150", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_pass, 1, wxEXPAND);
     
@@ -144,7 +144,7 @@ void KClusterDlg::CreateControls()
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
                                           _("Maximal Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
-    m_iterations = new wxTextCtrl(panel, wxID_ANY, wxT("1000"), wxDefaultPosition, wxSize(200,-1));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
     

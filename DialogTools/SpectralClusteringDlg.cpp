@@ -118,7 +118,7 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
-    m_knn = new wxTextCtrl(panel, wxID_ANY, wxT("4"), wxDefaultPosition, wxSize(40,-1));
+    m_knn = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(40,-1));
     hbox19->Add(chk_knn);
     hbox19->Add(lbl_neighbors);
     hbox19->Add(m_knn);
@@ -178,7 +178,7 @@ void SpectralClusteringDlg::CreateControls()
     
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("(K-Means)"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, _(""),
+    wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, "",
                                           wxDefaultPosition, wxSize(0,-1));
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(st21, 1, wxEXPAND);
@@ -194,7 +194,7 @@ void SpectralClusteringDlg::CreateControls()
 
     
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"), wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("150"), wxDefaultPosition, wxSize(160,-1));
+    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, "150", wxDefaultPosition, wxSize(160,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
     
@@ -216,7 +216,7 @@ void SpectralClusteringDlg::CreateControls()
     }
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("300"));
+    wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, "300");
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
    

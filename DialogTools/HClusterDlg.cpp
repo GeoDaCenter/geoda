@@ -160,7 +160,7 @@ void HClusterDlg::CreateControls()
     max_n_clusters = num_obs < 60 ? num_obs : 60;
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
-    wxString valid_chars(wxT("0123456789"));
+    wxString valid_chars("0123456789");
     size_t len = valid_chars.Length();
     for (size_t i=0; i<len; i++)
         list.Add(wxString(valid_chars.GetChar(i)));

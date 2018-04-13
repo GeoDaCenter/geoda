@@ -458,7 +458,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 	//	filter << "BMP|*.bmp|PNG|*.png";
 	//	filter_index = 1;
 	//
-    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
+    wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
 						default_fname, filter,
 						wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 	dialog.SetFilterIndex(filter_index);

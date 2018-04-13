@@ -362,12 +362,12 @@ void OGRColumnInteger::FillData(vector<wxString> &data)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format(wxT("%")  wxT(wxLongLongFmtSpec)  wxT("d"), new_data[i]);
+            data[i] = wxString::Format("%"  wxT(wxLongLongFmtSpec)  "d", new_data[i]);
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"),
+            data[i] = wxString::Format("%" wxT(wxLongLongFmtSpec) "d",
                 ogr_layer->data[i]->GetFieldAsInteger64(col_idx));
         }
     }

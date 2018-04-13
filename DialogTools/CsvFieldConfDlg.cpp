@@ -122,9 +122,9 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     // lat/lon
     wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) Longitude/X:"));
     wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("Latitude/Y:"));
-    lat_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    lat_box = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                      wxSize(80,-1), 0, NULL, wxCB_READONLY);
-    lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    lng_box = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                      wxSize(80,-1), 0, NULL, wxCB_READONLY);
     wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
     latlng_box->Add(lat_lbl, 0, wxALIGN_CENTER_VERTICAL);
@@ -137,7 +137,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     // first row
     wxStaticText* header_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) First record has field names? "));
-    wxComboBox* header_cmb = new wxComboBox(panel, wxID_ANY, _(""),
+    wxComboBox* header_cmb = new wxComboBox(panel, wxID_ANY, "",
                                             wxDefaultPosition,
                                             wxDefaultSize, 0, NULL, wxCB_READONLY);
     header_cmb->Append("NO");
@@ -504,7 +504,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
             
             if (types[j] == "Integer" || types[j] == "Integer64") {
                 wxInt64 val = poFeature->GetFieldAsInteger64(j);
-                wxString str = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"), val);
+                wxString str = wxString::Format("%" wxLongLongFmtSpec "d", val);
                 previewGrid->SetCellValue(i, j, str);
                 
             } else if (types[j] == "Real") {

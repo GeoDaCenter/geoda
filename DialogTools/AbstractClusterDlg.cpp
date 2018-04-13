@@ -57,7 +57,7 @@ validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL
     wxLogMessage("Open AbstractClusterDlg.");
    
     wxArrayString list;
-    wxString valid_chars(wxT(".0123456789"));
+    wxString valid_chars(".0123456789");
     size_t len = valid_chars.Length();
     for (size_t i=0; i<len; i++)
         list.Add(wxString(valid_chars.GetChar(i)));
@@ -213,10 +213,10 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     hbox_c->Add(auto_btn, 0);
     
     wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"), wxDefaultPosition, wxDefaultSize);
-    wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, _("0"));
-    wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, _("1"));
+    wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, "0");
+    wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, "1");
     m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(140, -1), wxSL_HORIZONTAL);
-    m_wc_txt = new wxTextCtrl(panel, wxID_ANY, wxT("1"), wxDefaultPosition, wxSize(40,-1), 0, validator);
+    m_wc_txt = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(40,-1), 0, validator);
     wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
     hbox_w->Add(st_wc, 0, wxLEFT, 20);
     hbox_w->Add(st_w0, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
@@ -304,14 +304,14 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
     chk_floor = new wxCheckBox(panel, wxID_ANY, "");
     combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
-    txt_floor = new wxTextCtrl(panel, wxID_ANY, _("1"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    txt_floor = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(70,-1), 0, validator);
     hbox0->Add(chk_floor);
     hbox0->Add(combo_floor);
     hbox0->Add(txt_floor);
     
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxSize(150,-1), wxSL_HORIZONTAL);
-    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, _("10%"), wxDefaultPosition, wxSize(70,-1), 0, validator);
+    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, "10%", wxDefaultPosition, wxSize(70,-1), 0, validator);
     hbox1->Add(slider_floor);
     hbox1->Add(txt_floor_pct);
     

@@ -834,7 +834,7 @@ void Project::SaveVoronoiDupsToTable()
 	data[0].l_val = &dup_ids;
 	data[0].undefined = &undefined;
 	data[0].label = _("Duplicate IDs");
-	data[0].field_default = _("DUP_IDS");
+	data[0].field_default = "DUP_IDS";
 	data[0].type = GdaConst::long64_type;
 	
 	wxString title = _("Save Duplicate Thiessen Polygon Ids");
@@ -952,13 +952,13 @@ void Project::AddMeanCenters()
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
 	data[0].label = _("X-Coordinates");
-	data[0].field_default = _("COORD_X");
+	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
 	data[1].label = _("Y-Coordinates");
-	data[1].field_default = _("COORD_Y");
+	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
 	SaveToTableDlg dlg(this, NULL, data, _("Add Mean Centers to Table"), wxDefaultPosition, wxSize(400,400));
@@ -991,13 +991,13 @@ void Project::AddCentroids()
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
 	data[0].label = _("X-Coordinates");
-	data[0].field_default = _("COORD_X");
+	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
 	data[1].label = _("Y-Coordinates");
-	data[1].field_default = _("COORD_Y");
+	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
 	SaveToTableDlg dlg(this, NULL, data, _("Add Centroids to Table"), wxDefaultPosition, wxSize(400,400));

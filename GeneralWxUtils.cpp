@@ -506,7 +506,7 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
     //Our Bitmap now has the screenshot, so let's save it :-)
     wxString default_fname(title);
     wxString filter = "BMP|*.bmp|PNG|*.png";
-    wxFileDialog dialog(NULL, "Save Image to File", wxEmptyString,
+    wxFileDialog dialog(NULL, _("Save Image to File"), wxEmptyString,
                         default_fname, filter,
                         wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK) return;

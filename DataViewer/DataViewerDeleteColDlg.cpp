@@ -92,7 +92,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
         }
         if (table_int->IsColTimeVariant(col)) {
             wxString err_msg = wxString::Format(_("Variable %s is a time-grouped variable.  Please ungroup this variable to delete."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Into", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             check_success = false;
             break;

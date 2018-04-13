@@ -103,7 +103,6 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    //wxStaticText* m_txt_title = new wxStaticText(panel, wxID_ANY, wxT("99999 perm / "), wxDefaultPosition, wxSize(150,-1));
     chk_pval = new wxCheckBox(panel, wxID_ANY, _("Use selected as specified alpha level"));
     chk_pval->SetValue(true);
     chk_pval->Hide();

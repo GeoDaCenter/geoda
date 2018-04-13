@@ -173,9 +173,9 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
 {
     if (GdaConst::datasrc_str_to_type.find(data_type_name.ToStdString()) ==
         GdaConst::datasrc_str_to_type.end()) {
-        stringstream ss;
-        ss << _("datasource.type ") << data_type_name << _(" unknown.");
-        throw GdaException(ss.str().c_str());
+        wxString error_msg = _("datasource.type %s unknown..");
+        error_msg = wxString::Format(error_msg, data_type_name);
+        throw GdaException(error_msg.mb_str());
     }
     
     GdaConst::DataSourceType type =
@@ -231,9 +231,9 @@ IDataSource* IDataSource::CreateDataSource(wxString ds_json)
             std::string ds_type_str = json_ds_type.get_str();
             if (GdaConst::datasrc_str_to_type.find(ds_type_str) ==
                 GdaConst::datasrc_str_to_type.end()) {
-                stringstream ss;
-                ss << _("datasource.type ") << ds_type_str << _(" unknown.");
-                throw GdaException(ss.str().c_str());
+                wxString error_msg = _("datasource.type %s unknown..");
+                error_msg = wxString::Format(error_msg, ds_type_str);
+                throw GdaException(error_msg.mb_str());
             }
             
             GdaConst::DataSourceType type = GdaConst::datasrc_str_to_type[ds_type_str];
@@ -344,9 +344,9 @@ void FileDataSource::ReadPtree(const ptree& pt,
         ds_type = IDataSource::FindDataSourceType(type_str);
         
 		if (ds_type == GdaConst::ds_unknown) {
-			stringstream ss;
-			ss << _("datasource.type ") << type_str << _(" unknown.");
-			throw GdaException(ss.str().c_str());
+            wxString error_msg = _("datasource.type %s unknown..");
+            error_msg = wxString::Format(error_msg, type_str);
+            throw GdaException(error_msg.mb_str());
 		}
 		
 		wxString tmp(pt.get<string>("path").c_str(), wxConvUTF8);
@@ -361,11 +361,8 @@ void FileDataSource::ReadPtree(const ptree& pt,
             file_exist_flag = wxFileExists(file_repository_path);
         
         if (file_exist_flag == false) {
-            wxString msg;
-            msg << _("The GeoDa project file cannot find one or more associated data sources.\n\n");
-            msg << _("Details: GeoDa is looking for: ") << file_repository_path;
-            msg << _("\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
-            
+            wxString msg = _("The GeoDa project file cannot find one or more associated data sources.\n\nDetails: GeoDa is looking for: %s\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
+            msg = wxString::Format(msg, file_repository_path);
             throw GdaException(GET_ENCODED_FILENAME(msg));
         }
 	} catch (std::exception &e) {
@@ -418,8 +415,8 @@ wxString FileDataSource::GetOGRConnectStr()
 		return file_repository_path;
 	}
     
-    wxString error_msg;
-    error_msg << _("Data source (") << file_repository_path << _(") doesn't exist. Please check the project configuration file.");
+    wxString error_msg = _("Data source (%s) doesn't exist. Please check the project configuration file.");
+    error_msg = wxString::Format(error_msg, file_repository_path);
     throw GdaException(error_msg.mb_str());
 }
 
@@ -459,9 +456,9 @@ void WebServiceDataSource::ReadPtree(const ptree& pt,
         ds_type = IDataSource::FindDataSourceType(type_str);
         
 		if (ds_type == GdaConst::ds_unknown) {
-			stringstream ss;
-			ss << _("datasource.type ") << type_str << _(" unknown.");
-			throw GdaException(ss.str().c_str());
+            wxString error_msg = _("datasource.type %s unknown..");
+            error_msg = wxString::Format(error_msg, type_str);
+			throw GdaException(error_msg.mb_str());
 		}
 		
         webservice_url = pt.get<string>("url");
@@ -621,9 +618,9 @@ void DBDataSource::ReadPtree(const ptree& pt,
         ds_type = IDataSource::FindDataSourceType(type_str);
         
         if (ds_type == GdaConst::ds_unknown) {
-            stringstream ss;
-            ss << _("datasource type ") << type_str << _(" unknown.");
-            throw GdaException(ss.str().c_str());
+            wxString error_msg = _("datasource.type %s unknown..");
+            error_msg = wxString::Format(error_msg, type_str);
+            throw GdaException(error_msg.mb_str());
         }
         
         db_name = pt.get<string>("db_name");

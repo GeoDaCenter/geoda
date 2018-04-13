@@ -151,7 +151,7 @@ void PreferenceDlg::Init()
 	wxString lbl3 = _("Add basemap automatically:");
 	wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
-	cmb33 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	cmb33 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
 	cmb33->Append("No basemap");
 	cmb33->Append("Carto Light");
 	cmb33->Append("Carto Dark");
@@ -211,7 +211,7 @@ void PreferenceDlg::Init()
 
     wxString lbl113 = _("Language:");
     wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
-    cmb113 = new wxComboBox(vis_page, wxID_ANY, _(""), wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+    cmb113 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
     cmb113->Append("English");
     cmb113->Append("Chinese");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
