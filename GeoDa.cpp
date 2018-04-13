@@ -347,15 +347,12 @@ bool GdaApp::OnInit(void)
 
 	}
 
-	wxPoint appFramePos = wxDefaultPosition;
-	if (GeneralWxUtils::isUnix() || GeneralWxUtils::isMac()) {
-		appFramePos = wxPoint(80,60);
-	}
+	wxPoint appFramePos = wxPoint(80,60);
     
     int screenX = wxSystemSettings::GetMetric ( wxSYS_SCREEN_X );
     if (screenX < frameWidth) {
         frameWidth = screenX;
-        appFramePos = wxPoint(0, 50);
+        appFramePos = wxPoint(0, 0);
     }
 
 	wxFrame* frame = new GdaFrame("GeoDa", appFramePos,
