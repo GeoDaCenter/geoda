@@ -652,10 +652,12 @@ void PreferenceDlg::ReadFromCache()
         long sel_l = 0;
         wxString sel = use_gda_user_seed[0];
         if (sel.ToLong(&sel_l)) {
-            if (sel_l == 1)
+            if (sel_l == 1) {
                 GdaConst::use_gda_user_seed = true;
-            else if (sel_l == 0)
+                srand(GdaConst::gda_user_seed);
+            } else if (sel_l == 0) {
                 GdaConst::use_gda_user_seed = false;
+            }
         }
     }
     
