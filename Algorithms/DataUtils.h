@@ -243,6 +243,25 @@ public:
         return copy;
     }
     
+    static double** fullRaggedMatrix(double** matrix, int n, int k) {
+        double** copy = new double*[k];
+        
+        for (int i = 0; i < k; i++) {
+            copy[i] = new double[n];
+            for (int j = 0; j < n; j++)
+                copy[i][j] = 0;
+        }
+        
+        for (int i = 1; i < k; i++) {
+            for (int j = 0; j < i; j++) {
+                copy[i][j] = matrix[i][j];
+                copy[j][i] = matrix[i][j];
+            }
+        }
+        
+        return copy;
+    }
+    
     static vector<vector<double> > copyRaggedMatrix(double** matrix, int n, int k) {
         vector<vector<double> > copy(k);
         

@@ -457,42 +457,27 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
  
     int transpose = 0; // row wise
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
     // run RedCap
-	vector<vector<double> > z;
-	for (int i=0; i<rows; i++) {
-		vector<double> vals;
-		for (int j=0; j<columns; j++) {
-			vals.push_back(input_data[i][j]);
-		}
-		z.push_back(vals);
-	}
     std::vector<bool> undefs(rows, false);
   
-    /*
-    for (int i=0; i<rows; i++) {
-        for (int j=0; j<rows; j++) {
-            distances[i][j] = abs(z[i][0] - z[j][0]);
-        }
-    }*/
-    
     AbstractRedcap* redcap = NULL;
     int method_idx = combo_method->GetSelection();
     if (method_idx == 0) 
-        redcap = new FirstOrderSLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 1)
-        redcap = new FirstOrderALKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 2)
-        redcap = new FirstOrderCLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FirstOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 3)
-        redcap = new FullOrderSLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 4)
-        redcap = new FullOrderALKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 5)
-        redcap = new FullOrderCLKRedCap(distances, z, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
    
     if (redcap==NULL) {
         delete[] bound_vals;
@@ -563,6 +548,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
     // free memory
+    for (int i = 1; i < rows; i++) free(distances[i]);
+    free(distances);
     delete redcap;
 	delete[] bound_vals;
 	bound_vals = NULL;
