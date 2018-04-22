@@ -324,49 +324,6 @@ void Tree::Partition(vector<int>& ids,
     int id, orig_id, dest_id;
     int i, e_idx, k = 1, cnt=0;
     
-    /*
-    vector<vector<int> > id_edge_dict(size);
-    for (i=0; i<nbr_dict.size(); i++) {
-        id_edge_dict[i].resize(nbr_dict[i].size());
-    }
-    vector<int> nbr_count(size,0);
-    for (i=od_size-1; i>=0; --i) {
-        orig_id = od_array[i].first;
-        dest_id = od_array[i].second;
-        
-        id_edge_dict[orig_id][ nbr_count[orig_id]++ ] = i;
-        id_edge_dict[dest_id][ nbr_count[dest_id]++ ] = i;
-    }
-    
-    vector<int> access_order(od_size);
-    access_order[0] = od_size - 1;
-    
-    vector<bool> od_flags(od_size, false);
-    od_flags[od_size - 1] = true;
-    
-    while ( k < od_size ) {
-        int idx = access_order[cnt];
-        orig_id = od_array[idx].first;
-        dest_id = od_array[idx].second;
-        
-        for (i=0; i<nbr_dict[orig_id].size(); i++) {
-            e_idx = id_edge_dict[orig_id][i];
-            if ( !od_flags[e_idx] ) {
-                od_flags[e_idx] = true;
-                access_order[k++] = e_idx;
-            }
-        }
-        
-        for (i=0; i<nbr_dict[dest_id].size(); i++) {
-            e_idx = id_edge_dict[dest_id][i];
-            if ( !od_flags[e_idx] ) {
-                od_flags[e_idx] = true;
-                access_order[k++] = e_idx;
-            }
-        }
-        cnt++;
-    }
-    */
     int best_edge = -1;
     int evaluated = 0;
     int split_pos = -1;
@@ -1009,7 +966,7 @@ void FullOrderALKRedCap::Clustering()
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
                     if (d_is_nbr || o_is_nbr) {
                         double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum);
-                        cout << "dist:" << update_dist << endl;
+                        //cout << "dist:" << update_dist << endl;
                         Edge* new_e = new Edge(ordered_nodes[tmp_id], ordered_nodes[orig_id], update_dist);
                         edges_copy[num_edges++] = new_e;
                         new_edges.push_back(new_e);
