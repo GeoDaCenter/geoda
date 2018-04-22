@@ -111,7 +111,9 @@ void Skater::run()
         //prunecost(tree, 0, tree_size-1, scores, cids, candidates);
         run_threads(tree, scores, cids, candidates);
        
-        for (int i=0; i<scores.size(); i++) scores[i] = sswt - scores[i];
+        for (int i=0; i<scores.size(); i++) {
+            scores[i] = sswt - scores[i];
+        }
         
         // check where to split
         double best_score = scores[0];
