@@ -304,7 +304,27 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             }
         }
         
-        Partition(ordered_ids, od_array, nbr_dict);
+        if (size < 1000) {
+            Partition(0, od_array.size()-1, ordered_ids, od_array, nbr_dict);
+        } else {
+            run_threads(ordered_ids, od_array, nbr_dict);
+        }
+        
+        SplitSolution& ss = split_cands[0];
+        this->split_ids = ss.split_ids;
+        this->split_pos = ss.split_pos;
+        this->ssd = ss.ssd;
+        this->ssd_reduce = ss.ssd_reduce;
+        
+        for (int j=1; j<split_cands.size(); j++) {
+            SplitSolution& tmp_ss = split_cands[j];
+            if (tmp_ss.ssd_reduce > this->ssd_reduce) {
+                this->split_ids = tmp_ss.split_ids;
+                this->split_pos = tmp_ss.split_pos;
+                this->ssd = tmp_ss.ssd;
+                this->ssd_reduce = tmp_ss.ssd_reduce;
+            }
+        }
     } else {
         this->ssd = 0;
         this->ssd_reduce = 0;
@@ -315,11 +335,41 @@ Tree::~Tree()
 {
 }
 
-void Tree::Partition(vector<int>& ids,
+void Tree::run_threads(vector<int>& ids,
+                       vector<pair<int, int> >& od_array,
+                       unordered_map<int, vector<int> >& nbr_dict)
+{
+    int n_jobs = od_array.size();
+    
+    int nCPUs = boost::thread::hardware_concurrency();;
+    int quotient = n_jobs / nCPUs;
+    int remainder = n_jobs % nCPUs;
+    int tot_threads = (quotient > 0) ? nCPUs : remainder;
+    
+    boost::thread_group threadPool;
+    for (int i=0; i<tot_threads; i++) {
+        int a=0;
+        int b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
+        }
+        
+        //prunecost(tree, a, b, scores, candidates);
+        boost::thread* worker = new boost::thread(boost::bind(&Tree::Partition, this, a, b, boost::ref(ids), boost::ref(od_array), boost::ref(nbr_dict)));
+        threadPool.add_thread(worker);
+    }
+    
+    threadPool.join_all();
+}
+
+void Tree::Partition(int start, int end, vector<int>& ids,
                            vector<pair<int, int> >& od_array,
                            unordered_map<int, vector<int> >& nbr_dict)
 {
-    int od_size = od_array.size();
     int size = nbr_dict.size();
     int id, orig_id, dest_id;
     int i, e_idx, k = 1, cnt=0;
@@ -327,12 +377,12 @@ void Tree::Partition(vector<int>& ids,
     int best_edge = -1;
     int evaluated = 0;
     int split_pos = -1;
+    double tmp_ssd_reduce = 0, tmp_ssd=0;
     
-    
-    vector<int> visited_ids(size);
+    vector<int> visited_ids(size), best_ids(size);
     
     // cut edge one by one
-    for ( i=0; i<od_array.size(); i++) {
+    for ( i=start; i<=end; i++) {
         orig_id = od_array[i].first;
         dest_id = od_array[i].second;
         
@@ -359,17 +409,24 @@ void Tree::Partition(vector<int>& ids,
             }
             Measure result;
             ssd_utils->MeasureSplit(ssd, visited_ids, tmp_split_pos, result);
-            if (result.measure_reduction > ssd_reduce) {
-                ssd_reduce = result.measure_reduction;
-                ssd = result.ssd;
+            if (result.measure_reduction > tmp_ssd_reduce) {
+                tmp_ssd_reduce = result.measure_reduction;
+                tmp_ssd = result.ssd;
                 split_pos = tmp_split_pos;
-                split_ids = visited_ids;
+                best_ids = visited_ids;
             }
         }
     }
     
     if (split_pos != -1) {
-        this->split_pos = split_pos;
+        SplitSolution ss;
+        ss.split_pos =  split_pos;
+        ss.split_ids = best_ids;
+        ss.ssd = tmp_ssd;
+        ss.ssd_reduce = tmp_ssd_reduce;
+        mutex.lock();
+        split_cands.push_back(ss);
+        mutex.unlock();
     }
 }
 

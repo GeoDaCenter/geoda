@@ -179,7 +179,13 @@ namespace SpanningTreeClustering {
     // RedCapTree
     //
     /////////////////////////////////////////////////////////////////////////
-    
+    struct SplitSolution
+    {
+        int split_pos;
+        vector<int> split_ids;
+        double ssd;
+        double ssd_reduce;
+    };
     
     class Tree
     {
@@ -190,7 +196,7 @@ namespace SpanningTreeClustering {
         
         ~Tree();
         
-        void Partition(vector<int>& ids,
+        void Partition(int start, int end, vector<int>& ids,
                        vector<pair<int, int> >& od_array,
                        unordered_map<int, vector<int> >& nbr_dict);
         void Split(int orig, int dest,
@@ -212,9 +218,15 @@ namespace SpanningTreeClustering {
         vector<int> ordered_ids;
         SSDUtils* ssd_utils;
         
-        
         double* controls;
         double control_thres;
+        
+        // threads
+        boost::mutex mutex;
+        void run_threads(vector<int>& ids,
+                       vector<pair<int, int> >& od_array,
+                       unordered_map<int, vector<int> >& nbr_dict);
+        vector<SplitSolution> split_cands;
     };
     
     ////////////////////////////////////////////////////////////////////////////////
@@ -269,7 +281,7 @@ namespace SpanningTreeClustering {
         
         virtual double UpdateClusterDist(int cur_id, int orig_id, int dest_id, bool is_orig_nbr, bool is_dest_nbr, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum) { return 0;}
         
-        Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end){}
+        Edge* GetShortestEdge(vector<Edge*>& edges, int start, int end){ return NULL;}
         
         void init();
         void Partitioning(int k);
