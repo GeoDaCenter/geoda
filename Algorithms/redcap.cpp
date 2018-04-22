@@ -27,7 +27,6 @@
 #include <cstdlib>
 #include <stack>
 
-#include <wx/textfile.h>
 #include <wx/stopwatch.h>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
@@ -271,6 +270,8 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
     
     int size = ordered_ids.size();
     int edge_size = edges.size();
+    this->ssd = 0;
+    this->ssd_reduce = 0;
     
     if (ordered_ids.size() > 1) {
         this->ssd = ssd_utils->ComputeSSD(ordered_ids, 0, size);
@@ -309,25 +310,23 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
         } else {
             run_threads(ordered_ids, od_array, nbr_dict);
         }
-        
-        SplitSolution& ss = split_cands[0];
-        this->split_ids = ss.split_ids;
-        this->split_pos = ss.split_pos;
-        this->ssd = ss.ssd;
-        this->ssd_reduce = ss.ssd_reduce;
-        
-        for (int j=1; j<split_cands.size(); j++) {
-            SplitSolution& tmp_ss = split_cands[j];
-            if (tmp_ss.ssd_reduce > this->ssd_reduce) {
-                this->split_ids = tmp_ss.split_ids;
-                this->split_pos = tmp_ss.split_pos;
-                this->ssd = tmp_ss.ssd;
-                this->ssd_reduce = tmp_ss.ssd_reduce;
+        if (!split_cands.empty()) {
+            SplitSolution& ss = split_cands[0];
+            this->split_ids = ss.split_ids;
+            this->split_pos = ss.split_pos;
+            this->ssd = ss.ssd;
+            this->ssd_reduce = ss.ssd_reduce;
+            
+            for (int j=1; j<split_cands.size(); j++) {
+                SplitSolution& tmp_ss = split_cands[j];
+                if (tmp_ss.ssd_reduce > this->ssd_reduce) {
+                    this->split_ids = tmp_ss.split_ids;
+                    this->split_pos = tmp_ss.split_pos;
+                    this->ssd = tmp_ss.ssd;
+                    this->ssd_reduce = tmp_ss.ssd_reduce;
+                }
             }
         }
-    } else {
-        this->ssd = 0;
-        this->ssd_reduce = 0;
     }
 }
 
@@ -376,7 +375,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
     
     int best_edge = -1;
     int evaluated = 0;
-    int split_pos = -1;
+    int best_pos = -1;
     double tmp_ssd_reduce = 0, tmp_ssd=0;
     
     vector<int> visited_ids(size), best_ids(size);
@@ -399,7 +398,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
         
         int tmp_split_pos = idx;
         
-        if (checkControl(cand_ids)) {
+        if (checkControl(cand_ids, ids, 1)) {
             evaluated++;
             for (int j=0; j<ids.size(); j++) {
                 if (cand_ids[ ids[j] ] == -1) {
@@ -407,20 +406,22 @@ void Tree::Partition(int start, int end, vector<int>& ids,
                     idx++;
                 }
             }
-            Measure result;
-            ssd_utils->MeasureSplit(ssd, visited_ids, tmp_split_pos, result);
-            if (result.measure_reduction > tmp_ssd_reduce) {
-                tmp_ssd_reduce = result.measure_reduction;
-                tmp_ssd = result.ssd;
-                split_pos = tmp_split_pos;
-                best_ids = visited_ids;
+            if (checkControl(cand_ids, ids, -1)) {
+                Measure result;
+                ssd_utils->MeasureSplit(ssd, visited_ids, tmp_split_pos, result);
+                if (result.measure_reduction > tmp_ssd_reduce) {
+                    tmp_ssd_reduce = result.measure_reduction;
+                    tmp_ssd = result.ssd;
+                    best_pos = tmp_split_pos;
+                    best_ids = visited_ids;
+                }
             }
         }
     }
     
     if (split_pos != -1) {
         SplitSolution ss;
-        ss.split_pos =  split_pos;
+        ss.split_pos =  best_pos;
         ss.split_ids = best_ids;
         ss.ssd = tmp_ssd;
         ss.ssd_reduce = tmp_ssd_reduce;
@@ -451,16 +452,16 @@ void Tree::Split(int orig, int dest, unordered_map<int, vector<int> >& nbr_dict,
     }
 }
 
-bool Tree::checkControl(vector<int>& cand_ids)
+bool Tree::checkControl(vector<int>& cand_ids, vector<int>& ids, int flag)
 {
     if (controls == NULL) {
         return true;
     }
     
     double val = 0;
-    for (int i=0;i<cand_ids.size(); i++) {
-        if (cand_ids[i] == 1) {
-            val += controls[ cand_ids[i] ];
+    for (int j=0; j<ids.size(); j++) {
+        if (cand_ids[ ids[j] ] == flag) {
+            val += controls[ ids[j] ];
         }
     }
     
@@ -590,21 +591,7 @@ void AbstractClusterFactory::init()
     }
     
     Clustering();
-    /*
-    wxTextFile file("/Users/xun/Desktop/frequence.gwt");
-    file.Create("/Users/xun/Desktop/frequence.gwt");
-    file.Open("/Users/xun/Desktop/frequence.gwt");
-    file.Clear();
-    file.AddLine("0 88 ohlung record_id");
     
-    for (int i=0; i<ordered_edges.size(); i++) {
-        wxString line;
-        line << ordered_edges[i]->orig->id+1<< " " << ordered_edges[i]->dest->id +1<< " 1" ;
-        file.AddLine(line);
-    }
-    file.Write();
-    file.Close();
-     */
 }
 
 vector<vector<int> >& AbstractClusterFactory::GetRegions()

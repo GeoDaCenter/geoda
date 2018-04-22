@@ -42,7 +42,8 @@
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/maxp.h"
-#include "../Algorithms/skater.h"
+#include "../Algorithms/redcap.h"
+#include "../Algorithms/DataUtils.h"
 
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -451,10 +452,10 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     }
     
 	// Get region numbers
-    int initial = 0;
+    int n_regions = 0;
     long value_initial;
     if(str_initial.ToLong(&value_initial)) {
-        initial = value_initial;
+        n_regions = value_initial;
     }
     
 	// Get random seed
@@ -462,40 +463,37 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
     // Create distance matrix using weights
-    vector<vector<double> > distances(rows);
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    for (int i = 0; i < rows; i++) {
-        distances[i].resize(rows);
-        for (int j = 0; j < rows; j++)
-            distances[i][j] = -1;
-    }
-    for (int i=0; i< rows; i++) {
-        for (int j=0; j< gw->gal[i].Size(); j++) {
-            int k = gw->gal[i][j];
-            distances[i][k] = 0;
-        }
-    }
-    for (int i = 1; i < rows; i++) {
-        for (int j = 0; j < i; j++) {
-            if (distances[i][j] == 0)
-                distances[i][j] = sqrt(ragged_distances[i][j]);
-            if (distances[j][i] == 0)
-                distances[j][i] = sqrt(ragged_distances[i][j]);
-        }
-    }
+    double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
-    vector<wxInt64> clusters(rows, 0);
-    vector<bool> clusters_undef(rows, false);
     
 	// Run Skater
-    Skater skater(rows, columns, initial, input_data, distances, check_floor, min_bound, bound_vals);
+    SpanningTreeClustering::Skater* redcap = new SpanningTreeClustering::Skater(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     
-	delete[] bound_vals;
-
-    vector<vector<int> > cluster_ids = skater.GetRegions();
+    if (redcap==NULL) {
+        delete[] bound_vals;
+        bound_vals = NULL;
+        return;
+    }
+    
+    redcap->Partitioning(n_regions);
+    
+    vector<vector<int> > cluster_ids = redcap->GetRegions();
+    
     int ncluster = cluster_ids.size();
+    
+    if (ncluster < n_regions) {
+        // show message dialog to user
+        wxString warn_str = _("The number of identified clusters is less than ");
+        warn_str << n_regions;
+        wxMessageDialog dlg(NULL, warn_str, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
+    vector<wxInt64> clusters(rows, 0);
+    vector<bool> clusters_undef(rows, false);
+
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);

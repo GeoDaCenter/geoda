@@ -22,6 +22,8 @@
 #include <algorithm>
 #include <limits>
 
+
+#include <wx/textfile.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
@@ -42,7 +44,7 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
-#include "../Algorithms/redcap.h"
+
 
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
@@ -62,6 +64,8 @@ RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
     
     parent = parent_s;
     project = project_s;
+    redcap = NULL;
+    weights = NULL;
     
     bool init_success = Init();
     
@@ -77,6 +81,10 @@ RedcapDlg::~RedcapDlg()
 {
     wxLogMessage("On RedcapDlg::~RedcapDlg");
     frames_manager->removeObserver(this);
+    if (redcap) {
+        delete redcap;
+        redcap = NULL;
+    }
 }
 
 bool RedcapDlg::Init()
@@ -98,7 +106,7 @@ bool RedcapDlg::Init()
 void RedcapDlg::CreateControls()
 {
     wxLogMessage("On RedcapDlg::CreateControls");
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(820,720), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(820,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -177,13 +185,17 @@ void RedcapDlg::CreateControls()
     
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    saveButton = new wxButton(panel, wxID_OK, _("Save Spanning Tree"), wxDefaultPosition,
+                                      wxSize(140, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
+    saveButton->Disable();
     
     // Container
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
@@ -234,6 +246,7 @@ void RedcapDlg::CreateControls()
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnOK, this);
+    saveButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnSaveTree, this);
     closeButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &RedcapDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnChangeSeed, this);
@@ -369,6 +382,39 @@ wxString RedcapDlg::_printConfiguration()
     return txt;
 }
 
+void RedcapDlg::OnSaveTree(wxCommandEvent& event )
+{
+    if (weights && redcap) {
+        wxString filter = "GWT|*.gwt";
+        wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"), wxEmptyString,
+                            wxEmptyString, filter,
+                            wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        if (dialog.ShowModal() != wxID_OK)
+            return;
+        wxFileName fname = wxFileName(dialog.GetPath());
+        wxString new_main_dir = fname.GetPathWithSep();
+        wxString new_main_name = fname.GetName();
+        wxString new_txt = new_main_dir + new_main_name+".gwt";
+        wxTextFile file(new_txt);
+        file.Create(new_txt);
+        file.Open(new_txt);
+        file.Clear();
+        
+        wxString header;
+        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle();
+        file.AddLine(header);
+        
+        for (int i=0; i<redcap->ordered_edges.size(); i++) {
+            wxString line;
+            line << redcap->ordered_edges[i]->orig->id+1<< " " << redcap->ordered_edges[i]->dest->id +1<< " " << redcap->ordered_edges[i]->length ;
+            file.AddLine(line);
+        }
+        file.Write();
+        file.Close();
+        
+    }
+}
+
 void RedcapDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click RedcapDlg::OnOK");
@@ -427,7 +473,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
+    weights = w_man_int->GetGal(w_id);
     // Check connectivity
     if (!CheckConnectivity(gw)) {
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
@@ -465,7 +511,11 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // run RedCap
     std::vector<bool> undefs(rows, false);
   
-    AbstractClusterFactory* redcap = NULL;
+    if (redcap != NULL) {
+        delete redcap;
+        redcap = NULL;
+    }
+    
     int method_idx = combo_method->GetSelection();
     if (method_idx == 0)
         redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
@@ -548,7 +598,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // free memory
     for (int i = 1; i < rows; i++) free(distances[i]);
     free(distances);
-    delete redcap;
+    
 	delete[] bound_vals;
 	bound_vals = NULL;
     
@@ -582,4 +632,6 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     ttl << n_regions;
     ttl << " clusters)";
     nf->SetTitle(ttl);
+    
+    saveButton->Enable();
 }

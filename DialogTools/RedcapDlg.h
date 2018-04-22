@@ -29,6 +29,7 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
+#include "../Algorithms/redcap.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ public:
     bool Init();
     
     void OnOK( wxCommandEvent& event );
+    void OnSaveTree( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
@@ -70,6 +72,10 @@ protected:
 	wxChoice* m_distance;
     
     wxButton* seedButton;
+    wxButton* saveButton;
+    
+    SpanningTreeClustering::AbstractClusterFactory* redcap;
+    GeoDaWeight* weights;
     
     DECLARE_EVENT_TABLE()
 };

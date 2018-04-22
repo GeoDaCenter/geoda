@@ -202,7 +202,7 @@ namespace SpanningTreeClustering {
         void Split(int orig, int dest,
                    unordered_map<int, vector<int> >& nbr_dict,
                    vector<int>& cand_ids);
-        bool checkControl(vector<int>& cand_ids);
+        bool checkControl(vector<int>& cand_ids, vector<int>& ids, int flag);
         pair<Tree*, Tree*> GetSubTrees();
         
         double ssd_reduce;
