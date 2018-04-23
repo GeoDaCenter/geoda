@@ -23,6 +23,7 @@
 #include <limits>
 
 #include <wx/wx.h>
+#include <wx/textfile.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -42,7 +43,6 @@
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/maxp.h"
-#include "../Algorithms/redcap.h"
 #include "../Algorithms/DataUtils.h"
 
 #include "../GeneralWxUtils.h"
@@ -56,7 +56,7 @@ EVT_CLOSE( SkaterDlg::OnClose )
 END_EVENT_TABLE()
 
 SkaterDlg::SkaterDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s, _("Skater Settings"))
+: skater(NULL), AbstractClusterDlg(parent_s, project_s, _("Skater Settings"))
 {
     wxLogMessage("Open Skater dialog.");
     CreateControls();
@@ -65,6 +65,10 @@ SkaterDlg::SkaterDlg(wxFrame* parent_s, Project* project_s)
 SkaterDlg::~SkaterDlg()
 {
     wxLogMessage("On SkaterDlg::~SkaterDlg");
+    if (skater) {
+        delete skater;
+        skater = NULL;
+    }
 }
 
 void SkaterDlg::CreateControls()
@@ -80,13 +84,12 @@ void SkaterDlg::CreateControls()
     // Input
     AddSimpleInputCtrls(panel, vbox);
     
-    
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    m_max_region = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(200,-1));
+    m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
     
@@ -149,11 +152,15 @@ void SkaterDlg::CreateControls()
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
+    saveButton = new wxButton(panel, wxID_OK, _("Save Spanning Tree"), wxDefaultPosition,
+                              wxSize(140, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
+    saveButton->Disable();
     
     // Container
     //vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
@@ -206,9 +213,43 @@ void SkaterDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &SkaterDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &SkaterDlg::OnClickClose, this);
+    saveButton->Bind(wxEVT_BUTTON, &SkaterDlg::OnSaveTree, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &SkaterDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &SkaterDlg::OnChangeSeed, this);
 
+}
+
+void SkaterDlg::OnSaveTree(wxCommandEvent& event )
+{
+    if (skater) {
+        wxString filter = "GWT|*.gwt";
+        wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"), wxEmptyString,
+                            wxEmptyString, filter,
+                            wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        if (dialog.ShowModal() != wxID_OK)
+            return;
+        wxFileName fname = wxFileName(dialog.GetPath());
+        wxString new_main_dir = fname.GetPathWithSep();
+        wxString new_main_name = fname.GetName();
+        wxString new_txt = new_main_dir + new_main_name+".gwt";
+        wxTextFile file(new_txt);
+        file.Create(new_txt);
+        file.Open(new_txt);
+        file.Clear();
+        
+        wxString header;
+        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle();
+        file.AddLine(header);
+        
+        for (int i=0; i<skater->ordered_edges.size(); i++) {
+            wxString line;
+            line << skater->ordered_edges[i]->orig->id+1<< " " << skater->ordered_edges[i]->dest->id +1<< " " << skater->ordered_edges[i]->length ;
+            file.AddLine(line);
+        }
+        file.Write();
+        file.Close();
+        
+    }
 }
 
 void SkaterDlg::OnCheckMinBound(wxCommandEvent& event)
@@ -469,18 +510,23 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     free(ragged_distances);
     
     
-	// Run Skater
-    SpanningTreeClustering::Skater* redcap = new SpanningTreeClustering::Skater(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    if (skater != NULL) {
+        delete skater;
+        skater = NULL;
+    }
     
-    if (redcap==NULL) {
+	// Run Skater
+    skater = new SpanningTreeClustering::Skater(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    
+    if (skater==NULL) {
         delete[] bound_vals;
         bound_vals = NULL;
         return;
     }
     
-    redcap->Partitioning(n_regions);
+    skater->Partitioning(n_regions);
     
-    vector<vector<int> > cluster_ids = redcap->GetRegions();
+    vector<vector<int> > cluster_ids = skater->GetRegions();
     
     int ncluster = cluster_ids.size();
     
@@ -574,4 +620,6 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     if (n_island>0) {
         nf->SetLegendLabel(0, "Not Clustered");
     }
+    
+    saveButton->Enable();
 }

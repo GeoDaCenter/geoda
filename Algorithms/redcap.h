@@ -449,6 +449,26 @@ namespace SpanningTreeClustering {
         
     };
 
+    ////////////////////////////////////////////////////////////////////////////////
+    //
+    // 6 Ward
+    //
+    ////////////////////////////////////////////////////////////////////////////////
+    class FullOrderWardRedCap : public AbstractClusterFactory
+    {
+    public:
+        FullOrderWardRedCap(int rows, int cols,
+                           double** _distances,
+                           double** data,
+                           const vector<bool>& undefs,
+                           GalElement * w,
+                           double* controls,
+                           double control_thres);
+        
+        virtual ~FullOrderWardRedCap();
+        
+        virtual void Clustering();
+    };
 }
 
 #endif
