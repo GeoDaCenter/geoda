@@ -283,7 +283,7 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
         }
         
         // use edges and ordered_ids to create nbr_dict and od_array
-        unordered_map<int, vector<int> > nbr_dict;
+        boost::unordered_map<int, vector<int> > nbr_dict;
         od_array.resize(edge_size);
         
         int o_id, d_id;
@@ -336,7 +336,7 @@ Tree::~Tree()
 
 void Tree::run_threads(vector<int>& ids,
                        vector<pair<int, int> >& od_array,
-                       unordered_map<int, vector<int> >& nbr_dict)
+                       boost::unordered_map<int, vector<int> >& nbr_dict)
 {
     int n_jobs = od_array.size();
     
@@ -367,7 +367,7 @@ void Tree::run_threads(vector<int>& ids,
 
 void Tree::Partition(int start, int end, vector<int>& ids,
                            vector<pair<int, int> >& od_array,
-                           unordered_map<int, vector<int> >& nbr_dict)
+                           boost::unordered_map<int, vector<int> >& nbr_dict)
 {
     int size = nbr_dict.size();
     int id, orig_id, dest_id;
@@ -431,7 +431,7 @@ void Tree::Partition(int start, int end, vector<int>& ids,
     }
 }
 
-void Tree::Split(int orig, int dest, unordered_map<int, vector<int> >& nbr_dict, vector<int>& cand_ids)
+void Tree::Split(int orig, int dest, boost::unordered_map<int, vector<int> >& nbr_dict, vector<int>& cand_ids)
 {
     stack<int> visited_ids;
     int cur_id, i, nbr_size, nbr;
@@ -571,7 +571,7 @@ void AbstractClusterFactory::init()
     Node* orig;
     Node* dest;
     double length;
-    unordered_map<pair<int, int>, bool> access_dict;
+    boost::unordered_map<pair<int, int>, bool> access_dict;
     
     for (int i=0; i<rows; i++) {
         orig = nodes[i];
@@ -643,7 +643,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     PriorityQueue::iterator begin = sub_trees.begin();
     PriorityQueue::iterator end = sub_trees.end();
-    unordered_map<int, bool>::iterator node_it;
+    boost::unordered_map<int, bool>::iterator node_it;
    
     for (PriorityQueue::iterator it = begin; it != end; ++it) {
         Tree* tmp_tree = *it;
@@ -677,7 +677,7 @@ Skater::~Skater()
 void Skater::Clustering()
 {
     Graph g(rows);
-    unordered_map<pair<int, int>, bool> access_dict;
+    boost::unordered_map<pair<int, int>, bool> access_dict;
     for (int i=0; i<rows; i++) {
         for (int j=0; j<w[i].Size(); j++) {
             if (access_dict.find(make_pair(i, w[i][j])) == access_dict.end()) {
@@ -688,8 +688,8 @@ void Skater::Clustering()
         }
     }
     
-    unordered_map<int, bool> id_dict;
-    unordered_map<pair<int, int>, Edge*> edge_dict;
+    boost::unordered_map<int, bool> id_dict;
+    boost::unordered_map<pair<int, int>, Edge*> edge_dict;
     for (int i=0; i<edges.size(); i++) {
         Edge* e = edges[i];
         edge_dict[make_pair(e->orig->id, e->dest->id)] = e;
@@ -762,7 +762,7 @@ void FirstOrderSLKRedCap::Clustering()
     std::sort(edges.begin(), edges.end(), EdgeLess);
     
     int num_nodes = nodes.size();
-    unordered_map<int, bool> id_dict;
+    boost::unordered_map<int, bool> id_dict;
     
     for (int i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
@@ -1055,7 +1055,7 @@ void FullOrderALKRedCap::Clustering()
         }
     }
     
-    unordered_map<int, bool> id_dict;
+    boost::unordered_map<int, bool> id_dict;
     for (int i=0; i<ordered_edges.size();i++) {
         Edge* e = ordered_edges[i];
         Node* orig = e->orig;

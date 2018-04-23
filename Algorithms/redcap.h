@@ -198,9 +198,9 @@ namespace SpanningTreeClustering {
         
         void Partition(int start, int end, vector<int>& ids,
                        vector<pair<int, int> >& od_array,
-                       unordered_map<int, vector<int> >& nbr_dict);
+                       boost::unordered_map<int, vector<int> >& nbr_dict);
         void Split(int orig, int dest,
-                   unordered_map<int, vector<int> >& nbr_dict,
+                   boost::unordered_map<int, vector<int> >& nbr_dict,
                    vector<int>& cand_ids);
         bool checkControl(vector<int>& cand_ids, vector<int>& ids, int flag);
         pair<Tree*, Tree*> GetSubTrees();
@@ -225,7 +225,7 @@ namespace SpanningTreeClustering {
         boost::mutex mutex;
         void run_threads(vector<int>& ids,
                        vector<pair<int, int> >& od_array,
-                       unordered_map<int, vector<int> >& nbr_dict);
+                       boost::unordered_map<int, vector<int> >& nbr_dict);
         vector<SplitSolution> split_cands;
     };
     
@@ -266,7 +266,7 @@ namespace SpanningTreeClustering {
         vector<int> ordered_ids;
         vector<Edge*> ordered_edges;
         
-        vector<unordered_map<int, double> > dist_dict;
+        vector<boost::unordered_map<int, double> > dist_dict;
         
         vector<vector<int> > cluster_ids;
         
