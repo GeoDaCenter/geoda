@@ -1,7 +1,7 @@
 #ifndef _MATFILEREADER_H_
 #define _MATFILEREADER_H_
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__linux__)
 #include <stdint.h>
 #else
 #include <cstdint>
