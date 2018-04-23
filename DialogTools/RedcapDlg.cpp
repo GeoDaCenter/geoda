@@ -517,7 +517,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     int method_idx = combo_method->GetSelection();
     if (method_idx == 0)
-        redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+        redcap = new Skater(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 1)
         redcap = new FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
     else if (method_idx == 2)

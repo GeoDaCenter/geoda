@@ -659,7 +659,7 @@ double* AbstractClusterDlg::GetBoundVals()
     int rows = project->GetNumRecords();
     int idx = combo_floor->GetSelection();
     double* vals = NULL;
-    if (idx >= 0) {
+    if (chk_floor->IsChecked() && idx >= 0) {
         vals = new double[rows];
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         int col = table_int->FindColId(nm);

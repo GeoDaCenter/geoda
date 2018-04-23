@@ -480,6 +480,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     }
     
     double* bound_vals = GetBoundVals();
+    /*
     if (bound_vals == NULL) {
         wxString str_min_regions = txt_minregions->GetValue();
         long val_min_regions;
@@ -491,7 +492,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         for (int i=0; i<rows; i++)
             bound_vals[i] = 1;
     }
-    
+    */
 	// Get region numbers
     int n_regions = 0;
     long value_initial;
@@ -504,10 +505,41 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
     
     // Create distance matrix using weights
+    /*
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
+    */
+    double** distances = new double*[rows];
+    for (int i=0; i<rows; i++) {
+        distances[i] = new double[rows];
+    }
+    boost::unordered_map<pair<int, int>, bool> access_dict;
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<gw->gal[i].Size(); j++) {
+            int nbr = gw->gal[i][j];
+            pair<int, int> i_nbr(i, nbr);
+            pair<int, int> nbr_i(nbr, i);
+            if (access_dict.find(i_nbr) != access_dict.end() ||
+                access_dict.find(nbr_i) != access_dict.end() )
+            {
+                continue;
+            }
+            {
+                double dis = 0;
+                for (int k=0; k<columns; k++) {
+                    double tmp = input_data[i][k] - input_data[nbr][k];
+                    dis += tmp * tmp;
+                }
+                dis = sqrt(dis);
+                distances[i][nbr] = dis;
+                distances[nbr][i] = dis;
+                access_dict[i_nbr] =  true;
+                access_dict[nbr_i] =  true;
+            }
+        }
+    }
     
     
     if (skater != NULL) {
