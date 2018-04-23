@@ -221,7 +221,7 @@ void Cluster::GetOrderedNodes(Cluster* root, vector<Node*>& ordered_nodes)
     } else if (n2 != NULL) {
         next_node = n2;
     } else {
-        cout << "no neighbor point." << endl;
+        //cout << "no neighbor point." << endl;
     }
     
     int count = 0;
@@ -242,10 +242,10 @@ void Cluster::GetOrderedNodes(Cluster* root, vector<Node*>& ordered_nodes)
             next_node = n1;
             e = e2;
         } else {
-            cout << "wrong neibhro" << endl;
+            //cout << "wrong neibhro" << endl;
         }
         if (next_node->container == NULL) {
-            cout << "visited before" << endl;
+            //cout << "visited before" << endl;
         }
         count ++;
         ordered_nodes[count] = next_node;
@@ -296,13 +296,6 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
             
             nbr_dict[o_id].push_back(d_id);
             nbr_dict[d_id].push_back(o_id);
-        }
-        
-        // testing
-        for (int i=0; i<ordered_ids.size(); i++) {
-            if (nbr_dict.find( ordered_ids[i] ) == nbr_dict.end()){
-                cout << "testing wrong" <<endl;
-            }
         }
         
         if (size < 1000) {
@@ -513,12 +506,7 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
             cnt++;
         }
     }
-    if (cnt == 0) {
-        // no cut
-    } else if (cnt >1) {
-        // more than 1 cut
-        cout << "more than 1 cut" << endl;
-    }
+
     
     Tree* left_tree = new Tree(part1_ids, part1_edges, redcap);
     Tree* right_tree = new Tree(part2_ids, part2_edges, redcap);
@@ -611,7 +599,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
-        cout << tmp_tree->ssd_reduce << endl;
+        //cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
         
         pair<Tree*, Tree*> children = tmp_tree->GetSubTrees();
@@ -699,8 +687,8 @@ void Skater::Clustering()
     //https://github.com/vinecopulib/vinecopulib/issues/22
     std::vector<int> p(num_vertices(g));
     boost::prim_minimum_spanning_tree(g, p.data());
-    
-    set<Edge*> edge_set;
+  
+    double sum_length=0;
     
     for (int source = 0; source < p.size(); ++source) {
         int target = p[source];
@@ -709,21 +697,21 @@ void Skater::Clustering()
             //ordered_edges.push_back(new Edge(source, p[source]));
             pair<int,int> o_d(source, target);
             pair<int,int> d_o(target, source);
-            if (edge_dict.find(o_d) != edge_dict.end() ) {
+            if (edge_dict.find(o_d) != edge_dict.end() &&
+                edge_dict.find(d_o) != edge_dict.end())
+            {
+                sum_length += edge_dict[ o_d]->length;
                 ordered_edges.push_back( edge_dict[ o_d]);
-                edge_set.insert(edge_dict[ o_d]);
-            } else if ( edge_dict.find(d_o) != edge_dict.end() ) {
-                ordered_edges.push_back( edge_dict[ d_o]);
-                edge_set.insert(edge_dict[ d_o]);
             }
         }
     }
     
-    //int n_e = edge_set.size();
+    //cout << "Skater mst sum length:" << sum_length << endl;
     
     for (int i=0; i<ordered_edges.size(); i++) {
         int source = ordered_edges[i]->orig->id;
         int target = ordered_edges[i]->dest->id;
+        
         if (id_dict.find(source)==id_dict.end()) {
             ordered_ids.push_back(source);
             id_dict[source] = true;
@@ -732,7 +720,6 @@ void Skater::Clustering()
             ordered_ids.push_back(target);
             id_dict[target] = true;
         }
-        cout << source << "," << target << endl;
     }
     
     //int n_i = id_dict.size();
@@ -762,7 +749,10 @@ void FirstOrderSLKRedCap::Clustering()
     std::sort(edges.begin(), edges.end(), EdgeLess);
     
     int num_nodes = nodes.size();
-    boost::unordered_map<int, bool> id_dict;
+
+    ordered_edges.resize(num_nodes-1);
+    int cnt = 0;
+    double sum_length = 0;
     
     for (int i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
@@ -775,28 +765,30 @@ void FirstOrderSLKRedCap::Clustering()
         
         if (root1 != root2) {
             this->cluster = new Cluster(root1, root2, edge, dist_matrix);
-            ordered_edges.push_back(edge);
-            if (id_dict.find(orig->id)==id_dict.end()) {
-                ordered_ids.push_back(orig->id);
-                id_dict[orig->id] = true;
-            }
-            if (id_dict.find(dest->id)==id_dict.end()) {
-                ordered_ids.push_back(dest->id);
-                id_dict[dest->id] = true;
-            }
-            if (ordered_edges.size() == num_nodes - 1) {
+            ordered_edges[cnt] = edge;
+            sum_length += edge->length;
+            if ( ++cnt == num_nodes - 1) {
                 break;
             }
         }
     }
+    //cout << "FO-SLK mst sum length:" << sum_length << endl;
     
-    //vector<RedCapNode*> ordered_nodes(num_nodes);
-    //RedCapCluster::GetOrderedNodes(this->cluster, ordered_nodes);
-    
-    //ordered_ids.resize(num_nodes);
-    //for (int i=0; i<num_nodes; i++ ) {
-    //    ordered_ids[i] = ordered_nodes[i]->id;
-    //}
+    boost::unordered_map<int, bool> id_dict;
+    for (int i=0; i<ordered_edges.size(); i++) {
+        Edge* edge = ordered_edges[i];
+        Node* orig = edge->orig;
+        Node* dest = edge->dest;
+        
+        if (id_dict.find(orig->id)==id_dict.end()) {
+            ordered_ids.push_back(orig->id);
+            id_dict[orig->id] = true;
+        }
+        if (id_dict.find(dest->id)==id_dict.end()) {
+            ordered_ids.push_back(dest->id);
+            id_dict[dest->id] = true;
+        }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -932,14 +924,19 @@ void FullOrderALKRedCap::Clustering()
     for (int i=0; i<num_edges; i++) {
         edges_copy[i] = edges[i];
     }
+    
+    //cout << "# edges:" << num_edges << endl;
+    
     this->ordered_edges.resize(num_nodes-1);
     
     vector<int> ids(num_nodes);
     // number of nodes in a cluster
     // the start position of a cluster
     // the cluster id of each nodes
-    vector<int> cluster_nodenum(num_nodes), cluster_startpos(num_nodes), cluster_ids(num_nodes);
-    for (int i=0; i<num_nodes; i++) {
+    vector<int> cluster_nodenum(num_nodes);
+    vector<int> cluster_ids(num_nodes);
+    vector<int> cluster_startpos(num_nodes);
+    for (int i=0; i<num_nodes; ++i) {
         ids[i] = i;
         cluster_ids[i] = i;
         cluster_startpos[i] = i;
@@ -1042,20 +1039,23 @@ void FullOrderALKRedCap::Clustering()
                 ++counts[k];
             }
             
-            for (i=0; i<num_nodes; i++) {
-                if (cluster_nodenum[i] != counts[i]) {
-                    cout << "error not match" << endl;
-                }
-            }
+            //for (i=0; i<num_nodes; i++) {
+            //    if (cluster_nodenum[i] != counts[i]) {
+            //        cout << "error not match" << endl;
+            //    }
+            //}
             
             cur_edge = GetShortestEdge(edges_copy, 0, num_edges);
             k = -1;
         } else {
-            cout << "root != root2" <<endl;
+            //cout << "root != root2" <<endl;
         }
     }
     
+    //cout << "cnt: " << cnt << endl;
+    
     boost::unordered_map<int, bool> id_dict;
+
     for (int i=0; i<ordered_edges.size();i++) {
         Edge* e = ordered_edges[i];
         Node* orig = e->orig;
@@ -1121,9 +1121,6 @@ Edge* FullOrderALKRedCap::GetShortestEdge(vector<Edge*>& _edges, int start, int 
             short_e = _edges[i];
         }
     }
-    if (short_e == NULL) {
-        cout << "getshortestedge=NULL wrong" << endl;
-    }
     return short_e;
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -1170,4 +1167,43 @@ double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         }
     }
     return new_dist;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+FullOrderWardRedCap::FullOrderWardRedCap(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs,  GalElement * w, double* _controls, double _control_thres)
+: AbstractClusterFactory(rows, cols, _distances, _data, _undefs, w)
+{
+    controls = _controls;
+    control_thres = _control_thres;
+    init();
+}
+
+FullOrderWardRedCap::~FullOrderWardRedCap()
+{
+    
+}
+
+void FullOrderWardRedCap::Clustering()
+{
+    int num_nodes = nodes.size();
+    vector<Node*> ordered_nodes(num_nodes);
+    
+    for (int i=0; i< this->edges.size(); i++) {
+        Edge* edge = this->edges[i];
+        Node* orig = edge->orig;
+        Node* dest = edge->dest;
+        ordered_nodes[ orig->id ] = orig;
+        ordered_nodes[ dest->id ] = dest;
+    }
+    
+    std::sort(edges.begin(), edges.end(), EdgeLess);
+    int num_edges = edges.size();
+    vector<Edge*> edges_copy(num_edges);
+    for (int i=0; i<num_edges; i++) {
+        edges_copy[i] = edges[i];
+    }
+    
+    //cout << "# edges:" << num_edges << endl;
+    
+    this->ordered_edges.resize(num_nodes-1);
 }

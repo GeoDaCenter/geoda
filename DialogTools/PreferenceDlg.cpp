@@ -215,6 +215,7 @@ void PreferenceDlg::Init()
     cmb113->Append("English");
     cmb113->Append("Chinese");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
+    cmb113->Disable();
     
     grid_sizer1->Add(lbl_txt113, 1, wxEXPAND);
     grid_sizer1->Add(cmb113, 0, wxALIGN_RIGHT);

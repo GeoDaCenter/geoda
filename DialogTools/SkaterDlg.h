@@ -29,6 +29,7 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
+#include "../Algorithms/redcap.h"
 
 class Project;
 class TableInterface;
@@ -44,7 +45,7 @@ public:
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    
+    void OnSaveTree(wxCommandEvent& event );
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     virtual void OnCheckMinBound(wxCommandEvent& event);
@@ -68,6 +69,9 @@ private:
     wxTextCtrl* txt_minregions;
 
     wxButton* seedButton;
+    wxButton* saveButton;
+    
+    SpanningTreeClustering::Skater* skater;
     
     DECLARE_EVENT_TABLE()
 };

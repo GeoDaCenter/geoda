@@ -58,13 +58,12 @@ EVT_CLOSE( RedcapDlg::OnClose )
 END_EVENT_TABLE()
 
 RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s,  _("REDCAP Settings"))
+: redcap(NULL), AbstractClusterDlg(parent_s, project_s,  _("REDCAP Settings"))
 {
     wxLogMessage("Open REDCAP dialog.");
     
     parent = parent_s;
     project = project_s;
-    redcap = NULL;
     weights = NULL;
     
     bool init_success = Init();
@@ -129,7 +128,7 @@ void RedcapDlg::CreateControls()
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
-    combo_method->SetSelection(0);
+    combo_method->SetSelection(2);
     
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);

@@ -254,8 +254,8 @@ public:
         
         for (int i = 1; i < k; i++) {
             for (int j = 0; j < i; j++) {
-                copy[i][j] = matrix[i][j];
-                copy[j][i] = matrix[i][j];
+                copy[i][j] = sqrt(matrix[i][j]);
+                copy[j][i] = copy[i][j];
             }
         }
         
