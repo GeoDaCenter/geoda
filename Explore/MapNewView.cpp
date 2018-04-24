@@ -2466,7 +2466,9 @@ void MapFrame::MapMenus()
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, mb->GetMenuLabelText(10), optMenu);	
+	//hong
+	//GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -2474,7 +2476,9 @@ void MapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(mb->GetMenuLabel(10));
+	//hong
+	//int menu = mb->FindMenu("Options");
     if (menu == wxNOT_FOUND) {
 	} else {
 		((MapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

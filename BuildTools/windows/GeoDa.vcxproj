@@ -386,6 +386,7 @@
     <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
+    <ClCompile Include="..\..\wxTranslationHelper.cpp" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
     <ClInclude Include="..\..\Algorithms\geocoding.h" />
@@ -633,6 +634,7 @@
     <ClInclude Include="..\..\VarCalc\WeightsMetaInfo.h" />
     <ClInclude Include="..\..\VarTools.h" />
     <ClInclude Include="..\..\version.h" />
+    <ClInclude Include="..\..\wxTranslationHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\DialogTools\CalculatorDlg.cpp" />

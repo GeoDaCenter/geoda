@@ -294,6 +294,7 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	//mb->Replace(m_ind, newMenu, title);
     wxMenu* prev_opt_menu = mb->Remove(m_ind);
     mb->Insert(m_ind, newMenu, title);
+	
 	// The following line shouldn't be needed, but on wxWidgets 2.9.2, the
 	// menu label is set to empty after Replace is called.
 	//mb->SetMenuLabel(m_ind, title);

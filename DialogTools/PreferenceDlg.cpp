@@ -40,6 +40,7 @@
 #include <wx/slider.h>
 #include <wx/combobox.h>
 #include <wx/notebook.h>
+#include <wx/config.h>
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
 #include "curl/curl.h"
@@ -215,7 +216,7 @@ void PreferenceDlg::Init()
     cmb113->Append("English");
     cmb113->Append("Chinese");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
-    cmb113->Disable();
+    //cmb113->Disable();
     
     grid_sizer1->Add(lbl_txt113, 1, wxEXPAND);
     grid_sizer1->Add(cmb113, 0, wxALIGN_RIGHT);
@@ -716,8 +717,28 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     wxString sel_str;
     sel_str << GdaConst::gda_ui_language;
     OGRDataAdapter::GetInstance().AddEntry("gda_ui_language", sel_str.ToStdString());
+    
+    // also update the lang/config.ini content
+    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
+    wxFileName exeFile(exePath);
+    wxString exeDir = exeFile.GetPathWithSep();
+    wxString configPath = exeDir + "lang" + wxFileName::GetPathSeparator() + "config.ini";
+    wxConfigBase * config = new wxFileConfig("GeoDa", wxEmptyString, configPath);
+    
+    long language = wxLANGUAGE_ENGLISH;
+    if (lan_sel == 1) {
+        language = wxLANGUAGE_CHINESE + 1;
+    } else if (lan_sel == 2) {
+        
+    }
+    config->DeleteEntry("Translation");
+    config->SetPath("Translation");
+    config->Write("Language", language);
+    config->Flush();
+    delete config;
+    
     wxString msg = _("Please restart GeoDa to apply the language setup.");
-    wxMessageDialog dlg(NULL, msg, _("Info"), wxOK | wxICON_ERROR);
+    wxMessageDialog dlg(NULL, msg, _("Info"), wxOK | wxICON_INFORMATION);
     dlg.ShowModal();
 }
 void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)

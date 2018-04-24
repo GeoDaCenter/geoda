@@ -1,0 +1,95 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2018-04-03 00:06+0800\n"
+"PO-Revision-Date: 2018-04-03 00:07+0800\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Poedit-Basepath: ../../..\n"
+"Plural-Forms: nplurals=2; plural=(n!=0);\n"
+"X-Poedit-KeywordsList: _\n"
+"X-Poedit-SearchPath-0: src/wxTranslationHelper\n"
+"X-Poedit-SearchPath-1: .\n"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:135
+msgid "Default"
+msgstr "默认"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:140
+#, c-format
+msgid "Directory %s DOES NOT EXIST !!!"
+msgstr "目录 %s 不存在."
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:161
+#, c-format
+msgid "SEARCHING FOR %s"
+msgstr "搜索%s..."
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:181
+msgid "Array of language names and identifiers should have the same size."
+msgstr "图标必须具有相同的大小"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:182
+msgid "Select the language"
+msgstr "选择语言"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:183
+#: wxTranslationTestMainFrame.cpp:48
+msgid "Language"
+msgstr "国别语言"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:194
+#, c-format
+msgid "wxTranslationHelper: Path Prefix = \"%s\""
+msgstr "wxTranslationHelper：路径前缀= %s"
+
+#: src/wxTranslationHelper/wxTranslationHelper.cpp:198
+#, c-format
+msgid "wxTranslationHelper: Catalog Name = \"%s\""
+msgstr "wxTranslationHelper：目录名称=“%s”"
+
+#: wxTranslationTestMainFrame.cpp:45
+msgid "Exit\tAlt+F4"
+msgstr ""
+
+#: wxTranslationTestMainFrame.cpp:49
+msgid "Status Bar"
+msgstr "进度条"
+
+#: wxTranslationTestMainFrame.cpp:52 wxTranslationTestMainFrame.cpp:108
+msgid "Add new item to document"
+msgstr "新增项目"
+
+#: wxTranslationTestMainFrame.cpp:55
+msgid "About..."
+msgstr "关于"
+
+#: wxTranslationTestMainFrame.cpp:57
+msgid "File"
+msgstr "文件"
+
+#: wxTranslationTestMainFrame.cpp:58
+msgid "View"
+msgstr "视图"
+
+#: wxTranslationTestMainFrame.cpp:59
+msgid "Document"
+msgstr "文档"
+
+#: wxTranslationTestMainFrame.cpp:60
+msgid "Help"
+msgstr "帮助"
+
+#: wxTranslationTestMainFrame.cpp:102 wxTranslationTestMainFrame.h:13
+#: wxTranslationTestMainFrame.h:15
+msgid "wxTranslation Test"
+msgstr ""
+
+#: wxTranslationTestMainFrame.cpp:109
+msgid "Change some data"
+msgstr ""

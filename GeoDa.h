@@ -37,6 +37,7 @@
 #include <wx/timer.h>
 #include <wx/toolbar.h>
 #include <wx/xrc/xh_auitoolb.h>
+#include "wxTranslationHelper.h"
 
 // Forward Declarations
 class ProgressDlg;
@@ -63,7 +64,7 @@ public:
 	virtual void MacOpenFiles(const wxArrayString& fileNames);
 
 	static const wxCmdLineEntryDesc globalCmdLineDesc[];
-    
+    wxTranslationHelper* m_TranslationHelper;
 private:
 	wxString cmd_line_proj_file_name;
 	wxSingleInstanceChecker* checker;

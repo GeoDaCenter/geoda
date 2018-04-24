@@ -373,9 +373,15 @@ void TemplateFrame::RegisterAsActive(const wxString& name,
 		MapMenus();
 		// Enable the Close menu item.  This saves including this code in every
 		// single MapMenus call by all classes that inherit this class.
+		/**hong**/
+		GeneralWxUtils::EnableMenuItem(GdaFrame::GetGdaFrame()->GetMenuBar(),
+									   GdaFrame::GetGdaFrame()->GetMenuBar()->GetMenuLabelText(0),
+									   wxID_CLOSE, true);
+		/*
 		GeneralWxUtils::EnableMenuItem(GdaFrame::GetGdaFrame()->GetMenuBar(),
 									   "File",
 									   wxID_CLOSE, true);
+									   */
 		activeFrame = this;
 		activeFrName = name;
 		GdaFrame::GetGdaFrame()->SetTitle(title);

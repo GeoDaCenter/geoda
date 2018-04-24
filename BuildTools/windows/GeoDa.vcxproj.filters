@@ -698,6 +698,7 @@
     <ClInclude Include="..\..\io\MatfileReader.h">
       <Filter>io</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\wxTranslationHelper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1269,5 +1270,6 @@
     <ClCompile Include="..\..\io\MatfileReader.cpp">
       <Filter>io</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\wxTranslationHelper.cpp" />
   </ItemGroup>
 </Project>

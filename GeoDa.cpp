@@ -290,8 +290,16 @@ bool GdaApp::OnInit(void)
     
     // load language here:
     // GdaConst::gda_ui_language
-    // value 0: english
-    // value 1: chinese
+    // search_path is the ./lang directory
+    // config_path it the exe directory (every user will have a different config file?)
+    wxFileName appFileName(argv[0]);
+    appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
+    wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
+    wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
+    bool use_native_config = false;
+    m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
+    m_TranslationHelper->SetConfigPath(config_path);
+    m_TranslationHelper->Load();
    
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
@@ -527,9 +535,14 @@ void GdaFrame::UpdateToolbarAndMenus()
 {
 	// This method is called when no particular window is currently active.
 	// In this case, the close menu item should be disabled.
+	// some change 
 
-	GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE, false);
-
+  
+  
+   GeneralWxUtils::EnableMenuItem(GetMenuBar(), GetMenuBar()->GetMenuLabelText(0), wxID_CLOSE, false);
+	/*hong
+   //GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE, false);
+   */
 	Project* p = GetProject();
 	bool proj_open = (p != 0);
 	bool shp_proj = proj_open && !p->IsTableOnlyProject();
@@ -545,10 +558,15 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("ID_NEW_PROJECT"), !proj_open);
 	EnableTool(XRCID("ID_OPEN_PROJECT"), !proj_open);
 	EnableTool(XRCID("ID_CLOSE_PROJECT"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"), proj_open);
-		
+	
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_NEW_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_OPEN_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_CLOSE_PROJECT"), proj_open);
+	/* hong************************
+	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"), !proj_open);
+	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"), !proj_open);
+	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"), proj_open);
+		*/
 	if (!proj_open) {
 		// Disable only if project not open.  Otherwise, leave changing
 		// Save state to SaveButtonManager
@@ -571,13 +589,19 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-    
+	
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_POINTS_FROM_TABLE"), proj_open);
+    /*hong
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_POINTS_FROM_TABLE"), proj_open);
-
+	*/
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), false);
 
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
@@ -590,8 +614,11 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ADJUST_AXIS_PRECISION"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ZOOM_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_PAN_MODE"), proj_open);	
-		
+	
+	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(5), proj_open);
+	/*hong
 	GeneralWxUtils::EnableMenuAll(mb, "Explore", proj_open);
+	*/
 	EnableTool(XRCID("IDM_BOX"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_BOX"), proj_open);
 
@@ -636,7 +663,11 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LINE_CHART"), proj_open);
 
 	EnableTool(XRCID("IDM_NEW_TABLE"), proj_open);
+	
+	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(3), proj_open);
+	/*hong
 	GeneralWxUtils::EnableMenuAll(mb, "Table", proj_open);
+	*/
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_TIME_CHOOSER"),time_variant);
     
 	// Temporarily removed for 1.6 release work
@@ -692,7 +723,10 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
 	
+	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(4), shp_proj);
+	/*hong
 	GeneralWxUtils::EnableMenuAll(mb, "Map", shp_proj);
+	*/
 	EnableTool(XRCID("ID_MAP_CHOICES"), shp_proj);
 	EnableTool(XRCID("ID_DATA_MOVIE"), shp_proj);
 	EnableTool(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
@@ -703,9 +737,12 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("ID_PUBLISH"), proj_open && project_p->GetDatasourceType()==GdaConst::ds_cartodb);
 	
 	//Empty out the Options menu:
-	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
+	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu(wxT("ID_DEFAULT_MENU_OPTIONS"));
+	
+	GeneralWxUtils::ReplaceMenu(mb, mb->GetMenuLabelText(10), optMenu);
+	/*hong
 	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);
-    
+   */
 }
 
 void GdaFrame::SetMenusToDefault()
@@ -714,16 +751,21 @@ void GdaFrame::SetMenusToDefault()
 	// in one of File, Tools, Methods, or Help menus.
 	wxMenuBar* mb = GetMenuBar();
 	if (!mb) return;
+	//hong
 	//wxMenu* menu = NULL;
+	wxString File = mb->GetMenuLabelText(0);
+	wxString Tools = mb->GetMenuLabelText(2);
+	wxString Table = mb->GetMenuLabelText(3);
+	wxString Help = mb->GetMenuLabelText(11);
 	wxString menuText = wxEmptyString;
 	int menuCnt = mb->GetMenuCount();
 	for (int i=0; i<menuCnt; i++) {
 		mb->GetMenu(i);
 		menuText = mb->GetMenuLabelText(i);
-		if ( (menuText != "File") &&
-			 (menuText != "Tools") &&
-			 (menuText != "Table") &&
-			 (menuText != "Help") ) {
+		if ( (menuText != File) &&
+			 (menuText != Tools) &&
+			 (menuText != Table) &&
+			 (menuText != Help) ) {
 			GeneralWxUtils::EnableMenuAll(mb, menuText, false);
 		}
 	}

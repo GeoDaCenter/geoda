@@ -50,6 +50,10 @@
 		A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D12511F20AE450073D408 /* SpectralClusteringDlg.cpp */; };
 		A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */; };
 		A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */; };
+		A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */; };
+		A4404A05208E9E390007753D /* lang in Resources */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
+		A4404A06208E9E390007753D /* zh_CN.po in Resources */ = {isa = PBXBuildFile; fileRef = A4404A04208E9E390007753D /* zh_CN.po */; };
+		A4404A07208E9E5A0007753D /* lang in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
 		A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */; };
 		A4596B512033DDFF00C9BCC8 /* AbstractClusterMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */; };
 		A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */; };
@@ -247,6 +251,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				A4404A07208E9E5A0007753D /* lang in CopyFiles */,
 				DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */,
 				A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */,
 				A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */,
@@ -342,6 +347,10 @@
 		A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinatorObserver.h; sourceTree = "<group>"; };
 		A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyMapNewView.cpp; sourceTree = "<group>"; };
 		A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyMapNewView.h; sourceTree = "<group>"; };
+		A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wxTranslationHelper.cpp; sourceTree = "<group>"; };
+		A4404A01208E65DD0007753D /* wxTranslationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wxTranslationHelper.h; sourceTree = "<group>"; };
+		A4404A03208E9E380007753D /* lang */ = {isa = PBXFileReference; lastKnownFileType = folder; path = lang; sourceTree = "<group>"; };
+		A4404A04208E9E390007753D /* zh_CN.po */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = zh_CN.po; sourceTree = "<group>"; };
 		A4596B4C2033D8F600C9BCC8 /* AbstractCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractCoordinator.h; sourceTree = "<group>"; };
 		A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCoordinator.cpp; sourceTree = "<group>"; };
 		A4596B4F2033DDFF00C9BCC8 /* AbstractClusterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterMap.h; sourceTree = "<group>"; };
@@ -822,42 +831,12 @@
 		A4CFF027207D6D7500E2E6DE /* internationalization */ = {
 			isa = PBXGroup;
 			children = (
-				A4CFF028207D6D7500E2E6DE /* bin */,
-				A4CFF02B207D6D7500E2E6DE /* lang */,
+				A4404A03208E9E380007753D /* lang */,
+				A4404A04208E9E390007753D /* zh_CN.po */,
 			);
 			name = internationalization;
 			path = ../../internationalization;
 			sourceTree = SOURCE_ROOT;
-		};
-		A4CFF028207D6D7500E2E6DE /* bin */ = {
-			isa = PBXGroup;
-			children = (
-				A4CFF029207D6D7500E2E6DE /* chinese */,
-				A4CFF02A207D6D7500E2E6DE /* en */,
-			);
-			path = bin;
-			sourceTree = "<group>";
-		};
-		A4CFF029207D6D7500E2E6DE /* chinese */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = chinese;
-			sourceTree = "<group>";
-		};
-		A4CFF02A207D6D7500E2E6DE /* en */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = en;
-			sourceTree = "<group>";
-		};
-		A4CFF02B207D6D7500E2E6DE /* lang */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = lang;
-			sourceTree = "<group>";
 		};
 		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
 			isa = PBXGroup;
@@ -943,6 +922,8 @@
 				DD409E4A19FFD43000C21A2B /* VarTools.cpp */,
 				DD409E4B19FFD43000C21A2B /* VarTools.h */,
 				DD84139218B24BF2007C39CF /* version.h */,
+				A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */,
+				A4404A01208E65DD0007753D /* wxTranslationHelper.h */,
 			);
 			path = ../../;
 			sourceTree = "<group>";
@@ -1429,6 +1410,8 @@
 				DD5A579716E53EC40047DBB1 /* GeoDa.icns in Resources */,
 				A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */,
 				A19F51501756A11E006E31B4 /* plugins in Resources */,
+				A4404A06208E9E390007753D /* zh_CN.po in Resources */,
+				A4404A05208E9E390007753D /* lang in Resources */,
 				A496C99E1E6A184C008F87DD /* samples.sqlite in Resources */,
 				A496C9A81E6A43C0008F87DD /* BaltimoreHomeSales.png in Resources */,
 				A496C9AA1E6A43CC008F87DD /* BostonHomeSales.png in Resources */,
@@ -1577,6 +1560,7 @@
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,
 				A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */,
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
+				A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */,
 				DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */,
 				DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */,
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
