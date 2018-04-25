@@ -133,9 +133,6 @@ void wxTranslationHelper::GetInstalledLanguages(wxArrayString & names,
 	}
     
     wxString filespec = "*";
-#ifdef __WXMSW__
-    filespec = "*.*";
-#endif
     
     wxString appname = m_App.GetAppName();
     wxString filename;

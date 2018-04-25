@@ -18,8 +18,11 @@
  */
 #include <string>
 #include <wx/wx.h>
+#include <wx/config.h>
 #include <wx/statbmp.h>
 #include <wx/filedlg.h>
+#include <wx/config.h>
+#include <wx/fileconf.h>
 #include <wx/dir.h>
 #include <wx/filefn.h>
 #include <wx/msgdlg.h>
