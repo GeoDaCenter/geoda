@@ -220,6 +220,7 @@ void PreferenceDlg::Init()
     cmb113->Append("English");
     cmb113->Append("Chinese Simplified");
     cmb113->Append("Spanish");
+    cmb113->Append("German");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
     //cmb113->Disable();
     
