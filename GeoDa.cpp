@@ -295,11 +295,24 @@ bool GdaApp::OnInit(void)
     wxFileName appFileName(argv[0]);
     appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
     wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
-    wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
-    bool use_native_config = false;
-    m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
-    m_TranslationHelper->SetConfigPath(config_path);
-    m_TranslationHelper->Load();
+    
+    if (GdaConst::gda_ui_language == 0) {
+        // auto detect language using system language
+        int lang = wxLocale::GetSystemLanguage();
+        if (lang != wxLANGUAGE_UNKNOWN) {
+            wxLocale *m_Locale = new wxLocale;
+            m_Locale->Init(lang);
+            m_Locale->AddCatalogLookupPathPrefix(search_path);
+            m_Locale->AddCatalog("GeoDa");
+        }
+    } else {
+        // load language from lang/config.ini if user specified any
+        wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
+        bool use_native_config = false;
+        m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
+        m_TranslationHelper->SetConfigPath(config_path);
+        m_TranslationHelper->Load();
+    }
    
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
