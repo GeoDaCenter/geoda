@@ -715,9 +715,6 @@ msgstr ""
 msgid "Parallel Coordinate Plot"
 msgstr ""
 
-msgid ">>"
-msgstr ""
-
 msgid "Legend Background Color"
 msgstr ""
 
@@ -1229,9 +1226,6 @@ msgid "Spatial Error"
 msgstr ""
 
 msgid "Highlight Color"
-msgstr ""
-
-msgid ">"
 msgstr ""
 
 msgid "Thiessen Polygons"

@@ -698,22 +698,6 @@ void FirstOrderSLKRedCap::Clustering()
     }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-// HDBSCAN
-//
-////////////////////////////////////////////////////////////////////////////////
-HDBScan::HDBScan(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
-: FirstOrderSLKRedCap(rows, cols, _distances, _data, _undefs, w, _controls, _control_thres)
-{
-    // d_core(x_p), is the distance from x_p to its m_pts-nearest neighbor (incl. x_p)
-    cores.resize(rows);
-}
-
-HDBScan::~HDBScan()
-{
-    
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 //

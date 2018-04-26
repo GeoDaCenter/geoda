@@ -53,6 +53,9 @@
 		A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */; };
 		A4404A05208E9E390007753D /* lang in Resources */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
 		A4404A07208E9E5A0007753D /* lang in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
+		A4404A0F209270FB0007753D /* pofiles in Resources */ = {isa = PBXBuildFile; fileRef = A4404A0E209270FB0007753D /* pofiles */; };
+		A4404A12209275550007753D /* hdbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A10209275540007753D /* hdbscan.cpp */; };
+		A4404A1420927C340007753D /* kNN in Resources */ = {isa = PBXBuildFile; fileRef = A4404A1320927C330007753D /* kNN */; };
 		A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */; };
 		A4596B512033DDFF00C9BCC8 /* AbstractClusterMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */; };
 		A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */; };
@@ -349,6 +352,10 @@
 		A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wxTranslationHelper.cpp; sourceTree = "<group>"; };
 		A4404A01208E65DD0007753D /* wxTranslationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wxTranslationHelper.h; sourceTree = "<group>"; };
 		A4404A03208E9E380007753D /* lang */ = {isa = PBXFileReference; lastKnownFileType = folder; path = lang; sourceTree = "<group>"; };
+		A4404A0E209270FB0007753D /* pofiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pofiles; sourceTree = "<group>"; };
+		A4404A10209275540007753D /* hdbscan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hdbscan.cpp; path = Algorithms/hdbscan.cpp; sourceTree = "<group>"; };
+		A4404A11209275550007753D /* hdbscan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hdbscan.h; path = Algorithms/hdbscan.h; sourceTree = "<group>"; };
+		A4404A1320927C330007753D /* kNN */ = {isa = PBXFileReference; lastKnownFileType = folder; path = kNN; sourceTree = "<group>"; };
 		A4596B4C2033D8F600C9BCC8 /* AbstractCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractCoordinator.h; sourceTree = "<group>"; };
 		A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCoordinator.cpp; sourceTree = "<group>"; };
 		A4596B4F2033DDFF00C9BCC8 /* AbstractClusterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterMap.h; sourceTree = "<group>"; };
@@ -755,6 +762,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4404A10209275540007753D /* hdbscan.cpp */,
+				A4404A11209275550007753D /* hdbscan.h */,
 				A42018011FB3C0AC0029709C /* skater.cpp */,
 				A42018021FB3C0AC0029709C /* skater.h */,
 				A4368CDA1FABBBC60099FA9B /* mds.cpp */,
@@ -829,6 +838,7 @@
 		A4CFF027207D6D7500E2E6DE /* internationalization */ = {
 			isa = PBXGroup;
 			children = (
+				A4404A0E209270FB0007753D /* pofiles */,
 				A4404A03208E9E380007753D /* lang */,
 			);
 			name = internationalization;
@@ -847,6 +857,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A4404A1320927C330007753D /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
 				A45DBDEF1EDDDD2600C2AA8A /* Algorithms */,
@@ -1419,10 +1430,12 @@
 				A496C9B61E6A43EE008F87DD /* NepalAid.png in Resources */,
 				A496C9B91E6A43FA008F87DD /* no_map.png in Resources */,
 				A496C9BB1E6A43FE008F87DD /* NYCData.png in Resources */,
+				A4404A1420927C340007753D /* kNN in Resources */,
 				A496C9BD1E6A4402008F87DD /* PhoenixACS.png in Resources */,
 				A496C9BF1E6A4405008F87DD /* SanFranCrime.png in Resources */,
 				A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */,
 				A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */,
+				A4404A0F209270FB0007753D /* pofiles in Resources */,
 				A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */,
 				A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */,
 			);
@@ -1562,6 +1575,7 @@
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
+				A4404A12209275550007753D /* hdbscan.cpp in Sources */,
 				A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */,
 				A1E7813A178A90A100CC1037 /* OGRFieldProxy.cpp in Sources */,
 				A1E7813B178A90A100CC1037 /* OGRLayerProxy.cpp in Sources */,

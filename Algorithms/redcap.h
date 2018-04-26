@@ -316,27 +316,6 @@ namespace SpanningTreeClustering {
         virtual void Clustering();
     };
     
-    /////////////////////////////////////////////////////////////////////////
-    //
-    // HDBSCAN
-    //
-    /////////////////////////////////////////////////////////////////////////
-    class HDBScan : public FirstOrderSLKRedCap
-    {
-        vector<double> cores;
-        vector<int> designations;
-        
-    public:
-        HDBScan(int rows, int cols,
-                double** _distances,
-                double** data,
-                const vector<bool>& undefs,
-                GalElement * w,
-                double* controls,
-                double control_thres);
-        virtual ~HDBScan();
- 
-    };
     
     ////////////////////////////////////////////////////////////////////////////////
     //

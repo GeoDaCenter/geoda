@@ -478,6 +478,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
         wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
         dlg.ShowModal();
+        return;
     }
     
     // Get Bounds
