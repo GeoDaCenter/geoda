@@ -92,18 +92,50 @@ double SSDUtils::ComputeSSD(vector<int> &visited_ids, int start, int end)
 Node::Node(int _id)
 {
     id = _id;
-    nbr_info.SetDefault(this);
 }
 
-void Node::SetCluster(Cluster* cluster)
+DisjoinSet::DisjoinSet()
 {
-    container = cluster;
+    
 }
 
-void Node::AddNeighbor(Node* nbr, Edge* e)
+Node* DisjoinSet::FindSet(Node* node)
 {
-    nbr_info.AddNeighbor(nbr, e);
+    Node* parent = node->parent;
+    if (parent == node) {
+        return parent;
+    }
+    node->parent = FindSet(node->parent);
+    return node->parent;
 }
+
+Node* DisjoinSet::MakeSet(int id)
+{
+    Node* node = new Node(id);
+    node->parent = node;
+    node->rank = 0;
+    map[id] = node;
+    
+    return node;
+}
+
+void DisjoinSet::Union(Node* n1, Node* n2)
+{
+    Node* parent1 = FindSet(n1);
+    Node* parent2 = FindSet(n2);
+    
+    if (parent1 == parent2) {
+        return;
+    }
+    
+    if (parent1->rank >= parent2->rank) {
+        parent1->rank = (parent1->rank == parent2->rank) ? parent1->rank +1 : parent1->rank;
+        parent2->parent = parent1;
+    } else {
+        parent1->parent = parent2;
+    }
+}
+
 /////////////////////////////////////////////////////////////////////////
 //
 // Edge
@@ -134,139 +166,18 @@ bool EdgeLess(Edge* a, Edge* b)
     return true;
 }
 
-bool RedCapEdgeLarger(Edge* a, Edge* b)
-{
-    return a->length > b->length;
-}
-/////////////////////////////////////////////////////////////////////////
-//
-// Cluster
-//
-/////////////////////////////////////////////////////////////////////////
-Cluster::Cluster(Node* node)
-{
-    p1 = node;
-    p2 = node;
-    parent = NULL;
-    child1 = NULL;
-    child2 = NULL;
-    
-    node->SetCluster(this);
-}
-
-Cluster::Cluster(Cluster* c1, Cluster* c2, Edge* e, double** _dist_matrix)
-{
-    dist_matrix = _dist_matrix;
-    c1->parent = this;
-    c2->parent = this;
-    child1 = c1;
-    child2 = c2;
-    parent = NULL;
-    
-    double d11 = dist_matrix[c1->p1->id][c2->p1->id];
-    double d12 = dist_matrix[c1->p1->id][c2->p2->id];
-    double d21 = dist_matrix[c1->p2->id][c2->p1->id];
-    double d22 = dist_matrix[c1->p2->id][c2->p2->id];
-    
-    if ((d11 < d12) && (d11 < d21) && (d11 < d22))
-    {
-        p1 = c1->p2;
-        p2 = c2->p2;
-        c1->p1->AddNeighbor(c2->p1, e);
-        c2->p1->AddNeighbor(c1->p1, e);
-        
-    } else if ((d12 < d21) && (d12 < d22)) {
-        p1 = c1->p2;
-        p2 = c2->p1;
-        c1->p1->AddNeighbor(c2->p2, e);
-        c2->p2->AddNeighbor(c1->p1, e);
-        
-    } else if (d21 < d22) {
-        p1 = c1->p1;
-        p2 = c2->p2;
-        c1->p2->AddNeighbor(c2->p1, e);
-        c2->p1->AddNeighbor(c1->p2, e);
-        
-    } else {
-        p1 = c1->p1;
-        p2 = c2->p1;
-        c1->p2->AddNeighbor(c2->p2, e);
-        c2->p2->AddNeighbor(c1->p2, e);
-    }
-}
-
-Cluster* Cluster::GetRoot(Node* node)
-{
-    Cluster* root = NULL;
-    Cluster* cur_cluster = node->container;
-    while (cur_cluster != NULL) {
-        root = cur_cluster;
-        cur_cluster = cur_cluster->parent;
-    }
-    return root;
-}
-
-void Cluster::GetOrderedNodes(Cluster* root, vector<Node*>& ordered_nodes)
-{
-    Node* pre_node = root->p1;
-    Node* cur_node = NULL;
-    
-    Node* n1 = pre_node->nbr_info.n1;
-    Node* n2 = pre_node->nbr_info.n2;
-    
-    Node* next_node = NULL;
-    
-    if (n1 != NULL) {
-        next_node = n1;
-    } else if (n2 != NULL) {
-        next_node = n2;
-    } else {
-        //cout << "no neighbor point." << endl;
-    }
-    
-    int count = 0;
-    pre_node->container = NULL;
-    
-    ordered_nodes[0] = pre_node;
-    Edge* e;
-    
-    while (next_node != NULL) {
-        Edge* e1 = next_node->nbr_info.e1;
-        Edge* e2 = next_node->nbr_info.e1;
-        Node* n1 = next_node->nbr_info.n1;
-        Node* n2 = next_node->nbr_info.n2;
-        if (n1 == pre_node) {
-            next_node = n2;
-            e = e1;
-        } else if (n2 == pre_node) {
-            next_node = n1;
-            e = e2;
-        } else {
-            //cout << "wrong neibhro" << endl;
-        }
-        if (next_node->container == NULL) {
-            //cout << "visited before" << endl;
-        }
-        count ++;
-        ordered_nodes[count] = next_node;
-        next_node->container = NULL;
-
-        pre_node = next_node;
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////
 //
 // Tree
 //
 /////////////////////////////////////////////////////////////////////////
-Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactory* _redcap)
-: ordered_ids(_ordered_ids), edges(_edges), redcap(_redcap)
+Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactory* _cluster)
+: ordered_ids(_ordered_ids), edges(_edges), cluster(_cluster)
 {
     ssd_reduce = 0;
-    ssd_utils = redcap->ssd_utils;
-    controls = redcap->controls;
-    control_thres = redcap->control_thres;
+    ssd_utils = cluster->ssd_utils;
+    controls = cluster->controls;
+    control_thres = cluster->control_thres;
     
     int size = ordered_ids.size();
     int edge_size = edges.size();
@@ -508,8 +419,8 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
     }
 
     
-    Tree* left_tree = new Tree(part1_ids, part1_edges, redcap);
-    Tree* right_tree = new Tree(part2_ids, part2_edges, redcap);
+    Tree* left_tree = new Tree(part1_ids, part1_edges, cluster);
+    Tree* right_tree = new Tree(part2_ids, part2_edges, cluster);
     subtrees.first = left_tree;
     subtrees.second = right_tree;
     return subtrees;
@@ -530,10 +441,7 @@ AbstractClusterFactory::~AbstractClusterFactory()
     if (ssd_utils) {
         delete ssd_utils;
     }
-    // delete from this->cluster
-    if (this->cluster) {
-        delete this->cluster;
-    }
+
     for (int i=0; i<edges.size(); i++) {
         delete edges[i];
     }
@@ -549,8 +457,7 @@ void AbstractClusterFactory::init()
     // create nodes and edges
     nodes.resize(rows);
     for (int i=0; i<rows; i++) {
-        Node* node = new Node(i);
-        Cluster* cluster = new Cluster(node); // NOTE should be released somewhere
+        Node* node = djset.MakeSet(i);
         nodes[i] = node;
     }
     
@@ -599,7 +506,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
-        //cout << tmp_tree->ssd_reduce << endl;
+        cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
         
         pair<Tree*, Tree*> children = tmp_tree->GetSubTrees();
@@ -706,7 +613,7 @@ void Skater::Clustering()
         }
     }
     
-    //cout << "Skater mst sum length:" << sum_length << endl;
+    cout << "Skater mst sum length:" << sum_length << endl;
     
     for (int i=0; i<ordered_edges.size(); i++) {
         int source = ordered_edges[i]->orig->id;
@@ -721,10 +628,9 @@ void Skater::Clustering()
             id_dict[target] = true;
         }
     }
-    
-    //int n_i = id_dict.size();
-    this->cluster = NULL;
 }
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -760,19 +666,20 @@ void FirstOrderSLKRedCap::Clustering()
         Node* orig = edge->orig;
         Node* dest = edge->dest;
         
-        Cluster* root1 = Cluster::GetRoot(orig);
-        Cluster* root2 = Cluster::GetRoot(dest);
+        Node* root1 = djset.FindSet(orig);
+        Node* root2 = djset.FindSet(dest);
         
-        if (root1 != root2) {
-            this->cluster = new Cluster(root1, root2, edge, dist_matrix);
+        if (root1 == root2) {
+            continue;
+        } else {
             ordered_edges[cnt] = edge;
-            sum_length += edge->length;
-            if ( ++cnt == num_nodes - 1) {
-                break;
-            }
+            djset.Union(orig, dest);
+        }
+        if ( ++cnt == num_nodes - 1) {
+            break;
         }
     }
-    //cout << "FO-SLK mst sum length:" << sum_length << endl;
+    cout << "FO-SLK mst sum length:" << sum_length << endl;
     
     boost::unordered_map<int, bool> id_dict;
     for (int i=0; i<ordered_edges.size(); i++) {
@@ -789,6 +696,23 @@ void FirstOrderSLKRedCap::Clustering()
             id_dict[dest->id] = true;
         }
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// HDBSCAN
+//
+////////////////////////////////////////////////////////////////////////////////
+HDBScan::HDBScan(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
+: FirstOrderSLKRedCap(rows, cols, _distances, _data, _undefs, w, _controls, _control_thres)
+{
+    // d_core(x_p), is the distance from x_p to its m_pts-nearest neighbor (incl. x_p)
+    cores.resize(rows);
+}
+
+HDBScan::~HDBScan()
+{
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -925,7 +849,7 @@ void FullOrderALKRedCap::Clustering()
         edges_copy[i] = edges[i];
     }
     
-    //cout << "# edges:" << num_edges << endl;
+    cout << "# edges:" << num_edges << endl;
     
     this->ordered_edges.resize(num_nodes-1);
     
@@ -957,10 +881,12 @@ void FullOrderALKRedCap::Clustering()
         Node* dest = cur_edge->dest;
         int orig_id = ids[orig->id];
         int dest_id = ids[dest->id];
-        Cluster* root1 = Cluster::GetRoot(orig);
-        Cluster* root2 = Cluster::GetRoot(dest);
+        
+        Node* root1 = djset.FindSet(orig);
+        Node* root2 = djset.FindSet(dest);
         
         if (root1 != root2) {
+            // find the shortest e in edges
             for (int i=0; i<this->edges.size(); i++) {
                 ++cnt;
                 Edge* tmp_edge = this->edges[i];
@@ -974,13 +900,14 @@ void FullOrderALKRedCap::Clustering()
                     break;
                 }
             }
-            
-            this->cluster = new Cluster(root1, root2, cur_edge, this->dist_matrix);
+            // add e to cluster
+            djset.Union(orig, dest);
             
             if (index == num_nodes -1) {
                 break;
             }
             
+            // remove edges(c,l) and edges(c, m) from copy
             int i=0;
             while (i < num_edges) {
                 ++cnt;
@@ -998,6 +925,7 @@ void FullOrderALKRedCap::Clustering()
             for (i=0; i<num_nodes; i++) {
                 access_flag[i] = false;
             }
+            
             // update distance to (o,d) cluster
             for (i=0; i<num_nodes; ++i) {
                 ++cnt;
@@ -1007,8 +935,9 @@ void FullOrderALKRedCap::Clustering()
                     bool o_is_nbr = dist_dict[tmp_id].find(orig_id) != dist_dict[tmp_id].end();
                     if (d_is_nbr || o_is_nbr) {
                         double update_dist = UpdateClusterDist(tmp_id, orig_id, dest_id, o_is_nbr, d_is_nbr, cluster_ids, cluster_startpos, cluster_nodenum);
-                        //cout << "dist:" << update_dist << endl;
+                        
                         Edge* new_e = new Edge(ordered_nodes[tmp_id], ordered_nodes[orig_id], update_dist);
+                        
                         edges_copy[num_edges++] = new_e;
                         new_edges.push_back(new_e);
                         
@@ -1028,31 +957,24 @@ void FullOrderALKRedCap::Clustering()
             
             cluster_startpos[0] = 0;
             counts[0] = 0;
-            for (i=1; i<num_nodes; i++) {
+            for (i=1; i<num_nodes; ++i) {
                 cluster_startpos[i] = cluster_startpos[i-1] + cluster_nodenum[i-1];
                 counts[i] = 0;
              }
             
             for (i=0; i<num_nodes; i++) {
-                k = ids[i];
-                cluster_ids[cluster_startpos[k] + counts[k]] = i;
-                ++counts[k];
+                int j = ids[i];
+                cluster_ids[cluster_startpos[j] + counts[j]] = i;
+                ++counts[j];
             }
             
-            //for (i=0; i<num_nodes; i++) {
-            //    if (cluster_nodenum[i] != counts[i]) {
-            //        cout << "error not match" << endl;
-            //    }
-            //}
             
             cur_edge = GetShortestEdge(edges_copy, 0, num_edges);
             k = -1;
-        } else {
-            //cout << "root != root2" <<endl;
         }
     }
     
-    //cout << "cnt: " << cnt << endl;
+    cout << "cnt: " << cnt << endl;
     
     boost::unordered_map<int, bool> id_dict;
 
@@ -1101,7 +1023,7 @@ double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, boo
         
         for (int i=clst_startpos[cur_id]; i<c_endpos; i++) {
             for (int j=clst_startpos[d_id]; j<d_endpos; j++) {
-                sumval_c_d += dist_dict[clst_ids[i]] [clst_ids[j]];
+                sumval_c_d += dist_matrix[clst_ids[i]] [clst_ids[j]];
             }
         }
         

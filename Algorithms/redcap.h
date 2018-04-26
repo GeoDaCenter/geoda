@@ -40,7 +40,6 @@ namespace SpanningTreeClustering {
     
     class Node;
     class Edge;
-    class Cluster;
     class Tree;
     class AbstractClusterFactory;
     
@@ -78,7 +77,7 @@ namespace SpanningTreeClustering {
     
     /////////////////////////////////////////////////////////////////////////
     //
-    // RedCapNode
+    // Node
     //
     /////////////////////////////////////////////////////////////////////////
     
@@ -117,17 +116,30 @@ namespace SpanningTreeClustering {
         Node(int id);
         ~Node() {}
         
-        void SetCluster(Cluster* cluster);
-        void AddNeighbor(Node* nbr, Edge* e);
         
         int id; // mapping to record id
-        Cluster* container;
-        NeighborInfo nbr_info;
+        Node* parent;
+        int rank;
+        
+        //Cluster* container;
+        //NeighborInfo nbr_info;
     };
     
+    class DisjoinSet
+    {
+        boost::unordered_map<int, Node*> map;
+    public:
+        DisjoinSet();
+        ~DisjoinSet() {};
+        
+        Node* MakeSet(int id);
+        void Union(Node* n1, Node* n2);
+        Node* FindSet(Node* node);
+    };
+                   
     /////////////////////////////////////////////////////////////////////////
     //
-    // RedCapEdge
+    // Edge
     //
     /////////////////////////////////////////////////////////////////////////
     class Edge
@@ -140,43 +152,11 @@ namespace SpanningTreeClustering {
         Node* dest;
         double length; // legnth of the edge |a.val - b.val|
     };
-    
-    ////////////////////////////////////////////////////////////////////////////////
-    //
-    // RedCapCluster
-    //
-    ////////////////////////////////////////////////////////////////////////////////
-    class Cluster {
-    public:
-        static Cluster* GetRoot(Node* node);
-        static void GetOrderedNodes(Cluster* root, vector<Node*>& ordered_nodes);
-        
-        Cluster(Node* node);
-        Cluster(Cluster* c1, Cluster* c2, Edge* e, double** dist_matrix);
-        ~Cluster() {
-            if (child1) {
-                delete child1;
-            }
-            if (child2) {
-                delete child2;
-            }
-        }
-        
-        
-        double** dist_matrix;
-        
-        Node* p1;
-        Node* p2;
-        Cluster* parent;
-        Cluster* child1;
-        Cluster* child2;
-    };
-    
-    
+
     
     /////////////////////////////////////////////////////////////////////////
     //
-    // RedCapTree
+    // Tree
     //
     /////////////////////////////////////////////////////////////////////////
     struct SplitSolution
@@ -192,7 +172,7 @@ namespace SpanningTreeClustering {
     public:
         Tree(vector<int> ordered_ids,
                    vector<Edge*> _edges,
-                   AbstractClusterFactory* redcap);
+                   AbstractClusterFactory* cluster);
         
         ~Tree();
         
@@ -209,7 +189,7 @@ namespace SpanningTreeClustering {
         double ssd;
         
         vector<pair<int, int> > od_array;
-        AbstractClusterFactory* redcap;
+        AbstractClusterFactory* cluster;
         pair<Tree*, Tree*> subtrees;
         int max_id;
         int split_pos;
@@ -258,7 +238,8 @@ namespace SpanningTreeClustering {
         double control_thres;
         SSDUtils* ssd_utils;
         
-        Cluster* cluster;
+        //Cluster* cluster;
+        DisjoinSet djset;
         
         vector<Node*> nodes;
         vector<Edge*> edges;
@@ -333,6 +314,28 @@ namespace SpanningTreeClustering {
         virtual ~FirstOrderSLKRedCap();
         
         virtual void Clustering();
+    };
+    
+    /////////////////////////////////////////////////////////////////////////
+    //
+    // HDBSCAN
+    //
+    /////////////////////////////////////////////////////////////////////////
+    class HDBScan : public FirstOrderSLKRedCap
+    {
+        vector<double> cores;
+        vector<int> designations;
+        
+    public:
+        HDBScan(int rows, int cols,
+                double** _distances,
+                double** data,
+                const vector<bool>& undefs,
+                GalElement * w,
+                double* controls,
+                double control_thres);
+        virtual ~HDBScan();
+ 
     };
     
     ////////////////////////////////////////////////////////////////////////////////
