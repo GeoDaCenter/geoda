@@ -417,6 +417,17 @@ wxString MaxpDlg::_printConfiguration()
     }
     
     txt << "# iterations:\t" << m_iterations->GetValue() << "\n";
+   
+    int local_search_method = m_localsearch->GetSelection();
+    if (local_search_method == 0) {
+        txt << "Local search:\t" << "Greedy" << "\n";
+    } else if (local_search_method == 1) {
+        txt << "Local search:\t" << "Tabu Search" << "\n";
+        txt << "Tabu length:\t" << m_tabulength->GetValue() << "\n";
+    } else if (local_search_method == 2) {
+        txt << "Local search:\t" << "Simulated Annealing" << "\n";
+        txt << "Cooling rate:\t" << m_coolrate->GetValue() << "\n";
+    }
     
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     
