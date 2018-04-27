@@ -210,6 +210,7 @@ public:
 	wxString	proj_file_no_ext;
 	wxFileName	working_dir;
     
+    OGRLayerProxy*        layer_proxy;
     
     // Voronoi Diagram related
     std::vector<GdaPoint*> mean_centers;
@@ -242,7 +243,6 @@ private:
 	IDataSource          *datasource;
 	std::vector<wxString> default_var_name;
 	std::vector<int>      default_var_time;
-	OGRLayerProxy*        layer_proxy;
 
 	bool is_project_valid; // true if project Shapefile created successfully
 	wxString open_err_msg; // error message for project open failure.

@@ -509,6 +509,12 @@ void AbstractClusterFactory::Partitioning(int k)
         cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
         
+        if (tmp_tree->ssd == 0) {
+            not_split_trees.push_back(tmp_tree);
+            k = k -1;
+            continue;
+        }
+        
         pair<Tree*, Tree*> children = tmp_tree->GetSubTrees();
        
         Tree* left_tree = children.first;

@@ -1057,7 +1057,18 @@ const std::vector<GdaPoint*>& Project::GetCentroids()
 {
 	wxLogMessage("Project::GetCentroids()");
    
-    layer_proxy->GetCentroids(centroids);
+    if (layer_proxy->IsTableOnly()) {
+        if (centroids.size() == 0 && num_records > 0) {
+            centroids.resize(num_records);
+            double x, y;
+            for ( int row_idx=0; row_idx < num_records; row_idx++ ) {
+                Shapefile::PointContents* pc = (Shapefile::PointContents*)main_data.records[row_idx].contents_p;
+                centroids[row_idx] = new GdaPoint(pc->x, pc->y);
+            }
+        }
+    } else {
+        layer_proxy->GetCentroids(centroids);
+    }
 
 	return centroids;	
 }
@@ -1091,6 +1102,7 @@ void Project::GetCentroids(std::vector<wxRealPoint>& pts)
 const std::vector<GdaShape*>& Project::GetVoronoiPolygons()
 {
 	wxLogMessage("std::vector<GdaShape*>& Project::GetVoronoiPolygons()");
+    
 	if (voronoi_polygons.size() == num_records) {
 		return voronoi_polygons;
 	} else {
@@ -1100,8 +1112,8 @@ const std::vector<GdaShape*>& Project::GetVoronoiPolygons()
 		voronoi_polygons.clear();
 	}
 	
-	std::vector<double> x(num_records);
-	std::vector<double> y(num_records);
+	std::vector<double> x;
+	std::vector<double> y;
 	GetCentroids(x,y);
 	
 	Gda::VoronoiUtils::MakePolygons(x, y, voronoi_polygons,
