@@ -40,6 +40,7 @@
 
 #include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
+#include "../ShapeOperations/WeightUtils.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
@@ -411,6 +412,9 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         file.Write();
         file.Close();
         
+        // Load the weights file into Weights Manager
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int);
     }
 }
 

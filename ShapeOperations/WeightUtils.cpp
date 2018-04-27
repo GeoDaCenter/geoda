@@ -30,6 +30,8 @@
 #include "../DataViewer/TableInterface.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
+#include "../VarCalc/WeightsMetaInfo.h"
+#include "WeightsManager.h"
 #include "WeightUtils.h"
 
 wxString WeightUtils::ReadIdField(const wxString& fname)
@@ -860,5 +862,43 @@ GalElement* WeightUtils::Gwt2Gal(GwtElement* Gwt, long obs)
 	return Gal;
 }
 
+
+void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int)
+{
+    int rows = table_int->GetNumberRows();
+    
+    WeightsMetaInfo wmi;
+    
+    GalElement* tempGal = WeightUtils::ReadGwtAsGal(filepath, table_int);
+    if (tempGal == NULL) {
+        return;
+    }
+    
+    GalWeight* w = new GalWeight();
+    w->num_obs = rows;
+    w->wflnm = filepath;
+    w->gal = tempGal;
+    w->id_field = "unknown";
+    
+    w->GetNbrStats();
+    wmi.num_obs = w->GetNumObs();
+    wmi.SetMinNumNbrs(w->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(w->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(w->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(w->GetMedianNumNbrs());
+    wmi.SetSparsity(w->GetSparsity());
+    wmi.SetDensity(w->GetDensity());
+    
+    WeightsMetaInfo e(wmi);
+    e.filename = filepath;
+    
+    boost::uuids::uuid uid = w_man_int->RequestWeights(e);
+    if (uid.is_nil()) {
+        bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, w);
+        if (success) {
+            w_man_int->MakeDefault(uid);
+        }
+    }
+}
 
 

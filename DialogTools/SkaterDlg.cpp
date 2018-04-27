@@ -37,8 +37,10 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+#include "../ShapeOperations/WeightUtils.h"
 #include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
+#include "../ShapeOperations/WeightsManager.h"
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
@@ -226,8 +228,9 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"), wxEmptyString,
                             wxEmptyString, filter,
                             wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-        if (dialog.ShowModal() != wxID_OK)
+        if (dialog.ShowModal() != wxID_OK) {
             return;
+        }
         wxFileName fname = wxFileName(dialog.GetPath());
         wxString new_main_dir = fname.GetPathWithSep();
         wxString new_main_name = fname.GetName();
@@ -249,6 +252,9 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         file.Write();
         file.Close();
         
+        // Load the weights file into Weights Manager
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int);
     }
 }
 
