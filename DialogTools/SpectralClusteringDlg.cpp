@@ -591,22 +591,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     }
    
     int affinity_type = 0;
-  
-    /*
-    vector<double> dist_array;
-    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    for (int i = 1; i < rows; i++) {
-        for (int j = 0; j < i; j++) {
-            dist_array.push_back(ragged_distances[i][j]);
-        }
-    }
-    double variance = GenUtils::GetVariance(dist_array);
-    value_sigma = sqrt(variance);
     
-    vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
-    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-    free(ragged_distances);
-     */
     Spectral spectral;
     spectral.set_data(input_data, rows, columns);
     spectral.set_centers(ncluster);

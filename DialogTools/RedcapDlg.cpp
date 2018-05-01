@@ -45,6 +45,8 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
+#include "../Algorithms/hdbscan.h"
+
 
 
 #include "../GeneralWxUtils.h"
@@ -520,15 +522,18 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         redcap = NULL;
     }
     
+    GeoDaClustering::HDBScan* hdb = new GeoDaClustering::HDBScan(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+                               
     int method_idx = combo_method->GetSelection();
-    if (method_idx == 0)
+    if (method_idx == 0) {
         redcap = new FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-    else if (method_idx == 1)
+    } else if (method_idx == 1) {
         redcap = new FullOrderCLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-    else if (method_idx == 2)
+    } else if (method_idx == 2) {
         redcap = new FullOrderALKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
-    else if (method_idx == 3)
+    } else if (method_idx == 3) {
         redcap = new FullOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
+    }
 
    
     if (redcap==NULL) {

@@ -22,49 +22,73 @@
 #ifndef __GEODA_CENTER_HDBSCAN_H__
 #define __GEODA_CENTER_HDBSCAN_H__
 
-#include <boost/geometry.hpp>
-#include <boost/geometry/geometries/point.hpp>
-#include <boost/geometry/geometries/box.hpp>
-#include <boost/geometry/index/rtree.hpp>
-
-namespace bg = boost::geometry;
-namespace bgi = boost::geometry::index;
-
-typedef boost::geometry::model::point
-<
-double, 2, boost::geometry::cs::spherical_equatorial<boost::geometry::degree>
-> pt_lonlat; // spherical point
-typedef bg::model::point<double, 2, bg::cs::cartesian> pt_2d;
-typedef bg::model::point<double, 3, bg::cs::cartesian> pt_3d;
-typedef bg::model::box<pt_2d> box_2d;
-typedef bg::model::box<pt_3d> box_3d;
-typedef std::pair<box_2d, unsigned> box_2d_val;
-typedef std::pair<pt_2d, unsigned> pt_2d_val;
-typedef std::pair<pt_3d, unsigned> pt_3d_val;
-typedef std::pair<pt_lonlat, unsigned> pt_lonlat_val;
-
-typedef boost::geometry::index::rtree< box_2d_val, bgi::quadratic<16> > rtree;
-
-typedef bgi::rtree< pt_2d_val, bgi::quadratic<16> > rtree_pt_2d_t;
-typedef bgi::rtree< pt_3d_val, bgi::quadratic<16> > rtree_pt_3d_t;
-typedef bgi::rtree< pt_lonlat_val, bgi::quadratic<16> > rtree_pt_lonlat_t;
-
+#include "../kNN/ANN.h"
 
 #include "redcap.h"
 
 using namespace SpanningTreeClustering;
 
 namespace GeoDaClustering {
+    class UnionFind
+    {
+    public:
+        UnionFind* parent;
+        int rank;
+        int item;
+        
+    public:
+        UnionFind(int _item) {
+            parent = this;
+            rank = 0;
+            item = _item;
+        }
+        ~UnionFind() { }
+        
+        UnionFind* find() {
+            if (parent != this) {
+                parent = parent->find();
+            }
+            return parent;
+        }
+        
+        int getItem() {
+            return item;
+        }
+        
+        void Union(UnionFind* y) {
+            UnionFind* xRoot = find();
+            UnionFind* yRoot = y->find();
+            
+            if (xRoot == yRoot) return;
+            
+            if (xRoot->rank < yRoot->rank)
+                xRoot->parent = yRoot;
+            else if (xRoot->rank > yRoot->rank)
+                yRoot->parent = xRoot;
+            else
+            {
+                yRoot->parent = xRoot;
+                xRoot->rank = xRoot->rank + 1;
+            }
+        }
+    };
     /////////////////////////////////////////////////////////////////////////
     //
     // HDBSCAN
     //
     /////////////////////////////////////////////////////////////////////////
-    class HDBScan : public FirstOrderSLKRedCap
+    class HDBScan
     {
+        int rows;
+        int cols;
+        
+        DisjoinSet djset;
+        vector<SpanningTreeClustering::Edge*> mst_edges;
+        
+        vector<Node*> all_nodes;
         vector<double> cores;
         vector<int> designations;
-        
+        vector<boost::unordered_map<int, double> > nbr_dict;
     public:
         HDBScan(int rows, int cols,
                 double** _distances,

@@ -43,6 +43,24 @@ using namespace std;
 using namespace boost;
 using namespace SpanningTreeClustering;
 
+bool EdgeLess(Edge* a, Edge* b)
+{
+    if (a->length < b->length) {
+        return true;
+    } else if (a->length > b->length ) {
+        return false;
+    } else if (a->orig->id < b->orig->id) {
+        return true;
+    } else if (a->orig->id > b->orig->id) {
+        return false;
+    } else if (a->dest->id < b->dest->id) {
+        return true;
+    } else if (a->dest->id > b->dest->id) {
+        return false;
+    }
+    return true;
+}
+
 /////////////////////////////////////////////////////////////////////////
 //
 // SSDUtils
@@ -99,6 +117,11 @@ DisjoinSet::DisjoinSet()
     
 }
 
+DisjoinSet::DisjoinSet(int id)
+{
+    MakeSet(id);
+}
+
 Node* DisjoinSet::FindSet(Node* node)
 {
     Node* parent = node->parent;
@@ -148,23 +171,6 @@ Edge::Edge(Node* a, Node* b, double _length)
     length = _length;
 }
 
-bool EdgeLess(Edge* a, Edge* b)
-{
-    if (a->length < b->length) {
-        return true;
-    } else if (a->length > b->length ) {
-        return false;
-    } else if (a->orig->id < b->orig->id) {
-        return true;
-    } else if (a->orig->id > b->orig->id) {
-        return false;
-    } else if (a->dest->id < b->dest->id) {
-        return true;
-    } else if (a->dest->id > b->dest->id) {
-        return false;
-    }
-    return true;
-}
 
 /////////////////////////////////////////////////////////////////////////
 //

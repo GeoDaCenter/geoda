@@ -1,16 +1,2412 @@
 msgid ""
 msgstr ""
-"Plural-Forms: nplurals=1; plural=0;\n"
-"Project-Id-Version: \n"
-"POT-Creation-Date: \n"
-"PO-Revision-Date: \n"
+"Project-Id-Version: GCSS_Chinese_v0.1\n"
+"POT-Creation-Date: 2018-04-26 14:17+0800\n"
+"PO-Revision-Date: 2018-04-26 20:19+0800\n"
 "Last-Translator: \n"
-"Language-Team: \n"
+"Language-Team: GCSS\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: zh_CN\n"
 "X-Generator: Poedit 2.0.7\n"
+"X-Poedit-Basepath: _dump\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-KeywordsList: _;wxT\n"
+"X-Poedit-SearchPath-0: .\n"
+
+#: ASC2SHPDlg.cpp:204
+msgid "Number of columns has to be more than 2. \n"
+"At least it includes ID,X-Coord, and Y-Coord!"
+msgstr "列数必须大于2。\n"
+"至少它包括 ID, X坐标和Y坐标!"
+
+#: ASC2SHPDlg.cpp:241
+#, fuzzy
+msgid "Error: there was a problem reading the field names from the text file."
+msgstr "错误: 从文本文件读取字段名称时出现问题。"
+
+#: ASC2SHPDlg.cpp:289
+#, fuzzy
+msgid "Error: Wrong format."
+msgstr "错误: 格式错误。"
+
+#: ASC2SHPDlg.cpp:330
+#, fuzzy
+msgid "Can't open output file!"
+msgstr "无法打开输出文件!"
+
+#: ASC2SHPDlg.cpp:372
+msgid "Input ASCII file"
+msgstr "输入ASCII文件"
+
+#: ASC2SHPDlg.cpp:403
+msgid "Error: number of records must be > 0."
+msgstr "错误: 记录数必须是大于0"
+
+#: ASC2SHPDlg.cpp:408
+msgid "Error: number of fields must be > 2."
+msgstr "错误: 字段数必须大于2"
+
+#: ASC2SHPDlg.cpp:438
+#, fuzzy
+msgid "Error: field names listed in wrong format."
+msgstr "错误: 字段名称以错误的格式列出。"
+
+#: ASC2SHPDlg.cpp:467
+msgid "Output Shp file"
+msgstr "输出矢量文件"
+
+#: ASC2SHPDlg.h:30 ASC2SHPDlg.h:35
+msgid "Convert ASCII to SHP"
+msgstr "将ASCII转换为.shp格式的矢量文件"
+
+#: SHP2ASCDlg.cpp:114
+msgid "This file type is not supported."
+msgstr "文件类型不支持。"
+
+#: SHP2ASCDlg.cpp:293
+#, fuzzy
+msgid "Please select an option."
+msgstr "请选择一个选项"
+
+#: SHP2ASCDlg.cpp:327 SHP2ASCDlg.cpp:334
+#, fuzzy
+msgid "Can't write output file!"
+msgstr "无法写入输出文件!"
+
+#: SHP2ASCDlg.cpp:339
+msgid "Export shape to boundary successfully."
+msgstr "成功地将矢量导出到边界。"
+
+#: SHP2ASCDlg.cpp:340
+msgid "Info"
+msgstr "信息"
+
+#: SHP2ASCDlg.cpp:351
+#, fuzzy
+msgid "Output ASCII file"
+msgstr "输出 ASCII 文件"
+
+#: SHP2ASCDlg.cpp:427
+msgid "This is not a shape datasource. Please open a valid shape datasource, e.g. ESRI Shapefile, PostGIS layer..."
+msgstr "这不是矢量数据源。请打开有效的矢量数据源，例如 ESRI 矢量文件、PostGIS图层等。"
+
+#: SHP2ASCDlg.cpp:431
+#, fuzzy
+msgid "No fields found!"
+msgstr "没有找到字段"
+
+#: SHP2ASCDlg.cpp:451
+msgid "Error"
+msgstr "错误"
+
+#: SHP2ASCDlg.h:33 SHP2ASCDlg.h:40
+msgid "Exporting Shape to Boundary"
+msgstr "将矢量导出到边界"
+
+#: DataSource.cpp:176 DataSource.cpp:234 DataSource.cpp:347 DataSource.cpp:459
+#: DataSource.cpp:621
+#, fuzzy, c-format
+msgid "datasource.type %s unknown.."
+msgstr "datasource.type％s未知.."
+
+#: DataSource.cpp:364
+#, c-format
+msgid "The GeoDa project file cannot find one or more associated data sources.\n"
+"\n"
+"Details: GeoDa is looking for: %s\n"
+"\n"
+"Tip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+msgstr ""
+
+#: DataSource.cpp:418
+#, c-format
+msgid "Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr ""
+
+#: DataViewerAddColDlg.cpp:297
+#, fuzzy
+msgid "Error: The table variable name is empty."
+msgstr "错误：表变量名称为空。"
+
+#: DataViewerAddColDlg.cpp:298 DataViewerAddColDlg.cpp:306
+#: DataViewerAddColDlg.cpp:316 DataViewerAddColDlg.cpp:337
+#: DataViewerAddColDlg.cpp:375 DataViewerDeleteColDlg.cpp:88
+#: DataViewerDeleteColDlg.cpp:118 DataViewerEditFieldPropertiesDlg.cpp:449
+#: DataViewerEditFieldPropertiesDlg.cpp:526
+#: DataViewerEditFieldPropertiesDlg.cpp:542
+#: DataViewerEditFieldPropertiesDlg.cpp:559
+#: DataViewerEditFieldPropertiesDlg.cpp:599
+#: DataViewerEditFieldPropertiesDlg.cpp:616
+#: DataViewerEditFieldPropertiesDlg.cpp:628
+#: DataViewerEditFieldPropertiesDlg.cpp:654
+#: DataViewerEditFieldPropertiesDlg.cpp:680 DataViewerResizeColDlg.cpp:67
+#: MergeTableDlg.cpp:269 MergeTableDlg.cpp:701 MergeTableDlg.cpp:809
+msgid "Error"
+msgstr "错误"
+
+#: DataViewerAddColDlg.cpp:304
+#, fuzzy, c-format
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr "错误：表中已经存在“％s”，请指定一个不同的名称。"
+
+#: DataViewerAddColDlg.cpp:314
+#, c-format
+msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "错误：“％s”是无效的变量名称。第一个字符必须是字母，其余字符可以是字母数字或下划线。对于DBF表，有效的变量名称长度介于1到10个字符之间。"
+
+#: DataViewerAddColDlg.cpp:335
+#, c-format
+msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
+msgstr "错误: 由于对 DBF 文件格式的限制, 输入的长度和小数的特定组合无效。 根据您当前的选择, 我们建议长度 =%d 和小数 =%d"
+
+#: DataViewerAddColDlg.cpp:361
+#, c-format
+msgid "Inserting new column %s into Table"
+msgstr ""
+
+#: DataViewerAddColDlg.cpp:374
+#, fuzzy
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr "无法创建新变量。可能是只读数据源。"
+
+#: DataViewerDeleteColDlg.cpp:87
+#, c-format
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "变量%s 不再在表中。 请关闭并重新打开此对话框以与表数据同步。"
+
+#: DataViewerDeleteColDlg.cpp:94
+#, fuzzy, c-format
+msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
+msgstr "变量%s 是一个时间分组的变量。 请取消组合此变量以删除。"
+
+#: DataViewerDeleteColDlg.cpp:95
+msgid "Info"
+msgstr "信息"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:53
+msgid "Variable Properties"
+msgstr "变量属性"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:84
+msgid "Variable Properties - "
+msgstr "变量属性-"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:448
+#, fuzzy
+msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
+msgstr "GeoDa 无法将变量类型更改为日期/时间。请选择其他类型。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:525
+#, fuzzy, c-format
+msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
+msgstr "更改 \"%s\" 的变量类型失败。请检查所有值是否对转换有效。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:541
+#, fuzzy, c-format
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "变量名 \"%s\" 要么是重复的, 要么是无效的。请输入一个替代的、非重复的变量名。第一个字符必须是字母, 其余字符可以是字母、数字或下划线。对于 DBF 表, 一个有效的变量名介于十个字符之间。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:558
+#, fuzzy, c-format
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
+msgstr "变量名 \"%s\" 要么是重复的, 要么是无效的。请输入一个替代的、非重复的变量名。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:598
+#, fuzzy, c-format
+msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
+msgstr "字符串字段的长度必须至少为%d, 最多%d 个. 保留原始值。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:615
+#, fuzzy, c-format
+msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "整数值字段的长度必须至少为%d, 最多为%d. 保留原始值。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:627
+#, fuzzy, c-format
+msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "非整数数值字段的长度必须至少为%d, 最多为%d. 保留原始值。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:653
+#, fuzzy, c-format
+msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "非整数数字字段的小数位数必须至少为%d, 最多为%d. 保留原始值。"
+
+#: DataViewerEditFieldPropertiesDlg.cpp:679
+#, fuzzy, c-format
+msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "非整数数字字段的显示小数位数必须至少为%d, 最多为%d. 保留原始值。"
+
+#: MergeTableDlg.cpp:77
+msgid "Merge - "
+msgstr "合并"
+
+#: MergeTableDlg.cpp:347
+#, fuzzy, c-format
+msgid "Your table cannot be merged because the key field \"%s\" is not unique. \n"
+"It contains undefined or duplicate values.\n"
+"\n"
+"Details:"
+msgstr "无法合并表, 因为键字段 \"%s\" 不是唯一的。\n"
+"它包含未定义或重复的值。\n"
+"\n"
+"细节："
+
+#: MergeTableDlg.cpp:361 TableFrame.cpp:553 TableFrame.cpp:603
+msgid "Warning"
+msgstr "警告"
+
+#: MergeTableDlg.cpp:543 MergeTableDlg.cpp:733
+#, c-format
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "选择的键字段 \"%s\" 是一个时间变量。请选择一个非时间变量字段作为键。"
+
+#: MergeTableDlg.cpp:611
+#, fuzzy
+msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
+msgstr "合并错误: 选定数据源的几何类型必须与当前数据源相同。"
+
+#: MergeTableDlg.cpp:687 MergeTableDlg.cpp:814
+msgid "File merged into Table successfully."
+msgstr "文件已成功合并到表中。"
+
+#: MergeTableDlg.cpp:687 MergeTableDlg.cpp:815
+msgid "Success"
+msgstr "成功"
+
+#: MergeTableDlg.cpp:783
+#, fuzzy
+msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
+msgstr "\"导入键\" 字段中的值集在当前表中没有匹配项。请选择具有匹配值集的键。"
+
+#: MergeTableDlg.cpp:790
+#, c-format
+msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
+msgstr "当前表中的记录数大于导入表中的记录数。请选择导入表 > =%d 条记录"
+
+#: OGRTable.cpp:181
+#, fuzzy
+msgid "Add OGR column error. Field type is unknown."
+msgstr "添加 OGR 列错误。字段类型未知。"
+
+#: OGRTable.cpp:289 OGRTable.cpp:304
+#, fuzzy
+msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr "GeoDa 无法保存对此数据源所做的更改。请尝试使用文件->> 导出。"
+
+#: OGRTable.cpp:1293
+#, fuzzy
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr "添加 OGR 列错误。字段类型未知或不受支持。"
+
+#: OGRTable.cpp:1587
+#, fuzzy
+msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
+msgstr "不支持此数据源。请先导出到 GeoDa 支持的其他数据源。"
+
+#: OGRTable.cpp:1595
+#, fuzzy, c-format
+msgid "The length of field name should be between 1 and %d.\n"
+"Current field length (%d) is not valid"
+msgstr "字段名的长度应介于1和%d 之间. 当前字段长度 (%d) 无效"
+
+#: OGRTableOperation.cpp:383
+#, fuzzy
+msgid "Internal Error: can't update an in-memory cell."
+msgstr "内部错误: 无法更新内存中的单元格。"
+
+#: TableFrame.cpp:268 TableFrame.cpp:648
+msgid "Rename Variable"
+msgstr "重命名变量"
+
+#: TableFrame.cpp:645
+#, fuzzy
+msgid "Rename Space-Time Variable"
+msgstr "重命名空时变量"
+
+#: TableFrame.cpp:646
+#, fuzzy
+msgid "New space-time variable name"
+msgstr "新的空时变量名"
+
+#: TableFrame.cpp:649
+#, fuzzy
+msgid "New variable name"
+msgstr "新的Pin变量名称"
+
+#: TableFrame.cpp:656
+msgid "Variable name is either a duplicate or is invalid. Please\n"
+"enter an alternative, non-duplicate variable name.\n"
+"\n"
+msgstr "变量名称是重复的或无效的。请输入一个替代的、非重复的变量名。\n"
+
+#: TableState.cpp:163
+#, c-format
+msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
+msgstr "在继续操作之前 (添加/删除、移动或重命名), 请关闭依赖于它的%d 个视图。"
+
+#: TableState.cpp:185
+#, fuzzy, c-format
+msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
+msgstr "在您可以修改变量%s 之前, 请关闭依赖于它的%d 个视图。"
+
+#: TableState.cpp:206
+#, fuzzy, c-format
+msgid "Before add/delete observations, please close the %d view(s) that depend on it."
+msgstr "在添加/删除观察之前, 请关闭依赖于它的%d 个视图。"
+
+#: VarOrderPtree.cpp:114
+#, fuzzy
+msgid "space-time variable found with no name"
+msgstr "找不到名称的空时变量"
+
+#: VarOrderPtree.cpp:118
+#, fuzzy, c-format
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr "找到重复名称为 \"%s\" 的空时变量。"
+
+msgid "Warning"
+msgstr "警告"
+
+msgid "Select Variables"
+msgstr "选择变量"
+
+msgid "Input:"
+msgstr "输入："
+
+msgid "(Please note: Only supported for smaller datasets.)"
+msgstr "(请注意: 只支持较小的数据集。"
+
+msgid "Use geometric centroids"
+msgstr "使用几何质心"
+
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr ""
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Info"
+msgstr "信息"
+
+msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
+msgstr ""
+
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "选择的键字段 \"%s\" 是一个时间变量。请选择一个非时间变量字段作为键。"
+
+msgid "Success"
+msgstr "成功"
+
+msgid "Categories title \"%s\" already exists. Please choose a different title."
+msgstr "用户名已经存在。请选择另一个。"
+
+msgid "Breaks with same values were created. Please choose a smaller categories."
+msgstr ""
+
+msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
+msgstr ""
+
+msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
+msgstr "此平台不支持所选的数据库驱动程序。请查看GeoDa网站以获取关于数据库支持和连接的更多信息。"
+
+msgid "Can't get bounding box information from this datasource. Please try another datasource."
+msgstr "无法从此数据源获取边界框信息。请尝试另一个数据源。"
+
+msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
+msgstr ""
+
+msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
+msgstr ""
+
+msgid " has duplicate values. Please choose a different ID Variable.\n"
+"\n"
+"Details:"
+msgstr "有重复的值。请选择一个不同的ID变量。细节："
+
+msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
+msgstr "当前输入的阈值不是有效的数字。请移动滑块，或输入一个有效的号码。"
+
+msgid "The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
+"\n"
+"Press Yes to proceed anyhow, press No to abort."
+msgstr ""
+
+msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
+msgstr "有问题，请再试一次。"
+
+msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr "你的意见都没有邻居。这可能与数字化问题有关, 可以通过调整精度阈值来修正。"
+
+msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
+msgstr "至少有一个 neighborless 观察。检查权重直方图和链接的地图, 看看这些岛屿是否真实。如果没有, 则调整距离阈值 (点) 或精度阈值 (多边形)。"
+
+msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
+msgstr ""
+
+msgid "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+"\n"
+"Please try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+msgstr ""
+
+msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
+msgstr ""
+
+msgid "Can't get datasource type from: %s\n"
+"\n"
+"Please select datasource supported by GeoDa or add extension  to file datasource."
+msgstr ""
+
+msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
+msgstr "GeoDa无法将仅表格数据源保存为已启用几何的数据源。请尝试添加几何图层，然后使用文件 - >另存为。"
+
+msgid "The geometries will not be saved when exporting to a Table-only data source.\n"
+"\n"
+"Do you want to continue?"
+msgstr "下列文件将不会被上传， 因为找不到这些文件 。 您想要继续吗 ？"
+
+msgid "Saving to data source (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr "保存到数据源（％s）失败。详情：％s"
+
+msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
+msgstr ""
+
+msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
+msgstr "当为任一变量选择“所有时间”时，结果字段也必须是“所有时间”。"
+
+msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
+msgstr "一些计算值未定义，这很可能是由于权重矩阵中的无邻居观察。速率计算成功与邻居观察。"
+
+msgid "This field name already exists (non-float type). Please input a unique name."
+msgstr "此字段名称已存在（非浮点类型）。请输入一个唯一的名称。"
+
+msgid "This field name already exists (non-integer type). Please input a unique name."
+msgstr "此字段名称已存在（非整数类型）。请输入一个唯一的名称。"
+
+msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr "（树状图太复杂，请在地图中查看聚类结果。）"
+
+msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgstr ""
+
+msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgstr "已成功设置数字的区域设置。请重新打开当前项目以启用此区域设置。"
+
+msgid "Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager\n"
+" to define a valid weights file."
+msgstr ""
+
+msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
+msgstr ""
+
+msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
+msgstr "请输入每个区域的最小观测次数, 或者使用最小绑定。"
+
+msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
+msgstr ""
+
+msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
+msgstr ""
+
+msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
+msgstr "根据浏览数量自动选择标记热门文章。"
+
+msgid "There is an error during PCA calculation. Please check if the data is valid."
+msgstr "在 PCA 计算过程中出现错误。请检查数据是否有效。"
+
+msgid "Please specify the p-value to be used in tests; \n"
+"default: p-value = 0.01"
+msgstr ""
+
+msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
+msgstr ""
+
+msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
+msgstr "空间滞后和误差回归要求对称权重 (不是 KNN)。您仍然可以使用 KNN 权重来获取经典回归的空间诊断。"
+
+msgid "\n"
+"REGRESSION\n"
+"----------\n"
+msgstr ""
+
+msgid "Thank you for helping us improve GeoDa with your bug report! \n"
+"\n"
+"You can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+msgstr "感谢您帮助我们改进 GeoDa 与您的 bug 报告!\n"
+"\n"
+"您可以跟踪我们的响应, 并添加截图或细节在这里 (或电子邮件我们在 spatial@uchicago.edu spatial@uchicago. 教育局):"
+
+msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr ""
+
+msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
+msgstr ""
+
+msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
+msgstr "原始数据源%s 不是有效的文件。GeoDa \"保存\" 仅适用于文件数据源。"
+
+msgid "Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr "所选字段不是数值类型。 请选择数字类型字段。"
+
+msgid "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
+"\n"
+"For example, to group Pop80 and Pop90, select them on the left and move them to the right."
+msgstr ""
+
+msgid "Add a name for your group of variables. \n"
+"\n"
+"You can edit the time period labels for easier interpretation of results."
+msgstr "为您的一组变量添加名称。\n"
+"\n"
+"您可以编辑时间段标签, 以便更容易地解释结果。"
+
+msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr ""
+
+msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
+msgstr "这是现有分组变量的列表。新组创建后，它们将出现在此列表中。您可以打开现有的.gda文件并在此处进行编辑。"
+
+msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
+msgstr "所选变量％s无效。如果它是一个分组变量，请在Time-> Time Editor中进行修改。或者请选择另一个变量。"
+
+msgid "The number of observations specified in chosen weights file is incompatible with current Table."
+msgstr "所选权重文件中指定的观察次数与当前表不兼容。"
+
+msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
+msgstr ""
+
+msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
+msgstr "至少有一个视图打开，取决于此矩阵。确定关闭这些视图并删除？"
+
+msgid "There is a view could not be closed. Please manually close and try again."
+msgstr "有一个观点不能关闭。请手动关闭并重试。"
+
+msgid "There is at least one view could not be closed. Please manually close and try again."
+msgstr "至少有一个视图无法关闭。请手动关闭并重试。"
+
+msgid "No numeric variables found in table."
+msgstr "表中没有找到任何数值变量”。"
+
+msgid "Auto Weighting"
+msgstr "自动加权"
+
+msgid "Weighting:"
+msgstr "加权"
+
+msgid "Transformation:"
+msgstr "转换："
+
+msgid "Minimum Bound:"
+msgstr "最小限度："
+
+msgid "Please input minimum bound value."
+msgstr "请输入最小界限值。"
+
+msgid "Please select at least %d variables."
+msgstr "请至少选择%D变量。"
+
+msgid "Add New ID Variable"
+msgstr "添加新ID变量"
+
+msgid "Adjust Values of Y Axis"
+msgstr "调整Y轴值"
+
+msgid "Set Display Precision on Axis"
+msgstr "设置轴上显示精度"
+
+msgid "Aggregate - "
+msgstr "集合体"
+
+msgid "Successful aggregation."
+msgstr "成功聚合”。"
+
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr "发现了一个新版本的GeoDa。要更新版本吗？"
+
+msgid "Cancel"
+msgstr "取消“取消"
+
+msgid "Downloading updates..."
+msgstr "下载更新…"
+
+msgid "Please restart GeoDa to finish installing updates."
+msgstr "请重新启动GEODA完成安装更新。"
+
+msgid "Update GeoDa completed"
+msgstr "更新GEODA完成"
+
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr "请检查您的网络连接，或联系GEODA支持团队。"
+
+msgid "Update GeoDa failed"
+msgstr "更新GEODA失败"
+
+msgid "GeoDa Update Dialog"
+msgstr "GEODA更新对话"
+
+msgid "This format is not supported."
+msgstr "不支持此格式。"
+
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr "读取边界文件失败：在多边形-%d"
+
+msgid "Input ASCII file"
+msgstr "输入ASCII文件"
+
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr "第一行应该有逗号分隔的行数和ID名！"
+
+msgid "Wrong number of rows!"
+msgstr "错误的行数！"
+
+msgid "ID is not specified!"
+msgstr "没有指定MSGID“ID”！"
+
+msgid "Convert Boundary to SHP"
+msgstr "转换边界到小水电"
+
+msgid "Category Editor"
+msgstr "类别编辑器"
+
+msgid "uniform distribution"
+msgstr "均匀分布"
+
+msgid "New Custom Categories Title:"
+msgstr "新自定义类别标题："
+
+msgid "New Categories Title"
+msgstr "新类别标题"
+
+msgid "suggested title:"
+msgstr "建议标题："
+
+msgid "field name:"
+msgstr "字段名："
+
+msgid "choice:"
+msgstr "选择“："
+
+msgid "Choose Cateogry Color"
+msgstr "选择彩色"
+
+msgid "Change title \"%s\" to"
+msgstr "更改标题”%s"
+
+msgid "Change Categories Title"
+msgstr "更改类别标题"
+
+msgid "Save Categories to Table"
+msgstr "将类别保存到表中"
+
+msgid "Categories of "
+msgstr "范畴"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Can't connect to datasource: "
+msgstr "不能连接到数据源："
+
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr "请打开一个数据文件，而不是一个项目文件（*.gDA）。"
+
+msgid "Open project file:"
+msgstr "打开项目文件："
+
+msgid "Open Datasource:"
+msgstr "开放数据源："
+
+msgid "Open Layer:"
+msgstr "开放层："
+
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr "未知异常”。请联系GEODA支持。"
+
+msgid "Database port is empty. Please input one."
+msgstr "数据库端口是空的”。请输入一个。"
+
+msgid "Please input database host."
+msgstr "请输入数据库主机。"
+
+msgid "Please input database name."
+msgstr "请输入数据库名称。"
+
+msgid "Please input database port."
+msgstr "请输入数据库端口。"
+
+msgid "Please input user name."
+msgstr "请输入用户名。"
+
+msgid "Please input password."
+msgstr "请输入密码。"
+
+msgid "Please input a valid url address."
+msgstr "请输入有效的URL地址。"
+
+msgid "Please input a valid url."
+msgstr "请输入有效的URL。"
+
+msgid "Please input Carto User Name."
+msgstr "请输入Carto User Name。"
+
+msgid "Please input Carto App Key."
+msgstr "请输入Carto App Key。"
+
+msgid "File doesn't exist!"
+msgstr "文件不存在！"
+
+msgid "Please fix the grid bounding box."
+msgstr "请修复网格边界框。"
+
+msgid "Grid file was successfully created."
+msgstr "网格文件已成功创建”。"
+
+msgid "Creating Grid"
+msgstr "创建网格"
+
+msgid "About Precision Threshold"
+msgstr "关于精确阈值的MSGID"
+
+msgid "selected:"
+msgstr "选择"
+
+msgid "Please select a weights type."
+msgstr "请选择一个权重类型。"
+
+msgid "GAL files (*.gal)|*.gal"
+msgstr "GALL文件（*.GAL）**GAL"
+
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr "KWT文件（*.kWt）**kWT"
+
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr "GWT文件（*.GWT）**GWT"
+
+msgid "Choose an output weights file name."
+msgstr "选择一个输出权重文件名。"
+
+msgid "CreateWeights()"
+msgstr "创建权重”（）"
+
+msgid "Voronoi Contiguity Error"
+msgstr "Voronoi Contiguity Error"
+
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr "错误：邻居%d的最大数量超过了。"
+
+msgid "Failed to create the weights file."
+msgstr "创建权重文件失败。"
+
+msgid "Weights file \"%s\" created successfully."
+msgstr "权重文件”“%s”成功创建。"
+
+msgid "Weights File Creation"
+msgstr "权重文件创建"
+
+msgid "(Optional) You can change the data type for a field:"
+msgstr "（可选）可以更改字段的数据类型："
+
+msgid "Data Preview - number of preview records:"
+msgstr "数据预览-预览记录的数量："
+
+msgid "(Optional) Longitude\\/X:"
+msgstr "（可选）经度\\/X："
+
+msgid "Latitude\\/Y:"
+msgstr "纬度\\/Y："
+
+msgid "(Optional) First record has field names? "
+msgstr "可选的”第一个记录有字段名吗？"
+
+msgid "Set Number Separators"
+msgstr "设置数分隔符"
+
+msgid "OK"
+msgstr "确定"
+
+msgid "CSV Configuration Warning"
+msgstr "CSV配置警告"
+
+msgid "Column Name"
+msgstr "列名"
+
+msgid "Data Type"
+msgstr "数据类型"
+
+msgid "GeoDa CSV File Configuration"
+msgstr "GEODA CSV文件配置"
+
+msgid "Please select the layer name to connect:"
+msgstr "请选择要连接的层名称："
+
+msgid "Layer names"
+msgstr "层名称"
+
+msgid "No layer was found in the selected data source."
+msgstr "在选定的数据源中没有发现任何层”。"
+
+msgid "No layer has been selected. Please select a layer."
+msgstr "没有选择任何层。请选择一个图层。"
+
+msgid "csv file:"
+msgstr "CSV文件："
+
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr "选择一个现有的*.gdB目录，或者创建一个名为*.gdB的新文件夹"
+
+msgid "Export or save layer to"
+msgstr "导出或保存层"
+
+msgid "ds:"
+msgstr "DS："
+
+msgid "Please specify a valid data source name."
+msgstr "请指定一个有效的数据源名称。"
+
+msgid "Warning: loss data"
+msgstr "警告：丢失数据"
+
+msgid "Save As has been cancelled."
+msgstr "保存AS已被取消”。"
+
+msgid "GeoDa Project to Save As"
+msgstr "GEODA项目拯救"
+
+msgid "Only OGR datasource can be saved as."
+msgstr "只有OGR数据源可以保存为”。"
+
+msgid "Save As progress dialog"
+msgstr "保存为进度对话框"
+
+msgid "Saving data..."
+msgstr "保存数据…"
+
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr "MsGID“保存失败：GEODA不能保存为空数据源”。"
+
+msgid "Save data source progress dialog"
+msgstr "保存数据源进度对话框"
+
+msgid "Please input table name."
+msgstr "请输入表名。"
+
+msgid "(Duplicate field name)"
+msgstr "重复字段名"
+
+msgid "(Field name is not valid)"
+msgstr "字段名无效"
+
+msgid "Current field name:"
+msgstr "当前字段名："
+
+msgid "Suggested field name:"
+msgstr "建议字段名："
+
+msgid "Input is duplicated."
+msgstr "输入重复”。"
+
+msgid "Input is not valid."
+msgstr "输入无效”。"
+
+msgid "Bivariate"
+msgstr "二元变量"
+
+msgid "Please choose a Result field."
+msgstr "请选择结果字段。"
+
+msgid "Operation requires a valid field name or constant."
+msgstr "操作需要有效的字段名或常量。"
+
+msgid "Date\\/Time"
+msgstr "日期\\/时间"
+
+msgid "Please select a results field."
+msgstr "请选择结果字段。"
+
+msgid "Please specify a Weights matrix."
+msgstr "请指定一个权重矩阵。"
+
+msgid "Please select an Variable field."
+msgstr "请选择一个变量字段。"
+
+msgid "Was not able to load weights matrix."
+msgstr "不能加载权矩阵”。"
+
+msgid "Spatial Lag"
+msgstr "空间滞后"
+
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr "选择空间速率法所需的权重矩阵。"
+
+msgid "Please select an Event field."
+msgstr "请选择一个事件字段。"
+
+msgid "Please select an Base field."
+msgstr "请选择一个基本字段。"
+
+msgid "Success \\/ Warning"
+msgstr "成功\\/警告"
+
+msgid "Rate calculation successful."
+msgstr "速率计算成功”。"
+
+msgid "Rates"
+msgstr "利率"
+
+msgid "Var Calc Container"
+msgstr "VAL-CAC容器"
+
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr "随机高斯DIST，平均＝%s，SD= %s"
+
+msgid "Random uniform dist on unit interval"
+msgstr "单位间隔上的随机均匀分布"
+
+msgid "enumerate as 1, 2, 3, ..."
+msgstr "枚举为1, 2, 3，…"
+
+msgid "Special"
+msgstr "特殊"
+
+msgid "Univariate"
+msgstr "单变量"
+
+msgid "Select variable with addresses:"
+msgstr "选择带有地址的变量："
+
+msgid "Google Places API"
+msgstr "谷歌位置API"
+
+msgid "Enter your Google API keys (one key per line)"
+msgstr "输入您的谷歌API密钥（每行一个密钥）"
+
+msgid "Click here to get a Google API key"
+msgstr "点击这里获取谷歌API密钥"
+
+msgid "Parameters:"
+msgstr "参数："
+
+msgid "Save latitude to field:"
+msgstr "保存纬度到字段："
+
+msgid "Save longitude to field:"
+msgstr "保存经度到田地："
+
+msgid "Output:"
+msgstr "输出："
+
+msgid "Run"
+msgstr "运行"
+
+msgid "Stop"
+msgstr "停止"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Please select a field with addresses."
+msgstr "请选择具有地址的字段。"
+
+msgid "Please enter Google key(s)."
+msgstr "请输入谷歌密钥（S）。"
+
+msgid "Please input a field name for saving latitude"
+msgstr "请输入一个用于保存纬度的字段名"
+
+msgid "Please input a field name for saving longitude"
+msgstr "请输入一个保存经度的字段名"
+
+msgid "Successful Geocode. Please check results in Table."
+msgstr "成功地理编码”。请检查表中的结果。"
+
+msgid "Geocode Setting Dialog"
+msgstr "地理编码设置对话框"
+
+msgid "Maps To Open"
+msgstr "地图打开"
+
+msgid "Hierarchical Clustering Settings"
+msgstr "层次聚类设置"
+
+msgid "Method:"
+msgstr "方法："
+
+msgid "Distance Function:"
+msgstr "距离函数："
+
+msgid "Number of Clusters:"
+msgstr "簇数："
+
+msgid "Save Cluster in Field:"
+msgstr "在字段中保存群集”："
+
+msgid "CL"
+msgstr "CL"
+
+msgid "Save\\/Show Map"
+msgstr "保存\\/显示地图"
+
+msgid "Dendrogram"
+msgstr "Dendrogram"
+
+msgid "(Please save results to see the summary report.)"
+msgstr "（请保存结果以查看摘要报告）。"
+
+msgid "Summary"
+msgstr "摘要"
+
+msgid "Please enter a field name for saving clustering results."
+msgstr "请输入用于保存聚类结果的字段名。"
+
+msgid "Intervals in the Histogram"
+msgstr "直方图中的间隔"
+
+msgid "Initialization Method:"
+msgstr "初始化方法："
+
+msgid "Initialization Re-runs:"
+msgstr "初始化重新运行："
+
+msgid "Use specified seed:"
+msgstr "使用指定的种子："
+
+msgid "Change Seed"
+msgstr "改变种子"
+
+msgid "Maximal Iterations:"
+msgstr "最大迭代："
+
+msgid "KMeans Dialog"
+msgstr "k意味对话"
+
+msgid "KMedians Dialog"
+msgstr "KMIDANS对话"
+
+msgid "KMedoids Dialog"
+msgstr "MKGID“KMEDOID对话"
+
+msgid "What windows to open?"
+msgstr "打开什么窗口？"
+
+msgid "Reset to system locale information"
+msgstr "重置到系统区域信息"
+
+msgid "Setup Locale of GeoDa Table"
+msgstr "GEODA表的设置区域"
+
+msgid "MDS Settings"
+msgstr "MDSID“MDS设置"
+
+msgid "Use Power Iteration:"
+msgstr "使用幂迭代："
+
+msgid "# Max Iteration:"
+msgstr "αmax迭代"
+
+msgid "MDS Plot - "
+msgstr "MDSID“MDS图"
+
+msgid "Max-p Settings"
+msgstr "MAX P设置"
+
+msgid "Weights:"
+msgstr "重量："
+
+msgid "Min # per Region:"
+msgstr "闽每区”："
+
+msgid "Initial Groups:"
+msgstr "初始组："
+
+msgid "# Iterations:"
+msgstr "γ迭代”："
+
+msgid "Local Search:"
+msgstr "本地搜索"
+
+msgid "Tabu Length:"
+msgstr "禁忌长度"
+
+msgid "Cooling Rate:"
+msgstr "冷却速率："
+
+msgid "Please enter iteration number"
+msgstr "请输入迭代号"
+
+msgid "Please enter minimum bound value"
+msgstr "请输入最小界限值"
+
+msgid "Number of Categories"
+msgstr "类别数"
+
+msgid "Categories"
+msgstr "类别"
+
+msgid "PCA Settings"
+msgstr "PCA设置"
+
+msgid "Components:"
+msgstr "组件："
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Parallel Coordinate Plot"
+msgstr "平行坐标图"
+
+msgid "Set Number of Permutation"
+msgstr "设置排列数"
+
+msgid "System"
+msgstr "系统"
+
+msgid "Maps:"
+msgstr "地图："
+
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr "使用经典的黄色交叉阴影来突出地图中的选择："
+
+msgid "Set transparency of highlighted objects in selection:"
+msgstr "在选择中设置突出显示对象的透明度："
+
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr "在选择中设置未突出对象的透明度："
+
+msgid "Add basemap automatically:"
+msgstr "自动添加BaseMaP："
+
+msgid "Plots:"
+msgstr "情节："
+
+msgid "System:"
+msgstr "系统："
+
+msgid "Language:"
+msgstr "语言："
+
+msgid "Show Recent\\/Sample Data panel in Connect Datasource Dialog:"
+msgstr "在连接数据源对话框中显示最近\\/示例数据面板："
+
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr "在合并数据对话框中显示CSV配置："
+
+msgid "Enable High DPI\\/Retina support (Mac only):"
+msgstr "启用高DPI\\/视网膜支持（仅MAC）”："
+
+msgid "Disable crash detection for bug report:"
+msgstr "禁用错误报告的崩溃检测："
+
+msgid "Disable auto upgrade:"
+msgstr "禁用自动升级："
+
+msgid "Set seed for randomization:"
+msgstr "设置随机化种子："
+
+msgid "Set number of CPU cores manually:"
+msgstr "手动设置CPU核数："
+
+msgid "Stopping criterion for power iteration:"
+msgstr "幂迭代停止准则"
+
+msgid "Hide system table in Postgresql connection:"
+msgstr "PostgreSQL连接中的隐藏系统表”："
+
+msgid "Hide system table in SQLITE connection:"
+msgstr "SQLite连接中的隐藏系统表”："
+
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr "HTTP连接超时（秒）），例如WFS、GEOJSON等："
+
+msgid "Date\\/Time formats (using comma to separate formats):"
+msgstr "日期\\/时间格式”（使用逗号分隔格式）："
+
+msgid "Reset"
+msgstr "重置"
+
+msgid "Please restart GeoDa to apply the language setup."
+msgstr "请重新启动GEODA来应用语言设置。"
+
+msgid "GeoDa Preference Setup"
+msgstr "GEODA偏好设置"
+
+msgid "Progress"
+msgstr "进步"
+
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr "向GeoDa Web发布地图和地块"
+
+msgid "Bonferroni bound:"
+msgstr "BoFrONNI绑定"
+
+msgid "False Discovery Rate:"
+msgstr "错误发现率”："
+
+msgid "Input significance:"
+msgstr "输入意义："
+
+msgid "Use selected as specified alpha level"
+msgstr "使用选定的指定的alpha级别"
+
+msgid "All"
+msgstr "一切"
+
+msgid "Selected"
+msgstr "选择“MSGID"
+
+msgid "Unselected"
+msgstr "未选中的MSGID"
+
+msgid "Inference Settings"
+msgstr "推断设置"
+
+msgid "Randomization"
+msgstr "随机化"
+
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr "选择字段”不是数字类型。请选择一个数字类型字段。"
+
+msgid "Values assigned to target field successfully."
+msgstr "成功分配给目标字段的值”。"
+
+msgid "Selection Tool"
+msgstr "选择工具"
+
+msgid "REDCAP Settings"
+msgstr "红帽设置"
+
+msgid "Maximum # of regions:"
+msgstr "最大区域”："
+
+msgid "Save Spanning Tree"
+msgstr "生成生成树"
+
+msgid "Save Spanning Tree to a Weights File"
+msgstr "将生成树保存到权重文件"
+
+msgid "Please enter maximum number of regions."
+msgstr "请输入最大区域数。"
+
+msgid "The number of identified clusters is less than "
+msgstr "识别的簇的数目小于"
+
+msgid "Enter a seed value"
+msgstr "输入种子值"
+
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr "\\“%s”不是有效的P-值。默认的p值（0.01）被使用"
+
+msgid "calculating..."
+msgstr "计算…"
+
+msgid "y:"
+msgstr "Y："
+
+msgid "Please check the selected variables are all valid."
+msgstr "请检查所选变量是否都有效”。"
+
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr "错误：逆矩阵是病态的。"
+
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr "两者都是显著的，已经选择了空间滞后模型。"
+
+msgid "OLS Model with White test has been selected."
+msgstr "选择了具有白测试的OSGID OLS模型。"
+
+msgid "OLS Model has been selected."
+msgstr "选择了MSGID“OLS模型”。"
+
+msgid "Weights Symmetry Check"
+msgstr "权对称检验"
+
+msgid "Checking Symmetry..."
+msgstr "检查对称性……"
+
+msgid "Finished"
+msgstr "完成"
+
+msgid "wrong model number"
+msgstr "错误型号"
+
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr "点击ReasSerdDLG：：OnViewResultsClick"
+
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr "点击ReasSerdDLG：：OnSaveToTxtFileClick"
+
+msgid "Regression Output Text File"
+msgstr "回归输出文本文件"
+
+msgid " already exists.  OK to overwrite?"
+msgstr "已经存在。可以改写吗？"
+
+msgid "Overwrite?"
+msgstr "覆盖”？"
+
+msgid "Unable to overwrite "
+msgstr "无法覆盖”的MSGID"
+
+msgid "Save Regression Results"
+msgstr "保存回归结果"
+
+msgid "Error: no records found in data source."
+msgstr "错误：数据源中找不到记录”。"
+
+msgid "Regression"
+msgstr "回归"
+
+msgid "Regression Report"
+msgstr "回归报告"
+
+msgid "[Please briefly describe what went wrong]"
+msgstr "[请简要描述出错的地方]"
+
+msgid "[Steps you took before something went wrong]"
+msgstr "[在发生错误之前采取的步骤]"
+
+msgid "Your Github account (Optional):"
+msgstr "您的GITHUB帐户（可选）”："
+
+msgid "Your Email address (Optional):"
+msgstr "你的电子邮件地址（可选）："
+
+msgid "Submit Bug Report"
+msgstr "提交错误报告"
+
+msgid "Please briefly describe what went wrong."
+msgstr "请简要描述出什么地方出错了。"
+
+msgid "Input is required"
+msgstr "输入是必需的"
+
+msgid "Please describe steps you took before something went wrong."
+msgstr "请描述在出错之前采取的步骤。"
+
+msgid "Submit Bug Error"
+msgstr "提交错误错误"
+
+msgid "Welcome to GeoDa"
+msgstr "欢迎来到GeoDa"
+
+msgid "Check Bug Report on Github"
+msgstr "检查GITHUB上的bug报告"
+
+msgid "GeoDa Bug Report Dialog"
+msgstr "GEODA错误报告对话框"
+
+msgid "Datasource in project is not valid."
+msgstr "项目中的数据源无效”。"
+
+msgid "Save As Datasource"
+msgstr "将数据保存为数据源"
+
+msgid "Project file path is empty."
+msgstr "项目文件路径为空”。"
+
+msgid "Datasource path is empty."
+msgstr "数据源路径为空”。"
+
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr "请提供项目文件和数据源的路径。"
+
+msgid "Saved successfully."
+msgstr "成功保存”。"
+
+msgid "Save Project File As..."
+msgstr "将项目文件保存为…"
+
+msgid "Save Selection"
+msgstr "保存选择"
+
+msgid "Save Results"
+msgstr "保存结果"
+
+msgid "Choose Weights"
+msgstr "选择权重"
+
+msgid "Skater Settings"
+msgstr "滑冰设置"
+
+msgid "Min Region Size:"
+msgstr "最小区域大小："
+
+msgid "Please enter number of regions"
+msgstr "请输入区域数"
+
+msgid "Spectral Clustering Settings"
+msgstr "谱聚类设置"
+
+msgid "Affinity with K-NN:"
+msgstr "MSKID与K-NN的亲和性"
+
+msgid "# Neighors:"
+msgstr "邻居”："
+
+msgid "Affinity with Kernel:"
+msgstr "与内核的亲和性："
+
+msgid "(Gaussian) Sigma:"
+msgstr "（高斯）σ："
+
+msgid "Use Weights:"
+msgstr "使用权重："
+
+msgid "(K-Means)"
+msgstr "k-均值”（MSGID）"
+
+msgid "Please enter a sigma value."
+msgstr "请输入Sigma值。"
+
+msgid "Add Time"
+msgstr "添加时间"
+
+msgid "Remove Time"
+msgstr "删除时间"
+
+msgid "GeoDa Project File to Open"
+msgstr "GEODA项目文件打开"
+
+msgid "Time Editor"
+msgstr "时间编辑器"
+
+msgid "Differential Moran Variable Settings"
+msgstr "差异莫兰变量设置"
+
+msgid "Select variable "
+msgstr "选择变量"
+
+msgid " and two time periods: "
+msgstr "两个时间段："
+
+msgid " and "
+msgstr "和"
+
+msgid "Weights"
+msgstr "权重"
+
+msgid "Multi-Variable Settings"
+msgstr "多变量设置"
+
+msgid "Select Variables (Multi-Selection)"
+msgstr "选择变量（多选择）"
+
+msgid "Time:"
+msgstr "时间："
+
+msgid "Please select at least 2 variables."
+msgstr "请选择至少2个变量。"
+
+msgid "Invalid Variable"
+msgstr "无效变量"
+
+msgid "Variable Settings"
+msgstr "变量设置"
+
+msgid "First Variable (X)"
+msgstr "第一个变量（x）"
+
+msgid "Second Variable (Y)"
+msgstr "第二变量（y）"
+
+msgid "Third Variable (Z)"
+msgstr "第三变量（z）"
+
+msgid "Fourth Variable"
+msgstr "第四变量"
+
+msgid "GeoDa Help"
+msgstr "GEODA帮助"
+
+msgid "%s (Weights: %s)"
+msgstr "%s（权重：%s）"
+
+msgid "Connectivity Map"
+msgstr "连通图"
+
+msgid "Connectivity Graph"
+msgstr "连通图"
+
+msgid "Choose Weights File"
+msgstr "选择权重文件"
+
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr "只支持“GAL”、“GWT”、“KWT”、“Mat”和“SWM”的权重文件。"
+
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr "在当前加载的表中未找到指定的键（%d）。"
+
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr "指定的密钥（%s）在当前加载的表中没有找到。"
+
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr "指定的ID字段（%s）未在当前加载的表中找到。"
+
+msgid "Weights file\\/format is not valid."
+msgstr "MsgID“权重文件\\/格式无效”。"
+
+msgid "There was a problem requesting the weights file."
+msgstr "有一个问题，要求权重文件。"
+
+msgid "There was a problem associating the weights file."
+msgstr "有一个问题关联权重文件。"
+
+msgid "Notice"
+msgstr "通知"
+
+msgid "Weights Manager"
+msgstr "权重管理器"
+
+#: AbstractClusterMap.cpp:65 GetisOrdMapNewView.cpp:71
+#: LocalGearyMapNewView.cpp:71 MLJCMapNewView.cpp:58
+#, fuzzy
+msgid "Not Significant"
+msgstr "不重要"
+
+#: AbstractClusterMap.cpp:66 GetisOrdMapNewView.cpp:74
+#: LocalGearyMapNewView.cpp:77 MLJCMapNewView.cpp:62
+msgid "Undefined"
+msgstr "未定义"
+
+#: AbstractClusterMap.cpp:67 GetisOrdMapNewView.cpp:75
+#: LocalGearyMapNewView.cpp:78 MLJCMapNewView.cpp:63
+#, fuzzy
+msgid "Neighborless"
+msgstr "Neighborless"
+
+#: AbstractClusterMap.cpp:619 ColocationMapView.cpp:311
+#: ColocationMapView.cpp:488 CorrelParamsDlg.cpp:319 GetisOrdMapNewView.cpp:726
+#: LisaScatterPlotView.cpp:1004 LocalGearyMapNewView.cpp:824
+#: MLJCMapNewView.cpp:667 PCPNewView.cpp:116 VarsChooserDlg.cpp:302
+msgid "Error"
+msgstr "错误"
+
+#: AbstractClusterMap.cpp:658
+#, fuzzy, c-format
+msgid "Inference Settings (%d perm)"
+msgstr "推断设置（％d个烫发）"
+
+#: BoxNewPlotView.h:120
+msgid "Box Plot"
+msgstr "箱线图"
+
+#: CartogramNewView.cpp:257 CartogramNewView.cpp:258 HistogramView.cpp:235
+#: HistogramView.cpp:236 LisaScatterPlotView.cpp:146
+#: LisaScatterPlotView.cpp:147 MapNewView.cpp:1000 ScatterNewPlotView.cpp:371
+#: ScatterNewPlotView.cpp:372
+#, fuzzy
+msgid "Time Variable Options"
+msgstr "时间变量选项"
+
+#: CartogramNewView.h:168
+#, fuzzy
+msgid "Cartogram"
+msgstr "示意地图"
+
+#: CatClassification.cpp:230
+#, fuzzy
+msgid "Lower outlier"
+msgstr "更低的异常值"
+
+#: CatClassification.cpp:235
+#, fuzzy
+msgid "Upper outlier"
+msgstr "上部离群"
+
+#: CatClassification.cpp:380
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr ""
+
+#: ColocationMapView.cpp:53
+#, fuzzy
+msgid "Co-location Settings"
+msgstr "位置设置"
+
+#: ColocationMapView.cpp:150
+#, fuzzy
+msgid "Select color scheme:"
+msgstr "選擇配色方案"
+
+#: ColocationMapView.cpp:158
+msgid "Setup co-locations:"
+msgstr "GEODA偏好设置"
+
+#: ColocationMapView.cpp:162
+msgid "OK"
+msgstr "确定"
+
+#: ColocationMapView.cpp:163 MapNewView.cpp:110
+msgid "Close"
+msgstr "关闭"
+
+#: ColocationMapView.cpp:310
+#, fuzzy, c-format
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "变量%s 不再在表中。 请关闭并重新打开此对话框以与表数据同步。"
+
+#: ColocationMapView.cpp:360
+#, fuzzy
+msgid "The categories of the selected variables do not overlap in space. Please select other variables."
+msgstr "所选变量的类别在空间中不重叠。请选择其他变量。"
+
+#: ColocationMapView.cpp:361 MapNewView.cpp:1488 MapNewView.cpp:2564
+msgid "Warning"
+msgstr "警告"
+
+#: ColocationMapView.cpp:487
+#, fuzzy
+msgid "Please setup co-locations first."
+msgstr "请先设置合作地点。"
+
+#: ColocationMapView.cpp:564
+#, fuzzy
+msgid "Co-location Map"
+msgstr "合用同一地点"
+
+#: ColocationMapView.cpp:805
+#, fuzzy
+msgid "Conditional Co-location Map Variables"
+msgstr "条件共同位置映射变量"
+
+#: ColocationMapView.cpp:806 GetisOrdMapNewView.cpp:1073 LisaMapNewView.cpp:316
+#: LocalGearyMapNewView.cpp:1112 MLJCMapNewView.cpp:949
+#, fuzzy
+msgid "Horizontal Cells"
+msgstr "水平单元 ："
+
+#: ColocationMapView.cpp:806 GetisOrdMapNewView.cpp:1074 LisaMapNewView.cpp:316
+#: LocalGearyMapNewView.cpp:1113 MLJCMapNewView.cpp:950
+#, fuzzy
+msgid "Vertical Cells"
+msgstr "垂直单元 ："
+
+#: ConditionalClusterMapView.h:127
+#, fuzzy
+msgid "Conditional LISA Map"
+msgstr "条件丽莎地图"
+
+#: ConditionalClusterMapView.h:136
+#, fuzzy
+msgid "Conditional GetisOrd Map"
+msgstr "条件 GetisOrd 映射"
+
+#: ConditionalClusterMapView.h:144
+#, fuzzy
+msgid "Conditional Local Geary Map"
+msgstr "条件本地葛瑞地图"
+
+#: ConditionalClusterMapView.h:152
+#, fuzzy
+msgid "Conditional Local Join Count Map"
+msgstr "条件本地联接计数映射"
+
+#: ConditionalHistogramView.h:136
+#, fuzzy
+msgid "Conditional Histogram"
+msgstr "条件直方图"
+
+#: ConditionalMapView.h:116 ConditionalScatterPlotView.h:120
+#, fuzzy
+msgid "Conditional Map"
+msgstr "条件映射"
+
+#: ConnectivityHistView.cpp:315 CorrelogramView.cpp:606
+msgid "Frequency"
+msgstr "频率"
+
+#: ConnectivityHistView.cpp:346
+#, fuzzy
+msgid "Number of Neighbors"
+msgstr "邻居数量"
+
+#: ConnectivityHistView.cpp:354
+#, fuzzy, c-format
+msgid "Warning: %d observations are neighborless."
+msgstr "警告:%d 个观察 neighborless。"
+
+#: ConnectivityHistView.cpp:356
+#, fuzzy, c-format
+msgid "Warning: %d observations is neighborless."
+msgstr "警告:%d 个观察 neighborless。"
+
+#: ConnectivityHistView.h:123
+msgid "Connectivity Histogram"
+msgstr ""
+
+#: CorrelParamsDlg.cpp:183
+#, fuzzy
+msgid "Use specified seed:"
+msgstr "使用指定的种子:"
+
+#: CorrelParamsDlg.cpp:187
+msgid "Change"
+msgstr "更改"
+
+#: CorrelogramView.cpp:184
+#, fuzzy
+msgid "Save Statistics file"
+msgstr "保存统计"
+
+#: CorrelogramView.cpp:811
+#, fuzzy
+msgid "The sample size for random sampling is too small.\n"
+"Please increase the number of iterations."
+msgstr "随机抽样的样本大小太小。\n"
+"请增加迭代次数。"
+
+#: CorrelogramView.cpp:812
+#, fuzzy
+msgid "Insufficient Random Sampling"
+msgstr "随机抽样不足"
+
+#: CorrelogramView.cpp:1015
+#, fuzzy
+msgid "Please select another variable with values more suitable for computing a correlogram."
+msgstr "请选择另一个值更适合计算 correlogram 的变量。"
+
+#: CorrelogramView.cpp:1016
+#, fuzzy
+msgid "Variable Value Error"
+msgstr "值错误"
+
+#: CorrelogramView.h:62 ScatterPlotMatView.h:84
+#, fuzzy
+msgid "Scatter Plot Matrix"
+msgstr "散点图矩阵"
+
+#: CovSpView.cpp:187 CovSpView.h:97
+msgid "Spatial Correlogram"
+msgstr "空间滞后"
+
+#: CovSpView.cpp:258
+msgid "Variable Choice"
+msgstr "变量选择"
+
+#: CovSpView.cpp:258
+msgid "Variable"
+msgstr "变量"
+
+#: CovSpView.cpp:403
+msgid "Sample Autocorrelation"
+msgstr "样本自相关"
+
+#: CovSpView.cpp:518
+#, fuzzy, c-format
+msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
+msgstr "此视图目前支持最多1000个观察数据。空间 Correlogram 散点图在所有对观测之间绘制距离。当前数据集有%d 个观察和%d 个无序的观察对。"
+
+#: CovSpView.cpp:523
+msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
+msgstr "请用<br /> <font color=\"blue\">选项>更改变量<br /></font>指定一个变量。"
+
+#: CovSpView.cpp:525
+#, fuzzy, c-format
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr "变量<font color=\"blue\">％s</font>被指定。"
+
+#: CovSpView.cpp:528
+#, fuzzy
+msgid "Error: "
+msgstr "错误"
+
+#: GetisOrdMapNewView.cpp:72
+msgid "High"
+msgstr "高"
+
+#: GetisOrdMapNewView.cpp:73
+msgid "Low"
+msgstr "低"
+
+#: GetisOrdMapNewView.cpp:776 LocalGearyMapNewView.cpp:873
+#: MLJCMapNewView.cpp:708
+#, fuzzy
+msgid "Inference Settings"
+msgstr "推理设置"
+
+#: GetisOrdMapNewView.cpp:1072 MLJCMapNewView.cpp:948
+#, fuzzy
+msgid "Conditional G Cluster Map Variables"
+msgstr "条件G集群映射变量"
+
+#: HistogramView.cpp:250
+msgid "Create New Custom"
+msgstr "创建新的自定义"
+
+#: HistogramView.cpp:258
+msgid "Histogram Classification"
+msgstr "直方图"
+
+#: HistogramView.cpp:478
+#, fuzzy
+msgid "Histogram: "
+msgstr "直方图"
+
+#: HistogramView.h:164
+msgid "Histogram"
+msgstr "直方图"
+
+#: LineChartView.cpp:132
+msgid "Variable:"
+msgstr "变量："
+
+#: LineChartView.cpp:135
+msgid "Groups:"
+msgstr "分组："
+
+#: LineChartView.cpp:144
+msgid "Difference-in-Means Test:"
+msgstr "k-均值”（MSGID）"
+
+#: LineChartView.cpp:150
+msgid "Group 1:"
+msgstr "群組 1："
+
+#: LineChartView.cpp:153
+#, fuzzy
+msgid "Period 1:"
+msgstr "阶段 1"
+
+#: LineChartView.cpp:156
+msgid "Group 2:"
+msgstr "群組 2："
+
+#: LineChartView.cpp:159
+#, fuzzy
+msgid "Period 2:"
+msgstr "阶段 2"
+
+#: LineChartView.cpp:174
+#, fuzzy
+msgid "Save Dummy"
+msgstr "Dummy"
+
+#: LineChartView.cpp:175
+#, fuzzy
+msgid "Run Diff-in-Diff Test"
+msgstr "运行Diff-in-Diff测试"
+
+#: LineChartView.cpp:180
+#, fuzzy
+msgid "Save Test Results"
+msgstr "测试结果"
+
+#: LineChartView.cpp:335
+#, fuzzy
+msgid "Selected vs. Unselected"
+msgstr "选定的与未选定的"
+
+#: LineChartView.cpp:336
+msgid "All"
+msgstr "所有"
+
+#: LineChartView.cpp:605
+#, fuzzy
+msgid "var name:"
+msgstr "变量名称："
+
+#: LineChartView.cpp:610
+#, fuzzy
+msgid "Please select a time variable first, and make sure more than one time steps have been defined."
+msgstr "请首先选择一个时间变量, 并确保已定义了多个时间步骤。"
+
+#: LineChartView.cpp:964 LineChartView.cpp:1330
+#, fuzzy
+msgid "Please choose Periods first."
+msgstr "请先选择句号。"
+
+#: LineChartView.cpp:999 LineChartView.cpp:1045
+#, fuzzy
+msgid "Please choose Period 1."
+msgstr "请选择周期"
+
+#: LineChartView.cpp:1008 LineChartView.cpp:1054
+#, fuzzy
+msgid "Please choose Period 2."
+msgstr "请选择周期"
+
+#: LineChartView.cpp:1314
+#, fuzzy
+msgid "Please first select observations in one of the other data or map views."
+msgstr "请首先在其他数据或映射视图中选择观察。"
+
+#: LineChartView.cpp:1412 LineChartView.cpp:1480
+#, fuzzy
+msgid "Please choose Period 1 first."
+msgstr "请先选择1期。"
+
+#: LineChartView.cpp:1421 LineChartView.cpp:1489
+#, fuzzy
+msgid "Please choose Period 2 first."
+msgstr "请先选择2期。"
+
+#: LineChartView.cpp:1553
+#, fuzzy
+msgid "Do you want to save the results of Diff-in-Diff test?\n"
+"\n"
+"Note: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+msgstr "是否保存比较差异测试的结果？\n"
+"\n"
+"注意: 结果只能保存到外部数据文件中, 这是因为在空时上下文中的横截面观测值发生了变化。"
+
+#: LineChartView.cpp:1553
+#, fuzzy
+msgid "Save Diff-in-Diff Test Results"
+msgstr "保存比较差异的测试结果"
+
+#: LineChartView.h:106
+#, fuzzy
+msgid "Averages Chart"
+msgstr "平均值图"
+
+#: LisaMapNewView.cpp:71 LocalGearyMapNewView.cpp:72
+#, fuzzy
+msgid "High-High"
+msgstr "高/高"
+
+#: LisaMapNewView.cpp:72
+#, fuzzy
+msgid "High-Low"
+msgstr "高 / 低"
+
+#: LisaMapNewView.cpp:73 LocalGearyMapNewView.cpp:73
+#, fuzzy
+msgid "Low-Low"
+msgstr "低/低"
+
+#: LisaMapNewView.cpp:74
+#, fuzzy
+msgid "Low-High"
+msgstr "低             高"
+
+#: LisaMapNewView.cpp:94
+#, fuzzy
+msgid " LISA Cluster Map"
+msgstr "LISA集群图"
+
+#: LisaMapNewView.cpp:95
+#, fuzzy
+msgid " BiLISA Cluster Map"
+msgstr "BiLISA集群图"
+
+#: LisaMapNewView.cpp:96
+#, fuzzy
+msgid " Differential LISA Cluster Map"
+msgstr "差异LISA聚类图"
+
+#: LisaMapNewView.cpp:98
+#, fuzzy
+msgid " LISA Significance Map"
+msgstr "LISA重要性地图"
+
+#: LisaMapNewView.cpp:99
+#, fuzzy
+msgid " BiLISA Significance Map"
+msgstr "BiLISA重要性地图"
+
+#: LisaMapNewView.cpp:100 LocalGearyMapNewView.cpp:152
+#, fuzzy
+msgid " Differential Significance Map"
+msgstr "差分意义图"
+
+#: LisaMapNewView.cpp:315
+msgid "Conditional LISA Map Variables"
+msgstr ""
+
+#: LisaScatterPlotView.cpp:137 ScatterNewPlotView.cpp:348
+#, c-format
+msgid "Synchronize %s with Time Control"
+msgstr "将%s 与时间控制同步"
+
+#: LisaScatterPlotView.cpp:170
+#, c-format
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr ""
+
+#: LisaScatterPlotView.cpp:173
+#, fuzzy, c-format
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr "电磁脉冲贝叶斯率性病莫兰的 I (%s):%s/%s"
+
+#: LisaScatterPlotView.cpp:176
+#, fuzzy, c-format
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr "差分莫兰的 I (%s):%s-%s"
+
+#: LisaScatterPlotView.cpp:179
+#, fuzzy, c-format
+msgid "Moran's I (%s): %s"
+msgstr "莫兰的 I (%s):%s"
+
+#: LisaScatterPlotView.cpp:870
+#, fuzzy
+msgid "Save Results: Moran's I"
+msgstr "保存结果: 莫兰的我"
+
+#: LisaScatterPlotView.cpp:900
+#, fuzzy
+msgid "Standardized Data"
+msgstr "标准化数据"
+
+#: LisaScatterPlotView.cpp:906
+#, fuzzy
+msgid "Spatial Lag"
+msgstr "空间滞后"
+
+#: LisaScatterPlotView.cpp:913
+#, fuzzy
+msgid "Diff Values"
+msgstr "差异值"
+
+#: LisaScatterPlotView.cpp:978
+#, fuzzy
+msgid "The last seed used by the pseudo random\n"
+"number generator was "
+msgstr "伪随机数发生器使用的最后一个种子是"
+
+#: LisaScatterPlotView.cpp:981
+#, fuzzy
+msgid ".\n"
+"Enter a seed value to use between\n"
+"0 and "
+msgstr ".\n"
+"输入要在0和之间使用的种子值"
+
+#: LisaScatterPlotView.cpp:990
+#, fuzzy
+msgid "Enter a seed value"
+msgstr "输入一个值"
+
+#: LisaScatterPlotView.cpp:1002
+#, fuzzy, c-format
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr "\"%s\" 不是有效的种子。种子不变。"
+
+#: LisaScatterPlotView.cpp:1128
+msgid "Save Image to File"
+msgstr "将图像保存到文件"
+
+#: LisaScatterPlotView.cpp:1167 LisaScatterPlotView.cpp:1189
+#, fuzzy
+msgid "GeoDa was unable to save the file."
+msgstr "GeoDa 无法保存文件。"
+
+#: LocalGearyMapNewView.cpp:74
+#, fuzzy
+msgid "Other Positive"
+msgstr "其他积极"
+
+#: LocalGearyMapNewView.cpp:75
+msgid "Negative"
+msgstr "负"
+
+#: LocalGearyMapNewView.cpp:76
+msgid "Positive"
+msgstr "正"
+
+#: LocalGearyMapNewView.cpp:137
+#, fuzzy
+msgid " Local Geary Cluster Map"
+msgstr "本地葛瑞群集地图"
+
+#: LocalGearyMapNewView.cpp:140
+#, fuzzy
+msgid " Bivariate Local Geary Cluster Map"
+msgstr "双变量局部葛瑞簇映射"
+
+#: LocalGearyMapNewView.cpp:143
+#, fuzzy
+msgid " Differential Local Geary Cluster Map"
+msgstr "差分局部Geary集群映射"
+
+#: LocalGearyMapNewView.cpp:146
+#, fuzzy
+msgid " Local Geary Significance Map"
+msgstr "当地基因意义图"
+
+#: LocalGearyMapNewView.cpp:149
+#, fuzzy
+msgid " Bivariate LocalGeary Significance Map"
+msgstr "双变量LocalGeary意义映射"
+
+#: LocalGearyMapNewView.cpp:968
+#, fuzzy
+msgid "Save Results: LocalGeary"
+msgstr "保存结果: LocalGeary"
+
+#: LocalGearyMapNewView.cpp:1111
+#, fuzzy
+msgid "Conditional Local Geary Map Variables"
+msgstr "有条件的局部映射变量"
+
+#: LowessParamDlg.cpp:33
+#, fuzzy
+msgid "LOWESS Smoother Parameters"
+msgstr "LOWESS 平滑参数"
+
+#: LowessParamDlg.cpp:46
+msgid "Help"
+msgstr "帮助"
+
+#: LowessParamDlg.cpp:52
+msgid "Apply"
+msgstr "应用"
+
+#: LowessParamDlg.cpp:58
+msgid "Reset"
+msgstr "重置"
+
+#: LowessParamDlg.cpp:63
+msgid "Bandwidth:"
+msgstr "带宽："
+
+#: LowessParamDlg.cpp:76
+msgid "Iterations:"
+msgstr "饱和度 ："
+
+#: LowessParamDlg.cpp:91
+#, fuzzy
+msgid "Delta Factor:"
+msgstr "Delta 因素"
+
+#: LowessParamDlg.cpp:169
+#, fuzzy
+msgid "LOWESS Smoother Help"
+msgstr "LOWESS 更平滑的帮助"
+
+#: MLJCMapNewView.cpp:59
+#, fuzzy
+msgid "No Colocation"
+msgstr "没有托管"
+
+#: MLJCMapNewView.cpp:60
+#, fuzzy
+msgid "Has Colocation"
+msgstr "有托管"
+
+#: MLJCMapNewView.cpp:61
+#, fuzzy
+msgid "Colocation Cluster"
+msgstr "托管群集"
+
+#: MLJCMapNewView.cpp:122
+#, fuzzy
+msgid "Bivariate Local Join Count "
+msgstr "双变量本地联接计数"
+
+#: MLJCMapNewView.cpp:745
+#, fuzzy
+msgid "Save Results: Bivariate Local Join Count stats, "
+msgstr "保存结果: 双变量本地连接计数统计,"
+
+#: MapNewView.cpp:102 MapNewView.cpp:126
+#, c-format
+msgid "Current Transparency: %.2f"
+msgstr "当前字段名："
+
+#: MapNewView.cpp:551 MapNewView.cpp:2388
+#, fuzzy
+msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
+msgstr "GeoDa 找不到适当的投影或地理坐标系信息来添加类底图。请更新此信息 (例如, 在. prj 文件中)。"
+
+#: MapNewView.cpp:994
+msgid "Synchronize "
+msgstr "同步"
+
+#: MapNewView.cpp:994
+#, fuzzy
+msgid " with Time Control"
+msgstr "时间控制"
+
+#: MapNewView.cpp:1182 ScatterNewPlotView.cpp:689
+msgid " Categories"
+msgstr "Categories"
+
+#: MapNewView.cpp:1184 ScatterNewPlotView.cpp:691
+msgid "Save "
+msgstr "保存"
+
+#: MapNewView.cpp:1323 MapNewView.cpp:2033
+msgid "Information"
+msgstr "信息"
+
+#: MapNewView.cpp:1482
+#, fuzzy
+msgid "These are the row numbers of the records without location information."
+msgstr "这些是没有位置信息的记录的行号。"
+
+#: MapNewView.cpp:1483
+#, fuzzy
+msgid "row:\n"
+msgstr "行"
+
+#: MapNewView.cpp:1800
+#, fuzzy
+msgid "Error: Base values contain non-positive numbers which will result in undefined values."
+msgstr "错误: 基值包含非正数, 这些数字将导致未定义的值。"
+
+#: MapNewView.cpp:2032
+msgid "No rates currently calculated to save."
+msgstr "当前未计算要保存的利率。"
+
+#: MapNewView.cpp:2069
+#, c-format
+msgid "Save Rates - %s over %s"
+msgstr "超过 %s 前"
+
+#: MapNewView.cpp:2224
+#, fuzzy
+msgid "Choose Cateogry Color"
+msgstr "选择类别颜色"
+
+#: MapNewView.cpp:2554
+#, fuzzy
+msgid "GeoDa could not find the required weights file. \n"
+"Please specify weights in Tools > Weights Manager."
+msgstr "GeoDa 找不到所需的权重文件。\n"
+"请在工具中指定权重 > 权重管理器。"
+
+#: MapNewView.cpp:2554
+msgid "No Weights Found"
+msgstr "表中没有找到任何数值变量”。"
+
+#: MapNewView.cpp:2563
+#, fuzzy
+msgid "Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+msgstr "无效的权重信息: 所选权重文件无效。\n"
+" 请选择另一个权重文件, 或使用工具 >> 权重管理器来定义一个有效的权重文件。"
+
+#: MapNewView.cpp:2772
+#, fuzzy
+msgid "Variable Settings"
+msgstr "变量设置"
+
+#: MapNewView.cpp:2833
+#, fuzzy
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr "原始速率平滑变量设置"
+
+#: MapNewView.cpp:2834 MapNewView.cpp:2846 MapNewView.cpp:2857
+#: MapNewView.cpp:2871 MapNewView.cpp:2885
+#, fuzzy
+msgid "Event Variable"
+msgstr "事件变量"
+
+#: MapNewView.cpp:2834 MapNewView.cpp:2846 MapNewView.cpp:2857
+#: MapNewView.cpp:2871 MapNewView.cpp:2885
+#, fuzzy
+msgid "Base Variable"
+msgstr "Variable"
+
+#: MapNewView.cpp:2845
+#, fuzzy
+msgid "Excess Risk Map Variable Settings"
+msgstr "超额风险映射变量设置"
+
+#: MapNewView.cpp:2856
+#, fuzzy
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr "经验贝叶斯平滑变量设置"
+
+#: MapNewView.cpp:2870
+#, fuzzy
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr "空间速率平滑变量设置"
+
+#: MapNewView.cpp:2884
+#, fuzzy
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr "经验空间速率平滑变量设置"
+
+#: PCPNewView.cpp:115 VarsChooserDlg.cpp:301
+#, fuzzy, c-format
+msgid "Variable %s is not valid. Please select another variable."
+msgstr "变量%s 无效。请选择另一个变量。"
+
+#: PCPNewView.cpp:272
+#, fuzzy
+msgid "Parallel Coordinate Plot: "
+msgstr "平行坐标图:"
+
+#: ScatterNewPlotView.cpp:357
+#, fuzzy
+msgid "Fixed x-axis scale over time"
+msgstr "固定的 x 轴刻度随着时间推移"
+
+#: ScatterNewPlotView.cpp:363
+#, fuzzy
+msgid "Fixed y-axis scale over time"
+msgstr "随时间推移的固定 y 轴刻度"
+
+#: ScatterNewPlotView.cpp:369
+#, fuzzy
+msgid "Scale Options"
+msgstr "缩放选项"
+
+#: ScatterNewPlotView.cpp:513
+#, fuzzy, c-format
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr "气泡图-x:%s, y:%s, 大小:%s,%s"
+
+#: ScatterNewPlotView.cpp:516
+#, c-format
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr ""
+
+#: ScatterNewPlotView.cpp:526
+#, fuzzy
+msgid "Themeless"
+msgstr "Themeless"
+
+#: ScatterNewPlotView.cpp:1542
+#, fuzzy
+msgid "Chow test for sel/unsel regression subsets: "
+msgstr "周测试sel / unsel回归子集："
+
+#: ScatterNewPlotView.cpp:1550
+#, fuzzy
+msgid "can't compute"
+msgstr "无法计算"
+
+#: ScatterNewPlotView.cpp:2252
+#, fuzzy
+msgid "Create Weights"
+msgstr "创建权重"
+
+#: ScatterNewPlotView.h:276
+msgid "Scatter Plot"
+msgstr "散点图"
+
+#: ScatterNewPlotView.h:380
+#, fuzzy
+msgid "MDS Plot"
+msgstr "MDS 绘图"
+
+#: ScatterPlotMatView.cpp:171
+msgid "Save Image As"
+msgstr "图像另存为"
+
+#: ScatterPlotMatView.cpp:359
+#, fuzzy
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr "散点图矩阵变量添加/删除"
+
+#: ScatterPlotMatView.cpp:362
+#, fuzzy
+msgid "Scatter Plot Matrix Help"
+msgstr "散点图矩阵帮助"
+
+#: SimpleScatterPlotCanvas.cpp:209
+#, fuzzy, c-format
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr "散点图-x:%s, y:%s"
 
 msgid "Descending order"
 msgstr "降序"
@@ -48,20 +2444,11 @@ msgstr "分类主题"
 msgid "Sample Data"
 msgstr "样本数据"
 
-msgid "break 0"
-msgstr ""
-
 msgid "Histogram"
 msgstr "直方图"
 
-msgid "Carto Dark"
-msgstr ""
-
 msgid "Select variables to delete "
 msgstr "选择删除的变量名"
-
-msgid "Hebrew (ISO-8859-8-1)"
-msgstr ""
 
 msgid "Box Map (Hinge=1.5)"
 msgstr "箱线地图 (Hinge=1.5)"
@@ -72,17 +2459,11 @@ msgstr "异值Moran’s I"
 msgid "Merge by key values"
 msgstr "合并(按关键值)"
 
-msgid "GeoPackage (*.gpkg)|*.gpkg"
-msgstr ""
-
 msgid "Themeless"
 msgstr "无主题"
 
 msgid "Selection Tool"
 msgstr "选择工具"
-
-msgid "Arabic (Windows-1256)"
-msgstr ""
 
 msgid "Change Outline Color of Neighbors"
 msgstr "改变相邻对象的轮廓颜色"
@@ -93,237 +2474,14 @@ msgstr "操作符"
 msgid "Refresh"
 msgstr "刷新"
 
-msgid "Select All In Range"
-msgstr ""
-
-msgid "Maps and Rates"
-msgstr ""
-
 msgid "Save As"
 msgstr "另存"
-
-msgid "Enter new ID variable name:"
-msgstr ""
-
-msgid "Scatter Plot Matrix"
-msgstr ""
-
-msgid "Z Variable"
-msgstr ""
-
-msgid "Selection Shape"
-msgstr ""
-
-msgid "Select datasource"
-msgstr ""
-
-msgid "diverging"
-msgstr ""
-
-msgid "Change Font"
-msgstr ""
-
-msgid "obs#"
-msgstr ""
-
-msgid "Copy Legend To Clipboard"
-msgstr ""
-
-msgid "standard deviation"
-msgstr ""
-
-msgid "Y Variable"
-msgstr ""
-
-msgid "Database/Instance Name"
-msgstr ""
-
-msgid "Include diagonal of weights matrix"
-msgstr ""
-
-msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
-msgstr ""
-
-msgid "Smoother"
-msgstr ""
-
-msgid "uni. dist. Min"
-msgstr ""
-
-msgid "Turkish Latin-5 (ISO-8859-9)"
-msgstr ""
-
-msgid "GeoDa maj.min.bld (type), day month year"
-msgstr ""
-
-msgid "Distance metric"
-msgstr ""
-
-msgid "Circle"
-msgstr ""
-
-msgid "PCA"
-msgstr ""
-
-msgid "Hinge=1.5"
-msgstr ""
-
-msgid "dBase Database File (*.dbf)|*.dbf"
-msgstr ""
-
-msgid "First row of CSV file"
-msgstr ""
-
-msgid "Save Thiessen Polygons"
-msgstr ""
-
-msgid "Save Categories to Table"
-msgstr ""
-
-msgid "Axes Through Origin"
-msgstr ""
-
-msgid "Basemap Configuration Dialog"
-msgstr ""
-
-msgid "records:"
-msgstr ""
-
-msgid "sequential"
-msgstr ""
-
-msgid ""
-"Copyright (C) 1998-2011\n"
-"GeoDa Center for Geospatial Analysis and Computation\n"
-"and Arizona Board of Regents\n"
-"All Rights Reserved"
-msgstr ""
-
-msgid "Pred. Val. and Res."
-msgstr ""
-
-msgid "Line"
-msgstr ""
-
-msgid "Regimes Regression"
-msgstr ""
-
-msgid "Categories"
-msgstr ""
-
-msgid "Light"
-msgstr ""
-
-msgid "Assoc. Var."
-msgstr ""
-
-msgid "Unique Values Map"
-msgstr ""
-
-msgid "Message area"
-msgstr ""
-
-msgid "File Path"
-msgstr ""
-
-msgid "Change Parameters"
-msgstr ""
-
-msgid "Natural Breaks Map"
-msgstr ""
-
-msgid "Save Projet File As"
-msgstr ""
-
-msgid "Cyrillic (Windows-1251)"
-msgstr ""
-
-msgid "Selection"
-msgstr ""
-
-msgid "Display Thiessen Polygons"
-msgstr ""
-
-msgid "Time Editor"
-msgstr ""
-
-msgid "Intervals"
-msgstr ""
-
-msgid "Improve Cartogram"
-msgstr ""
-
-msgid "Add new column to table"
-msgstr ""
 
 msgid "&Tools"
 msgstr "工具"
 
-msgid "Category"
-msgstr ""
-
-msgid "Save Rates"
-msgstr ""
-
-msgid "Database Host"
-msgstr ""
-
-msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
-msgstr ""
-
 msgid "Exit"
 msgstr "退出"
-
-msgid "Custom Inference"
-msgstr ""
-
-msgid "Y-coordinate variable"
-msgstr ""
-
-msgid "Base Variable"
-msgstr ""
-
-msgid "Axis Option"
-msgstr ""
-
-msgid "Horizontal Bins Breaks"
-msgstr ""
-
-msgid "Hinge=3.0"
-msgstr ""
-
-msgid "Min"
-msgstr ""
-
-msgid "Nokia/HERE App ID"
-msgstr ""
-
-msgid "Number of Rows"
-msgstr ""
-
-msgid "Boxplot Theme"
-msgstr ""
-
-msgid "Current time:"
-msgstr ""
-
-msgid "Decimals (max 15)"
-msgstr ""
-
-msgid "MDS"
-msgstr ""
-
-msgid "Lower-left corner"
-msgstr ""
-
-msgid "Count"
-msgstr ""
-
-msgid "Spatial Correlogram"
-msgstr ""
-
-msgid "Read from an ASCII file"
-msgstr ""
 
 msgid "&Space"
 msgstr "空间分析"
@@ -334,128 +2492,11 @@ msgstr "创建"
 msgid "Time"
 msgstr "时间分析"
 
-msgid "name:"
-msgstr ""
-
-msgid "Univariate Local Moran's I"
-msgstr ""
-
-msgid "Local G Maps"
-msgstr ""
-
-msgid "Strong"
-msgstr ""
-
-msgid "Creating Grid"
-msgstr ""
-
-msgid "minimum"
-msgstr ""
-
-msgid "Append to current selection"
-msgstr ""
-
-msgid "Specify manually"
-msgstr ""
-
-msgid "Move Up"
-msgstr ""
-
-msgid "Other (up to 99999)"
-msgstr ""
-
-msgid "Spatial Lag"
-msgstr ""
-
-msgid "DBF File Information"
-msgstr ""
-
-msgid "2nd Variable (Y)"
-msgstr ""
-
-msgid "Encode"
-msgstr ""
-
-msgid "199 Permutations"
-msgstr ""
-
-msgid "Save Selection"
-msgstr ""
-
-msgid "View Original Data"
-msgstr ""
-
-msgid "Check Updates"
-msgstr ""
-
-msgid "Move Down"
-msgstr ""
-
-msgid "Select All Undefined"
-msgstr ""
-
-msgid "Use inverse distance?"
-msgstr ""
-
-msgid "current table key"
-msgstr ""
-
-msgid "Stack"
-msgstr ""
-
-msgid "Sort"
-msgstr ""
-
-msgid "Average"
-msgstr ""
-
-msgid "choose a variable"
-msgstr ""
-
-msgid "Status Bar"
-msgstr ""
-
-msgid "Weights Manager"
-msgstr ""
-
-msgid "Continue"
-msgstr ""
-
-msgid "Database Type"
-msgstr ""
-
-msgid "Order of contiguity"
-msgstr ""
-
-msgid "View"
-msgstr ""
-
-msgid "2 Iteration"
-msgstr ""
-
-msgid "Grid Size"
-msgstr ""
-
-msgid "Y-coord"
-msgstr ""
-
-msgid "Shape Centers"
-msgstr ""
-
-msgid "99 Permutations"
-msgstr ""
-
-msgid "3 Iteration"
-msgstr ""
-
 msgid "File"
 msgstr "文件"
 
 msgid "Apply"
 msgstr "应用"
-
-msgid "Map Themes"
-msgstr ""
 
 msgid "Regression"
 msgstr "回归"
@@ -463,23 +2504,8 @@ msgstr "回归"
 msgid "499 Permutations"
 msgstr "499 组合"
 
-msgid "Include Variable Names"
-msgstr ""
-
-msgid "Local Geary Maps"
-msgstr ""
-
-msgid "LOWESS Smoother"
-msgstr ""
-
-msgid "Diagonal weights = 1"
-msgstr ""
-
 msgid "Geocode"
 msgstr "地理编码"
-
-msgid "Select key:"
-msgstr ""
 
 msgid "Bug Report"
 msgstr "软件缺陷报告"
@@ -493,445 +2519,32 @@ msgstr "地图透明度设置"
 msgid "E&xplore"
 msgstr "探索分析"
 
-msgid "Number of Categories"
-msgstr ""
-
-msgid "file size:"
-msgstr ""
-
-msgid "New project file:"
-msgstr ""
-
-msgid "<"
-msgstr ""
-
-msgid "Save Table As CSV File"
-msgstr ""
-
 msgid "&New"
 msgstr "新建"
-
-msgid "year:"
-msgstr ""
-
-msgid "Unicode (UTF-8)"
-msgstr ""
-
-msgid "Set Number Separators"
-msgstr ""
-
-msgid "day:"
-msgstr ""
-
-msgid "Edit Title"
-msgstr ""
-
-msgid "Chinese Simplified (GB2312)"
-msgstr ""
 
 msgid "Don't show Recent/Sample Data panel again"
 msgstr "下次不再显示最近的数据和样本数据"
 
-msgid "About DBF Viewer"
-msgstr ""
-
-msgid "Set Display Precision of Y-Axis"
-msgstr ""
-
-msgid "Adaptive bandwidth"
-msgstr ""
-
-msgid "Width in pixels"
-msgstr ""
-
-msgid "Edit Custom Breaks"
-msgstr ""
-
-msgid "4 Iteration"
-msgstr ""
-
-msgid "Open Document Spreadsheet (*.ods)|*.ods"
-msgstr ""
-
-msgid "Use Specified Seed"
-msgstr ""
-
-msgid "mean"
-msgstr ""
-
-msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
-msgstr ""
-
-msgid "Differential Local Moran's I"
-msgstr ""
-
-msgid "Select ID Variable"
-msgstr ""
-
-msgid "Distance"
-msgstr ""
-
-msgid "Regression Report"
-msgstr ""
-
-msgid "Quantile"
-msgstr ""
-
-msgid "Convert ASCII to SHP"
-msgstr ""
-
-msgid "numeric"
-msgstr ""
-
-msgid "Rates-Calculated Map"
-msgstr ""
-
-msgid "Raw Rate"
-msgstr ""
-
-msgid "Save Connectivity To Table"
-msgstr ""
-
-msgid "Save"
-msgstr ""
-
-msgid "Panning Mode"
-msgstr ""
-
-msgid "Cyrillic (ISO-8859-5)"
-msgstr ""
-
-msgid "Result"
-msgstr ""
-
-msgid "Save Duplicate Thiessen Polygons to Table"
-msgstr ""
-
-msgid "Equal Intervals Map"
-msgstr ""
-
-msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
-msgstr ""
-
-msgid "weights:"
-msgstr ""
-
-msgid "Reset to default"
-msgstr ""
-
-msgid "Key"
-msgstr ""
-
-msgid "Map Movie"
-msgstr ""
-
-msgid "Selected ="
-msgstr ""
-
-msgid "Hinge"
-msgstr ""
-
-msgid "Nokia Satellite"
-msgstr ""
-
-msgid "Options"
-msgstr ""
-
-msgid "Delete"
-msgstr ""
-
-msgid "Keyhole Markup Language (*.kml)|*.kml"
-msgstr ""
-
-msgid "Copy Image To Clipboard"
-msgstr ""
-
-msgid "Use max knn distance as bandwidth"
-msgstr ""
-
-msgid "Calculator"
-msgstr ""
-
-msgid "Zooming Mode"
-msgstr ""
-
-msgid "Models"
-msgstr ""
-
-msgid "Shape"
-msgstr ""
-
-msgid "Co-location Map"
-msgstr ""
-
-msgid "Select"
-msgstr ""
-
-msgid "Averages Chart"
-msgstr ""
-
-msgid "Display Axes Scale Values"
-msgstr ""
-
-msgid "Parallel Coordinate Plot"
-msgstr ""
-
-msgid ">>"
-msgstr ""
-
-msgid "Legend Background Color"
-msgstr ""
-
-msgid "Choose Intervals"
-msgstr ""
-
-msgid "Central European (CP852)"
-msgstr ""
-
-msgid "Y-coordinate"
-msgstr ""
-
-msgid "Display Mean Centers"
-msgstr ""
-
-msgid "Rates"
-msgstr ""
-
-msgid "Decimal:"
-msgstr ""
-
-msgid "Contiguity Weight"
-msgstr ""
-
-msgid "0x03 (dBASE III+)"
-msgstr ""
-
-msgid "custom"
-msgstr ""
-
-msgid "Display Centroids"
-msgstr ""
-
-msgid "fields:"
-msgstr ""
-
-msgid "Save Centroids"
-msgstr ""
-
-msgid "Gi cluster map, pseudo p-val"
-msgstr ""
-
-msgid "Ascending order"
-msgstr ""
-
-msgid "No Basemap"
-msgstr ""
-
-msgid "Map Color Classification"
-msgstr ""
-
-msgid "Edit LOWESS Parameters"
-msgstr ""
-
-msgid "Connectivity"
-msgstr ""
-
-msgid "Use row-standardized weights"
-msgstr ""
-
-msgid "Data"
-msgstr ""
-
-msgid "Cyrillic (KOI8-R)"
-msgstr ""
-
 msgid "Database"
 msgstr "数据库"
-
-msgid "Selection Variable"
-msgstr ""
-
-msgid "Vertical Bins Breaks"
-msgstr ""
-
-msgid "Zoom Out"
-msgstr ""
 
 msgid "&Help"
 msgstr "帮助"
 
-msgid "Append To Current Selection"
-msgstr ""
-
-msgid "Zoom : press right-mouse button"
-msgstr ""
-
-msgid "Publish to GeoDa-Web"
-msgstr ""
-
-msgid "Manual Resize Column"
-msgstr ""
-
-msgid "Displayed decimals"
-msgstr ""
-
-msgid "Select from current selection"
-msgstr ""
-
-msgid "(Leave empty for undefined values)"
-msgstr ""
-
-msgid "Variable Settings"
-msgstr ""
-
 msgid "Connect"
 msgstr "打开"
-
-msgid "Cancel"
-msgstr ""
-
-msgid "observation:"
-msgstr ""
-
-msgid "Variables"
-msgstr ""
-
-msgid "Geography Markup Language (*.gml)|*.gml"
-msgstr ""
 
 msgid "Re&set"
 msgstr "重置"
 
-msgid "Grouped Variables"
-msgstr ""
-
-msgid "3rd Variable (Z)"
-msgstr ""
-
-msgid "Show Linear Smoother"
-msgstr ""
-
-msgid "Full Extent"
-msgstr ""
-
-msgid "Type 1"
-msgstr ""
-
-msgid "Animation"
-msgstr ""
-
 msgid "&Run"
 msgstr "运行"
-
-msgid "Clusters"
-msgstr ""
-
-msgid "GeoJson URL"
-msgstr ""
-
-msgid "Pan"
-msgstr ""
-
-msgid "Power"
-msgstr ""
-
-msgid "SELECTED"
-msgstr ""
-
-msgid ""
-"\n"
-"Select whether to use periods or commas as\n"
-"separators in numeric fields. \n"
-"\n"
-"E.g., by default, GeoDa uses commas to\n"
-"separate thousands and periods\n"
-"for decimals (1,000.00).\n"
-"                "
-msgstr ""
-
-msgid "category 1"
-msgstr ""
-
-msgid "Set Number Separators in Table"
-msgstr ""
-
-msgid "Input file (text file)"
-msgstr ""
-
-msgid "3D Scatter Plot"
-msgstr ""
-
-msgid "="
-msgstr ""
-
-msgid "Time Setup"
-msgstr ""
-
-msgid "App Key"
-msgstr ""
-
-msgid "Time Player"
-msgstr ""
-
-msgid "4th Variable"
-msgstr ""
-
-msgid "Show Axes Through Origin"
-msgstr ""
-
-msgid "User name"
-msgstr ""
-
-msgid "min:"
-msgstr ""
 
 msgid "Appl&y"
 msgstr "应用"
 
-msgid "Queen contiguity"
-msgstr ""
-
-msgid "About GeoDa"
-msgstr ""
-
-msgid "Bivariate Local Join Count"
-msgstr ""
-
-msgid "max:"
-msgstr ""
-
-msgid "Fixed scale over time"
-msgstr ""
-
-msgid "Greek (ISO-8859-7)"
-msgstr ""
-
 msgid "&Close"
 msgstr "关闭"
-
-msgid "Change Edge Thickness"
-msgstr ""
-
-msgid "Set Display Precision on Axes"
-msgstr ""
-
-msgid "Fixed Aspect Ratio Mode"
-msgstr ""
-
-msgid "Event Variable"
-msgstr ""
-
-msgid "Add Variable"
-msgstr ""
-
-msgid "Show Graph"
-msgstr ""
-
-msgid "Save to File"
-msgstr ""
-
-msgid "Spectral"
-msgstr ""
 
 msgid "Web"
 msgstr "网络数据"
@@ -939,905 +2552,1753 @@ msgstr "网络数据"
 msgid "Data Source Overview/Help: "
 msgstr "支持的数据格式和相关帮助:"
 
-msgid "Save Selected As"
-msgstr ""
-
-msgid "Covariates"
-msgstr ""
-
-msgid "Nokia Hybrid"
-msgstr ""
-
-msgid "Significance Map"
-msgstr ""
-
-msgid "Target Variable"
-msgstr ""
-
-msgid "New From Recent"
-msgstr ""
-
-msgid "Local Moran's I with EB Rate"
-msgstr ""
-
-msgid "Moran Scatter Plot"
-msgstr ""
-
-msgid "POLY&ID"
-msgstr ""
-
-msgid "Exporting Shape to Boundary"
-msgstr ""
-
-msgid "GeoDa Project File (*.gda)|*.gda"
-msgstr ""
-
-msgid "Cluster Maps"
-msgstr ""
-
-msgid "Grid Bounding Box"
-msgstr ""
-
-msgid "Percentile"
-msgstr ""
-
-msgid "Spatial Empirical Bayes"
-msgstr ""
-
-msgid "Create Custom Breaks"
-msgstr ""
-
-msgid "Linear Smoother"
-msgstr ""
-
-msgid "Carto Light"
-msgstr ""
-
-msgid "show normal distribution p-val maps"
-msgstr ""
-
-msgid "Thousands:"
-msgstr ""
-
-msgid "Box Map (Hinge=3.0)"
-msgstr ""
-
-msgid "Automatic Labels"
-msgstr ""
-
-msgid "Produce bounding-box file?"
-msgstr ""
-
-msgid "Vietnamese (Windows-1258)"
-msgstr ""
-
-msgid "Display"
-msgstr ""
-
-msgid "Project to Z-Y"
-msgstr ""
-
-msgid "Insert before"
-msgstr ""
-
-msgid "Get a free Carto account: "
-msgstr ""
-
-msgid "Equal Intervals"
-msgstr ""
-
-msgid "Output file (*.shp)"
-msgstr ""
-
-msgid "Set Number of Permutation"
-msgstr ""
-
-msgid "Convert Boundary to Shape Datasource"
-msgstr ""
-
-msgid "Dependent Variable"
-msgstr ""
-
-msgid "Central European (Windows-1250)"
-msgstr ""
-
-msgid "Cluster Map "
-msgstr ""
-
-msgid "White Test"
-msgstr ""
-
-msgid "Copyright (C) year-year by Luc Anselin"
-msgstr ""
-
-msgid "Create"
-msgstr ""
-
-msgid "K Medoids"
-msgstr ""
-
 msgid "&Regression"
 msgstr "回归"
-
-msgid "Show As Conditional Map"
-msgstr ""
-
-msgid "New datasource:"
-msgstr ""
-
-msgid "Precision threshold"
-msgstr ""
-
-msgid "User Defined"
-msgstr ""
-
-msgid "Project to X-Y"
-msgstr ""
-
-msgid "Include"
-msgstr ""
-
-msgid "Run"
-msgstr ""
-
-msgid "show normal distribution p-val map"
-msgstr ""
-
-msgid "Breaks"
-msgstr ""
-
-msgid "K-Nearest neighbors"
-msgstr ""
-
-msgid "Hierarchical"
-msgstr ""
-
-msgid "Aggregate"
-msgstr ""
-
-msgid "Select Neighborless Observations"
-msgstr ""
-
-msgid "Natural Breaks"
-msgstr ""
-
-msgid "Target"
-msgstr ""
-
-msgid "Weights"
-msgstr ""
-
-msgid "Length (max 254)"
-msgstr ""
-
-msgid "Exclude"
-msgstr ""
-
-msgid "Load time definition from project file."
-msgstr ""
-
-msgid "Delete Variable(s)"
-msgstr ""
-
-msgid "Intervals in the Histogram"
-msgstr ""
 
 msgid "&Cancel"
 msgstr "取消"
 
-msgid "Get a free GeoDa-Web account: "
-msgstr ""
-
-msgid "Quantile Map"
-msgstr ""
-
-msgid "Bubble Chart"
-msgstr ""
-
 msgid "&File"
 msgstr "文件"
-
-msgid "Yes"
-msgstr ""
-
-msgid "Significance Filter"
-msgstr ""
 
 msgid "T&able"
 msgstr "表格"
 
-msgid "using row-standardized weights"
-msgstr ""
-
-msgid "Cartogram"
-msgstr ""
-
-msgid "Assign To Target"
-msgstr ""
-
-msgid "Displayed decimal places"
-msgstr ""
-
-msgid "Clear Selection"
-msgstr ""
-
-msgid "Edit Variable Properties"
-msgstr ""
-
-msgid "Adaptive kernel"
-msgstr ""
-
-msgid "Themeless Map"
-msgstr ""
-
-msgid "Fit-To-Window Mode"
-msgstr ""
-
-msgid "K Medians"
-msgstr ""
-
-msgid "Adjust Value Range of Y-Axis"
-msgstr ""
-
-msgid "Rectangle"
-msgstr ""
-
-msgid "Adjust Value Range of Y Axis"
-msgstr ""
-
-msgid "GeoDa could not find the required weights file."
-msgstr ""
-
-msgid "Base Map "
-msgstr ""
-
-msgid "Coeff. Var. Mat."
-msgstr ""
-
-msgid "Spatial Error"
-msgstr ""
-
-msgid "Highlight Color"
-msgstr ""
-
-msgid ">"
-msgstr ""
-
-msgid "Thiessen Polygons"
-msgstr ""
-
-msgid "Box Plot"
-msgstr ""
-
-msgid "Output file (text file)"
-msgstr ""
-
-msgid "Type 2"
-msgstr ""
-
-msgid "Change Fill Color of Neighbors"
-msgstr ""
-
-msgid "New selection"
-msgstr ""
-
-msgid "Assign Values to Currently Selected / Unselected"
-msgstr ""
-
-msgid "Show Selection and Neighbors"
-msgstr ""
-
-msgid "to define weights."
-msgstr ""
-
 msgid "Connect to Data Source"
 msgstr "连接数据源"
-
-msgid "K Means"
-msgstr ""
-
-msgid "X-coord"
-msgstr ""
-
-msgid "value"
-msgstr ""
-
-msgid "Show LOWESS Smoother"
-msgstr ""
-
-msgid "row-standardized"
-msgstr ""
-
-msgid "Stable Version and Bug Fixes Only"
-msgstr ""
-
-msgid "import table key"
-msgstr ""
-
-msgid "Open"
-msgstr ""
-
-msgid "Local G"
-msgstr ""
-
-msgid "Upper-right corner"
-msgstr ""
-
-msgid "&Save to Table"
-msgstr ""
-
-msgid "Spatial Rate"
-msgstr ""
-
-msgid "<="
-msgstr ""
-
-msgid "Korean (EUC-KR)"
-msgstr ""
-
-msgid "Randomization"
-msgstr ""
-
-msgid "Carto"
-msgstr ""
-
-msgid "Input datasource"
-msgstr ""
-
-msgid "Max value of Y axis"
-msgstr ""
 
 msgid "&Map"
 msgstr "制图"
 
-msgid "binary"
-msgstr ""
-
-msgid "Regression Line Color"
-msgstr ""
-
-msgid "Basemap Configuration"
-msgstr ""
-
-msgid "Univariate Moran's I"
-msgstr ""
-
-msgid "Variable / Constant"
-msgstr ""
-
-msgid "1st Variable (X)"
-msgstr ""
-
-msgid "Resize"
-msgstr ""
-
-msgid "Set Display Precision"
-msgstr ""
-
-msgid "ESRI Shapefile (*.shp)|*.shp"
-msgstr ""
-
 msgid "Map"
 msgstr "制图"
-
-msgid "Unselected ="
-msgstr ""
-
-msgid "Y"
-msgstr ""
-
-msgid "All Rights Reserved"
-msgstr ""
-
-msgid "Min value of Y axis"
-msgstr ""
-
-msgid "Select All..."
-msgstr ""
-
-msgid "Scatter Plot"
-msgstr ""
-
-msgid "Selection Mode"
-msgstr ""
-
-msgid "Multivariate Local Geary"
-msgstr ""
-
-msgid "Save Image As"
-msgstr ""
-
-msgid "Points from Table"
-msgstr ""
-
-msgid "Add Neighbors To Selection"
-msgstr ""
-
-msgid "Rename Variable"
-msgstr ""
 
 msgid "Table"
 msgstr "表格"
 
-msgid "Variable Name"
-msgstr ""
-
-msgid "show significance maps"
-msgstr ""
-
-msgid "Bivariate Local Moran's I"
-msgstr ""
-
-msgid "Invert Select"
-msgstr ""
-
-msgid "X-coordinate"
-msgstr ""
-
 msgid "&Edit"
 msgstr "编辑"
-
-msgid "X Variable"
-msgstr ""
-
-msgid "Variable Setting"
-msgstr ""
-
-msgid "Invert Selection"
-msgstr ""
-
-msgid "Project to X-Z"
-msgstr ""
-
-msgid "Custom Breaks"
-msgstr ""
-
-msgid "Specify bandwidth"
-msgstr ""
-
-msgid "Selectable Fill Color"
-msgstr ""
-
-msgid "Make selection from expression "
-msgstr ""
-
-msgid "Kernel function"
-msgstr ""
-
-msgid "Point Color"
-msgstr ""
-
-msgid "Display Statistics"
-msgstr ""
-
-msgid "Local G*"
-msgstr ""
-
-msgid "Save Results"
-msgstr ""
-
-msgid "Unique Values"
-msgstr ""
-
-msgid "Clean Basemap Cache"
-msgstr ""
-
-msgid "&Add ID Variable..."
-msgstr ""
-
-msgid "Reset"
-msgstr ""
 
 msgid "Input file "
 msgstr "选择文件 "
 
-msgid "Create New Custom"
-msgstr ""
-
-msgid "Japanese (EUC-JP)"
-msgstr ""
-
-msgid "Japanese (Shift&JIS)"
-msgstr ""
-
-msgid "Welcome to GeoDa 1.8.16"
-msgstr ""
-
-msgid "Column Number (from 0)"
-msgstr ""
-
-msgid "Add/Remove Variables"
-msgstr ""
-
-msgid "OK"
-msgstr ""
-
 msgid "&Open Project"
 msgstr "打开项目文件"
-
-msgid "Save Space-Time Table/Weights"
-msgstr ""
-
-msgid "Add Centroids to Table"
-msgstr ""
-
-msgid "Create a project file?"
-msgstr ""
-
-msgid "Distance Weight"
-msgstr ""
-
-msgid "5 of 5 variables needed"
-msgstr ""
-
-msgid "Parameters"
-msgstr ""
-
-msgid "Show Status Bar"
-msgstr ""
-
-msgid "Apply kernel to diagonal weights"
-msgstr ""
-
-msgid "Sum"
-msgstr ""
-
-msgid "Gi* cluster map, pseudo p-val"
-msgstr ""
-
-msgid "X"
-msgstr ""
-
-msgid "Input"
-msgstr ""
-
-msgid "New"
-msgstr ""
-
-msgid "Name"
-msgstr ""
-
-msgid "Cores and Neighbors"
-msgstr ""
-
-msgid "month:"
-msgstr ""
-
-msgid "version:"
-msgstr ""
-
-msgid "Category Editor"
-msgstr ""
-
-msgid "6 Iteration"
-msgstr ""
-
-msgid "Method"
-msgstr ""
-
-msgid "Include lower orders"
-msgstr ""
-
-msgid "Type 1a"
-msgstr ""
-
-msgid "Select, hold CTRL for brushing"
-msgstr ""
-
-msgid "X-coordinate variable"
-msgstr ""
-
-msgid "Preferences..."
-msgstr ""
-
-msgid "Percentile Map"
-msgstr ""
-
-msgid "Use existing field name"
-msgstr ""
-
-msgid "MS Excel (*.xls)|*.xls"
-msgstr ""
-
-msgid "999 Permutations"
-msgstr ""
-
-msgid "Cores"
-msgstr ""
-
-msgid "Weights File Creation"
-msgstr ""
-
-msgid "Color Scheme"
-msgstr ""
-
-msgid "Loop"
-msgstr ""
-
-msgid "Please click to choose a highlighting style in GeoDa:"
-msgstr ""
-
-msgid "Weights File"
-msgstr ""
-
-msgid "Weight"
-msgstr ""
-
-msgid "Display Slope Values"
-msgstr ""
-
-msgid "max-p"
-msgstr ""
-
-msgid "What windows to open?"
-msgstr ""
-
-msgid "Get a free Nokia/HERE account: "
-msgstr ""
 
 msgid "&Merge"
 msgstr "合并"
 
-msgid "First line of CSV is variable names?"
-msgstr ""
-
-msgid "5 Iteration"
-msgstr ""
-
-msgid "Cumulative"
-msgstr ""
-
-msgid "Existing Variables"
-msgstr ""
-
-msgid "Move Selected to Top"
-msgstr ""
-
-msgid "Add"
-msgstr ""
-
-msgid "Statistics"
-msgstr ""
-
-msgid "Show Vertical Axis"
-msgstr ""
-
-msgid "Comma Separated Value (*.csv)|*.csv"
-msgstr ""
-
-msgid "Curve Color"
-msgstr ""
-
-msgid "User Name"
-msgstr ""
-
-msgid "Bivariate Moran's I"
-msgstr ""
-
-msgid "Database Port"
-msgstr ""
-
-msgid "Normal"
-msgstr ""
-
-msgid "Nokia/HERE App Key"
-msgstr ""
-
-msgid "1 Iteration"
-msgstr ""
-
-msgid "Conditional Map"
-msgstr ""
-
-msgid "Select From Current Selection"
-msgstr ""
-
-msgid "Show Axes"
-msgstr ""
-
-msgid "Save Project"
-msgstr ""
-
-msgid "Chinese Traditional (Big5)"
-msgstr ""
-
-msgid "New Group Details"
-msgstr ""
-
-msgid "Variable"
-msgstr ""
-
-msgid "Title of Visualization"
-msgstr ""
-
-msgid "Background Color"
-msgstr ""
-
-msgid "Axis Selection"
-msgstr ""
-
 msgid "Tim&e"
 msgstr "时间编辑"
-
-msgid "Set Display Precision:"
-msgstr ""
-
-msgid "New Selection"
-msgstr ""
-
-msgid "Number of neighbors"
-msgstr ""
-
-msgid "Z"
-msgstr ""
-
-msgid "Type"
-msgstr ""
-
-msgid "Displayed decimals places"
-msgstr ""
-
-msgid "WFS URL"
-msgstr ""
-
-msgid "Local G Statistics Maps"
-msgstr ""
-
-msgid "maximum"
-msgstr ""
-
-msgid "value:"
-msgstr ""
-
-msgid "Project Information"
-msgstr ""
-
-msgid "Empirical Bayes"
-msgstr ""
-
-msgid "Add Mean Centers to Table"
-msgstr ""
-
-msgid "Close"
-msgstr ""
-
-msgid "Neighbors of Cores"
-msgstr ""
 
 msgid "Recent"
 msgstr "最近的数据"
 
+msgid "break 0"
+msgstr "破0"
+
+msgid "Carto Dark"
+msgstr "卡托黑暗"
+
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr "希伯来语（ISO-8598-1）"
+
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr "GeoPackage（*.gpkg）**gpkg"
+
+msgid "Arabic (Windows-1256)"
+msgstr "阿拉伯语（Windows 1256）"
+
+msgid "Select All In Range"
+msgstr "选择所有范围"
+
+msgid "Maps and Rates"
+msgstr "地图和费率"
+
+msgid "Enter new ID variable name:"
+msgstr "输入新ID变量名："
+
+msgid "Scatter Plot Matrix"
+msgstr "散点图矩阵"
+
+msgid "Z Variable"
+msgstr "Z变量"
+
+msgid "Selection Shape"
+msgstr "选择形状"
+
+msgid "Select datasource"
+msgstr "选择数据源"
+
+msgid "diverging"
+msgstr "发散"
+
+msgid "Change Font"
+msgstr "更改字体"
+
+msgid "obs#"
+msgstr "OBS"
+
+msgid "Copy Legend To Clipboard"
+msgstr "复制图例到剪贴板"
+
+msgid "standard deviation"
+msgstr "标准差"
+
+msgid "Y Variable"
+msgstr "Y变量"
+
+msgid "Database\\/Instance Name"
+msgstr "数据库\\/实例名"
+
+msgid "Include diagonal of weights matrix"
+msgstr "包括权重矩阵的对角线"
+
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr "GeoJSON（*.GejJSON；*.JSON）** Geijson；*.JSON"
+
+msgid "Smoother"
+msgstr "平滑"
+
+msgid "uni. dist. Min"
+msgstr "UNIG.”闽闽"
+
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr "土耳其拉丁5号（ISO-859－9）"
+
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr "GeoDa maj.min.bld（型），日-月年"
+
+msgid "Distance metric"
+msgstr "距离度量"
+
+msgid "Circle"
+msgstr "圈"
+
+msgid "PCA"
+msgstr "主成分分析"
+
+msgid "Hinge=1.5"
+msgstr "铰链＝1.5"
+
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr "dBASE数据库文件（*.DBF）**.DBF"
+
+msgid "First row of CSV file"
+msgstr "CSV文件的第一行"
+
+msgid "Save Thiessen Polygons"
+msgstr "拯救泰森多边形"
+
+msgid "Save Categories to Table"
+msgstr "将类别保存到表中"
+
+msgid "Axes Through Origin"
+msgstr "通过原点的轴"
+
+msgid "Basemap Configuration Dialog"
+msgstr "BaseMac配置对话框"
+
+msgid "records:"
+msgstr "记录："
+
+msgid "sequential"
+msgstr "顺序"
+
+msgid "Pred. Val. and Res."
+msgstr "准备”。瓦尔和Res."
+
+msgid "Line"
+msgstr "线"
+
+msgid "Regimes Regression"
+msgstr "制度回归"
+
+msgid "Categories"
+msgstr "类别"
+
+msgid "Light"
+msgstr "光"
+
+msgid "Assoc. Var."
+msgstr "美联社"
+
+msgid "Unique Values Map"
+msgstr "唯一值映射"
+
+msgid "Message area"
+msgstr "消息区"
+
+msgid "File Path"
+msgstr "文件路径"
+
+msgid "Change Parameters"
+msgstr "更改参数"
+
+msgid "Natural Breaks Map"
+msgstr "自然断裂图"
+
+msgid "Save Projet File As"
+msgstr "将项目文件保存为"
+
+msgid "Cyrillic (Windows-1251)"
+msgstr "西里尔”（Windows 1251）"
+
+msgid "Selection"
+msgstr "选择"
+
+msgid "Display Thiessen Polygons"
+msgstr "显示“泰森多边形"
+
+msgid "Time Editor"
+msgstr "时间编辑器"
+
+msgid "Intervals"
+msgstr "间隔"
+
+msgid "Improve Cartogram"
+msgstr "改善Cartogram"
+
+msgid "Add new column to table"
+msgstr "将新列添加到表中"
+
+msgid "Category"
+msgstr "类别"
+
+msgid "Save Rates"
+msgstr "储蓄率"
+
+msgid "Database Host"
+msgstr "数据库宿主"
+
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr "MapInfo（*.tab；*.MIF；*.MID）**.tab；*.MIF；*.MID"
+
+msgid "Custom Inference"
+msgstr "自定义推理"
+
+msgid "Y-coordinate variable"
+msgstr "Y坐标变量"
+
+msgid "Base Variable"
+msgstr "基本变量"
+
+msgid "Axis Option"
+msgstr "轴选项"
+
+msgid "Horizontal Bins Breaks"
+msgstr "卧式垃圾箱断开"
+
+msgid "Hinge=3.0"
+msgstr "铰链＝3"
+
+msgid "Min"
+msgstr "民"
+
+msgid "Nokia\\/HERE App ID"
+msgstr "诺基亚\\/这里APP ID"
+
+msgid "Number of Rows"
+msgstr "行数"
+
+msgid "Boxplot Theme"
+msgstr "盒体主题"
+
+msgid "Current time:"
+msgstr "当前时间："
+
+msgid "Decimals (max 15)"
+msgstr "小数（最大15）"
+
+msgid "MDS"
+msgstr "MDS“MDS"
+
+msgid "Lower-left corner"
+msgstr "左下角"
+
+msgid "Count"
+msgstr "计数"
+
+msgid "Spatial Correlogram"
+msgstr "空间Correlogram"
+
+msgid "Read from an ASCII file"
+msgstr "从ASCII文件中读取"
+
+msgid "name:"
+msgstr "名称："
+
+msgid "Univariate Local Moran's I"
+msgstr "单变量局部MaRon I”的MSGID"
+
+msgid "Local G Maps"
+msgstr "局部G映射"
+
+msgid "Strong"
+msgstr "强"
+
+msgid "Creating Grid"
+msgstr "创建网格"
+
+msgid "minimum"
+msgstr "最小值"
+
+msgid "Append to current selection"
+msgstr "附加到当前选择”的MSGID"
+
+msgid "Specify manually"
+msgstr "手动指定"
+
+msgid "Move Up"
+msgstr "向上移动"
+
+msgid "Other (up to 99999)"
+msgstr "其他（高达99999）"
+
+msgid "Spatial Lag"
+msgstr "空间滞后"
+
+msgid "DBF File Information"
+msgstr "DBF文件信息"
+
+msgid "2nd Variable (Y)"
+msgstr "第二变量（y）"
+
+msgid "Encode"
+msgstr "编码"
+
+msgid "199 Permutations"
+msgstr "199排列"
+
+msgid "Save Selection"
+msgstr "保存选择"
+
+msgid "View Original Data"
+msgstr "查看原始数据"
+
+msgid "Check Updates"
+msgstr "检查更新"
+
+msgid "Move Down"
+msgstr "向下移动"
+
+msgid "Select All Undefined"
+msgstr "选择所有未定义的"
+
+msgid "Use inverse distance?"
+msgstr "使用反距离？"
+
+msgid "current table key"
+msgstr "当前表键"
+
+msgid "Stack"
+msgstr "堆栈"
+
+msgid "Sort"
+msgstr "排序"
+
+msgid "Average"
+msgstr "平均"
+
+msgid "choose a variable"
+msgstr "选择变量"
+
+msgid "Status Bar"
+msgstr "状态栏"
+
+msgid "Weights Manager"
+msgstr "权重管理器"
+
+msgid "Continue"
+msgstr "继续"
+
+msgid "Database Type"
+msgstr "数据库类型"
+
+msgid "Order of contiguity"
+msgstr "毗连顺序"
+
+msgid "View"
+msgstr "视图"
+
+msgid "2 Iteration"
+msgstr "2次迭代"
+
+msgid "Grid Size"
+msgstr "网格大小"
+
+msgid "Y-coord"
+msgstr "Y-COORD"
+
+msgid "Shape Centers"
+msgstr "形状中心"
+
+msgid "99 Permutations"
+msgstr "99排列"
+
+msgid "3 Iteration"
+msgstr "3次迭代"
+
+msgid "Map Themes"
+msgstr "地图主题"
+
+msgid "Include Variable Names"
+msgstr "包含变量名"
+
+msgid "Local Geary Maps"
+msgstr "局部齿轮映射"
+
+msgid "LOWESS Smoother"
+msgstr "低音平滑器"
+
+msgid "Diagonal weights = 1"
+msgstr "对角线权重＝1"
+
+msgid "Select key:"
+msgstr "选择键："
+
+msgid "Number of Categories"
+msgstr "类别数"
+
+msgid "file size:"
+msgstr "文件大小："
+
+msgid "New project file:"
+msgstr "新项目文件："
+
+msgid "<"
+msgstr "<"
+
+msgid "Save Table As CSV File"
+msgstr "将表保存为CSV文件"
+
+msgid "year:"
+msgstr "年："
+
+msgid "Unicode (UTF-8)"
+msgstr "Unicode（UTF-8）"
+
+msgid "Set Number Separators"
+msgstr "设置数分隔符"
+
+msgid "day:"
+msgstr "天："
+
+msgid "Edit Title"
+msgstr "编辑标题"
+
+msgid "Chinese Simplified (GB2312)"
+msgstr "中文简化版（GB23 12）"
+
+msgid "About DBF Viewer"
+msgstr "关于DBF Viewer"
+
+msgid "Set Display Precision of Y-Axis"
+msgstr "设置Y轴显示精度"
+
+msgid "Adaptive bandwidth"
+msgstr "自适应带宽"
+
+msgid "Width in pixels"
+msgstr "像素宽度"
+
+msgid "Edit Custom Breaks"
+msgstr "编辑自定义中断"
+
+msgid "4 Iteration"
+msgstr "4次迭代"
+
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr "开放文档电子表格（*.ODS）** ODS"
+
+msgid "Use Specified Seed"
+msgstr "使用指定的种子"
+
+msgid "mean"
+msgstr "平均"
+
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr "不要再次显示此对话框（可以使用菜单：文件->首选项来更改此设置）"
+
+msgid "Differential Local Moran's I"
+msgstr "微分局部MoranⅠ"
+
+msgid "Select ID Variable"
+msgstr "选择ID变量"
+
+msgid "Distance"
+msgstr "距离"
+
+msgid "Regression Report"
+msgstr "回归报告"
+
+msgid "Quantile"
+msgstr "分位数"
+
+msgid "Convert ASCII to SHP"
+msgstr "将ASCII转换为SHP"
+
+msgid "numeric"
+msgstr "数字"
+
+msgid "Rates-Calculated Map"
+msgstr "费率计算图"
+
+msgid "Raw Rate"
+msgstr "原始率"
+
+msgid "Save Connectivity To Table"
+msgstr "将连接保存到表"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Panning Mode"
+msgstr "淘金模式"
+
+msgid "Cyrillic (ISO-8859-5)"
+msgstr "西里尔”（ISO-855-5）"
+
+msgid "Result"
+msgstr "结果"
+
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr "将复制的泰森多边形保存到表中"
+
+msgid "Equal Intervals Map"
+msgstr "等间隔映射"
+
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr "ESRI个人地理数据库（*.MDB）**MDB"
+
+msgid "weights:"
+msgstr "重量："
+
+msgid "Reset to default"
+msgstr "重置为默认"
+
+msgid "Key"
+msgstr "密钥"
+
+msgid "Map Movie"
+msgstr "地图电影"
+
+msgid "Selected ="
+msgstr "选择="
+
+msgid "Hinge"
+msgstr "铰链"
+
+msgid "Nokia Satellite"
+msgstr "诺基亚卫星"
+
+msgid "Options"
+msgstr "选项"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr "密钥孔标记语言（*.kML）**kML"
+
+msgid "Copy Image To Clipboard"
+msgstr "复制图像到剪贴板"
+
+msgid "Use max knn distance as bandwidth"
+msgstr "MsgID“使用最大KNN距离作为带宽"
+
+msgid "Calculator"
+msgstr "计算器"
+
+msgid "Zooming Mode"
+msgstr "缩放模式"
+
+msgid "Models"
+msgstr "模型"
+
+msgid "Shape"
+msgstr "形"
+
+msgid "Co-location Map"
+msgstr "协同定位图"
+
+msgid "Select"
+msgstr "选择"
+
+msgid "Averages Chart"
+msgstr "平均图表"
+
+msgid "Display Axes Scale Values"
+msgstr "显示轴刻度值"
+
+msgid "Parallel Coordinate Plot"
+msgstr "平行坐标图"
+
+msgid ">>"
+msgstr ">"
+
+msgid "Legend Background Color"
+msgstr "传奇背景色"
+
+msgid "Choose Intervals"
+msgstr "选择区间"
+
+msgid "Central European (CP852)"
+msgstr "中欧”（CP852）"
+
+msgid "Y-coordinate"
+msgstr "Y坐标"
+
+msgid "Display Mean Centers"
+msgstr "显示平均中心"
+
+msgid "Rates"
+msgstr "利率"
+
+msgid "Decimal:"
+msgstr "十进制："
+
+msgid "Contiguity Weight"
+msgstr "邻接权重"
+
+msgid "0x03 (dBASE III+)"
+msgstr "0x03（dBASEⅢ+）"
+
+msgid "custom"
+msgstr "自定义"
+
+msgid "Display Centroids"
+msgstr "显示质心"
+
+msgid "fields:"
+msgstr "字段："
+
+msgid "Save Centroids"
+msgstr "保存质心"
+
+msgid "Gi cluster map, pseudo p-val"
+msgstr "GI簇映射，伪P VALL"
+
+msgid "Ascending order"
+msgstr "升序"
+
+msgid "No Basemap"
+msgstr "无基础"
+
+msgid "Map Color Classification"
+msgstr "地图颜色分类"
+
+msgid "Edit LOWESS Parameters"
+msgstr "编辑Leess参数"
+
+msgid "Connectivity"
+msgstr "连通性"
+
+msgid "Use row-standardized weights"
+msgstr "使用行标准化权重"
+
+msgid "Data"
+msgstr "数据"
+
+msgid "Cyrillic (KOI8-R)"
+msgstr "西里尔”（KII8—R）"
+
+msgid "Selection Variable"
+msgstr "选择变量"
+
+msgid "Vertical Bins Breaks"
+msgstr "垂直箱断开"
+
+msgid "Zoom Out"
+msgstr "缩小"
+
+msgid "Append To Current Selection"
+msgstr "附加到当前选择”的MSGID"
+
+msgid "Zoom : press right-mouse button"
+msgstr "缩放：按鼠标右键"
+
+msgid "Publish to GeoDa-Web"
+msgstr "发布给GeoDa Web"
+
+msgid "Manual Resize Column"
+msgstr "手动调整大小列"
+
+msgid "Displayed decimals"
+msgstr "显示小数"
+
+msgid "Select from current selection"
+msgstr "从当前选择中选择"
+
+msgid "(Leave empty for undefined values)"
+msgstr "为未定义的值留空"
+
+msgid "Variable Settings"
+msgstr "变量设置"
+
+msgid "Cancel"
+msgstr "取消“取消"
+
+msgid "observation:"
+msgstr "观察："
+
+msgid "Variables"
+msgstr "变量"
+
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr "地理标记语言（*.GML）**.gML"
+
+msgid "Grouped Variables"
+msgstr "分组变量"
+
+msgid "3rd Variable (Z)"
+msgstr "第三变量（z）"
+
+msgid "Show Linear Smoother"
+msgstr "显示线性平滑"
+
+msgid "Full Extent"
+msgstr "全范围"
+
+msgid "Type 1"
+msgstr "1型"
+
+msgid "Animation"
+msgstr "动画"
+
+msgid "Clusters"
+msgstr "集群"
+
+msgid "GeoJson URL"
+msgstr "GejJSON URL"
+
+msgid "Pan"
+msgstr "泛"
+
+msgid "Power"
+msgstr "权力"
+
+msgid "SELECTED"
+msgstr "选择“MSGID"
+
+msgid "category 1"
+msgstr "1类"
+
+msgid "Set Number Separators in Table"
+msgstr "设置表中的数分隔符"
+
+msgid "Input file (text file)"
+msgstr "输入文件（文本文件）"
+
+msgid "3D Scatter Plot"
+msgstr "三维散点图"
+
+msgid "="
+msgstr "="
+
+msgid "Time Setup"
+msgstr "时间设置"
+
+msgid "App Key"
+msgstr "应用程序密钥"
+
+msgid "Time Player"
+msgstr "时间播放器"
+
+msgid "4th Variable"
+msgstr "第四变量"
+
+msgid "Show Axes Through Origin"
+msgstr "通过原点显示轴"
+
+msgid "User name"
+msgstr "用户名"
+
+msgid "min:"
+msgstr "闽："
+
+msgid "Queen contiguity"
+msgstr "女王接续"
+
+msgid "About GeoDa"
+msgstr "关于GeoDa"
+
+msgid "Bivariate Local Join Count"
+msgstr "双变量局部连接计数"
+
+msgid "max:"
+msgstr "MGID：“max："
+
+msgid "Fixed scale over time"
+msgstr "随时间变化的固定比例"
+
+msgid "Greek (ISO-8859-7)"
+msgstr "希腊语（ISO-88 59－7）"
+
+msgid "Change Edge Thickness"
+msgstr "改变边缘厚度"
+
+msgid "Set Display Precision on Axes"
+msgstr "设置轴上的显示精度"
+
+msgid "Fixed Aspect Ratio Mode"
+msgstr "固定长宽比模式"
+
+msgid "Event Variable"
+msgstr "事件变量"
+
+msgid "Add Variable"
+msgstr "添加变量"
+
+msgid "Show Graph"
+msgstr "显示图"
+
+msgid "Save to File"
+msgstr "保存到文件"
+
+msgid "Spectral"
+msgstr "光谱"
+
+msgid "Save Selected As"
+msgstr "保存选择为"
+
+msgid "Covariates"
+msgstr "协变量"
+
+msgid "Nokia Hybrid"
+msgstr "诺基亚混合动力车"
+
+msgid "Significance Map"
+msgstr "意义图"
+
+msgid "Target Variable"
+msgstr "目标变量"
+
+msgid "New From Recent"
+msgstr "新近出现"
+
+msgid "Local Moran's I with EB Rate"
+msgstr "带有EB率的本地Moran I"
+
+msgid "Moran Scatter Plot"
+msgstr "Moran Scatter Plot"
+
+msgid "POLY&ID"
+msgstr "聚与ID"
+
+msgid "Exporting Shape to Boundary"
+msgstr "向边界输出形状"
+
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr "GEODA项目文件（*.GDA）**GDA"
+
+msgid "Cluster Maps"
+msgstr "簇映射"
+
+msgid "Grid Bounding Box"
+msgstr "网格包围盒"
+
+msgid "Percentile"
+msgstr "百分位数"
+
+msgid "Spatial Empirical Bayes"
+msgstr "空间经验贝叶斯"
+
+msgid "Create Custom Breaks"
+msgstr "创建自定义中断"
+
+msgid "Linear Smoother"
+msgstr "线性平滑器"
+
+msgid "Carto Light"
+msgstr "卡托灯"
+
+msgid "show normal distribution p-val maps"
+msgstr "MgGID“显示正态分布p- Val-映射"
+
+msgid "Thousands:"
+msgstr "千："
+
+msgid "Box Map (Hinge=3.0)"
+msgstr "方块图（铰链＝3）"
+
+msgid "Automatic Labels"
+msgstr "自动标签"
+
+msgid "Produce bounding-box file?"
+msgstr "生成边界框文件”？"
+
+msgid "Vietnamese (Windows-1258)"
+msgstr "越南语（Windows 1258）"
+
+msgid "Display"
+msgstr "显示"
+
+msgid "Project to Z-Y"
+msgstr "Z-Y项目"
+
+msgid "Insert before"
+msgstr "插入前"
+
+msgid "Get a free Carto account: "
+msgstr "获得免费卡托账户："
+
+msgid "Equal Intervals"
+msgstr "等间隔"
+
+msgid "Output file (*.shp)"
+msgstr "输出文件（*.sp）"
+
+msgid "Set Number of Permutation"
+msgstr "设置排列数"
+
+msgid "Convert Boundary to Shape Datasource"
+msgstr "转换边界到形状数据源"
+
+msgid "Dependent Variable"
+msgstr "因变量"
+
+msgid "Central European (Windows-1250)"
+msgstr "中欧（Windows 1250）"
+
+msgid "Cluster Map "
+msgstr "集群地图"
+
+msgid "White Test"
+msgstr "白色测试"
+
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr "Luc Anselin年著作权（C）年"
+
+msgid "Create"
+msgstr "创建"
+
+msgid "K Medoids"
+msgstr "K Medoids"
+
+msgid "Show As Conditional Map"
+msgstr "显示为条件映射"
+
+msgid "New datasource:"
+msgstr "新数据源："
+
+msgid "Precision threshold"
+msgstr "精确阈值"
+
+msgid "User Defined"
+msgstr "用户定义"
+
+msgid "Project to X-Y"
+msgstr "X-Y项目"
+
+msgid "Include"
+msgstr "包括"
+
+msgid "Run"
+msgstr "运行"
+
+msgid "show normal distribution p-val map"
+msgstr "MgGID“显示正态分布p-瓦尔映射"
+
+msgid "Breaks"
+msgstr "打破"
+
+msgid "K-Nearest neighbors"
+msgstr "k近邻"
+
+msgid "Hierarchical"
+msgstr "分级"
+
+msgid "Aggregate"
+msgstr "集合体"
+
+msgid "Select Neighborless Observations"
+msgstr "选择无邻里观测"
+
+msgid "Natural Breaks"
+msgstr "自然断裂"
+
+msgid "Target"
+msgstr "目标"
+
+msgid "Weights"
+msgstr "权重"
+
+msgid "Length (max 254)"
+msgstr "长度（max 254）"
+
+msgid "Exclude"
+msgstr "排除"
+
+msgid "Load time definition from project file."
+msgstr "从项目文件加载时间定义”。"
+
+msgid "Delete Variable(s)"
+msgstr "删除变量（s）"
+
+msgid "Intervals in the Histogram"
+msgstr "直方图中的间隔"
+
+msgid "Get a free GeoDa-Web account: "
+msgstr "获得免费的GEODA网络帐户："
+
+msgid "Quantile Map"
+msgstr "分位数映射"
+
+msgid "Bubble Chart"
+msgstr "气泡图"
+
+msgid "Yes"
+msgstr "是"
+
+msgid "Significance Filter"
+msgstr "意义过滤器"
+
+msgid "using row-standardized weights"
+msgstr "使用行标准化权重的MSGID"
+
+msgid "Cartogram"
+msgstr "Cartogram"
+
+msgid "Assign To Target"
+msgstr "分配给目标"
+
+msgid "Displayed decimal places"
+msgstr "显示小数点”的MSGID"
+
+msgid "Clear Selection"
+msgstr "清除选择"
+
+msgid "Edit Variable Properties"
+msgstr "编辑变量属性"
+
+msgid "Adaptive kernel"
+msgstr "自适应核"
+
+msgid "Themeless Map"
+msgstr "无图"
+
+msgid "Fit-To-Window Mode"
+msgstr "适合窗口模式的MSGID"
+
+msgid "K Medians"
+msgstr "K中位数"
+
+msgid "Adjust Value Range of Y-Axis"
+msgstr "Y轴调整值范围"
+
+msgid "Rectangle"
+msgstr "矩形"
+
+msgid "Adjust Value Range of Y Axis"
+msgstr "调整Y轴值范围"
+
+msgid "GeoDa could not find the required weights file."
+msgstr "GeoDa找不到所需的权重文件。"
+
+msgid "Base Map "
+msgstr "基础地图"
+
+msgid "Coeff. Var. Mat."
+msgstr "Coeff。Var. Mat。"
+
+msgid "Spatial Error"
+msgstr "空间误差"
+
+msgid "Highlight Color"
+msgstr "高亮颜色"
+
+msgid ">"
+msgstr ">"
+
+msgid "Thiessen Polygons"
+msgstr "Thiessen Polygons"
+
+msgid "Box Plot"
+msgstr "盒子图"
+
+msgid "Output file (text file)"
+msgstr "输出文件（文本文件）"
+
+msgid "Type 2"
+msgstr "2型"
+
+msgid "Change Fill Color of Neighbors"
+msgstr "改变邻居的填充颜色"
+
+msgid "New selection"
+msgstr "新选择"
+
+msgid "Assign Values to Currently Selected \\/ Unselected"
+msgstr "将值分配给当前选择\\/未选择"
+
+msgid "Show Selection and Neighbors"
+msgstr "显示选择和邻居"
+
+msgid "to define weights."
+msgstr "定义权重”。"
+
+msgid "K Means"
+msgstr "MgGID“K均值"
+
+msgid "X-coord"
+msgstr "X-COORD"
+
+msgid "value"
+msgstr "价值"
+
+msgid "Show LOWESS Smoother"
+msgstr "秀低平"
+
+msgid "row-standardized"
+msgstr "行标准化"
+
+msgid "Stable Version and Bug Fixes Only"
+msgstr "稳定版本和bug修复"
+
+msgid "import table key"
+msgstr "导入表键"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Local G"
+msgstr "本地G"
+
+msgid "Upper-right corner"
+msgstr "右上角"
+
+msgid "&Save to Table"
+msgstr "保存到表"
+
+msgid "Spatial Rate"
+msgstr "空间速率"
+
+msgid "<="
+msgstr "<="
+
+msgid "Korean (EUC-KR)"
+msgstr "韩语（EK-KR）"
+
+msgid "Randomization"
+msgstr "随机化"
+
+msgid "Carto"
+msgstr "Carto"
+
+msgid "Input datasource"
+msgstr "输入数据源"
+
+msgid "Max value of Y axis"
+msgstr "Y轴最大值"
+
+msgid "binary"
+msgstr "二进制"
+
+msgid "Regression Line Color"
+msgstr "回归线颜色"
+
+msgid "Basemap Configuration"
+msgstr "基础地图配置"
+
+msgid "Univariate Moran's I"
+msgstr "Univariate Moran一世"
+
+msgid "Variable \\/ Constant"
+msgstr "变量\\/常量"
+
+msgid "1st Variable (X)"
+msgstr "第一变量（x）"
+
+msgid "Resize"
+msgstr "调整大小"
+
+msgid "Set Display Precision"
+msgstr "设置显示精度"
+
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr "ESRI StuffFELE（*.SHP）**.SHP"
+
+msgid "Unselected ="
+msgstr "未选中="
+
+msgid "Y"
+msgstr "Y"
+
+msgid "All Rights Reserved"
+msgstr "保留所有权利"
+
+msgid "Min value of Y axis"
+msgstr "Y轴最小值"
+
+msgid "Select All..."
+msgstr "选择所有…"
+
+msgid "Scatter Plot"
+msgstr "散点图"
+
+msgid "Selection Mode"
+msgstr "选择模式"
+
+msgid "Multivariate Local Geary"
+msgstr "多变量局部齿轮"
+
+msgid "Save Image As"
+msgstr "保存图像为"
+
+msgid "Points from Table"
+msgstr "表中的“点"
+
+msgid "Add Neighbors To Selection"
+msgstr "添加邻居到选择"
+
+msgid "Rename Variable"
+msgstr "重命名变量"
+
+msgid "Variable Name"
+msgstr "变量名"
+
+msgid "show significance maps"
+msgstr "显示重要图"
+
+msgid "Bivariate Local Moran's I"
+msgstr "二元局部Moran I"
+
+msgid "Invert Select"
+msgstr "反转选择"
+
+msgid "X-coordinate"
+msgstr "X坐标"
+
+msgid "X Variable"
+msgstr "x变量"
+
+msgid "Variable Setting"
+msgstr "变量设置"
+
+msgid "Invert Selection"
+msgstr "反转选择"
+
+msgid "Project to X-Z"
+msgstr "X-Z项目"
+
+msgid "Custom Breaks"
+msgstr "自定义中断"
+
+msgid "Specify bandwidth"
+msgstr "指定带宽"
+
+msgid "Selectable Fill Color"
+msgstr "可选填充颜色"
+
+msgid "Make selection from expression "
+msgstr "从表达式中选择"
+
+msgid "Kernel function"
+msgstr "核函数"
+
+msgid "Point Color"
+msgstr "点色"
+
+msgid "Display Statistics"
+msgstr "显示统计"
+
+msgid "Local G*"
+msgstr "本地G*"
+
+msgid "Save Results"
+msgstr "保存结果"
+
+msgid "Unique Values"
+msgstr "唯一值"
+
+msgid "Clean Basemap Cache"
+msgstr "干净的基础映像缓存"
+
+msgid "&Add ID Variable..."
+msgstr "添加ID变量…"
+
+msgid "Reset"
+msgstr "重置"
+
+msgid "Create New Custom"
+msgstr "创建新的自定义"
+
+msgid "Japanese (EUC-JP)"
+msgstr "日语（EUC-JP）"
+
+msgid "Japanese (Shift&JIS)"
+msgstr "日语（移位和JIS）"
+
+msgid "Welcome to GeoDa 1.8.16"
+msgstr "欢迎来到GeoDa 1.816"
+
+msgid "Column Number (from 0)"
+msgstr "列号（0）"
+
+msgid "Add\\/Remove Variables"
+msgstr "添加\\/删除变量"
+
+msgid "OK"
+msgstr "好"
+
+msgid "Save Space-Time Table\\/Weights"
+msgstr "节省空间时间表\\/权重"
+
+msgid "Add Centroids to Table"
+msgstr "向表添加质心"
+
+msgid "Create a project file?"
+msgstr "创建一个项目文件？"
+
+msgid "Distance Weight"
+msgstr "距离权重"
+
+msgid "5 of 5 variables needed"
+msgstr "需要5个变量中的5个"
+
+msgid "Parameters"
+msgstr "参数"
+
+msgid "Show Status Bar"
+msgstr "显示状态栏"
+
+msgid "Apply kernel to diagonal weights"
+msgstr "将核应用于对角线权重"
+
+msgid "Sum"
+msgstr "和"
+
+msgid "Gi* cluster map, pseudo p-val"
+msgstr "GI*群集映射，伪P VALL"
+
+msgid "X"
+msgstr "X"
+
+msgid "Input"
+msgstr "输入"
+
+msgid "New"
+msgstr "新"
+
+msgid "Name"
+msgstr "名称“MSGID"
+
+msgid "Cores and Neighbors"
+msgstr "核心和邻居"
+
+msgid "month:"
+msgstr "月："
+
+msgid "version:"
+msgstr "版本："
+
+msgid "Category Editor"
+msgstr "类别编辑器"
+
+msgid "6 Iteration"
+msgstr "6次迭代"
+
+msgid "Method"
+msgstr "方法"
+
+msgid "Include lower orders"
+msgstr "包括下单"
+
+msgid "Type 1a"
+msgstr "1A型"
+
+msgid "Select, hold CTRL for brushing"
+msgstr "选择，保持刷牙的CTRL"
+
+msgid "X-coordinate variable"
+msgstr "X坐标变量"
+
+msgid "Preferences..."
+msgstr "首选项…"
+
+msgid "Percentile Map"
+msgstr "百分位数地图"
+
+msgid "Use existing field name"
+msgstr "使用现有字段名"
+
+msgid "MS Excel (*.xls)|*.xls"
+msgstr "MS Excel（*.xLS）**xLS"
+
+msgid "999 Permutations"
+msgstr "999排列"
+
+msgid "Cores"
+msgstr "内核"
+
+msgid "Weights File Creation"
+msgstr "权重文件创建"
+
+msgid "Color Scheme"
+msgstr "配色方案"
+
+msgid "Loop"
+msgstr "循环"
+
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr "请点击”选择GeoDa中的高亮样式："
+
+msgid "Weights File"
+msgstr "权重文件"
+
+msgid "Weight"
+msgstr "重量"
+
+msgid "Display Slope Values"
+msgstr "显示斜率值"
+
+msgid "max-p"
+msgstr "MGXID“MAX P"
+
+msgid "What windows to open?"
+msgstr "打开什么窗口？"
+
+msgid "Get a free Nokia\\/HERE account: "
+msgstr "获得免费诺基亚\\/这里帐户："
+
+msgid "First line of CSV is variable names?"
+msgstr "CSV的第一行是变量名？"
+
+msgid "5 Iteration"
+msgstr "5次迭代"
+
+msgid "Cumulative"
+msgstr "累积"
+
+msgid "Existing Variables"
+msgstr "现有变量"
+
+msgid "Move Selected to Top"
+msgstr "移动到顶部"
+
+msgid "Add"
+msgstr "添加"
+
+msgid "Statistics"
+msgstr "统计"
+
+msgid "Show Vertical Axis"
+msgstr "显示垂直轴"
+
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr "逗号分隔值（*.CSV）**.CSV"
+
+msgid "Curve Color"
+msgstr "曲线颜色"
+
+msgid "User Name"
+msgstr "用户名"
+
+msgid "Bivariate Moran's I"
+msgstr "Bivariate Moran一世"
+
+msgid "Database Port"
+msgstr "数据库端口"
+
+msgid "Normal"
+msgstr "正常"
+
+msgid "Nokia\\/HERE App Key"
+msgstr "诺基亚\\/这里的应用程序密钥"
+
+msgid "1 Iteration"
+msgstr "1次迭代"
+
+msgid "Conditional Map"
+msgstr "条件映射"
+
+msgid "Select From Current Selection"
+msgstr "从当前选择中选择"
+
+msgid "Show Axes"
+msgstr "显示轴"
+
+msgid "Save Project"
+msgstr "保存项目"
+
+msgid "Chinese Traditional (Big5)"
+msgstr "中国传统”（BIG5）"
+
+msgid "New Group Details"
+msgstr "新组细节"
+
+msgid "Variable"
+msgstr "变量"
+
+msgid "Title of Visualization"
+msgstr "可视化标题"
+
+msgid "Background Color"
+msgstr "背景颜色"
+
+msgid "Axis Selection"
+msgstr "轴选择"
+
+msgid "Set Display Precision:"
+msgstr "设置显示精度："
+
+msgid "New Selection"
+msgstr "新选择"
+
+msgid "Number of neighbors"
+msgstr "邻居数"
+
+msgid "Z"
+msgstr "Z"
+
+msgid "Type"
+msgstr "类型"
+
+msgid "Displayed decimals places"
+msgstr "显示小数点"
+
+msgid "WFS URL"
+msgstr "MWGID“WFS URL"
+
+msgid "Local G Statistics Maps"
+msgstr "局部G统计图"
+
+msgid "maximum"
+msgstr "最大值"
+
+msgid "value:"
+msgstr "值："
+
+msgid "Project Information"
+msgstr "项目信息"
+
+msgid "Empirical Bayes"
+msgstr "经验贝叶斯"
+
+msgid "Add Mean Centers to Table"
+msgstr "添加平均中心到表"
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Neighbors of Cores"
+msgstr "核心邻居"
+
 msgid "Use Scientific Notation"
-msgstr ""
+msgstr "使用科学记数法"
 
 msgid "Number of Columns"
-msgstr ""
+msgstr "列数"
 
 msgid "Use the bounding box of shape datasource"
-msgstr ""
+msgstr "使用形状数据源的边界框"
 
 msgid "Conditional Plot"
-msgstr ""
+msgstr "条件图"
 
 msgid "CSV Contains Variable Names?"
-msgstr ""
+msgstr "CSV包含变量名？"
 
 msgid "Local Moran's I Maps"
-msgstr ""
+msgstr "局部Moran I映射"
 
 msgid "Excess Risk"
-msgstr ""
+msgstr "超额风险"
 
 msgid "Distance band"
-msgstr ""
+msgstr "距离带"
 
 msgid "Description"
-msgstr ""
+msgstr "描述"
 
 msgid "Univariate Local Join Count"
-msgstr ""
+msgstr "单变量局部连接计数"
 
 msgid "Max"
-msgstr ""
+msgstr "MGID“max"
 
 msgid "Central European Latin-2 (ISO-8859-2)"
-msgstr ""
+msgstr "中欧拉丁文-2（ISO-859-2）"
 
 msgid "Background"
-msgstr ""
+msgstr "背景"
 
 msgid "Table Name"
-msgstr ""
+msgstr "表名"
 
 msgid "Ungrouped Variables"
-msgstr ""
+msgstr "未分组变量"
 
 msgid "No Weights Found"
-msgstr ""
+msgstr "表中没有找到任何数值变量”。"
 
 msgid "Password"
-msgstr ""
+msgstr "密码"
 
 msgid "Specify Seed..."
-msgstr ""
+msgstr "指定种子…"
 
 msgid "Carto Dark (No Labels)"
-msgstr ""
+msgstr "Carto Dark（无标签）"
 
 msgid "Reverse"
-msgstr ""
+msgstr "反向"
 
 msgid "Save Categories"
-msgstr ""
+msgstr "保存类别"
 
 msgid "Save Mean Centers"
-msgstr ""
+msgstr "拯救平均中心"
 
 msgid "Edit"
-msgstr ""
+msgstr "编辑"
 
 msgid "Standard Deviation Map"
-msgstr ""
+msgstr "标准偏差图"
 
 msgid "Moran's I with EB Rate"
-msgstr ""
+msgstr "Moran的I与EB率"
 
-msgid "Database Name/Instance"
-msgstr ""
+msgid "Database Name\\/Instance"
+msgstr "数据库名称\\/实例"
 
-msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
-msgstr ""
+msgid "SQLite\\/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite／Suffalite（*.SQLite）**SQLite"
 
 msgid "Standard Deviation"
-msgstr ""
+msgstr "标准差"
 
-msgid "Cyrillic/Russian (CP866)"
-msgstr ""
+msgid "Cyrillic\\/Russian (CP866)"
+msgstr "西里尔语\\/俄语（CP866）"
 
 msgid "Please specify weights in Tools > Weights Manager."
-msgstr ""
+msgstr "请在工具>权重管理器中指定权重。"
 
 msgid "Univariate Local Geary"
-msgstr ""
+msgstr "单变量局部齿轮"
 
 msgid "Change Current Map Type"
-msgstr ""
+msgstr "更改当前地图类型"
 
 msgid "Rook contiguity"
-msgstr ""
+msgstr "啮齿动物毗连"
 
 msgid "Basemap"
-msgstr ""
+msgstr "基础地图"
 
 msgid "thematic"
-msgstr ""
+msgstr "主题"
 
 msgid "Add New ID Variable"
-msgstr ""
+msgstr "添加新ID变量"
 
 msgid "Rates-Calculated Maps"
-msgstr ""
+msgstr "费率计算地图"
 
 msgid "Merge"
-msgstr ""
+msgstr "合并"
 
 msgid "Color"
-msgstr ""
+msgstr "颜色"
 
 msgid "Speed"
-msgstr ""
+msgstr "速度"
 
 msgid "Open weights file"
-msgstr ""
+msgstr "打开权文件"
 
 msgid "Select fields:"
-msgstr ""
+msgstr "选择字段："
 
 msgid "Change Edge Color"
-msgstr ""
+msgstr "改变边缘颜色"
 
 msgid "time"
-msgstr ""
+msgstr "时间"
 
 msgid "Enable User Defined Value Range of Y-Axis"
-msgstr ""
+msgstr "启用用户定义的Y轴值范围"
+
+#: DiagnosticReport.cpp:45
+#, fuzzy
+msgid "The number of covariates should be more than the number of observations."
+msgstr "变量的数目应多于观察次数。"
+
+#: DiagnosticReport.cpp:46 DiagnosticReport.cpp:69
+msgid "Error"
+msgstr "错误"
+
+#: DiagnosticReport.cpp:68
+#, fuzzy
+msgid "Not enough memory!"
+msgstr "内存不足"
+
+#: OGRDatasourceProxy.cpp:50
+#, fuzzy
+msgid "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
+"\n"
+"Tip: you can set up the necessary GeoDa driver by following the instructions at:\n"
+" http://geodacenter.github.io/formats.html"
+msgstr "无法打开数据源。请检查数据源并检查数据类型/格式是否由 GeoDa 支持。\n"
+"\n"
+"提示: 您可以按照以下说明设置必要的 GeoDa 驱动程序: http://geodacenter.github.io/formats.html"
+
+#: OGRDatasourceProxy.cpp:83
+msgid "\n"
+"\n"
+"Details: "
+msgstr "详细信息:"
+
+#: OGRLayerProxy.cpp:243
+#, fuzzy, c-format
+msgid "Internal Error: Add new field (%s) failed.\n"
+"\n"
+"Details:"
+msgstr "内部错误：添加新字段（％s）失败。细节："
+
+#: WeightUtils.cpp:178 WeightUtils.cpp:232 WeightUtils.cpp:250
+#: WeightUtils.cpp:259 WeightUtils.cpp:285 WeightUtils.cpp:323
+#: WeightUtils.cpp:358 WeightUtils.cpp:448 WeightUtils.cpp:485
+#: WeightUtils.cpp:501 WeightUtils.cpp:509 WeightUtils.cpp:535
+#: WeightUtils.cpp:598 WeightUtils.cpp:696 WeightUtils.cpp:736
+#: WeightUtils.cpp:748 WeightUtils.cpp:757 WeightUtils.cpp:770
+#: WeightUtils.cpp:828
+msgid "Error"
+msgstr "错误"
+
+#: WeightUtils.cpp:446
+#, fuzzy, c-format
+msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
+msgstr "在所选权重文件中指定的观察值的数量是％d，但当前表中的数字是％d，它不兼容。"
+
+#: WeightUtils.cpp:483
+#, fuzzy, c-format
+msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
+msgstr "指定了记录顺序, 但发现了%d 和%d 的最小和最大观测值, 这与第一行权重文件中指定的观察数不兼容:%d。"
+
+#: WeightUtils.cpp:499
+#, fuzzy, c-format
+msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
+msgstr "在当前加载的表格中找不到第一行权重文件中指定的键值字段“％s”。"
+
+#: WeightUtils.cpp:507
+#, fuzzy, c-format
+msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
+msgstr "在第一行权重文件中指定的键值字段“％s”在当前加载的表中不是整数类型。"
+
+#: WeightUtils.cpp:533
+#, fuzzy, c-format
+msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
+msgstr "权重文件中指定的键值字段 \"%s\" 包含当前加载表中的重复值。"
+
+#: WeightUtils.cpp:591
+#, fuzzy, c-format
+msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
+msgstr "在行%d 的权重文件中, 观察 id%d 遇到, 超出允许的观察范围为1到%d。"
+
+#: WeightUtils.cpp:594
+#, c-format
+msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
+msgstr "在权重文件的%d 行上, 在表的字段 \"%s\" 中遇到了不存在的观察 id%d。"
+

@@ -130,6 +130,7 @@ namespace SpanningTreeClustering {
         boost::unordered_map<int, Node*> map;
     public:
         DisjoinSet();
+        DisjoinSet(int id);
         ~DisjoinSet() {};
         
         Node* MakeSet(int id);
@@ -152,7 +153,6 @@ namespace SpanningTreeClustering {
         Node* dest;
         double length; // legnth of the edge |a.val - b.val|
     };
-
     
     /////////////////////////////////////////////////////////////////////////
     //
