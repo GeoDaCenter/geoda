@@ -1,4 +1,6 @@
 #include <deque>
+#include <algorithm>
+
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
 #include "hdbscan.h"
 
@@ -6,23 +8,21 @@
 using namespace GeoDaClustering;
 
 
-bool EdgeLess1(Edge* a, Edge* b)
+bool EdgeLess1(const SimpleEdge& a, const SimpleEdge& b)
 {
-    if (a->length < b->length) {
-        return true;
-    } else if (a->length > b->length ) {
-        return false;
-    } else if (a->orig->id < b->orig->id) {
-        return true;
-    } else if (a->orig->id > b->orig->id) {
-        return false;
-    } else if (a->dest->id < b->dest->id) {
-        return true;
-    } else if (a->dest->id > b->dest->id) {
-        return false;
-    }
-    return true;
+    return a.length < b.length;
 }
+
+bool CondessLess(const CondensedTree& a, const CondensedTree& b)
+{
+    return a.child < b.child;
+}
+
+bool CondessParentLess(const CondensedTree& a, const CondensedTree& b)
+{
+    return a.parent < b.parent;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 //
 // HDBSCAN
@@ -30,18 +30,32 @@ bool EdgeLess1(Edge* a, Edge* b)
 ////////////////////////////////////////////////////////////////////////////////
 HDBScan::HDBScan(int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs, GalElement* w, double* _controls, double _control_thres)
 {
+    int cluster_selection_method = 0;
+    bool allow_single_cluster = false;
+    bool match_reference_implementation = false;
+    
     all_nodes.resize(rows);
     nbr_dict.resize(rows);
+    designations.resize(rows);
     
     for (int i=0; i<rows; i++) {
         all_nodes[i] = new Node(i);
     }
     
+    cout << "np.array([";
+    for (int i=0; i<rows; i++) {
+        cout << "[";
+        for (int j=0; j<cols; j++) {
+            cout << _data[i][j] << ",";
+        }
+        cout << "],";
+    }
+    cout << "])";
     // compute core distances
     vector<double> core_dist(rows);
     
     int k = 10;
-    int m_clSize = 1;
+    int min_cluster_size = k;
     int dim = cols;
     double eps = 0; // error bound
     int nPts = rows;
@@ -81,231 +95,49 @@ HDBScan::HDBScan(int rows, int cols, double** _distances, double** _data, const 
     }
     
     // MST
-    mst_edges.resize(rows-1);
-    Graph g(rows);
-    boost::unordered_map<pair<int, int>, bool> access_dict;
-    for (int i=0; i<rows; i++) {
-        for (int j=0; j<i; j++) {
-            if (i!=j) {
-                boost::add_edge(i, j, mutual_dist[i][j], g);
-            }
-        }
-    }
-    std::vector<int> p(num_vertices(g));
-    boost::prim_minimum_spanning_tree(g, p.data());
-    
-    double sum_length=0;
-    int cnt = 0;
-    for (int source = 0; source < p.size(); ++source) {
-        int target = p[source];
-        if (source != target) {
-            double length = mutual_dist[source][target];
-            mst_edges[cnt++] = new Edge(all_nodes[source],all_nodes[target], length);
-        }
-    }
-    
-    // Extend the MST to obtain MSText, by adding for each vertex a “self edge"
-    for (int i=0; i<rows; i++) {
-        mst_edges.push_back(new Edge(all_nodes[i], all_nodes[i], core_dist[i]));
-    }
-    
-    // Extract the HDBSCAN hierarchy as a dendrogram from mst
-    vector<UnionFind*> ufs(rows);
-    for (int i=0; i<rows; i++) {
-        ufs[i] = new UnionFind(i);
-    }
-    
-    //sort edges from smallest weight to largest
+    vector<SimpleEdge> mst_edges = mst_linkage_core_vector(dim, core_dist, _distances, 1.0);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
     
-    //everyone starts in their own cluster!
-    vector<vector<int> > currentGroups(rows);
-    for (int i=0; i<rows; i++) {
-        currentGroups[i].push_back(i);
-    }
-    
-    int next_cluster_label = 0;
-    // List of all the cluster options we have found
-    vector<vector<int> > cluster_options;
-    
-    // Stores a list for each cluster. Each value in the sub list is the
-    // weight at which that data point was added to the cluster
-    vector<vector<double> > entry_size;
-    vector<double> birthSize, deathSize;
-    vector<pair<int, int> > children;
-    vector<int> map_to_cluster_label(rows, -1);
-    
+    // Extract the HDBSCAN hierarchy as a dendrogram from mst
+    int N = rows;
+    UnionFind U(N);
+    double** hierarchy = new double*[N-1];
     for (int i=0; i<mst_edges.size(); i++) {
-        Edge* e = mst_edges[i];
-        int from = e->orig->id;
-        int to = e->dest->id;
-        double weight = e->length;
+        SimpleEdge& e = mst_edges[i];
+        int a = e.orig;
+        int b = e.dest;
+        double delta = e.length;
         
-        if (to == from) {
-            continue;
-        }
+        int aa = U.fast_find(a);
+        int bb = U.fast_find(b);
         
-        UnionFind* union_from = ufs[from];
-        UnionFind* union_to = ufs[to];
+        hierarchy[i] = new double[4];
+        hierarchy[i][0] = aa;
+        hierarchy[i][1] = bb;
+        hierarchy[i][2] = delta;
+        hierarchy[i][3] = U.size[aa] + U.size[bb];
         
-        int clust_A = union_from->find()->getItem();
-        int clust_B = union_to->find()->getItem();
-        
-        UnionFind* clust_A_tmp = union_from->find();
-        UnionFind* clust_B_tmp = union_to->find();
-        
-        union_from->Union(union_to);
-        
-        int a_size = currentGroups[clust_A].size();
-        int b_size = currentGroups[clust_B].size();
-        int new_size = a_size+b_size;
-        
-        int mergedClust;
-        int otherClust;
-        if(union_from->find()->getItem() == clust_A) {
-            mergedClust = clust_A;
-            otherClust = clust_B;
-        } else { //other way around
-            mergedClust = clust_B;
-            otherClust = clust_A;
-        }
-        
-        if ( new_size >= m_clSize && a_size < m_clSize && b_size < m_clSize) {
-            //birth of a new cluster!
-            cluster_options.push_back(currentGroups[mergedClust]);
-            
-            vector<double> dl(new_size, weight);
-            entry_size.push_back(dl);
-            
-            children.push_back(make_pair(-1,-1)); //we have no children!
-            birthSize.push_back(weight);
-            deathSize.push_back(DBL_MAX);//we don't know yet
-            map_to_cluster_label[mergedClust] = next_cluster_label;
-            next_cluster_label++;
-            
-        } else if (new_size >= m_clSize && a_size >= m_clSize && b_size >= m_clSize) {
-            //birth of a new cluster from the death of two others!
-            //record the weight that the other two died at
-            deathSize[ map_to_cluster_label[mergedClust] ] = weight;
-            deathSize[ map_to_cluster_label[otherClust] ] = weight;
-            
-            //replace with new object so that old references
-            // in cluster_options are not altered further
-            vector<int> copy_group = currentGroups[mergedClust];
-            currentGroups[mergedClust] = copy_group;
-            
-            cluster_options.push_back(currentGroups[mergedClust]);
-            vector<double> dl(new_size, weight);
-            entry_size.push_back(dl);
-            
-            children.push_back(make_pair(map_to_cluster_label[mergedClust], map_to_cluster_label[otherClust]));
-            birthSize.push_back(weight);
-            deathSize.push_back(DBL_MAX);//we don't know yet
-            map_to_cluster_label[mergedClust] = next_cluster_label;
-            next_cluster_label++;
-            
-        }  else if( new_size >= m_clSize ) {
-            // existing cluster has grown in size,
-            // so add the points and record their weight for use later
-            // index may change, so book keeping update
-            if (map_to_cluster_label[mergedClust] == -1) {
-                //the people being added are the new owners
-                //set to avoid index out of boudns bellow
-                int c = map_to_cluster_label[mergedClust] = map_to_cluster_label[otherClust];
-                //make sure we keep track of the correct list
-                cluster_options[c] = currentGroups[mergedClust];
-                map_to_cluster_label[otherClust] = -1;
-            }
-            
-            
-            for(int  j=0; j< currentGroups[otherClust].size(); j++) {
-                entry_size[ map_to_cluster_label[mergedClust] ].push_back(weight);
-            }
-        }
-        
-        for (int j=0; j<currentGroups[otherClust].size(); j++) {
-            currentGroups[mergedClust].push_back(currentGroups[otherClust][j]);
-        }
-        currentGroups[otherClust].clear();
+        U.Union(aa, bb);
     }
     
-    //Remove the last "cluster" because its the dumb one of everything
-    cluster_options.erase(cluster_options.begin() + cluster_options.size()-1);
-    entry_size.erase(entry_size.begin() + entry_size.size()-1);
-    birthSize.erase(birthSize.begin() + birthSize.size()-1);
-    deathSize.erase(deathSize.begin() + deathSize.size()-1);
-    children.erase(children.begin() + children.size()-1);
+    // following: _tree_to_labels()
     
-    // See equation (3) in paper
-    vector<double> S(cluster_options.size());
-    for(int c = 0; c < S.size(); c++) {
-        double lambda_min = birthSize[c];
-        double lambda_max = deathSize[c];
-        double s = 0;
-        for(int j=0; j< entry_size[c].size(); j++) {
-            double f_x = entry_size[c][j];
-            s += min(f_x, lambda_max) - lambda_min;
-        }
-        S[c] = s;
+    // condensed_tree = condense_tree(single_linkage_tree, min_cluster_size)
+    vector<CondensedTree> condensed_tree = condense_tree(hierarchy, N, min_cluster_size);
+    
+    // stability_dict = compute_stability(condensed_tree)
+    boost::unordered_map<int, double> stability_dict = compute_stability(condensed_tree);
+    
+    // labels, probabilities, stabilities = get_clusters(condensed_tree,
+    vector<int> labels;
+    vector<double> probabilities, stabilities;
+    get_clusters(condensed_tree, stability_dict, labels, probabilities, stabilities, cluster_selection_method, allow_single_cluster, match_reference_implementation);
+    
+    
+    for (int i=0; i<N-1; i++) {
+        delete[] hierarchy[i];
     }
-    
-    vector<bool> toKeep(S.size(), true);
-    vector<double> S_hat(cluster_options.size());
-    
-    //Queue<Integer> notKeeping = new ArrayDeque<>();
-    deque<int> notKeeping;
-    for(int i = 0; i < S.size(); i++)
-    {
-        pair<int, int>& child = children[i];
-        if(child.first == -1) {
-            //I'm a leaf!
-            //for all leaf nodes, set ˆS(C_h)= S(C_h)
-            S_hat[i] = S[i];
-            continue;
-        }
-        int il = child.first;
-        int ir = child.second;
-        //If S(C_i) < ˆS(C_il)+ ˆ S(C_ir ), set ˆS(C_i)= ˆS(C_il)+ ˆS(C_ir )and set δi =0.
-        if (S[i] < S_hat[il] + S_hat[ir]) {
-            S_hat[i] = S_hat[il] + S_hat[ir];
-            toKeep[i] = false;
-        } else {
-            // set ˆS(C_i)= S(C_i)and set δ(·) = 0 for all clusters in C_i’s subtrees.
-            S_hat[i] = S[i];
-            //place children in q to process and set all sub children as not keeping
-            notKeeping.push_back(il);
-            notKeeping.push_back(ir);
-            while(!notKeeping.empty())
-            {
-                int c = notKeeping.front();
-                notKeeping.pop_front();
-                toKeep[c] = false;
-                pair<int, int>& c_children = children[c];
-                if(c_children.first == -1) {
-                    continue;
-                }
-                notKeeping.push_back(c_children.first);
-                notKeeping.push_back(c_children.second);
-            }
-        }
-    }
-    
-    //initially fill with -1 indicating it was noise
-    for (int i=0; i<rows; i++) {
-        designations[i] = -1;
-    }
-    
-    int clusters = 0;
-    for (int c = 0; c < toKeep.size(); c++) {
-        if (toKeep[c]) {
-            for(int j=0; j< cluster_options[c].size(); j++) {
-                int indx = cluster_options[c][j];
-                designations[indx] = clusters;
-            }
-            clusters++;
-        }
-    }
-    
+    delete[] hierarchy;
     //return designations;
 }
 
@@ -314,4 +146,553 @@ HDBScan::~HDBScan()
     for (int i=0; i<rows; i++) {
         delete all_nodes[i];
     }
+}
+
+
+vector<CondensedTree> HDBScan::condense_tree(double** hierarchy, int N, int min_cluster_size)
+{
+    int root = 2 * (N-1);
+    int num_points = root /2 + 1;
+    int next_label = num_points + 1;
+    
+    vector<int> node_list = bfs_from_hierarchy(hierarchy, N-1, root);
+    
+    vector<int> relabel(root+1);
+    relabel[root] = num_points;
+    vector<CondensedTree> result_list;
+    vector<int> ignore(node_list.size(),0);
+    
+    double lambda_value;
+    int left_count, right_count;
+    
+    for (int i=0; i<node_list.size(); i++) {
+        int node = node_list[i];
+        if (ignore[node] || node < num_points) {
+            continue;
+        }
+        
+        double* children = hierarchy[node-num_points];
+        int left = children[0];
+        int right = children[1];
+        
+        if (children[2] > 0.0) {
+            lambda_value = 1.0 / children[2];
+        } else {
+            lambda_value = DBL_MAX;
+        }
+        
+        if (left >= num_points) {
+            left_count = hierarchy[left - num_points][3];
+        } else {
+            left_count = 1;
+        }
+        
+        if (right >= num_points) {
+            right_count = hierarchy[right - num_points][3];
+        } else {
+            right_count = 1;
+        }
+        
+        if (left_count >= min_cluster_size && right_count >= min_cluster_size) {
+            relabel[left] = next_label;
+            next_label += 1;
+            CondensedTree node1(relabel[node], relabel[left], lambda_value, left_count);
+            result_list.push_back(node1);
+            
+            relabel[right] = next_label;
+            next_label += 1;
+            CondensedTree node2(relabel[node], relabel[right], lambda_value, right_count);
+            result_list.push_back(node2);
+            
+        } else if (left_count < min_cluster_size && right_count < min_cluster_size) {
+            vector<int> sub_nodes = bfs_from_hierarchy(hierarchy, N-1, left);
+            for (int j=0; j<sub_nodes.size(); j++) {
+                int sub_node = sub_nodes[j];
+                if (sub_node < num_points) {
+                    CondensedTree node1(relabel[node], sub_node, lambda_value, 1);
+                    result_list.push_back(node1);
+                }
+                ignore[sub_node] = true;
+            }
+            sub_nodes = bfs_from_hierarchy(hierarchy, N-1, right);
+            for (int j=0; j<sub_nodes.size(); j++) {
+                int sub_node = sub_nodes[j];
+                if (sub_node < num_points) {
+                    CondensedTree node1(relabel[node], sub_node, lambda_value, 1);
+                    result_list.push_back(node1);
+                }
+                ignore[sub_node] = true;
+            }
+            
+        } else if (left_count < min_cluster_size) {
+            relabel[right] = relabel[node];
+            vector<int> sub_nodes = bfs_from_hierarchy(hierarchy, N-1, left);
+            for (int j=0; j<sub_nodes.size(); j++) {
+                int sub_node = sub_nodes[j];
+                if (sub_node < num_points) {
+                    CondensedTree node1(relabel[node], sub_node, lambda_value, 1);
+                    result_list.push_back(node1);
+                }
+                ignore[sub_node] = true;
+            }
+        } else {
+            relabel[left] = relabel[node];
+            vector<int> sub_nodes = bfs_from_hierarchy(hierarchy, N-1, right);
+            for (int j=0; j<sub_nodes.size(); j++) {
+                int sub_node = sub_nodes[j];
+                if (sub_node < num_points) {
+                    CondensedTree node1(relabel[node], sub_node, lambda_value, 1);
+                    result_list.push_back(node1);
+                }
+                ignore[sub_node] = true;
+            }
+        }
+    }
+    return result_list;
+}
+
+boost::unordered_map<int, double> HDBScan::compute_stability(vector<CondensedTree>& condensed_tree)
+{
+    int largest_child = condensed_tree[0].child;
+    int smallest_cluster = condensed_tree[0].parent;
+    int largest_cluster = condensed_tree[0].parent;
+    for (int i=1; i<condensed_tree.size(); i++) {
+        if (condensed_tree[i].child > largest_child) {
+            largest_child = condensed_tree[i].child;
+        }
+        if (condensed_tree[i].parent < smallest_cluster) {
+            smallest_cluster = condensed_tree[i].parent;
+        }
+        if (condensed_tree[i].parent > largest_cluster) {
+            largest_cluster = condensed_tree[i].parent;
+        }
+    }
+    int num_clusters = largest_cluster - smallest_cluster + 1;
+    
+    if (largest_child < smallest_cluster) {
+        largest_child = smallest_cluster;
+    }
+    
+    vector<CondensedTree> sorted_child_data;
+    sorted_child_data = condensed_tree;
+    std::sort(sorted_child_data.begin(), sorted_child_data.end(), CondessLess);
+    
+    vector<int> births(largest_child + 1, 1);
+    
+    int current_child = -1;
+    double min_lambda = 0;
+    
+    int child;
+    double lambda_;
+    
+    for (int row=0; row < sorted_child_data.size(); row++) {
+        child = sorted_child_data[row].child;
+        lambda_ = sorted_child_data[row].lambda_val;
+        
+        if (child == current_child) {
+            min_lambda = min(min_lambda, lambda_);
+        } else if ( current_child != -1) {
+            births[current_child] = min_lambda;
+            current_child = child;
+            min_lambda = lambda_;
+        } else {
+            // Initialize
+            current_child = child;
+            min_lambda = lambda_;
+        }
+    }
+    
+    if (current_child != -1) {
+        births[current_child] = min_lambda;
+        births[smallest_cluster] = 0.0;
+    }
+    
+    vector<double> result_arr(num_clusters, 0);
+    
+    for (int i=0; i<condensed_tree.size(); i++) {
+        int parent = condensed_tree[i].parent;
+        double lambda_ = condensed_tree[i].lambda_val;
+        double child_size = condensed_tree[i].child_size;
+        int result_index = parent - smallest_cluster;
+        result_arr[result_index] += (lambda_ - births[parent]) * child_size;
+    }
+    
+    vector<int> node_list;
+    boost::unordered_map<int, double> stability;
+    for (int i=smallest_cluster, cnt=0; i<largest_cluster+1; i++, cnt++) {
+        stability[i] = result_arr[cnt];
+        node_list.push_back(i);
+    }
+    return stability;
+}
+
+vector<int> HDBScan::do_labelling(vector<CondensedTree>& tree, set<int>& clusters,
+                                  boost::unordered_map<int, int>& cluster_label_map,
+                                  bool allow_single_cluster,
+                                  bool match_reference_implementation)
+{
+    int root_cluster = tree[0].parent;
+    int parent_array_max = tree[0].parent;
+    for (int i=1; i<tree.size(); i++) {
+        if (tree[i].parent < root_cluster) {
+            root_cluster = tree[i].parent;
+        }
+        if (tree[i].parent > parent_array_max) {
+            parent_array_max = tree[i].parent;
+        }
+    }
+    vector<int> result(root_cluster);
+    
+    TreeUnionFind union_find(parent_array_max + 1);
+    
+    for (int n=0; n<tree.size(); n++) {
+        int child = tree[n].child;
+        int parent = tree[n].parent;
+        if (clusters.find(child) ==clusters.end() ) {
+            union_find.union_(parent, child);
+        }
+    }
+    
+    for (int n=0; n<root_cluster; n++) {
+        int cluster = union_find.find(n);
+        if ( cluster < root_cluster) {
+            result[n] = -1;
+        } else if (cluster == root_cluster) {
+            result[n] = -1;
+            if (clusters.size()==1 && allow_single_cluster) {
+                double c_lambda = 0;
+                double p_lambda = 0;
+                for (int j=0; j<tree.size(); j++) {
+                    if (tree[j].child == n) {
+                        c_lambda = tree[j].lambda_val;
+                    }
+                    if (tree[j].parent == cluster) {
+                        if (tree[j].lambda_val > p_lambda) {
+                            p_lambda = tree[j].lambda_val;
+                        }
+                    }
+                }
+                if (c_lambda > p_lambda) {
+                    result[n] = cluster_label_map[cluster];
+                }
+            }
+        } else {
+            if (match_reference_implementation) {
+                double point_lambda=0, cluster_lambda=0;
+                for (int j=0; j<tree.size(); j++) {
+                    if (tree[j].child == n) {
+                        point_lambda = tree[j].lambda_val;
+                        break;
+                    }
+                }
+                for (int j=0; j<tree.size(); j++) {
+                    if (tree[j].child == cluster) {
+                        cluster_lambda = tree[j].lambda_val;
+                        break;
+                    }
+                }
+                if (point_lambda > cluster_lambda) {
+                    result[n] = cluster_label_map[cluster];
+                } else {
+                    result[n] = -1;
+                }
+            } else {
+                result[n] = cluster_label_map[cluster];
+            }
+        }
+    }
+    return result;
+}
+
+vector<double> HDBScan::get_probabilities(vector<CondensedTree>& tree,
+                                 boost::unordered_map<int, int>& cluster_map,
+                                 vector<int>& labels)
+{
+    vector<double> result(labels.size(), 0);
+
+    vector<double> deaths = max_lambdas(tree);
+    int root_cluster = tree[0].parent;
+    for (int i=0; i<tree.size(); i++) {
+        if (tree[i].parent < root_cluster) {
+            root_cluster = tree[i].parent;
+        }
+    }
+    
+    int cluster_num;
+    int cluster;
+    double max_lambda;
+    double lambda_;
+    
+    for (int n=0; n<tree.size(); n++) {
+        int point = tree[n].child;
+        if (point >= root_cluster) {
+            continue;
+        }
+        
+        cluster_num = labels[point];
+        
+        if (cluster_num == -1) {
+            continue;
+        }
+            
+        cluster = cluster_map[cluster_num];
+        max_lambda = deaths[cluster];
+        
+        if (max_lambda == 0.0 || tree[n].lambda_val != DBL_MAX) {
+            result[point] = 1.0;
+        } else {
+            lambda_ = min(tree[n].lambda_val, max_lambda);
+            result[point] = lambda_ / max_lambda;
+        }
+    }
+    return result;
+}
+
+vector<double> HDBScan::get_stability_scores(vector<int>& labels, set<int>& clusters,
+                                    boost::unordered_map<int, double>& stability,
+                                    double max_lambda)
+{
+    vector<double> result(clusters.size());
+    
+    vector<int> clusters_;
+    set<int>::iterator it;
+    for (it=clusters.begin(); it!= clusters.end(); it++) {
+        clusters_.push_back(*it);
+    }
+    sort(clusters_.begin(), clusters_.end());
+    
+    for (int n=0; n<clusters_.size(); n++) {
+        int c = clusters_[n];
+        int cluster_size = 0;
+        for (int i=0; i<labels.size(); i++) {
+            if (labels[i] == n) {
+                cluster_size += 1;
+            }
+        }
+        if (max_lambda == DBL_MAX || max_lambda == 0 || cluster_size == 0) {
+            result[n] = 1.0;
+        } else {
+            result[n] = stability[c] / (cluster_size * max_lambda);
+        }
+    }
+    return result;
+}
+
+vector<double> HDBScan::max_lambdas(vector<CondensedTree>& tree)
+{
+    int largest_parent = tree[0].parent;
+    
+    for (int i=1; i<tree.size(); i++) {
+        if (tree[i].parent > largest_parent) {
+            largest_parent= tree[i].parent;
+        }
+    }
+    
+    vector<CondensedTree> sorted_parent_data;
+    sorted_parent_data = tree;
+    sort(sorted_parent_data.begin(), sorted_parent_data.end(), CondessParentLess);
+    
+    vector<double> deaths(largest_parent + 1, 0);
+    
+    int current_parent = -1;
+    double max_lambda = 0;
+    
+    for (int row=0; row<sorted_parent_data.size(); row++) {
+        int parent = sorted_parent_data[row].parent;
+        double lambda_ = sorted_parent_data[row].lambda_val;
+        
+        if (parent == current_parent){
+            max_lambda = max(max_lambda, lambda_);
+        } else if (current_parent != -1) {
+            deaths[current_parent] = max_lambda;
+            current_parent = parent;
+            max_lambda = lambda_;
+        } else {
+            // Initialize
+            current_parent = parent;
+            max_lambda = lambda_;
+        }
+    }
+    
+    return deaths;
+}
+
+void HDBScan::get_clusters(vector<CondensedTree>& tree,
+                           boost::unordered_map<int, double>& stability,
+                           vector<int>& out_labels,
+                           vector<double>& out_probs,
+                           vector<double>& out_stabilities,
+                           int cluster_selection_method,
+                           bool allow_single_cluster,
+                           bool match_reference_implementation)
+{
+    vector<int> node_list;
+    boost::unordered_map<int, double>::iterator sit;
+    for (sit = stability.begin(); sit!=stability.end(); sit++) {
+        node_list.push_back(sit->first);
+    }
+    std::sort(node_list.begin(), node_list.end(), std::greater<int>());
+    if (!allow_single_cluster) {
+        // exclude root
+        node_list.pop_back();
+    }
+    
+    vector<CondensedTree> cluster_tree;
+    for (int i=0; i<tree.size(); i++) {
+        if (tree[i].child_size > 1) {
+            cluster_tree.push_back(tree[i]);
+        }
+    }
+    
+    boost::unordered_map<int, bool> is_cluster;
+    for (int i=0; i<node_list.size(); i++) {
+        is_cluster[node_list[i]] = true;
+    }
+    
+    int num_points = -1;
+    for (int i=0; i<tree.size(); i++) {
+        if (tree[i].child_size == 1) {
+            if (tree[i].child > num_points) {
+                num_points = tree[i].child;
+            }
+        }
+    }
+    num_points += 1;
+    double max_lambda = tree[0].lambda_val;
+    for (int i=1; i<tree.size(); i++) {
+        if (tree[i].lambda_val  > max_lambda) {
+            max_lambda = tree[i].lambda_val;
+        }
+    }
+    
+    if (cluster_selection_method == 0) {
+        // eom
+        for (int i=0; i<node_list.size(); i++) {
+            int node = node_list[i];
+            vector<int> child_selection;
+            for (int j=0; j<cluster_tree.size(); j++) {
+                if (cluster_tree[j].parent == node) {
+                    child_selection.push_back(node);
+                }
+            }
+            double subtree_stability = 0;
+            for (int j=0; j<child_selection.size(); j++) {
+                int idx = cluster_tree[ child_selection[j] ].child;
+                subtree_stability += stability[idx];
+            }
+            if (subtree_stability > stability[node]) {
+                is_cluster[node] = false;
+                stability[node] = subtree_stability;
+            } else {
+                vector<int> sub_nodes = bfs_from_cluster_tree(cluster_tree, node);
+                for (int j=0; j<sub_nodes.size(); j++) {
+                    int sub_node = sub_nodes[j];
+                    if (sub_node != node) {
+                        is_cluster[sub_node] = false;
+                    }
+                }
+            }
+        }
+    } else {
+        
+    }
+    
+    set<int> clusters;
+    boost::unordered_map<int, bool>::iterator it;
+    for (it = is_cluster.begin(); it!= is_cluster.end(); it++) {
+        int c = it->first;
+        if (it->second) {
+            clusters.insert(c);
+        }
+    }
+    vector<int> _clusters;
+    set<int>::iterator _it;
+    for (_it =clusters.begin(); _it != clusters.end(); _it++) {
+        _clusters.push_back(*_it);
+    }
+    
+    std::sort(_clusters.begin(), _clusters.end());
+    
+    boost::unordered_map<int, int> cluster_map, reverse_cluster_map;
+    for (int i=0; i<_clusters.size(); i++) {
+        cluster_map[_clusters[i]] = i;
+        reverse_cluster_map[i] = _clusters[i];
+    }
+    
+    // do labeling (tree, clusters, cluster_map, False, False
+    out_labels = do_labelling(tree, clusters, cluster_map, false, false);
+    
+    //  probs = get_probabilities(tree, reverse_cluster_map, labels)
+    out_probs = get_probabilities(tree, reverse_cluster_map, out_labels);
+    
+    // stabilities = get_stability_scores(labels, clusters, stability, max_lambda)
+    out_stabilities = get_stability_scores(out_labels, clusters, stability, max_lambda);
+}
+
+vector<SimpleEdge> HDBScan::mst_linkage_core_vector(int num_features, vector<double>& core_distances, double** dist_metric, double alpha)
+{
+    int dim = core_distances.size();
+    vector<SimpleEdge> result;
+    
+    double current_node_core_distance;
+    int current_node = 0;
+    vector<int> in_tree(dim,0);
+    vector<double> current_distances(dim, DBL_MAX);
+    
+    for (int i=1; i<dim; i++) {
+        in_tree[current_node] = 1;
+        current_node_core_distance = core_distances[current_node];
+        
+        double new_distance = DBL_MAX;
+        int new_node = 0;
+        
+        for (int j=0; j<dim; j++) {
+            if (in_tree[j]) {
+                continue;
+            }
+            double right_value = current_distances[j];
+            double left_value = dist_metric[current_node][j];
+            
+            if (alpha!=1.0) {
+                left_value /= alpha;
+            }
+            
+            double core_value = core_distances[j];
+            if (current_node_core_distance > right_value || core_value > right_value ||  left_value > right_value) {
+                if (right_value < new_distance) {
+                    new_distance = right_value;
+                    new_node = j;
+                }
+                continue;
+            }
+            
+            if (core_value > current_node_core_distance) {
+                if (core_value > left_value) {
+                    left_value = core_value;
+                }
+            } else {
+                if (current_node_core_distance > left_value) {
+                    left_value = current_node_core_distance;
+                }
+            }
+            
+            if (left_value < right_value) {
+                current_distances[j] = left_value;
+                if (left_value < new_distance) {
+                    new_distance = left_value;
+                    new_node = j;
+                }
+            } else {
+                if (right_value < new_distance) {
+                    new_distance = right_value;
+                    new_node = j;
+                }
+            }
+        }
+        SimpleEdge e(current_node, new_node, new_distance);
+        result.push_back(e);
+        
+        current_node = new_node;
+    }
+    return result;
 }
