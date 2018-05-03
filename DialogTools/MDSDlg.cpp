@@ -164,7 +164,7 @@ void MDSDlg::OnCheckPowerIteration(wxCommandEvent& event)
 
 void MDSDlg::OnClose(wxCloseEvent& ev)
 {
-    wxLogMessage("Close HClusterDlg");
+    wxLogMessage("Close MDSDlg");
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();
@@ -181,7 +181,7 @@ void MDSDlg::OnCloseClick(wxCommandEvent& event )
 
 void MDSDlg::InitVariableCombobox(wxListBox* var_box)
 {
-    wxLogMessage("InitVariableCombobox HClusterDlg.");
+    wxLogMessage("InitVariableCombobox MDSDlg.");
     
     wxArrayString items;
     

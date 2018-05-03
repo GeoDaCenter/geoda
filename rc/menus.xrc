@@ -450,6 +450,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
             <label>Hierarchical</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_HDBSCAN">
+            <label>HDBScan</label>
+        </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_TOOLS_DATA_SKATER">
             <label>skater</label>
@@ -4490,6 +4493,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_HCLUSTER">
           <label>Hierarchical</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_HDBSCAN">
+          <label>HDBScan</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_SKATER">

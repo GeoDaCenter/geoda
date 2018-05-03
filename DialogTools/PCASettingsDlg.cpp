@@ -148,7 +148,7 @@ void PCASettingsDlg::CreateControls()
 
 void PCASettingsDlg::OnClose(wxCloseEvent& ev)
 {
-    wxLogMessage("Close HClusterDlg");
+    wxLogMessage("Close PCASettingsDlg");
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();

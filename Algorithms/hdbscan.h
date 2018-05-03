@@ -58,7 +58,7 @@ namespace GeoDaClustering {
             next_label = N;
             size = new int[2*N -1];
             for (int i=0; i<2*N -1; i++) {
-                if (i <= N) {
+                if (i < N) {
                     size[i] = 1;
                 } else {
                     size[i] = 0;
@@ -78,8 +78,8 @@ namespace GeoDaClustering {
             }
             // label up to the root
             while (parent[p] != n) {
-                p = parent[p];
                 parent[p] = n;
+                p = parent[p];
             }
             return n;
         }
@@ -161,25 +161,29 @@ namespace GeoDaClustering {
     /////////////////////////////////////////////////////////////////////////
     class HDBScan
     {
+    public:
         int rows;
         int cols;
         
-        DisjoinSet djset;
-        vector<SpanningTreeClustering::Edge*> mst_edges;
-        
-        vector<Node*> all_nodes;
-        vector<double> cores;
-        vector<int> designations;
-        vector<boost::unordered_map<int, double> > nbr_dict;
-    public:
-        HDBScan(int rows, int cols,
+        double** single_linkage_tree;
+        vector<SimpleEdge> mst_edges;
+        vector<CondensedTree> condensed_tree;
+        vector<double> core_dist;
+        vector<int> labels;
+        vector<double> probabilities;
+        vector<double> stabilities;
+    
+        HDBScan(int k, int rows, int cols,
                 double** _distances,
                 double** data,
-                const vector<bool>& undefs,
-                GalElement * w,
-                double* controls,
-                double control_thres);
+                const vector<bool>& undefs
+                //GalElement * w,
+                //double* controls,
+                //double control_thres
+        );
         virtual ~HDBScan();
+        
+        vector<vector<int> > GetRegions();
         
         boost::unordered_map<int, double> compute_stability(vector<CondensedTree>& condensed_tree);
         

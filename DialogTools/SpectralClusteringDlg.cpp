@@ -482,7 +482,7 @@ void SpectralClusteringDlg::OnClickClose(wxCommandEvent& event )
 
 void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 {
-    wxLogMessage("Close HClusterDlg");
+    wxLogMessage("Close SpectralClusteringDlg");
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();

@@ -97,6 +97,7 @@
 		A4ED7D562097F114008685D6 /* kd_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D502097F114008685D6 /* kd_search.cpp */; };
 		A4ED7D572097F114008685D6 /* kd_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D512097F114008685D6 /* kd_util.cpp */; };
 		A4ED7D582097F114008685D6 /* kd_split.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D522097F114008685D6 /* kd_split.cpp */; };
+		A4ED7D5B209A6B81008685D6 /* HDBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */; };
 		A4F5D61F1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F5D61D1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp */; };
 		A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F5D6201F513EA1007ADF25 /* MDSDlg.cpp */; };
 		A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4F875751E94123F0079734E /* KMeansDlg.cpp */; };
@@ -435,6 +436,8 @@
 		A4ED7D512097F114008685D6 /* kd_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kd_util.cpp; sourceTree = "<group>"; };
 		A4ED7D522097F114008685D6 /* kd_split.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kd_split.cpp; sourceTree = "<group>"; };
 		A4ED7D532097F114008685D6 /* kd_split.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kd_split.h; sourceTree = "<group>"; };
+		A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HDBScanDlg.cpp; sourceTree = "<group>"; };
+		A4ED7D5A209A6B81008685D6 /* HDBScanDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HDBScanDlg.h; sourceTree = "<group>"; };
 		A4F5D61D1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractClusterDlg.cpp; sourceTree = "<group>"; };
 		A4F5D61E1F4EA0D2007ADF25 /* AbstractClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterDlg.h; sourceTree = "<group>"; };
 		A4F5D6201F513EA1007ADF25 /* MDSDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MDSDlg.cpp; sourceTree = "<group>"; };
@@ -995,6 +998,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */,
+				A4ED7D5A209A6B81008685D6 /* HDBScanDlg.h */,
 				A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */,
 				A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */,
 				A42018041FB4CF980029709C /* SkaterDlg.h */,
@@ -1496,6 +1501,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DD7974C80F1D250A00496A84 /* TemplateCanvas.cpp in Sources */,
+				A4ED7D5B209A6B81008685D6 /* HDBScanDlg.cpp in Sources */,
 				A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */,
 				DD7975670F1D296F00496A84 /* 3DControlPan.cpp in Sources */,
 				A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */,

@@ -163,6 +163,7 @@ public:
     void OnToolsDataKMedians(wxCommandEvent& event);
     void OnToolsDataKMedoids(wxCommandEvent& event);
     void OnToolsDataHCluster(wxCommandEvent& event);
+    void OnToolsDataHDBScan(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
     void OnToolsDataSkater(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);

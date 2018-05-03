@@ -45,7 +45,6 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
-#include "../Algorithms/hdbscan.h"
 
 
 
@@ -521,8 +520,6 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         delete redcap;
         redcap = NULL;
     }
-    
-    GeoDaClustering::HDBScan* hdb = new GeoDaClustering::HDBScan(rows, columns, distances, input_data, undefs, gw->gal, bound_vals, min_bound);
                                
     int method_idx = combo_method->GetSelection();
     if (method_idx == 0) {
