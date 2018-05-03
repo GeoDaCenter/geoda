@@ -31,17 +31,21 @@
 using namespace SpanningTreeClustering;
 
 namespace GeoDaClustering {
-    struct SimpleEdge
+    class SimpleEdge
     {
+    public:
         int orig;
         int dest;
         double length;
+        
         SimpleEdge(int o, int d, double l) {
             orig = o;
             dest = d;
             length = l;
         }
+        ~SimpleEdge(){}
     };
+    
     class UnionFind
     {
     public:
@@ -140,13 +144,30 @@ namespace GeoDaClustering {
             return c;
         }
     };
-    struct CondensedTree {
+    
+    class CondensedTree
+    {
+    public:
+        CondensedTree() {
+            parent = 0;
+            child = 0;
+            lambda_val = 0;
+            child_size = 0;
+        }
         CondensedTree(int p, int c, double l, int cs) {
             parent = p;
             child = c;
             lambda_val = l;
             child_size = cs;
         }
+        CondensedTree(const CondensedTree& t) {
+            parent = t.parent;
+            child = t.child;
+            lambda_val = t.lambda_val;
+            child_size = t.child_size;
+        }
+        ~CondensedTree(){}
+        
         int parent;
         int child;
         double lambda_val;
@@ -166,8 +187,8 @@ namespace GeoDaClustering {
         int cols;
         
         double** single_linkage_tree;
-        vector<SimpleEdge> mst_edges;
-        vector<CondensedTree> condensed_tree;
+        vector<SimpleEdge*> mst_edges;
+        vector<CondensedTree*> condensed_tree;
         vector<double> core_dist;
         vector<int> labels;
         vector<double> probabilities;
@@ -185,18 +206,18 @@ namespace GeoDaClustering {
         
         vector<vector<int> > GetRegions();
         
-        boost::unordered_map<int, double> compute_stability(vector<CondensedTree>& condensed_tree);
+        boost::unordered_map<int, double> compute_stability(vector<CondensedTree*>& condensed_tree);
         
-        vector<CondensedTree> condense_tree(double** hierarchy, int N, int min_cluster_size=10);
+        void condense_tree(double** hierarchy, int N, int min_cluster_size=10);
         
-        vector<double> max_lambdas(vector<CondensedTree>& tree);
+        vector<double> max_lambdas(vector<CondensedTree*>& tree);
         
-        vector<int> do_labelling(vector<CondensedTree>& tree, set<int>& clusters,
+        vector<int> do_labelling(vector<CondensedTree*>& tree, set<int>& clusters,
                                  boost::unordered_map<int, int>& cluster_label_map,
                                  bool allow_single_cluster = false,
                                  bool match_reference_implementation = false);
         
-        vector<double> get_probabilities(vector<CondensedTree>& tree,
+        vector<double> get_probabilities(vector<CondensedTree*>& tree,
                                          boost::unordered_map<int, int>& reverse_cluster_map,
                                          vector<int>& labels);
         
@@ -204,7 +225,7 @@ namespace GeoDaClustering {
                                             boost::unordered_map<int, double>& stability,
                                             double max_lambda);
         
-        void get_clusters(vector<CondensedTree>& tree,
+        void get_clusters(vector<CondensedTree*>& tree,
                           boost::unordered_map<int, double>& stability,
                           vector<int>& out_labels,
                           vector<double>& out_probs,
@@ -213,7 +234,7 @@ namespace GeoDaClustering {
                           bool allow_single_cluster= false,
                           bool match_reference_implementation=false);
         
-        vector<SimpleEdge> mst_linkage_core_vector(int num_features,
+        void mst_linkage_core_vector(int num_features,
                                                    vector<double>& core_distances,
                                                    double** dist_metric, double alpha);
         
@@ -248,7 +269,7 @@ namespace GeoDaClustering {
             return result;
         }
         
-        vector<int> bfs_from_cluster_tree(vector<CondensedTree>& tree, int bfs_root)
+        vector<int> bfs_from_cluster_tree(vector<CondensedTree*>& tree, int bfs_root)
         {
             vector<int> result;
             set<int> to_process;
@@ -262,8 +283,8 @@ namespace GeoDaClustering {
                 }
                 set<int> tmp;
                 for (int i=0; i<tree.size(); i++) {
-                    if (to_process.find( tree[i].parent) != to_process.end() ) {
-                        tmp.insert( tree[i].child);
+                    if (to_process.find( tree[i]->parent) != to_process.end() ) {
+                        tmp.insert( tree[i]->child);
                     }
                 }
                 to_process = tmp;

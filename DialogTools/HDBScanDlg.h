@@ -65,6 +65,9 @@ public:
     
 protected:
     GeoDaClustering::HDBScan* hdb;
+    vector<double> core_dist;
+    vector<double> probabilities;
+    vector<double> stabilities;
     vector<vector<int> > cluster_ids;
     
     int max_n_clusters;

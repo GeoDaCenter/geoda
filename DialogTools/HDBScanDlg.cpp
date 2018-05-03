@@ -57,7 +57,7 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s,  _("HDBScan Clustering Settings"))
 {
     wxLogMessage("Open HDBScanDlg.");
-    hdb = NULL;
+
     parent = parent_s;
     project = project_s;
     
@@ -77,10 +77,7 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
 HDBScanDlg::~HDBScanDlg()
 {
     highlight_state->removeObserver(this);
-    if (hdb != NULL) {
-        delete hdb;
-        hdb = NULL;
-    }
+
 }
 
 void HDBScanDlg::Highlight(int id)
@@ -258,19 +255,19 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     vector<bool> undefs(rows, false);
 
     
-    new_data[0].d_val = &hdb->core_dist;
+    new_data[0].d_val = &core_dist;
     new_data[0].label = "Core Dist";
     new_data[0].field_default = "HDB_CORE";
     new_data[0].type = GdaConst::double_type;
     new_data[0].undefined = &undefs;
     
-    new_data[1].d_val = &hdb->probabilities;
+    new_data[1].d_val = &probabilities;
     new_data[1].label = "Probabilities";
     new_data[1].field_default = "HDB_PVAL";
     new_data[1].type = GdaConst::double_type;
     new_data[1].undefined = &undefs;
     
-    new_data[2].d_val = &hdb->stabilities;
+    new_data[2].d_val = &stabilities;
     new_data[2].label = "Stabilities";
     new_data[2].field_default = "HDB_STAB";
     new_data[2].type = GdaConst::double_type;
@@ -425,13 +422,12 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
-    if (hdb != NULL) {
-        delete hdb;
-        hdb = NULL;
-    }
-    hdb = new GeoDaClustering::HDBScan(minPts, rows, columns, distances, input_data, undefs);
+    GeoDaClustering::HDBScan hdb(minPts, rows, columns, distances, input_data, undefs);
     
-    cluster_ids = hdb->GetRegions();
+    cluster_ids = hdb.GetRegions();
+    core_dist = hdb.core_dist;
+    probabilities = hdb.probabilities;
+    stabilities = hdb.stabilities;
     
     int ncluster = cluster_ids.size();
     
@@ -456,6 +452,13 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
             clusters[i] = ncluster + 1;
             not_clustered ++;
         }
+    }
+    
+    if (not_clustered == rows) {
+        wxString err_msg = _("No clusters can be found using current parameters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Information"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
     }
     
     // summary
@@ -528,7 +531,7 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
                                 GdaConst::map_default_size);
     wxString ttl;
     ttl << "HDBScan Cluster Map (";
-    ttl << clusters.size();
+    ttl << cluster_ids.size();
     ttl << " clusters)";
     nf->SetTitle(ttl);
     
