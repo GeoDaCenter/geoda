@@ -412,9 +412,14 @@ wxString HDBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Minimum cluster size:\t" << m_minpts->GetValue() << "\n";
-    txt << "Number of clusters:\t" << cluster_ids.size() << "\n";
+    txt << "Minimum samples:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Alpha:\t" << m_alpha->GetValue() << "\n";
+    txt << "Method of selecting cluster:\t" << m_select_method->GetStringSelection() << "\n";
+    wxString single_cluster = chk_allowsinglecluster->IsChecked() ? "Yes" : "No";
+    txt << "Allow a single cluster:\t" << single_cluster << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
     
     return txt;
 }
@@ -499,7 +504,6 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     int not_clustered =0;
     for (int i=0; i<clusters.size(); i++) {
         if (clusters[i] == 0) {
-            clusters[i] = ncluster + 1;
             not_clustered ++;
         }
     }
@@ -586,7 +590,7 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     nf->SetTitle(ttl);
     
     if (not_clustered>0) {
-        nf->SetLegendLabel(ncluster, "Not Clustered");
+        nf->SetLegendLabel(0, "Not Clustered");
     }
     
     saveButton->Enable();
