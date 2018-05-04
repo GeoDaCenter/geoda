@@ -11,7 +11,7 @@ default:	compile-geoda
 app:  build-geoda-mac
 
 compile-geoda:	io-target algorithms-target dataviewer-target dialogtools-target \
-		explore-target libgdiam-target regression-target \
+		knn-target explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
 		geoda-target
 
@@ -22,6 +22,9 @@ test1:
 
 resource-target:
 	(cd $(GeoDa_ROOT)/rc; $(MAKE) xrc; $(MAKE))
+
+knn-target:
+	(cd $(GeoDa_ROOT)/kNN; $(MAKE))
 
 io-target:
 	(cd $(GeoDa_ROOT)/io; $(MAKE))
