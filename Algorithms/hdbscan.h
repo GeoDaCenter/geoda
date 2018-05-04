@@ -205,7 +205,9 @@ namespace GeoDaClustering {
         vector<double> stabilities;
         vector<double> outliers;
     
-        HDBScan(int k,
+        HDBScan(int min_points,
+                int min_samples,
+                double alpha,
                 int cluster_selection_method,
                 bool allow_single_cluster,
                 int rows, int cols,

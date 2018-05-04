@@ -18,7 +18,7 @@ bool EdgeLess1(SimpleEdge* a,  SimpleEdge* b)
 // HDBSCAN
 //
 ////////////////////////////////////////////////////////////////////////////////
-HDBScan::HDBScan(int k, int _cluster_selection_method, bool _allow_single_cluster, int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs
+HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha, int _cluster_selection_method, bool _allow_single_cluster, int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs
                  //,GalElement* w, double* _controls, double _control_thres
                  )
 {
@@ -29,7 +29,7 @@ HDBScan::HDBScan(int k, int _cluster_selection_method, bool _allow_single_cluste
     // Core distances
     core_dist.resize(rows);
     
-    int min_cluster_size = k;
+    int k = min_samples;
     int dim = cols;
     double eps = 0; // error bound
     int nPts = rows;
@@ -47,7 +47,7 @@ HDBScan::HDBScan(int k, int _cluster_selection_method, bool _allow_single_cluste
     delete kdTree;
     
     // MST
-    mst_linkage_core_vector(dim, core_dist, _distances, 1.0);
+    mst_linkage_core_vector(dim, core_dist, _distances, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
     
     // Extract the HDBSCAN hierarchy as a dendrogram from mst

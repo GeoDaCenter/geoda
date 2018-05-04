@@ -135,7 +135,7 @@ void HDBScanDlg::CreateControls()
                                          wxDefaultPosition, wxDefaultSize);
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
-    wxString valid_chars("0123456789");
+    wxString valid_chars(".0123456789");
     size_t len = valid_chars.Length();
     for (size_t i=0; i<len; i++) {
         list.Add(wxString(valid_chars.GetChar(i)));
@@ -425,7 +425,7 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     long minPts = 0;
     m_minpts->GetValue().ToLong(&minPts);
-    if (minPts<1) {
+    if (minPts<=1) {
         wxString err_msg = _("Minimum cluster size should be greater than one.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
@@ -447,6 +447,21 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
     
+    long minSamples = 10;
+    m_minsamples->GetValue().ToLong(&minSamples);
+    if (minSamples<=1) {
+        wxString err_msg = _("Minimum samples should be greater than zero.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+    
+    double alpha = 1;
+    m_alpha->GetValue().ToDouble(&alpha);
+    
+    int cluster_selection_method = m_select_method->GetSelection();
+    bool allow_single_cluster = chk_allowsinglecluster->IsChecked();
+    
     clusters.clear();
     clusters_undef.clear();
    
@@ -455,10 +470,8 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
-    int cluster_selection_method = 0;
-    bool allow_single_cluster = false;
     
-    GeoDaClustering::HDBScan hdb(minPts, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
+    GeoDaClustering::HDBScan hdb(minPts, minSamples, alpha, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
     
     cluster_ids = hdb.GetRegions();
     core_dist = hdb.core_dist;
