@@ -297,6 +297,7 @@ bool GdaApp::OnInit(void)
     appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
     wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
     
+    /*
     if (GdaConst::gda_ui_language == 0) {
         // auto detect language using system language
         int lang = wxLocale::GetSystemLanguage();
@@ -314,6 +315,7 @@ bool GdaApp::OnInit(void)
         m_TranslationHelper->SetConfigPath(config_path);
         m_TranslationHelper->Load();
     }
+     */
    
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
