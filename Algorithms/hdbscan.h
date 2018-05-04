@@ -23,14 +23,24 @@
 #define __GEODA_CENTER_HDBSCAN_H__
 
 #include <boost/unordered_map.hpp>
+#include <algorithm>
+#include <vector>
 
 #include "../kNN/ANN.h"
-
 #include "redcap.h"
 
 using namespace SpanningTreeClustering;
 
 namespace GeoDaClustering {
+    struct IdxCompare
+    {
+        const std::vector<int>& target;
+        
+        IdxCompare(const std::vector<int>& target): target(target) {}
+        
+        bool operator()(int a, int b) const { return target[a] < target[b]; }
+    };
+    
     class SimpleEdge
     {
     public:
@@ -193,8 +203,12 @@ namespace GeoDaClustering {
         vector<int> labels;
         vector<double> probabilities;
         vector<double> stabilities;
+        vector<double> outliers;
     
-        HDBScan(int k, int rows, int cols,
+        HDBScan(int k,
+                int cluster_selection_method,
+                bool allow_single_cluster,
+                int rows, int cols,
                 double** _distances,
                 double** data,
                 const vector<bool>& undefs
@@ -205,6 +219,8 @@ namespace GeoDaClustering {
         virtual ~HDBScan();
         
         vector<vector<int> > GetRegions();
+        
+        vector<double> outlier_scores(vector<CondensedTree*>& tree);
         
         boost::unordered_map<int, double> compute_stability(vector<CondensedTree*>& condensed_tree);
         
@@ -237,6 +253,10 @@ namespace GeoDaClustering {
         void mst_linkage_core_vector(int num_features,
                                                    vector<double>& core_distances,
                                                    double** dist_metric, double alpha);
+        
+        vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
+        
+        vector<int> recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int current_node);
         
         vector<int> bfs_from_hierarchy(double** hierarchy, int dim, int bfs_root)
         {

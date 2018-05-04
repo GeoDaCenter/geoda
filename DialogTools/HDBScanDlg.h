@@ -64,10 +64,10 @@ public:
     void Highlight(vector<int>& ids);
     
 protected:
-    GeoDaClustering::HDBScan* hdb;
     vector<double> core_dist;
     vector<double> probabilities;
     vector<double> stabilities;
+    vector<double> outliers;
     vector<vector<int> > cluster_ids;
     
     int max_n_clusters;
@@ -83,8 +83,12 @@ protected:
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxTextCtrl* m_minpts;
+    wxTextCtrl* m_minsamples;
+    wxTextCtrl* m_alpha;
     wxTextCtrl* m_cluster;
     wxNotebook* notebook;
+    wxChoice* m_select_method;
+    wxCheckBox* chk_allowsinglecluster;
     
     DECLARE_EVENT_TABLE()
 };

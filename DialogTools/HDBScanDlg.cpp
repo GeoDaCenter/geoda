@@ -129,7 +129,7 @@ void HDBScanDlg::CreateControls()
     AddInputCtrls(panel, vbox);
     
     // Parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
     wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min cluster size:"),
                                          wxDefaultPosition, wxDefaultSize);
@@ -141,9 +141,36 @@ void HDBScanDlg::CreateControls()
         list.Add(wxString(valid_chars.GetChar(i)));
     }
     validator.SetIncludes(list);
-    m_minpts = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_minpts = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minpts, 1, wxEXPAND);
+    
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"),
+                                         wxDefaultPosition, wxDefaultSize);
+    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_minsamples, 1, wxEXPAND);
+    
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"),
+                                          wxDefaultPosition, wxDefaultSize);
+    m_alpha = new wxTextCtrl(panel, wxID_ANY, "1.0", wxDefaultPosition, wxSize(120, -1),0,validator);
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_alpha, 1, wxEXPAND);
+    
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of selecting clusters:"),
+                                          wxDefaultPosition, wxSize(180,-1));
+    wxString choices16[] = {"Excess of Mass", "Leaf"};
+    m_select_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(138,-1), 2, choices16);
+    m_select_method->SetSelection(0);
+    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_select_method, 1, wxEXPAND);
+    
+    
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a single cluster:"),
+                                          wxDefaultPosition, wxSize(138,-1));
+    chk_allowsinglecluster = new wxCheckBox(panel, wxID_ANY, "");
+    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(chk_allowsinglecluster, 1, wxEXPAND);
     
     // Transformation
     AddTransformation(panel, gbox);
@@ -248,7 +275,7 @@ void HDBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
 void HDBScanDlg::OnSave(wxCommandEvent& event )
 {
     // save to table
-    int new_col = 3;
+    int new_col = 4;
     
     std::vector<SaveToTableEntry> new_data(new_col);
 
@@ -273,8 +300,14 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     new_data[2].type = GdaConst::double_type;
     new_data[2].undefined = &undefs;
     
+    new_data[3].d_val = &outliers;
+    new_data[3].label = "Outliers";
+    new_data[3].field_default = "HDB_OUT";
+    new_data[3].type = GdaConst::double_type;
+    new_data[3].undefined = &undefs;
+    
     SaveToTableDlg dlg(project, this, new_data,
-                       "Save Results: HDBScan (Core Distances/Probabilities/Stabilities)",
+                       "Save Results: HDBScan (Core Distances/Probabilities/Stabilities/Outliers)",
                        wxDefaultPosition, wxSize(400,400));
     dlg.ShowModal();
     
@@ -422,12 +455,16 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
-    GeoDaClustering::HDBScan hdb(minPts, rows, columns, distances, input_data, undefs);
+    int cluster_selection_method = 0;
+    bool allow_single_cluster = false;
+    
+    GeoDaClustering::HDBScan hdb(minPts, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
     
     cluster_ids = hdb.GetRegions();
     core_dist = hdb.core_dist;
     probabilities = hdb.probabilities;
     stabilities = hdb.stabilities;
+    outliers = hdb.outliers;
     
     int ncluster = cluster_ids.size();
     

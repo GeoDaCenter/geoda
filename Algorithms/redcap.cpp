@@ -512,7 +512,7 @@ void AbstractClusterFactory::Partitioning(int k)
     
     while (!sub_trees.empty() && sub_trees.size() < k) {
         Tree* tmp_tree = sub_trees.top();
-        cout << tmp_tree->ssd_reduce << endl;
+        //cout << tmp_tree->ssd_reduce << endl;
         sub_trees.pop();
         
         if (tmp_tree->ssd == 0) {
@@ -625,7 +625,7 @@ void Skater::Clustering()
         }
     }
     
-    cout << "Skater mst sum length:" << sum_length << endl;
+    //cout << "Skater mst sum length:" << sum_length << endl;
     
     for (int i=0; i<ordered_edges.size(); i++) {
         int source = ordered_edges[i]->orig->id;
@@ -691,7 +691,7 @@ void FirstOrderSLKRedCap::Clustering()
             break;
         }
     }
-    cout << "FO-SLK mst sum length:" << sum_length << endl;
+    //cout << "FO-SLK mst sum length:" << sum_length << endl;
     
     boost::unordered_map<int, bool> id_dict;
     for (int i=0; i<ordered_edges.size(); i++) {
@@ -845,7 +845,7 @@ void FullOrderALKRedCap::Clustering()
         edges_copy[i] = edges[i];
     }
     
-    cout << "# edges:" << num_edges << endl;
+    //cout << "# edges:" << num_edges << endl;
     
     this->ordered_edges.resize(num_nodes-1);
     
@@ -970,7 +970,7 @@ void FullOrderALKRedCap::Clustering()
         }
     }
     
-    cout << "cnt: " << cnt << endl;
+    //cout << "cnt: " << cnt << endl;
     
     boost::unordered_map<int, bool> id_dict;
 
