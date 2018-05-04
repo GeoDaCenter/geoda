@@ -1911,6 +1911,8 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 			
 			LineChartCanvas* canvas = 0;
 			canvas = new LineChartCanvas(panel, this, project, *lcs_p, this);
+            // keep users setting
+            canvas->fixed_scale_over_change = fixed_scale_over_change;
             if (use_def_y_range) {
                 canvas->UpdateYAxis(def_y_min, def_y_max);
                 canvas->UpdateAll();
