@@ -66,7 +66,6 @@ public:
 protected:
     vector<double> core_dist;
     vector<double> probabilities;
-    vector<double> stabilities;
     vector<double> outliers;
     vector<vector<int> > cluster_ids;
     

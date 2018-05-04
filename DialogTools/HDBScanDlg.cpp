@@ -275,7 +275,7 @@ void HDBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
 void HDBScanDlg::OnSave(wxCommandEvent& event )
 {
     // save to table
-    int new_col = 4;
+    int new_col = 3;
     
     std::vector<SaveToTableEntry> new_data(new_col);
 
@@ -293,21 +293,16 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     new_data[1].field_default = "HDB_PVAL";
     new_data[1].type = GdaConst::double_type;
     new_data[1].undefined = &undefs;
+
     
-    new_data[2].d_val = &stabilities;
-    new_data[2].label = "Stabilities";
-    new_data[2].field_default = "HDB_STAB";
+    new_data[2].d_val = &outliers;
+    new_data[2].label = "Outliers";
+    new_data[2].field_default = "HDB_OUT";
     new_data[2].type = GdaConst::double_type;
     new_data[2].undefined = &undefs;
     
-    new_data[3].d_val = &outliers;
-    new_data[3].label = "Outliers";
-    new_data[3].field_default = "HDB_OUT";
-    new_data[3].type = GdaConst::double_type;
-    new_data[3].undefined = &undefs;
-    
     SaveToTableDlg dlg(project, this, new_data,
-                       "Save Results: HDBScan (Core Distances/Probabilities/Stabilities/Outliers)",
+                       "Save Results: HDBScan (Core Distances/Probabilities/Outliers)",
                        wxDefaultPosition, wxSize(400,400));
     dlg.ShowModal();
     
@@ -481,7 +476,6 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     cluster_ids = hdb.GetRegions();
     core_dist = hdb.core_dist;
     probabilities = hdb.probabilities;
-    stabilities = hdb.stabilities;
     outliers = hdb.outliers;
     
     int ncluster = cluster_ids.size();
