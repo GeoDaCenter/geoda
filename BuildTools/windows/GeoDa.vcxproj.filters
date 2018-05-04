@@ -35,6 +35,9 @@
     <Filter Include="io">
       <UniqueIdentifier>{6f1478f1-4816-4219-a7a3-da8b22086f01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="kNN">
+      <UniqueIdentifier>{90f57f50-2648-4589-9585-434636a6272f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -699,6 +702,45 @@
       <Filter>io</Filter>
     </ClInclude>
     <ClInclude Include="..\..\wxTranslationHelper.h" />
+    <ClInclude Include="..\..\Algorithms\hdbscan.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\HDBScanDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANN.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANNperf.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANNx.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_pr_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_split.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_tree.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_util.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue_k.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\values.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1271,5 +1313,32 @@
       <Filter>io</Filter>
     </ClCompile>
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
+    <ClCompile Include="..\..\Algorithms\hdbscan.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\ANN.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_pr_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_split.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_tree.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_util.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kNN.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

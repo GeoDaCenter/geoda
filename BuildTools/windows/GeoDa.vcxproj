@@ -306,6 +306,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
     <ClCompile Include="..\..\Algorithms\geocoding.cpp" />
+    <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
     <ClCompile Include="..\..\Algorithms\mds.cpp" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
@@ -321,6 +322,7 @@
     <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\GeocodingDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
@@ -370,6 +372,13 @@
     <ClCompile Include="..\..\io\arcgis_swm.cpp" />
     <ClCompile Include="..\..\io\MatfileReader.cpp" />
     <ClCompile Include="..\..\io\matlab_mat.cpp" />
+    <ClCompile Include="..\..\kNN\ANN.cpp" />
+    <ClCompile Include="..\..\kNN\kd_pr_search.cpp" />
+    <ClCompile Include="..\..\kNN\kd_search.cpp" />
+    <ClCompile Include="..\..\kNN\kd_split.cpp" />
+    <ClCompile Include="..\..\kNN\kd_tree.cpp" />
+    <ClCompile Include="..\..\kNN\kd_util.cpp" />
+    <ClCompile Include="..\..\kNN\kNN.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
@@ -390,6 +399,7 @@
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
     <ClInclude Include="..\..\Algorithms\geocoding.h" />
+    <ClInclude Include="..\..\Algorithms\hdbscan.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
     <ClInclude Include="..\..\Algorithms\mds.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
@@ -423,6 +433,7 @@
     <ClInclude Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.h" />
     <ClInclude Include="..\..\DialogTools\GeocodingDlg.h" />
     <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\HDBScanDlg.h" />
     <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
@@ -488,6 +499,17 @@
     <ClInclude Include="..\..\io\MatfileReader.h" />
     <ClInclude Include="..\..\io\matlab_mat.h" />
     <ClInclude Include="..\..\io\weights_interface.h" />
+    <ClInclude Include="..\..\kNN\ANN.h" />
+    <ClInclude Include="..\..\kNN\ANNperf.h" />
+    <ClInclude Include="..\..\kNN\ANNx.h" />
+    <ClInclude Include="..\..\kNN\kd_pr_search.h" />
+    <ClInclude Include="..\..\kNN\kd_search.h" />
+    <ClInclude Include="..\..\kNN\kd_split.h" />
+    <ClInclude Include="..\..\kNN\kd_tree.h" />
+    <ClInclude Include="..\..\kNN\kd_util.h" />
+    <ClInclude Include="..\..\kNN\pr_queue.h" />
+    <ClInclude Include="..\..\kNN\pr_queue_k.h" />
+    <ClInclude Include="..\..\kNN\values.h" />
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />

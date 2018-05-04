@@ -312,7 +312,7 @@ boost::unordered_map<int, double> HDBScan::compute_stability(vector<CondensedTre
     }
     std::sort(sorted_child_data.begin(), sorted_child_data.end());
     
-    vector<double> births(largest_child + 1, NAN);
+    vector<double> births(largest_child + 1, -1);
     
     int current_child = -1;
     double min_lambda = 0;

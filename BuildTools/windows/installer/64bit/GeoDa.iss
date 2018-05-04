@@ -36,7 +36,7 @@ ChangesAssociations=yes
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
 Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
-
+Name: "{app}\lang";  Permissions: everyone-full
 
 
 [Files]
@@ -48,6 +48,7 @@ Source: "..\..\..\CommonDistFiles\cache.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.sqlite"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
+Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 
 Source: "vcredist_x64.exe"; DestDir: "{app}"
 Source: "ogr_FileGDB.dll"; DestDir: "{app}"
