@@ -42,6 +42,8 @@
 #include "../Algorithms/cluster.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
+#include "../Algorithms/DataUtils.h"
+#include "../Algorithms/fastcluster.h"
 
 #include "SaveToTableDlg.h"
 #include "HClusterDlg.h"
@@ -133,7 +135,7 @@ void HClusterDlg::CreateControls()
     
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
                                           wxDefaultPosition, wxSize(120,-1));
-    wxString choices12[] = {"Single-linkage","Complete-linkage","Average-linkage","Centroid-linkage"};
+    wxString choices12[] = {"Single-linkage","Ward's-linkage", "Complete-linkage","Average-linkage"};
     wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                        wxSize(120,-1), 4, choices12);
     box12->SetSelection(1);
@@ -149,7 +151,7 @@ void HClusterDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
@@ -446,13 +448,36 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     int* clusterid = new int[rows];
     
     int method_sel = m_method->GetSelection();
-    char method_choices[] = {'s','m','a','c'};
+    char method_choices[] = {'s','w', 'm','a'};
     method = method_choices[method_sel];
 
     
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
+    
+    double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
+    
+    fastcluster::cluster_result Z2(rows-1);
+    fastcluster::auto_array_ptr<t_index> members;
+    
+    if (method == 's') {
+        fastcluster::MST_linkage_core(rows, pwdist, Z2);
+    } else if (method == 'w') {
+        members.init(rows, 1);
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
+    } else if (method == 'm') {
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
+    } else if (method == 'a') {
+        members.init(rows, 1);
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
+    }
+    
+    delete[] pwdist;
+    
+    for (int i=0; i<rows-1; i++) {
+        cout << Z2[i]->node1 << ", " << Z2[i]->node2 << ", " << Z2[i]->dist <<endl;
+    }
     
     GdaNode* htree = treecluster(rows, columns, input_data, mask, weight, transpose, dist, method, NULL);
     

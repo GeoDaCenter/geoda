@@ -15,6 +15,25 @@ using namespace std;
 
 class DataUtils {
 public:
+    static double ManhattanDistance(double* x1, double* x2, size_t size)
+    {
+        double d =0;
+        for (size_t i =0; i<size; i++ ) {
+            d += fabs(x1[i] - x2[i]);
+        }
+        return d;
+    }
+    
+    static double EuclideanDistance(double* x1, double* x2, size_t size)
+    {
+        double d =0,tmp=0;
+        for (size_t i =0; i<size; i++ ) {
+            tmp = x1[i] - x2[i];
+            d += tmp * tmp;
+        }
+        return d;
+    }
+    
     static void doubleCenter(vector<vector<double> >& matrix)
     {
         int n = matrix[0].size();
@@ -260,6 +279,18 @@ public:
         }
         
         return copy;
+    }
+    
+    static double* getPairWiseDistance(double** matrix, int n, int k, double dist(double* , double* , size_t))
+    {
+        int cnt = 0;
+        double* result = new double[n*(n-1)/2];
+        for (size_t i=0; i<n; i++) {
+            for (size_t j=i+1; j<n; j++) {
+                result[cnt++] = dist(matrix[i], matrix[j], k);
+            }
+        }
+        return result;
     }
     
     static vector<vector<double> > copyRaggedMatrix(double** matrix, int n, int k) {
