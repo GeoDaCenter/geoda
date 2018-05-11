@@ -240,6 +240,37 @@ namespace fastcluster {
         }
     };
     
+    // The size of a node is either 1 (a single point) or is looked up from
+    // one of the clusters.
+#define size_(r_) ( ((r_<N) ? 1 : Z_(r_-N,3)) )
+    
+    /*
+     Convenience class for the output array: automatic counter.
+     */
+    class linkage_output {
+    private:
+        t_float * Z;
+        
+    public:
+        linkage_output(t_float * const Z_)
+        : Z(Z_)
+        {}
+        
+        void append(const t_index node1, const t_index node2, const t_float dist,
+                    const t_float size) {
+            if (node1<node2) {
+                *(Z++) = static_cast<t_float>(node1);
+                *(Z++) = static_cast<t_float>(node2);
+            }
+            else {
+                *(Z++) = static_cast<t_float>(node2);
+                *(Z++) = static_cast<t_float>(node1);
+            }
+            *(Z++) = dist;
+            *(Z++) = size;
+        }
+    };
+    
     class doubly_linked_list {
         /*
          Class for a doubly linked list. Initially, the list is the integer range
@@ -590,6 +621,8 @@ namespace fastcluster {
         }
         
     };
+    
+    //double cuttree();
     
     void MST_linkage_core(const t_index N, const t_float * const D,
                           cluster_result & Z2);

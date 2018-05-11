@@ -35,7 +35,7 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 #include <wx/dcbuffer.h>
-
+#include <boost/unordered_map.hpp>
 
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
@@ -475,11 +475,31 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
     delete[] pwdist;
     
-    for (int i=0; i<rows-1; i++) {
-        cout << Z2[i]->node1 << ", " << Z2[i]->node2 << ", " << Z2[i]->dist <<endl;
+    GdaNode* htree = new GdaNode[rows-1];
+    
+    std::stable_sort(Z2[0], Z2[rows-1]);
+
+    t_index node1, node2;
+    int i=0;
+    fastcluster::union_find nodes(rows);
+    for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
+        // Find the cluster identifiers for these points.
+        node1 = nodes.Find(NN->node1);
+        node2 = nodes.Find(NN->node2);
+        // Merge the nodes in the union-find data structure by making them
+        // children of a new node.
+        nodes.Union(node1, node2);
+        
+        node2 = node2 < rows ? node2 : rows-node2-1;
+        node1 = node1 < rows ? node1 : rows-node1-1;
+        
+        //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+        //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
+        htree[i].left = node1;
+        htree[i].right = node2;
+        htree[i].distance = Z2[i]->dist;
     }
     
-    GdaNode* htree = treecluster(rows, columns, input_data, mask, weight, transpose, dist, method, NULL);
     
     double cutoffDistance = cuttree (rows, htree, ncluster, clusterid);
     
