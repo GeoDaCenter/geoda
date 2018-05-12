@@ -21,6 +21,7 @@
 #include <map>
 
 #include <wx/wx.h>
+#include <wx/stdpaths.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
@@ -47,6 +48,8 @@
 
 #include "SaveToTableDlg.h"
 #include "HClusterDlg.h"
+
+
 
 BEGIN_EVENT_TABLE( HClusterDlg, wxDialog )
 EVT_CLOSE( HClusterDlg::OnClose )
@@ -455,6 +458,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
+    
     
     double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
     

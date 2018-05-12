@@ -3,6 +3,7 @@
 #ifndef __GEODA_CENTER_DATAUTILS_H
 #define __GEODA_CENTER_DATAUTILS_H
 
+#include <iostream>
 #include <vector>
 #include <cfloat>
 #include <stdlib.h>
@@ -262,18 +263,20 @@ public:
         return copy;
     }
     
-    static double** fullRaggedMatrix(double** matrix, int n, int k) {
+    static double** fullRaggedMatrix(double** matrix, int n, int k, bool isSqrt=false) {
         double** copy = new double*[k];
         
-        for (int i = 0; i < k; i++) {
-            copy[i] = new double[n];
-            for (int j = 0; j < n; j++)
-                copy[i][j] = 0;
-        }
+        //for (int i = 0; i < k; i++) {
+            //copy[i] = new double[n];
+            //for (int j = 0; j < n; j++)
+            //    copy[i][j] = 0;
+        //}
         
         for (int i = 1; i < k; i++) {
+            copy[i] = new double[n];
             for (int j = 0; j < i; j++) {
-                copy[i][j] = sqrt(matrix[i][j]);
+                if (isSqrt) copy[i][j] = sqrt(matrix[i][j]);
+                copy[i][j] = matrix[i][j];
                 copy[j][i] = copy[i][j];
             }
         }
@@ -283,10 +286,13 @@ public:
     
     static double* getPairWiseDistance(double** matrix, int n, int k, double dist(double* , double* , size_t))
     {
-        int cnt = 0;
-        double* result = new double[n*(n-1)/2];
-        for (size_t i=0; i<n; i++) {
-            for (size_t j=i+1; j<n; j++) {
+        unsigned long long _n = n;
+        
+        unsigned long long cnt = 0;
+        unsigned long long nn = _n*(_n-1)/2;
+        double* result = new double[nn];
+        for (int i=0; i<n; i++) {
+            for (int j=i+1; j<n; j++) {
                 result[cnt++] = dist(matrix[i], matrix[j], k);
             }
         }

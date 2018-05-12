@@ -43,7 +43,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../Algorithms/DataUtils.h"
-
+#include "../Algorithms/distmatrix.h"
 
 #include "SaveToTableDlg.h"
 #include "HDBScanDlg.h"
@@ -466,10 +466,25 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     clusters_undef.clear();
    
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    
+    /*
+    wxString exePath = GenUtils::GetBasemapCacheDir();
+    wxString clPath = exePath + "distmat_kernel.cl";
+    float* r = gpu_distmatrix(clPath.mb_str(), rows, columns, input_data);
+    double** distances = new double*[rows];
+    unsigned long idx;
+    for (size_t i=0; i<rows; i++) {
+        distances[i] = new double[rows];
+        for (size_t j=0; j<rows; j++) {
+            idx = i*rows + j;
+            distances[i][j] = r[idx];
+        }
+    }
+    free(r);
+    */
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
-    
     
     GeoDaClustering::HDBScan hdb(minPts, minSamples, alpha, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
     
