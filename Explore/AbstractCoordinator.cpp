@@ -209,6 +209,9 @@ void AbstractCoordinator::AllocateVectors()
 	for (int i=0; i<tms; i++) {
 		if (calc_significances) {
 			sig_local_vecs[i] = new double[num_obs];
+            for (int j=0; j<num_obs; j++) {
+                sig_local_vecs[i][j] = 0;
+            }
 			sig_cat_vecs[i] = new int[num_obs];
 		}
 		cluster_vecs[i] = new int[num_obs];
@@ -405,9 +408,11 @@ void AbstractCoordinator::VarInfoAttributeChange()
 void AbstractCoordinator::CalcPseudoP()
 {
 	wxLogMessage("Entering AbstractCoordinator::CalcPseudoP()");
+    wxStopWatch sw_vd;
 	if (!calc_significances)
         return;
     CalcPseudoP_threaded();
+    LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));
 	wxLogMessage("Exiting AbstractCoordinator::CalcPseudoP()");
 }
 
@@ -417,7 +422,7 @@ void AbstractCoordinator::CalcPseudoP_threaded()
     int nCPUs = GdaConst::gda_cpu_cores;
     if (!GdaConst::gda_set_cpu_cores)
         nCPUs = wxThread::GetCPUCount();
-
+    
 	// mutext protects access to the worker_list
     wxMutex worker_list_mutex;
 	// signals that worker_list is empty

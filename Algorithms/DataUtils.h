@@ -266,14 +266,13 @@ public:
     static double** fullRaggedMatrix(double** matrix, int n, int k, bool isSqrt=false) {
         double** copy = new double*[k];
         
-        //for (int i = 0; i < k; i++) {
-            //copy[i] = new double[n];
-            //for (int j = 0; j < n; j++)
-            //    copy[i][j] = 0;
-        //}
+        for (int i = 0; i < k; i++) {
+            copy[i] = new double[n];
+            for (int j = 0; j < n; j++)
+                copy[i][j] = 0;
+        }
         
         for (int i = 1; i < k; i++) {
-            copy[i] = new double[n];
             for (int j = 0; j < i; j++) {
                 if (isSqrt) copy[i][j] = sqrt(matrix[i][j]);
                 copy[i][j] = matrix[i][j];

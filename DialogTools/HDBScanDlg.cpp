@@ -201,7 +201,7 @@ void HDBScanDlg::CreateControls()
      */
     
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
-    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(120,-1));
+    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
     
@@ -465,23 +465,28 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     clusters.clear();
     clusters_undef.clear();
    
-    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+   
+    // 3gb  3*1024*1024/4 = 786432
+    unsigned long long total_pairs = rows * rows;
+    int block_size = total_pairs / 780000;
     
     /*
     wxString exePath = GenUtils::GetBasemapCacheDir();
     wxString clPath = exePath + "distmat_kernel.cl";
     float* r = gpu_distmatrix(clPath.mb_str(), rows, columns, input_data);
-    double** distances = new double*[rows];
-    unsigned long idx;
-    for (size_t i=0; i<rows; i++) {
-        distances[i] = new double[rows];
-        for (size_t j=0; j<rows; j++) {
-            idx = i*rows + j;
-            distances[i][j] = r[idx];
+    double** _distances = new double*[rows];
+    unsigned long long idx;
+     unsigned long long _row = rows;
+    for (unsigned long long i=0; i<rows; i++) {
+        _distances[i] = new double[rows];
+        for (unsigned long long j=0; j<rows; j++) {
+            idx = i*_row + j;
+            _distances[i][j] = r[idx];
         }
     }
     free(r);
     */
+    double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);

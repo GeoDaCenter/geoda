@@ -12,12 +12,16 @@
 
 using namespace std;
 
-float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data)
+float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data, int start, int end)
 {
+    unsigned long long _rows = rows;
+    unsigned long long _columns = columns;
+    unsigned long long sz_float = sizeof(float);
+    unsigned long long _block = end-start+1;
     unsigned long long i;
     
-    unsigned long long indata_size = rows * columns * sizeof(float);
-    unsigned long long outdata_size = rows * rows * sizeof(float);
+    unsigned long long indata_size = _rows * _columns * sz_float;
+    unsigned long long outdata_size = _rows * _block * sz_float;
     float* a = (float *) malloc (indata_size);
     float* r = (float *) malloc (outdata_size);
     
@@ -25,12 +29,12 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data)
     
     for (i=0; i<rows; i++) {
         for (unsigned long long j=0; j<columns; j++) {
-            idx = i*columns+j;
+            idx = i*_columns+j;
             a[idx] = data[i][j];
         }
     }
     
-    unsigned long long sum_rows = rows * rows;
+    unsigned long long sum_rows = _rows * _block;
     for (i=0; i<sum_rows; i++) {
         r[i] = 0;
     }
@@ -72,6 +76,7 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data)
     // Create a command queue
     cl_command_queue command_queue = clCreateCommandQueue(context, device_id, 0, &ret);
     
+    size_t test = (size_t)outdata_size;
     // Create memory buffers on the device for each vector
     cl_mem a_mem_obj = clCreateBuffer(context, CL_MEM_READ_ONLY,
                                       indata_size, NULL, &ret);
@@ -81,6 +86,8 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data)
     // Copy the lists A and B to their respective memory buffers
     ret = clEnqueueWriteBuffer(command_queue, a_mem_obj, CL_TRUE, 0,
                                indata_size, a, 0, NULL, NULL);
+    ret = clEnqueueWriteBuffer(command_queue, r_mem_obj, CL_TRUE, 0,
+                               outdata_size, r, 0, NULL, NULL);
     
     // Create a program from the kernel source
     cl_program program = clCreateProgramWithSource(context, 1,
@@ -93,15 +100,15 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data)
     cl_kernel kernel = clCreateKernel(program, "euclidean_dist", &ret);
     
     // Set the arguments of the kernel
-    unsigned long long _rows = rows;
-    unsigned long long _columns = columns;
     ret = clSetKernelArg(kernel, 0, sizeof(cl_ulong), (void *)&_rows);
     ret = clSetKernelArg(kernel, 1, sizeof(cl_ulong), (void *)&_columns);
-    ret = clSetKernelArg(kernel, 2, sizeof(cl_mem), (void *)&a_mem_obj);
-    ret = clSetKernelArg(kernel, 3, sizeof(cl_mem), (void *)&r_mem_obj);
+    ret = clSetKernelArg(kernel, 2, sizeof(cl_int), (void *)&start);
+    ret = clSetKernelArg(kernel, 3, sizeof(cl_int), (void *)&end);
+    ret = clSetKernelArg(kernel, 4, sizeof(cl_mem), (void *)&a_mem_obj);
+    ret = clSetKernelArg(kernel, 5, sizeof(cl_mem), (void *)&r_mem_obj);
     
     // Execute the OpenCL kernel on the list
-    size_t global_item_size = 64 * ceil(rows/64); // Process the entire lists
+    size_t global_item_size = 64 * ceil(_block/64.0); // Process the entire lists
     size_t local_item_size = 64; // Process in groups of 64
     ret = clEnqueueNDRangeKernel(command_queue, kernel, 1, NULL,
                                  &global_item_size, &local_item_size, 0, NULL, NULL);

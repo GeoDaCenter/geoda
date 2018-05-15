@@ -1025,7 +1025,8 @@ void CreatingWeightDlg::CreateWeights()
         return;
     outputfile = dlg.GetPath();
     
-    wxLogMessage(_("CreateWeights()") + outputfile);
+    wxLogMessage("CreateWeights()");
+    wxLogMessage(outputfile);
     
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();

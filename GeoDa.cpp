@@ -6187,7 +6187,7 @@ void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
         checked = "yes";
     }
     
-    wxLogMessage(_("In GdaFrame::OnCheckTestMode():") + checked);
+    wxLogMessage("In GdaFrame::OnCheckTestMode():");
     
     OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
 }

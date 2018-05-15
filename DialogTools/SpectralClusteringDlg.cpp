@@ -176,7 +176,7 @@ void SpectralClusteringDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("(K-Means)"),
+    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, "(K-Means)",
                                           wxDefaultPosition, wxSize(128,-1));
     wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, "",
                                           wxDefaultPosition, wxSize(0,-1));
@@ -246,7 +246,7 @@ void SpectralClusteringDlg::CreateControls()
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
-    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT("CL"), wxDefaultPosition, wxSize(158,-1));
+    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);

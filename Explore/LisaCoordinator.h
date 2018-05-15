@@ -78,7 +78,8 @@ public:
     virtual void Calc();
 	virtual void DeallocateVectors();
 	virtual void AllocateVectors();
-	
+    virtual void CalcPseudoP1();
+    
     void GetRawData(int time, double* data1, double* data2);
 	void StandardizeData();
 };

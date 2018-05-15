@@ -62,6 +62,11 @@
 		A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */; };
 		A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */; };
 		A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47614AD20759EAD00D9F3BE /* arcgis_swm.cpp */; };
+		A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */; };
+		A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
+		A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
+		A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
+		A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
 		A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */; };
 		A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48356B91E456310002791C8 /* ConditionalClusterMapView.cpp */; };
 		A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A48814EA20A50B0F005490A7 /* fastcluster.cpp */; };
@@ -262,6 +267,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */,
+				A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */,
 				A4404A07208E9E5A0007753D /* lang in CopyFiles */,
 				DD2EB10219E6F0270073E36F /* geoda_prefs.json in CopyFiles */,
 				A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */,
@@ -380,6 +387,10 @@
 		A47533BC20A3BD5000695283 /* fastcluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fastcluster.h; path = Algorithms/fastcluster.h; sourceTree = "<group>"; };
 		A47614AB20759E5600D9F3BE /* arcgis_swm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arcgis_swm.h; path = io/arcgis_swm.h; sourceTree = "<group>"; };
 		A47614AD20759EAD00D9F3BE /* arcgis_swm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arcgis_swm.cpp; path = io/arcgis_swm.cpp; sourceTree = "<group>"; };
+		A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gpu_lisa.cpp; path = Algorithms/gpu_lisa.cpp; sourceTree = "<group>"; };
+		A47F791F20A9F67A000AFE57 /* gpu_lisa.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gpu_lisa.h; path = Algorithms/gpu_lisa.h; sourceTree = "<group>"; };
+		A47F792120AA082A000AFE57 /* lisa_kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = lisa_kernel.cl; path = Algorithms/lisa_kernel.cl; sourceTree = "<group>"; };
+		A47F792320AA084B000AFE57 /* distmat_kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = distmat_kernel.cl; path = Algorithms/distmat_kernel.cl; sourceTree = "<group>"; };
 		A47FC9D91F74DE1600BEFBF2 /* MLJCCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCCoordinator.cpp; sourceTree = "<group>"; };
 		A47FC9DA1F74DE1600BEFBF2 /* MLJCCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCCoordinator.h; sourceTree = "<group>"; };
 		A47FC9DC1F74E31800BEFBF2 /* MLJCCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCCoordinatorObserver.h; sourceTree = "<group>"; };
@@ -794,6 +805,10 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A47F792320AA084B000AFE57 /* distmat_kernel.cl */,
+				A47F792120AA082A000AFE57 /* lisa_kernel.cl */,
+				A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */,
+				A47F791F20A9F67A000AFE57 /* gpu_lisa.h */,
 				A432E84820A674F7007B8B25 /* distmatrix.h */,
 				A432E84620A672EA007B8B25 /* distmatrix.cpp */,
 				A48814EA20A50B0F005490A7 /* fastcluster.cpp */,
@@ -1543,6 +1558,7 @@
 				A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */,
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
+				A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */,
 				DD7976BD0F1D2CA800496A84 /* ML_im.cpp in Sources */,
 				DD7976BE0F1D2CA800496A84 /* PowerLag.cpp in Sources */,
 				A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */,
@@ -1550,6 +1566,7 @@
 				DD7976C10F1D2CA800496A84 /* smile2.cpp in Sources */,
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,
 				DD7976C30F1D2CA800496A84 /* SparseRow.cpp in Sources */,
+				A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
@@ -1625,6 +1642,7 @@
 				DDE3F5081677C46500D13A2C /* CatClassification.cpp in Sources */,
 				A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */,
 				DDF53FF3167A39520042B453 /* CatClassifState.cpp in Sources */,
+				A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */,
 				DDF5400B167A39CA0042B453 /* CatClassifDlg.cpp in Sources */,
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
 				A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */,

@@ -173,7 +173,7 @@ IDataSource* IDataSource::CreateDataSource(wxString data_type_name,
 {
     if (GdaConst::datasrc_str_to_type.find(data_type_name.ToStdString()) ==
         GdaConst::datasrc_str_to_type.end()) {
-        wxString error_msg = _("datasource.type %s unknown..");
+        wxString error_msg = "datasource.type %s unknown..";
         error_msg = wxString::Format(error_msg, data_type_name);
         throw GdaException(error_msg.mb_str());
     }
