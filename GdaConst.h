@@ -241,6 +241,7 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static bool gda_use_gpu;
     static int gda_ui_language;
     static double gda_eigen_tol;
     static int gda_cpu_cores;

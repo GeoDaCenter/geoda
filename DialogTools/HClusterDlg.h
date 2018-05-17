@@ -243,6 +243,7 @@ public:
     void OnClusterChoice(wxCommandEvent& event);
     void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
+    void OnSpatialConstraintCheck(wxCommandEvent& event);
     
     virtual void update(HLStateInt* o);
     
@@ -264,12 +265,14 @@ protected:
     wxButton *saveButton;
     wxChoice* combo_n;
     wxChoice* combo_cov;
+    wxChoice* combo_weights;
     wxTextCtrl* m_textbox;
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxTextCtrl* m_cluster;
     wxNotebook* notebook;
+    wxCheckBox* chk_contiguity;
     
     DECLARE_EVENT_TABLE()
 };

@@ -23,6 +23,7 @@
 #include <wx/wx.h>
 #include <wx/stdpaths.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/textfile.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/stattext.h>
@@ -45,7 +46,10 @@
 #include "../GenUtils.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/fastcluster.h"
+#include "../VarCalc/WeightsManInterface.h"
+#include "../ShapeOperations/WeightUtils.h"
 
+#include "../Algorithms/redcap.h"
 #include "SaveToTableDlg.h"
 #include "HClusterDlg.h"
 
@@ -154,6 +158,20 @@ void HClusterDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatially Constraint:"),
+                                          wxDefaultPosition, wxSize(128,-1));
+    chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
+    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(chk_contiguity, 1, wxEXPAND);
+    
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _(""),
+                                          wxDefaultPosition, wxSize(128,-1));
+    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                 wxSize(200,-1));
+    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_weights, 1, wxEXPAND);
+    combo_weights->Disable();
+    
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
@@ -232,18 +250,42 @@ void HClusterDlg::CreateControls()
     m_method = box12;
     m_distance = box13;
     
+    // init weights
+    vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    
+    size_t sel_pos=0;
+    for (size_t i=0; i<weights_ids.size(); ++i) {
+        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
+        if (w_man_int->GetDefault() == weights_ids[i])
+        sel_pos = i;
+    }
+    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
+    
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
     m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
-    
+    chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
     //combo_n->Disable();
     m_cluster->Disable();
 }
 
+void HClusterDlg::OnSpatialConstraintCheck(wxCommandEvent& event)
+{
+    wxLogMessage("On HClusterDlg::OnSpatialConstraintCheck");
+    bool checked = chk_contiguity->GetValue();
+    
+    if (checked) {
+        combo_weights->Enable();
+    } else {
+        combo_weights->Disable();
+    }
+}
 void HClusterDlg::OnNotebookChange(wxBookCtrlEvent& event)
 {
     int tab_idx = event.GetOldSelection();
@@ -459,30 +501,73 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
     
-    
-    double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
-    
-    fastcluster::cluster_result Z2(rows-1);
-    fastcluster::auto_array_ptr<t_index> members;
-    
-    if (method == 's') {
-        fastcluster::MST_linkage_core(rows, pwdist, Z2);
-    } else if (method == 'w') {
-        members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
-    } else if (method == 'm') {
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
-    } else if (method == 'a') {
-        members.init(rows, 1);
-        fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
-    }
-    
-    delete[] pwdist;
-    
     GdaNode* htree = new GdaNode[rows-1];
+    fastcluster::cluster_result Z2(rows-1);
     
+    // Get Weights Selection
+    if (chk_contiguity->GetValue()) {
+        vector<boost::uuids::uuid> weights_ids;
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        w_man_int->GetIds(weights_ids);
+        
+        int sel = combo_weights->GetSelection();
+        if (sel < 0) sel = 0;
+        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+        
+        boost::uuids::uuid w_id = weights_ids[sel];
+        GalWeight* gw = w_man_int->GetGal(w_id);
+        
+        if (gw == NULL) {
+            wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+        //GeoDaWeight* weights = w_man_int->GetGal(w_id);
+        // Check connectivity
+        if (!CheckConnectivity(gw)) {
+            wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+            dlg.ShowModal();
+            return;
+        }
+        
+        double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+        double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+        for (int i = 1; i < rows; i++) free(ragged_distances[i]);
+        free(ragged_distances);
+        std::vector<bool> undefs(rows, false);
+        SpanningTreeClustering::AbstractClusterFactory* redcap = new SpanningTreeClustering::FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, NULL, 0);
+        for (int i=0; i<redcap->ordered_edges.size(); i++) {
+            Z2[i]->node1 = redcap->ordered_edges[i]->orig->id;
+            Z2[i]->node2 = redcap->ordered_edges[i]->dest->id;
+            Z2[i]->dist = redcap->ordered_edges[i]->length;
+        }
+        
+        delete redcap;
+        
+    } else {
+    
+        double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
+        //double* pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, rows, columns, DataUtils::EuclideanDistance);
+        
+        fastcluster::auto_array_ptr<t_index> members;
+        
+        if (method == 's') {
+            fastcluster::MST_linkage_core(rows, pwdist, Z2);
+        } else if (method == 'w') {
+            members.init(rows, 1);
+            fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
+        } else if (method == 'm') {
+            fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
+        } else if (method == 'a') {
+            members.init(rows, 1);
+            fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
+        }
+        
+        delete[] pwdist;
+        
+    }
     std::stable_sort(Z2[0], Z2[rows-1]);
-
     t_index node1, node2;
     int i=0;
     fastcluster::union_find nodes(rows);

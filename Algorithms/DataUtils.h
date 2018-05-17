@@ -12,6 +12,7 @@
 #include <algorithm>    // std::max
 
 #include "../GdaConst.h"
+#include "../ShapeOperations/GalWeight.h"
 using namespace std;
 
 class DataUtils {
@@ -283,6 +284,7 @@ public:
         return copy;
     }
     
+    // upper triangular part of a symmetric matrix
     static double* getPairWiseDistance(double** matrix, int n, int k, double dist(double* , double* , size_t))
     {
         unsigned long long _n = n;
@@ -293,6 +295,25 @@ public:
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 result[cnt++] = dist(matrix[i], matrix[j], k);
+            }
+        }
+        return result;
+    }
+    
+    static double* getContiguityPairWiseDistance(GalElement* w, double** matrix, int n, int k, double dist(double* , double* , size_t))
+    {
+        unsigned long long _n = n;
+        
+        unsigned long long cnt = 0;
+        unsigned long long nn = _n*(_n-1)/2;
+        double* result = new double[nn];
+        for (int i=0; i<n; i++) {
+            for (int j=i+1; j<n; j++) {
+                if (w[i].Check(j)) {
+                    result[cnt++] = dist(matrix[i], matrix[j], k);
+                } else {
+                    result[cnt++] = DBL_MAX;
+                }
             }
         }
         return result;

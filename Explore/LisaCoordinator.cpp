@@ -494,118 +494,37 @@ void LisaCoordinator::Calc()
     wxLogMessage("Exiting LisaCoordinator::Calc()");
 }
 
-void LisaCoordinator::CalcPseudoP1()
+void LisaCoordinator::CalcPseudoP()
 {
     wxStopWatch sw_vd;
     
-    double* values = data1_vecs[0];
-    double* local_moran = local_moran_vecs[0];
-    GalElement* w = weights->gal;
-    double* _sigLocal = sig_local_vecs[0];
-    
-    wxString exePath = GenUtils::GetBasemapCacheDir();
-    wxString clPath = exePath + "lisa_kernel.cl";
-    gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
-    
-    /*
-    int max_n_nbrs = 0;
-    int* num_nbrs = new int[num_obs];
-    int total_nbrs = 0;
-    
-    for (size_t i=0; i<num_obs; i++) {
-        int nnbrs = w[i].Size();
-        if (nnbrs > max_n_nbrs) {
-            max_n_nbrs = nnbrs;
-        }
-        num_nbrs[i] = nnbrs;
-        total_nbrs += nnbrs;
-    }
-    
-    int* nbr_idx = new int[total_nbrs];
-    size_t idx = 0;
-    
-    for (size_t i=0; i<num_obs; i++) {
-        int nnbrs = w[i].Size();
-        for (size_t j=0; j<nnbrs; j++) {
-            nbr_idx[idx++] = w[i][j];
-        }
-    }
-    for (int i=0; i<num_obs; i++) {
-        size_t j = 0;
-        size_t seed_start = i + last_seed_used;
-        size_t numNeighbors = num_nbrs[i];
-        if (numNeighbors == 0) {
-            continue;
-        }
-        size_t nbr_start = 0;
+    if (GdaConst::gda_use_gpu == false) {
+        if (!calc_significances)
+            return;
+        CalcPseudoP_threaded();
         
-        for (j=0; j <i; j++) {
-            nbr_start += num_nbrs[j];
-        }
-        size_t max_rand = num_obs-1;
-        size_t newRandom;
+    } else {
+        double* values = data1_vecs[0];
+        double* local_moran = local_moran_vecs[0];
+        GalElement* w = weights->gal;
+        double* _sigLocal = sig_local_vecs[0];
         
-        size_t perm=0;
-        size_t rand = 0;
+        wxString exePath = GenUtils::GetBasemapCacheDir();
+        wxString clPath = exePath + "lisa_kernel.cl";
+        gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
         
-        bool is_valid;
-        
-        double permutedLag =0;
-        double localMoranPermuted=0;
-        size_t countLarger = 0;
-        
-        size_t rnd_numbers[20]; // 1234 can be replaced with max #nbr
-        
-        for (perm=0; perm<permutations; perm++ ) {
-            rand=0;
-            permutedLag =0;
-            while (rand < numNeighbors) {
-                is_valid = true;
-                newRandom = ThomasWangHashInteger(seed_start++, max_rand);
-                
-                if (newRandom != i ) {
-                    for (j=0; j<rand; j++) {
-                        if (newRandom == rnd_numbers[j]) {
-                            is_valid = false;
-                            break;
-                        }
-                    }
-                    if (is_valid) {
-                        permutedLag += values[newRandom];
-                        rnd_numbers[rand] = newRandom;
-                        rand++;
-                    }
-                }
+        for (int cnt=0; cnt<num_obs; cnt++) {
+            int numNeighbors = w[cnt].Size();
+            int* _sigCat = sig_cat_vecs[0];
+            if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
+            else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
+            else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
+            else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
+            else _sigCat[cnt]= 0;
+            
+            if (numNeighbors == 0) {
+                _sigCat[cnt] = 5;
             }
-            permutedLag /= numNeighbors;
-            localMoranPermuted = permutedLag * values[i];
-            if (localMoranPermuted > local_moran[i]) {
-                countLarger++;
-            }
-        }
-        
-        // pick the smallest
-        if (permutations-countLarger <= countLarger) {
-            countLarger = permutations-countLarger;
-        }
-        
-        double sigLocal = (countLarger+1.0)/(permutations+1);
-        _sigLocal[i] = sigLocal;
-    }
-    delete[] num_nbrs;
-    delete[] nbr_idx;
-    */
-    for (int cnt=0; cnt<num_obs; cnt++) {
-        int numNeighbors = w[cnt].Size();
-        int* _sigCat = sig_cat_vecs[0];
-        if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
-        else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
-        else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
-        else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
-        else _sigCat[cnt]= 0;
-        
-        if (numNeighbors == 0) {
-            _sigCat[cnt] = 5;
         }
     }
     LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));

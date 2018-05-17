@@ -242,7 +242,7 @@ namespace fastcluster {
     
     // The size of a node is either 1 (a single point) or is looked up from
     // one of the clusters.
-#define size_(r_) ( ((r_<N) ? 1 : Z_(r_-N,3)) )
+//#define size_(r_) ( ((r_<N) ? 1 : Z_(r_-N,3)) )
     
     /*
      Convenience class for the output array: automatic counter.
@@ -622,7 +622,422 @@ namespace fastcluster {
         
     };
     
+    /*
+     This class handles all the information about the dissimilarity
+     computation.
+     */
+    enum {
+        // metrics
+        METRIC_EUCLIDEAN       =  0,
+        METRIC_MINKOWSKI       =  1,
+        METRIC_CITYBLOCK       =  2,
+        METRIC_SEUCLIDEAN      =  3,
+        METRIC_SQEUCLIDEAN     =  4,
+        METRIC_COSINE          =  5,
+        METRIC_HAMMING         =  6,
+        METRIC_JACCARD         =  7,
+        METRIC_CHEBYCHEV       =  8,
+        METRIC_CANBERRA        =  9,
+        METRIC_BRAYCURTIS      = 10,
+        METRIC_MAHALANOBIS     = 11,
+        METRIC_YULE            = 12,
+        METRIC_MATCHING        = 13,
+        METRIC_DICE            = 14,
+        METRIC_ROGERSTANIMOTO  = 15,
+        METRIC_RUSSELLRAO      = 16,
+        METRIC_SOKALSNEATH     = 17,
+        METRIC_KULSINSKI       = 18,
+        METRIC_USER            = 19,
+        METRIC_INVALID         = 20, // sentinel
+        METRIC_JACCARD_BOOL    = 21, // separate function for Jaccard metric on
+    };                             // Boolean input data
+    class python_dissimilarity {
+        t_float * Xa;
+        std::ptrdiff_t dim; // size_t saves many statis_cast<> in products
+        t_index N;
+        auto_array_ptr<t_float> Xnew;
+        t_index * members;
+        void (cluster_result::*postprocessfn) (const t_float) const;
+        t_float postprocessarg;
+        
+        t_float (python_dissimilarity::*distfn) (const t_index, const t_index) const;
+        
+        auto_array_ptr<t_float> precomputed;
+        t_float * precomputed2;
+        
+        const t_float * V_data;
+        
+        // noncopyable
+        python_dissimilarity();
+        python_dissimilarity(python_dissimilarity const &);
+        python_dissimilarity & operator=(python_dissimilarity const &);
+        
+    public:
+        // Ignore warning about uninitialized member variables. I know what I am
+        // doing here, and some member variables are only used for certain metrics.
+#if HAVE_DIAGNOSTIC
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weffc++"
+#endif
+        python_dissimilarity (t_float * const Xarg,
+                              t_index * const members_,
+                              const unsigned char method,
+                              const unsigned char metric,
+                              bool temp_point_array)
+        {
+            switch (method) {
+                case METHOD_METR_SINGLE:
+                postprocessfn = NULL; // default
+                switch (metric) {
+                    case METRIC_EUCLIDEAN:
+                    set_euclidean();
+                    break;
+
+                    case METRIC_CITYBLOCK:
+                    set_cityblock();
+                    break;
+                    
+                    default: // case METRIC_JACCARD_BOOL:
+                    distfn = &python_dissimilarity::sqeuclidean<false>;
+                }
+                break;
+                
+                case METHOD_METR_WARD:
+                postprocessfn = &cluster_result::sqrtdouble;
+                break;
+                
+                default:
+                postprocessfn = &cluster_result::sqrt;
+            }
+        }
+        
+        ~python_dissimilarity() {
+        }
+        
+        inline t_float operator () (const t_index i, const t_index j) const {
+            return (this->*distfn)(i,j);
+        }
+        
+        inline t_float X (const t_index i, const t_index j) const {
+            return Xa[i*dim+j];
+        }
+        
+        inline bool Xb (const t_index i, const t_index j) const {
+            return  reinterpret_cast<bool *>(Xa)[i*dim+j];
+        }
+        
+        inline t_float * Xptr(const t_index i, const t_index j) const {
+            return Xa+i*dim+j;
+        }
+        
+        void merge(const t_index i, const t_index j, const t_index newnode) const {
+            t_float const * const Pi = i<N ? Xa+i*dim : Xnew+(i-N)*dim;
+            t_float const * const Pj = j<N ? Xa+j*dim : Xnew+(j-N)*dim;
+            for(t_index k=0; k<dim; ++k) {
+                Xnew[(newnode-N)*dim+k] = (Pi[k]*static_cast<t_float>(members[i]) +
+                                           Pj[k]*static_cast<t_float>(members[j])) /
+                static_cast<t_float>(members[i]+members[j]);
+            }
+            members[newnode] = members[i]+members[j];
+        }
+        
+        void merge_weighted(const t_index i, const t_index j, const t_index newnode)
+        const {
+            t_float const * const Pi = i<N ? Xa+i*dim : Xnew+(i-N)*dim;
+            t_float const * const Pj = j<N ? Xa+j*dim : Xnew+(j-N)*dim;
+            for(t_index k=0; k<dim; ++k) {
+                Xnew[(newnode-N)*dim+k] = (Pi[k]+Pj[k])*.5;
+            }
+        }
+        
+        void merge_inplace(const t_index i, const t_index j) const {
+            t_float const * const Pi = Xa+i*dim;
+            t_float * const Pj = Xa+j*dim;
+            for(t_index k=0; k<dim; ++k) {
+                Pj[k] = (Pi[k]*static_cast<t_float>(members[i]) +
+                         Pj[k]*static_cast<t_float>(members[j])) /
+                static_cast<t_float>(members[i]+members[j]);
+            }
+            members[j] += members[i];
+        }
+        
+        void merge_inplace_weighted(const t_index i, const t_index j) const {
+            t_float const * const Pi = Xa+i*dim;
+            t_float * const Pj = Xa+j*dim;
+            for(t_index k=0; k<dim; ++k) {
+                Pj[k] = (Pi[k]+Pj[k])*.5;
+            }
+        }
+        
+        void postprocess(cluster_result & Z2) const {
+            if (postprocessfn!=NULL) {
+                (Z2.*postprocessfn)(postprocessarg);
+            }
+        }
+        
+        inline t_float ward(const t_index i, const t_index j) const {
+            t_float mi = static_cast<t_float>(members[i]);
+            t_float mj = static_cast<t_float>(members[j]);
+            return sqeuclidean<true>(i,j)*mi*mj/(mi+mj);
+        }
+        
+        inline t_float ward_initial(const t_index i, const t_index j) const {
+            // alias for sqeuclidean
+            // Factor 2!!!
+            return sqeuclidean<true>(i,j);
+        }
+        
+        // This method must not produce NaN if the input is non-NaN.
+        inline static t_float ward_initial_conversion(const t_float min) {
+            return min*.5;
+        }
+        
+        inline t_float ward_extended(const t_index i, const t_index j) const {
+            t_float mi = static_cast<t_float>(members[i]);
+            t_float mj = static_cast<t_float>(members[j]);
+            return sqeuclidean_extended(i,j)*mi*mj/(mi+mj);
+        }
+        
+        /* We need two variants of the Euclidean metric: one that does not check
+         for a NaN result, which is used for the initial distances, and one which
+         does, for the updated distances during the clustering procedure.
+         */
+        template <const bool check_NaN>
+        t_float sqeuclidean(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            /*
+             for (t_index k=0; k<dim; ++k) {
+             t_float diff = X(i,k) - X(j,k);
+             sum += diff*diff;
+             }
+             */
+            // faster
+            t_float const * Pi = Xa+i*dim;
+            t_float const * Pj = Xa+j*dim;
+            for (t_index k=0; k<dim; ++k) {
+                t_float diff = Pi[k] - Pj[k];
+                sum += diff*diff;
+            }
+            if (check_NaN) {
+                if (fc_isnan(sum))
+                throw(nan_error());
+            }
+            return sum;
+        }
+        
+        t_float sqeuclidean_extended(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            t_float const * Pi = i<N ? Xa+i*dim : Xnew+(i-N)*dim; // TBD
+            t_float const * Pj = j<N ? Xa+j*dim : Xnew+(j-N)*dim;
+            for (t_index k=0; k<dim; ++k) {
+                t_float diff = Pi[k] - Pj[k];
+                sum += diff*diff;
+            }
+            if (fc_isnan(sum))
+                throw(nan_error());
+            return sum;
+        }
+        
+        private:
+        
+        void set_euclidean() {
+            distfn = &python_dissimilarity::sqeuclidean<false>;
+            postprocessfn = &cluster_result::sqrt;
+        }
+        
+        void set_cityblock() {
+            distfn = &python_dissimilarity::cityblock;
+        }
+        
+        void set_chebychev() {
+            distfn = &python_dissimilarity::chebychev;
+        }
+        
+        t_float seuclidean(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                t_float diff = X(i,k)-X(j,k);
+                sum += diff*diff/V_data[k];
+            }
+            return sum;
+        }
+        
+        t_float cityblock(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum += fabs(X(i,k)-X(j,k));
+            }
+            return sum;
+        }
+        
+        t_float minkowski(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum += pow(fabs(X(i,k)-X(j,k)),postprocessarg);
+            }
+            return sum;
+        }
+        
+        t_float chebychev(const t_index i, const t_index j) const {
+            t_float max = 0;
+            for (t_index k=0; k<dim; ++k) {
+                t_float diff = fabs(X(i,k)-X(j,k));
+                if (diff>max) {
+                    max = diff;
+                }
+            }
+            return max;
+        }
+        
+        t_float cosine(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum -= X(i,k)*X(j,k);
+            }
+            return sum*precomputed[i]*precomputed[j];
+        }
+        
+        t_float hamming(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum += (X(i,k)!=X(j,k));
+            }
+            return sum;
+        }
+        
+        // Differs from scipy.spatial.distance: equal vectors correctly
+        // return distance 0.
+        t_float jaccard(const t_index i, const t_index j) const {
+            t_index sum1 = 0;
+            t_index sum2 = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum1 += (X(i,k)!=X(j,k));
+                sum2 += ((X(i,k)!=0) || (X(j,k)!=0));
+            }
+            return sum1==0 ? 0 : static_cast<t_float>(sum1) / static_cast<t_float>(sum2);
+        }
+        
+        t_float canberra(const t_index i, const t_index j) const {
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                t_float numerator = fabs(X(i,k)-X(j,k));
+                sum += numerator==0 ? 0 : numerator / (fabs(X(i,k)) + fabs(X(j,k)));
+            }
+            return sum;
+        }
+        
+        t_float braycurtis(const t_index i, const t_index j) const {
+            t_float sum1 = 0;
+            t_float sum2 = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum1 += fabs(X(i,k)-X(j,k));
+                sum2 += fabs(X(i,k)+X(j,k));
+            }
+            return sum1/sum2;
+        }
+        
+        t_float mahalanobis(const t_index i, const t_index j) const {
+            // V_data contains the product X*VI
+            t_float sum = 0;
+            for (t_index k=0; k<dim; ++k) {
+                sum += (V_data[i*dim+k]-V_data[j*dim+k])*(X(i,k)-X(j,k));
+            }
+            return sum;
+        }
+        
+        t_index mutable NTT; // 'local' variables
+        t_index mutable NXO;
+        t_index mutable NTF;
+#define NTFFT NTF
+#define NFFTT NTT
+        
+        void nbool_correspond(const t_index i, const t_index j) const {
+            NTT = 0;
+            NXO = 0;
+            for (t_index k=0; k<dim; ++k) {
+                NTT += (Xb(i,k) &  Xb(j,k)) ;
+                NXO += (Xb(i,k) ^  Xb(j,k)) ;
+            }
+        }
+        
+        void nbool_correspond_tfft(const t_index i, const t_index j) const {
+            NTT = 0;
+            NXO = 0;
+            NTF = 0;
+            for (t_index k=0; k<dim; ++k) {
+                NTT += (Xb(i,k) &  Xb(j,k)) ;
+                NXO += (Xb(i,k) ^  Xb(j,k)) ;
+                NTF += (Xb(i,k) & ~Xb(j,k)) ;
+            }
+            NTF *= (NXO-NTF); // NTFFT
+            NTT *= (static_cast<t_index>(dim)-NTT-NXO); // NFFTT
+        }
+        
+        void nbool_correspond_xo(const t_index i, const t_index j) const {
+            NXO = 0;
+            for (t_index k=0; k<dim; ++k) {
+                NXO += (Xb(i,k) ^ Xb(j,k)) ;
+            }
+        }
+        
+        void nbool_correspond_tt(const t_index i, const t_index j) const {
+            NTT = 0;
+            for (t_index k=0; k<dim; ++k) {
+                NTT += (Xb(i,k) & Xb(j,k)) ;
+            }
+        }
+        
+        // Caution: zero denominators can happen here!
+        t_float yule(const t_index i, const t_index j) const {
+            nbool_correspond_tfft(i, j);
+            return static_cast<t_float>(2*NTFFT) / static_cast<t_float>(NTFFT + NFFTT);
+        }
+        
+        // Prevent a zero denominator for equal vectors.
+        t_float dice(const t_index i, const t_index j) const {
+            nbool_correspond(i, j);
+            return (NXO==0) ? 0 :
+            static_cast<t_float>(NXO) / static_cast<t_float>(NXO+2*NTT);
+        }
+        
+        t_float rogerstanimoto(const t_index i, const t_index j) const {
+            nbool_correspond_xo(i, j);
+            return static_cast<t_float>(2*NXO) / static_cast<t_float>(NXO+dim);
+        }
+        
+        t_float russellrao(const t_index i, const t_index j) const {
+            nbool_correspond_tt(i, j);
+            return static_cast<t_float>(dim-NTT);
+        }
+        
+        // Prevent a zero denominator for equal vectors.
+        t_float sokalsneath(const t_index i, const t_index j) const {
+            nbool_correspond(i, j);
+            return (NXO==0) ? 0 :
+            static_cast<t_float>(2*NXO) / static_cast<t_float>(NTT+2*NXO);
+        }
+        
+        t_float kulsinski(const t_index i, const t_index j) const {
+            nbool_correspond_tt(i, j);
+            return static_cast<t_float>(NTT) * (precomputed[i] + precomputed[j]);
+        }
+        
+        // 'matching' distance = Hamming distance
+        t_float matching(const t_index i, const t_index j) const {
+            nbool_correspond_xo(i, j);
+            return static_cast<t_float>(NXO);
+        }
+        
+        // Prevent a zero denominator for equal vectors.
+        t_float jaccard_bool(const t_index i, const t_index j) const {
+            nbool_correspond(i, j);
+            return (NXO==0) ? 0 :
+            static_cast<t_float>(NXO) / static_cast<t_float>(NXO+NTT);
+        }
+    };
+    
     //double cuttree();
+    
     
     void MST_linkage_core(const t_index N, const t_float * const D,
                           cluster_result & Z2);

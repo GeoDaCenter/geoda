@@ -107,7 +107,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, _("System"));
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(20, 2, 8, 10);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(21, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -299,6 +299,13 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
     txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
+    wxString lbl20 = _("Use GPU to accelrate computation:");
+    wxStaticText* lbl_txt20 = new wxStaticText(vis_page, wxID_ANY, lbl20);
+    cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", wxDefaultPosition);
+    grid_sizer1->Add(lbl_txt20, 1, wxEXPAND);
+    grid_sizer1->Add(cbox_gpu, 0, wxALIGN_RIGHT);
+    cbox_gpu->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnUseGPU, this);
+    
 	grid_sizer1->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box1 = new wxBoxSizer(wxVERTICAL);
@@ -382,6 +389,7 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+    GdaConst::gda_use_gpu = false;
     GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
 	GdaConst::gda_set_cpu_cores = true;
@@ -441,6 +449,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
     ogr_adapt.AddEntry("gda_ui_language", "0");
+    ogr_adapt.AddEntry("gda_use_gpu", "0");
 }
 
 void PreferenceDlg::SetupControls()
@@ -489,6 +498,8 @@ void PreferenceDlg::SetupControls()
     txt_poweriter_eps->SetValue(t_power_eps);
     
     cmb113->SetSelection(GdaConst::gda_ui_language);
+    
+    cbox_gpu->SetValue(GdaConst::gda_use_gpu);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -704,6 +715,18 @@ void PreferenceDlg::ReadFromCache()
         wxString sel = gda_ui_language[0];
         if (sel.ToLong(&sel_l)) {
             GdaConst::gda_ui_language = sel_l;
+        }
+    }
+    
+    vector<string> gda_use_gpu = OGRDataAdapter::GetInstance().GetHistory("gda_use_gpu");
+    if (!gda_use_gpu.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_use_gpu[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+            GdaConst::gda_use_gpu = true;
+            else if (sel_l == 0)
+            GdaConst::gda_use_gpu = false;
         }
     }
     
@@ -1023,5 +1046,17 @@ void PreferenceDlg::OnPowerEpsEnter(wxCommandEvent& ev)
     if (val.ToDouble(&_val)) {
         GdaConst::gda_eigen_tol = _val;
         OGRDataAdapter::GetInstance().AddEntry("gda_eigen_tol", val.ToStdString());
+    }
+}
+void PreferenceDlg::OnUseGPU(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::gda_use_gpu = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_use_gpu", "0");
+    }
+    else {
+        GdaConst::gda_use_gpu = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_use_gpu", "1");
     }
 }

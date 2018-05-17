@@ -104,6 +104,8 @@ protected:
     wxTextCtrl* txt_poweriter_eps;
     // lanuage
     wxComboBox* cmb113;
+    // gpu
+    wxCheckBox* cbox_gpu;
     
     void Init();
     void SetupControls();
@@ -136,6 +138,7 @@ protected:
     void OnCPUCoresEnter(wxCommandEvent& ev);
    
     void OnPowerEpsEnter(wxCommandEvent& ev);
+    void OnUseGPU(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };
