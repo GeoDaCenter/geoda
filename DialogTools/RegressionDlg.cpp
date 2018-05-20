@@ -810,7 +810,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     
 	EnablingItems();
 	//FindWindow(XRCID("ID_RUN"))->Enable(false);
-	UpdateMessageBox("done");
+	UpdateMessageBox(_("done"));
 }
 
 void RegressionDlg::DisplayRegression(wxString dump)
