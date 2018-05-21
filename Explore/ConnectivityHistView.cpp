@@ -368,11 +368,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+		vals[0] << _("from");
+		vals[1] << _("to");
+		vals[2] << _("#obs");
+		vals[3] << _("% of total");
+		vals[4] << _("sd from mean");
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 						wxRealPoint(0, 0), GdaShapeText::h_center,

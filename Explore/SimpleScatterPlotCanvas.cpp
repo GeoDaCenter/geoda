@@ -228,7 +228,7 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
             
             if (highlight_state->GetTotalHighlighted()> 0) {
                 int n_total_hl = highlight_state->GetTotalHighlighted();
-                s << "#selected=" << n_total_hl << "  ";
+                s << _("#selected=") << n_total_hl << "  ";
                 
                 int n_undefs = 0;
                 for (int i=0; i<X.size(); i++) {
@@ -261,19 +261,19 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
             
             if (mousemode == select && selectstate == start) {
                 if (total_hover_obs >= 1) {
-                    s << "hover obs " << hover_obs[0]+1 << " = (";
+                    s << _("#hover obs ") << hover_obs[0]+1 << " = (";
                     s << X[hover_obs[0]] << ", " << Y[hover_obs[0]];
                     s << ")";
                 }
                 if (total_hover_obs >= 2) {
                     s << ", ";
-                    s << "obs " << hover_obs[1]+1 << " = (";
+                    s << _("obs ") << hover_obs[1]+1 << " = (";
                     s << X[hover_obs[1]] << ", " << Y[hover_obs[1]];
                     s << ")";
                 }
                 if (total_hover_obs >= 3) {
                     s << ", ";
-                    s << "obs " << hover_obs[2]+1 << " = (";
+                    s << _("obs ") << hover_obs[2]+1 << " = (";
                     s << X[hover_obs[2]] << ", " << Y[hover_obs[2]];
                     s << ")";
                 }

@@ -1155,7 +1155,7 @@ void HistogramCanvas::UpdateStatusBar()
         wxString s;
         if (highlight_state->GetTotalHighlighted()> 0) {
             int n_total_hl = highlight_state->GetTotalHighlighted();
-            s << "#selected=" << n_total_hl << "  ";
+            s << _("#selected=") << n_total_hl << "  ";
             
             int n_undefs = 0;
             for (int i=0; i<num_obs; i++) {
@@ -1164,7 +1164,7 @@ void HistogramCanvas::UpdateStatusBar()
                 }
             }
             if (n_undefs> 0) {
-                s << "(undefined:" << n_undefs << ") ";
+                s << _("undefined: ") << n_undefs << ") ";
             }
         }
         sb->SetStatusText(s);

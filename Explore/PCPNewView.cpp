@@ -1057,7 +1057,7 @@ void PCPCanvas::UpdateStatusBar()
     
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1066,7 +1066,7 @@ void PCPCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     
@@ -1083,7 +1083,7 @@ void PCPCanvas::UpdateStatusBar()
 		}
 		if (total_hover_obs != 0) {
 			int ob = hover_obs[0];
-			s << "obs " << ob+1 << " = (";
+			s << _("obs ") << ob+1 << " = (";
 			for (int v=0; v<num_vars-1; v++) {
 				int t = var_info[var_order[v]].time;
 				s << GenUtils::DblToStr(data[var_order[v]][t][ob], 3);

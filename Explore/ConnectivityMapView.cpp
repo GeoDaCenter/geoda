@@ -508,7 +508,7 @@ void ConnectivityMapCanvas::UpdateStatusBar()
 	if (mousemode == select) {
 		if (sel_cores.size() == 1) {
 			long cid = *sel_cores.begin();
-			s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
+			s << _("obs ") << w_man_int->RecNumToId(GetWeightsId(), cid);
 			s << " has " << core_nbrs.size() << " neighbor";
 			if (core_nbrs.size() != 1) s << "s";
 			if (core_nbrs.size() > 0) {

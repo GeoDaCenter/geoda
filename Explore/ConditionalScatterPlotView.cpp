@@ -745,7 +745,7 @@ void ConditionalScatterPlotCanvas::UpdateStatusBar()
     
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -754,25 +754,25 @@ void ConditionalScatterPlotCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = (";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[0]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[0]] << ")";
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = (";
+			s << _("obs ") << hover_obs[1]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[1]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[1]] << ")";
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = (";
+			s << _("obs ") << hover_obs[2]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[2]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[2]] << ")";
 		}

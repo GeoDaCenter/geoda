@@ -894,7 +894,7 @@ void BoxPlotCanvas::UpdateStatusBar()
 	wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-		s << "#selected=" << n_total_hl << "  ";
+		s << _("#selected=") << n_total_hl << "  ";
         
         if (num_time_vals == 1) {
             int t = 0;
@@ -905,7 +905,7 @@ void BoxPlotCanvas::UpdateStatusBar()
                 }
             }
             if (n_undefs> 0) {
-                s << "(undefined:" << n_undefs << ") ";
+                s << _("undefined: ") << n_undefs << ") ";
             }
         } else {
             wxString str;
@@ -921,22 +921,22 @@ void BoxPlotCanvas::UpdateStatusBar()
                 }
             }
             if (!str.IsEmpty()) {
-                s << "(undefined:" << str << ")";
+                s << _("undefined: ") << str << ")";
             }
         }
 	}
     
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1;
+			s << _("#hover obs ") << hover_obs[0]+1;
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1;
+			s << _("obs ") << hover_obs[1]+1;
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1;
+			s << _("obs ") << hover_obs[2]+1;
 		}
 		if (total_hover_obs >= 4) {
 			s << ", ...";

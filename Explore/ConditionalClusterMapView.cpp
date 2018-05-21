@@ -1124,7 +1124,7 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         
         Shapefile::Header& hdr = project->main_data.header;
         
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryLabel(t, 0, _("Not Significant"));
         
         if (hdr.shape_type == Shapefile::POINT_TYP) {
             cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -1208,7 +1208,7 @@ void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1217,23 +1217,23 @@ void ConditionalLISAClusterMapCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     if (mousemode == select && selectstate == start) {
         int* clst = lisa_coord->GetClusterIndicators(t);
         if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << _("#hover obs ") << hover_obs[0]+1 << " = ";
             s << clst[hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
-            s << "obs " << hover_obs[1]+1 << " = ";
+            s << _("obs ") << hover_obs[1]+1 << " = ";
             s << clst[hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
-            s << "obs " << hover_obs[2]+1 << " = ";
+            s << _("obs ") << hover_obs[2]+1 << " = ";
             s << clst[hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
@@ -1343,13 +1343,13 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         
         Shapefile::Header& hdr = project->main_data.header;
         
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryLabel(t, 0, _("Not Significant"));
         
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryLabel(t, 0, _("Not Significant"));
         cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-        cat_data.SetCategoryLabel(t, 1, "High");
+        cat_data.SetCategoryLabel(t, 1, _("High"));
         cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
-        cat_data.SetCategoryLabel(t, 2, "Low");
+        cat_data.SetCategoryLabel(t, 2, _("Low"));
         cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
         
         if (g_coord->GetHasIsolates(t) &&
@@ -1364,11 +1364,11 @@ void ConditionalGClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         if (undefined_cat != -1) {
-            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryLabel(t, undefined_cat, _("Undefined"));
             cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
         }
         if (isolates_cat != -1) {
-            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryLabel(t, isolates_cat, _("Neighborless"));
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
@@ -1421,7 +1421,7 @@ void ConditionalGClusterMapCanvas::UpdateStatusBar()
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1430,23 +1430,23 @@ void ConditionalGClusterMapCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     /*
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << _("#hover obs ") << hover_obs[0]+1 << " = ";
             s << g_coord->cluster_vecs[t][hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
-            s << "obs " << hover_obs[1]+1 << " = ";
+            s << _("obs ") << hover_obs[1]+1 << " = ";
             s << g_coord->cluster_vecs[t][hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
-            s << "obs " << hover_obs[2]+1 << " = ";
+            s << _("obs ") << hover_obs[2]+1 << " = ";
             s << g_coord->cluster_vecs[t][hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
@@ -1553,20 +1553,20 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         
         Shapefile::Header& hdr = project->main_data.header;
         
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryLabel(t, 0, _("Not Significant"));
         
         if (hdr.shape_type == Shapefile::POINT_TYP) {
             cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
         } else {
             cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
         }
-        cat_data.SetCategoryLabel(t, 1, "High-High");
+        cat_data.SetCategoryLabel(t, 1, _("High-High"));
         cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
-        cat_data.SetCategoryLabel(t, 2, "Low-Low");
+        cat_data.SetCategoryLabel(t, 2, _("Low-Low"));
         cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
-        cat_data.SetCategoryLabel(t, 3, "Other Pos");
+        cat_data.SetCategoryLabel(t, 3, _("Other Pos"));
         cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
-        cat_data.SetCategoryLabel(t, 4, "Negative");
+        cat_data.SetCategoryLabel(t, 4, _("Negative"));
         cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
         if (local_geary_coord->GetHasIsolates(t) &&
             local_geary_coord->GetHasUndefined(t)) {
@@ -1579,11 +1579,11 @@ void ConditionalLocalGearyClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         if (undefined_cat != -1) {
-            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryLabel(t, undefined_cat, _("Undefined"));
             cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
         }
         if (isolates_cat != -1) {
-            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryLabel(t, isolates_cat, _("Neighborless"));
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
@@ -1637,7 +1637,7 @@ void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1646,22 +1646,22 @@ void ConditionalLocalGearyClusterMapCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << _("#hover obs ") << hover_obs[0]+1 << " = ";
             s << local_geary_coord->cluster_vecs[t][hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
-            s << "obs " << hover_obs[1]+1 << " = ";
+            s << _("obs ") << hover_obs[1]+1 << " = ";
             s << local_geary_coord->cluster_vecs[t][hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
-            s << "obs " << hover_obs[2]+1 << " = ";
+            s << _("obs ") << hover_obs[2]+1 << " = ";
             s << local_geary_coord->cluster_vecs[t][hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
@@ -1767,18 +1767,18 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         
         Shapefile::Header& hdr = project->main_data.header;
         
-        cat_data.SetCategoryLabel(t, 0, "Not Significant");
+        cat_data.SetCategoryLabel(t, 0, _("Not Significant"));
         
         if (hdr.shape_type == Shapefile::POINT_TYP) {
             cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
         } else {
             cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
         }
-        cat_data.SetCategoryLabel(t, 1, "No Colocation");
+        cat_data.SetCategoryLabel(t, 1, _("No Colocation"));
         cat_data.SetCategoryColor(t, 1, wxColour(0, 0, 255));
-        cat_data.SetCategoryLabel(t, 2, "Has Colocation");
+        cat_data.SetCategoryLabel(t, 2, _("Has Colocation"));
         cat_data.SetCategoryColor(t, 2, wxColour(0, 255, 0));
-        cat_data.SetCategoryLabel(t, 3, "Colocation Cluster");
+        cat_data.SetCategoryLabel(t, 3, _("Colocation Cluster"));
         cat_data.SetCategoryColor(t, 3, wxColour(255,0,0));
         if (local_jc_coord->GetHasIsolates(t) &&
             local_jc_coord->GetHasUndefined(t)) {
@@ -1791,11 +1791,11 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         if (undefined_cat != -1) {
-            cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
+            cat_data.SetCategoryLabel(t, undefined_cat, _("Undefined"));
             cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
         }
         if (isolates_cat != -1) {
-            cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
+            cat_data.SetCategoryLabel(t, isolates_cat, _("Neighborless"));
             cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
         }
         
@@ -1848,7 +1848,7 @@ void ConditionalLocalJoinCountClusterMapCanvas::UpdateStatusBar()
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1857,22 +1857,22 @@ void ConditionalLocalJoinCountClusterMapCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1 << " = ";
+            s << _("#hover obs ") << hover_obs[0]+1 << " = ";
             s << local_jc_coord->c_vecs[t][hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
-            s << "obs " << hover_obs[1]+1 << " = ";
+            s << _("obs ") << hover_obs[1]+1 << " = ";
             s << local_jc_coord->c_vecs[t][hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
-            s << "obs " << hover_obs[2]+1 << " = ";
+            s << _("obs ") << hover_obs[2]+1 << " = ";
             s << local_jc_coord->c_vecs[t][hover_obs[2]];
         }
         if (total_hover_obs >= 4) {

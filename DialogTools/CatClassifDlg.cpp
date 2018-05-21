@@ -594,7 +594,8 @@ void CatClassifHistCanvas::UpdateStatusBar()
 		}
 		s << a << (*breaks)[ival-1] << ", " << (*breaks)[ival] << b;
 	}
-	s << ", #obs: " << ival_obs_cnt[ival];
+    s << ", ";
+    s << _("#obs") << ": " << ival_obs_cnt[ival];
 	double p = 100.0*((double) ival_obs_cnt[ival])/((double) num_obs);
 	s << ", %tot: ";
 	s << wxString::Format("%.1f", p);

@@ -390,23 +390,23 @@ void AbstractMapCanvas::UpdateStatusBar()
     if (!sb)
         return;
     wxString s;
-    s << "#obs=" << project->GetNumRecords() <<" ";
+    s << _("#obs=") << project->GetNumRecords() <<" ";
     
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows
-        s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
+        s << _("#selected=") << highlight_state->GetTotalHighlighted()<< "  ";
     }
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
-            s << "hover obs " << hover_obs[0]+1;
+            s << _("#hover obs ") << hover_obs[0]+1;
         }
         if (total_hover_obs >= 2) {
             s << ", ";
-            s << "obs " << hover_obs[1]+1;
+            s << _("obs ") << hover_obs[1]+1;
         }
         if (total_hover_obs >= 3) {
             s << ", ";
-            s << "obs " << hover_obs[2]+1;
+            s << _("obs ") << hover_obs[2]+1;
         }
         if (total_hover_obs >= 4) {
             s << ", ...";

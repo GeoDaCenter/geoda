@@ -428,7 +428,7 @@ const wxSize GdaConst::hist_default_size(600, 500);
 
 // Table
 const wxString GdaConst::placeholder_str("<placeholder>");
-const wxString GdaConst::table_frame_title("Table");
+const wxString GdaConst::table_frame_title(_("Table"));
 const wxSize GdaConst::table_default_size(750, 500);
 const wxColour GdaConst::table_no_edit_color(80, 80, 80); // grey
 const wxColour GdaConst::table_row_sel_color(230, 220, 40); // golden

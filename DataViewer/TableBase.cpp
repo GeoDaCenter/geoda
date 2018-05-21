@@ -128,9 +128,9 @@ void TableBase::UpdateStatusBar()
     wxStatusBar* sb = template_frame->GetStatusBar();
     if (!sb) return;
     wxString s;
-    s << "#row=" << project->GetNumRecords() << " ";
+    s << _("#row=") << project->GetNumRecords() << " ";
     if (highlight_state->GetTotalHighlighted()> 0) {
-        s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+        s << _("#selected=") << highlight_state->GetTotalHighlighted() << "  ";
     }
     
     sb->SetStatusText(s);

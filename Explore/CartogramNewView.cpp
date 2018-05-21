@@ -715,23 +715,23 @@ void CartogramNewCanvas::UpdateStatusBar()
 	if (!sb) return;
 	wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted()<<"  ";
+		s << _("#selected=") << highlight_state->GetTotalHighlighted()<<"  ";
 	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = (";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[0]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[0]] << ")";
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = (";
+			s << _("obs ") << hover_obs[1]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[1]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[1]] << ")";
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = (";
+			s << _("obs ") << hover_obs[2]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[2]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[2]] << ")";
 		}

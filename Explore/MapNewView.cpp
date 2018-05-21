@@ -2115,9 +2115,9 @@ void MapCanvas::UpdateStatusBar()
     int selected_idx = 0;
     
     if (GetCcType() == CatClassification::no_theme)
-        s << "#obs=" << project->GetNumRecordsNoneEmpty() <<" ";
+        s << _("#obs=") << project->GetNumRecordsNoneEmpty() <<" ";
     else
-        s << "#obs=" << project->GetNumRecords() <<" ";
+        s << _("#obs=") << project->GetNumRecords() <<" ";
     
     if ( highlight_state->GetTotalHighlighted() > 0) {
         // for highlight from other windows
@@ -2128,9 +2128,9 @@ void MapCanvas::UpdateStatusBar()
                     selected_idx = i;
                 }
             }
-            s << "#selected=" << selected_cnt << "  ";
+            s << _("#selected=") << selected_cnt << "  ";
         } else {
-            s << "#selected=" << highlight_state->GetTotalHighlighted()<< "  ";
+            s << _("#selected=") << highlight_state->GetTotalHighlighted()<< "  ";
         }
         
     }
@@ -2151,7 +2151,7 @@ void MapCanvas::UpdateStatusBar()
         if (cid >= 0) {
             GalElement& e = gal_weights->gal[cid];
             
-            s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
+            s << _("obs ") << w_man_int->RecNumToId(GetWeightsId(), cid);
             s << " has " << e.Size() << " neighbor";
             if (e.Size() != 1) s << "s";
             if (e.Size() > 0) {
@@ -2172,15 +2172,15 @@ void MapCanvas::UpdateStatusBar()
     } else {
         if (mousemode == select && selectstate == start) {
             if (hover_obs.size() >= 1) {
-                s << "hover obs " << hover_obs[0]+1;
+                s << _("#hover obs ") << hover_obs[0]+1;
             }
             if (hover_obs.size() >= 2) {
                 s << ", ";
-                s << "obs " << hover_obs[1]+1;
+                s << _("obs ") << hover_obs[1]+1;
             }
             if (hover_obs.size() >= 3) {
                 s << ", ";
-                s << "obs " << hover_obs[2]+1;
+                s << _("obs ") << hover_obs[2]+1;
             }
             if (hover_obs.size() >= 4) {
                 s << ", ...";

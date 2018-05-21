@@ -697,7 +697,7 @@ void ConditionalNewCanvas::UpdateStatusBar()
 	wxString s;
 	if (mousemode == select &&
 		(selectstate == dragging || selectstate == brushing)) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
+		s << _("#selected=") << highlight_state->GetTotalHighlighted();
 	}
 	sb->SetStatusText(s);
 }
