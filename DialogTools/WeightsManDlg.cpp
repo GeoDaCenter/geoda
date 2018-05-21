@@ -65,17 +65,17 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
-	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), "Create",  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), _("Create"),  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), "Load", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), _("Load"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "Remove", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), _("Remove"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), _("Histogram"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), _("Connectivity Map"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"), "Connectivity Graph", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"), _("Connectivity Graph"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	
 	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
 	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
@@ -87,7 +87,7 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition, wxSize(-1, 100), wxLC_REPORT);
     
 	// Note: search for "ungrouped_list" for examples of wxListCtrl usage.
-	w_list->AppendColumn("Weights Name");
+	w_list->AppendColumn(_("Weights Name"));
 	w_list->SetColumnWidth(TITLE_COL, 300);
 	InitWeightsList();
 	
@@ -548,18 +548,18 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 	
 	WeightsMetaInfo wmi = w_man_int->GetMetaInfo(id);
 	
-	row_title.push_back("type");
+	row_title.push_back(_("type"));
 	row_content.push_back(wmi.TypeToStr());
     
     if (wmi.TypeToStr() == "kernel") {
-        row_title.push_back("kernel method");
+        row_title.push_back(_("kernel method"));
         if (wmi.kernel.IsEmpty())
-            row_content.push_back("unknown");
+            row_content.push_back(_("unknown"));
         else
             row_content.push_back(wmi.kernel);
        
         if (wmi.bandwidth >0) {
-            row_title.push_back("bandwidth");
+            row_title.push_back(_("bandwidth"));
             wxString ss;
             ss << wmi.bandwidth;
             row_content.push_back(ss);
@@ -569,113 +569,113 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
             ss << wmi.k;
             row_content.push_back(ss);
             if (wmi.is_adaptive_kernel) {
-                row_title.push_back("adaptive kernel");
-                row_content.push_back( wmi.is_adaptive_kernel? "true":"false");
+                row_title.push_back(_("adaptive kernel"));
+                row_content.push_back( wmi.is_adaptive_kernel? _("true"):_("false"));
             }
         }
         
         if (!wmi.kernel.IsEmpty()) {
-            row_title.push_back("kernel to diagonal");
-            row_content.push_back( wmi.use_kernel_diagnals ? "true":"false");
+            row_title.push_back(_("kernel to diagonal"));
+            row_content.push_back( wmi.use_kernel_diagnals ? _("true"):_("false"));
         }
     } else {
         if (wmi.power < 0) {
-            row_title.push_back("inverse distance");
-            row_content.push_back("true");
-            row_title.push_back("power");
+            row_title.push_back(_("inverse distance"));
+            row_content.push_back(_("true"));
+            row_title.push_back(_("power"));
             wxString ss;
             ss << -wmi.power;
             row_content.push_back(ss);
         }
     }
 	
-	row_title.push_back("symmetry");
+	row_title.push_back(_("symmetry"));
 	row_content.push_back(wmi.SymToStr());
 	
-	row_title.push_back("file");
+	row_title.push_back(_("file"));
 	if (wmi.filename.IsEmpty()) {
-		row_content.push_back("not saved");
+		row_content.push_back(_("not saved"));
 	} else {
         wxFileName fm(wmi.filename);
 		row_content.push_back(fm.GetFullName());
 	}
 	
-	row_title.push_back("id variable");
+	row_title.push_back(_("id variable"));
 	row_content.push_back(wmi.id_var);
 	
 	if (wmi.weights_type == WeightsMetaInfo::WT_rook ||
 		wmi.weights_type == WeightsMetaInfo::WT_queen) {
-		row_title.push_back("order");
+		row_title.push_back(_("order"));
 		wxString rs;
 		rs << wmi.order;
 		row_content.push_back(rs);
 		if (wmi.order > 1) {
-			row_title.push_back("include lower orders");
+			row_title.push_back(_("include lower orders"));
 			if (wmi.inc_lower_orders) {
-				row_content.push_back("true");
+				row_content.push_back(_("true"));
 			} else {
-				row_content.push_back("false");
+				row_content.push_back(_("false"));
 			}
 		}
 	} else if (wmi.weights_type == WeightsMetaInfo::WT_knn ||
 			   wmi.weights_type == WeightsMetaInfo::WT_threshold) {
-		row_title.push_back("distance metric");
+		row_title.push_back(_("distance metric"));
 		row_content.push_back(wmi.DistMetricToStr());
 		
-		row_title.push_back("distance vars");
+		row_title.push_back(_("distance vars"));
 		row_content.push_back(wmi.DistValsToStr());
 		
 		if (wmi.weights_type == WeightsMetaInfo::WT_threshold) {
-			row_title.push_back("distance unit");
+			row_title.push_back(_("distance unit"));
 			row_content.push_back(wmi.DistUnitsToStr());
 		}
 		
 		if (wmi.weights_type == WeightsMetaInfo::WT_knn) {
-			row_title.push_back("neighbors");
+			row_title.push_back(_("neighbors"));
 			wxString rs;
 			rs << wmi.num_neighbors;
 			row_content.push_back(rs);
 		} else {
-			row_title.push_back("threshold value");
+			row_title.push_back(_("threshold value"));
 			wxString rs;
 			rs << wmi.threshold_val;
 			row_content.push_back(rs);
 		}
 	}
-    row_title.push_back("# observations");
+    row_title.push_back(_("# observations"));
     if (wmi.num_obs >= 0)
     row_content.push_back(wxString::Format("%d", wmi.num_obs));
     else
-    row_content.push_back("unknown");
+    row_content.push_back(_("unknown"));
     
-    row_title.push_back("min neighbors");
+    row_title.push_back(_("min neighbors"));
     if (wmi.min_nbrs>=0)
     row_content.push_back(wxString::Format("%d", wmi.min_nbrs));
     else
-    row_content.push_back("unknown");
+    row_content.push_back(_("unknown"));
     
-    row_title.push_back("max neighbors");
+    row_title.push_back(_("max neighbors"));
     if (wmi.max_nbrs >= 0)
     row_content.push_back(wxString::Format("%d", wmi.max_nbrs));
     else
-    row_content.push_back("unknown");
+    row_content.push_back(_("unknown"));
     
-    row_title.push_back("mean neighbors");
+    row_title.push_back(_("mean neighbors"));
     if (wmi.mean_nbrs>=0)
     row_content.push_back(wxString::Format("%.2f", wmi.mean_nbrs));
     else
-    row_content.push_back("unknown");
+    row_content.push_back(_("unknown"));
     
-    row_title.push_back("median neighbors");
+    row_title.push_back(_("median neighbors"));
     if (wmi.median_nbrs >=0)
     row_content.push_back(wxString::Format("%.2f", wmi.median_nbrs));
     else
-    row_content.push_back("unknown");
+    row_content.push_back(_("unknown"));
     
-    wxString sp = ("unknown");
+    wxString sp = _("unknown");
     if (wmi.density_val>=0)
     sp = wxString::Format("%.2f%%", wmi.density_val);
-    row_title.push_back("% non-zero");
+    row_title.push_back(_("% non-zero"));
     row_content.push_back(sp);
     
 	SetDetailsWin(row_title, row_content);
@@ -731,8 +731,8 @@ void WeightsManFrame::SetDetailsWin(const std::vector<wxString>& row_title,
 	s << "<body>";
 	s << "  <table id=\"my_table\">";
 	s << "    <tr>";
-	s << "      <th>Property</th>";
-	s << "      <th>Value</th>";
+	s << "      <th>" << _("Property") << "</th>";
+	s << "      <th>" << _("Value") << "</th>";
 	s << "    </tr>";
 	for (size_t i=0, last=row_title.size()-1; i<last+1; ++i) {
 		s << (i%2 == 0 ? "<tr>" : "<tr class=\"alt\">");

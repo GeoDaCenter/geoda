@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2018-05-19 20:31-0700\n"
+"PO-Revision-Date: 2018-05-21 10:24-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -99,6 +99,12 @@ msgstr "保存GEODA项目文件"
 msgid "Include lower orders"
 msgstr "是否包含低阶的邻居"
 
+msgid "include lower orders"
+msgstr "是否包含低阶的邻居"
+
+msgid "orders"
+msgstr "秩"
+
 msgid "Set Display Precision of Y-Axis"
 msgstr "设置Y轴显示精度"
 
@@ -118,7 +124,7 @@ msgid "Save Cluster in Field:"
 msgstr "将聚类结果保存在表格字段："
 
 msgid "Co-location Map"
-msgstr "相同值叠加地图"
+msgstr "同值同位(Colocation)地图"
 
 msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
 msgstr "变量%s已不在表中。 请关闭并重新打开此对话框以与表数据同步。"
@@ -262,7 +268,7 @@ msgid "Apply"
 msgstr "应用"
 
 msgid "Display Mean Centers"
-msgstr "显示平均值中心"
+msgstr "显示平均中心"
 
 msgid "Bivariate Local Join Count"
 msgstr "双变量局部Joint Count"
@@ -334,7 +340,7 @@ msgid "Before you can modify the variable %s, please close the %d view(s) that d
 msgstr "在修改变量%s 之前, 请关闭依赖于它的%d 个窗口。"
 
 msgid "Bivariate Moran's I"
-msgstr "双变量Moran’s I 指数"
+msgstr "双变量Moran’s I"
 
 msgid "maximum"
 msgstr "最大值"
@@ -444,6 +450,9 @@ msgstr "X"
 msgid "Use inverse distance?"
 msgstr "使用反距离？"
 
+msgid "inverse distance"
+msgstr "使用反距离"
+
 msgid "Background Color"
 msgstr "背景颜色"
 
@@ -511,7 +520,7 @@ msgid "Min value of Y axis"
 msgstr "Y轴最小值"
 
 msgid "Circle"
-msgstr "圈"
+msgstr "圆形"
 
 msgid "Intervals in the Histogram"
 msgstr "直方图的分组数量"
@@ -595,7 +604,7 @@ msgid "enumerate as 1, 2, 3, ..."
 msgstr "枚举，如：1, 2, 3，…"
 
 msgid "Line"
-msgstr "线"
+msgstr "线段"
 
 msgid "Cancel"
 msgstr "取消"
@@ -634,7 +643,7 @@ msgid "Inference Settings (%d perm)"
 msgstr "推断设置（％d 置换）"
 
 msgid "Quantile Map"
-msgstr "分位地图"
+msgstr "分位数(Quantile)地图"
 
 msgid "Please choose Period 1 first."
 msgstr "请先选择时段1。"
@@ -645,11 +654,11 @@ msgstr "空间滞后模型"
 msgid "&Add ID Variable..."
 msgstr "添加ID变量…"
 
+msgid "id variable"
+msgstr "id变量"
+
 msgid "User Name"
 msgstr "用户名"
-
-msgid "<"
-msgstr "<"
 
 msgid "Vertical Bins Breaks"
 msgstr "竖直方向区间(Bins)断点"
@@ -680,6 +689,9 @@ msgstr "最小界限："
 
 msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
 msgstr "无法创建空间权重文件：所设阈值过小，所有对象无法在阈值范围内找到邻居。请尝试增大阈值再创建空间权重文件。"
+
+msgid "threshold value"
+msgstr "阈值"
 
 msgid "Zoom In"
 msgstr "缩小"
@@ -864,6 +876,9 @@ msgstr "显示当前选中的及其邻居"
 msgid "Geometries not saved"
 msgstr "矢量数据未保存"
 
+msgid "not saved"
+msgstr "未保存"
+
 msgid "Number of Columns"
 msgstr "列数"
 
@@ -915,6 +930,15 @@ msgstr "MapInfo（*.tab；*.MIF；*.MID）**.tab；*.MIF；*.MID"
 msgid "Distance metric"
 msgstr "距离度量"
 
+msgid "distance metric"
+msgstr "距离度量"
+
+msgid "distance vars"
+msgstr "距离变量"
+
+msgid "distance unit"
+msgstr "距离单位"
+
 msgid "Both are significant, Spatial Lag Model has been selected."
 msgstr "两者都是显著的，已选择空间滞后模型。"
 
@@ -961,7 +985,7 @@ msgid "Zooming Mode"
 msgstr "缩放模式"
 
 msgid "Group 2:"
-msgstr "群組 2："
+msgstr "第2组："
 
 msgid "Error: "
 msgstr "错误: "
@@ -1024,6 +1048,9 @@ msgstr "所选字段不是数值类型。 请选择数字类型字段。"
 msgid "Grid Size"
 msgstr "网格大小"
 
+msgid "unknown"
+msgstr "未知"
+
 msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
 msgstr "模拟退火算法的冷却速率必须是0和1之间的浮点数（例如0.85）。"
 
@@ -1071,8 +1098,17 @@ msgstr "二进制"
 msgid "Adaptive kernel"
 msgstr "自适应核"
 
+msgid "adaptive kernel"
+msgstr "自适应核"
+
 msgid "Column Name"
 msgstr "列名"
+
+msgid "true"
+msgstr "是"
+
+msgid "false"
+msgstr "否"
 
 msgid "Include diagonal of weights matrix"
 msgstr "包括权重矩阵的对角线"
@@ -1126,7 +1162,7 @@ msgid "Change Edge Thickness"
 msgstr "改变边的宽度"
 
 msgid "Quantile"
-msgstr "分位数"
+msgstr "分位数(Quantile)"
 
 msgid "Database port is empty. Please input one."
 msgstr "数据库端口为空。请输入一个。"
@@ -1150,7 +1186,7 @@ msgid "Animation"
 msgstr "动画"
 
 msgid "Percentile Map"
-msgstr "百分位数地图"
+msgstr "百分位数(Percentile)地图"
 
 msgid "Loop"
 msgstr "循环"
@@ -1184,7 +1220,7 @@ msgid "="
 msgstr "="
 
 msgid "Shape"
-msgstr "形状"
+msgstr "矢量数据"
 
 msgid "File Path"
 msgstr "文件路径"
@@ -1196,7 +1232,7 @@ msgid "Histogram Variable"
 msgstr "直方图变量"
 
 msgid "Spatial Correlogram"
-msgstr "非参空间自相关"
+msgstr "非参空间自相关分析"
 
 msgid "Automatic Labels"
 msgstr "自动标签"
@@ -1211,7 +1247,7 @@ msgid "No layer was found in the selected data source."
 msgstr "在选定的数据源中没有发现任何图层/表。"
 
 msgid "Save Centroids"
-msgstr "保存质心(Centroids)"
+msgstr "保存质心"
 
 msgid "Unselected"
 msgstr "未选中"
@@ -1242,7 +1278,7 @@ msgid "Connectivity Graph"
 msgstr "连通图"
 
 msgid "Nokia Satellite"
-msgstr "诺基亚卫星地图"
+msgstr "Nokia Satellite"
 
 msgid "Save Image As"
 msgstr "图像另存为"
@@ -1294,7 +1330,7 @@ msgid "Full Extent"
 msgstr "全图"
 
 msgid "Recent"
-msgstr "Recent"
+msgstr "最近访问"
 
 msgid "DBF File Information"
 msgstr "DBF文件信息"
@@ -1558,7 +1594,7 @@ msgid "space-time variable found with no name"
 msgstr "找到未命名的时空变量"
 
 msgid "Box Map (Hinge=3.0)"
-msgstr "箱线型地图 (Hinge=3.0)"
+msgstr "箱线地图 (Hinge=3.0)"
 
 msgid "Synchronize %s with Time Control"
 msgstr "将%s与时间控制同步"
@@ -1624,13 +1660,13 @@ msgid "Please specify weights in Tools > Weights Manager."
 msgstr "请在菜单：工具>权重管理器 中指定空间权重。"
 
 msgid "Percentile"
-msgstr "百分位数"
+msgstr "百分位数(Percentile)"
 
 msgid "var name:"
 msgstr "变量名："
 
 msgid "Difference-in-Means Test:"
-msgstr "均数差测试："
+msgstr "均值比较检验："
 
 msgid ""
 "The existing GeoDa instance may be too busy to respond.\n"
@@ -1640,13 +1676,13 @@ msgstr ""
 "请关闭任何打开的对话框并重试。"
 
 msgid "Add Mean Centers to Table"
-msgstr "添加平均中心坐标到表中"
+msgstr "将平均中心添加到表中(Mean Centers)"
 
 msgid "No rates currently calculated to save."
 msgstr "当前保存当前比率变量。"
 
 msgid "Undefined"
-msgstr "未定义"
+msgstr "未定义/空值"
 
 msgid "Close"
 msgstr "关闭"
@@ -1701,6 +1737,9 @@ msgstr "当前输入的阈值不是有效的数字。请移动滑块，或输入
 
 msgid "1 Iteration"
 msgstr "1次迭代"
+
+msgid "done"
+msgstr "完成"
 
 msgid "Display Statistics"
 msgstr "显示统计"
@@ -1771,7 +1810,7 @@ msgid "Create Weights"
 msgstr "创建空间权重"
 
 msgid "Add Centroids to Table"
-msgstr "将质心添加到表中"
+msgstr "将质心添加到表中(Centroids)"
 
 msgid "Open Document Spreadsheet (*.ods)|*.ods"
 msgstr "Open Document Spreadsheet (*.ods)|*.ods"
@@ -1858,7 +1897,7 @@ msgid "Disable auto upgrade:"
 msgstr "禁用自动升级："
 
 msgid "Don't show Recent/Sample Data panel again"
-msgstr "下次不再显示最近的数据和样本数据"
+msgstr "下次不再显示最近访问和示例数据"
 
 msgid "Empirical Spatial Rate Smoothed Variable Settings"
 msgstr "经验空间比率平滑变量设置"
@@ -1924,7 +1963,7 @@ msgid "Cluster Map "
 msgstr "聚类地图 "
 
 msgid "Moran's I with EB Rate"
-msgstr "使用EB比率的Moran’s I"
+msgstr "基于经验贝叶斯比率的Moran’s I"
 
 msgid "Scale Options"
 msgstr "缩放选项"
@@ -2088,6 +2127,24 @@ msgstr "保存失败：GeoDa不能保存空数据源。"
 msgid "observation:"
 msgstr "观察对象："
 
+msgid "# observations"
+msgstr "对象数量"
+
+msgid "min neighbors"
+msgstr "最小邻居数"
+
+msgid "max neighbors"
+msgstr "最大邻居数"
+
+msgid "mean neighbors"
+msgstr "平均邻居数"
+
+msgid "median neighbors"
+msgstr "中位邻居数"
+
+msgid "% non-zero"
+msgstr "有邻居对象所占比"
+
 msgid "Project file path is empty."
 msgstr "项目文件路径为空。"
 
@@ -2116,6 +2173,9 @@ msgid "On line %d of weights file, observation id %d encountered which does not 
 msgstr "空间权重文件的第%d 行：在表格字段 \"%s\" 中找不到 id%d。"
 
 msgid "Number of neighbors"
+msgstr "邻居数"
+
+msgid "neighbors"
 msgstr "邻居数"
 
 msgid "&Regression"
@@ -2347,7 +2407,7 @@ msgid "The number of displayed decimal places for a non-integral numeric field m
 msgstr "非整数数字字段的显示小数位数必须至少为%d, 最多为%d。"
 
 msgid "Light"
-msgstr "Light"
+msgstr "细"
 
 msgid "Distance Weight"
 msgstr "基于距离空间权重"
@@ -2358,8 +2418,11 @@ msgstr "自变量X"
 msgid "Power"
 msgstr "幂"
 
+msgid "power"
+msgstr "幂"
+
 msgid "Selected"
-msgstr "选中的"
+msgstr "选中"
 
 msgid "Frequency"
 msgstr "频率"
@@ -2437,7 +2500,7 @@ msgstr ""
 "----------\n"
 
 msgid "Move Selected to Top"
-msgstr "移动到顶部"
+msgstr "移动选择到顶部"
 
 msgid "Database Host"
 msgstr "数据库主机"
@@ -2731,7 +2794,7 @@ msgid "Can't get layers from unknown datasource. Please complete the datasource 
 msgstr "无法从未知数据源获取图层。 请填写数据源字段。"
 
 msgid "Carto Dark (No Labels)"
-msgstr "Carto Dark（无标签）"
+msgstr "Carto Dark (No Labels)"
 
 msgid "Get a free Nokia\\/HERE account: "
 msgstr "获得免费诺基亚\\/HERE地图帐户： "
@@ -2804,6 +2867,15 @@ msgstr "参数"
 msgid "Groups:"
 msgstr "分组："
 
+msgid "Group"
+msgstr "分组"
+
+msgid "Obs."
+msgstr "对象数"
+
+msgid "Mean"
+msgstr "平均值"
+
 msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
 msgstr "由于行数少于列数，SVD将自动用于PCA。"
 
@@ -2835,7 +2907,7 @@ msgid "Reset to system locale information"
 msgstr "重置系统区域信息"
 
 msgid "Equal Intervals"
-msgstr "等间隔"
+msgstr "等间隔断点"
 
 msgid "y:"
 msgstr "y："
@@ -2954,6 +3026,9 @@ msgstr "空间比率地图方法需要指定空间权重矩阵。"
 msgid "Bandwidth:"
 msgstr "带宽："
 
+msgid "bandwidth"
+msgstr "带宽"
+
 msgid "Enter a seed value"
 msgstr "输入种子值"
 
@@ -3008,8 +3083,11 @@ msgstr "请选择结果字段。"
 msgid "Period 1:"
 msgstr "时段1:"
 
+msgid "Period 1"
+msgstr "时段1"
+
 msgid "Standard Deviation Map"
-msgstr "标准偏差图"
+msgstr "标准偏差地图"
 
 msgid "Select key:"
 msgstr "选择键："
@@ -3153,17 +3231,56 @@ msgstr "变量％s已经不在表中。 请关闭并重新打开回归分析对�
 msgid "File"
 msgstr "文件"
 
+msgid "file"
+msgstr "文件"
+
 msgid "The first line should have comma separated number of rows and ID name!"
 msgstr "第一行应该有逗号分隔的行数和ID字段名"
 
 msgid "Table"
 msgstr "表格"
 
+msgid "#obs"
+msgstr "对象数"
+
+msgid "#obs="
+msgstr "对象数="
+
+msgid "#row="
+msgstr "行数="
+
+msgid "#selected="
+msgstr "选中数量="
+
+msgid "#hover obs "
+msgstr "鼠标位置对象 "
+
+msgid "obs "
+msgstr "对象 "
+
+msgid "(undefined:"
+msgstr "(未定义:"
+
+msgid "from"
+msgstr "开始值"
+
+msgid "to"
+msgstr "结束值"
+
+msgid "% of total"
+msgstr "占总量百分比"
+
+msgid "sd from mean"
+msgstr "标准差"
+
 msgid "uniform distribution"
 msgstr "均匀分布"
 
 msgid "Equal Intervals Map"
 msgstr "等间隔地图"
+
+msgid "Weights Name"
+msgstr "空间权重名称"
 
 msgid ""
 "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
@@ -3205,7 +3322,7 @@ msgid "Save Test Results"
 msgstr "保存测试结果"
 
 msgid "Save Mean Centers"
-msgstr "保存均值中心"
+msgstr "保存平均中心"
 
 msgid "Specify manually"
 msgstr "手动指定"
@@ -3385,7 +3502,7 @@ msgid "# Max Iteration:"
 msgstr "最大迭代次数:"
 
 msgid "Excess Risk"
-msgstr "超额危险度"
+msgstr "超额风险度(Excess Risk)"
 
 msgid "Hebrew (ISO-8859-8-1)"
 msgstr "希伯来语（ISO-8598-1）"
@@ -3410,6 +3527,12 @@ msgstr "错误: 有基值(Base value)为负数, 这将导致计算结果出现�
 
 msgid "Type"
 msgstr "类型"
+
+msgid "type"
+msgstr "类型"
+
+msgid "kernel method"
+msgstr "核函数"
 
 msgid "Fail in reading the Boundary file: at polygon-%d"
 msgstr "读取边界文件失败：在多边形-%d"
@@ -3520,6 +3643,12 @@ msgstr "高—高"
 msgid "Background"
 msgstr "背景"
 
+msgid "Remove"
+msgstr "删除"
+
+msgid "Load"
+msgstr "打开"
+
 msgid "Univariate Local Moran's I"
 msgstr "单变量局部Moran’s I"
 
@@ -3528,6 +3657,9 @@ msgstr "GeoDa错误报告对话框"
 
 msgid "Apply kernel to diagonal weights"
 msgstr "将核函数应用于对角线权重值"
+
+msgid "kernel to diagonal"
+msgstr "核函数应用于对角线权重值"
 
 msgid "Scatter Plot Matrix Variables Add/Remove"
 msgstr "散点图矩阵变量添加/删除"
@@ -3631,8 +3763,11 @@ msgstr "完成"
 msgid "Standard Deviation Color"
 msgstr "标准偏差颜色"
 
+msgid "S.D"
+msgstr "标准差"
+
 msgid "Rates-Calculated Map"
-msgstr "比率计算的地图"
+msgstr "比率计算地图"
 
 msgid "Transformation:"
 msgstr "转换："
@@ -3696,6 +3831,12 @@ msgstr "White测试"
 
 msgid "Period 2:"
 msgstr "时段2:"
+
+msgid "Period 2"
+msgstr "时段2"
+
+msgid "Do Means Differ? (ANOVA)"
+msgstr "均值比较检验(ANOVA)"
 
 msgid "Conditional G Cluster Map Variables"
 msgstr "条件G聚类地图变量"
@@ -3909,6 +4050,9 @@ msgstr "更改"
 
 msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
 msgstr "“%s”不是有效的p值。默认的p值（0.01）将被使用"
+
+msgid "symmetry"
+msgstr "对称空间权重"
 
 msgid "Weights Symmetry Check"
 msgstr "空间权重对称性检验"
