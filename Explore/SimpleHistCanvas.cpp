@@ -132,17 +132,17 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     GdaShapeText::VertAlignment cell_v_align = GdaShapeText::v_center;
     int row_gap = 3;
     int col_gap = 10;
-    int x_nudge = -22;
+    int x_nudge = -12;
 #ifdef __WIN32__
-    int y_nudge = -80;
+    int y_nudge = -100;
 #else
-    int y_nudge = -70;
+    int y_nudge = -95;
 #endif 
 
     
     int virtual_screen_marg_top = 0;//20;
     int virtual_screen_marg_right = 0;//20;
-    int virtual_screen_marg_bottom = 5;//45;
+    int virtual_screen_marg_bottom = 0;//45;
     int virtual_screen_marg_left = 45;//45;
     last_scale_trans.SetMargin(virtual_screen_marg_top,
                                virtual_screen_marg_bottom,
@@ -158,7 +158,11 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     wxClientDC dc(this);
     ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
     
-   
+    // get row gap in multi-language case
+    wxSize sz_0 = dc.GetTextExtent(labels[0]);
+    wxSize sz_1 = dc.GetTextExtent("0.0");
+    row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+    
     for (int i=0; i<values.size(); i++) {
         std::vector<wxString> vals(rows);
         vals[0] << GenUtils::DblToStr(values[i][0], 3);
@@ -173,17 +177,17 @@ void SimpleHistStatsCanvas::PopulateCanvas()
                               wxRealPoint(orig_x_pos[i], 0),
                               GdaShapeText::h_center, GdaShapeText::top,
                               GdaShapeText::h_center, GdaShapeText::v_center,
-                              3, 10, 0, y_nudge);
+                              row_gap, 10, 10, y_nudge);
         foreground_shps.push_back(s1);
     }
     
     wxString sts;
-    sts << "min: " << stats[0];
-    sts << ", max: " << wxString::Format("%.3f", stats[1]);
-    sts << ", total # pairs: " << stats[2];
+    sts << _("min:") <<" " << stats[0];
+    sts << ", " << _("max:") << " " << wxString::Format("%.3f", stats[1]);
+    sts << ", " << _("total # pairs:") << " " << stats[2];
     if (stats[5] >= 0) {
-        sts << ", Autocorr. = 0 at " << wxString::Format("~%.3f", stats[5]);
-        sts << " in range: [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";
+        sts << ", " << _("Autocorr.") << _(" = 0 at ") << wxString::Format("~%.3f", stats[5]);
+        sts << _(" in range:") << " [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";
     }
     
     s = new GdaShapeText(sts, *GdaConst::small_font,

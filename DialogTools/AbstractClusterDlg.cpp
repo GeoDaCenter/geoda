@@ -225,7 +225,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     hbox_w->Add(m_wc_txt, 0, wxALIGN_TOP|wxLEFT, 5);
     
     
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(hbox_c, 0, wxLEFT | wxRIGHT, 10);

@@ -117,7 +117,7 @@ void GeocodingDlg::CreateControls()
     hbox01->Add(st01, 0, wxRIGHT, 10);
     hbox01->Add(m_choice_vars, 1, wxEXPAND);
     
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Input:");
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Input:"));
     hbox0->Add(hbox01, 1, wxEXPAND | wxALL, 10);
     
     // parameters

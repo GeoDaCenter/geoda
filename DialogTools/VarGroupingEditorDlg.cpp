@@ -159,9 +159,9 @@ void VarGroupingEditorDlg::CreateControls()
 	placeholder_button =  wxDynamicCast(FindWindow(XRCID("ID_PLACEHOLDER_BUTTON")), wxButton);
 	
 	include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),  wxListCtrl);
-    include_list->AppendColumn("Time");
+    include_list->AppendColumn(_("Time"));
     include_list->SetColumnWidth(0, 50);
-	include_list->AppendColumn("Name");
+	include_list->AppendColumn(_("Name"));
 	include_list->SetColumnWidth(1, 120);
 	
 		
@@ -174,9 +174,9 @@ void VarGroupingEditorDlg::CreateControls()
 	ungroup_button = wxDynamicCast(FindWindow(XRCID("ID_UNGROUP_BUTTON")),   wxButton);
 	
 	ungrouped_list = wxDynamicCast(FindWindow(XRCID("ID_UNGROUPED_LIST")), wxListCtrl);
-	ungrouped_list->AppendColumn("Name");
+	ungrouped_list->AppendColumn(_("Name"));
 	ungrouped_list->SetColumnWidth(0, 120);
-	ungrouped_list->AppendColumn("Type");
+	ungrouped_list->AppendColumn(_("Type"));
 	ungrouped_list->SetColumnWidth(1, 50);
 
 	grouped_list = wxDynamicCast(FindWindow(XRCID("ID_GROUPED_LIST")), wxListBox);
@@ -1238,11 +1238,10 @@ void VarGroupingEditorDlg::UpdateTimeStepsTxt()
 	wxString s;
 	int cur_tm_steps = table_int->GetTimeSteps();
 	if (cur_tm_steps > 1) {
-		s << GetIncListNameCnt() << " of " << cur_tm_steps;
+        s = wxString::Format(_("%d of %d variables to include"), GetIncListNameCnt(), cur_tm_steps);
 	} else {
-		s << GetIncListNameCnt();
+        s = wxString::Format(_("%d variables to include"), GetIncListNameCnt());
 	}
-	s << " variables to include";
 	include_list_stat_txt->SetLabelText(s);
 	//wxSizer* szr = include_list_stat_txt->GetContainingSizer();
 	//if (szr) szr->Layout();

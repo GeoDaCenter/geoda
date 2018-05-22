@@ -34,7 +34,7 @@
 CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params,
 	GdaVarTools::Manager& var_man,
 	Project* project_)
-: wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
+: wxFrame((wxWindow*) 0, wxID_ANY, _("Correlogram Parameters"),
 					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 CorrelParamsObservable(correl_params, var_man), project(project_),
 var_txt(0), var_choice(0), dist_txt(0), dist_choice(0), bins_txt(0),
@@ -49,7 +49,7 @@ help_btn(0), apply_btn(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	{
-		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), "Variable:");
+		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), _("Variable:"));
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"),
                                   wxDefaultPosition,wxSize(160,-1));
 		wxString var_nm = "";
@@ -64,7 +64,7 @@ help_btn(0), apply_btn(0)
 	var_h_szr->AddSpacer(5);
 	var_h_szr->Add(var_choice, 0, wxALIGN_CENTER_VERTICAL);
 	
-	dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), "Distance:");
+	dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), _("Distance:"));
 	dist_choice = new wxChoice(panel, XRCID("ID_DIST_CHOICE"),
                                wxDefaultPosition, wxSize(160,-1));
 	dist_choice->Append("Euclidean Distance");
@@ -89,7 +89,7 @@ help_btn(0), apply_btn(0)
 	dist_h_szr->Add(dist_choice, 0, wxALIGN_CENTER_VERTICAL);
 	
 	{
-		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), "Number Bins:");
+		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), _("Number Bins:"));
 		wxString vs;
 		vs << correl_params.bins;
 		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"),
@@ -109,7 +109,7 @@ help_btn(0), apply_btn(0)
 	bins_h_szr->AddSpacer(5);
 	bins_h_szr->Add(bins_spn_ctrl, 0, wxALIGN_CENTER_VERTICAL);
 	
-	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), "Max Distance:");
+	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), _("Max Distance:"));
 	thresh_cbx->SetValue(false);
 	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "",
                                   wxDefaultPosition, wxSize(100,-1),
@@ -141,14 +141,14 @@ help_btn(0), apply_btn(0)
 	thresh_v_szr->Add(thresh_sld_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
 	
 	all_pairs_rad = new wxRadioButton(panel, XRCID("ID_ALL_PAIRS_RAD"),
-                                      "All Pairs", wxDefaultPosition,
+                                      _("All Pairs"), wxDefaultPosition,
                                       wxDefaultSize,
                                       wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
 	all_pairs_rad->SetValue(correl_params.method == CorrelParams::ALL_PAIRS);
 	Connect(XRCID("ID_ALL_PAIRS_RAD"), wxEVT_RADIOBUTTON,
             wxCommandEventHandler(CorrelParamsFrame::OnAllPairsRadioSelected));
     
-	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"), "Estimated Pairs:");
+	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"), _("Estimated Pairs:"));
 	est_pairs_num_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_NUM_TXT"), "4,000,000");
 	wxBoxSizer* est_pairs_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	est_pairs_h_szr->Add(est_pairs_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -159,10 +159,10 @@ help_btn(0), apply_btn(0)
 	all_pairs_v_szr->AddSpacer(2);
 	all_pairs_v_szr->Add(est_pairs_h_szr, 0, wxLEFT, 18);
 	
-	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), "Random Sample", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
+	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), _("Random Sample"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 	rand_samp_rad->SetValue(correl_params.method != CorrelParams::ALL_PAIRS);
 	Connect(XRCID("ID_RAND_SAMP_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnRandSampRadioSelected));
-	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), "Sample Size:");
+	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), _("Sample Size:"));
 	{
 		wxString vs;
 		vs << correl_params.max_iterations;
@@ -202,9 +202,9 @@ help_btn(0), apply_btn(0)
 	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 12);
 	rand_samp_v_szr->Add(random_opt_h_szr, 0, wxLEFT, 12);
 		
-	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
+	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
                             wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), "Apply",
+	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), _("Apply"),
                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
 	Connect(XRCID("ID_HELP_BTN"), wxEVT_BUTTON,
@@ -290,14 +290,14 @@ void CorrelParamsFrame::OnChangeSeed(wxCommandEvent& event)
 {
     // prompt user to enter user seed (used globally)
     wxString m;
-    m << "Enter a seed value for random number generator:";
+    m << _("Enter a seed value for random number generator:");
     
     long long unsigned int val;
     wxString dlg_val;
     wxString cur_val;
     cur_val << GdaConst::gda_user_seed;
     
-    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
     if (dlg.ShowModal() != wxID_OK) return;
     dlg_val = dlg.GetValue();
     dlg_val.Trim(true);
@@ -329,7 +329,7 @@ void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 	LOG_MSG("In CorrelParamsFrame::OnHelpBtn");
 	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
                                              wxID_ANY,
-                                             "Correlogram Parameters Help",
+                                             _("Correlogram Parameters Help"),
                                              wxDefaultPosition,
                                              wxSize(500,500));
 }

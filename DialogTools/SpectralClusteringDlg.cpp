@@ -239,7 +239,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     
@@ -247,7 +247,7 @@ void SpectralClusteringDlg::CreateControls()
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     

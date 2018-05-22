@@ -172,7 +172,7 @@ void RedcapDlg::CreateControls()
         seedButton->Enable();
     }
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     
@@ -180,7 +180,7 @@ void RedcapDlg::CreateControls()
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL |wxLEFT, 10);
     

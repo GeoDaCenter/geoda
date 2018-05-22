@@ -184,7 +184,7 @@ void HDBScanDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
