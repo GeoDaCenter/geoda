@@ -126,10 +126,10 @@ void DiffMoranVarSettingDlg::CreateControls()
     hbox->Add(box2, 1, wxALIGN_CENTER | wxTOP | wxBOTTOM |wxRIGHT, 10);
     
     
-    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, wxT("Weights"),
+    wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, _("Weights"),
                                            wxDefaultPosition, wxSize(70,-1));
     
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, wxT(""), wxDefaultPosition,
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
                                       wxSize(160,-1), 0, NULL, wxCB_READONLY);
     
     hbox1->Add(st3, 0, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);
@@ -140,9 +140,9 @@ void DiffMoranVarSettingDlg::CreateControls()
     
     panel->SetSizer(vbox);
     
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("OK"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition,
                                       wxSize(70, 30));
-    wxButton *closeButton = new wxButton(this, wxID_EXIT, wxT("Close"),
+    wxButton *closeButton = new wxButton(this, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     
     hbox2->Add(okButton, 1);
@@ -353,7 +353,7 @@ void MultiVariableSettingsDlg::CreateControls()
                                    wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     
     // weights
-    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, wxT("Weights:"),
+    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, _("Weights:"),
                                            wxDefaultPosition, wxSize(60,-1));
     wxChoice* box3 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                       wxSize(160,-1), 0, NULL);
@@ -362,9 +362,9 @@ void MultiVariableSettingsDlg::CreateControls()
     hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
 
     // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("OK"), wxDefaultPosition,
                                       wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
@@ -690,7 +690,7 @@ void VariableSettingsDlg::Init(VarType var_type)
 	table_int->FillColIdMap(col_id_map);
 	
 	if (col_id_map.size() == 0) {
-		wxString msg("No numeric variables found.");
+		wxString msg = _("No numeric variables found.");
 		wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
 		dlg.ShowModal();
 		return;
@@ -700,13 +700,13 @@ void VariableSettingsDlg::Init(VarType var_type)
 	
 	if (map_theme_ch) {
 		map_theme_ch->Clear();
-		map_theme_ch->Append("Quantile Map");
-		map_theme_ch->Append("Percentile Map");
-		map_theme_ch->Append("Box Map (Hinge=1.5)");
-		map_theme_ch->Append("Box Map (Hinge=3.0)");
-		map_theme_ch->Append("Standard Deviation Map");
-		map_theme_ch->Append("Natural Breaks");
-		map_theme_ch->Append("Equal Intervals");
+		map_theme_ch->Append(_("Quantile Map"));
+		map_theme_ch->Append(_("Percentile Map"));
+		map_theme_ch->Append(_("Box Map (Hinge=1.5)"));
+		map_theme_ch->Append(_("Box Map (Hinge=3.0)"));
+		map_theme_ch->Append(_("Standard Deviation Map"));
+		map_theme_ch->Append(_("Natural Breaks"));
+		map_theme_ch->Append(_("Equal Intervals"));
 		map_theme_ch->SetSelection(0);
 	}
 }
@@ -1167,8 +1167,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
             }
         } catch(GdaException& ex) {
             // place holder found
-            wxString msg = wxString::Format(_T("The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
-            wxMessageDialog dlg (this, msg.mb_str(), _T("Incomplete Group Variable"), wxOK | wxICON_ERROR);
+            wxString msg = wxString::Format(_("The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."), project->GetTableInt()->GetTimeSteps());
+            wxMessageDialog dlg (this, msg.mb_str(), _("Incomplete Group Variable"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             check_group_var = false;
         }

@@ -78,7 +78,7 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);
-    resetBtn = new wxButton(this, XRCID("ID_RESET"), wxT("Reset"), wxDefaultPosition, wxSize(100, -1));
+    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"), wxDefaultPosition, wxSize(100, -1));
     topSizer->Add(resetBtn, 0, wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
@@ -325,7 +325,7 @@ void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 			LoadMenu("ID_BUBBLE_CHART_VIEW_MENU_OPTIONS");
 		TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
         optMenu->AppendSeparator();
-        wxMenuItem* menu_item = optMenu->Append(XRCID("IDM_BUBBLE_SLIDER"), wxT("Adjust Bubble Size"));
+        wxMenuItem* menu_item = optMenu->Append(XRCID("IDM_BUBBLE_SLIDER"), _("Adjust Bubble Size"));
         template_frame->Connect(XRCID("IDM_BUBBLE_SLIDER"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ScatterNewPlotFrame::AdjustBubbleSize));
 	} else {
 		optMenu = wxXmlResource::Get()->
@@ -1576,7 +1576,7 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 		s << ", ratio=" << GenUtils::DblToStr(chow_ratio, 4);
 		s << ", p-val=" << GenUtils::DblToStr(chow_pval, 4);
 	} else {
-		s << "need two valid regressions";
+		s << _("need two valid regressions");
 	}
 	chow_test_text->setText(s);
 }
@@ -1994,7 +1994,7 @@ void ScatterNewPlotFrame::MapMenus()
 	((ScatterNewPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((ScatterNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -2008,7 +2008,7 @@ void ScatterNewPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ScatterNewPlotCanvas*) template_canvas)->

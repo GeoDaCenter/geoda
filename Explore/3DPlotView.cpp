@@ -1134,7 +1134,7 @@ void C3DPlotFrame::MapMenus()
 		LoadMenu("ID_3D_PLOT_VIEW_MENU_OPTIONS");
 	canvas->AddTimeVariantOptionsToMenu(optMenu);
 	canvas->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1142,7 +1142,7 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		canvas->SetCheckMarks(mb->GetMenu(menu));

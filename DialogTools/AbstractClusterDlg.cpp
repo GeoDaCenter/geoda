@@ -205,7 +205,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     InitVariableCombobox(combo_var);
     
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
-    auto_btn = new wxButton(panel, wxID_OK, wxT("Auto Weighting"));
+    auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));
     auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids, this);
     if (!show_auto_button) auto_btn->Hide();
     wxBoxSizer *hbox_c = new wxBoxSizer(wxHORIZONTAL);

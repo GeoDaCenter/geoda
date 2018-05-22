@@ -967,8 +967,7 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	}
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
@@ -990,8 +989,7 @@ void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
 		if (var_info[i].is_time_variant) {
-			wxString s;
-			s << _("Synchronize ") << var_info[i].name << _(" with Time Control");
+			wxString s = wxString::Format(_("Synchronize %s with Time Control"), var_info[i].name);
 			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
@@ -1144,7 +1142,7 @@ wxString MapCanvas::GetCanvasTitle()
 		s << "Excess Risk Map: " << v;
 	}
 	else if (GetCcType() == CatClassification::no_theme) {
-		s << "Map - " << project->GetProjectTitle();
+		s << _("Map") << " - " << project->GetProjectTitle();
 	} else if (GetCcType() == CatClassification::custom) {
 		s << cat_classif_def.title << ": " << v;
 	} else {
@@ -2256,7 +2254,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
                    boost::uuids::uuid weights_id,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
-: TemplateFrame(parent, project, "Map", pos, size, style),
+: TemplateFrame(parent, project, _("Map"), pos, size, style),
 w_man_state(project->GetWManState()), export_dlg(NULL),
 no_update_weights(false)
 {
@@ -2327,7 +2325,7 @@ no_update_weights(false)
 MapFrame::MapFrame(wxFrame *parent, Project* project,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
-: TemplateFrame(parent, project, "Map", pos, size, style),
+: TemplateFrame(parent, project, _("Map"), pos, size, style),
 w_man_state(project->GetWManState()), export_dlg(NULL)
 {
 	w_man_state->registerObserver(this);
@@ -2466,9 +2464,7 @@ void MapFrame::MapMenus()
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, mb->GetMenuLabelText(10), optMenu);	
-	//hong
-	//GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -2476,9 +2472,7 @@ void MapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu(mb->GetMenuLabel(10));
-	//hong
-	//int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((MapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

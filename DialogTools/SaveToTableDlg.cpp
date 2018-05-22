@@ -89,7 +89,7 @@ all_init(false)
 	}
    
     
-    m_field_label = new wxStaticText(this, wxID_ANY, "Variable Name");
+    m_field_label = new wxStaticText(this, wxID_ANY, _("Variable Name"));
 	if (data.size() == 1)
         m_check[0]->SetValue(1);
     
@@ -141,10 +141,10 @@ void SaveToTableDlg::CreateControls()
     //top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
     top_sizer->Add(fg_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	wxBoxSizer *button_sizer = new wxBoxSizer(wxHORIZONTAL);
-	m_ok_button = new wxButton(this, wxID_OK, "OK");
+	m_ok_button = new wxButton(this, wxID_OK, _("OK"));
 	//m_ok_button->Disable();
 	button_sizer->Add(m_ok_button, 0, wxALL, 5);
-	button_sizer->Add(new wxButton(this, wxID_CLOSE, "Close"), 0, wxALL, 5);
+	button_sizer->Add(new wxButton(this, wxID_CLOSE, _("Close")), 0, wxALL, 5);
 	top_sizer->Add(button_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	
     
@@ -343,7 +343,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
         if (is_check[i]) {
             wxString name = m_txt_field[i]->GetValue();
             if (name.empty()) {
-                wxMessageDialog dlg(this, "Variable name can't be empty.",
+                wxMessageDialog dlg(this, _("Variable name can't be empty."),
                                     _("Error"), wxOK | wxICON_ERROR );
                 dlg.ShowModal();
                 return;
@@ -361,7 +361,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
         
 		it = names.find(s);
 		if (it != names.end()) {
-			wxMessageDialog dlg(this, "Duplicate variable names specified.",
+			wxMessageDialog dlg(this, _("Duplicate variable names specified."),
 								_("Error"), wxOK | wxICON_ERROR );
 			dlg.ShowModal();
 			return;

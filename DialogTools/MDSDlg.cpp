@@ -97,13 +97,13 @@ void MDSDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
@@ -291,7 +291,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         }
         
         SaveToTableDlg dlg(project, this, new_data,
-                           "Save Results: MDS",
+                           _("Save Results: MDS"),
                            wxDefaultPosition, wxSize(400,400));
         if (dlg.ShowModal() == wxID_OK) {
             // show in a scatter plot

@@ -561,7 +561,7 @@ void MLJCMapFrame::MapMenus()
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -569,7 +569,7 @@ void MLJCMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
         LOG_MSG("MLJCMapFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {

@@ -147,14 +147,14 @@ void ScatterPlotMatFrame::MapMenus()
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
 	ScatterPlotMatFrame::UpdateContextMenuItems(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
 void ScatterPlotMatFrame::UpdateOptionMenuItems()
 {
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu == wxNOT_FOUND) {
 	} else {
 		ScatterPlotMatFrame::UpdateContextMenuItems(mb->GetMenu(menu));

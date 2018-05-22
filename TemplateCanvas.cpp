@@ -1597,7 +1597,7 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 		if (!smii) continue;
 		wxMenu* smi = smii->GetSubMenu();
 		if (!smi) continue;
-        int m_id = smi->FindItem("Custom Breaks");
+        int m_id = smi->FindItem(_("Custom Breaks"));
         wxMenuItem* mi = smi->FindItem(m_id);
         if (!mi) continue;
        
@@ -1608,7 +1608,7 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
             sm->Delete(items[i]);
         }
         
-		sm->Append(menu_id[i], "Create New Custom", "Create new custom categories classification.");
+		sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
 		sm->AppendSeparator();
         
 		vector<wxString> titles;

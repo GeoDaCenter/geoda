@@ -149,7 +149,7 @@ void CovSpFrame::MapMenus()
 	LoadMenu("ID_COV_SCATTER_PLOT_MENU_OPTIONS");	
 	CovSpFrame::UpdateContextMenuItems(optMenu);
 	
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -157,7 +157,7 @@ void CovSpFrame::UpdateOptionMenuItems()
 {
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu == wxNOT_FOUND) {
 	} else {
 		CovSpFrame::UpdateContextMenuItems(mb->GetMenu(menu));

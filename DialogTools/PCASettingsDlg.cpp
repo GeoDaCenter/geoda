@@ -83,24 +83,24 @@ void PCASettingsDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Components:"));
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(combo_n, 1, wxEXPAND);
     
     
     // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition,
+    saveButton = new wxButton(panel, wxID_SAVE, _("Save"), wxDefaultPosition,
                               wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
@@ -261,29 +261,29 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     wxString method = pca.method();
     
     wxString pca_log;
-    pca_log << "---\n\nPCA method: " << method;
+    pca_log << _("---\n\nPCA method: ") << method;
     
-    pca_log << "\n\nStandard deviation:\n";
+    pca_log << _("\n\nStandard deviation:\n");
     for (int i=0; i<sd.size();i++) pca_log << sd[i] << " ";
     
-    pca_log << "\n\nProportion of variance:\n";
+    pca_log << _("\n\nProportion of variance:\n");
     for (int i=0; i<prop_of_var.size();i++) pca_log << prop_of_var[i] << " ";
     
-    pca_log << "\n\nCumulative proportion:\n";
+    pca_log << _("\n\nCumulative proportion:\n");
     for (int i=0; i<cum_prop.size();i++) pca_log << cum_prop[i] << " ";
     
-    pca_log << "\n\nKaiser criterion: " << kaiser;
-    pca_log << "\n\n95% threshold criterion: " << thresh95;
+    pca_log << _("\n\nKaiser criterion: ") << kaiser;
+    pca_log << _("\n\n95% threshold criterion: ") << thresh95;
     
     // Add the correlation matrix between the original variables and the principal components
     
-    pca_log << "\n\nEigenvalues:\n";
+    pca_log << _("\n\nEigenvalues:\n");
     std::stringstream ss;
     ss << pca.eigen_values;
     pca_log << ss.str();
     
     //pca_log << pca.eigen_values;
-    pca_log << "\n\nEigenvectors/Variable Loadings:\n";
+    pca_log << _("\n\nVariable Loadings:\n");
     // Loadings=Eigenvectors⋅ Square root of (Absolute Eigen values)
     
     std::stringstream ss1;
@@ -348,7 +348,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     }
     */
     // squared correlations for PCA
-    pca_log << "\n\nSquared correlations:\n";
+    pca_log << _("\n\nSquared correlations:\n");
     
     int num_pc = col_lim;
     vector<vector<double> > pc_data(num_pc);

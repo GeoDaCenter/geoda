@@ -445,7 +445,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 3, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, y_max),
 							-9, 0);
 		
@@ -1028,7 +1028,7 @@ void ConditionalHistogramFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((ConditionalHistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1036,7 +1036,7 @@ void ConditionalHistogramFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConditionalHistogramCanvas*)

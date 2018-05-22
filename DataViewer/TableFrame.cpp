@@ -230,8 +230,7 @@ void TableFrame::MapMenus()
 	// Map Default Options Menus
     //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
     wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
-	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(),
-								"Options", optMenu);
+	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(), _("Options"), optMenu);
 }
 
 void TableFrame::DisplayPopupMenu( wxGridEvent& ev )

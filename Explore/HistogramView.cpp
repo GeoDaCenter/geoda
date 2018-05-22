@@ -565,7 +565,7 @@ void HistogramCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
@@ -701,11 +701,11 @@ void HistogramCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+		vals[0] << _("from");
+		vals[1] << _("to");
+		vals[2] << _("#obs");
+		vals[3] << _("% of total");
+		vals[4] << _("sd from mean");
         
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
@@ -716,6 +716,11 @@ void HistogramCanvas::PopulateCanvas()
         
         wxClientDC dc(this);
         ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+        
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
         
 		for (int i=0; i<cur_intervals; i++) {
 			int t = time;
@@ -744,17 +749,17 @@ void HistogramCanvas::PopulateCanvas()
                                   wxRealPoint(orig_x_pos[i], 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  3, 10, 0, 53+y_d);
+                                  row_gap, 10, 0, 53+y_d);
 			foreground_shps.push_back(s);
 		}
 		
 		wxString sts;
-		sts << "min: " << data_stats[time].min;
-		sts << ", max: " << data_stats[time].max;
-		sts << ", median: " << hinge_stats[time].Q2;
-		sts << ", mean: " << data_stats[time].mean;
-		sts << ", s.d.: " << data_stats[time].sd_with_bessel;
-		sts << ", #obs: " << num_obs;
+		sts << _("min:") << " " << data_stats[time].min;
+		sts << ", " << _("max:") << " " << data_stats[time].max;
+		sts << ", " << _("median:") << " " << hinge_stats[time].Q2;
+		sts << ", " << _("mean:") << " " << data_stats[time].mean;
+		sts << ", " << _("s.d.:") << " " << data_stats[time].sd_with_bessel;
+		sts << ", " << _("#obs:") << " " << num_obs;
 	
         s = new GdaShapeText(sts, *GdaConst::small_font,
                              wxRealPoint(x_max/2.0, 0), 0,
@@ -1263,7 +1268,7 @@ void HistogramFrame::MapMenus()
     ((HistogramCanvas*) template_canvas)->AddClassificationOptionsToMenu(optMenu, project->GetCatClassifManager());
     
 	((HistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1271,7 +1276,7 @@ void HistogramFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((HistogramCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

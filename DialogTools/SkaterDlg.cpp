@@ -106,7 +106,7 @@ void SkaterDlg::CreateControls()
 
     // Min regions
     st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"), wxDefaultPosition, wxSize(128,-1));
-    txt_minregions = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(200,-1));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);
@@ -125,7 +125,7 @@ void SkaterDlg::CreateControls()
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
-    seedButton = new wxButton(panel, wxID_OK, wxT("Change Seed"));
+    seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
     hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
     hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
     seedButton->Disable();
@@ -152,11 +152,11 @@ void SkaterDlg::CreateControls()
     hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
     saveButton = new wxButton(panel, wxID_OK, _("Save Spanning Tree"), wxDefaultPosition,
                               wxSize(140, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);

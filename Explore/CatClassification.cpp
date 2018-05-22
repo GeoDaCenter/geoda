@@ -635,12 +635,12 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 				cat_data.UpdateCategoryMinMax(t, cat_num, val);
 			}
 			std::vector<wxString> labels(num_cats);
-			labels[0] << "Lower outlier";
+			labels[0] << _("Lower outlier");
 			labels[1] << "< 25%";
 			labels[2] << "25% - 50%";
 			labels[3] << "50% - 75%";
 			labels[4] << "> 75%";
-			labels[5] << "Upper outlier";
+			labels[5] << _("Upper outlier");
             
 			std::vector<wxString> labels_ext(num_cats);
 
@@ -2042,36 +2042,36 @@ CatClassification::GetColSchmForType(CatClassifType theme)
 wxString CatClassification::CatClassifTypeToString(CatClassifType theme_type)
 {
 	if (theme_type == CatClassification::no_theme) {
-		return "Themeless";
+		return _("Themeless");
 	} else if (theme_type == CatClassification::quantile) {
-		return "Quantile";
+		return _("Quantile");
 	} else if (theme_type == CatClassification::unique_values) {
-		return "Unique Values";
+		return _("Unique Values");
 	} else if (theme_type == CatClassification::natural_breaks) {
-		return "Natural Breaks";
+		return _("Natural Breaks");
 	} else if (theme_type == CatClassification::equal_intervals) {
-		return "Equal Intervals";
+		return _("Equal Intervals");
 	} else if (theme_type == CatClassification::percentile) {
-		return "Percentile";
+		return _("Percentile");
 	} else if (theme_type == CatClassification::hinge_15) {
-		return "Hinge=1.5";
+		return _("Hinge=1.5");
 	} else if (theme_type == CatClassification::hinge_30) {
-		return "Hinge=3.0";
+		return _("Hinge=3.0");
 	} else if (theme_type == CatClassification::stddev) {
-		return "Standard Deviation";
+		return _("Standard Deviation");
 	} else if (theme_type == CatClassification::excess_risk_theme) {
-		return "Excess Risk";
+		return _("Excess Risk");
 	} else if (theme_type == CatClassification::lisa_categories ||
 			   theme_type == CatClassification::lisa_significance) {
-		return "LISA";
+		return _("LISA");
 	} else if (theme_type == CatClassification::getis_ord_categories ||
 			   theme_type == CatClassification::getis_ord_significance) {
-		return "Getis-Ord";
+		return _("Getis-Ord");
 	} else if (theme_type == CatClassification::local_geary_categories ||
 			   theme_type == CatClassification::local_geary_significance) {
-		return "Local Geary";
+		return _("Local Geary");
 	} else if (theme_type == CatClassification::custom) {
-		return "Custom";
+		return _("Custom");
 	}
 	return wxEmptyString;
 }

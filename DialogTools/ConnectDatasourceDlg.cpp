@@ -491,7 +491,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
    
 #ifdef __WIN32__
     int pad_remove_btn = 10;
-	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
+	wxButton *remove = new wxButton(scrl, id, _("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
 	remove->SetFont(*GdaConst::extra_small_font); 
 #else
     int pad_remove_btn = 0;

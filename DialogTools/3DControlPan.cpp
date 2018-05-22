@@ -127,7 +127,7 @@ void C3DControlPan::CreateControls()
     m_select = XRCCTRL(*this, "IDC_SELECT", wxCheckBox);
 	if ( GeneralWxUtils::isMac() ) {
 		// change "CTRL" in label to "CMD" in label.
-		m_select->SetLabel("Select, hold CMD for brushing");
+		m_select->SetLabel(_("Select, hold CMD for brushing"));
 	}
 	m_static_text_x = XRCCTRL(*this, "ID_3D_STATICTEXT_X", wxStaticText);
 	m_static_text_y = XRCCTRL(*this, "ID_3D_STATICTEXT_Y", wxStaticText);

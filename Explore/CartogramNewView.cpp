@@ -342,7 +342,7 @@ wxString CartogramNewCanvas::GetCategoriesTitle()
 wxString CartogramNewCanvas::GetCanvasTitle()
 {
 	wxString v;
-	v << "Cartogram - size: " << GetNameWithTime(RAD_VAR);
+	v << "Cartogram" << " - size: " << GetNameWithTime(RAD_VAR);
 	if (GetCcType() != CatClassification::no_theme) {
 		v << ", ";
 		if (GetCcType() == CatClassification::custom) {
@@ -1070,7 +1070,7 @@ void CartogramNewFrame::MapMenus()
 	((CartogramNewCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((CartogramNewCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1078,7 +1078,7 @@ void CartogramNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((CartogramNewCanvas*)

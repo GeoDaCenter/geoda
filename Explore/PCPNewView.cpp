@@ -576,9 +576,9 @@ void PCPCanvas::PopulateCanvas()
 			int cols = 2;
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
-			vals[0] << "mean";
+			vals[0] << _("mean");
 			vals[1] << GenUtils::DblToStr(t_mean, 4);
-			vals[2] << "s.d.";
+			vals[2] << _("s.d.");
 			vals[3] << GenUtils::DblToStr(t_sd, 4);
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
@@ -1192,7 +1192,7 @@ void PCPFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((PCPCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1200,7 +1200,7 @@ void PCPFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((PCPCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

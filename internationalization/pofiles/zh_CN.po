@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2018-05-21 10:24-0700\n"
+"PO-Revision-Date: 2018-05-21 14:16-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -419,6 +419,9 @@ msgstr "重置"
 
 msgid "min:"
 msgstr "最小值："
+
+msgid "median:"
+msgstr "中位数："
 
 msgid "6 Iteration"
 msgstr "6次迭代"
@@ -1307,6 +1310,9 @@ msgstr "当前时间："
 
 msgid "mean"
 msgstr "平均值"
+
+msgid "mean:"
+msgstr "平均值："
 
 msgid "Variable Properties"
 msgstr "变量属性"
@@ -3243,6 +3249,9 @@ msgstr "表格"
 msgid "#obs"
 msgstr "对象数"
 
+msgid "#obs:"
+msgstr "对象数:"
+
 msgid "#obs="
 msgstr "对象数="
 
@@ -3272,6 +3281,9 @@ msgstr "占总量百分比"
 
 msgid "sd from mean"
 msgstr "标准差"
+
+msgid "s.d.:"
+msgstr "标准差:"
 
 msgid "uniform distribution"
 msgstr "均匀分布"

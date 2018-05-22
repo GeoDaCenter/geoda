@@ -351,7 +351,7 @@ void CatClassifHistCanvas::PopulateCanvas()
 	
 	axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 	y_max = axis_scale_y.scale_max;
-	y_axis = new GdaAxis("Frequency", axis_scale_y,
+	y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 						wxRealPoint(0,0), wxRealPoint(0, y_max),
 						-9, 0);
 	foreground_shps.push_back(y_axis);
@@ -2386,7 +2386,7 @@ wxString CatClassifPanel::GetDefaultTitle(const wxString& field_name,
 {
 	int max_tries = 500;
 	int cur_try = 1;
-	wxString ret_title_base("Custom Breaks");
+	wxString ret_title_base = _("Custom Breaks");
 	if (table_int->ColNameExists(field_name)) {
 		ret_title_base << " (" << field_name;
 		if (table_int->IsColTimeVariant(field_name)) {
@@ -2418,10 +2418,10 @@ void CatClassifPanel::UpdateCCState()
 {
     // try to add toolbar/menu items
     wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-    int mPos = mb->FindMenu("Map");
+    int mPos = mb->FindMenu(_("Map"));
     if (mPos > wxNOT_FOUND) {
         wxMenu* menu = mb->GetMenu(mPos);
-        int m_id = menu->FindItem("Custom Breaks");
+        int m_id = menu->FindItem(_("Custom Breaks"));
         wxMenuItem* mi = menu->FindItem(m_id);
         if (mi) {
             wxMenu* sm = mi->GetSubMenu();
@@ -2435,7 +2435,7 @@ void CatClassifPanel::UpdateCCState()
                 CatClassifManager* ccm = project->GetCatClassifManager();
                 ccm->GetTitles(titles);
                
-                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
                 sm->AppendSeparator();
                 
                 for (size_t j=0; j<titles.size(); j++) {

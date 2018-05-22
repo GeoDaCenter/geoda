@@ -75,12 +75,12 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,10,0);
     
     m_rdo_1 = new wxRadioButton(panel, -1, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-    m_txt_bo = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
+    m_txt_bo = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_bo, 1, wxEXPAND);
     
     m_rdo_2 = new wxRadioButton(panel, -1, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
-    m_txt_fdr = new wxStaticText(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(150,-1));
+    m_txt_fdr = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_fdr, 1, wxEXPAND);
     
@@ -94,9 +94,9 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     m_rdo_3->SetValue(true);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("OK"),
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("OK"),
                                       wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_CANCEL, wxT("Close"),
+    wxButton *closeButton = new wxButton(panel, wxID_CANCEL, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
@@ -788,7 +788,7 @@ RandomizationDlg::~RandomizationDlg()
 
 void RandomizationDlg::CreateControls()
 {
-    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
+    wxButton *button = new wxButton(this, ID_BUTTON, _("Run"));
    
     wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
     panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);
@@ -803,7 +803,7 @@ void RandomizationDlg::CreateControls()
 
 void RandomizationDlg::CreateControls_regime()
 {
-    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
+    wxButton *button = new wxButton(this, ID_BUTTON, _("Run"));
     
     wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
     panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);

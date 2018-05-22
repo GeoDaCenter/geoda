@@ -99,15 +99,15 @@ void DataViewerEditFieldPropertiesDlg::CreateControls()
 	//wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);
 	field_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(200,400));
 	field_grid->CreateGrid(table_int->GetNumberCols(), NUM_COLS, wxGrid::wxGridSelectRows);
-	if (COL_N!=-1) field_grid->SetColLabelValue(COL_N, "variable name");
-	if (COL_T!=-1) field_grid->SetColLabelValue(COL_T, "type");
-	if (COL_L!=-1) field_grid->SetColLabelValue(COL_L, "length");
-	if (COL_D!=-1) field_grid->SetColLabelValue(COL_D, "decimal\nplaces");
-	if (COL_DD!=-1) field_grid->SetColLabelValue(COL_DD, "displayed\ndecimal places");
-	if (COL_PG!=-1) field_grid->SetColLabelValue(COL_PG, "parent group");
-	if (COL_TM!=-1) field_grid->SetColLabelValue(COL_TM, "time");
-	if (COL_MIN!=-1) field_grid->SetColLabelValue(COL_MIN, "minimum\npossible");
-	if (COL_MAX!=-1) field_grid->SetColLabelValue(COL_MAX, "maximum\npossible");
+	if (COL_N!=-1) field_grid->SetColLabelValue(COL_N, _("variable name"));
+	if (COL_T!=-1) field_grid->SetColLabelValue(COL_T, _("type"));
+	if (COL_L!=-1) field_grid->SetColLabelValue(COL_L, _("length"));
+	if (COL_D!=-1) field_grid->SetColLabelValue(COL_D, _("decimal\nplaces"));
+	if (COL_DD!=-1) field_grid->SetColLabelValue(COL_DD, _("displayed\ndecimal places"));
+	if (COL_PG!=-1) field_grid->SetColLabelValue(COL_PG, _("parent group"));
+	if (COL_TM!=-1) field_grid->SetColLabelValue(COL_TM, _("time"));
+	if (COL_MIN!=-1) field_grid->SetColLabelValue(COL_MIN, _("minimum\npossible"));
+	if (COL_MAX!=-1) field_grid->SetColLabelValue(COL_MAX, _("maximum\npossible"));
 
 	field_grid->HideRowLabels();
     field_grid->SetColLabelSize(30);

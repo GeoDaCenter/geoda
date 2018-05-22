@@ -292,7 +292,7 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
     
     wxString field_name = m_save_sel_var_name->GetValue();
     if (field_name.empty()) {
-        wxMessageDialog dlg(this, "Variable name can't be empty.",
+        wxMessageDialog dlg(this, _("Variable name can't be empty."),
                             _("Error"), wxOK | wxICON_ERROR );
         dlg.ShowModal();
         return;

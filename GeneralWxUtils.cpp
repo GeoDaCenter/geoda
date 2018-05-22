@@ -105,8 +105,8 @@ ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const w
     panel->SetSizer(hbox0);
     
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    wxButton *saveButton = new wxButton(this, XRCID("SAVE_DETAILS"), wxT("Save Details"), wxDefaultPosition, wxSize(130, -1));
-    wxButton *okButton = new wxButton(this, wxID_OK, wxT("Ok"), wxDefaultPosition, wxSize(110, -1));
+    wxButton *saveButton = new wxButton(this, XRCID("SAVE_DETAILS"), _("Save Details"), wxDefaultPosition, wxSize(130, -1));
+    wxButton *okButton = new wxButton(this, wxID_OK, _("Ok"), wxDefaultPosition, wxSize(110, -1));
     hbox1->Add(saveButton, 1, wxRIGHT, 30);
     hbox1->Add(okButton, 1);
     

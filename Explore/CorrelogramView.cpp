@@ -250,7 +250,7 @@ void CorrelogramFrame::MapMenus()
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
 	CorrelogramFrame::UpdateContextMenuItems(optMenu);
 
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -258,7 +258,7 @@ void CorrelogramFrame::UpdateOptionMenuItems()
 {
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu != wxNOT_FOUND) {
 		CorrelogramFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}

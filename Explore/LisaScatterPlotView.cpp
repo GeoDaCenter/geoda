@@ -1023,7 +1023,7 @@ void LisaScatterPlotFrame::MapMenus()
 	((ScatterNewPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((ScatterNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-		GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+		GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1031,7 +1031,7 @@ void LisaScatterPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
         LOG_MSG("LisaScatterPlotFrame::UpdateOptionMenuItems: "
 				"Options menu not found");

@@ -163,11 +163,11 @@ void GeocodingDlg::CreateControls()
     hbox1->Add(grid_sizer1, 0, wxEXPAND | wxALL, 10);
     
     // buttons
-    okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
+    okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    stopButton = new wxButton(panel, wxID_ANY, wxT("Stop"), wxDefaultPosition,
+    stopButton = new wxButton(panel, wxID_ANY, _("Stop"), wxDefaultPosition,
                                       wxSize(70, 30));
-    closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
+    closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);

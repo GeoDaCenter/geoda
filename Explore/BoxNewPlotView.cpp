@@ -175,8 +175,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	if (!var_info[0].is_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	{
-		wxString s;
-		s << "Synchronize " << var_info[0].name << " with Time Control";
+		wxString s = wxString::Format(_("Synchronize %s with Time Control"), var_info[0].name);
 		wxMenuItem* mi =
 		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
 		mi->Check(var_info[0].sync_with_global_time);
@@ -184,8 +183,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
 	{
-		wxString s;
-		s << "Fixed scale over time";
+		wxString s= _("Fixed scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
@@ -219,14 +217,13 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		mi->Check(cur_num_plots == max_plots);
 	}
 	
-	menu->Prepend(wxID_ANY, "Number of Box Plots", menu3,
-				  "Number of Box Plots");
-	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
+	menu->Prepend(wxID_ANY, _("Number of Box Plots"), menu3, _("Number of Box Plots"));
+	menu->Prepend(wxID_ANY, _("Scale Options"), menu2, _("Scale Options"));
     
     
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
@@ -455,9 +452,10 @@ void BoxPlotCanvas::update(HLStateInt* o)
 
 wxString BoxPlotCanvas::GetCanvasTitle()
 {
-	wxString s("Box Plot (Hinge=");
-	if (hinge_15) s << "1.5): ";
-	else s << "3.0): ";
+    wxString s = _("Box Plot");
+	if (hinge_15) s << " (Hinge=1.5): ";
+	else s << " (Hinge=3.0): ";
+    
 	if (cur_first_ind == cur_last_ind) {
 		s << GetNameWithTime(0);
 	} else {
@@ -519,28 +517,34 @@ void BoxPlotCanvas::PopulateCanvas()
 
     last_scale_trans.SetData(x_min, 0, x_max, 100);
 	
+    int row_gap = 3;
 	GdaShape* s = 0;
 	int table_w=0, table_h=0;
 	if (display_stats) {
 		int cols = 1;
 		int rows = 8;
 		std::vector<wxString> vals(rows);
-		vals[0] << "min";
-		vals[1] << "max";
-		vals[2] << "Q1";
-		vals[3] << "median";
-		vals[4] << "Q3";
-		vals[5] << "IQR";
-		vals[6] << "mean";
-		vals[7] << "s.d.";
+		vals[0] << _("min");
+		vals[1] << _("max");
+		vals[2] << _("Q1");
+        vals[3] << _("median");
+		vals[4] << _("Q3");
+		vals[5] << _("IQR");
+		vals[6] << _("mean");
+		vals[7] << _("s.d.");
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
                               wxRealPoint(0, 0), GdaShapeText::h_center,
                               GdaShapeText::top, GdaShapeText::right,
-                              GdaShapeText::v_center, 3, 10, -45, 30);
+                              GdaShapeText::v_center, 3, 10, -15, 30);
 		foreground_shps.push_back(s);
 		wxClientDC dc(this);
 		((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+        
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
 	}
 	
 
@@ -625,7 +629,7 @@ void BoxPlotCanvas::PopulateCanvas()
                                   *GdaConst::small_font, wxRealPoint(xM, 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  3, 10, 0, 30);
+                                  row_gap, 10, 30, 30);
 			foreground_shps.push_back(s);
 		}
 		
@@ -997,7 +1001,7 @@ void BoxPlotFrame::MapMenus()
 	((BoxPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((BoxPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
 	UpdateOptionMenuItems();
 }
 
@@ -1005,7 +1009,7 @@ void BoxPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((BoxPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

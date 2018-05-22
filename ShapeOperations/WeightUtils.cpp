@@ -246,18 +246,16 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
         
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
 		if (table_int->GetColType(col) != GdaConst::long64_type &&
             table_int->GetColType(col) != GdaConst::string_type ) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is";
-			msg << " not a number type in the currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
@@ -281,9 +279,8 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
             }
         }
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
@@ -744,18 +741,16 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
 		if (table_int->GetColType(col) != GdaConst::long64_type &&
             table_int->GetColType(col) != GdaConst::string_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is ";
-			msg << " not an integer/String type in the currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
@@ -766,9 +761,8 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		table_int->GetColData(col, 0, vec);
 		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
+            wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
 			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;

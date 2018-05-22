@@ -752,11 +752,11 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("ID_PUBLISH"), proj_open && project_p->GetDatasourceType()==GdaConst::ds_cartodb);
 	
 	//Empty out the Options menu:
-	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu(wxT("ID_DEFAULT_MENU_OPTIONS"));
+	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
 	
 	GeneralWxUtils::ReplaceMenu(mb, mb->GetMenuLabelText(10), optMenu);
 	/*hong
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
    */
 }
 
@@ -802,7 +802,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	if (!GetHtmlMenuItems() || htmlMenuItems.size() == 0) {
 	} else {
 		wxMenuBar* mb = GetMenuBar();
-		int exp_menu_ind = mb->FindMenu("Explore");
+		int exp_menu_ind = mb->FindMenu(_("Explore"));
 		wxMenu* exp_menu = mb->GetMenu(exp_menu_ind);
 		wxMenu* html_menu = new wxMenu();
 		int base_id = GdaConst::ID_HTML_MENU_ENTRY_CHOICE_0;
@@ -1446,7 +1446,7 @@ void GdaFrame::InitWithProject()
     // take ownership of the TableBase instance (due to bug in wxWidgets)
     TableFrame* tf;
     tf = new TableFrame(this, project_p,
-                        GdaConst::table_frame_title,
+                        _("Table"),
                         wxDefaultPosition,
                         GdaConst::table_default_size,
                         wxDEFAULT_FRAME_STYLE);
@@ -2236,7 +2236,7 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
 	}
 	
     if (popupMenu) {
-        int m_id = popupMenu->FindItem("Custom Breaks");
+        int m_id = popupMenu->FindItem(_("Custom Breaks"));
         wxMenuItem* mi = popupMenu->FindItem(m_id);
         if (mi) {
             wxMenu* sm = mi->GetSubMenu();
@@ -2250,7 +2250,7 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
                 CatClassifManager* ccm = project_p->GetCatClassifManager();
                 ccm->GetTitles(titles);
                
-                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), "Create New Custom", "Create new custom categories classification.");
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
                 sm->AppendSeparator();
                 
                 for (size_t j=0; j<titles.size(); j++) {

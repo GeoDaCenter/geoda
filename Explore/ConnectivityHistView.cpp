@@ -380,10 +380,15 @@ void ConnectivityHistCanvas::PopulateCanvas()
 						GdaShapeText::right, GdaShapeText::v_center,
 							  3, 10, -62, 53+y_d);
 		foreground_shps.push_back(s);
-		{
-			wxClientDC dc(this);
-			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-		}
+		
+        wxClientDC dc(this);
+        ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+		
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+        
 		for (int i=0; i<cur_intervals; i++) {
 			std::vector<wxString> vals(rows);
 			double ival_min = (i == 0) ? min_ival_val : ival_breaks[i-1];
@@ -410,18 +415,18 @@ void ConnectivityHistCanvas::PopulateCanvas()
 								  wxRealPoint(orig_x_pos[i], 0),
 								  GdaShapeText::h_center, GdaShapeText::top,
 								  GdaShapeText::h_center, GdaShapeText::v_center,
-								  3, 10, 0,
+								  row_gap, 10, 0,
 							53+y_d);
 			foreground_shps.push_back(s);
 		}
 		
-		wxString sts;
-		sts << "min: " << data_stats.min;
-		sts << ", max: " << data_stats.max;
-		sts << ", median: " << hinge_stats.Q2;
-		sts << ", mean: " << data_stats.mean;
-		sts << ", s.d.: " << data_stats.sd_with_bessel;
-		sts << ", #obs: " << num_obs;
+        wxString sts;
+        sts << _("min:") << " " << data_stats.min;
+        sts << ", " << _("max:") << " " << data_stats.max;
+        sts << ", " << _("median:") << " " << hinge_stats.Q2;
+        sts << ", " << _("mean:") << " " << data_stats.mean;
+        sts << ", " << _("s.d.:") << " " << data_stats.sd_with_bessel;
+        sts << ", " << _("#obs:") << " " << num_obs;
 	
 		s = new GdaShapeText(sts, *GdaConst::small_font,
 					   wxRealPoint(x_max/2.0, 0), 0,
@@ -748,7 +753,7 @@ void ConnectivityHistFrame::MapMenus()
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS");
 	((ConnectivityHistCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -756,7 +761,7 @@ void ConnectivityHistFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConnectivityHistCanvas*) template_canvas)->

@@ -180,7 +180,7 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 							 wxRealPoint(0,0), wxRealPoint(0, y_max),
 							 -9, 0);
 		foreground_shps.push_back(y_axis);

@@ -589,7 +589,7 @@ void SimpleHistCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-        y_axis = new GdaAxis("Frequency", axis_scale_y,
+        y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
@@ -637,11 +637,11 @@ void SimpleHistCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+        vals[0] << _("from");
+        vals[1] << _("to");
+        vals[2] << _("#obs");
+        vals[3] << _("% of total");
+        vals[4] << _("sd from mean");
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
         s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
                               wxRealPoint(0, 0), GdaShapeText::h_center,
@@ -649,10 +649,15 @@ void SimpleHistCanvas::PopulateCanvas()
                               GdaShapeText::right, GdaShapeText::v_center,
                               3, 10, -62, 53+y_d);
 		foreground_shps.push_back(s);
-		{
-			wxClientDC dc(this);
-			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-		}
+		
+        wxClientDC dc(this);
+        ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+		
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+        
 		int num_obs = X.size();
 		for (int i=0; i<cur_intervals; i++) {
 			std::vector<wxString> vals(rows);
@@ -679,18 +684,18 @@ void SimpleHistCanvas::PopulateCanvas()
                                   wxRealPoint(orig_x_pos[i], 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  3, 10, 0,
+                                  row_gap, 10, 0,
                                   53+y_d);
 			foreground_shps.push_back(s);
 		}
 		
-		wxString sts;
-		sts << "min: " << data_stats.min;
-		sts << ", max: " << data_stats.max;
-		sts << ", median: " << hinge_stats.Q2;
-		sts << ", mean: " << data_stats.mean;
-		sts << ", s.d.: " << data_stats.sd_with_bessel;
-		sts << ", #obs: " << X.size();
+        wxString sts;
+        sts << _("min:") << " " << data_stats.min;
+        sts << ", " << _("max:") << " " << data_stats.max;
+        sts << ", " << _("median:") << " " << hinge_stats.Q2;
+        sts << ", " << _("mean:") << " " << data_stats.mean;
+        sts << ", " << _("s.d.:") << " " << data_stats.sd_with_bessel;
+        sts << ", " << _("#obs:") << " " << X.size();
 		
         s = new GdaShapeText(sts, *GdaConst::small_font,
                              wxRealPoint(x_max/2.0, 0), 0,

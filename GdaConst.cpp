@@ -466,7 +466,7 @@ const wxColour GdaConst::three_d_plot_default_background_colour(0, 0, 0);
 const wxSize GdaConst::three_d_default_size(700, 500);
 
 // Boxplot
-const wxSize GdaConst::boxplot_default_size(300, 500);
+const wxSize GdaConst::boxplot_default_size(380, 500);
 const wxColour GdaConst::boxplot_point_color(0, 0, 255);
 const wxColour GdaConst::boxplot_median_color(219, 99, 28); // orange
 const wxColour GdaConst::boxplot_mean_point_color(20, 200, 20); // green
