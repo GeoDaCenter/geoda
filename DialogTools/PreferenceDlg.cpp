@@ -102,7 +102,7 @@ void PreferenceDlg::Init()
 	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
 	//  visualization tab
-	wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 620));
+	wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 680));
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif

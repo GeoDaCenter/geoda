@@ -1,4 +1,4 @@
-msgid ""
+﻿msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
@@ -39,11 +39,18 @@ msgstr "999次置换"
 msgid "This field name already exists (non-float type). Please input a unique name."
 msgstr "此字段名称已存在（非浮点类型）。请输入一个唯一的名称。"
 
+msgid "Use GPU to Accelerate computation:"
+msgstr ""
+
+msgid "Chinese Simplified"
+msgid ""
+
+
 msgid "Skater Settings"
 msgstr "Skater设置"
 
-msgid "Cyrillic\\/Russian (CP866)"
-msgstr "西里尔语\\/俄语（CP866）"
+msgid "Cyrillic/Russian (CP866)"
+msgstr "西里尔语/俄语（CP866）"
 
 msgid "Can't connect to datasource: "
 msgstr "无法连接到数据源: "
@@ -63,8 +70,8 @@ msgstr "平移模式"
 msgid "Show Status Bar"
 msgstr "显示状态栏"
 
-msgid "Variable \\/ Constant"
-msgstr "变量\\/常量"
+msgid "Variable / Constant"
+msgstr "变量/常量"
 
 msgid " Categories"
 msgstr " 类别"
@@ -312,14 +319,14 @@ msgstr "错误: 由于对 DBF 文件格式的限制, 输入的长度和小数点
 msgid "Set Display Precision:"
 msgstr "设置显示精度："
 
-msgid "Database\\/Instance Name"
-msgstr "数据库\\/实例名"
+msgid "Database/Instance Name"
+msgstr "数据库/实例名"
 
 msgid "Map Themes"
 msgstr "地图主题"
 
-msgid "Nokia\\/HERE App Key"
-msgstr "诺基亚\\/HERE地图的应用程序密钥"
+msgid "Nokia/HERE App Key"
+msgstr "诺基亚/HERE地图的应用程序密钥"
 
 msgid "POLY&ID"
 msgstr "POLY&ID"
@@ -582,8 +589,8 @@ msgstr "韩语（EUC-KR）"
 msgid "&Run"
 msgstr "运行"
 
-msgid "Add\\/Remove Variables"
-msgstr "添加\\/删除变量"
+msgid "Add/Remove Variables"
+msgstr "添加/删除变量"
 
 msgid "First Variable (X)"
 msgstr "第一变量（X）"
@@ -744,8 +751,8 @@ msgstr "选择所有…"
 msgid "Event Variable"
 msgstr "事件变量"
 
-msgid "Success \\/ Warning"
-msgstr "成功\\/警告"
+msgid "Success / Warning"
+msgstr "成功/警告"
 
 msgid "Length (max 254)"
 msgstr "长度（最长 254）"
@@ -825,8 +832,8 @@ msgstr "在当前加载的表格中找不到第一行权重文件中指定的键
 msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
 msgstr "更改 \"%s\" 的变量类型失败。请检查所有值是否有效。"
 
-msgid "Latitude\\/Y:"
-msgstr "纬度\\/Y："
+msgid "Latitude/Y:"
+msgstr "纬度/Y："
 
 msgid ""
 "The geometries will not be saved when exporting to a Table-only data source.\n"
@@ -1419,8 +1426,8 @@ msgstr "气泡大小"
 msgid "%s (Weights: %s)"
 msgstr "%s（空间权重： %s）"
 
-msgid "Date\\/Time formats (using comma to separate formats):"
-msgstr "日期\\/时间格式（使用逗号分隔格式）："
+msgid "Date/Time formats (using comma to separate formats):"
+msgstr "日期/时间格式（使用逗号分隔格式）："
 
 msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
 msgstr "分类“%s”目前被另一窗口使用。在删除之前，请关闭使用当前分类的所有窗口。"
@@ -1463,9 +1470,6 @@ msgstr "目标变量"
 
 msgid "Inference Settings"
 msgstr "推断设置"
-
-msgid "SQLite\\/SpatiaLite (*.sqlite)|*.sqlite"
-msgstr "SQLite\\/SpatiaLite (*.sqlite)|*.sqlite"
 
 msgid "Covariates"
 msgstr "协变量"
@@ -1729,8 +1733,8 @@ msgstr "单变量Moran’s I"
 msgid "Basemap Configuration Dialog"
 msgstr "底图配置对话框"
 
-msgid "Date\\/Time"
-msgstr "日期\\/时间"
+msgid "Date/Time"
+msgstr "日期/时间"
 
 msgid "Affinity with Kernel:"
 msgstr "基于核函数的相似矩阵："
@@ -1848,7 +1852,7 @@ msgstr "经验贝叶斯比率标准化变量"
 msgid "No numeric variables found in table."
 msgstr "表中没有找到任何数值变量。"
 
-msgid "Save Space-Time Table\\/Weights"
+msgid "Save Space-Time Table/Weights"
 msgstr "保存时空变量和相关空间权重"
 
 msgid "Update GeoDa completed"
@@ -1923,8 +1927,8 @@ msgstr "局部Geary图"
 msgid "Save Duplicate Thiessen Polygon Ids"
 msgstr "保存重复的泰森多边形ID"
 
-msgid "(Optional) Longitude\\/X:"
-msgstr "（可选）经度\\/X："
+msgid "(Optional) Longitude/X:"
+msgstr "（可选）经度/X："
 
 msgid "Spatial Empirical Bayes"
 msgstr "空间经验贝叶斯"
@@ -1938,8 +1942,8 @@ msgstr "内部错误: 无法更新内存单元。"
 msgid "Details: "
 msgstr "详细信息: "
 
-msgid "Enable High DPI\\/Retina support (Mac only):"
-msgstr "启用高DPI\\/Retina 支持（仅MAC）："
+msgid "Enable High DPI/Retina support (Mac only):"
+msgstr "启用高DPI/Retina 支持（仅MAC）："
 
 msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
 msgstr "生成Voronoi空间权重时出现问题。请报告该错误。"
@@ -1947,7 +1951,7 @@ msgstr "生成Voronoi空间权重时出现问题。请报告该错误。"
 msgid "Please input a field name for saving latitude"
 msgstr "请输入一个用于保存纬度的字段名"
 
-msgid "Assign Values to Currently Selected \\/ Unselected"
+msgid "Assign Values to Currently Selected / Unselected"
 msgstr "赋值到当前选中的（或未选中）的对象"
 
 msgid "New From Recent"
@@ -2057,9 +2061,6 @@ msgstr "年："
 
 msgid "standard deviation"
 msgstr "标准差"
-
-msgid "Nokia\\/HERE App ID"
-msgstr "Nokia\\/HERE App ID"
 
 msgid "Help"
 msgstr "帮助"
@@ -2529,8 +2530,8 @@ msgstr "初始组："
 msgid "Adjust Value Range of Y Axis"
 msgstr "调整Y轴值范围"
 
-msgid "Show Recent\\/Sample Data panel in Connect Datasource Dialog:"
-msgstr "在连接数据源对话框中显示最近\\/示例数据面板："
+msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
+msgstr "在连接数据源对话框中显示最近/示例数据面板："
 
 msgid "Zoom Out"
 msgstr "缩小"
@@ -2802,8 +2803,8 @@ msgstr "无法从未知数据源获取图层。 请填写数据源字段。"
 msgid "Carto Dark (No Labels)"
 msgstr "Carto Dark (No Labels)"
 
-msgid "Get a free Nokia\\/HERE account: "
-msgstr "获得免费诺基亚\\/HERE地图帐户： "
+msgid "Get a free Nokia/HERE account: "
+msgstr "获得免费诺基亚/HERE地图帐户： "
 
 msgid "Exporting Shape to Boundary"
 msgstr "导出矢量数据的边界"
@@ -3489,8 +3490,8 @@ msgstr ""
 "\n"
 "您可以跟踪我们的响应, 并在链接的网页中添加截图或细节 (或发送电子邮件至 spatial@uchicago.edu):"
 
-msgid "Weights file\\/format is not valid."
-msgstr "空间权重文件\\/格式无效”。"
+msgid "Weights file/format is not valid."
+msgstr "空间权重文件/格式无效”。"
 
 msgid "Information"
 msgstr "信息"
@@ -3617,8 +3618,8 @@ msgstr "密码"
 msgid "MDS Settings"
 msgstr "多维标度分析(MDS)设置"
 
-msgid "Database Name\\/Instance"
-msgstr "数据库名称\\/实例"
+msgid "Database Name/Instance"
+msgstr "数据库名称/实例"
 
 msgid ""
 "Your table cannot be merged because the key field \"%s\" is not unique. \n"
@@ -3650,7 +3651,7 @@ msgid "New Project Filename"
 msgstr "新建项目文件名"
 
 msgid "High-High"
-msgstr "高—高"
+msgstr "高-高"
 
 msgid "Background"
 msgstr "背景"
@@ -3811,8 +3812,8 @@ msgstr "请选择一个变量字段。"
 msgid "View"
 msgstr "视图"
 
-msgid "Save\\/Show Map"
-msgstr "保存\\/显示地图"
+msgid "Save/Show Map"
+msgstr "保存/显示地图"
 
 msgid "Open"
 msgstr "打开"

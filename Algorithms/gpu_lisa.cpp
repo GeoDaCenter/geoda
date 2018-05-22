@@ -14,6 +14,7 @@
 
 using namespace std;
 
+/*
 char * toArray(int number)
 {
     int n = log10(number) + 1;
@@ -25,7 +26,7 @@ char * toArray(int number)
     }
     return numberArray;
 }
-
+*/
 char *replace_str(char *str, char *orig, char *rep, int start)
 {
     static char temp[4096];
@@ -46,7 +47,7 @@ char *replace_str(char *str, char *orig, char *rep, int start)
     return str;
 }
 
-void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long long last_seed_used, double* values, double* local_moran, GalElement* w, double* p)
+bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long long last_seed_used, double* values, double* local_moran, GalElement* w, double* p)
 {
     int max_n_nbrs = 0;
     int* num_nbrs = new int[rows];
@@ -79,7 +80,7 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     fp = fopen(cl_path, "r");
     if (!fp) {
         fprintf(stderr, "Failed to load kernel.\n");
-        exit(1);
+        return false;
     }
     source_str = (char*)malloc(MAX_SOURCE_SIZE);
     source_size = fread( source_str, 1, MAX_SOURCE_SIZE, fp);
@@ -98,6 +99,10 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     cl_device_id* devices = new cl_device_id[maxDevices];
     cl_uint nrDevices;
     ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, maxDevices, devices, &ret_num_devices);
+
+	if (ret_num_devices==0) {
+		return false;
+	}
     cl_device_id device_id = devices[0];
     if (ret_num_devices==2) {
         device_id = devices[1];
@@ -133,7 +138,9 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
                                nbr_idx, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, p_mem_obj, CL_TRUE, 0, sizeof(double)*rows,
                                p, 0, NULL, NULL);
-    
+    if (ret != CL_SUCCESS) {
+		return false;
+	}
     // Create a program from the kernel source
     cl_program program = clCreateProgramWithSource(context, 1,
                                                    (const char **)&source_str, (const size_t *)&source_size, &ret);
@@ -141,6 +148,10 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     // Build the program
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
     
+	if (ret != CL_SUCCESS) {
+		return false;
+	}
+
     // Create the OpenCL kernel
     cl_kernel kernel = clCreateKernel(program, "lisa", &ret);
     
@@ -154,6 +165,10 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clSetKernelArg(kernel, 6, sizeof(cl_mem), (void *)&d_mem_obj);
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&p_mem_obj);
     
+	if (ret != CL_SUCCESS) {
+		return false;
+	}
+
     // Execute the OpenCL kernel on the list
     size_t global_item_size = 256 * ceil(rows/256.0); // Process the entire lists
     size_t local_item_size = 256; // Process in groups of 64
@@ -165,8 +180,8 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
                               sizeof(double) * rows, p, 0, NULL, NULL);
     
     // Display the result to the screen
-    for(size_t i = 0; i < 20; i++)
-        printf("%f\n", p[i]);
+    //for(size_t i = 0; i < 20; i++)
+        //printf("%f\n", p[i]);
     
     // Clean up
     ret = clFlush(command_queue);
@@ -181,6 +196,12 @@ void gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clReleaseCommandQueue(command_queue);
     ret = clReleaseContext(context);
 
+	if (ret != CL_SUCCESS) {
+		return false;
+	}
+
     delete[] num_nbrs;
     delete[] nbr_idx;
+
+	return true;
 }

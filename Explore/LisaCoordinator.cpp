@@ -25,6 +25,8 @@
 #include <wx/log.h>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
+#include <wx/msgdlg.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../ShapeOperations/RateSmoothing.h"
 #include "../ShapeOperations/Randik.h"
@@ -511,21 +513,29 @@ void LisaCoordinator::CalcPseudoP()
         
         wxString exePath = GenUtils::GetBasemapCacheDir();
         wxString clPath = exePath + "lisa_kernel.cl";
-        gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
+        bool flag = gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
         
-        for (int cnt=0; cnt<num_obs; cnt++) {
-            int numNeighbors = w[cnt].Size();
-            int* _sigCat = sig_cat_vecs[0];
-            if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
-            else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
-            else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
-            else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
+		if (flag) {
+		   for (int cnt=0; cnt<num_obs; cnt++) {
+		       int numNeighbors = w[cnt].Size();
+		      int* _sigCat = sig_cat_vecs[0];
+			    if (_sigLocal[cnt] <= 0.0001) _sigCat[cnt] = 4;
+			  else if (_sigLocal[cnt] <= 0.001) _sigCat[cnt] = 3;
+			 else if (_sigLocal[cnt] <= 0.01) _sigCat[cnt] = 2;
+			 else if (_sigLocal[cnt] <= 0.05) _sigCat[cnt]= 1;
             else _sigCat[cnt]= 0;
             
             if (numNeighbors == 0) {
                 _sigCat[cnt] = 5;
             }
-        }
+		 }
+		} else {
+			wxMessageDialog dlg(NULL, "GeoDa can't configure GPU device. Default CPU solution will be used instead.", _("Error"), wxOK | wxICON_ERROR);
+			dlg.ShowModal();
+			if (!calc_significances)
+				return;
+			CalcPseudoP_threaded();
+		}
     }
     LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));
 }

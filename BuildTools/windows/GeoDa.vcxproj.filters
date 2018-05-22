@@ -58,6 +58,12 @@
     <None Include="..\..\rc\release-notes.txt">
       <Filter>rc</Filter>
     </None>
+    <None Include="..\..\Algorithms\distmat_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
+    <None Include="..\..\Algorithms\lisa_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc">
@@ -741,6 +747,15 @@
     <ClInclude Include="..\..\kNN\values.h">
       <Filter>kNN</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\distmatrix.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\fastcluster.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\gpu_lisa.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1339,6 +1354,15 @@
     </ClCompile>
     <ClCompile Include="..\..\kNN\kNN.cpp">
       <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\distmatrix.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\fastcluster.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp">
+      <Filter>Algorithms</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
