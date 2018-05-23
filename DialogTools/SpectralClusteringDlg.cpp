@@ -491,22 +491,22 @@ void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 wxString SpectralClusteringDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of clusters:\t" << combo_n->GetString(combo_n->GetSelection()) << "\n";
+    txt << _("Number of clusters:\t") << combo_n->GetString(combo_n->GetSelection()) << "\n";
    
     if (chk_kernel->IsChecked())  {
-        txt << "Affinity with Guassian Kernel:\tSigma=" << m_sigma->GetValue() << "\n";
+        txt << _("Affinity with Guassian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
     }
     if (chk_knn->IsChecked()) {
-        txt << "Affinity with K-Nearest Neighbors:\tK=" << m_knn->GetValue() << "\n";
+        txt << _("Affinity with K-Nearest Neighbors:\tK=") << m_knn->GetValue() << "\n";
     }
     
-    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
-    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
     
-    txt << "(K-Means) Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
-    txt << "(K-Means) Initialization re-runs:\t" << m_pass->GetValue() << "\n";
-    txt << "(K-Means) Maximal iterations:\t" << m_iterations->GetValue() << "\n";
+    txt << "(K-Means) " << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << "(K-Means) " << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
+    txt << "(K-Means) " << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
     //txt << "(K-Means) Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
     return txt;
 }

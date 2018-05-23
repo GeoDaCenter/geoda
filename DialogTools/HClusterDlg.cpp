@@ -461,13 +461,13 @@ void HClusterDlg::OnClose(wxCloseEvent& ev)
 wxString HClusterDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Number of clusters:\t" << m_cluster->GetValue() << "\n";
+    txt << _("Number of clusters:\t") << m_cluster->GetValue() << "\n";
     
-    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
-    txt << "Method:\t" << m_method->GetString(m_method->GetSelection()) << "\n";
+    txt << _("Method:\t") << m_method->GetString(m_method->GetSelection()) << "\n";
     
-    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
     
     return txt;
 }

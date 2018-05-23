@@ -4126,3 +4126,39 @@ msgstr "分类主题"
 
 msgid "The number of identified clusters is less than "
 msgstr "识别的聚类的数目小于 "
+
+msgid "Method:\t"
+msgstr "方法：\t"
+
+msgid "Number of clusters:\t"
+msgstr "聚类数量：\t"
+
+msgid "Initialization method:\t"
+msgstr ""
+
+msgid "Initialization re-runs:\t"
+msgstr ""
+
+msgid "Maximum iterations:\t"
+msgstr ""
+
+msgid "Minimum bound:\t"
+msgstr ""
+
+msgid "Transformation:\t"
+msgstr ""
+
+msgid "Distance function:\t"
+msgstr ""
+
+msgid "Minimum region size:\t"
+msgstr ""
+
+msgid "Affinity with Guassian Kernel:\tSigma="
+msgstr ""
+
+msgid "Affinity with K-Nearest Neighbors:\tK="
+msgstr ""
+
+
+

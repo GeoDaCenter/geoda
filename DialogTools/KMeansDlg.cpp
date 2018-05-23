@@ -323,21 +323,21 @@ void KClusterDlg::OnClose(wxCloseEvent& ev)
 wxString KClusterDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Method:\t" << cluster_method << "\n";
-    txt << "Number of clusters:\t" << combo_n->GetSelection() + 2 << "\n";
-    txt << "Initialization method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
-    txt << "Initialization re-runs:\t" << m_pass->GetValue() << "\n";
-    txt << "Maximal iterations:\t" << m_iterations->GetValue() << "\n";
+    txt << _("Method:\t") << cluster_method << "\n";
+    txt << _("Number of clusters:\t") << combo_n->GetSelection() + 2 << "\n";
+    txt << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
+    txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     }
     
-    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
    
-    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
     
     return txt;
 }

@@ -365,21 +365,21 @@ void RedcapDlg::OnClose(wxCloseEvent& ev)
 wxString RedcapDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << _("Weights:") << "\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
    
-    txt << "Method:\t" << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << _("Method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     }
     
-    txt << "Minimum region size:\t" << m_textbox->GetValue() << "\n";
+    txt << _("Minimum region size:\t") << m_textbox->GetValue() << "\n";
     
-    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    txt << _("Transformation:") << "\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
-    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
     return txt;
 }
 

@@ -402,21 +402,21 @@ wxString MaxpDlg::_printConfiguration()
 {
     wxString txt;
     
-    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << _("Weights:") << "\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
     
     if (chk_floor && chk_floor->IsChecked() && combo_floor->GetSelection() >= 0) {
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
-        txt << "Minimum bound:\t" << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
     } else {
-        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
+        txt << _("Minimum region size:\t") << txt_minregions->GetValue() << "\n";
     }
    
     if (chk_lisa->IsChecked() && combo_lisa->GetSelection() >=0) {
-        txt << "Initial groups:\t" << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
+        txt << _("Initial groups:\t") << combo_lisa->GetString(combo_lisa->GetSelection()) << "\n";
     }
     
-    txt << "# iterations:\t" << m_iterations->GetValue() << "\n";
+    txt << _("# iterations:\t") << m_iterations->GetValue() << "\n";
    
     int local_search_method = m_localsearch->GetSelection();
     if (local_search_method == 0) {
