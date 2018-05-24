@@ -58,6 +58,8 @@ Source: "..\..\temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll"; Dest
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll"; DestDir: "{app}"
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; DestDir: "{app}"
 
+Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
+Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs uninsneveruninstall
 
 
@@ -155,6 +157,63 @@ begin
       Result := False; //when older version present and not uninstalled
   end;
 end;
+
+var
+  Button: TNewButton;
+  ComboBox: TNewComboBox;
+  CustomPage: TWizardPage;     
+  langCode: string;
+
+procedure ComboBoxChange(Sender: TObject);
+begin
+  case ComboBox.ItemIndex of
+    0:
+    begin
+      langCode := '58';
+    end;
+    1:
+    begin
+      langCode := '45';   // chinese
+    end;
+    2:
+    begin
+      langCode := '179';  // spanish
+    end;
+  end;
+end;
+
+procedure InitializeWizard;
+var
+  DescLabel: TLabel;
+begin
+  CustomPage := CreateCustomPage(wpSelectDir, 'Language Selection', 'Please select a language for GeoDa');
+
+  DescLabel := TLabel.Create(WizardForm);
+  DescLabel.Parent := CustomPage.Surface;
+  DescLabel.Left := 0;
+  DescLabel.Top := 0;
+  DescLabel.Caption := '';
+
+  ComboBox := TNewComboBox.Create(WizardForm);
+  ComboBox.Parent := CustomPage.Surface;
+  ComboBox.Left := 0;
+  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;  
+  ComboBox.Width := 220;
+  ComboBox.Style := csDropDownList;
+  ComboBox.Items.Add('English');
+  ComboBox.Items.Add('Chinese (Simplified)');
+  ComboBox.ItemIndex := 0;
+  ComboBox.OnChange := @ComboBoxChange;
+  langCode := '58';
+end;
+
+function getLangCode(Param: String): String;
+begin
+  Result :=  langCode;
+end;
+
+[INI]
+Filename: "{app}\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{app}}
 
 [Run]
 Filename: {app}\vcredist_x86.exe; StatusMsg: Installing Visual Studio 2010 SP1 C++ CRT Libraries...; Check: VCRedistNeedsInstall
