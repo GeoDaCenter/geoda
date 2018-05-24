@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <math.h>
+#include <stdlib.h>
 
 #ifdef __APPLE__
 #include <OpenCL/opencl.h>
@@ -14,19 +15,6 @@
 
 using namespace std;
 
-/*
-char * toArray(int number)
-{
-    int n = log10(number) + 1;
-    int i;
-    char *numberArray = (char*)calloc(n, sizeof(char));
-    for ( i = 0; i < n; ++i, number /= 10 )
-    {
-        numberArray[i] = number % 10;
-    }
-    return numberArray;
-}
-*/
 char *replace_str(char *str, char *orig, char *rep, int start)
 {
     static char temp[4096];
@@ -86,21 +74,34 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     source_size = fread( source_str, 1, MAX_SOURCE_SIZE, fp);
     fclose( fp );
     
-    // replace 12345 with max_n_nbrs
-    //replace_str(source_str, "12345", toArray(max_n_nbrs), 0);
+    // replace 123 with max_n_nbrs
+    char msg[25];
+    snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
+    replace_str(source_str, "123", msg, 0);
     
     // Get platform and device information
     cl_platform_id platform_id = NULL;
     cl_uint ret_num_devices;
     cl_uint ret_num_platforms;
     cl_int ret = clGetPlatformIDs(1, &platform_id, &ret_num_platforms);
+    if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
+        return false;
+    }
     
     cl_uint maxDevices = 10;
     cl_device_id* devices = new cl_device_id[maxDevices];
     cl_uint nrDevices;
     ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, maxDevices, devices, &ret_num_devices);
-
+    if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
+        return false;
+    }
 	if (ret_num_devices==0) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
 		return false;
 	}
     cl_device_id device_id = devices[0];
@@ -139,6 +140,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clEnqueueWriteBuffer(command_queue, p_mem_obj, CL_TRUE, 0, sizeof(double)*rows,
                                p, 0, NULL, NULL);
     if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
 		return false;
 	}
     // Create a program from the kernel source
@@ -149,6 +152,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clBuildProgram(program, 1, &device_id, NULL, NULL, NULL);
     
 	if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
 		return false;
 	}
 
@@ -166,6 +171,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clSetKernelArg(kernel, 7, sizeof(cl_mem), (void *)&p_mem_obj);
     
 	if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
 		return false;
 	}
 
@@ -197,6 +204,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clReleaseContext(context);
 
 	if (ret != CL_SUCCESS) {
+        delete[] num_nbrs;
+        delete[] nbr_idx;
 		return false;
 	}
 

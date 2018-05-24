@@ -67,7 +67,7 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     double localMoranPermuted=0;
     size_t countLarger = 0;
     
-    size_t rnd_numbers[20]; // 1234 can be replaced with max #nbr
+    size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
     
     for (perm=0; perm<permutations; perm++ ) {
         rand=0;
@@ -77,7 +77,6 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
             rng_val = wang_rnd(seed_start++) * max_rand;
             newRandom = (int)rng_val;
           
-            
             if (newRandom != i ) {
                 for (j=0; j<rand; j++) {
                     if (newRandom == rnd_numbers[j]) {
