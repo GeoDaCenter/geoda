@@ -390,7 +390,7 @@ void PreferenceDlg::Init()
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
     GdaConst::gda_use_gpu = false;
-    GdaConst::gda_ui_language = 0;
+    GdaConst::gda_ui_language = 1;
     GdaConst::gda_eigen_tol = 1.0E-8;
 	GdaConst::gda_set_cpu_cores = true;
 	GdaConst::gda_cpu_cores = 8;
@@ -448,7 +448,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_cpu_cores", "8");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
-    ogr_adapt.AddEntry("gda_ui_language", "0");
+    ogr_adapt.AddEntry("gda_ui_language", "1");
     ogr_adapt.AddEntry("gda_use_gpu", "0");
 }
 

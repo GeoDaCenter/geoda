@@ -163,6 +163,7 @@ void HClusterDlg::CreateControls()
     chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(chk_contiguity, 1, wxEXPAND);
+    chk_contiguity->Disable();
     
     wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _(""),
                                           wxDefaultPosition, wxSize(128,-1));
