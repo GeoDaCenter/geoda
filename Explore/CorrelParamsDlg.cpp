@@ -314,8 +314,8 @@ void CorrelParamsFrame::OnChangeSeed(wxCommandEvent& event)
         ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
-        wxString m;
-        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
         wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;

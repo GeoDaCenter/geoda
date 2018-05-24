@@ -71,10 +71,10 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
     slider = new wxSlider(this, XRCID("ID_BUBBLE_SLIDER"), int(pos), -95, 80,
                           wxDefaultPosition, wxSize(200, -1),
                           wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"small"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY, _("small")), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"large"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY, _("large")), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);

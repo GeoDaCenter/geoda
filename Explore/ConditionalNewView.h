@@ -154,7 +154,7 @@ public:
     ConditionalNewFrame(wxFrame *parent, Project* project,
 					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
-					  const wxString& title = "Conditional Map",
+					  const wxString& title = _("Conditional Map"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,
 					  const long style = wxDEFAULT_FRAME_STYLE);

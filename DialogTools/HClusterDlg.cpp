@@ -358,7 +358,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
                                 GdaConst::map_default_size);
     
     wxString ttl;
-    ttl << "Hierachical Cluster Map (";
+    ttl << "Hierachical " << _("Cluster Map ") << "(";
     ttl << m_cluster->GetValue();
     ttl << " clusters)";
     nf->SetTitle(ttl);

@@ -603,7 +603,7 @@ void AbstractMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxString cur_val;
 	cur_val << last_seed;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
 	dlg_val.Trim(true);
@@ -614,8 +614,8 @@ void AbstractMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 		uint64_t new_seed_val = val;
 		a_coord->SetLastUsedSeed(new_seed_val);
 	} else {
-		wxString m;
-		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
 		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}

@@ -184,7 +184,7 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     wxString sts;
     sts << _("min:") <<" " << stats[0];
     sts << ", " << _("max:") << " " << wxString::Format("%.3f", stats[1]);
-    sts << ", " << _("total # pairs:") << " " << stats[2];
+    sts << ", " << _("total # pairs") << ": " << stats[2];
     if (stats[5] >= 0) {
         sts << ", " << _("Autocorr.") << _(" = 0 at ") << wxString::Format("~%.3f", stats[5]);
         sts << _(" in range:") << " [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";

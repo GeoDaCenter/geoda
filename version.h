@@ -5,7 +5,7 @@ namespace Gda {
 	const int version_subbuild = 135;
 	const int version_year = 2018;
 	const int version_month = 5;
-    const int version_day = 21;
+    const int version_day = 23;
 	const int version_night = 0;
 	const int version_type = 2; // 0: alpha, 1: beta, 2: release
 }

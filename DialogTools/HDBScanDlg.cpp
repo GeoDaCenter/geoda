@@ -598,13 +598,13 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "HDBScan Cluster Map (";
+    ttl << "HDBScan " << _("Cluster Map ") << "(";
     ttl << cluster_ids.size();
     ttl << " clusters)";
     nf->SetTitle(ttl);
     
     if (not_clustered>0) {
-        nf->SetLegendLabel(0, "Not Clustered");
+        nf->SetLegendLabel(0, _("Not Clustered"));
     }
     
     saveButton->Enable();

@@ -1,8 +1,8 @@
-﻿msgid ""
+msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2018-05-21 14:16-0700\n"
+"PO-Revision-Date: 2018-05-23 17:24-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -25,7 +25,7 @@ msgid "Histogram Classification"
 msgstr "直方图"
 
 msgid "Chow test for sel/unsel regression subsets: "
-msgstr "选中和未选中对象生成的线性回归进行周检验: "
+msgstr "选中和未选中对象生成的线性回归进行周(Chow)检验: "
 
 msgid "Publish Maps and Plots to GeoDa-Web"
 msgstr "发布地图和图标到GeoDa-Web"
@@ -40,11 +40,7 @@ msgid "This field name already exists (non-float type). Please input a unique na
 msgstr "此字段名称已存在（非浮点类型）。请输入一个唯一的名称。"
 
 msgid "Use GPU to Accelerate computation:"
-msgstr ""
-
-msgid "Chinese Simplified"
-msgid ""
-
+msgstr "使用GPU来加速计算（部分功能）"
 
 msgid "Skater Settings"
 msgstr "Skater设置"
@@ -128,7 +124,7 @@ msgid "Change title \"%s\" to"
 msgstr "更改标题”%s”为"
 
 msgid "Save Cluster in Field:"
-msgstr "将聚类结果保存在表格字段："
+msgstr "聚类结果字段："
 
 msgid "Co-location Map"
 msgstr "同值同位(Colocation)地图"
@@ -152,7 +148,7 @@ msgid "Current field name:"
 msgstr "当前字段名："
 
 msgid "Variable <font color=\"blue\">%s</font> is specified. "
-msgstr "变量<font color=\"blue\">％s</font>已被指定. "
+msgstr "变量<font color=\"blue\">%s</font>已被指定. "
 
 msgid "Boxplot Theme"
 msgstr "箱型图主题"
@@ -185,7 +181,7 @@ msgid "Cores and Neighbors"
 msgstr "核心和邻居"
 
 msgid " Local Geary Cluster Map"
-msgstr " 局部Geary集群地图"
+msgstr " 局部Geary聚类地图"
 
 msgid " already exists.  OK to overwrite?"
 msgstr " 已经存在。要覆盖吗？"
@@ -297,9 +293,9 @@ msgid ""
 "\n"
 "Details: %s"
 msgstr ""
-"保存到数据源（％s）失败。\n"
+"保存到数据源（%s）失败。\n"
 "\n"
-"详情：％s"
+"详情：%s"
 
 msgid "Change Map Transparency"
 msgstr "地图透明度设置"
@@ -397,6 +393,9 @@ msgstr "基本变量"
 msgid "Select, hold CTRL for brushing"
 msgstr "选中，按CTRL键进行动态同步选取"
 
+msgid "Select, hold CMD for brushing"
+msgstr "选中，按CMD键进行动态同步选取"
+
 msgid "Ungrouped Variables"
 msgstr "未分组变量"
 
@@ -427,6 +426,18 @@ msgstr "重置"
 msgid "min:"
 msgstr "最小值："
 
+msgid "min"
+msgstr "最小值"
+
+msgid "median"
+msgstr "中位数"
+
+msgid "s.d."
+msgstr "标准差"
+
+msgid "IQR"
+msgstr "四分位数间距(IQR)"
+
 msgid "median:"
 msgstr "中位数："
 
@@ -441,7 +452,7 @@ msgid ""
 "\n"
 "Please select datasource supported by GeoDa or add extension  to file datasource."
 msgstr ""
-"无法从％s获取数据源类型\n"
+"无法从%s获取数据源类型\n"
 "\n"
 "请选择GeoDa支持的数据源或将扩展名添加到文件数据源。"
 
@@ -484,6 +495,12 @@ msgstr "设置轴上的显示精度"
 msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
 msgstr "禁忌搜索算法的禁忌长度必须是大于1的整数（例如85）。"
 
+msgid "Tabu Search"
+msgstr "禁忌搜索算法(Tabu)"
+
+msgid "Tabu lenght"
+msgstr "步长(Tabu)"
+
 msgid "Input datasource"
 msgstr "输入数据源"
 
@@ -491,7 +508,7 @@ msgid "Number of Neighbors"
 msgstr "邻居数量"
 
 msgid "Choose Intervals"
-msgstr "选择区间"
+msgstr "指定区间数(Intervals)"
 
 msgid "Please restart GeoDa to apply the language setup."
 msgstr "请重新启动GEODA来应用语言设置。"
@@ -557,7 +574,7 @@ msgid "GeoDa CSV File Configuration"
 msgstr "GeoDa CSV文件配置"
 
 msgid "using row-standardized weights"
-msgstr "使用行标准化权重"
+msgstr "使用行标准化空间权重"
 
 msgid "Edit Variable Properties"
 msgstr "编辑变量属性"
@@ -607,6 +624,9 @@ msgstr "请输入用户名。"
 msgid "Variable Name"
 msgstr "变量名"
 
+msgid "variable name"
+msgstr "变量名"
+
 msgid "GeoDa Project (*.gda)|*.gda"
 msgstr "GeoDa项目文件(*.gda)|*.gda"
 
@@ -631,9 +651,6 @@ msgstr "设置数字分隔符"
 msgid "Not Significant"
 msgstr "不显著"
 
-msgid "Conditional Map"
-msgstr "条件地图"
-
 msgid "&Help"
 msgstr "帮助"
 
@@ -650,7 +667,7 @@ msgid "Conditional LISA Map"
 msgstr "条件LISA地图"
 
 msgid "Inference Settings (%d perm)"
-msgstr "推断设置（％d 置换）"
+msgstr "推断设置（%d 置换）"
 
 msgid "Quantile Map"
 msgstr "分位数(Quantile)地图"
@@ -757,6 +774,36 @@ msgstr "成功/警告"
 msgid "Length (max 254)"
 msgstr "长度（最长 254）"
 
+msgid "length"
+msgstr "长度"
+
+msgid ""
+"decimal\n"
+"places"
+msgstr ""
+"小数精度\n"
+"位数"
+
+msgid ""
+"displayed\n"
+"decimal places"
+msgstr ""
+"显示小数精度\n"
+"位数"
+
+msgid "parent group"
+msgstr "所在分组(时间变量)"
+
+msgid ""
+"minimum\n"
+"possible"
+msgstr "可能最小值"
+
+msgid ""
+"maximum\n"
+"possible"
+msgstr "可能最大值"
+
 msgid "New Selection"
 msgstr "新选择"
 
@@ -788,7 +835,7 @@ msgid "Save Image to File"
 msgstr "将图像保存到文件"
 
 msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
-msgstr "空间权重文件中第一行指定的键值字段“％s”不是整数类型。"
+msgstr "空间权重文件中第一行指定的键值字段“%s”不是整数类型。"
 
 msgid "Circle Size"
 msgstr "圆圈大小"
@@ -827,7 +874,7 @@ msgid "Error: no records found in data source."
 msgstr "错误：数据源中找不到记录。"
 
 msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
-msgstr "在当前加载的表格中找不到第一行权重文件中指定的键值字段“％s”。"
+msgstr "在当前加载的表中找不到第一行权重文件中指定的键值字段%s。"
 
 msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
 msgstr "更改 \"%s\" 的变量类型失败。请检查所有值是否有效。"
@@ -856,6 +903,12 @@ msgstr "原始比率"
 msgid "choice:"
 msgstr "选择："
 
+msgid "%d of %d variables to include"
+msgstr "已包含%d个变量（一共%d个变量"
+
+msgid "%d variables to include"
+msgstr "已包含%d个变量"
+
 msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
 msgstr "GeoDa 无法将变量类型更改为日期/时间。请选择其他类型。"
 
@@ -878,7 +931,7 @@ msgid "GeoJson URL"
 msgstr "GeoJson URL"
 
 msgid "Categories"
-msgstr "类别"
+msgstr "类别数"
 
 msgid "Show Selection and Neighbors"
 msgstr "显示当前选中的及其邻居"
@@ -923,7 +976,7 @@ msgid "Options"
 msgstr "选项"
 
 msgid "Point Color"
-msgstr "点色"
+msgstr "数据点颜色"
 
 msgid "Conditional Scatter Plot"
 msgstr "条件散点图"
@@ -1027,6 +1080,9 @@ msgstr "选择所有未定义的"
 msgid "Output:"
 msgstr "输出："
 
+msgid "Save Results: MDS"
+msgstr "保持结果: MDS"
+
 msgid "Vertical Cells"
 msgstr "垂直单元"
 
@@ -1050,7 +1106,7 @@ msgid "Duplicate Thiessen Polygons Found"
 msgstr "将重复的泰森多边形保存到表中"
 
 msgid "datasource.type %s unknown.."
-msgstr "数据源类型％s未知.."
+msgstr "数据源类型%s未知.."
 
 msgid "Chosen field is not a numeric type.  Please select a numeric type field."
 msgstr "所选字段不是数值类型。 请选择数字类型字段。"
@@ -1063,6 +1119,12 @@ msgstr "未知"
 
 msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
 msgstr "模拟退火算法的冷却速率必须是0和1之间的浮点数（例如0.85）。"
+
+msgid "Simulated Annealing"
+msgstr "模拟退火算法"
+
+msgid "Cooling rate:"
+msgstr "冷却速率："
 
 msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
 msgstr "不要再次显示此对话框（可以使用菜单：文件->首选项来更改此设置）"
@@ -1187,9 +1249,12 @@ msgid "Please select an Base field."
 msgstr "请选择一个基本字段。"
 
 msgid "Clusters"
-msgstr "集群"
+msgstr "聚类"
 
 msgid "Max"
+msgstr "最大值"
+
+msgid "max"
 msgstr "最大值"
 
 msgid "Animation"
@@ -1202,7 +1267,7 @@ msgid "Loop"
 msgstr "循环"
 
 msgid "Hierarchical"
-msgstr "层次聚类"
+msgstr "层次聚类(Hierarchical)"
 
 msgid "Saved successfully."
 msgstr "保存成功。"
@@ -1269,13 +1334,13 @@ msgid "Statistics"
 msgstr "统计"
 
 msgid " and two time periods: "
-msgstr " 和两个时间段: "
+msgstr " 以及两个不同的时间段: "
 
 msgid "There is an error during PCA calculation. Please check if the data is valid."
 msgstr "计算PCA过程中出现错误。请检查数据是否有效。"
 
 msgid "thematic"
-msgstr "主题"
+msgstr "主题的(thematic)"
 
 msgid ""
 "The length of field name should be between 1 and %d.\n"
@@ -1349,7 +1414,7 @@ msgid "DBF File Information"
 msgstr "DBF文件信息"
 
 msgid "Save Categories"
-msgstr "保存类别"
+msgstr "保存分类"
 
 msgid "Gi* cluster map, pseudo p-val"
 msgstr "Gi*聚类地图，伪p值"
@@ -1502,7 +1567,7 @@ msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an
 msgstr "变量名 \"%s\" 重复或无效。请重新输入一个其他变量名。第一个字符必须是字母, 其余字符可以是字母、数字或下划线。对于 DBF 表, 一个有效的变量名介于十个字符之间。"
 
 msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
-msgstr "GeoDa不支持创建％s的数据，请尝试将其导出为其他GeoDa支持的数据格式。"
+msgstr "GeoDa不支持创建%s的数据，请尝试将其导出为其他GeoDa支持的数据格式。"
 
 msgid "&File"
 msgstr "文件"
@@ -1556,16 +1621,16 @@ msgid "Coeff. Var. Mat."
 msgstr "系数方差矩阵."
 
 msgid "Edit Custom Breaks"
-msgstr "编辑自定义分段"
+msgstr "编辑自定义分类"
 
 msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
-msgstr "在所选权重文件中指定的观察值的数量是％d，但当前表中的数字是％d，它不兼容。"
+msgstr "在所选权重文件中指定的观察值的数量是%d，但当前表中的数字是%d，它不兼容。"
 
 msgid "Zoom : press right-mouse button"
 msgstr "缩放：按鼠标右键"
 
 msgid "Summary"
-msgstr "总结"
+msgstr "总结报告"
 
 msgid "&New"
 msgstr "新建"
@@ -1586,7 +1651,7 @@ msgid "Conditional Histogram"
 msgstr "条件直方图"
 
 msgid "Number of Clusters:"
-msgstr "集群数："
+msgstr "聚类数："
 
 msgid "Weight"
 msgstr "空间权重"
@@ -1846,14 +1911,23 @@ msgstr "差分Moran's I (%s):%s - %s"
 msgid "Select variables to delete "
 msgstr "选择需要删除的变量名 "
 
+msgid "Incomplete Group Variable"
+msgstr "创建时间(分组)变量未完成"
+
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."
+msgstr "所选的时间(分组)变量应该有%d项。请通过 时间->时间编辑器 来修改该时间(分组)变量，或指定其他的时间(分组)变量。"
+
 msgid "Empirical Bayes Rate Standardization Variables"
 msgstr "经验贝叶斯比率标准化变量"
 
 msgid "No numeric variables found in table."
 msgstr "表中没有找到任何数值变量。"
 
+msgid "No numeric variables found."
+msgstr "没有找到任何数值变量。"
+
 msgid "Save Space-Time Table/Weights"
-msgstr "保存时空变量和相关空间权重"
+msgstr "保存时空变量和空间权重"
 
 msgid "Update GeoDa completed"
 msgstr "更新GeoDa完成"
@@ -1866,9 +1940,6 @@ msgstr "泰森多边形有邻接性错误"
 
 msgid "&Map"
 msgstr "地图"
-
-msgid ">>"
-msgstr ">>"
 
 msgid "Set transparency of highlighted objects in selection:"
 msgstr "设置高亮对象的透明度："
@@ -1977,6 +2048,9 @@ msgstr "基于经验贝叶斯比率的Moran’s I"
 
 msgid "Scale Options"
 msgstr "缩放选项"
+
+msgid "Number of Box Plots"
+msgstr "箱线图个数"
 
 msgid "Change Font"
 msgstr "更改字体"
@@ -2201,7 +2275,7 @@ msgid "Please describe steps you took before something went wrong."
 msgstr "请描述在出错之前采取的步骤。"
 
 msgid "Delta Factor:"
-msgstr "Delta 参数:"
+msgstr "Delta参数:"
 
 msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table."
 msgstr "由于存在重复或接近重复的点，所生成的泰森多边形出现重复的。按 \"确定\" 将重复的泰森多边形 id 保存到表中。"
@@ -2231,7 +2305,7 @@ msgstr ""
 "注意: 结果只能保存到外部数据文件中, 这是因为当前的横截面观测值在空时上下文中发生了变化。"
 
 msgid "Variable %s is not valid. Please select another variable."
-msgstr "变量%s 无效。请选择另一个变量。"
+msgstr "变量%s无效。请选择另一个变量。"
 
 msgid "Output file (text file)"
 msgstr "输出文件（文本文件）"
@@ -2259,6 +2333,12 @@ msgstr "X轴"
 
 msgid "Local Search:"
 msgstr "局部搜索:"
+
+msgid "Local search:"
+msgstr "局部搜索:"
+
+msgid "Greedy"
+msgstr "贪心算法(Greedy)"
 
 msgid "Please select the layer name to connect:"
 msgstr "请选择要连接的数据/图层名称："
@@ -2335,6 +2415,12 @@ msgstr "dBase Database File (*.dbf)|*.dbf"
 msgid "Error: The table variable name is empty."
 msgstr "错误：表变量名称为空。"
 
+msgid "Variable name can't be empty."
+msgstr "变量名不能为空。"
+
+msgid "Duplicate variable names specified"
+msgstr "变量名已存在"
+
 msgid "Result"
 msgstr "结果"
 
@@ -2372,7 +2458,7 @@ msgid "Decimal:"
 msgstr "小数："
 
 msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
-msgstr "错误：“％s”是无效的变量名称。第一个字符必须是字母，其余字符可以是字母数字或下划线。对于DBF表，有效的变量名称长度介于1到10个字符之间。"
+msgstr "错误：“%s”是无效的变量名称。第一个字符必须是字母，其余字符可以是字母数字或下划线。对于DBF表，有效的变量名称长度介于1到10个字符之间。"
 
 msgid "X-coord"
 msgstr "X坐标"
@@ -2393,7 +2479,7 @@ msgid "Error: Maximum number of neighbors %d exceeded."
 msgstr "错误：超过最大的邻居数量%d。"
 
 msgid "Spectral"
-msgstr "谱聚类"
+msgstr "谱聚类(Spectral)"
 
 msgid "Save Results: Moran's I"
 msgstr "保存结果: Moran's I"
@@ -2434,11 +2520,92 @@ msgstr "选中"
 msgid "Frequency"
 msgstr "频率"
 
+msgid ""
+"---\n"
+"\n"
+"PCA method: "
+msgstr ""
+"---\n"
+"\n"
+"PCA 方法: "
+
+msgid ""
+"\n"
+"\n"
+"Standard deviation:\n"
+msgstr ""
+"\n"
+"\n"
+"标准差:\n"
+
+msgid ""
+"\n"
+"\n"
+"Proportion of variance:\n"
+msgstr ""
+"\n"
+"\n"
+"各变量贡献率(Proportion of variance):\n"
+
+msgid ""
+"\n"
+"\n"
+"Cumulative proportion:\n"
+msgstr ""
+"\n"
+"\n"
+"变量累计贡献率(Cumulative proportion):\n"
+
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: "
+msgstr ""
+"\n"
+"\n"
+"Kaiser准则（特征值>1): "
+
+msgid ""
+"\n"
+"\n"
+"95% threshold criterion: "
+msgstr ""
+"\n"
+"\n"
+"贡献达95%阈值准则: "
+
+msgid ""
+"\n"
+"\n"
+"Eigenvalues:\n"
+msgstr ""
+"\n"
+"\n"
+"特征值(Eigenvalues):\n"
+
+msgid ""
+"\n"
+"\n"
+"Variable Loadings:\n"
+msgstr ""
+"\n"
+"\n"
+"主成分载荷(Variable Loadings):\n"
+
+msgid ""
+"\n"
+"\n"
+"Squared correlations:\n"
+msgstr ""
+"\n"
+"\n"
+"变量与主成分平方相关系数(Squared correlations):\n"
+
 msgid "Choose Weights File"
 msgstr "选择空间权重文件"
 
 msgid "Components:"
-msgstr "成分："
+msgstr "选择要保持的主成分数："
 
 msgid "Rates"
 msgstr "比率"
@@ -2503,7 +2670,7 @@ msgid ""
 "----------\n"
 msgstr ""
 "\n"
-"回归\n"
+"回归分析\n"
 "----------\n"
 
 msgid "Move Selected to Top"
@@ -2639,7 +2806,7 @@ msgid "Description"
 msgstr "描述"
 
 msgid "Custom Breaks"
-msgstr "自定义断点"
+msgstr "自定义分类"
 
 msgid "Use classic yellow cross-hatching to highlight selection in maps:"
 msgstr "使用经典的黄色交叉阴影来高亮地图中的选中的对象："
@@ -2756,7 +2923,7 @@ msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant 
 msgstr "选择的键字段 \"%s\" 是一个时间变量。请选择一个非时间变量字段作为键。"
 
 msgid "Horizontal Bins Breaks"
-msgstr "水平的分区断点"
+msgstr "竖直方向区间(Bins)断点"
 
 msgid "Carto Dark"
 msgstr "Carto Dark"
@@ -3039,6 +3206,9 @@ msgstr "带宽"
 msgid "Enter a seed value"
 msgstr "输入种子值"
 
+msgid "Enter a seed value for random number generator:"
+msgstr "输入一个用于生成随机数的种子："
+
 msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
 msgstr "此平台不支持所选的数据库驱动程序。请查看GeoDa网站以获取关于数据库支持和连接的更多信息。"
 
@@ -3099,6 +3269,39 @@ msgstr "标准偏差地图"
 msgid "Select key:"
 msgstr "选择键："
 
+msgid "Please right-click or use<br />"
+msgstr "右键或者使用菜单"
+
+msgid "Options > Change Parameters"
+msgstr "选项 > 修改参数"
+
+msgid "to specify variable and distance parameters."
+msgstr "来指定变量和距离参数"
+
+msgid "autocorrelation is "
+msgstr "自相关系数为"
+
+msgid " for obs within distance band "
+msgstr " 观察对象在距离带："
+
+msgid " to "
+msgstr " 至 "
+
+msgid " in range:"
+msgstr " 大致在范围："
+
+msgid " = 0 at "
+msgstr "=0 时的距离约"
+
+msgid " pairs in distance band "
+msgstr "对观察对象在距离带："
+
+msgid "min dist"
+msgstr "最小距离"
+
+msgid "max dist"
+msgstr "最大距离"
+
 msgid "Min"
 msgstr "最小值"
 
@@ -3133,7 +3336,7 @@ msgid "Use Power Iteration:"
 msgstr "使用幂迭代法："
 
 msgid "Create Custom Breaks"
-msgstr "创建自定义间断点"
+msgstr "创建自定义分类"
 
 msgid "file size:"
 msgstr "文件大小："
@@ -3233,7 +3436,7 @@ msgid "Please choose Periods first."
 msgstr "请首先选择时段。"
 
 msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
-msgstr "变量％s已经不在表中。 请关闭并重新打开回归分析对话框。"
+msgstr "变量%s已经不在表中。 请关闭并重新打开回归分析对话框。"
 
 msgid "File"
 msgstr "文件"
@@ -3252,6 +3455,9 @@ msgstr "对象数"
 
 msgid "#obs:"
 msgstr "对象数:"
+
+msgid "obs:"
+msgstr "对象:"
 
 msgid "#obs="
 msgstr "对象数="
@@ -3325,6 +3531,24 @@ msgstr " 差分LISA聚类图"
 msgid "Yes"
 msgstr "是"
 
+msgid "Conditional Map"
+msgstr "条件地图"
+
+msgid "Min cluster size:"
+msgstr "聚类最小对象数(Min Cluster size):"
+
+msgid "Min Samples:"
+msgstr "最小采样数(Min Samples):"
+
+msgid "\"Method of selecting clusters:"
+msgstr "选择生成聚类方法:"
+
+msgid "Allow a single cluster:"
+msgstr "允许只生成一个聚类:"
+
+msgid "No clusters can be found using current parameters."
+msgstr "使用当前的参数配置找不到任何聚类。"
+
 msgid "File merged into Table successfully."
 msgstr "文件已成功合并到表中。"
 
@@ -3359,7 +3583,7 @@ msgid "About Precision Threshold"
 msgstr "关于精确度阈值"
 
 msgid "Regimes Regression"
-msgstr "分区域回归"
+msgstr "分区域(Regimes)回归"
 
 msgid "Bivariate Local Join Count "
 msgstr "双变量局部Joint Count "
@@ -3407,7 +3631,7 @@ msgid "Multi-Variable Settings"
 msgstr "多变量设置"
 
 msgid "Error: \"%s\" already exists in Table, please specify a different name."
-msgstr "错误：表中已经存在“％s”，请指定一个不同的名称。"
+msgstr "错误：表中已经存在“%s”，请指定一个不同的名称。"
 
 msgid "minimum"
 msgstr "最小值"
@@ -3497,7 +3721,7 @@ msgid "Information"
 msgstr "信息"
 
 msgid "Regression"
-msgstr "回归"
+msgstr "回归分析"
 
 msgid "Warning: loss data"
 msgstr "警告：数据可能会丢失"
@@ -3604,7 +3828,7 @@ msgid "Parallel Coordinate Plot: "
 msgstr "平行坐标图: "
 
 msgid "Bivariate Moran's I (%s): %s and lagged %s"
-msgstr "双变量Moran's I（％s）：％s和滞后％s"
+msgstr "双变量Moran's I（%s）：%s和滞后%s"
 
 msgid "Please fix the grid bounding box."
 msgstr "请修复网格边界。"
@@ -3633,7 +3857,7 @@ msgstr ""
 "详情："
 
 msgid "Save Categories to Table"
-msgstr "将分类保存到表中"
+msgstr "将自定义分类保存到表中"
 
 msgid "Tim&e"
 msgstr "时间编辑"
@@ -3684,7 +3908,7 @@ msgid "Please input a valid url address."
 msgstr "请输入有效的URL地址。"
 
 msgid " Differential Local Geary Cluster Map"
-msgstr " 差分局部Geary集群图"
+msgstr " 差分局部Geary聚类图"
 
 msgid "Japanese (EUC-JP)"
 msgstr "日语（EUC-JP）"
@@ -3714,7 +3938,25 @@ msgid "Independent Var (x-axis)"
 msgstr "自变量（x轴）"
 
 msgid "Correlogram"
+msgstr "非参空间自相关分析(Correlogram)"
+
+msgid "Correlogram Parameters"
 msgstr "非参空间自相关分析"
+
+msgid "Correlogram Parameters Help"
+msgstr "非参空间自相关分析设置帮助"
+
+msgid "Euclidean Distance"
+msgstr "欧式距离"
+
+msgid "Arc Distance"
+msgstr "弧度距离"
+
+msgid " mi"
+msgstr " 英里"
+
+msgid " km"
+msgstr " 公里"
 
 msgid "OK to Exit?"
 msgstr "确定退出？"
@@ -3741,7 +3983,7 @@ msgid "Key"
 msgstr "键"
 
 msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
-msgstr "气泡图-x:%s, y:%s, size:%s,%s"
+msgstr "气泡图-x:%s, y:%s, 大小:%s,%s"
 
 msgid "Map Color Classification"
 msgstr "地图颜色分类"
@@ -3762,7 +4004,7 @@ msgid "Maximum # of regions:"
 msgstr "最大区域数量："
 
 msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
-msgstr "所选变量％s无效。如果它是一个时间（分组）变量，请在Time-> Time Editor中进行修改。或者请选择另一个变量。"
+msgstr "所选变量%s无效。如果它是一个时间（分组）变量，请在Time-> Time Editor中进行修改。或者请选择另一个变量。"
 
 msgid "Hinge=1.5"
 msgstr "Hinge=1.5"
@@ -3783,7 +4025,7 @@ msgid "Rates-Calculated Map"
 msgstr "比率计算地图"
 
 msgid "Transformation:"
-msgstr "转换："
+msgstr "数据转换："
 
 msgid "Other Positive"
 msgstr "其他正相关"
@@ -4098,7 +4340,7 @@ msgid "Unique Values"
 msgstr "唯一值"
 
 msgid "Category Editor"
-msgstr "分类编辑器"
+msgstr "自定义分类编辑器"
 
 msgid "Dependent Var Y"
 msgstr "因变量Y"
@@ -4128,37 +4370,142 @@ msgid "The number of identified clusters is less than "
 msgstr "识别的聚类的数目小于 "
 
 msgid "Method:\t"
-msgstr "方法：\t"
+msgstr "方法:\t"
+
+msgid "Number Bins:"
+msgstr "分区(Bins)数量"
+
+msgid "Max Distance:"
+msgstr "最大距离:"
+
+msgid "total # pairs"
+msgstr "所有对数"
+
+msgid "Autocorr."
+msgstr "自相关系数"
+
+msgid "Autocorr. of "
+msgstr "自相关系数"
+
+msgid "range, est. distance"
+msgstr "范围（估计距离）"
+
+msgid "# Pairs"
+msgstr "对数"
+
+msgid "All Pairs"
+msgstr "所有的对数(All pairs)"
+
+msgid "Estimated Pairs:"
+msgstr "估计的对数(Estimated Pairs):"
+
+msgid "Random Sample"
+msgstr "随机采样法"
+
+msgid "Sample Size:"
+msgstr "样本大小:"
 
 msgid "Number of clusters:\t"
-msgstr "聚类数量：\t"
+msgstr "聚类数量:\t"
 
 msgid "Initialization method:\t"
-msgstr ""
+msgstr "初始化方法:\t"
 
 msgid "Initialization re-runs:\t"
-msgstr ""
+msgstr "初始化重复运行次数:\t"
 
 msgid "Maximum iterations:\t"
-msgstr ""
+msgstr "最大迭代次数:\t"
 
 msgid "Minimum bound:\t"
-msgstr ""
+msgstr "最小边界值:\t"
 
 msgid "Transformation:\t"
-msgstr ""
+msgstr "数据转换:\t"
 
 msgid "Distance function:\t"
-msgstr ""
+msgstr "距离函数:\t"
+
+msgid "Distance:"
+msgstr "距离函数:"
 
 msgid "Minimum region size:\t"
-msgstr ""
+msgstr "最小区域数:\t"
 
 msgid "Affinity with Guassian Kernel:\tSigma="
-msgstr ""
+msgstr "基于高斯核函数的相似矩阵:\tSigma="
 
 msgid "Affinity with K-Nearest Neighbors:\tK="
-msgstr ""
+msgstr "基于KNN的相似举证:\tK="
 
+msgid "# iterations:\t"
+msgstr "迭代次数:\t"
 
+msgid "Skater Cluster Map ("
+msgstr "Skater聚类地图 ("
 
+msgid "Not Clustered"
+msgstr "无法进行聚类"
+
+msgid "Cluster centers:\n"
+msgstr "聚类中心：\n"
+
+msgid "Within-cluster sum of squares:\n"
+msgstr "聚类对象的平方和(Within-cluster sum of squares)：\n"
+
+msgid "Within cluster S.S."
+msgstr "各聚类之总平方和(Within cluster S.S.)"
+
+msgid "The total sum of squares:\t"
+msgstr "总平方和：\t"
+
+msgid "Number of not clustered observations: "
+msgstr "无法聚类的对象数："
+
+msgid "The total within-cluster sum of squares:\t"
+msgstr "The total within-cluster sum of squares:\t"
+
+msgid "The between-cluster sum of squares:\t"
+msgstr "聚类间之总平方和(between-cluster S.S.)：\t"
+
+msgid "The ratio of between to total sum of squares:\t"
+msgstr "聚类间之总平方和 / 总平方和 ：\t"
+
+msgid "No field chosen for first variable."
+msgstr "请选择第一个变量"
+
+msgid "No field chosen for second variable."
+msgstr "请选择第二个变量"
+
+msgid "No field chosen for third variable."
+msgstr "请选择第三个变量"
+
+msgid "No field chosen for fourth variable."
+msgstr "请选择第四个变量"
+
+msgid "Variable %s is a placeholer"
+msgstr "变量 %s 不是一个有效变量"
+
+msgid "Variable %s at time %d is a placeholer"
+msgstr "变量 %s 在时间段 %d 不是一个有效变量"
+
+msgid "Variable %s at time %d could not be standardized."
+msgstr "变量 %s 在时间段 %d 无法被标准化"
+
+msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
+msgstr "请使用菜单 地图->比率计算的地图 从新选择比率平滑"
+
+msgid "Please select two binary variables for Bivariate Local Join Count."
+msgstr "请选择两个二分(binary)变量用于双变量局部Join Count。"
+
+msgid "Adjust Bubble Size"
+msgstr "调整气泡大小"
+
+msgid "Bubble Size Adjust Dialog"
+msgstr "气泡大小设置"
+
+msgid "small"
+msgstr "小"
+
+msgid "large"
+msgstr "大"

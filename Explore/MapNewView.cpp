@@ -1317,7 +1317,7 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 	}
 	
 	if (smoothing_type != no_smoothing && new_map_smoothing == no_smoothing) {
-		wxString msg = _T("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
+		wxString msg = _("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
 		wxMessageDialog dlg (this, msg, _("Information"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         return false;

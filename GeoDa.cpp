@@ -3687,7 +3687,7 @@ void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
    
     GalWeight* gw = w_man_int->GetGal(w_id);
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -3753,7 +3753,7 @@ void GdaFrame::OnOpenDiffLisa(wxCommandEvent& event)
     int col_idx = VS.col_ids[0];
     if (table_int->GetColType(col_idx, 0) != GdaConst::double_type &&
         table_int->GetColType(col_idx, 0) != GdaConst::long64_type) {
-        wxString msg = _T("The selected variable is not numeric. Please select another variable.");
+        wxString msg = _("The selected variable is not numeric. Please select another variable.");
         wxMessageDialog dlg (this, msg, _("Variable Type Error"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -3769,7 +3769,7 @@ void GdaFrame::OnOpenDiffLisa(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -3806,7 +3806,7 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxString msg = _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
         wxMessageDialog dlg (this, msg, _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -3823,7 +3823,7 @@ void GdaFrame::OnOpenLisaEB(wxCommandEvent& event)
 	
     GalWeight* gw = w_man_int->GetGal(w_id);
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -3864,8 +3864,8 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
-        wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
+        wxString msg = _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxMessageDialog dlg (this, msg, _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
@@ -3879,7 +3879,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -3891,7 +3891,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
-            wxString msg = _T("Please select a binary variable for Local Join Count.");
+            wxString msg = _("Please select a binary variable for Local Join Count.");
             wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
@@ -3962,7 +3962,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     table_int->GetColData(VS.col_ids[0], VS.var_info[0].time, data);
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
-            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxString msg = _("Please select two binary variables for Bivariate Local Join Count.");
             wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
@@ -3971,7 +3971,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     table_int->GetColData(VS.col_ids[1], VS.var_info[1].time, data);
     for (int i=0; i<data.size(); i++) {
         if (data[i] !=0 && data[i] != 1) {
-            wxString msg = _T("Please select two binary variables for Bivariate Local Join Count.");
+            wxString msg = _("Please select two binary variables for Bivariate Local Join Count.");
             wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
@@ -4004,7 +4004,7 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxString msg = _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
         wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -4018,7 +4018,7 @@ void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
@@ -4063,7 +4063,7 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     WeightsManInterface* w_man_int = p->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (weights_ids.size()==0) {
-        wxString msg = _T("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
+        wxString msg = _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager.");
         wxMessageDialog dlg (this, msg, "No Weights Found", wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -4077,7 +4077,7 @@ void GdaFrame::OnOpenGetisOrd(wxCommandEvent& event)
     GalWeight* gw = w_man_int->GetGal(w_id);
     
     if (gw == NULL) {
-        wxString msg = _T("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
+        wxString msg = _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file.");
         wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;

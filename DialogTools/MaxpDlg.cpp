@@ -310,14 +310,14 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
     wxLogMessage("On MaxpDlg::OnChangeSeed");
     // prompt user to enter user seed (used globally)
     wxString m;
-    m << "Enter a seed value for random number generator:";
+    m << _("Enter a seed value for random number generator:");
     
     long long unsigned int val;
     wxString dlg_val;
     wxString cur_val;
     cur_val << GdaConst::gda_user_seed;
     
-    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
     if (dlg.ShowModal() != wxID_OK) return;
     dlg_val = dlg.GetValue();
     dlg_val.Trim(true);
@@ -334,8 +334,8 @@ void MaxpDlg::OnChangeSeed(wxCommandEvent& event)
         ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
-        wxString m;
-        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
         wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;
@@ -420,18 +420,18 @@ wxString MaxpDlg::_printConfiguration()
    
     int local_search_method = m_localsearch->GetSelection();
     if (local_search_method == 0) {
-        txt << "Local search:\t" << "Greedy" << "\n";
+        txt << _("Local search:") << "\t" << _("Greedy") << "\n";
     } else if (local_search_method == 1) {
-        txt << "Local search:\t" << "Tabu Search" << "\n";
-        txt << "Tabu length:\t" << m_tabulength->GetValue() << "\n";
+        txt << _("Local search:") << "\t" << _("Tabu Search") << "\n";
+        txt << _("Tabu length:") << "\t" << m_tabulength->GetValue() << "\n";
     } else if (local_search_method == 2) {
-        txt << "Local search:\t" << "Simulated Annealing" << "\n";
-        txt << "Cooling rate:\t" << m_coolrate->GetValue() << "\n";
+        txt << _("Local search:") << "\t" << _("Simulated Annealing") << "\n";
+        txt << _("Cooling rate:") << "\t" << m_coolrate->GetValue() << "\n";
     }
     
-    txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
     
-    txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
     return txt;
 }
@@ -681,7 +681,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "Max-p Cluster Map (";
+    ttl << "Max-p " << _("Cluster Map ") << "(";
     ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);

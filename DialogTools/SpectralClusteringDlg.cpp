@@ -396,14 +396,14 @@ void SpectralClusteringDlg::OnChangeSeed(wxCommandEvent& event)
 {
     // prompt user to enter user seed (used globally)
     wxString m;
-    m << "Enter a seed value for random number generator:";
+    m << _("Enter a seed value for random number generator:");
     
     long long unsigned int val;
     wxString dlg_val;
     wxString cur_val;
     cur_val << GdaConst::gda_user_seed;
     
-    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
     if (dlg.ShowModal() != wxID_OK) return;
     dlg_val = dlg.GetValue();
     dlg_val.Trim(true);
@@ -420,8 +420,8 @@ void SpectralClusteringDlg::OnChangeSeed(wxCommandEvent& event)
         ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
-        wxString m;
-        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
         wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;

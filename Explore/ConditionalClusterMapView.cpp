@@ -151,7 +151,7 @@ wxString ConditionalClusterMapCanvas::GetCategoriesTitle()
 wxString ConditionalClusterMapCanvas::GetCanvasTitle()
 {
 	wxString v;
-	v << "Conditional Map - ";
+	v << _("Conditional Map") << " - ";
 	v << "x: " << GetNameWithTime(HOR_VAR);
 	v << ", y: " << GetNameWithTime(VERT_VAR);
     v << ", " << title;

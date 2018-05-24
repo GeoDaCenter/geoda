@@ -593,9 +593,9 @@ void CovSpFrame::UpdateDataFromVarMan()
 			}
             wxString str_template;
             
-            str_template = _T("Variable %s is a placeholer");
+            str_template = _("Variable %s is a placeholer");
             if (tm_variant) {
-                str_template = _T("Variable %s at time %d is a placeholer");
+                str_template = _("Variable %s at time %d is a placeholer");
             }
             
             wxString s = wxString::Format(str_template, z_name,
@@ -635,9 +635,9 @@ void CovSpFrame::UpdateDataFromVarMan()
 		if (!success) {
             wxString str_template;
             
-            str_template = _T("Variable %s is a placeholer");
+            str_template = _("Variable %s is a placeholer");
             if (tm_variant) {
-                str_template = _T("Variable %s at time %d could not be standardized.");
+                str_template = _("Variable %s at time %d could not be standardized.");
             }
             
             wxString s = wxString::Format(str_template, z_name,

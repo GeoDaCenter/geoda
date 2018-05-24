@@ -299,7 +299,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
     txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
-    wxString lbl20 = _("Use GPU to accelrate computation:");
+    wxString lbl20 = _("Use GPU to Accelerate computation:");
     wxStaticText* lbl_txt20 = new wxStaticText(vis_page, wxID_ANY, lbl20);
     cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", wxDefaultPosition);
     grid_sizer1->Add(lbl_txt20, 1, wxEXPAND);

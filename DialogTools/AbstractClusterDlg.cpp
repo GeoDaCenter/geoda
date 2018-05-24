@@ -680,7 +680,7 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 {
 	wxNotebook* notebook = new wxNotebook( panel, wxID_ANY, wxDefaultPosition);
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
-    notebook->AddPage(m_reportbox, "Summary");
+    notebook->AddPage(m_reportbox, _("Summary"));
 	return notebook;
 }
 
@@ -725,14 +725,14 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, c
     wxString summary;
     summary << "------\n";
     if (isolated.size()>0)
-        summary << "Number of not clustered observations: " << isolated.size() << "\n";
+        summary << _("Number of not clustered observations: ") << isolated.size() << "\n";
     summary << _printConfiguration();
     summary << _printMeanCenters(mean_centers);
-    summary << "The total sum of squares:\t" << totss << "\n";
+    summary << _("The total sum of squares:\t") << totss << "\n";
     summary << _printWithinSS(withinss);
-    summary << "The total within-cluster sum of squares:\t" << totwithiness << "\n";
-    summary << "The between-cluster sum of squares:\t" << betweenss << "\n";
-    summary << "The ratio of between to total sum of squares:\t" << ratio << "\n\n";
+    summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
+    summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
+    summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
     
     if (m_reportbox && show_print) {
         wxString report = m_reportbox->GetValue();
@@ -832,7 +832,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
 wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
 {
     wxString txt;
-    txt << "Cluster centers:\n";
+    txt << _("Cluster centers:\n");
     
     stringstream ss;
     TextTable t( TextTable::MD );
@@ -877,12 +877,14 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
 wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss)
 {
     wxString summary;
-    summary << "Within-cluster sum of squares:\n";
+    summary << _("Within-cluster sum of squares:\n");
     
     //            # obs  Within cluster SS
     // C1          12            62.1
     // C2          3             42.3
     // C3
+    
+    wxString ss_str = _("Within cluster S.S.");
     
     stringstream ss;
     TextTable t( TextTable::MD );
@@ -890,7 +892,7 @@ wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss)
     // first row
     t.add("");
     //t.add("#obs");
-    t.add("Within cluster S.S.");
+    t.add(ss_str.ToStdString());
     t.endOfRow();
    
     // second row

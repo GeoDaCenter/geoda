@@ -267,7 +267,7 @@ void DiffMoranVarSettingDlg::OnOK(wxCommandEvent& event )
         }
     } catch(GdaException& ex) {
         // place holder found
-        wxString str_tmplt = _T("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
+        wxString str_tmplt = _("The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable.");
         wxString msg = wxString::Format(str_tmplt, project->GetTableInt()->GetTimeSteps());
         wxMessageDialog dlg (this, msg.mb_str(), "Incomplete Group Variable ", wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -1069,8 +1069,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
     }
 	
 	if (lb1->GetSelection() == wxNOT_FOUND) {
-		wxString msg(_T("No field chosen for first variable."));
-		wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
+		wxString msg(_("No field chosen for first variable."));
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -1089,8 +1089,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
     
 	if (num_var >= 2) {
 		if (lb2->GetSelection() == wxNOT_FOUND) {
-			wxString msg(_T("No field chosen for second variable."));
-			wxMessageDialog dlg (this, msg, _T("Error"), wxOK | wxICON_ERROR);
+			wxString msg(_("No field chosen for second variable."));
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -1107,7 +1107,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	}
 	if (num_var >= 3) {
 		if (lb3->GetSelection() == wxNOT_FOUND) {
-			wxString msg(_T("No field chosen for third variable."));
+			wxString msg(_("No field chosen for third variable."));
 			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
@@ -1125,7 +1125,7 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 	}
 	if (num_var >= 4) {
 		if (lb4->GetSelection() == wxNOT_FOUND) {
-			wxString msg(_T("No field chosen for fourth variable."));
+			wxString msg(_("No field chosen for fourth variable."));
 			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;

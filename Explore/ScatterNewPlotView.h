@@ -48,7 +48,7 @@ typedef boost::multi_array<int, 2> i_array_type;
 class BubbleSizeSliderDlg: public wxDialog
 {
 public:
-	BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption="Bubble Size Adjust Dialog");
+	BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption=_("Bubble Size Adjust Dialog"));
     
 private:
     ScatterNewPlotCanvas* canvas;
