@@ -36,6 +36,7 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 
 Source: "vcredist_x86.exe"; DestDir: "{app}"
+Source: "OpenCL.dll"; DestDir: "{app}"
 Source: "ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "ogr_OCI.dll"; DestDir: "{app}"
 Source: "ogr_SDE.dll"; DestDir: "{app}"
