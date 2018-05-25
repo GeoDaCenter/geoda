@@ -261,7 +261,7 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
 		} else {
             // significance map
             // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-            num_cats = 5;
+            num_cats += 5;
             for (int j=0; j < def_cats.size(); j++) {
                 if (sig_cutoff < def_cutoffs[j])
                     num_cats -= 1;

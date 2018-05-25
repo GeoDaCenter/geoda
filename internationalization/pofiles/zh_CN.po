@@ -4509,3 +4509,12 @@ msgstr "小"
 
 msgid "large"
 msgstr "大"
+
+msgid "selected: %.4f"
+msgstr "选中的: %.4f"
+
+msgid "unselected: %.4f"
+msgstr "未选中的: %.4f"
+
+msgid " (isolates in weights are removed)"
+msgstr " (空间权重中的没有邻居的对象已被删除)"

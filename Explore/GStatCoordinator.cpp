@@ -281,7 +281,9 @@ void GStatCoordinator::InitFromVarInfo()
             x_vecs[d_t][i] = data[0][t][i];
             undefs[i] = data_undef[0][t][i];
             G_defined_vecs[d_t][i] = !undefs[i];
-            if (undefs[i]) has_undef = true;
+            if (undefs[i]) {
+                has_undef = true;
+            }
         }
         x_undefs[d_t] = undefs;
         has_undefined[d_t] = has_undef;
@@ -309,8 +311,9 @@ void GStatCoordinator::InitFromVarInfo()
             int valid_num_obs = 0;
             
             for (int i=0; i<num_obs; i++) {
-                if (x_undefs[t][i])
+                if (x_undefs[t][i]) {
                     continue;
+                }
                 valid_num_obs ++;
             }
             // count neighbors and neighors with 1

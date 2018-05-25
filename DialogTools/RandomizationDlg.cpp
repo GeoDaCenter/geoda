@@ -325,6 +325,10 @@ void RandomizationPanel::CalcMoran()
     for (int i=0; i<num_obs; i++) {
         if (undefs[i])
             continue;
+        if (W[i].Size()==0) {
+            continue;
+        }
+        
         double Wdata = 0;
         if (is_bivariate) {
             Wdata = W[i].SpatialLag(raw_data2);
@@ -399,27 +403,36 @@ void RandomizationPanel::RunRandomTrials()
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
-                if (undefs[perm[i]])
+                if (undefs[perm[i]] || W[i].Size() == 0) {
                     continue;
+                }
 				newMoran += (W[i].SpatialLag(raw_data2, perm)
 							 * raw_data1[perm[i]]);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
-                if (undefs[perm[i]])
+                if (undefs[perm[i]] || W[i].Size() == 0) {
                     continue;
+                }
 				newMoran += (W[i].SpatialLag(raw_data1, perm)
 							 * raw_data1[perm[i]]);
 			}
 		}
         int valid_num_obs = 0;
-        for (int i=0; i<num_obs; i++) if (!undefs[i]) valid_num_obs++;
+        for (int i=0; i<num_obs; i++) {
+            if (!undefs[i] && W[i].Size() > 0) {
+                valid_num_obs++;
+            }
+        }
 		newMoran /= (double) valid_num_obs - 1.0;
 		// find its place in the distribution
 		MoranI[ totFrequency++ ] = newMoran;
 		int newBin = (int)floor( (newMoran - start)/range );
-		if (newBin < 0) newBin = 0;
-		else if (newBin >= bins) newBin = bins-1;
+        if (newBin < 0) {
+            newBin = 0;
+        } else if (newBin >= bins) {
+            newBin = bins-1;
+        }
 		
 		freq[newBin] = freq[newBin] + 1;
 		if (newBin < minBin) minBin = newBin;
@@ -440,6 +453,13 @@ void RandomizationPanel::RunRandomTrials()
 
 void RandomizationPanel::UpdateStatistics()
 {
+    int valid_num_obs = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (!undefs[i] && W[i].Size() > 0) {
+            valid_num_obs++;
+        }
+    }
+    
 	double sMoran = 0;
 	for (int i=0; i < totFrequency; i++) {
 		sMoran += MoranI[i];
@@ -462,7 +482,7 @@ void RandomizationPanel::UpdateStatistics()
 	}
 	
 	pseudo_p_val = (((double) signFrequency)+1.0)/(((double) totFrequency)+1.0);
-	expected_val = (double) -1/(num_obs - 1);
+	expected_val = (double) -1/(valid_num_obs - 1);
 }
 
 void RandomizationPanel::DrawRectangle(wxDC* dc, int left, int top, int right,
@@ -491,9 +511,11 @@ void RandomizationPanel::Draw(wxDC* dc)
     DrawRectangle(dc, 0, 0, sz.x, sz.y, GdaConst::canvas_background_color);
     
 	int fMax = freq_back[0];
-	for (int i=1; i<bins; i++) 
-        if (fMax < freq_back[i])
+    for (int i=1; i<bins; i++) {
+        if (fMax < freq_back[i]) {
             fMax = freq_back[i];
+        }
+    }
 
 	for (int i=0; i < bins; i++) {
 		double df = double (freq_back[i]* Height) / double (fMax);
@@ -549,7 +571,9 @@ void RandomizationPanel::Draw(wxDC* dc)
 	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
 	double zval = 0;
-	if (MSdev != 0) zval = (Moran-MMean)/MSdev;
+    if (MSdev != 0) {
+        zval = (Moran-MMean)/MSdev;
+    }
 	wxString text;
 	dc->SetTextForeground(wxColour(0,0,0));	
 	text = wxString::Format("I: %-7.4f  E[I]: %-7.4f  mean: %-7.4f"

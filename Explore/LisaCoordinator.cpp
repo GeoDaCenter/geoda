@@ -389,6 +389,8 @@ void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
 void LisaCoordinator::StandardizeData()
 {
     wxLogMessage("Entering LisaCoordinator::StandardizeData()");
+    GalElement* w = weights->gal;
+    
 	for (int t=0; t<data1_vecs.size(); t++) {
         undef_tms[t].resize(num_obs);
         
@@ -400,6 +402,13 @@ void LisaCoordinator::StandardizeData()
                 if ( undef_data[1].size() > t ) {
                     undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
                 }
+            }
+        }
+        
+        // the isolates should be excluded as undefined
+        for (int i=0; i<num_obs; i++) {
+            if (w[i].Size() == 0) {
+                undef_tms[t][i] = true;
             }
         }
     }
@@ -438,14 +447,20 @@ void LisaCoordinator::Calc()
         // get undefs of objects/values at this time step
         std::vector<bool> undefs;
         bool has_undef = false;
+        bool has_isolate = false;
         for (int i=0; i<undef_data[0][t].size(); i++){
             bool is_undef = undef_data[0][t][i];
             if (isBivariate) {
-                if (undef_data[1].size() > t)
+                if (undef_data[1].size() > t) {
                     is_undef = is_undef || undef_data[1][t][i];
+                }
             }
             if (is_undef && !has_undef) {
                 has_undef = true;
+            }
+            if (weights->gal[i].Size() == 0) {
+                is_undef = true;
+                has_isolate = true;
             }
             undefs.push_back(is_undef);
         }
@@ -453,7 +468,7 @@ void LisaCoordinator::Calc()
        
         // local weights copy
         GalWeight* gw = NULL;
-        if ( has_undef ) {
+        if ( has_undef || has_isolate ) {
             gw = new GalWeight(*weights);
             gw->Update(undefs);
         } else {
@@ -464,11 +479,15 @@ void LisaCoordinator::Calc()
         Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
-            
             if (undefs[i] == true) {
                 lags[i] = 0;
                 localMoran[i] = 0;
                 cluster[i] = 6; // undefined value
+                
+                if (W[i].Size() == 0) {
+                    has_isolates[t] = true;
+                    cluster[i] = 5; // neighborless
+                }
                 continue;
             }
             
@@ -482,15 +501,11 @@ void LisaCoordinator::Calc()
 			localMoran[i] = data1[i] * Wdata;
 				
 			// assign the cluster
-			if (W[i].Size() > 0) {
-				if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
-				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-				else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
-			} else {
-				has_isolates[t] = true;
-				cluster[i] = 5; // neighborless
-			}
+			//if (W[i].Size() > 0) {
+            if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
+            else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
+            else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
+            else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
 		}
 	}
     wxLogMessage("Exiting LisaCoordinator::Calc()");

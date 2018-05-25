@@ -3325,6 +3325,20 @@ void GdaFrame::OnOpenMSPL(wxCommandEvent& event)
         return;
     }
     
+    bool cont = true;
+    for (int i=0; i<p->GetNumRecords(); i++) {
+        if (gw->gal[i].Size() == 0 ) {
+            wxMessageDialog dlg (this, _("Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"), _("Warning"), wxYES_NO | wxICON_WARNING);
+            if (dlg.ShowModal() == wxID_NO) {
+                cont = false;
+            }
+            break;
+        }
+    }
+    if (!cont) {
+        return;
+    }
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
 											  LisaCoordinator::univariate,
@@ -3383,6 +3397,19 @@ void GdaFrame::OnOpenDiffMoran(wxCommandEvent& event)
         return;
     }
     
+    bool cont = true;
+    for (int i=0; i<p->GetNumRecords(); i++) {
+        if (gw->gal[i].Size() == 0 ) {
+            wxMessageDialog dlg (this, _("Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"), _("Warning"), wxYES_NO | wxICON_WARNING);
+            if (dlg.ShowModal() == wxID_NO) {
+                cont = false;
+            }
+            break;
+        }
+    }
+    if (!cont) {
+        return;
+    }
     
     LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
                                               VS.var_info, VS.col_ids,
@@ -3429,6 +3456,20 @@ void GdaFrame::OnOpenGMoran(wxCommandEvent& event)
         return;
     }
     
+    bool cont = true;
+    for (int i=0; i<p->GetNumRecords(); i++) {
+        if (gw->gal[i].Size() == 0 ) {
+            wxMessageDialog dlg (this, _("Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"), _("Warning"), wxYES_NO | wxICON_WARNING);
+            if (dlg.ShowModal() == wxID_NO) {
+                cont = false;
+            }
+            break;
+        }
+    }
+    if (!cont) {
+        return;
+    }
+    
 	LisaCoordinator* lc = new LisaCoordinator(w_id, project_p,
 											  VS.var_info, VS.col_ids,
                                               LisaCoordinator::bivariate,
@@ -3466,6 +3507,20 @@ void GdaFrame::OnOpenMoranEB(wxCommandEvent& event)
     if (gw == NULL) {
         wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
+        return;
+    }
+    
+    bool cont = true;
+    for (int i=0; i<p->GetNumRecords(); i++) {
+        if (gw->gal[i].Size() == 0 ) {
+            wxMessageDialog dlg (this, _("Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"), _("Warning"), wxYES_NO | wxICON_WARNING);
+            if (dlg.ShowModal() == wxID_NO) {
+                cont = false;
+            }
+            break;
+        }
+    }
+    if (!cont) {
         return;
     }
     
@@ -3591,12 +3646,6 @@ void GdaFrame::OnOpenMultiLocalGeary(wxCommandEvent& event)
 											  LocalGearyCoordinator::multivariate,
 											  true, LWO.m_RowStand);
 
-    /*
-	if (LWO.m_Moran) {
-		LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
-															p, lc);
-	}
-     */
 	if (LWO.m_ClustMap) {
 		LocalGearyMapFrame *sf = new LocalGearyMapFrame(GdaFrame::gda_frame, p,
 												  lc, true, false, false);

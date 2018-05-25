@@ -322,6 +322,9 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 	x_undef_data.resize(extents[num_time_vals][num_obs]);
 	y_undef_data.resize(extents[num_time_vals][num_obs]);
     
+    GalWeight* w = lisa_coord->Gal_vecs[t_ind];
+    GalElement* gal = w->gal;
+    
 	for (int t=0; t<lisa_coord->num_time_vals; t++) {
         double x_min, x_max, y_min, y_max;
         
@@ -333,6 +336,11 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
 			y_data[t][i] = lisa_coord->lags_vecs[t][i];
             x_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
             y_undef_data[t][i] = lisa_coord->undef_data[0][t][i];
+            
+            if (gal[i].Size() == 0) {
+                x_undef_data[t][i] = true;
+                y_undef_data[t][i] = true;
+            }
             
 			if (x_undef_data[t][i] || y_undef_data[t][i])
                 continue;
@@ -619,7 +627,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
             y_axis_through_origin1->applyScaleTrans(ex_scale);
         }
         
-        wxString str = wxString::Format("selected: %.4f",
+        wxString str = wxString::Format( _("selected: %.4f"),
                                         regressionXYselected.beta);
 
         morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
@@ -631,7 +639,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         morans_sel_text->setPen(wxPen(*wxRED));
         morans_sel_text->applyScaleTrans(sub_scale);
         
-        wxString str1 = wxString::Format("unselected: %.4f",
+        wxString str1 = wxString::Format(_("unselected: %.4f"),
                                          regressionXYexcluded.beta);
         morans_unsel_text = new GdaShapeText(str1,
                                                            *GdaConst::small_font,
@@ -737,6 +745,10 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
     for (int i=0; i<num_obs; i++) {
         if (undefs[i])
             continue;
+        if (W[i].Size()==0) {
+            // isolates (islands) have to be removed
+            continue;
+        }
         
         double Wdata = 0;
         if (lisa_coord->isBivariate) {
@@ -786,7 +798,22 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
     // if has highlighted, then the text will be added after RegimeMoran()
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
-        morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
+    
+    int t = project->GetTimeState()->GetCurrTime();
+    GalWeight* w = lisa_coord->Gal_vecs[t];
+    GalElement* gal = w->gal;
+    bool has_island = false;
+    for (int i=0; i<num_obs; i++) {
+        if (gal[i].Size() == 0) {
+            has_island = true;
+            break;
+        }
+    }
+    if (has_island) {
+        s << _(" (isolates in weights are removed)");
+    }
+    
+    morans_i_text = new GdaShapeText(s, *GdaConst::small_font,
                                      wxRealPoint(50, 100), 0,
                                      GdaShapeText::h_center,
                                      GdaShapeText::v_center,
