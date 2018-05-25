@@ -669,13 +669,15 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
         
         // get full neighbors even if has undefined value
         int numNeighbors = 0;
+        GalElement* w;
         for (int t=0; t<num_time_vals; t++) {
-            GalElement* w = Gal_vecs[t]->gal;
+            w = Gal_vecs[t]->gal;
             if (w[i].Size() > numNeighbors)
                 numNeighbors = w[i].Size();
         }
-        if (numNeighbors == 0)
+        if (numNeighbors == 0) {
             continue;
+        }
         
         for (int perm=0; perm < permutations; perm++) {
             int rand = 0;
@@ -685,7 +687,7 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
                 int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
-                if (newRandom != i && !workPermutation.Belongs(newRandom)) {
+                if (newRandom != i && !workPermutation.Belongs(newRandom) && w[newRandom].Size()>0) {
                     workPermutation.Push(newRandom);
                     rand++;
                 }

@@ -64,7 +64,7 @@ gs_coord(gs_coordinator), is_clust(is_clust_p)
     str_p005 = "p = 0.05";
     str_p001 = "p = 0.01";
     str_p0001 = "p = 0.001";
-    str_p00001 ="p = 0.00001";
+    str_p00001 ="p = 0.0001";
     
     SetPredefinedColor(str_sig, wxColour(240, 240, 240));
     SetPredefinedColor(str_high, wxColour(255, 0, 0));

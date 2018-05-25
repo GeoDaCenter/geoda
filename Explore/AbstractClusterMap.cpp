@@ -68,7 +68,7 @@ str_neighborless(_("Neighborless")),
 str_p005("p = 0.05"),
 str_p001("p = 0.01"),
 str_p0001("p = 0.001"),
-str_p00001("p = 0.00001"),
+str_p00001("p = 0.0001"),
 clr_not_sig_point(wxColour(190, 190, 190)),
 clr_not_sig_polygon(wxColour(240, 240, 240))
 {
@@ -261,7 +261,13 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
 		} else {
             // significance map
             // 0: >0.05 (Not sig) 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-            num_cats += 5;
+            num_cats = 5;
+            if ( has_isolates ) {
+                num_cats++;
+            }
+            if ( has_undefined ) {
+                num_cats++;
+            }
             for (int j=0; j < def_cats.size(); j++) {
                 if (sig_cutoff < def_cutoffs[j])
                     num_cats -= 1;

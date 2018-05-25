@@ -509,14 +509,26 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
 	for (int cnt=obs_start; cnt<=obs_end; cnt++) {
         std::vector<uint64_t> countLarger(num_time_vals, 0);
         
+        GalElement* w;
+        
         // get full neighbors even if has undefined value
         int numNeighbors = 0;
         for (int t=0; t<num_time_vals; t++) {
-            GalElement* w = Gal_vecs[t]->gal;
-            if (w[cnt].Size() > numNeighbors)
+            w = Gal_vecs[t]->gal;
+            if (w[cnt].Size() > numNeighbors) {
                 numNeighbors = w[cnt].Size();
+            }
+            int* _sigCat = sig_cat_vecs[t];
+            if (w[cnt].Size() == 0) {
+                _sigCat[cnt] = 5;
+            }
         }
 	
+        if (numNeighbors == 0) {
+            // isolate: don't do permutation
+            continue;
+        }
+        
 		for (int perm=0; perm<permutations; perm++) {
 			int rand=0;
             double rng_val;
@@ -527,7 +539,8 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
                 // round is needed to fix issue
                 // https://github.com/GeoDaCenter/geoda/issues/488
 				newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));
-				if (newRandom != cnt && !workPermutation.Belongs(newRandom)) {
+                
+				if (newRandom != cnt && !workPermutation.Belongs(newRandom) && w[newRandom].Size()>0) {
 					workPermutation.Push(newRandom);
 					rand++;
 				}
@@ -539,6 +552,7 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
             // for each time step, reuse permuation
             ComputeLarger(cnt, permNeighbors, countLarger);
 		}
+        
         for (int t=0; t<num_time_vals; t++) {
             double* _sigLocal = sig_local_vecs[t];
             int* _sigCat = sig_cat_vecs[t];
@@ -558,9 +572,6 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
     		
     		// observations with no neighbors get marked as isolates
             // NOTE: undefined should be marked as well, however, since undefined_cat has covered undefined category, we don't need to handle here
-    		if (numNeighbors == 0) {
-    			_sigCat[cnt] = 5;
-    		}
         }
 	}
 }

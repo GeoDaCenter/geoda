@@ -514,12 +514,19 @@ void LocalGearyCoordinator::VarInfoAttributeChange()
 void LocalGearyCoordinator::StandardizeData()
 {
     wxLogMessage("In LocalGearyCoordinator::StandardizeData()");
+    GalElement* w = weights->gal;
     if (local_geary_type == multivariate) {
         // get undef_tms across multi-variables
     	for (int v=0; v<data_vecs.size(); v++) {
             for (int t=0; t<data_vecs[v].size(); t++) {
                 for (int i=0; i<num_obs; i++) {
                     undef_tms[t][i] = undef_tms[t][i] || undef_data[v][t][i];
+                }
+                // the isolates should be excluded as undefined
+                for (int i=0; i<num_obs; i++) {
+                    if (w[i].Size() == 0) {
+                        undef_tms[t][i] = true;
+                    }
                 }
             }
         }
@@ -530,6 +537,7 @@ void LocalGearyCoordinator::StandardizeData()
         	}
         }
     } else {
+        
     	for (int t=0; t<data1_vecs.size(); t++) {
             for (int i=0; i<num_obs; i++) {
                 undef_tms[t][i] = undef_tms[t][i] || undef_data[0][t][i];
@@ -537,6 +545,12 @@ void LocalGearyCoordinator::StandardizeData()
             if (isBivariate) {
                 for (int i=0; i<num_obs; i++) {
                     undef_tms[t][i] = undef_tms[t][i] || undef_data[1][t][i];
+                }
+            }
+            // the isolates should be excluded as undefined
+            for (int i=0; i<num_obs; i++) {
+                if (w[i].Size() == 0) {
+                    undef_tms[t][i] = true;
                 }
             }
         }
@@ -815,10 +829,16 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
        
         // get full neighbors even if has undefined value
         int numNeighbors = 0;
+        GalElement* w ;
         for (int t=0; t<num_time_vals; t++) {
-            GalElement* w = Gal_vecs[t]->gal;
-            if (w[cnt].Size() > numNeighbors)
+            w = Gal_vecs[t]->gal;
+            if (w[cnt].Size() > numNeighbors) {
                 numNeighbors = w[cnt].Size();
+            }
+        }
+        
+        if (numNeighbors == 0) {
+            continue;
         }
        
 		for (int perm=0; perm<permutations; perm++) {
@@ -829,7 +849,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 // round is needed to fix issue
                 //https://github.com/GeoDaCenter/geoda/issues/488
 				int newRandom = (int) (rng_val < 0.0 ? ceil(rng_val - 0.5) : floor(rng_val + 0.5));
-				if (newRandom != cnt && !workPermutation.Belongs(newRandom) ) {
+				if (newRandom != cnt && !workPermutation.Belongs(newRandom) && w[newRandom].Size()>0) {
 					workPermutation.Push(newRandom);
 					rand++;
 				}
