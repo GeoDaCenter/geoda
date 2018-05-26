@@ -9,10 +9,6 @@
 #include <CL/cl.h>
 #endif
 
-#ifdef __WIN32__
-#define _snprintf snprintf
-#endif
-
 #define MAX_SOURCE_SIZE (0x100000)
 
 #include "../ShapeOperations/GalWeight.h"
@@ -80,8 +76,11 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     
     // replace 123 with max_n_nbrs
     char msg[25];
-
-    snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
+#ifdef __WIN32__
+    _snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
+#else
+	snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
+#endif
     replace_str(source_str, "123", msg, 0);
     
     // Get platform and device information
