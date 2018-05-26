@@ -320,7 +320,7 @@ wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
 bool GdaConst::gda_use_gpu = false;
-int GdaConst::gda_ui_language = 1;
+int GdaConst::gda_ui_language = 0;
 double GdaConst::gda_eigen_tol = 1.0E-8;
 bool GdaConst::gda_set_cpu_cores = true;
 int GdaConst::gda_cpu_cores = 8;

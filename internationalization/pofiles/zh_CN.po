@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2018-05-23 17:24-0700\n"
+"PO-Revision-Date: 2018-05-25 21:08-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
@@ -1721,6 +1721,12 @@ msgstr ""
 
 msgid "Move Up"
 msgstr "向上移动"
+
+msgid "Up"
+msgstr "向上移动"
+
+msgid "Down"
+msgstr "向下移动"
 
 msgid "Please specify a valid data source name."
 msgstr "请指定一个有效的数据源名称。"
@@ -4518,3 +4524,9 @@ msgstr "未选中的: %.4f"
 
 msgid " (isolates in weights are removed)"
 msgstr " (空间权重中的没有邻居的对象已被删除)"
+
+msgid "Property"
+msgstr "属性"
+
+msgid "Value"
+msgstr "值"

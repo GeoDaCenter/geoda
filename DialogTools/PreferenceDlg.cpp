@@ -216,11 +216,11 @@ void PreferenceDlg::Init()
     wxString lbl113 = _("Language:");
     wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
     cmb113 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-    cmb113->Append("Auto (System Language)");
+    cmb113->Append("");
     cmb113->Append("English");
     cmb113->Append("Chinese Simplified");
-    cmb113->Append("Spanish");
-    cmb113->Append("German");
+    //cmb113->Append("Spanish");
+    //cmb113->Append("German");
     cmb113->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChooseLanguage, this);
     //cmb113->Disable();
     
@@ -390,7 +390,7 @@ void PreferenceDlg::Init()
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
     GdaConst::gda_use_gpu = false;
-    GdaConst::gda_ui_language = 1;
+    GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
 	GdaConst::gda_set_cpu_cores = true;
 	GdaConst::gda_cpu_cores = 8;
@@ -448,7 +448,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_cpu_cores", "8");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
-    ogr_adapt.AddEntry("gda_ui_language", "1");
+    ogr_adapt.AddEntry("gda_ui_language", "0");
     ogr_adapt.AddEntry("gda_use_gpu", "0");
 }
 

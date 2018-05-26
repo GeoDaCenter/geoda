@@ -179,7 +179,7 @@ wxString ConditionalMapCanvas::GetCategoriesTitle()
 		v << cat_classif_def_map.title;
 		v << ": " << GetNameWithTime(CAT_VAR);
 	} else if (GetCatType() == CatClassification::no_theme) {
-		v << "Themeless";
+		v << _("Themeless");
 	} else {
 		v << CatClassification::CatClassifTypeToString(GetCatType());
 		v << ": " << GetNameWithTime(CAT_VAR);

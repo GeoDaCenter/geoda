@@ -329,7 +329,7 @@ wxString CartogramNewCanvas::GetCategoriesTitle()
 {
 	wxString v;
 	if (GetCcType() == CatClassification::no_theme) {
-		v << "Themeless";
+		v << _("Themeless");
 	} else if (GetCcType() == CatClassification::custom) {
 		v << cat_classif_def.title << ": " << GetNameWithTime(THM_VAR);
 	} else {
@@ -342,7 +342,7 @@ wxString CartogramNewCanvas::GetCategoriesTitle()
 wxString CartogramNewCanvas::GetCanvasTitle()
 {
 	wxString v;
-	v << "Cartogram" << " - size: " << GetNameWithTime(RAD_VAR);
+	v << _("Cartogram") << " - size: " << GetNameWithTime(RAD_VAR);
 	if (GetCcType() != CatClassification::no_theme) {
 		v << ", ";
 		if (GetCcType() == CatClassification::custom) {

@@ -280,7 +280,7 @@ wxString PCPCanvas::GetCategoriesTitle()
 {
 	wxString s;
 	if (GetCcType() == CatClassification::no_theme) {
-		s << "Themeless";
+		s << _("Themeless");
 	} else if (GetCcType() == CatClassification::custom) {
 		s << cat_classif_def.title << ": " << GetNameWithTime(theme_var);
 	} else {

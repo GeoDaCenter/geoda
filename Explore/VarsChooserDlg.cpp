@@ -49,8 +49,8 @@ vars_list(0), include_list(0)
 	SetBackgroundColour(*wxWHITE);
 	wxPanel* panel = new wxPanel(this);
 	
-	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, "Variables");
-	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, "Include");
+	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, _("Variables"));
+	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, _("Include"));
 	
 	vars_list = new wxListBox(panel, XRCID("ID_VARS_LIST"), wxDefaultPosition,
 														wxSize(-1, 150), 0, 0, wxLB_SINGLE);
@@ -70,15 +70,15 @@ vars_list(0), include_list(0)
 	wxButton* remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "<",
 																			wxDefaultPosition, wxDefaultSize,
 																			wxBU_EXACTFIT);
-	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), "Up",
+	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), _("Up"),
 																	wxDefaultPosition, wxDefaultSize,
 																	wxBU_EXACTFIT);
-	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), "Down",
+	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), _("Down"),
 																		wxDefaultPosition, wxDefaultSize,
 																		wxBU_EXACTFIT);
 	wxButton* help_btn = 0;
 	if (!help_html.IsEmpty()) {
-		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
+		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
 														wxDefaultPosition, wxDefaultSize,
 														wxBU_EXACTFIT);
 	}

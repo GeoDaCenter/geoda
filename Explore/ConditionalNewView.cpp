@@ -309,7 +309,7 @@ wxString ConditionalNewCanvas::GetCategoriesTitle(int var_id)
 {
 	wxString v;
 	if (GetCatType(var_id) == CatClassification::no_theme) {
-		v << "Themeless";
+		v << _("Themeless");
 	} else if (GetCatType(var_id) == CatClassification::custom) {
 		if (var_id == VERT_VAR) {
 			v << cat_classif_def_vert.title;
