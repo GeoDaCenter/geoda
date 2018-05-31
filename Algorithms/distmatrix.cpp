@@ -2,6 +2,14 @@
 #include <iostream>
 #include <math.h>
 
+#ifdef __linux__
+//do nothing
+float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data, int start, int end)
+{
+    return NULL;
+}
+#else
+
 #ifdef __APPLE__
 #include <OpenCL/opencl.h>
 #else
@@ -133,3 +141,5 @@ float* gpu_distmatrix(const char* cl_path, int rows, int columns, double** data,
     free(a);
     return r;
 }
+
+#endif
