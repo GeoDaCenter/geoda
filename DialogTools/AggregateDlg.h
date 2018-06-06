@@ -98,7 +98,6 @@ public:
 
     ExportDataDlg* export_dlg;
     
-	//TableBase* table_base;
     Project* project_s;
 	TableInterface* table_int;
 	

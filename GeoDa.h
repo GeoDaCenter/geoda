@@ -40,14 +40,10 @@
 #include "wxTranslationHelper.h"
 
 // Forward Declarations
-class ProgressDlg;
 class Project;
 class CatClassifFrame;
 class GdaApp;
 class GdaFrame;
-class GdaServer;
-class GdaClient;
-class GdaConnection;
 class LineChartFrame;
 
 /** Main appilcation class. */
@@ -59,16 +55,9 @@ public:
 	virtual bool OnInit(void);
 	virtual int OnExit(void);
 	virtual void OnFatalException(void);
-	virtual void OnInitCmdLine(wxCmdLineParser& parser);
-	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-	virtual void MacOpenFiles(const wxArrayString& fileNames);
-
-	static const wxCmdLineEntryDesc globalCmdLineDesc[];
-    wxTranslationHelper* m_TranslationHelper;
+    
 private:
-	wxString cmd_line_proj_file_name;
-	wxSingleInstanceChecker* checker;
-	GdaServer* server;
+    wxTranslationHelper* m_TranslationHelper;
     FILE *m_pLogFile;
 };
 
@@ -79,7 +68,9 @@ class GdaFrame: public wxFrame
 {
 public:
 	GdaFrame(const wxString& title,
-			const wxPoint& pos, const wxSize& size, long style);
+             const wxPoint& pos,
+             const wxSize& size,
+             long style);
 	virtual ~GdaFrame();
 	
     
@@ -609,12 +600,13 @@ public:
 	static GdaFrame* GetGdaFrame() { return gda_frame; }
 	static bool IsProjectOpen();
 	
+    
 	struct MenuItem {
 		MenuItem(const wxString& t, const wxString& u) :menu_title(t), url(u){};
-		wxString menu_title; wxString url; };
-	static std::vector<MenuItem> htmlMenuItems;
+		wxString menu_title;
+        wxString url;
+    };
 	static bool GetHtmlMenuItems();
-	
 	// GetHtmlMenuItems helper functions
 	static bool GetHtmlMenuItemsJson();
 	static bool GetHtmlMenuItemsSqlite();
@@ -622,40 +614,19 @@ public:
 										  char **argv, char **azColName);
 	
     void CheckUpdate();
+    void InitWithProject();
 
 protected:
-    void InitWithProject();
-    
+    static std::vector<MenuItem> htmlMenuItems;
 	static void SetProjectOpen(bool open);
-    
-    bool hasUpdate;
-
 	static GdaFrame* gda_frame;
 	static Project* project_p;
 	static bool projectOpen;
-	static std::list<wxAuiToolBar*> toolbar_list; // not currently used
+	static std::list<wxAuiToolBar*> toolbar_list;
 	
 	DECLARE_EVENT_TABLE()
 };
 
-class GdaServer : public wxServer {
-public:
-	virtual wxConnectionBase* OnAcceptConnection(const wxString& topic);
-};
-
-class GdaClient : public wxClient {
-public:
-	GdaClient() {}
-	virtual wxConnectionBase* OnMakeConnection();
-};
-
-class GdaConnection : public wxConnection {
-public:
-	GdaConnection() {}
-	virtual ~GdaConnection() {}
-	
-	virtual bool OnExec(const wxString &topic, const wxString &data);
-};
 
 /** This helper class is a workaround for an issue that is currently unique
  to LineChartCanvas, but might apply to other views in the future.

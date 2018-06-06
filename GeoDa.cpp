@@ -201,7 +201,7 @@ const int ID_TEST_MAP_FRAME = wxID_HIGHEST + 10;
 
 IMPLEMENT_APP(GdaApp)
 
-GdaApp::GdaApp() : checker(0), server(0), m_pLogFile(0)
+GdaApp::GdaApp() : m_pLogFile(0)
 {
 	//Don't call wxHandleFatalExceptions so that a core dump file will be
 	//produced for debugging.
@@ -210,8 +210,6 @@ GdaApp::GdaApp() : checker(0), server(0), m_pLogFile(0)
 
 GdaApp::~GdaApp()
 {
-	if (server) delete server; server = 0;
-    
     wxLog::SetActiveTarget(NULL);
     if (m_pLogFile != NULL){
         fclose(m_pLogFile);
@@ -227,52 +225,6 @@ bool GdaApp::OnInit(void)
    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
-    
-	if (!GeneralWxUtils::isMac()) {
-		// GeoDa operates in single-instance mode.  This means that for
-		// a given user, only one instance of GeoDa will remain open
-		// at a time.  This is not needed on Mac OSX since by default
-		// programs are only launched in single instance mode.  This might
-		// not be true for launching directly from the command line, so
-		// this might need to change in the future.
-		checker = new wxSingleInstanceChecker("GdaApp");
-		
-		if (!checker->IsAnotherRunning()) {
-			// This is the first instance of GeoDa running for this
-			// user, so this instance becomes the "server."
-			///LOG_MSG("First instance of GeoDa: creating server for future program instances.");
-			server = new GdaServer;
-			if (!server->Create("GdaApp")) {
-				//LOG_MSG("Error: Failed to create in IPC service.");
-			}
-		} else {
-			// Another instance of GeoDa is already running.  This other
-			// instance is acting as the "server" so this instance
-			// becomes the "client" and requests that the server open
-			// the requested project before this instance exits.
-			GdaClient* client = new GdaClient;
-		
-			// host_name will be ignored under DDE (Windows and
-			// possibly Linux), but will be used on platforms
-			// implementing wxClient/wxServer using TCP/IP.
-			wxString host_name("localhost");
-		
-			wxConnectionBase* connection =
-				client->MakeConnection(host_name, "GdaApp", "GdaApp");
-			
-			if (connection) {
-				connection->Execute(cmd_line_proj_file_name);
-				connection->Disconnect();
-				delete connection;
-			} else {
-				wxString msg = _("The existing GeoDa instance may be too busy to respond.\nPlease close any open dialogs and try again.");
-			}
-			delete client;
-			delete checker; // OnExit() won't be called if we return false
-			checker = 0;
-			return false;
-		}
-	}
 
     // By defaut, GDAL will use user's system locale to read any input datasource
     // However, user can change the Separators in GeoDa, after re-open the
@@ -287,24 +239,19 @@ bool GdaApp::OnInit(void)
     // load preferences
     PreferenceDlg::ReadFromCache();
     
-    // load language here:
-    // GdaConst::gda_ui_language
+    // load language here: GdaConst::gda_ui_language
     // search_path is the ./lang directory
     // config_path it the exe directory (every user will have a different config file?)
     wxFileName appFileName(argv[0]);
     appFileName.Normalize(wxPATH_NORM_DOTS|wxPATH_NORM_ABSOLUTE| wxPATH_NORM_TILDE);
     wxString search_path = appFileName.GetPath() + wxFileName::GetPathSeparator() +  "lang";
-    
-	{
     // load language from lang/config.ini if user specified any
-        wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
-        bool use_native_config = false;
-        m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
-        m_TranslationHelper->SetConfigPath(config_path);
-        m_TranslationHelper->Load();
-	}
+    wxString config_path = search_path + wxFileName::GetPathSeparator()+ "config.ini";
+    bool use_native_config = false;
+    m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
+    m_TranslationHelper->SetConfigPath(config_path);
+    m_TranslationHelper->Load();
      
-   
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
         CPLSetConfigOption("PG_LIST_ALL_TABLES", "YES");
@@ -388,11 +335,6 @@ bool GdaApp::OnInit(void)
 				GdaFrame::GetGdaFrame()->GetSize().GetHeight() +
 				(22 - GdaFrame::GetGdaFrame()->GetClientSize().GetHeight()));
 		}
-	}
-
-	if (!cmd_line_proj_file_name.IsEmpty()) {
-		wxString proj_fname(cmd_line_proj_file_name);
-		GdaFrame::GetGdaFrame()->OpenProject(proj_fname);
 	}
 
     wxPoint welcome_pos = appFramePos;
@@ -485,7 +427,6 @@ bool GdaApp::OnInit(void)
 
 int GdaApp::OnExit(void)
 {
-	if (checker) delete checker;
 	return 0;
 }
 
@@ -494,60 +435,20 @@ void GdaApp::OnFatalException()
 	wxMessageBox(_("GeoDa has run into a problem and will close."));
 }
 
-
-const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
-{
-	{ wxCMD_LINE_SWITCH, "h", "help",
-		"displays help on the command line parameters",
-		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
-	{ wxCMD_LINE_PARAM, NULL, NULL, "project file",
-		wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
-	{ wxCMD_LINE_NONE }
-};
-
-void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
-{
-	parser.SetDesc (GdaApp::globalCmdLineDesc);
-    parser.SetSwitchChars ("-");
-}
-
-bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
-{
-	for (int i=0; i<parser.GetParamCount(); ++i) {
-	}
-	
-	if ( parser.GetParamCount() > 0) {
-		cmd_line_proj_file_name = parser.GetParam(0);
-	}
-	return true;
-}
-
-void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
-{
-	wxString msg;
-	int sz=fileNames.GetCount();
-	msg << "Request to open " << sz << " file(s):";
-	for (int i=0; i<sz; ++i)
-        msg << "\n" << fileNames[i];
-	if (sz > 0)
-        GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
-}
-
 std::vector<GdaFrame::MenuItem> GdaFrame::htmlMenuItems;
+GdaFrame* GdaFrame::gda_frame = 0;
+bool GdaFrame::projectOpen = false;
+Project* GdaFrame::project_p = 0;
+std::list<wxAuiToolBar*> GdaFrame::toolbar_list(0);
 
 void GdaFrame::UpdateToolbarAndMenus()
 {
 	// This method is called when no particular window is currently active.
 	// In this case, the close menu item should be disabled.
-	// some change 
-
+	// some change
   
-  
-   GeneralWxUtils::EnableMenuItem(GetMenuBar(), GetMenuBar()->GetMenuLabelText(0), wxID_CLOSE, false);
-	/*hong
-   //GeneralWxUtils::EnableMenuItem(GetMenuBar(), "File", wxID_CLOSE, false);
-   */
-	Project* p = GetProject();
+    GeneralWxUtils::EnableMenuItem(GetMenuBar(), _("File"), wxID_CLOSE, false);
+    Project* p = GetProject();
 	bool proj_open = (p != 0);
 	bool shp_proj = proj_open && !p->IsTableOnlyProject();
 	bool table_proj = proj_open && p->IsTableOnlyProject();
@@ -563,14 +464,10 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_OPEN_PROJECT"), !proj_open);
 	EnableTool(XRCID("ID_CLOSE_PROJECT"), proj_open);
 	
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_NEW_PROJECT"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_OPEN_PROJECT"), !proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(0), XRCID("ID_CLOSE_PROJECT"), proj_open);
-	/* hong************************
-	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_NEW_PROJECT"), !proj_open);
-	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_OPEN_PROJECT"), !proj_open);
-	//GeneralWxUtils::EnableMenuItem(mb, "File", XRCID("ID_CLOSE_PROJECT"), proj_open);
-		*/
+	GeneralWxUtils::EnableMenuItem(mb, _("File"), XRCID("ID_NEW_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("File"), XRCID("ID_OPEN_PROJECT"), !proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("File"), XRCID("ID_CLOSE_PROJECT"), proj_open);
+		
 	if (!proj_open) {
 		// Disable only if project not open.  Otherwise, leave changing
 		// Save state to SaveButtonManager
@@ -594,18 +491,11 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 	
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, mb->GetMenuLabelText(2), XRCID("ID_POINTS_FROM_TABLE"), proj_open);
-    /*hong
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, "Tools", XRCID("ID_POINTS_FROM_TABLE"), proj_open);
-	*/
+	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
+	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_POINTS_FROM_TABLE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), false);
 
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
@@ -617,12 +507,9 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ADJUST_AXIS_PRECISION"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_ZOOM_MODE"), proj_open);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_PAN_MODE"), proj_open);	
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_PAN_MODE"), proj_open);
+	GeneralWxUtils::EnableMenuAll(mb, _("Explore"), proj_open);
 	
-	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(5), proj_open);
-	/*hong
-	GeneralWxUtils::EnableMenuAll(mb, "Explore", proj_open);
-	*/
 	EnableTool(XRCID("IDM_BOX"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_BOX"), proj_open);
 
@@ -668,17 +555,9 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LINE_CHART"), proj_open);
 
 	EnableTool(XRCID("IDM_NEW_TABLE"), proj_open);
-	
-	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(3), proj_open);
-	/*hong
-	GeneralWxUtils::EnableMenuAll(mb, "Table", proj_open);
-	*/
+	GeneralWxUtils::EnableMenuAll(mb, _("Table"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_TIME_CHOOSER"),time_variant);
     
-	// Temporarily removed for 1.6 release work
-	//<object class="wxMenuItem" name="ID_CALCULATOR">
-	//  <label>Calculator</label>
-	//</object>
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CALCULATOR"), true);
 	EnableTool(XRCID("ID_SHOW_TIME_CHOOSER"), time_variant);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_DATA_MOVIE"), proj_open);
@@ -728,10 +607,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
 	
-	GeneralWxUtils::EnableMenuAll(mb, mb->GetMenuLabelText(4), shp_proj);
-	/*hong
-	GeneralWxUtils::EnableMenuAll(mb, "Map", shp_proj);
-	*/
+	GeneralWxUtils::EnableMenuAll(mb, _("Map"), shp_proj);
 	EnableTool(XRCID("ID_MAP_CHOICES"), shp_proj);
 	EnableTool(XRCID("ID_DATA_MOVIE"), shp_proj);
 	EnableTool(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
@@ -743,11 +619,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	
 	//Empty out the Options menu:
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
-	
-	GeneralWxUtils::ReplaceMenu(mb, mb->GetMenuLabelText(10), optMenu);
-	/*hong
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
-   */
 }
 
 void GdaFrame::SetMenusToDefault()
@@ -756,30 +628,19 @@ void GdaFrame::SetMenusToDefault()
 	// in one of File, Tools, Methods, or Help menus.
 	wxMenuBar* mb = GetMenuBar();
 	if (!mb) return;
-	//hong
-	//wxMenu* menu = NULL;
-	wxString File = mb->GetMenuLabelText(0);
-	wxString Tools = mb->GetMenuLabelText(2);
-	wxString Table = mb->GetMenuLabelText(3);
-	wxString Help = mb->GetMenuLabelText(11);
 	wxString menuText = wxEmptyString;
 	int menuCnt = mb->GetMenuCount();
 	for (int i=0; i<menuCnt; i++) {
 		mb->GetMenu(i);
 		menuText = mb->GetMenuLabelText(i);
-		if ( (menuText != File) &&
-			 (menuText != Tools) &&
-			 (menuText != Table) &&
-			 (menuText != Help) ) {
+		if ( (menuText != _("File")) &&
+			 (menuText != _("Tools")) &&
+			 (menuText != _("Table")) &&
+			 (menuText != _("Help")) ) {
 			GeneralWxUtils::EnableMenuAll(mb, menuText, false);
 		}
 	}
 }
-
-GdaFrame* GdaFrame::gda_frame = 0;
-bool GdaFrame::projectOpen = false;
-Project* GdaFrame::project_p = 0;
-std::list<wxAuiToolBar*> GdaFrame::toolbar_list(0);
 
 GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
@@ -6528,42 +6389,6 @@ int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 	return SQLITE_OK;
 }
 
-wxConnectionBase* GdaServer::OnAcceptConnection(const wxString& topic)
-{
-	if (topic.CmpNoCase("GdaApp") == 0) {
-		// Check there are no modal dialogs active
-		wxWindowList::Node* node = wxTopLevelWindows.GetFirst();
-		while (node) {
-			wxDialog* dlg = wxDynamicCast(node->GetData(), wxDialog);
-			if (dlg && dlg->IsModal()) return 0;
-			node = node->GetNext();
-		}
-		return new GdaConnection();
-	} else {
-		return 0;
-	}
-}
-
-wxConnectionBase* GdaClient::OnMakeConnection()
-{
-	return new GdaConnection;
-}
-
-bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
-{
-    wxLogMessage("In GdaConnection::OnExec()");
-	GdaFrame* frame = wxDynamicCast(wxGetApp().GetTopWindow(), GdaFrame);
-	wxString filename(data);
-    wxLogMessage(topic);
-    wxLogMessage(filename);
-	if (filename.IsEmpty()) {
-		if (frame) frame->Raise();
-	} else {
-		frame->OpenProject(filename);
-	}
-	return true;
-}
-
 LineChartEventDelay::LineChartEventDelay()
 : lc_frame(0)
 {
@@ -6600,7 +6425,6 @@ void LineChartEventDelay::Notify() {
 /*
  * This is the top-level window of the application.
  */
-
 BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_CHAR_HOOK(GdaFrame::OnKeyEvent)
     EVT_MENU(XRCID("ID_NEW_PROJECT"), GdaFrame::OnNewProject)

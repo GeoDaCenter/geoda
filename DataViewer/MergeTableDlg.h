@@ -91,7 +91,6 @@ public:
 	wxRadioButton* m_outer_join;
 	wxCheckBox* m_overwrite_field;
 
-	//TableBase* table_base;
     Project* project_s;
 	TableInterface* table_int;
 	OGRLayerProxy* merge_layer_proxy;

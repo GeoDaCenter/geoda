@@ -2,7 +2,7 @@
 #include <iostream>
 #include <math.h>
 #include <stdlib.h>
-
+#include "../ShapeOperations/GalWeight.h"
 #ifdef __linux__
 // do nothing; we got opencl sdk issue on centos
 bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long long last_seed_used, double* values, double* local_moran, GalElement* w, double* p)
