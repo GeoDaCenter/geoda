@@ -690,7 +690,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 		}
         if (lcnt > 200 && ignore_too_large_compute == false) {
             
-            wxString msg = _("The current threshold distance value is too large to compute. Please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN).");
+            wxString msg = _("You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN).");
 			wxMessageDialog dlg(NULL, msg, "Do you want to continue?", wxYES_NO | wxYES_DEFAULT);
 			if (dlg.ShowModal() != wxID_YES) {
 				// clean up memory

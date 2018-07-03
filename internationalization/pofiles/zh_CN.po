@@ -2172,7 +2172,7 @@ msgstr "在继续操作(添加、删除、移动或重命名)之前 , 请关闭�
 msgid "Get a free Carto account: "
 msgstr "获得免费Carto账户: "
 
-msgid "The current threshold distance value is too large to compute. Please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
+msgid "You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
 msgstr "当前距离阈值太大，可能需要很长时间进行计算。请输入一个较小的阈值（可能会产生一些没有邻居的观测值）或使用其他权重（例如KNN）。"
 
 msgid "Save "
