@@ -2539,9 +2539,6 @@
             <label>Show Selection and Neighbors</label>
             <checkable>1</checkable>
         </object>
-        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
-            <label>Change Outline Color of Neighbors</label>
-        </object>
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
             <label>Change Fill Color of Neighbors</label>
         </object>
@@ -2571,6 +2568,10 @@
         <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
             <label>Hide Map</label>
             <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
+            <label>Change Outline Color of Selected</label>
         </object>
     </object>
     <object class="separator"/>
@@ -2757,9 +2758,6 @@
             <label>Show Selection and Neighbors</label>
             <checkable>1</checkable>
         </object>
-        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
-            <label>Change Outline Color of Neighbors</label>
-        </object>
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
             <label>Change Fill Color of Neighbors</label>
         </object>
@@ -2789,6 +2787,10 @@
         <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
             <label>Hide Map</label>
             <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
+            <label>Change Outline Color of Selected</label>
         </object>
     </object>
     <object class="separator"/>
@@ -3171,9 +3173,6 @@
             <label>Show Selection and Neighbors</label>
             <checkable>1</checkable>
         </object>
-        <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_COLOR">
-            <label>Change Outline Color of Neighbors</label>
-        </object>
         <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
             <label>Change Fill Color of Neighbors</label>
         </object>
@@ -3203,6 +3202,10 @@
         <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
             <label>Hide Map</label>
             <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
+            <label>Change Outline Color of Selected</label>
         </object>
     </object>
     <object class="separator"/>

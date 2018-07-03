@@ -176,7 +176,7 @@ display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
 graph_color(GdaConst::conn_graph_outline_colour),
-neighbor_color(GdaConst::conn_neighbor_outline_colour),
+conn_selected_color(GdaConst::conn_select_outline_colour),
 neighbor_fill_color(GdaConst::conn_neighbor_fill_colour),
 weights_graph_thickness(1),
 voronoi_diagram_duplicates_exist(false),
@@ -267,7 +267,9 @@ void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
     TemplateCanvas::DetermineMouseHoverObjects(pointsel);
     if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 && sel2.x==0 && sel2.y==0) {
         vector<bool>& hs = GetSelBitVec();
-        for (int i=0; i<hs.size(); i++) hs[i] = false;
+        for (int i=0; i<hs.size(); i++) {
+            hs[i] = false;
+        }
         if (hover_obs.empty()) {
             highlight_state->SetTotalHighlighted(0);
         } else {
@@ -329,32 +331,42 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
     }
     if (dc.IsOk()) {
         vector<bool> new_hs(num_obs, false);
-        wxPen pen(neighbor_color);
-        wxBrush brush(neighbor_fill_color);
         for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
-            //h[*it] = true;
             new_hs[*it] = true;
-            // draw new highlighted in dc
-            if (display_neighbors) {
-                selectable_shps[*it]->setPen(pen);
-                if (neighbor_fill_color.Alpha() == 0)
-                    selectable_shps[*it]->setBrush(*wxTRANSPARENT_BRUSH);
-                else
-                    selectable_shps[*it]->setBrush(brush);
-                selectable_shps[*it]->paintSelf(dc);
+        }
+        for (int i=0; i<gal_weights->num_obs; i++) {
+            if (h[i]) {
+                new_hs[i] = true;
             }
         }
-        if (!display_map_with_graph) {
+        
+        bool hl_only = true;
+        bool revert = false;
+        bool crosshatch = false;
+        bool is_print = false;
+        helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
+       
+        // paint selected with specified outline color
+        if (conn_selected_color.Alpha() != 0) {
+            wxPen pen(conn_selected_color);
             for (int i=0; i<gal_weights->num_obs; i++) {
-                if (h[i]) new_hs[i] = true;
+                if (h[i]) {
+                    selectable_shps[i]->setPen(pen);
+                    selectable_shps[i]->setBrush(*wxTRANSPARENT_BRUSH);
+                    selectable_shps[i]->paintSelf(dc);
+                }
             }
         }
-        if (display_weights_graph) {
-            bool hl_only = true;
-            bool revert = false;
-            bool crosshatch = false;
-            bool is_print = false;
-            helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
+        
+        if (display_neighbors) {
+            // paint neighbors with specified fill color
+            if (neighbor_fill_color.Alpha() != 0) {
+                wxBrush brush(neighbor_fill_color);
+                for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
+                    selectable_shps[*it]->setBrush(brush);
+                    selectable_shps[*it]->paintSelf(dc);
+                }
+            }
         }
     }
 }
@@ -1106,8 +1118,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                   display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_COLOR"),
                                    display_weights_graph);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_COLOR"),
-                                   display_neighbors);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_SELECTED_COLOR"),
+                                   display_neighbors || display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"),
                                    display_neighbors);
 }
@@ -1979,10 +1991,10 @@ void MapCanvas::ChangeGraphColor()
     }
 }
 
-void MapCanvas::ChangeNeighborColor()
+void MapCanvas::ChangeConnSelectedColor()
 {
-    if (display_neighbors) {
-        neighbor_color = GeneralWxUtils::PickColor(this, neighbor_color);
+    if (display_neighbors || display_weights_graph) {
+        conn_selected_color = GeneralWxUtils::PickColor(this, conn_selected_color);
         full_map_redraw_needed = true;
         PopulateCanvas();
     }
@@ -2624,21 +2636,22 @@ void MapFrame::OnChangeGraphColor(wxCommandEvent& event)
     UpdateOptionMenuItems();
 }
 
-void MapFrame::OnChangeNeighborColor(wxCommandEvent& event)
+void MapFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
 {
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
     
-    ((MapCanvas*) template_canvas)->ChangeNeighborColor();
+    ((MapCanvas*) template_canvas)->ChangeConnSelectedColor();
     UpdateOptionMenuItems();
 }
 
 void MapFrame::OnChangeNeighborFillColor(wxCommandEvent& event)
 {
     GalWeight* gal_weights = checkWeights();
-    if (gal_weights == NULL)
+    if (gal_weights == NULL) {
         return;
+    }
     
     ((MapCanvas*) template_canvas)->ChangeNeighborFillColor();
     UpdateOptionMenuItems();

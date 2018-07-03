@@ -5426,13 +5426,13 @@ void GdaFrame::OnChangeGraphColor(wxCommandEvent& event)
     }
 }
 
-void GdaFrame::OnChangeNeighborColor(wxCommandEvent& event)
+void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
 {
-    wxLogMessage("In GdaFrame::OnChangeNeighborColor()");
+    wxLogMessage("In GdaFrame::OnChangeConnSelectedColor()");
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
-        f->OnChangeNeighborColor(event);
+        f->OnChangeConnSelectedColor(event);
     }
 }
 
@@ -6671,7 +6671,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
-    EVT_MENU(XRCID("ID_CONN_NEIGHBOR_COLOR"), GdaFrame::OnChangeNeighborColor)
+    EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)

@@ -485,7 +485,7 @@ public:
     void OnDisplayMapWithGraph(wxCommandEvent& event);
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
-    void OnChangeNeighborColor(wxCommandEvent& event);
+    void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);

@@ -156,7 +156,7 @@ public:
     virtual void DisplayMapWithGraph();
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
-    virtual void ChangeNeighborColor();
+    virtual void ChangeConnSelectedColor();
     virtual void ChangeNeighborFillColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
@@ -182,10 +182,11 @@ public:
 	bool voronoi_diagram_duplicates_exist;
     bool display_weights_graph;
     bool display_neighbors;
+    bool display_neighbor_color;
     bool display_map_with_graph;
     int  weights_graph_thickness;
     wxColour graph_color;
-    wxColour neighbor_color;
+    wxColour conn_selected_color;
     wxColour neighbor_fill_color;
     std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
@@ -349,7 +350,7 @@ public:
     void OnDisplayMapWithGraph(wxCommandEvent& event);
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
-    void OnChangeNeighborColor(wxCommandEvent& event);
+    void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
 
     void OnMapSelect(wxCommandEvent& e);

@@ -295,7 +295,7 @@ public:
 	static const wxColour conn_map_default_highlight_colour;
     
     static const wxColour conn_graph_outline_colour;
-    static const wxColour conn_neighbor_outline_colour;
+    static const wxColour conn_select_outline_colour;
     static const wxColour conn_neighbor_fill_colour;
 	
 	// Map Movie
