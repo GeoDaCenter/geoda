@@ -399,7 +399,7 @@ void ConnectivityMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString ConnectivityMapCanvas::GetCanvasTitle()
 {
 	wxString s;
-	s << "Connectivity Map - " << w_man_int->GetLongDispName(weights_id);
+	s << _("Connectivity Map - ") << w_man_int->GetLongDispName(weights_id);
 	return s;
 }
 

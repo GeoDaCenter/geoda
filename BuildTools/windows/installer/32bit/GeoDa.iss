@@ -203,6 +203,7 @@ begin
   ComboBox.Style := csDropDownList;
   ComboBox.Items.Add('English');
   ComboBox.Items.Add('Chinese (Simplified)');
+  ComboBox.Items.Add('Spanish');
   ComboBox.ItemIndex := 0;
   ComboBox.OnChange := @ComboBoxChange;
   langCode := '58';
