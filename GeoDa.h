@@ -627,6 +627,13 @@ protected:
 	DECLARE_EVENT_TABLE()
 };
 
+class GdaConnection : public wxConnection {
+public:
+    GdaConnection() {}
+    virtual ~GdaConnection() {}
+    
+    virtual bool OnExec(const wxString &topic, const wxString &data);
+};
 
 /** This helper class is a workaround for an issue that is currently unique
  to LineChartCanvas, but might apply to other views in the future.

@@ -418,11 +418,23 @@ bool GdaApp::OnInit(void)
     if (GdaConst::disable_auto_upgrade == false) {
         CallAfter(&GdaFrame::CheckUpdate);
     }
-    
-    // show open file dialog
+   
+
     GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos, true);
 
 	return true;
+}
+
+bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
+{
+    GdaFrame* frame = wxDynamicCast(wxGetApp().GetTopWindow(), GdaFrame);
+    wxString filename(data);
+    if (filename.IsEmpty()) {
+        if (frame) frame->Raise();
+    } else {
+        frame->OpenProject(filename);
+    }
+    return true;
 }
 
 int GdaApp::OnExit(void)
