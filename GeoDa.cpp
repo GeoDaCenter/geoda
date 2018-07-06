@@ -620,6 +620,30 @@ void GdaFrame::UpdateToolbarAndMenus()
 	//Empty out the Options menu:
 	wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
+    
+    //Empty Custom category menu:
+    wxMenuItem* mi = mb->FindItem(XRCID("ID_OPEN_CUSTOM_BREAKS_SUBMENU"));
+    wxMenu* sm = mi->GetSubMenu();
+    if (sm) {
+        // clean
+        wxMenuItemList items = sm->GetMenuItems();
+        for (int i=0; i<items.size(); i++) {
+            sm->Delete(items[i]);
+        }
+        if (project_p) {
+            vector<wxString> titles;
+            CatClassifManager* ccm = project_p->GetCatClassifManager();
+            ccm->GetTitles(titles);
+            
+            sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
+            sm->AppendSeparator();
+            
+            for (size_t j=0; j<titles.size(); j++) {
+                wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
+            }
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+        }
+    }
 }
 
 void GdaFrame::SetMenusToDefault()
