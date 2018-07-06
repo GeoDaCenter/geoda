@@ -171,8 +171,27 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
         }
     }
    
-    bool b_connect = access_dict.size() == num_obs;
-    return b_connect;
+    if (access_dict.size() < num_obs) {
+        // check every one that is not connected via BFS,
+        for (int i=0; i<num_obs; i++) {
+            if (access_dict.find(i) == access_dict.end()) {
+                bool rev_conn = false;
+                // then manually check if this one is connected
+                for (int j=0; j<W[i].Size(); j++) {
+                    if (access_dict.find(W[i][j]) != access_dict.end()) {
+                        rev_conn = true;
+                        break;
+                    }
+                }
+                if (rev_conn == false) {
+                    // any one is checked being not connected, return false
+                    return false;
+                }
+            }
+        }
+    }
+    
+    return true;
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool integer_only)
