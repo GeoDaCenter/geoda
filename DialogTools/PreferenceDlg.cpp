@@ -415,7 +415,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gdal_http_timeout = 5;
     GdaConst::use_gda_user_seed= true;
     GdaConst::gda_user_seed = 123456789;
-    GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S";
+    GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
     if (!GdaConst::gda_datetime_formats_str.empty()) {
         wxString patterns = GdaConst::gda_datetime_formats_str;
         wxStringTokenizer tokenizer(patterns, ",");
@@ -447,7 +447,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gdal_http_timeout", "5");
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
 	ogr_adapt.AddEntry("gda_user_seed", "123456789");
-	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S");
+	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p");
 	ogr_adapt.AddEntry("gda_cpu_cores", "8");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
