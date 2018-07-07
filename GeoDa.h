@@ -55,8 +55,11 @@ public:
 	virtual bool OnInit(void);
 	virtual int OnExit(void);
 	virtual void OnFatalException(void);
+    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+    virtual void MacOpenFiles(const wxArrayString& fileNames);
     
 private:
+    wxString cmd_line_proj_file_name;
     wxTranslationHelper* m_TranslationHelper;
     FILE *m_pLogFile;
 };
@@ -614,7 +617,7 @@ public:
 										  char **argv, char **azColName);
 	
     void CheckUpdate();
-    void InitWithProject();
+    void InitWithProject(wxString gda_file_path=wxEmptyString);
 
 protected:
     static std::vector<MenuItem> htmlMenuItems;
@@ -625,14 +628,6 @@ protected:
 	static std::list<wxAuiToolBar*> toolbar_list;
 	
 	DECLARE_EVENT_TABLE()
-};
-
-class GdaConnection : public wxConnection {
-public:
-    GdaConnection() {}
-    virtual ~GdaConnection() {}
-    
-    virtual bool OnExec(const wxString &topic, const wxString &data);
 };
 
 /** This helper class is a workaround for an issue that is currently unique

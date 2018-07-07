@@ -284,6 +284,34 @@ bool GdaApp::OnInit(void)
 	
     GdaInitXmlResource();  // call the init function in GdaAppResources.cpp	
 	
+    // check crash
+    if (GdaConst::disable_crash_detect == false) {
+        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
+        if (items.size() > 0) {
+            std::string no_crash = items[0];
+            if (no_crash == "false") {
+                // ask user to send crash data
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
+                wxString ttl = _("Send Crash Report");
+                wxString user_email = GdaConst::gda_user_email;
+                wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
+                                         wxOK | wxCANCEL | wxCENTRE );
+                if (msgDlg.ShowModal() == wxID_OK) {
+                    user_email = msgDlg.GetValue();
+                    if (user_email != GdaConst::gda_user_email) {
+                        OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
+                        GdaConst::gda_user_email = user_email;
+                    }
+                    wxString ttl = "Crash Report";
+                    wxString body;
+                    body << "From: " << user_email << "\n Details:";
+                    ReportBugDlg::CreateIssue(ttl, body);
+                }
+            }
+        }
+        OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
+    }
+    
 	int frameWidth = 980;
 	int frameHeight = 80;
     
@@ -320,7 +348,6 @@ bool GdaApp::OnInit(void)
     frame->Show(true);
     frame->SetMinSize(wxSize(640, frameHeight));
     
-	//GdaFrame::GetGdaFrame()->Show(true);
 	SetTopWindow(GdaFrame::GetGdaFrame());
 	
 	if (GeneralWxUtils::isWindows()) {
@@ -339,34 +366,6 @@ bool GdaApp::OnInit(void)
 
     wxPoint welcome_pos = appFramePos;
     welcome_pos.y += 150;
-
-    // check crash
-    if (GdaConst::disable_crash_detect == false) {
-        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
-        if (items.size() > 0) {
-            std::string no_crash = items[0];
-            if (no_crash == "false") {
-                // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
-                wxString ttl = _("Send Crash Report");
-                wxString user_email = GdaConst::gda_user_email;
-                wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
-                                         wxOK | wxCANCEL | wxCENTRE );
-                if (msgDlg.ShowModal() == wxID_OK) {
-                    user_email = msgDlg.GetValue();
-                    if (user_email != GdaConst::gda_user_email) {
-                        OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
-                        GdaConst::gda_user_email = user_email;
-                    }
-                    wxString ttl = "Crash Report";
-                    wxString body;
-                    body << "From: " << user_email << "\n Details:";
-                    ReportBugDlg::CreateIssue(ttl, body);
-                }
-            }
-        }
-        OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
-    }
     
     // setup gdaldata directory for libprj
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
@@ -414,27 +413,43 @@ bool GdaApp::OnInit(void)
     wxLogMessage(versionlog);
     wxLogMessage(loggerFile);
     
-    // check update in a new thread
-    if (GdaConst::disable_auto_upgrade == false) {
-        CallAfter(&GdaFrame::CheckUpdate);
-    }
    
-
-    GdaFrame::GetGdaFrame()->ShowOpenDatasourceDlg(welcome_pos, true);
+    if (!cmd_line_proj_file_name.IsEmpty()) {
+        wxString proj_fname(cmd_line_proj_file_name);
+        wxArrayString fnames;
+        fnames.Add(proj_fname);
+        MacOpenFiles(fnames);
+    }
 
 	return true;
 }
 
-bool GdaConnection::OnExec(const wxString &topic, const wxString &data)
+bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
-    GdaFrame* frame = wxDynamicCast(wxGetApp().GetTopWindow(), GdaFrame);
-    wxString filename(data);
-    if (filename.IsEmpty()) {
-        if (frame) frame->Raise();
-    } else {
-        frame->OpenProject(filename);
+    if ( parser.GetParamCount() > 0) {
+        cmd_line_proj_file_name = parser.GetParam(0);
     }
     return true;
+}
+
+void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
+{
+    wxLogMessage("MacOpenFiles");
+    wxLogMessage(fileNames[0]);
+    int sz=fileNames.GetCount();
+
+    if (sz > 0) {
+        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+        while (node) {
+            wxWindow* win = node->GetData();
+            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+                w->EndModal(wxID_CANCEL);
+            }
+            node = node->GetNext();
+        }
+        
+        GdaFrame::GetGdaFrame()->OpenProject(fileNames[0]);
+    }
 }
 
 int GdaApp::OnExit(void)
@@ -712,6 +727,13 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 	SetMenusToDefault();
  	UpdateToolbarAndMenus();
     SetEncodingCheckmarks(wxFONTENCODING_UTF8);
+    
+    CallAfter(&GdaFrame::ShowOpenDatasourceDlg,wxPoint(80, 220),true);
+    
+    // check update in a new thread
+    if (GdaConst::disable_auto_upgrade == false) {
+        CallAfter(&GdaFrame::CheckUpdate);
+    }
 }
 
 GdaFrame::~GdaFrame()
@@ -1170,8 +1192,6 @@ void GdaFrame::OnNewProject(wxCommandEvent& event)
 
 void GdaFrame::ShowOpenDatasourceDlg(wxPoint pos, bool init)
 {
-	wxLogMessage(" GdaFrame::ShowOpenDatasourceDlg()");
-
     if (init && project_p) {
         return;
     }
@@ -1239,7 +1259,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
     wxString msg;
     wxFileName fn(full_proj_path);
     if (fn.GetExt().CmpNoCase("gda") != 0) {
-        // open a geoda project file
+        // open from a raw file/ds
         if (IsProjectOpen()) {
             Raise();
             msg = _("You have requested to create a new file project %s  while another project is open. Please close project %s and try again.");
@@ -1271,6 +1291,8 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		wxString msg;
         msg = _("You have requested to create a new file project %s  while another project is open. Please close project %s and try again.");
         msg = wxString::Format(msg, full_proj_path, project_p->GetProjectTitle());
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
 		return;
 	}
 
@@ -1301,7 +1323,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
 		return;
     }
 
-    InitWithProject();
+    InitWithProject(full_proj_path);
 }
 
 
@@ -1320,25 +1342,29 @@ void GdaFrame::OnOpenProject(wxCommandEvent& event)
 	OpenProject(dlg.GetPath());
 }
 
-void GdaFrame::InitWithProject()
+void GdaFrame::InitWithProject(wxString gda_file_path)
 {
 	wxLogMessage("Click GdaFrame::InitWithProject()");
     // By this point, we know that project has created as
     // TopFrameManager object with delete_if_empty = false
    
     RecentDatasource recent_ds;
-    recent_ds.Add(project_p->GetDataSource(), project_p->GetProjectTitle());
+    
+    if (gda_file_path.IsEmpty()) {
+        recent_ds.Add(project_p->GetDataSource(), project_p->GetProjectTitle());
+    } else {
+        recent_ds.Add(gda_file_path, gda_file_path, project_p->GetProjectTitle());
+    }
     
     // This call is very improtant because we need the wxGrid to
     // take ownership of the TableBase instance (due to bug in wxWidgets)
-    TableFrame* tf;
-    tf = new TableFrame(this, project_p,
-                        _("Table"),
-                        wxDefaultPosition,
-                        GdaConst::table_default_size,
-                        wxDEFAULT_FRAME_STYLE);
-    if (project_p->IsTableOnlyProject())
+    TableFrame* tf = new TableFrame(this, project_p, _("Table"),
+                                    wxDefaultPosition,
+                                    GdaConst::table_default_size,
+                                    wxDEFAULT_FRAME_STYLE);
+    if (project_p->IsTableOnlyProject()) {
         tf->Show(true);
+    }
     
     SetProjectOpen(true);
     UpdateToolbarAndMenus();
