@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_CORREL_PARAMS_DLG_H__
 #define __GEODA_CENTER_CORREL_PARAMS_DLG_H__
 
+#include <map>
 #include <vector>
 #include <wx/button.h>
 #include <wx/checkbox.h>
@@ -71,6 +72,8 @@ public:
 	void OnSeedCheck(wxCommandEvent& ev);
 	void OnChangeSeed(wxCommandEvent& ev);
 	
+    void OnTime1(wxCommandEvent& event);
+    
 	/** Validates variable list against table.
 	 New variables are added, order is updated, and missing variables are removed.
 	 If any changes to GdaVarTools::Manager are made, a notify event is
@@ -98,11 +101,18 @@ private:
 	wxString GetHelpPageHtml() const;
 
     int num_bins;
+    bool is_time;
+    int time_steps;
+    int v1_time;
+    std::map<wxString, wxString> name_to_nm;
     
 	Project* project;
 
 	wxStaticText* var_txt; // ID_VAR_TXT
 	wxChoice* var_choice; // ID_VAR_CHOICE
+    wxStaticText* var_time_txt; // ID_VAR_TXT
+    wxChoice* var_time_choice; // ID_VAR_CHOICE
+    
 	wxStaticText* dist_txt; // ID_DIST_TXT
 	wxChoice* dist_choice; // ID_DIST_CHOICE
 	wxStaticText* bins_txt; // ID_BINS_TXT

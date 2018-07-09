@@ -27,7 +27,7 @@ using namespace GdaVarTools;
 const double Manager::NaN = std::numeric_limits<double>::quiet_NaN();
 
 Manager::Manager()
-: global_time(0)
+: global_time(0), current_time(0)
 {
 }
 
@@ -55,6 +55,16 @@ void Manager::ClearAndInit(const std::vector<wxString>& tm_strs_)
 	vars.clear();
 	tm_strs = tm_strs_;
 	global_time = 0;
+}
+
+void Manager::SetCurTime(int var, int t)
+{
+    vars[var].time = t;
+}
+
+int Manager::GetCurTime(int var)
+{
+    return vars[var].time;
 }
 
 void Manager::AppendVar(const wxString& name,

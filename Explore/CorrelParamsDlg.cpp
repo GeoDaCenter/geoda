@@ -18,6 +18,7 @@
  */
 
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/textdlg.h>
 #include <wx/valnum.h>
 #include <wx/valtext.h>
@@ -43,7 +44,7 @@ all_pairs_rad(0), est_pairs_txt(0), est_pairs_num_txt(0),
 rand_samp_rad(0), max_iter_txt(0), max_iter_tctrl(0),
 help_btn(0), apply_btn(0)
 {
-	LOG_MSG("Entering CorrelParamsFrame::CorrelParamsFrame");
+	wxLogMessage("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
 	wxPanel* panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
@@ -51,11 +52,34 @@ help_btn(0), apply_btn(0)
 	{
 		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), _("Variable:"));
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"),
-                                  wxDefaultPosition,wxSize(160,-1));
+                                  wxDefaultPosition,wxSize(80,-1));
 		wxString var_nm = "";
 		if (var_man.GetVarsCount() > 0)
             var_nm = var_man.GetName(0);
-		UpdateVarChoiceFromTable(var_nm);
+        
+        var_time_txt = new wxStaticText(panel, XRCID("ID_VAR_TIME_TXT"), _("Time:"));
+        var_time_choice = new wxChoice(panel, XRCID("ID_VAR_TIME_CHOICE"),
+                                  wxDefaultPosition,wxSize(80,-1));
+        
+        Connect(XRCID("ID_VAR_TIME_CHOICE"), wxEVT_CHOICE,
+                wxCommandEventHandler(CorrelParamsFrame::OnTime1));
+        
+        is_time = project->GetTableInt()->IsTimeVariant();
+        time_steps = project->GetTableInt()->GetTimeSteps();
+        for (int i=0; i<time_steps; i++) {
+            wxString s;
+            s << project->GetTableInt()->GetTimeString(i);
+            var_time_choice->Append(s);
+        }
+        if (is_time == false) {
+            var_time_txt->Hide();
+            var_time_choice->Hide();
+        } else {
+            v1_time = 0;
+            var_time_choice->SetSelection(v1_time);
+        }
+        
+        UpdateVarChoiceFromTable(var_nm);
         Connect(XRCID("ID_VAR_CHOICE"), wxEVT_CHOICE,
                 wxCommandEventHandler(CorrelParamsFrame::OnVarChoiceSelected));
 	}
@@ -63,6 +87,10 @@ help_btn(0), apply_btn(0)
 	var_h_szr->Add(var_txt, 0, wxALIGN_CENTER_VERTICAL);
 	var_h_szr->AddSpacer(5);
 	var_h_szr->Add(var_choice, 0, wxALIGN_CENTER_VERTICAL);
+    var_h_szr->AddSpacer(5);
+    var_h_szr->Add(var_time_txt, 0, wxALIGN_CENTER_VERTICAL);
+    var_h_szr->AddSpacer(5);
+    var_h_szr->Add(var_time_choice, 0, wxALIGN_CENTER_VERTICAL);
 	
 	dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), _("Distance:"));
 	dist_choice = new wxChoice(panel, XRCID("ID_DIST_CHOICE"),
@@ -257,12 +285,12 @@ help_btn(0), apply_btn(0)
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     Show(true);
     var_choice->SetFocus();
-	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
+	wxLogMessage("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }
 
 CorrelParamsFrame::~CorrelParamsFrame()
 {
-	LOG_MSG("In CorrelParamsFrame::~CorrelParamsFrame");
+	wxLogMessage("In CorrelParamsFrame::~CorrelParamsFrame");
 	notifyObserversOfClosing();
 }
 
@@ -326,7 +354,7 @@ void CorrelParamsFrame::OnChangeSeed(wxCommandEvent& event)
 
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In CorrelParamsFrame::OnHelpBtn");
+	wxLogMessage("In CorrelParamsFrame::OnHelpBtn");
 	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
                                              wxID_ANY,
                                              _("Correlogram Parameters Help"),
@@ -340,7 +368,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
     if (vc_sel < 0)
         return;
     
-	LOG_MSG("In CorrelParamsFrame::OnApplyBtn");
+	wxLogMessage("In CorrelParamsFrame::OnApplyBtn");
 	{
 		long new_bins = bins_spn_ctrl->GetValue();
 		if (new_bins < CorrelParams::min_bins_cnst) {
@@ -418,6 +446,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 	{
 		// update var_man with new selection
 		wxString var_nm = var_choice->GetString(vc_sel);
+        var_nm = name_to_nm[var_nm];
 		TableInterface* table_int = project->GetTableInt();
 		int col_id = table_int->FindColId(var_nm);
 		wxString var_man_nm0 = var_man.GetName(0);
@@ -428,7 +457,6 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 				var_man.RemoveVar(0);
 			}
 			if (var_man.GetVarsCount() == 0) {
-				int time = project->GetTimeState()->GetCurrTime();
 				std::vector<double> min_vals;
 				std::vector<double> max_vals;
 				table_int->GetMinMaxVals(col_id, min_vals, max_vals);
@@ -438,15 +466,16 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
                         break;
                     }
                 }
-				var_man.AppendVar(var_nm, min_vals, max_vals, time);
+				var_man.AppendVar(var_nm, min_vals, max_vals, v1_time);
 			}
-            
+           
+            var_man.SetCurTime(0,v1_time);
             double mean = 0;
             double var = 0;
             vector<double> vals;
             vector<bool> vals_undef;
-            table_int->GetColData(col_id, 0, vals);
-            table_int->GetColUndefined(col_id, 0, vals_undef);
+            table_int->GetColData(col_id, v1_time, vals);
+            table_int->GetColUndefined(col_id, v1_time, vals_undef);
             CorrelogramAlgs::GetSampMeanAndVar(vals, vals_undef, mean, var);
             if (var <= 0) {
                 wxString msg = "Please check your variable, e.g. make sure it is not a constant.";
@@ -655,10 +684,10 @@ void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
 
 void CorrelParamsFrame::UpdateFromTable()
 {
-	LOG_MSG("Entering CorrelParamsFrame::UpdateFromTable");
+	wxLogMessage("Entering CorrelParamsFrame::UpdateFromTable");
 	TableInterface* table_int = project->GetTableInt();
 	notifyObservers();
-	LOG_MSG("Exiting CorrelParamsFrame::UpdateFromTable");
+	wxLogMessage("Exiting CorrelParamsFrame::UpdateFromTable");
 }
 
 void CorrelParamsFrame::closeAndDeleteWhenEmpty()
@@ -702,6 +731,18 @@ double CorrelParamsFrame::GetThreshMax()
 	return project->GetMaxDistEuc();
 }
 
+void CorrelParamsFrame::OnTime1(wxCommandEvent& event)
+{
+    v1_time = var_time_choice->GetSelection();
+   
+    wxString cur_var = var_choice->GetStringSelection();
+    if (name_to_nm.find(cur_var)!=name_to_nm.end()) {
+        cur_var = name_to_nm[cur_var];
+    }
+    UpdateVarChoiceFromTable(cur_var);
+    OnApplyBtn(event);
+}
+
 void CorrelParamsFrame::UpdateVarChoiceFromTable(const wxString& default_var)
 {
 	TableInterface* table_int = project->GetTableInt();
@@ -709,16 +750,32 @@ void CorrelParamsFrame::UpdateVarChoiceFromTable(const wxString& default_var)
 
 	int var_pos = -1;
 	var_choice->Clear();
-	std::vector<wxString> names;
-	table_int->FillNumericNameList(names);
-	for (size_t i=0, sz=names.size(); i<sz; ++i) {
-		var_choice->Append(names[i]);
-		if (names[i] == default_var) var_pos = i;
-	}
+    name_to_nm.clear();
     
-	if (var_pos >= 0) {
-		var_choice->SetSelection(var_pos);
-	}
+    int idx = -1;
+    std::vector<int> col_id_map;
+    table_int->FillNumericColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            wxString nm = name;
+            nm << " (" << table_int->GetTimeString(v1_time) << ")";
+            name_to_nm[nm] = name;
+            var_choice->Append(nm);
+            idx++;
+        } else {
+            var_choice->Append(name);
+            name_to_nm[name] = name;
+            idx++;
+        }
+        if (name == default_var) var_pos = idx;
+    }
+    
+    if (var_pos >= 0) {
+        var_choice->SetSelection(var_pos);
+    }
+    
 	UpdateApplyState();
 }
 

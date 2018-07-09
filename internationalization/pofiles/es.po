@@ -113,7 +113,7 @@ msgid "Z Variable"
 msgstr "Variable Z"
 
 msgid "Selection Shape"
-msgstr "Selección Shape"
+msgstr "Selección Forma"
 
 msgid "Select datasource"
 msgstr "Seleccionar fuente de datos"
@@ -125,7 +125,7 @@ msgid "Change Font"
 msgstr "Cambiar Fuente"
 
 msgid "#obs"
-msgstr "Recuento"
+msgstr "nº obs."
 
 msgid "Copy Legend To Clipboard"
 msgstr "Copiar Leyenda al Portapapeles"
@@ -263,9 +263,6 @@ msgstr "Añadir nueva columna a la tabla"
 
 msgid "&Tools"
 msgstr "&Herramientas"
-
-msgid "Tools"
-msgstr "Herramientas"
 
 msgid "Category"
 msgstr "Categoría"
@@ -439,7 +436,7 @@ msgid "current table key"
 msgstr "Clave de la tabla activa"
 
 msgid "Stack"
-msgstr "Apilar"
+msgstr "Agregar"
 
 msgid "Sort"
 msgstr "Ordenar"
@@ -466,7 +463,7 @@ msgid "Order of contiguity"
 msgstr "Orden de contigüidad"
 
 msgid "View"
-msgstr "View"
+msgstr "Vista"
 
 msgid "2 Iteration"
 msgstr "Iteración 2"
@@ -697,7 +694,7 @@ msgid "Copy Image To Clipboard"
 msgstr "Copiar Imagen al Portapapeles "
 
 msgid "Use max knn distance as bandwidth"
-msgstr "Usar distancia máx knn como ancho banda"
+msgstr "Usar distancia máx. k-vecinos como ancho banda"
 
 msgid "Calculator"
 msgstr "Calculadora"
@@ -979,13 +976,13 @@ msgid "Web"
 msgstr "Web"
 
 msgid "Data Source Overview/Help: "
-msgstr "Revisión Fuentes de Datos/Ayuda"
+msgstr "Revisión Fuente de Datos/Ayuda"
 
 msgid "Save Selected As"
 msgstr "Guardar Selección como"
 
 msgid "Covariates"
-msgstr "Covariables"
+msgstr "Explicativas"
 
 msgid "Nokia Hybrid"
 msgstr "Nokia Híbrido"
@@ -1063,7 +1060,7 @@ msgid "Insert before"
 msgstr "Insertar antes"
 
 msgid "Get a free Carto account: "
-msgstr "Obtener una cuesta Carto gratis"
+msgstr "Obtener una cuenta Carto gratis"
 
 msgid "Equal Intervals"
 msgstr "Intervalos Iguales"
@@ -1198,7 +1195,7 @@ msgid "Assign To Target"
 msgstr ""
 
 msgid "Displayed decimal places"
-msgstr "Mostrados lugares decimales"
+msgstr "Mostrar lugares decimales"
 
 msgid "Clear Selection"
 msgstr "Borrar Selección"
@@ -1231,7 +1228,7 @@ msgid "GeoDa could not find the required weights file."
 msgstr "Geoda no puede encontrar el archivo de pesos"
 
 msgid "Base Map "
-msgstr "Mapa de Base"
+msgstr "Mapa Base"
 
 msgid "Coeff. Var. Mat."
 msgstr "Mat. Var. Coef."
@@ -1294,7 +1291,7 @@ msgid "import table key"
 msgstr "Clave de tabla importada"
 
 msgid "Open"
-msgstr "Abierto"
+msgstr "Abrir"
 
 msgid "Local G"
 msgstr "G Local"
@@ -1693,7 +1690,7 @@ msgid "Axis Selection"
 msgstr "Selección de Eje"
 
 msgid "Tim&e"
-msgstr "Hora"
+msgstr "Tiempo"
 
 msgid "Set Display Precision:"
 msgstr "Mostrar Pantalla de Precisión"
@@ -1714,7 +1711,7 @@ msgid "Displayed decimals places"
 msgstr "Lugares decimales mostrados"
 
 msgid "WFS URL"
-msgstr "WFS URL"
+msgstr "URL de WFS"
 
 msgid "Local G Statistics Maps"
 msgstr "Mapas de Estadísticos G Locales"
@@ -1885,7 +1882,7 @@ msgid "Histogram Classification"
 msgstr "Clasificación Histograma"
 
 msgid "Chow test for sel/unsel regression subsets: "
-msgstr "Test Chow para regresiones de sel/no sel. subgrupos"
+msgstr "Test de Chow para regresiones de subgrupos de sel/no sel."
 
 msgid "Publish Maps and Plots to GeoDa-Web"
 msgstr "Publicar Mapas y Gráficos para GeoDa-Web"
@@ -2035,7 +2032,7 @@ msgid "Data source (%s) doesn't exist. Please check the project configuration fi
 msgstr "La fuente de datos (%s) no existe. Comprobar el fichero de configuración del proyecto."
 
 msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
-msgstr "Una vez agrupadas las variables, debe guardar unas nuevas tabla y pesos espacio-temporales: Para añadir el ID espacial a su tabla y crear pesos espacio-temporales, debe tener un fichero activo de pesos (Herramientas-Gestor de Pesos)"
+msgstr "Una vez agrupadas las variables, debe guardar una nueva tabla y pesos espacio-temporales: Para añadir el ID espacial a su tabla y crear pesos espacio-temporales, debe tener un fichero activo de pesos (Herramientas-Gestor de Pesos)"
 
 msgid "(Please save results to see the summary report.)"
 msgstr "(Guardar resultados para ver el informe de resultados)."
@@ -2119,7 +2116,7 @@ msgid "Exit with unsaved changes?"
 msgstr "¿Salir sin guardar cambios?"
 
 msgid "Run Diff-in-Diff Test"
-msgstr "Ejecutar Test de Diff-in-Diff"
+msgstr "Ejecutar Test de dif-en-dif"
 
 msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
 msgstr "Distancia tabú para el algoritmo Búsqueda Tabú debe ser un número entero mayor que 1 (ej. 85)"
@@ -2215,7 +2212,7 @@ msgid "Neighborless"
 msgstr "Sin vecinos"
 
 msgid "Minimum Bound:"
-msgstr ""
+msgstr "Valor Cota Mín."
 
 msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
 msgstr "No se creó el archivo de pesos porque todas las observaciones están aisladas para el valor umbral especificado. Aumente el umbral para crear un archivo de pesos no vacío"
@@ -2233,7 +2230,7 @@ msgid "Record order specified, but found minimum and maximum observation values 
 msgstr "Orden de registro especificado, pero se encontraron valores de obs. mín. y máx. de %d y %d que son incompatibles con el nº de observaciones especificadas en la 1ª línea del archivo de pesos: %d ."
 
 msgid "Stop"
-msgstr "Stop"
+msgstr "Parar"
 
 msgid "Success \\/ Warning"
 msgstr "Éxito \\/ Aviso"
@@ -2386,7 +2383,7 @@ msgid "Vertical Cells"
 msgstr "Celdas Verticales"
 
 msgid "Set transparency of unhighlighted objects in selection:"
-msgstr "Fijar transparencia de objetos sin destacar en la selección"
+msgstr "Fijar transparencia de objetos sin resaltar en la selección"
 
 msgid "Please specify the p-value to be used in tests; \n"
 msgstr "Especifiar el p-valor a utilizar en los tests; \n"
@@ -2761,7 +2758,7 @@ msgid ">>"
 msgstr ">>"
 
 msgid "Set transparency of highlighted objects in selection:"
-msgstr "Fijar transparencia de objetos destacados en la selección:"
+msgstr "Fijar transparencia de objetos resaltados en la selección:"
 
 msgid "Regression Output Text File"
 msgstr "Archivo de Texto Resultados de la Regresión"
@@ -2989,7 +2986,7 @@ msgid "Var Calc Container"
 msgstr "Contenedor de Var Calc"
 
 msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
-msgstr "Lista de variables agrupadas existentes. Como se han creado nuevos grupos, aparecerán en esta lista. Puede abrir un fichero .gda existente y editarlo aquí."
+msgstr "Lista de variables agrupadas existentes. Al crear nuevos grupos, éstos aparecerán en esta lista. Puede abrir un fichero .gda existente y editarlo aquí."
 
 msgid "There was a problem reading the table"
 msgstr "Problema de lectura de tabla"
@@ -3400,7 +3397,7 @@ msgid "Geocode Setting Dialog"
 msgstr "Cuadro Diálogo de Geocodificación"
 
 msgid "Use Power Iteration:"
-msgstr "Utilizar Power Iteration:"
+msgstr "Utilizar Interación de Potencia:"
 
 msgid "GeoDa Help"
 msgstr "Ayuda de GeoDa"
@@ -3529,9 +3526,6 @@ msgid "Please input Carto User Name."
 msgstr "Introducir Nombre de Usuario de Carto."
 
 msgid "E&xplore"
-msgstr "Explorar"
-
-msgid "Explore"
 msgstr "Explorar"
 
 msgid "Thank you for helping us improve GeoDa with your bug report! \n"
@@ -3838,7 +3832,7 @@ msgid "Choose an output weights file name."
 msgstr "Escribir nombre de fichero de resultado de pesos"
 
 msgid "Selected vs. Unselected"
-msgstr "Marcado vs. Desmarcado"
+msgstr "Seleccionado vs. Desmarcado"
 
 msgid "3D Scatter Plot Variables"
 msgstr "Variables Diagrama Dispersión 3D"

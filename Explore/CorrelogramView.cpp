@@ -970,8 +970,8 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	std::vector<bool> Z_undef;
 	if (var_man.GetVarsCount() > 0) {
 		wxString nm = var_man.GetName(0);
-		int tm = var_man.GetTime(0);
-		wxString title(var_man.GetNameWithTime(0));
+		int tm = var_man.GetCurTime(0);
+        
 		const std::vector<double>& data(data_map[nm][tm]);
 		const std::vector<bool>& data_undef(data_undef_map[nm][tm]);
 		Z.resize(data.size());

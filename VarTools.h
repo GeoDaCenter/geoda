@@ -165,6 +165,9 @@ public:
 	void UpdateGlobalTime(int tm);
 	/** Get last value global time was set to.  Initially 0. */
 	int GetLastGlobalTime();
+    
+    void SetCurTime(int var, int t);
+    int GetCurTime(int var);
 	
 private:
 	int MinTmForAllSynced();
@@ -193,6 +196,7 @@ private:
 	std::vector<Entry> vars;
 	std::vector<wxString> tm_strs;
 	int global_time; // according to last time it was set
+    int current_time;
 };
 	
 struct VarInfo {
