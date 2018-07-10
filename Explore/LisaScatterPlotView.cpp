@@ -800,6 +800,9 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 	s << regressionXY.beta;
     
     int t = project->GetTimeState()->GetCurrTime();
+    if (t >= lisa_coord->Gal_vecs.size()) {
+        return;
+    }
     GalWeight* w = lisa_coord->Gal_vecs[t];
     GalElement* gal = w->gal;
     bool has_island = false;

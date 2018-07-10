@@ -435,8 +435,9 @@ void LisaCoordinator::Calc()
 		data1 = data1_vecs[t];
 		if (isBivariate) {
 			data2 = data2_vecs[0];
-			if (var_info[1].is_time_variant && var_info[1].sync_with_global_time)
+            if (var_info[1].is_time_variant && var_info[1].sync_with_global_time) {
                 data2 = data2_vecs[t];
+            }
 		}
 		lags = lags_vecs[t];
 		localMoran = local_moran_vecs[t];
