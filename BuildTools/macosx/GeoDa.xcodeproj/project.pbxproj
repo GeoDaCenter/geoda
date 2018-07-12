@@ -38,6 +38,10 @@
 		A1F1BA99178D46B8005A46E5 /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
+		A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92020F559F500F94543 /* scatterplot.cpp */; };
+		A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92420F675B600F94543 /* mathstuff.cpp */; };
+		A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92520F675B600F94543 /* oglstuff.cpp */; };
+		A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92720F675B600F94543 /* oglpfuncs.cpp */; };
 		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
@@ -339,6 +343,14 @@
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
 		A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferenceDlg.cpp; sourceTree = "<group>"; };
+		A40AB91F20F559F500F94543 /* scatterplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scatterplot.h; sourceTree = "<group>"; };
+		A40AB92020F559F500F94543 /* scatterplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scatterplot.cpp; sourceTree = "<group>"; };
+		A40AB92220F675B500F94543 /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathstuff.h; sourceTree = "<group>"; };
+		A40AB92320F675B600F94543 /* oglpfuncs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglpfuncs.h; sourceTree = "<group>"; };
+		A40AB92420F675B600F94543 /* mathstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mathstuff.cpp; sourceTree = "<group>"; };
+		A40AB92520F675B600F94543 /* oglstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglstuff.cpp; sourceTree = "<group>"; };
+		A40AB92620F675B600F94543 /* oglstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglstuff.h; sourceTree = "<group>"; };
+		A40AB92720F675B600F94543 /* oglpfuncs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglpfuncs.cpp; sourceTree = "<group>"; };
 		A414C889207BED2700520546 /* MatfileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MatfileReader.h; path = io/MatfileReader.h; sourceTree = "<group>"; };
 		A414C88A207BED2700520546 /* MatfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatfileReader.cpp; path = io/MatfileReader.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
@@ -802,6 +814,53 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A40AB91A20F5336600F94543 /* arizona */ = {
+			isa = PBXGroup;
+			children = (
+				A40AB91C20F5338D00F94543 /* models */,
+				A40AB91B20F5338200F94543 /* viz3 */,
+			);
+			path = arizona;
+			sourceTree = "<group>";
+		};
+		A40AB91B20F5338200F94543 /* viz3 */ = {
+			isa = PBXGroup;
+			children = (
+				A40AB92420F675B600F94543 /* mathstuff.cpp */,
+				A40AB92220F675B500F94543 /* mathstuff.h */,
+				A40AB92720F675B600F94543 /* oglpfuncs.cpp */,
+				A40AB92320F675B600F94543 /* oglpfuncs.h */,
+				A40AB92520F675B600F94543 /* oglstuff.cpp */,
+				A40AB92620F675B600F94543 /* oglstuff.h */,
+				A40AB91E20F533A500F94543 /* plots */,
+				A40AB91D20F533A000F94543 /* maps */,
+			);
+			path = viz3;
+			sourceTree = "<group>";
+		};
+		A40AB91C20F5338D00F94543 /* models */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		A40AB91D20F533A000F94543 /* maps */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = maps;
+			sourceTree = "<group>";
+		};
+		A40AB91E20F533A500F94543 /* plots */ = {
+			isa = PBXGroup;
+			children = (
+				A40AB92020F559F500F94543 /* scatterplot.cpp */,
+				A40AB91F20F559F500F94543 /* scatterplot.h */,
+			);
+			path = plots;
+			sourceTree = "<group>";
+		};
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
@@ -933,6 +992,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A40AB91A20F5336600F94543 /* arizona */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
@@ -1532,8 +1592,10 @@
 				A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
 				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
+				A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
+				A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,
 				A4D5423D1F45037B00572878 /* redcap.cpp in Sources */,
@@ -1630,6 +1692,7 @@
 				DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */,
 				DDAD0218162754EA00748874 /* ConditionalNewView.cpp in Sources */,
 				DDDBF286163AD1D50070610C /* ConditionalMapView.cpp in Sources */,
+				A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */,
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
 				A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */,
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
@@ -1705,6 +1768,7 @@
 				DD4DED12197E16FF00FE29E8 /* SelectWeightsDlg.cpp in Sources */,
 				DD5AA73D1982D200009B30C6 /* CalcHelp.cpp in Sources */,
 				DD26CBE419A41A480092C0F2 /* WebViewExampleWin.cpp in Sources */,
+				A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */,
 				A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */,
 				DD2AE42A19D4F4CA00B23FB9 /* GdaJson.cpp in Sources */,
 				A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */,

@@ -183,6 +183,8 @@
 #include "GeoDa.h"
 #include "version.h"
 
+#include "arizona/viz3/plots/scatterplot.h"
+
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
 
