@@ -55,7 +55,6 @@ public:
     void update_grid();
     
 protected:
-    
     wxPanel *panel;
     wxFlexGridSizer *gbox;
     wxBoxSizer *container;
@@ -94,6 +93,7 @@ public:
                         vector<wxString>& co_lbls,
                         vector<vector<int> >& co_ids,
                         CatClassification::CatClassifType theme_type,
+                        boost::uuids::uuid weights_id_s,
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
 	virtual ~ColocationMapCanvas();
@@ -127,6 +127,7 @@ public:
                        vector<wxColour>& co_clrs,
                        vector<wxString>& co_lbls,
                        vector<vector<int> >& co_ids,
+                       boost::uuids::uuid weights_id_s,
                        const wxPoint& pos = wxDefaultPosition,
                        const wxSize& size = GdaConst::map_default_size,
                        const long style = wxDEFAULT_FRAME_STYLE);

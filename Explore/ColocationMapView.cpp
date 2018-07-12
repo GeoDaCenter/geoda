@@ -38,6 +38,7 @@
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../DialogTools/RandomizationDlg.h"
 #include "../DialogTools/AbstractClusterDlg.h"
+#include "../VarCalc/WeightsManInterface.h"
 
 #include "ConditionalClusterMapView.h"
 #include "MapNewView.h"
@@ -489,8 +490,16 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
+   
+    boost::uuids::uuid w_id = boost::uuids::nil_uuid();
+    if (project) {
+        WeightsManInterface* w_int = project->GetWManInt();
+        if (w_int) {
+            w_id = w_int->GetDefault();
+        }
+    }
     
-    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids,wxDefaultPosition, GdaConst::map_default_size);
+    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, wxDefaultPosition, GdaConst::map_default_size);
 }
 
 void ColocationSelectDlg::OnClose( wxCloseEvent& event)
@@ -521,8 +530,8 @@ BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, const wxPoint& pos, const wxSize& size)
-:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
+:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id_s, pos, size),
 co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
 {
 	wxLogMessage("Entering ColocationMapCanvas::ColocationMapCanvas");
@@ -670,7 +679,7 @@ IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids,const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");
@@ -684,7 +693,7 @@ ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector
     CatClassification::CatClassifType theme_type_s = CatClassification::colocation;
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_lbls, co_ids, theme_type_s);
+    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_lbls, co_ids, theme_type_s, weights_id_s);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
