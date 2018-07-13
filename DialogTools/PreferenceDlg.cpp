@@ -410,7 +410,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	GdaConst::plot_transparency_highlighted = 255;
 	GdaConst::plot_transparency_unhighlighted = 50;
 	GdaConst::show_recent_sample_connect_ds_dialog = true;
-	GdaConst::show_csv_configure_in_merge = false;
+	GdaConst::show_csv_configure_in_merge = true;
 	GdaConst::enable_high_dpi_support = true;
     GdaConst::gdal_http_timeout = 5;
     GdaConst::use_gda_user_seed= true;
@@ -442,7 +442,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("plot_transparency_highlighted", "255");
 	ogr_adapt.AddEntry("plot_transparency_unhighlighted", "50");
 	ogr_adapt.AddEntry("show_recent_sample_connect_ds_dialog", "1");
-	ogr_adapt.AddEntry("show_csv_configure_in_merge", "0");
+	ogr_adapt.AddEntry("show_csv_configure_in_merge", "1");
 	ogr_adapt.AddEntry("enable_high_dpi_support", "1");
 	ogr_adapt.AddEntry("gdal_http_timeout", "5");
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
