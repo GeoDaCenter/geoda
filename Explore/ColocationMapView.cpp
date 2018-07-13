@@ -291,6 +291,8 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
     select_vars.clear();
     
     clear_colo_control();
+   
+    vector<int> tms;
     
     combo_var->GetSelections(var_selections);
     int num_var = var_selections.size();
@@ -306,6 +308,10 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
             
             wxString nm = name_to_nm[sel_str];
             col_names.push_back(nm);
+            
+            int tm = name_to_tm_id[combo_var->GetString(idx)];
+            tms.push_back(tm);
+            
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
@@ -330,7 +336,9 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
         vector<set<wxInt64> > same_val_counts(rows);
         vector<bool> same_undef(rows, false);
         for (int i=0; i<data.size(); i++ ){ // col
-            for (int j=0; j<data[i].size(); j++) { // time
+            int j = tms[i];
+            //for (int j=0; j<data[i].size(); j++) // time
+            {
                 columns += 1;
                 for (int k=0; k< rows;k++) { // row
                     same_undef[k] = same_undef[k] || data_undef[i][j][k];
@@ -498,8 +506,16 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
             w_id = w_int->GetDefault();
         }
     }
-    
-    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, wxDefaultPosition, GdaConst::map_default_size);
+   
+    wxString ttl = _("Co-location Map");
+    ttl << ": ";
+    for (int i=0; i<select_vars.size(); i++) {
+        ttl << select_vars[i];
+        if (i < select_vars.size() -1) {
+            ttl << " - ";
+        }
+    }
+    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, ttl, wxDefaultPosition, GdaConst::map_default_size);
 }
 
 void ColocationSelectDlg::OnClose( wxCloseEvent& event)
@@ -679,7 +695,7 @@ IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");
@@ -723,7 +739,7 @@ ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector
     //splitter_win->SetSize(wxSize(width,height));
     
     SetAutoLayout(true);
-	SetTitle(template_canvas->GetCanvasTitle());
+	SetTitle(title);
     DisplayStatusBar(true);
     
 	Show(true);

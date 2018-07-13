@@ -128,6 +128,7 @@ public:
                        vector<wxString>& co_lbls,
                        vector<vector<int> >& co_ids,
                        boost::uuids::uuid weights_id_s,
+                       const wxString title,
                        const wxPoint& pos = wxDefaultPosition,
                        const wxSize& size = GdaConst::map_default_size,
                        const long style = wxDEFAULT_FRAME_STYLE);

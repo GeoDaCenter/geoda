@@ -305,6 +305,7 @@ void GStatCoordinator::InitFromVarInfo()
             Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
 		x = x_vecs[t];
+        
         if (is_local_joint_count) {
             int num_obs_1s = 0;
             int num_obs_0s = 0;
@@ -347,6 +348,7 @@ void GStatCoordinator::InitFromVarInfo()
                 ep_vals[t][i] = hg;
             }
         }
+        
 		for (int i=0; i<num_obs; i++) {
             if (x_undefs[t][i])
                 continue;
