@@ -52,8 +52,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class JCWorkerThread : public wxThread
 {
 public:
-    JCWorkerThread(const GalElement* W,
-                   const std::vector<bool>& undefs,
+    JCWorkerThread(int t,
                    int obs_start, int obs_end, uint64_t seed_start,
                    JCCoordinator* jc_coord,
                    wxMutex* worker_list_mutex,
@@ -64,8 +63,7 @@ public:
 	virtual ~JCWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
-    const GalElement* W;
-    const std::vector<bool>& undefs;
+    int t;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -129,33 +127,29 @@ public:
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
 	
+    vector<vector<double*> > data_vecs;
+    vector<vector<bool> > undef_tms;
+    vector<int*> zz_vecs;
+    vector<double*> local_jc_vecs;
+    vector<double*> sig_local_jc_vecs;
+    std::vector<std::vector<wxInt64> > num_neighbors;
 
-	
-	std::vector<double*> G_vecs; //threaded
-	std::vector<double*> pseudo_p_vecs;
-	std::vector<double*> x_vecs;
-	std::vector<double*> y_vecs;
-    std::vector<int*> c_vecs;
-    std::vector<std::vector<bool> > x_undefs;
     std::vector<GalWeight*> Gal_vecs;
     std::vector<GalWeight*> Gal_vecs_orig;
-    std::vector<std::vector<wxInt64> > num_neighbors;
-    std::vector<std::vector<wxInt64> > num_neighbors_x1;
-    std::vector<std::vector<wxInt64> > num_neighbors_y1;
-    std::vector<std::vector<wxInt64> > num_neighbors_xy1;
-    
+	
 	std::vector<bool> has_isolates;
 	std::vector<bool> has_undefined;
 
 	boost::uuids::uuid w_id;
 	wxString weight_name;
 
+    int num_vars;
 	int num_obs; // total # obs including neighborless obs
 	int num_time_vals; // number of valid time periods based on var_info
 	
 	// This variable should be empty for GStatMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
-	std::vector<b_array_type> data_undef; // data[variable][time][obs]
+	std::vector<b_array_type> undef_data; // data[variable][time][obs]
 	
 	// All objects synchronize themselves from the following 6 variables.
 	int ref_var_index;
@@ -177,8 +171,7 @@ public:
     std::list<JCCoordinatorObserver*> observers;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W,
-                           const std::vector<bool>& undefs,
+	void CalcPseudoP_range(int t,
                            int obs_start,
                            int obs_end,
                            uint64_t seed_start);
@@ -192,12 +185,11 @@ public:
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below
-	double* G; //threaded
-	double* pseudo_p;
-    double* x;
-	double* y;
-    int* c;
     
+    
+    GalWeight* weights;
+	double* pseudo_p;
+
 	uint64_t last_seed_used;
 	bool reuse_last_seed;
 	
@@ -206,8 +198,10 @@ protected:
     
 	void DeallocateVectors();
 	void AllocateVectors();
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
-	void CalcGs();
+    
+	void CalcPseudoP_threaded(int t);
+    
+	void CalcMultiLocalJoinCount();
 };
 
 #endif

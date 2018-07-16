@@ -624,8 +624,10 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_G_STAR"), shp_proj);
 	EnableTool(XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_LOCAL_JOINT_COUNT"), shp_proj);
-	EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
-	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
+	EnableTool(XRCID("IDM_BIV_LJC"), shp_proj);
+	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_BIV_LJC"), shp_proj);
+    EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
 
     
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
@@ -3885,9 +3887,8 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, false);
 }
 
-void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
 {
-    wxLogMessage("Enter OnOpenMultiLJC()");
+    wxLogMessage("Enter OnOpenBivariateLJC()");
     
     Project* p = GetProject();
     if (!p) return;
@@ -3938,6 +3939,113 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
     }
     
 	JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
+    MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
+}
+
+void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenMultiLJC (OnOpenMultiLJC).");
+    
+    Project* p = GetProject();
+    if (!p) return;
+    
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    MultiVariableSettingsDlg VS(p);
+    if (VS.ShowModal() != wxID_OK) return;
+    
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+    
+    GalWeight* gw = w_man_int->GetGal(w_id);
+    
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+   
+    int num_vars = VS.var_info.size();
+    
+    // check if binary data
+    std::vector<double> data;
+    TableInterface* table_int = p->GetTableInt();
+    for (int c=0; c<num_vars; c++) {
+        table_int->GetColData(VS.col_ids[c], VS.var_info[c].time, data);
+        for (int i=0; i<data.size(); i++) {
+            if (data[i] !=0 && data[i] != 1) {
+                wxString msg = _("Please select binary variables for Multivariate Local Join Count.");
+                wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
+                dlg.ShowModal();
+                return;
+            }
+        }
+    }
+    
+    // check if more than 2 variables has colocation
+    if (num_vars > 2) {
+        std::vector<d_array_type> data(num_vars); // data[variable][time][obs]
+        std::vector<b_array_type> undef_data(num_vars);
+        for (int i=0; i<VS.var_info.size(); i++) {
+            table_int->GetColData(VS.col_ids[i], data[i]);
+            table_int->GetColUndefined(VS.col_ids[i], undef_data[i]);
+        }
+        GalElement* W = gw->gal;
+        int t = 0;
+        int num_obs = p->GetNumRecords();
+        if (p->GetTimeState()) t = p->GetTimeState()->GetCurrTime();
+        vector<int> local_t;
+        for (int v=0; v<num_vars; v++) {
+            if (data[v].size()==1) {
+                local_t.push_back(0);
+            } else {
+                local_t.push_back(t);
+            }
+        }
+        vector<bool> undefs;
+        for (int i=0; i<num_obs; i++){
+            bool is_undef = false;
+            for (int v=0; v<undef_data.size(); v++) {
+                for (int var_t=0; var_t<undef_data[v].size(); var_t++){
+                    is_undef = is_undef || undef_data[v][var_t][i];
+                }
+            }
+            undefs.push_back(is_undef);
+        }
+        int* zz = new int[num_obs];
+        for (int i=0; i<num_obs; i++) zz[i] = 1;
+        for (int i=0; i<num_obs; i++) {
+            if (undefs[i] == true) {
+                zz[i] = 0;
+                continue;
+            }
+            for (int v=0; v<num_vars; v++) {
+                int _t = local_t[v];
+                int _v = data[v][_t][i];
+                zz[i] = zz[i] * _v;
+            }
+        }
+        int sum = 0;
+        for (int i=0; i<num_obs; i++) {
+            sum += zz[i];
+        }
+        bool nocolocation = sum == 0;
+        if (nocolocation) {
+            wxMessageDialog dlg (this, _("Multivariate Local Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."), _("Error"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
+    
+    JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
     MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
 }
 
@@ -6678,6 +6786,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
     EVT_MENU(XRCID("IDM_LOCAL_JOINT_COUNT"), GdaFrame::OnOpenLocalJoinCount)
 
+    EVT_MENU(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
+    EVT_TOOL(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
     EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
     EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
 

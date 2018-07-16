@@ -888,9 +888,8 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
             undefs[j] = undefs[j] || gs_coord->x_undefs[i][j];
         }
     }
-    
+    int data_i = 0;
     std::vector<wxInt64> nn_1_val;
-	int data_i = 0;
     
     if (gs_coord->is_local_joint_count == false) {
     	data[data_i].d_val = &g_val;
@@ -922,12 +921,18 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
     	data_i++;
     } else {
-        int n_1s = 0;
-        int n_0s = 0;
+        
         
         for (int i=0; i<gs_coord->num_obs; i++) {
             nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
         }
+        
+        data[data_i].l_val = &nn_1_val;
+        data[data_i].label = g_label;
+        data[data_i].field_default = g_field_default;
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
         
         data[data_i].l_val = &gs_coord->num_neighbors;
         data[data_i].label = "Number of Neighbors";
@@ -936,20 +941,12 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
         data_i++;
         
-        data[data_i].l_val = &nn_1_val;
-        data[data_i].label = "Number of Neighbors with Value 1";
-        data[data_i].field_default = "NN_1";
-        data[data_i].type = GdaConst::long64_type;
-        data[data_i].undefined = &undefs;
-        data_i++;
-        
         for (size_t i=0; i<gs_coord->num_obs; i++) {
-            if (gs_coord->num_neighbors_1[t][i] > 0 && gs_coord->x_vecs[t][i] == 1)
+            if (gs_coord->num_neighbors_1[t][i] > 0 &&
+                gs_coord->x_vecs[t][i] == 1)
                 c_undefs[i] = false;
-            if (gs_coord->x_vecs[t][i] == 1) n_1s++;
-            else n_0s++;
         }
-    	data[data_i].d_val = &p_val;
+        data[data_i].d_val = &p_val;
     	data[data_i].label = p_label;
     	data[data_i].field_default = p_field_default;
     	data[data_i].type = GdaConst::double_type;

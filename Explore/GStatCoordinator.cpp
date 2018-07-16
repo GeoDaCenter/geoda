@@ -324,7 +324,10 @@ void GStatCoordinator::InitFromVarInfo()
                     }
                 }
                 if (x[i] ==1)  num_obs_1s +=1;
-                else num_obs_0s += 1;
+                else {
+                    num_neighbors_1[t][i] = 0;
+                    num_obs_0s += 1;
+                }
             }
         }
         
@@ -444,6 +447,7 @@ void GStatCoordinator::CalcGs()
 		pseudo_p = pseudo_p_vecs[t];
 		pseudo_p_star = pseudo_p_star_vecs[t];
 		x = x_vecs[t];
+        nn_1_t = num_neighbors_1[t];
 		
 		has_isolates[t] = false;
         
@@ -657,6 +661,16 @@ void GStatCoordinator::CalcPseudoP_range(int obs_start, int obs_end,uint64_t see
                 numNeighbors = w[i].Size();
         }
         if (numNeighbors == 0) {
+            continue;
+        }
+        
+        if (is_local_joint_count && nn_1_t[i] ==0) {
+            for (int t=0; t<num_time_vals; t++) {
+                double* p_t = pseudo_p_vecs[t];
+                double* ps_t = pseudo_p_star_vecs[t];
+                p_t[i] = 0;
+                ps_t[i] = 0;
+            }
             continue;
         }
         

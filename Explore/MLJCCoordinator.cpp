@@ -38,10 +38,9 @@
 // JCWorkerThread
 //
 ///////////////////////////////////////////////////////////////////////////////
-JCWorkerThread::JCWorkerThread(const GalElement* W_, const std::vector<bool>& undefs_, int obs_start_s, int obs_end_s, uint64_t seed_start_s, JCCoordinator* jc_coord_s, wxMutex* worker_list_mutex_s, wxCondition* worker_list_empty_cond_s, std::list<wxThread*> *worker_list_s,int thread_id_s)
+JCWorkerThread::JCWorkerThread(int t_, int obs_start_s, int obs_end_s, uint64_t seed_start_s, JCCoordinator* jc_coord_s, wxMutex* worker_list_mutex_s, wxCondition* worker_list_empty_cond_s, std::list<wxThread*> *worker_list_s,int thread_id_s)
 : wxThread(),
-W(W_),
-undefs(undefs_),
+t(t_),
 obs_start(obs_start_s), obs_end(obs_end_s), seed_start(seed_start_s),
 jc_coord(jc_coord_s),
 worker_list_mutex(worker_list_mutex_s),
@@ -59,7 +58,7 @@ wxThread::ExitCode JCWorkerThread::Entry()
 {
 	LOG_MSG(wxString::Format("JCWorkerThread %d started", thread_id));
 	// call work for assigned range of observations
-	jc_coord->CalcPseudoP_range(W, undefs, obs_start, obs_end, seed_start);
+	jc_coord->CalcPseudoP_range(t, obs_start, obs_end, seed_start);
 	
 	wxMutexLocker lock(*worker_list_mutex);
 	// remove ourself from the list
@@ -87,7 +86,7 @@ num_obs(project->GetNumRecords()),
 permutations(999),
 var_info(var_info_s),
 data(var_info_s.size()),
-data_undef(var_info_s.size()),
+undef_data(var_info_s.size()),
 last_seed_used(123456789), reuse_last_seed(true)
 {
     reuse_last_seed = GdaConst::use_gda_user_seed;
@@ -97,10 +96,11 @@ last_seed_used(123456789), reuse_last_seed(true)
 	TableInterface* table_int = project->GetTableInt();
 	for (int i=0; i<var_info.size(); i++) {
 		table_int->GetColData(col_ids[i], data[i]);
-        table_int->GetColUndefined(col_ids[i], data_undef[i]);
+        table_int->GetColUndefined(col_ids[i], undef_data[i]);
 	}
-    
+    num_vars = var_info.size();
 	weight_name = w_man_int->GetLongDispName(w_id);
+    weights = w_man_int->GetGal(w_id);
 	SetSignificanceFilter(1);
     
 	InitFromVarInfo();
@@ -119,28 +119,31 @@ JCCoordinator::~JCCoordinator()
 
 void JCCoordinator::DeallocateVectors()
 {
-	for (int i=0; i<G_vecs.size(); i++) if (G_vecs[i]) delete[] G_vecs[i];
-	G_vecs.clear();
-
-	for (int i=0; i<pseudo_p_vecs.size(); i++) {
-		if (pseudo_p_vecs[i]) delete [] pseudo_p_vecs[i];
-	}
-	pseudo_p_vecs.clear();
-	
-	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete[] x_vecs[i];
-	x_vecs.clear();
+    for (int i=0; i<zz_vecs.size(); i++) {
+        if (zz_vecs[i]) delete [] zz_vecs[i];
+    }
+    zz_vecs.clear();
     
-	for (int i=0; i<y_vecs.size(); i++) if (y_vecs[i]) delete[] y_vecs[i];
-	y_vecs.clear();
+    for (int i=0; i<local_jc_vecs.size(); i++) {
+        if (local_jc_vecs[i]) delete [] local_jc_vecs[i];
+    }
+    local_jc_vecs.clear();
     
-	for (int i=0; i<c_vecs.size(); i++) if (c_vecs[i]) delete[] c_vecs[i];
-	c_vecs.clear();
-   
+    for (int i=0; i<sig_local_jc_vecs.size(); i++) {
+        if (sig_local_jc_vecs[i]) delete [] sig_local_jc_vecs[i];
+    }
+    sig_local_jc_vecs.clear();
+    
+    for (int i=0; i<data_vecs.size(); i++) {
+        for (int j=0; j<data_vecs[i].size(); j++) {
+            if (data_vecs[i][j]) delete [] data_vecs[i][j];
+        }
+        data_vecs[i].clear();
+    }
+    data_vecs.clear();
+    
     num_neighbors.clear();
-	num_neighbors_x1.clear();
-	num_neighbors_y1.clear();
-	num_neighbors_xy1.clear();
-    
+   
     // clear W_vecs
     for (size_t i=0; i<has_undefined.size(); i++) {
         if (has_undefined[i])  delete Gal_vecs[i];
@@ -154,45 +157,40 @@ void JCCoordinator::AllocateVectors()
 {
 	int tms = num_time_vals;
     
-	G_vecs.resize(tms);
-	pseudo_p_vecs.resize(tms);
-	x_vecs.resize(tms);
-	y_vecs.resize(tms);
-    c_vecs.resize(tms);
-    x_undefs.resize(tms);
+    zz_vecs.resize(tms);
+    undef_tms.resize(tms);
+    local_jc_vecs.resize(tms);
+    sig_local_jc_vecs.resize(tms);
+    num_neighbors.resize(tms);
+
+    data_vecs.resize(num_vars);
+    for (int i=0; i<num_vars; i++) {
+        int tms_at_var = data[i].size();
+        data_vecs[i].resize(tms_at_var);
+        for (int j=0; j<tms_at_var; j++) {
+            data_vecs[i][j] = new double[num_obs];
+        }
+    }
+    
     Gal_vecs.resize(tms);
     Gal_vecs_orig.resize(tms);
-    num_neighbors.resize(tms);
-    num_neighbors_x1.resize(tms);
-    num_neighbors_y1.resize(tms);
-    num_neighbors_xy1.resize(tms);
-    
+
 	map_valid.resize(tms);
 	map_error_message.resize(tms);
 	has_isolates.resize(tms);
 	has_undefined.resize(tms);
     
 	for (int i=0; i<tms; i++) {
-		G_vecs[i] = new double[num_obs];
-		pseudo_p_vecs[i] = new double[num_obs];
-		x_vecs[i] = new double[num_obs];
-		y_vecs[i] = new double[num_obs];
-        c_vecs[i] = new int[num_obs];
-        
+        undef_tms[i].resize(num_obs, false);
+        zz_vecs[i] = new int[num_obs];
+        local_jc_vecs[i] = new double[num_obs];
+        sig_local_jc_vecs[i] = new double[num_obs];
         num_neighbors[i].resize(num_obs);
-        num_neighbors_x1[i].resize(num_obs);
-        num_neighbors_y1[i].resize(num_obs);
-        num_neighbors_xy1[i].resize(num_obs);
-        
+
         for (int j=0; j<num_obs;j++){
-            x_undefs[i][j] = false;
-            x_vecs[i][j] = 0;
-            y_vecs[i][j] = 0;
-            c_vecs[i][j] = 0;
+            zz_vecs[i][j] = 1;
             num_neighbors[i][j] = 0;
-            num_neighbors_x1[i][j] = 0;
-            num_neighbors_y1[i][j] = 0;
-            num_neighbors_xy1[i][j] = 0;
+            local_jc_vecs[i][j] = 0;
         }
         
 		map_valid[i] = true;
@@ -214,42 +212,52 @@ void JCCoordinator::InitFromVarInfo()
 	is_any_sync_with_global_time = false;
 	ref_var_index = -1;
     
+    for (int i=0; i<var_info.size(); i++) {
+        if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
+            num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
+            is_any_sync_with_global_time = true;
+            ref_var_index = i;
+            break;
+        }
+    }
+    for (int i=0; i<var_info.size(); i++) {
+        if (var_info[i].is_time_variant) {
+            is_any_time_variant = true;
+            break;
+        }
+    }
+    
 	AllocateVectors();
 	
-    int x_idx = var_info[0].time - var_info[0].time_min;
-    int y_idx = var_info[1].time - var_info[1].time_min;
-    
-	for (int t=0; t<num_time_vals; t++) {
-        bool has_undef = false;
-        for (int i=0; i<num_obs; i++) {
-            x_vecs[t][i] = data[0][x_idx][i];
-            y_vecs[t][i] = data[1][y_idx][i];
-            
-            bool is_undef = data_undef[0][x_idx][i] || data_undef[1][y_idx][i];
-            x_undefs[t][i] = is_undef;
-            if (is_undef) has_undef = true;
-        }
-        has_undefined[t] = has_undef;
-	}
-    
-	for (int t=0; t<num_time_vals; t++) {
-        GalElement* W  = NULL;
-        if (Gal_vecs.empty() || Gal_vecs[t] == NULL) {
-            // local weights copy: no leak see deconstruction function
-            GalWeight* gw = NULL;
-            if ( has_undefined[t] ) {
-                gw = new GalWeight(*w_man_int->GetGal(w_id));
-                gw->Update(x_undefs[t]);
-            } else {
-                gw = w_man_int->GetGal(w_id);
+    int num_var = data.size();
+    for (int i=0; i<num_var; i++) {
+        int tms_at_var = data[i].size();
+        for (int j=0; j<tms_at_var; j++) {
+            for (int k=0; k<num_obs; k++) {
+                data_vecs[i][j][k] = data[i][j][k];
             }
-            W = gw->gal ;
-            Gal_vecs[t] = gw;
-            Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
-	}
+    }
+    
+    //StandardizeData();
+    GalElement* w = weights->gal;
+    // get undef_tms across multi-variables
+    for (int v=0; v<data_vecs.size(); v++) {
+        for (int t=0; t<data_vecs[v].size(); t++) {
+            for (int i=0; i<num_obs; i++) {
+                undef_tms[t][i] = undef_tms[t][i] || undef_data[v][t][i];
+            }
+            // the isolates should be excluded as undefined
+            for (int i=0; i<num_obs; i++) {
+                if (w[i].Size() == 0) {
+                    undef_tms[t][i] = true;
+                }
+            }
+        }
+    }
 	
-	CalcGs();
+    CalcMultiLocalJoinCount();
+    
 	CalcPseudoP();
 }
 
@@ -270,13 +278,13 @@ void JCCoordinator::VarInfoAttributeChange()
 void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val)
 {
 	int t = 0;
-	double* p_val = pseudo_p_vecs[t];
+	double* p_val = sig_local_jc_vecs[t];
     const GalElement* W = Gal_vecs[t]->gal;
 	c_val.resize(num_obs);
 
     
 	for (int i=0; i<num_obs; i++) {
-        if (x_undefs[t][i]) {
+        if (undef_tms[t][i]) {
             c_val[i] = 5; // undefined
             
         } else if (W[i].Size() == 0) {
@@ -284,8 +292,8 @@ void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val
             
 		} else if (p_val[i] <= significance_cutoff) {
             //c_val[i] = c_vecs[t][i]; // 1,2,3
-            if (G_vecs[t][i] == 0) {
-                c_val[i] = 0;
+            if (local_jc_vecs[t][i] == 0) {
+                c_val[i] = 0; // not significant
             } else {
                 c_val[i] = 1;
             }
@@ -296,84 +304,106 @@ void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val
 	}
 }
 
-void JCCoordinator::CalcGs()
+void JCCoordinator::CalcMultiLocalJoinCount()
 {
 	for (int t=0; t<num_time_vals; t++) {
-		G = G_vecs[t];
-		pseudo_p = pseudo_p_vecs[t];
-		x = x_vecs[t];
-		y = y_vecs[t];
-	
-        const GalElement* W = Gal_vecs[t]->gal;
-
-        int all_y_1 = 0;
-        int all_x_y_1 = 0;
-        for (long i=0; i<num_obs; i++) {
-            if (y[i] == 1) all_y_1++;
-            if (y[i] == 1 && x[i] == 1) all_x_y_1++;
-        }
-        
-		for (long i=0; i<num_obs; i++) {
-            if (x_undefs[t][i]) continue;
-            // NOTE: the roles of x and z can be reversed
-            // 1. no colocation: x_i == 1 always z_i == 0 (vice versa)
-            // JC_i = x_i * ( 1 - z_i) * Sum (w_ij * z_j)
-            // 2. has colocation: x_i == 1 && z_i == 1
-            // JC_i = x_i * z_i * Sum(w_ij * z_j)
-            // 3. co-location cluster: (2) && x_j == z_j == 1 for the neighbors
-            // JC_i = x_i * z_i * Sum(w_ij * x_j * z_j)
-            int jc_type_i = 0;
-            G[i] = 0;
-            pseudo_p[i] = 0;
-            if (x[i] == 1) {
-                if (y[i] == 0)
-                    jc_type_i = 1;
-                else if (y[i] == 1)
-                    jc_type_i = 3; // 2 or 3 will determined later
-            }
-           
-            num_neighbors[t][i] = W[i].Size();
-            
-            int x_1_y_1 = 0;
-            int y_1 = 0;
-            
-            if (W[i].Size() == 0) {
-                has_isolates[t] = true;
-            } else if (x[i] == 1) {
-				double lag = 0;
-				bool self_neighbor = false;
-				for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
-                    int n_id = W[i][j];
-					if (W[i][j] != i) {
-                        if (jc_type_i == 3 && x[n_id] != y[n_id]) {
-                            jc_type_i = 2;
-                        }
-					} else {
-						self_neighbor = true;
-					}
-                    if (x[n_id]==1) num_neighbors_x1[t][i]++;
-                    if (y[n_id]==1) {
-                        y_1 += 0;
-                        num_neighbors_y1[t][i]++;
-                    }
-                    if (x[n_id]==1&&y[n_id]==1) {
-                        x_1_y_1 += 1;
-                        num_neighbors_xy1[t][i]++;
-                    }
-				}
-                
-                for (size_t j=0, sz=W[i].Size(); j<sz; j++) {
-                    int n_id = W[i][j];
-                    if (jc_type_i == 3 ){
-                        if (x[n_id] == y[n_id]) lag += y[n_id];
-                    } else {
-                        if (y[n_id] == 1) lag += y[n_id];
+        // get undefs of objects/values at this time step
+        vector<bool> undefs;
+        bool has_undef = false;
+        for (int i=0; i<num_obs; i++){
+            bool is_undef = false;
+            for (int v=0; v<undef_data.size(); v++) {
+                for (int var_t=0; var_t<undef_data[v].size(); var_t++){
+                    is_undef = is_undef || undef_data[v][var_t][i];
+                    if (is_undef && !has_undef) {
+                        has_undef = true;
                     }
                 }
-                G[i] = lag;
+            }
+            undefs.push_back(is_undef);
+        }
+        has_undefined[t] = has_undef;
+        
+        // local weights copy
+        GalWeight* gw = NULL;
+        if ( has_undef ) {
+            gw = new GalWeight(*weights);
+            gw->Update(undefs);
+        } else {
+            gw = weights;
+        }
+        GalElement* W = gw->gal;
+        Gal_vecs[t] = gw;
+        Gal_vecs_orig[t] = weights;
+       
+        for (int i=0; i<num_obs; i++) {
+            num_neighbors[t][i] = W[i].Size();
+        }
+        
+        // local join count
+        double* local_jc = local_jc_vecs[t];
+        
+        vector<int> local_t;
+        for (int v=0; v<num_vars; v++) {
+            if (data_vecs[v].size()==1) {
+                local_t.push_back(0);
+            } else {
+                local_t.push_back(t);
+            }
+        }
+       
+        int* zz = zz_vecs[t];
+		for (int i=0; i<num_obs; i++) {
+            if (undefs[i] == true) {
+                zz[i] = 0;
+                continue;
+            }
+            for (int v=0; v<num_vars; v++) {
+                int _t = local_t[v];
+                int _v = data_vecs[v][_t][i];
+                zz[i] = zz[i] * _v;
 			}
-            c_vecs[t][i] = jc_type_i;
 		}
+        int sum = 0;
+        for (int i=0; i<num_obs; i++) {
+            sum += zz[i];
+        }
+        bool nocolocation = sum == 0;
+        if (nocolocation) {
+            // here only bivariate apply to no-colocation case
+            for (int i=0; i<num_obs; i++) {
+                if (undefs[i] == true) {
+                    zz[i] = 0;
+                    continue;
+                }
+                int _t = local_t[1];
+                zz[i] = data_vecs[1][_t][i];
+            }
+            for (int i=0; i<num_obs; i++) {
+                int _t = local_t[0];
+                if (data_vecs[0][_t][i]>0) { // x_i.z_i = 1
+                    for (int j=0, sz=W[i].Size(); j<sz; j++) {
+                        // compute the number of neighbors with
+                        // x_j.z_j = 1 (zz=1) as a spatial lag
+                        int n_id = W[i][j];
+                        local_jc[i] += zz[n_id];
+                    }
+                }
+            }
+            
+        } else {
+            for (int i=0; i<num_obs; i++) {
+                if (zz[i]>0) { // x_i.z_i = 1
+                    for (int j=0, sz=W[i].Size(); j<sz; j++) {
+                        // compute the number of neighbors with
+                        // x_j.z_j = 1 (zz=1) as a spatial lag
+                        int n_id = W[i][j];
+                        local_jc[i] += zz[n_id];
+                    }
+                }
+            }
+        }
+        
 	}
 }
 
@@ -390,17 +420,13 @@ void JCCoordinator::CalcPseudoP()
 	// 3. copy results into results array
 	
 	for (int t=0; t<num_time_vals; t++) {
-		G = G_vecs[t];
-        x = x_vecs[t];
-        y = y_vecs[t];
-        c = c_vecs[t];
-		pseudo_p = pseudo_p_vecs[t];
-        CalcPseudoP_threaded(Gal_vecs[t]->gal, x_undefs[t]);
+		pseudo_p = sig_local_jc_vecs[t];
+        CalcPseudoP_threaded(t);
 	}
 	LOG_MSG("Exiting JCCoordinator::CalcPseudoP");
 }
 
-void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs)
+void JCCoordinator::CalcPseudoP_threaded(int t)
 {
 	LOG_MSG("Entering JCCoordinator::CalcPseudoP_threaded");
     int nCPUs = GdaConst::gda_cpu_cores;
@@ -444,7 +470,7 @@ void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<
 		int thread_id = i+1;
 		
 		JCWorkerThread* thread =
-			new JCWorkerThread(W, undefs, a, b, seed_start, this,
+			new JCWorkerThread(t, a, b, seed_start, this,
 								  &worker_list_mutex,
 								  &worker_list_empty_cond,
 								  &worker_list, thread_id);
@@ -457,7 +483,7 @@ void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<
 	}
 	if (is_thread_error) {
 		// fall back to single thread calculation mode
-		CalcPseudoP_range(W, undefs, 0, num_obs-1, last_seed_used);
+		CalcPseudoP_range(t, 0, num_obs-1, last_seed_used);
 	} else {
 		std::list<wxThread*>::iterator it;
 		for (it = worker_list.begin(); it != worker_list.end(); it++) {
@@ -477,21 +503,39 @@ void JCCoordinator::CalcPseudoP_threaded(const GalElement* W, const std::vector<
 /** In the code that computes Gi and Gi*, we specifically checked for 
  self-neighbors and handled the situation appropriately.  For the
  permutation code, we will disallow self-neighbors. */
-void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs, int obs_start, int obs_end, uint64_t seed_start)
+void JCCoordinator::CalcPseudoP_range(int t, int obs_start, int obs_end, uint64_t seed_start)
 {
 	GeoDaSet workPermutation(num_obs);
     
 	int max_rand = num_obs-1;
     
-	for (long i=obs_start; i<=obs_end; i++) {
+    GalElement* W = Gal_vecs[t]->gal;
+    int* zz = zz_vecs[t];
+    double* local_jc = local_jc_vecs[t];
+    std::vector<bool>& undefs = undef_tms[t];
+    
+    vector<int> local_t;
+    for (int v=0; v<num_vars; v++) {
+        if (data_vecs[v].size()==1) {
+            local_t.push_back(0);
+        } else {
+            local_t.push_back(t);
+        }
+    }
+    
+    for (long i=obs_start; i<=obs_end; i++) {
         if (undefs[i]) continue;
 
+        if (local_jc[i] ==0) {
+            pseudo_p[i] = 0;
+            continue;
+        }
 		const int numNeighsI = W[i].Size();
         
         //only compute for non-isolates
 		if (numNeighsI > 0) {
-			int countGLarger = 0;
-			double permutedG = 0;
+			int countLarger = 0;
+			double permuted = 0;
             
 			for (int perm=0; perm < permutations; perm++) {
 				int rand = 0;
@@ -511,27 +555,22 @@ void JCCoordinator::CalcPseudoP_range(const GalElement* W, const std::vector<boo
 					}
 				}
 				
-				double perm_jc_i = 0;
+				double perm_jc = 0;
 				// use permutation to compute the lags
 				for (int j=0; j<numNeighsI; j++) {
                     int perm_idx = workPermutation.Pop();
-                    if (c[i]== 1 || c[i]== 2) {
-                        perm_jc_i += y[perm_idx];
-                        
-                    } else if (c[i]== 3) {
-                        perm_jc_i  += x[perm_idx] * y[perm_idx];
-                    }
+                    perm_jc += zz[perm_idx];
 				}
 		
                 // binary weights
-                permutedG = perm_jc_i;
-				if (permutedG >= G[i]) countGLarger++;
+                permuted = perm_jc;
+				if (permuted >= local_jc[i]) countLarger++;
 			}
 			// pick the smallest
-			if (permutations-countGLarger < countGLarger) { 
-				countGLarger=permutations-countGLarger;
+			if (permutations-countLarger < countLarger) {
+				countLarger=permutations - countLarger;
 			}
-			pseudo_p[i] = (countGLarger + 1.0)/(permutations+1.0);
+			pseudo_p[i] = (countLarger + 1.0)/(permutations+1.0);
 		}
 	}
 }

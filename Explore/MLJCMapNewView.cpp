@@ -119,11 +119,19 @@ void MLJCMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 wxString MLJCMapCanvas::GetCanvasTitle()
 {
-	wxString new_title = _("Bivariate Local Join Count ");
+    wxString new_title;
+    
+    if (gs_coord->num_vars == 2) new_title << _("Bivariate Local Join Count ");
+    else new_title << _("Multivariate Local Join Count ");
     
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
 	new_title << "(" << gs_coord->weight_name << "): ";
-	new_title << GetNameWithTime(0);
+    for (int i=0; i<gs_coord->num_vars; i++) {
+        new_title << GetNameWithTime(i);
+        if (i < gs_coord->num_vars-1) {
+            new_title << ",";
+        }
+    }
 	new_title << wxString::Format(", pseudo p (%d perm)", gs_coord->permutations);
     
 	return new_title;
@@ -343,7 +351,7 @@ void MLJCMapCanvas::CreateAndUpdateCategories()
 				}
 			}
 		} else {
-            double* p_val = gs_coord->pseudo_p_vecs[t];
+            double* p_val = gs_coord->sig_local_jc_vecs[t];
             
             if (gs_coord->GetSignificanceFilter() < 0) {
                 // user specified cutoff
@@ -702,25 +710,26 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 {
     MLJCMapCanvas* lc = (MLJCMapCanvas*)template_canvas;
     int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    double* p_val_t = gs_coord->pseudo_p_vecs[t];
+    double* p_val_t = gs_coord->sig_local_jc_vecs[t];
     int n = gs_coord->num_obs;
     
     wxString ttl = _("Inference Settings");
     ttl << "  (" << gs_coord->permutations << " perm)";
     
     double user_sig = gs_coord->significance_cutoff;
-    if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
+    if (gs_coord->GetSignificanceFilter()<0)
+        user_sig = gs_coord->user_sig_cutoff;
   
     int new_n = 0;
     for (int i=0; i<gs_coord->num_obs; i++) {
-        if (gs_coord->x_vecs[t][i] == 1) {
+        if (gs_coord->data[0][t][i] == 1) {
             new_n += 1;
         }
     }
     int j= 0;
     double* p_val = new double[new_n];
     for (int i=0; i<gs_coord->num_obs; i++) {
-        if (gs_coord->x_vecs[t][i] == 1) {
+        if (gs_coord->data[0][t][i] == 1) {
             p_val[j++] = p_val_t[i];
         }
     }
@@ -742,15 +751,11 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 {
     int t = 0;//template_canvas->cat_data.GetCurrentCanvasTmStep();
-	wxString title = _("Save Results: Bivariate Local Join Count stats, ");
+	wxString title = _("Save Results: Bivariate/Multivariate Local Join Count stats, ");
     title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
 
     int num_obs = gs_coord->num_obs;
     std::vector<bool> p_undefs(num_obs, false);
-    
-    double* g_val_t = gs_coord->G_vecs[t];
-	std::vector<double> g_val(num_obs);
-    for (int i=0; i<num_obs; i++) g_val[i] = g_val_t[i];
     
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, c_val);
@@ -758,7 +763,7 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 	wxString c_label = "Cluster Category";
 	wxString c_field_default = "C_ID";
 	
-	double* jc_t = gs_coord->G_vecs[t];
+	double* jc_t = gs_coord->local_jc_vecs[t];
 	std::vector<wxInt64> jc_val(num_obs);
     for (int i=0; i<num_obs; i++) jc_val[i] = (wxInt64)jc_t[i];
 	wxString jc_label = "Local Joint Count";
@@ -769,18 +774,18 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
             p_undefs[i] = true;
     }
     
-	double* pp_val_t = gs_coord->pseudo_p_vecs[t];
+	double* pp_val_t = gs_coord->sig_local_jc_vecs[t];
 	std::vector<double> pp_val(num_obs);
     for (int i=0; i<num_obs; i++) {
         pp_val[i] = pp_val_t[i];
     }
 	wxString pp_label = "Pseudo p-value";
-	wxString pp_field_default =  "P_VAL";
+	wxString pp_field_default =  "PP_VAL";
 
-    int num_data = 6;
+    int num_data = 3;
     
 	std::vector<SaveToTableEntry> data(num_data);
-    std::vector<bool> undefs = gs_coord->x_undefs[t];
+    std::vector<bool> undefs = gs_coord->undef_tms[t];
    
     int data_i = 0;
     
@@ -794,27 +799,6 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     data[data_i].l_val = &gs_coord->num_neighbors[t];
     data[data_i].label = "Number of Neighbors";
     data[data_i].field_default = "NN";
-    data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-    data_i++;
-    
-    data[data_i].l_val = &gs_coord->num_neighbors_x1[t];
-    data[data_i].label = "Number of Neighbors with Value 1 (X)";
-    data[data_i].field_default = "NNX_1";
-    data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-    data_i++;
-    
-    data[data_i].l_val = &gs_coord->num_neighbors_y1[t];
-    data[data_i].label = "Number of Neighbors with Value 1 (Z)";
-    data[data_i].field_default = "NNZ_1";
-    data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-    data_i++;
-    
-    data[data_i].l_val = &gs_coord->num_neighbors_xy1[t];
-    data[data_i].label = "Number of Neighbors both with Value 1";
-    data[data_i].field_default = "NN_1";
     data[data_i].type = GdaConst::long64_type;
     data[data_i].undefined = &undefs;
     data_i++;

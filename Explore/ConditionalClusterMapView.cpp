@@ -1720,10 +1720,10 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         cat_var_undef[t].resize(num_obs);
         
         for (int i=0; i<num_obs; i++) {
-            cat_var_sorted[t][i].first = local_jc_coord->c_vecs[t][i];
+            cat_var_sorted[t][i].first = local_jc_coord->local_jc_vecs[t][i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = local_jc_coord->x_undefs[t][i];
+            cat_var_undef[t][i] = local_jc_coord->undef_tms[t][i];
         }
     }
     
@@ -1800,8 +1800,9 @@ void ConditionalLocalJoinCountClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         double cuttoff = local_jc_coord->significance_cutoff;
-        double* p = local_jc_coord->pseudo_p_vecs[t];
-        int* cluster = local_jc_coord->c_vecs[t];
+        double* p = local_jc_coord->sig_local_jc_vecs[t];
+        std::vector<wxInt64> cluster;
+        local_jc_coord->FillClusterCats(t,cluster);
         
         for (int i=0, iend=local_jc_coord->num_obs; i<iend; i++) {
             if (p[i] > cuttoff && cluster[i] != 4 && cluster[i] != 5) {
@@ -1860,20 +1861,24 @@ void ConditionalLocalJoinCountClusterMapCanvas::UpdateStatusBar()
             s << _("undefined: ") << n_undefs << ") ";
         }
     }
+    
     if (mousemode == select && selectstate == start) {
+        std::vector<wxInt64> cluster;
+        local_jc_coord->FillClusterCats(t,cluster);
+        
         if (total_hover_obs >= 1) {
             s << _("#hover obs ") << hover_obs[0]+1 << " = ";
-            s << local_jc_coord->c_vecs[t][hover_obs[0]];
+            s << cluster[hover_obs[0]];
         }
         if (total_hover_obs >= 2) {
             s << ", ";
             s << _("obs ") << hover_obs[1]+1 << " = ";
-            s << local_jc_coord->c_vecs[t][hover_obs[1]];
+            s << cluster[hover_obs[1]];
         }
         if (total_hover_obs >= 3) {
             s << ", ";
             s << _("obs ") << hover_obs[2]+1 << " = ";
-            s << local_jc_coord->c_vecs[t][hover_obs[2]];
+            s << cluster[hover_obs[2]];
         }
         if (total_hover_obs >= 4) {
             s << ", ...";
