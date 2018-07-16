@@ -150,8 +150,7 @@ public:
     vector<wxInt64> num_neighbors;
     // number of neighbors with 1
     std::vector<wxInt64* > num_neighbors_1;
-    std::vector<double*> ep_vals;
-    
+
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below

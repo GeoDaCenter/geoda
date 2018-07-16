@@ -879,7 +879,6 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	
     int num_data = is_perm ? 3: 4;
      // drop C_ID for local JC, add NN and NN_1
-    if (gs_coord->is_local_joint_count) num_data += 1;
 	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs(gs_coord->num_obs, false);
     std::vector<bool> c_undefs(gs_coord->num_obs, true);
@@ -890,7 +889,6 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         }
     }
     
-    vector<double> p_hg;
     std::vector<wxInt64> nn_1_val;
 	int data_i = 0;
     
@@ -929,7 +927,6 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         
         for (int i=0; i<gs_coord->num_obs; i++) {
             nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
-            p_hg.push_back( gs_coord->ep_vals[t][i]);
         }
         
         data[data_i].l_val = &gs_coord->num_neighbors;
@@ -958,13 +955,6 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     	data[data_i].type = GdaConst::double_type;
         data[data_i].undefined = &c_undefs;
     	data_i++;
-   
-        data[data_i].d_val = &p_hg;
-        data[data_i].label = "Exact Probabilities";
-        data[data_i].field_default = "EP_VAL";
-        data[data_i].type = GdaConst::double_type;
-        data[data_i].undefined = &c_undefs;
-        data_i++;
     }
 	
 	SaveToTableDlg dlg(project, this, data, title,

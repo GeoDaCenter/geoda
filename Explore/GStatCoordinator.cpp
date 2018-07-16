@@ -170,9 +170,6 @@ void GStatCoordinator::DeallocateVectors()
 	for (int i=0; i<x_vecs.size(); i++) if (x_vecs[i]) delete [] x_vecs[i];
 	x_vecs.clear();
     
-	for (int i=0; i<ep_vals.size(); i++) if (ep_vals[i]) delete [] ep_vals[i];
-	ep_vals.clear();
-    
 	for (int i=0; i<num_neighbors_1.size(); i++) if (num_neighbors_1[i]) delete [] num_neighbors_1[i];
 	num_neighbors_1.clear();
     
@@ -226,11 +223,9 @@ void GStatCoordinator::AllocateVectors()
     
     num_neighbors.resize(num_obs);
     num_neighbors_1.resize(tms);
-    ep_vals.resize(tms);
-    
+
 	for (int i=0; i<tms; i++) {
         num_neighbors_1[i] = new wxInt64[num_obs];
-        ep_vals[i] = new double[num_obs];
 		G_vecs[i] = new double[num_obs];
 		G_defined_vecs[i] = new bool[num_obs];
 		for (int j=0; j<num_obs; j++) G_defined_vecs[i][j] = true;
@@ -330,22 +325,6 @@ void GStatCoordinator::InitFromVarInfo()
                 }
                 if (x[i] ==1)  num_obs_1s +=1;
                 else num_obs_0s += 1;
-            }
-            for (int i=0; i<num_obs; i++) {
-                if (x_undefs[t][i]) {
-                    ep_vals[t][i] = 0;
-                    continue;
-                }
-                int nn = W[i].Size();
-                int n_1s = num_neighbors_1[t][i];
-                int n_0s = nn - n_1s;
-                
-                double mm_all = Gda::nChoosek(valid_num_obs-1, nn);
-                double mm_1s = Gda::nChoosek(num_obs_1s-1, n_1s);
-                double mm_0s = Gda::nChoosek(num_obs_0s, n_0s);
-                
-                double hg = (mm_1s * mm_0s) / mm_all;
-                ep_vals[t][i] = hg;
             }
         }
         

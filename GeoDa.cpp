@@ -3872,32 +3872,17 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
         }
     }
     
-    bool show_row_stand = false; // use binary weights only
-    GetisWhat2OpenDlg LWO(this, show_row_stand);
-    if (LWO.ShowModal() != wxID_OK) return;
-    if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
-   
     bool is_rowstand = false; // use binary weights
     bool is_local_joint_count = true;
-    GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, LWO.m_RowStand, is_local_joint_count);
+    
+    GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, is_rowstand, is_local_joint_count);
     if (!gc || !gc->IsOk()) {
         // print error message
         delete gc;
         return;
     }
     
-    if (LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_norm, LWO.m_RowStand);
-    }
-    if (LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_sig_norm, LWO.m_RowStand);
-    }
-    if (!LWO.m_NormMap && LWO.m_ClustMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc, GetisOrdMapFrame::Gi_clus_perm, LWO.m_RowStand);
-    }
-    if (!LWO.m_NormMap && LWO.m_SigMap) {
-        GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, LWO.m_RowStand);
-    }
+    GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, false);
 }
 
 void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
@@ -3952,19 +3937,8 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         }
     }
     
-	LocalGearyWhat2OpenDlg LWO(this);
-	if (LWO.ShowModal() != wxID_OK) return;
-	if (!LWO.m_ClustMap && !LWO.m_SigMap) return;
-	
-    
 	JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
-
-	if (LWO.m_ClustMap) {
-		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, true);
-	}
-	if (LWO.m_SigMap) {
-		MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
-	}
+    MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
 }
 
 void GdaFrame::OnOpenGetisOrdStar(wxCommandEvent& event)

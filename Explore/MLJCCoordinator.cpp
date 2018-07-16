@@ -122,9 +122,6 @@ void JCCoordinator::DeallocateVectors()
 	for (int i=0; i<G_vecs.size(); i++) if (G_vecs[i]) delete[] G_vecs[i];
 	G_vecs.clear();
 
-	for (int i=0; i<p_vecs.size(); i++) if (p_vecs[i]) delete[] p_vecs[i];
-	p_vecs.clear();
-	
 	for (int i=0; i<pseudo_p_vecs.size(); i++) {
 		if (pseudo_p_vecs[i]) delete [] pseudo_p_vecs[i];
 	}
@@ -139,14 +136,6 @@ void JCCoordinator::DeallocateVectors()
 	for (int i=0; i<c_vecs.size(); i++) if (c_vecs[i]) delete[] c_vecs[i];
 	c_vecs.clear();
    
-    /*
-	for (int i=0; i<num_neighbors.size(); i++) if (num_neighbors[i]) delete[] num_neighbors[i];
-	num_neighbors.clear();
-    
-	for (int i=0; i<num_neighbors_x1.size(); i++) if (num_neighbors_x1[i]) delete[] num_neighbors_x1[i];
-	for (int i=0; i<num_neighbors_y1.size(); i++) if (num_neighbors_y1[i]) delete[] num_neighbors_y1[i];
-	for (int i=0; i<num_neighbors_xy1.size(); i++) if (num_neighbors_xy1[i]) delete[] num_neighbors_xy1[i];
-    */
     num_neighbors.clear();
 	num_neighbors_x1.clear();
 	num_neighbors_y1.clear();
@@ -166,7 +155,6 @@ void JCCoordinator::AllocateVectors()
 	int tms = num_time_vals;
     
 	G_vecs.resize(tms);
-	p_vecs.resize(tms);
 	pseudo_p_vecs.resize(tms);
 	x_vecs.resize(tms);
 	y_vecs.resize(tms);
@@ -186,17 +174,11 @@ void JCCoordinator::AllocateVectors()
     
 	for (int i=0; i<tms; i++) {
 		G_vecs[i] = new double[num_obs];
-		p_vecs[i] = new double[num_obs];
 		pseudo_p_vecs[i] = new double[num_obs];
 		x_vecs[i] = new double[num_obs];
 		y_vecs[i] = new double[num_obs];
         c_vecs[i] = new int[num_obs];
-        /*
-        num_neighbors[i] = new wxInt64[num_obs];
-        num_neighbors_x1[i] = new wxInt64[num_obs];
-        num_neighbors_y1[i] = new wxInt64[num_obs];
-        num_neighbors_xy1[i] = new wxInt64[num_obs];
-         */
+        
         num_neighbors[i].resize(num_obs);
         num_neighbors_x1[i].resize(num_obs);
         num_neighbors_y1[i].resize(num_obs);
@@ -291,6 +273,7 @@ void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val
 	double* p_val = pseudo_p_vecs[t];
     const GalElement* W = Gal_vecs[t]->gal;
 	c_val.resize(num_obs);
+
     
 	for (int i=0; i<num_obs; i++) {
         if (x_undefs[t][i]) {
@@ -300,8 +283,13 @@ void JCCoordinator::FillClusterCats(int canvas_time, std::vector<wxInt64>& c_val
 			c_val[i] = 4; // isolate
             
 		} else if (p_val[i] <= significance_cutoff) {
-            c_val[i] = c_vecs[t][i]; // 1,2,3
-            
+            //c_val[i] = c_vecs[t][i]; // 1,2,3
+            if (G_vecs[t][i] == 0) {
+                c_val[i] = 0;
+            } else {
+                c_val[i] = 1;
+            }
+
         } else {
 			c_val[i] = 0; // not significant
 		}
@@ -312,7 +300,6 @@ void JCCoordinator::CalcGs()
 {
 	for (int t=0; t<num_time_vals; t++) {
 		G = G_vecs[t];
-		p = p_vecs[t];
 		pseudo_p = pseudo_p_vecs[t];
 		x = x_vecs[t];
 		y = y_vecs[t];
@@ -329,7 +316,7 @@ void JCCoordinator::CalcGs()
 		for (long i=0; i<num_obs; i++) {
             if (x_undefs[t][i]) continue;
             // NOTE: the roles of x and z can be reversed
-            // 1. no colocation: x_i == 1 but z_i == 0
+            // 1. no colocation: x_i == 1 always z_i == 0 (vice versa)
             // JC_i = x_i * ( 1 - z_i) * Sum (w_ij * z_j)
             // 2. has colocation: x_i == 1 && z_i == 1
             // JC_i = x_i * z_i * Sum(w_ij * z_j)
@@ -337,7 +324,6 @@ void JCCoordinator::CalcGs()
             // JC_i = x_i * z_i * Sum(w_ij * x_j * z_j)
             int jc_type_i = 0;
             G[i] = 0;
-            p[i] = 0;
             pseudo_p[i] = 0;
             if (x[i] == 1) {
                 if (y[i] == 0)
@@ -387,46 +373,6 @@ void JCCoordinator::CalcGs()
                 G[i] = lag;
 			}
             c_vecs[t][i] = jc_type_i;
-            
-            // compute exact inference
-            if (jc_type_i == 1) {
-                // no colocation
-                int k_i = num_neighbors[t][i];
-                int qq = all_y_1;
-                int q = y_1;
-                
-                double mm_0s = Gda::nChoosek(qq, q);
-                double mm_1s = Gda::nChoosek(num_obs - qq - 1, k_i - q);
-                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
-                
-                double hg = (mm_1s * mm_0s) / mm_all;
-                p[i] = hg;
-            } else if (jc_type_i == 2) {
-                // co-location
-                int k_i = num_neighbors[t][i];
-                int qq = all_y_1;
-                int q = y_1;
-            
-                double mm_0s = Gda::nChoosek(qq-1, q);
-                double mm_1s = Gda::nChoosek(num_obs - qq - 2, k_i - q);
-                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
-                
-                double hg = (mm_1s * mm_0s) / mm_all;
-                p[i] = hg;
-
-            } else if (jc_type_i == 3) {
-                // co-location cluster
-                int k_i = num_neighbors[t][i];
-                int v = all_x_y_1;
-                int q = x_1_y_1;
-                
-                double mm_0s = Gda::nChoosek(v-1, q);
-                double mm_1s = Gda::nChoosek(num_obs - v - 2, k_i - q);
-                double mm_all = Gda::nChoosek(num_obs - 1, k_i);
-                
-                double hg = (mm_1s * mm_0s) / mm_all;
-                p[i] = hg;
-            }
 		}
 	}
 }

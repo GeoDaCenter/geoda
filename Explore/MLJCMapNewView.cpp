@@ -754,10 +754,7 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, c_val);
-    for (int i=0; i<num_obs; i++) {
-        if (c_val[i] < 1 || c_val[i] > 3)
-            p_undefs[i] = true;
-    }
+    
 	wxString c_label = "Cluster Category";
 	wxString c_field_default = "C_ID";
 	
@@ -767,6 +764,11 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 	wxString jc_label = "Local Joint Count";
 	wxString jc_field_default =  "JC";
     
+    for (int i=0; i<num_obs; i++) {
+        if (jc_val[i] < 1)
+            p_undefs[i] = true;
+    }
+    
 	double* pp_val_t = gs_coord->pseudo_p_vecs[t];
 	std::vector<double> pp_val(num_obs);
     for (int i=0; i<num_obs; i++) {
@@ -774,25 +776,13 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     }
 	wxString pp_label = "Pseudo p-value";
 	wxString pp_field_default =  "P_VAL";
-	
-	double* p_val_t = gs_coord->p_vecs[t];
-	std::vector<double> p_val(num_obs);
-	for (int i=0; i<num_obs; i++) p_val[i] = p_val_t[i];
-	wxString p_label = "Exact Inference";
-	wxString p_field_default =  "EP_VAL";
-    
-    int num_data = 8;
+
+    int num_data = 6;
     
 	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs = gs_coord->x_undefs[t];
    
     int data_i = 0;
-    data[data_i].l_val = &c_val;
-    data[data_i].label = c_label;
-    data[data_i].field_default = c_field_default;
-    data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-    data_i++;
     
     data[data_i].l_val = &jc_val;
     data[data_i].label = jc_label;
@@ -836,13 +826,6 @@ void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
     data[data_i].undefined = &p_undefs;
     data_i++;
     
-    data[data_i].d_val = &p_val;
-    data[data_i].label = p_label;
-    data[data_i].field_default = p_field_default;
-    data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &p_undefs;
-    data_i++;
-	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();

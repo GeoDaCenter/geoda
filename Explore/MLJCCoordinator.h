@@ -132,7 +132,6 @@ public:
 
 	
 	std::vector<double*> G_vecs; //threaded
-	std::vector<double*> p_vecs;
 	std::vector<double*> pseudo_p_vecs;
 	std::vector<double*> x_vecs;
 	std::vector<double*> y_vecs;
@@ -194,7 +193,6 @@ protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below
 	double* G; //threaded
-	double* p;
 	double* pseudo_p;
     double* x;
 	double* y;
