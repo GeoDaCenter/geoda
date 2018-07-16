@@ -3887,6 +3887,7 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
     GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, false);
 }
 
+void GdaFrame::OnOpenBivariateLJC(wxCommandEvent& event)
 {
     wxLogMessage("Enter OnOpenBivariateLJC()");
     
