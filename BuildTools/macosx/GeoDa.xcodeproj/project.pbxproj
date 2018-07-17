@@ -98,6 +98,7 @@
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
+		A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A4E138B81F71A29100433256 /* geocoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E138B61F71A29100433256 /* geocoding.cpp */; };
 		A4E138BB1F71D6B800433256 /* GeocodingDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */; };
 		A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E5FE171F624D5600D75662 /* AggregateDlg.cpp */; };
@@ -441,6 +442,7 @@
 		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Guerry.png; path = BuildTools/CommonDistFiles/web_plugins/Guerry.png; sourceTree = "<group>"; };
+		A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = localjc_kernel.cl; path = Algorithms/localjc_kernel.cl; sourceTree = "<group>"; };
 		A4E138B61F71A29100433256 /* geocoding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geocoding.cpp; path = Algorithms/geocoding.cpp; sourceTree = "<group>"; };
 		A4E138B71F71A29100433256 /* geocoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geocoding.h; path = Algorithms/geocoding.h; sourceTree = "<group>"; };
 		A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeocodingDlg.cpp; sourceTree = "<group>"; };
@@ -864,6 +866,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */,
 				A47F792320AA084B000AFE57 /* distmat_kernel.cl */,
 				A47F792120AA082A000AFE57 /* lisa_kernel.cl */,
 				A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */,
@@ -1651,6 +1654,7 @@
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
+				A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */,
 				DDF14CDA139432B000363FA1 /* DataViewerDeleteColDlg.cpp in Sources */,
 				A1E5BC841DBFE661005739E9 /* ReportBugDlg.cpp in Sources */,
 				DDF14CDC139432C100363FA1 /* DataViewerResizeColDlg.cpp in Sources */,
