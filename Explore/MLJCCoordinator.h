@@ -188,7 +188,7 @@ protected:
     
     
     GalWeight* weights;
-	double* pseudo_p;
+	
 
 	uint64_t last_seed_used;
 	bool reuse_last_seed;

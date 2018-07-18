@@ -24,6 +24,9 @@
 #include <map>
 #include <wx/filename.h>
 #include <wx/stopwatch.h>
+#include <wx/msgdlg.h>
+
+#include "../Algorithms/gpu_lisa.h"
 #include "../DataViewer/TableInterface.h"
 #include "../ShapeOperations/Randik.h"
 #include "../ShapeOperations/WeightsManState.h"
@@ -191,6 +194,7 @@ void JCCoordinator::AllocateVectors()
             zz_vecs[i][j] = 1;
             num_neighbors[i][j] = 0;
             local_jc_vecs[i][j] = 0;
+            sig_local_jc_vecs[i][j] = 0;
         }
         
 		map_valid[i] = true;
@@ -364,6 +368,22 @@ void JCCoordinator::CalcMultiLocalJoinCount()
                 zz[i] = zz[i] * _v;
 			}
 		}
+        
+        // univariate local join
+        if (num_vars == 1) {
+            for (int i=0; i<num_obs; i++) {
+                if (zz[i]>0) { // x_j = 1
+                    for (int j=0, sz=W[i].Size(); j<sz; j++) {
+                        int n_id = W[i][j];
+                        local_jc[i] += zz[n_id];
+                    }
+                }
+            }
+            return;
+        }
+        
+        // bivariate local join count -- colocation and no-colocation
+        // multivariate local join count -- colocation only
         int sum = 0;
         for (int i=0; i<num_obs; i++) {
             sum += zz[i];
@@ -410,20 +430,51 @@ void JCCoordinator::CalcMultiLocalJoinCount()
 void JCCoordinator::CalcPseudoP()
 {
 	LOG_MSG("Entering JCCoordinator::CalcPseudoP");
-	wxStopWatch sw;
-	int nCPUs = wxThread::GetCPUCount();
-	
-	// To ensure thread safety, only work on one time slice of data
-	// at a time.  For each time period t:
-	// 1. copy data for time period t into data1 and data2 arrays
-	// 2. Perform multi-threaded computation
-	// 3. copy results into results array
-	
-	for (int t=0; t<num_time_vals; t++) {
-		pseudo_p = sig_local_jc_vecs[t];
-        CalcPseudoP_threaded(t);
-	}
-	LOG_MSG("Exiting JCCoordinator::CalcPseudoP");
+	wxStopWatch sw_vd;
+    
+    if (GdaConst::gda_use_gpu == false) {
+        for (int t=0; t<num_time_vals; t++) {
+            CalcPseudoP_threaded(t);
+        }
+    } else {
+        for (int t=0; t<num_time_vals; t++) {
+            vector<int> local_t;
+            for (int v=0; v<num_vars; v++) {
+                if (data_vecs[v].size()==1) {
+                    local_t.push_back(0);
+                } else {
+                    local_t.push_back(t);
+                }
+            }
+            
+            int* zz = zz_vecs[t];
+            
+            double* values = new double[num_vars * num_obs];
+            for (int v=0; v<num_vars; v++) {
+                for (int j=0; j<num_obs; j++) {
+                    int _t = local_t[v];
+                    values[v*num_obs + j] = data_vecs[v][_t][j];
+                }
+            }
+            
+            double* local_jc = local_jc_vecs[t];
+            GalElement* w = Gal_vecs[t]->gal;
+            double* _sigLocal = sig_local_jc_vecs[t];
+            
+            wxString exePath = GenUtils::GetBasemapCacheDir();
+            wxString clPath = exePath + "localjc_kernel.cl";
+            bool flag = gpu_localjoincount(clPath.mb_str(), num_obs, permutations, last_seed_used, num_vars, zz, local_jc, w, _sigLocal);
+            
+            delete[] values;
+            
+            if (!flag) {
+                wxMessageDialog dlg(NULL, "GeoDa can't configure GPU device. Default CPU solution will be used instead.", _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                CalcPseudoP_threaded(t);
+            }
+        }
+    }
+    LOG_MSG(wxString::Format("JCCoordinator::GPU took %ld ms", sw_vd.Time()));
 }
 
 void JCCoordinator::CalcPseudoP_threaded(int t)
@@ -513,6 +564,7 @@ void JCCoordinator::CalcPseudoP_range(int t, int obs_start, int obs_end, uint64_
     int* zz = zz_vecs[t];
     double* local_jc = local_jc_vecs[t];
     std::vector<bool>& undefs = undef_tms[t];
+    double* pseudo_p = sig_local_jc_vecs[t];
     
     vector<int> local_t;
     for (int v=0; v<num_vars; v++) {

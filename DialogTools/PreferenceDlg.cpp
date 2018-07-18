@@ -306,8 +306,8 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(cbox_gpu, 0, wxALIGN_RIGHT);
     cbox_gpu->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnUseGPU, this);
     
-    lbl_txt20->Hide();
-    cbox_gpu->Hide();
+    //lbl_txt20->Hide();
+    //cbox_gpu->Hide();
     
 	grid_sizer1->AddGrowableCol(0, 1);
 

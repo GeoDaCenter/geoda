@@ -11,6 +11,7 @@
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
+		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
@@ -272,6 +273,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */,
 				A47F792520AA0885000AFE57 /* distmat_kernel.cl in CopyFiles */,
 				A47F792620AA0885000AFE57 /* lisa_kernel.cl in CopyFiles */,
 				A4404A07208E9E5A0007753D /* lang in CopyFiles */,

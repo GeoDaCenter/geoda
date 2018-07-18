@@ -2641,6 +2641,169 @@
     </object>
     <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS">
+      <object class="wxMenu" name="ID_MENU">
+          <label>Randomization</label>
+          <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_99PERMUTATION">
+              <label>99 Permutations</label>
+          </object>
+          <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_199PERMUTATION">
+              <label>199 Permutations</label>
+          </object>
+          <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_499PERMUTATION">
+              <label>499 Permutations</label>
+          </object>
+          <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_999PERMUTATION">
+              <label>999 Permutations</label>
+          </object>
+          <object class="wxMenuItem" name="ID_OPTIONS_RANDOMIZATION_OTHER">
+              <label>Other (up to 99999)</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_USE_SPECIFIED_SEED">
+              <label>Use Specified Seed</label>
+              <checkable>1</checkable>
+              <checked>1</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_SPECIFY_SEED_DLG">
+              <label>Specify Seed...</label>
+          </object>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Significance Filter</label>
+          <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_05">
+              <label>0.05</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_01">
+              <label>0.01</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_001">
+              <label>0.001</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_0001">
+              <label>0.0001</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_SIGNIFICANCE_FILTER_SETUP">
+              <label>Custom Inference</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_GETIS_ORD">
+          <label>Save Results</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Connectivity</label>
+          <object class="wxMenuItem" name="ID_ADD_NEIGHBORS_TO_SELECTION">
+              <label>Show Selection and Neighbors</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_CONN_NEIGHBOR_FILL_COLOR">
+              <label>Change Fill Color of Neighbors</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+              <label>Show Graph</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenu" name="ID_MENU">
+              <label>Change Edge Thickness</label>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_LIGHT">
+                  <label>Light</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_NORM">
+                  <label>Normal</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_STRONG">
+                  <label>Strong</label>
+                  <checkable>1</checkable>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_COLOR">
+              <label>Change Edge Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+              <label>Hide Map</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
+              <label>Change Outline Color of Selected</label>
+          </object>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Select All...</label>
+          <object class="wxMenuItem" name="ID_SELECT_CORES">
+              <label>Cores</label>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_NEIGHBORS_OF_CORES">
+              <label>Neighbors of Cores</label>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_CORES_AND_NEIGHBORS">
+              <label>Cores and Neighbors</label>
+          </object>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Selection Shape</label>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+              <label>Rectangle</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+              <label>Circle</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+              <label>Line</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Color</label>
+          <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+              <label>Outlines Visible</label>
+              <checkable>1</checkable>
+              <checked>1</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+              <label>Selectable Fill Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+              <label>Background Color</label>
+          </object>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+          <label>Show Status Bar</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+          <label>Show Status Bar</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+      </object>
+      <object class="separator"/>
+      
+      <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+          <label>Save Selection</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+          <label>Copy Image To Clipboard</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+          <label>Save Image As</label>
+      </object>
+      <label>Options</label>
+  </object>
   <object class="wxMenu" name="ID_COLOCATION_VIEW_MENU_OPTIONS">
       <object class="wxMenuItem" name="ID_SAVE_COLOCATION">
           <label>Save Results</label>

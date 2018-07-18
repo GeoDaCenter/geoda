@@ -107,7 +107,7 @@ void MLJCMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((MLJCMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
+		LoadMenu("ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
@@ -121,8 +121,7 @@ wxString MLJCMapCanvas::GetCanvasTitle()
 {
     wxString new_title;
     
-    if (gs_coord->num_vars == 2) new_title << _("Bivariate Local Join Count ");
-    else new_title << _("Multivariate Local Join Count ");
+    new_title << _("Local Join Count ");
     
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
 	new_title << "(" << gs_coord->weight_name << "): ";
@@ -566,7 +565,7 @@ void MLJCMapFrame::MapMenus()
 	LOG_MSG("In MLJCMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_ORD_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
@@ -751,7 +750,7 @@ void MLJCMapFrame::OnSigFilterSetup(wxCommandEvent& event)
 void MLJCMapFrame::OnSaveMLJC(wxCommandEvent& event)
 {
     int t = 0;//template_canvas->cat_data.GetCurrentCanvasTmStep();
-	wxString title = _("Save Results: Bivariate/Multivariate Local Join Count stats, ");
+	wxString title = _("Save Results: Local Join Count stats, ");
     title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
 
     int num_obs = gs_coord->num_obs;
@@ -920,8 +919,8 @@ void MLJCMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
         return;
     }
     
-	MLJCMapCanvas* lc = (MLJCMapCanvas*) template_canvas;
-    wxString title = lc->GetCanvasTitle();
+	//MLJCMapCanvas* lc = (MLJCMapCanvas*) template_canvas;
+    //wxString title = lc->GetCanvasTitle();
     //ConditionalClusterMapFrame* subframe = new ConditionalClusterMapFrame(this, project, dlg.var_info, dlg.col_ids, gs_coord);
 }
 

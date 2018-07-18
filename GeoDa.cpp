@@ -3874,17 +3874,8 @@ void GdaFrame::OnOpenLocalJoinCount(wxCommandEvent& event)
         }
     }
     
-    bool is_rowstand = false; // use binary weights
-    bool is_local_joint_count = true;
-    
-    GStatCoordinator* gc = new GStatCoordinator(w_id, project_p, VS.var_info, VS.col_ids, is_rowstand, is_local_joint_count);
-    if (!gc || !gc->IsOk()) {
-        // print error message
-        delete gc;
-        return;
-    }
-    
-    GetisOrdMapFrame* f = new GetisOrdMapFrame(this, project_p, gc,GetisOrdMapFrame::Gi_sig_perm, false);
+    JCCoordinator* lc = new JCCoordinator(w_id, p, VS.var_info, VS.col_ids);
+    MLJCMapFrame *sf = new MLJCMapFrame(GdaFrame::gda_frame, p, lc, false);
 }
 
 void GdaFrame::OnOpenBivariateLJC(wxCommandEvent& event)

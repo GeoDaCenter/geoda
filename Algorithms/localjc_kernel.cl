@@ -32,12 +32,16 @@ float wang_rnd(uint seed)
     return ((float)rndint)/(float)maxint;
 }
 
-__kernel void localjc(const int n, const int permutations, const unsigned long last_seed, const unsigned long num_vars, __global int *values,  __global int *local_jc,  __global int *num_nbrs, __global int *nbr_idx, __global double *p) {
+__kernel void localjc(const int n, const int permutations, const unsigned long last_seed, const unsigned long num_vars, __global int *zz,  __global double *local_jc,  __global int *num_nbrs, __global int *nbr_idx, __global double *p) {
     
     // Get the index of the current element
     size_t i = get_global_id(0);
 
     if (i >= n) {
+        return;
+    }
+    if (local_jc[i] == 0) {
+        p[i] = 0;
         return;
     }
    
@@ -66,8 +70,6 @@ __kernel void localjc(const int n, const int permutations, const unsigned long l
     double permutedLag = 0;
     double localJC=0;
     size_t countLarger = 0;
-    size_t v = 0;
-    size_t jc = 0;
     size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
     
     for (perm=0; perm<permutations; perm++ ) {
@@ -86,24 +88,20 @@ __kernel void localjc(const int n, const int permutations, const unsigned long l
                     }
                 }
                 if (is_valid) {
-                    jc = 1;
-                    for (v=0; v<num_vars; v++) {
-                         jc *= values[newRandom * n + v];
-                    }
-                    permutedLag += jc;
+                    permutedLag += zz[newRandom];
                     rnd_numbers[rand] = newRandom;
                     rand++;
                 }
             }
         
         }
-        if (permutedLag > local_jc[i]) {
+        if (permutedLag >= local_jc[i]) {
             countLarger++;
         }
     }
     
     // pick the smallest
-    if (permutations-countLarger <= countLarger) {
+    if (permutations-countLarger < countLarger) {
         countLarger = permutations-countLarger;
     }
     
