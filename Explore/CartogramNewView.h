@@ -75,6 +75,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
 	virtual void ChangeThemeType(

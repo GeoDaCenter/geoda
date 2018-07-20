@@ -466,6 +466,22 @@ wxString BoxPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString BoxPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    if (hinge_15) s << " (Hinge=1.5): ";
+    else s << " (Hinge=3.0): ";
+    
+    if (cur_first_ind == cur_last_ind) {
+        s << GetNameWithTime(0);
+    } else {
+        s << var_info[0].name << " (";
+        s << project->GetTableInt()->GetTimeString(cur_first_ind) << "-";
+        s << project->GetTableInt()->GetTimeString(cur_last_ind) << ")";
+    }
+    return s;
+}
+
 wxString BoxPlotCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;

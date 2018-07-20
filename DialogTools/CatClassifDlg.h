@@ -63,6 +63,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,

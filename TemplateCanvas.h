@@ -291,6 +291,8 @@ public:
                                         bool crosshatch= false,
 										int alpha=255);
     
+    virtual wxString GetVariableNames() = 0;
+    
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
 	
     void GetVizInfo(wxString& shape_type,

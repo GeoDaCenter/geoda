@@ -121,6 +121,11 @@ wxString AbstractMapCanvas::GetCanvasTitle()
 	return "";
 }
 
+wxString AbstractMapCanvas::GetVariableNames()
+{
+    return "";
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by Abstract maps */

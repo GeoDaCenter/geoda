@@ -279,6 +279,13 @@ wxString ConnectivityHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString ConnectivityHistCanvas::GetVariableNames()
+{
+    wxString s;
+    s << w_man_int->GetLongDispName(w_uuid);
+    return s;
+}
+
 void ConnectivityHistCanvas::PopulateCanvas()
 {
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }

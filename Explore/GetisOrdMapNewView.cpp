@@ -148,6 +148,16 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
 	return new_title;
 }
 
+wxString GetisOrdMapCanvas::GetVariableNames()
+{
+    wxString new_title;
+    
+    new_title = (is_gi ? "Gi " : "Gi* ");
+    new_title << "(" << gs_coord->weight_name << "): ";
+    new_title << GetNameWithTime(0);
+    return new_title;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by GetisOrd maps */

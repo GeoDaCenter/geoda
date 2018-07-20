@@ -178,6 +178,30 @@ wxString LocalGearyMapCanvas::GetCanvasTitle()
 	return ret;
 }
 
+wxString LocalGearyMapCanvas::GetVariableNames()
+{
+    wxString field_t;
+    if (is_bi) {
+        field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
+    } else if (is_diff) {
+        field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
+    } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+        for (int i=0; i<local_geary_coord->num_vars; i++) {
+            field_t << GetNameWithTime(i);
+            if (i < local_geary_coord->num_vars -1 )
+                field_t << "/";
+        }
+        
+    } else {
+        field_t << "C_" << GetNameWithTime(0);
+    }
+    if (is_rate) {
+        field_t << "EB Rate: " << GetNameWithTime(0);
+        field_t << " / " << GetNameWithTime(1);
+    }
+    return field_t;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by LocalGeary maps */

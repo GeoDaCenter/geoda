@@ -41,6 +41,7 @@ public:
 	virtual ~GetisOrdMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);

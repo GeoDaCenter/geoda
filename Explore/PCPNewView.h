@@ -53,6 +53,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	//virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);
 	

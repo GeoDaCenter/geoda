@@ -88,6 +88,7 @@ public:
 	ColocationMapCanvas(wxWindow *parent,
                         TemplateFrame* t_frame,
                         Project* project,
+                        vector<wxString>& select_vars,
                         vector<wxString>& co_vals,
                         vector<wxColour>& co_clrs,
                         vector<wxString>& co_lbls,
@@ -100,6 +101,7 @@ public:
     
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -108,6 +110,7 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
 
+    vector<wxString>& select_vars;
     vector<wxString> co_vals;
     vector<wxColour> co_clrs;
     vector<wxString> co_lbls;
@@ -123,6 +126,7 @@ class ColocationMapFrame : public MapFrame
 public:
     ColocationMapFrame(wxFrame *parent,
                        Project* project,
+                       vector<wxString>& select_vars,
                        vector<wxString>& co_vals,
                        vector<wxColour>& co_clrs,
                        vector<wxString>& co_lbls,

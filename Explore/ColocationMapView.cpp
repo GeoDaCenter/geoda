@@ -515,7 +515,7 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
             ttl << " - ";
         }
     }
-    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, ttl, wxDefaultPosition, GdaConst::map_default_size);
+    ColocationMapFrame* nf = new ColocationMapFrame(parent, project, select_vars, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, ttl, wxDefaultPosition, GdaConst::map_default_size);
 }
 
 void ColocationSelectDlg::OnClose( wxCloseEvent& event)
@@ -546,9 +546,9 @@ BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
+ColocationMapCanvas::ColocationMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _select_vars,vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id_s, pos, size),
-co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
+select_vars(_select_vars), co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
 {
 	wxLogMessage("Entering ColocationMapCanvas::ColocationMapCanvas");
 
@@ -585,9 +585,27 @@ void ColocationMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 wxString ColocationMapCanvas::GetCanvasTitle()
 {
-	wxString title;
-	title = _("Co-location Map");
-	return title;
+	wxString ttl;
+    ttl = _("Co-location Map: ");
+    for (int i=0; i<select_vars.size(); i++) {
+        ttl << select_vars[i];
+        if (i < select_vars.size() -1) {
+            ttl << ",";
+        }
+    }
+	return ttl;
+}
+
+wxString ColocationMapCanvas::GetVariableNames()
+{
+    wxString ttl;
+    for (int i=0; i<select_vars.size(); i++) {
+        ttl << select_vars[i];
+        if (i < select_vars.size() -1) {
+            ttl << ",";
+        }
+    }
+    return ttl;
 }
 
 bool ColocationMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme, SmoothingType new_map_smoothing)
@@ -695,7 +713,7 @@ IMPLEMENT_CLASS(ColocationMapFrame, MapFrame)
 	EVT_ACTIVATE(ColocationMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
+ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector<wxString>& select_vars, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
 : MapFrame(parent, project, pos, size, style)
 {
 	wxLogMessage("Entering ColocationMapFrame::ColocationMapFrame");
@@ -709,7 +727,7 @@ ColocationMapFrame::ColocationMapFrame(wxFrame *parent, Project* project, vector
     CatClassification::CatClassifType theme_type_s = CatClassification::colocation;
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new ColocationMapCanvas(rpanel, this, project, co_vals, co_clrs, co_lbls, co_ids, theme_type_s, weights_id_s);
+    template_canvas = new ColocationMapCanvas(rpanel, this, project, select_vars, co_vals, co_clrs, co_lbls, co_ids, theme_type_s, weights_id_s);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);

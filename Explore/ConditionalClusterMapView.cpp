@@ -158,6 +158,10 @@ wxString ConditionalClusterMapCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalClusterMapCanvas::GetVariableNames()
+{
+    return title;
+}
 
 void ConditionalClusterMapCanvas::SetCheckMarks(wxMenu* menu)
 {

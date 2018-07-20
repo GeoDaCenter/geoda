@@ -54,7 +54,7 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);

@@ -203,6 +203,19 @@ wxString ConditionalMapCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalMapCanvas::GetVariableNames()
+{
+    wxString v;
+    if (GetCatType() == CatClassification::custom) {
+        v << cat_classif_def_map.title;
+        v << ": " << GetNameWithTime(CAT_VAR);
+    } else if (GetCatType() != CatClassification::no_theme) {
+        v << CatClassification::CatClassifTypeToString(GetCatType());
+        v << ": " << GetNameWithTime(CAT_VAR);
+    }
+    return v;
+}
+
 void ConditionalMapCanvas::OnSaveCategories()
 {
 	wxString t_name = CatClassification::CatClassifTypeToString(GetCatType());

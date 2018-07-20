@@ -82,6 +82,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual void UpdateStatusBar();
     virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	

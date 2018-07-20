@@ -48,7 +48,7 @@ public:
 	virtual ~ConditionalScatterPlotCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
 
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,

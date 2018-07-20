@@ -480,6 +480,13 @@ wxString HistogramCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString HistogramCanvas::GetVariableNames()
+{
+    wxString s;
+    s << GetNameWithTime(0);
+    return s;
+}
+
 wxString HistogramCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;

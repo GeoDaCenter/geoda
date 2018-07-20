@@ -284,6 +284,11 @@ wxString CatClassifHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString CatClassifHistCanvas::GetVariableNames()
+{
+    return wxEmptyString;
+}
+
 void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, std::vector<double>& x_left_pos, std::vector<double>& x_right_pos)
 {
     int n = x_center_pos.size();

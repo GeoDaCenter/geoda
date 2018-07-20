@@ -54,7 +54,8 @@ public:
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     virtual void update(HLStateInt* o);
 	virtual void UpdateStatusBar();
-   
+    virtual wxString GetVariableNames() {return wxEmptyString;}
+    
 protected:
 	virtual void PopulateCanvas();
    
@@ -82,7 +83,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	

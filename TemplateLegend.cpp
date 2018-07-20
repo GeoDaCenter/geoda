@@ -317,7 +317,7 @@ void TemplateLegend::OnDraw(wxDC& dc)
     wxString title = template_canvas->GetCategoriesTitle();
     dc.DrawText(title, px, 13);
     
-    wxString save_png_ttl = title.BeforeFirst(':');
+    wxString save_png_ttl = template_canvas->GetVariableNames();
     wxSize title_sz = dc.GetTextExtent(save_png_ttl);
     title_width = title_sz.GetWidth();
 	
@@ -395,13 +395,13 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 	if (template_canvas == NULL)
         return;
     
+    dc.SetPen(*wxBLACK_PEN);
     wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
   
-	wxString ttl = template_canvas->GetCategoriesTitle();
-	ttl = ttl.BeforeFirst(':');
+    wxString ttl = template_canvas->GetVariableNames();
     dc.DrawText(ttl, px / scale, 13 / scale);
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();

@@ -483,8 +483,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
         offset_x = 0;
     }
     
+    int legend_width =0;
     if (template_legend) {
-        int legend_width = template_legend->GetDrawingWidth();
+        legend_width = template_legend->GetDrawingWidth() + 5;
         new_bmp_w += legend_width;
         offset_x += legend_width;
     }
@@ -528,6 +529,9 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
             dc.Clear();
 			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
             if (template_legend) {
+                dc.SetPen(*wxTRANSPARENT_PEN);
+                dc.SetBrush(*wxWHITE_BRUSH);
+                dc.DrawRectangle(0,0, legend_width, new_bmp_h);
                 template_legend->RenderToDC(dc, font_scale);
             }
 			dc.SelectObject( wxNullBitmap );

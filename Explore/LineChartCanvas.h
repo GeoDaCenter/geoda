@@ -51,6 +51,8 @@ class LineChartCanvas : public TemplateCanvas
 	
 	virtual void UpdateAll();
     
+    virtual wxString GetVariableNames() { return wxEmptyString;}
+    
     void UpdateYAxis(wxString y_min="", wxString y_max="");
     
     void UpdateYAxisPrecision(int precision_s);

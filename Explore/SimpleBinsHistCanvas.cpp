@@ -128,6 +128,13 @@ wxString SimpleBinsHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString SimpleBinsHistCanvas::GetVariableNames()
+{
+    wxString s("Histogram");
+    s << " - " << Xname;
+    return s;
+}
+
 void SimpleBinsHistCanvas::TimeSyncVariableToggle(int var_index)
 {
 	LOG_MSG("In SimpleBinsHistCanvas::TimeSyncVariableToggle");

@@ -182,6 +182,41 @@ wxString LisaScatterPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString LisaScatterPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    wxString v0(var_info_orig[0].name);
+    if (var_info_orig[0].is_time_variant) {
+        v0 << " (" << project->GetTableInt()->
+        GetTimeString(var_info_orig[0].time);
+        v0 << ")";
+    }
+    wxString v1;
+    if (is_bi || is_rate || is_diff) {
+        v1 << var_info_orig[1].name;
+        if (var_info_orig[1].is_time_variant) {
+            v1 << " (" << project->GetTableInt()->
+            GetTimeString(var_info_orig[1].time);
+            v1 << ")";
+        }
+    }
+    wxString w(lisa_coord->GetWeightsName());
+    if (is_bi) {
+        s = _("weights(%s): %s and lagged %s");
+        s = wxString::Format(s, w, v0, v1);
+    } else if (is_rate) {
+        s = _("weights(%s): %s / %s");
+        s = wxString::Format(s, w, v0, v1);
+    } else if (is_diff) {
+        s = _("weights(%s): %s - %s");
+        s = wxString::Format(s, w, v0, v1);
+    } else {
+        s = _("weights(%s): %s");
+        s = wxString::Format(s, w, v0);
+    }
+    return s;
+}
+
 
 /** This virtual function will be called by the Scatter Plot base class
  to determine x and y axis labels. */

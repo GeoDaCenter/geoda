@@ -136,6 +136,18 @@ wxString MLJCMapCanvas::GetCanvasTitle()
 	return new_title;
 }
 
+wxString MLJCMapCanvas::GetVariableNames()
+{
+    wxString new_title;
+    for (int i=0; i<gs_coord->num_vars; i++) {
+        new_title << GetNameWithTime(i);
+        if (i < gs_coord->num_vars-1) {
+            new_title << ",";
+        }
+    }
+    return new_title;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by MLJC maps */

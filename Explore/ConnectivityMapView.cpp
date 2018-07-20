@@ -403,6 +403,13 @@ wxString ConnectivityMapCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString ConnectivityMapCanvas::GetVariableNames()
+{
+    wxString s;
+    s << w_man_int->GetLongDispName(weights_id);
+    return s;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by connectivity maps */

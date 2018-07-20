@@ -54,6 +54,7 @@ public:
     
     virtual wxString GetCategoriesTitle();
     virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 
     void Init(const wxSize& size);
 	virtual void DisplayRightClickMenu(const wxPoint& pos);

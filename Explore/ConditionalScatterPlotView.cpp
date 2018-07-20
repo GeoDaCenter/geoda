@@ -173,6 +173,16 @@ wxString ConditionalScatterPlotCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalScatterPlotCanvas::GetVariableNames()
+{
+    wxString v;
+    v << "Cond. Scatter Plot - ";
+    v << "x: " << GetNameWithTime(HOR_VAR);
+    v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << ", x (ind.): " << GetNameWithTime(IND_VAR);
+    v << ", y (dep.): " << GetNameWithTime(DEP_VAR);
+    return v;
+}
 
 void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 														int virtual_scrn_h)

@@ -355,6 +355,22 @@ wxString CartogramNewCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString CartogramNewCanvas::GetVariableNames()
+{
+    wxString v;
+    v << "size:" << GetNameWithTime(RAD_VAR);
+    if (GetCcType() != CatClassification::no_theme) {
+        v << ", ";
+        if (GetCcType() == CatClassification::custom) {
+            v << cat_classif_def.title;
+        } else {
+            v << CatClassification::CatClassifTypeToString(GetCcType());
+        }
+        v << ": " << GetNameWithTime(THM_VAR);
+    }
+    return v;
+}
+
 wxString CartogramNewCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;

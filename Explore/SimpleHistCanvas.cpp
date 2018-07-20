@@ -327,6 +327,13 @@ wxString SimpleHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString SimpleHistCanvas::GetVariableNames()
+{
+    wxString s("Histogram");
+    s << " - " << Xname;
+    return s;
+}
+
 void SimpleHistCanvas::TimeSyncVariableToggle(int var_index)
 {
 	invalidateBms();

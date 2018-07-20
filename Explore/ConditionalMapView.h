@@ -46,7 +46,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetCanvasTitle();
-
+    virtual wxString GetVariableNames();
 	virtual void NewCustomCatClassifMap();
 	virtual void ChangeCatThemeType(
 						CatClassification::CatClassifType new_theme,

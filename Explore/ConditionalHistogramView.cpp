@@ -178,6 +178,16 @@ wxString ConditionalHistogramCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalHistogramCanvas::GetVariableNames()
+{
+    wxString v;
+    v << "Cond. Histogram - ";
+    v << "x: " << GetNameWithTime(HOR_VAR);
+    v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << ", histogram: " << GetNameWithTime(HIST_VAR);
+    return v;
+}
+
 void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                                       int virtual_scrn_h)
 {

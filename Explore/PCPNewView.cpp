@@ -264,7 +264,6 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::unique_values);
 }
 
-
 wxString PCPCanvas::GetCanvasTitle()
 {
     if (var_order.empty()) return wxEmptyString;
@@ -274,6 +273,20 @@ wxString PCPCanvas::GetCanvasTitle()
 	if (num_vars > 2) s << "..., ";
 	s << GetNameWithTime(var_order[num_vars-1]);
 	return s;
+}
+
+wxString PCPCanvas::GetVariableNames()
+{
+    if (var_order.empty()) return wxEmptyString;
+    
+    wxString s;
+    for (int i=0; i<num_vars; i++) {
+        s << GetNameWithTime(var_order[i]);
+        if (i <num_vars -1 ) {
+            s << ",";
+        }
+    }
+    return s;
 }
 
 wxString PCPCanvas::GetCategoriesTitle()

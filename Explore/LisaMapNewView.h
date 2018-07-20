@@ -48,7 +48,7 @@ public:
                                               CatClassifData& cat_data);
 
 	virtual wxString GetCanvasTitle();
-
+    virtual wxString GetVariableNames();
     bool is_diff;
     
 protected:

@@ -941,6 +941,15 @@ wxString C3DPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString C3DPlotCanvas::GetVariableNames()
+{
+    wxString s("3D Plot: ");
+    s << GetNameWithTime(0) << ", ";
+    s << GetNameWithTime(1) << ", ";
+    s << GetNameWithTime(2);
+    return s;
+}
+
 wxString C3DPlotCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;

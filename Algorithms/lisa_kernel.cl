@@ -1,35 +1,17 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
-
-
-uint ThomasWangHash(uint key)
+float wang_rnd(uint seed);
+float wang_rnd(uint seed)
 {
-    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
-    key = key ^ (key >> 24);
-    key = (key + (key << 3)) + (key << 8); // key * 265
-    key = key ^ (key >> 14);
-    key = (key + (key << 2)) + (key << 4); // key * 21
-    key = key ^ (key >> 28);
-    key = key + (key << 31);
-    //return (double)5.42101086242752217E-20 * (double)key;
-    return key;
-}
-
-uint wang_hash(uint seed)
-{
+    uint maxint=0;
+    maxint--; // not ok but works
+    
     seed = (seed ^ 61) ^ (seed >> 16);
     seed *= 9;
     seed = seed ^ (seed >> 4);
     seed *= 0x27d4eb2d;
     seed = seed ^ (seed >> 15);
-    return seed;
-}
-
-float wang_rnd(uint seed)
-{
-    uint maxint=0;
-    maxint--; // not ok but works
-    uint rndint=wang_hash(seed);
-    return ((float)rndint)/(float)maxint;
+    
+    return ((float)seed)/(float)maxint;
 }
 
 __kernel void lisa(const int n, const int permutations, const unsigned long last_seed, __global double *values,  __global double *local_moran,  __global int *num_nbrs, __global int *nbr_idx, __global double *p) {
@@ -67,7 +49,9 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     double localMoranPermuted=0;
     size_t countLarger = 0;
     
-    size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
+    size_t rnd_numbers[888];
+    unsigned char dict[999];
+    for (j=0; j<999; j++) dict[j] = 0;
     
     for (perm=0; perm<permutations; perm++ ) {
         rand=0;
@@ -78,20 +62,19 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
             newRandom = (int)rng_val;
           
             if (newRandom != i ) {
-                for (j=0; j<rand; j++) {
-                    if (newRandom == rnd_numbers[j]) {
-                        is_valid = false;
-                        break;
-                    }
-                }
-                if (is_valid) {
-                    permutedLag += values[newRandom];
+                if (dict[newRandom] == 0) {
+                    dict[newRandom] = 1;
                     rnd_numbers[rand] = newRandom;
                     rand++;
+                    permutedLag += values[newRandom];
                 }
             }
         
         }
+        for (j=0; j<rand; j++) {
+            dict[rnd_numbers[j]] = 0;
+        }
+        
         permutedLag /= numNeighbors;
         localMoranPermuted = permutedLag * values[i];
         if (localMoranPermuted > local_moran[i]) {

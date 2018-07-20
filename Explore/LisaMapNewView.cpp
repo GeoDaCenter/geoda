@@ -118,6 +118,24 @@ wxString LisaMapCanvas::GetCanvasTitle()
 	return ret;
 }
 
+wxString LisaMapCanvas::GetVariableNames()
+{
+    wxString field_t;
+    if (is_bi) {
+        field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
+    } else if (is_diff) {
+        field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
+    }else {
+        field_t << "I_" << GetNameWithTime(0);
+    }
+    if (is_rate) {
+        field_t << "EB Rate: " << GetNameWithTime(0);
+        field_t << " / " << GetNameWithTime(1);
+    }
+
+    return field_t;
+}
+
 /** Update Categories based on info in LisaCoordinator */
 void LisaMapCanvas::SetLabelsAndColorForClusters(int& num_cats, int t, CatClassifData& cat_data)
 {
