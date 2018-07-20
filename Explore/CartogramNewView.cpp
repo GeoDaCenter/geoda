@@ -358,16 +358,8 @@ wxString CartogramNewCanvas::GetCanvasTitle()
 wxString CartogramNewCanvas::GetVariableNames()
 {
     wxString v;
-    v << "size:" << GetNameWithTime(RAD_VAR);
-    if (GetCcType() != CatClassification::no_theme) {
-        v << ", ";
-        if (GetCcType() == CatClassification::custom) {
-            v << cat_classif_def.title;
-        } else {
-            v << CatClassification::CatClassifTypeToString(GetCcType());
-        }
-        v << ": " << GetNameWithTime(THM_VAR);
-    }
+    v << GetNameWithTime(THM_VAR);
+    v <<  "size:" << GetNameWithTime(RAD_VAR);
     return v;
 }
 

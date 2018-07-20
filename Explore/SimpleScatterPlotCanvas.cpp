@@ -213,8 +213,8 @@ wxString SimpleScatterPlotCanvas::GetCanvasTitle()
 
 wxString SimpleScatterPlotCanvas::GetVariableNames()
 {
-    wxString s = _("Scatter Plot- x: %s, y: %s");
-    s = wxString::Format(s, Xname, Yname);
+    wxString s;
+    s << Xname << ", " << Yname;
     return s;
 }
 

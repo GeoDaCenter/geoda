@@ -199,20 +199,16 @@ wxString LisaScatterPlotCanvas::GetVariableNames()
             GetTimeString(var_info_orig[1].time);
             v1 << ")";
         }
-    }
-    wxString w(lisa_coord->GetWeightsName());
+    }    
+    
     if (is_bi) {
-        s = _("weights(%s): %s and lagged %s");
-        s = wxString::Format(s, w, v0, v1);
+        s << v0 << ", " << v1;
     } else if (is_rate) {
-        s = _("weights(%s): %s / %s");
-        s = wxString::Format(s, w, v0, v1);
+        s << v0 << " / " << v1;
     } else if (is_diff) {
-        s = _("weights(%s): %s - %s");
-        s = wxString::Format(s, w, v0, v1);
+        s << v0 << " - " << v1;
     } else {
-        s = _("weights(%s): %s");
-        s = wxString::Format(s, w, v0);
+        s << v0;
     }
     return s;
 }

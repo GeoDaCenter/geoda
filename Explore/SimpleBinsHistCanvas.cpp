@@ -130,8 +130,8 @@ wxString SimpleBinsHistCanvas::GetCanvasTitle()
 
 wxString SimpleBinsHistCanvas::GetVariableNames()
 {
-    wxString s("Histogram");
-    s << " - " << Xname;
+    wxString s;
+    s << Xname;
     return s;
 }
 

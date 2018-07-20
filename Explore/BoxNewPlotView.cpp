@@ -469,8 +469,6 @@ wxString BoxPlotCanvas::GetCanvasTitle()
 wxString BoxPlotCanvas::GetVariableNames()
 {
     wxString s;
-    if (hinge_15) s << " (Hinge=1.5): ";
-    else s << " (Hinge=3.0): ";
     
     if (cur_first_ind == cur_last_ind) {
         s << GetNameWithTime(0);

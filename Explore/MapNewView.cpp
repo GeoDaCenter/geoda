@@ -1172,22 +1172,9 @@ wxString MapCanvas::GetVariableNames()
     if (GetNumVars() == 1)
         v << GetNameWithTime(0);
     else if (GetNumVars() == 2) {
-        v << GetNameWithTime(0) << " over " << GetNameWithTime(1);
+        v << GetNameWithTime(0) << " / " << GetNameWithTime(1);
     }
-    wxString s;
-    if (GetCcType() == CatClassification::excess_risk_theme) {
-        s << "Excess Risk: " << v;
-    }
-    else if (GetCcType() == CatClassification::no_theme) {
-        s << project->GetProjectTitle();
-    } else if (GetCcType() == CatClassification::custom) {
-        s << cat_classif_def.title << ": " << v;
-    } else {
-        s << CatClassification::CatClassifTypeToString(GetCcType());
-        s << ": " << v;
-    }
-    
-    return s;
+    return v;
 }
 
 wxString MapCanvas::GetNameWithTime(int var)

@@ -189,15 +189,14 @@ wxString LocalGearyMapCanvas::GetVariableNames()
         for (int i=0; i<local_geary_coord->num_vars; i++) {
             field_t << GetNameWithTime(i);
             if (i < local_geary_coord->num_vars -1 )
-                field_t << "/";
+                field_t << ",";
         }
         
     } else {
-        field_t << "C_" << GetNameWithTime(0);
+        field_t << GetNameWithTime(0);
     }
     if (is_rate) {
-        field_t << "EB Rate: " << GetNameWithTime(0);
-        field_t << " / " << GetNameWithTime(1);
+        field_t << GetNameWithTime(0) << " / " << GetNameWithTime(1);
     }
     return field_t;
 }

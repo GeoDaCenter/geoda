@@ -151,9 +151,6 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
 wxString GetisOrdMapCanvas::GetVariableNames()
 {
     wxString new_title;
-    
-    new_title = (is_gi ? "Gi " : "Gi* ");
-    new_title << "(" << gs_coord->weight_name << "): ";
     new_title << GetNameWithTime(0);
     return new_title;
 }

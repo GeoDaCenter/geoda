@@ -206,13 +206,7 @@ wxString ConditionalMapCanvas::GetCanvasTitle()
 wxString ConditionalMapCanvas::GetVariableNames()
 {
     wxString v;
-    if (GetCatType() == CatClassification::custom) {
-        v << cat_classif_def_map.title;
-        v << ": " << GetNameWithTime(CAT_VAR);
-    } else if (GetCatType() != CatClassification::no_theme) {
-        v << CatClassification::CatClassifTypeToString(GetCatType());
-        v << ": " << GetNameWithTime(CAT_VAR);
-    }
+    v << GetNameWithTime(CAT_VAR);
     return v;
 }
 

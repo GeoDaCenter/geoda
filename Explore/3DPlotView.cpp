@@ -943,7 +943,7 @@ wxString C3DPlotCanvas::GetCanvasTitle()
 
 wxString C3DPlotCanvas::GetVariableNames()
 {
-    wxString s("3D Plot: ");
+    wxString s;
     s << GetNameWithTime(0) << ", ";
     s << GetNameWithTime(1) << ", ";
     s << GetNameWithTime(2);

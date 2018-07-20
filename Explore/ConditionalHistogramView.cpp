@@ -181,10 +181,7 @@ wxString ConditionalHistogramCanvas::GetCanvasTitle()
 wxString ConditionalHistogramCanvas::GetVariableNames()
 {
     wxString v;
-    v << "Cond. Histogram - ";
-    v << "x: " << GetNameWithTime(HOR_VAR);
-    v << ", y: " << GetNameWithTime(VERT_VAR);
-    v << ", histogram: " << GetNameWithTime(HIST_VAR);
+    v <<  GetNameWithTime(HIST_VAR);
     return v;
 }
 

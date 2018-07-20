@@ -525,13 +525,8 @@ wxString ScatterNewPlotCanvas::GetVariableNames()
     wxString x_name = GetNameWithTime(0);
     wxString y_name = GetNameWithTime(1);
     
-    if (is_bubble_plot) {
-        s = _("x: %s, y: %s, size: %s, %s");
-        s = wxString::Format(s, x_name, y_name, GetNameWithTime(2), GetCategoriesTitle());
-    } else {
-        s = _("x: %s, y: %s");
-        s = wxString::Format(s, x_name, y_name);
-    }
+    s << x_name << ", " << y_name;
+
     return s;
 }
 

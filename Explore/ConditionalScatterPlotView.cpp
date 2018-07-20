@@ -176,11 +176,8 @@ wxString ConditionalScatterPlotCanvas::GetCanvasTitle()
 wxString ConditionalScatterPlotCanvas::GetVariableNames()
 {
     wxString v;
-    v << "Cond. Scatter Plot - ";
-    v << "x: " << GetNameWithTime(HOR_VAR);
-    v << ", y: " << GetNameWithTime(VERT_VAR);
-    v << ", x (ind.): " << GetNameWithTime(IND_VAR);
-    v << ", y (dep.): " << GetNameWithTime(DEP_VAR);
+    v << GetNameWithTime(IND_VAR);
+    v << ", " << GetNameWithTime(DEP_VAR);
     return v;
 }
 
