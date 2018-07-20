@@ -280,12 +280,7 @@ wxString PCPCanvas::GetVariableNames()
     if (var_order.empty()) return wxEmptyString;
     
     wxString s;
-    for (int i=0; i<num_vars; i++) {
-        s << GetNameWithTime(var_order[i]);
-        if (i <num_vars -1 ) {
-            s << ",";
-        }
-    }
+    s << GetNameWithTime(var_order[0]);
     return s;
 }
 

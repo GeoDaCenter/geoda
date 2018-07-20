@@ -590,7 +590,7 @@ wxString ColocationMapCanvas::GetCanvasTitle()
     for (int i=0; i<select_vars.size(); i++) {
         ttl << select_vars[i];
         if (i < select_vars.size() -1) {
-            ttl << ",";
+            ttl << ", ";
         }
     }
 	return ttl;
@@ -602,7 +602,7 @@ wxString ColocationMapCanvas::GetVariableNames()
     for (int i=0; i<select_vars.size(); i++) {
         ttl << select_vars[i];
         if (i < select_vars.size() -1) {
-            ttl << ",";
+            ttl << ", ";
         }
     }
     return ttl;

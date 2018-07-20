@@ -161,8 +161,8 @@ wxString ConditionalClusterMapCanvas::GetCanvasTitle()
 wxString ConditionalClusterMapCanvas::GetVariableNames()
 {
     wxString v;
-    v << "x: " << GetNameWithTime(HOR_VAR);
-    v << ", y: " << GetNameWithTime(VERT_VAR);
+    v << GetNameWithTime(HOR_VAR);
+    v << ", " << GetNameWithTime(VERT_VAR);
     return v;
 }
 

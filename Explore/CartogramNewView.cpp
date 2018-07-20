@@ -359,7 +359,7 @@ wxString CartogramNewCanvas::GetVariableNames()
 {
     wxString v;
     v << GetNameWithTime(THM_VAR);
-    v <<  "size:" << GetNameWithTime(RAD_VAR);
+    v <<  ", " << GetNameWithTime(RAD_VAR);
     return v;
 }
 

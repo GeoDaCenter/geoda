@@ -142,7 +142,7 @@ wxString MLJCMapCanvas::GetVariableNames()
     for (int i=0; i<gs_coord->num_vars; i++) {
         new_title << GetNameWithTime(i);
         if (i < gs_coord->num_vars-1) {
-            new_title << ",";
+            new_title << ", ";
         }
     }
     return new_title;
