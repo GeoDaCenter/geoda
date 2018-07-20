@@ -49,9 +49,7 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     double localMoranPermuted=0;
     size_t countLarger = 0;
     
-    size_t rnd_numbers[888];
-    unsigned char dict[999];
-    for (j=0; j<999; j++) dict[j] = 0;
+    size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
     
     for (perm=0; perm<permutations; perm++ ) {
         rand=0;
@@ -62,19 +60,20 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
             newRandom = (int)rng_val;
           
             if (newRandom != i ) {
-                if (dict[newRandom] == 0) {
-                    dict[newRandom] = 1;
+                for (j=0; j<rand; j++) {
+                    if (newRandom == rnd_numbers[j]) {
+                        is_valid = false;
+                        break;
+                    }
+                }
+                if (is_valid) {
+                    permutedLag += values[newRandom];
                     rnd_numbers[rand] = newRandom;
                     rand++;
-                    permutedLag += values[newRandom];
                 }
             }
         
         }
-        for (j=0; j<rand; j++) {
-            dict[rnd_numbers[j]] = 0;
-        }
-        
         permutedLag /= numNeighbors;
         localMoranPermuted = permutedLag * values[i];
         if (localMoranPermuted > local_moran[i]) {

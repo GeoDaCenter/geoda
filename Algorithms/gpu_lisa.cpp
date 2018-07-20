@@ -3,8 +3,14 @@
 #include <math.h>
 #include <stdlib.h>
 #include "../ShapeOperations/GalWeight.h"
+#ifdef __linux__
+// do nothing; we got opencl sdk issue on centos
+bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long long last_seed_used, double* values, double* local_moran, GalElement* w, double* p)
+{
+    return false;
+}
 
-
+#else
 
 #ifdef __APPLE__
 #include <OpenCL/opencl.h>
@@ -84,15 +90,7 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
 #else
 	snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
 #endif
-    replace_str(source_str, "888", msg, 0);
-    
-#ifdef __WIN32__
-    _snprintf(msg, sizeof(msg), "%d", rows);
-#else
-    snprintf(msg, sizeof(msg), "%d", rows);
-#endif
-    replace_str(source_str, "999", msg, 0);
-    replace_str(source_str, "999", msg, 0);
+    replace_str(source_str, "123", msg, 0);
     source_size = strlen(source_str);
     
     // Get platform and device information
@@ -501,4 +499,4 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     
     return true;
 }
-
+#endif
