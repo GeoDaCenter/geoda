@@ -255,7 +255,7 @@ void OGRLayerProxy::DeleteField(int pos)
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
-		my_feature->DeleteField(pos);
+		//my_feature->DeleteField(pos);
     }
 	// delete field in actual datasource
 	if( this->layer->DeleteField(pos) != OGRERR_NONE ) {

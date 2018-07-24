@@ -21,9 +21,9 @@ LIBTOOL_FINISH	=	/bin/true
 OBJ_EXT = o
 endif
 
-CC	=	$(LIBTOOL_COMPILE_CC) gcc
-CXX	=	$(LIBTOOL_COMPILE_CXX) g++
-LD	=	$(LIBTOOL_LINK)	g++
+CC	=	$(LIBTOOL_COMPILE_CC) gcc-5
+CXX	=	$(LIBTOOL_COMPILE_CXX) g++-5
+LD	=	$(LIBTOOL_LINK)	g++-5
 RM	=	$(LIBTOOL_CLEAN) /bin/rm -f *.lo
 INSTALL = 	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
 INSTALL_LIB 	=	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
@@ -69,8 +69,8 @@ INST_MAN	=	${prefix}/share/gdal/man
 INST_HTML	=	$(HOME)/www/gdal
 
 CPPFLAGS	=  -I$(GDAL_ROOT)/port  -I$(GDAL_ROOT)/gcore  -I$(GDAL_ROOT)/ogr  -I$(GDAL_ROOT)/ogr/ogrsf_frmts -I$(GDAL_ROOT)/alg
-CFLAGS		=  -O2 -Wall -Wdeclaration-after-statement $(USER_DEFS)
-CXXFLAGS	=  -O2 -Wall $(USER_DEFS)
+CFLAGS		=  -O2 -Wall -Wdeclaration-after-statement $(USER_DEFS) -DGDAL_COMPILATION
+CXXFLAGS	=  -O2 -Wall $(USER_DEFS) -DGDAL_COMPILATION
 LDFLAGS     = 
 
 RANLIB		=	ranlib
@@ -128,8 +128,8 @@ INGRES_INC =
 # MySQL support.
 #
 HAVE_MYSQL =	yes
-MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
-MYSQL_INC  =	-I$(GEODA_HOME)/temp/mysql-5.6.14/include -I$(GEODA_HOME)/temp/mysql-5.6.14/bld/include
+MYSQL_LIB  =	/usr/lib/x86_64-linux-gnu/libmysqlclient.a  -lpthread
+MYSQL_INC  =	-I/usr/include/mysql -I$(GEODA_HOME)/dep/mysql-5.6.14/include
 LIBS	   +=	$(MYSQL_LIB)
 
 #

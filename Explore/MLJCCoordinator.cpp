@@ -463,7 +463,7 @@ void JCCoordinator::CalcPseudoP()
             
             wxString exePath = GenUtils::GetBasemapCacheDir();
             wxString clPath = exePath + "localjc_kernel.cl";
-            bool flag = gpu_localjoincount(clPath.mb_str(), num_obs, permutations, last_seed_used, num_vars, zz, local_jc, w, _sigLocal);
+            bool flag = false;//gpu_localjoincount(clPath.mb_str(), num_obs, permutations, last_seed_used, num_vars, zz, local_jc, w, _sigLocal);
             
             delete[] values;
             
