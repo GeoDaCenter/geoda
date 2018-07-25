@@ -680,6 +680,8 @@ void MapCanvas::DrawLayer0()
         wxColour maskColor(MASK_R, MASK_G, MASK_B);
         wxBrush maskBrush(maskColor);
         dc.SetBackground(maskBrush);
+        dc.SelectObject(*layer0_bm);
+        dc.Clear();
     } else {
         dc.SetPen(canvas_background_color);
         dc.SetBrush(canvas_background_color);
