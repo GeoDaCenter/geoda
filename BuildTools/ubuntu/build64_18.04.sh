@@ -35,7 +35,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo apt-get update
     sudo apt-get install libssl-dev 
-    sudo apt-get install libreadline7-dev 
+    sudo apt-get install libreadline-dev 
     sudo apt-get install zlib1g-dev 
     sudo apt-get install libexpat1-dev 
     sudo apt-get install dh-autoreconf 
