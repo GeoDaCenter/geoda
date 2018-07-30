@@ -277,8 +277,7 @@ GwtWeight* SpatialIndAlgs::knn_build(const rtree_pt_2d_t& rtree, int nn, bool is
 		e.alloc(q.size());
         double local_bandwidth = 0;
 		BOOST_FOREACH(pt_2d_val const& w, q) {
-			if ( (kernel.IsEmpty() && w.second == v.second) ||
-                 (!kernel.IsEmpty() && !use_kernel_diagnals && w.second == v.second) )
+			if (kernel.IsEmpty() && w.second == v.second)
                 continue;
 			GwtNeighbor neigh;
 			neigh.nbx = w.second;
@@ -620,7 +619,9 @@ double SpatialIndAlgs::est_median_distance(const std::vector<double>& x,
 GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
                                         const std::vector<double>& y,
                                         double th, double power,
-                                        bool is_arc, bool is_mi)
+                                        bool is_arc, bool is_mi,
+                                        const wxString& kernel,
+                                        bool use_kernel_diagnals)
 {
 	using namespace GenGeomAlgs;
 	size_t nobs = x.size();
@@ -638,7 +639,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
 			}
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = thresh_build(rtree, u_th, power, is_mi);
+		gwt = thresh_build(rtree, u_th, power, is_mi, kernel, use_kernel_diagnals);
 	} else {
 		rtree_pt_2d_t rtree;
 		{
@@ -648,12 +649,12 @@ GwtWeight* SpatialIndAlgs::thresh_build(const std::vector<double>& x,
             }
 			fill_pt_rtree(rtree, pts);
 		}
-		gwt = thresh_build(rtree, th, power);
+		gwt = thresh_build(rtree, th, power, kernel, use_kernel_diagnals);
 	}
 	return gwt;
 }
 
-GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, double power)
+GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, double power, const wxString& kernel, bool use_kernel_diagnals)
 {
 	wxStopWatch sw;
     
@@ -715,6 +716,10 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 		}
 	}
 
+    if (!kernel.IsEmpty()) {
+        apply_kernel(Wp, kernel, use_kernel_diagnals);
+    }
+    
 	stringstream ss;
 	ss << "Time to create " << th << " threshold GwtWeight,"
 	   << endl << "  with " << cnt << " total neighbors in ms : "
@@ -761,7 +766,7 @@ double SpatialIndAlgs::est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree,
 
 /** threshold th is the radius of intersection sphere with
   respect to the unit shpere of the 3d point rtree */
-GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, double power, bool is_mi)
+GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, double power, bool is_mi, const wxString& kernel, bool use_kernel_diagnals)
 {
 	wxStopWatch sw;
 	using namespace GenGeomAlgs;
@@ -834,6 +839,11 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 	ss << "Time to create arc " << th << " threshold GwtWeight,"
 	   << endl << "  with " << cnt << " total neighbors in ms : "
 	   << sw.Time();
+    
+    if (!kernel.IsEmpty()) {
+        apply_kernel(Wp, kernel, use_kernel_diagnals);
+    }
+    
 	return Wp;
 }
 

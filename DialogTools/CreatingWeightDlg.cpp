@@ -1244,8 +1244,11 @@ void CreatingWeightDlg::CreateWeights()
        
         if (m_kernel_kNN > 0 && m_kernel_kNN < m_num_obs) {
             GwtWeight* Wp = 0;
-            Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, false, 1.0, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
-            
+            if (m_radio_manu_bandwdith->GetValue()==true) {
+                Wp = SpatialIndAlgs::thresh_build(m_XCOO, m_YCOO, bandwidth, 1.0, m_is_arc, !m_arc_in_km, kernel, use_kernel_diagnals);
+            } else {
+                Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, false, 1.0, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
+            }
             if (!Wp->gwt) return;
             Wp->id_field = id;
             WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
