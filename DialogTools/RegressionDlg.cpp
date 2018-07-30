@@ -1262,7 +1262,11 @@ void RegressionDlg::OnCWeightCheckClick( wxCommandEvent& event )
 	b_done1 = b_done2 = b_done3 = false;
 	EnablingItems();
 
-	if (!m_CheckWeight->IsChecked()) m_radio1->SetValue(true);
+    if (!m_CheckWeight->IsChecked()) {
+        m_radio1->SetValue(true);
+        wxCommandEvent(ev);
+        OnCRadio1Selected(ev);
+    }
 }
 
 void RegressionDlg::UpdateMessageBox(wxString msg)
