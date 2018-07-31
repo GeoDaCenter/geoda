@@ -1760,6 +1760,16 @@ void GdaFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 	t->OnSelectableOutlineVisible(event);
 }
 
+void GdaFrame::OnShowMapBoundary(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnShowMapBoundary");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnShowMapBoundary(event);
+    }
+}
+
 void GdaFrame::OnHighlightColor(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnHighlightColor");
@@ -6616,6 +6626,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"), GdaFrame::OnSelectableFillColor)
     EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_COLOR"), GdaFrame::OnSelectableOutlineColor)
     EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_VISIBLE"), GdaFrame::OnSelectableOutlineVisible)
+    EVT_MENU(XRCID("ID_MAP_SHOW_MAP_CONTOUR"), GdaFrame::OnShowMapBoundary)
     EVT_MENU(XRCID("ID_HIGHLIGHT_COLOR"), GdaFrame::OnHighlightColor)
     EVT_MENU(XRCID("ID_COPY_IMAGE_TO_CLIPBOARD"), GdaFrame::OnCopyImageToClipboard)
     EVT_MENU(XRCID("ID_COPY_LEGEND_TO_CLIPBOARD"), GdaFrame::OnCopyLegendToClipboard)

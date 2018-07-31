@@ -141,7 +141,9 @@ public:
     bool AddGeometries(Shapefile::Main& p_main);
     
     void GetCentroids(std::vector<GdaPoint*>& centroids);
-
+    
+    GdaPolygon* GetMapBoundary();
+    
     Shapefile::ShapeType GetGdaGeometries(std::vector<GdaShape*>& geoms);
     
 	/**

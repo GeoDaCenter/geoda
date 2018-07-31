@@ -172,6 +172,7 @@ full_map_redraw_needed(true),
 display_mean_centers(false), 
 display_centroids(false),
 display_weights_graph(false),
+display_map_boundary(false),
 display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
@@ -1124,6 +1125,11 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_neighbors || display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"),
                                    display_neighbors);
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
+                                  !selectable_outline_visible);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
+                                   display_map_boundary);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -1553,6 +1559,16 @@ void MapCanvas::PopulateCanvas()
 	foreground_shps.clear();
     
     w_graph.clear();
+    
+    if (display_map_boundary) {
+        GdaPolygon* bg = project->GetMapBoundary();
+        if (bg) {
+            wxPen pen(wxColour(120, 120, 120));
+            bg->setPen(pen);
+            bg->setBrush(*wxTRANSPARENT_BRUSH);
+            foreground_shps.push_back(bg);
+        }
+    }
 
 	if (map_valid[canvas_ts]) {		
 		if (full_map_redraw_needed) {
@@ -1583,6 +1599,7 @@ void MapCanvas::PopulateCanvas()
 					}
 				}
 			}
+            
 			if (selectable_shps_type == points && display_voronoi_diagram) {
 				GdaPolygon* p;
 				const vector<GdaShape*>& polys = project->GetVoronoiPolygons();
@@ -1984,6 +2001,18 @@ void MapCanvas::DisplayMapWithGraph()
         display_map_with_graph = !display_map_with_graph;
         PopulateCanvas();
     }
+}
+
+void MapCanvas::DisplayMapBoundray()
+{
+    wxLogMessage("MapCanvas::DisplayMapBoundray()");
+    
+    display_map_boundary = !display_map_boundary;
+    if (selectable_outline_visible) display_map_boundary = false;
+    full_map_redraw_needed = true;
+    
+    PopulateCanvas();
+    
 }
 
 void MapCanvas::ChangeGraphThickness(int val)
@@ -2413,6 +2442,13 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
     }
 }
 
+void MapFrame::OnShowMapBoundary(wxCommandEvent& e)
+{
+    if (!template_canvas) return;
+    ((MapCanvas*)template_canvas)->DisplayMapBoundray();
+    UpdateOptionMenuItems();
+}
+
 void MapFrame::OnMapSelect(wxCommandEvent& e)
 {
     OnSelectionMode(e);
@@ -2449,6 +2485,16 @@ void MapFrame::OnMapRefresh(wxCommandEvent& e)
 //void MapFrame::OnMapBrush(wxCommandEvent& e)
 //{
 //}
+
+void MapFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
+{
+    if (!template_canvas) return;
+    template_canvas->SetSelectableOutlineVisible(!template_canvas->selectable_outline_visible);
+    wxCommandEvent ev;
+    OnShowMapBoundary(ev);
+    UpdateOptionMenuItems();
+}
+
 void MapFrame::OnMapBasemap(wxCommandEvent& e)
 {
     wxLogMessage("In MapFrame::OnMapBasemap()");

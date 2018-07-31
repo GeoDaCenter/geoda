@@ -147,6 +147,7 @@ public:
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
 	void OnSelectableOutlineVisible(wxCommandEvent& event);
+    void OnShowMapBoundary(wxCommandEvent& event);
 	void OnHighlightColor(wxCommandEvent& event);
 	
 	void OnCopyImageToClipboard(wxCommandEvent& event);

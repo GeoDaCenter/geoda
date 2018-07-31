@@ -155,6 +155,7 @@ public:
     virtual void DisplayWeightsGraph();
     virtual void DisplayNeighbors();
     virtual void DisplayMapWithGraph();
+    virtual void DisplayMapBoundray();
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
     virtual void ChangeConnSelectedColor();
@@ -166,6 +167,7 @@ public:
     
     virtual void DetermineMouseHoverObjects(wxPoint pt);
 
+    
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
@@ -181,6 +183,7 @@ public:
 	bool display_centroids;
 	bool display_voronoi_diagram;
 	bool voronoi_diagram_duplicates_exist;
+    bool display_map_boundary;
     bool display_weights_graph;
     bool display_neighbors;
     bool display_neighbor_color;
@@ -331,6 +334,7 @@ public:
 	virtual void OnExportMeanCntrs();
 	virtual void OnExportCentroids();
 	virtual void OnSaveVoronoiDupsToTable();
+    virtual void OnSelectableOutlineVisible(wxCommandEvent& event);
     
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
@@ -363,6 +367,8 @@ public:
     void OnMapRefresh(wxCommandEvent& e);
     //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
+    
+    void OnShowMapBoundary(wxCommandEvent& event);
     
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,

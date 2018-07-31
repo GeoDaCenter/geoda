@@ -710,6 +710,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 			neigh.nbx = w.second;
 			double w_val = bg::distance(v.first, w.first);
             if (power != 1) w_val = pow(w_val, power);
+            if (!kernel.IsEmpty()) w_val = w_val / th;
             neigh.weight = w_val;
 			e.Push(neigh);
 			++cnt;
@@ -829,6 +830,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 				d = ComputeArcDistKm(lon_v, lat_v, lon_w, lat_w);
 			}
             if (power!=1) d = pow(d, power);
+            if (!kernel.IsEmpty()) d = d / th;
 			neigh.weight = d;
 			e.Push(neigh);
 			++cnt;

@@ -1073,6 +1073,17 @@ const std::vector<GdaPoint*>& Project::GetCentroids()
 	return centroids;	
 }
 
+GdaPolygon* Project::GetMapBoundary()
+{
+    wxLogMessage("Project::GetMapBoundary()");
+    
+    if (layer_proxy->IsTableOnly()) {
+        return NULL;
+    } else {
+        return layer_proxy->GetMapBoundary();
+    }
+}
+
 void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 {
 	wxLogMessage("Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)");

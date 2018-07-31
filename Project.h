@@ -157,6 +157,7 @@ public:
 	void GetCentroids(std::vector<double>& x, std::vector<double>& y);
 	void GetCentroids(std::vector<wxRealPoint>& pts);
 	const std::vector<GdaShape*>& GetVoronoiPolygons();
+    GdaPolygon* GetMapBoundary();
 	
 	double GetMin1nnDistEuc();
 	double GetMax1nnDistEuc();

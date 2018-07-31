@@ -1182,6 +1182,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2141,6 +2146,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -2316,6 +2326,11 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
       </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
@@ -2611,6 +2626,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
       </object>
@@ -2774,6 +2794,11 @@
               <checkable>1</checkable>
               <checked>1</checked>
           </object>
+          <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+              <label>Show Map Boundary</label>
+              <checkable>1</checkable>
+              <checked>0</checked>
+          </object>
           <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
               <label>Selectable Fill Color</label>
           </object>
@@ -2918,6 +2943,11 @@
               <label>Outlines Visible</label>
               <checkable>1</checkable>
               <checked>1</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+              <label>Show Map Boundary</label>
+              <checkable>1</checkable>
+              <checked>0</checked>
           </object>
           <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
               <label>Selectable Fill Color</label>
@@ -3080,6 +3110,11 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
@@ -3529,6 +3564,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -3558,6 +3598,11 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Map</label>
@@ -4317,6 +4362,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
         <label>Background Color</label>
       </object>
@@ -4657,6 +4707,11 @@
         <checkable>1</checkable>
         <checked>1</checked>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
+      </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
       </object>
@@ -4689,6 +4744,11 @@
         <label>Outlines Visible</label>
         <checkable>1</checkable>
         <checked>1</checked>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+          <label>Show Map Boundary</label>
+          <checkable>1</checkable>
+          <checked>0</checked>
       </object>
       <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
         <label>Selectable Fill Color</label>
