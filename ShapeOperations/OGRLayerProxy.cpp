@@ -46,7 +46,7 @@ OGRLayerProxy::OGRLayerProxy(string layer_name,
                              OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
                              bool isNew)
-: n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type), layer(_layer),
+: mapContour(0), n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type), layer(_layer),
 load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount(FALSE);
@@ -68,7 +68,7 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
                              OGRwkbGeometryType eGType,
                              int _n_rows)
-: layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
+: mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
 eLayerType(eGType), load_progress(0), stop_reading(false), export_progress(0)
 {
     if (n_rows==0) {
@@ -85,6 +85,10 @@ eLayerType(eGType), load_progress(0), stop_reading(false), export_progress(0)
 
 OGRLayerProxy::~OGRLayerProxy()
 {
+    if (mapContour) {
+        mapContour->empty();
+        delete mapContour;
+    }
 	// clean OGR features
     for ( size_t i=0; i < data.size(); ++i ) {
         OGRFeature::DestroyFeature(data[i]);
@@ -95,6 +99,31 @@ OGRLayerProxy::~OGRLayerProxy()
         delete fields[i];
     }
 	fields.clear();
+}
+
+OGRwkbGeometryType OGRLayerProxy::GetShapeType()
+{
+    return eGType;
+}
+
+OGRLayer* OGRLayerProxy::GetOGRLayer()
+{
+    return layer;
+}
+
+int OGRLayerProxy::GetNumRecords()
+{
+    return n_rows;
+}
+
+int OGRLayerProxy::GetNumFields()
+{
+    return n_cols;
+}
+
+OGRSpatialReference* OGRLayerProxy::GetSpatialReference()
+{
+    return spatialRef;
 }
 
 void OGRLayerProxy::SetOGRLayer(OGRLayer* new_layer)
@@ -172,6 +201,88 @@ int OGRLayerProxy::GetFieldPos(const wxString& field_name)
             return i;
 	}
     return -1;
+}
+
+OGRFieldProxy* OGRLayerProxy::GetField(int pos)
+{
+    return fields[pos];
+}
+
+OGRFieldProxy* OGRLayerProxy::GetField(const wxString& field_name)
+{
+    int pos = GetFieldPos(field_name);
+    return fields[pos];
+}
+
+OGRFeature* OGRLayerProxy::GetFeatureAt(int rid)
+{
+    return data[rid];
+}
+
+bool OGRLayerProxy::IsUndefined(int rid, int cid)
+{
+    return !data[rid]->IsFieldSet(cid);
+}
+
+wxString OGRLayerProxy::GetValueAt(int rid, int cid)
+{
+    wxString rst(data[rid]->GetFieldAsString(cid));
+    return rst;
+}
+
+wxString OGRLayerProxy::GetValueAt(int rid, int cid, GIntBig* val)
+{
+    *val = data[rid]->GetFieldAsInteger64(cid);
+}
+
+wxString OGRLayerProxy::GetValueAt(int rid, int cid, double* val)
+{
+    *val = data[rid]->GetFieldAsDouble(cid);
+}
+
+void OGRLayerProxy::SetValueAt(int rid, int cid, GIntBig val, bool undef)
+{
+    if (undef) data[rid]->UnsetField(cid);
+    else data[rid]->SetField( cid, val);
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    }
+}
+
+void OGRLayerProxy::SetValueAt(int rid, int cid, double val, bool undef)
+{
+    if (undef) data[rid]->UnsetField(cid);
+    else data[rid]->SetField( cid, val);
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    }
+}
+
+void OGRLayerProxy::SetValueAt(int rid, int cid, int year, int month, int day, bool undef)
+{
+    if (undef) data[rid]->UnsetField(cid);
+    else data[rid]->SetField( cid, year, month, day);
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    }
+}
+
+void OGRLayerProxy::SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second, bool undef)
+{
+    if (undef) data[rid]->UnsetField(cid);
+    else data[rid]->SetField( cid, year, month, day, hour, minute, second);
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    }
+}
+
+void OGRLayerProxy::SetValueAt(int rid, int cid, const char* val, bool is_new, bool undef)
+{
+    if (undef) data[rid]->UnsetField(cid);
+    else data[rid]->SetField( cid, val);
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
+        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    }
 }
 
 OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
@@ -969,35 +1080,38 @@ void OGRLayerProxy::GetCentroids(std::vector<GdaPoint*>& centroids)
 
 GdaPolygon* OGRLayerProxy::GetMapBoundary()
 {
-    // create a multipolygon geometry
-    // geom = ogr.Geometry(ogr.wkbMultiPolygon)
-    //geom.AddGeometry(ogr.CreateGeometryFromWkt('POLYGON((0 0,0 1,1 1,0 0))'))
-    OGRMultiPolygon geocol;
-    for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
-        OGRFeature* feature = data[row_idx];
-        OGRGeometry* geometry= feature->GetGeometryRef();
-        OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
-        if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
-            geocol.addGeometry(geometry);
-            
-        } else if (eType == wkbMultiPolygon) {
-            OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
-            int n_geom = mpolygon->getNumGeometries();
-            // if there is more than one polygon, then we need to count which
-            // part is processing accumulatively
-            for (size_t i = 0; i < n_geom; i++ ){
-                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
-                geocol.addGeometry(ogrGeom);
+    if (mapContour == NULL) {
+        // create a multipolygon geometry
+        // geom = ogr.Geometry(ogr.wkbMultiPolygon)
+        //geom.AddGeometry(ogr.CreateGeometryFromWkt('POLYGON((0 0,0 1,1 1,0 0))'))
+        OGRMultiPolygon geocol;
+        for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
+            OGRFeature* feature = data[row_idx];
+            OGRGeometry* geometry= feature->GetGeometryRef();
+            OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
+            if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+                geocol.addGeometry(geometry);
+                
+            } else if (eType == wkbMultiPolygon) {
+                OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
+                int n_geom = mpolygon->getNumGeometries();
+                // if there is more than one polygon, then we need to count which
+                // part is processing accumulatively
+                for (size_t i = 0; i < n_geom; i++ ){
+                    OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+                    geocol.addGeometry(ogrGeom);
+                }
             }
         }
+        mapContour = geocol.UnionCascaded();
     }
-    OGRGeometry* output = geocol.UnionCascaded();
-    if (output) {
-        OGRwkbGeometryType eType = wkbFlatten(output->getGeometryType());
+    
+    if (mapContour) {
+        OGRwkbGeometryType eType = wkbFlatten(mapContour->getGeometryType());
         Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
         if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
             pc->shape_type = Shapefile::POLYGON;
-            OGRPolygon* p = (OGRPolygon *)output;
+            OGRPolygon* p = (OGRPolygon *)mapContour;
             OGRLinearRing* pLinearRing = NULL;
             int numPoints= 0;
             // interior rings
@@ -1030,7 +1144,7 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
             }
         } else if (eType == wkbMultiPolygon) {
             pc->shape_type = Shapefile::POLYGON;
-            OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) output;
+            OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) mapContour;
             int n_geom = mpolygon->getNumGeometries();
             // if there is more than one polygon, then we need to count which
             // part is processing accumulatively
@@ -1063,7 +1177,6 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
                 }
             }
         }
-        delete output;
         return new GdaPolygon(pc);
     }
     return NULL;
