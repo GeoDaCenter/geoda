@@ -230,12 +230,12 @@ wxString OGRLayerProxy::GetValueAt(int rid, int cid)
     return rst;
 }
 
-wxString OGRLayerProxy::GetValueAt(int rid, int cid, GIntBig* val)
+void OGRLayerProxy::GetValueAt(int rid, int cid, GIntBig* val)
 {
     *val = data[rid]->GetFieldAsInteger64(cid);
 }
 
-wxString OGRLayerProxy::GetValueAt(int rid, int cid, double* val)
+void OGRLayerProxy::GetValueAt(int rid, int cid, double* val)
 {
     *val = data[rid]->GetFieldAsDouble(cid);
 }
@@ -312,7 +312,7 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 bool OGRLayerProxy::IsFieldExisted(const wxString& field_name)
 {
 	// check if field existed by given field name
-	std::vector<OGRFieldProxy*>::iterator it;
+	vector<OGRFieldProxy*>::iterator it;
 	for (it = fields.begin(); it!=fields.end(); it++){
 		if (field_name.CmpNoCase((*it)->GetName()) == 0 ){
             return true;
@@ -416,7 +416,7 @@ bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
     return false;
 }
 
-bool OGRLayerProxy::AppendOGRFeature(std::vector<std::string>& content)
+bool OGRLayerProxy::AppendOGRFeature(vector<string>& content)
 {
 	OGRFeature *feature = OGRFeature::CreateFeature(layer->GetLayerDefn());
 	feature->SetFrom( data[0]);
@@ -496,8 +496,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
-Shapefile::ShapeType
-OGRLayerProxy::GetGdaGeometries(std::vector<GdaShape*>& geoms)
+Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
 {
     Shapefile::ShapeType shape_type;
     //read OGR geometry features
@@ -617,7 +616,7 @@ OGRLayerProxy::GetGdaGeometries(std::vector<GdaShape*>& geoms)
             }
             geoms.push_back(new GdaPolygon(pc));
         } else {
-            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
             throw GdaException(open_err_msg.c_str());
         }
     }
@@ -1026,7 +1025,7 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
                     for ( int num_part = 0; num_part < numParts; num_part++ ) {
                         OGRPolygon polygon;
                         OGRLinearRing ring;
-                        std::vector<wxInt32> startIndexes = poly->pc->parts;
+                        vector<wxInt32> startIndexes = poly->pc->parts;
                         startIndexes.push_back(numPoints);
                         for ( int j = startIndexes[num_part];
                              j < startIndexes[num_part+1]; j++ ) {
@@ -1061,7 +1060,7 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
     return true;
 }
 
-void OGRLayerProxy::GetCentroids(std::vector<GdaPoint*>& centroids)
+void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
 {
     if (centroids.size() == 0 && n_rows > 0) {
         centroids.resize(n_rows);
@@ -1354,7 +1353,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 			p_main.records[feature_counter++].contents_p = pc;
             
         } else {
-            std::string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+            string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
             throw GdaException(open_err_msg.c_str());
         }
 	}
@@ -1362,9 +1361,9 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 	return true;
 }
 
-void OGRLayerProxy::T_Export(std::string format,
-                             std::string dest_datasource,
-							 std::string new_layer_name,
+void OGRLayerProxy::T_Export(string format,
+                             string dest_datasource,
+							 string new_layer_name,
                              bool is_update)
 {
 	export_progress = 0;
@@ -1380,9 +1379,9 @@ void OGRLayerProxy::T_StopExport()
 	export_progress = 0;	
 }
 
-void OGRLayerProxy::Export(std::string format,
-                           std::string dest_datasource,
-                           std::string new_layer_name,
+void OGRLayerProxy::Export(string format,
+                           string dest_datasource,
+                           string new_layer_name,
                            bool is_update)
 {
 	const char* pszFormat = format.c_str();

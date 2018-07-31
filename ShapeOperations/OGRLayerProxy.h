@@ -258,9 +258,9 @@ public:
     
     wxString GetValueAt(int rid, int cid);
     
-    wxString GetValueAt(int rid, int cid, GIntBig* val);
+    void GetValueAt(int rid, int cid, GIntBig* val);
     
-    wxString GetValueAt(int rid, int cid, double* val);
+    void GetValueAt(int rid, int cid, double* val);
     
     void SetValueAt(int rid, int cid, GIntBig val, bool undef=false);
     
