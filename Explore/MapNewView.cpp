@@ -245,6 +245,11 @@ MapCanvas::~MapCanvas()
         basemap = NULL;
     }
     
+    if (print_bm) {
+        delete print_bm;
+        print_bm = NULL;
+    }
+    
     w_graph.clear();
 }
 
@@ -568,9 +573,10 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
+            double scale_factor = GetContentScaleFactor();
             basemap = new GDA::Basemap(screen, map, map_type,
                                        GenUtils::GetBasemapCacheDir(),
-                                       poCT);
+                                       poCT, scale_factor);
         }
     }
     return true;
@@ -688,30 +694,6 @@ wxBitmap* MapCanvas::GetPrintLayer()
     return layer2_bm;
 }
 
-void MapCanvas::DrawPrintLayer()
-{
-    double scale_factor = GetContentScaleFactor();
-    
-    int vs_w, vs_h;
-    GetClientSize(&vs_w, &vs_h);
-    
-    if (print_bm) delete print_bm;
-    print_bm = new wxBitmap;
-    print_bm->CreateScaled(vs_w, vs_h, wxBITMAP_SCREEN_DEPTH, scale_factor);
-    
-    wxMemoryDC dc;
-    dc.SelectObject(*print_bm);
-    dc.SetBackground(*wxTRANSPARENT_BRUSH);
-    dc.Clear();
-    
-    if (isDrawBasemap) {
-        dc.DrawBitmap(*basemap_bm,0,0);
-    }
-    
-    DrawSelectableShapes_dc(dc);
-    dc.SetUserScale(2, 2);    
-}
-
 void MapCanvas::DrawLayer0()
 {
     wxMemoryDC dc;
@@ -803,7 +785,8 @@ void MapCanvas::DrawLayer1()
             
             faded_layer_bm = new wxBitmap(image);
         }
-        dc.SetUserScale(0.5, 0.5);
+        double scale_factor = GetContentScaleFactor();
+        dc.SetUserScale(1/scale_factor, 1/scale_factor);
         dc.DrawBitmap(*faded_layer_bm,0,0);
         dc.SetUserScale(1.0, 1.0);
 

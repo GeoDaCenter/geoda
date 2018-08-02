@@ -231,7 +231,8 @@ public:
             MapLayer *_map,
             int map_type,
             wxString _cachePath,
-            OGRCoordinateTransformation *_poCT );
+            OGRCoordinateTransformation *_poCT,
+            double scale_factor = 1.0);
     ~Basemap();
     
     OGRCoordinateTransformation *poCT;
@@ -251,6 +252,7 @@ public:
     int heightP; // height of all tiles in pixel
     int leftP;
     int topP;
+    double scale_factor;
    
     bool isTileDrawn;
     bool isTileReady;

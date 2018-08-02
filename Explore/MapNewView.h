@@ -134,7 +134,6 @@ public:
 	virtual void DrawLayers();
     virtual void resizeLayerBms(int width, int height);
     
-	virtual void DrawPrintLayer();
     virtual wxBitmap* GetPrintLayer();
     
     virtual void DrawLayer0();

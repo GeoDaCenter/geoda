@@ -61,13 +61,15 @@ Basemap::Basemap(Screen* _screen,
                  MapLayer *_map,
                  int map_type,
                  wxString _cachePath,
-                 OGRCoordinateTransformation *_poCT )
+                 OGRCoordinateTransformation *_poCT,
+                 double _scale_factor)
 {
     poCT = _poCT;
     mapType = map_type;
     screen = _screen;
     map = _map;
     //canvas = _canvas;
+    scale_factor = _scale_factor;
     
     origMap = new MapLayer(map);
     
@@ -153,50 +155,62 @@ void Basemap::SetupMapType(int map_type)
             nokia_code = key;
         }
     }
-
     
     mapType = map_type;
     if (mapType == 1) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
-        urlSuffix = "@2x.png";
+        urlSuffix = ".png";
+        if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 2) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_all/";
-        urlSuffix = "@2x.png";
+        urlSuffix = ".png";
+        if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
         
     } else if (mapType == 3) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_nolabels/";
         urlSuffix = ".png";
+        if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 4) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_nolabels/";
         urlSuffix = ".png";
+        if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 5) {
         // nokia day
         basemapUrl = "http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
+        if (scale_factor == 2.0)
+            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 6) {
         // nokia night
         basemapUrl = "http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
+        if (scale_factor == 2.0)
+            "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 7) {
         // nokia terrian
         basemapUrl = "http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
+        if (scale_factor == 2.0)
+            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else if (mapType == 8) {
         // nokia hybrid
         basemapUrl = "http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
         urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
+        if (scale_factor == 2.0)
+            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
         imageSuffix = ".png";
     } else {
         mapType = 1;
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
         urlSuffix = ".png";
+        if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     }
     isTileDrawn = false;
