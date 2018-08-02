@@ -133,7 +133,11 @@ public:
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
     virtual void resizeLayerBms(int width, int height);
-	virtual void DrawLayer0();
+    
+	virtual void DrawPrintLayer();
+    virtual wxBitmap* GetPrintLayer();
+    
+    virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
 	//virtual void OnPaint(wxPaintEvent& event);
@@ -250,6 +254,8 @@ protected:
     // SetPredefinedColor(), UpdatePredifinedColor()
     std::map<wxString, wxColour> lbl_color_dict;
 
+    wxBitmap* print_bm;
+    
     // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;

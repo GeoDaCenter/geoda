@@ -107,7 +107,7 @@ highlight_color(GdaConst::highlight_color),
 canvas_background_color(GdaConst::canvas_background_color),
 selectable_shps_type(mixed), use_category_brushes(false),
 draw_sel_shps_by_z_val(false),
-isResize(false), 
+isResize(false),
 layer0_bm(0), layer1_bm(0), layer2_bm(0), faded_layer_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
@@ -911,8 +911,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
     
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats = cat_data.GetNumCategories(cc_ts);
-	int w = layer0_bm->GetWidth();
-	int h = layer0_bm->GetHeight();
+	int w;
+	int h;
+    GetClientSize(&w, &h);
     
     if (selectable_shps_type == points) {
 		int bnd = w*h;

@@ -505,7 +505,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
+			dc.DrawBitmap(*template_canvas->GetPrintLayer(), offset_x, offset_y);
             if (template_legend) {
                 template_legend->RenderToDC(dc, font_scale);
             }
@@ -522,12 +522,21 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 1:
 		{
 			wxLogMessage("PNG selected");
-			wxBitmap bitmap(new_bmp_w, new_bmp_h);
+            
+            double scale_factor = GetContentScaleFactor();
+            wxBitmap* bm = template_canvas->GetPrintLayer();
+            
+			wxBitmap bitmap;
+            bitmap.CreateScaled(new_bmp_w, new_bmp_h, 32, scale_factor);
+            
 			wxMemoryDC dc;
 			dc.SelectObject(bitmap);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
+            
+			dc.DrawBitmap(*bm, offset_x, offset_y);
+            
+            //dc.SetUserScale(1, 1);
             if (template_legend) {
                 dc.SetPen(*wxTRANSPARENT_PEN);
                 dc.SetBrush(*wxWHITE_BRUSH);
@@ -537,6 +546,8 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.SelectObject( wxNullBitmap );
 			
 			wxImage image = bitmap.ConvertToImage();
+            image.SetOption(wxIMAGE_OPTION_RESOLUTION, 300);
+            
 			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
 				wxMessageBox("GeoDa was unable to save the file.");
 			}

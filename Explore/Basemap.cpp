@@ -158,11 +158,11 @@ void Basemap::SetupMapType(int map_type)
     mapType = map_type;
     if (mapType == 1) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
-        urlSuffix = ".png";
+        urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 2) {
         basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_all/";
-        urlSuffix = ".png";
+        urlSuffix = "@2x.png";
         imageSuffix = ".png";
         
     } else if (mapType == 3) {

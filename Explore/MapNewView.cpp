@@ -186,6 +186,7 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
+print_bm(0),
 map_type(0),
 ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted)
@@ -618,12 +619,25 @@ void MapCanvas::resizeLayerBms(int width, int height)
     if (vs_w <= 0) vs_w = 1;
     if (vs_h <=0 ) vs_h = 1;
     
-	basemap_bm = new wxBitmap(vs_w, vs_h, 32);
+	
     layerbase_valid = false;
     
-    layer0_bm = new wxBitmap(vs_w, vs_h, 32);
-    layer1_bm = new wxBitmap(vs_w, vs_h, 32);
-    layer2_bm = new wxBitmap(vs_w, vs_h, 32);
+    if (enable_high_dpi_support) {
+        double scale_factor = GetContentScaleFactor();
+        basemap_bm = new wxBitmap;
+        layer0_bm = new wxBitmap;
+        layer1_bm = new wxBitmap;
+        layer2_bm = new wxBitmap;
+        basemap_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+        layer0_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+        layer1_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+        layer2_bm->CreateScaled(vs_w, vs_h, 32, scale_factor);
+    } else {
+        basemap_bm = new wxBitmap(vs_w, vs_h, 32);
+        layer0_bm = new wxBitmap(vs_w, vs_h, 32);
+        layer1_bm = new wxBitmap(vs_w, vs_h, 32);
+        layer2_bm = new wxBitmap(vs_w, vs_h, 32);
+    }
     
     layer0_valid = false;
     layer1_valid = false;
@@ -665,6 +679,37 @@ void MapCanvas::DrawLayerBase()
             layer0_valid = false;
         }
     }
+}
+
+wxBitmap* MapCanvas::GetPrintLayer()
+{
+    ///DrawPrintLayer();
+    //return print_bm;
+    return layer2_bm;
+}
+
+void MapCanvas::DrawPrintLayer()
+{
+    double scale_factor = GetContentScaleFactor();
+    
+    int vs_w, vs_h;
+    GetClientSize(&vs_w, &vs_h);
+    
+    if (print_bm) delete print_bm;
+    print_bm = new wxBitmap;
+    print_bm->CreateScaled(vs_w, vs_h, wxBITMAP_SCREEN_DEPTH, scale_factor);
+    
+    wxMemoryDC dc;
+    dc.SelectObject(*print_bm);
+    dc.SetBackground(*wxTRANSPARENT_BRUSH);
+    dc.Clear();
+    
+    if (isDrawBasemap) {
+        dc.DrawBitmap(*basemap_bm,0,0);
+    }
+    
+    DrawSelectableShapes_dc(dc);
+    dc.SetUserScale(2, 2);    
 }
 
 void MapCanvas::DrawLayer0()
@@ -737,7 +782,7 @@ void MapCanvas::DrawLayer1()
 			if (!image.HasAlpha()) {
 				image.InitAlpha();
 			}
-        
+            
 			unsigned char *alpha=image.GetAlpha();
 			unsigned char* pixel_data = image.GetData();
 			int n_pixel = image.GetWidth() * image.GetHeight();
@@ -758,7 +803,9 @@ void MapCanvas::DrawLayer1()
             
             faded_layer_bm = new wxBitmap(image);
         }
+        dc.SetUserScale(0.5, 0.5);
         dc.DrawBitmap(*faded_layer_bm,0,0);
+        dc.SetUserScale(1.0, 1.0);
 
 		int hl_alpha_value = revert ? tran_unhighlighted : GdaConst::transparency_highlighted;
 
@@ -950,10 +997,8 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool reve
     
     vector<bool>& hs = highlight_state->GetHighlight();
 #ifdef __WXOSX__
-    wxGraphicsRenderer* renderer = wxGraphicsRenderer::GetDefaultRenderer();
-    wxGraphicsContext* gc= renderer->CreateContext (_dc);
-    
-    helper_DrawSelectableShapes_gc(*gc, hs, hl_only, revert, use_crosshatch);
+    wxGCDC dc(_dc);
+    helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
 #else
     helper_DrawSelectableShapes_dc(_dc, hs, hl_only, revert, use_crosshatch);
     

@@ -253,6 +253,8 @@ public:
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
     
+    virtual wxBitmap* GetPrintLayer() { return layer2_bm; }
+    
 	virtual void PopulateCanvas() = 0;
     
     int GetMarginLeft() { return last_scale_trans.slack_x;}
