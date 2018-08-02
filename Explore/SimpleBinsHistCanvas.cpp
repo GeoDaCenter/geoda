@@ -168,6 +168,12 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
+    
 	double num_ivals_d = (double) hist_bins.size();
 	double x_min = 0;
 	double x_max = left_pad_const + right_pad_const

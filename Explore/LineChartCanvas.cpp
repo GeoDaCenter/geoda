@@ -69,7 +69,7 @@ y_axis_precision(2), fixed_scale_over_change(true), prev_y_axis_min(DBL_MIN), pr
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+	SetBackgroundStyle(wxBG_STYLE_PAINT);  // default style
     
     Bind(wxEVT_LEFT_DCLICK, &LineChartCanvas::OnDblClick, this);
     
@@ -383,7 +383,7 @@ void LineChartCanvas::PopulateCanvas()
 	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
 	
 	scaleY = 100.0 / (axis_scale_y.scale_range);
-	
+    
 	TableInterface* table_int = project->GetTableInt();
 	// create axes
 	std::vector<wxString> tm_strs;

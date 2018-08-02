@@ -69,7 +69,7 @@ axis_display_precision(1)
 	GetClientSize(&width, &height);
 	
 	panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
+	
 	SetBackgroundColour(*wxWHITE);
 	panel->Bind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 	
@@ -91,7 +91,8 @@ axis_display_precision(1)
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
 	panel->SetSizer(panel_h_szr);
-	
+	panel->SetBackgroundColour(*wxWHITE);
+    
 	UpdateMessageWin();
 	
 	// Top Sizer for Frame
@@ -232,7 +233,7 @@ void ScatterPlotMatFrame::OnSelectWithLine(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
     wxColour new_color;
-    if (GetColorFromUser(this,selectable_outline_color,new_color,"Outline Color"))
+    if (GetColorFromUser(this,selectable_outline_color,new_color, _("Outline Color")))
     {
         for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
             scatt_plots[i]->SetSelectableOutlineColor(new_color);
@@ -243,7 +244,7 @@ void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
     wxColour new_color;
-    if (GetColorFromUser(this,selectable_fill_color,new_color,"Fill Color"))
+    if (GetColorFromUser(this,selectable_fill_color,new_color, _("Fill Color")))
     {
         for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
             scatt_plots[i]->SetSelectableFillColor(new_color);
@@ -559,6 +560,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                           view_standardized_data,
                                           wxDefaultPosition, wxSize(50, -1));
             bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
+            sa_can->SetBackgroundColour(*wxWHITE);
             vert_labels.push_back(sa_can);
             
             sa_can = new SimpleAxisCanvas(panel, this, project,

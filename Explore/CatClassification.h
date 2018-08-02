@@ -202,6 +202,8 @@ struct CatClassifData {
 	int GetNumObsInCategory(int canvas_tm, int cat);
 	std::vector<int>& GetIdsRef(int canvas_tm, int cat);
 	void SetCategoryColor(int canvas_tm, int cat, wxColour color);
+    void SetCategoryBrushColor(int canvas_tm, int cat, wxColour color);
+    void SetCategoryPenColor(int canvas_tm, int cat, wxColour color);
 	wxColour GetCategoryColor(int canvas_tm, int cat);
 	wxBrush GetCategoryBrush(int canvas_tm, int cat);
 	wxPen GetCategoryPen(int canvas_tm, int cat);

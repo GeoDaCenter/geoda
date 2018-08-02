@@ -69,7 +69,6 @@ labels(lbls), values(vals), stats(stats_), right_click_menu_id(right_click_menu_
 {
     last_scale_trans.SetFixedAspectRatio(false);
     PopulateCanvas();
-    SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     highlight_state->registerObserver(this);
 }
 
@@ -90,6 +89,12 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     selectable_shps.clear();
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
     foreground_shps.clear();
+    
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
     
 	// orig_x_pos is the center of each histogram bar
     int cur_intervals = values.size();
@@ -586,6 +591,12 @@ void SimpleHistCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
+    
 	double x_min = 0;
     double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
 	

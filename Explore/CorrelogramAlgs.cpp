@@ -218,7 +218,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
                 continue;
             }
             
-            Zprod_undef[pc] = false;
+            if (Z_undef.size() > 0) Zprod_undef[pc] = false;
 			double d = (is_arc ?
                         ComputeArcDistRad(pts[i].x, pts[i].y,pts[j].x, pts[j].y) :
 						ComputeEucDist(pts[i].x, pts[i].y, pts[j].x, pts[j].y));

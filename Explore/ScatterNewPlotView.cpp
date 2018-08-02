@@ -274,7 +274,8 @@ bubble_size_scaler(1.0)
 		// 1 = #cats
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+			cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
+            cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
 			for (int i=0; i<num_obs; i++) {
 				cat_data.AppendIdToCategory(t, 0, i);
 			}

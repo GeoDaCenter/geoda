@@ -99,7 +99,8 @@ view_standardized_data(view_standardized_data_)
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	// 1 = #cats
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, X.size());
-	cat_data.SetCategoryColor(0, 0, selectable_fill_color);
+	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
+    cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
 	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
 	cat_data.SetCurrentCanvasTmStep(0);
 	
@@ -107,7 +108,6 @@ view_standardized_data(view_standardized_data_)
 	ResizeSelectableShps();
 	
 	highlight_state->registerObserver(this);
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 }
 
 SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
@@ -508,6 +508,12 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	
 	wxSize size(GetVirtualSize());
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
     
 	// Recall: Xmin/max Ymin/max can be smaller/larger than min/max in X/Y
 	//    if X/Y are particular time-slices of time-variant variables and

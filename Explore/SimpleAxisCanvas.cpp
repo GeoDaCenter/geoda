@@ -78,9 +78,8 @@ is_standardized(is_standardized_)
 	
 	PopulateCanvas();
 	ResizeSelectableShps();
-	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 }
+
 SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 Project* project,
 								 HLStateInt* hl_state_int,
@@ -125,7 +124,6 @@ is_standardized(is_standardized_)
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 	LOG_MSG("Exiting SimpleAxisCanvas::SimpleAxisCanvas");
 }
 
@@ -161,6 +159,12 @@ void SimpleAxisCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-100, -100), wxRealPoint(200, 200));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
+    
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();

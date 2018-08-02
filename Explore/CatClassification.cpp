@@ -2752,6 +2752,20 @@ void CatClassifData::SetCategoryColor(int canvas_tm, int cat, wxColour color)
 								 GdaColorUtils::ChangeBrightness(color));
 }
 
+void CatClassifData::SetCategoryBrushColor(int canvas_tm, int cat, wxColour color)
+{
+    if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return;
+    categories[canvas_tm].cat_vec[cat].brush.SetColour(color);
+}
+
+void CatClassifData::SetCategoryPenColor(int canvas_tm, int cat, wxColour color)
+{
+    if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return;
+    categories[canvas_tm].cat_vec[cat].pen.SetColour(color);
+}
+
 wxColour CatClassifData::GetCategoryColor(int canvas_tm, int cat)
 {
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())

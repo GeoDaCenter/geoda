@@ -776,8 +776,12 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     if (layer2_bm) {
         wxSize sz = GetClientSize();
         wxMemoryDC dc(*layer2_bm);
+        dc.SetPen(*wxWHITE_PEN);
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+        dc.DrawRectangle(wxPoint(0,0), sz);
         
         wxPaintDC paint_dc(this);
+        
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
         
         // Draw optional control objects if needed
@@ -932,13 +936,18 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch ){
-                dc.SetPen(wxPen(highlight_color));
+                dc.SetBrush(wxBrush(highlight_color));
             } else {
-                wxColour clr = cat_data.GetCategoryColor(cc_ts, cat);
-                dc.SetPen(wxPen(clr));
-            }
-            if (fixed_pen_color != *wxWHITE) {
-                dc.SetPen(wxPen(fixed_pen_color));
+                if (selectable_outline_visible) {
+                    wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
+                    dc.SetPen(pen);
+                } else {
+                    dc.SetPen(*wxTRANSPARENT_PEN);
+                }
+                if (fixed_pen_color != *wxWHITE) {
+                    dc.SetPen(wxPen(fixed_pen_color));
+                }
+                dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
 			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
 			for (int i=0, iend=ids.size(); i<iend; i++) {
