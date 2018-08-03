@@ -160,7 +160,7 @@ void SimpleAxisCanvas::PopulateCanvas()
 	foreground_shps.clear();
 	
     // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-100, -100), wxRealPoint(200, 200));
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-1000, -1000), wxRealPoint(2000, 2000));
     bg->setPen(*wxWHITE_PEN);
     bg->setBrush(*wxWHITE_BRUSH);
     background_shps.push_back(bg);
@@ -214,10 +214,12 @@ void SimpleAxisCanvas::PopulateCanvas()
     	// create axes
     	if (horiz_orient) {
     		x_baseline = new GdaAxis(Xname, axis_scale_x,
-    								 wxRealPoint(0,0), wxRealPoint(100, 0));
+    								 wxRealPoint(0,0), wxRealPoint(100, 0),
+                                     0, 0, true);
     	} else {
     		x_baseline = new GdaAxis(Xname, axis_scale_x,
-    								 wxRealPoint(0,0), wxRealPoint(0, 100));
+    								 wxRealPoint(0,0), wxRealPoint(0, 100),
+                                     0, 0, true);
     	}
     	x_baseline->autoDropScaleValues(true);
     	x_baseline->moveOuterValTextInwards(true);

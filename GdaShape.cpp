@@ -2522,13 +2522,13 @@ GdaAxis::GdaAxis(const GdaAxis& s)
 
 GdaAxis::GdaAxis(const wxString& caption_s, const AxisScale& s,
                  const wxRealPoint& a_s, const wxRealPoint& b_s,
-                 int x_nudge, int y_nudge)
+                 int x_nudge, int y_nudge, bool inSubview_b)
 	: caption(caption_s), scale(s), is_horizontal(a_s.y == b_s.y),
 	a(a_s), b(b_s), a_o(a_s), b_o(b_s),
 	font(*GdaConst::small_font), caption_font(*GdaConst::medium_font),
 	hidden(false), hide_scale_values(false), hide_caption(false),
 	auto_drop_scale_values(true), move_outer_val_text_inwards(false),
-	hide_negative_labels(false)
+	hide_negative_labels(false), inSubview(inSubview_b)
 {
 	setNudge(x_nudge, y_nudge);
 }
@@ -2572,12 +2572,13 @@ void GdaAxis::paintSelf(wxDC& dc)
 {
 	if (hidden) return;
     
-    // workaround a bug in scatter plot matrix in HDPI mode
-    int width, height;
-    wxSize sz = dc.GetSize();
-    dc.SetPen(*wxWHITE_PEN);
-    dc.SetBrush(*wxWHITE_BRUSH);
-    dc.DrawRectangle(0, 0, sz.GetWidth(), sz.GetHeight());
+    if (inSubview) {
+        // workaround a bug in scatter plot matrix in HDPI mode
+        int width, height;
+        wxSize sz = dc.GetSize();
+        dc.SetBrush(*wxWHITE_BRUSH);
+        dc.DrawRectangle(-100,-100,1000,1000);
+    }
     
 	bool use_axis_scale = (tic_labels.size() == 0);
 	size_t num_tics = use_axis_scale ? scale.tics.size() : tic_labels.size();

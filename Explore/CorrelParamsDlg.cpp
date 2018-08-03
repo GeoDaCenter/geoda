@@ -72,6 +72,7 @@ help_btn(0), apply_btn(0)
             var_time_choice->Append(s);
         }
         if (is_time == false) {
+            v1_time = 0;
             var_time_txt->Hide();
             var_time_choice->Hide();
         } else {

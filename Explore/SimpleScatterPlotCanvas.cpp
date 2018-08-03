@@ -510,7 +510,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
     
     // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-1000, -1000), wxRealPoint(1000, 1000));
     bg->setPen(*wxWHITE_PEN);
     bg->setBrush(*wxWHITE_BRUSH);
     background_shps.push_back(bg);

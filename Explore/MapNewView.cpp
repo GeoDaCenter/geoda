@@ -31,6 +31,7 @@
 #include <wx/dcsvg.h>
 #include <wx/filename.h>
 #include <wx/time.h>
+#include <wx/dcps.h>
 
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
@@ -785,11 +786,16 @@ void MapCanvas::DrawLayer1()
             
             faded_layer_bm = new wxBitmap(image);
         }
-        double scale_factor = GetContentScaleFactor();
-        dc.SetUserScale(1/scale_factor, 1/scale_factor);
-        dc.DrawBitmap(*faded_layer_bm,0,0);
-        dc.SetUserScale(1.0, 1.0);
-
+        
+        if (enable_high_dpi_support) {
+            double scale_factor = GetContentScaleFactor();
+            dc.SetUserScale(1/scale_factor, 1/scale_factor);
+            dc.DrawBitmap(*faded_layer_bm,0,0);
+            dc.SetUserScale(1.0, 1.0);
+        } else {
+            dc.DrawBitmap(*faded_layer_bm,0,0);
+        }
+        
 		int hl_alpha_value = revert ? tran_unhighlighted : GdaConst::transparency_highlighted;
 
 		if ( draw_highlight ) {
@@ -3109,4 +3115,197 @@ void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxS
             field_name = ((MapCanvas*) template_canvas)->var_info[0].name;
         }
 	}
+}
+
+void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    wxLogMessage("Entering MapFrame::ExportImage");
+    
+    wxString default_fname(project->GetProjectTitle() + type);
+    wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+    int filter_index = 1;
+    wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    dialog.SetFilterIndex(filter_index);
+    if (dialog.ShowModal() != wxID_OK) {
+        return;
+    }
+    double scale_factor = 1.0;
+    if (GdaConst::enable_high_dpi_support) scale_factor = GetContentScaleFactor();
+    
+    // main map
+    wxBitmap* main_map = template_canvas->GetPrintLayer();
+    int map_width = main_map->GetWidth();
+    int map_height = main_map->GetHeight();
+    if (GdaConst::enable_high_dpi_support) {
+        map_width = map_width / scale_factor;
+        map_height = map_height / scale_factor;
+    }
+    
+    // legend
+    int legend_width = template_legend->GetDrawingWidth() + 10; // 10 pix margin
+    int new_bmp_w = map_width + legend_width;
+    int new_bmp_h = map_height;
+    
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+    
+    
+    double font_scale = 1.0;
+    if ( GeneralWxUtils::isWindows()) font_scale = 1.5;
+    
+    switch (dialog.GetFilterIndex()) {
+        case 0:
+        {
+            wxLogMessage("BMP selected");
+            
+            wxBitmap bitmap;
+            bitmap.CreateScaled(new_bmp_w, new_bmp_h, 32, scale_factor);
+            
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            
+            template_legend->RenderToDC(dc, font_scale);
+            dc.DrawBitmap(*main_map, legend_width, 0);
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            image.SetOption(wxIMAGE_OPTION_RESOLUTION, 300);
+            
+            if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            image.Destroy();
+        }
+            break;
+            
+        case 1:
+        {
+            wxLogMessage("PNG selected");
+            
+            wxBitmap bitmap;
+            bitmap.CreateScaled(new_bmp_w, new_bmp_h, 32, scale_factor);
+            
+            wxMemoryDC dc;
+            dc.SelectObject(bitmap);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            
+            template_legend->RenderToDC(dc, font_scale);
+            dc.DrawBitmap(*main_map, legend_width, 0);
+            dc.SelectObject( wxNullBitmap );
+            
+            wxImage image = bitmap.ConvertToImage();
+            //image.Rescale(new_bmp_w, new_bmp_h, wxIMAGE_QUALITY_BICUBIC);
+            image.SetOption(wxIMAGE_OPTION_RESOLUTION, 300);
+            
+            if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
+                wxMessageBox("GeoDa was unable to save the file.");
+            }
+            image.Destroy();
+        }
+            break;
+        case 2:
+        {
+            wxLogMessage("SVG selected");
+            
+            wxSize canvas_sz = canvas->GetDrawingSize();
+            int picW = canvas_sz.GetWidth() + 20;
+            int picH = canvas_sz.GetHeight() + 20;
+            int legend_w = 0;
+            double scale = 2.0;
+            if (template_legend) {
+                legend_w = template_legend->GetDrawingWidth() + 20;
+            }
+            
+            wxSVGFileDC dc(str_fname + ".svg", picW + legend_w + 20, picH);
+            
+            template_canvas->RenderToDC(dc, picW + legend_w + 20, picH);
+            if (template_legend) {
+                template_legend->RenderToDC(dc, scale);
+            }
+        }
+            break;
+        case 3:
+        {
+            wxPrintData printData;
+            printData.SetFilename(str_fname + ".ps");
+            printData.SetPrintMode(wxPRINT_MODE_FILE);
+            wxPostScriptDC dc(printData);
+            
+            int w, h;
+            dc.GetSize(&w, &h);  // A4 paper like?
+            wxLogMessage(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
+            
+            if (dc.IsOk()) {
+                dc.StartDoc("printing...");
+                int paperW, paperH;
+                dc.GetSize(&paperW, &paperH);
+                
+                double marginFactor = 0.03;
+                int marginW = (int) (paperW*marginFactor/2.0);
+                int marginH = (int) (paperH*marginFactor);
+                
+                int workingW = paperW - 2*marginW;
+                int workingH = paperH - 2*marginH;
+                
+                int originX = marginW+1; // experimentally obtained tweak
+                int originY = marginH+300; // experimentally obtained tweak
+                
+                // 1/5 use for legend;  4/5 use for map
+                int legend_w = 0;
+                double scale = 1.0;
+                
+                if (template_legend) {
+                    legend_w = workingW * 0.2;
+                    int legend_orig_w = template_legend->GetDrawingWidth();
+                    scale = legend_orig_w / (double) legend_w;
+                    
+                    dc.SetDeviceOrigin(originX, originY);
+                    
+                    template_legend->RenderToDC(dc, scale);
+                }
+                
+                wxSize canvas_sz = canvas->GetDrawingSize();
+                int picW = canvas_sz.GetWidth();
+                int picH = canvas_sz.GetHeight();
+                
+                int map_w = 0;
+                int map_h = 0;
+                
+                // landscape
+                map_w = workingW - legend_w;
+                map_h = map_w * picH / picW;
+                
+                if (picW < picH) {
+                    // portrait
+                    map_w = map_w * (map_w / (double) map_h);
+                    map_h = map_w * picH / picW;
+                }
+                
+                dc.SetDeviceOrigin( originX + legend_w + 100, originY);
+                
+                template_canvas->RenderToDC(dc, map_w, map_h);
+                
+                dc.EndDoc();
+                
+            } else {
+                wxString msg = _("There was a problem generating the PostScript file.");
+                wxMessageBox(msg);
+            }
+        }
+            break;
+            
+        default:
+        {
+            LOG_MSG("Error: A non-recognized type selected.");
+        }
+            break;
+    }
+    return;
+    
+    LOG_MSG("Exiting TemplateFrame::ExportImage");
 }

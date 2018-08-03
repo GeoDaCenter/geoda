@@ -533,7 +533,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 		case 1:
 		{
 			wxLogMessage("PNG selected");
-            
+                        
             double scale_factor = GetContentScaleFactor();
             wxBitmap* bm = template_canvas->GetPrintLayer();
             

@@ -549,7 +549,8 @@ public:
 			const wxRealPoint& a_s,
             const wxRealPoint& b_s,
 			int x_nudge = 0,
-            int y_nudge = 0);
+            int y_nudge = 0,
+            bool inSubview = false);
 	GdaAxis(const wxString& caption_s,
 			const std::vector<wxString>& tic_labels_s,
 			const wxRealPoint& a_s,
@@ -581,6 +582,7 @@ public:
 	wxString caption;
 	bool hidden;
     
+    
 protected:
 	bool is_horizontal;
 	wxRealPoint a_o;
@@ -592,6 +594,7 @@ protected:
 	bool auto_drop_scale_values;
 	bool hide_negative_labels;
 	bool move_outer_val_text_inwards;
+    bool inSubview;
 };
 
 class GdaSelRegion {

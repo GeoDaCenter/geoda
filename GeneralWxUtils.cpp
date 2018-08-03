@@ -483,7 +483,8 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
     //Create a Bitmap that will later on hold the screenshot image
     //Note that the Bitmap must have a size big enough to hold the screenshot
     //-1 means using the current default colour depth
-    wxBitmap screenshot(screenWidth, screenHeight,-1);
+    wxSize new_sz = win->FromDIP(wxSize(screenWidth, screenHeight));
+    wxBitmap screenshot(new_sz);
     
     //Create a memory DC that will be used for actually taking the screenshot
     wxMemoryDC memDC;
@@ -492,6 +493,7 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
     memDC.SelectObject(screenshot);
     //Blit (in this case copy) the actual screen on the memory DC
     //and thus the Bitmap
+
     memDC.Blit( 0, //Copy to this X coordinate
                0, //Copy to this Y coordinate
                screenWidth, //Copy this width
