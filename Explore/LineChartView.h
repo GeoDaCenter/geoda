@@ -218,7 +218,7 @@ protected:
 	wxBoxSizer* ctrls_h_szr;
 	wxBoxSizer* title1_h_szr;
 	wxBoxSizer* title2_h_szr;
-	wxGridBagSizer* bag_szr;
+	wxBoxSizer* bag_szr;
 	wxPanel* panel;
 	wxHtmlWindow* message_win;
     OGRTable* mem_table_int;

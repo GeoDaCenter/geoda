@@ -158,12 +158,6 @@ void SimpleAxisCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
-    // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-1000, -1000), wxRealPoint(2000, 2000));
-    bg->setPen(*wxWHITE_PEN);
-    bg->setBrush(*wxWHITE_BRUSH);
-    background_shps.push_back(bg);
     
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();

@@ -208,11 +208,8 @@ fixed_scale_over_change(true)
                                    wxSize(380,-1));
 	message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
 	
-	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
-	bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
-	bag_szr->SetFlexibleDirection(wxBOTH);
-	bag_szr->AddGrowableCol(0, 1);
-	bag_szr->AddGrowableRow(0, 1);
+	bag_szr = new wxBoxSizer(wxVERTICAL);
+	bag_szr->Add(message_win, 1, wxEXPAND);
 
 	panel_v_szr = new wxBoxSizer(wxVERTICAL);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
@@ -690,9 +687,6 @@ void LineChartFrame::OnGroup2Choice(wxCommandEvent& event)
                     }
                 }
             }
-            
-            
-            //
         } else {
             choice_time2->SetSelection(choice_time1->GetSelection());
         }
@@ -1834,7 +1828,7 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	}
 	bag_szr->Clear();
 	panel_v_szr->Remove(bag_szr); // bag_szr is deleted automatically
-	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
+    bag_szr = new wxBoxSizer(wxVERTICAL);
 	for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
 		if (line_charts[i]) {
 			line_charts[i]->Destroy();
@@ -1855,14 +1849,9 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
 	if (num_vars < 1) {
 		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
 		message_win->Bind(wxEVT_RIGHT_UP, &LineChartFrame::OnMouseEvent, this);
-		bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
-		bag_szr->SetFlexibleDirection(wxBOTH);
-		if (bag_szr->IsColGrowable(0)) bag_szr->RemoveGrowableCol(0);
-		bag_szr->AddGrowableCol(0, 1);
-		if (bag_szr->IsRowGrowable(0)) bag_szr->RemoveGrowableRow(0);
-		bag_szr->AddGrowableRow(0, 1);
-		
+		bag_szr->Add(message_win, 1, wxEXPAND);
 	} else {
+        // num_vars should be 1
 		for (int row=0; row<num_vars; ++row) {
 			wxString row_nm(var_man.GetName(row));
 			wxString row_title(row_nm);
@@ -1921,24 +1910,10 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
                 canvas->UpdateYAxisPrecision(def_y_precision);
                 canvas->UpdateAll();
             }
-			bag_szr->Add(canvas, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
+			bag_szr->Add(canvas, 1, wxEXPAND);
 			line_charts.push_back(canvas);
 		}
-		int col0_proportion = 1;
-		
-        int col1_proportion = 1;
-		bag_szr->SetFlexibleDirection(wxBOTH);
-		if (bag_szr->IsColGrowable(0))
-            bag_szr->RemoveGrowableCol(0);
-		bag_szr->AddGrowableCol(0, col0_proportion);
-		
-		for (int i=0; i<num_vars; ++i) {
-			if (bag_szr->IsRowGrowable(i))
-                bag_szr->RemoveGrowableRow(i);
-			bag_szr->AddGrowableRow(i, 1);
-		}
 	}
-    //panel_v_szr->AddSpacer(5);
 	panel_v_szr->Add(bag_szr, 1, wxEXPAND);
 	panel_h_szr->RecalcSizes();
    

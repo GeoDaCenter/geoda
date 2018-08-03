@@ -90,12 +90,6 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
     foreground_shps.clear();
     
-    // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
-    bg->setPen(*wxWHITE_PEN);
-    bg->setBrush(*wxWHITE_BRUSH);
-    background_shps.push_back(bg);
-    
 	// orig_x_pos is the center of each histogram bar
     int cur_intervals = values.size();
 	vector<double> orig_x_pos(cur_intervals);
@@ -590,12 +584,6 @@ void SimpleHistCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
-    // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-20, -20), wxRealPoint(200, 200));
-    bg->setPen(*wxWHITE_PEN);
-    bg->setBrush(*wxWHITE_BRUSH);
-    background_shps.push_back(bg);
     
 	double x_min = 0;
     double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
@@ -608,6 +596,13 @@ void SimpleHistCanvas::PopulateCanvas()
 	
 	double y_max = overall_max_num_obs_in_ival;
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
+    
+    // workaround a bug in scatter plot matrix in HDPI mode
+    GdaRectangle* bg = new GdaRectangle(wxRealPoint(x_min, -y_max*0.2), wxRealPoint(x_max *1.2, y_max * 1.2));
+    bg->setPen(*wxWHITE_PEN);
+    bg->setBrush(*wxWHITE_BRUSH);
+    background_shps.push_back(bg);
+    
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
@@ -759,7 +754,7 @@ void SimpleHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
 		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
-	
+    
 	ResizeSelectableShps();
 	LOG_MSG("Exiting SimpleHistCanvas::PopulateCanvas");
 }
