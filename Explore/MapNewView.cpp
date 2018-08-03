@@ -2037,11 +2037,11 @@ void MapCanvas::DisplayMapWithGraph()
     }
 }
 
-void MapCanvas::DisplayMapBoundray()
+void MapCanvas::DisplayMapBoundray(bool flag)
 {
     wxLogMessage("MapCanvas::DisplayMapBoundray()");
     
-    display_map_boundary = !display_map_boundary;
+    display_map_boundary = flag;
     if (selectable_outline_visible) display_map_boundary = false;
     full_map_redraw_needed = true;
     
@@ -2479,7 +2479,7 @@ void MapFrame::OnDrawBasemap(bool flag, int map_type)
 void MapFrame::OnShowMapBoundary(wxCommandEvent& e)
 {
     if (!template_canvas) return;
-    ((MapCanvas*)template_canvas)->DisplayMapBoundray();
+    ((MapCanvas*)template_canvas)->DisplayMapBoundray(e.IsChecked());
     UpdateOptionMenuItems();
 }
 
@@ -2525,6 +2525,9 @@ void MapFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
     if (!template_canvas) return;
     template_canvas->SetSelectableOutlineVisible(!template_canvas->selectable_outline_visible);
     wxCommandEvent ev;
+    if (template_canvas->selectable_outline_visible == false) {
+        ev.SetId(0);
+    }
     OnShowMapBoundary(ev);
     UpdateOptionMenuItems();
 }

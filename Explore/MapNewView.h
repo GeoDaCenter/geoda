@@ -158,7 +158,7 @@ public:
     virtual void DisplayWeightsGraph();
     virtual void DisplayNeighbors();
     virtual void DisplayMapWithGraph();
-    virtual void DisplayMapBoundray();
+    virtual void DisplayMapBoundray(bool flag=false);
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
     virtual void ChangeConnSelectedColor();
