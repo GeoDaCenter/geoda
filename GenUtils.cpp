@@ -1254,6 +1254,20 @@ wxString GenUtils::DblToStr(double x, int precision)
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
+wxString GenUtils::IntToStr(int x, int precision)
+{
+    std::stringstream ss;
+    
+
+        if (x < 10000000) {
+            ss << std::fixed;
+        }
+        ss << std::setprecision(precision);
+        ss << x;
+    
+    return wxString(ss.str().c_str(), wxConvUTF8);
+}
+
 wxString GenUtils::PtToStr(const wxPoint& p)
 {
 	std::stringstream ss;

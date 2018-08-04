@@ -531,34 +531,28 @@ void BoxPlotCanvas::PopulateCanvas()
 
     last_scale_trans.SetData(x_min, 0, x_max, 100);
 	
-    int row_gap = 3;
 	GdaShape* s = 0;
 	int table_w=0, table_h=0;
 	if (display_stats) {
 		int cols = 1;
 		int rows = 8;
 		std::vector<wxString> vals(rows);
-		vals[0] << _("min");
-		vals[1] << _("max");
-		vals[2] << _("Q1");
-        vals[3] << _("median");
-		vals[4] << _("Q3");
-		vals[5] << _("IQR");
-		vals[6] << _("mean");
-		vals[7] << _("s.d.");
+		vals[0] << "min";
+		vals[1] << "max";
+		vals[2] << "Q1";
+		vals[3] << "median";
+		vals[4] << "Q3";
+		vals[5] << "IQR";
+		vals[6] << "mean";
+		vals[7] << "s.d.";
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
                               wxRealPoint(0, 0), GdaShapeText::h_center,
                               GdaShapeText::top, GdaShapeText::right,
-                              GdaShapeText::v_center, 3, 10, -15, 30);
+                              GdaShapeText::v_center, 3, 10, -45, 30);
 		foreground_shps.push_back(s);
 		wxClientDC dc(this);
 		((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-        
-        // get row gap in multi-language case
-        wxSize sz_0 = dc.GetTextExtent(vals[0]);
-        wxSize sz_1 = dc.GetTextExtent("0.0");
-        row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
 	}
 	
 
@@ -629,21 +623,53 @@ void BoxPlotCanvas::PopulateCanvas()
 			int cols = 1;
 			int rows = 8;
 			std::vector<wxString> vals(rows);
-			vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, 4);
-			vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, 4);
-			vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, 4);
-			vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, 4);
-			vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, 4);
-			vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, 4);
-			vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
-			vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
+
+            if ((int)hinge_stats[t].min_val == hinge_stats[t].min_val)
+                vals[0] << GenUtils::IntToStr(hinge_stats[t].min_val);
+            else
+                vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, 4);
+            
+            if ((int)hinge_stats[t].max_val == hinge_stats[t].max_val)
+                vals[1] << GenUtils::IntToStr(hinge_stats[t].max_val);
+			else
+                vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, 4);
+            
+            if ((int)hinge_stats[t].Q1 == hinge_stats[t].Q1)
+                vals[2] << GenUtils::IntToStr(hinge_stats[t].Q1);
+            else
+                vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, 4);
+            
+            if ((int)hinge_stats[t].Q2 == hinge_stats[t].Q2)
+                vals[3] << GenUtils::IntToStr(hinge_stats[t].Q2);
+            else
+                vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, 4);
+            
+            if ((int)hinge_stats[t].Q3 == hinge_stats[t].Q3)
+                vals[4] << GenUtils::IntToStr(hinge_stats[t].Q3);
+            else
+                vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, 4);
+            
+            if ((int)hinge_stats[t].IQR == hinge_stats[t].IQR)
+                vals[5] << GenUtils::IntToStr(hinge_stats[t].IQR);
+            else
+                vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, 4);
+            
+            if ((int)data_stats[t].mean == data_stats[t].mean)
+                vals[6] << GenUtils::IntToStr(data_stats[t].mean);
+            else
+                vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
+            
+            if ((int)data_stats[t].sd_with_bessel == data_stats[t].sd_with_bessel)
+                vals[7] << GenUtils::IntToStr(data_stats[t].sd_with_bessel);
+            else
+                vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
 
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
             s = new GdaShapeTable(vals, attribs, rows, cols,
                                   *GdaConst::small_font, wxRealPoint(xM, 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  row_gap, 10, 30, 30);
+                                  3, 10, 0, 30);
 			foreground_shps.push_back(s);
 		}
 		

@@ -329,7 +329,7 @@ uint64_t GdaConst::gda_user_seed = 123456789;
 bool GdaConst::use_gda_user_seed = true;
 
 int GdaConst::gdal_http_timeout = 5;
-bool GdaConst::enable_high_dpi_support = false;
+bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::show_csv_configure_in_merge = true;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
