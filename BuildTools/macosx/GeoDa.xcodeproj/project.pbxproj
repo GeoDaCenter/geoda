@@ -16,6 +16,19 @@
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
+		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
+		A19483942118BAAA009A87A2 /* divided.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837E2118BAA7009A87A2 /* divided.cpp */; };
+		A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837F2118BAA7009A87A2 /* constrnt.cpp */; };
+		A19483962118BAAA009A87A2 /* oglmisc.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483812118BAA8009A87A2 /* oglmisc.cpp */; };
+		A19483972118BAAA009A87A2 /* bmpshape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483852118BAA8009A87A2 /* bmpshape.cpp */; };
+		A19483982118BAAA009A87A2 /* basic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483862118BAA8009A87A2 /* basic.cpp */; };
+		A19483992118BAAA009A87A2 /* canvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483872118BAA8009A87A2 /* canvas.cpp */; };
+		A194839A2118BAAA009A87A2 /* lines.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483882118BAA9009A87A2 /* lines.cpp */; };
+		A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483892118BAA9009A87A2 /* basic2.cpp */; };
+		A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194838A2118BAA9009A87A2 /* mfutils.cpp */; };
+		A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194838C2118BAA9009A87A2 /* drawn.cpp */; };
+		A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483912118BAAA009A87A2 /* ogldiag.cpp */; };
+		A19483A22118BE8F009A87A2 /* MapLayoutView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -305,6 +318,35 @@
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
+		A19483782118BAA7009A87A2 /* ogldiag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogldiag.h; sourceTree = "<group>"; };
+		A19483792118BAA7009A87A2 /* composit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = composit.h; sourceTree = "<group>"; };
+		A194837A2118BAA7009A87A2 /* composit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = composit.cpp; sourceTree = "<group>"; };
+		A194837B2118BAA7009A87A2 /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = misc.h; sourceTree = "<group>"; };
+		A194837C2118BAA7009A87A2 /* linesp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = linesp.h; sourceTree = "<group>"; };
+		A194837D2118BAA7009A87A2 /* mfutils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mfutils.h; sourceTree = "<group>"; };
+		A194837E2118BAA7009A87A2 /* divided.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = divided.cpp; sourceTree = "<group>"; };
+		A194837F2118BAA7009A87A2 /* constrnt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = constrnt.cpp; sourceTree = "<group>"; };
+		A19483802118BAA8009A87A2 /* divided.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = divided.h; sourceTree = "<group>"; };
+		A19483812118BAA8009A87A2 /* oglmisc.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglmisc.cpp; sourceTree = "<group>"; };
+		A19483822118BAA8009A87A2 /* drawnp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawnp.h; sourceTree = "<group>"; };
+		A19483832118BAA8009A87A2 /* basicp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basicp.h; sourceTree = "<group>"; };
+		A19483842118BAA8009A87A2 /* bmpshape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bmpshape.h; sourceTree = "<group>"; };
+		A19483852118BAA8009A87A2 /* bmpshape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bmpshape.cpp; sourceTree = "<group>"; };
+		A19483862118BAA8009A87A2 /* basic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic.cpp; sourceTree = "<group>"; };
+		A19483872118BAA8009A87A2 /* canvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = canvas.cpp; sourceTree = "<group>"; };
+		A19483882118BAA9009A87A2 /* lines.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lines.cpp; sourceTree = "<group>"; };
+		A19483892118BAA9009A87A2 /* basic2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = basic2.cpp; sourceTree = "<group>"; };
+		A194838A2118BAA9009A87A2 /* mfutils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mfutils.cpp; sourceTree = "<group>"; };
+		A194838B2118BAA9009A87A2 /* basic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = basic.h; sourceTree = "<group>"; };
+		A194838C2118BAA9009A87A2 /* drawn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = drawn.cpp; sourceTree = "<group>"; };
+		A194838D2118BAA9009A87A2 /* ogl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogl.h; sourceTree = "<group>"; };
+		A194838E2118BAA9009A87A2 /* constrnt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = constrnt.h; sourceTree = "<group>"; };
+		A194838F2118BAAA009A87A2 /* canvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = canvas.h; sourceTree = "<group>"; };
+		A19483902118BAAA009A87A2 /* lines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lines.h; sourceTree = "<group>"; };
+		A19483912118BAAA009A87A2 /* ogldiag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ogldiag.cpp; sourceTree = "<group>"; };
+		A19483922118BAAA009A87A2 /* drawn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawn.h; sourceTree = "<group>"; };
+		A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayoutView.cpp; sourceTree = "<group>"; };
+		A19483A12118BE8F009A87A2 /* MapLayoutView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapLayoutView.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
@@ -818,6 +860,40 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A19483772118BA8B009A87A2 /* ogl */ = {
+			isa = PBXGroup;
+			children = (
+				A19483862118BAA8009A87A2 /* basic.cpp */,
+				A194838B2118BAA9009A87A2 /* basic.h */,
+				A19483892118BAA9009A87A2 /* basic2.cpp */,
+				A19483832118BAA8009A87A2 /* basicp.h */,
+				A19483852118BAA8009A87A2 /* bmpshape.cpp */,
+				A19483842118BAA8009A87A2 /* bmpshape.h */,
+				A19483872118BAA8009A87A2 /* canvas.cpp */,
+				A194838F2118BAAA009A87A2 /* canvas.h */,
+				A194837A2118BAA7009A87A2 /* composit.cpp */,
+				A19483792118BAA7009A87A2 /* composit.h */,
+				A194837F2118BAA7009A87A2 /* constrnt.cpp */,
+				A194838E2118BAA9009A87A2 /* constrnt.h */,
+				A194837E2118BAA7009A87A2 /* divided.cpp */,
+				A19483802118BAA8009A87A2 /* divided.h */,
+				A194838C2118BAA9009A87A2 /* drawn.cpp */,
+				A19483922118BAAA009A87A2 /* drawn.h */,
+				A19483822118BAA8009A87A2 /* drawnp.h */,
+				A19483882118BAA9009A87A2 /* lines.cpp */,
+				A19483902118BAAA009A87A2 /* lines.h */,
+				A194837C2118BAA7009A87A2 /* linesp.h */,
+				A194838A2118BAA9009A87A2 /* mfutils.cpp */,
+				A194837D2118BAA7009A87A2 /* mfutils.h */,
+				A194837B2118BAA7009A87A2 /* misc.h */,
+				A194838D2118BAA9009A87A2 /* ogl.h */,
+				A19483912118BAAA009A87A2 /* ogldiag.cpp */,
+				A19483782118BAA7009A87A2 /* ogldiag.h */,
+				A19483812118BAA8009A87A2 /* oglmisc.cpp */,
+			);
+			path = ogl;
+			sourceTree = "<group>";
+		};
 		A40AB91A20F5336600F94543 /* arizona */ = {
 			isa = PBXGroup;
 			children = (
@@ -997,6 +1073,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A19483772118BA8B009A87A2 /* ogl */,
 				A40AB91A20F5336600F94543 /* arizona */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
@@ -1334,6 +1411,8 @@
 				DD8183C1197054CA00228B0A /* WeightsMapCanvas.cpp */,
 				A11B85BA1B18DC89008B64EA /* Basemap.h */,
 				A11B85BB1B18DC9C008B64EA /* Basemap.cpp */,
+				A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */,
+				A19483A12118BE8F009A87A2 /* MapLayoutView.h */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -1603,6 +1682,7 @@
 				A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,
+				A19483942118BAAA009A87A2 /* divided.cpp in Sources */,
 				A4D5423D1F45037B00572878 /* redcap.cpp in Sources */,
 				DD7975820F1D296F00496A84 /* PCPDlg.cpp in Sources */,
 				DD7975830F1D296F00496A84 /* PermutationCounterDlg.cpp in Sources */,
@@ -1614,6 +1694,7 @@
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
 				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,
 				DD7975920F1D296F00496A84 /* SaveSelectionDlg.cpp in Sources */,
+				A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */,
 				DD7975980F1D296F00496A84 /* VariableSettingsDlg.cpp in Sources */,
 				DD7975D20F1D2A9000496A84 /* 3DPlotView.cpp in Sources */,
 				A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */,
@@ -1626,6 +1707,7 @@
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
 				A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */,
+				A19483972118BAAA009A87A2 /* bmpshape.cpp in Sources */,
 				DD7976BD0F1D2CA800496A84 /* ML_im.cpp in Sources */,
 				DD7976BE0F1D2CA800496A84 /* PowerLag.cpp in Sources */,
 				A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */,
@@ -1646,13 +1728,16 @@
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
 				DDB0E42C10B34DBB00F96D57 /* AddIdVariable.cpp in Sources */,
+				A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */,
 				DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */,
 				DDAA6540117F9B5D00D1010C /* Project.cpp in Sources */,
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
+				A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */,
 				A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */,
+				A194839A2118BAAA009A87A2 /* lines.cpp in Sources */,
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
@@ -1689,6 +1774,7 @@
 				DD2B42B11522552B00888E51 /* BoxNewPlotView.cpp in Sources */,
 				DD2B433F1522A93700888E51 /* HistogramView.cpp in Sources */,
 				DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */,
+				A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */,
 				DDC9DD8515937AA000A0E5BA /* ExportCsvDlg.cpp in Sources */,
 				DDC9DD8A15937B2F00A0E5BA /* CsvFileUtils.cpp in Sources */,
 				DDC9DD9C15937C0200A0E5BA /* ImportCsvDlg.cpp in Sources */,
@@ -1708,6 +1794,7 @@
 				DD8FACE11649595D007598CE /* DataMovieDlg.cpp in Sources */,
 				DDA462FF164D785500EBBD8F /* TableState.cpp in Sources */,
 				A4ED7D562097F114008685D6 /* kd_search.cpp in Sources */,
+				A19483A22118BE8F009A87A2 /* MapLayoutView.cpp in Sources */,
 				DDE3F5081677C46500D13A2C /* CatClassification.cpp in Sources */,
 				A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */,
 				DDF53FF3167A39520042B453 /* CatClassifState.cpp in Sources */,
@@ -1724,10 +1811,12 @@
 				A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */,
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
 				A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */,
+				A19483962118BAAA009A87A2 /* oglmisc.cpp in Sources */,
 				DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */,
 				DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */,
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
+				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A4404A12209275550007753D /* hdbscan.cpp in Sources */,
 				A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */,
@@ -1798,6 +1887,7 @@
 				A4ED7D582097F114008685D6 /* kd_split.cpp in Sources */,
 				DD88CF0B1A4254D000803196 /* CovSpHLStateProxy.cpp in Sources */,
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
+				A19483982118BAAA009A87A2 /* basic.cpp in Sources */,
 				DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */,
 				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
@@ -1812,6 +1902,8 @@
 				DDFFC7CC1AC0E58B00F7DD6D /* CorrelogramView.cpp in Sources */,
 				DDFFC7CD1AC0E58B00F7DD6D /* CorrelParamsObservable.cpp in Sources */,
 				DDFFC7D51AC0E7DC00F7DD6D /* CorrelParamsDlg.cpp in Sources */,
+				A19483932118BAAA009A87A2 /* composit.cpp in Sources */,
+				A19483992118BAAA009A87A2 /* canvas.cpp in Sources */,
 				DDFFC7F21AC1C7CF00F7DD6D /* HighlightState.cpp in Sources */,
 				DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */,
 				DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */,

@@ -49,10 +49,11 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/RateSmoothing.h"
-
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
+#include "MapLayoutView.h"
+
 #include "Basemap.h"
 #include "MapNewView.h"
 
@@ -3123,19 +3124,9 @@ void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxS
 void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
     wxLogMessage("Entering MapFrame::ExportImage");
-    
-    wxString default_fname(project->GetProjectTitle() + type);
-    wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
-    int filter_index = 1;
-    wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
-                        default_fname, filter,
-                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-    dialog.SetFilterIndex(filter_index);
-    if (dialog.ShowModal() != wxID_OK) {
-        return;
-    }
     double scale_factor = 1.0;
     if (GdaConst::enable_high_dpi_support) scale_factor = GetContentScaleFactor();
+    
     
     // main map
     wxBitmap* main_map = template_canvas->GetPrintLayer();
@@ -3147,9 +3138,41 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     }
     
     // legend
-    int legend_width = template_legend->GetDrawingWidth() + 10; // 10 pix margin
-    int new_bmp_w = map_width + legend_width;
-    int new_bmp_h = map_height;
+    int legend_width = template_legend->GetDrawingWidth(); // 10 pix margin
+    int legend_height = map_width + legend_width;
+    double font_scale = 1.0;
+    if ( GeneralWxUtils::isWindows()) font_scale = 1.5;
+    wxBitmap legend_bitmap;
+    legend_bitmap.CreateScaled(legend_width, legend_height, 32, scale_factor);
+    wxMemoryDC dc(legend_bitmap);
+    wxGCDC gcdc( dc );
+    gcdc.SetBackground(*wxTRANSPARENT_BRUSH);
+    gcdc.Clear();
+    template_legend->RenderToDC(gcdc, font_scale);
+    
+    
+    MapLayoutFrame *mlframe = new MapLayoutFrame(&legend_bitmap, main_map,
+                                                 _("Print Map Layout:"),
+                                                 wxPoint(50, 50),
+                                                 wxSize(map_width, map_height) );
+    mlframe->Show(TRUE);
+    
+    
+    
+    
+    
+    /*
+    wxString default_fname(project->GetProjectTitle() + type);
+    wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+    int filter_index = 1;
+    wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    dialog.SetFilterIndex(filter_index);
+    if (dialog.ShowModal() != wxID_OK) {
+        return;
+    }
+    
     
     wxFileName fname = wxFileName(dialog.GetPath());
     wxString str_fname = fname.GetPathWithSep() + fname.GetName();
@@ -3311,4 +3334,5 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     return;
     
     LOG_MSG("Exiting TemplateFrame::ExportImage");
+     */
 }

@@ -166,6 +166,7 @@ public:
         south = other->south;
         west = other->west;
         east = other->east;
+        return this;
     }
     double north;
     double south;

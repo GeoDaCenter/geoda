@@ -25,6 +25,7 @@
 #include <wx/dc.h>
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
+#include <wx/dcgraph.h>
 
 #include <vector>
 #include <map>
@@ -55,6 +56,8 @@ public:
     
     int getWidth();
     
+    int getHeight();
+    
     int idx;
     
 protected:
@@ -84,6 +87,7 @@ public:
 
     void Recreate();
     int GetDrawingWidth();
+    void RenderToDC(wxGCDC& dc, double scale);
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);

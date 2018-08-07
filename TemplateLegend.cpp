@@ -56,6 +56,11 @@ int GdaLegendLabel::getWidth()
     return position.x + size.GetWidth();
 }
 
+int GdaLegendLabel::getHeight()
+{
+    return position.y + size.GetHeight();
+}
+
 const wxRect& GdaLegendLabel::getBBox()
 {
     return bbox;
@@ -390,7 +395,7 @@ int TemplateLegend::GetDrawingWidth()
     return max_width;
 }
 
-void TemplateLegend::RenderToDC(wxDC& dc, double scale)
+void TemplateLegend::RenderToDC(wxGCDC& dc, double scale)
 {
 	if (template_canvas == NULL)
         return;
@@ -424,6 +429,42 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
         
 		cur_y += d_rect;
 	}
+}
+
+void TemplateLegend::RenderToDC(wxDC& dc, double scale)
+{
+    if (template_canvas == NULL)
+        return;
+    
+    dc.SetPen(*wxBLACK_PEN);
+    wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
+                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
+                              wxEmptyString, wxFONTENCODING_DEFAULT);
+    dc.SetFont(*fnt);
+    
+    wxString ttl = template_canvas->GetVariableNames();
+    dc.DrawText(ttl, px / scale, 13 / scale);
+    
+    int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int cur_y = py;
+    int numRect = template_canvas->cat_data.GetNumCategories(time);
+    
+    dc.SetPen(*wxBLACK_PEN);
+    for (int i=0; i<numRect; i++) {
+        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
+        if (clr.IsOk())
+            dc.SetBrush(clr);
+        else
+            dc.SetBrush(*wxBLACK_BRUSH);
+        
+        dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
+                    (px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
+        
+        dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
+                         m_l / scale, m_w / scale);
+        
+        cur_y += d_rect;
+    }
 }
 
 

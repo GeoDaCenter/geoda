@@ -513,10 +513,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 			dc.DrawBitmap(*bm, offset_x, offset_y);
             
             if (template_legend) {
-                dc.SetPen(*wxTRANSPARENT_PEN);
-                dc.SetBrush(*wxWHITE_BRUSH);
-                dc.DrawRectangle(0,0, legend_width, new_bmp_h);
-                template_legend->RenderToDC(dc, font_scale);
+                wxGCDC gcdc( dc );
+                gcdc.SetPen(*wxTRANSPARENT_PEN);
+                gcdc.SetBrush(*wxWHITE_BRUSH);
+                gcdc.DrawRectangle(0,0, legend_width, new_bmp_h);
+                template_legend->RenderToDC(gcdc, font_scale);
             }
 			dc.SelectObject( wxNullBitmap );
 			
@@ -549,10 +550,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
             
             //dc.SetUserScale(1, 1);
             if (template_legend) {
-                dc.SetPen(*wxTRANSPARENT_PEN);
-                dc.SetBrush(*wxWHITE_BRUSH);
-                dc.DrawRectangle(0,0, legend_width, new_bmp_h);
-                template_legend->RenderToDC(dc, font_scale);
+                wxGCDC gcdc( dc );
+                gcdc.SetPen(*wxTRANSPARENT_PEN);
+                gcdc.SetBrush(*wxWHITE_BRUSH);
+                gcdc.DrawRectangle(0,0, legend_width, new_bmp_h);
+                template_legend->RenderToDC(gcdc, font_scale);
             }
 			dc.SelectObject( wxNullBitmap );
 			
