@@ -87,7 +87,7 @@ public:
 
     void Recreate();
     int GetDrawingWidth();
-    void RenderToDC(wxGCDC& dc, double scale);
+    int GetDrawingHeight();
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
@@ -106,6 +106,7 @@ protected:
 	void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
 	
     int title_width;
+    int title_height;
 	int px, py, m_w, m_l; 
 	int d_rect; 
 	bool all_init;

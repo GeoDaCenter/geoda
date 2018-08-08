@@ -191,10 +191,15 @@ basemap_bm(0),
 print_bm(0),
 map_type(0),
 ref_var_index(-1),
+scale_factor(1.0),
 tran_unhighlighted(GdaConst::transparency_unhighlighted)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
 
+    if (enable_high_dpi_support) {
+        scale_factor = GetContentScaleFactor();
+    }
+    
     layer_name = project->layername;
     ds_name = project->GetDataSource()->GetOGRConnectStr();
     
@@ -575,7 +580,6 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
-            double scale_factor = GetContentScaleFactor();
             basemap = new GDA::Basemap(screen, map, map_type,
                                        GenUtils::GetBasemapCacheDir(),
                                        poCT, scale_factor);
@@ -624,14 +628,13 @@ void MapCanvas::resizeLayerBms(int width, int height)
     int vs_w, vs_h;
     GetClientSize(&vs_w, &vs_h);
     
-    if (vs_w <= 0) vs_w = 1;
-    if (vs_h <=0 ) vs_h = 1;
+    if (width > 0) vs_w = width;
+    if (height >0 ) vs_h = height;
     
 	
     layerbase_valid = false;
     
     if (enable_high_dpi_support) {
-        double scale_factor = GetContentScaleFactor();
         basemap_bm = new wxBitmap;
         layer0_bm = new wxBitmap;
         layer1_bm = new wxBitmap;
@@ -668,6 +671,7 @@ void MapCanvas::DrawLayers()
         DrawLayer2();
     }
     
+    layer2_bm->SaveFile("/Users/xun/Desktop/2.png", wxBITMAP_TYPE_PNG);
     wxWakeUpIdle();
     
     Refresh();
@@ -687,6 +691,66 @@ void MapCanvas::DrawLayerBase()
             layer0_valid = false;
         }
     }
+}
+
+void MapCanvas::RenderToDC(wxBitmap &bmp, int map_w, int map_h)
+{
+    int w = GetClientSize().GetWidth();
+    int h = GetClientSize().GetHeight();
+    
+    double old_scale =  scale_factor;
+    scale_factor = (double)map_w / w;
+    
+    bmp.CreateScaled(w, h, 32, scale_factor);
+    wxMemoryDC dc(bmp);
+    dc.SetBackground(*wxWHITE_BRUSH);
+    dc.Clear();
+    
+    last_scale_trans.SetView(w, h);
+    resizeLayerBms(w, h);
+    
+    if (isDrawBasemap) {
+        if (basemap == 0)
+            InitBasemap();
+        if (basemap)
+            basemap->ResizeScreen(w, h);
+        BOOST_FOREACH( GdaShape* ms, background_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+            if (ms)
+                ms->projectToBasemap(basemap);
+        }
+        if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+            // this is for resizing window with basemap + connectivity graph
+            for (int i=0; i<w_graph.size(); i++) {
+                GdaPolyLine* e = w_graph[i];
+                e->projectToBasemap(basemap);
+            }
+        }
+        
+    } else {
+        TemplateCanvas::ResizeSelectableShps(w, h);
+    }
+    
+    if ( isDrawBasemap)
+        DrawLayerBase();
+    
+    DrawLayer0();
+    
+    DrawLayer1();
+    
+    DrawLayer2();
+    
+    dc.DrawBitmap(*layer2_bm, 0, 0);
+    
+    scale_factor = old_scale;
+    ReDraw();
 }
 
 wxBitmap* MapCanvas::GetPrintLayer()
@@ -789,7 +853,6 @@ void MapCanvas::DrawLayer1()
         }
         
         if (enable_high_dpi_support) {
-            double scale_factor = GetContentScaleFactor();
             dc.SetUserScale(1/scale_factor, 1/scale_factor);
             dc.DrawBitmap(*faded_layer_bm,0,0);
             dc.SetUserScale(1.0, 1.0);
@@ -3124,42 +3187,67 @@ void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxS
 void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
     wxLogMessage("Entering MapFrame::ExportImage");
-    double scale_factor = 1.0;
-    if (GdaConst::enable_high_dpi_support) scale_factor = GetContentScaleFactor();
     
     
     // main map
     wxBitmap* main_map = template_canvas->GetPrintLayer();
     int map_width = main_map->GetWidth();
     int map_height = main_map->GetHeight();
-    if (GdaConst::enable_high_dpi_support) {
-        map_width = map_width / scale_factor;
-        map_height = map_height / scale_factor;
-    }
     
     // legend
     int legend_width = template_legend->GetDrawingWidth(); // 10 pix margin
-    int legend_height = map_width + legend_width;
+    int legend_height = template_legend->GetDrawingHeight();
     double font_scale = 1.0;
     if ( GeneralWxUtils::isWindows()) font_scale = 1.5;
-    wxBitmap legend_bitmap;
-    legend_bitmap.CreateScaled(legend_width, legend_height, 32, scale_factor);
+    wxBitmap legend_bitmap(legend_width, legend_height);
     wxMemoryDC dc(legend_bitmap);
-    wxGCDC gcdc( dc );
-    gcdc.SetBackground(*wxTRANSPARENT_BRUSH);
-    gcdc.Clear();
-    template_legend->RenderToDC(gcdc, font_scale);
+    dc.SetBackground(*wxWHITE_BRUSH);
+    dc.Clear();
+    template_legend->RenderToDC(dc, font_scale);
     
+    // try to keep maplayout dialog fixed size
+    int dlg_width = 900;
+    int dlg_height = dlg_width * map_height / (double)map_width;
+
+    MapLayoutDialog ml_dlg(&legend_bitmap, main_map,
+                           _("Map Layout Preview"),
+                           wxDefaultPosition,
+                           wxSize(dlg_width, dlg_height) );
     
-    MapLayoutFrame *mlframe = new MapLayoutFrame(&legend_bitmap, main_map,
-                                                 _("Print Map Layout:"),
-                                                 wxPoint(50, 50),
-                                                 wxSize(map_width, map_height) );
-    mlframe->Show(TRUE);
-    
-    
-    
-    
+    if (ml_dlg.ShowModal() == wxID_OK) {
+        int layout_w = ml_dlg.GetWidth();
+        int layout_h = ml_dlg.GetHeight();
+        
+        int lo_map_w = ml_dlg.GetShapeWidth(ml_dlg.map_shape);
+        int lo_map_h = ml_dlg.GetShapeHeight(ml_dlg.map_shape);
+        int lo_map_x = ml_dlg.GetShapeStartX(ml_dlg.map_shape);
+        int lo_map_y = ml_dlg.GetShapeStartY(ml_dlg.map_shape);
+        
+        wxBitmap map_bm;
+        MapCanvas* mapcanvas = dynamic_cast<MapCanvas*>(template_canvas);
+        mapcanvas->RenderToDC(map_bm, lo_map_w, lo_map_h);
+        wxImage img = map_bm.ConvertToImage();
+        
+        int lo_leg_w = ml_dlg.GetShapeWidth(ml_dlg.legend_shape);
+        int lo_leg_h = ml_dlg.GetShapeHeight(ml_dlg.legend_shape);
+        int lo_leg_x = ml_dlg.GetShapeStartX(ml_dlg.legend_shape);
+        int lo_leg_y = ml_dlg.GetShapeStartY(ml_dlg.legend_shape);
+        font_scale = (double)legend_width / lo_leg_w;
+        wxBitmap leg_bm(lo_leg_w, lo_leg_h);
+        wxMemoryDC dc(leg_bm);
+        dc.SetBackground(*wxWHITE_BRUSH);
+        dc.Clear();
+        template_legend->RenderToDC(dc, font_scale);
+        
+        wxBitmap all_bm(layout_w, layout_h);
+        wxMemoryDC all_dc(all_bm);
+        all_dc.SetBackground(*wxWHITE_BRUSH);
+        all_dc.Clear();
+        all_dc.DrawBitmap(img, lo_map_x, lo_map_y);
+        all_dc.DrawBitmap(leg_bm, lo_leg_x, lo_leg_y);
+        
+        all_bm.SaveFile("/Users/xun/Desktop/1.png", wxBITMAP_TYPE_PNG);
+    }
     
     /*
     wxString default_fname(project->GetProjectTitle() + type);

@@ -11,20 +11,43 @@
 #include "wx/wx.h"
 #include "../ogl/ogl.h"
 
-class MapLayoutFrame: public wxFrame
+class MapLayoutDialog : public wxDialog
 {
     wxDiagram * diagram;
-    wxShape * shape;
-    wxBitmapShape * map_shape;
-    wxBitmapShape * legend_shape;
+    wxShapeCanvas *canvas;
     
     wxBitmap* legend;
     wxBitmap* map;
     
-public:
+    wxCheckBox* m_cb;
     
-    MapLayoutFrame(wxBitmap* legend, wxBitmap* map, const wxString& title, const wxPoint& pos, const wxSize& size);
-    ~MapLayoutFrame();
+public:
+    MapLayoutDialog(wxBitmap* legend, wxBitmap* map, const wxString& title, const wxPoint& pos, const wxSize& size);
+    ~MapLayoutDialog();
+    
+    wxBitmapShape * map_shape;
+    wxBitmapShape * legend_shape;
+    
+    int GetWidth();
+    int GetHeight();
+    
+    double GetShapeWidth(wxBitmapShape* shape);
+    double GetShapeHeight(wxBitmapShape* shape);
+    double GetShapeStartX(wxBitmapShape* shape);
+    double GetShapeStartY(wxBitmapShape* shape);
+};
+
+class MapLayoutEvtHandler: public wxShapeEvtHandler
+{
+public:
+    MapLayoutEvtHandler(wxShapeEvtHandler *prev = NULL, wxShape *shape = NULL,
+                 const wxString& lab = wxEmptyString)
+    : wxShapeEvtHandler(prev, shape) { }
+    
+    ~MapLayoutEvtHandler(void) {}
+    
+    void OnLeftClick(double x, double y, int keys = 0, int attachment = 0);
+    void OnRightClick(double x, double y, int keys = 0, int attachment = 0);
 };
 
 #endif /* MapLayoutView_h */

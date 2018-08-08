@@ -89,6 +89,14 @@ void wxShapeCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
 
     if (GetDiagram())
         GetDiagram()->Redraw(dc);
+    
+    // add a frame
+    int w, h;
+    GetClientSize(&w, &h);
+    wxGCDC gcdc(dc);
+    gcdc.SetPen(wxPen(*wxBLACK, 1, wxSHORT_DASH));
+    gcdc.SetBrush(*wxTRANSPARENT_BRUSH);
+    gcdc.DrawRectangle(1, 1, w-2, h-2);
 }
 
 void wxShapeCanvas::OnMouseEvent(wxMouseEvent& event)
@@ -162,6 +170,7 @@ void wxShapeCanvas::OnMouseEvent(wxMouseEvent& event)
 
     m_draggedShape->GetEventHandler()->OnEndDragLeft((double)x, (double)y, keys, m_draggedAttachment);
     m_draggedShape = NULL;
+      Refresh();
   }
   else if (dragging && m_draggedShape && m_dragState == StartDraggingRight)
   {

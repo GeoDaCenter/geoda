@@ -42,7 +42,6 @@ public:
 private:
     double        m_aspectratio;
     wxImage       m_imgmap;
-    wxImage       m_imglegend;
     wxBitmap      m_bitmap;
     wxString      m_filename;
     double        scale_factor;

@@ -324,7 +324,9 @@ void TemplateLegend::OnDraw(wxDC& dc)
     
     wxString save_png_ttl = template_canvas->GetVariableNames();
     wxSize title_sz = dc.GetTextExtent(save_png_ttl);
+
     title_width = title_sz.GetWidth();
+    title_height = title_sz.GetHeight();
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int cur_y = py;
@@ -395,40 +397,15 @@ int TemplateLegend::GetDrawingWidth()
     return max_width;
 }
 
-void TemplateLegend::RenderToDC(wxGCDC& dc, double scale)
+int TemplateLegend::GetDrawingHeight()
 {
-	if (template_canvas == NULL)
-        return;
+    int max_height = title_height;
+    if (title_height>0) max_height += 13;
     
-    dc.SetPen(*wxBLACK_PEN);
-    wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
-                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
-                              wxEmptyString, wxFONTENCODING_DEFAULT);
-    dc.SetFont(*fnt);
-  
-    wxString ttl = template_canvas->GetVariableNames();
-    dc.DrawText(ttl, px / scale, 13 / scale);
-	
-	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    int cur_y = py;
-	int numRect = template_canvas->cat_data.GetNumCategories(time);
-	
-    dc.SetPen(*wxBLACK_PEN);
-	for (int i=0; i<numRect; i++) {
-        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk())
-            dc.SetBrush(clr);
-        else
-            dc.SetBrush(*wxBLACK_BRUSH);
-        
-		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
-					(px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
-        
-		dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
-                         m_l / scale, m_w / scale);
-        
-		cur_y += d_rect;
-	}
+    for (int i=0; i<new_order.size(); i++) {
+        max_height += d_rect;
+    }
+    return max_height + 2;
 }
 
 void TemplateLegend::RenderToDC(wxDC& dc, double scale)
@@ -442,12 +419,17 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
     
-    wxString ttl = template_canvas->GetVariableNames();
-    dc.DrawText(ttl, px / scale, 13 / scale);
-    
     int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int cur_y = py;
     int numRect = template_canvas->cat_data.GetNumCategories(time);
+    wxString ttl = template_canvas->GetVariableNames();
+    
+    if (ttl.IsEmpty()) {
+        cur_y = 13 / scale;
+    } else {
+        cur_y = cur_y - 8;
+        dc.DrawText(ttl, px / scale, 2 / scale);
+    }
     
     dc.SetPen(*wxBLACK_PEN);
     for (int i=0; i<numRect; i++) {

@@ -705,7 +705,7 @@ bool Basemap::Draw(wxBitmap* buffer)
             }
             bool bmpOK = bmp.IsOk();
             if (bmpOK)
-                gc->DrawBitmap(bmp, pos_x, pos_y, 256,256);
+                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
             //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
 		}
 	}

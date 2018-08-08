@@ -170,7 +170,7 @@ public:
     
     virtual void DetermineMouseHoverObjects(wxPoint pt);
 
-    
+    void RenderToDC(wxBitmap &bmp, int w, int h);
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
@@ -219,6 +219,7 @@ public:
     }
     
 protected:
+    double scale_factor;
     std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
