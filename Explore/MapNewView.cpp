@@ -671,7 +671,6 @@ void MapCanvas::DrawLayers()
         DrawLayer2();
     }
     
-    layer2_bm->SaveFile("/Users/xun/Desktop/2.png", wxBITMAP_TYPE_PNG);
     wxWakeUpIdle();
     
     Refresh();
@@ -693,18 +692,13 @@ void MapCanvas::DrawLayerBase()
     }
 }
 
-void MapCanvas::RenderToDC(wxBitmap &bmp, int map_w, int map_h)
+void MapCanvas::RenderToDC(wxDC &dc, int _w, int _h)
 {
     int w = GetClientSize().GetWidth();
     int h = GetClientSize().GetHeight();
     
     double old_scale =  scale_factor;
-    scale_factor = (double)map_w / w;
-    
-    bmp.CreateScaled(w, h, 32, scale_factor);
-    wxMemoryDC dc(bmp);
-    dc.SetBackground(*wxWHITE_BRUSH);
-    dc.Clear();
+    scale_factor = (double)_w / w;
     
     last_scale_trans.SetView(w, h);
     resizeLayerBms(w, h);
@@ -3194,59 +3188,17 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     int map_width = main_map->GetWidth();
     int map_height = main_map->GetHeight();
     
-    // legend
-    int legend_width = template_legend->GetDrawingWidth(); // 10 pix margin
-    int legend_height = template_legend->GetDrawingHeight();
-    double font_scale = 1.0;
-    if ( GeneralWxUtils::isWindows()) font_scale = 1.5;
-    wxBitmap legend_bitmap(legend_width, legend_height);
-    wxMemoryDC dc(legend_bitmap);
-    dc.SetBackground(*wxWHITE_BRUSH);
-    dc.Clear();
-    template_legend->RenderToDC(dc, font_scale);
-    
     // try to keep maplayout dialog fixed size
     int dlg_width = 900;
-    int dlg_height = dlg_width * map_height / (double)map_width;
+    int dlg_height = dlg_width * map_height / (double)map_width + 160;
 
-    MapLayoutDialog ml_dlg(&legend_bitmap, main_map,
+    MapLayoutDialog ml_dlg(template_legend, template_canvas,
                            _("Map Layout Preview"),
                            wxDefaultPosition,
                            wxSize(dlg_width, dlg_height) );
     
     if (ml_dlg.ShowModal() == wxID_OK) {
-        int layout_w = ml_dlg.GetWidth();
-        int layout_h = ml_dlg.GetHeight();
         
-        int lo_map_w = ml_dlg.GetShapeWidth(ml_dlg.map_shape);
-        int lo_map_h = ml_dlg.GetShapeHeight(ml_dlg.map_shape);
-        int lo_map_x = ml_dlg.GetShapeStartX(ml_dlg.map_shape);
-        int lo_map_y = ml_dlg.GetShapeStartY(ml_dlg.map_shape);
-        
-        wxBitmap map_bm;
-        MapCanvas* mapcanvas = dynamic_cast<MapCanvas*>(template_canvas);
-        mapcanvas->RenderToDC(map_bm, lo_map_w, lo_map_h);
-        wxImage img = map_bm.ConvertToImage();
-        
-        int lo_leg_w = ml_dlg.GetShapeWidth(ml_dlg.legend_shape);
-        int lo_leg_h = ml_dlg.GetShapeHeight(ml_dlg.legend_shape);
-        int lo_leg_x = ml_dlg.GetShapeStartX(ml_dlg.legend_shape);
-        int lo_leg_y = ml_dlg.GetShapeStartY(ml_dlg.legend_shape);
-        font_scale = (double)legend_width / lo_leg_w;
-        wxBitmap leg_bm(lo_leg_w, lo_leg_h);
-        wxMemoryDC dc(leg_bm);
-        dc.SetBackground(*wxWHITE_BRUSH);
-        dc.Clear();
-        template_legend->RenderToDC(dc, font_scale);
-        
-        wxBitmap all_bm(layout_w, layout_h);
-        wxMemoryDC all_dc(all_bm);
-        all_dc.SetBackground(*wxWHITE_BRUSH);
-        all_dc.Clear();
-        all_dc.DrawBitmap(img, lo_map_x, lo_map_y);
-        all_dc.DrawBitmap(leg_bm, lo_leg_x, lo_leg_y);
-        
-        all_bm.SaveFile("/Users/xun/Desktop/1.png", wxBITMAP_TYPE_PNG);
     }
     
     /*

@@ -96,7 +96,7 @@ void wxShapeCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
     wxGCDC gcdc(dc);
     gcdc.SetPen(wxPen(*wxBLACK, 1, wxSHORT_DASH));
     gcdc.SetBrush(*wxTRANSPARENT_BRUSH);
-    gcdc.DrawRectangle(1, 1, w-2, h-2);
+    gcdc.DrawRectangle(50, 50, w-100, h-100);
 }
 
 void wxShapeCanvas::OnMouseEvent(wxMouseEvent& event)
@@ -110,7 +110,7 @@ void wxShapeCanvas::OnMouseEvent(wxMouseEvent& event)
   x = (double) logPos.x;
   y = (double) logPos.y;
 
-  int keys = 0;
+  int keys = 1;
   if (event.ShiftDown())
     keys = keys | KEY_SHIFT;
   if (event.ControlDown())

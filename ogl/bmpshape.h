@@ -31,8 +31,6 @@ public:
     // Does the copying for this object
     void Copy(wxShape& copy);
     
-    void SetScale(double s) { scale_factor = s;}
-    
     void SetSize(double w, double h, bool recursive = true);
     inline wxBitmap& GetBitmap() const { return (wxBitmap&) m_bitmap; }
     void SetBitmap(const wxBitmap& bm);
@@ -44,7 +42,6 @@ private:
     wxImage       m_imgmap;
     wxBitmap      m_bitmap;
     wxString      m_filename;
-    double        scale_factor;
 };
 
 #endif

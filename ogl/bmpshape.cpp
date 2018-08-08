@@ -37,7 +37,6 @@ IMPLEMENT_DYNAMIC_CLASS(wxBitmapShape, wxRectangleShape)
 wxBitmapShape::wxBitmapShape():wxRectangleShape(100.0, 50.0)
 {
     m_filename = wxEmptyString;
-    scale_factor = 1.0;
 }
 
 wxBitmapShape::~wxBitmapShape()
@@ -49,6 +48,9 @@ void wxBitmapShape::OnDraw(wxDC& dc)
     if (!m_bitmap.Ok())
         return;
     
+    wxSize sz = dc.GetSize();
+    
+    
     int x, y;
     x = WXROUND(m_xpos - m_width/2.0);
     y = WXROUND(m_ypos - m_height/2.0);
@@ -58,13 +60,6 @@ void wxBitmapShape::OnDraw(wxDC& dc)
 
 void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
 {
-    // save aspect ratio
-    if (w/h > m_aspectratio) {
-        w = m_aspectratio * h;
-    } else {
-        h = w / m_aspectratio;
-    }
-    
     if (m_bitmap.Ok())
     {
         m_imgmap.Destroy();
@@ -116,7 +111,6 @@ void wxBitmapShape::SetBitmap(const wxBitmap& bm)
     if (m_bitmap.Ok()) {
         double bm_w = m_bitmap.GetWidth();
         double bm_h = m_bitmap.GetHeight();
-        m_aspectratio = bm_w / bm_h;
-        SetSize(bm_w/scale_factor, bm_h/scale_factor);
+        SetSize(bm_w, bm_h);
     }
 }
