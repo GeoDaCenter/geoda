@@ -48,6 +48,8 @@ class MapLayoutDialog : public wxDialog
     TemplateCanvas* template_canvas;
     TemplateLegend* template_legend;
     
+    wxString project_name;
+    
 public:
     MapLayoutDialog(TemplateLegend* _legend, TemplateCanvas* _map, const wxString& title, const wxPoint& pos, const wxSize& size);
     ~MapLayoutDialog();

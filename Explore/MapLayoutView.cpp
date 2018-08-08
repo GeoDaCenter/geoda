@@ -254,8 +254,43 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
         
         wxImage output_img = all_bm.ConvertToImage();
         output_img.SetOption(wxIMAGE_OPTION_RESOLUTION, out_resolution);
-        if ( !output_img.SaveFile("/Users/xun/Desktop/1.png", wxBITMAP_TYPE_PNG )) {
-            wxMessageBox("GeoDa was unable to save the file.");
+        
+        wxString default_fname(project_name);
+        wxString filter ="BMP|*.bmp|PNG|*.png";
+        int filter_index = 1;
+        wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
+                            default_fname, filter,
+                            wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+        dialog.SetFilterIndex(filter_index);
+        if (dialog.ShowModal() != wxID_OK) {
+            return;
+        }
+        wxFileName fname = wxFileName(dialog.GetPath());
+        wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+        
+        switch (dialog.GetFilterIndex()) {
+            case 0:
+            {
+                wxLogMessage("BMP selected");
+                str_fname << ".bmp";
+                if ( !output_img.SaveFile(str_fname, wxBITMAP_TYPE_BMP )) {
+                    wxMessageBox("GeoDa was unable to save the file.");
+                }
+            }
+                break;
+            case 1:
+            {
+                wxLogMessage("PNG selected");
+                str_fname << ".png";
+                if ( !output_img.SaveFile(str_fname, wxBITMAP_TYPE_PNG )) {
+                    wxMessageBox("GeoDa was unable to save the file.");
+                }
+            }
+                break;
+            default:
+                {
+                }
+                break;
         }
         output_img.Destroy();
     }

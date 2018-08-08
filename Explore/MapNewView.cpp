@@ -3197,9 +3197,7 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
                            wxDefaultPosition,
                            wxSize(dlg_width, dlg_height) );
     
-    if (ml_dlg.ShowModal() == wxID_OK) {
-        
-    }
+    ml_dlg.ShowModal();
     
     /*
     wxString default_fname(project->GetProjectTitle() + type);
