@@ -113,9 +113,10 @@ int MapExportSettingDialog::GetMapResolution()
     return result;
 }
 
-MapLayoutDialog::MapLayoutDialog(TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
+MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxDialog(NULL, -1, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
 {
+    project_name = _project_name;
     template_canvas = _canvas;
     template_legend = _legend;
     map = template_canvas->GetPrintLayer();

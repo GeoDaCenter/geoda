@@ -3191,8 +3191,8 @@ void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     // try to keep maplayout dialog fixed size
     int dlg_width = 900;
     int dlg_height = dlg_width * map_height / (double)map_width + 160;
-
-    MapLayoutDialog ml_dlg(template_legend, template_canvas,
+    
+    MapLayoutDialog ml_dlg(project->GetProjectTitle(), template_legend, template_canvas,
                            _("Map Layout Preview"),
                            wxDefaultPosition,
                            wxSize(dlg_width, dlg_height) );
