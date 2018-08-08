@@ -205,7 +205,7 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
 {
     int layout_w = GetWidth();
     int layout_h = GetHeight();
-    MapExportSettingDialog setting_dlg(layout_w, layout_h, _("Image Dimension Setting"));
+    MapExportSettingDialog setting_dlg(layout_w*2, layout_h*2, _("Image Dimension Setting"));
 
     if (setting_dlg.ShowModal() == wxID_OK) {
         int out_res_x = setting_dlg.GetMapWidth();
