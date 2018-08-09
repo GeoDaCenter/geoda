@@ -95,7 +95,7 @@ void wxShapeCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
     GetClientSize(&w, &h);
     wxGCDC gcdc(dc);
     
-    gcdc.SetPen(wxPen(*wxWHITE, 2, wxSHORT_DASH));
+    gcdc.SetPen(wxPen(*wxWHITE, 1));
     gcdc.SetBrush(*wxTRANSPARENT_BRUSH);
     gcdc.DrawRectangle(50, 50, w-100, h-100);
     gcdc.SetPen(wxPen(*wxBLACK, 1, wxSHORT_DASH));
