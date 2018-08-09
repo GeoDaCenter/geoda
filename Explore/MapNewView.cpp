@@ -747,6 +747,46 @@ void MapCanvas::RenderToDC(wxDC &dc, int _w, int _h)
     ReDraw();
 }
 
+void MapCanvas::RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h, int offset_x, int offset_y)
+{
+    last_scale_trans.SetView(map_w, map_h);
+    int top_marg = offset_y;
+    int bottom_marg = svg_h - offset_y - map_h;
+    int left_marg = offset_x;
+    int right_marg = svg_w - offset_x - map_w;
+    //last_scale_trans.SetMargin(top_marg, bottom_marg, left_marg, right_marg);
+    
+    if (isDrawBasemap) {
+        if (basemap) basemap->ResizeScreen(map_w, map_h);
+        BOOST_FOREACH( GdaShape* ms, background_shps ) {
+            if (ms) ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
+            if (ms) ms->projectToBasemap(basemap);
+        }
+        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+            if (ms)  ms->projectToBasemap(basemap);
+        }
+        if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+            // this is for resizing window with basemap + connectivity graph
+            for (int i=0; i<w_graph.size(); i++) {
+                GdaPolyLine* e = w_graph[i];
+                e->projectToBasemap(basemap);
+            }
+        }
+    } else {
+        TemplateCanvas::ResizeSelectableShps(map_w, map_h);
+    }
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    vector<bool>& hs = highlight_state->GetHighlight();
+    helper_DrawSelectableShapes_dc(dc, hs, false, false, GdaConst::use_cross_hatching);
+    // reset
+    last_scale_trans.SetMargin();
+    ReDraw();
+}
+
 wxBitmap* MapCanvas::GetPrintLayer()
 {
     ///DrawPrintLayer();

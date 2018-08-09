@@ -171,6 +171,8 @@ public:
     virtual void DetermineMouseHoverObjects(wxPoint pt);
 
     virtual void RenderToDC(wxDC &dc, int w, int h);
+    void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h, int offset_x, int offset_y);
+    
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);

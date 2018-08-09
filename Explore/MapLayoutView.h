@@ -69,6 +69,10 @@ public:
     void OnSize( wxSizeEvent& event );
     void OnIdle( wxIdleEvent& event );
     void OnShowLegend( wxCommandEvent& event );
+    
+    void SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution );
+    void SaveToSVG(wxString path, int out_res_x, int out_res_y);
+    void SaveToPS(wxString path);
 };
 
 class MapLayoutEvtHandler: public wxShapeEvtHandler

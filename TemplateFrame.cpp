@@ -454,6 +454,8 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
     
     if ( canvas1 || canvas2 ) {
         filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+    } else if ( canvas3) {
+        filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg";
     }
 	int filter_index = 1;
 	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
