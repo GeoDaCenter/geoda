@@ -19,8 +19,18 @@ class MapExportSettingDialog : public wxDialog
     wxTextCtrl *tc1;
     wxTextCtrl *tc2;
     wxTextCtrl *tc3;
+    wxChoice* m_unit;
+    int unit_choice;
     double aspect_ratio;
     
+    double inch2mm(double inch);
+    double mm2inch(double mm);
+    double pixel2inch(int pixel);
+    double pixel2mm(int pixel);
+    int inch2pixel(double inch);
+    int mm2pixel(double mm);
+    double getTextValue(wxTextCtrl* tc);
+    void setTextValue(wxTextCtrl*tc, double val);
 public:
     MapExportSettingDialog(int w, int h, const wxString& title);
     
@@ -30,6 +40,8 @@ public:
     
     void OnWidthChange(wxCommandEvent& ev);
     void OnHeightChange(wxCommandEvent& ev);
+    void OnResolutionChange(wxCommandEvent& ev);
+    void OnUnitChange(wxCommandEvent& ev);
 };
 
 class MapLayoutDialog : public wxDialog
