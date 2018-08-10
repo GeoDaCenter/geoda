@@ -124,18 +124,10 @@ public:
 	virtual void TimeChange();
     virtual void OnSize(wxSizeEvent& event);
     virtual void SetWeightsId(boost::uuids::uuid id);
-    int  GetBasemapType();
-    void CleanBasemapCache();
-	bool DrawBasemap(bool flag, int map_type);
-    const wxBitmap* GetBaseLayer() { return basemap_bm; }
-    void OnIdle(wxIdleEvent& event);
     virtual void deleteLayerBms();
 	virtual void DrawLayerBase();
 	virtual void DrawLayers();
     virtual void resizeLayerBms(int width, int height);
-    
-    virtual wxBitmap* GetPrintLayer();
-    
     virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
@@ -167,19 +159,29 @@ public:
 	virtual int GetNumVars();
 	virtual int GetNumCats();
 	virtual boost::uuids::uuid GetWeightsId() { return weights_id; }
-    
     virtual void DetermineMouseHoverObjects(wxPoint pt);
-
     virtual void RenderToDC(wxDC &dc, int w, int h);
-    void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h, int offset_x, int offset_y);
+    virtual void UpdateStatusBar();
+    virtual wxBitmap* GetPrintLayer();
     
+    int  GetBasemapType();
+    void CleanBasemapCache();
+    bool DrawBasemap(bool flag, int map_type);
+    const wxBitmap* GetBaseLayer() { return basemap_bm; }
+    void OnIdle(wxIdleEvent& event);
+    void TranslucentLayer0(wxMemoryDC& dc);
+    void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h, int offset_x, int offset_y);
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
     void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
-
     CatClassification::CatClassifType GetCcType();
-   
+    void SetLegendLabel(int cat, wxString label) {
+        cat_data.SetCategoryLabel(0, cat, label);
+    }
+    static void ResetThumbnail() {
+        MapCanvas::has_thumbnail_saved = false;
+    }
 
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
@@ -203,22 +205,12 @@ public:
 	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
-    
-    static void ResetThumbnail() {
-        MapCanvas::has_thumbnail_saved = false;
-    }
-    
+
     static vector<int> empty_shps_ids;
     static std::map<int, bool> empty_dict;
     static bool has_shown_empty_shps_msg;
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
-    
-	virtual void UpdateStatusBar();
-    
-    void SetLegendLabel(int cat, wxString label) {
-        cat_data.SetCategoryLabel(0, cat, label);
-    }
     
 protected:
     double scale_factor;
