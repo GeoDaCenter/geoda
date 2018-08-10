@@ -692,56 +692,75 @@ void MapCanvas::DrawLayerBase()
     }
 }
 
-void MapCanvas::RenderToDC(wxDC &dc, int _w, int _h)
+void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
-    int w = GetClientSize().GetWidth();
-    int h = GetClientSize().GetHeight();
     
+    
+    int screen_w = GetClientSize().GetWidth();
+    int screen_h = GetClientSize().GetHeight();
+    double basemap_scale = (double) w / screen_w;
     double old_scale =  scale_factor;
-    scale_factor = (double)_w / w;
-    
-    last_scale_trans.SetView(w, h);
-    resizeLayerBms(w, h);
+    scale_factor = 1.0;
+
+    basemap_bm = new wxBitmap;
+    basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
+    layer0_bm = new wxBitmap(w, h, 32);
+    layer1_bm = new wxBitmap(w, h, 32);
+    layer2_bm = new wxBitmap(w, h, 32);
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
     
     if (isDrawBasemap) {
-        if (basemap == 0)
-            InitBasemap();
-        if (basemap)
-            basemap->ResizeScreen(w, h);
-        BOOST_FOREACH( GdaShape* ms, background_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
-        }
-        BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
-        }
-        BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
-        }
-        if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
-            // this is for resizing window with basemap + connectivity graph
-            for (int i=0; i<w_graph.size(); i++) {
-                GdaPolyLine* e = w_graph[i];
-                e->projectToBasemap(basemap);
-            }
+        last_scale_trans.SetView(screen_w, screen_h);
+        OGRCoordinateTransformation *poCT = NULL;
+        
+        if (project->sourceSR != NULL) {
+            OGRSpatialReference destSR;
+            destSR.importFromEPSG(4326);
+            poCT = OGRCreateCoordinateTransformation(project->sourceSR, &destSR);
         }
         
+        GDA::Screen *screen = new GDA::Screen(screen_w, screen_h);
+        double shps_orig_ymax = last_scale_trans.orig_data_y_max;
+        double shps_orig_xmin = last_scale_trans.orig_data_x_min;
+        double shps_orig_ymin = last_scale_trans.orig_data_y_min;
+        double shps_orig_xmax = last_scale_trans.orig_data_x_max;
+        GDA::MapLayer *map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
+        
+        if (poCT && map->IsWGS84Valid()) {
+            GDA::Basemap basemap(screen, map, map_type, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
+            basemap.ResizeScreen(screen_w, screen_h);
+            BOOST_FOREACH( GdaShape* ms, background_shps ) {
+                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+            }
+            BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
+                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+            }
+            BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+            }
+            if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+                for (int i=0; i<w_graph.size(); i++) {
+                    GdaPolyLine* e = w_graph[i];
+                    e->projectToBasemap(&basemap, basemap_scale);
+                }
+            }
+            basemap.Draw(basemap_bm);
+            wxImage im = basemap_bm->ConvertToImage();
+            dc.DrawBitmap(im, 0, 0);
+        }
     } else {
+        last_scale_trans.SetView(w, h);
         TemplateCanvas::ResizeSelectableShps(w, h);
     }
     
-    if ( isDrawBasemap)
-        DrawLayerBase();
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    vector<bool>& hs = highlight_state->GetHighlight();
+    helper_DrawSelectableShapes_dc(dc, hs, false, false, GdaConst::use_cross_hatching);
     
-    DrawLayer0();
-    
-    DrawLayer1();
-    
-    DrawLayer2();
-    
-    dc.DrawBitmap(*layer2_bm, 0, 0);
     
     scale_factor = old_scale;
     ReDraw();

@@ -242,7 +242,7 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
     int lo_map_y = GetShapeStartY(map_shape) * lo_scale;
     double map_scale = (double)lo_map_w / map_width;
     wxBitmap map_bm;
-    map_bm.CreateScaled(map_width, map_height, 32, map_scale);
+    map_bm.CreateScaled(lo_map_w, lo_map_h, 32, 1.0);
     wxMemoryDC map_dc(map_bm);
     map_dc.SetBackground(*wxWHITE_BRUSH);
     map_dc.Clear();

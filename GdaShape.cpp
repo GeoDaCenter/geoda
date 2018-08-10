@@ -413,9 +413,13 @@ void GdaShape::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(center_o, &center);
 }
 
-void GdaShape::projectToBasemap(GDA::Basemap* basemap)
+void GdaShape::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
     basemap->LatLngToXY(center_o.x, center_o.y, center.x, center.y);
+    if (scale_factor != 1) {
+        center.x = center.x * scale_factor;
+        center.y = center.y * scale_factor;
+    }
 }
 
 void GdaShape::setNudge(int x_nudge, int y_nudge)
@@ -1046,16 +1050,23 @@ void GdaRectangle::applyScaleTrans(const GdaScaleTrans& A)
 }
 
 
-void GdaRectangle::projectToBasemap(GDA::Basemap* basemap)
+void GdaRectangle::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
 	if (null_shape) 
         return;
-	GdaShape::projectToBasemap(basemap); // apply affine transform to base class
+	GdaShape::projectToBasemap(basemap, scale_factor); // apply affine transform to base class
     
     basemap->LatLngToXY(lower_left_o.x, lower_left_o.y, 
                         lower_left.x, lower_left.y);
     basemap->LatLngToXY(upper_right_o.x, upper_right_o.y, 
                         upper_right.x, upper_right.y);
+    
+    if (scale_factor != 1) {
+        lower_left.x = lower_left.x * scale_factor;
+        lower_left.y = lower_left.y * scale_factor;
+        upper_right.x = upper_right.x * scale_factor;
+        upper_right.y = upper_right.y * scale_factor;
+    }
 }
 
 void GdaRectangle::paintSelf(wxDC& dc)
@@ -1265,19 +1276,25 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 }
 
 
-void GdaPolygon::projectToBasemap(GDA::Basemap* basemap)
+void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
     if (null_shape) 
         return;
     
-	GdaShape::projectToBasemap(basemap); // apply transform to base class
+	GdaShape::projectToBasemap(basemap, scale_factor); // apply transform to base class
 	all_points_same = true;
 	wxPoint tpt;
     
     basemap->LatLngToXY(bb_ll_o.x, bb_ll_o.y, tpt.x, tpt.y);
-
-	if (tpt == center) 
+    
+    if (tpt == center)  {
         basemap->LatLngToXY(bb_ur_o.x, bb_ur_o.y, tpt.x, tpt.y);
+    }
+    
+    if (scale_factor != 1) {
+        tpt.x = tpt.x * scale_factor;
+        tpt.y = tpt.y * scale_factor;
+    }
     
 	if (tpt == center) 
         return;
@@ -1286,6 +1303,10 @@ void GdaPolygon::projectToBasemap(GDA::Basemap* basemap)
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(points_o[i].x, points_o[i].y, 
                                 points[i].x, points[i].y);
+            if (scale_factor != 1) {
+                points[i].x = points[i].x * scale_factor;
+                points[i].y = points[i].y * scale_factor;
+            }
 			if (points[i] != center) 
                 all_points_same = false;
 		}
@@ -1294,6 +1315,10 @@ void GdaPolygon::projectToBasemap(GDA::Basemap* basemap)
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(pc->points[i].x, pc->points[i].y, 
                                 points[i].x, points[i].y);
+            if (scale_factor != 1) {
+                points[i].x = points[i].x * scale_factor;
+                points[i].y = points[i].y * scale_factor;
+            }
 			if (points[i] != center) 
                 all_points_same = false;
 		}
@@ -1528,10 +1553,14 @@ GdaPolyLine::~GdaPolyLine()
 	if (count) delete [] count; count = 0;
 }
 
-void GdaPolyLine::projectToBasemap(GDA::Basemap* basemap)
+void GdaPolyLine::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
     for (int i=0; i<n; i++) {
         basemap->LatLngToXY(points_o[i].x, points_o[i].y, points[i].x, points[i].y);
+        if (scale_factor != 1) {
+            points[i].x = points[i].x * scale_factor;
+            points[i].y = points[i].y * scale_factor;
+        }
     }
 }
 
