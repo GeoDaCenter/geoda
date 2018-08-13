@@ -15,6 +15,9 @@
 MapExportSettingDialog::MapExportSettingDialog(int w, int h, const wxString & title)
 : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(320, 230))
 {
+    width = w;
+    height = h;
+    tc1_value = w;
     unit_choice = 0;
     aspect_ratio = (double) w / h;
     wxPanel *panel = new wxPanel(this, -1);
@@ -100,8 +103,8 @@ void MapExportSettingDialog::OnUnitChange(wxCommandEvent& ev)
         } else if (unit_choice == 1) {
             if (unit_sel == 0) {
                 // inch2pixel
-                x = inch2pixel(x);
-                y = inch2pixel(y);
+                x = width;
+                y = height;
             } else if (unit_sel == 2) {
                 // inch2mm
                 x = inch2mm(x);
@@ -111,8 +114,8 @@ void MapExportSettingDialog::OnUnitChange(wxCommandEvent& ev)
         } else if (unit_choice == 2) {
             if (unit_sel == 0) {
                 // mm2pixel
-                x = mm2pixel(x);
-                y = mm2pixel(y);
+                x = width;
+                y = height;
             } else if (unit_sel == 1) {
                 // mm2inch
                 x = mm2inch(x);
@@ -166,10 +169,9 @@ int MapExportSettingDialog::mm2pixel(double mm)
 
 void MapExportSettingDialog::OnResolutionChange(wxCommandEvent& ev)
 {
-    wxString val = tc3->GetValue();
-    long w;
-    if (val.ToLong(&w)) {
-        
+    if (unit_choice > 0 ) {
+        width = GetMapWidth();
+        height = GetMapHeight();
     }
 }
 
@@ -181,12 +183,20 @@ double MapExportSettingDialog::getTextValue(wxTextCtrl* tc)
     return w;
 }
 
-void MapExportSettingDialog::setTextValue(wxTextCtrl*tc, double val)
+void MapExportSettingDialog::setTextValue(wxTextCtrl* tc, double val)
 {
+    wxString tmp;
     if (unit_choice == 0) {
-        tc->SetValue(wxString::Format("%d", (int)val));
+        tmp = wxString::Format("%d", (int)(val) );
+        tc->SetLabel(tmp);
     } else {
-        tc->SetValue(wxString::Format("%f", val));
+        tmp = wxString::Format("%.2f", val);
+        tc->SetLabel(tmp);
+    }
+    if (tc == tc1) {
+        tc1_value = val;
+    } else if (tc == tc2) {
+        tc2_value = val;
     }
 }
 
@@ -196,9 +206,10 @@ void MapExportSettingDialog::OnWidthChange(wxCommandEvent& ev)
     double w;
     if (val.ToDouble(&w)) {
         double h = w / aspect_ratio;
-        wxString s_val;
-        s_val << h;
-        tc2->SetLabel(s_val);
+        tc1_value = w;
+        setTextValue(tc2, h);
+        width = GetMapWidth();
+        height = GetMapHeight();
     }
 }
 
@@ -208,15 +219,16 @@ void MapExportSettingDialog::OnHeightChange(wxCommandEvent& ev)
     double h;
     if (val.ToDouble(&h)) {
         double w = h * aspect_ratio;
-        wxString s_val;
-        s_val << w;
-        tc1->SetLabel(s_val);
+        tc2_value = h;
+        setTextValue(tc1, w);
+        width = GetMapWidth();
+        height = GetMapHeight();
     }
 }
 
 int MapExportSettingDialog::GetMapWidth()
 {
-    double val = getTextValue(tc1);
+    double val = tc1_value;
     if (unit_choice == 1) {
         return inch2pixel(val);
     } else if (unit_choice == 2) {
@@ -227,7 +239,7 @@ int MapExportSettingDialog::GetMapWidth()
 
 int MapExportSettingDialog::GetMapHeight()
 {
-    double val = getTextValue(tc2);
+    double val = tc2_value;
     if (unit_choice == 1) {
         return inch2pixel(val);
     } else if (unit_choice == 2) {
