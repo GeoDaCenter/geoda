@@ -597,12 +597,6 @@ void SimpleHistCanvas::PopulateCanvas()
 	double y_max = overall_max_num_obs_in_ival;
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
     
-    // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(x_min, -y_max*0.2), wxRealPoint(x_max *1.2, y_max * 1.2));
-    bg->setPen(*wxWHITE_PEN);
-    bg->setBrush(*wxWHITE_BRUSH);
-    background_shps.push_back(bg);
-    
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;

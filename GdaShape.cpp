@@ -2601,14 +2601,6 @@ void GdaAxis::paintSelf(wxDC& dc)
 {
 	if (hidden) return;
     
-    if (inSubview) {
-        // workaround a bug in scatter plot matrix in HDPI mode
-        int width, height;
-        wxSize sz = dc.GetSize();
-        dc.SetBrush(*wxWHITE_BRUSH);
-        dc.DrawRectangle(-100,-100,1000,1000);
-    }
-    
 	bool use_axis_scale = (tic_labels.size() == 0);
 	size_t num_tics = use_axis_scale ? scale.tics.size() : tic_labels.size();
 	

@@ -509,12 +509,6 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	wxSize size(GetVirtualSize());
     last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
     
-    // workaround a bug in scatter plot matrix in HDPI mode
-    GdaRectangle* bg = new GdaRectangle(wxRealPoint(-1000, -1000), wxRealPoint(1000, 1000));
-    bg->setPen(*wxWHITE_PEN);
-    bg->setBrush(*wxWHITE_BRUSH);
-    background_shps.push_back(bg);
-    
 	// Recall: Xmin/max Ymin/max can be smaller/larger than min/max in X/Y
 	//    if X/Y are particular time-slices of time-variant variables and
 	//    if global scaling is being used.
