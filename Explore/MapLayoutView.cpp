@@ -12,7 +12,7 @@
 
 #include "MapLayoutView.h"
 
-MapExportSettingDialog::MapExportSettingDialog(int w, int h, const wxString & title)
+CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxString & title)
 : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(320, 230))
 {
     width = w;
@@ -72,13 +72,13 @@ MapExportSettingDialog::MapExportSettingDialog(int w, int h, const wxString & ti
     vbox->Fit(this);
     Centre();
     
-    tc1->Bind(wxEVT_TEXT, &MapExportSettingDialog::OnWidthChange, this);
-    tc2->Bind(wxEVT_TEXT, &MapExportSettingDialog::OnHeightChange, this);
-    tc3->Bind(wxEVT_TEXT, &MapExportSettingDialog::OnResolutionChange, this);
-    m_unit->Bind(wxEVT_CHOICE, &MapExportSettingDialog::OnUnitChange, this);
+    tc1->Bind(wxEVT_TEXT, &CanvasExportSettingDialog::OnWidthChange, this);
+    tc2->Bind(wxEVT_TEXT, &CanvasExportSettingDialog::OnHeightChange, this);
+    tc3->Bind(wxEVT_TEXT, &CanvasExportSettingDialog::OnResolutionChange, this);
+    m_unit->Bind(wxEVT_CHOICE, &CanvasExportSettingDialog::OnUnitChange, this);
 }
 
-void MapExportSettingDialog::OnUnitChange(wxCommandEvent& ev)
+void CanvasExportSettingDialog::OnUnitChange(wxCommandEvent& ev)
 {
     // https://www.pixelcalculator.com/
     int unit_sel = m_unit->GetSelection();
@@ -129,17 +129,17 @@ void MapExportSettingDialog::OnUnitChange(wxCommandEvent& ev)
     }
 }
 
-double MapExportSettingDialog::inch2mm(double inch)
+double CanvasExportSettingDialog::inch2mm(double inch)
 {
     return inch * 25.4;
 }
 
-double MapExportSettingDialog::mm2inch(double mm)
+double CanvasExportSettingDialog::mm2inch(double mm)
 {
     return mm / 25.4;
 }
 
-double MapExportSettingDialog::pixel2inch(int pixel)
+double CanvasExportSettingDialog::pixel2inch(int pixel)
 {
     int res = GetMapResolution();
     if (res > 0)
@@ -147,7 +147,7 @@ double MapExportSettingDialog::pixel2inch(int pixel)
     return 0;
 }
 
-double MapExportSettingDialog::pixel2mm(int pixel)
+double CanvasExportSettingDialog::pixel2mm(int pixel)
 {
     int res = GetMapResolution();
     if (res > 0)
@@ -155,19 +155,19 @@ double MapExportSettingDialog::pixel2mm(int pixel)
     return 0;
 }
 
-int MapExportSettingDialog::inch2pixel(double inch)
+int CanvasExportSettingDialog::inch2pixel(double inch)
 {
     int res = GetMapResolution();
     return inch * res;
 }
 
-int MapExportSettingDialog::mm2pixel(double mm)
+int CanvasExportSettingDialog::mm2pixel(double mm)
 {
     int res = GetMapResolution();
     return mm * res / 25.4;
 }
 
-void MapExportSettingDialog::OnResolutionChange(wxCommandEvent& ev)
+void CanvasExportSettingDialog::OnResolutionChange(wxCommandEvent& ev)
 {
     if (unit_choice > 0 ) {
         width = GetMapWidth();
@@ -175,7 +175,7 @@ void MapExportSettingDialog::OnResolutionChange(wxCommandEvent& ev)
     }
 }
 
-double MapExportSettingDialog::getTextValue(wxTextCtrl* tc)
+double CanvasExportSettingDialog::getTextValue(wxTextCtrl* tc)
 {
     wxString val = tc->GetValue();
     double w = 0;
@@ -183,7 +183,7 @@ double MapExportSettingDialog::getTextValue(wxTextCtrl* tc)
     return w;
 }
 
-void MapExportSettingDialog::setTextValue(wxTextCtrl* tc, double val)
+void CanvasExportSettingDialog::setTextValue(wxTextCtrl* tc, double val)
 {
     wxString tmp;
     if (unit_choice == 0) {
@@ -200,7 +200,7 @@ void MapExportSettingDialog::setTextValue(wxTextCtrl* tc, double val)
     }
 }
 
-void MapExportSettingDialog::OnWidthChange(wxCommandEvent& ev)
+void CanvasExportSettingDialog::OnWidthChange(wxCommandEvent& ev)
 {
     wxString val = tc1->GetValue();
     double w;
@@ -213,7 +213,7 @@ void MapExportSettingDialog::OnWidthChange(wxCommandEvent& ev)
     }
 }
 
-void MapExportSettingDialog::OnHeightChange(wxCommandEvent& ev)
+void CanvasExportSettingDialog::OnHeightChange(wxCommandEvent& ev)
 {
     wxString val = tc2->GetValue();
     double h;
@@ -226,7 +226,7 @@ void MapExportSettingDialog::OnHeightChange(wxCommandEvent& ev)
     }
 }
 
-int MapExportSettingDialog::GetMapWidth()
+int CanvasExportSettingDialog::GetMapWidth()
 {
     double val = tc1_value;
     if (unit_choice == 1) {
@@ -237,7 +237,7 @@ int MapExportSettingDialog::GetMapWidth()
     return val;
 }
 
-int MapExportSettingDialog::GetMapHeight()
+int CanvasExportSettingDialog::GetMapHeight()
 {
     double val = tc2_value;
     if (unit_choice == 1) {
@@ -248,7 +248,7 @@ int MapExportSettingDialog::GetMapHeight()
     return val;
 }
 
-int MapExportSettingDialog::GetMapResolution()
+int CanvasExportSettingDialog::GetMapResolution()
 {
     wxString val = tc3->GetValue();
     long result = 0;
@@ -258,7 +258,46 @@ int MapExportSettingDialog::GetMapResolution()
     return result;
 }
 
-MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
+////////////////////////////////////////////////////////////////////////////////
+
+
+void CanvasLayoutEvtHandler::OnLeftClick(double WXUNUSED(x), double WXUNUSED(y),
+                                         int keys, int WXUNUSED(attachment))
+{
+    wxShape* shape = this->GetShape();
+    wxShapeCanvas* canvas = shape->GetCanvas();
+    
+    wxNode* node = canvas->GetDiagram()->GetShapeList()->GetFirst();
+    while (node)
+    {
+        wxShape* shape = (wxShape*) node->GetData();
+        shape->Select(false);
+        shape->SetDraggable(false);
+        node = node->GetNext();
+    }
+    
+    wxClientDC dc(canvas);
+    
+    if (shape) {
+        shape->Select(!shape->Selected());
+        shape->SetHighlight(shape->Selected());
+        shape->SetDraggable(shape->Selected());
+        int x = shape->GetX();
+        int y = shape->GetY();
+        canvas->Refresh();
+    }
+}
+
+void CanvasLayoutEvtHandler::OnRightClick(double WXUNUSED(x), double WXUNUSED(y),
+                                          int keys, int WXUNUSED(attachment))
+{
+    
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
 : wxDialog(NULL, -1, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
 {
     legend_shape = NULL;
@@ -298,13 +337,13 @@ MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend
     map_shape->SetMaintainAspectRatio(true);
     map_shape->Show(true);
     
-    MapLayoutEvtHandler *evthandler = new MapLayoutEvtHandler();
+    CanvasLayoutEvtHandler *evthandler = new CanvasLayoutEvtHandler();
     evthandler->SetShape(map_shape);
     evthandler->SetPreviousHandler(map_shape->GetEventHandler());
     map_shape->SetEventHandler(evthandler);
     
     // legend
-    if (legend) {
+    if (template_legend) {
         legend_shape = new wxBitmapShape();
         legend_shape->SetBitmap(*legend);
         canvas->AddShape(legend_shape);
@@ -315,7 +354,7 @@ MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend
         legend_shape->SetMaintainAspectRatio(true);
         legend_shape->Show(true);
         
-        MapLayoutEvtHandler *evthandler1 = new MapLayoutEvtHandler();
+        CanvasLayoutEvtHandler *evthandler1 = new CanvasLayoutEvtHandler();
         evthandler1->SetShape(legend_shape);
         evthandler1->SetPreviousHandler(legend_shape->GetEventHandler());
         legend_shape->SetEventHandler(evthandler1);
@@ -324,10 +363,11 @@ MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend
     diagram->ShowAll(1);
     
     // ui
-    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     m_cb = new wxCheckBox(this, wxID_ANY, _("Show Legend"));
     m_cb->SetValue(true);
+    if (template_legend == NULL) m_cb->Hide();
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     wxButton *okButton = new wxButton(this, wxID_ANY, _("Save"),
                                       wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(this, wxID_CANCEL, _("Close"),
@@ -340,24 +380,24 @@ MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend
     SetSizer(vbox);
     Centre();
     
-    Connect(wxEVT_SIZE, wxSizeEventHandler(MapLayoutDialog::OnSize));
-    Connect(wxEVT_IDLE, wxIdleEventHandler(MapLayoutDialog::OnIdle));
-    m_cb->Bind(wxEVT_CHECKBOX, &MapLayoutDialog::OnShowLegend, this);
-    okButton->Bind(wxEVT_BUTTON, &MapLayoutDialog::OnSave, this);
+    Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasLayoutDialog::OnSize));
+    Connect(wxEVT_IDLE, wxIdleEventHandler(CanvasLayoutDialog::OnIdle));
+    m_cb->Bind(wxEVT_CHECKBOX, &CanvasLayoutDialog::OnShowLegend, this);
+    okButton->Bind(wxEVT_BUTTON, &CanvasLayoutDialog::OnSave, this);
 }
 
-MapLayoutDialog::~MapLayoutDialog()
+CanvasLayoutDialog::~CanvasLayoutDialog()
 {
     if (legend_shape) delete legend_shape;
     delete map_shape;
     delete diagram;
 }
 
-void MapLayoutDialog::OnSave(wxCommandEvent &event)
+void CanvasLayoutDialog::OnSave(wxCommandEvent &event)
 {
     int layout_w = GetWidth();
     int layout_h = GetHeight();
-    MapExportSettingDialog setting_dlg(layout_w*2, layout_h*2, _("Image Dimension Setting"));
+    CanvasExportSettingDialog setting_dlg(layout_w*2, layout_h*2, _("Image Dimension Setting"));
 
     if (setting_dlg.ShowModal() != wxID_OK) {
         return;
@@ -366,53 +406,7 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
     int out_res_x = setting_dlg.GetMapWidth();
     int out_resolution = setting_dlg.GetMapResolution();
     double lo_ar = (double)layout_w / layout_h;
-    double lo_scale = (double) out_res_x / layout_w;
     int out_res_y = out_res_x / lo_ar;
-    
-    // composer of map and legend
-    wxBitmap all_bm(out_res_x, out_res_y);
-    wxMemoryDC all_dc(all_bm);
-    all_dc.SetBackground(*wxWHITE_BRUSH);
-    all_dc.Clear();
-    
-    // print map
-    wxSize map_sz = template_canvas->GetClientSize();
-    int map_width = map_sz.GetWidth();
-    int map_height = map_sz.GetHeight();
-    int lo_map_w = GetShapeWidth(map_shape) * lo_scale;
-    int lo_map_h = GetShapeHeight(map_shape) * lo_scale;
-    int lo_map_x = GetShapeStartX(map_shape) * lo_scale;
-    int lo_map_y = GetShapeStartY(map_shape) * lo_scale;
-    double map_scale = (double)lo_map_w / map_width;
-    wxBitmap map_bm;
-    map_bm.CreateScaled(lo_map_w, lo_map_h, 32, 1.0);
-    wxMemoryDC map_dc(map_bm);
-    map_dc.SetBackground(*wxWHITE_BRUSH);
-    map_dc.Clear();
-    template_canvas->RenderToDC(map_dc, lo_map_w, lo_map_h);
-    all_dc.DrawBitmap(map_bm.ConvertToImage(), lo_map_x, lo_map_y);
-    
-    // print legend
-    if (template_legend && legend_shape && legend_shape->IsShown()) {
-        int legend_width = template_legend->GetDrawingWidth();
-        int legend_height = template_legend->GetDrawingHeight();
-        int lo_leg_w = GetShapeWidth(legend_shape) * lo_scale;
-        int lo_leg_h = GetShapeHeight(legend_shape) * lo_scale;
-        int lo_leg_x = GetShapeStartX(legend_shape) * lo_scale;
-        int lo_leg_y = GetShapeStartY(legend_shape) * lo_scale;
-        double leg_scale = (double)lo_leg_w / legend_width;
-        wxBitmap leg_bm;
-        leg_bm.CreateScaled(legend_width, legend_height, 32, leg_scale);
-        wxMemoryDC leg_dc(leg_bm);
-        leg_dc.SetBackground(*wxWHITE_BRUSH);
-        leg_dc.Clear();
-        template_legend->RenderToDC(leg_dc, 1);
-        all_dc.DrawBitmap(leg_bm.ConvertToImage(), lo_leg_x, lo_leg_y);
-    }
-    
-    // save composer to file
-    wxImage output_img = all_bm.ConvertToImage();
-    output_img.SetOption(wxIMAGE_OPTION_RESOLUTION, out_resolution);
     
     wxString default_fname(project_name);
     wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
@@ -431,19 +425,13 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
         case 0:
         {
             wxLogMessage("BMP selected");
-            str_fname << ".bmp";
-            if ( !output_img.SaveFile(str_fname, wxBITMAP_TYPE_BMP )) {
-                wxMessageBox("GeoDa was unable to save the file.");
-            }
+            SaveToImage( str_fname, out_res_x, out_res_y, out_resolution);
         }
             break;
         case 1:
         {
             wxLogMessage("PNG selected");
-            str_fname << ".png";
-            if ( !output_img.SaveFile(str_fname, wxBITMAP_TYPE_PNG )) {
-                wxMessageBox("GeoDa was unable to save the file.");
-            }
+            SaveToImage( str_fname, out_res_x, out_res_y, out_resolution);
         }
             break;
         
@@ -464,10 +452,9 @@ void MapLayoutDialog::OnSave(wxCommandEvent &event)
         }
             break;
     }
-    output_img.Destroy();
 }
 
-void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution)
+void CanvasLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution, wxBitmapType bm_type)
 {
     double lo_scale = (double) out_res_x / GetWidth();
     
@@ -477,22 +464,22 @@ void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, 
     all_dc.SetBackground(*wxWHITE_BRUSH);
     all_dc.Clear();
     
-    // print map
-    wxSize map_sz = template_canvas->GetClientSize();
-    int map_width = map_sz.GetWidth();
-    int map_height = map_sz.GetHeight();
+    // print canvas
+    wxSize canvas_sz = template_canvas->GetClientSize();
+    int canvas_width = canvas_sz.GetWidth();
+    int canvas_height = canvas_sz.GetHeight();
     int lo_map_w = GetShapeWidth(map_shape) * lo_scale;
     int lo_map_h = GetShapeHeight(map_shape) * lo_scale;
     int lo_map_x = GetShapeStartX(map_shape) * lo_scale;
     int lo_map_y = GetShapeStartY(map_shape) * lo_scale;
-    double map_scale = (double)lo_map_w / map_width;
-    wxBitmap map_bm;
-    map_bm.CreateScaled(map_width, map_height, 32, map_scale);
-    wxMemoryDC map_dc(map_bm);
-    map_dc.SetBackground(*wxWHITE_BRUSH);
-    map_dc.Clear();
-    template_canvas->RenderToDC(map_dc, lo_map_w, lo_map_h);
-    all_dc.DrawBitmap(map_bm.ConvertToImage(), lo_map_x, lo_map_y);
+    double canvas_scale = (double)lo_map_w / canvas_width;
+    wxBitmap canvas_bm;
+    canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+    wxMemoryDC canvas_dc(canvas_bm);
+    canvas_dc.SetBackground(*wxWHITE_BRUSH);
+    canvas_dc.Clear();
+    template_canvas->RenderToDC(canvas_dc, lo_map_w, lo_map_h);
+    all_dc.DrawBitmap(canvas_bm.ConvertToImage(), lo_map_x, lo_map_y);
     
     // print legend
     if (template_legend && legend_shape && legend_shape->IsShown()) {
@@ -513,13 +500,16 @@ void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, 
     }
     
     // save composer to file
+    if (bm_type == wxBITMAP_TYPE_PNG) path << ".png";
+    else if (bm_type == wxBITMAP_TYPE_BMP) path << ".bmp";
+    
     wxImage output_img = all_bm.ConvertToImage();
     output_img.SetOption(wxIMAGE_OPTION_RESOLUTION, out_resolution);
-    output_img.SaveFile(path, wxBITMAP_TYPE_PNG);
+    output_img.SaveFile(path, bm_type);
     output_img.Destroy();
 }
 
-void MapLayoutDialog::SaveToSVG(wxString path, int out_res_x, int out_res_y)
+void CanvasLayoutDialog::SaveToSVG(wxString path, int out_res_x, int out_res_y)
 {
     wxSize canvas_sz = template_canvas->GetDrawingSize();
     int picW = canvas_sz.GetWidth() + 20;
@@ -538,7 +528,7 @@ void MapLayoutDialog::SaveToSVG(wxString path, int out_res_x, int out_res_y)
     }
 }
 
-void MapLayoutDialog::SaveToPS(wxString path)
+void CanvasLayoutDialog::SaveToPS(wxString path)
 {
     int layout_w = GetWidth();
     int layout_h = GetHeight();
@@ -607,7 +597,7 @@ void MapLayoutDialog::SaveToPS(wxString path)
     }
 }
 
-void MapLayoutDialog::OnShowLegend(wxCommandEvent &event)
+void CanvasLayoutDialog::OnShowLegend(wxCommandEvent &event)
 {
     bool show_legend = m_cb->GetValue();
     legend_shape->Select(show_legend);
@@ -617,13 +607,13 @@ void MapLayoutDialog::OnShowLegend(wxCommandEvent &event)
     is_resize = true;
 }
 
-void MapLayoutDialog::OnSize(wxSizeEvent &event)
+void CanvasLayoutDialog::OnSize(wxSizeEvent &event)
 {
     is_resize = true;
     event.Skip();
 }
 
-void MapLayoutDialog::OnIdle(wxIdleEvent& event)
+void CanvasLayoutDialog::OnIdle(wxIdleEvent& event)
 {
     if (is_resize) {
         if (!is_initmap) {
@@ -652,71 +642,104 @@ void MapLayoutDialog::OnIdle(wxIdleEvent& event)
     }
 }
 
-int MapLayoutDialog::GetWidth()
+int CanvasLayoutDialog::GetWidth()
 {
     wxSize sz = canvas->GetClientSize();
     return sz.GetWidth() - 100;
 }
 
-int MapLayoutDialog::GetHeight()
+int CanvasLayoutDialog::GetHeight()
 {
     wxSize sz = canvas->GetClientSize();
     return sz.GetHeight() - 100;
 }
 
-double MapLayoutDialog::GetShapeWidth(wxBitmapShape* shape)
+double CanvasLayoutDialog::GetShapeWidth(wxBitmapShape* shape)
 {
     return shape->GetWidth();
 }
 
-double MapLayoutDialog::GetShapeHeight(wxBitmapShape* shape)
+double CanvasLayoutDialog::GetShapeHeight(wxBitmapShape* shape)
 {
     return shape->GetHeight();
 }
 
-double MapLayoutDialog::GetShapeStartX(wxBitmapShape* shape)
+double CanvasLayoutDialog::GetShapeStartX(wxBitmapShape* shape)
 {
     double x = shape->GetX();
     x = x - shape->GetWidth() /2.0;
     return x - 50;
 }
 
-double MapLayoutDialog::GetShapeStartY(wxBitmapShape* shape)
+double CanvasLayoutDialog::GetShapeStartY(wxBitmapShape* shape)
 {
     double y = shape->GetY();
     y = y - shape->GetHeight() /2.0;
     return y - 50;
 }
 
-void MapLayoutEvtHandler::OnLeftClick(double WXUNUSED(x), double WXUNUSED(y),
-                               int keys, int WXUNUSED(attachment))
+////////////////////////////////////////////////////////////////////////////////
+
+MapLayoutDialog::MapLayoutDialog(wxString _project_name, TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
+: CanvasLayoutDialog(_project_name, _legend, _canvas, title, pos, size)
 {
-    wxShape* shape = this->GetShape();
-    wxShapeCanvas* canvas = shape->GetCanvas();
-    
-    wxNode* node = canvas->GetDiagram()->GetShapeList()->GetFirst();
-    while (node)
-    {
-        wxShape* shape = (wxShape*) node->GetData();
-        shape->Select(false);
-        shape->SetDraggable(false);
-        node = node->GetNext();
-    }
-    
-    wxClientDC dc(canvas);
-    
-    if (shape) {
-        shape->Select(!shape->Selected());
-        shape->SetHighlight(shape->Selected());
-        shape->SetDraggable(shape->Selected());
-        int x = shape->GetX();
-        int y = shape->GetY();
-        canvas->Refresh();
-    }
 }
 
-void MapLayoutEvtHandler::OnRightClick(double WXUNUSED(x), double WXUNUSED(y),
-                                int keys, int WXUNUSED(attachment))
+MapLayoutDialog::~MapLayoutDialog()
 {
     
+}
+
+void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution, wxBitmapType bm_type )
+{
+    double lo_scale = (double) out_res_x / GetWidth();
+    
+    // composer of map and legend
+    wxBitmap all_bm(out_res_x, out_res_y);
+    wxMemoryDC all_dc(all_bm);
+    all_dc.SetBackground(*wxWHITE_BRUSH);
+    all_dc.Clear();
+    
+    // print map
+    wxSize map_sz = template_canvas->GetClientSize();
+    int map_width = map_sz.GetWidth();
+    int map_height = map_sz.GetHeight();
+    int lo_map_w = GetShapeWidth(map_shape) * lo_scale;
+    int lo_map_h = GetShapeHeight(map_shape) * lo_scale;
+    int lo_map_x = GetShapeStartX(map_shape) * lo_scale;
+    int lo_map_y = GetShapeStartY(map_shape) * lo_scale;
+    double map_scale = (double)lo_map_w / map_width;
+    wxBitmap map_bm(lo_map_w, lo_map_h);
+    wxMemoryDC map_dc(map_bm);
+    map_dc.SetBackground(*wxWHITE_BRUSH);
+    map_dc.Clear();
+    template_canvas->RenderToDC(map_dc, lo_map_w, lo_map_h);
+    all_dc.DrawBitmap(map_bm.ConvertToImage(), lo_map_x, lo_map_y);
+    
+    // print legend
+    if (template_legend && legend_shape && legend_shape->IsShown()) {
+        int legend_width = template_legend->GetDrawingWidth();
+        int legend_height = template_legend->GetDrawingHeight();
+        int lo_leg_w = GetShapeWidth(legend_shape) * lo_scale;
+        int lo_leg_h = GetShapeHeight(legend_shape) * lo_scale;
+        int lo_leg_x = GetShapeStartX(legend_shape) * lo_scale;
+        int lo_leg_y = GetShapeStartY(legend_shape) * lo_scale;
+        double leg_scale = (double)lo_leg_w / legend_width;
+        wxBitmap leg_bm;
+        leg_bm.CreateScaled(legend_width, legend_height, 32, leg_scale);
+        wxMemoryDC leg_dc(leg_bm);
+        leg_dc.SetBackground(*wxWHITE_BRUSH);
+        leg_dc.Clear();
+        template_legend->RenderToDC(leg_dc, 1);
+        all_dc.DrawBitmap(leg_bm.ConvertToImage(), lo_leg_x, lo_leg_y);
+    }
+    
+    // save composer to file
+    if (bm_type == wxBITMAP_TYPE_PNG) path << ".png";
+    else if (bm_type == wxBITMAP_TYPE_BMP) path << ".bmp";
+    
+    wxImage output_img = all_bm.ConvertToImage();
+    output_img.SetOption(wxIMAGE_OPTION_RESOLUTION, out_resolution);
+    output_img.SaveFile(path, bm_type);
+    output_img.Destroy();
 }

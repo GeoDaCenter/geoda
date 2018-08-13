@@ -112,11 +112,18 @@ layer0_bm(0), layer1_bm(0), layer2_bm(0), faded_layer_bm(0),
 layer0_valid(false), layer1_valid(false), layer2_valid(false),
 total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
-useScientificNotation(false), is_showing_brush(false),
-axis_display_precision(2), enable_high_dpi_support(enable_high_dpi_support_),
+useScientificNotation(false),
+is_showing_brush(false),
+axis_display_precision(2),
+enable_high_dpi_support(enable_high_dpi_support_),
+scale_factor(1.0),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
     highlight_timer = new wxTimer(this);
+    
+    if (enable_high_dpi_support) {
+        scale_factor = GetContentScaleFactor();
+    }
     
     // default is one time slice
 	cat_data.CreateEmptyCategories(1, highlight_state->GetHighlightSize());
@@ -183,12 +190,10 @@ void TemplateCanvas::resizeLayerBms(int width, int height)
     int vs_w, vs_h;
     GetClientSize(&vs_w, &vs_h);
     
-    if (vs_w <= 0) vs_w = 1;
-    if (vs_h <=0 ) vs_h = 1;
+    if (width > 0) vs_w = width;
+    if (height >0 ) vs_h = height;
     
     if (enable_high_dpi_support) {
-        double scale_factor = GetContentScaleFactor();
-
         layer0_bm = new wxBitmap;
         layer1_bm = new wxBitmap;
         layer2_bm = new wxBitmap;
@@ -636,33 +641,16 @@ void TemplateCanvas::update(HLStateInt* o)
 
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
-
-	dc.SetPen(canvas_background_color);
-	dc.SetBrush(canvas_background_color);
-	//dc.DrawRectangle(wxPoint(0,0), sz);
+    int screen_w = GetClientSize().GetWidth();
+    int screen_h = GetClientSize().GetHeight();
+    double old_scale =  scale_factor;
+    scale_factor = w / screen_w;
     
     resizeLayerBms(w, h);
-    ResizeSelectableShps(w, h);
-    
-	BOOST_FOREACH( GdaShape* shp, background_shps ) {
-		shp->paintSelf(dc);
-	}
-
-    vector<bool>& hs = highlight_state->GetHighlight();
-    helper_DrawSelectableShapes_dc(dc, hs, false, false, false, true);
-
-	
-	BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
-		shp->paintSelf(dc);
-	}
-    
-	wxSize sz = GetClientSize();
-    
-    w = sz.GetWidth();
-    h = sz.GetHeight();
-    resizeLayerBms(w, h);
-    ResizeSelectableShps(w, h);
-    isResize = true;
+    DrawLayers();
+    dc.DrawBitmap(*layer2_bm, 0, 0);
+    scale_factor = old_scale;
+    ReDraw();
 }
 
 void TemplateCanvas::DrawLayers()
@@ -700,14 +688,13 @@ void TemplateCanvas::DrawLayer0()
 
     dc.SetPen(canvas_background_color);
     dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(0,0), sz);
+    dc.DrawRectangle(wxPoint(1,1), sz);
 
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
     
     DrawSelectableShapes(dc);
-
 
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
@@ -725,16 +712,12 @@ void TemplateCanvas::DrawLayer1()
     wxSize sz = GetClientSize();
     dc.SetPen(canvas_background_color);
     dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(0,0), sz);
+    dc.DrawRectangle(wxPoint(1,1), sz);
     
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
         if (faded_layer_bm == NULL) {
             wxImage image = layer0_bm->ConvertToImage();
-            if (enable_high_dpi_support) {
-                image.Rescale(sz.GetWidth(), sz.GetHeight());
-            }
-
             if (!image.HasAlpha()) {
                 image.InitAlpha();
             }
@@ -744,7 +727,13 @@ void TemplateCanvas::DrawLayer1()
 
             faded_layer_bm = new wxBitmap(image);
         }
-        dc.DrawBitmap(*faded_layer_bm,0,0);
+        if (enable_high_dpi_support) {
+            dc.SetUserScale(1/scale_factor, 1/scale_factor);
+            dc.DrawBitmap(*faded_layer_bm,0,0);
+            dc.SetUserScale(1.0, 1.0);
+        } else {
+            dc.DrawBitmap(*faded_layer_bm,0,0);
+        }
     } else {
         dc.DrawBitmap(*layer0_bm, 0, 0);
     }
@@ -804,22 +793,15 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
         isResize = false;
-       
         
-        int vs_w, vs_h;
+        int cs_w=0, cs_h=0;
+        GetClientSize(&cs_w, &cs_h);
         
-        GetClientSize(&vs_w, &vs_h);
-       
-        vs_w = vs_w;
-        vs_h = vs_h;
+        last_scale_trans.SetView(cs_w, cs_h);
         
-        double scale_factor = 1.0;
-        
-        last_scale_trans.SetView(vs_w, vs_h, scale_factor);
-        
-        resizeLayerBms(vs_w, vs_h);
+        resizeLayerBms(cs_w, cs_h);
 
-        ResizeSelectableShps(vs_w, vs_h);
+        ResizeSelectableShps(cs_w, cs_h);
         
         event.RequestMore(); // render continuously, not only once on idle
     }

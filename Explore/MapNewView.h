@@ -213,7 +213,6 @@ public:
     static void ResetEmptyFlag();
     
 protected:
-    double scale_factor;
     std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;

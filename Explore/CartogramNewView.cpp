@@ -36,9 +36,9 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/GalWeight.h"
-
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "CartogramNewView.h"
+#include "MapLayoutView.h"
 
 using namespace std;
 
@@ -1189,4 +1189,26 @@ void CartogramNewFrame::CartogramImproveLevel(int level)
 {
 	((CartogramNewCanvas*) template_canvas)->CartogramImproveLevel(level);
 	UpdateOptionMenuItems();
+}
+
+void CartogramNewFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    wxLogMessage("Entering CartogramNewFrame::ExportImage");
+    
+    // main map
+    wxBitmap* main_map = template_canvas->GetPrintLayer();
+    int map_width = main_map->GetWidth();
+    int map_height = main_map->GetHeight();
+    
+    // try to keep maplayout dialog fixed size
+    int dlg_width = 900;
+    int dlg_height = dlg_width * map_height / (double)map_width + 160;
+    
+    CanvasLayoutDialog ml_dlg(project->GetProjectTitle(),
+                           template_legend, template_canvas,
+                           _("Canvas Layout Preview"),
+                           wxDefaultPosition,
+                           wxSize(dlg_width, dlg_height) );
+    
+    ml_dlg.ShowModal();
 }

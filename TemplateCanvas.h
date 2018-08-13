@@ -239,6 +239,7 @@ public:
     
     
 	virtual void RenderToDC(wxDC &dc, int w, int h);
+    
     const wxBitmap* GetLayer0() { return layer0_bm; }
 	const wxBitmap* GetLayer1() { return layer1_bm; }
 	const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -320,6 +321,7 @@ protected:
 	GdaScaleTrans last_scale_trans;
 	bool          fit_to_window_mode;
 
+    double scale_factor;
 	/** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
 	 of the highlight state for every observation in the currently opened SHP

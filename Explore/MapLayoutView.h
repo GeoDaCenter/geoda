@@ -14,7 +14,7 @@
 class MapCanvas;
 class TemplateLegend;
 
-class MapExportSettingDialog : public wxDialog
+class CanvasExportSettingDialog : public wxDialog
 {
     wxTextCtrl *tc1;
     wxTextCtrl *tc2;
@@ -37,7 +37,7 @@ class MapExportSettingDialog : public wxDialog
     void   setTextValue(wxTextCtrl*tc, double val);
     
 public:
-    MapExportSettingDialog(int w, int h, const wxString& title);
+    CanvasExportSettingDialog(int w, int h, const wxString& title);
     
     int GetMapWidth();
     int GetMapHeight();
@@ -49,8 +49,22 @@ public:
     void OnUnitChange(wxCommandEvent& ev);
 };
 
-class MapLayoutDialog : public wxDialog
+class CanvasLayoutEvtHandler: public wxShapeEvtHandler
 {
+public:
+    CanvasLayoutEvtHandler(wxShapeEvtHandler *prev = NULL, wxShape *shape = NULL,
+                           const wxString& lab = wxEmptyString)
+    : wxShapeEvtHandler(prev, shape) { }
+    
+    ~CanvasLayoutEvtHandler(void) {}
+    
+    void OnLeftClick(double x, double y, int keys = 0, int attachment = 0);
+    void OnRightClick(double x, double y, int keys = 0, int attachment = 0);
+};
+
+class CanvasLayoutDialog : public wxDialog
+{
+protected:
     wxDiagram * diagram;
     wxShapeCanvas *canvas;
     
@@ -68,8 +82,8 @@ class MapLayoutDialog : public wxDialog
     wxString project_name;
     
 public:
-    MapLayoutDialog(wxString project_name, TemplateLegend* _legend, TemplateCanvas* _map, const wxString& title, const wxPoint& pos, const wxSize& size);
-    ~MapLayoutDialog();
+    CanvasLayoutDialog(wxString project_name, TemplateLegend* _legend, TemplateCanvas* _map, const wxString& title, const wxPoint& pos, const wxSize& size);
+    virtual ~CanvasLayoutDialog();
     
     wxBitmapShape * map_shape;
     wxBitmapShape * legend_shape;
@@ -87,22 +101,18 @@ public:
     void OnIdle( wxIdleEvent& event );
     void OnShowLegend( wxCommandEvent& event );
     
-    void SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution );
+    virtual void SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution, wxBitmapType bm_type = wxBITMAP_TYPE_PNG);
     void SaveToSVG(wxString path, int out_res_x, int out_res_y);
     void SaveToPS(wxString path);
 };
 
-class MapLayoutEvtHandler: public wxShapeEvtHandler
+class MapLayoutDialog : public CanvasLayoutDialog
 {
 public:
-    MapLayoutEvtHandler(wxShapeEvtHandler *prev = NULL, wxShape *shape = NULL,
-                 const wxString& lab = wxEmptyString)
-    : wxShapeEvtHandler(prev, shape) { }
+    MapLayoutDialog(wxString project_name, TemplateLegend* _legend, TemplateCanvas* _map, const wxString& title, const wxPoint& pos, const wxSize& size);
+    virtual ~MapLayoutDialog();
     
-    ~MapLayoutEvtHandler(void) {}
-    
-    void OnLeftClick(double x, double y, int keys = 0, int attachment = 0);
-    void OnRightClick(double x, double y, int keys = 0, int attachment = 0);
+    virtual void SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution, wxBitmapType bm_type = wxBITMAP_TYPE_PNG);
 };
 
 #endif /* MapLayoutView_h */

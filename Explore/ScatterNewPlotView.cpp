@@ -46,7 +46,7 @@
 #include "../Project.h"
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/Lowess.h"
-
+#include "MapLayoutView.h"
 #include "ScatterNewPlotView.h"
 
 
@@ -2228,6 +2228,29 @@ void ScatterNewPlotFrame::GetVizInfo(wxString& x, wxString& y)
 	}
 }
 
+void ScatterNewPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    if (is_bubble_plot) {
+        // main map
+        wxBitmap* main_map = template_canvas->GetPrintLayer();
+        int map_width = main_map->GetWidth();
+        int map_height = main_map->GetHeight();
+        
+        // try to keep maplayout dialog fixed size
+        int dlg_width = 900;
+        int dlg_height = dlg_width * map_height / (double)map_width + 160;
+        
+        CanvasLayoutDialog ml_dlg(project->GetProjectTitle(),
+                               template_legend, template_canvas,
+                               _("Canvas Layout Preview"),
+                               wxDefaultPosition,
+                               wxSize(dlg_width, dlg_height) );
+        
+        ml_dlg.ShowModal();
+    } else {
+        TemplateFrame::ExportImage(canvas, type);
+    }
+}
 /////////////////////////////////////////////////////
 IMPLEMENT_CLASS(MDSPlotCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(MDSPlotCanvas, TemplateCanvas)

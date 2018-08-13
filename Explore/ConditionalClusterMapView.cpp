@@ -546,7 +546,7 @@ void ConditionalClusterMapCanvas::DrawLayer0()
 	wxMemoryDC dc(*layer0_bm);
 	dc.SetPen(canvas_background_color);
 	dc.SetBrush(canvas_background_color);
-	dc.DrawRectangle(wxPoint(0,0), sz);
+	dc.DrawRectangle(wxPoint(1,1), sz);
 	
 	// using bin_extents, tile bin_bm at every cell position
 	if (bin_bm) {

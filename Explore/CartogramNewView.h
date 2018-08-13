@@ -195,7 +195,7 @@ public:
 	virtual void OnSaveCategories();
 	
 	virtual void CartogramImproveLevel(int level);
-	
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 protected:
     void SetupToolbar();
     void OnMapSelect(wxCommandEvent& e);

@@ -318,7 +318,8 @@ public:
 	virtual void OnNaturalBreaks(int num_cats);
 	virtual void OnEqualIntervals(int num_cats);
 	virtual void OnSaveCategories();
-	
+	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
+    
 	/** Implementation of LowessParamObserver interface */
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
