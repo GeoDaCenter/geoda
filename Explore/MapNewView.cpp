@@ -789,28 +789,17 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
 
 void MapCanvas::RenderToSVG(wxDC& dc, int w, int h, int map_w, int map_h, int offset_x, int offset_y)
 {
-    resizeLayerBms(w, h);
     ResizeSelectableShps(w, h);
-    
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    
     vector<bool>& hs = highlight_state->GetHighlight();
-    helper_DrawSelectableShapes_dc(dc, hs, false, false, false, true);
-    
+    helper_DrawSelectableShapes_dc(dc, hs, false, false);
     
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
-    
-    wxSize sz = GetClientSize();
-    
-    w = sz.GetWidth();
-    h = sz.GetHeight();
-    resizeLayerBms(w, h);
-    ResizeSelectableShps(w, h);
-    isResize = true;
+    ResizeSelectableShps();
 }
 
 wxBitmap* MapCanvas::GetPrintLayer()

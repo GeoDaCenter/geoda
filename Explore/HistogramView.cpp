@@ -798,8 +798,8 @@ void HistogramCanvas::PopulateCanvas()
         double x1 = orig_x_pos_right[i];
 		double y0 = 0;
 		double y1 = ival_obs_cnt[time][i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, y1),
-                                              wxRealPoint(x1, y0));
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, y0),
+                                              wxRealPoint(x1, y1));
 		
         if (!is_custom_category) {
             int sz = GdaConst::qualitative_colors.size();

@@ -523,7 +523,7 @@ void CanvasLayoutDialog::SaveToSVG(wxString path, int out_res_x, int out_res_y)
     
     wxSVGFileDC dc(path + ".svg", picW + legend_w + 20, picH);
     
-    template_canvas->RenderToDC(dc, picW + legend_w + 20, picH);
+    template_canvas->RenderToSVG(dc, picW + legend_w + 20, picH);
     if (template_legend) {
         template_legend->RenderToDC(dc, scale);
     }
