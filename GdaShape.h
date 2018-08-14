@@ -581,13 +581,13 @@ public:
 	wxPoint a, b;
 	wxString caption;
 	bool hidden;
-    
+    wxFont font;
     
 protected:
 	bool is_horizontal;
 	wxRealPoint a_o;
 	wxRealPoint b_o;
-	wxFont font;
+	
 	wxFont caption_font;
 	bool hide_scale_values;
 	bool hide_caption;

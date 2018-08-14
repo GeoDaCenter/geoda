@@ -612,9 +612,8 @@ void ConditionalMapCanvas::DrawLayer0()
         resizeLayerBms(sz.GetWidth(), sz.GetHeight());
     
 	wxMemoryDC dc(*layer0_bm);
-	dc.SetPen(canvas_background_color);
-	dc.SetBrush(canvas_background_color);
-	dc.DrawRectangle(wxPoint(1,1), sz);
+    dc.SetBackground(wxBrush(canvas_background_color));
+    dc.Clear();
 	
 	// using bin_extents, tile bin_bm at every cell position
 	if (bin_bm) {

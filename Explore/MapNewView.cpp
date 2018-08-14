@@ -759,9 +759,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         layer0_dc.SelectObject(*layer0_bm);
         layer0_dc.Clear();
     } else {
-        layer0_dc.SetPen(canvas_background_color);
-        layer0_dc.SetBrush(canvas_background_color);
-        layer0_dc.DrawRectangle(wxPoint(0,0), wxSize(w,h));
+        layer0_dc.SetBackground(wxBrush(canvas_background_color));
+        layer0_dc.Clear();
     }
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(layer0_dc);
@@ -838,9 +837,8 @@ void MapCanvas::DrawLayer0()
         dc.SelectObject(*layer0_bm);
         dc.Clear();
     } else {
-        dc.SetPen(canvas_background_color);
-        dc.SetBrush(canvas_background_color);
-        dc.DrawRectangle(wxPoint(0,0), sz);
+        dc.SetBackground(wxBrush(canvas_background_color));
+        dc.Clear();
     }
 
     BOOST_FOREACH( GdaShape* shp, background_shps ) {

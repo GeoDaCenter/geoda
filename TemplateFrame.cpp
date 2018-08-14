@@ -466,18 +466,67 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
         
     } else {
         // without legend
-        CanvasExportSettingDialog setting_dlg(canvas_width*2*scale, canvas_height*2*scale, _("Image Dimension Setting"));
+        int default_width = canvas_width*2;
+        int default_height = canvas_height*2;
+        
+        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Setting"));
         if (setting_dlg.ShowModal() == wxID_OK) {
             int out_res_x = setting_dlg.GetMapWidth();
             int out_res_y = setting_dlg.GetMapHeight();
             double canvas_scale = (double) out_res_x / canvas_width;
-            wxBitmap canvas_bm;
-            canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
-            wxMemoryDC canvas_dc(canvas_bm);
-            canvas_dc.SetBackground(*wxWHITE_BRUSH);
-            canvas_dc.Clear();
-            template_canvas->RenderToDC(canvas_dc, out_res_x, out_res_y);
-            canvas_bm.SaveFile("/Users/xun/Desktop/1.png", wxBITMAP_TYPE_PNG);
+            
+            
+            wxString default_fname(project->GetProjectTitle());
+            wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg";
+            int filter_index = 1;
+            wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
+                                default_fname, filter,
+                                wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+            dialog.SetFilterIndex(filter_index);
+            if (dialog.ShowModal() != wxID_OK) {
+                return;
+            }
+            wxFileName fname = wxFileName(dialog.GetPath());
+            wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+            
+            switch (dialog.GetFilterIndex()) {
+                case 0:
+                {
+                    wxLogMessage("BMP selected");
+                    wxBitmap canvas_bm;
+                    canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+                    wxMemoryDC canvas_dc(canvas_bm);
+                    canvas_dc.SetBackground(*wxWHITE_BRUSH);
+                    canvas_dc.Clear();
+                    template_canvas->RenderToDC(canvas_dc, out_res_x, out_res_y);
+                    canvas_bm.SaveFile(str_fname + ".bmp", wxBITMAP_TYPE_PNG);
+                }
+                    break;
+                case 1:
+                {
+                    wxLogMessage("PNG selected");
+                    wxBitmap canvas_bm;
+                    canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+                    wxMemoryDC canvas_dc(canvas_bm);
+                    canvas_dc.SetBackground(*wxWHITE_BRUSH);
+                    canvas_dc.Clear();
+                    template_canvas->RenderToDC(canvas_dc, out_res_x, out_res_y);
+                    canvas_bm.SaveFile(str_fname + ".png", wxBITMAP_TYPE_PNG);
+                }
+                    break;
+                    
+                case 2:
+                {
+                    wxLogMessage("SVG selected");
+                    wxSVGFileDC dc(str_fname + ".svg", out_res_x, out_res_y);
+                    template_canvas->RenderToSVG(dc, out_res_x, out_res_y);
+                }
+                    break;
+                default:
+                {
+                }
+                    break;
+            }
         }
     }
     

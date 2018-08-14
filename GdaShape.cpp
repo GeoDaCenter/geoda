@@ -1074,9 +1074,11 @@ void GdaRectangle::paintSelf(wxDC& dc)
 	if (null_shape) return;
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
-	dc.DrawRectangle(lower_left.x+getXNudge(), lower_left.y+getYNudge(),
-					 upper_right.x - lower_left.x,
-					 upper_right.y - lower_left.y);
+    int x = lower_left.x+getXNudge();
+    int y = lower_left.y+getYNudge();
+    int w = upper_right.x - lower_left.x;
+    int h = upper_right.y - lower_left.y;
+	dc.DrawRectangle(x,y,w,h);
 }
 
 void GdaRectangle::paintSelf(wxGraphicsContext* gc)

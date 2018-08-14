@@ -18,6 +18,7 @@ CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxStrin
     width = w;
     height = h;
     tc1_value = w;
+    tc2_value = h;
     unit_choice = 0;
     aspect_ratio = (double) w / h;
     wxPanel *panel = new wxPanel(this, -1);
@@ -536,7 +537,6 @@ void CanvasLayoutDialog::SaveToPS(wxString path)
     wxPrintData printData;
     printData.SetFilename(path + ".ps");
     printData.SetPrintMode(wxPRINT_MODE_FILE);
-    printData.SetOrientation(wxLANDSCAPE);
     wxPostScriptDC dc(printData);
     
     int w, h;

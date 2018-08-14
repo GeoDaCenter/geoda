@@ -653,6 +653,30 @@ void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
     ReDraw();
 }
 
+void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)
+{
+    ResizeSelectableShps(w, h);
+    
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    vector<bool>& hs = highlight_state->GetHighlight();
+    if (use_category_brushes) {
+        helper_DrawSelectableShapes_dc(dc, hs, false, false);
+        
+    } else {
+        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+            if (_IsShpValid(i)) {
+                selectable_shps[i]->paintSelf(dc);
+            }
+        }
+    }
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(dc);
+    }
+    ResizeSelectableShps();
+}
+
 void TemplateCanvas::DrawLayers()
 {
 	if (layer2_valid && layer1_valid && layer0_valid)
@@ -685,10 +709,8 @@ void TemplateCanvas::DrawLayer0()
 
     wxSize sz = GetClientSize();
     wxMemoryDC dc(*layer0_bm);
-
-    dc.SetPen(canvas_background_color);
-    dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(1,1), sz);
+    dc.SetBackground(wxBrush(canvas_background_color));
+    dc.Clear();
 
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
@@ -708,12 +730,8 @@ void TemplateCanvas::DrawLayer1()
     if (layer1_bm == NULL)
         return;
     wxMemoryDC dc(*layer1_bm);
-    dc.Clear();
-    wxSize sz = GetClientSize();
-    dc.SetPen(canvas_background_color);
-    dc.SetBrush(canvas_background_color);
-    dc.DrawRectangle(wxPoint(1,1), sz);
-    
+   dc.SetBackground(wxBrush(canvas_background_color));
+    dc.Clear();    
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
         if (faded_layer_bm == NULL) {
@@ -765,9 +783,8 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     if (layer2_bm) {
         wxSize sz = GetClientSize();
         wxMemoryDC dc(*layer2_bm);
-        dc.SetPen(*wxWHITE_PEN);
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-        dc.DrawRectangle(wxPoint(0,0), sz);
+        dc.SetBackground(*wxTRANSPARENT_BRUSH);
+        dc.Clear();
         
         wxPaintDC paint_dc(this);
         
