@@ -117,6 +117,7 @@ is_showing_brush(false),
 axis_display_precision(2),
 enable_high_dpi_support(enable_high_dpi_support_),
 scale_factor(1.0),
+point_radius(GdaConst::my_point_click_radius),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
     highlight_timer = new wxTimer(this);
@@ -923,15 +924,13 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
 		vector<bool> dirty(bnd, false);
 
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		wxDouble r = GdaConst::my_point_click_radius;
+		wxDouble r = point_radius;
         if (w < 150 || h < 150) {
             r *= 0.66;
         }
         if (selectable_shps.size() > 100 && (w < 80 || h < 80)) {
             r = 0.2;
         }
-        if (is_print)
-            r = 15;
 		GdaPoint* p;
 		for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch ){
@@ -1093,7 +1092,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
 		int bnd = w*h;
 		vector<bool> dirty(bnd, false);
         
-        wxDouble r = GdaConst::my_point_click_radius;
+        wxDouble r = point_radius;
         if (w < 150 || h < 150) {
             r *= 0.66;
         }
@@ -2251,7 +2250,7 @@ void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)
 			}
 		}
 	} else { // selectable_shps_type == points or anything without pointWithin
-		const double r2 = GdaConst::my_point_click_radius;
+		const double r2 = point_radius;
 		for (int i=0; i<total_obs && total_hover_obs<max_hover_obs; i++) {
             if ( !_IsShpValid(i))
                 continue;

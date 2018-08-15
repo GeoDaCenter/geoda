@@ -14,6 +14,8 @@
 class MapCanvas;
 class TemplateLegend;
 
+
+
 class CanvasExportSettingDialog : public wxDialog
 {
     wxTextCtrl *tc1;

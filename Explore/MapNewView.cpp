@@ -694,6 +694,10 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     double old_scale =  scale_factor;
     scale_factor = 1.0;
     
+    double old_point_radius = point_radius;
+    if (GetShapeType() == points) {
+        point_radius = basemap_scale * point_radius;
+    }
     deleteLayerBms();
     
     layer0_bm = new wxBitmap(w, h, 32);
@@ -705,7 +709,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer2_valid = false;
     
     if (isDrawBasemap) {
-        bool draw_detailed_basemap = true;
+        bool draw_detailed_basemap = false;
          GDA::Screen *screen = NULL;
         if (draw_detailed_basemap) {
             basemap_bm = new wxBitmap(w, h, 32);
@@ -716,7 +720,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
             // scaled basemap
             basemap_bm = new wxBitmap;
             basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
-            last_scale_trans.SetView(screen_w, screen_h);
+            //last_scale_trans.SetView(screen_w, screen_h);
             screen = new GDA::Screen(screen_w, screen_h);
         }
         
@@ -735,29 +739,30 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         GDA::MapLayer *map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
         
         if (poCT && map->IsWGS84Valid()) {
+            /*
             GDA::Basemap basemap(screen, map, map_type, GenUtils::GetBasemapCacheDir(), poCT, 2.0);
             if (draw_detailed_basemap) {
                 basemap.ResizeScreen(w, h);
                 basemap.Refresh();
             } else {
                 basemap.ResizeScreen(screen_w, screen_h);
-            }
+            }*/
             BOOST_FOREACH( GdaShape* ms, background_shps ) {
-                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+                if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
             BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+                if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
             BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-                if (ms) ms->projectToBasemap(&basemap, basemap_scale);
+                if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
             if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
                 for (int i=0; i<w_graph.size(); i++) {
                     GdaPolyLine* e = w_graph[i];
-                    e->projectToBasemap(&basemap, basemap_scale);
+                    e->projectToBasemap(basemap, basemap_scale);
                 }
             }
-            basemap.Draw(basemap_bm);
+            basemap->Draw(basemap_bm);
         }
     } else {
         last_scale_trans.SetView(w, h);
@@ -786,7 +791,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(layer0_dc);
     }
-    DrawSelectableShapes_dc(layer0_dc);
+    vector<bool>& hs = highlight_state->GetHighlight();
+    helper_DrawSelectableShapes_dc(layer0_dc, hs, false, false, false, true);
     layer0_dc.SelectObject(wxNullBitmap);
     
     wxMemoryDC layer1_dc(*layer1_bm);
@@ -805,6 +811,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     
     dc.DrawBitmap(*layer2_bm, 0, 0);
     // reset
+    point_radius = old_point_radius;
     scale_factor = old_scale;
     if (!isDrawBasemap) {
         last_scale_trans.SetMargin();

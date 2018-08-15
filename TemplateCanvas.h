@@ -296,12 +296,12 @@ public:
 										int alpha=255);
     
     virtual wxString GetVariableNames() = 0;
+    virtual SelectableShpType GetShapeType() {return selectable_shps_type;}
+    virtual double GetPointRadius() { return point_radius; }
+    virtual void SetPointRadius(double r) { point_radius = r;}
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
-	
-    void GetVizInfo(wxString& shape_type,
-                    std::vector<wxString>& clrs,
-                    std::vector<double>& bins);
+    void GetVizInfo(wxString& shape_type, std::vector<wxString>& clrs, std::vector<double>& bins);
 	
     int  axis_display_precision;
     
@@ -311,8 +311,8 @@ protected:
     int MASK_G;
     int MASK_B;
     
+    wxDouble point_radius;
     bool          enable_high_dpi_support;
-    
     bool          is_showing_brush;
 	SelectState   selectstate;
 	MouseMode     mousemode;

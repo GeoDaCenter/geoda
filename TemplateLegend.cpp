@@ -21,6 +21,9 @@
 #include <wx/colourdata.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcgraph.h>
+#include <wx/statbox.h>
+
+#include <wx/button.h>
 
 #include "logger.h"
 #include "GdaConst.h"
@@ -30,9 +33,54 @@
 #include "Explore/MapNewView.h"
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(250, 160))
+{
+    
+    wxPanel *panel = new wxPanel(this, -1);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    
+    wxBoxSizer *sbox = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText *lbl = new wxStaticText(panel, -1, _("Point Radius:"));
+    wxString s_radius;
+    if (r > 0) s_radius << r;
+    else s_radius = "2";
+    rb = new wxSpinCtrl(panel, -1, s_radius);
+    sbox->Add(lbl);
+    sbox->Add(rb);
+    wxBoxSizer* panel_v_szr = new wxBoxSizer(wxVERTICAL);
+    panel_v_szr->Add(sbox, 1, wxALL|wxEXPAND, 5);
+    panel->SetSizer(panel_v_szr);
+    
+    wxButton *okButton = new wxButton(this, wxID_OK, _("Ok"),
+                                      wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_CANCEL, _("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    
+    hbox->Add(okButton, 1);
+    hbox->Add(closeButton, 1, wxLEFT, 5);
+    
+    vbox->Add(panel, 1, wxALL | wxEXPAND, 30);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    
+    SetSizer(vbox);
+    SetAutoLayout(true);
+    vbox->Fit(this);
+    Centre();
+}
+
+
+int PointRadiusDialog::GetRadius()
+{
+    return rb->GetValue();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 //
-///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GdaLegendLabel::GdaLegendLabel(int _idx, wxString _text, wxPoint _pos, wxSize _sz)
 : d_rect(20)
@@ -114,6 +162,7 @@ IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
 
 BEGIN_EVENT_TABLE(TemplateLegend, wxScrolledWindow)
 	EVT_MENU(TemplateLegend::ID_CATEGORY_COLOR, TemplateLegend::OnCategoryColor)
+    EVT_MENU(XRCID("IDC_CHANGE_POINT_RADIUS"), TemplateLegend::OnChangePointRadius)
 	EVT_MOUSE_EVENTS(TemplateLegend::OnEvent)
 END_EVENT_TABLE()
 
@@ -276,9 +325,23 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
 	if (!cat_label.IsEmpty())
         s << ": " << cat_label;
-    
+    if ( template_canvas->GetShapeType() == TemplateCanvas::points) {
+        menu->Prepend(XRCID("IDC_CHANGE_POINT_RADIUS"), _("Change Point Radius"), "");
+    }
 	menu->Prepend(ID_CATEGORY_COLOR, s, s);
 	opt_menu_cat = cat_clicked;
+}
+
+void TemplateLegend::OnChangePointRadius(wxCommandEvent& event)
+{
+    int old_radius = template_canvas->GetPointRadius();
+    PointRadiusDialog dlg(_("Change Point Radius"), old_radius);
+    if (dlg.ShowModal() == wxID_OK) {
+        int new_radius = dlg.GetRadius();
+        template_canvas->SetPointRadius(new_radius);
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+    }
 }
 
 void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
