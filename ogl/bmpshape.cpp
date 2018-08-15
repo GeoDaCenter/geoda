@@ -25,7 +25,8 @@
 #endif
 
 #include "ogl.h"
-
+#include "../TemplateCanvas.h"
+#include "../TemplateLegend.h"
 
 /*
  * Bitmap object
@@ -37,6 +38,8 @@ IMPLEMENT_DYNAMIC_CLASS(wxBitmapShape, wxRectangleShape)
 wxBitmapShape::wxBitmapShape():wxRectangleShape(100.0, 50.0)
 {
     m_filename = wxEmptyString;
+    tcanvas = NULL;
+    tlegend = NULL;
 }
 
 wxBitmapShape::~wxBitmapShape()
@@ -45,7 +48,7 @@ wxBitmapShape::~wxBitmapShape()
 
 void wxBitmapShape::OnDraw(wxDC& dc)
 {
-    if (!m_bitmap.Ok())
+    if (!m_imgmap.Ok())
         return;
     
     wxSize sz = dc.GetSize();
@@ -60,13 +63,31 @@ void wxBitmapShape::OnDraw(wxDC& dc)
 
 void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
 {
-    if (m_bitmap.Ok())
-    {
+    if (tcanvas) {
+        wxBitmap bm(w, h);
+        wxMemoryDC dc;
+        dc.SelectObject(bm);
+        tcanvas->RenderToDC(dc, w, h);
+        dc.SelectObject(wxNullBitmap);
+        
         m_imgmap.Destroy();
-        m_imgmap = m_bitmap.ConvertToImage();
-        if (w != m_width || h != m_height) {
-            m_imgmap.Rescale(w, h);
-        }
+        m_imgmap = bm.ConvertToImage();
+        
+    } else if (tlegend) {
+        int legend_width = tlegend->GetDrawingWidth();
+        int legend_height = tlegend->GetDrawingHeight();
+        double scale_factor = w / (double)legend_width;
+        wxBitmap bm;
+        bm.CreateScaled(legend_width, legend_height, 32, scale_factor);
+        wxMemoryDC dc;
+        dc.SelectObject(bm);
+        dc.SetBackground(*wxWHITE_BRUSH);
+        dc.Clear();
+        tlegend->RenderToDC(dc, 1);
+        dc.SelectObject(wxNullBitmap);
+        
+        m_imgmap.Destroy();
+        m_imgmap = bm.ConvertToImage();
     }
     
     SetAttachmentSize(w, h);
@@ -112,5 +133,44 @@ void wxBitmapShape::SetBitmap(const wxBitmap& bm)
         double bm_w = m_bitmap.GetWidth();
         double bm_h = m_bitmap.GetHeight();
         SetSize(bm_w, bm_h);
+    }
+}
+
+void wxBitmapShape::SetCanvas(TemplateCanvas* _tcanvas)
+{
+    tcanvas = _tcanvas;
+    if (tcanvas) {
+        wxSize sz = tcanvas->GetClientSize();
+        wxBitmap bm(sz.GetWidth(), sz.GetHeight());
+        wxMemoryDC dc;
+        dc.SelectObject(bm);
+        tcanvas->RenderToDC(dc, m_width, m_height);
+        dc.SelectObject(wxNullBitmap);
+        
+        m_imgmap.Destroy();
+        m_imgmap = bm.ConvertToImage();
+        
+        SetSize(sz.GetWidth(), sz.GetHeight());
+    }
+}
+
+void wxBitmapShape::SetCanvas(TemplateLegend* _tlegend)
+{
+    tlegend = _tlegend;
+    if (tlegend) {
+        int legend_width = tlegend->GetDrawingWidth();
+        int legend_height = tlegend->GetDrawingHeight();
+        wxBitmap bm(legend_width, legend_height);
+        wxMemoryDC dc;
+        dc.SelectObject(bm);
+        dc.SetBackground(*wxWHITE_BRUSH);
+        dc.Clear();
+        tlegend->RenderToDC(dc, 1);
+        dc.SelectObject(wxNullBitmap);
+        
+        m_imgmap.Destroy();
+        m_imgmap = bm.ConvertToImage();
+        
+        SetSize(legend_width, legend_height);
     }
 }

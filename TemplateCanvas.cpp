@@ -979,7 +979,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
                     wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
                     dc.SetPen(pen);
                 } else {
-                    dc.SetPen(*wxTRANSPARENT_PEN);
+                    dc.SetPen(cat_data.GetCategoryColor(cc_ts, cat));
                 }
                 if (fixed_pen_color != *wxWHITE) {
                     dc.SetPen(wxPen(fixed_pen_color));

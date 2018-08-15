@@ -693,10 +693,9 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     double basemap_scale = (double) w / screen_w;
     double old_scale =  scale_factor;
     scale_factor = 1.0;
-
+    
     deleteLayerBms();
-    basemap_bm = new wxBitmap;
-    basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
+    
     layer0_bm = new wxBitmap(w, h, 32);
     layer1_bm = new wxBitmap(w, h, 32);
     layer2_bm = new wxBitmap(w, h, 32);
@@ -706,16 +705,29 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer2_valid = false;
     
     if (isDrawBasemap) {
-        last_scale_trans.SetView(screen_w, screen_h);
-        OGRCoordinateTransformation *poCT = NULL;
+        bool draw_detailed_basemap = true;
+         GDA::Screen *screen = NULL;
+        if (draw_detailed_basemap) {
+            basemap_bm = new wxBitmap(w, h, 32);
+            basemap_scale = 1.0;
+            last_scale_trans.SetView(w, h);
+            screen = new GDA::Screen(w, h);
+        } else {
+            // scaled basemap
+            basemap_bm = new wxBitmap;
+            basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
+            last_scale_trans.SetView(screen_w, screen_h);
+            screen = new GDA::Screen(screen_w, screen_h);
+        }
         
+        OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR, &destSR);
         }
         
-        GDA::Screen *screen = new GDA::Screen(screen_w, screen_h);
+       
         double shps_orig_ymax = last_scale_trans.orig_data_y_max;
         double shps_orig_xmin = last_scale_trans.orig_data_x_min;
         double shps_orig_ymin = last_scale_trans.orig_data_y_min;
@@ -724,7 +736,12 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         
         if (poCT && map->IsWGS84Valid()) {
             GDA::Basemap basemap(screen, map, map_type, GenUtils::GetBasemapCacheDir(), poCT, 2.0);
-            basemap.ResizeScreen(screen_w, screen_h);
+            if (draw_detailed_basemap) {
+                basemap.ResizeScreen(w, h);
+                basemap.Refresh();
+            } else {
+                basemap.ResizeScreen(screen_w, screen_h);
+            }
             BOOST_FOREACH( GdaShape* ms, background_shps ) {
                 if (ms) ms->projectToBasemap(&basemap, basemap_scale);
             }
@@ -744,6 +761,10 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         }
     } else {
         last_scale_trans.SetView(w, h);
+        last_scale_trans.top_margin *= basemap_scale;
+        last_scale_trans.left_margin *= basemap_scale;
+        last_scale_trans.right_margin *= basemap_scale;
+        last_scale_trans.bottom_margin *= basemap_scale;
         TemplateCanvas::ResizeSelectableShps(w, h);
     }
     
@@ -783,7 +804,12 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     DrawLayer2();
     
     dc.DrawBitmap(*layer2_bm, 0, 0);
+    // reset
     scale_factor = old_scale;
+    if (!isDrawBasemap) {
+        last_scale_trans.SetMargin();
+        TemplateCanvas::ResizeSelectableShps();
+    }
     ReDraw();
 }
 
@@ -1026,12 +1052,11 @@ void MapCanvas::DrawLayer2()
 {
     if (layer2_bm == NULL)
         return;
-    
-    wxMemoryDC dc(*layer2_bm);
+    wxMemoryDC dc;
+    dc.SelectObject(*layer2_bm);
+    dc.SetBackground(*wxWHITE_BRUSH);
     dc.Clear();
-    
     dc.DrawBitmap(*layer1_bm, 0, 0);
-   
     if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
         wxPen pen(graph_color, weights_graph_thickness);
         for (int i=0; i<w_graph.size(); i++) {
@@ -1042,17 +1067,15 @@ void MapCanvas::DrawLayer2()
     BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
         shp->paintSelf(dc);
     }
-    
     dc.SelectObject(wxNullBitmap);
-    
     layer2_valid = true;
-   
     if ( MapCanvas::has_thumbnail_saved == false) {
         if (isDrawBasemap && layerbase_valid == false) {
             return;
         } 
         CallAfter(&MapCanvas::SaveThumbnail);
     }
+    dc.SelectObject(wxNullBitmap);
 }
 
 void MapCanvas::SaveThumbnail()
@@ -3220,27 +3243,4 @@ void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxS
             field_name = ((MapCanvas*) template_canvas)->var_info[0].name;
         }
 	}
-}
-
-void MapFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
-{
-    wxLogMessage("Entering MapFrame::ExportImage");
-    
-    
-    // main map
-    wxBitmap* main_map = template_canvas->GetPrintLayer();
-    int map_width = main_map->GetWidth();
-    int map_height = main_map->GetHeight();
-    
-    // try to keep maplayout dialog fixed size
-    int dlg_width = 900;
-    int dlg_height = dlg_width * map_height / (double)map_width + 160;
-    
-    MapLayoutDialog ml_dlg(project->GetProjectTitle(),
-                           template_legend, template_canvas,
-                           _("Map Layout Preview"),
-                           wxDefaultPosition,
-                           wxSize(dlg_width, dlg_height) );
-    
-    ml_dlg.ShowModal();
 }

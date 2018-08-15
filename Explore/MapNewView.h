@@ -333,9 +333,7 @@ public:
 	virtual void OnExportMeanCntrs();
 	virtual void OnExportCentroids();
 	virtual void OnSaveVoronoiDupsToTable();
-    virtual void OnSelectableOutlineVisible(wxCommandEvent& event);
-    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
-    
+    virtual void OnSelectableOutlineVisible(wxCommandEvent& event);    
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
     

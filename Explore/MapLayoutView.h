@@ -60,6 +60,7 @@ public:
     
     void OnLeftClick(double x, double y, int keys = 0, int attachment = 0);
     void OnRightClick(double x, double y, int keys = 0, int attachment = 0);
+    virtual void OnEndSize(double w, double h);
 };
 
 class CanvasLayoutDialog : public wxDialog
@@ -68,10 +69,8 @@ protected:
     wxDiagram * diagram;
     wxShapeCanvas *canvas;
     
-    wxBitmap* legend;
-    wxBitmap* map;
-    
     wxCheckBox* m_cb;
+    wxCheckBox* m_bm_scale;
     
     bool is_resize;
     bool is_initmap;

@@ -4,6 +4,7 @@
 //
 //  Created by Xun Li on 8/6/18.
 //
+#include <stdio.h>
 #include <wx/dcsvg.h>
 #include <wx/dcps.h>
 
@@ -11,6 +12,8 @@
 #include "../Explore/MapNewView.h"
 
 #include "MapLayoutView.h"
+
+using namespace std;
 
 CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxString & title)
 : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(320, 230))
@@ -295,6 +298,11 @@ void CanvasLayoutEvtHandler::OnRightClick(double WXUNUSED(x), double WXUNUSED(y)
     
 }
 
+void CanvasLayoutEvtHandler::OnEndSize(double w, double h)
+{
+
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -302,22 +310,10 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
 : wxDialog(NULL, -1, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
 {
     legend_shape = NULL;
-    legend = NULL;
     
     project_name = _project_name;
     template_canvas = _canvas;
     template_legend = _legend;
-    map = template_canvas->GetPrintLayer();
-    
-    if (template_legend) {
-        int legend_width = template_legend->GetDrawingWidth(); // 10 pix margin
-        int legend_height = template_legend->GetDrawingHeight();
-        legend = new wxBitmap(legend_width, legend_height);
-        wxMemoryDC dc(*legend);
-        dc.SetBackground(*wxWHITE_BRUSH);
-        dc.Clear();
-        template_legend->RenderToDC(dc, 1.0);
-    }
     
     is_resize = false;
     is_initmap = false;
@@ -332,7 +328,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     
     // map
     map_shape = new wxBitmapShape();
-    map_shape->SetBitmap(*map);
+    map_shape->SetCanvas(template_canvas);
     canvas->AddShape(map_shape);
     map_shape->SetDraggable(false);
     map_shape->SetMaintainAspectRatio(true);
@@ -346,7 +342,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     // legend
     if (template_legend) {
         legend_shape = new wxBitmapShape();
-        legend_shape->SetBitmap(*legend);
+        legend_shape->SetCanvas(template_legend);
         canvas->AddShape(legend_shape);
         
         legend_shape->SetX(50 + legend_shape->GetWidth());
@@ -367,6 +363,14 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     m_cb = new wxCheckBox(this, wxID_ANY, _("Show Legend"));
     m_cb->SetValue(true);
     if (template_legend == NULL) m_cb->Hide();
+    
+    wxBoxSizer *bmbox = new wxBoxSizer(wxHORIZONTAL);
+    //m_bm_scale = new wxCheckBox(this, wxID_ANY, _("Scale Basemap"));
+    //m_bm_scale->SetValue(true);
+    
+    bmbox->Add(m_cb);
+    //bmbox->Add(m_bm_scale);
+    
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     wxButton *okButton = new wxButton(this, wxID_ANY, _("Save"),
@@ -376,7 +380,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     hbox->Add(okButton, 1, wxLEFT, 5);
     hbox->Add(closeButton, 1, wxLEFT, 5);
     vbox->Add(canvas, 1, wxEXPAND);
-    vbox->Add(m_cb, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    vbox->Add(bmbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
     SetSizer(vbox);
     Centre();
@@ -410,7 +414,7 @@ void CanvasLayoutDialog::OnSave(wxCommandEvent &event)
     int out_res_y = out_res_x / lo_ar;
     
     wxString default_fname(project_name);
-    wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
+    wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg";
     int filter_index = 1;
     wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
                         default_fname, filter,
@@ -512,20 +516,18 @@ void CanvasLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_
 
 void CanvasLayoutDialog::SaveToSVG(wxString path, int out_res_x, int out_res_y)
 {
-    wxSize canvas_sz = template_canvas->GetDrawingSize();
-    int picW = canvas_sz.GetWidth() + 20;
-    int picH = canvas_sz.GetHeight() + 20;
     int legend_w = 0;
     double scale = 2.0;
     if (template_legend) {
         legend_w = template_legend->GetDrawingWidth() + 20;
     }
     
-    wxSVGFileDC dc(path + ".svg", picW + legend_w + 20, picH);
-    
-    template_canvas->RenderToSVG(dc, picW + legend_w + 20, picH);
+    wxSVGFileDC dc(path + ".svg", out_res_x + legend_w + 20, out_res_y);
+    dc.SetDeviceOrigin(legend_w, 0);
+    template_canvas->RenderToSVG(dc, out_res_x, out_res_y);
     if (template_legend) {
-        template_legend->RenderToDC(dc, scale);
+        dc.SetDeviceOrigin(0, 20);
+        template_legend->RenderToDC(dc, 1.0);
     }
 }
 

@@ -12,6 +12,8 @@
 #ifndef _OGL_BITMAP_H_
 #define _OGL_BITMAP_H_
 
+class TemplateCanvas;
+class TemplateLegend;
 
 class WXDLLIMPEXP_OGL wxBitmapShape: public wxRectangleShape
 {
@@ -37,9 +39,15 @@ public:
     inline void SetFilename(const wxString& f) { m_filename = f; };
     inline wxString GetFilename() const { return m_filename; }
     
+    // only for geoda
+    void SetCanvas(TemplateCanvas* _tcanvas);
+    void SetCanvas(TemplateLegend* _tlegend);
+    
 private:
-    double        m_aspectratio;
     wxImage       m_imgmap;
+    TemplateCanvas* tcanvas;
+    TemplateLegend* tlegend;
+    
     wxBitmap      m_bitmap;
     wxString      m_filename;
 };
