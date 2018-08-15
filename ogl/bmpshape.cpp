@@ -27,6 +27,7 @@
 #include "ogl.h"
 #include "../TemplateCanvas.h"
 #include "../TemplateLegend.h"
+#include "../Explore/MapNewView.h"
 
 /*
  * Bitmap object
@@ -64,14 +65,33 @@ void wxBitmapShape::OnDraw(wxDC& dc)
 void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
 {
     if (tcanvas) {
-        wxBitmap bm(w, h);
-        wxMemoryDC dc;
-        dc.SelectObject(bm);
-        tcanvas->RenderToDC(dc, w, h);
-        dc.SelectObject(wxNullBitmap);
+        if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(tcanvas)) {
+            wxBitmap bm(w, h);
+            wxMemoryDC dc;
+            dc.SelectObject(bm);
+            tcanvas->RenderToDC(dc, w, h);
+            dc.SelectObject(wxNullBitmap);
+            
+            m_imgmap.Destroy();
+            m_imgmap = bm.ConvertToImage();
         
-        m_imgmap.Destroy();
-        m_imgmap = bm.ConvertToImage();
+        } else {
+            int canvas_width, canvas_height;
+            tcanvas->GetClientSize(&canvas_width, &canvas_height);
+            double scale_factor = w / (double)canvas_width;
+            wxBitmap bm;
+            bm.CreateScaled(canvas_width, canvas_height, 32, scale_factor);
+            wxMemoryDC dc;
+            dc.SelectObject(bm);
+            dc.SetBackground(*wxWHITE_BRUSH);
+            dc.Clear();
+            //dc.SetUserScale(scale_factor, scale_factor);
+            tcanvas->RenderToDC(dc, w, h);
+            dc.SelectObject(wxNullBitmap);
+            
+            m_imgmap.Destroy();
+            m_imgmap = bm.ConvertToImage();
+        }
         
     } else if (tlegend) {
         int legend_width = tlegend->GetDrawingWidth();
@@ -83,6 +103,9 @@ void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
         dc.SelectObject(bm);
         dc.SetBackground(*wxWHITE_BRUSH);
         dc.Clear();
+#ifdef __WIN32__
+        dc.SetUserScale(scale_factor, scale_factor);
+#endif
         tlegend->RenderToDC(dc, 1);
         dc.SelectObject(wxNullBitmap);
         

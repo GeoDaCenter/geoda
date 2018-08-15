@@ -275,53 +275,11 @@ void TemplateCanvas::OnKeyEvent(wxKeyEvent& event)
 #ifdef __WIN32__
 void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
 {
-	/*
-	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
-	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
-	int vs_w = 0, vs_h = 0;
-	GetClientSize(&vs_w, &vs_h);
-	int offset = -1;
-	int orient = event.GetOrientation();
-	if (orient == wxVERTICAL) {
-		double delta = -offset / (double)vs_h * shp_h;
-		current_map_y_min += delta;
-		current_map_y_max += delta;
-		prev_scroll_pos_y -= 1;
-	} else if (orient == wxHORIZONTAL) {
-		double delta = offset / (double)vs_w * shp_w;
-		current_map_x_min += delta;
-		current_map_x_max += delta;
-		prev_scroll_pos_x -= 1;
-	}
 
-	ResizeSelectableShps();
-	event.Skip();
-	*/
 }
 void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
 {
-	/*
-	int shp_h = ext_shps_orig_ymax - ext_shps_orig_ymin;
-	int shp_w = ext_shps_orig_xmax - ext_shps_orig_xmin;
-	int vs_w = 0, vs_h = 0;
-	GetClientSize(&vs_w, &vs_h);
-	int offset = 1;
-	int orient = event.GetOrientation();
-	if (orient == wxVERTICAL) {
-		double delta = -offset / (double)vs_h * shp_h;
-		current_map_y_min += delta;
-		current_map_y_max += delta;
-		prev_scroll_pos_y += 1;
-	} else if (orient == wxHORIZONTAL) {
-		double delta = offset / (double)vs_w * shp_w;
-		current_map_x_min += delta;
-		current_map_x_max += delta;
-		prev_scroll_pos_x += 1;
-	}
 
-	ResizeSelectableShps();
-	event.Skip();
-	*/
 }
 #endif
 
@@ -645,7 +603,7 @@ void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
     int screen_w = GetClientSize().GetWidth();
     int screen_h = GetClientSize().GetHeight();
     double old_scale =  scale_factor;
-    scale_factor = w / screen_w;
+    scale_factor = (double)w / screen_w;
     
     resizeLayerBms(w, h);
     DrawLayers();
@@ -708,7 +666,6 @@ void TemplateCanvas::DrawLayer0()
     if (layer0_bm == NULL)
         return;
 
-    wxSize sz = GetClientSize();
     wxMemoryDC dc(*layer0_bm);
     dc.SetBackground(wxBrush(canvas_background_color));
     dc.Clear();
@@ -731,7 +688,7 @@ void TemplateCanvas::DrawLayer1()
     if (layer1_bm == NULL)
         return;
     wxMemoryDC dc(*layer1_bm);
-   dc.SetBackground(wxBrush(canvas_background_color));
+    dc.SetBackground(wxBrush(canvas_background_color));
     dc.Clear();    
     // faded the background half transparency
     if (highlight_state->GetTotalHighlighted()>0) {
@@ -918,7 +875,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
 	int num_cats = cat_data.GetNumCategories(cc_ts);
 	int w;
 	int h;
-    GetClientSize(&w, &h);
+    dc.GetSize(&w, &h);
     
     if (selectable_shps_type == points) {
 		int bnd = w*h;
