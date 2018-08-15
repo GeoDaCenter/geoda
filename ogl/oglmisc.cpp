@@ -209,9 +209,9 @@ void oglCentreText(wxDC& dc, wxList *text_list,
 
   // First, get maximum dimensions of box enclosing text
 
-  long char_height = 0;
+  wxCoord char_height = 0;
   long max_width = 0;
-  long current_width = 0;
+  wxCoord current_width = 0;
 
   // Store text extents for speed
   double *widths = new double[n];
@@ -292,9 +292,9 @@ void oglCentreTextNoClipping(wxDC& dc, wxList *text_list,
 
   // First, get maximum dimensions of box enclosing text
 
-  long char_height = 0;
+  wxCoord char_height = 0;
   long max_width = 0;
-  long current_width = 0;
+  wxCoord current_width = 0;
 
   // Store text extents for speed
   double *widths = new double[n];
@@ -351,9 +351,9 @@ void oglGetCentredTextExtent(wxDC& dc, wxList *text_list,
 
   // First, get maximum dimensions of box enclosing text
 
-  long char_height = 0;
+  wxCoord char_height = 0;
   long max_width = 0;
-  long current_width = 0;
+  wxCoord current_width = 0;
 
   wxObjectList::compatibility_iterator current = text_list->GetFirst();
   while (current)
@@ -441,7 +441,7 @@ wxStringList *oglFormatText(wxDC& dc, const wxString& text, double width, double
 
   wxString buffer;
   wxStringList::compatibility_iterator node = word_list.GetFirst();
-  long x, y;
+  wxCoord x, y;
 
   while (node)
   {

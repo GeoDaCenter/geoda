@@ -784,8 +784,9 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     if (layer2_bm) {
         wxSize sz = GetClientSize();
         wxMemoryDC dc(*layer2_bm);
-        dc.SetBackground(*wxTRANSPARENT_BRUSH);
-        dc.Clear();
+        //dc.SetBackground(*wxTRANSPARENT_BRUSH);
+		//dc.SetBackground(*wxWHITE_BRUSH);
+        //dc.Clear();
         
         wxPaintDC paint_dc(this);
         

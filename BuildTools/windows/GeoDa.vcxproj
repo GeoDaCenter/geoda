@@ -180,6 +180,7 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
+      <UndefinePreprocessorDefinitions>WX_PRECOMP;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -293,6 +294,7 @@
   <ItemGroup>
     <None Include="..\..\Algorithms\distmat_kernel.cl" />
     <None Include="..\..\Algorithms\lisa_kernel.cl" />
+    <None Include="..\..\Algorithms\localjc_kernel.cl" />
     <None Include="..\..\rc\GeoDa.ico" />
     <None Include="..\..\rc\dialogs.xrc" />
     <None Include="..\..\rc\GeoDaIcon-16x16.xpm" />
@@ -318,6 +320,10 @@
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
     <ClCompile Include="..\..\Algorithms\skater.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\mathstuff.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\oglpfuncs.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\oglstuff.cpp" />
+    <ClCompile Include="..\..\arizona\viz3\plots\scatterplot.cpp" />
     <ClCompile Include="..\..\DialogTools\AbstractClusterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AggregateDlg.cpp" />
@@ -361,6 +367,7 @@
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayoutView.cpp" />
     <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp" />
@@ -385,6 +392,18 @@
     <ClCompile Include="..\..\kNN\kd_util.cpp" />
     <ClCompile Include="..\..\kNN\kNN.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
+    <ClCompile Include="..\..\ogl\basic.cpp" />
+    <ClCompile Include="..\..\ogl\basic2.cpp" />
+    <ClCompile Include="..\..\ogl\bmpshape.cpp" />
+    <ClCompile Include="..\..\ogl\canvas.cpp" />
+    <ClCompile Include="..\..\ogl\composit.cpp" />
+    <ClCompile Include="..\..\ogl\constrnt.cpp" />
+    <ClCompile Include="..\..\ogl\divided.cpp" />
+    <ClCompile Include="..\..\ogl\drawn.cpp" />
+    <ClCompile Include="..\..\ogl\lines.cpp" />
+    <ClCompile Include="..\..\ogl\mfutils.cpp" />
+    <ClCompile Include="..\..\ogl\ogldiag.cpp" />
+    <ClCompile Include="..\..\ogl\oglmisc.cpp" />
     <ClCompile Include="..\..\PointSetAlgs.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp" />
@@ -415,6 +434,10 @@
     <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
+    <ClInclude Include="..\..\arizona\viz3\mathstuff.h" />
+    <ClInclude Include="..\..\arizona\viz3\oglpfuncs.h" />
+    <ClInclude Include="..\..\arizona\viz3\oglstuff.h" />
+    <ClInclude Include="..\..\arizona\viz3\plots\scatterplot.h" />
     <ClInclude Include="..\..\DataViewer\CustomClassifPtree.h" />
     <ClInclude Include="..\..\DataViewer\DataSource.h" />
     <ClInclude Include="..\..\DataViewer\OGRColumn.h" />
@@ -484,6 +507,7 @@
     <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
+    <ClInclude Include="..\..\Explore\MapLayoutView.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />
     <ClInclude Include="..\..\Explore\MLJCMapNewView.h" />
@@ -521,6 +545,21 @@
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
+    <ClInclude Include="..\..\ogl\basic.h" />
+    <ClInclude Include="..\..\ogl\basicp.h" />
+    <ClInclude Include="..\..\ogl\bmpshape.h" />
+    <ClInclude Include="..\..\ogl\canvas.h" />
+    <ClInclude Include="..\..\ogl\composit.h" />
+    <ClInclude Include="..\..\ogl\constrnt.h" />
+    <ClInclude Include="..\..\ogl\divided.h" />
+    <ClInclude Include="..\..\ogl\drawn.h" />
+    <ClInclude Include="..\..\ogl\drawnp.h" />
+    <ClInclude Include="..\..\ogl\lines.h" />
+    <ClInclude Include="..\..\ogl\linesp.h" />
+    <ClInclude Include="..\..\ogl\mfutils.h" />
+    <ClInclude Include="..\..\ogl\misc.h" />
+    <ClInclude Include="..\..\ogl\ogl.h" />
+    <ClInclude Include="..\..\ogl\ogldiag.h" />
     <ClInclude Include="..\..\PointSetAlgs.h" />
     <ClInclude Include="..\..\ProjectConf.h" />
     <ClInclude Include="..\..\resource.h" />

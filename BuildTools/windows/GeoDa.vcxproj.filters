@@ -38,6 +38,18 @@
     <Filter Include="kNN">
       <UniqueIdentifier>{90f57f50-2648-4589-9585-434636a6272f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="arizona">
+      <UniqueIdentifier>{b9cdb32d-74e3-4ba7-a5ea-a0580c0c694d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arizona\viz3">
+      <UniqueIdentifier>{0c323cad-a390-44fd-aae6-2e08cb7938a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arizona\viz3\plots">
+      <UniqueIdentifier>{4bb92a90-99f0-4d47-b33d-e1663d9bfab0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogl">
+      <UniqueIdentifier>{85fd04ff-4aa4-45d8-8492-8a7d69f0dc17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -62,6 +74,9 @@
       <Filter>Algorithms</Filter>
     </None>
     <None Include="..\..\Algorithms\lisa_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
+    <None Include="..\..\Algorithms\localjc_kernel.cl">
       <Filter>Algorithms</Filter>
     </None>
   </ItemGroup>
@@ -756,6 +771,66 @@
     <ClInclude Include="..\..\Algorithms\gpu_lisa.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\mathstuff.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\oglpfuncs.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\oglstuff.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\plots\scatterplot.h">
+      <Filter>arizona\viz3\plots</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\basic.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\basicp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\bmpshape.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\canvas.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\composit.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\constrnt.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\divided.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\drawn.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\drawnp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\lines.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\linesp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\mfutils.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\misc.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\ogl.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\ogldiag.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MapLayoutView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1363,6 +1438,57 @@
     </ClCompile>
     <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp">
       <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\mathstuff.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\oglpfuncs.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\oglstuff.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\plots\scatterplot.cpp">
+      <Filter>arizona\viz3\plots</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\basic.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\basic2.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\bmpshape.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\canvas.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\composit.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\constrnt.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\divided.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\drawn.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\lines.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\mfutils.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\ogldiag.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\oglmisc.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayoutView.cpp">
+      <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

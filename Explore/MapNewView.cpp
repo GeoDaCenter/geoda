@@ -719,7 +719,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         } else {
             // scaled basemap
             basemap_bm = new wxBitmap;
-            basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
+            basemap_bm->CreateScaled(screen_w, screen_h, 32, 1.0);
             //last_scale_trans.SetView(screen_w, screen_h);
             screen = new GDA::Screen(screen_w, screen_h);
         }
@@ -799,6 +799,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer1_dc.Clear();
     if (isDrawBasemap) {
         wxImage im = basemap_bm->ConvertToImage();
+		im.Rescale(w, h);
         layer1_dc.DrawBitmap(im, 0, 0);
     }
     TranslucentLayer0(layer1_dc);
@@ -919,7 +920,7 @@ void MapCanvas::TranslucentLayer0(wxMemoryDC& dc)
             faded_layer_bm = new wxBitmap(image);
         }
         
-        if (enable_high_dpi_support) {
+        if (enable_high_dpi_support && scale_factor != 1) {
             dc.SetUserScale(1/scale_factor, 1/scale_factor);
             dc.DrawBitmap(*faded_layer_bm,0,0);
             dc.SetUserScale(1.0, 1.0);
