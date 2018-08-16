@@ -478,9 +478,8 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 
 	 dc.SetPen(*wxBLACK_PEN);
 
-#ifdef __WIN32__
-  
-    wxFont* fnt = wxFont::New(12 * scale, wxFONTFAMILY_SWISS,
+    int font_size = 12 * scale;
+    wxFont* fnt = wxFont::New(font_size, wxFONTFAMILY_SWISS,
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
@@ -490,33 +489,44 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
     int numRect = template_canvas->cat_data.GetNumCategories(time);
     wxString ttl = template_canvas->GetVariableNames();
     
+    int gap = 10;
+    if (scale < 1) {
+        px = px * scale;
+        gap = 10 * scale;
+    }
+    
+    // draw legend title
     if (ttl.IsEmpty()) {
-        cur_y = 13 / scale;
+        cur_y = 2 * scale;
     } else {
-        cur_y = cur_y - 8;
-        dc.DrawText(ttl, px / scale, 2 / scale);
+        dc.DrawText(ttl, px, 2 * scale);
+        wxSize title_sz = dc.GetTextExtent(ttl);
+        cur_y = 2* scale + title_sz.GetHeight() + gap;
     }
     
     dc.SetPen(*wxBLACK_PEN);
     for (int i=0; i<numRect; i++) {
         wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk())
+        if (clr.IsOk()) {
             dc.SetBrush(clr);
-        else
+        } else {
             dc.SetBrush(*wxBLACK_BRUSH);
+        }
+        
+        int rect_x = px;
+        int rect_y = cur_y;
+        int rect_w = m_l * scale;
+        int rect_h = m_w * scale;
+        dc.DrawRectangle(rect_x, rect_y, rect_w, rect_h);
         
 		wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
-		wxString lbl_x = (px + m_l + 10) / scale;
-		wxString lbl_y = (cur_y - (m_w / 2)) / scale;
-
+		double lbl_x = px + rect_w + gap;
+        double lbl_y = cur_y + 2;
         dc.DrawText(lbl, lbl_x, lbl_y);
         
-        dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
-                         m_l * scale, m_w * scale);
-        
-        cur_y += d_rect;
+
+        cur_y += d_rect * scale;
     }
-#endif
 }
 
 

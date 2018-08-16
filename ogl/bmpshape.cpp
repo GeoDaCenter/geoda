@@ -59,7 +59,8 @@ void wxBitmapShape::OnDraw(wxDC& dc)
     x = WXROUND(m_xpos - m_width/2.0);
     y = WXROUND(m_ypos - m_height/2.0);
     
-    dc.DrawBitmap(m_imgmap, x, y);
+    m_imgmap.SetMaskColour(255, 255, 255);
+    dc.DrawBitmap(m_imgmap, x, y, true);
 }
 
 void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
@@ -98,15 +99,12 @@ void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
         int legend_height = tlegend->GetDrawingHeight();
         double scale_factor = w / (double)legend_width;
         wxBitmap bm;
-        bm.CreateScaled(legend_width, legend_height, 32, scale_factor);
+        bm.CreateScaled(w, h, 32, 1);
         wxMemoryDC dc;
         dc.SelectObject(bm);
         dc.SetBackground(*wxWHITE_BRUSH);
         dc.Clear();
-#ifdef __WIN32__
-        dc.SetUserScale(scale_factor, scale_factor);
-#endif
-        tlegend->RenderToDC(dc, 1);
+        tlegend->RenderToDC(dc, scale_factor);
         dc.SelectObject(wxNullBitmap);
         
         m_imgmap.Destroy();

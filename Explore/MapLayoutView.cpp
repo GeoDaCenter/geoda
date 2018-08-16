@@ -502,7 +502,9 @@ void CanvasLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_
         leg_dc.SetBackground(*wxWHITE_BRUSH);
         leg_dc.Clear();
         template_legend->RenderToDC(leg_dc, 1);
-        all_dc.DrawBitmap(leg_bm.ConvertToImage(), lo_leg_x, lo_leg_y);
+        wxImage leg_im = leg_bm.ConvertToImage();
+        leg_im.SetMaskColour(255, 255, 255);
+        all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
     }
     
     // save composer to file
@@ -728,22 +730,14 @@ void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, 
         int lo_leg_x = GetShapeStartX(legend_shape) * lo_scale;
         int lo_leg_y = GetShapeStartY(legend_shape) * lo_scale;
         double leg_scale = (double)lo_leg_w / legend_width;
-#ifdef __WIN32__
 		wxBitmap leg_bm(lo_leg_w, lo_leg_h);
         wxMemoryDC leg_dc(leg_bm);
         leg_dc.SetBackground(*wxWHITE_BRUSH);
         leg_dc.Clear();
         template_legend->RenderToDC(leg_dc, leg_scale);
-        all_dc.DrawBitmap(leg_bm.ConvertToImage(), lo_leg_x, lo_leg_y);
-#else
-        wxBitmap leg_bm;
-        leg_bm.CreateScaled(legend_width, legend_height, 32, leg_scale);
-        wxMemoryDC leg_dc(leg_bm);
-        leg_dc.SetBackground(*wxWHITE_BRUSH);
-        leg_dc.Clear();
-        template_legend->RenderToDC(leg_dc, 1);
-        all_dc.DrawBitmap(leg_bm.ConvertToImage(), lo_leg_x, lo_leg_y);
-#endif
+        wxImage leg_im = leg_bm.ConvertToImage();
+        leg_im.SetMaskColour(255, 255, 255);
+        all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
     }
     
     // save composer to file
