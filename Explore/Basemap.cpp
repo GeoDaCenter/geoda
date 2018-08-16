@@ -540,6 +540,9 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 
 void Basemap::DownloadTile(int x, int y)
 {
+    if (x < 0 || y < 0)
+        return;
+    
     // detect if file exists in temp/ directory
     wxString filepathStr = GetTilePath(x, y);
     std::string filepath = GET_ENCODED_FILENAME(filepathStr);
