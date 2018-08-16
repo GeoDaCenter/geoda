@@ -38,6 +38,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxBitmapShape, wxRectangleShape)
 
 wxBitmapShape::wxBitmapShape():wxRectangleShape(100.0, 50.0)
 {
+    transparent_bg = true;
 	scaled_basemap = true;
     m_filename = wxEmptyString;
     tcanvas = NULL;
