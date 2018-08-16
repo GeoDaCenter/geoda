@@ -38,6 +38,7 @@ IMPLEMENT_DYNAMIC_CLASS(wxBitmapShape, wxRectangleShape)
 
 wxBitmapShape::wxBitmapShape():wxRectangleShape(100.0, 50.0)
 {
+	scaled_basemap = true;
     m_filename = wxEmptyString;
     tcanvas = NULL;
     tlegend = NULL;
@@ -59,8 +60,14 @@ void wxBitmapShape::OnDraw(wxDC& dc)
     x = WXROUND(m_xpos - m_width/2.0);
     y = WXROUND(m_ypos - m_height/2.0);
     
-    m_imgmap.SetMaskColour(255, 255, 255);
-    dc.DrawBitmap(m_imgmap, x, y, true);
+	if (tcanvas) {
+		dc.DrawBitmap(m_imgmap, x, y);
+	} else if (tlegend) {
+		if (transparent_bg) {
+			m_imgmap.SetMaskColour(255, 255, 255);
+		}
+		dc.DrawBitmap(m_imgmap, x, y, transparent_bg);
+	}
 }
 
 void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
@@ -98,8 +105,7 @@ void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
         int legend_width = tlegend->GetDrawingWidth();
         int legend_height = tlegend->GetDrawingHeight();
         double scale_factor = w / (double)legend_width;
-        wxBitmap bm;
-        bm.CreateScaled(w, h, 32, 1);
+        wxBitmap bm(w, h);
         wxMemoryDC dc;
         dc.SelectObject(bm);
         dc.SetBackground(*wxWHITE_BRUSH);
@@ -194,4 +200,28 @@ void wxBitmapShape::SetCanvas(TemplateLegend* _tlegend)
         
         SetSize(legend_width, legend_height);
     }
+}
+
+void wxBitmapShape::SetTransparentBG(bool flag)
+{
+	transparent_bg = flag;
+}
+
+void wxBitmapShape::SetScaledBasemap(bool flag)
+{
+	scaled_basemap = flag;
+	if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(tcanvas)) {
+		int w = m_width;
+		int h = m_height;
+		wxBitmap bm(w, h);
+		wxMemoryDC dc;
+		dc.SelectObject(bm);
+		canvas->print_detailed_basemap = !flag;
+		canvas->RenderToDC(dc, w, h);
+		dc.SelectObject(wxNullBitmap);
+            
+		m_imgmap.Destroy();
+		m_imgmap = bm.ConvertToImage();
+		
+	}
 }

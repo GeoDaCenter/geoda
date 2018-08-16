@@ -601,20 +601,27 @@ void TemplateCanvas::update(HLStateInt* o)
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
 #ifdef __WIN32__
+	GdaScaleTrans old_scale_trans = last_scale_trans;
+
 	int screen_w = GetClientSize().GetWidth();
     int screen_h = GetClientSize().GetHeight();
-    double scale_factor = (double)w / screen_w;
+    double scale = (double)w / screen_w;
     last_scale_trans.SetView(w, h);
-	last_scale_trans.top_margin *= scale_factor;
-    last_scale_trans.left_margin *= scale_factor;
-    last_scale_trans.right_margin *= scale_factor;
-    last_scale_trans.bottom_margin *= scale_factor;
+	last_scale_trans.top_margin *= scale;
+    last_scale_trans.left_margin *= scale;
+    last_scale_trans.right_margin *= scale;
+    last_scale_trans.bottom_margin *= scale;
 
     resizeLayerBms(w, h);
 	ResizeSelectableShps(w, h);
     DrawLayers();
     dc.DrawBitmap(*layer2_bm, 0, 0);
 
+	last_scale_trans.top_margin /= scale;
+    last_scale_trans.left_margin /= scale;
+    last_scale_trans.right_margin /= scale;
+    last_scale_trans.bottom_margin /= scale;
+	last_scale_trans.SetView(screen_w, screen_h);
     ReDraw();
 #else
     int screen_w = GetClientSize().GetWidth();

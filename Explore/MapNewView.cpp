@@ -191,7 +191,8 @@ basemap_bm(0),
 print_bm(0),
 map_type(0),
 ref_var_index(-1),
-tran_unhighlighted(GdaConst::transparency_unhighlighted)
+tran_unhighlighted(GdaConst::transparency_unhighlighted),
+print_detailed_basemap(false)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     
@@ -709,9 +710,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer2_valid = false;
     
     if (isDrawBasemap) {
-        bool draw_detailed_basemap = false;
          GDA::Screen *screen = NULL;
-        if (draw_detailed_basemap) {
+        if (print_detailed_basemap) {
             basemap_bm = new wxBitmap(w, h, 32);
             basemap_scale = 1.0;
             last_scale_trans.SetView(w, h);
@@ -739,9 +739,13 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         GDA::MapLayer *map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
         
         if (poCT && map->IsWGS84Valid()) {
+			if (print_detailed_basemap) {
+                basemap->ResizeScreen(w, h);
+                basemap->Refresh();
+            }
             /*
             GDA::Basemap basemap(screen, map, map_type, GenUtils::GetBasemapCacheDir(), poCT, 2.0);
-            if (draw_detailed_basemap) {
+            if (print_detailed_basemap) {
                 basemap.ResizeScreen(w, h);
                 basemap.Refresh();
             } else {
@@ -800,10 +804,12 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     if (isDrawBasemap) {
         wxImage im = basemap_bm->ConvertToImage();
 #ifdef __WIN32__
-        layer1_dc.SetUserScale(basemap_scale,basemap_scale);
+		im.Rescale(w*basemap_scale, h*basemap_scale, wxIMAGE_QUALITY_HIGH);
 #endif
         layer1_dc.DrawBitmap(im, 0, 0);
     }
+	//layer1_dc.SetUserScale(1.0,1.0);
+	
     TranslucentLayer0(layer1_dc);
     layer1_dc.SelectObject(wxNullBitmap);
     

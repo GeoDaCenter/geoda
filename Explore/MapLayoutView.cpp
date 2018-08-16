@@ -364,13 +364,18 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     m_cb = new wxCheckBox(this, wxID_ANY, _("Show Legend"));
     m_cb->SetValue(true);
     if (template_legend == NULL) m_cb->Hide();
+	m_no_bg = new wxCheckBox(this, wxID_ANY, _("Use Transparent Legend Background"));
+    m_no_bg->SetValue(true);
+    if (template_legend == NULL) m_no_bg->Hide();
     
     wxBoxSizer *bmbox = new wxBoxSizer(wxHORIZONTAL);
-    //m_bm_scale = new wxCheckBox(this, wxID_ANY, _("Scale Basemap"));
-    //m_bm_scale->SetValue(true);
+    m_bm_scale = new wxCheckBox(this, wxID_ANY, _("Scale Basemap"));
+    m_bm_scale->SetValue(true);
+	m_bm_scale->Hide();
     
     bmbox->Add(m_cb);
-    //bmbox->Add(m_bm_scale);
+	bmbox->Add(m_no_bg);
+    bmbox->Add(m_bm_scale);
     
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
@@ -389,6 +394,8 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     Connect(wxEVT_SIZE, wxSizeEventHandler(CanvasLayoutDialog::OnSize));
     Connect(wxEVT_IDLE, wxIdleEventHandler(CanvasLayoutDialog::OnIdle));
     m_cb->Bind(wxEVT_CHECKBOX, &CanvasLayoutDialog::OnShowLegend, this);
+	m_no_bg->Bind(wxEVT_CHECKBOX, &CanvasLayoutDialog::OnTransparentBG, this);
+	m_bm_scale->Bind(wxEVT_CHECKBOX, &CanvasLayoutDialog::OnUseBMScale, this);
     okButton->Bind(wxEVT_BUTTON, &CanvasLayoutDialog::OnSave, this);
 }
 
@@ -449,7 +456,7 @@ void CanvasLayoutDialog::OnSave(wxCommandEvent &event)
             break;
         case 3:
         {
-            wxLogMessage("SVG selected");
+            wxLogMessage("PS selected");
             SaveToPS(str_fname);
         }
             break;
@@ -496,15 +503,18 @@ void CanvasLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_
         int lo_leg_x = GetShapeStartX(legend_shape) * lo_scale;
         int lo_leg_y = GetShapeStartY(legend_shape) * lo_scale;
         double leg_scale = (double)lo_leg_w / legend_width;
-        wxBitmap leg_bm;
-        leg_bm.CreateScaled(legend_width, legend_height, 32, leg_scale);
+		wxBitmap leg_bm(lo_leg_w, lo_leg_h);
         wxMemoryDC leg_dc(leg_bm);
         leg_dc.SetBackground(*wxWHITE_BRUSH);
         leg_dc.Clear();
-        template_legend->RenderToDC(leg_dc, 1);
+        template_legend->RenderToDC(leg_dc, leg_scale);
         wxImage leg_im = leg_bm.ConvertToImage();
-        leg_im.SetMaskColour(255, 255, 255);
-        all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
+        if (m_no_bg->IsChecked()) {
+			leg_im.SetMaskColour(255, 255, 255);
+			all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
+		} else {
+			all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y);
+		}
     }
     
     // save composer to file
@@ -605,11 +615,26 @@ void CanvasLayoutDialog::SaveToPS(wxString path)
 void CanvasLayoutDialog::OnShowLegend(wxCommandEvent &event)
 {
     bool show_legend = m_cb->GetValue();
+	if (m_no_bg) {
+		m_no_bg->Enable(show_legend);
+	}
     legend_shape->Select(show_legend);
     legend_shape->Show(show_legend);
     wxClientDC dc(canvas);
     canvas->Redraw(dc);
     is_resize = true;
+}
+
+void CanvasLayoutDialog::OnTransparentBG(wxCommandEvent &event)
+{
+	legend_shape->SetTransparentBG(m_no_bg->IsChecked());
+	is_resize = true;
+}
+
+void CanvasLayoutDialog::OnUseBMScale(wxCommandEvent &event)
+{
+	map_shape->SetScaledBasemap(m_bm_scale->IsChecked());
+	is_resize = true;
 }
 
 void CanvasLayoutDialog::OnSize(wxSizeEvent &event)
@@ -736,8 +761,12 @@ void MapLayoutDialog::SaveToImage( wxString path, int out_res_x, int out_res_y, 
         leg_dc.Clear();
         template_legend->RenderToDC(leg_dc, leg_scale);
         wxImage leg_im = leg_bm.ConvertToImage();
-        leg_im.SetMaskColour(255, 255, 255);
-        all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
+		if (m_no_bg->IsChecked()) {
+			leg_im.SetMaskColour(255, 255, 255);
+			all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y, true);
+		} else {
+			all_dc.DrawBitmap(leg_im, lo_leg_x, lo_leg_y);
+		}
     }
     
     // save composer to file

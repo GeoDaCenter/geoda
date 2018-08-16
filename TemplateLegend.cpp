@@ -457,6 +457,9 @@ int TemplateLegend::GetDrawingWidth()
             max_width = lbl->getWidth();
         }
     }
+#ifdef __WIN32__
+	max_width = max_width * 1.2;
+#endif
     return max_width;
 }
 
@@ -479,6 +482,9 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 	 dc.SetPen(*wxBLACK_PEN);
 
     int font_size = 12 * scale;
+#ifdef __WIN32__
+	font_size = font_size * 0.8;
+#endif
     wxFont* fnt = wxFont::New(font_size, wxFONTFAMILY_SWISS,
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);

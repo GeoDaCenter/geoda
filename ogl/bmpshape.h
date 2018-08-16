@@ -42,8 +42,12 @@ public:
     // only for geoda
     void SetCanvas(TemplateCanvas* _tcanvas);
     void SetCanvas(TemplateLegend* _tlegend);
-    
+    void SetTransparentBG(bool flag);
+	void SetScaledBasemap(bool flag);
+
 private:
+	bool transparent_bg;
+	bool scaled_basemap;
     wxImage       m_imgmap;
     TemplateCanvas* tcanvas;
     TemplateLegend* tlegend;

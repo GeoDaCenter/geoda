@@ -76,7 +76,8 @@ struct GdaScaleTrans {
     
     int GetXNudge();
     wxRealPoint GetDataCenter();
-    
+   
+	// attributes
     bool fixed_aspect_ratio;
     
     double drawing_area_width;

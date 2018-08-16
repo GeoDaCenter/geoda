@@ -205,6 +205,7 @@ public:
 	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
+	bool print_detailed_basemap;
 
     static vector<int> empty_shps_ids;
     static std::map<int, bool> empty_dict;
@@ -213,6 +214,7 @@ public:
     static void ResetEmptyFlag();
     
 protected:
+	
     std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;

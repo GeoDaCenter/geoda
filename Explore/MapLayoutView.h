@@ -72,6 +72,7 @@ protected:
     wxShapeCanvas *canvas;
     
     wxCheckBox* m_cb;
+	wxCheckBox* m_no_bg;
     wxCheckBox* m_bm_scale;
     
     bool is_resize;
@@ -101,7 +102,9 @@ public:
     void OnSize( wxSizeEvent& event );
     void OnIdle( wxIdleEvent& event );
     void OnShowLegend( wxCommandEvent& event );
-    
+	void OnTransparentBG( wxCommandEvent& event );
+    void OnUseBMScale(wxCommandEvent &event);
+
     virtual void SaveToImage( wxString path, int out_res_x, int out_res_y, int out_resolution, wxBitmapType bm_type = wxBITMAP_TYPE_PNG);
     void SaveToSVG(wxString path, int out_res_x, int out_res_y);
     void SaveToPS(wxString path);
