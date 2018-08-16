@@ -693,8 +693,8 @@ echo #####################################################
 echo #   build wxWidgets 
 echo #####################################################
 echo.
-set LIB_NAME=wxWidgets-3.1.0
-set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.7z"
+set LIB_NAME=wxWidgets-3.1.1
+set LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
@@ -725,7 +725,7 @@ REM # that declares wxWidgets is high-DPI display aware.  wxWidgets
 REM # isn't high-DPI display aware and we actually want Windows 8.1
 REM # to apply pixel scaling so that the layout of windows isn't messed
 REM # up.  OSX already handles Retina displays properly.
-xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
+REM xcopy /E /Y %BUILD_DEP%\%LIB_NAME% %DOWNLOAD_HOME%\%LIB_NAME%
 
 cd %DOWNLOAD_HOME%\%LIB_NAME%\build\msw
 set WX_HOME=%DOWNLOAD_HOME%\%LIB_NAME%

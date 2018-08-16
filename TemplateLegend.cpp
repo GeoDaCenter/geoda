@@ -473,17 +473,20 @@ int TemplateLegend::GetDrawingHeight()
 
 void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 {
-    if (template_canvas == NULL)
+	if (template_canvas == NULL)
         return;
-    
-    dc.SetPen(*wxBLACK_PEN);
-    wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
+
+	 dc.SetPen(*wxBLACK_PEN);
+
+#ifdef __WIN32__
+  
+    wxFont* fnt = wxFont::New(12 * scale, wxFONTFAMILY_SWISS,
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
     
+	int cur_y = py;
     int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    int cur_y = py;
     int numRect = template_canvas->cat_data.GetNumCategories(time);
     wxString ttl = template_canvas->GetVariableNames();
     
@@ -502,14 +505,18 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
         else
             dc.SetBrush(*wxBLACK_BRUSH);
         
-        dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
-                    (px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
+		wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
+		wxString lbl_x = (px + m_l + 10) / scale;
+		wxString lbl_y = (cur_y - (m_w / 2)) / scale;
+
+        dc.DrawText(lbl, lbl_x, lbl_y);
         
         dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
-                         m_l / scale, m_w / scale);
+                         m_l * scale, m_w * scale);
         
         cur_y += d_rect;
     }
+#endif
 }
 
 

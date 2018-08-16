@@ -600,6 +600,23 @@ void TemplateCanvas::update(HLStateInt* o)
 
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
+#ifdef __WIN32__
+	int screen_w = GetClientSize().GetWidth();
+    int screen_h = GetClientSize().GetHeight();
+    double scale_factor = (double)w / screen_w;
+    last_scale_trans.SetView(w, h);
+	last_scale_trans.top_margin *= scale_factor;
+    last_scale_trans.left_margin *= scale_factor;
+    last_scale_trans.right_margin *= scale_factor;
+    last_scale_trans.bottom_margin *= scale_factor;
+
+    resizeLayerBms(w, h);
+	ResizeSelectableShps(w, h);
+    DrawLayers();
+    dc.DrawBitmap(*layer2_bm, 0, 0);
+
+    ReDraw();
+#else
     int screen_w = GetClientSize().GetWidth();
     int screen_h = GetClientSize().GetHeight();
     double old_scale =  scale_factor;
@@ -610,6 +627,7 @@ void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
     dc.DrawBitmap(*layer2_bm, 0, 0);
     scale_factor = old_scale;
     ReDraw();
+#endif
 }
 
 void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)

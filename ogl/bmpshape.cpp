@@ -85,7 +85,7 @@ void wxBitmapShape::SetSize(double w, double h, bool WXUNUSED(recursive))
             dc.SelectObject(bm);
             dc.SetBackground(*wxWHITE_BRUSH);
             dc.Clear();
-            //dc.SetUserScale(scale_factor, scale_factor);
+
             tcanvas->RenderToDC(dc, w, h);
             dc.SelectObject(wxNullBitmap);
             
