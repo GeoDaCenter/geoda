@@ -740,6 +740,12 @@ void CorrelParamsFrame::OnTime1(wxCommandEvent& event)
     if (name_to_nm.find(cur_var)!=name_to_nm.end()) {
         cur_var = name_to_nm[cur_var];
     }
+    {
+        TableInterface* table_int = project->GetTableInt();
+        if (table_int->IsColTimeVariant(cur_var) == false) {
+            v1_time = 0;
+        }
+    }
     UpdateVarChoiceFromTable(cur_var);
     OnApplyBtn(event);
 }
