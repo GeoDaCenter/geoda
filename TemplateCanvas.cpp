@@ -80,10 +80,6 @@ BEGIN_EVENT_TABLE(TemplateCanvas, wxScrolledWindow)
 	EVT_KEY_UP(TemplateCanvas::OnKeyEvent)
 	EVT_SCROLLWIN(TemplateCanvas::OnScrollChanged)
     EVT_TIMER(-1, TemplateCanvas::OnHighlightTimerEvent)
-#ifdef __WIN32__
-	EVT_SCROLLWIN_LINEUP(TemplateCanvas::OnScrollUp)
-	EVT_SCROLLWIN_LINEDOWN(TemplateCanvas::OnScrollDown)
-#endif
 END_EVENT_TABLE()
 
 TemplateCanvas::TemplateCanvas(wxWindow* parent,
@@ -271,17 +267,6 @@ void TemplateCanvas::OnKeyEvent(wxKeyEvent& event)
 	}
 	event.Skip();
 }
-
-#ifdef __WIN32__
-void TemplateCanvas::OnScrollUp(wxScrollWinEvent& event)
-{
-
-}
-void TemplateCanvas::OnScrollDown(wxScrollWinEvent& event)
-{
-
-}
-#endif
 
 void TemplateCanvas::OnScrollChanged(wxScrollWinEvent& event)
 {
@@ -665,21 +650,16 @@ void TemplateCanvas::DrawLayers()
 {
 	if (layer2_valid && layer1_valid && layer0_valid)
 		return;
-   
     if (!layer0_valid) {
         DrawLayer0();
     }
-
     if (!layer1_valid) {
         DrawLayer1();
     }
-    
     if (!layer2_valid) {
         DrawLayer2();
     }
-   
     //wxWakeUpIdle();
-    
     Refresh(false);
 }
 
@@ -1051,6 +1031,192 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
 			}
 		}
 	}
+}
+
+void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs, double radius, int alpha, wxColour fixed_pen_color, bool cross_hatch)
+{
+    //int alpha = GdaConst::plot_transparency_unhighlighted;;
+    int cc_ts = cat_data.curr_canvas_tm_step;
+    int num_cats = cat_data.GetNumCategories(cc_ts);
+    wxSize sz = dc.GetSize();
+    int w = sz.GetWidth();
+    int h = sz.GetHeight();
+    int bnd = w * h;
+    vector<bool> dirty(bnd, false);
+    
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    GdaPoint* p;
+    for (int cat=0; cat<num_cats; cat++) {
+        if (cross_hatch ){
+            dc.SetBrush(wxBrush(highlight_color));
+        } else {
+            wxColour pen_color;
+            if (selectable_outline_visible) {
+                wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
+                pen_color = pen.GetColour();
+            } else {
+                pen_color = cat_data.GetCategoryColor(cc_ts, cat);
+            }
+            if (fixed_pen_color != *wxWHITE) {
+                pen_color = fixed_pen_color;
+            }
+            wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+            dc.SetPen(wxPen(pen_color_alpha));
+            
+            wxColour brush_color = cat_data.GetCategoryColor(cc_ts, cat);
+            wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
+            dc.SetBrush(wxBrush(brush_color_alpha));
+        }
+        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        for (int i=0, iend=ids.size(); i<iend; i++) {
+            if (!_IsShpValid(ids[i])) {
+                continue;
+            }
+            p = (GdaPoint*) selectable_shps[ids[i]];
+            if (p->isNull()) {
+                continue;
+            }
+            int bnd_idx = p->center.x + p->center.y*w;
+            if (bnd_idx >= 0 && bnd_idx < bnd && !dirty[bnd_idx]) {
+                dc.DrawCircle(p->center.x, p->center.y, radius);
+                dirty[bnd_idx] = true;
+            }
+        }
+    }
+}
+
+void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+{
+    //int alpha = GdaConst::plot_transparency_unhighlighted;;
+    int cc_ts = cat_data.curr_canvas_tm_step;
+    int num_cats = cat_data.GetNumCategories(cc_ts);
+    GdaPolygon* p;
+    
+    for (int cat=0; cat<num_cats; cat++) {
+        if (cross_hatch) {
+            dc.SetPen(wxPen(highlight_color));
+            dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
+        } else {
+            wxColour pen_color;
+            if (selectable_outline_visible) {
+                wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
+                pen_color = pen.GetColour();
+            } else {
+                pen_color = cat_data.GetCategoryColor(cc_ts, cat);
+            }
+            if (fixed_pen_color != *wxWHITE) {
+                pen_color = fixed_pen_color;
+            }
+            wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+            dc.SetPen(wxPen(pen_color_alpha));
+            
+            wxColour brush_color = cat_data.GetCategoryColor(cc_ts, cat);
+            wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
+            dc.SetBrush(wxBrush(brush_color_alpha));
+        }
+        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        
+        for (int i=0, iend=ids.size(); i<iend; i++) {
+            if (!_IsShpValid(ids[i])) {
+                continue;
+            }
+            p = (GdaPolygon*) selectable_shps[ids[i]];
+            if (p->isNull()) {
+                continue;
+            }
+            if (p->all_points_same) {
+                dc.DrawPoint(p->center.x, p->center.y);
+            } else {
+                if (p->n_count > 1) {
+                    dc.DrawPolyPolygon(p->n_count, p->count, p->points);
+                } else {
+                    dc.DrawPolygon(p->n, p->points);
+                }
+            }
+        }
+    }
+}
+
+void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+{
+    //int alpha = GdaConst::plot_transparency_unhighlighted;;
+    int cc_ts = cat_data.curr_canvas_tm_step;
+    int num_cats = cat_data.GetNumCategories(cc_ts);
+    
+    // Only Bubble Chart uses circles currently, but Bubble Chart uses
+    // DrawSelectableShapesByZVal.  This will be useful for Cartogram map
+    GdaCircle* c;
+    for (int cat=0; cat<num_cats; cat++) {
+        if (cross_hatch) {
+            dc.SetPen(wxPen(highlight_color));
+            dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
+        } else {
+            wxColour pen_color;
+            if (selectable_outline_visible) {
+                wxPen pen = cat_data.GetCategoryPen(cc_ts, cat);
+                pen_color = pen.GetColour();
+            } else {
+                pen_color = cat_data.GetCategoryColor(cc_ts, cat);
+            }
+            if (fixed_pen_color != *wxWHITE) {
+                pen_color = fixed_pen_color;
+            }
+            wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+            dc.SetPen(wxPen(pen_color_alpha));
+            
+            wxColour brush_color = cat_data.GetCategoryColor(cc_ts, cat);
+            wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
+            dc.SetBrush(wxBrush(brush_color_alpha));
+        }
+        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        for (int i=0, iend=ids.size(); i<iend; i++) {
+            if (!_IsShpValid(ids[i]))
+                continue;
+            c = (GdaCircle*) selectable_shps[ids[i]];
+            if (c->isNull())
+                continue;
+            dc.DrawCircle(c->center.x, c->center.y, c->radius);
+        }
+    }
+}
+
+void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+{
+    //int alpha = GdaConst::plot_transparency_unhighlighted;;
+    int cc_ts = cat_data.curr_canvas_tm_step;
+    int num_cats = cat_data.GetNumCategories(cc_ts);
+    
+    // only PCP uses PolyLines currently. So, we assume that there
+    // is only one group of line segments connected together.
+    // If we support Shapefile polyline map objects, then this will
+    // have to change.
+    GdaPolyLine* s = 0;
+    for (int cat=0; cat<num_cats; cat++) {
+        wxColour pen_color;
+        if (cross_hatch) {
+            pen_color = highlight_color;
+        } else {
+            pen_color = cat_data.GetCategoryColor(cc_ts, cat);
+        }
+        if (fixed_pen_color != *wxWHITE) {
+            pen_color = fixed_pen_color;
+        }
+        wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+        dc.SetPen(wxPen(pen_color_alpha));
+        
+        vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
+        for (int i=0, iend=ids.size(); i<iend; i++) {
+            if (!_IsShpValid(ids[i])) {
+                continue;
+            }
+            s = (GdaPolyLine*) selectable_shps[ids[i]];
+            if (s->isNull()) continue;
+            for (int v=0; v<s->n-1; v++) {
+                dc.DrawLine(s->points[v].x, s->points[v].y,
+                            s->points[v+1].x, s->points[v+1].y);
+            }
+        }
+    }
 }
 
 // draw unhighlighted selectable shapes with wxGraphicsContext

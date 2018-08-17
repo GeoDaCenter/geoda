@@ -652,23 +652,86 @@ void MapCanvas::resizeLayerBms(int width, int height)
 
 void MapCanvas::DrawLayers()
 {
-    if (!layerbase_valid && isDrawBasemap)
+    wxStopWatch sw;
+    /*
+    if (!layerbase_valid && isDrawBasemap) {
         DrawLayerBase();
-    
-    if (!layer0_valid)
+    }
+    if (!layer0_valid) {
         DrawLayer0();
-    
+    }
     if (!layer1_valid) {
         DrawLayer1();
     }
-    
     if (!layer2_valid) {
         DrawLayer2();
     }
-    
     wxWakeUpIdle();
-    
     Refresh();
+     */
+    
+    // drawing on single wxBitmap: layer2_bm
+    
+    if (layer0_valid && layer1_valid && layer2_valid) {
+        // all layers are valid, so no need to draw
+        return;
+    }
+    
+    wxMemoryDC memDC;
+    memDC.SelectObject(*layer2_bm);
+    memDC.SetBackground(*wxWHITE_BRUSH);
+    memDC.Clear();
+    wxGCDC dc(memDC);
+
+    if (isDrawBasemap && layerbase_valid == false) {
+        // draw basemap layer
+        basemap->Draw(dc);
+    }
+    
+    if (!display_map_with_graph) {
+        // in case of only draw graph on PaintDC, ignore anything else to draw
+        return;
+    }
+    
+    // draw all shapes with transparency
+    BOOST_FOREACH( GdaShape* shp, background_shps ) {
+        shp->paintSelf(dc);
+    }
+    
+    int alpha = GdaConst::transparency_unhighlighted;
+    
+    vector<bool>& hs = highlight_state->GetHighlight();
+    //helper_DrawSelectableShapes_dc(dc, hs, false, false, false);
+    if (selectable_shps_type == points) {
+        DrawPoints(dc, cat_data, hs, point_radius, alpha);
+    } else if (selectable_shps_type == polygons) {
+        DrawPolygons(dc, cat_data, hs, alpha);
+    } else if (selectable_shps_type == circles) {
+        DrawCircles(dc, cat_data, hs, alpha);
+    } else if (selectable_shps_type == polylines) {
+        DrawLines(dc, cat_data, hs, alpha);
+    }
+    
+    if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
+        wxPen pen(graph_color, weights_graph_thickness);
+        for (int i=0; i<w_graph.size(); i++) {
+            w_graph[i]->setPen(pen);
+            w_graph[i]->setBrush(*wxTRANSPARENT_BRUSH);
+        }
+    }
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) {
+        shp->paintSelf(dc);
+    }
+    
+    layer0_valid = true;
+    layer1_valid = true;
+    layer2_valid = true;
+    layerbase_valid = true;
+    wxWakeUpIdle();
+    Refresh();
+     
+    wxString time = wxString::Format("The long running function took %ldms to execute", sw.Time());
+    LOG_MSG(time);
 }
 
 void MapCanvas::DrawLayerBase()

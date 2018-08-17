@@ -59,7 +59,8 @@ public:
                    TemplateFrame* template_frame,
                    Project* project,
                    HLStateInt* hl_state_int,
-                   const wxPoint& pos, const wxSize& size,
+                   const wxPoint& pos,
+                   const wxSize& size,
                    bool fixed_aspect_ratio_mode = false,
                    bool fit_to_window_mode = true,
                    bool enable_high_dpi_support = GdaConst::enable_high_dpi_support);
@@ -125,13 +126,9 @@ public:
 	void OnKeyEvent(wxKeyEvent& event);
 
 	virtual void OnScrollChanged(wxScrollWinEvent& event);
-#ifdef __WIN32__
-	virtual void OnScrollUp(wxScrollWinEvent& event);
-	virtual void OnScrollDown(wxScrollWinEvent& event);
-#endif
     
 	virtual void OnSize(wxSizeEvent& event);
-    void OnIdle(wxIdleEvent& event);
+    virtual void OnIdle(wxIdleEvent& event);
 	
 	/** Where all the drawing action happens.  Should do something similar
 	 to the update() method. */
@@ -254,6 +251,23 @@ public:
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
+    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      double radius,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE,
+                      bool cross_hatch = false);
+    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE, 
+                      bool cross_hatch = false);
+    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE,
+                      bool cross_hatch = false);
+    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                     int alpha = 255,
+                     wxColour fixed_pen_color = *wxWHITE,
+                     bool cross_hatch = false);
     
     virtual wxBitmap* GetPrintLayer() { return layer2_bm; }
     

@@ -716,3 +716,40 @@ bool Basemap::Draw(wxBitmap* buffer)
     isTileDrawn = true;
     return isTileReady;
 }
+
+bool Basemap::Draw(wxGCDC& dc)
+{
+    wxGraphicsContext* gc = dc.GetGraphicsContext();
+    int x0 = startX;
+    int x1 = endX;
+    for (int i=x0; i<=x1; i++) {
+        for (int j=startY; j<=endY; j++ ) {
+            int pos_x =(i-startX) * 256 - offsetX;
+            int pos_y = (j-startY) * 256 - offsetY;
+            int idx_x = i;
+            
+            if ( i >= nn)
+                idx_x = i - nn;
+            else if (i < 0)
+                idx_x = nn + i;
+            
+            int idx_y = j < 0 ? nn + j : j;
+            wxString wxFilePath = GetTilePath(idx_x, idx_y);
+            wxFileName fp(wxFilePath);
+            wxBitmap bmp;
+            if (imageSuffix == ".png") {
+                bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
+            } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
+                wxImageHandler * jpegLoader = new wxJPEGHandler();
+                wxImage::AddHandler(jpegLoader);
+                bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
+            }
+            if (bmp.IsOk()) {
+                gc->DrawBitmap(bmp, pos_x, pos_y, 257, 257);
+                //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
+            }
+        }
+    }
+    isTileDrawn = true;
+    return isTileReady;
+}

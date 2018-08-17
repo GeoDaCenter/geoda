@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */; };
 		A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11B85BB1B18DC9C008B64EA /* Basemap.cpp */; };
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
@@ -300,6 +301,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCanvas.cpp; sourceTree = "<group>"; };
+		A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractCanvas.hpp; sourceTree = "<group>"; };
 		A11B85BA1B18DC89008B64EA /* Basemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Basemap.h; sourceTree = "<group>"; };
 		A11B85BB1B18DC9C008B64EA /* Basemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Basemap.cpp; sourceTree = "<group>"; };
 		A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRColumn.cpp; path = DataViewer/OGRColumn.cpp; sourceTree = "<group>"; };
@@ -860,6 +863,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		A10EF2ED21273E4900564FE1 /* visualization */ = {
+			isa = PBXGroup;
+			children = (
+				A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */,
+				A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */,
+			);
+			path = visualization;
+			sourceTree = "<group>";
+		};
 		A19483772118BA8B009A87A2 /* ogl */ = {
 			isa = PBXGroup;
 			children = (
@@ -1073,6 +1085,7 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
+				A10EF2ED21273E4900564FE1 /* visualization */,
 				A19483772118BA8B009A87A2 /* ogl */,
 				A40AB91A20F5336600F94543 /* arizona */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
@@ -1816,6 +1829,7 @@
 				DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */,
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
+				A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A4404A12209275550007753D /* hdbscan.cpp in Sources */,

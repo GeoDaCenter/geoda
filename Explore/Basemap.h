@@ -27,7 +27,7 @@
 #endif
 */
 #include <wx/math.h>
-
+#include <wx/dcgraph.h>
 #include <utility>
 #include <boost/thread/thread.hpp>
 //#include <boost/lockfree/queue.hpp>
@@ -278,7 +278,8 @@ public:
     wxString GetTilePath(int x, int y);
 
 	bool Draw(wxBitmap* buffer);
-	
+	bool Draw(wxGCDC& dc);
+    
     void ResizeScreen(int _width, int _height);
     void ZoomIn(int mouseX, int mouseY);
     void ZoomOut(int mouseX, int mouseY);
