@@ -253,12 +253,14 @@ MapCanvas::~MapCanvas()
         delete print_bm;
         print_bm = NULL;
     }
-    map<wxString, vector<GdaShape*> >::iterator it;
+    map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        vector<GdaShape*>& shps = it->second;
+        BackgroundMapLayer* ml = it->second;
+        vector<GdaShape*>& shps = ml->GetShapes();
         for (int i=0; i<shps.size(); i++) {
             delete shps[i];
         }
+        delete ml;
     }
 }
 
@@ -745,14 +747,19 @@ void MapCanvas::AddMapLayer(wxString name, OGRLayerProxy* layer_proxy)
 {
     // geometries: projection is matched to current map
     vector<GdaShape*> geoms;
-    layer_proxy->GetGdaGeometries(geoms, project->sourceSR);
+    Shapefile::ShapeType shp_type = layer_proxy->GetGdaGeometries(geoms, project->sourceSR);
     
     if (bg_maps.find(name) == bg_maps.end()) {
-        bg_maps[name] = geoms;
+        bg_maps[name] = new BackgroundMapLayer(shp_type, geoms);
         PopulateCanvas();
         ReDraw();
         Refresh();
     }
+}
+
+int MapCanvas::GetMapLayerCount()
+{
+    return bg_maps.size();
 }
 
 void MapCanvas::DrawLayerBase()
@@ -1820,9 +1827,10 @@ void MapCanvas::PopulateCanvas()
     w_graph.clear();
     
     // Background map layers
-    map<wxString, vector<GdaShape*> >::iterator it;
+    map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        GdaShapeLayer* bg_map = new GdaShapeLayer(it->first, it->second);
+        BackgroundMapLayer* ml = it->second;
+        GdaShapeLayer* bg_map = new GdaShapeLayer(it->first, ml);
         background_shps.push_back(bg_map);
     }
     
@@ -2626,9 +2634,9 @@ no_update_weights(false)
     
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
-	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+	toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
 	toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -2693,6 +2701,9 @@ void MapFrame::SetupToolbar()
             wxCommandEventHandler(MapFrame::OnMapBasemap));
     Connect(XRCID("ID_ADD_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapAddLayer));
+    Connect(XRCID("ID_EDIT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapEditLayer));
+    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), false);
 }
 
 void MapFrame::OnDrawBasemap(bool flag, int map_type)
@@ -2783,8 +2794,14 @@ void MapFrame::OnMapAddLayer(wxCommandEvent& e)
     OGRDatasourceProxy proxy(datasource_name, ds_type, true);
     OGRLayerProxy* p_layer = proxy.GetLayerProxy(layer_name.ToStdString());
     if (p_layer->ReadData()) {
-        ((MapCanvas*) template_canvas)->AddMapLayer(layer_name, p_layer);
+        MapCanvas* m = (MapCanvas*) template_canvas;
+        m->AddMapLayer(layer_name, p_layer);
+        toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), m->GetMapLayerCount()>0);
     }
+}
+
+void MapFrame::OnMapEditLayer(wxCommandEvent& e)
+{
 }
 
 void MapFrame::OnMapBasemap(wxCommandEvent& e)
@@ -3373,4 +3390,212 @@ void MapFrame::GetVizInfo(wxString& shape_type, wxString& field_name, vector<wxS
             field_name = ((MapCanvas*) template_canvas)->var_info[0].name;
         }
 	}
+}
+
+IMPLEMENT_ABSTRACT_CLASS(MapTree, wxWindow)
+BEGIN_EVENT_TABLE(MapTree, wxWindow)
+EVT_MENU(XRCID("IDC_CHANGE_POINT_RADIUS"), MapTree::OnChangePointRadius)
+EVT_MOUSE_EVENTS(MapTree::OnEvent)
+END_EVENT_TABLE()
+
+MapTree::MapTree(wxWindow *parent,const wxPoint& pos, const wxSize& size)
+: wxWindow(parent, wxID_ANY, pos, size),
+isLeftDown(false),
+select_label(NULL),
+recreate_labels(false),
+isDragDropAllowed(false)
+{
+    SetBackgroundColour(GdaConst::legend_background_color);
+    d_rect = 20;
+    px = 10;
+    py = 40;
+    leg_h = 15;
+    leg_w = 20;
+    leg_pad_x = 5;
+    leg_pad_y = 5;
+    
+    int numRect = bg_maps.size();
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    
+    int i=0;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString lbl = it->first;
+        int x =  px + leg_w + leg_pad_x;
+        int y =  py + (leg_h + leg_pad_y) * i;
+        wxPoint pt(x, y);
+        wxSize sz(leg_w, leg_h);
+        GdaLegendLabel* legend = new GdaLegendLabel(i, lbl, pt, sz);
+        labels.push_back(legend);
+        i++;
+    }
+    
+    
+    wxBoxSizer* box = new wxBoxSizer(wxHORIZONTAL);
+    box->Add(this, 1, wxEXPAND|wxALL);
+    parent->SetSizer(box);
+}
+
+MapTree::~MapTree()
+{
+    for (int i=0; i<labels.size(); i++) {
+        delete labels[i];
+    }
+    labels.clear();
+}
+
+void MapTree::OnMapColor(wxCommandEvent& event)
+{
+    
+}
+void MapTree::OnChangePointRadius(wxCommandEvent& event)
+{
+}
+
+void MapTree::OnEvent(wxMouseEvent& event)
+{
+    int cat_clicked = GetCategoryClick(event);
+    
+    if (event.RightUp()) {
+        wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
+        AddCategoryColorToMenu(optMenu, cat_clicked);
+        PopupMenu(optMenu, event.GetPosition());
+        return;
+    }
+    
+    if (event.LeftDown()) {
+        isLeftDown = true;
+        for (int i=0;i<labels.size();i++) {
+            if (labels[i]->contains(event.GetPosition())){
+                select_label = labels[i];
+                break;
+            }
+        }
+    } else if (event.Dragging()) {
+        if (isLeftDown) {
+            isLeftMove = true;
+            // moving
+            if (select_label) {
+                select_label->move(event.GetPosition());
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            LOG_MSG("intersect");
+                            // exchange labels only
+                            new_order.clear();
+                            for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            // get new order
+                            new_order[from] = to;
+                            new_order[to] = from;
+                            break;
+                        }
+                    } else {
+                        LOG_MSG("other");
+                        new_order.clear();
+                        for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                        
+                    }
+                }
+            }
+            Refresh();
+        }
+    } else if (event.LeftUp()) {
+        if (isLeftMove) {
+            isLeftMove = false;
+            // stop move
+            if (select_label) {
+                for (int i=0; i<labels.size(); i++) {
+                    if (labels[i] != select_label) {
+                        if (select_label->intersect(*labels[i])){
+                            // exchange labels applying o map
+                            int from = select_label->idx;
+                            int to = labels[i]->idx;
+                            //template_canvas->cat_data.ExchangeLabels(from, to);
+                            recreate_labels = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            select_label = NULL;
+            Refresh();
+        } else {
+            // only left click
+            if (cat_clicked != -1) {
+            }
+        }
+        isLeftDown = false;
+    }
+}
+void MapTree::OnDraw(wxDC& dc)
+{
+    dc.SetFont(*GdaConst::small_font);
+    dc.SetPen(*wxBLACK_PEN);
+    
+    int numRect = bg_maps.size();
+    
+    // init labels
+    if (recreate_labels || labels.size() != numRect) {
+        for (int i=0; i<labels.size(); i++){
+            delete labels[i];
+        }
+        labels.clear();
+        
+        new_order.clear();
+        
+        map<wxString, BackgroundMapLayer*>::iterator it;
+        
+        int i=0;
+        for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+            wxString lbl = it->first;
+            int x =  px + leg_w + leg_pad_x;
+            int y =  py + (leg_h + leg_pad_y) * i;
+            wxPoint pt(x, y);
+            wxSize sz(leg_w, leg_h);
+            GdaLegendLabel* legend = new GdaLegendLabel(i, lbl, pt, sz);
+            labels.push_back(legend);
+            
+            new_order.push_back(i++);
+        }
+        
+        recreate_labels = false;
+    }
+    
+    for (int i=0; i<new_order.size(); i++) {
+        GdaLegendLabel* lbl = labels[new_order[i]];
+        if (lbl != select_label) {
+            lbl->draw(dc, i);
+        }
+    }
+    
+    if ( select_label ) {
+        select_label->drawMove(dc);
+    }
+}
+
+int  MapTree::GetCategoryClick(wxMouseEvent& event)
+{
+    wxPoint pt(event.GetPosition());
+    int x = pt.x, y = pt.y;
+    int num_cats = bg_maps.size();
+    
+    int lbl_w = 100;
+    int cur_y = py;
+    for (int i = 0; i<num_cats; i++) {
+        if ((x > px) && (x < px + leg_w + leg_pad_x + lbl_w) &&
+            (y > cur_y) && (y < cur_y + leg_h))
+        {
+            return i;
+            
+        }
+        cur_y += (leg_h + leg_pad_y) * i;
+    }
+    
+    return -1;
+}
+
+void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
+{
+    
 }

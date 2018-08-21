@@ -2820,8 +2820,32 @@ void GdaAxis::paintSelf(wxDC& dc)
 	}
 }
 
-GdaShapeLayer::GdaShapeLayer(wxString _name, vector<GdaShape*>& _shapes)
-: name(_name), shapes(_shapes)
+
+BackgroundMapLayer::BackgroundMapLayer(Shapefile::ShapeType _shape_type, vector<GdaShape*> _geoms)
+: shapes(_geoms), shape_type(_shape_type),
+pen_color(*wxBLACK),
+brush_color(wxTRANSPARENT),
+point_radius(2),
+opacity(255),
+pen_size(1),
+show_boundary(false)
+{
+    
+}
+
+BackgroundMapLayer::~BackgroundMapLayer()
+{
+    
+}
+
+vector<GdaShape*>& BackgroundMapLayer::GetShapes()
+{
+    return shapes;
+}
+
+
+GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)
+: name(_name), ml(_ml)
 {
 }
 
@@ -2847,22 +2871,22 @@ void GdaShapeLayer::Offset(int dx, int dy)
 
 void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
 {
-    for (int i=0; i<shapes.size(); i++) {
-        shapes[i]->applyScaleTrans(A);
+    for (int i=0; i<ml->shapes.size(); i++) {
+        ml->shapes[i]->applyScaleTrans(A);
     }
 }
 
 void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
 {
-    for (int i=0; i<shapes.size(); i++) {
-        shapes[i]->projectToBasemap(basemap, scale_factor);
+    for (int i=0; i<ml->shapes.size(); i++) {
+        ml->shapes[i]->projectToBasemap(basemap, scale_factor);
     }
 }
 
 void GdaShapeLayer::paintSelf(wxDC &dc)
 {
-    for (int i=0; i<shapes.size(); i++) {
-        shapes[i]->paintSelf(dc);
+    for (int i=0; i<ml->shapes.size(); i++) {
+        ml->shapes[i]->paintSelf(dc);
     }
 }
 

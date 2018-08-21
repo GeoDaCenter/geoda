@@ -621,11 +621,39 @@ public:
 //	{ return lhs->z < rhs->z; }
 //};
 
+class BackgroundMapLayer
+{
+    Shapefile::ShapeType shape_type;
+    
+    wxColour pen_color;
+    wxColour brush_color;
+    int point_radius;
+    int opacity;
+    int pen_size;
+    bool show_boundary;
+    
+public:
+    vector<GdaShape*> shapes;
+    
+    BackgroundMapLayer(Shapefile::ShapeType shape_type,
+                       vector<GdaShape*> geoms);
+    ~BackgroundMapLayer();
+    
+    void SetPenColour(wxColour& color);
+    void SetBrushColour(wxColour& color);
+    void SetPointRadius(int radius);
+    void SetOpacity(int opacity);
+    void SetPenSize(int size);
+    void ShowBoundary(bool show);
+    vector<GdaShape*>& GetShapes();
+};
+
 class GdaShapeLayer : public GdaShape  {
     wxString name;
-    vector<GdaShape*>& shapes;
+    BackgroundMapLayer* ml;
+    
 public:
-    GdaShapeLayer(wxString name, vector<GdaShape*>& shapes);
+    GdaShapeLayer(wxString name, BackgroundMapLayer* ml);
     ~GdaShapeLayer();
 
     virtual GdaShape* clone();

@@ -82,6 +82,49 @@ private:
     
 };
 
+
+
+class MapTree: public wxWindow
+{
+    bool isDragDropAllowed;
+    wxSize maxSize;
+    int title_width;
+    int title_height;
+    int px, py;
+    int leg_w;
+    int leg_h;
+    int leg_pad_x;
+    int leg_pad_y;
+    int d_rect;
+    bool all_init;
+    int opt_menu_cat; // last category added to Legend menu
+    
+    map<wxString, BackgroundMapLayer*> bg_maps;
+    
+    bool recreate_labels;
+    std::vector<int> new_order;
+    std::vector<GdaLegendLabel*> labels;
+    GdaLegendLabel* select_label;
+    bool isLeftDown;
+    bool isLeftMove;
+    
+public:
+    MapTree(wxWindow *parent, const wxPoint& pos, const wxSize& size);
+    virtual ~MapTree();
+    
+    void OnMapColor(wxCommandEvent& event);
+    void OnChangePointRadius(wxCommandEvent& event);
+    void OnEvent(wxMouseEvent& event);
+    void OnDraw(wxDC& dc);
+
+    int  GetCategoryClick(wxMouseEvent& event);
+    void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
+    
+    DECLARE_ABSTRACT_CLASS(MapTree)
+    DECLARE_EVENT_TABLE()
+};
+
+
 class MapCanvas : public TemplateCanvas, public CatClassifStateObserver
 {
 	DECLARE_CLASS(MapCanvas)
@@ -167,8 +210,8 @@ public:
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
     void AddMapLayer(wxString name, OGRLayerProxy* layer_proxy);
-    
-    int  GetBasemapType();
+    int GetMapLayerCount();
+    int GetBasemapType();
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, int map_type);
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
@@ -219,7 +262,7 @@ public:
     static void ResetEmptyFlag();
     
 protected:
-    map<wxString, vector<GdaShape*> > bg_maps;
+    map<wxString, BackgroundMapLayer*> bg_maps;
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -372,6 +415,7 @@ public:
     //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
     void OnMapAddLayer(wxCommandEvent& e);
+    void OnMapEditLayer(wxCommandEvent& e);
     
     void OnShowMapBoundary(wxCommandEvent& event);
     
@@ -393,6 +437,8 @@ public:
     }
 	
 protected:
+    wxToolBar* toolbar;
+    
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;
 	
