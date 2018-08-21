@@ -147,6 +147,10 @@
       <bitmap>color/24x24/29.png</bitmap>
       <tooltip>Invert Select</tooltip>
     </object>
+    <object class="tool" name="ID_ADD_LAYER">
+        <bitmap>color/24x24/39.png</bitmap>
+        <tooltip>Add Map Layer</tooltip>
+    </object>
     <object class="separator"/>
     <object class="tool" name="ID_ZOOM_LAYER">
       <bitmap>color/24x24/30.png</bitmap>

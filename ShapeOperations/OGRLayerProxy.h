@@ -138,15 +138,14 @@ public:
 	 */
 	bool ReadGeometries(Shapefile::Main& p_main);
     
-    bool ReadGeometries(vector<GdaShape>& shapes);
-    
     bool AddGeometries(Shapefile::Main& p_main);
     
     void GetCentroids(vector<GdaPoint*>& centroids);
     
     GdaPolygon* GetMapBoundary();
     
-    Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms);
+    Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
+                                          OGRSpatialReference* input_sr=NULL);
     
 	/**
 	 * Read table data from ogr OGRFeatures.

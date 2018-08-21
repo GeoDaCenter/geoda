@@ -622,12 +622,12 @@ public:
 //};
 
 class GdaShapeLayer : public GdaShape  {
-    vector<GdaShape> shapes;
-    
+    wxString name;
+    vector<GdaShape*>& shapes;
 public:
-    GdaShapeLayer();
+    GdaShapeLayer(wxString name, vector<GdaShape*>& shapes);
     ~GdaShapeLayer();
-    
+
     virtual GdaShape* clone();
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
@@ -637,18 +637,4 @@ public:
     virtual void paintSelf(wxGraphicsContext* gc);
 };
 
-class GdaPointLayer : GdaShapeLayer {
-public:
-    virtual void paintSelf(wxDC& dc);
-};
-
-class GdaPolygonLayer : GdaShapeLayer {
-public:
-    virtual void paintSelf(wxDC& dc);
-};
-
-class GdaLineLayer : GdaShapeLayer {
-public:
-    virtual void paintSelf(wxDC& dc);
-};
 #endif

@@ -496,8 +496,12 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
-Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
+Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms, OGRSpatialReference* input_sr)
 {
+    OGRCoordinateTransformation *poCT = NULL;
+    if (input_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(input_sr, spatialRef);
+    }
     Shapefile::ShapeType shape_type;
     //read OGR geometry features
     int feature_counter =0;
@@ -525,7 +529,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
                     // only consider first point
                     OGRGeometry* ogrGeom = mp->getGeometryRef(i);
                     OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
-                    geoms.push_back(new GdaPoint(p->getX(), p->getY()));
+                    double ptX = p->getX(), ptY = p->getY();
+                    if (poCT) {
+                        poCT->Transform(1, &ptX, &ptY);
+                    }
+                    geoms.push_back(new GdaPoint(ptX, ptY));
                 }
             }
         } else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
@@ -545,8 +553,9 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
                     pLinearRing = j==0 ?
                     p->getExteriorRing() : p->getInteriorRing(j-1);
                     pc->parts[j] = numPoints;
-                    if (pLinearRing)
+                    if (pLinearRing) {
                         numPoints += pLinearRing->getNumPoints();
+                    }
                 }
                 // resize points memory
                 pc->num_points = numPoints;
@@ -557,9 +566,14 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
                     pLinearRing = j==0 ?
                     p->getExteriorRing() : p->getInteriorRing(j-1);
                     if (pLinearRing)
-                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++){
-                            pc->points[i].x =  pLinearRing->getX(k);
-                            pc->points[i++].y =  pLinearRing->getY(k);
+                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++) {
+                            double ptX = pLinearRing->getX(k);
+                            double ptY = pLinearRing->getY(k);
+                            if (poCT) {
+                                poCT->Transform(1, &ptX, &ptY);
+                            }
+                            pc->points[i].x =  ptX;
+                            pc->points[i++].y =  ptY;
                         }
                 }
             }
@@ -608,8 +622,13 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms)
                         pLinearRing = j==0 ?
                         p->getExteriorRing() : p->getInteriorRing(j-1);
                         for (int k=0; k < pLinearRing->getNumPoints(); k++) {
-                            pc->points[pidx].x = pLinearRing->getX(k);
-                            pc->points[pidx++].y = pLinearRing->getY(k);
+                            double ptX = pLinearRing->getX(k);
+                            double ptY = pLinearRing->getY(k);
+                            if (poCT) {
+                                poCT->Transform(1, &ptX, &ptY);
+                            }
+                            pc->points[pidx].x =  ptX;
+                            pc->points[pidx++].y =  ptY;
                         }
                     }
                 }

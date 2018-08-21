@@ -33,8 +33,7 @@
 #include <wx/time.h>
 #include <wx/dcps.h>
 
-#include "CatClassifState.h"
-#include "CatClassifManager.h"
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -43,17 +42,19 @@
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../DialogTools/ExportDataDlg.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"
+#include "../ShapeOperations/RateSmoothing.h"
+#include "../ShapeOperations/VoronoiUtils.h"
+#include "../ShapeOperations/WeightsManager.h"
+#include "../ShapeOperations/WeightsManState.h"
+#include "../ShapeOperations/OGRDatasourceProxy.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/RateSmoothing.h"
-#include "../ShapeOperations/VoronoiUtils.h"
-#include "../ShapeOperations/WeightsManager.h"
-#include "../ShapeOperations/WeightsManState.h"
+#include "CatClassifState.h"
+#include "CatClassifManager.h"
 #include "MapLayoutView.h"
-
 #include "Basemap.h"
 #include "MapNewView.h"
 
@@ -252,8 +253,13 @@ MapCanvas::~MapCanvas()
         delete print_bm;
         print_bm = NULL;
     }
-    
-    w_graph.clear();
+    map<wxString, vector<GdaShape*> >::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        vector<GdaShape*>& shps = it->second;
+        for (int i=0; i<shps.size(); i++) {
+            delete shps[i];
+        }
+    }
 }
 
 int MapCanvas::GetEmptyNumber()
@@ -653,7 +659,7 @@ void MapCanvas::resizeLayerBms(int width, int height)
 void MapCanvas::DrawLayers()
 {
     wxStopWatch sw;
-    /*
+    
     if (!layerbase_valid && isDrawBasemap) {
         DrawLayerBase();
     }
@@ -668,8 +674,8 @@ void MapCanvas::DrawLayers()
     }
     wxWakeUpIdle();
     Refresh();
-     */
     
+    /*
     // drawing on single wxBitmap: layer2_bm
     
     if (layer0_valid && layer1_valid && layer2_valid) {
@@ -732,6 +738,21 @@ void MapCanvas::DrawLayers()
      
     wxString time = wxString::Format("The long running function took %ldms to execute", sw.Time());
     LOG_MSG(time);
+     */
+}
+
+void MapCanvas::AddMapLayer(wxString name, OGRLayerProxy* layer_proxy)
+{
+    // geometries: projection is matched to current map
+    vector<GdaShape*> geoms;
+    layer_proxy->GetGdaGeometries(geoms, project->sourceSR);
+    
+    if (bg_maps.find(name) == bg_maps.end()) {
+        bg_maps[name] = geoms;
+        PopulateCanvas();
+        ReDraw();
+        Refresh();
+    }
 }
 
 void MapCanvas::DrawLayerBase()
@@ -938,7 +959,7 @@ void MapCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    DrawSelectableShapes_dc(dc);
+    //DrawSelectableShapes_dc(dc);
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
     layer1_valid = false;
@@ -1798,7 +1819,14 @@ void MapCanvas::PopulateCanvas()
     
     w_graph.clear();
     
-    if (display_map_boundary) {
+    // Background map layers
+    map<wxString, vector<GdaShape*> >::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        GdaShapeLayer* bg_map = new GdaShapeLayer(it->first, it->second);
+        background_shps.push_back(bg_map);
+    }
+    
+    if ( display_map_boundary ) {
         GdaPolygon* bg = project->GetMapBoundary();
         if (bg) {
             wxPen pen(wxColour(120, 120, 120));
@@ -1808,7 +1836,7 @@ void MapCanvas::PopulateCanvas()
         }
     }
 
-	if (map_valid[canvas_ts]) {		
+	if ( map_valid[canvas_ts] ) {		
 		if (full_map_redraw_needed) {
 			empty_shps_ids = CreateSelShpsFromProj(selectable_shps, project);
 			full_map_redraw_needed = false;
@@ -2663,6 +2691,8 @@ void MapFrame::SetupToolbar()
             wxCommandEventHandler(MapFrame::OnMapRefresh));
 	Connect(XRCID("ID_TOOLBAR_BASEMAP"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapBasemap));
+    Connect(XRCID("ID_ADD_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
+            wxCommandEventHandler(MapFrame::OnMapAddLayer));
 }
 
 void MapFrame::OnDrawBasemap(bool flag, int map_type)
@@ -2734,6 +2764,27 @@ void MapFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
     }
     OnShowMapBoundary(ev);
     UpdateOptionMenuItems();
+}
+
+void MapFrame::OnMapAddLayer(wxCommandEvent& e)
+{
+    wxLogMessage("In MapFrame::OnMapAddLayer()");
+    ConnectDatasourceDlg connect_dlg(this, wxDefaultPosition, wxDefaultSize);
+    if (connect_dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    wxString proj_title = connect_dlg.GetProjectTitle();
+    wxString layer_name = connect_dlg.GetLayerName();
+    IDataSource* datasource = connect_dlg.GetDataSource();
+    wxString datasource_name = datasource->GetOGRConnectStr();
+    GdaConst::DataSourceType ds_type = datasource->GetType();
+    
+    wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
+    OGRDatasourceProxy proxy(datasource_name, ds_type, true);
+    OGRLayerProxy* p_layer = proxy.GetLayerProxy(layer_name.ToStdString());
+    if (p_layer->ReadData()) {
+        ((MapCanvas*) template_canvas)->AddMapLayer(layer_name, p_layer);
+    }
 }
 
 void MapFrame::OnMapBasemap(wxCommandEvent& e)

@@ -50,10 +50,13 @@ class MapNewLegend;
 class TableInterface;
 class WeightsManState;
 class ExportDataDlg;
+class OGRLayerProxy;
 
 typedef boost::multi_array<bool, 2> b_array_type;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
+
+using namespace std;
 
 // Transparency SliderBar dialog for Basemap
 class SliderDialog: public wxDialog
@@ -90,8 +93,8 @@ public:
     
     MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
               Project* project,
-              const std::vector<GdaVarTools::VarInfo>& var_info,
-              const std::vector<int>& col_ids,
+              const vector<GdaVarTools::VarInfo>& var_info,
+              const vector<int>& col_ids,
               CatClassification::CatClassifType theme_type = CatClassification::no_theme,
               SmoothingType smoothing_type = no_smoothing,
               int num_categories = 1,
@@ -113,8 +116,8 @@ public:
                                int num_categories,
                                boost::uuids::uuid weights_id,
                                bool use_new_var_info_and_col_ids,
-                               const std::vector<GdaVarTools::VarInfo>& new_var_info,
-                               const std::vector<int>& new_col_ids,
+                               const vector<GdaVarTools::VarInfo>& new_var_info,
+                               const vector<int>& new_col_ids,
                                const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
@@ -163,6 +166,7 @@ public:
     virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
+    void AddMapLayer(wxString name, OGRLayerProxy* layer_proxy);
     
     int  GetBasemapType();
     void CleanBasemapCache();
@@ -170,7 +174,8 @@ public:
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
     void OnIdle(wxIdleEvent& event);
     void TranslucentLayer0(wxMemoryDC& dc);
-    void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h, int offset_x, int offset_y);
+    void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h,
+                     int offset_x, int offset_y);
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
@@ -199,23 +204,23 @@ public:
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour neighbor_fill_color;
-    std::set<int> ids_of_nbrs;
-    std::vector<int> ids_wo_nbrs;
-	std::vector<GdaVarTools::VarInfo> var_info;
+    set<int> ids_of_nbrs;
+    vector<int> ids_wo_nbrs;
+	vector<GdaVarTools::VarInfo> var_info;
 	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
 	bool print_detailed_basemap;
 
     static vector<int> empty_shps_ids;
-    static std::map<int, bool> empty_dict;
+    static map<int, bool> empty_dict;
     static bool has_shown_empty_shps_msg;
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
     
 protected:
-	
-    std::vector<GdaPolyLine*> w_graph;
+    map<wxString, vector<GdaShape*> > bg_maps;
+    vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;
@@ -228,30 +233,29 @@ protected:
 	
     bool IS_VAR_STRING;
 	int num_time_vals;
-	std::vector<d_array_type> data;
-    std::vector<s_array_type> s_data;
-	std::vector<b_array_type> data_undef;
+	vector<d_array_type> data;
+    vector<s_array_type> s_data;
+	vector<b_array_type> data_undef;
     
-	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-    std::vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
+	vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
-	std::vector<bool> map_valid;
-	std::vector<wxString> map_error_message;
+	vector<bool> map_valid;
+	vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
    
     // predefined/user-specified color, each label can be assigned with a color
     // user can specified using:
     // SetPredefinedColor(), UpdatePredifinedColor()
-    std::map<wxString, wxColour> lbl_color_dict;
+    map<wxString, wxColour> lbl_color_dict;
 
     wxBitmap* print_bm;
     
-    // basemap
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
     
@@ -277,8 +281,8 @@ class MapFrame : public TemplateFrame, public WeightsManStateObserver
    DECLARE_CLASS(MapFrame)
 public:
     MapFrame(wxFrame *parent, Project* project,
-             const std::vector<GdaVarTools::VarInfo>& var_info,
-             const std::vector<int>& col_ids,
+             const vector<GdaVarTools::VarInfo>& var_info,
+             const vector<int>& col_ids,
              CatClassification::CatClassifType theme_type = CatClassification::no_theme,
              MapCanvas::SmoothingType smoothing_type = MapCanvas::no_smoothing,
              int num_categories = 1,
@@ -343,12 +347,12 @@ public:
     
     void CleanBasemap();
     
-	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
+	void GetVizInfo(map<wxString, vector<int> >& colors);
 	
     void GetVizInfo(wxString& shape_type,
                     wxString& field_name,
-                    std::vector<wxString>& clrs,
-                    std::vector<double>& bins);
+                    vector<wxString>& clrs,
+                    vector<double>& bins);
     
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
@@ -367,6 +371,7 @@ public:
     void OnMapRefresh(wxCommandEvent& e);
     //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
+    void OnMapAddLayer(wxCommandEvent& e);
     
     void OnShowMapBoundary(wxCommandEvent& event);
     
@@ -375,8 +380,8 @@ public:
 					   int num_categories,
 					   boost::uuids::uuid weights_id,
 					   bool use_new_var_info_and_col_ids,
-					   const std::vector<GdaVarTools::VarInfo>& new_var_info,
-					   const std::vector<int>& new_col_ids,
+					   const vector<GdaVarTools::VarInfo>& new_var_info,
+					   const vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
     
     void SetLegendLabel(int cat, wxString label) {
