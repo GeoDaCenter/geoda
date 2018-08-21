@@ -2819,3 +2819,60 @@ void GdaAxis::paintSelf(wxDC& dc)
 		}
 	}
 }
+
+
+GdaShape* GdaShapeLayer::clone()
+{
+    return NULL;
+}
+
+void GdaShapeLayer::Offset(double dx, double dy)
+{
+    
+}
+
+void GdaShapeLayer::Offset(int dx, int dy)
+{
+    
+}
+
+void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
+{
+    for (int i=0; i<shapes.size(); i++) {
+        shapes[i].applyScaleTrans(A);
+    }
+}
+
+void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
+{
+    for (int i=0; i<shapes.size(); i++) {
+        shapes[i].projectToBasemap(basemap, scale_factor);
+    }
+}
+
+void GdaShapeLayer::paintSelf(wxDC &dc)
+{
+    for (int i=0; i<shapes.size(); i++) {
+        shapes[i].paintSelf(dc);
+    }
+}
+
+void GdaShapeLayer::paintSelf(wxGraphicsContext *gc)
+{
+    
+}
+
+void GdaPointLayer::paintSelf(wxDC &dc)
+{
+    
+}
+
+void GdaPolygonLayer::paintSelf(wxDC &dc)
+{
+    
+}
+
+void GdaLineLayer::paintSelf(wxDC &dc)
+{
+    
+}

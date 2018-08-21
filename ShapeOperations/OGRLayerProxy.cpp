@@ -1056,7 +1056,8 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
 	maxx = pEnvelope.MaxX;
 	maxy = pEnvelope.MaxY;
     
-    if ( minx == miny && maxx == maxy && minx == 0 && maxx==0) return false;
+    if ( minx == miny && maxx == maxy && minx == 0 && maxx==0)
+        return false;
     return true;
 }
 
@@ -1368,9 +1369,7 @@ void OGRLayerProxy::T_Export(string format,
 {
 	export_progress = 0;
 	stop_exporting = FALSE;
-	boost::thread export_thread(boost::bind(&OGRLayerProxy::Export, this, 
-											format, dest_datasource,
-											new_layer_name, is_update));
+	boost::thread export_thread(boost::bind(&OGRLayerProxy::Export, this,  format, dest_datasource, new_layer_name, is_update));
 }
 
 void OGRLayerProxy::T_StopExport()
@@ -1533,3 +1532,4 @@ void OGRLayerProxy::Export(string format,
     // Clean
     GDALClose(poODS);
 }
+

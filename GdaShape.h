@@ -621,4 +621,34 @@ public:
 //	{ return lhs->z < rhs->z; }
 //};
 
+class GdaShapeLayer : public GdaShape  {
+    vector<GdaShape> shapes;
+    
+public:
+    GdaShapeLayer();
+    ~GdaShapeLayer();
+    
+    virtual GdaShape* clone();
+    virtual void Offset(double dx, double dy);
+    virtual void Offset(int dx, int dy);
+    virtual void applyScaleTrans(const GdaScaleTrans& A);
+    virtual void projectToBasemap(GDA::Basemap* basemap, double scale_factor = 1.0);
+    virtual void paintSelf(wxDC& dc);
+    virtual void paintSelf(wxGraphicsContext* gc);
+};
+
+class GdaPointLayer : GdaShapeLayer {
+public:
+    virtual void paintSelf(wxDC& dc);
+};
+
+class GdaPolygonLayer : GdaShapeLayer {
+public:
+    virtual void paintSelf(wxDC& dc);
+};
+
+class GdaLineLayer : GdaShapeLayer {
+public:
+    virtual void paintSelf(wxDC& dc);
+};
 #endif
