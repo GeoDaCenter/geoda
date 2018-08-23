@@ -114,6 +114,15 @@ const wxRect& GdaLegendLabel::getBBox()
     return bbox;
 }
 
+wxString GdaLegendLabel::GetText()
+{
+    return text;
+}
+
+wxPoint GdaLegendLabel::GetTmpPosition()
+{
+    return tmp_position;
+}
 void GdaLegendLabel::move(const wxPoint& new_pos)
 {
     tmp_position = new_pos;

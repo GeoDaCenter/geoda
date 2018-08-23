@@ -82,10 +82,11 @@ private:
     
 };
 
-
-
 class MapTree: public wxWindow
 {
+    DECLARE_ABSTRACT_CLASS(MapTree)
+    DECLARE_EVENT_TABLE()
+    
     bool isDragDropAllowed;
     wxSize maxSize;
     int title_width;
@@ -99,7 +100,11 @@ class MapTree: public wxWindow
     bool all_init;
     int opt_menu_cat; // last category added to Legend menu
     
+    wxString current_map_title;
+    vector<wxString> map_titles;
+    
     map<wxString, BackgroundMapLayer*> bg_maps;
+    map<wxString, BackgroundMapLayer*> fg_maps;
     
     bool recreate_labels;
     std::vector<int> new_order;
@@ -109,19 +114,29 @@ class MapTree: public wxWindow
     bool isLeftMove;
     
 public:
-    MapTree(wxWindow *parent, const wxPoint& pos, const wxSize& size);
+    MapTree(wxWindow *parent, MapCanvas* canvas, const wxPoint& pos,
+            const wxSize& size);
     virtual ~MapTree();
     
+    void DrawSwitcher(wxDC& dc, int x, int y, wxString text);
     void OnMapColor(wxCommandEvent& event);
     void OnChangePointRadius(wxCommandEvent& event);
     void OnEvent(wxMouseEvent& event);
-    void OnDraw(wxDC& dc);
+    virtual void OnPaint( wxPaintEvent& event );
+    virtual void OnDraw(wxDC& dc);
 
     int  GetCategoryClick(wxMouseEvent& event);
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
-    
-    DECLARE_ABSTRACT_CLASS(MapTree)
-    DECLARE_EVENT_TABLE()
+};
+
+
+class MapTreeDlg : public wxDialog
+{
+public:
+    MapTreeDlg(wxWindow* parent, MapCanvas* canvas,
+               const wxPoint& pos = wxDefaultPosition,
+               const wxSize& size = wxDefaultSize);
+    virtual ~MapTreeDlg();
 };
 
 
@@ -230,7 +245,9 @@ public:
     static void ResetThumbnail() {
         MapCanvas::has_thumbnail_saved = false;
     }
-
+    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
+    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
+    
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;
@@ -263,6 +280,7 @@ public:
     
 protected:
     map<wxString, BackgroundMapLayer*> bg_maps;
+    map<wxString, BackgroundMapLayer*> fg_maps;
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;

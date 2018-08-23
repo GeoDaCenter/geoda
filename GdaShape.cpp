@@ -2838,6 +2838,52 @@ BackgroundMapLayer::~BackgroundMapLayer()
     
 }
 
+void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)
+{
+    if (shape_type == Shapefile::POLYGON) {
+        wxPen pen(pen_color);
+        int r = brush_color.Red();
+        int g = brush_color.Green();
+        int b = brush_color.Blue();
+        wxColour b_color(r,g,b,opacity);
+        dc.SetPen(pen);
+        dc.SetBrush(b_color);
+        dc.DrawRectangle(x, y, w, h);
+    } else if (shape_type == Shapefile::POINT_TYP) {
+        
+    }
+}
+
+void BackgroundMapLayer::SetOpacity(int val)
+{
+    opacity = val;
+}
+
+void BackgroundMapLayer::SetPenSize(int val)
+{
+    pen_size = val;
+}
+
+void BackgroundMapLayer::SetPenColour(wxColour &color)
+{
+    pen_color = color;
+}
+
+void BackgroundMapLayer::SetBrushColour(wxColour &color)
+{
+    brush_color = color;
+}
+
+void BackgroundMapLayer::ShowBoundary(bool show)
+{
+    show_boundary = show;
+}
+
+void BackgroundMapLayer::SetPointRadius(int radius)
+{
+    point_radius = radius;
+}
+
 vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 {
     return shapes;

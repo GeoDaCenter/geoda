@@ -70,6 +70,10 @@ public:
     
     int idx;
     
+    wxString GetText();
+    
+    wxPoint GetTmpPosition();
+    
 protected:
     
     

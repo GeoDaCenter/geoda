@@ -11,6 +11,8 @@
 		A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11B85BB1B18DC9C008B64EA /* Basemap.cpp */; };
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
+		A1230E5E212DF54D002AB30A /* switch-on.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5C212DF54C002AB30A /* switch-on.png */; };
+		A1230E5F212DF54D002AB30A /* switch-off.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5D212DF54D002AB30A /* switch-off.png */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
@@ -309,6 +311,8 @@
 		A11F1B7E184FDFB3006F5F98 /* OGRColumn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OGRColumn.h; path = DataViewer/OGRColumn.h; sourceTree = "<group>"; };
 		A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRTableOperation.cpp; path = DataViewer/OGRTableOperation.cpp; sourceTree = "<group>"; };
 		A11F1B811850437A006F5F98 /* OGRTableOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OGRTableOperation.h; path = DataViewer/OGRTableOperation.h; sourceTree = "<group>"; };
+		A1230E5C212DF54C002AB30A /* switch-on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "switch-on.png"; path = "BuildTools/CommonDistFiles/web_plugins/switch-on.png"; sourceTree = "<group>"; };
+		A1230E5D212DF54D002AB30A /* switch-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "switch-off.png"; path = "BuildTools/CommonDistFiles/web_plugins/switch-off.png"; sourceTree = "<group>"; };
 		A12E0F4D1705087A00B6059C /* OGRDataAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGRDataAdapter.h; sourceTree = "<group>"; };
 		A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRDataAdapter.cpp; sourceTree = "<group>"; };
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
@@ -992,6 +996,8 @@
 		A45DBDF61EDDEDC400C2AA8A /* _SampleImages */ = {
 			isa = PBXGroup;
 			children = (
+				A1230E5D212DF54D002AB30A /* switch-off.png */,
+				A1230E5C212DF54C002AB30A /* switch-on.png */,
 				A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */,
 				A496C9C41E6A441D008F87DD /* watermark-20.png */,
 				A496C9C21E6A4417008F87DD /* USHomicides.png */,
@@ -1661,6 +1667,7 @@
 				A496C9AE1E6A43D6008F87DD /* ColombiaMalaria.png in Resources */,
 				A496C9B01E6A43DA008F87DD /* ColumbusCrime.png in Resources */,
 				A496C9B21E6A43E5008F87DD /* Milwaukee2000Census.png in Resources */,
+				A1230E5F212DF54D002AB30A /* switch-off.png in Resources */,
 				A496C9B41E6A43E8008F87DD /* NAT.png in Resources */,
 				A496C9B61E6A43EE008F87DD /* NepalAid.png in Resources */,
 				A496C9B91E6A43FA008F87DD /* no_map.png in Resources */,
@@ -1671,6 +1678,7 @@
 				A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */,
 				A4404A0F209270FB0007753D /* pofiles in Resources */,
 				A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */,
+				A1230E5E212DF54D002AB30A /* switch-on.png in Resources */,
 				A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

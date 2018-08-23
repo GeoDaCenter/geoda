@@ -158,18 +158,18 @@ void Basemap::SetupMapType(int map_type)
     
     mapType = map_type;
     if (mapType == 1) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
+        basemapUrl = "https://map_positron.basemaps.cartocdn.com/light_all/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 2) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_all/";
+        basemapUrl = "https://map_positron.basemaps.cartocdn.com/dark_all/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
         
     } else if (mapType == 3) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_nolabels/";
+        basemapUrl = "https://map_positron.basemaps.cartocdn.com/light_nolabels/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";

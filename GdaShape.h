@@ -646,6 +646,8 @@ public:
     void SetPenSize(int size);
     void ShowBoundary(bool show);
     vector<GdaShape*>& GetShapes();
+    
+    void drawLegend(wxDC& dc, int x, int y, int w, int h);
 };
 
 class GdaShapeLayer : public GdaShape  {
