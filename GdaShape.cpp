@@ -758,22 +758,28 @@ void GdaShapeAlgs::getBoundingBoxOrig(const GdaPolygon* p, double& xmin,
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaPoint::GdaPoint()
+: radius(GdaConst::my_point_click_radius)
 {
 	null_shape = true;
 }
 
 GdaPoint::GdaPoint(const GdaPoint& s)
-	: GdaShape(s)
+: GdaShape(s), radius(GdaConst::my_point_click_radius)
+
 {
 }
 
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
+: radius(GdaConst::my_point_click_radius)
+
 {
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
 }
 
 GdaPoint::GdaPoint(double x_orig, double y_orig)
+: radius(GdaConst::my_point_click_radius)
+
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
@@ -835,7 +841,7 @@ void GdaPoint::paintSelf(wxDC& dc)
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
 	wxPoint n_center(center.x+getXNudge(), center.y+getYNudge()); 
-	dc.DrawCircle(n_center, GdaConst::my_point_click_radius);
+	dc.DrawCircle(n_center, radius);
 }
 
 void GdaPoint::paintSelf(wxGraphicsContext* gc)
@@ -847,7 +853,7 @@ void GdaPoint::paintSelf(wxGraphicsContext* gc)
     
     
 	wxGraphicsPath path = gc->CreatePath();
-	path.AddCircle(n_center.x, n_center.y, GdaConst::my_point_click_radius);
+	path.AddCircle(n_center.x, n_center.y, radius);
 	gc->StrokePath(path);
 }
 
@@ -2821,178 +2827,4 @@ void GdaAxis::paintSelf(wxDC& dc)
 }
 
 
-BackgroundMapLayer::BackgroundMapLayer(Shapefile::ShapeType _shape_type, vector<GdaShape*> _geoms)
-: shapes(_geoms), shape_type(_shape_type),
-pen_color(*wxBLACK),
-brush_color(wxTRANSPARENT),
-point_radius(2),
-opacity(255),
-pen_size(1),
-show_boundary(false),
-is_hide(false)
-{
-    
-}
 
-BackgroundMapLayer::~BackgroundMapLayer()
-{
-    
-}
-
-Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
-{
-    return shape_type;
-}
-
-void BackgroundMapLayer::SetHide(bool flag)
-{
-    is_hide = flag;
-}
-
-bool BackgroundMapLayer::IsHide()
-{
-    return is_hide;
-}
-
-void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)
-{
-    if (shape_type == Shapefile::POLYGON) {
-        wxPen pen(pen_color);
-        int r = brush_color.Red();
-        int g = brush_color.Green();
-        int b = brush_color.Blue();
-        wxColour b_color(r,g,b,opacity);
-        dc.SetPen(pen);
-        dc.SetBrush(b_color);
-        dc.DrawRectangle(x, y, w, h);
-    } else if (shape_type == Shapefile::POINT_TYP) {
-        
-    }
-}
-
-void BackgroundMapLayer::SetOpacity(int val)
-{
-    opacity = val;
-}
-
-int BackgroundMapLayer::GetOpacity()
-{
-    return opacity;
-}
-
-int BackgroundMapLayer::GetPenSize()
-{
-    return pen_size;
-}
-
-void BackgroundMapLayer::SetPenSize(int val)
-{
-    pen_size = val;
-}
-
-void BackgroundMapLayer::SetPenColour(wxColour &color)
-{
-    pen_color = color;
-}
-
-wxColour BackgroundMapLayer::GetPenColour()
-{
-    return pen_color;
-}
-
-void BackgroundMapLayer::SetBrushColour(wxColour &color)
-{
-    brush_color = color;
-}
-
-wxColour BackgroundMapLayer::GetBrushColour()
-{
-    return brush_color;
-}
-
-void BackgroundMapLayer::ShowBoundary(bool show)
-{
-    show_boundary = show;
-}
-
-bool BackgroundMapLayer::IsShowBoundary()
-{
-    return show_boundary;
-}
-
-void BackgroundMapLayer::SetPointRadius(int radius)
-{
-    point_radius = radius;
-}
-
-int BackgroundMapLayer::GetPointRadius()
-{
-    return point_radius;
-}
-
-vector<GdaShape*>& BackgroundMapLayer::GetShapes()
-{
-    return shapes;
-}
-
-
-GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)
-: name(_name), ml(_ml)
-{
-}
-
-GdaShapeLayer::~GdaShapeLayer()
-{    
-}
-
-GdaShape* GdaShapeLayer::clone()
-{
-    // not implemented
-    return NULL;
-}
-
-void GdaShapeLayer::Offset(double dx, double dy)
-{
-    
-}
-
-void GdaShapeLayer::Offset(int dx, int dy)
-{
-    
-}
-
-void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
-{
-    for (int i=0; i<ml->shapes.size(); i++) {
-        ml->shapes[i]->applyScaleTrans(A);
-    }
-}
-
-void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
-{
-    for (int i=0; i<ml->shapes.size(); i++) {
-        ml->shapes[i]->projectToBasemap(basemap, scale_factor);
-    }
-}
-
-void GdaShapeLayer::paintSelf(wxDC &dc)
-{
-    if (ml->IsHide() == false) {
-        wxPen pen(ml->GetPenColour(), ml->GetPenSize());
-        if (ml->GetPenSize() == 0 ) {
-            pen.SetColour(ml->GetBrushColour());
-        }
-        wxBrush brush(ml->GetBrushColour());
-        
-        for (int i=0; i<ml->shapes.size(); i++) {
-            ml->shapes[i]->setPen(pen);
-            ml->shapes[i]->setBrush(brush);
-            ml->shapes[i]->paintSelf(dc);
-        }
-    }
-}
-
-void GdaShapeLayer::paintSelf(wxGraphicsContext *gc)
-{
-    // not implemented (using wxGCDC instead)
-}

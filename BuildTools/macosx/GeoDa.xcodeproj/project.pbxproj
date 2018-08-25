@@ -13,6 +13,8 @@
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
 		A1230E5E212DF54D002AB30A /* switch-on.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5C212DF54C002AB30A /* switch-on.png */; };
 		A1230E5F212DF54D002AB30A /* switch-off.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5D212DF54D002AB30A /* switch-off.png */; };
+		A1230E622130E783002AB30A /* MapLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1230E602130E783002AB30A /* MapLayer.cpp */; };
+		A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1230E632130E81A002AB30A /* MapLayerTree.cpp */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
@@ -313,6 +315,10 @@
 		A11F1B811850437A006F5F98 /* OGRTableOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OGRTableOperation.h; path = DataViewer/OGRTableOperation.h; sourceTree = "<group>"; };
 		A1230E5C212DF54C002AB30A /* switch-on.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "switch-on.png"; path = "BuildTools/CommonDistFiles/web_plugins/switch-on.png"; sourceTree = "<group>"; };
 		A1230E5D212DF54D002AB30A /* switch-off.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "switch-off.png"; path = "BuildTools/CommonDistFiles/web_plugins/switch-off.png"; sourceTree = "<group>"; };
+		A1230E602130E783002AB30A /* MapLayer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayer.cpp; sourceTree = "<group>"; };
+		A1230E612130E783002AB30A /* MapLayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapLayer.hpp; sourceTree = "<group>"; };
+		A1230E632130E81A002AB30A /* MapLayerTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayerTree.cpp; sourceTree = "<group>"; };
+		A1230E642130E81A002AB30A /* MapLayerTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapLayerTree.hpp; sourceTree = "<group>"; };
 		A12E0F4D1705087A00B6059C /* OGRDataAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGRDataAdapter.h; sourceTree = "<group>"; };
 		A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRDataAdapter.cpp; sourceTree = "<group>"; };
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
@@ -1432,6 +1438,10 @@
 				A11B85BB1B18DC9C008B64EA /* Basemap.cpp */,
 				A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */,
 				A19483A12118BE8F009A87A2 /* MapLayoutView.h */,
+				A1230E602130E783002AB30A /* MapLayer.cpp */,
+				A1230E612130E783002AB30A /* MapLayer.hpp */,
+				A1230E632130E81A002AB30A /* MapLayerTree.cpp */,
+				A1230E642130E81A002AB30A /* MapLayerTree.hpp */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -1770,6 +1780,7 @@
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
 				DD209598139F129900B9E648 /* GetisOrdChoiceDlg.cpp in Sources */,
 				DD181BC813A90445004B0EC2 /* SaveToTableDlg.cpp in Sources */,
+				A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */,
 				A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */,
 				DDF85D1813B257B6006C1B08 /* DataViewerEditFieldPropertiesDlg.cpp in Sources */,
 				DDB252B513BBFD6700A7CE26 /* MergeTableDlg.cpp in Sources */,
@@ -1820,6 +1831,7 @@
 				A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */,
 				DDF53FF3167A39520042B453 /* CatClassifState.cpp in Sources */,
 				A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */,
+				A1230E622130E783002AB30A /* MapLayer.cpp in Sources */,
 				DDF5400B167A39CA0042B453 /* CatClassifDlg.cpp in Sources */,
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
 				A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */,

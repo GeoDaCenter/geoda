@@ -509,6 +509,16 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();
         geoms.push_back(geometry->clone());
+        OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
+        if (eType == wkbPoint) {
+            shape_type = Shapefile::POINT_TYP;
+        } else if (eType == wkbMultiPoint) {
+            shape_type = Shapefile::POINT_TYP;
+        } else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+            shape_type = Shapefile::POLYGON;
+        } else if (eType == wkbMultiPolygon) {
+            shape_type = Shapefile::POLYGON;
+        }
     }
     return shape_type;
 }
@@ -1133,15 +1143,16 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary(vector<OGRGeometry*>& geoms)
             }
         }
     }
-    OGRGeometry*  = geocol.UnionCascaded();
+    OGRGeometry* ogr_contour = geocol.UnionCascaded();
+    if (ogr_contour) {
+        return OGRGeomToGdaShape(ogr_contour);
+    }
+    return NULL;
 }
 
 GdaPolygon* OGRLayerProxy::GetMapBoundary()
 {
     if (mapContour == NULL) {
-        // create a multipolygon geometry
-        // geom = ogr.Geometry(ogr.wkbMultiPolygon)
-        //geom.AddGeometry(ogr.CreateGeometryFromWkt('POLYGON((0 0,0 1,1 1,0 0))'))
         OGRMultiPolygon geocol;
         for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
             OGRFeature* feature = data[row_idx];
@@ -1165,79 +1176,84 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
     }
     
     if (mapContour) {
-        OGRwkbGeometryType eType = wkbFlatten(mapContour->getGeometryType());
-        Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
-        if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
-            pc->shape_type = Shapefile::POLYGON;
-            OGRPolygon* p = (OGRPolygon *)mapContour;
-            OGRLinearRing* pLinearRing = NULL;
-            int numPoints= 0;
-            // interior rings
-            int ni_rings = p->getNumInteriorRings();
-            // resize parts memory, 1 is for exterior ring,
-            pc->num_parts = ni_rings + 1;
+        return OGRGeomToGdaShape(mapContour);
+    }
+    return NULL;
+}
+
+GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
+{
+    OGRwkbGeometryType eType = wkbFlatten(geom->getGeometryType());
+    Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
+    if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+        pc->shape_type = Shapefile::POLYGON;
+        OGRPolygon* p = (OGRPolygon *)geom;
+        OGRLinearRing* pLinearRing = NULL;
+        int numPoints= 0;
+        // interior rings
+        int ni_rings = p->getNumInteriorRings();
+        // resize parts memory, 1 is for exterior ring,
+        pc->num_parts = ni_rings + 1;
+        pc->parts.resize(pc->num_parts);
+        for (size_t j=0; j < pc->num_parts; j++ ) {
+            pLinearRing = j==0 ?
+            p->getExteriorRing() : p->getInteriorRing(j-1);
+            pc->parts[j] = numPoints;
+            if (pLinearRing)
+                numPoints += pLinearRing->getNumPoints();
+        }
+        // resize points memory
+        pc->num_points = numPoints;
+        pc->points.resize(pc->num_points);
+        // read points
+        int i=0;
+        for (size_t j=0; j < pc->num_parts; j++) {
+            pLinearRing = j==0 ?
+            p->getExteriorRing() : p->getInteriorRing(j-1);
+            if (pLinearRing) {
+                for (size_t k=0; k < pLinearRing->getNumPoints(); k++)
+                {
+                    pc->points[i].x =  pLinearRing->getX(k);
+                    pc->points[i++].y =  pLinearRing->getY(k);
+                }
+            }
+        }
+    } else if (eType == wkbMultiPolygon) {
+        pc->shape_type = Shapefile::POLYGON;
+        OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geom;
+        int n_geom = mpolygon->getNumGeometries();
+        // if there is more than one polygon, then we need to count which
+        // part is processing accumulatively
+        int part_idx = 0, numPoints = 0;
+        OGRLinearRing* pLinearRing = NULL;
+        int pidx =0;
+        for (size_t i = 0; i < n_geom; i++ ){
+            OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+            OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
+            // number of interior rings + 1 exterior ring
+            int ni_rings = p->getNumInteriorRings()+1;
+            pc->num_parts += ni_rings;
             pc->parts.resize(pc->num_parts);
-            for (size_t j=0; j < pc->num_parts; j++ ) {
-                pLinearRing = j==0 ?
-                p->getExteriorRing() : p->getInteriorRing(j-1);
-                pc->parts[j] = numPoints;
-                if (pLinearRing)
-                    numPoints += pLinearRing->getNumPoints();
+            
+            for (size_t j=0; j < ni_rings; j++) {
+                pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
+                pc->parts[part_idx++] = numPoints;
+                numPoints += pLinearRing->getNumPoints();
             }
             // resize points memory
             pc->num_points = numPoints;
             pc->points.resize(pc->num_points);
             // read points
-            int i=0;
-            for (size_t j=0; j < pc->num_parts; j++) {
-                pLinearRing = j==0 ?
-                p->getExteriorRing() : p->getInteriorRing(j-1);
-                if (pLinearRing) {
-                    for (size_t k=0; k < pLinearRing->getNumPoints(); k++)
-                    {
-                        pc->points[i].x =  pLinearRing->getX(k);
-                        pc->points[i++].y =  pLinearRing->getY(k);
-                    }
-                }
-            }
-        } else if (eType == wkbMultiPolygon) {
-            pc->shape_type = Shapefile::POLYGON;
-            OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) mapContour;
-            int n_geom = mpolygon->getNumGeometries();
-            // if there is more than one polygon, then we need to count which
-            // part is processing accumulatively
-            int part_idx = 0, numPoints = 0;
-            OGRLinearRing* pLinearRing = NULL;
-            int pidx =0;
-            for (size_t i = 0; i < n_geom; i++ ){
-                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
-                OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
-                // number of interior rings + 1 exterior ring
-                int ni_rings = p->getNumInteriorRings()+1;
-                pc->num_parts += ni_rings;
-                pc->parts.resize(pc->num_parts);
-                    
-                for (size_t j=0; j < ni_rings; j++) {
-                    pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
-                    pc->parts[part_idx++] = numPoints;
-                    numPoints += pLinearRing->getNumPoints();
-                }
-                // resize points memory
-                pc->num_points = numPoints;
-                pc->points.resize(pc->num_points);
-                // read points
-                for (size_t j=0; j < ni_rings; j++) {
-                    pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
-                    for (int k=0; k < pLinearRing->getNumPoints(); k++) {
-                        pc->points[pidx].x = pLinearRing->getX(k);
-                        pc->points[pidx++].y = pLinearRing->getY(k);
-                    }
+            for (size_t j=0; j < ni_rings; j++) {
+                pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
+                for (int k=0; k < pLinearRing->getNumPoints(); k++) {
+                    pc->points[pidx].x = pLinearRing->getX(k);
+                    pc->points[pidx++].y = pLinearRing->getY(k);
                 }
             }
         }
-        return new GdaPolygon(pc);
     }
-    return NULL;
+    return new GdaPolygon(pc);
 }
 
 bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)

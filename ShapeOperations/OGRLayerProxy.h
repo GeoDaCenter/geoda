@@ -142,9 +142,10 @@ public:
     
     void GetCentroids(vector<GdaPoint*>& centroids);
     
+    static GdaPolygon* OGRGeomToGdaShape(OGRGeometry* geom);
+    static GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
+
     GdaPolygon* GetMapBoundary();
-    
-    GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
     
     Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
