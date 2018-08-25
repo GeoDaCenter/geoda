@@ -631,6 +631,7 @@ class BackgroundMapLayer
     int opacity;
     int pen_size;
     bool show_boundary;
+    bool is_hide;
     
 public:
     vector<GdaShape*> shapes;
@@ -639,13 +640,23 @@ public:
                        vector<GdaShape*> geoms);
     ~BackgroundMapLayer();
     
+    void SetHide(bool flag);
+    bool IsHide();
     void SetPenColour(wxColour& color);
     void SetBrushColour(wxColour& color);
     void SetPointRadius(int radius);
     void SetOpacity(int opacity);
     void SetPenSize(int size);
     void ShowBoundary(bool show);
+    wxColour GetBrushColour();
+    wxColour GetPenColour();
+    int GetPenSize();
+    int GetPointRadius();
+    int GetOpacity();
+    bool IsShowBoundary();
+    
     vector<GdaShape*>& GetShapes();
+    Shapefile::ShapeType GetShapeType();
     
     void drawLegend(wxDC& dc, int x, int y, int w, int h);
 };

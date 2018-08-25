@@ -496,6 +496,23 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
+Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms, OGRSpatialReference* input_sr)
+{
+    OGRCoordinateTransformation *poCT = NULL;
+    if (input_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(input_sr, spatialRef);
+    }
+    Shapefile::ShapeType shape_type;
+    //read OGR geometry features
+    int feature_counter =0;
+    for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
+        OGRFeature* feature = data[row_idx];
+        OGRGeometry* geometry= feature->GetGeometryRef();
+        geoms.push_back(geometry->clone());
+    }
+    return shape_type;
+}
+
 Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms, OGRSpatialReference* input_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
@@ -1095,6 +1112,28 @@ void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
             centroids[row_idx] = new GdaPoint(x, y);
         }
     }
+}
+
+GdaPolygon* OGRLayerProxy::GetMapBoundary(vector<OGRGeometry*>& geoms)
+{
+    OGRMultiPolygon geocol;
+    for ( int i=0; i < geoms.size(); i++ ) {
+        OGRGeometry* geometry= geoms[i];
+        OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
+        if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+            geocol.addGeometry(geometry);
+        } else if (eType == wkbMultiPolygon) {
+            OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
+            int n_geom = mpolygon->getNumGeometries();
+            // if there is more than one polygon, then we need to count which
+            // part is processing accumulatively
+            for (size_t i = 0; i < n_geom; i++ ){
+                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+                geocol.addGeometry(ogrGeom);
+            }
+        }
+    }
+    OGRGeometry*  = geocol.UnionCascaded();
 }
 
 GdaPolygon* OGRLayerProxy::GetMapBoundary()

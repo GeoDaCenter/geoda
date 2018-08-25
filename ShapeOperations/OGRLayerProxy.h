@@ -144,7 +144,12 @@ public:
     
     GdaPolygon* GetMapBoundary();
     
+    GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
+    
     Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
+                                          OGRSpatialReference* input_sr=NULL);
+    
+    Shapefile::ShapeType GetOGRGeometries(vector<OGRGeometry*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
     
 	/**

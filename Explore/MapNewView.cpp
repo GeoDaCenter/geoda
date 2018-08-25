@@ -52,6 +52,7 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
+#include "../TemplateLegend.h"
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
 #include "MapLayoutView.h"
@@ -262,6 +263,14 @@ MapCanvas::~MapCanvas()
         }
         delete ml;
     }
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        vector<GdaShape*>& shps = ml->GetShapes();
+        for (int i=0; i<shps.size(); i++) {
+            delete shps[i];
+        }
+        delete ml;
+    }
 }
 
 map<wxString, BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()
@@ -269,9 +278,19 @@ map<wxString, BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()
     return bg_maps;
 }
 
+void MapCanvas::SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    bg_maps = val;
+}
+
 map<wxString, BackgroundMapLayer*> MapCanvas::GetForegroundMayLayers()
 {
     return fg_maps;
+}
+
+void MapCanvas::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    fg_maps = val;
 }
 
 int MapCanvas::GetEmptyNumber()
@@ -769,7 +788,7 @@ void MapCanvas::AddMapLayer(wxString name, OGRLayerProxy* layer_proxy)
 
 int MapCanvas::GetMapLayerCount()
 {
-    return bg_maps.size();
+    return bg_maps.size() + fg_maps.size();
 }
 
 void MapCanvas::DrawLayerBase()
@@ -976,7 +995,7 @@ void MapCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
         shp->paintSelf(dc);
     }
-    //DrawSelectableShapes_dc(dc);
+    DrawSelectableShapes_dc(dc);
     dc.SelectObject(wxNullBitmap);
     layer0_valid = true;
     layer1_valid = false;
@@ -1842,6 +1861,13 @@ void MapCanvas::PopulateCanvas()
         BackgroundMapLayer* ml = it->second;
         GdaShapeLayer* bg_map = new GdaShapeLayer(it->first, ml);
         background_shps.push_back(bg_map);
+    }
+    
+    // Foreground map layers
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        GdaShapeLayer* fg_map = new GdaShapeLayer(it->first, ml);
+        foreground_shps.push_back(fg_map);
     }
     
     if ( display_map_boundary ) {
@@ -3411,10 +3437,11 @@ EVT_MENU(XRCID("IDC_CHANGE_POINT_RADIUS"), MapTree::OnChangePointRadius)
 EVT_MOUSE_EVENTS(MapTree::OnEvent)
 END_EVENT_TABLE()
 
-MapTree::MapTree(wxWindow *parent, MapCanvas* canvas, const wxPoint& pos, const wxSize& size)
+MapTree::MapTree(wxWindow *parent, MapCanvas* _canvas, const wxPoint& pos, const wxSize& size)
 : wxWindow(parent, wxID_ANY, pos, size),
+select_id(-1),
+canvas(_canvas),
 isLeftDown(false),
-select_label(NULL),
 recreate_labels(true),
 isDragDropAllowed(false),
 bg_maps(canvas->GetBackgroundMayLayers()),
@@ -3422,8 +3449,8 @@ fg_maps(canvas->GetForegroundMayLayers())
 {
     SetBackgroundColour(GdaConst::legend_background_color);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
-    d_rect = 20;
-    px = 50;
+    px_switch = 30;
+    px = 60;
     py = 40;
     leg_h = 15;
     leg_w = 20;
@@ -3442,16 +3469,21 @@ fg_maps(canvas->GetForegroundMayLayers())
         wxString lbl = it->first;
         map_titles.push_back(lbl);
     }
+
+    for (int i=0; i<map_titles.size(); i++) {
+        wxString lbl = map_titles[i];
+        int x =  px;
+        int y =  py + (leg_h + leg_pad_y) * i;
+        wxPoint pt(x, py);
+        wxSize sz(size.GetWidth() - x, leg_h);
+        new_order.push_back(i);
+    }
     
     Connect(wxEVT_PAINT, wxPaintEventHandler(MapTree::OnPaint));
 }
 
 MapTree::~MapTree()
 {
-    for (int i=0; i<labels.size(); i++) {
-        delete labels[i];
-    }
-    labels.clear();
 }
 
 void MapTree::OnPaint( wxPaintEvent& event )
@@ -3461,62 +3493,110 @@ void MapTree::OnPaint( wxPaintEvent& event )
     OnDraw(dc);
 }
 
-void MapTree::OnMapColor(wxCommandEvent& event)
+void MapTree::OnChangeFillColor(wxCommandEvent& event)
 {
-    
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        wxColour clr;
+        clr = wxGetColourFromUser(this, ml->GetBrushColour());
+        ml->SetBrushColour(clr);
+        canvas->ReDraw();
+        Refresh();
+    }
+}
+void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        wxColour clr;
+        clr = wxGetColourFromUser(this, ml->GetPenColour());
+        ml->SetPenColour(clr);
+        canvas->ReDraw();
+        Refresh();
+    }
 }
 void MapTree::OnChangePointRadius(wxCommandEvent& event)
 {
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        wxColour clr;
+        clr = wxGetColourFromUser(this, ml->GetPenColour());
+        int old_radius = ml->GetPointRadius();
+        PointRadiusDialog dlg(_("Change Point Radius"), old_radius);
+        if (dlg.ShowModal() == wxID_OK) {
+            int new_radius = dlg.GetRadius();
+            ml->SetPointRadius(new_radius);
+            canvas->ReDraw();
+            Refresh();
+        }
+    }
+}
+void MapTree::OnOutlineVisible(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        int pen_size = ml->GetPenSize();
+        if (pen_size > 0) {
+            // not show outline
+            ml->SetPenSize(0);
+        } else {
+            // show outline
+            ml->SetPenSize(1);
+        }
+        canvas->ReDraw();
+        Refresh();
+    }
+}
+void MapTree::OnShowMapBoundary(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        bool show_bnd = ml->IsShowBoundary();
+        ml->ShowBoundary(!show_bnd);
+        canvas->ReDraw();
+        Refresh();
+    }
 }
 
 void MapTree::OnEvent(wxMouseEvent& event)
 {
     int cat_clicked = GetCategoryClick(event);
-    
     if (event.RightUp()) {
-        wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_VIEW_MENU_LEGEND");
-        AddCategoryColorToMenu(optMenu, cat_clicked);
-        PopupMenu(optMenu, event.GetPosition());
+        OnRightClick(event);
         return;
     }
     
     if (event.LeftDown()) {
         isLeftDown = true;
-        for (int i=0;i<labels.size();i++) {
-            if (labels[i]->contains(event.GetPosition())){
-                select_label = labels[i];
-                break;
-            }
+        select_id = cat_clicked;
+        if (select_id > -1) {
+            select_name = map_titles[new_order[select_id]];
+            move_pos = event.GetPosition();
         }
+        
     } else if (event.Dragging()) {
         if (isLeftDown) {
             isLeftMove = true;
             // moving
-            if (select_label) {
-                select_label->move(event.GetPosition());
-                for (int i=0; i<labels.size(); i++) {
-                    if (labels[i] != select_label) {
-                        if (select_label->intersect(*labels[i])){
-                            LOG_MSG("intersect");
-                            // exchange labels only
-                            new_order.clear();
-                            for (int j=0; j<labels.size();j++) new_order.push_back(j);
-                            int from = select_label->idx;
-                            int to = labels[i]->idx;
-                            LOG_MSG(select_label->GetText());
-                            LOG_MSG(labels[i]->GetText());
-                            // get new order
-                            //new_order[from] = to;
-                            //new_order[to] = from;
-                            select_label->idx = to;
-                            labels[i]->idx = from;
-                            break;
-                        }
+            if (select_id > -1 ) {
+                // paint selected label with mouse
+                int label_id = new_order[select_id];
+                move_pos = event.GetPosition();
+                if (cat_clicked > -1 && select_id != cat_clicked) {
+                    // reorganize new_order
+                    if (select_id > cat_clicked) {
+                        new_order.insert(new_order.begin()+cat_clicked, new_order[select_id]);
+                        new_order.erase(new_order.begin() + select_id + 1);
                     } else {
-                        LOG_MSG("other");
-                        //new_order.clear();
-                        //for (int j=0; j<labels.size();j++) new_order.push_back(j);
+                        new_order.insert(new_order.begin()+cat_clicked+1, new_order[select_id]);
+                        new_order.erase(new_order.begin() + select_id);
                     }
+                    select_id = cat_clicked;
                 }
             }
             Refresh();
@@ -3525,30 +3605,63 @@ void MapTree::OnEvent(wxMouseEvent& event)
         if (isLeftMove) {
             isLeftMove = false;
             // stop move
-            if (select_label) {
-                for (int i=0; i<labels.size(); i++) {
-                    if (labels[i] != select_label) {
-                        if (select_label->intersect(*labels[i])){
-                            // exchange labels applying o map
-                            //int from = select_label->idx;
-                            //int to = labels[i]->idx;
-                            //template_canvas->cat_data.ExchangeLabels(from, to);
-                            //recreate_labels = true;
-                            //break;
-                        }
-                    }
-                }
-            }
-            select_label = NULL;
+            OnMapLayerChange();
+            select_id = -1;
+            select_name = "";
             Refresh();
         } else {
             // only left click
-            if (cat_clicked != -1) {
-            }
+            OnSwitchClick(event);
         }
         isLeftDown = false;
     }
 }
+
+void MapTree::OnRightClick(wxMouseEvent& event)
+{
+    select_id = GetLegendClick(event);
+    if (select_id < 0) {
+        OnSwitchClick(event);
+        return;
+    }
+    wxMenu* popupMenu = new wxMenu(wxEmptyString);
+    popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
+    popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
+    popupMenu->Append(XRCID("MAPTREE_OUTLINE_VISIBLE"), _("Outline Visible"));
+    
+    wxString map_name = map_titles[ new_order[select_id] ];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml == NULL) {
+        return;
+    }
+    
+    // check menu items
+    wxMenuItem* outline = popupMenu->FindItem(XRCID("MAPTREE_OUTLINE_VISIBLE"));
+    if (outline) {
+        outline->SetCheckable(true);
+        if (ml->GetPenSize() > 0) outline->Check();
+    }
+            
+    Connect(XRCID("MAPTREE_CHANGE_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangeFillColor));
+    Connect(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangeOutlineColor));
+    Connect(XRCID("MAPTREE_OUTLINE_VISIBLE"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnOutlineVisible));
+    
+    if (ml->GetShapeType() == Shapefile::POINT_TYP) {
+        popupMenu->Append(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), _("Change Point Radius"));
+        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangePointRadius));
+    } else {
+        popupMenu->Append(XRCID("MAPTREE_BOUNDARY_ONLY"), _("Only Map Boundary"));
+        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnShowMapBoundary));
+        wxMenuItem* boundary = popupMenu->FindItem(XRCID("MAPTREE_BOUNDARY_ONLY"));
+        if (boundary) {
+            boundary->SetCheckable(true);
+            if (ml->IsShowBoundary()) boundary->Check();
+        }
+    }
+    
+    PopupMenu(popupMenu, event.GetPosition());
+}
+
 void MapTree::OnDraw(wxDC& dc)
 {
     dc.SetFont(*GdaConst::small_font);
@@ -3556,47 +3669,65 @@ void MapTree::OnDraw(wxDC& dc)
     wxCoord w, h;
     dc.GetSize(&w, &h);
     
-    int numRect = map_titles.size();
-    
-    // init labels
-    if (recreate_labels || labels.size() != numRect) {
-        for (int i=0; i<labels.size(); i++){
-            delete labels[i];
-        }
-        labels.clear();
-        new_order.clear();
-        for (int i=0; i<map_titles.size(); i++) {
-            wxString lbl = map_titles[i];
-            int x =  px;
-            int y =  py + (leg_h + leg_pad_y) * i;
-            wxPoint pt(x, py);
-            wxSize sz(w - x, leg_h);
-            GdaLegendLabel* legend = new GdaLegendLabel(i, lbl, pt, sz);
-            labels.push_back(legend);
-            new_order.push_back(i);
-        }
-        recreate_labels = false;
+    if ( !select_name.IsEmpty() ) {
+        DrawLegend(dc, px_switch, move_pos.y, select_name);
     }
     
     for (int i=0; i<new_order.size(); i++) {
-        GdaLegendLabel* lbl = labels[new_order[i]];
-        if (lbl != select_label) {
-            wxString map_name = lbl->GetText();
-            int y =  py + (leg_h + leg_pad_y) * lbl->idx;
-            DrawSwitcher(dc, 10, y, map_name);
+        int idx = new_order[i];
+        wxString map_name = map_titles[idx];
+        
+        if (select_name != map_name) {
+            int y =  py + (leg_h + leg_pad_y) * i;
+            DrawLegend(dc, px_switch, y, map_name);
         }
     }
-    
-    if ( select_label ) {
-        wxString map_name = select_label->GetText();
-        wxPoint pos = select_label->GetTmpPosition();
-        DrawSwitcher(dc, 10, pos.y, map_name);
-    }
+    wxPen pen(*wxBLACK, 1, wxPENSTYLE_DOT);
+    dc.SetPen(pen);
+    dc.DrawLine(10, py, 10, (py + (leg_h + leg_pad_y) * new_order.size()));
 }
 
-void MapTree::DrawSwitcher(wxDC& dc, int x, int y, wxString text)
+void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
 {
+    int x_org = x;
+    
+    wxPen pen(*wxBLACK, 1, wxPENSTYLE_DOT);
+    dc.SetPen(pen);
+    dc.DrawLine(10, y+2, x, y+2);
+    
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(text) != bg_maps.end()) {
+        ml = bg_maps[text];
+    } else if (fg_maps.find(text) != fg_maps.end()) {
+        ml = fg_maps[text];
+    }
+    
+    x = x + 45; // switch width
+    dc.SetPen(*wxBLACK_PEN);
+    if (text == current_map_title) {
+        dc.SetPen(*wxLIGHT_GREY);
+    } else {
+        wxPen pen(ml->GetPenColour(), ml->GetPenSize());
+        wxBrush brush(ml->GetBrushColour());
+        dc.SetPen(pen);
+        dc.SetBrush(brush);
+    }
+    dc.DrawRectangle(x, y, leg_w, leg_h);
+    
+    x = x + leg_w + leg_pad_x;
+    dc.SetTextForeground(*wxBLACK);
+    if (text == current_map_title) {
+        dc.SetTextForeground(*wxLIGHT_GREY);
+    }
+    dc.DrawText(text, x, y);
+    
+    // draw switch button
+    if (ml == NULL) {
+        return;
+    }
+    
     wxString ds_thumb = "switch-on.png";
+    if (ml->IsHide()) ds_thumb = "switch-off.png";
     wxString file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
     
     wxImage img;
@@ -3609,32 +3740,16 @@ void MapTree::DrawSwitcher(wxDC& dc, int x, int y, wxString text)
         return;
     }
     
-    //img.Rescale(100,66,wxIMAGE_QUALITY_HIGH );
     wxBitmap bmp(img);
-    dc.DrawBitmap(bmp, x, y);
-    x = x + 45;
-    dc.SetPen(*wxBLACK_PEN);
-    if (text == current_map_title) {
-        dc.SetPen(*wxLIGHT_GREY);
-    }
-    dc.DrawRectangle(x, y, leg_w, leg_h);
-    
-    x = x + leg_w + leg_pad_x;
-    dc.SetTextForeground(*wxBLACK);
-    if (text == current_map_title) {
-        dc.SetTextForeground(*wxLIGHT_GREY);
-    }
-    dc.DrawText(text, x, y);
+    dc.DrawBitmap(bmp, x_org, y);
 }
 
 int MapTree::GetCategoryClick(wxMouseEvent& event)
 {
     wxPoint pt(event.GetPosition());
     int x = pt.x, y = pt.y;
-    
     wxCoord w, h;
     GetClientSize(&w, &h);
-    
     for (int i = 0; i<map_titles.size(); i++) {
         int cur_y = py + (leg_h + leg_pad_y) * i;
         if ((x > px) && (x < w - px) &&
@@ -3643,8 +3758,96 @@ int MapTree::GetCategoryClick(wxMouseEvent& event)
             return i;
         }
     }
-    
     return -1;
+}
+
+int MapTree::GetSwitchClick(wxMouseEvent& event)
+{
+    wxPoint pt(event.GetPosition());
+    int x = pt.x, y = pt.y;
+
+    for (int i = 0; i<map_titles.size(); i++) {
+        int cur_y = py + (leg_h + leg_pad_y) * i;
+        if ((x > px_switch) && (x < px_switch + 30) &&
+            (y > cur_y) && (y < cur_y + leg_h))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int MapTree::GetLegendClick(wxMouseEvent& event)
+{
+    wxPoint pt(event.GetPosition());
+    int x = pt.x, y = pt.y;
+
+    for (int i = 0; i<map_titles.size(); i++) {
+        int cur_y = py + (leg_h + leg_pad_y) * i;
+        if (x > px_switch + 30 &&
+            (y > cur_y) && (y < cur_y + leg_h))
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void MapTree::OnSwitchClick(wxMouseEvent& event)
+{
+    int switch_idx = GetSwitchClick(event);
+    if (switch_idx > -1) {
+        BackgroundMapLayer* ml = NULL;
+        wxString map_name = map_titles[new_order[switch_idx]];
+        if (bg_maps.find(map_name) != bg_maps.end()) {
+            ml = bg_maps[map_name];
+        } else if (fg_maps.find(map_name) != fg_maps.end()) {
+            ml = fg_maps[map_name];
+        }
+        if (ml) {
+            ml->SetHide(!ml->IsHide());
+            canvas->ReDraw();
+            Refresh();
+        }
+     }
+}
+
+BackgroundMapLayer* MapTree::GetMapLayer(wxString map_name)
+{
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(map_name) != bg_maps.end()) {
+        ml = bg_maps[map_name];
+    } else if (fg_maps.find(map_name) != fg_maps.end()) {
+        ml = fg_maps[map_name];
+    }
+    return ml;
+}
+
+void MapTree::OnMapLayerChange()
+{
+    map<wxString, BackgroundMapLayer*> new_bg_maps;
+    map<wxString, BackgroundMapLayer*> new_fg_maps;
+    
+    bool is_fgmap = true;
+    for (int i=0; i<new_order.size(); i++) {
+        wxString name = map_titles[ new_order[i] ];
+        if (name == current_map_title) {
+            is_fgmap = false;
+            continue;
+        }
+        if (is_fgmap) {
+            new_fg_maps[name] = GetMapLayer(name);
+        } else {
+            new_bg_maps[name] = GetMapLayer(name);
+        }
+    }
+    
+    bg_maps = new_bg_maps;
+    fg_maps = new_fg_maps;
+    canvas->SetForegroundMayLayers(fg_maps);
+    canvas->SetBackgroundMayLayers(bg_maps);
+    canvas->PopulateCanvas();
+    canvas->ReDraw();
 }
 
 void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)

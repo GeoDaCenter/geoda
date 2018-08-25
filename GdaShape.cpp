@@ -2828,7 +2828,8 @@ brush_color(wxTRANSPARENT),
 point_radius(2),
 opacity(255),
 pen_size(1),
-show_boundary(false)
+show_boundary(false),
+is_hide(false)
 {
     
 }
@@ -2836,6 +2837,21 @@ show_boundary(false)
 BackgroundMapLayer::~BackgroundMapLayer()
 {
     
+}
+
+Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
+{
+    return shape_type;
+}
+
+void BackgroundMapLayer::SetHide(bool flag)
+{
+    is_hide = flag;
+}
+
+bool BackgroundMapLayer::IsHide()
+{
+    return is_hide;
 }
 
 void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)
@@ -2859,6 +2875,16 @@ void BackgroundMapLayer::SetOpacity(int val)
     opacity = val;
 }
 
+int BackgroundMapLayer::GetOpacity()
+{
+    return opacity;
+}
+
+int BackgroundMapLayer::GetPenSize()
+{
+    return pen_size;
+}
+
 void BackgroundMapLayer::SetPenSize(int val)
 {
     pen_size = val;
@@ -2869,9 +2895,19 @@ void BackgroundMapLayer::SetPenColour(wxColour &color)
     pen_color = color;
 }
 
+wxColour BackgroundMapLayer::GetPenColour()
+{
+    return pen_color;
+}
+
 void BackgroundMapLayer::SetBrushColour(wxColour &color)
 {
     brush_color = color;
+}
+
+wxColour BackgroundMapLayer::GetBrushColour()
+{
+    return brush_color;
 }
 
 void BackgroundMapLayer::ShowBoundary(bool show)
@@ -2879,9 +2915,19 @@ void BackgroundMapLayer::ShowBoundary(bool show)
     show_boundary = show;
 }
 
+bool BackgroundMapLayer::IsShowBoundary()
+{
+    return show_boundary;
+}
+
 void BackgroundMapLayer::SetPointRadius(int radius)
 {
     point_radius = radius;
+}
+
+int BackgroundMapLayer::GetPointRadius()
+{
+    return point_radius;
 }
 
 vector<GdaShape*>& BackgroundMapLayer::GetShapes()
@@ -2931,8 +2977,18 @@ void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
 
 void GdaShapeLayer::paintSelf(wxDC &dc)
 {
-    for (int i=0; i<ml->shapes.size(); i++) {
-        ml->shapes[i]->paintSelf(dc);
+    if (ml->IsHide() == false) {
+        wxPen pen(ml->GetPenColour(), ml->GetPenSize());
+        if (ml->GetPenSize() == 0 ) {
+            pen.SetColour(ml->GetBrushColour());
+        }
+        wxBrush brush(ml->GetBrushColour());
+        
+        for (int i=0; i<ml->shapes.size(); i++) {
+            ml->shapes[i]->setPen(pen);
+            ml->shapes[i]->setBrush(brush);
+            ml->shapes[i]->paintSelf(dc);
+        }
     }
 }
 
