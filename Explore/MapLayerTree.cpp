@@ -94,6 +94,32 @@ void MapTree::OnPaint( wxPaintEvent& event )
     OnDraw(dc);
 }
 
+void MapTree::OnRemoveMapLayer(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(map_name) != bg_maps.end()) {
+        ml = bg_maps[map_name];
+        ml->CleanMemory();
+        bg_maps.erase(map_name);
+    } else if (fg_maps.find(map_name) != fg_maps.end()) {
+        ml = fg_maps[map_name];
+        ml->CleanMemory();
+        fg_maps.erase(map_name);
+    }
+    
+    int oid = new_order[select_id];
+    map_titles.erase(map_titles.begin() + new_order[select_id]);
+    new_order.erase(new_order.begin() + select_id);
+    for (int i=0; i<new_order.size(); i++) {
+        if (new_order[i] > oid) {
+            new_order[i] -= 1;
+        }
+    }
+    select_id = select_id > 0 ? select_id-1 : 0;
+    Refresh();
+    OnMapLayerChange();
+}
 void MapTree::OnChangeFillColor(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -257,6 +283,10 @@ void MapTree::OnRightClick(wxMouseEvent& event)
             if (ml->IsShowBoundary()) boundary->Check();
         }
     }
+    
+    popupMenu->AppendSeparator();
+    popupMenu->Append(XRCID("MAPTREE_REMOVE"), _("Remove"));
+    Connect(XRCID("MAPTREE_REMOVE"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnRemoveMapLayer));
     
     PopupMenu(popupMenu, event.GetPosition());
 }
@@ -449,8 +479,7 @@ void MapTree::OnMapLayerChange()
     fg_maps = new_fg_maps;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
-    canvas->PopulateCanvas();
-    canvas->ReDraw();
+    canvas->DisplayMapLayers();
 }
 
 void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)

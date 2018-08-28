@@ -33,6 +33,7 @@ public:
     BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
     ~BackgroundMapLayer();
     
+    void CleanMemory();
     void SetHide(bool flag);
     bool IsHide();
     void SetPenColour(wxColour& color);
@@ -57,8 +58,6 @@ public:
 class GdaShapeLayer : public GdaShape  {
     wxString name;
     BackgroundMapLayer* ml;
-    vector<GdaShape*> shapes;
-    GdaPolygon* map_boundary;
     
 public:
     GdaShapeLayer(wxString name, BackgroundMapLayer* ml);

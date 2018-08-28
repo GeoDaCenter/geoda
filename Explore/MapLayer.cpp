@@ -9,8 +9,8 @@
 
 BackgroundMapLayer::BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
 :
-pen_color(*wxBLACK),
-brush_color(wxTRANSPARENT),
+pen_color(wxColour(192, 192, 192)),
+brush_color(wxColour(255, 255, 255, 0)),
 point_radius(2),
 opacity(255),
 pen_size(1),
@@ -26,6 +26,15 @@ map_boundary(NULL)
 BackgroundMapLayer::~BackgroundMapLayer()
 {
     delete map_boundary;
+}
+
+void BackgroundMapLayer::CleanMemory()
+{
+    // shapes and geoms will be not deleted until the map destroyed 
+    for (int i=0; i<shapes.size(); i++) {
+        delete shapes[i];
+        delete geoms[i];
+    }
 }
 
 Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
@@ -45,18 +54,14 @@ bool BackgroundMapLayer::IsHide()
 
 void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)
 {
-    if (shape_type == Shapefile::POLYGON) {
-        wxPen pen(pen_color);
-        int r = brush_color.Red();
-        int g = brush_color.Green();
-        int b = brush_color.Blue();
-        wxColour b_color(r,g,b,opacity);
-        dc.SetPen(pen);
-        dc.SetBrush(b_color);
-        dc.DrawRectangle(x, y, w, h);
-    } else if (shape_type == Shapefile::POINT_TYP) {
-        
-    }
+    wxPen pen(pen_color);
+    int r = brush_color.Red();
+    int g = brush_color.Green();
+    int b = brush_color.Blue();
+    wxColour b_color(r,g,b,opacity);
+    dc.SetPen(pen);
+    dc.SetBrush(b_color);
+    dc.DrawRectangle(x, y, w, h);
 }
 
 void BackgroundMapLayer::SetOpacity(int val)
@@ -131,23 +136,12 @@ vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 
 
 GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)
-: name(_name), ml(_ml), map_boundary(NULL)
+: name(_name), ml(_ml)
 {
-    // reset shapes (scale)
-    shapes.resize(ml->shapes.size());
-    for (int i=0; i<ml->shapes.size(); i++) {
-        shapes[i] = ml->shapes[i]->clone();
-    }
 }
 
 GdaShapeLayer::~GdaShapeLayer()
 {
-    for (int i=0; i<shapes.size(); i++) {
-        delete shapes[i];
-    }
-    if (map_boundary) {
-        delete map_boundary;
-    }
 }
 
 GdaShape* GdaShapeLayer::clone()
@@ -168,22 +162,22 @@ void GdaShapeLayer::Offset(int dx, int dy)
 
 void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
 {
-    for (int i=0; i<shapes.size(); i++) {
-        shapes[i]->applyScaleTrans(A);
-        if (ml->map_boundary) {
-            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
-            map_boundary->applyScaleTrans(A);
+    if (ml->map_boundary) {
+        ml->map_boundary->applyScaleTrans(A);
+    } else {
+        for (int i=0; i<ml->shapes.size(); i++) {
+            ml->shapes[i]->applyScaleTrans(A);
         }
     }
 }
 
 void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
 {
-    for (int i=0; i<shapes.size(); i++) {
-        shapes[i]->projectToBasemap(basemap, scale_factor);
-        if (ml->map_boundary) {
-            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
-            map_boundary->projectToBasemap(basemap, scale_factor);
+    if (ml->map_boundary) {
+        ml->map_boundary->projectToBasemap(basemap, scale_factor);
+    } else {
+        for (int i=0; i<ml->shapes.size(); i++) {
+            ml->shapes[i]->projectToBasemap(basemap, scale_factor);
         }
     }
 }
@@ -199,19 +193,18 @@ void GdaShapeLayer::paintSelf(wxDC &dc)
         wxBrush brush(ml->GetBrushColour());
         
         if (ml->IsShowBoundary()) {
-            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
-            map_boundary->paintSelf(dc);
+            ml->map_boundary->paintSelf(dc);
             return;
         }
         
-        for (int i=0; i<shapes.size(); i++) {
+        for (int i=0; i<ml->shapes.size(); i++) {
             if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-                GdaPoint* pt = (GdaPoint*)shapes[i];
+                GdaPoint* pt = (GdaPoint*)ml->shapes[i];
                 pt->radius = ml->GetPointRadius();
             }
-            shapes[i]->setPen(pen);
-            shapes[i]->setBrush(brush);
-            shapes[i]->paintSelf(dc);
+            ml->shapes[i]->setPen(pen);
+            ml->shapes[i]->setBrush(brush);
+            ml->shapes[i]->paintSelf(dc);
         }
     }
 }

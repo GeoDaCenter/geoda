@@ -64,6 +64,7 @@ protected:
     void OnChangePointRadius(wxCommandEvent& event);
     void OnOutlineVisible(wxCommandEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
+    void OnRemoveMapLayer(wxCommandEvent& event);
     void OnSwitchClick(wxMouseEvent& event);
     int  GetLegendClick(wxMouseEvent& event);
     int  GetSwitchClick(wxMouseEvent& event);

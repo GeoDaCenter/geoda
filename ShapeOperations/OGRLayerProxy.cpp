@@ -508,6 +508,9 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();
+        if (poCT) {
+            geometry->transform(poCT);
+        }
         geoms.push_back(geometry->clone());
         OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
         if (eType == wkbPoint) {

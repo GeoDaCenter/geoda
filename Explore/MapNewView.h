@@ -168,6 +168,7 @@ public:
     virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
+    void DisplayMapLayers();
     void AddMapLayer(wxString name, OGRLayerProxy* layer_proxy);
     int GetMapLayerCount();
     int GetBasemapType();
@@ -321,7 +322,6 @@ public:
 	virtual void update(WeightsManState* o);
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
-    
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 	virtual void OnThemelessMap();
@@ -352,16 +352,12 @@ public:
     virtual void OnDrawBasemap(bool flag, int map_type);
     
     void OnClose(wxCloseEvent& event);
-    
     void CleanBasemap();
-    
 	void GetVizInfo(map<wxString, vector<int> >& colors);
-	
     void GetVizInfo(wxString& shape_type,
                     wxString& field_name,
                     vector<wxString>& clrs,
                     vector<double>& bins);
-    
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
     void OnDisplayMapWithGraph(wxCommandEvent& event);
@@ -369,7 +365,6 @@ public:
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
-
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);

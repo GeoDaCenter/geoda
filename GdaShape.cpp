@@ -1263,21 +1263,21 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 {
 	if (null_shape) return;
 	GdaShape::applyScaleTrans(A); // apply affine transform to base class
-	all_points_same = true;
-	wxPoint tpt;
-	A.transform(bb_ll_o, &tpt);
-	if (tpt == center) A.transform(bb_ur_o, &tpt);
-	if (tpt == center) return;
+	//all_points_same = true;
+	//wxPoint tpt;
+	//A.transform(bb_ll_o, &tpt);
+	//if (tpt == center) A.transform(bb_ur_o, &tpt);
+	//if (tpt == center) return;
 	if (points_o) {
 		for (int i=0; i<n; i++) {
 			A.transform(points_o[i], &(points[i]));
-			if (points[i] != center) all_points_same = false;
+			//if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
 			A.transform(pc->points[i], &(points[i]));
-			if (points[i] != center) all_points_same = false;
+			//if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}
@@ -1289,24 +1289,7 @@ void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
     if (null_shape) 
         return;
     
-	GdaShape::projectToBasemap(basemap, scale_factor); // apply transform to base class
-	all_points_same = true;
-	wxPoint tpt;
-    
-    basemap->LatLngToXY(bb_ll_o.x, bb_ll_o.y, tpt.x, tpt.y);
-    
-    if (tpt == center)  {
-        basemap->LatLngToXY(bb_ur_o.x, bb_ur_o.y, tpt.x, tpt.y);
-    }
-    
-    if (scale_factor != 1) {
-        tpt.x = tpt.x * scale_factor;
-        tpt.y = tpt.y * scale_factor;
-    }
-    
-	if (tpt == center) 
-        return;
-    
+	GdaShape::projectToBasemap(basemap, scale_factor);
 	if (points_o) {
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(points_o[i].x, points_o[i].y, 
@@ -1315,10 +1298,7 @@ void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
                 points[i].x = points[i].x * scale_factor;
                 points[i].y = points[i].y * scale_factor;
             }
-			if (points[i] != center) 
-                all_points_same = false;
 		}
-		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(pc->points[i].x, pc->points[i].y, 
@@ -1327,10 +1307,7 @@ void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
                 points[i].x = points[i].x * scale_factor;
                 points[i].y = points[i].y * scale_factor;
             }
-			if (points[i] != center) 
-                all_points_same = false;
 		}
-		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}
 }
 
