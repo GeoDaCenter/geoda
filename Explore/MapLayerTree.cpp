@@ -10,6 +10,7 @@
 #include <wx/dcbuffer.h>
 #include <wx/colordlg.h>
 
+#include "../logger.h"
 #include "MapNewView.h"
 #include "MapLayer.hpp"
 #include "MapLayerTree.hpp"
@@ -27,9 +28,7 @@ select_id(-1),
 canvas(_canvas),
 isLeftDown(false),
 recreate_labels(true),
-isDragDropAllowed(false),
-bg_maps(canvas->GetBackgroundMayLayers()),
-fg_maps(canvas->GetForegroundMayLayers())
+isDragDropAllowed(false)
 {
     SetBackgroundColour(GdaConst::legend_background_color);
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -42,6 +41,29 @@ fg_maps(canvas->GetForegroundMayLayers())
     leg_pad_y = 5;
     
     current_map_title = canvas->GetCanvasTitle() + " (current map)";
+    
+    Init();
+    Connect(wxEVT_PAINT, wxPaintEventHandler(MapTree::OnPaint));
+}
+
+MapTree::~MapTree()
+{
+}
+
+void MapTree::Init()
+{
+    int w, h;
+    GetClientSize(&w, &h);
+    
+    map_titles.clear();
+    new_order.clear();
+    
+    bg_maps = canvas->GetBackgroundMayLayers();
+    fg_maps = canvas->GetForegroundMayLayers();
+    
+    int n_maps = bg_maps.size() + fg_maps.size() + 1;
+    h = n_maps * 25  + 60;
+    SetSize(w, h);
     
     map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
@@ -59,15 +81,10 @@ fg_maps(canvas->GetForegroundMayLayers())
         int x =  px;
         int y =  py + (leg_h + leg_pad_y) * i;
         wxPoint pt(x, py);
-        wxSize sz(size.GetWidth() - x, leg_h);
+        wxSize sz(w - x, leg_h);
         new_order.push_back(i);
     }
-    
-    Connect(wxEVT_PAINT, wxPaintEventHandler(MapTree::OnPaint));
-}
-
-MapTree::~MapTree()
-{
+    Refresh();
 }
 
 void MapTree::OnPaint( wxPaintEvent& event )
@@ -85,8 +102,8 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
         wxColour clr;
         clr = wxGetColourFromUser(this, ml->GetBrushColour());
         ml->SetBrushColour(clr);
-        canvas->ReDraw();
         Refresh();
+        CallAfter(&MapCanvas::ReDraw);
     }
 }
 void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
@@ -97,8 +114,8 @@ void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
         wxColour clr;
         clr = wxGetColourFromUser(this, ml->GetPenColour());
         ml->SetPenColour(clr);
-        canvas->ReDraw();
         Refresh();
+        CallAfter(&MapCanvas::ReDraw);
     }
 }
 void MapTree::OnChangePointRadius(wxCommandEvent& event)
@@ -111,8 +128,8 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
         if (dlg.ShowModal() == wxID_OK) {
             int new_radius = dlg.GetRadius();
             ml->SetPointRadius(new_radius);
-            canvas->ReDraw();
             Refresh();
+            CallAfter(&MapCanvas::ReDraw);
         }
     }
 }
@@ -129,8 +146,8 @@ void MapTree::OnOutlineVisible(wxCommandEvent& event)
             // show outline
             ml->SetPenSize(1);
         }
-        canvas->ReDraw();
         Refresh();
+        CallAfter(&MapCanvas::ReDraw);
     }
 }
 void MapTree::OnShowMapBoundary(wxCommandEvent& event)
@@ -140,8 +157,8 @@ void MapTree::OnShowMapBoundary(wxCommandEvent& event)
     if (ml) {
         bool show_bnd = ml->IsShowBoundary();
         ml->ShowBoundary(!show_bnd);
-        canvas->ReDraw();
         Refresh();
+        CallAfter(&MapCanvas::ReDraw);
     }
 }
 
@@ -251,6 +268,8 @@ void MapTree::OnDraw(wxDC& dc)
     wxCoord w, h;
     dc.GetSize(&w, &h);
     
+    dc.DrawText(_("Map Layer Setting"), 5, 10);
+    
     if ( !select_name.IsEmpty() ) {
         DrawLegend(dc, px_switch, move_pos.y, select_name);
     }
@@ -261,12 +280,13 @@ void MapTree::OnDraw(wxDC& dc)
         
         if (select_name != map_name) {
             int y =  py + (leg_h + leg_pad_y) * i;
+            LOG_MSG(y);
             DrawLegend(dc, px_switch, y, map_name);
         }
     }
     wxPen pen(*wxBLACK, 1, wxPENSTYLE_DOT);
     dc.SetPen(pen);
-    dc.DrawLine(10, py, 10, (py + (leg_h + leg_pad_y) * new_order.size()));
+    dc.DrawLine(10, 24, 10, (24 + (leg_h + leg_pad_y) * new_order.size()));
 }
 
 void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
@@ -294,8 +314,8 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
         wxBrush brush(ml->GetBrushColour());
         dc.SetPen(pen);
         dc.SetBrush(brush);
+        dc.DrawRectangle(x, y, leg_w, leg_h);
     }
-    dc.DrawRectangle(x, y, leg_w, leg_h);
     
     x = x + leg_w + leg_pad_x;
     dc.SetTextForeground(*wxBLACK);
@@ -455,4 +475,45 @@ MapTreeDlg::MapTreeDlg(wxWindow* parent, MapCanvas* canvas, const wxPoint& pos, 
 MapTreeDlg::~MapTreeDlg()
 {
     
+}
+
+MapTreeFrame::MapTreeFrame(wxWindow* parent, MapCanvas* _canvas, const wxPoint& pos, const wxSize& size)
+: wxFrame(parent, -1, _canvas->GetCanvasTitle(), pos, size)
+{
+    SetBackgroundColour(*wxWHITE);
+    canvas = _canvas;
+    tree = new MapTree(this, canvas, pos, size);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(tree, 1, wxEXPAND|wxALL, 10);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    Centre();
+    
+    Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(MapTreeFrame::OnClose));
+}
+
+MapTreeFrame::~MapTreeFrame()
+{
+    delete tree;
+}
+
+void MapTreeFrame::OnClose( wxCloseEvent& event )
+{
+    Destroy();
+    event.Skip();
+}
+
+void MapTreeFrame::Recreate()
+{
+    int w, h;
+    GetClientSize(&w, &h);
+    
+    int n_maps = canvas->GetBackgroundMayLayers().size() + canvas->GetForegroundMayLayers().size() + 1;
+    h = n_maps * 25  + 80;
+    SetSize(w, h);
+    Layout();
+    
+    tree->Init();
 }

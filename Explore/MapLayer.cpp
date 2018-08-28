@@ -131,12 +131,23 @@ vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 
 
 GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)
-: name(_name), ml(_ml)
+: name(_name), ml(_ml), map_boundary(NULL)
 {
+    // reset shapes (scale)
+    shapes.resize(ml->shapes.size());
+    for (int i=0; i<ml->shapes.size(); i++) {
+        shapes[i] = ml->shapes[i]->clone();
+    }
 }
 
 GdaShapeLayer::~GdaShapeLayer()
 {
+    for (int i=0; i<shapes.size(); i++) {
+        delete shapes[i];
+    }
+    if (map_boundary) {
+        delete map_boundary;
+    }
 }
 
 GdaShape* GdaShapeLayer::clone()
@@ -157,20 +168,22 @@ void GdaShapeLayer::Offset(int dx, int dy)
 
 void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
 {
-    for (int i=0; i<ml->shapes.size(); i++) {
-        ml->shapes[i]->applyScaleTrans(A);
+    for (int i=0; i<shapes.size(); i++) {
+        shapes[i]->applyScaleTrans(A);
         if (ml->map_boundary) {
-            ml->map_boundary->applyScaleTrans(A);
+            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
+            map_boundary->applyScaleTrans(A);
         }
     }
 }
 
 void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
 {
-    for (int i=0; i<ml->shapes.size(); i++) {
-        ml->shapes[i]->projectToBasemap(basemap, scale_factor);
+    for (int i=0; i<shapes.size(); i++) {
+        shapes[i]->projectToBasemap(basemap, scale_factor);
         if (ml->map_boundary) {
-            ml->map_boundary->projectToBasemap(basemap, scale_factor);
+            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
+            map_boundary->projectToBasemap(basemap, scale_factor);
         }
     }
 }
@@ -186,18 +199,19 @@ void GdaShapeLayer::paintSelf(wxDC &dc)
         wxBrush brush(ml->GetBrushColour());
         
         if (ml->IsShowBoundary()) {
-            ml->map_boundary->paintSelf(dc);
+            if (map_boundary==NULL) map_boundary = ml->map_boundary->clone();
+            map_boundary->paintSelf(dc);
             return;
         }
         
-        for (int i=0; i<ml->shapes.size(); i++) {
+        for (int i=0; i<shapes.size(); i++) {
             if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-                GdaPoint* pt = (GdaPoint*)ml->shapes[i];
+                GdaPoint* pt = (GdaPoint*)shapes[i];
                 pt->radius = ml->GetPointRadius();
             }
-            ml->shapes[i]->setPen(pen);
-            ml->shapes[i]->setBrush(brush);
-            ml->shapes[i]->paintSelf(dc);
+            shapes[i]->setPen(pen);
+            shapes[i]->setBrush(brush);
+            shapes[i]->paintSelf(dc);
         }
     }
 }

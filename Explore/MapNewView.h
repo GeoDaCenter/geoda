@@ -45,6 +45,7 @@
 #include "MapLayer.hpp"
 
 class CatClassifState;
+class MapTreeFrame;
 class MapFrame;
 class MapCanvas;
 class MapNewLegend;
@@ -136,7 +137,6 @@ public:
     virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
-	//virtual void OnPaint(wxPaintEvent& event);
     virtual void DrawHighlightedShapes(wxMemoryDC &dc, bool revert);
     virtual void DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only=false,
                                          bool revert=false,
@@ -227,6 +227,9 @@ public:
 protected:
     map<wxString, BackgroundMapLayer*> bg_maps;
     map<wxString, BackgroundMapLayer*> fg_maps;
+    list<GdaShape*>  background_maps;
+    list<GdaShape*>  foreground_maps;
+    
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -260,8 +263,6 @@ protected:
     // user can specified using:
     // SetPredefinedColor(), UpdatePredifinedColor()
     map<wxString, wxColour> lbl_color_dict;
-
-    wxBitmap* print_bm;
     
 	wxBitmap* basemap_bm;
 	GDA::Basemap* basemap;
@@ -380,6 +381,7 @@ public:
     void OnMapBasemap(wxCommandEvent& e);
     void OnMapAddLayer(wxCommandEvent& e);
     void OnMapEditLayer(wxCommandEvent& e);
+    void OnMapTreeClose(wxWindowDestroyEvent& event);
     
     void OnShowMapBoundary(wxCommandEvent& event);
     
@@ -401,8 +403,10 @@ public:
     }
 	
 protected:
-    wxToolBar* toolbar;
+    wxBoxSizer* rbox;
     
+    wxToolBar* toolbar;
+    MapTreeFrame* map_tree;
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;
 	

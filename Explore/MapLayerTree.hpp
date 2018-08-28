@@ -51,6 +51,8 @@ public:
             const wxSize& size);
     virtual ~MapTree();
     
+    void Init();
+    
 protected:
     virtual void OnPaint( wxPaintEvent& event );
     virtual void OnDraw(wxDC& dc);
@@ -83,6 +85,19 @@ public:
     virtual ~MapTreeDlg();
 };
 
-
+class MapTreeFrame : public wxFrame
+{
+    MapTree *tree;
+    MapCanvas* canvas;
+    
+public:
+    MapTreeFrame(wxWindow* parent, MapCanvas* canvas,
+               const wxPoint& pos = wxDefaultPosition,
+               const wxSize& size = wxDefaultSize);
+    virtual ~MapTreeFrame();
+    
+    void OnClose( wxCloseEvent& event );
+    void Recreate( );
+};
 
 #endif /* MapLayerTree_hpp */
