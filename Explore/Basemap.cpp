@@ -44,7 +44,6 @@
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 #include "curl/curl.h"
-//#include "MapNewView.h"
 
 using namespace std;
 using namespace GDA;
@@ -137,8 +136,6 @@ void Basemap::CleanCache()
 
 void Basemap::SetupMapType(int map_type)
 {
-
-    using namespace std;
     // get a latest CartoDB account
     vector<string> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
@@ -158,23 +155,23 @@ void Basemap::SetupMapType(int map_type)
     
     mapType = map_type;
     if (mapType == 1) {
-        basemapUrl = "https://map_positron.basemaps.cartocdn.com/light_all/";
+        basemapUrl = "https://a.basemaps.cartocdn.com/light_all/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 2) {
-        basemapUrl = "https://map_positron.basemaps.cartocdn.com/dark_all/";
+        basemapUrl = "https://{s}.basemaps.cartocdn.com/dark_all/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
         
     } else if (mapType == 3) {
-        basemapUrl = "https://map_positron.basemaps.cartocdn.com/light_nolabels/";
+        basemapUrl = "https://{s}.basemaps.cartocdn.com/light_nolabels/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     } else if (mapType == 4) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_nolabels/";
+        basemapUrl = "https://{s}.basemaps.cartocdn.com/dark_nolabels/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";

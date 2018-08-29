@@ -121,7 +121,6 @@ SliderDialog::SliderDialog(wxWindow * parent,
 
 SliderDialog::~SliderDialog()
 {
-    
 }
 
 void SliderDialog::OnSliderChange( wxCommandEvent & event )
@@ -129,7 +128,6 @@ void SliderDialog::OnSliderChange( wxCommandEvent & event )
     int val = event.GetInt();
     double trasp = 1.0 - val / 100.0;
     slider_text->SetLabel(wxString::Format(_("Current Transparency: %.2f"), trasp));
-    //GdaConst::transparency_unhighlighted = (1-trasp) * 255;
     canvas->tran_unhighlighted = (1-trasp) * 255;
     canvas->ReDraw();
 }
@@ -197,15 +195,12 @@ tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
-    
     layer_name = project->layername;
     ds_name = project->GetDataSource()->GetOGRConnectStr();
-    
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
                              project->main_data.header.bbox_y_min,
                              project->main_data.header.bbox_x_max,
                              project->main_data.header.bbox_y_max);
-    
 	selectable_fill_color = GdaConst::map_default_fill_colour;
 	if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {
 		selectable_shps_type = points;
@@ -214,7 +209,6 @@ print_detailed_basemap(false)
 		selectable_shps_type = polygons;
 		highlight_color = GdaConst::map_default_highlight_colour;
 	}
-    
 	use_category_brushes = true;
 	cat_classif_def.cat_classif_type = theme_type;
 	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories,
@@ -226,10 +220,8 @@ print_detailed_basemap(false)
 		ChangeMapType(CatClassification::no_theme, no_smoothing, 1,
 					  boost::uuids::nil_uuid(), true, vi, cids);
 	}
-    
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-    
     isDrawBasemap = GdaConst::use_basemap_by_default;
     if (isDrawBasemap) {
         map_type = GdaConst::default_basemap_selection;
@@ -448,7 +440,6 @@ void MapCanvas::ResetShapes()
     ResetBrushing();
     SetMouseMode(select);
     isResize = true;
-    //TemplateCanvas::ResetShapes();
 }
 
 void MapCanvas::ZoomShapes(bool is_zoomin)
@@ -525,7 +516,6 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
         if ( virtual_scrn_w > 0 && virtual_scrn_h> 0) {
             basemap->ResizeScreen(virtual_scrn_w, virtual_scrn_h);
         }
-        
         BOOST_FOREACH( GdaShape* ms, background_shps ) {
             if (ms)
                 ms->projectToBasemap(basemap);
@@ -546,7 +536,6 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             if (ms)
                 ms->projectToBasemap(basemap);
         }
-        
         if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
             // this is for resizing window with basemap + connectivity graph
             for (int i=0; i<w_graph.size(); i++) {
@@ -652,6 +641,11 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type_)
     } else {
         if ( basemap ) {
             basemap->mapType=0;
+            last_scale_trans.data_x_min = basemap->map->west;
+            last_scale_trans.data_x_max = basemap->map->east;
+            last_scale_trans.data_y_min = basemap->map->south;
+            last_scale_trans.data_y_max = basemap->map->north;
+            ResizeSelectableShps();
         }
     }
     layerbase_valid = false;
@@ -1002,8 +996,8 @@ void MapCanvas::SaveThumbnail()
 void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
                                         bool use_crosshatch)
 {
-    if (!display_map_with_graph) return;
-    
+    if (!display_map_with_graph)
+        return;
     vector<bool>& hs = highlight_state->GetHighlight();
 #ifdef __WXOSX__
     wxGCDC dc(_dc);
@@ -1038,7 +1032,6 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
-
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
                                    GetCcType() != CatClassification::no_theme);
 	if (template_frame) {
@@ -1054,7 +1047,6 @@ void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
     if (!is_any_time_variant){
         return;
     }
-    
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
 		if (var_info[i].is_time_variant) {
@@ -1104,21 +1096,17 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
             //last_scale_trans.SetView(screen_w, screen_h);
             screen = new GDA::Screen(screen_w, screen_h);
         }
-        
         OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR, &destSR);
         }
-        
-        
         double shps_orig_ymax = last_scale_trans.orig_data_y_max;
         double shps_orig_xmin = last_scale_trans.orig_data_x_min;
         double shps_orig_ymin = last_scale_trans.orig_data_y_min;
         double shps_orig_xmax = last_scale_trans.orig_data_x_max;
         GDA::MapLayer *map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
-        
         if (poCT && map->IsWGS84Valid()) {
             if (print_detailed_basemap) {
                 basemap->ResizeScreen(w, h);
@@ -2743,16 +2731,12 @@ void MapFrame::OnMapZoomOut(wxCommandEvent& e)
 }
 void MapFrame::OnMapExtent(wxCommandEvent& e)
 {
-    //OnFitToWindowMode(e);
     OnResetMap(e);
 }
 void MapFrame::OnMapRefresh(wxCommandEvent& e)
 {
     OnRefreshMap(e);
 }
-//void MapFrame::OnMapBrush(wxCommandEvent& e)
-//{
-//}
 
 void MapFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 {
@@ -2816,11 +2800,9 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
 {
     wxLogMessage("In MapFrame::OnMapBasemap()");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_BASEMAP_MENU");
-	
     if (popupMenu) {
         // set checkmarks
         int idx = ((MapCanvas*) template_canvas)->GetBasemapType();
-        
         popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
         popupMenu->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
         popupMenu->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
@@ -2830,9 +2812,6 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
         popupMenu->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
         popupMenu->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
         popupMenu->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
-        
-        //popupMenu->FindItem(XRCID("ID_CHANGE_TRANSPARENCY"))->Enable(idx!=0);
-        
         PopupMenu(popupMenu, wxDefaultPosition);
     }
 }
@@ -2842,7 +2821,9 @@ void MapFrame::OnActivate(wxActivateEvent& event)
 	if (event.GetActive()) {
 		RegisterAsActive("MapFrame", GetTitle());
 	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    if ( event.GetActive() && template_canvas ) {
+        template_canvas->SetFocus();
+    }
 }
 
 void MapFrame::MapMenus()
@@ -2957,7 +2938,7 @@ void MapFrame::OnDisplayWeightsGraph(wxCommandEvent& event)
     if (gal_weights == NULL)
         return;
   
-    if (event.GetString() == "Connectivity")
+    if (event.GetString() == _("Connectivity"))
         no_update_weights = true;
     
     ((MapCanvas*) template_canvas)->DisplayWeightsGraph();
@@ -2970,7 +2951,7 @@ void MapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
     if (gal_weights == NULL)
         return;
     
-    if (event.GetString() == "Connectivity")
+    if (event.GetString() == _("Connectivity"))
         no_update_weights = true;
     
     ((MapCanvas*) template_canvas)->DisplayNeighbors();
@@ -2992,7 +2973,6 @@ void MapFrame::OnChangeGraphThickness(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-    
     if (event.GetId() == XRCID("ID_WEIGHTS_GRAPH_THICKNESS_LIGHT"))
         ((MapCanvas*) template_canvas)->ChangeGraphThickness(0);
     else if (event.GetId() == XRCID("ID_WEIGHTS_GRAPH_THICKNESS_NORM"))
@@ -3008,7 +2988,6 @@ void MapFrame::OnChangeGraphColor(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-  
     ((MapCanvas*) template_canvas)->ChangeGraphColor();
     UpdateOptionMenuItems();
 }
@@ -3018,7 +2997,6 @@ void MapFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     GalWeight* gal_weights = checkWeights();
     if (gal_weights == NULL)
         return;
-    
     ((MapCanvas*) template_canvas)->ChangeConnSelectedColor();
     UpdateOptionMenuItems();
 }
@@ -3029,7 +3007,6 @@ void MapFrame::OnChangeNeighborFillColor(wxCommandEvent& event)
     if (gal_weights == NULL) {
         return;
     }
-    
     ((MapCanvas*) template_canvas)->ChangeNeighborFillColor();
     UpdateOptionMenuItems();
 }

@@ -37,7 +37,7 @@ class BasemapConfDlg: public wxDialog
 public:
     BasemapConfDlg(wxWindow* parent, Project* p,
                wxWindowID id = wxID_ANY,
-               const wxString& title = "Basemap Configuration Dialog",
+               const wxString& title = _("Basemap Configuration Dialog"),
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxDefaultSize );
     
