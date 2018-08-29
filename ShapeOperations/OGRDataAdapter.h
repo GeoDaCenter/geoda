@@ -28,7 +28,6 @@
 
 
 #include "../GdaConst.h"
-#include "../Project.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/OGRTable.h"
 #include "../GdaShape.h"

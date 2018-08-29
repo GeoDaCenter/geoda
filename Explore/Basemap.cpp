@@ -30,7 +30,6 @@
 
 #include <algorithm>
 #include "stdio.h"
-#include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
 #include <wx/dcbuffer.h>
@@ -38,12 +37,12 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/graphics.h>
-
 #include <ogr_spatialref.h>
+#include <curl/curl.h>
 
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
-#include "curl/curl.h"
+
 
 using namespace std;
 using namespace GDA;
@@ -566,7 +565,7 @@ void Basemap::DownloadTile(int x, int y)
                 curl_easy_setopt(image, CURLOPT_URL, url); 
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-                //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
@@ -577,7 +576,7 @@ void Basemap::DownloadTile(int x, int y)
                 fclose(fp);
             }
         }
-                
+                    
         delete[] url;
         
     }

@@ -35,6 +35,7 @@
 #include <wx/textfile.h>
 #include <boost/foreach.hpp>
 
+
 #include "ogr_srs_api.h"
 #include "logger.h"
 #include "FramesManager.h"

@@ -50,6 +50,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
 #include "../GeoDa.h"
+#include "../Project.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "ConnectDatasourceDlg.h"
 

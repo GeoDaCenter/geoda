@@ -9224,29 +9224,23 @@
                               <object class="sizeritem">
                                   <object class="wxTextCtrl" name="IDC_BASEMAP_SOURCE">
                                       <size>500,240</size>
-                                      <style>wxTE_MULTILINE|wxTE_READONLY</style>
+                                      <style>wxTE_MULTILINE</style>
                                   </object>
                                   <flag>wxEXPAND|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  <border>10</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxStaticText">
+                                      <label>Basemap Parameters:</label>
+                                  </object>
+                                  <flag>wxLEFT|wxALL|wxALIGN_LEFT</flag>
                                   <border>10</border>
                               </object>
                           </object>
                           <flag>wxEXPAND|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                           <border>10</border>
                       </object>
-                      <object class="sizeritem">
-                          <object class="wxBoxSizer">
-                              <orient>wxVERTICAL</orient>
-                              <object class="sizeritem">
-                                  <object class="wxStaticText">
-                                      <label>Basemap Parameters:</label>
-                                      <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
-                                      <border>10</border>
-                                  </object>
-                              </object>
-                          </object>
-                          <flag>wxEXPAND|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
-                          <border>10</border>
-                      </object>
+                      
                       <object class="sizeritem">
                           <object class="wxFlexGridSizer">
                               <object class="sizeritem">
@@ -9285,13 +9279,10 @@
                           </object>
                           <flag>wxLEFT|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                       </object>
-                      <object class="spacer">
-                          <size>0,20</size>
-                      </object>
                       <object class="sizeritem">
                           <object class="wxBoxSizer">
                               <object class="spacer">
-                                  <size>4,10</size>
+                                  <size>2,10</size>
                               </object>
                               <object class="sizeritem">
                                   <object class="wxStaticText">

@@ -189,6 +189,7 @@
 #include <wx/xrc/xh_auitoolb.h>
 
 
+
 // The following is defined in rc/GdaAppResouces.cpp.  This file was
 // compiled with:
 /*
@@ -225,6 +226,8 @@ bool GdaApp::OnInit(void)
 	if (!wxApp::OnInit())
         return false;
    
+
+    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 
