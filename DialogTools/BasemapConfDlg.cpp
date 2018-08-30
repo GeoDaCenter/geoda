@@ -29,7 +29,7 @@
 
 #include "../Project.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
-
+#include "../GdaConst.h"
 #include "BasemapConfDlg.h"
 
 
@@ -52,18 +52,9 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     m_txt_nokia_uname = XRCCTRL(*this, "IDC_NOKIA_USERNAME",wxTextCtrl);
     m_txt_nokia_key = XRCCTRL(*this, "IDC_NOKIA_KEY",wxTextCtrl);
-
-    "OpenStreetMap.Mapnik,https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
-    "OpenStreetMap.BlackAndWhite,http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png";
-    "Stamen.Toner,https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.{ext}";
-    "Stamen.TonerLite,https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.{ext}";
-    "Stamen.Watercolor,https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.{ext}";
-    "ESRI.WorldStreetMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
-    "ESRI.DeLorme,https://server.arcgisonline.com/ArcGIS/rest/services/Specialty/DeLorme_World_Base_Map/MapServer/tile/{z}/{y}/{x}";
-    "ESRI.WorldTopoMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}";
-    "ESRI.WorldImagery,https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
-    "ESRI.WorldTerrain,https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}";
-    "ESRI.Ocean,https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}";
+    m_txt_basemap = XRCCTRL(*this, "IDC_BASEMAP_SOURCE",wxTextCtrl);
+    m_txt_basemap->SetValue(GdaConst::gda_basemap_sources);
+    
     SetParent(parent);
     SetPosition(pos);
     Centre();

@@ -45,7 +45,7 @@ private:
     Project* p;
     wxTextCtrl* m_txt_nokia_uname;
     wxTextCtrl* m_txt_nokia_key;
-
+    wxTextCtrl* m_txt_basemap;
     
     void OnOkClick( wxCommandEvent& event );
     void OnResetClick( wxCommandEvent& event );

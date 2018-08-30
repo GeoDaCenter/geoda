@@ -348,6 +348,28 @@ int GdaConst::gda_ogr_csv_header = 2;
 wxString GdaConst::gda_display_datetime_format = "";
 std::vector<wxString> GdaConst::gda_datetime_formats(10);
 wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+wxString GdaConst::gda_basemap_sources =
+"HERE.Day,http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Night,http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Hybrid,http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Satellite,http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nOpenStreetMap.Mapnik,https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+"\nOpenStreetMap.BlackAndWhite,http://a.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
+"\nCarto.Light,https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
+"\nCarto.Dark,https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
+"\nCarto.Light(No Label),https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png"
+"\nCarto.Dark(No Label),https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png"
+"\nStamen.Toner,https://stamen-tiles-a.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
+"\nStamen.TonerLite,https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
+"\nStamen.Watercolor,https://stamen-tiles-a.a.ssl.fastly.net/watercolor/{z}/{x}/{y}@2x.png"
+"\nESRI.WorldStreetMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.DeLorme,https://server.arcgisonline.com/ArcGIS/rest/services/Specialty/DeLorme_World_Base_Map/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.WorldTopoMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.WorldImagery,https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.WorldTerrain,https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.Ocean,https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}";
+;
+
 
 
 const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");

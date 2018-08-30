@@ -9224,7 +9224,7 @@
                               <object class="sizeritem">
                                   <object class="wxTextCtrl" name="IDC_BASEMAP_SOURCE">
                                       <size>500,240</size>
-                                      <style>wxTE_MULTILINE</style>
+                                      <style>wxTE_MULTILINE|wxHSCROLL</style>
                                   </object>
                                   <flag>wxEXPAND|wxALL|wxALIGN_CENTRE_HORIZONTAL</flag>
                                   <border>10</border>
