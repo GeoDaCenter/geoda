@@ -172,11 +172,14 @@ namespace GDA {
         
         bool IsWGS84Valid() { return north < 90 && south > -90 && east > -180 && west < 180;}
         
-        void Pan(double lat, double lng) {
+        bool Pan(double lat, double lng) {
             north += lat;
             south += lat;
             west += lng;
             east += lng;
+            if (north > 90 || south < -90 || east > 180 || west < -180)
+                return false;
+            return true;
         }
         
         void UpdateExtent(double _w, double _s, double _e, double _n)  {
@@ -243,7 +246,7 @@ namespace GDA {
         
         //MapCanvas* canvas;
         int mapType;
-        std::string basemapUrl;
+        wxString basemapUrl;
         std::string urlSuffix; // ?a=b&c=d
         std::string imageSuffix;
         int startX;
@@ -277,7 +280,7 @@ namespace GDA {
         LatLng* XYToLatLng(XY &xy, bool isLL=false);
         void LatLngToXY(double lng, double lat, int &x, int &y);
         
-        std::string GetTileUrl(int x, int y);
+        wxString GetTileUrl(int x, int y);
         wxString GetTilePath(int x, int y);
         
         bool Draw(wxBitmap* buffer);
@@ -286,7 +289,7 @@ namespace GDA {
         void ResizeScreen(int _width, int _height);
         void ZoomIn(int mouseX, int mouseY);
         void ZoomOut(int mouseX, int mouseY);
-        void Zoom(bool is_zoomin, int x0, int y0, int x1, int y1);
+        bool Zoom(bool is_zoomin, int x0, int y0, int x1, int y1);
         void Pan(int x0, int y0, int x1, int y1);
         void Reset(int map_type);
         void Reset();

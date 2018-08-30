@@ -19,19 +19,12 @@
 
 #include <iostream>
 #include <sstream>
-
-/*
-#ifdef __WIN32__
-#define _USE_MATH_DEFINES 
-#include <math.h>
-#endif
-*/
-#include <wx/math.h>
-
 #include <algorithm>
 #include "stdio.h"
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <wx/math.h>
+#include <wx/tokenzr.h>
 #include <wx/dcbuffer.h>
 #include <wx/bitmap.h>
 #include <wx/dir.h>
@@ -136,6 +129,8 @@ void Basemap::CleanCache()
 
 void Basemap::SetupMapType(int map_type)
 {
+    mapType = map_type;
+    
     // get a latest CartoDB account
     vector<string> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
@@ -152,10 +147,33 @@ void Basemap::SetupMapType(int map_type)
             nokia_code = key;
         }
     }
+    /*
+    // get basemap url
+    wxString basemap_sources;
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
     
-    mapType = map_type;
+    if (map_type >= 0) {
+        wxString basemap_source = keys[map_type];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            // name,url
+            wxString name = basemap_source.BeforeFirst(comma);
+            basemapUrl = basemap_source.AfterFirst(comma);
+            // if ( !hdpi ) {
+            //     basemapUrl.Replace("@2x", "");
+            // }
+        }
+    }
+    */
     if (mapType == 1) {
-        basemapUrl = "https://a.basemaps.cartocdn.com/light_all/";
+        basemapUrl = "https://{s}.tile.openstreetmap.org/";
         urlSuffix = ".png";
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
@@ -210,8 +228,7 @@ void Basemap::SetupMapType(int map_type)
         if (scale_factor == 2.0) urlSuffix = "@2x.png";
         imageSuffix = ".png";
     }
-    isTileDrawn = false;
-    isTileReady = false;
+    
     GetTiles();
 }
 
@@ -243,7 +260,7 @@ void Basemap::ResizeScreen(int _width, int _height)
         screen->height = _height;
     }
 
-    isTileDrawn = false;
+    //isTileDrawn = false;
     GetEasyZoomLevel();
     
     SetupMapType(mapType);
@@ -260,15 +277,18 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     double offsetLat = p1->lat - p0->lat;
     double offsetLon = p1->lng - p0->lng;
     
-    map->Pan(-offsetLat, -offsetLon);
-    
-    isTileDrawn = false;
-    isTileReady = false;
-    GetTiles();
+    if (map->Pan(-offsetLat, -offsetLon)) {
+        isTileDrawn = false;
+        isTileReady = false;
+        GetTiles();
+    }
 }
 
-void Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
+bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
 {
+    if (is_zoomin == false && zoom <= 1)
+        return false;
+    
     int left = x0 < x1 ? x0 : x1;
     int right = x0 < x1 ? x1 : x0;
     int top = y0 > y1 ? y1 : y0;
@@ -298,6 +318,7 @@ void Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     isTileReady = false;
     GetEasyZoomLevel();
     GetTiles();
+    return true;
 }
 
 void Basemap::ZoomIn(int mouseX, int mouseY)
@@ -309,8 +330,8 @@ void Basemap::ZoomIn(int mouseX, int mouseY)
     int x0 = screen->width / 2.0;
     int y0 = screen->height / 2.0;
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     Pan(mouseX, mouseY, x0, y0);
     
 }
@@ -324,8 +345,8 @@ void Basemap::ZoomOut(int mouseX, int mouseY)
     int x0 = screen->width / 2.0;
     int y0 = screen->height / 2.0;
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     Pan(mouseX, mouseY, x0, y0);
 }
 
@@ -354,10 +375,10 @@ int Basemap::GetOptimalZoomLevel(double paddingFactor)
 int Basemap::GetEasyZoomLevel()
 {
     double degreeRatio = 360.0 / map->GetWidth();
-    double zoomH = (int)ceil(log2(degreeRatio * screen->width / 256));
+    double zoomH = (int)ceil(log2(degreeRatio * screen->width / 256.0));
     
     degreeRatio = 85.0511 * 2.0 / map->GetHeight();
-    double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256));
+    double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256.0));
     
     if (zoomH > 0 && zoomV > 0) {
         zoom = min(zoomH, zoomV);
@@ -383,6 +404,9 @@ void Basemap::Refresh()
 
 void Basemap::GetTiles()
 {
+    if (zoom < 1)
+        return;
+    
     // following: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     // top-left / north-west
     LatLng nw(map->north, map->west);
@@ -408,9 +432,6 @@ void Basemap::GetTiles()
     widthP = (endX - startX + 1) * 256;
     heightP = (endY - startY + 1) * 256;
     
-    widthP = (endX - startX + 1) * 256;
-    heightP = (endY - startY + 1) * 256;
-    
     if (widthP < screen->width) {
         int x_addition = (int)ceil((screen->width - widthP)/ 256.0);
         endX += x_addition;
@@ -429,7 +450,8 @@ void Basemap::GetTiles()
     } else {
         map_wp = (nn - topleft->x + bottomright->x) * 255;
     }
-    int map_offx = (int) ((screen->width - map_wp) / 2.0);
+    int map_offx = (int)(ceil) ((screen->width - map_wp) / 2.0);
+    
     // if offset to left, need to zoom out
     if (map_offx < 0 && zoom > 0) {
         zoom = zoom -1;
@@ -437,24 +459,30 @@ void Basemap::GetTiles()
         GetTiles();
         return;
     }
+    
     offsetX = topleft->GetXFrac() * 255 - map_offx;
     // if offset to right, need to patch empty tiles
-    if (offsetX < 0 && startX >= 0) {
-        startX = startX -1;
-        offsetX = offsetX + 256;
-        widthP = widthP + 256;
-        leftP = startX * 256;
+    if (offsetX < 0) {
+        while (offsetX < 0) {
+            offsetX += 256;
+            startX = startX -1;
+            widthP = widthP + 256;
+            leftP = startX * 256;
+        }
     }
     
     double map_hp = (bottomright->y - topleft->y) * 255;
     int map_offy = (int) ((screen->height - map_hp) / 2.0);
     offsetY = topleft->GetYFrac() * 255 - map_offy;
+    
     // if offset down, need to patch empty tiles
-    if (offsetY < 0 && startY >= 0) {
-        startY = startY -1;
-        offsetY = offsetY + 256;
-        heightP = heightP + 256;
-        topP = startY * 256;
+    if (offsetY < 0 ) {
+        while (offsetY < 0) {
+            startY = startY -1;
+            offsetY = offsetY + 256;
+            heightP = heightP + 256;
+            topP = startY * 256;
+        }
     }
     
     // check tiles again after offset
@@ -469,7 +497,10 @@ void Basemap::GetTiles()
     
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
-  
+
+    isTileReady = false;
+    isTileDrawn = false;
+    
     if (bDownload && downloadThread) {
         bDownload = false;
 		downloadThread->join();
@@ -546,7 +577,7 @@ void Basemap::DownloadTile(int x, int y)
 
     if (!wxFileExists(filepathStr)) {
         // otherwise, download the image
-        std::string urlStr = GetTileUrl(x, y);
+        wxString urlStr = GetTileUrl(x, y);
         char* url = new char[urlStr.length() + 1];
         std::strcpy(url, urlStr.c_str());
         
@@ -558,6 +589,11 @@ void Basemap::DownloadTile(int x, int y)
         
         // set the object's properties
         downloader.set_url(url);
+        //downloader.set_ssl_verify_peer(false);
+        //downloader.set_ssl_verify_host(false);
+        //downloader.set_redir_protocols(CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        downloader.set_follow_location(true);
+        //downloader.set_ssl_version(native::CURL_SSLVERSION_TLSv1);
         downloader.set_sink(boost::make_shared<std::ofstream>(filepath.c_str(), std::ios::binary));
         
         // download the file
@@ -632,13 +668,20 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     }
 }
 
-std::string Basemap::GetTileUrl(int x, int y)
+wxString Basemap::GetTileUrl(int x, int y)
 {
-	std::ostringstream urlBuf;
-	urlBuf << basemapUrl;
-	urlBuf << zoom << "/" << x << "/" << y << urlSuffix;
-	std::string urlStr = urlBuf.str();
-	return urlStr;
+    /*
+    wxString url = basemapUrl;
+    url.Replace("{z}", wxString::Format("%d", zoom));
+    url.Replace("{x}", wxString::Format("%d", x));
+    url.Replace("{y}", wxString::Format("%d", y));
+    return url;
+    */
+    std::ostringstream urlBuf;
+    urlBuf << basemapUrl;
+    urlBuf << zoom << "/" << x << "/" << y << urlSuffix;
+    std::string urlStr = urlBuf.str();
+    return urlStr;
 }
 
 wxString Basemap::GetTilePath(int x, int y)
@@ -662,11 +705,12 @@ wxString Basemap::GetTilePath(int x, int y)
 	}
     return newpath;
 }
+
 bool Basemap::Draw(wxBitmap* buffer)
 {
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
-	dc.SetBackground( *wxTRANSPARENT_BRUSH );
+	dc.SetBackground(*wxWHITE);
     dc.Clear();
 	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (!gc)
@@ -676,7 +720,7 @@ bool Basemap::Draw(wxBitmap* buffer)
     int x1 = endX;
 	for (int i=x0; i<=x1; i++) {
 		for (int j=startY; j<=endY; j++ ) {
-            int pos_x =(i-startX) * 256 - offsetX;
+            int pos_x = (i-startX) * 256 - offsetX;
             int pos_y = (j-startY) * 256 - offsetY;
             int idx_x = i;
             
@@ -685,7 +729,8 @@ bool Basemap::Draw(wxBitmap* buffer)
             else if (i < 0)
                 idx_x = nn + i;
             
-            int idx_y = j < 0 ? nn + j : j;
+            //int idx_y = j < 0 ? nn + j : j;
+            int idx_y = j;
             wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;

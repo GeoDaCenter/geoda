@@ -453,8 +453,10 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
     }
     
     if (isDrawBasemap) {
-        basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
-        ResizeSelectableShps();
+        bool zoom_ok = basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
+        if (zoom_ok) {
+            ResizeSelectableShps();
+        }
         return;
     }
     
