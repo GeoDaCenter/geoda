@@ -26,10 +26,11 @@
 #include <wx/thread.h>
 #include <wx/gauge.h>
 
-#include <curl/curl.h>
 #include <vector>
 
+#include "../net/curl-asio.h"
 using namespace std;
+using namespace curl::native;
 
 class GeoCodingInterface {
 public:

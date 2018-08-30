@@ -31,21 +31,21 @@
 #include <algorithm>
 #include "stdio.h"
 #include <boost/bind.hpp>
-
+#include <boost/make_shared.hpp>
 #include <wx/dcbuffer.h>
 #include <wx/bitmap.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/graphics.h>
 #include <ogr_spatialref.h>
-#include <curl/curl.h>
 
+#include "../net/curl-asio.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
-
 using namespace std;
 using namespace GDA;
+using namespace curl::native;
 
 XY::XY(double _x, double _y)
 {
@@ -54,6 +54,7 @@ XY::XY(double _x, double _y)
     xfrac = modf(_x, &xint);
     yfrac = modf(_y, &yint);
 }
+
 
 Basemap::Basemap(Screen* _screen,
                  MapLayer *_map,
@@ -549,32 +550,25 @@ void Basemap::DownloadTile(int x, int y)
         char* url = new char[urlStr.length() + 1];
         std::strcpy(url, urlStr.c_str());
         
-        FILE* fp;
-        CURL* image;
-        CURLcode imgResult;
-
-        image = curl_easy_init();
-        if (image) {
-#ifdef __WIN32__
-			fp = _wfopen(filepathStr.wc_str(), L"wb");
-#else
-            fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
-#endif
-            if (fp)
-            {
-                curl_easy_setopt(image, CURLOPT_URL, url); 
-                curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
-                curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-                curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
-                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
-                curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
-            
-                // Grab image 
-                imgResult = curl_easy_perform(image); 
-           
-                curl_easy_cleanup(image);
-                fclose(fp);
-            }
+        // start by creating an io_service object
+        boost::asio::io_service io_service;
+        
+        // construct an instance of curl::easy
+        curl::easy downloader(io_service);
+        
+        // set the object's properties
+        downloader.set_url(url);
+        downloader.set_sink(boost::make_shared<std::ofstream>(filepath.c_str(), std::ios::binary));
+        
+        // download the file
+        boost::system::error_code ec;
+        downloader.perform(ec);
+        
+        // error handling
+        if (!ec) {
+            std::cerr << "Download succeeded" << std::endl;
+        } else  {
+            std::cerr << "Download failed: " << ec.message() << std::endl;
         }
                     
         delete[] url;

@@ -33,7 +33,6 @@
 #include <json_spirit/json_spirit_reader.h>
 #include <wx/thread.h>
 
-#include <curl/curl.h>
 #include <wx/string.h>
 #include <wx/gauge.h>
 #include <wx/uri.h>

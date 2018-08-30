@@ -2044,6 +2044,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = "";
@@ -2108,9 +2109,9 @@
 					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
 					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"-lpng",
+					"-lwxpng-3.1",
 					"-ljpeg",
-					"-ltiff",
+					"-lwxtiff-3.1",
 					"-framework",
 					WebKit,
 					"-lexpat",
@@ -2141,6 +2142,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 3;

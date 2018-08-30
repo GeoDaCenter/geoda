@@ -182,20 +182,15 @@
 #include "SaveButtonManager.h"
 #include "GeoDa.h"
 #include "version.h"
-
 #include "arizona/viz3/plots/scatterplot.h"
+#include "rc/GeoDaIcon-16x16.xpm"
 
 //The XML Handler should be explicitly registered:
 #include <wx/xrc/xh_auitoolb.h>
 
-
-
 // The following is defined in rc/GdaAppResouces.cpp.  This file was
-// compiled with:
-/*
- wxrc dialogs.xrc menus.xrc toolbar.xrc \
-   --cpp-code --output=GdaAppResources.cpp --function=GdaInitXmlResource
-*/
+// compiled with: wxrc dialogs.xrc menus.xrc toolbar.xrc
+//   --cpp-code --output=GdaAppResources.cpp --function=GdaInitXmlResource
 // and combines all resouces file into single source file that is linked into
 // the application binary.
 extern void GdaInitXmlResource();
@@ -219,14 +214,11 @@ GdaApp::~GdaApp()
     }
 }
 
-#include "rc/GeoDaIcon-16x16.xpm"
 
 bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-   
-
     
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
