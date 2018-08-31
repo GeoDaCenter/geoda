@@ -284,7 +284,6 @@ namespace GDA {
         wxString GetTilePath(int x, int y);
         
         bool Draw(wxBitmap* buffer);
-        bool Draw(wxGCDC& dc);
         
         void ResizeScreen(int _width, int _height);
         void ZoomIn(int mouseX, int mouseY);
@@ -303,7 +302,7 @@ namespace GDA {
     protected:
         std::string nokia_id;
         std::string nokia_code;
-        
+        vector<wxString> basemap_names;
         int nn; // pow(2.0, zoom)
         
         bool bDownload;

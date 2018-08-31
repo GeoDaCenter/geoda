@@ -147,9 +147,13 @@ void Basemap::SetupMapType(int map_type)
             nokia_code = key;
         }
     }
-    /*
+
     // get basemap url
-    wxString basemap_sources;
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    if (items.size()>0) {
+        basemap_sources = items[0];
+    }
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
@@ -157,7 +161,7 @@ void Basemap::SetupMapType(int map_type)
         wxString token = tokenizer.GetNextToken();
         keys.push_back(token.Trim());
     }
-    
+    basemap_names.clear();
     if (map_type >= 0) {
         wxString basemap_source = keys[map_type];
         wxUniChar comma = ',';
@@ -166,67 +170,19 @@ void Basemap::SetupMapType(int map_type)
             // name,url
             wxString name = basemap_source.BeforeFirst(comma);
             basemapUrl = basemap_source.AfterFirst(comma);
+            if (basemap_source.Find("png") != wxNOT_FOUND ||
+                basemap_source.Find("PNG") != wxNOT_FOUND)
+                imageSuffix = ".png";
+            else if (basemap_source.Find("jpeg") != wxNOT_FOUND ||
+                     basemap_source.Find("JPEG") != wxNOT_FOUND)
+                imageSuffix = ".jpeg";
+            else
+                imageSuffix = ".jpeg";
             // if ( !hdpi ) {
             //     basemapUrl.Replace("@2x", "");
             // }
+            basemap_names.push_back(name);
         }
-    }
-    */
-    if (mapType == 1) {
-        basemapUrl = "https://{s}.tile.openstreetmap.org/";
-        urlSuffix = ".png";
-        if (scale_factor == 2.0) urlSuffix = "@2x.png";
-        imageSuffix = ".png";
-    } else if (mapType == 2) {
-        basemapUrl = "https://{s}.basemaps.cartocdn.com/dark_all/";
-        urlSuffix = ".png";
-        if (scale_factor == 2.0) urlSuffix = "@2x.png";
-        imageSuffix = ".png";
-        
-    } else if (mapType == 3) {
-        basemapUrl = "https://{s}.basemaps.cartocdn.com/light_nolabels/";
-        urlSuffix = ".png";
-        if (scale_factor == 2.0) urlSuffix = "@2x.png";
-        imageSuffix = ".png";
-    } else if (mapType == 4) {
-        basemapUrl = "https://{s}.basemaps.cartocdn.com/dark_nolabels/";
-        urlSuffix = ".png";
-        if (scale_factor == 2.0) urlSuffix = "@2x.png";
-        imageSuffix = ".png";
-    } else if (mapType == 5) {
-        // nokia day
-        basemapUrl = "http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        if (scale_factor == 2.0)
-            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 6) {
-        // nokia night
-        basemapUrl = "http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        if (scale_factor == 2.0)
-            "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 7) {
-        // nokia terrian
-        basemapUrl = "http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        if (scale_factor == 2.0)
-            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 8) {
-        // nokia hybrid
-        basemapUrl = "http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        if (scale_factor == 2.0)
-            urlSuffix = "/512/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else {
-        mapType = 1;
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
-        urlSuffix = ".png";
-        if (scale_factor == 2.0) urlSuffix = "@2x.png";
-        imageSuffix = ".png";
     }
     
     GetTiles();
@@ -670,18 +626,13 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
 
 wxString Basemap::GetTileUrl(int x, int y)
 {
-    /*
     wxString url = basemapUrl;
     url.Replace("{z}", wxString::Format("%d", zoom));
     url.Replace("{x}", wxString::Format("%d", x));
     url.Replace("{y}", wxString::Format("%d", y));
+    url.Replace("HERE_APP_ID", nokia_id);
+    url.Replace("HERE_APP_CODE", nokia_code);
     return url;
-    */
-    std::ostringstream urlBuf;
-    urlBuf << basemapUrl;
-    urlBuf << zoom << "/" << x << "/" << y << urlSuffix;
-    std::string urlStr = urlBuf.str();
-    return urlStr;
 }
 
 wxString Basemap::GetTilePath(int x, int y)
@@ -689,7 +640,7 @@ wxString Basemap::GetTilePath(int x, int y)
     //std::ostringstream filepathBuf;
     wxString filepathBuf;
     filepathBuf << cachePath << "basemap_cache"<< separator();
-    filepathBuf << mapType << "-";
+    filepathBuf << basemap_names[mapType] << "-";
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     
 	wxString newpath;
@@ -734,44 +685,18 @@ bool Basemap::Draw(wxBitmap* buffer)
             wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;
-            if (imageSuffix == ".png") {
-                bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
-            } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
+            bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
+            if (bmp.IsOk()) {
+                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
+            } else {
+                // try to load if it's jpeg
+                wxBitmap jpeg;
                 wxImageHandler * jpegLoader = new wxJPEGHandler();
                 wxImage::AddHandler(jpegLoader);
-                bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
+                jpeg.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
+                gc->DrawBitmap(jpeg, pos_x, pos_y, 257,257);
             }
-            bool bmpOK = bmp.IsOk();
-            if (bmpOK)
-                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
-            //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
-		}
-	}
-    delete gc;
-    isTileDrawn = true;
-    return isTileReady;
-}
-
-bool Basemap::Draw(wxGCDC& dc)
-{
-    wxGraphicsContext* gc = dc.GetGraphicsContext();
-    int x0 = startX;
-    int x1 = endX;
-    for (int i=x0; i<=x1; i++) {
-        for (int j=startY; j<=endY; j++ ) {
-            int pos_x =(i-startX) * 256 - offsetX;
-            int pos_y = (j-startY) * 256 - offsetY;
-            int idx_x = i;
-            
-            if ( i >= nn)
-                idx_x = i - nn;
-            else if (i < 0)
-                idx_x = nn + i;
-            
-            int idx_y = j < 0 ? nn + j : j;
-            wxString wxFilePath = GetTilePath(idx_x, idx_y);
-            wxFileName fp(wxFilePath);
-            wxBitmap bmp;
+            /*
             if (imageSuffix == ".png") {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
             } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
@@ -780,11 +705,12 @@ bool Basemap::Draw(wxGCDC& dc)
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             if (bmp.IsOk()) {
-                gc->DrawBitmap(bmp, pos_x, pos_y, 257, 257);
+                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
                 //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
-            }
-        }
-    }
+            }*/
+		}
+	}
+    delete gc;
     isTileDrawn = true;
     return isTileReady;
 }

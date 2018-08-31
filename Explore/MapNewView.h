@@ -351,6 +351,7 @@ public:
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, int map_type);
     
+    void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void CleanBasemap();
 	void GetVizInfo(map<wxString, vector<int> >& colors);
@@ -372,14 +373,11 @@ public:
     void OnMapZoomOut(wxCommandEvent& e);
     void OnMapExtent(wxCommandEvent& e);
     void OnMapRefresh(wxCommandEvent& e);
-    //void OnMapBrush(wxCommandEvent& e);
     void OnMapBasemap(wxCommandEvent& e);
     void OnMapAddLayer(wxCommandEvent& e);
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
-    
     void OnShowMapBoundary(wxCommandEvent& event);
-    
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
@@ -388,7 +386,6 @@ public:
 					   const vector<GdaVarTools::VarInfo>& new_var_info,
 					   const vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
-    
     void SetLegendLabel(int cat, wxString label) {
         if (!template_canvas) return;
         MapCanvas* map_canvs_ref = (MapCanvas*) template_canvas;

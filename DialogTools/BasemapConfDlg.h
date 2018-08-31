@@ -43,6 +43,8 @@ public:
     
 private:
     Project* p;
+    wxString basemap_resources;
+    
     wxTextCtrl* m_txt_nokia_uname;
     wxTextCtrl* m_txt_nokia_key;
     wxTextCtrl* m_txt_basemap;

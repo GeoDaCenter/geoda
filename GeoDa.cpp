@@ -1591,79 +1591,6 @@ void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
     if (f) f->OnDrawBasemap(false,0);
 }
-void GdaFrame::OnSetBasemap1(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap1");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (!t) return;
-    
-	MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,1);
-}
-void GdaFrame::OnSetBasemap2(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap2");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (!t) return;
-    
-	MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,2);
-}
-void GdaFrame::OnSetBasemap3(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap3");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (!t) return;
-    
-	MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,3);
-}
-void GdaFrame::OnSetBasemap4(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap4");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-    if (!t) return;
-    
-    MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,4);
-}
-void GdaFrame::OnSetBasemap5(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap5");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-    if (!t) return;
-    
-    MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,5);
-}
-void GdaFrame::OnSetBasemap6(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap6");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-    if (!t) return;
-    
-    MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,6);
-}
-void GdaFrame::OnSetBasemap7(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap7");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-    if (!t) return;
-    
-    MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,7);
-}
-
-void GdaFrame::OnSetBasemap8(wxCommandEvent& event)
-{
-    wxLogMessage("Click GdaFrame::OnSetBasemap8");
-	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-    if (!t) return;
-    
-    MapFrame* f = dynamic_cast<MapFrame*>(t);
-    if (f) f->OnDrawBasemap(true,8);
-}
 
 void GdaFrame::OnBasemapConfig(wxCommandEvent& event)
 {
@@ -6604,14 +6531,6 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_CLEAN_BASEMAP"), GdaFrame::OnCleanBasemap)
     EVT_MENU(XRCID("ID_NO_BASEMAP"), GdaFrame::OnSetNoBasemap)
     EVT_MENU(XRCID("ID_CHANGE_TRANSPARENCY"), GdaFrame::OnChangeMapTransparency)
-    EVT_MENU(XRCID("ID_BASEMAP_1"), GdaFrame::OnSetBasemap1)
-    EVT_MENU(XRCID("ID_BASEMAP_2"), GdaFrame::OnSetBasemap2)
-    EVT_MENU(XRCID("ID_BASEMAP_3"), GdaFrame::OnSetBasemap3)
-    EVT_MENU(XRCID("ID_BASEMAP_4"), GdaFrame::OnSetBasemap4)
-    EVT_MENU(XRCID("ID_BASEMAP_5"), GdaFrame::OnSetBasemap5)
-    EVT_MENU(XRCID("ID_BASEMAP_6"), GdaFrame::OnSetBasemap6)
-    EVT_MENU(XRCID("ID_BASEMAP_7"), GdaFrame::OnSetBasemap7)
-    EVT_MENU(XRCID("ID_BASEMAP_8"), GdaFrame::OnSetBasemap8)
     EVT_MENU(XRCID("ID_BASEMAP_CONF"), GdaFrame::OnBasemapConfig)
     EVT_MENU(XRCID("ID_SAVE_CANVAS_IMAGE_AS"), GdaFrame::OnSaveCanvasImageAs)
     EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"), GdaFrame::OnSaveSelectedToColumn)

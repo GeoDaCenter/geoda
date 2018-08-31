@@ -33,7 +33,7 @@
 #include <wx/time.h>
 #include <wx/dcps.h>
 #include <wx/dcbuffer.h>
-
+#include <wx/tokenzr.h>
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -47,6 +47,7 @@
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/OGRDatasourceProxy.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../logger.h"
@@ -189,7 +190,7 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_type(0),
+map_type(-1),
 ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false)
@@ -642,7 +643,7 @@ bool MapCanvas::DrawBasemap(bool flag, int map_type_)
         }
     } else {
         if ( basemap ) {
-            basemap->mapType=0;
+            basemap->mapType = -1;
             last_scale_trans.data_x_min = basemap->map->west;
             last_scale_trans.data_x_max = basemap->map->east;
             last_scale_trans.data_y_min = basemap->map->south;
@@ -1014,7 +1015,7 @@ int MapCanvas::GetBasemapType()
 {
     if (basemap)
         return basemap->mapType;
-    return 0;
+    return -1;
 }
 
 void MapCanvas::CleanBasemapCache()
@@ -2798,22 +2799,74 @@ void MapFrame::OnMapTreeClose(wxWindowDestroyEvent& event)
     map_tree = NULL;
 }
 
+void MapFrame::OnBasemapSelect(wxCommandEvent& event)
+{
+    int menu_id = event.GetId();
+    
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    if (items.size()>0) {
+        basemap_sources = items[0];
+    }
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
+    for (int i=0; i<keys.size(); i++) {
+        wxString xid = wxString::Format("ID_BASEMAP_%d", i);
+        if (menu_id == XRCID(xid)) {
+            OnDrawBasemap(true, i);
+            break;
+        }
+    }
+}
+
 void MapFrame::OnMapBasemap(wxCommandEvent& e)
 {
     wxLogMessage("In MapFrame::OnMapBasemap()");
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_BASEMAP_MENU");
+    
+    // add basemap options
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    if (items.size()>0) {
+        basemap_sources = items[0];
+    }
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
+    for (int i=0; i<keys.size(); i++) {
+        wxString basemap_source = keys[i];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            // name,url
+            wxString name = basemap_source.BeforeFirst(comma);
+            wxString xid = wxString::Format("ID_BASEMAP_%d", i);
+            popupMenu->AppendCheckItem(XRCID(xid), name);
+            Connect(XRCID(xid), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapFrame::OnBasemapSelect));
+        }
+    }
+    
     if (popupMenu) {
         // set checkmarks
         int idx = ((MapCanvas*) template_canvas)->GetBasemapType();
-        popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check(idx==0);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_1"))->Check(idx==1);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_2"))->Check(idx==2);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_3"))->Check(idx==3);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_4"))->Check(idx==4);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_5"))->Check(idx==5);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_6"))->Check(idx==6);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_7"))->Check(idx==7);
-        popupMenu->FindItem(XRCID("ID_BASEMAP_8"))->Check(idx==8);
+        if (idx < 0) {
+            popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check();
+        } else {
+            for (int i=0; i<keys.size(); i++) {
+                wxString xid = wxString::Format("ID_BASEMAP_%d", i);
+                wxMenuItem* item = popupMenu->FindItem(XRCID(xid));
+                if (item) item->Check(idx==i);
+            }
+        }
         PopupMenu(popupMenu, wxDefaultPosition);
     }
 }
@@ -2836,6 +2889,7 @@ void MapFrame::MapMenus()
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
+    
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
