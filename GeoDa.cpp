@@ -220,6 +220,8 @@ bool GdaApp::OnInit(void)
 	if (!wxApp::OnInit())
         return false;
     
+    wxSocketBase::Initialize();
+    
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 

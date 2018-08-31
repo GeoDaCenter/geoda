@@ -28,9 +28,9 @@
 
 #include <vector>
 
-#include "../net/curl-asio.h"
+#include <curl/curl.h>
+
 using namespace std;
-using namespace curl::native;
 
 class GeoCodingInterface {
 public:

@@ -30,15 +30,17 @@
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/graphics.h>
+#include <wx/stream.h>
+#include <wx/wfstream.h>
+#include <wx/url.h>
 #include <ogr_spatialref.h>
 
-#include "../net/curl-asio.h"
+#include <curl/curl.h>
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
 
 using namespace std;
 using namespace GDA;
-using namespace curl::native;
 
 XY::XY(double _x, double _y)
 {
@@ -161,7 +163,18 @@ void Basemap::SetupMapType(int map_type)
         wxString token = tokenizer.GetNextToken();
         keys.push_back(token.Trim());
     }
+    // get valid basemap urls
     basemap_names.clear();
+    for (int i=0; i<keys.size(); i++) {
+        wxString basemap_source = keys[map_type];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            wxString name = basemap_source.BeforeFirst(comma);
+            basemap_names.push_back(name);
+        }
+    }
+    
     if (map_type >= 0) {
         wxString basemap_source = keys[map_type];
         wxUniChar comma = ',';
@@ -181,7 +194,7 @@ void Basemap::SetupMapType(int map_type)
             // if ( !hdpi ) {
             //     basemapUrl.Replace("@2x", "");
             // }
-            basemap_names.push_back(name);
+            
         }
     }
     
@@ -537,32 +550,34 @@ void Basemap::DownloadTile(int x, int y)
         char* url = new char[urlStr.length() + 1];
         std::strcpy(url, urlStr.c_str());
         
-        // start by creating an io_service object
-        boost::asio::io_service io_service;
-        
-        // construct an instance of curl::easy
-        curl::easy downloader(io_service);
-        
-        // set the object's properties
-        downloader.set_url(url);
-        //downloader.set_ssl_verify_peer(false);
-        //downloader.set_ssl_verify_host(false);
-        //downloader.set_redir_protocols(CURLPROTO_HTTP | CURLPROTO_HTTPS);
-        downloader.set_follow_location(true);
-        //downloader.set_ssl_version(native::CURL_SSLVERSION_TLSv1);
-        downloader.set_sink(boost::make_shared<std::ofstream>(filepath.c_str(), std::ios::binary));
-        
-        // download the file
-        boost::system::error_code ec;
-        downloader.perform(ec);
-        
-        // error handling
-        if (!ec) {
-            std::cerr << "Download succeeded" << std::endl;
-        } else  {
-            std::cerr << "Download failed: " << ec.message() << std::endl;
+        FILE* fp;
+        CURL* image;
+        CURLcode imgResult;
+
+        image = curl_easy_init();
+        if (image) {
+#ifdef __WIN32__
+			fp = _wfopen(filepathStr.wc_str(), L"wb");
+#else
+            fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
+#endif
+            if (fp)
+            {
+                curl_easy_setopt(image, CURLOPT_URL, url);
+                curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
+                curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
+                //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
+                curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
+            
+                // Grab image
+                imgResult = curl_easy_perform(image);
+           
+                curl_easy_cleanup(image);
+                fclose(fp);
+            }
         }
-                    
+        
         delete[] url;
         
     }
@@ -694,7 +709,9 @@ bool Basemap::Draw(wxBitmap* buffer)
                 wxImageHandler * jpegLoader = new wxJPEGHandler();
                 wxImage::AddHandler(jpegLoader);
                 jpeg.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
-                gc->DrawBitmap(jpeg, pos_x, pos_y, 257,257);
+                if (jpeg.IsOk()) {
+                    gc->DrawBitmap(jpeg, pos_x, pos_y, 257,257);
+                }
             }
             /*
             if (imageSuffix == ".png") {
