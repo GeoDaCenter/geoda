@@ -19,13 +19,6 @@
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
-		A152554021370FB3004BA802 /* easy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553921370FB2004BA802 /* easy.cpp */; };
-		A152554121370FB3004BA802 /* error_code.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553A21370FB2004BA802 /* error_code.cpp */; };
-		A152554221370FB3004BA802 /* string_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553B21370FB2004BA802 /* string_list.cpp */; };
-		A152554321370FB3004BA802 /* multi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553C21370FB2004BA802 /* multi.cpp */; };
-		A152554421370FB3004BA802 /* form.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553D21370FB3004BA802 /* form.cpp */; };
-		A152554521370FB3004BA802 /* share.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553E21370FB3004BA802 /* share.cpp */; };
-		A152554621370FB3004BA802 /* initialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152553F21370FB3004BA802 /* initialization.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
@@ -332,24 +325,6 @@
 		A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveAsDlg.cpp; sourceTree = "<group>"; };
 		A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
 		A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
-		A152553921370FB2004BA802 /* easy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = easy.cpp; sourceTree = "<group>"; };
-		A152553A21370FB2004BA802 /* error_code.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = error_code.cpp; sourceTree = "<group>"; };
-		A152553B21370FB2004BA802 /* string_list.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = string_list.cpp; sourceTree = "<group>"; };
-		A152553C21370FB2004BA802 /* multi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = multi.cpp; sourceTree = "<group>"; };
-		A152553D21370FB3004BA802 /* form.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = form.cpp; sourceTree = "<group>"; };
-		A152553E21370FB3004BA802 /* share.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = share.cpp; sourceTree = "<group>"; };
-		A152553F21370FB3004BA802 /* initialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = initialization.cpp; sourceTree = "<group>"; };
-		A1525547213748BF004BA802 /* curl-asio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "curl-asio.h"; sourceTree = "<group>"; };
-		A1525548213748BF004BA802 /* share.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = share.h; sourceTree = "<group>"; };
-		A1525549213748BF004BA802 /* form.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = form.h; sourceTree = "<group>"; };
-		A152554A213748BF004BA802 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		A152554B213748BF004BA802 /* easy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = easy.h; sourceTree = "<group>"; };
-		A152554C213748C0004BA802 /* initialization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = initialization.h; sourceTree = "<group>"; };
-		A152554D213748C0004BA802 /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native.h; sourceTree = "<group>"; };
-		A152554E213748C0004BA802 /* multi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = multi.h; sourceTree = "<group>"; };
-		A152554F213748C0004BA802 /* error_code.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = error_code.h; sourceTree = "<group>"; };
-		A1525550213748C0004BA802 /* socket_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = socket_info.h; sourceTree = "<group>"; };
-		A1525551213748C0004BA802 /* string_list.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = string_list.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
@@ -907,31 +882,6 @@
 			path = visualization;
 			sourceTree = "<group>";
 		};
-		A152553821370F43004BA802 /* net */ = {
-			isa = PBXGroup;
-			children = (
-				A1525547213748BF004BA802 /* curl-asio.h */,
-				A152554A213748BF004BA802 /* config.h */,
-				A152554D213748C0004BA802 /* native.h */,
-				A1525550213748C0004BA802 /* socket_info.h */,
-				A152553921370FB2004BA802 /* easy.cpp */,
-				A152554B213748BF004BA802 /* easy.h */,
-				A152553A21370FB2004BA802 /* error_code.cpp */,
-				A152554F213748C0004BA802 /* error_code.h */,
-				A152553D21370FB3004BA802 /* form.cpp */,
-				A1525549213748BF004BA802 /* form.h */,
-				A152553F21370FB3004BA802 /* initialization.cpp */,
-				A152554C213748C0004BA802 /* initialization.h */,
-				A152553C21370FB2004BA802 /* multi.cpp */,
-				A152554E213748C0004BA802 /* multi.h */,
-				A152553E21370FB3004BA802 /* share.cpp */,
-				A1525548213748BF004BA802 /* share.h */,
-				A152553B21370FB2004BA802 /* string_list.cpp */,
-				A1525551213748C0004BA802 /* string_list.h */,
-			);
-			path = net;
-			sourceTree = "<group>";
-		};
 		A19483772118BA8B009A87A2 /* ogl */ = {
 			isa = PBXGroup;
 			children = (
@@ -1147,7 +1097,6 @@
 		DD7974650F1D1B0700496A84 /* ../../ */ = {
 			isa = PBXGroup;
 			children = (
-				A152553821370F43004BA802 /* net */,
 				A10EF2ED21273E4900564FE1 /* visualization */,
 				A19483772118BA8B009A87A2 /* ogl */,
 				A40AB91A20F5336600F94543 /* arizona */,
@@ -1770,7 +1719,6 @@
 				DD7975830F1D296F00496A84 /* PermutationCounterDlg.cpp in Sources */,
 				DD7975850F1D296F00496A84 /* RandomizationDlg.cpp in Sources */,
 				DD7975890F1D296F00496A84 /* RegressionDlg.cpp in Sources */,
-				A152554121370FB3004BA802 /* error_code.cpp in Sources */,
 				A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */,
 				DD79758B0F1D296F00496A84 /* RegressionReportDlg.cpp in Sources */,
 				A4ED7D442097EC55008685D6 /* ANN.cpp in Sources */,
@@ -1786,7 +1734,6 @@
 				DD7976B80F1D2CA800496A84 /* DenseMatrix.cpp in Sources */,
 				A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */,
 				DD7976B90F1D2CA800496A84 /* DenseVector.cpp in Sources */,
-				A152554321370FB3004BA802 /* multi.cpp in Sources */,
 				A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */,
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
@@ -1860,7 +1807,6 @@
 				DD2B433F1522A93700888E51 /* HistogramView.cpp in Sources */,
 				DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */,
 				A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */,
-				A152554521370FB3004BA802 /* share.cpp in Sources */,
 				DDC9DD8515937AA000A0E5BA /* ExportCsvDlg.cpp in Sources */,
 				DDC9DD8A15937B2F00A0E5BA /* CsvFileUtils.cpp in Sources */,
 				DDC9DD9C15937C0200A0E5BA /* ImportCsvDlg.cpp in Sources */,
@@ -1902,7 +1848,6 @@
 				DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */,
 				DD4974BA1770AC840007BB9F /* TableBase.cpp in Sources */,
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
-				A152554221370FB3004BA802 /* string_list.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
 				A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
@@ -1919,13 +1864,11 @@
 				A4ED7D542097F114008685D6 /* kNN.cpp in Sources */,
 				A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */,
 				A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */,
-				A152554021370FB3004BA802 /* easy.cpp in Sources */,
 				A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */,
 				A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */,
 				DD92851C17F5FC7300B9481A /* VarOrderPtree.cpp in Sources */,
 				A4E138B81F71A29100433256 /* geocoding.cpp in Sources */,
 				DD92851F17F5FD4500B9481A /* VarOrderMapper.cpp in Sources */,
-				A152554621370FB3004BA802 /* initialization.cpp in Sources */,
 				A4ED7D572097F114008685D6 /* kd_util.cpp in Sources */,
 				DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */,
 				A4E138BB1F71D6B800433256 /* GeocodingDlg.cpp in Sources */,
@@ -1937,7 +1880,6 @@
 				DD3BA4481871EE9A00CA4152 /* DefaultVarsPtree.cpp in Sources */,
 				DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */,
 				DD0FEBBC1909B7A000930418 /* NumCategoriesDlg.cpp in Sources */,
-				A152554421370FB3004BA802 /* form.cpp in Sources */,
 				DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */,
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
