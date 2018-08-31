@@ -2804,7 +2804,7 @@ void MapFrame::OnBasemapSelect(wxCommandEvent& event)
     int menu_id = event.GetId();
     
     wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
     if (items.size()>0) {
         basemap_sources = items[0];
     }
@@ -2831,7 +2831,7 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     
     // add basemap options
     wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
     if (items.size()>0) {
         basemap_sources = items[0];
     }

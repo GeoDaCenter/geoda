@@ -150,7 +150,7 @@ size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
 
 string CreateIssueOnGithub(string& post_data)
 {
-	std::vector<std::string> tester_ids = OGRDataAdapter::GetInstance().GetHistory("tester_id");
+	std::vector<wxString> tester_ids = OGRDataAdapter::GetInstance().GetHistory("tester_id");
 	if (tester_ids.empty()) {
 		return "";
 	}

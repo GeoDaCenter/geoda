@@ -37,7 +37,7 @@ CartoDBProxy::CartoDBProxy()
 }
 
 
-CartoDBProxy::CartoDBProxy(const string& _user_name, const string& _api_key)
+CartoDBProxy::CartoDBProxy(const wxString& _user_name, const wxString& _api_key)
 {
     user_name = _user_name;
     api_key = _api_key;
@@ -48,11 +48,11 @@ CartoDBProxy::~CartoDBProxy() {
     
 }
 
-string CartoDBProxy::GetKey() const {
+wxString CartoDBProxy::GetKey() const {
 	return api_key;
 }
 
-string CartoDBProxy::GetUserName() const {
+wxString CartoDBProxy::GetUserName() const {
 	return user_name;
 }
 
@@ -60,22 +60,22 @@ void CartoDBProxy::Close() {
     
 }
 
-void CartoDBProxy::SetKey(const string& key) {
+void CartoDBProxy::SetKey(const wxString& key) {
     api_key = key;
 }
 
-void CartoDBProxy::SetUserName(const string& name) {
+void CartoDBProxy::SetUserName(const wxString& name) {
     user_name = name;
 }
 
-string CartoDBProxy::buildBaseUrl()
+wxString CartoDBProxy::buildBaseUrl()
 {
-    ostringstream url;
+    wxString url;
     url << "https://" << user_name << ".carto.com/api/v2/sql";
-    return url.str();
+    return url;
 }
 
-string CartoDBProxy::buildUpdateSQL(const string& table_name, const string& col_name, const string &new_table)
+wxString CartoDBProxy::buildUpdateSQL(const wxString& table_name, const wxString& col_name, const wxString &new_table)
 {
     /**
      update test as t set
@@ -87,28 +87,29 @@ string CartoDBProxy::buildUpdateSQL(const string& table_name, const string& col_
      where c.column_b = t.column_b;
      */
     
-    ostringstream sql;
+    wxString sql;
     sql << "UPDATE " << table_name << " t "
     << "SET " << col_name << " = c.val  FROM (VALUES"
     << new_table.substr(0, new_table.length()-1)
     << ") AS c(id,val) "
     << "WHERE c.id = t.cartodb_id ";
    
-    return sql.str();
+    return sql;
 }
 
-void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<wxString>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<wxString>& vals)
 {
-    ostringstream ss_newtable;
+    wxString ss_newtable;
     for (size_t i=0, n=vals.size(); i<n; i++) {
         ss_newtable << "(" << i+1 << ", '" << vals[i] << "'),";
     }
     
-    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    _doPost("q=" + sql);
+    wxString sql = buildUpdateSQL(table_name, col_name, ss_newtable);
+    sql = "q=" + sql;
+    _doPost(sql);
 }
 
-void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<double>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<double>& vals)
 {
     ostringstream ss_newtable;
     ss_newtable.precision(std::numeric_limits<double>::digits10);
@@ -117,11 +118,12 @@ void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name
         ss_newtable << "(" << i+1 << ", " << vals[i] << "),";
     }
     
-    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    _doPost("q=" + sql);
+    wxString sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
+    sql = "q=" + sql;
+    _doPost(sql);
 }
 
-void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name, vector<long long>& vals)
+void CartoDBProxy::UpdateColumn(const wxString& table_name, const wxString& col_name, vector<long long>& vals)
 {
     ostringstream ss_newtable;
     
@@ -129,22 +131,23 @@ void CartoDBProxy::UpdateColumn(const string& table_name, const string& col_name
         ss_newtable << "(" << i+1 << ", " << vals[i] << "),";
     }
     
-    string sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
-    _doPost("q=" + sql);
+    wxString sql = buildUpdateSQL(table_name, col_name, ss_newtable.str());
+    sql = "q=" + sql;
+    _doPost(sql);
 }
 
-void CartoDBProxy::doGet(string parameter)
+void CartoDBProxy::doGet(wxString parameter)
 {
     boost::thread t(boost::bind(&CartoDBProxy::_doGet, this, parameter));
     t.join();
 }
-void CartoDBProxy::doPost(string parameter)
+void CartoDBProxy::doPost(wxString parameter)
 {
     boost::thread t(boost::bind(&CartoDBProxy::_doPost, this, parameter));
     t.join();
 }
 
-void CartoDBProxy::_doGet(string parameter)
+void CartoDBProxy::_doGet(wxString parameter)
 {
     CURL* curl;
     CURLcode res;
@@ -153,9 +156,9 @@ void CartoDBProxy::_doGet(string parameter)
     
     curl = curl_easy_init();
     if (curl) {
-        string url = buildBaseUrl() + "?api_key=" + api_key +"&" + parameter;
+        wxString url = buildBaseUrl() + "?api_key=" + api_key +"&" + parameter;
         
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, (const char*)url.mb_str());
         
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
@@ -180,7 +183,7 @@ void CartoDBProxy::_doGet(string parameter)
     curl_global_cleanup();
     
 }
-void CartoDBProxy::_doPost(string parameter)
+void CartoDBProxy::_doPost(wxString parameter)
 {
     CURL* curl;
     CURLcode res;
@@ -189,11 +192,11 @@ void CartoDBProxy::_doPost(string parameter)
     
     curl = curl_easy_init();
     if (curl) {
-        string url = buildBaseUrl();
+        wxString url = buildBaseUrl();
         parameter = "api_key=" + api_key + "&" + parameter;
         
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, parameter.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, (const char*)url.mb_str());
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, (const char*)parameter.mb_str());
         
         curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1);
         //curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);

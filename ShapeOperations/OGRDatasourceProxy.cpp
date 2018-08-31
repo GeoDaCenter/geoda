@@ -202,7 +202,7 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
         if (layer) {
             wxString layer_name(layer->GetName());
             this->layer_names.push_back(layer_name);
-            layer_pool[layer_name] = new OGRLayerProxy(std::string(GET_ENCODED_FILENAME(layer_name)),layer,ds_type);
+            layer_pool[layer_name] = new OGRLayerProxy(layer_name,layer,ds_type);
         }
         
 	} else {
@@ -223,7 +223,7 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
                 continue;
             }
 			this->layer_names.push_back(layer_name);
-            layer_pool[layer_name] = new OGRLayerProxy(std::string(GET_ENCODED_FILENAME(layer_name)),layer,ds_type);
+            layer_pool[layer_name] = new OGRLayerProxy(layer_name, layer,ds_type);
 		}
         layer_count = layer_count - system_layers;
         
@@ -231,7 +231,7 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 	return this->layer_names;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(string sql)
+OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString sql)
 {
 	OGRLayer* tmp_layer = ds->ExecuteSQL(sql.c_str(),  0, 0);
 	//tmp_layer->SyncToDisk();
@@ -239,7 +239,7 @@ OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(string sql)
 	return NULL;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(string sql)
+OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(wxString sql)
 {
     // Note: layer is not managed here. Memory leak is possible.
 	OGRLayer* layer = ds->ExecuteSQL(sql.c_str(), 0, 0);
@@ -248,13 +248,13 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(string sql)
 	return layer_proxy;
 }
 
-bool OGRDatasourceProxy::DeleteLayer(string layer_name)
+bool OGRDatasourceProxy::DeleteLayer(wxString layer_name)
 {
     int tmp_layer_count = layer_count;
     for (int i=0; i < tmp_layer_count; i++)
 	{
         OGRLayer* layer = ds->GetLayer(i);
-		string tmp_layer_name(layer->GetName());
+		wxString tmp_layer_name(layer->GetName());
         if ( tmp_layer_name.compare(layer_name) == 0) {
             if ( ds->DeleteLayer(i) == OGRERR_NONE ) {
                 map<wxString, OGRLayerProxy*>::iterator it =
@@ -277,7 +277,7 @@ bool OGRDatasourceProxy::DeleteLayer(string layer_name)
     return false;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(string layer_name)
+OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(wxString layer_name)
 {
 	OGRLayerProxy* layer_proxy;
 	
@@ -308,7 +308,7 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(string layer_name)
 	return layer_proxy;
 }
 
-void OGRDatasourceProxy::CreateDataSource(string format,
+void OGRDatasourceProxy::CreateDataSource(wxString format,
 										  wxString dest_datasource)
 {
 	ostringstream error_message;

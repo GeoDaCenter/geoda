@@ -250,7 +250,7 @@ void AbstractCoordinator::SetLastUsedSeed(uint64_t seed)
     GdaConst::gda_user_seed =  last_seed_used;
     wxString val;
     val << last_seed_used;
-    OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+    OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
 }
 
 bool AbstractCoordinator::GetHasIsolates(int time)

@@ -507,7 +507,7 @@ void PreferenceDlg::SetupControls()
 
 void PreferenceDlg::ReadFromCache()
 {
-	vector<string> transp_h = OGRDataAdapter::GetInstance().GetHistory("transparency_highlighted");
+	vector<wxString> transp_h = OGRDataAdapter::GetInstance().GetHistory("transparency_highlighted");
 	if (!transp_h.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_h[0];
@@ -515,7 +515,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_highlighted = transp_l;
 		}
 	}
-	vector<string> transp_uh = OGRDataAdapter::GetInstance().GetHistory("transparency_unhighlighted");
+	vector<wxString> transp_uh = OGRDataAdapter::GetInstance().GetHistory("transparency_unhighlighted");
 	if (!transp_uh.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_uh[0];
@@ -523,7 +523,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<string> plot_transparency_unhighlighted = OGRDataAdapter::GetInstance().GetHistory("plot_transparency_unhighlighted");
+	vector<wxString> plot_transparency_unhighlighted = OGRDataAdapter::GetInstance().GetHistory("plot_transparency_unhighlighted");
 	if (!plot_transparency_unhighlighted.empty()) {
 		long transp_l = 0;
 		wxString transp = plot_transparency_unhighlighted[0];
@@ -531,7 +531,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::plot_transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<string> basemap_sel = OGRDataAdapter::GetInstance().GetHistory("default_basemap_selection");
+	vector<wxString> basemap_sel = OGRDataAdapter::GetInstance().GetHistory("default_basemap_selection");
 	if (!basemap_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_sel[0];
@@ -539,7 +539,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::default_basemap_selection = sel_l;
 		}
 	}
-	vector<string> basemap_default = OGRDataAdapter::GetInstance().GetHistory("use_basemap_by_default");
+	vector<wxString> basemap_default = OGRDataAdapter::GetInstance().GetHistory("use_basemap_by_default");
 	if (!basemap_default.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_default[0];
@@ -550,7 +550,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_basemap_by_default = false;
 		}
 	}
-	vector<string> crossht_sel = OGRDataAdapter::GetInstance().GetHistory("use_cross_hatching");
+	vector<wxString> crossht_sel = OGRDataAdapter::GetInstance().GetHistory("use_cross_hatching");
 	if (!crossht_sel.empty()) {
 		long cross_l = 0;
 		wxString cross = crossht_sel[0];
@@ -561,7 +561,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_cross_hatching = false;
 		}
 	}
-	vector<string> postgres_sys_sel = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_postgres");
+	vector<wxString> postgres_sys_sel = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_postgres");
 	if (!postgres_sys_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = postgres_sys_sel[0];
@@ -572,7 +572,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_postgres = false;
 		}
 	}
-	vector<string> hide_sys_table_sqlite = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_sqlite");
+	vector<wxString> hide_sys_table_sqlite = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_sqlite");
 	if (!hide_sys_table_sqlite.empty()) {
 		long sel_l = 0;
 		wxString sel = hide_sys_table_sqlite[0];
@@ -583,7 +583,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_sqlite = false;
 		}
 	}
-	vector<string> disable_crash_detect = OGRDataAdapter::GetInstance().GetHistory("disable_crash_detect");
+	vector<wxString> disable_crash_detect = OGRDataAdapter::GetInstance().GetHistory("disable_crash_detect");
 	if (!disable_crash_detect.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_crash_detect[0];
@@ -594,7 +594,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::disable_crash_detect = false;
 		}
 	}
-	vector<string> disable_auto_upgrade = OGRDataAdapter::GetInstance().GetHistory("disable_auto_upgrade");
+	vector<wxString> disable_auto_upgrade = OGRDataAdapter::GetInstance().GetHistory("disable_auto_upgrade");
 	if (!disable_auto_upgrade.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_auto_upgrade[0];
@@ -606,7 +606,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<string> show_recent_sample_connect_ds_dialog = OGRDataAdapter::GetInstance().GetHistory("show_recent_sample_connect_ds_dialog");
+	vector<wxString> show_recent_sample_connect_ds_dialog = OGRDataAdapter::GetInstance().GetHistory("show_recent_sample_connect_ds_dialog");
 	if (!show_recent_sample_connect_ds_dialog.empty()) {
 		long sel_l = 0;
 		wxString sel = show_recent_sample_connect_ds_dialog[0];
@@ -618,7 +618,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<string> show_csv_configure_in_merge = OGRDataAdapter::GetInstance().GetHistory("show_csv_configure_in_merge");
+	vector<wxString> show_csv_configure_in_merge = OGRDataAdapter::GetInstance().GetHistory("show_csv_configure_in_merge");
 	if (!show_csv_configure_in_merge.empty()) {
 		long sel_l = 0;
 		wxString sel = show_csv_configure_in_merge[0];
@@ -629,7 +629,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::show_csv_configure_in_merge = false;
 		}
 	}
-	vector<string> enable_high_dpi_support = OGRDataAdapter::GetInstance().GetHistory("enable_high_dpi_support");
+	vector<wxString> enable_high_dpi_support = OGRDataAdapter::GetInstance().GetHistory("enable_high_dpi_support");
 	if (!enable_high_dpi_support.empty()) {
 		long sel_l = 0;
 		wxString sel = enable_high_dpi_support[0];
@@ -640,7 +640,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::enable_high_dpi_support = false;
 		}
 	}
-	vector<string> gdal_http_timeout = OGRDataAdapter::GetInstance().GetHistory("gdal_http_timeout");
+	vector<wxString> gdal_http_timeout = OGRDataAdapter::GetInstance().GetHistory("gdal_http_timeout");
 	if (!gdal_http_timeout.empty()) {
 		long sel_l = 0;
 		wxString sel = gdal_http_timeout[0];
@@ -649,7 +649,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
     
-    vector<string> gda_datetime_formats_str = OGRDataAdapter::GetInstance().GetHistory("gda_datetime_formats_str");
+    vector<wxString> gda_datetime_formats_str = OGRDataAdapter::GetInstance().GetHistory("gda_datetime_formats_str");
     if (!gda_datetime_formats_str.empty()) {
         wxString patterns = gda_datetime_formats_str[0];
         wxStringTokenizer tokenizer(patterns, ",");
@@ -661,7 +661,7 @@ void PreferenceDlg::ReadFromCache()
         GdaConst::gda_datetime_formats_str = patterns;
     }
     
-    vector<string> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
+    vector<wxString> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
     if (!gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = gda_user_seed[0];
@@ -669,7 +669,7 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gda_user_seed = sel_l;
         }
     }
-    vector<string> use_gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("use_gda_user_seed");
+    vector<wxString> use_gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("use_gda_user_seed");
     if (!use_gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = use_gda_user_seed[0];
@@ -683,7 +683,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<string> gda_set_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_set_cpu_cores");
+    vector<wxString> gda_set_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_set_cpu_cores");
     if (!gda_set_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_set_cpu_cores[0];
@@ -694,7 +694,7 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::gda_set_cpu_cores = false;
         }
     }
-    vector<string> gda_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_cpu_cores");
+    vector<wxString> gda_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_cpu_cores");
     if (!gda_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_cpu_cores[0];
@@ -703,7 +703,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<string> gda_eigen_tol = OGRDataAdapter::GetInstance().GetHistory("gda_eigen_tol");
+    vector<wxString> gda_eigen_tol = OGRDataAdapter::GetInstance().GetHistory("gda_eigen_tol");
     if (!gda_eigen_tol.empty()) {
         double sel_l = 0;
         wxString sel = gda_eigen_tol[0];
@@ -712,7 +712,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<string> gda_ui_language = OGRDataAdapter::GetInstance().GetHistory("gda_ui_language");
+    vector<wxString> gda_ui_language = OGRDataAdapter::GetInstance().GetHistory("gda_ui_language");
     if (!gda_ui_language.empty()) {
         long sel_l = 0;
         wxString sel = gda_ui_language[0];
@@ -721,7 +721,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<string> gda_use_gpu = OGRDataAdapter::GetInstance().GetHistory("gda_use_gpu");
+    vector<wxString> gda_use_gpu = OGRDataAdapter::GetInstance().GetHistory("gda_use_gpu");
     if (!gda_use_gpu.empty()) {
         long sel_l = 0;
         wxString sel = gda_use_gpu[0];
@@ -734,7 +734,7 @@ void PreferenceDlg::ReadFromCache()
     }
     
     // following are not in this UI, but still global variable
-    vector<string> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
+    vector<wxString> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
         wxString email = gda_user_email[0];
         GdaConst::gda_user_email = email;
@@ -748,7 +748,7 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     GdaConst::gda_ui_language = lan_sel;
     wxString sel_str;
     sel_str << GdaConst::gda_ui_language;
-    OGRDataAdapter::GetInstance().AddEntry("gda_ui_language", sel_str.ToStdString());
+    OGRDataAdapter::GetInstance().AddEntry("gda_ui_language", sel_str);
     
     // also update the lang/config.ini content
     wxString exePath = wxStandardPaths::Get().GetExecutablePath();
@@ -790,7 +790,7 @@ void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
         GdaConst::gda_datetime_formats.push_back(token);
     }
     GdaConst::gda_datetime_formats_str = formats_str;
-    OGRDataAdapter::GetInstance().AddEntry("gda_datetime_formats_str", formats_str.ToStdString());
+    OGRDataAdapter::GetInstance().AddEntry("gda_datetime_formats_str", formats_str);
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)
@@ -800,7 +800,7 @@ void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)
     if (sec_str.ToLong(&sec)) {
         if (sec >= 0) {
             GdaConst::gdal_http_timeout = sec;
-            OGRDataAdapter::GetInstance().AddEntry("gdal_http_timeout", sec_str.ToStdString());
+            OGRDataAdapter::GetInstance().AddEntry("gdal_http_timeout", sec_str);
             CPLSetConfigOption("GDAL_HTTP_TIMEOUT", sec_str);
         }
     }
@@ -812,7 +812,7 @@ void PreferenceDlg::OnSlider1(wxCommandEvent& ev)
 	GdaConst::transparency_highlighted = val;
 	wxString transp_str;
 	transp_str << val;
-	OGRDataAdapter::GetInstance().AddEntry("transparency_highlighted", transp_str.ToStdString());
+	OGRDataAdapter::GetInstance().AddEntry("transparency_highlighted", transp_str);
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER1_TXT")), wxTextCtrl);
 
 	wxString t_hl = wxString::Format("%.2f", (255 - val) / 255.0);
@@ -829,7 +829,7 @@ void PreferenceDlg::OnSlider2(wxCommandEvent& ev)
 	GdaConst::transparency_unhighlighted = val;
 	wxString transp_str;
 	transp_str << val;
-	OGRDataAdapter::GetInstance().AddEntry("transparency_unhighlighted", transp_str.ToStdString());
+	OGRDataAdapter::GetInstance().AddEntry("transparency_unhighlighted", transp_str);
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER2_TXT")), wxTextCtrl);
 
 	wxString t_hl = wxString::Format("%.2f", (255 - val) / 255.0);
@@ -846,7 +846,7 @@ void PreferenceDlg::OnSlider6(wxCommandEvent& ev)
 	GdaConst::plot_transparency_highlighted = val;
 	wxString transp_str;
 	transp_str << val;
-	OGRDataAdapter::GetInstance().AddEntry("plot_transparency_highlighted", transp_str.ToStdString());
+	OGRDataAdapter::GetInstance().AddEntry("plot_transparency_highlighted", transp_str);
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER6_TXT")), wxTextCtrl);
 
 	wxString t_hl = wxString::Format("%.2f", (255 - val) / 255.0);
@@ -863,7 +863,7 @@ void PreferenceDlg::OnSlider7(wxCommandEvent& ev)
 	GdaConst::plot_transparency_unhighlighted = val;
 	wxString transp_str;
 	transp_str << val;
-	OGRDataAdapter::GetInstance().AddEntry("plot_transparency_unhighlighted", transp_str.ToStdString());
+	OGRDataAdapter::GetInstance().AddEntry("plot_transparency_unhighlighted", transp_str);
 	wxTextCtrl* txt_ctl = wxDynamicCast(FindWindow(XRCID("PREF_SLIDER7_TXT")), wxTextCtrl);
 
 	wxString t_hl = wxString::Format("%.2f", (255 - val) / 255.0);
@@ -888,7 +888,7 @@ void PreferenceDlg::OnChoice3(wxCommandEvent& ev)
 		wxString sel_str;
 		sel_str << GdaConst::default_basemap_selection;
 		OGRDataAdapter::GetInstance().AddEntry("use_basemap_by_default", "1");
-		OGRDataAdapter::GetInstance().AddEntry("default_basemap_selection", sel_str.ToStdString());
+		OGRDataAdapter::GetInstance().AddEntry("default_basemap_selection", sel_str);
 	}
 }
 
@@ -1015,7 +1015,7 @@ void PreferenceDlg::OnSeedEnter(wxCommandEvent& ev)
     long _val;
     if (val.ToLong(&_val)) {
         GdaConst::gda_user_seed = _val;
-        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
     }
 }
 void PreferenceDlg::OnSetCPUCores(wxCommandEvent& ev)
@@ -1038,7 +1038,7 @@ void PreferenceDlg::OnCPUCoresEnter(wxCommandEvent& ev)
     long _val;
     if (val.ToLong(&_val)) {
         GdaConst::gda_cpu_cores = _val;
-        OGRDataAdapter::GetInstance().AddEntry("gda_cpu_cores", val.ToStdString());
+        OGRDataAdapter::GetInstance().AddEntry("gda_cpu_cores", val);
     }
 }
 
@@ -1048,7 +1048,7 @@ void PreferenceDlg::OnPowerEpsEnter(wxCommandEvent& ev)
     double _val;
     if (val.ToDouble(&_val)) {
         GdaConst::gda_eigen_tol = _val;
-        OGRDataAdapter::GetInstance().AddEntry("gda_eigen_tol", val.ToStdString());
+        OGRDataAdapter::GetInstance().AddEntry("gda_eigen_tol", val);
     }
 }
 void PreferenceDlg::OnUseGPU(wxCommandEvent& ev)

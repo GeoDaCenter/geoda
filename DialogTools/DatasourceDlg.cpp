@@ -123,13 +123,13 @@ void DatasourceDlg::CreateControls()
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
-	vector<string> host_cands =
+	vector<wxString> host_cands =
 		OGRDataAdapter::GetInstance().GetHistory("db_host");
-	vector<string> port_cands =
+	vector<wxString> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
-	vector<string> uname_cands =
+	vector<wxString> uname_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_user");
-	vector<string> name_cands =
+	vector<wxString> name_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_name");
 
 	m_database_host->SetAutoList(host_cands);
@@ -138,13 +138,13 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    vector<string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    vector<wxString> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
-        string db_info = db_infos[0];
+        wxString db_info = db_infos[0];
         json_spirit::Value v;
         // try to parse as JSON
         try {
-            if (!json_spirit::read( db_info, v)) {
+            if (!json_spirit::read(db_info.ToStdString(), v)) {
                 throw runtime_error("Could not parse title as JSON");
             }
             json_spirit::Value json_db_type;
@@ -189,17 +189,17 @@ void DatasourceDlg::CreateControls()
     }
     
     // get a latest CartoDB account
-    vector<string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    vector<wxString> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
     if (!cartodb_user.empty()) {
-        string user = cartodb_user[0];
+        wxString user = cartodb_user[0];
         CartoDBProxy::GetInstance().SetUserName(user);
         // control
         m_cartodb_uname->SetValue(user);
     }
     
-    vector<string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    vector<wxString> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
     if (!cartodb_key.empty()) {
-        string key = cartodb_key[0];
+        wxString key = cartodb_key[0];
         CartoDBProxy::GetInstance().SetKey(key);
         // control
         m_cartodb_key->SetValue(key);

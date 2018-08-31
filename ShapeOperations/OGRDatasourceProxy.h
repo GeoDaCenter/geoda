@@ -82,7 +82,7 @@ public:
 	 * Note: this function now is working in GdaCache only, so the created
 	 * datasource will be added to layer_pool.
 	 */
-	static void CreateDataSource(string format, wxString dest_datasource);
+	static void CreateDataSource(wxString format, wxString dest_datasource);
 	
 	/**
 	 * Return OGR data source type as string
@@ -104,11 +104,11 @@ public:
 	 * cleaned. This makes sure that this program wont crash when large datasets
 	 * (layers) were read.
 	 */
-	OGRLayerProxy* GetLayerProxy(string layer_name);
+	OGRLayerProxy* GetLayerProxy(wxString layer_name);
 	
-	OGRLayerProxy* GetLayerProxyBySQL(string sql);
+	OGRLayerProxy* GetLayerProxyBySQL(wxString sql);
 	
-	OGRLayerProxy* ExecuteSQL(string sql);
+	OGRLayerProxy* ExecuteSQL(wxString sql);
 
     OGRLayerProxy* CreateLayer(wxString layer_name,
                                OGRwkbGeometryType eGType,
@@ -118,7 +118,7 @@ public:
                                OGRSpatialReference* spatial_ref);
     
     void StopCreateLayer();
-    bool DeleteLayer(string layer_name);
+    bool DeleteLayer(wxString layer_name);
 private:
     boost::thread* create_layer_thread;
 };

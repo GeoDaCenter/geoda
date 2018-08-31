@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <wx/string.h>
 
 #include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"
@@ -53,16 +54,16 @@ public:
 	~GdaCache();
 	
 private:
-    std::string cache_filename;
+    wxString cache_filename;
 	OGRDatasourceProxy* cach_ds_proxy;
 	std::vector<wxString> layer_names; //<! layer name in cache is composed
 										  //<! by orginal ds_name and layer_name
-	static const std::string HIST_TABLE_NAME;
-	static const std::string DB_HOST_HIST;
-	static const std::string DB_PORT_HIST;
-	static const std::string DB_NAME_HIST;
-	static const std::string DB_UNAME_HIST;
-	static const std::string WS_URL_HIST;
+	static const wxString HIST_TABLE_NAME;
+	static const wxString DB_HOST_HIST;
+	static const wxString DB_PORT_HIST;
+	static const wxString DB_NAME_HIST;
+	static const wxString DB_UNAME_HIST;
+	static const wxString WS_URL_HIST;
 	
 	// GeoDa cache has a table called "history", which stores all user inputs
 	// and used for autocompletion in some dialogs.
@@ -70,8 +71,8 @@ private:
 	
 	// Since history_table is read only, then we'd better maintain the table
 	// content in memory by using std::map, parameter_key:parameter_value
-	std::vector<std::string> history_keys;
-	std::vector<std::string> history_vals;
+	std::vector<wxString> history_keys;
+	std::vector<wxString> history_vals;
 	
 public:
     static wxString GetFullPath();
@@ -80,14 +81,14 @@ public:
 	 * For example:
 	 *     GetHistory( "database_host" );
 	 */
-	std::vector<std::string> GetHistory(std::string param_key);
+	std::vector<wxString> GetHistory(wxString param_key);
 
 	/**
 	 * Add input to history table
 	 */
-	void AddHistory(std::string param_key, std::string param_val);
+	void AddHistory(wxString param_key, wxString param_val);
 	
-    void AddEntry(std::string param_key, std::string param_val);
+    void AddEntry(wxString param_key, wxString param_val);
     
 	/**
 	 * Clean the content of "history" table
@@ -101,20 +102,20 @@ public:
 	 * If layer has been cached before, update the layer in cache.
 	 * Otherwise, create a new layer and store it in Geoda cache.
 	 */
-	bool CacheLayer(std::string ext_ds_name, 
+	bool CacheLayer(wxString ext_ds_name,
 					OGRLayerProxy* ext_layer_proxy);
 	
-	bool UpdateLayer(std::string ext_ds_name, 
+	bool UpdateLayer(wxString ext_ds_name,
 					 OGRLayerProxy* ext_layer_proxy);
 	
-	bool IsLayerUpdated(std::string ext_ds_name, 
+	bool IsLayerUpdated(wxString ext_ds_name,
 						OGRLayerProxy* ext_layer_proxy);
 	
-	bool IsLayerCached(std::string ext_ds_name, 
-					   std::string ext_layer_name);
+	bool IsLayerCached(wxString ext_ds_name,
+					   wxString ext_layer_name);
 	
-	OGRLayerProxy* GetLayerProxy(std::string ext_ds_name, 
-								 std::string ext_layer_name);
+	OGRLayerProxy* GetLayerProxy(wxString ext_ds_name,
+								 wxString ext_layer_name);
 };
 
 #endif

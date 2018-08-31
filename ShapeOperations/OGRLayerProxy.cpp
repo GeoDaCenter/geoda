@@ -42,7 +42,7 @@ namespace bt = boost::posix_time;
 /**
  * Create a OGRLayerProxy from an existing OGRLayer
  */
-OGRLayerProxy::OGRLayerProxy(string layer_name,
+OGRLayerProxy::OGRLayerProxy(wxString layer_name,
                              OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
                              bool isNew)
@@ -416,7 +416,7 @@ bool OGRLayerProxy::UpdateOGRFeature(OGRFeature* feature)
     return false;
 }
 
-bool OGRLayerProxy::AppendOGRFeature(vector<string>& content)
+bool OGRLayerProxy::AppendOGRFeature(vector<wxString>& content)
 {
 	OGRFeature *feature = OGRFeature::CreateFeature(layer->GetLayerDefn());
 	feature->SetFrom( data[0]);
@@ -440,7 +440,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
 {
     if (ds_type == GdaConst::ds_cartodb) {
         // update column using CARTODB_API directly, avoid single UPDATE clause
-        string col_name(GetFieldName(col_idx).mb_str());
+        wxString col_name = GetFieldName(col_idx);
         CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
         
         // update memory still
@@ -460,7 +460,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
 {
     if (ds_type == GdaConst::ds_cartodb) {
         // update column using CARTODB_API directly, avoid single UPDATE clause
-        string col_name(GetFieldName(col_idx).mb_str());
+        wxString col_name = GetFieldName(col_idx);
         CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
         
         // update memory still
@@ -480,7 +480,7 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 {
     if (ds_type == GdaConst::ds_cartodb) {
         // update column using CARTODB_API directly, avoid single UPDATE clause
-        string col_name(GetFieldName(col_idx).mb_str());
+        wxString col_name = GetFieldName(col_idx);
         CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
         
         // update memory still
@@ -1439,9 +1439,9 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 	return true;
 }
 
-void OGRLayerProxy::T_Export(string format,
-                             string dest_datasource,
-							 string new_layer_name,
+void OGRLayerProxy::T_Export(wxString format,
+                             wxString dest_datasource,
+							 wxString new_layer_name,
                              bool is_update)
 {
 	export_progress = 0;
@@ -1455,9 +1455,9 @@ void OGRLayerProxy::T_StopExport()
 	export_progress = 0;	
 }
 
-void OGRLayerProxy::Export(string format,
-                           string dest_datasource,
-                           string new_layer_name,
+void OGRLayerProxy::Export(wxString format,
+                           wxString dest_datasource,
+                           wxString new_layer_name,
                            bool is_update)
 {
 	const char* pszFormat = format.c_str();

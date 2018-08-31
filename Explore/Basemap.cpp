@@ -134,17 +134,17 @@ void Basemap::SetupMapType(int map_type)
     mapType = map_type;
     
     // get a latest CartoDB account
-    vector<string> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
+    vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
-        string user = nokia_user[0];
+        wxString user = nokia_user[0];
         if (!user.empty()) {
             nokia_id = user;
         }
     }
     
-    vector<string> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
+    vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
     if (!nokia_key.empty()) {
-        string key = nokia_key[0];
+        wxString key = nokia_key[0];
         if (!key.empty()) {
             nokia_code = key;
         }
@@ -152,7 +152,7 @@ void Basemap::SetupMapType(int map_type)
 
     // get basemap url
     wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
     if (items.size()>0) {
         basemap_sources = items[0];
     }

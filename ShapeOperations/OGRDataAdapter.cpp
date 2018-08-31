@@ -99,18 +99,18 @@ OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name, GdaCons
 	return ds_proxy;
 }
 
-std::vector<std::string> OGRDataAdapter::GetHistory(string param_key)
+std::vector<wxString> OGRDataAdapter::GetHistory(wxString param_key)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	return gda_cache->GetHistory(param_key);
 }
 
-void OGRDataAdapter::AddHistory(string param_key, string param_val)
+void OGRDataAdapter::AddHistory(wxString param_key, wxString param_val)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	gda_cache->AddHistory(param_key, param_val);
 }
-void OGRDataAdapter::AddEntry(string param_key, string param_val)
+void OGRDataAdapter::AddEntry(wxString param_key, wxString param_val)
 {
     if (gda_cache==NULL) gda_cache = new GdaCache();
     gda_cache->AddEntry(param_key, param_val);
@@ -135,7 +135,7 @@ GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaCons
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, string layer_name)
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, wxString layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
     
@@ -176,7 +176,7 @@ void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)
 }
 
 void OGRDataAdapter::CacheLayer
-(string ds_name, string layer_name, OGRLayerProxy* layer_proxy)
+(wxString ds_name, wxString layer_name, OGRLayerProxy* layer_proxy)
 {
 	//XXX: we don't cache layer in 1.5.x
 	// cache current layer in a thread
@@ -315,7 +315,7 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 }
 
 OGRLayerProxy*
-OGRDataAdapter::ExportDataSource(string o_ds_format, 
+OGRDataAdapter::ExportDataSource(wxString o_ds_format, 
 								 wxString o_ds_name,
                                  wxString o_layer_name,
                                  OGRwkbGeometryType geom_type,
@@ -426,9 +426,9 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
 
 
 void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
-                            std::string format,
-                            std::string dest_datasource,
-                            std::string new_layer_name,
+                            wxString format,
+                            wxString dest_datasource,
+                            wxString new_layer_name,
                             bool is_update)
 {
     OGRLayer* poSrcLayer = source_layer_proxy->layer;

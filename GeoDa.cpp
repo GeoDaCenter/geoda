@@ -283,9 +283,9 @@ bool GdaApp::OnInit(void)
 	
     // check crash
     if (GdaConst::disable_crash_detect == false) {
-        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
+        std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("NoCrash");
         if (items.size() > 0) {
-            std::string no_crash = items[0];
+            wxString no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
                 wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
@@ -296,7 +296,7 @@ bool GdaApp::OnInit(void)
                 if (msgDlg.ShowModal() == wxID_OK) {
                     user_email = msgDlg.GetValue();
                     if (user_email != GdaConst::gda_user_email) {
-                        OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email.ToStdString());
+                        OGRDataAdapter::GetInstance().AddEntry("gda_user_email", user_email);
                         GdaConst::gda_user_email = user_email;
                     }
                     wxString ttl = "Crash Report";
@@ -315,20 +315,18 @@ bool GdaApp::OnInit(void)
 	if (GeneralWxUtils::isMac()) {
 		frameWidth = 1052;
 		frameHeight = 80;
-	}
-	if (GeneralWxUtils::isWindows()) {
+	} else if (GeneralWxUtils::isWindows()) {
 		frameWidth = 1160;
 		frameHeight = 120;
-	}
-	if (GeneralWxUtils::isUnix()) {  // assumes GTK
+	} else if (GeneralWxUtils::isUnix()) {  // assumes GTK
 		frameWidth = 1060;
  		frameHeight = 120;
 #ifdef __linux__
         wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
-        if (linux_info.Description.Lower().Contains("centos"))
+        if (linux_info.Description.Lower().Contains("centos")) {
             frameHeight = 180;
+        }
 #endif
-
 	}
 
 	wxPoint appFramePos = wxPoint(80,60);
@@ -750,7 +748,7 @@ void GdaFrame::CheckUpdate()
         wxLogMessage(version);
         
         wxString skip_version;
-        std::vector<std::string> items = OGRDataAdapter::GetInstance().GetHistory("no_update_version");
+        std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("no_update_version");
         if (items.size()>0)
             skip_version = items[0];
         
@@ -760,8 +758,7 @@ void GdaFrame::CheckUpdate()
         bool showSkip = true;
         AutoUpdateDlg updateDlg(NULL, showSkip);
         if (updateDlg.ShowModal() == wxID_NO) {
-            OGRDataAdapter::GetInstance().AddEntry("no_update_version",
-                                                   std::string(version.mb_str()));
+            OGRDataAdapter::GetInstance().AddEntry("no_update_version", version);
         }
     }
 }
@@ -6229,7 +6226,7 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
     wxCheckBox* chk_testmode_stable = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE_STABLE"), &dlg));
-    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+    std::vector<wxString> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
    
     bool isTestMode = false;
     if (!test_mode.empty()) {
@@ -6241,9 +6238,7 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
         }
     }
     
-    chk_testmode_stable->Connect(wxEVT_CHECKBOX,
-                                 wxCommandEventHandler(GdaFrame::OnCheckTestMode),
-                                 NULL, this);
+    chk_testmode_stable->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
     
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();

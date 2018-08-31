@@ -94,7 +94,7 @@ RecentDatasource::RecentDatasource()
 {
     n_ds =0;
     // get a latest input DB information
-    std::vector<std::string> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
+    std::vector<wxString> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
     
     if (ds_infos.size() > 0) {
         ds_json_str = ds_infos[0];
@@ -642,7 +642,7 @@ void ConnectDatasourceDlg::CreateControls()
     DatasourceDlg::CreateControls();
 	
     // setup WSF auto-completion
-	std::vector<std::string> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
+	std::vector<wxString> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
 	m_webservice_url->SetAutoList(ws_url_cands);
 }
 
@@ -968,8 +968,8 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         
 	} else if ( datasource_type == 3 ) {
         
-        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
-        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
+        wxString user =m_cartodb_uname->GetValue().Trim();
+        wxString key = m_cartodb_key->GetValue().Trim();
         
         if (user.empty()) {
             wxString msg = _("Please input Carto User Name.");
@@ -980,9 +980,9 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
            throw GdaException(msg.mb_str());
         }
         
-        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
+        CPLSetConfigOption("CARTODB_API_KEY", (const char*)key.mb_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key);
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user);
         CartoDBProxy::GetInstance().SetKey(key);
         CartoDBProxy::GetInstance().SetUserName(user);
         

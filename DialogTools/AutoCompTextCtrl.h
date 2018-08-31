@@ -25,7 +25,7 @@ public:
 	void TextEntered( wxCommandEvent &event );
 	void DoIdle( wxIdleEvent &event );
 	void DoKeyDown( wxKeyEvent &event );
-	void SetAutoList(std::vector<std::string> &autoList) { 
+	void SetAutoList(std::vector<wxString> &autoList) {
 		if (autoList.size() == 0) return;
 		m_pList = autoList; 
 		std::sort(m_pList.begin(), m_pList.end());
@@ -34,7 +34,7 @@ public:
 private:
 	bool m_bDoSelectAll;
 	bool m_bIgnoreNextTextEdit;
-	std::vector<std::string> m_pList;
+	std::vector<wxString> m_pList;
 	
 	DECLARE_EVENT_TABLE()
 };

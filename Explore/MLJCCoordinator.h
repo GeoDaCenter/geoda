@@ -106,7 +106,7 @@ public:
         GdaConst::gda_user_seed =  last_seed_used;
         wxString val;
         val << last_seed_used;
-        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
     }
     
 	bool IsReuseLastSeed() { return reuse_last_seed; }

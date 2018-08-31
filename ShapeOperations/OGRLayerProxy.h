@@ -45,7 +45,7 @@ using namespace std;
  */
 class OGRLayerProxy {
 public:
-	OGRLayerProxy(string layer_name,
+	OGRLayerProxy(wxString layer_name,
                   OGRLayer* _layer,
                   GdaConst::DataSourceType _ds_type,
                   bool isNew=false);
@@ -68,7 +68,7 @@ public:
 	
     
     bool        is_writable;
-	string      name;
+	wxString      name;
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
@@ -120,9 +120,9 @@ public:
 	 * @param format exported driver name (OGR style)
 	 * @param dest_datasource exported data source name (OGR style)
 	 */
-	void Export(string format, string dest_datasource, string new_layer_name, bool is_update);
+	void Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
     
-	void T_Export(string format, string dest_datasource, string new_layer_name, bool is_update);
+	void T_Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
     
 	void T_StopExport();
 
@@ -244,7 +244,7 @@ public:
 	/**
 	 *
 	 */
-	bool AppendOGRFeature(vector<string>& content);
+	bool AppendOGRFeature(vector<wxString>& content);
 	/**
 	 *
 	 */
