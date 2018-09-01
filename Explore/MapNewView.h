@@ -168,13 +168,13 @@ public:
     virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
+    
     void DisplayMapLayers();
     void AddMapLayer(wxString name, OGRLayerProxy* layer_proxy);
-    int GetMapLayerCount();
-    int GetBasemapType();
+    int  GetMapLayerCount();
+    int  GetBasemapType();
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, int map_type);
-    const wxBitmap* GetBaseLayer() { return basemap_bm; }
     void OnIdle(wxIdleEvent& event);
     void TranslucentLayer0(wxMemoryDC& dc);
     void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h,
@@ -183,18 +183,20 @@ public:
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
     void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
-    CatClassification::CatClassifType GetCcType();
     void SetLegendLabel(int cat, wxString label) {
         cat_data.SetCategoryLabel(0, cat, label);
     }
+    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    
+    const wxBitmap* GetBaseLayer() { return basemap_bm; }
+    CatClassification::CatClassifType GetCcType();
     static void ResetThumbnail() {
         MapCanvas::has_thumbnail_saved = false;
     }
     map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
     map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
-    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    
+        
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;

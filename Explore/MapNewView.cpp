@@ -253,6 +253,11 @@ MapCanvas::~MapCanvas()
     }
 }
 
+Shapefile::ShapeType MapCanvas::GetShapeType()
+{
+    return project->GetShapeType();
+}
+
 map<wxString, BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()
 {
     return bg_maps;
@@ -2808,6 +2813,7 @@ void MapFrame::OnBasemapSelect(wxCommandEvent& event)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
+    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
@@ -2835,6 +2841,7 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
+    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);

@@ -156,6 +156,7 @@ void Basemap::SetupMapType(int map_type)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
+    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
@@ -181,7 +182,6 @@ void Basemap::SetupMapType(int map_type)
         int comma_pos = basemap_source.Find(comma);
         if ( comma_pos != wxNOT_FOUND ) {
             // name,url
-            wxString name = basemap_source.BeforeFirst(comma);
             basemapUrl = basemap_source.AfterFirst(comma);
             if (basemap_source.Find("png") != wxNOT_FOUND ||
                 basemap_source.Find("PNG") != wxNOT_FOUND)
@@ -700,20 +700,6 @@ bool Basemap::Draw(wxBitmap* buffer)
             wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;
-            bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
-            if (bmp.IsOk()) {
-                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
-            } else {
-                // try to load if it's jpeg
-                wxBitmap jpeg;
-                wxImageHandler * jpegLoader = new wxJPEGHandler();
-                wxImage::AddHandler(jpegLoader);
-                jpeg.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
-                if (jpeg.IsOk()) {
-                    gc->DrawBitmap(jpeg, pos_x, pos_y, 257,257);
-                }
-            }
-            /*
             if (imageSuffix == ".png") {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
             } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
@@ -724,7 +710,7 @@ bool Basemap::Draw(wxBitmap* buffer)
             if (bmp.IsOk()) {
                 gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
                 //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
-            }*/
+            }
 		}
 	}
     delete gc;

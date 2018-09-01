@@ -88,7 +88,7 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL)
+sourceSR(NULL), rtree_bbox_ready(false)
 {
     
 	wxLogMessage("Entering Project::Project (existing project)");
@@ -138,7 +138,7 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL)
+sourceSR(NULL), rtree_bbox_ready(false)
 {
 	wxLogMessage("Entering Project::Project (new project)");
 	
@@ -329,27 +329,48 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 	return shape_type;
 }
 
-void Project::CalcEucPlaneRtreeStats()
+rtree_box_2d_t& Project::GetBBoxRtree()
 {
 	wxLogMessage("Project::CalcEucPlaneRtreeStats()");
-	using namespace std;
-	
-	GetCentroids();
-	size_t num_obs = centroids.size();
-	std::vector<pt_2d> pts(num_obs);
-	std::vector<double> x(num_obs);
-	std::vector<double> y(num_obs);
-	for (size_t i=0; i<num_obs; ++i) {
-		pts[i] = pt_2d(centroids[i]->center_o.x,
-									 centroids[i]->center_o.y);
-		x[i] = centroids[i]->center_o.x;
-		y[i] = centroids[i]->center_o.y;
-	}
-	SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
-	double mean_d_1nn, median_d_1nn;
-	SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
-	wxRealPoint pt1, pt2;
-	max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
+    if ( rtree_bbox_ready ) {
+        return rtree_bbox;
+    }
+    if (main_data.header.shape_type == Shapefile::POLYGON) {
+        Shapefile::PolygonContents* pc;
+        int num_geometries = main_data.records.size();
+        for (int i=0; i<num_geometries; i++) {
+            pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
+            pc->box[0];
+            // create a box, tl, br
+            box_2d b(pt_2d(pc->box[0], pc->box[2]), pt_2d(pc->box[1], pc->box[3]));
+            // insert new value
+            rtree_bbox.insert(std::make_pair(b, i));
+        }
+        rtree_bbox_ready = true;
+    }
+    return rtree_bbox;
+}
+
+void Project::CalcEucPlaneRtreeStats()
+{
+    wxLogMessage("Project::CalcEucPlaneRtreeStats()");
+    using namespace std;
+    
+    GetCentroids();
+    size_t num_obs = centroids.size();
+    std::vector<pt_2d> pts(num_obs);
+    std::vector<double> x(num_obs);
+    std::vector<double> y(num_obs);
+    for (size_t i=0; i<num_obs; ++i) {
+        pts[i] = pt_2d(centroids[i]->center_o.x, centroids[i]->center_o.y);
+        x[i] = centroids[i]->center_o.x;
+        y[i] = centroids[i]->center_o.y;
+    }
+    SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
+    double mean_d_1nn, median_d_1nn;
+    SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
+    wxRealPoint pt1, pt2;
+    max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
 }
 
 void Project::CalcUnitSphereRtreeStats()

@@ -11,6 +11,7 @@
 #include <wx/colordlg.h>
 
 #include "../logger.h"
+#include "../SpatialIndTypes.h"
 #include "MapNewView.h"
 #include "MapLayer.hpp"
 #include "MapLayerTree.hpp"
@@ -120,6 +121,20 @@ void MapTree::OnRemoveMapLayer(wxCommandEvent& event)
     Refresh();
     OnMapLayerChange();
 }
+
+void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        rtree_box_2d_t rtree;
+        Shapefile::ShapeType shp_type = ml->GetShapeType();
+        if (shp_type == Shapefile::POINT_TYP) {
+            
+        }
+    }
+}
+
 void MapTree::OnChangeFillColor(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -132,6 +147,7 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
         CallAfter(&MapCanvas::ReDraw);
     }
 }
+
 void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -250,6 +266,14 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         return;
     }
     wxMenu* popupMenu = new wxMenu(wxEmptyString);
+    
+    if (canvas->GetShapeType() == MapCanvas::polygons)
+    {
+        popupMenu->Append(XRCID("MAPTREE_POINT_IN_POLYGON"), _("Spatial Join Count"));
+        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
+        popupMenu->AppendSeparator();
+    }
+    
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
     popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
     popupMenu->Append(XRCID("MAPTREE_OUTLINE_VISIBLE"), _("Outline Visible"));
@@ -274,6 +298,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     if (ml->GetShapeType() == Shapefile::POINT_TYP) {
         popupMenu->Append(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), _("Change Point Radius"));
         Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangePointRadius));
+        
     } else {
         popupMenu->Append(XRCID("MAPTREE_BOUNDARY_ONLY"), _("Only Map Boundary"));
         Connect(XRCID("MAPTREE_BOUNDARY_ONLY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnShowMapBoundary));

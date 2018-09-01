@@ -66,6 +66,7 @@ protected:
     void OnShowMapBoundary(wxCommandEvent& event);
     void OnRemoveMapLayer(wxCommandEvent& event);
     void OnSwitchClick(wxMouseEvent& event);
+    void OnSpatialJoinCount(wxCommandEvent& event);
     int  GetLegendClick(wxMouseEvent& event);
     int  GetSwitchClick(wxMouseEvent& event);
     int  GetCategoryClick(wxMouseEvent& event);

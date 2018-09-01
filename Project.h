@@ -166,6 +166,7 @@ public:
 	double GetMax1nnDistArc(); // returned as radians
 	double GetMaxDistArc(); // returned as radians
 	
+    rtree_box_2d_t& GetBBoxRtree();
 	rtree_pt_2d_t& GetEucPlaneRtree();
 	rtree_pt_3d_t& GetUnitSphereRtree();
 	
@@ -282,7 +283,9 @@ private:
 	double max_dist_arc; // radians
 	rtree_pt_2d_t rtree_2d; // 2d Cartesian points
 	rtree_pt_3d_t rtree_3d; // lon/lat points projected to unit sphere
-	
+    rtree_box_2d_t rtree_bbox;
+    bool rtree_bbox_ready;
+    
 	/** The following array is not thread safe since it is shared by
 	 every TemplateCanvas instance in a given project. */
 	static std::map<wxString, i_array_type*> shared_category_scratch;

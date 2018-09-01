@@ -39,7 +39,6 @@ GdaCache::GdaCache()
     
 	// connect to cache file
     try {
-        
         cach_ds_proxy = new OGRDatasourceProxy(exePath, GdaConst::ds_sqlite, true);
         layer_names = cach_ds_proxy->GetLayerNames();
         wxString sql = "SELECT * FROM history";
@@ -55,8 +54,10 @@ GdaCache::GdaCache()
         history_table->ReadData();
         
         for ( int i=0; i< history_table->n_rows; i++){
-            history_keys.push_back( history_table->GetValueAt(i, 0).ToStdString() );
-            history_vals.push_back( history_table->GetValueAt(i, 1).ToStdString() );
+            wxString key = history_table->GetValueAt(i, 0);
+            wxString val = history_table->GetValueAt(i, 1);
+            history_keys.push_back(key);
+            history_vals.push_back(val);
         }
     }catch(GdaException& e) {
         //XXX
@@ -119,7 +120,7 @@ void GdaCache::AddEntry(wxString param_key, wxString param_val)
     // add to spatialite table
     wxString sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
     //cach_ds_proxy->ExecuteSQL(sql);
-	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(sql.c_str(),  0, "SQLITE");
+	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, "SQLITE");
 	cach_ds_proxy->ds->ReleaseResultSet(tmp_layer);
 }
 
