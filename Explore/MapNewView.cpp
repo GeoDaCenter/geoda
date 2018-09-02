@@ -253,9 +253,14 @@ MapCanvas::~MapCanvas()
     }
 }
 
-Shapefile::ShapeType MapCanvas::GetShapeType()
+Shapefile::Main& MapCanvas::GetGeometryData()
 {
-    return project->GetShapeType();
+    return project->main_data;
+}
+
+OGRLayerProxy* MapCanvas::GetOGRLayerProxy()
+{
+    return project->layer_proxy;
 }
 
 map<wxString, BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()

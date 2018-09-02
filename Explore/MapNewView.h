@@ -188,7 +188,8 @@ public:
     }
     void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
     void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    
+    Shapefile::Main& GetGeometryData();
+    OGRLayerProxy* GetOGRLayerProxy();
     const wxBitmap* GetBaseLayer() { return basemap_bm; }
     CatClassification::CatClassifType GetCcType();
     static void ResetThumbnail() {
@@ -196,7 +197,7 @@ public:
     }
     map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
     map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
-        
+    Project* GetProject() { return project; }
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;

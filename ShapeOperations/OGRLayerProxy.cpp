@@ -1127,6 +1127,13 @@ void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
     }
 }
 
+OGRGeometry* OGRLayerProxy::GetGeometry(int idx)
+{
+    OGRFeature* feature = data[idx];
+    OGRGeometry* geometry= feature->GetGeometryRef();
+    return geometry;
+}
+
 GdaPolygon* OGRLayerProxy::GetMapBoundary(vector<OGRGeometry*>& geoms)
 {
     OGRMultiPolygon geocol;

@@ -261,6 +261,8 @@ public:
 	 */
     OGRFeature* GetFeatureAt(int rid);
     
+    OGRGeometry* GetGeometry(int idx);
+    
     bool IsUndefined(int rid, int cid);
     
     wxString GetValueAt(int rid, int cid);

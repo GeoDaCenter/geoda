@@ -5,11 +5,14 @@
 //  Created by Xun Li on 8/24/18.
 //
 
+#include <vector>
+
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcbuffer.h>
 #include <wx/colordlg.h>
 
+#include "../DialogTools/SaveToTableDlg.h"
 #include "../logger.h"
 #include "../SpatialIndTypes.h"
 #include "MapNewView.h"
@@ -127,11 +130,58 @@ void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
     wxString map_name = map_titles[new_order[select_id]];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
     if (ml) {
-        rtree_box_2d_t rtree;
+        // create rtree using points (normally, more points than polygons)
+        rtree_pt_2d_t rtree;
         Shapefile::ShapeType shp_type = ml->GetShapeType();
         if (shp_type == Shapefile::POINT_TYP) {
-            
+            int n = ml->shapes.size();
+            double x, y;
+            for (int i=0; i<n; i++) {
+                x = ml->shapes[i]->center_o.x;
+                y = ml->shapes[i]->center_o.y;
+                rtree.insert(std::make_pair(pt_2d(x,y), i));
+            }
         }
+        
+        // for each polygon in map, query points
+        Shapefile::Main& main_data = canvas->GetGeometryData();
+        OGRLayerProxy* ogr_layer = canvas->GetOGRLayerProxy();
+        Shapefile::PolygonContents* pc;
+        int n_polygons = main_data.records.size();
+        vector<wxInt64> spatial_counts(n_polygons, 0);
+        for (int i=0; i<n_polygons; i++) {
+            pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
+            // create a box, tl, br
+            box_2d b(pt_2d(pc->box[0], pc->box[1]),
+                     pt_2d(pc->box[2], pc->box[3]));
+            // query points in this box
+            std::vector<pt_2d_val> q;
+            rtree.query(bgi::within(b), std::back_inserter(q));
+            OGRGeometry* ogr_poly = ogr_layer->GetGeometry(i);
+            for (int j=0; j<q.size(); j++) {
+                const pt_2d_val& v = q[j];
+                double x = v.first.get<0>();
+                double y = v.first.get<1>();
+                OGRPoint ogr_pt(x, y);
+                if (ogr_pt.Within(ogr_poly)) {
+                    spatial_counts[i] += 1;
+                }
+            }
+        }
+        
+        // save results
+        int new_col = 1;
+        std::vector<SaveToTableEntry> new_data(new_col);
+        vector<bool> undefs(n_polygons, false);
+        new_data[0].l_val = &spatial_counts;
+        new_data[0].label = "Spatial Counts";
+        new_data[0].field_default = "SC";
+        new_data[0].type = GdaConst::long64_type;
+        new_data[0].undefined = &undefs;
+        SaveToTableDlg dlg(canvas->GetProject(), this, new_data,
+                           "Save Results: Spatial Counts",
+                           wxDefaultPosition, wxSize(400,400));
+        dlg.ShowModal();
     }
 }
 
@@ -267,23 +317,25 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     }
     wxMenu* popupMenu = new wxMenu(wxEmptyString);
     
-    if (canvas->GetShapeType() == MapCanvas::polygons)
+    wxString map_name = map_titles[ new_order[select_id] ];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml == NULL) {
+        // no other options
+        return;
+    }
+    
+    if (canvas->GetShapeType() == MapCanvas::polygons &&
+        ml->GetShapeType() == Shapefile::POINT_TYP)
     {
         popupMenu->Append(XRCID("MAPTREE_POINT_IN_POLYGON"), _("Spatial Join Count"));
-        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
+        Connect(XRCID("MAPTREE_POINT_IN_POLYGON"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
         popupMenu->AppendSeparator();
     }
     
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
     popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
     popupMenu->Append(XRCID("MAPTREE_OUTLINE_VISIBLE"), _("Outline Visible"));
-    
-    wxString map_name = map_titles[ new_order[select_id] ];
-    BackgroundMapLayer* ml = GetMapLayer(map_name);
-    if (ml == NULL) {
-        return;
-    }
-    
+        
     // check menu items
     wxMenuItem* outline = popupMenu->FindItem(XRCID("MAPTREE_OUTLINE_VISIBLE"));
     if (outline) {

@@ -212,7 +212,7 @@ public:
 	wxString	proj_file_no_ext;
 	wxFileName	working_dir;
     
-    OGRLayerProxy*        layer_proxy;
+    OGRLayerProxy* layer_proxy;
     
     // Voronoi Diagram related
     std::vector<GdaPoint*> mean_centers;
