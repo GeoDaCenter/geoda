@@ -157,7 +157,6 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
     
 	// clean ogr data sources
 	//OGRDataSource::DestroyDataSource(ds);
-    
 	GDALClose(ds);
 }
 
@@ -188,10 +187,6 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
     
 	if (layer_count == layer_pool.size() && layer_count > 0) {
 		// return layer names from pool directly
-		//map<string, OGRLayerProxy*>::iterator it;
-		//for (it = layer_pool.begin(); it!= layer_pool.end(); it++) {
-		//	layer_names.push_back(it->first);
-		//}
         
     } else if (layer_count == 0){
        // try to read (by default) first layer

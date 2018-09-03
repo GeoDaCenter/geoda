@@ -212,6 +212,19 @@ Project::~Project()
 		delete i->second;
 	}
 	
+    // clean multi-layers
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        ml->CleanMemory();
+        delete ml;
+    }
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        ml->CleanMemory();
+        delete ml;
+    }
+    
 	OGRDataAdapter::GetInstance().Close();
 	
 	//NOTE: the wxGrid instance in TableFrame has
@@ -417,7 +430,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 			return NULL;
 		}
 		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
-		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername.ToStdString());
+		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername);
 		spatial_ref = ogr_layer->GetSpatialReference();
 		if (spatial_ref) spatial_ref = spatial_ref->Clone();
 		delete ogr_ds;
@@ -1598,6 +1611,49 @@ bool Project::InitFromOgrLayer()
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
 	return true;
 }
+
+BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::DataSourceType ds_type, wxString layer_name)
+{
+    wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
+    BackgroundMapLayer* map_layer = NULL;
+    // Use global OGR adapter to manage all datasources, so they can be reused
+    OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+    OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
+    if (p_layer->ReadData()) {
+        // always add to bg_maps
+        if (bg_maps.find(layer_name) == bg_maps.end()) {
+            bg_maps[layer_name] = new BackgroundMapLayer(p_layer, sourceSR);
+        }
+        map_layer = bg_maps[layer_name];
+    }
+    return map_layer;
+}
+
+int Project::GetMapLayerCount()
+{
+    return bg_maps.size() + fg_maps.size();
+}
+
+map<wxString, BackgroundMapLayer*> Project::GetBackgroundMayLayers()
+{
+    return bg_maps;
+}
+
+void Project::SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    bg_maps = val;
+}
+
+map<wxString, BackgroundMapLayer*> Project::GetForegroundMayLayers()
+{
+    return fg_maps;
+}
+
+void Project::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    fg_maps = val;
+}
+
 
 void Project::SetupEncoding(wxString encode_str)
 {

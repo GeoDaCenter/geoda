@@ -106,10 +106,12 @@ void MapTree::OnRemoveMapLayer(wxCommandEvent& event)
         ml = bg_maps[map_name];
         ml->CleanMemory();
         bg_maps.erase(map_name);
+        canvas->SetBackgroundMayLayers(bg_maps);
     } else if (fg_maps.find(map_name) != fg_maps.end()) {
         ml = fg_maps[map_name];
         ml->CleanMemory();
         fg_maps.erase(map_name);
+        canvas->SetBackgroundMayLayers(fg_maps);
     }
     
     int oid = new_order[select_id];
@@ -194,7 +196,7 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetBrushColour());
         ml->SetBrushColour(clr);
         Refresh();
-        CallAfter(&MapCanvas::ReDraw);
+        canvas->DisplayMapLayers();
     }
 }
 
@@ -207,7 +209,7 @@ void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetPenColour());
         ml->SetPenColour(clr);
         Refresh();
-        CallAfter(&MapCanvas::ReDraw);
+        canvas->DisplayMapLayers();
     }
 }
 void MapTree::OnChangePointRadius(wxCommandEvent& event)
@@ -221,7 +223,7 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
             int new_radius = dlg.GetRadius();
             ml->SetPointRadius(new_radius);
             Refresh();
-            CallAfter(&MapCanvas::ReDraw);
+            canvas->DisplayMapLayers();
         }
     }
 }
@@ -239,7 +241,7 @@ void MapTree::OnOutlineVisible(wxCommandEvent& event)
             ml->SetPenSize(1);
         }
         Refresh();
-        CallAfter(&MapCanvas::ReDraw);
+        canvas->DisplayMapLayers();
     }
 }
 void MapTree::OnShowMapBoundary(wxCommandEvent& event)
@@ -250,7 +252,7 @@ void MapTree::OnShowMapBoundary(wxCommandEvent& event)
         bool show_bnd = ml->IsShowBoundary();
         ml->ShowBoundary(!show_bnd);
         Refresh();
-        CallAfter(&MapCanvas::ReDraw);
+        canvas->DisplayMapLayers();
     }
 }
 

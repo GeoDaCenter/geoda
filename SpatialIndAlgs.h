@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_SPATIAL_IND_ALGS_H__
 #define __GEODA_CENTER_SPATIAL_IND_ALGS_H__
 
+#include <wx/wx.h>
 #include <list>
 #include <set>
 #include <sstream>
@@ -29,9 +30,13 @@
 #include "GdaShape.h"
 #include "ShapeOperations/GwtWeight.h"
 
+class Project;
+class BackgroundMapLayer;
 
 namespace SpatialIndAlgs {
 
+    vector<wxInt64> SpatialJoinCount(BackgroundMapLayer* ml, Project* project);
+    
 void to_3d_centroids(const std::vector<pt_2d>& pt2d,
 										 std::vector<pt_3d>& pt3d);
 void to_3d_centroids(const std::vector<pt_lonlat>& ptll,

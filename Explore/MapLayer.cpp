@@ -10,7 +10,7 @@
 BackgroundMapLayer::BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
 :
 pen_color(wxColour(192, 192, 192)),
-brush_color(wxColour(255, 255, 255, 0)),
+brush_color(wxColour(255, 255, 255, 255)),
 point_radius(2),
 opacity(255),
 pen_size(1),

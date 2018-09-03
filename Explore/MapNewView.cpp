@@ -197,6 +197,8 @@ print_detailed_basemap(false)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     layer_name = project->layername;
+    bg_maps = project->bg_maps;
+    fg_maps = project->fg_maps;
     ds_name = project->GetDataSource()->GetOGRConnectStr();
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
                              project->main_data.header.bbox_y_min,
@@ -232,6 +234,9 @@ print_detailed_basemap(false)
 MapCanvas::~MapCanvas()
 {
     wxLogMessage("MapCanvas::~MapCanvas()");
+    BOOST_FOREACH( GdaShape* shp, background_maps ) delete shp;
+    BOOST_FOREACH( GdaShape* shp, foreground_maps ) delete shp;
+    
 	if (highlight_state)
         highlight_state->removeObserver(this);
 	if (custom_classif_state)
@@ -239,17 +244,6 @@ MapCanvas::~MapCanvas()
     if (basemap != NULL) {
         delete basemap;
         basemap = NULL;
-    }
-    map<wxString, BackgroundMapLayer*>::iterator it;
-    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
-        ml->CleanMemory();
-        delete ml;
-    }
-    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
-        ml->CleanMemory();
-        delete ml;
     }
 }
 
@@ -710,20 +704,15 @@ void MapCanvas::DrawLayers()
     Refresh();
 }
 
-void MapCanvas::AddMapLayer(wxString name, OGRLayerProxy* layer_proxy)
+void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer)
 {
     // geometries: projection is matched to current map    
-    if (bg_maps.find(name) == bg_maps.end()) {
-        bg_maps[name] = new BackgroundMapLayer(layer_proxy, project->sourceSR);
+    if (map_layer) {
+        bg_maps[name] = map_layer; // project makes sure no overwrite here
         full_map_redraw_needed = true;
         PopulateCanvas();
         Refresh();
     }
-}
-
-int MapCanvas::GetMapLayerCount()
-{
-    return bg_maps.size() + fg_maps.size();
 }
 
 void MapCanvas::DrawLayerBase()
@@ -2693,7 +2682,7 @@ void MapFrame::SetupToolbar()
             wxCommandEventHandler(MapFrame::OnMapAddLayer));
     Connect(XRCID("ID_EDIT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapEditLayer));
-    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), false);
+    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
 }
 
 void MapFrame::OnDrawBasemap(bool flag, int map_type)
@@ -2776,12 +2765,10 @@ void MapFrame::OnMapAddLayer(wxCommandEvent& e)
     wxString datasource_name = datasource->GetOGRConnectStr();
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
-    wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
-    OGRDatasourceProxy proxy(datasource_name, ds_type, true);
-    OGRLayerProxy* p_layer = proxy.GetLayerProxy(layer_name.ToStdString());
-    if (p_layer->ReadData()) {
+    BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
+    if (map_layer) {
         MapCanvas* m = (MapCanvas*) template_canvas;
-        m->AddMapLayer(layer_name, p_layer);
+        m->AddMapLayer(layer_name, map_layer);
         toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), true);
         OnMapEditLayer(e);
     }
@@ -2791,7 +2778,7 @@ void MapFrame::OnMapEditLayer(wxCommandEvent& e)
 {
     MapCanvas* m = (MapCanvas*) template_canvas;
     if (map_tree == NULL) {
-        int n_bgmap = ((MapCanvas*) template_canvas)->GetMapLayerCount();
+        int n_bgmap = project->GetMapLayerCount();
         int h = n_bgmap * 25  + 80;
         wxPoint pos = GetScreenPosition();
         wxSize sz = GetClientSize();

@@ -223,7 +223,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
             merge_datasource_proxy = NULL;
         }
         merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
-        merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
+        merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name);
         merge_layer_proxy->ReadData();
         m_input_file_name->SetValue(layer_name);
         

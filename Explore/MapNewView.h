@@ -170,8 +170,7 @@ public:
     virtual wxBitmap* GetPrintLayer();
     
     void DisplayMapLayers();
-    void AddMapLayer(wxString name, OGRLayerProxy* layer_proxy);
-    int  GetMapLayerCount();
+    void AddMapLayer(wxString name, BackgroundMapLayer* map_layer);
     int  GetBasemapType();
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, int map_type);
@@ -186,17 +185,19 @@ public:
     void SetLegendLabel(int cat, wxString label) {
         cat_data.SetCategoryLabel(0, cat, label);
     }
+   
+    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
+    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
     void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
     void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    
     Shapefile::Main& GetGeometryData();
-    OGRLayerProxy* GetOGRLayerProxy();
-    const wxBitmap* GetBaseLayer() { return basemap_bm; }
+    OGRLayerProxy*   GetOGRLayerProxy();
+    const wxBitmap*  GetBaseLayer() { return basemap_bm; }
     CatClassification::CatClassifType GetCcType();
     static void ResetThumbnail() {
         MapCanvas::has_thumbnail_saved = false;
     }
-    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
-    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
     Project* GetProject() { return project; }
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;

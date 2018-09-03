@@ -32,16 +32,17 @@
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/shared_ptr.hpp>
 #include <wx/filename.h>
+
 #include "DataViewer/DataSource.h"
 #include "DataViewer/PtreeInterface.h"
 #include "DataViewer/VarOrderPtree.h"
-#include "ShpFile.h"
 #include "ShapeOperations/OGRLayerProxy.h"
+#include "VarCalc/WeightsMetaInfo.h"
+#include "Explore/DistancesCalc.h"
+#include "ProjectConf.h"
 #include "SpatialIndTypes.h"
 #include "HighlightState.h"
-#include "Explore/DistancesCalc.h"
-#include "VarCalc/WeightsMetaInfo.h"
-#include "ProjectConf.h"
+#include "ShpFile.h"
 
 typedef boost::multi_array<int, 2> i_array_type;
 
@@ -66,6 +67,7 @@ class wxGrid;
 class DataSource;
 class CovSpHLStateProxy;
 class ExportDataDlg;
+class BackgroundMapLayer;
 
 class Project {
 public:
@@ -170,6 +172,18 @@ public:
 	rtree_pt_2d_t& GetEucPlaneRtree();
 	rtree_pt_3d_t& GetUnitSphereRtree();
 	
+    // for multi-layer
+    map<wxString, BackgroundMapLayer*> bg_maps;
+    map<wxString, BackgroundMapLayer*> fg_maps;
+    BackgroundMapLayer* AddMapLayer(wxString datasource_name,
+                                    GdaConst::DataSourceType ds_type,
+                                    wxString layer_name);
+    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
+    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
+    int GetMapLayerCount();
+    
 	// default variables
 	wxString GetDefaultVarName(int var);
 	void SetDefaultVarName(int var, const wxString& v_name);
@@ -225,17 +239,14 @@ public:
 private:
 	bool CommonProjectInit();
 	bool InitFromOgrLayer();
-   
     // only for ESRI Shapefile .cpg file
     void SetupEncoding(wxString encode_str);
-    
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();
 	void CalcEucPlaneRtreeStats();
 	void CalcUnitSphereRtreeStats();
     
-	
   // XXX for multi-layer support, ProjectConfiguration is a container for
   // multi LayerConfiguration (layers), and each LayerConfiguration is defined
   // by a IDataSource to specify which data it connects to.
@@ -297,7 +308,6 @@ private:
     
 	dist_map_type cached_eucl_dist;
 	dist_map_type cached_arc_dist;
-    
 };
 
 #endif

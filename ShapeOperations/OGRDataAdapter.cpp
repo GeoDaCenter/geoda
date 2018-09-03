@@ -139,13 +139,6 @@ OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourc
 {
 	OGRLayerProxy* layer_proxy = NULL;
     
-	//XXX: we don't cache layer in 1.5.x
-	//if (enable_cache && gda_cache) {
-	//	if (gda_cache->IsLayerCached(ds_name, layer_name)) {
-	//		layer_proxy =  gda_cache->GetLayerProxy(ds_name,layer_name);
-	//	}
-	//}
-    
 	if (layer_proxy == NULL) {
 		OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
 		layer_proxy = ds_proxy->GetLayerProxy(layer_name);
