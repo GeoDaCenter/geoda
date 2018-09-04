@@ -196,7 +196,8 @@ public:
 	void OnChangeFieldType(wxCommandEvent& event);
 	void OnMergeTableData(wxCommandEvent& event);
 	void OnAggregateData(wxCommandEvent& event);
-	void OnGeocoding(wxCommandEvent& event);
+    void OnSpatialJoin(wxCommandEvent& event);
+    void OnGeocoding(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);

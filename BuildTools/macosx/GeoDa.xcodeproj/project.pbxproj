@@ -21,6 +21,7 @@
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
+		A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
 		A19483942118BAAA009A87A2 /* divided.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837E2118BAA7009A87A2 /* divided.cpp */; };
 		A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837F2118BAA7009A87A2 /* constrnt.cpp */; };
@@ -331,6 +332,8 @@
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
+		A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpatialJoinDlg.cpp; sourceTree = "<group>"; };
+		A1894C3E213F29DC00718FFC /* SpatialJoinDlg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpatialJoinDlg.h; sourceTree = "<group>"; };
 		A19483782118BAA7009A87A2 /* ogldiag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogldiag.h; sourceTree = "<group>"; };
 		A19483792118BAA7009A87A2 /* composit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = composit.h; sourceTree = "<group>"; };
 		A194837A2118BAA7009A87A2 /* composit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = composit.cpp; sourceTree = "<group>"; };
@@ -1298,8 +1301,8 @@
 				DD7975440F1D296F00496A84 /* RegressionDlg.h */,
 				DD7975470F1D296F00496A84 /* RegressionReportDlg.cpp */,
 				DD7975480F1D296F00496A84 /* RegressionReportDlg.h */,
-				A13B6B9218760CF100F93ACF /* SaveAsDlg.h */,
 				A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */,
+				A13B6B9218760CF100F93ACF /* SaveAsDlg.h */,
 				DD181BC613A90445004B0EC2 /* SaveToTableDlg.cpp */,
 				DD181BC713A90445004B0EC2 /* SaveToTableDlg.h */,
 				DD7975550F1D296F00496A84 /* SaveSelectionDlg.cpp */,
@@ -1318,6 +1321,8 @@
 				DD3082B119F709BB001E5E89 /* WebViewHelpWin.cpp */,
 				DD8183C71970619800228B0A /* WeightsManDlg.h */,
 				DD8183C61970619800228B0A /* WeightsManDlg.cpp */,
+				A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */,
+				A1894C3E213F29DC00718FFC /* SpatialJoinDlg.h */,
 			);
 			path = DialogTools;
 			sourceTree = "<group>";
@@ -1760,6 +1765,7 @@
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
 				DDB0E42C10B34DBB00F96D57 /* AddIdVariable.cpp in Sources */,
 				A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */,
+				A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */,
 				DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */,
 				DDAA6540117F9B5D00D1010C /* Project.cpp in Sources */,
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,

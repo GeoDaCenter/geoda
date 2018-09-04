@@ -212,7 +212,7 @@ Project::~Project()
 		delete i->second;
 	}
 	
-    // clean multi-layers
+    // clean multi-layers, the actual memory
     map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
         BackgroundMapLayer* ml = it->second;
@@ -1654,6 +1654,42 @@ void Project::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
     fg_maps = val;
 }
 
+map<wxString, BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
+{
+    map<wxString, BackgroundMapLayer*> copy_bg_maps;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString name = it->first;
+        BackgroundMapLayer* ml = it->second;
+        BackgroundMapLayer* copy  = ml->Clone(clone_style);
+        copy_bg_maps[name] = copy;
+    }
+    return copy_bg_maps;
+}
+
+map<wxString, BackgroundMapLayer*> Project::CloneForegroundMaps(bool clone_style)
+{
+    map<wxString, BackgroundMapLayer*> copy_fg_maps;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        wxString name = it->first;
+        BackgroundMapLayer* ml = it->second;
+        BackgroundMapLayer* copy  = ml->Clone(clone_style);
+        copy_fg_maps[name] = copy;
+    }
+    return copy_fg_maps;
+}
+
+BackgroundMapLayer* Project::GetMapLayer(wxString map_name)
+{
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(map_name) != bg_maps.end()) {
+        ml = bg_maps[map_name];
+    } else if (fg_maps.find(map_name) != fg_maps.end()) {
+        ml = fg_maps[map_name];
+    }
+    return ml;
+}
 
 void Project::SetupEncoding(wxString encode_str)
 {

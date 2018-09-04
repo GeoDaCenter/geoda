@@ -30,8 +30,12 @@ public:
     vector<GdaShape*> shapes;
     vector<OGRGeometry*> geoms;
     
+    BackgroundMapLayer();
     BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
     ~BackgroundMapLayer();
+    // clone all except shapes and geoms, which are owned by Project* instance;
+    // so that different map window can configure the multi-layers
+    BackgroundMapLayer* Clone(bool clone_style=false);
     
     void CleanMemory();
     void SetHide(bool flag);
@@ -41,7 +45,9 @@ public:
     void SetPointRadius(int radius);
     void SetOpacity(int opacity);
     void SetPenSize(int size);
+    void SetShapeType(Shapefile::ShapeType type);
     void ShowBoundary(bool show);
+    void SetShowBoundary(bool flag);
     wxColour GetBrushColour();
     wxColour GetPenColour();
     int GetPenSize();

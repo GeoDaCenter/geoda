@@ -126,6 +126,7 @@
 #include "DialogTools/PCASettingsDlg.h"
 #include "DialogTools/SkaterDlg.h"
 #include "DialogTools/PreferenceDlg.h"
+#include "DialogTools/SpatialJoinDlg.h"
 
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
@@ -2510,6 +2511,14 @@ void GdaFrame::OnAggregateData(wxCommandEvent& event)
     
     AggregationDlg* dlg = new AggregationDlg(this, project_p);
     dlg->Show(true);
+}
+
+void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    SpatialJoinDlg dlg(this, project_p);
+    dlg.ShowModal();
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
@@ -6591,6 +6600,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     //EVT_MENU(XRCID("ID_TABLE_CHANGE_FIELD_TYPE"), GdaFrame::OnChangeFieldType)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
+    EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
+
     EVT_MENU(XRCID("ID_TABLE_GEOCODING"), GdaFrame::OnGeocoding)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used 
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)

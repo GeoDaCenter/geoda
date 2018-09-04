@@ -197,8 +197,8 @@ print_detailed_basemap(false)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     layer_name = project->layername;
-    bg_maps = project->bg_maps;
-    fg_maps = project->fg_maps;
+    bg_maps = project->CloneBackgroundMaps();
+    fg_maps = project->CloneForegroundMaps();
     ds_name = project->GetDataSource()->GetOGRConnectStr();
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
                              project->main_data.header.bbox_y_min,
@@ -234,9 +234,19 @@ print_detailed_basemap(false)
 MapCanvas::~MapCanvas()
 {
     wxLogMessage("MapCanvas::~MapCanvas()");
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        delete ml;
+    }
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        delete ml;
+    }
+    
     BOOST_FOREACH( GdaShape* shp, background_maps ) delete shp;
     BOOST_FOREACH( GdaShape* shp, foreground_maps ) delete shp;
-    
+        
 	if (highlight_state)
         highlight_state->removeObserver(this);
 	if (custom_classif_state)

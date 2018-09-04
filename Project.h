@@ -183,6 +183,11 @@ public:
     map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
     map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
     int GetMapLayerCount();
+    // clone all except shapes and geoms, which are owned by Project* instance;
+    // so that different map window can configure the multi-layers
+    map<wxString, BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
+    map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
+    BackgroundMapLayer* GetMapLayer(wxString map_name);
     
 	// default variables
 	wxString GetDefaultVarName(int var);

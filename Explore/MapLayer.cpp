@@ -7,6 +7,20 @@
 
 #include "MapLayer.hpp"
 
+BackgroundMapLayer::BackgroundMapLayer()
+:
+pen_color(wxColour(192, 192, 192)),
+brush_color(wxColour(255, 255, 255, 255)),
+point_radius(2),
+opacity(255),
+pen_size(1),
+show_boundary(false),
+is_hide(true),
+map_boundary(NULL)
+{
+    
+}
+
 BackgroundMapLayer::BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
 :
 pen_color(wxColour(192, 192, 192)),
@@ -35,6 +49,34 @@ void BackgroundMapLayer::CleanMemory()
         delete shapes[i];
         delete geoms[i];
     }
+}
+
+BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
+{
+    BackgroundMapLayer* copy =  new BackgroundMapLayer();
+    if (clone_style) {
+        copy->SetShapeType(shape_type);
+        copy->SetPenColour(pen_color);
+        copy->SetBrushColour(brush_color);
+        copy->SetPointRadius(point_radius);
+        copy->SetOpacity(opacity);
+        copy->SetPenSize(pen_size);
+        copy->SetShowBoundary(show_boundary);
+        copy->SetHide(is_hide);
+    }
+    // deep copy
+    if (map_boundary) {
+        copy->map_boundary = map_boundary->clone();
+    }
+    // not deep copy 
+    copy->shapes = shapes;
+    copy->geoms = geoms;
+    return copy;
+}
+
+void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)
+{
+    shape_type = type;
 }
 
 Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
@@ -114,6 +156,11 @@ void BackgroundMapLayer::ShowBoundary(bool show)
     }
 }
 
+void BackgroundMapLayer::SetShowBoundary(bool flag)
+{
+    show_boundary = flag;
+}
+
 bool BackgroundMapLayer::IsShowBoundary()
 {
     return show_boundary;
@@ -133,6 +180,11 @@ vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 {
     return shapes;
 }
+
+
+
+
+
 
 
 GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)
