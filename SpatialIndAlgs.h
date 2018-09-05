@@ -34,8 +34,6 @@ class Project;
 class BackgroundMapLayer;
 
 namespace SpatialIndAlgs {
-
-    vector<wxInt64> SpatialJoinCount(BackgroundMapLayer* ml, Project* project);
     
 void to_3d_centroids(const std::vector<pt_2d>& pt2d,
 										 std::vector<pt_3d>& pt3d);

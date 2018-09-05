@@ -14,6 +14,8 @@
 
 class Project;
 class BackgroundMapLayer;
+class MapLayerState;
+class MapLayerStateObserver;
 
 class SpatialJoinWorker
 {

@@ -1624,7 +1624,7 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
     if (p_layer->ReadData()) {
         // always add to bg_maps
         if (bg_maps.find(layer_name) == bg_maps.end()) {
-            bg_maps[layer_name] = new BackgroundMapLayer(p_layer, sourceSR);
+            bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);
         }
         map_layer = bg_maps[layer_name];
     }
@@ -1691,6 +1691,38 @@ BackgroundMapLayer* Project::GetMapLayer(wxString map_name)
         ml = fg_maps[map_name];
     }
     return ml;
+}
+
+vector<wxString> Project::GetLayerNames()
+{
+    vector<wxString> names;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    return names;
+}
+
+void Project::RemoveLayer(wxString name)
+{
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(name) != bg_maps.end()) {
+        ml = bg_maps[name];
+        ml->CleanMemory();
+        delete ml;
+        bg_maps.erase(name);
+        
+    } else if (fg_maps.find(name) != fg_maps.end()) {
+        ml = fg_maps[name];
+        ml->CleanMemory();
+        delete ml;
+        fg_maps.erase(name);
+    }
 }
 
 void Project::SetupEncoding(wxString encode_str)

@@ -40,53 +40,6 @@
 
 using namespace std;
 
-
-vector<wxInt64> SpatialIndAlgs::SpatialJoinCount(BackgroundMapLayer* ml, Project* project)
-{
-    // create rtree using points (normally, more points than polygons)
-    rtree_pt_2d_t rtree;
-    Shapefile::ShapeType shp_type = ml->GetShapeType();
-    if (shp_type == Shapefile::POINT_TYP) {
-        int n = ml->shapes.size();
-        double x, y;
-        for (int i=0; i<n; i++) {
-            x = ml->shapes[i]->center_o.x;
-            y = ml->shapes[i]->center_o.y;
-            rtree.insert(std::make_pair(pt_2d(x,y), i));
-        }
-    }
-    
-    // for each polygon in map, query points
-    Shapefile::Main& main_data = project->main_data;
-    OGRLayerProxy* ogr_layer = project->layer_proxy;
-    Shapefile::PolygonContents* pc;
-    int n_polygons = main_data.records.size();
-    vector<wxInt64> spatial_counts(n_polygons, 0);
-    
-    // using multi-threading to accelerate computation
-    for (int i=0; i<n_polygons; i++) {
-        pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
-        // create a box, tl, br
-        box_2d b(pt_2d(pc->box[0], pc->box[1]),
-                 pt_2d(pc->box[2], pc->box[3]));
-        // query points in this box
-        std::vector<pt_2d_val> q;
-        rtree.query(bgi::within(b), std::back_inserter(q));
-        OGRGeometry* ogr_poly = ogr_layer->GetGeometry(i);
-        for (int j=0; j<q.size(); j++) {
-            const pt_2d_val& v = q[j];
-            double x = v.first.get<0>();
-            double y = v.first.get<1>();
-            OGRPoint ogr_pt(x, y);
-            if (ogr_pt.Within(ogr_poly)) {
-                spatial_counts[i] += 1;
-            }
-        }
-    }
-    
-    return spatial_counts;
-}
-
 void SpatialIndAlgs::to_3d_centroids(const vector<pt_2d>& pt2d,
                                      vector<pt_3d>& pt3d)
 {

@@ -21,8 +21,9 @@ map_boundary(NULL)
     
 }
 
-BackgroundMapLayer::BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
+BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
 :
+layer_name(name),
 pen_color(wxColour(192, 192, 192)),
 brush_color(wxColour(255, 255, 255, 255)),
 point_radius(2),
@@ -39,7 +40,9 @@ map_boundary(NULL)
 
 BackgroundMapLayer::~BackgroundMapLayer()
 {
-    delete map_boundary;
+    if (map_boundary) {
+        delete map_boundary;
+    }
 }
 
 void BackgroundMapLayer::CleanMemory()
@@ -51,11 +54,21 @@ void BackgroundMapLayer::CleanMemory()
     }
 }
 
+void BackgroundMapLayer::SetName(wxString name)
+{
+    layer_name = name;
+}
+
+wxString BackgroundMapLayer::GetName()
+{
+    return layer_name;
+}
+
 BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
 {
     BackgroundMapLayer* copy =  new BackgroundMapLayer();
+    copy->SetShapeType(shape_type);
     if (clone_style) {
-        copy->SetShapeType(shape_type);
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
         copy->SetPointRadius(point_radius);

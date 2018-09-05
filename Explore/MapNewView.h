@@ -172,7 +172,8 @@ public:
     virtual wxBitmap* GetPrintLayer();
     
     void DisplayMapLayers();
-    void AddMapLayer(wxString name, BackgroundMapLayer* map_layer);
+    void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
+                     bool is_hide = false);
     int  GetBasemapType();
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, int map_type);
@@ -192,6 +193,8 @@ public:
     map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
     void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
     void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    vector<wxString> GetLayerNames();
+    void RemoveLayer(wxString name);
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();

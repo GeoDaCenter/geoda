@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_CAT_MAPLAYER_STATE_OBSERVER_H__
 #define __GEODA_CENTER_CAT_MAPLAYER_STATE_OBSERVER_H__
 
+class BackgroundMapLayer;
 class MapLayerState;
 class MapLayerStateObserver {
 public:
@@ -27,6 +28,16 @@ public:
 };
 
 class MapLayerState {
+    
+    /** The list of registered CatClassifStateObserver objects. */
+    std::list<MapLayerStateObserver*> observers;
+    /** When the project is being closed, this is set to true so that
+     when the list of observers is empty, the CatClassifState instance
+     will automatically delete itself. */
+    bool delete_self_when_empty;
+    
+    BackgroundMapLayer* map_layer;
+    
 public:
     MapLayerState() {
         delete_self_when_empty = false;
@@ -55,17 +66,25 @@ public:
             (*it)->update(this);
         }
     }
+    void notifyObservers(MapLayerStateObserver* exclude) {
+        for (std::list<MapLayerStateObserver*>::iterator it=observers.begin();
+             it != observers.end(); ++it) {
+            if ((*it) == exclude) {
+                
+            } else {
+                (*it)->update(this);
+            }
+        }
+    }
     int GetNumberObservers() {
         return observers.size();
     }
-    
-private:
-    /** The list of registered CatClassifStateObserver objects. */
-    std::list<MapLayerStateObserver*> observers;
-    /** When the project is being closed, this is set to true so that
-     when the list of observers is empty, the CatClassifState instance
-     will automatically delete itself. */
-    bool delete_self_when_empty;
+    BackgroundMapLayer* GetMapLayer() {
+        return map_layer;
+    }
+    void SetMapLayer(BackgroundMapLayer* layer) {
+        map_layer = layer;
+    }
 };
 
 

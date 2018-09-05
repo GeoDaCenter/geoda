@@ -190,6 +190,8 @@ public:
     map<wxString, BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
     map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
     BackgroundMapLayer* GetMapLayer(wxString map_name);
+    vector<wxString> GetLayerNames();
+    void RemoveLayer(wxString name);
     
 	// default variables
 	wxString GetDefaultVarName(int var);

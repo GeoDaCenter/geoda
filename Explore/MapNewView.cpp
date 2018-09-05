@@ -514,7 +514,7 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         last_scale_trans.SetView(cs_w, cs_h);
         resizeLayerBms(cs_w, cs_h);
         if (isDrawBasemap) {
-            if (basemap == 0)
+            if (basemap == NULL)
                 InitBasemap();
             if (basemap)
                 basemap->ResizeScreen(cs_w, cs_h);
@@ -718,14 +718,16 @@ void MapCanvas::DrawLayers()
     Refresh();
 }
 
-void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer)
+void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool is_hide)
 {
     // geometries: projection is matched to current map    
     if (map_layer) {
+        map_layer->SetHide(is_hide);
         bg_maps[name] = map_layer; // project makes sure no overwrite here
         full_map_redraw_needed = true;
         PopulateCanvas();
         Refresh();
+        maplayer_state->notifyObservers(this);
     }
 }
 
@@ -1776,27 +1778,82 @@ void MapCanvas::update(CatClassifState* o)
 	}
 }
 
+vector<wxString> MapCanvas::GetLayerNames()
+{
+    vector<wxString> names;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    return names;
+}
+
 void MapCanvas::update(MapLayerState* o)
 {
     wxLogMessage("In MapCanvas::update(MapLayerState*)");
 
-    map<wxString, BackgroundMapLayer*>::iterator it;
-    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
-        delete ml;
-    }
-    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
-        delete ml;
-    }
-    bg_maps = project->CloneBackgroundMaps();
-    fg_maps = project->CloneForegroundMaps();
+    vector<wxString> names = project->GetLayerNames();
     
-    PopulateCanvas();
+    for (int i=0; i<names.size(); i++) {
+        wxString name = names[i];
+        if (bg_maps.find(name) == bg_maps.end() &&
+            fg_maps.find(name) == fg_maps.end()) {
+            // add
+            bg_maps[name] = project->GetMapLayer(name)->Clone();
+        } 
+    }
+    
+    vector<wxString> local_names = GetLayerNames();
+    for (int i=0; i<local_names.size(); i++) {
+        wxString name = local_names[i];
+        if (project->bg_maps.find(name) == project->bg_maps.end() &&
+            project->fg_maps.find(name) == project->fg_maps.end()) {
+            // remove
+            BackgroundMapLayer* ml = NULL;
+            if (bg_maps.find(name) != bg_maps.end()) {
+                ml = bg_maps[name];
+                delete ml;
+                bg_maps.erase(name);
+                
+            } else if (fg_maps.find(name) != fg_maps.end()) {
+                ml = fg_maps[name];
+                delete ml;
+                fg_maps.erase(name);
+            }
+            full_map_redraw_needed = true;
+            PopulateCanvas();
+        }
+    }
+    
+    //DisplayMapLayers();
     if (template_frame) {
         MapFrame* m = dynamic_cast<MapFrame*>(template_frame);
         if (m) m->UpdateMapLayer();
     }
+}
+
+void MapCanvas::RemoveLayer(wxString name)
+{
+    project->RemoveLayer(name);
+    
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(name) != bg_maps.end()) {
+        ml = bg_maps[name];
+        delete ml;
+        bg_maps.erase(name);
+        
+    } else if (fg_maps.find(name) != fg_maps.end()) {
+        ml = fg_maps[name];
+        delete ml;
+        fg_maps.erase(name);
+    }
+    
+    maplayer_state->notifyObservers(this);
 }
 
 /** This method assumes that v1 is already set and valid.  It will
@@ -2815,7 +2872,7 @@ void MapFrame::OnMapAddLayer(wxCommandEvent& e)
     BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
     if (map_layer) {
         MapCanvas* m = (MapCanvas*) template_canvas;
-        m->AddMapLayer(layer_name, map_layer);
+        m->AddMapLayer(layer_name, map_layer->Clone(), false);
         toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), true);
         OnMapEditLayer(e);
     }

@@ -17,6 +17,7 @@ class BackgroundMapLayer
 {
     Shapefile::ShapeType shape_type;
     
+    wxString layer_name;
     wxColour pen_color;
     wxColour brush_color;
     int point_radius;
@@ -31,13 +32,14 @@ public:
     vector<OGRGeometry*> geoms;
     
     BackgroundMapLayer();
-    BackgroundMapLayer(OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
+    BackgroundMapLayer(wxString name, OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
     ~BackgroundMapLayer();
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
     BackgroundMapLayer* Clone(bool clone_style=false);
     
     void CleanMemory();
+    void SetName(wxString name);
     void SetHide(bool flag);
     bool IsHide();
     void SetPenColour(wxColour& color);
@@ -54,6 +56,7 @@ public:
     int GetPointRadius();
     int GetOpacity();
     bool IsShowBoundary();
+    wxString GetName();
     
     vector<GdaShape*>& GetShapes();
     Shapefile::ShapeType GetShapeType();

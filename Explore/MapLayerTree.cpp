@@ -104,14 +104,13 @@ void MapTree::OnRemoveMapLayer(wxCommandEvent& event)
     BackgroundMapLayer* ml = NULL;
     if (bg_maps.find(map_name) != bg_maps.end()) {
         ml = bg_maps[map_name];
-        ml->CleanMemory();
+        canvas->RemoveLayer(map_name);
         bg_maps.erase(map_name);
-        canvas->SetBackgroundMayLayers(bg_maps);
+
     } else if (fg_maps.find(map_name) != fg_maps.end()) {
         ml = fg_maps[map_name];
-        ml->CleanMemory();
+        canvas->RemoveLayer(map_name);
         fg_maps.erase(map_name);
-        canvas->SetBackgroundMayLayers(fg_maps);
     }
     
     int oid = new_order[select_id];
@@ -419,6 +418,8 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
         dc.SetPen(*wxLIGHT_GREY);
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
     } else {
+        if (ml == NULL)
+            return; // in case of removed layer
         wxPen pen(ml->GetPenColour(), ml->GetPenSize());
         wxBrush brush(ml->GetBrushColour());
         dc.SetPen(pen);
@@ -518,7 +519,7 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
         }
         if (ml) {
             ml->SetHide(!ml->IsHide());
-            canvas->ReDraw();
+            canvas->DisplayMapLayers();
             Refresh();
         }
     }
