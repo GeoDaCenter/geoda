@@ -2517,6 +2517,21 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
 {
     if (!project_p || !project_p->FindTableBase()) return;
     
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Current dataset is table only. Please open a polygon dataset, and then apply spatial join with a points/polygon dataset."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    if (project_p->IsPointTypeData()) {
+        wxMessageDialog dlg (this,
+                             _("Please open a polygon dataset, and then apply spatial join with a points/polygon dataset."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    
     SpatialJoinDlg dlg(this, project_p);
     dlg.ShowModal();
 }
