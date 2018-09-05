@@ -193,7 +193,8 @@ basemap_bm(0),
 map_type(-1),
 ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
-print_detailed_basemap(false)
+print_detailed_basemap(false),
+maplayer_state(project_s->GetMapLayerState())
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     layer_name = project->layername;
@@ -224,6 +225,7 @@ print_detailed_basemap(false)
 					  boost::uuids::nil_uuid(), true, vi, cids);
 	}
 	highlight_state->registerObserver(this);
+    maplayer_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     isDrawBasemap = GdaConst::use_basemap_by_default;
     if (isDrawBasemap) {
@@ -251,6 +253,8 @@ MapCanvas::~MapCanvas()
         highlight_state->removeObserver(this);
 	if (custom_classif_state)
         custom_classif_state->removeObserver(this);
+    if (maplayer_state)
+        maplayer_state->removeObserver(this);
     if (basemap != NULL) {
         delete basemap;
         basemap = NULL;
@@ -1772,6 +1776,29 @@ void MapCanvas::update(CatClassifState* o)
 	}
 }
 
+void MapCanvas::update(MapLayerState* o)
+{
+    wxLogMessage("In MapCanvas::update(MapLayerState*)");
+
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        delete ml;
+    }
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        delete ml;
+    }
+    bg_maps = project->CloneBackgroundMaps();
+    fg_maps = project->CloneForegroundMaps();
+    
+    PopulateCanvas();
+    if (template_frame) {
+        MapFrame* m = dynamic_cast<MapFrame*>(template_frame);
+        if (m) m->UpdateMapLayer();
+    }
+}
+
 /** This method assumes that v1 is already set and valid.  It will
  recreate all canvas objects as needed and refresh the canvas.
  Assumes that CreateAndUpdateCategories has already been called.
@@ -2693,6 +2720,16 @@ void MapFrame::SetupToolbar()
     Connect(XRCID("ID_EDIT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapEditLayer));
     toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+}
+
+void MapFrame::UpdateMapLayer()
+{
+    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+    if (map_tree) {
+        map_tree->Recreate();
+        map_tree->Raise();
+        map_tree->Show(true);
+    }
 }
 
 void MapFrame::OnDrawBasemap(bool flag, int map_type)

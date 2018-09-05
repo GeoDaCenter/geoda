@@ -334,6 +334,7 @@
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpatialJoinDlg.cpp; sourceTree = "<group>"; };
 		A1894C3E213F29DC00718FFC /* SpatialJoinDlg.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SpatialJoinDlg.h; sourceTree = "<group>"; };
+		A1894C41213F806700718FFC /* MapLayerStateObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapLayerStateObserver.h; sourceTree = "<group>"; };
 		A19483782118BAA7009A87A2 /* ogldiag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ogldiag.h; sourceTree = "<group>"; };
 		A19483792118BAA7009A87A2 /* composit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = composit.h; sourceTree = "<group>"; };
 		A194837A2118BAA7009A87A2 /* composit.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = composit.cpp; sourceTree = "<group>"; };
@@ -1147,6 +1148,7 @@
 				DDFFC7EC1AC1C7CF00F7DD6D /* HighlightState.cpp */,
 				DDFFC7ED1AC1C7CF00F7DD6D /* HighlightState.h */,
 				DDFFC7EE1AC1C7CF00F7DD6D /* HighlightStateObserver.h */,
+				A1894C41213F806700718FFC /* MapLayerStateObserver.h */,
 				DDFFC7EF1AC1C7CF00F7DD6D /* HLStateInt.h */,
 				DDFFC7F01AC1C7CF00F7DD6D /* Observable.h */,
 				DDFFC7F11AC1C7CF00F7DD6D /* Observer.h */,

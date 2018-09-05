@@ -12,6 +12,7 @@
 #include <boost/bind.hpp>
 
 #include "../Project.h"
+#include "../MapLayerStateObserver.h"
 #include "../Explore/MapLayerTree.hpp"
 #include "SaveToTableDlg.h"
 #include "ProjectInfoDlg.h"
@@ -25,7 +26,8 @@ SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* ml, Project* _project)
     project = _project;
     Shapefile::ShapeType shp_type = ml->GetShapeType();
     spatial_counts.resize(project->GetNumRecords());
-    if (shp_type == Shapefile::POINT_TYP) {
+    // not matter what shape type, just use centroids
+    //if (shp_type == Shapefile::POINT_TYP) {
         int n = ml->shapes.size();
         double x, y;
         for (int i=0; i<n; i++) {
@@ -33,7 +35,7 @@ SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* ml, Project* _project)
             y = ml->shapes[i]->center_o.y;
             rtree.insert(std::make_pair(pt_2d(x,y), i));
         }
-    }
+    //}
 }
 
 SpatialJoinWorker::~SpatialJoinWorker()
@@ -167,6 +169,8 @@ void SpatialJoinDlg::OnAddMapLayer(wxCommandEvent& e)
     BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
     if (map_layer) {
         map_list->Append(layer_name);
+        MapLayerState* ml_state = project->GetMapLayerState();
+        ml_state->notifyObservers();
     }
 }
 
@@ -198,9 +202,6 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
                            "Save Results: Spatial Counts",
                            wxDefaultPosition, wxSize(400,400));
         dlg.ShowModal();
-        
-        TableState* tbl_state = project->GetTableState();
-        tbl_state->notifyObservers();
     }
 }
 

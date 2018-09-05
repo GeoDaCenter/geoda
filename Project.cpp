@@ -68,6 +68,7 @@
 #include "ShapeOperations/WeightsManPtree.h"
 #include "ShapeOperations/OGRDataAdapter.h"
 #include "GeneralWxUtils.h"
+#include "MapLayerStateObserver.h"
 #include "Project.h"
 
 // used by TemplateCanvas
@@ -77,7 +78,7 @@ std::map<wxString, i_array_type*> Project::shared_category_scratch;
 Project::Project(const wxString& proj_fname)
 : is_project_valid(false),
 table_int(0), table_state(0), time_state(0),
-w_man_int(0), w_man_state(0),
+w_man_int(0), w_man_state(0), maplayer_state(0),
 save_manager(0),
 frames_manager(0),cat_classif_manager(0), mean_centers(0), centroids(0),
 voronoi_rook_nbr_gal(0), default_var_name(4), default_var_time(4),
@@ -127,7 +128,7 @@ Project::Project(const wxString& proj_title,
                  IDataSource* p_datasource)
 : is_project_valid(false),
 table_int(0), table_state(0), time_state(0),
-w_man_int(0), w_man_state(0),
+w_man_int(0), w_man_state(0), maplayer_state(0),
 save_manager(0),
 frames_manager(0),cat_classif_manager(0), mean_centers(0), centroids(0),
 voronoi_rook_nbr_gal(0), default_var_name(4), default_var_time(4),
@@ -1419,6 +1420,7 @@ bool Project::CommonProjectInit()
 	highlight_state->SetSize(num_records);
 	con_map_hl_state->SetSize(num_records);
     
+    maplayer_state = new MapLayerState;
 	w_man_state = new WeightsManState;
 	w_man_int = new WeightsNewManager(w_man_state, table_int);
 	save_manager = new SaveButtonManager(GetTableState(), GetWManState());

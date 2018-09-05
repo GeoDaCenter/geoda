@@ -42,6 +42,7 @@
 #include "../GdaShape.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../MapLayerStateObserver.h"
 #include "MapLayer.hpp"
 
 class CatClassifState;
@@ -85,7 +86,7 @@ private:
 };
 
 
-class MapCanvas : public TemplateCanvas, public CatClassifStateObserver
+class MapCanvas : public TemplateCanvas, public CatClassifStateObserver, public MapLayerStateObserver
 {
 	DECLARE_CLASS(MapCanvas)
 public:
@@ -124,6 +125,7 @@ public:
                                const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
+    virtual void update(MapLayerState* o);
 	virtual void SaveRates();
 	virtual void OnSaveCategories();
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -245,6 +247,7 @@ protected:
     
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
+    MapLayerState* maplayer_state;
 	
     bool IS_VAR_STRING;
 	int num_time_vals;
@@ -312,6 +315,7 @@ public:
     
     virtual ~MapFrame();
 
+    void UpdateMapLayer();
     void SetupToolbar();
     void OnActivate(wxActivateEvent& event);
     

@@ -68,6 +68,7 @@ class DataSource;
 class CovSpHLStateProxy;
 class ExportDataDlg;
 class BackgroundMapLayer;
+class MapLayerState;
 
 class Project {
 public:
@@ -136,6 +137,7 @@ public:
 	TimeChooserDlg*     GetTimeChooser() { return time_chooser; }
 	TableBase*          FindTableBase();
 	wxGrid*             FindTableGrid();
+    MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
 
@@ -279,7 +281,8 @@ private:
 	TableState*         table_state;
 	TimeState*          time_state;
 	TimeChooserDlg*     time_chooser;
-
+    MapLayerState*      maplayer_state;
+    
 	bool point_duplicates_initialized;
 	bool point_dups_warn_prev_displayed;
 	
