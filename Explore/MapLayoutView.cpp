@@ -333,7 +333,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
     canvas->AddShape(map_shape);
     map_shape->SetDraggable(false);
     map_shape->SetMaintainAspectRatio(true);
-    map_shape->Show(true);
+    map_shape->Show(false);
     
     CanvasLayoutEvtHandler *evthandler = new CanvasLayoutEvtHandler();
     evthandler->SetShape(map_shape);
@@ -350,7 +350,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
         legend_shape->SetY(50 + legend_shape->GetHeight());
         legend_shape->MakeControlPoints();
         legend_shape->SetMaintainAspectRatio(true);
-        legend_shape->Show(true);
+        legend_shape->Show(false);
         
         CanvasLayoutEvtHandler *evthandler1 = new CanvasLayoutEvtHandler();
         evthandler1->SetShape(legend_shape);
@@ -358,7 +358,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
         legend_shape->SetEventHandler(evthandler1);
     }
     
-    diagram->ShowAll(1);
+    //diagram->ShowAll(1);
     
     // ui
     m_cb = new wxCheckBox(this, wxID_ANY, _("Show Legend"));
@@ -665,7 +665,8 @@ void CanvasLayoutDialog::OnIdle(wxIdleEvent& event)
             map_shape->SetSize(new_map_w, new_map_h);
             map_shape->SetX(w/2.0);
             map_shape->SetY(h/2.0);
-            map_shape->Show(true);
+            //map_shape->Show(true);
+            diagram->ShowAll(1);
         }
         is_resize = false;
         Refresh();

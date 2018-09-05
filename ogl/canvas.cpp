@@ -13,6 +13,7 @@
 #include "wx/wxprec.h"
 #include "wx/wx.h"
 #include <wx/dcgraph.h>
+#include <wx/dcbuffer.h>
 
 #ifdef new
 #undef new
@@ -62,27 +63,31 @@ wxShapeCanvas::wxShapeCanvas(wxWindow *parent, wxWindowID id,
   m_firstDragX = 0;
   m_firstDragY = 0;
   m_checkTolerance = true;
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
 }
 
 wxShapeCanvas::~wxShapeCanvas()
 {
 }
 
-void wxShapeCanvas::OnPaint(wxPaintEvent& WXUNUSED(event))
+void wxShapeCanvas::OnPaint(wxPaintEvent& event)
 {
-    wxPaintDC dc(this);
-
-    PrepareDC(dc);
-
-    dc.SetBackground(wxBrush(GetBackgroundColour(), wxSOLID));
+    wxAutoBufferedPaintDC dc(this);
     dc.Clear();
+    //wxPaintDC dc(this);
 
+    //PrepareDC(dc);
+
+    //dc.SetBackground(wxBrush(GetBackgroundColour(), wxSOLID));
+    //dc.Clear();
+
+    int w, h;
+    GetClientSize(&w, &h);
+    
     if (GetDiagram())
         GetDiagram()->Redraw(dc);
     
     // add a frame
-    int w, h;
-    GetClientSize(&w, &h);
     wxGCDC gcdc(dc);
     
     gcdc.SetPen(wxPen(*wxWHITE, 1));
