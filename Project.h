@@ -187,7 +187,7 @@ public:
     int GetMapLayerCount();
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
-    map<wxString, BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
+    vector<BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
     map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
     BackgroundMapLayer* GetMapLayer(wxString map_name);
     vector<wxString> GetLayerNames();

@@ -1656,15 +1656,15 @@ void Project::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
     fg_maps = val;
 }
 
-map<wxString, BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
+vector<BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
 {
-    map<wxString, BackgroundMapLayer*> copy_bg_maps;
+    vector<BackgroundMapLayer*> copy_bg_maps;
     map<wxString, BackgroundMapLayer*>::iterator it;
     for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
         wxString name = it->first;
         BackgroundMapLayer* ml = it->second;
         BackgroundMapLayer* copy  = ml->Clone(clone_style);
-        copy_bg_maps[name] = copy;
+        copy_bg_maps.push_back(copy);
     }
     return copy_bg_maps;
 }

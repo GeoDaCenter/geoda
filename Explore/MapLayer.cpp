@@ -67,6 +67,7 @@ wxString BackgroundMapLayer::GetName()
 BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
 {
     BackgroundMapLayer* copy =  new BackgroundMapLayer();
+    copy->SetName(layer_name);
     copy->SetShapeType(shape_type);
     if (clone_style) {
         copy->SetPenColour(pen_color);

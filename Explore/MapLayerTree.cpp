@@ -69,16 +69,16 @@ void MapTree::Init()
     h = n_maps * 25  + 60;
     SetSize(w, h);
     
-    map<wxString, BackgroundMapLayer*>::iterator it;
-    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-        wxString lbl = it->first;
+    for (int i=0; i<fg_maps.size(); i++) {
+        wxString lbl = fg_maps[i]->GetName();
         map_titles.push_back(lbl);
     }
     map_titles.push_back(current_map_title);
-    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        wxString lbl = it->first;
+    for (int i=0; i<bg_maps.size(); i++) {
+        wxString lbl = bg_maps[i]->GetName();
         map_titles.push_back(lbl);
     }
+    
     
     for (int i=0; i<map_titles.size(); i++) {
         wxString lbl = map_titles[i];
@@ -100,30 +100,43 @@ void MapTree::OnPaint( wxPaintEvent& event )
 
 void MapTree::OnRemoveMapLayer(wxCommandEvent& event)
 {
+    bool found = false;
     wxString map_name = map_titles[new_order[select_id]];
     BackgroundMapLayer* ml = NULL;
-    if (bg_maps.find(map_name) != bg_maps.end()) {
-        ml = bg_maps[map_name];
-        canvas->RemoveLayer(map_name);
-        bg_maps.erase(map_name);
-
-    } else if (fg_maps.find(map_name) != fg_maps.end()) {
-        ml = fg_maps[map_name];
-        canvas->RemoveLayer(map_name);
-        fg_maps.erase(map_name);
-    }
-    
-    int oid = new_order[select_id];
-    map_titles.erase(map_titles.begin() + new_order[select_id]);
-    new_order.erase(new_order.begin() + select_id);
-    for (int i=0; i<new_order.size(); i++) {
-        if (new_order[i] > oid) {
-            new_order[i] -= 1;
+    for (int i=0; i<bg_maps.size(); i++) {
+        ml = bg_maps[i];
+        if (ml->GetName() == map_name) {
+            canvas->RemoveLayer(map_name);
+            bg_maps.erase(bg_maps.begin() + i);
+            found = true;
+            break;
         }
     }
-    select_id = select_id > 0 ? select_id-1 : 0;
-    Refresh();
-    OnMapLayerChange();
+    if (found == false) {
+        for (int i=0; i<fg_maps.size(); i++) {
+            ml = fg_maps[i];
+            if (ml->GetName() == map_name) {
+                canvas->RemoveLayer(map_name);
+                fg_maps.erase(fg_maps.begin() + i);
+                found = true;
+                break;
+            }
+        }
+    }
+    
+    if (found) {
+        int oid = new_order[select_id];
+        map_titles.erase(map_titles.begin() + new_order[select_id]);
+        new_order.erase(new_order.begin() + select_id);
+        for (int i=0; i<new_order.size(); i++) {
+            if (new_order[i] > oid) {
+                new_order[i] -= 1;
+            }
+        }
+        select_id = select_id > 0 ? select_id-1 : 0;
+        Refresh();
+        OnMapLayerChange();
+    }
 }
 
 void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
@@ -388,7 +401,6 @@ void MapTree::OnDraw(wxDC& dc)
         
         if (select_name != map_name) {
             int y =  py + (leg_h + leg_pad_y) * i;
-            LOG_MSG(y);
             DrawLegend(dc, px_switch, y, map_name);
         }
     }
@@ -405,12 +417,7 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     dc.SetPen(pen);
     dc.DrawLine(10, y+2, x, y+2);
     
-    BackgroundMapLayer* ml = NULL;
-    if (bg_maps.find(text) != bg_maps.end()) {
-        ml = bg_maps[text];
-    } else if (fg_maps.find(text) != fg_maps.end()) {
-        ml = fg_maps[text];
-    }
+    BackgroundMapLayer* ml = GetMapLayer(text);
     
     x = x + 45; // switch width
     dc.SetPen(*wxBLACK_PEN);
@@ -510,13 +517,10 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
 {
     int switch_idx = GetSwitchClick(event);
     if (switch_idx > -1) {
-        BackgroundMapLayer* ml = NULL;
         wxString map_name = map_titles[new_order[switch_idx]];
-        if (bg_maps.find(map_name) != bg_maps.end()) {
-            ml = bg_maps[map_name];
-        } else if (fg_maps.find(map_name) != fg_maps.end()) {
-            ml = fg_maps[map_name];
-        }
+        
+        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        
         if (ml) {
             ml->SetHide(!ml->IsHide());
             canvas->DisplayMapLayers();
@@ -527,19 +531,31 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
 
 BackgroundMapLayer* MapTree::GetMapLayer(wxString map_name)
 {
+    bool found = false;
     BackgroundMapLayer* ml = NULL;
-    if (bg_maps.find(map_name) != bg_maps.end()) {
-        ml = bg_maps[map_name];
-    } else if (fg_maps.find(map_name) != fg_maps.end()) {
-        ml = fg_maps[map_name];
+    for (int i=0; i<bg_maps.size(); i++) {
+        if (bg_maps[i]->GetName() == map_name) {
+            ml = bg_maps[i];
+            found = true;
+            break;
+        }
+    }
+    if (found == false) {
+        for (int i=0; i<fg_maps.size(); i++) {
+            if (fg_maps[i]->GetName() == map_name) {
+                ml = fg_maps[i];
+                found = true;
+                break;
+            }
+        }
     }
     return ml;
 }
 
 void MapTree::OnMapLayerChange()
 {
-    map<wxString, BackgroundMapLayer*> new_bg_maps;
-    map<wxString, BackgroundMapLayer*> new_fg_maps;
+    vector<BackgroundMapLayer*> new_bg_maps;
+    vector<BackgroundMapLayer*> new_fg_maps;
     
     bool is_fgmap = true;
     for (int i=0; i<new_order.size(); i++) {
@@ -549,9 +565,9 @@ void MapTree::OnMapLayerChange()
             continue;
         }
         if (is_fgmap) {
-            new_fg_maps[name] = GetMapLayer(name);
+            new_fg_maps.push_back(GetMapLayer(name));
         } else {
-            new_bg_maps[name] = GetMapLayer(name);
+            new_bg_maps.push_back(GetMapLayer(name));
         }
     }
     

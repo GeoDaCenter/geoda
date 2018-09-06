@@ -189,10 +189,10 @@ public:
         cat_data.SetCategoryLabel(0, cat, label);
     }
    
-    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
-    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
-    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
-    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    vector<BackgroundMapLayer*> GetBackgroundMayLayers();
+    vector<BackgroundMapLayer*> GetForegroundMayLayers();
+    void SetForegroundMayLayers(vector<BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(vector<BackgroundMapLayer*>& val);
     vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
     
@@ -235,8 +235,8 @@ public:
     static void ResetEmptyFlag();
     
 protected:
-    map<wxString, BackgroundMapLayer*> bg_maps;
-    map<wxString, BackgroundMapLayer*> fg_maps;
+    vector<BackgroundMapLayer*> bg_maps;
+    vector<BackgroundMapLayer*> fg_maps;
     list<GdaShape*>  background_maps;
     list<GdaShape*>  foreground_maps;
     

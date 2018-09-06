@@ -199,7 +199,6 @@ maplayer_state(project_s->GetMapLayerState())
     wxLogMessage("MapCanvas::MapCanvas()");
     layer_name = project->layername;
     bg_maps = project->CloneBackgroundMaps();
-    fg_maps = project->CloneForegroundMaps();
     ds_name = project->GetDataSource()->GetOGRConnectStr();
     last_scale_trans.SetData(project->main_data.header.bbox_x_min,
                              project->main_data.header.bbox_y_min,
@@ -236,13 +235,12 @@ maplayer_state(project_s->GetMapLayerState())
 MapCanvas::~MapCanvas()
 {
     wxLogMessage("MapCanvas::~MapCanvas()");
-    map<wxString, BackgroundMapLayer*>::iterator it;
-    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
+    for (int i=0; i<bg_maps.size(); i++) {
+        BackgroundMapLayer* ml = bg_maps[i];
         delete ml;
     }
-    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-        BackgroundMapLayer* ml = it->second;
+    for (int i=0; i<fg_maps.size(); i++) {
+        BackgroundMapLayer* ml = fg_maps[i];
         delete ml;
     }
     
@@ -271,22 +269,22 @@ OGRLayerProxy* MapCanvas::GetOGRLayerProxy()
     return project->layer_proxy;
 }
 
-map<wxString, BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()
+vector<BackgroundMapLayer*> MapCanvas::GetBackgroundMayLayers()
 {
     return bg_maps;
 }
 
-void MapCanvas::SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+void MapCanvas::SetBackgroundMayLayers(vector<BackgroundMapLayer*>& val)
 {
     bg_maps = val;
 }
 
-map<wxString, BackgroundMapLayer*> MapCanvas::GetForegroundMayLayers()
+vector<BackgroundMapLayer*> MapCanvas::GetForegroundMayLayers()
 {
     return fg_maps;
 }
 
-void MapCanvas::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+void MapCanvas::SetForegroundMayLayers(vector<BackgroundMapLayer*>& val)
 {
     fg_maps = val;
 }
@@ -723,7 +721,7 @@ void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool i
     // geometries: projection is matched to current map    
     if (map_layer) {
         map_layer->SetHide(is_hide);
-        bg_maps[name] = map_layer; // project makes sure no overwrite here
+        bg_maps.push_back(map_layer); // project makes sure no overwrite here
         full_map_redraw_needed = true;
         PopulateCanvas();
         Refresh();
@@ -1781,13 +1779,12 @@ void MapCanvas::update(CatClassifState* o)
 vector<wxString> MapCanvas::GetLayerNames()
 {
     vector<wxString> names;
-    map<wxString, BackgroundMapLayer*>::iterator it;
-    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-        wxString name = it->first;
+    for (int i=0; i<bg_maps.size(); i++) {
+        wxString name = bg_maps[i]->GetName();
         names.push_back(name);
     }
-    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-        wxString name = it->first;
+    for (int i=0; i<fg_maps.size(); i++) {
+        wxString name = fg_maps[i]->GetName();
         names.push_back(name);
     }
     return names;
@@ -1796,39 +1793,71 @@ vector<wxString> MapCanvas::GetLayerNames()
 void MapCanvas::update(MapLayerState* o)
 {
     wxLogMessage("In MapCanvas::update(MapLayerState*)");
-
-    vector<wxString> names = project->GetLayerNames();
-    
-    for (int i=0; i<names.size(); i++) {
-        wxString name = names[i];
-        if (bg_maps.find(name) == bg_maps.end() &&
-            fg_maps.find(name) == fg_maps.end()) {
-            // add
-            bg_maps[name] = project->GetMapLayer(name)->Clone();
-        } 
-    }
-    
     vector<wxString> local_names = GetLayerNames();
+    
+    // if name not in project, remove
     for (int i=0; i<local_names.size(); i++) {
         wxString name = local_names[i];
         if (project->bg_maps.find(name) == project->bg_maps.end() &&
             project->fg_maps.find(name) == project->fg_maps.end()) {
-            // remove
+            int del_idx = -1;
             BackgroundMapLayer* ml = NULL;
-            if (bg_maps.find(name) != bg_maps.end()) {
-                ml = bg_maps[name];
-                delete ml;
-                bg_maps.erase(name);
-                
-            } else if (fg_maps.find(name) != fg_maps.end()) {
-                ml = fg_maps[name];
-                delete ml;
-                fg_maps.erase(name);
+            for (int i=0; i<bg_maps.size(); i++) {
+                ml = bg_maps[i];
+                if (ml->GetName() == name) {
+                    delete ml;
+                    del_idx = i;
+                    break;
+                }
+            }
+            if (del_idx >= 0) {
+                bg_maps.erase(bg_maps.begin() + del_idx);
+            } else {
+                for (int i=0; i<fg_maps.size(); i++) {
+                    ml = fg_maps[i];
+                    if (ml->GetName() == name) {
+                        delete ml;
+                        del_idx = i;
+                        break;
+                    }
+                }
+                if (del_idx >=0) {
+                    fg_maps.erase(fg_maps.begin() + del_idx);
+                }
             }
             full_map_redraw_needed = true;
             PopulateCanvas();
         }
     }
+    
+    // if project name not in local_names, add
+    vector<wxString> proj_names = project->GetLayerNames();
+    for (int i=0; i<proj_names.size(); i++) {
+        wxString name = proj_names[i];
+        bool found = false;
+        BackgroundMapLayer* ml = NULL;
+        for (int i=0; i<bg_maps.size(); i++) {
+            ml = bg_maps[i];
+            if (ml->GetName() == name) {
+                found = true;
+                break;
+            }
+        }
+        if (found == false) {
+            for (int i=0; i<fg_maps.size(); i++) {
+                ml = fg_maps[i];
+                if (ml->GetName() == name) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        if (found == false) {
+            // add
+            bg_maps.push_back(project->GetMapLayer(name)->Clone());
+        }
+    }
+        
     
     //DisplayMapLayers();
     if (template_frame) {
@@ -1841,16 +1870,30 @@ void MapCanvas::RemoveLayer(wxString name)
 {
     project->RemoveLayer(name);
     
+    int del_idx = -1;
     BackgroundMapLayer* ml = NULL;
-    if (bg_maps.find(name) != bg_maps.end()) {
-        ml = bg_maps[name];
-        delete ml;
-        bg_maps.erase(name);
-        
-    } else if (fg_maps.find(name) != fg_maps.end()) {
-        ml = fg_maps[name];
-        delete ml;
-        fg_maps.erase(name);
+    for (int i=0; i<bg_maps.size(); i++) {
+        ml = bg_maps[i];
+        if (ml->GetName() == name) {
+            delete ml;
+            del_idx = i;
+            break;
+        }
+    }
+    if (del_idx >= 0) {
+        bg_maps.erase(bg_maps.begin() + del_idx);
+    } else {
+        for (int i=0; i<fg_maps.size(); i++) {
+            ml = fg_maps[i];
+            if (ml->GetName() == name) {
+                delete ml;
+                del_idx = i;
+                break;
+            }
+        }
+        if (del_idx >=0) {
+            fg_maps.erase(fg_maps.begin() + del_idx);
+        }
     }
     
     maplayer_state->notifyObservers(this);
@@ -1877,19 +1920,19 @@ void MapCanvas::PopulateCanvas()
         // Background map layers
         BOOST_FOREACH( GdaShape* map, background_maps ) { delete map; }
         background_maps.clear();
-        map<wxString, BackgroundMapLayer*>::iterator it;
-        for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
-            BackgroundMapLayer* ml = it->second;
-            GdaShapeLayer* bg_map = new GdaShapeLayer(it->first, ml);
+        BackgroundMapLayer* ml = NULL;
+        for (int i=bg_maps.size()-1; i>=0; i--) {
+            ml = bg_maps[i];
+            GdaShapeLayer* bg_map = new GdaShapeLayer(ml->GetName(), ml);
             background_maps.push_back(bg_map);
         }
         
         // Foreground map layers
         BOOST_FOREACH( GdaShape* map, foreground_maps ) { delete map; }
         foreground_maps.clear();
-        for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
-            BackgroundMapLayer* ml = it->second;
-            GdaShapeLayer* fg_map = new GdaShapeLayer(it->first, ml);
+        for (int i=fg_maps.size()-1; i>=0; i--) {
+            ml = fg_maps[i];
+            GdaShapeLayer* fg_map = new GdaShapeLayer(ml->GetName(), ml);
             foreground_maps.push_back(fg_map);
         }
 	}

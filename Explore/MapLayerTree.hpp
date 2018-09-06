@@ -35,8 +35,8 @@ class MapTree: public wxWindow
     vector<wxString> map_titles;
     
     MapCanvas* canvas;
-    map<wxString, BackgroundMapLayer*> bg_maps;
-    map<wxString, BackgroundMapLayer*> fg_maps;
+    vector<BackgroundMapLayer*> bg_maps;
+    vector<BackgroundMapLayer*> fg_maps;
     
     bool recreate_labels;
     std::vector<int> new_order;
