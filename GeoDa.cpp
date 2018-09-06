@@ -172,6 +172,7 @@
 #include "Algorithms/geocoding.h"
 #include "Algorithms/fastcluster.h"
 
+#include "wxTranslationHelper.h"
 #include "GdaException.h"
 #include "FramesManager.h"
 #include "GdaConst.h"

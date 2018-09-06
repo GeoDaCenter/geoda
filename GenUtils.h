@@ -143,10 +143,6 @@ namespace Gda {
     
     unsigned long long DateToNumber(wxString s_date, wxRegEx& regex, std::vector<wxString>& date_items);
     
-}
-
-
-namespace Gda {
 	// useful for sorting a vector of double with their original indexes:
 	// std::vector<dbl_int_pair_type> data;
 	// std::sort(data.begin(), data.end(), Gda::dbl_int_pair_cmp_less);	
@@ -162,6 +158,16 @@ namespace Gda {
 										 const dbl_int_pair_type& ind2);
     typedef std::pair<wxString, int> str_int_pair_type;
     typedef std::vector<str_int_pair_type> str_int_pair_vec_type;
+    
+    // Percentile using Linear interpolation between closest ranks
+    // Definition as described in Matlab documentation
+    // and at http://en.wikipedia.org/wiki/Percentile
+    // Assumes that input vector v is sorted in ascending order.
+    // Duplicate values are allowed.
+    double percentile(double x, const std::vector<double>& v);
+    double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
+    double percentile(double x, const Gda::dbl_int_pair_vec_type& v,
+                      const std::vector<bool>& undefs);
 }
 
 // Note: In "Exploratory Data Analysis", pp 32-34, 1977, Tukey only defines
@@ -233,18 +239,6 @@ struct HingeStats {
 	double extreme_upper_val_15;
 	double extreme_upper_val_30;
 };
-
-namespace Gda {
-	// Percentile using Linear interpolation between closest ranks
-	// Definition as described in Matlab documentation
-	// and at http://en.wikipedia.org/wiki/Percentile
-	// Assumes that input vector v is sorted in ascending order.
-	// Duplicate values are allowed.
-	double percentile(double x, const std::vector<double>& v);
-    double percentile(double x, const Gda::dbl_int_pair_vec_type& v);
-	double percentile(double x, const Gda::dbl_int_pair_vec_type& v,
-                      const std::vector<bool>& undefs);
-}
 
 struct SampleStatistics {
 	SampleStatistics();
@@ -329,13 +323,10 @@ struct SimpleLinearRegression {
 };
 
 struct AxisScale {
-	AxisScale() : data_min(0), data_max(0),
-		scale_min(0), scale_max(0), scale_range(0), tic_inc(0), p(0),
-		ticks(5) {}
+    AxisScale();
 	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
 	AxisScale(const AxisScale& s);
-	AxisScale& AxisScale::operator=(const AxisScale& s);
-	//~AxisScale() {}
+    AxisScale& operator=(const AxisScale& s);
 	void CalculateScale(double data_min_s, double data_max_s,
 						const int ticks = 5);
 	void SkipEvenTics(); // only display every other tic value

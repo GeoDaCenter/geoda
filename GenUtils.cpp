@@ -1098,6 +1098,12 @@ string SimpleLinearRegression::ToString()
 	return ss.str();
 }
 
+AxisScale::AxisScale()
+: data_min(0), data_max(0), scale_min(0), scale_max(0),
+scale_range(0), tic_inc(0), p(0)
+{
+}
+
 AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
 scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
