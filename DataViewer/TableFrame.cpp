@@ -107,7 +107,7 @@ popup_col(-1)
         
 	}
     
-	int sample = GenUtils::min<int>(table_base->GetNumberRows(), 10);
+	int sample = std::min(table_base->GetNumberRows(), 10);
     
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);

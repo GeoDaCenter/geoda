@@ -126,8 +126,7 @@ num_categories(6), all_init(false)
 				double s_min = (min - mean)/sd;
 				double s_max = (max - mean)/sd;
 				double abs_max =
-					GenUtils::max<double>(GenUtils::abs<double>(s_min),
-										  GenUtils::abs<double>(s_max));
+					std::max(std::abs(s_min), std::abs(s_max));
 				if (!overall_abs_max_std_exists) {
 					overall_abs_max_std_exists = true;
 					overall_abs_max_std = abs_max;

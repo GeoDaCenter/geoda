@@ -764,7 +764,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 	// report actual elapsed time.
 	
 	int update_rounds = 1; // do one round of batches by default
-	int iters = GenUtils::min<int>(max_iters, EstItersGivenTime(max_seconds));
+	int iters = std::min(max_iters, EstItersGivenTime(max_seconds));
 	int est_secs = EstSecondsGivenIters(iters);
 	int num_batches = GetNumBatches();
 	if (realtime_updates && est_secs > 2) {
@@ -783,7 +783,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 		int num_carts_rem = GetCurNumCartTms();
 		int crt_min_tm = var_info[RAD_VAR].time_min;		
 		for (int i=0; i<num_batches && num_carts_rem > 0; i++) {
-			int num_in_batch = GenUtils::min<int>(num_cpus, num_carts_rem);
+			int num_in_batch = std::min(num_cpus, num_carts_rem);
 		
 			if (num_in_batch > 1) {
 				// mutext protects access to the worker_list

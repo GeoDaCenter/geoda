@@ -269,12 +269,12 @@ obs_id_to_ival(X.size())
 	hinge_stats.CalculateHingeStats(data_sorted, noundef);
 	
 	int num_obs = data_sorted.size();
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 	if (num_obs > 49) {
 		int c = sqrt((double) num_obs);
-		cur_intervals = GenUtils::min<int>(max_intervals, c);
-		cur_intervals = GenUtils::min<int>(cur_intervals, 25);
+		cur_intervals = std::min(max_intervals, c);
+		cur_intervals = std::min(cur_intervals, 25);
 	}
 	
 	highlight_color = GdaConst::highlight_color;

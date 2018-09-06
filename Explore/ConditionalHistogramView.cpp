@@ -102,12 +102,12 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
         }
     }
     
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 	if (num_obs > 49) {
 		int c = sqrt((double) num_obs);
-		cur_intervals = GenUtils::min<int>(max_intervals, c);
-		cur_intervals = GenUtils::min<int>(cur_intervals, 7);
+		cur_intervals = std::min(max_intervals, c);
+		cur_intervals = std::min(cur_intervals, 7);
 	}
 	
 	highlight_color = GdaConst::highlight_color;
@@ -226,7 +226,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double pad_h = scn_h * fac;
 	if (pad_w < 1) pad_w = 0;
 	if (pad_h < 1) pad_h = 0;
-	double pad_bump = GenUtils::min<double>(pad_w, pad_h);
+	double pad_bump = std::min(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
 	
 	double marg_top = last_scale_trans.top_margin;

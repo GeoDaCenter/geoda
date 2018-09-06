@@ -1820,14 +1820,10 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 		if (brushtype == rectangle) {
 			wxRealPoint pt1 = MousePntToObsPnt(sel1);
 			wxRealPoint pt2 = MousePntToObsPnt(sel2);
-			wxString xmin = GenUtils::DblToStr(GenUtils::min<double>(pt1.x,
-																	 pt2.x));
-			wxString xmax = GenUtils::DblToStr(GenUtils::max<double>(pt1.x,
-																	 pt2.x));
-			wxString ymin = GenUtils::DblToStr(GenUtils::min<double>(pt1.y,
-																	 pt2.y));
-			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
-																	 pt2.y));
+			wxString xmin = GenUtils::DblToStr(std::min(pt1.x, pt2.x));
+			wxString xmax = GenUtils::DblToStr(std::max(pt1.x, pt2.x));
+			wxString ymin = GenUtils::DblToStr(std::min(pt1.y, pt2.y));
+			wxString ymax = GenUtils::DblToStr(std::max(pt1.y, pt2.y));
 		}
         s <<"  ";
 	}

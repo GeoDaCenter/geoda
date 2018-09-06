@@ -221,7 +221,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double pad_h = scn_h * fac;
 	if (pad_w < 1) pad_w = 0;
 	if (pad_h < 1) pad_h = 0;
-	double pad_bump = GenUtils::min<double>(pad_w, pad_h);
+	double pad_bump = std::min(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
 	
 	double marg_top = last_scale_trans.top_margin;

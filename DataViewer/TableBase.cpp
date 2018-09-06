@@ -518,7 +518,7 @@ void TableBase::update(TableState* o)
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;
 					GetView()->SetColFormatFloat(e.pos_final, -1,
-						GenUtils::min<int>(e.decimals, dd));
+						std::min(e.decimals, dd));
 				} else {
 					// leave as a string
 				}

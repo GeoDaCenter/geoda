@@ -598,7 +598,7 @@ bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GalElement* gal = w->gal;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);
@@ -630,7 +630,7 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GwtElement* gwt = w->gwt;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);

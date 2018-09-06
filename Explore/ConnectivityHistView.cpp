@@ -570,12 +570,12 @@ void ConnectivityHistCanvas::InitData()
 		range = 1;
 		default_intervals = 1;
 	} else {
-		default_intervals = GenUtils::min<int>(MAX_INTERVALS, range+1);
+		default_intervals = std::min(MAX_INTERVALS, range+1);
 	}
 	
 	obs_id_to_ival.resize(num_obs);
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 }
 
 /** based on cur_intervals, calculate interval breaks and populate

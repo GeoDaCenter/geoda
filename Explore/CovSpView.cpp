@@ -194,7 +194,7 @@ wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
 {
 	wxString s;
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
-	int last = GenUtils::min<int>(total_hover_obs, hover_obs.size(), 2);
+	last = std::min(last, 2);
 	size_t t = var_man.GetTime(0);
 	typedef pairs_bimap_type::left_map::const_iterator left_const_iterator;
 	for (int h=0; h<last; ++h) {

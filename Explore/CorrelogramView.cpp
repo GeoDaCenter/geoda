@@ -398,7 +398,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 {
 	if (!panel || !bag_szr)
         return;
-	int num_top_rows = GenUtils::max<int>(1, num_vars);
+	int num_top_rows = std::max(1, num_vars);
 	int num_rows_total = num_top_rows + 3;
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent, this);

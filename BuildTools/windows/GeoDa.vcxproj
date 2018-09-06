@@ -345,6 +345,7 @@
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
@@ -369,6 +370,7 @@
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
     <ClCompile Include="..\..\Explore\MapLayer.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayerTree.cpp" />
     <ClCompile Include="..\..\Explore\MapLayoutView.cpp" />
     <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
@@ -481,6 +483,7 @@
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SkaterDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h" />
     <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />
@@ -510,6 +513,7 @@
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
     <ClInclude Include="..\..\Explore\MapLayer.hpp" />
+    <ClInclude Include="..\..\Explore\MapLayerTree.hpp" />
     <ClInclude Include="..\..\Explore\MapLayoutView.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />

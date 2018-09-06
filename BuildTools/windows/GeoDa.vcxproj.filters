@@ -835,6 +835,12 @@
       <Filter>Explore</Filter>
     </ClInclude>
     <ClInclude Include="..\..\MapLayerStateObserver.h" />
+    <ClInclude Include="..\..\Explore\MapLayerTree.hpp">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1496,6 +1502,12 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\MapLayer.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayerTree.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

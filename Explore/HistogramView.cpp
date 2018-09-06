@@ -153,8 +153,8 @@ custom_classif_state(0), is_custom_category(false)
                     data_max_over_time = data_stats[t].max;
                 }
             }
-            max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-            cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+            max_intervals = std::min(MAX_INTERVALS, num_obs);
+            cur_intervals = std::min(max_intervals, default_intervals);
         }
     }
     

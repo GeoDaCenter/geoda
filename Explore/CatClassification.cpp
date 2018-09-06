@@ -1759,7 +1759,7 @@ void CatClassification::FindNaturalBreaks(int num_cats,
 	std::vector<UniqueValElem> uv_mapping;
 	create_unique_val_mapping(uv_mapping, v, v_undef);
 	int num_unique_vals = uv_mapping.size();
-	int t_cats = GenUtils::min<int>(num_unique_vals, num_cats);
+	int t_cats = std::min(num_unique_vals, num_cats);
 	
 	double mean = 0;
     int valid_obs = 0;
@@ -1858,7 +1858,7 @@ SetNaturalBreaksCats(int num_cats,
 		create_unique_val_mapping(uv_mapping, v, var_undef[t]);
         
 		int num_unique_vals = uv_mapping.size();
-		int t_cats = GenUtils::min<int>(num_unique_vals, num_cats);
+		int t_cats = std::min(num_unique_vals, num_cats);
 		
 		double mean = 0;
         int valid_obs = 0;

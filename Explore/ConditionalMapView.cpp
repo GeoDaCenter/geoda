@@ -385,7 +385,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	if (pad_h < 1)
         pad_h = 1;
     
-	double pad = GenUtils::min<double>(pad_w, pad_h);
+	double pad = std::min(pad_w, pad_h);
 	
 	double marg_top = last_scale_trans.top_margin;
 	double marg_bottom = last_scale_trans.bottom_margin;

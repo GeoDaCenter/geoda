@@ -124,7 +124,7 @@ hinge_15(true)
 	}	
 
     // no more than 100 plots
-	max_plots = GenUtils::min<int>(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
+	max_plots = std::min(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
 								   project->GetTableInt()->GetTimeSteps() : 1);
 	cur_num_plots = max_plots;
 	cur_first_ind = var_info[0].time_min;
@@ -192,7 +192,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu3 = new wxMenu(wxEmptyString);
 	{
 		int mppv = GdaConst::max_plots_per_view_menu_items;
-		int mp = GenUtils::min<int>(max_plots, mppv);
+		int mp = std::min(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			wxString s;
 			s << i+1;
@@ -251,7 +251,7 @@ void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
 									  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 									  var_info[0].fixed_scale);
 		int mppv = GdaConst::max_plots_per_view_menu_items;
-		int mp = GenUtils::min<int>(max_plots, mppv);
+		int mp = std::min(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			GeneralWxUtils::CheckMenuItem(menu,
 										  GdaConst::ID_PLOTS_PER_VIEW_1+i,
@@ -377,8 +377,8 @@ void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             int ind = ind_base + idx;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_s = std::max(min_IQR, 0);
+		int iqr_t = std::min(max_IQR, num_obs-1);
 		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
 		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
@@ -424,8 +424,8 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
             if (!hs[idx]) continue;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_s = std::max(min_IQR, 0);
+		int iqr_t = std::min(max_IQR, num_obs-1);
 		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
 		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
@@ -804,8 +804,8 @@ void BoxPlotCanvas::TimeChange()
 	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
-	start = GenUtils::max(start, 0);
-	start = GenUtils::min(start, time_steps-cur_num_plots);
+	start = std::max(start, 0);
+	start = std::min(start, time_steps-cur_num_plots);
 	
 	if (cur_first_ind == start) return;
 	
@@ -865,8 +865,8 @@ void BoxPlotCanvas::PlotsPerView(int plots_per_view)
 	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
-	start = GenUtils::max(start, 0);
-	start = GenUtils::min(start, time_steps-cur_num_plots);
+	start = std::max(start, 0);
+	start = std::min(start, time_steps-cur_num_plots);
 	cur_first_ind = start;
 	cur_last_ind = cur_first_ind + cur_num_plots - 1;
 	
