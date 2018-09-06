@@ -775,6 +775,14 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
 	return v[N-1].first; // execution should never get here
 }
 
+
+SampleStatistics::SampleStatistics()
+	 : sample_size(0), min(0), max(0), mean(0),
+    var_with_bessel(0), var_without_bessel(0),
+    sd_with_bessel(0), sd_without_bessel(0)
+{
+}
+
 SampleStatistics::SampleStatistics(const std::vector<double>& data)
 	: sample_size(0), min(0), max(0), mean(0),
 	var_with_bessel(0), var_without_bessel(0),

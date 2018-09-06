@@ -180,7 +180,8 @@
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessToFile>false</PreprocessToFile>
-      <UndefinePreprocessorDefinitions>WX_PRECOMP;%(UndefinePreprocessorDefinitions)</UndefinePreprocessorDefinitions>
+      <UndefinePreprocessorDefinitions>
+      </UndefinePreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -367,6 +368,7 @@
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
+    <ClCompile Include="..\..\Explore\MapLayer.cpp" />
     <ClCompile Include="..\..\Explore\MapLayoutView.cpp" />
     <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
@@ -507,6 +509,7 @@
     <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
+    <ClInclude Include="..\..\Explore\MapLayer.hpp" />
     <ClInclude Include="..\..\Explore\MapLayoutView.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />
@@ -543,6 +546,7 @@
     <ClInclude Include="..\..\kNN\pr_queue_k.h" />
     <ClInclude Include="..\..\kNN\values.h" />
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
+    <ClInclude Include="..\..\MapLayerStateObserver.h" />
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
     <ClInclude Include="..\..\ogl\basic.h" />

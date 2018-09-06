@@ -120,6 +120,8 @@ typedef ptrdiff_t GLsizeiptr;
 typedef ptrdiff_t GLintptr;
 
 // Constants
+#define GL_PROGRAM_POINT_SIZE             0x8642
+#define GL_POINTS                         0x0000
 #define GL_ARRAY_BUFFER                   0x8892
 #define GL_BLEND                          0x0BE2
 #define GL_CLAMP_TO_EDGE                  0x812F

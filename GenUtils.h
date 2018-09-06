@@ -247,9 +247,7 @@ namespace Gda {
 }
 
 struct SampleStatistics {
-	SampleStatistics() : sample_size(0), min(0), max(0), mean(0),
-    var_with_bessel(0), var_without_bessel(0),
-    sd_with_bessel(0), sd_without_bessel(0) {}
+	SampleStatistics();
     SampleStatistics(const std::vector<double>& data);
     SampleStatistics(const std::vector<double>& data,
                      const std::vector<bool>& undefs);
@@ -275,8 +273,8 @@ struct SampleStatistics {
 	
 	static double CalcMin(const std::vector<double>& data);
 	static double CalcMax(const std::vector<double>& data);
-	static void CalcMinMax(const std::vector<double>& data, double& min,
-						   double& max);
+	static void   CalcMinMax(const std::vector<double>& data, double& min,
+						     double& max);
 	static double CalcMean(const std::vector<double>& data);
 	static double CalcMean(const std::vector<Gda::dbl_int_pair_type>& data);
     
@@ -336,8 +334,8 @@ struct AxisScale {
 		ticks(5) {}
 	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
 	AxisScale(const AxisScale& s);
-	virtual AxisScale& operator=(const AxisScale& s);
-	virtual ~AxisScale() {}
+	AxisScale& AxisScale::operator=(const AxisScale& s);
+	//~AxisScale() {}
 	void CalculateScale(double data_min_s, double data_max_s,
 						const int ticks = 5);
 	void SkipEvenTics(); // only display every other tic value
@@ -349,7 +347,7 @@ struct AxisScale {
 	double scale_min;
 	double scale_max;
 	double scale_range;
-	double tic_inc;
+	double tic_inc;	
     int lbl_precision;
 	int ticks;
 	int p; // power of ten to scale significant digit
@@ -369,16 +367,13 @@ namespace GenUtils {
     wxString IntToStr(int x, int precision = 0);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
-    
 	void MeanAbsoluteDeviation(int nObs, double* data);
     void MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef);
 	void MeanAbsoluteDeviation(std::vector<double>& data);
     void MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef);
-    
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, std::vector<bool>& undef);
 	void DeviationFromMean(std::vector<double>& data);
-   
 	double Sum(std::vector<double>& data);
 	double SumOfSquares(std::vector<double>& data);
 	bool StandardizeData(int nObs, double* data);
@@ -386,11 +381,6 @@ namespace GenUtils {
 	bool StandardizeData(std::vector<double>& data);
     double Correlation(std::vector<double>& x, std::vector<double>& y);
     double GetVariance(std::vector<double>& data);
-	template<class T> T abs(const T& x);
-	template<class T> const T& max(const T& x, const T& y);
-	template<class T> const T& min(const T& x, const T& y);
-	template<class T> const T& max(const T& x, const T& y, const T& z);
-	template<class T> const T& min(const T& x, const T& y, const T& z);
 	wxString swapExtension(const wxString& fname, const wxString& ext);
 	wxString GetFileDirectory(const wxString& path);
 	wxString GetFileName(const wxString& path);
@@ -440,14 +430,11 @@ namespace GenUtils {
 						 bool* shx_found, bool* dbf_found);
 	wxString FindLongestSubString(const std::vector<wxString> strings,
 								  bool case_sensitive=false);
-
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
-
 	wxString GetBasemapCacheDir();
 	wxString GetWebPluginsDir();
 	wxString GetResourceDir();
     wxString GetSamplesDir();
-    
     bool less_vectors(const std::vector<int>& a,const std::vector<int>& b);
     
     // Act like matlab's [Y,I] = SORT(X)
@@ -521,6 +508,44 @@ namespace GenUtils {
             ordered[i] = copy[index_map[i]];
         }
     }
+
+	template <class T> 
+	T abs(const T& x)
+	{
+		if (x >= 0) return x;
+		return -x;
+	}
+
+	template <class T> 
+	T max(const T& x, const T& y)
+	{
+		return x < y ? y : x;
+	}
+
+	template <class T> 
+	T min(const T& x, const T& y)
+	{
+		return x < y ? x : y;
+	}
+
+	template<class T> 
+	T max(const T& x, const T& y, const T& z)
+	{
+		if (x > y) {
+			return x > z ? x : z;
+		} else {
+			return y > z ? y : z;
+		}
+	}
+	template <class T> 
+	T min(const T& x, const T& y, const T& z)
+	{
+		if (x < y) {
+			return x < z ? x : z;
+		} else {
+			return y < z ? y : z;
+		}
+	}
 }
 
 /** Old code used by LISA functions */
@@ -562,50 +587,4 @@ public:
 		current = 0;
 	}
 };
-
-/*
- * Template Definitions
- *
- * Note: Template Definitions must not be compiled independently.
- *       Put all template definitions below, and all non-template
- *       definitions in the GenUtils.cpp file.  If a template
- *       definition is put in GenUtils.cpp, there will be a linking
- *       error.
- *
- */
-
-template<class T> T GenUtils::abs(const T& x)
-{
-	if (x >= 0) return x;
-	return -x;
-}
-
-template<class T> const T& GenUtils::max(const T& x, const T& y)
-{
-	return x < y ? y : x;
-}
-
-template<class T> const T& GenUtils::min(const T& x, const T& y)
-{
-	return x < y ? x : y;
-}
-
-template<class T> const T& GenUtils::max(const T& x, const T& y, const T& z)
-{
-	if (x > y) {
-		return x > z ? x : z;
-	} else {
-		return y > z ? y : z;
-	}
-}
-
-template<class T> const T& GenUtils::min(const T& x, const T& y, const T& z)
-{
-	if (x < y) {
-		return x < z ? x : z;
-	} else {
-		return y < z ? y : z;
-	}
-}
-
 #endif

@@ -37,7 +37,6 @@
 #include <wx/timer.h>
 #include <wx/toolbar.h>
 #include <wx/xrc/xh_auitoolb.h>
-#include "wxTranslationHelper.h"
 
 // Forward Declarations
 class Project;
@@ -45,6 +44,7 @@ class CatClassifFrame;
 class GdaApp;
 class GdaFrame;
 class LineChartFrame;
+class wxTranslationHelper;
 
 /** Main appilcation class. */
 class GdaApp: public wxApp
@@ -79,7 +79,7 @@ public:
     
 	void EnableTool(const wxString& id_str, bool enable);
 	void EnableTool(int xrc_id, bool enable);
-	boost::uuids::uuid GetWeightsId(const wxString& caption = "Choose Weights");
+	boost::uuids::uuid GetWeightsId(const wxString& caption = _("Choose Weights"));
 
     void OnSize(wxSizeEvent& event);
 	void OnKeyEvent(wxKeyEvent& event);

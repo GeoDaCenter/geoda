@@ -831,6 +831,10 @@
     <ClInclude Include="..\..\Explore\MapLayoutView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Explore\MapLayer.hpp">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\MapLayerStateObserver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1488,6 +1492,9 @@
       <Filter>ogl</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\MapLayoutView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayer.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>
