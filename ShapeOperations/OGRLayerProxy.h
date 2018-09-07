@@ -68,7 +68,7 @@ public:
 	
     
     bool        is_writable;
-	wxString      name;
+	wxString    name;
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
@@ -262,6 +262,8 @@ public:
     OGRFeature* GetFeatureAt(int rid);
     
     OGRGeometry* GetGeometry(int idx);
+    
+    vector<wxString> GetIntegerFieldNames();
     
     bool IsUndefined(int rid, int cid);
     

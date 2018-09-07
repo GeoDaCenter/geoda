@@ -341,9 +341,9 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     if (canvas->GetShapeType() == MapCanvas::polygons &&
         ml->GetShapeType() == Shapefile::POINT_TYP)
     {
-        popupMenu->Append(XRCID("MAPTREE_POINT_IN_POLYGON"), _("Spatial Join Count"));
-        Connect(XRCID("MAPTREE_POINT_IN_POLYGON"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
-        popupMenu->AppendSeparator();
+        //popupMenu->Append(XRCID("MAPTREE_POINT_IN_POLYGON"), _("Spatial Join Count"));
+        //Connect(XRCID("MAPTREE_POINT_IN_POLYGON"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
+        //popupMenu->AppendSeparator();
     }
     
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));

@@ -496,6 +496,17 @@ bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 	return true;
 }
 
+vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
+{
+    vector<wxString> names;
+    for (int i=0; i<fields.size(); i++) {
+        if (GdaConst::long64_type == fields[i]->GetType()) {
+            names.push_back(GetFieldName(i));
+        }
+    }
+    return names;
+}
+
 Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms, OGRSpatialReference* input_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;

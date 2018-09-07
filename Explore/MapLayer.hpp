@@ -9,6 +9,7 @@
 #define MapLayer_hpp
 
 #include <wx/wx.h>
+#include <vector>
 
 #include "../GdaShape.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
@@ -16,6 +17,7 @@
 class BackgroundMapLayer
 {
     Shapefile::ShapeType shape_type;
+    vector<wxString> field_names;
     
     wxString layer_name;
     wxColour pen_color;
@@ -27,6 +29,7 @@ class BackgroundMapLayer
     bool is_hide;
     
 public:
+    OGRLayerProxy* layer_proxy;
     GdaPolygon* map_boundary;
     vector<GdaShape*> shapes;
     vector<OGRGeometry*> geoms;
@@ -57,10 +60,11 @@ public:
     int GetOpacity();
     bool IsShowBoundary();
     wxString GetName();
-    
+    int GetNumRecords();
+    vector<wxString> GetIntegerFieldNames();
     vector<GdaShape*>& GetShapes();
     Shapefile::ShapeType GetShapeType();
-    
+    bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);
     void drawLegend(wxDC& dc, int x, int y, int w, int h);
 };
 

@@ -19,29 +19,58 @@ class MapLayerStateObserver;
 
 class SpatialJoinWorker
 {
+protected:
     rtree_pt_2d_t rtree;
     vector<wxInt64> spatial_counts;
     Project* project;
+    BackgroundMapLayer* ml;
+    int num_polygons;
     
 public:
     SpatialJoinWorker(BackgroundMapLayer* ml, Project* project);
-    ~SpatialJoinWorker();
+    virtual ~SpatialJoinWorker();
     
     void Run();
-    void sub_run(int start, int end);
+    void points_in_polygons(int start, int end);
+    void polygon_at_point(int start, int end);
     vector<wxInt64> GetResults();
+    
+    virtual void sub_run(int start, int end) = 0;
+};
+
+class CountPointsInPolygon : public SpatialJoinWorker
+{
+public:
+    CountPointsInPolygon(BackgroundMapLayer* ml, Project* project);
+    virtual void sub_run(int start, int end);
+};
+
+class AssignPolygonToPoint : public SpatialJoinWorker
+{
+    vector<wxInt64> poly_ids;
+public:
+    AssignPolygonToPoint(BackgroundMapLayer* ml, Project* project, vector<wxInt64>& poly_ids);
+    virtual void sub_run(int start, int end);
 };
 
 class SpatialJoinDlg : public wxDialog
 {
     Project* project;
     wxChoice* map_list;
+    wxChoice* field_list;
+    wxStaticText* field_st;
+    wxBoxSizer* vbox;
+    wxBoxSizer* cbox;
+    wxPanel* panel;
+    
+    void UpdateFieldList(wxString name);
     
 public:
     SpatialJoinDlg(wxWindow* parent, Project* project);
     
     void OnOK(wxCommandEvent& e);
     void OnAddMapLayer(wxCommandEvent& e);
+    void OnLayerSelect(wxCommandEvent& e);
     
     void InitMapList();
 };

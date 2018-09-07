@@ -21,9 +21,10 @@ map_boundary(NULL)
     
 }
 
-BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* layer_proxy, OGRSpatialReference* sr)
+BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
 :
 layer_name(name),
+layer_proxy(_layer_proxy),
 pen_color(wxColour(192, 192, 192)),
 brush_color(wxColour(255, 255, 255, 255)),
 point_radius(2),
@@ -36,6 +37,7 @@ map_boundary(NULL)
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
+    field_names = layer_proxy->GetIntegerFieldNames();
 }
 
 BackgroundMapLayer::~BackgroundMapLayer()
@@ -85,7 +87,32 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     // not deep copy 
     copy->shapes = shapes;
     copy->geoms = geoms;
+    copy->layer_proxy = layer_proxy;
     return copy;
+}
+
+int BackgroundMapLayer::GetNumRecords()
+{
+    return shapes.size();
+}
+
+bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt64>& data)
+{
+    // this function is for finding IDs of multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::long64_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] = (double)layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
+        }
+        return true;
+    }
+    return false;
+}
+
+vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
+{
+    return field_names;
 }
 
 void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)
