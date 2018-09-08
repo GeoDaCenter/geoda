@@ -113,7 +113,8 @@ public:
 	virtual wxString GetCanvasTitle();
     virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
-	
+    virtual void UpdateSelectionPoints(bool shiftdown = false,
+                                       bool pointsel = false);
 	virtual void NewCustomCatClassif();
     virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
                                SmoothingType new_map_smoothing,

@@ -305,6 +305,85 @@ void MapCanvas::SetupColor()
 {
 }
 
+void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
+{
+    TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
+    
+    // if multi-layer presents and top layer is not current map
+    if ( fg_maps.empty() )
+        return;
+    
+    BackgroundMapLayer* ml = fg_maps[0];
+    int nn = ml->GetNumRecords();
+    vector<OGRGeometry*> geoms = ml->geoms;
+    vector<GdaShape*> shapes = ml->shapes;
+    
+    if (pointsel) { // a point selection
+        for (int i=0; i<nn; i++) {
+            if (shapes[i]->pointWithin(sel1)) {
+                ml->SetHighlight(i);
+            } else {
+                ml->SetUnHighlight(i);
+            }
+        }
+    } else { // determine which obs intersect the selection region.
+        if (brushtype == rectangle) {
+            wxRegion rect(wxRect(sel1, sel2));
+            for (int i=0; i<nn; i++) {
+                bool contains = (rect.Contains(shapes[i]->center) !=
+                                 wxOutRegion);
+                if (contains) {
+                    ml->SetHighlight(i);
+                } else {
+                    if (!shiftdown)
+                        ml->SetUnHighlight(i);
+                }
+            }
+            
+        } else if (brushtype == circle) {
+            // using quad-tree to do pre-selection
+            double radius = GenUtils::distance(sel1, sel2);
+            // determine if each center is within radius of sel1
+            for (int i=0; i<nn; i++) {
+                bool contains = (GenUtils::distance(sel1, shapes[i]->center) <= radius);
+                if (contains) {
+                    ml->SetHighlight(i);
+                } else {
+                    if (!shiftdown)
+                        ml->SetUnHighlight(i);
+                }
+            }
+        } else if (brushtype == line) {
+            wxRegion rect(wxRect(sel1, sel2));
+            double p1x = sel1.x;
+            double p1y = sel1.y;
+            double p2x = sel2.x;
+            double p2y = sel2.y;
+            double p2xMp1x = p2x - p1x;
+            double p2yMp1y = p2y - p1y;
+            double dp1p2 = GenUtils::distance(sel1, sel2);
+            double delta = 3.0 * dp1p2;
+            for (int i=0; i<nn; i++) {
+                bool contains = (rect.Contains(shapes[i]->center) != wxOutRegion);
+                if (contains) {
+                    double p0x = shapes[i]->center.x;
+                    double p0y = shapes[i]->center.y;
+                    // determine if selectable_shps[i]->center is within
+                    // distance 3.0 of line passing through sel1 and sel2
+                    if (abs(p2xMp1x * (p1y-p0y) - (p1x-p0x) * p2yMp1y) >
+                        delta ) contains = false;
+                }
+                if (contains) {
+                    ml->SetHighlight(i);
+                } else {
+                    if (!shiftdown)
+                        ml->SetUnHighlight(i);
+                }
+            }
+        }
+    }
+}
+
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
 {
     TemplateCanvas::DetermineMouseHoverObjects(pointsel);
@@ -348,7 +427,6 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 {
     if (gal_weights == NULL)
         return;
-    
     int ts = cat_data.GetCurrentCanvasTmStep();
     int num_obs = project->GetNumRecords();
     HighlightState& hs = *project->GetHighlightState();
@@ -357,9 +435,10 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
     std::set<int>::iterator it;
     ids_of_nbrs.clear();
     ids_wo_nbrs.clear();
-    
-    for (int i=0; i<h.size(); i++) if (h[i]) ids_wo_nbrs.push_back(i);
-    
+    for (int i=0; i<h.size(); i++) {
+        if (h[i])
+            ids_wo_nbrs.push_back(i);
+    }
     for (int i=0; i<gal_weights->num_obs; i++) {
         if (h[i]) {
             GalElement& e = gal_weights->gal[i];
@@ -382,13 +461,11 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
                 new_hs[i] = true;
             }
         }
-        
         bool hl_only = true;
         bool revert = false;
         bool crosshatch = false;
         bool is_print = false;
         helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
-       
         // paint selected with specified outline color
         if (conn_selected_color.Alpha() != 0) {
             wxPen pen(conn_selected_color);
@@ -400,7 +477,6 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
                 }
             }
         }
-        
         if (display_neighbors) {
             // paint neighbors with specified fill color
             if (neighbor_fill_color.Alpha() != 0) {
@@ -747,6 +823,7 @@ void MapCanvas::DrawLayerBase()
 
 void MapCanvas::DrawLayer0()
 {
+    // draw basemap, background, and all other maps
     wxMemoryDC dc;
     
 	if (isDrawBasemap) 
@@ -779,6 +856,7 @@ void MapCanvas::DrawLayer0()
 
 void MapCanvas::DrawLayer1()
 {
+    // draw highlight
     if (layer1_bm == NULL)
         return;
     wxMemoryDC dc(*layer1_bm);
@@ -794,6 +872,7 @@ void MapCanvas::DrawLayer1()
 
 void MapCanvas::DrawLayer2()
 {
+    // draw foreground
     if (layer2_bm == NULL)
         return;
     wxMemoryDC dc;
@@ -829,7 +908,6 @@ void MapCanvas::TranslucentLayer0(wxMemoryDC& dc)
     int  alpha_value = 255;
     bool mask_needed = false;
     bool draw_highlight = highlight_state->GetTotalHighlighted() > 0;
-    
     if (isDrawBasemap) {
         mask_needed = true;
         alpha_value = tran_unhighlighted;
@@ -839,7 +917,6 @@ void MapCanvas::TranslucentLayer0(wxMemoryDC& dc)
         mask_needed = true;
         alpha_value = revert ? GdaConst::transparency_highlighted : tran_unhighlighted;
     }
-    
     if (mask_needed)
     {
         if (faded_layer_bm == NULL) {
@@ -956,15 +1033,27 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
     
-    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    // multi-layer highlight
+    if ( !fg_maps.empty() ) {
+        BackgroundMapLayer* ml = fg_maps[0];
+        if (ml && ml->IsHide() == false) {
+            vector<bool> hl_flags = ml->highlight_flags;
+            for (int i=0; i<hl_flags.size(); i++) {
+                if (hl_flags[i]) {
+                    ml->shapes[i]->paintSelf(dc);
+                }
+            }
+        }
+    }
     
+    // highlight connectivity objects and graphs
+    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
     if (show_graph || display_neighbors) {
         // draw neighbors of selection if needed
         WeightsManInterface* w_man_int = project->GetWManInt();
         GalWeight* gal_weights = w_man_int->GetGal(weights_id);
         AddNeighborsToSelection(gal_weights, dc);
     }
-    
     if (show_graph) {
         // draw connectivity graph if needed
         const vector<GdaPoint*>& c = project->GetMeanCenters();
@@ -1020,7 +1109,6 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool reve
     helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
 #else
     helper_DrawSelectableShapes_dc(_dc, hs, hl_only, revert, use_crosshatch);
-    
 #endif
 }
 
@@ -1858,7 +1946,6 @@ void MapCanvas::update(MapLayerState* o)
         }
     }
         
-    
     //DisplayMapLayers();
     if (template_frame) {
         MapFrame* m = dynamic_cast<MapFrame*>(template_frame);
@@ -1908,7 +1995,6 @@ void MapCanvas::PopulateCanvas()
 {
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
-
 	int canvas_ts = cat_data.GetCurrentCanvasTmStep();
 	if (!map_valid[canvas_ts]) full_map_redraw_needed = true;
 	
@@ -1926,7 +2012,6 @@ void MapCanvas::PopulateCanvas()
             GdaShapeLayer* bg_map = new GdaShapeLayer(ml->GetName(), ml);
             background_maps.push_back(bg_map);
         }
-        
         // Foreground map layers
         BOOST_FOREACH( GdaShape* map, foreground_maps ) { delete map; }
         foreground_maps.clear();

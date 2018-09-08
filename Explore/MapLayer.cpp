@@ -18,7 +18,6 @@ show_boundary(false),
 is_hide(true),
 map_boundary(NULL)
 {
-    
 }
 
 BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
@@ -38,6 +37,9 @@ map_boundary(NULL)
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
     field_names = layer_proxy->GetIntegerFieldNames();
+    for (int i=0; i<shapes.size(); i++) {
+        highlight_flags.push_back(false);
+    }
 }
 
 BackgroundMapLayer::~BackgroundMapLayer()
@@ -54,6 +56,16 @@ void BackgroundMapLayer::CleanMemory()
         delete shapes[i];
         delete geoms[i];
     }
+}
+
+void BackgroundMapLayer::SetHighlight(int idx)
+{
+    highlight_flags[idx] = true;
+}
+
+void BackgroundMapLayer::SetUnHighlight(int idx)
+{
+    highlight_flags[idx] = false;
 }
 
 void BackgroundMapLayer::SetName(wxString name)
@@ -81,6 +93,7 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
         copy->SetHide(is_hide);
     }
     // deep copy
+    copy->highlight_flags = highlight_flags;
     if (map_boundary) {
         copy->map_boundary = map_boundary->clone();
     }

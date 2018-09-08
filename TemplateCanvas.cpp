@@ -425,8 +425,7 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 	}
 }
 
-std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps,
-                                           Project* project)
+std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps, Project* project)
 {
 	using namespace Shapefile;
     std::vector<int> empty_shps_ids;
@@ -865,17 +864,8 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
 #endif
 }
 
-void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc,
-                                                    vector<bool>& hs,
-                                                    bool hl_only,
-                                                    bool revert,
-                                                    bool crosshatch,
-                                                    bool is_print,
-                                                    const wxColour& fixed_pen_color)
+void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs, bool hl_only, bool revert, bool crosshatch, bool is_print, const wxColour& fixed_pen_color)
 {
-    
-    //vector<bool>& hs = GetSelBitVec();
-    
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats = cat_data.GetNumCategories(cc_ts);
 	int w;
@@ -1805,6 +1795,7 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	} else if (selectable_shps_type == polylines) {
 		UpdateSelectionPolylines(shiftdown, pointsel);
 	} else {
+        // rectangle
 		UpdateSelectionPoints(shiftdown, pointsel);
 	}
     
@@ -1876,15 +1867,12 @@ void TemplateCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 			
 		} else if (brushtype == circle) {
 			// using quad-tree to do pre-selection
-			
-			
 			double radius = GenUtils::distance(sel1, sel2);
 			// determine if each center is within radius of sel1
 			for (int i=0; i<hl_size; i++) {
                 if ( !_IsShpValid(i) )
                     continue;
-				bool contains = (GenUtils::distance(sel1, selectable_shps[i]->center)
-								 <= radius);
+				bool contains = (GenUtils::distance(sel1, selectable_shps[i]->center) <= radius);
 				if (!shiftdown) {
 					if (contains) {
                         if (!hs[i]) {

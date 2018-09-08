@@ -33,6 +33,7 @@ public:
     GdaPolygon* map_boundary;
     vector<GdaShape*> shapes;
     vector<OGRGeometry*> geoms;
+    vector<bool> highlight_flags;
     
     BackgroundMapLayer();
     BackgroundMapLayer(wxString name, OGRLayerProxy* layer_proxy, OGRSpatialReference* sr);
@@ -42,6 +43,8 @@ public:
     BackgroundMapLayer* Clone(bool clone_style=false);
     
     void CleanMemory();
+    void SetHighlight(int idx);
+    void SetUnHighlight(int idx);
     void SetName(wxString name);
     void SetHide(bool flag);
     bool IsHide();
