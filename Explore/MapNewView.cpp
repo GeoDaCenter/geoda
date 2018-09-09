@@ -2904,16 +2904,20 @@ void MapFrame::SetupToolbar()
             wxCommandEventHandler(MapFrame::OnMapAddLayer));
     Connect(XRCID("ID_EDIT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapEditLayer));
-    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+    if (toolbar) {
+        toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+    }
 }
 
 void MapFrame::UpdateMapLayer()
 {
-    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
-    if (map_tree) {
-        map_tree->Recreate();
-        map_tree->Raise();
-        map_tree->Show(true);
+    if (toolbar) {
+        toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+        if (map_tree) {
+            map_tree->Recreate();
+            map_tree->Raise();
+            map_tree->Show(true);
+        }
     }
 }
 

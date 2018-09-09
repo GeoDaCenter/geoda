@@ -52,7 +52,6 @@ public:
 	static TemplateFrame* GetActiveFrame();
 	virtual void OnActivate(wxActivateEvent& event) {}
 	
-public:
 	static bool GetColorFromUser(wxWindow* parent,
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
@@ -136,6 +135,7 @@ public:
     virtual int GetCurrentCanvasTimeStep();
     
 protected:
+    wxToolBar* toolbar;
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
     

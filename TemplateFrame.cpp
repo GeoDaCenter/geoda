@@ -70,7 +70,7 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 	is_status_bar_visible(false),
 	get_status_bar_string_from_frame(false),
 	supports_timeline_changes(false),
-	depends_on_non_simple_groups(true)
+	depends_on_non_simple_groups(true), toolbar(NULL)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);

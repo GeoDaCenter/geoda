@@ -408,8 +408,7 @@ public:
 	
 protected:
     wxBoxSizer* rbox;
-    
-    wxToolBar* toolbar;
+
     MapTreeFrame* map_tree;
 	WeightsManState* w_man_state;
     ExportDataDlg*   export_dlg;

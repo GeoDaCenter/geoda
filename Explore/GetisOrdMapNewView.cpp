@@ -579,9 +579,9 @@ row_standardize(row_standardize_s)
 	
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
-	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+	toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
 	toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
