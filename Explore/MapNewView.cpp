@@ -1037,12 +1037,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     if ( !fg_maps.empty() ) {
         BackgroundMapLayer* ml = fg_maps[0];
         if (ml && ml->IsHide() == false) {
-            vector<bool> hl_flags = ml->highlight_flags;
-            for (int i=0; i<hl_flags.size(); i++) {
-                if (hl_flags[i]) {
-                    ml->shapes[i]->paintSelf(dc);
-                }
-            }
+            ml->DrawHighlight(dc);
         }
     }
     

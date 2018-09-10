@@ -11,6 +11,7 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/dcbuffer.h>
 #include <wx/colordlg.h>
+#include <wx/choicdlg.h>
 
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../logger.h"
@@ -19,6 +20,134 @@
 #include "MapLayer.hpp"
 #include "MapLayerTree.hpp"
 
+SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vector<BackgroundMapLayer*> _bg_maps, vector<BackgroundMapLayer*> _fg_maps, const wxPoint& pos, const wxSize& size)
+: wxDialog(parent, -1, _("Set Foreign Key"), pos, size)
+{
+    current_ml = ml;
+    bg_maps = _bg_maps;
+    fg_maps = _fg_maps;
+    
+    wxPanel* panel = new wxPanel(this, -1);
+    
+    wxStaticText* st = new wxStaticText(panel, -1, _("Select Foreign Layer:"));
+    layer_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
+    mbox->Add(st, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(layer_list, 0, wxALIGN_CENTER | wxALL, 5);
+    
+    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select Foreign Key:"));
+    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxBoxSizer* mbox1 = new wxBoxSizer(wxHORIZONTAL);
+    mbox1->Add(st1, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox1->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
+    
+    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
+    wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
+    hbox->Add(ok_btn, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
+    
+    wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+    vbox->Add(panel, 1, wxALL, 15);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    SetSizer(vbox);
+    vbox->Fit(this);
+    
+    Center();
+    
+    layer_list->Bind(wxEVT_CHOICE, &SetForeignKeyDlg::OnLayerSelect, this);
+    
+    for (int i=0; i<bg_maps.size(); i++) {
+        wxString name = bg_maps[i]->GetName();
+        if (name != ml->GetName()) {
+            layer_list->Append(name);
+        }
+    }
+    for (int i=0; i<fg_maps.size(); i++) {
+        wxString name = fg_maps[i]->GetName();
+        if (name != ml->GetName()) {
+            layer_list->Append(name);
+        }
+    }
+    wxCommandEvent e;
+    OnLayerSelect(e);
+}
+
+BackgroundMapLayer* SetForeignKeyDlg::GetMapLayer(wxString map_name)
+{
+    bool found = false;
+    BackgroundMapLayer* ml = NULL;
+    for (int i=0; i<bg_maps.size(); i++) {
+        if (bg_maps[i]->GetName() == map_name) {
+            ml = bg_maps[i];
+            found = true;
+            break;
+        }
+    }
+    if (found == false) {
+        for (int i=0; i<fg_maps.size(); i++) {
+            if (fg_maps[i]->GetName() == map_name) {
+                ml = fg_maps[i];
+                found = true;
+                break;
+            }
+        }
+    }
+    return ml;
+}
+
+void SetForeignKeyDlg::OnLayerSelect(wxCommandEvent& e)
+{
+    int idx = layer_list->GetSelection();
+    if (idx >=0) {
+        field_list->Clear();
+        wxString map_name = layer_list->GetString(idx);
+        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        vector<wxString> names = ml->GetIntegerFieldNames();
+        for (int i=0; i<names.size(); i++) {
+            field_list->Append(names[i]);
+        }
+    }
+}
+
+wxString SetForeignKeyDlg::GetSelectFieldName()
+{
+    int idx = field_list->GetSelection();
+    if (idx >=0) {
+        return field_list->GetString(idx);
+    }
+    return wxEmptyString;
+}
+
+BackgroundMapLayer* SetForeignKeyDlg::GetSelectMapLayer()
+{
+    int idx = layer_list->GetSelection();
+    if (idx >=0) {
+        wxString map_name = layer_list->GetString(idx);
+        bool found = false;
+        BackgroundMapLayer* ml = NULL;
+        for (int i=0; i<bg_maps.size(); i++) {
+            if (bg_maps[i]->GetName() == map_name) {
+                ml = bg_maps[i];
+                found = true;
+                break;
+            }
+        }
+        if (found == false) {
+            for (int i=0; i<fg_maps.size(); i++) {
+                if (fg_maps[i]->GetName() == map_name) {
+                    ml = fg_maps[i];
+                    found = true;
+                    break;
+                }
+            }
+        }
+        return ml;
+    }
+    return NULL;
+}
 
 IMPLEMENT_ABSTRACT_CLASS(MapTree, wxWindow)
 BEGIN_EVENT_TABLE(MapTree, wxWindow)
@@ -239,6 +368,53 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
         }
     }
 }
+
+void MapTree::OnSetPrimaryKey(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    if (current_map_title == map_name) {
+        // work on current map
+    } else {
+        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        if (ml) {
+            wxArrayString choices;
+            vector<wxString> field_names = ml->GetKeyNames();
+            if (field_names.empty()) {
+                wxMessageDialog dlg (this, _("Select map layer has no integer or string field."), _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
+            for (int i=0; i<field_names.size(); i++) {
+                choices.Add(field_names[i]);
+            }
+            wxSingleChoiceDialog dialog(this, _("Please select a field as primary key (Click Cancel if use default sequence id): "), _("Set Primary Key"), choices);
+            dialog.SetSelection(2);
+            if (dialog.ShowModal() == wxID_OK) {
+                wxString key = dialog.GetStringSelection();
+                ml->SetPrimaryKey(key);
+            }
+        }
+    }
+}
+
+void MapTree::OnSetForeignKey(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    if (current_map_title == map_name) {
+        // work on current map
+    } else {
+        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        if (ml) {
+            SetForeignKeyDlg dlg(this, ml, bg_maps, fg_maps);
+            if (dlg.ShowModal() == wxID_OK) {
+                wxString key = dlg.GetSelectFieldName();
+                BackgroundMapLayer* f_ml =  dlg.GetSelectMapLayer();
+                f_ml->SetForeignKey(ml, key);
+            }
+        }
+    }
+}
+
 void MapTree::OnOutlineVisible(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -374,6 +550,11 @@ void MapTree::OnRightClick(wxMouseEvent& event)
             if (ml->IsShowBoundary()) boundary->Check();
         }
     }
+    popupMenu->AppendSeparator();
+    popupMenu->Append(XRCID("MAPTREE_SET_PRIMARY_KEY"), _("Set Primary Key"));
+    Connect(XRCID("MAPTREE_SET_PRIMARY_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetPrimaryKey));
+    popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), _("Set Foreign Key"));
+    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetForeignKey));
     
     popupMenu->AppendSeparator();
     popupMenu->Append(XRCID("MAPTREE_REMOVE"), _("Remove"));

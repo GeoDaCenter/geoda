@@ -18,6 +18,10 @@ class BackgroundMapLayer
 {
     Shapefile::ShapeType shape_type;
     vector<wxString> field_names;
+    vector<wxString> key_names;
+    wxString primary_key;
+    wxString foreign_key;
+    BackgroundMapLayer* foreign_layer;
     
     wxString layer_name;
     wxColour pen_color;
@@ -43,8 +47,13 @@ public:
     BackgroundMapLayer* Clone(bool clone_style=false);
     
     void CleanMemory();
+    bool HasForeignKey();
+    BackgroundMapLayer* GetForeignLayer();
+    void SetPrimaryKey(wxString key);
+    void SetForeignKey(BackgroundMapLayer* layer, wxString key);
     void SetHighlight(int idx);
     void SetUnHighlight(int idx);
+    void DrawHighlight(wxDC& dc);
     void SetName(wxString name);
     void SetHide(bool flag);
     bool IsHide();
@@ -63,12 +72,15 @@ public:
     int GetOpacity();
     bool IsShowBoundary();
     wxString GetName();
+    wxString GetPrimaryKey();
+    wxString GetForeignKey();
     int GetNumRecords();
     vector<wxString> GetIntegerFieldNames();
+    vector<wxString> GetKeyNames();
     vector<GdaShape*>& GetShapes();
     Shapefile::ShapeType GetShapeType();
     bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);
-    void drawLegend(wxDC& dc, int x, int y, int w, int h);
+    void drawLegend(wxDC& dc, int x, int y, int w, int h);    
 };
 
 class GdaShapeLayer : public GdaShape  {

@@ -16,7 +16,8 @@ opacity(255),
 pen_size(1),
 show_boundary(false),
 is_hide(true),
-map_boundary(NULL)
+map_boundary(NULL),
+foreign_layer(NULL)
 {
 }
 
@@ -31,12 +32,14 @@ opacity(255),
 pen_size(1),
 show_boundary(false),
 is_hide(false),
-map_boundary(NULL)
+map_boundary(NULL),
+foreign_layer(NULL)
 {
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
     field_names = layer_proxy->GetIntegerFieldNames();
+    key_names = layer_proxy->GetIntegerAndStringFieldNames();
     for (int i=0; i<shapes.size(); i++) {
         highlight_flags.push_back(false);
     }
@@ -56,6 +59,71 @@ void BackgroundMapLayer::CleanMemory()
         delete shapes[i];
         delete geoms[i];
     }
+}
+
+void BackgroundMapLayer::DrawHighlight(wxDC& dc)
+{
+    vector<bool>& hl_flags = highlight_flags;
+    for (int i=0; i<hl_flags.size(); i++) {
+        if (hl_flags[i]) {
+            shapes[i]->paintSelf(dc);
+        }
+    }
+    // draw any connected layers
+    if (foreign_layer) {
+        vector<wxInt64> pid;  // e.g. 1 2 3 4 5
+        map<wxInt64, wxInt64> pid_idx;
+        if (primary_key.IsEmpty()) {
+            GetIntegerColumnData(primary_key, pid);
+            for (int i=0; i<pid.size(); i++) {
+                pid_idx[ pid[i] ] = i;
+            }
+        } else {
+            for (int i=0; i<shapes.size(); i++) {
+                pid.push_back(i);
+                pid_idx[i] = i;
+            }
+        }
+        vector<wxInt64> fid; // e.g. 2 2 1 1 3 5 4 4
+        foreign_layer->GetIntegerColumnData(foreign_key, fid);
+        for (int i =0 ; i< fid.size(); i++) {
+            if (hl_flags[ pid_idx[ fid[i] ] ]) {
+                foreign_layer->SetHighlight(i);
+            }
+        }
+        foreign_layer->DrawHighlight(dc);
+    }
+}
+
+BackgroundMapLayer* BackgroundMapLayer::GetForeignLayer()
+{
+    return foreign_layer;
+}
+
+bool BackgroundMapLayer::HasForeignKey()
+{
+    return foreign_layer != NULL && foreign_key != wxEmptyString;
+}
+
+void BackgroundMapLayer::SetPrimaryKey(wxString key)
+{
+    primary_key = key;
+}
+
+wxString BackgroundMapLayer::GetPrimaryKey()
+{
+    return primary_key;
+}
+
+wxString BackgroundMapLayer::GetForeignKey()
+{
+    return foreign_key;
+}
+
+void BackgroundMapLayer::SetForeignKey(BackgroundMapLayer* layer, wxString key)
+{
+    foreign_layer = layer;
+    foreign_key = key;
 }
 
 void BackgroundMapLayer::SetHighlight(int idx)
@@ -126,6 +194,11 @@ bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt6
 vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 {
     return field_names;
+}
+
+vector<wxString> BackgroundMapLayer::GetKeyNames()
+{
+    return key_names;
 }
 
 void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)

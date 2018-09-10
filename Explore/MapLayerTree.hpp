@@ -14,6 +14,28 @@
 
 class MapCanvas;
 
+class SetForeignKeyDlg : public wxDialog
+{
+    wxChoice* layer_list;
+    wxChoice* field_list;
+    BackgroundMapLayer* current_ml;
+    vector<BackgroundMapLayer*> bg_maps;
+    vector<BackgroundMapLayer*> fg_maps;
+public:
+    SetForeignKeyDlg(wxWindow* parent,
+                     BackgroundMapLayer* ml,
+                     vector<BackgroundMapLayer*> bg_maps,
+                     vector<BackgroundMapLayer*> fg_maps,
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxDefaultSize);
+    
+    wxString GetSelectFieldName();
+    BackgroundMapLayer* GetSelectMapLayer();
+    
+    void OnLayerSelect(wxCommandEvent& e);
+    BackgroundMapLayer* GetMapLayer(wxString map_name);
+};
+
 class MapTree: public wxWindow
 {
     DECLARE_ABSTRACT_CLASS(MapTree)
@@ -71,7 +93,8 @@ protected:
     int  GetSwitchClick(wxMouseEvent& event);
     int  GetCategoryClick(wxMouseEvent& event);
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
-    
+    void OnSetPrimaryKey(wxCommandEvent& event);
+    void OnSetForeignKey(wxCommandEvent& event);
     void OnMapLayerChange();
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);

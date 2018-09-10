@@ -265,6 +265,8 @@ public:
     
     vector<wxString> GetIntegerFieldNames();
     
+    vector<wxString> GetIntegerAndStringFieldNames();
+    
     bool IsUndefined(int rid, int cid);
     
     wxString GetValueAt(int rid, int cid);

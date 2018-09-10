@@ -507,6 +507,18 @@ vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
     return names;
 }
 
+vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
+{
+    vector<wxString> names;
+    for (int i=0; i<fields.size(); i++) {
+        if (GdaConst::long64_type == fields[i]->GetType() ||
+            GdaConst::string_type == fields[i]->GetType()) {
+            names.push_back(GetFieldName(i));
+        }
+    }
+    return names;
+}
+
 Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms, OGRSpatialReference* input_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
