@@ -14,22 +14,25 @@
 
 class MapCanvas;
 
-class SetForeignKeyDlg : public wxDialog
+class SetAssociationDlg : public wxDialog
 {
     wxChoice* layer_list;
     wxChoice* field_list;
+    wxChoice* my_field_list;
     BackgroundMapLayer* current_ml;
     vector<BackgroundMapLayer*> bg_maps;
     vector<BackgroundMapLayer*> fg_maps;
+    
 public:
-    SetForeignKeyDlg(wxWindow* parent,
+    SetAssociationDlg(wxWindow* parent,
                      BackgroundMapLayer* ml,
                      vector<BackgroundMapLayer*> bg_maps,
                      vector<BackgroundMapLayer*> fg_maps,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxSize(400,300));
-    
-    wxString GetSelectFieldName();
+    void Init();
+    wxString GetCurrentLayerFieldName();
+    wxString GetSelectLayerFieldName();
     BackgroundMapLayer* GetSelectMapLayer();
     
     void OnLayerSelect(wxCommandEvent& e);
@@ -94,7 +97,7 @@ protected:
     int  GetCategoryClick(wxMouseEvent& event);
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
     void OnSetPrimaryKey(wxCommandEvent& event);
-    void OnSetForeignKey(wxCommandEvent& event);
+    void OnSetAssociateLayer(wxCommandEvent& event);
     void OnMapLayerChange();
     void OnAssociateMap(wxCommandEvent& event);
     BackgroundMapLayer* GetMapLayer(wxString name);

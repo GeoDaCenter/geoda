@@ -22,12 +22,12 @@ class BackgroundMapLayer
     Shapefile::ShapeType shape_type;
     vector<wxString> field_names;
     vector<wxString> key_names;
-    vector<wxInt64> associated_mapids; // assigne polygon id to current point
-    wxString associate_key;
     wxString primary_key;
-    wxString foreign_key;
-    BackgroundMapLayer* foreign_layer;
-    BackgroundMapLayer* assign_layer;
+    wxString associated_key;
+    BackgroundMapLayer* associated_layer;
+
+    vector<wxInt64> mapcanvas_mapids; // assigne polygon id to current point
+    wxString mapcanvas_key;
     
     wxString layer_name;
     wxColour pen_color;
@@ -54,10 +54,11 @@ public:
     
     void CleanMemory();
     bool HasForeignKey();
-    BackgroundMapLayer* GetForeignLayer();
+    BackgroundMapLayer* GetAssociatedLayer();
     void SetAssociatedMapId(wxString val);
+    //void SetAssociatedMapIds(vector<wxInt64>& val);
     void SetPrimaryKey(wxString key);
-    void SetForeignKey(BackgroundMapLayer* layer, wxString key);
+    void SetAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key);
     void SetHighlight(int idx);
     void SetUnHighlight(int idx);
     void ResetHighlight();
@@ -82,7 +83,7 @@ public:
     bool IsShowBoundary();
     wxString GetName();
     wxString GetPrimaryKey();
-    wxString GetForeignKey();
+    wxString GetAssociatedKey();
     int GetNumRecords();
     vector<wxString> GetIntegerFieldNames();
     vector<wxString> GetKeyNames();

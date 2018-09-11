@@ -315,8 +315,9 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
     
     BackgroundMapLayer* ml = fg_maps[0];
     int nn = ml->GetNumRecords();
-    vector<OGRGeometry*> geoms = ml->geoms;
-    vector<GdaShape*> shapes = ml->shapes;
+    vector<OGRGeometry*>& geoms = ml->geoms;
+    vector<GdaShape*>& shapes = ml->shapes;
+    bool selection_changed = false;
     
     if (!shiftdown) {
         ml->ResetHighlight();
@@ -337,6 +338,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
                                  wxOutRegion);
                 if (contains) {
                     ml->SetHighlight(i);
+                    selection_changed = true;
                 } else {
                     if (!shiftdown)
                         ml->SetUnHighlight(i);
@@ -351,6 +353,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
                 bool contains = (GenUtils::distance(sel1, shapes[i]->center) <= radius);
                 if (contains) {
                     ml->SetHighlight(i);
+                    selection_changed = true;
                 } else {
                     if (!shiftdown)
                         ml->SetUnHighlight(i);
@@ -378,12 +381,18 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
                 }
                 if (contains) {
                     ml->SetHighlight(i);
+                    selection_changed = true;
                 } else {
                     if (!shiftdown)
                         ml->SetUnHighlight(i);
                 }
             }
         }
+    }
+    if (selection_changed) {
+        int total_highlighted = 1; // used for MapCanvas::Drawlayer1
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(50);
     }
 }
 

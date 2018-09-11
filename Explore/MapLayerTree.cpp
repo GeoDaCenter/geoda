@@ -20,8 +20,8 @@
 #include "MapLayer.hpp"
 #include "MapLayerTree.hpp"
 
-SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vector<BackgroundMapLayer*> _bg_maps, vector<BackgroundMapLayer*> _fg_maps, const wxPoint& pos, const wxSize& size)
-: wxDialog(parent, -1, _("Set Foreign Key"), pos, size)
+SetAssociationDlg::SetAssociationDlg(wxWindow* parent, BackgroundMapLayer* ml,vector<BackgroundMapLayer*> _bg_maps, vector<BackgroundMapLayer*> _fg_maps, const wxPoint& pos, const wxSize& size)
+: wxDialog(parent, -1, _("Set Association Dialog"), pos, size)
 {
     current_ml = ml;
     bg_maps = _bg_maps;
@@ -29,15 +29,21 @@ SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vect
     
     wxPanel* panel = new wxPanel(this, -1);
     
-    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select Foreign Key:"));
-    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxStaticText* st = new wxStaticText(panel, -1, _("Refers to Layer:"));
+    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select layer"));
     layer_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxStaticText* st = new wxStaticText(panel, -1, _("and field"));
+    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxStaticText* st2 = new wxStaticText(panel, -1, _("is associate to"));
+    my_field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxStaticText* st3 = new wxStaticText(panel, -1, _("in current layer."));
     wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
     mbox->Add(st1, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(st, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(layer_list, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(st, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(st2, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(my_field_list, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(st3, 0, wxALIGN_CENTER | wxALL, 5);
     
     wxBoxSizer* cbox = new wxBoxSizer(wxVERTICAL);
     cbox->Add(mbox, 0, wxALIGN_CENTER | wxTOP, 15);
@@ -59,17 +65,30 @@ SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vect
     
     Center();
     
-    layer_list->Bind(wxEVT_CHOICE, &SetForeignKeyDlg::OnLayerSelect, this);
+    layer_list->Bind(wxEVT_CHOICE, &SetAssociationDlg::OnLayerSelect, this);
     
+    Init();
+}
+
+void SetAssociationDlg::Init()
+{
+    my_field_list->Clear();
+    my_field_list->Append("(Use Sequences)");
+    vector<wxString> my_fieldnames = current_ml->GetKeyNames();
+    for (int i=0; i<my_fieldnames.size(); i++) {
+        my_field_list->Append(my_fieldnames[i]);
+    }
+    
+    layer_list->Clear();
     for (int i=0; i<bg_maps.size(); i++) {
         wxString name = bg_maps[i]->GetName();
-        if (name != ml->GetName()) {
+        if (name != current_ml->GetName()) {
             layer_list->Append(name);
         }
     }
     for (int i=0; i<fg_maps.size(); i++) {
         wxString name = fg_maps[i]->GetName();
-        if (name != ml->GetName()) {
+        if (name != current_ml->GetName()) {
             layer_list->Append(name);
         }
     }
@@ -77,7 +96,7 @@ SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vect
     OnLayerSelect(e);
 }
 
-BackgroundMapLayer* SetForeignKeyDlg::GetMapLayer(wxString map_name)
+BackgroundMapLayer* SetAssociationDlg::GetMapLayer(wxString map_name)
 {
     bool found = false;
     BackgroundMapLayer* ml = NULL;
@@ -100,7 +119,7 @@ BackgroundMapLayer* SetForeignKeyDlg::GetMapLayer(wxString map_name)
     return ml;
 }
 
-void SetForeignKeyDlg::OnLayerSelect(wxCommandEvent& e)
+void SetAssociationDlg::OnLayerSelect(wxCommandEvent& e)
 {
     int idx = layer_list->GetSelection();
     if (idx >=0) {
@@ -114,7 +133,16 @@ void SetForeignKeyDlg::OnLayerSelect(wxCommandEvent& e)
     }
 }
 
-wxString SetForeignKeyDlg::GetSelectFieldName()
+wxString SetAssociationDlg::GetCurrentLayerFieldName()
+{
+    int idx = my_field_list->GetSelection();
+    if (idx > 0) {
+        return my_field_list->GetString(idx);
+    }
+    return wxEmptyString;
+}
+
+wxString SetAssociationDlg::GetSelectLayerFieldName()
 {
     int idx = field_list->GetSelection();
     if (idx >=0) {
@@ -123,7 +151,7 @@ wxString SetForeignKeyDlg::GetSelectFieldName()
     return wxEmptyString;
 }
 
-BackgroundMapLayer* SetForeignKeyDlg::GetSelectMapLayer()
+BackgroundMapLayer* SetAssociationDlg::GetSelectMapLayer()
 {
     int idx = layer_list->GetSelection();
     if (idx >=0) {
@@ -398,7 +426,7 @@ void MapTree::OnSetPrimaryKey(wxCommandEvent& event)
     }
 }
 
-void MapTree::OnSetForeignKey(wxCommandEvent& event)
+void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
     if (current_map_title == map_name) {
@@ -406,11 +434,14 @@ void MapTree::OnSetForeignKey(wxCommandEvent& event)
     } else {
         BackgroundMapLayer* ml = GetMapLayer(map_name);
         if (ml) {
-            SetForeignKeyDlg dlg(this, ml, bg_maps, fg_maps);
+            SetAssociationDlg dlg(this, ml, bg_maps, fg_maps);
             if (dlg.ShowModal() == wxID_OK) {
-                wxString key = dlg.GetSelectFieldName();
-                BackgroundMapLayer* f_ml =  dlg.GetSelectMapLayer();
-                f_ml->SetForeignKey(ml, key);
+                wxString my_key = dlg.GetCurrentLayerFieldName();
+                wxString asso_key = dlg.GetSelectLayerFieldName();
+                BackgroundMapLayer* asso_ml =  dlg.GetSelectMapLayer();
+                if (asso_ml && !asso_key.IsEmpty()) {
+                    ml->SetAssociation(my_key, asso_ml, asso_key);
+                }
             }
         }
     }
@@ -422,9 +453,9 @@ void MapTree::OnAssociateMap(wxCommandEvent& event)
     if (current_map_title != map_name) {
         BackgroundMapLayer* ml = GetMapLayer(map_name);
         wxArrayString choices;
-        vector<wxString> field_names = ml->GetIntegerFieldNames();
+        vector<wxString> field_names = ml->GetKeyNames();
         if (field_names.empty()) {
-            wxMessageDialog dlg (this, _("Current layer  has no integer field."), _("Error"), wxOK | wxICON_ERROR);
+            wxMessageDialog dlg (this, _("Current layer  has no integer/string field."), _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
@@ -577,16 +608,16 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         }
     }
     popupMenu->AppendSeparator();
-    wxString menu_name =  _("Set Primary Key");
-    if (!ml->GetPrimaryKey().IsEmpty()) {
-        menu_name += " (" + ml->GetPrimaryKey() + ")";
-    }
-    popupMenu->Append(XRCID("MAPTREE_SET_PRIMARY_KEY"), menu_name);
-    Connect(XRCID("MAPTREE_SET_PRIMARY_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetPrimaryKey));
-    popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), _("Set Foreign Key"));
-    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetForeignKey));
+    //wxString menu_name =  _("Set Primary Key");
+    //if (!ml->GetPrimaryKey().IsEmpty()) {
+    //    menu_name += " (" + ml->GetPrimaryKey() + ")";
+    //}
+    //popupMenu->Append(XRCID("MAPTREE_SET_PRIMARY_KEY"), menu_name);
+    //Connect(XRCID("MAPTREE_SET_PRIMARY_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetPrimaryKey));
+    popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), _("Set Highlight Association with other layer"));
+    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetAssociateLayer));
     
-    menu_name = _("Set Association with ") + current_map_title;
+    wxString menu_name = _("Set Highlight Association with ") + canvas->GetCanvasTitle();
     popupMenu->Append(XRCID("MAPTREE_SET_ASSOCIATE_MAP"), menu_name);
     Connect(XRCID("MAPTREE_SET_ASSOCIATE_MAP"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnAssociateMap));
     

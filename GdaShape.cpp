@@ -818,9 +818,9 @@ bool GdaPoint::pointWithin(const wxPoint& pt)
 {
 	if (null_shape) return false;
 	return ( fabs((double) (center.x - pt.x))
-			<= 3.0 && // GdaConst::my_point_click_radius
+			<= 1.0 && // GdaConst::my_point_click_radius
 			fabs((double) (center.y - pt.y))
-			<= 3.0 ); // GdaConst::my_point_click_radius
+			<= 1.0 ); // GdaConst::my_point_click_radius
 }
 
 bool GdaPoint::regionIntersect(const wxRegion& r)
