@@ -538,6 +538,12 @@ void MapCanvas::ResetShapes()
         faded_layer_bm = NULL;
     }
     if (isDrawBasemap) {
+        if (basemap) {
+            basemap->origMap->west = last_scale_trans.orig_data_x_min;
+            basemap->origMap->east = last_scale_trans.orig_data_x_max;
+            basemap->origMap->south = last_scale_trans.orig_data_y_min;
+            basemap->origMap->north = last_scale_trans.orig_data_y_max;
+        }
         basemap->Reset();
     }
     last_scale_trans.Reset();
@@ -700,10 +706,10 @@ bool MapCanvas::InitBasemap()
         }
         
         GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-        double shps_orig_ymax = last_scale_trans.orig_data_y_max;
-        double shps_orig_xmin = last_scale_trans.orig_data_x_min;
-        double shps_orig_ymin = last_scale_trans.orig_data_y_min;
-        double shps_orig_xmax = last_scale_trans.orig_data_x_max;
+        double shps_orig_ymax = last_scale_trans.data_y_max;
+        double shps_orig_xmin = last_scale_trans.data_x_min;
+        double shps_orig_ymin = last_scale_trans.data_y_min;
+        double shps_orig_xmax = last_scale_trans.data_x_max;
         GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax,
                                                shps_orig_xmin,
                                                shps_orig_ymin,

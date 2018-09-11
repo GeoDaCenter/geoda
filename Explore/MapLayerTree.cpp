@@ -36,7 +36,7 @@ SetAssociationDlg::SetAssociationDlg(wxWindow* parent, wxString _current_map_tit
     layer_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
     wxStaticText* st = new wxStaticText(panel, -1, _("and field"));
     field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxStaticText* st2 = new wxStaticText(panel, -1, _("is associate to"));
+    wxStaticText* st2 = new wxStaticText(panel, -1, _("is associated to"));
     my_field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
     wxStaticText* st3 = new wxStaticText(panel, -1, _("in current layer."));
     wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
