@@ -1725,6 +1725,32 @@ void Project::RemoveLayer(wxString name)
     }
 }
 
+bool Project::GetStringColumnData(wxString field_name, vector<wxString>& data)
+{
+    if (data.empty()) {
+        data.resize(num_records);
+    }
+    // this function is for finding IDs of multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::long64_type) {
+        for (int i=0; i<num_records; ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
+        }
+        return true;
+    } else if (type == GdaConst::string_type) {
+        for (int i=0; i<num_records; ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);
+        }
+    }
+    return false;
+}
+
+vector<wxString> Project::GetIntegerAndStringFieldNames()
+{
+    return layer_proxy->GetIntegerAndStringFieldNames();
+}
+
 void Project::SetupEncoding(wxString encode_str)
 {
 	wxLogMessage("Project::SetupEncoding()");

@@ -16,18 +16,22 @@ class MapCanvas;
 
 class SetAssociationDlg : public wxDialog
 {
+    wxString current_map_title;
     wxChoice* layer_list;
     wxChoice* field_list;
     wxChoice* my_field_list;
     BackgroundMapLayer* current_ml;
     vector<BackgroundMapLayer*> bg_maps;
     vector<BackgroundMapLayer*> fg_maps;
+    vector<wxString> current_map_fieldnames;
     
 public:
     SetAssociationDlg(wxWindow* parent,
+                      wxString current_map_title,
+                      vector<wxString>& current_map_fieldnames,
                      BackgroundMapLayer* ml,
-                     vector<BackgroundMapLayer*> bg_maps,
-                     vector<BackgroundMapLayer*> fg_maps,
+                     vector<BackgroundMapLayer*>& bg_maps,
+                     vector<BackgroundMapLayer*>& fg_maps,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxSize(400,300));
     void Init();
@@ -82,6 +86,7 @@ protected:
     virtual void OnPaint( wxPaintEvent& event );
     virtual void OnDraw(wxDC& dc);
     
+    void RemoveAssociationRelationship(BackgroundMapLayer* ml);
     void OnEvent(wxMouseEvent& event);
     void OnRightClick(wxMouseEvent& event);
     void OnChangeFillColor(wxCommandEvent& event);
@@ -99,7 +104,6 @@ protected:
     void OnSetPrimaryKey(wxCommandEvent& event);
     void OnSetAssociateLayer(wxCommandEvent& event);
     void OnMapLayerChange();
-    void OnAssociateMap(wxCommandEvent& event);
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);
 };

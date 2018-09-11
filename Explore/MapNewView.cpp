@@ -809,7 +809,19 @@ void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool i
     // geometries: projection is matched to current map    
     if (map_layer) {
         map_layer->SetHide(is_hide);
-        bg_maps.push_back(map_layer); // project makes sure no overwrite here
+        bool added = false;
+        for (int i=0; i<bg_maps.size(); i++) {
+            if (bg_maps[i]->GetName() == map_layer->GetName()) {
+                added = true;
+            }
+        }
+        if (!added) {
+            // project makes sure no overwrite here
+            bg_maps.push_back(map_layer);
+        } else {
+            // if already loaded before, just show it
+            map_layer->SetHide(false);
+        }
         full_map_redraw_needed = true;
         PopulateCanvas();
         Refresh();
@@ -1975,7 +1987,7 @@ void MapCanvas::update(MapLayerState* o)
 
 void MapCanvas::RemoveLayer(wxString name)
 {
-    project->RemoveLayer(name);
+    //project->RemoveLayer(name);
     
     int del_idx = -1;
     BackgroundMapLayer* ml = NULL;

@@ -6,6 +6,7 @@
 //
 
 #include "MapNewView.h"
+#include "../Project.h"
 #include "MapLayer.hpp"
 
 BackgroundMapLayer::BackgroundMapLayer()
@@ -63,12 +64,37 @@ void BackgroundMapLayer::CleanMemory()
     }
 }
 
-void BackgroundMapLayer::SetAssociatedMapId(wxString val)
+wxString BackgroundMapLayer::GetAssociationText()
 {
-    mapcanvas_key = val;
-    if (val.IsEmpty() == false) {
-        GetIntegerColumnData(val, mapcanvas_mapids);
+    wxString txt;
+    if (primary_key.IsEmpty() == false && associated_layer) {
+        txt = primary_key + " : ";
+        txt += associated_layer->GetName() + " [" + associated_key + "]";
+        return txt;
+        
+    } else if (asso_mapcanvas_key.IsEmpty() == false) {
+        txt = asso_mapcanvas_key + " : [current map]";
     }
+    return txt;
+}
+
+void BackgroundMapLayer::RemoveAssociationRelationship(BackgroundMapLayer* ml)
+{
+    if (associated_layer == ml) {
+        associated_layer = NULL;
+        associated_key = wxEmptyString;
+    }
+}
+
+void BackgroundMapLayer::SetMapAssociation(wxString my_key, wxString map_key)
+{
+    // break layer association
+    primary_key = "";
+    associated_key = "";
+    associated_layer = NULL;
+    
+    mapcanvas_key = map_key;
+    asso_mapcanvas_key = my_key;
 }
 
 
@@ -100,13 +126,37 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         associated_layer->DrawHighlight(dc, map_canvas);
     }
     // draw connected map (current)
-    if (!mapcanvas_mapids.empty()) {
+    if (!asso_mapcanvas_key.IsEmpty()) {
+        vector<wxString> map_keys;
+        if (mapcanvas_key.IsEmpty()) {
+            int n_map = map_canvas->GetProject()->GetNumRecords();
+            map_keys.resize(n_map);
+            for (int i=0; i<n_map; i++) {
+                map_keys[i] << i;
+            }
+        } else {
+            map_canvas->GetProject()->GetStringColumnData(mapcanvas_key, map_keys);
+        }
+        map<wxString, int> mapkey_ids;
+        for (int i=0; i<map_keys.size(); i++) {
+            mapkey_ids[ map_keys[i] ] = i;
+        }
+        vector<wxString> my_keys;
+        GetKeyColumnData(asso_mapcanvas_key, my_keys);
+        bool has_highlight = false;
         for (int i=0; i<highlight_flags.size(); i++) {
             if (highlight_flags[i]) {
-                map_canvas->SetHighlight(mapcanvas_mapids[i]);
+                wxString map_key = my_keys[i];
+                int map_idx = mapkey_ids[map_key];
+                if (map_idx >=0) {
+                    map_canvas->SetHighlight(map_idx);
+                    has_highlight = true;
+                }
             }
         }
-        map_canvas->DrawHighlighted(dc, false);
+        if (has_highlight) {
+            map_canvas->DrawHighlighted(dc, false);
+        }
     }
     
     // draw highlight
@@ -120,11 +170,6 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 BackgroundMapLayer* BackgroundMapLayer::GetAssociatedLayer()
 {
     return associated_layer;
-}
-
-bool BackgroundMapLayer::HasForeignKey()
-{
-    return associated_layer != NULL && associated_key != wxEmptyString;
 }
 
 void BackgroundMapLayer::SetPrimaryKey(wxString key)
@@ -142,8 +187,12 @@ wxString BackgroundMapLayer::GetAssociatedKey()
     return associated_key;
 }
 
-void BackgroundMapLayer::SetAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key)
+void BackgroundMapLayer::SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key)
 {
+    // break map association
+    mapcanvas_key = "";
+    asso_mapcanvas_key = "";
+    
     primary_key = my_key;
     associated_layer = layer;
     associated_key = key;
@@ -171,6 +220,26 @@ void BackgroundMapLayer::SetName(wxString name)
     layer_name = name;
 }
 
+void BackgroundMapLayer::SetAssociatedKey(wxString val)
+{
+    associated_key = val;
+}
+
+void BackgroundMapLayer::SetMapcanvasKey(wxString val)
+{
+    mapcanvas_key = val;
+}
+
+void BackgroundMapLayer::SetAssoMapcanvasKey(wxString val)
+{
+    asso_mapcanvas_key = val;
+}
+
+void BackgroundMapLayer::SetAssociatedLayer(BackgroundMapLayer* val)
+{
+    associated_layer = val;
+}
+
 wxString BackgroundMapLayer::GetName()
 {
     return layer_name;
@@ -182,10 +251,12 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->SetName(layer_name);
     copy->SetShapeType(shape_type);
     copy->SetPrimaryKey(primary_key);
-    copy->SetAssociation(primary_key, associated_layer, associated_key);
+    copy->SetAssociatedKey(associated_key);
+    copy->SetAssociatedLayer(associated_layer);
     copy->SetKeyNames(key_names);
     copy->SetFieldNames(field_names);
-    copy->SetAssociatedMapId(mapcanvas_key);
+    copy->SetMapcanvasKey(mapcanvas_key);
+    copy->SetAssoMapcanvasKey(asso_mapcanvas_key);
     if (clone_style) {
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);

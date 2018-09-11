@@ -192,6 +192,8 @@ public:
     BackgroundMapLayer* GetMapLayer(wxString map_name);
     vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
+    bool GetStringColumnData(wxString field_name, vector<wxString>& data);
+    vector<wxString> GetIntegerAndStringFieldNames();
     
 	// default variables
 	wxString GetDefaultVarName(int var);

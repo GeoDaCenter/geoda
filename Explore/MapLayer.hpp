@@ -22,12 +22,13 @@ class BackgroundMapLayer
     Shapefile::ShapeType shape_type;
     vector<wxString> field_names;
     vector<wxString> key_names;
+    
     wxString primary_key;
     wxString associated_key;
     BackgroundMapLayer* associated_layer;
 
-    vector<wxInt64> mapcanvas_mapids; // assigne polygon id to current point
     wxString mapcanvas_key;
+    wxString asso_mapcanvas_key;
     
     wxString layer_name;
     wxColour pen_color;
@@ -53,44 +54,54 @@ public:
     BackgroundMapLayer* Clone(bool clone_style=false);
     
     void CleanMemory();
-    bool HasForeignKey();
+    void SetMapAssociation(wxString my_key, wxString map_key);
+    void SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key);
+    wxString GetAssociationText();
+    void RemoveAssociationRelationship(BackgroundMapLayer* ml);
+    
     BackgroundMapLayer* GetAssociatedLayer();
-    void SetAssociatedMapId(wxString val);
-    //void SetAssociatedMapIds(vector<wxInt64>& val);
+    void SetAssociatedLayer(BackgroundMapLayer* val);
+    
     void SetPrimaryKey(wxString key);
-    void SetAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key);
-    void SetHighlight(int idx);
-    void SetUnHighlight(int idx);
-    void ResetHighlight();
+    wxString GetPrimaryKey();
+    
+    void SetAssociatedKey(wxString key);
+    wxString GetAssociatedKey();
+    
+    void SetMapcanvasKey(wxString name);
+    void SetAssoMapcanvasKey(wxString name);
+
     void SetName(wxString name);
+    wxString GetName();
+    
     void SetHide(bool flag);
     bool IsHide();
     void SetPenColour(wxColour& color);
+    wxColour GetPenColour();
     void SetBrushColour(wxColour& color);
+    wxColour GetBrushColour();
     void SetPointRadius(int radius);
+    int GetPointRadius();
     void SetOpacity(int opacity);
+    int GetOpacity();
     void SetPenSize(int size);
+    int GetPenSize();
     void SetShapeType(Shapefile::ShapeType type);
+    Shapefile::ShapeType GetShapeType();
     void ShowBoundary(bool show);
+    bool IsShowBoundary();
     void SetShowBoundary(bool flag);
     void SetKeyNames(vector<wxString>& names);
-    void SetFieldNames(vector<wxString>& names);
-    wxColour GetBrushColour();
-    wxColour GetPenColour();
-    int GetPenSize();
-    int GetPointRadius();
-    int GetOpacity();
-    bool IsShowBoundary();
-    wxString GetName();
-    wxString GetPrimaryKey();
-    wxString GetAssociatedKey();
-    int GetNumRecords();
-    vector<wxString> GetIntegerFieldNames();
     vector<wxString> GetKeyNames();
+    void SetFieldNames(vector<wxString>& names);
+    vector<wxString> GetIntegerFieldNames();
+    int GetNumRecords();
     vector<GdaShape*>& GetShapes();
-    Shapefile::ShapeType GetShapeType();
     bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);
     bool GetKeyColumnData(wxString field_name, vector<wxString>& data);
+    void SetHighlight(int idx);
+    void SetUnHighlight(int idx);
+    void ResetHighlight();
     void drawLegend(wxDC& dc, int x, int y, int w, int h);
     void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
 };
