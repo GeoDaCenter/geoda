@@ -5,6 +5,7 @@
 //  Created by Xun Li on 8/24/18.
 //
 
+#include "MapNewView.h"
 #include "MapLayer.hpp"
 
 BackgroundMapLayer::BackgroundMapLayer()
@@ -35,6 +36,7 @@ is_hide(false),
 map_boundary(NULL),
 foreign_layer(NULL)
 {
+    num_obs = layer_proxy->GetNumRecords();
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
@@ -61,37 +63,54 @@ void BackgroundMapLayer::CleanMemory()
     }
 }
 
-void BackgroundMapLayer::DrawHighlight(wxDC& dc)
+void BackgroundMapLayer::SetAssociatedMapId(wxString val)
 {
-    vector<bool>& hl_flags = highlight_flags;
-    for (int i=0; i<hl_flags.size(); i++) {
-        if (hl_flags[i]) {
-            shapes[i]->paintSelf(dc);
-        }
-    }
+    associate_key = val;
+    GetIntegerColumnData(val, associated_mapids);
+}
+
+void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
+{
     // draw any connected layers
     if (foreign_layer) {
-        vector<wxInt64> pid;  // e.g. 1 2 3 4 5
-        map<wxInt64, wxInt64> pid_idx;
-        if (primary_key.IsEmpty()) {
-            GetIntegerColumnData(primary_key, pid);
+        vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
+        map<wxString, wxInt64> pid_idx;
+        if (primary_key.IsEmpty() == false) {
+            GetKeyColumnData(primary_key, pid);
             for (int i=0; i<pid.size(); i++) {
                 pid_idx[ pid[i] ] = i;
             }
         } else {
             for (int i=0; i<shapes.size(); i++) {
-                pid.push_back(i);
-                pid_idx[i] = i;
+                pid[i] << i;
+                pid_idx[ pid[i] ] = i;
             }
         }
-        vector<wxInt64> fid; // e.g. 2 2 1 1 3 5 4 4
-        foreign_layer->GetIntegerColumnData(foreign_key, fid);
+        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
+        foreign_layer->GetKeyColumnData(foreign_key, fid);
+        foreign_layer->ResetHighlight();
         for (int i =0 ; i< fid.size(); i++) {
-            if (hl_flags[ pid_idx[ fid[i] ] ]) {
+            if (highlight_flags[ pid_idx[ fid[i] ] ]) {
                 foreign_layer->SetHighlight(i);
             }
         }
-        foreign_layer->DrawHighlight(dc);
+        foreign_layer->DrawHighlight(dc, map_canvas);
+    }
+    // draw connected map (current)
+    if (!associated_mapids.empty()) {
+        for (int i=0; i<highlight_flags.size(); i++) {
+            if (highlight_flags[i]) {
+                map_canvas->SetHighlight(associated_mapids[i]);
+            }
+        }
+        map_canvas->DrawHighlighted(dc, false);
+    }
+    
+    // draw highlight
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            shapes[i]->paintSelf(dc);
+        }
     }
 }
 
@@ -136,6 +155,13 @@ void BackgroundMapLayer::SetUnHighlight(int idx)
     highlight_flags[idx] = false;
 }
 
+void BackgroundMapLayer::ResetHighlight()
+{
+    for (int i=0; i<shapes.size(); i++) {
+        highlight_flags[i] = false;
+    }
+}
+
 void BackgroundMapLayer::SetName(wxString name)
 {
     layer_name = name;
@@ -151,6 +177,10 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     BackgroundMapLayer* copy =  new BackgroundMapLayer();
     copy->SetName(layer_name);
     copy->SetShapeType(shape_type);
+    copy->SetPrimaryKey(primary_key);
+    copy->SetForeignKey(foreign_layer, foreign_key);
+    copy->SetKeyNames(key_names);
+    copy->SetFieldNames(field_names);
     if (clone_style) {
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
@@ -169,6 +199,7 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->shapes = shapes;
     copy->geoms = geoms;
     copy->layer_proxy = layer_proxy;
+    copy->highlight_flags = highlight_flags;
     return copy;
 }
 
@@ -191,6 +222,27 @@ bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt6
     return false;
 }
 
+bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>& data)
+{
+    if (data.empty()) {
+        data.resize(shapes.size());
+    }
+    // this function is for finding IDs of multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::long64_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
+        }
+        return true;
+    } else if (type == GdaConst::string_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);
+        }
+    }
+    return false;
+}
+
 vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 {
     return field_names;
@@ -199,6 +251,16 @@ vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 vector<wxString> BackgroundMapLayer::GetKeyNames()
 {
     return key_names;
+}
+
+void BackgroundMapLayer::SetKeyNames(vector<wxString>& names)
+{
+    key_names = names;
+}
+
+void BackgroundMapLayer::SetFieldNames(vector<wxString>& names)
+{
+    field_names = names;
 }
 
 void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)

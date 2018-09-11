@@ -27,7 +27,7 @@ public:
                      vector<BackgroundMapLayer*> bg_maps,
                      vector<BackgroundMapLayer*> fg_maps,
                      const wxPoint& pos = wxDefaultPosition,
-                     const wxSize& size = wxDefaultSize);
+                     const wxSize& size = wxSize(400,300));
     
     wxString GetSelectFieldName();
     BackgroundMapLayer* GetSelectMapLayer();
@@ -96,6 +96,7 @@ protected:
     void OnSetPrimaryKey(wxCommandEvent& event);
     void OnSetForeignKey(wxCommandEvent& event);
     void OnMapLayerChange();
+    void OnAssociateMap(wxCommandEvent& event);
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);
 };

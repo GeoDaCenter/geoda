@@ -29,19 +29,21 @@ SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vect
     
     wxPanel* panel = new wxPanel(this, -1);
     
-    wxStaticText* st = new wxStaticText(panel, -1, _("Select Foreign Layer:"));
+    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select Foreign Key:"));
+    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
+    wxStaticText* st = new wxStaticText(panel, -1, _("Refers to Layer:"));
     layer_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
     wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
+    mbox->Add(st1, 0, wxALIGN_CENTER | wxALL, 5);
+    mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(st, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(layer_list, 0, wxALIGN_CENTER | wxALL, 5);
     
-    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select Foreign Key:"));
-    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxBoxSizer* mbox1 = new wxBoxSizer(wxHORIZONTAL);
-    mbox1->Add(st1, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox1->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
+    wxBoxSizer* cbox = new wxBoxSizer(wxVERTICAL);
+    cbox->Add(mbox, 0, wxALIGN_CENTER | wxTOP, 15);
+    panel->SetSizerAndFit(cbox);
     
-    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
+    wxButton* ok_btn = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
     wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
     wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
@@ -49,7 +51,7 @@ SetForeignKeyDlg::SetForeignKeyDlg(wxWindow* parent, BackgroundMapLayer* ml,vect
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
     
     wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-    vbox->Add(panel, 1, wxALL, 15);
+    vbox->Add(panel, 1, wxALL | wxEXPAND, 15);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     
     SetSizer(vbox);
@@ -105,7 +107,7 @@ void SetForeignKeyDlg::OnLayerSelect(wxCommandEvent& e)
         field_list->Clear();
         wxString map_name = layer_list->GetString(idx);
         BackgroundMapLayer* ml = GetMapLayer(map_name);
-        vector<wxString> names = ml->GetIntegerFieldNames();
+        vector<wxString> names = ml->GetKeyNames();
         for (int i=0; i<names.size(); i++) {
             field_list->Append(names[i]);
         }
@@ -387,8 +389,7 @@ void MapTree::OnSetPrimaryKey(wxCommandEvent& event)
             for (int i=0; i<field_names.size(); i++) {
                 choices.Add(field_names[i]);
             }
-            wxSingleChoiceDialog dialog(this, _("Please select a field as primary key (Click Cancel if use default sequence id): "), _("Set Primary Key"), choices);
-            dialog.SetSelection(2);
+            wxSingleChoiceDialog dialog(this, _("Please select a field as primary key:\n(Cancel if use default sequence id) "), _("Set Primary Key"), choices);
             if (dialog.ShowModal() == wxID_OK) {
                 wxString key = dialog.GetStringSelection();
                 ml->SetPrimaryKey(key);
@@ -411,6 +412,31 @@ void MapTree::OnSetForeignKey(wxCommandEvent& event)
                 BackgroundMapLayer* f_ml =  dlg.GetSelectMapLayer();
                 f_ml->SetForeignKey(ml, key);
             }
+        }
+    }
+}
+
+void MapTree::OnAssociateMap(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    if (current_map_title != map_name) {
+        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        wxArrayString choices;
+        vector<wxString> field_names = ml->GetIntegerFieldNames();
+        if (field_names.empty()) {
+            wxMessageDialog dlg (this, _("Current layer  has no integer field."), _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        for (int i=0; i<field_names.size(); i++) {
+            choices.Add(field_names[i]);
+        }
+        wxString ttl = _("Please select a field associated with current map (%s)");
+        ttl = wxString::Format(ttl, current_map_title);
+        wxSingleChoiceDialog dialog(this, ttl, _("Set Association to Current Map"), choices);
+        if (dialog.ShowModal() == wxID_OK) {
+            wxString key = dialog.GetStringSelection();
+            ml->SetAssociatedMapId(key);
         }
     }
 }
@@ -551,10 +577,18 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         }
     }
     popupMenu->AppendSeparator();
-    popupMenu->Append(XRCID("MAPTREE_SET_PRIMARY_KEY"), _("Set Primary Key"));
+    wxString menu_name =  _("Set Primary Key");
+    if (!ml->GetPrimaryKey().IsEmpty()) {
+        menu_name += " (" + ml->GetPrimaryKey() + ")";
+    }
+    popupMenu->Append(XRCID("MAPTREE_SET_PRIMARY_KEY"), menu_name);
     Connect(XRCID("MAPTREE_SET_PRIMARY_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetPrimaryKey));
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), _("Set Foreign Key"));
     Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetForeignKey));
+    
+    menu_name = _("Set Association with ") + current_map_title;
+    popupMenu->Append(XRCID("MAPTREE_SET_ASSOCIATE_MAP"), menu_name);
+    Connect(XRCID("MAPTREE_SET_ASSOCIATE_MAP"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnAssociateMap));
     
     popupMenu->AppendSeparator();
     popupMenu->Append(XRCID("MAPTREE_REMOVE"), _("Remove"));

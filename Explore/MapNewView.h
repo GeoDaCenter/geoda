@@ -140,6 +140,8 @@ public:
     virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
+    virtual void SetHighlight(int idx);
+    virtual void DrawHighlighted(wxMemoryDC &dc, bool revert);
     virtual void DrawHighlightedShapes(wxMemoryDC &dc, bool revert);
     virtual void DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only=false,
                                          bool revert=false,

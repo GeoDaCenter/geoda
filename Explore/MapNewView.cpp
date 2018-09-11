@@ -318,6 +318,9 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
     vector<OGRGeometry*> geoms = ml->geoms;
     vector<GdaShape*> shapes = ml->shapes;
     
+    if (!shiftdown) {
+        ml->ResetHighlight();
+    }
     if (pointsel) { // a point selection
         for (int i=0; i<nn; i++) {
             if (shapes[i]->pointWithin(sel1)) {
@@ -1016,11 +1019,33 @@ void MapCanvas::SetWeightsId(boost::uuids::uuid id)
 // draw highlighted selectable shapes
 void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
 {
-    if (selectable_shps.size() == 0)
-        return;
+    if ( !fg_maps.empty() ) {
+        // multi-layer highlight
+        BackgroundMapLayer* ml = fg_maps[0];
+        if (ml && ml->IsHide() == false) {
+            ml->DrawHighlight(dc, this);
+        }
+    } else {
+        DrawHighlighted(dc, revert);
+    }
     
+    
+}
+
+void MapCanvas::SetHighlight(int idx)
+{
     vector<bool>& hs = highlight_state->GetHighlight();
-    
+    if (hs.size() > idx) {
+        hs[idx] = true;
+    }
+}
+
+void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
+{
+    if (selectable_shps.size() == 0) {
+        return;
+    }
+    vector<bool>& hs = highlight_state->GetHighlight();
     if (use_category_brushes) {
         bool highlight_only = true;
         DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
@@ -1032,15 +1057,6 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
             }
         }
     }
-    
-    // multi-layer highlight
-    if ( !fg_maps.empty() ) {
-        BackgroundMapLayer* ml = fg_maps[0];
-        if (ml && ml->IsHide() == false) {
-            ml->DrawHighlight(dc);
-        }
-    }
-    
     // highlight connectivity objects and graphs
     bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
     if (show_graph || display_neighbors) {

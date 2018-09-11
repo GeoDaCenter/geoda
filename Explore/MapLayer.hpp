@@ -14,14 +14,20 @@
 #include "../GdaShape.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 
+class MapCanvas;
+
 class BackgroundMapLayer
 {
+    int num_obs;
     Shapefile::ShapeType shape_type;
     vector<wxString> field_names;
     vector<wxString> key_names;
+    vector<wxInt64> associated_mapids; // assigne polygon id to current point
+    wxString associate_key;
     wxString primary_key;
     wxString foreign_key;
     BackgroundMapLayer* foreign_layer;
+    BackgroundMapLayer* assign_layer;
     
     wxString layer_name;
     wxColour pen_color;
@@ -49,11 +55,12 @@ public:
     void CleanMemory();
     bool HasForeignKey();
     BackgroundMapLayer* GetForeignLayer();
+    void SetAssociatedMapId(wxString val);
     void SetPrimaryKey(wxString key);
     void SetForeignKey(BackgroundMapLayer* layer, wxString key);
     void SetHighlight(int idx);
     void SetUnHighlight(int idx);
-    void DrawHighlight(wxDC& dc);
+    void ResetHighlight();
     void SetName(wxString name);
     void SetHide(bool flag);
     bool IsHide();
@@ -65,6 +72,8 @@ public:
     void SetShapeType(Shapefile::ShapeType type);
     void ShowBoundary(bool show);
     void SetShowBoundary(bool flag);
+    void SetKeyNames(vector<wxString>& names);
+    void SetFieldNames(vector<wxString>& names);
     wxColour GetBrushColour();
     wxColour GetPenColour();
     int GetPenSize();
@@ -80,7 +89,9 @@ public:
     vector<GdaShape*>& GetShapes();
     Shapefile::ShapeType GetShapeType();
     bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);
-    void drawLegend(wxDC& dc, int x, int y, int w, int h);    
+    bool GetKeyColumnData(wxString field_name, vector<wxString>& data);
+    void drawLegend(wxDC& dc, int x, int y, int w, int h);
+    void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
 };
 
 class GdaShapeLayer : public GdaShape  {
