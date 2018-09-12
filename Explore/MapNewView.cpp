@@ -821,6 +821,13 @@ void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool i
                 added = true;
             }
         }
+		if (!added) {
+			for (int i=0; i<fg_maps.size(); i++) {
+				if (fg_maps[i]->GetName() == map_layer->GetName()) {
+					added = true;
+				}
+			}
+		}
         if (!added) {
             // project makes sure no overwrite here
             bg_maps.push_back(map_layer);
@@ -3053,7 +3060,7 @@ void MapFrame::OnMapEditLayer(wxCommandEvent& e)
     MapCanvas* m = (MapCanvas*) template_canvas;
     if (map_tree == NULL) {
         int n_bgmap = project->GetMapLayerCount();
-        int h = n_bgmap * 25  + 80;
+        int h = n_bgmap * 25  + 120;
         wxPoint pos = GetScreenPosition();
         wxSize sz = GetClientSize();
         pos.x += sz.GetWidth();

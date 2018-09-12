@@ -48,6 +48,7 @@ class MapTree: public wxWindow
     DECLARE_ABSTRACT_CLASS(MapTree)
     DECLARE_EVENT_TABLE()
     
+	bool is_resize;
     bool isDragDropAllowed;
     wxSize maxSize;
     int title_width;
@@ -84,6 +85,7 @@ public:
     
 protected:
     virtual void OnPaint( wxPaintEvent& event );
+	virtual void OnIdle(wxIdleEvent& event);
     virtual void OnDraw(wxDC& dc);
     
     void RemoveAssociationRelationship(BackgroundMapLayer* ml);

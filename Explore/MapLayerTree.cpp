@@ -201,6 +201,7 @@ MapTree::MapTree(wxWindow *parent, MapCanvas* _canvas, const wxPoint& pos, const
 : wxWindow(parent, wxID_ANY, pos, size),
 select_id(-1),
 canvas(_canvas),
+is_resize(false),
 isLeftDown(false),
 recreate_labels(true),
 isDragDropAllowed(false)
@@ -218,6 +219,8 @@ isDragDropAllowed(false)
     current_map_title = canvas->GetCanvasTitle() + " (current map)";
     
     Init();
+
+	Connect(wxEVT_IDLE, wxIdleEventHandler(MapTree::OnIdle));
     Connect(wxEVT_PAINT, wxPaintEventHandler(MapTree::OnPaint));
 }
 
@@ -262,6 +265,13 @@ void MapTree::Init()
     Refresh();
 }
 
+void MapTree::OnIdle(wxIdleEvent& event)
+{
+	if (is_resize) {
+		is_resize = false;
+		Refresh();
+	}
+}
 void MapTree::OnPaint( wxPaintEvent& event )
 {
     wxAutoBufferedPaintDC dc(this);
@@ -536,7 +546,7 @@ void MapTree::OnEvent(wxMouseEvent& event)
             select_name = map_titles[new_order[select_id]];
             move_pos = event.GetPosition();
         }
-        
+        Refresh();
     } else if (event.Dragging()) {
         if (isLeftDown) {
             isLeftMove = true;
@@ -547,18 +557,19 @@ void MapTree::OnEvent(wxMouseEvent& event)
                 move_pos = event.GetPosition();
                 if (cat_clicked > -1 && select_id != cat_clicked) {
                     // reorganize new_order
+					int val = new_order[select_id];
                     if (select_id > cat_clicked) {
-                        new_order.insert(new_order.begin()+cat_clicked, new_order[select_id]);
+                        new_order.insert(new_order.begin()+cat_clicked, val);
                         new_order.erase(new_order.begin() + select_id + 1);
                     } else {
-                        new_order.insert(new_order.begin()+cat_clicked+1, new_order[select_id]);
+                        new_order.insert(new_order.begin()+cat_clicked+1, val);
                         new_order.erase(new_order.begin() + select_id);
                     }
                     select_id = cat_clicked;
                 }
             }
-            Refresh();
         }
+		Refresh();
     } else if (event.LeftUp()) {
         if (isLeftMove) {
             isLeftMove = false;
@@ -566,13 +577,19 @@ void MapTree::OnEvent(wxMouseEvent& event)
             OnMapLayerChange();
             select_id = -1;
             select_name = "";
-            Refresh();
+			
         } else {
             // only left click
             OnSwitchClick(event);
         }
+		select_name = "";
+		Refresh(false);
         isLeftDown = false;
-    }
+    } else {
+		select_name = "";
+		Refresh(false);
+        isLeftDown = false;
+	}
 }
 
 void MapTree::OnRightClick(wxMouseEvent& event)
@@ -833,6 +850,7 @@ void MapTree::OnMapLayerChange()
     
     bg_maps = new_bg_maps;
     fg_maps = new_fg_maps;
+	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
     canvas->DisplayMapLayers();
@@ -896,7 +914,7 @@ void MapTreeFrame::Recreate()
     GetClientSize(&w, &h);
     
     int n_maps = canvas->GetBackgroundMayLayers().size() + canvas->GetForegroundMayLayers().size() + 1;
-    h = n_maps * 25  + 80;
+    h = n_maps * 25  + 120;
     SetSize(w, h);
     Layout();
     
