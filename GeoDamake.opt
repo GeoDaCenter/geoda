@@ -2,9 +2,9 @@ GeoDa_ROOT	=	$(GEODA_HOME)/../..
 
 TARGET      = GeoDa
 
-CC	=   /usr/bin/gcc
-CXX =	/usr/bin/g++
-LD	=	/usr/bin/g++
+CC	=   /usr/bin/gcc-5
+CXX =	/usr/bin/g++-5
+LD	=	/usr/bin/g++-5
 RM	=	/bin/rm -f
 
 WXLIBS  = $(shell $(GEODA_HOME)/libraries/bin/wx-config --libs xrc,stc,richtext,ribbon,propgrid,aui,gl,html,webview,qa,adv,core,xml,net,base)

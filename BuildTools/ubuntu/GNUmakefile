@@ -10,7 +10,7 @@ default:	compile-geoda
 
 app:  build-geoda-mac
 
-compile-geoda:	io-target algorithms-target dataviewer-target dialogtools-target \
+compile-geoda:	ogl-target io-target algorithms-target dataviewer-target dialogtools-target \
 		knn-target explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
 		geoda-target
@@ -22,6 +22,9 @@ test1:
 
 resource-target:
 	(cd $(GeoDa_ROOT)/rc; $(MAKE) xrc; $(MAKE))
+
+ogl-target:
+	(cd $(GeoDa_ROOT)/ogl; $(MAKE))
 
 knn-target:
 	(cd $(GeoDa_ROOT)/kNN; $(MAKE))
@@ -64,9 +67,11 @@ build-geoda-mac:
 	mkdir build/plugins
 	mkdir build/basemap_cache
 	mkdir build/web_plugins
+	mkdir build/lang
 	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
 	cp run.sh build/run.sh
 	chmod +x build/run.sh
+	cp -rf $(GeoDa_ROOT)/internationalization/lang/* build/lang
 	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/Resources
 	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
