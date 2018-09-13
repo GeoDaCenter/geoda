@@ -51,7 +51,12 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
     basemap_resources = wxString::FromUTF8(GdaConst::gda_basemap_sources.mb_str());
     std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
     if (items.size()>0) {
-        //basemap_resources = wxString::FromUTF8(items[0].mb_str());
+        basemap_resources = items[0];
+    }
+    
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_resources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_resources = encoded_str;
     }
                                            
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_BASEMAP_CONF_DLG");

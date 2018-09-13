@@ -3086,7 +3086,10 @@ void MapFrame::OnBasemapSelect(wxCommandEvent& event)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
@@ -3114,7 +3117,10 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
     vector<wxString> keys;
     wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
     wxStringTokenizer tokenizer(basemap_sources, newline);
