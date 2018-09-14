@@ -622,6 +622,38 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
     }
 }
 
+void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool is_hide)
+{
+    // geometries: projection is matched to current map
+    if (map_layer) {
+        map_layer->SetHide(is_hide);
+        bool added = false;
+        for (int i=0; i<bg_maps.size(); i++) {
+            if (bg_maps[i]->GetName() == map_layer->GetName()) {
+                added = true;
+            }
+        }
+        if (!added) {
+            for (int i=0; i<fg_maps.size(); i++) {
+                if (fg_maps[i]->GetName() == map_layer->GetName()) {
+                    added = true;
+                }
+            }
+        }
+        if (!added) {
+            // project makes sure no overwrite here
+            bg_maps.push_back(map_layer);
+        } else {
+            // if already loaded before, just show it
+            map_layer->SetHide(false);
+        }
+        full_map_redraw_needed = true;
+        PopulateCanvas();
+        Refresh();
+        maplayer_state->notifyObservers(this);
+    }
+}
+
 void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                      int virtual_scrn_h)
 {
@@ -808,38 +840,6 @@ void MapCanvas::DrawLayers()
     }
     wxWakeUpIdle();
     Refresh();
-}
-
-void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer, bool is_hide)
-{
-    // geometries: projection is matched to current map    
-    if (map_layer) {
-        map_layer->SetHide(is_hide);
-        bool added = false;
-        for (int i=0; i<bg_maps.size(); i++) {
-            if (bg_maps[i]->GetName() == map_layer->GetName()) {
-                added = true;
-            }
-        }
-		if (!added) {
-			for (int i=0; i<fg_maps.size(); i++) {
-				if (fg_maps[i]->GetName() == map_layer->GetName()) {
-					added = true;
-				}
-			}
-		}
-        if (!added) {
-            // project makes sure no overwrite here
-            bg_maps.push_back(map_layer);
-        } else {
-            // if already loaded before, just show it
-            map_layer->SetHide(false);
-        }
-        full_map_redraw_needed = true;
-        PopulateCanvas();
-        Refresh();
-        maplayer_state->notifyObservers(this);
-    }
 }
 
 void MapCanvas::DrawLayerBase()
@@ -1674,7 +1674,6 @@ void MapCanvas::NewCustomCatClassif()
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
                                           var_info[0].name,
                                           var_info[0].time);
-    
 	if (!ccs)
         return;
     
@@ -1696,10 +1695,8 @@ void MapCanvas::NewCustomCatClassif()
 }
 
 /** ChangeMapType should always have var_info and col_ids passed in to it
- when needed.  */
-
-/** This method initializes data array according to values in var_info
- and col_ids.  It calls CreateAndUpdateCategories which does all of the
+ when needed. This method initializes data array according to values in var_info
+ and col_ids. It calls CreateAndUpdateCategories which does all of the
  category classification including any needed data smoothing. */
 bool
 MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
@@ -2029,6 +2026,50 @@ void MapCanvas::RemoveLayer(wxString name)
     }
     
     maplayer_state->notifyObservers(this);
+}
+
+bool MapCanvas::IsCurrentMap()
+{
+    return true;
+}
+
+wxString MapCanvas::GetName()
+{
+    return "";
+}
+
+int MapCanvas::GetNumRecords()
+{
+    return project->GetNumRecords();
+}
+
+bool MapCanvas::GetKeyColumnData(wxString col_name, vector<wxString>& data)
+{
+    int n = project->GetNumRecords();
+    data.resize(n);
+    if (col_name.IsEmpty()) {
+        // using sequences
+        for (int i=0; i<n; i++) {
+            data[i] << i;
+        }
+        return true;
+    } else {
+        return project->GetStringColumnData(col_name, data);
+    }
+    return false;
+}
+
+void MapCanvas::ResetHighlight()
+{
+    vector<bool>& hs = highlight_state->GetHighlight();
+    for (int i=0; i<hs.size(); i++) {
+        hs[i] = false;
+    }
+}
+
+void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
+{
+    this->DrawHighlighted(dc, false);
 }
 
 /** This method assumes that v1 is already set and valid.  It will

@@ -10,7 +10,7 @@
 #include "MapLayer.hpp"
 
 BackgroundMapLayer::BackgroundMapLayer()
-:
+: AssociateLayerInt(),
 pen_color(wxColour(192, 192, 192)),
 brush_color(wxColour(255, 255, 255, 255)),
 point_radius(2),
@@ -24,7 +24,7 @@ associated_layer(NULL)
 }
 
 BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
-:
+: AssociateLayerInt(),
 layer_name(name),
 layer_proxy(_layer_proxy),
 pen_color(wxColour(192, 192, 192)),
@@ -35,7 +35,8 @@ pen_size(1),
 show_boundary(false),
 is_hide(false),
 map_boundary(NULL),
-associated_layer(NULL)
+associated_layer(NULL),
+show_connect_line(false)
 {
     num_obs = layer_proxy->GetNumRecords();
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
@@ -62,6 +63,12 @@ void BackgroundMapLayer::CleanMemory()
         delete shapes[i];
         delete geoms[i];
     }
+}
+
+bool BackgroundMapLayer::IsCurrentMap()
+{
+    // not MapCanvas
+    return false;
 }
 
 wxString BackgroundMapLayer::GetAssociationText()
@@ -98,6 +105,24 @@ void BackgroundMapLayer::SetMapAssociation(wxString my_key, wxString map_key)
 }
 
 
+void BackgroundMapLayer::SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key, bool show_connline)
+{
+    // break map association
+    mapcanvas_key = "";
+    asso_mapcanvas_key = "";
+    
+    primary_key = my_key;
+    associated_layer = layer;
+    associated_key = key;
+    
+    show_connect_line = show_connline;
+}
+
+GdaShape* BackgroundMapLayer::GetShape(int idx)
+{
+    return shapes[idx];
+}
+
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
@@ -119,8 +144,12 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
         for (int i =0 ; i< fid.size(); i++) {
-            if (highlight_flags[ pid_idx[ fid[i] ] ]) {
+            int my_id = pid_idx[ fid[i] ];
+            if (highlight_flags[my_id]) {
                 associated_layer->SetHighlight(i);
+                if (show_connect_line) {
+                    //dc.DrawLine(shapes[my_id]->center, associated_layer->GetShape(i)->center);
+                }
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
@@ -159,7 +188,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         }
     }
     
-    // draw highlight
+    // draw self highlight
     for (int i=0; i<highlight_flags.size(); i++) {
         if (highlight_flags[i]) {
             shapes[i]->paintSelf(dc);
@@ -167,7 +196,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
     }
 }
 
-BackgroundMapLayer* BackgroundMapLayer::GetAssociatedLayer()
+AssociateLayerInt* BackgroundMapLayer::GetAssociatedLayer()
 {
     return associated_layer;
 }
@@ -185,17 +214,6 @@ wxString BackgroundMapLayer::GetPrimaryKey()
 wxString BackgroundMapLayer::GetAssociatedKey()
 {
     return associated_key;
-}
-
-void BackgroundMapLayer::SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key)
-{
-    // break map association
-    mapcanvas_key = "";
-    asso_mapcanvas_key = "";
-    
-    primary_key = my_key;
-    associated_layer = layer;
-    associated_key = key;
 }
 
 void BackgroundMapLayer::SetHighlight(int idx)
@@ -235,7 +253,7 @@ void BackgroundMapLayer::SetAssoMapcanvasKey(wxString val)
     asso_mapcanvas_key = val;
 }
 
-void BackgroundMapLayer::SetAssociatedLayer(BackgroundMapLayer* val)
+void BackgroundMapLayer::SetAssociatedLayer(AssociateLayerInt* val)
 {
     associated_layer = val;
 }

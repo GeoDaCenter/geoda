@@ -86,7 +86,7 @@ private:
 };
 
 
-class MapCanvas : public TemplateCanvas, public CatClassifStateObserver, public MapLayerStateObserver
+class MapCanvas : public TemplateCanvas, public CatClassifStateObserver, public MapLayerStateObserver, public AssociateLayerInt
 {
 	DECLARE_CLASS(MapCanvas)
 public:
@@ -198,6 +198,12 @@ public:
     void SetBackgroundMayLayers(vector<BackgroundMapLayer*>& val);
     vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
+    virtual bool IsCurrentMap();
+    virtual wxString GetName();
+    virtual int  GetNumRecords();
+    virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data);
+    virtual void ResetHighlight();
+    virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();

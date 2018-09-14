@@ -76,16 +76,28 @@ SetAssociationDlg::SetAssociationDlg(wxWindow* parent, wxString _current_map_tit
 void SetAssociationDlg::Init()
 {
     layer_list->Clear();
-    layer_list->Append(current_map_title);
-    for (int i=0; i<bg_maps.size(); i++) {
-        wxString name = bg_maps[i]->GetName();
-        if (name != current_ml->GetName()) {
+    if (current_ml) {
+        layer_list->Append(current_map_title);
+        for (int i=0; i<bg_maps.size(); i++) {
+            wxString name = bg_maps[i]->GetName();
+            if (name != current_ml->GetName()) {
+                layer_list->Append(name);
+            }
+        }
+        for (int i=0; i<fg_maps.size(); i++) {
+            wxString name = fg_maps[i]->GetName();
+            if (name != current_ml->GetName()) {
+                layer_list->Append(name);
+            }
+        }
+    } else {
+        // map canvas
+        for (int i=0; i<bg_maps.size(); i++) {
+            wxString name = bg_maps[i]->GetName();
             layer_list->Append(name);
         }
-    }
-    for (int i=0; i<fg_maps.size(); i++) {
-        wxString name = fg_maps[i]->GetName();
-        if (name != current_ml->GetName()) {
+        for (int i=0; i<fg_maps.size(); i++) {
+            wxString name = fg_maps[i]->GetName();
             layer_list->Append(name);
         }
     }
@@ -95,9 +107,15 @@ void SetAssociationDlg::Init()
     
     my_field_list->Clear();
     my_field_list->Append(_("(Use Sequences)"));
-    vector<wxString> my_fieldnames = current_ml->GetKeyNames();
-    for (int i=0; i<my_fieldnames.size(); i++) {
-        my_field_list->Append(my_fieldnames[i]);
+    if (current_ml) {
+        vector<wxString> my_fieldnames = current_ml->GetKeyNames();
+        for (int i=0; i<my_fieldnames.size(); i++) {
+            my_field_list->Append(my_fieldnames[i]);
+        }
+    } else {
+        for (int i=0; i<current_map_fieldnames.size(); i++) {
+            my_field_list->Append(current_map_fieldnames[i]);
+        }
     }
 }
 
@@ -472,32 +490,28 @@ void MapTree::OnSetPrimaryKey(wxCommandEvent& event)
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
-    if (current_map_title == map_name) {
-        // work on current map
-    } else {
-        BackgroundMapLayer* ml = GetMapLayer(map_name);
-        if (ml) {
-            vector<wxString> map_fieldnames = canvas->GetProject()->GetIntegerAndStringFieldNames();
-            SetAssociationDlg dlg(this, current_map_title, map_fieldnames, ml, bg_maps, fg_maps);
-            if (dlg.ShowModal() == wxID_OK) {
-                wxString my_key = dlg.GetCurrentLayerFieldName();
-                wxString asso_key = dlg.GetSelectLayerFieldName();
-                BackgroundMapLayer* asso_ml =  dlg.GetSelectMapLayer();
-                if (asso_ml == NULL && !my_key.IsEmpty()) {
-                    // association with current map
-                    ml->SetMapAssociation(my_key, asso_key);
-                } else if (asso_ml && !asso_key.IsEmpty()) {
-                    // association with other layer
-                    if (asso_ml->GetAssociatedLayer() == ml) {
-                        wxMessageDialog dlg (this, _("Current layer has already been associated with selected layer. Please select another layer to associate with."), _("Error"), wxOK | wxICON_ERROR);
-                        dlg.ShowModal();
-                    }
-                    ml->SetLayerAssociation(my_key, asso_ml, asso_key);
-                } else {
-                    wxMessageDialog dlg (this, _("Can't setup highlight association with selected layer and field. Please try again."), _("Error"), wxOK | wxICON_ERROR);
-                    dlg.ShowModal();
-                }
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    vector<wxString> map_fieldnames = canvas->GetProject()->GetIntegerAndStringFieldNames();
+    SetAssociationDlg dlg(this, current_map_title, map_fieldnames, ml, bg_maps, fg_maps);
+    if (dlg.ShowModal() == wxID_OK) {
+        wxString my_key = dlg.GetCurrentLayerFieldName();
+        wxString asso_key = dlg.GetSelectLayerFieldName();
+        BackgroundMapLayer* asso_ml =  dlg.GetSelectMapLayer();
+        if (asso_ml == NULL && !my_key.IsEmpty()) {
+            // association with map_canvas
+            ml->SetMapAssociation(my_key, asso_key);
+            
+        } else if (asso_ml && !asso_key.IsEmpty()) {
+            // association with other layer
+            if (asso_ml->GetAssociatedLayer() == ml) {
+                wxMessageDialog dlg (this, _("Current layer has already been associated with selected layer. Please select another layer to associate with."), _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
             }
+            ml->SetLayerAssociation(my_key, asso_ml, asso_key);
+            
+        } else {
+            wxMessageDialog dlg (this, _("Can't setup highlight association with selected layer and field. Please try again."), _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
         }
     }
 }
@@ -603,10 +617,22 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     
     wxString map_name = map_titles[ new_order[select_id] ];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
+    
+    wxString menu_name =  _("Set Highlight Association");
+    if (ml) {
+        if (!ml->GetAssociationText().IsEmpty()) {
+            menu_name += "(" + ml->GetAssociationText() + ")";
+        }
+    }
+    popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
+    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetAssociateLayer));
+    
     if (ml == NULL) {
         // no other options
         return;
     }
+    
+    popupMenu->AppendSeparator();
     
     if (canvas->GetShapeType() == MapCanvas::polygons &&
         ml->GetShapeType() == Shapefile::POINT_TYP)
@@ -645,14 +671,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         }
     }
     popupMenu->AppendSeparator();
-    wxString menu_name =  _("Set Highlight Association");
-    if (!ml->GetAssociationText().IsEmpty()) {
-        menu_name += "(" + ml->GetAssociationText() + ")";
-    }
-    popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
-    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetAssociateLayer));
     
-    popupMenu->AppendSeparator();
     popupMenu->Append(XRCID("MAPTREE_REMOVE"), _("Remove"));
     Connect(XRCID("MAPTREE_REMOVE"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnRemoveMapLayer));
     
