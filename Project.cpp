@@ -542,10 +542,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
         OGRwkbGeometryType geom_type;
-        geom_type = ogr_adapter.MakeOGRGeometries(geometries,
-                                                  shape_type,
-                                                  ogr_geometries,
-                                                  selected_rows);
+        geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
         
         // NOTE: for GeoJSON, automatically transform to WGS84
         if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
@@ -556,7 +553,6 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                 ogr_geometries[i]->transform(poCT);
             }
         }
-        
 		
 		// Start saving
 		int prog_n_max = 0;
@@ -566,15 +562,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
         OGRLayerProxy* new_layer;
-        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(),
-                                                                   new_ds_name,
-                                                                   layername.ToStdString(),
-                                                                   geom_type,
-                                                                   ogr_geometries,
-                                                                   table_int,
-                                                                   selected_rows,
-                                                                   spatial_ref,
-                                                                   is_update);
+        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), new_ds_name, layername.ToStdString(), geom_type, ogr_geometries, table_int, selected_rows, spatial_ref, is_update);
         if (new_layer == NULL) {
             wxString msg = _("Saving data source cancelled.");
             throw GdaException(msg.mb_str());
@@ -1476,11 +1464,11 @@ bool Project::CommonProjectInit()
 bool Project::IsDataTypeChanged()
 {
     bool realTableFlag = false;
-    if (datasource->GetType() == GdaConst::ds_dbf)
+    if (datasource->GetType() == GdaConst::ds_dbf) {
         realTableFlag = true;
-    else if (layer_proxy && layer_proxy->IsTableOnly())
+    } else if (layer_proxy && layer_proxy->IsTableOnly()) {
         realTableFlag = true;
-    
+    }
     return isTableOnly != realTableFlag;
 }
 
@@ -1622,6 +1610,9 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
     OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
     if (p_layer->ReadData()) {
+        if (p_layer->IsTableOnly()) {
+            return NULL;
+        }
         // always add to bg_maps
         if (bg_maps.find(layer_name) == bg_maps.end()) {
             bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);

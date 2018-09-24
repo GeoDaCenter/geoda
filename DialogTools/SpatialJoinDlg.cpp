@@ -260,7 +260,10 @@ void SpatialJoinDlg::OnAddMapLayer(wxCommandEvent& e)
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
     BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
-    if (map_layer) {
+    if (map_layer == NULL) {
+        wxMessageDialog dlg (this, _("GeoDa could not load this layer. \nPlease check if the datasource is valid and not table only."), _("Load Layer Failed."), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    } else {
         map_list->Append(layer_name);
         UpdateFieldList(layer_name);
         MapLayerState* ml_state = project->GetMapLayerState();

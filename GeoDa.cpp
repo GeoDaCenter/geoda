@@ -2518,6 +2518,13 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
 {
     if (!project_p || !project_p->FindTableBase()) return;
     
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Spatial Join does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
     SpatialJoinDlg dlg(this, project_p);
     dlg.ShowModal();
 }
