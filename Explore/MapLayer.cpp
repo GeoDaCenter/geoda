@@ -77,32 +77,30 @@ wxString BackgroundMapLayer::GetAssociationText()
 
 void BackgroundMapLayer::RemoveAssociatedLayer(AssociateLayerInt* layer)
 {
-    wxString del_key;
-    map<wxString, AssociateLayer>::iterator it;
+    AssociateLayerInt* del_key = NULL;
+    map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
-        AssociateLayer& al = it->second;
-        AssociateLayerInt* asso_layer = al.second;
+        AssociateLayerInt* asso_layer = it->first;
         if (layer->GetName() == asso_layer->GetName()) {
-            del_key = it->first;
+            del_key = asso_layer;
         }
     }
-    if (del_key.IsEmpty() == false) {
+    if (del_key) {
         associated_layers.erase(del_key);
     }
 }
 
 void BackgroundMapLayer::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer, wxString key, bool show_connline)
 {
-    associated_layers[my_key] = make_pair(key, layer);
+    associated_layers[layer] = make_pair(my_key, key);
     associated_lines[layer] = show_connline;
 }
 
 bool BackgroundMapLayer::IsAssociatedWith(AssociateLayerInt* layer)
 {
-    map<wxString, AssociateLayer>::iterator it;
+    map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
-        AssociateLayer& al = it->second;
-        AssociateLayerInt* asso_layer = al.second;
+        AssociateLayerInt* asso_layer = it->first;
         if (layer->GetName() == asso_layer->GetName()) {
             return true;
         }
@@ -118,12 +116,12 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
-    map<wxString, AssociateLayer>::iterator it;
+    map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
-        wxString primary_key = it->first;
-        AssociateLayer& al = it->second;
-        wxString associated_key = al.first;
-        AssociateLayerInt* associated_layer = al.second;
+        AssociateLayerInt* associated_layer = it->first;
+        Association& al = it->second;
+        wxString primary_key = al.first;
+        wxString associated_key = al.second;
         
         vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
         if (primary_key.IsEmpty() == false) {
@@ -137,60 +135,46 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
         
-        map<wxString, wxInt64> aid_idx;
+        map<wxString, vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
-            aid_idx[fid[i]] = i;
+            aid_idx[fid[i]].push_back(i);
         }
         
         for (int i=0; i<highlight_flags.size(); i++) {
-            if (highlight_flags[i]) {
-                wxString aid = pid[i];
-                if (aid_idx.find(aid) != aid_idx.end()) {
-                    associated_layer->SetHighlight( aid_idx[aid] );
-                }
+            if (!highlight_flags[i]) {
+                continue;
+            }
+            wxString aid = pid[i];
+            if (aid_idx.find(aid) == aid_idx.end()) {
+                continue;
+            }
+            vector<wxInt64>& ids = aid_idx[aid];
+            for (int j=0; j<ids.size(); j++) {
+                associated_layer->SetHighlight( ids[j] );
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
+        for (int i=0; i<highlight_flags.size(); i++) {
+            if (!highlight_flags[i]) {
+                continue;
+            }
+            wxString aid = pid[i];
+            if (aid_idx.find(aid) == aid_idx.end()) {
+                continue;
+            }
+            vector<wxInt64>& ids = aid_idx[aid];
+            for (int j=0; j<ids.size(); j++) {
+                if (associated_lines[associated_layer]) {
+                    dc.DrawLine(shapes[i]->center, associated_layer->GetShape(ids[j])->center);
+                }
+            }
+        }
     }
     
     // draw self highlight
     for (int i=0; i<highlight_flags.size(); i++) {
         if (highlight_flags[i]) {
             shapes[i]->paintSelf(dc);
-        }
-    }
-    
-    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
-        wxString primary_key = it->first;
-        AssociateLayer& al = it->second;
-        wxString associated_key = al.first;
-        AssociateLayerInt* associated_layer = al.second;
-        
-        vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
-        if (primary_key.IsEmpty() == false) {
-            GetKeyColumnData(primary_key, pid);
-        } else {
-            for (int i=0; i<shapes.size(); i++) {
-                pid[i] << i;
-            }
-        }
-        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
-        associated_layer->GetKeyColumnData(associated_key, fid);
-        
-        map<wxString, wxInt64> aid_idx;
-        for (int i=0; i<fid.size(); i++) {
-            aid_idx[fid[i]] = i;
-        }
-        
-        for (int i=0; i<highlight_flags.size(); i++) {
-            if (highlight_flags[i]) {
-                wxString aid = pid[i];
-                if (aid_idx.find(aid) != aid_idx.end()) {
-                    if (associated_lines[associated_layer]) {
-                        dc.DrawLine(shapes[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
-                    }
-                }
-            }
         }
     }
 }

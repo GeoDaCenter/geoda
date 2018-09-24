@@ -20,13 +20,14 @@ using namespace std;
 class MapCanvas;
 class AssociateLayerInt;
 
-typedef pair<wxString, AssociateLayerInt* > AssociateLayer;
+// my_key, key from other layer
+typedef pair<wxString, wxString> Association;
 
 class AssociateLayerInt
 {
 public:
     // primary key : AssociateLayer
-    map<wxString, AssociateLayer> associated_layers;
+    map<AssociateLayerInt*, Association> associated_layers;
     map<AssociateLayerInt*, bool> associated_lines;
 
     AssociateLayerInt() {}

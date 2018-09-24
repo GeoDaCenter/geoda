@@ -121,13 +121,13 @@ void SetAssociationDlg::Init()
     }
     
     int i = 0;
-    map<wxString, AssociateLayer>& asso = current_ml->associated_layers;
-    map<wxString, AssociateLayer>::iterator it;
+    map<AssociateLayerInt*, Association>& asso = current_ml->associated_layers;
+    map<AssociateLayerInt*, Association>::iterator it;
     for (it = asso.begin(); it!=asso.end(); it++) {
-        wxString my_key = it->first;
-        AssociateLayer& lyr = it->second;
-        wxString key = lyr.first;
-        AssociateLayerInt* layer = lyr.second;
+        AssociateLayerInt* layer = it->first;
+        Association& lyr = it->second;
+        wxString my_key = lyr.first;
+        wxString key = lyr.second;
         
         wxString layer_name;
         for (int j=0; j<all_layers.size(); j++) {
@@ -248,6 +248,8 @@ void SetAssociationDlg::OnOk(wxCommandEvent& e)
             }
         }
     }
+    
+    EndDialog(wxID_OK);
 }
 
 wxString SetAssociationDlg::GetCurrentLayerFieldName(int irow)
@@ -583,9 +585,9 @@ void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
     title << " (" << ml->GetName() << ")";
     SetAssociationDlg dlg(this, ml, all_layers, title);
     
-    if (dlg.ShowModal() == wxID_CANCEL) {
+    if (dlg.ShowModal() == wxID_OK) {
         bool check_flag = false;
-        map<wxString, AssociateLayer>::iterator it;
+        map<AssociateLayerInt*, Association>::iterator it;
         
         for (int i=0; i<all_layers.size(); i++) {
             AssociateLayerInt* ml = all_layers[i];
@@ -606,11 +608,11 @@ void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
                 } else {
                     checker[tmp_ml->GetName()] = true;
                 }
-                map<wxString, AssociateLayer>& asso = tmp_ml->associated_layers;
-                for (it = asso.begin(); it!= asso.end(); it++) {
-                    AssociateLayer& lyr = it->second;
-                    wxString key = lyr.first;
-                    AssociateLayerInt* layer = lyr.second;
+                map<AssociateLayerInt*, Association>& asso = tmp_ml->associated_layers;
+                for (it = asso.begin(); it!= asso.end(); it++) {                    
+                    AssociateLayerInt* layer = it->first;
+                    Association& lyr = it->second;
+                    wxString key = lyr.second;
                     stack.push_back(layer);
                 }
             }
