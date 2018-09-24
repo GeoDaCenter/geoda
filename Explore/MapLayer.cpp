@@ -147,9 +147,6 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
                 wxString aid = pid[i];
                 if (aid_idx.find(aid) != aid_idx.end()) {
                     associated_layer->SetHighlight( aid_idx[aid] );
-                    if (associated_lines[associated_layer]) {
-                        dc.DrawLine(shapes[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
-                    }
                 }
             }
         }
