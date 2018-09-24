@@ -126,16 +126,11 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         AssociateLayerInt* associated_layer = al.second;
         
         vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
-        map<wxString, wxInt64> pid_idx;
         if (primary_key.IsEmpty() == false) {
             GetKeyColumnData(primary_key, pid);
-            for (int i=0; i<pid.size(); i++) {
-                pid_idx[ pid[i] ] = i;
-            }
         } else {
             for (int i=0; i<shapes.size(); i++) {
                 pid[i] << i;
-                pid_idx[ pid[i] ] = i;
             }
         }
         vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
@@ -165,6 +160,40 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
     for (int i=0; i<highlight_flags.size(); i++) {
         if (highlight_flags[i]) {
             shapes[i]->paintSelf(dc);
+        }
+    }
+    
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        wxString primary_key = it->first;
+        AssociateLayer& al = it->second;
+        wxString associated_key = al.first;
+        AssociateLayerInt* associated_layer = al.second;
+        
+        vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
+        if (primary_key.IsEmpty() == false) {
+            GetKeyColumnData(primary_key, pid);
+        } else {
+            for (int i=0; i<shapes.size(); i++) {
+                pid[i] << i;
+            }
+        }
+        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
+        associated_layer->GetKeyColumnData(associated_key, fid);
+        
+        map<wxString, wxInt64> aid_idx;
+        for (int i=0; i<fid.size(); i++) {
+            aid_idx[fid[i]] = i;
+        }
+        
+        for (int i=0; i<highlight_flags.size(); i++) {
+            if (highlight_flags[i]) {
+                wxString aid = pid[i];
+                if (aid_idx.find(aid) != aid_idx.end()) {
+                    if (associated_lines[associated_layer]) {
+                        dc.DrawLine(shapes[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
+                    }
+                }
+            }
         }
     }
 }

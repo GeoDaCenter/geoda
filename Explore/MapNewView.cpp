@@ -2053,7 +2053,7 @@ bool MapCanvas::GetKeyColumnData(wxString col_name, vector<wxString>& data)
 {
     int n = project->GetNumRecords();
     data.resize(n);
-    if (col_name.IsEmpty()) {
+    if (col_name.IsEmpty() || col_name == _("(Use Sequences)")) {
         // using sequences
         for (int i=0; i<n; i++) {
             data[i] << i;
