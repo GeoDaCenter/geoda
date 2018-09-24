@@ -18,8 +18,7 @@ opacity(255),
 pen_size(1),
 show_boundary(false),
 is_hide(true),
-map_boundary(NULL),
-associated_layer(NULL)
+map_boundary(NULL)
 {
 }
 
@@ -35,7 +34,6 @@ pen_size(1),
 show_boundary(false),
 is_hide(false),
 map_boundary(NULL),
-associated_layer(NULL),
 show_connect_line(false)
 {
     num_obs = layer_proxy->GetNumRecords();
@@ -74,48 +72,42 @@ bool BackgroundMapLayer::IsCurrentMap()
 wxString BackgroundMapLayer::GetAssociationText()
 {
     wxString txt;
-    if (primary_key.IsEmpty() == false && associated_layer) {
-        txt = primary_key + " : ";
-        txt += associated_layer->GetName() + " [" + associated_key + "]";
-        return txt;
-        
-    } else if (asso_mapcanvas_key.IsEmpty() == false) {
-        txt = asso_mapcanvas_key + " : [current map]";
-    }
     return txt;
 }
 
-void BackgroundMapLayer::RemoveAssociationRelationship(BackgroundMapLayer* ml)
+void BackgroundMapLayer::RemoveAssociatedLayer(AssociateLayerInt* layer)
 {
-    if (associated_layer == ml) {
-        associated_layer = NULL;
-        associated_key = wxEmptyString;
+    wxString del_key;
+    map<wxString, AssociateLayer>::iterator it;
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        AssociateLayer& al = it->second;
+        AssociateLayerInt* asso_layer = al.second;
+        if (layer->GetName() == asso_layer->GetName()) {
+            del_key = it->first;
+        }
+    }
+    if (del_key.IsEmpty() == false) {
+        associated_layers.erase(del_key);
     }
 }
 
-void BackgroundMapLayer::SetMapAssociation(wxString my_key, wxString map_key)
+void BackgroundMapLayer::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer, wxString key, bool show_connline)
 {
-    // break layer association
-    primary_key = "";
-    associated_key = "";
-    associated_layer = NULL;
-    
-    mapcanvas_key = map_key;
-    asso_mapcanvas_key = my_key;
+    associated_layers[my_key] = make_pair(key, layer);
+    associated_lines[layer] = show_connline;
 }
 
-
-void BackgroundMapLayer::SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer, wxString key, bool show_connline)
+bool BackgroundMapLayer::IsAssociatedWith(AssociateLayerInt* layer)
 {
-    // break map association
-    mapcanvas_key = "";
-    asso_mapcanvas_key = "";
-    
-    primary_key = my_key;
-    associated_layer = layer;
-    associated_key = key;
-    
-    show_connect_line = show_connline;
+    map<wxString, AssociateLayer>::iterator it;
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        AssociateLayer& al = it->second;
+        AssociateLayerInt* asso_layer = al.second;
+        if (layer->GetName() == asso_layer->GetName()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 GdaShape* BackgroundMapLayer::GetShape(int idx)
@@ -126,7 +118,13 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
-    if (associated_layer) {
+    map<wxString, AssociateLayer>::iterator it;
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        wxString primary_key = it->first;
+        AssociateLayer& al = it->second;
+        wxString associated_key = al.first;
+        AssociateLayerInt* associated_layer = al.second;
+        
         vector<wxString> pid(shapes.size());  // e.g. 1 2 3 4 5
         map<wxString, wxInt64> pid_idx;
         if (primary_key.IsEmpty() == false) {
@@ -143,49 +141,24 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
-        for (int i =0 ; i< fid.size(); i++) {
-            int my_id = pid_idx[ fid[i] ];
-            if (highlight_flags[my_id]) {
-                associated_layer->SetHighlight(i);
-                if (show_connect_line) {
-                    //dc.DrawLine(shapes[my_id]->center, associated_layer->GetShape(i)->center);
+        
+        map<wxString, wxInt64> aid_idx;
+        for (int i=0; i<fid.size(); i++) {
+            aid_idx[fid[i]] = i;
+        }
+        
+        for (int i=0; i<highlight_flags.size(); i++) {
+            if (highlight_flags[i]) {
+                wxString aid = pid[i];
+                if (aid_idx.find(aid) != aid_idx.end()) {
+                    associated_layer->SetHighlight( aid_idx[aid] );
+                    if (associated_lines[associated_layer]) {
+                        dc.DrawLine(shapes[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
+                    }
                 }
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
-    }
-    // draw connected map (current)
-    if (!asso_mapcanvas_key.IsEmpty()) {
-        vector<wxString> map_keys;
-        if (mapcanvas_key.IsEmpty()) {
-            int n_map = map_canvas->GetProject()->GetNumRecords();
-            map_keys.resize(n_map);
-            for (int i=0; i<n_map; i++) {
-                map_keys[i] << i;
-            }
-        } else {
-            map_canvas->GetProject()->GetStringColumnData(mapcanvas_key, map_keys);
-        }
-        map<wxString, int> mapkey_ids;
-        for (int i=0; i<map_keys.size(); i++) {
-            mapkey_ids[ map_keys[i] ] = i;
-        }
-        vector<wxString> my_keys;
-        GetKeyColumnData(asso_mapcanvas_key, my_keys);
-        bool has_highlight = false;
-        for (int i=0; i<highlight_flags.size(); i++) {
-            if (highlight_flags[i]) {
-                wxString map_key = my_keys[i];
-                int map_idx = mapkey_ids[map_key];
-                if (map_idx >=0) {
-                    map_canvas->SetHighlight(map_idx);
-                    has_highlight = true;
-                }
-            }
-        }
-        if (has_highlight) {
-            map_canvas->DrawHighlighted(dc, false);
-        }
     }
     
     // draw self highlight
@@ -194,26 +167,6 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             shapes[i]->paintSelf(dc);
         }
     }
-}
-
-AssociateLayerInt* BackgroundMapLayer::GetAssociatedLayer()
-{
-    return associated_layer;
-}
-
-void BackgroundMapLayer::SetPrimaryKey(wxString key)
-{
-    primary_key = key;
-}
-
-wxString BackgroundMapLayer::GetPrimaryKey()
-{
-    return primary_key;
-}
-
-wxString BackgroundMapLayer::GetAssociatedKey()
-{
-    return associated_key;
 }
 
 void BackgroundMapLayer::SetHighlight(int idx)
@@ -238,26 +191,6 @@ void BackgroundMapLayer::SetName(wxString name)
     layer_name = name;
 }
 
-void BackgroundMapLayer::SetAssociatedKey(wxString val)
-{
-    associated_key = val;
-}
-
-void BackgroundMapLayer::SetMapcanvasKey(wxString val)
-{
-    mapcanvas_key = val;
-}
-
-void BackgroundMapLayer::SetAssoMapcanvasKey(wxString val)
-{
-    asso_mapcanvas_key = val;
-}
-
-void BackgroundMapLayer::SetAssociatedLayer(AssociateLayerInt* val)
-{
-    associated_layer = val;
-}
-
 wxString BackgroundMapLayer::GetName()
 {
     return layer_name;
@@ -268,13 +201,11 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     BackgroundMapLayer* copy =  new BackgroundMapLayer();
     copy->SetName(layer_name);
     copy->SetShapeType(shape_type);
-    copy->SetPrimaryKey(primary_key);
-    copy->SetAssociatedKey(associated_key);
-    copy->SetAssociatedLayer(associated_layer);
     copy->SetKeyNames(key_names);
     copy->SetFieldNames(field_names);
-    copy->SetMapcanvasKey(mapcanvas_key);
-    copy->SetAssoMapcanvasKey(asso_mapcanvas_key);
+    copy->associated_layers = associated_layers;
+    copy->associated_lines = associated_lines;
+
     if (clone_style) {
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
@@ -329,6 +260,12 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
         data.resize(shapes.size());
     }
     // this function is for finding IDs of multi-layer
+    if (field_name.IsEmpty() || field_name == "(Use Sequences)") {
+        for (int i=0; i<shapes.size(); i++) {
+            data[i] << i;
+        }
+        return true;
+    }
     GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
     int col_idx = layer_proxy->GetFieldPos(field_name);
     if (type == GdaConst::long64_type) {

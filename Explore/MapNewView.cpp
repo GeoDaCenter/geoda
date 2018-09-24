@@ -1054,13 +1054,14 @@ void MapCanvas::SetWeightsId(boost::uuids::uuid id)
 void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
 {
     if ( !fg_maps.empty() ) {
-        // multi-layer highlight
+        // multi-layer highlight: using top layer
         BackgroundMapLayer* ml = fg_maps[0];
         if (ml && ml->IsHide() == false) {
             ml->DrawHighlight(dc, this);
         }
     } else {
-        DrawHighlighted(dc, revert);
+        DrawHighlight(dc, this);
+        //DrawHighlighted(dc, revert);
     }
     
     
@@ -2035,12 +2036,17 @@ bool MapCanvas::IsCurrentMap()
 
 wxString MapCanvas::GetName()
 {
-    return "";
+    return project->GetProjectTitle();
 }
 
 int MapCanvas::GetNumRecords()
 {
     return project->GetNumRecords();
+}
+
+vector<wxString> MapCanvas::GetKeyNames()
+{
+    return project->GetIntegerAndStringFieldNames();
 }
 
 bool MapCanvas::GetKeyColumnData(wxString col_name, vector<wxString>& data)
@@ -2069,7 +2075,104 @@ void MapCanvas::ResetHighlight()
 
 void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
+    vector<bool>& hs = highlight_state->GetHighlight();
+    
+    // draw any connected layers
+    map<wxString, AssociateLayer>::iterator it;
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        wxString primary_key = it->first;
+        AssociateLayer& al = it->second;
+        wxString associated_key = al.first;
+        AssociateLayerInt* associated_layer = al.second;
+        
+        vector<wxString> pid(num_obs);  // e.g. 1 2 3 4 5
+        if (primary_key.IsEmpty() == false) {
+            GetKeyColumnData(primary_key, pid);
+        } else {
+            for (int i=0; i<num_obs; i++) {
+                pid[i] << i;
+            }
+        }
+        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
+        associated_layer->GetKeyColumnData(associated_key, fid);
+        associated_layer->ResetHighlight();
+        
+        map<wxString, wxInt64> aid_idx;
+        for (int i=0; i<fid.size(); i++) {
+            aid_idx[fid[i]] = i;
+        }
+        
+        for (int i=0; i<hs.size(); i++) {
+            if (hs[i]) {
+                wxString aid = pid[i];
+                if (aid_idx.find(aid) != aid_idx.end()) {
+                    associated_layer->SetHighlight( aid_idx[aid] );
+                    if (associated_lines[associated_layer]) {
+                        dc.DrawLine(selectable_shps[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
+                    }
+                }
+            }
+        }
+        associated_layer->DrawHighlight(dc, map_canvas);
+    }
+    
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        wxString primary_key = it->first;
+        AssociateLayer& al = it->second;
+        wxString associated_key = al.first;
+        AssociateLayerInt* associated_layer = al.second;
+        
+        vector<wxString> pid(num_obs);  // e.g. 1 2 3 4 5
+        if (primary_key.IsEmpty() == false) {
+            GetKeyColumnData(primary_key, pid);
+        } else {
+            for (int i=0; i<num_obs; i++) {
+                pid[i] << i;
+            }
+        }
+        vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
+        associated_layer->GetKeyColumnData(associated_key, fid);
+        
+        map<wxString, wxInt64> aid_idx;
+        for (int i=0; i<fid.size(); i++) {
+            aid_idx[fid[i]] = i;
+        }
+        for (int i=0; i<hs.size(); i++) {
+            if (hs[i]) {
+                wxString aid = pid[i];
+                if (aid_idx.find(aid) != aid_idx.end()) {
+                    if (associated_lines[associated_layer]) {
+                        dc.DrawLine(selectable_shps[i]->center, associated_layer->GetShape(aid_idx[aid])->center);
+                    }
+                }
+            }
+        }
+    }
+    
     this->DrawHighlighted(dc, false);
+}
+
+GdaShape* MapCanvas::GetShape(int i)
+{
+    return selectable_shps[i];
+}
+
+void MapCanvas::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer, wxString key, bool show_connline)
+{
+    associated_layers[my_key] = make_pair(key, layer);
+    associated_lines[layer] = show_connline;
+}
+bool MapCanvas::IsAssociatedWith(AssociateLayerInt* layer)
+{
+    map<wxString, AssociateLayer>::iterator it;
+    for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
+        AssociateLayer& al = it->second;
+        AssociateLayerInt* asso_layer = al.second;
+        if (layer->GetName() == asso_layer->GetName()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /** This method assumes that v1 is already set and valid.  It will

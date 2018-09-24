@@ -8,39 +8,44 @@
 #ifndef MapLayerTree_hpp
 #define MapLayerTree_hpp
 
+#include <vector>
 #include <wx/wx.h>
 
 #include "MapLayer.hpp"
+
+using namespace std;
 
 class MapCanvas;
 
 class SetAssociationDlg : public wxDialog
 {
-    wxString current_map_title;
-    wxChoice* layer_list;
-    wxChoice* field_list;
-    wxChoice* my_field_list;
-    BackgroundMapLayer* current_ml;
-    vector<BackgroundMapLayer*> bg_maps;
-    vector<BackgroundMapLayer*> fg_maps;
-    vector<wxString> current_map_fieldnames;
+    static wxString LAYER_LIST_ID;
+    vector<wxChoice*> layer_list;
+    vector<wxChoice*> field_list;
+    vector<wxChoice*> my_field_list;
+    vector<wxCheckBox*> conn_list;
+    AssociateLayerInt* current_ml;
+    vector<AssociateLayerInt*> all_layers;
     
+    int GetSelectRow(wxCommandEvent& e);
+    bool CheckLayerValid(int row, wxString layer_name);
 public:
     SetAssociationDlg(wxWindow* parent,
-                      wxString current_map_title,
-                      vector<wxString>& current_map_fieldnames,
-                     BackgroundMapLayer* ml,
-                     vector<BackgroundMapLayer*>& bg_maps,
-                     vector<BackgroundMapLayer*>& fg_maps,
+                      AssociateLayerInt* ml,
+                      vector<AssociateLayerInt*>& _all_layers,
+                      const wxString& title = _("Set Association Dialog"),
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxSize(400,300));
+    void CreateControls(int nrows);
     void Init();
-    wxString GetCurrentLayerFieldName();
-    wxString GetSelectLayerFieldName();
-    BackgroundMapLayer* GetSelectMapLayer();
+    
+    wxString GetCurrentLayerFieldName(int irow);
+    wxString GetSelectLayerFieldName(int irow);
+    AssociateLayerInt* GetSelectMapLayer(int irow);
+    AssociateLayerInt* GetMapLayer(wxString map_name);
     
     void OnLayerSelect(wxCommandEvent& e);
-    BackgroundMapLayer* GetMapLayer(wxString map_name);
+    void OnOk(wxCommandEvent& e);
 };
 
 class MapTree: public wxWindow
@@ -103,8 +108,8 @@ protected:
     int  GetSwitchClick(wxMouseEvent& event);
     int  GetCategoryClick(wxMouseEvent& event);
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
-    void OnSetPrimaryKey(wxCommandEvent& event);
     void OnSetAssociateLayer(wxCommandEvent& event);
+    void OnClearAssociateLayer(wxCommandEvent& event);
     void OnMapLayerChange();
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);

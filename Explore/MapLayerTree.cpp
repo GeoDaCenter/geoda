@@ -21,187 +21,265 @@
 #include "MapLayer.hpp"
 #include "MapLayerTree.hpp"
 
-SetAssociationDlg::SetAssociationDlg(wxWindow* parent, wxString _current_map_title, vector<wxString>& _current_map_fieldnames, BackgroundMapLayer* ml,vector<BackgroundMapLayer*>& _bg_maps, vector<BackgroundMapLayer*>& _fg_maps, const wxPoint& pos, const wxSize& size)
-: wxDialog(parent, -1, _("Set Association Dialog"), pos, size)
+wxString SetAssociationDlg::LAYER_LIST_ID = "SETASSOCIATIONDLG_LAYER_LIST";
+
+SetAssociationDlg::SetAssociationDlg(wxWindow* parent, AssociateLayerInt* ml,vector<AssociateLayerInt*>& _all_layers, const wxString& title, const wxPoint& pos, const wxSize& size)
+: wxDialog(parent, -1, title, pos, size)
 {
-    current_map_title = _current_map_title;
-    current_map_fieldnames = _current_map_fieldnames;
     current_ml = ml;
-    bg_maps = _bg_maps;
-    fg_maps = _fg_maps;
+    all_layers = _all_layers;
+    int nrows = all_layers.size();
+    if (nrows == 0) nrows = 1;
+    for (int i=0; i<nrows; i++) {
+        wxString layer_id = LAYER_LIST_ID;
+        layer_id << i;
+        layer_list.push_back(new wxChoice(this, XRCID(layer_id), wxDefaultPosition, wxSize(100,-1)));
+        field_list.push_back(new wxChoice(this, wxID_ANY, wxDefaultPosition, wxSize(100,-1)));
+        my_field_list.push_back(new wxChoice(this, wxID_ANY, wxDefaultPosition, wxSize(100,-1)));
+        conn_list.push_back(new wxCheckBox(this, wxID_ANY, "Show Connect line"));
+        
+        layer_list[i]->Bind(wxEVT_CHOICE, &SetAssociationDlg::OnLayerSelect, this);
+    }
+    CreateControls(nrows);
+    Center();
+    Init();
+}
+
+void SetAssociationDlg::CreateControls(int nrows)
+{
+    wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);
+    top_sizer->AddSpacer(10);
     
-    wxPanel* panel = new wxPanel(this, -1);
+    wxFlexGridSizer *fg_sizer = new wxFlexGridSizer(nrows, 8, 3, 3);
+    for (int i=0; i<nrows; i++) {
+        fg_sizer->Add(new wxStaticText(this, wxID_ANY, _("Select layer")), 0, wxALIGN_CENTER | wxTOP | wxBOTTOM | wxLEFT, 5);
+        fg_sizer->Add(layer_list[i], 0, wxALL|wxALIGN_CENTER, 5);
+        fg_sizer->Add(new wxStaticText(this, wxID_ANY, _("and field")), 0, wxALIGN_CENTER | wxTOP | wxBOTTOM | wxLEFT, 5);
+        fg_sizer->Add(field_list[i], 0, wxALL|wxALIGN_CENTER, 5);
+        fg_sizer->Add(new wxStaticText(this, wxID_ANY, _("is associated to")), 0, wxALIGN_CENTER | wxTOP | wxBOTTOM | wxLEFT, 5);
+        fg_sizer->Add(my_field_list[i], 0, wxALL|wxALIGN_CENTER, 5);
+        fg_sizer->Add(new wxStaticText(this, wxID_ANY, _("in current layer.")), 0, wxALIGN_CENTER | wxTOP | wxBOTTOM | wxLEFT, 5);
+        fg_sizer->Add(conn_list[i], 0, wxALIGN_CENTER | wxTOP | wxBOTTOM | wxLEFT, 5);
+    }
     
-    wxStaticText* st1 = new wxStaticText(panel, -1, _("Select layer"));
-    layer_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxStaticText* st = new wxStaticText(panel, -1, _("and field"));
-    field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxStaticText* st2 = new wxStaticText(panel, -1, _("is associated to"));
-    my_field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
-    wxStaticText* st3 = new wxStaticText(panel, -1, _("in current layer."));
-    wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
-    mbox->Add(st1, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(layer_list, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(st, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(st2, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(my_field_list, 0, wxALIGN_CENTER | wxALL, 5);
-    mbox->Add(st3, 0, wxALIGN_CENTER | wxALL, 5);
-    
-    wxBoxSizer* cbox = new wxBoxSizer(wxVERTICAL);
-    cbox->Add(mbox, 0, wxALIGN_CENTER | wxTOP, 15);
-    panel->SetSizerAndFit(cbox);
+    top_sizer->Add(fg_sizer, 0, wxALL|wxALIGN_CENTER, 15);
     
     wxButton* ok_btn = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
     wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
     wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
     hbox->Add(ok_btn, 0, wxALIGN_CENTER | wxALL, 5);
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
     
-    wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-    vbox->Add(panel, 1, wxALL | wxEXPAND, 15);
-    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    top_sizer->Add(hbox, 0, wxALL|wxALIGN_CENTER, 15);
     
-    SetSizer(vbox);
-    vbox->Fit(this);
+    SetSizerAndFit(top_sizer);
     
-    Center();
-    
-    layer_list->Bind(wxEVT_CHOICE, &SetAssociationDlg::OnLayerSelect, this);
-    
-    Init();
+    ok_btn->Bind(wxEVT_BUTTON, &SetAssociationDlg::OnOk, this);
+}
+
+int SetAssociationDlg::GetSelectRow(wxCommandEvent& e)
+{
+    int sel_row = -1;
+    int ctrl_id = e.GetId();
+    int nrows = all_layers.size();
+    for (int i=0; i<nrows; i++) {
+        wxString layer_id = LAYER_LIST_ID;
+        layer_id << i;
+        if (ctrl_id == XRCID(layer_id)) {
+            sel_row = i;
+            break;
+        }
+    }
+    return sel_row;
 }
 
 void SetAssociationDlg::Init()
 {
-    layer_list->Clear();
-    if (current_ml) {
-        layer_list->Append(current_map_title);
-        for (int i=0; i<bg_maps.size(); i++) {
-            wxString name = bg_maps[i]->GetName();
-            if (name != current_ml->GetName()) {
-                layer_list->Append(name);
-            }
+    int nrows = all_layers.size();
+    for (int i=0; i<nrows; i++) {
+        wxString layer_id = LAYER_LIST_ID;
+        layer_id << i;
+        int ctrl_id = XRCID(layer_id);
+        layer_list[i]->Clear();
+        layer_list[i]->Append("");
+        for (int j=0; j<all_layers.size(); j++) {
+            wxString name = all_layers[j]->GetName();
+            layer_list[i]->Append(name);
         }
-        for (int i=0; i<fg_maps.size(); i++) {
-            wxString name = fg_maps[i]->GetName();
-            if (name != current_ml->GetName()) {
-                layer_list->Append(name);
-            }
-        }
-    } else {
-        // map canvas
-        for (int i=0; i<bg_maps.size(); i++) {
-            wxString name = bg_maps[i]->GetName();
-            layer_list->Append(name);
-        }
-        for (int i=0; i<fg_maps.size(); i++) {
-            wxString name = fg_maps[i]->GetName();
-            layer_list->Append(name);
-        }
-    }
-    
-    wxCommandEvent e;
-    OnLayerSelect(e);
-    
-    my_field_list->Clear();
-    my_field_list->Append(_("(Use Sequences)"));
-    if (current_ml) {
+        
+        wxCommandEvent e;
+        e.SetId(ctrl_id);
+        OnLayerSelect(e);
+        
+        my_field_list[i]->Clear();
+        my_field_list[i]->Append("");
+        my_field_list[i]->Append(_("(Use Sequences)"));
         vector<wxString> my_fieldnames = current_ml->GetKeyNames();
-        for (int i=0; i<my_fieldnames.size(); i++) {
-            my_field_list->Append(my_fieldnames[i]);
-        }
-    } else {
-        for (int i=0; i<current_map_fieldnames.size(); i++) {
-            my_field_list->Append(current_map_fieldnames[i]);
+        for (int j=0; j<my_fieldnames.size(); j++) {
+            my_field_list[i]->Append(my_fieldnames[j]);
         }
     }
+    
+    int i = 0;
+    map<wxString, AssociateLayer>& asso = current_ml->associated_layers;
+    map<wxString, AssociateLayer>::iterator it;
+    for (it = asso.begin(); it!=asso.end(); it++) {
+        wxString my_key = it->first;
+        AssociateLayer& lyr = it->second;
+        wxString key = lyr.first;
+        AssociateLayerInt* layer = lyr.second;
+        
+        wxString layer_name;
+        for (int j=0; j<all_layers.size(); j++) {
+            wxString name = all_layers[j]->GetName();
+            if (layer->GetName() == name) {
+                layer_name = name;
+                layer_list[i]->SetSelection(j+1);
+                
+                wxString layer_id = LAYER_LIST_ID;
+                layer_id << i;
+                int ctrl_id = XRCID(layer_id);
+                wxCommandEvent e;
+                e.SetId(ctrl_id);
+                OnLayerSelect(e);
+                
+                AssociateLayerInt* ml = GetMapLayer(layer_name);
+                if (ml) {
+                    if (key.IsEmpty()) {
+                        field_list[i]->SetSelection(1);
+                    } else {
+                        vector<wxString> names = ml->GetKeyNames();
+                        for (int j=0; j<names.size(); j++) {
+                            if (key == names[j]) {
+                                field_list[i]->SetSelection(j+2);
+                                break;
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+        
+        vector<wxString> my_fieldnames = current_ml->GetKeyNames();
+        for (int j=0; j<my_fieldnames.size(); j++) {
+            if (my_key == my_fieldnames[j]) {
+                my_field_list[i]->SetSelection(j+2);
+                break;
+            }
+        }
+        
+        conn_list[i]->SetValue(current_ml->associated_lines[layer]);
+        
+        i++;
+    }
+}
+
+bool SetAssociationDlg::CheckLayerValid(int irow, wxString layer_name)
+{
+    int nrows = all_layers.size();
+    for (int i=0; i<nrows; i++) {
+        if (i != irow) {
+            int idx = layer_list[i]->GetSelection();
+            wxString check_name = layer_list[i]->GetString(idx);
+            if (check_name == layer_name) {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void SetAssociationDlg::OnLayerSelect(wxCommandEvent& e)
 {
-    int idx = layer_list->GetSelection();
+    int sel_row = GetSelectRow(e);
+    int idx = layer_list[sel_row]->GetSelection();
     if (idx >=0) {
-        field_list->Clear();
-        field_list->Append(_("(Use Sequences)"));
-        wxString map_name = layer_list->GetString(idx);
-        BackgroundMapLayer* ml = GetMapLayer(map_name);
+        field_list[sel_row]->Clear();
+        wxString map_name = layer_list[sel_row]->GetString(idx);
+        if (map_name.IsEmpty())
+            return;
+        if (CheckLayerValid(sel_row, map_name) == false) {
+            wxMessageDialog dlg (this, _("Current layer has already been associated with selected layer. Please select another layer to associate with."), _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            layer_list[sel_row]->SetSelection(0);
+            return;
+        }
+        AssociateLayerInt* ml = GetMapLayer(map_name);
         if (ml) {
+            field_list[sel_row]->Append("");
+            field_list[sel_row]->Append(_("(Use Sequences)"));
             vector<wxString> names = ml->GetKeyNames();
             for (int i=0; i<names.size(); i++) {
-                field_list->Append(names[i]);
-            }
-        } else if (idx == 0){
-            for (int i=0; i<current_map_fieldnames.size(); i++) {
-                field_list->Append(current_map_fieldnames[i]);
+                field_list[sel_row]->Append(names[i]);
             }
         }
     }
 }
 
-BackgroundMapLayer* SetAssociationDlg::GetMapLayer(wxString map_name)
+AssociateLayerInt* SetAssociationDlg::GetMapLayer(wxString map_name)
 {
     bool found = false;
-    BackgroundMapLayer* ml = NULL;
-    for (int i=0; i<bg_maps.size(); i++) {
-        if (bg_maps[i]->GetName() == map_name) {
-            ml = bg_maps[i];
+    AssociateLayerInt* ml = NULL;
+    for (int i=0; i<all_layers.size(); i++) {
+        if (all_layers[i]->GetName() == map_name) {
+            ml = all_layers[i];
             found = true;
             break;
-        }
-    }
-    if (found == false) {
-        for (int i=0; i<fg_maps.size(); i++) {
-            if (fg_maps[i]->GetName() == map_name) {
-                ml = fg_maps[i];
-                found = true;
-                break;
-            }
         }
     }
     return ml;
 }
 
-wxString SetAssociationDlg::GetCurrentLayerFieldName()
+void SetAssociationDlg::OnOk(wxCommandEvent& e)
 {
-    int idx = my_field_list->GetSelection();
-    if (idx > 0) {
-        return my_field_list->GetString(idx);
-    }
-    return wxEmptyString;
-}
-
-wxString SetAssociationDlg::GetSelectLayerFieldName()
-{
-    int idx = field_list->GetSelection();
-    if (idx > 0) {
-        return field_list->GetString(idx);
-    }
-    return wxEmptyString;
-}
-
-BackgroundMapLayer* SetAssociationDlg::GetSelectMapLayer()
-{
-    int idx = layer_list->GetSelection();
-    if (idx >=0) {
-        wxString map_name = layer_list->GetString(idx);
-        bool found = false;
-        BackgroundMapLayer* ml = NULL;
-        for (int i=0; i<bg_maps.size(); i++) {
-            if (bg_maps[i]->GetName() == map_name) {
-                ml = bg_maps[i];
-                found = true;
-                break;
+    current_ml->ClearLayerAssociation();
+    
+    int nrows = all_layers.size();
+    for (int i=0; i<nrows; i++) {
+        int lyr_idx = layer_list[i]->GetSelection();
+        if (lyr_idx > 0) {
+            wxString mykey = GetCurrentLayerFieldName(i);
+            wxString key = GetSelectLayerFieldName(i);
+            AssociateLayerInt* layer = GetSelectMapLayer(i);
+            bool conn_flag = conn_list[i]->IsChecked();
+            if (!mykey.IsEmpty() && !key.IsEmpty()) {
+                current_ml->SetLayerAssociation(mykey, layer, key, conn_flag);
             }
         }
-        if (found == false) {
-            for (int i=0; i<fg_maps.size(); i++) {
-                if (fg_maps[i]->GetName() == map_name) {
-                    ml = fg_maps[i];
-                    found = true;
-                    break;
-                }
+    }
+}
+
+wxString SetAssociationDlg::GetCurrentLayerFieldName(int irow)
+{
+    int idx = my_field_list[irow]->GetSelection();
+    if (idx > 0) {
+        return my_field_list[irow]->GetString(idx);
+    }
+    return wxEmptyString;
+}
+
+wxString SetAssociationDlg::GetSelectLayerFieldName(int irow)
+{
+    int idx = field_list[irow]->GetSelection();
+    if (idx > 0) { // first row is "(Use Sequences)"
+        return field_list[irow]->GetString(idx);
+    }
+    return wxEmptyString;
+}
+
+AssociateLayerInt* SetAssociationDlg::GetSelectMapLayer(int irow)
+{
+    int idx = layer_list[irow]->GetSelection();
+    if (idx > 0) {
+        wxString map_name = layer_list[irow]->GetString(idx);
+        bool found = false;
+        AssociateLayerInt* ml = NULL;
+        for (int i=0; i<all_layers.size(); i++) {
+            if (all_layers[i]->GetName() == map_name) {
+                ml = all_layers[i];
+                found = true;
+                break;
             }
         }
         return ml;
@@ -234,7 +312,7 @@ isDragDropAllowed(false)
     leg_pad_x = 10;
     leg_pad_y = 5;
     
-    current_map_title = canvas->GetCanvasTitle() + " (current map)";
+    current_map_title = canvas->GetName() + " (current map)";
     
     Init();
 
@@ -348,13 +426,13 @@ void MapTree::RemoveAssociationRelationship(BackgroundMapLayer* ml)
     for (int i=0; i<bg_maps.size(); i++) {
         tmp = bg_maps[i];
         if (tmp != ml) {
-            tmp->RemoveAssociationRelationship(ml);
+            tmp->RemoveAssociatedLayer(ml);
         }
     }
     for (int i=0; i<fg_maps.size(); i++) {
         tmp = fg_maps[i];
         if (tmp != ml) {
-            tmp->RemoveAssociationRelationship(ml);
+            tmp->RemoveAssociatedLayer(ml);
         }
     }
 }
@@ -460,57 +538,93 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
     }
 }
 
-void MapTree::OnSetPrimaryKey(wxCommandEvent& event)
+void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
 {
+    vector<AssociateLayerInt*> all_layers;
     wxString map_name = map_titles[new_order[select_id]];
-    if (current_map_title == map_name) {
-        // work on current map
-    } else {
-        BackgroundMapLayer* ml = GetMapLayer(map_name);
-        if (ml) {
-            wxArrayString choices;
-            vector<wxString> field_names = ml->GetKeyNames();
-            if (field_names.empty()) {
-                wxMessageDialog dlg (this, _("Select map layer has no integer or string field."), _("Error"), wxOK | wxICON_ERROR);
-                dlg.ShowModal();
-                return;
-            }
-            for (int i=0; i<field_names.size(); i++) {
-                choices.Add(field_names[i]);
-            }
-            wxSingleChoiceDialog dialog(this, _("Please select a field as primary key:\n(Cancel if use default sequence id) "), _("Set Primary Key"), choices);
-            if (dialog.ShowModal() == wxID_OK) {
-                wxString key = dialog.GetStringSelection();
-                ml->SetPrimaryKey(key);
-            }
-        }
+    AssociateLayerInt* ml = GetMapLayer(map_name);
+    
+    if (ml == NULL) {
+        // selection is current map
+        ml = canvas;
+        map_name = canvas->GetName();
     }
+    
+    ml->ClearLayerAssociation();
+    
 }
 
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
 {
+    vector<AssociateLayerInt*> all_layers;
     wxString map_name = map_titles[new_order[select_id]];
-    BackgroundMapLayer* ml = GetMapLayer(map_name);
-    vector<wxString> map_fieldnames = canvas->GetProject()->GetIntegerAndStringFieldNames();
-    SetAssociationDlg dlg(this, current_map_title, map_fieldnames, ml, bg_maps, fg_maps);
-    if (dlg.ShowModal() == wxID_OK) {
-        wxString my_key = dlg.GetCurrentLayerFieldName();
-        wxString asso_key = dlg.GetSelectLayerFieldName();
-        BackgroundMapLayer* asso_ml =  dlg.GetSelectMapLayer();
-        if (asso_ml == NULL && !my_key.IsEmpty()) {
-            // association with map_canvas
-            ml->SetMapAssociation(my_key, asso_key);
+    AssociateLayerInt* ml = GetMapLayer(map_name);
+    
+    if (ml == NULL) {
+        // selection is current map
+        ml = canvas;
+        map_name = canvas->GetName();
+    }
+    for (int i=0; i<fg_maps.size(); i++) {
+        if (fg_maps[i]->GetName() != ml->GetName()) {
+            all_layers.push_back(fg_maps[i]);
+        }
+    }
+    if (ml != canvas) {
+        all_layers.push_back(canvas);
+    }
+    for (int i=0; i<bg_maps.size(); i++) {
+        if (bg_maps[i]->GetName() != ml->GetName()) {
+            all_layers.push_back(bg_maps[i]);
+        }
+    }
+    
+    wxString title = _("Set Association Dialog");
+    title << " (" << ml->GetName() << ")";
+    SetAssociationDlg dlg(this, ml, all_layers, title);
+    
+    if (dlg.ShowModal() == wxID_CANCEL) {
+        bool check_flag = false;
+        map<wxString, AssociateLayer>::iterator it;
+        
+        for (int i=0; i<all_layers.size(); i++) {
+            AssociateLayerInt* ml = all_layers[i];
             
-        } else if (asso_ml && !asso_key.IsEmpty()) {
-            // association with other layer
-            if (asso_ml->GetAssociatedLayer() == ml) {
-                wxMessageDialog dlg (this, _("Current layer has already been associated with selected layer. Please select another layer to associate with."), _("Error"), wxOK | wxICON_ERROR);
-                dlg.ShowModal();
+            // check if loop happens start from this layer
+            map<wxString, int> checker;
+            vector<AssociateLayerInt*> stack;
+            
+            stack.push_back(ml);
+            
+            while (!stack.empty()) {
+                AssociateLayerInt* tmp_ml = stack.back();
+                stack.pop_back();
+                
+                if (checker.find(tmp_ml->GetName()) != checker.end()) {
+                    check_flag = true;
+                    break;
+                } else {
+                    checker[tmp_ml->GetName()] = true;
+                }
+                map<wxString, AssociateLayer>& asso = tmp_ml->associated_layers;
+                for (it = asso.begin(); it!= asso.end(); it++) {
+                    AssociateLayer& lyr = it->second;
+                    wxString key = lyr.first;
+                    AssociateLayerInt* layer = lyr.second;
+                    stack.push_back(layer);
+                }
             }
-            ml->SetLayerAssociation(my_key, asso_ml, asso_key);
             
-        } else {
-            wxMessageDialog dlg (this, _("Can't setup highlight association with selected layer and field. Please try again."), _("Error"), wxOK | wxICON_ERROR);
+            if (check_flag)
+                break;
+        }
+        
+        if (check_flag) {
+            for (int i=0; i<all_layers.size(); i++) {
+                AssociateLayerInt* ml = all_layers[i];
+                ml->ClearLayerAssociation();
+            }
+            wxMessageDialog dlg (this, _("Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."), _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
         }
     }
@@ -619,16 +733,15 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     BackgroundMapLayer* ml = GetMapLayer(map_name);
     
     wxString menu_name =  _("Set Highlight Association");
-    if (ml) {
-        if (!ml->GetAssociationText().IsEmpty()) {
-            menu_name += "(" + ml->GetAssociationText() + ")";
-        }
-    }
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
     Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetAssociateLayer));
     
+    popupMenu->Append(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), _("Clear Highlight Association"));
+    Connect(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnClearAssociateLayer));
+    
     if (ml == NULL) {
-        // no other options
+        // if it's current map, then no other options other than "Set Highlight"
+        PopupMenu(popupMenu, event.GetPosition());
         return;
     }
     
@@ -844,6 +957,9 @@ BackgroundMapLayer* MapTree::GetMapLayer(wxString map_name)
                 break;
             }
         }
+    }
+    if (ml==NULL) {
+        
     }
     return ml;
 }

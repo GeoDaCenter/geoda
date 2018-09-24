@@ -192,6 +192,7 @@ public:
         cat_data.SetCategoryLabel(0, cat, label);
     }
    
+    // multi-layers:
     vector<BackgroundMapLayer*> GetBackgroundMayLayers();
     vector<BackgroundMapLayer*> GetForegroundMayLayers();
     void SetForegroundMayLayers(vector<BackgroundMapLayer*>& val);
@@ -200,10 +201,15 @@ public:
     void RemoveLayer(wxString name);
     virtual bool IsCurrentMap();
     virtual wxString GetName();
+    virtual vector<wxString> GetKeyNames();
     virtual int  GetNumRecords();
     virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data);
     virtual void ResetHighlight();
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
+    virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
+                                     wxString key, bool show_connline=true);
+    virtual bool IsAssociatedWith(AssociateLayerInt* layer);
+    virtual GdaShape* GetShape(int idx);
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();

@@ -18,23 +18,37 @@
 using namespace std;
 
 class MapCanvas;
+class AssociateLayerInt;
+
+typedef pair<wxString, AssociateLayerInt* > AssociateLayer;
 
 class AssociateLayerInt
 {
 public:
+    // primary key : AssociateLayer
+    map<wxString, AssociateLayer> associated_layers;
+    map<AssociateLayerInt*, bool> associated_lines;
+
     AssociateLayerInt() {}
     virtual ~AssociateLayerInt() {}
     
     virtual bool IsCurrentMap() = 0;
     virtual wxString GetName() = 0;
     virtual int  GetNumRecords() = 0;
+    virtual vector<wxString> GetKeyNames() = 0;
     virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data) = 0;
     virtual void ResetHighlight() = 0;
     virtual void SetHighlight(int idx) = 0;
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas) = 0;
+    virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
+                                     wxString key, bool show_connline=true) = 0;
+    virtual bool IsAssociatedWith(AssociateLayerInt* layer) = 0;
+    virtual void ClearLayerAssociation() {
+        associated_layers.clear();
+    }
+    virtual GdaShape* GetShape(int i) = 0;
 };
 
-typedef pair<wxString, AssociateLayerInt* > AssociateLayer;
 
 class BackgroundMapLayer : public AssociateLayerInt
 {
@@ -43,17 +57,7 @@ class BackgroundMapLayer : public AssociateLayerInt
     vector<wxString> field_names;
     vector<wxString> key_names;
     
-    // primary key : AssociateLayer
-    map<wxString, AssociateLayer> associated_layers;
-    
-    wxString primary_key;
-    wxString associated_key;
-    AssociateLayerInt* associated_layer;
     bool show_connect_line;
-    
-    wxString mapcanvas_key;
-    wxString asso_mapcanvas_key;
-    
     wxString layer_name;
     wxColour pen_color;
     wxColour brush_color;
@@ -75,39 +79,28 @@ public:
     virtual ~BackgroundMapLayer();
     
     virtual bool IsCurrentMap();
-    virtual int GetNumRecords();
+    virtual int  GetNumRecords();
     virtual bool GetKeyColumnData(wxString field_name, vector<wxString>& data);
     virtual void SetHighlight(int idx);
     virtual void SetUnHighlight(int idx);
     virtual void ResetHighlight();
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
+    virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
+                                     wxString key, bool show_connline=true);
+    virtual bool IsAssociatedWith(AssociateLayerInt* layer);
+    virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
+
 
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
     BackgroundMapLayer* Clone(bool clone_style=false);
     
     vector<GdaShape*>& GetShapes();
-    GdaShape* GetShape(int idx);
+    virtual GdaShape* GetShape(int idx);
     
     void CleanMemory();
-    void SetMapAssociation(wxString my_key, wxString map_key);
-    void SetLayerAssociation(wxString my_key, BackgroundMapLayer* layer,
-                             wxString key, bool show_connline=true);
     wxString GetAssociationText();
-    void RemoveAssociationRelationship(BackgroundMapLayer* ml);
     
-    AssociateLayerInt* GetAssociatedLayer();
-    void SetAssociatedLayer(AssociateLayerInt* val);
-    
-    void SetPrimaryKey(wxString key);
-    wxString GetPrimaryKey();
-    
-    void SetAssociatedKey(wxString key);
-    wxString GetAssociatedKey();
-    
-    void SetMapcanvasKey(wxString name);
-    void SetAssoMapcanvasKey(wxString name);
-
     void SetName(wxString name);
     virtual wxString GetName();
     
