@@ -53,27 +53,36 @@ BasemapItem GetBasemapSelection(int idx)
         basemap_sources = encoded_str;
     }
     vector<wxString> keys;
-    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
-    wxStringTokenizer tokenizer(basemap_sources, newline);
-    while ( tokenizer.HasMoreTokens() ) {
-        wxString token = tokenizer.GetNextToken();
-        keys.push_back(token.Trim());
+    wxString newline;
+    if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
+        newline = "\r\n";
+    } else if (basemap_sources.Find("\r") != wxNOT_FOUND) {
+        newline = "\r";
+    } else if (basemap_sources.Find("\n") != wxNOT_FOUND) {
+        newline = "\n";
     }
-    if (idx >= 0 && idx < keys.size()) {
-        wxString basemap_source = keys[idx];
-        wxUniChar comma = ',';
-        int comma_pos = basemap_source.Find(comma);
-        if ( comma_pos != wxNOT_FOUND ) {
-            // group.name,url
-            wxString group_n_name = basemap_source.BeforeFirst(comma);
-            wxString url = basemap_source.AfterFirst(comma);
-            wxUniChar dot = '.';
-            wxString group = group_n_name.Before(dot);
-            wxString name = group_n_name.After(dot);
-            if (!group.IsEmpty() && !name.IsEmpty()) {
-                basemap_item.group = group;
-                basemap_item.name = name;
-                basemap_item.url = url;
+    if (newline.IsEmpty() == false) {
+        wxStringTokenizer tokenizer(basemap_sources, newline);
+        while ( tokenizer.HasMoreTokens() ) {
+            wxString token = tokenizer.GetNextToken();
+            keys.push_back(token.Trim());
+        }
+        if (idx >= 0 && idx < keys.size()) {
+            wxString basemap_source = keys[idx];
+            wxUniChar comma = ',';
+            int comma_pos = basemap_source.Find(comma);
+            if ( comma_pos != wxNOT_FOUND ) {
+                // group.name,url
+                wxString group_n_name = basemap_source.BeforeFirst(comma);
+                wxString url = basemap_source.AfterFirst(comma);
+                wxUniChar dot = '.';
+                wxString group = group_n_name.Before(dot);
+                wxString name = group_n_name.After(dot);
+                if (!group.IsEmpty() && !name.IsEmpty()) {
+                    basemap_item.group = group;
+                    basemap_item.name = name;
+                    basemap_item.url = url;
+                }
             }
         }
     }
@@ -89,36 +98,44 @@ vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) {
         basemap_sources = encoded_str;
     }
     vector<wxString> keys;
-    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
-    wxStringTokenizer tokenizer(basemap_sources, newline);
-    while ( tokenizer.HasMoreTokens() ) {
-        wxString token = tokenizer.GetNextToken();
-        keys.push_back(token.Trim());
+    wxString newline;
+    if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
+        newline = "\r\n";
+    } else if (basemap_sources.Find("\r") != wxNOT_FOUND) {
+        newline = "\r";
+    } else if (basemap_sources.Find("\n") != wxNOT_FOUND) {
+        newline = "\n";
     }
-    for (int i=0; i<keys.size(); i++) {
-        wxString basemap_source = keys[i];
-        wxUniChar comma = ',';
-        int comma_pos = basemap_source.Find(comma);
-        if ( comma_pos != wxNOT_FOUND ) {
-            // group.name,url
-            wxString group_n_name = basemap_source.BeforeFirst(comma);
-            wxString url = basemap_source.AfterFirst(comma);
-            wxUniChar dot = '.';
-            wxString group = group_n_name.Before(dot);
-            wxString name = group_n_name.After(dot);
-            if (group.IsEmpty() || name.IsEmpty()) {
-                continue;
+    if (newline.IsEmpty() == false) {
+        wxStringTokenizer tokenizer(basemap_sources, newline);
+        while ( tokenizer.HasMoreTokens() ) {
+            wxString token = tokenizer.GetNextToken();
+            keys.push_back(token.Trim());
+        }
+        for (int i=0; i<keys.size(); i++) {
+            wxString basemap_source = keys[i];
+            wxUniChar comma = ',';
+            int comma_pos = basemap_source.Find(comma);
+            if ( comma_pos != wxNOT_FOUND ) {
+                // group.name,url
+                wxString group_n_name = basemap_source.BeforeFirst(comma);
+                wxString url = basemap_source.AfterFirst(comma);
+                wxUniChar dot = '.';
+                wxString group = group_n_name.Before(dot);
+                wxString name = group_n_name.After(dot);
+                if (group.IsEmpty() || name.IsEmpty()) {
+                    continue;
+                }
+                if (group_dict.find(group) == group_dict.end()) {
+                    group_names.push_back(group);
+                    BasemapGroup bg(group);
+                    group_dict[group] = bg;
+                }
+                BasemapItem item(group, name, url);
+                group_dict[group].AddItem(item);
             }
-            if (group_dict.find(group) == group_dict.end()) {
-                group_names.push_back(group);
-                BasemapGroup bg(group);
-                group_dict[group] = bg;
-            }
-            BasemapItem item(group, name, url);
-            group_dict[group].AddItem(item);
         }
     }
-    
     vector<BasemapGroup> groups;
     for (int i=0; i<group_names.size(); i++) {
         groups.push_back( group_dict[group_names[i]] );
