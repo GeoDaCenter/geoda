@@ -13,6 +13,7 @@
 #include <wx/colordlg.h>
 #include <wx/choicdlg.h>
 
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../logger.h"
 #include "../Project.h"
@@ -998,28 +999,10 @@ void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
     
 }
 
-MapTreeDlg::MapTreeDlg(wxWindow* parent, MapCanvas* canvas, const wxPoint& pos, const wxSize& size)
-: wxDialog(parent, -1, _("Map Layer Setting"), pos, size)
-{
-    MapTree *tree = new MapTree(this, canvas, pos, size);
-    
-    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(tree, 1, wxEXPAND|wxALL, 0);
-    SetSizer(sizerAll);
-    SetAutoLayout(true);
-    sizerAll->Fit(this);
-    
-    Centre();
-}
-
-MapTreeDlg::~MapTreeDlg()
-{
-    
-}
-
 MapTreeFrame::MapTreeFrame(wxWindow* parent, MapCanvas* _canvas, const wxPoint& pos, const wxSize& size)
 : wxFrame(parent, -1, _canvas->GetCanvasTitle(), pos, size)
 {
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     SetBackgroundColour(*wxWHITE);
     canvas = _canvas;
     tree = new MapTree(this, canvas, pos, size);

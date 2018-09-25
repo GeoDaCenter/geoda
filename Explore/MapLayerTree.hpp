@@ -115,16 +115,6 @@ protected:
     void DrawLegend(wxDC& dc, int x, int y, wxString text);
 };
 
-
-class MapTreeDlg : public wxDialog
-{
-public:
-    MapTreeDlg(wxWindow* parent, MapCanvas* canvas,
-               const wxPoint& pos = wxDefaultPosition,
-               const wxSize& size = wxDefaultSize);
-    virtual ~MapTreeDlg();
-};
-
 class MapTreeFrame : public wxFrame
 {
     MapTree *tree;
