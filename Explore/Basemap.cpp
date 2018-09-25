@@ -42,6 +42,90 @@
 using namespace std;
 using namespace GDA;
 
+BasemapItem GetBasemapSelection(int idx)
+{
+    BasemapItem basemap_item;
+ 
+    idx = idx - 1; // first item [0] is choice "no basemap"
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
+    if (idx >= 0 && idx < keys.size()) {
+        wxString basemap_source = keys[idx];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            // group.name,url
+            wxString group_n_name = basemap_source.BeforeFirst(comma);
+            wxString url = basemap_source.AfterFirst(comma);
+            wxUniChar dot = '.';
+            wxString group = group_n_name.Before(dot);
+            wxString name = group_n_name.After(dot);
+            if (!group.IsEmpty() && !name.IsEmpty()) {
+                basemap_item.group = group;
+                basemap_item.name = name;
+                basemap_item.url = url;
+            }
+        }
+    }
+    return basemap_item;
+}
+
+vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) {
+    vector<wxString> group_names;
+    map<wxString, BasemapGroup> group_dict;
+    
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
+    for (int i=0; i<keys.size(); i++) {
+        wxString basemap_source = keys[i];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            // group.name,url
+            wxString group_n_name = basemap_source.BeforeFirst(comma);
+            wxString url = basemap_source.AfterFirst(comma);
+            wxUniChar dot = '.';
+            wxString group = group_n_name.Before(dot);
+            wxString name = group_n_name.After(dot);
+            if (group.IsEmpty() || name.IsEmpty()) {
+                continue;
+            }
+            if (group_dict.find(group) == group_dict.end()) {
+                group_names.push_back(group);
+                BasemapGroup bg(group);
+                group_dict[group] = bg;
+            }
+            BasemapItem item(group, name, url);
+            group_dict[group].AddItem(item);
+        }
+    }
+    
+    vector<BasemapGroup> groups;
+    for (int i=0; i<group_names.size(); i++) {
+        groups.push_back( group_dict[group_names[i]] );
+    }
+    return groups;
+}
+
 XY::XY(double _x, double _y)
 {
     x = _x;
@@ -51,26 +135,20 @@ XY::XY(double _x, double _y)
 }
 
 
-Basemap::Basemap(Screen* _screen,
+Basemap::Basemap(BasemapItem& basemap_item,
+                 Screen* _screen,
                  MapLayer *_map,
-                 int map_type,
                  wxString _cachePath,
                  OGRCoordinateTransformation *_poCT,
                  double _scale_factor)
 {
     poCT = _poCT;
-    mapType = map_type;
     screen = _screen;
     map = _map;
-    //canvas = _canvas;
     scale_factor = _scale_factor;
-    
     origMap = new MapLayer(map);
     
     cachePath = _cachePath;
-    urlSuffix = "";
-    
-
     bDownload = false;
     downloadThread = NULL;
     isPan = false;
@@ -84,7 +162,7 @@ Basemap::Basemap(Screen* _screen,
     nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
     
     GetEasyZoomLevel();
-    SetupMapType(map_type);
+    SetupMapType(basemap_item);
 }
 
 Basemap::~Basemap() {
@@ -129,9 +207,24 @@ void Basemap::CleanCache()
     }
 }
 
-void Basemap::SetupMapType(int map_type)
+void Basemap::SetupMapType(BasemapItem& _basemap_item)
 {
-    mapType = map_type;
+    basemap_item = _basemap_item;
+    basemapName = basemap_item.group + "." + basemap_item.name;
+    basemapUrl = basemap_item.url;
+    
+    if (basemapUrl.Find("png") != wxNOT_FOUND ||
+        basemapUrl.Find("PNG") != wxNOT_FOUND) {
+        imageSuffix = ".png";
+    } else if (basemapUrl.Find("jpeg") != wxNOT_FOUND ||
+               basemapUrl.Find("JPEG") != wxNOT_FOUND) {
+        imageSuffix = ".jpeg";
+    } else {
+        imageSuffix = ".jpeg";
+    }
+    // if ( !hdpi ) {
+    //     basemapUrl.Replace("@2x", "");
+    // }
     
     // get a latest CartoDB account
     vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
@@ -149,54 +242,6 @@ void Basemap::SetupMapType(int map_type)
             nokia_code = key;
         }
     }
-
-    // get basemap url
-    wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
-    if (items.size()>0) {
-        basemap_sources = items[0];
-    }
-    basemap_sources = wxString::FromUTF8(basemap_sources.mb_str());
-    vector<wxString> keys;
-    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
-    wxStringTokenizer tokenizer(basemap_sources, newline);
-    while ( tokenizer.HasMoreTokens() ) {
-        wxString token = tokenizer.GetNextToken();
-        keys.push_back(token.Trim());
-    }
-    // get valid basemap urls
-    basemap_names.clear();
-    for (int i=0; i<keys.size(); i++) {
-        wxString basemap_source = keys[map_type];
-        wxUniChar comma = ',';
-        int comma_pos = basemap_source.Find(comma);
-        if ( comma_pos != wxNOT_FOUND ) {
-            wxString name = basemap_source.BeforeFirst(comma);
-            basemap_names.push_back(name);
-        }
-    }
-    
-    if (map_type >= 0) {
-        wxString basemap_source = keys[map_type];
-        wxUniChar comma = ',';
-        int comma_pos = basemap_source.Find(comma);
-        if ( comma_pos != wxNOT_FOUND ) {
-            // name,url
-            basemapUrl = basemap_source.AfterFirst(comma);
-            if (basemap_source.Find("png") != wxNOT_FOUND ||
-                basemap_source.Find("PNG") != wxNOT_FOUND)
-                imageSuffix = ".png";
-            else if (basemap_source.Find("jpeg") != wxNOT_FOUND ||
-                     basemap_source.Find("JPEG") != wxNOT_FOUND)
-                imageSuffix = ".jpeg";
-            else
-                imageSuffix = ".jpeg";
-            // if ( !hdpi ) {
-            //     basemapUrl.Replace("@2x", "");
-            // }
-            
-        }
-    }
     
     GetTiles();
 }
@@ -208,7 +253,7 @@ void Basemap::Reset()
     map->west= origMap->west;
     map->east= origMap->east;
     GetEasyZoomLevel();
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::Reset(int map_type)
@@ -217,9 +262,8 @@ void Basemap::Reset(int map_type)
     map->south= origMap->south;
     map->west= origMap->west;
     map->east= origMap->east;
-    mapType = map_type;
     GetEasyZoomLevel();
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::ResizeScreen(int _width, int _height)
@@ -232,7 +276,7 @@ void Basemap::ResizeScreen(int _width, int _height)
     //isTileDrawn = false;
     GetEasyZoomLevel();
     
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::Pan(int x0, int y0, int x1, int y1)
@@ -655,7 +699,7 @@ wxString Basemap::GetTilePath(int x, int y)
     //std::ostringstream filepathBuf;
     wxString filepathBuf;
     filepathBuf << cachePath << "basemap_cache"<< separator();
-    filepathBuf << basemap_names[mapType] << "-";
+    filepathBuf << basemapName << "-";
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     
 	wxString newpath;

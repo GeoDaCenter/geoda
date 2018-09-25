@@ -20,16 +20,62 @@
 #ifndef GeoDa_Basemap_h
 #define GeoDa_Basemap_h
 
+#include <wx/tokenzr.h>
 #include <wx/math.h>
 #include <wx/dcgraph.h>
 #include <utility>
 #include <boost/thread/thread.hpp>
-
 #include <iostream>
 #include <fstream>
 #include <ogr_spatialref.h>
 
 using namespace std;
+
+class BasemapItem {
+public:
+    BasemapItem() {}
+    BasemapItem(wxString _group, wxString _name, wxString _url) {
+        group = _group;
+        name = _name;
+        url = _url;
+    }
+    ~BasemapItem() {}
+    BasemapItem& operator=(const BasemapItem& other) {
+        group = other.group;
+        name = other.name;
+        url = other.url;
+        return *this;
+    }
+    bool operator==(const BasemapItem& other) {
+        return (group == other.group && name == other.name && url == other.url);
+    }
+    wxString group;
+    wxString name;
+    wxString url;
+};
+
+class BasemapGroup {
+public:
+    BasemapGroup() {}
+    BasemapGroup(wxString _name) {
+        name = _name;
+    }
+    ~BasemapGroup() {}
+    BasemapGroup& operator=(const BasemapGroup& other) {
+        name = other.name;
+        items = other.items;
+        return *this;
+    }
+    void AddItem(BasemapItem item) {
+        items.push_back(item);
+    }
+    wxString name;
+    vector<BasemapItem> items;
+};
+
+BasemapItem GetBasemapSelection(int idx);
+
+vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
 
 namespace GDA {
     inline char separator()
@@ -213,42 +259,29 @@ namespace GDA {
             south = south - offsetH;
         }
     };
-    /*
-    class Downloader {
-    public:
-        boost::ptr_set<curl::easy> active_downloads;
-        void start_download(curl::multi& multi, const std::string& url,
-                            const std::string& filepath);
-        void handle_download_completed(const boost::system::error_code& err,
-                                       std::string url, curl::easy* easy);
-    public:
-        Downloader();
-        ~Downloader();
-        
-        void Crawl(std::vector<std::string>& urls,
-                   std::vector<std::string>& filepaths);
-    };
-    */
+
     // only for Web mercator projection
     class Basemap {
         
     public:
         Basemap(){}
-        Basemap(Screen *_screen,
+        Basemap(BasemapItem& basemap_item,
+                Screen *_screen,
                 MapLayer *_map,
-                int map_type,
                 wxString _cachePath,
                 OGRCoordinateTransformation *_poCT,
                 double scale_factor = 1.0);
         ~Basemap();
         
         OGRCoordinateTransformation *poCT;
-        
-        //MapCanvas* canvas;
-        int mapType;
+        BasemapItem basemap_item;
+        wxString basemapName;
         wxString basemapUrl;
-        std::string urlSuffix; // ?a=b&c=d
-        std::string imageSuffix;
+        wxString imageSuffix;
+        wxString cachePath;
+        wxString nokia_id;
+        wxString nokia_code;
+        
         int startX;
         int startY;
         int endX;
@@ -272,7 +305,7 @@ namespace GDA {
         Screen* screen;
         MapLayer* map;
         MapLayer* origMap;
-        wxString cachePath;
+        
         
         double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
         double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
@@ -295,14 +328,12 @@ namespace GDA {
         void Refresh();
         bool IsReady();
         
-        void SetupMapType(int map_type);
+        void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();
         
     protected:
-        std::string nokia_id;
-        std::string nokia_code;
-        vector<wxString> basemap_names;
+        
         int nn; // pow(2.0, zoom)
         
         bool bDownload;

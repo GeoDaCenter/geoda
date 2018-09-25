@@ -177,9 +177,8 @@ public:
     void DisplayMapLayers();
     void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
                      bool is_hide = false);
-    int  GetBasemapType();
     void CleanBasemapCache();
-    bool DrawBasemap(bool flag, int map_type);
+    bool DrawBasemap(bool flag, BasemapItem& bm_item);
     void OnIdle(wxIdleEvent& event);
     void TranslucentLayer0(wxMemoryDC& dc);
     void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h,
@@ -249,19 +248,21 @@ public:
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
     
+    BasemapItem basemap_item;
+    
 protected:
     vector<BackgroundMapLayer*> bg_maps;
     vector<BackgroundMapLayer*> fg_maps;
     list<GdaShape*>  background_maps;
     list<GdaShape*>  foreground_maps;
     
+    bool layerbase_valid; // if false, then needs to be redrawn
+    
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;
     wxString ds_name;
-    int map_type;
-	bool layerbase_valid; // if false, then needs to be redrawn
     
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
@@ -375,7 +376,7 @@ public:
 	virtual void OnSaveVoronoiDupsToTable();
     virtual void OnSelectableOutlineVisible(wxCommandEvent& event);    
     virtual void OnChangeMapTransparency();
-    virtual void OnDrawBasemap(bool flag, int map_type);
+    virtual void OnDrawBasemap(bool flag, BasemapItem& bm_item);
     
     void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);

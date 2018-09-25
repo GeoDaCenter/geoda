@@ -156,15 +156,29 @@ void PreferenceDlg::Init()
 	wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	cmb33 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
-	cmb33->Append("No basemap");
-	cmb33->Append("Carto Light");
-	cmb33->Append("Carto Dark");
-	cmb33->Append("Carto Light (No Labels)");
-	cmb33->Append("Carto Dark (No Labels)");
-	cmb33->Append("Nokia Day");
-	cmb33->Append("Nokia Night");
-	cmb33->Append("Nokia Hybrid");
-	cmb33->Append("Nokia Satellite");
+    cmb33->Append("No basemap");
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
+    vector<wxString> keys;
+    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
+    wxStringTokenizer tokenizer(basemap_sources, newline);
+    while ( tokenizer.HasMoreTokens() ) {
+        wxString token = tokenizer.GetNextToken();
+        keys.push_back(token.Trim());
+    }
+    for (int i=0; i<keys.size(); i++) {
+        wxString basemap_source = keys[i];
+        wxUniChar comma = ',';
+        int comma_pos = basemap_source.Find(comma);
+        if ( comma_pos != wxNOT_FOUND ) {
+            // group.name,url
+            wxString group_n_name = basemap_source.BeforeFirst(comma);
+            cmb33->Append(group_n_name);
+        }
+    }
 	cmb33->SetSelection(0);
 	cmb33->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
 

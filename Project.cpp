@@ -1610,14 +1610,13 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
     OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
     if (p_layer->ReadData()) {
-        if (p_layer->IsTableOnly()) {
-            return NULL;
+        if (p_layer->IsTableOnly() == false) {
+            // always add to bg_maps
+            if (bg_maps.find(layer_name) == bg_maps.end()) {
+                bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);
+            }
+            map_layer = bg_maps[layer_name];
         }
-        // always add to bg_maps
-        if (bg_maps.find(layer_name) == bg_maps.end()) {
-            bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);
-        }
-        map_layer = bg_maps[layer_name];
     }
     return map_layer;
 }

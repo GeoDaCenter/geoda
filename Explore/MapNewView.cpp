@@ -190,7 +190,6 @@ weights_id(weights_id_s),
 basemap(0),
 isDrawBasemap(false),
 basemap_bm(0),
-map_type(-1),
 ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false),
@@ -214,21 +213,18 @@ maplayer_state(project_s->GetMapLayerState())
 	}
 	use_category_brushes = true;
 	cat_classif_def.cat_classif_type = theme_type;
-	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories,
-					   weights_id, true, var_info_s, col_ids_s))
-    {
+	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories, weights_id, true, var_info_s, col_ids_s)) {
 		// The user possibly clicked cancel, so try again with themeless map
 		vector<GdaVarTools::VarInfo> vi(0);
 		vector<int> cids(0);
-		ChangeMapType(CatClassification::no_theme, no_smoothing, 1,
-					  boost::uuids::nil_uuid(), true, vi, cids);
+		ChangeMapType(CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), true, vi, cids);
 	}
 	highlight_state->registerObserver(this);
     maplayer_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     isDrawBasemap = GdaConst::use_basemap_by_default;
     if (isDrawBasemap) {
-        map_type = GdaConst::default_basemap_selection;
+        basemap_item = GetBasemapSelection(GdaConst::default_basemap_selection);
     }
 }
 
@@ -720,23 +716,20 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
 bool MapCanvas::InitBasemap()
 {
-    if (basemap == 0) {
+    if (basemap == NULL) {
         wxSize sz = GetClientSize();
         int screenW = sz.GetWidth();
         int screenH = sz.GetHeight();
-
         OGRCoordinateTransformation *poCT = NULL;
         
         if (project->sourceSR != NULL) {
             int nGCS = project->sourceSR->GetEPSGGeogCS();
             //if (nGCS != 4326) {
-                OGRSpatialReference destSR;
-                destSR.importFromEPSG(4326);
-                poCT = OGRCreateCoordinateTransformation(project->sourceSR,
-                                                         &destSR);
             //}
+            OGRSpatialReference destSR;
+            destSR.importFromEPSG(4326);
+            poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
-        
         GDA::Screen* screen = new GDA::Screen(screenW, screenH);
         double shps_orig_ymax = last_scale_trans.data_y_max;
         double shps_orig_xmin = last_scale_trans.data_x_min;
@@ -759,33 +752,30 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
-            basemap = new GDA::Basemap(screen, map, map_type,
-                                       GenUtils::GetBasemapCacheDir(),
-                                       poCT, scale_factor);
+            basemap = new GDA::Basemap(basemap_item, screen, map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
         }
     }
     return true;
 }
 
-bool MapCanvas::DrawBasemap(bool flag, int map_type_)
+bool MapCanvas::DrawBasemap(bool flag, BasemapItem& _basemap_item)
 {
-    //ResetShapes();
     ResetBrushing();
-    map_type = map_type_;
     isDrawBasemap = flag;
+    basemap_item = _basemap_item;
     wxSize sz = GetClientSize();
     int screenW = sz.GetWidth();
     int screenH = sz.GetHeight();
     if (isDrawBasemap == true) {
-        if ( basemap == 0 && InitBasemap()  == false ) {
+        if ( basemap == NULL && InitBasemap()  == false ) {
             ResizeSelectableShps();
             return false;
         } else {
-            basemap->SetupMapType(map_type);
+            basemap->SetupMapType(basemap_item);
         }
     } else {
         if ( basemap ) {
-            basemap->mapType = -1;
+            basemap->basemap_item = basemap_item;
             last_scale_trans.data_x_min = basemap->map->west;
             last_scale_trans.data_x_max = basemap->map->east;
             last_scale_trans.data_y_min = basemap->map->south;
@@ -1158,17 +1148,11 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool reve
 #endif
 }
 
-int MapCanvas::GetBasemapType()
-{
-    if (basemap)
-        return basemap->mapType;
-    return -1;
-}
-
 void MapCanvas::CleanBasemapCache()
 {
-    if (basemap)
+    if (basemap) {
         basemap->CleanCache();
+    }
 }
 
 void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -1262,14 +1246,6 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
                 basemap->ResizeScreen(w, h);
                 basemap->Refresh();
             }
-            /*
-             GDA::Basemap basemap(screen, map, map_type, GenUtils::GetBasemapCacheDir(), poCT, 2.0);
-             if (print_detailed_basemap) {
-             basemap.ResizeScreen(w, h);
-             basemap.Refresh();
-             } else {
-             basemap.ResizeScreen(screen_w, screen_h);
-             }*/
             BOOST_FOREACH( GdaShape* ms, background_maps ) {
                 if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
@@ -3094,14 +3070,15 @@ void MapFrame::UpdateMapLayer()
     }
 }
 
-void MapFrame::OnDrawBasemap(bool flag, int map_type)
+void MapFrame::OnDrawBasemap(bool flag, BasemapItem& bm_item)
 {
 	if (!template_canvas) return;
 
-    bool drawSuccess = ((MapCanvas*)template_canvas)->DrawBasemap(flag, map_type);
+    MapCanvas* map_canvas = (MapCanvas*)template_canvas;
+    bool drawSuccess = map_canvas->DrawBasemap(flag, bm_item);
     
     if (flag == false) {
-        ((MapCanvas*)template_canvas)->tran_unhighlighted = GdaConst::transparency_unhighlighted;
+        map_canvas->tran_unhighlighted = GdaConst::transparency_unhighlighted;
     }
     
     if (drawSuccess==false) {
@@ -3217,22 +3194,17 @@ void MapFrame::OnBasemapSelect(wxCommandEvent& event)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
-    if (encoded_str.IsEmpty() == false) {
-        basemap_sources = encoded_str;
-    }
-    vector<wxString> keys;
-    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
-    wxStringTokenizer tokenizer(basemap_sources, newline);
-    while ( tokenizer.HasMoreTokens() ) {
-        wxString token = tokenizer.GetNextToken();
-        keys.push_back(token.Trim());
-    }
-    for (int i=0; i<keys.size(); i++) {
-        wxString xid = wxString::Format("ID_BASEMAP_%d", i);
-        if (menu_id == XRCID(xid)) {
-            OnDrawBasemap(true, i);
-            break;
+    vector<BasemapGroup> basemap_groups = ExtractBasemapResources(basemap_sources);
+    
+    for (int i=0; i<basemap_groups.size(); i++) {
+        BasemapGroup& grp = basemap_groups[i];
+        vector<BasemapItem>& items = grp.items;
+        for (int j=0; j<items.size(); j++) {
+            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+            if (menu_id == XRCID(xid)) {
+                OnDrawBasemap(true, items[j]);
+                break;
+            }
         }
     }
 }
@@ -3248,41 +3220,38 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
-    if (encoded_str.IsEmpty() == false) {
-        basemap_sources = encoded_str;
-    }
-    vector<wxString> keys;
-    wxString newline = basemap_sources.Find('\r') == wxNOT_FOUND ? "\n" : "\r\n";
-    wxStringTokenizer tokenizer(basemap_sources, newline);
-    while ( tokenizer.HasMoreTokens() ) {
-        wxString token = tokenizer.GetNextToken();
-        keys.push_back(token.Trim());
-    }
-    for (int i=0; i<keys.size(); i++) {
-        wxString basemap_source = keys[i];
-        wxUniChar comma = ',';
-        int comma_pos = basemap_source.Find(comma);
-        if ( comma_pos != wxNOT_FOUND ) {
-            // name,url
-            wxString name = basemap_source.BeforeFirst(comma);
-            wxString xid = wxString::Format("ID_BASEMAP_%d", i);
-            popupMenu->AppendCheckItem(XRCID(xid), name);
+    vector<BasemapGroup> basemap_groups = ExtractBasemapResources(basemap_sources);
+    for (int i=0; i<basemap_groups.size(); i++) {
+        BasemapGroup& grp = basemap_groups[i];
+        wxMenu* imp = new wxMenu;
+        vector<BasemapItem>& items = grp.items;
+        for (int j=0; j<items.size(); j++) {
+            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+            imp->AppendCheckItem(XRCID(xid), items[j].name);
             Connect(XRCID(xid), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapFrame::OnBasemapSelect));
         }
+        popupMenu->AppendSubMenu(imp, grp.name);
     }
-    
     if (popupMenu) {
         // set checkmarks
-        int idx = ((MapCanvas*) template_canvas)->GetBasemapType();
-        if (idx < 0) {
-            popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check();
-        } else {
-            for (int i=0; i<keys.size(); i++) {
-                wxString xid = wxString::Format("ID_BASEMAP_%d", i);
-                wxMenuItem* item = popupMenu->FindItem(XRCID(xid));
-                if (item) item->Check(idx==i);
+        BasemapItem current_item = ((MapCanvas*) template_canvas)->basemap_item;
+        bool no_basemap = true;
+        for (int i=0; i<basemap_groups.size(); i++) {
+            BasemapGroup& grp = basemap_groups[i];
+            vector<BasemapItem>& items = grp.items;
+            for (int j=0; j<items.size(); j++) {
+                wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+                wxMenuItem* menu = popupMenu->FindItem(XRCID(xid));
+                if (current_item == items[j]) {
+                    menu->Check(true);
+                    no_basemap = false;
+                } else {
+                    menu->Check(false);
+                }
             }
+        }
+        if (no_basemap) {
+            popupMenu->FindItem(XRCID("ID_NO_BASEMAP"))->Check();
         }
         PopupMenu(popupMenu, wxDefaultPosition);
     }
