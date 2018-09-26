@@ -9216,7 +9216,7 @@
                               <orient>wxVERTICAL</orient>
                               <object class="sizeritem">
                                   <object class="wxStaticText">
-                                      <label>Basemap Sources: (name,basemap_url)</label>
+                                      <label>Basemap Sources: (Format: group_name.basemap_name,basemap_url)</label>
                                   </object>
                                   <flag>wxLEFT|wxALL|wxALIGN_LEFT</flag>
                                   <border>10</border>
