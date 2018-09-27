@@ -21,6 +21,9 @@
 #include <wx/colourdata.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcgraph.h>
+#include <wx/statbox.h>
+
+#include <wx/button.h>
 
 #include "logger.h"
 #include "GdaConst.h"
@@ -30,9 +33,54 @@
 #include "Explore/MapNewView.h"
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////
+PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(250, 160))
+{
+    
+    wxPanel *panel = new wxPanel(this, -1);
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    
+    wxBoxSizer *sbox = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText *lbl = new wxStaticText(panel, -1, _("Point Radius:"));
+    wxString s_radius;
+    if (r > 0) s_radius << r;
+    else s_radius = "2";
+    rb = new wxSpinCtrl(panel, -1, s_radius);
+    sbox->Add(lbl);
+    sbox->Add(rb);
+    wxBoxSizer* panel_v_szr = new wxBoxSizer(wxVERTICAL);
+    panel_v_szr->Add(sbox, 1, wxALL|wxEXPAND, 5);
+    panel->SetSizer(panel_v_szr);
+    
+    wxButton *okButton = new wxButton(this, wxID_OK, _("Ok"),
+                                      wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_CANCEL, _("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    
+    hbox->Add(okButton, 1);
+    hbox->Add(closeButton, 1, wxLEFT, 5);
+    
+    vbox->Add(panel, 1, wxALL | wxEXPAND, 30);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    
+    SetSizer(vbox);
+    SetAutoLayout(true);
+    vbox->Fit(this);
+    Centre();
+}
+
+
+int PointRadiusDialog::GetRadius()
+{
+    return rb->GetValue();
+}
+
+///////////////////////////////////////////////////////////////////////////////
 //
-///////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 GdaLegendLabel::GdaLegendLabel(int _idx, wxString _text, wxPoint _pos, wxSize _sz)
 : d_rect(20)
@@ -56,11 +104,25 @@ int GdaLegendLabel::getWidth()
     return position.x + size.GetWidth();
 }
 
+int GdaLegendLabel::getHeight()
+{
+    return position.y + size.GetHeight();
+}
+
 const wxRect& GdaLegendLabel::getBBox()
 {
     return bbox;
 }
 
+wxString GdaLegendLabel::GetText()
+{
+    return text;
+}
+
+wxPoint GdaLegendLabel::GetTmpPosition()
+{
+    return tmp_position;
+}
 void GdaLegendLabel::move(const wxPoint& new_pos)
 {
     tmp_position = new_pos;
@@ -109,6 +171,7 @@ IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
 
 BEGIN_EVENT_TABLE(TemplateLegend, wxScrolledWindow)
 	EVT_MENU(TemplateLegend::ID_CATEGORY_COLOR, TemplateLegend::OnCategoryColor)
+    EVT_MENU(XRCID("IDC_CHANGE_POINT_RADIUS"), TemplateLegend::OnChangePointRadius)
 	EVT_MOUSE_EVENTS(TemplateLegend::OnEvent)
 END_EVENT_TABLE()
 
@@ -271,9 +334,23 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
 	if (!cat_label.IsEmpty())
         s << ": " << cat_label;
-    
+    if ( template_canvas->GetShapeType() == TemplateCanvas::points) {
+        menu->Prepend(XRCID("IDC_CHANGE_POINT_RADIUS"), _("Change Point Radius"), "");
+    }
 	menu->Prepend(ID_CATEGORY_COLOR, s, s);
 	opt_menu_cat = cat_clicked;
+}
+
+void TemplateLegend::OnChangePointRadius(wxCommandEvent& event)
+{
+    int old_radius = template_canvas->GetPointRadius();
+    PointRadiusDialog dlg(_("Change Point Radius"), old_radius);
+    if (dlg.ShowModal() == wxID_OK) {
+        int new_radius = dlg.GetRadius();
+        template_canvas->SetPointRadius(new_radius);
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+    }
 }
 
 void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
@@ -316,8 +393,12 @@ void TemplateLegend::OnDraw(wxDC& dc)
     dc.SetFont(*GdaConst::small_font);
     wxString title = template_canvas->GetCategoriesTitle();
     dc.DrawText(title, px, 13);
-    wxSize title_sz = dc.GetTextExtent(title);
+    
+    wxString save_png_ttl = template_canvas->GetVariableNames();
+    wxSize title_sz = dc.GetTextExtent(save_png_ttl);
+
     title_width = title_sz.GetWidth();
+    title_height = title_sz.GetHeight();
 	
 	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int cur_y = py;
@@ -385,43 +466,82 @@ int TemplateLegend::GetDrawingWidth()
             max_width = lbl->getWidth();
         }
     }
+#ifdef __WIN32__
+	max_width = max_width * 1.2;
+#endif
     return max_width;
+}
+
+int TemplateLegend::GetDrawingHeight()
+{
+    int max_height = title_height;
+    if (title_height>0) max_height += 13;
+    
+    for (int i=0; i<new_order.size(); i++) {
+        max_height += d_rect;
+    }
+    return max_height + 2;
 }
 
 void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 {
 	if (template_canvas == NULL)
         return;
-    
-    wxFont* fnt = wxFont::New(12 / scale, wxFONTFAMILY_SWISS,
+
+	 dc.SetPen(*wxBLACK_PEN);
+
+    int font_size = 12 * scale;
+#ifdef __WIN32__
+	font_size = font_size * 0.8;
+#endif
+    wxFont* fnt = wxFont::New(font_size, wxFONTFAMILY_SWISS,
                               wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                               wxEmptyString, wxFONTENCODING_DEFAULT);
     dc.SetFont(*fnt);
-  
-	wxString ttl = template_canvas->GetCategoriesTitle();
-	ttl = ttl.BeforeFirst(':');
-    dc.DrawText(ttl, px / scale, 13 / scale);
-	
-	int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    int cur_y = py;
-	int numRect = template_canvas->cat_data.GetNumCategories(time);
-	
+    
+	int cur_y = py;
+    int time = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int numRect = template_canvas->cat_data.GetNumCategories(time);
+    wxString ttl = template_canvas->GetVariableNames();
+    
+    int gap = 10;
+    if (scale < 1) {
+        px = px * scale;
+        gap = 10 * scale;
+    }
+    
+    // draw legend title
+    if (ttl.IsEmpty()) {
+        cur_y = 2 * scale;
+    } else {
+        dc.DrawText(ttl, px, 2 * scale);
+        wxSize title_sz = dc.GetTextExtent(ttl);
+        cur_y = 2* scale + title_sz.GetHeight() + gap;
+    }
+    
     dc.SetPen(*wxBLACK_PEN);
-	for (int i=0; i<numRect; i++) {
+    for (int i=0; i<numRect; i++) {
         wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk())
+        if (clr.IsOk()) {
             dc.SetBrush(clr);
-        else
+        } else {
             dc.SetBrush(*wxBLACK_BRUSH);
+        }
         
-		dc.DrawText(template_canvas->cat_data.GetCatLblWithCnt(time, i),
-					(px + m_l + 10) / scale, (cur_y - (m_w / 2)) / scale);
+        int rect_x = px;
+        int rect_y = cur_y;
+        int rect_w = m_l * scale;
+        int rect_h = m_w * scale;
+        dc.DrawRectangle(rect_x, rect_y, rect_w, rect_h);
         
-		dc.DrawRectangle(px / scale, (cur_y - 8) / scale,
-                         m_l / scale, m_w / scale);
+		wxString lbl = template_canvas->cat_data.GetCatLblWithCnt(time, i);
+		double lbl_x = px + rect_w + gap;
+        double lbl_y = cur_y + 2;
+        dc.DrawText(lbl, lbl_x, lbl_y);
         
-		cur_y += d_rect;
-	}
+
+        cur_y += d_rect * scale;
+    }
 }
 
 

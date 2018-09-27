@@ -143,7 +143,7 @@ public:
 	void SetWaldTest(int i, double coef) { wald_test[i] = coef;};
 	void SetMeanY(double mY) { mean_Y = mY; };
 	void SetSDevY(double sdY) { sdev_Y = sdY; };
-
+    bool GetDiagStatus();
 private:
 	void SetDiagStatus(bool status);
 	bool Allocate();

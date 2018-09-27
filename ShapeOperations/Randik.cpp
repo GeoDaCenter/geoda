@@ -142,6 +142,44 @@ bool Randik::Perm(const int size, int* thePermutation, long* theRands)
 	return true;
 }
 
+bool Randik::Perm(const std::vector<bool>& undefs, const int size, int* thePermutation, long* theRands)
+{
+    if (!thePermutation || !theRands) return false;
+    bool permOk = true;
+    do  {
+        int cnt;
+        for (cnt= 0; cnt < size; ++cnt)   // original permutation -- 0 permuts
+            thePermutation[ cnt ] = cnt;
+        for (cnt= 0; cnt < size; ++cnt)   // generate size random numbers
+            theRands[ cnt ] = lValue();
+        IndexSort(theRands, thePermutation, 0, size-1);
+        int  thePrevious = thePermutation[0];
+        for (cnt = 1; cnt < size; ++cnt)  {  // ascending order is IMPORTANT
+            const int theNext = thePermutation[cnt];
+            if (thePrevious == theNext)  {
+                permOk = false;       // bad, bad permutation
+                break;
+            }
+            thePrevious= theNext;
+        }
+    }
+    while (!permOk);  // loop while the permutation is not good
+    
+    // reset undefs position like they are not included in shuffule
+    for (int i=0; i<size; i++) {
+        if (undefs[i]) {
+            for (int j=0; j<size; j++) {
+                if (thePermutation[j] == i) {
+                    // switch i and j
+                    thePermutation[j] = thePermutation[i];
+                    thePermutation[i] = i;
+                }
+            }
+        }
+    }
+    return true;
+}
+
 long Randik::GetSeed()
 {
 	return seed < 0 ? -seed : seed;

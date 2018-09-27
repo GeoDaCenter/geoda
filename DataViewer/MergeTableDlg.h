@@ -39,13 +39,15 @@
 
 class ConnectDatasourceDlg;
 class FramesManager;
+class Project;
+class ExportDataDlg;
+class OGRColumn;
 
 class MergeTableDlg: public wxDialog, public FramesManagerObserver
 {    
 public:
     MergeTableDlg(wxWindow* parent,
-                  TableInterface* _table_int,
-                  FramesManager* frames_manager,
+                  Project* project_p,
                   const wxPoint& pos = wxDefaultPosition);
 	virtual ~MergeTableDlg();
 
@@ -68,9 +70,15 @@ public:
 	void OnKeyChoice( wxCommandEvent& ev );
 	void OnCloseClick( wxCommandEvent& ev );
     void OnClose( wxCloseEvent& ev);
+	void OnLeftJoinClick( wxCommandEvent& ev );
+	void OnOuterJoinClick( wxCommandEvent& ev );
 	void UpdateMergeButton();
 	//void RemoveDbfReader();
 	//void UpdateIncListItems();
+    
+    void LeftJoinMerge();
+    void OuterJoinMerge();
+    
 	
 	wxTextCtrl* m_input_file_name;
 	wxRadioButton* m_key_val_rb;
@@ -79,15 +87,17 @@ public:
 	wxChoice* m_import_key;
 	wxListBox* m_exclude_list;
 	wxListBox* m_include_list;
-	
-	//TableBase* table_base;
+	wxRadioButton* m_left_join;
+	wxRadioButton* m_outer_join;
+	wxCheckBox* m_overwrite_field;
+
+    Project* project_s;
 	TableInterface* table_int;
 	OGRLayerProxy* merge_layer_proxy;
     OGRDatasourceProxy* merge_datasource_proxy;
 	std::set<wxString> table_fnames;
 	
 private:
-    ConnectDatasourceDlg* connect_dlg;
 	FramesManager* frames_manager;
     
 	std::map<wxString, int> dedup_to_id;
@@ -99,16 +109,19 @@ private:
 	// 0->2, 1->1, 2->0, 3->5, 4->3, 5->4
 	//std::vector<int> col_id_map;
     
-private:
-    void CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+    bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<wxString, int>& key_map);
     
-    vector<wxString>
-    GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
+    vector<wxString> GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict);
     
     void AppendNewField(wxString field_name, wxString real_field_name,
                         int n_rows, std::map<int,int>& rowid_map);
     
+    OGRColumn* CreateNewOGRColumn(int new_rows, TableInterface* table_int, vector<bool>& undefs, int idx, int t=0);
+   
+    OGRColumn* CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_proxy, vector<bool>& undefs, wxString col_name, map<int, int>& idx2_dict);
+   
+    void UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, map<int, int>& idx2_dict);
     
 	DECLARE_EVENT_TABLE()
 };

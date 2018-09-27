@@ -28,48 +28,49 @@
 #include <wx/textdlg.h>
 #include "MergeTableDlg.h"
 #include "DataSource.h"
-#include "DbfColContainer.h"
 #include "TableBase.h"
 #include "TableInterface.h"
 #include "../FramesManagerObserver.h"
 #include "../FramesManager.h"
-#include "../DbfFile.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DialogTools/ConnectDatasourceDlg.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
+#include "../DialogTools/ExportDataDlg.h"
 #include "../logger.h"
+#include "../GeneralWxUtils.h"
+#include "../Project.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
+
 	EVT_RADIOBUTTON( XRCID("ID_KEY_VAL_RB"), MergeTableDlg::OnKeyValRB )
 	EVT_RADIOBUTTON( XRCID("ID_REC_ORDER_RB"), MergeTableDlg::OnRecOrderRB )
 	EVT_BUTTON( XRCID("ID_OPEN_BUTTON"), MergeTableDlg::OnOpenClick )
 	EVT_BUTTON( XRCID("ID_INC_ALL_BUTTON"), MergeTableDlg::OnIncAllClick )
 	EVT_BUTTON( XRCID("ID_INC_ONE_BUTTON"), MergeTableDlg::OnIncOneClick )
-	EVT_LISTBOX_DCLICK( XRCID("ID_INCLUDE_LIST"),
-					   MergeTableDlg::OnIncListDClick )
+	EVT_LISTBOX_DCLICK( XRCID("ID_INCLUDE_LIST"), MergeTableDlg::OnIncListDClick )
 	EVT_BUTTON( XRCID("ID_EXCL_ALL_BUTTON"), MergeTableDlg::OnExclAllClick )
 	EVT_BUTTON( XRCID("ID_EXCL_ONE_BUTTON"), MergeTableDlg::OnExclOneClick )
-	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"),
-					   MergeTableDlg::OnExclListDClick )
+	EVT_LISTBOX_DCLICK( XRCID("ID_EXCLUDE_LIST"), MergeTableDlg::OnExclListDClick )
 	EVT_CHOICE( XRCID("ID_CURRENT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
 	EVT_CHOICE( XRCID("ID_IMPORT_KEY_CHOICE"), MergeTableDlg::OnKeyChoice )
-	EVT_BUTTON( XRCID("wxID_OK"), MergeTableDlg::OnMergeClick )
+	EVT_BUTTON( XRCID("wxID_MERGE"), MergeTableDlg::OnMergeClick )
 	EVT_BUTTON( XRCID("wxID_CLOSE"), MergeTableDlg::OnCloseClick )
     EVT_CLOSE( MergeTableDlg::OnClose )
 END_EVENT_TABLE()
 
 using namespace std;
 
-MergeTableDlg::MergeTableDlg(wxWindow* parent,
-                             TableInterface* _table_int,
-                             FramesManager* frames_manager_,
-                             const wxPoint& pos)
-: table_int(_table_int), connect_dlg(NULL), frames_manager(frames_manager_)
+MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
+: merge_datasource_proxy(NULL), project_s(_project_s)
 {
     wxLogMessage("Open MergeTableDlg.");
 	SetParent(parent);
+    
 	//table_int->FillColIdMap(col_id_map);
+    table_int = project_s->GetTableInt(),
+    frames_manager = project_s->GetFramesManager(),
+    
 	CreateControls();
 	Init();
 	wxString nm;
@@ -82,9 +83,12 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent,
 
 MergeTableDlg::~MergeTableDlg()
 {
-    //delete merge_datasource_proxy;
-    //merge_datasource_proxy = NULL;
-	frames_manager->removeObserver(this);
+    if (merge_datasource_proxy) {
+        delete merge_datasource_proxy;
+        merge_datasource_proxy = NULL;
+    }
+	
+    frames_manager->removeObserver(this);
 }
 
 void MergeTableDlg::update(FramesManager* o)
@@ -94,24 +98,64 @@ void MergeTableDlg::update(FramesManager* o)
 void MergeTableDlg::CreateControls()
 {
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_MERGE_TABLE_DLG");
-	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")),
-									  wxTextCtrl);
-	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")),
-								 wxRadioButton);
-	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")),
-								   wxRadioButton);
-	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")),
-								  wxChoice);
-	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")),
-								 wxChoice);
-	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")),
-								   wxListBox);
-	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),
-								   wxListBox);
+	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")), wxTextCtrl);
+	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")), wxRadioButton);
+	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")), wxRadioButton);
+	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), wxChoice);
+	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")), wxChoice);
+	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), wxListBox);
+	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
+	m_left_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_LEFT_JOIN")), wxRadioButton);
+	m_outer_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OUTER_JOIN")), wxRadioButton);
+	m_overwrite_field = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OVERWRITE_SAME_FIELD")), wxCheckBox);
+    
+    m_left_join->Bind(wxEVT_RADIOBUTTON, &MergeTableDlg::OnLeftJoinClick, this);
+    m_outer_join->Bind(wxEVT_RADIOBUTTON, &MergeTableDlg::OnOuterJoinClick, this);
+   
+    m_left_join->Disable();
+    m_outer_join->Disable();
+    m_key_val_rb->Disable();
+    m_rec_order_rb->Disable();
+    m_current_key->Disable();
+    m_import_key->Disable();
+    m_exclude_list->Disable();
+    m_include_list->Disable();
+    m_overwrite_field->Disable();
+}
+
+void MergeTableDlg::OnLeftJoinClick(wxCommandEvent& ev)
+{
+    m_overwrite_field->Disable();
+    m_overwrite_field->SetValue(false);
+    m_rec_order_rb->SetValue(false);
+    m_key_val_rb->SetValue(true);
+}
+
+void MergeTableDlg::OnOuterJoinClick(wxCommandEvent& ev)
+{
+    m_overwrite_field->Enable();
+    m_overwrite_field->SetValue(true);
+    m_rec_order_rb->SetValue(true);
+    m_key_val_rb->SetValue(false);
 }
 
 void MergeTableDlg::Init()
 {
+    m_input_file_name->SetValue(wxEmptyString);
+    m_import_key->Clear();
+    m_current_key->Clear();
+    m_include_list->Clear();
+    m_exclude_list->Clear();
+   
+    m_left_join->Disable();
+    m_outer_join->Disable();
+    m_key_val_rb->Disable();
+    m_rec_order_rb->Disable();
+    m_current_key->Disable();
+    m_import_key->Disable();
+    m_exclude_list->Disable();
+    m_include_list->Disable();
+    
 	vector<wxString> col_names;
 	table_fnames.clear();
 	// get the field names from table interface
@@ -158,22 +202,9 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxSize sz = GetSize();
         pos.x += sz.GetWidth();
        
-        int dialog_type = 1;
-        wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-        while (node) {
-            wxWindow* win = node->GetData();
-            if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-                if (w->GetType() == dialog_type) {
-                    w->Show(true);
-                    w->Maximize(false);
-                    w->Raise();
-                    return;
-                }
-            }
-            node = node->GetNext();
-        }
-        
-        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, false, dialog_type);
+        int dialog_type = 1; // no gda is allowed
+        bool showRecentPanel = false;
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
         
         if (connect_dlg.ShowModal() != wxID_OK) {
             return;
@@ -185,10 +216,14 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
-        wxLogMessage(_("ds:") + datasource_name + _(" layer") + layer_name);
+        wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
         
+        if (merge_datasource_proxy != NULL) {
+            delete merge_datasource_proxy;
+            merge_datasource_proxy = NULL;
+        }
         merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
-        merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name.ToStdString());
+        merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name);
         merge_layer_proxy->ReadData();
         m_input_file_name->SetValue(layer_name);
         
@@ -196,6 +231,12 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         map<wxString, int> dbf_fn_freq;
         dups.clear();
         dedup_to_id.clear();
+        
+        //m_input_file_name->SetValue(wxEmptyString);
+        m_import_key->Clear();
+        m_include_list->Clear();
+        m_exclude_list->Clear();
+        
         for (int i=0, iend=merge_layer_proxy->GetNumFields(); i<iend; i++) {
             GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
             wxString name = merge_layer_proxy->GetFieldName(i);
@@ -214,6 +255,15 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
             }
             m_exclude_list->Append(dedup_name);
         }
+        
+        m_left_join->Enable();
+        m_outer_join->Enable();
+        m_key_val_rb->Enable();
+        m_rec_order_rb->Enable();
+        m_current_key->Enable();
+        m_import_key->Enable();
+        m_exclude_list->Enable();
+        m_include_list->Enable();
         
     }catch(GdaException& e) {
         wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
@@ -276,38 +326,43 @@ void MergeTableDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-
-void MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
+bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
                               map<wxString, int>& key_map)
 {
-	map<wxString, int>::iterator it;
-	map<wxString, int> dupKeys;
+    std::map<wxString, std::vector<int> > dup_dict; // value:[]
 	
     for (int i=0, iend=key_vec.size(); i<iend; i++) {
         wxString tmpK = key_vec[i];
         tmpK.Trim(false);
         tmpK.Trim(true);
-        if (key_map.find(tmpK) == key_map.end())
+        if (key_map.find(tmpK) == key_map.end()) {
             key_map[tmpK] = i;
-        else {
-            // duplicate key
-            dupKeys[tmpK] = i;
+            std::vector<int> ids;
+            dup_dict[tmpK] = ids;
         }
+        dup_dict[tmpK].push_back(i);
     }
 	
-    if (key_vec.size() != key_map.size()) {
-        wxString msg = wxString::Format(_("Your table cannot be merged because the key field %s is not unique. \nIt contains undefined or duplicate values with these IDs:\n"), key_name);
-        int count = 0;
-        for (it=dupKeys.begin(); it!=dupKeys.end();it++) {
-            msg << it->first << "\n";
-            count++;
-            if (count > 5)
-                break;
+    if (key_vec.size() != dup_dict.size()) {
+        wxString msg = wxString::Format(_("Your table cannot be merged because the key field \"%s\" is not unique. \nIt contains undefined or duplicate values.\n\nDetails:"), key_name);
+        
+        wxString details = "value, row\n";
+        std::map<wxString, std::vector<int> >::iterator it;
+        for (it=dup_dict.begin(); it!=dup_dict.end(); it++) {
+            wxString val = it->first;
+            std::vector<int>& ids = it->second;
+            if (ids.size() > 1) {
+                for (int i=0; i<ids.size(); i++) {
+                    details << val << ", " << ids[i]+1 << "\n";
+                }
+            }
         }
-        if (count > 5)
-            msg << "...";
-        throw GdaException(msg.mb_str());
+        
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, details);
+        dlg->Show(true);
+        return false;
     }
+    return true;
 }
 
 vector<wxString> MergeTableDlg::
@@ -354,7 +409,303 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
 void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnMergeClick()");
+    if (m_left_join->GetValue()) {
+        LeftJoinMerge();
+    } else {
+        OuterJoinMerge();
+    }
+	ev.Skip();
+}
+
+OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, TableInterface* table_int, vector<bool>& undefs, int idx, int t)
+{
+    wxString f_name = table_int->GetColName(idx, t);
+    int f_length = table_int->GetColLength(idx, t);
+    int f_decimal = table_int->GetColDecimals(idx, t);
+    GdaConst::FieldType f_type = table_int->GetColType(idx, t);
     
+    OGRColumn* _col;
+    if (f_type == GdaConst::long64_type) {
+        _col = new OGRColumnInteger(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        vector<wxInt64> vals;
+        table_int->GetColData(idx, t, vals);
+        for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
+    } else if (f_type == GdaConst::double_type) {
+        _col = new OGRColumnDouble(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        vector<double> vals;
+        table_int->GetColData(idx, t, vals);
+        for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
+    } else {
+        _col = new OGRColumnString(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        vector<wxString> vals;
+        table_int->GetColData(idx, t, vals);
+        for(int i=0; i<vals.size(); i++) _col->SetValueAt(i, vals[i]);
+    }
+    return _col;
+}
+
+OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_proxy, vector<bool>& undefs, wxString f_name, map<int, int>& idx2_dict)
+{
+    int col_idx = layer_proxy->GetFieldPos(f_name);
+    GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
+    int f_length = layer_proxy->GetFieldLength(col_idx);
+    int f_decimal = layer_proxy->GetFieldDecimals(col_idx);
+    int n_rows = layer_proxy->n_rows;
+    
+    OGRColumn* _col;
+    if (f_type == GdaConst::long64_type) {
+        _col = new OGRColumnInteger(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        for (int i=0; i<n_rows; i++) {
+            OGRFeature* feat = layer_proxy->GetFeatureAt(i);
+            wxInt64 val = feat->GetFieldAsInteger64(col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    } else if (f_type == GdaConst::double_type) {
+        _col = new OGRColumnDouble(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        for (int i=0; i<n_rows; i++) {
+            OGRFeature* feat = layer_proxy->GetFeatureAt(i);
+            double val = feat->GetFieldAsDouble(col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    } else {
+        _col = new OGRColumnString(f_name, f_length, f_decimal, new_rows);
+        _col->SetUndefinedMarkers(undefs);
+        for (int i=0; i<n_rows; i++) {
+            wxString val = layer_proxy->GetValueAt(i, col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    }
+    return _col;
+}
+
+void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, map<int, int>& idx2_dict)
+{
+    int col_idx = layer_proxy->GetFieldPos(f_name);
+    GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
+    int f_length = layer_proxy->GetFieldLength(col_idx);
+    int f_decimal = layer_proxy->GetFieldDecimals(col_idx);
+    int n_rows = layer_proxy->n_rows;
+    
+    if (f_type == GdaConst::long64_type) {
+        for (int i=0; i<n_rows; i++) {
+            OGRFeature* feat = layer_proxy->GetFeatureAt(i);
+            wxInt64 val = feat->GetFieldAsInteger64(col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    } else if (f_type == GdaConst::double_type) {
+        for (int i=0; i<n_rows; i++) {
+            OGRFeature* feat = layer_proxy->GetFeatureAt(i);
+            double val = feat->GetFieldAsDouble(col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    } else {
+        for (int i=0; i<n_rows; i++) {
+            wxString val = layer_proxy->GetValueAt(i, col_idx);
+            _col->SetValueAt(idx2_dict[i], val);
+        }
+    }
+}
+
+void MergeTableDlg::OuterJoinMerge()
+{
+    try {
+        wxString error_msg;
+        
+        // get selected field names from merging table
+        vector<wxString> merged_field_names;
+        for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
+            wxString inc_n = m_include_list->GetString(i);
+            merged_field_names.push_back(inc_n);
+        }
+        if (merged_field_names.empty())
+            return;
+        
+        int n_rows = table_int->GetNumberRows();
+        int n_merge_field = merged_field_names.size();
+        
+        map<int, int> rowid_map;
+        
+        vector<wxString> key1_vec;
+        map<wxString,int> key1_map;
+        vector<wxString> key2_vec;
+        
+        if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
+            // get and check keys from original table
+            int key1_id = m_current_key->GetSelection();
+            wxString key1_name = m_current_key->GetString(key1_id);
+            int col1_id = table_int->FindColId(key1_name);
+            if (table_int->IsColTimeVariant(col1_id)) {
+                error_msg = wxString::Format(_("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."), key1_name);
+                throw GdaException(error_msg.mb_str());
+            }
+            
+            vector<wxInt64>  key1_l_vec;
+            
+            if (table_int->GetColType(col1_id, 0) == GdaConst::string_type) {
+                table_int->GetColData(col1_id, 0, key1_vec);
+            }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
+                table_int->GetColData(col1_id, 0, key1_l_vec);
+            }
+            
+            if (key1_vec.empty()) { // convert everything (key) to wxString
+                for( int i=0; i< key1_l_vec.size(); i++){
+                    wxString tmp;
+                    tmp << key1_l_vec[i];
+                    key1_vec.push_back(tmp);
+                }
+            }
+            if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+                return;
+            
+            // get and check keys from import table
+            int key2_id = m_import_key->GetSelection();
+            wxString key2_name = m_import_key->GetString(key2_id);
+            int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
+            int n_merge_rows = merge_layer_proxy->GetNumRecords();
+            map<wxString,int> key2_map;
+            for (int i=0; i < n_merge_rows; i++) {
+                wxString tmp;
+                tmp << merge_layer_proxy->GetValueAt(i, col2_id);
+                key2_vec.push_back(tmp);
+            }
+            if (CheckKeys(key2_name, key2_vec, key2_map) == false)
+                return;
+            
+        } else if (m_rec_order_rb->GetValue() == 1) { // merge by order sequence, just append
+           
+            for (int i=0; i<n_rows; i++) {
+                wxString tmp;
+                tmp << i;
+                key1_vec.push_back(tmp);
+            }
+            int n_merge_rows = merge_layer_proxy->GetNumRecords();
+            for (int i=0; i < n_merge_rows; i++) {
+                wxString tmp;
+                tmp << i;
+                key2_vec.push_back(tmp);
+            }
+        }
+        
+        std::vector<GdaShape*> geoms;
+        OGRSpatialReference* spatial_ref = project_s->GetSpatialReference();
+        Shapefile::ShapeType shape_type = project_s->GetGdaGeometries(geoms);
+        
+        std::vector<GdaShape*> in_geoms;
+        OGRSpatialReference* in_spatial_ref = merge_layer_proxy->GetSpatialReference();
+        
+        OGRCoordinateTransformation *poCT = NULL;
+        if (spatial_ref !=NULL && in_spatial_ref != NULL) {
+            if (!spatial_ref->IsSame(in_spatial_ref) ) {
+                // convert geometry with original projection if needed
+                poCT = OGRCreateCoordinateTransformation(in_spatial_ref, spatial_ref);
+                merge_layer_proxy->ApplyProjection(poCT);
+            }
+        }
+        Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
+        if (shape_type != in_shape_type) {
+            error_msg = _("Merge error: Geometric type of selected datasource has to be the same with current datasource.");
+            throw GdaException(error_msg.mb_str());
+        }
+        
+        std::vector<GdaShape*> new_geoms = geoms;
+        
+        vector<wxString> new_key_vec = key1_vec;
+        map<int, int> idx2_dict;
+        int idx2 = key1_vec.size();
+        for (int i=0; i<key2_vec.size(); i++) {
+            wxString tmp = key2_vec[i];
+            if (key1_map.find(tmp) == key1_map.end()) {
+                new_key_vec.push_back(tmp);
+                new_geoms.push_back(in_geoms[i]);
+                idx2_dict[i] = idx2++;
+            } else {
+                idx2_dict[i] = key1_map[tmp];
+            }
+        }
+        
+        // Create in-memory geometries&table
+        int new_rows = new_key_vec.size();
+        OGRTable* mem_table = new OGRTable(new_rows);
+        vector<bool> undefs(new_rows, true);
+        
+        map<wxString, OGRColumn*> new_fields_dict;
+        vector<wxString> new_fields;
+        // all columns from table
+        int time_steps = table_int->GetTimeSteps();
+        for ( int id=0; id < table_int->GetNumberCols(); id++ ) {
+            OGRColumn* col;
+            if (table_int->IsColTimeVariant(id)) {
+                for ( int t=0; t < time_steps; t++ ) {
+                    col =  CreateNewOGRColumn(new_rows, table_int, undefs, id, t);
+                    new_fields_dict[col->GetName()] = col;
+                    new_fields.push_back(col->GetName());
+                }
+            } else {
+                col =  CreateNewOGRColumn(new_rows, table_int, undefs, id);
+                new_fields_dict[col->GetName()] = col;
+                new_fields.push_back(col->GetName());
+            }
+        }
+        // all columns from datasource
+        int in_cols = merged_field_names.size();
+        bool overwrite_field = m_overwrite_field->IsChecked();
+        
+        for (int i=0; i<in_cols; i++) {
+            wxString fname = merged_field_names[i];
+            if (new_fields_dict.find(fname) != new_fields_dict.end()) {
+                // duplicated field
+                if (overwrite_field) {
+                    // update column content
+                    OGRColumn* col = new_fields_dict[fname];
+                    UpdateOGRColumn(col, merge_layer_proxy, fname, idx2_dict);
+                } else {
+                    OGRColumn* col = CreateNewOGRColumn(new_rows, merge_layer_proxy, undefs, fname, idx2_dict);
+                    fname = fname + "_" + Gda::CreateUUID(4);
+                    col->Rename(fname);
+                    new_fields_dict[fname] = col;
+                    new_fields.push_back(fname);
+                }
+            } else {
+                // new field
+                OGRColumn* col = CreateNewOGRColumn(new_rows, merge_layer_proxy, undefs, fname, idx2_dict);
+                new_fields_dict[fname] = col;
+                new_fields.push_back(fname);
+            }
+        }
+        
+        for (int i=0; i<new_fields.size(); i++) {
+            mem_table->AddOGRColumn(new_fields_dict[new_fields[i]]);
+        }
+        
+        ExportDataDlg export_dlg(this, shape_type, new_geoms, spatial_ref, mem_table);
+        if (export_dlg.ShowModal() == wxID_OK) {
+            wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
+            dlg.ShowModal();
+        }
+        
+        delete mem_table;
+        // see ExportDataDlg.cpp line:620
+        //for (int i=0; i<new_geoms.size(); i++) {
+        //    delete new_geoms[i];
+        //}
+        EndDialog(wxID_OK);
+        
+    } catch (GdaException& ex) {
+        if (ex.type() == GdaException::NORMAL)
+            return;
+        wxMessageDialog dlg(this, ex.what(), _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+}
+
+void MergeTableDlg::LeftJoinMerge()
+{
     try {
         wxString error_msg;
         
@@ -364,8 +715,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
              it != table_fnames.end(); ++it ) {
              merged_fnames_dict[ *it ] = *it;
         }
-        vector<wxString> merged_field_names =
-            GetSelectedFieldNames(merged_fnames_dict);
+        vector<wxString> merged_field_names = GetSelectedFieldNames(merged_fnames_dict);
         
         if (merged_field_names.empty())
             return;
@@ -374,8 +724,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         int n_merge_field = merged_field_names.size();
        
         map<int, int> rowid_map;
-        // check merge by key/record order
-        if (m_key_val_rb->GetValue()==1) {
+        if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
             // get and check keys from original table
             int key1_id = m_current_key->GetSelection();
             wxString key1_name = m_current_key->GetString(key1_id);
@@ -402,7 +751,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
                     key1_vec.push_back(tmp);
                 }
             }
-            CheckKeys(key1_name, key1_vec, key1_map);
+            if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+                return;
             
             // get and check keys from import table
             int key2_id = m_import_key->GetSelection();
@@ -414,7 +764,8 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
             for (int i=0; i < n_merge_rows; i++) {
                 key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id));
             }
-            CheckKeys(key2_name, key2_vec, key2_map);
+            if (CheckKeys(key2_name, key2_vec, key2_map) == false)
+                return;
             
             // make sure key1 <= key2, and store their mappings
             int n_matches = 0;
@@ -463,8 +814,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 	wxMessageDialog dlg(this, _("File merged into Table successfully."),
 						_("Success"), wxOK );
 	dlg.ShowModal();
-	ev.Skip();
-	EndDialog(wxID_OK);	
+    EndDialog(wxID_OK);
 }
 
 void MergeTableDlg::AppendNewField(wxString field_name,
@@ -559,26 +909,12 @@ void MergeTableDlg::AppendNewField(wxString field_name,
 void MergeTableDlg::OnCloseClick( wxCommandEvent& ev )
 {
     wxLogMessage("In MergeTableDlg::OnCloseClick()");
-	//ev.Skip();
-    int dialog_type = 1;
-    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-        if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
-            if (w->GetType() == dialog_type) {
-                w->EndDialog();
-                w->Close(true);
-                break;
-            }
-        }
-        node = node->GetNext();
-    }
-
 	EndDialog(wxID_CLOSE);
 }
 
 void MergeTableDlg::OnClose( wxCloseEvent& ev)
 {
+    wxLogMessage("In MergeTableDlg::OnClose()");
     Destroy();
 }
 
@@ -595,5 +931,5 @@ void MergeTableDlg::UpdateMergeButton()
 					(m_key_val_rb->GetValue()==1 &&
 					 m_current_key->GetSelection() != wxNOT_FOUND &&
 					 m_import_key->GetSelection() != wxNOT_FOUND)));
-	FindWindow(XRCID("wxID_OK"))->Enable(enable);
+	FindWindow(XRCID("wxID_MERGE"))->Enable(enable);
 }

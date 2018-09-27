@@ -33,7 +33,7 @@ read -p "Do you want to install pre-requisites (e.g. libreadline, zlib, libexpat
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo apt-get update
-    sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-gnutls-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
+    sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-openssl-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
 # for 14.10, experimenting with adding librtmp-dev, libidn11-dev and libldap-dev
 fi
 
@@ -75,7 +75,7 @@ install_library()
 
     if ! [ -f "$LIB_FILENAME" ] ; then
 	echo "$LIB_FILENAME not found. Downloading..."
-        curl -O $LIB_URL
+        curl -L -O $LIB_URL
     else
 	echo "$LIB_FILENAME found.  Download skipped."
     fi

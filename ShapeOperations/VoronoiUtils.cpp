@@ -135,7 +135,7 @@ void Gda::VoronoiUtils::FindPointDuplicates(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30
@@ -200,7 +200,7 @@ bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30
@@ -568,7 +568,7 @@ bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30

@@ -53,16 +53,30 @@ const char* GdaConst::sample_layer_names[] = {
 
 const char* GdaConst::sample_datasources[] = {
     "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite",
-    "samples.sqlite"
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite",
+	"samples.sqlite"
+};
+
+const char* GdaConst::sample_meta_urls[] = {
+    "https://geodacenter.github.io/data-and-lab/Guerry/",
+    "https://geodacenter.github.io/data-and-lab/ncovr/",
+    "https://geodacenter.github.io/data-and-lab/baltim/",
+    "https://geodacenter.github.io/data-and-lab/boston-housing/",
+    "https://geodacenter.github.io/data-and-lab/columbus/",
+    "https://geodacenter.github.io/data-and-lab/sids2/",
+    "https://geodacenter.github.io/data-and-lab/nepal/",
+    "https://geodacenter.github.io/data-and-lab/nyc/",
+    "https://geodacenter.github.io/data-and-lab/colomb_malaria/",
+    "https://geodacenter.github.io/data-and-lab/phx/",
+    "https://geodacenter.github.io/data-and-lab/SFcrimes_vars/"
 };
 
 const char* GdaConst::raw_zoom_in[] = {
@@ -305,12 +319,18 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
-uint64_t GdaConst::gda_user_seed = 0;
-bool GdaConst::use_gda_user_seed = false;
+bool GdaConst::gda_use_gpu = false;
+int GdaConst::gda_ui_language = 0;
+double GdaConst::gda_eigen_tol = 1.0E-8;
+bool GdaConst::gda_set_cpu_cores = true;
+int GdaConst::gda_cpu_cores = 8;
+wxString GdaConst::gda_user_email = "";
+uint64_t GdaConst::gda_user_seed = 123456789;
+bool GdaConst::use_gda_user_seed = true;
 
 int GdaConst::gdal_http_timeout = 5;
-bool GdaConst::enable_high_dpi_support = false;
-bool GdaConst::show_csv_configure_in_merge = false;
+bool GdaConst::enable_high_dpi_support = true;
+bool GdaConst::show_csv_configure_in_merge = true;
 bool GdaConst::show_recent_sample_connect_ds_dialog = true;
 bool GdaConst::use_cross_hatching = false;
 int GdaConst::transparency_highlighted = 255;
@@ -324,8 +344,66 @@ bool GdaConst::disable_crash_detect = false;
 bool GdaConst::disable_auto_upgrade = false;
 int GdaConst::plot_transparency_highlighted = 255;
 int GdaConst::plot_transparency_unhighlighted = 50;
-
 int GdaConst::gda_ogr_csv_header = 2;
+wxString GdaConst::gda_display_datetime_format = "";
+std::vector<wxString> GdaConst::gda_datetime_formats(10);
+wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+wxString GdaConst::gda_basemap_sources =
+"Carto.Light,https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png"
+"\nCarto.Dark,https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
+"\nCarto.Light(No Label),https://a.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}@2x.png"
+"\nCarto.Dark(No Label),https://a.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}@2x.png"
+"\nESRI.WorldStreetMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.WorldTopoMap,https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.WorldTerrain,https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}"
+"\nESRI.Ocean,https://server.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer/tile/{z}/{y}/{x}"
+"\nHERE.Day,http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Night,http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Hybrid,http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nHERE.Satellite,http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/{z}/{x}/{y}/256/png8?app_id=HERE_APP_ID&app_code=HERE_APP_CODE"
+"\nOpenStreetMap.Mapnik,https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+"\nOpenStreetMap.BlackAndWhite,http://a.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
+"\nStamen.Toner,https://stamen-tiles-a.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
+"\nStamen.TonerLite,https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
+"\nStamen.Watercolor,https://stamen-tiles-a.a.ssl.fastly.net/watercolor/{z}/{x}/{y}@2x.png"
+"\nOther.高德,http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+"\nOther.高德(卫星),http://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+"\nOther.高德(卫星有标签),http://webst01.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
+"\nOther.天地图,http://t0.tianditu.cn/DataServer?T=vec_w&X={x}&Y={y}&L={z}"
+"\nOther.天地图(卫星),http://t0.tianditu.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}"
+"\nOther.天地图(地形),http://t0.tianditu.cn/DataServer?T=cta_w&X={x}&Y={y}&L={z}"
+;
+
+
+
+const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");
+const wxString GdaConst::gda_lbl_undefined = _("Undefined");
+const wxString GdaConst::gda_lbl_neighborless = _("Neighborless");
+const wxString GdaConst::gda_lbl_highhigh = _("High-High");
+const wxString GdaConst::gda_lbl_lowlow = _("Low-Low");
+const wxString GdaConst::gda_lbl_lowhigh = _("Low-High");
+const wxString GdaConst::gda_lbl_highlow = _("High-Low");
+const wxString GdaConst::gda_lbl_otherpos = _("Other Pos");
+const wxString GdaConst::gda_lbl_negative = _("Negative");
+const wxString GdaConst::gda_lbl_positive = _("Positive");
+const wxString GdaConst::gda_lbl_1p = "< 1%";
+const wxString GdaConst::gda_lbl_1p_10p = "1% - 10%";
+const wxString GdaConst::gda_lbl_10p_50p = "10% - 50%";
+const wxString GdaConst::gda_lbl_50p_90p = "50% - 90%";
+const wxString GdaConst::gda_lbl_90p_99p = "90% - 99%";
+const wxString GdaConst::gda_lbl_99p = "> 99%";
+const wxString GdaConst::gda_lbl_loweroutlier = _("Lower outlier");
+const wxString GdaConst::gda_lbl_25p = "< 25%";
+const wxString GdaConst::gda_lbl_25p_50p = "25% - 50%";
+const wxString GdaConst::gda_lbl_50p_75p = "50% - 75%";
+const wxString GdaConst::gda_lbl_75p = "> 75%";
+const wxString GdaConst::gda_lbl_upperoutlier = _("Upper outlier");
+const wxString GdaConst::gda_lbl_n2sigma = "< -2Std";
+const wxString GdaConst::gda_lbl_n2sigma_n1sigma = "[-2Std, -1Std)";
+const wxString GdaConst::gda_lbl_n1sigma = "[-1Std, Mean)";
+const wxString GdaConst::gda_lbl_1sigma = "(Mean, 1Std]";
+const wxString GdaConst::gda_lbl_1sigma_2sigma = "(1Std, 2Std]";
+const wxString GdaConst::gda_lbl_2sigma = "> 2Std";
 
 const wxPen* GdaConst::default_myshape_pen=0;
 const wxBrush* GdaConst::default_myshape_brush=0;
@@ -357,6 +435,10 @@ const wxColour GdaConst::map_default_highlight_colour(255, 255, 0); // yellow
 
 // Connectivity Map
 const wxSize GdaConst::conn_map_default_size(480, 350);
+const wxColour GdaConst::conn_graph_outline_colour(55,55,55,100);
+const wxColour GdaConst::conn_select_outline_colour(55,55,55,0);
+const wxColour GdaConst::conn_neighbor_fill_colour(255,255,255,0);
+
 // HTML Tan
 const wxColour GdaConst::conn_map_default_fill_colour(210, 180, 140);
 const wxColour GdaConst::conn_map_default_outline_colour(0, 0, 0);
@@ -372,7 +454,7 @@ const wxSize GdaConst::hist_default_size(600, 500);
 
 // Table
 const wxString GdaConst::placeholder_str("<placeholder>");
-const wxString GdaConst::table_frame_title("Table");
+const wxString GdaConst::table_frame_title(_("Table"));
 const wxSize GdaConst::table_default_size(750, 500);
 const wxColour GdaConst::table_no_edit_color(80, 80, 80); // grey
 const wxColour GdaConst::table_row_sel_color(230, 220, 40); // golden
@@ -410,7 +492,7 @@ const wxColour GdaConst::three_d_plot_default_background_colour(0, 0, 0);
 const wxSize GdaConst::three_d_default_size(700, 500);
 
 // Boxplot
-const wxSize GdaConst::boxplot_default_size(300, 500);
+const wxSize GdaConst::boxplot_default_size(380, 500);
 const wxColour GdaConst::boxplot_point_color(0, 0, 255);
 const wxColour GdaConst::boxplot_median_color(219, 99, 28); // orange
 const wxColour GdaConst::boxplot_mean_point_color(20, 200, 20); // green
@@ -440,13 +522,11 @@ const wxSize GdaConst::cond_view_default_size(700, 500);
 
 // Category Classification
 const wxSize GdaConst::cat_classif_default_size(780, 520);
-
 const wxSize GdaConst::weights_man_dlg_default_size(700, 500);
-
 const wxSize GdaConst::data_change_type_frame_default_size(600, 400);
 
 std::vector<wxColour> GdaConst::qualitative_colors(10);
-
+std::vector<wxColour> GdaConst::unique_colors_60(60);
 const wxString GdaConst::html_submenu_title("Web Plugins");
 
 
@@ -494,7 +574,18 @@ void GdaConst::init()
 	large_font = wxFont::New(ref_large_pt_sz, wxFONTFAMILY_SWISS,
                              wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false,
                              wxEmptyString, wxFONTENCODING_DEFAULT);
-	
+
+    GdaConst::gda_datetime_formats[0] = "%Y-%m-%d %H:%M:%S";
+    GdaConst::gda_datetime_formats[1] = "%Y/%m/%d %H:%M:%S";
+    GdaConst::gda_datetime_formats[2] = "%d.%m.%Y %H:%M:%S";
+    GdaConst::gda_datetime_formats[3] = "%m/%d/%Y %H:%M:%S";
+    GdaConst::gda_datetime_formats[4] = "%Y-%m-%d";
+    GdaConst::gda_datetime_formats[5] = "%m/%d/%Y";
+    GdaConst::gda_datetime_formats[6] = "%Y/%m/%d";
+    GdaConst::gda_datetime_formats[7] = "%H:%M:%S";
+    GdaConst::gda_datetime_formats[8] = "%H:%M";
+    GdaConst::gda_datetime_formats[9] = "%Y/%m/%d %H:%M %p";
+    
 	// GdaShape resources
 	default_myshape_pen = wxBLACK_PEN;
 	default_myshape_brush = wxTRANSPARENT_BRUSH;
@@ -544,6 +635,71 @@ void GdaConst::init()
 	qualitative_colors[7] = wxColour(255, 127, 0);
 	qualitative_colors[8] = wxColour(202, 178, 214);
 	qualitative_colors[9] = wxColour(106, 61, 154);
+    
+    // From http://phrogz.net/css/distinct-colors.html
+   
+    unique_colors_60[0] = wxColour(166,206,227),
+    unique_colors_60[1] = wxColour(31,120,180),
+    unique_colors_60[2] = wxColour(178,223,138),
+    unique_colors_60[3] = wxColour(51,160,44),
+    unique_colors_60[4] = wxColour(251,154,153),
+    unique_colors_60[5] = wxColour(227,26,28),
+    unique_colors_60[6] = wxColour(253,191,111),
+    unique_colors_60[7] = wxColour(255,127,0),
+    unique_colors_60[8] = wxColour(106,61,154),
+    unique_colors_60[9] = wxColour(255,255,153),
+    unique_colors_60[10] = wxColour(177,89,40),
+    unique_colors_60[11] = wxColour(255,255,179),
+    unique_colors_60[12] = wxColour(190,186,218),
+    unique_colors_60[13] = wxColour(251,128,114),
+    unique_colors_60[14] = wxColour(128,177,211),
+    unique_colors_60[15] = wxColour(179,222,105),
+    unique_colors_60[16] = wxColour(252,205,229),
+    unique_colors_60[17] = wxColour(217,217,217),
+    unique_colors_60[18] = wxColour(188,128,189),
+    unique_colors_60[19] = wxColour(204,235,197),
+    unique_colors_60[20] = wxColour(140,70,70);
+    unique_colors_60[21] = wxColour(229,126,57);
+    unique_colors_60[22] = wxColour(242,162,0);
+    unique_colors_60[23] = wxColour(166,160,83);
+    unique_colors_60[24] = wxColour(0,77,41);
+    unique_colors_60[25] = wxColour(0,48,51);
+    unique_colors_60[26] = wxColour(0,61,115);
+    unique_colors_60[27] = wxColour(198,182,242);
+    unique_colors_60[28] = wxColour(87,26,102);
+    unique_colors_60[29] = wxColour(255,191,217);
+    unique_colors_60[30] = wxColour(229,130,115);
+    unique_colors_60[31] = wxColour(140,98,70);
+    unique_colors_60[32] = wxColour(76,51,0);
+    unique_colors_60[33] = wxColour(52,115,29);
+    unique_colors_60[34] = wxColour(96,128,113);
+    unique_colors_60[35] = wxColour(64,217,255);
+    unique_colors_60[36] = wxColour(153,173,204);
+    unique_colors_60[37] = wxColour(31,0,77);
+    unique_colors_60[38] = wxColour(166,0,111);
+    unique_colors_60[39] = wxColour(255,64,115);
+    unique_colors_60[40] = wxColour(166,44,0);
+    unique_colors_60[41] = wxColour(217,184,163);
+    unique_colors_60[42] = wxColour(89,85,67);
+    unique_colors_60[43] = wxColour(170,217,163);
+    unique_colors_60[44] = wxColour(0,191,128);
+    unique_colors_60[45] = wxColour(57,103,115);
+    unique_colors_60[46] = wxColour(0,58,217);
+    unique_colors_60[47] = wxColour(98,86,115);
+    unique_colors_60[48] = wxColour(242,121,186);
+    unique_colors_60[49] = wxColour(242,0,32);
+    unique_colors_60[50] = wxColour(76,20,0);
+    unique_colors_60[51] = wxColour(51,39,26);
+    unique_colors_60[52] = wxColour(229,218,57);
+    unique_colors_60[53] = wxColour(61,242,61);
+    unique_colors_60[54] = wxColour(102,204,197);
+    unique_colors_60[55] = wxColour(0,162,242);
+    unique_colors_60[56] = wxColour(89,101,179);
+    unique_colors_60[57] = wxColour(184,54,217);
+    unique_colors_60[58] = wxColour(89,0,36);
+    unique_colors_60[59] = wxColour(0,0,36);
+
+
 	
     
 	// Filenames or field names start with a letter, and they can contain any
@@ -705,9 +861,9 @@ void GdaConst::init()
 	datasrc_field_illegal_regex[ds_postgresql] = db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_postgresql] = true;
 	
-	datasrc_str_to_type["CartoDB"] = ds_cartodb;
-	datasrc_type_to_prefix[ds_cartodb] = "CartoDB:";
-	datasrc_type_to_fullname[ds_cartodb] = "CartoDB";
+	datasrc_str_to_type["Carto"] = ds_cartodb;
+	datasrc_type_to_prefix[ds_cartodb] = "Carto:";
+	datasrc_type_to_fullname[ds_cartodb] = "Carto";
 	datasrc_table_lens[ds_cartodb] = 31;
 	datasrc_field_lens[ds_cartodb] = 31;
 	datasrc_field_warning[ds_cartodb] = db_field_warning;

@@ -27,6 +27,7 @@
 #include <boost/multi_array.hpp>
 #include <wx/dc.h>
 #include <wx/event.h>
+#include <wx/timer.h>
 #include <wx/overlay.h>
 #include <wx/scrolwin.h>
 #include <wx/string.h>
@@ -58,7 +59,8 @@ public:
                    TemplateFrame* template_frame,
                    Project* project,
                    HLStateInt* hl_state_int,
-                   const wxPoint& pos, const wxSize& size,
+                   const wxPoint& pos,
+                   const wxSize& size,
                    bool fixed_aspect_ratio_mode = false,
                    bool fit_to_window_mode = true,
                    bool enable_high_dpi_support = GdaConst::enable_high_dpi_support);
@@ -124,13 +126,9 @@ public:
 	void OnKeyEvent(wxKeyEvent& event);
 
 	virtual void OnScrollChanged(wxScrollWinEvent& event);
-#ifdef __WIN32__
-	virtual void OnScrollUp(wxScrollWinEvent& event);
-	virtual void OnScrollDown(wxScrollWinEvent& event);
-#endif
     
-	void OnSize(wxSizeEvent& event);
-    void OnIdle(wxIdleEvent& event);
+	virtual void OnSize(wxSizeEvent& event);
+    virtual void OnIdle(wxIdleEvent& event);
 	
 	/** Where all the drawing action happens.  Should do something similar
 	 to the update() method. */
@@ -217,10 +215,10 @@ public:
 	virtual void SetFixedAspectRatioMode(bool mode);
 	virtual void SetDisplayPrecision(int n);
 		
-	/** generic function to create and initialized the selectable_shps vector
+    /** generic function to create and initialized th*e selectable_shps vector
 		based on a passed-in Project pointer and given an initial canvas
 	    screen size. */
-	static void CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
                                Project* project);
 	
 	/** convert mouse coordiante point to original observation-coordinate
@@ -237,7 +235,9 @@ public:
     
     
     
-	void RenderToDC(wxDC &dc, int w, int h);
+	virtual void RenderToDC(wxDC &dc, int w, int h);
+    virtual void RenderToSVG(wxDC &dc, int w, int h);
+    
     const wxBitmap* GetLayer0() { return layer0_bm; }
 	const wxBitmap* GetLayer1() { return layer1_bm; }
 	const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -251,11 +251,32 @@ public:
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
+    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      double radius,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE,
+                      bool cross_hatch = false);
+    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE, 
+                      bool cross_hatch = false);
+    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE,
+                      bool cross_hatch = false);
+    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                     int alpha = 255,
+                     wxColour fixed_pen_color = *wxWHITE,
+                     bool cross_hatch = false);
+    
+    virtual wxBitmap* GetPrintLayer() { return layer2_bm; }
     
 	virtual void PopulateCanvas() = 0;
     
     int GetMarginLeft() { return last_scale_trans.slack_x;}
+    int GetMarginRight() { return last_scale_trans.slack_x;}
     int GetMarginTop() { return last_scale_trans.slack_y;}
+    int GetMarginBottom() { return last_scale_trans.slack_y;}
     
     wxSize GetDrawingSize() {
         wxSize sz(last_scale_trans.screen_width -  last_scale_trans.slack_x * 2,
@@ -269,24 +290,32 @@ public:
 	// draw unhighlighted sel shapes
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
     
-    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc, bool hl_only=false,
+    virtual void DrawSelectableShapes_dc(wxMemoryDC &dc,
+                                         bool hl_only=false,
                                          bool revert=false);
     
-    void helper_DrawSelectableShapes_dc(wxDC &dc, bool hl_only=false,
+    void helper_DrawSelectableShapes_dc(wxDC &dc,
+                                        vector<bool>& hs,
+                                        bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
-                                        bool is_print = false);
-    void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc, bool hl_only=false,
+                                        bool is_print = false,
+                                        const wxColour& fixed_pen_color = *wxWHITE);
+    
+    void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
+                                        vector<bool>& hs,
+                                        bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
 										int alpha=255);
     
-
+    virtual wxString GetVariableNames() = 0;
+    virtual SelectableShpType GetShapeType() {return selectable_shps_type;}
+    virtual double GetPointRadius() { return point_radius; }
+    virtual void SetPointRadius(double r) { point_radius = r;}
+    
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
-	
-    void GetVizInfo(wxString& shape_type,
-                    std::vector<wxString>& clrs,
-                    std::vector<double>& bins);
+    void GetVizInfo(wxString& shape_type, std::vector<wxString>& clrs, std::vector<double>& bins);
 	
     int  axis_display_precision;
     
@@ -296,8 +325,8 @@ protected:
     int MASK_G;
     int MASK_B;
     
+    wxDouble point_radius;
     bool          enable_high_dpi_support;
-    
     bool          is_showing_brush;
 	SelectState   selectstate;
 	MouseMode     mousemode;
@@ -307,6 +336,7 @@ protected:
 	GdaScaleTrans last_scale_trans;
 	bool          fit_to_window_mode;
 
+    double scale_factor;
 	/** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
 	 of the highlight state for every observation in the currently opened SHP
@@ -370,6 +400,9 @@ protected:
 	TemplateFrame* template_frame;
 
     bool isResize;
+    wxTimer* highlight_timer;
+    
+    void OnHighlightTimerEvent(wxTimerEvent &event);
     
 	virtual void UpdateSelectableOutlineColors();
 	// The following five methods enable the use of a custom

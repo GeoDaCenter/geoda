@@ -12,12 +12,12 @@
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 
-const std::string GdaCache::HIST_TABLE_NAME = "history";
-const std::string GdaCache::DB_HOST_HIST	= "db_host";
-const std::string GdaCache::DB_PORT_HIST	= "db_port";
-const std::string GdaCache::DB_NAME_HIST	= "db_name";
-const std::string GdaCache::DB_UNAME_HIST	= "db_uname";
-const std::string GdaCache::WS_URL_HIST		= "ws_url";
+const wxString GdaCache::HIST_TABLE_NAME = "history";
+const wxString GdaCache::DB_HOST_HIST	= "db_host";
+const wxString GdaCache::DB_PORT_HIST	= "db_port";
+const wxString GdaCache::DB_NAME_HIST	= "db_name";
+const wxString GdaCache::DB_UNAME_HIST	= "db_uname";
+const wxString GdaCache::WS_URL_HIST		= "ws_url";
 
 wxString GdaCache::GetFullPath()
 {
@@ -39,10 +39,9 @@ GdaCache::GdaCache()
     
 	// connect to cache file
     try {
-        
         cach_ds_proxy = new OGRDatasourceProxy(exePath, GdaConst::ds_sqlite, true);
         layer_names = cach_ds_proxy->GetLayerNames();
-        std::string sql = "SELECT * FROM history";
+        wxString sql = "SELECT * FROM history";
         history_table = cach_ds_proxy->GetLayerProxyBySQL(sql);
         
         if (history_table == NULL) {
@@ -55,8 +54,10 @@ GdaCache::GdaCache()
         history_table->ReadData();
         
         for ( int i=0; i< history_table->n_rows; i++){
-            history_keys.push_back( history_table->GetValueAt(i, 0).ToStdString() );
-            history_vals.push_back( history_table->GetValueAt(i, 1).ToStdString() );
+            wxString key = history_table->GetValueAt(i, 0);
+            wxString val = history_table->GetValueAt(i, 1);
+            history_keys.push_back(key);
+            history_vals.push_back(val);
         }
     }catch(GdaException& e) {
         //XXX
@@ -73,9 +74,9 @@ GdaCache::~GdaCache()
 	cach_ds_proxy = NULL;
 }						
 
-std::vector<std::string> GdaCache::GetHistory(std::string param_key)
+std::vector<wxString> GdaCache::GetHistory(wxString param_key)
 {
-	std::vector<std::string> hist_rst;
+	std::vector<wxString> hist_rst;
 	int n = history_keys.size();
 	for ( int i=0; i< n; i++){
 		if ( param_key == history_keys[i] ){
@@ -85,7 +86,7 @@ std::vector<std::string> GdaCache::GetHistory(std::string param_key)
 	return hist_rst;
 }
 
-void GdaCache::AddHistory(std::string param_key, std::string param_val)
+void GdaCache::AddHistory(wxString param_key, wxString param_val)
 {
 	for ( size_t i=0; i< history_keys.size(); i++){
 		if ( param_key == history_keys[i] ){
@@ -97,18 +98,18 @@ void GdaCache::AddHistory(std::string param_key, std::string param_val)
 	history_keys.push_back( param_key );
 	history_vals.push_back( param_val );
 	// add to spatialite table
-	std::string sql = "INSERT INTO history VALUES('"
+	wxString sql = "INSERT INTO history VALUES('"
 						+ param_key +"','"+param_val + "')";
 	cach_ds_proxy->ExecuteSQL(sql);
 }
 
-void GdaCache::AddEntry(std::string param_key, std::string param_val)
+void GdaCache::AddEntry(wxString param_key, wxString param_val)
 {
     for ( size_t i=0; i< history_keys.size(); i++){
         if ( param_key == history_keys[i] ){
             // update existing Entry
             history_vals[i] = param_val;
-            std::string sql = "UPDATE history SET param_val='" + param_val +"' WHERE param_key='" + param_key + "'";
+            wxString sql = "UPDATE history SET param_val='" + param_val +"' WHERE param_key='" + param_key + "'";
             cach_ds_proxy->ExecuteSQL(sql);
             return;
         }
@@ -117,32 +118,32 @@ void GdaCache::AddEntry(std::string param_key, std::string param_val)
     history_keys.push_back( param_key );
     history_vals.push_back( param_val );
     // add to spatialite table
-    std::string sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
+    wxString sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
     //cach_ds_proxy->ExecuteSQL(sql);
-	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(sql.c_str(),  0, "SQLITE");
+	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, "SQLITE");
 	cach_ds_proxy->ds->ReleaseResultSet(tmp_layer);
 }
 
 void GdaCache::CleanHistory()
 {
-	std::string sql = "DELETE FROM history";
+	wxString sql = "DELETE FROM history";
 	cach_ds_proxy->ExecuteSQL(sql);
 }
 
-bool GdaCache::UpdateLayer(std::string ext_ds_name, 
+bool GdaCache::UpdateLayer(wxString ext_ds_name,
 						   OGRLayerProxy* ext_layer_proxy)
 {
 	return false;
 }
 
-bool GdaCache::IsLayerUpdated(std::string ext_ds_name, 
+bool GdaCache::IsLayerUpdated(wxString ext_ds_name,
 							  OGRLayerProxy* ext_layer_proxy)
 {
 	return false;
 }
 
-bool GdaCache::IsLayerCached(std::string ext_ds_name, 
-							 std::string ext_layer_name)
+bool GdaCache::IsLayerCached(wxString ext_ds_name,
+							 wxString ext_layer_name)
 {
     bool caseSensitive = false;
 	for (size_t i=0; i<layer_names.size(); i++) {
@@ -153,10 +154,10 @@ bool GdaCache::IsLayerCached(std::string ext_ds_name,
 	return false;
 }
 
-OGRLayerProxy* GdaCache::GetLayerProxy(std::string ext_ds_name, 
-									   std::string ext_layer_name)
+OGRLayerProxy* GdaCache::GetLayerProxy(wxString ext_ds_name,
+									   wxString ext_layer_name)
 {
-	std::string query_layer_name = ext_ds_name + "_" + ext_layer_name;
+	wxString query_layer_name = ext_ds_name + "_" + ext_layer_name;
 	std::transform(query_layer_name.begin(), query_layer_name.end(), 
 				   query_layer_name.begin(), ::tolower);
 	
@@ -164,7 +165,7 @@ OGRLayerProxy* GdaCache::GetLayerProxy(std::string ext_ds_name,
 }
 
 // This function does NOT work for now
-bool GdaCache::CacheLayer(std::string ext_ds_name, 
+bool GdaCache::CacheLayer(wxString ext_ds_name,
 						  OGRLayerProxy* ext_layer_proxy)
 {
 	OGRLayer* poSrcLayer = ext_layer_proxy->layer;
@@ -194,7 +195,7 @@ bool GdaCache::CacheLayer(std::string ext_ds_name,
 
 	// Cache
 	char *papszLCO[] = {"OVERWRITE=yes","FORMAT=Spatialite"};
-	std::string cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
+	wxString cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
 	GDALDataset *poDstDS = cach_ds_proxy->ds;
 	OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
 												poOutputSRS, 

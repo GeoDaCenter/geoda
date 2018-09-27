@@ -35,7 +35,7 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalScatterPlotView.h"
 
 
@@ -173,6 +173,13 @@ wxString ConditionalScatterPlotCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalScatterPlotCanvas::GetVariableNames()
+{
+    wxString v;
+    v << GetNameWithTime(IND_VAR);
+    v << ", " << GetNameWithTime(DEP_VAR);
+    return v;
+}
 
 void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 														int virtual_scrn_h)
@@ -214,7 +221,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double pad_h = scn_h * fac;
 	if (pad_w < 1) pad_w = 0;
 	if (pad_h < 1) pad_h = 0;
-	double pad_bump = GenUtils::min<double>(pad_w, pad_h);
+	double pad_bump = std::min(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
 	
 	double marg_top = last_scale_trans.top_margin;
@@ -290,18 +297,23 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 	for (int row=0; row<vert_num_cats-1; row++) {
-		double b;
-		if (cat_classif_def_vert.cat_classif_type !=
-            CatClassification::custom)
-        {
-			if (!vert_cat_data.HasBreakVal(vt, row))
-                continue;
-			b = vert_cat_data.GetBreakVal(vt, row);
-		} else {
-			b = cat_classif_def_vert.breaks[row];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+        wxString tmp_lbl;
+        if (VERT_VAR_NUM) {
+            double b;
+            if (cat_classif_def_vert.cat_classif_type !=
+                CatClassification::custom)
+            {
+                if (!vert_cat_data.HasBreakVal(vt, row))
+                    continue;
+                b = vert_cat_data.GetBreakVal(vt, row);
+            } else {
+                b = cat_classif_def_vert.breaks[row];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(vt, row);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
                              GdaShapeText::h_center, GdaShapeText::bottom,
                              -label_offset, 0);
 		foreground_shps.push_back(s);
@@ -327,16 +339,21 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	int ht = var_info[HOR_VAR].time;
 	for (int col=0; col<horiz_num_cats-1; col++) {
-		double b;
-		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col))
-                continue;
-			b = horiz_cat_data.GetBreakVal(ht, col);
-		} else {
-			b = cat_classif_def_horiz.breaks[col];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+        wxString tmp_lbl;
+        if (HOR_VAR_NUM) {
+            double b;
+            if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
+                if (!horiz_cat_data.HasBreakVal(ht, col))
+                    continue;
+                b = horiz_cat_data.GetBreakVal(ht, col);
+            } else {
+                b = cat_classif_def_horiz.breaks[col];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, label_offset);
 		foreground_shps.push_back(s);
 	}
@@ -447,6 +464,17 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
 	selectable_shps.resize(num_obs);
 	selectable_shps_undefs.clear();
 	selectable_shps_undefs.resize(num_obs);
+   
+    double x_max = var_info[IND_VAR].max_over_time;
+    double x_min = var_info[IND_VAR].min_over_time;
+    double y_max = var_info[DEP_VAR].max_over_time;
+    double y_min = var_info[DEP_VAR].min_over_time;
+    double x_pad = 0.1 * (x_max - x_min);
+    double y_pad = 0.1 * (y_max - y_min);
+    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4, axis_display_precision);
+    axis_scale_x.SkipEvenTics();
+    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4, axis_display_precision);
+    axis_scale_y.SkipEvenTics();
     
 	for (int i=0; i<num_obs; i++) {
 		X[i] = data[IND_VAR][var_info[IND_VAR].time][i];
@@ -724,7 +752,7 @@ void ConditionalScatterPlotCanvas::UpdateStatusBar()
     
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -733,25 +761,25 @@ void ConditionalScatterPlotCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
     
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = (";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[0]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[0]] << ")";
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = (";
+			s << _("obs ") << hover_obs[1]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[1]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[1]] << ")";
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = (";
+			s << _("obs ") << hover_obs[2]+1 << " = (";
 			s << data[IND_VAR][var_info[IND_VAR].time][hover_obs[2]] << ",";
 			s << data[DEP_VAR][var_info[DEP_VAR].time][hover_obs[2]] << ")";
 		}
@@ -821,7 +849,7 @@ void ConditionalScatterPlotFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((ConditionalScatterPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -829,7 +857,7 @@ void ConditionalScatterPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConditionalScatterPlotCanvas*)
@@ -914,3 +942,11 @@ void ConditionalScatterPlotFrame::OnDisplaySlopeValues(wxCommandEvent& ev)
 	c->DisplaySlopeValues(!c->IsDisplaySlopeValues());
 	UpdateOptionMenuItems();
 }
+
+void ConditionalScatterPlotFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
+{
+    if (!template_canvas) return;
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(template_canvas, title);
+}
+

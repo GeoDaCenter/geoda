@@ -35,46 +35,46 @@ public:
    
 	void Close();
     
-    void SetKey(const string& key);
+    void SetKey(const wxString& key);
     
-    void SetUserName(const string& name);
+    void SetUserName(const wxString& name);
     
-	string GetKey() const;
-	string GetUserName() const;
+	wxString GetKey() const;
+	wxString GetUserName() const;
 
-    void UpdateColumn(const string& table_name,
-                      const string& col_name,
+    void UpdateColumn(const wxString& table_name,
+                      const wxString& col_name,
                       vector<wxString>& vals);
     
-    void UpdateColumn(const string& table_name,
-                      const string& col_name,
+    void UpdateColumn(const wxString& table_name,
+                      const wxString& col_name,
                       vector<double>& vals);
     
-    void UpdateColumn(const string& table_name,
-                      const string& col_name,
+    void UpdateColumn(const wxString& table_name,
+                      const wxString& col_name,
                       vector<long long>& vals);
     
 private:
     CartoDBProxy();
     
-    CartoDBProxy(const string& _user_name, const string& _api_key);
+    CartoDBProxy(const wxString& _user_name, const wxString& _api_key);
     
     ~CartoDBProxy();
     
-    string api_key;
-    string user_name;
-    string api_url;
+    wxString api_key;
+    wxString user_name;
+    wxString api_url;
     
-    void doGet(string parameter);
-    void doPost(string parameter);
-    void _doGet(string parameter);
-    void _doPost(string parameter);
+    void doGet(wxString parameter);
+    void doPost(wxString parameter);
+    void _doGet(wxString parameter);
+    void _doPost(wxString parameter);
     
-    string buildUpdateSQL(const string& table_name,
-                          const string& col_name,
-                          const string &new_table);
+    wxString buildUpdateSQL(const wxString& table_name,
+                          const wxString& col_name,
+                          const wxString &new_table);
     
-    string buildBaseUrl();
+    wxString buildBaseUrl();
 };
 
 #endif

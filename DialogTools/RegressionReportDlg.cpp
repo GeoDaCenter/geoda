@@ -80,7 +80,7 @@ void RegressionReportDlg::CreateControls()
     //m_textbox = XRCCTRL(*this, "ID_TEXTCTRL1", wxTextCtrl);
     wxPanel *panel = new wxPanel(this, -1);
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new wxTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560), wxTE_MULTILINE | wxTE_READONLY);
+    m_textbox = new wxTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(620,560), wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2);
     
     if (GeneralWxUtils::isWindows()) {
         wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
@@ -167,7 +167,7 @@ void RegressionReportDlg::OnSaveToFile(wxCommandEvent& event)
     if (failed) {
         wxString msg;
         msg << "Unable to overwrite " << new_txt;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
     }
 }

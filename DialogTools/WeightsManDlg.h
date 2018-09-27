@@ -49,7 +49,7 @@ class WeightsManFrame : public TemplateFrame, public WeightsManStateObserver
 {
 public:
     WeightsManFrame(wxFrame *parent, Project* project,
-					const wxString& title = "Weights Manager",
+					const wxString& title = _("Weights Manager"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::weights_man_dlg_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);
@@ -65,6 +65,7 @@ public:
 	void OnRemoveBtn(wxCommandEvent& ev);
     void OnHistogramBtn(wxCommandEvent& ev);
     void OnConnectMapBtn(wxCommandEvent& ev);
+    void OnConnectGraphBtn(wxCommandEvent& ev);
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -78,7 +79,7 @@ public:
 	void OnSaveConnectivityToTable(wxCommandEvent& event);
 	void OnSelectIsolates(wxCommandEvent& event);
 	
-private:
+protected:
 	void InitWeightsList();
 	void SetDetailsForId(boost::uuids::uuid id);
 	void SetDetailsWin(const std::vector<wxString>& row_title,
@@ -86,6 +87,7 @@ private:
 	void SelectId(boost::uuids::uuid id);
 	void HighlightId(boost::uuids::uuid id);
 	boost::uuids::uuid GetHighlightId();
+    wxString GetMapTitle(wxString title, boost::uuids::uuid id);
 	void UpdateButtons();
 	
 	ConnectivityHistCanvas* conn_hist_canvas;
@@ -95,6 +97,7 @@ private:
 	wxPanel* panel;
 	wxButton* histogram_btn; //
     wxButton* connectivity_map_btn; //
+    wxButton* connectivity_graph_btn; //
 	wxButton* create_btn; // ID_CREATE_BTN
 	wxButton* load_btn; // ID_LOAD_BTN
 	wxButton* remove_btn; // ID_REMOVE_BTN

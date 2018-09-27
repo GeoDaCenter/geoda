@@ -42,6 +42,7 @@ public:
 	virtual ~LocalGearyMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -49,7 +50,12 @@ public:
 	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
-	
+    virtual void UpdateStatusBar();
+    virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
+    
+    double bo;
+    double fdr;
+
     bool is_diff;
     
 protected:
@@ -58,6 +64,19 @@ protected:
 	bool is_bi; // true = Bivariate, false = Univariate
 	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
 	
+    wxString str_not_sig;
+    wxString str_highhigh;
+    wxString str_lowlow;
+    wxString str_negative;
+    wxString str_positive;
+    wxString str_otherpos;
+    wxString str_undefined;
+    wxString str_neighborless;
+    wxString str_p005;
+    wxString str_p001;
+    wxString str_p0001;
+    wxString str_p00001;
+    
 	DECLARE_EVENT_TABLE()
 };
 
@@ -78,6 +97,7 @@ public:
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
+    virtual void update(WeightsManState* o){}
 	
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
@@ -94,14 +114,14 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
-	
+	void OnSigFilterSetup(wxCommandEvent& event);
+    
 	void OnSaveLocalGeary(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
-	void OnAddNeighborToSelection(wxCommandEvent& event);
-    
+
     void OnShowAsConditionalMap(wxCommandEvent& event);
 	
 	virtual void update(LocalGearyCoordinator* o);

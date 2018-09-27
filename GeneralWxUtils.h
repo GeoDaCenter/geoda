@@ -22,6 +22,11 @@
 
 #include <wx/menu.h>
 #include <wx/string.h>
+#include <wx/wx.h>
+#include <wx/xrc/xmlres.h>
+#include <wx/colour.h>
+
+#include "DialogTools/VariableSettingsDlg.h"
 
 class GeneralWxUtils	{
 public:
@@ -51,6 +56,42 @@ public:
 	static bool CheckMenuItem(wxMenu* menu, int id, bool check);
 	static bool SetMenuItemText(wxMenu* menu, int id, const wxString& text);
 	static wxMenu* FindMenu(wxMenuBar* mb, const wxString& menuTitle);
+    static wxColour PickColor(wxWindow* parent, wxColour& col);
+    static void SaveWindowAsImage(wxWindow* win, wxString title);
+    //static std::set<wxString> GetFieldNamesFromTable(TableInterface* table);
+};
+
+class SimpleReportTextCtrl : public wxTextCtrl
+{
+public:
+    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
+                         const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
+                         long style =  wxTE_MULTILINE | wxTE_READONLY | wxTE_RICH | wxTE_RICH2, const wxValidator& validator = wxDefaultValidator,
+                         const wxString& name = wxTextCtrlNameStr)
+    : wxTextCtrl(parent, id, value, pos, size, style, validator, name)
+    {
+        if (GeneralWxUtils::isWindows()) {
+            wxFont font(8,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            SetFont(font);
+        } else {
+            wxFont font(12,wxFONTFAMILY_TELETYPE,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+            SetFont(font);
+        }
+    }
+protected:
+    void OnContextMenu(wxContextMenuEvent& event);
+    void OnSaveClick( wxCommandEvent& event );
+    DECLARE_EVENT_TABLE()
+};
+
+class ScrolledDetailMsgDialog : public wxDialog
+{
+public:
+    ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size = wxSize(540, 280), const wxArtID & art_id =  wxART_WARNING);
+   
+    SimpleReportTextCtrl *tc;
+    
+    void OnSaveClick( wxCommandEvent& event );
 };
 
 #endif

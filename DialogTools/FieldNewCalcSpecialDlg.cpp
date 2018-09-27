@@ -27,9 +27,11 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
+#include <wx/grid.h>
 #include "../GenUtils.h"
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"
+#include "../DataViewer/TableFrame.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../logger.h"
@@ -107,7 +109,7 @@ void FieldNewCalcSpecialDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
 		wxString msg("Please choose a result field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -125,7 +127,7 @@ void FieldNewCalcSpecialDlg::Apply()
 		wxString msg("Normal distribution requires valid real numbers for "
 					 "mean and standard deviation.  The standard "
 					 "deviation must be positive and non-zero.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -202,17 +204,36 @@ void FieldNewCalcSpecialDlg::Apply()
 				break;
 			case enumerate:
 			{
+                std::vector<int> row_order;
+                TableFrame* tf = 0;
+                wxGrid* g = project->FindTableGrid();
+                if (g) tf = (TableFrame*) g->GetParent()->GetParent(); // wxPanel<wxFrame
+                if (tf) {
+                    row_order = tf->GetRowOrder();
+                }
+                
                 if (col_type == GdaConst::double_type) {
                     std::vector<double> data(n_rows, 0);
-                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    else
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = i+1;
+                    
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::long64_type) {
                     std::vector<wxInt64> data(n_rows, 0);
-                    for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = i+1;
+                    else
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = i+1;
+                    
                     table_int->SetColData(result_col, time_list[t], data);
                 } else if (col_type == GdaConst::string_type) {
                     std::vector<wxString> data(n_rows, wxEmptyString);
-                    for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%d", i+1);
+                    if (row_order.empty())
+                        for (int i=0; i<n_rows; i++) data[i] = wxString::Format("%d", i+1);
+                    else 
+                        for (int i=0; i<n_rows; i++) data[row_order[i]] = wxString::Format("%d", i+1);
                     table_int->SetColData(result_col, time_list[t], data);
                 }                
                 table_int->SetColUndefined(result_col, time_list[t], undefined);
@@ -252,6 +273,13 @@ void FieldNewCalcSpecialDlg::InitFieldChoices()
 	} else {
 		m_result->SetSelection(m_result->FindString(r_str_sel));
 	}
+    
+    int sel = m_result->GetSelection();
+    if (sel != wxNOT_FOUND) {
+        m_result_tm->Enable(IsTimeVariant(col_id_map[sel]));
+    } else {
+        m_result_tm->Disable();
+    }
 	
 	Display();
 }
@@ -282,13 +310,14 @@ void FieldNewCalcSpecialDlg::Display()
 	
 	if (op_sel == normal_rand) {
 		if (!var1.IsEmpty() && !var2.IsEmpty()) {
-			rhs << "Random Gaussian dist with mean=" << var1;
-			rhs << ", sd=" << var2;
+            rhs = _("Random Gaussian dist with mean=%s, sd=%s");
+            rhs = wxString::Format(rhs, var1, var2);
+
 		}
 	} else if (op_sel == uniform_rand) {
-		rhs = "Random uniform dist on unit interval";
+		rhs = _("Random uniform dist on unit interval");
 	} else { // op_sel == enumerate
-		rhs = "enumerate as 1, 2, 3, ...";
+		rhs = _("enumerate as 1, 2, 3, ...");
 	}
 	
 	if (lhs.IsEmpty() && rhs.IsEmpty()) {
@@ -384,7 +413,12 @@ void FieldNewCalcSpecialDlg::InitTime(wxChoice* time_list)
 	}
 	time_list->Append("all times");
 	time_list->SetSelection(project->GetTableInt()->GetTimeSteps());
-	time_list->Disable();
+    int sel = m_result->GetSelection();
+    if (sel != wxNOT_FOUND) {
+        time_list->Enable(IsTimeVariant(col_id_map[sel]));
+    } else {
+        time_list->Disable();
+    }
 	time_list->Show(is_space_time);
 }
 

@@ -40,6 +40,8 @@ private:
 	map<wxString, bool> field_dict;
 	vector<wxString> merged_field_names;
     
+	map<wxString, int> user_input_dict;
+    
     vector<wxString> old_field_names;
     vector<wxString> new_field_names;
 	
@@ -49,26 +51,27 @@ public:
 	std::vector<wxStaticText*> txt_fname; // ID_FNAME_STAT_TXT_BASE
 	std::vector<wxTextCtrl*> txt_input; // ID_INPUT_TXT_CTRL_BASE
 	std::vector<wxStaticText*> txt_info; // ID_INFO_STAT_TXT_BASE
+	std::vector<wxStaticText*> input_info; // ID_INPUT_INFO_STAT_TXT_BASE
 	
 	wxButton* ok_btn; // wxID_OK
 	wxButton* exit_btn; // wxID_CANCEL
 	
     bool need_correction;
 
-    
-public:
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id);
+	ScrolledWidgetsPane(wxWindow* parent,
+                        wxWindowID id,
+                        GdaConst::DataSourceType ds_type,
+                        vector<wxString>& all_fname);
 	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
-											GdaConst::DataSourceType ds_type,
-											vector<wxString>& all_fname);	
-	ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
-											GdaConst::DataSourceType ds_type,
-											map<wxString, wxString>& fnames_dict,
-											vector<wxString>& merged_field_names,
-											set<wxString>& dup_fname,
-											set<wxString>& bad_fname);		
+                        GdaConst::DataSourceType ds_type,
+                        map<wxString, wxString>& fnames_dict,
+                        vector<wxString>& merged_field_names,
+                        set<wxString>& dup_fname,
+                        set<wxString>& bad_fname);
 	virtual ~ScrolledWidgetsPane();
-	
+
+    void OnUserInput(wxCommandEvent& ev);
 	wxString GetSuggestFieldName(const wxString& old_name);
 	wxString GetSuggestFieldName(int field_idx);
 	wxString RenameDupFieldName(const wxString& old_name);
@@ -80,7 +83,9 @@ public:
     vector<wxString> GetNewFieldNames();
 
 	void Init(vector<wxString>& merged_field_names,
-						set<wxString>& dup_fname, set<wxString>& bad_fname);
+              set<wxString>& dup_fname,
+              set<wxString>& bad_fname);
+    
 	void Init(vector<int>& dup_fname_idx_s, vector<int>& bad_fname_idx_s);
 	
 	bool CheckUserInput();
@@ -96,14 +101,14 @@ private:
 public:
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            vector<wxString>& all_fname,
-                           wxString title="Field Name Correction");
+                           wxString title="Update Field Name");
     
     FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                            map<wxString, wxString>& fnames_dict,
                            vector<wxString>& merged_field_names,
                            set<wxString>& dup_fname,
                            set<wxString>& bad_fname,
-                           wxString title="Field Name Correction");
+                           wxString title="Update Field Name");
 	virtual ~FieldNameCorrectionDlg();
 
 	bool NeedCorrection() { return need_correction;}

@@ -41,7 +41,6 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../FramesManager.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "CatClassifManager.h"
 #include "CatClassifState.h"
 #include "HistogramView.h"
@@ -90,41 +89,72 @@ custom_classif_state(0), is_custom_category(false)
 	data_stats.resize(col_time_steps);
 	hinge_stats.resize(col_time_steps);
 	data_sorted.resize(col_time_steps);
+    s_data_sorted.resize(col_time_steps);
+    
+    min_ival_val.resize(col_time_steps);
+    max_ival_val.resize(col_time_steps);
+    max_num_obs_in_ival.resize(col_time_steps);
+    ival_to_obs_ids.resize(col_time_steps);
+    VAR_STRING.resize(col_time_steps);
     
     bool has_init = false;
     for (int t=0; t<col_time_steps; t++) {
-        std::vector<double> sel_data;
         std::vector<bool> sel_undefs;
-        table_int->GetColData(col_id, t, sel_data);
         table_int->GetColUndefined(col_id, t, sel_undefs);
         undef_tms.push_back(sel_undefs);
         
-        data_sorted[t].resize(num_obs);
-        // data_sorted is a pair value {double value: index}
-        for (int i=0; i<num_obs; i++) {
-            data_sorted[t][i].first = sel_data[i];
-            data_sorted[t][i].second = i;
-        }
-        // sort data_sorted by value
-        std::sort(data_sorted[t].begin(),
-                  data_sorted[t].end(),
-                  Gda::dbl_int_pair_cmp_less);
+        GdaConst::FieldType f_type = table_int->GetColType(col_id, t);
+        IS_VAR_STRING.push_back(f_type == GdaConst::string_type);
         
-        data_stats[t].CalculateFromSample(data_sorted[t], sel_undefs);
-        hinge_stats[t].CalculateHingeStats(data_sorted[t], sel_undefs);
-       
-        if (!has_init) {
-            data_min_over_time = data_stats[t].min;
-            data_max_over_time = data_stats[t].max;
-            has_init = true;
+        if (f_type == GdaConst::string_type) {
+            std::vector<wxString> sel_data;
+            table_int->GetColData(col_id, t, sel_data);
+            s_data_sorted[t].resize(num_obs);
+            std::map<wxString, int> unique_dict;
+            // data_sorted is a pair value {string value: index}
+            for (int i=0; i<num_obs; i++) {
+                s_data_sorted[t][i].first = sel_data[i];
+                s_data_sorted[t][i].second = i;
+                if (unique_dict.find(sel_data[i]) == unique_dict.end()) {
+                    unique_dict[sel_data[i]] = 0;
+                    VAR_STRING[t].push_back(sel_data[i]);
+                }
+                unique_dict[sel_data[i]] += 1;
+            }
+            // add current [id] to ival_to_obs_ids
+            max_intervals = unique_dict.size();
+            cur_intervals = unique_dict.size();
+
         } else {
-            // get min max values
-            if (data_stats[t].min < data_min_over_time) {
+            std::vector<double> sel_data;
+            table_int->GetColData(col_id, t, sel_data);
+            data_sorted[t].resize(num_obs);
+            // data_sorted is a pair value {double value: index}
+            for (int i=0; i<num_obs; i++) {
+                data_sorted[t][i].first = sel_data[i];
+                data_sorted[t][i].second = i;
+            }
+            // sort data_sorted by value
+            std::sort(data_sorted[t].begin(),data_sorted[t].end(),Gda::dbl_int_pair_cmp_less);
+            
+            data_stats[t].CalculateFromSample(data_sorted[t], sel_undefs);
+            hinge_stats[t].CalculateHingeStats(data_sorted[t], sel_undefs);
+            
+            if (!has_init) {
                 data_min_over_time = data_stats[t].min;
-            }
-            if (data_stats[t].max > data_max_over_time) {
                 data_max_over_time = data_stats[t].max;
+                has_init = true;
+            } else {
+                // get min max values
+                if (data_stats[t].min < data_min_over_time) {
+                    data_min_over_time = data_stats[t].min;
+                }
+                if (data_stats[t].max > data_max_over_time) {
+                    data_max_over_time = data_stats[t].max;
+                }
             }
+            max_intervals = std::min(MAX_INTERVALS, num_obs);
+            cur_intervals = std::min(max_intervals, default_intervals);
         }
     }
     
@@ -135,20 +165,6 @@ custom_classif_state(0), is_custom_category(false)
     }
     
     obs_id_to_ival.resize(boost::extents[col_time_steps][num_obs]);
-    max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-    cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
-    /*
-    if (num_obs > 49) {
-        int c = sqrt((double) num_obs);
-        cur_intervals = GenUtils::min<int>(max_intervals, c);
-        cur_intervals = GenUtils::min<int>(cur_intervals, 25);
-    }
-     */
-    min_ival_val.resize(col_time_steps);
-    max_ival_val.resize(col_time_steps);
-    max_num_obs_in_ival.resize(col_time_steps);
-    ival_to_obs_ids.resize(col_time_steps);
-    
 	highlight_color = GdaConst::highlight_color;
     
     last_scale_trans.SetFixedAspectRatio(false);
@@ -223,6 +239,10 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 
 int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifManager* ccm)
 {
+    if (!IS_VAR_STRING.empty()) {
+        if(IS_VAR_STRING[0])
+            return 0;
+    }
     std::vector<wxString> titles;
     ccm->GetTitles(titles);
     
@@ -236,7 +256,7 @@ int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifMana
         wxMenuItem* mi = menu2->Append(xrcid_hist_classification+j+1, titles[j]);
     }
     s = _("Histogram Classification");
-	menu->Prepend(wxID_ANY, s, menu2, s);
+	menu->Insert(1, wxID_ANY, s, menu2, s);
     return titles.size();
 }
 
@@ -297,6 +317,12 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 								  IsDisplayStats());
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES"),
 								  IsShowAxes());
+   
+    int t = var_info[0].time;
+    
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), !IS_VAR_STRING[t]);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"), !IS_VAR_STRING[t]);
+    
 	
 	if (var_info[0].is_time_variant) {
 		GeneralWxUtils::CheckMenuItem(menu,
@@ -384,19 +410,18 @@ void HistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         }
     }
     if ( selection_changed ) {
-        highlight_state->SetEventType(HLStateInt::delta);
-        highlight_state->notifyObservers(this);
-    }
-    
-	if ( selection_changed ) {
+        int total_highlighted = 0; // used for MapCanvas::Drawlayer1
+        for (int i=0; i<num_obs; i++) if (hs[i]) total_highlighted += 1;
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(50);
+        
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         UpdateIvalSelCnts();
         DrawLayers();
-        
 	}
     Refresh();
-	UpdateStatusBar();
+    UpdateStatusBar();
 }
 
 void HistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -441,9 +466,7 @@ void HistogramCanvas::update(HLStateInt* o)
         ResetFadedLayer();
     }
     
-	//layer0_valid = false;
 	layer1_valid = false;
-	//layer2_valid = false;
 	UpdateIvalSelCnts();
     
 	Refresh();
@@ -455,6 +478,13 @@ wxString HistogramCanvas::GetCanvasTitle()
 	wxString s = _("Histogram: ");
 	s << GetNameWithTime(0);
 	return s;
+}
+
+wxString HistogramCanvas::GetVariableNames()
+{
+    wxString s;
+    s << GetNameWithTime(0);
+    return s;
 }
 
 wxString HistogramCanvas::GetNameWithTime(int var)
@@ -533,13 +563,16 @@ void HistogramCanvas::PopulateCanvas()
                    interval_gap_const * (cur_intervals-1);
     double y_min = 0;
 	double y_max = scale_y_over_time ? overall_max_num_obs_in_ival : max_num_obs_in_ival[time];
+  
+    // some exceptional case: e.g. variable is not valid
+    if (y_min == 0 && y_max == 0) return;
     
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
@@ -581,13 +614,24 @@ void HistogramCanvas::PopulateCanvas()
                 tic_str << axis_scale_x.data_min;
                 axis_scale_x.tics_str[i] = tic_str;
                 
-                GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min,
-                                                    axis_display_precision),
-                                 *GdaConst::small_font,
-                                 wxRealPoint(x0, y0), 0,
-                                 GdaShapeText::h_center,
-                                 GdaShapeText::v_center, 0, 25);
+                GdaShapeText* brk;
+                if (IS_VAR_STRING[time])
+                    brk =
+                    new GdaShapeText("",
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x0 /2.0 + x1 /2.0, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+
+                else
+                    brk =
+                    new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min,
+                                                        axis_display_precision),
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x0, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+
                 foreground_shps.push_back(brk);
             }
             if (i<cur_intervals-1) {
@@ -597,13 +641,23 @@ void HistogramCanvas::PopulateCanvas()
                 tic_str << ival_breaks[time][i];
                 axis_scale_x.tics_str[i] = tic_str;
                 
-                GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i],
-                                                    axis_display_precision),
-                                 *GdaConst::small_font,
-                                 wxRealPoint(x1, y0), 0,
-                                 GdaShapeText::h_center,
-                                 GdaShapeText::v_center, 0, 25);
+                GdaShapeText* brk;
+                if (IS_VAR_STRING[time])
+                    brk =
+                    new GdaShapeText(s_ival_breaks[time][i],
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x0 /2.0 + x1 /2.0, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+                else
+                    brk =
+                    new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i],
+                                                        axis_display_precision),
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x1, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+
                 foreground_shps.push_back(brk);
             }
             if (i==cur_intervals-1) {
@@ -611,15 +665,23 @@ void HistogramCanvas::PopulateCanvas()
                 wxString tic_str;
                 tic_str << axis_scale_x.data_max;
                 axis_scale_x.tics_str[i] = tic_str;
-                GdaShapeText* brk =
-                new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max,
-                                                    axis_display_precision),
-                                 *GdaConst::small_font,
-                                 wxRealPoint(x1, y0), 0,
-                                 GdaShapeText::h_center,
-                                 GdaShapeText::v_center, 0, 25);
+                GdaShapeText* brk;
+                if (IS_VAR_STRING[time])
+                    brk =
+                    new GdaShapeText(s_ival_breaks[time][i],
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x0 /2.0 + x1 /2.0, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
+                else
+                    brk =
+                    new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max,
+                                                        axis_display_precision),
+                                     *GdaConst::small_font,
+                                     wxRealPoint(x1, y0), 0,
+                                     GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 25);
                 foreground_shps.push_back(brk);
-                
                 
                 GdaPolyLine* xdline = new GdaPolyLine(x1, y0, x1, y00);
                 xdline->setNudge(0, 10);
@@ -646,11 +708,11 @@ void HistogramCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+		vals[0] << _("from");
+		vals[1] << _("to");
+		vals[2] << _("#obs");
+		vals[3] << _("% of total");
+		vals[4] << _("sd from mean");
         
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
@@ -661,6 +723,11 @@ void HistogramCanvas::PopulateCanvas()
         
         wxClientDC dc(this);
         ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+        
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
         
 		for (int i=0; i<cur_intervals; i++) {
 			int t = time;
@@ -689,17 +756,17 @@ void HistogramCanvas::PopulateCanvas()
                                   wxRealPoint(orig_x_pos[i], 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  3, 10, 0, 53+y_d);
+                                  row_gap, 10, 0, 53+y_d);
 			foreground_shps.push_back(s);
 		}
 		
 		wxString sts;
-		sts << "min: " << data_stats[time].min;
-		sts << ", max: " << data_stats[time].max;
-		sts << ", median: " << hinge_stats[time].Q2;
-		sts << ", mean: " << data_stats[time].mean;
-		sts << ", s.d.: " << data_stats[time].sd_with_bessel;
-		sts << ", #obs: " << num_obs;
+		sts << _("min:") << " " << data_stats[time].min;
+		sts << ", " << _("max:") << " " << data_stats[time].max;
+		sts << ", " << _("median:") << " " << hinge_stats[time].Q2;
+		sts << ", " << _("mean:") << " " << data_stats[time].mean;
+		sts << ", " << _("s.d.:") << " " << data_stats[time].sd_with_bessel;
+		sts << ", " << _("#obs:") << " " << num_obs;
 	
         s = new GdaShapeText(sts, *GdaConst::small_font,
                              wxRealPoint(x_max/2.0, 0), 0,
@@ -731,7 +798,7 @@ void HistogramCanvas::PopulateCanvas()
         double x1 = orig_x_pos_right[i];
 		double y0 = 0;
 		double y1 = ival_obs_cnt[time][i];
-		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
+		selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, y0),
                                               wxRealPoint(x1, y1));
 		
         if (!is_custom_category) {
@@ -868,6 +935,7 @@ void HistogramCanvas::InitIntervals()
 	std::vector<bool>& hs = highlight_state->GetHighlight();
 	
 	int ts = obs_id_to_ival.shape()[0];
+    s_ival_breaks.resize(boost::extents[ts][cur_intervals]);
 	ival_breaks.resize(boost::extents[ts][cur_intervals-1]);
 	ival_obs_cnt.resize(boost::extents[ts][cur_intervals]);
 	ival_obs_sel_cnt.resize(boost::extents[ts][cur_intervals]);
@@ -886,82 +954,134 @@ void HistogramCanvas::InitIntervals()
 	}
     
 	for (int t=0; t<ts; t++) {
-		if (scale_x_over_time) {
-			min_ival_val[t] = data_min_over_time;
-			max_ival_val[t] = data_max_over_time;
-		} else {
+        if (IS_VAR_STRING[t]) {
+            cat_classif_def.names = VAR_STRING[t];
+            for (int i=0; i<cur_intervals; i++) {
+                s_ival_breaks[t][i] = cat_classif_def.names[i];
+            }
             
-            const std::vector<bool>& undefs = undef_tms[t];
-            bool has_init = false;
-            for (size_t ii=0; ii<undefs.size(); ii++){
-                double val = data_sorted[t][ii].first;
-                int iid = data_sorted[t][ii].second;
-                if (undefs[iid])
-                    continue;
-                if (!has_init) {
-                    min_ival_val[t] = val;
-                    max_ival_val[t] = val;
-                    has_init = true;
-                } else {
-                    if ( val < min_ival_val[t] ) {
-                        min_ival_val[t] = val;
+            std::map<wxString, int> unique_dict;
+            // data_sorted is a pair value {string value: index}
+            for (int i=0; i<num_obs; i++) {
+                wxString val = s_data_sorted[t][i].first;
+                if (unique_dict.find(val) == unique_dict.end()) {
+                    unique_dict[val] = 0;
+                    VAR_STRING[t].push_back(val);
+                }
+                unique_dict[val] += 1;
+            }
+            
+            // add current [id] to ival_to_obs_ids
+            int cur_ival = 0;
+            std::map<wxString, int>::iterator it;
+            for (it=unique_dict.begin(); it!=unique_dict.end();it++){
+                wxString lbl = it->first;
+                for (int idx=0; idx<num_obs; idx++) {
+                    if (s_data_sorted[t][idx].first == lbl) {
+                        ival_to_obs_ids[t][cur_ival].push_front(idx);
+                        obs_id_to_ival[t][idx] = cur_ival;
+                        ival_obs_cnt[t][cur_ival]++;
+                        if (hs[idx]) {
+                            ival_obs_sel_cnt[t][cur_ival]++;
+                        }
                     }
-                    if ( val > min_ival_val[t] ) {
+                }
+                cur_ival += 1;
+            }
+        } else {
+            if (scale_x_over_time) {
+                min_ival_val[t] = data_min_over_time;
+                max_ival_val[t] = data_max_over_time;
+            } else {
+                const std::vector<bool>& undefs = undef_tms[t];
+                bool has_init = false;
+                for (size_t ii=0; ii<undefs.size(); ii++){
+                    double val = data_sorted[t][ii].first;
+                    int iid = data_sorted[t][ii].second;
+                    if (undefs[iid])
+                        continue;
+                    if (!has_init) {
+                        min_ival_val[t] = val;
                         max_ival_val[t] = val;
+                        has_init = true;
+                    } else {
+                        if (val < min_ival_val[t]) {
+                            min_ival_val[t] = val;
+                        }
+                        if (val > min_ival_val[t]) {
+                            max_ival_val[t] = val;
+                        }
                     }
                 }
             }
-		}
-		if (min_ival_val[t] == max_ival_val[t]) {
-			if (min_ival_val[t] == 0) {
-				max_ival_val[t] = 1;
-			} else {
-				max_ival_val[t] += fabs(max_ival_val[t])/2.0;
-			}
-		}
-		double range = max_ival_val[t] - min_ival_val[t];
-		double ival_size = range/((double) cur_intervals);
-		
-        if (!is_custom_category) {
-            cat_classif_def.breaks.resize(cur_intervals-1);
-            for (int i=0; i<cur_intervals-1; i++) {
-                ival_breaks[t][i] = min_ival_val[t]+ival_size*((double) (i+1));
-                cat_classif_def.breaks[i] = ival_breaks[t][i];
+            if (min_ival_val[t] == max_ival_val[t]) {
+                if (min_ival_val[t] == 0) {
+                    max_ival_val[t] = 1;
+                } else {
+                    max_ival_val[t] += fabs(max_ival_val[t])/2.0;
+                }
             }
-        } else {
-            for (int i=0; i<cur_intervals-1; i++) {
-                ival_breaks[t][i] = cat_classif_def.breaks[i];
+            double range = max_ival_val[t] - min_ival_val[t];
+            double ival_size = range/((double) cur_intervals);
+            const std::vector<bool>& undefs = undef_tms[t];
+            
+            if (!is_custom_category) {
+                cat_classif_def.breaks.resize(cur_intervals-1);
+                for (int i=0; i<cur_intervals-1; i++) {
+                    ival_breaks[t][i] = min_ival_val[t]+ival_size*((double) (i+1));
+                    cat_classif_def.breaks[i] = ival_breaks[t][i];
+                }
+                for (int i=0, cur_ival=0; i<num_obs; i++) {
+                    std::pair<double, int>& data_item = data_sorted[t][i];
+                    double val = data_item.first;
+                    int idx = data_item.second;
+                    if (undefs[idx])
+                        continue;
+                    // detect if need to jump to next interval
+                    while (cur_ival <= cur_intervals-2 &&
+                           val >= ival_breaks[t][cur_ival])
+                    {
+                        cur_ival++;
+                    }
+                    // add current [id] to ival_to_obs_ids
+                    ival_to_obs_ids[t][cur_ival].push_front(idx);
+                    obs_id_to_ival[t][idx] = cur_ival;
+                    ival_obs_cnt[t][cur_ival]++;
+                    
+                    if (hs[data_sorted[t][i].second]) {
+                        ival_obs_sel_cnt[t][cur_ival]++;
+                    }
+                }
+            } else {
+                for (int i=0; i<cur_intervals-1; i++) {
+                    ival_breaks[t][i] = cat_classif_def.breaks[i];
+                }
+                int num_cats = cat_classif_def.num_cats;
+                int num_breaks = num_cats-1;
+                int num_breaks_lower = (num_breaks+1)/2;
+                for (int i=0, cur_ival=0; i<num_obs; i++) {
+                    std::pair<double, int>& data_item = data_sorted[t][i];
+                    double val = data_item.first;
+                    int idx = data_item.second;
+                    if (undefs[idx]) continue;
+                    // detect if need to jump to next interval
+                    if (cur_ival <= cur_intervals-2) {
+                        if ( (cur_ival == num_breaks_lower &&val > ival_breaks[t][cur_ival]) || (cur_ival != num_breaks_lower &&val >= ival_breaks[t][cur_ival]) )
+                            cur_ival++;
+                    }
+                    // add current [id] to ival_to_obs_ids
+                    ival_to_obs_ids[t][cur_ival].push_front(idx);
+                    obs_id_to_ival[t][idx] = cur_ival;
+                    ival_obs_cnt[t][cur_ival]++;
+                    
+                    if (hs[data_sorted[t][i].second]) {
+                        ival_obs_sel_cnt[t][cur_ival]++;
+                    }
+                }
             }
         }
+    }
         
-        const std::vector<bool>& undefs = undef_tms[t];
-        
-		for (int i=0, cur_ival=0; i<num_obs; i++) {
-            
-            std::pair<double, int>& data_item = data_sorted[t][i];
-            double val = data_item.first;
-            int idx = data_item.second;
-           
-            if (undefs[idx])
-                continue;
-            
-            // detect if need to jump to next interval
-			while (cur_ival <= cur_intervals-2 &&
-				   val >= ival_breaks[t][cur_ival])
-            {
-				cur_ival++;
-			}
-            
-            // add current [id] to ival_to_obs_ids
-			ival_to_obs_ids[t][cur_ival].push_front(idx);
-			obs_id_to_ival[t][idx] = cur_ival;
-			ival_obs_cnt[t][cur_ival]++;
-            
-			if (hs[data_sorted[t][i].second]) {
-				ival_obs_sel_cnt[t][cur_ival]++;
-			}
-		}
-	}
 	overall_max_num_obs_in_ival = 0;
 	for (int t=0; t<ts; t++) {
 		max_num_obs_in_ival[t] = 0;
@@ -976,8 +1096,10 @@ void HistogramCanvas::InitIntervals()
 	}
 
     int sel_t = var_info[0].time;
-    cat_classif_def.uniform_dist_min = data_stats[sel_t].min;
-    cat_classif_def.uniform_dist_max = data_stats[sel_t].max;
+    if (IS_VAR_STRING[sel_t] == false) {
+        cat_classif_def.uniform_dist_min = data_stats[sel_t].min;
+        cat_classif_def.uniform_dist_max = data_stats[sel_t].max;
+    }
 }
 
 void HistogramCanvas::UpdateIvalSelCnts()
@@ -1045,7 +1167,7 @@ void HistogramCanvas::UpdateStatusBar()
         wxString s;
         if (highlight_state->GetTotalHighlighted()> 0) {
             int n_total_hl = highlight_state->GetTotalHighlighted();
-            s << "#selected=" << n_total_hl << "  ";
+            s << _("#selected=") << n_total_hl << "  ";
             
             int n_undefs = 0;
             for (int i=0; i<num_obs; i++) {
@@ -1054,12 +1176,14 @@ void HistogramCanvas::UpdateStatusBar()
                 }
             }
             if (n_undefs> 0) {
-                s << "(undefined:" << n_undefs << ") ";
+                s << _("undefined: ") << n_undefs << ") ";
             }
         }
         sb->SetStatusText(s);
 		return;
 	}
+   
+    if (ival-1 >= ival_breaks[t].size()) return;
     
 	wxString s;
 	double ival_min = (ival == 0) ? min_ival_val[t] : ival_breaks[t][ival-1];
@@ -1151,7 +1275,7 @@ void HistogramFrame::MapMenus()
     ((HistogramCanvas*) template_canvas)->AddClassificationOptionsToMenu(optMenu, project->GetCatClassifManager());
     
 	((HistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1159,7 +1283,7 @@ void HistogramFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((HistogramCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

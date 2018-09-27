@@ -33,27 +33,42 @@ public:
 	GeoDaWeight(const GeoDaWeight& gw);
     
 	virtual ~GeoDaWeight() {}
-
-public:
-	virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
-	virtual wxString GetTitle(); // returns portion of wflnm if title empty
-	virtual bool HasIsolates() { return true; } // implement in
-   
-    
+	
     // following functions implemented in inherited classes: GalWeights and GwtWeights
     virtual bool SaveDIDWeights(Project* project,
                                 int num_obs,
                                 std::vector<wxInt64>& newids,
                                 std::vector<wxInt64>& stack_ids,
                                 const wxString& ofname)=0;
-    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)=0;
+    
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname,
+                                      WeightsManInterface* wmi,
+                                      TableInterface* table_int)=0;
    
     virtual void Update(const std::vector<bool>& undefs)=0;
     
-public:
+
+    virtual bool HasIsolates()=0;
+    
+    virtual void GetNbrStats() = 0;
+    
+    virtual double GetSparsity();
+    virtual double GetDensity();
+    virtual int GetMinNumNbrs();
+    virtual int GetMaxNumNbrs();
+    virtual double GetMeanNumNbrs();
+    virtual double GetMedianNumNbrs();
+    virtual int GetNumObs();
+    
+    // Others
+    virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
+   
+    virtual wxString GetTitle(); // returns portion of wflnm if title empty
+   
+    virtual wxString GetIDName() { return id_field;}
+  
+    // Properties
 	enum WeightType { gal_type, gwt_type };
-	// subclasses
-	
 	WeightType weight_type;
 	wxString wflnm; // filename
     wxString id_field; 
@@ -61,8 +76,12 @@ public:
 	bool symmetry_checked; // indicates validity of is_symmetric bool
 	bool is_symmetric; // true iff matrix is symmetric
 	int num_obs;
-    
-    wxString GetIDName() { return id_field;}
+    double sparsity;
+    double density;
+    int min_nbrs;
+    int max_nbrs;
+    double mean_nbrs;
+    double median_nbrs;
 };
 
 #endif

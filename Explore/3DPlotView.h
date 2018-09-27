@@ -53,6 +53,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void TimeChange();
 	void VarInfoAttributeChange();

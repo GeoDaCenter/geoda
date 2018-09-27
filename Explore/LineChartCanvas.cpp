@@ -57,7 +57,7 @@ LineChartCanvas::LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame,
 : TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos,
                  size, false, true),
 lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0),
-y_axis_precision(1)
+y_axis_precision(2), fixed_scale_over_change(true), prev_y_axis_min(DBL_MIN), prev_y_axis_max(DBL_MAX)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
     last_scale_trans.SetFixedAspectRatio(false);
@@ -69,7 +69,7 @@ y_axis_precision(1)
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+	SetBackgroundStyle(wxBG_STYLE_PAINT);  // default style
     
     Bind(wxEVT_LEFT_DCLICK, &LineChartCanvas::OnDblClick, this);
     
@@ -365,6 +365,15 @@ void LineChartCanvas::PopulateCanvas()
 	if (y_min >= 0 && axis_min < 0)
         axis_min = 0;
     
+    // support "Fixed Scale over change
+    if (fixed_scale_over_change && prev_y_axis_min != DBL_MIN && prev_y_axis_max != DBL_MAX) {
+        axis_min = prev_y_axis_min;
+        axis_max = prev_y_axis_max;
+    }
+   
+    prev_y_axis_min = axis_min;
+    prev_y_axis_max = axis_max;
+    
     if (!def_y_min.IsEmpty())
           def_y_min.ToDouble(&axis_min);
     
@@ -373,9 +382,8 @@ void LineChartCanvas::PopulateCanvas()
 
 	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
 	
-	//LOG_MSG(wxString(axis_scale_y.ToString().c_str(), wxConvUTF8));
 	scaleY = 100.0 / (axis_scale_y.scale_range);
-	
+    
 	TableInterface* table_int = project->GetTableInt();
 	// create axes
 	std::vector<wxString> tm_strs;

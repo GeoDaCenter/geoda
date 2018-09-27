@@ -37,7 +37,6 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "BoxNewPlotView.h"
 
 IMPLEMENT_CLASS(BoxPlotCanvas, TemplateCanvas)
@@ -125,7 +124,7 @@ hinge_15(true)
 	}	
 
     // no more than 100 plots
-	max_plots = GenUtils::min<int>(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
+	max_plots = std::min(MAX_BOX_PLOTS, var_info[0].is_time_variant ?
 								   project->GetTableInt()->GetTimeSteps() : 1);
 	cur_num_plots = max_plots;
 	cur_first_ind = var_info[0].time_min;
@@ -176,8 +175,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	if (!var_info[0].is_time_variant) return;
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	{
-		wxString s;
-		s << "Synchronize " << var_info[0].name << " with Time Control";
+		wxString s = wxString::Format(_("Synchronize %s with Time Control"), var_info[0].name);
 		wxMenuItem* mi =
 		menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+0, s, s);
 		mi->Check(var_info[0].sync_with_global_time);
@@ -185,8 +183,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	
 	wxMenu* menu2 = new wxMenu(wxEmptyString);
 	{
-		wxString s;
-		s << "Fixed scale over time";
+		wxString s= _("Fixed scale over time");
 		wxMenuItem* mi =
 		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
 		mi->Check(var_info[0].fixed_scale);
@@ -195,7 +192,7 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu3 = new wxMenu(wxEmptyString);
 	{
 		int mppv = GdaConst::max_plots_per_view_menu_items;
-		int mp = GenUtils::min<int>(max_plots, mppv);
+		int mp = std::min(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			wxString s;
 			s << i+1;
@@ -220,14 +217,13 @@ void BoxPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		mi->Check(cur_num_plots == max_plots);
 	}
 	
-	menu->Prepend(wxID_ANY, "Number of Box Plots", menu3,
-				  "Number of Box Plots");
-	menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
+	menu->Prepend(wxID_ANY, _("Number of Box Plots"), menu3, _("Number of Box Plots"));
+	menu->Prepend(wxID_ANY, _("Scale Options"), menu2, _("Scale Options"));
     
     
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+				  _("Time Variable Options"));
 }
 
 void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
@@ -255,7 +251,7 @@ void BoxPlotCanvas::SetCheckMarks(wxMenu* menu)
 									  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 									  var_info[0].fixed_scale);
 		int mppv = GdaConst::max_plots_per_view_menu_items;
-		int mp = GenUtils::min<int>(max_plots, mppv);
+		int mp = std::min(max_plots, mppv);
 		for (int i=0; i<mp-1; i++) {
 			GeneralWxUtils::CheckMenuItem(menu,
 										  GdaConst::ID_PLOTS_PER_VIEW_1+i,
@@ -277,10 +273,11 @@ void BoxPlotCanvas::DetermineMouseHoverObjects(wxPoint pt)
     
 	for (int t=0; t<cur_num_plots; t++) {
 		for (int i=0; i<num_obs; i++) {
-            wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
-            wxPoint& pt1 = pt;
-			sel_scratch[i] = sel_scratch[i] ||
-				GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
+            if (selectable_shps[t*num_obs + i]) {
+                wxPoint& pt0 = selectable_shps[t*num_obs + i]->center;
+                wxPoint& pt1 = pt;
+    			sel_scratch[i] = sel_scratch[i] || GenUtils::distance_sqrd(pt0, pt1) <= 16.5;
+            }
 		}
 	}
 	for (int i=0; i<num_obs && total_hover_obs<max_hover_obs; i++) {
@@ -304,8 +301,9 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	if (pointsel) { // a point selection
 		for (int t=0; t<cur_num_plots; t++) {
 			for (int i=0; i<num_obs; i++) {
-				sel_scratch[i] = sel_scratch[i] ||
-				selectable_shps[t*num_obs + i]->pointWithin(sel1);
+                if (selectable_shps[t*num_obs + i]) {
+    				sel_scratch[i] = sel_scratch[i] || selectable_shps[t*num_obs + i]->pointWithin(sel1);
+                }
 			}
 		}
 	} else {
@@ -313,9 +311,9 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		wxRegion rect(wxRect(sel1, sel2));
 		for (int t=0; t<cur_num_plots; t++) {
 			for (int i=0; i<num_obs; i++) {
-				sel_scratch[i] = sel_scratch[i] ||
-					(rect.Contains(selectable_shps[t*num_obs + i]->center) !=
-					 wxOutRegion);
+                if (selectable_shps[t*num_obs + i]) {
+    				sel_scratch[i] = sel_scratch[i] || (rect.Contains(selectable_shps[t*num_obs + i]->center) != wxOutRegion);
+                }
 			}
 		}
 	}
@@ -341,16 +339,18 @@ void BoxPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 	}
    
 	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
+        int total_highlighted = 0; // used for MapCanvas::Drawlayer1
+        for (int i=0; i<num_obs; i++) if (hs[i]) total_highlighted += 1;
+        highlight_state->SetTotalHighlighted(total_highlighted);
+        highlight_timer->Start(50);
         
         // re-paint highlight layer (layer1_bm)
         layer1_valid = false;
         DrawLayers();
-        Refresh();
         
-        UpdateStatusBar();
     }
+    Refresh();
+    UpdateStatusBar();
 }
 
 void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
@@ -377,8 +377,8 @@ void BoxPlotCanvas::DrawSelectableShapes(wxMemoryDC &dc)
             int ind = ind_base + idx;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_s = std::max(min_IQR, 0);
+		int iqr_t = std::min(max_IQR, num_obs-1);
 		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
 		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
@@ -424,8 +424,8 @@ void BoxPlotCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
             if (!hs[idx]) continue;
 			dc.DrawCircle(selectable_shps[ind]->center, radius);
 		}
-		int iqr_s = GenUtils::max<double>(min_IQR, 0);
-		int iqr_t = GenUtils::min<double>(max_IQR, num_obs-1);
+		int iqr_s = std::max(min_IQR, 0);
+		int iqr_t = std::min(max_IQR, num_obs-1);
 		dc.SetPen(GdaConst::boxplot_q1q2q3_color);
 		dc.SetBrush(GdaConst::boxplot_q1q2q3_color);
 		for (int i=iqr_s; i<=iqr_t; i++) {
@@ -452,9 +452,10 @@ void BoxPlotCanvas::update(HLStateInt* o)
 
 wxString BoxPlotCanvas::GetCanvasTitle()
 {
-	wxString s("Box Plot (Hinge=");
-	if (hinge_15) s << "1.5): ";
-	else s << "3.0): ";
+    wxString s = _("Box Plot");
+	if (hinge_15) s << " (Hinge=1.5): ";
+	else s << " (Hinge=3.0): ";
+    
 	if (cur_first_ind == cur_last_ind) {
 		s << GetNameWithTime(0);
 	} else {
@@ -463,6 +464,20 @@ wxString BoxPlotCanvas::GetCanvasTitle()
 		s << project->GetTableInt()->GetTimeString(cur_last_ind) << ")";
 	}
 	return s;
+}
+
+wxString BoxPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    
+    if (cur_first_ind == cur_last_ind) {
+        s << GetNameWithTime(0);
+    } else {
+        s << var_info[0].name << " (";
+        s << project->GetTableInt()->GetTimeString(cur_first_ind) << "-";
+        s << project->GetTableInt()->GetTimeString(cur_last_ind) << ")";
+    }
+    return s;
 }
 
 wxString BoxPlotCanvas::GetNameWithTime(int var)
@@ -608,14 +623,46 @@ void BoxPlotCanvas::PopulateCanvas()
 			int cols = 1;
 			int rows = 8;
 			std::vector<wxString> vals(rows);
-			vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, 4);
-			vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, 4);
-			vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, 4);
-			vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, 4);
-			vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, 4);
-			vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, 4);
-			vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
-			vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
+
+            if ((int)hinge_stats[t].min_val == hinge_stats[t].min_val)
+                vals[0] << GenUtils::IntToStr(hinge_stats[t].min_val);
+            else
+                vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, 4);
+            
+            if ((int)hinge_stats[t].max_val == hinge_stats[t].max_val)
+                vals[1] << GenUtils::IntToStr(hinge_stats[t].max_val);
+			else
+                vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, 4);
+            
+            if ((int)hinge_stats[t].Q1 == hinge_stats[t].Q1)
+                vals[2] << GenUtils::IntToStr(hinge_stats[t].Q1);
+            else
+                vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, 4);
+            
+            if ((int)hinge_stats[t].Q2 == hinge_stats[t].Q2)
+                vals[3] << GenUtils::IntToStr(hinge_stats[t].Q2);
+            else
+                vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, 4);
+            
+            if ((int)hinge_stats[t].Q3 == hinge_stats[t].Q3)
+                vals[4] << GenUtils::IntToStr(hinge_stats[t].Q3);
+            else
+                vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, 4);
+            
+            if ((int)hinge_stats[t].IQR == hinge_stats[t].IQR)
+                vals[5] << GenUtils::IntToStr(hinge_stats[t].IQR);
+            else
+                vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, 4);
+            
+            if ((int)data_stats[t].mean == data_stats[t].mean)
+                vals[6] << GenUtils::IntToStr(data_stats[t].mean);
+            else
+                vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
+            
+            if ((int)data_stats[t].sd_with_bessel == data_stats[t].sd_with_bessel)
+                vals[7] << GenUtils::IntToStr(data_stats[t].sd_with_bessel);
+            else
+                vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
 
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
             s = new GdaShapeTable(vals, attribs, rows, cols,
@@ -757,8 +804,8 @@ void BoxPlotCanvas::TimeChange()
 	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
-	start = GenUtils::max(start, 0);
-	start = GenUtils::min(start, time_steps-cur_num_plots);
+	start = std::max(start, 0);
+	start = std::min(start, time_steps-cur_num_plots);
 	
 	if (cur_first_ind == start) return;
 	
@@ -818,8 +865,8 @@ void BoxPlotCanvas::PlotsPerView(int plots_per_view)
 	int time_steps = project->GetTableInt()->GetTimeSteps();
 	int start = var_info[0].time - cur_num_plots/2;
 	if (cur_num_plots % 2 == 0) start++;
-	start = GenUtils::max(start, 0);
-	start = GenUtils::min(start, time_steps-cur_num_plots);
+	start = std::max(start, 0);
+	start = std::min(start, time_steps-cur_num_plots);
 	cur_first_ind = start;
 	cur_last_ind = cur_first_ind + cur_num_plots - 1;
 	
@@ -891,7 +938,7 @@ void BoxPlotCanvas::UpdateStatusBar()
 	wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-		s << "#selected=" << n_total_hl << "  ";
+		s << _("#selected=") << n_total_hl << "  ";
         
         if (num_time_vals == 1) {
             int t = 0;
@@ -902,7 +949,7 @@ void BoxPlotCanvas::UpdateStatusBar()
                 }
             }
             if (n_undefs> 0) {
-                s << "(undefined:" << n_undefs << ") ";
+                s << _("undefined: ") << n_undefs << ") ";
             }
         } else {
             wxString str;
@@ -918,22 +965,22 @@ void BoxPlotCanvas::UpdateStatusBar()
                 }
             }
             if (!str.IsEmpty()) {
-                s << "(undefined:" << str << ")";
+                s << _("undefined: ") << str << ")";
             }
         }
 	}
     
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1;
+			s << _("#hover obs ") << hover_obs[0]+1;
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1;
+			s << _("obs ") << hover_obs[1]+1;
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1;
+			s << _("obs ") << hover_obs[2]+1;
 		}
 		if (total_hover_obs >= 4) {
 			s << ", ...";
@@ -994,7 +1041,7 @@ void BoxPlotFrame::MapMenus()
 	((BoxPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((BoxPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
 	UpdateOptionMenuItems();
 }
 
@@ -1002,7 +1049,7 @@ void BoxPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((BoxPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));

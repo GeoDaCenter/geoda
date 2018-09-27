@@ -39,7 +39,6 @@
 
 #include "../Project.h"
 #include "../DataViewer/TableInterface.h"
-#include "../DataViewer/DbfTable.h"
 #include "../DataViewer/DataSource.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -52,10 +51,10 @@
 
 using namespace std;
 
-BEGIN_EVENT_TABLE( ExportDataDlg, wxFrame )
+BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), ExportDataDlg::OnBrowseDSfileBtn )
     EVT_BUTTON( wxID_OK, ExportDataDlg::OnOkClick )
-    EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
+    //EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -70,7 +69,8 @@ project_file_name(projectFileName),
 is_saveas_op(true),
 is_geometry_only(false),
 is_table_only(false),
-is_save_centroids(false)
+is_save_centroids(false),
+spatial_ref(NULL)
 {
     
     if( project_p ) {
@@ -78,7 +78,6 @@ is_save_centroids(false)
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
-    type = 2;
 }
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -88,14 +87,19 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(false)
+: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(false),spatial_ref(NULL)
 {
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
         table_p = project_p->GetTableInt();
     }
     Init(parent, pos);
-    type = 2;
+}
+
+ExportDataDlg::ExportDataDlg(wxWindow* parent, Shapefile::ShapeType _shape_type, std::vector<GdaShape*>& _geometries, OGRSpatialReference* _spatial_ref, OGRTable* table, const wxPoint& pos, const wxSize& size)
+: is_selected_only(false), project_p(NULL), geometries(_geometries), shape_type(_shape_type), is_saveas_op(true), is_geometry_only(false), table_p(table), is_table_only(false), is_save_centroids(false), spatial_ref(_spatial_ref)
+{
+    Init(parent, pos);
 }
 
 // Export POINT data only, e.g. centroids/mean centers
@@ -107,7 +111,7 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(true)
+: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(true), spatial_ref(NULL)
 {
     
     if( project_p) {
@@ -119,7 +123,6 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
         geometries.push_back((GdaShape*)_geometries[i]);
     }
     Init(parent, pos);
-    type = 2;
 }
 
 // Export in-memory table (e.g. space-time table)
@@ -127,10 +130,9 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              TableInterface* _table,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false)
+: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false), spatial_ref(NULL)
 {
     Init(parent, pos);
-    type = 2;
 }
 
 
@@ -144,19 +146,18 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     
     if (is_table_only)
         ds_names.Remove("ESRI Shapefile (*.shp)|*.shp");
+    
     //ds_names.Remove("dBase database file (*.dbf)|*.dbf");
     ds_names.Remove("MS Excel (*.xls)|*.xls");
 	//ds_names.Remove("MS Office Open XML Spreadsheet (*.xlsx)|*.xlsx");
     //ds_names.Remove("U.S. Census TIGER/Line (*.tiger)|*.tiger");
     //ds_names.Remove("Idrisi Vector (*.vct)|*.vct");
-    if( GeneralWxUtils::isWindows()){
-		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
-	}
     
-    Bind( wxEVT_COMMAND_MENU_SELECTED, 
-         &ExportDataDlg::BrowseExportDataSource,
-         this, DatasourceDlg::ID_DS_START, 
-         ID_DS_START + ds_names.Count());
+    if( GeneralWxUtils::isWindows())
+		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
+    
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource, this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
+    
     SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
@@ -166,7 +167,7 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
 
 void ExportDataDlg::CreateControls()
 {
-    wxXmlResource::Get()->LoadFrame(this, GetParent(), "IDD_EXPORT_OGRDATA");
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_EXPORT_OGRDATA");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
     m_chk_create_project = XRCCTRL(*this, "IDC_CREATE_PROJECT_FILE",wxCheckBox);
@@ -189,7 +190,7 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
     // for datasource file, we should support many file types:
     // SHP, DBF, CSV, GML, ...
     //bool table_only = m_chk_table_only->IsChecked();
-    int index = event.GetId() - ID_DS_START;
+    int index = event.GetId() - GdaConst::ID_CONNECT_POPUP_MENU;
     wxString name = ds_names[index];
     wxString wildcard;
     wildcard << name ;
@@ -221,9 +222,9 @@ void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
     }
     // construct the export datasource file name
     wxString ext_str;
-    if (ds_file_path.GetExt().IsEmpty()){
+    if (ds_file_path.GetExt().IsEmpty()) {
         wxString msg = wxString::Format(_("Can't get datasource type from: %s\n\nPlease select datasource supported by GeoDa or add extension  to file datasource."),  ds_file_path.GetFullPath());
-        wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     } else { 
@@ -250,9 +251,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
    
     wxLogMessage(_("ds:") + ds_name);
     if (ds_name.length() <= 0 ) {
-        wxMessageDialog dlg(this, _("Please specify a valid data source name."),
-                            _("Warning"),
-                            wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(this, _("Please specify a valid data source name."), _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -261,14 +260,15 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
     wxString tmp_ds_name;
     
 	try{
-        OGRSpatialReference* spatial_ref = NULL;
-        
         if ( project_p == NULL ) {
             //project does not exist, could be created a datasource from
-            //geometries only, e.g. boundray file
+            //geometries only, e.g. boundray file or in-memory geometries&table
+            if (spatial_ref && table_p) {
+                // https://github.com/GeoDaCenter/geoda/issues/1046
+                
+            }
         } else {
             //case: save current open datasource as a new datasource
-            
             spatial_ref = project_p->GetSpatialReference();
             // warning if saveas not compaptible
             GdaConst::DataSourceType o_ds_type = project_p->GetDatasourceType();
@@ -309,7 +309,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     
                 }
             }
-            
             if (o_ds_table_only && !n_ds_table_only) {
                 if (project_p && project_p->main_data.records.size() ==0) {
                     if (ds_type == GdaConst::ds_geo_json ||
@@ -332,7 +331,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                 }
             }
 		}
-
 		// by default the datasource will be re-created, except for some special
         // cases: e.g. sqlite, ESRI FileGDB
 		if (datasource_type == 0) {
@@ -355,9 +353,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 				}
 			}
 		}
-
-
-        
         if( !CreateOGRLayer(ds_name, spatial_ref, is_update) ) {
             wxString msg = _("Save As has been cancelled.");
             throw GdaException(msg.mb_str(), GdaException::NORMAL);
@@ -380,7 +375,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                 wxFileDialog dlg(this, file_dlg_title, wxEmptyString,
                                  wxEmptyString, file_dlg_type,
                                  wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-                if (dlg.ShowModal() != wxID_OK) return;
+                if (dlg.ShowModal() != wxID_OK)
+                    return;
                 wxFileName f(dlg.GetPath());
                 f.SetExt("gda");
                 proj_fname = f.GetFullPath();
@@ -390,8 +386,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             // save project file
             wxFileName new_proj_fname(proj_fname);
             wxString proj_title = new_proj_fname.GetName();
-            LayerConfiguration* layer_conf
-                = project_conf->GetLayerConfiguration();
+            LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
             layer_conf->SetName(layer_name);
             layer_conf->UpdateDataSource(datasource);
             project_conf->Save(proj_fname);
@@ -425,11 +420,10 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 	//wxString msg = "Export successfully.";
     //msg << "\n\nTips: if you want to use exported project/datasource, please"
     //    << " close current project and then open exported project/datasource.";
-	//wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+	//wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
     //dlg.ShowModal();
     
-    is_ok_clicked = true;
-    EndDialog();
+    EndDialog(wxID_OK);
 }
 
 /**
@@ -488,7 +482,6 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     // for shp/dbf reading, we need to convert Main data to GdaShape first
     // this will spend some time, but keep the rest of code clean.
     // Note: potential speed/memory performance issue
-    
     vector<int> selected_rows;
     
     if ( project_p != NULL && geometries.empty() && !is_save_centroids ) {
@@ -511,7 +504,15 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
             PointContents* pc;
             for (int i=0; i<num_obs; i++) {
                 pc = (PointContents*)project_p->main_data.records[i].contents_p;
-                geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+                if (pc->x == 0 && pc->y==0 &&
+                    (pc->x < project_p->main_data.header.bbox_x_min ||
+                     pc->x > project_p->main_data.header.bbox_x_max) &&
+                    (pc->y < project_p->main_data.header.bbox_y_min ||
+                     pc->y > project_p->main_data.header.bbox_y_max))
+                {
+                    geometries.push_back(new GdaPoint());
+                } else
+                    geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
             }
             shape_type = Shapefile::POINT_TYP;
         }
@@ -690,11 +691,11 @@ IDataSource* ExportDataDlg::GetDatasource()
         }
         
         // check if empty, prompt user to input
-        if (dbhost.IsEmpty()) error_msg = "Please input database host.";
-        else if (dbname.IsEmpty()) error_msg= "Please input database name.";
-        else if (dbport.IsEmpty()) error_msg= "Please input database port.";
-        else if (dbuser.IsEmpty()) error_msg= "Please input user name.";
-        else if (layer_name.IsEmpty()) error_msg= "Please input table name.";
+        if (dbhost.IsEmpty()) error_msg = _("Please input database host.");
+        else if (dbname.IsEmpty()) error_msg= _("Please input database name.");
+        else if (dbport.IsEmpty()) error_msg= _("Please input database port.");
+        else if (dbuser.IsEmpty()) error_msg= _("Please input user name.");
+        else if (layer_name.IsEmpty()) error_msg= _("Please input table name.");
         
         if (!error_msg.IsEmpty()) throw GdaException(error_msg.mb_str());
         
@@ -707,10 +708,12 @@ IDataSource* ExportDataDlg::GetDatasource()
         std::string key(m_cartodb_key->GetValue().Trim().mb_str());
         
         if (user.empty()) {
-            throw GdaException("Please input Carto User Name.");
+            wxString msg = _("Please input Carto User Name.");
+            throw GdaException(msg.mb_str());
         }
         if (key.empty()) {
-            throw GdaException("Please input Carto App Key.");
+            wxString msg = _("Please input Carto App Key.");
+            throw GdaException(msg.mb_str());
         }
         
         CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
@@ -719,7 +722,7 @@ IDataSource* ExportDataDlg::GetDatasource()
         CartoDBProxy::GetInstance().SetKey(key);
         CartoDBProxy::GetInstance().SetUserName(user);
         
-        wxString url = "CartoDB:" + user;
+        wxString url = "Carto:" + user;
         
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
         

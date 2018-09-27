@@ -49,8 +49,8 @@ vars_list(0), include_list(0)
 	SetBackgroundColour(*wxWHITE);
 	wxPanel* panel = new wxPanel(this);
 	
-	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, "Variables");
-	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, "Include");
+	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, _("Variables"));
+	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, _("Include"));
 	
 	vars_list = new wxListBox(panel, XRCID("ID_VARS_LIST"), wxDefaultPosition,
 														wxSize(-1, 150), 0, 0, wxLB_SINGLE);
@@ -70,15 +70,15 @@ vars_list(0), include_list(0)
 	wxButton* remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "<",
 																			wxDefaultPosition, wxDefaultSize,
 																			wxBU_EXACTFIT);
-	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), "Up",
+	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), _("Up"),
 																	wxDefaultPosition, wxDefaultSize,
 																	wxBU_EXACTFIT);
-	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), "Down",
+	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), _("Down"),
 																		wxDefaultPosition, wxDefaultSize,
 																		wxBU_EXACTFIT);
 	wxButton* help_btn = 0;
 	if (!help_html.IsEmpty()) {
-		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
+		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
 														wxDefaultPosition, wxDefaultSize,
 														wxBU_EXACTFIT);
 	}
@@ -294,6 +294,16 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	std::vector<double> min_vals;
 	std::vector<double> max_vals;
 	table_int->GetMinMaxVals(col_id, min_vals, max_vals);
+    
+    if (min_vals.empty() && max_vals.empty()) {
+        // no min_vals and max_vals, this might be an exceptional case:
+        // e.g. selected variable is not valid
+        wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), name);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
 	var_man.AppendVar(name, min_vals, max_vals, time);
 	include_list->Append(name);
 	vars_list->Delete(sel);

@@ -75,6 +75,19 @@ bool VarGroup::IsAllPlaceholders() const
 	return true;
 }
 
+bool VarGroup::IsAnyPlaceholders() const
+{
+	if (IsEmpty()) return true;
+	if (IsSimple()) return false;
+	BOOST_FOREACH(const wxString& v, vars) if (v.IsEmpty()) return true;
+	return false;
+}
+
+int VarGroup::GetNumVars() const
+{
+    return vars.size();
+}
+
 int VarGroup::GetNumTms() const
 {
 	if (IsEmpty()) return 0;

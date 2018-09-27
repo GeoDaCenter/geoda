@@ -43,6 +43,8 @@ public:
 	wxStaticText* m_message;
 	TableInterface* table_int;
     wxArrayString items;
+    std::map<wxString, wxString> name_to_nm;
+    std::map<wxString, int> name_to_tm_id;
 
 private:
 	// a mapping from displayed col order to actual col ids in table

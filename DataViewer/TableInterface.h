@@ -25,12 +25,16 @@
 #include <utility>
 #include <vector>
 #include <boost/multi_array.hpp>
+#include <boost/date_time.hpp>
+
 #include "TableState.h"
 #include "TimeState.h"
 #include "TableStateObserver.h"
 
 #include "../GdaConst.h"
 #include "../VarCalc/GdaFlexValue.h"
+
+namespace bt = boost::posix_time;
 
 class TimeState;
 class VarOrderPtree;
@@ -108,9 +112,12 @@ public:
 	virtual int FindColId(const wxString& name) = 0;
 	
 	virtual void FillColIdMap(std::vector<int>& col_map) = 0;
+	virtual void FillDateTimeColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericColIdMap(std::vector<int>& col_map) = 0;
+	virtual void FillStringColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericNameList(std::vector<wxString>& num_names) = 0;
+	virtual void FillStringNameList(std::vector<wxString>& num_names) = 0;
 	
 	virtual int GetNumberCols() = 0;
 	virtual int GetNumberRows() = 0;
@@ -148,12 +155,15 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data) = 0;
 	virtual void GetColData(int col, int time, std::vector<wxString>& data) = 0;
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data) = 0;
    
 	virtual void GetColData(int col, int time, std::vector<double>& data,
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data,
                             std::vector<bool>& undefs);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data,
+                            std::vector<bool>& undefs);
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data,
                             std::vector<bool>& undefs);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined) = 0;
@@ -164,11 +174,12 @@ public:
 	virtual void GetDirectColData(int col, std::vector<double>& data) =0;
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data)=0;
 	virtual void GetDirectColData(int col, std::vector<wxString>& data)=0;
+    virtual void GetDirectColData(int col, std::vector<unsigned long long>& data)=0;
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefs)=0;
     
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals) = 0;
-	virtual void GetMinMaxVals(int col, int time,
+	virtual bool GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val) = 0;
 
 	virtual void SetColData(int col, int time,
@@ -177,6 +188,8 @@ public:
 							const std::vector<wxInt64>& data) = 0;
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data) = 0;
+	virtual void SetColData(int col, int time,
+                            const std::vector<unsigned long long>& data) = 0;
     
 	virtual void SetColData(int col, int time,
 							const std::vector<double>& data,
@@ -186,6 +199,9 @@ public:
                             const std::vector<bool>& undefs);
 	virtual void SetColData(int col, int time,
 							const std::vector<wxString>& data,
+                            const std::vector<bool>& undefs);
+	virtual void SetColData(int col, int time,
+                            const std::vector<unsigned long long>& data,
                             const std::vector<bool>& undefs);
     
 	virtual void SetColUndefined(int col, int time,

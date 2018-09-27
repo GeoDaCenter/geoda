@@ -30,11 +30,12 @@
 #include <wx/checkbox.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
-#include <wx/dnd.h>
+
 #include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <wx/artprov.h>
 #include <wx/notebook.h>
+#include <wx/hyperlink.h>
 
 #include <json_spirit/json_spirit.h>
 #include <json_spirit/json_spirit_writer.h>
@@ -49,22 +50,21 @@
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
 #include "../GeoDa.h"
-#include "ConnectDatasourceDlg.h"
-#include "DatasourceDlg.h"
+#include "../Project.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
+#include "ConnectDatasourceDlg.h"
 
 using namespace std;
 
-class DnDFile : public wxFileDropTarget
+DnDFile::DnDFile(ConnectDatasourceDlg *pOwner)
 {
-public:
-    DnDFile(ConnectDatasourceDlg *pOwner = NULL) { m_pOwner = pOwner; }
+    m_pOwner = pOwner;
+}
+
+DnDFile::~DnDFile()
+{
     
-    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
-    
-private:
-    ConnectDatasourceDlg *m_pOwner;
-};
+}
 
 bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
 {
@@ -72,11 +72,11 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     
     if (m_pOwner != NULL && nFiles > 0)
     {
-        wxFileName fn = wxFileName::FileName(filenames[0]);
+        wxString fpath = filenames[0];
+        wxFileName fn = wxFileName::FileName(fpath);
         m_pOwner->ds_file_path = fn;
-        //wxCommandEvent ev;
-        //m_pOwner->OnOkClick(ev);
-        m_pOwner->TriggerOKClick();
+        wxCommandEvent ev;
+        m_pOwner->OnOkClick(ev);
     }
     
     return true;
@@ -94,7 +94,7 @@ RecentDatasource::RecentDatasource()
 {
     n_ds =0;
     // get a latest input DB information
-    std::vector<std::string> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
+    std::vector<wxString> ds_infos = OGRDataAdapter::GetInstance().GetHistory(KEY_NAME_IN_GDA_HISTORY);
     
     if (ds_infos.size() > 0) {
         ds_json_str = ds_infos[0];
@@ -370,15 +370,15 @@ wxString RecentDatasource::GetLayerName(wxString ds_name)
 // Class ConnectDatasourceDlg
 ////////////////////////////////////////////////////////////////////////////////
 
-BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxFrame )
+BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     EVT_BUTTON(XRCID("IDC_OPEN_IASC"), ConnectDatasourceDlg::OnBrowseDSfileBtn)
 	EVT_BUTTON(XRCID("ID_BTN_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupDSTableBtn)
 	//EVT_BUTTON(XRCID("ID_CARTODB_LOOKUP_TABLE"), ConnectDatasourceDlg::OnLookupCartoDBTableBtn)
 	//EVT_BUTTON(XRCID("ID_BTN_LOOKUP_WSLAYER"), ConnectDatasourceDlg::OnLookupWSLayerBtn)
     EVT_BUTTON(wxID_OK, ConnectDatasourceDlg::OnOkClick )
-    EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
-    EVT_BUTTON(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
-    EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_BUTTON(wxID_CANCEL, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_BUTTON(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
+    //EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
 
@@ -386,7 +386,7 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
                                            bool showRecentPanel_,
-                                           int dialogType)
+                                           int _dialogType)
 :DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_), showRecentPanel(showRecentPanel_)
 {
 
@@ -395,7 +395,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
     
     // init controls defined in parent class
     DatasourceDlg::Init();
-    type = dialogType;
+    //type = dialogType;
+    dialogType = _dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
 
 	SetParent(parent);
@@ -417,15 +418,15 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
         }
        
         InitSamplePanel();
-    } else {
     }
-    
-    m_drag_drop_box->SetDropTarget(new DnDFile(this));
+
+    m_dnd = new DnDFile(this);
+    m_drag_drop_box->SetDropTarget(m_dnd);
    
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
-         this, DatasourceDlg::ID_DS_START, ID_DS_START + ds_names.Count());
+         this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
 	Centre();
     Move(pos);
@@ -491,7 +492,7 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
    
 #ifdef __WIN32__
     int pad_remove_btn = 10;
-	wxButton *remove = new wxButton(scrl, id, wxT("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
+	wxButton *remove = new wxButton(scrl, id, _("Delete"), wxDefaultPosition, wxSize(36,18), wxBORDER_NONE|wxBU_EXACTFIT);
 	remove->SetFont(*GdaConst::extra_small_font); 
 #else
     int pad_remove_btn = 0;
@@ -542,9 +543,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
     
     RecentDatasource recent_ds;
     wxString ds_name = recent_ds.GetDSName(recent_idx); // UTF-8 decoded
-    
-    wxLogMessage(ds_name);
-    
+        
     if (ds_name.EndsWith(".gda")) {
         GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
         gda_frame->OpenProject(ds_name);
@@ -554,14 +553,14 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             layer_name = project->layername;
         }
         recent_ds.Add(ds_name, ds_name, layer_name);
-        EndDialog();
+        EndDialog(wxID_CANCEL);
     } else {
     
         IDataSource* ds = recent_ds.GetDatasource(ds_name);
         if (ds == NULL) {
             // raise message dialog show can't connect to datasource
             wxString msg = _("Can't connect to datasource: ") + ds_name;
-            wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         } else {
@@ -569,8 +568,7 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
             SaveRecentDataSource(ds, layername);
             layer_name = layername;
             datasource = ds;
-            is_ok_clicked = true;
-            EndDialog();
+            EndDialog(wxID_OK);
         }
     }
 }
@@ -611,13 +609,13 @@ void ConnectDatasourceDlg::InitRecentPanel()
 void ConnectDatasourceDlg::CreateControls()
 {
     if (showRecentPanel) {
-        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE");
+        wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE");
     	recent_nb = XRCCTRL(*this, "IDC_DS_LIST",  wxNotebook);
         recent_nb->SetSelection(1);
         recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
         smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
     } else {
-        wxXmlResource::Get()->LoadFrame(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+        wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
     }
     
     FindWindow(XRCID("wxID_OK"))->Enable(true);
@@ -644,7 +642,7 @@ void ConnectDatasourceDlg::CreateControls()
     DatasourceDlg::CreateControls();
 	
     // setup WSF auto-completion
-	std::vector<std::string> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
+	std::vector<wxString> ws_url_cands = OGRDataAdapter::GetInstance().GetHistory("ws_url");
 	m_webservice_url->SetAutoList(ws_url_cands);
 }
 
@@ -685,7 +683,7 @@ void ConnectDatasourceDlg::OnLookupDSTableBtn( wxCommandEvent& event )
 	} catch (GdaException& e) {
 		wxString msg;
 		msg << e.what();
-		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         if( datasource!= NULL &&
             msg.StartsWith("Failed to open data source") ) {
@@ -712,13 +710,6 @@ void ConnectDatasourceDlg::OnLookupCartoDBTableBtn( wxCommandEvent& event )
     }
 }
 
-
-void ConnectDatasourceDlg::TriggerOKClick()
-{
-    wxCommandEvent evt = wxCommandEvent(wxEVT_COMMAND_BUTTON_CLICKED, wxID_OK );
-	AddPendingEvent(evt);
-}
-
 /**
  * This function handles the event of user click OK button.
  * When user chooses a data source, validate it first,
@@ -731,6 +722,13 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 	try {
         // Open GeoDa project file direclty
         if (ds_file_path.GetExt().Lower() == "gda") {
+            if (dialogType == 1) {
+                // in Merge/Stack (when dialogType == 1), user can't open gda file
+                wxString msg = _("Please open a data file rather than a project file (*.gda).");
+                wxMessageDialog dlg(this, msg, _("Info"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
             GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
             if (gda_frame) {
                 gda_frame->OpenProject(ds_file_path.GetFullPath());
@@ -745,7 +743,7 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
                 } catch( GdaException ex) {
                     wxLogMessage(ex.what());
                 }
-                EndDialog();
+                EndDialog(wxID_CANCEL);
             }
             return;
         }
@@ -764,13 +762,20 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
 		int datasource_type = m_ds_notebook->GetSelection();
 		if (datasource_type == 0) {
             // File table is selected
-			if (layer_name.IsEmpty()) {
-				layername = ds_file_path.GetName();
-			} else {
-                // user may select a layer name from Popup dialog that displays
-                // all layer names, see PromptDSLayers()
-				layername = layer_name;
-			}
+            
+            if ( wxDirExists(ds_file_path.GetFullPath()) ) {
+                // dra-n-drop a directory
+                PromptDSLayers(datasource);
+                layername = layer_name;
+            } else {
+                if (layer_name.IsEmpty()) {
+                    layername = ds_file_path.GetName();
+                } else {
+                    // user may select a layer name from Popup dialog that displays
+                    // all layer names, see PromptDSLayers()
+                    layername = layer_name;
+                }
+            }
             
 		} else if (datasource_type == 1) {
             // Database tab is selected
@@ -805,18 +810,17 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
         
         SaveRecentDataSource(datasource, layer_name);
         
-        is_ok_clicked = true;
-        EndDialog();
+        EndDialog(wxID_OK);
 		
 	} catch (GdaException& e) {
 		wxString msg;
 		msg << e.what();
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         
 	} catch (...) {
-		wxString msg = "Unknow exception. Please contact GeoDa support.";
-		wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Unknow exception. Please contact GeoDa support.");
+		wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 	wxLogMessage("Exiting ConnectDatasourceDlg::OnOkClick");
@@ -883,7 +887,7 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         else if (cur_sel == DBTYPE_MYSQL) ds_type = GdaConst::ds_mysql;
         //else if (cur_sel == 4) ds_type = GdaConst::ds_ms_sql;
         else {
-            wxString msg = "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection.";
+            wxString msg = _("The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection.");
             throw GdaException(msg.mb_str());
         }
         
@@ -905,14 +909,15 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         wxRegEx regex;
         regex.Compile("[0-9]+");
         if (!regex.Matches( dbport )){
-            throw GdaException(wxString("Database port is empty. Please input one.").mb_str());
+            wxString msg = _("Database port is empty. Please input one.");
+            throw GdaException(msg.mb_str());
         }
 		wxString error_msg;
-		if (dbhost.IsEmpty()) error_msg = "Please input database host.";
-		else if (dbname.IsEmpty()) error_msg = "Please input database name.";
-		else if (dbport.IsEmpty()) error_msg = "Please input database port.";
-		else if (dbuser.IsEmpty()) error_msg = "Please input user name.";
-        else if (dbpwd.IsEmpty()) error_msg = "Please input password.";
+		if (dbhost.IsEmpty()) error_msg = _("Please input database host.");
+		else if (dbname.IsEmpty()) error_msg = _("Please input database name.");
+		else if (dbport.IsEmpty()) error_msg = _("Please input database port.");
+		else if (dbuser.IsEmpty()) error_msg = _("Please input user name.");
+        else if (dbpwd.IsEmpty()) error_msg = _("Please input password.");
 		if (!error_msg.IsEmpty()) {
 			throw GdaException(error_msg.mb_str() );
 		}
@@ -938,10 +943,12 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         wxRegEx regex;
         regex.Compile("^(https|http)://");
         if (!regex.Matches( ws_url )){
-            throw GdaException(wxString("Please input a valid url address.").mb_str());
+            wxString msg = _("Please input a valid url address.");
+            throw GdaException(msg.mb_str());
         }
         if (ws_url.IsEmpty()) {
-            throw GdaException(wxString("Please input a valid url.").mb_str());
+            wxString msg = _("Please input a valid url.");
+            throw GdaException(msg.mb_str());
         } else {
             OGRDataAdapter::GetInstance().AddHistory("ws_url", ws_url.ToStdString());
         }
@@ -961,23 +968,25 @@ IDataSource* ConnectDatasourceDlg::CreateDataSource()
         
 	} else if ( datasource_type == 3 ) {
         
-        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
-        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
+        wxString user =m_cartodb_uname->GetValue().Trim();
+        wxString key = m_cartodb_key->GetValue().Trim();
         
         if (user.empty()) {
-           throw GdaException("Please input Carto User Name.");
+            wxString msg = _("Please input Carto User Name.");
+           throw GdaException(msg.mb_str());
         }
         if (key.empty()) {
-           throw GdaException("Please input Carto App Key.");
+            wxString msg = _("Please input Carto App Key.");
+           throw GdaException(msg.mb_str());
         }
         
-        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
+        CPLSetConfigOption("CARTODB_API_KEY", (const char*)key.mb_str());
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key);
+        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user);
         CartoDBProxy::GetInstance().SetKey(key);
         CartoDBProxy::GetInstance().SetUserName(user);
         
-        wxString url = "CartoDB:" + user;
+        wxString url = "Carto:" + user;
         
         datasource = new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }
@@ -1019,10 +1028,10 @@ void ConnectDatasourceDlg::InitSamplePanel()
         int n = 11; // number of sample dataset
         for (int i=0; i<n; i++) {
             wxString sample_name = GdaConst::sample_names[i];
-            wxString sample_ds_name = GdaConst::sample_datasources[i];
+            wxString sample_meta_url = GdaConst::sample_meta_urls[i];
             wxString ds_layername = GdaConst::sample_layer_names[i];
             wxString ds_thumb = GdaConst::sample_layer_names[i];
-            AddSampleItem(sizer, sample_scrl, sample_name, sample_ds_name,
+            AddSampleItem(sizer, sample_scrl, sample_name, sample_meta_url,
                           ds_layername, ds_thumb, base_xrcid_sample_thumb+i);
         }
         sample_scrl->SetSizer( sizer );
@@ -1040,7 +1049,7 @@ void ConnectDatasourceDlg::InitSamplePanel()
 void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
                                          wxScrolledWindow* scrl,
                                          wxString name,
-                                         wxString ds_name,
+                                         wxString ds_url,
                                          wxString ds_layername,
                                          wxString ds_thumb, int id)
 {
@@ -1067,13 +1076,13 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     obs_txt->SetToolTip(name);
     text_sizer->Add(obs_txt, 0, wxALIGN_LEFT | wxALL, 5);
     
-    wxString lbl_ds_name = ds_name;
+    wxString lbl_ds_name = ds_url;
     lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
-    wxStaticText* filepath;
-    filepath = new wxStaticText(scrl, wxID_ANY, lbl_ds_name);
+    wxHyperlinkCtrl* filepath;
+    filepath = new wxHyperlinkCtrl(scrl, wxID_ANY, ds_url, ds_url);
     filepath->SetFont(*GdaConst::extra_small_font);
     filepath->SetForegroundColour(wxColour(70,70,70));
-    filepath->SetToolTip(ds_name);
+    filepath->SetToolTip(ds_url);
     text_sizer->Add(filepath, 1, wxALIGN_LEFT | wxALL, 5);
     
     wxString file_path_str;
@@ -1126,14 +1135,13 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
     if (ds == NULL) {
         // raise message dialog show can't connect to datasource
         wxString msg = _("Can't connect to datasource: ") + ds_name;
-        wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     } else {
         datasource = ds;
         layer_name = layername;
-        is_ok_clicked = true;
-        EndDialog();
+        EndDialog(wxID_OK);
     }
 
 }

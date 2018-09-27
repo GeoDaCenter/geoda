@@ -53,6 +53,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	//virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);
 	
@@ -96,9 +97,9 @@ public:
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	int GetNumCats() { return num_categories; }
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	CatClassifState* custom_classif_state;
 	

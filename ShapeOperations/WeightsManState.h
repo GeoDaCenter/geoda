@@ -46,6 +46,9 @@ public:
 	void registerObserver(WeightsManStateObserver* o);
 	void removeObserver(WeightsManStateObserver* o);
 	void notifyObservers();
+    /** Notify all observers excluding exclude. */
+    virtual void notifyObservers(WeightsManStateObserver* exclude);
+    
 	/** For any Observers where WeightsManStateObserver::numMustCloseToRemove
 	 is non-zero, closeObservers will call
 	 WeightsManStateObserver::closeObserver.

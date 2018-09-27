@@ -54,7 +54,7 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
@@ -64,10 +64,9 @@ public:
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
 	
-protected:
 	virtual void PopulateCanvas();
+	virtual void UpdateStatusBar();
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	
 	void ShowAxes(bool show_axes);
@@ -78,7 +77,6 @@ public:
 	void UpdateIvalSelCnts();
 	virtual void UserChangedCellCategories();
 protected:
-	virtual void UpdateStatusBar();
 	void sel_shp_to_cell_gen(int i, int& r, int& c, int& ival,
 							 int cols, int ivals);
 	void sel_shp_to_cell(int i, int& r, int& c, int& ival);
@@ -145,7 +143,7 @@ public:
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
-	
+    virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	

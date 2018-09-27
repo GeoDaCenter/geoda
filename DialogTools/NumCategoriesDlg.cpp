@@ -40,7 +40,7 @@ NumCategoriesDlg::NumCategoriesDlg(wxWindow* parent,
 : min_categories(min_categories_s), max_categories(max_categories_s),
 default_categories(default_categories_s)
 {
-	categories = GenUtils::min<int>(default_categories, max_categories);
+	categories = std::min(default_categories, max_categories);
 	
 	wxXmlResource::Get()->LoadDialog(this, GetParent(),"ID_NUM_CATEGORIES_DLG");
 	m_categories = wxDynamicCast(FindWindow(XRCID("ID_NUM_CATEGORIES_SPIN")), wxSpinCtrl);

@@ -26,10 +26,12 @@
 #include <wx/bmpbuttn.h>
 #include <wx/listctrl.h>
 #include <wx/notebook.h>
-
+#include <wx/dnd.h>
 #include <wx/checkbox.h>
+
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
+#include "DatasourceDlg.h"
 #include "DatasourceDlg.h"
 
 using namespace std;
@@ -87,6 +89,7 @@ protected:
 // Class ConnectDatasourceDlg
 // 
 ////////////////////////////////////////////////////////////////////////////////
+class DnDFile;
 class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
@@ -97,9 +100,8 @@ public:
                          bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog,
                          int dialogType = 0);
     virtual ~ConnectDatasourceDlg();
-
-    void TriggerOKClick();
     virtual void OnOkClick( wxCommandEvent& event );
+    
     void CreateControls();
 	void OnLookupWSLayerBtn( wxCommandEvent& event );
 	void OnLookupDSTableBtn( wxCommandEvent& event );
@@ -108,6 +110,7 @@ public:
     
     
 protected:
+    int dialogType;
     bool showCsvConfigure;
     bool showRecentPanel;
     
@@ -123,6 +126,7 @@ protected:
     wxNotebook* recent_nb;
     wxCheckBox* noshow_recent;
     wxChoice* m_web_choice;
+    DnDFile* m_dnd;
    
     int base_xrcid_recent_thumb;
     int base_xrcid_sample_thumb;
@@ -146,6 +150,19 @@ protected:
    
     
 	DECLARE_EVENT_TABLE()
+};
+
+// Drag and Drop Area
+class DnDFile : public wxFileDropTarget
+{
+public:
+    DnDFile(ConnectDatasourceDlg *pOwner = NULL);
+    ~DnDFile();
+    
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
+    
+private:
+    ConnectDatasourceDlg *m_pOwner;
 };
 
 #endif

@@ -37,7 +37,6 @@
 
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
-#include "../DataViewer/DbfTable.h"
 #include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -49,59 +48,6 @@
 #include "DatasourceDlg.h"
 
 using namespace std;
-
-DatasourceDlg::DatasourceDlg()
-: is_ok_clicked(false), eventLoop(NULL)
-{
-	Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(DatasourceDlg::OnExit) );
-}
-
-DatasourceDlg::~DatasourceDlg()
-{
-    if (eventLoop) {
-        delete eventLoop;
-        eventLoop = NULL;
-    }
-}
-
-int DatasourceDlg::GetType()
-{
-    return type;
-}
-
-int DatasourceDlg::ShowModal()
-{
-    Show(true);
-    
-    // mow to stop execution start a event loop
-    eventLoop = new wxEventLoop;
-    if (eventLoop == NULL)
-        return wxID_CANCEL;
-    
-    eventLoop->Run();
-    
-    if (is_ok_clicked)
-        return wxID_OK;
-    else
-        return wxID_CANCEL;
-}
-
-void DatasourceDlg::EndDialog()
-{
-    eventLoop->Exit();
-    Show(false);
-    //Destroy();
-}
-
-void DatasourceDlg::OnCancelClick( wxCommandEvent& event )
-{
-    EndDialog();
-}
-
-void DatasourceDlg::OnExit(wxCloseEvent& e)
-{
-    EndDialog();
-}
 
 void DatasourceDlg::Init()
 {
@@ -177,13 +123,13 @@ void DatasourceDlg::CreateControls()
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
-	vector<string> host_cands =
+	vector<wxString> host_cands =
 		OGRDataAdapter::GetInstance().GetHistory("db_host");
-	vector<string> port_cands =
+	vector<wxString> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
-	vector<string> uname_cands =
+	vector<wxString> uname_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_user");
-	vector<string> name_cands =
+	vector<wxString> name_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_name");
 
 	m_database_host->SetAutoList(host_cands);
@@ -192,13 +138,13 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    vector<string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    vector<wxString> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
-        string db_info = db_infos[0];
+        wxString db_info = db_infos[0];
         json_spirit::Value v;
         // try to parse as JSON
         try {
-            if (!json_spirit::read( db_info, v)) {
+            if (!json_spirit::read(db_info.ToStdString(), v)) {
                 throw runtime_error("Could not parse title as JSON");
             }
             json_spirit::Value json_db_type;
@@ -243,17 +189,17 @@ void DatasourceDlg::CreateControls()
     }
     
     // get a latest CartoDB account
-    vector<string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    vector<wxString> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
     if (!cartodb_user.empty()) {
-        string user = cartodb_user[0];
+        wxString user = cartodb_user[0];
         CartoDBProxy::GetInstance().SetUserName(user);
         // control
         m_cartodb_uname->SetValue(user);
     }
     
-    vector<string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    vector<wxString> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
     if (!cartodb_key.empty()) {
-        string key = cartodb_key[0];
+        wxString key = cartodb_key[0];
         CartoDBProxy::GetInstance().SetKey(key);
         // control
         m_cartodb_key->SetValue(key);
@@ -296,7 +242,10 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		throw GdaException(msg.mb_str());
 	}
     
-	vector<wxString> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type);
+    vector<wxString> table_names;
+    ds_type = OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type, table_names);
+    
+    datasource->UpdateDataSource(ds_type);
     
     int n_tables = table_names.size();
     
@@ -337,15 +286,12 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             if (ds_names[i].IsEmpty()) {
                 m_ds_menu->AppendSeparator();
             } else {
-                m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+                m_ds_menu->Append( GdaConst::ID_CONNECT_POPUP_MENU + i, ds_names[i].BeforeFirst('|'));
             }
         }
     }
-
-    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-    OnActivate(ae);
     
-    PopupMenu(m_ds_menu);
+   PopupMenu(m_ds_menu);
     
     event.Skip();
 }
@@ -360,7 +306,7 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
 void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
 {
     
-	int index = event.GetId() - ID_DS_START;
+    int index = event.GetId() - GdaConst::ID_CONNECT_POPUP_MENU;
     wxString name = ds_names[index];
     
     if (name.Contains("gdb")) {

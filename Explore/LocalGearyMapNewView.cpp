@@ -32,10 +32,13 @@
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../DialogTools/VariableSettingsDlg.h"
+#include "../DialogTools/RandomizationDlg.h"
+#include "../VarCalc/WeightsManInterface.h"
+
 #include "ConditionalClusterMapView.h"
 #include "LocalGearyCoordinator.h"
 #include "LocalGearyMapNewView.h"
-#include "../ShpFile.h"
+
 
 IMPLEMENT_CLASS(LocalGearyMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(LocalGearyMapCanvas, MapCanvas)
@@ -63,8 +66,34 @@ is_bi(isBivariate),
 is_rate(isEBRate),
 is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::differential)
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::LocalGearyMapCanvas");
+	wxLogMessage("Entering LocalGearyMapCanvas::LocalGearyMapCanvas()");
 
+    str_not_sig = _("Not Significant");
+    str_highhigh = _("High-High");
+    str_lowlow = _("Low-Low");
+    str_otherpos = _("Other Positive");
+    str_negative = _("Negative");
+    str_positive = _("Positive");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = "p = 0.05";
+    str_p001 = "p = 0.01";
+    str_p0001 = "p = 0.001";
+    str_p00001 = "p = 0.0001";
+    
+    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_highhigh, wxColour(178,24,43));
+    SetPredefinedColor(str_lowlow, wxColour(239,138,98));
+    SetPredefinedColor(str_otherpos, wxColour(253,219,199));
+    SetPredefinedColor(str_negative, wxColour(103,173,199));
+    SetPredefinedColor(str_positive, wxColour(51,110,161));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+    
 	cat_classif_def.cat_classif_type = theme_type_s;
 	// must set var_info times from LocalGearyCoordinator initially
 	var_info = local_geary_coordinator->var_info;
@@ -74,42 +103,54 @@ is_diff(local_geary_coordinator->local_geary_type == LocalGearyCoordinator::diff
 	}
 	CreateAndUpdateCategories();
 	
-	LOG_MSG("Exiting LocalGearyMapCanvas::LocalGearyMapCanvas");
+    UpdateStatusBar();
+    
+	wxLogMessage("Exiting LocalGearyMapCanvas::LocalGearyMapCanvas()");
 }
 
 LocalGearyMapCanvas::~LocalGearyMapCanvas()
 {
-	LOG_MSG("In LocalGearyMapCanvas::~LocalGearyMapCanvas");
+	wxLogMessage("In LocalGearyMapCanvas::~LocalGearyMapCanvas");
 }
 
 void LocalGearyMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Entering LocalGearyMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((LocalGearyMapFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting LocalGearyMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Exiting LocalGearyMapCanvas::DisplayRightClickMenu");
 }
 
 wxString LocalGearyMapCanvas::GetCanvasTitle()
 {
 	wxString local_geary_t;
-	if (is_clust && !is_bi) local_geary_t = " LocalGeary Cluster Map";
-	if (is_clust && is_bi) local_geary_t = " BiLocalGeary Cluster Map";
-    if (is_clust && is_diff) local_geary_t = " Differential LocalGeary Cluster Map";
-    
-	if (!is_clust && !is_bi) local_geary_t = " LocalGeary Significance Map";
-	if (!is_clust && is_bi) local_geary_t = " BiLocalGeary Significance Map";
-    if (!is_clust && is_diff) local_geary_t = " Differential Significance Map";
+    if (is_clust && !is_bi) {
+        local_geary_t = _(" Local Geary Cluster Map");
+    }
+    if (is_clust && is_bi) {
+        local_geary_t = _(" Bivariate Local Geary Cluster Map");
+    }
+    if (is_clust && is_diff) {
+        local_geary_t = _(" Differential Local Geary Cluster Map");
+    }
+    if (!is_clust && !is_bi) {
+        local_geary_t = _(" Local Geary Significance Map");
+    }
+    if (!is_clust && is_bi) {
+        local_geary_t = _(" Bivariate LocalGeary Significance Map");
+    }
+    if (!is_clust && is_diff)  {
+        local_geary_t = _(" Differential Significance Map");
+    }
 	
 	wxString field_t;
 	if (is_bi) {
@@ -137,6 +178,29 @@ wxString LocalGearyMapCanvas::GetCanvasTitle()
 	return ret;
 }
 
+wxString LocalGearyMapCanvas::GetVariableNames()
+{
+    wxString field_t;
+    if (is_bi) {
+        field_t << GetNameWithTime(0) << " w/ " << GetNameWithTime(1);
+    } else if (is_diff) {
+        field_t << GetNameWithTime(0) << " - " << GetNameWithTime(1);
+    } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+        for (int i=0; i<local_geary_coord->num_vars; i++) {
+            field_t << GetNameWithTime(i);
+            if (i < local_geary_coord->num_vars -1 )
+                field_t << ", ";
+        }
+        
+    } else {
+        field_t << GetNameWithTime(0);
+    }
+    if (is_rate) {
+        field_t << GetNameWithTime(0) << " / " << GetNameWithTime(1);
+    }
+    return field_t;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by LocalGeary maps */
@@ -144,7 +208,7 @@ bool
 LocalGearyMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
                              SmoothingType new_map_smoothing)
 {
-	LOG_MSG("In LocalGearyMapCanvas::ChangeMapType");
+	wxLogMessage("In LocalGearyMapCanvas::ChangeMapType");
 	return false;
 }
 
@@ -167,6 +231,8 @@ void LocalGearyMapCanvas::SetCheckMarks(wxMenu* menu)
 								  sig_filter == 3);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
 								  sig_filter == 4);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
+                                  sig_filter == -1);
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
 								  local_geary_coord->IsReuseLastSeed());
@@ -174,7 +240,7 @@ void LocalGearyMapCanvas::SetCheckMarks(wxMenu* menu)
 
 void LocalGearyMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering LocalGearyMapCanvas::TimeChange");
+	wxLogMessage("Entering LocalGearyMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -201,27 +267,73 @@ void LocalGearyMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting LocalGearyMapCanvas::TimeChange");
+	wxLogMessage("Exiting LocalGearyMapCanvas::TimeChange");
 }
 
 /** Update Categories based on info in LocalGearyCoordinator */
 void LocalGearyMapCanvas::CreateAndUpdateCategories()
 {
+    wxLogMessage("Entering LocalGearyMapCanvas::CreateAndUpdateCategories()");
 	SyncVarInfoFromCoordinator();
 	cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    
+    double sig_cutoff = local_geary_coord->significance_cutoff;
+    int s_f = local_geary_coord->GetSignificanceFilter();
+    int set_perm = local_geary_coord->permutations;
+    double stop_sig = 1.0 / (1.0 + set_perm);
+    
+    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
+    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
 	
+    bool is_cust_cutoff = true;
+    for (int i=0; i<4; i++) {
+        if (sig_cutoff == def_cutoffs[i]) {
+            is_cust_cutoff = false;
+            break;
+        }
+    }
+    
+    if ( is_cust_cutoff ) {
+        // if set customized cutoff value
+        wxString lbl = wxString::Format("p = %g", sig_cutoff);
+        if ( sig_cutoff > 0.05 ) {
+            def_cutoffs[0] = sig_cutoff;
+            lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
+            def_cats[0] = lbl;
+        } else {
+            for (int i = 1; i < 4; i++) {
+                if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
+                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
+                    def_cutoffs[i-1] = sig_cutoff;
+                    def_cats[i-1] = lbl;
+                    break;
+                } else {
+                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
+                    def_cutoffs[i] = sig_cutoff;
+                    def_cats[i] = lbl;
+                    break;
+                }
+            }
+        }
+    }
+    
 	for (int t=0; t<num_time_vals; t++) {
 		if (!map_valid[t]) break;
-		
+	
+        double* p = local_geary_coord->sig_local_geary_vecs[t];
+        int* cluster = local_geary_coord->cluster_vecs[t];
+        int* sigCat = local_geary_coord->sig_cat_vecs[t];
+        
 		int undefined_cat = -1;
 		int isolates_cat = -1;
 		int num_cats = 0;
-        double stop_sig = 0;
+        Shapefile::Header& hdr = project->main_data.header;
         
 		if (local_geary_coord->GetHasIsolates(t))
             num_cats++;
 		if (local_geary_coord->GetHasUndefined(t))
             num_cats++;
+        
 		if (is_clust) {
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 num_cats += 2;
@@ -230,33 +342,8 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             } else {
                 num_cats += 5;
             }
-		} else {
-            // significance map
-			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-			int s_f = local_geary_coord->GetSignificanceFilter();
-            num_cats += 6 - s_f;
-            
-            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-            double sig_cutoff = local_geary_coord->significance_cutoff;
-            int set_perm = local_geary_coord->permutations;
-            stop_sig = 1.0 / (1.0 + set_perm);
-            
-			if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
-                num_cats -= 1;
-            }
-		}
-		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-		
-        Shapefile::Header& hdr = project->main_data.header;
-        
-		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
             
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
@@ -264,8 +351,8 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-    			cat_data.SetCategoryLabel(t, 1, "Positive");
-    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
+                cat_data.SetCategoryLabel(t, 1, str_positive);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -278,10 +365,10 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
-    			cat_data.SetCategoryLabel(t, 1, "Positive");
-    			cat_data.SetCategoryColor(t, 1, wxColour(51,110,161));
-    			cat_data.SetCategoryLabel(t, 2, "Negative");
-    			cat_data.SetCategoryColor(t, 2, wxColour(113,250,142));
+                cat_data.SetCategoryLabel(t, 1, str_positive);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
+                cat_data.SetCategoryLabel(t, 2, str_negative);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_negative]);//wxColour(113,250,142));
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -294,14 +381,14 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                 }
                 
             } else {
-    			cat_data.SetCategoryLabel(t, 1, "High-High");
-    			cat_data.SetCategoryColor(t, 1, wxColour(178,24,43));
-    			cat_data.SetCategoryLabel(t, 2, "Low-Low");
-    			cat_data.SetCategoryColor(t, 2, wxColour(239,138,98));
-    			cat_data.SetCategoryLabel(t, 3, "Other Pos");
-    			cat_data.SetCategoryColor(t, 3, wxColour(253,219,199));
-    			cat_data.SetCategoryLabel(t, 4, "Negative");
-    			cat_data.SetCategoryColor(t, 4, wxColour(103,173,199));
+                cat_data.SetCategoryLabel(t, 1, str_highhigh);
+                cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_highhigh]);
+                cat_data.SetCategoryLabel(t, 2, str_lowlow);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_lowlow]);
+                cat_data.SetCategoryLabel(t, 3, str_otherpos);
+                cat_data.SetCategoryColor(t, 3, lbl_color_dict[str_otherpos]);
+                cat_data.SetCategoryLabel(t, 4, str_negative);
+                cat_data.SetCategoryColor(t, 4, lbl_color_dict[str_negative]);//wxColour(103,173,199));
                 
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
@@ -313,131 +400,152 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
                     isolates_cat = 5;
                 }
             }
-			
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            }
+            if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
+                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
+                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
+                        cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    } else if (cluster[i] == 2) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 3) {
+                        cat_data.AppendIdToCategory(t, undefined_cat, i);
+                    } else {
+                        cat_data.AppendIdToCategory(t, cluster[i], i);
+                    }
+                }
+            } else {
+                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
+                    if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
+                        cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    } else if (cluster[i] == 5) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 6) {
+                        cat_data.AppendIdToCategory(t, undefined_cat, i);
+                    } else {
+                        cat_data.AppendIdToCategory(t, cluster[i], i);
+                    }
+                }
+            }
             
 		} else {
-			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-			int s_f = local_geary_coord->GetSignificanceFilter();
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-
+            // significance map
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            
+            num_cats = 5;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff < def_cutoffs[j])
+                    num_cats -= 1;
+            }
+            
+            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
+                num_cats -= 1;
+            }
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            
             if (hdr.shape_type == Shapefile::POINT_TYP) {
                 cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
             } else {
                 cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
             }
-   
-            int skip_cat = 0;
-            if (s_f <=4 && stop_sig <= 0.0001) {
-                cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-                cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-            } else skip_cat++;
             
-			if (s_f <= 3 && stop_sig <= 0.001) {
-				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));
-            } else skip_cat++;
+            int cat_idx = 1;
+            std::map<int, int> level_cat_dict;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
+                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                    level_cat_dict[j] = cat_idx;
+                    cat_idx += 1;
+                }
+            }
             
-			if (s_f <= 2 && stop_sig <= 0.01) {
-				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
-				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
-            } else skip_cat++;
+            if (local_geary_coord->GetHasIsolates(t) &&
+                local_geary_coord->GetHasUndefined(t)) {
+                isolates_cat = cat_idx++;
+                undefined_cat = cat_idx++;
+                
+            } else if (local_geary_coord->GetHasUndefined(t)) {
+                undefined_cat = cat_idx++;
+                
+            } else if (local_geary_coord->GetHasIsolates(t)) {
+                isolates_cat = cat_idx++;
+            }
             
-			if (s_f <= 1) {
-				cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
-				cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-			}
-			if (local_geary_coord->GetHasIsolates(t) &&
-				local_geary_coord->GetHasUndefined(t)) {
-				isolates_cat = 6 - s_f - skip_cat;
-				undefined_cat = 7 - s_f - skip_cat;
-                
-			} else if (local_geary_coord->GetHasUndefined(t)) {
-				undefined_cat = 6 -s_f - skip_cat;
-                
-			} else if (local_geary_coord->GetHasIsolates(t)) {
-				isolates_cat = 6 - s_f -skip_cat;
-                
-			}
-		}
-		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-			cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
-		}
-		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-			cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
-		}
-		
-		double cuttoff = local_geary_coord->significance_cutoff;
-		double* p = local_geary_coord->sig_local_geary_vecs[t];
-		int* cluster = local_geary_coord->cluster_vecs[t];
-		int* sigCat = local_geary_coord->sig_cat_vecs[t];
-		
-		if (is_clust) {
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            }
+            int s_f = local_geary_coord->GetSignificanceFilter();
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 2 && cluster[i] != 3) {
+                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
                     } else if (cluster[i] == 2) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 3) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else {
-                        cat_data.AppendIdToCategory(t, cluster[i], i);
+                        //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                        for ( int c = 4-1; c >= 0; c-- ) {
+                            if ( p[i] <= def_cutoffs[c] ) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
+                        }
                     }
                 }
             } else {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
+                    if (p[i] > sig_cutoff && cluster[i] != 5 && cluster[i] != 6) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
                     } else if (cluster[i] == 5) {
                         cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 6) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else {
-                        cat_data.AppendIdToCategory(t, cluster[i], i);
-                    }
-                }
-            }
-		} else {
-			int s_f = local_geary_coord->GetSignificanceFilter();
-            if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 2 && cluster[i] != 3) {
-                        cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 2) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 3) {
-                        cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else {
-                        cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
-                    }
-                }
-            } else {
-                for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > cuttoff && cluster[i] != 5 && cluster[i] != 6) {
-                        cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 5) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
-                    } else if (cluster[i] == 6) {
-                        cat_data.AppendIdToCategory(t, undefined_cat, i);
-                    } else {
-                        cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                        //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                        for ( int c = 4-1; c >= 0; c-- ) {
+                            if ( p[i] <= def_cutoffs[c] ) {
+                                cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                                break;
+                            }
+                        }
                     }
                 }
             }
 		}
+		
 		for (int cat=0; cat<num_cats; cat++) {
-			cat_data.SetCategoryCount(t, cat,
-									  cat_data.GetNumObsInCategory(t, cat));
+			cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
 		}
 	}
 	
 	if (ref_var_index != -1) {
-		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
-										- var_info[ref_var_index].time_min);
+		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time - var_info[ref_var_index].time_min);
 	}
 	PopulateCanvas();
+    wxLogMessage("Exiting LocalGearyMapCanvas::CreateAndUpdateCategories()");
 }
 
 /** Copy everything in var_info except for current time field for each
@@ -445,6 +553,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
  ref_var_index, num_time_vales, map_valid and map_error_message */
 void LocalGearyMapCanvas::SyncVarInfoFromCoordinator()
 {
+	wxLogMessage("Entering LocalGearyMapCanvas::SyncVarInfoFromCoordinator");
 	std::vector<int>my_times(var_info.size());
 	for (int t=0; t<var_info.size(); t++) my_times[t] = var_info[t].time;
 	var_info = local_geary_coord->var_info;
@@ -459,11 +568,13 @@ void LocalGearyMapCanvas::SyncVarInfoFromCoordinator()
 	num_time_vals = local_geary_coord->num_time_vals;
 	map_valid = local_geary_coord->map_valid;
 	map_error_message = local_geary_coord->map_error_message;
+    
+	wxLogMessage("Exiting LocalGearyMapCanvas::SyncVarInfoFromCoordinator");
 }
 
 void LocalGearyMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In LocalGearyMapCanvas::TimeSyncVariableToggle");
+	wxLogMessage("In LocalGearyMapCanvas::TimeSyncVariableToggle");
 	local_geary_coord->var_info[var_index].sync_with_global_time =
 		!local_geary_coord->var_info[var_index].sync_with_global_time;
 	for (int i=0; i<var_info.size(); i++) {
@@ -472,6 +583,45 @@ void LocalGearyMapCanvas::TimeSyncVariableToggle(int var_index)
 	local_geary_coord->VarInfoAttributeChange();
 	local_geary_coord->InitFromVarInfo();
 	local_geary_coord->notifyObservers();
+}
+
+void LocalGearyMapCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = 0;
+    if (template_frame) {
+        sb = template_frame->GetStatusBar();
+    }
+    if (!sb)
+        return;
+    wxString s;
+    s << _("#obs=") << project->GetNumRecords() <<" ";
+    
+    if ( highlight_state->GetTotalHighlighted() > 0) {
+        // for highlight from other windows
+        s << _("#selected=") << highlight_state->GetTotalHighlighted()<< "  ";
+    }
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << _("#hover obs ") << hover_obs[0]+1;
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << _("obs ") << hover_obs[1]+1;
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << _("obs ") << hover_obs[2]+1;
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    }
+    if (is_clust && local_geary_coord) {
+        double p_val = local_geary_coord->significance_cutoff;
+        wxString inf_str = wxString::Format(" p <= %g", p_val);
+        s << inf_str;
+    }
+    sb->SetStatusText(s);
 }
 
 
@@ -489,8 +639,9 @@ LocalGearyMapFrame::LocalGearyMapFrame(wxFrame *parent, Project* project,
 : MapFrame(parent, project, pos, size, style),
 local_geary_coord(local_geary_coordinator)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::LocalGearyMapFrame");
+	wxLogMessage("Entering LocalGearyMapFrame::LocalGearyMapFrame");
 	
+    no_update_weights = true;
 	int width, height;
 	GetClientSize(&width, &height);
     
@@ -500,6 +651,8 @@ local_geary_coord(local_geary_coordinator)
 	splitter_win->SetMinimumPaneSize(10);
 	
     CatClassification::CatClassifType theme_type_s = isClusterMap ? CatClassification::local_geary_categories : CatClassification::local_geary_significance;
+    
+    DisplayStatusBar(true);
     
     wxPanel* rpanel = new wxPanel(splitter_win);
     template_canvas = new LocalGearyMapCanvas(rpanel, this, project,
@@ -513,7 +666,10 @@ local_geary_coord(local_geary_coordinator)
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
-	
+
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    ((MapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+    
 	wxPanel* lpanel = new wxPanel(splitter_win);
     template_legend = new MapNewLegend(lpanel, template_canvas,
                                        wxPoint(0,0), wxSize(0,0));
@@ -526,9 +682,9 @@ local_geary_coord(local_geary_coordinator)
     
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
-	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+	toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
 	toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -538,18 +694,17 @@ local_geary_coord(local_geary_coordinator)
     //splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
     
-	DisplayStatusBar(true);
 	SetTitle(template_canvas->GetCanvasTitle());
     
     
 	local_geary_coord->registerObserver(this);
 	Show(true);
-	LOG_MSG("Exiting LocalGearyMapFrame::LocalGearyMapFrame");
+	wxLogMessage("Exiting LocalGearyMapFrame::LocalGearyMapFrame");
 }
 
 LocalGearyMapFrame::~LocalGearyMapFrame()
 {
-	LOG_MSG("In LocalGearyMapFrame::~LocalGearyMapFrame");
+	wxLogMessage("In LocalGearyMapFrame::~LocalGearyMapFrame");
 	if (local_geary_coord) {
 		local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
@@ -558,7 +713,7 @@ LocalGearyMapFrame::~LocalGearyMapFrame()
 
 void LocalGearyMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In LocalGearyMapFrame::OnActivate");
+	wxLogMessage("In LocalGearyMapFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("LocalGearyMapFrame", GetTitle());
 	}
@@ -567,15 +722,14 @@ void LocalGearyMapFrame::OnActivate(wxActivateEvent& event)
 
 void LocalGearyMapFrame::MapMenus()
 {
-	LOG_MSG("In LocalGearyMapFrame::MapMenus");
+	wxLogMessage("In LocalGearyMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-	LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LISAMAP_NEW_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -583,7 +737,7 @@ void LocalGearyMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
         LOG_MSG("LocalGearyMapFrame::UpdateOptionMenuItems: "
 				"Options menu not found");
@@ -604,11 +758,17 @@ void LocalGearyMapFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void LocalGearyMapFrame::RanXPer(int permutation)
 {
+    wxString msg;
+    msg << "Entering LocalGearyMapFrame::RanXPer() " << permutation;
+    wxLogMessage(msg);
+    
 	if (permutation < 9) permutation = 9;
 	if (permutation > 99999) permutation = 99999;
 	local_geary_coord->permutations = permutation;
 	local_geary_coord->CalcPseudoP();
 	local_geary_coord->notifyObservers();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::RanXPer()");
 }
 
 void LocalGearyMapFrame::OnRan99Per(wxCommandEvent& event)
@@ -636,18 +796,27 @@ void LocalGearyMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
-		dlg.m_number->GetValue().ToLong(&num);
+        
+		wxString input = dlg.m_number->GetValue();
+        
+        wxLogMessage(input);
+        
+        input.ToLong(&num);
 		RanXPer(num);
 	}
 }
 
 void LocalGearyMapFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnUseSpecifiedSeed()");
 	local_geary_coord->SetReuseLastSeed(!local_geary_coord->IsReuseLastSeed());
+    wxLogMessage("Exiting LocalGearyMapFrame::OnUseSpecifiedSeed()");
 }
 
 void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnSpecifySeedDlg()");
+    
 	uint64_t last_seed = local_geary_coord->GetLastUsedSeed();
 	wxString m;
 	m << "The last seed used by the pseudo random\nnumber ";
@@ -659,9 +828,12 @@ void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxString cur_val;
 	cur_val << last_seed;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
+    
+    wxLogMessage(dlg_val);
+    
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;
@@ -670,19 +842,26 @@ void LocalGearyMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 		uint64_t new_seed_val = val;
 		local_geary_coord->SetLastUsedSeed(new_seed_val);
 	} else {
-		wxString m;
-		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSpecifySeedDlg()");
 }
 
 void LocalGearyMapFrame::SetSigFilterX(int filter)
 {
+    wxString msg;
+    msg << "Entering LocalGearyMapFrame::SetSigFilterX() " << filter;
+    wxLogMessage(msg);
+    
 	if (filter == local_geary_coord->GetSignificanceFilter()) return;
 	local_geary_coord->SetSignificanceFilter(filter);
 	local_geary_coord->notifyObservers();
 	UpdateOptionMenuItems();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::SetSigFilterX()");
 }
 
 void LocalGearyMapFrame::OnSigFilter05(wxCommandEvent& event)
@@ -705,8 +884,37 @@ void LocalGearyMapFrame::OnSigFilter0001(wxCommandEvent& event)
 	SetSigFilterX(4);
 }
 
+void LocalGearyMapFrame::OnSigFilterSetup(wxCommandEvent& event)
+{
+    wxLogMessage("Entering LocalGearyMapFrame::OnSigFilterSetup()");
+    
+    LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*)template_canvas;
+    int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    double* p = local_geary_coord->sig_local_geary_vecs[t];
+    int n = local_geary_coord->num_obs;
+    
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << local_geary_coord->permutations << " perm)";
+    
+    double user_sig = local_geary_coord->significance_cutoff;
+    if (local_geary_coord->GetSignificanceFilter()<0) user_sig = local_geary_coord->user_sig_cutoff;
+    
+    InferenceSettingsDlg dlg(this, user_sig, p, n, ttl);
+    if (dlg.ShowModal() == wxID_OK) {
+        local_geary_coord->SetSignificanceFilter(-1);
+        local_geary_coord->significance_cutoff = dlg.GetAlphaLevel();
+        local_geary_coord->user_sig_cutoff = dlg.GetUserInput();
+        local_geary_coord->notifyObservers();
+        local_geary_coord->bo = dlg.GetBO();
+        local_geary_coord->fdr = dlg.GetFDR();
+        UpdateOptionMenuItems();
+    }
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSigFilterSetup()");
+}
+
 void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::OnSaveLocalGeary()");
     
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
     LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*)template_canvas;
@@ -730,7 +938,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	}
 	data[0].d_val = &tempLocalMoran;
 	data[0].label = "LocalGeary Indices";
-	data[0].field_default = "LocalGeary_I";
+	data[0].field_default = "Geary_I";
 	data[0].type = GdaConst::double_type;
     data[0].undefined = &undefs;
 	
@@ -747,7 +955,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	}
 	data[1].l_val = &clust;
 	data[1].label = "Clusters";
-	data[1].field_default = "LocalGeary_CL";
+	data[1].field_default = "Geary_CL";
 	data[1].type = GdaConst::long64_type;
     data[1].undefined = &undefs;
 	
@@ -767,7 +975,7 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
 	
 	data[2].d_val = &sig;
 	data[2].label = "Significance";
-	data[2].field_default = "LocalGeary_P";
+	data[2].field_default = "Geary_P";
 	data[2].type = GdaConst::double_type;
     data[2].undefined = &undefs;
 	
@@ -780,13 +988,17 @@ void LocalGearyMapFrame::OnSaveLocalGeary(wxCommandEvent& event)
     }
     
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Results: LocalGeary",
+					   _("Save Results: LocalGeary"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
+    
+    wxLogMessage("Exiting LocalGearyMapFrame::OnSaveLocalGeary()");
 }
 
 void LocalGearyMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 {
+    wxLogMessage("Entering LocalGearyMapFrame::CoreSelectHelper()");
+    
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
     bool selection_changed = false;
@@ -804,43 +1016,58 @@ void LocalGearyMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers();
 	}
+    wxLogMessage("Exiting LocalGearyMapFrame::CoreSelectHelper()");
 }
 
 void LocalGearyMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectCores");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectCores");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
 	
+    double user_sig = local_geary_coord->significance_cutoff;
 	// add all cores to elem list.
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
 			elem[i] = true;
 		}
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectCores");
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectCores");
 }
 
 void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
 	
+    double user_sig = local_geary_coord->significance_cutoff;
+    
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = true;
 			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -850,29 +1077,42 @@ void LocalGearyMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	// remove all cores
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = false;
 		}
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectNeighborsOfCores");
 }
 
 void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering LocalGearyMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering LocalGearyMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(local_geary_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int* clust = local_geary_coord->cluster_vecs[ts];
 	int* sig_cat = local_geary_coord->sig_cat_vecs[ts];
+    double* sig_val = local_geary_coord->sig_local_geary_vecs[ts];
 	int sf = local_geary_coord->significance_filter;
     const GalElement* W = local_geary_coord->Gal_vecs_orig[ts]->gal;
+   
+    double user_sig = local_geary_coord->significance_cutoff;
     
 	// add all cores and neighbors of cores to elem list
 	for (int i=0; i<local_geary_coord->num_obs; i++) {
-		if (clust[i] >= 1 && clust[i] <= 4 && sig_cat[i] >= sf) {
+		if (clust[i] >= 1 && clust[i] <= 4 ) {
+            bool cont = true;
+            if (sf >=0 && sig_cat[i] >= sf) cont = false;
+            if (sf < 0 && sig_val[i] < user_sig) cont = false;
+            if (cont)  continue;
+            
 			elem[i] = true;
 			const GalElement& e = W[i];
 			for (int j=0, jend=e.Size(); j<jend; j++) {
@@ -882,50 +1122,16 @@ void LocalGearyMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting LocalGearyMapFrame::OnSelectCoresAndNeighbors");
-}
-
-void LocalGearyMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
-{
-	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    GalWeight* gal_weights = local_geary_coord->Gal_vecs_orig[ts];
-   
-    HighlightState& hs = *project->GetHighlightState();
-    std::vector<bool>& h = hs.GetHighlight();
-    int nh_cnt = 0;
-    std::vector<bool> add_elem(gal_weights->num_obs, false);
-    
-    std::vector<int> new_highlight_ids;
-    
-    for (int i=0; i<gal_weights->num_obs; i++) {
-        if (h[i]) {
-            GalElement& e = gal_weights->gal[i];
-            for (int j=0, jend=e.Size(); j<jend; j++) {
-                int obs = e[j];
-                if (!h[obs] && !add_elem[obs]) {
-                    add_elem[obs] = true;
-                    new_highlight_ids.push_back(obs);
-                }
-            }
-        }
-    }
-    
-    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
-        h[ new_highlight_ids[i] ] = true;
-        nh_cnt ++;
-    }
-    
-    if (nh_cnt > 0) {
-        hs.SetEventType(HLStateInt::delta);
-        hs.notifyObservers();
-    }
+	wxLogMessage("Exiting LocalGearyMapFrame::OnSelectCoresAndNeighbors");
 }
 
 void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
 {
+	wxLogMessage("In LocalGearyMapFrame::OnShowAsConditionalMap");
+    
     VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
                             false, false,
-                            _("Conditional LocalGeary Map Variables"),
+                            _("Conditional Local Geary Map Variables"),
                             _("Horizontal Cells"),
                             _("Vertical Cells"));
     
@@ -949,17 +1155,20 @@ void LocalGearyMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
    - new randomization for p-vals and therefore categories have changed */
 void LocalGearyMapFrame::update(LocalGearyCoordinator* o)
 {
+	wxLogMessage("In LocalGearyMapFrame::update");
+    
 	LocalGearyMapCanvas* lc = (LocalGearyMapCanvas*) template_canvas;
 	lc->SyncVarInfoFromCoordinator();
 	lc->CreateAndUpdateCategories();
 	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
+    lc->UpdateStatusBar();
 }
 
 void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 {
-	LOG_MSG("In LocalGearyMapFrame::closeObserver(LocalGearyCoordinator*)");
+	wxLogMessage("In LocalGearyMapFrame::closeObserver(LocalGearyCoordinator*)");
 	if (local_geary_coord) {
 		local_geary_coord->removeObserver(this);
 		local_geary_coord = 0;
@@ -969,6 +1178,8 @@ void LocalGearyMapFrame::closeObserver(LocalGearyCoordinator* o)
 
 void LocalGearyMapFrame::GetVizInfo(std::vector<int>& clusters)
 {
+	wxLogMessage("In LocalGearyMapFrame::GetVizInfo()");
+    
 	if (local_geary_coord) {
 		if(local_geary_coord->sig_cat_vecs.size()>0) {
 			for (int i=0; i<local_geary_coord->num_obs;i++) {

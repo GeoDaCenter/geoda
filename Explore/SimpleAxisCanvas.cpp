@@ -78,9 +78,8 @@ is_standardized(is_standardized_)
 	
 	PopulateCanvas();
 	ResizeSelectableShps();
-	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 }
+
 SimpleAxisCanvas::SimpleAxisCanvas(wxWindow *parent, TemplateFrame* t_frame,
 								 Project* project,
 								 HLStateInt* hl_state_int,
@@ -125,7 +124,6 @@ is_standardized(is_standardized_)
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 	LOG_MSG("Exiting SimpleAxisCanvas::SimpleAxisCanvas");
 }
 
@@ -160,7 +158,7 @@ void SimpleAxisCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
+    
 	wxSize size(GetVirtualSize());
 	int win_width = size.GetWidth();
 	int win_height = size.GetHeight();
@@ -210,10 +208,12 @@ void SimpleAxisCanvas::PopulateCanvas()
     	// create axes
     	if (horiz_orient) {
     		x_baseline = new GdaAxis(Xname, axis_scale_x,
-    								 wxRealPoint(0,0), wxRealPoint(100, 0));
+    								 wxRealPoint(0,0), wxRealPoint(100, 0),
+                                     0, 0, true);
     	} else {
     		x_baseline = new GdaAxis(Xname, axis_scale_x,
-    								 wxRealPoint(0,0), wxRealPoint(0, 100));
+    								 wxRealPoint(0,0), wxRealPoint(0, 100),
+                                     0, 0, true);
     	}
     	x_baseline->autoDropScaleValues(true);
     	x_baseline->moveOuterValTextInwards(true);

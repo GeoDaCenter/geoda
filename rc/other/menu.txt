@@ -1,0 +1,2592 @@
+#line 5 "menus.xrc"
+_("&File");
+#line 7 "menus.xrc"
+_("New From Recent");
+#line 10 "menus.xrc"
+_("&New");
+#line 15 "menus.xrc"
+_("Save");
+#line 18 "menus.xrc"
+_("Save As");
+#line 21 "menus.xrc"
+_("Save Selected As");
+#line 25 "menus.xrc"
+_("&Open Project");
+#line 29 "menus.xrc"
+_("Save Project");
+#line 32 "menus.xrc"
+_("Project Information");
+#line 36 "menus.xrc"
+_("Preferences...");
+#line 40 "menus.xrc"
+_("Close");
+#line 43 "menus.xrc"
+_("Exit");
+#line 47 "menus.xrc"
+_("&Edit");
+#line 49 "menus.xrc"
+_("Time");
+#line 52 "menus.xrc"
+_("Category");
+#line 56 "menus.xrc"
+_("&Tools");
+#line 58 "menus.xrc"
+_("Weights Manager");
+#line 62 "menus.xrc"
+_("Shape");
+#line 64 "menus.xrc"
+_("Points from Table");
+#line 67 "menus.xrc"
+_("Create Grid");
+#line 72 "menus.xrc"
+_("T&able");
+#line 74 "menus.xrc"
+_("Aggregate");
+#line 77 "menus.xrc"
+_("Merge");
+#line 81 "menus.xrc"
+_("Geocode");
+#line 84 "menus.xrc"
+_("Points from Table");
+#line 88 "menus.xrc"
+_("Selection Tool");
+#line 91 "menus.xrc"
+_("Invert Selection");
+#line 94 "menus.xrc"
+_("Clear Selection");
+#line 97 "menus.xrc"
+_("Save Selection");
+#line 100 "menus.xrc"
+_("Move Selected to Top");
+#line 105 "menus.xrc"
+_("Calculator");
+#line 109 "menus.xrc"
+_("Add Variable");
+#line 112 "menus.xrc"
+_("Delete Variable(s)");
+#line 115 "menus.xrc"
+_("Edit Variable Properties");
+#line 127 "menus.xrc"
+_("Encode");
+#line 129 "menus.xrc"
+_("Unicode (UTF-8)");
+#line 133 "menus.xrc"
+_("Unicode (UTF-16LE)");
+#line 138 "menus.xrc"
+_("Arabic (Windows-1256)");
+#line 142 "menus.xrc"
+_("Central European Latin-2 (ISO-8859-2)");
+#line 146 "menus.xrc"
+_("Central European (Windows-1250)");
+#line 150 "menus.xrc"
+_("Central European (CP852)");
+#line 154 "menus.xrc"
+_("Chinese Simplified (GB2312)");
+#line 158 "menus.xrc"
+_("Chinese Traditional (Big5)");
+#line 162 "menus.xrc"
+_("Cyrillic (ISO-8859-5)");
+#line 166 "menus.xrc"
+_("Cyrillic (KOI8-R)");
+#line 170 "menus.xrc"
+_("Cyrillic (Windows-1251)");
+#line 174 "menus.xrc"
+_("Cyrillic/Russian (CP866)");
+#line 178 "menus.xrc"
+_("Greek (ISO-8859-7)");
+#line 182 "menus.xrc"
+_("Hebrew (ISO-8859-8-1)");
+#line 186 "menus.xrc"
+_("Hebrew (Windows-1255)");
+#line 190 "menus.xrc"
+_("Japanese (Shift&JIS)");
+#line 194 "menus.xrc"
+_("Japanese (EUC-JP)");
+#line 198 "menus.xrc"
+_("Korean (EUC-KR)");
+#line 202 "menus.xrc"
+_("Nordic Latin-6 (ISO-8859-10)");
+#line 206 "menus.xrc"
+_("South European Latin-3 (ISO-8859-3)");
+#line 210 "menus.xrc"
+_("Turkish Latin-5 (ISO-8859-9)");
+#line 214 "menus.xrc"
+_("Turkish (Windows-1254)");
+#line 218 "menus.xrc"
+_("Vietnamese (Windows-1258)");
+#line 222 "menus.xrc"
+_("West European Latin-1 (ISO-8859-1)");
+#line 226 "menus.xrc"
+_("West European Latin-9 (ISO-8859-15)");
+#line 231 "menus.xrc"
+_("Set Number Separators");
+#line 235 "menus.xrc"
+_("&Map");
+#line 237 "menus.xrc"
+_("Themeless Map");
+#line 240 "menus.xrc"
+_("Quantile Map");
+#line 242 "menus.xrc"
+_("2");
+#line 245 "menus.xrc"
+_("3");
+#line 248 "menus.xrc"
+_("4");
+#line 251 "menus.xrc"
+_("5");
+#line 254 "menus.xrc"
+_("6");
+#line 257 "menus.xrc"
+_("7");
+#line 260 "menus.xrc"
+_("8");
+#line 263 "menus.xrc"
+_("9");
+#line 266 "menus.xrc"
+_("10");
+#line 270 "menus.xrc"
+_("Percentile Map");
+#line 273 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 276 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 279 "menus.xrc"
+_("Standard Deviation Map");
+#line 282 "menus.xrc"
+_("Unique Values Map");
+#line 285 "menus.xrc"
+_("Co-location Map");
+#line 288 "menus.xrc"
+_("Natural Breaks Map");
+#line 290 "menus.xrc"
+_("2");
+#line 293 "menus.xrc"
+_("3");
+#line 296 "menus.xrc"
+_("4");
+#line 299 "menus.xrc"
+_("5");
+#line 302 "menus.xrc"
+_("6");
+#line 305 "menus.xrc"
+_("7");
+#line 308 "menus.xrc"
+_("8");
+#line 311 "menus.xrc"
+_("9");
+#line 314 "menus.xrc"
+_("10");
+#line 318 "menus.xrc"
+_("Equal Intervals Map");
+#line 320 "menus.xrc"
+_("2");
+#line 323 "menus.xrc"
+_("3");
+#line 326 "menus.xrc"
+_("4");
+#line 329 "menus.xrc"
+_("5");
+#line 332 "menus.xrc"
+_("6");
+#line 335 "menus.xrc"
+_("7");
+#line 338 "menus.xrc"
+_("8");
+#line 341 "menus.xrc"
+_("9");
+#line 344 "menus.xrc"
+_("10");
+#line 348 "menus.xrc"
+_("Custom Breaks");
+#line 350 "menus.xrc"
+_("Create New Custom");
+#line 357 "menus.xrc"
+_("Raw Rate");
+#line 361 "menus.xrc"
+_("Excess Risk");
+#line 365 "menus.xrc"
+_("Empirical Bayes");
+#line 369 "menus.xrc"
+_("Spatial Rate");
+#line 373 "menus.xrc"
+_("Spatial Empirical Bayes");
+#line 376 "menus.xrc"
+_("Rates-Calculated Map");
+#line 380 "menus.xrc"
+_("Conditional Map");
+#line 383 "menus.xrc"
+_("Cartogram");
+#line 387 "menus.xrc"
+_("Map Movie");
+#line 392 "menus.xrc"
+_("Histogram");
+#line 395 "menus.xrc"
+_("Box Plot");
+#line 398 "menus.xrc"
+_("Scatter Plot");
+#line 401 "menus.xrc"
+_("Scatter Plot Matrix");
+#line 404 "menus.xrc"
+_("Bubble Chart");
+#line 407 "menus.xrc"
+_("3D Scatter Plot");
+#line 410 "menus.xrc"
+_("Parallel Coordinate Plot");
+#line 413 "menus.xrc"
+_("Averages Chart");
+#line 416 "menus.xrc"
+_("Conditional Plot");
+#line 418 "menus.xrc"
+_("Map");
+#line 421 "menus.xrc"
+_("Histogram");
+#line 424 "menus.xrc"
+_("Scatter Plot");
+#line 427 "menus.xrc"
+_("E&xplore");
+#line 430 "menus.xrc"
+_("Clusters");
+#line 432 "menus.xrc"
+_("PCA");
+#line 435 "menus.xrc"
+_("MDS");
+#line 439 "menus.xrc"
+_("K Means");
+#line 442 "menus.xrc"
+_("K Medians");
+#line 445 "menus.xrc"
+_("K Medoids");
+#line 448 "menus.xrc"
+_("Spectral");
+#line 451 "menus.xrc"
+_("Hierarchical");
+#line 455 "menus.xrc"
+_("skater");
+#line 458 "menus.xrc"
+_("redcap");
+#line 461 "menus.xrc"
+_("max-p");
+#line 465 "menus.xrc"
+_("&Space");
+#line 467 "menus.xrc"
+_("Univariate Moran's I");
+#line 470 "menus.xrc"
+_("Bivariate Moran's I");
+#line 473 "menus.xrc"
+_("Differential Moran's I");
+#line 476 "menus.xrc"
+_("Moran's I with EB Rate");
+#line 480 "menus.xrc"
+_("Univariate Local Moran's I");
+#line 483 "menus.xrc"
+_("Bivariate Local Moran's I");
+#line 486 "menus.xrc"
+_("Differential Local Moran's I");
+#line 489 "menus.xrc"
+_("Local Moran's I with EB Rate");
+#line 493 "menus.xrc"
+_("Local G");
+#line 496 "menus.xrc"
+_("Local G*");
+#line 500 "menus.xrc"
+_("Univariate Local Join Count");
+#line 503 "menus.xrc"
+_("Bivariate Local Join Count");
+#line 506 "menus.xrc"
+_("Local Geary Maps");
+#line 508 "menus.xrc"
+_("Univariate Local Geary");
+#line 511 "menus.xrc"
+_("Multivariate Local Geary");
+#line 515 "menus.xrc"
+_("Spatial Correlogram");
+#line 519 "menus.xrc"
+_("Tim&e");
+#line 521 "menus.xrc"
+_("Time Player");
+#line 524 "menus.xrc"
+_("Time Editor");
+#line 528 "menus.xrc"
+_("&Regression");
+#line 530 "menus.xrc"
+_("Regression");
+#line 535 "menus.xrc"
+_("Options");
+#line 538 "menus.xrc"
+_("&Help");
+#line 540 "menus.xrc"
+_("Check Updates");
+#line 543 "menus.xrc"
+_("Bug Report");
+#line 546 "menus.xrc"
+_("About GeoDa");
+#line 551 "menus.xrc"
+_("Options");
+#line 555 "menus.xrc"
+_("Color");
+#line 557 "menus.xrc"
+_("Point Color");
+#line 560 "menus.xrc"
+_("Highlight Color");
+#line 563 "menus.xrc"
+_("Background Color");
+#line 566 "menus.xrc"
+_("Options");
+#line 570 "menus.xrc"
+_("Hinge");
+#line 572 "menus.xrc"
+_("1.5");
+#line 576 "menus.xrc"
+_("3.0");
+#line 581 "menus.xrc"
+_("View");
+#line 583 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 586 "menus.xrc"
+_("Display Statistics");
+#line 591 "menus.xrc"
+_("Show Vertical Axis");
+#line 598 "menus.xrc"
+_("Color");
+#line 600 "menus.xrc"
+_("Point Color");
+#line 603 "menus.xrc"
+_("Background Color");
+#line 607 "menus.xrc"
+_("Show Status Bar");
+#line 614 "menus.xrc"
+_("Save Selection");
+#line 617 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 620 "menus.xrc"
+_("Save Image As");
+#line 622 "menus.xrc"
+_("Options");
+#line 625 "menus.xrc"
+_("Options");
+#line 627 "menus.xrc"
+_("Hinge");
+#line 629 "menus.xrc"
+_("1.5");
+#line 633 "menus.xrc"
+_("3.0");
+#line 639 "menus.xrc"
+_("Background Color");
+#line 642 "menus.xrc"
+_("Show Status Bar");
+#line 649 "menus.xrc"
+_("Save Selection");
+#line 652 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 655 "menus.xrc"
+_("Save Image As");
+#line 660 "menus.xrc"
+_("Hinge");
+#line 662 "menus.xrc"
+_("1.5");
+#line 666 "menus.xrc"
+_("3.0");
+#line 672 "menus.xrc"
+_("Background");
+#line 675 "menus.xrc"
+_("Show Status Bar");
+#line 682 "menus.xrc"
+_("Save Selection");
+#line 685 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 688 "menus.xrc"
+_("Save Image As");
+#line 690 "menus.xrc"
+_("Options");
+#line 695 "menus.xrc"
+_("Themeless");
+#line 699 "menus.xrc"
+_("Quantile");
+#line 701 "menus.xrc"
+_("2");
+#line 705 "menus.xrc"
+_("3");
+#line 709 "menus.xrc"
+_("4");
+#line 713 "menus.xrc"
+_("5");
+#line 717 "menus.xrc"
+_("6");
+#line 721 "menus.xrc"
+_("7");
+#line 725 "menus.xrc"
+_("8");
+#line 729 "menus.xrc"
+_("9");
+#line 733 "menus.xrc"
+_("10");
+#line 738 "menus.xrc"
+_("Percentile");
+#line 742 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 746 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 750 "menus.xrc"
+_("Standard Deviation");
+#line 754 "menus.xrc"
+_("Unique Values");
+#line 758 "menus.xrc"
+_("Natural Breaks");
+#line 760 "menus.xrc"
+_("2");
+#line 764 "menus.xrc"
+_("3");
+#line 768 "menus.xrc"
+_("4");
+#line 772 "menus.xrc"
+_("5");
+#line 776 "menus.xrc"
+_("6");
+#line 780 "menus.xrc"
+_("7");
+#line 784 "menus.xrc"
+_("8");
+#line 788 "menus.xrc"
+_("9");
+#line 792 "menus.xrc"
+_("10");
+#line 798 "menus.xrc"
+_("Equal Intervals");
+#line 800 "menus.xrc"
+_("2");
+#line 804 "menus.xrc"
+_("3");
+#line 808 "menus.xrc"
+_("4");
+#line 812 "menus.xrc"
+_("5");
+#line 816 "menus.xrc"
+_("6");
+#line 820 "menus.xrc"
+_("7");
+#line 824 "menus.xrc"
+_("8");
+#line 828 "menus.xrc"
+_("9");
+#line 832 "menus.xrc"
+_("10");
+#line 837 "menus.xrc"
+_("Custom Breaks");
+#line 839 "menus.xrc"
+_("Create New Custom");
+#line 843 "menus.xrc"
+_("Map Color Classification");
+#line 847 "menus.xrc"
+_("Themeless");
+#line 852 "menus.xrc"
+_("Quantile");
+#line 854 "menus.xrc"
+_("2");
+#line 858 "menus.xrc"
+_("3");
+#line 862 "menus.xrc"
+_("4");
+#line 866 "menus.xrc"
+_("5");
+#line 870 "menus.xrc"
+_("6");
+#line 874 "menus.xrc"
+_("7");
+#line 878 "menus.xrc"
+_("8");
+#line 882 "menus.xrc"
+_("9");
+#line 886 "menus.xrc"
+_("10");
+#line 891 "menus.xrc"
+_("Percentile");
+#line 895 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 899 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 903 "menus.xrc"
+_("Standard Deviation");
+#line 907 "menus.xrc"
+_("Unique Values");
+#line 911 "menus.xrc"
+_("Natural Breaks");
+#line 913 "menus.xrc"
+_("2");
+#line 917 "menus.xrc"
+_("3");
+#line 921 "menus.xrc"
+_("4");
+#line 925 "menus.xrc"
+_("5");
+#line 929 "menus.xrc"
+_("6");
+#line 933 "menus.xrc"
+_("7");
+#line 937 "menus.xrc"
+_("8");
+#line 941 "menus.xrc"
+_("9");
+#line 945 "menus.xrc"
+_("10");
+#line 950 "menus.xrc"
+_("Equal Intervals");
+#line 952 "menus.xrc"
+_("2");
+#line 956 "menus.xrc"
+_("3");
+#line 960 "menus.xrc"
+_("4");
+#line 964 "menus.xrc"
+_("5");
+#line 968 "menus.xrc"
+_("6");
+#line 972 "menus.xrc"
+_("7");
+#line 976 "menus.xrc"
+_("8");
+#line 980 "menus.xrc"
+_("9");
+#line 984 "menus.xrc"
+_("10");
+#line 989 "menus.xrc"
+_("Custom Breaks");
+#line 991 "menus.xrc"
+_("Create New Custom");
+#line 995 "menus.xrc"
+_("Vertical Bins Breaks");
+#line 999 "menus.xrc"
+_("Themeless");
+#line 1003 "menus.xrc"
+_("Quantile");
+#line 1005 "menus.xrc"
+_("2");
+#line 1009 "menus.xrc"
+_("3");
+#line 1013 "menus.xrc"
+_("4");
+#line 1017 "menus.xrc"
+_("5");
+#line 1021 "menus.xrc"
+_("6");
+#line 1025 "menus.xrc"
+_("7");
+#line 1029 "menus.xrc"
+_("8");
+#line 1033 "menus.xrc"
+_("9");
+#line 1037 "menus.xrc"
+_("10");
+#line 1043 "menus.xrc"
+_("Percentile");
+#line 1048 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1052 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1057 "menus.xrc"
+_("Standard Deviation");
+#line 1061 "menus.xrc"
+_("Unique Values");
+#line 1066 "menus.xrc"
+_("Natural Breaks");
+#line 1068 "menus.xrc"
+_("2");
+#line 1072 "menus.xrc"
+_("3");
+#line 1076 "menus.xrc"
+_("4");
+#line 1080 "menus.xrc"
+_("5");
+#line 1084 "menus.xrc"
+_("6");
+#line 1088 "menus.xrc"
+_("7");
+#line 1092 "menus.xrc"
+_("8");
+#line 1096 "menus.xrc"
+_("9");
+#line 1100 "menus.xrc"
+_("10");
+#line 1106 "menus.xrc"
+_("Equal Intervals");
+#line 1108 "menus.xrc"
+_("2");
+#line 1112 "menus.xrc"
+_("3");
+#line 1116 "menus.xrc"
+_("4");
+#line 1120 "menus.xrc"
+_("5");
+#line 1124 "menus.xrc"
+_("6");
+#line 1128 "menus.xrc"
+_("7");
+#line 1132 "menus.xrc"
+_("8");
+#line 1136 "menus.xrc"
+_("9");
+#line 1140 "menus.xrc"
+_("10");
+#line 1145 "menus.xrc"
+_("Custom Breaks");
+#line 1147 "menus.xrc"
+_("Create New Custom");
+#line 1151 "menus.xrc"
+_("Horizontal Bins Breaks");
+#line 1154 "menus.xrc"
+_("Save Categories");
+#line 1158 "menus.xrc"
+_("Selection Shape");
+#line 1160 "menus.xrc"
+_("Rectangle");
+#line 1164 "menus.xrc"
+_("Circle");
+#line 1168 "menus.xrc"
+_("Line");
+#line 1173 "menus.xrc"
+_("Color");
+#line 1175 "menus.xrc"
+_("Outlines Visible");
+#line 1180 "menus.xrc"
+_("Background Color");
+#line 1184 "menus.xrc"
+_("Show Status Bar");
+#line 1191 "menus.xrc"
+_("Save Selection");
+#line 1194 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 1197 "menus.xrc"
+_("Save Image As");
+#line 1199 "menus.xrc"
+_("Options");
+#line 1204 "menus.xrc"
+_("Themeless");
+#line 1208 "menus.xrc"
+_("Quantile");
+#line 1210 "menus.xrc"
+_("2");
+#line 1214 "menus.xrc"
+_("3");
+#line 1218 "menus.xrc"
+_("4");
+#line 1222 "menus.xrc"
+_("5");
+#line 1226 "menus.xrc"
+_("6");
+#line 1230 "menus.xrc"
+_("7");
+#line 1234 "menus.xrc"
+_("8");
+#line 1238 "menus.xrc"
+_("9");
+#line 1242 "menus.xrc"
+_("10");
+#line 1248 "menus.xrc"
+_("Percentile");
+#line 1252 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1256 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1260 "menus.xrc"
+_("Standard Deviation");
+#line 1264 "menus.xrc"
+_("Unique Values");
+#line 1269 "menus.xrc"
+_("Natural Breaks");
+#line 1271 "menus.xrc"
+_("2");
+#line 1275 "menus.xrc"
+_("3");
+#line 1279 "menus.xrc"
+_("4");
+#line 1283 "menus.xrc"
+_("5");
+#line 1287 "menus.xrc"
+_("6");
+#line 1291 "menus.xrc"
+_("7");
+#line 1295 "menus.xrc"
+_("8");
+#line 1299 "menus.xrc"
+_("9");
+#line 1303 "menus.xrc"
+_("10");
+#line 1309 "menus.xrc"
+_("Equal Intervals");
+#line 1311 "menus.xrc"
+_("2");
+#line 1315 "menus.xrc"
+_("3");
+#line 1319 "menus.xrc"
+_("4");
+#line 1323 "menus.xrc"
+_("5");
+#line 1327 "menus.xrc"
+_("6");
+#line 1331 "menus.xrc"
+_("7");
+#line 1335 "menus.xrc"
+_("8");
+#line 1339 "menus.xrc"
+_("9");
+#line 1343 "menus.xrc"
+_("10");
+#line 1348 "menus.xrc"
+_("Custom Breaks");
+#line 1350 "menus.xrc"
+_("Create New Custom");
+#line 1354 "menus.xrc"
+_("Vertical Bins Breaks");
+#line 1358 "menus.xrc"
+_("Themeless");
+#line 1363 "menus.xrc"
+_("Quantile");
+#line 1365 "menus.xrc"
+_("2");
+#line 1369 "menus.xrc"
+_("3");
+#line 1373 "menus.xrc"
+_("4");
+#line 1377 "menus.xrc"
+_("5");
+#line 1381 "menus.xrc"
+_("6");
+#line 1385 "menus.xrc"
+_("7");
+#line 1389 "menus.xrc"
+_("8");
+#line 1393 "menus.xrc"
+_("9");
+#line 1397 "menus.xrc"
+_("10");
+#line 1403 "menus.xrc"
+_("Percentile");
+#line 1407 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1411 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1415 "menus.xrc"
+_("Standard Deviation");
+#line 1419 "menus.xrc"
+_("Unique Values");
+#line 1424 "menus.xrc"
+_("Natural Breaks");
+#line 1426 "menus.xrc"
+_("2");
+#line 1430 "menus.xrc"
+_("3");
+#line 1434 "menus.xrc"
+_("4");
+#line 1438 "menus.xrc"
+_("5");
+#line 1442 "menus.xrc"
+_("6");
+#line 1446 "menus.xrc"
+_("7");
+#line 1450 "menus.xrc"
+_("8");
+#line 1454 "menus.xrc"
+_("9");
+#line 1458 "menus.xrc"
+_("10");
+#line 1464 "menus.xrc"
+_("Equal Intervals");
+#line 1466 "menus.xrc"
+_("2");
+#line 1470 "menus.xrc"
+_("3");
+#line 1474 "menus.xrc"
+_("4");
+#line 1478 "menus.xrc"
+_("5");
+#line 1482 "menus.xrc"
+_("6");
+#line 1486 "menus.xrc"
+_("7");
+#line 1490 "menus.xrc"
+_("8");
+#line 1494 "menus.xrc"
+_("9");
+#line 1498 "menus.xrc"
+_("10");
+#line 1503 "menus.xrc"
+_("Custom Breaks");
+#line 1505 "menus.xrc"
+_("Create New Custom");
+#line 1509 "menus.xrc"
+_("Horizontal Bins Breaks");
+#line 1513 "menus.xrc"
+_("Show Linear Smoother");
+#line 1518 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 1523 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 1526 "menus.xrc"
+_("View");
+#line 1528 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 1531 "menus.xrc"
+_("Display Axes Scale Values");
+#line 1536 "menus.xrc"
+_("Display Slope Values");
+#line 1541 "menus.xrc"
+_("Show Status Bar");
+#line 1548 "menus.xrc"
+_("Selection Shape");
+#line 1550 "menus.xrc"
+_("Rectangle");
+#line 1554 "menus.xrc"
+_("Circle");
+#line 1558 "menus.xrc"
+_("Line");
+#line 1563 "menus.xrc"
+_("Color");
+#line 1565 "menus.xrc"
+_("Regression Line Color");
+#line 1568 "menus.xrc"
+_("Point Color");
+#line 1571 "menus.xrc"
+_("Background Color");
+#line 1578 "menus.xrc"
+_("Save Selection");
+#line 1581 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 1584 "menus.xrc"
+_("Save Image As");
+#line 1586 "menus.xrc"
+_("Options");
+#line 1591 "menus.xrc"
+_("Themeless");
+#line 1596 "menus.xrc"
+_("Quantile");
+#line 1598 "menus.xrc"
+_("2");
+#line 1602 "menus.xrc"
+_("3");
+#line 1606 "menus.xrc"
+_("4");
+#line 1610 "menus.xrc"
+_("5");
+#line 1614 "menus.xrc"
+_("6");
+#line 1618 "menus.xrc"
+_("7");
+#line 1622 "menus.xrc"
+_("8");
+#line 1626 "menus.xrc"
+_("9");
+#line 1630 "menus.xrc"
+_("10");
+#line 1636 "menus.xrc"
+_("Percentile");
+#line 1640 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1644 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1648 "menus.xrc"
+_("Standard Deviation");
+#line 1652 "menus.xrc"
+_("Unique Values");
+#line 1657 "menus.xrc"
+_("Natural Breaks");
+#line 1659 "menus.xrc"
+_("2");
+#line 1663 "menus.xrc"
+_("3");
+#line 1667 "menus.xrc"
+_("4");
+#line 1671 "menus.xrc"
+_("5");
+#line 1675 "menus.xrc"
+_("6");
+#line 1679 "menus.xrc"
+_("7");
+#line 1683 "menus.xrc"
+_("8");
+#line 1687 "menus.xrc"
+_("9");
+#line 1691 "menus.xrc"
+_("10");
+#line 1697 "menus.xrc"
+_("Equal Intervals");
+#line 1699 "menus.xrc"
+_("2");
+#line 1703 "menus.xrc"
+_("3");
+#line 1707 "menus.xrc"
+_("4");
+#line 1711 "menus.xrc"
+_("5");
+#line 1715 "menus.xrc"
+_("6");
+#line 1719 "menus.xrc"
+_("7");
+#line 1723 "menus.xrc"
+_("8");
+#line 1727 "menus.xrc"
+_("9");
+#line 1731 "menus.xrc"
+_("10");
+#line 1736 "menus.xrc"
+_("Custom Breaks");
+#line 1738 "menus.xrc"
+_("Create New Custom");
+#line 1742 "menus.xrc"
+_("Vertical Bins Breaks");
+#line 1746 "menus.xrc"
+_("Themeless");
+#line 1751 "menus.xrc"
+_("Quantile");
+#line 1753 "menus.xrc"
+_("2");
+#line 1757 "menus.xrc"
+_("3");
+#line 1761 "menus.xrc"
+_("4");
+#line 1765 "menus.xrc"
+_("5");
+#line 1769 "menus.xrc"
+_("6");
+#line 1773 "menus.xrc"
+_("7");
+#line 1777 "menus.xrc"
+_("8");
+#line 1781 "menus.xrc"
+_("9");
+#line 1785 "menus.xrc"
+_("10");
+#line 1791 "menus.xrc"
+_("Percentile");
+#line 1795 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1799 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1804 "menus.xrc"
+_("Standard Deviation");
+#line 1808 "menus.xrc"
+_("Unique Values");
+#line 1813 "menus.xrc"
+_("Natural Breaks");
+#line 1815 "menus.xrc"
+_("2");
+#line 1819 "menus.xrc"
+_("3");
+#line 1823 "menus.xrc"
+_("4");
+#line 1827 "menus.xrc"
+_("5");
+#line 1831 "menus.xrc"
+_("6");
+#line 1835 "menus.xrc"
+_("7");
+#line 1839 "menus.xrc"
+_("8");
+#line 1843 "menus.xrc"
+_("9");
+#line 1847 "menus.xrc"
+_("10");
+#line 1853 "menus.xrc"
+_("Equal Intervals");
+#line 1855 "menus.xrc"
+_("2");
+#line 1859 "menus.xrc"
+_("3");
+#line 1863 "menus.xrc"
+_("4");
+#line 1867 "menus.xrc"
+_("5");
+#line 1871 "menus.xrc"
+_("6");
+#line 1875 "menus.xrc"
+_("7");
+#line 1879 "menus.xrc"
+_("8");
+#line 1883 "menus.xrc"
+_("9");
+#line 1887 "menus.xrc"
+_("10");
+#line 1892 "menus.xrc"
+_("Custom Breaks");
+#line 1894 "menus.xrc"
+_("Create New Custom");
+#line 1898 "menus.xrc"
+_("Horizontal Bins Breaks");
+#line 1901 "menus.xrc"
+_("Choose Intervals");
+#line 1904 "menus.xrc"
+_("View");
+#line 1906 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 1909 "menus.xrc"
+_("Show Axes");
+#line 1914 "menus.xrc"
+_("Show Status Bar");
+#line 1921 "menus.xrc"
+_("Color");
+#line 1923 "menus.xrc"
+_("Background Color");
+#line 1928 "menus.xrc"
+_("Save Selection");
+#line 1931 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 1934 "menus.xrc"
+_("Save Image As");
+#line 1936 "menus.xrc"
+_("Options");
+#line 1941 "menus.xrc"
+_("Themeless");
+#line 1945 "menus.xrc"
+_("Quantile");
+#line 1947 "menus.xrc"
+_("2");
+#line 1951 "menus.xrc"
+_("3");
+#line 1955 "menus.xrc"
+_("4");
+#line 1959 "menus.xrc"
+_("5");
+#line 1963 "menus.xrc"
+_("6");
+#line 1967 "menus.xrc"
+_("7");
+#line 1971 "menus.xrc"
+_("8");
+#line 1975 "menus.xrc"
+_("9");
+#line 1979 "menus.xrc"
+_("10");
+#line 1984 "menus.xrc"
+_("Percentile");
+#line 1988 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 1992 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 1996 "menus.xrc"
+_("Standard Deviation");
+#line 2000 "menus.xrc"
+_("Unique Values");
+#line 2004 "menus.xrc"
+_("Natural Breaks");
+#line 2006 "menus.xrc"
+_("2");
+#line 2010 "menus.xrc"
+_("3");
+#line 2014 "menus.xrc"
+_("4");
+#line 2018 "menus.xrc"
+_("5");
+#line 2022 "menus.xrc"
+_("6");
+#line 2026 "menus.xrc"
+_("7");
+#line 2030 "menus.xrc"
+_("8");
+#line 2034 "menus.xrc"
+_("9");
+#line 2038 "menus.xrc"
+_("10");
+#line 2043 "menus.xrc"
+_("Equal Intervals");
+#line 2045 "menus.xrc"
+_("2");
+#line 2049 "menus.xrc"
+_("3");
+#line 2053 "menus.xrc"
+_("4");
+#line 2057 "menus.xrc"
+_("5");
+#line 2061 "menus.xrc"
+_("6");
+#line 2065 "menus.xrc"
+_("7");
+#line 2069 "menus.xrc"
+_("8");
+#line 2073 "menus.xrc"
+_("9");
+#line 2077 "menus.xrc"
+_("10");
+#line 2082 "menus.xrc"
+_("Custom Breaks");
+#line 2084 "menus.xrc"
+_("Create New Custom");
+#line 2088 "menus.xrc"
+_("Classification Themes");
+#line 2091 "menus.xrc"
+_("Save Categories");
+#line 2095 "menus.xrc"
+_("Improve Cartogram");
+#line 2097 "menus.xrc"
+_("1 Iteration");
+#line 2100 "menus.xrc"
+_("2 Iteration");
+#line 2103 "menus.xrc"
+_("3 Iteration");
+#line 2106 "menus.xrc"
+_("4 Iteration");
+#line 2109 "menus.xrc"
+_("5 Iteration");
+#line 2112 "menus.xrc"
+_("6 Iteration");
+#line 2117 "menus.xrc"
+_("Selection Shape");
+#line 2119 "menus.xrc"
+_("Rectangle");
+#line 2123 "menus.xrc"
+_("Circle");
+#line 2127 "menus.xrc"
+_("Line");
+#line 2132 "menus.xrc"
+_("Color");
+#line 2134 "menus.xrc"
+_("Outlines Visible");
+#line 2139 "menus.xrc"
+_("Background Color");
+#line 2143 "menus.xrc"
+_("Show Status Bar");
+#line 2150 "menus.xrc"
+_("Save Selection");
+#line 2153 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2156 "menus.xrc"
+_("Save Image As");
+#line 2158 "menus.xrc"
+_("Options");
+#line 2162 "menus.xrc"
+_("Choose Intervals");
+#line 2165 "menus.xrc"
+_("View");
+#line 2167 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 2170 "menus.xrc"
+_("Display Statistics");
+#line 2175 "menus.xrc"
+_("Show Axes");
+#line 2180 "menus.xrc"
+_("Status Bar");
+#line 2187 "menus.xrc"
+_("Color");
+#line 2189 "menus.xrc"
+_("Background Color");
+#line 2196 "menus.xrc"
+_("Save Selection");
+#line 2199 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2202 "menus.xrc"
+_("Save Image As");
+#line 2204 "menus.xrc"
+_("Options");
+#line 2208 "menus.xrc"
+_("Save Connectivity To Table");
+#line 2211 "menus.xrc"
+_("Select Neighborless Observations");
+#line 2214 "menus.xrc"
+_("Choose Intervals");
+#line 2217 "menus.xrc"
+_("View");
+#line 2219 "menus.xrc"
+_("Display Statistics");
+#line 2224 "menus.xrc"
+_("Show Axes");
+#line 2231 "menus.xrc"
+_("Color");
+#line 2233 "menus.xrc"
+_("Background Color");
+#line 2237 "menus.xrc"
+_("Show Status Bar");
+#line 2244 "menus.xrc"
+_("Save Selection");
+#line 2247 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2250 "menus.xrc"
+_("Save Image As");
+#line 2252 "menus.xrc"
+_("Options");
+#line 2257 "menus.xrc"
+_("Display Thiessen Polygons");
+#line 2262 "menus.xrc"
+_("Save Thiessen Polygons");
+#line 2266 "menus.xrc"
+_("Save Duplicate Thiessen Polygons to Table");
+#line 2269 "menus.xrc"
+_("Thiessen Polygons");
+#line 2273 "menus.xrc"
+_("Selection Shape");
+#line 2275 "menus.xrc"
+_("Rectangle");
+#line 2279 "menus.xrc"
+_("Circle");
+#line 2283 "menus.xrc"
+_("Line");
+#line 2288 "menus.xrc"
+_("Selection Mode");
+#line 2292 "menus.xrc"
+_("Panning Mode");
+#line 2296 "menus.xrc"
+_("Zooming Mode");
+#line 2300 "menus.xrc"
+_("Fit-To-Window Mode");
+#line 2304 "menus.xrc"
+_("Fixed Aspect Ratio Mode");
+#line 2308 "menus.xrc"
+_("Color");
+#line 2310 "menus.xrc"
+_("Outlines Visible");
+#line 2315 "menus.xrc"
+_("Background Color");
+#line 2319 "menus.xrc"
+_("Show Status Bar");
+#line 2325 "menus.xrc"
+_("Save Selection");
+#line 2328 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2332 "menus.xrc"
+_("Save Image As");
+#line 2337 "menus.xrc"
+_("Basemap");
+#line 2339 "menus.xrc"
+_("Clean Basemap Cache");
+#line 2343 "menus.xrc"
+_("Change Map Transparency");
+#line 2348 "menus.xrc"
+_("No Basemap");
+#line 2353 "menus.xrc"
+_("Carto Light");
+#line 2357 "menus.xrc"
+_("Carto Dark");
+#line 2361 "menus.xrc"
+_("Carto Light (No Labels)");
+#line 2365 "menus.xrc"
+_("Carto Dark (No Labels)");
+#line 2369 "menus.xrc"
+_("Nokia Day");
+#line 2373 "menus.xrc"
+_("Nokia Night");
+#line 2377 "menus.xrc"
+_("Nokia Hybrid");
+#line 2381 "menus.xrc"
+_("Nokia Satellite");
+#line 2386 "menus.xrc"
+_("Basemap Configuration");
+#line 2390 "menus.xrc"
+_("Options");
+#line 2393 "menus.xrc"
+_("Basemap");
+#line 2395 "menus.xrc"
+_("Clean Basemap Cache");
+#line 2399 "menus.xrc"
+_("Change Map Transparency");
+#line 2404 "menus.xrc"
+_("No Basemap");
+#line 2409 "menus.xrc"
+_("Carto Light");
+#line 2413 "menus.xrc"
+_("Carto Dark");
+#line 2417 "menus.xrc"
+_("Carto Light (No Labels)");
+#line 2421 "menus.xrc"
+_("Carto Dark (No Labels)");
+#line 2425 "menus.xrc"
+_("Nokia Day");
+#line 2429 "menus.xrc"
+_("Nokia Night");
+#line 2433 "menus.xrc"
+_("Nokia Hybrid");
+#line 2437 "menus.xrc"
+_("Nokia Satellite");
+#line 2442 "menus.xrc"
+_("Basemap Configuration");
+#line 2448 "menus.xrc"
+_("Color");
+#line 2450 "menus.xrc"
+_("Background Color");
+#line 2454 "menus.xrc"
+_("Show Status Bar");
+#line 2461 "menus.xrc"
+_("Save Selection");
+#line 2464 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2467 "menus.xrc"
+_("Save Image As");
+#line 2469 "menus.xrc"
+_("Options");
+#line 2473 "menus.xrc"
+_("Randomization");
+#line 2475 "menus.xrc"
+_("99 Permutations");
+#line 2478 "menus.xrc"
+_("199 Permutations");
+#line 2481 "menus.xrc"
+_("499 Permutations");
+#line 2484 "menus.xrc"
+_("999 Permutations");
+#line 2487 "menus.xrc"
+_("Other (up to 99999)");
+#line 2491 "menus.xrc"
+_("Use Specified Seed");
+#line 2496 "menus.xrc"
+_("Specify Seed...");
+#line 2500 "menus.xrc"
+_("Significance Filter");
+#line 2502 "menus.xrc"
+_("0.05");
+#line 2506 "menus.xrc"
+_("0.01");
+#line 2510 "menus.xrc"
+_("0.001");
+#line 2514 "menus.xrc"
+_("0.0001");
+#line 2519 "menus.xrc"
+_("Custom Inference");
+#line 2524 "menus.xrc"
+_("Save Results");
+#line 2528 "menus.xrc"
+_("Show As Conditional Map");
+#line 2532 "menus.xrc"
+_("Connectivity");
+#line 2534 "menus.xrc"
+_("Show Selection and Neighbors");
+#line 2538 "menus.xrc"
+_("Change Outline Color of Neighbors");
+#line 2541 "menus.xrc"
+_("Change Fill Color of Neighbors");
+#line 2545 "menus.xrc"
+_("Show Graph");
+#line 2549 "menus.xrc"
+_("Change Edge Thickness");
+#line 2551 "menus.xrc"
+_("Light");
+#line 2555 "menus.xrc"
+_("Normal");
+#line 2559 "menus.xrc"
+_("Strong");
+#line 2564 "menus.xrc"
+_("Change Edge Color");
+#line 2567 "menus.xrc"
+_("Hide Map");
+#line 2573 "menus.xrc"
+_("Select All...");
+#line 2575 "menus.xrc"
+_("Cores");
+#line 2578 "menus.xrc"
+_("Neighbors of Cores");
+#line 2581 "menus.xrc"
+_("Cores and Neighbors");
+#line 2586 "menus.xrc"
+_("Selection Shape");
+#line 2588 "menus.xrc"
+_("Rectangle");
+#line 2592 "menus.xrc"
+_("Circle");
+#line 2596 "menus.xrc"
+_("Line");
+#line 2601 "menus.xrc"
+_("Color");
+#line 2603 "menus.xrc"
+_("Outlines Visible");
+#line 2608 "menus.xrc"
+_("Selectable Fill Color");
+#line 2611 "menus.xrc"
+_("Background Color");
+#line 2615 "menus.xrc"
+_("Show Status Bar");
+#line 2620 "menus.xrc"
+_("Show Status Bar");
+#line 2627 "menus.xrc"
+_("Save Selection");
+#line 2630 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2633 "menus.xrc"
+_("Save Image As");
+#line 2635 "menus.xrc"
+_("Options");
+#line 2639 "menus.xrc"
+_("Save Results");
+#line 2643 "menus.xrc"
+_("Selection Shape");
+#line 2645 "menus.xrc"
+_("Rectangle");
+#line 2649 "menus.xrc"
+_("Circle");
+#line 2653 "menus.xrc"
+_("Line");
+#line 2658 "menus.xrc"
+_("Color");
+#line 2660 "menus.xrc"
+_("Outlines Visible");
+#line 2665 "menus.xrc"
+_("Selectable Fill Color");
+#line 2668 "menus.xrc"
+_("Background Color");
+#line 2672 "menus.xrc"
+_("Show Status Bar");
+#line 2679 "menus.xrc"
+_("Save Selection");
+#line 2682 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2685 "menus.xrc"
+_("Save Image As");
+#line 2687 "menus.xrc"
+_("Options");
+#line 2691 "menus.xrc"
+_("Randomization");
+#line 2693 "menus.xrc"
+_("99 Permutations");
+#line 2696 "menus.xrc"
+_("199 Permutations");
+#line 2699 "menus.xrc"
+_("499 Permutations");
+#line 2702 "menus.xrc"
+_("999 Permutations");
+#line 2705 "menus.xrc"
+_("Other (up to 99999)");
+#line 2709 "menus.xrc"
+_("Use Specified Seed");
+#line 2714 "menus.xrc"
+_("Specify Seed...");
+#line 2718 "menus.xrc"
+_("Significance Filter");
+#line 2720 "menus.xrc"
+_("0.05");
+#line 2724 "menus.xrc"
+_("0.01");
+#line 2728 "menus.xrc"
+_("0.001");
+#line 2732 "menus.xrc"
+_("0.0001");
+#line 2737 "menus.xrc"
+_("Custom Inference");
+#line 2742 "menus.xrc"
+_("Save Results");
+#line 2746 "menus.xrc"
+_("Show As Conditional Map");
+#line 2750 "menus.xrc"
+_("Connectivity");
+#line 2752 "menus.xrc"
+_("Show Selection and Neighbors");
+#line 2756 "menus.xrc"
+_("Change Outline Color of Neighbors");
+#line 2759 "menus.xrc"
+_("Change Fill Color of Neighbors");
+#line 2763 "menus.xrc"
+_("Show Graph");
+#line 2767 "menus.xrc"
+_("Change Edge Thickness");
+#line 2769 "menus.xrc"
+_("Light");
+#line 2773 "menus.xrc"
+_("Normal");
+#line 2777 "menus.xrc"
+_("Strong");
+#line 2782 "menus.xrc"
+_("Change Edge Color");
+#line 2785 "menus.xrc"
+_("Hide Map");
+#line 2791 "menus.xrc"
+_("Select All...");
+#line 2793 "menus.xrc"
+_("Cores");
+#line 2796 "menus.xrc"
+_("Neighbors of Cores");
+#line 2799 "menus.xrc"
+_("Cores and Neighbors");
+#line 2804 "menus.xrc"
+_("Selection Shape");
+#line 2806 "menus.xrc"
+_("Rectangle");
+#line 2810 "menus.xrc"
+_("Circle");
+#line 2814 "menus.xrc"
+_("Line");
+#line 2819 "menus.xrc"
+_("Color");
+#line 2821 "menus.xrc"
+_("Outlines Visible");
+#line 2826 "menus.xrc"
+_("Selectable Fill Color");
+#line 2829 "menus.xrc"
+_("Background Color");
+#line 2833 "menus.xrc"
+_("Show Status Bar");
+#line 2840 "menus.xrc"
+_("Save Selection");
+#line 2843 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2846 "menus.xrc"
+_("Save Image As");
+#line 2848 "menus.xrc"
+_("Options");
+#line 2853 "menus.xrc"
+_("Rectangle");
+#line 2858 "menus.xrc"
+_("Circle");
+#line 2862 "menus.xrc"
+_("Line");
+#line 2865 "menus.xrc"
+_("Selection Shape");
+#line 2868 "menus.xrc"
+_("View");
+#line 2870 "menus.xrc"
+_("Regimes Regression");
+#line 2875 "menus.xrc"
+_("Linear Smoother");
+#line 2880 "menus.xrc"
+_("LOWESS Smoother");
+#line 2885 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 2888 "menus.xrc"
+_("Show Axes Through Origin");
+#line 2894 "menus.xrc"
+_("Randomization");
+#line 2896 "menus.xrc"
+_("99 Permutations");
+#line 2900 "menus.xrc"
+_("199 Permutations");
+#line 2904 "menus.xrc"
+_("499 Permutations");
+#line 2908 "menus.xrc"
+_("999 Permutations");
+#line 2912 "menus.xrc"
+_("Other (up to 99999)");
+#line 2917 "menus.xrc"
+_("Use Specified Seed");
+#line 2922 "menus.xrc"
+_("Specify Seed...");
+#line 2927 "menus.xrc"
+_("Save Results");
+#line 2931 "menus.xrc"
+_("Color");
+#line 2933 "menus.xrc"
+_("Regression Line Color");
+#line 2936 "menus.xrc"
+_("Point Color");
+#line 2939 "menus.xrc"
+_("Background Color");
+#line 2943 "menus.xrc"
+_("Show Status Bar");
+#line 2950 "menus.xrc"
+_("Save Selection");
+#line 2953 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 2956 "menus.xrc"
+_("Save Image As");
+#line 2958 "menus.xrc"
+_("Options");
+#line 2962 "menus.xrc"
+_("Use Scientific Notation");
+#line 2966 "menus.xrc"
+_("Legend Background Color");
+#line 2969 "menus.xrc"
+_("Copy Legend To Clipboard");
+#line 2971 "menus.xrc"
+_("Options");
+#line 2976 "menus.xrc"
+_("Themeless");
+#line 2981 "menus.xrc"
+_("Quantile");
+#line 2983 "menus.xrc"
+_("2");
+#line 2987 "menus.xrc"
+_("3");
+#line 2991 "menus.xrc"
+_("4");
+#line 2995 "menus.xrc"
+_("5");
+#line 2999 "menus.xrc"
+_("6");
+#line 3003 "menus.xrc"
+_("7");
+#line 3007 "menus.xrc"
+_("8");
+#line 3011 "menus.xrc"
+_("9");
+#line 3015 "menus.xrc"
+_("10");
+#line 3021 "menus.xrc"
+_("Percentile");
+#line 3025 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 3029 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 3033 "menus.xrc"
+_("Standard Deviation");
+#line 3037 "menus.xrc"
+_("Unique Values");
+#line 3041 "menus.xrc"
+_("Co-location Map");
+#line 3045 "menus.xrc"
+_("Natural Breaks");
+#line 3047 "menus.xrc"
+_("2");
+#line 3051 "menus.xrc"
+_("3");
+#line 3055 "menus.xrc"
+_("4");
+#line 3059 "menus.xrc"
+_("5");
+#line 3063 "menus.xrc"
+_("6");
+#line 3067 "menus.xrc"
+_("7");
+#line 3071 "menus.xrc"
+_("8");
+#line 3075 "menus.xrc"
+_("9");
+#line 3079 "menus.xrc"
+_("10");
+#line 3085 "menus.xrc"
+_("Equal Intervals");
+#line 3087 "menus.xrc"
+_("2");
+#line 3091 "menus.xrc"
+_("3");
+#line 3095 "menus.xrc"
+_("4");
+#line 3099 "menus.xrc"
+_("5");
+#line 3103 "menus.xrc"
+_("6");
+#line 3107 "menus.xrc"
+_("7");
+#line 3111 "menus.xrc"
+_("8");
+#line 3115 "menus.xrc"
+_("9");
+#line 3119 "menus.xrc"
+_("10");
+#line 3124 "menus.xrc"
+_("Custom Breaks");
+#line 3126 "menus.xrc"
+_("Create New Custom");
+#line 3130 "menus.xrc"
+_("Change Current Map Type");
+#line 3133 "menus.xrc"
+_("Save Categories");
+#line 3137 "menus.xrc"
+_("Rates");
+#line 3139 "menus.xrc"
+_("Raw Rate");
+#line 3143 "menus.xrc"
+_("Excess Risk");
+#line 3147 "menus.xrc"
+_("Empirical Bayes");
+#line 3151 "menus.xrc"
+_("Spatial Rate");
+#line 3155 "menus.xrc"
+_("Spatial Empirical Bayes");
+#line 3160 "menus.xrc"
+_("Save Rates");
+#line 3164 "menus.xrc"
+_("Connectivity");
+#line 3166 "menus.xrc"
+_("Show Selection and Neighbors");
+#line 3170 "menus.xrc"
+_("Change Outline Color of Neighbors");
+#line 3173 "menus.xrc"
+_("Change Fill Color of Neighbors");
+#line 3177 "menus.xrc"
+_("Show Graph");
+#line 3181 "menus.xrc"
+_("Change Edge Thickness");
+#line 3183 "menus.xrc"
+_("Light");
+#line 3187 "menus.xrc"
+_("Normal");
+#line 3191 "menus.xrc"
+_("Strong");
+#line 3196 "menus.xrc"
+_("Change Edge Color");
+#line 3199 "menus.xrc"
+_("Hide Map");
+#line 3206 "menus.xrc"
+_("Add Mean Centers to Table");
+#line 3209 "menus.xrc"
+_("Add Centroids to Table");
+#line 3213 "menus.xrc"
+_("Display Mean Centers");
+#line 3218 "menus.xrc"
+_("Display Centroids");
+#line 3224 "menus.xrc"
+_("Save Mean Centers");
+#line 3228 "menus.xrc"
+_("Save Centroids");
+#line 3231 "menus.xrc"
+_("Shape Centers");
+#line 3235 "menus.xrc"
+_("Display Thiessen Polygons");
+#line 3240 "menus.xrc"
+_("Save Thiessen Polygons");
+#line 3244 "menus.xrc"
+_("Save Duplicate Thiessen Polygons to Table");
+#line 3247 "menus.xrc"
+_("Thiessen Polygons");
+#line 3251 "menus.xrc"
+_("Selection Shape");
+#line 3253 "menus.xrc"
+_("Rectangle");
+#line 3257 "menus.xrc"
+_("Circle");
+#line 3261 "menus.xrc"
+_("Line");
+#line 3266 "menus.xrc"
+_("Color");
+#line 3268 "menus.xrc"
+_("Outlines Visible");
+#line 3273 "menus.xrc"
+_("Background Color");
+#line 3277 "menus.xrc"
+_("Show Status Bar");
+#line 3284 "menus.xrc"
+_("Save Selection");
+#line 3287 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 3290 "menus.xrc"
+_("Save Image As");
+#line 3292 "menus.xrc"
+_("Options");
+#line 3296 "menus.xrc"
+_("Color");
+#line 3298 "menus.xrc"
+_("Outlines Visible");
+#line 3303 "menus.xrc"
+_("Map");
+#line 3306 "menus.xrc"
+_("Background");
+#line 3309 "menus.xrc"
+_("Options");
+#line 3314 "menus.xrc"
+_("Themeless");
+#line 3318 "menus.xrc"
+_("Quantile");
+#line 3320 "menus.xrc"
+_("2");
+#line 3324 "menus.xrc"
+_("3");
+#line 3328 "menus.xrc"
+_("4");
+#line 3332 "menus.xrc"
+_("5");
+#line 3336 "menus.xrc"
+_("6");
+#line 3340 "menus.xrc"
+_("7");
+#line 3344 "menus.xrc"
+_("8");
+#line 3348 "menus.xrc"
+_("9");
+#line 3352 "menus.xrc"
+_("10");
+#line 3357 "menus.xrc"
+_("Percentile");
+#line 3362 "menus.xrc"
+_("Hinge=1.5");
+#line 3366 "menus.xrc"
+_("Hinge=3.0");
+#line 3369 "menus.xrc"
+_("Boxplot Theme");
+#line 3372 "menus.xrc"
+_("Standard Deviation");
+#line 3376 "menus.xrc"
+_("Unique Values");
+#line 3380 "menus.xrc"
+_("Natural Breaks");
+#line 3382 "menus.xrc"
+_("2");
+#line 3386 "menus.xrc"
+_("3");
+#line 3390 "menus.xrc"
+_("4");
+#line 3394 "menus.xrc"
+_("5");
+#line 3398 "menus.xrc"
+_("6");
+#line 3402 "menus.xrc"
+_("7");
+#line 3406 "menus.xrc"
+_("8");
+#line 3410 "menus.xrc"
+_("9");
+#line 3414 "menus.xrc"
+_("10");
+#line 3420 "menus.xrc"
+_("Equal Intervals");
+#line 3422 "menus.xrc"
+_("2");
+#line 3426 "menus.xrc"
+_("3");
+#line 3430 "menus.xrc"
+_("4");
+#line 3434 "menus.xrc"
+_("5");
+#line 3438 "menus.xrc"
+_("6");
+#line 3442 "menus.xrc"
+_("7");
+#line 3446 "menus.xrc"
+_("8");
+#line 3450 "menus.xrc"
+_("9");
+#line 3454 "menus.xrc"
+_("10");
+#line 3459 "menus.xrc"
+_("Custom Breaks");
+#line 3461 "menus.xrc"
+_("Create New Custom");
+#line 3465 "menus.xrc"
+_("Classification Themes");
+#line 3468 "menus.xrc"
+_("Save Categories");
+#line 3472 "menus.xrc"
+_("Data");
+#line 3475 "menus.xrc"
+_("View Standardized Data");
+#line 3479 "menus.xrc"
+_("View Original Data");
+#line 3485 "menus.xrc"
+_("Display");
+#line 3488 "menus.xrc"
+_("Statistics");
+#line 3493 "menus.xrc"
+_("Status Bar");
+#line 3501 "menus.xrc"
+_("Selection Shape");
+#line 3503 "menus.xrc"
+_("Rectangle");
+#line 3507 "menus.xrc"
+_("Circle");
+#line 3511 "menus.xrc"
+_("Line");
+#line 3516 "menus.xrc"
+_("Color");
+#line 3518 "menus.xrc"
+_("Background Color");
+#line 3524 "menus.xrc"
+_("Save Selection");
+#line 3527 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 3530 "menus.xrc"
+_("Save Image As");
+#line 3532 "menus.xrc"
+_("Options");
+#line 3536 "menus.xrc"
+_("Fixed scale over time");
+#line 3541 "menus.xrc"
+_("Axis Option");
+#line 3543 "menus.xrc"
+_("Enable User Defined Value Range of Y-Axis");
+#line 3548 "menus.xrc"
+_("Adjust Value Range of Y-Axis");
+#line 3554 "menus.xrc"
+_("Set Display Precision of Y-Axis");
+#line 3599 "menus.xrc"
+_("Options");
+#line 3603 "menus.xrc"
+_("Add/Remove Variables");
+#line 3607 "menus.xrc"
+_("Selection Shape");
+#line 3609 "menus.xrc"
+_("Rectangle");
+#line 3613 "menus.xrc"
+_("Circle");
+#line 3617 "menus.xrc"
+_("Line");
+#line 3623 "menus.xrc"
+_("Data");
+#line 3625 "menus.xrc"
+_("View Standardized Data");
+#line 3629 "menus.xrc"
+_("View Original Data");
+#line 3635 "menus.xrc"
+_("Smoother");
+#line 3637 "menus.xrc"
+_("Show Linear Smoother");
+#line 3642 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 3647 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 3652 "menus.xrc"
+_("View");
+#line 3654 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 3657 "menus.xrc"
+_("Regimes Regression");
+#line 3662 "menus.xrc"
+_("Display Slope Values");
+#line 3669 "menus.xrc"
+_("Color");
+#line 3671 "menus.xrc"
+_("Regression Line Color");
+#line 3674 "menus.xrc"
+_("Point Color");
+#line 3678 "menus.xrc"
+_("Options");
+#line 3682 "menus.xrc"
+_("Change Parameters");
+#line 3686 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 3690 "menus.xrc"
+_("Display Statistics");
+#line 3695 "menus.xrc"
+_("Show Status Bar");
+#line 3700 "menus.xrc"
+_("Save Results");
+#line 3703 "menus.xrc"
+_("Options");
+#line 3707 "menus.xrc"
+_("Selection Shape");
+#line 3709 "menus.xrc"
+_("Rectangle");
+#line 3714 "menus.xrc"
+_("Circle");
+#line 3718 "menus.xrc"
+_("Line");
+#line 3723 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 3728 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 3732 "menus.xrc"
+_("Regimes Regression");
+#line 3738 "menus.xrc"
+_("Color");
+#line 3740 "menus.xrc"
+_("Curve Color");
+#line 3743 "menus.xrc"
+_("Point Color");
+#line 3747 "menus.xrc"
+_("Show Status Bar");
+#line 3751 "menus.xrc"
+_("Options");
+#line 3755 "menus.xrc"
+_("Selection Shape");
+#line 3757 "menus.xrc"
+_("Rectangle");
+#line 3762 "menus.xrc"
+_("Circle");
+#line 3766 "menus.xrc"
+_("Line");
+#line 3771 "menus.xrc"
+_("Data");
+#line 3773 "menus.xrc"
+_("View Standardized Data");
+#line 3777 "menus.xrc"
+_("View Original Data");
+#line 3783 "menus.xrc"
+_("Smoother");
+#line 3785 "menus.xrc"
+_("Show Linear Smoother");
+#line 3790 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 3795 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 3800 "menus.xrc"
+_("View");
+#line 3802 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 3805 "menus.xrc"
+_("Fixed Aspect Ratio Mode");
+#line 3809 "menus.xrc"
+_("Regimes Regression");
+#line 3814 "menus.xrc"
+_("Statistics");
+#line 3819 "menus.xrc"
+_("Axes Through Origin");
+#line 3824 "menus.xrc"
+_("Status Bar");
+#line 3831 "menus.xrc"
+_("Color");
+#line 3833 "menus.xrc"
+_("Regression Line Color");
+#line 3836 "menus.xrc"
+_("Point Color");
+#line 3839 "menus.xrc"
+_("Background Color");
+#line 3846 "menus.xrc"
+_("Save Selection");
+#line 3849 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 3852 "menus.xrc"
+_("Save Image As");
+#line 3854 "menus.xrc"
+_("Options");
+#line 3859 "menus.xrc"
+_("Themeless");
+#line 3863 "menus.xrc"
+_("Quantile");
+#line 3865 "menus.xrc"
+_("2");
+#line 3869 "menus.xrc"
+_("3");
+#line 3873 "menus.xrc"
+_("4");
+#line 3877 "menus.xrc"
+_("5");
+#line 3881 "menus.xrc"
+_("6");
+#line 3885 "menus.xrc"
+_("7");
+#line 3889 "menus.xrc"
+_("8");
+#line 3893 "menus.xrc"
+_("9");
+#line 3897 "menus.xrc"
+_("10");
+#line 3902 "menus.xrc"
+_("Percentile");
+#line 3907 "menus.xrc"
+_("Hinge=1.5");
+#line 3911 "menus.xrc"
+_("Hinge=3.0");
+#line 3914 "menus.xrc"
+_("Boxplot Theme");
+#line 3917 "menus.xrc"
+_("Standard Deviation");
+#line 3921 "menus.xrc"
+_("Unique Values");
+#line 3925 "menus.xrc"
+_("Natural Breaks");
+#line 3927 "menus.xrc"
+_("2");
+#line 3931 "menus.xrc"
+_("3");
+#line 3935 "menus.xrc"
+_("4");
+#line 3939 "menus.xrc"
+_("5");
+#line 3943 "menus.xrc"
+_("6");
+#line 3947 "menus.xrc"
+_("7");
+#line 3951 "menus.xrc"
+_("8");
+#line 3955 "menus.xrc"
+_("9");
+#line 3959 "menus.xrc"
+_("10");
+#line 3965 "menus.xrc"
+_("Equal Intervals");
+#line 3967 "menus.xrc"
+_("2");
+#line 3971 "menus.xrc"
+_("3");
+#line 3975 "menus.xrc"
+_("4");
+#line 3979 "menus.xrc"
+_("5");
+#line 3983 "menus.xrc"
+_("6");
+#line 3987 "menus.xrc"
+_("7");
+#line 3991 "menus.xrc"
+_("8");
+#line 3995 "menus.xrc"
+_("9");
+#line 3999 "menus.xrc"
+_("10");
+#line 4004 "menus.xrc"
+_("Custom Breaks");
+#line 4006 "menus.xrc"
+_("Create New Custom");
+#line 4010 "menus.xrc"
+_("Classification Themes");
+#line 4013 "menus.xrc"
+_("Save Categories");
+#line 4017 "menus.xrc"
+_("Selection Shape");
+#line 4019 "menus.xrc"
+_("Rectangle");
+#line 4024 "menus.xrc"
+_("Circle");
+#line 4028 "menus.xrc"
+_("Line");
+#line 4033 "menus.xrc"
+_("View");
+#line 4035 "menus.xrc"
+_("Set Display Precision on Axes");
+#line 4038 "menus.xrc"
+_("View Standardized Data");
+#line 4042 "menus.xrc"
+_("View Original Data");
+#line 4047 "menus.xrc"
+_("Show Axes Through Origin");
+#line 4054 "menus.xrc"
+_("Color");
+#line 4056 "menus.xrc"
+_("Outlines Visible");
+#line 4061 "menus.xrc"
+_("Background Color");
+#line 4065 "menus.xrc"
+_("Show Status Bar");
+#line 4072 "menus.xrc"
+_("Save Selection");
+#line 4075 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 4078 "menus.xrc"
+_("Save Image As");
+#line 4080 "menus.xrc"
+_("Options");
+#line 4083 "menus.xrc"
+_("Options");
+#line 4085 "menus.xrc"
+_("View Standardized Data");
+#line 4089 "menus.xrc"
+_("View Original Data");
+#line 4093 "menus.xrc"
+_("Show Linear Smoother");
+#line 4098 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 4103 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 4106 "menus.xrc"
+_("Regimes Regression");
+#line 4112 "menus.xrc"
+_("Background Color");
+#line 4115 "menus.xrc"
+_("Show Status Bar");
+#line 4122 "menus.xrc"
+_("Save Selection");
+#line 4125 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 4128 "menus.xrc"
+_("Save Image As");
+#line 4133 "menus.xrc"
+_("View Standardized Data");
+#line 4137 "menus.xrc"
+_("View Original Data");
+#line 4141 "menus.xrc"
+_("Show Linear Smoother");
+#line 4146 "menus.xrc"
+_("Show LOWESS Smoother");
+#line 4151 "menus.xrc"
+_("Edit LOWESS Parameters");
+#line 4154 "menus.xrc"
+_("Regimes Regression");
+#line 4160 "menus.xrc"
+_("Background");
+#line 4163 "menus.xrc"
+_("Show Status Bar");
+#line 4170 "menus.xrc"
+_("Save Selection");
+#line 4173 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 4176 "menus.xrc"
+_("Save Image As");
+#line 4178 "menus.xrc"
+_("Options");
+#line 4182 "menus.xrc"
+_("Aggregate");
+#line 4185 "menus.xrc"
+_("Merge");
+#line 4189 "menus.xrc"
+_("Geocode");
+#line 4192 "menus.xrc"
+_("Points from Table");
+#line 4196 "menus.xrc"
+_("Selection Tool");
+#line 4199 "menus.xrc"
+_("Invert Selection");
+#line 4202 "menus.xrc"
+_("Clear Selection");
+#line 4205 "menus.xrc"
+_("Save Selection");
+#line 4208 "menus.xrc"
+_("Move Selected to Top");
+#line 4212 "menus.xrc"
+_("Calculator");
+#line 4216 "menus.xrc"
+_("Add Variable");
+#line 4219 "menus.xrc"
+_("Delete Variable(s)");
+#line 4222 "menus.xrc"
+_("Rename Variable");
+#line 4225 "menus.xrc"
+_("Edit Variable Properties");
+#line 4263 "menus.xrc"
+_("Encode");
+#line 4265 "menus.xrc"
+_("Unicode (UTF-8)");
+#line 4269 "menus.xrc"
+_("Unicode (UTF-16LE)");
+#line 4274 "menus.xrc"
+_("Arabic (Windows-1256)");
+#line 4278 "menus.xrc"
+_("Central European Latin-2 (ISO-8859-2)");
+#line 4282 "menus.xrc"
+_("Central European (Windows-1250)");
+#line 4286 "menus.xrc"
+_("Central European (CP852)");
+#line 4290 "menus.xrc"
+_("Chinese Simplified (GB2312)");
+#line 4294 "menus.xrc"
+_("Chinese Traditional (Big5)");
+#line 4298 "menus.xrc"
+_("Cyrillic (ISO-8859-5)");
+#line 4302 "menus.xrc"
+_("Cyrillic (KOI8-R)");
+#line 4306 "menus.xrc"
+_("Cyrillic (Windows-1251)");
+#line 4310 "menus.xrc"
+_("Cyrillic/Russian (CP866)");
+#line 4314 "menus.xrc"
+_("Greek (ISO-8859-7)");
+#line 4318 "menus.xrc"
+_("Hebrew (ISO-8859-8-1)");
+#line 4322 "menus.xrc"
+_("Hebrew (Windows-1255)");
+#line 4326 "menus.xrc"
+_("Japanese (Shift&JIS)");
+#line 4330 "menus.xrc"
+_("Japanese (EUC-JP)");
+#line 4334 "menus.xrc"
+_("Korean (EUC-KR)");
+#line 4338 "menus.xrc"
+_("Nordic Latin-6 (ISO-8859-10)");
+#line 4342 "menus.xrc"
+_("South European Latin-3 (ISO-8859-3)");
+#line 4346 "menus.xrc"
+_("Turkish Latin-5 (ISO-8859-9)");
+#line 4350 "menus.xrc"
+_("Turkish (Windows-1254)");
+#line 4354 "menus.xrc"
+_("Vietnamese (Windows-1258)");
+#line 4358 "menus.xrc"
+_("West European Latin-1 (ISO-8859-1)");
+#line 4362 "menus.xrc"
+_("West European Latin-9 (ISO-8859-15)");
+#line 4367 "menus.xrc"
+_("Set Number Separators");
+#line 4369 "menus.xrc"
+_("Table");
+#line 4373 "menus.xrc"
+_("Change Font");
+#line 4375 "menus.xrc"
+_("Options");
+#line 4379 "menus.xrc"
+_("Selection Shape");
+#line 4381 "menus.xrc"
+_("Rectangle");
+#line 4385 "menus.xrc"
+_("Circle");
+#line 4389 "menus.xrc"
+_("Line");
+#line 4394 "menus.xrc"
+_("Color");
+#line 4396 "menus.xrc"
+_("Outlines Visible");
+#line 4401 "menus.xrc"
+_("Selectable Fill Color");
+#line 4404 "menus.xrc"
+_("Background Color");
+#line 4408 "menus.xrc"
+_("Show Status Bar");
+#line 4415 "menus.xrc"
+_("Save Selection");
+#line 4418 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 4421 "menus.xrc"
+_("Save Image As");
+#line 4423 "menus.xrc"
+_("Options");
+#line 4427 "menus.xrc"
+_("Color");
+#line 4429 "menus.xrc"
+_("Outlines Visible");
+#line 4434 "menus.xrc"
+_("Selectable Fill Color");
+#line 4437 "menus.xrc"
+_("Background Color");
+#line 4441 "menus.xrc"
+_("Show Status Bar");
+#line 4448 "menus.xrc"
+_("Save Selection");
+#line 4451 "menus.xrc"
+_("Copy Image To Clipboard");
+#line 4454 "menus.xrc"
+_("Save Image As");
+#line 4456 "menus.xrc"
+_("Options");
+#line 4459 "menus.xrc"
+_("Conditional Plot");
+#line 4461 "menus.xrc"
+_("Map");
+#line 4464 "menus.xrc"
+_("Histogram");
+#line 4467 "menus.xrc"
+_("Scatter Plot");
+#line 4471 "menus.xrc"
+_("Clusters");
+#line 4473 "menus.xrc"
+_("PCA");
+#line 4476 "menus.xrc"
+_("MDS");
+#line 4480 "menus.xrc"
+_("K Means");
+#line 4483 "menus.xrc"
+_("K Medians");
+#line 4486 "menus.xrc"
+_("K Medoids");
+#line 4489 "menus.xrc"
+_("Spectral");
+#line 4492 "menus.xrc"
+_("Hierarchical");
+#line 4496 "menus.xrc"
+_("skater");
+#line 4499 "menus.xrc"
+_("redcap");
+#line 4502 "menus.xrc"
+_("max-p");
+#line 4506 "menus.xrc"
+_("Moran Scatter Plot");
+#line 4508 "menus.xrc"
+_("Univariate Moran's I");
+#line 4511 "menus.xrc"
+_("Bivariate Moran's I");
+#line 4514 "menus.xrc"
+_("Differential Moran's I");
+#line 4517 "menus.xrc"
+_("Moran's I with EB Rate");
+#line 4521 "menus.xrc"
+_("Local Moran's I Maps");
+#line 4523 "menus.xrc"
+_("Univariate Local Moran's I");
+#line 4526 "menus.xrc"
+_("Bivariate Local Moran's I");
+#line 4529 "menus.xrc"
+_("Differential Local Moran's I");
+#line 4532 "menus.xrc"
+_("Local Moran's I with EB Rate");
+#line 4535 "menus.xrc"
+_("Local G Maps");
+#line 4537 "menus.xrc"
+_("Local G");
+#line 4540 "menus.xrc"
+_("Local G*");
+#line 4544 "menus.xrc"
+_("Univariate Local Join Count");
+#line 4547 "menus.xrc"
+_("Bivariate Local Join Count");
+#line 4550 "menus.xrc"
+_("Local Geary Maps");
+#line 4552 "menus.xrc"
+_("Univariate Local Geary");
+#line 4555 "menus.xrc"
+_("Multivariate Local Geary");
+#line 4560 "menus.xrc"
+_("Local G Maps");
+#line 4562 "menus.xrc"
+_("Local G");
+#line 4565 "menus.xrc"
+_("Local G*");
+#line 4569 "menus.xrc"
+_("Univariate Local Join Count");
+#line 4572 "menus.xrc"
+_("Bivariate Local Join Count");
+#line 4577 "menus.xrc"
+_("Themeless Map");
+#line 4580 "menus.xrc"
+_("Quantile Map");
+#line 4582 "menus.xrc"
+_("2");
+#line 4585 "menus.xrc"
+_("3");
+#line 4588 "menus.xrc"
+_("4");
+#line 4591 "menus.xrc"
+_("5");
+#line 4594 "menus.xrc"
+_("6");
+#line 4597 "menus.xrc"
+_("7");
+#line 4600 "menus.xrc"
+_("8");
+#line 4603 "menus.xrc"
+_("9");
+#line 4606 "menus.xrc"
+_("10");
+#line 4610 "menus.xrc"
+_("Percentile Map");
+#line 4613 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 4616 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 4619 "menus.xrc"
+_("Standard Deviation Map");
+#line 4622 "menus.xrc"
+_("Unique Values Map");
+#line 4625 "menus.xrc"
+_("Co-location Map");
+#line 4629 "menus.xrc"
+_("Natural Breaks Map");
+#line 4631 "menus.xrc"
+_("2");
+#line 4634 "menus.xrc"
+_("3");
+#line 4637 "menus.xrc"
+_("4");
+#line 4640 "menus.xrc"
+_("5");
+#line 4643 "menus.xrc"
+_("6");
+#line 4646 "menus.xrc"
+_("7");
+#line 4649 "menus.xrc"
+_("8");
+#line 4652 "menus.xrc"
+_("9");
+#line 4655 "menus.xrc"
+_("10");
+#line 4659 "menus.xrc"
+_("Equal Intervals Map");
+#line 4661 "menus.xrc"
+_("2");
+#line 4664 "menus.xrc"
+_("3");
+#line 4667 "menus.xrc"
+_("4");
+#line 4670 "menus.xrc"
+_("5");
+#line 4673 "menus.xrc"
+_("6");
+#line 4676 "menus.xrc"
+_("7");
+#line 4679 "menus.xrc"
+_("8");
+#line 4682 "menus.xrc"
+_("9");
+#line 4685 "menus.xrc"
+_("10");
+#line 4689 "menus.xrc"
+_("Custom Breaks");
+#line 4691 "menus.xrc"
+_("Create New Custom");
+#line 4698 "menus.xrc"
+_("Raw Rate");
+#line 4701 "menus.xrc"
+_("Excess Risk");
+#line 4704 "menus.xrc"
+_("Empirical Bayes");
+#line 4707 "menus.xrc"
+_("Spatial Rate");
+#line 4710 "menus.xrc"
+_("Spatial Empirical Bayes");
+#line 4712 "menus.xrc"
+_("Rates-Calculated Maps");
+#line 4714 "menus.xrc"
+_("Options");
+#line 4718 "menus.xrc"
+_("Themeless Map");
+#line 4721 "menus.xrc"
+_("Quantile Map");
+#line 4723 "menus.xrc"
+_("2");
+#line 4726 "menus.xrc"
+_("3");
+#line 4729 "menus.xrc"
+_("4");
+#line 4732 "menus.xrc"
+_("5");
+#line 4735 "menus.xrc"
+_("6");
+#line 4738 "menus.xrc"
+_("7");
+#line 4741 "menus.xrc"
+_("8");
+#line 4744 "menus.xrc"
+_("9");
+#line 4747 "menus.xrc"
+_("10");
+#line 4751 "menus.xrc"
+_("Percentile Map");
+#line 4754 "menus.xrc"
+_("Box Map (Hinge=1.5)");
+#line 4757 "menus.xrc"
+_("Box Map (Hinge=3.0)");
+#line 4760 "menus.xrc"
+_("Standard Deviation Map");
+#line 4763 "menus.xrc"
+_("Unique Values Map");
+#line 4766 "menus.xrc"
+_("Co-location Map");
+#line 4769 "menus.xrc"
+_("Natural Breaks Map");
+#line 4771 "menus.xrc"
+_("2");
+#line 4774 "menus.xrc"
+_("3");
+#line 4777 "menus.xrc"
+_("4");
+#line 4780 "menus.xrc"
+_("5");
+#line 4783 "menus.xrc"
+_("6");
+#line 4786 "menus.xrc"
+_("7");
+#line 4789 "menus.xrc"
+_("8");
+#line 4792 "menus.xrc"
+_("9");
+#line 4795 "menus.xrc"
+_("10");
+#line 4799 "menus.xrc"
+_("Equal Intervals Map");
+#line 4801 "menus.xrc"
+_("2");
+#line 4804 "menus.xrc"
+_("3");
+#line 4807 "menus.xrc"
+_("4");
+#line 4810 "menus.xrc"
+_("5");
+#line 4813 "menus.xrc"
+_("6");
+#line 4816 "menus.xrc"
+_("7");
+#line 4819 "menus.xrc"
+_("8");
+#line 4822 "menus.xrc"
+_("9");
+#line 4825 "menus.xrc"
+_("10");
+#line 4829 "menus.xrc"
+_("Custom Breaks");
+#line 4831 "menus.xrc"
+_("Create New Custom");
+#line 4837 "menus.xrc"
+_("Raw Rate");
+#line 4840 "menus.xrc"
+_("Excess Risk");
+#line 4843 "menus.xrc"
+_("Empirical Bayes");
+#line 4846 "menus.xrc"
+_("Spatial Rate");
+#line 4849 "menus.xrc"
+_("Spatial Empirical Bayes");
+#line 4851 "menus.xrc"
+_("Rates-Calculated Maps");
+#line 4853 "menus.xrc"
+_("Options");
+#line 4857 "menus.xrc"
+_("ESRI Shapefile (*.shp)|*.shp");
+#line 4860 "menus.xrc"
+_("ESRI File Geodatabase (*.gdb)|*.gdb");
+#line 4863 "menus.xrc"
+_("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
+#line 4866 "menus.xrc"
+_("GeoPackage (*.gpkg)|*.gpkg");
+#line 4869 "menus.xrc"
+_("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
+#line 4872 "menus.xrc"
+_("ESRI Personal Geodatabase (*.mdb)|*.mdb");
+#line 4875 "menus.xrc"
+_("Geography Markup Language (*.gml)|*.gml");
+#line 4878 "menus.xrc"
+_("Keyhole Markup Language (*.kml)|*.kml");
+#line 4881 "menus.xrc"
+_("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid");
+#line 4885 "menus.xrc"
+_("dBase Database File (*.dbf)|*.dbf");
+#line 4888 "menus.xrc"
+_("Comma Separated Value (*.csv)|*.csv");
+#line 4891 "menus.xrc"
+_("MS Excel (*.xls)|*.xls");
+#line 4894 "menus.xrc"
+_("Open Document Spreadsheet (*.ods)|*.ods");
+#line 4898 "menus.xrc"
+_("GeoDa Project File (*.gda)|*.gda");

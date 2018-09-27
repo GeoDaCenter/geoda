@@ -26,11 +26,446 @@
 #include <wx/dc.h>
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
+#include <wx/regex.h>
 #include "GdaConst.h"
 #include "GenUtils.h"
+#include "Explore/CatClassification.h"
 
 using namespace std;
 
+int StringUtils::utf8_strlen(const string& str)
+{
+    int c,i,ix,q;
+    for (q=0, i=0, ix=str.length(); i < ix; i++, q++)
+    {
+        c = (unsigned char) str[i];
+        if      (c>=0   && c<=127) i+=0;
+        else if ((c & 0xE0) == 0xC0) i+=1;
+        else if ((c & 0xF0) == 0xE0) i+=2;
+        else if ((c & 0xF8) == 0xF0) i+=3;
+        //else if (($c & 0xFC) == 0xF8) i+=4; // 111110bb //byte 5, unnecessary in 4 byte UTF-8
+        //else if (($c & 0xFE) == 0xFC) i+=5; // 1111110b //byte 6, unnecessary in 4 byte UTF-8
+        else return 0;//invalid utf8
+    }
+    return q;
+}
+
+void DbfFileUtils::SuggestDoubleParams(int length, int decimals,
+                                       int* suggest_len, int* suggest_dec)
+{
+    // doubles have 52 bits for the mantissa, so we can allow at most
+    // floor(log(2^52)) = 15 digits of precision.
+    // We require that there length-2 >= decimals to allow for "x." . when
+    // writing to disk, and when decimals = 15, require length >= 17 to
+    // allow for "0." prefex. If length-2 == decimals, then negative numbers
+    // are not allowed since there is not room for the "-0." prefix.
+    if (GdaConst::max_dbf_double_len < length) {
+        length = GdaConst::max_dbf_double_len;
+    }
+    if (length < 3) length = 3;
+    if (decimals < 1) decimals = 1;
+    if (decimals > 15) decimals = 15;
+    if (length-2 < decimals) length = decimals + 2;
+    
+    *suggest_len = length;
+    *suggest_dec = decimals;
+}
+
+double DbfFileUtils::GetMaxDouble(int length, int decimals,
+                                  int* suggest_len, int* suggest_dec)
+{
+    // make sure that length and decimals have legal values
+    SuggestDoubleParams(length, decimals, &length, &decimals);
+    
+    int len_inter = length - (1+decimals);
+    if (len_inter + decimals > 15) len_inter = 15-decimals;
+    double r = 0;
+    for (int i=0; i<len_inter+decimals; i++) r = r*10 + 9;
+    for (int i=0; i<decimals; i++) r /= 10;
+    
+    if (suggest_len) *suggest_len = length;
+    if (suggest_dec) *suggest_dec = decimals;
+    return r;
+}
+
+wxString DbfFileUtils::GetMaxDoubleString(int length, int decimals)
+{
+    double x = GetMaxDouble(length, decimals, &length, &decimals);
+    return wxString::Format("%.*f", decimals, x);
+}
+
+double DbfFileUtils::GetMinDouble(int length, int decimals,
+                                  int* suggest_len, int* suggest_dec)
+{
+    SuggestDoubleParams(length, decimals, &length, &decimals);
+    if (length-2 == decimals) return 0;
+    if (suggest_len) *suggest_len = length;
+    if (suggest_dec) *suggest_dec = decimals;
+    return -DbfFileUtils::GetMaxDouble(length-1, decimals);
+}
+
+wxString DbfFileUtils::GetMinDoubleString(int length, int decimals)
+{
+    double x = GetMinDouble(length, decimals, &length, &decimals);
+    if (length-2 == decimals) {
+        wxString s("0.");
+        for (int i=0; i<decimals; i++) s += "0";
+        return s;
+    }
+    return wxString::Format("%.*f", decimals, x);
+}
+
+wxInt64 DbfFileUtils::GetMaxInt(int length)
+{
+    // We want to allow the user to enter a string of
+    // all 9s for the largest value reported.  So, we must
+    // limit the length of the string to be floor(log(2^63)) = 18
+    if (length < 1) return 0;
+    if (length > 18) length = 18;
+    wxInt64 r=0;
+    for (int i=0; i<length; i++) r = r*10 + 9;
+    return r;
+}
+
+wxString DbfFileUtils::GetMaxIntString(int length)
+{
+    return wxString::Format("%lld", GetMaxInt(length));
+}
+
+wxInt64 DbfFileUtils::GetMinInt(int length)
+{
+    // This is generally the -GetMaxInt(length-1), because we must
+    // allow one character for the minus sign unless the length
+    // is greater than 18;
+    if (length > 19) length = 19;
+    return -GetMaxInt(length-1);
+}
+
+wxString DbfFileUtils::GetMinIntString(int length)
+{
+    return wxString::Format("%lld", GetMinInt(length));
+}
+
+wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
+{
+    // input s could be sth. like: %Y-%m-%d %H:%M:%S
+    // 2015-1-11 13:57:24 %Y-%m-%d %H:%M:%S
+    wxString YY = "([0-9]{4})";
+    wxString yy = "([0-9]{2})";
+    wxString MM = "([0-9]{1,2})";//"(0?[1-9]|1[0-2])";
+    wxString DD = "([0-9]{1,2})";//"(0?[1-9]|[12][0-9]|3[01])";
+    wxString hh = "([0-9]{1,2})";//"(00|[0-9]|1[0-9]|2[0-3])";
+    wxString mm = "([0-9]{1,2})";//"([0-9]|[0-5][0-9])";
+    wxString ss = "([0-9]{1,2})"; //"([0-9]|[0-5][0-9])";
+    wxString pp = "([AP]M)"; //"(AM | PM)";
+
+    wxString pattern;
+    wxString original_pattern;
+    for (int i=0; i<GdaConst::gda_datetime_formats.size(); i++) {
+        original_pattern = GdaConst::gda_datetime_formats[i];
+        wxString select_pattern = original_pattern;
+        select_pattern.Replace("%Y", YY);
+        select_pattern.Replace("%y", yy);
+        select_pattern.Replace("%m", MM);
+        select_pattern.Replace("%d", DD);
+        select_pattern.Replace("%H", hh);
+        select_pattern.Replace("%M", mm);
+        select_pattern.Replace("%S", ss);
+        select_pattern.Replace("%p", pp);
+      
+        select_pattern = "^" + select_pattern + "$";
+        
+        wxRegEx regex(select_pattern);
+        if (regex.IsValid()) {
+            if (regex.Matches(s)) {
+                if (regex.GetMatchCount()>0) {
+                    pattern = select_pattern;
+                    break;
+                }
+            }
+        }
+    }
+   
+    if (!pattern.IsEmpty()){
+        wxString select_pattern = original_pattern;
+        wxRegEx regex("(%[YymdHMSp])");
+        while (regex.Matches(select_pattern) ) {
+            size_t start, len;
+            regex.GetMatch(&start, &len, 0);
+            date_items.push_back(regex.GetMatch(select_pattern, 1));
+            select_pattern = select_pattern.Mid (start + len);
+        }
+    }
+    return pattern;
+}
+
+// wxRegEx regex
+// regex.Compile(pattern);
+unsigned long long Gda::DateToNumber(wxString s_date, wxRegEx& regex, vector<wxString>& date_items)
+{
+    unsigned long long val = 0;
+        
+    if (regex.Matches(s_date)) {
+        int n = regex.GetMatchCount();
+        wxString _year, _short_year, _month, _day, _hour, _minute, _second, _am_pm;
+        long _l_year =0,  _l_short_year=0, _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
+        for (int i=1; i<n; i++) {
+            if (date_items[i-1] == "%Y") {
+                _year = regex.GetMatch(s_date, i);
+                _year.ToLong(&_l_year);
+            } else if (date_items[i-1] == "%y") {
+                _short_year = regex.GetMatch(s_date, i);
+                if( _short_year.ToLong(&_l_short_year)) {
+                    _l_year = _l_short_year < 50 ? 2000 + _l_short_year : 1900 + _l_short_year;
+                }
+            } else if (date_items[i-1] == "%m") {
+                _month = regex.GetMatch(s_date, i);
+                _month.ToLong(&_l_month);
+            } else if (date_items[i-1] == "%d") {
+                _day = regex.GetMatch(s_date, i);
+                _day.ToLong(&_l_day);
+            } else if (date_items[i-1] == "%H") {
+                _hour = regex.GetMatch(s_date, i);
+                _hour.ToLong(&_l_hour);
+            } else if (date_items[i-1] == "%M") {
+                _minute = regex.GetMatch(s_date, i);
+                _minute.ToLong(&_l_minute);
+            } else if (date_items[i-1] == "%S") {
+                _second = regex.GetMatch(s_date, i);
+                _second.ToLong(&_l_second);
+            } else if (date_items[i-1] == "%p") {
+                _am_pm = regex.GetMatch(s_date, i);
+            }
+        }
+        if (!_am_pm.IsEmpty()) {
+            if (_am_pm.CmpNoCase("AM")) {
+                
+            } else if (_am_pm.CmpNoCase("PM")) {
+                _l_hour += 12;
+            }
+        }
+        val = _l_year * 10000000000 + _l_month * 100000000 + _l_day * 1000000 + _l_hour * 10000 + _l_minute * 100 + _l_second;
+        
+    }
+    return val;
+}
+
+void GdaColorUtils::GetUnique20Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(166,206,227));
+    colors.push_back(wxColour(31,120,180));
+    colors.push_back(wxColour(178,223,138));
+    colors.push_back(wxColour(51,160,44));
+    colors.push_back(wxColour(251,154,153));
+    colors.push_back(wxColour(227,26,28));
+    colors.push_back(wxColour(253,191,111));
+    colors.push_back(wxColour(255,127,0));
+    colors.push_back(wxColour(106,61,154));
+    colors.push_back(wxColour(255,255,153));
+    colors.push_back(wxColour(177,89,40));
+    colors.push_back(wxColour(255,255,179));
+    colors.push_back(wxColour(190,186,218));
+    colors.push_back(wxColour(251,128,114));
+    colors.push_back(wxColour(128,177,211));
+    colors.push_back(wxColour(179,222,105));
+    colors.push_back(wxColour(252,205,229));
+    colors.push_back(wxColour(217,217,217));
+    colors.push_back(wxColour(188,128,189));
+    colors.push_back(wxColour(204,235,197));
+};
+
+void GdaColorUtils::GetLISAColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
+    colors.push_back(wxColour(255, 0, 0));
+    colors.push_back(wxColour(0, 0, 255));
+    colors.push_back(wxColour(150, 150, 255));
+    colors.push_back(wxColour(255, 150, 150));
+}
+
+void GdaColorUtils::GetLISAColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+    labels.push_back(GdaConst::gda_lbl_lowhigh);
+    labels.push_back(GdaConst::gda_lbl_highlow);
+}
+
+void GdaColorUtils::GetLocalGColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
+    colors.push_back(wxColour(255, 0, 0));
+    colors.push_back(wxColour(0, 0, 255));
+}
+void GdaColorUtils::GetLocalGColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+}
+
+void GdaColorUtils::GetLocalJoinCountColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
+    colors.push_back(wxColour(255, 0, 0));
+}
+void GdaColorUtils::GetLocalJoinCountColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
+}
+
+void GdaColorUtils::GetLocalGearyColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
+    colors.push_back(wxColour(178,24,43));
+    colors.push_back(wxColour(239,138,98));
+    colors.push_back(wxColour(253,219,199));
+    colors.push_back(wxColour(103,173,199));
+}
+void GdaColorUtils::GetLocalGearyColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_highhigh);
+    labels.push_back(GdaConst::gda_lbl_lowlow);
+    labels.push_back(GdaConst::gda_lbl_otherpos);
+    labels.push_back(GdaConst::gda_lbl_negative);
+}
+
+void GdaColorUtils::GetMultiLocalGearyColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    colors.push_back(wxColour(240, 240, 240));
+    colors.push_back(wxColour(51,110,161));
+}
+void GdaColorUtils::GetMultiLocalGearyColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_not_sig);
+    labels.push_back(GdaConst::gda_lbl_positive);
+}
+
+void GdaColorUtils::GetPercentileColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
+void GdaColorUtils::GetPercentileColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_1p);
+    labels.push_back(GdaConst::gda_lbl_1p_10p);
+    labels.push_back(GdaConst::gda_lbl_10p_50p);
+    labels.push_back(GdaConst::gda_lbl_50p_90p);
+    labels.push_back(GdaConst::gda_lbl_90p_99p);
+    labels.push_back(GdaConst::gda_lbl_99p);
+}
+
+void GdaColorUtils::GetBoxmapColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
+void GdaColorUtils::GetBoxmapColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_loweroutlier);
+    labels.push_back(GdaConst::gda_lbl_25p);
+    labels.push_back(GdaConst::gda_lbl_25p_50p);
+    labels.push_back(GdaConst::gda_lbl_50p_75p);
+    labels.push_back(GdaConst::gda_lbl_75p);
+    labels.push_back(GdaConst::gda_lbl_upperoutlier);
+}
+
+void GdaColorUtils::GetStddevColors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::diverging_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
+void GdaColorUtils::GetStddevColorLabels(std::vector<wxString>& labels)
+{
+    labels.clear();
+    labels.push_back(GdaConst::gda_lbl_n2sigma);
+    labels.push_back(GdaConst::gda_lbl_n2sigma_n1sigma);
+    labels.push_back(GdaConst::gda_lbl_n1sigma);
+    labels.push_back(GdaConst::gda_lbl_1sigma);
+    labels.push_back(GdaConst::gda_lbl_1sigma_2sigma);
+    labels.push_back(GdaConst::gda_lbl_2sigma);
+}
+
+void GdaColorUtils::GetQuantile2Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 2, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
+void GdaColorUtils::GetQuantile3Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 3, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile4Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 4, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile5Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 5, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile6Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 6, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile7Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 7, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile8Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 8, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+    
+}
+void GdaColorUtils::GetQuantile9Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 9, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
+void GdaColorUtils::GetQuantile10Colors(std::vector<wxColour>& colors)
+{
+    colors.clear();
+    CatClassification::PickColorSet(colors, CatClassification::sequential_color_scheme, 10, false);
+    colors.insert(colors.begin(), wxColour(240, 240, 240));
+}
 
 wxString GdaColorUtils::ToHexColorStr(const wxColour& c)
 {
@@ -68,6 +503,56 @@ double Gda::ThomasWangHashDouble(uint64_t key) {
 	key = key ^ (key >> 28);
 	key = key + (key << 31);
 	return 5.42101086242752217E-20 * key;
+}
+
+double Gda::ThomasWangDouble(uint64_t& key) {
+	key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+	key = key ^ (key >> 24);
+	key = (key + (key << 3)) + (key << 8); // key * 265
+	key = key ^ (key >> 14);
+	key = (key + (key << 2)) + (key << 4); // key * 21
+	key = key ^ (key >> 28);
+	key = key + (key << 31);
+	return 5.42101086242752217E-20 * key;
+}
+
+double Gda::factorial(unsigned int n)
+{
+    double r;
+    int i;
+    for(i = n-1; i > 1; i--)
+    r *= i;
+    
+    return r;
+}
+
+double Gda::nChoosek(unsigned int n, unsigned int k) {
+   
+    double r = 1;
+    double s = 1;
+    int i;
+    int kk = k > n/2 ? k : n-k;
+    
+    for(i=n; i > kk; i--) r *= i;
+    for(i=(n-kk); i>0; i--) s *= i;
+    return r/s;
+}
+
+wxString Gda::CreateUUID(int nSize)
+{
+    if (nSize < 0 || nSize >= 38)
+        nSize = 8;
+
+    wxString letters = "abcdefghijklmnopqrstuvwxyz0123456789";
+    
+    srand (time(NULL));
+    
+    wxString uid;
+    while (uid.length() < nSize) {
+        int iSecret = rand() % letters.size();
+        uid += letters[iSecret];
+    }
+    return uid;
 }
 
 /** Use with std::sort for sorting in ascending order */
@@ -169,6 +654,7 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
     }
     
     N = data_valid.size();
+    
     is_even_num_obs = (data_valid.size() % 2) == 0;
     
     Q2_ind = (N+1)/2.0 - 1;
@@ -179,6 +665,9 @@ CalculateHingeStats(const std::vector<Gda::dbl_int_pair_type>& data,
         Q1_ind = (N+3)/4.0 - 1;
         Q3_ind = (3*N+1)/4.0 - 1;
     }
+    
+    if (N == 0 || N < Q3_ind) return;
+    
     Q1 = (data_valid[(int) floor(Q1_ind)] + data_valid[(int) ceil(Q1_ind)])/2.0;
     Q2 = (data_valid[(int) floor(Q2_ind)] + data_valid[(int) ceil(Q2_ind)])/2.0;
     Q3 = (data_valid[(int) floor(Q3_ind)] + data_valid[(int) ceil(Q3_ind)])/2.0;
@@ -226,6 +715,9 @@ double Gda::percentile(double x, const std::vector<double>& v)
 	double Nd = (double) N;
 	double p_0 = (100.0/Nd) * (1.0-0.5);
 	double p_Nm1 = (100.0/Nd) * (Nd-0.5);
+    
+    if (v.empty()) return 0;
+    
 	if (x <= p_0) return v[0];
 	if (x >= p_Nm1) return v[N-1];
 	
@@ -277,11 +769,18 @@ double Gda::percentile(double x, const Gda::dbl_int_pair_vec_type& v)
             return v[i].first;
 		if (x < p_i) {
 			double p_im1 = (100.0/Nd) * ((((double) i))-0.5);
-			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first
-														-v[i-1].first);
+			return v[i-1].first + Nd*((x-p_im1)/100.0)*(v[i].first-v[i-1].first);
 		}
 	}
 	return v[N-1].first; // execution should never get here
+}
+
+
+SampleStatistics::SampleStatistics()
+	 : sample_size(0), min(0), max(0), mean(0),
+    var_with_bessel(0), var_without_bessel(0),
+    sd_with_bessel(0), sd_without_bessel(0)
+{
 }
 
 SampleStatistics::SampleStatistics(const std::vector<double>& data)
@@ -599,6 +1098,12 @@ string SimpleLinearRegression::ToString()
 	return ss.str();
 }
 
+AxisScale::AxisScale()
+: data_min(0), data_max(0), scale_min(0), scale_max(0),
+scale_range(0), tic_inc(0), p(0)
+{
+}
+
 AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
 scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
@@ -759,8 +1264,22 @@ wxString GenUtils::DblToStr(double x, int precision)
         ss << std::fixed;
     }
 	ss << std::setprecision(precision);
-	ss << x;
+    ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
+}
+
+wxString GenUtils::IntToStr(int x, int precision)
+{
+    std::stringstream ss;
+    
+
+        if (x < 10000000) {
+            ss << std::fixed;
+        }
+        ss << std::setprecision(precision);
+        ss << x;
+    
+    return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
 wxString GenUtils::PtToStr(const wxPoint& p)
@@ -778,7 +1297,6 @@ wxString GenUtils::PtToStr(const wxRealPoint& p)
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
-// NOTE: should take into account undefined values.
 void GenUtils::DeviationFromMean(int nObs, double* data)
 {
 	if (nObs == 0) return;
@@ -813,6 +1331,118 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
 	const double mean = sum / (double) data.size();
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
+}
+
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
+{
+    if (nObs == 0) return;
+    double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) sum += data[i];
+    const double mean = sum / (double) nObs;
+    for (int i=0, iend=nObs; i<iend; i++)
+        data[i] = std::abs(data[i] - mean) / (double) nObs;
+}
+
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef)
+{
+    if (nObs == 0) return;
+    
+    double nValid = 0;
+    double sum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
+        sum += data[i];
+        nValid += 1;
+    }
+    const double mean = sum / nValid;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = std::abs(data[i] - mean) / nValid;
+    }
+}
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
+{
+	if (data.size() == 0) return;
+	double sum = 0.0;
+    double nn = data.size();
+	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
+    const double mean = sum / nn;
+	for (int i=0, iend=data.size(); i<iend; i++)
+        data[i] = std::abs(data[i] - mean) / nn;
+}
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef)
+{
+    if (data.size() == 0) return;
+    double sum = 0.0;
+    double nValid = 0;
+    double nn = data.size();
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        sum += data[i];
+        nValid += 1;
+    }
+    const double mean = sum / nValid;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = std::abs(data[i] - mean) / nValid;
+    }
+}
+
+double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
+{
+    int nObs = x.size();
+    double sum_x = 0;
+    double sum_y = 0;
+    for (int i=0; i<nObs; i++) {
+        sum_x += x[i];
+        sum_y += y[i];
+    }
+    double mean_x = sum_x / nObs;
+    double mean_y = sum_y / nObs;
+   
+    double ss_x = 0;
+    double ss_y = 0;
+    double ss_xy = 0;
+    double d_x = 0, d_y = 0;
+    for (int i=0; i<nObs; i++) {
+        d_x = x[i] - mean_x;
+        d_y = y[i] - mean_y;
+        ss_x += d_x * d_x;
+        ss_y += d_y * d_y;
+        ss_xy += d_x * d_y;
+    }
+    
+    double r = pow(ss_x * ss_y, 0.5);
+    r = ss_xy / r;
+    return r;
+}
+
+double GenUtils::Sum(std::vector<double>& data)
+{
+    double sum = 0;
+    int nObs = data.size();
+    for (int i=0; i<nObs; i++) sum += data[i];
+    return sum;
+}
+
+double GenUtils::SumOfSquares(std::vector<double>& data)
+{
+    int nObs = data.size();
+    if (nObs <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) ssum += data[i] * data[i];
+    return ssum;
+}
+
+
+double GenUtils::GetVariance(std::vector<double>& data)
+{
+    if (data.size() <= 1) return 0;
+    GenUtils::DeviationFromMean(data);
+    double ssum = 0.0;
+    for (int i=0, iend=data.size(); i<iend; i++) ssum += data[i] * data[i];
+    return ssum / data.size();
 }
 
 bool GenUtils::StandardizeData(int nObs, double* data)
@@ -852,6 +1482,7 @@ bool GenUtils::StandardizeData(int nObs, double* data, std::vector<bool>& undef)
     }
 	return true;
 }
+
 
 bool GenUtils::StandardizeData(std::vector<double>& data)
 {

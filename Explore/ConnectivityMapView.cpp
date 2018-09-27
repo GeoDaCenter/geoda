@@ -95,103 +95,149 @@ ConnectivityMapCanvas::~ConnectivityMapCanvas()
 
 void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 {
-	// Capture the mouse when left mouse button is down.
-	if (event.LeftIsDown() && !HasCapture()) CaptureMouse();
-	if (event.LeftUp() && HasCapture()) ReleaseMouse();
-	
-	if (mousemode == select) {
-		if (selectstate == start) {
-			if (event.LeftDown()) {
-				prev = GetActualPos(event);
-				sel1 = prev;
-				selectstate = leftdown;
-			} else if (event.RightDown()) {
-				DisplayRightClickMenu(event.GetPosition());
-			} else {
-				if (template_frame && template_frame->IsStatusBarVisible()) {
-					prev = GetActualPos(event);
-					sel1 = prev; // sel1 now has current mouse position
-					
-					// The following two lines will make this operate in
-					// continuous selection mode
-					UpdateSelectRegion();
-					UpdateSelection(event.ShiftDown(), true);
-					
-					selectstate = start;
-					DetermineMouseHoverObjects(prev);
-					UpdateStatusBar();
-				}
-			}
-		} else if (selectstate == leftdown) {
-			if (event.Moving() || event.Dragging()) {
-				wxPoint act_pos = GetActualPos(event);
-				if (fabs((double) (prev.x - act_pos.x)) +
-					fabs((double) (prev.y - act_pos.y)) > 2) {
-					sel1 = prev;
-					sel2 = GetActualPos(event);
-					selectstate = dragging;
-					remember_shiftdown = event.ShiftDown();
-					UpdateSelectRegion();
-					UpdateSelection(remember_shiftdown);
-					UpdateStatusBar();
-					Refresh();
-				}
-			} else if (event.LeftUp()) {
-				UpdateSelectRegion();
-				UpdateSelection(event.ShiftDown(), true);
-				selectstate = start;
-				Refresh();
-			} else if (event.RightDown()) {
-				selectstate = start;
-			}
-		} else if (selectstate == dragging) {
-			if (event.Dragging()) { // mouse moved while buttons still down
-				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
-				UpdateSelection(remember_shiftdown);
-				UpdateStatusBar();
-				Refresh();
-			} else if (event.LeftUp() && !event.CmdDown()) {
-				sel2 = GetActualPos(event);
-				UpdateSelectRegion();
-				UpdateSelection(remember_shiftdown);
-				remember_shiftdown = false;
-				selectstate = start;
-				Refresh();
-			} else if (event.LeftUp() && event.CmdDown()) {
-				selectstate = brushing;
-				sel2 = GetActualPos(event);
-				wxPoint diff = wxPoint(0,0);
-				UpdateSelectRegion(false, diff);
-				UpdateSelection(remember_shiftdown);
-				remember_shiftdown = false;
-				Refresh();
-			}  else if (event.RightDown()) {
-				DisplayRightClickMenu(event.GetPosition());
-			}			
-		} else if (selectstate == brushing) {
-			if (event.LeftIsDown()) {
-			} else if (event.LeftUp()) {
-				selectstate = start;
-				Refresh();
-			}
-			else if (event.RightDown()) {
-				selectstate = start;
-				Refresh();
-			} else if (event.Moving()) {
-				wxPoint diff = GetActualPos(event) - sel2;
-				sel1 += diff;
-				sel2 = GetActualPos(event);
-				UpdateStatusBar();
-				UpdateSelectRegion(true, diff);
-				UpdateSelection();
-				Refresh();
-			}
-		} else { // unknown state
-		}
-	} else {
-		TemplateCanvas::OnMouseEvent(event);
-	}
+    // Capture the mouse when left mouse button is down.
+    if (event.LeftIsDown() && !HasCapture())
+        CaptureMouse();
+    
+    if (event.LeftUp() && HasCapture())
+        ReleaseMouse();
+    
+    if (mousemode == select) {
+        is_showing_brush = true;
+        if (selectstate == start) {
+            if (event.LeftDown()) {
+                prev = GetActualPos(event);
+                
+                if (sel1.x > 0 && sel1.y > 0 && sel2.x > 0 && sel2.y >0) {
+                    // already has selection then
+                    // detect if click inside brush_shape
+                    GdaShape* brush_shape = NULL;
+                    if (brushtype == rectangle) {
+                        brush_shape = new GdaRectangle(sel1, sel2);
+                    } else if (brushtype == circle) {
+                        brush_shape = new GdaCircle(sel1, sel2);
+                    } else if (brushtype == line) {
+                        brush_shape = new GdaPolyLine(sel1, sel2);
+                    }
+                    if (brush_shape->Contains(prev)) {
+                        // brushing
+                        is_brushing = true;
+                        remember_shiftdown = false;  // brush will cancel shift
+                        selectstate = brushing;
+                    } else {
+                        // cancel brushing since click outside, restore leftdown
+                        ResetBrushing();
+                        sel1 = prev;
+                        selectstate = leftdown;
+                    }
+                    delete brush_shape;
+                    
+                } else {
+                    sel1 = prev;
+                    selectstate = leftdown;
+                }
+                
+            } else if (event.RightDown()) {
+                ResetBrushing();
+                DisplayRightClickMenu(event.GetPosition());
+                
+            } else {
+                // hover
+                if (template_frame && template_frame->IsStatusBarVisible()) {
+                    prev  = GetActualPos(event);
+                
+                    DetermineMouseHoverObjects(prev);
+                    UpdateStatusBar();
+                    
+                    if (sel1.x > 0 && sel1.y > 0 && sel2.x > 0 && sel2.y >0) {
+                        // already has selection then
+                        return;
+                    }
+                    std::vector<bool>& hs = shared_core_hs->GetHighlight();
+                    for (size_t	i=0, sz=hs.size(); i<sz; i++) {
+                        hs[i] = false;
+                    }
+                    if (hover_obs.empty()) {
+                        shared_core_hs->SetEventType(HLStateInt::unhighlight_all);
+                    } else {
+                        hs[ hover_obs[0] ] = true;
+                        shared_core_hs->SetEventType(HLStateInt::delta);
+                    }
+                    shared_core_hs->notifyObservers();
+                }
+            }
+            
+        } else if (selectstate == leftdown) {
+            if (event.Moving() || event.Dragging()) {
+                wxPoint act_pos = GetActualPos(event);
+                if (fabs((double) (sel1.x - act_pos.x)) +
+                    fabs((double) (sel1.y - act_pos.y)) > 2) {
+                    sel2 = GetActualPos(event);
+                    selectstate = dragging;
+                    remember_shiftdown = event.ShiftDown();
+                    UpdateSelection(remember_shiftdown);
+                    //UpdateStatusBar();
+                    //Refresh(false);
+                }
+            } else if (event.LeftUp()) {
+                wxPoint act_pos = GetActualPos(event);
+                if (act_pos == sel1 ) {
+                    sel2 = sel1;
+                }
+                UpdateSelection(event.ShiftDown(), true);
+                selectstate = start;
+                ResetBrushing();
+                
+            } else if (event.RightDown()) {
+                selectstate = start;
+            }
+            
+        } else if (selectstate == dragging) {
+            if (event.Dragging()) { // mouse moved while buttons still down
+                sel2 = GetActualPos(event);
+                
+                UpdateSelection(remember_shiftdown);
+                //UpdateStatusBar();
+                //Refresh(false);
+                
+            } else if (event.LeftUp()) {
+                sel2 = GetActualPos(event);
+                
+                UpdateSelection(remember_shiftdown);
+                remember_shiftdown = false;
+                selectstate = start;
+                //Refresh(false);
+                
+            }  else if (event.RightDown()) {
+                DisplayRightClickMenu(event.GetPosition());
+            }
+            
+        } else if (selectstate == brushing) {
+            if (event.LeftUp()) {
+                is_brushing = false; // will check again if brushing when mouse down again
+                selectstate = start;
+                
+            } else if (event.RightDown()) {
+                is_brushing = false;
+                selectstate = start;
+                Refresh();
+                
+            } else if (is_brushing && (event.Moving() || event.Dragging())) {
+                wxPoint cur = GetActualPos(event);
+                wxPoint diff = cur - prev;
+                sel1 += diff;
+                sel2 += diff;
+                //UpdateStatusBar();
+                
+                UpdateSelection();
+                //Refresh(false); // keep painting the select rect
+                prev = cur;
+            }
+        }
+        
+    } else{
+        TemplateCanvas::OnMouseEvent(event);
+    }
 }
 
 // The following function assumes that the set of selectable objects
@@ -282,6 +328,10 @@ void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		shared_core_hs->SetEventType(HLStateInt::delta);
 		shared_core_hs->notifyObservers();
 	}
+    
+    //UpdateFromSharedCore();
+    
+    UpdateStatusBar();
 }
 
 void ConnectivityMapCanvas::UpdateFromSharedCore()
@@ -289,7 +339,8 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 	sel_cores.clear();
 	std::vector<bool>& sc_hs = shared_core_hs->GetHighlight();
 	for (int i=0, sz=sc_hs.size(); i<sz; ++i) {
-		if (sc_hs[i]) sel_cores.insert(i);
+		if (sc_hs[i])
+            sel_cores.insert(i);
 	}
 	
 	std::vector<bool>& hs = highlight_state->GetHighlight();
@@ -320,9 +371,9 @@ void ConnectivityMapCanvas::UpdateFromSharedCore()
 }
 
 /** Don't draw selection outline */
-//void ConnectivityMapCanvas::PaintSelectionOutline(wxDC& dc)
-//{
-//}
+void ConnectivityMapCanvas::PaintSelectionOutline(wxMemoryDC& dc)
+{
+}
 
 void ConnectivityMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
@@ -348,8 +399,15 @@ void ConnectivityMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 wxString ConnectivityMapCanvas::GetCanvasTitle()
 {
 	wxString s;
-	s << "Connectivity Map - " << w_man_int->GetLongDispName(weights_id);
+	s << _("Connectivity Map - ") << w_man_int->GetLongDispName(weights_id);
 	return s;
+}
+
+wxString ConnectivityMapCanvas::GetVariableNames()
+{
+    wxString s;
+    s << w_man_int->GetLongDispName(weights_id);
+    return s;
 }
 
 /** This method definition is empty.  It is here to override any call
@@ -420,7 +478,26 @@ void ConnectivityMapCanvas::update(HLStateInt* o)
 {
 	if (o == proj_hs) {
 	} else if (o == highlight_state) {
-		TemplateCanvas::update(o);
+		//TemplateCanvas::update(o);
+        if (layer2_bm) {
+            if (draw_sel_shps_by_z_val) {
+                // force a full redraw
+                layer0_valid = false;
+                return;
+            }
+            
+            HLStateInt::EventType type = o->GetEventType();
+            if (type == HLStateInt::transparency) {
+                ResetFadedLayer();
+            }
+            // re-paint highlight layer (layer1_bm)
+            layer1_valid = false;
+            DrawLayers();
+            Refresh();
+            
+            UpdateStatusBar();
+            //ResetBrushing();
+        }
 	} else { // o == shared_core_hs
 		UpdateFromSharedCore();
 	}
@@ -438,7 +515,7 @@ void ConnectivityMapCanvas::UpdateStatusBar()
 	if (mousemode == select) {
 		if (sel_cores.size() == 1) {
 			long cid = *sel_cores.begin();
-			s << "obs " << w_man_int->RecNumToId(GetWeightsId(), cid);
+			s << _("obs ") << w_man_int->RecNumToId(GetWeightsId(), cid);
 			s << " has " << core_nbrs.size() << " neighbor";
 			if (core_nbrs.size() != 1) s << "s";
 			if (core_nbrs.size() > 0) {
@@ -493,10 +570,10 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
 
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
     wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
-    tb->EnableTool(XRCID("ID_SELECT_INVERT"), false);
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar->EnableTool(XRCID("ID_SELECT_INVERT"), false);
     SetupToolbar();
-    toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+    toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
     toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
     
@@ -536,7 +613,7 @@ void ConnectivityMapFrame::MapMenus()
 	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -544,7 +621,7 @@ void ConnectivityMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConnectivityMapCanvas*) template_canvas)->

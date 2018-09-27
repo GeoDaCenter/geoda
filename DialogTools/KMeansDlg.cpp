@@ -22,6 +22,9 @@
 #include <algorithm>
 #include <limits>
 
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
+
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/msgdlg.h>
@@ -46,102 +49,58 @@
 #include "KMeansDlg.h"
 
 
-BEGIN_EVENT_TABLE( KMeansDlg, wxDialog )
-EVT_CLOSE( KMeansDlg::OnClose )
+BEGIN_EVENT_TABLE( KClusterDlg, wxDialog )
+EVT_CLOSE( KClusterDlg::OnClose )
 END_EVENT_TABLE()
 
-KMeansDlg::KMeansDlg(wxFrame* parent_s, Project* project_s)
-: frames_manager(project_s->GetFramesManager()),
-wxDialog(NULL, -1, _("K-Means Settings"), wxDefaultPosition, wxDefaultSize,
-         wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+KClusterDlg::KClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
+: AbstractClusterDlg(parent_s, project_s, title)
 {
-    wxLogMessage("Open KMeanDlg.");
-    
-	SetMinSize(wxSize(360,750));
-
-    parent = parent_s;
-    project = project_s;
-    
-    bool init_success = Init();
-    
-    if (init_success == false) {
-        EndDialog(wxID_CANCEL);
-    } else {
-        CreateControls();
-    }
-    frames_manager->registerObserver(this);
+    wxLogMessage("In KClusterDlg()");
+    distmatrix = NULL;
+    show_iteration = true;
 }
 
-KMeansDlg::~KMeansDlg()
+KClusterDlg::~KClusterDlg()
 {
-    frames_manager->removeObserver(this);
+    wxLogMessage("In ~KClusterDlg()");
 }
 
-bool KMeansDlg::Init()
+void KClusterDlg::CreateControls()
 {
-    if (project == NULL)
-        return false;
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,820), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
     
-    table_int = project->GetTableInt();
-    if (table_int == NULL)
-        return false;
-    
-    
-    table_int->GetTimeStrings(tm_strs);
-    
-    return true;
-}
-
-void KMeansDlg::update(FramesManager* o)
-{
-    
-}
-
-void KMeansDlg::CreateControls()
-{
-    wxPanel *panel = new wxPanel(this);
-    
+    wxPanel *panel = new wxPanel(scrl);
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
-                                         wxDefaultPosition, wxDefaultSize);
+    AddInputCtrls(panel, vbox, true);
     
-    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(250,250), 0, NULL,
-                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    wxCheckBox* cbox = new wxCheckBox(panel, wxID_ANY, _("Use Geometric Centroids"));
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, "Input:");
-    hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
-    hbox0->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    hbox0->Add(cbox, 0, wxLEFT | wxRIGHT, 10);
-    
-    if (project->IsTableOnlyProject()) {
-        cbox->Disable();
-    }
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
-
     
-    wxString choices[] = {"2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20"};
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
+	// NumberOfCluster Control
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY,
+                                         _("Number of Clusters:"),
                                          wxDefaultPosition, wxSize(128,-1));
-    wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(200,-1), 9, choices);
-    box1->SetSelection(3);
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
+    max_n_clusters = num_obs < 60 ? num_obs : 60;
+    for (int i=2; i<max_n_clusters+1; i++)
+        combo_n->Append(wxString::Format("%d", i));
+    combo_n->SetSelection(3);
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box1, 1, wxEXPAND);
+    gbox->Add(combo_n, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[3] = {"Raw", "Demean", "Standardize"};
-    wxChoice* box01 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(120,-1), 3, _transform);
-    box01->SetSelection(2);
-    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box01, 1, wxEXPAND);
+	// Minimum Bound Control
+    AddMinBound(panel, gbox);
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"),
+    // Transformation Control
+    AddTransformation(panel, gbox);
+    
+    // Initialization Method
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY,
+                                          _("Initialization Method:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxString choices16[] = {"KMeans++", "Random"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
@@ -150,19 +109,26 @@ void KMeansDlg::CreateControls()
 
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
-
     
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"),
+    if (!show_initmethod) {
+        st16->Hide();
+        combo_method->Hide();
+        combo_method->SetSelection(1); // use Random if hide init
+    } 
+    
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY,
+                                          _("Initialization Re-runs:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, wxT("50"), wxDefaultPosition, wxSize(200,-1));
+    m_pass = new wxTextCtrl(panel, wxID_ANY, "150", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box10, 1, wxEXPAND);
+    gbox->Add(m_pass, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY,
+                                          _("Use specified seed:"),
                                           wxDefaultPosition, wxSize(128,-1));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
-    seedButton = new wxButton(panel, wxID_OK, wxT("Change Seed"));
+    seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
     
     hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
     hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
@@ -171,107 +137,112 @@ void KMeansDlg::CreateControls()
     gbox->Add(hbox17, 1, wxEXPAND);
     
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
+                                          _("Maximal Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
-    wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, wxT("300"), wxDefaultPosition, wxSize(200,-1));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box11, 1, wxEXPAND);
+    gbox->Add(m_iterations, 1, wxEXPAND);
     
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
-                                          wxDefaultPosition, wxSize(128,-1));
-    wxString choices12[] = {"Arithmetic Mean", "Arithmetic Median"};
-    wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                       wxSize(200,-1), 2, choices12);
-	box12->SetSelection(0);
-    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box12, 1, wxEXPAND);
+    if (!show_iteration) {
+        st11->Hide();
+        m_iterations->Hide();
+    }
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
+                                          _("Distance Function:"),
                                           wxDefaultPosition, wxSize(128,-1));
-    wxString choices13[] = {"Distance", "--Euclidean", "--City-block", "Correlation", "--Pearson","--Absolute Pearson", "Cosine", "--Signed", "--Un-signed", "Rank", "--Spearman", "--Kendal"};
-    wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 12, choices13);
-    box13->SetSelection(1);
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(box13, 1, wxEXPAND);
+    gbox->Add(m_distance, 1, wxEXPAND);
+    if (!show_distance) {
+        st13->Hide();
+        m_distance->Hide();
+        m_distance->SetSelection(1); // set manhattan
+    }
 
-    
-    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Parameters:");
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
     
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
-    wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, wxT(""), wxDefaultPosition, wxSize(158,-1));
-    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, "Output:");
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
-    
+    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     
     // Buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, wxT("Run"), wxDefaultPosition,
-                                      wxSize(70, 30));
-    //wxButton *saveButton = new wxButton(panel, wxID_SAVE, wxT("Save"), wxDefaultPosition, wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, wxT("Close"),
-                                         wxDefaultPosition, wxSize(70, 30));
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    //hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+  
     
-    
+	// Summary control 
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+	wxNotebook* notebook = AddSimpleReportCtrls(panel);
+	vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
     
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+    
+    scrl->SetSizer(panelSizer);
+    
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
-    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
 
-    
     Centre();
-
-    
-    // Content
-    InitVariableCombobox(box);
-    combo_n = box1;
-    m_textbox = box3;
-    combo_var = box;
-    m_use_centroids = cbox;
-    m_iterations = box11;
-    m_pass = box10;
-    m_method = box12;
-    m_distance = box13;
-    combo_tranform = box01;
-    
     
     // Events
-    okButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnOK, this);
-    closeButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnClickClose, this);
-    chk_seed->Bind(wxEVT_CHECKBOX, &KMeansDlg::OnSeedCheck, this);
-    seedButton->Bind(wxEVT_BUTTON, &KMeansDlg::OnChangeSeed, this);
-    
-    m_distance->Connect(wxEVT_CHOICE,
-                        wxCommandEventHandler(KMeansDlg::OnDistanceChoice),
-                        NULL, this);
+    okButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnClickClose, this);
+    chk_seed->Bind(wxEVT_CHECKBOX, &KClusterDlg::OnSeedCheck, this);
+    seedButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnChangeSeed, this);
+    combo_method->Bind(wxEVT_CHOICE, &KClusterDlg::OnInitMethodChoice, this);
+    m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
 }
 
-void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
+void KClusterDlg::OnDistanceChoice(wxCommandEvent& event)
+{
+    if (m_distance->GetSelection() == 1) {
+        // when Manhattan
+        // make sure KMedian  and KMedoids is select
+    }
+}
+
+void KClusterDlg::OnInitMethodChoice(wxCommandEvent& event)
+{
+    if (combo_method->GetSelection()== 0) {
+        // when KMeans++
+        // make sure no KMedian is select
+    }
+}
+
+void KClusterDlg::OnSeedCheck(wxCommandEvent& event)
 {
     bool use_user_seed = chk_seed->GetValue();
     
@@ -282,27 +253,30 @@ void KMeansDlg::OnSeedCheck(wxCommandEvent& event)
             return;
         }
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
+        GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "0");
+        
         seedButton->Disable();
     }
 }
 
-void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
+void KClusterDlg::OnChangeSeed(wxCommandEvent& event)
 {
     // prompt user to enter user seed (used globally)
     wxString m;
-    m << "Enter a seed value for random number generator:";
+    m << _("Enter a seed value for random number generator:");
     
     long long unsigned int val;
     wxString dlg_val;
     wxString cur_val;
     cur_val << GdaConst::gda_user_seed;
     
-    wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+    wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
     if (dlg.ShowModal() != wxID_OK) return;
     dlg_val = dlg.GetValue();
     dlg_val.Trim(true);
@@ -312,7 +286,6 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
         uint64_t new_seed_val = val;
         GdaConst::gda_user_seed = new_seed_val;
         GdaConst::use_gda_user_seed = true;
-        setrandomstate(GdaConst::gda_user_seed);
         
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         wxString str_gda_user_seed;
@@ -320,9 +293,9 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
         ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
         ogr_adapt.AddEntry("use_gda_user_seed", "1");
     } else {
-        wxString m;
-        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-        wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         GdaConst::use_gda_user_seed = false;
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
@@ -330,260 +303,285 @@ void KMeansDlg::OnChangeSeed(wxCommandEvent& event)
     }
 }
 
-void KMeansDlg::OnDistanceChoice(wxCommandEvent& event)
+void KClusterDlg::OnClickClose(wxCommandEvent& event )
 {
-    
-     if (m_distance->GetSelection() == 0) {
-         m_distance->SetSelection(1);
-     } else if (m_distance->GetSelection() == 3) {
-         m_distance->SetSelection(4);
-     } else if (m_distance->GetSelection() == 6) {
-         m_distance->SetSelection(7);
-     } else if (m_distance->GetSelection() == 9) {
-         m_distance->SetSelection(10);
-     }
-}
-
-void KMeansDlg::InitVariableCombobox(wxListBox* var_box)
-{
-    wxArrayString items;
-    
-    std::vector<int> col_id_map;
-    table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-        int id = col_id_map[i];
-        wxString name = table_int->GetColName(id);
-        if (table_int->IsColTimeVariant(id)) {
-            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
-                wxString nm = name;
-                nm << " (" << table_int->GetTimeString(t) << ")";
-                name_to_nm[nm] = name;
-                name_to_tm_id[nm] = t;
-                items.Add(nm);
-            }
-        } else {
-            name_to_nm[name] = name;
-            name_to_tm_id[name] = 0;
-            items.Add(name);
-        }
-    }
-    
-    var_box->InsertItems(items,0);
-}
-
-void KMeansDlg::OnClickClose(wxCommandEvent& event )
-{
-    wxLogMessage("OnClickClose KMeansDlg.");
+    wxLogMessage("OnClickClose KClusterDlg.");
     
     event.Skip();
     EndDialog(wxID_CANCEL);
     Destroy();
 }
 
-void KMeansDlg::OnClose(wxCloseEvent& ev)
+void KClusterDlg::OnClose(wxCloseEvent& ev)
 {
-    wxLogMessage("Close HClusterDlg");
+    wxLogMessage("Close KClusterDlg");
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();
 }
 
-void KMeansDlg::OnOK(wxCommandEvent& event )
+wxString KClusterDlg::_printConfiguration()
 {
-    wxLogMessage("Click KMeansDlg::OnOK");
+    wxString txt;
+    txt << _("Method:\t") << cluster_method << "\n";
+    txt << _("Number of clusters:\t") << combo_n->GetSelection() + 2 << "\n";
+    txt << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
+    txt << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
+    txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
+    
+    if (chk_floor && chk_floor->IsChecked()) {
+        int idx = combo_floor->GetSelection();
+        wxString nm = name_to_nm[combo_floor->GetString(idx)];
+        txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    }
+    
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+   
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
+    
+    return txt;
+}
+
+void KClusterDlg::ComputeDistMatrix(int dist_sel)
+{
+    
+}
+
+bool KClusterDlg::CheckContiguity(double w, double& ssd)
+{
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
+    
+    vector<wxInt64> clusters;
+    if (Run(clusters) == false) {
+        m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.0");
+        return false;
+    }
+  
+    // not show print
+    ssd = CreateSummary(clusters, false);
+  
+    if (GetDefaultContiguity() == false)
+        return false;
+   
+    map<int, set<wxInt64> > groups;
+    map<int, set<wxInt64> >::iterator it;
+    for (int i=0; i<clusters.size(); i++) {
+        int c = clusters[i];
+        if (groups.find(c)==groups.end()) {
+            set<wxInt64> g;
+            g.insert(i);
+            groups[c] = g;
+        } else {
+            groups[c].insert(i);
+        }
+    }
+    
+    bool is_cont = true;
+    set<wxInt64>::iterator item_it;
+    for (it = groups.begin(); it != groups.end(); it++) {
+        // check each group if contiguity
+        set<wxInt64> g = it->second;
+        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
+            int idx = *item_it;
+            const vector<long>& nbrs = gal[idx].GetNbrs();
+            bool not_in_group = true;
+            for (int i=0; i<nbrs.size(); i++ ) {
+                if (g.find(nbrs[i]) != g.end()) {
+                    not_in_group = false;
+                    break;
+                }
+            }
+            if (not_in_group) {
+                is_cont = false;
+                break;
+            }
+        }
+        if (!is_cont)
+            break;
+    }
+    
+    return is_cont;
+}
+
+void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs)
+{
+    double delta = right - left;
+    
+    if ( delta < 0.01 )
+        return;
+    
+    double mid = left + delta /2.0;
+    
+    // assume left is always not contiguity and right is always contiguity
+    //bool l_conti = CheckContiguity(left);
+    double m_ssd = 0;
+    bool m_conti = CheckContiguity(mid, m_ssd);
+    
+    if ( m_conti ) {
+        ssd_pairs.push_back( std::make_pair(mid, m_ssd) );
+        return BinarySearch(left, mid, ssd_pairs);
+        
+    } else {
+        return BinarySearch(mid, right, ssd_pairs);
+    }
+}
+
+void KClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
+{
+    // apply custom algorithm to find optimal weighting value between 0 and 1
+    // when w = 1 (fully geometry based)
+    // when w = 0 (fully attributes based)
+    std::vector<std::pair<double, double> > ssd_pairs;
+    BinarySearch(0.0, 1.0, ssd_pairs);
+   
+    if (ssd_pairs.empty()) return;
+    
+    double w = ssd_pairs[0].first;
+    double ssd = ssd_pairs[0].second;
+    
+    for (int i=1; i<ssd_pairs.size(); i++) {
+        if (ssd_pairs[i].second > ssd) {
+            ssd = ssd_pairs[i].second;
+            w = ssd_pairs[i].first;
+        }
+    }
+    
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
+}
+
+bool KClusterDlg::Run(vector<wxInt64>& clusters)
+{
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate(GdaConst::gda_user_seed);
+        resetrandom();
+    } else {
+        setrandomstate(-1);
+        resetrandom();
+    }
     
     int ncluster = combo_n->GetSelection() + 2;
-    
-    bool use_centroids = m_use_centroids->GetValue();
-    
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 2 && !use_centroids) {
-        // show message box
-        wxString err_msg = _("Please select at least 2 variables.");
-        wxMessageDialog dlg(NULL, err_msg, "Info", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
-    wxString field_name = m_textbox->GetValue();
-    if (field_name.IsEmpty()) {
-        wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString nm = name_to_nm[combo_var->GetString(idx)];
-        
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
-        
-        col_ids[i] = col;
-        var_info[i].time = tm;
-        
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(idx);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-    
-    int rows = project->GetNumRecords();
-    int columns =  0;
-    
-    std::vector<d_array_type> data; // data[variable][time][obs]
-    data.resize(col_ids.size());
-    for (int i=0; i<var_info.size(); i++) {
-        table_int->GetColData(col_ids[i], data[i]);
-    }
-    // get columns (if time variables show)
-    for (int i=0; i<data.size(); i++ ){
-        for (int j=0; j<data[i].size(); j++) {
-            columns += 1;
-        }
-    }
-    
-    // if use centroids
-    if (use_centroids) {
-        columns += 2;
-    }
-    
     int transform = combo_tranform->GetSelection();
-    char method = 'a'; // mean, 'm' median
-    char dist = 'e'; // euclidean
+    
+    if (!GetInputData(transform,1))
+        return false;
+    
+    if (!CheckMinBound())
+        return false;
+    
     int npass = 10;
-    int n_maxiter = 300; // max iteration of EM
-    int transpose = 0; // row wise
-    int* clusterid = new int[rows];
-    double* weight = new double[columns];
-    for (int j=0; j<columns; j++){ weight[j] = 1;}
-    
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        n_maxiter = value;
-    }
-    
-    if (combo_method->GetSelection() == 0) method = 'b'; // mean with kmeans++
-    
     wxString str_pass = m_pass->GetValue();
     long value_pass;
     if(str_pass.ToLong(&value_pass)) {
         npass = value_pass;
     }
     
-    int method_sel = m_method->GetSelection();
-    if (method_sel == 1) method = 'm';
+    int n_maxiter = 300; // max iteration of EM
+    wxString iterations = m_iterations->GetValue();
+    long value;
+    if(iterations.ToLong(&value)) {
+        n_maxiter = value;
+    }
+    
+    int meth_sel = combo_method->GetSelection();
+    
+    // start working
+    int nCPUs = boost::thread::hardware_concurrency();
+    int quotient = npass / nCPUs;
+    int remainder = npass % nCPUs;
+    int tot_threads = (quotient > 0) ? nCPUs : remainder;
+    
+    map<double, vector<wxInt64> >::iterator it;
+    for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
+        it->second.clear();
+    }
+    sub_clusters.clear();
     
     int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','e','b','c','c','a','u','u','x','s','s','k'};
-    dist = dist_choices[dist_sel];
     
-    // init input_data[rows][cols]
-    double** input_data = new double*[rows];
-    int** mask = new int*[rows];
-    for (int i=0; i<rows; i++) {
-        input_data[i] = new double[columns];
-        mask[i] = new int[columns];
-        for (int j=0; j<columns; j++){
-            mask[i][j] = 1;
-        }
+    ComputeDistMatrix(dist_sel);
+    
+    double min_bound = GetMinBound();
+    double* bound_vals = GetBoundVals();
+    
+    int s1 = 0;
+    if (GdaConst::use_gda_user_seed) {
+        srand(GdaConst::gda_user_seed);
+        s1 = rand();
     }
     
-    // assign value
-    int col_ii = 0;
-    for (int i=0; i<data.size(); i++ ){ // col
+    boost::thread_group threadPool;
+    for (int i=0; i<tot_threads; i++) {
+        int a=0;
+        int b=0;
+        if (i < remainder) {
+            a = i*(quotient+1);
+            b = a+quotient;
+        } else {
+            a = remainder*(quotient+1) + (i-remainder)*quotient;
+            b = a+quotient-1;
+        }
         
-        for (int j=0; j<data[i].size(); j++) { // time
-            
-            std::vector<double> vals;
-            
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][j][k]);
-            }
+        if (s1 >0) s1 = a + 1;
+        int n_runs = b - a + 1;
+        
+        boost::thread* worker = new boost::thread(boost::bind(&KClusterDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
+        
+        threadPool.add_thread(worker);
+    }
+    threadPool.join_all();
+    
+    delete[] bound_vals;
+    
+    bool start = false;
+    double min_error = 0;
 
-            if (transform == 2) {
-                GenUtils::StandardizeData(vals);
-            } else if (transform == 1 ) {
-                GenUtils::DeviationFromMean(vals);
+    for (it=sub_clusters.begin(); it!=sub_clusters.end(); it++) {
+        double error = it->first;
+        vector<wxInt64>& clst = it->second;
+        if (start == false ) {
+            min_error = error;
+            clusters = clst;
+            start = true;
+        } else {
+            if (error < min_error) {
+                min_error = error;
+                clusters = clst;
             }
-            
-            for (int k=0; k< rows;k++) { // row
-                input_data[k][col_ii] = vals[k];
-            }
-            col_ii += 1;
         }
     }
-    if (use_centroids) {
-        std::vector<GdaPoint*> cents = project->GetCentroids();
-        std::vector<double> cent_xs;
-        std::vector<double> cent_ys;
-        
-        for (int i=0; i< rows; i++) {
-            cent_xs.push_back(cents[i]->GetX());
-            cent_ys.push_back(cents[i]->GetY());
-        }
-        
-        if (transform == 2) {
-            GenUtils::StandardizeData(cent_xs );
-            GenUtils::StandardizeData(cent_ys );
-        } else if (transform == 1 ) {
-            GenUtils::DeviationFromMean(cent_xs );
-            GenUtils::DeviationFromMean(cent_ys );
-        }
-        
-        for (int i=0; i< rows; i++) {
-            input_data[i][col_ii + 0] = cent_xs[i];
-            input_data[i][col_ii + 1] = cent_ys[i];
-        }
+    return true;
+}
+
+void KClusterDlg::OnOK(wxCommandEvent& event )
+{
+    wxLogMessage("Click KClusterDlg::OnOK");
+   
+    int ncluster = combo_n->GetSelection() + 2;
+   
+    wxString field_name = m_textbox->GetValue();
+    if (field_name.IsEmpty()) {
+        wxString err_msg = _("Please enter a field name for saving clustering results.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
     }
     
-    double error;
-    int ifound;
-    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound);
+    vector<bool> clusters_undef(num_obs, false);
     
     vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
-    
-    // clean memory
-    for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
-        clusters.push_back(clusterid[i] + 1);
-        clusters_undef.push_back(ifound == -1);
-    }
-    delete[] input_data;
-    delete[] weight;
-    delete[] clusterid;
+    if (Run(clusters) == false)
+        return;
     
     // sort result
     std::vector<std::vector<int> > cluster_ids(ncluster);
-    
     for (int i=0; i < clusters.size(); i++) {
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
-
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
     for (int i=0; i < ncluster; i++) {
@@ -593,6 +591,9 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+
+    // summary
+    CreateSummary(cluster_ids);
     
     // save to table
     int time=0;
@@ -608,7 +609,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col) != GdaConst::long64_type ) {
             wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, "Warning", wxOK | wxICON_WARNING );
+            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
             dlg.ShowModal();
             return;
         }
@@ -623,6 +624,7 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
     if (project->IsTableOnlyProject()) {
         return;
     }
+    
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
     new_col_ids.resize(1);
@@ -644,4 +646,168 @@ void KMeansDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
+    wxString ttl;
+    ttl << "KMeans " << _("Cluster Map ") << "(";
+    ttl << ncluster;
+    ttl << " clusters)";
+    nf->SetTitle(ttl);
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// KMeans
+////////////////////////////////////////////////////////////////////////
+KMeansDlg::KMeansDlg(wxFrame *parent, Project* project)
+: KClusterDlg(parent, project, _("KMeans Dialog"))
+{
+    wxLogMessage("In KMeansDlg()");
+   
+    show_initmethod = true;
+    show_distance = true;
+    show_iteration = true;
+    cluster_method = "KMeans";
+    
+    CreateControls();
+}
+
+KMeansDlg::~KMeansDlg()
+{
+    wxLogMessage("In ~KMeansDlg()");
+}
+
+void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
+{
+    char method = 'a'; // 'a' mean/random, 'b' kmeans++ 'm' median
+    if (meth_sel == 0) method = 'b';
+    
+    char dist_choices[] = {'e','b'};
+    char dist = 'e'; // euclidean
+    dist = dist_choices[dist_sel];
+    
+    int transpose = 0; // row wise
+    double error;
+    int ifound;
+    int* clusterid = new int[rows];
+    
+    int s2 = s1==0 ? 0 : s1 + npass;
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
+    
+    vector<wxInt64> clusters;
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i] + 1);
+    }
+    sub_clusters[error] = clusters;
+    
+    delete[] clusterid;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// KMedians
+////////////////////////////////////////////////////////////////////////
+KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
+: KClusterDlg(parent, project, _("KMedians Dialog"))
+{
+    wxLogMessage("In KMediansDlg()");
+    
+    show_initmethod = false;
+    show_distance = true;
+    show_iteration = true;
+    cluster_method = "KMedians";
+    
+    CreateControls();
+    m_distance->SetSelection(1); // set manhattan
+}
+
+KMediansDlg::~KMediansDlg()
+{
+    wxLogMessage("In ~KMedians()");
+}
+
+void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
+{
+    char method = 'm'; // 'm' median/random
+    int transpose = 0; // row wise
+    
+    char dist_choices[] = {'e','b'};
+    char dist = 'e'; // euclidean
+    dist = dist_choices[dist_sel];
+    
+    double error;
+    int ifound;
+    int* clusterid = new int[rows];
+    
+    int s2 = s1==0 ? 0 : s1 + npass;
+    kcluster(ncluster, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
+    
+    vector<wxInt64> clusters;
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i] + 1);
+    }
+    sub_clusters[error] = clusters;
+    
+    delete[] clusterid;
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+// KMedoids
+////////////////////////////////////////////////////////////////////////
+KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
+: KClusterDlg(parent, project, _("KMedoids Dialog"))
+{
+    wxLogMessage("In KMedoidsDlg()");
+    
+    show_initmethod = false;
+    show_distance = true;
+    show_iteration = false;
+    cluster_method = "KMedoids";
+    
+    CreateControls();
+    m_distance->SetSelection(1); // set manhattan
+}
+
+KMedoidsDlg::~KMedoidsDlg()
+{
+    wxLogMessage("In ~KMedoidsDlg()");
+}
+
+void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
+{
+    int transpose = 0; // row wise
+    char dist = 'b'; // city-block
+    if (dist_sel == 0) dist = 'e';
+    
+    distmatrix = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+}
+
+void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
+{
+    double error;
+    int ifound;
+    int* clusterid = new int[rows];
+    
+    int s2 = s1==0 ? 0 : s1 + npass;
+    
+    kmedoids(ncluster, rows, distmatrix, npass, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
+  
+    set<wxInt64> centers;
+    map<wxInt64, vector<wxInt64> > c_dist;
+    for (int i=0; i<rows; i++) {
+        centers.insert(clusterid[i]);
+        c_dist[clusterid[i]].push_back(i);
+    }
+    int cid = 1;
+    vector<wxInt64> clusters(rows);
+    set<wxInt64>::iterator it;
+    for (it=centers.begin(); it!=centers.end(); it++) {
+        vector<wxInt64>& ids = c_dist[*it];
+        for (int i=0; i<ids.size(); i++) {
+            clusters[ids[i]] = cid;
+        }
+        cid += 1;
+    }
+    sub_clusters[error] = clusters;
+    
+    delete[] clusterid;
 }

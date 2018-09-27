@@ -25,7 +25,6 @@
 #include <wx/textctrl.h>
 #include <wx/stattext.h>
 
-#include "../DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -90,7 +89,7 @@ all_init(false)
 	}
    
     
-    m_field_label = new wxStaticText(this, wxID_ANY, "Variable Name");
+    m_field_label = new wxStaticText(this, wxID_ANY, _("Variable Name"));
 	if (data.size() == 1)
         m_check[0]->SetValue(1);
     
@@ -135,17 +134,17 @@ void SaveToTableDlg::CreateControls()
 		//if (is_space_time) {
 		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//}
-        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 2);
+        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_LEFT, 2);
         fg_sizer->Add(m_txt_field[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
 	
     //top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
     top_sizer->Add(fg_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	wxBoxSizer *button_sizer = new wxBoxSizer(wxHORIZONTAL);
-	m_ok_button = new wxButton(this, wxID_OK, "OK");
+	m_ok_button = new wxButton(this, wxID_OK, _("OK"));
 	//m_ok_button->Disable();
 	button_sizer->Add(m_ok_button, 0, wxALL, 5);
-	button_sizer->Add(new wxButton(this, wxID_CLOSE, "Close"), 0, wxALL, 5);
+	button_sizer->Add(new wxButton(this, wxID_CLOSE, _("Close")), 0, wxALL, 5);
 	top_sizer->Add(button_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	
     
@@ -166,9 +165,8 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Add Variable button was "
-			"pressed. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Add Variable button was pressed. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -227,9 +225,8 @@ void SaveToTableDlg::OnFieldChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Field Choice was "
-		"selected. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Field Choice was selected. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -250,9 +247,8 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Time Choice was "
-		"selected. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Time Choice was selected. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -347,8 +343,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
         if (is_check[i]) {
             wxString name = m_txt_field[i]->GetValue();
             if (name.empty()) {
-                wxMessageDialog dlg(this, "Variable name can't be empty.",
-                                    "Error", wxOK | wxICON_ERROR );
+                wxMessageDialog dlg(this, _("Variable name can't be empty."),
+                                    _("Error"), wxOK | wxICON_ERROR );
                 dlg.ShowModal();
                 return;
             }
@@ -365,8 +361,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
         
 		it = names.find(s);
 		if (it != names.end()) {
-			wxMessageDialog dlg(this, "Duplicate variable names specified.",
-								"Error", wxOK | wxICON_ERROR );
+			wxMessageDialog dlg(this, _("Duplicate variable names specified."),
+								_("Error"), wxOK | wxICON_ERROR );
 			dlg.ShowModal();
 			return;
 		}
@@ -410,6 +406,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
                     table_int->SetColUndefined(col, time, *data[i].undefined);
                 }
             }
+            new_col_ids.push_back(col);
+            new_col_names.push_back(field_name);
         }
 	}
 

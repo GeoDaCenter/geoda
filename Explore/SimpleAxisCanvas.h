@@ -71,6 +71,7 @@ class SimpleAxisCanvas : public TemplateCanvas
 	virtual ~SimpleAxisCanvas();
 	
 	virtual void UpdateStatusBar();
+    virtual wxString GetVariableNames() {return wxEmptyString;}
 	void ShowAxes(bool display);
 	bool IsShowAxes() { return show_axes; }
     

@@ -37,7 +37,6 @@
 #include "SaveToTableDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TableState.h"
-#include "../DbfFile.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/GeodaWeight.h"
@@ -134,6 +133,13 @@ autoPVal(0.01),
 regReportDlg(0)
 {
     wxLogMessage("Open RegressionDlg.");
+    
+    if (project_s->GetTableInt()->GetNumberCols() == 0) {
+        wxString err_msg = _("No numeric variables found in table.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        EndDialog(wxID_CANCEL);
+    }
     
 	Create(parent, id, caption, pos, size, style);
 	
@@ -236,15 +242,13 @@ void RegressionDlg::CreateControls()
 
 void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 {
-	wxString m;
-	m << "Please specify the p-value to be used in tests; \n";
-	m << "default: p-value = 0.01";
+	wxString m = _("Please specify the p-value to be used in tests; \ndefault: p-value = 0.01");
     
 	double val;
 	wxString dlg_val;
 	wxString cur_val;
 	
-	wxTextEntryDialog dlg(NULL, m, "Enter a seed value", cur_val);
+	wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
 	if (dlg.ShowModal() != wxID_OK) 
         return;
     
@@ -257,10 +261,9 @@ void RegressionDlg::OnSetupAutoModel(wxCommandEvent& event )
 	if (dlg_val.ToDouble(&val)) {
 		autoPVal = val;
 	} else {
-		wxString m;
-		m << "\"" << dlg_val << 
-            "\" is not a valid p-value. Default p-value (0.01) is used";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+        wxString m = _("\"%s\" is not a valid p-value. Default p-value (0.01) is used");
+        m = wxString::Format(m, dlg_val);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 
@@ -271,7 +274,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 	wxLogMessage("Click RegressionDlg::OnRunClick");
 
     m_gauge->Show();
-	UpdateMessageBox("calculating...");
+	UpdateMessageBox(_("calculating..."));
 	
 	wxString m_Yname = m_dependent->GetValue();
    
@@ -287,9 +290,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     m_Yname.Trim(true);
     
     double** dt = new double* [sz + 1];
-    for (int i = 0; i < sz + 1; i++) {
+    for (int i = 0; i < sz + 1; i++)
         dt[i] = new double[m_obs];
-    }
     
     // WS1447
     // fill in each field from m_independentlist and tack on
@@ -308,8 +310,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
             wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."), nm);
-            wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
+            // free memory of dt[][]
+            for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+            delete[] dt;
             return;
         }
         int tm = name_to_tm_id[m_independentlist->GetString(i)];
@@ -326,15 +331,17 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     int y_col_id = table_int->FindColId(name_to_nm[m_Yname]);
     if (y_col_id == wxNOT_FOUND) {
         wxString err_msg = wxString::Format("Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data.", name_to_nm[m_Yname]);
-        wxMessageDialog dlg(NULL, err_msg, "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
+        // free memory of dt[][]
+        for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+        delete[] dt;
         return;
     }
     
     table_int->GetColData(y_col_id, name_to_tm_id[m_Yname], vec);
-    for (int j=0; j<m_obs; j++) {
+    for (int j=0; j<m_obs; j++)
         dt[sz][j] = vec[j];
-    }
     
     std::vector<bool> vec_undef(m_obs);
     table_int->GetColUndefined(y_col_id, name_to_tm_id[m_Yname], vec_undef);
@@ -363,6 +370,16 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         }
     }
 
+    if (valid_obs == 0) {
+        wxString err_msg = _("Please check the selected variables are all valid.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        // free memory of dt[][]
+        for (int i = 0; i < sz + 1; i++) delete[] dt[i];
+        delete[] dt;
+        return;
+    }
+    
 	if (m_constant_term) {
 		nX = nX + 1;
 		ix = 1; 
@@ -502,13 +519,19 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             bool HetFlag = false;
 
             DiagnosticReport m_DR(n, nX, m_constant_term, true, 1);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
             
             if (gal_weight &&
 				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
 									 do_white_test)) 
             {
-                wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
+                wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
                 m_OpenDump = false;
                 OnCResetClick(event);
                 UpdateMessageBox("");
@@ -570,6 +593,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		if (RegressModel == 1) {
             wxLogMessage("OLS model");
 			DiagnosticReport m_DR(n, nX, m_constant_term, true, RegressModel);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -577,8 +605,12 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			if (gal_weight &&
 				!classicalRegression(gal_weight, valid_obs, y, n, x, nX, &m_DR,
 									 m_constant_term, true, m_gauge,
-									 do_white_test)) {
-				wxMessageBox(_("Error: the inverse matrix is ill-conditioned"));
+									 do_white_test))
+            {
+                wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -608,18 +640,25 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Show();
 				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
-				p_dlg->StatusUpdate(1, "Finished");
+				p_dlg->StatusUpdate(1, _("Finished"));
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
+                wxString s = _("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                
 				UpdateMessageBox("");
 				return;
 			}
 			
 			DiagnosticReport m_DR(n, nX + 1, m_constant_term, true,
 								  RegressModel);
-			
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -657,11 +696,13 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 				p_dlg->Show();
 				p_dlg->StatusUpdate(0, _("Checking Symmetry..."));
 				sym = w_man_int->CheckSym(id, p_dlg);
-				p_dlg->StatusUpdate(1, "Finished");
+				p_dlg->StatusUpdate(1, _("Finished"));
 				p_dlg->Destroy();
 			}
 			if (sym != WeightsMetaInfo::SYM_symmetric) {
-                wxMessageBox(_("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."));
+                wxString s = _("Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
 				UpdateMessageBox("");
 				return;
 			}			
@@ -669,6 +710,11 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			// Error Model
 			DiagnosticReport m_DR(n, nX + 1, m_constant_term, true,
 								  RegressModel);
+            if ( false == m_DR.GetDiagStatus()) {
+                UpdateMessageBox("");
+                return;
+            }
+            
 			SetXVariableNames(&m_DR);
 			m_DR.SetMeanY(ComputeMean(y, n));
 			m_DR.SetSDevY(ComputeSdev(y, n));
@@ -676,7 +722,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			if (gal_weight && !spatialErrorRegression(gal_weight, valid_obs,
 													  y, n, x, nX,
 													  &m_DR, true, m_gauge)) {
-				wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
+				wxString s = _("Error: the inverse matrix is ill-conditioned.");
+                wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                
 				m_OpenDump = false;
 				OnCResetClick(event);
 				UpdateMessageBox("");
@@ -714,6 +763,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         
 	} else {
 		DiagnosticReport m_DR(n, nX, m_constant_term, false, RegressModel);
+        if ( false == m_DR.GetDiagStatus()) {
+            UpdateMessageBox("");
+            return;
+        }
 		SetXVariableNames(&m_DR);
 		m_DR.SetMeanY(ComputeMean(y, n));
 		m_DR.SetSDevY(ComputeSdev(y, n));
@@ -721,7 +774,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 		if (!classicalRegression((GalElement*)NULL, m_obs, y, n, x, nX, &m_DR, 
 								 m_constant_term, false, m_gauge,
 								 do_white_test)) {
-			wxMessageBox(_("Error: the inverse matrix is ill-conditioned."));
+            wxString s = _("Error: the inverse matrix is ill-conditioned.");
+            wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            
 			m_OpenDump = false;
 			OnCResetClick(event);
 			UpdateMessageBox("");
@@ -754,7 +810,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
     
 	EnablingItems();
 	//FindWindow(XRCID("ID_RUN"))->Enable(false);
-	UpdateMessageBox("done");
+	UpdateMessageBox(_("done"));
 }
 
 void RegressionDlg::DisplayRegression(wxString dump)
@@ -837,7 +893,7 @@ void RegressionDlg::OnSaveToTxtFileClick( wxCommandEvent& event )
 	if (failed) {
 		wxString msg;
 		msg << _("Unable to overwrite ") << new_txt;
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 }
@@ -1032,7 +1088,7 @@ void RegressionDlg::OnCSaveRegressionClick( wxCommandEvent& event )
 	}
 	
 	SaveToTableDlg dlg(project, this, data,
-					   "Save Regression Results",
+					   _("Save Regression Results"),
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 	
@@ -1090,7 +1146,9 @@ void RegressionDlg::InitVariableList()
  
 	m_obs = project->GetNumRecords();
 	if (m_obs <= 0) {
-		wxMessageBox("Error: no records found in DBF file");
+        wxString s = _("Error: no records found in data source.");
+        wxMessageDialog dlg(NULL, s, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
 		return;
 	}
 	
@@ -1204,7 +1262,11 @@ void RegressionDlg::OnCWeightCheckClick( wxCommandEvent& event )
 	b_done1 = b_done2 = b_done3 = false;
 	EnablingItems();
 
-	if (!m_CheckWeight->IsChecked()) m_radio1->SetValue(true);
+    if (!m_CheckWeight->IsChecked()) {
+        m_radio1->SetValue(true);
+        wxCommandEvent(ev);
+        OnCRadio1Selected(ev);
+    }
 }
 
 void RegressionDlg::UpdateMessageBox(wxString msg)
@@ -1234,8 +1296,10 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 	logReport = wxEmptyString; // reset log report
 	int cnt = 0;
 	
-	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n"; cnt++;
-	slog << "Data set            :  " << datasetname << "\n"; cnt++;
+	slog << "SUMMARY OF OUTPUT: ORDINARY LEAST SQUARES ESTIMATION\n";
+    cnt++;
+	slog << "Data set            :  " << datasetname << "\n";
+    cnt++;
 	slog << "Dependent Variable  :";
     
     if (m_dependent->GetValue().length() > 12 )
@@ -1243,56 +1307,79 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
     else
         slog << GenUtils::Pad(m_dependent->GetValue(), 12) <<  "  ";
         
-	slog << "Number of Observations:" << wxString::Format("%5d\n",Obs); cnt++;
+	slog << "Number of Observations:" << wxString::Format("%5d\n",Obs);
+    cnt++;
 	f = "Mean dependent var  :%12.6g  Number of Variables   :%5d\n";
-	slog << wxString::Format(f, r->GetMeanY(), nX); cnt++;
+	slog << wxString::Format(f, r->GetMeanY(), nX);
+    cnt++;
 	f = "S.D. dependent var  :%12.6g  Degrees of Freedom    :%5d \n";
-	slog << wxString::Format(f, r->GetSDevY(), Obs-nX); cnt++;
-	slog << "\n"; cnt++;
+	slog << wxString::Format(f, r->GetSDevY(), Obs-nX);
+    cnt++;
+	slog << "\n";
+    cnt++;
 	
-	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n"; cnt++;
+	f = "R-squared           :%12.6f  F-statistic           :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetR2(), r->GetFtest());
-	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n"; cnt++;
+	f = "Adjusted R-squared  :%12.6f  Prob(F-statistic)     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetR2_adjust(), r->GetFtestProb());
-	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n"; cnt++;
+	f = "Sum squared residual:%12.6g  Log likelihood        :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetRSS() ,r->GetLIK());
-	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n"; cnt++;
+	f = "Sigma-square        :%12.6g  Akaike info criterion :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQ(), r->GetAIC());
-	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n"; cnt++;
+	f = "S.E. of regression  :%12.6g  Schwarz criterion     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQ()), r->GetOLS_SC());
-	f = "Sigma-square ML     :%12.6g\n"; cnt++;
+	f = "Sigma-square ML     :%12.6g\n";
+    cnt++;
 	slog << wxString::Format(f, r->GetSIQ_SQLM());
-	f = "S.E of regression ML:%12.6g\n\n"; cnt++; cnt++;
+	f = "S.E of regression ML:%12.6g\n\n";
+    cnt++;
+    cnt++;
 	slog << wxString::Format(f, sqrt(r->GetSIQ_SQLM()));
 	
 	slog << "--------------------------------------";
-	slog << "---------------------------------------\n"; cnt++;
+	slog << "---------------------------------------\n";
+    cnt++;
 	slog << "       Variable      Coefficient      ";
-	slog << "Std.Error    t-Statistic   Probability\n"; cnt++;
+	slog << "Std.Error    t-Statistic   Probability\n";
+    cnt++;
 	slog << "--------------------------------------";
-	slog << "---------------------------------------\n"; cnt++;
+	slog << "---------------------------------------\n";
+    cnt++;
 	
 	for (int i=0; i<nX; i++) {
 		slog << GenUtils::PadTrim(r->GetXVarName(i), 18);
 		slog << wxString::Format("  %12.6g   %12.6g   %12.6g   %9.5f\n",
 								 r->GetCoefficient(i), r->GetStdError(i),
-								 r->GetZValue(i), r->GetProbability(i)); cnt++;
+								 r->GetZValue(i), r->GetProbability(i));
+        cnt++;
 	}
 	slog << "----------------------------------------";
-	slog << "-------------------------------------\n\n"; cnt++; cnt++;
+	slog << "-------------------------------------\n\n";
+    cnt++;
+    cnt++;
 	
-	slog << "REGRESSION DIAGNOSTICS  \n"; cnt++;
+	slog << "REGRESSION DIAGNOSTICS  \n";
+    cnt++;
 	double *rr = r->GetBPtest();
 	if (rr[1] > 1) {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber()); cnt++;
+								 r->GetConditionNumber());
+        cnt++;
 	} else {
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
-								 r->GetConditionNumber()); cnt++;
+								 r->GetConditionNumber());
+        cnt++;
 		slog << "                                ";
-		slog << "      (Extreme Multicollinearity)\n"; cnt++;
+		slog << "      (Extreme Multicollinearity)\n";
+        cnt++;
 	}
-	slog << "TEST ON NORMALITY OF ERRORS\n"; cnt++;
+	slog << "TEST ON NORMALITY OF ERRORS\n";
+    cnt++;
 	slog << "TEST                  DF           VALUE             PROB\n"; cnt++;
 	rr = r->GetJBtest();
 	f = "Jarque-Bera           %2.0f        %11.4f        %9.5f\n"; cnt++;

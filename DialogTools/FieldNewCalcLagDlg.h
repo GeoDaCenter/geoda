@@ -39,7 +39,7 @@ public:
     FieldNewCalcLagDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY, 
-					   const wxString& caption = "Spatial Lag",
+					   const wxString& caption = _("Spatial Lag"),
 					   const wxPoint& pos = wxDefaultPosition, 
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );
@@ -53,14 +53,16 @@ public:
     void OnLagOperandUpdated( wxCommandEvent& event );
 	void OnLagOperandTmUpdated( wxCommandEvent& event );
 	void OnOpenWeightClick( wxCommandEvent& event );
-	
+
 	void UpdateOtherPanels();
 	void SetOtherPanelPointers(FieldNewCalcSpecialDlg* s_panel_s,
 							   FieldNewCalcUniDlg* u_panel_s,
 							   FieldNewCalcBinDlg* b_panel_s,
-							   FieldNewCalcRateDlg* r_panel_s) {
+							   FieldNewCalcRateDlg* r_panel_s)
+    {
 		s_panel=s_panel_s; u_panel=u_panel_s;
-		b_panel=b_panel_s; r_panel=r_panel_s; }
+		b_panel=b_panel_s; r_panel=r_panel_s;
+    }
 	FieldNewCalcSpecialDlg* s_panel;
 	FieldNewCalcUniDlg* u_panel;
 	FieldNewCalcBinDlg* b_panel;
@@ -80,6 +82,10 @@ public:
     wxChoice* m_var;
 	wxChoice* m_var_tm;
     wxTextCtrl* m_text;
+    wxCheckBox* m_row_stand;
+    wxCheckBox* m_self_neighbor;
+    
+    
 	Project* project;
 	WeightsManInterface* w_man_int;
 	TableInterface* table_int;
@@ -92,7 +98,7 @@ public:
 	void Apply();
 	void InitFieldChoices();
 	void InitTime(wxChoice* time_list);
-
+    void SetupRowstandControls();
 	void Display();
 };
 

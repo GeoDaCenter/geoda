@@ -99,7 +99,8 @@ view_standardized_data(view_standardized_data_)
 	selectable_outline_color = GdaConst::scatterplot_regression_color;
 	// 1 = #cats
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, X.size());
-	cat_data.SetCategoryColor(0, 0, selectable_fill_color);
+	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
+    cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
 	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
 	cat_data.SetCurrentCanvasTmStep(0);
 	
@@ -107,33 +108,31 @@ view_standardized_data(view_standardized_data_)
 	ResizeSelectableShps();
 	
 	highlight_state->registerObserver(this);
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
 }
 
 SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 {
-	LOG_MSG("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
+	wxLogMessage("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 	EmptyLowessCache();
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
+	wxLogMessage("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 }
 
 void SimpleScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering SimpleScatterPlotCanvas::DisplayRightClickMenu");
-	if (right_click_menu_id.IsEmpty()) return;	
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	template_frame->OnActivate(ae);
-	
-	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
-	if (!optMenu) return;
-	
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting SimpleScatterPlotCanvas::DisplayRightClickMenu");
+	wxLogMessage("Entering SimpleScatterPlotCanvas::DisplayRightClickMenu");
+	if (right_click_menu_id.IsEmpty()) return;
+    if (ssp_canv_cb) {
+        ssp_canv_cb->OnRightClick(pos+ GetPosition());
+    } else {
+        wxMenu* optMenu;
+        optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
+        
+        template_frame->UpdateContextMenuItems(optMenu);
+        template_frame->PopupMenu(optMenu, pos + GetPosition());
+        template_frame->UpdateOptionMenuItems();
+    }
+	wxLogMessage("Exiting SimpleScatterPlotCanvas::DisplayRightClickMenu");
 }
 
 void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -168,7 +167,7 @@ void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
  as needed. */
 void SimpleScatterPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering SimpleScatterPlotCanvas::update");
+	wxLogMessage("Entering SimpleScatterPlotCanvas::update");
 	
 	if (IsShowRegimes() && IsShowLinearSmoother()) {
 		SmoothingUtils::CalcStatsRegimes(X, Y, X_undef, Y_undef,
@@ -198,7 +197,7 @@ void SimpleScatterPlotCanvas::update(HLStateInt* o)
 
     UpdateStatusBar();
     
-	LOG_MSG("Exiting ScatterNewPlotCanvas::update");	
+	wxLogMessage("Exiting ScatterNewPlotCanvas::update");
 }
 
 void SimpleScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -207,15 +206,23 @@ void SimpleScatterPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 
 wxString SimpleScatterPlotCanvas::GetCanvasTitle()
 {
-	wxString s("Scatter Plot");	
-	s << " - x: " << Xname << ", y: " << Yname;
+    wxString s = _("Scatter Plot- x: %s, y: %s");
+    s = wxString::Format(s, Xname, Yname);
 	return s;
+}
+
+wxString SimpleScatterPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    s << Xname << ", " << Yname;
+    return s;
 }
 
 void SimpleScatterPlotCanvas::UpdateStatusBar()
 {
 	if (template_frame) {
 		wxStatusBar* sb = template_frame->GetStatusBar();
+        if (sb == NULL) return;
 		if (mousemode == select && selectstate == start) {
 			if (template_frame->GetStatusBarStringFromFrame()) {
                 wxString str = template_frame->GetUpdateStatusBarString(hover_obs, total_hover_obs);
@@ -228,7 +235,7 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
             
             if (highlight_state->GetTotalHighlighted()> 0) {
                 int n_total_hl = highlight_state->GetTotalHighlighted();
-                s << "#selected=" << n_total_hl << "  ";
+                s << _("#selected=") << n_total_hl << "  ";
                 
                 int n_undefs = 0;
                 for (int i=0; i<X.size(); i++) {
@@ -261,19 +268,19 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
             
             if (mousemode == select && selectstate == start) {
                 if (total_hover_obs >= 1) {
-                    s << "hover obs " << hover_obs[0]+1 << " = (";
+                    s << _("#hover obs ") << hover_obs[0]+1 << " = (";
                     s << X[hover_obs[0]] << ", " << Y[hover_obs[0]];
                     s << ")";
                 }
                 if (total_hover_obs >= 2) {
                     s << ", ";
-                    s << "obs " << hover_obs[1]+1 << " = (";
+                    s << _("obs ") << hover_obs[1]+1 << " = (";
                     s << X[hover_obs[1]] << ", " << Y[hover_obs[1]];
                     s << ")";
                 }
                 if (total_hover_obs >= 3) {
                     s << ", ";
-                    s << "obs " << hover_obs[2]+1 << " = (";
+                    s << _("obs ") << hover_obs[2]+1 << " = (";
                     s << X[hover_obs[2]] << ", " << Y[hover_obs[2]];
                     s << ")";
                 }
@@ -282,7 +289,6 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
                 }
             }
             sb->SetStatusText(s);
-
 		}
 	}
 	
@@ -379,12 +385,13 @@ void SimpleScatterPlotCanvas::ChangeLoessParams(double f, int iter, double delta
 	lowess.SetF(f);
 	lowess.SetIter(iter);
 	lowess.SetDeltaFactor(delta_factor);
-	if (IsShowLowessSmoother()) PopulateCanvas();
+	if (IsShowLowessSmoother())
+        PopulateCanvas();
 }
 
 void SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines()
 {
-	LOG_MSG("In SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines");
+	wxLogMessage("In SimpleScatterPlotCanvas::UpdateLinearRegimesRegLines");
 	if (IsShowLinearSmoother()) {
 		pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
 		pens.SetPenColor(pens.GetRegExlPen(), GdaConst::scatterplot_regression_excluded_color);

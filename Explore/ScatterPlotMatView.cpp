@@ -22,6 +22,7 @@
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
+#include "../GeneralWxUtils.h"
 #include "../DialogTools/AdjustYAxisDlg.h"
 #include "../HighlightState.h"
 #include "../GeneralWxUtils.h"
@@ -47,7 +48,7 @@ ScatterPlotMatFrame::ScatterPlotMatFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 lowess_param_frame(0), vars_chooser_frame(0), panel(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0), view_standardized_data(false),
-show_regimes(true), show_outside_titles(true), show_linear_smoother(true),
+show_regimes(false), show_outside_titles(true), show_linear_smoother(true),
 show_lowess_smoother(false), show_slope_values(true),
 brush_rectangle(true), brush_circle(false), brush_line(false),
 selectable_outline_color(GdaConst::scatterplot_regression_color),
@@ -68,7 +69,7 @@ axis_display_precision(1)
 	GetClientSize(&width, &height);
 	
 	panel = new wxPanel(this);
-	panel->SetBackgroundColour(*wxWHITE);
+	
 	SetBackgroundColour(*wxWHITE);
 	panel->Bind(wxEVT_MOTION, &ScatterPlotMatFrame::OnMouseEvent, this);
 	
@@ -90,7 +91,8 @@ axis_display_precision(1)
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
 	panel->SetSizer(panel_h_szr);
-	
+	panel->SetBackgroundColour(*wxWHITE);
+    
 	UpdateMessageWin();
 	
 	// Top Sizer for Frame
@@ -133,6 +135,12 @@ void ScatterPlotMatFrame::OnActivate(wxActivateEvent& event)
 	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
 }
 
+void ScatterPlotMatFrame::OnSaveScreen(wxCommandEvent& event)
+{
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(panel, title);
+}
+
 void ScatterPlotMatFrame::MapMenus()
 {
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
@@ -140,15 +148,14 @@ void ScatterPlotMatFrame::MapMenus()
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_SCATTER_PLOT_MAT_MENU_OPTIONS");
 	ScatterPlotMatFrame::UpdateContextMenuItems(optMenu);
-
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
 void ScatterPlotMatFrame::UpdateOptionMenuItems()
 {
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu == wxNOT_FOUND) {
 	} else {
 		ScatterPlotMatFrame::UpdateContextMenuItems(mb->GetMenu(menu));
@@ -161,6 +168,13 @@ void ScatterPlotMatFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
+    menu->AppendSeparator();
+    wxString menu_txt = _("Save Image As");
+    menu->Append(XRCID("SAVE_SCATTER_MAT"), menu_txt);
+    
+    
+    Connect(XRCID("SAVE_SCATTER_MAT"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ScatterPlotMatFrame::OnSaveScreen));
+    
     
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
 								  brush_rectangle);
@@ -219,7 +233,7 @@ void ScatterPlotMatFrame::OnSelectWithLine(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 {
     wxColour new_color;
-    if (GetColorFromUser(this,selectable_outline_color,new_color,"Outline Color"))
+    if (GetColorFromUser(this,selectable_outline_color,new_color, _("Outline Color")))
     {
         for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
             scatt_plots[i]->SetSelectableOutlineColor(new_color);
@@ -230,7 +244,7 @@ void ScatterPlotMatFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
     wxColour new_color;
-    if (GetColorFromUser(this,selectable_fill_color,new_color,"Fill Color"))
+    if (GetColorFromUser(this,selectable_fill_color,new_color, _("Fill Color")))
     {
         for (size_t i=0, sz=scatt_plots.size(); i<sz; ++i) {
             scatt_plots[i]->SetSelectableFillColor(new_color);
@@ -508,12 +522,11 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     continue;
                 }
                 wxString col_nm(var_man.GetName(col));
-                int col_tm(var_man.GetTime(col));
-                
-                if (data_map[row_nm].size() == 1)
-                    col_tm = 0;
-                
-                const vector<bool>& X_undef(data_undef_map[col_nm][col_tm]);
+                int col_tm = 0;
+                if (!var_man.IsTimeVariant(col)) {
+                    col_tm = var_man.GetTime(col);
+                }
+                const vector<bool>& X_undef = data_undef_map[col_nm][col_tm];
                 for (size_t ii=0; ii<X_undef.size(); ii++) {
                     XY_undef[ii] = XY_undef[ii] || X_undef[ii];
                 }
@@ -547,6 +560,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                                           view_standardized_data,
                                           wxDefaultPosition, wxSize(50, -1));
             bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
+            sa_can->SetBackgroundColour(*wxWHITE);
             vert_labels.push_back(sa_can);
             
             sa_can = new SimpleAxisCanvas(panel, this, project,

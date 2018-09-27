@@ -69,7 +69,7 @@ void PCPDlg::Init()
 	name_to_tm_id.clear(); // map to corresponding time id
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int id = col_id_map[i];
-		wxString name = table_int->GetColName(id).Upper();
+		wxString name = table_int->GetColName(id);
 		if (table_int->IsColTimeVariant(id)) {
 			for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
 				wxString nm = name;

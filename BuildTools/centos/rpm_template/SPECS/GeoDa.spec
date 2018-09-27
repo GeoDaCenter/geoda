@@ -1,5 +1,5 @@
 Name:		GeoDa
-Version:	1.8
+Version:	1.10
 Release:	1%{?dist}
 Summary:	An Introduction to Spatial Data Analysis
 

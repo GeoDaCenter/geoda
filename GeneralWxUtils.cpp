@@ -17,13 +17,137 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "GeneralWxUtils.h"
 #include <wx/tokenzr.h>
 #include <wx/filename.h>
 #include <wx/platinfo.h>
 #include <wx/log.h>
 #include <wx/window.h>
+#include <wx/xrc/xmlres.h>
+#include <wx/wfstream.h>
+#include <wx/colordlg.h>
+#include <wx/txtstrm.h>
 
+
+#include "GeneralWxUtils.h"
+
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
+BEGIN_EVENT_TABLE(SimpleReportTextCtrl, wxTextCtrl)
+EVT_CONTEXT_MENU(SimpleReportTextCtrl::OnContextMenu)
+END_EVENT_TABLE()
+
+void SimpleReportTextCtrl::OnContextMenu(wxContextMenuEvent& event)
+{
+    wxMenu* menu = new wxMenu;
+    // Some standard items
+    menu->Append(XRCID("SAVE_SIMPLE_REPORT"), _("&Save"));
+    menu->AppendSeparator();
+    menu->Append(wxID_UNDO, _("&Undo"));
+    menu->Append(wxID_REDO, _("&Redo"));
+    menu->AppendSeparator();
+    menu->Append(wxID_CUT, _("Cu&t"));
+    menu->Append(wxID_COPY, _("&Copy"));
+    menu->Append(wxID_PASTE, _("&Paste"));
+    menu->Append(wxID_CLEAR, _("&Delete"));
+    menu->AppendSeparator();
+    menu->Append(wxID_SELECTALL, _("Select &All"));
+    
+    // Add any custom items here
+    Connect(XRCID("SAVE_SIMPLE_REPORT"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(SimpleReportTextCtrl::OnSaveClick));
+    
+    PopupMenu(menu);
+}
+
+void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
+{
+    wxLogMessage("In SimpleReportTextCtrl::OnSaveClick()");
+    wxFileDialog dlg( this, "Save PCA results", wxEmptyString,
+                     wxEmptyString,
+                     "TXT files (*.txt)|*.txt",
+                     wxFD_SAVE );
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxFileName new_txt_fname(dlg.GetPath());
+    wxString new_txt = new_txt_fname.GetFullPath();
+    wxFFileOutputStream output(new_txt);
+    if (output.IsOk()) {
+        wxTextOutputStream txt_out( output );
+        txt_out << this->GetValue();
+        txt_out.Flush();
+        output.Close();
+    }
+}
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
+
+ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size, const wxArtID & art_id)
+: wxDialog(NULL, -1, title, wxDefaultPosition, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+{
+    
+    wxPanel *panel = new wxPanel(this, -1);
+    
+    wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
+    wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
+    tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300));
+    vbox0->Add(st, 0, wxBOTTOM, 10);
+    vbox0->Add(tc, 1, wxEXPAND);
+    
+    wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
+    wxBitmap save = wxArtProvider::GetBitmap(wxART_WARNING);
+    wxStaticBitmap *warn = new wxStaticBitmap(panel, -1, save);
+    hbox0->Add(warn, 0, wxRIGHT, 5);
+    hbox0->Add(vbox0, 1);
+    
+    panel->SetSizer(hbox0);
+    
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    wxButton *saveButton = new wxButton(this, XRCID("SAVE_DETAILS"), _("Save Details"), wxDefaultPosition, wxSize(130, -1));
+    wxButton *okButton = new wxButton(this, wxID_OK, _("Ok"), wxDefaultPosition, wxSize(110, -1));
+    hbox1->Add(saveButton, 1, wxRIGHT, 30);
+    hbox1->Add(okButton, 1);
+    
+    Connect(XRCID("SAVE_DETAILS"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(ScrolledDetailMsgDialog::OnSaveClick));
+    
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    vbox->Add(panel, 1, wxEXPAND | wxALL, 20);
+    vbox->Add(hbox1, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+    
+    SetSizer(vbox);
+    
+    Centre();
+    ShowModal();
+    
+    Destroy(); 
+}
+
+void ScrolledDetailMsgDialog::OnSaveClick( wxCommandEvent& event )
+{
+    wxLogMessage("In ScrolledDetailMsgDialog::OnSaveClick()");
+    wxFileDialog dlg( this, "Save results", wxEmptyString,
+                     wxEmptyString,
+                     "TXT files (*.txt)|*.txt",
+                     wxFD_SAVE );
+    if (dlg.ShowModal() != wxID_OK) return;
+    
+    wxFileName new_txt_fname(dlg.GetPath());
+    wxString new_txt = new_txt_fname.GetFullPath();
+    wxFFileOutputStream output(new_txt);
+    if (output.IsOk()) {
+        wxTextOutputStream txt_out( output );
+        txt_out << tc->GetValue();
+        txt_out.Flush();
+        output.Close();
+    }
+}
+
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
 wxOperatingSystemId GeneralWxUtils::GetOsId()
 {
 	static wxOperatingSystemId osId =
@@ -170,6 +294,7 @@ bool GeneralWxUtils::ReplaceMenu(wxMenuBar* mb, const wxString& title,
 	//mb->Replace(m_ind, newMenu, title);
     wxMenu* prev_opt_menu = mb->Remove(m_ind);
     mb->Insert(m_ind, newMenu, title);
+	
 	// The following line shouldn't be needed, but on wxWidgets 2.9.2, the
 	// menu label is set to empty after Replace is called.
 	//mb->SetMenuLabel(m_ind, title);
@@ -326,5 +451,76 @@ wxMenu* GeneralWxUtils::FindMenu(wxMenuBar* mb,	const wxString& menuTitle)
 	return mb->GetMenu(menu);
 }
 
+wxColour GeneralWxUtils::PickColor(wxWindow *parent, wxColour& col)
+{
+    wxColourData data;
+    data.SetColour(col);
+    data.SetChooseFull(true);
+    int ki;
+    for (ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        data.SetCustomColour(ki, colour);
+    }
+    
+    wxColourDialog dialog(parent, &data);
+    dialog.SetTitle(_("Choose Cateogry Color"));
+    if (dialog.ShowModal() == wxID_OK) {
+        wxColourData retData = dialog.GetColourData();
+        return retData.GetColour();
+    }
+    return col;
+}
+
+void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
+{
+    //Create a DC for the whole screen area
+    wxWindowDC dcScreen(win);
+    
+    //Get the size of the screen/DC
+    wxCoord screenWidth, screenHeight;
+    dcScreen.GetSize(&screenWidth, &screenHeight);
+    
+    //Create a Bitmap that will later on hold the screenshot image
+    //Note that the Bitmap must have a size big enough to hold the screenshot
+    //-1 means using the current default colour depth
+    wxSize new_sz = win->FromDIP(wxSize(screenWidth, screenHeight));
+    wxBitmap screenshot(new_sz);
+    
+    //Create a memory DC that will be used for actually taking the screenshot
+    wxMemoryDC memDC;
+    //Tell the memory DC to use our Bitmap
+    //all drawing action on the memory DC will go to the Bitmap now
+    memDC.SelectObject(screenshot);
+    //Blit (in this case copy) the actual screen on the memory DC
+    //and thus the Bitmap
+
+    memDC.Blit( 0, //Copy to this X coordinate
+               0, //Copy to this Y coordinate
+               screenWidth, //Copy this width
+               screenHeight, //Copy this height
+               &dcScreen, //From where do we copy?
+               0, //What's the X offset in the original DC?
+               0  //What's the Y offset in the original DC?
+               );
+    //Select the Bitmap out of the memory DC by selecting a new
+    //uninitialized Bitmap
+    memDC.SelectObject(wxNullBitmap);
+    
+    //Our Bitmap now has the screenshot, so let's save it :-)
+    wxString default_fname(title);
+    wxString filter = "BMP|*.bmp|PNG|*.png";
+    wxFileDialog dialog(NULL, _("Save Image to File"), wxEmptyString,
+                        default_fname, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dialog.ShowModal() != wxID_OK) return;
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+    
+    if (dialog.GetFilterIndex() == 0) {
+        screenshot.SaveFile(str_fname + ".bmp", wxBITMAP_TYPE_BMP);
+    } else if (dialog.GetFilterIndex() == 1) {
+        screenshot.SaveFile(str_fname + ".png", wxBITMAP_TYPE_PNG);
+    }
+}
 
 

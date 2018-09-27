@@ -68,6 +68,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     wxLogMessage("Open CsvFieldConfDlg.");
     
+    lat_box = NULL;
     n_max_rows = 10;
     filepath = _filepath;
     
@@ -97,7 +98,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxStaticText* prev_lbl = new wxStaticText(panel, wxID_ANY, _("Data Preview - number of preview records:"));
     prev_spin = new wxSpinCtrl(panel, wxID_ANY, "");
     n_max_rows = 10;
-    prev_spin->SetRange(0, 1000);
+    prev_spin->SetRange(0, 100);
     prev_spin->SetValue(n_max_rows);
     prev_spin->Connect(wxEVT_SPINCTRL,
                        wxCommandEventHandler(CsvFieldConfDlg::OnSampleSpinClick),
@@ -121,9 +122,9 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     // lat/lon
     wxStaticText* lat_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) Longitude/X:"));
     wxStaticText* lng_lbl = new wxStaticText(panel, wxID_ANY, _("Latitude/Y:"));
-    lat_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    lat_box = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                      wxSize(80,-1), 0, NULL, wxCB_READONLY);
-    lng_box = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    lng_box = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                      wxSize(80,-1), 0, NULL, wxCB_READONLY);
     wxBoxSizer* latlng_box = new wxBoxSizer(wxHORIZONTAL);
     latlng_box->Add(lat_lbl, 0, wxALIGN_CENTER_VERTICAL);
@@ -136,13 +137,13 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     // first row
     wxStaticText* header_lbl = new wxStaticText(panel, wxID_ANY, _("(Optional) First record has field names? "));
-    wxComboBox* header_cmb = new wxComboBox(panel, wxID_ANY, _(""),
+    wxComboBox* header_cmb = new wxComboBox(panel, wxID_ANY, "",
                                             wxDefaultPosition,
                                             wxDefaultSize, 0, NULL, wxCB_READONLY);
     header_cmb->Append("NO");
     header_cmb->Append("YES");
     header_cmb->Append("AUTO DETECT");
-    header_cmb->SetSelection(2);
+    header_cmb->SetSelection(1);
     header_cmb->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
                        wxCommandEventHandler(CsvFieldConfDlg::OnHeaderCmbClick),
                        NULL,
@@ -273,6 +274,12 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
             types.push_back("Integer64");
         } else if( poFieldDefn->GetType() == OFTReal ) {
             types.push_back("Real");
+        } else if( poFieldDefn->GetType() == OFTDate) {
+            types.push_back("Date");
+        } else if( poFieldDefn->GetType() == OFTTime) {
+            types.push_back("Time");
+        } else if( poFieldDefn->GetType() == OFTDateTime ) {
+            types.push_back("DateTime");
         } else {
             types.push_back("String");
         }
@@ -286,25 +293,50 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
     }
     prev_data.clear();
    
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+    int tzflag = 0;
+    int msg_shown = false;
     
     OGRFeature *poFeature;
     poLayer->ResetReading();
     while( (poFeature = poLayer->GetNextFeature()) != NULL )
     {
-        if (cnt > n_max_rows)
+        if (cnt >= n_max_rows)
             break;
-        
+      
+        if (cnt == 0)
         for(int iField = 0; iField < nFields; iField++)
         {
             OGRFieldDefn *poFieldDefn = poFDefn->GetFieldDefn( iField );
-            
-            if( poFieldDefn->GetType() == OFTInteger ) {
+            OGRFieldType poFieldType = poFieldDefn->GetType();
+            if( poFieldType == OFTInteger ) {
                 poFeature->GetFieldAsInteger64( iField );
-            } else if( poFieldDefn->GetType() == OFTInteger64 ) {
+            } else if( poFieldType == OFTInteger64 ) {
                 poFeature->GetFieldAsInteger64( iField );
-            } else if( poFieldDefn->GetType() == OFTReal ) {
+            } else if( poFieldType == OFTReal ) {
                 poFeature->GetFieldAsDouble(iField);
-            } else if( poFieldDefn->GetType() == OFTString ) {
+            } else if( poFieldType == OFTDate ||
+                      poFieldType == OFTTime ||
+                      poFieldType == OFTDateTime)
+            {
+                int rtn = poFeature->GetFieldAsDateTime(iField, &year, &month, &day, &hour, &minute, &second, &tzflag);
+                if (rtn == 0) {
+                    if (!msg_shown) {
+                        wxString msg = _("Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property");
+                        wxMessageDialog dlg(NULL, msg, _("CSV Configuration Warning"), wxOK | wxICON_ERROR);
+                        dlg.ShowModal();
+                        msg_shown = true;
+                    }
+                    types[iField] = "String";
+                    poFeature->GetFieldAsString(iField);
+                    fieldGrid->SetCellValue(iField, 1, "String");
+                }
+            } else if( poFieldType == OFTString ) {
                 poFeature->GetFieldAsString(iField);
             } else {
                 poFeature->GetFieldAsString(iField);
@@ -313,10 +345,44 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
         prev_data.push_back(poFeature);
         cnt += 1;
     }
+    GDALClose(poDS);
     
     n_prev_rows = cnt;
-   
-    GDALClose(poDS);
+    
+    if (msg_shown && lat_box) {
+        wxString lat_col_name = lat_box->GetValue();
+        wxString lng_col_name = lng_box->GetValue();
+        
+        wxString csvt;
+        
+        int n_rows = col_names.size();
+        for (int r=0; r < n_rows; r++ ) {
+            wxString col_name = fieldGrid->GetCellValue(r, 0);
+            if (col_name == lat_col_name) {
+                csvt << "CoordX";
+            } else if (col_name == lng_col_name ) {
+                csvt << "CoordY";
+            } else {
+                wxString type = types[r];
+                csvt << type;
+            }
+            if (r < n_rows-1)
+                csvt << ",";
+        }
+        
+        // write back to a CSVT file
+        wxString csvt_path = filepath + "t";
+        wxTextFile file(csvt_path);
+        file.Open();
+        file.Clear();
+        
+        file.AddLine( csvt );
+        
+        file.Write();
+        file.Close();
+        
+        PrereadCSV(HEADERS);
+    }
 }
 
 
@@ -357,9 +423,9 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
         wxString col_name = col_names[i];
         fieldGrid->SetCellValue(i, 0, col_name);
         
-        wxString strChoices[5] = {"Real", "Integer", "Integer64","String"};
+        wxString strChoices[7] = {"Real", "Integer", "Integer64","String", "Date", "Time", "DateTime"};
         int COL_T = 1;
-        wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(5, strChoices, false);
+        wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(7, strChoices, false);
         fieldGrid->SetCellEditor(i, COL_T, m_editor);
         
         if (types.size() == 0 || i >= types.size() ) {
@@ -381,8 +447,11 @@ void CsvFieldConfDlg::UpdateXYcombox( )
     lng_box->Clear();
   
     bool first_item = true;
+    int coord_x_idx = -1;
+    int coord_y_idx = -1;
+    int cnt = 1;
     for (int i=0; i<col_names.size(); i++) {
-        if (types[i] == "Real") {
+        if (types[i] == "Real" || types[i] == "CoordX" || types[i] == "CoordY") {
             if (first_item ) {
                 lat_box->Append("");
                 lng_box->Append("");
@@ -390,37 +459,13 @@ void CsvFieldConfDlg::UpdateXYcombox( )
             }
             lat_box->Append(col_names[i]);
             lng_box->Append(col_names[i]);
+            if (types[i] == "CoordX") coord_x_idx = cnt;
+            else if (types[i] == "CoordY") coord_y_idx = cnt;
+            cnt ++;
         }
     }
-    
-    wxString csvt_path = filepath + "t";
-    
-    if (wxFileExists(csvt_path)) {
-        // load data type from csvt file
-        wxTextFile csvt_file;
-        csvt_file.Open(csvt_path);
-        
-        // read the first line
-        wxString str = csvt_file.GetFirstLine();
-        wxStringTokenizer tokenizer(str, ",");
-        
-        int idx = 0;
-        while ( tokenizer.HasMoreTokens() )
-        {
-            wxString token = tokenizer.GetNextToken().Upper();
-            if (token.Contains("COORDX")) {
-                wxString col_name = col_names[idx];
-                int pos = lng_box->FindString(col_name);
-                lat_box->SetSelection(pos);
-            } else if (token.Contains("COORDY")) {
-                wxString col_name = col_names[idx];
-                int pos = lng_box->FindString(col_name);
-                lng_box->SetSelection(pos);
-            }
-            idx += 1;
-        }
-    }
-
+    lat_box->SetSelection(coord_x_idx);
+    lng_box->SetSelection(coord_y_idx);
 }
 
 void CsvFieldConfDlg::UpdatePreviewGrid( )
@@ -433,8 +478,10 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
     
     int n_new_row = n_prev_rows;
     
-    if (n_max_rows < n_new_row) n_new_row = n_max_rows;
-        
+    if (n_max_rows > n_new_row) n_new_row = n_max_rows;
+    
+    if (n_new_row > prev_data.size()) n_new_row = prev_data.size();
+    
     if (n_grid_row < n_new_row) {
         previewGrid->InsertRows(0, n_new_row - n_grid_row);
     }
@@ -457,7 +504,7 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
             
             if (types[j] == "Integer" || types[j] == "Integer64") {
                 wxInt64 val = poFeature->GetFieldAsInteger64(j);
-                wxString str = wxString::Format(wxT("%") wxT(wxLongLongFmtSpec) wxT("d"), val);
+                wxString str = wxString::Format("%" wxLongLongFmtSpec "d", val);
                 previewGrid->SetCellValue(i, j, str);
                 
             } else if (types[j] == "Real") {
@@ -465,6 +512,10 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 wxString str = wxString::Format("%f", val);
                 previewGrid->SetCellValue(i, j, str);
                 
+            } else if (types[j] == "Date" || types[j] == "Time" || types[j] == "DateTime") {
+                wxString str = poFeature->GetFieldAsString(j);
+                //wxString str = wxString::Format("%f", val);
+                previewGrid->SetCellValue(i, j, str);
             } else {
                 wxString str = poFeature->GetFieldAsString(j);
                 previewGrid->SetCellValue(i, j, str);
@@ -500,6 +551,16 @@ void CsvFieldConfDlg::ReadCSVT()
                 types[idx] = "Integer";
             } else if (token.Contains("REAL")) {
                 types[idx] = "Real";
+            } else if (token.Contains("COORDX")) {
+                types[idx] = "CoordX";
+            } else if (token.Contains("COORDY")) {
+                types[idx] = "CoordY";
+            } else if (token.Contains("DATETIME")) {
+                types[idx] = "DateTime";
+            } else if (token.Contains("TIME")) {
+                types[idx] = "Time";
+            } else if (token.Contains("DATE")) {
+                types[idx] = "Date";
             } else {
                 types[idx] = "String";
             } 
@@ -548,7 +609,6 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
     WriteCSVT();
-    GdaConst::gda_ogr_csv_header = HEADERS;
     EndDialog(wxID_OK);
 }
 
@@ -579,12 +639,14 @@ void CsvFieldConfDlg::OnHeaderCmbClick( wxCommandEvent& event )
     UpdateFieldGrid();
     UpdatePreviewGrid();
     UpdateXYcombox();
-
+    
+    GdaConst::gda_ogr_csv_header = HEADERS;
 }
 
 void CsvFieldConfDlg::OnSampleSpinClick( wxCommandEvent& event )
 {
 	wxLogMessage("CsvFieldConfDlg::OnSampleSpinClick()");
     n_max_rows = prev_spin->GetValue();
+    PrereadCSV(HEADERS);
     UpdatePreviewGrid();
 }

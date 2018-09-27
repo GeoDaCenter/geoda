@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <vector>
 #include <set>
+#include <boost/date_time.hpp>
 #include <boost/foreach.hpp>
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <wx/grid.h>
@@ -58,38 +59,14 @@ OGRTable::OGRTable(OGRLayerProxy* _ogr_layer,
 : TableInterface(table_state, time_state),
 ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 {
-	LOG_MSG("Entering OGRTable::OGRTable");
+	wxLogMessage("Entering OGRTable::OGRTable");
     encoding_type = wxFONTENCODING_UTF8;
 	m_wx_encoding = new wxCSConv(wxFONTENCODING_UTF8);
    
-    // create in memory OGRColumns, read var_map
 	for (size_t i=0; i<ogr_layer->fields.size(); ++i) {
         AddOGRColumn(ogr_layer, i);
-        // deprecated in 1.8
-		//var_map[columns[i]->GetName()] = i;
-        org_var_names.push_back(columns[i]->GetName());
     }
    
-    /*
-	// If displayed decimals attribute in var_order is set to
-	// default, then set displayed decimals to decimals
-	for (int i=0, num_grps=var_order.GetNumVarGroups(); i<num_grps; ++i) {
-		VarGroup g = var_order.FindVarGroup(i);
-        vector<wxString> var_names;
-        g.GetVarNames(var_names);
-        int decimals = 0;
-        for (int j=0; j<var_names.size(); j++) {
-            wxString var_name = var_names[j];
-            if (ogr_layer->GetField(var_name)->GetDecimals() > decimals) {
-                decimals = ogr_layer->GetField(var_name)->GetDecimals();
-            }
-        }
-        if ( decimals > 0) {
-            var_order.SetDisplayedDecimals(i, decimals);
-        }
-	}
-    */
-    
 	rows = ogr_layer->n_rows;
 	time_state->SetTimeIds(var_order.GetTimeIdsRef());
 	changed_since_last_save = false;
@@ -97,7 +74,6 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 	is_valid = true;
     
     table_state->registerObserver(this);
-
 }
 
 OGRTable::~OGRTable()
@@ -109,21 +85,8 @@ OGRTable::~OGRTable()
     if (m_wx_encoding) {
         delete m_wx_encoding;
     }
-	LOG_MSG("In OGRTable::~OGRTable");
+	wxLogMessage("In OGRTable::~OGRTable");
 }
-
-/*
-void OGRTable::ChangeOGRLayer(OGRLayerProxy* new_ogr_layer)
-{
-    // When SaveAs current datasource to a new datasource, the underneath
-    // OGRLayer will be replaced.
-    ogr_layer = new_ogr_layer;
-    bool is_new_layer = true;
-	for (size_t i=0; i<ogr_layer->fields.size(); ++i) {
-        columns[i]->UpdateOGRLayer(new_ogr_layer);
-    }
-}
-*/
 
 void OGRTable::Update(const VarOrderPtree& var_order_ptree)
 {
@@ -215,10 +178,11 @@ void OGRTable::AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx)
         ogr_col = new OGRColumnDateTime(ogr_layer_proxy,idx);
         
     } else {
-        wxString msg = "Add OGR column error. Field type is unknown.";
+        wxString msg = _("Add OGR column error. Field type is unknown.");
         throw GdaException(msg.mb_str());
     }
     columns.push_back(ogr_col);
+    org_var_names.push_back(ogr_col->GetName());
 }
 
 // Following 2 functions are for in-memory OGRTable
@@ -228,14 +192,9 @@ void OGRTable::AddOGRColumn(OGRColumn* ogr_col)
 	VarGroup g(ogr_col->GetName(), ogr_col->GetDecimals());
     var_order.InsertVarGroup(g, pos);
     
-    
     columns.push_back(ogr_col);
-    
-    // deprecated in 1.8
-    //var_map[ogr_col->GetName()] = pos;
     org_var_names.push_back(ogr_col->GetName());
 }
-
 
 OGRColumn* OGRTable::GetOGRColumn(int idx)
 {
@@ -284,8 +243,6 @@ int OGRTable::GetTimeInt(const wxString& tm_string)
 
 bool OGRTable::IsTimeVariant()
 {
-    //return var_order.GetNumTms() > 1;
-    
     int n_vargrp = var_order.GetNumVarGroups();
     for (int i=0; i<n_vargrp; i++){
         if (!var_order.FindVarGroup(i).IsSimple())
@@ -329,7 +286,7 @@ bool OGRTable::Save(wxString& err_msg)
                 operations_queue.push(op);
                 completed_stack.pop();
             }
-            err_msg << "GeoDa can't save changes to this datasource. Please try to use File->Export.";
+            err_msg << _("GeoDa can't save changes to this datasource. Please try to use File->Export.");
             return false;
         }
         // clean Operations
@@ -344,17 +301,13 @@ bool OGRTable::Save(wxString& err_msg)
     }
     // if it's readonly, it can be and will be exported.So we set no "Change"
 	SetChangedSinceLastSave(false);
-    wxString msg = "GeoDa can't save changes to this datasource. Please try to use File->Export.";
+    wxString msg = _("GeoDa can't save changes to this datasource. Please try to use File->Export.");
     throw GdaException(msg.mb_str(), GdaException::NORMAL);
 	return false;
 }
 
 bool OGRTable::IsReadOnly()
 {
-    //if (datasource_type == GdaConst::ds_dbf ||
-    //    datasource_type == GdaConst::ds_shapefile) {
-    //    return true;
-    //}
 	return !ogr_layer->is_writable;
 }
 
@@ -384,24 +337,14 @@ int OGRTable::GetColIdx(const wxString& name, bool ignore_case)
    
     // update it if different in real data. E.g. user may create a column
     // with name in lowercase, however, it is forced to uppercase in real table
-    // or in postgresql, all table name will be created in lower case
+    // or in postgresql, which all table name will be created in lower case
    
-    /*
-    // deprecated in 1.8.8
-    std::map<wxString, int>::iterator i;
-    if ( (i=var_map.find(name)) != var_map.end() ||
-        (i=var_map.find(name.Upper())) != var_map.end() ||
-        (i=var_map.find(name.Lower())) != var_map.end() ) {
-        return i->second;
-    }
-     */
     for (size_t i=0; i<org_var_names.size(); i++) {
         if (ignore_case) {
-            if (name.Upper() == org_var_names[i].Upper())
+            if (name.CmpNoCase(org_var_names[i]) ==0 )
                 return i;
-            
         } else {
-            if (name == org_var_names[i])
+            if (name == org_var_names[i] )
                 return i;
         }
     }
@@ -457,6 +400,44 @@ void OGRTable::FillNumericColIdMap(std::vector<int>& col_map)
 	}
 }
 
+void OGRTable::FillStringColIdMap(std::vector<int>& col_map)
+{
+    std::vector<int> t;
+    FillColIdMap(t);
+    int string_cnt = 0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::string_type)
+            string_cnt++;
+    }
+    col_map.resize(string_cnt);
+    int cnt=0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::string_type)
+            col_map[cnt++] = t[i];
+    }
+}
+
+void OGRTable::FillDateTimeColIdMap(std::vector<int>& col_map)
+{
+    std::vector<int> t;
+    FillColIdMap(t);
+    int numeric_cnt = 0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::date_type ||
+            GetColType(t[i]) == GdaConst::datetime_type) {
+            numeric_cnt++;
+        }
+    }
+    col_map.resize(numeric_cnt);
+    int cnt=0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::date_type ||
+            GetColType(t[i]) == GdaConst::datetime_type) {
+            col_map[cnt++] = t[i];
+        }
+    }
+}
+
 /** Similar to FillColIdMap except this is a map of long64 type columns
  only.  The size of the resulting corresponds to the number of numeric
  columns */
@@ -483,6 +464,18 @@ void OGRTable::FillNumericNameList(std::vector<wxString>& num_names)
 {
 	std::vector<int> t;
 	FillNumericColIdMap(t);
+	num_names.resize(t.size());
+	int cnt=0;
+	for (int i=0, iend=t.size(); i<iend; i++) {
+		num_names[i] = GetColName(t[i]);
+	}
+}
+
+//FillStringColIdMap
+void OGRTable::FillStringNameList(std::vector<wxString>& num_names)
+{
+	std::vector<int> t;
+	FillStringColIdMap(t);
 	num_names.resize(t.size());
 	int cnt=0;
 	for (int i=0, iend=t.size(); i<iend; i++) {
@@ -524,7 +517,6 @@ bool OGRTable::IsColNumeric(int col)
             GetColType(col) == GdaConst::time_type ||
             GetColType(col) == GdaConst::datetime_type
             );
-    // todo date, datetime, time
 }
 
 GdaConst::FieldType OGRTable::GetColType(int col)
@@ -791,6 +783,18 @@ void OGRTable::GetDirectColData(int col, std::vector<wxString>& data)
     ogr_col->FillData(data);
 }
 
+void OGRTable::GetDirectColData(int col, std::vector<unsigned long long>& data)
+{
+    // using underneath columns[]
+    if (col < 0 || col >= columns.size())
+        return;
+    
+    OGRColumn* ogr_col = columns[col];
+    if (ogr_col == NULL) return;
+    data.resize(rows);
+    ogr_col->FillData(data);
+}
+
 void OGRTable::GetColData(int col, int time, std::vector<double>& data)
 {
 	//if (!IsColNumeric(col)) return;
@@ -820,6 +824,16 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
 	OGRColumn* ogr_col = FindOGRColumn(nm);
 	if (ogr_col == NULL) return;
 	data.resize(rows);
+    ogr_col->FillData(data);
+}
+
+void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& data)
+{
+    wxString nm(var_order.GetSimpleColName(col, time));
+    if (nm.IsEmpty()) return;
+    OGRColumn* ogr_col = FindOGRColumn(nm);
+    if (ogr_col == NULL) return;
+    data.resize(rows);
     ogr_col->FillData(data);
 }
 
@@ -945,26 +959,32 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
                 if ( tmp_min_val > tmp ) tmp_min_val = tmp;
                 if ( tmp_max_val < tmp ) tmp_max_val = tmp;
 			}
-            min_vals.push_back(tmp_min_val);
-            max_vals.push_back(tmp_max_val);
+            if (has_init) {
+                min_vals.push_back(tmp_min_val);
+                max_vals.push_back(tmp_max_val);
+            }
 		}
 	}
 }
 
-void OGRTable::GetMinMaxVals(int col, int time,
+bool OGRTable::GetMinMaxVals(int col, int time,
 							 double& min_val, double& max_val)
 {
 	min_val = 0;
 	max_val = 0;
-	if (col < 0 || col >= GetNumberCols()) return;
-	if (!IsColNumeric(col)) return;
-	if (time < 0 || time > GetColTimeSteps(col)) return;
+	if (col < 0 || col >= GetNumberCols()) return false;
+	if (!IsColNumeric(col)) return false;
+	if (time < 0 || time > GetColTimeSteps(col)) return false;
 
 	std::vector<double> t_min;
 	std::vector<double> t_max;
-	GetMinMaxVals(col, t_min, t_max);
-	min_val = t_min[time];
-	max_val = t_max[time];
+    GetMinMaxVals(col, t_min, t_max);
+    if (t_min.empty() || t_max.empty()) {
+        return false;
+    }
+    min_val = t_min[time];
+    max_val = t_max[time];
+    return true;
 }
 
 void OGRTable::SetColData(int col, int time,
@@ -1013,6 +1033,21 @@ void OGRTable::SetColData(int col, int time,
 	table_state->SetColDataChangeEvtTyp(ogr_col->GetName(), col);
 	table_state->notifyObservers();
 	SetChangedSinceLastSave(true);
+}
+
+void OGRTable::SetColData(int col, int time,
+                          const std::vector<unsigned long long>& data)
+{
+    if (col < 0 || col >= GetNumberCols()) return;
+    int ogr_col_id = FindOGRColId(col, time);
+    if (ogr_col_id == wxNOT_FOUND) return;
+    
+    OGRColumn* ogr_col = columns[ogr_col_id];
+    operations_queue.push(new OGRTableOpUpdateColumn(ogr_col, data));
+    ogr_col->UpdateData(data);
+    table_state->SetColDataChangeEvtTyp(ogr_col->GetName(), col);
+    table_state->notifyObservers();
+    SetChangedSinceLastSave(true);
 }
 
 void OGRTable::SetColUndefined(int col, int time,
@@ -1195,10 +1230,7 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     
     // don't support the following column type
 	if (type == GdaConst::placeholder_type ||
-        type == GdaConst::unknown_type ||
-        type == GdaConst::date_type||
-        type == GdaConst::time_type||
-        type == GdaConst::datetime_type)
+        type == GdaConst::unknown_type)
     {
         return -1;
     }
@@ -1248,9 +1280,17 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
         } else if (type==GdaConst::string_type){
             ogr_col = new OGRColumnString(ogr_layer, names[t], field_len, decimals);
             
+        } else if (type==GdaConst::date_type){
+            ogr_col = new OGRColumnDate(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::time_type){
+            ogr_col = new OGRColumnTime(ogr_layer, names[t], field_len, decimals);
+            
+        } else if (type==GdaConst::datetime_type){
+            ogr_col = new OGRColumnDateTime(ogr_layer, names[t], field_len, decimals);
+            
         } else {
-            wxString msg = "Add OGR column error. Field type is unknown "
-            "or not supported.";
+            wxString msg = _("Add OGR column error. Field type is unknown or not supported.");
             throw GdaException(msg.mb_str());
         }
         columns.insert(columns.begin()+pos, ogr_col);
@@ -1292,8 +1332,8 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
 
 bool OGRTable::DeleteCol(int pos)
 {
-	LOG_MSG("Inside OGRTable::DeleteCol");
-	LOG_MSG(wxString::Format("Deleting column from table at postion %d", pos));
+	wxLogMessage("Inside OGRTable::DeleteCol");
+	wxLogMessage(wxString::Format("Deleting column from table at postion %d", pos));
 	if (pos < 0 ||
         pos >= var_order.GetNumVarGroups() ||
 		var_order.GetNumVarGroups() == 0)
@@ -1301,37 +1341,28 @@ bool OGRTable::DeleteCol(int pos)
         return false;
     }
 	
-	// Must remove all items from var_map first
-	VarGroup vg = var_order.FindVarGroup(pos);
-	vector<wxString> col_nms;
-	vg.GetVarNames(col_nms);
-	BOOST_FOREACH(const wxString& s, col_nms) {
-		if (s != "") {
-            for( size_t i=0; i<columns.size(); ++i) {
-                if (columns[i]->GetName().CmpNoCase(s) == 0) {
-                    operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
-                    columns.erase(columns.begin()+i);
-                    break;
-                }
+    wxString col_name = var_order.GetGroupName(pos);
+	if (!col_name.IsEmpty()) {
+        for( size_t i=0; i<columns.size(); ++i) {
+            if (columns[i]->GetName().CmpNoCase(col_name) == 0) {
+                operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
+                columns.erase(columns.begin()+i);
+                break;
             }
-		}
+        }
 	}
     
-    /*
-    // depcrecated in 1.8.8
-    var_map.clear();
-    for (int i=0; i<columns.size();i++) {
-        var_map[columns[i]->GetName()] = i;
+    for (size_t i=0; i<org_var_names.size(); i++) {
+        if (org_var_names[i].CmpNoCase(col_name) == 0) {
+            org_var_names.erase( org_var_names.begin() + i );
+            break;
+        }
     }
-    */
-    vector<wxString>::iterator iter = org_var_names.begin() + pos;
-    org_var_names.erase(iter);
-	
-	wxString name = var_order.GetGroupName(pos);
+		
 	var_order.RemoveVarGroup(pos);
 	
 	TableDeltaList_type tdl;
-	TableDeltaEntry tde(name, false, pos);
+	TableDeltaEntry tde(col_name, false, pos);
 	tde.change_to_db = true;
 	tdl.push_back(tde);
 	table_state->SetColsDeltaEvtTyp(tdl);
@@ -1344,7 +1375,7 @@ bool OGRTable::DeleteCol(int pos)
 
 void OGRTable::UngroupCol(int col) 
 {
-	LOG_MSG("Inside OGRTable::UngroupCol");
+	wxLogMessage("Inside OGRTable::UngroupCol");
 	if (col < 0 || col >= var_order.GetNumVarGroups()) return;
 	if (GetColTimeSteps(col) <= 1) return;
 	
@@ -1353,7 +1384,8 @@ void OGRTable::UngroupCol(int col)
 		GdaConst::FieldInfo fi;
 		fi.type = GetColType(col, t);
 		if (fi.type == GdaConst::placeholder_type ||
-			fi.type == GdaConst::unknown_type) continue;
+			fi.type == GdaConst::unknown_type)
+            continue;
 		fi.field_len = GetColLength(col, t);
 		fi.decimals = GetColDecimals(col, t);
 		nm_to_fi[GetColName(col, t)] = fi;
@@ -1365,7 +1397,8 @@ void OGRTable::UngroupCol(int col)
 	
 	// Add missing information to tdl entries.
 	for (TableDeltaList_type::iterator i=tdl.begin(); i!=tdl.end(); ++i) {
-		if (!i->insert) continue;
+		if (!i->insert)
+            continue;
 		GdaConst::FieldInfo& fi = nm_to_fi[i->group_name];
 		i->type = fi.type;
 		i->decimals = fi.decimals;
@@ -1382,7 +1415,7 @@ void OGRTable::UngroupCol(int col)
 void OGRTable::GroupCols(const std::vector<int>& cols,
 						 const wxString& name, int pos) 
 {
-	LOG_MSG("Inside OGRTable::GroupCols");
+	wxLogMessage("Inside OGRTable::GroupCols");
 	if (pos < 0 || pos > var_order.GetNumVarGroups()) return;
 	if (cols.size() <= 1) return;
 	if (GetTimeSteps() > 1 && cols.size() != GetTimeSteps()) return;
@@ -1406,8 +1439,10 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 	GdaConst::FieldType type = GdaConst::unknown_type;
 	bool found_nonplaceholder = false;
 	for (size_t i=0; i<cols.size() && !found_nonplaceholder; ++i) {
-		if (cols[i] >= 0 && GetColType(cols[i]) != GdaConst::unknown_type
-			&& GetColType(cols[i]) != GdaConst::placeholder_type) {
+		if (cols[i] >= 0 &&
+            GetColType(cols[i]) != GdaConst::unknown_type &&
+            GetColType(cols[i]) != GdaConst::placeholder_type)
+        {
 			decimals = GetColDecimals(cols[i]);
 			displayed_decimals = GetColDecimals(cols[i]);
 			length = GetColLength(cols[i]);
@@ -1515,20 +1550,11 @@ int OGRTable::FindOGRColId(int wxgrid_col_pos, int time)
 int OGRTable::FindOGRColId(const wxString& name)
 {
     for (size_t i=0; i < org_var_names.size(); i++ ) {
-        if (name == org_var_names[i]) {
+        if (name == org_var_names[i] ) {
             return i;
         }
     }
     return -1;
-    /*
-    // deprecated in 1.8.8
-    std::map<wxString, int>::iterator i = var_map.find(name);
-    if ( i == var_map.end()) i = var_map.find(name.Upper());
-    if ( i == var_map.end()) i = var_map.find(name.Lower());
-    if ( i == var_map.end()) return -1;
-
-	return i->second;
-     */
 }
 
 OGRColumn* OGRTable::FindOGRColumn(int col, int time)
@@ -1543,20 +1569,11 @@ OGRColumn* OGRTable::FindOGRColumn(const wxString& name)
     if (name.IsEmpty()) return NULL;
     
     for (size_t i=0; i<org_var_names.size(); i++ ) {
-        if (name == org_var_names[i]) {
+        if (name == org_var_names[i] ) {
             return columns[i];
         }
     }
     return NULL;
-    /*
-    // deprecated in 1.8.8
-	std::map<wxString, int>::iterator i =var_map.find(name);
-    if ( i == var_map.end()) i = var_map.find(name.Upper());
-    if ( i == var_map.end()) i = var_map.find(name.Lower());
-    if ( i == var_map.end()) return NULL;
-    
-    return columns[i->second];
-     */
 }
 
 bool OGRTable::IsValidDBColName(const wxString& col_nm, 
@@ -1567,8 +1584,7 @@ bool OGRTable::IsValidDBColName(const wxString& col_nm,
     {
         // no valid entry in datasrc_field_lens, could be a unwritable ds
 		if ( fld_warn_msg ) {
-			*fld_warn_msg = "This datasource is not supported. Please export\n"
-            "to other datasource that GeoDa supports first.";
+			*fld_warn_msg = _("This datasource is not supported. Please export to other datasource that GeoDa supports first.");
 		}
         return false;
     }
@@ -1576,9 +1592,8 @@ bool OGRTable::IsValidDBColName(const wxString& col_nm,
     int field_len = GdaConst::datasrc_field_lens[datasource_type];
     if ( field_len < col_nm.length() ) {
 		if ( fld_warn_msg ) {
-		    *fld_warn_msg = "The length of field name should be between 1 and ";
-		    *fld_warn_msg << field_len  << ".\n"
-            << "Current field length (" << col_nm.length() << ") is not valid.";
+		    *fld_warn_msg = _("The length of field name should be between 1 and %d.\nCurrent field length (%d) is not valid");
+            *fld_warn_msg = wxString::Format(*fld_warn_msg, field_len, col_nm.length());
 		}
 		return false;
 	}

@@ -268,8 +268,9 @@ bool isSym(const GwtElement* g, int obs)
 }
 
 /*   Estimate
-* a function to compute the value of the logarithm of the characteristic polynomial. Uses Aitken's delta-square
-* process -- takes three elements in the series to accelerate convergence -- if appropriate.
+ * compute the value of the logarithm of the characteristic polynomial.
+ * Uses Aitken's delta-square process
+ * --takes three elements in the series to accelerate convergence--if appropriate.
 */
 double Estimate(Iterator<WVector> Poly, const double val, const INDEX Prec, const INDEX np)  {
     double s0, s1, s2, ds;
@@ -301,10 +302,10 @@ double PrimeEstimate(Iterator<WVector> Poly, const double val, const INDEX Prec,
   return (s2 - ds);
 }
 
-/*   MakeEstimate
-* computes log-Jacobian by applying Aitken's formula and approximation of the truncated terms for
-* row-standardized matrices.
-*/
+/* MakeEstimate
+ * computes log-Jacobian by applying Aitken's formula
+ * and approximation of the truncated terms for row-standardized matrices.
+ */
 double MakeEstimate(Iterator<WVector> Poly, const double val, const INDEX Prec) 
 {
   double 	s0, s1, s2, ds, ns;

@@ -941,6 +941,15 @@ wxString C3DPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString C3DPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    s << GetNameWithTime(0) << ", ";
+    s << GetNameWithTime(1) << ", ";
+    s << GetNameWithTime(2);
+    return s;
+}
+
 wxString C3DPlotCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
@@ -1098,6 +1107,8 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 	control->template_frame = this;
 	m_splitter->SplitVertically(control, canvas, 70);
 	UpdateTitle();
+    
+    SetMinSize(wxSize(600,400));
 
 	Show(true);
 }
@@ -1132,7 +1143,7 @@ void C3DPlotFrame::MapMenus()
 		LoadMenu("ID_3D_PLOT_VIEW_MENU_OPTIONS");
 	canvas->AddTimeVariantOptionsToMenu(optMenu);
 	canvas->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1140,7 +1151,7 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		canvas->SetCheckMarks(mb->GetMenu(menu));

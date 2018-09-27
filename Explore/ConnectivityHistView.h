@@ -45,6 +45,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
@@ -52,10 +53,8 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
 	
-public:	
 	void ChangeWeights(boost::uuids::uuid new_id);
 	
 	void DisplayStatistics(bool display_stats);
@@ -71,8 +70,9 @@ public:
 	void InitData();
 	void InitIntervals();
 	void UpdateIvalSelCnts();
-protected:
 	virtual void UpdateStatusBar();
+    
+protected:
 
 	int num_obs;
 	bool has_isolates;

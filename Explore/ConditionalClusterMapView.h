@@ -29,7 +29,7 @@ using namespace std;
 class LisaCoordinator;
 class GStatCoordinator;
 class LocalGearyCoordinator;
-
+class JCCoordinator;
 class ConditionalClusterMapFrame;
 class ConditionalClusterMapCanvas;
 class ConditionalClusterMapLegend;
@@ -54,6 +54,7 @@ public:
     
     virtual wxString GetCategoriesTitle();
     virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 
     void Init(const wxSize& size);
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
@@ -83,9 +84,10 @@ public:
 	CatClassifDef cat_classif_def_map;
 	CatClassification::CatClassifType GetCatType();
 
-protected:
     virtual void UpdateStatusBar() = 0;
     virtual void PopulateCanvas();
+    
+protected:
     
     wxString title;
 	CatClassifState* cc_state_map;
@@ -141,6 +143,14 @@ public:
                                const vector<int>& col_ids,
                                LocalGearyCoordinator* local_geary_coord,
                                const wxString& title = _("Conditional Local Geary Map"),
+                               const wxPoint& pos = wxDefaultPosition,
+                               const wxSize& size = wxDefaultSize,
+                               const long style = wxDEFAULT_FRAME_STYLE);
+    ConditionalClusterMapFrame(wxFrame *parent, Project* project,
+                               const vector<GdaVarTools::VarInfo>& var_info,
+                               const vector<int>& col_ids,
+                               JCCoordinator* local_jc_coord,
+                               const wxString& title = _("Conditional Local Join Count Map"),
                                const wxPoint& pos = wxDefaultPosition,
                                const wxSize& size = wxDefaultSize,
                                const long style = wxDEFAULT_FRAME_STYLE);
@@ -263,4 +273,33 @@ protected:
     LocalGearyCoordinator* local_geary_coord;
     virtual void UpdateStatusBar();
 };
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// LocalJoinCount Cluster Conditional map
+//
+////////////////////////////////////////////////////////////////////////////////
+class ConditionalLocalJoinCountClusterMapCanvas : public ConditionalClusterMapCanvas {
+    //DECLARE_CLASS(ConditionalLocalGearyClusterMapCanvas)
+public:
+    
+    ConditionalLocalJoinCountClusterMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                          Project* project,
+                                          const vector<GdaVarTools::VarInfo>& var_info,
+                                          const vector<int>& col_ids,
+                                          JCCoordinator* local_jc_coordinator,
+                                          const wxString& title,
+                                          const wxPoint& pos = wxDefaultPosition,
+                                          const wxSize& size = wxDefaultSize);
+    
+    virtual ~ConditionalLocalJoinCountClusterMapCanvas();
+    
+    virtual void CreateAndUpdateCategories();
+    virtual void TimeSyncVariableToggle(int var_index);
+    
+protected:
+    JCCoordinator* local_jc_coord;
+    virtual void UpdateStatusBar();
+};
+
 #endif

@@ -292,8 +292,8 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
     
     wxString field_name = m_save_sel_var_name->GetValue();
     if (field_name.empty()) {
-        wxMessageDialog dlg(this, "Variable name can't be empty.",
-                            "Error", wxOK | wxICON_ERROR );
+        wxMessageDialog dlg(this, _("Variable name can't be empty."),
+                            _("Error"), wxOK | wxICON_ERROR );
         dlg.ShowModal();
         return;
     }
@@ -389,14 +389,14 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
-		wxString msg = "Chosen field is not a numeric type.  Please select a numeric type field.";
+		wxString msg = _("Chosen field is not a numeric type.  Please select a numeric type field.");
 
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
 	
-	wxString msg = "Values assigned to target field successfully.";
+	wxString msg = _("Values assigned to target field successfully.");
 	wxMessageDialog dlg(this, msg, "Success", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
 	OnCancelClick(event);

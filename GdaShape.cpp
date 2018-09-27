@@ -201,6 +201,9 @@ void GdaScaleTrans::calcAffineParams()
 			trans_y = screen_height - slack_y - bottom_margin - scale_y * data_y_min;
 		}
 	} else { // fixed_aspect_ratio == false, fit_to_window == true/false
+        slack_x = 0;
+        slack_y = 0;
+        
 		scale_x = drawing_area_width / data_width;
 		scale_y = -(drawing_area_height / data_height);
 		
@@ -410,9 +413,13 @@ void GdaShape::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(center_o, &center);
 }
 
-void GdaShape::projectToBasemap(GDA::Basemap* basemap)
+void GdaShape::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
     basemap->LatLngToXY(center_o.x, center_o.y, center.x, center.y);
+    if (scale_factor != 1) {
+        center.x = center.x * scale_factor;
+        center.y = center.y * scale_factor;
+    }
 }
 
 void GdaShape::setNudge(int x_nudge, int y_nudge)
@@ -525,7 +532,15 @@ wxRealPoint GdaShapeAlgs::calculateCentroid(GdaPolygon* poly)
 	if (poly->points_o) {
 		return calculateCentroid(poly->n, poly->points_o);
 	} else {
-		return calculateCentroid(poly->count[0], poly->pc->points);
+        int start = 0;
+        int n_size = poly->count[0];
+        for (int i=1; i<poly->pc->num_parts; i++) {
+            if (poly->count[i] > n_size) {
+                start = n_size;
+                n_size = poly->count[i];
+            }
+        }
+		return calculateCentroid(start, poly->pc->points);
 	}
 }
 
@@ -546,15 +561,16 @@ wxRealPoint GdaShapeAlgs::calculateCentroid(int n, wxRealPoint* pts)
 	return wxRealPoint(cx, cy);
 }
 
-wxRealPoint GdaShapeAlgs::calculateCentroid(int n,
+wxRealPoint GdaShapeAlgs::calculateCentroid(int start,
 	const std::vector<Shapefile::Point>& pts)
 {
+    int n = pts.size() - start;
 	double area = GdaShapeAlgs::calculateArea(n, pts);
-	if (area == 0) return wxRealPoint(pts[0].x, pts[0].y);
+	if (area == 0) return wxRealPoint(pts[start].x, pts[start].y);
 	// polygon is a p-gon. Handle case when polygon is not closed
-	int p = (pts[0].x==pts[n-1].x && pts[0].y==pts[n-1].y) ? n-1 : n;
+	int p = (pts[0].x==pts[n-1 + start].x && pts[0 + start].y==pts[n-1 + start].y) ? n-1 : n;
 	double cx=0, cy=0, d;
-	for (int i=0, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
+	for (int i=start, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
 		d = (pts[i].x * pts[j].y) - (pts[j].x * pts[i].y);
 		cx += (pts[i].x + pts[j].x)*d;
 		cy += (pts[i].y + pts[j].y)*d;
@@ -580,13 +596,14 @@ double GdaShapeAlgs::calculateArea(int n, wxRealPoint* pts)
 	return a/2.0f;
 }
 
-double GdaShapeAlgs::calculateArea(int n,
+double GdaShapeAlgs::calculateArea(int start,
 								  const std::vector<Shapefile::Point>& pts)
 {
+    int n = pts.size() - start;
 	if (n <= 2) return 0;
 	double a = 0;
-	int p = (pts[0].x==pts[n-1].x && pts[0].y==pts[n-1].y) ? n-1 : n;
-	for (int i=0, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
+	int p = (pts[0+start].x==pts[n-1+start].x && pts[0+start].y==pts[n-1+start].y) ? n-1 : n;
+	for (int i=start, j=1, k=0; k<p; i=(i+1)%p, j=(j+1)%p, k++) {
 		a += (pts[i].x * pts[j].y - pts[j].x * pts[i].y);
 	}
 	return a/2.0f;
@@ -741,22 +758,28 @@ void GdaShapeAlgs::getBoundingBoxOrig(const GdaPolygon* p, double& xmin,
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaPoint::GdaPoint()
+: radius(GdaConst::my_point_click_radius)
 {
 	null_shape = true;
 }
 
 GdaPoint::GdaPoint(const GdaPoint& s)
-	: GdaShape(s)
+: GdaShape(s), radius(GdaConst::my_point_click_radius)
+
 {
 }
 
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
+: radius(GdaConst::my_point_click_radius)
+
 {
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
 }
 
 GdaPoint::GdaPoint(double x_orig, double y_orig)
+: radius(GdaConst::my_point_click_radius)
+
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
@@ -795,9 +818,9 @@ bool GdaPoint::pointWithin(const wxPoint& pt)
 {
 	if (null_shape) return false;
 	return ( fabs((double) (center.x - pt.x))
-			<= 3.0 && // GdaConst::my_point_click_radius
+			<= 1.0 && // GdaConst::my_point_click_radius
 			fabs((double) (center.y - pt.y))
-			<= 3.0 ); // GdaConst::my_point_click_radius
+			<= 1.0 ); // GdaConst::my_point_click_radius
 }
 
 bool GdaPoint::regionIntersect(const wxRegion& r)
@@ -818,7 +841,7 @@ void GdaPoint::paintSelf(wxDC& dc)
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
 	wxPoint n_center(center.x+getXNudge(), center.y+getYNudge()); 
-	dc.DrawCircle(n_center, GdaConst::my_point_click_radius);
+	dc.DrawCircle(n_center, radius);
 }
 
 void GdaPoint::paintSelf(wxGraphicsContext* gc)
@@ -830,7 +853,7 @@ void GdaPoint::paintSelf(wxGraphicsContext* gc)
     
     
 	wxGraphicsPath path = gc->CreatePath();
-	path.AddCircle(n_center.x, n_center.y, GdaConst::my_point_click_radius);
+	path.AddCircle(n_center.x, n_center.y, radius);
 	gc->StrokePath(path);
 }
 
@@ -1033,16 +1056,23 @@ void GdaRectangle::applyScaleTrans(const GdaScaleTrans& A)
 }
 
 
-void GdaRectangle::projectToBasemap(GDA::Basemap* basemap)
+void GdaRectangle::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
 	if (null_shape) 
         return;
-	GdaShape::projectToBasemap(basemap); // apply affine transform to base class
+	GdaShape::projectToBasemap(basemap, scale_factor); // apply affine transform to base class
     
     basemap->LatLngToXY(lower_left_o.x, lower_left_o.y, 
                         lower_left.x, lower_left.y);
     basemap->LatLngToXY(upper_right_o.x, upper_right_o.y, 
                         upper_right.x, upper_right.y);
+    
+    if (scale_factor != 1) {
+        lower_left.x = lower_left.x * scale_factor;
+        lower_left.y = lower_left.y * scale_factor;
+        upper_right.x = upper_right.x * scale_factor;
+        upper_right.y = upper_right.y * scale_factor;
+    }
 }
 
 void GdaRectangle::paintSelf(wxDC& dc)
@@ -1050,9 +1080,11 @@ void GdaRectangle::paintSelf(wxDC& dc)
 	if (null_shape) return;
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
-	dc.DrawRectangle(lower_left.x+getXNudge(), lower_left.y+getYNudge(),
-					 upper_right.x - lower_left.x,
-					 upper_right.y - lower_left.y);
+    int x = lower_left.x+getXNudge();
+    int y = upper_right.y+getYNudge();
+    int w = upper_right.x - lower_left.x;
+    int h = lower_left.y - upper_right.y;
+	dc.DrawRectangle(x,y,w,h);
 }
 
 void GdaRectangle::paintSelf(wxGraphicsContext* gc)
@@ -1231,60 +1263,51 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 {
 	if (null_shape) return;
 	GdaShape::applyScaleTrans(A); // apply affine transform to base class
-	all_points_same = true;
-	wxPoint tpt;
-	A.transform(bb_ll_o, &tpt);
-	if (tpt == center) A.transform(bb_ur_o, &tpt);
-	if (tpt == center) return;
+	//all_points_same = true;
+	//wxPoint tpt;
+	//A.transform(bb_ll_o, &tpt);
+	//if (tpt == center) A.transform(bb_ur_o, &tpt);
+	//if (tpt == center) return;
 	if (points_o) {
 		for (int i=0; i<n; i++) {
 			A.transform(points_o[i], &(points[i]));
-			if (points[i] != center) all_points_same = false;
+			//if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
 			A.transform(pc->points[i], &(points[i]));
-			if (points[i] != center) all_points_same = false;
+			//if (points[i] != center) all_points_same = false;
 		}
 		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}
 }
 
 
-void GdaPolygon::projectToBasemap(GDA::Basemap* basemap)
+void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
 {
     if (null_shape) 
         return;
     
-	GdaShape::projectToBasemap(basemap); // apply transform to base class
-	all_points_same = true;
-	wxPoint tpt;
-    
-    basemap->LatLngToXY(bb_ll_o.x, bb_ll_o.y, tpt.x, tpt.y);
-
-	if (tpt == center) 
-        basemap->LatLngToXY(bb_ur_o.x, bb_ur_o.y, tpt.x, tpt.y);
-    
-	if (tpt == center) 
-        return;
-    
+	GdaShape::projectToBasemap(basemap, scale_factor);
 	if (points_o) {
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(points_o[i].x, points_o[i].y, 
                                 points[i].x, points[i].y);
-			if (points[i] != center) 
-                all_points_same = false;
+            if (scale_factor != 1) {
+                points[i].x = points[i].x * scale_factor;
+                points[i].y = points[i].y * scale_factor;
+            }
 		}
-		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
             basemap->LatLngToXY(pc->points[i].x, pc->points[i].y, 
                                 points[i].x, points[i].y);
-			if (points[i] != center) 
-                all_points_same = false;
+            if (scale_factor != 1) {
+                points[i].x = points[i].x * scale_factor;
+                points[i].y = points[i].y * scale_factor;
+            }
 		}
-		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}
 }
 
@@ -1468,8 +1491,6 @@ GdaPolyLine::GdaPolyLine(wxPoint pt1, wxPoint pt2)
     
 }
 
-
-
 /** This constructs a potentially multi-part polyline. Only a pointer to the
  original data is kept, and this memory is not deleted in the destructor. */
 GdaPolyLine::GdaPolyLine(Shapefile::PolyLineContents* pc_s)
@@ -1515,6 +1536,17 @@ GdaPolyLine::~GdaPolyLine()
 	if (points) delete [] points; points = 0;
 	if (points_o) delete [] points_o; points_o = 0;
 	if (count) delete [] count; count = 0;
+}
+
+void GdaPolyLine::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
+{
+    for (int i=0; i<n; i++) {
+        basemap->LatLngToXY(points_o[i].x, points_o[i].y, points[i].x, points[i].y);
+        if (scale_factor != 1) {
+            points[i].x = points[i].x * scale_factor;
+            points[i].y = points[i].y * scale_factor;
+        }
+    }
 }
 
 void GdaPolyLine::Offset(double dx, double dy)
@@ -2164,6 +2196,13 @@ void GdaShapeText::paintSelf(wxGraphicsContext* gc)
     
 }
 
+void GdaShapeText::GetSize(wxDC& dc, int& w, int& h)
+{
+    wxSize extent(dc.GetTextExtent(text));
+    w = extent.GetWidth();
+    h = extent.GetHeight();
+}
+
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)
 {
 	A.transform(ref_pt_o, &ref_pt);
@@ -2497,13 +2536,13 @@ GdaAxis::GdaAxis(const GdaAxis& s)
 
 GdaAxis::GdaAxis(const wxString& caption_s, const AxisScale& s,
                  const wxRealPoint& a_s, const wxRealPoint& b_s,
-                 int x_nudge, int y_nudge)
+                 int x_nudge, int y_nudge, bool inSubview_b)
 	: caption(caption_s), scale(s), is_horizontal(a_s.y == b_s.y),
 	a(a_s), b(b_s), a_o(a_s), b_o(b_s),
 	font(*GdaConst::small_font), caption_font(*GdaConst::medium_font),
 	hidden(false), hide_scale_values(false), hide_caption(false),
 	auto_drop_scale_values(true), move_outer_val_text_inwards(false),
-	hide_negative_labels(false)
+	hide_negative_labels(false), inSubview(inSubview_b)
 {
 	setNudge(x_nudge, y_nudge);
 }
@@ -2546,6 +2585,7 @@ void GdaAxis::paintSelf(wxGraphicsContext* gc)
 void GdaAxis::paintSelf(wxDC& dc)
 {
 	if (hidden) return;
+    
 	bool use_axis_scale = (tic_labels.size() == 0);
 	size_t num_tics = use_axis_scale ? scale.tics.size() : tic_labels.size();
 	
@@ -2762,3 +2802,6 @@ void GdaAxis::paintSelf(wxDC& dc)
 		}
 	}
 }
+
+
+

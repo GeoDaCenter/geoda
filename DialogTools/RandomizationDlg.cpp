@@ -33,6 +33,202 @@
 #include "RandomizationDlg.h"
 
 
+/////////////////////////////////////////////////////////////////////////////
+//
+//  --------------------------------------
+//  |          Inference Settings         |
+//  |-------------------------------------|
+//  |                                     |
+//  |  Bonferroni Bounds:  __0.43__       |
+//  |                                     |
+//  |  False  Discovery Rate: __0.____    |
+//  |                                     |
+//  |  Use specified p-value: _______     |
+//  |                                     |
+//  |                                     |
+//  |                                     |
+//  |   [ O K ]       [ Cancel ]          |
+//  --------------------------------------
+/////////////////////////////////////////////////////////////////////////////
+
+BEGIN_EVENT_TABLE( InferenceSettingsDlg, wxDialog )
+EVT_BUTTON( wxID_OK, InferenceSettingsDlg::OnOkClick )
+END_EVENT_TABLE()
+
+InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
+                                           double _p_cutoff,
+                                           double* _p_vals,
+                                           int _n,
+                                           const wxString& title,
+                                           wxWindowID id,
+                                           const wxPoint& pos,
+                                           const wxSize& size )
+: wxDialog(parent, id, title, pos, size), p_cutoff(_p_cutoff), p_vals(_p_vals), n(_n), fdr(0), bo(0), user_input(0)
+{
+    wxLogMessage("Open InferenceSettingsDlg.");
+    
+    wxString p_str = wxString::Format("%g", p_cutoff);
+    wxPanel *panel = new wxPanel(this);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    
+    // Parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,10,0);
+    
+    m_rdo_1 = new wxRadioButton(panel, -1, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    m_txt_bo = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
+    gbox->Add(m_rdo_1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_bo, 1, wxEXPAND);
+    
+    m_rdo_2 = new wxRadioButton(panel, -1, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
+    m_txt_fdr = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
+    gbox->Add(m_rdo_2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_fdr, 1, wxEXPAND);
+    
+    m_rdo_3 = new wxRadioButton(panel, -1, _("Input significance:"), wxDefaultPosition, wxDefaultSize);
+    m_txt_pval = new wxTextCtrl(panel, XRCID("ID_INFERENCE_TCTRL"), p_str, wxDefaultPosition, wxSize(100,-1),wxTE_PROCESS_ENTER);
+    m_txt_pval->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT,
+            wxCommandEventHandler(InferenceSettingsDlg::OnAlphaTextCtrl));
+    gbox->Add(m_rdo_3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_txt_pval, 1, wxEXPAND);
+    m_rdo_3->SetValue(true);
+    
+    // Buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("OK"),
+                                      wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_CANCEL, _("Close"),
+                                         wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+    
+    // Container
+    chk_pval = new wxCheckBox(panel, wxID_ANY, _("Use selected as specified alpha level"));
+    chk_pval->SetValue(true);
+    chk_pval->Hide();
+    //vbox->Add(m_txt_title, 0,  wxALIGN_CENTER, 10);
+    vbox->Add(gbox, 1,  wxEXPAND | wxALL, 10);
+    //vbox->Add(chk_pval, 0,   wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    Centre();
+    
+    Init(p_vals, n, p_cutoff);
+}
+
+int compare (const void * a, const void * b)
+{
+    if (*(double*)a > *(double*)b) return 1;
+    else if (*(double*)a < *(double*)b) return -1;
+    else return 0;
+}
+
+void InferenceSettingsDlg::Init(double* p_vals, int n, double current_p)
+{
+    double bonferroni_bound = current_p / (double)n;
+    wxString bo_str = wxString::Format("%g", bonferroni_bound);;
+    m_txt_bo->SetLabel(bo_str);
+    
+    std::vector<double> pvals;
+    for (int i=0; i<n; i++) pvals.push_back(p_vals[i]);
+    
+    // FDR
+    // sort all p-values from smallest to largets
+    std::sort(pvals.begin(), pvals.end());
+
+    int i_0 = -1;
+    bool stop = false;
+    double p_start = current_p;
+    
+    while (!stop) {
+        // find the i_0 that corresponds to p = alpha
+        for (int i=1; i<=n; i++) {
+            if (pvals[i] >= p_start) {
+                if (i_0 == i) {
+                    stop = true;
+                }
+                i_0 = i;
+                break;
+            }
+        }
+        if (i_0 < 0)
+            stop = true;
+        
+        // compute p* = i_0 x alpha / N
+        p_start = i_0 * current_p / (double)n ;
+    }
+    
+    wxString fdr_str;
+    
+    if (i_0 >= 0)
+        fdr_str = wxString::Format("%g", p_start);
+    else {
+        fdr_str = "nan";
+        p_start = 0.0;
+    }
+    
+    m_txt_fdr->SetLabel(fdr_str);
+    
+    bo = bonferroni_bound;
+    fdr = p_start;
+}
+
+void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
+{
+    wxString val = m_txt_pval->GetValue();
+    val.Trim(false);
+    val.Trim(true);
+    double pval;
+    bool is_valid = val.ToDouble(&pval);
+    if (is_valid) {
+        if (pval > 1 ) {
+            m_txt_pval->SetValue("1.0");
+            pval = 1;
+        } else if (pval < 0) {
+            m_txt_pval->SetValue("0");
+            pval = 0;
+        }
+        user_input = pval;
+        Init(p_vals, n, pval);
+    }
+    ev.Skip();
+}
+
+void InferenceSettingsDlg::OnOkClick( wxCommandEvent& event )
+{
+    wxLogMessage("In InferenceSettingsDlg::OnOkClick()");
+   
+    if (chk_pval->GetValue()) {
+        wxString p_val = m_txt_pval->GetValue();
+        p_val.ToDouble(&user_input);
+        
+        if (m_rdo_3->GetValue()) {
+            p_cutoff = user_input;
+        } else if (m_rdo_1->GetValue()) {
+            p_cutoff = bo;
+        } else if (m_rdo_2->GetValue()) {
+            p_cutoff = fdr;
+        }
+        
+        EndDialog(wxID_OK);
+    } else {
+        EndDialog(wxID_CANCEL);
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 RandomizationPanel::RandomizationPanel(const std::vector<double>& raw_data1_s,
                                        const std::vector<bool>& undefs_s,
                                        const GalElement* W_s, int NumPermutations,
@@ -129,6 +325,10 @@ void RandomizationPanel::CalcMoran()
     for (int i=0; i<num_obs; i++) {
         if (undefs[i])
             continue;
+        if (W[i].Size()==0) {
+            continue;
+        }
+        
         double Wdata = 0;
         if (is_bivariate) {
             Wdata = W[i].SpatialLag(raw_data2);
@@ -199,25 +399,40 @@ void RandomizationPanel::RunRandomTrials()
 	
 	for (int i=0; i<Permutations; i++) {
 		//create a random permutation
-		rng->Perm(num_obs, perm, theRands);
+		rng->Perm(undefs, num_obs, perm, theRands);
 		double newMoran = 0;
 		if (is_bivariate) {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[perm[i]] || W[i].Size() == 0) {
+                    continue;
+                }
 				newMoran += (W[i].SpatialLag(raw_data2, perm)
 							 * raw_data1[perm[i]]);
 			}
 		} else {
 			for (int i=0; i<num_obs; i++) {
+                if (undefs[perm[i]] || W[i].Size() == 0) {
+                    continue;
+                }
 				newMoran += (W[i].SpatialLag(raw_data1, perm)
 							 * raw_data1[perm[i]]);
 			}
 		}
-		newMoran /= (double) num_obs - 1.0;
+        int valid_num_obs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if (!undefs[i] && W[i].Size() > 0) {
+                valid_num_obs++;
+            }
+        }
+		newMoran /= (double) valid_num_obs - 1.0;
 		// find its place in the distribution
 		MoranI[ totFrequency++ ] = newMoran;
 		int newBin = (int)floor( (newMoran - start)/range );
-		if (newBin < 0) newBin = 0;
-		else if (newBin >= bins) newBin = bins-1;
+        if (newBin < 0) {
+            newBin = 0;
+        } else if (newBin >= bins) {
+            newBin = bins-1;
+        }
 		
 		freq[newBin] = freq[newBin] + 1;
 		if (newBin < minBin) minBin = newBin;
@@ -238,6 +453,13 @@ void RandomizationPanel::RunRandomTrials()
 
 void RandomizationPanel::UpdateStatistics()
 {
+    int valid_num_obs = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (!undefs[i] && W[i].Size() > 0) {
+            valid_num_obs++;
+        }
+    }
+    
 	double sMoran = 0;
 	for (int i=0; i < totFrequency; i++) {
 		sMoran += MoranI[i];
@@ -260,7 +482,7 @@ void RandomizationPanel::UpdateStatistics()
 	}
 	
 	pseudo_p_val = (((double) signFrequency)+1.0)/(((double) totFrequency)+1.0);
-	expected_val = (double) -1/(num_obs - 1);
+	expected_val = (double) -1/(valid_num_obs - 1);
 }
 
 void RandomizationPanel::DrawRectangle(wxDC* dc, int left, int top, int right,
@@ -289,15 +511,18 @@ void RandomizationPanel::Draw(wxDC* dc)
     DrawRectangle(dc, 0, 0, sz.x, sz.y, GdaConst::canvas_background_color);
     
 	int fMax = freq_back[0];
-	for (int i=1; i<bins; i++) 
-        if (fMax < freq_back[i])
+    for (int i=1; i<bins; i++) {
+        if (fMax < freq_back[i]) {
             fMax = freq_back[i];
+        }
+    }
 
 	for (int i=0; i < bins; i++) {
 		double df = double (freq_back[i]* Height) / double (fMax);
 		freq_back[i] = int(df);
 	}
 
+    // blue is outlirs_colour, dark cherry is GdaConst::textColor
 	wxColour color = count_greater ? GdaConst::outliers_colour : GdaConst::textColor;
 	for (int i=0; i < thresholdBin; i++) {
 		if (freq_back[i] > 0) {
@@ -321,7 +546,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	DrawRectangle(dc, Left + thresholdBin*binX, Top,
 				  Left + (thresholdBin+1)*binX, Top+  Height,
 				  //GdaConst::highlight_color );
-                  wxColour(49, 163, 84));
+                  wxColour(49, 163, 84));  // green for origial Moran's I
 
 	wxPen drawPen(*wxBLACK_PEN);
 	drawPen.SetColour(GdaConst::textColor);
@@ -330,7 +555,7 @@ void RandomizationPanel::Draw(wxDC* dc)
 	//dc->DrawLine(Left, Top, Left, Top+Height); // Vertical axis
 	dc->DrawLine(Left, Top+Height, Left+Width, Top+Height); // Horizontal axis
 
-	drawPen.SetColour(wxColour(20, 20, 20));
+	drawPen.SetColour(wxColour(20, 20, 20)); // black
 	dc->SetPen(drawPen);
 	dc->SetBrush(*wxWHITE_BRUSH);
 	const int hZero= (int)(Left+(0-start)/(stop-start)*Width);
@@ -346,7 +571,9 @@ void RandomizationPanel::Draw(wxDC* dc)
 	drawPen.SetColour(GdaConst::textColor);
 	dc->SetPen(drawPen);
 	double zval = 0;
-	if (MSdev != 0) zval = (Moran-MMean)/MSdev;
+    if (MSdev != 0) {
+        zval = (Moran-MMean)/MSdev;
+    }
 	wxString text;
 	dc->SetTextForeground(wxColour(0,0,0));	
 	text = wxString::Format("I: %-7.4f  E[I]: %-7.4f  mean: %-7.4f"
@@ -430,6 +657,7 @@ RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const GalWeight* W_s,
                                    const std::vector<bool>& _undef,
                                    const std::vector<bool>& hl,
+                                   bool _is_regime,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -438,7 +666,7 @@ RandomizationDlg::RandomizationDlg(const std::vector<double>& raw_data1_s,
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
-copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL), is_regime(_is_regime)
 {
 	wxLogMessage("Open RandomizationDlg (bivariate).");
 	
@@ -471,7 +699,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
     panel = new RandomizationPanel(raw_data1_s, raw_data2_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
     
     
-    if ( has_hl) {
+    if ( has_hl && is_regime) {
         std::vector<bool> sel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             sel_undefs[i] = _undef[i] || !hl[i];
@@ -499,6 +727,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const GalWeight* W_s,
                                    const std::vector<bool>& _undef,
                                    const std::vector<bool>& hl,
+                                   bool _is_regime,
 								   int NumPermutations,
                                    bool reuse_user_seed,
                                    uint64_t user_specified_seed,
@@ -507,7 +736,7 @@ RandomizationDlg::RandomizationDlg( const std::vector<double>& raw_data1_s,
 								   const wxPoint& pos, const wxSize& size,
 								   long style )
 : wxFrame(parent, id, "", wxDefaultPosition, wxSize(550,300)),
-copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
+copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL), is_regime(_is_regime)
 {
 	wxLogMessage("Open RandomizationDlg (univariate).");
 	
@@ -537,7 +766,7 @@ copy_w(NULL), copy_w_sel(NULL), copy_w_unsel(NULL)
     panel = new RandomizationPanel(raw_data1_s, _undef, W, NumPermutations, reuse_user_seed, user_specified_seed, this, sz);
    
    
-    if ( has_hl) {
+    if ( has_hl && is_regime ) {
         std::vector<bool> sel_undefs(num_obs, false);
         for (int i=0; i<num_obs; i++) {
             sel_undefs[i] = _undef[i] || !hl[i];
@@ -583,7 +812,7 @@ RandomizationDlg::~RandomizationDlg()
 
 void RandomizationDlg::CreateControls()
 {
-    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
+    wxButton *button = new wxButton(this, ID_BUTTON, _("Run"));
    
     wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
     panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);
@@ -598,7 +827,7 @@ void RandomizationDlg::CreateControls()
 
 void RandomizationDlg::CreateControls_regime()
 {
-    wxButton *button = new wxButton(this, ID_BUTTON, wxT("Run"));
+    wxButton *button = new wxButton(this, ID_BUTTON, _("Run"));
     
     wxBoxSizer* panel_box = new wxBoxSizer(wxVERTICAL);
     panel_box->Add(button, 0, wxALIGN_CENTER | wxALIGN_TOP | wxALL, 10);

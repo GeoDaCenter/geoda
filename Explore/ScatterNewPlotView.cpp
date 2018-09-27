@@ -34,14 +34,19 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
+#include "../DialogTools/CreatingWeightDlg.h"
+#include "../ShapeOperations/GwtWeight.h"
+#include "../ShapeOperations/GalWeight.h"
+#include "../SpatialIndAlgs.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GenGeomAlgs.h"
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
+#include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/Lowess.h"
-#include "../ShapeOperations/ShapeUtils.h"
+#include "MapLayoutView.h"
 #include "ScatterNewPlotView.h"
 
 
@@ -66,19 +71,19 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
     slider = new wxSlider(this, XRCID("ID_BUBBLE_SLIDER"), int(pos), -95, 80,
                           wxDefaultPosition, wxSize(200, -1),
                           wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"small"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY, _("small")), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"large"), 0,
+	subSizer->Add(new wxStaticText(this, wxID_ANY, _("large")), 0,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);
-    resetBtn = new wxButton(this, XRCID("ID_RESET"), wxT("Reset"), wxDefaultPosition, wxSize(100, -1));
+    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"), wxDefaultPosition, wxSize(100, -1));
     topSizer->Add(resetBtn, 0, wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
     
-    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SCROLL_THUMBRELEASE, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
     Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
 }
 
@@ -269,7 +274,8 @@ bubble_size_scaler(1.0)
 		// 1 = #cats
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+			cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
+            cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
 			for (int i=0; i<num_obs; i++) {
 				cat_data.AppendIdToCategory(t, 0, i);
 			}
@@ -320,7 +326,7 @@ void ScatterNewPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 			LoadMenu("ID_BUBBLE_CHART_VIEW_MENU_OPTIONS");
 		TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
         optMenu->AppendSeparator();
-        wxMenuItem* menu_item = optMenu->Append(XRCID("IDM_BUBBLE_SLIDER"), wxT("Adjust Bubble Size"));
+        wxMenuItem* menu_item = optMenu->Append(XRCID("IDM_BUBBLE_SLIDER"), _("Adjust Bubble Size"));
         template_frame->Connect(XRCID("IDM_BUBBLE_SLIDER"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ScatterNewPlotFrame::AdjustBubbleSize));
 	} else {
 		optMenu = wxXmlResource::Get()->
@@ -340,10 +346,9 @@ void ScatterNewPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0; i<var_info.size(); i++) {
 		if (var_info[i].is_time_variant) {
-			wxString s;
-			s << "Synchronize " << var_info[i].name << " with Time Control";
-			wxMenuItem* mi =
-				menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			wxString s = _("Synchronize %s with Time Control");
+            s = wxString::Format(s, var_info[i].name);
+			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
@@ -387,38 +392,22 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
-	
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
 								  GetCcType() == CatClassification::percentile);
@@ -431,94 +420,8 @@ void ScatterNewPlotCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
-    
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"), enableLowess);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EDIT_LOWESS_PARAMS"), enableLowess);
-    
 }
 
 void ScatterNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -554,7 +457,7 @@ void ScatterNewPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     if (IsRegressionSelected() || IsRegressionExcluded()) {
         // we only need to redraw everything if the optional
         // regression lines have changed.
-        Refresh();
+        //Refresh();
     }
     
 }
@@ -597,25 +500,41 @@ void ScatterNewPlotCanvas::update(HLStateInt* o)
 	if (IsRegressionSelected() || IsRegressionExcluded()) {
 		// we only need to redraw everything if the optional
 		// regression lines have changed.
-		Refresh();
+		//Refresh();
 	}
 }
 
 wxString ScatterNewPlotCanvas::GetCanvasTitle()
 {
-	wxString s(is_bubble_plot ? "Bubble Chart" : "Scatter Plot");	
-	s << " - x: " << GetNameWithTime(0) << ", y: " << GetNameWithTime(1);
+    wxString s;
+    wxString x_name = GetNameWithTime(0);
+    wxString y_name = GetNameWithTime(1);
+    
 	if (is_bubble_plot) {
-		s << ", size: " << GetNameWithTime(2);
-		s << ", " << GetCategoriesTitle();
-	}
+        s = _("Bubble Chart - x: %s, y: %s, size: %s, %s");
+        s = wxString::Format(s, x_name, y_name, GetNameWithTime(2), GetCategoriesTitle());
+    } else {
+        s = _("Scatter Plot - x: %s, y: %s");
+        s = wxString::Format(s, x_name, y_name);
+    }
 	return s;
+}
+
+wxString ScatterNewPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    wxString x_name = GetNameWithTime(0);
+    wxString y_name = GetNameWithTime(1);
+    
+    s << x_name << ", " << y_name;
+
+    return s;
 }
 
 wxString ScatterNewPlotCanvas::GetCategoriesTitle()
 {
 	if (GetCcType() == CatClassification::no_theme) {
-		return "Themeless";
+		return _("Themeless");
 	}
 	wxString s;
 	if (GetCcType() == CatClassification::custom) {
@@ -703,7 +622,7 @@ void ScatterNewPlotCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -749,7 +668,7 @@ ChangeThemeType(CatClassification::CatClassifType new_theme,
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -764,7 +683,7 @@ void ScatterNewPlotCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -838,10 +757,10 @@ void ScatterNewPlotCanvas::SetSelectableOutlineColor(wxColour color)
  and refresh the canvas. */
 void ScatterNewPlotCanvas::PopulateCanvas()
 {
-	//wxSize size(GetVirtualSize());
-    //int screen_w = size.GetWidth();
-    //int screen_h = size.GetHeight();
-    //last_scale_trans.SetView(screen_w, screen_h);
+	wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
 
     
 	pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
@@ -901,18 +820,30 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     }
     
     if (standardized) {
+        double local_x_max = DBL_MIN;
+        double local_x_min = DBL_MAX;
+        double local_y_max = DBL_MIN;
+        double local_y_min = DBL_MAX;
         for (int i=0, iend=X.size(); i<iend; i++) {
             X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
             Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
             if (is_bubble_plot) {
                 Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
             }
+            if (local_x_max < X[i]) local_x_max = X[i];
+            if (local_x_min > X[i]) local_x_min = X[i];
+            if (local_y_max < Y[i]) local_y_max = Y[i];
+            if (local_y_min > Y[i]) local_y_min = Y[i];
         }
+        x_max = local_x_max;
+        x_min = local_x_min;
+        y_max = local_y_max;
+        y_min = local_y_min;
         // we are ignoring the global scaling option here
-        x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
-        x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
-        y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
-        y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
+        //x_max = (statsX.max - statsX.mean)/statsX.sd_with_bessel;
+        //x_min = (statsX.min - statsX.mean)/statsX.sd_with_bessel;
+        //y_max = (statsY.max - statsY.mean)/statsY.sd_with_bessel;
+        //y_min = (statsY.min - statsY.mean)/statsY.sd_with_bessel;
         
         statsX = SampleStatistics(X, XYZ_undef);
         statsY = SampleStatistics(Y, XYZ_undef);
@@ -944,10 +875,18 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
         x_max = var_info[0].max[var_info[0].time];
         x_min = var_info[0].min[var_info[0].time];
+    } else if (var_info[0].fixed_scale && !standardized) {
+        // this is for fixed x-axis over time
+        x_max = var_info[0].max_over_time;
+        x_min = var_info[0].min_over_time;
     }
     if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
         y_max = var_info[1].max[var_info[1].time];
         y_min = var_info[1].min[var_info[1].time];
+    } else if (var_info[1].fixed_scale&& !standardized){
+        // this is for fixed y-axis over time
+        y_max = var_info[1].max_over_time;
+        y_min = var_info[1].min_over_time;
     }
 	
 	double x_pad = 0.1 * (x_max - x_min);
@@ -1168,8 +1107,6 @@ void ScatterNewPlotCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
     UpdateStatusBar();
-    
-	Refresh();
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -1362,8 +1299,7 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 
 void ScatterNewPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	var_info[var_index].sync_with_global_time =
-		!var_info[var_index].sync_with_global_time;
+	var_info[var_index].sync_with_global_time = !var_info[var_index].sync_with_global_time;
 	
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
@@ -1401,12 +1337,14 @@ void ScatterNewPlotCanvas::ShowLinearSmoother(bool display)
 	show_linear_smoother = display;
 	UpdateDisplayStats();
 	UpdateDisplayLinesAndMargins();
+    isResize = true;
 	PopulateCanvas();
 }
 
 void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 {
 	show_lowess_smoother = display;
+    isResize = true;
 	PopulateCanvas();
 }
 
@@ -1418,7 +1356,10 @@ void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
 	lowess.SetF(f);
 	lowess.SetIter(iter);
 	lowess.SetDeltaFactor(delta_factor);
-	if (IsShowLowessSmoother()) PopulateCanvas();
+    if (IsShowLowessSmoother()) {
+        isResize = true;
+        PopulateCanvas();
+    }
 }
 
 void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
@@ -1464,7 +1405,6 @@ void ScatterNewPlotCanvas::ViewRegressionSelected(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	}
-	Refresh();
 }
 
 void ScatterNewPlotCanvas::UpdateRegSelectedLine()
@@ -1532,7 +1472,6 @@ void ScatterNewPlotCanvas::ViewRegressionSelectedExcluded(bool display)
 			if (changed) ResizeSelectableShps();
 		}
 	}
-	Refresh();
 }
 
 void ScatterNewPlotCanvas::UpdateRegExcludedLine()
@@ -1648,7 +1587,7 @@ void ScatterNewPlotCanvas::ComputeChowTest()
 		s << ", ratio=" << GenUtils::DblToStr(chow_ratio, 4);
 		s << ", p-val=" << GenUtils::DblToStr(chow_pval, 4);
 	} else {
-		s << "need two valid regressions";
+		s << _("need two valid regressions");
 	}
 	chow_test_text->setText(s);
 }
@@ -1866,7 +1805,7 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
     
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
@@ -1875,26 +1814,22 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
         
 		if (brushtype == rectangle) {
 			wxRealPoint pt1 = MousePntToObsPnt(sel1);
 			wxRealPoint pt2 = MousePntToObsPnt(sel2);
-			wxString xmin = GenUtils::DblToStr(GenUtils::min<double>(pt1.x,
-																	 pt2.x));
-			wxString xmax = GenUtils::DblToStr(GenUtils::max<double>(pt1.x,
-																	 pt2.x));
-			wxString ymin = GenUtils::DblToStr(GenUtils::min<double>(pt1.y,
-																	 pt2.y));
-			wxString ymax = GenUtils::DblToStr(GenUtils::max<double>(pt1.y,
-																	 pt2.y));
+			wxString xmin = GenUtils::DblToStr(std::min(pt1.x, pt2.x));
+			wxString xmax = GenUtils::DblToStr(std::max(pt1.x, pt2.x));
+			wxString ymin = GenUtils::DblToStr(std::min(pt1.y, pt2.y));
+			wxString ymax = GenUtils::DblToStr(std::max(pt1.y, pt2.y));
 		}
         s <<"  ";
 	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = (";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = (";
 			s << X[hover_obs[0]] << ", " << Y[hover_obs[0]];
 			if (is_bubble_plot) {
 				s << ", " << Z[hover_obs[0]];
@@ -1904,7 +1839,7 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = (";
+			s << _("obs ") << hover_obs[1]+1 << " = (";
 			s << X[hover_obs[1]] << ", " << Y[hover_obs[1]];
 			if (is_bubble_plot) {
 				s << ", " << Z[hover_obs[1]];
@@ -1914,7 +1849,7 @@ void ScatterNewPlotCanvas::UpdateStatusBar()
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = (";
+			s << _("obs ") << hover_obs[2]+1 << " = (";
 			s << X[hover_obs[2]] << ", " << Y[hover_obs[2]];
 			if (is_bubble_plot) {
 				s << ", " << Z[hover_obs[2]];
@@ -1962,16 +1897,24 @@ ScatterNewPlotFrame::ScatterNewPlotFrame(wxFrame *parent, Project* project,
 										 const wxString& title,
 										 const wxPoint& pos,
 										 const wxSize& size,
-										 const long style)
+										 const long style,
+                                         bool no_init)
 : TemplateFrame(parent, project, title, pos, size, style),
 var_info(var_info),
 is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 {
     wxLogMessage("Open ScatterNewPlotFrame.");
+    if (!no_init)
+        Init(var_info, col_ids, title);
+}
+
+void ScatterNewPlotFrame::Init(const std::vector<GdaVarTools::VarInfo>& var_info,
+                               const std::vector<int>& col_ids,
+                               const wxString& title)
+{
+    int width, height;
+    GetClientSize(&width, &height);
     
-	int width, height;
-	GetClientSize(&width, &height);
-	
 	wxSplitterWindow* splitter_win = 0;
 	if (is_bubble_plot) {
 		splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
@@ -2000,7 +1943,10 @@ is_bubble_plot(is_bubble_plot_s), lowess_param_frame(0)
 	}
 	template_canvas->SetScrollRate(1,1);
 	DisplayStatusBar(true);
-	SetTitle(template_canvas->GetCanvasTitle());
+    if (title.empty())
+        SetTitle(template_canvas->GetCanvasTitle());
+    else
+        SetTitle(title);
 	
 	if (is_bubble_plot) {
         lpanel = new wxPanel(splitter_win);
@@ -2055,7 +2001,7 @@ void ScatterNewPlotFrame::MapMenus()
 	((ScatterNewPlotCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((ScatterNewPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -2069,7 +2015,7 @@ void ScatterNewPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ScatterNewPlotCanvas*) template_canvas)->
@@ -2278,3 +2224,126 @@ void ScatterNewPlotFrame::GetVizInfo(wxString& x, wxString& y)
 	}
 }
 
+void ScatterNewPlotFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    if (is_bubble_plot) {
+        // main map
+        wxBitmap* main_map = template_canvas->GetPrintLayer();
+        int map_width = main_map->GetWidth();
+        int map_height = main_map->GetHeight();
+        
+        // try to keep maplayout dialog fixed size
+        int dlg_width = 900;
+        int dlg_height = dlg_width * map_height / (double)map_width + 160;
+        
+        CanvasLayoutDialog ml_dlg(project->GetProjectTitle(),
+                               template_legend, template_canvas,
+                               _("Canvas Layout Preview"),
+                               wxDefaultPosition,
+                               wxSize(dlg_width, dlg_height) );
+        
+        ml_dlg.ShowModal();
+    } else {
+        TemplateFrame::ExportImage(canvas, type);
+    }
+}
+/////////////////////////////////////////////////////
+IMPLEMENT_CLASS(MDSPlotCanvas, TemplateCanvas)
+BEGIN_EVENT_TABLE(MDSPlotCanvas, TemplateCanvas)
+END_EVENT_TABLE()
+
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const wxPoint& pos, const wxSize& size)
+: ScatterNewPlotCanvas(parent, t_frame, project, pos, size)
+{
+    
+}
+
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
+: ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+{
+    
+}
+
+MDSPlotCanvas::~MDSPlotCanvas()
+{
+    
+}
+
+void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
+{
+    // Workaround for right-click not changing window focus in OSX / wxW 3.0
+    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+    ((MDSPlotFrame*) template_frame)->OnActivate(ae);
+    
+    wxMenu* optMenu = wxXmlResource::Get()->
+        LoadMenu("ID_SCATTER_NEW_PLOT_VIEW_MENU_OPTIONS");
+    AddTimeVariantOptionsToMenu(optMenu);
+    
+    wxString menu_txt = _("Create Weights");
+    optMenu->Prepend(XRCID("MDS_WEIGHTS"), menu_txt);
+    optMenu->AppendSeparator();
+    
+    template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
+    
+    SetCheckMarks(optMenu);
+    
+    template_frame->UpdateContextMenuItems(optMenu);
+    template_frame->PopupMenu(optMenu, pos + GetPosition());
+    template_frame->UpdateOptionMenuItems();
+}
+
+void MDSPlotCanvas::OnCreateWeights()
+{
+    wxLogMessage("On MDSPlotCanvas::OnCreateWeights()");
+  
+    CreatingWeightDlg dlg(this, project, true);
+    dlg.SetXCOO(X);
+    dlg.SetYCOO(Y);
+    dlg.ShowModal();
+}
+
+
+IMPLEMENT_CLASS(MDSPlotFrame, TemplateFrame)
+BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
+EVT_ACTIVATE(MDSPlotFrame::OnActivate)
+END_EVENT_TABLE()
+
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const wxPoint& pos, const wxSize& size, const long style)
+: ScatterNewPlotFrame(parent, project, pos, size, style)
+{
+}
+
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids, bool is_bubble_plot, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
+: ScatterNewPlotFrame(parent, project, var_info, col_ids, is_bubble_plot, title, pos, size, style, true)
+{
+    wxLogMessage("Open MDSPlotFrame.");
+    int width, height;
+    GetClientSize(&width, &height);
+    wxSplitterWindow* splitter_win = 0;
+    if (is_bubble_plot) {
+        splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+        splitter_win->SetMinimumPaneSize(10);
+    }
+    template_canvas = new MDSPlotCanvas(this, this, project,
+                                        var_info, col_ids,
+                                        is_bubble_plot,
+                                        false, wxDefaultPosition,
+                                        wxSize(width,height));
+    template_canvas->SetScrollRate(1,1);
+    DisplayStatusBar(true);
+    SetTitle(title);
+    if (title.empty())
+        SetTitle(template_canvas->GetCanvasTitle());
+    Show(true);
+}
+
+MDSPlotFrame::~MDSPlotFrame()
+{
+    wxLogMessage("Close ~MDSPlotFrame.");
+}
+
+void MDSPlotFrame::OnCreateWeights(wxCommandEvent& event)
+{
+    wxLogMessage("In MDSPlotFrame::OnCreateWeights()");
+    ((MDSPlotCanvas*) template_canvas)->OnCreateWeights();
+}
