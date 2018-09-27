@@ -19,35 +19,129 @@
 
 #include <iostream>
 #include <sstream>
-
-/*
-#ifdef __WIN32__
-#define _USE_MATH_DEFINES 
-#include <math.h>
-#endif
-*/
-#include <wx/math.h>
-
 #include <algorithm>
 #include "stdio.h"
-#include <boost/thread.hpp>
 #include <boost/bind.hpp>
-
+#include <boost/make_shared.hpp>
+#include <wx/math.h>
+#include <wx/tokenzr.h>
 #include <wx/dcbuffer.h>
 #include <wx/bitmap.h>
 #include <wx/dir.h>
 #include <wx/filename.h>
 #include <wx/graphics.h>
-
+#include <wx/stream.h>
+#include <wx/wfstream.h>
+#include <wx/url.h>
 #include <ogr_spatialref.h>
 
+#include <curl/curl.h>
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "Basemap.h"
-#include "curl/curl.h"
-//#include "MapNewView.h"
 
 using namespace std;
 using namespace GDA;
+
+BasemapItem GetBasemapSelection(int idx)
+{
+    BasemapItem basemap_item;
+ 
+    idx = idx - 1; // first item [0] is choice "no basemap"
+    wxString basemap_sources = GdaConst::gda_basemap_sources;
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
+    vector<wxString> keys;
+    wxString newline;
+    if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
+        newline = "\r\n";
+    } else if (basemap_sources.Find("\r") != wxNOT_FOUND) {
+        newline = "\r";
+    } else if (basemap_sources.Find("\n") != wxNOT_FOUND) {
+        newline = "\n";
+    }
+    if (newline.IsEmpty() == false) {
+        wxStringTokenizer tokenizer(basemap_sources, newline);
+        while ( tokenizer.HasMoreTokens() ) {
+            wxString token = tokenizer.GetNextToken();
+            keys.push_back(token.Trim());
+        }
+        if (idx >= 0 && idx < keys.size()) {
+            wxString basemap_source = keys[idx];
+            wxUniChar comma = ',';
+            int comma_pos = basemap_source.Find(comma);
+            if ( comma_pos != wxNOT_FOUND ) {
+                // group.name,url
+                wxString group_n_name = basemap_source.BeforeFirst(comma);
+                wxString url = basemap_source.AfterFirst(comma);
+                wxUniChar dot = '.';
+                wxString group = group_n_name.Before(dot);
+                wxString name = group_n_name.After(dot);
+                if (!group.IsEmpty() && !name.IsEmpty()) {
+                    basemap_item.group = group;
+                    basemap_item.name = name;
+                    basemap_item.url = url;
+                }
+            }
+        }
+    }
+    return basemap_item;
+}
+
+vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) {
+    vector<wxString> group_names;
+    map<wxString, BasemapGroup> group_dict;
+    
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_sources = encoded_str;
+    }
+    vector<wxString> keys;
+    wxString newline;
+    if (basemap_sources.Find("\r\n") != wxNOT_FOUND) {
+        newline = "\r\n";
+    } else if (basemap_sources.Find("\r") != wxNOT_FOUND) {
+        newline = "\r";
+    } else if (basemap_sources.Find("\n") != wxNOT_FOUND) {
+        newline = "\n";
+    }
+    if (newline.IsEmpty() == false) {
+        wxStringTokenizer tokenizer(basemap_sources, newline);
+        while ( tokenizer.HasMoreTokens() ) {
+            wxString token = tokenizer.GetNextToken();
+            keys.push_back(token.Trim());
+        }
+        for (int i=0; i<keys.size(); i++) {
+            wxString basemap_source = keys[i];
+            wxUniChar comma = ',';
+            int comma_pos = basemap_source.Find(comma);
+            if ( comma_pos != wxNOT_FOUND ) {
+                // group.name,url
+                wxString group_n_name = basemap_source.BeforeFirst(comma);
+                wxString url = basemap_source.AfterFirst(comma);
+                wxUniChar dot = '.';
+                wxString group = group_n_name.Before(dot);
+                wxString name = group_n_name.After(dot);
+                if (group.IsEmpty() || name.IsEmpty()) {
+                    continue;
+                }
+                if (group_dict.find(group) == group_dict.end()) {
+                    group_names.push_back(group);
+                    BasemapGroup bg(group);
+                    group_dict[group] = bg;
+                }
+                BasemapItem item(group, name, url);
+                group_dict[group].AddItem(item);
+            }
+        }
+    }
+    vector<BasemapGroup> groups;
+    for (int i=0; i<group_names.size(); i++) {
+        groups.push_back( group_dict[group_names[i]] );
+    }
+    return groups;
+}
 
 XY::XY(double _x, double _y)
 {
@@ -57,24 +151,21 @@ XY::XY(double _x, double _y)
     yfrac = modf(_y, &yint);
 }
 
-Basemap::Basemap(Screen* _screen,
+
+Basemap::Basemap(BasemapItem& basemap_item,
+                 Screen* _screen,
                  MapLayer *_map,
-                 int map_type,
                  wxString _cachePath,
-                 OGRCoordinateTransformation *_poCT )
+                 OGRCoordinateTransformation *_poCT,
+                 double _scale_factor)
 {
     poCT = _poCT;
-    mapType = map_type;
     screen = _screen;
     map = _map;
-    //canvas = _canvas;
-    
+    scale_factor = _scale_factor;
     origMap = new MapLayer(map);
     
     cachePath = _cachePath;
-    urlSuffix = "";
-    
-
     bDownload = false;
     downloadThread = NULL;
     isPan = false;
@@ -88,7 +179,7 @@ Basemap::Basemap(Screen* _screen,
     nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
     
     GetEasyZoomLevel();
-    SetupMapType(map_type);
+    SetupMapType(basemap_item);
 }
 
 Basemap::~Basemap() {
@@ -133,74 +224,42 @@ void Basemap::CleanCache()
     }
 }
 
-void Basemap::SetupMapType(int map_type)
+void Basemap::SetupMapType(BasemapItem& _basemap_item)
 {
-
-    using namespace std;
+    basemap_item = _basemap_item;
+    basemapName = basemap_item.group + "." + basemap_item.name;
+    basemapUrl = basemap_item.url;
+    
+    if (basemapUrl.Find("png") != wxNOT_FOUND ||
+        basemapUrl.Find("PNG") != wxNOT_FOUND) {
+        imageSuffix = ".png";
+    } else if (basemapUrl.Find("jpeg") != wxNOT_FOUND ||
+               basemapUrl.Find("JPEG") != wxNOT_FOUND) {
+        imageSuffix = ".jpeg";
+    } else {
+        imageSuffix = ".jpeg";
+    }
+    // if ( !hdpi ) {
+    //     basemapUrl.Replace("@2x", "");
+    // }
+    
     // get a latest CartoDB account
-    vector<string> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
+    vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
-        string user = nokia_user[0];
+        wxString user = nokia_user[0];
         if (!user.empty()) {
             nokia_id = user;
         }
     }
     
-    vector<string> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
+    vector<wxString> nokia_key = OGRDataAdapter::GetInstance().GetHistory("nokia_key");
     if (!nokia_key.empty()) {
-        string key = nokia_key[0];
+        wxString key = nokia_key[0];
         if (!key.empty()) {
             nokia_code = key;
         }
     }
-
     
-    mapType = map_type;
-    if (mapType == 1) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
-        urlSuffix = ".png";
-        imageSuffix = ".png";
-    } else if (mapType == 2) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_all/";
-        urlSuffix = ".png";
-        imageSuffix = ".png";
-        
-    } else if (mapType == 3) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_nolabels/";
-        urlSuffix = ".png";
-        imageSuffix = ".png";
-    } else if (mapType == 4) {
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/dark_nolabels/";
-        urlSuffix = ".png";
-        imageSuffix = ".png";
-    } else if (mapType == 5) {
-        // nokia day
-        basemapUrl = "http://1.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 6) {
-        // nokia night
-        basemapUrl = "http://4.base.maps.api.here.com/maptile/2.1/maptile/newest/normal.night/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 7) {
-        // nokia terrian
-        basemapUrl = "http://3.aerial.maps.api.here.com/maptile/2.1/maptile/newest/hybrid.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else if (mapType == 8) {
-        // nokia hybrid
-        basemapUrl = "http://4.aerial.maps.api.here.com/maptile/2.1/maptile/newest/satellite.day/";
-        urlSuffix = "/256/png8?app_id=" + nokia_id + "&app_code=" + nokia_code;
-        imageSuffix = ".png";
-    } else {
-        mapType = 1;
-        basemapUrl = "http://map_positron.basemaps.cartocdn.com/light_all/";
-        urlSuffix = ".png";
-        imageSuffix = ".png";
-    }
-    isTileDrawn = false;
-    isTileReady = false;
     GetTiles();
 }
 
@@ -211,7 +270,7 @@ void Basemap::Reset()
     map->west= origMap->west;
     map->east= origMap->east;
     GetEasyZoomLevel();
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::Reset(int map_type)
@@ -220,9 +279,8 @@ void Basemap::Reset(int map_type)
     map->south= origMap->south;
     map->west= origMap->west;
     map->east= origMap->east;
-    mapType = map_type;
     GetEasyZoomLevel();
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::ResizeScreen(int _width, int _height)
@@ -232,10 +290,10 @@ void Basemap::ResizeScreen(int _width, int _height)
         screen->height = _height;
     }
 
-    isTileDrawn = false;
+    //isTileDrawn = false;
     GetEasyZoomLevel();
     
-    SetupMapType(mapType);
+    SetupMapType(basemap_item);
 }
 
 void Basemap::Pan(int x0, int y0, int x1, int y1)
@@ -249,15 +307,18 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     double offsetLat = p1->lat - p0->lat;
     double offsetLon = p1->lng - p0->lng;
     
-    map->Pan(-offsetLat, -offsetLon);
-    
-    isTileDrawn = false;
-    isTileReady = false;
-    GetTiles();
+    if (map->Pan(-offsetLat, -offsetLon)) {
+        isTileDrawn = false;
+        isTileReady = false;
+        GetTiles();
+    }
 }
 
-void Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
+bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
 {
+    if (is_zoomin == false && zoom <= 1)
+        return false;
+    
     int left = x0 < x1 ? x0 : x1;
     int right = x0 < x1 ? x1 : x0;
     int top = y0 > y1 ? y1 : y0;
@@ -287,6 +348,7 @@ void Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     isTileReady = false;
     GetEasyZoomLevel();
     GetTiles();
+    return true;
 }
 
 void Basemap::ZoomIn(int mouseX, int mouseY)
@@ -298,8 +360,8 @@ void Basemap::ZoomIn(int mouseX, int mouseY)
     int x0 = screen->width / 2.0;
     int y0 = screen->height / 2.0;
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     Pan(mouseX, mouseY, x0, y0);
     
 }
@@ -313,8 +375,8 @@ void Basemap::ZoomOut(int mouseX, int mouseY)
     int x0 = screen->width / 2.0;
     int y0 = screen->height / 2.0;
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     Pan(mouseX, mouseY, x0, y0);
 }
 
@@ -343,10 +405,10 @@ int Basemap::GetOptimalZoomLevel(double paddingFactor)
 int Basemap::GetEasyZoomLevel()
 {
     double degreeRatio = 360.0 / map->GetWidth();
-    double zoomH = (int)ceil(log2(degreeRatio * screen->width / 256));
+    double zoomH = (int)ceil(log2(degreeRatio * screen->width / 256.0));
     
     degreeRatio = 85.0511 * 2.0 / map->GetHeight();
-    double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256));
+    double zoomV = (int)ceil(log2(degreeRatio * screen->height / 256.0));
     
     if (zoomH > 0 && zoomV > 0) {
         zoom = min(zoomH, zoomV);
@@ -372,6 +434,9 @@ void Basemap::Refresh()
 
 void Basemap::GetTiles()
 {
+    if (zoom < 1)
+        return;
+    
     // following: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     // top-left / north-west
     LatLng nw(map->north, map->west);
@@ -397,9 +462,6 @@ void Basemap::GetTiles()
     widthP = (endX - startX + 1) * 256;
     heightP = (endY - startY + 1) * 256;
     
-    widthP = (endX - startX + 1) * 256;
-    heightP = (endY - startY + 1) * 256;
-    
     if (widthP < screen->width) {
         int x_addition = (int)ceil((screen->width - widthP)/ 256.0);
         endX += x_addition;
@@ -418,7 +480,8 @@ void Basemap::GetTiles()
     } else {
         map_wp = (nn - topleft->x + bottomright->x) * 255;
     }
-    int map_offx = (int) ((screen->width - map_wp) / 2.0);
+    int map_offx = (int)(ceil) ((screen->width - map_wp) / 2.0);
+    
     // if offset to left, need to zoom out
     if (map_offx < 0 && zoom > 0) {
         zoom = zoom -1;
@@ -426,24 +489,30 @@ void Basemap::GetTiles()
         GetTiles();
         return;
     }
+    
     offsetX = topleft->GetXFrac() * 255 - map_offx;
     // if offset to right, need to patch empty tiles
-    if (offsetX < 0 && startX >= 0) {
-        startX = startX -1;
-        offsetX = offsetX + 256;
-        widthP = widthP + 256;
-        leftP = startX * 256;
+    if (offsetX < 0) {
+        while (offsetX < 0) {
+            offsetX += 256;
+            startX = startX -1;
+            widthP = widthP + 256;
+            leftP = startX * 256;
+        }
     }
     
     double map_hp = (bottomright->y - topleft->y) * 255;
     int map_offy = (int) ((screen->height - map_hp) / 2.0);
     offsetY = topleft->GetYFrac() * 255 - map_offy;
+    
     // if offset down, need to patch empty tiles
-    if (offsetY < 0 && startY >= 0) {
-        startY = startY -1;
-        offsetY = offsetY + 256;
-        heightP = heightP + 256;
-        topP = startY * 256;
+    if (offsetY < 0 ) {
+        while (offsetY < 0) {
+            startY = startY -1;
+            offsetY = offsetY + 256;
+            heightP = heightP + 256;
+            topP = startY * 256;
+        }
     }
     
     // check tiles again after offset
@@ -458,7 +527,10 @@ void Basemap::GetTiles()
     
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
-  
+
+    isTileReady = false;
+    isTileDrawn = false;
+    
     if (bDownload && downloadThread) {
         bDownload = false;
 		downloadThread->join();
@@ -526,13 +598,16 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 
 void Basemap::DownloadTile(int x, int y)
 {
+    if (x < 0 || y < 0)
+        return;
+    
     // detect if file exists in temp/ directory
     wxString filepathStr = GetTilePath(x, y);
     std::string filepath = GET_ENCODED_FILENAME(filepathStr);
 
     if (!wxFileExists(filepathStr)) {
         // otherwise, download the image
-        std::string urlStr = GetTileUrl(x, y);
+        wxString urlStr = GetTileUrl(x, y);
         char* url = new char[urlStr.length() + 1];
         std::strcpy(url, urlStr.c_str());
         
@@ -549,21 +624,21 @@ void Basemap::DownloadTile(int x, int y)
 #endif
             if (fp)
             {
-                curl_easy_setopt(image, CURLOPT_URL, url); 
+                curl_easy_setopt(image, CURLOPT_URL, url);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
-                // Grab image 
-                imgResult = curl_easy_perform(image); 
+                // Grab image
+                imgResult = curl_easy_perform(image);
            
                 curl_easy_cleanup(image);
                 fclose(fp);
             }
         }
-                
+        
         delete[] url;
         
     }
@@ -625,13 +700,15 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     }
 }
 
-std::string Basemap::GetTileUrl(int x, int y)
+wxString Basemap::GetTileUrl(int x, int y)
 {
-	std::ostringstream urlBuf;
-	urlBuf << basemapUrl;
-	urlBuf << zoom << "/" << x << "/" << y << urlSuffix;
-	std::string urlStr = urlBuf.str();
-	return urlStr;
+    wxString url = basemapUrl;
+    url.Replace("{z}", wxString::Format("%d", zoom));
+    url.Replace("{x}", wxString::Format("%d", x));
+    url.Replace("{y}", wxString::Format("%d", y));
+    url.Replace("HERE_APP_ID", nokia_id);
+    url.Replace("HERE_APP_CODE", nokia_code);
+    return url;
 }
 
 wxString Basemap::GetTilePath(int x, int y)
@@ -639,7 +716,7 @@ wxString Basemap::GetTilePath(int x, int y)
     //std::ostringstream filepathBuf;
     wxString filepathBuf;
     filepathBuf << cachePath << "basemap_cache"<< separator();
-    filepathBuf << mapType << "-";
+    filepathBuf << basemapName << "-";
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     
 	wxString newpath;
@@ -655,11 +732,12 @@ wxString Basemap::GetTilePath(int x, int y)
 	}
     return newpath;
 }
+
 bool Basemap::Draw(wxBitmap* buffer)
 {
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
-	dc.SetBackground( *wxTRANSPARENT_BRUSH );
+	dc.SetBackground(*wxWHITE);
     dc.Clear();
 	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
     if (!gc)
@@ -669,7 +747,7 @@ bool Basemap::Draw(wxBitmap* buffer)
     int x1 = endX;
 	for (int i=x0; i<=x1; i++) {
 		for (int j=startY; j<=endY; j++ ) {
-            int pos_x =(i-startX) * 256 - offsetX;
+            int pos_x = (i-startX) * 256 - offsetX;
             int pos_y = (j-startY) * 256 - offsetY;
             int idx_x = i;
             
@@ -678,7 +756,8 @@ bool Basemap::Draw(wxBitmap* buffer)
             else if (i < 0)
                 idx_x = nn + i;
             
-            int idx_y = j < 0 ? nn + j : j;
+            //int idx_y = j < 0 ? nn + j : j;
+            int idx_y = j;
             wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;
@@ -689,10 +768,10 @@ bool Basemap::Draw(wxBitmap* buffer)
                 wxImage::AddHandler(jpegLoader);
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
-            bool bmpOK = bmp.IsOk();
-            if (bmpOK)
-                gc->DrawBitmap(bmp, pos_x, pos_y, 256,256);
-            //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
+            if (bmp.IsOk()) {
+                gc->DrawBitmap(bmp, pos_x, pos_y, 257,257);
+                //dc.DrawRectangle((i-startX) * 256 - offsetX, (j-startY) * 256 - offsetY, 256, 256);
+            }
 		}
 	}
     delete gc;

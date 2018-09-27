@@ -30,16 +30,24 @@
 #include "../DataViewer/TableInterface.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
+#include "../VarCalc/WeightsMetaInfo.h"
+#include "WeightsManager.h"
 #include "WeightUtils.h"
 
 wxString WeightUtils::ReadIdField(const wxString& fname)
 {
 	using namespace std;
 	wxString ext = GenUtils::GetFileExt(fname).Lower();
-	if (ext != "gal" && ext != "gwt") return "";
+    if (ext != "gal" && ext != "gwt" && ext != "kwt") {
+        return "";
+    }
 	
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
 	if (!(file.is_open() && file.good())) return "";
 	
 	// Header line is identical for GWT and GAL
@@ -100,8 +108,13 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 								 TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+	
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -164,7 +177,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
 		msg << ", which is incompatible.";
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return 0;
 	}
@@ -218,7 +231,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 			msg << " and " << max_val << " which is incompatible with";
 			msg << " number of observations specified in first line of";
 			msg << " weights file: " << num_obs << ".";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -233,19 +246,17 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
         
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
 		if (table_int->GetColType(col) != GdaConst::long64_type &&
             table_int->GetColType(col) != GdaConst::string_type ) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is";
-			msg << " not a number type in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -268,10 +279,9 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
             }
         }
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+            wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -309,7 +319,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 					msg << " encountered which does not exist in field \"";
 					msg << key_field << "\" of the Table.";
 				}
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+				wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				delete [] gal;
 				return 0;
@@ -344,7 +354,7 @@ GalElement* WeightUtils::ReadGal(const wxString& fname,
 							msg << "in field \"" << key_field;
 							msg << "\" of the Table.";
 						}
-						wxMessageDialog dlg(NULL, msg, "Error",
+						wxMessageDialog dlg(NULL, msg, _("Error"),
 											wxOK|wxICON_ERROR);
 						dlg.ShowModal();
 						delete [] gal;
@@ -369,8 +379,13 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 									  TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+ 
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -427,11 +442,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 	}
 	
 	if (table_int != NULL && num_obs != table_int->GetNumberRows()) {
-		wxString msg = "The number of observations specified in chosen ";
-		msg << "weights file is " << num_obs << ", but the number in the ";
-		msg << "current Table is " << table_int->GetNumberRows();
-		msg << ", which is incompatible.";
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+        wxString msg = _("The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible.");
+        msg = wxString::Format(msg, num_obs, table_int->GetNumberRows());
+		wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return 0;
 	}
@@ -466,12 +479,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			}
 		}
 		if (max_val - min_val != num_obs - 1) {
-			wxString msg = "Record order specified, but found minimum";
-			msg << " and maximum observation values of " << min_val;
-			msg << " and " << max_val << " which is incompatible with";
-			msg << " number of observations specified in first line of";
-			msg << " weights file: " << num_obs << ".";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d .");
+            msg = wxString::Format(msg, min_val, max_val, num_obs);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -485,19 +495,17 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
 		if (table_int->GetColType(col) != GdaConst::long64_type &&
             table_int->GetColType(col) != GdaConst::string_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is";
-			msg << " not an integer type in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -521,10 +529,9 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
         }
 
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -577,16 +584,17 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
                     obs = obs1;
 				if (it2 == id_map.end())
                     obs = obs2;
-				wxString msg = "On line ";
-				msg << line_num+1 << " of weights file, observation id " << obs;
+                
+                wxString msg;
 				if (use_rec_order) {
-					msg << " encountered which is out of allowed observation ";
-					msg << "range of 1 through " << num_obs << ".";
+                    msg = _("On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d.");
+                    msg = wxString::Format(msg, line_num+1, obs, num_obs);
 				} else {
-					msg << " encountered which does not exist in field \"";
-					msg << key_field << "\" of the Table.";
+                    msg = _("On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table.");
+                    msg = wxString::Format(msg, line_num+1, obs, key_field);
 				}
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+                
+				wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				delete [] gal;
 				return 0;
@@ -597,7 +605,8 @@ GalElement* WeightUtils::ReadGwtAsGal(const wxString& fname,
 			if (gal[gwt_obs1].Size() == 0) {
 				gal[gwt_obs1].SetSizeNbrs(nbr_histogram[obs1].size());
 			}
-            if (obs2 != obs1) {
+            if (fname.EndsWith("kwt") ||
+                (fname.EndsWith("gwt") && obs2 != obs1) ) {
                 gal[gwt_obs1].SetNbr(gal_cnt[gwt_obs1]++, gwt_obs2, wVal);
             }
 		}
@@ -616,8 +625,13 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 								 TableInterface* table_int)
 {
 	using namespace std;
+#ifdef __WIN32__
+	ifstream file(fname.wc_str());
+#else
 	ifstream file;
 	file.open(GET_ENCODED_FILENAME(fname), ios::in);  // a text file
+#endif
+
 	if (!(file.is_open() && file.good())) {
 		return 0;
 	}
@@ -678,7 +692,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		msg << "weights file is " << num_obs << ", but the number in the ";
 		msg << "current Table is " << table_int->GetNumberRows();
 		msg << ", which is incompatible.";
-		wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return 0;
 	}
@@ -718,7 +732,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 			msg << " and " << max_val << " which is incompatible with ";
 			msg << " number of observations specified in first line of ";
 			msg << " weights file: " << num_obs << ".";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -727,18 +741,17 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		int col, tm;
 		table_int->DbColNmToColAndTm(key_field, col, tm);
 		if (col == wxNOT_FOUND) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file not found ";
-			msg << "in currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file not found in currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
-		if (table_int->GetColType(col) != GdaConst::long64_type) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" on first line of weights file is ";
-			msg << " not an integer type in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+		if (table_int->GetColType(col) != GdaConst::long64_type &&
+            table_int->GetColType(col) != GdaConst::string_type) {
+            wxString msg = _("Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -748,10 +761,9 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 		table_int->GetColData(col, 0, vec);
 		for (int i=0; i<num_obs; i++) id_map[vec[i]] = i;
 		if (id_map.size() != num_obs) {
-			wxString msg = "Specified key value field \"";
-			msg << key_field << "\" in weights file contains duplicate ";
-			msg << "values in the currently loaded Table.";
-			wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+            wxString msg = _("Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table.");
+            msg = wxString::Format(msg, key_field);
+			wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return 0;
 		}
@@ -809,7 +821,7 @@ GwtElement* WeightUtils::ReadGwt(const wxString& fname,
 					msg << " encountered which does not exist in field \"";
 					msg << key_field << "\" of the Table.";
 				}
-				wxMessageDialog dlg(NULL, msg, "Error", wxOK | wxICON_ERROR);
+				wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				delete [] gwt;
 				return 0;
@@ -844,5 +856,43 @@ GalElement* WeightUtils::Gwt2Gal(GwtElement* Gwt, long obs)
 	return Gal;
 }
 
+
+void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int)
+{
+    int rows = table_int->GetNumberRows();
+    
+    WeightsMetaInfo wmi;
+    
+    GalElement* tempGal = WeightUtils::ReadGwtAsGal(filepath, table_int);
+    if (tempGal == NULL) {
+        return;
+    }
+    
+    GalWeight* w = new GalWeight();
+    w->num_obs = rows;
+    w->wflnm = filepath;
+    w->gal = tempGal;
+    w->id_field = "unknown";
+    
+    w->GetNbrStats();
+    wmi.num_obs = w->GetNumObs();
+    wmi.SetMinNumNbrs(w->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(w->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(w->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(w->GetMedianNumNbrs());
+    wmi.SetSparsity(w->GetSparsity());
+    wmi.SetDensity(w->GetDensity());
+    
+    WeightsMetaInfo e(wmi);
+    e.filename = filepath;
+    
+    boost::uuids::uuid uid = w_man_int->RequestWeights(e);
+    if (uid.is_nil()) {
+        bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, w);
+        if (success) {
+            w_man_int->MakeDefault(uid);
+        }
+    }
+}
 
 

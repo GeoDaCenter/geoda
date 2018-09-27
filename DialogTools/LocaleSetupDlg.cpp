@@ -87,10 +87,9 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
     m_txt_thousands->SetValue(thousands_sep);
     m_txt_decimal->SetValue(decimal_point);
     
-    wxString msg = "Reset to system locale successfully. Please re-open "
-    "current project with system locale.";
+    wxString msg = _("Reset to system locale successfully. Please re-open current project with system locale.");
     wxMessageDialog msg_dlg(this, msg,
-                           "Reset to system locale information",
+                           _("Reset to system locale information"),
                            wxOK | wxOK_DEFAULT | wxICON_INFORMATION);
     msg_dlg.ShowModal();
     EndDialog(wxID_OK);

@@ -32,8 +32,8 @@ AutoTextCtrl::DoIdle( wxIdleEvent &event )
 void 
 AutoTextCtrl::TextEntered( wxCommandEvent &event )
 {
-	std::string sVal;
-	std::string szListName;
+	wxString sVal;
+	wxString szListName;
 	long iPoint;
 	
 	if(m_bIgnoreNextTextEdit) {
@@ -66,7 +66,7 @@ AutoTextCtrl::TextEntered( wxCommandEvent &event )
     //   strlen(szVal) < strlen(szClassName)) {
 		// Third, write the entire name of the first matching class 
 		//    into the text string
-		SetValue(wxString(szListName));
+		SetValue(szListName);
 		
 		// Fourth, select the text from the current cursor position to 
 		//    the end of the text

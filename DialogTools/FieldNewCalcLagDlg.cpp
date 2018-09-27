@@ -48,7 +48,8 @@ BEGIN_EVENT_TABLE( FieldNewCalcLagDlg, wxPanel )
 			   FieldNewCalcLagDlg::OnLagOperandUpdated )
 	EVT_CHOICE( XRCID("IDC_LAG_OPERAND_TM"),
 			   FieldNewCalcLagDlg::OnLagOperandTmUpdated )
-	EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
+
+    EVT_BUTTON( XRCID("ID_OPEN_WEIGHT"), FieldNewCalcLagDlg::OnOpenWeightClick )
 END_EVENT_TABLE()
 
 FieldNewCalcLagDlg::FieldNewCalcLagDlg(Project* project_s,
@@ -84,27 +85,32 @@ void FieldNewCalcLagDlg::CreateControls()
     InitTime(m_var_tm);
 	m_text = XRCCTRL(*this, "IDC_EDIT6", wxTextCtrl);
 	m_text->SetMaxLength(0);
+    
+    // ID_LAG_USE_ROWSTAND_W  ID_LAG_INCLUDE_DIAGNOAL_W
+    m_row_stand = XRCCTRL(*this, "ID_LAG_USE_ROWSTAND_W", wxCheckBox);
+    m_self_neighbor = XRCCTRL(*this, "ID_LAG_INCLUDE_DIAGNOAL_W", wxCheckBox);
+    
 }
 
 void FieldNewCalcLagDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a results field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select a results field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (GetWeightsId().is_nil()) {
-		wxString msg("Please specify a Weights matrix.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please specify a Weights matrix.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (m_var->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select an Variable field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select an Variable field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -119,9 +125,9 @@ void FieldNewCalcLagDlg::Apply()
 	if (is_space_time &&
 		!IsAllTime(result_col, m_result_tm->GetSelection()) &&
 		IsAllTime(var_col, m_var_tm->GetSelection())) {
-		wxString msg("When \"all times\" selected for variable, result "
+		wxString msg = _("When \"all times\" selected for variable, result "
 					 "field must also be \"all times.\"");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -155,13 +161,15 @@ void FieldNewCalcLagDlg::Apply()
 		GalWeight* gw = w_man_int->GetGal(id);
 		W = gw ? gw->gal : NULL;
 		if (W == NULL) {
-			wxString msg("Was not able to load weights matrix.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg = _("Was not able to load weights matrix.");
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
 	}
-	
+
+    bool not_binary_w = w_man_int->IsBinaryWeights(id);
+
 	for (int t=0; t<time_list.size(); t++) {
 		for (int i=0; i<rows; i++) {
 			r_data[i] = 0;
@@ -171,19 +179,62 @@ void FieldNewCalcLagDlg::Apply()
 			table_int->GetColData(var_col, time_list[t], data);
 			table_int->GetColUndefined(var_col, time_list[t], undefined);
 		}
-		// Row-standardized lag calculation.
+		
 		for (int i=0, iend=table_int->GetNumberRows(); i<iend; i++) {
 			double lag = 0;
 			const GalElement& elm_i = W[i];
-			if (elm_i.Size() == 0) r_undefined[i] = true;
+			if (elm_i.Size() == 0)
+                r_undefined[i] = true;
+           
+            double nn = 0;
+            const std::vector<double> & w_values = W[i].GetNbrWeights();
+            
+            int self_idx = -1;
 			for (int j=0, sz=W[i].Size(); j<sz && !r_undefined[i]; j++) {
-				if (undefined[elm_i[j]]) {
-					r_undefined[i] = true;
-				} else {
-					lag += data[elm_i[j]];
+				if (undefined[elm_i[j]] == false) {
+                    if (elm_i[j] == i) {
+                        self_idx = j;
+                    } else {
+                        if (not_binary_w) {
+                            lag += data[elm_i[j]] * w_values[j];
+                            nn += w_values[j];
+                        } else {
+                            lag += data[elm_i[j]];
+                            nn += 1;
+                        }
+                    }
 				}
 			}
-			r_data[i] = r_undefined[i] ? 0 : lag /= W[i].Size();
+            r_data[i] =  0;
+            
+            if (r_undefined[i]==false) {
+                if ( not_binary_w == false) {
+                    // contiguity weights
+                    if (m_self_neighbor->IsChecked() ) {
+                        lag += data[i];
+                        nn += 1;
+                    }
+                    if (m_row_stand->IsChecked()) {
+                        lag = nn > 0 ? lag / nn : 0;
+                    }
+                    
+                } else {
+                    // inverse or kernel weights
+                    if (m_row_stand->IsChecked()) {
+                        lag = nn > 0 ? lag / nn : 0;
+                    }
+                    if (m_self_neighbor->IsChecked() ) {
+                        if (self_idx > 0) {
+                            // only case: kernel weights with diagonal
+                            lag += data[i] * w_values[self_idx];
+                        } else {
+                            lag += data[i];
+                        }
+                    }
+                }
+                
+                r_data[i] = lag;
+            }
 		}
 		table_int->SetColData(result_col, time_list[t], r_data);
 		table_int->SetColUndefined(result_col, time_list[t], r_undefined);
@@ -304,6 +355,7 @@ void FieldNewCalcLagDlg::InitWeightsList()
 			if (w_ids[i] == old_id) m_weights->SetSelection(i);
 		}
 	}
+    SetupRowstandControls();
 }
 
 /** Returns weights selection or nil if none selected */
@@ -314,6 +366,31 @@ boost::uuids::uuid FieldNewCalcLagDlg::GetWeightsId()
 		return boost::uuids::nil_uuid();
 	}
 	return w_ids[sel];
+}
+
+void FieldNewCalcLagDlg::SetupRowstandControls()
+{
+    long sel = m_weights->GetSelection();
+    if (sel >= 0) {
+        bool flag = true;
+        m_row_stand->SetValue(true);
+        m_self_neighbor->SetValue(false);
+        
+        boost::uuids::uuid id = GetWeightsId();
+        WeightsMetaInfo::WeightTypeEnum type = w_man_int->GetWeightsType(id);
+        if (type == WeightsMetaInfo::WT_kernel) {
+            m_row_stand->SetValue(false);
+            m_self_neighbor->SetValue(true);
+            flag = false;
+        } else if (type == WeightsMetaInfo::WT_knn || type == WeightsMetaInfo::WT_threshold) {
+            if (w_man_int->IsBinaryWeights(id)) {
+                m_row_stand->SetValue(false);
+                m_self_neighbor->SetValue(false);
+            }
+        }
+        m_row_stand->Enable(flag);
+        m_self_neighbor->Enable(flag);
+    }
 }
 
 void FieldNewCalcLagDlg::OnLagResultUpdated( wxCommandEvent& event )
@@ -333,6 +410,7 @@ void FieldNewCalcLagDlg::OnLagResultTmUpdated( wxCommandEvent& event )
 void FieldNewCalcLagDlg::OnCurrentusedWUpdated( wxCommandEvent& event )
 {
     Display();
+    SetupRowstandControls();
 }
 
 void FieldNewCalcLagDlg::OnLagOperandUpdated( wxCommandEvent& event )

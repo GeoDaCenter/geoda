@@ -55,9 +55,9 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
                                    const wxPoint& pos,
                                    const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
-correl_params_frame(0), panel(0),
+correl_params_frame(0), panel(0),lowess_param_frame(0), sp_can(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
-hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0)
+hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), display_statistics(false)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -109,6 +109,10 @@ hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0)
 
 CorrelogramFrame::~CorrelogramFrame()
 {
+    if (lowess_param_frame) {
+        lowess_param_frame->removeObserver(this);
+        lowess_param_frame->closeAndDeleteWhenEmpty();
+    }
 	if (correl_params_frame) {
 		correl_params_frame->removeObserver(this);
 		correl_params_frame->closeAndDeleteWhenEmpty();
@@ -116,6 +120,32 @@ CorrelogramFrame::~CorrelogramFrame()
 	if (local_hl_state) local_hl_state->closeAndDeleteWhenEmpty();
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
+}
+
+void CorrelogramFrame::update(LowessParamObservable* o)
+{
+    if (sp_can) {
+        sp_can->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
+    }
+}
+
+void CorrelogramFrame::notifyOfClosing(LowessParamObservable* o)
+{
+    lowess_param_frame = 0;
+}
+
+void CorrelogramFrame::OnEditLowessParams(wxCommandEvent& event)
+{
+    wxLogMessage("In CorrelogramFrame::OnEditLowessParams");
+    if (lowess_param_frame) {
+        lowess_param_frame->Iconize(false);
+        lowess_param_frame->Raise();
+        lowess_param_frame->SetFocus();
+    } else {
+        Lowess l;
+        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
+        lowess_param_frame->registerObserver(this);
+    }
 }
 
 void CorrelogramFrame::OnMouseEvent(wxMouseEvent& event)
@@ -137,8 +167,10 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
     if (!optMenu) return;
     
     UpdateContextMenuItems(optMenu);
+    GeneralWxUtils::CheckMenuItem(optMenu, XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), display_statistics);
     PopupMenu(optMenu, pos);
     UpdateOptionMenuItems();
+   
     
     wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_CORRELOGRAM_STATS"));
     Connect(save_menu->GetId(), wxEVT_MENU,
@@ -165,11 +197,12 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     txt_out << "";
     
     vector<wxString> lbls;
-    lbls.push_back("Autocorr.");
-    lbls.push_back("Min");
-    lbls.push_back("Max");
-    lbls.push_back("# Pairs");
-   
+    lbls.push_back(_("Autocorr."));
+    lbls.push_back(_("Min"));
+    lbls.push_back(_("Max"));
+    lbls.push_back(_("# Pairs"));
+  
+    
     wxString header = "";
     int total_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
@@ -191,8 +224,8 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     double range_left = 0, range_right=0;
     double est_dist = GetEstDistWithZeroAutocorr(range_left, range_right);
     
-    txt_out << "\nSummary:\n";
-    txt_out << "min dist, max dist, total # pairs, Autocorr.=0 range, est. distance\n";
+    txt_out << "\n" << _("Summary") << ":\n";
+    txt_out << _("min dist") << ", " << _("max dist") << ", " << _("total # pairs") << ", " << _("Autocorr.") << "=0 " << _("range, est. distance") << "\n";
     txt_out << min << "," << max << "," << total_pairs << ",";
     txt_out << "[" << range_left << " : " << range_right << "],";
     txt_out << est_dist << "\n";
@@ -217,7 +250,7 @@ void CorrelogramFrame::MapMenus()
 	optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
 	CorrelogramFrame::UpdateContextMenuItems(optMenu);
 
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -225,7 +258,7 @@ void CorrelogramFrame::UpdateOptionMenuItems()
 {
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu != wxNOT_FOUND) {
 		CorrelogramFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -259,7 +292,19 @@ void CorrelogramFrame::OnShowCorrelParams(wxCommandEvent& event)
 void CorrelogramFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
     wxLogMessage("In CorrelogramFrame::OnDisplayStatistics()");
+    display_statistics = !display_statistics;
+    if (shs_plot) {
+        if (display_statistics) shs_plot->Show();
+        else shs_plot->Hide();
+        top_h_sizer->RecalcSizes();
+    }
+    Refresh();
 	UpdateOptionMenuItems();
+    wxMenu* optMenu;
+    optMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELOGRAM_MENU_OPTIONS");
+    if (!optMenu) return;
+    void *data = reinterpret_cast<void *>(display_statistics);
+    optMenu->SetClientData( data );
 }
 
 /** Implementation of TableStateObserver interface */
@@ -323,9 +368,9 @@ void CorrelogramFrame::notifyNewHover(const std::vector<int>& hover_obs,
 	wxString s;
 	if (total_hover_obs > 0) {
 		int id = hover_obs[0];
-		s << "autocorrelation is " << cbins[id].corr_avg;
-		s << " for obs within distance band ";
-		s << cbins[id].dist_min << " to " << cbins[id].dist_max;
+		s << _("autocorrelation is ") << cbins[id].corr_avg;
+		s << _(" for obs within distance band ");
+		s << cbins[id].dist_min << _(" to ") << cbins[id].dist_max;
 	}
 	sb->SetStatusText(s);	
 }
@@ -342,8 +387,8 @@ void CorrelogramFrame::notifyNewHistHover(const std::vector<int>& hover_obs,
 	}
 	wxString s;
 	int id = hover_obs[0];
-	s << cbins[id].num_pairs << " pairs in distance band ";
-	s << cbins[id].dist_min << " to " << cbins[id].dist_max;
+	s << cbins[id].num_pairs << _(" pairs in distance band ");
+	s << cbins[id].dist_min << _(" to ") << cbins[id].dist_max;
 	sb->SetStatusText(s);	
 }
 
@@ -353,7 +398,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 {
 	if (!panel || !bag_szr)
         return;
-	int num_top_rows = GenUtils::max<int>(1, num_vars);
+	int num_top_rows = std::max(1, num_vars);
 	int num_rows_total = num_top_rows + 3;
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CorrelogramFrame::OnMouseEvent, this);
@@ -369,6 +414,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
                                    &CorrelogramFrame::OnMouseEvent,
                                    this);
 			scatt_plots[i]->Destroy();
+            scatt_plots[i] = 0;
 		}
 	}
 	scatt_plots.clear();
@@ -434,7 +480,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		message_win->Bind(wxEVT_RIGHT_UP, &CorrelogramFrame::OnMouseEvent, this);
         UpdateMessageWin();
 		bag_szr->Add(message_win, wxGBPosition(0,1), wxGBSpan(1,1), wxEXPAND);
-		SetTitle("Correlogram" + type_str);
+		SetTitle(_("Correlogram") + type_str);
         
 	} else {
 		for (int row=0; row<num_vars; ++row) {
@@ -443,10 +489,10 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			double y_min = -1;
 			double y_max = 1;
 			if (row == 0) {
-				SetTitle("Correlogram - " + var_man.GetNameWithTime(row) + type_str);
+				SetTitle(_("Correlogram") + " - " + var_man.GetNameWithTime(row) + type_str);
 			}
             
-			wxString title("Autocorr. of " + var_man.GetNameWithTime(row));
+			wxString title(_("Autocorr. of ") + var_man.GetNameWithTime(row));
             
 			std::vector<double> Y(cbins.size());
 			std::vector<bool> Y_undef(cbins.size());
@@ -508,7 +554,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
                 X_undef[i] = false;
 			}
             
-			SimpleScatterPlotCanvas* sp_can = 0;
+			//SimpleScatterPlotCanvas* sp_can = 0;
 			sp_can = new SimpleScatterPlotCanvas(panel, this, project,
 												 local_hl_state, this,
 												 X, Y, X_undef, Y_undef,
@@ -524,7 +570,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 												 valid_sampling, // show LOWESS fit
 												 false);
             sp_can->SetFixedAspectRatioMode(false);
-			sp_can->ChangeLoessParams(0.2,5,0.02);
+			//sp_can->ChangeLoessParams(0.2,5,0.02);
 			bag_szr->Add(sp_can, wxGBPosition(row, 1), wxGBSpan(1,1), wxEXPAND);
 			scatt_plots.push_back(sp_can);
 		}
@@ -557,7 +603,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			{
 				sa_can = new SimpleAxisCanvas(panel, this, project, 
 											  local_hl_state,
-											  freq_vals, "Frequency",
+											  freq_vals, _("Frequency"),
 											  freq_min, freq_max,
 											  false, // is horizontal ?
 											  true, // show axes
@@ -600,14 +646,14 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		
 		wxString title;
 		if (par.dist_metric == WeightsMetaInfo::DM_arc) {
-			title << "Arc Distance, ";
+			title << _("Arc Distance") << ", ";
 			if (par.dist_units == WeightsMetaInfo::DU_mile) {
-				title << " mi";
+				title << _(" mi");
 			} else {
-				title << " km";
+				title << _(" km");
 			}
 		} else {
-			title << "Euclidean Distance";
+			title << _("Euclidean Distance");
 		}
 		
 		AxisScale h_axs;
@@ -627,10 +673,16 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
 			stringstream ss;
 			if (h_axs.tics[i] < 10000000) {
-				ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+				else
+                    ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			} else {
-				ss << std::setprecision(1) << h_axs.tics[i];
+                if (  h_axs.tics[i] == (int) h_axs.tics[i])
+                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
+                else 
+                    ss << std::setprecision(1) << h_axs.tics[i];
 				h_axs.tics_str[i] = ss.str();
 			}
 			h_axs.tics_str_show[i] = true;
@@ -708,10 +760,10 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     
     
     vector<wxString> lbls;
-    lbls.push_back("Autocorr.");
-    lbls.push_back("Min");
-    lbls.push_back("Max");
-    lbls.push_back("# Pairs");
+    lbls.push_back(_("Autocorr."));
+    lbls.push_back(_("Min"));
+    lbls.push_back(_("Max"));
+    lbls.push_back(_("# Pairs"));
     vector<vector<double> > vals;
     vector<double> stats;
     
@@ -736,17 +788,20 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     stats.push_back(range_left);
     stats.push_back(range_right);
     stats.push_back(est_dist);
-    
+   
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
                                         lbls, vals, stats,
                                         "ID_CORRELOGRAM_MENU_OPTIONS",
-                                        wxDefaultPosition, wxSize(-1, 90));
+                                        wxDefaultPosition, wxSize(-1, 110));
     shs_can->SetFixedAspectRatioMode(false);
     
     //bag_szr->Add(shs_can, wxGBPosition(num_top_rows+2, 1), wxGBSpan(1,1), wxEXPAND);
     
     shs_plot = shs_can;
+   
+    if (display_statistics) shs_plot->Show();
+    else shs_plot->Hide();
     
     panel_v_szr->Add(shs_can, 0, wxLEFT | wxRIGHT | wxEXPAND);
    
@@ -760,6 +815,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     }
 }
 
+
 double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
                                                     double& rng_right)
 {
@@ -767,6 +823,14 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
     for (size_t i=0; i<cbins.size()-1; ++i) {
         double a1 = cbins[i].corr_avg;
         double a2 = cbins[i+1].corr_avg;
+        
+        if (a1 == 0) {
+            rng_left = cbins[i].dist_min;
+            rng_right = cbins[i].dist_max;
+            rst = 0;
+            break;
+        }
+        
         bool cross_axis_down = a1 == abs(a1) && a2 != abs(a2);
         bool cross_axis_up = a1 != abs(a1) && a2 == abs(a2);
         
@@ -774,12 +838,18 @@ double CorrelogramFrame::GetEstDistWithZeroAutocorr(double& rng_left,
             double d1 = (cbins[i].dist_max + cbins[i].dist_min) / 2.0;
             double d2 = (cbins[i+1].dist_max + cbins[i+1].dist_min) / 2.0;
           
-            rng_left = d1;
-            rng_right = d2;
-            
             //(d2 - d) / (a2 -0) = (d2 - d1) / (a2 - a1) ;
             double d = d2 - (d2 - d1) / (a2 - a1) * a2;
             rst = d;
+           
+            if (abs(a1) < abs(a2)) {
+                rng_left = cbins[i].dist_min;
+                rng_right = cbins[i].dist_max;
+            } else {
+                rng_left = cbins[i+1].dist_min;
+                rng_right = cbins[i+1].dist_max;
+            }
+            
             break;
         }
     }
@@ -815,9 +885,9 @@ void CorrelogramFrame::UpdateMessageWin()
 	
 	int count = var_man.GetVarsCount();
 	if (count == 0) {
-		s << "Please right-click or use<br />";
-		s << "<font color=\"blue\">Options > Change Parameters<br /></font>";
-		s << "to specify variable and distance parameters.";
+		s << _("Please right-click or use<br />");
+		s << "<font color=\"blue\">" << _("Options > Change Parameters") << "<br /></font>";
+		s << _("to specify variable and distance parameters.");
 	} else if (count > 0) {
 		s << "Variables specified: <br />";
 		for (int i=0; i<count; ++i) {
@@ -900,8 +970,8 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	std::vector<bool> Z_undef;
 	if (var_man.GetVarsCount() > 0) {
 		wxString nm = var_man.GetName(0);
-		int tm = var_man.GetTime(0);
-		wxString title(var_man.GetNameWithTime(0));
+		int tm = var_man.GetCurTime(0);
+        
 		const std::vector<double>& data(data_map[nm][tm]);
 		const std::vector<bool>& data_undef(data_undef_map[nm][tm]);
 		Z.resize(data.size());
@@ -942,8 +1012,8 @@ bool CorrelogramFrame::UpdateCorrelogramData()
 	}
     
     if (success == false) {
-        wxString msg = "Please select another variable with values more suitable for computing a correlogram.";
-        wxString title = "Variable Value Error";
+        wxString msg = _("Please select another variable with values more suitable for computing a correlogram.");
+        wxString title = _("Variable Value Error");
         wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return success;

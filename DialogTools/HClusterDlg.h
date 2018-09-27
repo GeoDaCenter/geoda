@@ -26,6 +26,7 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../logger.h"
+#include "AbstractClusterDlg.h"
 
 struct GdaNode;
 class Project;
@@ -162,7 +163,7 @@ class DendrogramPanel : public wxPanel
 {
 public:
     //DendrogramPanel();
-    DendrogramPanel(wxWindow* parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize);
+    DendrogramPanel(int max_n_clusters, wxWindow* parent, wxWindowID id, const wxPoint &pos=wxDefaultPosition, const wxSize &size=wxDefaultSize);
     virtual ~DendrogramPanel();
     
     void OnIdle(wxIdleEvent& event);
@@ -173,11 +174,17 @@ public:
     void UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters);
     void OnSplitLineChange(int x);
     
+    void SetActive(bool flag);
+    
 private:
+    bool isWindowActive;
+    
     int leaves;
     int levels;
     int nelements;
     int nclusters;
+   
+    int max_n_clusters;
     
     double margin;
     double currentY;
@@ -196,6 +203,7 @@ private:
     bool isLeftMove;
     bool isMovingSplitLine;
     wxPoint startPos;
+    std::vector<int> hl_ids;
     
     std::map<int, int> accessed_node;
     std::map<int, double> level_node;
@@ -218,67 +226,53 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
-class HClusterDlg : public wxDialog, public FramesManagerObserver, public HighlightStateObserver
+class HClusterDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
 public:
     HClusterDlg(wxFrame *parent, Project* project);
     virtual ~HClusterDlg();
     
     void CreateControls();
-    bool Init();
+    virtual bool Init();
     
     void OnSave(wxCommandEvent& event );
-    void OnOK( wxCommandEvent& event );
+    void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnClusterChoice(wxCommandEvent& event);
-    
+    void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
+    void OnSpatialConstraintCheck(wxCommandEvent& event);
     
     virtual void update(HLStateInt* o);
     
-    HLStateInt*           highlight_state;
+    virtual wxString _printConfiguration();
+    
+    HLStateInt* highlight_state;
     
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
+    void Highlight(vector<int>& ids);
     
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    wxFrame *parent;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    
-    FramesManager* frames_manager;
+protected:
+    int max_n_clusters;
     
     double cutoffDistance;
     vector<wxInt64> clusters;
     vector<bool> clusters_undef;
     
     wxButton *saveButton;
-    wxListBox* combo_var;
     wxChoice* combo_n;
     wxChoice* combo_cov;
+    wxChoice* combo_weights;
     wxTextCtrl* m_textbox;
-    wxCheckBox* m_use_centroids;
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
-    wxChoice* combo_tranform;
-    
-    std::map<wxString, wxString> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    double thresh95;
+    wxTextCtrl* m_cluster;
+    wxNotebook* notebook;
+    wxCheckBox* chk_contiguity;
     
     DECLARE_EVENT_TABLE()
 };

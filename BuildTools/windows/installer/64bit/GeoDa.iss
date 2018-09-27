@@ -1,11 +1,11 @@
 [Setup]
 AppName=GeoDa                                                      
 AppPublisher=GeoDa Center
-AppPublisherURL=https://geodacenter.asu.edu/
-AppSupportURL=https://geodacenter.asu.edu/
-AppUpdatesURL=https://geodacenter.asu.edu/
+AppPublisherURL=https://spatial.uchiago.edu/
+AppSupportURL=https://spatial.uchiago.edu/
+AppUpdatesURL=https://spatial.uchiago.edu/
 AppSupportPhone=(480)965-7533
-AppVersion=1.8
+AppVersion=1.12
 DefaultDirName={pf}\GeoDa Software
 DefaultGroupName=GeoDa Software
 ; Since no icons will be created in "{group}", we don't need the wizard
@@ -32,11 +32,17 @@ ArchitecturesInstallIn64BitMode=x64
 
 ChangesAssociations=yes
 
+ShowLanguageDialog=yes
+
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
 Name: "{app}\Examples";  Permissions: everyone-full
 Name: "{app}\basemap_cache";  Permissions: everyone-full
-
+Name: "{app}\lang";  Permissions: everyone-full
 
 
 [Files]
@@ -50,6 +56,7 @@ Source: "..\..\..\CommonDistFiles\geoda_prefs.json"; DestDir: "{app}"
 Source: "..\..\..\CommonDistFiles\web_plugins\*"; DestDir: "{app}\web_plugins"; Flags: recursesubdirs
 
 Source: "vcredist_x64.exe"; DestDir: "{app}"
+Source: "OpenCL.dll"; DestDir: "{app}"
 Source: "ogr_FileGDB.dll"; DestDir: "{app}"
 Source: "ogr_OCI.dll"; DestDir: "{app}"
 Source: "ogr_SDE.dll"; DestDir: "{app}"
@@ -72,6 +79,8 @@ Source: "..\..\temp\boost_1_57_0\stage\lib\boost_chrono-vc100-mt-1_57.dll"; Dest
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_thread-vc100-mt-1_57.dll"; DestDir: "{app}"
 Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; DestDir: "{app}"
 
+Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
+Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
 Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
 Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
@@ -168,6 +177,64 @@ begin
       Result := False; //when older version present and not uninstalled
   end;
 end;
+
+var
+  Button: TNewButton;
+  ComboBox: TNewComboBox;
+  CustomPage: TWizardPage;     
+  langCode: string;
+
+procedure ComboBoxChange(Sender: TObject);
+begin
+  case ComboBox.ItemIndex of
+    0:
+    begin
+      langCode := '58';
+    end;
+    1:
+    begin
+      langCode := '45';   // chinese
+    end;
+    2:
+    begin
+      langCode := '179';  // spanish
+    end;
+  end;
+end;
+
+procedure InitializeWizard;
+var
+  DescLabel: TLabel;
+begin
+  CustomPage := CreateCustomPage(wpSelectDir, 'Language Selection', 'Please select a language for GeoDa');
+
+  DescLabel := TLabel.Create(WizardForm);
+  DescLabel.Parent := CustomPage.Surface;
+  DescLabel.Left := 0;
+  DescLabel.Top := 0;
+  DescLabel.Caption := '';
+
+  ComboBox := TNewComboBox.Create(WizardForm);
+  ComboBox.Parent := CustomPage.Surface;
+  ComboBox.Left := 0;
+  ComboBox.Top := DescLabel.Top + DescLabel.Height + 6;  
+  ComboBox.Width := 220;
+  ComboBox.Style := csDropDownList;
+  ComboBox.Items.Add('English');
+  ComboBox.Items.Add('Chinese (Simplified)');
+  ComboBox.Items.Add('Spanish');
+  ComboBox.ItemIndex := 0;
+  ComboBox.OnChange := @ComboBoxChange;
+  langCode := '58';
+end;
+
+function getLangCode(Param: String): String;
+begin
+  Result :=  langCode;
+end;
+
+[INI]
+Filename: "{app}\lang\config.ini"; Section: "Translation"; Key: "Language"; String: {code:getLangCode|{app}}
 
 [Run]
 Filename: {app}\vcredist_x64.exe; StatusMsg: Installing Visual Studio 2010 SP1 C++ CRT Libraries...; Check: VCRedistNeedsInstall

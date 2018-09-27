@@ -220,11 +220,6 @@ namespace Shapefile {
 	wxInt32 myINT_SWAP_ON_LE( int x );
 	int calcNumIndexHeaderRecords(const Header& header);
 	
-	bool populateHeader(const wxString& fname, Header& header);
-	bool populateIndex(const wxString& fname, Index& index_s);
-	bool populateMain(const Index& index_s, const wxString& fname,
-					  Main& main_s);
-	
 	bool writeHeader(std::ofstream& out_file,
 					 const Shapefile::Header& header,
 					 wxString& err_msg);
@@ -234,30 +229,10 @@ namespace Shapefile {
 							wxString& err_msg);
 	bool writePolygonIndexFile(const wxString& fname, const Index& index,
 							   wxString& err_msg);
-	bool writePolygonMainFile(const wxString& fname, const Main& main,
-							  wxString& err_msg);
-	
-	void printHeader(const Header& header, std::ostream& s, int indent=0);
-	void printIndex(const Index& index_s, std::ostream& s, int indent=0);
-	void printMain(const Main& main_s, std::ostream& s, int indent=0);
-	void printIndexRecord(const IndexRecord& ir, std::ostream& s,
-						  int indent=0);
-	void printMainRecord(const MainRecord& mr, std::ostream& s,
-						 int indent=0);
-	void printPointContents(const PointContents& pc, std::ostream& s,
-							int indent);
-	void printPolyLineContents(const PolyLineContents& pc, std::ostream& s,
-							   int indent);
-	void printPolygonContents(const PolygonContents& pc, std::ostream& s,
-							  int indent);
-	void printRecordContents(const RecordContents* rc, std::ostream& s,
-							 int indent);
-	void printMainRecordHeader(const MainRecordHeader& mrh, std::ostream& s,
-							   int indent);
+
 	
 	/** read just the shapefile type from the header */
-	ShapeType readShapeType(const wxString& fname);
-	
+
 	const int spaces_per_indent = 2;
 	std::string getIndentString(int indent);
 	std::string pointToString(const Point& p);

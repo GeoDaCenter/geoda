@@ -20,6 +20,8 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <wx/wx.h>
+
 #include "../GdaException.h"
 #include "../logger.h"
 #include "VarOrderPtree.h"
@@ -73,43 +75,54 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 			wxString key = v.first.data();
 			if (key == "var") {
 				VarGroup ent;
-				ent.name = v.second.data();
+				wxString tmp(v.second.data().c_str(), wxConvUTF8);
+				ent.name = tmp;
 				//var_order.push_back(v.second.data());
 				var_grps.push_back(ent);
 			} else if (key == "time_ids") {
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
-					wxString key = v.first.data();
-					time_ids.push_back(v.second.data());
+					wxString tmp(v.first.data(), wxConvUTF8);
+					wxString key = tmp;
+					wxString val(v.second.data().c_str(), wxConvUTF8);
+					time_ids.push_back(val);
 				}
 			} else if (key == "group") {
+                bool valid_group = true;
 				VarGroup ent;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
-					wxString key = v.first.data();
+					wxString tmp(v.first.data(), wxConvUTF8);
+					wxString key = tmp;
 					if (key == "name") {
-						ent.name = v.second.data();
+						wxString tmp1(v.second.data().c_str(), wxConvUTF8);
+						ent.name = tmp1;
 					} else if (key == "var") {
-						ent.vars.push_back(v.second.data());
+						wxString tmp1(v.second.data().c_str(), wxConvUTF8);
+						ent.vars.push_back(tmp1);
 					} else if (key == "placeholder") {
 						ent.vars.push_back("");
+                        valid_group = false;
 					} else if (key == "displayed_decimals") {
-						wxString vs(v.second.data());
+						wxString vs(v.second.data().c_str(), wxConvUTF8);
 						long dd;
 						if (!vs.ToLong(&dd)) dd = -1;
 						ent.displayed_decimals = dd;
-					}
+                    } else {
+                        valid_group = false;
+                    }
 				}
 				if (ent.name.empty()) {
-                    wxString msg = "space-time variable found with no name";
+                    wxString msg = _("space-time variable found with no name");
 					throw GdaException(msg.mb_str());
 				}
 				if (grp_set.find(ent.name) != grp_set.end()) {
-					wxString ss;
-					ss << "Space-time variables with duplicate name \"";
-					ss << ent.name << "\" found.";
+					wxString ss = _("Space-time variables with duplicate name \"%s\" found.");
+                    ss = wxString::Format(ss, ent.name);
 					throw GdaException(ss.mb_str());
 				}
-				var_grps.push_back(ent);
-				grp_set.insert(ent.name);
+                if (valid_group) {
+    				var_grps.push_back(ent);
+    				grp_set.insert(ent.name);
+                }
 			}
 		}
 	} catch (std::exception &e) {

@@ -59,6 +59,19 @@ void WeightsManState::notifyObservers()
 	event_type = empty_evt;
 }
 
+void WeightsManState::notifyObservers(WeightsManStateObserver* exclude)
+{
+    for (std::list<WeightsManStateObserver*>::iterator it=observers.begin();
+         it != observers.end(); ++it) {
+        if ((*it) == exclude) {
+            
+        } else {
+            (*it)->update(this);
+        }
+    }
+    event_type = empty_evt;
+}
+
 void WeightsManState::closeObservers(boost::uuids::uuid id,
 									 WeightsManStateObserver* o)
 {

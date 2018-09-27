@@ -70,10 +70,12 @@ BEGIN_EVENT_TABLE( GetisWhat2OpenDlg, wxDialog )
 EVT_BUTTON( wxID_OK, GetisWhat2OpenDlg::OnOkClick )
 END_EVENT_TABLE()
 
-GetisWhat2OpenDlg::GetisWhat2OpenDlg( wxWindow* parent, wxWindowID id,
-                                   const wxString& caption, const wxPoint& pos,
-                                   const wxSize& size, long style )
+GetisWhat2OpenDlg::GetisWhat2OpenDlg( wxWindow* parent,
+                                     bool _show_row_stand, wxWindowID id,
+                                     const wxString& caption, const wxPoint& pos,
+                                     const wxSize& size, long style )
 {
+    show_row_stand = _show_row_stand;
     SetParent(parent);
     CreateControls();
     Centre();
@@ -92,6 +94,10 @@ void GetisWhat2OpenDlg::CreateControls()
     if (FindWindow(XRCID("IDC_CHECK4")))
         m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
     m_check3->Hide();
+    if (!show_row_stand) {
+        m_check4->SetValue(false);
+        m_check4->Hide();
+    }
 }
 
 void GetisWhat2OpenDlg::OnOkClick( wxCommandEvent& event )

@@ -39,6 +39,8 @@ class TableState;
 class TableInterface;
 class Project;
 class WeightsManInterface;
+class ExportDataDlg;
+class OGRTable;
 
 class VarGroupingEditorDlg: public wxDialog, public FramesManagerObserver,
 public TableStateObserver
@@ -96,7 +98,7 @@ public:
 	void OnNewGroupHelp( wxCommandEvent& event );
 	void OnCurGroupedHelp( wxCommandEvent& event );
     void OnLoadFromGda( wxCommandEvent& event );
-	
+    	
 	void UpdateGroupButton();
 	void UpdateAddToListButton();
 	void UpdateButtons();
@@ -156,11 +158,14 @@ protected:
     bool sort_asc;
     
 	wxListBox* grouped_list;
+    
+    ExportDataDlg* export_dlg;
 	
 	FramesManager* frames_manager;
 	TableState* table_state;
 	TableInterface* table_int;
     Project* project;
+    OGRTable* mem_table_int;
     
 	bool common_empty;
 	wxString common_type;

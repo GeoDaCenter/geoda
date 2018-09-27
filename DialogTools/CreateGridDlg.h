@@ -20,7 +20,8 @@
 #ifndef __GEODA_CENTER_CREATE_GRID_DLG_H__
 #define __GEODA_CENTER_CREATE_GRID_DLG_H__
 
-#include "../ShapeOperations/Box.h"
+class ExportDataDlg;
+class ConnectDatasourceDlg;
 
 class CreateGridDlg: public wxDialog
 {    
@@ -28,7 +29,7 @@ class CreateGridDlg: public wxDialog
     DECLARE_EVENT_TABLE()
 
 public:
-    CreateGridDlg( );
+    ~CreateGridDlg( );
     CreateGridDlg( wxWindow* parent, wxWindowID id = -1,
 				   const wxString& caption = _("Creating Grid"),
 				   const wxPoint& pos = wxDefaultPosition,
@@ -43,6 +44,7 @@ public:
 
     void CreateControls();
 
+    void OnClose(wxCloseEvent& event);
     void OnCancelClick( wxCommandEvent& event );
     void OnCReferencefileClick( wxCommandEvent& event );
     void OnCBrowseOfileClick( wxCommandEvent& event );
@@ -65,17 +67,16 @@ public:
     wxTextCtrl* m_inputfileshp;
     wxTextCtrl* m_rows;
     wxTextCtrl* m_cols;
-
+    
 	void EnableItems();
 	bool CheckBBox();
-	void CreateGrid();  
+	bool CreateGrid();
 
 	int m_check;
 
 	int	m_nCount;
 	int	m_nTimer;
 	enum { nMaxCount = 10000 };
-	Box	m_BigBox;
 	double m_xBot,m_yBot,m_xTop,m_yTop;
 	bool hasCreated;
 

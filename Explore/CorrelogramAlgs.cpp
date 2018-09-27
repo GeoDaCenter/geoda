@@ -25,13 +25,13 @@
 #include <boost/random/uniform_01.hpp>
 #include <boost/random/normal_distribution.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
+#include <wx/wx.h>
 #include <wx/stopwatch.h>
 #include "../SpatialIndAlgs.h"
 #include "../GenGeomAlgs.h"
 #include "../PointSetAlgs.h"
 #include "../logger.h"
 #include "CorrelogramAlgs.h"
-
 
 void CorrelogramAlgs::GetSampMeanAndVar(const std::vector<double>& Z_,
                                         const std::vector<bool>& Z_undef,
@@ -74,13 +74,21 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 {
 	using namespace std;
 	using namespace GenGeomAlgs;
-	LOG_MSG("Entering CorrelogramAlgs::MakeCorrRandSamp");
+	wxLogMessage("Entering CorrelogramAlgs::MakeCorrRandSamp");
 	wxStopWatch sw;
 	
 	// Mersenne Twister random number generator, randomly seeded
 	// with current time in seconds since Jan 1 1970.
-	static boost::mt19937 rng(std::time(0));
-	static boost::random::uniform_int_distribution<> X(0, pts.size()-1);
+    uint64_t seed;
+    if (GdaConst::use_gda_user_seed == false)
+        seed = std::time(0);
+    else
+        seed = GdaConst::gda_user_seed;
+
+	boost::mt19937 rng(seed);
+	//static boost::random::uniform_int_distribution<> X(0, pts.size()-1);
+    boost::random::uniform_01<boost::mt19937> X(rng);
+    X.reset();
 	
 	double nbins_d = (double) num_bins;
 	if (dist_cutoff <= 0) {
@@ -116,8 +124,8 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
     int t_max = 0;
     int t_max_const = iters + 9999999;
     while (t < iters ) {
-		size_t i=X(rng);
-		size_t j=X(rng);
+		size_t i= X() * (pts.size()-1);
+		size_t j= X() * (pts.size()-1);
         
         // potential hangs here
         if (Z_undef.size() > 0 && (Z_undef[i] || Z_undef[j])) {
@@ -160,7 +168,7 @@ bool CorrelogramAlgs::MakeCorrRandSamp(const std::vector<wxRealPoint>& pts,
 		}
 	}
 
-	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrRandSamp");
+	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrRandSamp");
 	return true;
 }
 
@@ -173,7 +181,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 {
 	using namespace std;
 	using namespace GenGeomAlgs;
-	LOG_MSG("Entering CorrelogramAlgs::MakeCorrAllPairs");
+	wxLogMessage("Entering CorrelogramAlgs::MakeCorrAllPairs");
 	wxStopWatch sw;
 
 	size_t nobs = pts.size();
@@ -210,7 +218,7 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
                 continue;
             }
             
-            Zprod_undef[pc] = false;
+            if (Z_undef.size() > 0) Zprod_undef[pc] = false;
 			double d = (is_arc ?
                         ComputeArcDistRad(pts[i].x, pts[i].y,pts[j].x, pts[j].y) :
 						ComputeEucDist(pts[i].x, pts[i].y, pts[j].x, pts[j].y));
@@ -271,9 +279,9 @@ bool CorrelogramAlgs::MakeCorrAllPairs(const std::vector<wxRealPoint>& pts,
 		stringstream ss;
 		ss << "MakeCorrMakeCorrAllPairs with " << pairs
 		   << " pairs finished in " << sw.Time() << " ms.";
-		LOG_MSG(ss.str());
+		wxLogMessage(ss.str());
 	*/
-	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrAllPairs");
+	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrAllPairs");
 	return true;
 }
 
@@ -286,7 +294,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 	using namespace std;
 	using namespace GenGeomAlgs;
 	using namespace SpatialIndAlgs;
-	LOG_MSG("Entering CorrelogramAlgs::MakeCorrThresh (plane)");
+	wxLogMessage("Entering CorrelogramAlgs::MakeCorrThresh (plane)");
 	wxStopWatch sw;
 
 	if (thresh <= 0) return false;
@@ -310,7 +318,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			//LOG_MSG("Error: non-positive variance calculated");
+			//wxLogMessage("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -360,9 +368,9 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_2d_t& rtree,
 		stringstream ss;
 		ss << "MakeCorrThresh with threshold " << thresh
 		   << " finished in " << sw.Time() << " ms.";
-		LOG_MSG(ss.str());
+		wxLogMessage(ss.str());
 	*/
-	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrThresh (plane)");
+	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrThresh (plane)");
 	return true;
 }
 
@@ -376,7 +384,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 	using namespace std;
 	using namespace GenGeomAlgs;
 	using namespace SpatialIndAlgs;
-	LOG_MSG("Entering CorrelogramAlgs::MakeCorrThresh (sphere)");
+	wxLogMessage("Entering CorrelogramAlgs::MakeCorrThresh (sphere)");
 	wxStopWatch sw;
 	
 	if (thresh <= 0) return false;
@@ -399,7 +407,7 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 	if (calc_prods) {
 		GetSampMeanAndVar(Z, Z_undef, mean, var);
 		if (var <= 0) {
-			//LOG_MSG("Error: non-positive variance calculated");
+			//wxLogMessage("Error: non-positive variance calculated");
 			return false;
 		}
 	}
@@ -454,8 +462,8 @@ bool CorrelogramAlgs::MakeCorrThresh(const rtree_pt_3d_t& rtree,
 		stringstream ss;
 		ss << "MakeCorrThresh with threshold " << thresh
 		<< " finished in " << sw.Time() << " ms.";
-		LOG_MSG(ss.str());
+		wxLogMessage(ss.str());
 	*/
-	LOG_MSG("Exiting CorrelogramAlgs::MakeCorrThresh (sphere)");
+	wxLogMessage("Exiting CorrelogramAlgs::MakeCorrThresh (sphere)");
 	return true;
 }

@@ -9,7 +9,7 @@ compiling libraries and GeoDa, and finally packaging the program
 for distribution and installation.
 
 ***************************************************
-*** Building GeoDa for 64-bit CentOS 6 or later ***
+*** Building GeoDa for 64-bit CentOS 7
 ***************************************************
 
 NOTE: This is just basic placeholder for now!  Not currently complete.
@@ -29,3 +29,29 @@ Build machine assumptions:
 
 5. Package GeoDa for distribution / installation.
 
+***************************************************
+*** Building GeoDa for 64-bit CentOS 6 
+***************************************************
+
+1. wxwidgets 3.1 works with GTK2, which is only avaiable on CentOS6
+
+2. webkitgtk is version 1.0 on CentOS6. Install: yum install webkitgtk-devel
+
+3. yum install readline-devel, autoreconf, gtk2-devel
+
+4. 
+cp libraries/lib/libwx_gtk2u_xrc-3.1.so.0.0.0 build/plugins/libwx_gtk2u_xrc-3.1.so.0
+cp libraries/lib/libwx_gtk2u_stc-3.1.so.0.0.0 build/plugins/libwx_gtk2u_stc-3.1.so.0
+cp libraries/lib/libwx_gtk2u_richtext-3.1.so.0.0.0 build/plugins/libwx_gtk2u_richtext-3.1.so.0
+cp libraries/lib/libwx_gtk2u_ribbon-3.1.so.0.0.0 build/plugins/libwx_gtk2u_ribbon-3.1.so.0
+cp libraries/lib/libwx_gtk2u_propgrid-3.1.so.0.0.0 build/plugins/libwx_gtk2u_propgrid-3.1.so.0
+cp libraries/lib/libwx_gtk2u_aui-3.1.so.0.0.0 build/plugins/libwx_gtk2u_aui-3.1.so.0
+cp libraries/lib/libwx_gtk2u_gl-3.1.so.0.0.0 build/plugins/libwx_gtk2u_gl-3.1.so.0
+cp libraries/lib/libwx_gtk2u_html-3.1.so.0.0.0 build/plugins/libwx_gtk2u_html-3.1.so.0
+cp libraries/lib/libwx_gtk2u_webview-3.1.so.0.0.0 build/plugins/libwx_gtk2u_webview-3.1.so.0
+cp libraries/lib/libwx_gtk2u_qa-3.1.so.0.0.0 build/plugins/libwx_gtk2u_qa-3.1.so.0
+cp libraries/lib/libwx_gtk2u_adv-3.1.so.0.0.0 build/plugins/libwx_gtk2u_adv-3.1.so.0
+cp libraries/lib/libwx_gtk2u_core-3.1.so.0.0.0 build/plugins/libwx_gtk2u_core-3.1.so.0
+cp libraries/lib/libwx_baseu_xml-3.1.so.0.0.0 build/plugins/libwx_baseu_xml-3.1.so.0
+cp libraries/lib/libwx_baseu_net-3.1.so.0.0.0 build/plugins/libwx_baseu_net-3.1.so.0
+cp libraries/lib/libwx_baseu-3.1.so.0.0.0 build/plugins/libwx_baseu-3.1.so.0

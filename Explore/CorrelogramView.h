@@ -29,6 +29,8 @@
 #include "CorrelParamsObserver.h"
 #include "SimpleScatterPlotCanvas.h"
 #include "SimpleBinsHistCanvas.h"
+#include "LowessParamDlg.h"
+#include "LowessParamObserver.h"
 #include "../ShapeOperations/Lowess.h"
 #include "../ShapeOperations/SmoothingUtils.h"
 #include "../TemplateCanvas.h"
@@ -53,7 +55,7 @@ typedef std::map<wxString, vec_vec_bool_type> data_undef_map_type;
  CorrelogramFrame manages all of its canvas child windows.
  */
 class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
-public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt
+public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt, public LowessParamObserver
 {
 public:
     CorrelogramFrame(wxFrame *parent, Project* project,
@@ -67,10 +69,13 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
+    virtual void OnRightClick(const wxPoint& pos);
 		
 	void OnShowCorrelParams(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
-	
+    void OnSaveResult(wxCommandEvent& event);
+    void OnEditLowessParams(wxCommandEvent& event);
+    
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowObservationAddDelete() { return true; }
@@ -89,11 +94,10 @@ public:
 	/** Implementation of SimpleScatterPlotCanvasCbInt interface */	
 	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
                                     int total_hover_obs);
-	
-    virtual void OnRightClick(const wxPoint& pos);
-    
-    void OnSaveResult(wxCommandEvent& event);
-    
+   
+    /** Implementation of LowessParamObserver interface */
+    virtual void update(LowessParamObservable* o);
+    virtual void notifyOfClosing(LowessParamObservable* o);
     
 protected:
     void ReDraw();
@@ -104,6 +108,7 @@ protected:
     double GetEstDistWithZeroAutocorr(double& rng_left, double& rng_right);
 	
     Project* project;
+    LowessParamFrame* lowess_param_frame;
 	CorrelParamsFrame* correl_params_frame;
 	CorrelParams par;
 	GdaVarTools::Manager var_man;
@@ -116,7 +121,10 @@ protected:
 	SimpleBinsHistCanvas* hist_plot;
     SimpleHistStatsCanvas* shs_plot;
 	HLStateInt* local_hl_state;
-	
+    SimpleScatterPlotCanvas* sp_can;
+
+    bool display_statistics;
+    
 	wxBoxSizer* top_h_sizer;
 	wxPanel* panel;
 	wxBoxSizer* panel_v_szr;

@@ -41,7 +41,7 @@ public:
     FieldNewCalcBinDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY,
-					   const wxString& caption = "Bivariate",
+					   const wxString& caption = _("Bivariate"),
 					   const wxPoint& pos = wxDefaultPosition,
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );

@@ -342,8 +342,8 @@ void SelectWeightsDlg::SetDetailsWin(const std::vector<wxString>& row_title,
 	s << "<body>";
 	s << "  <table id=\"my_table\">";
 	s << "    <tr>";
-	s << "      <th>Property</th>";
-	s << "      <th>Value</th>";
+	s << "      <th>" << _("Property") << "</th>";
+	s << "      <th>" << _("Value") << "</th>";
 	s << "    </tr>";
 	for (size_t i=0, last=row_title.size()-1; i<last+1; ++i) {
 		s << (i%2 == 0 ? "<tr>" : "<tr class=\"alt\">");

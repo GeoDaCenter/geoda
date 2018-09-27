@@ -22,6 +22,8 @@
 
 #include <vector>
 #include <map>
+#include <iostream>
+#include <boost/date_time.hpp>
 
 #include "../GdaConst.h"
 #include "../DataViewer/VarOrderPtree.h"
@@ -29,6 +31,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
+namespace bt = boost::posix_time;
 
 /**
  *
@@ -37,6 +40,7 @@ class OGRColumn
 {
 protected:
     wxString name;
+    int  idx; // idx in ogr_layer
     int  length;
     int  decimals;
     bool is_new;
@@ -45,6 +49,8 @@ protected:
     OGRLayerProxy* ogr_layer;
     // markers for a new column if the cell has ben assigned a value
     vector<bool> undef_markers;
+   
+    int get_date_format(std::string& s);
     
 public:
     // Constructor for in-memory column
@@ -56,11 +62,13 @@ public:
    
     // Get column index from loaded ogr_layer
     int GetColIndex();
-    
+   
+    void SetUndefinedMarkers(vector<bool>& undefs) {undef_markers = undefs;}
     vector<bool> GetUndefinedMarkers() { return undef_markers;}
     
     //  When SaveAs current datasource to a new datasource, the underneath OGRLayer will be replaced.
     void UpdateOGRLayer(OGRLayerProxy* new_ogr_layer);
+    
     OGRLayerProxy* GetOGRLayerProxy() { return ogr_layer;}
     
     bool IsNewColumn() { return is_new;}
@@ -95,6 +103,7 @@ public:
     virtual void UpdateData(const vector<wxString>& data);
     virtual void UpdateData(const vector<wxInt64>& data);
     virtual void UpdateData(const vector<double>& data);
+    virtual void UpdateData(const vector<unsigned long long>& data);
    
     // following UpdateData will be used for any undefined/null values
     virtual void UpdateData(const vector<double>& data,
@@ -102,6 +111,8 @@ public:
     virtual void UpdateData(const vector<wxInt64>& data,
                             const vector<bool>& undef_markers);
     virtual void UpdateData(const vector<wxString>& data,
+                            const vector<bool>& undef_markers);
+    virtual void UpdateData(const vector<unsigned long long>& data,
                             const vector<bool>& undef_markers);
     
     // Should return true, unless if a undefined value is found
@@ -115,6 +126,7 @@ public:
     virtual void FillData(vector<double>& data);
     virtual void FillData(vector<wxInt64>& data);
     virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<unsigned long long>& data);
     
     virtual void FillData(vector<double>& data,
                           vector<bool>& undef_markers);
@@ -122,11 +134,15 @@ public:
                           vector<bool>& undef_markers);
     virtual void FillData(vector<wxString>& datam,
                           vector<bool>& undef_markers);
+    virtual void FillData(vector<unsigned long long>& datam,
+                          vector<bool>& undef_markers);
     
     virtual wxString GetValueAt(int row_idx,
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL) = 0;
     virtual void SetValueAt(int row_idx, const wxString& value) = 0;
+    virtual void SetValueAt(int row_idx, wxInt64 value){}
+    virtual void SetValueAt(int row_idx, double value){}
 };
 
 /**
@@ -167,6 +183,7 @@ public:
                                 wxCSConv* m_wx_encoding=NULL);
     
     virtual void SetValueAt(int row_idx, const wxString& value);
+    void SetValueAt(int row_idx, wxInt64 value);
     
 };
 
@@ -208,6 +225,7 @@ public:
                                 wxCSConv* m_wx_encoding=NULL);
     
     virtual void SetValueAt(int row_idx, const wxString& value);
+    void SetValueAt(int row_idx, double value);
     
 };
 
@@ -220,6 +238,7 @@ private:
     vector<wxString> new_data;
     
     void InitMemoryData();
+    
     
 public:
     OGRColumnString(wxString name, int field_length, int decimals, int n_rows);
@@ -238,6 +257,8 @@ public:
     virtual void FillData(vector<wxInt64>& data);
     
     virtual void FillData(vector<wxString>& data);
+    
+    virtual void FillData(vector<unsigned long long>& data);
     
     virtual void UpdateData(const vector<wxString>& data);
     
@@ -259,20 +280,23 @@ public:
  */
 class OGRColumnDate: public OGRColumn
 {
-private:
-    vector<wxInt64> new_data;
+protected:
+    vector<unsigned long long> new_data;
     void InitMemoryData();
     
-    
 public:
-    // XXX: don't support add new date column yet
     //OGRColumnDate(int rows);
     OGRColumnDate(OGRLayerProxy* ogr_layer, int idx);
-    ~OGRColumnDate();
+    OGRColumnDate(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals);
+    virtual ~OGRColumnDate();
     
     virtual void FillData(vector<wxInt64>& data);
     
     virtual void FillData(vector<wxString>& data);
+    
+    virtual void FillData(vector<unsigned long long>& data);
+  
+    virtual void UpdateData(const vector<unsigned long long>& data);
     
     virtual GdaConst::FieldType GetType() {return GdaConst::date_type;}
     
@@ -285,51 +309,30 @@ public:
     virtual void SetValueAt(int row_idx, const wxString& value);
 };
 
-class OGRColumnTime: public OGRColumn
+class OGRColumnTime: public OGRColumnDate
 {
-private:
-    vector<wxInt64> new_data;
-    void InitMemoryData();
-    
 public:
-    // XXX: don't support add new date column yet
-    //OGRColumnTime(int rows);
     OGRColumnTime(OGRLayerProxy* ogr_layer, int idx);
-    ~OGRColumnTime();
-    
-    virtual void FillData(vector<wxInt64>& data);
-    
-    virtual void FillData(vector<wxString>& data);
+    OGRColumnTime(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals);
+    virtual ~OGRColumnTime();
     
     virtual GdaConst::FieldType GetType() {return GdaConst::time_type;}
     
-    virtual bool GetCellValue(int row, wxInt64& val);
-    
     virtual wxString GetValueAt(int row_idx,
-                                int disp_decimals=0, wxCSConv* m_wx_encoding=NULL);
-    
+                                int disp_decimals=0,
+                                wxCSConv* m_wx_encoding=NULL);
+ 
     virtual void SetValueAt(int row_idx, const wxString& value);
 };
 
-class OGRColumnDateTime: public OGRColumn
+class OGRColumnDateTime: public OGRColumnDate
 {
-private:
-    vector<wxInt64> new_data;
-    void InitMemoryData();
-    
 public:
-    // XXX: don't support add new date column yet
-    //OGRColumnDateTime(int rows);
     OGRColumnDateTime(OGRLayerProxy* ogr_layer, int idx);
-    ~OGRColumnDateTime();
-    
-    virtual void FillData(vector<wxInt64>& data);
-    
-    virtual void FillData(vector<wxString>& data);
+    OGRColumnDateTime(OGRLayerProxy* ogr_layer, wxString name, int field_length, int decimals);
+    virtual ~OGRColumnDateTime();
     
     virtual GdaConst::FieldType GetType() {return GdaConst::datetime_type;}
-    
-    virtual bool GetCellValue(int row, wxInt64& val);
     
     virtual wxString GetValueAt(int row_idx,
                                 int disp_decimals=0,
@@ -337,5 +340,4 @@ public:
     
     virtual void SetValueAt(int row_idx, const wxString& value);
 };
-
 #endif

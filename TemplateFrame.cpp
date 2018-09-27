@@ -39,6 +39,7 @@
 #include "Explore/LisaScatterPlotView.h"
 #include "Explore/PCPNewView.h"
 #include "Explore/ScatterNewPlotView.h"
+#include "Explore/MapLayoutView.h"
 #include "DialogTools/AdjustYAxisDlg.h"
 
 
@@ -69,7 +70,7 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 	is_status_bar_visible(false),
 	get_status_bar_string_from_frame(false),
 	supports_timeline_changes(false),
-	depends_on_non_simple_groups(true)
+	depends_on_non_simple_groups(true), toolbar(NULL)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 	frames_manager->registerObserver(this);
@@ -374,7 +375,7 @@ void TemplateFrame::RegisterAsActive(const wxString& name,
 		// Enable the Close menu item.  This saves including this code in every
 		// single MapMenus call by all classes that inherit this class.
 		GeneralWxUtils::EnableMenuItem(GdaFrame::GetGdaFrame()->GetMenuBar(),
-									   "File",
+									   GdaFrame::GetGdaFrame()->GetMenuBar()->GetMenuLabelText(0),
 									   wxID_CLOSE, true);
 		activeFrame = this;
 		activeFrName = name;
@@ -409,7 +410,6 @@ TemplateFrame* TemplateFrame::GetActiveFrame()
 
 void TemplateFrame::MapMenus()
 {
-	LOG_MSG("In TemplateFrame::MapMenus");
 }
 
 void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
@@ -433,204 +433,110 @@ void TemplateFrame::OnKeyEvent(wxKeyEvent& event)
 	event.Skip();
 }
 
-/** MMM: ExportImage assumes the old style template canvas.  We should have
-      a second version available.  OnDraw is used by the older
-      TemplateCanvas chidren classes. */
+
 void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
 {
 	wxLogMessage("Entering TemplateFrame::ExportImage");
-	
-	wxString default_fname(project->GetProjectTitle() + type);
-    wxString filter = "BMP|*.bmp|PNG|*.png";
-    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
-        filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg|PostScript|*.ps";
-    }
-	int filter_index = 1;
-	//"BMP|*.bmp|PNG|*.png|PostScript|*.ps|SVG|*.svg"
-	//
-	//	default_fname = wxEmptyString;
-	//	default_fname << project->GetProjectTitle() << type << ".png";
-	//	filter = wxEmptyString;
-	//	filter << "BMP|*.bmp|PNG|*.png";
-	//	filter_index = 1;
-	//
-    wxFileDialog dialog(canvas, "Save Image to File", wxEmptyString,
-						default_fname, filter,
-						wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
-	dialog.SetFilterIndex(filter_index);
-	
-    if (dialog.ShowModal() != wxID_OK) return;
-	
-    wxSize sz =  canvas->GetDrawingSize();
-    int offset_x = -canvas->GetMarginLeft();
-    int offset_y = -canvas->GetMarginTop();
+    wxBitmap* main_map = template_canvas->GetPrintLayer();
+    int canvas_width = main_map->GetWidth();
+    int canvas_height = main_map->GetHeight();
+    double scale = template_canvas->GetContentScaleFactor();
     
-    int new_bmp_w = sz.x;
-    int new_bmp_h = sz.y;
-    
-    if (template_legend) {
-        int legend_width = template_legend->GetDrawingWidth();
-        new_bmp_w += legend_width;
-        offset_x += legend_width;
+    if (GdaConst::enable_high_dpi_support) {
+        canvas_width = canvas_width / scale;
+        canvas_height = canvas_height / scale;
     }
-	
-	wxFileName fname = wxFileName(dialog.GetPath());
-	wxString str_fname = fname.GetPathWithSep() + fname.GetName();
-	
-	switch (dialog.GetFilterIndex()) {
-		case 0:
-		{
-			wxLogMessage("BMP selected");
-			wxBitmap bitmap(new_bmp_w, new_bmp_h);
-			wxMemoryDC dc;
-			dc.SelectObject(bitmap);
-            dc.SetBackground(*wxWHITE_BRUSH);
-            dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
-            if (template_legend) {
-                template_legend->RenderToDC(dc, 1.0);
-            }
-			dc.SelectObject( wxNullBitmap );
-			
-			wxImage image = bitmap.ConvertToImage();
-			if ( !image.SaveFile( str_fname + ".bmp", wxBITMAP_TYPE_BMP )) {
-				wxMessageBox("GeoDa was unable to save the file.");
-			}			
-			image.Destroy();
-		}
-			break;
-			
-		case 1:
-		{
-			wxLogMessage("PNG selected");
-			wxBitmap bitmap(new_bmp_w, new_bmp_h);
-			wxMemoryDC dc;
-			dc.SelectObject(bitmap);
-            dc.SetBackground(*wxWHITE_BRUSH);
-            dc.Clear();
-			dc.DrawBitmap(*template_canvas->GetLayer2(), offset_x, offset_y);
-            if (template_legend) {
-                template_legend->RenderToDC(dc, 1.0);
-            }
-			dc.SelectObject( wxNullBitmap );
-			
-			wxImage image = bitmap.ConvertToImage();
-			if ( !image.SaveFile( str_fname + ".png", wxBITMAP_TYPE_PNG )) {
-				wxMessageBox("GeoDa was unable to save the file.");
-			}
-		
-			image.Destroy();
-		}
-			break;
-		case 2:
-		{
-			wxLogMessage("SVG selected");
+    
+    if (template_legend ) {
+        // with legend
+        // try to keep maplayout dialog fixed size
+        int dlg_width = 900;
+        int dlg_height = dlg_width * canvas_height / (double)canvas_width + 160;
+        wxSize sz(dlg_width, dlg_height);
+        wxString title = project->GetProjectTitle();
+        MapCanvas* map_canvas = dynamic_cast<MapCanvas*>(template_canvas);
+        CanvasLayoutDialog* lo_dlg;
+        if (map_canvas) {
+            lo_dlg = new MapLayoutDialog(title, template_legend, template_canvas, _("Map Layout Preview"), wxDefaultPosition, sz);
+        } else {
+            lo_dlg = new CanvasLayoutDialog(title, template_legend, template_canvas, _("Canvas Layout Preview"), wxDefaultPosition, sz);
+        }
+        lo_dlg->ShowModal();
+        delete lo_dlg;
+        
+    } else {
+        // without legend
+        int default_width = canvas_width*2;
+        int default_height = canvas_height*2;
+        
+        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Setting"));
+        if (setting_dlg.ShowModal() == wxID_OK) {
+            int out_res_x = setting_dlg.GetMapWidth();
+            int out_res_y = setting_dlg.GetMapHeight();
+            double canvas_scale = (double) out_res_x / canvas_width;
             
-            wxSize canvas_sz = canvas->GetDrawingSize();
-            int picW = canvas_sz.GetWidth() + 20;
-            int picH = canvas_sz.GetHeight() + 20;
-            int legend_w = 0;
-            double scale = 2.0;
-            if (template_legend) {
-                legend_w = template_legend->GetDrawingWidth() + 20;
-            }
-
-			wxSVGFileDC dc(str_fname + ".svg", picW + legend_w + 20, picH);
-
-			template_canvas->RenderToDC(dc, picW + legend_w + 20, picH);
-            if (template_legend) {
-                template_legend->RenderToDC(dc, scale);
-            }
-		}
-			break;
-		case 3:
-		{
-			wxPrintData printData;
-			printData.SetFilename(str_fname + ".ps");
-			printData.SetPrintMode(wxPRINT_MODE_FILE);
-			wxPostScriptDC dc(printData);
             
-			int w, h;
-			dc.GetSize(&w, &h);  // A4 paper like?
-			wxLogMessage(wxString::Format("wxPostScriptDC GetSize = (%d,%d)", w, h));
-			
-			if (dc.IsOk()) {
-				dc.StartDoc("printing...");
-				int paperW, paperH;
-				dc.GetSize(&paperW, &paperH);
-                
-				double marginFactor = 0.03;
-				int marginW = (int) (paperW*marginFactor/2.0);
-				int marginH = (int) (paperH*marginFactor);
-                
-                int workingW = paperW - 2*marginW;
-				int workingH = paperH - 2*marginH;
-                
-				int originX = marginW+1; // experimentally obtained tweak
-				int originY = marginH+300; // experimentally obtained tweak
-                
-                // 1/5 use for legend;  4/5 use for map
-                int legend_w = 0;
-                double scale = 1.0;
-                
-                if (template_legend) {
-                    legend_w = workingW * 0.2;
-                    int legend_orig_w = template_legend->GetDrawingWidth();
-                    scale = legend_orig_w / (double) legend_w;
-                    
-                    dc.SetDeviceOrigin(originX, originY);
-                    
-                    template_legend->RenderToDC(dc, scale);
+            wxString default_fname(project->GetProjectTitle());
+            wxString filter ="BMP|*.bmp|PNG|*.png|SVG|*.svg";
+            int filter_index = 1;
+            wxFileDialog dialog(canvas, _("Save Image to File"), wxEmptyString,
+                                default_fname, filter,
+                                wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+            dialog.SetFilterIndex(filter_index);
+            if (dialog.ShowModal() != wxID_OK) {
+                return;
+            }
+            wxFileName fname = wxFileName(dialog.GetPath());
+            wxString str_fname = fname.GetPathWithSep() + fname.GetName();
+            
+            switch (dialog.GetFilterIndex()) {
+                case 0:
+                {
+                    wxLogMessage("BMP selected");
+                    wxBitmap canvas_bm;
+                    canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+                    wxMemoryDC canvas_dc(canvas_bm);
+                    canvas_dc.SetBackground(*wxWHITE_BRUSH);
+                    canvas_dc.Clear();
+                    template_canvas->RenderToDC(canvas_dc, out_res_x, out_res_y);
+                    canvas_bm.SaveFile(str_fname + ".bmp", wxBITMAP_TYPE_PNG);
                 }
-                
-                wxSize canvas_sz = canvas->GetDrawingSize();
-                int picW = canvas_sz.GetWidth();
-                int picH = canvas_sz.GetHeight();
-                
-                int map_w = 0;
-                int map_h = 0;
-                
-                // landscape
-                map_w = workingW - legend_w;
-                map_h = map_w * picH / picW;
-                
-                if (picW < picH) {
-                    // portrait
-                    map_w = map_w * (map_w / (double) map_h);
-                    map_h = map_w * picH / picW;
+                    break;
+                case 1:
+                {
+                    wxLogMessage("PNG selected");
+                    wxBitmap canvas_bm;
+                    canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+                    wxMemoryDC canvas_dc(canvas_bm);
+                    canvas_dc.SetBackground(*wxWHITE_BRUSH);
+                    canvas_dc.Clear();
+                    template_canvas->RenderToDC(canvas_dc, out_res_x, out_res_y);
+                    canvas_bm.SaveFile(str_fname + ".png", wxBITMAP_TYPE_PNG);
                 }
-                
-                dc.SetDeviceOrigin( originX + legend_w + 100, originY);
-                
-                template_canvas->RenderToDC(dc, map_w, map_h);
-                
-                
-				dc.EndDoc();
-                
-			} else {
-				wxString msg = _("There was a problem generating the PostScript file.");
-				wxMessageBox(msg);
-			}
-		}
-			break;
-		 
-			
-		default:
-		{
-			LOG_MSG("Error: A non-recognized type selected.");
-		}
-			break;
-	}
-	return;
-	
-	LOG_MSG("Exiting TemplateFrame::ExportImage");
+                    break;
+                    
+                case 2:
+                {
+                    wxLogMessage("SVG selected");
+                    wxSVGFileDC dc(str_fname + ".svg", out_res_x, out_res_y);
+                    template_canvas->RenderToSVG(dc, out_res_x, out_res_y);
+                }
+                    break;
+                default:
+                {
+                }
+                    break;
+            }
+        }
+    }
+    
+	wxLogMessage("Exiting TemplateFrame::ExportImage");
 }
 
 void TemplateFrame::OnChangeMapTransparency()
 {
     // should be overrided.
 }
-
 
 void TemplateFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
 {
@@ -669,7 +575,6 @@ void TemplateFrame::OnCopyLegendToClipboard(wxCommandEvent& event)
 }
 
 
-// MMM: This is for new style TemplateCanvas children.
 void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 {
 	LOG_MSG("Entering TemplateFrame::OnCopyImageToClipboard");
@@ -699,7 +604,6 @@ void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
     
     template_canvas->SetScientificNotation(!flag);
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
-        //MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas);
         canvas->CreateAndUpdateCategories();
     } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();
@@ -712,7 +616,8 @@ void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
     } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();
     }
-    template_legend->Refresh();
+    template_legend->Recreate();
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
@@ -736,6 +641,7 @@ void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
         template_legend->SetBackgroundColour(col);
         template_legend->Refresh();
     }
+    UpdateOptionMenuItems();
 }
 
 
@@ -773,6 +679,7 @@ void TemplateFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 						  "Background Color") ) {
 		template_canvas->SetCanvasBackgroundColor(new_color);
 	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
@@ -785,7 +692,8 @@ void TemplateFrame::OnSelectableFillColor(wxCommandEvent& event)
 						  new_color,
 						  "Fill Color") ) {
 		template_canvas->SetSelectableFillColor(new_color);
-	}	
+	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
@@ -798,7 +706,8 @@ void TemplateFrame::OnSelectableOutlineColor(wxCommandEvent& event)
 						  new_color,
 						  "Outline Color") ) {
 		template_canvas->SetSelectableOutlineColor(new_color);
-	}	
+	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
@@ -806,6 +715,7 @@ void TemplateFrame::OnUserBackgroundColorVisible(wxCommandEvent& event)
 	if (!template_canvas) return;
 	template_canvas->SetBackgroundColorVisible(
 						!template_canvas->user_canvas_background_color);
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
@@ -814,6 +724,7 @@ void TemplateFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 	if (!template_canvas) return;
 	template_canvas->SetSelectableOutlineVisible(
 						!template_canvas->selectable_outline_visible);
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
@@ -827,6 +738,7 @@ void TemplateFrame::OnHighlightColor(wxCommandEvent& event)
 						  "Highlight Color") ) {
 		template_canvas->SetHighlightColor(new_color);
 	}
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::update(FramesManager* o)
@@ -866,3 +778,9 @@ void TemplateFrame::ClearAllGroupDependencies()
 {
 	grp_dependencies.clear();
 }
+
+int TemplateFrame::GetCurrentCanvasTimeStep()
+{
+    return template_canvas ? template_canvas->cat_data.GetCurrentCanvasTmStep() : -1;
+}
+

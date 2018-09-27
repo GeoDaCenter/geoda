@@ -75,6 +75,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
 	virtual void ChangeThemeType(
@@ -86,17 +87,18 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	
-public:
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	virtual void CreateAndUpdateCategories();
-
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	virtual int GetNumCats() { return num_categories; }
 	
+	void CartogramImproveLevel(int level);
+	void UpdateImproveLevelTable();
+	virtual void UpdateStatusBar();
+    
 protected:
 	TableInterface* table_int;
 	CatClassifState* custom_classif_state;
@@ -139,11 +141,6 @@ protected:
 	int GetNumBatches();
 	Gda::dbl_int_pair_vec_type improve_table;
 	
-public:
-	void CartogramImproveLevel(int level);
-	void UpdateImproveLevelTable();
-	
-protected:
 	bool full_map_redraw_needed;
 	
 	GalWeight* gal_weight;
@@ -152,7 +149,6 @@ protected:
 	static const int THM_VAR; // circle color variable
 	bool all_init;
 	
-	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
 };
@@ -199,7 +195,7 @@ public:
 	virtual void OnSaveCategories();
 	
 	virtual void CartogramImproveLevel(int level);
-	
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 protected:
     void SetupToolbar();
     void OnMapSelect(wxCommandEvent& e);

@@ -34,6 +34,8 @@
 #include "../DialogTools/PermutationCounterDlg.h"
 #include "../DialogTools/SaveToTableDlg.h"
 #include "../DialogTools/VariableSettingsDlg.h"
+#include "../DialogTools/RandomizationDlg.h"
+#include "../VarCalc/WeightsManInterface.h"
 #include "ConditionalClusterMapView.h"
 #include "GStatCoordinator.h"
 #include "GetisOrdMapNewView.h"
@@ -46,25 +48,46 @@ BEGIN_EVENT_TABLE(GetisOrdMapCanvas, MapCanvas)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
+
 GetisOrdMapCanvas::GetisOrdMapCanvas(wxWindow *parent,
-										   TemplateFrame* t_frame,
-										   Project* project,
-										   GStatCoordinator* gs_coordinator,
-										   bool is_gi_s, bool is_clust_s,
-										   bool is_perm_s,
-										   bool row_standardize_s,
-										   const wxPoint& pos,
-										   const wxSize& size)
+                                     TemplateFrame* t_frame,
+                                     Project* project,
+                                     GStatCoordinator* gs_coordinator,
+                                     bool is_gi_s, bool is_clust_s,
+                                     bool is_perm_s,
+                                     bool row_standardize_s,
+                                     const wxPoint& pos,
+                                     const wxSize& size)
 : MapCanvas(parent, t_frame, project,
-			   std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
-			   CatClassification::no_theme,
-			   no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+            std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0),
+            CatClassification::no_theme,
+            no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 gs_coord(gs_coordinator),
 is_gi(is_gi_s), is_clust(is_clust_s), is_perm(is_perm_s),
 row_standardize(row_standardize_s)
 {
-	LOG_MSG("Entering GetisOrdMapCanvas::GetisOrdMapCanvas");
-	
+	wxLogMessage("Entering GetisOrdMapCanvas::GetisOrdMapCanvas");
+
+    str_not_sig = _("Not Significant");
+    str_high = _("High");
+    str_low = _("Low");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = "p = 0.05";
+    str_p001 = "p = 0.01";
+    str_p0001 = "p = 0.001";
+    str_p00001 = "p = 0.0001";
+    
+    SetPredefinedColor(str_not_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_high, wxColour(255, 0, 0));
+    SetPredefinedColor(str_low, wxColour(0, 0, 255));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+
 	if (is_clust) {
 		cat_classif_def.cat_classif_type
 			= CatClassification::getis_ord_categories;
@@ -80,18 +103,18 @@ row_standardize(row_standardize_s)
 		template_frame->AddGroupDependancy(var_info[t].name);
 	}
 	CreateAndUpdateCategories();
-	
-	LOG_MSG("Exiting GetisOrdMapCanvas::GetisOrdMapCanvas");
+	UpdateStatusBar();
+	wxLogMessage("Exiting GetisOrdMapCanvas::GetisOrdMapCanvas");
 }
 
 GetisOrdMapCanvas::~GetisOrdMapCanvas()
 {
-	LOG_MSG("In GetisOrdMapCanvas::~GetisOrdMapCanvas");
+	wxLogMessage("In GetisOrdMapCanvas::~GetisOrdMapCanvas");
 }
 
 void GetisOrdMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering GetisOrdMapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Entering GetisOrdMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((GetisOrdMapFrame*) template_frame)->OnActivate(ae);
@@ -104,13 +127,16 @@ void GetisOrdMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting MapCanvas::DisplayRightClickMenu");
+	wxLogMessage("Exiting MapCanvas::DisplayRightClickMenu");
 }
 
 wxString GetisOrdMapCanvas::GetCanvasTitle()
 {
 	wxString new_title;
-	new_title << (is_gi ? "Gi " : "Gi* ");
+	
+    if (gs_coord->is_local_joint_count) new_title = "Local Join Count ";
+    else new_title = (is_gi ? "Gi " : "Gi* ");
+    
 	new_title << (is_clust ? "Cluster" : "Significance") << " Map ";
 	new_title << "(" << gs_coord->weight_name << "): ";
 	new_title << GetNameWithTime(0);
@@ -122,13 +148,20 @@ wxString GetisOrdMapCanvas::GetCanvasTitle()
 	return new_title;
 }
 
+wxString GetisOrdMapCanvas::GetVariableNames()
+{
+    wxString new_title;
+    new_title << GetNameWithTime(0);
+    return new_title;
+}
+
 /** This method definition is empty.  It is here to override any call
  to the parent-class method since smoothing and theme changes are not
  supported by GetisOrd maps */
 bool GetisOrdMapCanvas::ChangeMapType(CatClassification::CatClassifType new_theme,
                                       SmoothingType new_smoothing)
 {
-	LOG_MSG("In GetisOrdMapCanvas::ChangeMapType");
+	wxLogMessage("In GetisOrdMapCanvas::ChangeMapType");
 	return false;
 }
 
@@ -152,14 +185,15 @@ void GetisOrdMapCanvas::SetCheckMarks(wxMenu* menu)
 								  sig_filter == 3);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
 								  sig_filter == 4);
-	
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
+                                  sig_filter == -1);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
 								  gs_coord->IsReuseLastSeed());
 }
 
 void GetisOrdMapCanvas::TimeChange()
 {
-	LOG_MSG("Entering GetisOrdMapCanvas::TimeChange");
+	wxLogMessage("Entering GetisOrdMapCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -191,7 +225,7 @@ void GetisOrdMapCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting GetisOrdMapCanvas::TimeChange");
+	wxLogMessage("Exiting GetisOrdMapCanvas::TimeChange");
 }
 
 /** Update Categories based on info in GStatCoordinator */
@@ -209,6 +243,7 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 		int isolates_cat = -1;
 		int num_cats = 0;
         double stop_sig = 0;
+        Shapefile::Header& hdr = project->main_data.header;
         
         if (gs_coord->GetHasIsolates(t)) {
             num_cats++;
@@ -219,132 +254,182 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
         
 		if (is_clust) {
 			num_cats += 3;
-		} else {
-			num_cats += 6-gs_coord->GetSignificanceFilter();
+            // in Local Join Count, don't display Low category
+            if (gs_coord->is_local_joint_count)
+                num_cats -= 1;
             
-            double sig_cutoff = gs_coord->significance_cutoff;
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_not_sig]);
+            cat_data.SetCategoryLabel(t, 1, str_high);
+            cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_high]);
+            
+            if (!gs_coord->is_local_joint_count) {
+                cat_data.SetCategoryLabel(t, 2, str_low);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_low]);
+            }
+            
+            if (gs_coord->GetHasIsolates(t) && gs_coord->GetHasUndefined(t)) {
+                isolates_cat = 3 - gs_coord->is_local_joint_count;
+                undefined_cat = 4 - gs_coord->is_local_joint_count;
+            } else if (gs_coord->GetHasUndefined(t)) {
+                undefined_cat = 3 - gs_coord->is_local_joint_count;
+            } else if (gs_coord->GetHasIsolates(t)) {
+                isolates_cat = 3 - gs_coord->is_local_joint_count;
+            }
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            }
+            
+            gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);
+            
+            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+                if (cluster[i] == 0) {
+                    cat_data.AppendIdToCategory(t, 0, i); // not significant
+                } else if (cluster[i] == 3) {
+                    cat_data.AppendIdToCategory(t, isolates_cat, i);
+                } else if (cluster[i] == 4) {
+                    cat_data.AppendIdToCategory(t, undefined_cat, i);
+                } else {
+                    cat_data.AppendIdToCategory(t, cluster[i], i);
+                }
+            }
+            
+		} else {
             int set_perm = gs_coord->permutations;
             stop_sig = 1.0 / (1.0 + set_perm);
+            double sig_cutoff = gs_coord->significance_cutoff;
+            wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
+            double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+           
+            bool is_cust_cutoff = true;
+            for (int i=0; i<4; i++) {
+                if (sig_cutoff == def_cutoffs[i]) {
+                    is_cust_cutoff = false;
+                    break;
+                }
+            }
             
-            if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+            if ( is_cust_cutoff ) {
+                // if set customized cutoff value
+                wxString lbl = wxString::Format("p = %g", sig_cutoff);
+                if ( sig_cutoff > 0.05 ) {
+                    def_cutoffs[0] = sig_cutoff;
+                    lbl_color_dict[lbl] = lbl_color_dict[def_cats[0]];
+                    def_cats[0] = lbl;
+                } else {
+                    for (int i = 1; i < 4; i++) {
+                        if (def_cutoffs[i-1] + def_cutoffs[i] < 2 * sig_cutoff){
+                            lbl_color_dict[lbl] = lbl_color_dict[def_cats[i-1]];
+                            def_cutoffs[i-1] = sig_cutoff;
+                            def_cats[i-1] = lbl;
+                            break;
+                        } else {
+                            lbl_color_dict[lbl] = lbl_color_dict[def_cats[i]];
+                            def_cutoffs[i] = sig_cutoff;
+                            def_cats[i] = lbl;
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            num_cats = 5;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff < def_cutoffs[j])
+                    num_cats -= 1;
+            }
+            
+            // issue #474 only show significance levels that can be mapped for the given number of permutations, e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
+            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
                 num_cats -= 1;
             }
-            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
                 num_cats -= 1;
             }
-            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
                 num_cats -= 1;
             }
+            cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+            
+            // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+            cat_data.SetCategoryLabel(t, 0, str_not_sig);
+            
+            if (hdr.shape_type == Shapefile::POINT_TYP) {
+                cat_data.SetCategoryColor(t, 0, wxColour(190, 190, 190));
+            } else {
+                cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
+            }
+            
+            int cat_idx = 1;
+            std::map<int, int> level_cat_dict;
+            for (int j=0; j < 4; j++) {
+                if (sig_cutoff >= def_cutoffs[j] && def_cutoffs[j] >= stop_sig) {
+                    cat_data.SetCategoryColor(t, cat_idx, lbl_color_dict[def_cats[j]]);
+                    cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                    level_cat_dict[j] = cat_idx;
+                    cat_idx += 1;
+                }
+            }
+            
+            if (gs_coord->GetHasIsolates(t) &&
+                gs_coord->GetHasUndefined(t)) {
+                isolates_cat = cat_idx++;
+                undefined_cat = cat_idx++;
+                
+            } else if (gs_coord->GetHasUndefined(t)) {
+                undefined_cat = cat_idx++;
+                
+            } else if (gs_coord->GetHasIsolates(t)) {
+                isolates_cat = cat_idx++;
+            }
+            
+            if (undefined_cat != -1) {
+                cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+                cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+            }
+            if (isolates_cat != -1) {
+                cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+                cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+            }
+            
+            gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);
+            double* p = 0;
+            if (is_gi && is_perm)
+                p = gs_coord->pseudo_p_vecs[t];
+            if (is_gi && !is_perm)
+                p = gs_coord->p_vecs[t];
+            if (!is_gi && is_perm)
+                p = gs_coord->pseudo_p_star_vecs[t];
+            if (!is_gi && !is_perm)
+                p = gs_coord->p_star_vecs[t];
+            
+            int s_f = gs_coord->GetSignificanceFilter();
+            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+                if (cluster[i] == 0) {
+                    cat_data.AppendIdToCategory(t, 0, i); // not significant
+                } else if (cluster[i] == 3) {
+                    cat_data.AppendIdToCategory(t, isolates_cat, i);
+                } else if (cluster[i] == 4) {
+                    cat_data.AppendIdToCategory(t, undefined_cat, i);
+                } else {
+                    //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);
+                    for ( int c = 4-1; c >= 0; c-- ) {
+                        if ( p[i] <= def_cutoffs[c] ) {
+                            cat_data.AppendIdToCategory(t, level_cat_dict[c], i);
+                            break;
+                        }
+                    }
+                }
+            }
 		}
-		cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
 		
-		if (is_clust) {
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-			cat_data.SetCategoryLabel(t, 1, "High");
-			cat_data.SetCategoryColor(t, 1, wxColour(255, 0, 0));
-			cat_data.SetCategoryLabel(t, 2, "Low");
-			cat_data.SetCategoryColor(t, 2, wxColour(0, 0, 255));
-            
-			if (gs_coord->GetHasIsolates(t) &&
-				gs_coord->GetHasUndefined(t))
-            {
-				isolates_cat = 3;
-				undefined_cat = 4;
-			} else if (gs_coord->GetHasUndefined(t)) {
-				undefined_cat = 3;
-			} else if (gs_coord->GetHasIsolates(t)) {
-				isolates_cat = 3;
-			}
-            
-		} else {
-			// 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-			int s_f = gs_coord->GetSignificanceFilter();
-			cat_data.SetCategoryLabel(t, 0, "Not Significant");
-			cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-	
-            int skip_cat = 0;
-            if (s_f <=4 && stop_sig <= 0.0001) {
-        		cat_data.SetCategoryLabel(t, 5-s_f, "p = 0.0001");
-        		cat_data.SetCategoryColor(t, 5-s_f, wxColour(1, 70, 3));
-            } else skip_cat++;
-			if (s_f <= 3 && stop_sig <= 0.001) {
-				cat_data.SetCategoryLabel(t, 4-s_f, "p = 0.001");
-				cat_data.SetCategoryColor(t, 4-s_f, wxColour(3, 116, 6));	
-			} else skip_cat++;
-			if (s_f <= 2 && stop_sig <= 0.01) {
-				cat_data.SetCategoryLabel(t, 3-s_f, "p = 0.01");
-				cat_data.SetCategoryColor(t, 3-s_f, wxColour(6, 196, 11));	
-			} else skip_cat++;
-            
-			if (s_f <= 1) {
-				cat_data.SetCategoryLabel(t, 2-s_f, "p = 0.05");
-				cat_data.SetCategoryColor(t, 2-s_f, wxColour(75, 255, 80));
-			}
-            
-			if (gs_coord->GetHasIsolates(t) &&
-				gs_coord->GetHasUndefined(t))
-            {
-				isolates_cat = 6-s_f - skip_cat;
-				undefined_cat = 7-s_f - skip_cat;
-			} else if (gs_coord->GetHasUndefined(t)) {
-				undefined_cat = 6-s_f - skip_cat;
-			} else if (gs_coord->GetHasIsolates(t)) {
-				isolates_cat = 6-s_f - skip_cat;
-			}
-		}
-		if (undefined_cat != -1) {
-			cat_data.SetCategoryLabel(t, undefined_cat, "Undefined");
-			cat_data.SetCategoryColor(t, undefined_cat, wxColour(70, 70, 70));
-		}
-		if (isolates_cat != -1) {
-			cat_data.SetCategoryLabel(t, isolates_cat, "Neighborless");
-			cat_data.SetCategoryColor(t, isolates_cat, wxColour(140, 140, 140));
-		}
-		
-		gs_coord->FillClusterCats(t, is_gi, is_perm, cluster);
-		
-		if (is_clust) {
-			for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-				if (cluster[i] == 0) {
-					cat_data.AppendIdToCategory(t, 0, i); // not significant
-				} else if (cluster[i] == 3) {
-					cat_data.AppendIdToCategory(t, isolates_cat, i);
-				} else if (cluster[i] == 4) {
-					cat_data.AppendIdToCategory(t, undefined_cat, i);
-				} else {
-					cat_data.AppendIdToCategory(t, cluster[i], i);
-				}
-			}
-		} else {
-			double* p_val = 0;
-			if (is_gi && is_perm)
-                p_val = gs_coord->pseudo_p_vecs[t];
-			if (is_gi && !is_perm)
-                p_val = gs_coord->p_vecs[t];
-			if (!is_gi && is_perm)
-                p_val = gs_coord->pseudo_p_star_vecs[t];
-			if (!is_gi && !is_perm)
-                p_val = gs_coord->p_star_vecs[t];
-			int s_f = gs_coord->GetSignificanceFilter();
-			for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-				if (cluster[i] == 0) {
-					cat_data.AppendIdToCategory(t, 0, i); // not significant
-				} else if (cluster[i] == 3) {
-					cat_data.AppendIdToCategory(t, isolates_cat, i);
-				} else if (cluster[i] == 4) {
-					cat_data.AppendIdToCategory(t, undefined_cat, i);
-				} else if (p_val[i] <= 0.0001) {
-					cat_data.AppendIdToCategory(t, 5-s_f, i);
-				} else if (p_val[i] <= 0.001) {
-					cat_data.AppendIdToCategory(t, 4-s_f, i);
-				} else if (p_val[i] <= 0.01) {
-					cat_data.AppendIdToCategory(t, 3-s_f, i);
-				} else if (p_val[i] <= 0.05) {
-					cat_data.AppendIdToCategory(t, 2-s_f, i);
-				}
-			}
-		}
 		for (int cat=0; cat<num_cats; cat++) {
 			cat_data.SetCategoryCount(t, cat,
 									  cat_data.GetNumObsInCategory(t, cat));
@@ -358,9 +443,48 @@ void GetisOrdMapCanvas::CreateAndUpdateCategories()
 	PopulateCanvas();
 }
 
+void GetisOrdMapCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = 0;
+    if (template_frame) {
+        sb = template_frame->GetStatusBar();
+    }
+    if (!sb)
+        return;
+    wxString s;
+    s << _("#obs=") << project->GetNumRecords() <<" ";
+    
+    if ( highlight_state->GetTotalHighlighted() > 0) {
+        // for highlight from other windows
+        s << _("#selected=") << highlight_state->GetTotalHighlighted()<< "  ";
+    }
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << _("#hover obs ") << hover_obs[0]+1;
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << _("obs ") << hover_obs[1]+1;
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << _("obs ") << hover_obs[2]+1;
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    }
+    if (is_clust && gs_coord) {
+        double p_val = gs_coord->significance_cutoff;
+        wxString inf_str = wxString::Format(" p <= %g", p_val);
+        s << inf_str;
+    }
+    sb->SetStatusText(s);
+}
+
 void GetisOrdMapCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In GetisOrdMapCanvas::TimeSyncVariableToggle");
+	wxLogMessage("In GetisOrdMapCanvas::TimeSyncVariableToggle");
 	gs_coord->var_info[var_index].sync_with_global_time =
 	!gs_coord->var_info[var_index].sync_with_global_time;
 	for (int i=0; i<var_info.size(); i++) {
@@ -407,13 +531,15 @@ GetisOrdMapFrame::GetisOrdMapFrame(wxFrame *parent, Project* project,
 gs_coord(gs_coordinator), map_type(map_type_s),
 row_standardize(row_standardize_s)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::GetisOrdMapFrame");
+	wxLogMessage("Entering GetisOrdMapFrame::GetisOrdMapFrame");
 	
+    no_update_weights = true;
+    
 	int width, height;
 	GetClientSize(&width, &height);
-	LOG(width);
-	LOG(height);
-	
+
+	DisplayStatusBar(true);
+    
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
@@ -438,6 +564,9 @@ row_standardize(row_standardize_s)
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
     
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    ((MapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+    
     wxPanel* lpanel = new wxPanel(splitter_win);
 	template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
 	wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
@@ -450,9 +579,9 @@ row_standardize(row_standardize_s)
 	
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
-	toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+	toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
 	toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -462,15 +591,15 @@ row_standardize(row_standardize_s)
     SetAutoLayout(true);
    
 	gs_coord->registerObserver(this);
-	DisplayStatusBar(true);
+	
 	SetTitle(template_canvas->GetCanvasTitle());
 	Show(true);
-	LOG_MSG("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
+	wxLogMessage("Exiting GetisOrdMapFrame::GetisOrdMapFrame");
 }
 
 GetisOrdMapFrame::~GetisOrdMapFrame()
 {
-	LOG_MSG("In GetisOrdMapFrame::~GetisOrdMapFrame");
+	wxLogMessage("In GetisOrdMapFrame::~GetisOrdMapFrame");
 	if (gs_coord) {
 		gs_coord->removeObserver(this);
 		gs_coord = 0;
@@ -479,7 +608,7 @@ GetisOrdMapFrame::~GetisOrdMapFrame()
 
 void GetisOrdMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In GetisOrdMapFrame::OnActivate");
+	wxLogMessage("In GetisOrdMapFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("GetisOrdMapFrame", GetTitle());
 	}
@@ -488,7 +617,7 @@ void GetisOrdMapFrame::OnActivate(wxActivateEvent& event)
 
 void GetisOrdMapFrame::MapMenus()
 {
-	LOG_MSG("In GetisOrdMapFrame::MapMenus");
+	wxLogMessage("In GetisOrdMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -496,7 +625,7 @@ void GetisOrdMapFrame::MapMenus()
 	((MapCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -504,7 +633,7 @@ void GetisOrdMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
         LOG_MSG("GetisOrdMapFrame::UpdateOptionMenuItems: "
 				"Options menu not found");
@@ -558,7 +687,11 @@ void GetisOrdMapFrame::OnRanOtherPer(wxCommandEvent& event)
 	PermutationCounterDlg dlg(this);
 	if (dlg.ShowModal() == wxID_OK) {
 		long num;
-		dlg.m_number->GetValue().ToLong(&num);
+        wxString input = dlg.m_number->GetValue();
+        
+        wxLogMessage(input);
+        
+        input.ToLong(&num);
 		RanXPer(num);
 	}
 }
@@ -584,6 +717,9 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	wxTextEntryDialog dlg(NULL, m, "\nEnter a seed value", cur_val);
 	if (dlg.ShowModal() != wxID_OK) return;
 	dlg_val = dlg.GetValue();
+    
+    wxLogMessage(dlg_val);
+    
 	dlg_val.Trim(true);
 	dlg_val.Trim(false);
 	if (dlg_val.IsEmpty()) return;
@@ -594,14 +730,15 @@ void GetisOrdMapFrame::OnSpecifySeedDlg(wxCommandEvent& event)
 	} else {
 		wxString m;
 		m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
-		wxMessageDialog dlg(NULL, m, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 	}
 }
 
 void GetisOrdMapFrame::SetSigFilterX(int filter)
 {
-	if (filter == gs_coord->GetSignificanceFilter()) return;
+	if (filter == gs_coord->GetSignificanceFilter())
+        return;
 	gs_coord->SetSignificanceFilter(filter);
 	gs_coord->notifyObservers();
 	UpdateOptionMenuItems();
@@ -627,6 +764,69 @@ void GetisOrdMapFrame::OnSigFilter0001(wxCommandEvent& event)
 	SetSigFilterX(4);
 }
 
+void GetisOrdMapFrame::OnSigFilterSetup(wxCommandEvent& event)
+{
+    GetisOrdMapCanvas* lc = (GetisOrdMapCanvas*)template_canvas;
+    int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    double* p_val_t;
+    if (map_type == Gi_clus_perm || map_type == Gi_sig_perm) {
+        p_val_t = gs_coord->pseudo_p_vecs[t];
+    } else if (map_type == Gi_clus_norm || map_type == Gi_sig_norm) {
+        p_val_t = gs_coord->p_vecs[t];
+    } else if (map_type == GiStar_clus_perm || map_type == GiStar_sig_perm) {
+        p_val_t = gs_coord->pseudo_p_star_vecs[t];
+    } else { // (map_type == GiStar_clus_norm || map_type == GiStar_sig_norm)
+        p_val_t = gs_coord->p_star_vecs[t];
+    }
+    int n = gs_coord->num_obs;
+    
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << gs_coord->permutations << " perm)";
+    
+    double user_sig = gs_coord->significance_cutoff;
+    if (gs_coord->GetSignificanceFilter()<0) user_sig = gs_coord->user_sig_cutoff;
+  
+    if (gs_coord->is_local_joint_count) {
+        int new_n = 0;
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            if (gs_coord->x_vecs[t][i] == 1) {
+                new_n += 1;
+            }
+        }
+        int j= 0;
+        double* p_val = new double[new_n];
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            if (gs_coord->x_vecs[t][i] == 1) {
+                p_val[j++] = p_val_t[i];
+            }
+        }
+        InferenceSettingsDlg dlg(this, user_sig, p_val, new_n, ttl);
+        if (dlg.ShowModal() == wxID_OK) {
+            gs_coord->SetSignificanceFilter(-1);
+            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+            gs_coord->user_sig_cutoff = dlg.GetUserInput();
+            gs_coord->notifyObservers();
+            gs_coord->bo = dlg.GetBO();
+            gs_coord->fdr = dlg.GetFDR();
+            UpdateOptionMenuItems();
+        }
+        delete[] p_val;
+    } else {
+        InferenceSettingsDlg dlg(this, user_sig, p_val_t, n, ttl);
+        if (dlg.ShowModal() == wxID_OK) {
+            gs_coord->SetSignificanceFilter(-1);
+            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+            gs_coord->user_sig_cutoff = dlg.GetUserInput();
+            gs_coord->notifyObservers();
+            gs_coord->bo = dlg.GetBO();
+            gs_coord->fdr = dlg.GetFDR();
+            UpdateOptionMenuItems();
+        }
+    }
+}
+
+
+
 void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 {
 	int t = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -651,6 +851,12 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
     
 	wxString g_label = is_gi ? "G" : "G*";
 	wxString g_field_default = is_gi ? "G" : "G_STR";
+    
+    if (gs_coord->is_local_joint_count) {
+        title = "Save Results: Local Join Count-stats";
+        g_label = "JC";
+        g_field_default = "JC";
+    }
 	
 	std::vector<wxInt64> c_val;
 	gs_coord->FillClusterCats(t, is_gi, is_perm, c_val);
@@ -678,28 +884,34 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
 	}
 	for (int i=0; i<gs_coord->num_obs; i++) p_val[i] = p_val_t[i];
 	
-	std::vector<SaveToTableEntry> data(is_perm ? 3 : 4);
+    int num_data = is_perm ? 3: 4;
+     // drop C_ID for local JC, add NN and NN_1
+	std::vector<SaveToTableEntry> data(num_data);
     std::vector<bool> undefs(gs_coord->num_obs, false);
+    std::vector<bool> c_undefs(gs_coord->num_obs, true);
     
     for (size_t i=0; i<gs_coord->x_undefs.size(); i++) {
         for (size_t j=0; j<gs_coord->x_undefs[i].size(); j++) {
             undefs[j] = undefs[j] || gs_coord->x_undefs[i][j];
         }
     }
+    int data_i = 0;
+    std::vector<wxInt64> nn_1_val;
     
-	int data_i = 0;
-	data[data_i].d_val = &g_val;
-	data[data_i].label = g_label;
-	data[data_i].field_default = g_field_default;
-	data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
-	data[data_i].l_val = &c_val;
-	data[data_i].label = c_label;
-	data[data_i].field_default = c_field_default;
-	data[data_i].type = GdaConst::long64_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
+    if (gs_coord->is_local_joint_count == false) {
+    	data[data_i].d_val = &g_val;
+    	data[data_i].label = g_label;
+    	data[data_i].field_default = g_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
+    	data[data_i].l_val = &c_val;
+    	data[data_i].label = c_label;
+    	data[data_i].field_default = c_field_default;
+    	data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
+    }
 	if (!is_perm) {
 		data[data_i].d_val = &z_val;
 		data[data_i].label = "z-score";
@@ -708,12 +920,46 @@ void GetisOrdMapFrame::OnSaveGetisOrd(wxCommandEvent& event)
         data[data_i].undefined = &undefs;
 		data_i++;
 	}
-	data[data_i].d_val = &p_val;
-	data[data_i].label = p_label;
-	data[data_i].field_default = p_field_default;
-	data[data_i].type = GdaConst::double_type;
-    data[data_i].undefined = &undefs;
-	data_i++;
+    if (gs_coord->is_local_joint_count == false) {
+    	data[data_i].d_val = &p_val;
+    	data[data_i].label = p_label;
+    	data[data_i].field_default = p_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &undefs;
+    	data_i++;
+    } else {
+        
+        
+        for (int i=0; i<gs_coord->num_obs; i++) {
+            nn_1_val.push_back( gs_coord->num_neighbors_1[t][i]);
+        }
+        
+        data[data_i].l_val = &nn_1_val;
+        data[data_i].label = g_label;
+        data[data_i].field_default = g_field_default;
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+        
+        data[data_i].l_val = &gs_coord->num_neighbors;
+        data[data_i].label = "Number of Neighbors";
+        data[data_i].field_default = "NN";
+        data[data_i].type = GdaConst::long64_type;
+        data[data_i].undefined = &undefs;
+        data_i++;
+        
+        for (size_t i=0; i<gs_coord->num_obs; i++) {
+            if (gs_coord->num_neighbors_1[t][i] > 0 &&
+                gs_coord->x_vecs[t][i] == 1)
+                c_undefs[i] = false;
+        }
+        data[data_i].d_val = &p_val;
+    	data[data_i].label = p_label;
+    	data[data_i].field_default = p_field_default;
+    	data[data_i].type = GdaConst::double_type;
+        data[data_i].undefined = &c_undefs;
+    	data_i++;
+    }
 	
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
@@ -743,7 +989,7 @@ void GetisOrdMapFrame::CoreSelectHelper(const std::vector<bool>& elem)
 
 void GetisOrdMapFrame::OnSelectCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCores");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectCores");
 		
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -756,12 +1002,12 @@ void GetisOrdMapFrame::OnSelectCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCores");
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectCores");
 }
 
 void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectNeighborsOfCores");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -786,12 +1032,12 @@ void GetisOrdMapFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);	
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectNeighborsOfCores");
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectNeighborsOfCores");
 }
 
 void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 {
-	LOG_MSG("Entering GetisOrdMapFrame::OnSelectCoresAndNeighbors");
+	wxLogMessage("Entering GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 	
 	std::vector<bool> elem(gs_coord->num_obs, false);
 	int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
@@ -810,43 +1056,7 @@ void GetisOrdMapFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
 	}
 	CoreSelectHelper(elem);
 	
-	LOG_MSG("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
-}
-
-void GetisOrdMapFrame::OnAddNeighborToSelection(wxCommandEvent& event)
-{
-    int ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
-    GalWeight* gal_weights = gs_coord->Gal_vecs_orig[ts];
-    
-    HighlightState& hs = *project->GetHighlightState();
-    std::vector<bool>& h = hs.GetHighlight();
-    int nh_cnt = 0;
-    std::vector<bool> add_elem(gal_weights->num_obs, false);
-    
-    std::vector<int> new_highlight_ids;
-    
-    for (int i=0; i<gal_weights->num_obs; i++) {
-        if (h[i]) {
-            GalElement& e = gal_weights->gal[i];
-            for (int j=0, jend=e.Size(); j<jend; j++) {
-                int obs = e[j];
-                if (!h[obs] && !add_elem[obs]) {
-                    add_elem[obs] = true;
-                    new_highlight_ids.push_back(obs);
-                }
-            }
-        }
-    }
-    
-    for (int i=0; i<(int)new_highlight_ids.size(); i++) {
-        h[ new_highlight_ids[i] ] = true;
-        nh_cnt ++;
-    }
-    
-    if (nh_cnt > 0) {
-        hs.SetEventType(HLStateInt::delta);
-        hs.notifyObservers();
-    }
+	wxLogMessage("Exiting GetisOrdMapFrame::OnSelectCoresAndNeighbors");
 }
 
 void GetisOrdMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
@@ -883,11 +1093,12 @@ void GetisOrdMapFrame::update(GStatCoordinator* o)
 	if (template_legend) template_legend->Recreate();
 	SetTitle(lc->GetCanvasTitle());
 	lc->Refresh();
+    lc->UpdateStatusBar();
 }
 
 void GetisOrdMapFrame::closeObserver(GStatCoordinator* o)
 {
-	LOG_MSG("In GetisOrdMapFrame::closeObserver(GStatCoordinator*)");
+	wxLogMessage("In GetisOrdMapFrame::closeObserver(GStatCoordinator*)");
 	if (gs_coord) {
 		gs_coord->removeObserver(this);
 		gs_coord = 0;

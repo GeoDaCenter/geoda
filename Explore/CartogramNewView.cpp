@@ -36,9 +36,9 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "../ShapeOperations/GalWeight.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "CartogramNewView.h"
+#include "MapLayoutView.h"
 
 using namespace std;
 
@@ -229,8 +229,7 @@ void CartogramNewCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((CartogramNewFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_CARTOGRAM_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
@@ -266,41 +265,25 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);	
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
+
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+       
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
 	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
@@ -314,90 +297,6 @@ void CartogramNewCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
 	
 	vector<wxString> txt(6);
 	for (size_t i=0; i<txt.size(); i++) {
@@ -430,7 +329,7 @@ wxString CartogramNewCanvas::GetCategoriesTitle()
 {
 	wxString v;
 	if (GetCcType() == CatClassification::no_theme) {
-		v << "Themeless";
+		v << _("Themeless");
 	} else if (GetCcType() == CatClassification::custom) {
 		v << cat_classif_def.title << ": " << GetNameWithTime(THM_VAR);
 	} else {
@@ -443,7 +342,7 @@ wxString CartogramNewCanvas::GetCategoriesTitle()
 wxString CartogramNewCanvas::GetCanvasTitle()
 {
 	wxString v;
-	v << "Cartogram - size: " << GetNameWithTime(RAD_VAR);
+	v << _("Cartogram") << " - size: " << GetNameWithTime(RAD_VAR);
 	if (GetCcType() != CatClassification::no_theme) {
 		v << ", ";
 		if (GetCcType() == CatClassification::custom) {
@@ -454,6 +353,14 @@ wxString CartogramNewCanvas::GetCanvasTitle()
 		v << ": " << GetNameWithTime(THM_VAR);
 	}
 	return v;
+}
+
+wxString CartogramNewCanvas::GetVariableNames()
+{
+    wxString v;
+    v << GetNameWithTime(THM_VAR);
+    v <<  ", " << GetNameWithTime(RAD_VAR);
+    return v;
 }
 
 wxString CartogramNewCanvas::GetNameWithTime(int var)
@@ -535,7 +442,7 @@ void CartogramNewCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -579,7 +486,7 @@ ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}	
 }
@@ -596,7 +503,7 @@ void CartogramNewCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -749,14 +656,14 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	for (int t=0; t<num_time_vals; t++) {
         var_undefs[t].resize(num_obs);
 		cat_var_sorted[t].resize(num_obs);
-		int thm_t = (var_info[THM_VAR].sync_with_global_time ? 
-					 t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
+		int thm_t = (var_info[THM_VAR].sync_with_global_time ?  t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
+		int rad_t = (var_info[RAD_VAR].sync_with_global_time ?  t + var_info[RAD_VAR].time_min : var_info[RAD_VAR].time);
 		for (int i=0; i<num_obs; i++) {
 			cat_var_sorted[t][i].first = data[THM_VAR][thm_t][i];
 			cat_var_sorted[t][i].second = i;
             
             var_undefs[t][i] = var_undefs[t][i] || data_undef[THM_VAR][thm_t][i];
-            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][thm_t][i];
+            var_undefs[t][i] = var_undefs[t][i] || data_undef[RAD_VAR][rad_t][i];
 		}
 	}
 	
@@ -816,23 +723,23 @@ void CartogramNewCanvas::UpdateStatusBar()
 	if (!sb) return;
 	wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
-		s << "#selected=" << highlight_state->GetTotalHighlighted()<<"  ";
+		s << _("#selected=") << highlight_state->GetTotalHighlighted()<<"  ";
 	}
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = (";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[0]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[0]] << ")";
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = (";
+			s << _("obs ") << hover_obs[1]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[1]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[1]] << ")";
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = (";
+			s << _("obs ") << hover_obs[2]+1 << " = (";
 			s << data[RAD_VAR][var_info[RAD_VAR].time][hover_obs[2]] << ", ";
 			s << data[THM_VAR][var_info[THM_VAR].time][hover_obs[2]] << ")";
 		}
@@ -857,7 +764,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 	// report actual elapsed time.
 	
 	int update_rounds = 1; // do one round of batches by default
-	int iters = GenUtils::min<int>(max_iters, EstItersGivenTime(max_seconds));
+	int iters = std::min(max_iters, EstItersGivenTime(max_seconds));
 	int est_secs = EstSecondsGivenIters(iters);
 	int num_batches = GetNumBatches();
 	if (realtime_updates && est_secs > 2) {
@@ -876,7 +783,7 @@ void CartogramNewCanvas::ImproveAll(double max_seconds, int max_iters)
 		int num_carts_rem = GetCurNumCartTms();
 		int crt_min_tm = var_info[RAD_VAR].time_min;		
 		for (int i=0; i<num_batches && num_carts_rem > 0; i++) {
-			int num_in_batch = GenUtils::min<int>(num_cpus, num_carts_rem);
+			int num_in_batch = std::min(num_cpus, num_carts_rem);
 		
 			if (num_in_batch > 1) {
 				// mutext protects access to the worker_list
@@ -1078,10 +985,12 @@ CartogramNewFrame::CartogramNewFrame(wxFrame *parent, Project* project,
     
     wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
     wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
-    wxToolBar* tb = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
-    tb->EnableTool(XRCID("ID_TOOLBAR_BASEMAP"), false);
-    toolbar_sizer->Add(tb, 0, wxEXPAND|wxALL);
+    toolbar->EnableTool(XRCID("ID_TOOLBAR_BASEMAP"), false);
+    toolbar->EnableTool(XRCID("ID_ADD_LAYER"), false);
+    toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), false);
+    toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
     toolbar_panel->SetSizerAndFit(toolbar_sizer);
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -1171,7 +1080,7 @@ void CartogramNewFrame::MapMenus()
 	((CartogramNewCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((CartogramNewCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1179,7 +1088,7 @@ void CartogramNewFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((CartogramNewCanvas*)
@@ -1282,4 +1191,26 @@ void CartogramNewFrame::CartogramImproveLevel(int level)
 {
 	((CartogramNewCanvas*) template_canvas)->CartogramImproveLevel(level);
 	UpdateOptionMenuItems();
+}
+
+void CartogramNewFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
+{
+    wxLogMessage("Entering CartogramNewFrame::ExportImage");
+    
+    // main map
+    wxBitmap* main_map = template_canvas->GetPrintLayer();
+    int map_width = main_map->GetWidth();
+    int map_height = main_map->GetHeight();
+    
+    // try to keep maplayout dialog fixed size
+    int dlg_width = 900;
+    int dlg_height = dlg_width * map_height / (double)map_width + 160;
+    
+    CanvasLayoutDialog ml_dlg(project->GetProjectTitle(),
+                           template_legend, template_canvas,
+                           _("Canvas Layout Preview"),
+                           wxDefaultPosition,
+                           wxSize(dlg_width, dlg_height) );
+    
+    ml_dlg.ShowModal();
 }

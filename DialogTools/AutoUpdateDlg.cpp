@@ -128,7 +128,7 @@ wxString AutoUpdate::CheckUpdate()
 {
 	wxLogMessage("AutoUpdate::CheckUpdate()");
     bool isTestMode = false;
-    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+    std::vector<wxString> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
     if (!test_mode.empty() && test_mode[0] == "yes") {
         isTestMode = true;
     }
@@ -267,7 +267,7 @@ wxString AutoUpdate::GetCheckList()
 {
 	wxLogMessage("AutoUpdate::GetCheckList()");
     bool isTestMode = false;
-    std::vector<std::string> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
+    std::vector<wxString> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
     if (!test_mode.empty() && test_mode[0] == "yes") {
         isTestMode = true;
     }

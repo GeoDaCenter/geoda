@@ -29,7 +29,7 @@
 
 #include "../Project.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
-
+#include "../GdaConst.h"
 #include "BasemapConfDlg.h"
 
 
@@ -48,11 +48,23 @@ BasemapConfDlg::BasemapConfDlg(wxWindow* parent, Project* _p,
     wxLogMessage("Open BasemapConfDlg.");
     p = _p;
     
+    basemap_resources = wxString::FromUTF8(GdaConst::gda_basemap_sources.mb_str());
+    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    if (items.size()>0) {
+        basemap_resources = items[0];
+    }
+    
+    wxString encoded_str= wxString::FromUTF8((const char*)basemap_resources.mb_str());
+    if (encoded_str.IsEmpty() == false) {
+        basemap_resources = encoded_str;
+    }
+                                           
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_BASEMAP_CONF_DLG");
     FindWindow(XRCID("wxID_OK"))->Enable(true);
     m_txt_nokia_uname = XRCCTRL(*this, "IDC_NOKIA_USERNAME",wxTextCtrl);
     m_txt_nokia_key = XRCCTRL(*this, "IDC_NOKIA_KEY",wxTextCtrl);
-
+    m_txt_basemap = XRCCTRL(*this, "IDC_BASEMAP_SOURCE",wxTextCtrl);
+    m_txt_basemap->SetValue(basemap_resources);
     
     SetParent(parent);
     SetPosition(pos);
@@ -64,14 +76,16 @@ void BasemapConfDlg::OnOkClick( wxCommandEvent& event )
 {
      wxLogMessage("BasemapConfDlg: Click OK Button.");
     
-    std::string nokia_uname(m_txt_nokia_uname->GetValue().Trim().mb_str());
-    std::string nokia_key(m_txt_nokia_key->GetValue().Trim().mb_str());
+    wxString nokia_uname(m_txt_nokia_uname->GetValue().Trim());
+    wxString nokia_key(m_txt_nokia_key->GetValue().Trim());
     
     if (!nokia_uname.empty() && !nokia_key.empty()) {
-        OGRDataAdapter::GetInstance().AddEntry("nokia_user", nokia_uname.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("nokia_key", nokia_key.c_str());
+        OGRDataAdapter::GetInstance().AddEntry("nokia_user", nokia_uname);
+        OGRDataAdapter::GetInstance().AddEntry("nokia_key", nokia_key);
     }
-    
+    if (m_txt_basemap->GetValue() != basemap_resources) {
+        OGRDataAdapter::GetInstance().AddEntry("gda_basemap_sources", m_txt_basemap->GetValue());
+    }
     EndDialog(wxID_OK);
 }
 
@@ -79,11 +93,12 @@ void BasemapConfDlg::OnResetClick( wxCommandEvent& event )
 {
     wxLogMessage("BasemapConfDlg: Click Reset Button.");
     
-    std::string nokia_uname = "oRnRceLPyM8OFQQA5LYH";
-    std::string nokia_key = "uEt3wtyghaTfPdDHdOsEGQ";
+    wxString nokia_uname = "oRnRceLPyM8OFQQA5LYH";
+    wxString nokia_key = "uEt3wtyghaTfPdDHdOsEGQ";
     
-    OGRDataAdapter::GetInstance().AddEntry("nokia_user", nokia_uname.c_str());
-    OGRDataAdapter::GetInstance().AddEntry("nokia_key", nokia_key.c_str());
+    OGRDataAdapter::GetInstance().AddEntry("nokia_user", nokia_uname);
+    OGRDataAdapter::GetInstance().AddEntry("nokia_key", nokia_key);
+    OGRDataAdapter::GetInstance().AddEntry("gda_basemap_sources", basemap_resources);
     
     EndDialog(wxID_OK);
 }

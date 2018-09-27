@@ -64,6 +64,7 @@ public:
 	virtual wxString GetEventTypeStr();
 	virtual void SetEventType( EventType e ) { event_type = e; }
 	virtual int GetTotalHighlighted() { return total_highlighted; }
+    virtual void SetTotalHighlighted(int n) { total_highlighted = n; }
 	
 	virtual void registerObserver(HighlightStateObserver* o);
 	virtual void removeObserver(HighlightStateObserver* o);

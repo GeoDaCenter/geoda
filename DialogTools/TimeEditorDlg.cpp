@@ -96,7 +96,7 @@ void TimeEditorDlg::OnNewButton(wxCommandEvent& ev)
 {
 	if (table_state->GetNumDisallowTimelineChanges() > 0) {
 		wxString msg = table_state->GetDisallowTimelineChangesMsg();
-		wxMessageDialog dlg (this, msg, "Warning",
+		wxMessageDialog dlg (this, msg, _("Warning"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
@@ -124,7 +124,7 @@ void TimeEditorDlg::OnBackButton(wxCommandEvent& ev)
 	if (sel <= 0 || sel >= lc->GetItemCount()) return;
 	if (table_state->GetNumDisallowTimelineChanges() > 0) {
 		wxString msg = table_state->GetDisallowTimelineChangesMsg();
-		wxMessageDialog dlg (this, msg, "Warning",
+		wxMessageDialog dlg (this, msg, _("Warning"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
@@ -140,7 +140,7 @@ void TimeEditorDlg::OnForwardButton(wxCommandEvent& ev)
 	if (sel < 0 || sel >= lc->GetItemCount()-1) return;
 	if (table_state->GetNumDisallowTimelineChanges() > 0) {
 		wxString msg = table_state->GetDisallowTimelineChangesMsg();
-		wxMessageDialog dlg (this, msg, "Warning",
+		wxMessageDialog dlg (this, msg, _("Warning"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
@@ -156,7 +156,7 @@ void TimeEditorDlg::OnDeleteButton(wxCommandEvent& ev)
 	if (sel < 0) return;
 	if (table_state->GetNumDisallowTimelineChanges() > 0) {
 		wxString msg = table_state->GetDisallowTimelineChangesMsg();
-		wxMessageDialog dlg (this, msg, "Warning",
+		wxMessageDialog dlg (this, msg, _("Warning"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		return;
@@ -199,7 +199,7 @@ void TimeEditorDlg::OnEndEditItem(wxListEvent& ev)
 	if (item_new.IsEmpty() || is_dup || is_disallow) {
 		if (is_disallow && !(item_new.IsEmpty() || is_dup)) {
 			wxString msg = table_state->GetDisallowTimelineChangesMsg();
-			wxMessageDialog dlg(this, msg, "Warning",
+			wxMessageDialog dlg(this, msg, _("Warning"),
 								wxOK | wxICON_INFORMATION);
 			dlg.ShowModal();
 		}

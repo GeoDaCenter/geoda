@@ -41,7 +41,7 @@ public:
     FieldNewCalcUniDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY, 
-					   const wxString& caption = "Univariate",
+					   const wxString& caption = _("Univariate"),
 					   const wxPoint& pos = wxDefaultPosition, 
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );
@@ -106,7 +106,8 @@ public:
 		log_e_op = 5,
 		dev_from_mean_op = 6,
 		standardize_op = 7,
-		shuffle_op = 8
+		shuffle_op = 8,
+        mad_op = 9
 	};	
 	std::vector<wxString> op_string;
 };

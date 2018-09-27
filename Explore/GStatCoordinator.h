@@ -52,9 +52,7 @@ typedef boost::multi_array<bool, 2> b_array_type;
 class GStatWorkerThread : public wxThread
 {
 public:
-    GStatWorkerThread(const GalElement* W,
-                      const std::vector<bool>& undefs,
-                      int obs_start, int obs_end, uint64_t seed_start,
+    GStatWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
                       GStatCoordinator* gstat_coord,
                       wxMutex* worker_list_mutex,
                       wxCondition* worker_list_empty_cond,
@@ -63,8 +61,6 @@ public:
 	virtual ~GStatWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
-    const GalElement* W;
-    const std::vector<bool>& undefs;
 	int obs_start;
 	int obs_end;
 	uint64_t seed_start;
@@ -82,7 +78,8 @@ public:
 	GStatCoordinator(boost::uuids::uuid weights_id, Project* project,
 					 const std::vector<GdaVarTools::VarInfo>& var_info,
 					 const std::vector<int>& col_ids,
-					 bool row_standardize_weights);
+					 bool row_standardize_weights,
+                     bool is_local_joint_count=false);
 	virtual ~GStatCoordinator();
 	
 	bool IsOk() { return true; }
@@ -93,7 +90,10 @@ public:
 	void SetSignificanceFilter(int filter_id);
 	int GetSignificanceFilter() { return significance_filter; }
 	int permutations; // any number from 9 to 99999, 99 will be default
-	
+    double bo; //Bonferroni bound
+    double fdr; //False Discovery Rate
+    double user_sig_cutoff; // user defined cutoff
+
 	uint64_t GetLastUsedSeed() {
         return last_seed_used;
     }
@@ -107,7 +107,7 @@ public:
         GdaConst::gda_user_seed =  last_seed_used;
         wxString val;
         val << last_seed_used;
-        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val.ToStdString());
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
     }
     
 	bool IsReuseLastSeed() { return reuse_last_seed; }
@@ -129,7 +129,10 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 	std::vector<double> n; // # non-neighborless observations
-	
+
+    // a special case Local Join Count
+    bool is_local_joint_count;
+    
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded
 	std::vector<double> x_sstar; // sum of all (x_i)^2
@@ -143,7 +146,11 @@ public:
 	std::vector<double> VarGstar;
 	// since W is row-standardized, sdGstar same for all i
 	std::vector<double> sdGstar;
-	
+    // number of neighbors
+    vector<wxInt64> num_neighbors;
+    // number of neighbors with 1
+    std::vector<wxInt64* > num_neighbors_1;
+
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below
@@ -161,6 +168,8 @@ protected:
 	double* pseudo_p; //threaded
 	double* pseudo_p_star; //threaded
 	double* x; //threaded
+	double* e_p; //threaded
+    wxInt64* nn_1_t;
 	
 public:
 	std::vector<double*> G_vecs; //threaded
@@ -211,8 +220,7 @@ public:
 	std::vector<GetisOrdMapFrame*> maps;
 	
 	void CalcPseudoP();
-	void CalcPseudoP_range(const GalElement* W, const std::vector<bool>& undefs,
-                           int obs_start, int obs_end, uint64_t seed_start);
+	void CalcPseudoP_range(int obs_start, int obs_end, uint64_t seed_start);
 	
 	void InitFromVarInfo();
 	void VarInfoAttributeChange();
@@ -223,7 +231,7 @@ protected:
 	void DeallocateVectors();
 	void AllocateVectors();
 	
-	void CalcPseudoP_threaded(const GalElement* W, const std::vector<bool>& undefs);
+	void CalcPseudoP_threaded();
 	void CalcGs();
 	std::vector<bool> has_undefined;
 	std::vector<bool> has_isolates;

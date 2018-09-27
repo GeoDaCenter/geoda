@@ -42,10 +42,11 @@ public:
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	void UpdateFromSharedCore();
-	//virtual void PaintSelectionOutline(wxDC& dc);
+	virtual void PaintSelectionOutline(wxMemoryDC& dc);
 	
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -54,6 +55,8 @@ public:
 
 	void ChangeWeights(boost::uuids::uuid new_id);
 	virtual void update(HLStateInt* o);
+	virtual void UpdateStatusBar();
+    
 protected:
 	WeightsManInterface* w_man_int;
 	
@@ -64,7 +67,6 @@ protected:
 	
 	std::set<long> sel_cores; // set of cores under current selection
 	std::set<long> core_nbrs; // set of nbrs of cores, excl cores
-	virtual void UpdateStatusBar();
 	
 	DECLARE_EVENT_TABLE()
 };

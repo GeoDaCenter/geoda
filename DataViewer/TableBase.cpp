@@ -128,9 +128,9 @@ void TableBase::UpdateStatusBar()
     wxStatusBar* sb = template_frame->GetStatusBar();
     if (!sb) return;
     wxString s;
-    s << "#obs=" << project->GetNumRecords() << " ";
+    s << _("#row=") << project->GetNumRecords() << " ";
     if (highlight_state->GetTotalHighlighted()> 0) {
-        s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+        s << _("#selected=") << highlight_state->GetTotalHighlighted() << "  ";
     }
     
     sb->SetStatusText(s);
@@ -265,6 +265,53 @@ public:
 	}
 };
 
+std::vector<int> TableBase::GetRowOrder()
+{
+    return row_order;
+}
+
+template <class T>
+void TableBase::SortColumn(int col, int tm, bool ascending)
+{
+    std::vector<T> temp;
+    table_int->GetColData(col, tm, temp);
+    std::vector<bool> undefs;
+    table_int->GetColUndefined(col, tm, undefs);
+    std::vector<int> undef_ids;
+    for (int i=0; i<rows; i++) {
+        if (undefs[i]) undef_ids.push_back(i);
+    }
+    std::vector< index_pair<T> > sort_col(rows - undef_ids.size());
+    int j = 0;
+    for (int i=0; i<rows; i++) {
+        if (undefs[i]) continue;
+        sort_col[j].index = i;
+        sort_col[j].val = temp[i];
+        j++;
+    }
+    if (ascending) {
+        sort(sort_col.begin(), sort_col.end(),
+             index_pair<T>::less_than);
+        for (int i=0; i<undef_ids.size(); i++) {
+            row_order[i] = undef_ids[i];
+        }
+        j = undef_ids.size();
+        for (int i=0; i<sort_col.size(); i++) {
+            row_order[j++] = sort_col[i].index;
+        }
+    } else {
+        sort(sort_col.begin(), sort_col.end(),
+             index_pair<T>::greater_than);
+        for (int i=0; i<sort_col.size(); i++) {
+            row_order[i] = sort_col[i].index;
+        }
+        j = 0;
+        for (int i=sort_col.size(); i<rows; i++) {
+            row_order[i] = undef_ids[j++];
+        }
+    }
+}
+
 void TableBase::SortByCol(int col, bool ascending)
 {
 	if (col == -1) {
@@ -286,65 +333,17 @@ void TableBase::SortByCol(int col, bool ascending)
 		case GdaConst::datetime_type:
 		case GdaConst::long64_type:
 		{
-			std::vector<wxInt64> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<wxInt64> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxInt64>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxInt64>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<wxInt64>(col, tm, ascending);
 		}
 			break;
 		case GdaConst::double_type:
 		{
-			std::vector<double> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<double> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<double>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<double>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<double>(col, tm, ascending);
 		}
 			break;
 		case GdaConst::string_type:
 		{
-			std::vector<wxString> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<wxString> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxString>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxString>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<wxString>(col, tm, ascending);
 		}
 			break;
 		default:
@@ -373,16 +372,19 @@ void TableBase::MoveSelectedToTop()
 
 bool TableBase::FromGridIsSelectedCol(int col)
 {
+	if (hs_col.size() -1 <col) return false;
 	return hs_col[col];
 }
 
 void TableBase::FromGridSelectCol(int col)
 {
+	if (hs_col.size() -1 <col) 
     hs_col[col] = true;
 }
 
 void TableBase::FromGridDeselectCol(int col)
 {
+	if (hs_col.size() -1 <col)
     hs_col[col] = false;
 }
 
@@ -516,7 +518,7 @@ void TableBase::update(TableState* o)
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;
 					GetView()->SetColFormatFloat(e.pos_final, -1,
-						GenUtils::min<int>(e.decimals, dd));
+						std::min(e.decimals, dd));
 				} else {
 					// leave as a string
 				}

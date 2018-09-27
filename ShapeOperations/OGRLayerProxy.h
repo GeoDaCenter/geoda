@@ -28,7 +28,6 @@
 
 // This is for Shapfile/DBF direct operation
 #include "../DataViewer/TableInterface.h"
-#include "../ShpFile.h"
 #include "../GdaShape.h"
 #include "../GdaException.h"
 #include "OGRFieldProxy.h"
@@ -46,7 +45,7 @@ using namespace std;
  */
 class OGRLayerProxy {
 public:
-	OGRLayerProxy(std::string layer_name,
+	OGRLayerProxy(wxString layer_name,
                   OGRLayer* _layer,
                   GdaConst::DataSourceType _ds_type,
                   bool isNew=false);
@@ -58,143 +57,162 @@ public:
     
 	~OGRLayerProxy();
 	
-private:
-    OGRFeatureDefn* featureDefn;
-    OGRSpatialReference* spatialRef;
-    
-public:
     GdaConst::DataSourceType ds_type;
-	std::ostringstream error_message;
+	ostringstream error_message;
+    
 	// progress indicator: -1 means error, otherwise means progress
 	int         load_progress;
 	bool        stop_reading;
 	int         export_progress;
 	bool        stop_exporting;
-	bool        is_writable;
-	std::string name;
+	
+    
+    bool        is_writable;
+	wxString    name;
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
     
     //!< Geometry type of OGRLayer
     OGRwkbGeometryType eLayerType;
+    
     //!< Fields and the meta data are stored in OGRFieldProxy.
-	std::vector<OGRFieldProxy*> fields;
+	vector<OGRFieldProxy*> fields;
+    
     //!< OGR will read data sources and store the he content in many OGRFeature
     //!< objects. The OGRLayerProxy will maintain these objects until the proxy
     //!< is dismissed.
-	std::vector<OGRFeature*> data;
-    //!< number of time steps.  If time_steps=1, then not time-series data
-	int time_steps;
+	vector<OGRFeature*> data;
+    
     //!< OGR layer GeomType
     OGRwkbGeometryType eGType;
     
-private:
-    void GetExtent(Shapefile::Main& p_main, Shapefile::PointContents* pc,
-                   int row_idx);
+    OGRGeometry*       mapContour;
     
-    void GetExtent(Shapefile::Main& p_main, Shapefile::PolygonContents* pc,
-                   int row_idx);
-    
-    void CopyEnvelope(OGRPolygon* p, Shapefile::PolygonContents* pc);
-	
-    /**
-	 * Read field information and save to OGRFieldProxy array.
-	 */
-	bool ReadFieldInfo();
-    
-public:
 	static OGRFieldType GetOGRFieldType(GdaConst::FieldType field_type);
-    OGRwkbGeometryType  GetShapeType(){ return eGType;}
-    void      SetOGRLayer(OGRLayer* new_layer);
-    OGRLayer* GetOGRLayer()  { return layer; }
-    int       GetNumRecords(){ return n_rows; }
-    int       GetNumFields() { return n_cols; }
-    bool      HasError();
-    bool      GetExtent(double& minx, double& miny, double& maxx, double& maxy);
-    OGRSpatialReference* GetSpatialReference() {return spatialRef;}
+    
+    void SetOGRLayer(OGRLayer* new_layer);
+    
+    bool HasError();
+    
+    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy);
+    
+    OGRwkbGeometryType GetShapeType();
+    
+    OGRLayer* GetOGRLayer();
+    
+    int GetNumRecords();
+    
+    int GetNumFields();
+    
+    OGRSpatialReference* GetSpatialReference();
+    
+    void ApplyProjection(OGRCoordinateTransformation* poCT);
+    
 	/**
 	 * Save() function tries to save any changes to original data source.
 	 * It may return failure because the layer doesn't support writeback.
 	 */
 	void Save();
-	/**
+	
+    /**
 	 * Export current ogr layer to  layer in other ogr data source
 	 * @param format exported driver name (OGR style)
 	 * @param dest_datasource exported data source name (OGR style)
 	 */
-	void Export(string format, string dest_datasource, string new_layer_name,
-                bool is_update);
-	void T_Export(string format, string dest_datasource, string new_layer_name,
-                  bool is_update);
+	void Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
+    
+	void T_Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
+    
 	void T_StopExport();
 
     /**
      * Add new features to an empty OGRLayer
      * This function should be only used when create a new OGRLayer
      */
-    void AddFeatures(std::vector<OGRGeometry*>& geometries,
+    void AddFeatures(vector<OGRGeometry*>& geometries,
                      TableInterface* table,
-                     std::vector<int>& selected_rows);
+                     vector<int>& selected_rows);
 	/**
 	 * Read geometries and save to Shapefile::Main data structure.
 	 */
 	bool ReadGeometries(Shapefile::Main& p_main);
+    
     bool AddGeometries(Shapefile::Main& p_main);
+    
+    void GetCentroids(vector<GdaPoint*>& centroids);
+    
+    static GdaPolygon* OGRGeomToGdaShape(OGRGeometry* geom);
+    static GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
 
+    GdaPolygon* GetMapBoundary();
+    
+    Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
+                                          OGRSpatialReference* input_sr=NULL);
+    
+    Shapefile::ShapeType GetOGRGeometries(vector<OGRGeometry*>& geoms,
+                                          OGRSpatialReference* input_sr=NULL);
+    
 	/**
 	 * Read table data from ogr OGRFeatures.
 	 * Note: Geometries are saved as raw "wkb" format. Developer needs to call
 	 * ReadGeometries() function to retrieve/phrase geometries into memory.
 	 */
 	bool ReadData();
+    
     /**
      * Get OGRFieldProxy by an in put field position
      */
-    OGRFieldProxy* GetField(int pos) { return fields[pos]; }
+    OGRFieldProxy* GetField(int pos);
+    
     /**
      * Get OGRFieldProxy by a input field name.
      */
-    OGRFieldProxy* GetField(const wxString& field_name)
-    {
-        int pos = GetFieldPos(field_name);
-        return fields[pos];
-    }
+    OGRFieldProxy* GetField(const wxString& field_name);
+    
 	/**
 	 * AddField() function tries to add a new field in OGRLayer.
 	 * NOTE: this may has no impact on orignal data source. It only works in 
 	 * memory. If ogr data source doesn't support add field, user can "export"
 	 * the new field(s) in memory to a new file.
 	 */
-	int  AddField(const wxString& field_name, GdaConst::FieldType field_type,
-				  int field_length, int field_precision);
+	int AddField(const wxString& field_name,
+                 GdaConst::FieldType field_type,
+				 int field_length, int field_precision);
 	/**
 	 *
 	 */
 	void UpdateFieldProperties(int col);
+    
     /**
 	 * Get field name by an input field position.
 	 */
 	wxString GetFieldName(int pos);
+    
     /**
 	 * Set field name at an input field position.
 	 */
     void SetFieldName(int pos, const wxString& new_fname);
+    
 	/**
 	 *
 	 */
 	void DeleteField(int pos);
+    
 	/**
 	 *
 	 */
 	void DeleteField(const wxString& field_name);
+    
 	/**
 	 *
 	 */
 	int GetFieldPos(const wxString& field_name);
+    
     /**
      */
 	GdaConst::FieldType GetFieldType(int pos);
+    
     /**
      */
     GdaConst::FieldType GetFieldType(const wxString& field_name);
@@ -215,7 +233,6 @@ public:
     bool UpdateColumn(int col_idx, vector<double> &vals);
     bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
     bool UpdateColumn(int col_idx, vector<wxString> &vals);
-    
 	/**
 	 *
 	 */
@@ -227,7 +244,7 @@ public:
 	/**
 	 *
 	 */
-	bool AppendOGRFeature(std::vector<std::string>& content);
+	bool AppendOGRFeature(vector<wxString>& content);
 	/**
 	 *
 	 */
@@ -237,65 +254,53 @@ public:
 	 * var_list:  variable/column/field list
 	 * var_type_map: variable/column/field -- field type
 	 */
-	void GetVarTypeMap(std::vector<wxString>& var_list,
-					   std::map<wxString, GdaConst::FieldType>& var_type_map);
+	void GetVarTypeMap(vector<wxString>& var_list,
+					   map<wxString, GdaConst::FieldType>& var_type_map);
 	/**
 	 *
 	 */
-    OGRFeature* GetFeatureAt(int rid) { return data[rid];}
+    OGRFeature* GetFeatureAt(int rid);
     
-    bool IsUndefined(int rid, int cid)
-    {
-        return !data[rid]->IsFieldSet(cid);
-    }
+    OGRGeometry* GetGeometry(int idx);
     
-	wxString GetValueAt(int rid, int cid)
-    {
-        wxString rst(data[rid]->GetFieldAsString(cid));
-        return rst;
-    }
+    vector<wxString> GetIntegerFieldNames();
     
-    void SetValueAt(int rid, int cid, GIntBig val)
-    {
-        data[rid]->SetField( cid, val);
-        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-            throw GdaException(wxString("Set value to cell failed.").mb_str());
-        }
-    }
+    vector<wxString> GetIntegerAndStringFieldNames();
     
-    void SetValueAt(int rid, int cid, double val)
-    {
-        data[rid]->SetField( cid, val);
-        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-            throw GdaException(wxString("Set value to cell failed.").mb_str());
-        }
-    }
+    bool IsUndefined(int rid, int cid);
     
-    void SetValueAt(int rid, int cid, int year, int month, int day)
-    {
-        data[rid]->SetField( cid, year, month, day);
-        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-            throw GdaException(wxString("Set value to cell failed.").mb_str());
-        }
-    }
+    wxString GetValueAt(int rid, int cid);
     
-    void SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second)
-    {
-        data[rid]->SetField( cid, year, month, day, hour, minute, second);
-        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-            throw GdaException(wxString("Set value to cell failed.").mb_str());
-        }
-    }
+    void GetValueAt(int rid, int cid, GIntBig* val);
     
-    void SetValueAt(int rid, int cid, const char* val, bool is_new=true)
-    {
-        data[rid]->SetField( cid, val);
-        if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-            throw GdaException(wxString("Set value to cell failed.").mb_str());
-        }
-    }
+    void GetValueAt(int rid, int cid, double* val);
     
-private:
+    void SetValueAt(int rid, int cid, GIntBig val, bool undef=false);
+    
+    void SetValueAt(int rid, int cid, double val, bool undef=false);
+    
+    void SetValueAt(int rid, int cid, int year, int month, int day, bool undef=false);
+    
+    void SetValueAt(int rid, int cid, int year, int month, int day, int hour, int minute, int second, bool undef=false);
+    
+    void SetValueAt(int rid, int cid, const char* val, bool is_new=true, bool undef=false);
+    
+protected:
+    OGRFeatureDefn* featureDefn;
+    
+    OGRSpatialReference* spatialRef;
+    
+    void GetExtent(Shapefile::Main& p_main, Shapefile::PointContents* pc, int row_idx);
+    
+    void GetExtent(Shapefile::Main& p_main, Shapefile::PolygonContents* pc, int row_idx);
+    
+    void CopyEnvelope(OGRPolygon* p, Shapefile::PolygonContents* pc);
+	
+    /**
+	 * Read field information and save to OGRFieldProxy array.
+	 */
+	bool ReadFieldInfo();
+    
 	bool IsFieldExisted(const wxString& field_name);
     
     bool CallCartoDBAPI(wxString url);

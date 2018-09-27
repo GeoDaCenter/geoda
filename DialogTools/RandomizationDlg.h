@@ -21,12 +21,57 @@
 #define __GEODA_CENTER_RANDOMIZATION_DLG_H__
 
 #include <vector>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
+#include <wx/radiobut.h>
+
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/Randik.h"
 
 
 
 class GalElement;
+
+class InferenceSettingsDlg : public wxDialog
+{
+public:
+    InferenceSettingsDlg(wxWindow* parent,
+                         double p_cutoff,
+                         double* p_vals,
+                         int n,
+                         const wxString& title = _("Inference Settings"),
+                         wxWindowID id = wxID_ANY,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize );
+    
+    void OnAlphaTextCtrl(wxCommandEvent& ev);
+    double GetAlphaLevel() { return p_cutoff;}
+    double GetBO() {return bo;}
+    double GetFDR() { return fdr; }
+    double GetUserInput() { return user_input;}
+    
+protected:
+    double bo;
+    double fdr;
+    double p_cutoff;
+    double user_input;
+    double* p_vals;
+    int n;
+    
+    wxRadioButton* m_rdo_1;
+    wxRadioButton* m_rdo_2;
+    wxRadioButton* m_rdo_3;
+    wxStaticText* m_txt_bo;
+    wxStaticText* m_txt_fdr;
+    wxTextCtrl* m_txt_pval;
+    wxCheckBox* chk_pval;
+    
+    void Init(double* p_vals, int n, double current_p);
+
+    void OnOkClick( wxCommandEvent& event );
+    
+    DECLARE_EVENT_TABLE()
+};
 
 class RandomizationPanel: public wxPanel
 {
@@ -110,6 +155,7 @@ public:
 					 const GalWeight* W,
                      const std::vector<bool>& undef,
                      const std::vector<bool>& hl,
+                     bool is_regime,
                      int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,                    
@@ -123,6 +169,7 @@ public:
 					 const GalWeight* W,
                      const std::vector<bool>& undef,
                      const std::vector<bool>& hl,
+                     bool is_regime,
                      int NumPermutations,
                      bool reuse_user_seed,
 					 uint64_t user_specified_seed,
@@ -145,6 +192,7 @@ public:
     RandomizationPanel* panel_sel;
     RandomizationPanel* panel_unsel;
     
+    bool is_regime;
     GalWeight* copy_w;
     GalWeight* copy_w_sel;
     GalWeight* copy_w_unsel;

@@ -25,6 +25,7 @@ class GalWeight;
 class GwtWeight;
 class GalElement;
 class GwtElement;
+class WeightsManInterface;
 
 namespace WeightUtils {
 	wxString ReadIdField(const wxString& w_fname);
@@ -34,6 +35,7 @@ namespace WeightUtils {
 							 TableInterface* table_int);
 	GwtElement* ReadGwt(const wxString& w_fname, TableInterface* table_int);
 	GalElement* Gwt2Gal(GwtElement* Gwt, long obs);
+    void LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int);
 }
 
 #endif

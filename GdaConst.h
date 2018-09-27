@@ -146,97 +146,8 @@ public:
 	static const int ID_HISTOGRAM_CLASSIFICATION = wxID_HIGHEST + 3300;
     
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 = wxID_HIGHEST + 4000;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A1 = wxID_HIGHEST + 4001;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A2 = wxID_HIGHEST + 4002;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A3 = wxID_HIGHEST + 4003;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A4 = wxID_HIGHEST + 4004;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A5 = wxID_HIGHEST + 4005;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A6 = wxID_HIGHEST + 4006;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A7 = wxID_HIGHEST + 4007;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A8 = wxID_HIGHEST + 4008;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A9 = wxID_HIGHEST + 4009;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A10 = wxID_HIGHEST + 4010;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A11 = wxID_HIGHEST + 4011;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A12 = wxID_HIGHEST + 4012;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A13 = wxID_HIGHEST + 4013;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A14 = wxID_HIGHEST + 4014;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A15 = wxID_HIGHEST + 4015;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A16 = wxID_HIGHEST + 4016;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A17 = wxID_HIGHEST + 4017;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A18 = wxID_HIGHEST + 4018;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A19 = wxID_HIGHEST + 4019;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A20 = wxID_HIGHEST + 4020;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A21 = wxID_HIGHEST + 4021;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A22 = wxID_HIGHEST + 4022;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A23 = wxID_HIGHEST + 4023;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A24 = wxID_HIGHEST + 4024;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A25 = wxID_HIGHEST + 4025;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A26 = wxID_HIGHEST + 4026;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A27 = wxID_HIGHEST + 4027;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A28 = wxID_HIGHEST + 4028;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A29 = wxID_HIGHEST + 4029;
-	
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 = wxID_HIGHEST + 4100;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B1 = wxID_HIGHEST + 4101;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B2 = wxID_HIGHEST + 4102;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B3 = wxID_HIGHEST + 4103;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B4 = wxID_HIGHEST + 4104;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B5 = wxID_HIGHEST + 4105;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B6 = wxID_HIGHEST + 4106;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B7 = wxID_HIGHEST + 4107;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B8 = wxID_HIGHEST + 4108;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B9 = wxID_HIGHEST + 4109;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B10 = wxID_HIGHEST + 4110;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B11 = wxID_HIGHEST + 4111;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B12 = wxID_HIGHEST + 4112;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B13 = wxID_HIGHEST + 4113;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B14 = wxID_HIGHEST + 4114;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B15 = wxID_HIGHEST + 4115;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B16 = wxID_HIGHEST + 4116;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B17 = wxID_HIGHEST + 4117;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B18 = wxID_HIGHEST + 4118;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B19 = wxID_HIGHEST + 4119;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B20 = wxID_HIGHEST + 4120;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B21 = wxID_HIGHEST + 4121;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B22 = wxID_HIGHEST + 4122;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B23 = wxID_HIGHEST + 4123;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B24 = wxID_HIGHEST + 4124;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B25 = wxID_HIGHEST + 4125;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B26 = wxID_HIGHEST + 4126;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B27 = wxID_HIGHEST + 4127;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B28 = wxID_HIGHEST + 4128;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B29 = wxID_HIGHEST + 4129;
-	
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 = wxID_HIGHEST + 4200;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C1 = wxID_HIGHEST + 4201;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C2 = wxID_HIGHEST + 4202;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C3 = wxID_HIGHEST + 4203;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C4 = wxID_HIGHEST + 4204;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C5 = wxID_HIGHEST + 4205;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C6 = wxID_HIGHEST + 4206;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C7 = wxID_HIGHEST + 4207;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C8 = wxID_HIGHEST + 4208;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C9 = wxID_HIGHEST + 4209;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C10 = wxID_HIGHEST + 4210;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C11 = wxID_HIGHEST + 4211;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C12 = wxID_HIGHEST + 4212;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C13 = wxID_HIGHEST + 4213;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C14 = wxID_HIGHEST + 4214;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C15 = wxID_HIGHEST + 4215;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C16 = wxID_HIGHEST + 4216;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C17 = wxID_HIGHEST + 4217;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C18 = wxID_HIGHEST + 4218;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C19 = wxID_HIGHEST + 4219;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C20 = wxID_HIGHEST + 4220;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C21 = wxID_HIGHEST + 4221;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C22 = wxID_HIGHEST + 4222;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C23 = wxID_HIGHEST + 4223;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C24 = wxID_HIGHEST + 4224;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C25 = wxID_HIGHEST + 4225;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C26 = wxID_HIGHEST + 4226;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C27 = wxID_HIGHEST + 4227;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C28 = wxID_HIGHEST + 4228;
-	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_C29 = wxID_HIGHEST + 4229;
 	
 	static const wxString html_submenu_title;
 	static const int ID_HTML_SUBMENU = wxID_HIGHEST + 5000;
@@ -250,7 +161,9 @@ public:
 	static const int ID_HTML_MENU_ENTRY_CHOICE_7 = ID_HTML_SUBMENU + 8;
 	static const int ID_HTML_MENU_ENTRY_CHOICE_8 = ID_HTML_SUBMENU + 9;
 	static const int ID_HTML_MENU_ENTRY_CHOICE_9 = ID_HTML_SUBMENU + 10;
-	
+
+    static const int ID_CONNECT_POPUP_MENU = wxID_HIGHEST + 6000;
+    
 	// Standard wxFont pointers.
 	static wxFont* extra_small_font;
 	static wxFont* small_font;
@@ -266,6 +179,8 @@ public:
 	
 	// Shared Colours
 	static std::vector<wxColour> qualitative_colors;
+    
+    static std::vector<wxColour> unique_colors_60;
 	
 	//background color -- this is light gray
 	static const wxColour backColor;
@@ -294,8 +209,45 @@ public:
 	static const wxColour highlight_color; // yellow
 	static const wxColour canvas_background_color; // white
 	static const wxColour legend_background_color; // white
-	
+
+    // Strings
+    static const wxString gda_lbl_not_sig;
+    static const wxString gda_lbl_undefined;
+    static const wxString gda_lbl_neighborless;
+    static const wxString gda_lbl_highhigh;
+    static const wxString gda_lbl_lowlow;
+    static const wxString gda_lbl_lowhigh;
+    static const wxString gda_lbl_highlow;
+    static const wxString gda_lbl_otherpos;
+    static const wxString gda_lbl_negative;
+    static const wxString gda_lbl_positive;
+    static const wxString gda_lbl_1p;
+    static const wxString gda_lbl_1p_10p;
+    static const wxString gda_lbl_10p_50p;
+    static const wxString gda_lbl_50p_90p;
+    static const wxString gda_lbl_90p_99p;
+    static const wxString gda_lbl_99p;
+    static const wxString gda_lbl_loweroutlier;
+    static const wxString gda_lbl_25p;
+    static const wxString gda_lbl_25p_50p;
+    static const wxString gda_lbl_50p_75p;
+    static const wxString gda_lbl_75p;
+    static const wxString gda_lbl_upperoutlier;
+    static const wxString gda_lbl_n2sigma;
+    static const wxString gda_lbl_n2sigma_n1sigma;
+    static const wxString gda_lbl_n1sigma;
+    static const wxString gda_lbl_1sigma;
+    static const wxString gda_lbl_1sigma_2sigma;
+    static const wxString gda_lbl_2sigma;
+    
 	// Preferences
+    static wxString gda_basemap_sources;
+    static bool gda_use_gpu;
+    static int gda_ui_language;
+    static double gda_eigen_tol;
+    static int gda_cpu_cores;
+    static bool gda_set_cpu_cores;
+    static wxString gda_user_email;
     static uint64_t gda_user_seed;
     static bool use_gda_user_seed;
     static int gdal_http_timeout;
@@ -314,7 +266,9 @@ public:
     static bool disable_auto_upgrade;
     static int plot_transparency_highlighted;
     static int plot_transparency_unhighlighted;
-    
+    static std::vector<wxString> gda_datetime_formats;
+    static wxString gda_datetime_formats_str;
+    static wxString gda_display_datetime_format;
     static int gda_ogr_csv_header;
     
 	static const wxSize map_default_size;
@@ -330,6 +284,10 @@ public:
 	static const wxColour conn_map_default_fill_colour;
 	static const wxColour conn_map_default_outline_colour;
 	static const wxColour conn_map_default_highlight_colour;
+    
+    static const wxColour conn_graph_outline_colour;
+    static const wxColour conn_select_outline_colour;
+    static const wxColour conn_neighbor_fill_colour;
 	
 	// Map Movie
 	static const wxColour map_movie_default_fill_colour;
@@ -433,6 +391,7 @@ public:
 	static const char* sample_names[255];
 	static const char* sample_layer_names[255];
 	static const char* sample_datasources[255];
+	static const char* sample_meta_urls[255];
 };
 
 #endif

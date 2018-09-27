@@ -338,6 +338,31 @@ wxString WeightsNewManager::RecNumToId(boost::uuids::uuid w_uuid, long rec_num)
 	return it->second.rec_num_to_id[rec_num];
 }
 
+bool WeightsNewManager::IsBinaryWeights(boost::uuids::uuid w_uuid)
+{
+    EmType::iterator it = entry_map.find(w_uuid);
+    if (it == entry_map.end()) return WeightsMetaInfo::WT_custom;
+    Entry& e = it->second;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+        return true;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo::WT_knn ||
+        e.wpte.wmi.weights_type == WeightsMetaInfo::WT_threshold) {
+        if (e.wpte.wmi.power != 1 && e.wpte.wmi.power != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+WeightsMetaInfo::WeightTypeEnum WeightsNewManager::GetWeightsType(boost::uuids::uuid w_uuid)
+{
+    EmType::iterator it = entry_map.find(w_uuid);
+    if (it == entry_map.end()) return WeightsMetaInfo::WT_custom;
+    Entry& e = it->second;
+    return e.wpte.wmi.weights_type;
+}
+
+
 /** If gal_weight doesn't yet exist, then create it from meta-data if
  possible. */
 GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
@@ -353,7 +378,7 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	// Load file for first use
 	wxFileName t_fn(e.wpte.wmi.filename);
 	wxString ext = t_fn.GetExt().Lower();
-	if (ext != "gal" && ext != "gwt") {
+	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
 		return 0;
 	}
 	GalElement* gal=0;
@@ -383,11 +408,12 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
     
     wxFileName t_fn(tmpName);
     wxString ext = t_fn.GetExt().Lower();
-    if (ext != "gal" && ext != "gwt") {
+    if (ext != "gal" && ext != "gwt" && ext != "kwt") {
         return 0;
     }
     
-	if (ext == "gal" && e.gal_weight) return e.gal_weight;
+	if (e.geoda_weight)
+        return e.geoda_weight;
 	
 	// Load file for first use
 	
@@ -572,7 +598,7 @@ bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GalElement* gal = w->gal;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);
@@ -604,7 +630,7 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GwtElement* gwt = w->gwt;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);

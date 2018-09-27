@@ -36,7 +36,7 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "SimpleHistCanvas.h"
 
 using namespace std;
@@ -69,7 +69,6 @@ labels(lbls), values(vals), stats(stats_), right_click_menu_id(right_click_menu_
 {
     last_scale_trans.SetFixedAspectRatio(false);
     PopulateCanvas();
-    SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     highlight_state->registerObserver(this);
 }
 
@@ -78,6 +77,10 @@ SimpleHistStatsCanvas::~SimpleHistStatsCanvas()
 	highlight_state->removeObserver(this);
 }
 
+void SimpleHistStatsCanvas::UpdateStatusBar()
+{
+    
+}
 void SimpleHistStatsCanvas::PopulateCanvas()
 {
     BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
@@ -128,17 +131,17 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     GdaShapeText::VertAlignment cell_v_align = GdaShapeText::v_center;
     int row_gap = 3;
     int col_gap = 10;
-    int x_nudge = -22;
+    int x_nudge = -12;
 #ifdef __WIN32__
-    int y_nudge = -80;
+    int y_nudge = -100;
 #else
-    int y_nudge = -70;
+    int y_nudge = -95;
 #endif 
 
     
     int virtual_screen_marg_top = 0;//20;
     int virtual_screen_marg_right = 0;//20;
-    int virtual_screen_marg_bottom = 5;//45;
+    int virtual_screen_marg_bottom = 0;//45;
     int virtual_screen_marg_left = 45;//45;
     last_scale_trans.SetMargin(virtual_screen_marg_top,
                                virtual_screen_marg_bottom,
@@ -154,7 +157,11 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     wxClientDC dc(this);
     ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
     
-   
+    // get row gap in multi-language case
+    wxSize sz_0 = dc.GetTextExtent(labels[0]);
+    wxSize sz_1 = dc.GetTextExtent("0.0");
+    row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+    
     for (int i=0; i<values.size(); i++) {
         std::vector<wxString> vals(rows);
         vals[0] << GenUtils::DblToStr(values[i][0], 3);
@@ -169,17 +176,17 @@ void SimpleHistStatsCanvas::PopulateCanvas()
                               wxRealPoint(orig_x_pos[i], 0),
                               GdaShapeText::h_center, GdaShapeText::top,
                               GdaShapeText::h_center, GdaShapeText::v_center,
-                              3, 10, 0, y_nudge);
+                              row_gap, 10, 10, y_nudge);
         foreground_shps.push_back(s1);
     }
     
     wxString sts;
-    sts << "min: " << stats[0];
-    sts << ", max: " << wxString::Format("%.3f", stats[1]);
-    sts << ", total # pairs: " << stats[2];
+    sts << _("min:") <<" " << stats[0];
+    sts << ", " << _("max:") << " " << wxString::Format("%.3f", stats[1]);
+    sts << ", " << _("total # pairs") << ": " << stats[2];
     if (stats[5] >= 0) {
-        sts << ", Autocorr. = 0 at " << wxString::Format("~%.3f", stats[5]);
-        sts << " in range: [" << wxString::Format("%.3f", stats[3]) << "," << wxString::Format("%.3f", stats[4]) << "]";
+        sts << ", " << _("Autocorr.") << _(" = 0 at ") << wxString::Format("~%.3f", stats[5]);
+        sts << _(" in range:") << " [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";
     }
     
     s = new GdaShapeText(sts, *GdaConst::small_font,
@@ -262,12 +269,12 @@ obs_id_to_ival(X.size())
 	hinge_stats.CalculateHingeStats(data_sorted, noundef);
 	
 	int num_obs = data_sorted.size();
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 	if (num_obs > 49) {
 		int c = sqrt((double) num_obs);
-		cur_intervals = GenUtils::min<int>(max_intervals, c);
-		cur_intervals = GenUtils::min<int>(cur_intervals, 25);
+		cur_intervals = std::min(max_intervals, c);
+		cur_intervals = std::min(cur_intervals, 25);
 	}
 	
 	highlight_color = GdaConst::highlight_color;
@@ -317,6 +324,13 @@ wxString SimpleHistCanvas::GetCanvasTitle()
 	wxString s("Histogram");	
 	s << " - " << Xname;
 	return s;
+}
+
+wxString SimpleHistCanvas::GetVariableNames()
+{
+    wxString s;
+    s << Xname;
+    return s;
 }
 
 void SimpleHistCanvas::TimeSyncVariableToggle(int var_index)
@@ -570,7 +584,7 @@ void SimpleHistCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
+    
 	double x_min = 0;
     double x_max = left_pad_const + right_pad_const + interval_width_const * cur_intervals + interval_gap_const * (cur_intervals-1);
 	
@@ -582,10 +596,11 @@ void SimpleHistCanvas::PopulateCanvas()
 	
 	double y_max = overall_max_num_obs_in_ival;
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
+    
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-        y_axis = new GdaAxis("Frequency", axis_scale_y,
+        y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
@@ -633,11 +648,11 @@ void SimpleHistCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+        vals[0] << _("from");
+        vals[1] << _("to");
+        vals[2] << _("#obs");
+        vals[3] << _("% of total");
+        vals[4] << _("sd from mean");
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
         s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
                               wxRealPoint(0, 0), GdaShapeText::h_center,
@@ -645,10 +660,15 @@ void SimpleHistCanvas::PopulateCanvas()
                               GdaShapeText::right, GdaShapeText::v_center,
                               3, 10, -62, 53+y_d);
 		foreground_shps.push_back(s);
-		{
-			wxClientDC dc(this);
-			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-		}
+		
+        wxClientDC dc(this);
+        ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+		
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+        
 		int num_obs = X.size();
 		for (int i=0; i<cur_intervals; i++) {
 			std::vector<wxString> vals(rows);
@@ -675,18 +695,18 @@ void SimpleHistCanvas::PopulateCanvas()
                                   wxRealPoint(orig_x_pos[i], 0),
                                   GdaShapeText::h_center, GdaShapeText::top,
                                   GdaShapeText::h_center, GdaShapeText::v_center,
-                                  3, 10, 0,
+                                  row_gap, 10, 0,
                                   53+y_d);
 			foreground_shps.push_back(s);
 		}
 		
-		wxString sts;
-		sts << "min: " << data_stats.min;
-		sts << ", max: " << data_stats.max;
-		sts << ", median: " << hinge_stats.Q2;
-		sts << ", mean: " << data_stats.mean;
-		sts << ", s.d.: " << data_stats.sd_with_bessel;
-		sts << ", #obs: " << X.size();
+        wxString sts;
+        sts << _("min:") << " " << data_stats.min;
+        sts << ", " << _("max:") << " " << data_stats.max;
+        sts << ", " << _("median:") << " " << hinge_stats.Q2;
+        sts << ", " << _("mean:") << " " << data_stats.mean;
+        sts << ", " << _("s.d.:") << " " << data_stats.sd_with_bessel;
+        sts << ", " << _("#obs:") << " " << X.size();
 		
         s = new GdaShapeText(sts, *GdaConst::small_font,
                              wxRealPoint(x_max/2.0, 0), 0,
@@ -728,7 +748,7 @@ void SimpleHistCanvas::PopulateCanvas()
 		selectable_shps[i]->setPen(GdaConst::qualitative_colors[i%sz]);
 		selectable_shps[i]->setBrush(GdaConst::qualitative_colors[i%sz]);
 	}
-	
+    
 	ResizeSelectableShps();
 	LOG_MSG("Exiting SimpleHistCanvas::PopulateCanvas");
 }

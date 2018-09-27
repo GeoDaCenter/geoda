@@ -165,6 +165,9 @@ public:
 	void UpdateGlobalTime(int tm);
 	/** Get last value global time was set to.  Initially 0. */
 	int GetLastGlobalTime();
+    
+    void SetCurTime(int var, int t);
+    int GetCurTime(int var);
 	
 private:
 	int MinTmForAllSynced();
@@ -193,6 +196,7 @@ private:
 	std::vector<Entry> vars;
 	std::vector<wxString> tm_strs;
 	int global_time; // according to last time it was set
+    int current_time;
 };
 	
 struct VarInfo {
@@ -218,7 +222,6 @@ struct VarInfo {
     bool is_moran; // moran requires |min| == |max|
 	
 	// Secondary Attributes
-	
 	// if true, then this variable time tries to match the the
 	// global time and other variables time offsets are with respect
 	// to this variable's time.  If true, then ref_time_offset = 0
@@ -226,6 +229,7 @@ struct VarInfo {
 	bool is_ref_variable;
 	// time offset from the reference variable time
 	int ref_time_offset; // offset from ref_time
+    
 	int time_min;
 	int time_max;
 	double min_over_time; // within time min/max range

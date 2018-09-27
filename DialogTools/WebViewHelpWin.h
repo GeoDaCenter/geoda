@@ -38,7 +38,7 @@ public:
 	WebViewHelpWin(Project* project,
 					  const wxString& page_source,
 					  wxWindow* parent, wxWindowID id = wxID_ANY,
-					  const wxString& title = "GeoDa Help",
+					  const wxString& title = _("GeoDa Help"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize);
 	virtual ~WebViewHelpWin();

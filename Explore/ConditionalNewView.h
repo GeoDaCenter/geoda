@@ -35,17 +35,17 @@ class ConditionalNewCanvas;
 class ConditionalNewLegend;
 class TableInterface;
 
-typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<bool, 2> b_array_type;
-
+typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<wxString, 2> s_array_type;
 typedef boost::multi_array<GdaRectangle, 2> rec_array_type;
 
 class ConditionalNewCanvas
 	: public TemplateCanvas, public CatClassifStateObserver
 {
 	DECLARE_CLASS(ConditionalNewCanvas)
+    
 public:
-	
 	ConditionalNewCanvas(wxWindow *parent, TemplateFrame* t_frame,
 						 Project* project,
 						 const std::vector<GdaVarTools::VarInfo>& var_info,
@@ -54,7 +54,9 @@ public:
 						 bool fit_to_window_mode = true,
 						 const wxPoint& pos = wxDefaultPosition,
 						 const wxSize& size = wxDefaultSize);
+    
 	virtual ~ConditionalNewCanvas();
+    
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCategoriesTitle(int var_id);
@@ -73,11 +75,9 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 		
-protected:
 	virtual void PopulateCanvas();
 	virtual void VarInfoAttributeChange();
 	
-public:
 	virtual void CreateAndUpdateCategories(int var_id);
 	virtual void UpdateNumVertHorizCats();
 	virtual void UserChangedCellCategories() {}
@@ -86,12 +86,18 @@ public:
 	
 	CatClassifDef cat_classif_def_horiz;
 	CatClassifDef cat_classif_def_vert;
+    
 	CatClassification::CatClassifType GetCatType(int var_id);
-	void SetCatType(int var_id, CatClassification::CatClassifType cc_type,
+    
+	void SetCatType(int var_id,
+                    CatClassification::CatClassifType cc_type,
 					int num_categories);
+    
 	int GetHorizNumCats() { return horiz_num_cats; }
 	int GetVertNumCats() { return vert_num_cats; }
 
+	virtual void UpdateStatusBar();
+    
 protected:
 	TableInterface* table_int;
 	CatClassifState* cc_state_vert;
@@ -102,8 +108,13 @@ protected:
 	int vert_num_time_vals;
 	int horiz_num_time_vals;
 	int ref_var_index;
+    
+    bool HOR_VAR_NUM;
+    bool VERT_VAR_NUM;
+    
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+    std::vector<s_array_type> s_data;
 	std::vector<b_array_type> data_undef;
 	
 	bool is_any_time_variant;
@@ -113,6 +124,9 @@ protected:
 	int vert_num_cats; // number of vertical categories
 	std::vector<Gda::dbl_int_pair_vec_type> horiz_var_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> vert_var_sorted;
+    
+    std::vector<Gda::str_int_pair_vec_type> horiz_str_var_sorted;
+    std::vector<Gda::str_int_pair_vec_type> vert_str_var_sorted;
     
     std::vector<std::vector<bool> > horiz_undef_tms; // undef tms
     std::vector<std::vector<bool> > vert_undef_tms; // undef tms
@@ -128,9 +142,8 @@ protected:
 	rec_array_type bin_extents;
 	int bin_w;
 	int bin_h;
-	
 	bool all_init;
-	virtual void UpdateStatusBar();
+    
 		
 	DECLARE_EVENT_TABLE()
 };
@@ -141,7 +154,7 @@ public:
     ConditionalNewFrame(wxFrame *parent, Project* project,
 					  const std::vector<GdaVarTools::VarInfo>& var_info,
 					  const std::vector<int>& col_ids,
-					  const wxString& title = "Conditional Map",
+					  const wxString& title = _("Conditional Map"),
 					  const wxPoint& pos = wxDefaultPosition,
 					  const wxSize& size = wxDefaultSize,
 					  const long style = wxDEFAULT_FRAME_STYLE);

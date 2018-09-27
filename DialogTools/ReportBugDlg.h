@@ -58,87 +58,6 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 //
-// PreferenceDlg
-//
-////////////////////////////////////////////////////////////////////////////////
-class PreferenceDlg : public wxDialog
-{
-public:
-    PreferenceDlg(wxWindow* parent,
-                  wxWindowID id = wxID_ANY,
-                  const wxString& title = _("GeoDa Preference Setup"),
-                  const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,640));
-    
-    PreferenceDlg(wxWindow* parent,
-                  HLStateInt* highlight_state,
-                  wxWindowID id = wxID_ANY,
-                  const wxString& title = _("GeoDa Preference Setup"),
-                  const wxPoint& pos = wxDefaultPosition,
-                  const wxSize& size = wxSize(580,640));
- 
-    static void ReadFromCache();
-    
-protected:
-    HLStateInt* highlight_state;
-    // PREF_USE_CROSSHATCH
-    wxCheckBox* cbox0;
-    // PREF_SLIDER1_TXT
-    wxSlider* slider1;
-    wxTextCtrl* slider_txt1;
-    // PREF_SLIDER2_TXT
-    wxSlider* slider2;
-    wxTextCtrl* slider_txt2;
-    // basemap auto
-    wxComboBox* cmb33;
-	// Transparency of highlighted object
-    wxSlider* slider6;
-    // plot unhighlighted transp
-    wxSlider* slider7;
-    wxTextCtrl* slider_txt7;
-    // crash detect
-    wxCheckBox* cbox4;
-    // auto upgrade
-    wxCheckBox* cbox5;
-    // show recent
-    wxCheckBox* cbox8;
-    // show cvs in merge
-    wxCheckBox* cbox9;
-    // enable High DPI 
-    wxCheckBox* cbox10;
-    // postgresql
-    wxCheckBox* cbox21;
-    // sqlite
-    wxCheckBox* cbox22;
-    // timeout
-    wxTextCtrl* txt23;
-    
-    void Init();
-    void SetupControls();
-    
-    void OnCrossHatch(wxCommandEvent& ev);
-    void OnSlider1(wxCommandEvent& ev);
-    void OnSlider2(wxCommandEvent& ev);
-    //void OnSlider3(wxCommandEvent& ev);
-    void OnChoice3(wxCommandEvent& ev);
-    void OnDisableCrashDetect(wxCommandEvent& ev);
-    void OnDisableAutoUpgrade(wxCommandEvent& ev);
-    void OnShowRecent(wxCommandEvent& ev);
-    void OnShowCsvInMerge(wxCommandEvent& ev);
-    void OnEnableHDPISupport(wxCommandEvent& ev);
-   
-    void OnSlider6(wxCommandEvent& ev);
-    void OnSlider7(wxCommandEvent& ev);
-    
-    void OnHideTablePostGIS(wxCommandEvent& ev);
-    void OnHideTableSQLITE(wxCommandEvent& ev);
-    void OnTimeoutInput(wxCommandEvent& ev);
-    
-    void OnReset(wxCommandEvent& ev);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-//
 // ReportResultDlg
 //
 ////////////////////////////////////////////////////////////////////////////////
@@ -153,7 +72,7 @@ public:
                     wxWindowID id = wxID_ANY,
                     const wxString& title = _("Check Bug Report on Github"),
                     const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize);
+                    const wxSize& size = wxSize(680,200));
     ~ReportResultDlg();
 };
 

@@ -42,7 +42,7 @@ class TableInterface;
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
+// class DiffMoranVarSettingDlg
 //
 ////////////////////////////////////////////////////////////////////////////
 class DiffMoranVarSettingDlg : public wxDialog
@@ -80,81 +80,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
-//
-////////////////////////////////////////////////////////////////////////////
-
-class SimpleReportTextCtrl : public wxTextCtrl
-{
-public:
-    SimpleReportTextCtrl(wxWindow* parent, wxWindowID id, const wxString& value = "",
-               const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize,
-               long style = 0, const wxValidator& validator = wxDefaultValidator,
-               const wxString& name = wxTextCtrlNameStr)
-    : wxTextCtrl(parent, id, value, pos, size, style, validator, name) {}
-protected:
-    void OnContextMenu(wxContextMenuEvent& event);
-    void OnSaveClick( wxCommandEvent& event );
-    DECLARE_EVENT_TABLE()
-};
-
-class PCASettingsDlg : public wxDialog, public FramesManagerObserver
-{
-public:
-    PCASettingsDlg(Project* project);
-    virtual ~PCASettingsDlg();
-    
-    void CreateControls();
-    bool Init();
-   
-    void OnOK( wxCommandEvent& event );
-    void OnSave( wxCommandEvent& event );
-    void OnCloseClick( wxCommandEvent& event );
-    void OnClose(wxCloseEvent& ev);
-    void OnMethodChoice( wxCommandEvent& event );
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    
-    //boost::uuids::uuid GetWeightsId();
-    
-    /** Implementation of FramesManagerObserver interface */
-    virtual void update(FramesManager* o);
-    
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    FramesManager* frames_manager;
-    
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    //std::vector<boost::uuids::uuid> weights_ids;
-    
-    wxListBox* combo_var;
-    wxChoice* combo_n;
-
-    SimpleReportTextCtrl* m_textbox;
-    wxButton *saveButton;
-   
-    wxChoice* combo_method;
-    wxChoice* combo_transform;
-
-    
-	std::map<wxString, wxString> name_to_nm;
-	std::map<wxString, int> name_to_tm_id;
-    
-    unsigned int row_lim;
-    unsigned int col_lim;
-    std::vector<float> scores;
-    float thresh95;
-    
-    DECLARE_EVENT_TABLE()
-};
-
-////////////////////////////////////////////////////////////////////////////
-//
-//
+// class MultiVariableSettingsDlg
 //
 ////////////////////////////////////////////////////////////////////////////
 class MultiVariableSettingsDlg : public wxDialog
@@ -196,9 +122,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 //
-//
+// class VariableSettingsDlg
 //
 ////////////////////////////////////////////////////////////////////////////
+
 
 class VariableSettingsDlg: public wxDialog
 {
@@ -206,7 +133,7 @@ public:
 	enum VarType {
 		univariate, bivariate, trivariate, quadvariate, rate_smoothed
 	};
-
+    
 	VariableSettingsDlg( Project* project, VarType v_type,
 						bool show_weights = false,
 						bool show_distance = false,
@@ -217,7 +144,11 @@ public:
 						const wxString& var4_title=_("Fourth Variable"),
 						bool set_second_from_first_mode = false,
 						bool set_fourth_from_third_mode = false,
-                        bool hide_time = false);
+                        bool hide_time = false,
+                        bool var1_str = false, // if show string fields
+                        bool var2_str = false,
+                        bool var3_str = false,
+                        bool var4_str = false);
 	virtual ~VariableSettingsDlg();
 	void CreateControls();
 	void Init(VarType var_type);
@@ -247,14 +178,31 @@ public:
 	WeightsMetaInfo::DistanceMetricEnum GetDistanceMetric();
 	WeightsMetaInfo::DistanceUnitsEnum GetDistanceUnits();
 	
-private:
+protected:
 	int m_theme; // for rate_smoothed
 
+    bool var1_str;
+    bool var2_str;
+    bool var3_str;
+    bool var4_str;
+    std::map<int, int> sel1_idx_map;
+    std::map<int, int> sel2_idx_map;
+    std::map<int, int> sel3_idx_map;
+    std::map<int, int> sel4_idx_map;
+    std::map<int, int> idx_sel1_map;
+    std::map<int, int> idx_sel2_map;
+    std::map<int, int> idx_sel3_map;
+    std::map<int, int> idx_sel4_map;
+    
     bool hide_time;
 	wxString v1_name;
 	wxString v2_name;
 	wxString v3_name;
 	wxString v4_name;
+    wxString default_var_name1;
+    wxString default_var_name2;
+    wxString default_var_name3;
+    wxString default_var_name4;
 	int v1_time;
 	int v2_time;
 	int v3_time;
@@ -311,7 +259,9 @@ private:
 
 	void InitTimeChoices();
 	void InitFieldChoices();
-	void FillData();
+	wxString FillData();
+    
+    bool CheckEmptyColumn(int col_id, int time);
 	
 	/** Automatically set the second variable to the same value as
 	 the first variable when first variable is changed. */
@@ -323,4 +273,97 @@ private:
 	DECLARE_EVENT_TABLE()
 };
 
+/*
+class UniVarSettingsDlg: public VariableSettingsDlg
+{
+    UniVarSettingsDlg(Project* project,
+                      VarType v_type,
+                      bool show_weights = false,
+                      bool show_distance = false,
+                      bool show_time = true,
+                      bool var1_str = false // if show string fields
+    );
+    virtual ~UniVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+
+class BiVarSettingsDlg: public VariableSettingsDlg
+{
+    BiVarSettingsDlg(Project* project,
+                     VarType v_type,
+                     bool show_weights = false,
+                     bool show_distance = false,
+                     bool show_time = true,
+                     bool var1_str = false, // if show string fields
+                     bool var2_str = false, // if show string fields
+                     bool set_second_from_first_mode = false);
+    virtual ~BiVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class TriVarSettingsDlg: public VariableSettingsDlg
+{
+    TriVarSettingsDlg(Project* project,
+                      VarType v_type,
+                      bool show_weights = false,
+                      bool show_distance = false,
+                      bool show_time = true,
+                      bool var1_str = false, // if show string fields
+                      bool var2_str = false, // if show string fields
+                      bool var3_str = false);
+    virtual ~TriVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class QuadVarSettingsDlg: public VariableSettingsDlg
+{
+    QuadVarSettingsDlg(Project* project,
+                       VarType v_type,
+                       bool show_weights = false,
+                       bool show_distance = false,
+                       bool show_time = true,
+                       bool var1_str = false, // if show string fields
+                       bool var2_str = false, // if show string fields
+                       bool var3_str = false);
+    virtual ~QuadVarSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+
+class RateSmoothedSettingsDlg: public VariableSettingsDlg
+{
+    RateSmoothedSettingsDlg(Project* project,
+                            VarType v_type,
+                            bool show_weights = false,
+                            bool show_time = true
+                            );
+    virtual ~RateSmoothedSettingsDlg();
+   
+    virtual void CreateControls();
+    virtual void InitFieldChoices();
+    virtual void FillData();
+    
+    void OnOkClick( wxCommandEvent& event );
+};
+*/
 #endif

@@ -51,12 +51,16 @@ class LineChartCanvas : public TemplateCanvas
 	
 	virtual void UpdateAll();
     
+    virtual wxString GetVariableNames() { return wxEmptyString;}
+    
     void UpdateYAxis(wxString y_min="", wxString y_max="");
     
     void UpdateYAxisPrecision(int precision_s);
     
     double GetYAxisMinVal() {return axis_scale_y.scale_min;}
     double GetYAxisMaxVal() {return axis_scale_y.scale_max;}
+    
+    bool fixed_scale_over_change;
     
 protected:
     void OnDblClick(wxMouseEvent& event);
@@ -73,6 +77,9 @@ protected:
 	AxisScale axis_scale_y;
 	double scaleY;
     int y_axis_precision;
+    
+    double prev_y_axis_min;
+    double prev_y_axis_max;
     
     double y_axis_min;
     double y_axis_max;

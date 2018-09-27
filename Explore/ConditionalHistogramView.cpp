@@ -36,7 +36,7 @@
 #include "../FramesManager.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalHistogramView.h"
 
 
@@ -102,12 +102,12 @@ show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
         }
     }
     
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 	if (num_obs > 49) {
 		int c = sqrt((double) num_obs);
-		cur_intervals = GenUtils::min<int>(max_intervals, c);
-		cur_intervals = GenUtils::min<int>(cur_intervals, 7);
+		cur_intervals = std::min(max_intervals, c);
+		cur_intervals = std::min(cur_intervals, 7);
 	}
 	
 	highlight_color = GdaConst::highlight_color;
@@ -178,6 +178,13 @@ wxString ConditionalHistogramCanvas::GetCanvasTitle()
 	return v;
 }
 
+wxString ConditionalHistogramCanvas::GetVariableNames()
+{
+    wxString v;
+    v <<  GetNameWithTime(HIST_VAR);
+    return v;
+}
+
 void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                                       int virtual_scrn_h)
 {
@@ -219,7 +226,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double pad_h = scn_h * fac;
 	if (pad_w < 1) pad_w = 0;
 	if (pad_h < 1) pad_h = 0;
-	double pad_bump = GenUtils::min<double>(pad_w, pad_h);
+	double pad_bump = std::min(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
 	
 	double marg_top = last_scale_trans.top_margin;
@@ -295,20 +302,25 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_xmax = scn_w-marg_right;
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
+    int n_rows = VERT_VAR_NUM ? vert_num_cats-1 : vert_num_cats;
+    int n_cols = HOR_VAR_NUM ? horiz_num_cats-1 : horiz_num_cats;
+    vector<wxRealPoint> v_brk_ref(n_rows);
+    vector<wxRealPoint> h_brk_ref(n_cols);
 	
-	std::vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
-	std::vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
-	
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double y = (bin_extents[row][0].lower_left.y +
-					bin_extents[row+1][0].upper_right.y)/2.0;
+	for (int row=0; row<n_rows; row++) {
+        double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
+        double y = 0;
+        if (VERT_VAR_NUM) y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
+        else y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
 		v_brk_ref[row].x = bg_xmin;
 		v_brk_ref[row].y = scn_h-y;
 	}
 	
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double x = (bin_extents[0][col].upper_right.x +
-					bin_extents[0][col+1].lower_left.x)/2.0;
+	for (int col=0; col<n_cols; col++) {
+        double bin_width = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
+        double x = 0;
+        if (HOR_VAR_NUM) x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
+        else x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
 		h_brk_ref[col].x = x;
 		h_brk_ref[col].y = bg_ymin;
 	}
@@ -317,17 +329,22 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	int label_offset = 25;
 	if (show_axes) label_offset += 25;
 	int vt = var_info[VERT_VAR].time;
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double b;
-		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
-			if (!vert_cat_data.HasBreakVal(vt, row))
-                continue;
-			b = vert_cat_data.GetBreakVal(vt, row);
-		} else {
-			b = cat_classif_def_vert.breaks[row];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, v_brk_ref[row], 90,
+	for (int row=0; row<n_rows; row++) {
+        wxString tmp_lbl;
+        if (VERT_VAR_NUM) {
+            double b;
+            if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
+                if (!vert_cat_data.HasBreakVal(vt, row))
+                    continue;
+                b = vert_cat_data.GetBreakVal(vt, row);
+            } else {
+                b = cat_classif_def_vert.breaks[row];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
                              GdaShapeText::h_center, GdaShapeText::bottom,
                              -label_offset, 0);
 		foreground_shps.push_front(s);
@@ -351,16 +368,21 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	}
 	
 	int ht = var_info[HOR_VAR].time;
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double b;
-		if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
-			if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
-			b = horiz_cat_data.GetBreakVal(ht, col);
-		} else {
-			b = cat_classif_def_horiz.breaks[col];
-		}
-		wxString t(GenUtils::DblToStr(b));
-		s = new GdaShapeText(t, *GdaConst::small_font, h_brk_ref[col], 0,
+	for (int col=0; col<n_cols; col++) {
+        wxString tmp_lbl;
+        if (HOR_VAR_NUM) {
+            double b;
+            if (cat_classif_def_horiz.cat_classif_type!= CatClassification::custom){
+                if (!horiz_cat_data.HasBreakVal(ht, col)) continue;
+                b = horiz_cat_data.GetBreakVal(ht, col);
+            } else {
+                b = cat_classif_def_horiz.breaks[col];
+            }
+            tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
+        }
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, label_offset);
 		foreground_shps.push_front(s);
 		bg_shp_cnt++;
@@ -430,7 +452,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 	if (show_axes) {
 		axis_scale_y = AxisScale(0, y_max, 3, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, y_max),
 							-9, 0);
 		
@@ -451,7 +473,8 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-			wxString flt = wxString::Format("%.2g", axis_scale_x.tics[i]);
+			//wxString flt = wxString::Format("%.2g", axis_scale_x.tics[i]);
+            wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i], axis_display_precision);
 			axis_scale_x.tics_str[i] = flt.ToStdString();
 			axis_scale_x.tics_str_show[i] = false;
 		}
@@ -474,7 +497,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 				double x0 = orig_x_pos[ival] - interval_width_const/2.0;
 				double x1 = orig_x_pos[ival] + interval_width_const/2.0;
 				double y0 = 0;
-				double y1 = cell_data[t][r][c].ival_obs_cnt[ival];
+				double y1 = cell_data[0][r][c].ival_obs_cnt[ival];
 				selectable_shps[i] = new GdaRectangle(wxRealPoint(x0, 0),
 													 wxRealPoint(x1, y1));
 				int sz = GdaConst::qualitative_colors.size();
@@ -573,21 +596,21 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     						  GenGeomAlgs::RectsIntersect(rec->lower_left,
     												   rec->upper_right,
     												   lower_left, upper_right)));
-    		bool all_sel = (cell_data[t][r][c].ival_obs_cnt[ival] == 
-    						cell_data[t][r][c].ival_obs_sel_cnt[ival]);
+    		bool all_sel = (cell_data[0][r][c].ival_obs_cnt[ival] ==
+    						cell_data[0][r][c].ival_obs_sel_cnt[ival]);
     		if (pointsel && all_sel && selected) {
     			// unselect all in ival
     			for (std::list<int>::iterator it =
-    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
                     hs[(*it)]= false;
                     selection_changed = true;
     			}
     		} else if (!all_sel && selected) {
     			// select currently unselected in ival
     			for (std::list<int>::iterator it =
-    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
     				if (hs[*it]) continue;
                     hs[(*it)]= true;
                     selection_changed = true;
@@ -595,8 +618,8 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     		} else if (!selected && !shiftdown) {
     			// unselect all selected in ival
     			for (std::list<int>::iterator it =
-    					cell_data[t][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[t][r][c].ival_to_obs_ids[ival].end(); it++) {
+    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
+    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
     				if (!hs[*it]) continue;
                     hs[(*it)]= false;
                     selection_changed = true;
@@ -629,7 +652,7 @@ void ConditionalHistogramCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 	for (int r=0; r<vert_num_cats; r++) {
 		for (int c=0; c<horiz_num_cats; c++) {
 			for (int ival=0; ival<cur_intervals; ival++) {
-				if (cell_data[t][r][c].ival_obs_cnt[ival] != 0) {
+				if (cell_data[0][r][c].ival_obs_cnt[ival] != 0) {
 					selectable_shps[i]->paintSelf(dc);
 				}
 				i++;
@@ -646,9 +669,9 @@ void ConditionalHistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 	for (int r=0; r<vert_num_cats; r++) {
 		for (int c=0; c<horiz_num_cats; c++) {
 			for (int ival=0; ival<cur_intervals; ival++) {
-				if (cell_data[t][r][c].ival_obs_sel_cnt[ival] != 0) {
-					s = (((double) cell_data[t][r][c].ival_obs_sel_cnt[ival]) /
-						 ((double) cell_data[t][r][c].ival_obs_cnt[ival]));
+				if (cell_data[0][r][c].ival_obs_sel_cnt[ival] != 0) {
+					s = (((double) cell_data[0][r][c].ival_obs_sel_cnt[ival]) /
+						 ((double) cell_data[0][r][c].ival_obs_cnt[ival]));
                     
                     GdaShape* shp = selectable_shps[i];
                     dc.SetPen(shp->getPen());
@@ -726,7 +749,7 @@ void ConditionalHistogramCanvas::InitIntervals()
 		double ival_size = range/((double) cur_intervals);
 		
 		for (int i=0; i<cur_intervals-1; i++) {
-			ival_breaks[t][i] = min_ival_val[t]+ival_size*((double) (i+1));
+			ival_breaks[0][i] = min_ival_val[t]+ival_size*((double) (i+1));
 		}
 	}
 	
@@ -745,16 +768,16 @@ void ConditionalHistogramCanvas::InitIntervals()
 		int rows = vert_cat_data.categories[vt].cat_vec.size();
 		int cols = horiz_cat_data.categories[ht].cat_vec.size();
         
-		cell_data[t].resize(boost::extents[rows][cols]);
+		cell_data[0].resize(boost::extents[rows][cols]);
 		for (int r=0; r<rows; r++) {
 			for (int c=0; c<cols; c++) {
-				cell_data[t][r][c].ival_obs_cnt.resize(cur_intervals);
-				cell_data[t][r][c].ival_obs_sel_cnt.resize(cur_intervals);
-				cell_data[t][r][c].ival_to_obs_ids.resize(cur_intervals);
+				cell_data[0][r][c].ival_obs_cnt.resize(cur_intervals);
+				cell_data[0][r][c].ival_obs_sel_cnt.resize(cur_intervals);
+				cell_data[0][r][c].ival_to_obs_ids.resize(cur_intervals);
 				for (int i=0; i<cur_intervals; i++) {
-					cell_data[t][r][c].ival_obs_cnt[i] = 0;
-					cell_data[t][r][c].ival_obs_sel_cnt[i] = 0;
-					cell_data[t][r][c].ival_to_obs_ids[i].clear();
+					cell_data[0][r][c].ival_obs_cnt[i] = 0;
+					cell_data[0][r][c].ival_obs_sel_cnt[i] = 0;
+					cell_data[0][r][c].ival_to_obs_ids[i].clear();
 				}
 			}
 		}
@@ -773,7 +796,7 @@ void ConditionalHistogramCanvas::InitIntervals()
                 continue;
             
 			while (cur_ival <= cur_intervals-2 &&
-				   data_sorted[dt][i].first >= ival_breaks[t][cur_ival])
+				   data_sorted[dt][i].first >= ival_breaks[0][cur_ival])
             {
 				cur_ival++;
 			}
@@ -783,22 +806,21 @@ void ConditionalHistogramCanvas::InitIntervals()
 			obs_id_to_sel_shp[t][id] = cell_to_sel_shp_gen(r, c, cur_ival,
 														   cols, cur_intervals);
             
-			cell_data[t][r][c].ival_to_obs_ids[cur_ival].push_front(id);
+			cell_data[0][r][c].ival_to_obs_ids[cur_ival].push_front(id);
             
-			cell_data[t][r][c].ival_obs_cnt[cur_ival]++;
+			cell_data[0][r][c].ival_obs_cnt[cur_ival]++;
             
-			if (cell_data[t][r][c].ival_obs_cnt[cur_ival] >
-				max_num_obs_in_ival[t])
+			if (cell_data[0][r][c].ival_obs_cnt[cur_ival] > max_num_obs_in_ival[t])
             {
 				max_num_obs_in_ival[t] =
-					cell_data[t][r][c].ival_obs_cnt[cur_ival];
+					cell_data[0][r][c].ival_obs_cnt[cur_ival];
 				if (max_num_obs_in_ival[t] > overall_max_num_obs_in_ival) {
 					overall_max_num_obs_in_ival = max_num_obs_in_ival[t];
 				}
 			}
 			
 			if (hs[data_sorted[dt][i].second]) {
-				cell_data[t][r][c].ival_obs_sel_cnt[cur_ival]++;
+				cell_data[0][r][c].ival_obs_sel_cnt[cur_ival]++;
 			}
 		}
 	}
@@ -821,7 +843,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 			for (int r=0; r<rows; r++) {
 				for (int c=0; c<cols; c++) {
 					for (int i=0; i<cur_intervals; i++) {
-						cell_data[t][r][c].ival_obs_sel_cnt[i] = 0;
+						cell_data[0][r][c].ival_obs_sel_cnt[i] = 0;
 					}
 				}
 			}
@@ -841,12 +863,12 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
             
 			int rows = vert_cat_data.categories[vt].cat_vec.size();
 			int cols = horiz_cat_data.categories[ht].cat_vec.size();
-			int ivals = cell_data[t][0][0].ival_obs_cnt.size();
+			int ivals = cell_data[0][0][0].ival_obs_cnt.size();
 			
 			for (int r=0; r<rows; r++) {
 				for (int c=0; c<cols; c++) {
 					for (int i=0; i<cur_intervals; i++) {
-						cell_data[t][r][c].ival_obs_sel_cnt[i] = 0;
+						cell_data[0][r][c].ival_obs_sel_cnt[i] = 0;
 					}
 				}
 			}
@@ -856,7 +878,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
                 if (hs[i] && !undef_tms[t][i]) {
     				sel_shp_to_cell_gen(obs_id_to_sel_shp[t][i],
     									r, c, ival, cols, ivals);
-    				cell_data[t][r][c].ival_obs_sel_cnt[ival]++;
+    				cell_data[0][r][c].ival_obs_sel_cnt[ival]++;
                 }
 			}
 		}
@@ -873,9 +895,9 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 			for (int r=0; r<rows; r++) {
 				for (int c=0; c<cols; c++) {
 					for (int i=0; i<cur_intervals; i++) {
-						cell_data[t][r][c].ival_obs_sel_cnt[i] = 
-							(cell_data[t][r][c].ival_obs_cnt[i] -
-							 cell_data[t][r][c].ival_obs_sel_cnt[i]);
+						cell_data[0][r][c].ival_obs_sel_cnt[i] = 
+							(cell_data[0][r][c].ival_obs_cnt[i] -
+							 cell_data[0][r][c].ival_obs_sel_cnt[i]);
 					}
 				}
 			}
@@ -901,7 +923,7 @@ void ConditionalHistogramCanvas::UpdateStatusBar()
 	if (total_hover_obs == 0) {
         if (highlight_state->GetTotalHighlighted()> 0) {
             int n_total_hl = highlight_state->GetTotalHighlighted();
-            s << "#selected=" << n_total_hl << "  ";
+            s << _("#selected=") << n_total_hl << "  ";
             
             int n_undefs = 0;
             for (int i=0; i<num_obs; i++) {
@@ -910,7 +932,7 @@ void ConditionalHistogramCanvas::UpdateStatusBar()
                 }
             }
             if (n_undefs> 0) {
-                s << "(undefined:" << n_undefs << ") ";
+                s << _("undefined: ") << n_undefs << ") ";
             }
         }
 		sb->SetStatusText(s);
@@ -918,13 +940,12 @@ void ConditionalHistogramCanvas::UpdateStatusBar()
 	}
 	int r, c, ival;
 	sel_shp_to_cell(hover_obs[0], r, c, ival);
-	double ival_min = (ival == 0) ? min_ival_val[t] : ival_breaks[t][ival-1];
-	double ival_max = ((ival == cur_intervals-1) ?
-					   max_ival_val[t] : ival_breaks[t][ival]);
+	double ival_min = (ival == 0) ? min_ival_val[0] : ival_breaks[0][ival-1];
+	double ival_max = (ival == cur_intervals-1) ? max_ival_val[0] : ival_breaks[0][ival];
 	s << "bin: " << ival+1 << ", range: [" << ival_min << ", " << ival_max;
 	s << (ival == cur_intervals-1 ? "]" : ")");
-	s << ", #obs: " << cell_data[t][r][c].ival_obs_cnt[ival];
-	s << ", #sel: " << cell_data[t][r][c].ival_obs_sel_cnt[ival];
+	s << ", #obs: " << cell_data[0][r][c].ival_obs_cnt[ival];
+	s << ", #sel: " << cell_data[0][r][c].ival_obs_sel_cnt[ival];
 	sb->SetStatusText(s);
 }
 
@@ -1014,7 +1035,7 @@ void ConditionalHistogramFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((ConditionalHistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1022,7 +1043,7 @@ void ConditionalHistogramFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConditionalHistogramCanvas*)
@@ -1062,4 +1083,11 @@ void ConditionalHistogramFrame::OnHistogramIntervals(wxCommandEvent& ev)
 	ConditionalHistogramCanvas* t =
 		(ConditionalHistogramCanvas*) template_canvas;
 	t->HistogramIntervals();
+}
+
+void ConditionalHistogramFrame::OnSaveCanvasImageAs(wxCommandEvent& event)
+{
+    if (!template_canvas) return;
+    wxString title = project->GetProjectTitle();
+    GeneralWxUtils::SaveWindowAsImage(template_canvas, title);
 }

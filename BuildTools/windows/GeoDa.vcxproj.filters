@@ -32,6 +32,24 @@
     <Filter Include="Algorithms">
       <UniqueIdentifier>{26d19d80-b064-41d9-80e5-37e967c05d8a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="io">
+      <UniqueIdentifier>{6f1478f1-4816-4219-a7a3-da8b22086f01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kNN">
+      <UniqueIdentifier>{90f57f50-2648-4589-9585-434636a6272f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arizona">
+      <UniqueIdentifier>{b9cdb32d-74e3-4ba7-a5ea-a0580c0c694d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arizona\viz3">
+      <UniqueIdentifier>{0c323cad-a390-44fd-aae6-2e08cb7938a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arizona\viz3\plots">
+      <UniqueIdentifier>{4bb92a90-99f0-4d47-b33d-e1663d9bfab0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ogl">
+      <UniqueIdentifier>{85fd04ff-4aa4-45d8-8492-8a7d69f0dc17}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -52,6 +70,15 @@
     <None Include="..\..\rc\release-notes.txt">
       <Filter>rc</Filter>
     </None>
+    <None Include="..\..\Algorithms\distmat_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
+    <None Include="..\..\Algorithms\lisa_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
+    <None Include="..\..\Algorithms\localjc_kernel.cl">
+      <Filter>Algorithms</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\..\GeoDa.rc">
@@ -60,19 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\resource.h" />
-    <ClInclude Include="..\..\ShapeOperations\AbstractShape.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\BasePoint.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\Box.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\CsvFileUtils.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\DBF.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\DorlingCartogram.h">
@@ -91,21 +106,6 @@
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\shapeoperations\RateSmoothing.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFile.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileHdr.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileTriplet.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeFileType.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\ShapeUtils.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\ShapeOperations\VoronoiUtils.h">
@@ -175,9 +175,6 @@
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dialogtools\AddIdVariable.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dialogtools\ASC2SHPDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\dialogtools\Bnd2ShpDlg.h">
@@ -250,9 +247,6 @@
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\SaveToTableDlg.h">
-      <Filter>DialogTools</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\dialogtools\SHP2ASCDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\TimeChooserDlg.h">
@@ -365,16 +359,10 @@
     <ClInclude Include="..\..\TemplateCanvas.h" />
     <ClInclude Include="..\..\TemplateFrame.h" />
     <ClInclude Include="..\..\TemplateLegend.h" />
-    <ClInclude Include="..\..\DataViewer\DbfColContainer.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\DataViewer\TimeState.h">
       <Filter>DataViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\TimeStateObserver.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DataViewer\DbfTable.h">
       <Filter>DataViewer</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DataViewer\OGRTable.h">
@@ -504,9 +492,6 @@
     <ClInclude Include="..\..\Explore\WebViewExampleWin.h">
       <Filter>Explore</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DataViewer\DataChangeType.h">
-      <Filter>DataViewer</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\GdaJson.h" />
     <ClInclude Include="..\..\ShapeOperations\Lowess.h">
       <Filter>ShapeOperations</Filter>
@@ -569,7 +554,6 @@
     <ClInclude Include="..\..\libgdiam\gdiam.hpp">
       <Filter>libgdiam</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\DbfFile.h" />
     <ClInclude Include="..\..\ShpFile.h" />
     <ClInclude Include="..\..\SpatialIndAlgs.h" />
     <ClInclude Include="..\..\SpatialIndTypes.h" />
@@ -596,9 +580,6 @@
     <ClInclude Include="..\..\Observable.h" />
     <ClInclude Include="..\..\Observer.h" />
     <ClInclude Include="..\..\ShapeOperations\PolysToContigWeights.h">
-      <Filter>ShapeOperations</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\ShapeOperations\SimplePoint.h">
       <Filter>ShapeOperations</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Explore\SimpleBinsHistCanvas.h">
@@ -657,24 +638,215 @@
     <ClInclude Include="..\..\Algorithms\pca.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\MaxpDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\spectral.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\geocoding.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\redcap.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\GeocodingDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\MDSDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\RedcapDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AbstractClusterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\AggregateDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\ColocationMapView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCMapNewView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\DataUtils.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\texttable.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\mds.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\skater.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SkaterDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\PreferenceDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\AbstractClusterMap.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\AbstractCoordinator.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\arcgis_swm.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\matlab_mat.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\weights_interface.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\io\MatfileReader.h">
+      <Filter>io</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\wxTranslationHelper.h" />
+    <ClInclude Include="..\..\Algorithms\hdbscan.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\HDBScanDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANN.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANNperf.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANNx.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_pr_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_split.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_tree.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_util.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue_k.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\values.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\distmatrix.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\fastcluster.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Algorithms\gpu_lisa.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\mathstuff.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\oglpfuncs.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\oglstuff.h">
+      <Filter>arizona\viz3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\arizona\viz3\plots\scatterplot.h">
+      <Filter>arizona\viz3\plots</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\basic.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\basicp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\bmpshape.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\canvas.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\composit.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\constrnt.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\divided.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\drawn.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\drawnp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\lines.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\linesp.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\mfutils.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\misc.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\ogl.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\ogl\ogldiag.h">
+      <Filter>ogl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MapLayoutView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MapLayer.hpp">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\MapLayerStateObserver.h" />
+    <ClInclude Include="..\..\Explore\MapLayerTree.hpp">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
       <Filter>rc</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\AbstractShape.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\BasePoint.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\Box.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\CsvFileUtils.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\DBF.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\DorlingCartogram.cpp">
@@ -693,18 +865,6 @@
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\shapeoperations\RateSmoothing.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFile.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileHdr.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeFileTriplet.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\ShapeUtils.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\ShapeOperations\VoronoiUtils.cpp">
@@ -756,9 +916,6 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\AddIdVariable.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dialogtools\ASC2SHPDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\Bnd2ShpDlg.cpp">
@@ -831,9 +988,6 @@
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\SaveToTableDlg.cpp">
-      <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\dialogtools\SHP2ASCDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\TimeChooserDlg.cpp">
@@ -936,17 +1090,11 @@
     <ClCompile Include="..\..\TemplateCanvas.cpp" />
     <ClCompile Include="..\..\TemplateFrame.cpp" />
     <ClCompile Include="..\..\TemplateLegend.cpp" />
-    <ClCompile Include="..\..\DataViewer\DbfColContainer.cpp">
-      <Filter>DataViewer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\DataViewer\TimeState.cpp">
       <Filter>DataViewer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\dialogtools\ConnectDatasourceDlg.cpp">
       <Filter>DialogTools</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\DataViewer\DbfTable.cpp">
-      <Filter>DataViewer</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DataViewer\OGRTable.cpp">
       <Filter>DataViewer</Filter>
@@ -1064,9 +1212,6 @@
     <ClCompile Include="..\..\Explore\WebViewExampleWin.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DataViewer\DataChangeType.cpp">
-      <Filter>DataViewer</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\GdaJson.cpp" />
     <ClCompile Include="..\..\ShapeOperations\Lowess.cpp">
       <Filter>ShapeOperations</Filter>
@@ -1123,7 +1268,6 @@
     <ClCompile Include="..\..\libgdiam\gdiam.cpp">
       <Filter>libgdiam</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\DbfFile.cpp" />
     <ClCompile Include="..\..\ShpFile.cpp" />
     <ClCompile Include="..\..\SpatialIndAlgs.cpp" />
     <ClCompile Include="..\..\GdaShape.cpp" />
@@ -1142,9 +1286,6 @@
     </ClCompile>
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\ShapeOperations\PolysToContigWeights.cpp">
-      <Filter>ShapeOperations</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ShapeOperations\SimplePoint.cpp">
       <Filter>ShapeOperations</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\SimpleBinsHistCanvas.cpp">
@@ -1198,6 +1339,175 @@
     </ClCompile>
     <ClCompile Include="..\..\Algorithms\pca.cpp">
       <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\spectral.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\geocoding.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\redcap.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\GeocodingDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\MDSDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AbstractClusterDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\AggregateDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ColocationMapView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\mds.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\skater.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\arcgis_swm.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\matlab_mat.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\io\MatfileReader.cpp">
+      <Filter>io</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\wxTranslationHelper.cpp" />
+    <ClCompile Include="..\..\Algorithms\hdbscan.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\ANN.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_pr_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_split.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_tree.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_util.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kNN.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\distmatrix.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\fastcluster.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\mathstuff.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\oglpfuncs.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\oglstuff.cpp">
+      <Filter>arizona\viz3</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arizona\viz3\plots\scatterplot.cpp">
+      <Filter>arizona\viz3\plots</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\basic.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\basic2.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\bmpshape.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\canvas.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\composit.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\constrnt.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\divided.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\drawn.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\lines.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\mfutils.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\ogldiag.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ogl\oglmisc.cpp">
+      <Filter>ogl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayoutView.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayer.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapLayerTree.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -72,6 +72,8 @@ public:
     
 	virtual wxString ToString() = 0;
     
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) = 0;
+    
     /**
      * Read subtree starting from passed in node pt. 
      * @param const ptree& pt: a subtree of "datasource" node
@@ -136,7 +138,7 @@ private:
 	bool is_writable;
     
 public:
-    /// implementation of IDataSource interfaces
+    /// implementation of IDataSource interfaces    
 	virtual wxString GetOGRConnectStr();
     
     virtual bool IsWritable(){return is_writable;}
@@ -155,6 +157,10 @@ public:
     
     virtual bool IsFileDataSource() {
         return ds_type == GdaConst::ds_sqlite || ds_type == GdaConst::ds_gpkg ? false : true;
+    }
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
     }
     
     virtual wxString GetJsonStr();
@@ -206,6 +212,10 @@ public:
     wxString GetURL() { return webservice_url; }
     
 	virtual wxString ToString();
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
+    }
 };
 
 
@@ -255,6 +265,10 @@ public:
     wxString GetDBPort() { return db_port; }
     wxString GetDBUser() { return db_user; }
     wxString GetDBPwd()  { return db_pwd; }
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
+    }
 };
 
 

@@ -40,7 +40,7 @@ END_EVENT_TABLE()
 ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                          GdaConst::DataSourceType ds_type,
                                          vector<wxString>& all_fname)
-: wxScrolledWindow(parent, id), ds_type(ds_type), need_correction(false)
+: wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)), ds_type(ds_type), need_correction(false)
 {
 	vector<wxString> merged_field_names;
 	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
@@ -85,8 +85,11 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                         vector<wxString>& merged_field_names,
                                         set<wxString>& dup_fname,
                                         set<wxString>& bad_fname)
-: wxScrolledWindow(parent, id), field_names_dict(fnames_dict), ds_type(ds_type),
-merged_field_names(merged_field_names), need_correction(true)
+: wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
+field_names_dict(fnames_dict),
+ds_type(ds_type),
+merged_field_names(merged_field_names),
+need_correction(true)
 {
 	Init(merged_field_names, dup_fname, bad_fname);
 }
@@ -98,6 +101,7 @@ ScrolledWidgetsPane::~ScrolledWidgetsPane()
         delete txt_fname[i];
         delete txt_input[i];
         delete txt_info[i];
+        delete input_info[i];
     }
 }
 
@@ -116,27 +120,34 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     
 	n_fields = dup_fname_idx_s.size() + bad_fname_idx_s.size();
 	int nrow = n_fields + 2; // for buttons
-	int ncol = 3;
+	int ncol = 4;
     
 	wxString warn_msg;
-	wxString DUP_WARN = "Duplicate field name.";
-	wxString INV_WARN = "Field name is not valid.";
+	wxString DUP_WARN = _("(Duplicate field name)");
+	wxString INV_WARN = _("(Field name is not valid)");
 	
-	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 0, 0);
+	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
 	// add a series of widgets
+    SetBackgroundColour(*wxWHITE);
 	
 	txt_fname.clear(); // ID_FNAME_STAT_TXT_BASE
 	txt_input.clear(); // ID_INPUT_TXT_CTRL_BASE
 	txt_info.clear(); // ID_INFO_STAT_TXT_BASE
+    input_info.clear();
 	
 	// titile
-	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, "Field name:");
-	sizer->Add(txt_oname, 0, wxALIGN_LEFT|wxALL, 15);
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"New field name:");
-	sizer->Add(txt_newname, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 15);
-	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "Field restrictions:");
-	sizer->Add(txt_orest, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 15);
+	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, _("Current field name:"));
+	sizer->Add(txt_oname, 0, wxALIGN_LEFT);
+    
+	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, wxEmptyString);
+	sizer->Add(txt_orest, 0);
+    
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY, _("Suggested field name:"));
+	sizer->Add(txt_newname, 0, wxALIGN_LEFT|wxLEFT, 10);
+    
+	wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
+	sizer->Add(txt_input_info, 0);
 
     size_t ctrl_cnt = 0;
 
@@ -146,18 +157,26 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
         wxString field_name = old_field_names[fname_idx];
         warn_msg=DUP_WARN;
         
-        wxString id_name1, id_name2, id_name3;
+        wxString id_name1, id_name2, id_name3, id_name4;
         id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
         id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
         id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        id_name4 << "ID_INPUT_INFO_STAT_TXT_BASE" << ctrl_cnt;
         
         wxString user_field_name = GetSuggestFieldName(fname_idx);
         txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
-        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
-        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
-        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
+        
         txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
-        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
+       
+        wxTextCtrl* user_input = new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1),wxTE_PROCESS_ENTER);
+        user_input->Bind(wxEVT_TEXT_ENTER, &ScrolledWidgetsPane::OnUserInput, this);
+        txt_input.push_back(user_input);
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 10);
+        
+        input_info.push_back(new wxStaticText(this, XRCID(id_name4), wxEmptyString));
+        sizer->Add(input_info[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 2);
         
         ++ctrl_cnt;
     }
@@ -168,37 +187,41 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
         wxString field_name = old_field_names[fname_idx];
         warn_msg=INV_WARN;
         
-        wxString id_name1, id_name2, id_name3;
+        wxString id_name1, id_name2, id_name3, id_name4;
         id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
         id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
         id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        id_name4 << "ID_INPUT_INFO_STAT_TXT_BASE" << ctrl_cnt;
         
         wxString user_field_name = GetSuggestFieldName(fname_idx);
         txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
-        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
-        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
-        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
+        
         txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
-        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
+       
+        wxTextCtrl* user_input = new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1),wxTE_PROCESS_ENTER);
+        user_input->Bind(wxEVT_TEXT_ENTER, &ScrolledWidgetsPane::OnUserInput, this);
+        txt_input.push_back(user_input);
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 10);
+        
+        input_info.push_back(new wxStaticText(this, XRCID(id_name4), wxEmptyString));
+        sizer->Add(input_info[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 2);
         
         ++ctrl_cnt;
     }
 	
-	// buttons
-	wxStaticText* txt_dummy = new wxStaticText(this, wxID_ANY, "");
-	sizer->Add(txt_dummy, 0, wxALIGN_LEFT | wxALL, 5);
-	wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
-	wxButton* ok_btn = new wxButton(this, wxID_OK, "OK");
-	btnSizer->Add(ok_btn, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,15);
-	wxButton* exit_btn = new wxButton(this, wxID_CANCEL, "Cancel");
-	btnSizer->Add(exit_btn, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,15);
-	sizer->Add(btnSizer, 0, wxALIGN_LEFT | wxALL, 15);
-		
-	this->SetSizer(sizer);
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(sizer, 1, wxEXPAND|wxALL, 15);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
 	// this part makes the scrollbars show up
 	this->FitInside(); // ask the sizer about the needed size
 	this->SetScrollRate(5, 5);
-	
+
+    Centre();
 }
 
 void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
@@ -221,12 +244,12 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
     
 	n_fields = dup_fname.size() + bad_fname.size();
 	int nrow = n_fields + 2;
-	int ncol = 3;
+	int ncol = 4;
 	wxString warn_msg;
-	wxString DUP_WARN = "Duplicate field name.";
-	wxString INV_WARN = "Field name is not valid.";
+	wxString DUP_WARN = _("(Duplicate field name)");
+	wxString INV_WARN = _("(Field name is not valid)");
 	
-	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 0, 0);
+	wxFlexGridSizer* sizer = new wxFlexGridSizer(nrow, ncol, 10, 0);
 	
 	// add a series of widgets
 	num_controls = merged_field_names.size();
@@ -234,15 +257,21 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
 	txt_fname.clear(); // ID_FNAME_STAT_TXT_BASE
 	txt_input.clear(); // ID_INPUT_TXT_CTRL_BASE
 	txt_info.clear(); // ID_INFO_STAT_TXT_BASE
+    input_info.clear();
 	
 	// titile
-	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, "Field name:");
-	sizer->Add(txt_oname, 0, wxALIGN_LEFT|wxALL, 15);
-	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"New field name:");
-	sizer->Add(txt_newname, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 15);
-	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "Field restrictions:");
-	sizer->Add(txt_orest, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL, 15);
+	wxStaticText* txt_oname=new wxStaticText(this, wxID_ANY, "Current field name:");
+	sizer->Add(txt_oname, 0, wxALIGN_LEFT);
+    
+	wxStaticText* txt_orest=new wxStaticText(this, wxID_ANY, "");
+	sizer->Add(txt_orest, 0);
 
+	wxStaticText* txt_newname=new wxStaticText(this,wxID_ANY,"Suggested field name:");
+	sizer->Add(txt_newname, 0, wxALIGN_LEFT, 15);
+   
+    wxStaticText* txt_input_info =new wxStaticText(this, wxID_ANY, wxEmptyString);
+    sizer->Add(txt_input_info, 0);
+    
     size_t ctrl_cnt = 0;
 
     for (set<wxString>::iterator it=dup_fname.begin();
@@ -250,19 +279,27 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
         wxString field_name = *it;
         warn_msg=DUP_WARN;
         
-        wxString id_name1, id_name2, id_name3;
+        wxString id_name1, id_name2, id_name3, id_name4;
         id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
         id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
         id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        id_name4 << "ID_INPUT_INFO_STAT_TXT_BASE" << ctrl_cnt;
         
         wxString user_field_name = GetSuggestFieldName(field_name);
         txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
-        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
-        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
-        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
-        txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
-        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
         
+        txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL);
+        
+        wxTextCtrl* user_input = new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1),wxTE_PROCESS_ENTER);
+        user_input->Bind(wxEVT_TEXT_ENTER, &ScrolledWidgetsPane::OnUserInput, this);
+        txt_input.push_back(user_input);
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 10);
+        
+        input_info.push_back(new wxStaticText(this, XRCID(id_name4), wxEmptyString));
+        sizer->Add(input_info[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 2);
+
         ++ctrl_cnt;
     }
     
@@ -271,37 +308,41 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
         wxString field_name = *it;
         warn_msg=INV_WARN;
         
-        wxString id_name1, id_name2, id_name3;
+        wxString id_name1, id_name2, id_name3, id_name4;
         id_name1 << "ID_FNAME_STAT_TXT_BASE" << ctrl_cnt;
         id_name2 << "ID_INPUT_TXT_CTRL_BASE" << ctrl_cnt;
         id_name3 << "ID_INFO_STAT_TXT_BASE" << ctrl_cnt;
+        id_name4 << "ID_INPUT_INFO_STAT_TXT_BASE" << ctrl_cnt;
         
         wxString user_field_name = GetSuggestFieldName(field_name);
         txt_fname.push_back(new wxStaticText(this, XRCID(id_name1), field_name));
-        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
-        txt_input.push_back(new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1)));
-        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_fname[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 0);
+        
         txt_info.push_back(new wxStaticText(this, XRCID(id_name3), warn_msg));
-        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 5);
+        sizer->Add(txt_info[ctrl_cnt], 0, wxALIGN_LEFT|wxALL, 0);
+        
+        wxTextCtrl* user_input = new wxTextCtrl(this, XRCID(id_name2), user_field_name, wxDefaultPosition,wxSize(240,-1),wxTE_PROCESS_ENTER);
+        user_input->Bind(wxEVT_TEXT_ENTER, &ScrolledWidgetsPane::OnUserInput, this);
+        txt_input.push_back(user_input);
+        sizer->Add(txt_input[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 10);
+        
+        input_info.push_back(new wxStaticText(this, XRCID(id_name4), wxEmptyString));
+        sizer->Add(input_info[ctrl_cnt], 0, wxALIGN_LEFT|wxLEFT, 2);
         
         ++ctrl_cnt;
     }
-	
-	// buttons
-	wxStaticText* txt_dummy = new wxStaticText(this, wxID_ANY, "");
-	sizer->Add(txt_dummy, 0, wxALIGN_LEFT | wxALL, 5);
-	wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
-	wxButton* ok_btn = new wxButton(this, wxID_OK, "OK");
-	btnSizer->Add(ok_btn, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,15);
-	wxButton* exit_btn = new wxButton(this, wxID_CANCEL, "Cancel");
-	btnSizer->Add(exit_btn, 0, wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL,15);
-	sizer->Add(btnSizer, 0, wxALIGN_LEFT | wxALL, 15);
-		
-	this->SetSizer(sizer);
-	// this part makes the scrollbars show up
-	this->FitInside(); // ask the sizer about the needed size
-	this->SetScrollRate(5, 5);
-	
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(sizer, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    // this part makes the scrollbars show up
+    this->FitInside(); // ask the sizer about the needed size
+    this->SetScrollRate(5, 5);
+    
+    Centre();
 }
 
 // give suggested field name based on GdaConst::DataSourceType
@@ -321,6 +362,8 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(int field_idx)
 
     // put it to new field name list
     new_field_names[field_idx] = new_name;
+    
+    user_input_dict[old_name] = field_idx;
 	
     // add any new suggest name to search dict
     field_dict[new_name] = true;
@@ -352,6 +395,8 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(const wxString& old_name)
 wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
                                                    int max_len)
 {
+    wxLogMessage("ScrolledWidgetsPane::TruncateFieldName");
+    wxLogMessage(old_name);
 	if (GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end())
 	{
@@ -373,11 +418,14 @@ wxString ScrolledWidgetsPane::TruncateFieldName(const wxString& old_name,
 	new_name << old_name.substr(0, front_chars) << separator
 	<< old_name.substr(str_len - back_chars);
 	
+    wxLogMessage(new_name);
 	return new_name;
 }
 
 wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::RemoveIllegalChars");
+    wxLogMessage(old_name);
 	if (GdaConst::datasrc_field_illegal_regex.find(ds_type) ==
 			GdaConst::datasrc_field_illegal_regex.end())
 	{
@@ -392,12 +440,17 @@ wxString ScrolledWidgetsPane::RemoveIllegalChars(const wxString& old_name)
 	regex.ReplaceAll(&new_name, "");
 	
 	if (new_name.size()==0) new_name = "NONAME";
+    
+    wxLogMessage(new_name);
 	return new_name;
 }
 
 
 wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::RenameDupFieldName");
+    wxLogMessage(old_name);
+    
 	wxString new_name(old_name);
     while (field_dict.find(new_name) != field_dict.end() ||
            field_dict.find(new_name.Upper()) != field_dict.end() ||
@@ -426,11 +479,14 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
     		new_name = first_part + "_" + last_part;
     	}
     }
+    wxLogMessage(new_name);
     return new_name;
 }
 
 bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 {
+    wxLogMessage("ScrolledWidgetsPane::IsFieldNameValid");
+    wxLogMessage(col_name);
     
 	if ( GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end() )
@@ -459,58 +515,72 @@ bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 	return false;
 }
 
+void ScrolledWidgetsPane::OnUserInput(wxCommandEvent& ev)
+{
+    CheckUserInput();
+}
+
 bool ScrolledWidgetsPane::CheckUserInput()
 {
-	// check user input
+    wxString str_dup_field = _("Input is duplicated.");
+    wxString str_invalid_field = _("Input is not valid.");
+    
+    // reset
+    map<wxString, int> current_inputs;
 	for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
 		if (txt_input[i]) {
-			wxString user_field_name = txt_input[i]->GetValue();
-			if ( !IsFieldNameValid(user_field_name) ) {
-				txt_input[i]->SetForegroundColour(*wxRED);
-                txt_info[i]->SetLabel("Field name is not valid.");
-				return false;
-			} else {
-				txt_input[i]->SetForegroundColour(*wxBLACK);
-                wxString orig_fname = txt_fname[i]->GetLabel();
-                
-                if (field_names_dict.find(orig_fname) != field_names_dict.end())
-                {
-                    field_names_dict[orig_fname] = user_field_name;
-                }
-			}
-		} else {
-            txt_input[i]->SetForegroundColour(*wxRED);
-            txt_info[i]->SetLabel("Field name is not valid.");
-            return false;
-		}
-	}
-    
-    // re-check for duplicated names
-    map<wxString, int> uniq_fnames;
-    
-    map<wxString,wxString>::iterator iter;
-    for (iter = field_names_dict.begin();
-         iter != field_names_dict.end(); ++iter )
-    {
-        if (uniq_fnames.find(iter->second) == uniq_fnames.end()){
-            uniq_fnames[iter->second] = 1;
-        } else {
-            uniq_fnames[iter->second] += 1;
-        }
-    }
-    
-    if (uniq_fnames.size() != field_names_dict.size()) {
-        for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
+            txt_input[i]->SetForegroundColour(*wxBLACK);
+            input_info[i]->SetLabel(wxEmptyString);
             wxString user_field_name = txt_input[i]->GetValue();
-            if (uniq_fnames[user_field_name] > 1) {
-                txt_input[i]->SetForegroundColour(*wxRED);
-                txt_info[i]->SetLabel("Duplicate field name.");
-            }
+            user_field_name.Trim();
+            current_inputs[user_field_name]++;;
         }
-        
-        return false;
     }
-    return true;
+    
+    bool _success = true;
+   
+    for ( size_t i=0, sz=txt_input.size(); i<sz; ++i) {
+        bool success = true;
+        if (txt_input[i]) {
+            wxString user_field_name = txt_input[i]->GetValue();
+            user_field_name.Trim();
+            if (current_inputs[user_field_name]>1) {
+                // re-check if any input itself is duplicated
+                txt_input[i]->SetForegroundColour(*wxRED);
+                input_info[i]->SetLabel(str_dup_field);
+                success = false;
+            } else if ( !IsFieldNameValid(user_field_name) ) {
+                 // re-check if input is valid
+                txt_input[i]->SetForegroundColour(*wxRED);
+                input_info[i]->SetLabel(str_invalid_field);
+                success = false;
+            } else {
+                // re-check if any input is duplicated with what's in table
+                if (field_names_dict.find(user_field_name) != field_names_dict.end()) {
+                    txt_input[i]->SetForegroundColour(*wxRED);
+                    input_info[i]->SetLabel(str_dup_field);
+                    success = false;
+                }
+            }
+            if (success) {
+                wxString old_name = txt_fname[i]->GetLabel();
+                if (field_names_dict.find(old_name) != field_names_dict.end()) {
+                    field_names_dict[old_name] = user_field_name;
+                    if (user_input_dict.find(old_name) != user_input_dict.end() ) {
+                        new_field_names[user_input_dict[old_name]] = user_field_name;
+                    }
+                }
+            }
+        } else {
+            // input is empty
+            txt_input[i]->SetForegroundColour(*wxRED);
+            input_info[i]->SetLabel(str_invalid_field);
+            success = false;
+        }
+        if (!success) _success = success;
+    }
+    
+    return _success;
 }
 
 
@@ -534,20 +604,40 @@ FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        vector<wxString>& all_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(680,300))
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
-
-
+    wxPanel *panel = new wxPanel(this);
     
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	fieldPane = new ScrolledWidgetsPane(this, wxID_ANY, ds_type, all_fname);
-	need_correction = fieldPane->need_correction;
-    sizer->Add(fieldPane, 1, wxEXPAND);
-	//sizer->Fit(this);
-    this->SetSizer(sizer);
-	// this part makes the scrollbars show up
-	//this->FitInside(); 
-	//sizer->SetSizeHints(this);
+    // panel
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    fieldPane = new ScrolledWidgetsPane(panel, wxID_ANY,
+                                        ds_type,
+                                        all_fname);
+    need_correction = fieldPane->need_correction;
+    
+    // buttons
+    wxButton* ok_btn = new wxButton(panel, wxID_OK, _("OK"));
+    wxButton* exit_btn = new wxButton(panel, wxID_CANCEL, _("Cancel"));
+    wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+    btnSizer->Add(ok_btn, 1, wxALIGN_CENTER|wxALL,15);
+    btnSizer->Add(exit_btn, 1, wxALIGN_CENTER|wxALL,15);
+    
+    vbox->Add(fieldPane, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(btnSizer, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox,1, wxEXPAND|wxALL, 0);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    
+    Centre();
 }
 
 FieldNameCorrectionDlg::
@@ -557,29 +647,54 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        set<wxString>& dup_fname,
                        set<wxString>& bad_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(600,300))
+: wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open FieldNameCorrectionDlg:");
     
-	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	fieldPane = new ScrolledWidgetsPane(this, wxID_ANY,
+    wxPanel *panel = new wxPanel(this);
+    
+    // panel
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+	fieldPane = new ScrolledWidgetsPane(panel, wxID_ANY,
                                         ds_type,
                                         fnames_dict,
                                         merged_field_names,
                                         dup_fname,
                                         bad_fname);
-	sizer->Add(fieldPane, 1, wxEXPAND, 120);
-	SetSizer(sizer);
-	//sizer->Fit(this);
-	//sizer->SetSizeHints(this);
+    
+    // buttons
+    wxButton* ok_btn = new wxButton(panel, wxID_OK, _("OK"));
+    wxButton* exit_btn = new wxButton(panel, wxID_CANCEL, _("Cancel"));
+    wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+    btnSizer->Add(ok_btn, 1, wxALIGN_CENTER|wxALL,15);
+    btnSizer->Add(exit_btn, 1, wxALIGN_CENTER|wxALL,15);
+    
+    vbox->Add(fieldPane, 1,  wxEXPAND | wxALL, 10);
+    vbox->Add(btnSizer, 0, wxALIGN_CENTER | wxALL, 10);
+
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox,1, wxEXPAND|wxALL, 0);
+    
+    panel->SetSizer(container);
+    
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panel, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    
+    Centre();
 }
 
 FieldNameCorrectionDlg::~FieldNameCorrectionDlg()
 {
+    wxLogMessage("In FieldNameCorrectionDlg");
     if (fieldPane) {
         delete fieldPane;
         fieldPane = 0;
     }
+    wxLogMessage("Out FieldNameCorrectionDlg");
 }
 
 

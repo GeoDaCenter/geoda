@@ -25,12 +25,23 @@
 #include <wx/dc.h>
 #include <wx/colour.h>
 #include <wx/gdicmn.h>
+#include <wx/dcgraph.h>
+#include <wx/spinctrl.h>
 
 #include <vector>
 #include <map>
 
 class TemplateCanvas;
 class TemplateFrame;
+
+class PointRadiusDialog : public wxDialog
+{
+    wxSpinCtrl *rb;
+    
+public:
+    PointRadiusDialog(const wxString& title, int radius);
+    int GetRadius();
+};
 
 class GdaLegendLabel
 {
@@ -55,7 +66,13 @@ public:
     
     int getWidth();
     
+    int getHeight();
+    
     int idx;
+    
+    wxString GetText();
+    
+    wxPoint GetTmpPosition();
     
 protected:
     
@@ -84,8 +101,10 @@ public:
 
     void Recreate();
     int GetDrawingWidth();
+    int GetDrawingHeight();
     void RenderToDC(wxDC& dc, double scale);
 	void OnCategoryColor(wxCommandEvent& event);
+    void OnChangePointRadius(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
 	virtual void OnDraw(wxDC& dc);
 	
@@ -102,6 +121,7 @@ protected:
 	void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
 	
     int title_width;
+    int title_height;
 	int px, py, m_w, m_l; 
 	int d_rect; 
 	bool all_init;

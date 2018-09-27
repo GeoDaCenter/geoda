@@ -37,7 +37,7 @@
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "ConditionalMapView.h"
 
 using namespace std;
@@ -110,12 +110,10 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalMapFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
 	
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -131,7 +129,6 @@ void ConditionalMapCanvas::OnScrollChanged(wxScrollWinEvent& event)
 	event.Skip();
 }
 
-
 void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 {
 	// Update the checkmarks and enable/disable state for the
@@ -143,37 +140,23 @@ void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 					GetCatType() == CatClassification::no_theme);
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCatType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
+    
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCatType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCatType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCatType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
 	
     GeneralWxUtils::CheckMenuItem(menu,
 					XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
@@ -187,91 +170,6 @@ void ConditionalMapCanvas::SetCheckMarks(wxMenu* menu)
 					GetCatType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 					GetCatType() == CatClassification::unique_values);
-	
-    // since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCatType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCatType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
-	
 }
 
 wxString ConditionalMapCanvas::GetCategoriesTitle()
@@ -281,7 +179,7 @@ wxString ConditionalMapCanvas::GetCategoriesTitle()
 		v << cat_classif_def_map.title;
 		v << ": " << GetNameWithTime(CAT_VAR);
 	} else if (GetCatType() == CatClassification::no_theme) {
-		v << "Themeless";
+		v << _("Themeless");
 	} else {
 		v << CatClassification::CatClassifTypeToString(GetCatType());
 		v << ": " << GetNameWithTime(CAT_VAR);
@@ -292,7 +190,7 @@ wxString ConditionalMapCanvas::GetCategoriesTitle()
 wxString ConditionalMapCanvas::GetCanvasTitle()
 {
 	wxString v;
-	v << "Conditional Map - ";
+	v << _("Conditional Map") << " - ";
 	v << "x: " << GetNameWithTime(HOR_VAR);
 	v << ", y: " << GetNameWithTime(VERT_VAR);
 	if (GetCatType() == CatClassification::custom) {
@@ -303,6 +201,13 @@ wxString ConditionalMapCanvas::GetCanvasTitle()
 		v << ": " << GetNameWithTime(CAT_VAR);
 	}
 	return v;
+}
+
+wxString ConditionalMapCanvas::GetVariableNames()
+{
+    wxString v;
+    v << GetNameWithTime(CAT_VAR);
+    return v;
 }
 
 void ConditionalMapCanvas::OnSaveCategories()
@@ -374,7 +279,7 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -418,7 +323,7 @@ void ConditionalMapCanvas::ChangeCatThemeType(
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -433,7 +338,7 @@ void ConditionalMapCanvas::update(CatClassifState* o)
 		if (template_frame) {
 			template_frame->UpdateTitle();
 			if (template_frame->GetTemplateLegend()) {
-				template_frame->GetTemplateLegend()->Refresh();
+				template_frame->GetTemplateLegend()->Recreate();
 			}
 		}
 	} else {
@@ -480,7 +385,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	if (pad_h < 1)
         pad_h = 1;
     
-	double pad = GenUtils::min<double>(pad_w, pad_h);
+	double pad = std::min(pad_w, pad_h);
 	
 	double marg_top = last_scale_trans.top_margin;
 	double marg_bottom = last_scale_trans.bottom_margin;
@@ -584,49 +489,35 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double bg_xmax = scn_w-marg_right;
 	double bg_ymin = marg_bottom;
 	double bg_ymax = scn_h-marg_top;
-		
-	vector<wxRealPoint> v_brk_ref(vert_num_cats-1);
-	vector<wxRealPoint> h_brk_ref(horiz_num_cats-1);
+    int n_rows = VERT_VAR_NUM ? vert_num_cats-1 : vert_num_cats;
+    int n_cols = HOR_VAR_NUM ? horiz_num_cats-1 : horiz_num_cats;
+    vector<wxRealPoint> v_brk_ref(n_rows);
+    vector<wxRealPoint> h_brk_ref(n_cols);
 	
-	for (int row=0; row<vert_num_cats-1; row++) {
-		double y = (bin_extents[row][0].lower_left.y +
-					bin_extents[row+1][0].upper_right.y)/2.0;
-		v_brk_ref[row].x = bg_xmin;
-		v_brk_ref[row].y = scn_h-y;
+	for (int row=0; row<n_rows; row++) {
+        double bin_height = bin_extents[row][0].lower_left.y -bin_extents[row][0].upper_right.y;
+        double y = 0;
+        if (VERT_VAR_NUM) y = (bin_extents[row][0].lower_left.y + bin_extents[row+1][0].upper_right.y)/2.0;
+        else y = bin_extents[row][0].upper_right.y + bin_height / 2.0;
+        v_brk_ref[row].x = bg_xmin;
+        v_brk_ref[row].y = scn_h-y;
 	}
 
-	for (int col=0; col<horiz_num_cats-1; col++) {
-		double x = (bin_extents[0][col].upper_right.x +
-					bin_extents[0][col+1].lower_left.x)/2.0;
-		h_brk_ref[col].x = x;
-		h_brk_ref[col].y = bg_ymin;
+	for (int col=0; col<n_cols; col++) {
+        double bin_width = bin_extents[0][col].upper_right.x - bin_extents[0][col].lower_left.x;
+        double x = 0;
+        if (HOR_VAR_NUM) x = (bin_extents[0][col].upper_right.x + bin_extents[0][col+1].lower_left.x)/2.0;
+        else x = bin_extents[0][col].lower_left.x + bin_width / 2.0;
+        h_brk_ref[col].x = x;
+        h_brk_ref[col].y = bg_ymin;
 	}
 	
 	GdaShape* s;
 	int vt = var_info[VERT_VAR].time;
 
-	int vnn = vert_num_cats - 1;
-	if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
-		vnn = vert_num_cats;
-	}
-
-	for (int row=0; row<vnn; row++) {
-		double hh = bin_extents[row][0].lower_left.y - bin_extents[row][0].upper_right.y;
-		wxRealPoint pt; 
-		wxString t;
-
-		if (cat_classif_def_vert.cat_classif_type == CatClassification::unique_values) {
-			if (row <= vert_num_cats - 2)
-				pt = v_brk_ref[row];
-			else if (row <= vert_num_cats - 1) {
-				pt = v_brk_ref[row-1];
-				pt.y = pt.y + 2 * hh;
-			}
-			t = vert_cat_data.GetCategoryLabel(vt, row);
-			pt.y = pt.y - hh;
-		}
-		else {
-			pt = v_brk_ref[row];
+	for (int row=0; row<n_rows; row++) {
+        wxString tmp_lbl;
+		if (VERT_VAR_NUM){
 			double b;
 			if (cat_classif_def_vert.cat_classif_type != CatClassification::custom) {
 				if (!vert_cat_data.HasBreakVal(vt, row))
@@ -636,16 +527,17 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_vert.breaks[row];
 			}
-			t = GenUtils::DblToStr(b);
-		}
+			tmp_lbl = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
+        }
 
-		s = new GdaShapeText(t, *GdaConst::small_font, pt, 90,
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, v_brk_ref[row], 90,
 					   GdaShapeText::h_center, GdaShapeText::bottom, -7, 0);
 		foreground_shps.push_back(s);
 	}
     
-	if (ConditionalNewCanvas::GetCatType(VERT_VAR)
-		!= CatClassification::no_theme) {
+	if (ConditionalNewCanvas::GetCatType(VERT_VAR) != CatClassification::no_theme) {
         wxString ttl = ConditionalNewCanvas::GetCategoriesTitle(VERT_VAR);
         wxRealPoint pos(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0);
         s = new GdaShapeText(ttl, *GdaConst::small_font, pos, 90,
@@ -656,29 +548,10 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	int ht = var_info[HOR_VAR].time;
 
-	int hnn = horiz_num_cats - 1;
-	if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
-		hnn = horiz_num_cats;
-	}
-
-	for (int col = 0; col < hnn; col++) {
-		wxString t;
+	for (int col = 0; col < n_cols; col++) {
+		wxString tmp_lbl;
 		wxRealPoint pt;
-
-		if (cat_classif_def_horiz.cat_classif_type == CatClassification::unique_values) {
-			double ww = bin_extents[col][0].upper_right.x - bin_extents[col][0].lower_left.x;
-			t = horiz_cat_data.GetCategoryLabel(vt, col);
-
-			if (col <= horiz_num_cats - 2)
-				pt = h_brk_ref[col];
-			else if (col <= horiz_num_cats - 1) {
-				pt = h_brk_ref[col-1];
-				pt.x = pt.x + ww;
-			}
-
-			pt.x = pt.x - ww/2.0;
-		}
-		else {
+        if (HOR_VAR_NUM) {
 			double b;
 			if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
 				if (!horiz_cat_data.HasBreakVal(ht, col))
@@ -688,11 +561,12 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_horiz.breaks[col];
 			}
-			t  = GenUtils::DblToStr(b);
-			pt = h_brk_ref[col];
-		}
+			tmp_lbl  = GenUtils::DblToStr(b);
+        } else {
+            tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
+        }
 
-		s = new GdaShapeText(t, *GdaConst::small_font, pt, 0,
+		s = new GdaShapeText(tmp_lbl, *GdaConst::small_font, h_brk_ref[col], 0,
 					   GdaShapeText::h_center, GdaShapeText::top, 0, 7);
 		foreground_shps.push_back(s);
 	}
@@ -738,9 +612,8 @@ void ConditionalMapCanvas::DrawLayer0()
         resizeLayerBms(sz.GetWidth(), sz.GetHeight());
     
 	wxMemoryDC dc(*layer0_bm);
-	dc.SetPen(canvas_background_color);
-	dc.SetBrush(canvas_background_color);
-	dc.DrawRectangle(wxPoint(0,0), sz);
+    dc.SetBackground(wxBrush(canvas_background_color));
+    dc.Clear();
 	
 	// using bin_extents, tile bin_bm at every cell position
 	if (bin_bm) {
@@ -945,6 +818,8 @@ void ConditionalMapCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+    if (var_info.empty()) return;
+    if (cat_var_undef.empty()) return;
     
     int t = var_info[CAT_VAR].time;
     
@@ -952,31 +827,33 @@ void ConditionalMapCanvas::UpdateStatusBar()
     wxString s;
     if (highlight_state->GetTotalHighlighted()> 0) {
         int n_total_hl = highlight_state->GetTotalHighlighted();
-        s << "#selected=" << n_total_hl << "  ";
+        s << _("#selected=") << n_total_hl << "  ";
         
         int n_undefs = 0;
         for (int i=0; i<num_obs; i++) {
-            if (cat_var_undef[t][i] && hl[i]) {
+            // here cat_var_undef is always size 1, since num_time_vals is hard coded = 1
+            // see in ConditionalNewView.cpp/.h, since there is only
+            if (cat_var_undef[0][i] && hl[i]) {
                 n_undefs += 1;
             }
         }
         if (n_undefs> 0) {
-            s << "(undefined:" << n_undefs << ") ";
+            s << _("undefined: ") << n_undefs << ") ";
         }
     }
 	if (mousemode == select && selectstate == start) {
 		if (total_hover_obs >= 1) {
-			s << "hover obs " << hover_obs[0]+1 << " = ";
+			s << _("#hover obs ") << hover_obs[0]+1 << " = ";
 			s << data[CAT_VAR][t][hover_obs[0]];
 		}
 		if (total_hover_obs >= 2) {
 			s << ", ";
-			s << "obs " << hover_obs[1]+1 << " = ";
+			s << _("obs ") << hover_obs[1]+1 << " = ";
 			s << data[CAT_VAR][t][hover_obs[1]];
 		}
 		if (total_hover_obs >= 3) {
 			s << ", ";
-			s << "obs " << hover_obs[2]+1 << " = ";
+			s << _("obs ") << hover_obs[2]+1 << " = ";
 			s << data[CAT_VAR][t][hover_obs[2]];
 		}
 		if (total_hover_obs >= 4) {
@@ -1079,7 +956,7 @@ void ConditionalMapFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((ConditionalMapCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1087,7 +964,7 @@ void ConditionalMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
 		((ConditionalMapCanvas*)

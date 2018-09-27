@@ -21,16 +21,20 @@
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/button.h>
+#include <boost/date_time.hpp>
+
 #include "../logger.h"
 #include "../Project.h"
 #include "../GeoDa.h"
-#include "../DbfFile.h"
 #include "../FramesManager.h"
 #include "../GdaException.h"
 
 #include "TableInterface.h"
 #include "TableState.h"
 #include "DataViewerEditFieldPropertiesDlg.h"
+
+using namespace std;
+namespace bt = boost::posix_time;
 
 
 BEGIN_EVENT_TABLE( DataViewerEditFieldPropertiesDlg, wxDialog )
@@ -85,6 +89,7 @@ table_state(project_s->GetTableState())
 
 DataViewerEditFieldPropertiesDlg::~DataViewerEditFieldPropertiesDlg()
 {
+    wxLogMessage("Close DataViewerEditFieldPropertiesDlg");
 	//frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 }
@@ -94,15 +99,15 @@ void DataViewerEditFieldPropertiesDlg::CreateControls()
 	//wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);
 	field_grid = new wxGrid(this, wxID_ANY, wxDefaultPosition, wxSize(200,400));
 	field_grid->CreateGrid(table_int->GetNumberCols(), NUM_COLS, wxGrid::wxGridSelectRows);
-	if (COL_N!=-1) field_grid->SetColLabelValue(COL_N, "variable name");
-	if (COL_T!=-1) field_grid->SetColLabelValue(COL_T, "type");
-	if (COL_L!=-1) field_grid->SetColLabelValue(COL_L, "length");
-	if (COL_D!=-1) field_grid->SetColLabelValue(COL_D, "decimal\nplaces");
-	if (COL_DD!=-1) field_grid->SetColLabelValue(COL_DD, "displayed\ndecimal places");
-	if (COL_PG!=-1) field_grid->SetColLabelValue(COL_PG, "parent group");
-	if (COL_TM!=-1) field_grid->SetColLabelValue(COL_TM, "time");
-	if (COL_MIN!=-1) field_grid->SetColLabelValue(COL_MIN, "minimum\npossible");
-	if (COL_MAX!=-1) field_grid->SetColLabelValue(COL_MAX, "maximum\npossible");
+	if (COL_N!=-1) field_grid->SetColLabelValue(COL_N, _("variable name"));
+	if (COL_T!=-1) field_grid->SetColLabelValue(COL_T, _("type"));
+	if (COL_L!=-1) field_grid->SetColLabelValue(COL_L, _("length"));
+	if (COL_D!=-1) field_grid->SetColLabelValue(COL_D, _("decimal\nplaces"));
+	if (COL_DD!=-1) field_grid->SetColLabelValue(COL_DD, _("displayed\ndecimal places"));
+	if (COL_PG!=-1) field_grid->SetColLabelValue(COL_PG, _("parent group"));
+	if (COL_TM!=-1) field_grid->SetColLabelValue(COL_TM, _("time"));
+	if (COL_MIN!=-1) field_grid->SetColLabelValue(COL_MIN, _("minimum\npossible"));
+	if (COL_MAX!=-1) field_grid->SetColLabelValue(COL_MAX, _("maximum\npossible"));
 
 	field_grid->HideRowLabels();
     field_grid->SetColLabelSize(30);
@@ -407,8 +412,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		}
 	}
 	
-	long min_v;
-	long max_v;
+	int min_v;
+	int max_v;
     if (col == COL_T) {
         if (combo_selection >=0) {
             
@@ -429,15 +434,19 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                 } else if (new_type_str == "string") {
                     new_type = GdaConst::string_type;
                     
+                } else if (new_type_str == "date") {
+                    new_type = GdaConst::date_type;
+                    
+                } else if (new_type_str == "time") {
+                    new_type = GdaConst::time_type;
+                    
+                } else if (new_type_str == "datetime") {
+                    new_type = GdaConst::datetime_type;
                 }
                 
-                if (new_type == GdaConst::unknown_type ||
-                    new_type_str == "date" ||
-                    new_type_str == "time" ||
-                    new_type_str == "datetime")
-                {
+                if (new_type == GdaConst::unknown_type) {
                     wxString m = _("GeoDa can't change the variable type to DATE/TIME. Please select another type.");
-                    wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+                    wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
                     ev.Veto();
@@ -460,15 +469,24 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     from_col = from_col + 1;
                     int num_rows = table_int->GetNumberRows();
                     
-                    if (new_type == GdaConst::long64_type ||
-                        new_type == GdaConst::date_type ||
-                        new_type == GdaConst::time_type ||
-                        new_type == GdaConst::datetime_type)
+                    if (new_type == GdaConst::long64_type)
                     {
                         // get data from old
                         vector<wxInt64> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
+                        
+                        field_grid->SetReadOnly(row, COL_DD, true);
+                        
+                    } else if (new_type == GdaConst::date_type ||
+                               new_type == GdaConst::time_type ||
+                               new_type == GdaConst::datetime_type) {
+                        // get data from old
+                        vector<unsigned long long> data(num_rows);
+                        table_int->GetColData(from_col, 0, data);
+                        table_int->SetColData(to_col, 0, data);
+                        
+                        field_grid->SetReadOnly(row, COL_DD, true);
                         
                     } else if (new_type == GdaConst::double_type) {
                         // get data from old
@@ -476,10 +494,14 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
                         
+                        field_grid->SetReadOnly(row, COL_DD, false);
+                        
                     } else if (new_type == GdaConst::string_type) {
                         vector<wxString> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
+                        
+                        field_grid->SetReadOnly(row, COL_DD, true);
                     }
                     
                     vector<bool> undefined(num_rows, false);
@@ -501,7 +523,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                         table_int->DeleteCol(tmp_col);
                     }
                     wxString m = wxString::Format(_("Change variable type for \"%s\" has failed. Please check all values are valid for conversion."), var_name);
-                    wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+                    wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
                     dlg.ShowModal();
                     combo_selection = -1;
                     ev.Veto();
@@ -517,7 +539,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
-			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
 			return;
@@ -534,7 +556,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		if (table_int->DoesNameExist(new_str, false) ||
 			!table_int->IsValidGroupName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
-			wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			ev.Veto();
 			return;

@@ -48,7 +48,7 @@ public:
 	virtual ~ConditionalScatterPlotCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
 
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
@@ -75,6 +75,8 @@ public:
 	/// Override from TemplateCanvas
 	virtual void SetSelectableOutlineColor(wxColour color);
 	
+	virtual void UpdateStatusBar();
+    
 protected:
 	bool full_map_redraw_needed;
 	std::vector<double> X;
@@ -102,7 +104,6 @@ protected:
 	void EmptyLowessCache();
 	Lowess lowess;
 	
-	virtual void UpdateStatusBar();
 	
 	DECLARE_EVENT_TABLE()
 };
@@ -133,7 +134,9 @@ public:
 	/** Implementation of LowessParamObserver interface */
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
-	
+
+    virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
+    
 	void OnViewLinearSmoother(wxCommandEvent& event);
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);

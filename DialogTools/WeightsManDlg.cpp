@@ -39,6 +39,9 @@
 #include "../ShapeOperations/WeightsManager.h"
 #include "../logger.h"
 #include "../GeoDa.h"
+#include "../io/arcgis_swm.h"
+#include "../io/matlab_mat.h"
+#include "../io/weights_interface.h"
 #include "WeightsManDlg.h"
 
 BEGIN_EVENT_TABLE(WeightsManFrame, TemplateFrame)
@@ -62,26 +65,29 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
-	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), "Create",  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), _("Create"),  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), "Load", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), _("Load"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "Remove", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), _("Remove"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), "Histogram", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), _("Histogram"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
-    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), "Connectivity Map", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), _("Connectivity Map"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"), _("Connectivity Graph"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
 	
 	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
 	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
 	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
     Connect(XRCID("ID_HISTOGRAM_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnHistogramBtn));
     Connect(XRCID("ID_CONNECT_MAP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectMapBtn));
+    Connect(XRCID("ID_CONNECT_GRAPH_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectGraphBtn));
 
 	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition, wxSize(-1, 100), wxLC_REPORT);
     
 	// Note: search for "ungrouped_list" for examples of wxListCtrl usage.
-	w_list->AppendColumn("Weights Name");
+	w_list->AppendColumn(_("Weights Name"));
 	w_list->SetColumnWidth(TITLE_COL, 300);
 	InitWeightsList();
 	
@@ -107,6 +113,8 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
     btns_row2_h_szr->AddSpacer(5);
     btns_row2_h_szr->Add(connectivity_map_btn, 0, wxALIGN_CENTER_VERTICAL);
     btns_row2_h_szr->AddSpacer(5);
+    btns_row2_h_szr->Add(connectivity_graph_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row2_h_szr->AddSpacer(5);
  
     
 	wxBoxSizer* wghts_list_h_szr = new wxBoxSizer(wxHORIZONTAL);
@@ -124,19 +132,6 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
 	panel->SetSizer(panel_h_szr);
-	
-	
-	//wxBoxSizer* right_v_szr = new wxBoxSizer(wxVERTICAL);
-	//conn_hist_canvas = new ConnectivityHistCanvas(this, this, project, boost::uuids::nil_uuid());
-	//right_v_szr->Add(conn_hist_canvas, 1, wxEXPAND);
-	
-	// We have decided not to display the ConnectivityMapCanvas.  Uncomment
-	// the following 4 lines to re-enable for shape-enabled projects.
-	//if (!project->IsTableOnlyProject()) {
-	//	conn_map_canvas = new ConnectivityMapCanvas(this, this, project,
-	//												boost::uuids::nil_uuid());
-	//	right_v_szr->Add(conn_map_canvas, 1, wxEXPAND);
-	//}
 	
 	boost::uuids::uuid default_id = w_man_int->GetDefault();
 	SelectId(default_id);
@@ -174,12 +169,54 @@ void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
     ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
 }
 
+wxString WeightsManFrame::GetMapTitle(wxString title, boost::uuids::uuid w_id)
+{
+    wxString weights_title = w_man_int->GetTitle(w_id);
+    wxString map_title = _("%s (Weights: %s)");
+    map_title = wxString::Format(map_title, title, weights_title);
+    return map_title;
+}
+
 void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
 {
     wxLogMessage("WeightsManFrame::OnConnectMapBtn()");
-    boost::uuids::uuid id = GetHighlightId();
-    if (id.is_nil()) return;
-    ConnectivityMapFrame* f = new ConnectivityMapFrame(this, project_p, id, wxDefaultPosition, GdaConst::conn_map_default_size);
+    boost::uuids::uuid w_id = GetHighlightId();
+    if (w_id.is_nil()) return;
+    
+    std::vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    MapFrame* nf = new MapFrame(this, project_p,
+                                var_info, col_ids,
+                                CatClassification::no_theme,
+                                MapCanvas::no_smoothing, 1,
+                                w_id,
+                                wxPoint(80,160),
+                                GdaConst::map_default_size);
+    wxString title = GetMapTitle(_("Connectivity Map"), w_id);
+    nf->SetTitle(title);
+    ev.SetString("Connectivity");
+    nf->OnAddNeighborToSelection(ev);
+}
+
+void WeightsManFrame::OnConnectGraphBtn(wxCommandEvent& ev)
+{
+    wxLogMessage("WeightsManFrame::OnConnectGraphBtn()");
+    boost::uuids::uuid w_id = GetHighlightId();
+    if (w_id.is_nil()) return;
+    
+    std::vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    MapFrame* nf = new MapFrame(this, project_p,
+                                var_info, col_ids,
+                                CatClassification::no_theme,
+                                MapCanvas::no_smoothing, 1,
+                                w_id,
+                                wxPoint(80,160),
+                                GdaConst::map_default_size);
+    wxString title = GetMapTitle(_("Connectivity Graph"), w_id);
+    nf->SetTitle(title);
+    ev.SetString("Connectivity");
+    nf->OnDisplayWeightsGraph(ev);
 }
 
 void WeightsManFrame::OnActivate(wxActivateEvent& event)
@@ -221,25 +258,36 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	wxLogMessage("In WeightsManFrame::OnLoadBtn");
     wxFileName default_dir = project_p->GetWorkingDir();
     wxString default_path = default_dir.GetPath();
-	wxFileDialog dlg( this, "Choose Weights File", default_path, "",
-					 "Weights Files (*.gal, *.gwt)|*.gal;*.gwt");
+	wxFileDialog dlg( this, _("Choose Weights File"), default_path, "",
+                     "Weights Files (*.gal, *.gwt, *.kwt, *.swm, *.mat)|*.gal;*.gwt;*.kwt;*.swm;*.mat");
 	
     if (dlg.ShowModal() != wxID_OK) return;
 	wxString path  = dlg.GetPath();
 	wxString ext = GenUtils::GetFileExt(path).Lower();
 	
-	if (ext != "gal" && ext != "gwt") {
-		wxString msg("Only 'gal' and 'gwt' weights files supported.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+	if (ext != "gal" && ext != "gwt" && ext != "kwt" && ext != "mat" && ext != "swm") {
+		wxString msg = _("Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	WeightsMetaInfo wmi;
-	wxString id_field = WeightUtils::ReadIdField(path);
+    wxString id_field;
+    if (ext == "mat") {
+        id_field = "Unknown";
+    } else if (ext == "swm") {
+        id_field = ReadIdFieldFromSwm(path);
+    } else {
+        id_field = WeightUtils::ReadIdField(path);
+    }
 	wmi.SetToCustom(id_field);
-	wmi.filename = path;
 	
+    wmi.filename = path;
+    if (path.EndsWith("kwt")) {
+        wmi.weights_type = WeightsMetaInfo::WT_kernel;
+    }
+    
 	suspend_w_man_state_updates = true;
 	
 	// Check if weights already loaded and simply select and set as
@@ -257,36 +305,80 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	}
 	
 	GalElement* tempGal = 0;
-	if (ext == "gal") {
-		tempGal = WeightUtils::ReadGal(path, table_int);
-	} else {
-		tempGal = WeightUtils::ReadGwtAsGal(path, table_int);
-	}
+    try {
+        if (ext == "gal") {
+            tempGal = WeightUtils::ReadGal(path, table_int);
+        } else if (ext == "swm") {
+            tempGal = ReadSwmAsGal(path, table_int);
+        } else if (ext == "mat") {
+            tempGal = ReadMatAsGal(path, table_int);
+        } else {
+            tempGal = WeightUtils::ReadGwtAsGal(path, table_int);
+        }
+    } catch (WeightsMismatchObsException& e) {
+        wxString msg = _("The number of observations specified in chosen weights file is incompatible with current Table.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsIntegerKeyNotFoundException& e) {
+        wxString msg = _("Specified key (%d) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.key);
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsStringKeyNotFoundException& e) {
+        wxString msg = _("Specified key (%s) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.key);
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsIdNotFoundException& e) {
+        wxString msg = _("Specified id field (%s) not found in currently loaded Table.");
+        msg = wxString::Format(msg, e.id);
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    } catch (WeightsNotValidException& e) {
+        wxString msg = _("Weights file/format is not valid.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        tempGal = 0;
+    }
+    
 	if (tempGal == NULL) {
 		// WeightsUtils read functions already reported any issues
 		// to user when NULL returned.
 		suspend_w_man_state_updates = false;
 		return;
 	}
+   
+    GalWeight* gw = new GalWeight();
+    gw->num_obs = table_int->GetNumberRows();
+    gw->wflnm = wmi.filename;
+    gw->id_field = id_field;
+    gw->gal = tempGal;
+    
+    gw->GetNbrStats();
+    wmi.num_obs = gw->GetNumObs();
+    wmi.SetMinNumNbrs(gw->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(gw->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(gw->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(gw->GetMedianNumNbrs());
+    wmi.SetSparsity(gw->GetSparsity());
+    wmi.SetDensity(gw->GetDensity());
     
     id = w_man_int->RequestWeights(wmi);
     if (id.is_nil()) {
-        wxString msg("There was a problem requesting the weights file.");
-        wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+        wxString msg = _("There was a problem requesting the weights file.");
+        wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
         dlg.ShowModal();
         suspend_w_man_state_updates = false;
         return;
     }
 	
-	GalWeight* gw = new GalWeight();
-	gw->num_obs = table_int->GetNumberRows();
-	gw->wflnm = wmi.filename;
-    gw->id_field = id_field;
-	gw->gal = tempGal;
-
 	if (!((WeightsNewManager*) w_man_int)->AssociateGal(id, gw)) {
-		wxString msg("There was a problem associating the weights file.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK|wxICON_ERROR);
+		wxString msg = _("There was a problem associating the weights file.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
 		dlg.ShowModal();
 		delete gw;
 		suspend_w_man_state_updates = false;
@@ -310,26 +402,23 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	if (id.is_nil()) return;
 	int nb = w_man_state->NumBlockingRemoveId(id);
 	if (nb > 0) {
-		wxString msg;
-		msg << "There " << (nb==1 ? "is" : "are") << " ";
-		if (nb==1) { msg << "one"; } else { msg << nb; }
-		msg << " other " << (nb==1 ? "view" : "views");
-		msg << " open that depend" << (nb==1 ? "s" : "");
-		msg << " on this matrix. ";
-		msg << "OK to close " << (nb==1 ? "this view" : "these views");
-		msg << " and remove?";
-		wxMessageDialog dlg(this, msg, "Notice", 
-							wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        wxString msg = _("There is one other view open that depends on this matrix. Ok to close this view and remove?");
+        if (nb > 1) {
+            wxString tmp = _("There is at least one view open that depends on this matrix. Ok to close these views and remove?");
+            msg = wxString::Format(tmp, nb);
+        }
+		wxMessageDialog dlg(this, msg, _("Notice"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
 		if (dlg.ShowModal() == wxID_YES) {
 			w_man_state->closeObservers(id, this);
 			int nb = w_man_state->NumBlockingRemoveId(id);
 			if (nb > 0) {
 				// there was a problem closing some views
-				wxString s;
-				s << nb << " " << (nb==1 ? "view" : "views");
-				s << " could not be closed. ";
-				s << "Please manually close and try again.";
-				wxMessageDialog dlg(this, s, "Error", wxICON_ERROR | wxOK);
+                wxString s = _("There is a view could not be closed. Please manually close and try again.");
+                if (nb > 1) {
+                    wxString tmp = _("There is at least one view could not be closed. Please manually close and try again.");
+                    s = wxString::Format(tmp, nb);
+                }
+				wxMessageDialog dlg(this, s, _("Error"), wxICON_ERROR | wxOK);
 				dlg.ShowModal();
 			} else {
 				w_man_int->Remove(id);
@@ -338,7 +427,7 @@ void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
 	} else {
 		w_man_int->Remove(id);
 	}
-	LOG_MSG("Exiting WeightsManFrame::OnRemoveBtn");
+	wxLogMessage("Exiting WeightsManFrame::OnRemoveBtn");
 }
 
 /** Implementation of WeightsManStateObserver interface */
@@ -459,62 +548,136 @@ void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 	
 	WeightsMetaInfo wmi = w_man_int->GetMetaInfo(id);
 	
-	row_title.push_back("type");
+	row_title.push_back(_("type"));
 	row_content.push_back(wmi.TypeToStr());
+    
+    if (wmi.TypeToStr() == "kernel") {
+        row_title.push_back(_("kernel method"));
+        if (wmi.kernel.IsEmpty())
+            row_content.push_back(_("unknown"));
+        else
+            row_content.push_back(wmi.kernel);
+       
+        if (wmi.bandwidth >0) {
+            row_title.push_back(_("bandwidth"));
+            wxString ss;
+            ss << wmi.bandwidth;
+            row_content.push_back(ss);
+        } else  if (wmi.k > 0) {
+            row_title.push_back("knn");
+            wxString ss;
+            ss << wmi.k;
+            row_content.push_back(ss);
+            if (wmi.is_adaptive_kernel) {
+                row_title.push_back(_("adaptive kernel"));
+                row_content.push_back( wmi.is_adaptive_kernel? _("true"):_("false"));
+            }
+        }
+        
+        if (!wmi.kernel.IsEmpty()) {
+            row_title.push_back(_("kernel to diagonal"));
+            row_content.push_back( wmi.use_kernel_diagnals ? _("true"):_("false"));
+        }
+    } else {
+        if (wmi.power < 0) {
+            row_title.push_back(_("inverse distance"));
+            row_content.push_back(_("true"));
+            row_title.push_back(_("power"));
+            wxString ss;
+            ss << -wmi.power;
+            row_content.push_back(ss);
+        }
+    }
 	
-	row_title.push_back("symmetry");
+	row_title.push_back(_("symmetry"));
 	row_content.push_back(wmi.SymToStr());
 	
-	row_title.push_back("file");
+	row_title.push_back(_("file"));
 	if (wmi.filename.IsEmpty()) {
-		row_content.push_back("not saved");
+		row_content.push_back(_("not saved"));
 	} else {
         wxFileName fm(wmi.filename);
 		row_content.push_back(fm.GetFullName());
 	}
 	
-	row_title.push_back("id variable");
+	row_title.push_back(_("id variable"));
 	row_content.push_back(wmi.id_var);
 	
 	if (wmi.weights_type == WeightsMetaInfo::WT_rook ||
 		wmi.weights_type == WeightsMetaInfo::WT_queen) {
-		row_title.push_back("order");
+		row_title.push_back(_("order"));
 		wxString rs;
 		rs << wmi.order;
 		row_content.push_back(rs);
 		if (wmi.order > 1) {
-			row_title.push_back("include lower orders");
+			row_title.push_back(_("include lower orders"));
 			if (wmi.inc_lower_orders) {
-				row_content.push_back("true");
+				row_content.push_back(_("true"));
 			} else {
-				row_content.push_back("false");
+				row_content.push_back(_("false"));
 			}
 		}
 	} else if (wmi.weights_type == WeightsMetaInfo::WT_knn ||
 			   wmi.weights_type == WeightsMetaInfo::WT_threshold) {
-		row_title.push_back("distance metric");
+		row_title.push_back(_("distance metric"));
 		row_content.push_back(wmi.DistMetricToStr());
 		
-		row_title.push_back("distance vars");
+		row_title.push_back(_("distance vars"));
 		row_content.push_back(wmi.DistValsToStr());
 		
 		if (wmi.weights_type == WeightsMetaInfo::WT_threshold) {
-			row_title.push_back("distance unit");
+			row_title.push_back(_("distance unit"));
 			row_content.push_back(wmi.DistUnitsToStr());
 		}
 		
 		if (wmi.weights_type == WeightsMetaInfo::WT_knn) {
-			row_title.push_back("neighbors");
+			row_title.push_back(_("neighbors"));
 			wxString rs;
 			rs << wmi.num_neighbors;
 			row_content.push_back(rs);
 		} else {
-			row_title.push_back("threshold value");
+			row_title.push_back(_("threshold value"));
 			wxString rs;
 			rs << wmi.threshold_val;
 			row_content.push_back(rs);
 		}
 	}
+    row_title.push_back(_("# observations"));
+    if (wmi.num_obs >= 0)
+    row_content.push_back(wxString::Format("%d", wmi.num_obs));
+    else
+    row_content.push_back(_("unknown"));
+    
+    row_title.push_back(_("min neighbors"));
+    if (wmi.min_nbrs>=0)
+    row_content.push_back(wxString::Format("%d", wmi.min_nbrs));
+    else
+    row_content.push_back(_("unknown"));
+    
+    row_title.push_back(_("max neighbors"));
+    if (wmi.max_nbrs >= 0)
+    row_content.push_back(wxString::Format("%d", wmi.max_nbrs));
+    else
+    row_content.push_back(_("unknown"));
+    
+    row_title.push_back(_("mean neighbors"));
+    if (wmi.mean_nbrs>=0)
+    row_content.push_back(wxString::Format("%.2f", wmi.mean_nbrs));
+    else
+    row_content.push_back(_("unknown"));
+    
+    row_title.push_back(_("median neighbors"));
+    if (wmi.median_nbrs >=0)
+    row_content.push_back(wxString::Format("%.2f", wmi.median_nbrs));
+    else
+    row_content.push_back(_("unknown"));
+    
+    wxString sp = _("unknown");
+    if (wmi.density_val>=0)
+    sp = wxString::Format("%.2f%%", wmi.density_val);
+    row_title.push_back(_("% non-zero"));
+    row_content.push_back(sp);
+    
 	SetDetailsWin(row_title, row_content);
 }
 
@@ -568,8 +731,8 @@ void WeightsManFrame::SetDetailsWin(const std::vector<wxString>& row_title,
 	s << "<body>";
 	s << "  <table id=\"my_table\">";
 	s << "    <tr>";
-	s << "      <th>Property</th>";
-	s << "      <th>Value</th>";
+	s << "      <th>" << _("Property") << "</th>";
+	s << "      <th>" << _("Value") << "</th>";
 	s << "    </tr>";
 	for (size_t i=0, last=row_title.size()-1; i<last+1; ++i) {
 		s << (i%2 == 0 ? "<tr>" : "<tr class=\"alt\">");
@@ -601,6 +764,12 @@ void WeightsManFrame::SelectId(boost::uuids::uuid id)
 {
 	w_man_int->MakeDefault(id);
 	SetDetailsForId(id);
+    
+    if (w_man_state) {
+        w_man_state->SetAddEvtTyp(id);
+        w_man_state->notifyObservers(this);
+    }
+    
 	if (conn_hist_canvas) conn_hist_canvas->ChangeWeights(id);
 	if (conn_map_canvas) conn_map_canvas->ChangeWeights(id);
 }
@@ -639,8 +808,10 @@ void WeightsManFrame::UpdateButtons()
 	if (remove_btn) remove_btn->Enable(any_sel);
 	if (histogram_btn) histogram_btn->Enable(any_sel);
 	if (connectivity_map_btn) connectivity_map_btn->Enable(any_sel);
+    if (connectivity_graph_btn) connectivity_graph_btn->Enable(any_sel);
     if (project_p->isTableOnly) {
         connectivity_map_btn->Disable();
+        connectivity_graph_btn->Disable();
     }
 }
 

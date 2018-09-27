@@ -46,7 +46,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetCanvasTitle();
-
+    virtual wxString GetVariableNames();
 	virtual void NewCustomCatClassifMap();
 	virtual void ChangeCatThemeType(
 						CatClassification::CatClassifType new_theme,
@@ -66,10 +66,8 @@ public:
 	//virtual void OnMouseEvent(wxMouseEvent& event);
 	virtual void OnScrollChanged(wxScrollWinEvent& event);
     
-protected:
 	virtual void PopulateCanvas();
 	
-public:
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
 	
@@ -78,6 +76,8 @@ public:
 	void SetCatType(CatClassification::CatClassifType cc_type);
 	int GetNumCats() { return num_categories; }
 
+	virtual void UpdateStatusBar();
+    
 protected:
 	CatClassifState* cc_state_map;
 	int num_categories; // current number of categories
@@ -96,7 +96,6 @@ protected:
 	
 	static const int CAT_VAR; // theme variable
 	
-	virtual void UpdateStatusBar();
 		
 	DECLARE_EVENT_TABLE()
 };

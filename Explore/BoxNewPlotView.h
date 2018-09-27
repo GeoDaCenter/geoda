@@ -47,6 +47,7 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual wxString GetNameWithTime(int var, int time);
 	virtual wxString GetTimeString(int var, int time);
@@ -57,12 +58,10 @@ public:
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	virtual void PlotsPerView(int plots_per_view);
@@ -74,9 +73,9 @@ public:
 	bool IsShowAxes() { return show_axes; }
 	void Hinge15();
 	void Hinge30();
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	int num_obs;
 	int num_time_vals;
@@ -119,7 +118,7 @@ public:
     BoxPlotFrame(wxFrame *parent, Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
-					const wxString& title = "Box Plot",
+					const wxString& title = _("Box Plot"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::boxplot_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);

@@ -53,6 +53,7 @@ public:
 	virtual int GetTotalNewlyUnhighlighted() { return total_newly_unhighlighted; }
 	virtual void SetTotalNewlyHighlighted(int n) { total_newly_highlighted = n; }
 	virtual void SetTotalNewlyUnhighlighted(int n) { total_newly_unhighlighted = n; }
+    virtual void SetTotalHighlighted(int n) { total_highlighted = n; }
 	virtual bool IsHighlighted(int obs) { return highlight[obs]; }
 	virtual EventType GetEventType() { return event_type; }
 	virtual wxString GetEventTypeStr();

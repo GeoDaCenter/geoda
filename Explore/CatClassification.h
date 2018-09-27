@@ -37,11 +37,14 @@ namespace CatClassification {
 	
 	const int max_num_categories = 20;
 	
-	enum CatClassifType { no_theme, hinge_15, hinge_30, quantile, percentile,
-		stddev, excess_risk_theme, unique_values, natural_breaks,
-		equal_intervals, lisa_categories, lisa_significance,
+	enum CatClassifType {
+        no_theme, hinge_15, hinge_30, quantile, percentile,
+		stddev, excess_risk_theme, unique_values, colocation, natural_breaks, equal_intervals,
+        lisa_categories, lisa_significance, custom,
 		getis_ord_categories, getis_ord_significance,
-        local_geary_categories, local_geary_significance,custom };
+        local_geary_categories, local_geary_significance,
+        local_join_count_categories, local_join_count_significance
+    };
 	
 	/** When CatClassifType != custom, BreakValsType is assumed to
 	  be by_cat_classif_type.  Otherwise, if CatClassifType == custom,
@@ -74,9 +77,18 @@ namespace CatClassification {
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
                                 bool useUndefinedCategory=true);
+    
+    void PopulateCatClassifData(const CatClassifDef& cat_def,
+                                const std::vector<Gda::str_int_pair_vec_type>& var,
+                                const std::vector<std::vector<bool> >& var_undef,
+                                CatClassifData& cat_data, std::vector<bool>& cats_valid,
+                                std::vector<wxString>& cats_error_message,
+                                bool useSciNotation=false,
+                                bool useUndefinedCategory=true);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
-									TableInterface* table_int);
+									TableInterface* table_int,
+                                    bool auto_label=true);
 	
 	void FindNaturalBreaks(int num_cats,
 						   const Gda::dbl_int_pair_vec_type& var,
@@ -87,12 +99,14 @@ namespace CatClassification {
                               const std::vector<Gda::dbl_int_pair_vec_type>& var,
                               const std::vector<std::vector<bool> >& var_undef,
                               CatClassifData& cat_data, std::vector<bool>& cats_valid,
-                              ColorScheme coltype=CatClassification::sequential_color_scheme);
+                              ColorScheme coltype=CatClassification::sequential_color_scheme,
+                              bool useSciNotation=false);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	
 	wxString CatClassifTypeToString(CatClassifType theme_type);
-	
+
+    void PickColorSet(std::vector<wxColour>& color_vec, int num_color);
 	void PickColorSet(std::vector<wxColour>& color_vec,
 					  ColorScheme coltype, int num_color, bool reversed=false);
 	
@@ -188,6 +202,8 @@ struct CatClassifData {
 	int GetNumObsInCategory(int canvas_tm, int cat);
 	std::vector<int>& GetIdsRef(int canvas_tm, int cat);
 	void SetCategoryColor(int canvas_tm, int cat, wxColour color);
+    void SetCategoryBrushColor(int canvas_tm, int cat, wxColour color);
+    void SetCategoryPenColor(int canvas_tm, int cat, wxColour color);
 	wxColour GetCategoryColor(int canvas_tm, int cat);
 	wxBrush GetCategoryBrush(int canvas_tm, int cat);
 	wxPen GetCategoryPen(int canvas_tm, int cat);

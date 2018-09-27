@@ -40,6 +40,7 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
@@ -82,6 +83,7 @@ protected:
     GdaShapeText* morans_sel_text;
     GdaShapeText* morans_unsel_text;
 	
+    std::map<GdaShape*, bool> pre_foreground_shps;
 	DECLARE_EVENT_TABLE()
 };
 
@@ -96,8 +98,10 @@ public:
 					const wxSize& size = wxSize(600, 360),
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
-	
+
     void OnActivate(wxActivateEvent& event);
+    
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);

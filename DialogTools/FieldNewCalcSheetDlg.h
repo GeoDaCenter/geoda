@@ -24,6 +24,7 @@
 #include <wx/panel.h>
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcBinDlg.h"
+#include "FieldNewCalcDateTimeDlg.h"
 #include "FieldNewCalcLagDlg.h"
 #include "FieldNewCalcRateDlg.h"
 #include "FieldNewCalcUniDlg.h"
@@ -51,7 +52,7 @@ public:
 	virtual ~FieldNewCalcSheetDlg();
 
     bool Create( wxWindow* parent, wxWindowID id = -1,
-				const wxString& caption = "Var Calc Container",
+				const wxString& caption = _("Var Calc Container"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxDEFAULT_DIALOG_STYLE );
@@ -84,6 +85,7 @@ private:
 	FieldNewCalcLagDlg* pLag;
 	FieldNewCalcRateDlg* pRate;
 	FieldNewCalcUniDlg* pUni;
+	FieldNewCalcDateTimeDlg* pDT;
 	
 	FramesManager* frames_manager;
 	TableState* table_state;

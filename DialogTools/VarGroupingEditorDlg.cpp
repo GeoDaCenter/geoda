@@ -28,8 +28,6 @@
 #include <wx/filedlg.h>
 #include <wx/button.h>
 #include "../FramesManager.h"
-#include "../DbfFile.h"
-#include "../DataViewer/DbfTable.h"
 #include "../DataViewer/OGRTable.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
@@ -118,7 +116,8 @@ frames_manager(project_p->GetFramesManager()),
 table_state(project_p->GetTableState()),
 highlight_state(project_p->GetHighlightState()),
 wmi(project_p->GetWManInt()),
-common_empty(true), all_init(false), pos_ungrouped_list(0),is_editing(false)
+common_empty(true), all_init(false), pos_ungrouped_list(0),is_editing(false),
+export_dlg(NULL), mem_table_int(NULL)
 {
     wxLogMessage("Open VarGroupingEditorDlg.");
 	CreateControls();
@@ -136,6 +135,16 @@ VarGroupingEditorDlg::~VarGroupingEditorDlg()
 
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
+    
+    if (export_dlg) {
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    
+    if (mem_table_int) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
 }
 
 void VarGroupingEditorDlg::CreateControls()
@@ -150,9 +159,9 @@ void VarGroupingEditorDlg::CreateControls()
 	placeholder_button =  wxDynamicCast(FindWindow(XRCID("ID_PLACEHOLDER_BUTTON")), wxButton);
 	
 	include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),  wxListCtrl);
-    include_list->AppendColumn("Time");
+    include_list->AppendColumn(_("Time"));
     include_list->SetColumnWidth(0, 50);
-	include_list->AppendColumn("Name");
+	include_list->AppendColumn(_("Name"));
 	include_list->SetColumnWidth(1, 120);
 	
 		
@@ -165,9 +174,9 @@ void VarGroupingEditorDlg::CreateControls()
 	ungroup_button = wxDynamicCast(FindWindow(XRCID("ID_UNGROUP_BUTTON")),   wxButton);
 	
 	ungrouped_list = wxDynamicCast(FindWindow(XRCID("ID_UNGROUPED_LIST")), wxListCtrl);
-	ungrouped_list->AppendColumn("Name");
+	ungrouped_list->AppendColumn(_("Name"));
 	ungrouped_list->SetColumnWidth(0, 120);
-	ungrouped_list->AppendColumn("Type");
+	ungrouped_list->AppendColumn(_("Type"));
 	ungrouped_list->SetColumnWidth(1, 50);
 
 	grouped_list = wxDynamicCast(FindWindow(XRCID("ID_GROUPED_LIST")), wxListBox);
@@ -183,8 +192,6 @@ void VarGroupingEditorDlg::CreateControls()
 	UpdateButtons();
     
     ungrouped_list->Bind(wxEVT_LEFT_DOWN, &VarGroupingEditorDlg::OnUngroupedListLeftDown, this);
-
-    
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
     include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
@@ -232,13 +239,17 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
 		if (type == GdaConst::double_type || type == GdaConst::long64_type) {
 			type_str << "num";
 		} else if (type == GdaConst::string_type) {
-			type_str << "str";
+            //type_str << "str";
+            continue;
 		} else if (type == GdaConst::date_type) {
-			type_str << "date";
+			//type_str << "date";
+            continue;
 		} else if (type == GdaConst::time_type) {
-			type_str << "time";
+			//type_str << "time";
+            continue;
 		} else if (type == GdaConst::datetime_type) {
-			type_str << "datetime";
+			//type_str << "datetime";
+            continue;
 		}
 		ungrouped_list->InsertItem(ug_cnt, wxEmptyString);
 		ungrouped_list->SetItem(ug_cnt, 0, table_int->GetColName(col));
@@ -251,7 +262,9 @@ void VarGroupingEditorDlg::InitUngroupedList(std::set<wxString>& excl_nms)
             pos_ungrouped_list = ug_cnt -1;
         }
         ungrouped_list->EnsureVisible(pos_ungrouped_list);
-        ungrouped_list->SetItemState(pos_ungrouped_list, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED, wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED);
+        ungrouped_list->SetItemState(pos_ungrouped_list,
+                                     wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED,
+                                     wxLIST_STATE_FOCUSED|wxLIST_STATE_SELECTED);
         
     }
 }
@@ -278,9 +291,12 @@ void VarGroupingEditorDlg::InitGroupedList()
 void VarGroupingEditorDlg::OnClose(wxCloseEvent& event)
 {
     wxLogMessage("In VarGroupingEditorDlg::OnClose");
-	// Note: it seems that if we don't explictly capture the close event
-	//       and call Destory, then the destructor is not called.
-	Destroy();
+    
+    if (export_dlg) {
+        export_dlg->Close();
+    }
+    
+	event.Skip();
 }
 
 void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
@@ -319,7 +335,11 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     }
     
     // create in-memory table
-    OGRTable* mem_table_int = new OGRTable(n);
+    if (mem_table_int != NULL) {
+        delete mem_table_int;
+        mem_table_int = NULL;
+    }
+    mem_table_int = new OGRTable(n);
     
     OGRColumn* id_col = new OGRColumnInteger("STID", 18, 0, n);
     id_col->UpdateData(new_ids, undefs);
@@ -423,9 +443,14 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
     }
     
     // export
-    ExportDataDlg dlg(this, (TableInterface*)mem_table_int);
-    if (dlg.ShowModal() == wxID_OK) {
-        wxString ds_name = dlg.GetDatasourceName();
+    if (export_dlg != NULL) {
+        export_dlg->Destroy();
+        delete export_dlg;
+    }
+    export_dlg = new ExportDataDlg(this, (TableInterface*)mem_table_int);
+    
+    if (export_dlg->ShowModal() == wxID_OK) {
+        wxString ds_name = export_dlg->GetDatasourceName();
         wxFileName wx_fn(ds_name);
         
         // save weights
@@ -443,9 +468,6 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
             }
         }
     }
-    
-    // clean memory
-    delete mem_table_int;
 }
 
 void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
@@ -464,7 +486,7 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 		m << "Variable name \"" << grp_nm << "\" is either a duplicate\n";
 		m << "or is invalid. Please enter an alternative,\n";
 		m << "non-duplicate variable name.";
-		wxMessageDialog dlg (this, m, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg (this, m, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -484,7 +506,7 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 		if (table_int->GetTimeSteps() == 1 && tot_items > 1) {
 			if (table_state->GetNumDisallowTimelineChanges() > 0) {
 				wxString msg = table_state->GetDisallowTimelineChangesMsg();
-				wxMessageDialog dlg (this, msg, "Warning",
+				wxMessageDialog dlg (this, msg, _("Warning"),
 									 wxOK | wxICON_INFORMATION);
 				dlg.ShowModal();
 				return;
@@ -522,7 +544,8 @@ void VarGroupingEditorDlg::OnUngroupClick( wxCommandEvent& event )
 	vector<wxString> col_nms(tms);
 	for (int t=0; t<tms; ++t) {
 		wxString nm = table_int->GetColName(col, t);
-		if (nm.IsEmpty()) nm = GdaConst::placeholder_str;
+		if (nm.IsEmpty())
+            nm = GdaConst::placeholder_str;
 		col_nms[t] = nm;
 		col_nms_set.insert(nm);
 	}
@@ -803,8 +826,8 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
         for (int i=0; i<diff; ++i) {
             wxString t;
             if (item_cnt+i == 0) {
-                t = table_int->GetTimeString(0);
-                if (t.IsEmpty()) t = "time 0";
+                t = "time 0";
+                table_int->RenameTimeStep(0, t);
             } else {
                 t = GenerateTimeLabel();
                 table_int->InsertTimeStep(item_cnt+i, t);
@@ -840,7 +863,7 @@ void VarGroupingEditorDlg::OnAddToListClick( wxCommandEvent& event )
 	int inc_list_cnt = GetIncListNameCnt();
 	UpdateTimeStepsTxt();
 	
-	if (new_group_name_txt_ctrl->GetValue().IsEmpty() && inc_list_cnt > 1) {
+	if (new_group_name_txt_ctrl->GetValue().IsEmpty() || inc_list_cnt > 1) {
 		vector<wxString> names(inc_list_cnt);
 		for (int i=0; i<inc_list_cnt; ++i) {
 			names[i] = include_list->GetItemText(i, 1);
@@ -943,18 +966,17 @@ void VarGroupingEditorDlg::OnIncludeListRightUp( wxMouseEvent& event)
 {
 	wxLogMessage("In VarGroupingEditorDlg::OnIncludeListRightUp");
     if (!is_editing) {
-    wxMenu mnu;
-    int id1 = XRCID("INCLUDE_ADD_TIME");
-    mnu.Append(id1, _("Add Time"));
-    mnu.Append(XRCID("INCLUDE_DELETE_TIME"), _("Remove Time"));
-    mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
-                wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
-                NULL, this);
-    if (GetListSel(include_list).size() == 0) {
-        mnu.Enable(XRCID("INCLUDE_DELETE_TIME"), false);
-    }
-    
-    PopupMenu(&mnu);
+        wxMenu mnu;
+        int id1 = XRCID("INCLUDE_ADD_TIME");
+        mnu.Append(id1, _("Add Time"));
+        mnu.Append(XRCID("INCLUDE_DELETE_TIME"), _("Remove Time"));
+        mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
+                    wxCommandEventHandler(VarGroupingEditorDlg::OnIncludePopupClick),
+                    NULL, this);
+        if (GetListSel(include_list).size() == 0) {
+            mnu.Enable(XRCID("INCLUDE_DELETE_TIME"), false);
+        }
+        PopupMenu(&mnu);
     }
     
     event.Skip();
@@ -1060,7 +1082,7 @@ void VarGroupingEditorDlg::OnIncludeListEditEnd( wxListEvent& event )
     if (item_new.IsEmpty() || is_dup || is_disallow) {
         if (is_disallow && !(item_new.IsEmpty() || is_dup)) {
             wxString msg = table_state->GetDisallowTimelineChangesMsg();
-            wxMessageDialog dlg(this, msg, "Warning",
+            wxMessageDialog dlg(this, msg, _("Warning"),
                                 wxOK | wxICON_INFORMATION);
             dlg.ShowModal();
         }
@@ -1216,11 +1238,10 @@ void VarGroupingEditorDlg::UpdateTimeStepsTxt()
 	wxString s;
 	int cur_tm_steps = table_int->GetTimeSteps();
 	if (cur_tm_steps > 1) {
-		s << GetIncListNameCnt() << " of " << cur_tm_steps;
+        s = wxString::Format(_("%d of %d variables to include"), GetIncListNameCnt(), cur_tm_steps);
 	} else {
-		s << GetIncListNameCnt();
+        s = wxString::Format(_("%d variables to include"), GetIncListNameCnt());
 	}
-	s << " variables to include";
 	include_list_stat_txt->SetLabelText(s);
 	//wxSizer* szr = include_list_stat_txt->GetContainingSizer();
 	//if (szr) szr->Layout();
@@ -1276,7 +1297,7 @@ void VarGroupingEditorDlg::OnLoadFromGda( wxCommandEvent& event )
         ProjectConfiguration* project_conf = new ProjectConfiguration(full_proj_path);
         project->UpdateProjectConf(project_conf);
     } catch( GdaException& ex) {
-        wxMessageDialog dlg (this, ex.what(), "Error", wxOK | wxICON_ERROR );
+        wxMessageDialog dlg (this, ex.what(), _("Error"), wxOK | wxICON_ERROR );
         dlg.ShowModal();
     }
 

@@ -25,6 +25,8 @@
  * OR PERFORMANCE OF THIS SOFTWARE.
  * 
  */
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 #include <time.h>
 #include <stdlib.h>
@@ -41,6 +43,12 @@
 void setrandomstate(int seed)
 {
     random_state = seed;
+}
+
+void resetrandom()
+{
+    reset_random = 1;
+    uniform();
 }
 
 /* ************************************************************************ */
@@ -1004,10 +1012,9 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-    
   //result /= tweight;
-  // squared
-  return result;
+  //return sqrt(result);
+    return result;
 }
 
 /* ********************************************************************* */
@@ -1082,8 +1089,8 @@ Otherwise, the distance between two columns in the matrix is calculated.
     }
   }
   if (!tweight) return 0; /* usually due to empty clusters */
-  result /= tweight;
-  return result;
+  //result /= tweight;
+  return sqrt(result);
 }
 
 /* ********************************************************************* */
@@ -1773,7 +1780,7 @@ A double-precison number between 0.0 and 1.0.
   static int s1 = 0;
   static int s2 = 0;
 
-  if (s1==0 || s2==0) /* initialize */
+  if (s1==0 || s2==0 || reset_random==1) /* initialize */
   { if (random_state<0) {
       unsigned int initseed = (unsigned int) time(0);
       srand(initseed);
@@ -1782,6 +1789,7 @@ A double-precison number between 0.0 and 1.0.
     }
     s1 = rand();
     s2 = rand();
+      reset_random = 0;
   }
 
   do
@@ -1799,9 +1807,34 @@ A double-precison number between 0.0 and 1.0.
   return z*scale;
 }
 
+double uniform(int& s1, int& s2)
+{
+    if (s1 == 0 || s2 == 0)
+        return uniform();
+    
+    int z;
+    static const int m1 = 2147483563;
+    static const int m2 = 2147483399;
+    const double scale = 1.0/m1;
+    
+    do
+    { int k;
+        k = s1/53668;
+        s1 = 40014*(s1-k*53668)-k*12211;
+        if (s1 < 0) s1+=m1;
+        k = s2/52774;
+        s2 = 40692*(s2-k*52774)-k*3791;
+        if(s2 < 0) s2+=m2;
+        z = s1-s2;
+        if(z < 1) z+=(m1-1);
+    } while (z==m1); /* To avoid returning 1.0 */
+    
+    return z*scale;
+}
+
 /* ************************************************************************ */
 
-static int binomial(int n, double p)
+static int binomial(int n, double p, int& s1, int& s2)
 /*
 Purpose
 =======
@@ -1839,7 +1872,7 @@ An integer drawn from a binomial distribution with parameters (p, n).
     const double a = (n+1)*s;
     double r = exp(n*log(q)); /* pow() causes a crash on AIX */
     int x = 0;
-    double u = uniform();
+    double u = uniform(s1, s2);
     while(1)
     { if (u < r) return x;
       u-=r;
@@ -1867,8 +1900,8 @@ An integer drawn from a binomial distribution with parameters (p, n).
     { /* Step 1 */
       int y;
       int k;
-      double u = uniform();
-      double v = uniform();
+      double u = uniform(s1, s2);
+      double v = uniform(s1, s2);
       u *= p4;
       if (u <= p1) return (int)(xm-p1*v+u);
       /* Step 2 */
@@ -1975,7 +2008,7 @@ nearest(int d_idx, int n_cluster, double *d2,
 }
 
 static void kplusplusassign (int nclusters, int ndata, int nelements, int clusterid[], double** data,  double** cdata, int** mask, int** cmask,
-                             double weight[], int transpose, char dist)
+                             double weight[], int transpose, char dist, int& s1, int& s2)
 {
     /* Set the metric function as indicated by dist */
     double (*metric)
@@ -1996,7 +2029,9 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     int* cand_center_index = (int*)malloc(sizeof(int) * n_local_trials);
 
     // random pick first center
-    int idx = (int) (uniform() * nelements);
+    int idx;
+    if (s1==0 || s2==0) idx = (int) (uniform() * nelements);
+    else idx = (int) (uniform(s1, s2) * nelements);
     for ( j=0; j<ndata; j++) {
         cdata[0][j] = data[idx][j];
         cmask[0][j] = 1;
@@ -2016,7 +2051,8 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
         // Choose center candidates by sampling with probability proportional
         // to the squared distance to the closest existing center
         for (i = 0; i<n_local_trials; i++) {
-            sum = uniform() * current_pot;
+            if (s1 ==0 || s2==0) sum = uniform() * current_pot;
+            else sum = uniform(s1, s2) * current_pot;
             // pick next center using distrubtion of distance to center
             for (j = 0; j < nelements; j++) {
                 sum -= d[j];
@@ -2070,7 +2106,7 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
 
 /* ************************************************************************ */
 
-static void randomassign (int nclusters, int nelements, int clusterid[])
+static void randomassign (int nclusters, int nelements, int clusterid[], int& s1, int& s2)
 /*
 Purpose
 =======
@@ -2106,7 +2142,7 @@ The cluster number to which an element was assigned.
    */
   for (i = 0; i < nclusters-1; i++)
   { p = 1.0/(nclusters-i);
-    j = binomial(n, p);
+    j = binomial(n, p, s1, s2);
     n -= j;
     j += k+1; /* Assign at least one element to cluster i */
     for ( ; k < j; k++) clusterid[k] = i;
@@ -2116,7 +2152,7 @@ The cluster number to which an element was assigned.
 
   /* Create a random permutation of the cluster assignments */
   for (i = 0; i < nelements; i++)
-  { j = (int) (i + (nelements-i)*uniform());
+  { j = (int) (i + (nelements-i)*uniform(s1, s2));
     k = clusterid[j];
     clusterid[j] = clusterid[i];
     clusterid[i] = k;
@@ -2492,7 +2528,7 @@ static int
 kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int method, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[])
+  int tclusterid[], int counts[], int mapping[], double bound_vals[], double min_bound, int s1, int s2)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2508,19 +2544,29 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   if (saved==NULL) return -1;
 
   *error = DBL_MAX;
-
+   
+  double* bounds = (double*)malloc(nclusters*sizeof(double));
+    
   do
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
+      
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
     if (method == 0) {
         /* Perform the EM algorithm. First, randomly assign elements to clusters. */
         //if (npass!=0)
-        randomassign (nclusters, nelements, tclusterid);
+        randomassign (nclusters, nelements, tclusterid, _s1, _s2);
     } else {
         /* Perform the kmeans++ algorithm: finding init centers */
-        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist);
+        kplusplusassign(nclusters,ndata,nelements,tclusterid,data,cdata,mask,cmask,weight,transpose,dist, _s1, _s2);
     }
 
     for (i = 0; i < nclusters; i++) counts[i] = 0;
@@ -2564,9 +2610,11 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
         }
         total += distance;
       }
+
       if (total>=previous) break;
       /* total>=previous is FALSE on some machines even if total and previous
        * are bitwise identical. */
+        
       for (i = 0; i < nelements; i++)
         if (saved[i]!=tclusterid[i]) break;
       if (i==nelements)
@@ -2577,7 +2625,22 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     { *error = total;
       break;
     }
-
+////////////////////////////////////////////
+    if (min_bound > 0) {
+        for (j = 0; j < nclusters; j++) bounds[j] = 0;
+        for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+        bool not_good = false;
+        for (j = 0; j < nclusters; j++)
+        {
+         if (bounds[j] < min_bound) {
+             not_good = true;
+             break;
+         }
+        }
+        if (not_good)
+            continue;
+    }
+////////////////////////////////////////////
     for (i = 0; i < nclusters; i++) mapping[i] = -1;
     for (i = 0; i < nelements; i++)
     { j = tclusterid[i];
@@ -2593,8 +2656,10 @@ kmeans(int nclusters, int nrows, int ncolumns, double** data, int** mask,
       }
     }
     if (i==nelements) ifound++; /* break statement not encountered */
+      
   } while (++ipass < npass);
 
+  free(bounds);
   free(saved);
   return ifound;
 }
@@ -2605,7 +2670,7 @@ static int
 kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   double weight[], int transpose, int npass, int n_maxiter, char dist,
   double** cdata, int** cmask, int clusterid[], double* error,
-  int tclusterid[], int counts[], int mapping[], double cache[])
+  int tclusterid[], int counts[], int mapping[], double cache[], double bound_vals[], double min_bound, int s1, int s2)
 { int i, j, k;
   const int nelements = (transpose==0) ? nrows : ncolumns;
   const int ndata = (transpose==0) ? ncolumns : nrows;
@@ -2621,14 +2686,23 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
   if (saved==NULL) return -1;
 
   *error = DBL_MAX;
-
+  double* bounds = (double*)malloc(nclusters*sizeof(double));
+    
   do
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
+      
     /* Perform the EM algorithm. First, randomly assign elements to clusters. */
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid);
+    if (npass!=0) randomassign (nclusters, nelements, tclusterid, _s1, _s2);
 
     for (i = 0; i < nclusters; i++) counts[i]=0;
     for (i = 0; i < nelements; i++) counts[tclusterid[i]]++;
@@ -2684,7 +2758,22 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     { *error = total;
       break;
     }
-
+      ////////////////////////////////////////////
+      if (min_bound > 0) {
+          for (j = 0; j < nclusters; j++) bounds[j] = 0;
+          for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+          bool not_good = false;
+          for (j = 0; j < nclusters; j++)
+          {
+              if (bounds[j] < min_bound) {
+                  not_good = true;
+                  break;
+              }
+          }
+          if (not_good)
+              continue;
+      }
+      ////////////////////////////////////////////
     for (i = 0; i < nclusters; i++) mapping[i] = -1;
     for (i = 0; i < nelements; i++)
     { j = tclusterid[i];
@@ -2702,16 +2791,21 @@ kmedians(int nclusters, int nrows, int ncolumns, double** data, int** mask,
     if (i==nelements) ifound++; /* break statement not encountered */
   } while (++ipass < npass);
 
+  free(bounds);
   free(saved);
   return ifound;
 }
 
+void test(int nclusters, int nrows, int ncolumns, double** data, int** mask, double weight[], int transpose, int npass, int n_maxiter, char a)
+{
+    
+}
 /* ********************************************************************* */
 
 void kcluster (int nclusters, int nrows, int ncolumns,
   double** data, int** mask, double weight[], int transpose,
   int npass, int n_maxiter, char method, char dist,
-  int clusterid[], double* error, int* ifound)
+  int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
 /*
 Purpose
 =======
@@ -2854,7 +2948,7 @@ number of clusters is larger than the number of elements being clustered,
     if(cache)
     { *ifound = kmedians(nclusters, nrows, ncolumns, data, mask, weight,
                          transpose, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                         tclusterid, counts, mapping, cache);
+                         tclusterid, counts, mapping, cache, bound_vals, min_bound, s1, s2);
       free(cache);
     }
   }
@@ -2862,11 +2956,11 @@ number of clusters is larger than the number of elements being clustered,
     /* kmeans but with KMeans++ algorithm*/
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                      transpose, 1, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                     tclusterid, counts, mapping);
+                     tclusterid, counts, mapping, bound_vals, min_bound, s1, s2);
   else
     *ifound = kmeans(nclusters, nrows, ncolumns, data, mask, weight,
                     transpose, 0, npass, n_maxiter, dist, cdata, cmask, clusterid, error,
-                    tclusterid, counts, mapping);
+                    tclusterid, counts, mapping, bound_vals, min_bound, s1, s2);
     
   /* Deallocate temporarily used space */
   if (npass > 1)
@@ -2883,7 +2977,7 @@ number of clusters is larger than the number of elements being clustered,
 /* *********************************************************************** */
 
 void kmedoids (int nclusters, int nelements, double** distmatrix,
-  int npass, int clusterid[], double* error, int* ifound)
+  int npass, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
 /*
 Purpose
 =======
@@ -2981,14 +3075,23 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
       return;
     }
   }
-
+    double* bounds = (double*)malloc(nclusters*sizeof(double));
   *error = DBL_MAX;
   do /* Start the loop */
   { double total = DBL_MAX;
     int counter = 0;
     int period = 10;
-
-    if (npass!=0) randomassign (nclusters, nelements, tclusterid);
+      
+      int _s1 = 0;
+      int _s2 = 0;
+      if (s1 > 0) {
+          _s1 = s1 + ipass;
+          _s2 = _s1;
+      }
+      for (i = 0; i < nelements; i++) uniform(_s1, _s2);
+      
+    if (npass!=0)
+        randomassign (nclusters, nelements, tclusterid, _s1, _s2);
     while(1)
     { double previous = total;
       total = 0.0;
@@ -3031,6 +3134,22 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
         break; /* Identical solution found; break out of this loop */
     }
 
+      ////////////////////////////////////////////
+      if (min_bound > 0) {
+          for (j = 0; j < nclusters; j++) bounds[j] = 0;
+          for (j = 0; j < nelements; j++) bounds[tclusterid[j]] += bound_vals[j];
+          bool not_good = false;
+          for (j = 0; j < nclusters; j++)
+          {
+              if (bounds[j] < min_bound) {
+                  not_good = true;
+                  break;
+              }
+          }
+          if (not_good)
+              continue;
+      }
+      ////////////////////////////////////////////
     for (i = 0; i < nelements; i++)
     { if (clusterid[i]!=centroids[tclusterid[i]])
       { if (total < *error)
@@ -3049,6 +3168,7 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
   /* Deallocate temporarily used space */
   if (npass > 1) free(tclusterid);
 
+    free(bounds);
   free(saved);
   free(centroids);
   free(errors);
@@ -4751,4 +4871,132 @@ when microarrays are being clustered.
   }
   /* Never get here */
   return -2.0;
+}
+
+/* ******************************************************************** */
+
+double** mds(int nrows, int ncolumns, double** data, int** mask,
+         double weight[], int transpose, char dist, double** distmatrix, int low_dim)
+
+/*
+ Purpose
+ =======
+ 
+ Multidimensional Scaling - Given a matrix of interpoint distances,
+ find a set of low dimensional points that have similar interpoint
+ distances.
+ 
+ The routine returns the distance in double precision.
+ If the parameter transpose is set to a nonzero value, the clusters are
+ interpreted as clusters of microarrays, otherwise as clusters of gene.
+ 
+ Arguments
+ =========
+ */
+{
+    //https://github.com/stober/mds/blob/master/src/mds.py
+    
+    int n = (transpose==0) ? nrows : ncolumns;
+    const int ldistmatrix = distmatrix==NULL ? 1 : 0;
+    
+    /* Calculate the distance matrix if the user didn't give it */
+    if(ldistmatrix)
+    { distmatrix =
+        distancematrix(nrows, ncolumns, data, mask, weight, dist, transpose);
+        if (!distmatrix) return NULL; /* Insufficient memory */
+    }
+
+    int i, j;
+    double** E;
+    
+    E = (double**)malloc(n*sizeof(double*));
+    if(E==NULL) return NULL; /* Not enough memory available */
+    for (i = 0; i < n; i++)
+    { E[i] = (double*)malloc(n*sizeof(double));
+        if (E[i]==NULL) break; /* Not enough memory available */
+    }
+    
+    double sum_E = 0, avg_E = 0;
+    /* Calculate the distances and save them in the ragged array */
+    /*  E = (-0.5 * d*d) */
+    for (i=0; i<n; i++)
+        for (j=0; j<n; j++) E[i][j] = 0;
+    for (i=1; i<n; i++) {
+        for (j=0; j<i; j++) {
+            E[i][j] =distmatrix[i][j];
+            E[j][i] =distmatrix[i][j];
+        }
+    }
+  
+    if (dist == 'b')
+        for (i=0; i<n; i++) {
+            for (j=0; j<n; j++) {
+                E[i][j] = E[i][j] * E[i][j];
+                E[i][j] = E[i][j] * E[i][j];
+            }
+        }
+    
+    // double centering
+    for(int i = 0; i < n; i++) {
+        double sum = 0;
+        for(int j = 0; j < n; j++) sum += E[j][i];
+        sum /= (double)n;
+        for(int j = 0; j < n; j++) E[j][i] -= sum;
+    }
+    for(int j = 0; j < n; j++) {
+        double sum = 0;
+        for(int i = 0; i < n; i++) sum += E[j][i];
+        sum /= (double)n;
+        for(int i = 0; i < n; i++) E[j][i] -= sum;
+    }
+    
+    for (i=0; i<n; i++) {
+        for (j=0; j<n; j++) {
+            E[i][j] = -0.5 * E[i][j];
+        }
+    }
+    
+    /* [U, S, V] = svd(F) */
+    double** V;
+    double* S;
+    double** Y;
+    
+    V = (double**)malloc(n*sizeof(double*));
+    if(V==NULL) return NULL; /* Not enough memory available */
+    for (i = 0; i < n; i++)
+    { V[i] = (double*)malloc(n*sizeof(double));
+        if (V[i]==NULL) break; /* Not enough memory available */
+    }
+    
+    S = (double*)malloc(n*sizeof(double));
+    if(S==NULL) return NULL; /* Not enough memory available */
+    
+    Y = (double**)malloc(n*sizeof(double*));
+    if(Y==NULL) return NULL; /* Not enough memory available */
+    for (i = 0; i < n; i++)
+    { Y[i] = (double*)malloc(low_dim*sizeof(double));
+        if (Y[i]==NULL) break; /* Not enough memory available */
+    }
+    
+    int error = svd(nrows, nrows, E, S, V);
+    if (error==0)
+    {
+        for (i=0;i<n;i++)
+            S[i] = sqrt(S[i]);
+        /*  U = F */
+        /*  Y = U * sqrt(S) */
+        for (i=0;i<n;i++)
+            for (j=0;j<low_dim;j++)
+                Y[i][j] = E[i][j] * S[j];
+      
+    }
+    for (i = 1; i < n; i++) free(distmatrix[i]);
+    for (i = 0; i < n; i++) free(E[i]);
+    for (i = 0; i < n; i++) free(V[i]);
+    free(distmatrix);
+    free(E);
+    free(V);
+    free(S);
+    
+    return Y;
 }

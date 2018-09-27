@@ -52,11 +52,10 @@ public:
 	static TemplateFrame* GetActiveFrame();
 	virtual void OnActivate(wxActivateEvent& event) {}
 	
-public:
 	static bool GetColorFromUser(wxWindow* parent,
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
-								 const wxString& title = "Choose A Color");
+								 const wxString& title = _("Choose A Color"));
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     virtual void OnChangeMapTransparency();
@@ -132,12 +131,14 @@ public:
 	
 	virtual void SetDependsOnNonSimpleGroups(bool v) {
 		depends_on_non_simple_groups = v; }
-	
-private:
+
+    virtual int GetCurrentCanvasTimeStep();
+    
+protected:
+    wxToolBar* toolbar;
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
-
-protected:
+    
 	Project* project;
 	TemplateCanvas* template_canvas;
 	TemplateLegend* template_legend; // optional

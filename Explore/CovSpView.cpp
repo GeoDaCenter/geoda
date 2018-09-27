@@ -149,7 +149,7 @@ void CovSpFrame::MapMenus()
 	LoadMenu("ID_COV_SCATTER_PLOT_MENU_OPTIONS");	
 	CovSpFrame::UpdateContextMenuItems(optMenu);
 	
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -157,7 +157,7 @@ void CovSpFrame::UpdateOptionMenuItems()
 {
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu == wxNOT_FOUND) {
 	} else {
 		CovSpFrame::UpdateContextMenuItems(mb->GetMenu(menu));
@@ -184,7 +184,7 @@ void CovSpFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void CovSpFrame::UpdateTitle()
 {
-	wxString s = _("Nonparametric Spatial Autocorrelation");
+	wxString s = _("Spatial Correlogram");
 	if (var_man.GetVarsCount() > 0) s << " - " << var_man.GetNameWithTime(0);
 	SetTitle(s);
 }
@@ -194,7 +194,8 @@ wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
 {
 	wxString s;
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
-	int last = GenUtils::min<int>(total_hover_obs, hover_obs.size(), 2);
+	int last = std::min(total_hover_obs, (int)hover_obs.size());
+	last = std::min(last, 2);
 	size_t t = var_man.GetTime(0);
 	typedef pairs_bimap_type::left_map::const_iterator left_const_iterator;
 	for (int h=0; h<last; ++h) {
@@ -238,16 +239,15 @@ void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 void CovSpFrame::OnEditLowessParams(wxCommandEvent& event)
 {
 	wxLogMessage("In CovSpFrame::OnEditLowessParams");
-	if (too_many_obs) return;
+	if (too_many_obs)
+        return;
 	if (lowess_param_frame) {
 		lowess_param_frame->Iconize(false);
 		lowess_param_frame->Raise();
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l; // = t->GetLowess();  // should be shared by all cells
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
@@ -256,15 +256,13 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
 	wxLogMessage("In CovSpFrame::OnShowVarsChooser");
 	if (too_many_obs) return;
-	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate,
-												 false, true, "Variable Choice", "Variable");
+	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, _("Variable Choice"), _("Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
 	vector<wxString> tm_strs;
 	project->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager t_var_man(tm_strs);
-	t_var_man.AppendVar(v.name, v.min, v.max, v.time,
-										v.sync_with_global_time, v.fixed_scale);
+	t_var_man.AppendVar(v.name, v.min, v.max, v.time, v.sync_with_global_time, v.fixed_scale);
 	var_man = t_var_man;
 	
 	// If distance metric or units changed, then reinit distance as well
@@ -518,22 +516,17 @@ void CovSpFrame::UpdateMessageWin()
 	if (too_many_obs) {
 		long n_obs = project->GetNumRecords();
 		long n_pairs = (n_obs*(n_obs-1))/2;
-		s << "This view currently supports data with at most 1000 observations. ";
-		s << "The Nonparametric Spatial Autocorrelation Scatterplot plots ";
-		s << "distances between all pairs of observations. ";
-		s << "The current data set has " << n_obs << " observations and ";
-		s << n_pairs << " unordered pairs of observations.";
+        wxString msg = wxString::Format(_("This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."), n_obs, n_pairs);
+        s << msg;
 	} else {
 		int count = var_man.GetVarsCount();
 		if (count == 0) {
-			s << "Please use<br />";
-			s << "<font color=\"blue\">Options > Change Variable<br /></font>";
-			s << "to specify a variable.";
+			s << _("Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable.");
 		} if (Z_error_msg[var_man.GetTime(0)].IsEmpty()) {
-			s << "Variable <font color=\"blue\">" << var_man.GetName(0);
-			s << "</font> is specified. ";
+            wxString msg = wxString::Format(_("Variable <font color=\"blue\">%s</font> is specified. "), var_man.GetName(0));
+			s << msg;
 		} else {
-			s << "Error: " << Z_error_msg[var_man.GetTime(0)];
+			s << _("Error: ") << Z_error_msg[var_man.GetTime(0)];
 		}
 	}
 	s << "  </font></p></center>";
@@ -601,9 +594,9 @@ void CovSpFrame::UpdateDataFromVarMan()
 			}
             wxString str_template;
             
-            str_template = _T("Variable %s is a placeholer");
+            str_template = _("Variable %s is a placeholer");
             if (tm_variant) {
-                str_template = _T("Variable %s at time %d is a placeholer");
+                str_template = _("Variable %s at time %d is a placeholer");
             }
             
             wxString s = wxString::Format(str_template, z_name,
@@ -643,9 +636,9 @@ void CovSpFrame::UpdateDataFromVarMan()
 		if (!success) {
             wxString str_template;
             
-            str_template = _T("Variable %s is a placeholer");
+            str_template = _("Variable %s is a placeholer");
             if (tm_variant) {
-                str_template = _T("Variable %s at time %d could not be standardized.");
+                str_template = _("Variable %s at time %d could not be standardized.");
             }
             
             wxString s = wxString::Format(str_template, z_name,

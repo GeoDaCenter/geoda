@@ -241,7 +241,7 @@ void ANNkd_leaf::ann_search(ANNdist box_dist, int method)
 					x[d+2] = *(pp++);	// compute length and adv coordinate
 				}
 
-				dist = GenGeomAlgs::ComputeArcDist(x[0], x[1], x[2], x[3]);
+				dist = GenGeomAlgs::ComputeArcDistRad(x[0], x[1], x[2], x[3]);
 				dist = dist * dist;
 
 				if (dist > min_dist) 

@@ -42,7 +42,7 @@ public:
     FieldNewCalcSpecialDlg(Project* project,
 					   wxWindow* parent,
 					   wxWindowID id = wxID_ANY,
-					   const wxString& caption = "Special",
+					   const wxString& caption = _("Special"),
 					   const wxPoint& pos = wxDefaultPosition,
 					   const wxSize& size = wxDefaultSize,
 					   long style = wxTAB_TRAVERSAL );

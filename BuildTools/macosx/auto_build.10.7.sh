@@ -13,5 +13,5 @@ cd ~/geoda_trunk/BuildTools/macosx
 ./build10.7.sh $CPU $NODEBUG
 cd ~/geoda_trunk/BuildTools/macosx/create-dmg
 ./geoda.sh $VERSION
-mv GeoDa$VERSION-Installer.dmg /Volumes/xun/Dropbox
+mv GeoDa$VERSION-Installer.dmg /Volumes/SharedFolders/Dropbox
 cd ..

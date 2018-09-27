@@ -42,3 +42,33 @@ wxString GeoDaWeight::GetTitle()
 	if (!title.IsEmpty()) return title;
 	return wxFileName(wflnm).GetName();
 }
+
+double GeoDaWeight::GetSparsity()
+{
+    return sparsity;
+}
+double GeoDaWeight::GetDensity()
+{
+    return density;
+}
+int GeoDaWeight::GetNumObs()
+{
+    return num_obs;
+}
+
+int GeoDaWeight::GetMinNumNbrs()
+{
+    return min_nbrs;
+}
+int GeoDaWeight::GetMaxNumNbrs()
+{
+    return max_nbrs;
+}
+double GeoDaWeight::GetMeanNumNbrs()
+{
+    return mean_nbrs;
+}
+double GeoDaWeight::GetMedianNumNbrs()
+{
+    return median_nbrs;
+}

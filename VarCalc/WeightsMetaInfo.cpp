@@ -40,6 +40,49 @@ void WeightsMetaInfo::SetToDefaults()
 	dist_var2 = "";
 	dist_tm1 = -1;
 	dist_tm2 = -1;
+    sparsity_val = -1;
+    density_val = -1;
+    num_obs = -1;
+    min_nbrs = -1;
+    max_nbrs = -1;
+    mean_nbrs = -1;
+    median_nbrs = -1;
+    non_zero_percent = -1;
+    k = 0;
+    bandwidth = -1;
+    is_adaptive_kernel = false;
+    use_kernel_diagnals = false;
+    power = 0;
+}
+
+void WeightsMetaInfo::SetMinNumNbrs(int val)
+{
+    min_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMaxNumNbrs(int val)
+{
+    max_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMeanNumNbrs(double val)
+{
+    mean_nbrs = val;
+}
+
+void WeightsMetaInfo::SetMedianNumNbrs(double val)
+{
+    median_nbrs = val;
+}
+
+void WeightsMetaInfo::SetSparsity(double sparsity)
+{
+    sparsity_val = sparsity;
+}
+
+void WeightsMetaInfo::SetDensity(double density)
+{
+    density_val = density;
 }
 
 void WeightsMetaInfo::SetToCustom(const wxString& idv)
@@ -48,8 +91,7 @@ void WeightsMetaInfo::SetToCustom(const wxString& idv)
 	id_var = idv;
 }
 
-void WeightsMetaInfo::SetToRook(const wxString& idv,
-								long order_, bool inc_lower_orders_)
+void WeightsMetaInfo::SetToRook(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();
 	id_var = idv;
@@ -61,8 +103,7 @@ void WeightsMetaInfo::SetToRook(const wxString& idv,
     //    inc_lower_orders = true;
 }
 
-void WeightsMetaInfo::SetToQueen(const wxString& idv,
-								 long order_, bool inc_lower_orders_)
+void WeightsMetaInfo::SetToQueen(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();
 	id_var = idv;
@@ -80,12 +121,14 @@ void WeightsMetaInfo::SetToThres(const wxString& idv,
                                  wxString dist_units_str_,
 								 DistanceValuesEnum dist_values_,
 								 double threshold_val_,
+                                 double power_,
 								 wxString dist_var1_, long dist_tm1_,
 								 wxString dist_var2_, long dist_tm2_)
 {
 	SetToDefaults();
 	id_var = idv;
 	weights_type = WT_threshold;
+    power = power_;
 	sym_type = SYM_symmetric;
 	dist_metric = dist_metric_;
 	dist_units = dist_units_;
@@ -108,6 +151,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
                                wxString dist_units_str_,
 							   DistanceValuesEnum dist_values_,
 							   long k,
+                               double power_s,
 							   wxString dist_var1_, long dist_tm1_,
 							   wxString dist_var2_, long dist_tm2_)
 {
@@ -120,6 +164,7 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
     dist_units_str = dist_units_str_;
 	dist_values = dist_values_;
 	num_neighbors = k;
+    power = power_s;
 	if (!dist_var1_.IsEmpty()) {
 		dist_var1 = dist_var1_;
 		if (dist_tm1_ >= 0) dist_tm1 = dist_tm1_;
@@ -128,6 +173,31 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
 		dist_var2 = dist_var2_;
 		if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
 	}
+}
+
+void WeightsMetaInfo::SetToKernel(const wxString &id_var_, WeightsMetaInfo::DistanceMetricEnum dist_metric_, WeightsMetaInfo::DistanceUnitsEnum dist_units_, wxString dist_units_str_, WeightsMetaInfo::DistanceValuesEnum dist_values_, wxString kernel_, long k_, double bandwidth_, bool is_adaptive_kernel_, bool use_kernel_diagnals_,wxString dist_var1_, long dist_tm1_, wxString dist_var2_, long dist_tm2_)
+{
+    SetToDefaults();
+    id_var = id_var_;
+    weights_type = WT_kernel;
+    sym_type = SYM_asymmetric;
+    dist_metric = dist_metric_;
+    dist_units = dist_units_;
+    dist_units_str = dist_units_str_;
+    dist_values = dist_values_;
+    kernel = kernel_;
+    k = k_;
+    bandwidth = bandwidth_;
+    is_adaptive_kernel = is_adaptive_kernel_;
+    use_kernel_diagnals = use_kernel_diagnals_;
+    if (!dist_var1_.IsEmpty()) {
+        dist_var1 = dist_var1_;
+        if (dist_tm1_ >= 0) dist_tm1 = dist_tm1_;
+    }
+    if (!dist_var2_.IsEmpty()) {
+        dist_var2 = dist_var2_;
+        if (dist_tm2_ >= 0) dist_tm2 = dist_tm2_;
+    }
 }
 
 wxString WeightsMetaInfo::ToStr() const
@@ -176,6 +246,10 @@ wxString WeightsMetaInfo::TypeToStr() const
 		return "queen";
 	} else if (weights_type == WT_threshold) {
 		return "threshold";
+    } else if (weights_type == WT_inverse) {
+        return "inverse";
+    } else if (weights_type == WT_kernel) {
+        return "kernel";
 	} else if (weights_type == WT_knn) {
 		return "k-NN";
 	}
@@ -198,6 +272,8 @@ wxString WeightsMetaInfo::DistValsToStr() const
 		return "centroids";
 	} else if (dist_values == DV_mean_centers) {
 		return "mean centers";
+    } else if (dist_values == DV_coordinates) {
+        return "coordinates";
 	} else if (dist_values == DV_vars) {
 		wxString s;
 		if (!dist_var1.IsEmpty()) {

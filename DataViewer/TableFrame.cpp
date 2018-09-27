@@ -107,7 +107,7 @@ popup_col(-1)
         
 	}
     
-	int sample = GenUtils::min<int>(table_base->GetNumberRows(), 10);
+	int sample = std::min(table_base->GetNumberRows(), 10);
     
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);
@@ -140,9 +140,9 @@ popup_col(-1)
 		}
 	}
 	
-    if (!project->IsFileDataSource()) {
-        grid->DisableDragColMove();
-    }
+    //if (!project->IsFileDataSource()) {
+    //    grid->DisableDragColMove();
+    //}
     
     //grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
     grid->ForceRefresh();
@@ -173,7 +173,7 @@ void TableFrame::OnMouseEvent(wxMouseEvent& event)
         
         TableInterface* ti = table_base->GetTableInt();
         SetEncodingCheckmarks(optMenu, ti->GetFontEncoding());
-        PopupMenu(optMenu, event.GetPosition());
+        PopupMenu(optMenu);
     }
 }
 
@@ -215,6 +215,11 @@ void TableFrame::OnClose(wxCloseEvent& event)
 	}
 }
 
+std::vector<int> TableFrame::GetRowOrder()
+{
+    return table_base->GetRowOrder();
+}
+
 void TableFrame::OnMenuClose(wxCommandEvent& event)
 {
 	Hide();
@@ -225,8 +230,7 @@ void TableFrame::MapMenus()
 	// Map Default Options Menus
     //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
     wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
-	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(),
-								"Options", optMenu);
+	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(), _("Options"), optMenu);
 }
 
 void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
@@ -545,7 +549,7 @@ void TableFrame::OnCellChanged( wxGridEvent& ev )
 	wxLogMessage("In TableFrame::OnCellChanged()");
 	TableInterface* ti = table_base->GetTableInt();
 	if (ti->IsSetCellFromStringFail()) {
-		wxMessageDialog dlg(this, ti->GetSetCellFromStringFailMsg(), "Warning",
+		wxMessageDialog dlg(this, ti->GetSetCellFromStringFailMsg(), _("Warning"),
 							wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 		ev.Veto();
@@ -595,7 +599,7 @@ void TableFrame::OnGroupVariables( wxCommandEvent& event)
 		if (ti->GetTimeSteps() == 1 && sel_cols.size() > 1) {
 			if (table_state->GetNumDisallowTimelineChanges() > 0) {
 				wxString msg = table_state->GetDisallowTimelineChangesMsg();
-				wxMessageDialog dlg (this, msg, "Warning",
+				wxMessageDialog dlg (this, msg, _("Warning"),
 									 wxOK | wxICON_INFORMATION);
 				dlg.ShowModal();
 				return;
