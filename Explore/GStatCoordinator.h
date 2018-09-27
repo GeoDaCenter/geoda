@@ -39,22 +39,25 @@
 #include "../VarTools.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
+
 
 class GetisOrdMapFrame; // instead of GStatCoordinatorObserver
 class GStatCoordinator;
 class Project;
 class WeightsManState;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class GStatWorkerThread : public wxThread
 {
 public:
-	GStatWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
-					 GStatCoordinator* gstat_coord,
-					 wxMutex* worker_list_mutex,
-					 wxCondition* worker_list_empty_cond,
-					 std::list<wxThread*> *worker_list,
-					 int thread_id);
+    GStatWorkerThread(int obs_start, int obs_end, uint64_t seed_start,
+                      GStatCoordinator* gstat_coord,
+                      wxMutex* worker_list_mutex,
+                      wxCondition* worker_list_empty_cond,
+                      std::list<wxThread*> *worker_list,
+                      int thread_id);
 	virtual ~GStatWorkerThread();
 	virtual void* Entry();  // thread execution starts here
 
@@ -75,7 +78,8 @@ public:
 	GStatCoordinator(boost::uuids::uuid weights_id, Project* project,
 					 const std::vector<GdaVarTools::VarInfo>& var_info,
 					 const std::vector<int>& col_ids,
-					 bool row_standardize_weights);
+					 bool row_standardize_weights,
+                     bool is_local_joint_count=false);
 	virtual ~GStatCoordinator();
 	
 	bool IsOk() { return true; }
@@ -86,11 +90,38 @@ public:
 	void SetSignificanceFilter(int filter_id);
 	int GetSignificanceFilter() { return significance_filter; }
 	int permutations; // any number from 9 to 99999, 99 will be default
-	
-	uint64_t GetLastUsedSeed() { return last_seed_used; }
-	void SetLastUsedSeed(uint64_t seed) { last_seed_used = seed; }
+    double bo; //Bonferroni bound
+    double fdr; //False Discovery Rate
+    double user_sig_cutoff; // user defined cutoff
+
+	uint64_t GetLastUsedSeed() {
+        return last_seed_used;
+    }
+    
+	void SetLastUsedSeed(uint64_t seed) {
+        reuse_last_seed = true;
+        last_seed_used = seed;
+        // update global one
+        GdaConst::use_gda_user_seed = true;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        GdaConst::gda_user_seed =  last_seed_used;
+        wxString val;
+        val << last_seed_used;
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
+    }
+    
 	bool IsReuseLastSeed() { return reuse_last_seed; }
-	void SetReuseLastSeed(bool reuse) { reuse_last_seed = reuse; }
+	void SetReuseLastSeed(bool reuse) {
+        reuse_last_seed = reuse;
+        // update global one
+        GdaConst::use_gda_user_seed = reuse;
+        if (reuse) {
+            last_seed_used = GdaConst::gda_user_seed;
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        } else {
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
+        }
+    }
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -98,7 +129,10 @@ public:
 	virtual void closeObserver(boost::uuids::uuid id);
 	
 	std::vector<double> n; // # non-neighborless observations
-	
+
+    // a special case Local Join Count
+    bool is_local_joint_count;
+    
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded
 	std::vector<double> x_sstar; // sum of all (x_i)^2
@@ -112,7 +146,11 @@ public:
 	std::vector<double> VarGstar;
 	// since W is row-standardized, sdGstar same for all i
 	std::vector<double> sdGstar;
-	
+    // number of neighbors
+    vector<wxInt64> num_neighbors;
+    // number of neighbors with 1
+    std::vector<wxInt64* > num_neighbors_1;
+
 protected:
 	// The following ten are just temporary pointers into the corresponding
 	// space-time data arrays below
@@ -130,10 +168,13 @@ protected:
 	double* pseudo_p; //threaded
 	double* pseudo_p_star; //threaded
 	double* x; //threaded
+	double* e_p; //threaded
+    wxInt64* nn_1_t;
 	
 public:
 	std::vector<double*> G_vecs; //threaded
 	std::vector<bool*> G_defined_vecs; // check for divide-by-zero //threaded
+                                       // as well as undefined values
 	std::vector<double*> G_star_vecs; //threaded
 	// z-val corresponding to each G_i
 	std::vector<double*> z_vecs;
@@ -146,9 +187,11 @@ public:
 	std::vector<double*> pseudo_p_vecs; //threaded
 	std::vector<double*> pseudo_p_star_vecs; //threaded
 	std::vector<double*> x_vecs; //threaded
+    std::vector<std::vector<bool> > x_undefs;
 
 	boost::uuids::uuid w_id;
-	const GalElement* W;
+    std::vector<GalWeight*> Gal_vecs;
+    std::vector<GalWeight*> Gal_vecs_orig;
 	wxString weight_name;
 
 	int num_obs; // total # obs including neighborless obs
@@ -156,6 +199,7 @@ public:
 	
 	// This variable should be empty for GStatMapCanvas
 	std::vector<d_array_type> data; // data[variable][time][obs]
+	std::vector<b_array_type> data_undef; // data[variable][time][obs]
 	
 	// All GetisOrdMapCanvas objects synchronize themselves
 	// from the following 6 variables.

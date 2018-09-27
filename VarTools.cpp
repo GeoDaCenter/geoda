@@ -27,7 +27,7 @@ using namespace GdaVarTools;
 const double Manager::NaN = std::numeric_limits<double>::quiet_NaN();
 
 Manager::Manager()
-: global_time(0)
+: global_time(0), current_time(0)
 {
 }
 
@@ -55,6 +55,16 @@ void Manager::ClearAndInit(const std::vector<wxString>& tm_strs_)
 	vars.clear();
 	tm_strs = tm_strs_;
 	global_time = 0;
+}
+
+void Manager::SetCurTime(int var, int t)
+{
+    vars[var].time = t;
+}
+
+int Manager::GetCurTime(int var)
+{
+    return vars[var].time;
 }
 
 void Manager::AppendVar(const wxString& name,
@@ -183,7 +193,7 @@ double Manager::GetMinOverAllTms(int var)
 	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	vector<double>::iterator i = min_element(vars[var].min_vals.begin(),
-																					 vars[var].min_vals.end());
+                                             vars[var].min_vals.end());
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
 }
@@ -193,7 +203,7 @@ double Manager::GetMaxOverAllTms(int var)
 	using namespace std;
 	if (var < 0 || var >= vars.size()) return NaN;
 	vector<double>::iterator i = max_element(vars[var].max_vals.begin(),
-																					 vars[var].max_vals.end());
+                                             vars[var].max_vals.end());
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
 }
@@ -206,7 +216,7 @@ double Manager::GetMinWithinPossibleTms(int var)
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
 	vector<double>::iterator i = min_element(vars[var].min_vals.begin()+min_tm,
-																					 vars[var].min_vals.begin()+max_tm+1);
+                                             vars[var].min_vals.begin()+max_tm+1);
 	if (i == vars[var].min_vals.end()) return NaN;
 	return (*i);
 }
@@ -218,8 +228,9 @@ double Manager::GetMaxWithinPossibleTms(int var)
 	if (!IsSyncWithGlobalTm(var)) return vars[var].max_vals[vars[var].time];
 	int min_tm = OffsetFromMinSyncedTm(var);
 	int max_tm = min_tm + CurPossibleSynchedTmRange();
+    
 	vector<double>::iterator i = max_element(vars[var].max_vals.begin()+min_tm,
-																					 vars[var].max_vals.begin()+max_tm+1);
+                                             vars[var].max_vals.begin()+max_tm+1);
 	if (i == vars[var].max_vals.end()) return NaN;
 	return (*i);
 }
@@ -296,10 +307,11 @@ int Manager::MaxTmForAllSynced()
 }
 
 Manager::Entry::Entry(const wxString& name_, int time_,
-											bool is_time_variant_, bool sync_with_global_time_,
-											bool fixed_scale_,
-											const std::vector<double>& min_vals_,
-											const std::vector<double>& max_vals_)
+                      bool is_time_variant_,
+                      bool sync_with_global_time_,
+                      bool fixed_scale_,
+                      const std::vector<double>& min_vals_,
+                      const std::vector<double>& max_vals_)
 : name(name_), time(time_), is_time_variant(is_time_variant_),
 sync_with_global_time(sync_with_global_time_),
 fixed_scale(fixed_scale_), min_vals(min_vals_), max_vals(max_vals_)
@@ -332,11 +344,14 @@ VarInfo::VarInfo() : min(1, 0), max(1, 0)
 	time = 0;
 	sync_with_global_time = true;
 	fixed_scale = true;
+    is_moran = false;
 	is_ref_variable = false;
+    
 	time_min = 0;
 	time_max = 0;
 	min_over_time = 0;
 	max_over_time = 0;
+    ref_time_offset = 0;
 }
 
 
@@ -346,32 +361,47 @@ VarInfo::VarInfo() : min(1, 0), max(1, 0)
  GdaVarTools::VarInfo vector changes. */
 int GdaVarTools::UpdateVarInfoSecondaryAttribs(std::vector<VarInfo>& var_info)
 {
-	PrintVarInfoVector(var_info);
+	//PrintVarInfoVector(var_info);
 	int num_vars = var_info.size();
 	int ref_var = -1;
 	for (int i=0; i<num_vars; i++) {
-		if (ref_var == -1 && var_info[i].sync_with_global_time) ref_var = i;
+		if (ref_var == -1 && var_info[i].sync_with_global_time)
+            ref_var = i;
 		var_info[i].is_ref_variable = (i == ref_var);
 		// The following parameters are set to default values here
 		var_info[i].ref_time_offset = 0;
-		var_info[i].time_min = var_info[i].time;
-		var_info[i].time_max = var_info[i].time;
-		LOG(var_info[i].min.size());
 		var_info[i].min_over_time = var_info[i].min[var_info[i].time];
 		var_info[i].max_over_time = var_info[i].max[var_info[i].time];
 	}
 	
-	if (ref_var == -1) return ref_var;
+    if (ref_var == -1) {
+        // if no ref_variable, return
+        return ref_var;
+    }
+    
+    // update other variables (besides ref_variable): ref_time_offset
 	int ref_time = var_info[ref_var].time;
 	int min_time = ref_time;
 	int max_time = ref_time;
 	for (int i=0; i<num_vars; i++) {
-		if (var_info[i].sync_with_global_time) {
+		if (!var_info[i].is_ref_variable && var_info[i].sync_with_global_time) {
 			var_info[i].ref_time_offset = var_info[i].time - ref_time;
-			if (var_info[i].time < min_time) min_time = var_info[i].time;
-			if (var_info[i].time > max_time) max_time = var_info[i].time;
+            if (var_info[i].time < min_time) {
+                min_time = var_info[i].time;
+            }
+            if (var_info[i].time > max_time) {
+                max_time = var_info[i].time;
+            }
 		}
 	}
+    
+    //
+    // e.g. hr06 hr07 hr08 hr09
+    // var_info[0]: hr06
+    // var_info[1]: hr07
+    // the following code will update:
+    // var_info[0].time_min = 0  time_max = 2
+    // var_info[1].time_min = 1  time_max = 3
 	int global_max_time = var_info[ref_var].max.size()-1;
 	int min_ref_time = ref_time - min_time;
 	int max_ref_time = global_max_time - (max_time - ref_time);
@@ -397,14 +427,6 @@ void GdaVarTools::PrintVarInfoVector(std::vector<VarInfo>& var_info)
 	LOG_MSG("Entering GdaVarTools::PrintVarInfoVector");
 	LOG(var_info.size());
 	for (int i=0; i<var_info.size(); i++) {
-		LOG_MSG("Primary Attributes:");
-		LOG(var_info[i].name);
-		LOG(var_info[i].is_time_variant);
-		LOG(var_info[i].time);
-		for (int t=0; t<var_info[i].min.size(); t++) {
-			LOG(var_info[i].min[t]);
-			LOG(var_info[i].max[t]);
-		}
 		LOG(var_info[i].sync_with_global_time);
 		LOG(var_info[i].fixed_scale);
 		

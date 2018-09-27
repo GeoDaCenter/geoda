@@ -34,7 +34,6 @@
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
 #include "../GeoDa.h"
-#include "../logger.h"
 #include "../Project.h"
 #include "3DPlotView.h"
 
@@ -45,20 +44,29 @@ BEGIN_EVENT_TABLE(C3DPlotCanvas, wxGLCanvas)
     EVT_MOUSE_EVENTS(C3DPlotCanvas::OnMouse)
 END_EVENT_TABLE()
 
-C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame,
+C3DPlotCanvas::C3DPlotCanvas(Project* project_s, C3DPlotFrame* t_frame, const wxGLAttributes& dispAttrs,
 							 HLStateInt* highlight_state_s,
 							 const std::vector<GdaVarTools::VarInfo>& v_info,
 							 const std::vector<int>& col_ids,
 							 wxWindow *parent,
 							 wxWindowID id, const wxPoint& pos,
 							 const wxSize& size, long style)
-: wxGLCanvas(parent, id, pos, size, style), ball(0),
-project(project_s), table_int(project_s->GetTableInt()),
-num_obs(project_s->GetTableInt()->GetNumberRows()), num_vars(v_info.size()),
-num_time_vals(1), highlight_state(highlight_state_s), var_info(v_info),
-data(v_info.size()), scaled_d(v_info.size()),
+: wxGLCanvas(parent, dispAttrs, id, pos, size, style), ball(0),
+project(project_s),
+table_int(project_s->GetTableInt()),
+num_obs(project_s->GetTableInt()->GetNumberRows()),
+num_vars(v_info.size()),
+num_time_vals(1),
+highlight_state(highlight_state_s),
+var_info(v_info),
+data(v_info.size()),
+data_undef(v_info.size()),
+scaled_d(v_info.size()),
 c3d_plot_frame(t_frame)
 {
+    wxLogMessage("Open C3DPlotCanvas.");
+    
+	m_context = new wxGLContext(this);
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
 	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
 	canvas_background_color=GdaConst::three_d_plot_default_background_colour;
@@ -67,17 +75,34 @@ c3d_plot_frame(t_frame)
 	var_min.resize(var_info.size());
 	var_max.resize(var_info.size());
 	
-	std::vector<double> temp_vec(num_obs);
 	for (int v=0; v<num_vars; v++) {
 		table_int->GetColData(col_ids[v], data[v]);
 		table_int->GetColData(col_ids[v], scaled_d[v]);
+		table_int->GetColUndefined(col_ids[v], data_undef[v]);
+    }
+   
+    all_undefs.resize(num_obs, false);
+	for (int v=0; v<num_vars; v++) {
 		int data_times = data[v].shape()[0];
-		data_stats[v].resize(data_times);
 		for (int t=0; t<data_times; t++) {
 			for (int i=0; i<num_obs; i++) {
-				temp_vec[i] = data[v][t][i];
+                all_undefs[i] = all_undefs[i] || data_undef[v][t][i];
+            }
+        }
+        
+    }
+    
+	for (int v=0; v<num_vars; v++) {
+		int data_times = data[v].shape()[0];
+        
+		data_stats[v].resize(data_times);
+        
+		for (int t=0; t<data_times; t++) {
+            std::vector<double> temp_vec;
+			for (int i=0; i<num_obs; i++) {
+				temp_vec.push_back(data[v][t][i]);
 			}
-			data_stats[v][t].CalculateFromSample(temp_vec);
+			data_stats[v][t].CalculateFromSample(temp_vec, all_undefs);
 		}
 	}
 	
@@ -129,6 +154,8 @@ C3DPlotCanvas::~C3DPlotCanvas()
 {
 	if (ball) delete ball; ball = 0;	
 	highlight_state->removeObserver(this);
+    delete m_context;
+    wxLogMessage("Close C3DPlotCanvas.");
 }
 
 void C3DPlotCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -169,12 +196,13 @@ void C3DPlotCanvas::SetCheckMarks(wxMenu* menu)
 
 void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 {
+	if(!IsShown()) return;
+
     /* must always be here */
     wxPaintDC dc(this);
 
-    if (!GetContext()) return;
-
-    SetCurrent();
+	wxGLCanvas::SetCurrent(*m_context);
+    
 
     /* initialize OpenGL */
     if (isInit == false) {
@@ -238,15 +266,15 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 void C3DPlotCanvas::OnSize(wxSizeEvent& event)
 {
     // this is also necessary to update the context on some platforms
-    wxGLCanvas::OnSize(event);
+    //wxGLCanvas::OnSize(event);
     
     // set GL viewport (not called by wxGLCanvas::OnSize on all platforms...)
     int w, h;
     GetClientSize(&w, &h);
 
-    if (GetContext()) {
+    //if (GetContext()) {
         glViewport(0, 0, (GLint) w, (GLint) h);
-    }
+    //}
 }
 
 void C3DPlotCanvas::OnEraseBackground(wxEraseEvent& event)
@@ -557,7 +585,7 @@ void C3DPlotCanvas::SelectByRect()
 
 void C3DPlotCanvas::InitGL(void)
 {
-    SetCurrent();
+    //SetCurrent();
 
     //glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearColor(((GLfloat) canvas_background_color.Red())/((GLfloat) 255.0),
@@ -631,6 +659,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
@@ -643,6 +672,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
@@ -660,6 +690,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for(int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(-1, scaled_d[1][yt][i], scaled_d[2][zt][i]);
@@ -672,6 +703,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(-1, scaled_d[1][yt][i], scaled_d[2][zt][i]);
@@ -687,6 +719,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], -1, scaled_d[2][zt][i]);
@@ -699,6 +732,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], -1, scaled_d[2][zt][i]);
@@ -714,6 +748,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
 		for (int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i], -1);
@@ -725,6 +760,7 @@ void C3DPlotCanvas::RenderScene()
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0));
 		for(int i=0; i<num_obs; i++) {
+			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i], -1);
@@ -905,6 +941,15 @@ wxString C3DPlotCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString C3DPlotCanvas::GetVariableNames()
+{
+    wxString s;
+    s << GetNameWithTime(0) << ", ";
+    s << GetNameWithTime(1) << ", ";
+    s << GetNameWithTime(2);
+    return s;
+}
+
 wxString C3DPlotCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= var_info.size()) return wxEmptyString;
@@ -918,7 +963,6 @@ wxString C3DPlotCanvas::GetNameWithTime(int var)
 
 void C3DPlotCanvas::TimeChange()
 {
-	LOG_MSG("Entering C3DPlotCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -946,8 +990,6 @@ void C3DPlotCanvas::TimeChange()
 	//invalidateBms();
 	//PopulateCanvas();
 	Refresh();
-	
-	LOG_MSG("Exiting C3DPlotCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -981,14 +1023,20 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 void C3DPlotCanvas::UpdateScaledData()
 {
 	for (int v=0; v<num_vars; v++) {
+        
 		int t_min = var_info[v].time_min;
 		int t_max = var_info[v].time_max;
+        
 		double min = data_stats[v][t_min].min;
 		double max = min;
+        
 		for (int t=t_min; t<=t_max; t++) {
-			if (data_stats[v][t].min < min) min = data_stats[v][t].min;
-			if (data_stats[v][t].max > max) max = data_stats[v][t].max;
+			if (data_stats[v][t].min < min)
+                min = data_stats[v][t].min;
+			if (data_stats[v][t].max > max)
+                max = data_stats[v][t].max;
 		}
+        
 		double ctr = (min+max)/2.0;
 		double scale = (max==min) ? 1.0 : 2.0/(max-min);
 		
@@ -1002,7 +1050,6 @@ void C3DPlotCanvas::UpdateScaledData()
 
 void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In C3DPlotCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -1015,15 +1062,11 @@ void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
  that its state has changed. */
 void C3DPlotCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("In C3DPlotCanvas::update");
-	
 	HLStateInt::EventType type = highlight_state->GetEventType();
 	if (type == HLStateInt::delta) {
-		LOG_MSG("processing HLStateInt::delta");
 			
 		Refresh();
 	} else {
-		LOG_MSG("processing  HLStateInt::unhighlight_all or invert");
 		// type == HLStateInt::unhighlight_all
 		// type == HLStateInt::invert
 			
@@ -1049,16 +1092,23 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 {
 	m_splitter = new wxSplitterWindow(this);
     
-	canvas = new C3DPlotCanvas(project, this,
+	wxGLAttributes glAttributes; 
+	//glAttributes.Defaults().RGBA().DoubleBuffer().Depth(16).Stencil(8).SampleBuffers(1).Samplers(4).EndList(); 
+	glAttributes.PlatformDefaults().RGBA().DoubleBuffer().Depth(24).EndList();
+	
+
+	canvas = new C3DPlotCanvas(project, this, glAttributes,
 							   project->GetHighlightState(),
 							   var_info, col_ids,
 							   m_splitter);
 	
 	control = new C3DControlPan(m_splitter, -1, wxDefaultPosition,
-								wxDefaultSize, wxCAPTION|wxSYSTEM_MENU);
+								wxDefaultSize, wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	control->template_frame = this;
 	m_splitter->SplitVertically(control, canvas, 70);
 	UpdateTitle();
+    
+    SetMinSize(wxSize(600,400));
 
 	Show(true);
 }
@@ -1069,7 +1119,6 @@ C3DPlotFrame::~C3DPlotFrame()
 
 void C3DPlotFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("C3DPlotFrame", GetTitle());
 	}
@@ -1077,27 +1126,24 @@ void C3DPlotFrame::OnActivate(wxActivateEvent& event)
 
 void C3DPlotFrame::OnClose(wxCloseEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnClose");
 	DeregisterAsActive();
 	Destroy();
 }
 
 void C3DPlotFrame::OnMenuClose(wxCommandEvent& event)
 {
-	LOG_MSG("In C3DPlotFrame::OnMenuClose");
 	Close();
 }
 
 void C3DPlotFrame::MapMenus()
 {
-	LOG_MSG("In C3DPlotFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_3D_PLOT_VIEW_MENU_OPTIONS");
 	canvas->AddTimeVariantOptionsToMenu(optMenu);
 	canvas->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1105,10 +1151,8 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("C3DPlotFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		canvas->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1116,7 +1160,6 @@ void C3DPlotFrame::UpdateOptionMenuItems()
 
 void C3DPlotFrame::OnHighlightColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnHighlightColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->highlight_color,
@@ -1128,7 +1171,6 @@ void C3DPlotFrame::OnHighlightColor(wxCommandEvent& event)
 
 void C3DPlotFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnCanvasBackgroundColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->canvas_background_color,
@@ -1140,7 +1182,6 @@ void C3DPlotFrame::OnCanvasBackgroundColor(wxCommandEvent& event)
 
 void C3DPlotFrame::OnSelectableFillColor(wxCommandEvent& event)
 {
-	LOG_MSG("Called C3DPlotFrame::OnSelectableOutlineColor");
 	wxColour new_color;
 	if ( GetColorFromUser(this,
 						  canvas->selectable_fill_color,
@@ -1153,7 +1194,6 @@ void C3DPlotFrame::OnSelectableFillColor(wxCommandEvent& event)
 /** Implementation of TimeStateObserver interface */
 void C3DPlotFrame::update(TimeState* o)
 {
-	LOG_MSG("In C3DPlotFrame::update(TimeState* o)");
 	canvas->TimeChange();
 	UpdateTitle();
 }

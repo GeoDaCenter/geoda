@@ -16,11 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include <boost/date_time.hpp>
 
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
-#include "../DbfFile.h"
+
+namespace bt = boost::posix_time;
+
 
 TableInterface::TableInterface(TableState* table_state_s,
 							   TimeState* time_state_s)
@@ -33,7 +36,6 @@ cols_ascii_only(true), is_valid(false)
 
 TableInterface::~TableInterface()
 {
-	LOG_MSG("In TableInterface::~TableInterface");
 	if (m_wx_encoding) delete m_wx_encoding;
 }
 
@@ -148,7 +150,9 @@ std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, w
 wxString TableInterface::GetUniqueGroupName(wxString grp_nm) const
 {
 	const int MAX_TRIES = 100000;
-	if (grp_nm.IsEmpty()) grp_nm = "Group";
+    if (grp_nm.IsEmpty()) {
+        grp_nm = "Group";
+    }
 	wxString u(grp_nm);
 	for (int i=0; i<MAX_TRIES; ++i) {
 		if (!DoesNameExist(u, cols_case_sensitive)) return u;
@@ -167,7 +171,9 @@ std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
         return ret;
 	
 	const int MAX_TRIES = 100000;
-	if (col_nm.IsEmpty()) col_nm = "VAR";
+    if (col_nm.IsEmpty()) {
+        col_nm = "VAR";
+    }
 	if (col_nm.length() > cols_max_length) {
 		col_nm = col_nm.substr(0, cols_max_length);
 	}
@@ -209,7 +215,68 @@ std::vector<wxString> TableInterface::GetGroupNames()
 }
 
 
-int TableInterface::GetColIdx(const wxString& name)
+int TableInterface::GetColIdx(const wxString& name, bool ignore_case)
 {
     return -1;
+}
+
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<double>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<wxInt64>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<wxString>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::SetColData(int col, int time,
+                                const std::vector<unsigned long long>& data,
+                                const std::vector<bool>& undefs)
+{
+    SetColData(col, time, data);
+    SetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<double>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<wxInt64>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<wxString>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
+}
+
+void TableInterface::GetColData(int col, int time, std::vector<unsigned long long>& data,
+                                std::vector<bool>& undefs)
+{
+    GetColData(col, time, data);
+    GetColUndefined(col, time, undefs);
 }

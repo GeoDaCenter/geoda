@@ -25,7 +25,6 @@
 #include <wx/textctrl.h>
 #include <wx/stattext.h>
 
-#include "../DbfFile.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -74,7 +73,9 @@ all_init(false)
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
         m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20), wxTE_PROCESS_ENTER);
         
-        m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(SaveToTableDlg::OnOkClick),NULL, this);
+        m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER,
+                                wxCommandEventHandler(SaveToTableDlg::OnOkClick),
+                                NULL, this);
         
 		if (is_space_time) {
 			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
@@ -88,7 +89,7 @@ all_init(false)
 	}
    
     
-    m_field_label = new wxStaticText(this, wxID_ANY, "Variable Name");
+    m_field_label = new wxStaticText(this, wxID_ANY, _("Variable Name"));
 	if (data.size() == 1)
         m_check[0]->SetValue(1);
     
@@ -133,17 +134,17 @@ void SaveToTableDlg::CreateControls()
 		//if (is_space_time) {
 		//	fg_sizer->Add(m_time[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//}
-        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_CENTER, 2);
+        fg_sizer->Add(m_check[i], 0, wxALL|wxALIGN_LEFT, 2);
         fg_sizer->Add(m_txt_field[i], 0, wxALL|wxALIGN_CENTER, 5);
 	}
 	
     //top_sizer->Add(fg_sizer, 0, wxALL, 8); // border of 8 around fg_sizer
     top_sizer->Add(fg_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	wxBoxSizer *button_sizer = new wxBoxSizer(wxHORIZONTAL);
-	m_ok_button = new wxButton(this, wxID_OK, "OK");
+	m_ok_button = new wxButton(this, wxID_OK, _("OK"));
 	//m_ok_button->Disable();
 	button_sizer->Add(m_ok_button, 0, wxALL, 5);
-	button_sizer->Add(new wxButton(this, wxID_CLOSE, "Close"), 0, wxALL, 5);
+	button_sizer->Add(new wxButton(this, wxID_CLOSE, _("Close")), 0, wxALL, 5);
 	top_sizer->Add(button_sizer, 0, wxALL|wxALIGN_CENTER, 5);
 	
     
@@ -164,13 +165,11 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Add Variable button was "
-			"pressed. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Add Variable button was pressed. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
-	LOG_MSG(wxString::Format("Add Variable button# pressed: %d", obj_id));
 	
 	// remember existing col choices before adding a new column.
 	std::vector<wxString> prev_col_nm(data.size());
@@ -178,8 +177,7 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 		prev_col_nm[i] = m_field[i]->GetStringSelection();
 	}
 	
-	LOG(data[obj_id].field_default);
-	LOG(data[obj_id].type);
+
     // Multiple time periods seems complex to user, we don't set "multiple time periods" by default, even there is time defined.
 	DataViewerAddColDlg dlg(project, this, true, true,
 							data[obj_id].field_default,
@@ -227,9 +225,8 @@ void SaveToTableDlg::OnFieldChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Field Choice was "
-		"selected. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Field Choice was selected. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -250,9 +247,8 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Time Choice was "
-		"selected. Please report this error.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = "Could not determine which Time Choice was selected. Please report this error.";
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -347,8 +343,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
         if (is_check[i]) {
             wxString name = m_txt_field[i]->GetValue();
             if (name.empty()) {
-                wxMessageDialog dlg(this, "Variable name can't be empty.",
-                                    "Error", wxOK | wxICON_ERROR );
+                wxMessageDialog dlg(this, _("Variable name can't be empty."),
+                                    _("Error"), wxOK | wxICON_ERROR );
                 dlg.ShowModal();
                 return;
             }
@@ -362,19 +358,11 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	std::set<wxString>::iterator it;
 	for (int i=0, iend=fname.size(); i<iend; i++) {
 		wxString s = fname[i];
-        /*
-		TableState* ts = project->GetTableState();
-		if (!Project::CanModifyGrpAndShowMsgIfNot(ts, s))
-            return;
-		if (project->GetTableInt()->IsTimeVariant()
-			&& m_time[i]->IsEnabled()) {
-			s << " (" << m_time[i]->GetStringSelection() << ")";
-		}
-         */
+        
 		it = names.find(s);
 		if (it != names.end()) {
-			wxMessageDialog dlg(this, "Duplicate variable names specified.",
-								"Error", wxOK | wxICON_ERROR );
+			wxMessageDialog dlg(this, _("Duplicate variable names specified."),
+								_("Error"), wxOK | wxICON_ERROR );
 			dlg.ShowModal();
 			return;
 		}
@@ -383,20 +371,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 	}
 	
 	for (int i=0, iend=data.size(); i<iend; i++) {
-        /*
-		if (is_check[i]) {
-			int col = col_id_maps[i][m_field[i]->GetSelection()];
-			int time = is_space_time ? m_time[i]->GetSelection() : 0;
-			if (data[i].d_val) {
-				table_int->SetColData(col, time, *data[i].d_val);
-			} else if (data[i].l_val) {
-				table_int->SetColData(col, time, *data[i].l_val);
-			}
-			if (data[i].undefined) {
-				table_int->SetColUndefined(col, time, *data[i].undefined);
-			}
-		}
-        */
+        
         if (is_check[i]) {
             wxString field_name = m_txt_field[i]->GetValue();
             int time=0;
@@ -431,6 +406,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
                     table_int->SetColUndefined(col, time, *data[i].undefined);
                 }
             }
+            new_col_ids.push_back(col);
+            new_col_names.push_back(field_name);
         }
 	}
 

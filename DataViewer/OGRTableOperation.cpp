@@ -20,6 +20,10 @@
 #include "OGRColumn.h"
 #include "OGRTableOperation.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
+#include <boost/date_time.hpp>
+
+namespace bt = boost::posix_time;
+
 
 OGRTableOperation::OGRTableOperation(OGRColumn* col)
 {
@@ -42,7 +46,8 @@ void OGRTableOpInsertColumn::Commit()
     // insert ogr column is only applied for appending new column
     if (ogr_col->IsNewColumn()) {
         int pos = ogr_layer->AddField(ogr_col->GetName().ToStdString(),
-                                      ogr_col->GetType(),ogr_col->GetLength(),
+                                      ogr_col->GetType(),
+                                      ogr_col->GetLength(),
                                       ogr_col->GetDecimals());
         // column content will be done in OGRTableUpdateColumn
     }
@@ -98,29 +103,44 @@ void OGRTableOpDeleteColumn::Rollback()
         int n_rows = ogr_col->GetNumRows();
         if ( type == GdaConst::long64_type){
             vector<wxInt64> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, (GIntBig)col_data[i]);
             }
         } else if ( type == GdaConst::double_type){
             vector<double> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i]);
             }
-        } else if ( type == GdaConst::date_type){
+        } else if (type == GdaConst::date_type ||
+                   type == GdaConst::time_type ||
+                   type == GdaConst::datetime_type ){
+            
             vector<wxInt64> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 wxInt64 val = col_data[i];
-                int year = val / 10000;
-                int month = val % 10000 / 100;
-                int day = val % 1000000;
-                ogr_layer->SetValueAt(i, pos, year, month, day);
+                // 20081203120100 YYYYMMDDHHMMSS
+                int year = val / 10000000000;
+                val = val % 10000000000;
+                int month = val / 100000000;
+                val = val % 100000000;
+                int day = val  / 1000000;
+                val = val % 1000000;
+                int hour = val / 10000;
+                val = val % 10000;
+                int minute = val / 100;
+                int second = val % 100;
+                ogr_layer->SetValueAt(i, pos, year, month, day, hour, minute, second);
             }
         } else {
             vector<wxString> col_data;
-            ogr_col->FillData(col_data);
+            vector<bool> undefs;
+            ogr_col->FillData(col_data, undefs);
             for (int i=0; i<n_rows; i++) {
                 ogr_layer->SetValueAt(i, pos, col_data[i].mb_str());
             }
@@ -164,7 +184,7 @@ OGRTableOpRenameColumn::OGRTableOpRenameColumn( OGRColumn* col,
 : OGRTableOperation(col)
 {
     old_col_name = old_name;
-    new_col_name = new_name;
+    new_col_name = new_name;    
 }
 
 void OGRTableOpRenameColumn::Commit()
@@ -187,12 +207,24 @@ void OGRTableOpRenameColumn::Rollback()
 
 ////////////////////////////////////////////////////////////////////////////////
 OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
+                                               const std::vector<unsigned long long>& new_data)
+: OGRTableOperation(col)
+{
+    int n_rows = ogr_col->GetNumRows();
+    t_old_data.resize(n_rows);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(t_old_data, undef_old_data);
+    t_new_data = new_data;
+}
+
+OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
                                         const std::vector<double>& new_data)
 : OGRTableOperation(col)
 {
     int n_rows = ogr_col->GetNumRows();
     d_old_data.resize(n_rows);
-    ogr_col->FillData(d_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(d_old_data, undef_old_data);
     d_new_data = new_data;
 }
 
@@ -202,7 +234,8 @@ OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
 {
     int n_rows = ogr_col->GetNumRows();
     l_old_data.resize(n_rows);
-    ogr_col->FillData(l_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(l_old_data, undef_old_data);
     l_new_data = new_data;
 }
 
@@ -212,7 +245,8 @@ OGRTableOpUpdateColumn::OGRTableOpUpdateColumn(OGRColumn* col,
 {
     int n_rows = ogr_col->GetNumRows();
     s_old_data.resize(n_rows);
-    ogr_col->FillData(s_old_data);
+    undef_old_data.resize(n_rows);
+    ogr_col->FillData(s_old_data, undef_old_data);
     s_new_data = new_data;
 }
 
@@ -270,7 +304,7 @@ void OGRTableOpUpdateColumn::Rollback()
 ////////////////////////////////////////////////////////////////////////////////
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                            double new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this if for adding new Double column
     this->row_idx = row_idx;
@@ -282,7 +316,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
 
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                            wxInt64 new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this if for adding new Integer column
     this->row_idx = row_idx;
@@ -294,7 +328,7 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
 
 OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
                                              wxString new_val)
-: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0)
+: OGRTableOperation(col), d_new_value(0.0), d_old_value(0.0), undef_old_value(false), undef_new_value(false)
 {
     // this is for user editing cell value and save to table, so the
     // wxString(new_val) could be any data type. Here converts new_val
@@ -302,13 +336,15 @@ OGRTableOpUpdateCell::OGRTableOpUpdateCell(OGRColumn* col, int row_idx,
     this->row_idx = row_idx;
     wxString col_name = ogr_col->GetName();
     GdaConst::FieldType type = ogr_col->GetType();
+    
     if ( type == GdaConst::long64_type) {
-        new_val.ToLongLong(&l_new_value);
+        undef_new_value = !new_val.ToLongLong(&l_new_value);
     } else if (type == GdaConst::double_type) {
-        new_val.ToDouble(&d_new_value);
+        undef_new_value = !new_val.ToDouble(&d_new_value);
     } else if (type == GdaConst::string_type) {
         s_new_value = new_val;
     }
+    
     GetOriginalCellValue();
 }
 
@@ -331,9 +367,9 @@ void OGRTableOpUpdateCell::GetOriginalCellValue()
         if (col_idx < 0)
             s_old_value = wxEmptyString;
         else
-            s_old_value =
-                wxString(ogr_layer->data[row_idx]->GetFieldAsString(col_idx));
+            s_old_value = wxString(ogr_layer->data[row_idx]->GetFieldAsString(col_idx));
     }
+    undef_old_value = !ogr_layer->data[row_idx]->IsFieldSet(col_idx);
 }
 
 void OGRTableOpUpdateCell::Commit()
@@ -344,7 +380,7 @@ void OGRTableOpUpdateCell::Commit()
     wxString col_name = ogr_col->GetName();
     int col_idx = ogr_layer->GetFieldPos(col_name);
     if (col_idx < 0) {
-        wxString msg = "Internal Error: can't update an in-memory cell.";
+        wxString msg = _("Internal Error: can't update an in-memory cell.");
         throw GdaException(msg.mb_str());
     }
     
@@ -352,15 +388,16 @@ void OGRTableOpUpdateCell::Commit()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
+            // undef = s_new_value.IsEmpty()
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value, undef_new_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value, undef_new_value);
         }
     } else if (type == GdaConst::string_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (s_new_value != s_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value, undef_new_value);
         }
     }
 }
@@ -379,15 +416,15 @@ void OGRTableOpUpdateCell::Rollback()
     
     if ( type == GdaConst::long64_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (l_new_value != l_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, (GIntBig)l_new_value, undef_old_value);
         }
     } else if (type == GdaConst::double_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (d_new_value != d_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, d_new_value, undef_old_value);
         }
     } else if (type == GdaConst::string_type) {
         if ( ogr_col->IsCellUpdated(row_idx) || (s_new_value != s_old_value) ) {
-            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value);
+            ogr_layer->SetValueAt(row_idx, col_idx, s_new_value, undef_old_value);
         }
     }
 }

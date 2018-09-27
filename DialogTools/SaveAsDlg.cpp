@@ -36,7 +36,9 @@
 #include "../logger.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "SaveAsDlg.h"
+
 
 
 BEGIN_EVENT_TABLE( SaveAsDlg, wxDialog )
@@ -75,6 +77,8 @@ SaveAsDlg::SaveAsDlg(wxWindow* parent,
     m_project_path_txt->Enable();
     m_browse_project_btn->Enable();
 
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+
     SetParent(parent);
 	SetPosition(pos);
 	Centre();
@@ -107,8 +111,8 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     wxString msg;
     IDataSource* datasource = project_p->GetDataSource();
     if ( datasource == NULL ) {
-        msg = "Datasource in project is not valid.";
-        wxMessageDialog dlg(this, msg , "Error", wxOK | wxICON_INFORMATION);
+        msg = _("Datasource in project is not valid.");
+        wxMessageDialog dlg(this, msg , _("Error"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
@@ -125,10 +129,9 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
         ds_type != GdaConst::ds_gpkg &&
         ds_type != GdaConst::ds_csv)
     {
-        msg << "Save is not supported on current data source type: "
-        << ds_format << ". Please try to use \"File->Save As\" other data source. "
-        << "However, the project file can still be saved as other project file.";
-		wxMessageDialog dlg (this, msg, "Warning", wxOK | wxICON_INFORMATION);
+        msg = _("Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file.");
+        msg = wxString::Format(msg, ds_format);
+		wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         m_datasource_path_txt->SetValue("");
         m_chk_create_datasource->SetValue(false);
@@ -137,15 +140,15 @@ void SaveAsDlg::OnBrowseDatasourceBtn ( wxCommandEvent& event )
     wxString ds_path = project_p->GetDataSource()->GetOGRConnectStr();
     wxString suffix = ds_path.AfterLast('.');
     if ( suffix.empty() ) {
-        msg << "The original datasource " << ds_path << " is not a valid file."
-        "GeoDa \"Save\" only works on file datasource.";
-        wxMessageDialog dlg(this, msg , "Warning", wxOK | wxICON_INFORMATION);
+        msg = _("The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource.");
+        msg = wxString::Format(msg, ds_path);
+        wxMessageDialog dlg(this, msg , _("Warning"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
     wxString wildcard;
     wildcard << ds_format << "  (*." << suffix << ")|*." << suffix;
-    wxFileDialog dlg(this, "Save As Datasource", "", "", wildcard,
+    wxFileDialog dlg(this, _("Save As Datasource"), "", "", wildcard,
                      wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     if (dlg.ShowModal() != wxID_OK) return;  
     ds_file_path = dlg.GetPath();
@@ -184,7 +187,7 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
 				project_p->SpecifyProjectConfFile(project_fname);
 				project_p->SaveProjectConf();
             } else {
-                msg = "Project file path is empty.";
+                msg = _("Project file path is empty.");
             }
         } else if ( !bSaveProject && bSaveDatasource ) {
             // SaveAs datasource  only
@@ -192,13 +195,12 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
                 bool is_update = false;
                 project_p->SaveDataSourceAs(datasource_fname, is_update);
             } else {
-                msg = "Datasource path is empty.";
+                msg = _("Datasource path is empty.");
             }
         } else if ( bSaveProject && bSaveDatasource ) {
             // SaveAs project + datasource
             if ( project_fname.empty() || datasource_fname.empty() ) {
-                msg = "Please provide paths for both Project file and "
-                "Datasource.";
+                msg = _("Please provide paths for both Project file and  Datasource.");
             } else {
 				project_p->SpecifyProjectConfFile(project_fname);
                 bool is_update = false;
@@ -235,17 +237,17 @@ void SaveAsDlg::OnOkClick( wxCommandEvent& event )
         }
         
         if ( !msg.empty() ) {
-            wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+            wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
             dlg.ShowModal();
             return;
         }
-        msg = "Saved successfully.";
-        wxMessageDialog dlg(this, msg , "Info", wxOK | wxICON_INFORMATION);
+        msg = _("Saved successfully.");
+        wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         EndDialog(wxID_OK);
         
     } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }

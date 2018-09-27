@@ -38,6 +38,7 @@
 IMPLEMENT_CLASS( CreateGridDlg, wxDialog )
 
 BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
+    EVT_CLOSE(CreateGridDlg::OnClose )
     EVT_BUTTON( XRCID("IDCANCEL"), CreateGridDlg::OnCancelClick )
     EVT_BUTTON( XRCID("IDC_REFERENCEFILE"),
 			   CreateGridDlg::OnCReferencefileClick )
@@ -54,8 +55,15 @@ BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO3"), CreateGridDlg::OnCRadio3Selected )
 END_EVENT_TABLE()
 
-CreateGridDlg::CreateGridDlg( )
+CreateGridDlg::~CreateGridDlg( )
 {
+}
+
+void CreateGridDlg::OnClose(wxCloseEvent& event)
+{
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    Destroy();
 }
 
 CreateGridDlg::CreateGridDlg( wxWindow* parent, wxWindowID id,
@@ -141,13 +149,16 @@ void CreateGridDlg::CreateControls()
 
 void CreateGridDlg::OnCancelClick( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCancelClick()");
 	event.Skip();
 	EndDialog(wxID_CANCEL);	
 }
 
 void CreateGridDlg::OnCReferencefileClick( wxCommandEvent& event )
 {
-   wxFileDialog dlg( this, "Input ASCII file", "", "",
+    wxLogMessage("In CreateGridDlg::OnCReferencefileClick()");
+    
+    wxFileDialog dlg( this, _("Input ASCII file"), "", "",
                     "ASCII files (*.*)|*.*");
 
 	wxString m_path = wxEmptyString;
@@ -160,11 +171,12 @@ void CreateGridDlg::OnCReferencefileClick( wxCommandEvent& event )
 
                 fn = dlg.GetFilename();
                 int pos = fn.Find('.', true);
-                if (pos >= 0) fn = fn.Left(pos);
+                if (pos >= 0)
+                    fn = fn.Left(pos);
 
-		ifstream    ifl(GET_ENCODED_FILENAME(m_path), ios::in);
+		ifstream ifl(GET_ENCODED_FILENAME(m_path), ios::in);
 		if (ifl.fail())  {
-			wxMessageBox("File doesn't exist!");
+			wxMessageBox(_("File doesn't exist!"));
 			return;
 		}
 
@@ -212,11 +224,13 @@ void CreateGridDlg::OnCReferencefileClick( wxCommandEvent& event )
 
 void CreateGridDlg::OnCBrowseOfileClick( wxCommandEvent& event )
 {
-     wxFileDialog dlg ( this, "Output Shp file", wxEmptyString, fn + ".shp",
+    wxLogMessage("In CreateGridDlg::OnCBrowseOfileClick()");
+    
+     wxFileDialog dlg ( this, ("Output Shp file"), wxEmptyString, fn + ".shp",
 					   "Shp files (*.shp)|*.shp",
 					   wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
 
-	wxString	m_path = wxEmptyString;
+	wxString m_path = wxEmptyString;
 
     if (dlg.ShowModal() == wxID_OK) {
 		//m_path  = dlg.GetPath();
@@ -229,18 +243,26 @@ void CreateGridDlg::OnCBrowseOfileClick( wxCommandEvent& event )
 
 void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCReferencefile2Click()");
+    
     try{
-        ConnectDatasourceDlg dlg(this);
-        if (dlg.ShowModal() != wxID_OK) return;
+        wxPoint pos = GetPosition();
+        int dialog_type = 1; // no gda is allowed
+        bool showCsvConfigure = false;
+        bool showRecentPanel = false;
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
+        if (connect_dlg.ShowModal() != wxID_OK) {
+            return;
+        }
         
-        wxString proj_title = dlg.GetProjectTitle();
-        wxString layer_name = dlg.GetLayerName();
-        IDataSource* datasource = dlg.GetDataSource();
+        wxString proj_title = connect_dlg.GetProjectTitle();
+        wxString layer_name = connect_dlg.GetLayerName();
+        IDataSource* datasource = connect_dlg.GetDataSource();
         wxString ds_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
         
         OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, false);
-        OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layer_name.ToStdString());
+        OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layer_name);
         bool validExt = ogr_layer->GetExtent(m_xBot, m_yBot, m_xTop, m_yTop);
         delete ogr_ds;
         ogr_ds = NULL;
@@ -248,11 +270,10 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
             m_inputfileshp->SetValue(layer_name);
             EnableItems();
         } else {
-            wxMessageBox("Can't get bounding box information from this "
-                         "datasource. Please try another datasource." );
+            wxMessageBox(_("Can't get bounding box information from this datasource. Please try another datasource."));
         }
     }catch(GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), "Error", wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, e.what(), ("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
         return;
     }
@@ -261,31 +282,36 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
 
 void CreateGridDlg::OnCreateClick( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCreateClick()");
 	if (CheckBBox()) {
-		CreateGrid();
+		if (CreateGrid() == false)
+            return;
 		hasCreated = true;
 	} else {
-		wxMessageBox("Please fix the grid bounding box!");
+		wxMessageBox(_("Please fix the grid bounding box."));
 		return;
 	}
+    wxMessageBox(_("Grid file was successfully created."));
 	event.Skip();
-	EndDialog(wxID_OK);
 }
 
 void CreateGridDlg::OnCRadio1Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCRadio1Selected()");
     m_check = 1;
 	EnableItems();
 }
 
 void CreateGridDlg::OnCRadio2Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCRadio2Selected()");
 	m_check = 2;
 	EnableItems();
 }
 
 void CreateGridDlg::OnCRadio3Selected( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCRadio3Selected()");
     m_check = 3;
 	EnableItems();
 }
@@ -322,7 +348,7 @@ bool CreateGridDlg::CheckBBox()
 	return true;
 }
 
-void CreateGridDlg::CreateGrid()
+bool CreateGridDlg::CreateGrid()
 {
 	FindWindow(XRCID("ID_CREATE"))->Enable(false);
 	FindWindow(XRCID("IDCANCEL"))->Enable(false);
@@ -362,12 +388,14 @@ void CreateGridDlg::CreateGrid()
             
             grids.push_back(new GdaPolygon(n_pts,pts));
 
-            delete pts;
+            delete[] pts;
         }
     }
-   
-    ExportDataDlg dlg(this, grids, Shapefile::POLYGON);
-    dlg.ShowModal();
+    
+
+    ExportDataDlg export_dlg(this, grids, Shapefile::POLYGON);
+    
+    bool result = export_dlg.ShowModal() == wxID_OK;
     
 	m_nCount = nMaxCount;
 
@@ -381,33 +409,47 @@ void CreateGridDlg::CreateGrid()
 	x = NULL;
 	delete [] y;
 	y = NULL;
+    
+    return result;
 }
 
 void CreateGridDlg::OnCEdit1Updated( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCEdit1Updated()");
 	if (!isCreated) return;
-	m_lower_x->GetValue().ToDouble(&m_xBot);
+    wxString input = m_lower_x->GetValue();
+    wxLogMessage(input);
+	input.ToDouble(&m_xBot);
 	EnableItems();
     
 }
 
 void CreateGridDlg::OnCEdit2Updated( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCEdit2Updated()");
 	if (!isCreated) return;
-	m_lower_y->GetValue().ToDouble(&m_yBot);
+    wxString input = m_lower_y->GetValue();
+    wxLogMessage(input);
+	input.ToDouble(&m_yBot);
 	EnableItems();
 }
 
 void CreateGridDlg::OnCEdit3Updated( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCEdit3Updated()");
 	if (!isCreated) return;
-	m_upper_x->GetValue().ToDouble(&m_xTop);
+    wxString input = m_upper_x->GetValue();
+    wxLogMessage(input);
+	input.ToDouble(&m_xTop);
 	EnableItems();
 }
 
 void CreateGridDlg::OnCEdit4Updated( wxCommandEvent& event )
 {
+    wxLogMessage("In CreateGridDlg::OnCEdit4Updated()");
 	if (!isCreated) return;
-	m_upper_y->GetValue().ToDouble(&m_yTop);
+    wxString input = m_upper_y->GetValue();
+    wxLogMessage(input);
+    input.ToDouble(&m_yTop);
 	EnableItems();
 }

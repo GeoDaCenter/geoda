@@ -49,7 +49,6 @@ public:
 	
 	~OGRFieldProxy();
 	
-public:
     wxString GetName() { return name; }
     
     void SetName(const wxString& new_name);

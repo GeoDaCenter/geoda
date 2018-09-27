@@ -37,19 +37,13 @@
 
 class DatasourceDlg : public wxDialog
 {
-protected:
-    enum DS_IDS
-    {
-        ID_DS_START=1001
-    };
-    
 public:
     DatasourceDlg(){}
     virtual ~DatasourceDlg(){}
 	virtual void OnOkClick( wxCommandEvent& event ) = 0;
-	
-	wxFileName      ds_file_path;
     
+    wxFileName      ds_file_path;
+
 protected:
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;

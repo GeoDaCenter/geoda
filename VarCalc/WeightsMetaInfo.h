@@ -26,13 +26,13 @@
 struct WeightsMetaInfo
 {
 	enum WeightTypeEnum {
-		WT_custom, WT_rook, WT_queen, WT_threshold, WT_knn
+		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel, WT_knn
 	};
 	enum SymmetryEnum {
 		SYM_unknown, SYM_symmetric, SYM_asymmetric
 	};
 	enum DistanceValuesEnum {
-		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars
+		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars, DV_coordinates
 	};
 	enum DistanceMetricEnum {
 		DM_unspecified, DM_euclidean, DM_arc
@@ -54,16 +54,32 @@ struct WeightsMetaInfo
                     wxString dist_units_str,
 					DistanceValuesEnum dist_values,
 					double threshold_val,
-					wxString dist_var_1 = "", long dist_tm_1 = -1,
-					wxString dist_var_2 = "", long dist_tm_2 = -1);
+                    double power,
+					wxString dist_var_1 = "",
+                    long dist_tm_1 = -1,
+					wxString dist_var_2 = "",
+                    long dist_tm_2 = -1);
 	void SetToKnn(const wxString& id_var,
 				  DistanceMetricEnum dist_metric,
 				  DistanceUnitsEnum dist_units,
                   wxString dist_units_str,
 				  DistanceValuesEnum dist_values,
 				  long k,
+                  double power,
 				  wxString dist_var_1 = "", long dist_tm_1 = -1,
 				  wxString dist_var_2 = "", long dist_tm_2 = -1);
+    void SetToKernel(const wxString& id_var,
+                     DistanceMetricEnum dist_metric,
+                     DistanceUnitsEnum dist_units,
+                     wxString dist_units_str,
+                     DistanceValuesEnum dist_values,
+                     wxString kernel,
+                     long k,
+                     double bandwidth,
+                     bool is_adaptive_kernel,
+                     bool use_kernel_diagnals,
+                     wxString dist_var_1 = "", long dist_tm_1 = -1,
+                     wxString dist_var_2 = "", long dist_tm_2 = -1);
 
 	wxString filename; // weights file filename if exists
 	wxString id_var; // if empty, then record order assumed
@@ -82,6 +98,15 @@ struct WeightsMetaInfo
     
     wxString dist_units_str;
 	
+    double power;
+    
+    // kernel
+    wxString kernel;
+    long k;
+    double bandwidth;
+    bool is_adaptive_kernel;
+    bool use_kernel_diagnals;
+    
 	wxString dist_var1; // x-coord
 	wxString dist_var2; // y-coord
 	// optional time period for x and y.  -1 indicates that variable is
@@ -95,6 +120,24 @@ struct WeightsMetaInfo
 	
 	// Used by threshold distance
 	double threshold_val; // any real
+    
+    // Sparsity
+    double sparsity_val;
+    
+    // Density
+    double density_val;
+    
+    int num_obs;
+    
+    int min_nbrs;
+    
+    int max_nbrs;
+    
+    double mean_nbrs;
+    
+    double median_nbrs;
+    
+    double non_zero_percent;
 	
 	wxString ToStr() const;
 	wxString TypeToStr() const;
@@ -111,6 +154,15 @@ struct WeightsMetaInfo
 						   const WeightsMetaInfo& rh);
 	friend bool operator!=(const WeightsMetaInfo& lh,
 						   const WeightsMetaInfo& rh);
+    
+    
+    void SetSparsity(double sparsity);
+    void SetDensity(double density);
+    void SetMinNumNbrs(int val);
+    void SetMaxNumNbrs(int val);
+    void SetMeanNumNbrs(double val);
+    void SetMedianNumNbrs(double val);
+    
 };
 
 #endif

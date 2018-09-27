@@ -60,7 +60,7 @@ FieldNewCalcUniDlg::FieldNewCalcUniDlg(Project* project_s,
 									   wxWindowID id, const wxString& caption,
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
-: all_init(false), op_string(9), project(project_s),
+: all_init(false), op_string(10), project(project_s),
 table_int(project_s->GetTableInt()),
 m_valid_const(false), m_const(1), m_var_sel(wxNOT_FOUND),
 is_space_time(project_s->GetTableInt()->IsTimeVariant())
@@ -76,7 +76,8 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
 	op_string[log_10_op] = "LOG (base 10)";
 	op_string[log_e_op] = "LOG (base e)";
 	op_string[dev_from_mean_op] = "DEVIATION FROM MEAN";
-	op_string[standardize_op] = "STANDARDIZED";
+	op_string[standardize_op] = "STANDARDIZED (Z)";
+    op_string[mad_op] = "STANDARDIZED (MAD)";
 	op_string[shuffle_op] = "SHUFFLE";
 	
 	for (int i=0, iend=op_string.size(); i<iend; i++) {
@@ -106,7 +107,7 @@ void FieldNewCalcUniDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
 		wxString msg("Please choose a Result field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -118,7 +119,7 @@ void FieldNewCalcUniDlg::Apply()
 	}	
 	if (var_col == wxNOT_FOUND && !m_valid_const) {
 		wxString msg("Operation requires a valid field name or constant.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -128,7 +129,7 @@ void FieldNewCalcUniDlg::Apply()
 		IsAllTime(var_col, m_var_tm->GetSelection())) {
 		wxString msg("When \"all times\" selected for variable, result "
 					 "field must also be \"all times.\"");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -246,7 +247,7 @@ void FieldNewCalcUniDlg::Apply()
 						msg << "Observation " << i;
 						msg << " is undefined. ";
 						msg << "Operation aborted.";
-						wxMessageDialog dlg (this, msg, "Error",
+						wxMessageDialog dlg (this, msg, _("Error"),
 											 wxOK | wxICON_ERROR);
 						dlg.ShowModal();
 						return;
@@ -264,7 +265,7 @@ void FieldNewCalcUniDlg::Apply()
 						msg << "Observation ";
 						msg << i << " is undefined. ";
 						msg << "Operation aborted.";
-						wxMessageDialog dlg (this, msg, "Error",
+						wxMessageDialog dlg (this, msg, _("Error"),
 											 wxOK | wxICON_ERROR);
 						dlg.ShowModal();
 						return;
@@ -275,13 +276,22 @@ void FieldNewCalcUniDlg::Apply()
 				for (int i=0; i<rows; i++) ssum += r_data[i] * r_data[i];
 				if (ssum == 0) {
 					wxString msg("Standard deviation is 0, operation aborted.");
-					wxMessageDialog dlg (this, msg, "Error", wxOK|wxICON_ERROR);
+					wxMessageDialog dlg (this, msg, _("Error"), wxOK|wxICON_ERROR);
 					dlg.ShowModal();
 					return;
 				}
 				GenUtils::StandardizeData(r_data);
 			}
 				break;
+            case mad_op:
+            {
+                for (int i=0; i<rows; i++) {
+                    r_data[i] = data[i];
+                    r_undefined[i] = undefined[i];
+                }
+                GenUtils::MeanAbsoluteDeviation(r_data, r_undefined);
+            }
+                break;
 			case shuffle_op:
 			{
 				for (int i=0; i<rows; i++) {
@@ -362,6 +372,7 @@ void FieldNewCalcUniDlg::InitFieldChoices()
 		// only the time field changed
 		if (m_var_sel != wxNOT_FOUND) {
 			m_var->SetSelection(m_var_sel);
+            m_var->SetValue(m_var->GetStringSelection());
 		} else {
 			m_var->SetValue(var_val_orig);
 		}
@@ -417,6 +428,8 @@ void FieldNewCalcUniDlg::Display()
 		if (!var.IsEmpty()) rhs << "dev from mean of " << var;
 	} else if (op_sel == standardize_op) {
 		if (!var.IsEmpty()) rhs << "standardized dev from mean of " << var;
+    } else if (op_sel == mad_op) {
+        if (!var.IsEmpty()) rhs << "mean abosolute deviation of " << var;
 	} else { // op_sel == shuffle_op
 		if (!var.IsEmpty()) rhs << "randomly permute values in " << var;
 	}
@@ -494,7 +507,7 @@ void FieldNewCalcUniDlg::OnUnaryOperandUpdated( wxCommandEvent& event )
 		m_var_sel = m_var->GetSelection();
 	}
 	m_var_tm->Enable(m_var_sel != wxNOT_FOUND &&
-					 table_int->GetColTimeSteps(col_id_map[m_var_sel]) > 1);
+                     table_int->GetColTimeSteps(col_id_map[m_var_sel]) > 1);
 	Display();
 }
 

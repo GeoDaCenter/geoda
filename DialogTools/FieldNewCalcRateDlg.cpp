@@ -29,7 +29,6 @@
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
-#include "ExportDataDlg.h"
 #include "FieldNewCalcSpecialDlg.h"
 #include "FieldNewCalcUniDlg.h"
 #include "FieldNewCalcBinDlg.h"
@@ -111,31 +110,31 @@ void FieldNewCalcRateDlg::SaveValidSubsetAs()
 void FieldNewCalcRateDlg::Apply()
 {
 	if (m_result->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select a results field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select a results field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	const int op = m_method->GetSelection();
 	if ((op == 3 || op == 4) && GetWeightsId().is_nil()) {
-		wxString msg("Weight matrix required for chosen spatial "
+		wxString msg = _("Weight matrix required for chosen spatial "
 					 "rate method.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (m_event->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select an Event field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select an Event field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 
 	if (m_base->GetSelection() == wxNOT_FOUND) {
-		wxString msg("Please select an Base field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Please select an Base field.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -152,9 +151,8 @@ void FieldNewCalcRateDlg::Apply()
 		(IsAllTime(cop1, m_event_tm->GetSelection()) ||
 		 IsAllTime(cop2, m_base_tm->GetSelection())))
 	{
-		wxString msg("When \"all times\" selected for either variable, result "
-					 "field must also be \"all times.\"");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("When \"all times\" selected for either variable, result field must also be \"all times.\"");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -162,8 +160,8 @@ void FieldNewCalcRateDlg::Apply()
 	boost::uuids::uuid weights_id = GetWeightsId();
 	if (op == 3 || op == 4)	{
 		if (!w_man_int->IsValid(weights_id)) {
-			wxString msg("Was not able to load weights matrix.");
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxString msg= _("Was not able to load weights matrix.");
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
@@ -182,161 +180,71 @@ void FieldNewCalcRateDlg::Apply()
 	
 	const int obs = table_int->GetNumberRows();
 	
-	bool Event_undefined = false;
-	if (IsAllTime(cop1, m_event_tm->GetSelection())) {
-		b_array_type undefined;
-		table_int->GetColUndefined(cop1, undefined);
-		int ts = project->GetTableInt()->GetTimeSteps();
-		for (int t=0; t<ts && !Event_undefined; t++) {
-			for (int i=0; i<obs && !Event_undefined; i++) {
-				if (undefined[t][i]) Event_undefined = true;
-			}
-		}
-	} else {
-		std::vector<bool> undefined(obs);
-		int tm = IsTimeVariant(cop1) ? m_event_tm->GetSelection() : 0;
-		table_int->GetColUndefined(cop1, tm, undefined);
-		for (int i=0; i<obs && !Event_undefined; i++) {
-			if (undefined[i]) Event_undefined = true;
-		}		
-	}
-	if (Event_undefined) {
-		wxString msg("Event field has undefined values.  Please define "
-					 "missing values or choose a different field.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
-		dlg.ShowModal();
-		return;
-	}
-
-	// for 
 	HighlightState* highlight_state = project->GetHighlightState();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-	std::vector<bool> hs_backup = hs;
-
-	for (int i=0; i<obs; i++) {
-		hs[i] = true;
-	}
-
-	bool Base_undefined = false;
-	if (IsAllTime(cop2, m_base_tm->GetSelection())) {
-		b_array_type undefined;
-		table_int->GetColUndefined(cop2, undefined);
-		int ts = project->GetTableInt()->GetTimeSteps();
-		for (int t=0; t<ts && !Base_undefined; t++) {
-			for (int i=0; i<obs && !Base_undefined; i++) {
-				if (undefined[t][i]) {
-					Base_undefined = true;
-					hs[i] = false;
-				}
-			}
-		}
-	} else {
-		std::vector<bool> undefined(obs);
-		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
-		table_int->GetColUndefined(cop2, tm, undefined);
-		for (int i=0; i<obs && !Base_undefined; i++) {
-			if (undefined[i]) {
-				Base_undefined = true;
-				hs[i] = false;
-			}
-		}
-	}
-	if (Base_undefined) {
-		wxString msg("Base field has undefined values. Do you want to "
-                     "save a subset without undefined values as a new "
-                     "shape file? or please define "
-					 "missing values or choose a different field.");
-		wxMessageDialog dlg (this, msg, "Error", 
-                             wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-        if (dlg.ShowModal() == wxID_YES) {
-			ExportDataDlg dlg(this, project, true);
-			dlg.ShowModal();
-        }
-		hs = hs_backup;
-		return;
-	}
-
-	for (int i=0; i<obs; i++) {
-		hs[i] = true;
-	}
-
-	bool Base_non_positive = false;
-	if (IsAllTime(cop2, m_base_tm->GetSelection())) {
-		d_array_type data;
-		table_int->GetColData(cop2, data);
-		int ts = project->GetTableInt()->GetTimeSteps();
-		for (int t=0; t<ts && !Base_non_positive; t++) {
-			for (int i=0; i<obs && !Base_non_positive; i++) {
-				if (data[t][i] <= 0) {
-					Base_non_positive = true;
-					hs[i] = false;
-				}
-			}
-		}
-	} else {
-		std::vector<double> data(obs);
-		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
-		table_int->GetColData(cop2, tm, data);
-		for (int i=0; i<obs && !Base_non_positive; i++) {
-			if (data[i] <= 0) {
-				Base_non_positive = true;
-				hs[i] = false;
-			}
-		}
-	}
-	if (Base_non_positive) {
-		wxString msg("Base field has zero or negative values, but all base "
-					 "values must be strictly greater than zero. Do you want "
-                     "to save a subset of non-zeros as a new shape file? ");
-		wxMessageDialog dlg (this, msg, "Error", 
-                             wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-		if (dlg.ShowModal() == wxID_YES) {
-			ExportDataDlg exp_dlg(this, project, true);
-			exp_dlg.ShowModal();
-        }
-		hs = hs_backup;
-		return;
-	}
-	hs = hs_backup;
 
 	bool has_undefined = false;
 	double* B = new double[obs]; // Base variable vector == cop2
 	double* E = new double[obs]; // Event variable vector == cop1
 	double* r = new double[obs]; // result vector
+    
 	std::vector<double> data(obs);
+	std::vector<bool> undef_r(obs, false);
 
 	if (!IsAllTime(cop2, m_base_tm->GetSelection())) {
+        std::vector<bool> undef(obs);
 		int tm = IsTimeVariant(cop2) ? m_base_tm->GetSelection() : 0;
 		table_int->GetColData(cop2, tm, data);
-		for (int i=0; i<obs; i++) B[i] = data[i];
+        table_int->GetColUndefined(cop2, tm, undef);
+        for (int i=0; i<obs; i++) {
+            B[i] = data[i];
+            undef_r[i] == undef_r[i] || undef[i];
+        }
 	}
 	if (!IsAllTime(cop1, m_event_tm->GetSelection())) {
+        std::vector<bool> undef(obs);
 		int tm = IsTimeVariant(cop1) ? m_event_tm->GetSelection() : 0;
 		table_int->GetColData(cop1, tm, data);
-		for (int i=0; i<obs; i++) E[i] = data[i];
+        table_int->GetColUndefined(cop1, tm, undef);
+        for (int i=0; i<obs; i++) {
+            E[i] = data[i];
+            undef_r[i] == undef_r[i] || undef[i];
+        }
 	}
 	
 	for (int t=0; t<time_list.size(); t++) {
 		if (IsAllTime(cop2, m_base_tm->GetSelection())) {
+            std::vector<bool> undef(obs);
 			table_int->GetColData(cop2, time_list[t], data);
-			for (int i=0; i<obs; i++) B[i] = data[i];
+            table_int->GetColUndefined(cop2, time_list[t], undef);
+            for (int i=0; i<obs; i++) {
+                B[i] = data[i];
+                undef_r[i] == undef_r[i] || undef[i];
+            }
 		}
 		if (IsAllTime(cop1, m_event_tm->GetSelection())) {
+            std::vector<bool> undef(obs);
 			table_int->GetColData(cop1, time_list[t], data);
-			for (int i=0; i<obs; i++) E[i] = data[i];
+            table_int->GetColUndefined(cop1, time_list[t], undef);
+            for (int i=0; i<obs; i++) {
+                E[i] = data[i];
+                undef_r[i] == undef_r[i] || undef[i];
+            }
 		}
-		for (int i=0; i<obs; i++) r[i] = -9999;
+        
+		for (int i=0; i<obs; i++)
+            r[i] = -9999;
 	
-		std::vector<bool> undef_r;
+
 		switch (op) {
 			case 0:
-				GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_RawRate(obs, B, E, r, undef_r);
 				break;
 			case 1:
-				GdaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_ExcessRisk(obs, B, E, r, undef_r);
 				break;
 			case 2:
-				GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateSmoother_EBS(obs, B, E, r, undef_r);
 				break;
 			case 3:
 				has_undefined = GdaAlgs::RateSmoother_SRS(obs, w_man_int,
@@ -349,7 +257,7 @@ void FieldNewCalcRateDlg::Apply()
 														   undef_r);
 				break;
 			case 5:
-				GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
+				has_undefined = GdaAlgs::RateStandardizeEB(obs, B, E, r, undef_r);
 				break;
 			default:
 				break;
@@ -366,16 +274,13 @@ void FieldNewCalcRateDlg::Apply()
 	if (r) delete [] r; r = NULL;
 	
 	if (has_undefined) {
-		wxString msg("Some calculated values were undefined and this is "
-					 "most likely due to neighborless observations in the "
-					 "weight matrix. Rate calculation successful for "
-					 "observations with neighbors.");
-		wxMessageDialog dlg (this, msg, "Success / Warning",
+		wxString msg = _("Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors.");
+		wxMessageDialog dlg (this, msg, _("Success / Warning"),
 							 wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 	} else {
-		wxString msg("Rate calculation successful.");
-		wxMessageDialog dlg (this, msg, "Success", wxOK | wxICON_INFORMATION);
+		wxString msg = _("Rate calculation successful.");
+		wxMessageDialog dlg (this, msg, _("Success"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
 	}
 }

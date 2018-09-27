@@ -135,7 +135,7 @@ void Gda::VoronoiUtils::FindPointDuplicates(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30
@@ -200,7 +200,7 @@ bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30
@@ -453,10 +453,6 @@ std::list<int>* Gda::VoronoiUtils::getCellList(
 	//										 cell.point0().y()));
 	iter = pt_to_id_list.find(int_pts[cell.source_index()]);
 	if (iter == pt_to_id_list.end()) {
-		LOG_MSG(wxString::Format("cell id (%d,%d) point not found",
-								 //cell.point0().x(), cell.point0().x()));
-								 int_pts[cell.source_index()].first,
-								 int_pts[cell.source_index()].second));
 		return 0;
 	}
 	return iter->second;
@@ -572,7 +568,7 @@ bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 	double y_orig_min=0, y_orig_max=0;
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
-	double orig_scale = GenUtils::max<double>(x_orig_max-x_orig_min,
+	double orig_scale = std::max(x_orig_max-x_orig_min,
 											  y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
 	double big_dbl = 1073741824; // 2^30
@@ -618,8 +614,6 @@ bool Gda::VoronoiUtils::PointsToContiguity(const std::vector<double>& x,
 		int index = vb.insert_point(int_pts[i].first, int_pts[i].second);
 	}
 	vb.construct(&vd);
-	LOG_MSG(wxString::Format("Voronoi diagram construction on %d points "
-							 "took %ld ms", num_obs, sw_vd.Time()));
 		
 	wxStopWatch sw_vd_processing;
 	for (VD::const_cell_iterator it = vd.cells().begin();

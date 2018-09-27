@@ -54,8 +54,8 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
-	
-	virtual void DetermineMouseHoverObjects();
+	virtual wxString GetVariableNames();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -64,10 +64,9 @@ public:
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
 	
-protected:
 	virtual void PopulateCanvas();
+	virtual void UpdateStatusBar();
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	
 	void ShowAxes(bool show_axes);
@@ -78,7 +77,6 @@ public:
 	void UpdateIvalSelCnts();
 	virtual void UserChangedCellCategories();
 protected:
-	virtual void UpdateStatusBar();
 	void sel_shp_to_cell_gen(int i, int& r, int& c, int& ival,
 							 int cols, int ivals);
 	void sel_shp_to_cell(int i, int& r, int& c, int& ival);
@@ -86,14 +84,13 @@ protected:
 							int cols, int ivals);
 	
 	bool full_map_redraw_needed;
-	std::vector<double> X;
-	std::vector<double> Y;
 	
 	static const int HIST_VAR; // histogram variable
 	
 	// size = time_steps if HIST_VAR is time variant
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
+    std::vector<std::vector<bool> > undef_tms;
 	
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
@@ -136,7 +133,7 @@ public:
     ConditionalHistogramFrame(wxFrame *parent, Project* project,
 							  const std::vector<GdaVarTools::VarInfo>& var_info,
 							  const std::vector<int>& col_ids,
-							  const wxString& title = "Conditional Histogram",
+							  const wxString& title = _("Conditional Histogram"),
 							  const wxPoint& pos = wxDefaultPosition,
 							  const wxSize& size = wxDefaultSize,
 							  const long style = wxDEFAULT_FRAME_STYLE);
@@ -146,7 +143,7 @@ public:
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
-	
+    virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	/** Implementation of TimeStateObserver interface */
 	virtual void update(TimeState* o);
 	

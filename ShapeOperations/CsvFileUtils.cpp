@@ -229,8 +229,6 @@ bool Gda::FillStringTableFromCsv(const std::string& csv_fname,
 		return false;
 	}
 	
-	LOG_MSG(wxString::Format("CSV file parsing took %ld ms", (long)sw.Time()));
-	
 	return true;
 }
 

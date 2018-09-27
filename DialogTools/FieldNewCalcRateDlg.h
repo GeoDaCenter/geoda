@@ -40,7 +40,7 @@ public:
     FieldNewCalcRateDlg(Project* project,
 						wxWindow* parent,
 						wxWindowID id = wxID_ANY, 
-						const wxString& caption = "Rates",
+						const wxString& caption = _("Rates"),
 						const wxPoint& pos = wxDefaultPosition, 
 						const wxSize& size = wxDefaultSize, 
 						long style = wxTAB_TRAVERSAL );

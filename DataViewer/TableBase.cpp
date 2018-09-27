@@ -66,17 +66,10 @@ TableCellAttrProvider::~TableCellAttrProvider()
 wxGridCellAttr *TableCellAttrProvider::GetAttr(int row, int col,
 									wxGridCellAttr::wxAttrKind kind ) const
 {
-	//LOG_MSG(wxString::Format("Calling TableCellAttrProvider::GetAttr"
-	//						 "(%d, %d, %d)", row, col, kind));
     wxGridCellAttr *attr = wxGridCellAttrProvider::GetAttr(row, col, kind);
 	
-	//if (row >= 0) LOG_MSG(wxString::Format("GetAttr: row=%d, "
-	//									   "col=%d selected=%d",
-	//									   row, col,
-	//									   selected[row_order[row]] ? 1 : 0));
-	
 	bool row_sel = (row >= 0 && selected[row_order[row]]);
-	bool col_sel = (selected_cols.size()>0 && col >=0 && selected_cols[col]);
+	bool col_sel = (selected_cols.size()>col && col >=0 && selected_cols[col]);
     
 	if ( !attr ) {
 		attr = attrForAll;
@@ -109,7 +102,6 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	rows(_project->GetNumRecords()), row_order(_project->GetNumRecords()),
 	sorting_col(-1), sorting_ascending(false)
 {
-	LOG_MSG("Entering TableBase::TableBase");
     template_frame = t_frame;
 	SortByDefaultDecending();
 	
@@ -122,12 +114,10 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	time_state->registerObserver(this);
     
     UpdateStatusBar();
-	LOG_MSG("Exiting TableBase::TableBase");
 }
 
 TableBase::~TableBase()
 {
-	LOG_MSG("In TableBase::~TableBase");
 	highlight_state->removeObserver(this);
 	table_state->removeObserver(this);
 	time_state->removeObserver(this);
@@ -138,9 +128,9 @@ void TableBase::UpdateStatusBar()
     wxStatusBar* sb = template_frame->GetStatusBar();
     if (!sb) return;
     wxString s;
-    s << "#obs=" << project->GetNumRecords() << " ";
+    s << _("#row=") << project->GetNumRecords() << " ";
     if (highlight_state->GetTotalHighlighted()> 0) {
-        s << "#selected=" << highlight_state->GetTotalHighlighted() << "  ";
+        s << _("#selected=") << highlight_state->GetTotalHighlighted() << "  ";
     }
     
     sb->SetStatusText(s);
@@ -213,17 +203,7 @@ void TableBase::FromGridSelectRow(int row)
 	//LOG_MSG(wxString::Format("selecting %d", (int) row_order[row]));
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
-    
     hs[ row_order[row] ]  = true;
-    /*
-	for (int i=0; i<hl_size; ++i) {
-        if (i == row_order[row]) {
-            hs[i] = true;
-        } else {
-            hs[i] = false;
-        }
-    }
-    */
     
 	highlight_state->SetEventType(HLStateInt::delta);
 	highlight_state->notifyObservers();
@@ -251,7 +231,6 @@ void TableBase::DeselectAllRows()
 
 void TableBase::SortByDefaultDecending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultDecending");
 	for (int i=0; i<rows; i++) {
 		row_order[i] = i;
 	}
@@ -261,7 +240,6 @@ void TableBase::SortByDefaultDecending()
 
 void TableBase::SortByDefaultAscending()
 {
-	LOG_MSG("Calling TableBase::SortByDefaultAscending");
 	int last_ind = rows-1;
 	for (int i=0; i<rows; i++) {
 		row_order[i] = last_ind - i;
@@ -287,6 +265,53 @@ public:
 	}
 };
 
+std::vector<int> TableBase::GetRowOrder()
+{
+    return row_order;
+}
+
+template <class T>
+void TableBase::SortColumn(int col, int tm, bool ascending)
+{
+    std::vector<T> temp;
+    table_int->GetColData(col, tm, temp);
+    std::vector<bool> undefs;
+    table_int->GetColUndefined(col, tm, undefs);
+    std::vector<int> undef_ids;
+    for (int i=0; i<rows; i++) {
+        if (undefs[i]) undef_ids.push_back(i);
+    }
+    std::vector< index_pair<T> > sort_col(rows - undef_ids.size());
+    int j = 0;
+    for (int i=0; i<rows; i++) {
+        if (undefs[i]) continue;
+        sort_col[j].index = i;
+        sort_col[j].val = temp[i];
+        j++;
+    }
+    if (ascending) {
+        sort(sort_col.begin(), sort_col.end(),
+             index_pair<T>::less_than);
+        for (int i=0; i<undef_ids.size(); i++) {
+            row_order[i] = undef_ids[i];
+        }
+        j = undef_ids.size();
+        for (int i=0; i<sort_col.size(); i++) {
+            row_order[j++] = sort_col[i].index;
+        }
+    } else {
+        sort(sort_col.begin(), sort_col.end(),
+             index_pair<T>::greater_than);
+        for (int i=0; i<sort_col.size(); i++) {
+            row_order[i] = sort_col[i].index;
+        }
+        j = 0;
+        for (int i=sort_col.size(); i<rows; i++) {
+            row_order[i] = undef_ids[j++];
+        }
+    }
+}
+
 void TableBase::SortByCol(int col, bool ascending)
 {
 	if (col == -1) {
@@ -304,67 +329,21 @@ void TableBase::SortByCol(int col, bool ascending)
 	int tm=time_state->GetCurrTime();
 	switch (table_int->GetColType(col)) {
 		case GdaConst::date_type:
+		case GdaConst::time_type:
+		case GdaConst::datetime_type:
 		case GdaConst::long64_type:
 		{
-			std::vector<wxInt64> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<wxInt64> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxInt64>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxInt64>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<wxInt64>(col, tm, ascending);
 		}
 			break;
 		case GdaConst::double_type:
 		{
-			std::vector<double> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<double> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<double>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<double>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<double>(col, tm, ascending);
 		}
 			break;
 		case GdaConst::string_type:
 		{
-			std::vector<wxString> temp;
-			table_int->GetColData(col, tm, temp);
-			std::vector< index_pair<wxString> > sort_col(rows);
-			for (int i=0; i<rows; i++) {
-				sort_col[i].index = i;
-				sort_col[i].val = temp[i];
-			}
-			if (ascending) {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxString>::less_than);
-			} else {
-				sort(sort_col.begin(), sort_col.end(),
-					 index_pair<wxString>::greater_than);
-			}
-			for (int i=0, iend=rows; i<iend; i++) {
-				row_order[i] = sort_col[i].index;
-			}
+            SortColumn<wxString>(col, tm, ascending);
 		}
 			break;
 		default:
@@ -374,7 +353,6 @@ void TableBase::SortByCol(int col, bool ascending)
 
 void TableBase::MoveSelectedToTop()
 {
-	LOG_MSG("Entering TableBase::MoveSelectedToTop");
 	std::set<int> sel_set;
 	for (int i=0, iend=rows; i<iend; i++) {
 		if (hs[row_order[i]]) sel_set.insert(row_order[i]);
@@ -390,21 +368,23 @@ void TableBase::MoveSelectedToTop()
 	}
 	sorting_col = -1;
 	if (GetView()) GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::MoveSelectedToTop");	
 }
 
 bool TableBase::FromGridIsSelectedCol(int col)
 {
+	if (hs_col.size() -1 <col) return false;
 	return hs_col[col];
 }
 
 void TableBase::FromGridSelectCol(int col)
 {
+	if (hs_col.size() -1 <col) 
     hs_col[col] = true;
 }
 
 void TableBase::FromGridDeselectCol(int col)
 {
+	if (hs_col.size() -1 <col)
     hs_col[col] = false;
 }
 
@@ -450,10 +430,6 @@ wxString TableBase::GetValue(int row, int col)
 //       compute the correct row.
 void TableBase::SetValue(int row, int col, const wxString &value)
 {
-	LOG_MSG(wxString::Format("TableBase::SetValue(%d, %d, %s)",
-							 row, col,
-							 (const_cast<char*>((const char*)value.mb_str()))));
-	
 	int curr_ts = (table_int->IsColTimeVariant(col) ?
 				   time_state->GetCurrTime() : 0);
 	table_int->SetCellFromString(row_order[row], col, curr_ts, value);
@@ -506,21 +482,19 @@ wxString TableBase::GetColLabelValue(int col)
 
 void TableBase::update(HLStateInt* o)
 {
-	if (GetView()) GetView()->Refresh();
+    if (GetView()) {
+        GetView()->Refresh();
+    }
     UpdateStatusBar();
 }
 
 void TableBase::update(TableState* o)
 {
 	using namespace std;
-	LOG_MSG("Entering TableBase::update(TableState*)");
 	if (!GetView()) return;
 	
 	if (o->GetEventType() == TableState::cols_delta) {
-		LOG_MSG("event_type == TableState::cols_delta");
-		LOG_MSG("  processing wxGrid notify messages...");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
-			LOG_MSG(e.ToString());
 			if (e.insert) {
 				if (e.pos_at_op <= sorting_col) sorting_col++;
 				wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_INSERTED,
@@ -536,17 +510,15 @@ void TableBase::update(TableState* o)
 				GetView()->ProcessTableMessage( msg );
 			}
 		}
-		LOG_MSG("  formatting wxGrid columns... ");
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 			if (e.insert) {
-				LOG_MSG(e.ToString());
 				if (e.type == GdaConst::long64_type) {
 					GetView()->SetColFormatNumber(e.pos_final);
 				} else if (e.type == GdaConst::double_type) {
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;
 					GetView()->SetColFormatFloat(e.pos_final, -1,
-						GenUtils::min<int>(e.decimals, dd));
+						std::min(e.decimals, dd));
 				} else {
 					// leave as a string
 				}
@@ -558,7 +530,6 @@ void TableBase::update(TableState* o)
 			} // no formatting needed for removing columns
 		}
 	} else if (o->GetEventType() == TableState::col_disp_decimals_change) {
-		LOG_MSG("event_type == TableState::col_disp_decimals_change");
 		int pos = o->GetModifiedColPos();
 		if (table_int->GetColType(pos) == GdaConst::double_type) {
 			int dd = table_int->GetColDispDecimals(pos);
@@ -567,7 +538,6 @@ void TableBase::update(TableState* o)
 	}
 	
 	GetView()->Refresh();
-	LOG_MSG("Exiting TableBase::update(TableState*)");
 }
 
 void TableBase::update(TimeState* o)
@@ -582,7 +552,6 @@ void TableBase::update(TimeState* o)
  changed.  It is called by TableFrame::OnColMoveEvent */
 void TableBase::notifyColMove()
 {
-	LOG_MSG("In TableBase::notifyColMove()");
 	table_state->SetColOrderChangeEvtTyp();
 	table_state->notifyObservers();
 }

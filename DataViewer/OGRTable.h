@@ -24,6 +24,7 @@
 #include <queue>
 #include <stack>
 #include <map>
+#include <boost/date_time.hpp>
 #include <wx/filename.h>
 
 #include "OGRColumn.h"
@@ -34,6 +35,7 @@
 #include "../ShapeOperations/OGRLayerProxy.h"
 
 using namespace std;
+namespace bt = boost::posix_time;
 
 class OGRTable : public TableInterface, TableStateObserver
 {
@@ -51,20 +53,16 @@ private:
     OGRLayerProxy* ogr_layer;
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
-    // var_map will be deprecate in 1.8.8, and replace by _var_names
-	map<wxString, int> var_map;
-    vector<wxString> org_var_names;
-    vector<wxString> new_var_names;
     
+    vector<wxString> org_var_names;
+
     // queues of table operations
     queue<OGRTableOperation*> operations_queue;
     stack<OGRTableOperation*> completed_stack;
 	
-private:
 	void AddTimeIDs(int n);
 	int  FindOGRColId(int wxgrid_col_pos, int time);
     int  FindOGRColId(const wxString& name);
-	OGRColumn* FindOGRColumn(int col, int time=0);
     OGRColumn* FindOGRColumn(const wxString& name);
     
     void AddOGRColumn(OGRLayerProxy* ogr_layer_proxy, int idx);
@@ -80,11 +78,11 @@ public:
 	OGRLayerProxy* GetOGRLayer() { return ogr_layer; }
     //void ChangeOGRLayer(OGRLayerProxy* new_ogr_layer);
 
-public:
+	OGRColumn* FindOGRColumn(int col, int time=0);
+    
     // These functions for in-memory table
     void AddOGRColumn(OGRColumn* ogr_col);
     OGRColumn* GetOGRColumn(int idx);
-    
     
 	// Implementation of TableInterface pure virtual methods
     virtual void Update(const VarOrderPtree& var_order_ptree);
@@ -111,10 +109,13 @@ public:
 	
 	virtual bool DbColNmToColAndTm(const wxString& name, int& col, int& tm);
 	virtual int  FindColId(const wxString& name);
-    virtual int  GetColIdx(const wxString& name);
+    virtual int  GetColIdx(const wxString& name, bool ignore_case=false);
 	virtual void FillColIdMap(std::vector<int>& col_map);
+	virtual void FillStringColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
+	virtual void FillDateTimeColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
+	virtual void FillStringNameList(std::vector<wxString>& num_names);
 	virtual void FillNumericNameList(std::vector<wxString>& num_names);
 	virtual int  GetNumberCols();
 	virtual int  GetNumberRows();
@@ -137,19 +138,29 @@ public:
 	virtual void GetColData(int col, int time, std::vector<double>& data);
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
-	virtual void GetColUndefined(int col, b_array_type& undefined);
-	virtual void GetColUndefined(int col, int time,
+	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data);
+    
+	virtual void GetDirectColData(int col, std::vector<double>& data);
+	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);
+	virtual void GetDirectColData(int col, std::vector<wxString>& data);
+    virtual void GetDirectColData(int col, std::vector<unsigned long long>& data);
+	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefined);
+    
+	virtual bool GetColUndefined(int col, b_array_type& undefined);
+	virtual bool GetColUndefined(int col, int time,
 								 std::vector<bool>& undefined);
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals);
-	virtual void GetMinMaxVals(int col, int time,
+	virtual bool GetMinMaxVals(int col, int time,
 							   double& min_val, double& max_val);
 	virtual void SetColData(int col, int time,
-							const std::vector<double>& data);
+                            const std::vector<double>& data);
 	virtual void SetColData(int col, int time,
-							const std::vector<wxInt64>& data);
+                            const std::vector<wxInt64>& data);
 	virtual void SetColData(int col, int time,
                             const std::vector<wxString>& data);
+    virtual void SetColData(int col, int time,
+                            const std::vector<unsigned long long>& data);
 	virtual void SetColUndefined(int col, int time,
 								 const std::vector<bool>& undefined);
 	virtual bool ColChangeProperties(int col, int time,

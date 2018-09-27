@@ -1,13 +1,13 @@
 Package: geoda
-Version: 1.8
+Version: 1.12-1xenial1
 Architecture: i386
 Priority: optional
 Section: graphics
 Installed-Size: 88128
-Depends: zlib1g, libexpat1, freeglut3, libreadline6, libcurl4-gnutls-dev, libgtk-3-0, libc-dev-bin, libssl0.9.8, libwebkitgtk-1.0-0
-Maintainer: Luc Anselin < luc.anselin@asu.edu >
+Depends: zlib1g, libexpat1, freeglut3, libreadline6, libgtk-3-0, libc-dev-bin, libssl0.9.8, libwebkitgtk-1.0-0
+Maintainer: Luc Anselin < anselin@uchicago.edu >
 Provides: geoda
-Homepage: http://geodacenter.asu.edu
+Homepage: http://spatial.uchicago.edu
 Description: GeoDa Software
   GeoDa Software for Geospatial Analysis and Computation	
 

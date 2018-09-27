@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <fstream>
 #include <set>
+#include <wx/wx.h>
 #include <wx/bmpbuttn.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -42,6 +43,7 @@ ExportCsvDlg::ExportCsvDlg(wxWindow* parent, Project* project_s,
 						   const wxPoint& pos, const wxSize& size)
 : project(project_s), table_int(project_s->GetTableInt()), all_init(false)
 {
+    wxLogMessage("Open ExportCsvDlg");
 	SetParent(parent);
     CreateControls();
 	SetPosition(pos);
@@ -62,6 +64,7 @@ void ExportCsvDlg::CreateControls()
 
 void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 {
+    wxLogMessage("In ExportCsvDlg::OnOkClick()");
 	using namespace std;
 	if (!all_init) return;
 	
@@ -94,20 +97,25 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 		if (!wxRemoveFile(new_csv)) {
 			wxString msg("Unable to overwrite ");
 			msg << new_main_name + ".csv";
-			wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+			wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 			dlg.ShowModal();
 			return;
 		}
 	}
-	
-	std::ofstream out_file;	
-	out_file.open(GET_ENCODED_FILENAME(new_csv),
-				  std::ios::out | std::ios::binary);
 
+    wxLogMessage(_("csv file:") + new_csv);
+#ifdef __WIN32__
+	std::ofstream out_file(new_csv.wc_str(),std::ios::out | std::ios::binary);
+#else
+	std::ofstream out_file;	
+	out_file.open(GET_ENCODED_FILENAME(new_csv),std::ios::out | std::ios::binary);
+#endif
+
+	
 	if (!(out_file.is_open() && out_file.good())) {
 		wxString msg;
 		msg << "Unable to create CSV file.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -166,6 +174,7 @@ void ExportCsvDlg::OnOkClick( wxCommandEvent& event )
 
 void ExportCsvDlg::OnIncludeVarNamesHelp( wxCommandEvent& event )
 {
+    wxLogMessage("In ExportCsvDlg::OnIncludeVarNamesHelp()");
 	wxString msg;
 	msg << "Check checkbox to write out the Table variable names ";
 	msg << "as the first row of data in the comma seperated value file.";

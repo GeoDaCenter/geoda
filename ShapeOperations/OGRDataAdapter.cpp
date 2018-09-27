@@ -26,6 +26,9 @@
 #include <boost/bind.hpp>
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>
+#include <wx/wx.h>
+
+#include <wx/wx.h>
 
 #include "OGRDataAdapter.h"
 #include "OGRDatasourceProxy.h"
@@ -36,7 +39,7 @@
 #include "../DataViewer/DataSource.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
 #include "../GdaShape.h"
-#include "../ShpFile.h"
+
 #include "../GdaConst.h"
 #include "../Project.h"
 #include "../GdaException.h"
@@ -96,18 +99,18 @@ OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name, GdaCons
 	return ds_proxy;
 }
 
-std::vector<std::string> OGRDataAdapter::GetHistory(string param_key)
+std::vector<wxString> OGRDataAdapter::GetHistory(wxString param_key)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	return gda_cache->GetHistory(param_key);
 }
 
-void OGRDataAdapter::AddHistory(string param_key, string param_val)
+void OGRDataAdapter::AddHistory(wxString param_key, wxString param_val)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	gda_cache->AddHistory(param_key, param_val);
 }
-void OGRDataAdapter::AddEntry(string param_key, string param_val)
+void OGRDataAdapter::AddEntry(wxString param_key, wxString param_val)
 {
     if (gda_cache==NULL) gda_cache = new GdaCache();
     gda_cache->AddEntry(param_key, param_val);
@@ -119,26 +122,22 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-vector<string> OGRDataAdapter::GetLayerNames(string ds_name, GdaConst::DataSourceType ds_type)
+GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names)
 {	
 	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
-	return ds_proxy->GetLayerNames();
+    ds_type = ds_proxy->ds_type;
+	layer_names = ds_proxy->GetLayerNames();
+    
+    return ds_type;
 }
 
 // Read OGR Layer using datasource name "ds_name" and layer name "layer_name"
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, string layer_name)
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, wxString layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
-    
-	//XXX: we don't cache layer in 1.5.x
-	//if (enable_cache && gda_cache) {
-	//	if (gda_cache->IsLayerCached(ds_name, layer_name)) {
-	//		layer_proxy =  gda_cache->GetLayerProxy(ds_name,layer_name);
-	//	}
-	//}
     
 	if (layer_proxy == NULL) {
 		OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
@@ -161,6 +160,7 @@ void OGRDataAdapter::T_StopReadLayer(OGRLayerProxy* layer_proxy)
 	layer_proxy->stop_reading = TRUE;
 	layer_thread->join();
 	delete layer_thread;
+    layer_thread = NULL;
 }
 				
 void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)
@@ -169,7 +169,7 @@ void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)
 }
 
 void OGRDataAdapter::CacheLayer
-(string ds_name, string layer_name, OGRLayerProxy* layer_proxy)
+(wxString ds_name, wxString layer_name, OGRLayerProxy* layer_proxy)
 {
 	//XXX: we don't cache layer in 1.5.x
 	// cache current layer in a thread
@@ -201,15 +201,43 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 								  vector<int>& selected_rows)
 {
 	OGRwkbGeometryType eGType = wkbNone;
-    for (size_t i = 0; i < selected_rows.size(); i++ ) {
+    int n = selected_rows.size();
+    
+    // check geometry type: in case of Postgresql, OGRPolygon and OGRMultiPolygon
+    // can NOT be created at the same time
+    for (size_t i = 0; i < n; i++ ) {
         int id = selected_rows[i];
         if ( shape_type == Shapefile::POINT_TYP ) {
             eGType = wkbPoint;
+            break;
+        } else if ( shape_type == Shapefile::POLYGON ) {
+            GdaPolygon* poly = (GdaPolygon*) geometries[id];
+            if (poly->isNull()) {
+                
+            } else {
+                int numParts     = poly->n_count;
+                if ( numParts == 1 ) {
+                    if (eGType != wkbMultiPolygon)
+                        eGType = wkbPolygon;
+                } else {
+                    eGType = wkbMultiPolygon;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // make geometries to OGRGeometry
+    for (size_t i = 0; i < n; i++ ) {
+        int id = selected_rows[i];
+        if ( shape_type == Shapefile::POINT_TYP ) {
             GdaPoint* pc = (GdaPoint*) geometries[id];
             OGRPoint* pt = (OGRPoint*)OGRGeometryFactory::createGeometry(wkbPoint);
             if (!pc->isNull()) {
                 pt->setX(pc->GetX());
                 pt->setY(pc->GetY());
+            } else {
+                pt->empty();
             }
             ogr_geometries.push_back(pt);
             
@@ -217,18 +245,14 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
             
             GdaPolygon* poly = (GdaPolygon*) geometries[id];
             if (poly->isNull()) {
-				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
-				//OGRLinearRing* ring =(OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
-                //ring->closeRings();
-                //polygon->addRingDirectly(ring);
+				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(eGType);
                 ogr_geometries.push_back(polygon);
                 
             } else {
-                int numParts     = poly->n_count;
-                int numPoints    = poly->n;
+                int numParts = poly->n_count;
+                int numPoints = poly->n;
                 double x, y;
                 if ( numParts == 1 ) {
-                    eGType = wkbPolygon;
     				OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
     				OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
                     for ( int j = 0; j < numPoints; j++ ) { 
@@ -247,17 +271,25 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
                     }
                     ring->closeRings();
                     polygon->addRingDirectly(ring);
-                    ogr_geometries.push_back(polygon);
+                    
+                    if (eGType == wkbMultiPolygon) {
+                        OGRMultiPolygon* multi_polygon = (OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
+                        multi_polygon->addGeometryDirectly(polygon);
+                        ogr_geometries.push_back(multi_polygon);
+                    } else {
+                        ogr_geometries.push_back(polygon);
+                    }
                 
                 } else if ( numParts > 1 ) {
-                    eGType = wkbMultiPolygon;
     				OGRMultiPolygon* multi_polygon = (OGRMultiPolygon*)OGRGeometryFactory::createGeometry(wkbMultiPolygon);
                     for ( int num_part = 0; num_part < numParts; num_part++ ) {
     					OGRPolygon* polygon = (OGRPolygon*)OGRGeometryFactory::createGeometry(wkbPolygon);
                         OGRLinearRing* ring = (OGRLinearRing*)OGRGeometryFactory::createGeometry(wkbLinearRing);
                         vector<wxInt32> startIndexes = poly->pc->parts;
                         startIndexes.push_back(numPoints);
-                        for ( size_t j = startIndexes[num_part]; j < startIndexes[num_part+1]; j++ ) {
+                        for ( size_t j = startIndexes[num_part];
+                              j < startIndexes[num_part+1]; j++ )
+                        {
                             
                             x = poly->pc->points[j].x;
                             y = poly->pc->points[j].y;
@@ -276,9 +308,9 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 }
 
 OGRLayerProxy*
-OGRDataAdapter::ExportDataSource(string o_ds_format, 
+OGRDataAdapter::ExportDataSource(wxString o_ds_format, 
 								 wxString o_ds_name,
-                                 string o_layer_name,
+                                 wxString o_layer_name,
                                  OGRwkbGeometryType geom_type,
                                  vector<OGRGeometry*> ogr_geometries,
                                  TableInterface* table,
@@ -286,6 +318,7 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
                                  OGRSpatialReference* spatial_ref,
 								 bool is_update)
 {
+    wxLogMessage("In OGRDataAdapter::ExportDataSource()");
     GdaConst::DataSourceType ds_type = IDataSource::FindDataSourceType(o_ds_format);
     
     // field identifier: a pair value <column pos, time step> to indicate how to
@@ -358,27 +391,37 @@ OGRDataAdapter::ExportDataSource(string o_ds_format,
     if (is_update) {
         // update layer in datasources, e.g. Sqlite
         export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
-        new_layer_proxy = export_ds->CreateLayer(
-            o_layer_name, geom_type, ogr_geometries, table,
-            selected_rows, spatial_ref);
+        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
+                                                 geom_type,
+                                                 ogr_geometries,
+                                                 table,
+                                                 selected_rows,
+                                                 spatial_ref);
     } else {
         export_ds = new OGRDatasourceProxy(o_ds_format, o_ds_name);
-        new_layer_proxy = export_ds->CreateLayer(
-            o_layer_name, geom_type, ogr_geometries, table,
-            selected_rows, spatial_ref);
+        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
+                                                 geom_type,
+                                                 ogr_geometries,
+                                                 table,
+                                                 selected_rows,
+                                                 spatial_ref);
     }
 
+    wxLogMessage("start OGRLayerProxy::AddFreatures()");
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,
-		new_layer_proxy, ogr_geometries, table, selected_rows));
+                                                  new_layer_proxy,
+                                                  ogr_geometries,
+                                                  table, selected_rows));
    
+    wxLogMessage("Out OGRDataAdapter::ExportDataSource()");
     return new_layer_proxy;
 }
 
 
 void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
-                            std::string format,
-                            std::string dest_datasource,
-                            std::string new_layer_name,
+                            wxString format,
+                            wxString dest_datasource,
+                            wxString new_layer_name,
                             bool is_update)
 {
     OGRLayer* poSrcLayer = source_layer_proxy->layer;

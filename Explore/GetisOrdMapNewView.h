@@ -20,6 +20,7 @@
 #ifndef __GEODA_CENTER_GETIS_ORD_MAP_NEW_VIEW_H__
 #define __GEODA_CENTER_GETIS_ORD_MAP_NEW_VIEW_H__
 
+#include <map>
 #include "../GdaConst.h"
 #include "MapNewView.h"
 
@@ -40,6 +41,7 @@ public:
 	virtual ~GetisOrdMapCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 							   SmoothingType new_map_smoothing);
 	virtual void SetCheckMarks(wxMenu* menu);
@@ -47,6 +49,11 @@ public:
 	void SyncVarInfoFromCoordinator();
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
+    virtual void UpdateStatusBar();
+    virtual void SetWeightsId(boost::uuids::uuid id) { weights_id = id; }
+    
+    double bo;
+    double fdr;
 	
 protected:
 	GStatCoordinator* gs_coord;
@@ -55,6 +62,16 @@ protected:
 	bool is_perm; // true = pseudo-p-val, false = normal distribution p-val
 	bool row_standardize; // true = row standardize, false = binary
 	
+    wxString str_not_sig;
+    wxString str_high;
+    wxString str_low;
+    wxString str_undefined;
+    wxString str_neighborless;
+    wxString str_p005;
+    wxString str_p001;
+    wxString str_p0001;
+    wxString str_p00001;
+    
 	DECLARE_EVENT_TABLE()
 };
 
@@ -86,6 +103,7 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
+    virtual void update(WeightsManState* o){}
 	
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);
@@ -102,13 +120,16 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
+    void OnSigFilterSetup(wxCommandEvent& event);
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
-	
+
+    void OnShowAsConditionalMap(wxCommandEvent& event);
+    
 	virtual void update(GStatCoordinator* o);
 	virtual void closeObserver(GStatCoordinator* o);
 	GStatCoordinator* GetGStatCoordinator() { return gs_coord; }

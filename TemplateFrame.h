@@ -52,11 +52,10 @@ public:
 	static TemplateFrame* GetActiveFrame();
 	virtual void OnActivate(wxActivateEvent& event) {}
 	
-public:
 	static bool GetColorFromUser(wxWindow* parent,
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
-								 const wxString& title = "Choose A Color");
+								 const wxString& title = _("Choose A Color"));
 	void OnKeyEvent(wxKeyEvent& event);
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     virtual void OnChangeMapTransparency();
@@ -80,6 +79,7 @@ public:
 	virtual void OnRefreshMap(wxCommandEvent& event);
 	virtual void OnFitToWindowMode(wxCommandEvent& event);
 	virtual void OnFixedAspectRatioMode(wxCommandEvent& event);
+	virtual void OnSetDisplayPrecision(wxCommandEvent& event);
 	virtual void OnZoomMode(wxCommandEvent& event);
 	virtual void OnZoomOutMode(wxCommandEvent& event);
 	virtual void OnPanMode(wxCommandEvent& event);
@@ -94,7 +94,8 @@ public:
 	virtual void OnPlotsPerViewAll();
 	virtual bool IsStatusBarVisible() { return is_status_bar_visible; }
 	virtual void OnDisplayStatusBar(wxCommandEvent& event) {
-		DisplayStatusBar(!IsStatusBarVisible()); }
+		DisplayStatusBar(!IsStatusBarVisible());
+    }
 	virtual void DisplayStatusBar(bool show);
 	/** Called by TemplateCanvas to determine if TemplateFrame will
 	 generate the Status Bar String. */
@@ -102,7 +103,7 @@ public:
 	/** Set to true if TemplateFrame implements GetUpdateStatusBarString. */
 	virtual void SetGetStatusBarStringFromFrame(bool get_sb_string);
 	virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
-																						int total_hover_obs);
+                                              int total_hover_obs);
 	virtual Project* GetProject() { return project; }
 	/** return value can be null */
 	virtual TemplateLegend* GetTemplateLegend() { return template_legend; }
@@ -130,12 +131,14 @@ public:
 	
 	virtual void SetDependsOnNonSimpleGroups(bool v) {
 		depends_on_non_simple_groups = v; }
-	
-private:
+
+    virtual int GetCurrentCanvasTimeStep();
+    
+protected:
+    wxToolBar* toolbar;
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
-
-protected:
+    
 	Project* project;
 	TemplateCanvas* template_canvas;
 	TemplateLegend* template_legend; // optional

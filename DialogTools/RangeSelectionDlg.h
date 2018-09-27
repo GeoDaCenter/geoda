@@ -45,7 +45,7 @@ public:
     RangeSelectionDlg( wxWindow* parent, Project* project,
 					   FramesManager* frames_manager,
                        TableState* table_state,
-					   const wxString& title = "Selection Tool",
+					   const wxString& title = _("Selection Tool"),
 					   const wxPoint& pos = wxDefaultPosition );
 	virtual ~RangeSelectionDlg();
 

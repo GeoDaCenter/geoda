@@ -37,8 +37,7 @@
             <custom_classifications/>
             <weights_entries>
                 <weights>
-                    <alias>R</alias>
-                    <title>Rook Contiguity</title>
+                    <title>columbus_rook</title>
                     <meta_info>
                         <weights_type>rook</weights_type>
                         <order>1</order>
@@ -49,8 +48,7 @@
                     </meta_info>
                 </weights>
                 <weights>
-                    <alias>NN6</alias>
-                    <title>Six Nearest Neighbors</title>
+                    <title>columbus_6nn</title>
                     <meta_info>
                         <weights_type>knn</weights_type>
                         <dist_metric>euclidean</dist_metric>
@@ -63,8 +61,7 @@
                     </meta_info>
                 </weights>
                 <weights>
-                    <alias>Q2</alias>
-                    <title>Queen, 2nd ord, no lower</title>
+                    <title>columbus_qn2</title>
                     <meta_info>
                         <weights_type>queen</weights_type>
                         <order>2</order>
@@ -75,8 +72,7 @@
                     </meta_info>
                 </weights>
                 <weights>
-                    <alias>T</alias>
-                    <title>Threshold 4.2, vars X/Y</title>
+                    <title>columbus_thres_xy</title>
                     <meta_info>
                         <weights_type>threshold</weights_type>
                         <dist_metric>euclidean</dist_metric>

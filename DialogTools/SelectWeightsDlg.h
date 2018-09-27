@@ -42,11 +42,11 @@ class SelectWeightsDlg: public wxDialog
 public:
 	SelectWeightsDlg(Project* project,
 					 wxWindow* parent,
-                     const wxString& caption = "Choose Weights",
+                     const wxString& caption = _("Choose Weights"),
 					 wxWindowID id = wxID_ANY,
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
-					 long style = wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER);
+					 long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER);
 
 	void OnWListItemDblClick(wxListEvent& ev);
 	void OnWListItemSelect(wxListEvent& ev);

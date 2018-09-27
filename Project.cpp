@@ -24,6 +24,7 @@
 #include <boost/property_tree/exceptions.hpp>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
+#include <wx/wx.h>
 #include <wx/filedlg.h>
 #include <wx/filefn.h>
 #include <wx/filename.h>
@@ -31,6 +32,9 @@
 #include <wx/msgdlg.h>
 #include <wx/progdlg.h>
 #include <wx/dir.h>
+#include <wx/textfile.h>
+#include <boost/foreach.hpp>
+
 
 #include "ogr_srs_api.h"
 #include "logger.h"
@@ -40,7 +44,6 @@
 #include "DefaultVarsPtree.h"
 #include "DataViewer/CustomClassifPtree.h"
 #include "DataViewer/OGRTable.h"
-#include "DataViewer/DbfTable.h"
 #include "DataViewer/TableBase.h"
 #include "DataViewer/TableFrame.h"
 #include "DataViewer/TableInterface.h"
@@ -52,19 +55,20 @@
 #include "Explore/CatClassification.h"
 #include "Explore/CatClassifManager.h"
 #include "Explore/CovSpHLStateProxy.h"
+#include "Explore/MapNewView.h"
 #include "GdaShape.h"
 #include "GenGeomAlgs.h"
 #include "SpatialIndAlgs.h"
 #include "PointSetAlgs.h"
-#include "DbfFile.h"
 #include "ShapeOperations/GalWeight.h"
-#include "ShapeOperations/ShapeUtils.h"
 #include "ShapeOperations/VoronoiUtils.h"
 #include "VarCalc/WeightsManInterface.h"
 #include "ShapeOperations/WeightsManState.h"
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManPtree.h"
 #include "ShapeOperations/OGRDataAdapter.h"
+#include "GeneralWxUtils.h"
+#include "MapLayerStateObserver.h"
 #include "Project.h"
 
 // used by TemplateCanvas
@@ -74,7 +78,7 @@ std::map<wxString, i_array_type*> Project::shared_category_scratch;
 Project::Project(const wxString& proj_fname)
 : is_project_valid(false),
 table_int(0), table_state(0), time_state(0),
-w_man_int(0), w_man_state(0),
+w_man_int(0), w_man_state(0), maplayer_state(0),
 save_manager(0),
 frames_manager(0),cat_classif_manager(0), mean_centers(0), centroids(0),
 voronoi_rook_nbr_gal(0), default_var_name(4), default_var_time(4),
@@ -85,19 +89,20 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL)
+sourceSR(NULL), rtree_bbox_ready(false)
 {
     
-	LOG_MSG("Entering Project::Project (existing project)");
-	
+	wxLogMessage("Entering Project::Project (existing project)");
+	wxLogMessage(proj_fname);
+
 	SetProjectFullPath(proj_fname);
 	bool wd_success = SetWorkingDir(proj_fname);
 	if (!wd_success) {
-		LOG_MSG("Warning: could not set Working Dir from " + proj_fname);
+		//LOG_MSG("Warning: could not set Working Dir from " + proj_fname);
 		// attempt to set working dir according to standard location
 		wd_success = SetWorkingDir(wxGetHomeDir());
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
+			//LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
 		}
 	}
 	project_conf = new ProjectConfiguration(proj_fname);
@@ -105,26 +110,16 @@ sourceSR(NULL)
 	layername = layer_conf->GetName();
 	datasource = layer_conf->GetDataSource();
     
-	LOG_MSG("Custom Categories:");
-	if (layer_conf->GetCustClassifPtree()) {
-		LOG_MSG(layer_conf->GetCustClassifPtree()->ToStr());
-	}
-	LOG_MSG("Weights Manager Meta Info List:");
-	if (layer_conf->GetWeightsManPtree()) {
-		LOG_MSG(layer_conf->GetWeightsManPtree()->ToStr());
-	}
-	LOG_MSG("Default Vars List:");
-	if (layer_conf->GetDefaultVarsPtree()) {
-		LOG_MSG(layer_conf->GetDefaultVarsPtree()->ToStr());
-	}
 	is_project_valid = CommonProjectInit();
-	if (is_project_valid) save_manager->SetAllowEnableSave(true);
+	if (is_project_valid)
+        save_manager->SetAllowEnableSave(true);
+    
 	if (is_project_valid) {
 		// correct cat classifications in weights manager from Table
 		GetCatClassifManager()->VerifyAgainstTable();
 	}
 	
-	LOG_MSG("Exiting Project::Project");
+	wxLogMessage("Exiting Project::Project");
 }
 
 /** Constructor for a newly connected datasource */
@@ -133,7 +128,7 @@ Project::Project(const wxString& proj_title,
                  IDataSource* p_datasource)
 : is_project_valid(false),
 table_int(0), table_state(0), time_state(0),
-w_man_int(0), w_man_state(0),
+w_man_int(0), w_man_state(0), maplayer_state(0),
 save_manager(0),
 frames_manager(0),cat_classif_manager(0), mean_centers(0), centroids(0),
 voronoi_rook_nbr_gal(0), default_var_name(4), default_var_time(4),
@@ -144,9 +139,9 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL)
+sourceSR(NULL), rtree_bbox_ready(false)
 {
-	LOG_MSG("Entering Project::Project (new project)");
+	wxLogMessage("Entering Project::Project (new project)");
 	
 	datasource    = p_datasource->Clone();
 	project_title = proj_title;
@@ -156,17 +151,16 @@ sourceSR(NULL)
 	bool wd_success = false;
 	if (FileDataSource* fds = dynamic_cast<FileDataSource*>(datasource)) {
 		wxString fp = fds->GetFilePath();
-		LOG(fp);
 		wd_success = SetWorkingDir(fp);
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir from " + fp);
+			wxLogMessage("Warning: could not set Working Dir from " + fp);
 		}
 	}
 	if (!wd_success) {
 		// attempt to set working dir according to standard location
 		wd_success = SetWorkingDir(wxGetHomeDir());
 		if (!wd_success) {
-			LOG_MSG("Warning: could not set Working Dir to wxGetHomeDir()");
+			wxLogMessage("Warning: could not set Working Dir to wxGetHomeDir()");
 		}
 	}
 	
@@ -185,12 +179,12 @@ sourceSR(NULL)
 		save_manager->SetMetaDataSaveNeeded(true);
 	}
 	
-	LOG_MSG("Exiting Project::Project");
+	wxLogMessage("Exiting Project::Project");
 }
 
 Project::~Project()
 {
-	LOG_MSG("Entering Project::~Project");
+	wxLogMessage("Entering Project::~Project");
 	
     if (project_conf) delete project_conf; project_conf=0;
     // datasource* has been deleted in project_conf* layer*
@@ -219,18 +213,40 @@ Project::~Project()
 		delete i->second;
 	}
 	
+    // clean multi-layers, the actual memory
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        ml->CleanMemory();
+        delete ml;
+    }
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        BackgroundMapLayer* ml = it->second;
+        ml->CleanMemory();
+        delete ml;
+    }
+    
 	OGRDataAdapter::GetInstance().Close();
 	
 	//NOTE: the wxGrid instance in TableFrame has
 	// ownership and is therefore responsible for deleting the
 	// table_int when it closes.
 	//if (table_int) delete table_int; table_int = 0;
-	
-	LOG_MSG("Exiting Project::~Project");
+
+    // clean up any global settings
+    MapCanvas::ResetEmptyFlag();
+    
+	wxLogMessage("Exiting Project::~Project");
+}
+
+int Project::GetNumRecordsNoneEmpty()
+{
+    return num_records - MapCanvas::GetEmptyNumber();
 }
 
 void Project::UpdateProjectConf(ProjectConfiguration* conf)
 {
+	wxLogMessage("Project::UpdateProjectConf()");
     LayerConfiguration* layer_conf = conf->GetLayerConfiguration();
     wxString _layername = layer_conf->GetName();
     IDataSource* _ds = layer_conf->GetDataSource();
@@ -248,7 +264,8 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
     } else {
-        throw GdaException("Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource.");
+        wxString msg = _("Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource.");
+        throw GdaException(msg.c_str());
     }
 }
 
@@ -259,30 +276,25 @@ GdaConst::DataSourceType Project::GetDatasourceType()
 
 wxString Project::GetProjectFullPath()
 {
-	LOG_MSG("In Project::GetProjectFullPath");
+	wxLogMessage("Project::GetProjectFullPath()");
 	wxString fp;
 	if (!GetWorkingDir().GetPath().IsEmpty() && !proj_file_no_ext.IsEmpty()) {
 		fp << GetWorkingDir().GetPathWithSep();
 		fp << proj_file_no_ext << ".gda";
 	}
-	LOG(fp);
 	return fp;
 }
 
 void Project::SetProjectFullPath(const wxString& proj_full_path)
 {
-	LOG_MSG("Entering Project::SetProjectFullPath");
-	LOG(proj_full_path);
+	wxLogMessage("Project::SetProjectFullPath()");
 	wxFileName temp(proj_full_path);
 	SetWorkingDir(proj_full_path);
 	proj_file_no_ext = temp.GetName();
-	LOG_MSG("Exiting Project::SetProjectFullPath");
 }
 
 bool Project::SetWorkingDir(const wxString& path)
 {
-	LOG_MSG("Entering Project::SetWorkingDir");
-	LOG(path);
 	wxFileName dir;
 	if (wxDirExists(path)) {
 		dir.AssignDir(path);
@@ -293,25 +305,22 @@ bool Project::SetWorkingDir(const wxString& path)
 		dir.AssignDir(t);
 	}
 	if (!dir.IsOk()) {
-		LOG_MSG("dir is invalid directory name");
 		return false;
 	}
 	if (!dir.IsDir()) {
-		LOG_MSG("dir is not a directory");
 		return false;
 	}
 	if (!dir.DirExists()) {
-		LOG_MSG("directory " + dir.GetPath() + " does not exist");
 		return false;
 	}
 	working_dir.Clear();
 	working_dir = dir;
-	LOG_MSG("Exiting Project::SetWorkingDir");
 	return true;
 }
 
 Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 {
+	wxLogMessage("Project::GetGdaGeometries()");
 	Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
 	int num_geometries = main_data.records.size();
 	if ( main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -334,30 +343,53 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 	return shape_type;
 }
 
+rtree_box_2d_t& Project::GetBBoxRtree()
+{
+	wxLogMessage("Project::CalcEucPlaneRtreeStats()");
+    if ( rtree_bbox_ready ) {
+        return rtree_bbox;
+    }
+    if (main_data.header.shape_type == Shapefile::POLYGON) {
+        Shapefile::PolygonContents* pc;
+        int num_geometries = main_data.records.size();
+        for (int i=0; i<num_geometries; i++) {
+            pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
+            pc->box[0];
+            // create a box, tl, br
+            box_2d b(pt_2d(pc->box[0], pc->box[2]), pt_2d(pc->box[1], pc->box[3]));
+            // insert new value
+            rtree_bbox.insert(std::make_pair(b, i));
+        }
+        rtree_bbox_ready = true;
+    }
+    return rtree_bbox;
+}
+
 void Project::CalcEucPlaneRtreeStats()
 {
-	using namespace std;
-	
-	GetCentroids();
-	size_t num_obs = centroids.size();
-	std::vector<pt_2d> pts(num_obs);
-	std::vector<double> x(num_obs);
-	std::vector<double> y(num_obs);
-	for (size_t i=0; i<num_obs; ++i) {
-		pts[i] = pt_2d(centroids[i]->center_o.x,
-									 centroids[i]->center_o.y);
-		x[i] = centroids[i]->center_o.x;
-		y[i] = centroids[i]->center_o.y;
-	}
-	SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
-	double mean_d_1nn, median_d_1nn;
-	SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
-	wxRealPoint pt1, pt2;
-	max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
+    wxLogMessage("Project::CalcEucPlaneRtreeStats()");
+    using namespace std;
+    
+    GetCentroids();
+    size_t num_obs = centroids.size();
+    std::vector<pt_2d> pts(num_obs);
+    std::vector<double> x(num_obs);
+    std::vector<double> y(num_obs);
+    for (size_t i=0; i<num_obs; ++i) {
+        pts[i] = pt_2d(centroids[i]->center_o.x, centroids[i]->center_o.y);
+        x[i] = centroids[i]->center_o.x;
+        y[i] = centroids[i]->center_o.y;
+    }
+    SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
+    double mean_d_1nn, median_d_1nn;
+    SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
+    wxRealPoint pt1, pt2;
+    max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
 }
 
 void Project::CalcUnitSphereRtreeStats()
 {
+	wxLogMessage("Project::CalcUnitSphereRtreeStats()");
 	using namespace std;
 	GetCentroids();
 	size_t num_obs = centroids.size();
@@ -381,6 +413,7 @@ void Project::CalcUnitSphereRtreeStats()
 
 OGRSpatialReference* Project::GetSpatialReference()
 {
+	wxLogMessage("Project::GetSpatialReference()");
 	OGRSpatialReference* spatial_ref = NULL;
 	OGRTable* ogr_table = dynamic_cast<OGRTable*>(table_int);
 	if (ogr_table != NULL) {
@@ -398,7 +431,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 			return NULL;
 		}
 		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
-		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername.ToStdString());
+		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername);
 		spatial_ref = ogr_layer->GetSpatialReference();
 		if (spatial_ref) spatial_ref = spatial_ref->Clone();
 		delete ogr_ds;
@@ -408,6 +441,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 
 void Project::SaveOGRDataSource()
 {
+	wxLogMessage("Project::SaveOGRDataSource()");
 	// This function will only be called to save file or directory (OGR)
 	wxString tmp_prefix = "GdaTmp_";
 	wxArrayString all_tmp_files;
@@ -437,14 +471,24 @@ void Project::SaveOGRDataSource()
 		// replace old file with tmp files, then delete tmp files
 		if (tmp_ds_name!=ds_name && wxFileExists(tmp_ds_name)) {
 			wxString tmp_name = fn.GetName();
-			wxDir wdir(fn.GetPath());
-			wxArrayString tmp_files;
-			wdir.GetAllFiles(fn.GetPath(), &tmp_files);
-			for (size_t i=0; i < tmp_files.size(); i++) {
-				if (tmp_files[i].Contains(tmp_prefix)) {
-					all_tmp_files.push_back(tmp_files[i]);
-				}
-			}
+            wxString dirname = fn.GetPath();
+            wxString filename;
+            
+            wxDir wdir;
+			
+            if ( wdir.Open( dirname ) )
+            {
+                bool cont = wdir.GetFirst(&filename);
+                while ( cont )
+                {
+                    if (filename.Contains(tmp_prefix)) {
+                        wxString path = dirname + wxFileName::GetPathSeparator() + filename;
+                        all_tmp_files.push_back(path);
+                    }
+                    cont = wdir.GetNext(&filename);
+                }
+            }
+            
 			for (size_t i=0; i< all_tmp_files.size(); i++) {
 				wxString orig_fname = all_tmp_files[i];
 				orig_fname.Replace(tmp_prefix, "");
@@ -462,9 +506,9 @@ void Project::SaveOGRDataSource()
 
 void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 {
-	LOG_MSG("Entering Project::SaveDataSourceAs");
-    LOG_MSG("New Datasource Name:" + new_ds_name);
-    
+	wxLogMessage("Entering Project::SaveDataSourceAs");
+	wxLogMessage("New Datasource Name:" + new_ds_name);
+   
 	vector<GdaShape*> geometries;
 	try {
 		// SaveAs only to same datasource
@@ -477,14 +521,11 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         
 		wxString ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
 		if ( !IDataSource::IsWritable(ds_type) ) {
-			std::ostringstream error_message;
-			error_message << "GeoDa does not support creating data "
-			<< "of " << ds_format << ". Please try to 'Export' to other "
-			<< "supported data source format.";
-			throw GdaException(error_message.str().c_str());
+            wxString error_message = wxString::Format(_("GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."), ds_format);
+			throw GdaException(error_message.mb_str());
 		}
 		// call to initial OGR instance
-		OGRDataAdapter::GetInstance();
+		OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 		
 		// Get spatial reference from this project
 		OGRSpatialReference* spatial_ref = GetSpatialReference();
@@ -500,7 +541,8 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 	
         // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
-		OGRwkbGeometryType geom_type = OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+        OGRwkbGeometryType geom_type;
+        geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
         
         // NOTE: for GeoJSON, automatically transform to WGS84
         if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
@@ -511,43 +553,38 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                 ogr_geometries[i]->transform(poCT);
             }
         }
-        
 		
 		// Start saving
 		int prog_n_max = 0;
 		if (table_int) prog_n_max = table_int->GetNumberRows();
-		wxProgressDialog prog_dlg("Save data source progress dialog",
-                                  "Saving data...",
+		wxProgressDialog prog_dlg(_("Save data source progress dialog"),
+                                  _("Saving data..."),
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
         OGRLayerProxy* new_layer;
-        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(),
-                                                                   new_ds_name.ToStdString(),
-                                                                   layername.ToStdString(),
-                                                                   geom_type,
-                                                                   ogr_geometries,
-                                                                   table_int,
-                                                                   selected_rows,
-                                                                   spatial_ref,
-                                                                   is_update);
-		bool cont = true;
-		while ( new_layer->export_progress < prog_n_max ) {
-			cont = prog_dlg.Update(new_layer->export_progress);
-			if ( !cont ) {
-				new_layer->stop_exporting = true;
-				OGRDataAdapter::GetInstance().CancelExport(new_layer);
-				return;
-			}
-			if ( new_layer->export_progress == -1 ) {
-				std::ostringstream msg;
-				msg << "Save as data source (" << new_ds_name.ToStdString()
-				<< ") failed." << "\n\nDetails:"
-				<< new_layer->error_message.str();
-				throw GdaException(msg.str().c_str());
-			}
-			wxMilliSleep(100);
-		}
-		OGRDataAdapter::GetInstance().StopExport();
+        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), new_ds_name, layername.ToStdString(), geom_type, ogr_geometries, table_int, selected_rows, spatial_ref, is_update);
+        if (new_layer == NULL) {
+            wxString msg = _("Saving data source cancelled.");
+            throw GdaException(msg.mb_str());
+        }
+        
+        bool cont = true;
+        while ( new_layer && new_layer->export_progress < prog_n_max ) {
+            cont = prog_dlg.Update(new_layer->export_progress);
+            if ( !cont ) {
+                new_layer->stop_exporting = true;
+                OGRDataAdapter::GetInstance().CancelExport(new_layer);
+                return;
+            }
+            if ( new_layer->export_progress == -1 ) {
+                wxString msg = wxString::Format(_("Save as data source (%s) failed.\n\nDetails:"),new_ds_name);
+                msg << new_layer->error_message.str();
+                throw GdaException(msg.mb_str());
+            }
+            wxMilliSleep(100);
+        }
+        OGRDataAdapter::GetInstance().StopExport();
+		
 		for (size_t i=0; i<geometries.size(); i++) {
 			delete geometries[i];
 		}
@@ -559,13 +596,15 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		}
 		throw e;
 	}
-	LOG_MSG("Entering Project::SaveDataSourceAs");
+	wxLogMessage("Exiting Project::SaveDataSourceAs");
 }
 
 void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 {
+	wxLogMessage("Project::SpecifyProjectConfFile()");
 	if (proj_fname.IsEmpty()) {
-		throw GdaException("Project filename not specified.");
+        wxString msg = _("Project filename not specified.");
+		throw GdaException(msg.mb_str());
 	}
 	project_conf->SetFilePath(proj_fname);
 	SetProjectFullPath(proj_fname);
@@ -573,19 +612,16 @@ void Project::SpecifyProjectConfFile(const wxString& proj_fname)
 
 bool Project::HasUnsavedChange()
 {
-    if (GetTableInt()->ChangedSinceLastSave())
+	wxLogMessage("Project::HasUnsavedChange()");
+    TableInterface* tbl = GetTableInt();
+    if (tbl && tbl->ChangedSinceLastSave())
         return true;
-    
-    if (GetTableInt()->IsTimeVariant() ||
-         (w_man_int && w_man_int->GetIds().size()>0) )
-        return true;
-    
     return false;
 }
 
 void Project::SaveProjectConf()
 {
-	LOG_MSG("Entering Project::SaveProjectConf");
+	wxLogMessage("Entering Project::SaveProjectConf");
 	if (project_conf->GetFilePath().IsEmpty() &&
         (GetTableInt()->IsTimeVariant() ||
          (w_man_int && w_man_int->GetIds().size()>0)) ) {
@@ -606,11 +642,13 @@ void Project::SaveProjectConf()
     if (!project_conf->GetFilePath().IsEmpty()) {
         UpdateProjectConf();
         project_conf->Save(project_conf->GetFilePath());
+        GetTableInt()->SetProjectChangedSinceLastSave(false);
     }
-	LOG_MSG("Exiting Project::SaveProjectConf");
+	wxLogMessage("Exiting Project::SaveProjectConf");
 }
 
-bool Project::IsFileDataSource() {
+bool Project::IsFileDataSource() 
+{
     
     if (datasource) return datasource->IsFileDataSource();
     return false;
@@ -618,15 +656,17 @@ bool Project::IsFileDataSource() {
 
 void Project::SaveDataSourceData()
 {
-	LOG_MSG("Entering Project::SaveDataSourceData");
+	wxLogMessage("Entering Project::SaveDataSourceData");
 	
 	// for some read-only datasources, suggest Export dialog
 	GdaConst::DataSourceType ds_type = datasource->GetType();
 	if (ds_type == GdaConst::ds_wfs ||
         ds_type == GdaConst::ds_kml ||
+        ds_type == GdaConst::ds_xlsx ||
+        ds_type == GdaConst::ds_xls ||
         ds_type == GdaConst::ds_esri_arc_sde )
     {
-		wxString msg = "The data source is read only. Please try to save as other data source.";
+		wxString msg = _("The data source is read only. Please try to save as other data source.");
 		throw GdaException(msg.mb_str());
 	}
 	
@@ -669,12 +709,12 @@ void Project::SaveDataSourceData()
 		layer_proxy->AddGeometries(main_data);
 	}	
 	
-	LOG_MSG("Exiting Project::SaveDataSourceData");
+	wxLogMessage("Exiting Project::SaveDataSourceData");
 }
 
 void Project::UpdateProjectConf()
 {
-	LOG_MSG("In Project::UpdateProjectConf");
+	wxLogMessage("In Project::UpdateProjectConf");
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	datasource = layer_conf->GetDataSource();
 	VarOrderPtree* var_order = layer_conf->GetVarOrderPtree();
@@ -712,18 +752,18 @@ wxString Project::GetProjectTitle()
 	return "";
 }
 
-void Project::ExportVoronoi()
+bool Project::ExportVoronoi()
 {
+	wxLogMessage("Project::ExportVoronoi()");
 	GetVoronoiPolygons();
 	// generate a list of list of duplicates.  Or, better yet, have a map of
 	// lists where the key is the id, and the value is a list of all ids
 	// in the same set.
 	// If duplicates exist, then give option to save duplicate sets to Table
 	if (IsPointDuplicates()) DisplayPointDupsWarning();
-	if (voronoi_polygons.size() != GetNumRecords()) return;
+	if (voronoi_polygons.size() != GetNumRecords()) return false;
 	
-	ExportDataDlg dlg(NULL, voronoi_polygons, Shapefile::POLYGON, this);
-	dlg.ShowModal();
+    return true;
 }
 
 /**
@@ -732,19 +772,18 @@ void Project::ExportVoronoi()
  */
 void Project::ExportCenters(bool is_mean_centers)
 {	
+	wxLogMessage("Project::ExportCenters()");
 	if (is_mean_centers) {
 		GetMeanCenters();
-		ExportDataDlg dlg(NULL, mean_centers, Shapefile::NULL_SHAPE, "COORD", this);
-		dlg.ShowModal();
 	} else {
 		GetCentroids();
-		ExportDataDlg dlg(NULL, centroids, Shapefile::NULL_SHAPE, "COORD", this);
-		dlg.ShowModal();
 	}
 }
 
 bool Project::IsPointDuplicates()
 {
+	wxLogMessage("Project::IsPointDuplicates()");
+
 	if (!point_duplicates_initialized) {
 		std::vector<double> x;
 		std::vector<double> y;
@@ -756,15 +795,19 @@ bool Project::IsPointDuplicates()
 
 void Project::DisplayPointDupsWarning()
 {
+	wxLogMessage("Project::DisplayPointDupsWarning()");
+
 	if (point_dups_warn_prev_displayed) return;
-	wxString msg("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
-	wxMessageDialog dlg(NULL, msg, "Duplicate Thiessen Polygons Found", wxOK | wxCANCEL | wxICON_INFORMATION);
+	wxString msg = _("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
+	wxMessageDialog dlg(NULL, msg, _("Duplicate Thiessen Polygons Found"), wxOK | wxCANCEL | wxICON_INFORMATION);
 	if (dlg.ShowModal() == wxID_OK) SaveVoronoiDupsToTable();
 	point_dups_warn_prev_displayed = true;
 }
 
 void Project::GetVoronoiRookNeighborMap(std::vector<std::set<int> >& nbr_map)
 {
+	wxLogMessage("Project::GetVoronoiRookNeighborMap()");
+
 	IsPointDuplicates();
 	std::vector<double> x;
 	std::vector<double> y;
@@ -774,7 +817,8 @@ void Project::GetVoronoiRookNeighborMap(std::vector<std::set<int> >& nbr_map)
 
 void Project::GetVoronoiQueenNeighborMap(std::vector<std::set<int> >& nbr_map)
 {
-	IsPointDuplicates();
+	wxLogMessage("Project::GetVoronoiQueenNeighborMap()");
+
 	std::vector<double> x;
 	std::vector<double> y;
 	GetCentroids(x, y);
@@ -783,6 +827,8 @@ void Project::GetVoronoiQueenNeighborMap(std::vector<std::set<int> >& nbr_map)
 
 GalElement* Project::GetVoronoiRookNeighborGal()
 {
+	wxLogMessage("Project::GetVoronoiRookNeighborGal()");
+
 	if (!voronoi_rook_nbr_gal) {
 		std::vector<std::set<int> > nbr_map;
 		GetVoronoiRookNeighborMap(nbr_map);
@@ -793,6 +839,8 @@ GalElement* Project::GetVoronoiRookNeighborGal()
 
 void Project::SaveVoronoiDupsToTable()
 {
+	wxLogMessage("Project::SaveVoronoiDupsToTable()");
+
 	if (!IsPointDuplicates()) return;
 	std::vector<SaveToTableEntry> data(1);
 	std::vector<wxInt64> dup_ids(num_records, -1);
@@ -809,11 +857,11 @@ void Project::SaveVoronoiDupsToTable()
 	}
 	data[0].l_val = &dup_ids;
 	data[0].undefined = &undefined;
-	data[0].label = "Duplicate IDs";
+	data[0].label = _("Duplicate IDs");
 	data[0].field_default = "DUP_IDS";
 	data[0].type = GdaConst::long64_type;
 	
-	wxString title("Save Duplicate Thiessen Polygon Ids");
+	wxString title = _("Save Duplicate Thiessen Polygon Ids");
 	SaveToTableDlg dlg(this, NULL, data, title, wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();	
 }
@@ -858,11 +906,11 @@ wxGrid* Project::FindTableGrid()
 
 void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 {
-	LOG_MSG("Entering Project::AddNeighborsToSelection");
+	wxLogMessage("Entering Project::AddNeighborsToSelection");
 	if (!GetWManInt()) return;
 	GalWeight* gal_weights = GetWManInt()->GetGal(weights_id);
 	if (!gal_weights || !gal_weights->gal) {
-		LOG_MSG("Warning: no current weight matrix found");
+		wxLogMessage("Warning: no current weight matrix found");
 		return;
 	}
 	
@@ -898,15 +946,13 @@ void Project::AddNeighborsToSelection(boost::uuids::uuid weights_id)
 	if (nh_cnt > 0) {
 		hs.SetEventType(HLStateInt::delta);
 		hs.notifyObservers();
-	} else {
-		LOG_MSG("No elements to add to current selection");
 	}
-	LOG_MSG("Exiting Project::AddNeighborsToSelection");
+	wxLogMessage("Exiting Project::AddNeighborsToSelection");
 }
 
 void Project::AddMeanCenters()
 {
-	LOG_MSG("In Project::AddMeanCenters");
+	wxLogMessage("In Project::AddMeanCenters");
 	
 	if (!table_int || main_data.records.size() == 0) return;
 	GetMeanCenters();
@@ -929,23 +975,23 @@ void Project::AddMeanCenters()
 	std::vector<SaveToTableEntry> data(2);
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
-	data[0].label = "X-Coordinates";
+	data[0].label = _("X-Coordinates");
 	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
-	data[1].label = "Y-Coordinates";
+	data[1].label = _("Y-Coordinates");
 	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data, "Add Mean Centers to Table", wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, _("Add Mean Centers to Table"), wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
 void Project::AddCentroids()
 {
-	LOG_MSG("In Project::AddCentroids");
+	wxLogMessage("In Project::AddCentroids");
 	
 	if (!table_int || main_data.records.size() == 0) return;	
 	GetCentroids();
@@ -968,22 +1014,23 @@ void Project::AddCentroids()
 	std::vector<SaveToTableEntry> data(2);
 	data[0].d_val = &x;
 	data[0].undefined = &x_undef;
-	data[0].label = "X-Coordinates";
+	data[0].label = _("X-Coordinates");
 	data[0].field_default = "COORD_X";
 	data[0].type = GdaConst::double_type;
 	
 	data[1].d_val = &y;
 	data[1].undefined = &y_undef;
-	data[1].label = "Y-Coordinates";
+	data[1].label = _("Y-Coordinates");
 	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data, "Add Centroids to Table", wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, _("Add Centroids to Table"), wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
 const std::vector<GdaPoint*>& Project::GetMeanCenters()
 {
+	wxLogMessage("Project::GetMeanCenters()");
 	int num_obs = main_data.records.size();
 	if (mean_centers.size() == 0 && num_obs > 0) {
 		if (main_data.header.shape_type == Shapefile::POINT_TYP) {
@@ -1019,6 +1066,7 @@ const std::vector<GdaPoint*>& Project::GetMeanCenters()
 
 void Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)
 {
+	wxLogMessage("Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)");
 	GetMeanCenters();
 	int num_obs = mean_centers.size();
 	if (x.size() < num_obs) x.resize(num_obs);
@@ -1031,41 +1079,38 @@ void Project::GetMeanCenters(std::vector<double>& x, std::vector<double>& y)
 
 const std::vector<GdaPoint*>& Project::GetCentroids()
 {
-	int num_obs = main_data.records.size();
-	if (centroids.size() == 0 && num_obs > 0) {
-		if (main_data.header.shape_type == Shapefile::POINT_TYP) {
-			centroids.resize(num_obs);
-			Shapefile::PointContents* pc;
-			for (int i=0; i<num_obs; i++) {
-				pc = (Shapefile::PointContents*)
-				main_data.records[i].contents_p;
-				if (pc->shape_type == 0) {
-					centroids[i] = new GdaPoint();
-				} else {
-					centroids[i] = new GdaPoint(wxRealPoint(pc->x, pc->y));
-				}
-			}
-		} else if (main_data.header.shape_type == Shapefile::POLYGON) {
-			centroids.resize(num_obs);
-			Shapefile::PolygonContents* pc;
-			for (int i=0; i<num_obs; i++) {
-				pc = (Shapefile::PolygonContents*)
-				main_data.records[i].contents_p;
-				GdaPolygon poly(pc);
-				if (poly.isNull()) {
-					centroids[i] = new GdaPoint();
-				} else {
-					centroids[i] =
-					new GdaPoint(GdaShapeAlgs::calculateCentroid(&poly));
-				}
-			}
-		}
-	}
+	wxLogMessage("Project::GetCentroids()");
+   
+    if (layer_proxy->IsTableOnly()) {
+        if (centroids.size() == 0 && num_records > 0) {
+            centroids.resize(num_records);
+            double x, y;
+            for ( int row_idx=0; row_idx < num_records; row_idx++ ) {
+                Shapefile::PointContents* pc = (Shapefile::PointContents*)main_data.records[row_idx].contents_p;
+                centroids[row_idx] = new GdaPoint(pc->x, pc->y);
+            }
+        }
+    } else {
+        layer_proxy->GetCentroids(centroids);
+    }
+
 	return centroids;	
+}
+
+GdaPolygon* Project::GetMapBoundary()
+{
+    wxLogMessage("Project::GetMapBoundary()");
+    
+    if (layer_proxy->IsTableOnly()) {
+        return NULL;
+    } else {
+        return layer_proxy->GetMapBoundary();
+    }
 }
 
 void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 {
+	wxLogMessage("Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)");
 	GetCentroids();
 	int num_obs = centroids.size();
 	if (x.size() < num_obs) x.resize(num_obs);
@@ -1078,6 +1123,7 @@ void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 
 void Project::GetCentroids(std::vector<wxRealPoint>& pts)
 {
+	wxLogMessage("Project::GetCentroids(std::vector<wxRealPoint>& pts)");
 	GetCentroids();
 	int num_obs = centroids.size();
 	if (pts.size() < num_obs) pts.resize(num_obs);
@@ -1090,6 +1136,8 @@ void Project::GetCentroids(std::vector<wxRealPoint>& pts)
 
 const std::vector<GdaShape*>& Project::GetVoronoiPolygons()
 {
+	wxLogMessage("std::vector<GdaShape*>& Project::GetVoronoiPolygons()");
+    
 	if (voronoi_polygons.size() == num_records) {
 		return voronoi_polygons;
 	} else {
@@ -1099,8 +1147,8 @@ const std::vector<GdaShape*>& Project::GetVoronoiPolygons()
 		voronoi_polygons.clear();
 	}
 	
-	std::vector<double> x(num_records);
-	std::vector<double> y(num_records);
+	std::vector<double> x;
+	std::vector<double> y;
 	GetCentroids(x,y);
 	
 	Gda::VoronoiUtils::MakePolygons(x, y, voronoi_polygons,
@@ -1216,7 +1264,7 @@ bool Project::CanModifyGrpAndShowMsgIfNot(TableState* table_state,
 	if (n == 0)
         return true;
 	wxString msg(table_state->GetDisallowGroupModifyMsg(grp_nm));
-	wxMessageDialog dlg(NULL, msg, "Warning", wxOK | wxICON_WARNING);
+	wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
 	dlg.ShowModal();
 	return false;
 }
@@ -1245,10 +1293,15 @@ void Project::FillDistances(std::vector<double>& D,
                             WeightsMetaInfo::DistanceMetricEnum dm,
                             WeightsMetaInfo::DistanceUnitsEnum du)
 {
+	wxLogMessage("Project::FillDistances()");
 	const std::vector<GdaPoint*>& c = GetCentroids();
 	const pairs_bimap_type& pbm = GetSharedPairsBimap();
 	typedef pairs_bimap_type::const_iterator pbt_ci;
-	if (D.size() != pbm.size()) D.resize(pbm.size());
+    
+    if (D.size() != pbm.size()) {
+        D.resize(pbm.size());
+    }
+    
 	if (dm == WeightsMetaInfo::DM_arc) {
 		if (pbm.size() > cached_arc_dist.size()) {
 			for (pbt_ci it = pbm.begin(), iend = pbm.end(); it != iend; ++it) {
@@ -1265,7 +1318,7 @@ void Project::FillDistances(std::vector<double>& D,
 				}
 			}
 			if (du == WeightsMetaInfo::DU_km) {
-				for (pbt_ci it=pbm.begin(), iend=pbm.end(); it != iend; ++it)	{
+				for (pbt_ci it=pbm.begin(), iend=pbm.end(); it != iend; ++it) {
 					D[it->left] = GenGeomAlgs::EarthRadToKm(cached_arc_dist[it->right]);
 				}
 			} else {
@@ -1297,6 +1350,7 @@ void Project::FillDistances(std::vector<double>& D,
 
 const pairs_bimap_type& Project::GetSharedPairsBimap()
 {
+	wxLogMessage("Project::GetSharedPairsBimap()");
 	if (pairs_bimap.size() == 0) {
 		// generate bimap int <--> coord pair
 		int n_obs = highlight_state->GetHighlight().size();
@@ -1313,6 +1367,7 @@ const pairs_bimap_type& Project::GetSharedPairsBimap()
 
 void Project::CleanupPairsHLState()
 {
+	wxLogMessage("Project::CleanupPairsHLState()");
 	if (pairs_hl_state) pairs_hl_state->closeAndDeleteWhenEmpty();
 }
 
@@ -1321,8 +1376,11 @@ void Project::CleanupPairsHLState()
  initialized differently. */
 bool Project::CommonProjectInit()
 {	
-	if (!InitFromOgrLayer())
+	wxLogMessage("Project::CommonProjectInit()");
+    if (!InitFromOgrLayer()) {
+        OGRDataAdapter::GetInstance().Close();
         return false;
+    }
 	
 	num_records = table_int->GetNumberRows();
    
@@ -1335,30 +1393,36 @@ bool Project::CommonProjectInit()
     if (sourceSR ) {
         project_unit = sourceSR->GetAttrValue("UNIT");
     }
-	
+
+    LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
+    CustomClassifPtree* cust_classif_ptree = layer_conf->GetCustClassifPtree();
+    WeightsManPtree* spatial_weights = layer_conf->GetWeightsManPtree();
+	DefaultVarsPtree* default_vars = layer_conf->GetDefaultVarsPtree();
+    
 	// Initialize various managers
 	frames_manager = new FramesManager;
 	highlight_state = new HighlightState;
 	con_map_hl_state = new HighlightState;
 	cat_classif_manager = new CatClassifManager(table_int, GetTableState(),
-                project_conf->GetLayerConfiguration()->GetCustClassifPtree());
+                                                cust_classif_ptree);
 	highlight_state->SetSize(num_records);
 	con_map_hl_state->SetSize(num_records);
+    
+    maplayer_state = new MapLayerState;
 	w_man_state = new WeightsManState;
 	w_man_int = new WeightsNewManager(w_man_state, table_int);
 	save_manager = new SaveButtonManager(GetTableState(), GetWManState());
-	WeightsManPtree* spatial_weights =
-	project_conf->GetLayerConfiguration()->GetWeightsManPtree();
+    
 	if (spatial_weights) {
 		((WeightsNewManager*) w_man_int)->
 		Init(spatial_weights->GetWeightsMetaInfoList());
 	}
+    
 	for (int i=0; i<4; i++) {
 		default_var_name[i] = "";
 		default_var_time[i] = 0;
 	}
-	DefaultVarsPtree* default_vars =
-	project_conf->GetLayerConfiguration()->GetDefaultVarsPtree();
+    
 	if (default_vars) {
 		int i=0;
 		std::vector<wxString> tm_strs;
@@ -1379,9 +1443,12 @@ bool Project::CommonProjectInit()
 					}
 				}
 			}
-			if (i < default_var_name.size()) ++i;
+            if (i < default_var_name.size()) {
+                ++i;
+            }
 		}
 	}
+    
 	std::vector<wxString> ts;
 	table_int->GetTimeStrings(ts);
 	time_state->SetTimeIds(ts);
@@ -1391,130 +1458,33 @@ bool Project::CommonProjectInit()
 	save_manager->SetMetaDataSaveNeeded(false);
 	save_manager->SetDbSaveNeeded(false);
 	
-	// MMM: SaveButtonManager revisit
-	// MMM: Move this to SaveButtonManager
-	// Enable "Save" only for DBF data sources.  "Save As" is always enabled.
-	//allow_enable_save = false;
-	//if (DbfTable* o = dynamic_cast<DbfTable*>(table_int)) {
-	//	allow_enable_save = wxFileExists(o->GetDbfFileName().GetFullPath());
-	//} else if (OGRTable* o = dynamic_cast<OGRTable*>(table_int)) {
-	//	allow_enable_save = !o->IsReadOnly();
-	//}
 	return true;
 }
 
 bool Project::IsDataTypeChanged()
 {
     bool realTableFlag = false;
-    if (datasource->GetType() == GdaConst::ds_dbf)
+    if (datasource->GetType() == GdaConst::ds_dbf) {
         realTableFlag = true;
-    else if (layer_proxy && layer_proxy->IsTableOnly())
+    } else if (layer_proxy && layer_proxy->IsTableOnly()) {
         realTableFlag = true;
-    
+    }
     return isTableOnly != realTableFlag;
-}
-
-/** 
- * Initialize the Table and Shape Layer from Shapefile / DBF 
- */
-int Project::InitFromShapefileLayer()
-{
-	LOG_MSG("Entering Project::InitFromShapefileLayer");
-    
-    isTableOnly = datasource->GetType() == GdaConst::ds_dbf;
-	
-	LOG(isTableOnly);
-	
-	wxString ds_fname = datasource->GetOGRConnectStr();
-	datasource->UpdateWritable(true);
-	wxString shp_fname;
-	wxString shx_fname;
-	wxString dbf_fname;
-	if (isTableOnly) {
-		dbf_fname = ds_fname;
-	} else {
-		shp_fname = ds_fname;
-		LOG(shp_fname);
-		wxFileName fname(shp_fname);
-		dbf_fname = fname.GetPathWithSep() + fname.GetName() + ".dbf";
-		shx_fname = fname.GetPathWithSep() + fname.GetName() + ".shx";
-	}
-	LOG(dbf_fname);
-	
-	if (datasource->GetType() == GdaConst::ds_shapefile) {
-		// check shp file first
-		if (Shapefile::readShapeType(shp_fname) == Shapefile::POLY_LINE) {
-			open_err_msg << "GeoDa does not support Shapefiles ";
-			open_err_msg << "with line data at this time.  Please choose a ";
-			open_err_msg << "Shapefile with either point or polygon data.";
-			return false;
-		}
-		// check shx/dbf files
-		bool shx_found;
-		bool dbf_found;
-		
-		if (!GenUtils::ExistsShpShxDbf(shp_fname,0, &shx_found, &dbf_found)) {
-			open_err_msg << "Error: " << shp_fname << ", ";
-			open_err_msg << shx_fname << ", and ";
-			open_err_msg << dbf_fname;
-			open_err_msg << " were not found together in the same file ";
-			open_err_msg << "directory. Could not find ";
-			if (!shx_found && dbf_found) {
-				open_err_msg << shx_fname << ".";
-			} else if (shx_found && !dbf_found) {
-				open_err_msg << dbf_fname << ".";
-			} else {
-				open_err_msg << shx_fname << " and ";
-				open_err_msg << dbf_fname << ".";
-			}
-			return false;
-		}
-	}
-	DbfFileReader dbf(dbf_fname);
-	if (!dbf.isDbfReadSuccess()) {
-		open_err_msg << "Failed to read DBF file.";
-		return false;
-	}
-	std::map<wxString, GdaConst::FieldType> var_type_map;
-	dbf.getFieldTypes(var_type_map);
-	std::vector<wxString> var_list;
-	dbf.getFieldList(var_list);
-	
-	// Correct variable order information
-	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
-	VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-	variable_order->CorrectVarGroups(var_type_map, var_list);
-	
-	table_state = new TableState;
-	time_state = new TimeState;
-	table_int = new DbfTable(table_state, time_state, dbf, *variable_order);
-	if (!table_int) {
-		open_err_msg << "There was a problem reading the table";
-		delete table_state;
-		return false;
-	}
-	if (!table_int->IsValid()) {
-		open_err_msg = table_int->GetOpenErrorMessage();
-		delete table_state;
-		delete table_int;
-		return false;
-	}
-	if (!isTableOnly) {
-		// Read shape layer
-		return OpenShpFile(shp_fname);
-	}
-	LOG_MSG("Exiting Project::InitFromShapefileLayer");
-	return true;
 }
 
 /** Initialize the Table and Shape Layer from OGR source */
 bool Project::InitFromOgrLayer()
 {
-	LOG_MSG("Entering Project::InitFromOgrLayer");
-	wxString datasource_name = datasource->GetOGRConnectStr();
-    LOG_MSG("Datasource name:" + datasource_name);
-    GdaConst::DataSourceType ds_type = datasource->GetType();
+	wxLogMessage("Entering Project::InitFromOgrLayer");
     
+	wxString datasource_name = datasource->GetOGRConnectStr();
+    
+    wxLogMessage("Datasource name:");
+    wxString ds_str = datasource->ToString();
+    wxLogMessage(ds_str);
+    
+    GdaConst::DataSourceType ds_type = datasource->GetType();
+   
 	// OK. ReadLayer() is running in a seperate thread.
 	// This gives us a chance to get its progress for a Progress window.
 	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, ds_type, layername.ToStdString());
@@ -1522,7 +1492,7 @@ bool Project::InitFromOgrLayer()
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
-		open_err_msg << "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
+		open_err_msg << _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
 		throw GdaException(open_err_msg.c_str());
 		return false;
 	}
@@ -1530,24 +1500,28 @@ bool Project::InitFromOgrLayer()
 	int prog_n_max = layer_proxy->n_rows;
 	
     // in case read a empty datasource or n_rows is not read
-    if (prog_n_max <= 0)  prog_n_max = 2;
-    
-	wxProgressDialog prog_dlg("Open data source progress dialog",
-                              "Loading data...", prog_n_max,  NULL,
-                              wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+    if (prog_n_max <= 0)
+        prog_n_max = 2;
+   
+	wxProgressDialog prog_dlg(_("Open data source progress dialog"),
+							  _("Loading data..."), prog_n_max,  NULL,
+							  wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 	bool cont = true;
-	while ((layer_proxy->load_progress < layer_proxy->n_rows ||  layer_proxy->n_rows <= 0) &&
-           !layer_proxy->HasError())
+	while ((layer_proxy->load_progress < layer_proxy->n_rows ||
+			layer_proxy->n_rows <= 0) &&
+		   !layer_proxy->HasError())
 	{
 		if (layer_proxy->n_rows == -1) {
 			// if cannot get n_rows, make the progress stay at the half position
 			cont = prog_dlg.Update(1);
+    
 		} else{
 			if (layer_proxy->load_progress >= 0 &&
-                layer_proxy->load_progress < prog_n_max )
+				layer_proxy->load_progress < prog_n_max ) {
 				cont = prog_dlg.Update(layer_proxy->load_progress);
+			}
 		}
-		if (!cont)  {
+		if (!cont)  { // or if cancel clicked
 			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
 			return false;
 		}
@@ -1555,7 +1529,7 @@ bool Project::InitFromOgrLayer()
 	}
     
 	if (!layer_proxy) {
-		open_err_msg << "There was a problem reading the layer";
+		open_err_msg << _("There was a problem reading the layer");
 		throw GdaException(open_err_msg.c_str());
         
 	} else if ( layer_proxy->HasError() ) {
@@ -1564,7 +1538,7 @@ bool Project::InitFromOgrLayer()
 		
 	}
     
-	OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name.ToStdString(), ds_type);
+    OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
     
 	datasource->UpdateWritable(ds_proxy->is_writable);
     
@@ -1579,13 +1553,15 @@ bool Project::InitFromOgrLayer()
 	
 	table_state = new TableState;
 	time_state = new TimeState;
-	table_int = new OGRTable(layer_proxy, ds_type, table_state, time_state, *variable_order);
+	table_int = new OGRTable(layer_proxy, ds_type, table_state,
+                             time_state, *variable_order);
     
 	if (!table_int) {
-		open_err_msg << "There was a problem reading the table";
+		open_err_msg << _("There was a problem reading the table");
 		delete table_state;
 		throw GdaException(open_err_msg.c_str());
 	}
+    
 	if (!table_int->IsValid()) {
 		open_err_msg = table_int->GetOpenErrorMessage();
 		delete table_state;
@@ -1593,8 +1569,28 @@ bool Project::InitFromOgrLayer()
 		return false;
 	}
 
+    // read cpg file for ESRI shapefile to setup encoding
+    if (ds_type == GdaConst::ds_shapefile) {
+        wxFileName fn(datasource_name);
+        wxString cpg_fn = fn.GetPathWithSep() + fn.GetName() +  ".cpg";
+        if (!wxFileExists(cpg_fn)) {
+            cpg_fn = fn.GetPathWithSep() + fn.GetName() + ".CPG";
+        }
+        if (wxFileExists(cpg_fn)) {
+            wxTextFile cpg_file;
+            cpg_file.Open(cpg_fn);
+            
+            // read the first line
+            wxString encode_str = cpg_file.GetFirstLine();
+            SetupEncoding(encode_str);
+        }
+    }
+    
 	isTableOnly = layer_proxy->IsTableOnly();
-	if (!isTableOnly) {
+    
+    if (ds_type == GdaConst::ds_dbf) isTableOnly = true;
+    
+    if (!isTableOnly) {
 		layer_proxy->ReadGeometries(main_data);
     } else {
         // prompt user to select X/Y columns to create a geometry layer
@@ -1603,63 +1599,266 @@ bool Project::InitFromOgrLayer()
 	// run caching in background
 	// OGRDataAdapter::GetInstance().CacheLayer
 	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
-    
-	LOG_MSG("Exiting Project::InitFromOgrLayer");
 	return true;
+}
+
+BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::DataSourceType ds_type, wxString layer_name)
+{
+    wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
+    BackgroundMapLayer* map_layer = NULL;
+    // Use global OGR adapter to manage all datasources, so they can be reused
+    OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+    OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
+    if (p_layer->ReadData()) {
+        if (p_layer->IsTableOnly() == false) {
+            // always add to bg_maps
+            if (bg_maps.find(layer_name) == bg_maps.end()) {
+                bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);
+            }
+            map_layer = bg_maps[layer_name];
+        }
+    }
+    return map_layer;
+}
+
+int Project::GetMapLayerCount()
+{
+    return bg_maps.size() + fg_maps.size();
+}
+
+map<wxString, BackgroundMapLayer*> Project::GetBackgroundMayLayers()
+{
+    return bg_maps;
+}
+
+void Project::SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    bg_maps = val;
+}
+
+map<wxString, BackgroundMapLayer*> Project::GetForegroundMayLayers()
+{
+    return fg_maps;
+}
+
+void Project::SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val)
+{
+    fg_maps = val;
+}
+
+vector<BackgroundMapLayer*> Project::CloneBackgroundMaps(bool clone_style)
+{
+    vector<BackgroundMapLayer*> copy_bg_maps;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString name = it->first;
+        BackgroundMapLayer* ml = it->second;
+        BackgroundMapLayer* copy  = ml->Clone(clone_style);
+        copy_bg_maps.push_back(copy);
+    }
+    return copy_bg_maps;
+}
+
+map<wxString, BackgroundMapLayer*> Project::CloneForegroundMaps(bool clone_style)
+{
+    map<wxString, BackgroundMapLayer*> copy_fg_maps;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        wxString name = it->first;
+        BackgroundMapLayer* ml = it->second;
+        BackgroundMapLayer* copy  = ml->Clone(clone_style);
+        copy_fg_maps[name] = copy;
+    }
+    return copy_fg_maps;
+}
+
+BackgroundMapLayer* Project::GetMapLayer(wxString map_name)
+{
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(map_name) != bg_maps.end()) {
+        ml = bg_maps[map_name];
+    } else if (fg_maps.find(map_name) != fg_maps.end()) {
+        ml = fg_maps[map_name];
+    }
+    return ml;
+}
+
+vector<wxString> Project::GetLayerNames()
+{
+    vector<wxString> names;
+    map<wxString, BackgroundMapLayer*>::iterator it;
+    for (it=fg_maps.begin(); it!=fg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    for (it=bg_maps.begin(); it!=bg_maps.end(); it++) {
+        wxString name = it->first;
+        names.push_back(name);
+    }
+    return names;
+}
+
+void Project::RemoveLayer(wxString name)
+{
+    BackgroundMapLayer* ml = NULL;
+    if (bg_maps.find(name) != bg_maps.end()) {
+        ml = bg_maps[name];
+        ml->CleanMemory();
+        delete ml;
+        bg_maps.erase(name);
+        
+    } else if (fg_maps.find(name) != fg_maps.end()) {
+        ml = fg_maps[name];
+        ml->CleanMemory();
+        delete ml;
+        fg_maps.erase(name);
+    }
+}
+
+bool Project::GetStringColumnData(wxString field_name, vector<wxString>& data)
+{
+    if (data.empty()) {
+        data.resize(num_records);
+    }
+    // this function is for finding IDs of multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::long64_type) {
+        for (int i=0; i<num_records; ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
+        }
+        return true;
+    } else if (type == GdaConst::string_type) {
+        for (int i=0; i<num_records; ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);
+        }
+    }
+    return false;
+}
+
+vector<wxString> Project::GetIntegerAndStringFieldNames()
+{
+    return layer_proxy->GetIntegerAndStringFieldNames();
+}
+
+void Project::SetupEncoding(wxString encode_str)
+{
+	wxLogMessage("Project::SetupEncoding()");
+	wxLogMessage(encode_str);
+
+    if (table_int == NULL || encode_str.IsEmpty() )
+        return;
+    
+    if (encode_str.Upper().Contains("UTF8") ||
+        encode_str.Upper().Contains("UTF 8") ||
+        encode_str.Upper().Contains("UTF-8")) {
+        table_int->SetEncoding(wxFONTENCODING_UTF8);
+        
+    } else if (encode_str.Upper().Contains("UTF16") ||
+        encode_str.Upper().Contains("UTF 16") ||
+        encode_str.Upper().Contains("UTF-16")) {
+        table_int->SetEncoding(wxFONTENCODING_UTF16LE);
+        
+    } else if (encode_str.Upper().Contains("1250")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1250);
+    } else if (encode_str.Upper().Contains("1251")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1251);
+    } else if (encode_str.Upper().Contains("1252")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1252);
+    } else if (encode_str.Upper().Contains("1253")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1253);
+    } else if (encode_str.Upper().Contains("1254")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1254);
+    } else if (encode_str.Upper().Contains("1255")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1255);
+    } else if (encode_str.Upper().Contains("1256")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1256);
+    } else if (encode_str.Upper().Contains("1257")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1257);
+    } else if (encode_str.Upper().Contains("1258")) {
+        table_int->SetEncoding(wxFONTENCODING_CP1258);
+    } else if (encode_str.Upper().Contains("437")) {
+        table_int->SetEncoding(wxFONTENCODING_CP437);
+    } else if (encode_str.Upper().Contains("850")) {
+        table_int->SetEncoding(wxFONTENCODING_CP850);
+    } else if (encode_str.Upper().Contains("855")) {
+        table_int->SetEncoding(wxFONTENCODING_CP855);
+    } else if (encode_str.Upper().Contains("866")) {
+        table_int->SetEncoding(wxFONTENCODING_CP866);
+    } else if (encode_str.Upper().Contains("874")) {
+        table_int->SetEncoding(wxFONTENCODING_CP874);
+    } else if (encode_str.Upper().Contains("932")) {
+        table_int->SetEncoding(wxFONTENCODING_CP932);
+    } else if (encode_str.Upper().Contains("936")) {
+        table_int->SetEncoding(wxFONTENCODING_CP936);
+    } else if (encode_str.Upper().Contains("949")) {
+        table_int->SetEncoding(wxFONTENCODING_CP949);
+    } else if (encode_str.Upper().Contains("950")) {
+        table_int->SetEncoding(wxFONTENCODING_CP950);
+        
+    } else if (encode_str.Upper().Contains("885910") ||
+               encode_str.Upper().Contains("8859_10") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_10);
+    } else if (encode_str.Upper().Contains("885911") ||
+               encode_str.Upper().Contains("8859_11") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_11);
+    } else if (encode_str.Upper().Contains("885912") ||
+               encode_str.Upper().Contains("8859_12") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_12);
+    } else if (encode_str.Upper().Contains("885913") ||
+               encode_str.Upper().Contains("8859_13") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_13);
+    } else if (encode_str.Upper().Contains("885914") ||
+               encode_str.Upper().Contains("8859_14") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_14);
+    } else if (encode_str.Upper().Contains("885915") ||
+               encode_str.Upper().Contains("8859_15") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_15);
+    } else if (encode_str.Upper().Contains("88591") ||
+               encode_str.Upper().Contains("8859_1") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_1);
+    } else if (encode_str.Upper().Contains("88592") ||
+               encode_str.Upper().Contains("8859_2") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_2);
+    } else if (encode_str.Upper().Contains("88593") ||
+               encode_str.Upper().Contains("8859_3") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_3);
+    } else if (encode_str.Upper().Contains("88594") ||
+               encode_str.Upper().Contains("8859_4") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_4);
+    } else if (encode_str.Upper().Contains("88595") ||
+               encode_str.Upper().Contains("8859_5") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_5);
+    } else if (encode_str.Upper().Contains("88596") ||
+               encode_str.Upper().Contains("8859_6") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_6);
+    } else if (encode_str.Upper().Contains("88597") ||
+               encode_str.Upper().Contains("8859_7") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_7);
+    } else if (encode_str.Upper().Contains("88598") ||
+               encode_str.Upper().Contains("8859_8") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_8);
+    } else if (encode_str.Upper().Contains("88599") ||
+               encode_str.Upper().Contains("8859_9") ) {
+        table_int->SetEncoding(wxFONTENCODING_ISO8859_9);
+    } else if (encode_str.Upper().Contains("GB2312") ||
+               encode_str.Upper().Contains("2312") ) {
+        table_int->SetEncoding(wxFONTENCODING_GB2312);
+    } else if (encode_str.Upper().Contains("BIG5")) {
+        table_int->SetEncoding(wxFONTENCODING_BIG5);
+    } else if (encode_str.Upper().Contains("KOI8")) {
+        table_int->SetEncoding(wxFONTENCODING_KOI8);
+    } else if (encode_str.Upper().Contains("SHIFT_JIS") ||
+               encode_str.Upper().Contains("SHIFT JIS") ) {
+        table_int->SetEncoding(wxFONTENCODING_SHIFT_JIS);
+    } else if (encode_str.Upper().Contains("JP")) {
+        table_int->SetEncoding(wxFONTENCODING_EUC_JP);
+    } else if (encode_str.Upper().Contains("KR")) {
+        table_int->SetEncoding(wxFONTENCODING_EUC_KR);
+    }
 }
 
 bool Project::IsTableOnlyProject()
 {
     return isTableOnly;
-}
-
-int Project::OpenShpFile(wxFileName shp_fname)
-{
-	LOG_MSG("Entering Project::OpenShpFile");
-	using namespace std;
-	using namespace Shapefile;
-	
-	wxFileName m_shx_fname(shp_fname);
-	m_shx_fname.SetExt("shx");
-	wxString m_shx_str = m_shx_fname.GetFullPath();
-	
-	wxFileName m_shp_fname(shp_fname);
-	m_shp_fname.SetExt("shp");
-	wxString m_shp_str = m_shp_fname.GetFullPath();
-	
-	Shapefile::Index index_data;
-	bool success = Shapefile::populateIndex(m_shx_str, index_data);
-	
-	if (success) {	
-		success = Shapefile::populateMain(index_data, m_shp_str, main_data);
-		
-		if (index_data.header.shape_type == POLYGON_Z) {
-			index_data.header.shape_type = POLYGON;
-		} else if (index_data.header.shape_type == POLYGON_M) {  
-			index_data.header.shape_type = POLYGON;
-		} else if (index_data.header.shape_type == POINT_Z) {
-			index_data.header.shape_type = Shapefile::POINT_TYP;
-		} else if (index_data.header.shape_type == POINT_M) {
-			index_data.header.shape_type = Shapefile::POINT_TYP;
-		} else if (index_data.header.shape_type == MULTI_POINT) {
-			// not supported here
-			return MULTI_POINT;
-		} else if (index_data.header.shape_type == POLY_LINE_Z) {
-			index_data.header.shape_type = POLY_LINE;
-		} else if (index_data.header.shape_type == POLY_LINE_M) {
-			index_data.header.shape_type = POLY_LINE;
-		}
-	}
-	
-	if (!success) {
-		// display a failure window if unsupported shapefile type encountered
-		open_err_msg << "Shapefile content is not recognizable.";
-		return false;
-	}
-	
-	int shp_num_recs = Shapefile::calcNumIndexHeaderRecords(index_data.header);
-	LOG(shp_num_recs);
-	LOG(main_data.records.size());
-	LOG_MSG("Exiting Project::OpenShpFile");
-	return true;
 }

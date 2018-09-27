@@ -23,7 +23,6 @@
 #include <vector>
 #include <wx/checkbox.h>
 #include <wx/dialog.h>
-#include "../DbfFile.h"
 
 class Project;
 class TableInterface;

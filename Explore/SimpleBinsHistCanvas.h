@@ -36,8 +36,8 @@ class Project;
 class SimpleBinsHistCanvasCbInt
 {
 public:
-	virtual void notifyNewHistHover(const std::vector<int>& hover_obs,
-																	int total_hover_obs) = 0;
+	virtual void notifyNewHistHover(const std::vector<int>& hover_obs, int total_hover_obs) = 0;
+    virtual void OnRightClick(const wxPoint& pos) = 0;
 };
 
 
@@ -54,29 +54,30 @@ class SimpleBinsHistCanvas : public TemplateCanvas
 {
 public:
 	DECLARE_CLASS(SimpleBinsHistCanvas)
-	SimpleBinsHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
-											 Project* project, HLStateInt* hl_state_int,
-											 SimpleBinsHistCanvasCbInt* sbh_canv_cb, //optional
-											 const std::vector<SimpleBin>& hist_bins,
-											 const wxString& Xname, double Xmin, double Xmax,
-											 const wxString& right_click_menu_id = wxEmptyString,
-											 bool show_axes = false,
-											 const wxPoint& pos = wxDefaultPosition,
-											 const wxSize& size = wxDefaultSize);
+    SimpleBinsHistCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                         Project* project, HLStateInt* hl_state_int,
+                         SimpleBinsHistCanvasCbInt* sbh_canv_cb, //optional
+                         const std::vector<SimpleBin>& hist_bins,
+                         const wxString& Xname, double Xmin, double Xmax,
+                         const wxString& right_click_menu_id = wxEmptyString,
+                         bool show_axes = false,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize);
 	virtual ~SimpleBinsHistCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
-	
+	virtual wxString GetVariableNames();
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	
 	void ShowAxes(bool show_axes);
 	bool IsShowAxes() { return show_axes; }
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void UpdateStatusBar();
+    
+protected:
 	
 	std::vector<SimpleBin> hist_bins;
 	wxString Xname;

@@ -63,20 +63,20 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
+	virtual void UpdateStatusBar();
     void GetBarPositions(std::vector<double>& x_center_pos,
                          std::vector<double>& x_left_pos,
                          std::vector<double>& x_right_pos);
     
-public:
 	void InitIntervals();
 	void UpdateIvalSelCnts();
 	static const int max_intervals;
@@ -92,8 +92,9 @@ public:
 								double min, double max);
 	
 protected:
-	virtual void UpdateStatusBar();
-	
+
+    Project* project;
+    
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;
@@ -139,7 +140,7 @@ public:
 					wxWindowID id = wxID_ANY,
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
-					long style = wxCAPTION|wxSYSTEM_MENU);
+					long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	virtual ~CatClassifPanel();
 	
 	CatClassifState* PromptNew(const CatClassifDef& ccd,
@@ -165,6 +166,8 @@ public:
 	void OnAutomaticLabelsCb(wxCommandEvent& event);
 	void OnBrkRad(wxCommandEvent& event);
 	void OnBrkTxtEnter(wxCommandEvent& event);
+    void OnUserInput(wxCommandEvent& event);
+
 	void OnBrkSlider(wxCommandEvent& event);
 	void OnScrollThumbRelease(wxScrollEvent& event);
 	void OnKillFocusEvent(wxFocusEvent& event);
@@ -269,6 +272,7 @@ private:
 	
 	int num_obs;
 	Gda::dbl_int_pair_vec_type data;
+    std::vector<bool> data_undef;
 	CatClassifDef cc_data;
 	Gda::dbl_int_pair_vec_type preview_data;
 	
@@ -290,7 +294,8 @@ class CatClassifFrame : public TemplateFrame
 public:
     CatClassifFrame(wxFrame *parent, Project* project,
                     bool useScientificNotation = false,
-					const wxString& title = "Category Editor",
+                    bool promptNew = false,
+					const wxString& title = _("Category Editor"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::cat_classif_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);

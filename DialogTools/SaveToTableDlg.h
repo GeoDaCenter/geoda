@@ -52,7 +52,7 @@ class SaveToTableDlg: public wxDialog
 public:
     SaveToTableDlg( Project* project, wxWindow* parent,
 				   const std::vector<SaveToTableEntry>& data,
-				   const wxString& title = "Save Results", 
+				   const wxString& title = _("Save Results"), 
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
 				   long style = wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER );
@@ -64,7 +64,10 @@ public:
 	void OnTimeChoice( wxCommandEvent& event );
     void OnOkClick( wxCommandEvent& event );
 	void OnCloseClick( wxCommandEvent& event );
-	
+
+    std::vector<int> new_col_ids;
+    std::vector<wxString> new_col_names;
+    
 private:
 	void FillColIdMaps();
 	void InitField(int button);

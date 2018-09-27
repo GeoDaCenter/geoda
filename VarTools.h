@@ -165,6 +165,9 @@ public:
 	void UpdateGlobalTime(int tm);
 	/** Get last value global time was set to.  Initially 0. */
 	int GetLastGlobalTime();
+    
+    void SetCurTime(int var, int t);
+    int GetCurTime(int var);
 	
 private:
 	int MinTmForAllSynced();
@@ -172,11 +175,11 @@ private:
 	int OffsetFromMinSyncedTm(int var);
 	
 	struct Entry {
-		Entry(const wxString& name, int time,
-					bool is_time_variant, bool sync_with_global_time,
-					bool fixed_scale,
-					const std::vector<double>& min_vals,
-					const std::vector<double>& max_vals);
+        Entry(const wxString& name, int time,
+              bool is_time_variant, bool sync_with_global_time,
+              bool fixed_scale,
+              const std::vector<double>& min_vals,
+              const std::vector<double>& max_vals);
 		Entry(const Entry& e);
 		virtual Entry& operator=(const Entry& s);
 		
@@ -193,6 +196,7 @@ private:
 	std::vector<Entry> vars;
 	std::vector<wxString> tm_strs;
 	int global_time; // according to last time it was set
+    int current_time;
 };
 	
 struct VarInfo {
@@ -204,6 +208,7 @@ struct VarInfo {
 	int time; // current time, always between time_min and time_max
 	std::vector<double> min; // min values for each time
 	std::vector<double> max; // max values for each time
+	std::vector<bool> has_undef; // max values for each time
 	/* Keep synchronized with reference time.
 	 * This only applies to time-variant variables.
 	 * If false for a time-variant variable, then that variable
@@ -213,9 +218,10 @@ struct VarInfo {
 	// scale is set according to min/max values over all possible times
 	// for this particular variable combination.
 	bool fixed_scale;
+    
+    bool is_moran; // moran requires |min| == |max|
 	
 	// Secondary Attributes
-	
 	// if true, then this variable time tries to match the the
 	// global time and other variables time offsets are with respect
 	// to this variable's time.  If true, then ref_time_offset = 0
@@ -223,6 +229,7 @@ struct VarInfo {
 	bool is_ref_variable;
 	// time offset from the reference variable time
 	int ref_time_offset; // offset from ref_time
+    
 	int time_min;
 	int time_max;
 	double min_over_time; // within time min/max range

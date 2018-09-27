@@ -68,6 +68,12 @@ public:
     
     virtual bool IsFileDataSource() = 0;
     
+    virtual wxString GetJsonStr() = 0;
+    
+	virtual wxString ToString() = 0;
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) = 0;
+    
     /**
      * Read subtree starting from passed in node pt. 
      * @param const ptree& pt: a subtree of "datasource" node
@@ -93,6 +99,8 @@ public:
     static IDataSource* CreateDataSource(wxString data_type_name,
                                          const ptree& subtree,
 										 const wxString& proj_path = "");
+    
+    static IDataSource* CreateDataSource(wxString ds_json_str);
 };
 
 
@@ -122,16 +130,15 @@ public:
      * Constructor, which is used when create a FileDataSource instance from a 
      * data source (e.g. opening a shapefile)
      */
-    FileDataSource(wxString file_rep_path);
+    FileDataSource(wxString ds_path);
 	
 private:
-    wxString project_file_path;
 	wxString file_repository_path;
 	GdaConst::DataSourceType ds_type;
 	bool is_writable;
     
 public:
-    /// implementation of IDataSource interfaces
+    /// implementation of IDataSource interfaces    
 	virtual wxString GetOGRConnectStr();
     
     virtual bool IsWritable(){return is_writable;}
@@ -152,10 +159,19 @@ public:
         return ds_type == GdaConst::ds_sqlite || ds_type == GdaConst::ds_gpkg ? false : true;
     }
     
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
+    }
+    
+    virtual wxString GetJsonStr();
+    
     /**
      * Return file path.
      */
     wxString GetFilePath() { return file_repository_path;}
+    
+    
+	virtual wxString ToString();
 };
 
 /**
@@ -171,7 +187,7 @@ public:
                          GdaConst::DataSourceType _ds_type,
 						 const wxString& proj_path);
 	WebServiceDataSource(wxString ws_url){ webservice_url = ws_url; }
-    WebServiceDataSource(wxString ws_url, GdaConst::DataSourceType _ds_type);
+    WebServiceDataSource(GdaConst::DataSourceType _ds_type, wxString ws_url);
    
 	
 private:
@@ -191,8 +207,15 @@ public:
     virtual IDataSource* Clone();
     
     virtual bool IsFileDataSource() {return false;}
-                                  
+    
+    virtual wxString GetJsonStr();
     wxString GetURL() { return webservice_url; }
+    
+	virtual wxString ToString();
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
+    }
 };
 
 
@@ -207,9 +230,9 @@ public:
 	DBDataSource(){}
 	DBDataSource(const ptree& xml_tree, GdaConst::DataSourceType _ds_type,
 				 const wxString& proj_path);
-	DBDataSource(wxString _db_name, wxString _db_host, wxString _db_port,
-				 wxString _db_user, wxString _db_pwd, 
-				 GdaConst::DataSourceType _db_type);
+	DBDataSource(GdaConst::DataSourceType _db_type,
+                 wxString _db_name, wxString _db_host, wxString _db_port,
+				 wxString _db_user, wxString _db_pwd);
 private:
 	wxString db_name;
 	wxString db_host;
@@ -233,11 +256,19 @@ public:
     
     virtual bool IsFileDataSource() {return false;}
     
+    virtual wxString GetJsonStr();
+    
+	virtual wxString ToString();
+    
     wxString GetDBName() { return db_name; }
     wxString GetDBHost() { return db_host; }
     wxString GetDBPort() { return db_port; }
     wxString GetDBUser() { return db_user; }
     wxString GetDBPwd()  { return db_pwd; }
+    
+    virtual void UpdateDataSource(GdaConst::DataSourceType _ds_type) {
+        ds_type = _ds_type;
+    }
 };
 
 

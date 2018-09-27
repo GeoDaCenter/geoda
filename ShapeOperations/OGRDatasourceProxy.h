@@ -58,10 +58,6 @@ public:
 	 */
 	~OGRDatasourceProxy();
 
-private:
-    boost::thread* create_layer_thread;
-	
-public:
     bool is_writable;
    
     GdaConst::DataSourceType ds_type;
@@ -72,11 +68,10 @@ public:
     
     size_t layer_count;	//!< number of layer in this data source
     
-	map<string, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
+	map<wxString, OGRLayerProxy*> layer_pool; //!< dict for all opened layers
     
-	vector<string> layer_names;
+	vector<wxString> layer_names;
     
-public:
 	/**
 	 * This function clean the memory (geometies and table) of contained layers
 	 */
@@ -87,7 +82,7 @@ public:
 	 * Note: this function now is working in GdaCache only, so the created
 	 * datasource will be added to layer_pool.
 	 */
-	static void CreateDataSource(string format, wxString dest_datasource);
+	static void CreateDataSource(wxString format, wxString dest_datasource);
 	
 	/**
 	 * Return OGR data source type as string
@@ -99,7 +94,7 @@ public:
 	 * Return the number of layers, in case there is no layer in datasource.
 	 * (e.g. an empty spatialite file db).
 	 */
-	vector<string> GetLayerNames();
+	vector<wxString> GetLayerNames();
 	
 	/**
 	 * Return layer proxy according to the layer_name
@@ -109,13 +104,13 @@ public:
 	 * cleaned. This makes sure that this program wont crash when large datasets
 	 * (layers) were read.
 	 */
-	OGRLayerProxy* GetLayerProxy(string layer_name);
+	OGRLayerProxy* GetLayerProxy(wxString layer_name);
 	
-	OGRLayerProxy* GetLayerProxyBySQL(string sql);
+	OGRLayerProxy* GetLayerProxyBySQL(wxString sql);
 	
-	OGRLayerProxy* ExecuteSQL(string sql);
+	OGRLayerProxy* ExecuteSQL(wxString sql);
 
-    OGRLayerProxy* CreateLayer(string layer_name,
+    OGRLayerProxy* CreateLayer(wxString layer_name,
                                OGRwkbGeometryType eGType,
                                vector<OGRGeometry*>& geometries,
                                TableInterface* table,
@@ -123,7 +118,10 @@ public:
                                OGRSpatialReference* spatial_ref);
     
     void StopCreateLayer();
-    bool DeleteLayer(string layer_name);
+    bool DeleteLayer(wxString layer_name);
+    
+private:
+    boost::thread* create_layer_thread;
 };
 
 

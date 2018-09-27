@@ -41,11 +41,11 @@ DataViewerDeleteColDlg::DataViewerDeleteColDlg( TableInterface* table_int_s,
 											   wxWindow* parent)
 : table_int(table_int_s)
 {
-    LOG_MSG("Entering DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
+    wxLogMessage("Open DataViewerDeleteColDlg.");
 	SetParent(parent);
     CreateControls();
     Centre();
-    LOG_MSG("Exiting DataViewerDeleteColDlg::DataViewerDeleteColDlg(..)");
+
 }
 
 void DataViewerDeleteColDlg::CreateControls()
@@ -64,6 +64,8 @@ void DataViewerDeleteColDlg::CreateControls()
 
 void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerDeleteColDlg::OnDelete()");
+    
     wxArrayInt selections;
     m_field->GetSelections(selections);
     
@@ -74,23 +76,46 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 	}
     col_id_map.clear();
     table_int->FillColIdMap(col_id_map);
+   
+    // check selected variables first
+    bool check_success = true;
+    for (int i=n-1; i>=0; i--) {
+        int idx = selections[i];
+        wxString nm = name_to_nm[m_field->GetString(idx)];
+        int col = table_int->FindColId(nm);
+        if (col == wxNOT_FOUND) {
+            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            check_success = false;
+            break;
+        }
+        if (table_int->IsColTimeVariant(col)) {
+            wxString err_msg = wxString::Format(_("Variable %s is a time-grouped variable.  Please ungroup this variable to delete."), nm);
+            wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            check_success = false;
+            break;
+            
+        }
+    }
+    if (!check_success)
+        return;
     
     for (int i=n-1; i>=0; i--) {
         int idx = selections[i];
-    	int col_del_pos = col_id_map[idx];
-        wxString del_name;
-    	del_name = table_int->GetColName(col_del_pos);
-
+        wxString nm = name_to_nm[m_field->GetString(idx)];
+        int col = table_int->FindColId(nm);
+        wxLogMessage(nm);
 
     	try{
-    		table_int->DeleteCol(col_del_pos);
-
+    		table_int->DeleteCol(col);
     		m_del_button->Enable(false);
 
     	} catch (GdaException e) {
     		wxString msg;
-    		msg << "Delete " << del_name << ". " <<e.what();
-    		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+    		msg << "Delete " << nm << ". " <<e.what();
+    		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
     		dlg.ShowModal();
     		return;
     	}
@@ -103,6 +128,7 @@ void DataViewerDeleteColDlg::OnDelete( wxCommandEvent& ev )
 
 void DataViewerDeleteColDlg::OnChoice( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerDeleteColDlg::OnChoice()");
 	m_message->SetLabelText("");
     wxArrayInt selections;
     m_field->GetSelections(selections);
@@ -117,11 +143,22 @@ void DataViewerDeleteColDlg::InitFieldChoices()
 {
 	col_id_map.clear();
 	m_field->Clear();
-	table_int->FillColIdMap(col_id_map);
-    items.clear();
-	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
-		items.Add(table_int->GetColName(col_id_map[i]));
-	}
-    m_field->InsertItems(items, 0);
-
+    wxArrayString var_items;
+    table_int->FillColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            wxString nm = name;
+            for (int t=0; t<table_int->GetColTimeSteps(id); t++) {
+                nm << " (" << table_int->GetTimeString(t) << ")";
+            }
+            name_to_nm[nm] = name;
+            var_items.Add(nm);
+        } else {
+            name_to_nm[name] = name;
+            var_items.Add(name);
+        }
+    }
+    m_field->InsertItems(var_items,0);
 }

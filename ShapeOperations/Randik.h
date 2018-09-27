@@ -25,6 +25,8 @@ Algorithm taken from Knuth, Donald E. 1981. The Art.., vol 2, 3.2-3.3.
 #ifndef __GEODA_CENTER_RANDIK_H__
 #define __GEODA_CENTER_RANDIK_H__
 
+#include <vector>
+
 class Randik
 {
 public:
@@ -49,7 +51,9 @@ public:
 	 vectors must be fully allocated unlike the above which
 	 allocates memory and must be deleted by caller. */
 	bool Perm(const int size, int* thePermutation, long* theRands);
-	
+
+    bool Perm(const std::vector<bool>& undefs, const int size, int* thePermutation, long* theRands);
+    
 	/** Show the last seed used.  Always shown as a positive number,
 	 but will be automatically converted to a negative number before
 	 being passed to Initialize. */

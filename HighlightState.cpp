@@ -39,7 +39,6 @@ void HighlightState::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering HighlightState::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting HighlightState::closeAndDeleteWhenEmpty");
@@ -74,9 +73,7 @@ void HighlightState::removeObserver(HighlightStateObserver* o)
 {
 	LOG_MSG("Entering HighlightState::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) {
-		LOG_MSG("No more observers left, so deleting self");
 		delete this;
 	}
 	LOG_MSG("Exiting HighlightState::removeObserver");
@@ -86,11 +83,17 @@ void HighlightState::notifyObservers()
 {
 	ApplyChanges();
 	if (event_type == empty) return;
-	//LOG_MSG("In HighlightState::notifyObservers");
-	//LOG(observers.size());
+    if (observers.empty()) return;
 	// See section 18.4.4.2 of Stroustrup
-	std::for_each(observers.begin(), observers.end(),
-			 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));
+	//std::for_each(observers.begin(), observers.end(),
+	//		 std::bind2nd(std::mem_fun(&HighlightStateObserver::update),this));
+   
+    std::list<HighlightStateObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        HighlightStateObserver* obj = *it;
+        obj->update(this);
+    }
+    
 }
 
 void HighlightState::notifyObservers(HighlightStateObserver* exclude)
@@ -101,7 +104,7 @@ void HighlightState::notifyObservers(HighlightStateObserver* exclude)
 		 i != observers.end(); ++i)
 	{
 		if ((*i) == exclude) {
-			LOG_MSG("HighlightState::notifyObservers: skipping exclude");
+            
 		} else {
 			(*i)->update(this);
 		}
@@ -113,21 +116,6 @@ void HighlightState::ApplyChanges()
 	switch (event_type) {
 		case delta:
 		{
-            /*
-			for (int i=0; i<total_newly_highlighted; i++) {
-				if (!highlight[newly_highlighted[i]]) {
-					highlight[newly_highlighted[i]] = true;
-				}
-			}
-			for (int i=0; i<total_newly_unhighlighted; i++) {
-				if (highlight[newly_unhighlighted[i]]) {
-					highlight[newly_unhighlighted[i]] = false;
-				}
-			}
-			total_highlighted += total_newly_highlighted;
-			total_highlighted -= total_newly_unhighlighted;
-             */
-           
             total_highlighted = 0;
             for (int i=0; i<highlight.size(); i++) {
                 if (highlight[i] == true) {
@@ -159,22 +147,7 @@ void HighlightState::ApplyChanges()
                 }
                 highlight[i] = !highlight[i];
             }
-            /*
-			int t_nh = 0;
-			int t_nuh = 0;
-			for (int i=0, iend=highlight.size(); i<iend; i++) {
-				if (highlight[i]) {
-					newly_unhighlighted[t_nuh++] = i;
-					highlight[i] = false;
-				} else {
-					newly_highlighted[t_nh++] = i;
-					highlight[i] = true;
-				}
-			}
-			total_highlighted = highlight.size() - total_highlighted;
-			total_newly_highlighted = t_nh;
-			total_newly_unhighlighted = t_nuh;
-             */
+            
 		}
 			break;
 		default:

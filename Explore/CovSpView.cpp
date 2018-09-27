@@ -19,6 +19,7 @@
 
 #include <utility> // std::pair
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/dcclient.h>
 #include "../DialogTools/VariableSettingsDlg.h"
@@ -37,13 +38,15 @@ EVT_MOUSE_EVENTS(CovSpFrame::OnMouseEvent)
 EVT_ACTIVATE(CovSpFrame::OnActivate)
 END_EVENT_TABLE()
 
+using namespace std;
+
 CovSpFrame::CovSpFrame(wxFrame *parent, Project* project,
-											 const GdaVarTools::Manager& var_man_,
-											 WeightsMetaInfo::DistanceMetricEnum dist_metric_,
-											 WeightsMetaInfo::DistanceUnitsEnum dist_units_,
-											 const wxString& title,
-											 const wxPoint& pos,
-											 const wxSize& size)
+                       const GdaVarTools::Manager& var_man_,
+                       WeightsMetaInfo::DistanceMetricEnum dist_metric_,
+                       WeightsMetaInfo::DistanceUnitsEnum dist_units_,
+                       const wxString& title,
+                       const wxPoint& pos,
+                       const wxSize& size)
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 var_man(var_man_),
 dist_metric(dist_metric_), dist_units(dist_units_),
@@ -54,6 +57,7 @@ show_lowess_smoother(true), show_slope_values(false),
 scatt_plot(0), vert_label(0), horiz_label(0),
 too_many_obs(project->GetNumRecords() > 1000)
 {
+    wxLogMessage("Open CovSpFrame (Non-parametric Spatial Autocorrelation.");
 	if (!too_many_obs) {
 		pairs_hl_state = project->GetPairsHLState();
 		project->FillDistances(D, dist_metric, dist_units);
@@ -109,12 +113,10 @@ too_many_obs(project->GetNumRecords() > 1000)
 	UpdatePanel();
 	
 	Show(true);
-	LOG_MSG("Exiting CovSpFrame::CovSpFrame");
 }
 
 CovSpFrame::~CovSpFrame()
 {
-	LOG_MSG("In CovSpFrame::~CovSpFrame");
 	if (lowess_param_frame) {
 		lowess_param_frame->removeObserver(this);
 		lowess_param_frame->closeAndDeleteWhenEmpty();
@@ -125,17 +127,14 @@ CovSpFrame::~CovSpFrame()
 
 void CovSpFrame::OnMouseEvent(wxMouseEvent& event)
 {
-	LOG_MSG(wxString::Format("In CovSpFrame::OnMouseEvent: (%d,%d)",
-													 (int) event.GetX(), (int) event.GetY()));
 	if (event.RightDown()) {
-		LOG_MSG("Right Down");
 	}
 }
 
 void CovSpFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("In CovSpFrame::OnActivate()");
 		RegisterAsActive("CovSpFrame", GetTitle());
 	}
 	//if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
@@ -143,7 +142,6 @@ void CovSpFrame::OnActivate(wxActivateEvent& event)
 
 void CovSpFrame::MapMenus()
 {
-	LOG_MSG("In CovSpFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu;
@@ -151,7 +149,7 @@ void CovSpFrame::MapMenus()
 	LoadMenu("ID_COV_SCATTER_PLOT_MENU_OPTIONS");	
 	CovSpFrame::UpdateContextMenuItems(optMenu);
 	
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -159,10 +157,8 @@ void CovSpFrame::UpdateOptionMenuItems()
 {
 	//TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
 	if (menu == wxNOT_FOUND) {
-		LOG_MSG("CovSpFrame::UpdateOptionMenuItems: Options "
-						"menu not found");
 	} else {
 		CovSpFrame::UpdateContextMenuItems(mb->GetMenu(menu));
 	}
@@ -174,31 +170,32 @@ void CovSpFrame::UpdateContextMenuItems(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
-																show_linear_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
-																show_lowess_smoother);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
-																show_regimes);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
-																show_slope_values);
-	
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LINEAR_SMOOTHER"),
+                                  show_linear_smoother);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_LOWESS_SMOOTHER"),
+                                  show_lowess_smoother);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_REGIMES_REGRESSION"),
+                                  show_regimes);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_SLOPE_VALUES"),
+                                  show_slope_values);
+    
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
 void CovSpFrame::UpdateTitle()
 {
-	wxString s("Nonparametric Spatial Autocorrelation");
+	wxString s = _("Spatial Correlogram");
 	if (var_man.GetVarsCount() > 0) s << " - " << var_man.GetNameWithTime(0);
 	SetTitle(s);
 }
 
-wxString CovSpFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs,
-																							int total_hover_obs)
+wxString CovSpFrame::GetUpdateStatusBarString(const vector<int>& hover_obs,
+                                              int total_hover_obs)
 {
 	wxString s;
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
-	int last = GenUtils::min<int>(total_hover_obs, hover_obs.size(), 2);
+	int last = std::min(total_hover_obs, (int)hover_obs.size());
+	last = std::min(last, 2);
 	size_t t = var_man.GetTime(0);
 	typedef pairs_bimap_type::left_map::const_iterator left_const_iterator;
 	for (int h=0; h<last; ++h) {
@@ -223,7 +220,7 @@ wxString CovSpFrame::GetUpdateStatusBarString(const std::vector<int>& hover_obs,
 
 void CovSpFrame::OnViewLinearSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewLinearSmoother");
+	wxLogMessage("In CovSpFrame::OnViewLinearSmoother");
 	if (too_many_obs) return;
 	show_linear_smoother = !show_linear_smoother;
 	scatt_plot->ShowLinearSmoother(show_linear_smoother);
@@ -232,7 +229,7 @@ void CovSpFrame::OnViewLinearSmoother(wxCommandEvent& event)
 
 void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewLowessSmoother");
+	wxLogMessage("In CovSpFrame::OnViewLowessSmoother");
 	if (too_many_obs) return;
 	show_lowess_smoother = !show_lowess_smoother;
 	scatt_plot->ShowLowessSmoother(show_lowess_smoother);
@@ -241,34 +238,31 @@ void CovSpFrame::OnViewLowessSmoother(wxCommandEvent& event)
 
 void CovSpFrame::OnEditLowessParams(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnEditLowessParams");
-	if (too_many_obs) return;
+	wxLogMessage("In CovSpFrame::OnEditLowessParams");
+	if (too_many_obs)
+        return;
 	if (lowess_param_frame) {
 		lowess_param_frame->Iconize(false);
 		lowess_param_frame->Raise();
 		lowess_param_frame->SetFocus();
 	} else {
 		Lowess l; // = t->GetLowess();  // should be shared by all cells
-		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-																							l.GetDeltaFactor(),
-																							project);
+		lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
 		lowess_param_frame->registerObserver(this);
 	}
 }
 
 void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnShowVarsChooser");
+	wxLogMessage("In CovSpFrame::OnShowVarsChooser");
 	if (too_many_obs) return;
-	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate,
-												 false, true, "Variable Choice", "Variable");
+	VariableSettingsDlg VS(project, VariableSettingsDlg::univariate, false, true, _("Variable Choice"), _("Variable"));
 	if (VS.ShowModal() != wxID_OK) return;
 	GdaVarTools::VarInfo& v = VS.var_info[0];
-	std::vector<wxString> tm_strs;
+	vector<wxString> tm_strs;
 	project->GetTableInt()->GetTimeStrings(tm_strs);
 	GdaVarTools::Manager t_var_man(tm_strs);
-	t_var_man.AppendVar(v.name, v.min, v.max, v.time,
-										v.sync_with_global_time, v.fixed_scale);
+	t_var_man.AppendVar(v.name, v.min, v.max, v.time, v.sync_with_global_time, v.fixed_scale);
 	var_man = t_var_man;
 	
 	// If distance metric or units changed, then reinit distance as well
@@ -300,7 +294,7 @@ void CovSpFrame::OnShowVarsChooser(wxCommandEvent& event)
 
 void CovSpFrame::OnViewRegimesRegression(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnViewRegimesRegression");
+	wxLogMessage("In CovSpFrame::OnViewRegimesRegression");
 	if (too_many_obs) return;
 	show_regimes = !show_regimes;
 	scatt_plot->ShowRegimes(show_regimes);
@@ -309,7 +303,7 @@ void CovSpFrame::OnViewRegimesRegression(wxCommandEvent& event)
 
 void CovSpFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnDisplayStatistics");
+	wxLogMessage("In CovSpFrame::OnDisplayStatistics");
 	if (too_many_obs) return;
 	// should be managed here or by shared manager
 	//CovSpCanvas* t = (CovSpCanvas*) template_canvas;
@@ -319,7 +313,7 @@ void CovSpFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void CovSpFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 {
-	LOG_MSG("In CovSpFrame::OnDisplaySlopeValues");
+	wxLogMessage("In CovSpFrame::OnDisplaySlopeValues");
 	if (too_many_obs) return;
 	show_slope_values = !show_slope_values;
 	scatt_plot->ShowSlopeValues(show_slope_values);
@@ -329,23 +323,21 @@ void CovSpFrame::OnDisplaySlopeValues(wxCommandEvent& event)
 /** Implementation of TableStateObserver interface */
 void CovSpFrame::update(TableState* o)
 {
-	LOG_MSG("In CovSpFrame::update(TableState*)");
 }
 
 /** Implementation of TimeStateObserver interface */
 void CovSpFrame::update(TimeState* o)
 {
-	LOG_MSG("In CovSpFrame::update(TimeState* o)");
 	var_man.UpdateGlobalTime(o->GetCurrTime());
-	if (var_man.GetVarsCount() >= 1) UpdatePanel();
+	if (var_man.GetVarsCount() >= 1)
+        UpdatePanel();
 	UpdateTitle();
 	Refresh();
 }
 
 void CovSpFrame::update(LowessParamObservable* o)
 {
-	scatt_plot->ChangeLoessParams(o->GetF(), o->GetIter(),
-																o->GetDeltaFactor());
+	scatt_plot->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
 }
 
 void CovSpFrame::notifyOfClosing(LowessParamObservable* o)
@@ -355,14 +347,9 @@ void CovSpFrame::notifyOfClosing(LowessParamObservable* o)
 
 void CovSpFrame::UpdatePanel()
 {
-	LOG_MSG("Entering CovSpFrame::UpdatePanel");
 	if (!panel || !bag_szr) return;
 	template_canvas = 0;
 	int num_vars = var_man.GetVarsCount();
-	LOG(num_vars);
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
 	if (message_win) {
 		message_win->Unbind(wxEVT_MOTION, &CovSpFrame::OnMouseEvent, this);
 		bool detatch_success = bag_szr->Detach(0);
@@ -371,11 +358,6 @@ void CovSpFrame::UpdatePanel()
 		message_win = 0;
 	}
 	bag_szr->Clear();
-	LOG(bag_szr->GetItemCount());
-	LOG(bag_szr->GetRows());
-	LOG(bag_szr->GetCols());
-	LOG(bag_szr->GetEffectiveRowsCount());
-	LOG(bag_szr->GetEffectiveColsCount());
 	panel_v_szr->Remove(bag_szr); // bag_szr is deleted automatically
 	bag_szr = new wxGridBagSizer(0, 0); // 0 vgap, 0 hgap
 	if (scatt_plot) {
@@ -384,20 +366,25 @@ void CovSpFrame::UpdatePanel()
 	}
 	scatt_plot = 0;
 	if (vert_label) vert_label->Destroy();
+    
 	vert_label = 0;
 	if (horiz_label) horiz_label->Destroy();
+    
 	horiz_label = 0;
 	wxString z_err_msg;
+    
 	if (!too_many_obs) {
 		if (var_man.GetVarsCount() > 0) z_err_msg = Z_error_msg[var_man.GetTime(0)];
 	}
+    
 	bool z_var_good = false;
 	if (!too_many_obs) {
 		z_var_good = (var_man.GetVarsCount() > 0 && z_err_msg.IsEmpty());
 	}
+    
 	if (too_many_obs || var_man.GetVarsCount() <= 0 || !z_var_good) {
-		message_win = new wxHtmlWindow(panel, wxID_ANY, wxDefaultPosition,
-																	 wxSize(200,-1));
+		message_win = new wxHtmlWindow(panel, wxID_ANY,
+                                       wxDefaultPosition,wxSize(200,-1));
 		message_win->Bind(wxEVT_MOTION, &CovSpFrame::OnMouseEvent, this);
 		UpdateMessageWin();
 		bag_szr->Add(message_win, wxGBPosition(0,0), wxGBSpan(1,1), wxEXPAND);
@@ -414,18 +401,19 @@ void CovSpFrame::UpdatePanel()
 			int row = 0;
 			wxString z_nm(var_man.GetName(row));
 			int z_tm = var_man.GetTime(row);
-			wxString z_title = "Sample Autocorrelation";
+			wxString z_title = _("Sample Autocorrelation");
 			//var_man.GetNameWithTime(row);
 			wxString z_tm_str = table_int->GetTimeString(z_tm);
 			SimpleAxisCanvas* sa_can = 0;
 			{
-				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-																			Zprod[z_tm],
-																			z_title,
-																			Zprod_min[z_tm], Zprod_max[z_tm], false,
-																			show_outside_titles, false,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(50, -1));
+                sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
+                                              Zprod[z_tm],
+                                              Zprod_undef[z_tm],
+                                              z_title,
+                                              Zprod_min[z_tm], Zprod_max[z_tm], false,
+                                              show_outside_titles, false,
+                                              true, true, -1, false, false, 0, false,
+                                              wxDefaultPosition, wxSize(50, -1));
 				bag_szr->Add(sa_can, wxGBPosition(row, 0), wxGBSpan(1,1), wxEXPAND);
 				vert_label = sa_can;
 			}
@@ -438,12 +426,12 @@ void CovSpFrame::UpdatePanel()
 						y_title << " (Arc in kms)";
 					}
 				}
-				sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
-																			D, "Distance",
-																			D_min, D_max, true,
-																			show_outside_titles, true,
-																			true, true, -1, false, false, 0,
-																			wxDefaultPosition, wxSize(-1, 50));
+                sa_can = new SimpleAxisCanvas(panel, this, project, pairs_hl_state,
+                                              D, Zprod_undef[z_tm], "Distance",
+                                              D_min, D_max, true,
+                                              show_outside_titles, true,
+                                              true, true, -1, false, false, 0, false,
+                                              wxDefaultPosition, wxSize(-1, 50));
 				bag_szr->Add(sa_can, wxGBPosition(num_vars, row+1), wxGBSpan(1,1),
 										 wxEXPAND);
 				horiz_label = sa_can;
@@ -452,19 +440,24 @@ void CovSpFrame::UpdatePanel()
 				int col = 0;
 				SimpleScatterPlotCanvas* sp_can = 0;
 				sp_can = new SimpleScatterPlotCanvas(panel, this, project,
-																						 pairs_hl_state, 0,
-																						 D, Zprod[z_tm],
-																						 "Distance", z_title,
-																						 D_min, D_max,
-																						 Zprod_min[z_tm], Zprod_max[z_tm],
-																						 true, true, false,
-																						 "ID_COV_SCATTER_PLOT_MENU_OPTIONS",
-																						 !show_outside_titles,
-																						 true, false, //show axes thru org
-																						 show_regimes,
-																						 false, //show_linear_smoother,
-																						 show_lowess_smoother,
-																						 false); // show_slope_values
+													 pairs_hl_state, 0,
+													 D,
+                                                     Zprod[z_tm],
+                                                     Zprod_undef[z_tm],
+                                                     Zprod_undef[z_tm],
+													 "Distance",
+                                                     z_title,
+													 D_min, D_max,
+													 Zprod_min[z_tm],
+                                                     Zprod_max[z_tm],
+													 true, true, false,
+													 "ID_COV_SCATTER_PLOT_MENU_OPTIONS",
+													 !show_outside_titles,
+													 true, false, //show axes thru org
+													 show_regimes,
+													 false, //show_linear_smoother,
+													 show_lowess_smoother,
+													 false); // show_slope_values
 				bag_szr->Add(sp_can, wxGBPosition(row, col+1), wxGBSpan(1,1), wxEXPAND);
 				scatt_plot = sp_can;
 				template_canvas = sp_can;
@@ -491,7 +484,6 @@ void CovSpFrame::UpdatePanel()
 	top_h_sizer->RecalcSizes();
 	UpdateTitle();
 	Refresh();
-	LOG_MSG("Exiting CovSpFrame::UpdatePanel");
 }
 
 void CovSpFrame::UpdateMessageWin()
@@ -524,22 +516,17 @@ void CovSpFrame::UpdateMessageWin()
 	if (too_many_obs) {
 		long n_obs = project->GetNumRecords();
 		long n_pairs = (n_obs*(n_obs-1))/2;
-		s << "This view currently supports data with at most 1000 observations. ";
-		s << "The Nonparametric Spatial Autocorrelation Scatterplot plots ";
-		s << "distances between all pairs of observations. ";
-		s << "The current data set has " << n_obs << " observations and ";
-		s << n_pairs << " unordered pairs of observations.";
+        wxString msg = wxString::Format(_("This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."), n_obs, n_pairs);
+        s << msg;
 	} else {
 		int count = var_man.GetVarsCount();
 		if (count == 0) {
-			s << "Please use<br />";
-			s << "<font color=\"blue\">Options > Change Variable<br /></font>";
-			s << "to specify a variable.";
+			s << _("Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable.");
 		} if (Z_error_msg[var_man.GetTime(0)].IsEmpty()) {
-			s << "Variable <font color=\"blue\">" << var_man.GetName(0);
-			s << "</font> is specified. ";
+            wxString msg = wxString::Format(_("Variable <font color=\"blue\">%s</font> is specified. "), var_man.GetName(0));
+			s << msg;
 		} else {
-			s << "Error: " << Z_error_msg[var_man.GetTime(0)];
+			s << _("Error: ") << Z_error_msg[var_man.GetTime(0)];
 		}
 	}
 	s << "  </font></p></center>";
@@ -551,19 +538,26 @@ void CovSpFrame::UpdateMessageWin()
 /** Updates Z according to variable present in var_man. */
 void CovSpFrame::UpdateDataFromVarMan()
 {
-	LOG_MSG("Entering CovSpFrame::UpdateDataMapFromVarMan");
-	using namespace std;
 	TableInterface* table_int = project->GetTableInt();
 	const pairs_bimap_type& bimap = project->GetSharedPairsBimap();
 	
-	if (var_man.GetVarsCount() == 0) return;
+    if (var_man.GetVarsCount() == 0) {
+        return;
+    }
+    
 	wxString z_name = var_man.GetName(0);
 	int c_id = table_int->FindColId(z_name);
-	if (c_id < 0) return;
+    
+    if (c_id < 0) {
+        return;
+    }
+    
 	bool tm_variant = var_man.IsTimeVariant(0);
 	int tms = table_int->GetColTimeSteps(c_id);
+    
 	if (Z.size() != tms) {
 		Z.resize(tms);
+		Z_undef.resize(tms);
 		Zprod.resize(tms);
 		Zprod_min.resize(tms);
 		Zprod_max.resize(tms);
@@ -571,67 +565,111 @@ void CovSpFrame::UpdateDataFromVarMan()
 		VarZ.resize(tms);
 		Z_error_msg.resize(tms);
 	}
+    
 	size_t num_obs = table_int->GetNumberRows();
+    
 	for (size_t t=0; t<tms; ++t) {
 		if (Z[t].size() != num_obs) {
 			Z[t].resize(num_obs);
+			Z_undef[t].resize(num_obs);
 			Zprod[t].resize(bimap.size());
+			Zprod_undef[t].resize(bimap.size());
 		}
+        
+        // get data from table
+		table_int->GetColData(c_id, t, Z[t]);
+        table_int->GetColUndefined(c_id, t, Z_undef[t]);
+        
+        // init Zprod[t]
 		if (GdaConst::placeholder_type == table_int->GetColType(c_id, t)) {
 			for (pairs_bimap_type::const_iterator e=bimap.begin();
-					 e!=bimap.end(); ++e) {
-				Zprod[t][e->left] = 0;
+                 e!=bimap.end(); ++e)
+            {
+                int pair_idx = e->left;
+				Zprod[t][pair_idx] = 0;
+                
+                int obs_i = e->right.i;
+                int obs_j = e->right.j;
+                Zprod[t][pair_idx]  = Z_undef[t][obs_i] || Z_undef[t][obs_j];
 			}
-			wxString s;
-			s << "Variable " << z_name;
-			if (tm_variant) s << " at time " << table_int->GetTimeString(t);
-			s << " is a placeholder.";
+            wxString str_template;
+            
+            str_template = _("Variable %s is a placeholer");
+            if (tm_variant) {
+                str_template = _("Variable %s at time %d is a placeholer");
+            }
+            
+            wxString s = wxString::Format(str_template, z_name,
+                                          table_int->GetTimeString(t));
 			Z_error_msg[t] = s;
-			LOG_MSG(s);
 			continue;
 		}
-		table_int->GetColData(c_id, t, Z[t]);
+        
+        // do calculation
 		size_t Z_sz = Z[t].size();
 		double N = (double) Z_sz;
 		double sum = 0.0;
-		for (size_t i=0; i<Z_sz; ++i) sum += Z[t][i];
+        
+        for (size_t i=0; i<Z_sz; ++i){
+            if (Z_undef[t][i])
+                continue;
+            sum += Z[t][i];
+        }
+        
 		double smpl_mn = sum/N;
+        
 		MeanZ[t] = smpl_mn;
+        
 		double ssd = 0.0;
 		double diff = 0;
 		for (size_t i=0; i<Z_sz; ++i) {
+            if (Z_undef[t][i])
+                continue;
 			diff = Z[t][i] - smpl_mn;
 			ssd += diff*diff;
 		}
+        
 		double smpl_var = ssd/N;
-		LOG(smpl_mn);
-		LOG(smpl_var);
 		VarZ[t] = smpl_var;
+        
 		bool success = smpl_var > 0; //GenUtils::StandardizeData(Z[t]);
 		if (!success) {
-			wxString s;
-			s << "Variable " << z_name;
-			if (tm_variant) s << " at time " << table_int->GetTimeString(t);
-			s << " could not be standardized.";
+            wxString str_template;
+            
+            str_template = _("Variable %s is a placeholer");
+            if (tm_variant) {
+                str_template = _("Variable %s at time %d could not be standardized.");
+            }
+            
+            wxString s = wxString::Format(str_template, z_name,
+                                          table_int->GetTimeString(t));
 			Z_error_msg[t] = s;
-			LOG_MSG(s);
 		} else {
+            
 			Z_error_msg[t] = "";
-			Zprod_min[t] = std::numeric_limits<double>::max();
-			Zprod_max[t] = std::numeric_limits<double>::min();
+			Zprod_min[t] = numeric_limits<double>::max();
+			Zprod_max[t] = numeric_limits<double>::min();
+            
 			for (pairs_bimap_type::const_iterator e=bimap.begin();
-					 e!=bimap.end(); ++e) {
+                 e!=bimap.end(); ++e)
+            {
+                int idx_i = e->right.i;
+                int idx_j = e->right.j;
+                
+                if (Z_undef[t][idx_i] || Z_undef[t][idx_j])
+                    continue;
+                
 				//double p = Z[t][e->right.i]*Z[t][e->right.j];
-				double p = (Z[t][e->right.i]-smpl_mn)*(Z[t][e->right.j]-smpl_mn);
-				p = p/smpl_var;
+				double p = (Z[t][idx_i] - smpl_mn) * (Z[t][idx_j] - smpl_mn);
+				p = p / smpl_var;
+                
 				Zprod[t][e->left] = p;
+                
 				if (p < Zprod_min[t]) Zprod_min[t] = p;
 				if (p > Zprod_max[t]) Zprod_max[t] = p;
 			}
 		}
 	}
-	
-	LOG_MSG("Exiting CovSpFrame::UpdateDataFromVarMan");
 }
 
 wxString CovSpFrame::GetHelpHtml()

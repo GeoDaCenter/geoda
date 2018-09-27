@@ -42,7 +42,8 @@ public:
 		empty, // an empty event, observers should not be notified
 		delta, // check both newly_highlighted and newly_unhighlighted
 		unhighlight_all, // unhighlight everything
-		invert // flip highlight state for all observations
+		invert, // flip highlight state for all observations
+        transparency // transparency change
 	};
 	
 	/** Signal that HighlightState should be closed, but wait until
@@ -63,6 +64,7 @@ public:
 	virtual wxString GetEventTypeStr() = 0;
 	virtual void SetEventType( EventType e ) = 0;
 	virtual int GetTotalHighlighted() = 0;
+    virtual void SetTotalHighlighted(int n) = 0;
 	
 	virtual void registerObserver(HighlightStateObserver* o) = 0;
 	virtual void removeObserver(HighlightStateObserver* o) = 0;

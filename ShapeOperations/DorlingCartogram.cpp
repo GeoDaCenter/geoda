@@ -253,7 +253,7 @@ void DorlingCartogram::init_cartogram(const std::vector<double>& orig_x,
 	if (xrange == 0) xrange = 1.0;
 	double yrange = ymax-ymin;
 	if (yrange == 0) yrange = 1.0;
-	double map_range = GenUtils::max<double>(xrange, yrange);
+	double map_range = std::max(xrange, yrange);
 	
 	double t_dist = 0.0;
 	double t_radius = 0.0;
@@ -285,7 +285,6 @@ void DorlingCartogram::init_cartogram(const std::vector<double>& orig_x,
 	
 	double scale = t_dist / t_radius;
 	if (scale == 0) scale = 1.0;
-	LOG_MSG(scale);
 	widest = 0.0;
 	for (int body=1; body<bodies; body++) {
 		radius[body] = scale*sqrt(people[body]/pi);

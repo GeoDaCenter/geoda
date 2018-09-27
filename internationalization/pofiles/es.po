@@ -1,0 +1,3856 @@
+msgid ""
+msgstr ""
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Project-Id-Version: \n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: \n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: es\n"
+"X-Generator: Poedit 2.0.8\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+msgid "Descending order"
+msgstr "Orden Descendente"
+
+msgid "View Standardized Data"
+msgstr "Ver Variables Estandarizadas"
+
+msgid "Classic "
+msgstr "Básico"
+
+msgid "Zoom In"
+msgstr "Zoom +"
+
+msgid "Hide Map"
+msgstr "Ocultar Mapa"
+
+msgid "Expression"
+msgstr "Expresión"
+
+msgid "Progress"
+msgstr "Progreso"
+
+msgid "Merge by record order"
+msgstr "Combinar por orden de registros"
+
+msgid "Create Grid"
+msgstr "Crear Rejilla"
+
+msgid "Data Point"
+msgstr "Punto de Datos"
+
+msgid "Classification Themes"
+msgstr "Temas de Clasificación"
+
+msgid "Sample Data"
+msgstr "Datos de Ejemplo"
+
+msgid "break 0"
+msgstr "Corte 0"
+
+msgid "Histogram"
+msgstr "Histograma"
+
+msgid "Carto Dark"
+msgstr "Carto Oscuro"
+
+msgid "Select variables to delete "
+msgstr "Seleccionar variables a eliminar"
+
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr "Hebreo (ISO-8859-8-1)"
+
+msgid "Box Map (Hinge=1.5)"
+msgstr "Mapa de Caja (Bisagra=1.5)"
+
+msgid "Differential Moran's I"
+msgstr "I de Moran Diferencial"
+
+msgid "Merge by key values"
+msgstr "Combinar por valores clave"
+
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr "GeoPackage (*.gpkg)|*.gpkg"
+
+msgid "Themeless"
+msgstr "Un Color"
+
+msgid "Selection Tool"
+msgstr "Herramienta de Selección"
+
+msgid "Arabic (Windows-1256)"
+msgstr "Árabe (Windows-1256)"
+
+msgid "Change Outline Color of Neighbors"
+msgstr "Cambiar Color del Contorno de Vecinos"
+
+msgid "Operator"
+msgstr "Operador"
+
+msgid "Refresh"
+msgstr "Actualizar"
+
+msgid "Select All In Range"
+msgstr "Seleccionar Todo en Intervalo"
+
+msgid "Maps and Rates"
+msgstr "Mapas y Tasas"
+
+msgid "Save As"
+msgstr "Guardar como"
+
+msgid "Enter new ID variable name:"
+msgstr "Introduzca nombre nueva variable ID"
+
+msgid "Scatter Plot Matrix"
+msgstr "Matriz de Diagramas de Dispersión"
+
+msgid "Z Variable"
+msgstr "Variable Z"
+
+msgid "Selection Shape"
+msgstr "Selección Forma"
+
+msgid "Select datasource"
+msgstr "Seleccionar fuente de datos"
+
+msgid "diverging"
+msgstr "divergente"
+
+msgid "Change Font"
+msgstr "Cambiar Fuente"
+
+msgid "#obs"
+msgstr "nº obs."
+
+msgid "Copy Legend To Clipboard"
+msgstr "Copiar Leyenda al Portapapeles"
+
+msgid "standard deviation"
+msgstr "desviación estándar"
+
+msgid "Y Variable"
+msgstr "Variable Y"
+
+msgid "Database/Instance Name"
+msgstr "Base de datos/Nombre de instancia"
+
+msgid "Include diagonal of weights matrix"
+msgstr "Incluir diagonal de matriz de pesos"
+
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr "GeoJSON (*.geojson;*,json)|*.geojson;*,json"
+
+msgid "Smoother"
+msgstr "Alisado"
+
+msgid "uni. dist. Min"
+msgstr "Dist. min. uni."
+
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr "Turco Latín-5 (ISO-8859-9)"
+
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr "GeoDa maj.min.bld (tipo), día mes año"
+
+msgid "Distance metric"
+msgstr "Métrica de Distancia"
+
+msgid "Circle"
+msgstr "Círculo"
+
+msgid "PCA"
+msgstr "ACP"
+
+msgid "Hinge=1.5"
+msgstr "Bisagra=1.5"
+
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr "Archivo Datos dBase (*.dbf)|*.dbf"
+
+msgid "First row of CSV file"
+msgstr "Primera fila de archivo CSV"
+
+msgid "Save Thiessen Polygons"
+msgstr "Guardar Polígonos Thiessen"
+
+msgid "Save Categories to Table"
+msgstr "Guardar Categorías en Tabla"
+
+msgid "Axes Through Origin"
+msgstr "Ejes Sobre el Origen"
+
+msgid "Basemap Configuration Dialog"
+msgstr "Cuadro de Configuración de Mapa Base"
+
+msgid "records:"
+msgstr "registros"
+
+msgid "sequential"
+msgstr "secuencial"
+
+msgid ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"and Arizona Board of Regents\n"
+"All Rights Reserved"
+msgstr ""
+"Copyright (C) 1998-2011\n"
+"GeoDa Center for Geospatial Analysis and Computation\n"
+"y Arizona Board of Regents\n"
+"Todos los Derechos Reservados"
+
+msgid "Pred. Val. and Res."
+msgstr "Val. Pred. y Res."
+
+msgid "Line"
+msgstr "Línea"
+
+msgid "Regimes Regression"
+msgstr "Regresión"
+
+msgid "Categories"
+msgstr "Categorías"
+
+msgid "Light"
+msgstr "Fino"
+
+msgid "Assoc. Var."
+msgstr "Var. Asoc."
+
+msgid "Unique Values Map"
+msgstr "Mapa de Valores Individuales"
+
+msgid "Message area"
+msgstr "Área de Mensajes"
+
+msgid "File Path"
+msgstr "Ruta del Archivo"
+
+msgid "Change Parameters"
+msgstr "Cambiar Parámetros"
+
+msgid "Natural Breaks Map"
+msgstr "Mapa de Cortes Naturales"
+
+msgid "Save Projet File As"
+msgstr "Guardar Archivo de Proyecto Como"
+
+msgid "Cyrillic (Windows-1251)"
+msgstr "Cirílico (Windows-1251)"
+
+msgid "Selection"
+msgstr "Selección"
+
+msgid "Display Thiessen Polygons"
+msgstr "Mostrar Polígonos Thiessen"
+
+msgid "Time Editor"
+msgstr "Editor Tiempo"
+
+msgid "Intervals"
+msgstr "Intervalos"
+
+msgid "Improve Cartogram"
+msgstr "Mejorar Cartograma"
+
+msgid "Add new column to table"
+msgstr "Añadir nueva columna a la tabla"
+
+msgid "&Tools"
+msgstr "&Herramientas"
+
+msgid "Category"
+msgstr "Categoría"
+
+msgid "Save Rates"
+msgstr "Guardar Tasas"
+
+msgid "Database Host"
+msgstr "Base de Datos Anfitrión"
+
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+
+msgid "Exit"
+msgstr "Salir"
+
+msgid "Custom Inference"
+msgstr "Inferencia Personalizada"
+
+msgid "Y-coordinate variable"
+msgstr "Variable coordenada-Y"
+
+msgid "Base Variable"
+msgstr "Variable Base"
+
+msgid "Axis Option"
+msgstr "Opción de Eje"
+
+msgid "Horizontal Bins Breaks"
+msgstr "Cortes Intervalos Horizontales"
+
+msgid "Hinge=3.0"
+msgstr "Bisagra=3.0"
+
+msgid "Min"
+msgstr "Mín."
+
+msgid "Nokia/HERE App ID"
+msgstr "Nokia/HERE ID de la APP"
+
+msgid "Number of Rows"
+msgstr "Número de Filas"
+
+msgid "Boxplot Theme"
+msgstr "Tema del diagrama de Caja"
+
+msgid "Current time:"
+msgstr "Tiempo Actual:"
+
+msgid "Decimals (max 15)"
+msgstr "Decimales (máx. 15)"
+
+msgid "MDS"
+msgstr "MDS"
+
+msgid "Lower-left corner"
+msgstr "Esquina inferior izquierda"
+
+msgid "Count"
+msgstr "Cuenta"
+
+msgid "Spatial Correlogram"
+msgstr "Correlograma Espacial"
+
+msgid "Read from an ASCII file"
+msgstr "Leer de un Archivo ASCII"
+
+msgid "&Space"
+msgstr "&Espacio"
+
+msgid "C&reate"
+msgstr "Crear"
+
+msgid "South European Latin-3 (ISO-8859-3)"
+msgstr "Sur de Europa Latín-3 (ISO-8859-3)"
+
+msgid "Nordic Latin-6 (ISO-8859-10)"
+msgstr "Nórdico Latín-6 (ISO-8859-10)"
+
+msgid "Time"
+msgstr "Tiempo"
+
+msgid "West European Latin-9 (ISO-8859-15)"
+msgstr "Europeo Occidental Latín-9 (ISO-8859-15)"
+
+msgid "Nokia Night"
+msgstr "Nokia Noche"
+
+msgid "name:"
+msgstr "nombre"
+
+msgid "Univariate Local Moran's I"
+msgstr "I de Moran Local Univariante"
+
+msgid "Local G Maps"
+msgstr "Mapas Locales G"
+
+msgid "Strong"
+msgstr "Grueso"
+
+msgid "Turkish (Windows-1254)"
+msgstr "Turco (Windows-1254)"
+
+msgid "Creating Grid"
+msgstr "Crear Rejilla"
+
+msgid "Carto Light (No Labels)"
+msgstr "Carto Claro (Sin Etiquetas)"
+
+msgid "minimum"
+msgstr "mínimo"
+
+msgid "Append to current selection"
+msgstr "Agregar a selección actual"
+
+msgid "Type 2a"
+msgstr "Tipo 2a"
+
+msgid "Specify manually"
+msgstr "Especificar manualmente"
+
+msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
+msgstr "Geodatabase archivos ESRI (*.gdb)|*.gdb"
+
+msgid "Move Up"
+msgstr "Arriba"
+
+msgid "Unicode (UTF-16LE)"
+msgstr "Unicode (UTF-16LE)"
+
+msgid "Other (up to 99999)"
+msgstr "Otro (superior a 99999)"
+
+msgid "Spatial Lag"
+msgstr "Retardo Espacial"
+
+msgid "DBF File Information"
+msgstr "Información Archivo DBF"
+
+msgid "2nd Variable (Y)"
+msgstr "2ª Variable (Y)"
+
+msgid "Encode"
+msgstr "Codificación"
+
+msgid "199 Permutations"
+msgstr "199 Permutaciones"
+
+msgid "Save Selection"
+msgstr "Guardar Selección"
+
+msgid "View Original Data"
+msgstr "Ver Datos Originales"
+
+msgid "Check Updates"
+msgstr "Comprobar Actualizaciones"
+
+msgid "Move Down"
+msgstr "Abajo"
+
+msgid "Select All Undefined"
+msgstr "Seleccionar Todo Celdas en Blanco"
+
+msgid "Use inverse distance?"
+msgstr "¿Usar distancia inversa?"
+
+msgid "skater"
+msgstr "skater"
+
+msgid "current table key"
+msgstr "Clave de la tabla activa"
+
+msgid "Stack"
+msgstr "Agregar"
+
+msgid "Sort"
+msgstr "Ordenar"
+
+msgid "Average"
+msgstr "Promedio"
+
+msgid "choose a variable"
+msgstr "Elegir una variable"
+
+msgid "Status Bar"
+msgstr "Barra de Estado"
+
+msgid "Weights Manager"
+msgstr "Gestor de pesos"
+
+msgid "Continue"
+msgstr "Continuar"
+
+msgid "Database Type"
+msgstr "Tipo Base de Datos"
+
+msgid "Order of contiguity"
+msgstr "Orden de contigüidad"
+
+msgid "View"
+msgstr "Vista"
+
+msgid "2 Iteration"
+msgstr "Iteración 2"
+
+msgid "Grid Size"
+msgstr "Tamaño de Rejilla"
+
+msgid "Y-coord"
+msgstr "Coord-Y"
+
+msgid "Shape Centers"
+msgstr "Centros de Forma"
+
+msgid "99 Permutations"
+msgstr "99 Permutaciones"
+
+msgid "DBF Viewer 0.8 (July 29, 2011)"
+msgstr "DBF Viewer 0.8 (Julio 29, 2011)"
+
+msgid "3 Iteration"
+msgstr "Iteración 3"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Map Themes"
+msgstr "Temas de Mapa"
+
+msgid "Regression"
+msgstr "Regresión"
+
+msgid "499 Permutations"
+msgstr "499 Permutaciones"
+
+msgid "Include Variable Names"
+msgstr "Incluir Nombres de Variables"
+
+msgid "Local Geary Maps"
+msgstr "Mapas Geary Local"
+
+msgid "Hebrew (Windows-1255)"
+msgstr "Hebreo (Windows-1255)"
+
+msgid "LOWESS Smoother"
+msgstr "Alisado LOWESS"
+
+msgid "Diagonal weights = 1"
+msgstr "pesos Diagonal = 1"
+
+msgid "Geocode"
+msgstr "Geocodificar"
+
+msgid "Select key:"
+msgstr "Seleccionar clave"
+
+msgid "West European Latin-1 (ISO-8859-1)"
+msgstr "Europeo Occidental Latín-1 (ISO-8859-1)"
+
+msgid "Bug Report"
+msgstr "Informe de Errores"
+
+msgid "redcap"
+msgstr "REDCAP"
+
+msgid "Nokia Day"
+msgstr "Nokia Día"
+
+msgid "Outlines Visible"
+msgstr "Contornos Visibles"
+
+msgid "Change Map Transparency"
+msgstr "Cambiar Transparencia del Mapa"
+
+msgid "&Explore"
+msgstr "&Explorar"
+
+msgid "Number of Categories"
+msgstr "Número de Categorías"
+
+msgid "file size:"
+msgstr "tamaño de archivo:"
+
+msgid "New project file:"
+msgstr "Nuevo archivo de proyecto"
+
+msgid "Save Table As CSV File"
+msgstr "Guardar Tabla como CSV"
+
+msgid "&New"
+msgstr "&Nuevo"
+
+msgid "year:"
+msgstr "año"
+
+msgid "Unicode (UTF-8)"
+msgstr "Unicode (UTF-8)"
+
+msgid "Set Number Separators"
+msgstr "Fijar Separadores de Números"
+
+msgid "day:"
+msgstr "día:"
+
+msgid "Edit Title"
+msgstr "Editar Título"
+
+msgid "Chinese Simplified (GB2312)"
+msgstr "Chino Simplificado (GB2312)"
+
+msgid "Don't show Recent/Sample Data panel again"
+msgstr "No mostrar Recientes/Datos de Ejemplo de nuevo"
+
+msgid "About DBF Viewer"
+msgstr "Sobre DBF Viewer"
+
+msgid "Set Display Precision of Y-Axis"
+msgstr "Fijar Posiciones Decimales en Eje-Y"
+
+msgid "Adaptive bandwidth"
+msgstr "Ancho de Banda Adaptativo"
+
+msgid "Width in pixels"
+msgstr "Ancho en píxeles"
+
+msgid "Edit Custom Breaks"
+msgstr "Editar Cortes Personalizados"
+
+msgid "4 Iteration"
+msgstr "Iteración 4"
+
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr "OpenDocument Hoja de Cálculo (*.ods)|*.ods"
+
+msgid "Use Specified Seed"
+msgstr "Usar Semilla Específica"
+
+msgid "mean"
+msgstr "media"
+
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr "No mostrar este cuadro de nuevo (Esta configuración siempre se puede cambiar en el menú: Archivo->Preferencias)"
+
+msgid "Differential Local Moran's I"
+msgstr "I Local de Moran Diferencial"
+
+msgid "Select ID Variable"
+msgstr "Seleccionar Variable ID"
+
+msgid "Distance"
+msgstr "Distancia"
+
+msgid "Regression Report"
+msgstr "Informe de Regresión"
+
+msgid "Quantile"
+msgstr "Cuantiles"
+
+msgid "Convert ASCII to SHP"
+msgstr "Convertir ASCII a SHP"
+
+msgid "numeric"
+msgstr "numérico"
+
+msgid "Rates-Calculated Map"
+msgstr "Mapa de Tasas Calculadas"
+
+msgid "Raw Rate"
+msgstr "Tasa Cruda"
+
+msgid "Save Connectivity To Table"
+msgstr "Guardar Conectividad a Tabla"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Panning Mode"
+msgstr "Modo Arrastrado"
+
+msgid "Cyrillic (ISO-8859-5)"
+msgstr "Cirílico (ISO-8859-5)"
+
+msgid "Result"
+msgstr "Resultado"
+
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr "Guardar Duplicado de Polígonos Thiessen a Tabla"
+
+msgid "Equal Intervals Map"
+msgstr "Mapa de Intervalos Iguales"
+
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr "Geodatabase Personal ESRI (*.mdb)|*.mdb"
+
+msgid "weights:"
+msgstr "pesos"
+
+msgid "Reset to default"
+msgstr "Restaurar predeterminado"
+
+msgid "Key"
+msgstr "Clave"
+
+msgid "Map Movie"
+msgstr "Vídeo de Mapa"
+
+msgid "Selected ="
+msgstr "Seleccionados"
+
+msgid "Hinge"
+msgstr "Bisagra"
+
+msgid "Nokia Satellite"
+msgstr "Nokia Satélite"
+
+msgid "Options"
+msgstr "Opciones"
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr "Lenguaje de Marcado Keyhole (*.kml|*.kml"
+
+msgid "Copy Image To Clipboard"
+msgstr "Copiar Imagen al Portapapeles "
+
+msgid "Use max knn distance as bandwidth"
+msgstr "Usar distancia máx. k-vecinos como ancho banda"
+
+msgid "Calculator"
+msgstr "Calculadora"
+
+msgid "Zooming Mode"
+msgstr "Modo de Zoom"
+
+msgid "Models"
+msgstr "Modelos"
+
+msgid "Shape"
+msgstr "Formas"
+
+msgid "Co-location Map"
+msgstr "Mapa de Co-localización"
+
+msgid "Select"
+msgstr "Seleccionar"
+
+msgid "Averages Chart"
+msgstr "Gráfico de Medias"
+
+msgid "Display Axes Scale Values"
+msgstr "Mostrar Valores de Escala Ejes "
+
+msgid "Parallel Coordinate Plot"
+msgstr "Gráfico de Coordenadas Paralelas"
+
+msgid "Legend Background Color"
+msgstr "Color de Fondo de Leyenda"
+
+msgid "Choose Intervals"
+msgstr "Elegir Intervalos"
+
+msgid "Central European (CP852)"
+msgstr "Centroeuropeo (CP852)"
+
+msgid "Y-coordinate"
+msgstr "coordenada-Y"
+
+msgid "Display Mean Centers"
+msgstr "Mostrar Centros Medios"
+
+msgid "Rates"
+msgstr "Tasas"
+
+msgid "Decimal:"
+msgstr "Decimal:"
+
+msgid "Contiguity Weight"
+msgstr "Pesos de Contigüidad"
+
+msgid "0x03 (dBASE III+)"
+msgstr "0x03 (dBASE III+)"
+
+msgid "custom"
+msgstr "Personalizado"
+
+msgid "Display Centroids"
+msgstr "Mostrar Centroides"
+
+msgid "fields:"
+msgstr "campos:"
+
+msgid "Save Centroids"
+msgstr "Guardar Centroides"
+
+msgid "Gi cluster map, pseudo p-val"
+msgstr "Mapa de clústers Gi; pseudo p-val"
+
+msgid "Ascending order"
+msgstr "Orden ascendente"
+
+msgid "No Basemap"
+msgstr "Sin Mapa Base"
+
+msgid "Map Color Classification"
+msgstr "Clasificación Colores Mapa"
+
+msgid "Edit LOWESS Parameters"
+msgstr "Editar Parámetros LOWESS"
+
+msgid "Connectivity"
+msgstr "Conectividad"
+
+msgid "Use row-standardized weights"
+msgstr "Usar pesos estandarizados por filas"
+
+msgid "Data"
+msgstr "Datos"
+
+msgid "Cyrillic (KOI8-R)"
+msgstr "Cirílico (KOI8-R)"
+
+msgid "Database"
+msgstr "Base de Datos"
+
+msgid "Selection Variable"
+msgstr "Variable de Selección"
+
+msgid "Vertical Bins Breaks"
+msgstr "Cortes Intervalos Verticales"
+
+msgid "Zoom Out"
+msgstr "Zoom -"
+
+msgid "&Help"
+msgstr "&Ayuda"
+
+msgid "Append To Current Selection"
+msgstr "Anexar a Selección Actual"
+
+msgid "Zoom : press right-mouse button"
+msgstr "Zoom: presionar botón derecho del ratón"
+
+msgid "Publish to GeoDa-Web"
+msgstr "Publicar a la Web de GeoDa"
+
+msgid "Manual Resize Column"
+msgstr "Cambio Ancho Manual de Columna"
+
+msgid "Displayed decimals"
+msgstr "Mostrar decimales"
+
+msgid "Select from current selection"
+msgstr "Seleccionar de selección actual"
+
+msgid "(Leave empty for undefined values)"
+msgstr "Dejar en blanco los valores no seleccionados"
+
+msgid "Variable Settings"
+msgstr "Configuración de Variable"
+
+msgid "Connect"
+msgstr "Conectar"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "observation:"
+msgstr "observación"
+
+msgid "Variables"
+msgstr "Variables"
+
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr "Lenguaje de Marcado Geográfico (*.gml)|*.gml"
+
+msgid "Re&set"
+msgstr "Borrar"
+
+msgid "Grouped Variables"
+msgstr "Variables Agrupadas"
+
+msgid "3rd Variable (Z)"
+msgstr "3ª Variable (Z)"
+
+msgid "Show Linear Smoother"
+msgstr "Mostrar Alisado Lineal"
+
+msgid "Full Extent"
+msgstr "Ver Todo"
+
+msgid "Type 1"
+msgstr "Tipo 1"
+
+msgid "Animation"
+msgstr "Animación"
+
+msgid "&Run"
+msgstr "&Ejecutar"
+
+msgid "Clusters"
+msgstr "Clúster"
+
+msgid "GeoJson URL"
+msgstr "URL de GeoJson"
+
+msgid "Pan"
+msgstr "Arrastrar"
+
+msgid "Power"
+msgstr "Potencia"
+
+msgid "SELECTED"
+msgstr "SELECCIONADO"
+
+msgid ""
+"Select whether to use periods or commas as separators in numeric fields. E.g., by default, GeoDa uses commas to\n"
+"separate thousands and periods\n"
+"for decimals (1,000.00)."
+msgstr "Seleccionar si usar puntos o comas como separadores en campos numéricos. P.e., por defecto, GeoDa usa comas para separar miles and puntos para decimales (1,000.00)."
+
+msgid "category 1"
+msgstr "Categoría 1"
+
+msgid "Set Number Separators in Table"
+msgstr "Fijar Separadores de Números en Tabla"
+
+msgid "Input file (text file)"
+msgstr "Abrir archivo (texto)"
+
+msgid "3D Scatter Plot"
+msgstr "Diagrama de Dispersión 3D"
+
+msgid "="
+msgstr "="
+
+msgid "Time Setup"
+msgstr "Asistente de Tiempo"
+
+msgid "App Key"
+msgstr "Clave App"
+
+msgid "Time Player"
+msgstr "Reproductor de Tiempo"
+
+msgid "4th Variable"
+msgstr "4ª Variable"
+
+msgid "Show Axes Through Origin"
+msgstr "Mostrar Ejes sobre el Origen"
+
+msgid "User name"
+msgstr "Nombre usuario"
+
+msgid "min:"
+msgstr "mín."
+
+msgid "Appl&y"
+msgstr "Aplicar"
+
+msgid "Queen contiguity"
+msgstr "Contigüidad Reina"
+
+msgid "About GeoDa"
+msgstr "Acerca de GeoDa"
+
+msgid "Bivariate Local Join Count"
+msgstr "Join Count Local Bivariante"
+
+msgid "max:"
+msgstr "máx."
+
+msgid "Fixed scale over time"
+msgstr "Escala fija en el tiempo"
+
+msgid "Greek (ISO-8859-7)"
+msgstr "Griego (ISO-8859-7)"
+
+msgid "&Close"
+msgstr "Cerrar"
+
+msgid "Change Edge Thickness"
+msgstr "Cambiar Grosor del Borde"
+
+msgid "Set Display Precision on Axes"
+msgstr "Mostrar Pantalla de Precisión de Ejes"
+
+msgid "Fixed Aspect Ratio Mode"
+msgstr "Modo Ratio de Aspecto Fijo"
+
+msgid "Event Variable"
+msgstr "Variable de Eventos"
+
+msgid "Add Variable"
+msgstr "Añadir Variable"
+
+msgid "Show Graph"
+msgstr "Mostrar Grafo"
+
+msgid "Save to File"
+msgstr "Guardar en Archivo"
+
+msgid "Spectral"
+msgstr "Espectral"
+
+msgid "Web"
+msgstr "Web"
+
+msgid "Data Source Overview/Help: "
+msgstr "Revisión Fuente de Datos/Ayuda"
+
+msgid "Save Selected As"
+msgstr "Guardar Selección como"
+
+msgid "Covariates"
+msgstr "Explicativas"
+
+msgid "Nokia Hybrid"
+msgstr "Nokia Híbrido"
+
+msgid "Significance Map"
+msgstr "Mapa de Significación"
+
+msgid "Target Variable"
+msgstr "Variable Objetivo"
+
+msgid "New From Recent"
+msgstr "Nuevo desde Reciente"
+
+msgid "Local Moran's I with EB Rate"
+msgstr "I de Moran Local con Tasas EB"
+
+msgid "Moran Scatter Plot"
+msgstr "Diagrama de Dispersión de Moran"
+
+msgid "POLY&ID"
+msgstr "POLY&ID"
+
+msgid "Exporting Shape to Boundary"
+msgstr "Exportar Shape to Boundary"
+
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr "Archivo de Proyecto GeoDa (*.gda)|*.gda"
+
+msgid "Cluster Maps"
+msgstr "Mapas de Clústers"
+
+msgid "Grid Bounding Box"
+msgstr "Cuadro Delimitador de Rejilla"
+
+msgid "Percentile"
+msgstr "Percentiles"
+
+msgid "Spatial Empirical Bayes"
+msgstr "Empírico Bayes Espacial"
+
+msgid "Create Custom Breaks"
+msgstr "Crear Cortes Personalizados"
+
+msgid "Linear Smoother"
+msgstr "Alisado Lineal"
+
+msgid "Carto Light"
+msgstr "Carto Claro"
+
+msgid "show normal distribution p-val maps"
+msgstr "Mostrar mapas de p-val. de distribución normal"
+
+msgid "Thousands:"
+msgstr "Miles"
+
+msgid "Box Map (Hinge=3.0)"
+msgstr "Mapa de Caja (Bisagra=3.0)"
+
+msgid "Automatic Labels"
+msgstr "Etiquetas Automáticas"
+
+msgid "Produce bounding-box file?"
+msgstr "¿Crear archivo de cuadro delimitador?"
+
+msgid "Vietnamese (Windows-1258)"
+msgstr "Vietnamita (Windows-1258)"
+
+msgid "Display"
+msgstr "Mostrar"
+
+msgid "Project to Z-Y"
+msgstr "Proyectar a Z-Y"
+
+msgid "Insert before"
+msgstr "Insertar antes"
+
+msgid "Get a free Carto account: "
+msgstr "Obtener una cuenta Carto gratis"
+
+msgid "Equal Intervals"
+msgstr "Intervalos Iguales"
+
+msgid "Output file (*.shp)"
+msgstr "Arhivo de Resultados (*.shp)"
+
+msgid "Set Number of Permutation"
+msgstr "Fijar Número de Permutaciones"
+
+msgid "Convert Boundary to Shape Datasource"
+msgstr "Convertir Boundary a Fuente de Datos Shape"
+
+msgid "Dependent Variable"
+msgstr "Variable dependiente"
+
+msgid "Central European (Windows-1250)"
+msgstr "Centroeuropeo (Windows-1250)"
+
+msgid "Cluster Map "
+msgstr "Mapa de Clústers"
+
+msgid "White Test"
+msgstr "Test de White"
+
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr "Copyright (C) año-año por Luc Anselin"
+
+msgid "Create"
+msgstr "Crear"
+
+msgid "K Medoids"
+msgstr "K Medoids"
+
+msgid "&Regression"
+msgstr "Regresión"
+
+msgid "Show As Conditional Map"
+msgstr "Mostrar como Mapa Condicional"
+
+msgid "New datasource:"
+msgstr "Nueva fuente de datos"
+
+msgid "Precision threshold"
+msgstr "Precisión umbral"
+
+msgid "User Defined"
+msgstr "Definido por Usuario"
+
+msgid "Project to X-Y"
+msgstr "Proyectar a X-Y"
+
+msgid "Include"
+msgstr "Incluir"
+
+msgid "Run"
+msgstr "Ejecutar"
+
+msgid "show normal distribution p-val map"
+msgstr "Mostrar mapa de p-val. de distribución normal"
+
+msgid "Breaks"
+msgstr "Cortes"
+
+msgid "K-Nearest neighbors"
+msgstr "K-vecinos Más Cercanos"
+
+msgid "Hierarchical"
+msgstr "Jerárquico"
+
+msgid "Aggregate"
+msgstr "Agregar"
+
+msgid "Select Neighborless Observations"
+msgstr "Seleccionar Observaciones sin Vecinos"
+
+msgid "Natural Breaks"
+msgstr "Cortes Naturales"
+
+msgid "Target"
+msgstr "Objetivo"
+
+msgid "Weights"
+msgstr "pesos"
+
+msgid "Length (max 254)"
+msgstr "Tamaño (máx. 254)"
+
+msgid "Exclude"
+msgstr "Excluir"
+
+msgid "Load time definition from project file."
+msgstr "Cargar definición temporal de archivo de proyecto"
+
+msgid "Delete Variable(s)"
+msgstr "Eliminar Variable(s)"
+
+msgid "Intervals in the Histogram"
+msgstr "Intervalos en el Histograma"
+
+msgid "&Cancel"
+msgstr "&Cancelar"
+
+msgid "Get a free GeoDa-Web account: "
+msgstr "Obtener una cuenta de GeoDa-Web gratis"
+
+msgid "Quantile Map"
+msgstr "Mapa de Cuantiles"
+
+msgid "Bubble Chart"
+msgstr "Gráfico de Burbujas"
+
+msgid "&File"
+msgstr "&Archivo"
+
+msgid "Yes"
+msgstr "Sí"
+
+msgid "Significance Filter"
+msgstr ""
+
+msgid "T&able"
+msgstr "Tabla"
+
+msgid "using row-standardized weights"
+msgstr "usando pesos estandarizados por filas"
+
+msgid "Cartogram"
+msgstr "Cartograma"
+
+msgid "Assign To Target"
+msgstr ""
+
+msgid "Displayed decimal places"
+msgstr "Mostrar lugares decimales"
+
+msgid "Clear Selection"
+msgstr "Borrar Selección"
+
+msgid "Edit Variable Properties"
+msgstr "Editar Propiedades de Variables"
+
+msgid "Adaptive kernel"
+msgstr "Kernel adaptativo"
+
+msgid "Themeless Map"
+msgstr "Mapa de un Color"
+
+msgid "Fit-To-Window Mode"
+msgstr ""
+
+msgid "K Medians"
+msgstr "K Medians"
+
+msgid "Adjust Value Range of Y-Axis"
+msgstr "Ajustar Rango de Valores al Eje Y"
+
+msgid "Rectangle"
+msgstr "Rectángulo"
+
+msgid "Adjust Value Range of Y Axis"
+msgstr "Ajustar Rango de Valores al Eje Y"
+
+msgid "GeoDa could not find the required weights file."
+msgstr "Geoda no puede encontrar el archivo de pesos"
+
+msgid "Base Map "
+msgstr "Mapa Base"
+
+msgid "Coeff. Var. Mat."
+msgstr "Mat. Var. Coef."
+
+msgid "Spatial Error"
+msgstr "Error Espacial"
+
+msgid "Highlight Color"
+msgstr "Destacar Color"
+
+msgid "Thiessen Polygons"
+msgstr "Polígonos Thiessen"
+
+msgid "Box Plot"
+msgstr "Diagrama de Caja"
+
+msgid "Output file (text file)"
+msgstr "Archivo de resultados (texto)"
+
+msgid "Type 2"
+msgstr "Tipo 2"
+
+msgid "Change Fill Color of Neighbors"
+msgstr "Cambiar Color de Relleno de Vecinos"
+
+msgid "New selection"
+msgstr "Nueva Selección"
+
+msgid "Assign Values to Currently Selected / Unselected"
+msgstr "Asignar Valores a Actual Selección / No Selección"
+
+msgid "Show Selection and Neighbors"
+msgstr "Mostrar Selección y Vecinos"
+
+msgid "to define weights."
+msgstr "pendiente definición de pesos."
+
+msgid "Connect to Data Source"
+msgstr "Conectarse a la fuente de datos"
+
+msgid "K Means"
+msgstr "K Means"
+
+msgid "X-coord"
+msgstr "Coord-X"
+
+msgid "value"
+msgstr "Valor"
+
+msgid "Show LOWESS Smoother"
+msgstr "Mostrar Alisado LOWESS"
+
+msgid "row-standardized"
+msgstr "estandarizada por filas"
+
+msgid "Stable Version and Bug Fixes Only"
+msgstr "Versión Estable y Sólo Corrección de Errores"
+
+msgid "import table key"
+msgstr "Clave de tabla importada"
+
+msgid "Open"
+msgstr "Abrir"
+
+msgid "Local G"
+msgstr "G Local"
+
+msgid "Upper-right corner"
+msgstr "Esquina superior derecha"
+
+msgid "&Save to Table"
+msgstr "&Guardar en Tabla"
+
+msgid "Spatial Rate"
+msgstr "Tasa Espacial"
+
+msgid "Korean (EUC-KR)"
+msgstr "Coreano (EUC-KR)"
+
+msgid "Randomization"
+msgstr "Aleatorización"
+
+msgid "Carto"
+msgstr "Carto"
+
+msgid "Input datasource"
+msgstr "Fuente de Datos de Entrada"
+
+msgid "Max value of Y axis"
+msgstr "Valor Máx. del eje Y"
+
+msgid "&Map"
+msgstr "&Mapa"
+
+msgid "binary"
+msgstr "binario"
+
+msgid "Regression Line Color"
+msgstr "Color Línea de Regresión"
+
+msgid "Basemap Configuration"
+msgstr "Configuración de Mapa Base"
+
+msgid "Univariate Moran's I"
+msgstr "I de Morán Univariante"
+
+msgid "Variable / Constant"
+msgstr "Variable / Constante"
+
+msgid "1st Variable (X)"
+msgstr "1ª Variable (X)"
+
+msgid "Resize"
+msgstr "Redimensionar"
+
+msgid "Set Display Precision"
+msgstr "Fijar Pantalla de Precisión"
+
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr "Archivo ESRI (*.shp)|*.shp"
+
+msgid "Map"
+msgstr "Mapa"
+
+msgid "Unselected ="
+msgstr "No Seleccionados"
+
+msgid "Y"
+msgstr "y"
+
+msgid "All Rights Reserved"
+msgstr "Todos los Derechos Reservados"
+
+msgid "Min value of Y axis"
+msgstr "Valor mín. del eje Y"
+
+msgid "Select All..."
+msgstr "Seleccionar Todo..."
+
+msgid "Scatter Plot"
+msgstr "Diagrama de Dispersión"
+
+msgid "Selection Mode"
+msgstr "Modo de Selección"
+
+msgid "Multivariate Local Geary"
+msgstr "Geary Local Multivariante"
+
+msgid "Save Image As"
+msgstr "Guardar Imagen Como"
+
+msgid "Points from Table"
+msgstr "Puntos de una Tabla"
+
+msgid "Add Neighbors To Selection"
+msgstr "Añadir Vecinos a Selección"
+
+msgid "Rename Variable"
+msgstr "Renombrar Variable"
+
+msgid "Table"
+msgstr "Tabla"
+
+msgid "Variable Name"
+msgstr "Nombre de la Variable"
+
+msgid "show significance maps"
+msgstr "Mostrar mapas de significación"
+
+msgid "Bivariate Local Moran's I"
+msgstr "I de Moran Local Bivariante"
+
+msgid "Invert Select"
+msgstr "Invertir Selección"
+
+msgid "X-coordinate"
+msgstr "coordenada-X"
+
+msgid "&Edit"
+msgstr "&Editar"
+
+msgid "X Variable"
+msgstr "Variable X"
+
+msgid "Variable Setting"
+msgstr "Configuración de Variable"
+
+msgid "Invert Selection"
+msgstr "Invertir Selección"
+
+msgid "Project to X-Z"
+msgstr "Proyectar a X-Z"
+
+msgid "Custom Breaks"
+msgstr "Cortes Personalizados"
+
+msgid "Specify bandwidth"
+msgstr "Especificar ancho de banda"
+
+msgid "Selectable Fill Color"
+msgstr "Seleccionable Color de Relleno"
+
+msgid "Make selection from expression "
+msgstr "Realizar selección de la expresión"
+
+msgid "Kernel function"
+msgstr "Función Kernel"
+
+msgid "Point Color"
+msgstr "Color de Puntos"
+
+msgid "Display Statistics"
+msgstr "Mostrar Estadísticos"
+
+msgid "Local G*"
+msgstr "G* Local"
+
+msgid "Save Results"
+msgstr "Guardar Resultados"
+
+msgid "Unique Values"
+msgstr "Valores Individuales"
+
+msgid "Clean Basemap Cache"
+msgstr "Borrar Mapa Base de Caché"
+
+msgid "&Add ID Variable..."
+msgstr "&Añadir Variable ID"
+
+msgid "Reset"
+msgstr "Borrar"
+
+msgid "Input file "
+msgstr "Abrir Archivo"
+
+msgid "Create New Custom"
+msgstr "Crear Nuevo Personalizado"
+
+msgid "Japanese (EUC-JP)"
+msgstr "Japonés (EUC-JP)"
+
+msgid "Japanese (Shift&JIS)"
+msgstr "Japonés (Shift&JIS)"
+
+msgid "Welcome to GeoDa 1.8.16"
+msgstr "Bienvenidos a GeoDa 1.8.16"
+
+msgid "Column Number (from 0)"
+msgstr "Número de Columna (desde 0)"
+
+msgid "Add/Remove Variables"
+msgstr "Añadir/Eliminar Variables"
+
+msgid "OK"
+msgstr "Aceptar"
+
+msgid "&Open Project"
+msgstr "&Abrir Proyecto"
+
+msgid "Save Space-Time Table/Weights"
+msgstr "Guardar Tabla Espacio-Tiempo/pesos"
+
+msgid "Add Centroids to Table"
+msgstr "Añadir Centroides a Tabla"
+
+msgid "Create a project file?"
+msgstr "¿Crear un archivo de proyecto?"
+
+msgid "Distance Weight"
+msgstr "Pesos de Distancias"
+
+msgid "5 of 5 variables needed"
+msgstr "5 de 5 variables necesitadas"
+
+msgid "Parameters"
+msgstr "Parámetros"
+
+msgid "Show Status Bar"
+msgstr "Mostrar Barra de Estado"
+
+msgid "Apply kernel to diagonal weights"
+msgstr "Aplicar kernel a pesos diagonal"
+
+msgid "Sum"
+msgstr "Suma"
+
+msgid "Gi* cluster map, pseudo p-val"
+msgstr "Gi* mapa de clústers, pseudo p-val."
+
+msgid "X"
+msgstr "X"
+
+msgid "Input"
+msgstr "Abrir"
+
+msgid "New"
+msgstr "Nuevo"
+
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Cores and Neighbors"
+msgstr "Centros y Vecinos"
+
+msgid "month:"
+msgstr "mes:"
+
+msgid "version:"
+msgstr "versión:"
+
+msgid "Category Editor"
+msgstr "Editor de Categorías"
+
+msgid "6 Iteration"
+msgstr "Iteración 6"
+
+msgid "Method"
+msgstr "Método"
+
+msgid "Include lower orders"
+msgstr "Incluir órdenes inferiores"
+
+msgid "Type 1a"
+msgstr "Tipo 1a"
+
+msgid "Select, hold CTRL for brushing"
+msgstr "Seleccionar, mantener CTRL para brushing"
+
+msgid "X-coordinate variable"
+msgstr "Variable coordenada-X"
+
+msgid "Preferences..."
+msgstr "Preferencias..."
+
+msgid "Percentile Map"
+msgstr "Mapa de Percentiles"
+
+msgid "Use existing field name"
+msgstr "Usar nombre existente de campo"
+
+msgid "MS Excel (*.xls)|*.xls"
+msgstr "MS Excel (*.xls)|*.xls"
+
+msgid "999 Permutations"
+msgstr "999 Permutaciones"
+
+msgid "Cores"
+msgstr "Centros"
+
+msgid "Weights File Creation"
+msgstr "Creación Archivo de Pesos"
+
+msgid "Color Scheme"
+msgstr "Paleta de Colores"
+
+msgid "Loop"
+msgstr "Bucle"
+
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr "Haga click para elegir un estilo de resaltado en GeoDa"
+
+msgid "Weights File"
+msgstr "Fichero de pesos"
+
+msgid "Weight"
+msgstr "Pesos"
+
+msgid "Display Slope Values"
+msgstr "Mostrar Valores de Pendiente"
+
+msgid "max-p"
+msgstr "MaxP"
+
+msgid "What windows to open?"
+msgstr "Qué ventana abrir"
+
+msgid "Get a free Nokia/HERE account: "
+msgstr "Obtener una cuenta gratis de Nokia/HERE"
+
+msgid "&Merge"
+msgstr "&Combinar"
+
+msgid "First line of CSV is variable names?"
+msgstr "¿Primera Línea de CSV esn nombre de variables?"
+
+msgid "5 Iteration"
+msgstr "Iteración 5"
+
+msgid "Cumulative"
+msgstr "Acumulado"
+
+msgid "Existing Variables"
+msgstr "Variables Existentes"
+
+msgid "Move Selected to Top"
+msgstr "Mover Seleccionados Arriba"
+
+msgid "Add"
+msgstr "Añadir"
+
+msgid "Statistics"
+msgstr "Estadísticos"
+
+msgid "Show Vertical Axis"
+msgstr "Mostrar Eje Vertical"
+
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr "Valor Separado por Comas (*.csv)|*.csv"
+
+msgid "Curve Color"
+msgstr "Color de la Curva"
+
+msgid "User Name"
+msgstr "Nombre Usuario"
+
+msgid "Bivariate Moran's I"
+msgstr "I de Morán Bivariante"
+
+msgid "Database Port"
+msgstr "Base de Datos Puerto"
+
+msgid "Normal"
+msgstr "Normal"
+
+msgid "Nokia/HERE App Key"
+msgstr "Nokia/HERE Clave de la APP"
+
+msgid "1 Iteration"
+msgstr "Iteración 1"
+
+msgid "Conditional Map"
+msgstr "Mapa Condicional"
+
+msgid "Select From Current Selection"
+msgstr "Seleccionar de Selección Actual"
+
+msgid "Show Axes"
+msgstr "Mostrar Ejes"
+
+msgid "Save Project"
+msgstr "Guardar Proyecto"
+
+msgid "Chinese Traditional (Big5)"
+msgstr "Chino Tradicional (Big5)"
+
+msgid "New Group Details"
+msgstr "Nombrar Nuevo Grupo"
+
+msgid "Variable"
+msgstr "Variable"
+
+msgid "Title of Visualization"
+msgstr "Título de Visualización"
+
+msgid "Background Color"
+msgstr "Color de Fondo"
+
+msgid "Axis Selection"
+msgstr "Selección de Eje"
+
+msgid "Tim&e"
+msgstr "Tiempo"
+
+msgid "Set Display Precision:"
+msgstr "Mostrar Pantalla de Precisión"
+
+msgid "New Selection"
+msgstr "Nueva Selección"
+
+msgid "Number of neighbors"
+msgstr "Número de vecinos"
+
+msgid "Z"
+msgstr "Z"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Displayed decimals places"
+msgstr "Lugares decimales mostrados"
+
+msgid "WFS URL"
+msgstr "URL de WFS"
+
+msgid "Local G Statistics Maps"
+msgstr "Mapas de Estadísticos G Locales"
+
+msgid "maximum"
+msgstr "máximo"
+
+msgid "value:"
+msgstr "valor:"
+
+msgid "Project Information"
+msgstr "Información de Proyecto"
+
+msgid "Empirical Bayes"
+msgstr "Empírico Bayes"
+
+msgid "Add Mean Centers to Table"
+msgstr "Añadir Centros Medios a Tabla"
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Neighbors of Cores"
+msgstr "Vecinos y Centros"
+
+msgid "Recent"
+msgstr "Reciente"
+
+msgid "Use Scientific Notation"
+msgstr "Usar Notación Científica"
+
+msgid "Number of Columns"
+msgstr "Número de Columnas"
+
+msgid "Use the bounding box of shape datasource"
+msgstr "Usar el cuadro delimitador de la fuente de datos shape"
+
+msgid "Conditional Plot"
+msgstr "Gráfico Condicional"
+
+msgid "CSV Contains Variable Names?"
+msgstr "¿CSV Contiene Nombres de Variables?"
+
+msgid "Local Moran's I Maps"
+msgstr "Mapas del I de Moran Local"
+
+msgid "Excess Risk"
+msgstr "Riesgo atribuible"
+
+msgid "Distance band"
+msgstr "Banda de Distancia"
+
+msgid "Description"
+msgstr "Descripción"
+
+msgid "Univariate Local Join Count"
+msgstr "Join Count Local Univariante"
+
+msgid "Max"
+msgstr "Máx."
+
+msgid "Central European Latin-2 (ISO-8859-2)"
+msgstr "Centroeuropeo Latín-2 (ISO-8859-2)"
+
+msgid "Background"
+msgstr "Fondo"
+
+msgid "Table Name"
+msgstr "Nombre de Tabla"
+
+msgid "Ungrouped Variables"
+msgstr "Variables Sin Agrupar"
+
+msgid "No Weights Found"
+msgstr "No se encontraron Pesos"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Specify Seed..."
+msgstr "Especificar Semilla..."
+
+msgid "Carto Dark (No Labels)"
+msgstr "Carto Oscuro (Sin Etiquetas)"
+
+msgid "Reverse"
+msgstr "Marcha Atrás"
+
+msgid "Save Categories"
+msgstr "Guardar Categorías"
+
+msgid "Save Mean Centers"
+msgstr "Guardar Centros Medios"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Standard Deviation Map"
+msgstr "Mapa de Desviación Estándar"
+
+msgid "Moran's I with EB Rate"
+msgstr "I de Moran con Tasa EB"
+
+msgid "Database Name/Instance"
+msgstr "Nombre Base de Datos/Instancia"
+
+msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+
+msgid "Standard Deviation"
+msgstr "Desviación Estándar"
+
+msgid "Cyrillic/Russian (CP866)"
+msgstr "Cirílico/Ruso (CP866)"
+
+msgid "Please specify weights in Tools > Weights Manager."
+msgstr "Especifique pesos en Herramientas > Gestor de Pesos"
+
+msgid "Univariate Local Geary"
+msgstr "Geary Local Univariante"
+
+msgid "Change Current Map Type"
+msgstr "Cambiar Tipo Actual de Mapa"
+
+msgid "Rook contiguity"
+msgstr "Contigüidad Torre"
+
+msgid "Basemap"
+msgstr "Mapa Base"
+
+msgid "thematic"
+msgstr "temática"
+
+msgid "Add New ID Variable"
+msgstr "Añadir Nueva Variable ID"
+
+msgid "Rates-Calculated Maps"
+msgstr "Mapas de Ratios Calculados"
+
+msgid "Merge"
+msgstr "Combinar"
+
+msgid "Color"
+msgstr "Color"
+
+msgid "Speed"
+msgstr "Velocidad"
+
+msgid "Open weights file"
+msgstr "Abrir archivo de pesos"
+
+msgid "Select fields:"
+msgstr "Seleccionar campos"
+
+msgid "Change Edge Color"
+msgstr "Cambiar Color del Borde"
+
+msgid "time"
+msgstr "tiempo"
+
+msgid "Enable User Defined Value Range of Y-Axis"
+msgstr "Permitir Definicion de Rango de Valores del Eje Y"
+
+msgid "False Discovery Rate:"
+msgstr "Tasa de Falso Descubrimiento"
+
+msgid "Histogram Classification"
+msgstr "Clasificación Histograma"
+
+msgid "Chow test for sel/unsel regression subsets: "
+msgstr "Test de Chow para regresiones de subgrupos de sel/no sel."
+
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr "Publicar Mapas y Gráficos para GeoDa-Web"
+
+msgid "This field name already exists (non-float type). Please input a unique name."
+msgstr "Nombre de campo ya existe (tipo no flotante). Introducir un nombre no existente."
+
+msgid "Skater Settings"
+msgstr "Configuración Skater"
+
+msgid "Cyrillic\\/Russian (CP866)"
+msgstr "Cirílico\\/Ruso (CP866)"
+
+msgid "Can't connect to datasource: "
+msgstr "No se puede conectar con fuente de datos:"
+
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr "Revisar conexión a la red o contactar con el equipo de soporte de GeoDa"
+
+msgid "Variable \\/ Constant"
+msgstr "Variable \\/ Constante"
+
+msgid " Categories"
+msgstr "Categorías"
+
+msgid "Remove Time"
+msgstr "Elimine el Tiempo"
+
+msgid "Warning: %d observations is neighborless."
+msgstr "Aviso: %d observaciones sin vecinos."
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Scatter Plot Variables"
+msgstr "Variables Diagrama de Dispersión"
+
+msgid "Exit?"
+msgstr "¿Salir?"
+
+msgid "Stopping criterion for power iteration:"
+msgstr "Criterio de parada para iteración de potencia"
+
+msgid "GeoDa Project to Save As"
+msgstr "Guardar Como Proyecto de GeoDa"
+
+msgid "KMedians Dialog"
+msgstr "Cuadro de KMedianas"
+
+msgid "Add OGR column error. Field type is unknown."
+msgstr "Añadir columna de error OGR. Tipo de campo desconocido"
+
+msgid "Co-location Settings"
+msgstr "Configuración de Co-localización"
+
+msgid "Change title \"%s\" to"
+msgstr "Cambiar título\"%s\" a"
+
+msgid "Save Cluster in Field:"
+msgstr "Guardar Clúster en Campo:"
+
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "Variable %s ya no está en la Tabla. Cerrar y reabrir este cuadro de diálogo para sincronizar con datos de la Tabla"
+
+msgid "(K-Means)"
+msgstr "(K Medias)"
+
+msgid "No layer has been selected. Please select a layer."
+msgstr "No se ha seleccionado ninguna capa. Seleccionar capa"
+
+msgid "Bivariate"
+msgstr "Bivariante"
+
+msgid "Connectivity Map"
+msgstr "Mapa de conectividad"
+
+msgid "Current field name:"
+msgstr "Nombre de campo actual"
+
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr "Se ha especificado variable <fuente color=\"azul\">%s</fuente>."
+
+msgid "Please enter minimum bound value"
+msgstr "Introducir el valor de la cota mínima"
+
+msgid "CL"
+msgstr "CL"
+
+msgid "Please select at least %d variables."
+msgstr "Seleccionar, al menos, %d variables."
+
+msgid "Ok"
+msgstr "Aceptar"
+
+msgid "CreateWeights()"
+msgstr "CrearPesos()"
+
+msgid " Local Geary Cluster Map"
+msgstr "Mapa de Clúster Geary Local"
+
+msgid " already exists.  OK to overwrite?"
+msgstr "ya existe. ¿Aceptar sobrescribir?"
+
+msgid "Successful aggregation."
+msgstr "Agregación realizada con éxito"
+
+msgid " Local Geary Significance Map"
+msgstr "Mapa de Significación Geary Local"
+
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr "Error: la matriz inversa está mal-condicionada"
+
+msgid " with Time Control"
+msgstr "con el Control de Tiempo"
+
+msgid "Maps To Open"
+msgstr "Mapas para Abrir"
+
+msgid "Save As progress dialog"
+msgstr "Diálogo de progreso Guardar Como"
+
+msgid "Use selected as specified alpha level"
+msgstr "Utilizar seleccionados como nivel alfa especificado"
+
+msgid "New Custom Categories Title:"
+msgstr "Nuevo Título de Categorías Personalizado"
+
+msgid "Conditional Local Geary Map"
+msgstr "Mapa Condicional Geary Local"
+
+msgid "Saving data..."
+msgstr "Guardando datos..."
+
+msgid "Select color scheme:"
+msgstr "Seleccionar paleta de colores"
+
+msgid "Select Variables (Multi-Selection)"
+msgstr "Seleccionar Variables (Multi-Selección)"
+
+msgid "Suggested field name:"
+msgstr "Nombre de campo sugerido"
+
+msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
+msgstr "La conectividad de los pesos espaciales seleccionados está incompleta; arreglar matriz de pesos."
+
+msgid "Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr "La fuente de datos (%s) no existe. Comprobar el fichero de configuración del proyecto."
+
+msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr "Una vez agrupadas las variables, debe guardar una nueva tabla y pesos espacio-temporales: Para añadir el ID espacial a su tabla y crear pesos espacio-temporales, debe tener un fichero activo de pesos (Herramientas-Gestor de Pesos)"
+
+msgid "(Please save results to see the summary report.)"
+msgstr "(Guardar resultados para ver el informe de resultados)."
+
+msgid "(Optional) You can change the data type for a field:"
+msgstr "(Opcional) Vd. puede cambiar el tipo de datos del campo:"
+
+msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
+msgstr "GeoDa no puede encontrar la proyección adecuada o la información sobre coordenadas geográficas para añadir al mapa base. Actualizar esta información (p.e. con un archivo .prj)"
+
+msgid "Saving to data source (%s) failed.\n"
+msgstr "Error en guardando a fuente de datos (%s).\n"
+
+msgid "Min Region Size:"
+msgstr "Mín. Tamaño Región"
+
+msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
+msgstr "Error: debido a restricciones en el formato del archivo DBF, la combinación concreta de longitud y decimales introducida no es válida. En base a su elección actual, recomendamos longitud = %d y decimales = %d"
+
+msgid "Database\\/Instance Name"
+msgstr "Base Datos\\/Nombre Instancia"
+
+msgid "Nokia\\/HERE App Key"
+msgstr "Nokia\\/HERE Clave APP"
+
+msgid "Variable Type Error"
+msgstr "Error Tipo de Variable"
+
+msgid "Save Rates - %s over %s"
+msgstr "Guardar Tasas - %s sobre %s"
+
+msgid "Max-p Settings"
+msgstr "Configuración MaxP"
+
+msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
+msgstr "Antes de modificar la variable %s, cerrar la(s) %d vista(s) que dependen de ella"
+
+msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgstr "Restaurado con éxito a configuración local del sistema. Reabrir el proyecto actual con la configuración local."
+
+msgid "Send Crash Report"
+msgstr "Enviar Informe de Errores"
+
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr "Conexión http terminada (segundos) para p.e. WFS, Geojson, etc.:"
+
+msgid "Weights file \"%s\" created successfully."
+msgstr "Archivo de pesos \"%s\" creado con éxito."
+
+msgid " BiLISA Cluster Map"
+msgstr "BiLISA Mapa de Clústers"
+
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr "Reabrir un archivo de datos en lugar de un archivo de proyecto (*.gda)."
+
+msgid "In GdaFrame::OnCheckTestMode():"
+msgstr "En GdaMarco::OnCheckTestMode():"
+
+msgid "Conditional Local Geary Map Variables"
+msgstr "Variables del Mapa de Geary Local Condicional"
+
+msgid "&Undo"
+msgstr "&Deshacer"
+
+msgid "&Paste"
+msgstr "&Pegar"
+
+msgid "Save Details"
+msgstr "Guardar Detalles"
+
+msgid "Can't get datasource type from: %s\n"
+msgstr "No puede obtener el tipo de fuente de datos desde: %s\n"
+
+msgid "Bubble Chart Variables"
+msgstr "Variables de Gráfico de Burbujas"
+
+msgid "Open data source progress dialog"
+msgstr "Abrir diálogo de progreso de fuente de datos"
+
+msgid "Exit with unsaved changes?"
+msgstr "¿Salir sin guardar cambios?"
+
+msgid "Run Diff-in-Diff Test"
+msgstr "Ejecutar Test de dif-en-dif"
+
+msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
+msgstr "Distancia tabú para el algoritmo Búsqueda Tabú debe ser un número entero mayor que 1 (ej. 85)"
+
+msgid "Number of Neighbors"
+msgstr "Número de Vecinos"
+
+msgid "Please restart GeoDa to apply the language setup."
+msgstr "Reiniciar GeoDa para solicitar el asistente de idioma."
+
+msgid "This file type is not supported."
+msgstr "ESte tipo de archivo no está admitido"
+
+msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
+msgstr "Esta vista suele admitir datos hasta 1000 observaciones. El Diagrama del Correlograma Espacial representa distancias entre todos los pares de observaciones. La base de datos activa tiene %d observaciones y %d pares desordenados de observaciones."
+
+msgid "CSV Configuration Warning"
+msgstr "Aviso de Configuración CSV"
+
+msgid "All"
+msgstr "Todo"
+
+msgid "Second Variable (Y)"
+msgstr "Segunda Variable (y)"
+
+msgid "GeoDa CSV File Configuration"
+msgstr "Configuración del Fichero CSV de GeoDa"
+
+msgid "Error: there was a problem reading the field names from the text file."
+msgstr "Error: se produjo un problema al leer los nombres de los campos del fichero de texto"
+
+msgid "LOWESS Smoother Parameters"
+msgstr "Parámetros de Alisado LOWESS"
+
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr "Campo id especificado (%s) no se encuentra en la Tabla activa"
+
+msgid "Histogram: "
+msgstr "Histograma: "
+
+msgid "Add\\/Remove Variables"
+msgstr "Añadir\\/Eliminar Variables"
+
+msgid "First Variable (X)"
+msgstr "Primera Variable (X)"
+
+msgid "&Save"
+msgstr "&Guardar"
+
+msgid "Please input user name."
+msgstr "Introducir nombre de usuario."
+
+msgid "GeoDa Project (*.gda)|*.gda"
+msgstr "Proyecto de GeoDa (*.gda)|*.gda"
+
+msgid "enumerate as 1, 2, 3, ..."
+msgstr "Numerar como 1, 2, 3, ..."
+
+msgid "Aggregate - "
+msgstr "Agregar - "
+
+msgid "Set number of CPU cores manually:"
+msgstr "Establecer manualmente el número de núcleos de CPU"
+
+msgid "Not Significant"
+msgstr "No Significativo"
+
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr "Existe una nueva versión de GeoDa. ¿Desea actualizar a la versión ?"
+
+msgid "Export or save layer to"
+msgstr "Exportar o guardar capa para"
+
+msgid "Conditional LISA Map"
+msgstr "Mapa LISA Condicional"
+
+msgid "Inference Settings (%d perm)"
+msgstr "Configuración Inferencia (%d perm)"
+
+msgid "Please choose Period 1 first."
+msgstr "Elegir primero el Periodo 1"
+
+msgid "<"
+msgstr "<"
+
+msgid "Please input table name."
+msgstr "Introducir el nombre de la tabla"
+
+msgid "Please select an option."
+msgstr "Seleccionar una opción."
+
+msgid "Neighborless"
+msgstr "Sin vecinos"
+
+msgid "Minimum Bound:"
+msgstr "Valor Cota Mín."
+
+msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
+msgstr "No se creó el archivo de pesos porque todas las observaciones están aisladas para el valor umbral especificado. Aumente el umbral para crear un archivo de pesos no vacío"
+
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr "Encontradas variables Espacio-temporales con el nombre \"%s\" duplicado"
+
+msgid "Please input a valid url."
+msgstr "Introducir una url válida."
+
+msgid "Upper outlier"
+msgstr "Atípico superior"
+
+msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
+msgstr "Orden de registro especificado, pero se encontraron valores de obs. mín. y máx. de %d y %d que son incompatibles con el nº de observaciones especificadas en la 1ª línea del archivo de pesos: %d ."
+
+msgid "Stop"
+msgstr "Parar"
+
+msgid "Success \\/ Warning"
+msgstr "Éxito \\/ Aviso"
+
+msgid "Y-Axis"
+msgstr "Eje-Y"
+
+msgid "There was a problem associating the weights file."
+msgstr "Se ha producido un problema al asociar el archivo de pesos"
+
+msgid "Synchronize "
+msgstr "Sincronizar"
+
+msgid "Please enter a field name for saving clustering results."
+msgstr "Introducir un nombre de campo para guardar resultados de clústers"
+
+msgid "Variable:"
+msgstr "Variable"
+
+msgid "No update required"
+msgstr "Ninguna actualización necesaria"
+
+msgid "Save Image to File"
+msgstr "Guardar Imagen a Archivo"
+
+msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
+msgstr "El campo especificado para el valor clave \"%s\" de la 1ª línea del archivo de pesos no es de tipo entero en la tabla activa."
+
+msgid "Circle Size"
+msgstr "Tamaño del Círculo"
+
+msgid "Please input database name."
+msgstr "Introducir nombre de base de datos"
+
+msgid "Variable Properties - "
+msgstr "Propiedades de la Variable - "
+
+msgid "Export shape to boundary successfully."
+msgstr "Exportado shape to boundary con éxito"
+
+msgid "Error: number of fields must be > 2."
+msgstr "Error: el nº de campos debe ser > 2."
+
+msgid "The data source is read only. Please try to save as other data source."
+msgstr "La fuente de datos sólo se ha leído. Guardar como otra fuente de datos"
+
+msgid "row:\n"
+msgstr "fila:\n"
+
+msgid "KMeans Dialog"
+msgstr "Cuadro de KMeans"
+
+msgid "# Neighors:"
+msgstr "Nº Vecinos"
+
+msgid "Rates Variable Settings"
+msgstr "Configuración Variable de Tasas"
+
+msgid "Error: no records found in data source."
+msgstr "Error: no hay registros en la fuente de datos"
+
+msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
+msgstr "Campo especificado de valor clave \"%s\" de la 1ª línea del archivo de pesos no está en la Tabla activa"
+
+msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
+msgstr "Error en el cambio de tipo de variable por \"%s\". Comprobar la validez de todos los valores en la conversión."
+
+msgid "Latitude\\/Y:"
+msgstr "Latitud\\/Y:"
+
+msgid "The geometries will not be saved when exporting to a Table-only data source.\n"
+msgstr "Las geometrías no se guardarán tras la exportación a fuente de datos sólo-Tabla.\n"
+
+msgid "choice:"
+msgstr "elección:"
+
+msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
+msgstr "GeoDa no puede cambiar el tipo de variable a FECHA/HORA. Seleccionar otro tipo."
+
+msgid "Horizontal Cells"
+msgstr "Celdas Horizontales"
+
+msgid "Geometries not saved"
+msgstr "Geometrías no guardadas"
+
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr "Seleccionar un directorio *.gdb existente o crear una Nueva Carpeta llamada *.gdb"
+
+msgid "wrong model number"
+msgstr "nº equivocado de modelo"
+
+msgid "Other Pos"
+msgstr "Otra Pos."
+
+msgid "Map Theme"
+msgstr "Tema de Mapa"
+
+msgid "GeoDa Update Dialog"
+msgstr "Cuadro de Actualización de GeoDa"
+
+msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
+msgstr "Hay al menos una observación sin vecinos. Comprobar el histograma de pesos y el mapa adjunto para ver si las islas son reales o no. Si no lo son, ajuste la distancia umbral (puntos) o el umbral de precisión (polígonos)."
+
+msgid "Conditional Scatter Plot"
+msgstr "Diagrama de Dispersión Condicional"
+
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr "Ambos son significativos, se selecciona el Modelo del Retardo Espacial"
+
+msgid "Please enter Google key(s)."
+msgstr "Introducir clave(s) de Google"
+
+msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
+msgstr "Los modelos del retardo y del error espacial necesitan pesos simétricos (no KNN). Los pesos KNN pueden utilizarse para calcular tests espaciales en el modelo básico."
+
+msgid "Use specified seed:"
+msgstr "Utilizar semilla especificada"
+
+msgid "Please check the selected variables are all valid."
+msgstr "Comprobar la validez de las variables seleccionadas."
+
+msgid "Open project file:"
+msgstr "Abrir archivo de proyecto"
+
+msgid "Low-High"
+msgstr "Bajo-Alto"
+
+msgid "obs#"
+msgstr "nº obs."
+
+msgid "Univariate"
+msgstr "Univariante"
+
+msgid "Tabu Length:"
+msgstr "Distancia Tabú"
+
+msgid "Group 2:"
+msgstr "Grupo 2:"
+
+msgid "Error: "
+msgstr "Error: "
+
+msgid "Parameters:"
+msgstr "Parámetros:"
+
+msgid "Output:"
+msgstr "Resultados:"
+
+msgid "Vertical Cells"
+msgstr "Celdas Verticales"
+
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr "Fijar transparencia de objetos sin resaltar en la selección"
+
+msgid "Please specify the p-value to be used in tests; \n"
+msgstr "Especifiar el p-valor a utilizar en los tests; \n"
+
+msgid "Standardized Data"
+msgstr "Datos estandarizados"
+
+msgid "Duplicate Thiessen Polygons Found"
+msgstr "Encontrados Polígonos Thiesen duplicados"
+
+msgid "datasource.type %s unknown.."
+msgstr "fuentedatos.tipo %n desconocido.."
+
+msgid "Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr "El campo escogido no es numérico. Seleccionar un campo de tipo numérico."
+
+msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
+msgstr "La tasa de enfriamiento para algoritmo de Recocido Simulado ha de ser un nº flotante entre 0 y 1 (ej. 0.85)."
+
+msgid "Cooling Rate:"
+msgstr "Tasa de Enfriamiento"
+
+msgid "There was a problem requesting the weights file."
+msgstr "Se ha producido un problema al llamar al fichero de pesos"
+
+msgid "selected:"
+msgstr "seleccionado:"
+
+msgid "ID is not specified!"
+msgstr "ID no especificado"
+
+msgid "Column Name"
+msgstr "Nombre de Columna"
+
+msgid "There is a view could not be closed. Please manually close and try again."
+msgstr "No se puede cerrar una vista. Cerrarla manualmente e intentarlo de nuevo."
+
+msgid "Please enter iteration number"
+msgstr "Introducir nº de iteración"
+
+msgid "Layer names"
+msgstr "Nombres de capa"
+
+msgid "Current Transparency: %.2f"
+msgstr "Transparencia actual: %.2f"
+
+msgid "Save Spanning Tree"
+msgstr "Guardar Árbol de Expansión"
+
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr "Proporcionar rutas para fichero de Proyecto y Fuente de Datos"
+
+msgid "Database port is empty. Please input one."
+msgstr "Puerto de base de datos vacío. Introducir uno."
+
+msgid "Please select an Base field."
+msgstr "Seleccionar un campo Base"
+
+msgid "Saved successfully."
+msgstr "Guardado con éxito"
+
+msgid "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
+msgstr "Error al abrir fuente de datos. Comprobar si el tipo/formato de los datos/fuente de datos está admitido en Geoda.\n"
+
+msgid "Histogram Variable"
+msgstr "Variable de Histograma"
+
+msgid "Disable crash detection for bug report:"
+msgstr "Desactivar detección de fallos para informe de errores"
+
+msgid "No layer was found in the selected data source."
+msgstr "Capa no encontrada en la fuente de datos seleccionada"
+
+msgid "Unselected"
+msgstr "Desmarcado"
+
+msgid " and two time periods: "
+msgstr " y 2 períodos de tiempo: "
+
+msgid "There is an error during PCA calculation. Please check if the data is valid."
+msgstr "Error durante el cálculo del ACP. Comprobar que los datos son válidos."
+
+msgid "The length of field name should be between 1 and %d.\n"
+msgstr "La longitud del nombre de campo debería estar entre 1 y %d.\n"
+
+msgid "Connectivity Graph"
+msgstr "Gráfico de Conectividad"
+
+msgid "Number of columns has to be more than 2. \n"
+msgstr "El nº de columnas debe ser mayor que 2. \n"
+
+msgid "Variable Properties"
+msgstr "Propiedades de Variable"
+
+msgid "Please select a field with addresses."
+msgstr "Seleccionar un campo con direcciones."
+
+msgid "Save Dummy"
+msgstr "Guardar Ficticia"
+
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr "Ficheros KWT (*.kwt)|*.kwt"
+
+msgid "Special"
+msgstr "Especial"
+
+msgid "Welcome to GeoDa"
+msgstr "Bienvenidos a GeoDa"
+
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr "Excepción desconocida. Contactar con el soporte de GeoDa."
+
+msgid "Check Bug Report on Github"
+msgstr "Consulte el Informe de Errores en Github"
+
+msgid "PCA Settings"
+msgstr "Configuración de ACP"
+
+msgid "Input is not valid."
+msgstr "Entrada no válida"
+
+msgid "Connectivity Histogram"
+msgstr "Histograma de Conectividades"
+
+msgid "Please enter a sigma value."
+msgstr "Introducir el valor de sigma."
+
+msgid "Invalid Weights Information:\n"
+msgstr "Información de Pesos inválida:\n"
+
+msgid "First Variable (X/Longitude)"
+msgstr "Primera Variable (X/Longitud)"
+
+msgid "Low-Low"
+msgstr "Bajo-Bajo"
+
+msgid "Differential Moran Variable Settings"
+msgstr "Configuración de Variable de Moran Diferencial"
+
+msgid "Bubble Size"
+msgstr "Tamaño de Burbuja"
+
+msgid "%s (Weights: %s)"
+msgstr "%s (Pesos: %s)"
+
+msgid "Date\\/Time formats (using comma to separate formats):"
+msgstr "Formatos de Fecha\\/Hora (coma utilizada para separar formatos)"
+
+msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
+msgstr "Categorías \"%s\" está actualmente en uso por otra vista. Cerrar/cambiar las vistas utilizando estas categorías personalizadas antes de borrar."
+
+msgid "Please select a results field."
+msgstr "Seleccionar un campo de resultados"
+
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr "Diagrama de Dispersión - x: %s, y: %s"
+
+msgid "Negative"
+msgstr "Negativo"
+
+msgid "Conditional Local Join Count Map"
+msgstr "Mapa Joint Count Local Condicional"
+
+msgid "Add a name for your group of variables. \n"
+msgstr "Añadir un nombre a su grupo de variables. \n"
+
+msgid "Please input minimum bound value."
+msgstr "Introducir un valor para cota mínima."
+
+msgid "Inference Settings"
+msgstr "Configuración de Inferencia"
+
+msgid "SQLite\\/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite\\/SpatiaLite (*.sqlite)|*.sqlite"
+
+msgid "Maps:"
+msgstr "Mapas:"
+
+msgid "Excess Risk Map Variable Settings"
+msgstr "Configuración Variable de Mapa de Riesgo Excesivo"
+
+msgid "Inserting new column %s into Table"
+msgstr "Insertando nueva columna %n en Tabla"
+
+msgid "Use geometric centroids"
+msgstr "Utilizar centroides geométricos"
+
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "El nombre de variable \"%s\" está dupliado o no es válido. Introducir nombre alternativo no duplicado. El primer carácter debe ser una letra y el resto pueden ser letras, números o guiones bajos. Un nombre válido para las tablas DFB debe tener entre uno y diez caracteres de largo."
+
+msgid "Bonferroni bound:"
+msgstr "Límite de Bonferroni"
+
+msgid "Your Email address (Optional):"
+msgstr "Dirección de correo electrónico (Opcional):"
+
+msgid "ds:"
+msgstr "ds"
+
+msgid "Please restart GeoDa to finish installing updates."
+msgstr "Reiniciar GeoDa para terminar de instalar actualizaciones."
+
+msgid "Method:"
+msgstr "Método:"
+
+msgid "Save data source progress dialog"
+msgstr "Diálogo de progreso de guardar fuente de datos"
+
+msgid "Output Shp file"
+msgstr "Fichero Shp de resultados"
+
+msgid "Y-Coordinates"
+msgstr "Coordenadas-Y"
+
+msgid "Unable to overwrite "
+msgstr "No se puede sobrescribir"
+
+msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
+msgstr "El nº de observaciones especificadas in el fichero de pesos elegido es %d, pero el nº en la Tabla activa es %d, lo que es incompatible."
+
+msgid "Summary"
+msgstr "Resumen"
+
+msgid "Dendrogram"
+msgstr "Dendograma"
+
+msgid "Second Variable (Y/Latitude)"
+msgstr "Segunda Variable (Y/Latitud)"
+
+msgid "Conditional Histogram"
+msgstr "Histograma Condicional"
+
+msgid "Number of Clusters:"
+msgstr "Número de Clústers:"
+
+msgid "Weighting:"
+msgstr "Ponderación:"
+
+msgid "High"
+msgstr "Alto"
+
+msgid "space-time variable found with no name"
+msgstr "Variable espacio-temporal encontrada sin nombre"
+
+msgid "Synchronize %s with Time Control"
+msgstr "Sincronizar %n with Control de Tiempo"
+
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr "No se encuentra la clave especificada (%d) en la Tabla activa"
+
+msgid "Variable name is either a duplicate or is invalid. Please\n"
+msgstr "El nombre de la variable no es válido o está duplicado. Por favor\n"
+
+msgid "GeoDa Project File to Open"
+msgstr "Abrir Archivo de Proyecto de GeoDa"
+
+msgid "KMedoids Dialog"
+msgstr "Cuadro de KMedoids"
+
+msgid "This format is not supported."
+msgstr "Formato no admitido"
+
+msgid "Enter your Google API keys (one key per line)"
+msgstr "Introducir claves de API de Google (una clave por línea)"
+
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr "El campo elegido no es numérico. Seleccionar un campo numérico."
+
+msgid "MDS Plot"
+msgstr "Gráfico MDS"
+
+msgid "(Field name is not valid)"
+msgstr "(Nombre de campo no válido)"
+
+msgid "Please specify a valid data source name."
+msgstr "Especificar un nombre válido de fuente de datos."
+
+msgid "(Optional) First record has field names? "
+msgstr "(Opcional) ¿El primer dato tiene nombre de campo?"
+
+msgid "var name:"
+msgstr "nombre var.:"
+
+msgid "Difference-in-Means Test:"
+msgstr "Test de Diferencia de Medias:"
+
+msgid "No rates currently calculated to save."
+msgstr "No hay tasas calculadas para guardar."
+
+msgid "Undefined"
+msgstr "Sin definir"
+
+msgid "Conditional LISA Map Variables"
+msgstr "Variables del Mapa LISA Condicional"
+
+msgid "Change Categories Title"
+msgstr "Cambiar Título de Categorías"
+
+msgid "3D Plot"
+msgstr "Gráfico 3D"
+
+msgid "Date\\/Time"
+msgstr "Fecha\\/Hora"
+
+msgid "Affinity with Kernel:"
+msgstr "Afinidad con Kernel:"
+
+msgid "Has Colocation"
+msgstr "Tiene colocación"
+
+msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
+msgstr "The valor umbral introducido no es un nº válido. Mover el control deslizante o introducir un número válido."
+
+msgid "Change Seed"
+msgstr "Cambiar semilla"
+
+msgid "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+msgstr "Puede realizarse reconocimiento limitado de fecha/hora para Fecha (AAAA-MM-DD), Hora (HH:MM:SS+nn) y FechaHora (AAAA-MM-DD HH:MM:SS+nn) en la configuración.\n"
+
+msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
+msgstr "Hay, al menos, una vista abierta que depende de esta matriz. ¿De acuerdo con cerrar y eliminar estas vistas?"
+
+msgid "Overwrite?"
+msgstr "¿Sobrescribir?"
+
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr "Añadir error de columna OGR. Tipo de campo desconocido o no admitido."
+
+msgid "New variable name"
+msgstr "Nuevo nombre de variable"
+
+msgid "The sample size for random sampling is too small.\n"
+msgstr "Tamaño de la muestra para muestreo aleatorio demasiado pequeño.\n"
+
+msgid "Select &All"
+msgstr "Seleccionar &Todo"
+
+msgid "Warning"
+msgstr "Aviso"
+
+msgid " LISA Cluster Map"
+msgstr "Mapa de Clusters LISA"
+
+msgid "Create Weights"
+msgstr "Crear Pesos"
+
+msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
+msgstr "Grupo de valores de campos clave importados sin coincidencia en la tabla activa. Buscar claves con grupos de valores coincidentes."
+
+msgid "The GeoDa project file cannot find one or more associated data sources.\n"
+msgstr "El archivo de proyecto de GeoDa no encuentra una o más fuentes dse datos asociadas.\n"
+
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr "I de Moran Diferencial (%s): %s - %s"
+
+msgid "Empirical Bayes Rate Standardization Variables"
+msgstr "Variables Estandarizadas de Tasas de Bayes Empírico"
+
+msgid "No numeric variables found in table."
+msgstr "No hay variables numéricas en la tabla."
+
+msgid "Save Space-Time Table\\/Weights"
+msgstr "Guardar Tabla Espacio-Temporal\\/Pesos"
+
+msgid "Update GeoDa completed"
+msgstr "Actualización de GeoDa completada"
+
+msgid "Voronoi Contiguity Error"
+msgstr "Error de Contigüidad de Voronoi"
+
+msgid ">>"
+msgstr ">>"
+
+msgid "Set transparency of highlighted objects in selection:"
+msgstr "Fijar transparencia de objetos resaltados en la selección:"
+
+msgid "Regression Output Text File"
+msgstr "Archivo de Texto Resultados de la Regresión"
+
+msgid "Adjust Values of Y Axis"
+msgstr "Ajustar Valores del Eje Y"
+
+msgid "Weights:"
+msgstr "Pesos:"
+
+msgid "Data Preview - number of preview records:"
+msgstr "Vista Previa de Datos - nº de datos en vista previa:"
+
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr "Ficheros GWT (*.gwt)|*.gwt"
+
+msgid "Invalid Variable"
+msgstr "Variable no Válida"
+
+msgid "Disable auto upgrade:"
+msgstr "Desactivar actualización automática"
+
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr "Configuración de Variable Alisada de Tasa Empírica Espacial"
+
+msgid "There was a problem reading the layer"
+msgstr "Problema de lectura de la capa"
+
+msgid "Save Duplicate Thiessen Polygon Ids"
+msgstr "Guardar Ids de Polígonos Thiessen Duplicados"
+
+msgid "(Optional) Longitude\\/X:"
+msgstr "(Opcional) Longitud\\/X:"
+
+msgid " LISA Significance Map"
+msgstr "Mapa de Significación LISA"
+
+msgid "Internal Error: can't update an in-memory cell."
+msgstr "Error Interno: no puede actualizar una celda en memoria"
+
+msgid "Details: "
+msgstr "Detalles: "
+
+msgid "Enable High DPI\\/Retina support (Mac only):"
+msgstr "Activar soporte para DPI\\/Retina alto (sólo Mac):"
+
+msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
+msgstr "Problema al generar vecinos de contigüidad voronoi. Enviar informe sobre esta cuestión."
+
+msgid "Please input a field name for saving latitude"
+msgstr "Introducir nombre de campo para guardar latitud"
+
+msgid "Assign Values to Currently Selected \\/ Unselected"
+msgstr "Asignar Valores a Actualmente Seleccionados\\/No Seleccionados"
+
+msgid "Success"
+msgstr "Éxito"
+
+msgid "Only OGR datasource can be saved as."
+msgstr "Sólo pueden guardarse fuentes de datos OGR."
+
+msgid "Input ASCII file"
+msgstr "Introducir archivo ASCII"
+
+msgid "Internal Error: Add new field (%s) failed.\n"
+msgstr "Error Interno: Fallo en añadir nuevo campo (%s).\n"
+
+msgid "Fixed x-axis scale over time"
+msgstr "Escala de eje-x fija en el tiempo"
+
+msgid "Scale Options"
+msgstr "Opciones de Escala"
+
+msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "La longitud de un campo numérico no entero debe ser al menos %d y como mucho %d. Mantener valor original."
+
+msgid "Please select at least 2 variables."
+msgstr "Seleccionar al menos 2 variables"
+
+msgid "Error: Wrong format."
+msgstr "Error: formato equivocado."
+
+msgid "(Gaussian) Sigma:"
+msgstr "Sigma (Gaussiano):"
+
+msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
+msgstr "No es posible Guardar en el tipo de fuente de datos activo: %s. Intentar utilizar \"Archivo->Guardar Como\" otra fuente de datos. No obstante, el archivo de proyecto puede ser guardado con otro nombre."
+
+msgid "Merge - "
+msgstr "Unir - "
+
+msgid "Convert Boundary to SHP"
+msgstr "Convertir Boundary a SHP"
+
+msgid "Positive"
+msgstr "Positivo"
+
+msgid "Categories title \"%s\" already exists. Please choose a different title."
+msgstr "Título de categorías \"%s\" existente. Seleccionar un título diferente."
+
+msgid "Please first select observations in one of the other data or map views."
+msgstr "Seleccionar primero observaciones en una de las otras vistas de datos o mapa."
+
+msgid "OLS Model has been selected."
+msgstr "El Modelo MCO ha sido seleccionado."
+
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr "I de Moran Std. en Tasa de Bayes Empírico (%s): %s / %s"
+
+msgid "Affinity with K-NN:"
+msgstr "Afinidad con K-NN:"
+
+msgid "Nokia\\/HERE App ID"
+msgstr "Nokia\\/HERE App ID"
+
+msgid "Help"
+msgstr "Ayuda"
+
+msgid "Please select features first."
+msgstr "Seleccionar 1º las características."
+
+msgid "There is at least one view could not be closed. Please manually close and try again."
+msgstr "Al menos una vista no puede ser cerrada. Cerrarla manualmente e intentarlo de nuevo."
+
+msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
+msgstr "Algunos valores calculados están sin definir y esto se debe muy probablemente a observaciones sin vecinos en la matriz de pesos. Cálculo de tasas correcto para obs. con vecinos."
+
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr "Teclear RegressionDlg::OnSaveToTxtFileClick"
+
+msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
+msgstr "Antes de proceder con la operación (añadir/eliminar, mover o renombrar), cerrar las %d vistas que dependen de ella."
+
+msgid "Save "
+msgstr "Guardar "
+
+msgid "Grid file was successfully created."
+msgstr "Archivo de rejilla creado con éxito."
+
+msgid "GeoDa has run into a problem and will close."
+msgstr "GeoDa ha encontrado un problema y se cerrará."
+
+msgid "Save As has been cancelled."
+msgstr "Guardar Como ha sido cancelado."
+
+msgid "Third Variable (Z)"
+msgstr "Tercera Variable (Z)"
+
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr "Error en Guardando: GeoDa no puede guardar fuentes de datos vacías."
+
+msgid "Project file path is empty."
+msgstr "Ruta vacía de archivo de proyecto."
+
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr "Configuración Variable Alisada de Bayes Empírico"
+
+msgid "csv file:"
+msgstr "fichero csv:"
+
+msgid "Downloading updates..."
+msgstr "Descargando actualizaciones..."
+
+msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
+msgstr "%d en línea del fichero de pesos, encontrado id de obs. %d que no existe en el campo \"%s\" de la Tabla."
+
+msgid "Do you want to save your data?"
+msgstr "¿Desea guardar sus datos?"
+
+msgid "Error: \"%s\" not found."
+msgstr "Error: \"%s\" no encontrado."
+
+msgid "Please describe steps you took before something went wrong."
+msgstr "Describir los pasos realizados antes de tener problemas."
+
+msgid "Delta Factor:"
+msgstr "Factor Delta:"
+
+msgid "Before add/delete observations, please close the %d view(s) that depend on it."
+msgstr "Antes de añadir/borrar observaciones, cerrar la(s) vista(s) %d que depende(n) de ellas."
+
+msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
+msgstr "La variable %s está temporalmente agrupada. Desagrupar esta variable para borrarla."
+
+msgid "Do you want to save the results of Diff-in-Diff test?\n"
+msgstr "¿Quiere guardar los resultados del test de Dif-en-Dif?\n"
+
+msgid "Variable %s is not valid. Please select another variable."
+msgstr "Variable %s no válida. Seleccionar otra variable."
+
+msgid "Please input database port."
+msgstr "Introducir puerto de base de datos."
+
+msgid "Info"
+msgstr "Info"
+
+msgid "X-Axis"
+msgstr "Eje-X"
+
+msgid "Local Search:"
+msgstr "Búsqueda Local"
+
+msgid "Please select the layer name to connect:"
+msgstr "Seleccionar el nombre de capa a conectar:"
+
+msgid "Conditional GetisOrd Map"
+msgstr "Mapa Condicional de GetisOrd"
+
+msgid "[Steps you took before something went wrong]"
+msgstr "[Pasos realizados antes de tener problemas]"
+
+msgid "File doesn't exist!"
+msgstr "¡Fichero no existente!"
+
+msgid "Input is duplicated."
+msgstr "Entrada duplicada."
+
+msgid "Select Variables"
+msgstr "Selección de Variables"
+
+msgid "Insufficient Random Sampling"
+msgstr "Muestreo Aleatorio insuficiente"
+
+msgid "Var Calc Container"
+msgstr "Contenedor de Var Calc"
+
+msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
+msgstr "Lista de variables agrupadas existentes. Al crear nuevos grupos, éstos aparecerán en esta lista. Puede abrir un fichero .gda existente y editarlo aquí."
+
+msgid "There was a problem reading the table"
+msgstr "Problema de lectura de tabla"
+
+msgid "Operation requires a valid field name or constant."
+msgstr "Operación que requiere de un nombre de campo válido o constante."
+
+msgid "Error: The table variable name is empty."
+msgstr "Error: El nombre de la variable de la tabla está vacío."
+
+msgid "New space-time variable name"
+msgstr "Nuevo nombre de variable espacio-temporal"
+
+msgid "Save Results: LocalGeary"
+msgstr "Guardar Resultados: GearyLocal"
+
+msgid "Google Places API"
+msgstr "API de Google Places"
+
+msgid "Variable Choice"
+msgstr "Elección de Variable"
+
+msgid "Add Time"
+msgstr "Añadir Tiempo"
+
+msgid "Scatter Plot Matrix Help"
+msgstr "Ayuda Matriz de Gráficos de Dispersión"
+
+msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Error: \"%s\" no es un nombre de variable válido. El 1º carácter debe ser alfabético y los restantes pueden ser alfanuméricos o guiones bajos. En una tabla DBF, un nombre válido debe tener entre uno y 10 caracteres de largo."
+
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr "Error: Excedido el máximo número de vecinos %d"
+
+msgid "Save Results: Moran's I"
+msgstr "Guardar Resultados: I de Moran"
+
+msgid "Initialization Method:"
+msgstr "Método de inicialización:"
+
+msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr "Oops. GeoDa no pudo enviar el informe de errores. Intentarlo de nuevo o desde aquí: https://github.com/GeoDaCenter/geoda/issues ¡Gracias!"
+
+msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "El nº de lugares decimales mostrados para un campo numérico no entero debe ser, al menos, %d y como mucho, %d. Mantener el valor original."
+
+msgid "Independent Var X"
+msgstr "Var X Independiente"
+
+msgid "Selected"
+msgstr "Seleccionado"
+
+msgid "Frequency"
+msgstr "Frecuencia"
+
+msgid "Choose Weights File"
+msgstr "Elegir Archivo de Pesos"
+
+msgid "Components:"
+msgstr "Componentes:"
+
+msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
+msgstr "Hay otra vista abierta que depende de esta matriz. ¿Está de acuerdo en cerrarla y eliminarla?"
+
+msgid "Random uniform dist on unit interval"
+msgstr "Distrib. uniforme aleatoria en intervalo unidad"
+
+msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
+msgstr "Error de anexión: el tipo de geometría de la fuente de datos seleccionada y la activa debe ser la misma."
+
+msgid "Submit Bug Error"
+msgstr "Enviar Informe de Errores"
+
+msgid "Wrong number of rows!"
+msgstr "¡Nº equivocado de columnas!"
+
+msgid "REDCAP Settings"
+msgstr "Configuración de REDCAP"
+
+msgid "Please select a weights type."
+msgstr "Seleccionar tipo de matriz de pesos."
+
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr "Teclear RegressionDlg::OnViewResultsClick"
+
+msgid "Duplicate IDs"
+msgstr "IDs Duplicados"
+
+msgid "Set seed for randomization:"
+msgstr "Fijar semilla para aleatorización:"
+
+msgid "\n"
+msgstr "\n"
+
+msgid " Bivariate Local Geary Cluster Map"
+msgstr "Mapa de Clústers Geary Local Bivariante"
+
+msgid "Initial Groups:"
+msgstr "Grupos Iniciales:"
+
+msgid "Show Recent\\/Sample Data panel in Connect Datasource Dialog:"
+msgstr "Mostrar Reciente\\/Panel de Datos de Ejemplo en el Cuadro Conectarse a Fuente de Datos:"
+
+msgid "There was a problem generating the PostScript file."
+msgstr "Problema producido al generar el archivo de PostScript."
+
+msgid "Colocation Cluster"
+msgstr "Clúster de Colocaciones"
+
+msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
+msgstr "Introducir nº mínimo de observaciones por regiones o utilizar la cota mínima."
+
+msgid "These are the row numbers of the records without location information."
+msgstr "Éstos son los nº de filas de los datos sin información de localización."
+
+msgid "X-Coordinates"
+msgstr "Coordenadas-X"
+
+msgid "Moran's I (%s): %s"
+msgstr "I de Moran (%s): %s"
+
+msgid "# Iterations:"
+msgstr "Nº Iteraciones:"
+
+msgid " has duplicate values. Please choose a different ID Variable.\n"
+msgstr " tiene valores duplicados. Seleccionar una Variable ID distinta.\n"
+
+msgid "Values assigned to target field successfully."
+msgstr "Valores asignados con éxito al campo de destino."
+
+msgid "OLS Model with White test has been selected."
+msgstr "Se ha seleccionado un Modelo MCO con test de White."
+
+msgid "(Please note: Only supported for smaller datasets.)"
+msgstr "(Sólo disponible para pequeñas bases de datos.)"
+
+msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
+msgstr "El nº de datos de la tabla activa es mayor que el nº de datos de la tabla importada. Seleccionar importar tabla >= % datos"
+
+msgid "Lower outlier"
+msgstr "Atípico superior"
+
+msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
+msgstr "El campo de valores clave especificado \"%s\" del fichero de pesos contiene valores duplicados en la Tabla activa."
+
+msgid "Hide system table in Postgresql connection:"
+msgstr "Ocultar tabla de sistema en conexión de Postgresql:"
+
+msgid "Plots:"
+msgstr "Gráficos:"
+
+msgid "Cu&t"
+msgstr "Cortar&"
+
+msgid "Please enter number of regions"
+msgstr "Introducir nº de regiones"
+
+msgid "Please enter maximum number of regions."
+msgstr "Introducir máximo nº de regiones."
+
+msgid "Diff Values"
+msgstr "Valores en Difer."
+
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr "Utilizar el típico entramado amarillo para destacar selecciones en mapas:"
+
+msgid "Setup Locale of GeoDa Table"
+msgstr "Configuración Local de Tablas de GeoDa"
+
+msgid "Can't get bounding box information from this datasource. Please try another datasource."
+msgstr "No se puede obtener información del cuadro delimitador de la fuente de datos. Intentarlo con otra fuente de datos."
+
+msgid "Conditional Scatter Plot Variables"
+msgstr "Variables Gráfico de Dispersión Condicional"
+
+msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "El tamaño de un campo numérico entero debe ser, al menos, %d y como mucho, %d. Mantener valor original."
+
+msgid "ID_DEFAULT_MENU_OPTIONS"
+msgstr "OPCIONES_MENÚ_DEFECTO_ID"
+
+msgid "Hierarchical Clustering Settings"
+msgstr "Configuración Clúster Jerárquico"
+
+msgid "Please input password."
+msgstr "Introducir contraseña."
+
+msgid "This field name already exists (non-integer type). Please input a unique name."
+msgstr "El nombre del campo ya existe (tipo no entero). Introducir un campo único."
+
+msgid "Please choose Period 2."
+msgstr "Seleccionar Período 2."
+
+msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgstr "Realizada con éxito la configuración local numérica. Reabrir el proyecto actual para activar esta configuración."
+
+msgid "Can't open output file!"
+msgstr "¡Imposible abrir fichero de resultados!"
+
+msgid "Time:"
+msgstr "Tiempo:"
+
+msgid "System:"
+msgstr "Sistema:"
+
+msgid "Language:"
+msgstr "Idioma:"
+
+msgid " Bivariate LocalGeary Significance Map"
+msgstr "Mapa de Significación Local de Geary Bivariante"
+
+msgid "Time Variable Options"
+msgstr "Opciones de Variable Temporal"
+
+msgid "GAL files (*.gal)|*.gal"
+msgstr "Archivos GAL (*.gal)|*.gal"
+
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "Campo clave seleccionado %s' varía en el tiempo. Seleccionar campo clave no variable en el tiempo."
+
+msgid "LOWESS Smoother Help"
+msgstr "Ayuda de Alisado LOWESS"
+
+msgid "field name:"
+msgstr "nombre de campo:"
+
+msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr "(Dendograma muy complicado de representar. Ver resultados de clústers en un mapa.)"
+
+msgid "Iterations:"
+msgstr "Iteraciones:"
+
+msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
+msgstr "Esta fuente de datos no está admitida. Exportar antes a una fuente de datos admitida por GeoDa."
+
+msgid "Breaks with same values were created. Please choose a smaller categories."
+msgstr "Se han creado cortes con valores iguales. Elegir una categoría inferior."
+
+msgid "[Please briefly describe what went wrong]"
+msgstr "[Describir brevemente lo que no ha funcionado]"
+
+msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
+msgstr "Imposible obtener capas de fuente de datos desconocida. Completar los campos de la misma."
+
+msgid "Get a free Nokia\\/HERE account: "
+msgstr "Obtener una cuenta gratuita Nokia\\/HERE: "
+
+msgid "Auto Weighting"
+msgstr "Auto-Ponderación"
+
+msgid "Save Diff-in-Diff Test Results"
+msgstr "Guardar Resultados del Test de Dif-en-Dif"
+
+msgid "Your Github account (Optional):"
+msgstr "Tu cuenta de Gibhub (Opcional):"
+
+msgid "Output ASCII file"
+msgstr "Resultados fichero ASCII"
+
+msgid "Please input Carto App Key."
+msgstr "Introducir Clave de App de Carto."
+
+msgid "Setup co-locations:"
+msgstr "Establecer colocalizaciones:"
+
+msgid "Save latitude to field:"
+msgstr "Guardar latitud a campo:"
+
+msgid "Groups:"
+msgstr "Grupos:"
+
+msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
+msgstr "SDV será utilizado automáticmente por APC porque el nº de filas es menor que el nº de columnas."
+
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr "Configuración Variable Alisada de Tasa Espacial"
+
+msgid "Please input a field name for saving longitude"
+msgstr "Introducir nombre de campo para guardar longitud"
+
+msgid "Open Layer:"
+msgstr "Abrir Capa:"
+
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr "Error: el tema seleccionado tiene más categorías que observaciones."
+
+msgid "The categories of the selected variables do not overlap in space. Please select other variables."
+msgstr "Las categorías de las variables seleccionadas no se superponen en el espacio. Seleccionar otras variables."
+
+msgid "<="
+msgstr "<="
+
+msgid "Reset to system locale information"
+msgstr "Información de restauración a configuración local del sistema"
+
+msgid "y:"
+msgstr "y:"
+
+msgid "Project filename not specified."
+msgstr "Nombre archivo de proyecto no especificado."
+
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr "Sólo se admiten ficheros de pesos 'gal', 'gwt', 'kwt', 'mat' y 'swm'"
+
+msgid "can't compute"
+msgstr "imposible calcular"
+
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
+msgstr "El nombre de la variable \"%s\" no es válido o está duplicado. Introducir otro nombre de variable no duplicado."
+
+msgid "Average Comparison Chart"
+msgstr "Gráfico Comparación de Medias"
+
+msgid "The number of covariates should be more than the number of observations."
+msgstr "El nº de covariables debería ser superior al nº de observaciones."
+
+msgid "Fixed y-axis scale over time"
+msgstr "Escala fija del eje-y en el tiempo"
+
+msgid "The number of observations specified in chosen weights file is incompatible with current Table."
+msgstr "El nº de observaciones especificado en el archivo de pesos es incompatible con la Tabla activa."
+
+msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
+msgstr "Imposible guardar una fuente de datos con una única Tabla como fuente de datos Geométricos. Intentar añadir capa geométrica y utilizar Fichero->Guardar Como."
+
+msgid "This is not a shape datasource. Please open a valid shape datasource, e.g. ESRI Shapefile, PostGIS layer..."
+msgstr "Esta fuente de datos no es shape. Abrir una fuente de datos shape válida, ej. archivo Shape de ESRI, capa PostGIS..."
+
+msgid "Datasource in project is not valid."
+msgstr "Fuente de daos del proyecto no válida."
+
+msgid "Save Spanning Tree to a Weights File"
+msgstr "Guardar Árbol de Expansión a un Fichero de Pesos"
+
+msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr "Imposible guardar cambios en esta fuente de datos. Intentar utilizar Archivo->Exportar."
+
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr "Imposible crear una nueva variable. Posible fuente de datos de sólo lectura."
+
+msgid "Dependent Var (y-axis)"
+msgstr "Var. Dependiente (eje-y)"
+
+msgid "Input:"
+msgstr "Entrada:"
+
+msgid "Saving data source cancelled."
+msgstr "Cancelado el guardado de fuente de datos."
+
+msgid "Error: number of records must be > 0."
+msgstr "Error: nº de observaciones debe ser > 0."
+
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr "El método de tasas espaciales necesita una matriz de pesos."
+
+msgid "Bandwidth:"
+msgstr "Ancho de banda:"
+
+msgid "Enter a seed value"
+msgstr "Introducir valor de semilla"
+
+msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
+msgstr "Controlador de base de datos seleccionado no admitido en esta plataforma. Consulte la web de GeoDa para más información sobre bases de datos y conexiones admitidas."
+
+msgid "&Copy"
+msgstr "&Copiar"
+
+msgid " and "
+msgstr " y "
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Low"
+msgstr "Bajo"
+
+msgid "Select variable "
+msgstr "Seleccionar variable "
+
+msgid "Maximal Iterations:"
+msgstr "Iteraciones máximas:"
+
+msgid "Datasource path is empty."
+msgstr "Ruta vacía de fuente de datos."
+
+msgid "Variable Value Error"
+msgstr "Error en Valor de Variable"
+
+msgid "Input significance:"
+msgstr "Introducir significación:"
+
+msgid "Please choose a Result field."
+msgstr "Seleccionar un campo de Resultados."
+
+msgid "Period 1:"
+msgstr "Período 1:"
+
+msgid "Save Statistics file"
+msgstr "Guardar archivo de Estadísticas"
+
+msgid "Fourth Variable"
+msgstr "Cuarta Variable"
+
+msgid "Can't write output file!"
+msgstr "¡Imposible escribir fichero de resultados!"
+
+msgid "Geocode Setting Dialog"
+msgstr "Cuadro Diálogo de Geocodificación"
+
+msgid "Use Power Iteration:"
+msgstr "Utilizar Interación de Potencia:"
+
+msgid "GeoDa Help"
+msgstr "Ayuda de GeoDa"
+
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr "Dist. aleatoria gaussiana con media=%s, DT=%s"
+
+msgid "Save Results: Bivariate Local Join Count stats, "
+msgstr "Guardar Resultados: Join Count Local Bivariante, "
+
+msgid "Please specify a Weights matrix."
+msgstr "Especificar una matriz de pesos."
+
+msgid "Circle Color"
+msgstr "Color del Círculo"
+
+msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
+msgstr "En la fila %d del fichero de pesos, encontrada observación con id %d fuera del rango de permitido entre 1 y %d."
+
+msgid "Min # per Region:"
+msgstr "Mín. nº por Región:"
+
+msgid "High-Low"
+msgstr "Alto-Bajo"
+
+msgid "Color for Category"
+msgstr "Color por Categoría"
+
+msgid ".\n"
+msgstr ".\n"
+
+msgid "GeoDa was unable to save the file."
+msgstr "GeoDa no puede guardar el fichero."
+
+msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr "Ninguna de las observaciones tiene vecinos. Esto podría deberse a problemas de digitalización, que podrían resolverse ajustando el umbral de precisión."
+
+msgid "Please choose Periods first."
+msgstr "Seleccionar antes los Períodos."
+
+msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
+msgstr "La variable % no está en la Tabla. Cerrar y reabrir el cuadro de diálogo Regresión para sincronizar con los datos de la Tabla."
+
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr "¡La 1ª línea debería tener un nº de filas separadas por comas y nombre de ID!"
+
+msgid "uniform distribution"
+msgstr "distribución uniforme"
+
+msgid "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
+msgstr "Lista de variables sin agrupar. Para agrupar variables por tiempo, moverlas al listado de la derecha.\n"
+
+msgid "Choose Cateogry Color"
+msgstr "Seleccionar Color de Categoría"
+
+msgid "Save Project File As..."
+msgstr "Guardar Fichero de Proyecto Como..."
+
+msgid " Differential LISA Cluster Map"
+msgstr "Mapa de Clústers LISA Diferencial"
+
+msgid "File merged into Table successfully."
+msgstr "Archivo unido con éxito a la Tabla."
+
+msgid "New Categories Title"
+msgstr "Título de Nueva Categoría"
+
+msgid "Save Test Results"
+msgstr "Guardar Resultados del Test"
+
+msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
+msgstr " debería contener sólo IDs con números/letras. Seleccionar una Variable ID diferente."
+
+msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
+msgstr "Utilizar<br /><fuente color=\"azul\">Opciones > Cambiar Variable<br /></fuente>a especificar una variable."
+
+msgid "About Precision Threshold"
+msgstr "Acerca del Umbral de Precisión"
+
+msgid "Bivariate Local Join Count "
+msgstr "Join Count Local Bivariante "
+
+msgid "Save longitude to field:"
+msgstr "Guardar longitud a campo:"
+
+msgid "Group 1:"
+msgstr "Grupo 1:"
+
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr "Configuración Variable Alisada Tasa Cruda"
+
+msgid "Choose Weights"
+msgstr "Seleccionar Pesos"
+
+msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "El nº de lugares decimales de un campo numérico no entero debe ser, al menos, %d y como mucho, %d. Mantener valor original."
+
+msgid "Checking Symmetry..."
+msgstr "Comprobando Simetría..."
+
+msgid "Multi-Variable Settings"
+msgstr "Configuración Multi-Variable"
+
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr "Error: \"%s\" existente en la Tabla, especificar un nombre diferente."
+
+msgid "Please choose Period 1."
+msgstr "Seleccionar Período 1."
+
+msgid "(Duplicate field name)"
+msgstr "(Nombre de campo duplicado)"
+
+msgid "There are unsaved data source or weights/time definition changes."
+msgstr "Sin guardar cambios en fuente de datos o definición de pesos/tiempo."
+
+msgid "Distance Function:"
+msgstr "Función de Distancia:"
+
+msgid "Conditional Map Variables"
+msgstr "Variables Mapa Condicional"
+
+msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
+msgstr "Al seleccionar \"todos los períodos\", el campo de resultados debe ser también \"todos los períodos.\""
+
+msgid "Please input Carto User Name."
+msgstr "Introducir Nombre de Usuario de Carto."
+
+msgid "E&xplore"
+msgstr "Explorar"
+
+msgid "Thank you for helping us improve GeoDa with your bug report! \n"
+msgstr "¡Gracias por ayudarnos a mejorar GeoDa con su informe de errores! \n"
+
+msgid "Weights file\\/format is not valid."
+msgstr "Fichero\\/formato de pesos no válido."
+
+msgid "Information"
+msgstr "Información"
+
+msgid "Warning: loss data"
+msgstr "Aviso: pérdida de datos"
+
+msgid "Loading data..."
+msgstr "Cargando datos..."
+
+msgid "# Max Iteration:"
+msgstr "Nº Máx. Iteraciones:"
+
+msgid ">"
+msgstr ">"
+
+msgid "Error: Base values contain non-positive numbers which will result in undefined values."
+msgstr "Error: Valores de la base con números negativos, que dan lugar a valores indefinidos."
+
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr "Error de lectura del fichero Boundary: en polígono-%d"
+
+msgid "GeoDa Preference Setup"
+msgstr "Preferencias de GeoDa"
+
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr "Diagrama de Dispersión- x: %s, y: %s"
+
+msgid "New Map Coordinates"
+msgstr "Nuevo Mapa de Coordenadas"
+
+msgid "Please input database host."
+msgstr "Introducir base de datos anfitrión."
+
+msgid "Select the language"
+msgstr "Seleccionar idioma"
+
+msgid "The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
+msgstr "El valor umbral %f introducido es menor que %f, que es el valor mínimo requerido para que no haya observaciones sin vecinos (islas). \n"
+
+msgid "The last seed used by the pseudo random\n"
+msgstr "La última semilla utilizada por el pseudo-aleatorio\n"
+
+msgid "Open Datasource:"
+msgstr "Fuente de Datos Abierta:"
+
+msgid "Parallel Coordinate Plot: "
+msgstr "Gráfico de Coordenadas Paralelas: "
+
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr "I de Moran Bivariante (%s): %s y %s retardado"
+
+msgid "Please fix the grid bounding box."
+msgstr "Por favor, ajustar cuadro delimitador de la rejilla"
+
+msgid "Your GeoDa is already up-to-date."
+msgstr "Su GeoDa está ya actualizado."
+
+msgid "MDS Settings"
+msgstr "Configuración MDS"
+
+msgid "Database Name\\/Instance"
+msgstr "Nombre\\/Instancia de Base de Datos"
+
+msgid "Your table cannot be merged because the key field \"%s\" is not unique. \n"
+msgstr "Imposible añadir tabla porque el campo clave \"%s\" no es único. \n"
+
+msgid "Bivariate Moran Variable Settings"
+msgstr "Configuración Variable de Moran Bivariante"
+
+msgid "Error: field names listed in wrong format."
+msgstr "Error: lista de nombres de campo con formato equivocado."
+
+msgid "New Project Filename"
+msgstr "Nuevo Nombre de Proyecto"
+
+msgid "High-High"
+msgstr "Alto-Alto"
+
+msgid "GeoDa Bug Report Dialog"
+msgstr "Cuadro de Informes de Errores de GeoDa"
+
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr "Añadir/Eliminar Variables Matriz Gráficos de Dispersión"
+
+msgid "Hide system table in SQLITE connection:"
+msgstr "Ocultar tabla de sistema en conexión SQLITE:"
+
+msgid "Please input a valid url address."
+msgstr "Introducir dirección url válida."
+
+msgid " Differential Local Geary Cluster Map"
+msgstr "Mapa de Clúster de Geary Local Diferencial"
+
+msgid "No fields found!"
+msgstr "¡No se han encontrado campos!"
+
+msgid "Rename Space-Time Variable"
+msgstr "Renombrar Variable Espacio-Temporal"
+
+msgid "Successful Geocode. Please check results in Table."
+msgstr "Geocodificación realizada. Comprobar resultados en Tabla."
+
+msgid "Independent Var (x-axis)"
+msgstr "Var. Independiente (eje-x)"
+
+msgid "Correlogram"
+msgstr "Correlograma"
+
+msgid "OK to Exit?"
+msgstr "¿De acuerdo en Salir?"
+
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr "Gráfico de Burbujas - x: %s, y: %s, tamaño: %s, %s"
+
+msgid "Notice"
+msgstr "Advertencia"
+
+msgid "Maximum # of regions:"
+msgstr "Máximo nº de regiones:"
+
+msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
+msgstr "La variable seleccionada %s no es válida. Si es una variable agrupada, notificarlo en el Editor Tiempo->Time. O seleccionar otra variable."
+
+msgid "Submit Bug Report"
+msgstr "Enviar Informe de Errores"
+
+msgid "Finished"
+msgstr "Terminado"
+
+msgid "Standard Deviation Color"
+msgstr "Color Desviación Estándar"
+
+msgid "Transformation:"
+msgstr "Transformación:"
+
+msgid "Other Positive"
+msgstr "Otro Positivo"
+
+msgid "&Delete"
+msgstr "&Borrar"
+
+msgid "Sample Autocorrelation"
+msgstr "Autocorrelación muestral"
+
+msgid "Wrote GeoDa Project File: "
+msgstr "Escrito en Archivo Proyecto GeoDa:"
+
+msgid "Failed to create the weights file."
+msgstr "Error al crear archivo de pesos."
+
+msgid "Please select an Variable field."
+msgstr "Seleccionar un campo de Variable."
+
+msgid "Save\\/Show Map"
+msgstr "Guardar\\/Mostrar Mapa"
+
+msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
+msgstr "Fichero de fuente de datos original %s no válido. GeoDa \"Guardar\" sólo funciona con fuentes de datos de ficheros."
+
+msgid "Update GeoDa failed"
+msgstr "Error de Actualización de GeoDa"
+
+msgid "Period 2:"
+msgstr "Período 2:"
+
+msgid "Conditional G Cluster Map Variables"
+msgstr "Variables de Mapa de Clúster G Condicional"
+
+msgid "Please setup co-locations first."
+msgstr "Establecer antes las co-localizaciones."
+
+msgid "Categories of "
+msgstr "Categoría de "
+
+msgid "Input is required"
+msgstr "Se necesita una Entrada"
+
+msgid "Was not able to load weights matrix."
+msgstr "Imposible cargar matriz de pesos."
+
+msgid "Click here to get a Google API key"
+msgstr "Teclear aquí para una clave de API de Google"
+
+msgid "Could not initialize new project."
+msgstr ""
+
+msgid "No Colocation"
+msgstr "Sin colocación"
+
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr "Mostrar Formato CSV en Cuadro de Unión de Tablas"
+
+msgid "suggested title:"
+msgstr "título sugerido:"
+
+msgid "Data Type"
+msgstr "Tipo de Datos"
+
+msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
+msgstr "Al seleccionar \"todos los períodos\", el campo de resultados debe ser también \"todos los períodos.\""
+
+msgid "calculating..."
+msgstr "calculando..."
+
+msgid "MDS Plot - "
+msgstr "Gráfico MDS - "
+
+msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
+msgstr "El tamaño de un campo de carácter debe ser, al menos, %d y como mucho, %d. Mantener valor original."
+
+msgid "Conditional Co-location Map Variables"
+msgstr "Variables de Mapa de Co-localización Condicional"
+
+msgid "Cartogram Variables"
+msgstr "Variables del Cartograma"
+
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr "La clave especificada (%s) no se encuentra en la Tabla activa"
+
+msgid "The selected variable is not numeric. Please select another variable."
+msgstr "La variable seleccionada no es numérica. Seleccionar otra variable."
+
+msgid "&Redo"
+msgstr "&Repetir"
+
+msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
+msgstr "Imposible agregar tabla porque el campo clave \"%s\" es único. Utilizar otro campo clave."
+
+msgid " BiLISA Significance Map"
+msgstr "Mapa de Significación BiLISA"
+
+msgid "Set Display Precision on Axis"
+msgstr "Mostrar Pantalla Precisión de Ejes"
+
+msgid "Create Project File Now?"
+msgstr "¿Crear Ahora Archivo de Proyecto?"
+
+msgid "Warning: %d observations are neighborless."
+msgstr "Aviso: %d observaciones no tienen vecinos."
+
+msgid "Please choose Period 2 first."
+msgstr "Seleccionar antes el Período 2."
+
+msgid "System"
+msgstr "Sistema"
+
+msgid "Please select another variable with values more suitable for computing a correlogram."
+msgstr "Seleccionar otra variable con valores más adecuados para el cálculo del correlograma."
+
+msgid "Initialization Re-runs:"
+msgstr "Iniciando repeticiones:"
+
+msgid "Choose A Color"
+msgstr "Seleccionar un Color"
+
+msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
+msgstr "Fijar el umbral para acortar distancias entre polígonos desconectados (a veces por errores de digitalización). El valor depende de la unidad de medida (ej., 0,3 metros ó 0,0000001 grados. Utilizar histograma de pesos para detectar observaciones sin vecinos."
+
+msgid "Use Weights:"
+msgstr "Utilizar Pesos:"
+
+msgid "Select variable with addresses:"
+msgstr "Seleccionar variable con direcciones:"
+
+msgid "Not enough memory!"
+msgstr "¡Memoria insuficiente!"
+
+msgid "Add basemap automatically:"
+msgstr "Añadir mapa base automáticamente:"
+
+msgid "Conditional Histogram Variables"
+msgstr "Variables de Histograma Condicional"
+
+msgid "Save Regression Results"
+msgstr "Guardar Resultados de Regresión"
+
+msgid "Please select a time variable first, and make sure more than one time steps have been defined."
+msgstr "Seleccionar antes una variable de tiempo y definir más de un período temporal."
+
+msgid "Rate calculation successful."
+msgstr "Tasa calculada con éxito."
+
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr "\"%s\" semilla no válida. Semilla sin modificar."
+
+msgid "Change"
+msgstr "Cambio"
+
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr "\"%s\" p-valor no válido. Utilizado el p-valor (0.01) por defecto"
+
+msgid "Weights Symmetry Check"
+msgstr "Comprobar Simetría de Pesos"
+
+msgid "Choose an output weights file name."
+msgstr "Escribir nombre de fichero de resultado de pesos"
+
+msgid "Selected vs. Unselected"
+msgstr "Seleccionado vs. Desmarcado"
+
+msgid "3D Scatter Plot Variables"
+msgstr "Variables Diagrama Dispersión 3D"
+
+msgid "Please briefly describe what went wrong."
+msgstr "Describir brevemente lo que no ha funcionado."
+
+msgid "Spectral Clustering Settings"
+msgstr "Configuración Clúster Espectral"
+
+msgid "Dependent Var Y"
+msgstr "Variable Dependiente Y"
+
+msgid " Differential Significance Map"
+msgstr "Mapa de Significación Diferencial"
+
+msgid "Save As Datasource"
+msgstr "Guardar Como Fuente Datos"
+
+msgid "The number of identified clusters is less than "
+msgstr "El nº de clústers identificados es menor que "

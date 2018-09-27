@@ -53,6 +53,7 @@ public:
 	virtual int GetTotalNewlyUnhighlighted() { return total_newly_unhighlighted; }
 	virtual void SetTotalNewlyHighlighted(int n) { total_newly_highlighted = n; }
 	virtual void SetTotalNewlyUnhighlighted(int n) { total_newly_unhighlighted = n; }
+    virtual void SetTotalHighlighted(int n) { total_highlighted = n; }
 	virtual bool IsHighlighted(int obs) { return highlight[obs]; }
 	virtual EventType GetEventType() { return event_type; }
 	virtual wxString GetEventTypeStr();
@@ -71,23 +72,30 @@ private:
 	/** This array of booleans corresponds to the highlight/not-highlighted
 	 of each underlying SHP file observation. */
 	std::vector<bool> highlight;
+    
 	/** total number of highlight[i] booleans set to true */
 	int total_highlighted;
+    
 	/** When the highlight vector has changed values, this vector records
 	 the observations indicies that have changed from false to true. */
 	std::vector<int> newly_highlighted;
+    
 	/** We do not resize the newly_highlighted vector, rather it is used
 	 more like a stack.  #total_newly_highlighted records the number of
 	 valid entries on the newly_highlighted 'stack'. */
 	int total_newly_highlighted;
+    
 	/** When the highlight vector has changed values, this vector records
 	 the observations indicies that have changed from true to false. */
 	std::vector<int> newly_unhighlighted;
+    
 	/** We do not resize the newly_unhighlighted vector, rather it is used
 	 more like a stack.  #total_newly_unhighlighted records the number of
 	 valid entries on the #newly_unhighlighted 'stack'. */
 	int total_newly_unhighlighted;
+    
 	EventType event_type;
+    
 	void ApplyChanges(); // called by notifyObservers to update highlight vec
 	
 	/** When this is set to true and the list of observers is empty, the

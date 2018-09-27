@@ -158,9 +158,9 @@ void SelectWeightsDlg::OnWListItemDblClick(wxListEvent& ev)
 {
 	LOG_MSG("In SelectWeightsDlg::OnWListItemDblClick");
 	long item = ev.GetIndex();
-	LOG(item);
+
 	if (item < 0 || item >= ids.size()) return;
-	LOG(w_man_int->GetShortDispName(ids[item]));
+
 	HighlightId(ids[item]);	
 	EndDialog(wxID_OK);
 }
@@ -169,7 +169,7 @@ void SelectWeightsDlg::OnWListItemSelect(wxListEvent& ev)
 {
 	LOG_MSG("In SelectWeightsDlg::OnWListItemSelect");
 	long item = ev.GetIndex();
-	LOG(item);
+
 	SelectId(ids[item]);
 	UpdateButtons();
 	Refresh();
@@ -179,7 +179,7 @@ void SelectWeightsDlg::OnWListItemDeselect(wxListEvent& ev)
 {
 	LOG_MSG("In SelectWeightsDlg::OnWListItemDeselect");
 	long item = ev.GetIndex();
-	LOG(item);
+
 	SelectId(boost::uuids::nil_uuid());
 	UpdateButtons();
 	Refresh();
@@ -288,8 +288,7 @@ void SelectWeightsDlg::SetDetailsForId(boost::uuids::uuid id)
 			row_content.push_back(rs);
 		}
 	}
-	LOG(row_title.size());
-	LOG(row_content.size());
+
 	SetDetailsWin(row_title, row_content);
 }
 
@@ -343,8 +342,8 @@ void SelectWeightsDlg::SetDetailsWin(const std::vector<wxString>& row_title,
 	s << "<body>";
 	s << "  <table id=\"my_table\">";
 	s << "    <tr>";
-	s << "      <th>Property</th>";
-	s << "      <th>Value</th>";
+	s << "      <th>" << _("Property") << "</th>";
+	s << "      <th>" << _("Value") << "</th>";
 	s << "    </tr>";
 	for (size_t i=0, last=row_title.size()-1; i<last+1; ++i) {
 		s << (i%2 == 0 ? "<tr>" : "<tr class=\"alt\">");

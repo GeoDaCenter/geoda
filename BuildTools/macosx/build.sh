@@ -107,14 +107,14 @@ install_library()
 #########################################################################
 # install c-ares -- for cURL, prevent crash on Mac oSx with threads
 #########################################################################
-install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.gz libcares.a
+install_library c-ares-1.10.0 https://s3.us-east-2.amazonaws.com/geodabuild/c-ares-1.10.0.tar.gz libcares.a
 
 #########################################################################
 # install cURL
 #########################################################################
 LIB_NAME=curl-7.46.0
 LIB_CHECKER=libcurl.a
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/curl-7.46.0.zip
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
 LIB_FILENAME=curl-7.46.0.zip
 echo $LIB_NAME
 
@@ -146,45 +146,45 @@ export PATH=$PREFIX/bin:$PATH
 # install Xerces
 #########################################################################
 XERCES_NAME="xerces-c-3.1.1"
-XERCES_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/xerces-c-3.1.1.tar.gz"
+XERCES_URL="https://s3.us-east-2.amazonaws.com/geodabuild/xerces-c-3.1.1.tar.gz"
 install_library $XERCES_NAME $XERCES_URL libxerces-c.a
 
 #########################################################################
 # install GEOS
 #########################################################################
-install_library geos-3.3.8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/geos-3.3.8.tar.bz2 libgeos.a
+install_library geos-3.3.8 https://s3.us-east-2.amazonaws.com/geodabuild/geos-3.3.8.tar.bz2 libgeos.a
 
 #########################################################################
 # install PROJ.4
 #########################################################################
-install_library proj-4.8.0 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/proj-4.8.0.tar.gz libproj.a
+install_library proj-4.8.0 https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.8.0.tar.gz libproj.a
 
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f https://dl.dropboxusercontent.com/u/145979/geoda_libraries/freexl-1.0.0f.tar.gz libfreexl.a
+install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
 
 #########################################################################
 # install SQLite
 #########################################################################
-install_library sqlite-autoconf-3071602 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/sqlite-autoconf-3071602.tar.gz libsqlite3.a
+install_library sqlite-autoconf-3071602 https://s3.us-east-2.amazonaws.com/geodabuild/sqlite-autoconf-3071602.tar.gz libsqlite3.a
 
 #########################################################################
 # install PostgreSQL
 #########################################################################
-install_library postgresql-9.2.4 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/postgresql-9.2.4.tar.bz2 libpq.a
+install_library postgresql-9.2.4 https://s3.us-east-2.amazonaws.com/geodabuild/postgresql-9.2.4.tar.bz2 libpq.a
 
 #########################################################################
 # install libjpeg
 #########################################################################
-install_library jpeg-8 https://dl.dropboxusercontent.com/u/145979/geoda_libraries/jpegsrc.v8.tar.gz libjpeg.a
+install_library jpeg-8 https://s3.us-east-2.amazonaws.com/geodabuild/jpegsrc.v8.tar.gz libjpeg.a
 
 #########################################################################
 # install libkml requires 1.3
 #########################################################################
 LIB_NAME=libkml
 LIB_CHECKER=libkmlbase.a
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libkml-r680.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libkml-r680.tar.gz
 LIB_FILENAME=libkml-r680.tar.gz
 echo $LIB_NAME
 
@@ -242,7 +242,7 @@ fi
 # install SpatiaLite
 #########################################################################
 LIB_NAME=libspatialite-4.0.0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/libspatialite-4.0.0.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/libspatialite-4.0.0.tar.gz
 LIB_FILENAME=$LIB_NAME.tar.gz
 LIB_CHECKER=libspatialite.a
 echo $LIB_FILENAME
@@ -277,7 +277,7 @@ fi
 # MySQL 
 #########################################################################
 LIB_NAME=mysql-5.6.14
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/mysql-5.6.14.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/mysql-5.6.14.tar.gz
 LIB_CHECKER=libmysqlclient.a
 LIB_FILENAME=$LIB_NAME.tar.gz
 echo $LIB_FILENAME
@@ -304,10 +304,40 @@ if ! [ -f "$GEODA_HOME/temp/$LIB_NAME/bld/libmysql/$LIB_CHECKER" ] ; then
     exit
 fi
 #########################################################################
+# Eigen3
+#########################################################################
+LIB_NAME=eigen3
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/eigen3.zip
+LIB_CHECKER=Dense
+LIB_FILENAME=$LIB_NAME.zip
+echo $LIB_FILENAME
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    unzip $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+if ! [ -f "$PREFIX/include/eigen3/Eigen/$LIB_CHECKER" ] ; then
+    mkdir bld
+    cd bld
+    cmake .. -DCMAKE_INSTALL_PREFIX=$PREFIX  
+    make install
+fi
+
+if ! [ -f "$PREFIX/include/eigen3/Eigen/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
+#########################################################################
 # install boost library
 #########################################################################
 LIB_NAME=boost_1_57_0
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/boost_1_57_0.tar.gz
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.tar.gz
 LIB_FILENAME=$LIB_NAME.tar.gz
 LIB_CHECKER=libboost_thread.a
 echo $LIB_FILENAME
@@ -346,7 +376,7 @@ fi
 # install JSON Spirit
 #########################################################################
 LIB_NAME="json_spirit_v4.08"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/json_spirit_v4.08.zip"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/json_spirit_v4.08.zip"
 LIB_CHECKER="libjson_spirit.a"
 LIB_FILENAME="json_spirit_v4.08.zip"
 echo $LIB_FILENAME
@@ -384,7 +414,7 @@ fi
 # install CLAPACK
 #########################################################################
 LIB_NAME="CLAPACK-3.2.1"
-LIB_URL="https://dl.dropboxusercontent.com/u/145979/geoda_libraries/clapack.tgz"
+LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/clapack.tgz"
 LIB_CHECKER="lapack.a"
 LIB_FILENAME=clapack.tgz
 echo $LIB_FILENAME
@@ -470,7 +500,7 @@ fi
 # install wxWidgets library
 #########################################################################
 LIB_NAME=wxWidgets-3.0.2
-LIB_URL=https://dl.dropboxusercontent.com/u/145979/geoda_libraries/wxWidgets-3.0.2.tar.bz2
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.0.2.tar.bz2
 LIB_FILENAME=$(basename "$LIB_URL" ".tar")
 LIB_CHECKER=libwx_baseu-3.0.a
 echo $LIB_FILENAME
@@ -488,7 +518,7 @@ if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
     make clean
     cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
-    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --with-macosx-version-min=10.6 --with-macosx-sdk=/Developer/SDKs/MacOSX10.6.sdk --prefix=$PREFIX
+    ./configure CFLAGS="$GDA_CFLAGS" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" OBJCFLAGS="-arch x86_64" OBJCXXFLAGS="-arch x86_64" --with-cocoa --disable-shared --disable-monolithic --with-opengl --enable-postscript --enable-textfile --without-liblzma --enable-webview --enable-compat28 --prefix=$PREFIX
     $MAKER 
     make install
     cd ..

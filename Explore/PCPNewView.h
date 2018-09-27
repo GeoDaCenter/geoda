@@ -36,6 +36,7 @@ class PCPCanvas;
 class PCPLegend;
 class PCPFrame;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class PCPCanvas : public TemplateCanvas, public CatClassifStateObserver
 {
@@ -50,8 +51,9 @@ public:
 	virtual ~PCPCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
-	virtual void update(HLStateInt* o);
+	//virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetCategoriesTitle(); // cats
 	virtual wxString GetNameWithTime(int var);
 	
@@ -95,12 +97,16 @@ public:
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
 	int GetNumCats() { return num_categories; }
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	CatClassifState* custom_classif_state;
 	
+    wxPoint pcp_prev;
+    wxPoint pcp_sel1;
+    wxPoint pcp_sel2;
+    
 	int num_obs;
 	int num_vars;
 	int num_time_vals;
@@ -111,6 +117,8 @@ protected:
 	std::vector<int> var_order; // var id for position 0 to position num_vars-1
 	
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
+    std::vector<std::vector<bool> > undef_markers; // times * num_obs
 	//std::vector< std::vector<HingeStats> > hinge_stats;
 	std::vector< std::vector<SampleStatistics> > data_stats;
 	// overall absolute value maximum of standardized data

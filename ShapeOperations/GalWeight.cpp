@@ -33,9 +33,14 @@
 #include "GalWeight.h"
 
 
-
+////////////////////////////////////////////////////////////////////////////////
+//
+// GalElement
+//
+////////////////////////////////////////////////////////////////////////////////
 GalElement::GalElement()
 {
+    is_nbrAvgW_empty = true;
 }
 
 bool GalElement::Check(long nbrIdx)
@@ -48,7 +53,7 @@ bool GalElement::Check(long nbrIdx)
 // return row standardized weights value
 double GalElement::GetRW(int idx)
 {
-    if (nbrAvgW.empty()) {
+    if (is_nbrAvgW_empty) {
         size_t sz = nbr.size();
         nbrAvgW.resize(sz);
         double sumW = 0.0;
@@ -59,11 +64,12 @@ double GalElement::GetRW(int idx)
         for (size_t i=0; i<sz; i++) {
             nbrAvgW[i] = nbrWeight[i] / sumW;
         }
+        is_nbrAvgW_empty = false;
     }
-    if (Check(idx) == false)
-        return 0;
     
-    return nbrAvgW[nbrLookup[idx]];
+    if (nbrLookup.find(idx) != nbrLookup.end())
+        return nbrAvgW[nbrLookup[idx]];
+    return 0;
 }
 
 void GalElement::SetSizeNbrs(size_t	sz)
@@ -75,6 +81,7 @@ void GalElement::SetSizeNbrs(size_t	sz)
     }
 }
 
+// (which neighbor, what ID)
 void GalElement::SetNbr(size_t pos, long n)
 {
     if (pos < nbr.size()) {
@@ -87,15 +94,55 @@ void GalElement::SetNbr(size_t pos, long n)
     }
 }
 
+// (which neighbor, what ID, what value)
 void GalElement::SetNbr(size_t pos, long n, double w)
 {
     if (pos < nbr.size()) {
         nbr[pos] = n;
         nbrLookup[n] = pos;
+    } else {
+        nbr.push_back(n);
+        nbrLookup[n] = pos;
     }
+    
     // this should be called by GWT-GAL 
     if (pos < nbrWeight.size()) {
         nbrWeight[pos] = w;
+    } else {
+        nbrWeight.push_back(w);
+    }
+}
+
+// Update neighbor information on the fly using undefs information
+// NOTE: this has to be used with a copy of weights (keep the original weights!)
+void GalElement::Update(const std::vector<bool>& undefs)
+{
+    std::vector<int> undef_obj_positions;
+   
+    for (int i=0; i<nbr.size(); i++) {
+        int obj_id = nbr[i];
+        if (undefs[obj_id]) {
+            int pos = nbrLookup[obj_id];
+            undef_obj_positions.push_back(pos);
+        }
+    }
+   
+    if (undef_obj_positions.empty())
+        return;
+    
+    // sort the positions in descending order, for removing from std::vector
+	std::sort(undef_obj_positions.begin(),
+              undef_obj_positions.end(), std::greater<int>());
+   
+    for (int i=0; i<undef_obj_positions.size(); i++) {
+        int pos = undef_obj_positions[i];
+        if (pos < nbr.size()) {
+            nbrLookup.erase( nbr[pos] );
+            nbr.erase( nbr.begin() + pos);
+        }
+        if (pos < nbrWeight.size()) {
+            nbrWeight.erase( nbrWeight.begin() + pos);
+        }
     }
 }
 
@@ -121,7 +168,10 @@ void GalElement::SetNbrs(const GalElement& gal)
     nbrWeight.resize(sz);
     
     nbr = gal.GetNbrs();
+    nbrLookup = gal.nbrLookup;
     nbrWeight = gal.GetNbrWeights();
+    nbrLookup = gal.nbrLookup;
+    nbrAvgW = gal.nbrAvgW;
 }
 
 const std::vector<long> & GalElement::GetNbrs() const
@@ -146,19 +196,10 @@ double GalElement::SpatialLag(const std::vector<double>& x) const
 	double lag = 0;
 	size_t sz = Size();
    
-    double sumW = 0;
-	for (size_t i=0; i<sz; ++i) {
-        sumW += nbrWeight[i];
+    for (size_t i=0; i<sz; ++i) {
+        lag += x[nbr[i]];
     }
-    
-    if (sumW == 0)
-        lag = 0;
-    else {
-        for (size_t i=0; i<sz; ++i) {
-            
-            lag += x[nbr[i]] * nbrWeight[i] / sumW;
-        }
-    }
+    if (sz>1) lag /= (double) sz;
 	
 	return lag;
 }
@@ -170,21 +211,9 @@ double GalElement::SpatialLag(const double *x) const
 	double lag = 0;
 	size_t sz = Size();
     
-    double sumW = 0;
-	for (size_t i=0; i<sz; ++i) {
-        sumW += nbrWeight[i];
-    }
-    
-    if (sumW == 0)
-        lag = 0;
-    else {
-        for (size_t i=0; i<sz; ++i) {
-            lag += x[nbr[i]] * nbrWeight[i] / sumW;
-        }
-    }
-	
-	//for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-	//if (sz>1) lag /= (double) sz;
+    for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
+    if (sz>1) lag /= (double) sz;
+
 	return lag;
 }
 
@@ -199,6 +228,11 @@ double GalElement::SpatialLag(const std::vector<double>& x,
 	return lag;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+// GalWeight
+//
+////////////////////////////////////////////////////////////////////////////////
 GalWeight::GalWeight(const GalWeight& gw)
 : GeoDaWeight(gw)
 {
@@ -221,14 +255,75 @@ GalWeight& GalWeight::operator=(const GalWeight& gw)
 	return *this;
 }
 
+void GalWeight::Update(const std::vector<bool>& undefs)
+{
+    for (int i=0; i<num_obs; ++i) {
+        gal[i].Update(undefs);
+    }
+
+}
+
 bool GalWeight::HasIsolates(GalElement *gal, int num_obs)
 {
-	if (!gal) return false;
-	for (int i=0; i<num_obs; i++) { if (gal[i].Size() <= 0) return true; }
+    if (!gal) {
+        return false;
+    }
+	for (int i=0; i<num_obs; i++) {
+        if (gal[i].Size() <= 0) {
+            return true;
+        }
+    }
 	return false;
 }
 
-bool GalWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
+void GalWeight::GetNbrStats()
+{
+    // sparsity
+    double empties = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (gal[i].Size() == 0)
+        empties += 1;
+    }
+    sparsity = empties / (double)num_obs;
+    
+    // density
+    // other
+    int sum_nnbrs = 0;
+    vector<int> nnbrs_array;
+    std::map<int, int> e_dict;
+    
+    for (int i=0; i<num_obs; i++) {
+        int n_nbrs = 0;
+        const std::vector<long>& nbrs = gal[i].GetNbrs();
+        for (int j=0; j<nbrs.size();j++) {
+            int nbr = nbrs[j];
+            if (i != nbr) {
+                n_nbrs++;
+                e_dict[i] = nbr;
+                e_dict[nbr] = i;
+            }
+        }
+        sum_nnbrs += n_nbrs;
+        if (i==0 || n_nbrs < min_nbrs) min_nbrs = n_nbrs;
+        if (i==0 || n_nbrs > max_nbrs) max_nbrs = n_nbrs;
+        nnbrs_array.push_back(n_nbrs);
+    }
+    double n_edges = e_dict.size() / 2.0;
+    density = 100.0 * sum_nnbrs / (double)(num_obs * num_obs);
+    
+    if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;
+    std::sort(nnbrs_array.begin(), nnbrs_array.end());
+    if (num_obs % 2 ==0) {
+        median_nbrs = (nnbrs_array[num_obs/2-1] + nnbrs_array[num_obs/2]) / 2.0;
+    } else {
+        median_nbrs = nnbrs_array[num_obs/2];
+    }
+}
+
+bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
+                               std::vector<wxInt64>& newids,
+                               std::vector<wxInt64>& stack_ids,
+                               const wxString& ofname)
 {
     using namespace std;
     if (!project || ofname.empty()) return false;
@@ -351,11 +446,11 @@ bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
 
 ///////////////////////////////////////////////////////////////////////////////
 // TODO: following old style functions should be moved into GalWeight class
-bool Gda::SaveGal(const GalElement* g, 
-									const wxString& _layer_name,
-									const wxString& ofname, 
-									const wxString& id_var_name,
-									const std::vector<wxInt64>& id_vec)
+bool Gda::SaveGal(const GalElement* g,
+                  const wxString& _layer_name,
+                  const wxString& ofname,
+                  const wxString& id_var_name,
+                  const std::vector<wxInt64>& id_vec)
 {
 	using namespace std;
 	if (g == NULL || ofname.empty() ||
@@ -364,8 +459,13 @@ bool Gda::SaveGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+	
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
+#endif
 	if (!(out.is_open() && out.good())) return false;
 
     wxString layer_name(_layer_name);
@@ -384,7 +484,8 @@ bool Gda::SaveGal(const GalElement* g,
 		out << " " << g[i].Size() << endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
-			if (cp > 0) out << " ";
+			if (cp > 0)
+                out << " ";
 		}
 		out << endl;
 	}
@@ -404,9 +505,15 @@ bool Gda::SaveGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
-	if (!(out.is_open() && out.good())) return false;
+#endif
+	if (!(out.is_open() && out.good()))
+        return false;
 
     wxString layer_name(_layer_name);
     
@@ -424,7 +531,8 @@ bool Gda::SaveGal(const GalElement* g,
 		out << " " << g[i].Size() << endl;
 		for (int cp=g[i].Size(); --cp >= 0;) {
 			out << id_vec[g[i][cp]];
-			if (cp > 0) out << " ";
+			if (cp > 0)
+                out << " ";
 		}
 		out << endl;
 	}
@@ -445,8 +553,12 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	wxFileName wx_fn(ofname);
 	wx_fn.SetExt("gal");
 	wxString final_fon(wx_fn.GetFullPath());
+#ifdef __WIN32__
+	ofstream out(final_fon.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_fon));
+#endif
 	if (!(out.is_open() && out.good())) return false;
 	
 	size_t num_obs = id_vec.size();
@@ -478,13 +590,12 @@ bool Gda::SaveSpaceTimeGal(const GalElement* g,
 	return true;
 }
 
-
-
-/** Add higher order neighbors up to (and including) distance. 
+/** Add higher order neighbors up to (and including) distance.
  If cummulative true, then include lower orders as well.  Otherwise,
  only include elements on frontier. */
-void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs, GalElement* W,
-																	bool cummulative)
+void Gda::MakeHigherOrdContiguity(size_t distance, size_t obs,
+                                  GalElement* W,
+                                  bool cummulative)
 {	
 	using namespace std;
 	if (obs < 1 || distance <=1) return;

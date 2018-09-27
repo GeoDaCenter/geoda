@@ -41,7 +41,6 @@ void CorrelParamsObservable::closeAndDeleteWhenEmpty()
 	LOG_MSG("Entering CorrelParamsObservable::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
 	LOG_MSG("Exiting CorrelParamsObservable::closeAndDeleteWhenEmpty");
@@ -67,8 +66,8 @@ void CorrelParamsObservable::removeObserver(CorrelParamsObserver* o)
 {
 	LOG_MSG("Entering CorrelParamsObservable::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
-	if (observers.size() == 0 && delete_self_when_empty) delete this;
+	if (observers.size() == 0 && delete_self_when_empty)
+        delete this;
 	LOG_MSG("Exiting CorrelParamsObservable::removeObserver");
 }
 

@@ -26,6 +26,7 @@
 #include <wx/filedlg.h>
 #include <wx/filefn.h> 
 #include <wx/msgdlg.h>
+#include <wx/frame.h>
 #include <wx/notebook.h>
 #include <wx/progdlg.h>
 #include <wx/regex.h>
@@ -36,7 +37,6 @@
 
 #include "../Project.h"
 #include "../DataViewer/DataSource.h"
-#include "../DataViewer/DbfTable.h"
 #include "../DataViewer/TableInterface.h"
 #include "../GenUtils.h"
 #include "../logger.h"
@@ -57,9 +57,7 @@ void DatasourceDlg::Init()
     // create file type dataset pop-up menu dynamically
 	ds_names.Add("ESRI Shapefile (*.shp)|*.shp");
     ds_names.Add("ESRI File Geodatabase (*.gdb)|*.gdb");
-    ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json|"
-                 "GeoJSON (*.geojson)|*.geojson|"
-                 "GeoJSON (*.json)|*.json");
+    ds_names.Add("GeoJSON (*.geojson;*.json)|*.geojson;*.json");
     ds_names.Add("GeoPackage (*.gpkg)|*.gpkg");
     ds_names.Add("SQLite/SpatiaLite (*.sqlite)|*.sqlite");
 
@@ -69,11 +67,7 @@ void DatasourceDlg::Init()
     
     ds_names.Add("Geography Markup Language (*.gml)|*.gml");
     ds_names.Add("Keyhole Markup Language (*.kml)|*.kml");
-    ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid|"
-                 "MapInfo Tab (*.tab)|*.tab|"
-                 "MapInfo MID (*.mid)|*.mid|"
-                 "MapInfo MID (*.mif)|*.mif");
-    ds_names.Add("");
+    ds_names.Add("MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid");
     ds_names.Add("dBase Database File (*.dbf)|*.dbf");
     ds_names.Add("Comma Separated Value (*.csv)|*.csv");
     ds_names.Add("MS Excel (*.xls)|*.xls");
@@ -87,15 +81,20 @@ void DatasourceDlg::Init()
     
     // create database tab drop-down list items dynamically
     DBTYPE_ORACLE = "Oracle Spatial Database";
-    if( GeneralWxUtils::isX64() ) DBTYPE_ARCSDE = "ESRI ArcSDE (ver 10.x)";
-    else if ( GeneralWxUtils::isX86() ) DBTYPE_ARCSDE = "ESRI ArcSDE (ver 9.x)";
+    if( GeneralWxUtils::isX64() ) {
+        DBTYPE_ARCSDE = "ESRI ArcSDE (ver 10.x)";
+    } else if ( GeneralWxUtils::isX86() ) {
+        DBTYPE_ARCSDE = "ESRI ArcSDE (ver 9.x)";
+    }
     DBTYPE_POSTGIS = "PostgreSQL/PostGIS Database";
     DBTYPE_MYSQL = "MySQL Spatial Database";
 }
 
 void DatasourceDlg::CreateControls()
 {
+#ifdef __WIN32__
     SetBackgroundColour(*wxWHITE);
+#endif
     
     m_ds_filepath_txt = XRCCTRL(*this, "IDC_FIELD_ASC",wxTextCtrl);
 	m_database_type = XRCCTRL(*this, "IDC_CDS_DB_TYPE",wxChoice);
@@ -106,7 +105,10 @@ void DatasourceDlg::CreateControls()
 	m_database_upwd = XRCCTRL(*this, "IDC_CDS_DB_UPWD",wxTextCtrl);
 	//m_database_table = XRCCTRL(*this, "IDC_CDS_DB_TABLE",AutoTextCtrl);
 	m_ds_notebook = XRCCTRL(*this, "IDC_DS_NOTEBOOK", wxNotebook);
+    
+#ifdef __WIN32__
     m_ds_notebook->SetBackgroundColour(*wxWHITE);
+#endif
 	m_ds_browse_file_btn = XRCCTRL(*this, "IDC_OPEN_IASC",wxBitmapButton);
 	
     m_cartodb_uname = XRCCTRL(*this, "IDC_CARTODB_USERNAME",wxTextCtrl);
@@ -121,13 +123,13 @@ void DatasourceDlg::CreateControls()
     m_database_type->SetSelection(0);
     
     // for autocompletion of input boxes in Database Tab
-	std::vector<std::string> host_cands =
+	vector<wxString> host_cands =
 		OGRDataAdapter::GetInstance().GetHistory("db_host");
-	std::vector<std::string> port_cands =
+	vector<wxString> port_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_port");
-	std::vector<std::string> uname_cands =
+	vector<wxString> uname_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_user");
-	std::vector<std::string> name_cands =
+	vector<wxString> name_cands =
         OGRDataAdapter::GetInstance().GetHistory("db_name");
 
 	m_database_host->SetAutoList(host_cands);
@@ -136,14 +138,14 @@ void DatasourceDlg::CreateControls()
 	m_database_name->SetAutoList(name_cands);
     
     // get a latest input DB information
-    std::vector<std::string> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
+    vector<wxString> db_infos = OGRDataAdapter::GetInstance().GetHistory("db_info");
     if (db_infos.size() > 0) {
-        std::string db_info = db_infos[0];
+        wxString db_info = db_infos[0];
         json_spirit::Value v;
         // try to parse as JSON
         try {
-            if (!json_spirit::read( db_info, v)) {
-                throw std::runtime_error("Could not parse title as JSON");
+            if (!json_spirit::read(db_info.ToStdString(), v)) {
+                throw runtime_error("Could not parse title as JSON");
             }
             json_spirit::Value json_db_type;
             if (GdaJson::findValue(v, json_db_type, "db_type")) {
@@ -187,17 +189,17 @@ void DatasourceDlg::CreateControls()
     }
     
     // get a latest CartoDB account
-    std::vector<std::string> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
+    vector<wxString> cartodb_user = OGRDataAdapter::GetInstance().GetHistory("cartodb_user");
     if (!cartodb_user.empty()) {
-        std::string user = cartodb_user[0];
+        wxString user = cartodb_user[0];
         CartoDBProxy::GetInstance().SetUserName(user);
         // control
         m_cartodb_uname->SetValue(user);
     }
     
-    std::vector<std::string> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
+    vector<wxString> cartodb_key = OGRDataAdapter::GetInstance().GetHistory("cartodb_key");
     if (!cartodb_key.empty()) {
-        std::string key = cartodb_key[0];
+        wxString key = cartodb_key[0];
         CartoDBProxy::GetInstance().SetKey(key);
         // control
         m_cartodb_key->SetValue(key);
@@ -222,7 +224,6 @@ void DatasourceDlg::OnDropFiles(wxDropFilesEvent& event)
 				//wxArrayString files;
 				//wxDir::GetAllFiles(name, &files);
 			}
-                
         }
     }
 }
@@ -237,11 +238,14 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
     GdaConst::DataSourceType ds_type = datasource->GetType();
 
 	if (ds_name.IsEmpty()) {
-        wxString msg = "Can't get layers from unknown datasource. Please complete the datasource fields.";
+        wxString msg = _("Can't get layers from unknown datasource. Please complete the datasource fields.");
 		throw GdaException(msg.mb_str());
 	}
     
-	vector<string> table_names =  OGRDataAdapter::GetInstance().GetLayerNames(ds_name.ToStdString(), ds_type);
+    vector<wxString> table_names;
+    ds_type = OGRDataAdapter::GetInstance().GetLayerNames(ds_name, ds_type, table_names);
+    
+    datasource->UpdateDataSource(ds_type);
     
     int n_tables = table_names.size();
     
@@ -250,7 +254,7 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
         for	(int i=0; i<n_tables; i++)  {
 			choices[i] = table_names[i];
         }
-		wxSingleChoiceDialog choiceDlg(NULL, "Please select the layer name to connect:", "Layer names", n_tables, choices);
+		wxSingleChoiceDialog choiceDlg(NULL, _("Please select the layer name to connect:"), _("Layer names"), n_tables, choices);
         
 		if (choiceDlg.ShowModal() == wxID_OK) {
 			if (choiceDlg.GetSelection() >= 0) {
@@ -260,11 +264,11 @@ void DatasourceDlg::PromptDSLayers(IDataSource* datasource)
 		delete[] choices;
         
 	} else if ( n_tables == 0) {
-		wxMessageDialog dlg(NULL, "No layer was found in the selected data source.", "Info", wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg(NULL, _("No layer was found in the selected data source."), _("Info"), wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         
 	} else {
-        wxString msg = "No layer has been selected. Please select a layer.";
+        wxString msg = _("No layer has been selected. Please select a layer.");
 		throw GdaException(msg.mb_str());
 	}
 }
@@ -282,11 +286,14 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
             if (ds_names[i].IsEmpty()) {
                 m_ds_menu->AppendSeparator();
             } else {
-                m_ds_menu->Append( ID_DS_START + i, ds_names[i].BeforeFirst('|'));
+                m_ds_menu->Append( GdaConst::ID_CONNECT_POPUP_MENU + i, ds_names[i].BeforeFirst('|'));
             }
         }
     }
-    this->PopupMenu(m_ds_menu);
+    
+   PopupMenu(m_ds_menu);
+    
+    event.Skip();
 }
 
 /**
@@ -299,7 +306,7 @@ void DatasourceDlg::OnBrowseDSfileBtn ( wxCommandEvent& event )
 void DatasourceDlg::BrowseDataSource( wxCommandEvent& event)
 {
     
-	int index = event.GetId() - ID_DS_START;
+    int index = event.GetId() - GdaConst::ID_CONNECT_POPUP_MENU;
     wxString name = ds_names[index];
     
     if (name.Contains("gdb")) {

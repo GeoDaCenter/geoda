@@ -37,15 +37,17 @@ class BasemapConfDlg: public wxDialog
 public:
     BasemapConfDlg(wxWindow* parent, Project* p,
                wxWindowID id = wxID_ANY,
-               const wxString& title = "Basemap Configuration Dialog",
+               const wxString& title = _("Basemap Configuration Dialog"),
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxDefaultSize );
     
 private:
     Project* p;
+    wxString basemap_resources;
+    
     wxTextCtrl* m_txt_nokia_uname;
     wxTextCtrl* m_txt_nokia_key;
-
+    wxTextCtrl* m_txt_basemap;
     
     void OnOkClick( wxCommandEvent& event );
     void OnResetClick( wxCommandEvent& event );

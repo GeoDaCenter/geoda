@@ -34,6 +34,7 @@
 
 class HistogramCanvas;
 class HistogramFrame;
+typedef boost::multi_array<wxString, 2> s_array_type;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
@@ -53,9 +54,10 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
@@ -68,6 +70,9 @@ public:
 
     
 protected:
+    int col_id;
+    TableInterface* table_int;
+    
     bool is_custom_category;
     CatClassifState* custom_classif_state;
     CatClassifDef cat_classif_def;
@@ -97,13 +102,17 @@ public:
 	int cur_intervals;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	
-protected:
 	virtual void UpdateStatusBar();
+    
+protected:
 
 	int num_obs;
 	int num_time_vals;
 	int ref_var_index;
 	
+    std::vector<bool> IS_VAR_STRING;
+    std::vector<std::vector<wxString> > VAR_STRING;
+    std::vector<Gda::str_int_pair_vec_type> s_data_sorted;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<SampleStatistics> data_stats;
 	std::vector<HingeStats> hinge_stats;
@@ -120,6 +129,7 @@ protected:
 	bool show_axes;
 	bool display_stats;
 	
+    s_array_type s_ival_breaks;
 	double data_min_over_time;
 	double data_max_over_time;
 	d_array_type ival_breaks; // size = time_steps * cur_num_intervals-1
@@ -127,11 +137,12 @@ protected:
 	std::vector<double> max_ival_val; // size = time_steps
 	std::vector<double> max_num_obs_in_ival; // size = time_steps
 	double overall_max_num_obs_in_ival;
-	
+
 	i_array_type ival_obs_cnt; // size = time_steps * cur_num_intervals
 	i_array_type ival_obs_sel_cnt;  // size = time_steps * cur_num_intervals
 	i_array_type obs_id_to_ival; // size = time_steps * num_obs
 	std::vector< std::vector<std::list<int> > > ival_to_obs_ids;
+	std::vector< std::vector<bool> > undef_tms;
 	
 	int max_intervals; // min of num_obs and MAX_INTERVALS
 	static const int MAX_INTERVALS;
@@ -151,7 +162,7 @@ public:
     HistogramFrame(wxFrame *parent, Project* project,
 				   const std::vector<GdaVarTools::VarInfo>& var_info,
 				   const std::vector<int>& col_ids,
-				   const wxString& title = "Histogram",
+				   const wxString& title = _("Histogram"),
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = GdaConst::hist_default_size,
 				   const long style = wxDEFAULT_FRAME_STYLE);

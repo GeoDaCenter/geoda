@@ -24,40 +24,145 @@
 #include <vector>
 #include <wx/dialog.h>
 #include <wx/bmpbuttn.h>
-
+#include <wx/listctrl.h>
+#include <wx/notebook.h>
+#include <wx/dnd.h>
 #include <wx/checkbox.h>
+
 #include "../DataViewer/DataSource.h"
 #include "AutoCompTextCtrl.h"
 #include "DatasourceDlg.h"
+#include "DatasourceDlg.h"
+
+using namespace std;
+
+//
+// Class RecentDatasource
+//
+//
+class RecentDatasource
+{
+public:
+    RecentDatasource();
+    virtual ~RecentDatasource();
+   
+    void Add(wxString ds_name, wxString ds_conf, wxString ds_layername,
+             wxString ds_thumb = "");
+    void Add(IDataSource* ds, const wxString& layer_name, wxString ds_thumb="");
+    void Clear();
+    void Save();
+    void Delete(int idx);
+    void DeleteLastRecord();
+  
+    int GetRecords() {return n_ds;}
+    wxString GetLastIndex();
+    wxString GetLastLayerName();
+    wxString GetLastDSName();
+    void UpdateLastThumb(wxString ds_thumb);
+    vector<wxString> GetList();
+   
+    IDataSource* GetDatasource(wxString ds_name);
+    wxString GetLayerName(wxString ds_name);
+   
+    wxString GetDSName(int idx) {return ds_names[idx];}
+    wxString GetDSLayerName(int idx) {return ds_layernames[idx];}
+    wxString GetDSThumbnail(int idx) {return ds_thumbnails[idx];}
+protected:
+    static const int N_MAX_ITEMS;
+    static const string KEY_NAME_IN_GDA_HISTORY;
+    
+    int n_ds;
+    wxString ds_json_str;
+   
+    vector<wxString> ds_names;
+    vector<wxString> ds_layernames;
+    vector<wxString> ds_confs;
+    vector<wxString> ds_thumbnails;
+    
+    void Init(wxString json_str);
+};
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+//
+// Class ConnectDatasourceDlg
+// 
+////////////////////////////////////////////////////////////////////////////////
+class DnDFile;
 class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
 	ConnectDatasourceDlg(wxWindow* parent,
-		const wxPoint& pos = wxDefaultPosition,
-		const wxSize& size = wxDefaultSize );
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize,
+                         bool showCsvConfigure=true,
+                         bool showRecentPanel=GdaConst::show_recent_sample_connect_ds_dialog,
+                         int dialogType = 0);
     virtual ~ConnectDatasourceDlg();
+    virtual void OnOkClick( wxCommandEvent& event );
     
     void CreateControls();
-    virtual void OnOkClick( wxCommandEvent& event );
 	void OnLookupWSLayerBtn( wxCommandEvent& event );
 	void OnLookupDSTableBtn( wxCommandEvent& event );
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
-        
-private:
+    
+    
+protected:
+    int dialogType;
+    bool showCsvConfigure;
+    bool showRecentPanel;
+    
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
     wxTextCtrl*   m_database_table;
 	AutoTextCtrl*  m_webservice_url;
 	IDataSource*   datasource;
-    
-private:
+    wxPanel* recent_panel;
+    wxPanel* smaples_panel;
+    wxScrolledWindow* scrl;
+    wxNotebook* recent_nb;
+    wxCheckBox* noshow_recent;
+    wxChoice* m_web_choice;
+    DnDFile* m_dnd;
+   
+    int base_xrcid_recent_thumb;
+    int base_xrcid_sample_thumb;
+    void AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                       wxString ds_name, wxString ds_layername,
+                       wxString ds_thumb, int id);
+    void AddSampleItem(wxBoxSizer* sizer, wxScrolledWindow* scrl,
+                       wxString name, 
+                       wxString ds_name, wxString ds_layername,
+                       wxString ds_thumb, int id);
+    void InitRecentPanel();
+    void InitSamplePanel();
     IDataSource* CreateDataSource();
+    void SaveRecentDataSource(IDataSource* ds, const wxString& layer_name);
+    
+    void OnRecent(wxCommandEvent& event);
+    void OnSample(wxCommandEvent& event);
+    void OnRecentDelete(wxCommandEvent& event);
+    
+    void OnNoShowRecent(wxCommandEvent& event);
+   
     
 	DECLARE_EVENT_TABLE()
+};
+
+// Drag and Drop Area
+class DnDFile : public wxFileDropTarget
+{
+public:
+    DnDFile(ConnectDatasourceDlg *pOwner = NULL);
+    ~DnDFile();
+    
+    virtual bool OnDropFiles(wxCoord x, wxCoord y, const wxArrayString& filenames);
+    
+private:
+    ConnectDatasourceDlg *m_pOwner;
 };
 
 #endif

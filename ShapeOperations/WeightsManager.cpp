@@ -89,7 +89,6 @@ void WeightsNewManager::Init(const std::list<WeightsPtreeEntry>& entries)
 		boost::uuids::uuid u = boost::uuids::random_generator()();
 		entry_map[u] = e;
 		uuid_order.push_back(u);
-		LOG_MSG(entry_map[u].wpte.wmi.ToStr());
 	}
 }
 
@@ -241,7 +240,6 @@ WeightsMetaInfo::SymmetryEnum
 bool WeightsNewManager::Lag(boost::uuids::uuid w_uuid, const GdaFlexValue& data,
 							GdaFlexValue& result)
 {
-	LOG_MSG("In ExampleWeightsMan::Lag");
 	if (!WeightsExists(w_uuid)) {
 		return false;
 	}
@@ -340,6 +338,31 @@ wxString WeightsNewManager::RecNumToId(boost::uuids::uuid w_uuid, long rec_num)
 	return it->second.rec_num_to_id[rec_num];
 }
 
+bool WeightsNewManager::IsBinaryWeights(boost::uuids::uuid w_uuid)
+{
+    EmType::iterator it = entry_map.find(w_uuid);
+    if (it == entry_map.end()) return WeightsMetaInfo::WT_custom;
+    Entry& e = it->second;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+        return true;
+    if (e.wpte.wmi.weights_type == WeightsMetaInfo::WT_knn ||
+        e.wpte.wmi.weights_type == WeightsMetaInfo::WT_threshold) {
+        if (e.wpte.wmi.power != 1 && e.wpte.wmi.power != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+WeightsMetaInfo::WeightTypeEnum WeightsNewManager::GetWeightsType(boost::uuids::uuid w_uuid)
+{
+    EmType::iterator it = entry_map.find(w_uuid);
+    if (it == entry_map.end()) return WeightsMetaInfo::WT_custom;
+    Entry& e = it->second;
+    return e.wpte.wmi.weights_type;
+}
+
+
 /** If gal_weight doesn't yet exist, then create it from meta-data if
  possible. */
 GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
@@ -355,8 +378,7 @@ GalWeight* WeightsNewManager::GetGal(boost::uuids::uuid w_uuid)
 	// Load file for first use
 	wxFileName t_fn(e.wpte.wmi.filename);
 	wxString ext = t_fn.GetExt().Lower();
-	if (ext != "gal" && ext != "gwt") {
-		LOG_MSG("File extention not gal or gwt");
+	if (ext != "gal" && ext != "gwt" && ext != "kwt") {
 		return 0;
 	}
 	GalElement* gal=0;
@@ -386,12 +408,12 @@ GeoDaWeight* WeightsNewManager::GetWeights(boost::uuids::uuid w_uuid)
     
     wxFileName t_fn(tmpName);
     wxString ext = t_fn.GetExt().Lower();
-    if (ext != "gal" && ext != "gwt") {
-        LOG_MSG("File extention not gal or gwt");
+    if (ext != "gal" && ext != "gwt" && ext != "kwt") {
         return 0;
     }
     
-	if (ext == "gal" && e.gal_weight) return e.gal_weight;
+	if (e.geoda_weight)
+        return e.geoda_weight;
 	
 	// Load file for first use
 	
@@ -572,13 +594,11 @@ bool GdaWeightsTools::CheckWeightSymmetry(GeoDaWeight* w, ProgressDlg* p_dlg)
 
 bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 {
-	LOG_MSG("Entering GdaWeightsTools::CheckGalSymmetry");
-	
-	int obs = w->num_obs;
+    int obs = w->num_obs;
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GalElement* gal = w->gal;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);
@@ -595,29 +615,22 @@ bool GdaWeightsTools::CheckGalSymmetry(GalWeight* w, ProgressDlg* p_dlg)
 			}
 			if (!found) {
 				p_dlg->ValueUpdate(1);
-                /*
-				LOG_MSG(wxString::Format("Non-symmetric GAL file.  Observation "
-										 "%d is a neighbor of %d, but %d is not"
-										 " a neighbor of %d", elm_i[j], i,
-										 i, elm_i[j]));
-                */
+                
 				return false;
 			}
 		}
 	}
 	p_dlg->ValueUpdate(1);
-	LOG_MSG("Exiting GdaWeightsTools::CheckGalSymmetry");
 	return true;
 }
 
 bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 {
-	LOG_MSG("Entering GdaWeightsTools::CheckGwtSymmetry");	
 	int obs = w->num_obs;
 	int update_ival = (obs > 100 ? obs/100 : 1);
 	
 	GwtElement* gwt = w->gwt;
-	int tenth = GenUtils::max(1, obs/10);
+	int tenth = std::max(1, obs/10);
 	for (int i=0; i<obs; i++) {
 		if (p_dlg && (i % tenth == 0)) {
 			p_dlg->ValueUpdate(i/ (double) obs);
@@ -635,16 +648,11 @@ bool GdaWeightsTools::CheckGwtSymmetry(GwtWeight* w, ProgressDlg* p_dlg)
 			}
 			if (!found) {
 				p_dlg->ValueUpdate(1);
-				LOG_MSG(wxString::Format("Non-symmetric GWT file.  Observation "
-										 "%d is a neighbor of %d, but %d is not"
-										 " a neighbor of %d", data_i[j].nbx, i,
-										 i, data_i[j].nbx));
 				return false;
 			}
 		}
 	}
 	p_dlg->ValueUpdate(1);
-	LOG_MSG("Exiting GdaWeightsTools::CheckGwtSymmetry");
 	return true;
 }
 
@@ -659,7 +667,6 @@ void GdaWeightsTools::DumpWeight(GeoDaWeight* w)
 
 void GdaWeightsTools::DumpGal(GalWeight* w)
 {
-	LOG_MSG("Entering GdaWeightsTools::DumpGal");
 	GalElement* gal = w->gal;
 	int obs = w->num_obs;
 	for (int i=0; i<obs; i++) {
@@ -669,14 +676,11 @@ void GdaWeightsTools::DumpGal(GalWeight* w)
 		for (int j=0, jend=elm_i.Size(); j<jend; j++) {
 			msg << " " << elm_i[j];
 		}
-		LOG_MSG(msg);
 	}
-	LOG_MSG("Exiting GdaWeightsTools::DumpGal");
 }
 
 void GdaWeightsTools::DumpGwt(GwtWeight* w)
 {
-	LOG_MSG("Entering GdaWeightsTools::DumpGwt");
 	GwtElement* gwt = w->gwt;
 	int obs = w->num_obs;
 	for (int i=0; i<obs; i++) {
@@ -686,8 +690,6 @@ void GdaWeightsTools::DumpGwt(GwtWeight* w)
 		for (int j=0, jend=gwt[i].Size(); j<jend; j++) {
 			msg << " (" << data_i[j].nbx << ", " << data_i[j].weight << ")";
 		}
-		LOG_MSG(msg);
 	}
-	LOG_MSG("Exiting GdaWeightsTools::DumpGwt");	
 }
 

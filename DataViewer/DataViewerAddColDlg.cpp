@@ -29,7 +29,6 @@
 #include "TimeState.h"
 #include "../Project.h"
 #include "../logger.h"
-#include "../DbfFile.h"
 #include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GdaConst.h"
@@ -64,7 +63,8 @@ m_decimals_val(0), m_length_valid(true),
 time_variant(project_s->GetTableInt()->IsTimeVariant()),
 fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 {
-    LOG_MSG("Entering DataViewerAddColDlg::DataViewerAddColDlg(..)");
+    wxLogMessage("Open DataViewerAddColDlg.");
+    
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -79,21 +79,22 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	table_int->FillColIdMap(col_id_map);
     
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
-		curr_col_labels.insert(table_int->GetColName(i).Upper());
-		m_insert_pos->Append(table_int->GetColName(i).Upper());
+        int actual_idx = col_id_map[i];
+        wxString col_name = table_int->GetColName(actual_idx);
+        curr_col_labels.insert(col_name.Upper());
+        m_insert_pos->Append(col_name.Upper());
 	}
     
 	m_insert_pos->Append("after last variable");
 	m_insert_pos->SetSelection(0);
      
 	UpdateApplyButton();
-    
-    LOG_MSG("Exiting DataViewerAddColDlg::DataViewerAddColDlg(..)");
 }
 
 
 void DataViewerAddColDlg::CreateControls()
 {
+    wxLogMessage("DataViewerAddColDlg::CreateControls()");
     SetBackgroundColour(*wxWHITE);
 	if (time_variant && fixed_lengths) {
 		wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DATA_VIEWER_ADD_COL_TIME_FIXED_DLG");
@@ -113,32 +114,21 @@ void DataViewerAddColDlg::CreateControls()
 	name_validator.SetCharIncludes(name_chars);
 	m_name->SetValidator(name_validator);
 	m_name_valid = false;
-	
-	m_time_variant_no = 0;
-	m_time_variant_yes = 0;
-	if (FindWindow(XRCID("ID_TIME_VARIANT_NO"))) {
-		m_time_variant_no = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_NO")), wxRadioButton);
-		m_time_variant_yes = wxDynamicCast(FindWindow(XRCID("ID_TIME_VARIANT_YES")), wxRadioButton);
-		m_time_variant_no->SetValue(time_variant_no_as_default);
-		m_time_variant_yes->SetValue(!time_variant_no_as_default);
-		m_time_variant_no->Enable(can_change_time_variant);
-		m_time_variant_yes->Enable(can_change_time_variant);
-	}
-	
+		
 	m_type = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_TYPE")), wxChoice);
 	// add options for Float, Integer, String, or Date
 	m_type->Append("real (eg 1.03, 45.7)");
 	m_type->Append("integer (eg -1, 0, 23)");
 	m_type->Append("string (eg New York)");
-	m_type->Append("date (eg 20110131)");
+	//m_type->Append("date (eg 20110131)");
 	
 	wxStaticText* mt = wxDynamicCast(FindWindow(XRCID("ID_STATIC_INSERT_POS")), wxStaticText);
 	m_insert_pos = wxDynamicCast(FindWindow(XRCID("ID_CHOICE_INSERT_POS")), wxChoice);
     
-    if ( !project->IsFileDataSource()) {
-        mt->Disable();
-        m_insert_pos->Disable();
-    }
+    //if ( !project->IsFileDataSource()) {
+    //    mt->Disable();
+    //    m_insert_pos->Disable();
+    //}
 
 	m_displayed_decimals_lable =  wxDynamicCast(FindWindow(XRCID("ID_STATIC_DISPLAYED_DECIMALS")), wxStaticText);
 	m_displayed_decimals = wxDynamicCast(FindWindow(XRCID("ID_DISPLAYED_DECIMALS")), wxChoice);
@@ -195,6 +185,8 @@ void DataViewerAddColDlg::CreateControls()
 
 void DataViewerAddColDlg::OnChoiceType( wxCommandEvent& ev )
 {
+    wxLogMessage("In DataViewerAddColDlg::OnChoiceType()");
+    
 	switch (ev.GetSelection()) {
 		case 0:
 			if (cur_type == GdaConst::double_type) return;
@@ -221,6 +213,7 @@ void DataViewerAddColDlg::OnChoiceType( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 {
+    wxLogMessage("In DataViewerAddColDlg::SetDefaultsByType()");
 	// set some defaults first
 	m_displayed_decimals->SetSelection(0);
 	m_displayed_decimals->Disable();
@@ -295,23 +288,22 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 
 void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 {
-	LOG_MSG("Entering DataViewerAddColDlg::OnOkClick");
+	wxLogMessage("DataViewerAddColDlg::OnOkClick()");
     wxString colname = m_name->GetValue();
 	colname.Trim(true);  // trim white-space from right of string
 	colname.Trim(false); // trim white-space from left of string
 	
 	if (colname == wxEmptyString) {
-		wxString msg("Error: The table variable name is empty.");
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Error: The table variable name is empty.");
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
 	if (curr_col_labels.find(colname.Upper()) != curr_col_labels.end()) {
-		wxString msg;
-		msg += "Error: \"" + colname.Upper();
-		msg += "\" already exists in Table, please specify a different name.";
-		wxMessageDialog dlg (this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Error: \"%s\" already exists in Table, please specify a different name.");
+        msg = wxString::Format(msg, colname.Upper());
+		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -319,9 +311,9 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     bool m_name_valid = table_int->IsValidDBColName(colname);
 	//if ( !DbfFileUtils::isValidFieldName(colname) ) {
     if (!m_name_valid) {
-		wxString msg;
-		msg += "Error: \"" + colname + "\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR);
+		wxString msg = _("Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.");
+        msg = wxString::Format(msg, colname.Upper());
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
@@ -340,13 +332,9 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 			DbfFileUtils::SuggestDoubleParams(m_length_val, m_decimals_val,
 											  &suggest_len, &suggest_dec);
 			if (m_length_val != suggest_len || m_decimals_val != suggest_dec) {
-				wxString m;
-				m << "Error: Due to restrictions on the DBF file format, the ";
-				m << "particular combination of length and decimals entered is ";
-				m << "not valid.  Based on your current choices, we recommend ";
-				m << "length = " << suggest_len;
-				m << " and decimals = " << suggest_dec;
-				wxMessageDialog dlg(this, m, "Error", wxOK | wxICON_ERROR);
+				wxString m = _("Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d");
+                m = wxString::Format(m, suggest_len, suggest_dec);
+				wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
 				dlg.ShowModal();
 				return;
 			}
@@ -369,12 +357,8 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     }
 
 	int time_steps = 1; // non-space-time column by default	
-	if (m_time_variant_yes && m_time_variant_yes->GetValue()) {
-		time_steps = table_int->GetTimeSteps();
-	}
 
-	LOG_MSG(wxString::Format("Inserting new column %s into Table",
-							 colname.Upper().c_str()));
+	wxLogMessage(wxString::Format(_("Inserting new column %s into Table"), colname.Upper()));
 	
 	bool success;
 	if (fixed_lengths) {
@@ -387,13 +371,12 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 	}
 	
 	if (!success) {
-		wxString msg("Could not create a new variable. "
-					 "Possibly a read-only data source.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxString msg = _("Could not create a new variable. Possibly a read-only data source.");
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
-	final_col_name = colname.Upper();
+    final_col_name = colname.Upper();
 	final_col_id = col_insert_pos;
     
 
@@ -408,16 +391,17 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
     
 	ev.Skip();
 	EndDialog(wxID_OK);
-	LOG_MSG("Exiting DataViewerAddColDlg::OnOkClick");
 }
 
 void DataViewerAddColDlg::OnEditName( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnEditName()");
 	CheckName();
 }
 
 void DataViewerAddColDlg::CheckName()
 {
+    wxLogMessage("DataViewerAddColDlg::CheckName()");
 	wxString s = m_name->GetValue();
     m_name_valid = table_int->IsValidDBColName(s);
     if ( m_name_valid ) {
@@ -431,6 +415,8 @@ void DataViewerAddColDlg::CheckName()
 
 void DataViewerAddColDlg::OnEditLength( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnEditLength()");
+    
 	if (!fixed_lengths) return;
 	wxString s = m_length->GetValue();
 	long val = 0;
@@ -469,8 +455,11 @@ void DataViewerAddColDlg::OnEditLength( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
 {
-	if (!fixed_lengths) return;
-	if (!cur_type == GdaConst::double_type) {
+    wxLogMessage("DataViewerAddColDlg::OnEditDecimals()");
+    
+	if (!fixed_lengths)
+        return;
+	if (cur_type != GdaConst::double_type) {
 		m_decimals_valid = true;
 		UpdateApplyButton();
 		return;
@@ -498,6 +487,8 @@ void DataViewerAddColDlg::OnEditDecimals( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 {
+    wxLogMessage("DataViewerAddColDlg::OnChoiceDisplayedDecimals()");
+    
 	if (fixed_lengths && cur_type == GdaConst::double_type)
         UpdateMinMaxValues();
     
@@ -506,6 +497,8 @@ void DataViewerAddColDlg::OnChoiceDisplayedDecimals( wxCommandEvent& ev )
 
 void DataViewerAddColDlg::UpdateMinMaxValues()
 {
+    wxLogMessage("DataViewerAddColDlg::UpdateMinMaxValues()");
+    
 	if (!fixed_lengths) return;
 
     m_max_val->SetLabelText("");
@@ -537,6 +530,8 @@ void DataViewerAddColDlg::UpdateMinMaxValues()
 
 void DataViewerAddColDlg::UpdateApplyButton()
 {
+    wxLogMessage("DataViewerAddColDlg::UpdateApplyButton()");
+    
 	if (fixed_lengths) {
 		bool enable = false;
 		if (cur_type == GdaConst::double_type) {

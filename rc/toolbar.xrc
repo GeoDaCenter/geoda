@@ -4,7 +4,7 @@
     <bitmapsize>32, 32</bitmapsize>
     <dontattachtoframe>1</dontattachtoframe>
     <margins>2,2</margins>
-    <style>wxAUI_TB_DEFAULT_STYLE | wxAUI_TB_OVERFLOW</style>
+    <style>wxAUI_TB_OVERFLOW</style>
     <object class="tool" name="ID_NEW_PROJECT">
       <bitmap>color/32x32/01.png</bitmap>
       <bitmap2>color/32x32/01.png</bitmap2>
@@ -95,6 +95,12 @@
       <tooltip>Conditional Plot</tooltip>
     </object>
     <object class="separator"/>
+    <object class="tool" name="ID_CLUSTERING_CHOICES">
+        <bitmap>color/32x32/38.png</bitmap>
+        <bitmap2>gray/32x32/38.png</bitmap2>
+        <tooltip>Clusters</tooltip>
+    </object>
+    <object class="separator"/>
     <object class="tool" name="ID_MORAN_MENU">
         <bitmap>color/32x32/21.png</bitmap>
         <bitmap2>gray/32x32/21.png</bitmap2>
@@ -103,7 +109,7 @@
     <object class="tool" name="IDM_CORRELOGRAM">
         <bitmap>color/32x32/22.png</bitmap>
         <bitmap2>gray/32x32/22.png</bitmap2>
-      <tooltip>Nonparametric Spatial Autocorrelation</tooltip>
+      <tooltip>Spatial Correlogram</tooltip>
     </object>
     <object class="tool" name="ID_LISA_MENU">
         <bitmap>color/32x32/23.png</bitmap>
@@ -140,6 +146,14 @@
     <object class="tool" name="ID_SELECT_INVERT">
       <bitmap>color/24x24/29.png</bitmap>
       <tooltip>Invert Select</tooltip>
+    </object>
+    <object class="tool" name="ID_ADD_LAYER">
+        <bitmap>color/24x24/39.png</bitmap>
+        <tooltip>Add Map Layer</tooltip>
+    </object>
+    <object class="tool" name="ID_EDIT_LAYER">
+        <bitmap>color/24x24/40.png</bitmap>
+        <tooltip>Edit Map Layer</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_ZOOM_LAYER">

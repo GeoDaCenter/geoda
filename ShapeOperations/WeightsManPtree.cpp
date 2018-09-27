@@ -66,7 +66,6 @@ WeightsManPtree* WeightsManPtree::Clone()
 void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								const wxString& proj_path)
 {
-	LOG_MSG("Entering WeightsManPtree::ReadPtree");
 	using boost::property_tree::ptree;
 	using namespace std;
 	weights_list.clear();
@@ -83,21 +82,18 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 		BOOST_FOREACH(const ptree::value_type &v,
 					  pt.get_child("weights_entries")) {
 			wxString key = v.first.data();
-			LOG_MSG(key);
 			if (key == "weights") {
 				WeightsPtreeEntry e;
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
 					wxString key = v.first.data();
-					LOG_MSG(key);
 					if (key == "title") {
-						wxString s = v.second.data();
+						wxString s(v.second.data().c_str(), wxConvUTF8);
 						e.title = s;
 					} else if (key == "default") {
 						e.is_default = true;
 					} else if (key == "meta_info") {
 						BOOST_FOREACH(const ptree::value_type &v, v.second) {
 							wxString key = v.first.data();
-							LOG_MSG(key);
 							if (key == "weights_type") {
 								wxString s = v.second.data();
 								if (s == "rook") {
@@ -108,11 +104,13 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.weights_type = WeightsMetaInfo::WT_threshold;
 								} else if (s == "knn") {
 									e.wmi.weights_type = WeightsMetaInfo::WT_knn;
+                                } else if (s == "kernel") {
+                                    e.wmi.weights_type = WeightsMetaInfo::WT_kernel;
 								} else { // s == "custom"
 									e.wmi.weights_type = WeightsMetaInfo::WT_custom;
 								}
 							} else if (key == "path") {
-								wxString s = v.second.data();
+								wxString s(v.second.data().c_str(), wxConvUTF8);
 								e.wmi.filename = GenUtils::RestorePath(proj_path, s);
                                 if (!wxFileExists(e.wmi.filename)) {
                                     wxString msg;
@@ -121,11 +119,11 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
                                     msg << "Details: Weights file (" << e.wmi.filename << ") is missing";
                                     msg << "\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the weights file(s) (.gwt or .gal extension) associated with your project.";
                                     
-                                    throw GdaException(msg.mb_str());
+                                    throw GdaException(GET_ENCODED_FILENAME(msg));
                                 }
                                 
 							} else if (key == "id_variable") {
-								wxString s = v.second.data();
+								wxString s(v.second.data().c_str(), wxConvUTF8);
 								e.wmi.id_var = s;
 							} else if (key == "symmetry") {
 								wxString s = v.second.data();
@@ -184,6 +182,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.dist_values = WeightsMetaInfo::DV_centroids;
 								} else if (s == "mean_centers") {
 									e.wmi.dist_values = WeightsMetaInfo::DV_mean_centers;
+                                } else if (s == "coordinates") {
+                                    e.wmi.dist_values = WeightsMetaInfo::DV_coordinates;
 								} else if (s == "vars") {
 									e.wmi.dist_values = WeightsMetaInfo::DV_vars;
 								} else if (s == "unspecified" || s.IsEmpty()) {
@@ -217,17 +217,65 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								double d;
 								wxString(v.second.data()).ToDouble(&d);
 								e.wmi.threshold_val = d;
-							}
+                            } else if (key == "num_observations") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.num_obs = l;
+                            } else if (key == "min_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.min_nbrs = l;
+                            } else if (key == "max_neighbors") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.max_nbrs = l;
+                            } else if (key == "mean_neighbors") {
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
+                                e.wmi.mean_nbrs = l;
+                            } else if (key == "median_neighbors") {
+                                double l;
+                                wxString(v.second.data()).ToDouble(&l);
+                                e.wmi.median_nbrs = l;
+                            } else if (key == "non_zero_perc") {
+                                double d;
+                                wxString(v.second.data()).ToDouble(&d);
+                                e.wmi.density_val = d;
+                            } else if (key == "kernel") {
+                                e.wmi.kernel = wxString(v.second.data());
+                            } else if (key == "bandwidth") {
+                                double d;
+                                wxString(v.second.data()).ToDouble(&d);
+                                e.wmi.bandwidth = d;
+                            } else if (key == "knn") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.k= l;
+                            } else if (key == "adaptive_kernel") {
+                                e.wmi.is_adaptive_kernel = false;
+                                wxString s = v.second.data();
+                                if (s.CmpNoCase("true") == 0) {
+                                    e.wmi.is_adaptive_kernel = true;
+                                }
+                            } else if (key == "kernel_to_diagonal") {
+                                e.wmi.use_kernel_diagnals = false;
+                                wxString s = v.second.data();
+                                if (s.CmpNoCase("true") == 0) {
+                                    e.wmi.use_kernel_diagnals = true;
+                                }
+                            } else if (key == "inverse_distance") {
+                                long l;
+                                wxString(v.second.data()).ToLong(&l);
+                                e.wmi.power = -l;
+                            }
 						}
 					} else {
 						// ignore unrecognized key
 						wxString msg("unrecognized key: ");
 						msg << key;
-						LOG_MSG(msg);
 					}
 				}
                 
-				LOG_MSG(e.ToStr());
 				weights_list.push_back(e);
 			} else {
 				wxString msg("unrecognized key: ");
@@ -238,8 +286,6 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 	} catch (std::exception &e) {
 		throw GdaException(e.what());
 	}
-	
-	LOG_MSG("Exiting WeightsManPtree::ReadPtree");
 }
 
 void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
@@ -272,11 +318,18 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 					sssub.put("inc_lower_orders", "false");
 				}
 			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold ||
-					   e.wmi.weights_type == WeightsMetaInfo::WT_knn)
+					   e.wmi.weights_type == WeightsMetaInfo::WT_knn ||
+                       e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
 			{
-				sssub.put("weights_type", (e.wmi.weights_type ==
-										  WeightsMetaInfo::WT_knn ? "knn"
-										  : "threshold"));
+                if (e.wmi.weights_type == WeightsMetaInfo::WT_knn)
+                    sssub.put("weights_type", "knn");
+                else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold)
+                    sssub.put("weights_type", "threshold");
+                else if (e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+                    sssub.put("weights_type", "kernel");
+                else
+                    sssub.put("weights_type", "custom");
+                
 				if (e.wmi.dist_metric == WeightsMetaInfo::DM_euclidean) {
 					sssub.put("dist_metric", "euclidean");
 				} else if (e.wmi.dist_metric == WeightsMetaInfo::DM_arc) {
@@ -294,6 +347,9 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 				} else if (e.wmi.dist_values ==
 						   WeightsMetaInfo::DV_mean_centers) {
 					sssub.put("dist_values", "mean_centers");
+                } else if (e.wmi.dist_values ==
+                           WeightsMetaInfo::DV_coordinates) {
+                    sssub.put("dist_values", "coordinates");
 				} else if (e.wmi.dist_values == WeightsMetaInfo::DV_vars) {
 					sssub.put("dist_values", "vars");
 					if (!e.wmi.dist_var1.IsEmpty()) {
@@ -315,6 +371,21 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 				} else {
 					sssub.put("threshold_val", e.wmi.threshold_val);
 				}
+                
+                if (!e.wmi.kernel.IsEmpty()) {
+                    sssub.put("kernel", e.wmi.kernel);
+                    if (e.wmi.bandwidth >=0)  {
+                        sssub.put("bandwidth", e.wmi.bandwidth);
+                    }
+                    if (e.wmi.k > 0) {
+                        sssub.put("adaptive_kernel", e.wmi.is_adaptive_kernel? "true":"false");
+                        sssub.put("knn", e.wmi.k);
+                    }
+                    sssub.put("kernel_to_diagonal", e.wmi.use_kernel_diagnals ? "true":"false");
+                }
+                if (e.wmi.power < 0) {
+                    sssub.put("inverse_distance", abs(e.wmi.power));
+                }
 			}
 			if (!e.wmi.filename.IsEmpty()) {
 				sssub.put("path",
@@ -325,9 +396,29 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 			}
 			if (e.wmi.sym_type == WeightsMetaInfo::SYM_symmetric) {
 				sssub.put("symmetry", "symmetric");
-			} else if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
+            } else if (e.wmi.sym_type == WeightsMetaInfo::SYM_asymmetric) {
 				sssub.put("symmetry", "asymmetric");
-			}
+            } else {
+                sssub.put("symmetry", "unknown");
+            }
+            if (e.wmi.num_obs >=0) {
+                sssub.put("num_observations", e.wmi.num_obs);
+            }
+            if (e.wmi.min_nbrs>=0) {
+                sssub.put("min_neighbors", e.wmi.min_nbrs);
+            }
+            if (e.wmi.max_nbrs>=0) {
+                sssub.put("max_neighbors", e.wmi.max_nbrs);
+            }
+            if (e.wmi.mean_nbrs>=0) {
+                sssub.put("mean_neighbors", e.wmi.mean_nbrs);
+            }
+            if (e.wmi.median_nbrs>=0) {
+                sssub.put("median_neighbors", e.wmi.median_nbrs);
+            }
+            if (e.wmi.density_val>=0) {
+                sssub.put("non_zero_perc", e.wmi.density_val);
+            }
 		}	
 	} catch (std::exception &e) {
 		throw GdaException(e.what());

@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcmemory.h>
 #include <wx/graphics.h>
 #include <wx/msgdlg.h>
@@ -40,7 +41,6 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
 #include "PCPNewView.h"
 
 IMPLEMENT_CLASS(PCPCanvas, TemplateCanvas)
@@ -52,15 +52,16 @@ BEGIN_EVENT_TABLE(PCPCanvas, TemplateCanvas)
 END_EVENT_TABLE()
 
 PCPCanvas::PCPCanvas(wxWindow *parent, TemplateFrame* t_frame,
-								   Project* project_s,
-								   const std::vector<GdaVarTools::VarInfo>& v_info,
-								   const std::vector<int>& col_ids,
-								   const wxPoint& pos, const wxSize& size)
-: TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
-								 pos, size, false, true),
+                     Project* project_s,
+                     const std::vector<GdaVarTools::VarInfo>& v_info,
+                     const std::vector<int>& col_ids,
+                     const wxPoint& pos, const wxSize& size)
+:TemplateCanvas(parent, t_frame, project_s, project_s->GetHighlightState(),
+                pos, size, false, true),
 var_info(v_info), num_obs(project_s->GetNumRecords()),
 num_time_vals(1), num_vars(v_info.size()),
-data(v_info.size()), custom_classif_state(0),
+data(v_info.size()), data_undef(v_info.size()),
+custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
@@ -68,34 +69,54 @@ num_categories(6), all_init(false)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering PCPCanvas::PCPCanvas");
+    
 	TableInterface* table_int = project->GetTableInt();
-
-	LOG(var_info.size());
-	
-	//std::vector< std::vector<Gda::dbl_int_pair_vec_type> > data_sorted;
-	//std::vector< std::vector<HingeStats> > hinge_stats;
-	//data_sorted.resize(v_info.size());
-	//hinge_stats.resize(v_info.size());
-	data_stats.resize(v_info.size());
-	
-	std::vector<double> temp_vec(num_obs);
+	data_stats.resize(num_vars);
+  
+    // get undefined and filter data by undefined if needed
+    int max_ts = 1;
+	for (int v=0; v<num_vars; v++) {
+        table_int->GetColUndefined(col_ids[v], data_undef[v]);
+        int ts = data_undef[v].shape()[0];
+        if (ts > max_ts)
+            max_ts = ts;
+    }
+    undef_markers.resize(max_ts);
+    
+    for (int t=0; t<max_ts; t++) {
+        undef_markers[t].resize(num_obs, false);
+        
+        for (int i=0; i<num_obs; i++) {
+            for (int v=0; v<num_vars; v++) {
+                int ts = data_undef[v].shape()[0];
+                if ( t < ts) 
+                    undef_markers[t][i] = undef_markers[t][i] ||
+                                          data_undef[v][t][i];
+            }
+        }
+    }
+   
+    // get statistics for each variable (times)
 	for (int v=0; v<num_vars; v++) {
 		table_int->GetColData(col_ids[v], data[v]);
+        table_int->GetColUndefined(col_ids[v], data_undef[v]);
 		int data_times = data[v].shape()[0];
 		data_stats[v].resize(data_times);
-		//hinge_stats[v].resize(data_times);
-		//data_sorted[v].resize(data_times);
+        
+        std::vector<double> temp_vec;
+        
 		for (int t=0; t<data_times; t++) {
-			//data_sorted[v][t].resize(num_obs);
 			for (int i=0; i<num_obs; i++) {
-				temp_vec[i] = data[v][t][i];
-				//data_sorted[v][t][i].first = data[v][t][i];
-				//data_sorted[v][t][i].second = i;
+                // only use valid data for stats
+                if (undef_markers[t][i] == false)
+                    temp_vec.push_back(data[v][t][i]);
 			}
-			//std::sort(data_sorted[v][t].begin(),
-			//		  data_sorted[v][t].end(),
-			//		  Gda::dbl_int_pair_cmp_less);
-			//hinge_stats[v][t].CalculateHingeStats(data_sorted[v][t]);
+            if (temp_vec.empty()) {
+                wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), var_info[v].name);
+                wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return;
+            }
 			data_stats[v][t].CalculateFromSample(temp_vec);
 			double min = data_stats[v][t].min;
 			double max = data_stats[v][t].max;
@@ -105,8 +126,7 @@ num_categories(6), all_init(false)
 				double s_min = (min - mean)/sd;
 				double s_max = (max - mean)/sd;
 				double abs_max =
-					GenUtils::max<double>(GenUtils::abs<double>(s_min),
-										  GenUtils::abs<double>(s_max));
+					std::max(std::abs(s_min), std::abs(s_max));
 				if (!overall_abs_max_std_exists) {
 					overall_abs_max_std_exists = true;
 					overall_abs_max_std = abs_max;
@@ -126,63 +146,35 @@ num_categories(6), all_init(false)
 	control_circs.resize(num_vars);
 	control_lines.resize(num_vars);
 	var_order.resize(num_vars);
-	for (int v=0; v<num_vars; v++) var_order[v] = v;
-	
-	/*
-	for (int v=0; v<num_vars; v++) {
-		int data_times = data[v].shape()[0];
-		for (int t=0; t<data_times; t++) {
-			for (int i=0; i<num_obs; i++) {
-				LOG(data[v][t][i]);
-			}
-		}
-	}
-	 */
-	
+    
+    for (int v=0; v<num_vars; v++) {
+        var_order[v] = v;
+    }
+    
 	selectable_fill_color = GdaConst::pcp_line_color;
 	highlight_color = GdaConst::highlight_color;
-	//highlight_color = wxColour(68, 244, 136); // light mint green
 	
-	fixed_aspect_ratio_mode = false;
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = true;
 	selectable_shps_type = polylines;
 	
     ChangeThemeType(CatClassification::no_theme, 6);
 	
-	/*
-	VarInfoAttributeChange();
-	CreateCategoriesAllCanvasTms(1, num_time_vals); // 1 = #cats
-	for (int t=0; t<num_time_vals; t++) {
-		SetCategoryColor(t, 0, selectable_fill_color);
-		for (int i=0; i<num_obs; i++) AppendIdToCategory(t, 0, i);
-	}
-	if (ref_var_index != -1) {
-		SetCurrentCanvasTmStep(var_info[ref_var_index].time
-							   - var_info[ref_var_index].time_min);
-	}
-	PopulateCanvas();
-	*/
-	
 	all_init = true;
-	
 	DisplayStatistics(true);
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting PCPCanvas::PCPCanvas");
 }
 
 PCPCanvas::~PCPCanvas()
 {
-	LOG_MSG("Entering PCPCanvas::~PCPCanvas");
 	highlight_state->removeObserver(this);
 	if (custom_classif_state) custom_classif_state->removeObserver(this);
-	LOG_MSG("Exiting PCPCanvas::~PCPCanvas");
 }
 
 void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering PCPCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((PCPFrame*) template_frame)->OnActivate(ae);
@@ -198,7 +190,6 @@ void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting PCPCanvas::DisplayRightClickMenu");
 }
 
 void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
@@ -215,21 +206,10 @@ void PCPCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 		}
 	}
 
-	/*
-	wxMenu* menu2 = new wxMenu(wxEmptyString);
-	if (var_info[0].is_time_variant) {
-		wxString s;
-		s << "Fixed scale over time";
-		wxMenuItem* mi =
-		menu2->AppendCheckItem(GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1, s, s);
-		mi->Check(var_info[0].fixed_scale);
-	}
-	 */
-		
 	//menu->Prepend(wxID_ANY, "Scale Options", menu2, "Scale Options");
     menu->AppendSeparator();
     menu->Append(wxID_ANY, "Time Variable Options", menu1,
-				  "Time Variable Options");
+                 "Time Variable Options");
 }
 
 void PCPCanvas::SetCheckMarks(wxMenu* menu)
@@ -251,38 +231,23 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 	
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 								  GetCcType() == CatClassification::no_theme);	
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_1"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_2"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_3"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_4"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_5"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_6"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_7"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_8"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_9"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_QUANTILE_10"),
-								  (GetCcType() == CatClassification::quantile)
-								  && GetNumCats() == 10);
+
+    for (int i=1; i<=10; i++) {
+        wxString str_xrcid;
+        bool flag;
+        
+        str_xrcid = wxString::Format("ID_QUANTILE_%d", i);
+        flag = GetCcType()==CatClassification::quantile && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_EQUAL_INTERVALS_%d", i);
+        flag = GetCcType()==CatClassification::equal_intervals && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+        
+        str_xrcid = wxString::Format("ID_NATURAL_BREAKS_%d", i);
+        flag = GetCcType()==CatClassification::natural_breaks && GetNumCats()==i;
+        GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
+    }
 	
     GeneralWxUtils::CheckMenuItem(menu,
 								  XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
@@ -296,123 +261,33 @@ void PCPCanvas::SetCheckMarks(wxMenu* menu)
 								  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
 								  GetCcType() == CatClassification::unique_values);
-    // since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_1"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_2"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_3"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_4"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_5"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_6"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_7"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_8"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_9"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_10"),
-								  (GetCcType() ==
-								   CatClassification::equal_intervals)
-								  && GetNumCats() == 10);
-	
-	// since XRCID is a macro, we can't make this into a loop
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_1"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 1);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_2"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 2);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_3"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 3);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_4"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 4);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_5"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 5);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_6"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 6);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_7"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 7);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_8"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 8);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_9"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 9);
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_NATURAL_BREAKS_10"),
-								  (GetCcType() ==
-								   CatClassification::natural_breaks)
-								  && GetNumCats() == 10);
-}
-
-/**
- Override of TemplateCanvas method.  We must still call the
- TemplateCanvas method after we update the regression lines
- as needed. */
-void PCPCanvas::update(HLStateInt* o)
-{
-	LOG_MSG("Entering PCPCanvas::update");
-
-	// we want to force a full redraw of all selected objects
-	layer1_valid = false;
-	layer2_valid = false;
- 
-	Refresh();
-
-	UpdateStatusBar();
-	LOG_MSG("Entering PCPCanvas::update");	
 }
 
 wxString PCPCanvas::GetCanvasTitle()
 {
-	wxString s("Parallel Coordinate Plot: ");
+    if (var_order.empty()) return wxEmptyString;
+    
+	wxString s = _("Parallel Coordinate Plot: ");
 	s << GetNameWithTime(var_order[0]) << ", ";
 	if (num_vars > 2) s << "..., ";
 	s << GetNameWithTime(var_order[num_vars-1]);
 	return s;
 }
 
+wxString PCPCanvas::GetVariableNames()
+{
+    if (var_order.empty()) return wxEmptyString;
+    
+    wxString s;
+    s << GetNameWithTime(var_order[0]);
+    return s;
+}
+
 wxString PCPCanvas::GetCategoriesTitle()
 {
 	wxString s;
 	if (GetCcType() == CatClassification::no_theme) {
-		s << "Themeless";
+		s << _("Themeless");
 	} else if (GetCcType() == CatClassification::custom) {
 		s << cat_classif_def.title << ": " << GetNameWithTime(theme_var);
 	} else {
@@ -440,12 +315,17 @@ void PCPCanvas::NewCustomCatClassif()
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		Gda::dbl_int_pair_vec_type cat_var_sorted(num_obs);
+        std::vector<bool> var_undefs(num_obs, false);
+        
 		for (int i=0; i<num_obs; i++) {
 			int t = cat_data.GetCurrentCanvasTmStep();
 			int tm = var_info[theme_var].is_time_variant ? t : 0;
-			cat_var_sorted[i].first = 
-				data[theme_var][tm+var_info[theme_var].time_min][i];
+            int ts = tm+var_info[theme_var].time_min;
+            
+			cat_var_sorted[i].first = data[theme_var][ts][i];
 			cat_var_sorted[i].second = i;
+            
+            var_undefs[i] = var_undefs[i] || data_undef[theme_var][ts][i];
 		}
 		 // only sort data with valid data
 		if (cats_valid[var_info[theme_var].time]) {
@@ -459,6 +339,7 @@ void PCPCanvas::NewCustomCatClassif()
 		CatClassification::SetBreakPoints(cat_classif_def.breaks,
 										  temp_cat_labels,
 										  cat_var_sorted,
+                                          var_undefs,
 										  cat_classif_def.cat_classif_type,
 										  cat_classif_def.num_cats);
 		int time = cat_data.GetCurrentCanvasTmStep();
@@ -489,7 +370,7 @@ void PCPCanvas::NewCustomCatClassif()
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -497,10 +378,10 @@ void PCPCanvas::NewCustomCatClassif()
 /** This method initializes data array according to values in var_info
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
-void PCPCanvas::ChangeThemeType(
-						CatClassification::CatClassifType new_cat_theme,
-						int num_categories_s,
-						const wxString& custom_classif_title)
+void
+PCPCanvas::ChangeThemeType(CatClassification::CatClassifType new_cat_theme,
+                           int num_categories_s,
+                           const wxString& custom_classif_title)
 {
 	num_categories = num_categories_s;
 	
@@ -522,10 +403,13 @@ void PCPCanvas::ChangeThemeType(
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
 	PopulateCanvas();
+   
+    ResetFadedLayer();
+    
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -539,7 +423,7 @@ void PCPCanvas::update(CatClassifState* o)
 	if (template_frame) {
 		template_frame->UpdateTitle();
 		if (template_frame->GetTemplateLegend()) {
-			template_frame->GetTemplateLegend()->Refresh();
+			template_frame->GetTemplateLegend()->Recreate();
 		}
 	}
 }
@@ -556,12 +440,20 @@ void PCPCanvas::OnSaveCategories()
 	label << t_name << " Categories";
 	wxString title;
 	title << "Save " << label;
-	SaveCategories(title, label, "CATEGORIES");
+    
+    std::vector<bool> undefs(num_obs, false);
+    
+    for (size_t i=0; i<undef_markers.size(); i++) {
+        for (size_t j=0; j<undef_markers[i].size(); j++) {
+            undefs[j] = undefs[j] || undef_markers[i][j];
+        }
+    }
+    
+	SaveCategories(title, label, "CATEGORIES", undefs);
 }
 
 void PCPCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering PCPCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -569,16 +461,13 @@ void PCPCanvas::PopulateCanvas()
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
 	
+	wxSize size(GetVirtualSize());
 	double x_min = 0;
 	double x_max = 100;
 	double y_min = 0;
 	double y_max = 100;
-	
-	shps_orig_xmin = x_min;
-	shps_orig_ymin = y_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymax = y_max;
-	virtual_screen_marg_top = 25;
+
+    int virtual_screen_marg_bottom = 0;
 	if (!display_stats && !standardized) {
 		virtual_screen_marg_bottom = 25;
 	} else if (!display_stats && standardized) {
@@ -586,40 +475,29 @@ void PCPCanvas::PopulateCanvas()
 	} else {
 		virtual_screen_marg_bottom =  25+25;
 	}
-	virtual_screen_marg_left = 135;
-	virtual_screen_marg_right = 25;
 	
-	// For each variable, we know it's current time and it's
-	// min/max values over it's available times.  This is all that
-	// we need to know in order to create the PCP.
-	
-	wxSize size(GetVirtualSize());
-	double scale_x, scale_y, trans_x, trans_y;
-	GdaScaleTrans::calcAffineParams(shps_orig_xmin, shps_orig_ymin,
-								   shps_orig_xmax, shps_orig_ymax,
-								   virtual_screen_marg_top,
-								   virtual_screen_marg_bottom,
-								   virtual_screen_marg_left,
-								   virtual_screen_marg_right,
-								   size.GetWidth(), size.GetHeight(),
-								   fixed_aspect_ratio_mode,
-								   fit_to_window_mode,
-								   &scale_x, &scale_y, &trans_x, &trans_y,
-								   0, 0,
-								   &current_shps_width, &current_shps_height);
-	fixed_aspect_ratio_val = current_shps_width / current_shps_height;
-	
+    last_scale_trans.SetData(0, 0, 100, 100);
+    last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, 135, 25);
+    last_scale_trans.SetView(size.GetWidth(), size.GetHeight());
+    
 	selectable_shps.resize(num_obs);
+    selectable_shps_undefs.resize(num_obs);
 	
 	GdaShape* s = 0;
 	wxRealPoint* pts = new wxRealPoint[num_vars];
 	double std_fact = 1;
 	if (overall_abs_max_std_exists) std_fact = 100.0/(2.0*overall_abs_max_std);
 	double nvf = 100.0/((double) (num_vars-1));
+    
 	for (int i=0; i<num_obs; i++) {
+        bool valid_line = true;
 		for (int v=0; v<num_vars; v++) {
 			int vv = var_order[v];
 			int t = var_info[vv].time;
+            
+            if (undef_markers[t][i])
+                valid_line = false;
+            
 			double min = data_stats[vv][t].min;
 			double max = data_stats[vv][t].max;
 			if (min == max) {
@@ -637,10 +515,17 @@ void PCPCanvas::PopulateCanvas()
 			}
 			pts[v].y = 100.0-(nvf*((double) v));
 		}
-		selectable_shps[i] = new GdaPolyLine(num_vars, pts);
+        selectable_shps_undefs[i] = !valid_line;
+        selectable_shps[i] = new GdaPolyLine(num_vars, pts);
 	}
 	wxPen control_line_pen(GdaConst::pcp_horiz_line_color);
 	control_line_pen.SetWidth(2);
+    
+    int max_label_width = 0;
+    wxClientDC dc(this);
+    int s_w =0;
+    int s_h = 0;
+    
 	for (int v=0; v<num_vars; v++) {
 		int y_del = display_stats ? -8 : 0;
 		int vv = var_order[v];
@@ -648,21 +533,24 @@ void PCPCanvas::PopulateCanvas()
 		double y_pos = 100.0-(nvf*((double) v));
 		s = new GdaPolyLine(0, y_pos, 100, y_pos);
 		s->setPen(control_line_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		control_lines[v] = (GdaPolyLine*) s;
 		s = new GdaRay(wxRealPoint(0, y_pos), 180, 10);
 		s->setPen(control_line_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaCircle(wxRealPoint(0, y_pos), 3.0);
 		s->setNudge(-10, 0);
 		s->setPen(control_line_pen);
 		s->setBrush(*wxWHITE_BRUSH);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		control_circs[v] = (GdaCircle*) s;
-		s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
-					   wxRealPoint(0, y_pos), 0, GdaShapeText::right,
-					   GdaShapeText::v_center, -25, 0+y_del);
-		background_shps.push_back(s);
+        s = new GdaShapeText(GetNameWithTime(vv), *GdaConst::small_font,
+                             wxRealPoint(0, y_pos), 0, GdaShapeText::right,
+                             GdaShapeText::v_center, -25, 0+y_del);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
+        
+		foreground_shps.push_back(s);
 		control_labels[v] = (GdaShapeText*) s;
 		wxString m;
 		double t_min = data_stats[vv][t].min;
@@ -689,20 +577,24 @@ void PCPCanvas::PopulateCanvas()
 			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
-			background_shps.push_back(s);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
+			foreground_shps.push_back(s);
 			int cols = 2;
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
-			vals[0] << "mean";
+			vals[0] << _("mean");
 			vals[1] << GenUtils::DblToStr(t_mean, 4);
-			vals[2] << "s.d.";
+			vals[2] << _("s.d.");
 			vals[3] << GenUtils::DblToStr(t_sd, 4);
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(0, y_pos), GdaShapeText::right,
 							GdaShapeText::top, GdaShapeText::right, GdaShapeText::v_center,
 							3, 7, -25, 25+y_del);
-			background_shps.push_back(s);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
+			foreground_shps.push_back(s);
 		}
 	}
 	if (standardized) {
@@ -710,11 +602,13 @@ void PCPCanvas::PopulateCanvas()
 		// add dotted line for mean in center
 		s = new GdaPolyLine(50, 0, 50, 100);
 		s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 		s = new GdaShapeText(wxString::Format("%d", 0),
 					   *GdaConst::small_font, wxRealPoint(50, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-		background_shps.push_back(s);
+        ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+        if (s_w > max_label_width) max_label_width = s_w;
+		foreground_shps.push_back(s);
 		int sd_abs = overall_abs_max_std;
 		for (int i=1; i<=sd_abs && overall_abs_max_std_exists; i++) {
 			double sd_p = (double) i;
@@ -725,31 +619,34 @@ void PCPCanvas::PopulateCanvas()
 			sd_m *= std_fact;
 			s = new GdaPolyLine(sd_p, 0, sd_p, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			s = new GdaShapeText(wxString::Format("%d", i),
 						   *GdaConst::small_font, wxRealPoint(sd_p, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-			background_shps.push_back(s);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
+			foreground_shps.push_back(s);
 			s = new GdaPolyLine(sd_m, 0, sd_m, 100);
 			s->setPen(*GdaConst::scatterplot_origin_axes_pen);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 			s = new GdaShapeText(wxString::Format("%d", -i),
 						   *GdaConst::small_font, wxRealPoint(sd_m, 0), 0,
 						   GdaShapeText::h_center, GdaShapeText::v_center, 0, 12);
-			background_shps.push_back(s);
+            ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
+            if (s_w > max_label_width) max_label_width = s_w;
+			foreground_shps.push_back(s);
 		}
 	}
-	
+    
+	last_scale_trans.SetMargin(25, virtual_screen_marg_bottom, max_label_width + 30, 25);
+    
 	delete [] pts;
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting PCPCanvas::PopulateCanvas");
 }
 
 void PCPCanvas::TimeChange()
 {
-	LOG_MSG("Entering PCPCanvas::TimeChange");
 	if (!is_any_sync_with_global_time) return;
 	
 	int cts = project->GetTimeState()->GetCurrTime();
@@ -777,7 +674,6 @@ void PCPCanvas::TimeChange()
 	invalidateBms();
 	PopulateCanvas();
 	Refresh();
-	LOG_MSG("Exiting PCPCanvas::TimeChange");
 }
 
 /** Update Secondary Attributes based on Primary Attributes.
@@ -836,8 +732,12 @@ void PCPCanvas::CreateAndUpdateCategories()
 	}
 	
 	// Everything below assumes that GetCcType() != no_theme
-	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);	
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted(num_time_vals);
+    std::vector<std::vector<bool> > cat_var_undef;
+    
+
 	for (int t=0; t<num_time_vals; t++) {
+        std::vector<bool> undefs(num_obs, false);
 		// Note: need to be careful here: what about when a time variant
 		// variable is not synced with time?  time_min should reflect this,
 		// so possibly ok.
@@ -847,7 +747,10 @@ void PCPCanvas::CreateAndUpdateCategories()
 			cat_var_sorted[t][i].first = 
 				data[theme_var][tm+var_info[theme_var].time_min][i];
 			cat_var_sorted[t][i].second = i;
+            
+            undefs[i] = undefs[i] || data_undef[theme_var][tm+var_info[theme_var].time_min][i];
 		}
+        cat_var_undef.push_back(undefs);
 	}	
 	
 	// Sort each vector in ascending order
@@ -865,6 +768,7 @@ void PCPCanvas::CreateAndUpdateCategories()
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
+                                              cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
                                               this->useScientificNotation);
@@ -879,7 +783,6 @@ void PCPCanvas::CreateAndUpdateCategories()
 
 void PCPCanvas::TimeSyncVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPCanvas::TimeSyncVariableToggle");
 	var_info[var_index].sync_with_global_time =
 		!var_info[var_index].sync_with_global_time;
 	VarInfoAttributeChange();
@@ -890,7 +793,6 @@ void PCPCanvas::TimeSyncVariableToggle(int var_index)
 
 void PCPCanvas::FixedScaleVariableToggle(int var_index)
 {
-	LOG_MSG("In PCPCanvas::FixedScaleVariableToggle");
 	var_info[var_index].fixed_scale = !var_info[var_index].fixed_scale;
 	VarInfoAttributeChange();
 	invalidateBms();
@@ -944,7 +846,8 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 	if (event.LeftUp() && HasCapture()) ReleaseMouse();
 
 	if ((mousemode != select) ||
-		(mousemode == select && selectstate != start)) {
+		(mousemode == select && selectstate != start))
+    {
 		show_pcp_control = false;
 		TemplateCanvas::OnMouseEvent(event);
 		return;
@@ -962,24 +865,24 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			// if the mouse position is at one of the control dots, then
 			// proceed, otherwise call TemplateCanvas::OnMouseEvent(event)
 
+            if (control_labels.empty()) return;
+            
 			int label_match = -1;
-			prev = GetActualPos(event);
-			sel1 = prev;
+			pcp_prev = GetActualPos(event);
+			pcp_sel1 = pcp_prev;
 			for (int v=0; v<num_vars; v++) {
-				if (control_labels[v]->pointWithin(sel1)) {
+				if (control_labels[v]->pointWithin(pcp_sel1)) {
 					label_match = v;
 					break;
 				}
 			}
 
 			int circ_match = -1;
-			LOG_MSG(GenUtils::PtToStr(sel1));
 			for (int v=0; v<num_vars && label_match==-1; v++) {
 				wxPoint cpt = control_circs[v]->center;
 				cpt.x += control_circs[v]->getXNudge();
 				cpt.y += control_circs[v]->getYNudge();
-				LOG_MSG(GenUtils::PtToStr(cpt));
-				if (GenUtils::distance(sel1, cpt) <=
+				if (GenUtils::distance(pcp_sel1, cpt) <=
 					((double) control_circs[v]->radius)+1.5) {
 					circ_match = v;
 					break;
@@ -987,17 +890,14 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			}
 			
 			if (label_match != -1) {
-				LOG_MSG(wxString::Format("Selected control_label %d",
-										 label_match));
 				control_label_sel = label_match;
 				pcp_selectstate = pcp_leftdown_on_label;
+                is_showing_brush = false;
 			} else if (circ_match != -1) {
-				LOG_MSG(wxString::Format("Selected control_circ %d",
-										 circ_match));
 				control_line_sel = circ_match;
 				pcp_selectstate = pcp_leftdown_on_circ;
+                is_showing_brush = false;
 			} else {
-				LOG_MSG(wxString::Format("No controls selected"));
 				show_pcp_control = false;
 				TemplateCanvas::OnMouseEvent(event);
 				return;
@@ -1008,26 +908,16 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 			return;
 		}
 	} else if (pcp_selectstate == pcp_leftdown_on_label) {
-		if (event.LeftUp() || event.RightUp()) {
-			sel2 = GetActualPos(event);
-			LOG_MSG(wxString::Format("Final mouse position on release: "
-									 "(%d,%d)", sel2.x, sel2.y));
-			VarLabelClicked();
-			show_pcp_control = false;
-			pcp_selectstate = pcp_start;
-			Refresh();
-		}
+
 	} else if (pcp_selectstate == pcp_leftdown_on_circ) {
 		if (event.Moving() || event.Dragging()) {
 			wxPoint act_pos = GetActualPos(event);
-			if (fabs((double) (prev.x - act_pos.x)) +
-				fabs((double) (prev.y - act_pos.y)) > 2) {
-				sel1 = prev;
-				sel2 = GetActualPos(event);
+			if (fabs((double) (pcp_prev.x - act_pos.x)) +
+				fabs((double) (pcp_prev.y - act_pos.y)) > 2) {
+				pcp_sel1 = pcp_prev;
+				pcp_sel2 = GetActualPos(event);
 				pcp_selectstate = pcp_dragging;
 				
-				LOG_MSG(wxString::Format("Draw control line at position "
-										 "(%d,%d)", sel2.x, sel2.y));
 				show_pcp_control = true;
 				Refresh();
 			}
@@ -1038,19 +928,16 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 		}
 	} else if (pcp_selectstate == pcp_dragging) {
 		if (event.Dragging()) { // mouse moved while buttons still down
-			sel2 = GetActualPos(event);
+			pcp_sel2 = GetActualPos(event);
 			
-			LOG_MSG(wxString::Format("Draw control line at position "
-									 "(%d,%d)", sel2.x, sel2.y));
 			show_pcp_control = true;
 			Refresh();
 		} else if (event.LeftUp()) {
-			sel2 = GetActualPos(event);
-			LOG_MSG(wxString::Format("Final control line position: "
-									 "(%d,%d)", sel2.x, sel2.y));
-			MoveControlLine(sel2.y); // will invalidate layer1 if needed
+			pcp_sel2 = GetActualPos(event);
+			MoveControlLine(pcp_sel2.y); // will invalidate layer1 if needed
 			show_pcp_control = false;
 			pcp_selectstate = pcp_start;
+            ResetBrushing();
 			Refresh();
 		}  else if (event.RightDown()) {
 			show_pcp_control = false;
@@ -1060,6 +947,7 @@ void PCPCanvas::OnMouseEvent(wxMouseEvent& event)
 	}
 }
 
+
 void PCPCanvas::VarLabelClicked()
 {
 	int v = var_order[control_label_sel];
@@ -1067,7 +955,6 @@ void PCPCanvas::VarLabelClicked()
 	msg << "control_label_sel " << control_label_sel << " clicked which";
 	msg << "\n corresponds to actual var " << v << " with name = ";
 	msg << GetNameWithTime(v);
-	LOG_MSG(msg);
 	theme_var = v;
 	ChangeThemeType(GetCcType(), GetNumCats());
 	TemplateLegend* tl = template_frame->GetTemplateLegend();
@@ -1084,7 +971,7 @@ void PCPCanvas::PaintControls(wxDC& dc)
 	dc.SetBrush(*wxWHITE_BRUSH);
 	wxPoint cpt = control_circs[control_line_sel]->center;
 	cpt.x += control_circs[control_line_sel]->getXNudge();
-	cpt.y = sel2.y;
+	cpt.y = pcp_sel2.y;
 	int x_end = control_lines[control_line_sel]->points[1].x;
 	
 	dc.DrawLine(cpt.x, cpt.y, x_end, cpt.y);
@@ -1157,7 +1044,6 @@ void PCPCanvas::MoveControlLine(int final_y)
 	LOG_MSG("final var_order:");
 	for (int i=0; i<num_vars; i++) LOG(var_order[i]);
 	
-	LOG_MSG("Exiting PCPCanvas::MoveControlLine");
 	invalidateBms();
 	PopulateCanvas();
 }
@@ -1171,10 +1057,26 @@ void PCPCanvas::UpdateStatusBar()
 {
 	wxStatusBar* sb = template_frame->GetStatusBar();
 	if (!sb) return;
+    
 	wxString s;
-    if (highlight_state->GetTotalHighlighted() > 0){
-		s << "#selected=" << highlight_state->GetTotalHighlighted();
-	}
+    int t = cat_data.GetCurrentCanvasTmStep();
+    const std::vector<bool>& hl = highlight_state->GetHighlight();
+    
+    if (highlight_state->GetTotalHighlighted()> 0) {
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << _("#selected=") << n_total_hl << "  ";
+        
+        int n_undefs = 0;
+        for (int i=0; i<num_obs; i++) {
+            if ( undef_markers[t][i] && hl[i]) {
+                n_undefs += 1;
+            }
+        }
+        if (n_undefs> 0) {
+            s << _("undefined: ") << n_undefs << ") ";
+        }
+    }
+    
 
 	if (mousemode == select && selectstate == start) {
 		// obs: 1,3,5,... obs 1 = (1.23, 432.3, -23)
@@ -1188,7 +1090,7 @@ void PCPCanvas::UpdateStatusBar()
 		}
 		if (total_hover_obs != 0) {
 			int ob = hover_obs[0];
-			s << "obs " << ob+1 << " = (";
+			s << _("obs ") << ob+1 << " = (";
 			for (int v=0; v<num_vars-1; v++) {
 				int t = var_info[var_order[v]].time;
 				s << GenUtils::DblToStr(data[var_order[v]][t][ob], 3);
@@ -1228,7 +1130,7 @@ PCPFrame::PCPFrame(wxFrame *parent, Project* project,
 								 const long style)
 : TemplateFrame(parent, project, title, pos, size, style)
 {
-	LOG_MSG("Entering PCPFrame::PCPFrame");
+	wxLogMessage("Open PCPFrame.");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -1270,19 +1172,16 @@ PCPFrame::PCPFrame(wxFrame *parent, Project* project,
     splitter_win->SetSize(wxSize(width,height));
     SetAutoLayout(true);
 	Show(true);
-	LOG_MSG("Exiting PCPFrame::PCPFrame");
 }
 
 PCPFrame::~PCPFrame()
 {
-	LOG_MSG("In PCPFrame::~PCPFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 }
 
 void PCPFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("PCPFrame", GetTitle());
 	}
@@ -1291,7 +1190,6 @@ void PCPFrame::OnActivate(wxActivateEvent& event)
 
 void PCPFrame::MapMenus()
 {
-	LOG_MSG("In PCPFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
@@ -1301,7 +1199,7 @@ void PCPFrame::MapMenus()
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
 	((PCPCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -1309,10 +1207,8 @@ void PCPFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("PCPFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((PCPCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
@@ -1331,7 +1227,6 @@ void PCPFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void PCPFrame::update(TimeState* o)
 {
-	LOG_MSG("In PCPFrame::update(TimeState* o)");
 	template_canvas->TimeChange();
 	UpdateTitle();
 }
@@ -1348,7 +1243,6 @@ void PCPFrame::OnCustomCatClassifA(const wxString& cc_title)
 
 void PCPFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnShowAxes");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -1356,7 +1250,6 @@ void PCPFrame::OnShowAxes(wxCommandEvent& event)
 
 void PCPFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnDisplayStatistics");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -1364,7 +1257,6 @@ void PCPFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void PCPFrame::OnViewOriginalData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnViewOriginalData");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(false);
 	UpdateOptionMenuItems();
@@ -1372,7 +1264,6 @@ void PCPFrame::OnViewOriginalData(wxCommandEvent& event)
 
 void PCPFrame::OnViewStandardizedData(wxCommandEvent& event)
 {
-	LOG_MSG("In PCPFrame::OnViewStandardizedData");
 	PCPCanvas* t = (PCPCanvas*) template_canvas;
 	t->StandardizeData(true);
 	UpdateOptionMenuItems();
@@ -1429,16 +1320,14 @@ void PCPFrame::OnSaveCategories()
 }
 
 void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
-								  int num_categories,
-								  const wxString& custom_classif_title)
+                               int num_categories,
+                               const wxString& custom_classif_title)
 {
-	((PCPCanvas*) template_canvas)->ChangeThemeType(new_theme,
-													   num_categories,
-													   custom_classif_title);
-	UpdateTitle();
-	UpdateOptionMenuItems();
-	if (template_legend) template_legend->Refresh();
+    ((PCPCanvas*) template_canvas)->ChangeThemeType(new_theme,
+                                                    num_categories,
+                                                    custom_classif_title);
+    UpdateTitle();
+    UpdateOptionMenuItems();
+    if (template_legend) template_legend->Recreate();
 }
-
-
 

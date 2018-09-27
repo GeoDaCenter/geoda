@@ -20,12 +20,11 @@
 #include <cctype>
 #include <string>
 #include <vector>
+#include <wx/wx.h>
 #include <wx/msgdlg.h>
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../DataViewer/TableInterface.h"
-#include "../DbfFile.h"
-#include "../logger.h"
 #include "AddIdVariable.h"
 
 BEGIN_EVENT_TABLE( AddIdVariable, wxDialog )
@@ -40,16 +39,11 @@ AddIdVariable::AddIdVariable(TableInterface* table_int_s,
 							 long style )
 : table_int(table_int_s)
 {
-    LOG_MSG("Entering AddIdVariable::AddIdVariable(..)");
-    
     SetParent(parent);
     CreateControls();
     GetSizer()->Fit(this);
     GetSizer()->SetSizeHints(this);
     Centre();
-    
-    
-    LOG_MSG("Exiting AddIdVariable::AddIdVariable(..)");
 }
 
 void AddIdVariable::CreateControls()
@@ -75,14 +69,14 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 	new_id_var_name.Trim(false);
 
     bool m_name_valid = table_int->IsValidDBColName(new_id_var_name);
-	//if ( !DbfFileUtils::isValidFieldName(new_id_var_name) ) {
+
     if (!m_name_valid) {
 		wxString msg;
 		msg << "Error: \"" + new_id_var_name + "\" is an invalid ";
 		msg << "variable name. The first character must be alphabetic,";
 		msg << " and the remaining characters can be either alphanumeric ";
 		msg << "or underscores.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -93,24 +87,24 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		wxString msg;
 		msg << "Variable name \"" + new_id_var_name;
 		msg	<< "\" already exists. Please choose a different name.";
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
 	
-	
-	LOG_MSG("Adding new id field to Table in memory.");
+    wxLogMessage(wxString::Format("Try to insert unique id (integer, %s) column in table.", new_id_var_name));
     
     int col_insert_pos = 0;
 	int add_pos = table_int->InsertCol(GdaConst::long64_type,new_id_var_name, col_insert_pos);
 	if (add_pos >= 0) {
 		std::vector<wxInt64> data(table_int->GetNumberRows());
-		for (wxInt64 i=0, iend=data.size(); i<iend; i++) data[i] = i+1;
+		for (wxInt64 i=0, iend=data.size(); i<iend; i++)
+            data[i] = i+1;
 		table_int->SetColData(add_pos, 0/*time*/, data);
 	} else {
 		wxString msg("Could not create a new variable. "
 					 "Possibly a read-only data source.");
-		wxMessageDialog dlg(this, msg, "Error", wxOK | wxICON_ERROR );
+		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
@@ -121,6 +115,7 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 
 void AddIdVariable::OnCancelClick( wxCommandEvent& event )
 {
+    
 	event.Skip();
 }
 

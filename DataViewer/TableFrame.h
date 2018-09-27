@@ -47,7 +47,10 @@ public:
 	void OnLabelLeftClickEvent( wxGridEvent& ev );
 	void OnLabelLeftDClickEvent( wxGridEvent& ev );
 	void OnCellChanged( wxGridEvent& ev );
-	
+    
+    void OnMouseEvent(wxMouseEvent& event);
+
+    std::vector<int> GetRowOrder();
 	TableBase* GetTableBase() { return table_base; }
 	
 	/** Implementation of TimeStateObserver interface */

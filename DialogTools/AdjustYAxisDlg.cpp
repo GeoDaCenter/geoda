@@ -31,25 +31,24 @@ BEGIN_EVENT_TABLE( AdjustYAxisDlg, wxDialog )
     EVT_BUTTON( wxID_CANCEL, AdjustYAxisDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-AdjustYAxisDlg::AdjustYAxisDlg( double min_val_s,
-								 double max_val_s,
-								 wxWindow* parent,
-								 wxWindowID id,
-								 const wxString& caption,
-								 const wxPoint& pos, const wxSize& size,
-								 long style )
+AdjustYAxisDlg::AdjustYAxisDlg(double min_val_s,
+                               double max_val_s,
+                               wxWindow* parent,
+                               wxWindowID id,
+                               const wxString& caption,
+                               const wxPoint& pos, const wxSize& size,
+                               long style )
 : o_min_val(min_val_s), o_max_val(max_val_s)
 {
     
-    LOG_MSG("Entering AdjustYAxisDlg::AdjustYAxisDlg(..)");
+    wxLogMessage(wxString::Format("AdjustYAxisDlg with new min_val %f and max_val %f", min_val_s, max_val_s));
+    
     s_min_val << min_val_s;
     s_max_val << max_val_s;
     
 	SetParent(parent);
     CreateControls();
     Centre();
-    
-    LOG_MSG("Exiting AdjustYAxisDlg::AdjustYAxisDlg(..)");
 }
 
 void AdjustYAxisDlg::CreateControls()
@@ -131,7 +130,10 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
                                              const wxPoint& pos,
                                              const wxSize& size,
                                              long style)
+
 {
+    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.", precision_s));
+    
     precision = precision_s;
     
     SetParent(parent);
@@ -143,10 +145,10 @@ void AxisLabelPrecisionDlg::CreateControls()
 {
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_AXIS_LABEL_PRECISION_DLG");
     m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")), wxSpinCtrl);
-    m_precision_spin->SetRange(1, 6);
-    
-
+    m_precision_spin->SetRange(0, 6);
+    m_precision_spin->SetValue(precision);
 }
+
 void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
 {
     event.Skip();

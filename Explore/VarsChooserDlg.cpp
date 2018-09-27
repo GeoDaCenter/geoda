@@ -26,6 +26,7 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../DialogTools/WebViewHelpWin.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "VarsChooserDlg.h"
 
 VarsChooserFrame::VarsChooserFrame(GdaVarTools::Manager& var_man,
@@ -44,12 +45,12 @@ help_html(help_html_), help_title(help_html_.IsEmpty() ? "Help" : help_title_),
 vars_list(0), include_list(0)
 {
 	LOG_MSG("Entering VarsChooserFrame::VarsChooserFrame");
-	
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
+	SetBackgroundColour(*wxWHITE);
 	wxPanel* panel = new wxPanel(this);
 	
-	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, "Variables");
-	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY,
-																										 "Include");
+	wxStaticText* vars_list_text = new wxStaticText(panel, wxID_ANY, _("Variables"));
+	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, _("Include"));
 	
 	vars_list = new wxListBox(panel, XRCID("ID_VARS_LIST"), wxDefaultPosition,
 														wxSize(-1, 150), 0, 0, wxLB_SINGLE);
@@ -69,15 +70,15 @@ vars_list(0), include_list(0)
 	wxButton* remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "<",
 																			wxDefaultPosition, wxDefaultSize,
 																			wxBU_EXACTFIT);
-	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), "Up",
+	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), _("Up"),
 																	wxDefaultPosition, wxDefaultSize,
 																	wxBU_EXACTFIT);
-	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), "Down",
+	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), _("Down"),
 																		wxDefaultPosition, wxDefaultSize,
 																		wxBU_EXACTFIT);
 	wxButton* help_btn = 0;
 	if (!help_html.IsEmpty()) {
-		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help",
+		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
 														wxDefaultPosition, wxDefaultSize,
 														wxBU_EXACTFIT);
 	}
@@ -209,7 +210,6 @@ void VarsChooserFrame::OnUpBtn(wxCommandEvent& ev)
 	include_list->SetString(sel-1, b);
 	include_list->SetString(sel, a);
 	include_list->SetSelection(sel-1);
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }
@@ -227,7 +227,6 @@ void VarsChooserFrame::OnDownBtn(wxCommandEvent& ev)
 	include_list->SetString(sel, b);
 	include_list->SetString(sel+1, a);
 	include_list->SetSelection(sel+1);
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }
@@ -281,7 +280,6 @@ void VarsChooserFrame::UpdateLists()
 	}
 	if (vars_list->GetCount() > 0) vars_list->SetFirstItem(0);
 	
-	LOG_MSG(PrintState());
 }
 
 void VarsChooserFrame::IncludeFromVarsListSel(int sel)
@@ -289,19 +287,26 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	if (!vars_list || !include_list || vars_list->GetCount() == 0) return;
 	if (sel == wxNOT_FOUND) return;
 	wxString name = vars_list->GetString(sel);
-	LOG(name);
 	int time = project->GetTimeState()->GetCurrTime();
-	LOG(time);
 	TableInterface* table_int = project->GetTableInt();
 	int col_id = table_int->FindColId(name);
 	if (col_id < 0 ) return;
 	std::vector<double> min_vals;
 	std::vector<double> max_vals;
 	table_int->GetMinMaxVals(col_id, min_vals, max_vals);
+    
+    if (min_vals.empty() && max_vals.empty()) {
+        // no min_vals and max_vals, this might be an exceptional case:
+        // e.g. selected variable is not valid
+        wxString m = wxString::Format(_("Variable %s is not valid. Please select another variable."), name);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
 	var_man.AppendVar(name, min_vals, max_vals, time);
 	include_list->Append(name);
 	vars_list->Delete(sel);
-	LOG_MSG(PrintState());
 	if (vars_list->GetCount() > 0) {
 		if (sel < vars_list->GetCount()) {
 			vars_list->SetSelection(sel);
@@ -317,8 +322,6 @@ void VarsChooserFrame::RemoveFromIncludeListSel(int sel)
 {
 	if (!vars_list || !include_list || include_list->GetCount() == 0) return;
 	if (sel == wxNOT_FOUND) return;
-	LOG(sel);
-	LOG(var_man.GetName(sel));
 	var_man.RemoveVar(sel);
 	include_list->Delete(sel);
 	
@@ -339,7 +342,6 @@ void VarsChooserFrame::RemoveFromIncludeListSel(int sel)
 		}
 	}
 	
-	LOG_MSG(PrintState());
 	notifyObservers();
 	Refresh();
 }

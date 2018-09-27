@@ -44,7 +44,10 @@ class ScatterPlotMatFrame;
 class Project;
 typedef std::vector<double> vec_dbl_type;
 typedef std::vector<vec_dbl_type> vec_vec_dbl_type;
-typedef std::map<wxString, vec_vec_dbl_type> data_map_type; 
+typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
+
+typedef std::vector<std::vector<bool> > vec_vec_bool_type;
+typedef std::map<wxString ,vec_vec_bool_type> data_undef_map_type;
 
 /**
  ScatterPlotMatFrame manages all of the cells.  Its state depends
@@ -74,14 +77,13 @@ typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
  need a custom highlight state
  
  */
-class ScatterPlotMatFrame : public TemplateFrame, public LowessParamObserver,
-public VarsChooserObserver
+class ScatterPlotMatFrame : public TemplateFrame, public LowessParamObserver, public VarsChooserObserver
 {
 public:
 	ScatterPlotMatFrame(wxFrame *parent, Project* project,
-											const wxString& title = "Scatter Plot Matrix",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize);
+                        const wxString& title = _("Scatter Plot Matrix"),
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize);
 	virtual ~ScatterPlotMatFrame();
 	
 	void OnMouseEvent(wxMouseEvent& event);
@@ -89,7 +91,18 @@ public:
 	virtual void MapMenus();
 	virtual void UpdateOptionMenuItems();
 	virtual void UpdateContextMenuItems(wxMenu* menu);
-		
+
+    void OnSelectableOutlineColor(wxCommandEvent& event);
+    void OnSelectableFillColor(wxCommandEvent& event);
+    void OnHighlightColor(wxCommandEvent& event);
+    
+    void OnSelectWithRect(wxCommandEvent& event);
+    void OnSelectWithCircle(wxCommandEvent& event);
+    void OnSelectWithLine(wxCommandEvent& event);
+    
+    void OnViewStandardizedData(wxCommandEvent& event);
+    void OnViewOriginalData(wxCommandEvent& event);
+    
 	void OnViewLinearSmoother(wxCommandEvent& event);
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);
@@ -112,7 +125,11 @@ public:
 	/** Implementation of VarsChooserObserver interface */
 	virtual void update(VarsChooserObservable* o);
 	virtual void notifyOfClosing(VarsChooserObservable* o);
-	
+
+    virtual void OnSetDisplayPrecision(wxCommandEvent& event);
+   
+    void OnSaveScreen(wxCommandEvent& event);
+    
 	void GetVizInfo(vector<wxString>& vars);
 	
 protected:
@@ -120,11 +137,13 @@ protected:
 	void UpdateMessageWin();
 	void UpdateDataMapFromVarMan();
 	wxString GetHelpHtml();
-	
+
+    int axis_display_precision;
 	LowessParamFrame* lowess_param_frame;
 	VarsChooserFrame* vars_chooser_frame;
 	GdaVarTools::Manager var_man;
-	data_map_type data_map; 
+	data_map_type data_map;
+	data_undef_map_type data_undef_map;
 	std::vector<SimpleScatterPlotCanvas*> scatt_plots;
 	std::vector<SimpleAxisCanvas*> vert_labels;
 	std::vector<SimpleAxisCanvas*> horiz_labels;
@@ -137,12 +156,21 @@ protected:
 	wxGridBagSizer* bag_szr;
 	//wxWebView* message_win;
 	wxHtmlWindow* message_win;
-	
+
+    bool view_standardized_data;
 	bool show_outside_titles;
 	bool show_regimes;
 	bool show_linear_smoother;
 	bool show_lowess_smoother;
 	bool show_slope_values;
+    
+    bool brush_rectangle;
+    bool brush_circle;
+    bool brush_line;
+    
+    wxColour selectable_outline_color;
+    wxColour selectable_fill_color;
+    wxColour highlight_color;
 	
 	DECLARE_EVENT_TABLE()
 };

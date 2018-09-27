@@ -41,8 +41,10 @@
 class HighlightState;
 class LineChartCanvas;
 class Project;
+class ExportDataDlg;
 
-typedef std::map<wxString, vec_vec_dbl_type> data_map_type; 
+typedef std::map<wxString, vec_vec_dbl_type> data_map_type;
+typedef std::map<wxString, std::vector<bool> > data_map_undef_type;
 
 /**
  LineChartFrame manages one or more LineChartCanvas instances: one canvas
@@ -101,7 +103,7 @@ public HighlightStateObserver, public LineChartCanvasCallbackInt
 {
 public:
 	LineChartFrame(wxFrame *parent, Project* project,
-                 const wxString& title = "Averages Chart",
+                 const wxString& title = _("Averages Chart"),
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxSize(680,420));
 	virtual ~LineChartFrame();
@@ -120,7 +122,8 @@ public:
     void OnUseAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxis(wxCommandEvent& event);
     void OnAdjustYAxisPrecision(wxCommandEvent& event);
-
+    void OnFixedScaleOverChange(wxCommandEvent& event);
+    
     void OnSaveDummyTable(wxCommandEvent& event);
 	void OnReportClose(wxWindowDestroyEvent& event);
     
@@ -155,7 +158,6 @@ protected:
 	wxString GetHelpHtml();
 	void UpdateStatsWinContent(int var);
     void printAndShowClassicalResults(const wxString& yName, double* y,
-                                      
                                       const wxString& datasetname,
                                       const wxString& wname,
                                       DiagnosticReport *r,
@@ -171,7 +173,8 @@ protected:
     wxChoice* choice_time2;
     //wxCheckBox* chk_run_test;
     wxCheckBox* chk_save_did;
-   
+    ExportDataDlg* export_dlg;
+    
     int has_selection;
     int has_excluded;
     
@@ -189,14 +192,16 @@ protected:
     void OnTime1Choice(wxCommandEvent& event);
     void OnTime2Choice(wxCommandEvent& event);
     void OnApplyButton(wxCommandEvent& event);
-    
+    void OnClose(wxCloseEvent& event);
    
     wxString logReport;
     RegressionReportDlg *regReportDlg;
 	
 	HighlightState* highlight_state;
 	GdaVarTools::Manager var_man;
-	data_map_type data_map; 
+	data_map_type data_map;
+    data_map_undef_type data_map_undef;
+    
 	std::vector<LineChartCanvas*> line_charts;
 	std::vector<LineChartStats*> lc_stats;
 	std::vector<bool> tms_subset0;
@@ -213,15 +218,16 @@ protected:
 	wxBoxSizer* ctrls_h_szr;
 	wxBoxSizer* title1_h_szr;
 	wxBoxSizer* title2_h_szr;
-	wxGridBagSizer* bag_szr;
+	wxBoxSizer* bag_szr;
 	wxPanel* panel;
 	wxHtmlWindow* message_win;
+    OGRTable* mem_table_int;
 	
     int def_y_precision;
     bool use_def_y_range;
     wxString def_y_min;
     wxString def_y_max;
-
+    bool fixed_scale_over_change;
 	
 	//bool show_regimes;
 	bool display_stats;

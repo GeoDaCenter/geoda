@@ -70,10 +70,12 @@ BEGIN_EVENT_TABLE( GetisWhat2OpenDlg, wxDialog )
 EVT_BUTTON( wxID_OK, GetisWhat2OpenDlg::OnOkClick )
 END_EVENT_TABLE()
 
-GetisWhat2OpenDlg::GetisWhat2OpenDlg( wxWindow* parent, wxWindowID id,
-                                   const wxString& caption, const wxPoint& pos,
-                                   const wxSize& size, long style )
+GetisWhat2OpenDlg::GetisWhat2OpenDlg( wxWindow* parent,
+                                     bool _show_row_stand, wxWindowID id,
+                                     const wxString& caption, const wxPoint& pos,
+                                     const wxSize& size, long style )
 {
+    show_row_stand = _show_row_stand;
     SetParent(parent);
     CreateControls();
     Centre();
@@ -92,6 +94,10 @@ void GetisWhat2OpenDlg::CreateControls()
     if (FindWindow(XRCID("IDC_CHECK4")))
         m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
     m_check3->Hide();
+    if (!show_row_stand) {
+        m_check4->SetValue(false);
+        m_check4->Hide();
+    }
 }
 
 void GetisWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
@@ -105,3 +111,47 @@ void GetisWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
     event.Skip();
     EndDialog(wxID_OK);	
 }
+
+//////////////////////////////////////////////////////////////////////////
+IMPLEMENT_CLASS( LocalGearyWhat2OpenDlg, wxDialog )
+
+BEGIN_EVENT_TABLE( LocalGearyWhat2OpenDlg, wxDialog )
+EVT_BUTTON( wxID_OK, LocalGearyWhat2OpenDlg::OnOkClick )
+END_EVENT_TABLE()
+
+LocalGearyWhat2OpenDlg::LocalGearyWhat2OpenDlg( wxWindow* parent, wxWindowID id,
+                                   const wxString& caption, const wxPoint& pos,
+                                   const wxSize& size, long style )
+{
+    m_RowStand = true;
+    SetParent(parent);
+    CreateControls();
+    Centre();
+}
+
+void LocalGearyWhat2OpenDlg::CreateControls()
+{
+    wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_LISAWINDOWS2OPEN");
+    if (FindWindow(wxXmlResource::GetXRCID("IDC_CHECK1")))
+        m_check1 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK1")), wxCheckBox);
+    if (FindWindow(XRCID("IDC_CHECK2")))
+        m_check2 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK2")), wxCheckBox);
+    if (FindWindow(XRCID("IDC_CHECK3"))) {
+        m_check3 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK3")), wxCheckBox);
+        m_check3->Hide();
+    }
+    //if (FindWindow(XRCID("IDC_CHECK4")))
+    //    m_check4 = wxDynamicCast(FindWindow(XRCID("IDC_CHECK4")), wxCheckBox);
+}
+
+void LocalGearyWhat2OpenDlg::OnOkClick( wxCommandEvent& event )
+{
+    m_SigMap = m_check1->GetValue();
+    m_ClustMap = m_check2->GetValue();
+    //m_Moran = m_check3->GetValue();
+    //m_RowStand = m_check4->GetValue();
+    
+    event.Skip();
+    EndDialog(wxID_OK);	
+}
+

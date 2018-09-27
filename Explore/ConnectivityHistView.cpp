@@ -25,6 +25,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/dcmemory.h>
 #include <wx/filename.h>
@@ -40,7 +41,7 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
 #include "../ShapeOperations/WeightsManState.h"
 #include "ConnectivityHistView.h"
 
@@ -71,14 +72,13 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 {
 	using namespace Shapefile;
-	LOG_MSG("Entering ConnectivityHistCanvas::ConnectivityHistCanvas");
 	
 	InitData();
 	InitIntervals();
 	
 	highlight_color = GdaConst::highlight_color;
-	
-	fixed_aspect_ratio_mode = false;
+
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
 	
@@ -86,19 +86,15 @@ w_uuid(w_uuid_s), w_man_int(project_s->GetWManInt())
 	
 	highlight_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
-	LOG_MSG("Exiting ConnectivityHistCanvas::ConnectivityHistCanvas");
 }
 
 ConnectivityHistCanvas::~ConnectivityHistCanvas()
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::~ConnectivityHistCanvas");
 	highlight_state->removeObserver(this);
-	LOG_MSG("Exiting ConnectivityHistCanvas::~ConnectivityHistCanvas");
 }
 
 void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	if (ConnectivityHistFrame* f =
@@ -124,9 +120,7 @@ void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, cp_pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
-	LOG_MSG("Exiting ConnectivityHistCanvas::DisplayRightClickMenu");
 }
-
 
 void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)
 {
@@ -144,11 +138,11 @@ void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)
 
 }
 
-void ConnectivityHistCanvas::DetermineMouseHoverObjects()
+void ConnectivityHistCanvas::DetermineMouseHoverObjects(wxPoint pt)
 {
 	total_hover_obs = 0;
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-		if (selectable_shps[i]->pointWithin(sel1)) {
+		if (selectable_shps[i]->pointWithin(pt)) {
 			hover_obs[total_hover_obs++] = i;
 			if (total_hover_obs == max_hover_obs) break;
 		}
@@ -188,48 +182,57 @@ void ConnectivityHistCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		}
 		if (!any_selected) {
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-			highlight_state->notifyObservers();
-			return;
-		}
-	}
-	
-	for (int i=0; i<total_sel_shps; i++) {
-		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
-		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
-						 (rect_sel &&
-						  GenGeomAlgs::RectsIntersect(rec->lower_left,
-												   rec->upper_right,
-												   lower_left, upper_right)));
-		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
-		if (pointsel && all_sel && selected) {
-			// unselect all in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-                 it != ival_to_obs_ids[i].end(); it++) {
-                hs[(*it)] = false;
-                selection_changed = true;
-			}
-		} else if (!all_sel && selected) {
-			// select currently unselected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-				 it != ival_to_obs_ids[i].end(); it++) {
-				if (hs[*it]) continue;
-                hs[(*it)] = true;
-                selection_changed = true;
-			}
-		} else if (!selected && !shiftdown) {
-			// unselect all selected in ival
-			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
-				 it != ival_to_obs_ids[i].end(); it++) {
-                if (!hs[*it]) continue;
-                hs[(*it)] = false;
-                selection_changed = true;
-			}
+			highlight_state->notifyObservers(this);
+            selection_changed = true;
 		}
 	}
 
+    if (selection_changed == false) {
+    	for (int i=0; i<total_sel_shps; i++) {
+    		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+    		bool selected = ((pointsel && rec->pointWithin(sel1)) ||
+    						 (rect_sel &&
+    						  GenGeomAlgs::RectsIntersect(rec->lower_left,
+    												   rec->upper_right,
+    												   lower_left, upper_right)));
+    		bool all_sel = (ival_obs_cnt[i] == ival_obs_sel_cnt[i]);
+    		if (pointsel && all_sel && selected) {
+    			// unselect all in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+                     it != ival_to_obs_ids[i].end(); it++) {
+                    hs[(*it)] = false;
+                    selection_changed = true;
+    			}
+    		} else if (!all_sel && selected) {
+    			// select currently unselected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    				 it != ival_to_obs_ids[i].end(); it++) {
+    				if (hs[*it]) continue;
+                    hs[(*it)] = true;
+                    selection_changed = true;
+    			}
+    		} else if (!selected && !shiftdown) {
+    			// unselect all selected in ival
+    			for (std::list<int>::iterator it=ival_to_obs_ids[i].begin();
+    				 it != ival_to_obs_ids[i].end(); it++) {
+                    if (!hs[*it]) continue;
+                    hs[(*it)] = false;
+                    selection_changed = true;
+    			}
+    		}
+    	}
+    	if ( selection_changed ) {
+    		highlight_state->SetEventType(HLStateInt::delta);
+    		highlight_state->notifyObservers(this);
+    	}
+    }
+
 	if ( selection_changed ) {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+    	layer1_valid = false;
+    	UpdateIvalSelCnts();
+        DrawLayers();
+    	
+    	Refresh();
 	}
 	UpdateStatusBar();
 }
@@ -244,14 +247,13 @@ void ConnectivityHistCanvas::DrawSelectableShapes(wxMemoryDC &dc)
 
 void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 {
-	dc.SetPen(wxPen(highlight_color));
-	dc.SetBrush(wxBrush(highlight_color, wxBRUSHSTYLE_CROSSDIAG_HATCH));
-	
 	for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
 		if (ival_obs_sel_cnt[i] == 0) continue;
 		double s = (((double) ival_obs_sel_cnt[i]) /
 					((double) ival_obs_cnt[i]));
 		GdaRectangle* rec = (GdaRectangle*) selectable_shps[i];
+    	dc.SetPen(rec->getPen());
+        dc.SetBrush(rec->getBrush());
 		dc.DrawRectangle(rec->lower_left.x, rec->lower_left.y,
 						 rec->upper_right.x - rec->lower_left.x,
 						 (rec->upper_right.y - rec->lower_left.y)*s);
@@ -261,21 +263,14 @@ void ConnectivityHistCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 /** Override of TemplateCanvas method. */
 void ConnectivityHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::update");
-	
-	layer0_valid = false;
+    ResetBrushing();
+    
 	layer1_valid = false;
-	layer2_valid = false;
-	
 	UpdateIvalSelCnts();
-	
+
+    
 	Refresh();
-	
-	LOG_MSG("Entering ConnectivityHistCanvas::update");	
 }
-
-
-
 
 wxString ConnectivityHistCanvas::GetCanvasTitle()
 {
@@ -284,9 +279,15 @@ wxString ConnectivityHistCanvas::GetCanvasTitle()
 	return s;
 }
 
+wxString ConnectivityHistCanvas::GetVariableNames()
+{
+    wxString s;
+    s << w_man_int->GetLongDispName(w_uuid);
+    return s;
+}
+
 void ConnectivityHistCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering ConnectivityHistCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -295,14 +296,8 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	foreground_shps.clear();
 	
 	if (w_uuid.is_nil()) {
-		virtual_screen_marg_top = 0;
-		virtual_screen_marg_bottom = 0;
-		virtual_screen_marg_left = 0;
-		virtual_screen_marg_right = 0;
-		shps_orig_xmin = 0;
-		shps_orig_xmax = 100;
-		shps_orig_ymin = 0;
-		shps_orig_ymax = 100;
+        last_scale_trans.SetData(0,0, 100, 100);
+        last_scale_trans.SetMargin(0, 0, 0, 0);
 		
 		ResizeSelectableShps();
 		return;
@@ -317,18 +312,17 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		orig_x_pos[i] = left_pad_const + interval_width_const/2.0 + i * (interval_width_const + interval_gap_const);
 	}
 	
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = max_num_obs_in_ival;
+    double y_max = max_num_obs_in_ival;
+    
+    last_scale_trans.SetData(x_min, 0, x_max, y_max);
 	
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, shps_orig_ymax, 5, 0);
-		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax), -9, 0);
-		background_shps.push_back(y_axis);
+		axis_scale_y = AxisScale(0, y_max, 5, 0);
+		y_max = axis_scale_y.scale_max;
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, y_max), -9, 0);
+		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val);
+		axis_scale_x = AxisScale(0, max_ival_val, 5, axis_display_precision);
         
 		axis_scale_x.data_min = min_ival_val;
 		axis_scale_x.data_max = max_ival_val;
@@ -356,25 +350,23 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			}
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
-		x_axis = new GdaAxis("Number of Neighbors", axis_scale_x, wxRealPoint(0,0), wxRealPoint(shps_orig_xmax, 0), 0, 9);
-		background_shps.push_back(x_axis);
+		x_axis = new GdaAxis(_("Number of Neighbors"), axis_scale_x, wxRealPoint(0,0), wxRealPoint(x_max, 0), 0, 9);
+		foreground_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
 	if (HasIsolates()) {
 		wxString msg;
-		msg << "Warning: " << num_isolates << " observation";
 		if (num_isolates > 1) {
-			msg << "s are ";
+            msg = wxString::Format(_("Warning: %d observations are neighborless."), num_isolates);
 		} else {
-			msg << " is ";
+            msg = wxString::Format(_("Warning: %d observations is neighborless."), num_isolates);
 		}
-		msg << "neighborless.";
-		s = new GdaShapeText(msg, *GdaConst::small_font,
-					   wxRealPoint(((double) shps_orig_xmax)/2.0,
-								   shps_orig_ymax), 0, GdaShapeText::h_center,
-					   GdaShapeText::bottom, 0, -15);
-		background_shps.push_back(s);
+        s = new GdaShapeText(msg, *GdaConst::small_font,
+                             wxRealPoint(((double) x_max)/2.0, y_max),
+                             0, GdaShapeText::h_center,
+                             GdaShapeText::bottom, 0, -15);
+		foreground_shps.push_back(s);
 	}
 		
 	int table_w=0, table_h=0;
@@ -383,22 +375,27 @@ void ConnectivityHistCanvas::PopulateCanvas()
 		int cols = 1;
 		int rows = 5;
 		std::vector<wxString> vals(rows);
-		vals[0] << "from";
-		vals[1] << "to";
-		vals[2] << "#obs";
-		vals[3] << "% of total";
-		vals[4] << "sd from mean";
+		vals[0] << _("from");
+		vals[1] << _("to");
+		vals[2] << _("#obs");
+		vals[3] << _("% of total");
+		vals[4] << _("sd from mean");
 		std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 		s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 						wxRealPoint(0, 0), GdaShapeText::h_center,
 							  GdaShapeText::top,
 						GdaShapeText::right, GdaShapeText::v_center,
 							  3, 10, -62, 53+y_d);
-		background_shps.push_back(s);
-		{
-			wxClientDC dc(this);
-			((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
-		}
+		foreground_shps.push_back(s);
+		
+        wxClientDC dc(this);
+        ((GdaShapeTable*) s)->GetSize(dc, table_w, table_h);
+		
+        // get row gap in multi-language case
+        wxSize sz_0 = dc.GetTextExtent(vals[0]);
+        wxSize sz_1 = dc.GetTextExtent("0.0");
+        int row_gap = 3 + sz_0.GetHeight() - sz_1.GetHeight();
+        
 		for (int i=0; i<cur_intervals; i++) {
 			std::vector<wxString> vals(rows);
 			double ival_min = (i == 0) ? min_ival_val : ival_breaks[i-1];
@@ -413,8 +410,8 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			} else if (ival_min > mean && sd > 0) {
 				sd_d = (ival_min - mean)/sd;
 			}
-			vals[0] << GenUtils::DblToStr(ival_min, 3);
-			vals[1] << GenUtils::DblToStr(ival_max, 3);
+			vals[0] << GenUtils::DblToStr(ival_min, 0);
+			vals[1] << GenUtils::DblToStr(ival_max, 0);
 			vals[2] << ival_obs_cnt[i];
 			vals[3] << GenUtils::DblToStr(p, 3);
 			vals[4] << GenUtils::DblToStr(sd_d, 3);
@@ -425,31 +422,31 @@ void ConnectivityHistCanvas::PopulateCanvas()
 								  wxRealPoint(orig_x_pos[i], 0),
 								  GdaShapeText::h_center, GdaShapeText::top,
 								  GdaShapeText::h_center, GdaShapeText::v_center,
-								  3, 10, 0,
+								  row_gap, 10, 0,
 							53+y_d);
-			background_shps.push_back(s);
+			foreground_shps.push_back(s);
 		}
 		
-		wxString sts;
-		sts << "min: " << data_stats.min;
-		sts << ", max: " << data_stats.max;
-		sts << ", median: " << hinge_stats.Q2;
-		sts << ", mean: " << data_stats.mean;
-		sts << ", s.d.: " << data_stats.sd_with_bessel;
-		sts << ", #obs: " << num_obs;
+        wxString sts;
+        sts << _("min:") << " " << data_stats.min;
+        sts << ", " << _("max:") << " " << data_stats.max;
+        sts << ", " << _("median:") << " " << hinge_stats.Q2;
+        sts << ", " << _("mean:") << " " << data_stats.mean;
+        sts << ", " << _("s.d.:") << " " << data_stats.sd_with_bessel;
+        sts << ", " << _("#obs:") << " " << num_obs;
 	
 		s = new GdaShapeText(sts, *GdaConst::small_font,
-					   wxRealPoint(shps_orig_xmax/2.0, 0), 0,
+					   wxRealPoint(x_max/2.0, 0), 0,
 					   GdaShapeText::h_center, GdaShapeText::v_center, 0,
 					   table_h + 70 + y_d); //145+y_d);
-		background_shps.push_back(s);
+		foreground_shps.push_back(s);
 	}
 	
-	virtual_screen_marg_top = 25;
+	int virtual_screen_marg_top = 25;
 	if (HasIsolates()) virtual_screen_marg_top += 20;
-	virtual_screen_marg_bottom = 25;
-	virtual_screen_marg_left = 25;
-	virtual_screen_marg_right = 25;
+	int virtual_screen_marg_bottom = 25;
+	int virtual_screen_marg_left = 25;
+	int virtual_screen_marg_right = 25;
 	
 	if (show_axes || display_stats) {
 		if (!display_stats) {
@@ -461,6 +458,11 @@ void ConnectivityHistCanvas::PopulateCanvas()
 			virtual_screen_marg_left += 82;
 		}
 	}
+    
+    last_scale_trans.top_margin = virtual_screen_marg_top;
+    last_scale_trans.bottom_margin = virtual_screen_marg_bottom;
+    last_scale_trans.left_margin = virtual_screen_marg_left;
+    last_scale_trans.right_margin = virtual_screen_marg_right;
 
 	selectable_shps.resize(cur_intervals);
 	for (int i=0; i<cur_intervals; i++) {
@@ -476,8 +478,6 @@ void ConnectivityHistCanvas::PopulateCanvas()
 	}
 	
 	ResizeSelectableShps();
-	
-	LOG_MSG("Exiting ConnectivityHistCanvas::PopulateCanvas");
 }
 
 void ConnectivityHistCanvas::ChangeWeights(boost::uuids::uuid new_id)
@@ -507,7 +507,13 @@ void ConnectivityHistCanvas::SelectIsolates()
 	}
     if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
+        
+        // trigger to draw highlighted
+    	layer1_valid = false;
+    	UpdateIvalSelCnts();
+    	
+    	Refresh();
 	}	
 }
 
@@ -554,23 +560,22 @@ void ConnectivityHistCanvas::InitData()
 			  Gda::dbl_int_pair_cmp_less);
 	has_isolates = data_sorted[0].first == 0;
 	
-	data_stats.CalculateFromSample(data_sorted);
+    std::vector<bool> undefs(num_obs, false);
+	data_stats.CalculateFromSample(data_sorted, undefs);
 	hinge_stats.CalculateHingeStats(data_sorted);
 	int min_connectivity = data_sorted[0].first;
 	int max_connectivity = data_sorted[num_obs-1].first;
-	LOG(min_connectivity);
-	LOG(max_connectivity);
 	int range = max_connectivity - min_connectivity;
 	if (range == 0) {
 		range = 1;
 		default_intervals = 1;
 	} else {
-		default_intervals = GenUtils::min<int>(MAX_INTERVALS, range+1);
+		default_intervals = std::min(MAX_INTERVALS, range+1);
 	}
 	
 	obs_id_to_ival.resize(num_obs);
-	max_intervals = GenUtils::min<int>(MAX_INTERVALS, num_obs);
-	cur_intervals = GenUtils::min<int>(max_intervals, default_intervals);
+	max_intervals = std::min(MAX_INTERVALS, num_obs);
+	cur_intervals = std::min(max_intervals, default_intervals);
 }
 
 /** based on cur_intervals, calculate interval breaks and populate
@@ -617,13 +622,6 @@ void ConnectivityHistCanvas::InitIntervals()
 		}
 	}
 	
-	LOG_MSG("InitIntervals: ");
-	LOG_MSG(wxString::Format("min_ival_val: %f", min_ival_val));
-	LOG_MSG(wxString::Format("max_ival_val: %f", max_ival_val));
-	for (int i=0; i<cur_intervals; i++) {
-		LOG_MSG(wxString::Format("ival_obs_cnt[%d] = %d",
-								 i, ival_obs_cnt[i]));
-	}
 }
 
 void ConnectivityHistCanvas::UpdateIvalSelCnts()
@@ -718,7 +716,7 @@ ConnectivityHistFrame::ConnectivityHistFrame(wxFrame *parent, Project* project,
 w_man_state(project->GetWManState()), w_man_int(project->GetWManInt()),
 w_uuid(w_uuid_s)
 {
-	LOG_MSG("Entering ConnectivityHistFrame::ConnectivityHistFrame");
+	wxLogMessage("Open ConnectivityHistFrame");
 	
 	int width, height;
 	GetClientSize(&width, &height);
@@ -732,12 +730,10 @@ w_uuid(w_uuid_s)
 	w_man_state->registerObserver(this);
 		
 	Show(true);
-	LOG_MSG("Exiting ConnectivityHistFrame::ConnectivityHistFrame");
 }
 
 ConnectivityHistFrame::~ConnectivityHistFrame()
 {
-	LOG_MSG("In ConnectivityHistFrame::~ConnectivityHistFrame");
 	if (HasCapture()) ReleaseMouse();
 	DeregisterAsActive();
 	if (w_man_state) {
@@ -748,22 +744,23 @@ ConnectivityHistFrame::~ConnectivityHistFrame()
 
 void ConnectivityHistFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnActivate");
 	if (event.GetActive()) {
+        wxLogMessage("ConnectivityHistFrame::OnActivate");
+        
 		RegisterAsActive("ConnectivityHistFrame", GetTitle());
 	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    if ( event.GetActive() && template_canvas )
+        template_canvas->SetFocus();
 }
 
 void ConnectivityHistFrame::MapMenus()
 {
-	LOG_MSG("In ConnectivityHistFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS");
 	((ConnectivityHistCanvas*) template_canvas)->SetCheckMarks(optMenu);
-	GeneralWxUtils::ReplaceMenu(mb, "Options", optMenu);	
+	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
@@ -771,10 +768,8 @@ void ConnectivityHistFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
-	int menu = mb->FindMenu("Options");
+	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("ConnectivityHistFrame::UpdateOptionMenuItems: Options "
-				"menu not found");
 	} else {
 		((ConnectivityHistCanvas*) template_canvas)->
 			SetCheckMarks(mb->GetMenu(menu));
@@ -794,14 +789,12 @@ void ConnectivityHistFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void ConnectivityHistFrame::update(TimeState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(TimeState*)");
 	UpdateTitle();
 }
 
 /** Implementation of WeightsManStateObserver interface */
 void ConnectivityHistFrame::update(WeightsManState* o)
 {
-	LOG_MSG("In ConnectivityHistFrame::update(WeightsManState*)");
 	if (o->GetWeightsId() != w_uuid) return;
 	if (o->GetEventType() == WeightsManState::name_change_evt) {
 		UpdateTitle();
@@ -833,7 +826,7 @@ void ConnectivityHistFrame::ChangeWeights(boost::uuids::uuid new_id)
 
 void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnShowAxes");
+	wxLogMessage("In ConnectivityHistFrame::OnShowAxes");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->ShowAxes(!t->IsShowAxes());
 	UpdateOptionMenuItems();
@@ -841,7 +834,7 @@ void ConnectivityHistFrame::OnShowAxes(wxCommandEvent& event)
 
 void ConnectivityHistFrame::OnDisplayStatistics(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnDisplayStatistics");
+	wxLogMessage("In ConnectivityHistFrame::OnDisplayStatistics");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->DisplayStatistics(!t->IsDisplayStats());
 	UpdateOptionMenuItems();
@@ -849,21 +842,21 @@ void ConnectivityHistFrame::OnDisplayStatistics(wxCommandEvent& event)
 
 void ConnectivityHistFrame::OnHistogramIntervals(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnDisplayStatistics");
+	wxLogMessage("In ConnectivityHistFrame::OnDisplayStatistics");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->HistogramIntervals();
 }
 
 void ConnectivityHistFrame::OnSaveConnectivityToTable(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnSaveConnectivityToTable");
+	wxLogMessage("In ConnectivityHistFrame::OnSaveConnectivityToTable");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->SaveConnectivityToTable();
 }
 
 void ConnectivityHistFrame::OnSelectIsolates(wxCommandEvent& event)
 {
-	LOG_MSG("In ConnectivityHistFrame::OnSelectIsolates");
+	wxLogMessage("In ConnectivityHistFrame::OnSelectIsolates");
 	ConnectivityHistCanvas* t = (ConnectivityHistCanvas*) template_canvas;
 	t->SelectIsolates();
 }

@@ -45,6 +45,7 @@ public:
 	wxString GetCurrTimeString();
 	void SetCurrTime(int t);
 	int GetTimeSteps();
+    wxString GetTimeString(int idx) { return time_ids[idx];}
 	
 	void SetTimeIds(const std::vector<wxString>& time_ids);
 	

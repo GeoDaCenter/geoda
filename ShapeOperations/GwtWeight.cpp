@@ -44,7 +44,7 @@ bool GwtElement::alloc(const int sz)
 }
 
 double GwtElement::SpatialLag(const std::vector<double>& x,
-															const bool std) const
+                              const bool std) const
 {
 	double lag= 0;
 	int cnt = 0;
@@ -71,11 +71,59 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 ////////////////////////////////////////////////////////////////////////////////
 //
 
+void GwtWeight::Update(const std::vector<bool>& undefs)
+{
+    
+}
+
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)
 {
 	if (!gwt) return false;
-	for (int i=0; i<num_obs; i++) { if (gwt[i].Size() <= 0) return true; }
+	for (int i=0; i<num_obs; i++) {
+        if (gwt[i].Size() <= 0)
+            return true;
+    }
 	return false;
+}
+
+void GwtWeight::GetNbrStats()
+{
+    double empties = 0;
+    for (int i=0; i<num_obs; i++) {
+        if (gwt[i].Size() == 0)
+        empties += 1;
+    }
+    sparsity = empties / (double)num_obs;
+    // others
+    int sum_nnbrs = 0;
+    vector<int> nnbrs_array;
+    std::map<int, int> e_dict;
+    for (int i=0; i<num_obs; i++) {
+        GwtNeighbor* nbrs = gwt[i].dt();
+        int n_nbrs = 0;
+        for (int j=0; j<gwt[i].Size();j++) {
+            int nbr = nbrs[j].nbx;
+            if (i != nbr) {
+                n_nbrs++;
+                e_dict[i] = nbr;
+                e_dict[nbr] = i;
+            }
+        }
+        sum_nnbrs += n_nbrs;
+        if (i==0 || n_nbrs < min_nbrs) min_nbrs = n_nbrs;
+        if (i==0 || n_nbrs > max_nbrs) max_nbrs = n_nbrs;
+        nnbrs_array.push_back(n_nbrs);
+    }
+    double n_edges = e_dict.size() / 2.0;
+    density = 100.0* sum_nnbrs / (double)(num_obs * num_obs);
+    
+    if (num_obs > 0) mean_nbrs = sum_nnbrs / (double)num_obs;
+    std::sort(nnbrs_array.begin(), nnbrs_array.end());
+    if (num_obs % 2 ==0) {
+        median_nbrs = (nnbrs_array[num_obs/2-1] + nnbrs_array[num_obs/2]) / 2.0;
+    } else {
+        median_nbrs = nnbrs_array[num_obs/2];
+    }
 }
 
 bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt64>& newids, std::vector<wxInt64>& stack_ids, const wxString& ofname)
@@ -92,8 +140,13 @@ bool GwtWeight::SaveDIDWeights(Project* project, int num_obs, std::vector<wxInt6
     
     int n = newids.size();
     
-    ofstream out;
-    out.open(GET_ENCODED_FILENAME(ofname));
+#ifdef __WIN32__
+	ofstream out(ofname.wc_str());
+#else
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(ofname));
+#endif
+
     if (!(out.is_open() && out.good())) return false;
     
     // if layer_name contains an empty space, the layer name should be
@@ -161,8 +214,13 @@ bool GwtWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface
         }
     }
     
-    ofstream out;
-    out.open(GET_ENCODED_FILENAME(ofname));
+#ifdef __WIN32__
+	ofstream out(ofname.wc_str());
+#else
+	ofstream out;
+	out.open(GET_ENCODED_FILENAME(ofname));
+#endif
+
     if (!(out.is_open() && out.good())) return false;
     
     // if layer_name contains an empty space, the layer name should be
@@ -207,10 +265,15 @@ bool Gda::SaveGwt(const GwtElement* g,
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
-	wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_ofn.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
+#endif
+
 	if (!(out.is_open() && out.good())) return false;
 
     wxString layer_name(_layer_name);
@@ -247,10 +310,15 @@ bool Gda::SaveGwt(const GwtElement* g,
 			|| id_vec.size() == 0) return false;
 	
 	wxFileName wx_fn(ofname);
-	wx_fn.SetExt("gwt");
 	wxString final_ofn(wx_fn.GetFullPath());
+
+#ifdef __WIN32__
+	ofstream out(final_ofn.wc_str());
+#else
 	ofstream out;
 	out.open(GET_ENCODED_FILENAME(final_ofn));
+#endif
+
 	if (!(out.is_open() && out.good())) return false;
 	
     wxString layer_name(_layer_name);

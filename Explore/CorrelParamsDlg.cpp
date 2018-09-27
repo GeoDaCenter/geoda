@@ -18,6 +18,7 @@
  */
 
 #include <boost/foreach.hpp>
+#include <wx/wx.h>
 #include <wx/textdlg.h>
 #include <wx/valnum.h>
 #include <wx/valtext.h>
@@ -27,12 +28,14 @@
 #include "../logger.h"
 #include "../Project.h"
 #include "../DialogTools/WebViewHelpWin.h"
+#include "../ShapeOperations/OGRDataAdapter.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "CorrelParamsDlg.h"
 
 CorrelParamsFrame::CorrelParamsFrame(const CorrelParams& correl_params,
-																		 GdaVarTools::Manager& var_man,
-																		 Project* project_)
-: wxFrame((wxWindow*) 0, wxID_ANY, "Correlogram Parameters",
+	GdaVarTools::Manager& var_man,
+	Project* project_)
+: wxFrame((wxWindow*) 0, wxID_ANY, _("Correlogram Parameters"),
 					wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE),
 CorrelParamsObservable(correl_params, var_man), project(project_),
 var_txt(0), var_choice(0), dist_txt(0), dist_choice(0), bins_txt(0),
@@ -41,27 +44,58 @@ all_pairs_rad(0), est_pairs_txt(0), est_pairs_num_txt(0),
 rand_samp_rad(0), max_iter_txt(0), max_iter_tctrl(0),
 help_btn(0), apply_btn(0)
 {
-	LOG_MSG("Entering CorrelParamsFrame::CorrelParamsFrame");
+	wxLogMessage("Entering CorrelParamsFrame::CorrelParamsFrame");
 	
 	wxPanel* panel = new wxPanel(this);
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	{
-		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), "Variable:");
-		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"), wxDefaultPosition,wxSize(160,-1));
+		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), _("Variable:"));
+		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"),
+                                  wxDefaultPosition,wxSize(80,-1));
 		wxString var_nm = "";
 		if (var_man.GetVarsCount() > 0)
             var_nm = var_man.GetName(0);
-		UpdateVarChoiceFromTable(var_nm);
-        Connect(XRCID("ID_VAR_CHOICE"), wxEVT_CHOICE, wxCommandEventHandler(CorrelParamsFrame::OnVarChoiceSelected));
+        
+        var_time_txt = new wxStaticText(panel, XRCID("ID_VAR_TIME_TXT"), _("Time:"));
+        var_time_choice = new wxChoice(panel, XRCID("ID_VAR_TIME_CHOICE"),
+                                  wxDefaultPosition,wxSize(80,-1));
+        
+        Connect(XRCID("ID_VAR_TIME_CHOICE"), wxEVT_CHOICE,
+                wxCommandEventHandler(CorrelParamsFrame::OnTime1));
+        
+        is_time = project->GetTableInt()->IsTimeVariant();
+        time_steps = project->GetTableInt()->GetTimeSteps();
+        for (int i=0; i<time_steps; i++) {
+            wxString s;
+            s << project->GetTableInt()->GetTimeString(i);
+            var_time_choice->Append(s);
+        }
+        if (is_time == false) {
+            v1_time = 0;
+            var_time_txt->Hide();
+            var_time_choice->Hide();
+        } else {
+            v1_time = 0;
+            var_time_choice->SetSelection(v1_time);
+        }
+        
+        UpdateVarChoiceFromTable(var_nm);
+        Connect(XRCID("ID_VAR_CHOICE"), wxEVT_CHOICE,
+                wxCommandEventHandler(CorrelParamsFrame::OnVarChoiceSelected));
 	}
 	wxBoxSizer* var_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	var_h_szr->Add(var_txt, 0, wxALIGN_CENTER_VERTICAL);
 	var_h_szr->AddSpacer(5);
 	var_h_szr->Add(var_choice, 0, wxALIGN_CENTER_VERTICAL);
+    var_h_szr->AddSpacer(5);
+    var_h_szr->Add(var_time_txt, 0, wxALIGN_CENTER_VERTICAL);
+    var_h_szr->AddSpacer(5);
+    var_h_szr->Add(var_time_choice, 0, wxALIGN_CENTER_VERTICAL);
 	
-	dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), "Distance:");
-	dist_choice = new wxChoice(panel, XRCID("ID_DIST_CHOICE"), wxDefaultPosition, wxSize(160,-1));
+	dist_txt = new wxStaticText(panel, XRCID("ID_DIST_TXT"), _("Distance:"));
+	dist_choice = new wxChoice(panel, XRCID("ID_DIST_CHOICE"),
+                               wxDefaultPosition, wxSize(160,-1));
 	dist_choice->Append("Euclidean Distance");
 	dist_choice->Append("Arc Distance (mi)");
 	dist_choice->Append("Arc Distance (km)");
@@ -74,28 +108,41 @@ help_btn(0), apply_btn(0)
 	} else {
 		dist_choice->SetSelection(0);
 	}
-	Connect(XRCID("ID_DIST_CHOICE"), wxEVT_CHOICE, wxCommandEventHandler(CorrelParamsFrame::OnDistanceChoiceSelected));
+    
+	Connect(XRCID("ID_DIST_CHOICE"), wxEVT_CHOICE,
+            wxCommandEventHandler(CorrelParamsFrame::OnDistanceChoiceSelected));
+    
 	wxBoxSizer* dist_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	dist_h_szr->Add(dist_txt, 0, wxALIGN_CENTER_VERTICAL);
 	dist_h_szr->AddSpacer(5);
 	dist_h_szr->Add(dist_choice, 0, wxALIGN_CENTER_VERTICAL);
 	
 	{
-		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), "Number Bins:");
+		bins_txt = new wxStaticText(panel, XRCID("ID_BINS_TXT"), _("Number Bins:"));
 		wxString vs;
 		vs << correl_params.bins;
-		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"), vs,  wxDefaultPosition, wxSize(75,-1),  wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER,  CorrelParams::min_bins_cnst, CorrelParams::max_bins_cnst, correl_params.bins);
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL, wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
-		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
+		bins_spn_ctrl = new wxSpinCtrl(panel, XRCID("ID_BINS_SPN_CTRL"),
+                                       vs,  wxDefaultPosition, wxSize(75,-1),
+                                       wxSP_ARROW_KEYS | wxTE_PROCESS_ENTER,
+                                       CorrelParams::min_bins_cnst,
+                                       CorrelParams::max_bins_cnst,
+                                       correl_params.bins);
+        num_bins = correl_params.bins;
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_SPINCTRL,
+                wxSpinEventHandler(CorrelParamsFrame::OnBinsSpinEvent));
+		Connect(XRCID("ID_BINS_SPN_CTRL"), wxEVT_TEXT_ENTER,
+                wxCommandEventHandler(CorrelParamsFrame::OnBinsTextCtrl));
 	}
 	wxBoxSizer* bins_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	bins_h_szr->Add(bins_txt, 0, wxALIGN_CENTER_VERTICAL);
 	bins_h_szr->AddSpacer(5);
 	bins_h_szr->Add(bins_spn_ctrl, 0, wxALIGN_CENTER_VERTICAL);
 	
-	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), "Max Distance:");
+	thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), _("Max Distance:"));
 	thresh_cbx->SetValue(false);
-	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "", wxDefaultPosition, wxSize(100,-1), wxTE_PROCESS_ENTER);
+	thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "",
+                                  wxDefaultPosition, wxSize(100,-1),
+                                  wxTE_PROCESS_ENTER);
 	thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	thresh_tctrl->Enable(false);
 	//UpdateThreshTctrlVal();
@@ -108,11 +155,13 @@ help_btn(0), apply_btn(0)
 	thresh_h_szr->Add(thresh_cbx, 0, wxALIGN_CENTER_VERTICAL);
 	thresh_h_szr->AddSpacer(5);
 	thresh_h_szr->Add(thresh_tctrl, 0, wxALIGN_CENTER_VERTICAL);
-	thresh_slider = new wxSlider(panel, XRCID("ID_THRESH_SLDR"),
-															 sldr_tcks/2, 0, sldr_tcks,
-															 wxDefaultPosition, wxSize(180,-1));
+    thresh_slider = new wxSlider(panel, XRCID("ID_THRESH_SLDR"),
+                                 sldr_tcks/2, 0, sldr_tcks,
+                                 wxDefaultPosition, wxSize(180,-1));
+    
 	Connect(XRCID("ID_THRESH_SLDR"), wxEVT_SLIDER,
 					wxCommandEventHandler(CorrelParamsFrame::OnThreshSlider));
+    
 	thresh_slider->Enable(false);
 	wxBoxSizer* thresh_sld_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	thresh_sld_h_szr->Add(thresh_slider, 0, wxALIGN_CENTER_VERTICAL);
@@ -120,11 +169,15 @@ help_btn(0), apply_btn(0)
 	thresh_v_szr->Add(thresh_h_szr, 0, wxBOTTOM, 5);
 	thresh_v_szr->Add(thresh_sld_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
 	
-	all_pairs_rad = new wxRadioButton(panel, XRCID("ID_ALL_PAIRS_RAD"), "All Pairs", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
+	all_pairs_rad = new wxRadioButton(panel, XRCID("ID_ALL_PAIRS_RAD"),
+                                      _("All Pairs"), wxDefaultPosition,
+                                      wxDefaultSize,
+                                      wxALIGN_CENTER_VERTICAL | wxRB_GROUP);
 	all_pairs_rad->SetValue(correl_params.method == CorrelParams::ALL_PAIRS);
-	Connect(XRCID("ID_ALL_PAIRS_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnAllPairsRadioSelected));
+	Connect(XRCID("ID_ALL_PAIRS_RAD"), wxEVT_RADIOBUTTON,
+            wxCommandEventHandler(CorrelParamsFrame::OnAllPairsRadioSelected));
     
-	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"), "Estimated Pairs:");
+	est_pairs_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_TXT"), _("Estimated Pairs:"));
 	est_pairs_num_txt = new wxStaticText(panel, XRCID("ID_EST_PAIRS_NUM_TXT"), "4,000,000");
 	wxBoxSizer* est_pairs_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	est_pairs_h_szr->Add(est_pairs_txt, 0, wxALIGN_CENTER_VERTICAL);
@@ -135,30 +188,59 @@ help_btn(0), apply_btn(0)
 	all_pairs_v_szr->AddSpacer(2);
 	all_pairs_v_szr->Add(est_pairs_h_szr, 0, wxLEFT, 18);
 	
-	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), "Random Sample", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
+	rand_samp_rad = new wxRadioButton(panel, XRCID("ID_RAND_SAMP_RAD"), _("Random Sample"), wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_VERTICAL);
 	rand_samp_rad->SetValue(correl_params.method != CorrelParams::ALL_PAIRS);
 	Connect(XRCID("ID_RAND_SAMP_RAD"), wxEVT_RADIOBUTTON, wxCommandEventHandler(CorrelParamsFrame::OnRandSampRadioSelected));
-	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), "Sample Size:");
+	max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"), _("Sample Size:"));
 	{
 		wxString vs;
 		vs << correl_params.max_iterations;
-		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"), vs, wxDefaultPosition, wxSize(100,-1), wxTE_PROCESS_ENTER);
+		max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"),
+                                        vs, wxDefaultPosition,
+                                        wxSize(100,-1), wxTE_PROCESS_ENTER);
 		max_iter_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT_ENTER, wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
+		Connect(XRCID("ID_MAX_ITER_TCTRL"), wxEVT_TEXT_ENTER,
+                wxCommandEventHandler(CorrelParamsFrame::OnMaxIterTextCtrl));
 	}
 	wxBoxSizer* max_iter_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	max_iter_h_szr->Add(max_iter_txt, 0, wxALIGN_CENTER_VERTICAL);
 	max_iter_h_szr->AddSpacer(8);
 	max_iter_h_szr->Add(max_iter_tctrl, 0, wxALIGN_CENTER_VERTICAL);
+   
+	wxBoxSizer* random_opt_h_szr = new wxBoxSizer(wxHORIZONTAL);
+    {
+        wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
+                                              wxDefaultPosition, wxSize(128,-1));
+        wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+        chk_seed = new wxCheckBox(panel, wxID_ANY, "");
+        seedButton = new wxButton(panel, wxID_OK, _("Change"), wxDefaultPosition, wxSize(64, -1));
+        random_opt_h_szr->Add(st17, 0, wxALIGN_CENTER_VERTICAL);
+        random_opt_h_szr->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
+        random_opt_h_szr->Add(seedButton, 0, wxALIGN_CENTER_VERTICAL);
+        if (GdaConst::use_gda_user_seed) {
+            chk_seed->SetValue(true);
+            seedButton->Enable();
+        }
+        chk_seed->Bind(wxEVT_CHECKBOX, &CorrelParamsFrame::OnSeedCheck, this);
+        seedButton->Bind(wxEVT_BUTTON, &CorrelParamsFrame::OnChangeSeed, this);
+    }
+    
 	wxBoxSizer* rand_samp_v_szr = new wxBoxSizer(wxVERTICAL);
 	rand_samp_v_szr->Add(rand_samp_rad);
 	rand_samp_v_szr->AddSpacer(2);
-	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 18);
+	rand_samp_v_szr->Add(max_iter_h_szr, 0, wxLEFT, 12);
+	rand_samp_v_szr->Add(random_opt_h_szr, 0, wxLEFT, 12);
 		
-	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), "Help", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), "Apply", wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	Connect(XRCID("ID_HELP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(CorrelParamsFrame::OnHelpBtn));
-	Connect(XRCID("ID_APPLY_BTN"), wxEVT_BUTTON, wxCommandEventHandler(CorrelParamsFrame::OnApplyBtn));
+	help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), _("Apply"),
+                             wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    
+	Connect(XRCID("ID_HELP_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(CorrelParamsFrame::OnHelpBtn));
+	Connect(XRCID("ID_APPLY_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(CorrelParamsFrame::OnApplyBtn));
+    
 	wxBoxSizer* btns_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	btns_h_szr->Add(help_btn, 0, wxALIGN_CENTER_VERTICAL);
 	btns_h_szr->AddSpacer(15);
@@ -201,20 +283,84 @@ help_btn(0), apply_btn(0)
     else
         OnAllPairsRadioSelected(ev);
         
+	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     Show(true);
-	LOG_MSG("Exiting CorrelParamsFrame::CorrelParamsFrame");
+    var_choice->SetFocus();
+	wxLogMessage("Exiting CorrelParamsFrame::CorrelParamsFrame");
 }
 
 CorrelParamsFrame::~CorrelParamsFrame()
 {
-	LOG_MSG("In CorrelParamsFrame::~CorrelParamsFrame");
+	wxLogMessage("In CorrelParamsFrame::~CorrelParamsFrame");
 	notifyObserversOfClosing();
+}
+
+void CorrelParamsFrame::OnSeedCheck(wxCommandEvent& event)
+{
+    bool use_user_seed = chk_seed->GetValue();
+    
+    if (use_user_seed) {
+        seedButton->Enable();
+        if (GdaConst::use_gda_user_seed == false && GdaConst::gda_user_seed == 0) {
+            OnChangeSeed(event);
+            return;
+        }
+        GdaConst::use_gda_user_seed = true;
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
+    } else {
+        GdaConst::use_gda_user_seed = false;
+        seedButton->Disable();
+    }
+}
+
+void CorrelParamsFrame::OnChangeSeed(wxCommandEvent& event)
+{
+    // prompt user to enter user seed (used globally)
+    wxString m;
+    m << _("Enter a seed value for random number generator:");
+    
+    long long unsigned int val;
+    wxString dlg_val;
+    wxString cur_val;
+    cur_val << GdaConst::gda_user_seed;
+    
+    wxTextEntryDialog dlg(NULL, m, _("Enter a seed value"), cur_val);
+    if (dlg.ShowModal() != wxID_OK) return;
+    dlg_val = dlg.GetValue();
+    dlg_val.Trim(true);
+    dlg_val.Trim(false);
+    if (dlg_val.IsEmpty()) return;
+    if (dlg_val.ToULongLong(&val)) {
+        uint64_t new_seed_val = val;
+        GdaConst::gda_user_seed = new_seed_val;
+        GdaConst::use_gda_user_seed = true;
+        
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        wxString str_gda_user_seed;
+        str_gda_user_seed << GdaConst::gda_user_seed;
+        ogr_adapt.AddEntry("gda_user_seed", str_gda_user_seed.ToStdString());
+        ogr_adapt.AddEntry("use_gda_user_seed", "1");
+    } else {
+        wxString m = _("\"%s\" is not a valid seed. Seed unchanged.");
+        m = wxString::Format(m, dlg_val);
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        GdaConst::use_gda_user_seed = false;
+        OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+        ogr_adapt.AddEntry("use_gda_user_seed", "0");
+    }
 }
 
 void CorrelParamsFrame::OnHelpBtn(wxCommandEvent& ev)
 {
-	LOG_MSG("In CorrelParamsFrame::OnHelpBtn");
-	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,  wxID_ANY,  "Correlogram Parameters Help", wxDefaultPosition, wxSize(500,500));
+	wxLogMessage("In CorrelParamsFrame::OnHelpBtn");
+	WebViewHelpWin* win = new WebViewHelpWin(project, GetHelpPageHtml(), NULL,
+                                             wxID_ANY,
+                                             _("Correlogram Parameters Help"),
+                                             wxDefaultPosition,
+                                             wxSize(500,500));
 }
 
 void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
@@ -223,7 +369,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
     if (vc_sel < 0)
         return;
     
-	LOG_MSG("In CorrelParamsFrame::OnApplyBtn");
+	wxLogMessage("In CorrelParamsFrame::OnApplyBtn");
 	{
 		long new_bins = bins_spn_ctrl->GetValue();
 		if (new_bins < CorrelParams::min_bins_cnst) {
@@ -233,6 +379,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 			new_bins = CorrelParams::max_bins_cnst;
 		}
 		correl_params.bins = new_bins;
+        num_bins = new_bins;
 	}
 	{
 		wxString s = dist_choice->GetStringSelection();
@@ -300,6 +447,7 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 	{
 		// update var_man with new selection
 		wxString var_nm = var_choice->GetString(vc_sel);
+        var_nm = name_to_nm[var_nm];
 		TableInterface* table_int = project->GetTableInt();
 		int col_id = table_int->FindColId(var_nm);
 		wxString var_man_nm0 = var_man.GetName(0);
@@ -310,7 +458,6 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
 				var_man.RemoveVar(0);
 			}
 			if (var_man.GetVarsCount() == 0) {
-				int time = project->GetTimeState()->GetCurrTime();
 				std::vector<double> min_vals;
 				std::vector<double> max_vals;
 				table_int->GetMinMaxVals(col_id, min_vals, max_vals);
@@ -320,27 +467,31 @@ void CorrelParamsFrame::OnApplyBtn(wxCommandEvent& ev)
                         break;
                     }
                 }
-				var_man.AppendVar(var_nm, min_vals, max_vals, time);
+				var_man.AppendVar(var_nm, min_vals, max_vals, v1_time);
 			}
-            
+           
+            var_man.SetCurTime(0,v1_time);
             double mean = 0;
             double var = 0;
             vector<double> vals;
-            table_int->GetColData(col_id, 0, vals);
-            CorrelogramAlgs::GetSampMeanAndVar(vals, mean, var);
+            vector<bool> vals_undef;
+            table_int->GetColData(col_id, v1_time, vals);
+            table_int->GetColUndefined(col_id, v1_time, vals_undef);
+            CorrelogramAlgs::GetSampMeanAndVar(vals, vals_undef, mean, var);
             if (var <= 0) {
                 wxString msg = "Please check your variable, e.g. make sure it is not a constant.";
                 wxString title = "Variable Value Error";
                 wxMessageDialog dlg (this, msg, title, wxOK | wxICON_ERROR);
                 dlg.ShowModal();
+                
+                var_choice->SetSelection(-1);
                 valid_variable = false;
             }
 		}
 	}
-	int var_man_cnt = var_man.GetVarsCount();
-	LOG(var_man_cnt);
-	if (var_man_cnt) LOG(var_man.GetName(0));
-	notifyObservers();
+    if (valid_variable) {
+        notifyObservers();
+    }
 }
 
 void CorrelParamsFrame::OnVarChoiceSelected(wxCommandEvent& ev)
@@ -387,7 +538,11 @@ void CorrelParamsFrame::OnBinsTextCtrl(wxCommandEvent& ev)
 
 void CorrelParamsFrame::OnBinsSpinEvent(wxSpinEvent& ev)
 {
-    OnApplyBtn(ev);
+    int val = ev.GetValue();
+    if (val != num_bins) {
+        OnApplyBtn(ev);
+    }
+    val = num_bins;
     ev.Skip();
 }
 
@@ -530,10 +685,10 @@ void CorrelParamsFrame::OnMaxIterTctrlKillFocus(wxFocusEvent& ev)
 
 void CorrelParamsFrame::UpdateFromTable()
 {
-	LOG_MSG("Entering CorrelParamsFrame::UpdateFromTable");
+	wxLogMessage("Entering CorrelParamsFrame::UpdateFromTable");
 	TableInterface* table_int = project->GetTableInt();
 	notifyObservers();
-	LOG_MSG("Exiting CorrelParamsFrame::UpdateFromTable");
+	wxLogMessage("Exiting CorrelParamsFrame::UpdateFromTable");
 }
 
 void CorrelParamsFrame::closeAndDeleteWhenEmpty()
@@ -577,6 +732,24 @@ double CorrelParamsFrame::GetThreshMax()
 	return project->GetMaxDistEuc();
 }
 
+void CorrelParamsFrame::OnTime1(wxCommandEvent& event)
+{
+    v1_time = var_time_choice->GetSelection();
+   
+    wxString cur_var = var_choice->GetStringSelection();
+    if (name_to_nm.find(cur_var)!=name_to_nm.end()) {
+        cur_var = name_to_nm[cur_var];
+    }
+    {
+        TableInterface* table_int = project->GetTableInt();
+        if (table_int->IsColTimeVariant(cur_var) == false) {
+            v1_time = 0;
+        }
+    }
+    UpdateVarChoiceFromTable(cur_var);
+    OnApplyBtn(event);
+}
+
 void CorrelParamsFrame::UpdateVarChoiceFromTable(const wxString& default_var)
 {
 	TableInterface* table_int = project->GetTableInt();
@@ -584,16 +757,32 @@ void CorrelParamsFrame::UpdateVarChoiceFromTable(const wxString& default_var)
 
 	int var_pos = -1;
 	var_choice->Clear();
-	std::vector<wxString> names;
-	table_int->FillNumericNameList(names);
-	for (size_t i=0, sz=names.size(); i<sz; ++i) {
-		var_choice->Append(names[i]);
-		if (names[i] == default_var) var_pos = i;
-	}
+    name_to_nm.clear();
     
-	if (var_pos >= 0) {
-		var_choice->SetSelection(var_pos);
-	}
+    int idx = -1;
+    std::vector<int> col_id_map;
+    table_int->FillNumericColIdMap(col_id_map);
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int id = col_id_map[i];
+        wxString name = table_int->GetColName(id);
+        if (table_int->IsColTimeVariant(id)) {
+            wxString nm = name;
+            nm << " (" << table_int->GetTimeString(v1_time) << ")";
+            name_to_nm[nm] = name;
+            var_choice->Append(nm);
+            idx++;
+        } else {
+            var_choice->Append(name);
+            name_to_nm[name] = name;
+            idx++;
+        }
+        if (name == default_var) var_pos = idx;
+    }
+    
+    if (var_pos >= 0) {
+        var_choice->SetSelection(var_pos);
+    }
+    
 	UpdateApplyState();
 }
 

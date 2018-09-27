@@ -32,22 +32,22 @@
 #include <boost/property_tree/ptree_fwd.hpp>
 #include <boost/shared_ptr.hpp>
 #include <wx/filename.h>
+
 #include "DataViewer/DataSource.h"
 #include "DataViewer/PtreeInterface.h"
 #include "DataViewer/VarOrderPtree.h"
-#include "ShpFile.h"
 #include "ShapeOperations/OGRLayerProxy.h"
+#include "VarCalc/WeightsMetaInfo.h"
+#include "Explore/DistancesCalc.h"
+#include "ProjectConf.h"
 #include "SpatialIndTypes.h"
 #include "HighlightState.h"
-#include "Explore/DistancesCalc.h"
-#include "VarCalc/WeightsMetaInfo.h"
-#include "ProjectConf.h"
+#include "ShpFile.h"
 
 typedef boost::multi_array<int, 2> i_array_type;
 
 //using namespace boost::geometry;
 class OGRTable;
-class DbfTable;
 class TableInterface;
 class TableBase;
 class CatClassifManager;
@@ -66,13 +66,16 @@ class GdaShape;
 class wxGrid;
 class DataSource;
 class CovSpHLStateProxy;
+class ExportDataDlg;
+class BackgroundMapLayer;
+class MapLayerState;
 
 class Project {
 public:
 	Project(const wxString& proj_fname);
-	Project(const wxString& project_title,
-					const wxString& layername,
-					IDataSource* p_datasource);
+    Project(const wxString& project_title,
+            const wxString& layername,
+            IDataSource* p_datasource);
 	virtual ~Project();
 
 	bool IsValid() { return is_project_valid; }
@@ -84,11 +87,11 @@ public:
 	bool IsTableOnlyProject();
 	bool isTableOnly; // variable data only, no geometry layers
     bool IsDataTypeChanged();
-    
     bool IsFileDataSource();
-    
     bool HasUnsavedChange();
     
+    bool IsPointTypeData() { return main_data.header.shape_type == Shapefile::POINT_TYP;}
+
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
@@ -118,6 +121,7 @@ public:
     /** SaveAs in-memory Table+Geometries to OGR DataSource */
     void SaveDataSourceAs(const wxString& new_ds_name, bool is_update=false);
 
+    int                 GetNumRecordsNoneEmpty();
 	int                 GetNumRecords() { return num_records; }
 	HighlightState*     GetHighlightState() { return highlight_state; }
 	HighlightState*     GetConMapHlightState() { return con_map_hl_state; }
@@ -133,11 +137,12 @@ public:
 	TimeChooserDlg*     GetTimeChooser() { return time_chooser; }
 	TableBase*          FindTableBase();
 	wxGrid*             FindTableGrid();
+    MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
-	void ExportVoronoi();
+	bool ExportVoronoi();
 	void ExportCenters(bool is_mean_centers);
 	void SaveVoronoiDupsToTable();
 	bool IsPointDuplicates();
@@ -156,6 +161,7 @@ public:
 	void GetCentroids(std::vector<double>& x, std::vector<double>& y);
 	void GetCentroids(std::vector<wxRealPoint>& pts);
 	const std::vector<GdaShape*>& GetVoronoiPolygons();
+    GdaPolygon* GetMapBoundary();
 	
 	double GetMin1nnDistEuc();
 	double GetMax1nnDistEuc();
@@ -164,9 +170,31 @@ public:
 	double GetMax1nnDistArc(); // returned as radians
 	double GetMaxDistArc(); // returned as radians
 	
+    rtree_box_2d_t& GetBBoxRtree();
 	rtree_pt_2d_t& GetEucPlaneRtree();
 	rtree_pt_3d_t& GetUnitSphereRtree();
 	
+    // for multi-layer
+    map<wxString, BackgroundMapLayer*> bg_maps;
+    map<wxString, BackgroundMapLayer*> fg_maps;
+    BackgroundMapLayer* AddMapLayer(wxString datasource_name,
+                                    GdaConst::DataSourceType ds_type,
+                                    wxString layer_name);
+    void SetForegroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(map<wxString, BackgroundMapLayer*>& val);
+    map<wxString, BackgroundMapLayer*> GetBackgroundMayLayers();
+    map<wxString, BackgroundMapLayer*> GetForegroundMayLayers();
+    int GetMapLayerCount();
+    // clone all except shapes and geoms, which are owned by Project* instance;
+    // so that different map window can configure the multi-layers
+    vector<BackgroundMapLayer*> CloneBackgroundMaps(bool clone_style=false);
+    map<wxString, BackgroundMapLayer*> CloneForegroundMaps(bool clone_style=false);
+    BackgroundMapLayer* GetMapLayer(wxString map_name);
+    vector<wxString> GetLayerNames();
+    void RemoveLayer(wxString name);
+    bool GetStringColumnData(wxString field_name, vector<wxString>& data);
+    vector<wxString> GetIntegerAndStringFieldNames();
+    
 	// default variables
 	wxString GetDefaultVarName(int var);
 	void SetDefaultVarName(int var, const wxString& v_name);
@@ -193,7 +221,6 @@ public:
 	static bool CanModifyGrpAndShowMsgIfNot(TableState* table_state,
                                             const wxString& grp_nm);
 	
-public:
 	/// main_data is the only public remaining attribute in Project
 	Shapefile::Main main_data;
     OGRSpatialReference* sourceSR;
@@ -209,21 +236,28 @@ public:
 	// project file.
 	wxString	proj_file_no_ext;
 	wxFileName	working_dir;
-	    
+    
+    OGRLayerProxy* layer_proxy;
+    
+    // Voronoi Diagram related
+    std::vector<GdaPoint*> mean_centers;
+    std::vector<GdaPoint*> centroids;
+    std::vector<GdaShape*> voronoi_polygons;
+    
+	/** Save in-memory Table+Geometries to OGR DataSource */
+	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
+    
 private:
 	bool CommonProjectInit();
-	int InitFromShapefileLayer();
 	bool InitFromOgrLayer();
-	int OpenShpFile(wxFileName shp_fname);
-    
+    // only for ESRI Shapefile .cpg file
+    void SetupEncoding(wxString encode_str);
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();
-	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
 	void CalcEucPlaneRtreeStats();
 	void CalcUnitSphereRtreeStats();
     
-	
   // XXX for multi-layer support, ProjectConfiguration is a container for
   // multi LayerConfiguration (layers), and each LayerConfiguration is defined
   // by a IDataSource to specify which data it connects to.
@@ -233,7 +267,6 @@ private:
 	IDataSource          *datasource;
 	std::vector<wxString> default_var_name;
 	std::vector<int>      default_var_time;
-	OGRLayerProxy*        layer_proxy;
 
 	bool is_project_valid; // true if project Shapefile created successfully
 	wxString open_err_msg; // error message for project open failure.
@@ -252,12 +285,8 @@ private:
 	TableState*         table_state;
 	TimeState*          time_state;
 	TimeChooserDlg*     time_chooser;
-	
-	// Voronoi Diagram related
-	std::vector<GdaPoint*> mean_centers;
-	std::vector<GdaPoint*> centroids;
-	std::vector<GdaShape*> voronoi_polygons;
-
+    MapLayerState*      maplayer_state;
+    
 	bool point_duplicates_initialized;
 	bool point_dups_warn_prev_displayed;
 	
@@ -277,7 +306,9 @@ private:
 	double max_dist_arc; // radians
 	rtree_pt_2d_t rtree_2d; // 2d Cartesian points
 	rtree_pt_3d_t rtree_3d; // lon/lat points projected to unit sphere
-	
+    rtree_box_2d_t rtree_bbox;
+    bool rtree_bbox_ready;
+    
 	/** The following array is not thread safe since it is shared by
 	 every TemplateCanvas instance in a given project. */
 	static std::map<wxString, i_array_type*> shared_category_scratch;
@@ -289,7 +320,6 @@ private:
     
 	dist_map_type cached_eucl_dist;
 	dist_map_type cached_arc_dist;
-    
 };
 
 #endif

@@ -39,15 +39,12 @@
 #include <wx/xrc/xh_auitoolb.h>
 
 // Forward Declarations
-class ProgressDlg;
 class Project;
 class CatClassifFrame;
 class GdaApp;
 class GdaFrame;
-class GdaServer;
-class GdaClient;
-class GdaConnection;
 class LineChartFrame;
+class wxTranslationHelper;
 
 /** Main appilcation class. */
 class GdaApp: public wxApp
@@ -58,16 +55,13 @@ public:
 	virtual bool OnInit(void);
 	virtual int OnExit(void);
 	virtual void OnFatalException(void);
-	virtual void OnInitCmdLine(wxCmdLineParser& parser);
-	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-	virtual void MacOpenFiles(const wxArrayString& fileNames);
-
-	static const wxCmdLineEntryDesc globalCmdLineDesc[];
+    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+    virtual void MacOpenFiles(const wxArrayString& fileNames);
     
 private:
-	wxString cmd_line_proj_file_name;
-	wxSingleInstanceChecker* checker;
-	GdaServer* server;
+    wxString cmd_line_proj_file_name;
+    wxTranslationHelper* m_TranslationHelper;
+    FILE *m_pLogFile;
 };
 
 DECLARE_APP(GdaApp)
@@ -77,13 +71,15 @@ class GdaFrame: public wxFrame
 {
 public:
 	GdaFrame(const wxString& title,
-			const wxPoint& pos, const wxSize& size, long style);
+             const wxPoint& pos,
+             const wxSize& size,
+             long style);
 	virtual ~GdaFrame();
 	
     
 	void EnableTool(const wxString& id_str, bool enable);
 	void EnableTool(int xrc_id, bool enable);
-	boost::uuids::uuid GetWeightsId(const wxString& caption = "Choose Weights");
+	boost::uuids::uuid GetWeightsId(const wxString& caption = _("Choose Weights"));
 
     void OnSize(wxSizeEvent& event);
 	void OnKeyEvent(wxKeyEvent& event);
@@ -97,23 +93,15 @@ public:
 	
 	void NewProjectFromFile(const wxString& full_file_path);
 	void OnNewProject(wxCommandEvent& event);
-	void OnNewProjectFromShp(wxCommandEvent& event);
-	void OnNewProjectFromSqlite(wxCommandEvent& event);
-	void OnNewProjectFromGpkg(wxCommandEvent& event);
-	void OnNewProjectFromCsv(wxCommandEvent& event);
-	void OnNewProjectFromDbf(wxCommandEvent& event);
-	void OnNewProjectFromGdb(wxCommandEvent& event);
-	void OnNewProjectFromJson(wxCommandEvent& event);
-	void OnNewProjectFromGml(wxCommandEvent& event);
-	void OnNewProjectFromKml(wxCommandEvent& event);
-	void OnNewProjectFromMapinfo(wxCommandEvent& event);
-	void OnNewProjectFromXls(wxCommandEvent& event);
+    void ShowOpenDatasourceDlg(wxPoint pos, bool init=false);
 	void OpenProject(const wxString& full_proj_path);
 	void OnOpenProject(wxCommandEvent& event);
+    
 	void OnSaveProject(wxCommandEvent& event);
 	void OnSaveAsProject(wxCommandEvent& event);
 	
 	void OnShowProjectInfo(wxCommandEvent& event);
+	void OnPreferenceSetup(wxCommandEvent& event);
 	
 	void OnHtmlEntry(int entry);
 	void OnHtmlEntry0(wxCommandEvent& event);
@@ -133,6 +121,7 @@ public:
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
+	void OnSetDisplayPrecision(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
@@ -158,11 +147,24 @@ public:
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
 	void OnSelectableOutlineVisible(wxCommandEvent& event);
+    void OnShowMapBoundary(wxCommandEvent& event);
 	void OnHighlightColor(wxCommandEvent& event);
 	
 	void OnCopyImageToClipboard(wxCommandEvent& event);
 	void OnCopyLegendToClipboard(wxCommandEvent& event);
 	
+	void OnToolsDataPCA(wxCommandEvent& event);
+    void OnToolsDataKMeans(wxCommandEvent& event);
+    void OnToolsDataKMedians(wxCommandEvent& event);
+    void OnToolsDataKMedoids(wxCommandEvent& event);
+    void OnToolsDataHCluster(wxCommandEvent& event);
+    void OnToolsDataHDBScan(wxCommandEvent& event);
+    void OnToolsDataMaxP(wxCommandEvent& event);
+    void OnToolsDataSkater(wxCommandEvent& event);
+    void OnToolsDataSpectral(wxCommandEvent& event);
+    void OnToolsDataRedcap(wxCommandEvent& event);
+    void OnToolsDataMDS(wxCommandEvent& event);
+    
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);
 	void OnConnectivityHistView(wxCommandEvent& event);
@@ -193,6 +195,9 @@ public:
 	void OnEditFieldProperties(wxCommandEvent& event);
 	void OnChangeFieldType(wxCommandEvent& event);
 	void OnMergeTableData(wxCommandEvent& event);
+	void OnAggregateData(wxCommandEvent& event);
+    void OnSpatialJoin(wxCommandEvent& event);
+    void OnGeocoding(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);
@@ -203,6 +208,8 @@ public:
 	void OnPublish(wxCommandEvent& event);
 
 	void OnCondPlotChoices(wxCommandEvent& event);
+    void OnClusteringChoices(wxCommandEvent& event);
+
 	void OnShowConditionalMapView(wxCommandEvent& event);
 	void OnShowConditionalScatterView(wxCommandEvent& event);
 	void OnShowConditionalHistView(wxCommandEvent& event);
@@ -237,9 +244,15 @@ public:
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
+	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);
 	void OnOpenGetisOrd(wxCommandEvent& event);
+	void OnOpenLocalJoinCount(wxCommandEvent& event);
 	void OnOpenGetisOrdStar(wxCommandEvent& event);
+	void OnOpenUniLocalGeary(wxCommandEvent& event);
+	void OnOpenMultiLocalGeary(wxCommandEvent& event);
+	void OnOpenBivariateLJC(wxCommandEvent& event);
+    void OnOpenMultiLJC(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
@@ -247,97 +260,6 @@ public:
 	void OnCCClassifA(int cc_menu_num);
 	void OnCCClassifB(int cc_menu_num);
 	void OnCCClassifC(int cc_menu_num);
-	void OnCCClassifA0(wxCommandEvent& e);
-	void OnCCClassifA1(wxCommandEvent& e);
-	void OnCCClassifA2(wxCommandEvent& e);
-	void OnCCClassifA3(wxCommandEvent& e);
-	void OnCCClassifA4(wxCommandEvent& e);
-	void OnCCClassifA5(wxCommandEvent& e);
-	void OnCCClassifA6(wxCommandEvent& e);
-	void OnCCClassifA7(wxCommandEvent& e);
-	void OnCCClassifA8(wxCommandEvent& e);
-	void OnCCClassifA9(wxCommandEvent& e);
-	void OnCCClassifA10(wxCommandEvent& e);
-	void OnCCClassifA11(wxCommandEvent& e);
-	void OnCCClassifA12(wxCommandEvent& e);
-	void OnCCClassifA13(wxCommandEvent& e);
-	void OnCCClassifA14(wxCommandEvent& e);
-	void OnCCClassifA15(wxCommandEvent& e);
-	void OnCCClassifA16(wxCommandEvent& e);
-	void OnCCClassifA17(wxCommandEvent& e);
-	void OnCCClassifA18(wxCommandEvent& e);
-	void OnCCClassifA19(wxCommandEvent& e);
-	void OnCCClassifA20(wxCommandEvent& e);
-	void OnCCClassifA21(wxCommandEvent& e);
-	void OnCCClassifA22(wxCommandEvent& e);
-	void OnCCClassifA23(wxCommandEvent& e);
-	void OnCCClassifA24(wxCommandEvent& e);
-	void OnCCClassifA25(wxCommandEvent& e);
-	void OnCCClassifA26(wxCommandEvent& e);
-	void OnCCClassifA27(wxCommandEvent& e);
-	void OnCCClassifA28(wxCommandEvent& e);
-	void OnCCClassifA29(wxCommandEvent& e);
-	void OnCCClassifB0(wxCommandEvent& e);
-	void OnCCClassifB1(wxCommandEvent& e);
-	void OnCCClassifB2(wxCommandEvent& e);
-	void OnCCClassifB3(wxCommandEvent& e);
-	void OnCCClassifB4(wxCommandEvent& e);
-	void OnCCClassifB5(wxCommandEvent& e);
-	void OnCCClassifB6(wxCommandEvent& e);
-	void OnCCClassifB7(wxCommandEvent& e);
-	void OnCCClassifB8(wxCommandEvent& e);
-	void OnCCClassifB9(wxCommandEvent& e);
-	void OnCCClassifB10(wxCommandEvent& e);
-	void OnCCClassifB11(wxCommandEvent& e);
-	void OnCCClassifB12(wxCommandEvent& e);
-	void OnCCClassifB13(wxCommandEvent& e);
-	void OnCCClassifB14(wxCommandEvent& e);
-	void OnCCClassifB15(wxCommandEvent& e);
-	void OnCCClassifB16(wxCommandEvent& e);
-	void OnCCClassifB17(wxCommandEvent& e);
-	void OnCCClassifB18(wxCommandEvent& e);
-	void OnCCClassifB19(wxCommandEvent& e);
-	void OnCCClassifB20(wxCommandEvent& e);
-	void OnCCClassifB21(wxCommandEvent& e);
-	void OnCCClassifB22(wxCommandEvent& e);
-	void OnCCClassifB23(wxCommandEvent& e);
-	void OnCCClassifB24(wxCommandEvent& e);
-	void OnCCClassifB25(wxCommandEvent& e);
-	void OnCCClassifB26(wxCommandEvent& e);
-	void OnCCClassifB27(wxCommandEvent& e);
-	void OnCCClassifB28(wxCommandEvent& e);
-	void OnCCClassifB29(wxCommandEvent& e);
-	void OnCCClassifC0(wxCommandEvent& e);
-	void OnCCClassifC1(wxCommandEvent& e);
-	void OnCCClassifC2(wxCommandEvent& e);
-	void OnCCClassifC3(wxCommandEvent& e);
-	void OnCCClassifC4(wxCommandEvent& e);
-	void OnCCClassifC5(wxCommandEvent& e);
-	void OnCCClassifC6(wxCommandEvent& e);
-	void OnCCClassifC7(wxCommandEvent& e);
-	void OnCCClassifC8(wxCommandEvent& e);
-	void OnCCClassifC9(wxCommandEvent& e);
-	void OnCCClassifC10(wxCommandEvent& e);
-	void OnCCClassifC11(wxCommandEvent& e);
-	void OnCCClassifC12(wxCommandEvent& e);
-	void OnCCClassifC13(wxCommandEvent& e);
-	void OnCCClassifC14(wxCommandEvent& e);
-	void OnCCClassifC15(wxCommandEvent& e);
-	void OnCCClassifC16(wxCommandEvent& e);
-	void OnCCClassifC17(wxCommandEvent& e);
-	void OnCCClassifC18(wxCommandEvent& e);
-	void OnCCClassifC19(wxCommandEvent& e);
-	void OnCCClassifC20(wxCommandEvent& e);
-	void OnCCClassifC21(wxCommandEvent& e);
-	void OnCCClassifC22(wxCommandEvent& e);
-	void OnCCClassifC23(wxCommandEvent& e);
-	void OnCCClassifC24(wxCommandEvent& e);
-	void OnCCClassifC25(wxCommandEvent& e);
-	void OnCCClassifC26(wxCommandEvent& e);
-	void OnCCClassifC27(wxCommandEvent& e);
-	void OnCCClassifC28(wxCommandEvent& e);
-	void OnCCClassifC29(wxCommandEvent& e);
-	
 	void OnOpenThemelessMap(wxCommandEvent& event);
 	void OnThemelessMap(wxCommandEvent& event);
 	
@@ -423,6 +345,7 @@ public:
 	void ChangeToEqualIntervals(int num_cats);
 
 	void OnOpenUniqueValues(wxCommandEvent& event);
+	void OnOpenColocationMap(wxCommandEvent& event);
 	void OnUniqueValues(wxCommandEvent& event);
 
 	void OnSaveCategories(wxCommandEvent& event);
@@ -553,13 +476,23 @@ public:
 	void OnSigFilter01(wxCommandEvent& event);
 	void OnSigFilter001(wxCommandEvent& event);
 	void OnSigFilter0001(wxCommandEvent& event);
+    void OnSigFilterSetup(wxCommandEvent& event);
 	
 	void OnSaveGetisOrd(wxCommandEvent& event);
 	void OnSaveLisa(wxCommandEvent& event);
+	void OnSaveColocation(wxCommandEvent& event);
 	
 	void OnSelectCores(wxCommandEvent& event);
 	void OnSelectNeighborsOfCores(wxCommandEvent& event);
 	void OnSelectCoresAndNeighbors(wxCommandEvent& event);
+	void OnAddNeighborToSelection(wxCommandEvent& event);
+	void OnShowAsConditionalMap(wxCommandEvent& event);
+    void OnDisplayWeightsGraph(wxCommandEvent& event);
+    void OnDisplayMapWithGraph(wxCommandEvent& event);
+    void OnChangeGraphThickness(wxCommandEvent& event);
+    void OnChangeGraphColor(wxCommandEvent& event);
+    void OnChangeConnSelectedColor(wxCommandEvent& event);
+    void OnChangeNeighborFillColor(wxCommandEvent& event);
 	
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);
@@ -579,6 +512,7 @@ public:
 	void OnViewLowessSmoother(wxCommandEvent& event);
 	void OnEditLowessParams(wxCommandEvent& event);
 	void OnEditVariables(wxCommandEvent& event);
+	void OnSaveStatsToCsv(wxCommandEvent& event);
 	void OnViewRegimesRegression(wxCommandEvent& event);
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnViewRegressionSelected(wxCommandEvent& event);
@@ -622,6 +556,7 @@ public:
 	void OnDisplayStatusBar(wxCommandEvent& event);
 	
 	void OnHelpAbout(wxCommandEvent& event);
+	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
 	void OnCheckTestMode(wxCommandEvent& event);
     
@@ -651,24 +586,33 @@ public:
 	void OnEncodingSHIFT_JIS(wxCommandEvent& event);
 	void OnEncodingEUC_JP(wxCommandEvent& event);
 	void OnEncodingEUC_KR(wxCommandEvent& event);
-    void SetEncodingCheckmarks(wxFontEncoding e);
-    void SetBasemapCheckmarks(int idx);
+	void OnRecentDSClick(wxCommandEvent& event);
     
+    void SetEncodingCheckmarks(wxFontEncoding e);
 	void DisplayRegression(const wxString dump);
 
 	void UpdateToolbarAndMenus();
 	void SetMenusToDefault();
+   
+    void RemoveInvalidRecentDS();
+   
+    void OnCustomCategoryClick(wxCommandEvent& event);
+    void OnCustomCategoryClick_B(wxCommandEvent& event);
+    void OnCustomCategoryClick_C(wxCommandEvent& event);
+    
+    void UpdateRecentDatasourceMenu();
 
 	static Project* GetProject() { return projectOpen ? project_p : 0; }
 	static GdaFrame* GetGdaFrame() { return gda_frame; }
 	static bool IsProjectOpen();
 	
+    
 	struct MenuItem {
 		MenuItem(const wxString& t, const wxString& u) :menu_title(t), url(u){};
-		wxString menu_title; wxString url; };
-	static std::vector<MenuItem> htmlMenuItems;
+		wxString menu_title;
+        wxString url;
+    };
 	static bool GetHtmlMenuItems();
-	
 	// GetHtmlMenuItems helper functions
 	static bool GetHtmlMenuItemsJson();
 	static bool GetHtmlMenuItemsSqlite();
@@ -676,37 +620,17 @@ public:
 										  char **argv, char **azColName);
 	
     void CheckUpdate();
+    void InitWithProject(wxString gda_file_path=wxEmptyString);
 
-private:
+protected:
+    static std::vector<MenuItem> htmlMenuItems;
 	static void SetProjectOpen(bool open);
-    
-    bool hasUpdate;
-
 	static GdaFrame* gda_frame;
 	static Project* project_p;
 	static bool projectOpen;
-	static std::list<wxAuiToolBar*> toolbar_list; // not currently used
+	static std::list<wxAuiToolBar*> toolbar_list;
 	
 	DECLARE_EVENT_TABLE()
-};
-
-class GdaServer : public wxServer {
-public:
-	virtual wxConnectionBase* OnAcceptConnection(const wxString& topic);
-};
-
-class GdaClient : public wxClient {
-public:
-	GdaClient() {}
-	virtual wxConnectionBase* OnMakeConnection();
-};
-
-class GdaConnection : public wxConnection {
-public:
-	GdaConnection() {}
-	virtual ~GdaConnection() {}
-	
-	virtual bool OnExec(const wxString &topic, const wxString &data);
 };
 
 /** This helper class is a workaround for an issue that is currently unique

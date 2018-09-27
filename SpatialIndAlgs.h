@@ -20,30 +20,25 @@
 #ifndef __GEODA_CENTER_SPATIAL_IND_ALGS_H__
 #define __GEODA_CENTER_SPATIAL_IND_ALGS_H__
 
+#include <wx/wx.h>
 #include <list>
 #include <set>
 #include <sstream>
 #include <vector>
 #include "SpatialIndTypes.h"
-#include "ShpFile.h"
+
 #include "GdaShape.h"
 #include "ShapeOperations/GwtWeight.h"
 
+class Project;
+class BackgroundMapLayer;
 
 namespace SpatialIndAlgs {
-
-void get_centroids(std::vector<pt_2d>& centroids,
-				   const Shapefile::Main& main_data);
-void get_centroids(std::vector<pt_lonlat>& centroids,
-				   const Shapefile::Main& main_data);
+    
 void to_3d_centroids(const std::vector<pt_2d>& pt2d,
 										 std::vector<pt_3d>& pt3d);
 void to_3d_centroids(const std::vector<pt_lonlat>& ptll,
 										 std::vector<pt_3d>& pt3d);
-void get_shp_bb(Shapefile::PolygonContents* p,
-				double& xmin, double& ymin, double& xmax, double& ymax);
-bool comp_polys(Shapefile::PolygonContents* p1, Shapefile::PolygonContents* p2,
-				bool rook, double prec);
 void default_test();
 void print_rtree_stats(rtree_box_2d_t& rtree);
 void query_all_boxes(rtree_box_2d_t& rtree);
@@ -53,12 +48,30 @@ void knn_query(const rtree_pt_2d_t& rtree, int nn=6);
  then Euclidean distance is used and x, y are normal coordinates and
  is_mi ignored.  If is_arc is true, then arc distances are used and distances
  reported in either kms or miles according to is_mi. */
+    
+void apply_kernel(const GwtWeight* Wp, const wxString& kernel, bool use_kernel_diagnals = false);
 GwtWeight* knn_build(const std::vector<double>& x,
-										 const std::vector<double>& y,
-										 int nn, bool is_arc, bool is_mi);
-GwtWeight* knn_build(const rtree_pt_2d_t& rtree, int nn=6);
+                     const std::vector<double>& y,
+                     int nn,
+                     bool is_arc, bool is_mi,
+                     bool is_inverse=false, double power=1,
+                     const wxString& kernel = "",
+                     double bandwidth = 0,
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
+GwtWeight* knn_build(const rtree_pt_2d_t& rtree, int nn=6,
+                     bool is_inverse=false, double power=1,
+                     const wxString& kernel = "",
+                     double bandwidth = 0,
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
 GwtWeight* knn_build(const rtree_pt_3d_t& rtree, int nn=6,
-					 bool is_arc=false, bool is_mi=true);
+					 bool is_arc=false, bool is_mi=true,
+                     bool is_inverse=false, double power=1,
+                     const wxString& kernel = "",
+                     double bandwidth = 0,
+                     bool adaptive_bandwidth = false,
+                     bool use_kernel_diagnals = false);
 double est_thresh_for_num_pairs(const rtree_pt_2d_t& rtree, double num_pairs);
 double est_thresh_for_avg_num_neigh(const rtree_pt_2d_t& rtree, double avg_n);
 double est_avg_num_neigh_thresh(const rtree_pt_2d_t& rtree, double th,
@@ -81,14 +94,20 @@ double est_median_distance(const std::vector<double>& x,
  the threshold input parameter is assumed to be in earth arc miles or kms
  according to is_mi. */
 GwtWeight* thresh_build(const std::vector<double>& x,
-												const std::vector<double>& y,
-												double th, bool is_arc, bool is_mi);
-GwtWeight* thresh_build(const rtree_pt_2d_t& rtree, double th);
+                        const std::vector<double>& y,
+                        double th,
+                        double power,
+                        bool is_arc, bool is_mi,
+                        const wxString& kernel="", bool use_kernel_diagnals=false);
+GwtWeight* thresh_build(const rtree_pt_2d_t& rtree, double th, double power
+                        , const wxString& kernel="", bool use_kernel_diagnals=false);
 double est_avg_num_neigh_thresh(const rtree_pt_3d_t& rtree, double th,
 								size_t trials=100);
 /** threshold th is the radius of intersection sphere with
   respect to the unit shpere of the 3d point rtree */
-GwtWeight* thresh_build(const rtree_pt_3d_t& rtree, double th, bool is_mi);
+GwtWeight* thresh_build(const rtree_pt_3d_t& rtree, double th, double power,
+                        bool is_mi, const wxString& kernel="",
+                        bool use_kernel_diagnals=false);
 /** Find the nearest neighbor for all points and return the maximum
  distance of all of these nearest neighbor pairs.  This is the minimum
  threshold distance such that all points have at least one neighbor.
@@ -107,9 +126,6 @@ GwtWeight* knn_build(const rtree_pt_lonlat_t& rtree, int nn=6);
 bool write_gwt(const GwtWeight* W, const wxString& layer_name, 
 			   const wxString& ofname, const wxString& vname,
 			   const std::vector<wxInt64>& id_vec);
-void fill_test_bb_rtree(rtree_box_2d_t& rtree, size_t rows, size_t cols);
-void fill_box_rtree(rtree_box_2d_t& rtree,
-					const Shapefile::Main& main_data);
 void fill_pt_rtree(rtree_pt_2d_t& rtree,
 				   const std::vector<pt_2d>& pts);
 void fill_pt_rtree(rtree_pt_lonlat_t& rtree,
@@ -133,9 +149,6 @@ struct XyzPt {
 	double z;
 };
 std::ostream& operator<< (std::ostream &out, const XyzPt& pt);
-
-void test_polar_to_3d_conversion();
-void test_arc_distance();
 
 }
 	

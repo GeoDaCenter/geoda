@@ -40,17 +40,35 @@ public:
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual void SetCheckMarks(wxMenu* menu);
 	virtual void TimeChange();
 	void SyncVarInfoFromCoordinator();
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
+    virtual void update(HLStateInt* o);
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
+    virtual void ResizeSelectableShps(int virtual_scrn_w=0, int virtual_scrn_h=0);
+    virtual void OnIdle(wxIdleEvent& event);
+    
+    //virtual void OnIdle(wxIdleEvent& event);
 	void ShowRandomizationDialog(int permutation);
 	void SaveMoranI();
+    
+    void UpdateRegSelectedLine();
+    void UpdateRegExcludedLine();
 	
+    void ShowRegimesRegression(bool flag);
+    
+    
 protected:
+    void RegimeMoran(std::vector<bool>& undefs,
+                     SimpleLinearRegression& regime_lreg,
+                     std::vector<double>& X,
+                     std::vector<double>& Y);
     void OnRandDlgClose( wxWindowDestroyEvent& event);
+
 	virtual void PopulateCanvas();
 	virtual void PopCanvPreResizeShpsHook();
 	LisaCoordinator* lisa_coord;
@@ -60,7 +78,12 @@ protected:
 	std::vector<GdaVarTools::VarInfo> sp_var_info;
 	std::vector<GdaVarTools::VarInfo> var_info_orig;
     RandomizationDlg* rand_dlg;
+    GdaShapeText* morans_i_text;
+    bool is_show_regimes_regression;
+    GdaShapeText* morans_sel_text;
+    GdaShapeText* morans_unsel_text;
 	
+    std::map<GdaShape*, bool> pre_foreground_shps;
 	DECLARE_EVENT_TABLE()
 };
 
@@ -72,17 +95,20 @@ public:
     LisaScatterPlotFrame(wxFrame *parent, Project* project,
 					LisaCoordinator* lisa_coordinator,
 					const wxPoint& pos = wxDefaultPosition,
-					const wxSize& size = GdaConst::scatterplot_default_size,
+					const wxSize& size = wxSize(600, 360),
 					const long style = wxDEFAULT_FRAME_STYLE);
     virtual ~LisaScatterPlotFrame();
-	
+
     void OnActivate(wxActivateEvent& event);
+    
+    virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
 	
     void OnUseSpecifiedSeed(wxCommandEvent& event);
 	void OnSpecifySeedDlg(wxCommandEvent& event);
+    void OnViewRegimesRegression(wxCommandEvent& event);
     
 	void RanXPer(int permutation);
 	void OnRan99Per(wxCommandEvent& event);

@@ -88,8 +88,9 @@ void Lowess::SetDeltaFactor(double v)
 	delta_factor = v;
 }
 
-void Lowess::calc(const std::vector<double>& x, const std::vector<double>& y,
-									std::vector<double>& smoothed_y)
+void Lowess::calc(const std::vector<double>& x,
+                  const std::vector<double>& y,
+                  std::vector<double>& smoothed_y)
 {
 	size_t n = x.size();
 
@@ -103,19 +104,21 @@ void Lowess::calc(const std::vector<double>& x, const std::vector<double>& y,
 	memset((void*)ys, 0, sizeof(double)*n);
 	memset((void*)res, 0, sizeof(double)*n);
 	clowess(&x.front(), &y.front(), (int) n,
-					f, (size_t) iter, delta, ys, rw, res);
+            f, (size_t) iter, delta, ys, rw, res);
 
 	smoothed_y.resize(n);
-	for (size_t i=0; i<n; ++i) smoothed_y[i] = ys[i];
+	for (size_t i=0; i<n; ++i)
+        smoothed_y[i] = ys[i];
+    
 	delete[] ys;
 	delete[] rw;
 	delete[] res;
 }
 
 void Lowess::lowest(const double *x, const double *y, int n,
-									 const double *xs, double *ys,
-									 int nleft, int nright, double *w,
-									 bool userw, double *rw, bool *ok)
+                    const double *xs, double *ys,
+                    int nleft, int nright, double *w,
+                    bool userw, double *rw, bool *ok)
 {
 	int nrt, j;
 	double a, b, c, h, h1, h9, r, range;
@@ -192,8 +195,8 @@ void Lowess::lowest(const double *x, const double *y, int n,
 }
 
 void Lowess::clowess(const double *x, const double *y, int n,
-										double f, size_t iter, double delta,
-										double *ys, double *rw, double *res)
+                     double f, size_t iter, double delta,
+                     double *ys, double *rw, double *res)
 {
 	size_t cur_iter;
 	int i, j, last, m1, m2, nleft, nright, ns;

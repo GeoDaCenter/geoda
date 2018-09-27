@@ -18,7 +18,6 @@
  */
 
 #include <boost/uuid/nil_generator.hpp>
-#include "../logger.h"
 #include "WeightsManStateObserver.h"
 #include "WeightsManState.h"
 
@@ -26,23 +25,18 @@ WeightsManState::WeightsManState()
 : delete_self_when_empty(false), w_uuid(boost::uuids::nil_uuid()),
 event_type(empty_evt)
 {
-	LOG_MSG("In WeightsManState::WeightsManState");
 }
 
 WeightsManState::~WeightsManState()
 {
-	LOG_MSG("In WeightsManState::~WeightsManState");
 }
 
 void WeightsManState::closeAndDeleteWhenEmpty()
 {
-	LOG_MSG("Entering WeightsManState::closeAndDeleteWhenEmpty");
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		LOG_MSG("Deleting self now since no registered observers.");
 		delete this;
 	}
-	LOG_MSG("Exiting WeightsManState::closeAndDeleteWhenEmpty");
 }
 
 void WeightsManState::registerObserver(WeightsManStateObserver* o)
@@ -52,11 +46,8 @@ void WeightsManState::registerObserver(WeightsManStateObserver* o)
 
 void WeightsManState::removeObserver(WeightsManStateObserver* o)
 {
-	LOG_MSG("Entering WeightsManState::removeObserver");
 	observers.remove(o);
-	LOG(observers.size());
 	if (observers.size() == 0 && delete_self_when_empty) delete this;
-	LOG_MSG("Exiting WeightsManState::removeObserver");
 }
 
 void WeightsManState::notifyObservers()
@@ -66,6 +57,19 @@ void WeightsManState::notifyObservers()
 		(*it)->update(this);
 	}
 	event_type = empty_evt;
+}
+
+void WeightsManState::notifyObservers(WeightsManStateObserver* exclude)
+{
+    for (std::list<WeightsManStateObserver*>::iterator it=observers.begin();
+         it != observers.end(); ++it) {
+        if ((*it) == exclude) {
+            
+        } else {
+            (*it)->update(this);
+        }
+    }
+    event_type = empty_evt;
 }
 
 void WeightsManState::closeObservers(boost::uuids::uuid id,

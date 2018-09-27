@@ -43,8 +43,8 @@ class Project;
 class SimpleScatterPlotCanvasCbInt
 {
 public:
-	virtual void notifyNewHover(const std::vector<int>& hover_obs,
-															int total_hover_obs) = 0;
+	virtual void notifyNewHover(const std::vector<int>& hover_obs, int total_hover_obs) = 0;
+    virtual void OnRightClick(const wxPoint& pos) = 0;
 };
 
 class SimpleScatterPlotCanvas : public TemplateCanvas
@@ -57,6 +57,8 @@ public:
 							SimpleScatterPlotCanvasCbInt* ssp_canv_cb, //optional
 							const std::vector<double>& X,
 							const std::vector<double>& Y,
+                            const std::vector<bool>& X_undf,
+                            const std::vector<bool>& Y_undef,
 							const wxString& Xname,
 							const wxString& Yname,
 							double Xmin, double Xmax,
@@ -72,6 +74,7 @@ public:
 							bool show_linear_smoother = true,
 							bool show_lowess_smoother = false,
 							bool show_slope_values = true,
+							bool view_standardized_data = false,
 							const wxPoint& pos = wxDefaultPosition,
 							const wxSize& size = wxDefaultSize);
 	virtual ~SimpleScatterPlotCanvas();
@@ -79,13 +82,21 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual void UpdateStatusBar();
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
-	
+
+    void SetSelectableOutlineColor(wxColour color);
+    void SetSelectableFillColor(wxColour color);
+    void SetHighlightColor(wxColour color);
+    
 	void ShowAxes(bool display);
 	void ShowRegimes(bool display);
+	void ViewStandardizedData(bool display);
+	void ViewOriginalData(bool display);
 	void ShowLinearSmoother(bool display);
 	void ShowLowessSmoother(bool display);
 	void ChangeLoessParams(double f, int iter, double delta_factor);
@@ -102,13 +113,19 @@ public:
 	void UpdateLowessOnRegimes();
 	
 protected:
+    
 	virtual void PopulateCanvas();
 	void UpdateMargins();
 	
 	ScatterPlotPens pens;
 	
-	const std::vector<double>& X;
-	const std::vector<double>& Y;
+	std::vector<double> X;
+	std::vector<double> Y;
+	std::vector<bool> X_undef;
+	std::vector<bool> Y_undef;
+        
+	const std::vector<double>& orgX;
+	const std::vector<double>& orgY;
 	wxString Xname;
 	wxString Yname;
 	// used for scaling, so can be smaller/larger than min/max in X/Y
@@ -160,7 +177,8 @@ protected:
 	bool show_horiz_axis_through_origin;
 	bool show_vert_axis_through_origin;
 	bool show_slope_values;
-	
+    bool view_standardized_data;
+    
 	SmoothingUtils::LowessCacheType lowess_cache;
 	void EmptyLowessCache();
 	Lowess lowess;

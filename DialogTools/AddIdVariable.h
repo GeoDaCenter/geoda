@@ -24,7 +24,6 @@
 #include <wx/listbox.h>
 #include <wx/textctrl.h>
 #include <vector>
-#include "../DbfFile.h"
 
 class TableInterface;
 
@@ -32,10 +31,10 @@ class AddIdVariable: public wxDialog {
 public:
 	AddIdVariable(TableInterface* table_int,
 				  wxWindow* parent, wxWindowID id = -1,
-				  const wxString& caption = "Add New ID Variable",
+				  const wxString& caption = _("Add New ID Variable"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize,
-				  long style = wxCAPTION|wxSYSTEM_MENU );
+				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	
 	void CreateControls();
 	void OnOkClick( wxCommandEvent& event );
@@ -46,7 +45,7 @@ private:
 	wxString new_id_var_name;
 	wxTextCtrl *new_id_var;
 	wxListBox *existing_vars_list;
-	std::vector<DbfFieldDesc> fields;
+	//std::vector<DbfFieldDesc> fields;
 	TableInterface* table_int;
     
 	DECLARE_EVENT_TABLE();

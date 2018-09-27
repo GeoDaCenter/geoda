@@ -41,13 +41,14 @@ class CatClassifState;
 class ScatterNewPlotCanvas;
 class ScatterNewPlotFrame;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 typedef boost::multi_array<int, 2> i_array_type;
 
 // Transparency SliderBar dialog for Basemap
 class BubbleSizeSliderDlg: public wxDialog
 {
 public:
-	BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption="Bubble Size Adjust Dialog");
+	BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas, const wxString & caption=_("Bubble Size Adjust Dialog"));
     
 private:
     ScatterNewPlotCanvas* canvas;
@@ -63,29 +64,30 @@ public TemplateCanvas, public CatClassifStateObserver
 {
 	DECLARE_CLASS(ScatterNewPlotCanvas)	
 public:
-	ScatterNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
-											 Project* project,
-											 const wxPoint& pos = wxDefaultPosition,
-											 const wxSize& size = wxDefaultSize);
-	ScatterNewPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
-											 Project* project,
-											 const std::vector<GdaVarTools::VarInfo>& var_info,
-											 const std::vector<int>& col_ids,
-											 bool is_bubble_plot = false,
-											 bool standardized = false,
-											 const wxPoint& pos = wxDefaultPosition,
-											 const wxSize& size = wxDefaultSize);
+    ScatterNewPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                         Project* project,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize);
+    ScatterNewPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
+                         Project* project,
+                         const std::vector<GdaVarTools::VarInfo>& var_info,
+                         const std::vector<int>& col_ids,
+                         bool is_bubble_plot = false,
+                         bool standardized = false,
+                         const wxPoint& pos = wxDefaultPosition,
+                         const wxSize& size = wxDefaultSize);
 	virtual ~ScatterNewPlotCanvas();
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetCategoriesTitle();
 	virtual wxString GetNameWithTime(int var);
 	virtual void NewCustomCatClassif();
-	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-											 int num_categories,
-											 const wxString& custom_classif_title = wxEmptyString);
+    void ChangeThemeType(CatClassification::CatClassifType new_theme,
+                         int num_categories,
+                         const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(CatClassifState* o);
 	virtual void SetCheckMarks(wxMenu* menu);
 	void OnSaveCategories();
@@ -97,16 +99,9 @@ public:
 	/// Override from TemplateCanvas
 	virtual void SetSelectableOutlineColor(wxColour color);
 	
-protected:
-	virtual void TimeChange();
-	virtual void PopulateCanvas();
-	virtual void PopCanvPreResizeShpsHook();
-	void VarInfoAttributeChange();
-    
-public:
 	void CreateAndUpdateCategories();
 	
-public:
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	CatClassifDef cat_classif_def;
@@ -137,7 +132,6 @@ public:
 	
     double bubble_size_scaler;
     
-protected:
 	void ComputeChowTest();
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
@@ -145,10 +139,15 @@ protected:
 	void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
 	
-	ScatterPlotPens pens;
-	
 	virtual void UpdateStatusBar();
-	
+
+protected:
+    virtual void TimeChange();
+    virtual void PopulateCanvas();
+    virtual void PopCanvPreResizeShpsHook();
+    void VarInfoAttributeChange();
+    
+	ScatterPlotPens pens;
 	bool is_bubble_plot;
 	Project* project;
 	CatClassifState* custom_classif_state;
@@ -159,17 +158,27 @@ protected:
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> undef_data;
 	d_array_type x_data;
 	d_array_type y_data;
 	d_array_type z_data;
+    b_array_type x_undef_data;
+    b_array_type y_undef_data;
+    b_array_type z_undef_data;
+    
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> cats_valid;
 	std::vector<wxString> cats_error_message;
 	bool full_plot_redraw_needed;
+    
 	std::vector<double> X;
 	std::vector<double> Y;
 	std::vector<double> Z;
+	std::vector<bool> XYZ_undef;
+    
+    
+    std::vector<bool> undef;
 	AxisScale axis_scale_x;
 	AxisScale axis_scale_y;
 	double scaleX;
@@ -239,16 +248,16 @@ protected:
 	int table_display_lines;
 	bool UpdateDisplayLinesAndMargins();
 	bool all_init;
-    
-	
+
 	DECLARE_EVENT_TABLE()
 };
 
 class ScatterNewPlotLegend : public TemplateLegend
 {
 public:
-	ScatterNewPlotLegend(wxWindow *parent, TemplateCanvas* template_canvas,
-											 const wxPoint& pos, const wxSize& size);
+	ScatterNewPlotLegend(wxWindow *parent,
+                         TemplateCanvas* template_canvas,
+                         const wxPoint& pos, const wxSize& size);
 	virtual ~ScatterNewPlotLegend();
 };
 
@@ -256,18 +265,21 @@ class ScatterNewPlotFrame : public TemplateFrame, public LowessParamObserver
 {
 	DECLARE_CLASS(ScatterNewPlotFrame)
 public:
-	ScatterNewPlotFrame(wxFrame *parent, Project* project,
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize,
-											const long style = wxDEFAULT_FRAME_STYLE);
-	ScatterNewPlotFrame(wxFrame *parent, Project* project,
-											const std::vector<GdaVarTools::VarInfo>& var_info,
-											const std::vector<int>& col_ids,
-											bool is_bubble_plot,
-											const wxString& title = "Scatter Plot",
-											const wxPoint& pos = wxDefaultPosition,
-											const wxSize& size = wxDefaultSize,
-											const long style = wxDEFAULT_FRAME_STYLE);
+    ScatterNewPlotFrame(wxFrame *parent, Project* project,
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize,
+                        const long style = wxDEFAULT_FRAME_STYLE);
+    
+    ScatterNewPlotFrame(wxFrame *parent, Project* project,
+                        const std::vector<GdaVarTools::VarInfo>& var_info,
+                        const std::vector<int>& col_ids,
+                        bool is_bubble_plot,
+                        const wxString& title = _("Scatter Plot"),
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize,
+                        const long style = wxDEFAULT_FRAME_STYLE,
+                        bool no_init = false);
+    
 	virtual ~ScatterNewPlotFrame();
 	
 public:
@@ -306,7 +318,8 @@ public:
 	virtual void OnNaturalBreaks(int num_cats);
 	virtual void OnEqualIntervals(int num_cats);
 	virtual void OnSaveCategories();
-	
+	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
+    
 	/** Implementation of LowessParamObserver interface */
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
@@ -314,9 +327,11 @@ public:
 	void GetVizInfo(wxString& x, wxString& y);
 	
 protected:
-	void ChangeThemeType(CatClassification::CatClassifType new_theme,
-											 int num_categories,
-											 const wxString& custom_classif_title = wxEmptyString);
+    void Init(const std::vector<GdaVarTools::VarInfo>& var_info,
+              const std::vector<int>& col_ids, const wxString& title);
+    void ChangeThemeType(CatClassification::CatClassifType new_theme,
+                         int num_categories,
+                         const wxString& custom_classif_title = wxEmptyString);
 	bool is_bubble_plot;
 	
 	LowessParamFrame* lowess_param_frame;
@@ -326,5 +341,54 @@ protected:
 	DECLARE_EVENT_TABLE()
 };
 
+class MDSPlotCanvas : public ScatterNewPlotCanvas
+{
+    DECLARE_CLASS(MDSPlotCanvas)
+public:
+    MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                  Project* project,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
+                  Project* project,
+                  const std::vector<GdaVarTools::VarInfo>& var_info,
+                  const std::vector<int>& col_ids,
+                  bool is_bubble_plot = false,
+                  bool standardized = false,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize);
+    virtual ~MDSPlotCanvas();
+    
+    virtual void DisplayRightClickMenu(const wxPoint& pos);
+    
+    void OnCreateWeights();
+    
+    DECLARE_EVENT_TABLE()
+};
+
+class MDSPlotFrame : public ScatterNewPlotFrame
+{
+    DECLARE_CLASS(MDSPlotFrame)
+public:
+    MDSPlotFrame(wxFrame *parent, Project* project,
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
+                 const long style = wxDEFAULT_FRAME_STYLE);
+    
+    MDSPlotFrame(wxFrame *parent, Project* project,
+                 const std::vector<GdaVarTools::VarInfo>& var_info,
+                 const std::vector<int>& col_ids,
+                 bool is_bubble_plot,
+                 const wxString& title = _("MDS Plot"),
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
+                 const long style = wxDEFAULT_FRAME_STYLE);
+    
+    virtual ~MDSPlotFrame();
+   
+    void OnCreateWeights(wxCommandEvent& event);
+    
+    DECLARE_EVENT_TABLE()
+};
 
 #endif

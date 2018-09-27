@@ -35,7 +35,6 @@ The IDE project should also include SLStream.cpp
 #include "PowerLag.h"
 #include "polym.h"
 #include "ML_im.h"
-#include "../logger.h"
 
 // use __WXMAC__ to call vecLib
 //#ifdef WORDS_BIGENDIAN
@@ -269,8 +268,9 @@ bool isSym(const GwtElement* g, int obs)
 }
 
 /*   Estimate
-* a function to compute the value of the logarithm of the characteristic polynomial. Uses Aitken's delta-square
-* process -- takes three elements in the series to accelerate convergence -- if appropriate.
+ * compute the value of the logarithm of the characteristic polynomial.
+ * Uses Aitken's delta-square process
+ * --takes three elements in the series to accelerate convergence--if appropriate.
 */
 double Estimate(Iterator<WVector> Poly, const double val, const INDEX Prec, const INDEX np)  {
     double s0, s1, s2, ds;
@@ -302,10 +302,10 @@ double PrimeEstimate(Iterator<WVector> Poly, const double val, const INDEX Prec,
   return (s2 - ds);
 }
 
-/*   MakeEstimate
-* computes log-Jacobian by applying Aitken's formula and approximation of the truncated terms for
-* row-standardized matrices.
-*/
+/* MakeEstimate
+ * computes log-Jacobian by applying Aitken's formula
+ * and approximation of the truncated terms for row-standardized matrices.
+ */
 double MakeEstimate(Iterator<WVector> Poly, const double val, const INDEX Prec) 
 {
   double 	s0, s1, s2, ds, ns;
@@ -1595,7 +1595,6 @@ void run1(SparseMatrix &w, const double rr, double &trace, double &trace2,
 		  double &frobenius,
 		  wxGauge* p_bar, double p_bar_min_fraction, double p_bar_max_fraction)
 {
-	LOG_MSG("Entering run1");
     const int LIMIT = 50;
     const double EPS = 1.0e-14;
     const int dim = w.dim();
@@ -1671,7 +1670,6 @@ void run1(SparseMatrix &w, const double rr, double &trace, double &trace2,
 		p_bar->SetValue(g_val_final);
 		p_bar->Update();
 	}
-    LOG_MSG("Exiting run1");
 }
 
 /*   ECL
@@ -1978,7 +1976,6 @@ double SimulationLag(const GalElement *weight,
 					 double p_bar_min_fraction,
 					 double p_bar_max_fraction)
 {
-	LOG_MSG("Entering SimulationLag, GalElement*");
   	Weights  W(weight, num_obs);          // read the weights matrix
 	
     if (W.dim() < SMALL_DIM)
@@ -2043,7 +2040,6 @@ double SimulationLag(const GalElement *weight,
     rhoEstimate = GoldenSectionLag(-1, 0, 1, re, reW, LogLik);
     stop= clock();
 
-	LOG_MSG("Exiting SimulationLag");
     return rhoEstimate;
 }
 

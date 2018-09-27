@@ -31,6 +31,7 @@
 class BoxPlotCanvas;
 class BoxPlotFrame;
 typedef boost::multi_array<double, 2> d_array_type;
+typedef boost::multi_array<bool, 2> b_array_type;
 
 class BoxPlotCanvas : public TemplateCanvas {
 	DECLARE_CLASS(BoxPlotCanvas)	
@@ -46,22 +47,21 @@ public:
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual void update(HLStateInt* o);
 	virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
 	virtual wxString GetNameWithTime(int var, int time);
 	virtual wxString GetTimeString(int var, int time);
 	virtual void SetCheckMarks(wxMenu* menu);
-	virtual void DetermineMouseHoverObjects();
+	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
 	
-protected:
 	virtual void PopulateCanvas();
 	virtual void TimeChange();
 	void VarInfoAttributeChange();
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	virtual void PlotsPerView(int plots_per_view);
@@ -73,15 +73,16 @@ public:
 	bool IsShowAxes() { return show_axes; }
 	void Hinge15();
 	void Hinge30();
+	virtual void UpdateStatusBar();
 	
 protected:
-	virtual void UpdateStatusBar();
 
 	int num_obs;
 	int num_time_vals;
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<d_array_type> data;
+	std::vector<b_array_type> data_undef;
 	std::vector<Gda::dbl_int_pair_vec_type> data_sorted;
 	std::vector<HingeStats> hinge_stats;
 	std::vector<SampleStatistics> data_stats;
@@ -117,7 +118,7 @@ public:
     BoxPlotFrame(wxFrame *parent, Project* project,
 					const std::vector<GdaVarTools::VarInfo>& var_info,
 					const std::vector<int>& col_ids,
-					const wxString& title = "Box Plot",
+					const wxString& title = _("Box Plot"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = GdaConst::boxplot_default_size,
 					const long style = wxDEFAULT_FRAME_STYLE);

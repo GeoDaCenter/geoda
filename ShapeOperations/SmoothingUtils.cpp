@@ -41,7 +41,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 										const SimpleLinearRegression& reg,
 										const wxPen& pen)
 {
-	//LOG_MSG("Entering SmoothingUtils::CalcRegressionLine");
 	reg_line.setBrush(*wxTRANSPARENT_BRUSH); // ensure brush is transparent
 	slope = 0; //default
 	infinite_slope = false; // default
@@ -56,7 +55,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 	reg_a = wxRealPoint(0, 0);
 	reg_b = wxRealPoint(0, 0);
 	
-	//LOG(reg.beta);
 	
 	// bounding box is [axis_scale_x.scale_min, axis_scale_y.scale_max] x
 	// [axis_scale_y.scale_min, axis_scale_y.scale_max]
@@ -68,25 +66,32 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 		// It should be the case that the slope beta is at most 1/2.
 		// So, we should calculate the points of intersection with the
 		// two vertical bounding box lines.
-		reg_a = wxRealPoint(axis_scale_x.scale_min,
-												reg.alpha + reg.beta*axis_scale_x.scale_min);
-		reg_b = wxRealPoint(axis_scale_x.scale_max,
-												reg.alpha + reg.beta*axis_scale_x.scale_max);
+        reg_a = wxRealPoint(axis_scale_x.scale_min,
+                            reg.alpha + reg.beta*axis_scale_x.scale_min);
+        reg_b = wxRealPoint(axis_scale_x.scale_max,
+                            reg.alpha + reg.beta*axis_scale_x.scale_max);
+        
 		if (reg_a.y < axis_scale_y.scale_min) {
 			reg_a.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
 			reg_a.y = axis_scale_y.scale_min;
+            
 		} else if (reg_a.y > axis_scale_y.scale_max) {
 			reg_a.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
 			reg_a.y = axis_scale_y.scale_max;
+            
 		}
+        
 		if (reg_b.y < axis_scale_y.scale_min) {
 			reg_b.x = (axis_scale_y.scale_min - reg.alpha)/reg.beta;
 			reg_b.y = axis_scale_y.scale_min;
+            
 		} else if (reg_b.y > axis_scale_y.scale_max) {
 			reg_b.x = (axis_scale_y.scale_max - reg.alpha)/reg.beta;
 			reg_b.y = axis_scale_y.scale_max;
 		}
+        
 		slope = reg.beta;
+        
 	} else {
 		regression_defined = false;
 		reg_line.setPen(*wxTRANSPARENT_PEN);
@@ -102,20 +107,9 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 	reg_b.y = (reg_b.y - axis_scale_y.scale_min) * scaleY;
 	
 	reg_line = GdaPolyLine(reg_a.x, reg_a.y, reg_b.x, reg_b.y);
-	cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
-																					 reg_b.x, reg_b.y);
-	
-	//LOG(slope);
-	//LOG(infinite_slope);
-	//LOG(regression_defined);
-	//LOG(cc_degs_of_rot);
-	//LOG(reg_a.x);
-	//LOG(reg_a.y);
-	//LOG(reg_b.x);
-	//LOG(reg_b.y);
-	
+    cc_degs_of_rot = RegLineToDegCCFromHoriz(reg_a.x, reg_a.y,
+                                             reg_b.x, reg_b.y);
 	reg_line.setPen(pen);
-	//LOG_MSG("Exiting SmoothingUtils::CalcRegressionLine");
 }
 
 /** This method will be used for adding text annotations to the displayed
@@ -125,7 +119,6 @@ void SmoothingUtils::CalcRegressionLine(GdaPolyLine& reg_line,
 double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 											   double b_x, double b_y)
 {	
-	//LOG_MSG("Entering SmoothingUtils::RegLineToDegCCFromHoriz");
 	double dist = GenUtils::distance(wxRealPoint(a_x,a_y),wxRealPoint(b_x,b_y));
 	if (dist <= 4*DBL_MIN) return 0;
 	// normalize slope vector c = (c_x, c_y)
@@ -139,26 +132,27 @@ double SmoothingUtils::RegLineToDegCCFromHoriz(double a_x, double a_y,
 	double theta = acos(x) * 57.2957796; // 180/pi = 57.2957796
 	if (y < 0) theta = 360.0 - theta;
 	
-	//LOG_MSG("Exiting SmoothingUtils::RegLineToDegCCFromHoriz");
 	return theta;
 }
 
-void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
-									const std::vector<double>& Y,
-									const SampleStatistics& statsX,
-									const SampleStatistics& statsY,
-									const SimpleLinearRegression& regressionXY,
-									const std::vector<bool>& hl,
-									SampleStatistics& statsXselected,
-									SampleStatistics& statsYselected,
-									SampleStatistics& statsXexcluded,
-									SampleStatistics& statsYexcluded,
-									SimpleLinearRegression& regressionXYselected,
-									SimpleLinearRegression& regressionXYexcluded,
-									double& sse_sel,
-									double& sse_unsel)
+void
+SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
+                                 const std::vector<double>& Y,
+                                 const std::vector<bool>& X_undef,
+                                 const std::vector<bool>& Y_undef,
+                                 const SampleStatistics& statsX,
+                                 const SampleStatistics& statsY,
+                                 const SimpleLinearRegression& regressionXY,
+                                 const std::vector<bool>& hl,
+                                 SampleStatistics& statsXselected,
+                                 SampleStatistics& statsYselected,
+                                 SampleStatistics& statsXexcluded,
+                                 SampleStatistics& statsYexcluded,
+                                 SimpleLinearRegression& regressionXYselected,
+                                 SimpleLinearRegression& regressionXYexcluded,
+                                 double& sse_sel,
+                                 double& sse_unsel)
 {
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 	// find mean for X and Y according to highlight_state for both
 	// the currently selected, and the complement.
 	statsXselected = SampleStatistics();
@@ -167,11 +161,12 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 	statsYexcluded = SampleStatistics();
 	regressionXYselected = SimpleLinearRegression();
 	regressionXYexcluded = SimpleLinearRegression();
+    
 	int selected_cnt = 0;
 	int excluded_cnt = 0;
 	
 	// calculate mean, min and max
-	statsXselected.min = std::numeric_limits<double>::max();
+    statsXselected.min = std::numeric_limits<double>::max();
 	statsYselected.min = std::numeric_limits<double>::max();
 	statsXexcluded.min = std::numeric_limits<double>::max();
 	statsYexcluded.min = std::numeric_limits<double>::max();
@@ -179,7 +174,10 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 	statsYselected.max = -std::numeric_limits<double>::max();
 	statsXexcluded.max = -std::numeric_limits<double>::max();
 	statsYexcluded.max = -std::numeric_limits<double>::max();
+    
 	for (int i=0, iend=X.size(); i<iend; i++) {
+        if (X_undef[i] || Y_undef[i])
+            continue;
 		if (hl[i]) {
 			selected_cnt++;
 			statsXselected.mean += X[i];
@@ -198,14 +196,17 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 			if (Y[i] > statsYexcluded.max) statsYexcluded.max = Y[i];
 		}
 	}
+    
 	if (selected_cnt == 0) {
 		statsXexcluded = statsX;
 		statsYexcluded = statsY;
 		regressionXYexcluded = regressionXY;
+        
 	} else if (excluded_cnt == 0) {
 		statsXselected = statsX;
 		statsYselected = statsY;
 		regressionXYselected = regressionXY;
+        
 	} else {
 		statsXselected.mean /= selected_cnt;
 		statsYselected.mean /= selected_cnt;
@@ -220,8 +221,11 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 		double sum_squaresYselected = 0;
 		double sum_squaresXexcluded = 0;
 		double sum_squaresYexcluded = 0;
+        
 		// calculate standard deviations and variances
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				sum_squaresXselected += X[i] * X[i];
 				sum_squaresYselected += Y[i] * Y[i];
@@ -231,42 +235,52 @@ void SmoothingUtils::CalcStatsRegimes(const std::vector<double>& X,
 			}
 		}
 		
-		SmoothingUtils::CalcVarSdFromSumSquares(statsXselected, sum_squaresXselected);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsYselected, sum_squaresYselected);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsXexcluded, sum_squaresXexcluded);
-		SmoothingUtils::CalcVarSdFromSumSquares(statsYexcluded, sum_squaresYexcluded);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsXselected,
+                                                sum_squaresXselected);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsYselected,
+                                                sum_squaresYselected);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsXexcluded,
+                                                sum_squaresXexcluded);
+		SmoothingUtils::CalcVarSdFromSumSquares(statsYexcluded,
+                                                sum_squaresYexcluded);
 		
 		SmoothingUtils::CalcRegressionSelOrExcl(statsXselected, statsYselected,
-																						X, Y, hl,
-																						true, regressionXYselected,
-																						sse_sel);
-		SmoothingUtils::CalcRegressionSelOrExcl(statsXexcluded, statsYexcluded,
-																						X, Y, hl,
-																						false, regressionXYexcluded,
-																						sse_unsel);
+                                                X, Y, X_undef, Y_undef, hl,
+                                                true, regressionXYselected,
+                                                sse_sel);
+        SmoothingUtils::CalcRegressionSelOrExcl(statsXexcluded, statsYexcluded,
+                                                X, Y, X_undef, Y_undef, hl,
+                                                false, regressionXYexcluded,
+                                                sse_unsel);
 	}
-	LOG(wxString(regressionXYselected.ToString().c_str(), wxConvUTF8));
-	LOG(wxString(regressionXYexcluded.ToString().c_str(), wxConvUTF8));
-	LOG_MSG("Entering ScatterNewPlotCanvas::CalcStatsRegimes");
 }
 
 void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 											 const SampleStatistics& ss_Y,
 											 const std::vector<double>& X,
 											 const std::vector<double>& Y,
+                                             const std::vector<bool>& X_undef,
+                                             const std::vector<bool>& Y_undef,
 											 const std::vector<bool>& hl,
 											 bool selected,
 											 SimpleLinearRegression& r,
 											 double& ss_error)
 {
-	if (ss_X.sample_size != ss_Y.sample_size || ss_X.sample_size < 2 ||
-			ss_X.var_without_bessel <= 4*DBL_MIN ) return;
+	if (ss_X.sample_size != ss_Y.sample_size ||
+        ss_X.sample_size < 2 ||
+        ss_X.var_without_bessel <= 4*DBL_MIN )
+    {
+        return;
+    }
 	
 	int n=0;
 	double expectXY = 0;
 	double sum_x_squared = 0;
+    
 	if (selected) {
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				expectXY += X[i]*Y[i];
 				sum_x_squared += X[i] * X[i];
@@ -275,6 +289,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 		}
 	} else {
 		for (int i=0, iend=X.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (!hl[i]) {
 				expectXY += X[i]*Y[i];
 				sum_x_squared += X[i] * X[i];
@@ -286,7 +302,9 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 	
 	r.covariance = expectXY - ss_X.mean * ss_Y.mean;
 	r.beta = r.covariance / ss_X.var_without_bessel;
+    
 	double d = ss_X.sd_without_bessel * ss_Y.sd_without_bessel;
+    
 	if (d > 4*DBL_MIN) {
 		r.correlation = r.covariance / d;
 		r.valid_correlation = true;
@@ -302,6 +320,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 	double err=0;
 	if (selected) {
 		for (int i=0, iend=Y.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (hl[i]) {
 				err = Y[i] - (r.alpha + r.beta * X[i]);
 				SS_err += err * err;
@@ -310,6 +330,8 @@ void SmoothingUtils::CalcRegressionSelOrExcl(const SampleStatistics& ss_X,
 		ss_error = SS_err;
 	} else {
 		for (int i=0, iend=Y.size(); i<iend; i++) {
+            if (X_undef[i] || Y_undef[i])
+                continue;
 			if (!hl[i]) {
 				err = Y[i] - (r.alpha + r.beta * X[i]);
 				SS_err += err * err;
@@ -371,13 +393,7 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 										 double& x_first, double& y_first,
 										 double& x_last, double& y_last)
 {
-	LOG_MSG("Entering SmoothingUtils::ExtendEndpointsToBB");
 	size_t n = X.size();
-	LOG(bb_min_x);
-	LOG(bb_min_y);
-	LOG(bb_max_x);
-	LOG(bb_max_y);
-	LOG(n);
 	bool success = true;
 	// Extend end points to bounding box with linear interpolation.
 	{
@@ -411,9 +427,7 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 				m << "Could not extend ray " << p1 << ", " << p0;
 				success = false;
 			}
-			LOG_MSG(m);
 		} else {
-			LOG_MSG("All points nearly identical.");
 			success = false;
 		}
 		x_first = x2;
@@ -450,15 +464,12 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 				m << "Could not extend ray " << p0 << ", " << p1;
 				success = false;
 			}
-			LOG_MSG(m);
 		} else {
-			LOG_MSG("All points nearly identical.");
 			success = false;
 		}
 		x_last = x2;
 		y_last = y2;
 	}
-	LOG_MSG(wxString(success ? "success: true" : "success: false"));
 	return success;
 }
 
@@ -469,171 +480,144 @@ wxString SmoothingUtils::LowessCacheKey(int x_time, int y_time)
 	return key;
 }
 
+
 SmoothingUtils::LowessCacheEntry* 
 SmoothingUtils::UpdateLowessCacheForTime(LowessCacheType& lowess_cache,
 										 const wxString& key, Lowess& lowess,
 										 const std::vector<double>& X,
-										 const std::vector<double>& Y)
+										 const std::vector<double>& Y,
+                                         const std::vector<bool>& XY_undefs)
 {
-	LOG_MSG("Entering SmoothingUtils::UpdateLowessCacheForTime");
 	size_t n = X.size();
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	LowessCacheEntry* lce = 0;
-	if (it != lowess_cache.end()) lce = it->second;
+    
+	if (it != lowess_cache.end())
+        lce = it->second;
 	if (lce) {
-		LOG_MSG("LOWESS cache entry found for key: " + key);
+		//LOG_MSG("LOWESS cache entry found for key: " + key);
 		return lce;
 	}
-	LOG_MSG("No LOWESS cache entry found for key: " + key);
-	lce = new LowessCacheEntry(n);
-	// sort points by X value
-	Gda::dbl_int_pair_vec_type Xpairs(n);
+	//LOG_MSG("No LOWESS cache entry found for key: " + key);
+   
+    Gda::dbl_int_pair_vec_type Xpairs;
+    
+    int valid_n = 0;
 	for (size_t i=0; i<n; ++i) {
-		Xpairs[i].first = X[i];
-		Xpairs[i].second = i;
-	}
+        if (!XY_undefs[i]) {
+            valid_n += 1;
+            Xpairs.push_back(std::make_pair(X[i], i));
+        }
+    }
+    
 	// Sort in ascending order by value
 	std::sort(Xpairs.begin(), Xpairs.end(), Gda::dbl_int_pair_cmp_less);
-	
-	for (size_t i=0; i<n; ++i) {
-		lce->sort_map[i] = Xpairs[i].second;
-		lce->X_srt[i] = Xpairs[i].first;
-		lce->Y_srt[i] = Y[Xpairs[i].second];
-		//assert(lce->X_srt[i] == X[Xpairs[i].second]);
-		//assert(lce->Y_srt[i] == Y[Xpairs[i].second]);
-		//LOG_MSG(wxString::Format("sorted %d: (%f, %f)", (int) i,
-		//												 lce->X_srt[i], lce->Y_srt[i]));
+    
+	lce = new LowessCacheEntry(valid_n);
+    
+	for (size_t i=0; i<Xpairs.size(); ++i) {
+        int obj_id = Xpairs[i].second;
+        double obj_val = Xpairs[i].first;
+		lce->sort_map[i] = obj_id;
+		lce->X_srt[i] = obj_val;
+		lce->Y_srt[i] = Y[obj_id];
 	}
 	
-	wxStopWatch sw_lowess;
 	lowess.calc(lce->X_srt, lce->Y_srt, lce->YS_srt);
-	{
-		wxString m;
-		m << "LOWESS compute time on " << n << " points took ";
-		m << sw_lowess.Time() << " ms.";
-		LOG_MSG(m);
-		
-		//for (size_t i=0; i<n; ++i) {
-		//	LOG_MSG(wxString::Format("X_srt[%d]: %f, Y_srt[%d]: %f, YS_srt[%d]: %f",
-		//													 (int)i, lce->X_srt[i], (int)i, lce->Y_srt[i],
-		//													 (int)i, lce->YS_srt[i]));
-		//}
-	}
 	lowess_cache[key] = lce;
 	
-	LOG_MSG("Exiting SmoothingUtils::UpdateLowessCacheForTime");
 	return lce;
 }
 
 void SmoothingUtils::CalcLowessRegimes(LowessCacheEntry* lce,
-									 Lowess& lowess,
-									 const std::vector<bool>& hl,
-									 std::vector<double>& sel_smthd_srt_x,
-									 std::vector<double>& sel_smthd_srt_y,
-									 std::vector<double>& unsel_smthd_srt_x,
-									 std::vector<double>& unsel_smthd_srt_y)
+                                       Lowess& lowess,
+                                       const std::vector<bool>& hl,
+                                       std::vector<double>& sel_smthd_srt_x,
+                                       std::vector<double>& sel_smthd_srt_y,
+                                       std::vector<double>& unsel_smthd_srt_x,
+                                       std::vector<double>& unsel_smthd_srt_y,
+                                       std::vector<bool>& undefs)
 {
-	LOG_MSG("Entering SmoothingUtils::CalcLowessRegimes");
-	if (!lce || !hl.size() > 1) return;
-	size_t n = hl.size();
+	if (!lce || !(hl.size() > 1))
+        return;
+    
+    
+    size_t n = 0;
 	size_t tot_hl = 0;
-	for (size_t i=0; i<n; ++i) if (hl[i]) ++tot_hl;
-	size_t tot_uhl = n - tot_hl;
+    size_t tot_uhl = 0;
+    
+    for (size_t i=0; i<hl.size(); ++i) {
+        if (undefs[i])
+            continue;
+       
+        n++;
+        
+        if (hl[i]) {
+            ++tot_hl;
+        } else
+            ++tot_uhl;
+    }
+    
 	sel_smthd_srt_x.resize(tot_hl);
 	sel_smthd_srt_y.resize(tot_hl);
 	unsel_smthd_srt_x.resize(tot_uhl);
 	unsel_smthd_srt_y.resize(tot_uhl);
-	
+
+    
 	if (tot_hl > 0) {
-		LOG_MSG("Calculating selected LOWESS regime");
 		size_t ss_size = tot_hl;
-		std::vector<double>& X_sorted = sel_smthd_srt_x;
 		std::vector<double> Y_sorted(ss_size);
-		std::vector<double>& YS_sorted = sel_smthd_srt_y;
 		size_t ss_cnt = 0;
+        
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
+            if (undefs[ii])
+                continue;
 			if (hl[ii]) {
-				X_sorted[ss_cnt] = lce->X_srt[i];
+				sel_smthd_srt_x[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
 		}
-		assert(ss_cnt == ss_size);
-		
-		// verify sort
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	if (i<ss_size-1) assert(X_sorted[i] <= X_sorted[i+1]);
-		//	LOG_MSG(wxString::Format("sorted input %d: %f, %f", (int) i,
-		//													 X_sorted[i], Y_sorted[i]));
-		//}
+		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
-			YS_sorted[0] = Y_sorted[0];
+			sel_smthd_srt_y[0] = Y_sorted[0];
 		} else {
-			wxStopWatch sw_lowess;
-			lowess.calc(X_sorted, Y_sorted, YS_sorted);
-			wxString m = "";
-			m << "LOWESS compute time on " << ss_size << " points took ";
-			m << sw_lowess.Time() << " ms.";
-			LOG_MSG(m);
+			lowess.calc(sel_smthd_srt_x, Y_sorted, sel_smthd_srt_y);
 		}
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	LOG_MSG(wxString::Format("X_sorted[%d]: %f, Y_sorted[%d]: %f, "
-		//													 "YS_sorted[%d]: %f",
-		//													 (int)i, X_sorted[i], (int)i, Y_sorted[i],
-		//													 (int)i, YS_sorted[i]));
-		//}
 	}
 	
 	if (tot_uhl > 0) {
-		LOG_MSG("Calculating unselected LOWESS regime");
 		size_t ss_size = tot_uhl;
-		std::vector<double>& X_sorted = unsel_smthd_srt_x;
 		std::vector<double> Y_sorted(ss_size);
-		std::vector<double>& YS_sorted = unsel_smthd_srt_y;
 		size_t ss_cnt = 0;
+        
 		for (size_t i=0; i<n; ++i) {
 			size_t ii = lce->sort_map[i];
+            if (undefs[ii])
+                continue;
 			if (!hl[ii]) {
-				X_sorted[ss_cnt] = lce->X_srt[i];
+				//X_sorted[ss_cnt] = lce->X_srt[i];
+				unsel_smthd_srt_x[ss_cnt] = lce->X_srt[i];
 				Y_sorted[ss_cnt] = lce->Y_srt[i];
 				++ss_cnt;
 			}
 		}
-		assert(ss_cnt == ss_size);
-		
-		// verify sort
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	if (i<ss_size-1) assert(X_sorted[i] <= X_sorted[i+1]);
-		//	LOG_MSG(wxString::Format("sorted input %d: %f, %f", (int) i,
-		//													 X_sorted[i], Y_sorted[i]));
-		//}
+		//assert(ss_cnt == ss_size);
 		
 		if (ss_size == 1) {
-			YS_sorted[0] = Y_sorted[0];
+			//YS_sorted[0] = Y_sorted[0];
+			unsel_smthd_srt_y[0] = Y_sorted[0];
 		} else {
-			wxStopWatch sw_lowess;
-			lowess.calc(X_sorted, Y_sorted, YS_sorted);
-			wxString m = "";
-			m << "LOWESS compute time on " << ss_size << " points took ";
-			m << sw_lowess.Time() << " ms.";
-			LOG_MSG(m);
+			//lowess.calc(X_sorted, Y_sorted, YS_sorted);
+			lowess.calc(unsel_smthd_srt_x, Y_sorted, unsel_smthd_srt_y);
 		}
-		//for (size_t i=0; i<ss_size; ++i) {
-		//	LOG_MSG(wxString::Format("X_sorted[%d]: %f, Y_sorted[%d]: %f, "
-		//													 "YS_sorted[%d]: %f",
-		//													 (int)i, X_sorted[i], (int)i, Y_sorted[i],
-		//													 (int)i, YS_sorted[i]));
-		//}
 	}
-
-	LOG_MSG("Exiting SmoothingUtils::CalcLowessRegimes");
 }
 
 void SmoothingUtils::EmptyLowessCache(LowessCacheType& lowess_cache)
 {
-	LOG_MSG("In SmoothingUtils::EmptyLowessCache");
 	for (LowessCacheType::iterator i=lowess_cache.begin();
 			 i!=lowess_cache.end(); ++i)
 	{

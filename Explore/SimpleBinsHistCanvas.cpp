@@ -36,7 +36,8 @@
 #include "../logger.h"
 #include "../GeoDa.h"
 #include "../Project.h"
-#include "../ShapeOperations/ShapeUtils.h"
+
+#include "CorrelogramView.h"
 #include "SimpleBinsHistCanvas.h"
 
 IMPLEMENT_CLASS(SimpleBinsHistCanvas, TemplateCanvas)
@@ -84,7 +85,7 @@ show_axes(show_axes_)
 	}
 	
 	highlight_color = GdaConst::highlight_color;
-	fixed_aspect_ratio_mode = false;
+    last_scale_trans.SetFixedAspectRatio(false);
 	use_category_brushes = false;
 	selectable_shps_type = rectangles;
 	
@@ -105,29 +106,19 @@ SimpleBinsHistCanvas::~SimpleBinsHistCanvas()
 void SimpleBinsHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	LOG_MSG("Entering SimpleBinsHistCanvas::DisplayRightClickMenu");
-	if (right_click_menu_id.IsEmpty()) return;	
-	// Workaround for right-click not changing window focus in OSX / wxW 3.0
-	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	template_frame->OnActivate(ae);
-
-	wxMenu* optMenu;
-	optMenu = wxXmlResource::Get()->LoadMenu(right_click_menu_id);
-
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
+	if (right_click_menu_id.IsEmpty()) return;
+    if (sbh_canv_cb) {
+        sbh_canv_cb->OnRightClick(pos+ GetPosition());
+    }
 	LOG_MSG("Exiting SimpleBinsHistCanvas::DisplayRightClickMenu");
 }
 
 /** Override of TemplateCanvas method. */
 void SimpleBinsHistCanvas::update(HLStateInt* o)
 {
-	LOG_MSG("Entering SimpleBinsHistCanvas::update");
-	layer0_valid = false;
+    ResetBrushing();
 	layer1_valid = false;
-	layer2_valid = false;
 	Refresh();
-	LOG_MSG("Exiting SimpleBinsHistCanvas::update");	
 }
 
 wxString SimpleBinsHistCanvas::GetCanvasTitle()
@@ -135,6 +126,13 @@ wxString SimpleBinsHistCanvas::GetCanvasTitle()
 	wxString s("Histogram");	
 	s << " - " << Xname;
 	return s;
+}
+
+wxString SimpleBinsHistCanvas::GetVariableNames()
+{
+    wxString s;
+    s << Xname;
+    return s;
 }
 
 void SimpleBinsHistCanvas::TimeSyncVariableToggle(int var_index)
@@ -163,14 +161,13 @@ void SimpleBinsHistCanvas::ShowAxes(bool show_axes_s)
 
 void SimpleBinsHistCanvas::PopulateCanvas()
 {
-	LOG_MSG("Entering SimpleBinsHistCanvas::PopulateCanvas");
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
+    
 	double num_ivals_d = (double) hist_bins.size();
 	double x_min = 0;
 	double x_max = left_pad_const + right_pad_const
@@ -184,26 +181,26 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 		+ i * (interval_width_const + interval_gap_const);
 	}
 	
-	shps_orig_xmin = x_min;
-	shps_orig_xmax = x_max;
-	shps_orig_ymin = 0;
-	shps_orig_ymax = hist_bins_max;
+	double y_max = hist_bins_max;
+    
+    last_scale_trans.SetData(x_min, 0, x_max, y_max);
+    
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, shps_orig_ymax, 5);
-		shps_orig_ymax = axis_scale_y.scale_max;
-		y_axis = new GdaAxis("Frequency", axis_scale_y,
-							 wxRealPoint(0,0), wxRealPoint(0, shps_orig_ymax),
+		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
+		y_max = axis_scale_y.scale_max;
+		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
+							 wxRealPoint(0,0), wxRealPoint(0, y_max),
 							 -9, 0);
-		background_shps.push_back(y_axis);
+		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, Xmax);
+		axis_scale_x = AxisScale(0, Xmax, 5, axis_display_precision);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = Xmin;
 		axis_scale_x.data_max = Xmax;
 		axis_scale_x.scale_min = axis_scale_x.data_min;
 		axis_scale_x.scale_max = axis_scale_x.data_max;
 		double range = axis_scale_x.scale_max - axis_scale_x.scale_min;
-		LOG(axis_scale_x.data_max);
+        
 		axis_scale_x.scale_range = range;
 		axis_scale_x.p = floor(log10(range));
 		axis_scale_x.ticks = hist_bins.size()+1;
@@ -214,9 +211,11 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-			LOG(axis_scale_x.tics[i]);
 			std::ostringstream ss;
-			ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
+            if ( axis_scale_x.tics[i] == (int) axis_scale_x.tics[i])
+                ss << wxString::Format("%d", (int)axis_scale_x.tics[i]);
+            else
+                ss << std::fixed << std::setprecision(3) << axis_scale_x.tics[i];
 			axis_scale_x.tics_str[i] = ss.str();
 			axis_scale_x.tics_str_show[i] = false;
 		}
@@ -228,22 +227,26 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 		}
 		axis_scale_x.tic_inc = axis_scale_x.tics[1]-axis_scale_x.tics[0];
 		x_axis = new GdaAxis(Xname, axis_scale_x, wxRealPoint(0,0),
-							 wxRealPoint(shps_orig_xmax, 0), 0, 9);
-		background_shps.push_back(x_axis);
+							 wxRealPoint(x_max, 0), 0, 9);
+		foreground_shps.push_back(x_axis);
 	}
 	
 	GdaShape* s = 0;
 	int table_w=0, table_h=0;
 	
-	virtual_screen_marg_top = 5; //25;
-	virtual_screen_marg_bottom = 5; //25;
-	virtual_screen_marg_left = 5; //25;
-	virtual_screen_marg_right = 5; //25;
+	int virtual_screen_marg_top = 5; //25;
+	int virtual_screen_marg_bottom = 5; //25;
+	int virtual_screen_marg_left = 5; //25;
+	int virtual_screen_marg_right = 5; //25;
 	
 	if (show_axes) {
 		virtual_screen_marg_bottom += 32;
 		virtual_screen_marg_left += 35;
 	}
+    last_scale_trans.SetMargin(virtual_screen_marg_top,
+                               virtual_screen_marg_bottom,
+                               virtual_screen_marg_left,
+                               virtual_screen_marg_right);
 	
 	selectable_shps.resize(hist_bins.size());
 	for (size_t i=0; i<hist_bins.size(); ++i) {
@@ -259,7 +262,6 @@ void SimpleBinsHistCanvas::PopulateCanvas()
 	}
 	
 	ResizeSelectableShps();
-	LOG_MSG("Exiting SimpleBinsHistCanvas::PopulateCanvas");
 }
 
 void SimpleBinsHistCanvas::UpdateStatusBar()

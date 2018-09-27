@@ -21,6 +21,7 @@
 #include <vector>
 #include <ogrsf_frmts.h>
 
+#include "../GenUtils.h"
 #include "OGRFieldProxy.h"
 
 OGRFieldProxy::OGRFieldProxy(const wxString& _name,
@@ -37,18 +38,24 @@ OGRFieldProxy::OGRFieldProxy(const wxString& _name,
 	if (ogr_type == OFTString){
 		type = GdaConst::string_type;
 	}
-	else if (ogr_type == OFTInteger64) {
+	else if (ogr_type == OFTInteger64 || ogr_type == OFTInteger) {
 		type = GdaConst::long64_type;
 	}
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate) {
+    else if (ogr_type == OFTDate ) {
 		type = GdaConst::date_type;
+        
+    } else if (ogr_type == OFTTime) {
+		type = GdaConst::time_type;
+        
+    } else if (ogr_type == OFTDateTime) {
+		type = GdaConst::datetime_type;
 	}
 	
 	// create a OGRFieldDefn instance
-	ogr_fieldDefn = new OGRFieldDefn( name.c_str(), ogr_type );
+	ogr_fieldDefn = new OGRFieldDefn( GET_ENCODED_FILENAME(name), ogr_type );
 	ogr_fieldDefn->SetWidth(length);
 	ogr_fieldDefn->SetPrecision(decimals);
 }
@@ -58,7 +65,7 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
     is_field_changed = false;
 	ogr_fieldDefn = field_defn;
 	
-	name = field_defn->GetNameRef();
+	name = wxString(field_defn->GetNameRef(), wxConvUTF8);
 	OGRFieldType ogr_type  = field_defn->GetType();
 	length = field_defn->GetWidth();
     decimals = field_defn->GetPrecision();
@@ -73,9 +80,15 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
 	}
-	else if (ogr_type == OFTDate) {
-		type = GdaConst::date_type;
-	}
+    else if (ogr_type == OFTDate ) {
+        type = GdaConst::date_type;
+        
+    } else if (ogr_type == OFTTime) {
+        type = GdaConst::time_type;
+        
+    } else if (ogr_type == OFTDateTime) {
+        type = GdaConst::datetime_type;
+    }
 }
 
 OGRFieldProxy::~OGRFieldProxy()

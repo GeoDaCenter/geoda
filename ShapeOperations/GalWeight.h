@@ -46,12 +46,16 @@ public:
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
     double GetRW(int idx);
     bool Check(long nbrIdx);
+   
+    bool is_nbrAvgW_empty;
+    std::vector<double> nbrAvgW;
+    std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
+    
+    void Update(const std::vector<bool>& undefs);
     
 private:
-    std::map<long, int> nbrLookup; // nbr_id, idx_in_nbrWeight
 	std::vector<long> nbr;
 	std::vector<double> nbrWeight;
-    std::vector<double> nbrAvgW;
 };
 
 class GalWeight : public GeoDaWeight {
@@ -59,19 +63,30 @@ public:
 	GalElement* gal;
     
 	GalWeight() : gal(0) { weight_type = gal_type; }
+    
 	GalWeight(const GalWeight& gw);
+    
 	virtual ~GalWeight() { if (gal) delete [] gal; gal = 0; }
     
 	static bool HasIsolates(GalElement *gal, int num_obs);
     
 	virtual GalWeight& operator=(const GalWeight& gw);
+    
 	virtual bool HasIsolates() { return HasIsolates(gal, num_obs); }
+    
+    virtual void Update(const std::vector<bool>& undefs);
+    
     virtual bool SaveDIDWeights(Project* project,
-                        int num_obs,
-                        std::vector<wxInt64>& newids,
-                        std::vector<wxInt64>& stack_ids,
-                        const wxString& ofname);
-    virtual bool SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int);
+                                int num_obs,
+                                std::vector<wxInt64>& newids,
+                                std::vector<wxInt64>& stack_ids,
+                                const wxString& ofname);
+    
+    virtual bool SaveSpaceTimeWeights(const wxString& ofname,
+                                      WeightsManInterface* wmi,
+                                      TableInterface* table_int);
+    
+    virtual void GetNbrStats();    
 };
 
 namespace Gda {

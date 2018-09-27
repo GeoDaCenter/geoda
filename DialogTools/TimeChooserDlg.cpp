@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wx.h>
 #include <wx/sizer.h>
 #include <wx/xrc/xmlres.h>
 #include "../FramesManager.h"
@@ -45,23 +46,19 @@ END_EVENT_TABLE()
 
 TimeChooserTimer::TimeChooserTimer() : time_chooser_dlg(0)
 {
-	LOG_MSG("In TimeChooserTimer::TimeChooserTimer");
 }
 
 TimeChooserTimer::TimeChooserTimer(TimeChooserDlg* dlg) :
 	time_chooser_dlg(dlg)
 {
-	LOG_MSG("In TimeChooserTimer::TimeChooserTimer");
 }
 
 TimeChooserTimer::~TimeChooserTimer()
 {
-	LOG_MSG("In TimeChooserTimer::~TimeChooserTimer");
 	time_chooser_dlg = 0;
 }
 
 void TimeChooserTimer::Notify() {
-	LOG_MSG("In TimeChooserTimer::Notify");
 	if (time_chooser_dlg) time_chooser_dlg->TimerCall();
 }
 
@@ -76,7 +73,7 @@ all_init(false), suspend_notify(false),
 suspend_update(false), playing(false), timer(0), delay_ms(1000),
 loop(true), forward(true)
 {
-	LOG_MSG("Entering TimeChooserDlg::TimeChooserDlg");
+	wxLogMessage("Open TimeChooserDlg.");
 	SetParent(parent);
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_TIME_CHOOSER_DLG");
     SetBackgroundColour(*wxWHITE);
@@ -117,7 +114,6 @@ loop(true), forward(true)
     
     ToggleButtons( table_int->IsTimeVariant() && steps > 0 ? true : false);
     
-	LOG_MSG("Exiting TimeChooserDlg::TimeChooserDlg");
 }
 
 TimeChooserDlg::~TimeChooserDlg()
@@ -142,11 +138,10 @@ void TimeChooserDlg::ToggleButtons(bool enabled)
 
 void TimeChooserDlg::OnClose(wxCloseEvent& ev)
 {
-	LOG_MSG("Entering TimeChooserDlg::OnClose");
+	wxLogMessage("Close TimeChooserDlg::OnClose");
 	// Note: it seems that if we don't explictly capture the close event
 	//       and call Destory, then the destructor is not called.
 	Destroy();
-	LOG_MSG("Exiting TimeChooserDlg::OnClose");
 }
 
 void TimeChooserDlg::OnMoveSlider(wxCommandEvent& ev)
@@ -173,7 +168,7 @@ void TimeChooserDlg::OnMoveSpeedSlider(wxCommandEvent& ev)
 
 void TimeChooserDlg::ChangeTime(int new_time)
 {
-	LOG_MSG("In TimeChooserDlg::ChangeTime");
+	wxLogMessage("In TimeChooserDlg::ChangeTime");
 	if (!all_init) return;
 	LOG(new_time);
 	slider_val = new_time;
@@ -190,6 +185,7 @@ void TimeChooserDlg::ChangeTime(int new_time)
 
 void TimeChooserDlg::OnPlayPauseButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnPlayPauseButton");
 	if (!all_init) return;
 	if (playing) {
 		// stop playing
@@ -223,6 +219,7 @@ void TimeChooserDlg::OnPlayPauseButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnStepForwardButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnStepForwardButton");
 	if (!all_init) return;
 	if (playing) OnPlayPauseButton(ev);
 	int new_slider_val = GetSliderTimeStep()+1;
@@ -232,6 +229,7 @@ void TimeChooserDlg::OnStepForwardButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnStepBackButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnStepBackButton");
 	if (!all_init) return;
 	if (playing) OnPlayPauseButton(ev);
 	int new_slider_val = GetSliderTimeStep()-1;
@@ -241,6 +239,7 @@ void TimeChooserDlg::OnStepBackButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnSpeedSlowerButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnSpeedSlowerButton");
 	if (!all_init) return;
 	delay_ms = 3200;
 	//ChangeSpeed(delay_ms);
@@ -248,6 +247,7 @@ void TimeChooserDlg::OnSpeedSlowerButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnSpeedSlowButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnSpeedSlowButton");
 	if (!all_init) return;
 	delay_ms = 2200;
 	//ChangeSpeed(delay_ms);
@@ -255,6 +255,7 @@ void TimeChooserDlg::OnSpeedSlowButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnSpeedMediumButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnSpeedMediumButton");
 	if (!all_init) return;
 	delay_ms = 1500;
 	//ChangeSpeed(delay_ms);
@@ -262,6 +263,7 @@ void TimeChooserDlg::OnSpeedMediumButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnSpeedFastButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnSpeedFastButton");
 	if (!all_init) return;
 	delay_ms = 700;
 	//ChangeSpeed(delay_ms);
@@ -269,6 +271,7 @@ void TimeChooserDlg::OnSpeedFastButton(wxCommandEvent& ev)
 
 void TimeChooserDlg::OnSpeedFasterButton(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnSpeedFasterButton");
 	if (!all_init) return;
 	delay_ms = 350;
 	//ChangeSpeed(delay_ms);
@@ -284,12 +287,14 @@ void TimeChooserDlg::ChangeSpeed(int delay_ms)
 
 void TimeChooserDlg::OnReverseCheckBox(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnReverseCheckBox");
 	if (!all_init) return;
 	forward = (reverse_cb->GetValue() == 0);
 }
 
 void TimeChooserDlg::OnLoopCheckBox(wxCommandEvent& ev)
 {
+	wxLogMessage("In TimeChooserDlg::OnLoopCheckBox");
 	if (!all_init) return;
 	loop = (loop_cb->GetValue() == 1);
 }
@@ -364,21 +369,16 @@ void TimeChooserDlg::update(TimeState* o)
 {
 	if (suspend_update) return;
     
-	LOG_MSG("Entering TimeChooserDlg::update(TimeState* o)");
 	suspend_notify = true;
-	LOG(slider->GetValue());
 	SetCurTxt(o->GetCurrTime());
 	slider->SetValue(o->GetCurrTime());
 	slider->Refresh();
-	LOG(slider->GetValue());
 	suspend_notify = false;
 	Refresh();
-	LOG_MSG("Exiting TimeChooserDlg::update(TimeState* o)");
 }
 
 void TimeChooserDlg::update(TableState* o)
 {
-	LOG_MSG("Entering TimeChooserDlg::update(TableState* o)");
 	if (o->GetEventType() != TableState::time_ids_add_remove &&
 		o->GetEventType() != TableState::time_ids_rename &&
 		o->GetEventType() != TableState::time_ids_swap &&
@@ -405,11 +405,11 @@ void TimeChooserDlg::update(TableState* o)
     }
 	
 	Refresh();
-	LOG_MSG("Exiting TimeChooserDlg::update(TableState* o)");
 }
 
 void TimeChooserDlg::OnKeyEvent(wxKeyEvent& event)
 {
+	wxLogMessage("In TimeChooserDlg::OnKeyEvent");
 	if (event.GetModifiers() == wxMOD_CMD &&
 		(event.GetKeyCode() == WXK_LEFT || event.GetKeyCode() == WXK_RIGHT)) {
 		int del = (event.GetKeyCode() == WXK_LEFT) ? -1 : 1;
