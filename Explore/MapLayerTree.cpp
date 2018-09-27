@@ -37,7 +37,7 @@ SetAssociationDlg::SetAssociationDlg(wxWindow* parent, AssociateLayerInt* ml,vec
         layer_list.push_back(new wxChoice(this, XRCID(layer_id), wxDefaultPosition, wxSize(100,-1)));
         field_list.push_back(new wxChoice(this, wxID_ANY, wxDefaultPosition, wxSize(100,-1)));
         my_field_list.push_back(new wxChoice(this, wxID_ANY, wxDefaultPosition, wxSize(100,-1)));
-        conn_list.push_back(new wxCheckBox(this, wxID_ANY, "Show Connect line"));
+        conn_list.push_back(new wxCheckBox(this, wxID_ANY, _("Show connect line")));
         
         layer_list[i]->Bind(wxEVT_CHOICE, &SetAssociationDlg::OnLayerSelect, this);
     }

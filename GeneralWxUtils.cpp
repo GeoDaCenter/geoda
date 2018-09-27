@@ -42,17 +42,17 @@ void SimpleReportTextCtrl::OnContextMenu(wxContextMenuEvent& event)
 {
     wxMenu* menu = new wxMenu;
     // Some standard items
-    menu->Append(XRCID("SAVE_SIMPLE_REPORT"), _("&Save"));
+    menu->Append(XRCID("SAVE_SIMPLE_REPORT"), _("Save"));
     menu->AppendSeparator();
-    menu->Append(wxID_UNDO, _("&Undo"));
-    menu->Append(wxID_REDO, _("&Redo"));
+    menu->Append(wxID_UNDO, _("Undo"));
+    menu->Append(wxID_REDO, _("Redo"));
     menu->AppendSeparator();
-    menu->Append(wxID_CUT, _("Cu&t"));
-    menu->Append(wxID_COPY, _("&Copy"));
-    menu->Append(wxID_PASTE, _("&Paste"));
-    menu->Append(wxID_CLEAR, _("&Delete"));
+    menu->Append(wxID_CUT, _("Cut"));
+    menu->Append(wxID_COPY, _("Copy"));
+    menu->Append(wxID_PASTE, _("Paste"));
+    menu->Append(wxID_CLEAR, _("Delete"));
     menu->AppendSeparator();
-    menu->Append(wxID_SELECTALL, _("Select &All"));
+    menu->Append(wxID_SELECTALL, _("Select All"));
     
     // Add any custom items here
     Connect(XRCID("SAVE_SIMPLE_REPORT"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(SimpleReportTextCtrl::OnSaveClick));
