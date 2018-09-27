@@ -75,7 +75,7 @@ install_library()
 
     if ! [ -f "$LIB_FILENAME" ] ; then
 	echo "$LIB_FILENAME not found. Downloading..."
-        curl -O $LIB_URL
+        curl -L -O $LIB_URL
     else
 	echo "$LIB_FILENAME found.  Download skipped."
     fi
