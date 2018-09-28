@@ -152,20 +152,22 @@ XY::XY(double _x, double _y)
 }
 
 
-Basemap::Basemap(BasemapItem& basemap_item,
+Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
-                 MapLayer *_map,
+                 MapLayer* _map,
+                 MapLayer* _origMap,
                  wxString _cachePath,
                  OGRCoordinateTransformation *_poCT,
                  double _scale_factor)
 {
-    poCT = _poCT;
+    basemap_item = _basemap_item;
     screen = _screen;
     map = _map;
-    scale_factor = _scale_factor;
-    origMap = new MapLayer(map);
-    
+    origMap = _origMap;
     cachePath = _cachePath;
+    poCT = _poCT;
+    scale_factor = _scale_factor;
+
     bDownload = false;
     downloadThread = NULL;
     isPan = false;

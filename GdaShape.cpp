@@ -156,6 +156,15 @@ void GdaScaleTrans::SetFixedAspectRatio(bool fixed)
     calcAffineParams();
 }
 
+void GdaScaleTrans::SetExtent(double w, double e, double s, double n)
+{
+    data_x_min = w;
+    data_x_max = e;
+    data_y_min = s;
+    data_y_max = n;
+    calcAffineParams();
+}
+
 /** x_min, y_min, x_max, y_max are the bounding box limits for the entire map.
  target_height and target_width are ignored if set to 0.  They are used
  when a target size smaller than the normal maximum working area size is

@@ -49,6 +49,11 @@ public:
     bool operator==(const BasemapItem& other) {
         return (group == other.group && name == other.name && url == other.url);
     }
+    void Reset() {
+        group = "";
+        name = "";
+        url = "";
+    }
     wxString group;
     wxString name;
     wxString url;
@@ -156,18 +161,32 @@ namespace GDA {
     
     class MapLayer {
     public:
-        MapLayer(){}
+        double north;
+        double south;
+        double west;
+        double east;
+        OGRCoordinateTransformation *poCT;
+        OGRCoordinateTransformation *poCT_rev;
+        
+        MapLayer(){
+            poCT = NULL;
+            poCT_rev = NULL;
+        }
         MapLayer(MapLayer* _map) {
             north = _map->north;
             south = _map->south;
             west = _map->west;
             east = _map->east;
+            poCT = NULL;
+            poCT_rev = NULL;
         }
         MapLayer(double _n, double _w, double _s, double _e){
             north = _n;
             south = _s;
             west = _w;
             east = _e;
+            poCT = NULL;
+            poCT_rev = NULL;
         }
         MapLayer(double _n, double _w, double _s, double _e,
                  OGRCoordinateTransformation *_poCT){
@@ -176,6 +195,7 @@ namespace GDA {
             west = _w;
             east = _e;
             poCT = _poCT;
+            poCT_rev = NULL;
             if (poCT!= NULL) {
                 if (poCT->Transform(1, &_w, &_n)) {
                     west = _w;
@@ -185,6 +205,7 @@ namespace GDA {
                     east = _e;
                     south = _s;
                 }
+                poCT_rev = OGRCreateCoordinateTransformation(poCT->GetTargetCS(), poCT->GetSourceCS());
             }
         }
         MapLayer(LatLng& nw, LatLng& se){
@@ -192,22 +213,28 @@ namespace GDA {
             west = nw.lng;
             south = se.lat;
             east = se.lng;
+            poCT = NULL;
+            poCT_rev = NULL;
         }
-        ~MapLayer(){}
-        
-        MapLayer* operator=(const MapLayer* other) {
-            north = other->north;
-            south = other->south;
-            west = other->west;
-            east = other->east;
-            return this;
+        ~MapLayer(){
+            if (poCT) {
+                delete poCT;
+            }
+            if (poCT_rev) {
+                delete poCT_rev;
+            }
         }
-        double north;
-        double south;
-        double west;
-        double east;
-        OGRCoordinateTransformation *poCT;
         
+        void GetWestNorthEastSouth(double& w, double& n, double& e, double& s) {
+            if (poCT_rev) {
+                w = west;
+                n = north;
+                e = east;
+                s = south;
+                poCT_rev->Transform(1, &w, &n);
+                poCT_rev->Transform(1, &e, &s);
+            }
+        }
         double GetWidth() {
             if (east >= west)
                 return east - west;
@@ -258,18 +285,48 @@ namespace GDA {
             north = north + offsetH;
             south = south - offsetH;
         }
+        MapLayer* operator=(const MapLayer* other) {
+            north = other->north;
+            south = other->south;
+            west = other->west;
+            east = other->east;
+            poCT = NULL;
+            poCT_rev = NULL;
+            if (other->poCT) {
+                poCT = OGRCreateCoordinateTransformation(other->poCT->GetSourceCS(), other->poCT->GetTargetCS());
+            }
+            if (other->poCT_rev) {
+                poCT_rev = OGRCreateCoordinateTransformation(other->poCT_rev->GetSourceCS(), other->poCT_rev->GetTargetCS());
+            }
+            return this;
+        }
     };
 
     // only for Web mercator projection
     class Basemap {
+        int nn; // pow(2.0, zoom)
+        bool bDownload;
+        boost::thread* downloadThread;
+        boost::thread* downloadThread1;
         
+        int GetOptimalZoomLevel(double paddingFactor=1.2);
+        int GetEasyZoomLevel();
+        
+        void GetTiles();
+        void _GetTiles(int start_x, int start_y, int end_x, int end_y);
+        void _GetTiles(int x, int start_y, int end_y);
+        
+        void DownloadTile(int x, int y);
+        
+        bool _HasInternet();
     public:
         Basemap(){}
         Basemap(BasemapItem& basemap_item,
-                Screen *_screen,
-                MapLayer *_map,
+                Screen* _screen,
+                MapLayer* _map,
+                MapLayer* _origMap,
                 wxString _cachePath,
-                OGRCoordinateTransformation *_poCT,
+                OGRCoordinateTransformation* _poCT,
                 double scale_factor = 1.0);
         ~Basemap();
         
@@ -310,6 +367,7 @@ namespace GDA {
         double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
         double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
         XY* LatLngToXY(LatLng &latlng);
+        XY* LatLngToRawXY(LatLng &latlng);
         LatLng* XYToLatLng(XY &xy, bool isLL=false);
         void LatLngToXY(double lng, double lat, int &x, int &y);
         
@@ -331,27 +389,7 @@ namespace GDA {
         void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();
-        
-    protected:
-        
-        int nn; // pow(2.0, zoom)
-        
-        bool bDownload;
-        boost::thread* downloadThread;
-        boost::thread* downloadThread1;
-        
-        int GetOptimalZoomLevel(double paddingFactor=1.2);
-        int GetEasyZoomLevel();
-        
-        XY* LatLngToRawXY(LatLng &latlng);
-        
-        void GetTiles();
-        void _GetTiles(int start_x, int start_y, int end_x, int end_y);
-        void _GetTiles(int x, int start_y, int end_y);
-        
-        void DownloadTile(int x, int y);
-        
-        bool _HasInternet();
+
     };
     
 }
