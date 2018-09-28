@@ -1311,7 +1311,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer1_dc.Clear();
     if (isDrawBasemap) {
         wxImage im = basemap_bm->ConvertToImage();
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(__linux__)
         im.Rescale(w*basemap_scale, h*basemap_scale, wxIMAGE_QUALITY_HIGH);
 #endif
         layer1_dc.DrawBitmap(im, 0, 0);

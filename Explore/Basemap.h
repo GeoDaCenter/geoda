@@ -217,12 +217,7 @@ namespace GDA {
             poCT_rev = NULL;
         }
         ~MapLayer(){
-            if (poCT) {
-                delete poCT;
-            }
-            if (poCT_rev) {
-                delete poCT_rev;
-            }
+
         }
         
         void GetWestNorthEastSouth(double& w, double& n, double& e, double& s) {
