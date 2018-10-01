@@ -830,7 +830,7 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     dc.DrawLine(10, y+2, x, y+2);
     
     BackgroundMapLayer* ml = GetMapLayer(text);
-    
+
     x = x + 45; // switch width
     dc.SetPen(*wxBLACK_PEN);
     if (text == current_map_title) {
@@ -854,12 +854,15 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     dc.DrawText(text, x, y);
     
     // draw switch button
-    if (ml == NULL) {
-        return;
+    AssociateLayerInt* ml_int;
+    if (ml) {
+        ml_int = ml;
+    } else {
+        ml_int = canvas;
     }
     
     wxString ds_thumb = "switch-on.png";
-    if (ml->IsHide()) ds_thumb = "switch-off.png";
+    if (ml_int->IsHide()) ds_thumb = "switch-off.png";
     wxString file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
     
     wxImage img;
@@ -932,12 +935,18 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
         wxString map_name = map_titles[new_order[switch_idx]];
         
         BackgroundMapLayer* ml = GetMapLayer(map_name);
-        
+        AssociateLayerInt* ml_int;
         if (ml) {
-            ml->SetHide(!ml->IsHide());
+            ml_int = ml;
+        } else {
+            ml_int = canvas;
+        }
+        
+        if (ml_int) {
+            ml_int->SetHide(!ml_int->IsHide());
             canvas->DisplayMapLayers();
             Refresh();
-        }
+        } 
     }
 }
 

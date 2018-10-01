@@ -196,6 +196,7 @@ print_detailed_basemap(false),
 maplayer_state(project_s->GetMapLayerState())
 {
     wxLogMessage("MapCanvas::MapCanvas()");
+    is_hide = false;
     layer_name = project->layername;
     bg_maps = project->CloneBackgroundMaps();
     ds_name = project->GetDataSource()->GetOGRConnectStr();
@@ -877,7 +878,9 @@ void MapCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* map, background_maps ) {
         map->paintSelf(dc);
     }
-    DrawSelectableShapes_dc(dc);
+    if (IsHide() == false) {
+        DrawSelectableShapes_dc(dc);
+    }
     BOOST_FOREACH( GdaShape* map, foreground_maps ) {
         map->paintSelf(dc);
     }
@@ -2101,14 +2104,15 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
             vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
-                if (associated_lines[associated_layer]) {
+                if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
                     dc.DrawLine(selectable_shps[i]->center, associated_layer->GetShape(ids[j])->center);
                 }
             }
         }
     }
-    
-    this->DrawHighlighted(dc, false);
+    if (IsHide() == false) {
+        this->DrawHighlighted(dc, false);
+    }
 }
 
 GdaShape* MapCanvas::GetShape(int i)
