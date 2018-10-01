@@ -347,7 +347,7 @@ CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _
         canvas->AddShape(legend_shape);
         
         legend_shape->SetX(50 + legend_shape->GetWidth());
-        legend_shape->SetY(50 + legend_shape->GetHeight());
+        legend_shape->SetY(120);
         legend_shape->MakeControlPoints();
         legend_shape->SetMaintainAspectRatio(true);
         legend_shape->Show(false);

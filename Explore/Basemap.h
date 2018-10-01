@@ -122,10 +122,10 @@ namespace GDA {
         double GetLngRad() {return lng * M_PI / 180.0;}
     };
     
-    class XY {
+    class XYFraction {
     public:
-        XY(){}
-        XY(int _x, int _y) {
+        XYFraction(){}
+        XYFraction(int _x, int _y) {
             x = _x;
             y = _y;
             xint = _x;
@@ -133,8 +133,8 @@ namespace GDA {
             xfrac = .0;
             yfrac = .0;
         }
-        XY(double _x, double _y);
-        ~XY(){}
+        XYFraction(double _x, double _y);
+        ~XYFraction(){}
         
         double x;
         double y;
@@ -361,9 +361,9 @@ namespace GDA {
         
         double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
         double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
-        XY* LatLngToXY(LatLng &latlng);
-        XY* LatLngToRawXY(LatLng &latlng);
-        LatLng* XYToLatLng(XY &xy, bool isLL=false);
+        XYFraction* LatLngToXY(LatLng &latlng);
+        XYFraction* LatLngToRawXY(LatLng &latlng);
+        LatLng* XYToLatLng(XYFraction &xy, bool isLL=false);
         void LatLngToXY(double lng, double lat, int &x, int &y);
         
         wxString GetTileUrl(int x, int y);
