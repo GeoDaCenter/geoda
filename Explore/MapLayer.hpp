@@ -39,6 +39,7 @@ public:
     virtual bool IsCurrentMap() = 0;
     virtual wxString GetName() = 0;
     virtual int  GetNumRecords() = 0;
+    virtual int GetHighlightRecords() = 0;
     virtual vector<wxString> GetKeyNames() = 0;
     virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data) = 0;
     virtual void ResetHighlight() = 0;
@@ -95,7 +96,7 @@ public:
                                      wxString key, bool show_connline=true);
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
-
+    virtual int GetHighlightRecords();
 
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers

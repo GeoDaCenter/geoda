@@ -307,8 +307,10 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
     TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
     
     // if multi-layer presents and top layer is not current map
-    if ( fg_maps.empty() )
+    if ( fg_maps.empty() ) {
+        UpdateMapTree();
         return;
+    }
     
     BackgroundMapLayer* ml = fg_maps[0];
     int nn = ml->GetNumRecords();
@@ -391,6 +393,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
         highlight_state->SetTotalHighlighted(total_highlighted);
         highlight_timer->Start(50);
     }
+    UpdateMapTree();
 }
 
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
@@ -1071,6 +1074,18 @@ void MapCanvas::SetHighlight(int idx)
     }
 }
 
+int MapCanvas::GetHighlightRecords()
+{
+    int hl_cnt = 0;
+    vector<bool>& hs = highlight_state->GetHighlight();
+    for (int i=0; i<hs.size(); i++) {
+        if (hs[i]) {
+            hl_cnt += 1;
+        }
+    }
+    return hl_cnt;
+}
+
 void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
 {
     if (selectable_shps.size() == 0) {
@@ -1158,6 +1173,13 @@ void MapCanvas::CleanBasemapCache()
 {
     if (basemap) {
         basemap->CleanCache();
+    }
+}
+
+void MapCanvas::UpdateMapTree()
+{
+    if (MapFrame* f = dynamic_cast<MapFrame*>(template_frame)) {
+        f->UpdateMapTree();
     }
 }
 
@@ -3181,6 +3203,13 @@ void MapFrame::OnMapEditLayer(wxCommandEvent& e)
     map_tree->Recreate();
     map_tree->Raise();
     map_tree->Show(true);
+}
+
+void MapFrame::UpdateMapTree()
+{
+    if (map_tree != NULL) {
+        map_tree->Refresh();
+    }
 }
 
 void MapFrame::OnMapTreeClose(wxWindowDestroyEvent& event)

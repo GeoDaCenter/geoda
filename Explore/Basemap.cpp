@@ -180,6 +180,8 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     nokia_id = "oRnRceLPyM8OFQQA5LYH";
     nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
     
+    wxInitAllImageHandlers();
+    
     GetEasyZoomLevel();
     SetupMapType(basemap_item);
 }
@@ -766,8 +768,6 @@ bool Basemap::Draw(wxBitmap* buffer)
             if (imageSuffix == ".png") {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
             } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
-                wxImageHandler * jpegLoader = new wxJPEGHandler();
-                wxImage::AddHandler(jpegLoader);
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             if (bmp.IsOk()) {

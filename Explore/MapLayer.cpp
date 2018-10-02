@@ -113,6 +113,17 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+int BackgroundMapLayer::GetHighlightRecords()
+{
+    int hl_cnt = 0;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            hl_cnt += 1;
+        }
+    }
+    return hl_cnt;
+}
+
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers

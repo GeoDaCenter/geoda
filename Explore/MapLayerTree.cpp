@@ -851,16 +851,21 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     if (text == current_map_title) {
         dc.SetTextForeground(*wxLIGHT_GREY);
     }
-    dc.DrawText(text, x, y);
     
-    // draw switch button
+    // add highlight/all
     AssociateLayerInt* ml_int;
     if (ml) {
         ml_int = ml;
     } else {
         ml_int = canvas;
     }
+    int hl_cnt = ml_int->GetHighlightRecords();
+    int all_cnt = ml_int->GetNumRecords();
+    wxString hl_str = wxString::Format(" (%d/%d highlight)", hl_cnt, all_cnt);
+    text = text + hl_str;
+    dc.DrawText(text, x, y);
     
+    // draw switch button
     wxString ds_thumb = "switch-on.png";
     if (ml_int->IsHide()) ds_thumb = "switch-off.png";
     wxString file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
@@ -903,7 +908,7 @@ int MapTree::GetSwitchClick(wxMouseEvent& event)
     
     for (int i = 0; i<map_titles.size(); i++) {
         int cur_y = py + (leg_h + leg_pad_y) * i;
-        if ((x > px_switch) && (x < px_switch + 30) &&
+        if ((x > px_switch) && (x < px_switch + 40) &&
             (y > cur_y) && (y < cur_y + leg_h))
         {
             return i;

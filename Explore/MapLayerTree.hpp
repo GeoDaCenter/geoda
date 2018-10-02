@@ -35,7 +35,7 @@ public:
                       vector<AssociateLayerInt*>& _all_layers,
                       const wxString& title = _("Set Association Dialog"),
                      const wxPoint& pos = wxDefaultPosition,
-                     const wxSize& size = wxSize(400,300));
+                     const wxSize& size = wxSize(480,300));
     void CreateControls(int nrows);
     void Init();
     

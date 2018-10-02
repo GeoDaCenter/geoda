@@ -210,6 +210,8 @@ public:
                                      wxString key, bool show_connline=true);
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual GdaShape* GetShape(int idx);
+    virtual int GetHighlightRecords();
+    void UpdateMapTree();
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
@@ -406,6 +408,7 @@ public:
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
+    void UpdateMapTree();
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
