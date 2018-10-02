@@ -321,9 +321,16 @@ void KClusterDlg::OnClose(wxCloseEvent& ev)
 
 wxString KClusterDlg::_printConfiguration()
 {
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString txt;
     txt << _("Method:\t") << cluster_method << "\n";
-    txt << _("Number of clusters:\t") << combo_n->GetSelection() + 2 << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
     txt << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
     txt << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
     txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
@@ -572,8 +579,13 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KClusterDlg::OnOK");
    
-    int ncluster = combo_n->GetSelection() + 2;
-   
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");

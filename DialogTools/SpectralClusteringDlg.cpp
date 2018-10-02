@@ -490,8 +490,15 @@ void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 
 wxString SpectralClusteringDlg::_printConfiguration()
 {
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString txt;
-    txt << _("Number of clusters:\t") << combo_n->GetString(combo_n->GetSelection()) << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
    
     if (chk_kernel->IsChecked())  {
         txt << _("Affinity with Guassian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
