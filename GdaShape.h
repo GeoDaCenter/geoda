@@ -82,6 +82,8 @@ struct GdaScaleTrans {
     void Zoom(bool is_zoomin, wxPoint& from, wxPoint& to);
     void ScrollView(int scroll_x, int scroll_y);
     
+    void SetExtent(double w, double e, double s, double n);
+    
     int GetXNudge();
     wxRealPoint GetDataCenter();
    

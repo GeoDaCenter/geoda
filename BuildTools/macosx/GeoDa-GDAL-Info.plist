@@ -21,9 +21,9 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.12</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>

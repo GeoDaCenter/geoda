@@ -17,9 +17,9 @@ point_radius(2),
 opacity(255),
 pen_size(1),
 show_boundary(false),
-is_hide(true),
 map_boundary(NULL)
 {
+    is_hide = true;
 }
 
 BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
@@ -32,10 +32,10 @@ point_radius(2),
 opacity(255),
 pen_size(1),
 show_boundary(false),
-is_hide(false),
 map_boundary(NULL),
 show_connect_line(false)
 {
+    is_hide = false;
     num_obs = layer_proxy->GetNumRecords();
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
@@ -164,7 +164,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
             vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
-                if (associated_lines[associated_layer]) {
+                if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
                     dc.DrawLine(shapes[i]->center, associated_layer->GetShape(ids[j])->center);
                 }
             }
@@ -173,7 +173,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
     
     // draw self highlight
     for (int i=0; i<highlight_flags.size(); i++) {
-        if (highlight_flags[i]) {
+        if (highlight_flags[i] && IsHide() == false) {
             shapes[i]->paintSelf(dc);
         }
     }
@@ -319,16 +319,6 @@ void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)
 Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
 {
     return shape_type;
-}
-
-void BackgroundMapLayer::SetHide(bool flag)
-{
-    is_hide = flag;
-}
-
-bool BackgroundMapLayer::IsHide()
-{
-    return is_hide;
 }
 
 void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)

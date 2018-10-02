@@ -1588,7 +1588,7 @@ void GdaFrame::OnSetNoBasemap(wxCommandEvent& event)
 	if (!t) return;
     
 	MapFrame* f = dynamic_cast<MapFrame*>(t);
-    //if (f) f->OnDrawBasemap(false,0);
+    if (f) f->SetNoBasemap();
 }
 
 void GdaFrame::OnBasemapConfig(wxCommandEvent& event)

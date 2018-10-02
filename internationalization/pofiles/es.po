@@ -10,8 +10,83 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: es\n"
-"X-Generator: Poedit 2.0.8\n"
+"X-Generator: Poedit 2.1.1\n"
 "X-Poedit-SourceCharset: UTF-8\n"
+
+msgid "&Tools"
+msgstr "Herramientas"
+
+msgid "&Space"
+msgstr "Espacio"
+
+msgid "C&reate"
+msgstr "Crear"
+
+msgid "&Explore"
+msgstr "Explorar"
+
+msgid "&New"
+msgstr "Nuevo"
+
+msgid "&Help"
+msgstr "Ayud"
+
+msgid "&Run"
+msgstr "&Ejecutar"
+
+msgid "Appl&y"
+msgstr "Aplicar"
+
+msgid "&Close"
+msgstr "Cerrar"
+
+msgid "&Cancel"
+msgstr "Cancelar"
+
+msgid "&File"
+msgstr "Archivo"
+
+msgid "&Save to Table"
+msgstr "Guardar en Tabla"
+
+msgid "&Map"
+msgstr "Mapa"
+
+msgid "&Edit"
+msgstr "Editar"
+
+msgid "&Add ID Variable..."
+msgstr "Añadir Variable ID"
+
+msgid "&Open Project"
+msgstr "Abrir Proyecto"
+
+msgid "&Merge"
+msgstr "Combinar"
+
+msgid "Tim&e"
+msgstr "Tiempo"
+
+msgid "&Undo"
+msgstr "Deshacer"
+
+msgid "&Paste"
+msgstr "Pegar"
+
+msgid "&Save"
+msgstr "Guardar"
+
+msgid "Select &All"
+msgstr "Seleccionar Todo"
+
+msgid "Cu&t"
+msgstr "Cortar"
+
+msgid "&Copy"
+msgstr "Copiar"
+
+msgid "&Redo"
+msgstr "Repetir"
 
 msgid "Descending order"
 msgstr "Orden Descendente"
@@ -261,8 +336,8 @@ msgstr "Mejorar Cartograma"
 msgid "Add new column to table"
 msgstr "Añadir nueva columna a la tabla"
 
-msgid "&Tools"
-msgstr "&Herramientas"
+msgid "Tools"
+msgstr "Herramientas"
 
 msgid "Category"
 msgstr "Categoría"
@@ -330,11 +405,8 @@ msgstr "Correlograma Espacial"
 msgid "Read from an ASCII file"
 msgstr "Leer de un Archivo ASCII"
 
-msgid "&Space"
-msgstr "&Espacio"
-
-msgid "C&reate"
-msgstr "Crear"
+msgid "Space"
+msgstr "Espacio"
 
 msgid "South European Latin-3 (ISO-8859-3)"
 msgstr "Sur de Europa Latín-3 (ISO-8859-3)"
@@ -486,17 +558,11 @@ msgstr "DBF Viewer 0.8 (Julio 29, 2011)"
 msgid "3 Iteration"
 msgstr "Iteración 3"
 
-msgid "File"
-msgstr "Archivo"
-
 msgid "Apply"
 msgstr "Aplicar"
 
 msgid "Map Themes"
 msgstr "Temas de Mapa"
-
-msgid "Regression"
-msgstr "Regresión"
 
 msgid "499 Permutations"
 msgstr "499 Permutaciones"
@@ -540,9 +606,6 @@ msgstr "Contornos Visibles"
 msgid "Change Map Transparency"
 msgstr "Cambiar Transparencia del Mapa"
 
-msgid "&Explore"
-msgstr "&Explorar"
-
 msgid "Number of Categories"
 msgstr "Número de Categorías"
 
@@ -554,9 +617,6 @@ msgstr "Nuevo archivo de proyecto"
 
 msgid "Save Table As CSV File"
 msgstr "Guardar Tabla como CSV"
-
-msgid "&New"
-msgstr "&Nuevo"
 
 msgid "year:"
 msgstr "año"
@@ -638,9 +698,6 @@ msgstr "Tasa Cruda"
 
 msgid "Save Connectivity To Table"
 msgstr "Guardar Conectividad a Tabla"
-
-msgid "Save"
-msgstr "Guardar"
 
 msgid "Panning Mode"
 msgstr "Modo Arrastrado"
@@ -801,8 +858,8 @@ msgstr "Cortes Intervalos Verticales"
 msgid "Zoom Out"
 msgstr "Zoom -"
 
-msgid "&Help"
-msgstr "&Ayuda"
+msgid "Help"
+msgstr "Ayuda"
 
 msgid "Append To Current Selection"
 msgstr "Anexar a Selección Actual"
@@ -831,9 +888,6 @@ msgstr "Configuración de Variable"
 msgid "Connect"
 msgstr "Conectar"
 
-msgid "Cancel"
-msgstr "Cancelar"
-
 msgid "observation:"
 msgstr "observación"
 
@@ -843,7 +897,7 @@ msgstr "Variables"
 msgid "Geography Markup Language (*.gml)|*.gml"
 msgstr "Lenguaje de Marcado Geográfico (*.gml)|*.gml"
 
-msgid "Re&set"
+msgid "Reset"
 msgstr "Borrar"
 
 msgid "Grouped Variables"
@@ -863,9 +917,6 @@ msgstr "Tipo 1"
 
 msgid "Animation"
 msgstr "Animación"
-
-msgid "&Run"
-msgstr "&Ejecutar"
 
 msgid "Clusters"
 msgstr "Clúster"
@@ -924,9 +975,6 @@ msgstr "Nombre usuario"
 msgid "min:"
 msgstr "mín."
 
-msgid "Appl&y"
-msgstr "Aplicar"
-
 msgid "Queen contiguity"
 msgstr "Contigüidad Reina"
 
@@ -944,9 +992,6 @@ msgstr "Escala fija en el tiempo"
 
 msgid "Greek (ISO-8859-7)"
 msgstr "Griego (ISO-8859-7)"
-
-msgid "&Close"
-msgstr "Cerrar"
 
 msgid "Change Edge Thickness"
 msgstr "Cambiar Grosor del Borde"
@@ -1095,7 +1140,7 @@ msgstr "Crear"
 msgid "K Medoids"
 msgstr "K Medoids"
 
-msgid "&Regression"
+msgid "Regression"
 msgstr "Regresión"
 
 msgid "Show As Conditional Map"
@@ -1161,8 +1206,8 @@ msgstr "Eliminar Variable(s)"
 msgid "Intervals in the Histogram"
 msgstr "Intervalos en el Histograma"
 
-msgid "&Cancel"
-msgstr "&Cancelar"
+msgid "Cancel"
+msgstr "Cancelar"
 
 msgid "Get a free GeoDa-Web account: "
 msgstr "Obtener una cuenta de GeoDa-Web gratis"
@@ -1173,8 +1218,8 @@ msgstr "Mapa de Cuantiles"
 msgid "Bubble Chart"
 msgstr "Gráfico de Burbujas"
 
-msgid "&File"
-msgstr "&Archivo"
+msgid "File"
+msgstr "Archivo"
 
 msgid "Yes"
 msgstr "Sí"
@@ -1182,7 +1227,7 @@ msgstr "Sí"
 msgid "Significance Filter"
 msgstr ""
 
-msgid "T&able"
+msgid "Table"
 msgstr "Tabla"
 
 msgid "using row-standardized weights"
@@ -1299,8 +1344,8 @@ msgstr "G Local"
 msgid "Upper-right corner"
 msgstr "Esquina superior derecha"
 
-msgid "&Save to Table"
-msgstr "&Guardar en Tabla"
+msgid "Save to Table"
+msgstr "Guardar en Tabla"
 
 msgid "Spatial Rate"
 msgstr "Tasa Espacial"
@@ -1319,9 +1364,6 @@ msgstr "Fuente de Datos de Entrada"
 
 msgid "Max value of Y axis"
 msgstr "Valor Máx. del eje Y"
-
-msgid "&Map"
-msgstr "&Mapa"
 
 msgid "binary"
 msgstr "binario"
@@ -1389,9 +1431,6 @@ msgstr "Añadir Vecinos a Selección"
 msgid "Rename Variable"
 msgstr "Renombrar Variable"
 
-msgid "Table"
-msgstr "Tabla"
-
 msgid "Variable Name"
 msgstr "Nombre de la Variable"
 
@@ -1406,9 +1445,6 @@ msgstr "Invertir Selección"
 
 msgid "X-coordinate"
 msgstr "coordenada-X"
-
-msgid "&Edit"
-msgstr "&Editar"
 
 msgid "X Variable"
 msgstr "Variable X"
@@ -1455,11 +1491,8 @@ msgstr "Valores Individuales"
 msgid "Clean Basemap Cache"
 msgstr "Borrar Mapa Base de Caché"
 
-msgid "&Add ID Variable..."
-msgstr "&Añadir Variable ID"
-
-msgid "Reset"
-msgstr "Borrar"
+msgid "Add ID Variable..."
+msgstr "Añadir Variable ID"
 
 msgid "Input file "
 msgstr "Abrir Archivo"
@@ -1485,8 +1518,8 @@ msgstr "Añadir/Eliminar Variables"
 msgid "OK"
 msgstr "Aceptar"
 
-msgid "&Open Project"
-msgstr "&Abrir Proyecto"
+msgid "Open Project"
+msgstr "Abrir Proyecto"
 
 msgid "Save Space-Time Table/Weights"
 msgstr "Guardar Tabla Espacio-Tiempo/pesos"
@@ -1608,8 +1641,8 @@ msgstr "Qué ventana abrir"
 msgid "Get a free Nokia/HERE account: "
 msgstr "Obtener una cuenta gratis de Nokia/HERE"
 
-msgid "&Merge"
-msgstr "&Combinar"
+msgid "Merge"
+msgstr "Combinar"
 
 msgid "First line of CSV is variable names?"
 msgstr "¿Primera Línea de CSV esn nombre de variables?"
@@ -1688,9 +1721,6 @@ msgstr "Color de Fondo"
 
 msgid "Axis Selection"
 msgstr "Selección de Eje"
-
-msgid "Tim&e"
-msgstr "Tiempo"
 
 msgid "Set Display Precision:"
 msgstr "Mostrar Pantalla de Precisión"
@@ -1850,9 +1880,6 @@ msgstr "Añadir Nueva Variable ID"
 
 msgid "Rates-Calculated Maps"
 msgstr "Mapas de Ratios Calculados"
-
-msgid "Merge"
-msgstr "Combinar"
 
 msgid "Color"
 msgstr "Color"
@@ -2094,11 +2121,11 @@ msgstr "En GdaMarco::OnCheckTestMode():"
 msgid "Conditional Local Geary Map Variables"
 msgstr "Variables del Mapa de Geary Local Condicional"
 
-msgid "&Undo"
-msgstr "&Deshacer"
+msgid "Undo"
+msgstr "Deshacer"
 
-msgid "&Paste"
-msgstr "&Pegar"
+msgid "Paste"
+msgstr "Pegar"
 
 msgid "Save Details"
 msgstr "Guardar Detalles"
@@ -2163,8 +2190,8 @@ msgstr "Añadir\\/Eliminar Variables"
 msgid "First Variable (X)"
 msgstr "Primera Variable (X)"
 
-msgid "&Save"
-msgstr "&Guardar"
+msgid "Save"
+msgstr "Guardar"
 
 msgid "Please input user name."
 msgstr "Introducir nombre de usuario."
@@ -2718,8 +2745,8 @@ msgstr "Nuevo nombre de variable"
 msgid "The sample size for random sampling is too small.\n"
 msgstr "Tamaño de la muestra para muestreo aleatorio demasiado pequeño.\n"
 
-msgid "Select &All"
-msgstr "Seleccionar &Todo"
+msgid "Select All"
+msgstr "Seleccionar Todo"
 
 msgid "Warning"
 msgstr "Aviso"
@@ -2873,9 +2900,6 @@ msgstr "Afinidad con K-NN:"
 
 msgid "Nokia\\/HERE App ID"
 msgstr "Nokia\\/HERE App ID"
-
-msgid "Help"
-msgstr "Ayuda"
 
 msgid "Please select features first."
 msgstr "Seleccionar 1º las características."
@@ -3138,8 +3162,8 @@ msgstr "Ocultar tabla de sistema en conexión de Postgresql:"
 msgid "Plots:"
 msgstr "Gráficos:"
 
-msgid "Cu&t"
-msgstr "Cortar&"
+msgid "Cut"
+msgstr "Cortar"
 
 msgid "Please enter number of regions"
 msgstr "Introducir nº de regiones"
@@ -3351,8 +3375,8 @@ msgstr "Introducir valor de semilla"
 msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
 msgstr "Controlador de base de datos seleccionado no admitido en esta plataforma. Consulte la web de GeoDa para más información sobre bases de datos y conexiones admitidas."
 
-msgid "&Copy"
-msgstr "&Copiar"
+msgid "Copy"
+msgstr "Copiar"
 
 msgid " and "
 msgstr " y "
@@ -3525,7 +3549,7 @@ msgstr "Al seleccionar \"todos los períodos\", el campo de resultados debe ser 
 msgid "Please input Carto User Name."
 msgstr "Introducir Nombre de Usuario de Carto."
 
-msgid "E&xplore"
+msgid "Explore"
 msgstr "Explorar"
 
 msgid "Thank you for helping us improve GeoDa with your bug report! \n"
@@ -3672,9 +3696,6 @@ msgstr "Transformación:"
 msgid "Other Positive"
 msgstr "Otro Positivo"
 
-msgid "&Delete"
-msgstr "&Borrar"
-
 msgid "Sample Autocorrelation"
 msgstr "Autocorrelación muestral"
 
@@ -3756,8 +3777,8 @@ msgstr "La clave especificada (%s) no se encuentra en la Tabla activa"
 msgid "The selected variable is not numeric. Please select another variable."
 msgstr "La variable seleccionada no es numérica. Seleccionar otra variable."
 
-msgid "&Redo"
-msgstr "&Repetir"
+msgid "Redo"
+msgstr "Repetir"
 
 msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
 msgstr "Imposible agregar tabla porque el campo clave \"%s\" es único. Utilizar otro campo clave."
@@ -3854,3 +3875,93 @@ msgstr "Guardar Como Fuente Datos"
 
 msgid "The number of identified clusters is less than "
 msgstr "El nº de clústers identificados es menor que "
+
+msgid "Add Map Layer"
+msgstr "Add Map Layer"
+
+msgid "Edit Map Layer"
+msgstr "Edit Map Layer"
+
+msgid "Map Layer Setting"
+msgstr "Map Layer Setting"
+
+msgid "Set Highlight Association"
+msgstr "Set Highlight Association"
+
+msgid "Clear Highlight Association"
+msgstr "Clear Highlight Association"
+
+msgid "Change Fill Color"
+msgstr "Change Fill Color"
+
+msgid "Change Outline Color"
+msgstr "Change Outline Color"
+
+msgid "Outline Visible"
+msgstr "Outline Visible"
+
+msgid "Only Map Boundary"
+msgstr "Only Map Boundary"
+
+msgid "Change Point Radius"
+msgstr "Change Point Radius"
+
+msgid "Set Association Dialog"
+msgstr "Set Association Dialog"
+
+msgid "Select layer"
+msgstr "Select layer"
+
+msgid "and field"
+msgstr "and field"
+
+msgid "is associated to"
+msgstr "is associated to"
+
+msgid "in current layer."
+msgstr "in current layer."
+
+msgid "Show connect line"
+msgstr "Show connect line"
+
+msgid "Point Radius:"
+msgstr "Point Radius:"
+
+msgid "Map Layout Preview"
+msgstr "Map Layout Preview"
+
+msgid "Show Legend"
+msgstr "Show Legend"
+
+msgid "Use Transparent Legend Background"
+msgstr "Use Transparent Legend Background"
+
+msgid "Image Dimension Setting"
+msgstr "Image Dimension Setting"
+
+msgid "Width:"
+msgstr "Width:"
+
+msgid "Height:"
+msgstr "Height:"
+
+msgid "Resolution(dpi):"
+msgstr "Resolution(dpi):"
+
+msgid "pixels"
+msgstr "pixels"
+
+msgid "inches"
+msgstr "inches"
+
+msgid "mm"
+msgstr "mm"
+
+msgid "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
+msgstr "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
+
+msgid "Basemap Parameters:"
+msgstr "Basemap Parameters:"
+
+msgid "Multivariate Local Join Count"
+msgstr "Multivariate Local Join Count"

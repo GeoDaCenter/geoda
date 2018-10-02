@@ -106,10 +106,10 @@ void SpectralClusteringDlg::CreateControls()
 
 	// NumberOfCluster Control
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"), wxDefaultPosition, wxSize(128,-1));
-    combo_n = new wxChoice(panel, wxID_ANY);
-    int max_n_clusters = num_obs < 60 ? num_obs : 60;
-    for (int i=2; i<max_n_clusters+1; i++) combo_n->Append(wxString::Format("%d", i));
-    combo_n->SetSelection(3);
+    combo_n = new wxComboBox(panel, wxID_ANY);
+    int max_n_clusters = num_obs < 100 ? num_obs : 100;
+    for (int i=2; i<max_n_clusters+1; i++)
+        combo_n->Append(wxString::Format("%d", i));
     gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_n, 1, wxEXPAND);
     
@@ -520,7 +520,18 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         resetrandom();
     }
     
-    int ncluster = combo_n->GetSelection() + 2;
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    if (ncluster < 2 || ncluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of cluster.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {

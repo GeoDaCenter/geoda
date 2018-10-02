@@ -25,11 +25,14 @@ typedef pair<wxString, wxString> Association;
 
 class AssociateLayerInt
 {
+protected:
+    bool is_hide;
+    
 public:
     // primary key : AssociateLayer
     map<AssociateLayerInt*, Association> associated_layers;
     map<AssociateLayerInt*, bool> associated_lines;
-
+    
     AssociateLayerInt() {}
     virtual ~AssociateLayerInt() {}
     
@@ -48,6 +51,8 @@ public:
         associated_layers.clear();
     }
     virtual GdaShape* GetShape(int i) = 0;
+    virtual void SetHide(bool flag) { is_hide = flag; }
+    virtual bool IsHide() { return is_hide; }
 };
 
 
@@ -66,7 +71,7 @@ class BackgroundMapLayer : public AssociateLayerInt
     int opacity;
     int pen_size;
     bool show_boundary;
-    bool is_hide;
+    
     
 public:
     OGRLayerProxy* layer_proxy;
@@ -104,9 +109,6 @@ public:
     
     void SetName(wxString name);
     virtual wxString GetName();
-    
-    void SetHide(bool flag);
-    bool IsHide();
     
     void SetPenColour(wxColour& color);
     wxColour GetPenColour();

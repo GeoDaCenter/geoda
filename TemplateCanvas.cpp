@@ -1563,7 +1563,9 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					sel2.x = sel2.x + (c_w/8);
 					sel2.y = sel2.y + (c_h/8);
 					ZoomShapes(false);
-				}
+                } else {
+                    sel1 = sel2;
+                }
 				selectstate = start;
 				Refresh(false);
 			} else if (event.RightDown()) {
@@ -1647,7 +1649,7 @@ void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 {
 	if (is_showing_brush && (mousemode == select || mousemode == zoom || mousemode == zoomout))
     {
-        if (sel1 != sel2 ) {
+        if (sel1 != sel2) {
 		dc.SetBrush(*wxTRANSPARENT_BRUSH);
 		dc.SetPen(*wxBLACK_PEN);
 		if (brushtype == rectangle) {

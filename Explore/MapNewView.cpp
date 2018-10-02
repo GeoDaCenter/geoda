@@ -196,6 +196,7 @@ print_detailed_basemap(false),
 maplayer_state(project_s->GetMapLayerState())
 {
     wxLogMessage("MapCanvas::MapCanvas()");
+    is_hide = false;
     layer_name = project->layername;
     bg_maps = project->CloneBackgroundMaps();
     ds_name = project->GetDataSource()->GetOGRConnectStr();
@@ -533,13 +534,7 @@ void MapCanvas::ResetShapes()
         delete faded_layer_bm;
         faded_layer_bm = NULL;
     }
-    if (isDrawBasemap) {
-        if (basemap) {
-            basemap->origMap->west = last_scale_trans.orig_data_x_min;
-            basemap->origMap->east = last_scale_trans.orig_data_x_max;
-            basemap->origMap->south = last_scale_trans.orig_data_y_min;
-            basemap->origMap->north = last_scale_trans.orig_data_y_max;
-        }
+    if (basemap) {
         basemap->Reset();
     }
     last_scale_trans.Reset();
@@ -560,14 +555,15 @@ void MapCanvas::ZoomShapes(bool is_zoomin)
     }
     
     if (isDrawBasemap) {
-        bool zoom_ok = basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
-        if (zoom_ok) {
-            ResizeSelectableShps();
+        if (basemap) {
+            bool zoom_ok = basemap->Zoom(is_zoomin, sel2.x, sel2.y, sel1.x, sel1.y);
+            if (zoom_ok) {
+                ResizeSelectableShps();
+            }
         }
-        return;
+    } else {
+        TemplateCanvas::ZoomShapes(is_zoomin);
     }
-    
-    TemplateCanvas::ZoomShapes(is_zoomin);
 }
 
 void MapCanvas::PanShapes()
@@ -724,23 +720,14 @@ bool MapCanvas::InitBasemap()
         
         if (project->sourceSR != NULL) {
             int nGCS = project->sourceSR->GetEPSGGeogCS();
-            //if (nGCS != 4326) {
-            //}
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
         GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-        double shps_orig_ymax = last_scale_trans.data_y_max;
-        double shps_orig_xmin = last_scale_trans.data_x_min;
-        double shps_orig_ymin = last_scale_trans.data_y_min;
-        double shps_orig_xmax = last_scale_trans.data_x_max;
-        GDA::MapLayer* map = new GDA::MapLayer(shps_orig_ymax,
-                                               shps_orig_xmin,
-                                               shps_orig_ymin,
-                                               shps_orig_xmax,
-                                               poCT);
-        if (poCT == NULL && !map->IsWGS84Valid()) {
+        GDA::MapLayer* current_map = new GDA::MapLayer(last_scale_trans.data_y_max, last_scale_trans.data_x_min, last_scale_trans.data_y_min, last_scale_trans.data_x_max, poCT);
+        GDA::MapLayer* orig_map = new GDA::MapLayer(last_scale_trans.orig_data_y_max, last_scale_trans.orig_data_x_min, last_scale_trans.orig_data_y_min, last_scale_trans.orig_data_x_max, poCT);
+        if (poCT == NULL && !orig_map->IsWGS84Valid()) {
             isDrawBasemap = false;
             wxStatusBar* sb = 0;
             if (template_frame) {
@@ -752,10 +739,30 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
-            basemap = new GDA::Basemap(basemap_item, screen, map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
+            basemap = new GDA::Basemap(basemap_item, screen, current_map, orig_map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
         }
     }
     return true;
+}
+
+void MapCanvas::SetNoBasemap()
+{
+    ResetBrushing();
+    isDrawBasemap = false;
+    basemap_item.Reset();
+    if ( basemap ) {
+        basemap->basemap_item = basemap_item;
+        // keep extent if zoom in/out
+        double w, e, s, n;
+        basemap->map->GetWestNorthEastSouth(w, n, e, s);
+        last_scale_trans.SetExtent(w, e, s, n);
+        ResizeSelectableShps();
+    }
+    layerbase_valid = false;
+    layer0_valid = false;
+    layer1_valid = false;
+    layer2_valid = false;
+    ReDraw();
 }
 
 bool MapCanvas::DrawBasemap(bool flag, BasemapItem& _basemap_item)
@@ -776,10 +783,9 @@ bool MapCanvas::DrawBasemap(bool flag, BasemapItem& _basemap_item)
     } else {
         if ( basemap ) {
             basemap->basemap_item = basemap_item;
-            last_scale_trans.data_x_min = basemap->map->west;
-            last_scale_trans.data_x_max = basemap->map->east;
-            last_scale_trans.data_y_min = basemap->map->south;
-            last_scale_trans.data_y_max = basemap->map->north;
+            double w, e, s, n;
+            basemap->map->GetWestNorthEastSouth(w, n, e, s);
+            last_scale_trans.SetExtent(w, e, s, n);
             ResizeSelectableShps();
         }
     }
@@ -872,7 +878,9 @@ void MapCanvas::DrawLayer0()
     BOOST_FOREACH( GdaShape* map, background_maps ) {
         map->paintSelf(dc);
     }
-    DrawSelectableShapes_dc(dc);
+    if (IsHide() == false) {
+        DrawSelectableShapes_dc(dc);
+    }
     BOOST_FOREACH( GdaShape* map, foreground_maps ) {
         map->paintSelf(dc);
     }
@@ -1052,9 +1060,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
     } else {
         DrawHighlight(dc, this);
         //DrawHighlighted(dc, revert);
-    }
-    
-    
+    }    
 }
 
 void MapCanvas::SetHighlight(int idx)
@@ -1217,18 +1223,14 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer2_valid = false;
     
     if (isDrawBasemap) {
-        GDA::Screen *screen = NULL;
         if (print_detailed_basemap) {
             basemap_bm = new wxBitmap(w, h, 32);
             basemap_scale = 1.0;
             last_scale_trans.SetView(w, h);
-            screen = new GDA::Screen(w, h);
         } else {
             // scaled basemap
             basemap_bm = new wxBitmap;
             basemap_bm->CreateScaled(screen_w, screen_h, 32, basemap_scale);
-            //last_scale_trans.SetView(screen_w, screen_h);
-            screen = new GDA::Screen(screen_w, screen_h);
         }
         OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
@@ -1240,8 +1242,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         double shps_orig_xmin = last_scale_trans.orig_data_x_min;
         double shps_orig_ymin = last_scale_trans.orig_data_y_min;
         double shps_orig_xmax = last_scale_trans.orig_data_x_max;
-        GDA::MapLayer *map = new GDA::MapLayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
-        if (poCT && map->IsWGS84Valid()) {
+        GDA::MapLayer maplayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
+        if (poCT && maplayer.IsWGS84Valid()) {
             if (print_detailed_basemap) {
                 basemap->ResizeScreen(w, h);
                 basemap->Refresh();
@@ -1312,7 +1314,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer1_dc.Clear();
     if (isDrawBasemap) {
         wxImage im = basemap_bm->ConvertToImage();
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(__linux__)
         im.Rescale(w*basemap_scale, h*basemap_scale, wxIMAGE_QUALITY_HIGH);
 #endif
         layer1_dc.DrawBitmap(im, 0, 0);
@@ -2102,14 +2104,15 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
             vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
-                if (associated_lines[associated_layer]) {
+                if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
                     dc.DrawLine(selectable_shps[i]->center, associated_layer->GetShape(ids[j])->center);
                 }
             }
         }
     }
-    
-    this->DrawHighlighted(dc, false);
+    if (IsHide() == false) {
+        this->DrawHighlighted(dc, false);
+    }
 }
 
 GdaShape* MapCanvas::GetShape(int i)
@@ -3183,6 +3186,11 @@ void MapFrame::OnMapEditLayer(wxCommandEvent& e)
 void MapFrame::OnMapTreeClose(wxWindowDestroyEvent& event)
 {
     map_tree = NULL;
+}
+
+void MapFrame::SetNoBasemap()
+{
+    ((MapCanvas*) template_canvas)->SetNoBasemap();
 }
 
 void MapFrame::OnBasemapSelect(wxCommandEvent& event)

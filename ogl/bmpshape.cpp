@@ -198,7 +198,6 @@ void wxBitmapShape::SetCanvas(TemplateLegend* _tlegend)
         
         m_imgmap.Destroy();
         m_imgmap = bm.ConvertToImage();
-        
         SetSize(legend_width, legend_height);
     }
 }

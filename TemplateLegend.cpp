@@ -197,6 +197,11 @@ isDragDropAllowed(false)
     wxBoxSizer* box = new wxBoxSizer(wxHORIZONTAL);
     box->Add(this, 1, wxEXPAND|wxALL);
     parent->SetSizer(box);
+    
+    int numRect = template_canvas->cat_data.GetNumCategories(0);
+    int height = numRect * 20 + py;
+    SetVirtualSize(wxSize(-1,height));
+    SetScrollRate(1, 1);
 }
 
 TemplateLegend::~TemplateLegend()
@@ -454,6 +459,9 @@ void TemplateLegend::OnDraw(wxDC& dc)
 void TemplateLegend::Recreate()
 {
     recreate_labels = true;
+    int numRect = template_canvas->cat_data.GetNumCategories(0);
+    int height = numRect * 20 + py;
+    SetVirtualSize(wxSize(-1,height));
     Refresh();
 }
 

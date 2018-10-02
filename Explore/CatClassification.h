@@ -35,7 +35,7 @@ class TableInterface;
 
 namespace CatClassification {
 	
-	const int max_num_categories = 20;
+	const int max_num_categories = 2000;
 	
 	enum CatClassifType {
         no_theme, hinge_15, hinge_30, quantile, percentile,

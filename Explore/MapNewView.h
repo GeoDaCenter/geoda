@@ -179,6 +179,7 @@ public:
                      bool is_hide = false);
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, BasemapItem& bm_item);
+    void SetNoBasemap();
     void OnIdle(wxIdleEvent& event);
     void TranslucentLayer0(wxMemoryDC& dc);
     void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h,
@@ -377,7 +378,7 @@ public:
     virtual void OnSelectableOutlineVisible(wxCommandEvent& event);    
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, BasemapItem& bm_item);
-    
+    void SetNoBasemap();
     void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void CleanBasemap();
