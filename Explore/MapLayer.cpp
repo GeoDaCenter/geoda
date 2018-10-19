@@ -294,6 +294,10 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
             data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
         }
         return true;
+    } else if (type == GdaConst::double_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsDouble(col_idx);
+        }
     } else if (type == GdaConst::string_type) {
         for (int i=0; i<shapes.size(); ++i) {
             data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);

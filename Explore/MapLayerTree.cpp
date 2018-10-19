@@ -861,7 +861,7 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     }
     int hl_cnt = ml_int->GetHighlightRecords();
     int all_cnt = ml_int->GetNumRecords();
-    wxString hl_str = wxString::Format(" (%d/%d highlight)", hl_cnt, all_cnt);
+    wxString hl_str = wxString::Format(" (%d/%d selected)", hl_cnt, all_cnt);
     text = text + hl_str;
     dc.DrawText(text, x, y);
     

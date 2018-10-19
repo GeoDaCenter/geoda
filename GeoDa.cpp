@@ -2526,7 +2526,9 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
         return;
     }
     SpatialJoinDlg dlg(this, project_p);
-    dlg.ShowModal();
+    if (dlg.ShowModal() == wxID_OK) {
+        OnOpenNewTable();
+    }
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)

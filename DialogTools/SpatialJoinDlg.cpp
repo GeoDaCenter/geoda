@@ -327,7 +327,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         }
         sj->Run();
         
-        wxString dlg_title = _("Save Results: ") + label;
+        wxString dlg_title = _("Save Results to Table: ") + label;
         vector<wxInt64> spatial_counts = sj->GetResults();
         // save results
         int new_col = 1;
@@ -343,6 +343,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         dlg.ShowModal();
         
         delete sj;
+        EndDialog(wxID_OK);
     }
 }
 
