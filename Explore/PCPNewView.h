@@ -65,15 +65,8 @@ public:
 	virtual void SetCheckMarks(wxMenu* menu);
 	void OnSaveCategories(); // cats
 
-protected:
-	virtual void PopulateCanvas();
-	virtual void TimeChange();
-	void VarInfoAttributeChange();
-    
-public:
 	void CreateAndUpdateCategories(); // cats
 	
-public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 	
@@ -85,8 +78,7 @@ public:
 	bool IsShowAxes() { return show_axes; }
 
 	/** Used by PCP for detecting and updating PCP-specific controls */
-	enum PCPSelectState { pcp_start, pcp_leftdown_on_circ,
-		pcp_leftdown_on_label, pcp_dragging };
+	enum PCPSelectState { pcp_start, pcp_leftdown_on_circ, pcp_leftdown_on_label, pcp_dragging };
 	/** The function handles all mouse events. */
 	void OnMouseEvent(wxMouseEvent& event);
 	void VarLabelClicked();
@@ -100,7 +92,10 @@ public:
 	virtual void UpdateStatusBar();
 	
 protected:
-
+    virtual void PopulateCanvas();
+    virtual void TimeChange();
+    void VarInfoAttributeChange();
+    
 	CatClassifState* custom_classif_state;
 	
     wxPoint pcp_prev;
@@ -190,6 +185,11 @@ public:
 	virtual void OnNaturalBreaks(int num_cats);
 	virtual void OnEqualIntervals(int num_cats);
 	virtual void OnSaveCategories();
+    virtual void OnCustomCategoryClick(wxCommandEvent& event);
+    void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
+    
+    vector<GdaVarTools::VarInfo> var_info;
+    vector<int> col_ids;
 	
 protected:
 	void ChangeThemeType(CatClassification::CatClassifType new_theme,

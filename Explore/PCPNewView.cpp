@@ -177,14 +177,14 @@ void PCPCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((PCPFrame*) template_frame)->OnActivate(ae);
+    PCPFrame* f = (PCPFrame*) template_frame;
+    f->OnActivate(ae);
 	
 	wxMenu* optMenu;
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	f->AppendCustomCategories(optMenu,project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -362,9 +362,7 @@ void PCPCanvas::NewCustomCatClassif()
 	cat_classif_def = ccs->GetCatClassif();
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
-	//wxString s;
-	//CatClassification::PrintCatClassifDef(cat_classif_def, s);
-	//LOG_MSG(s);
+
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -1122,13 +1120,15 @@ IMPLEMENT_CLASS(PCPFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 PCPFrame::PCPFrame(wxFrame *parent, Project* project,
-								 const std::vector<GdaVarTools::VarInfo>& var_info,
-								 const std::vector<int>& col_ids,
+								 const std::vector<GdaVarTools::VarInfo>& _var_info,
+								 const std::vector<int>& _col_ids,
 								 const wxString& title,
 								 const wxPoint& pos,
 								 const wxSize& size,
 								 const long style)
-: TemplateFrame(parent, project, title, pos, size, style)
+: TemplateFrame(parent, project, title, pos, size, style),
+var_info(_var_info),
+col_ids(_col_ids)
 {
 	wxLogMessage("Open PCPFrame.");
 	
@@ -1196,12 +1196,82 @@ void PCPFrame::MapMenus()
 		LoadMenu("ID_PCP_NEW_PLOT_VIEW_MENU_OPTIONS");
 	((PCPCanvas*) template_canvas)->
 		AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((PCPCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
+
+void PCPFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
+{
+    // search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
+    const int num_sub_menus=3;
+    vector<int> menu_id(num_sub_menus);
+    vector<int> sub_menu_id(num_sub_menus);
+    vector<int> base_id(num_sub_menus);
+    menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
+    menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
+    menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
+    sub_menu_id[0] = XRCID("ID_CAT_CLASSIF_A_MENU");
+    sub_menu_id[1] = XRCID("ID_CAT_CLASSIF_B_MENU");
+    sub_menu_id[2] = XRCID("ID_CAT_CLASSIF_C_MENU");
+    base_id[0] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    base_id[1] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+    base_id[2] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+    
+    for (int i=0; i<num_sub_menus; i++) {
+        wxMenuItem* smii = menu->FindItem(sub_menu_id[i]);
+        if (!smii) continue;
+        wxMenu* smi = smii->GetSubMenu();
+        if (!smi) continue;
+        int m_id = smi->FindItem(_("Custom Breaks"));
+        wxMenuItem* mi = smi->FindItem(m_id);
+        if (!mi) continue;
+        
+        wxMenu* sm = mi->GetSubMenu();
+        // clean
+        wxMenuItemList items = sm->GetMenuItems();
+        for (int i=0; i<items.size(); i++) {
+            sm->Delete(items[i]);
+        }
+        
+        sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
+        sm->AppendSeparator();
+        
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        for (size_t j=0; j<titles.size(); j++) {
+            wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
+        }
+        if (i==0) {
+            // regular map men
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &PCPFrame::OnCustomCategoryClick, this, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+        } else if (i==1) {
+            // conditional horizontal map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+        } else if (i==2) {
+            // conditional verticle map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+        }
+    }
+}
+
+void PCPFrame::OnCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    CatClassifManager* ccm = project->GetCatClassifManager();
+    if (!ccm) return;
+    vector<wxString> titles;
+    ccm->GetTitles(titles);
+    int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    if (idx < 0 || idx >= titles.size()) return;
+    wxString cc_title = titles[idx];
+    
+    PCPCanvas* f = (PCPCanvas*) template_canvas;
+    
+    ChangeThemeType(CatClassification::custom, 4, cc_title);
+}
+
 
 void PCPFrame::UpdateOptionMenuItems()
 {
