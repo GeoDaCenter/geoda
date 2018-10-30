@@ -3047,6 +3047,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, _("Map"), pos, size, style),
 w_man_state(project->GetWManState()), export_dlg(NULL)
 {
+    map_tree = NULL;
 	w_man_state->registerObserver(this);
 }
 

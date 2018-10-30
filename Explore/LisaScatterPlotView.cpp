@@ -78,7 +78,9 @@ rand_dlg(0), morans_sel_text(NULL), morans_unsel_text(NULL)
 
     wxColour default_cat_color = GdaConst::scatterplot_regression_excluded_color;
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, num_obs);
-	cat_data.SetCategoryColor(0, 0, default_cat_color);
+	//cat_data.SetCategoryColor(0, 0, default_cat_color);
+    cat_data.SetCategoryPenColor(0, 0, default_cat_color);
+    cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
     for (int i=0; i<num_obs; i++) {
         cat_data.AppendIdToCategory(0, 0, i);
     }

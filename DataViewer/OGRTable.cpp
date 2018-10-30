@@ -1444,13 +1444,16 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
             GetColType(cols[i]) != GdaConst::placeholder_type)
         {
 			decimals = GetColDecimals(cols[i]);
-			displayed_decimals = GetColDecimals(cols[i]);
+			displayed_decimals = GetColDispDecimals(cols[i]);
 			length = GetColLength(cols[i]);
 			type = GetColType(cols[i]);
 			found_nonplaceholder = true;
 		}
 	}
 	
+    if (decimals <=0) decimals = GdaConst::default_dbf_double_decimals;
+    if (displayed_decimals<=0) displayed_decimals = decimals;
+    
 	TableDeltaList_type tdl;
 	var_order.Group(cols, name, pos, tdl);
 	// Last entry in tdl should be an insert operation.  Add missing
