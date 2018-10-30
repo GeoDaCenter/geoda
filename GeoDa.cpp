@@ -1362,6 +1362,7 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxDEFAULT_FRAME_STYLE);
     if (project_p->IsTableOnlyProject()) {
         tf->Show(true);
+        tf->Raise();
     }
     
     SetProjectOpen(true);
@@ -1393,6 +1394,8 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxPoint(80,160),
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
+        nf->Show(true);
+        nf->Raise();
     }
 }
 
