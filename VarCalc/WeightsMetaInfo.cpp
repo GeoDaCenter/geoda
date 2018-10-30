@@ -26,6 +26,7 @@ WeightsMetaInfo::WeightsMetaInfo()
 
 void WeightsMetaInfo::SetToDefaults()
 {
+    weights_type = WT_custom;
 	id_var = "";
 	filename = "";
 	sym_type = SYM_unknown;

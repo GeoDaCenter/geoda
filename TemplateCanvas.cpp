@@ -799,6 +799,21 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
     event.Skip();
 }
 
+void TemplateCanvas::SetPointRadius(double r)
+{
+    point_radius = r;
+    // also update seletable_shps[] with new point_radius
+    GdaPoint* p;
+    for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        if (_IsShpValid(i)) {
+            p = (GdaPoint*) selectable_shps[i];
+            if (p->isNull()) {
+                continue;
+            }
+            p->SetRadius(point_radius);
+        }
+    }
+}
 
 bool TemplateCanvas::_IsShpValid(int idx)
 {
