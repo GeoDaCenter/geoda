@@ -290,7 +290,7 @@ bool GdaApp::OnInit(void)
             wxString no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team? \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
                 wxString ttl = _("Send Crash Report");
                 wxString user_email = GdaConst::gda_user_email;
                 wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
@@ -352,7 +352,6 @@ bool GdaApp::OnInit(void)
 		// of %100, %125 or %150.
 		// Therefore, we might need to slighly increase the window size
 		// when sizes > %100 are used in the Display options.
-		
 		if (GdaFrame::GetGdaFrame()->GetClientSize().GetHeight() < 22) {
 			GdaFrame::GetGdaFrame()->SetSize(
 				GdaFrame::GetGdaFrame()->GetSize().GetWidth(),
@@ -382,8 +381,7 @@ bool GdaApp::OnInit(void)
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
     CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #endif
-    
-
+   
     // Setup new Logger after crash check
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
     
@@ -429,6 +427,22 @@ bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
     return true;
 }
 
+const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
+{
+	{ wxCMD_LINE_SWITCH, "h", "help",
+		"displays help on the command line parameters",
+		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
+	{ wxCMD_LINE_PARAM, NULL, NULL, "project file",
+		wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
+	{ wxCMD_LINE_NONE }
+};
+
+void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	parser.SetDesc (GdaApp::globalCmdLineDesc);
+    parser.SetSwitchChars ("-");
+}
+
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
     wxLogMessage("MacOpenFiles");
@@ -440,6 +454,7 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
         while (node) {
             wxWindow* win = node->GetData();
             if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+				wxLogMessage("Close ConnectDatasourceDlg");
                 w->EndModal(wxID_CANCEL);
             }
             node = node->GetNext();

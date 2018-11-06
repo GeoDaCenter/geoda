@@ -1958,7 +1958,7 @@ void GdaSpline::applyScaleTrans(const GdaScaleTrans& A)
 
 void GdaSpline::paintSelf(wxDC& dc)
 {
-	if (null_shape || n<2 || !points) return;
+	if (null_shape || n<=2 || !points) return;
 	dc.SetPen(getPen());
 	dc.SetBrush(getBrush());
 
