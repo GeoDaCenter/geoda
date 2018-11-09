@@ -74,17 +74,17 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,10,0);
     
-    m_rdo_1 = new wxRadioButton(panel, -1, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    m_rdo_1 = new wxRadioButton(panel, wxID_ANY, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
     m_txt_bo = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_bo, 1, wxEXPAND);
     
-    m_rdo_2 = new wxRadioButton(panel, -1, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
+    m_rdo_2 = new wxRadioButton(panel, wxID_ANY, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
     m_txt_fdr = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_fdr, 1, wxEXPAND);
     
-    m_rdo_3 = new wxRadioButton(panel, -1, _("Input significance:"), wxDefaultPosition, wxDefaultSize);
+    m_rdo_3 = new wxRadioButton(panel, wxID_ANY, _("Input significance:"), wxDefaultPosition, wxDefaultSize);
     m_txt_pval = new wxTextCtrl(panel, XRCID("ID_INFERENCE_TCTRL"), p_str, wxDefaultPosition, wxSize(100,-1),wxTE_PROCESS_ENTER);
     m_txt_pval->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     Connect(XRCID("ID_INFERENCE_TCTRL"), wxEVT_TEXT,
@@ -245,7 +245,7 @@ num_obs(raw_data1_s.size()),
 Permutations(NumPermutations),
 MoranI(NumPermutations, 0),
 is_bivariate(false),
-wxPanel(parent, -1, wxDefaultPosition, size)
+wxPanel(parent, wxID_ANY, wxDefaultPosition, size)
 {
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     
@@ -275,7 +275,7 @@ undefs(undefs_s),
 W(W_s),
 num_obs(raw_data1_s.size()), Permutations(NumPermutations),
 MoranI(NumPermutations, 0), is_bivariate(true),
-wxPanel(parent, -1, wxDefaultPosition, size)
+wxPanel(parent, wxID_ANY, wxDefaultPosition, size)
 {
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     

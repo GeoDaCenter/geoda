@@ -34,7 +34,7 @@
 
 
 PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(250, 160))
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(250, 160))
 {
     
     wxPanel *panel = new wxPanel(this, -1);
@@ -43,11 +43,11 @@ PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     
     wxBoxSizer *sbox = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText *lbl = new wxStaticText(panel, -1, _("Point Radius:"));
+    wxStaticText *lbl = new wxStaticText(panel, wxID_ANY, _("Point Radius:"));
     wxString s_radius;
     if (r > 0) s_radius << r;
     else s_radius = "2";
-    rb = new wxSpinCtrl(panel, -1, s_radius);
+    rb = new wxSpinCtrl(panel, wxID_ANY, s_radius);
     sbox->Add(lbl);
     sbox->Add(rb);
     wxBoxSizer* panel_v_szr = new wxBoxSizer(wxVERTICAL);
@@ -165,7 +165,7 @@ void GdaLegendLabel::drawMove(wxDC& dc)
 //
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-const int TemplateLegend::ID_CATEGORY_COLOR = wxID_HIGHEST + 1;
+const int TemplateLegend::ID_CATEGORY_COLOR = XRCID("IDC_LEGEND_CATEGORY_COLOR");
 
 IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
 

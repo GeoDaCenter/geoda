@@ -25,7 +25,7 @@
 #include "ProjectInfoDlg.h"
 
 ProjectInfoDlg::ProjectInfoDlg(Project* project)
-: wxDialog(0, -1, "Project Information", wxDefaultPosition, wxSize(250, 150))
+: wxDialog(NULL, wxID_ANY, "Project Information", wxDefaultPosition, wxSize(250, 150))
 {
     wxLogMessage("Open ProjectInfoDlg.");
     
@@ -121,7 +121,7 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
 		s << key[i] << ": " << val[i];
 		wxStaticText* st;
 		wxPoint pos(left_offset, top_offset + i*line_space);
-		st = new wxStaticText(panel, -1, s, pos, wxDefaultSize, wxALIGN_LEFT);
+		st = new wxStaticText(panel, wxID_ANY, s, pos, wxDefaultSize, wxALIGN_LEFT);
 	}
 	
 	

@@ -51,7 +51,7 @@ public:
 						 long style = wxDEFAULT_DIALOG_STYLE );
 	virtual ~FieldNewCalcSheetDlg();
 
-    bool Create( wxWindow* parent, wxWindowID id = -1,
+    bool Create( wxWindow* parent, wxWindowID id = wxID_ANY,
 				const wxString& caption = _("Var Calc Container"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,

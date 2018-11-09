@@ -25,7 +25,7 @@
 wxString SetAssociationDlg::LAYER_LIST_ID = "SETASSOCIATIONDLG_LAYER_LIST";
 
 SetAssociationDlg::SetAssociationDlg(wxWindow* parent, AssociateLayerInt* ml,vector<AssociateLayerInt*>& _all_layers, const wxString& title, const wxPoint& pos, const wxSize& size)
-: wxDialog(parent, -1, title, pos, size)
+: wxDialog(parent, wxID_ANY, title, pos, size)
 {
     current_ml = ml;
     all_layers = _all_layers;
@@ -1014,7 +1014,7 @@ void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 }
 
 MapTreeFrame::MapTreeFrame(wxWindow* parent, MapCanvas* _canvas, const wxPoint& pos, const wxSize& size)
-: wxFrame(parent, -1, _canvas->GetCanvasTitle(), pos, size)
+: wxFrame(parent, wxID_ANY, _canvas->GetCanvasTitle(), pos, size)
 {
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
     SetBackgroundColour(*wxWHITE);

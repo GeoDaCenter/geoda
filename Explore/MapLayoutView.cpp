@@ -17,7 +17,7 @@ using namespace std;
 
 
 CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxString & title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(320, 230))
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(320, 230))
 {
     width = w;
     height = h;
@@ -32,13 +32,13 @@ CanvasExportSettingDialog::CanvasExportSettingDialog(int w, int h, const wxStrin
     
     wxFlexGridSizer *fgs = new wxFlexGridSizer(3, 3, 9, 25);
     
-    wxStaticText *thetitle = new wxStaticText(panel, -1, _("Width:"));
-    wxStaticText *author = new wxStaticText(panel, -1, _("Height:"));
-    wxStaticText *review = new wxStaticText(panel, -1, _("Resolution(dpi):"));
+    wxStaticText *thetitle = new wxStaticText(panel, wxID_ANY, _("Width:"));
+    wxStaticText *author = new wxStaticText(panel, wxID_ANY, _("Height:"));
+    wxStaticText *review = new wxStaticText(panel, wxID_ANY, _("Resolution(dpi):"));
     
-    tc1 = new wxTextCtrl(panel, -1, wxString::Format("%d", w));
-    tc2 = new wxTextCtrl(panel, -1, wxString::Format("%d", h));
-    tc3 = new wxTextCtrl(panel, -1, "300");
+    tc1 = new wxTextCtrl(panel, wxID_ANY, wxString::Format("%d", w));
+    tc2 = new wxTextCtrl(panel, wxID_ANY, wxString::Format("%d", h));
+    tc3 = new wxTextCtrl(panel, wxID_ANY, "300");
     
     wxString choices[] = {_("pixels"), _("inches"), _("mm")};
     m_unit = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1), 3, choices);
@@ -308,7 +308,7 @@ void CanvasLayoutEvtHandler::OnEndSize(double w, double h)
 
 
 CanvasLayoutDialog::CanvasLayoutDialog(wxString _project_name, TemplateLegend* _legend, TemplateCanvas* _canvas, const wxString& title, const wxPoint& pos, const wxSize& size)
-: wxDialog(NULL, -1, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
+: wxDialog(NULL, wxID_ANY, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER )
 {
     legend_shape = NULL;
     

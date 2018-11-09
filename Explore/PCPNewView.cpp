@@ -1136,7 +1136,7 @@ col_ids(_col_ids)
 	GetClientSize(&width, &height);
 
 	wxSplitterWindow* splitter_win = 0;
-	splitter_win = new wxSplitterWindow(this,-1,
+	splitter_win = new wxSplitterWindow(this, wxID_ANY,
                                         wxDefaultPosition, wxDefaultSize,
                                         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);

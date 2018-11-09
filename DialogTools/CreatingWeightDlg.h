@@ -52,14 +52,14 @@ public:
     CreatingWeightDlg(wxWindow* parent,
                       Project* project,
                       bool user_xy = false,
-                      wxWindowID id = -1,
+                      wxWindowID id = wxID_ANY,
                       const wxString& caption = _("Weights File Creation"),
                       const wxPoint& pos = wxDefaultPosition,
                       const wxSize& size = wxDefaultSize,
                       long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~CreatingWeightDlg();
 	void OnClose(wxCloseEvent& ev);
-	bool Create(wxWindow* parent, wxWindowID id = -1,
+	bool Create(wxWindow* parent, wxWindowID id = wxID_ANY,
                 const wxString& caption = _("Weights File Creation"),
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,

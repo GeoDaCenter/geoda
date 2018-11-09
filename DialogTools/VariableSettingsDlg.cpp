@@ -52,7 +52,7 @@
 //
 ////////////////////////////////////////////////////////////////////////////
 DiffMoranVarSettingDlg::DiffMoranVarSettingDlg(Project* project_s)
-    : wxDialog(NULL, -1, _("Differential Moran Variable Settings"), wxDefaultPosition, wxSize(590, 230))
+    : wxDialog(NULL, wxID_ANY, _("Differential Moran Variable Settings"), wxDefaultPosition, wxSize(590, 230))
 {
     wxLogMessage("Open DiffMoranVarSettingDlg.");
     
@@ -298,7 +298,7 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
 ////////////////////////////////////////////////////////////////////////////
 
 MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
-    : wxDialog(NULL, -1, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
+    : wxDialog(NULL, wxID_ANY, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
 {
     wxLogMessage("Entering MultiVariableSettingsDlg::MultiVariableSettingsDlg().");
     

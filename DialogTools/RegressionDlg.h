@@ -49,14 +49,14 @@ public:
     RegressionDlg(Project* project,
 				  wxWindow* parent,
 				  wxString title = _("Regression"),
-				  wxWindowID id = -1,
+				  wxWindowID id = wxID_ANY,
 				  const wxString& caption = _("Regression"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize, 
 				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 	virtual ~RegressionDlg();
 
-    bool Create( wxWindow* parent, wxWindowID id = -1,
+    bool Create( wxWindow* parent, wxWindowID id = wxID_ANY,
 				const wxString& caption = _("Regression"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,

@@ -29,13 +29,13 @@ class PermutationCounterDlg: public wxDialog
 
 public:
     PermutationCounterDlg( );
-    PermutationCounterDlg( wxWindow* parent, wxWindowID id = -1,
+    PermutationCounterDlg( wxWindow* parent, wxWindowID id = wxID_ANY,
 						   const wxString& caption=_("Set Number of Permutation"),
 						   const wxPoint& pos = wxDefaultPosition,
 						   const wxSize& size = wxDefaultSize,
 						   long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
-    bool Create( wxWindow* parent, wxWindowID id = -1,
+    bool Create( wxWindow* parent, wxWindowID id = wxID_ANY,
 				const wxString& caption = _("Set Number of Permutation"),
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,

@@ -154,17 +154,17 @@ void AssignPolygonToPoint::sub_run(int start, int end)
 
 
 SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
-: wxDialog(parent, -1, "Spatial Join", wxDefaultPosition, wxSize(350, 250))
+: wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxSize(350, 250))
 {
     project = _project;
     panel = new wxPanel(this, -1);
     
     wxString info = _("Please select a map layer to apply spatial join to current map (%s):");
     info = wxString::Format(info, project->GetProjectTitle());
-    wxStaticText* st = new wxStaticText(panel, -1, info);
+    wxStaticText* st = new wxStaticText(panel, wxID_ANY, info);
     
     map_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
-    field_st = new wxStaticText(panel, -1, "Select ID Variable (Optional)");
+    field_st = new wxStaticText(panel, wxID_ANY, "Select ID Variable (Optional)");
     field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
     wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
     mbox->Add(map_list, 0, wxALIGN_CENTER | wxALL, 5);

@@ -35,7 +35,7 @@ class C3DControlPan: public wxPanel
 
 public:
     C3DControlPan( );
-    C3DControlPan( wxWindow* parent, wxWindowID id = -1,
+    C3DControlPan( wxWindow* parent, wxWindowID id = wxID_ANY,
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize,
 				  long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE,
@@ -43,7 +43,7 @@ public:
 				  const wxString& y3d_l = "Y",
 				  const wxString& z3d_l = "Z" );
 
-    bool Create( wxWindow* parent, wxWindowID id = -1,
+    bool Create( wxWindow* parent, wxWindowID id = wxID_ANY,
 				const wxPoint& pos = wxDefaultPosition,
 				const wxSize& size = wxDefaultSize,
 				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE,

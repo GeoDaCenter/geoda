@@ -32,7 +32,7 @@ class AdjustYAxisDlg: public wxDialog
 public:
     AdjustYAxisDlg( double min_val,
 					double max_val,
-					wxWindow* parent, wxWindowID id = -1,
+					wxWindow* parent, wxWindowID id = wxID_ANY,
 					const wxString& caption = _("Adjust Values of Y Axis"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,
@@ -61,7 +61,7 @@ class AxisLabelPrecisionDlg : public wxDialog{
     
 public:
     AxisLabelPrecisionDlg( int precision,
-                   wxWindow* parent, wxWindowID id = -1,
+                   wxWindow* parent, wxWindowID id = wxID_ANY,
                    const wxString& caption = _("Set Display Precision on Axis"),
                    const wxPoint& pos = wxDefaultPosition,
                    const wxSize& size = wxDefaultSize,
