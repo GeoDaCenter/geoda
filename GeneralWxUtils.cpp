@@ -63,7 +63,7 @@ void SimpleReportTextCtrl::OnContextMenu(wxContextMenuEvent& event)
 void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
 {
     wxLogMessage("In SimpleReportTextCtrl::OnSaveClick()");
-    wxFileDialog dlg( this, "Save PCA results", wxEmptyString,
+    wxFileDialog dlg( this, "Save Results", wxEmptyString,
                      wxEmptyString,
                      "TXT files (*.txt)|*.txt",
                      wxFD_SAVE );
