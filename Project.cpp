@@ -1608,7 +1608,13 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
     BackgroundMapLayer* map_layer = NULL;
     // Use global OGR adapter to manage all datasources, so they can be reused
     OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+	if (proxy == NULL) {
+		return NULL;
+	}
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
+	if (p_layer == NULL || p_layer->CheckIsTableOnly()) {
+		return NULL;
+	}
     if (p_layer->ReadData()) {
         if (p_layer->IsTableOnly() == false) {
             // always add to bg_maps

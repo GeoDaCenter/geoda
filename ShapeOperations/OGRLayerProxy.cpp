@@ -531,6 +531,11 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();
+		if (geometry == NULL) {
+			// in case of invalid geometry (e.g. rows with empty lat/lon in csv file)
+			geoms.push_back(NULL);
+			continue;
+		}
         if (poCT) {
             geometry->transform(poCT);
         }
@@ -883,6 +888,14 @@ void OGRLayerProxy::Save()
 bool OGRLayerProxy::HasError()
 {
     return !error_message.str().empty();
+}
+
+bool OGRLayerProxy::CheckIsTableOnly()
+{
+    layer->ResetReading();
+    OGRFeature *feature = layer->GetNextFeature();
+    OGRGeometry* my_geom = feature->GetGeometryRef();
+    return my_geom == NULL;
 }
 
 bool OGRLayerProxy::ReadData()

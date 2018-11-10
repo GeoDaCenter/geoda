@@ -237,6 +237,7 @@ public:
 	 *
 	 */
 	bool IsTableOnly();
+	bool CheckIsTableOnly();
 	/**
 	 *
 	 */
