@@ -221,7 +221,7 @@ void HClusterDlg::CreateControls()
     notebook = new wxNotebook( panel, wxID_ANY);
     m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
     notebook->AddPage(m_panel, _("Dendrogram"));
-    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, _("(Please save results to see the summary report.)"));
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HClusterDlg::OnNotebookChange), NULL, this);
 
