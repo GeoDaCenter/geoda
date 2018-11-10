@@ -207,9 +207,7 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox, b
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    wxStaticText* note_st = new wxStaticText(panel, wxID_ANY,
-                                              _("(Please note: Only supported for smaller datasets.)"),
-                                         wxDefaultPosition, wxDefaultSize);
+    note_st = new wxStaticText(panel, wxID_ANY, _("(Please note: Only supported for smaller datasets.)"), wxDefaultPosition, wxDefaultSize);
     vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
 }
@@ -251,9 +249,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
     
     
-    wxStaticText* note_st = new wxStaticText (panel, wxID_ANY,
-                                              _("(Please note: Only supported for smaller datasets.)"),
-                                              wxDefaultPosition, wxDefaultSize);
+    note_st = new wxStaticText (panel, wxID_ANY, _("(Please note: Only supported for smaller datasets.)"), wxDefaultPosition, wxDefaultSize);
     vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     

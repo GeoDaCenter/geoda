@@ -76,6 +76,9 @@ void KClusterDlg::CreateControls()
     
     // Input
     AddInputCtrls(panel, vbox, true);
+	// issue: #1742 
+	note_st->SetLabel("");
+	note_st->Hide();
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
@@ -681,7 +684,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
 // KMeans
 ////////////////////////////////////////////////////////////////////////
 KMeansDlg::KMeansDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMeans Dialog"))
+: KClusterDlg(parent, project, _("KMeans Clustering Setting"))
 {
     wxLogMessage("In KMeansDlg()");
    
@@ -729,7 +732,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_se
 // KMedians
 ////////////////////////////////////////////////////////////////////////
 KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMedians Dialog"))
+: KClusterDlg(parent, project, _("KMedians Clustering Setting"))
 {
     wxLogMessage("In KMediansDlg()");
     
@@ -777,7 +780,7 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
 // KMedoids
 ////////////////////////////////////////////////////////////////////////
 KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMedoids Dialog"))
+: KClusterDlg(parent, project, _("KMedoids Clustering Setting"))
 {
     wxLogMessage("In KMedoidsDlg()");
     
