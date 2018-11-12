@@ -548,8 +548,12 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
         
     } else {
     
-        double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
-        //double* pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, rows, columns, DataUtils::EuclideanDistance);
+        double* pwdist = NULL;
+        if (dist == 'e') {
+            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::EuclideanDistance);
+        } else {
+            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::ManhattanDistance);
+        }
         
         fastcluster::auto_array_ptr<t_index> members;
         
