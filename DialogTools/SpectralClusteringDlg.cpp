@@ -610,6 +610,12 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
    
     int affinity_type = 0;
     
+    // add weight to input_data
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<columns; j++) {
+            input_data[i][j] = input_data[i][j] * weight[j];
+        }
+    }
     Spectral spectral;
     spectral.set_data(input_data, rows, columns);
     spectral.set_centers(ncluster);
