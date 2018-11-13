@@ -801,7 +801,7 @@ void MapTree::OnDraw(wxDC& dc)
     wxCoord w, h;
     dc.GetSize(&w, &h);
     
-    dc.DrawText(_("Map Layer Setting"), 5, 10);
+    dc.DrawText(_("Map Layer Settings"), 5, 10);
     
     if ( !select_name.IsEmpty() ) {
         DrawLegend(dc, px_switch, move_pos.y, select_name);

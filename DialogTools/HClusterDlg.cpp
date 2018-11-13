@@ -158,7 +158,7 @@ void HClusterDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatially Constraint:"),
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatial Constraint:"),
                                           wxDefaultPosition, wxSize(128,-1));
     chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);

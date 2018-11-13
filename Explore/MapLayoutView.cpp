@@ -410,7 +410,7 @@ void CanvasLayoutDialog::OnSave(wxCommandEvent &event)
 {
     int layout_w = GetWidth();
     int layout_h = GetHeight();
-    CanvasExportSettingDialog setting_dlg(layout_w*2, layout_h*2, _("Image Dimension Setting"));
+    CanvasExportSettingDialog setting_dlg(layout_w*2, layout_h*2, _("Image Dimension Settings"));
 
     if (setting_dlg.ShowModal() != wxID_OK) {
         return;

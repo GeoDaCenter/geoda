@@ -469,7 +469,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
         int default_width = canvas_width*2;
         int default_height = canvas_height*2;
         
-        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Setting"));
+        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Settings"));
         if (setting_dlg.ShowModal() == wxID_OK) {
             int out_res_x = setting_dlg.GetMapWidth();
             int out_res_y = setting_dlg.GetMapHeight();
