@@ -163,7 +163,7 @@ protected:
 	// -- functions
     double _getTotalSumOfSquares();
     double _calcSumOfSquares(const vector<int>& cluster_ids);
-    vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);
     wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
     wxString _printWithinSS(const vector<double>& within_ss);

@@ -691,6 +691,7 @@ KMeansDlg::KMeansDlg(wxFrame *parent, Project* project)
     cluster_method = "KMeans";
     
     CreateControls();
+    m_distance->Disable();
 }
 
 KMeansDlg::~KMeansDlg()
@@ -740,6 +741,7 @@ KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
     
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
+    m_distance->Disable();
 }
 
 KMediansDlg::~KMediansDlg()
@@ -770,6 +772,37 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     sub_clusters[error] = clusters;
     
     delete[] clusterid;
+}
+
+vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> medians;
+        for (int c=0; c<columns; c++) {
+            double sum = 0;
+            int n = 0;
+            double* data = new double[solutions[i].size()];
+            for (int j=0; j<solutions[i].size(); j++) {
+                int r = solutions[i][j];
+                if (mask[r][c] == 1) {
+                    data[n] = input_data[r][c];
+                    n += 1;
+                }
+            }
+            double v = median(n, data);
+            //if (weight) mean = mean * weight[c];
+            medians.push_back(v);
+            delete[] data;
+        }
+        result[i] = medians;
+    }
+    
+    return result;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -833,4 +866,45 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     sub_clusters[error] = clusters;
     
     delete[] clusterid;
+}
+
+vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    // The centroid is defined as the element with the
+    // smallest sum of distances to the other elements.
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    vector<int> centroid_ids(n_clusters,0);
+    vector<double> errors(n_clusters);
+    for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        for (int j=0; j<solutions[i].size(); j++) {
+            double d = 0;
+            int a_idx = solutions[i][j];
+            for (int k=0; k<solutions[i].size(); k++) {
+                if (j == k) continue;
+                int b_idx = solutions[i][k];
+                d += ( a_idx < b_idx ? distmatrix[b_idx][a_idx]:distmatrix[a_idx][b_idx]);
+            }
+            if (d < errors[i]) {
+                errors[i] = d;
+                centroid_ids[i] = a_idx;
+            }
+        }
+    }
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> means;
+        for (int c=0; c<columns; c++) {
+            double mean = input_data[centroid_ids[i]][c];
+            means.push_back(mean);
+        }
+        result[i] = means;
+    }
+    
+    return result;
 }
