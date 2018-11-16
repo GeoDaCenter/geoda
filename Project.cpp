@@ -1108,6 +1108,15 @@ GdaPolygon* Project::GetMapBoundary()
     }
 }
 
+void Project::GetMapExtent(double& minx, double& miny, double& maxx, double& maxy)
+{
+    wxLogMessage("Project::GetMapExtent()");
+    
+    if (layer_proxy) {
+        layer_proxy->GetExtent(minx, miny, maxx, maxy);
+    }
+}
+
 void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 {
 	wxLogMessage("Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)");

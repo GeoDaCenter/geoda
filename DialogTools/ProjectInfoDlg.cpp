@@ -112,6 +112,13 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
 	
 	key.push_back("Number Table Groups");
 	val.push_back(wxString::Format("%d", grp_cnt));
+    
+    if (project->IsTableOnlyProject() == false) {
+        key.push_back("Map boundary");
+        double minx = 0, miny = 0,  maxx = 0,  maxy = 0;
+        project->GetMapExtent(minx, miny, maxx, maxy);
+        val.push_back(wxString::Format("Lower left: %f, %f Upper right: %f, %f", minx, miny, maxx, maxy));
+    }
 		
 	const int left_offset = 0;
 	const int top_offset = 0;

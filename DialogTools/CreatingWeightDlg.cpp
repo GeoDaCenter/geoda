@@ -70,6 +70,7 @@ EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE"), CreatingWeightDlg::OnInverseDis
 EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE_KNN"), CreatingWeightDlg::OnInverseKNNCheck)
 EVT_SPIN( XRCID("IDC_SPIN_POWER"), CreatingWeightDlg::OnCSpinPowerInverseDistUpdated )
 EVT_SPIN( XRCID("IDC_SPIN_POWER_KNN"), CreatingWeightDlg::OnCSpinPowerInverseKNNUpdated )
+EVT_NOTEBOOK_PAGE_CHANGED( XRCID("IDC_WEIGHTS_DIST_VARS_LIST"), CreatingWeightDlg::OnDistanceWeightsInputUpdate )
 END_EVENT_TABLE()
 
 
@@ -178,6 +179,8 @@ void CreatingWeightDlg::CreateControls()
     m_X_time = XRCCTRL(*this, "IDC_XCOORD_TIME", wxChoice);
 	m_Y = XRCCTRL(*this, "IDC_YCOORDINATES", wxChoice);
 	m_Y_time = XRCCTRL(*this, "IDC_YCOORD_TIME", wxChoice);
+    m_Vars = XRCCTRL(*this, "IDC_WEIGHTS_DIST_VARS_LIST", wxListBox);
+    m_nb_distance_variables = XRCCTRL(*this, "IDC_NB_DISTANCE_VARIABLES", wxNotebook);
     m_nb_distance_methods = XRCCTRL(*this, "IDC_NB_DISTANCE_WEIGHTS", wxNotebook);
 	m_threshold = XRCCTRL(*this, "IDC_THRESHOLD_EDIT", wxTextCtrl);
 	m_sliderdistance = XRCCTRL(*this, "IDC_THRESHOLD_SLIDER", wxSlider);
@@ -209,7 +212,46 @@ void CreatingWeightDlg::CreateControls()
     m_power->Enable(false);
     m_power_knn->Enable(false);
 
+    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
+    m_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnDistanceWeightsVarsSel, this);
+    
 	InitDlg();
+}
+
+void CreatingWeightDlg::OnDistanceWeightsVarsSel( wxCommandEvent& event )
+{
+    // update Threshold values for distance weight
+    wxArrayInt selections;
+    m_Vars->GetSelections(selections);
+    int num_var = selections.size();
+    if (num_var <= 0) {
+        return;
+    }
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString sel_str = m_Vars->GetString(idx);
+        
+        // get data []
+        //int col = table_int->FindColId(nm);
+    }
+}
+
+void CreatingWeightDlg::OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event )
+{
+    int sel = event.GetSelection();
+    if (sel == 0) {
+        UpdateThresholdValues();
+    } else {
+        wxArrayInt selections;
+        m_Vars->GetSelections(selections);
+        int n_sel = selections.GetCount();
+        if (n_sel <= 0) {
+            m_thres_val_valid = false;
+            m_threshold->ChangeValue("0");
+            m_bandwidth_thres_val_valid = false;
+            m_manu_bandwidth->ChangeValue("0");
+        }
+    }
 }
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
@@ -571,14 +613,27 @@ void CreatingWeightDlg::InitFields()
 	m_id_field->Clear();
 	m_X_time->Clear();
 	m_Y_time->Clear();
+    m_Vars->Clear();
+    
 	ResetThresXandYCombo();
 	
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int col = col_id_map[i];
 		
-		m_X->Append(table_int->GetColName(col));
-		m_Y->Append(table_int->GetColName(col));
+        wxString name = table_int->GetColName(col);
+		m_X->Append(name);
+		m_Y->Append(name);
 		
+        if (table_int->IsColTimeVariant(col)) {
+            for (int t=0; t<table_int->GetColTimeSteps(col); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                m_Vars->Append(nm);
+            }
+        } else {
+            m_Vars->Append(name);
+        }
+        
 		if (table_int->GetColType(col) == GdaConst::long64_type ||
             table_int->GetColType(col) == GdaConst::string_type) {
 			if (!table_int->IsColTimeVariant(col)) {
