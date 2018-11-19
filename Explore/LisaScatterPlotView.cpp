@@ -539,7 +539,12 @@ void LisaScatterPlotCanvas::PopulateCanvas()
     
     if (is_show_regimes_regression) {
         const std::vector<bool>& hl = highlight_state->GetHighlight();
-        int t = project->GetTimeState()->GetCurrTime();
+        //int t = project->GetTimeState()->GetCurrTime();
+        int t = var_info_orig[0].time-var_info_orig[0].time_min;
+        if (is_diff) {
+            // in case its differential moran, there is only one grouped variable
+            t = 0;
+        }
         int num_obs = lisa_coord->num_obs;
         
         std::vector<bool> undefs(num_obs, false);
@@ -753,7 +758,12 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
                                         std::vector<double>& X,
                                         std::vector<double>& Y)
 {
-    int t = project->GetTimeState()->GetCurrTime();
+    //int t = project->GetTimeState()->GetCurrTime();
+    int t = var_info_orig[0].time-var_info_orig[0].time_min;
+    if (is_diff) {
+        // in case its differential moran, there is only one grouped variable
+        t = 0;
+    }
     GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
     copy_w->Update(undefs);
     GalElement* W = copy_w->gal;
