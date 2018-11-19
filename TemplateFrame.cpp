@@ -753,6 +753,12 @@ void TemplateFrame::update(TimeState* o)
 {
 }
 
+void TemplateFrame::SetDependsOnNonSimpleGroups(bool v)
+{
+    depends_on_non_simple_groups = v;
+    
+}
+
 bool TemplateFrame::AllowTimelineChanges()
 {
 	if (supports_timeline_changes) return true;
