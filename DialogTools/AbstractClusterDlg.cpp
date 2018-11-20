@@ -842,7 +842,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
 wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
 {
     wxString txt;
-    txt << _("Cluster centers:\n");
+    txt << _("Cluster centers:") << mean_center_type << "\n";
     
     stringstream ss;
     TextTable t( TextTable::MD );

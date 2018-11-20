@@ -225,6 +225,11 @@ void KClusterDlg::CreateControls()
     m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
 }
 
+vector<vector<double> > KClusterDlg::_getMeanCenters(const vector<vector<int> >& solution)
+{
+    return AbstractClusterDlg::_getMeanCenters(solution);
+}
+
 void KClusterDlg::OnDistanceChoice(wxCommandEvent& event)
 {
     if (m_distance->GetSelection() == 1) {
@@ -670,7 +675,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "KMeans " << _("Cluster Map ") << "(";
+    ttl << cluster_method << " " << _("Cluster Map ") << "(";
     ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);
@@ -738,7 +743,7 @@ KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
     show_distance = true;
     show_iteration = true;
     cluster_method = "KMedians";
-    
+    mean_center_type = " (median)";
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
     m_distance->Disable();
@@ -818,6 +823,7 @@ KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
     show_distance = true;
     show_iteration = false;
     cluster_method = "KMedoids";
+    mean_center_type = " (medoid)";
     
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
