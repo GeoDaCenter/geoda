@@ -90,7 +90,8 @@ public:
     void OnCThresholdSliderUpdated( wxCommandEvent& event );
     void OnCSpinPowerInverseDistUpdated( wxSpinEvent& event );
     void OnCSpinPowerInverseKNNUpdated( wxSpinEvent& event );
-	
+    void OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event );
+    void OnDistanceWeightsVarsSel( wxCommandEvent& event );
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
 	
@@ -129,7 +130,9 @@ private:
 	wxChoice* m_X_time;
 	wxChoice* m_Y;
 	wxChoice* m_Y_time;
-	wxNotebook* m_nb_distance_methods;
+    wxListBox* m_Vars;
+	wxNotebook* m_nb_distance_variables;
+    wxNotebook* m_nb_distance_methods;
 	wxTextCtrl* m_threshold;
 	wxSlider* m_sliderdistance;
     wxCheckBox* m_use_inverse;

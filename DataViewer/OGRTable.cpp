@@ -837,6 +837,33 @@ void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& da
     ogr_col->FillData(data);
 }
 
+void OGRTable::GetDataByColumns(const std::vector<wxString>& col_names,
+                                std::vector<std::vector<double> >& data)
+{
+    // column names could be time (grouped) variable
+    int col_idx;
+    int tm_idx;
+    int dt_idx = 0;
+    wxString col_name;
+    wxString sub_col_name;
+    wxString time_id;
+    int n_col_names = col_names.size();
+    for (int i=0; i<n_col_names; i++) {
+        col_name = col_names[i];
+        col_idx = FindColId(col_name);
+        if (col_idx == -1) {
+            // could be a time (grouped) variable: xxx_(xxx)
+            sub_col_name = col_name.BeforeFirst(' ');
+            time_id = col_name.After('(').Before(')');
+            tm_idx = GetTimeInt(time_id);
+            GetColData(col_idx, tm_idx, data[dt_idx]);
+        } else {
+            GetColData(col_idx, 0, data[dt_idx]);
+        }
+        dt_idx += 1;
+    }
+}
+
 bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
 {
     if (col < 0 || col >= var_order.GetNumVarGroups())
