@@ -28,8 +28,8 @@
 //		Fixed minor compilation bugs for new versions of gcc
 //----------------------------------------------------------------------
 
-#include <ANN/ANN.h>					// basic ANN includes
-#include <ANN/ANNperf.h>				// performance includes
+#include "ANN/ANN.h"					// basic ANN includes
+#include "ANN/ANNperf.h"				// performance includes
 
 using namespace std;					// make std:: available
 

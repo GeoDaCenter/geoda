@@ -30,7 +30,7 @@
 #include "kd_util.h"					// kd-tree utilities
 #include "kd_split.h"					// kd-tree splitting rules
 
-#include <ANN/ANNperf.h>				// performance evaluation
+#include "ANN/ANNperf.h"				// performance evaluation
 
 //----------------------------------------------------------------------
 //	Printing a bd-tree 

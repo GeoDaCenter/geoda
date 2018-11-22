@@ -24,7 +24,7 @@
 //		Added fixed-radius kNN search
 //----------------------------------------------------------------------
 
-#include <ANN/ANNx.h>					// all ANN includes
+#include "ANN/ANNx.h"					// all ANN includes
 #include "pr_queue_k.h"					// k element priority queue
 
 //----------------------------------------------------------------------

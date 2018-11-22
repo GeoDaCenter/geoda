@@ -27,7 +27,7 @@
 #ifndef ANN_bd_tree_H
 #define ANN_bd_tree_H
 
-#include <ANN/ANNx.h>					// all ANN includes
+#include "ANN/ANNx.h"					// all ANN includes
 #include "kd_tree.h"					// kd-tree includes
 
 //----------------------------------------------------------------------
