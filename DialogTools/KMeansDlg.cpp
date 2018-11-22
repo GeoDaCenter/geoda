@@ -141,7 +141,7 @@ void KClusterDlg::CreateControls()
     }
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
-                                          _("Maximal Iterations:"),
+                                          _("Maximum Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
