@@ -821,7 +821,7 @@ KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
     
     show_initmethod = false;
     show_distance = true;
-    show_iteration = false;
+    show_iteration = true;
     cluster_method = "KMedoids";
     mean_center_type = " (medoid)";
     
@@ -851,7 +851,7 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     
     int s2 = s1==0 ? 0 : s1 + npass;
     
-    kmedoids(ncluster, rows, distmatrix, npass, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
+    kmedoids(ncluster, rows, distmatrix, npass, n_maxiter, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
   
     set<wxInt64> centers;
     map<wxInt64, vector<wxInt64> > c_dist;
