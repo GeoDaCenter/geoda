@@ -32,6 +32,36 @@
 
 using namespace std;					// make std:: accessible
 
+
+double ANN_POW(double v)
+{
+    if (ANN_DIST_TYPE == 1) {
+        return fabs(v);
+    } else if (ANN_DIST_TYPE == 2) {
+        return v * v;
+    } else {
+        return pow(fabs(v), ANN_DIST_TYPE);
+    }
+}
+double ANN_ROOT(double x)
+{
+    if (ANN_DIST_TYPE == 1) {
+        return x;
+    } else if (ANN_DIST_TYPE == 2) {
+        return sqrt(x);
+    } else {
+        return pow(fabs(x), 1/ANN_DIST_TYPE);
+    }
+}
+double ANN_SUM(double x, double y)
+{
+    return x + y;
+}
+double ANN_DIFF(double x, double y)
+{
+    return y - x;
+}
+
 //----------------------------------------------------------------------
 //	Point methods
 //----------------------------------------------------------------------
