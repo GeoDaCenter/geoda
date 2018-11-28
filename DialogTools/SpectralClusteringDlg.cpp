@@ -215,7 +215,7 @@ void SpectralClusteringDlg::CreateControls()
         seedButton->Enable();
     }
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum Iterations:"),wxDefaultPosition, wxSize(128,-1));
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, "300");
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);

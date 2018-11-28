@@ -3390,7 +3390,7 @@ msgstr "Bajo"
 msgid "Select variable "
 msgstr "Seleccionar variable "
 
-msgid "Maximal Iterations:"
+msgid "Maximum Iterations:"
 msgstr "Iteraciones máximas:"
 
 msgid "Datasource path is empty."
