@@ -146,7 +146,8 @@ public:
     virtual void GetDirectColData(int col, std::vector<unsigned long long>& data);
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefined);
     virtual void GetDataByColumns(const std::vector<wxString>& col_names,
-                                  std::vector<std::vector<double> >& data);
+                                  std::vector<std::vector<double> >& data,
+                                  std::vector<std::vector<bool> >& undefs);
     
 	virtual bool GetColUndefined(int col, b_array_type& undefined);
 	virtual bool GetColUndefined(int col, int time,

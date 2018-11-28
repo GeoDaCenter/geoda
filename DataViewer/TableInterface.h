@@ -178,7 +178,8 @@ public:
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefs)=0;
     
     virtual void GetDataByColumns(const std::vector<wxString>& col_names,
-                                  std::vector<std::vector<double> >& data) = 0;
+                                  std::vector<std::vector<double> >& data,
+                                  std::vector<std::vector<bool> >& undefs) = 0;
     
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals) = 0;

@@ -1333,6 +1333,23 @@ void GenUtils::DeviationFromMean(std::vector<double>& data)
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] -= mean;
 }
 
+void GenUtils::DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef)
+{
+    if (data.size() == 0) return;
+    double sum = 0.0;
+    int n = 0;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        sum += data[i];
+        n++;
+    }
+    const double mean = sum / n;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] -= mean;
+    }
+}
+
 void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
 {
     if (nObs == 0) return;
@@ -1385,6 +1402,25 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool
     for (int i=0, iend=data.size(); i<iend; i++) {
         if (undef[i]) continue;
         data[i] = std::abs(data[i] - mean) / nValid;
+    }
+}
+
+void GenUtils::Transformation(int trans_type, std::vector<std::vector<double> >& data, std::vector<std::vector<bool> >& undefs)
+{
+    if (trans_type < 1) {
+        return;
+    }
+    for (size_t i=0; i<data.size(); i++) {
+        if (trans_type == 1) {
+            // demean
+            DeviationFromMean(data[i], undefs[i]);
+        } else if (trans_type == 2) {
+            // standarize (z)
+            StandardizeData(data[i], undefs[i]);
+        } else if (trans_type == 3) {
+            // MAD
+            MeanAbsoluteDeviation(data[i], undefs[i]);
+        }
     }
 }
 
@@ -1494,6 +1530,33 @@ bool GenUtils::StandardizeData(std::vector<double>& data)
 	if (sd == 0) return false;
 	for (int i=0, iend=data.size(); i<iend; i++) data[i] /= sd;
 	return true;
+}
+
+bool GenUtils::StandardizeData(std::vector<double>& data, std::vector<bool>& undef)
+{
+    int nObs = data.size();
+    if (nObs <= 1) return false;
+    
+    int nValid = 0;
+    for (int i=0; i<undef.size(); i++) {
+        if (!undef[i])
+            nValid += 1;
+    }
+    
+    GenUtils::DeviationFromMean(data, undef);
+    double ssum = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i])
+            continue;
+        ssum += data[i] * data[i];
+    }
+    const double sd = sqrt(ssum / (double) (nValid-1.0));
+    if (sd == 0)
+        return false;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] /= sd;
+    }
+    return true;
 }
 
 wxString GenUtils::swapExtension(const wxString& fname, const wxString& ext)

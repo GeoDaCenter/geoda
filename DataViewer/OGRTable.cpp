@@ -838,7 +838,8 @@ void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& da
 }
 
 void OGRTable::GetDataByColumns(const std::vector<wxString>& col_names,
-                                std::vector<std::vector<double> >& data)
+                                std::vector<std::vector<double> >& data,
+                                std::vector<std::vector<bool> >& undefs)
 {
     // column names could be time (grouped) variable
     int col_idx;
@@ -851,15 +852,16 @@ void OGRTable::GetDataByColumns(const std::vector<wxString>& col_names,
     for (int i=0; i<n_col_names; i++) {
         col_name = col_names[i];
         col_idx = FindColId(col_name);
+        tm_idx = 0;
         if (col_idx == -1) {
             // could be a time (grouped) variable: xxx_(xxx)
             sub_col_name = col_name.BeforeFirst(' ');
             time_id = col_name.After('(').Before(')');
             tm_idx = GetTimeInt(time_id);
-            GetColData(col_idx, tm_idx, data[dt_idx]);
-        } else {
-            GetColData(col_idx, 0, data[dt_idx]);
+            col_idx = FindColId(sub_col_name);
         }
+        GetColData(col_idx, tm_idx, data[dt_idx]);
+        GetColUndefined(col_idx, tm_idx, undefs[dt_idx]);
         dt_idx += 1;
     }
 }

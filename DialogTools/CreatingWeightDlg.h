@@ -34,6 +34,7 @@
 #include "../DataViewer/TableStateObserver.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
 #include "../VarCalc/WeightsMetaInfo.h"
+#include "../Weights/DistUtils.h"
 
 class wxSpinButton;
 class FramesManager;
@@ -92,6 +93,7 @@ public:
     void OnCSpinPowerInverseKNNUpdated( wxSpinEvent& event );
     void OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event );
     void OnDistanceWeightsVarsSel( wxCommandEvent& event );
+    void OnDistanceMetricVarsSel( wxCommandEvent& event );
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
 	
@@ -109,7 +111,7 @@ public:
     void SetXCOO(const std::vector<double>& xx);
     void SetYCOO(const std::vector<double>& yy);
 	
-private:
+protected:
 
 	bool all_init;
     
@@ -125,6 +127,8 @@ private:
     wxCheckBox* m_cbx_precision_threshold;
     wxTextCtrl* m_txt_precision_threshold;
     // distance weight
+    wxChoice* m_trans_choice_vars;
+    wxChoice* m_dist_choice_vars;
 	wxChoice* m_dist_choice;
 	wxChoice* m_X;
 	wxChoice* m_X_time;
@@ -173,8 +177,14 @@ private:
 	double				m_thres_min; // minimum to avoid isolates
 	double				m_thres_max; // maxiumum to include everything
 	double				m_threshold_val;
-	bool				m_thres_val_valid;
     double              m_bandwidth_thres_val;
+    
+    double              m_thres_min_multivars; // minimum to avoid isolates
+    double              m_thres_max_multivars; // maxiumum to include everything
+    double              m_threshold_val_multivars;
+    double              m_bandwidth_thres_val_multivars;
+    
+	bool				m_thres_val_valid;
     bool                m_bandwidth_thres_val_valid;
 	const double		m_thres_delta_factor;
 	bool				m_cbx_precision_threshold_first_click; 
@@ -183,6 +193,8 @@ private:
 	std::vector<double>	m_XCOO;
 	std::vector<double>	m_YCOO;
 	
+    GeoDa::DistUtils* dist_util;
+    
 	WeightsMetaInfo::DistanceMetricEnum dist_metric;
 	WeightsMetaInfo::DistanceUnitsEnum dist_units;
 	WeightsMetaInfo::DistanceValuesEnum dist_values;
@@ -196,6 +208,7 @@ private:
 	
 	// updates the enable/disable state of the Create button based
 	// on the values of various other controls.
+    void UpdateThresholdValuesMultiVars();
 	void UpdateCreateButtonState();
 	void UpdateTmSelEnableState();
 	void UpdateThresholdValues();
@@ -204,6 +217,8 @@ private:
 	void InitDlg();
 	bool CheckID(const wxString& id);
     bool CheckThresholdInput();
+    bool CheckTableVariableInput();
+    void CreateWeightsFromTable(WeightsMetaInfo& wmi);
     double GetBandwidth();
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalWeight* Wp_gal, GwtWeight* Wp_gwt,
