@@ -35,7 +35,7 @@ struct WeightsMetaInfo
 		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars, DV_coordinates
 	};
 	enum DistanceMetricEnum {
-		DM_unspecified, DM_euclidean, DM_arc
+		DM_unspecified, DM_euclidean, DM_arc, DM_manhattan
 	};
 	enum DistanceUnitsEnum {
 		DU_unspecified, DU_km, DU_mile 

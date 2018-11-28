@@ -295,6 +295,8 @@ wxString WeightsMetaInfo::DistMetricToStr() const
 {
 	if (dist_metric == DM_euclidean) {
 		return "Euclidean";
+    } else if (dist_metric == DM_manhattan) {
+        return "Manhattan";
 	} else if (dist_metric == DM_arc) {
 		return "arc";
 	}

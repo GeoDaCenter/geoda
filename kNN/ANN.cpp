@@ -32,6 +32,7 @@
 
 using namespace std;					// make std:: accessible
 
+int ANN_DIST_TYPE = 2;
 
 double ANN_POW(double v)
 {

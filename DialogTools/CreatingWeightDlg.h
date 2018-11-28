@@ -218,7 +218,8 @@ protected:
 	bool CheckID(const wxString& id);
     bool CheckThresholdInput();
     bool CheckTableVariableInput();
-    void CreateWeightsFromTable(WeightsMetaInfo& wmi);
+    void CreateWeightsFromTable(wxString id, wxString outputfile,
+                                WeightsMetaInfo& wmi);
     double GetBandwidth();
 	bool IsSaveAsGwt(); // determine if save type will be GWT or GAL.
 	bool WriteWeightFile(GalWeight* Wp_gal, GwtWeight* Wp_gwt,

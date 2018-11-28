@@ -228,8 +228,8 @@ void CreatingWeightDlg::CreateControls()
 
 void CreatingWeightDlg::OnDistanceMetricVarsSel( wxCommandEvent& event )
 {
-    int dist_metric = m_dist_choice_vars->GetSelection();
-    if (dist_metric > 0) {
+    int metric = m_dist_choice_vars->GetSelection();
+    if (metric > 0) {
         m_nb_distance_methods->Enable();
     } else {
         m_thres_val_valid = false;
@@ -256,8 +256,8 @@ void CreatingWeightDlg::OnDistanceWeightsVarsSel( wxCommandEvent& event )
 void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
 {
     // distance metric
-    int dist_metric = m_dist_choice_vars->GetSelection();
-    if (dist_metric < 1) {
+    int metric = m_dist_choice_vars->GetSelection();
+    if (metric < 1) {
         return;
     }
     
@@ -289,7 +289,7 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
     if (dist_util) {
         delete dist_util;
     }
-    dist_util = new GeoDa::DistUtils(data, dist_metric);
+    dist_util = new GeoDa::DistUtils(data, metric);
     m_thres_min_multivars = dist_util->GetMinThreshold();
     m_thres_max_multivars = dist_util->GetMaxThreshold();
     double thres_range = m_thres_max_multivars - m_thres_min_multivars;
@@ -880,8 +880,8 @@ void CreatingWeightDlg::InitDlg()
     
     m_dist_choice_vars->Clear();
     m_dist_choice_vars->Append("");
-    m_dist_choice_vars->Append("Euclidean Distance");
     m_dist_choice_vars->Append("Manhattan Distance");
+    m_dist_choice_vars->Append("Euclidean Distance");
     m_dist_choice_vars->SetSelection(0);
 
     m_trans_choice_vars->Clear();
@@ -1083,18 +1083,42 @@ double CreatingWeightDlg::GetBandwidth()
 
 bool CreatingWeightDlg::CheckTableVariableInput()
 {
-    if (m_nb_distance_variables->GetSelection()> 0) {
+    // check selected variables
+    wxArrayInt selections;
+    m_Vars->GetSelections(selections);
+    if (selections.GetCount() == 0) {
+        wxString msg = _("Please select at least one variable.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+    
+    // check distance metric
+    if (m_dist_choice_vars->GetSelection() == 0) {
+        wxString msg = _("Please specify distance metric.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+    // check threshold
+    int method = m_nb_distance_methods->GetSelection();
+    if ( method == 0 || method == 2) {
+        wxString not_valid_msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
         
+        if ( !m_thres_val_valid || !m_bandwidth_thres_val_valid) {
+            wxMessageDialog dlg(this, not_valid_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return false;
+        }
     }
     return true;
 }
 
-void CreatingWeightDlg::CreateWeightsFromTable(WeightsMetaInfo& wmi)
+void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile, WeightsMetaInfo& wmi)
 {
-    if (CheckTableVariableInput() == false) {
-        return;
-    }
     GeoDa::Weights w;
+    int metric = m_dist_choice_vars->GetSelection();
+    WeightsMetaInfo::DistanceMetricEnum dist_metric = metric == 1 ? WeightsMetaInfo::DM_manhattan : WeightsMetaInfo::DM_euclidean;
     
     int method = m_nb_distance_methods->GetSelection();
     if (method == 0) {
@@ -1110,6 +1134,7 @@ void CreatingWeightDlg::CreateWeightsFromTable(WeightsMetaInfo& wmi)
             }
         }
         w = dist_util->CreateDistBandWeights(band, is_inverse, power);
+        wmi.SetToThres(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, band, power);
         
     } else if ( method == 1) {
         // kNN
@@ -1124,10 +1149,12 @@ void CreatingWeightDlg::CreateWeightsFromTable(WeightsMetaInfo& wmi)
             }
         }
         w = dist_util->CreateKNNWeights(k, is_inverse, power);
+        wmi.SetToKnn(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, k, power);
         
     } else if ( method == 2) {
         // adaptive kernel
         int kernel_type = m_kernel_methods->GetSelection();
+        wxString kernel = m_kernel_methods->GetString(kernel_type);
         bool apply_kernel_to_diag = m_kernel_diagnals->GetValue();
         double bandwidth = GetBandwidth();
         bool is_adaptive_bandwidth = m_radio_adaptive_bandwidth->GetValue();
@@ -1138,7 +1165,26 @@ void CreatingWeightDlg::CreateWeightsFromTable(WeightsMetaInfo& wmi)
         } else {
             w = dist_util->CreateAdaptiveKernelWeights(kernel_type, k, is_adaptive_bandwidth, apply_kernel_to_diag);
         }
+        wmi.SetToKernel(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, kernel, k, bandwidth, is_adaptive_bandwidth, apply_kernel_to_diag);
     }
+    
+    // save to file
+    GwtWeight* Wp = new GwtWeight;
+    Wp->num_obs = w.size();
+    Wp->is_symmetric = false;
+    Wp->symmetry_checked = true;
+    Wp->gwt = new GwtElement[Wp->num_obs];
+    for (size_t i=0; i<w.size(); i++) {
+        GwtElement& e = Wp->gwt[i];
+        e.alloc(w[i].size());
+        for (size_t j=0; j<w[i].size(); j++) {
+            GwtNeighbor neigh;
+            neigh.nbx = w[i][j].first;
+            neigh.weight =  w[i][j].second;
+            e.Push(neigh);
+        }
+    }
+    WriteWeightFile(NULL, Wp, project->GetProjectTitle(), outputfile, id, wmi);
 }
 
 bool CreatingWeightDlg::CheckThresholdInput()
@@ -1171,14 +1217,15 @@ bool CreatingWeightDlg::CheckThresholdInput()
         ( !is_dist_band && m_bandwidth_thres_val*m_thres_delta_factor < m_thres_min) )
     {
         wxString msg;
-        if (is_dist_band)
+        if (is_dist_band) {
             msg = wxString::Format(nbrless_msg, m_threshold_val, m_thres_min);
-        else
+        } else {
             msg = wxString::Format(nbrless_msg, m_bandwidth_thres_val, m_thres_min);
-        
+        }
         wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-        if (dlg.ShowModal() != wxID_YES)
+        if (dlg.ShowModal() != wxID_YES) {
             return false;
+        }
     }
     return true;
 }
@@ -1219,13 +1266,21 @@ void CreatingWeightDlg::CreateWeights()
         dlg.ShowModal();
         return;
     }
-    
-    if (!CheckThresholdInput())
-        return;
 
     wxString id = m_id_field->GetString(m_id_field->GetSelection());
-    if (!CheckID(id))
+    if (!CheckID(id)) {
         return;
+    }
+    
+    if (m_nb_distance_variables->GetSelection() == 1) {
+        if (CheckTableVariableInput() == false) {
+            return;
+        }
+    } else {
+        if (!CheckThresholdInput()) {
+            return;
+        }
+    }
     
     wxString wildcard;
     wxString defaultFile(project->GetProjectTitle());
@@ -1258,11 +1313,17 @@ void CreatingWeightDlg::CreateWeights()
     wxLogMessage("CreateWeights()");
     wxLogMessage(outputfile);
     
+    // 1/2 case social weights:
+    if (m_nb_distance_variables->GetSelection() == 1) {
+        CreateWeightsFromTable(id, outputfile, wmi);
+        return;
+    }
+    
+    // 2/2 other cases:
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();
     int m_kernel_kNN = m_spinn_kernel->GetValue();
     int m_alpha = 1;
-    
     bool done = false;
     
     wxString str_X = m_X->GetString(m_X->GetSelection());

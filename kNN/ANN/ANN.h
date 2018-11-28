@@ -330,7 +330,7 @@ const ANNbool	ANN_ALLOW_SELF_MATCH	= ANNtrue;
 //		uncomment the appropriate set of macros below.
 //----------------------------------------------------------------------
 
-static int ANN_DIST_TYPE = 2;
+extern int ANN_DIST_TYPE;
 
 double ANN_POW(double v);
 double ANN_ROOT(double x);

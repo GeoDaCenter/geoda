@@ -3575,7 +3575,13 @@
                               <object class="wxBoxSizer" name="wxID_ANY">
                                   <orient>wxVERTICAL</orient>
                                   <label>Distance Weight</label>
- 
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>2</border>
+                                      <object class="wxStaticText">
+                                          <label>Variables:</label>
+                                      </object>
+                                  </object>
                                   <object class="sizeritem">
                                       <object class="wxNotebook" name="IDC_NB_DISTANCE_VARIABLES">
                                           <object class="notebookpage" name="IDC_NB_PAGE_GEOM_CENTROIDS">
@@ -4122,7 +4128,7 @@
                                               <label>Adaptive kernel</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
-                                          <size>480,300</size>
+                                          <size>480,320</size>
                                           <flag>wxALL|wxEXPAND</flag>
                                       </object>
                                       <flag>wxALL|wxEXPAND</flag>
@@ -4138,7 +4144,7 @@
                   <label>Distance Weight</label>
                   <flag>wxALL|wxEXPAND</flag>
               </object>
-              <size>500,520</size>
+              <size>500,540</size>
               <flag>wxALL|wxEXPAND</flag>
           </object>
           <flag>wxALL|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>

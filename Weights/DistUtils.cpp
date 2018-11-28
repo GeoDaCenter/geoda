@@ -130,8 +130,8 @@ GeoDa::Weights DistUtils::CreateKNNWeights(int k, bool is_inverse, int power)
     GeoDa::Weights weights;
     
     double w;
-    ANNidxArray nnIdx = new ANNidx[k];
-    ANNdistArray dists = new ANNdist[k];
+    ANNidxArray nnIdx = new ANNidx[k+1];
+    ANNdistArray dists = new ANNdist[k+1];
     for (size_t i=0; i<n_rows; i++) {
         // k+1, because data[i] will be always returned
         kdTree->annkSearch(data[i], k+1, nnIdx, dists);
@@ -161,8 +161,8 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
     GeoDa::Weights weights;
     double w;
     double max_knn_bandwidth = 0;
-    ANNidxArray nnIdx = new ANNidx[k];
-    ANNdistArray dists = new ANNdist[k];
+    ANNidxArray nnIdx = new ANNidx[k+1];
+    ANNdistArray dists = new ANNdist[k+1];
     
     if (is_adaptive_bandwidth) {
         for (size_t i=0; i<n_rows; i++) {
@@ -171,21 +171,17 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
             std::vector<std::pair<int, double> > nbrs;
             double local_band = 0;
             for (size_t j=0; j<k+1; j++) {
-                // iter each neighbor
-                if (nnIdx[j] != i) {
-                    if (dists[j] > local_band) {
-                        local_band = dists[j];
-                    }
+                // iter each neighbor, include itself
+                if (dists[j] > local_band) {
+                    local_band = dists[j];
                 }
             }
             local_band = ANN_ROOT(local_band);
             for (size_t j=0; j<k+1; j++) {
                 // iter each neighbor
-                if (nnIdx[j] != i) {
-                    w = ANN_ROOT(dists[j]);
-                    w = local_band > 0 ? w / local_band : 0;
-                    nbrs.push_back(std::make_pair(nnIdx[j], w));
-                }
+                w = ANN_ROOT(dists[j]);
+                w = local_band > 0 ? w / local_band : 0;
+                nbrs.push_back(std::make_pair(nnIdx[j], w));
             }
             weights.push_back(nbrs);
         }
@@ -197,12 +193,10 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
             std::vector<std::pair<int, double> > nbrs;
             for (size_t j=0; j<k+1; j++) {
                 // iter each neighbor
-                if (nnIdx[j] != i) {
-                    w = ANN_ROOT(dists[j]);
-                    nbrs.push_back(std::make_pair(nnIdx[j], w));
-                    if (w > max_knn_bandwidth) {
-                        max_knn_bandwidth = w;
-                    }
+                w = ANN_ROOT(dists[j]);
+                nbrs.push_back(std::make_pair(nnIdx[j], w));
+                if (w > max_knn_bandwidth) {
+                    max_knn_bandwidth = w;
                 }
             }
             weights.push_back(nbrs);
@@ -237,10 +231,8 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, double ba
         std::vector<std::pair<int, double> > nbrs;
         for (size_t j=0; j<k; j++) {
             // iter each neighbor
-            if (nnIdx[j] != i) {
-                w = ANN_ROOT(dists[j]) / band;
-                nbrs.push_back(std::make_pair(nnIdx[j],w));
-            }
+            w = ANN_ROOT(dists[j]) / band;
+            nbrs.push_back(std::make_pair(nnIdx[j],w));
         }
         weights.push_back(nbrs);
         delete[] nnIdx;

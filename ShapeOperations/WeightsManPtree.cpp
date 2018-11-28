@@ -157,6 +157,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								wxString s = v.second.data();
 								if (s == "euclidean") {
 									e.wmi.dist_metric = WeightsMetaInfo::DM_euclidean;
+                                } else if (s == "manhattan") {
+                                    e.wmi.dist_metric = WeightsMetaInfo::DM_manhattan;
 								} else if (s == "arc") {
 									e.wmi.dist_metric = WeightsMetaInfo::DM_arc;
 								} else if (s == "unspecified" || s.IsEmpty()) {
@@ -332,6 +334,8 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
                 
 				if (e.wmi.dist_metric == WeightsMetaInfo::DM_euclidean) {
 					sssub.put("dist_metric", "euclidean");
+                } else if (e.wmi.dist_metric == WeightsMetaInfo::DM_manhattan) {
+                    sssub.put("dist_metric", "manhattan");
 				} else if (e.wmi.dist_metric == WeightsMetaInfo::DM_arc) {
 					sssub.put("dist_metric", "arc");
 				}
