@@ -81,7 +81,7 @@ double DistUtils::GetMaxThreshold()
     ANNdistArray dists = new ANNdist[k];
     for (size_t i=0; i<n_iter; i++) {
         x_idx = rand() % n_rows;
-        kdTree->annkSearch(data[i], k, nnIdx, dists);
+        kdTree->annkSearch(data[x_idx], k, nnIdx, dists);
         y_idx = nnIdx[k-1];
         kdTree->annkSearch(data[y_idx], k, nnIdx, dists);
         if (dists[k-1] > dist_cand) {
