@@ -737,6 +737,30 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, c
     if (isolated.size()>0)
         summary << _("Number of not clustered observations: ") << isolated.size() << "\n";
     summary << _printConfiguration();
+    
+    // auto weighting
+    if (m_use_centroids->IsChecked()) {
+        wxString w_val = m_wc_txt->GetValue();
+        double w_valf = 0;
+        if (w_val.ToDouble(&w_valf)) {
+            double w_valf_vars = 1 - w_valf;
+            w_valf = w_valf * 0.5;
+            w_valf_vars = w_valf_vars / (columns - 2);
+            
+            summary << _("Use geometric centroids (weighting): \n");
+            for (int i=0; i<columns; i++) {
+                if (col_names[i] == "CENTX") {
+                    summary <<"  " << _("Centroid (X)") << " " << w_valf << "\n";
+                } else if (col_names[i] == "CENTY") {
+                    summary <<"  " << _("Centroid (Y)") << " " << w_valf << "\n";
+                } else {
+                    summary <<"  " << col_names[i] << " " << w_valf_vars << "\n";
+                }
+            }
+        }
+        
+    }
+    summary << "\n";
     summary << _printMeanCenters(mean_centers);
     summary << _("The total sum of squares:\t") << totss << "\n";
     summary << _printWithinSS(withinss);

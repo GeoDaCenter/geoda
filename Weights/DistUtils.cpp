@@ -43,6 +43,7 @@ DistUtils::~DistUtils()
         delete kdTree;
     }
 }
+
 double DistUtils::GetMinThreshold()
 {
     double max_1nn_dist = 0;

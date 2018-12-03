@@ -424,6 +424,19 @@ void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<
     if ( delta < 0.01 )
         return;
     
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    if (ncluster < 2 || ncluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
     double mid = left + delta /2.0;
     
     // assume left is always not contiguity and right is always contiguity
