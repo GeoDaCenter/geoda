@@ -702,7 +702,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 	GetClientSize(&width, &height);
 
 		
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
@@ -756,7 +756,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
     GetClientSize(&width, &height);
     
     
-    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY,
                                                           wxDefaultPosition, wxDefaultSize,
                                                           wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
     splitter_win->SetMinimumPaneSize(10);
@@ -808,7 +808,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
 	GetClientSize(&width, &height);
 
 		
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
@@ -860,7 +860,7 @@ ConditionalClusterMapFrame(wxFrame *parent, Project* project,
     GetClientSize(&width, &height);
     
     
-    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY,
                                                           wxDefaultPosition, wxDefaultSize,
                                                           wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
     splitter_win->SetMinimumPaneSize(10);

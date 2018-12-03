@@ -158,7 +158,7 @@ void HClusterDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatially Constraint:"),
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatial Constraint:"),
                                           wxDefaultPosition, wxSize(128,-1));
     chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -221,7 +221,7 @@ void HClusterDlg::CreateControls()
     notebook = new wxNotebook( panel, wxID_ANY);
     m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
     notebook->AddPage(m_panel, _("Dendrogram"));
-    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, _("(Please save results to see the summary report.)"));
+    m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HClusterDlg::OnNotebookChange), NULL, this);
 
@@ -548,8 +548,12 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
         
     } else {
     
-        double* pwdist = DataUtils::getPairWiseDistance(input_data, rows, columns, DataUtils::EuclideanDistance);
-        //double* pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, rows, columns, DataUtils::EuclideanDistance);
+        double* pwdist = NULL;
+        if (dist == 'e') {
+            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::EuclideanDistance);
+        } else {
+            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::ManhattanDistance);
+        }
         
         fastcluster::auto_array_ptr<t_index> members;
         

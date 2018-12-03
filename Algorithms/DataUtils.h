@@ -17,20 +17,20 @@ using namespace std;
 
 class DataUtils {
 public:
-    static double ManhattanDistance(double* x1, double* x2, size_t size)
+    static double ManhattanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0;
         for (size_t i =0; i<size; i++ ) {
-            d += fabs(x1[i] - x2[i]);
+            d += fabs(x1[i] - x2[i]) * weight[i];
         }
         return d;
     }
     
-    static double EuclideanDistance(double* x1, double* x2, size_t size)
+    static double EuclideanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0,tmp=0;
         for (size_t i =0; i<size; i++ ) {
-            tmp = x1[i] - x2[i];
+            tmp = (x1[i] - x2[i]) * weight[i];
             d += tmp * tmp;
         }
         return d;
@@ -285,7 +285,7 @@ public:
     }
     
     // upper triangular part of a symmetric matrix
-    static double* getPairWiseDistance(double** matrix, int n, int k, double dist(double* , double* , size_t))
+    static double* getPairWiseDistance(double** matrix, double* weight, int n, int k, double dist(double* , double* , size_t, double*))
     {
         unsigned long long _n = n;
         
@@ -294,7 +294,7 @@ public:
         double* result = new double[nn];
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
-                result[cnt++] = dist(matrix[i], matrix[j], k);
+                result[cnt++] = dist(matrix[i], matrix[j], k, weight);
             }
         }
         return result;

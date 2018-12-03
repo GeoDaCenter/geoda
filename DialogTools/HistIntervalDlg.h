@@ -32,7 +32,7 @@ public:
     HistIntervalDlg( int min_intervals,
 					int default_num_intervals,
 					int max_intervals,
-					wxWindow* parent, wxWindowID id = -1,
+					wxWindow* parent, wxWindowID id = wxID_ANY,
 					const wxString& caption = _("Intervals in the Histogram"),
 					const wxPoint& pos = wxDefaultPosition,
 					const wxSize& size = wxDefaultSize,

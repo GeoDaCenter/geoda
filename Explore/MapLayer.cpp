@@ -17,9 +17,9 @@ point_radius(2),
 opacity(255),
 pen_size(1),
 show_boundary(false),
-is_hide(true),
 map_boundary(NULL)
 {
+    is_hide = true;
 }
 
 BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
@@ -32,10 +32,10 @@ point_radius(2),
 opacity(255),
 pen_size(1),
 show_boundary(false),
-is_hide(false),
 map_boundary(NULL),
 show_connect_line(false)
 {
+    is_hide = false;
     num_obs = layer_proxy->GetNumRecords();
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
@@ -113,6 +113,17 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+int BackgroundMapLayer::GetHighlightRecords()
+{
+    int hl_cnt = 0;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            hl_cnt += 1;
+        }
+    }
+    return hl_cnt;
+}
+
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
@@ -164,7 +175,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
             vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
-                if (associated_lines[associated_layer]) {
+                if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
                     dc.DrawLine(shapes[i]->center, associated_layer->GetShape(ids[j])->center);
                 }
             }
@@ -173,7 +184,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
     
     // draw self highlight
     for (int i=0; i<highlight_flags.size(); i++) {
-        if (highlight_flags[i]) {
+        if (highlight_flags[i] && IsHide() == false) {
             shapes[i]->paintSelf(dc);
         }
     }
@@ -283,6 +294,10 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
             data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
         }
         return true;
+    } else if (type == GdaConst::double_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsDouble(col_idx);
+        }
     } else if (type == GdaConst::string_type) {
         for (int i=0; i<shapes.size(); ++i) {
             data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);
@@ -319,16 +334,6 @@ void BackgroundMapLayer::SetShapeType(Shapefile::ShapeType type)
 Shapefile::ShapeType BackgroundMapLayer::GetShapeType()
 {
     return shape_type;
-}
-
-void BackgroundMapLayer::SetHide(bool flag)
-{
-    is_hide = flag;
-}
-
-bool BackgroundMapLayer::IsHide()
-{
-    return is_hide;
 }
 
 void BackgroundMapLayer::drawLegend(wxDC& dc, int x, int y, int w, int h)

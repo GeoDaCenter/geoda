@@ -20,10 +20,17 @@ OutputBaseFilename=geoda_setup
 
 ChangesAssociations=yes
 
+ShowLanguageDialog=yes
+
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "zh"; MessagesFile: "compiler:Languages\ChineseSimplified.isl"
+
 [dirs]
 Name: "{app}";  Permissions: everyone-full; Check: InitializeSetup
-Name: "{app}\basemap_cache"; Permissions: everyone-full
-Name: "{app}\Examples"; Permissions: everyone-full
+Name: "{app}\Examples";  Permissions: everyone-full
+Name: "{app}\basemap_cache";  Permissions: everyone-full
+Name: "{app}\lang";  Permissions: everyone-full
 
 [Files]
 Source: "..\..\Release\GeoDa.exe"; DestDir: "{app}"; DestName: "GeoDa.exe"
@@ -61,9 +68,7 @@ Source: "..\..\temp\boost_1_57_0\stage\lib\boost_system-vc100-mt-1_57.dll"; Dest
 
 Source: "..\..\..\..\Algorithms\lisa_kernel.cl"; DestDir: "{app}"
 Source: "..\..\..\..\internationalization\lang\*"; DestDir: "{app}\lang"; Flags: recursesubdirs
-Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs uninsneveruninstall
-
-
+Source: "..\..\..\..\SampleData\Examples\*"; DestDir: "{app}\Examples"; Flags: recursesubdirs
 Source: "..\..\temp\gdal\data\*"; DestDir: "{app}\data"; Flags: recursesubdirs
 
 ;Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
@@ -74,7 +79,6 @@ Name: "{group}\GeoDa"; Filename: "{app}\GeoDa.exe"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\GeoDa"; Filename: "{app}\GeoDa.exe"
 ;Name: "{commondesktop}\GeoDa"; Filename: "{app}\run_geoda.bat"; IconFilename: "{app}\GeoDa.ico"
-
 
 [Registry]
 ; set PATH

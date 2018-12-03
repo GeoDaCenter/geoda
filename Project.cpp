@@ -1108,6 +1108,15 @@ GdaPolygon* Project::GetMapBoundary()
     }
 }
 
+void Project::GetMapExtent(double& minx, double& miny, double& maxx, double& maxy)
+{
+    wxLogMessage("Project::GetMapExtent()");
+    
+    if (layer_proxy) {
+        layer_proxy->GetExtent(minx, miny, maxx, maxy);
+    }
+}
+
 void Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)
 {
 	wxLogMessage("Project::GetCentroids(std::vector<double>& x, std::vector<double>& y)");
@@ -1608,7 +1617,13 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
     BackgroundMapLayer* map_layer = NULL;
     // Use global OGR adapter to manage all datasources, so they can be reused
     OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+	if (proxy == NULL) {
+		return NULL;
+	}
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
+	if (p_layer == NULL || p_layer->CheckIsTableOnly()) {
+		return NULL;
+	}
     if (p_layer->ReadData()) {
         if (p_layer->IsTableOnly() == false) {
             // always add to bg_maps

@@ -2,18 +2,105 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2018-06-04 09:30+0800\n"
+"PO-Revision-Date: 2018-09-27 11:57-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.0.7\n"
+"X-Generator: Poedit 2.1.1\n"
 "X-Poedit-Basepath: Regression\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-KeywordsList: _;wxT\n"
 "X-Poedit-SearchPath-0: .\n"
+
+msgid "&Undo"
+msgstr "撤销"
+
+msgid "&Paste"
+msgstr "粘贴"
+
+msgid "&Space"
+msgstr "空间分析"
+
+msgid "Re&set"
+msgstr "重置"
+
+msgid "&Run"
+msgstr "运行"
+
+msgid "&Save"
+msgstr "保存"
+
+msgid "&Help"
+msgstr "帮助"
+
+msgid "&Add ID Variable..."
+msgstr "添加ID变量…"
+
+msgid "Appl&y"
+msgstr "应用"
+
+msgid "&File"
+msgstr "文件"
+
+msgid "&New"
+msgstr "新建"
+
+msgid "&Save to Table"
+msgstr "保存到表"
+
+msgid "Select &All"
+msgstr "全选"
+
+msgid "&Map"
+msgstr "地图"
+
+msgid "&Regression"
+msgstr "回归"
+
+msgid "Cu&t"
+msgstr "剪切"
+
+msgid "&Open Project"
+msgstr "打开项目文件"
+
+msgid "&Close"
+msgstr "关闭"
+
+msgid "&Edit"
+msgstr "编辑"
+
+msgid "&Copy"
+msgstr "复制"
+
+msgid "C&reate"
+msgstr "创建"
+
+msgid "E&xplore"
+msgstr "探索分析"
+
+msgid "T&able"
+msgstr "表格"
+
+msgid "&Tools"
+msgstr "工具"
+
+msgid "Tim&e"
+msgstr "时间编辑"
+
+msgid "&Delete"
+msgstr "删除"
+
+msgid "&Cancel"
+msgstr "取消"
+
+msgid "&Merge"
+msgstr "合并"
+
+msgid "&Redo"
+msgstr "重做"
 
 msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
 msgstr "ESRI个人地理数据库（*.MDB）**MDB"
@@ -414,14 +501,11 @@ msgstr "保存项目"
 msgid "Conditional Local Geary Map Variables"
 msgstr "条件局部Geary地图变量"
 
-msgid "&Undo"
+msgid "Undo"
 msgstr "撤销"
 
-msgid "&Paste"
+msgid "Paste"
 msgstr "粘贴"
-
-msgid "Reset"
-msgstr "重置"
 
 msgid "min:"
 msgstr "最小值："
@@ -519,9 +603,6 @@ msgstr "操作符"
 msgid "This file type is not supported."
 msgstr "文件类型不支持。"
 
-msgid "&Space"
-msgstr "空间分析"
-
 msgid "Space"
 msgstr "空间分析"
 
@@ -540,7 +621,7 @@ msgstr "此视图目前支持最多1000个观察对象。空间 Correlogram 散�
 msgid "CSV Configuration Warning"
 msgstr "CSV配置警告"
 
-msgid "Re&set"
+msgid "Reset"
 msgstr "重置"
 
 msgid "All"
@@ -597,16 +678,13 @@ msgstr "当前加载的表中找未到指定的ID字段（%s）。"
 msgid "Select Neighborless Observations"
 msgstr "选择无邻居的对象"
 
-msgid "Delete"
-msgstr "删除"
-
 msgid "Histogram: "
 msgstr "直方图: "
 
 msgid "Korean (EUC-KR)"
 msgstr "韩语（EUC-KR）"
 
-msgid "&Run"
+msgid "Run"
 msgstr "运行"
 
 msgid "Add/Remove Variables"
@@ -615,7 +693,7 @@ msgstr "添加/删除变量"
 msgid "First Variable (X)"
 msgstr "第一变量（X）"
 
-msgid "&Save"
+msgid "Save"
 msgstr "保存"
 
 msgid "name:"
@@ -654,7 +732,7 @@ msgstr "设置数字分隔符"
 msgid "Not Significant"
 msgstr "不显著"
 
-msgid "&Help"
+msgid "Help"
 msgstr "帮助"
 
 msgid "Welcome to GeoDa 1.8.16"
@@ -681,7 +759,7 @@ msgstr "请先选择时段1。"
 msgid "Spatial Lag"
 msgstr "空间滞后模型"
 
-msgid "&Add ID Variable..."
+msgid "Add ID Variable..."
 msgstr "添加ID变量…"
 
 msgid "id variable"
@@ -1518,9 +1596,6 @@ msgstr "条件局部Join Count地图"
 msgid "Save Selected As"
 msgstr "保存选中的为"
 
-msgid "Appl&y"
-msgstr "应用"
-
 msgid ""
 "Add a name for your group of variables. \n"
 "\n"
@@ -1571,9 +1646,6 @@ msgstr "变量名 \"%s\" 重复或无效。请重新输入一个其他变量名�
 
 msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
 msgstr "GeoDa不支持创建%s的数据，请尝试将其导出为其他GeoDa支持的数据格式。"
-
-msgid "&File"
-msgstr "文件"
 
 msgid "Bonferroni bound:"
 msgstr "Bonferroni界限:"
@@ -1635,7 +1707,7 @@ msgstr "缩放：按鼠标右键"
 msgid "Summary"
 msgstr "总结报告"
 
-msgid "&New"
+msgid "New"
 msgstr "新建"
 
 msgid "Weights File Creation"
@@ -1867,7 +1939,7 @@ msgstr "ESRI Shapefile (*.shp)|*.shp"
 msgid "New variable name"
 msgstr "新的变量名"
 
-msgid "&Save to Table"
+msgid "Save to Table"
 msgstr "保存到表"
 
 msgid "Reverse"
@@ -1881,7 +1953,7 @@ msgid ""
 "Please increase the number of iterations."
 msgstr "随机抽样的样本数太小。请增加迭代次数。"
 
-msgid "Select &All"
+msgid "Select All"
 msgstr "全选"
 
 msgid "Warning"
@@ -1947,7 +2019,7 @@ msgstr "显示小数点位数"
 msgid "Voronoi Contiguity Error"
 msgstr "泰森多边形有邻接性错误"
 
-msgid "&Map"
+msgid "Map"
 msgstr "地图"
 
 msgid "Set transparency of highlighted objects in selection:"
@@ -2145,14 +2217,8 @@ msgstr "年："
 msgid "standard deviation"
 msgstr "标准差"
 
-msgid "Help"
-msgstr "帮助"
-
 msgid "Exit"
 msgstr "退出"
-
-msgid "Run"
-msgstr "运行"
 
 msgid "Please select features first."
 msgstr "请首先选择需要导出的对象."
@@ -2267,9 +2333,6 @@ msgstr "邻居数"
 
 msgid "neighbors"
 msgstr "邻居数"
-
-msgid "&Regression"
-msgstr "回归"
 
 msgid "Use existing field name"
 msgstr "使用现有字段名"
@@ -2652,9 +2715,6 @@ msgstr "行数错误！"
 msgid "REDCAP Settings"
 msgstr "REDCAP设置"
 
-msgid "Map"
-msgstr "地图"
-
 msgid "Fit-To-Window Mode"
 msgstr "窗口匹配模式"
 
@@ -2796,7 +2856,7 @@ msgstr "多变量局部Geary"
 msgid "Dependent Variable"
 msgstr "因变量"
 
-msgid "Cu&t"
+msgid "Cut"
 msgstr "剪切"
 
 msgid "Please enter number of regions"
@@ -2841,7 +2901,7 @@ msgstr "整数值字段的长度必须至少为%d, 最多为%d。"
 msgid "Creating Grid"
 msgstr "创建网格"
 
-msgid "&Open Project"
+msgid "Open Project"
 msgstr "打开项目文件"
 
 msgid "ID_DEFAULT_MENU_OPTIONS"
@@ -2915,9 +2975,6 @@ msgstr "Web"
 
 msgid "Time Variable Options"
 msgstr "时间变量选项"
-
-msgid "New"
-msgstr "新建"
 
 msgid "About GeoDa"
 msgstr "关于GeoDa"
@@ -2997,9 +3054,6 @@ msgstr "保存Diff-in-Diff测试结果"
 msgid "Selection Shape"
 msgstr "选择形状"
 
-msgid "&Close"
-msgstr "关闭"
-
 msgid "GeoDa could not find the required weights file."
 msgstr "GeoDa找不到所需的空间权重文件。"
 
@@ -3025,9 +3079,6 @@ msgstr "请输入Carto App密钥。"
 
 msgid "custom"
 msgstr "自定义"
-
-msgid "&Edit"
-msgstr "编辑"
 
 msgid "Setup co-locations:"
 msgstr "设置相同值叠加地图:"
@@ -3221,9 +3272,6 @@ msgstr "输入一个用于生成随机数的种子："
 msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
 msgstr "此平台不支持所选的数据库驱动程序。请查看GeoDa网站以获取关于数据库支持和连接的更多信息。"
 
-msgid "&Copy"
-msgstr "复制"
-
 msgid "Regression Report"
 msgstr "回归分析报告"
 
@@ -3248,7 +3296,7 @@ msgstr "低"
 msgid "Select variable "
 msgstr "选择变量 "
 
-msgid "Maximal Iterations:"
+msgid "Maximum Iterations:"
 msgstr "最大迭代："
 
 msgid "Datasource path is empty."
@@ -3334,9 +3382,6 @@ msgstr "无法写入输出文件!"
 
 msgid "Geocode Setting Dialog"
 msgstr "地理编码设置对话框"
-
-msgid "C&reate"
-msgstr "创建"
 
 msgid "Add New ID Variable"
 msgstr "添加新ID变量"
@@ -3714,9 +3759,6 @@ msgstr "将项目文件保存为"
 msgid "Vietnamese (Windows-1258)"
 msgstr "越南语（Windows 1258）"
 
-msgid "E&xplore"
-msgstr "探索分析"
-
 msgid "Explore"
 msgstr "探索分析"
 
@@ -3758,9 +3800,6 @@ msgstr "超额风险度(Excess Risk)"
 
 msgid "Hebrew (ISO-8859-8-1)"
 msgstr "希伯来语（ISO-8598-1）"
-
-msgid "T&able"
-msgstr "表格"
 
 msgid ">"
 msgstr ">"
@@ -3836,9 +3875,6 @@ msgstr "项目文件包含不直接存储在数据源中的额外信息, 例如�
 msgid "Open Datasource:"
 msgstr "打开数据源："
 
-msgid "&Tools"
-msgstr "工具"
-
 msgid "Tools"
 msgstr "工具"
 
@@ -3876,9 +3912,6 @@ msgstr ""
 
 msgid "Save Categories to Table"
 msgstr "将自定义分类保存到表中"
-
-msgid "Tim&e"
-msgstr "时间编辑"
 
 msgid "Bivariate Moran Variable Settings"
 msgstr "二元Moran变量设置"
@@ -4051,7 +4084,7 @@ msgstr "其他正相关"
 msgid "Chinese Simplified (GB2312)"
 msgstr "中文简化版（GB23 12）"
 
-msgid "&Delete"
+msgid "Delete"
 msgstr "删除"
 
 msgid "Sample Autocorrelation"
@@ -4117,9 +4150,6 @@ msgstr "条件G聚类地图变量"
 msgid "Please setup co-locations first."
 msgstr "请先设置Co-location。"
 
-msgid "&Cancel"
-msgstr "取消"
-
 msgid "Specify bandwidth"
 msgstr "指定带宽"
 
@@ -4180,9 +4210,6 @@ msgstr "数据类型"
 msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
 msgstr "当选择变量的时间为“all times”时, 保存结果的字段也必须选“all times”."
 
-msgid "&Merge"
-msgstr "合并"
-
 msgid "calculating..."
 msgstr "计算中…"
 
@@ -4225,7 +4252,7 @@ msgstr "保存泰森多边形"
 msgid "The selected variable is not numeric. Please select another variable."
 msgstr "所选变量不是数值类型，请选择其他变量。"
 
-msgid "&Redo"
+msgid "Redo"
 msgstr "重做"
 
 msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
@@ -4299,9 +4326,6 @@ msgstr "保存回归结果"
 
 msgid "Please select a time variable first, and make sure more than one time steps have been defined."
 msgstr "请首先选择一个时间变量, 并确保已定义了多个时间步长。"
-
-msgid "Save"
-msgstr "保存"
 
 msgid "Read from an ASCII file"
 msgstr "从ASCII文件中读取"
@@ -4542,3 +4566,93 @@ msgstr "属性"
 
 msgid "Value"
 msgstr "值"
+
+msgid "Add Map Layer"
+msgstr "Add Map Layer"
+
+msgid "Edit Map Layer"
+msgstr "Edit Map Layer"
+
+msgid "Map Layer Setting"
+msgstr "Map Layer Setting"
+
+msgid "Set Highlight Association"
+msgstr "Set Highlight Association"
+
+msgid "Clear Highlight Association"
+msgstr "Clear Highlight Association"
+
+msgid "Change Fill Color"
+msgstr "Change Fill Color"
+
+msgid "Change Outline Color"
+msgstr "Change Outline Color"
+
+msgid "Outline Visible"
+msgstr "Outline Visible"
+
+msgid "Only Map Boundary"
+msgstr "Only Map Boundary"
+
+msgid "Change Point Radius"
+msgstr "Change Point Radius"
+
+msgid "Set Association Dialog"
+msgstr "Set Association Dialog"
+
+msgid "Select layer"
+msgstr "Select layer"
+
+msgid "and field"
+msgstr "and field"
+
+msgid "is associated to"
+msgstr "is associated to"
+
+msgid "in current layer."
+msgstr "in current layer."
+
+msgid "Show connect line"
+msgstr "Show connect line"
+
+msgid "Point Radius:"
+msgstr "Point Radius:"
+
+msgid "Map Layout Preview"
+msgstr "Map Layout Preview"
+
+msgid "Show Legend"
+msgstr "Show Legend"
+
+msgid "Use Transparent Legend Background"
+msgstr "Use Transparent Legend Background"
+
+msgid "Image Dimension Setting"
+msgstr "Image Dimension Setting"
+
+msgid "Width:"
+msgstr "Width:"
+
+msgid "Height:"
+msgstr "Height:"
+
+msgid "Resolution(dpi):"
+msgstr "Resolution(dpi):"
+
+msgid "pixels"
+msgstr "pixels"
+
+msgid "inches"
+msgstr "inches"
+
+msgid "mm"
+msgstr "mm"
+
+msgid "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
+msgstr "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
+
+msgid "Basemap Parameters:"
+msgstr "Basemap Parameters:"
+
+msgid "Multivariate Local Join Count"
+msgstr "Multivariate Local Join Count"

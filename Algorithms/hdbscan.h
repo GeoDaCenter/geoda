@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <vector>
 
-#include "../kNN/ANN.h"
+#include "../kNN/ANN/ANN.h"
 #include "redcap.h"
 
 using namespace SpanningTreeClustering;

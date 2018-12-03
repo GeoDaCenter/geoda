@@ -540,7 +540,7 @@ row_standardize(row_standardize_s)
 
 	DisplayStatusBar(true);
     
-	wxSplitterWindow* splitter_win = new wxSplitterWindow(this,-1,
+	wxSplitterWindow* splitter_win = new wxSplitterWindow(this, wxID_ANY,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
@@ -577,7 +577,7 @@ row_standardize(row_standardize_s)
 	splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
     
 	
-    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+    wxPanel* toolbar_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
     toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();

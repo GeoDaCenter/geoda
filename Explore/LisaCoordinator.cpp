@@ -556,7 +556,7 @@ void LisaCoordinator::CalcPseudoP()
     LOG_MSG(wxString::Format("GPU took %ld ms", sw_vd.Time()));
 }
 
-void LisaCoordinator::ComputeLarger(int cnt, std::vector<int> permNeighbors, std::vector<uint64_t>& countLarger)
+void LisaCoordinator::ComputeLarger(int cnt, std::vector<int>& permNeighbors, std::vector<uint64_t>& countLarger)
 {
     // for each time step, reuse permuation
     for (int t=0; t<num_time_vals; t++) {

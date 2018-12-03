@@ -78,7 +78,9 @@ rand_dlg(0), morans_sel_text(NULL), morans_unsel_text(NULL)
 
     wxColour default_cat_color = GdaConst::scatterplot_regression_excluded_color;
 	cat_data.CreateCategoriesAllCanvasTms(1, 1, num_obs);
-	cat_data.SetCategoryColor(0, 0, default_cat_color);
+	//cat_data.SetCategoryColor(0, 0, default_cat_color);
+    cat_data.SetCategoryPenColor(0, 0, default_cat_color);
+    cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
     for (int i=0; i<num_obs; i++) {
         cat_data.AppendIdToCategory(0, 0, i);
     }
@@ -109,7 +111,7 @@ void LisaScatterPlotCanvas::ShowRegimesRegression(bool flag)
 
 void LisaScatterPlotCanvas::OnRandDlgClose( wxWindowDestroyEvent& event)
 {
-    rand_dlg = 0;
+    rand_dlg = NULL;
 }
             
 void LisaScatterPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -537,7 +539,12 @@ void LisaScatterPlotCanvas::PopulateCanvas()
     
     if (is_show_regimes_regression) {
         const std::vector<bool>& hl = highlight_state->GetHighlight();
-        int t = project->GetTimeState()->GetCurrTime();
+        //int t = project->GetTimeState()->GetCurrTime();
+        int t = var_info_orig[0].time-var_info_orig[0].time_min;
+        if (is_diff) {
+            // in case its differential moran, there is only one grouped variable
+            t = 0;
+        }
         int num_obs = lisa_coord->num_obs;
         
         std::vector<bool> undefs(num_obs, false);
@@ -751,7 +758,12 @@ void LisaScatterPlotCanvas::RegimeMoran(std::vector<bool>& undefs,
                                         std::vector<double>& X,
                                         std::vector<double>& Y)
 {
-    int t = project->GetTimeState()->GetCurrTime();
+    //int t = project->GetTimeState()->GetCurrTime();
+    int t = var_info_orig[0].time-var_info_orig[0].time_min;
+    if (is_diff) {
+        // in case its differential moran, there is only one grouped variable
+        t = 0;
+    }
     GalWeight* copy_w = new GalWeight(*lisa_coord->Gal_vecs[t]);
     copy_w->Update(undefs);
     GalElement* W = copy_w->gal;
@@ -830,7 +842,7 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 	wxString s("Moran's I: ");
 	s << regressionXY.beta;
     
-    int t = project->GetTimeState()->GetCurrTime();
+    int t = var_info_orig[0].time-var_info_orig[0].time_min;
     if (t >= lisa_coord->Gal_vecs.size()) {
         return;
     }
@@ -864,8 +876,6 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
     } else if (permutation > 99999) {
         permutation = 99999;
     }
-   
-	int cts = project->GetTimeState()->GetCurrTime();
     
 	std::vector<double> raw_data1(num_obs);
     
@@ -888,40 +898,38 @@ void LisaScatterPlotCanvas::ShowRandomizationDialog(int permutation)
 			raw_data2[i] = lisa_coord->data2_vecs[yt][i];
 		}
 
-        if (rand_dlg != 0) {
+        if (rand_dlg != NULL) {
             rand_dlg->Destroy();
-            rand_dlg = 0;
+            delete rand_dlg;
+            rand_dlg = NULL;
         }
         // here W handles undefined
         rand_dlg = new RandomizationDlg(raw_data1, raw_data2,
-                                        lisa_coord->Gal_vecs[cts],
-                                        lisa_coord->undef_tms[cts],
+                                        lisa_coord->Gal_vecs[xt],
+                                        lisa_coord->undef_tms[xt],
                                         highlight_state->GetHighlight(),
                                         is_show_regimes_regression,
                                         permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
 		
-        rand_dlg->Connect(wxEVT_DESTROY,
-                          wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose),
-                          NULL, this);
+        rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
         rand_dlg->Show(true);
         
 	} else {
-        if (rand_dlg != 0) {
+        if (rand_dlg != NULL) {
             rand_dlg->Destroy();
-            rand_dlg = 0;
+            delete rand_dlg;
+            rand_dlg = NULL;
         }
-        rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->Gal_vecs[cts],
-                                        lisa_coord->undef_tms[cts],
+        rand_dlg = new RandomizationDlg(raw_data1, lisa_coord->Gal_vecs[xt],
+                                        lisa_coord->undef_tms[xt],
                                         highlight_state->GetHighlight(),
                                         is_show_regimes_regression,
                                         permutation,
                                         reuse_last_seed,
                                         last_used_seed, this);
-        rand_dlg->Connect(wxEVT_DESTROY,
-                          wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose),
-                          NULL, this);
+        rand_dlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LisaScatterPlotCanvas::OnRandDlgClose), NULL, this);
 		rand_dlg->Show(true);
 	}
 }

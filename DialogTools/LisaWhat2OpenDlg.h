@@ -26,7 +26,7 @@ class LisaWhat2OpenDlg: public wxDialog
     DECLARE_EVENT_TABLE()
 
 public:
-    LisaWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
+    LisaWhat2OpenDlg( wxWindow* parent, wxWindowID id = wxID_ANY,
 					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
@@ -53,7 +53,7 @@ class GetisWhat2OpenDlg: public wxDialog
 public:
     GetisWhat2OpenDlg( wxWindow* parent,
                       bool show_row_stand = true,
-                      wxWindowID id = -1,
+                      wxWindowID id = wxID_ANY,
 					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,
@@ -82,7 +82,7 @@ class LocalGearyWhat2OpenDlg: public wxDialog
     DECLARE_EVENT_TABLE()
 
 public:
-    LocalGearyWhat2OpenDlg( wxWindow* parent, wxWindowID id = -1,
+    LocalGearyWhat2OpenDlg( wxWindow* parent, wxWindowID id = wxID_ANY,
 					 const wxString& caption = _("What windows to open?"),
 					 const wxPoint& pos = wxDefaultPosition,
 					 const wxSize& size = wxDefaultSize,

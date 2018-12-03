@@ -162,7 +162,8 @@ public:
 	void GetCentroids(std::vector<wxRealPoint>& pts);
 	const std::vector<GdaShape*>& GetVoronoiPolygons();
     GdaPolygon* GetMapBoundary();
-	
+	void GetMapExtent(double& minx, double& miny, double& maxx, double& maxy);
+    
 	double GetMin1nnDistEuc();
 	double GetMax1nnDistEuc();
 	double GetMaxDistEuc(); // diameter of convex hull

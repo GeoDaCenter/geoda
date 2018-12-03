@@ -103,7 +103,8 @@ show_lowess_smoother(false)
 	// 1 = #cats
 	cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 	for (int t=0; t<num_time_vals; t++) {
-		cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+		cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
+        cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
 		for (int i=0; i<num_obs; i++) {
 			cat_data.AppendIdToCategory(t, 0, i);
 		}
@@ -722,7 +723,9 @@ void ConditionalScatterPlotCanvas::SetSelectableFillColor(wxColour color)
 {
 	selectable_fill_color = color;
 	for (int t=0; t<cat_data.GetCanvasTmSteps(); t++) {
-		cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+		//cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+        cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
+        cat_data.SetCategoryBrushColor(t, 0, *wxWHITE);
 	}
 	TemplateCanvas::SetSelectableFillColor(color);
 }

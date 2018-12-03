@@ -34,9 +34,7 @@ struct CatClassifData;
 class TableInterface;
 
 namespace CatClassification {
-	
-	const int max_num_categories = 20;
-	
+		
 	enum CatClassifType {
         no_theme, hinge_15, hinge_30, quantile, percentile,
 		stddev, excess_risk_theme, unique_values, colocation, natural_breaks, equal_intervals,

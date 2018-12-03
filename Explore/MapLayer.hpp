@@ -25,29 +25,43 @@ typedef pair<wxString, wxString> Association;
 
 class AssociateLayerInt
 {
+protected:
+    bool is_hide;
+    
 public:
     // primary key : AssociateLayer
     map<AssociateLayerInt*, Association> associated_layers;
     map<AssociateLayerInt*, bool> associated_lines;
-
+    
     AssociateLayerInt() {}
     virtual ~AssociateLayerInt() {}
     
     virtual bool IsCurrentMap() = 0;
     virtual wxString GetName() = 0;
     virtual int  GetNumRecords() = 0;
+    
     virtual vector<wxString> GetKeyNames() = 0;
     virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data) = 0;
+    //virtual bool GetColumnData(wxString col_name, vector<double>& data) = 0;
+    
     virtual void ResetHighlight() = 0;
     virtual void SetHighlight(int idx) = 0;
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas) = 0;
+    virtual int GetHighlightRecords() = 0;
+    
+    virtual GdaShape* GetShape(int i) = 0;
+    //virtual vector<GdaShape*> GetShapes() = 0;
+    //virtual wxRect GetExtent() = 0;
+    
     virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
                                      wxString key, bool show_connline=true) = 0;
     virtual bool IsAssociatedWith(AssociateLayerInt* layer) = 0;
     virtual void ClearLayerAssociation() {
         associated_layers.clear();
     }
-    virtual GdaShape* GetShape(int i) = 0;
+    
+    virtual void SetHide(bool flag) { is_hide = flag; }
+    virtual bool IsHide() { return is_hide; }
 };
 
 
@@ -66,7 +80,7 @@ class BackgroundMapLayer : public AssociateLayerInt
     int opacity;
     int pen_size;
     bool show_boundary;
-    bool is_hide;
+    
     
 public:
     OGRLayerProxy* layer_proxy;
@@ -90,7 +104,7 @@ public:
                                      wxString key, bool show_connline=true);
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
-
+    virtual int GetHighlightRecords();
 
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
@@ -104,9 +118,6 @@ public:
     
     void SetName(wxString name);
     virtual wxString GetName();
-    
-    void SetHide(bool flag);
-    bool IsHide();
     
     void SetPenColour(wxColour& color);
     wxColour GetPenColour();
@@ -157,5 +168,13 @@ public:
     virtual void paintSelf(wxGraphicsContext* gc);
 };
 
-
+class GdaGridLayer : public GdaShape {
+    wxString name;
+    vector<OGRGeometry*> geoms;
+    
+public:
+    GdaGridLayer(wxString name, int width, int height);
+    ~GdaGridLayer();
+    
+};
 #endif /* MapLayer_hpp */

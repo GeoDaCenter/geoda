@@ -179,6 +179,7 @@ public:
                      bool is_hide = false);
     void CleanBasemapCache();
     bool DrawBasemap(bool flag, BasemapItem& bm_item);
+    void SetNoBasemap();
     void OnIdle(wxIdleEvent& event);
     void TranslucentLayer0(wxMemoryDC& dc);
     void RenderToSVG(wxDC& dc, int svg_w, int svg_h, int map_w, int map_h,
@@ -209,6 +210,8 @@ public:
                                      wxString key, bool show_connline=true);
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual GdaShape* GetShape(int idx);
+    virtual int GetHighlightRecords();
+    void UpdateMapTree();
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
@@ -349,6 +352,7 @@ public:
 	virtual void update(WeightsManState* o);
 	virtual int numMustCloseToRemove(boost::uuids::uuid id) const;
 	virtual void closeObserver(boost::uuids::uuid id);
+    virtual void OnCustomCategoryClick(wxCommandEvent& event);
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 	virtual void OnThemelessMap();
@@ -377,7 +381,7 @@ public:
     virtual void OnSelectableOutlineVisible(wxCommandEvent& event);    
     virtual void OnChangeMapTransparency();
     virtual void OnDrawBasemap(bool flag, BasemapItem& bm_item);
-    
+    void SetNoBasemap();
     void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void CleanBasemap();
@@ -405,6 +409,7 @@ public:
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
+    void UpdateMapTree();
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,
 					   int num_categories,
@@ -420,7 +425,12 @@ public:
         if (!template_legend) return;
         template_legend->Recreate();
     }
+    void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
+    
 	
+    vector<GdaVarTools::VarInfo> var_info;
+    vector<int> col_ids;
+    
 protected:
     wxBoxSizer* rbox;
 

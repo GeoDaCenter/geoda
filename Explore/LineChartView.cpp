@@ -115,7 +115,7 @@ fixed_scale_over_change(true)
      */
     SetBackgroundColour(*wxWHITE);
     wxSplitterWindow* splitter_win = 0;
-    splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition,
+    splitter_win = new wxSplitterWindow(this, wxID_ANY, wxDefaultPosition,
                                         wxDefaultSize,
                                         wxSP_THIN_SASH |wxSP_NOBORDER | wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
     splitter_win->SetMinimumPaneSize(10);

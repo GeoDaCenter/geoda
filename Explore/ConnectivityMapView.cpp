@@ -568,7 +568,7 @@ ConnectivityMapFrame::ConnectivityMapFrame(wxFrame *parent, Project* project,
     rbox->Add(template_canvas, 1, wxEXPAND);
     rpanel->SetSizer(rbox);
 
-    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+    wxPanel* toolbar_panel = new wxPanel(this, wxID_ANY, wxDefaultPosition);
     wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
     toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     toolbar->EnableTool(XRCID("ID_SELECT_INVERT"), false);

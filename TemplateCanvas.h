@@ -312,7 +312,7 @@ public:
     virtual wxString GetVariableNames() = 0;
     virtual SelectableShpType GetShapeType() {return selectable_shps_type;}
     virtual double GetPointRadius() { return point_radius; }
-    virtual void SetPointRadius(double r) { point_radius = r;}
+    virtual void SetPointRadius(double r);
     
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
     void GetVizInfo(wxString& shape_type, std::vector<wxString>& clrs, std::vector<double>& bins);

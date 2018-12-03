@@ -2977,7 +2977,7 @@ number of clusters is larger than the number of elements being clustered,
 /* *********************************************************************** */
 
 void kmedoids (int nclusters, int nelements, double** distmatrix,
-  int npass, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
+  int npass, int n_maxiter, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2)
 /*
 Purpose
 =======
@@ -3092,8 +3092,13 @@ to 0. If kmedoids fails due to a memory allocation error, ifound is set to -1.
       
     if (npass!=0)
         randomassign (nclusters, nelements, tclusterid, _s1, _s2);
-    while(1)
-    { double previous = total;
+      
+      int iter = 0;
+      
+    while(iter < n_maxiter)
+    {
+        iter ++;
+        double previous = total;
       total = 0.0;
 
       if (counter % period == 0) /* Save the current cluster assignments */

@@ -143,7 +143,7 @@ vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) {
     return groups;
 }
 
-XY::XY(double _x, double _y)
+XYFraction::XYFraction(double _x, double _y)
 {
     x = _x;
     y = _y;
@@ -152,20 +152,22 @@ XY::XY(double _x, double _y)
 }
 
 
-Basemap::Basemap(BasemapItem& basemap_item,
+Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
-                 MapLayer *_map,
+                 MapLayer* _map,
+                 MapLayer* _origMap,
                  wxString _cachePath,
                  OGRCoordinateTransformation *_poCT,
                  double _scale_factor)
 {
-    poCT = _poCT;
+    basemap_item = _basemap_item;
     screen = _screen;
     map = _map;
-    scale_factor = _scale_factor;
-    origMap = new MapLayer(map);
-    
+    origMap = _origMap;
     cachePath = _cachePath;
+    poCT = _poCT;
+    scale_factor = _scale_factor;
+
     bDownload = false;
     downloadThread = NULL;
     isPan = false;
@@ -177,6 +179,8 @@ Basemap::Basemap(BasemapItem& basemap_item,
     
     nokia_id = "oRnRceLPyM8OFQQA5LYH";
     nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
+    
+    wxInitAllImageHandlers();
     
     GetEasyZoomLevel();
     SetupMapType(basemap_item);
@@ -298,8 +302,8 @@ void Basemap::ResizeScreen(int _width, int _height)
 
 void Basemap::Pan(int x0, int y0, int x1, int y1)
 {
-    XY origXY((x0 + leftP + offsetX)/256.0, (y0 + topP + offsetY)/256.0);
-    XY newXY((x1 + leftP + offsetX)/256.0, (y1 + topP + offsetY)/256.0);
+    XYFraction origXY((x0 + leftP + offsetX)/256.0, (y0 + topP + offsetY)/256.0);
+    XYFraction newXY((x1 + leftP + offsetX)/256.0, (y1 + topP + offsetY)/256.0);
     
     LatLng* p0 = XYToLatLng(origXY, true);
     LatLng* p1 = XYToLatLng(newXY, true);
@@ -331,8 +335,8 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
         bottom = screen->height * 2 - bottom;
     }
     
-    XY origXY((left + leftP + offsetX)/256.0, (top + topP + offsetY)/256.0);
-    XY newXY((right + leftP + offsetX)/256.0, (bottom + topP + offsetY)/256.0);
+    XYFraction origXY((left + leftP + offsetX)/256.0, (top + topP + offsetY)/256.0);
+    XYFraction newXY((right + leftP + offsetX)/256.0, (bottom + topP + offsetY)/256.0);
     
     LatLng* p0 = XYToLatLng(origXY, true);
     LatLng* p1 = XYToLatLng(newXY, true);
@@ -440,11 +444,11 @@ void Basemap::GetTiles()
     // following: http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
     // top-left / north-west
     LatLng nw(map->north, map->west);
-    XY* topleft = LatLngToRawXY(nw);
+    XYFraction* topleft = LatLngToRawXY(nw);
     
     // bottom-right / south-east
     LatLng se(map->south, map->east);
-    XY* bottomright = LatLngToRawXY(se);
+    XYFraction* bottomright = LatLngToRawXY(se);
     
     startX = topleft->GetXInt();
     startY = topleft->GetYInt();
@@ -647,7 +651,7 @@ void Basemap::DownloadTile(int x, int y)
 }
 
 
-LatLng* Basemap::XYToLatLng(XY &xy, bool isLL)
+LatLng* Basemap::XYToLatLng(XYFraction &xy, bool isLL)
 {
     double x = xy.x;
     if (x > nn)
@@ -662,22 +666,22 @@ LatLng* Basemap::XYToLatLng(XY &xy, bool isLL)
     return new LatLng(lat, lng);
 }
 
-XY* Basemap::LatLngToRawXY(LatLng &latlng)
+XYFraction* Basemap::LatLngToRawXY(LatLng &latlng)
 {
     double lat_rad = latlng.GetLatRad();
     double x = (latlng.GetLngDeg() + 180.0 ) / 360.0 * nn;
     double y = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
-    return new XY(x, y);
+    return new XYFraction(x, y);
 }
 
-XY* Basemap::LatLngToXY(LatLng &latlng)
+XYFraction* Basemap::LatLngToXY(LatLng &latlng)
 {
     double lat_rad = latlng.GetLatRad();
     double x = (latlng.GetLngDeg() + 180.0 ) / 360.0 * nn;
     double y = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
     int xp = (int)(x * 256 - leftP) - offsetX;
     int yp = (int)(y * 256 - topP) - offsetY;
-    return new XY(xp, yp);
+    return new XYFraction(xp, yp);
 }
 
 void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
@@ -764,8 +768,6 @@ bool Basemap::Draw(wxBitmap* buffer)
             if (imageSuffix == ".png") {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
             } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
-                wxImageHandler * jpegLoader = new wxJPEGHandler();
-                wxImage::AddHandler(jpegLoader);
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             if (bmp.IsOk()) {

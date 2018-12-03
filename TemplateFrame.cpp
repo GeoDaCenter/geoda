@@ -62,7 +62,7 @@ TemplateFrame::TemplateFrame(wxFrame *parent, Project* project_s,
 							 const wxString& title,
 							 const wxPoint& pos,
 							 const wxSize& size, const long style)
-: wxFrame(parent, -1, title, pos, size, style),
+: wxFrame(parent, wxID_ANY, title, pos, size, style),
 	template_canvas(0), template_legend(0), project(project_s),
 	frames_manager(project_s->GetFramesManager()),
 	table_state(project_s->GetTableState()),
@@ -469,7 +469,7 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
         int default_width = canvas_width*2;
         int default_height = canvas_height*2;
         
-        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Setting"));
+        CanvasExportSettingDialog setting_dlg(default_width, default_height, _("Image Dimension Settings"));
         if (setting_dlg.ShowModal() == wxID_OK) {
             int out_res_x = setting_dlg.GetMapWidth();
             int out_res_y = setting_dlg.GetMapHeight();
@@ -751,6 +751,12 @@ void TemplateFrame::update(TableState* o)
 
 void TemplateFrame::update(TimeState* o)
 {
+}
+
+void TemplateFrame::SetDependsOnNonSimpleGroups(bool v)
+{
+    depends_on_non_simple_groups = v;
+    
 }
 
 bool TemplateFrame::AllowTimelineChanges()

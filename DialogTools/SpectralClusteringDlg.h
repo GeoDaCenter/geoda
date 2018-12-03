@@ -24,6 +24,7 @@
 #include <map>
 #include <wx/choice.h>
 #include <wx/checklst.h>
+#include <wx/combobox.h>
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
@@ -59,7 +60,7 @@ public:
 protected:
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    wxChoice* combo_n;
+    wxComboBox* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;

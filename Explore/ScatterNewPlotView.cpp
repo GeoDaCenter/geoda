@@ -52,7 +52,7 @@
 
 BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
                                           const wxString & caption )
-: wxDialog( NULL, -1, caption, wxDefaultPosition, wxDefaultSize)
+: wxDialog( NULL, wxID_ANY, caption, wxDefaultPosition, wxDefaultSize)
 {
     
     wxLogMessage("Open BubbleSizeDlg.");
@@ -1917,7 +1917,7 @@ void ScatterNewPlotFrame::Init(const std::vector<GdaVarTools::VarInfo>& var_info
     
 	wxSplitterWindow* splitter_win = 0;
 	if (is_bubble_plot) {
-		splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+		splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 		splitter_win->SetMinimumPaneSize(10);
 	}
 	wxPanel* rpanel = NULL;
@@ -2321,7 +2321,7 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const std::vector<
     GetClientSize(&width, &height);
     wxSplitterWindow* splitter_win = 0;
     if (is_bubble_plot) {
-        splitter_win = new wxSplitterWindow(this,-1,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+        splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
         splitter_win->SetMinimumPaneSize(10);
     }
     template_canvas = new MDSPlotCanvas(this, this, project,

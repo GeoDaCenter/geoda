@@ -26,6 +26,7 @@ WeightsMetaInfo::WeightsMetaInfo()
 
 void WeightsMetaInfo::SetToDefaults()
 {
+    weights_type = WT_custom;
 	id_var = "";
 	filename = "";
 	sym_type = SYM_unknown;
@@ -294,6 +295,8 @@ wxString WeightsMetaInfo::DistMetricToStr() const
 {
 	if (dist_metric == DM_euclidean) {
 		return "Euclidean";
+    } else if (dist_metric == DM_manhattan) {
+        return "Manhattan";
 	} else if (dist_metric == DM_arc) {
 		return "arc";
 	}

@@ -491,6 +491,13 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
+    // add weight to input_data
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<columns; j++) {
+            input_data[i][j] = input_data[i][j] * weight[j];
+        }
+    }
+    
     GeoDaClustering::HDBScan hdb(minPts, minSamples, alpha, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
     
     cluster_ids = hdb.GetRegions();

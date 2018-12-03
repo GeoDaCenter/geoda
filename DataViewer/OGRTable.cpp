@@ -837,6 +837,35 @@ void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& da
     ogr_col->FillData(data);
 }
 
+void OGRTable::GetDataByColumns(const std::vector<wxString>& col_names,
+                                std::vector<std::vector<double> >& data,
+                                std::vector<std::vector<bool> >& undefs)
+{
+    // column names could be time (grouped) variable
+    int col_idx;
+    int tm_idx;
+    int dt_idx = 0;
+    wxString col_name;
+    wxString sub_col_name;
+    wxString time_id;
+    int n_col_names = col_names.size();
+    for (int i=0; i<n_col_names; i++) {
+        col_name = col_names[i];
+        col_idx = FindColId(col_name);
+        tm_idx = 0;
+        if (col_idx == -1) {
+            // could be a time (grouped) variable: xxx_(xxx)
+            sub_col_name = col_name.BeforeFirst(' ');
+            time_id = col_name.After('(').Before(')');
+            tm_idx = GetTimeInt(time_id);
+            col_idx = FindColId(sub_col_name);
+        }
+        GetColData(col_idx, tm_idx, data[dt_idx]);
+        GetColUndefined(col_idx, tm_idx, undefs[dt_idx]);
+        dt_idx += 1;
+    }
+}
+
 bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
 {
     if (col < 0 || col >= var_order.GetNumVarGroups())
@@ -1444,13 +1473,16 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
             GetColType(cols[i]) != GdaConst::placeholder_type)
         {
 			decimals = GetColDecimals(cols[i]);
-			displayed_decimals = GetColDecimals(cols[i]);
+			displayed_decimals = GetColDispDecimals(cols[i]);
 			length = GetColLength(cols[i]);
 			type = GetColType(cols[i]);
 			found_nonplaceholder = true;
 		}
 	}
 	
+    if (decimals <=0) decimals = GdaConst::default_dbf_double_decimals;
+    if (displayed_decimals<=0) displayed_decimals = decimals;
+    
 	TableDeltaList_type tdl;
 	var_order.Group(cols, name, pos, tdl);
 	// Last entry in tdl should be an insert operation.  Add missing

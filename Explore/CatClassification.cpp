@@ -21,6 +21,7 @@
 #include <iomanip>
 #include <float.h>
 #include <set>
+#include <stdlib.h>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_01.hpp>
@@ -48,7 +49,6 @@ void create_unique_val_mapping(std::vector<UniqueValElem>& uv_mapping,
                                const std::vector<bool>& v_undef)
 {
 	uv_mapping.clear();
-	//uv_mapping.push_back(UniqueValElem(v[0], 0, 0));
 	int cur_ind = -1;
    
 	for (int i=0, iend=v.size(); i<iend; i++) {
@@ -72,11 +72,7 @@ void pick_rand_breaks(std::vector<int>& b, int N, boost::uniform_01<boost::mt199
 {
 	int num_breaks = b.size();
 	if (num_breaks > N-1) return;
-	// Mersenne Twister random number generator, randomly seeded
-	// with current time in seconds since Jan 1 1970.
-	//static boost::mt19937 rng(GdaConst::gda_user_seed);
-	//static boost::uniform_01<boost::mt19937> X(rng);
-	
+
 	std::set<int> s;
 	while (s.size() != num_breaks) s.insert(1 + (N-1)*X());
 	int cnt=0;
@@ -125,6 +121,7 @@ double calc_gvf(const std::vector<int>& b, const std::vector<double>& v,
 	
 	return 1-(tssd/gssd);
 }
+
 
 void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 											std::vector<wxString>& cat_labels,
@@ -402,8 +399,6 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
         if (!cats_valid[t])
             continue;
         int n_cat = u_vals_map[t].size();
-        if (n_cat > max_num_categories)
-            n_cat = max_num_categories;
         bool reversed = false;
         cat_data.SetCategoryBrushesAtCanvasTm(CatClassification::unique_color_scheme,
                                               n_cat, reversed, t);
@@ -422,11 +417,9 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 int ind = var[t][i].second;
                 if (var_undef[t][ind])
                     continue;
-                if (val ==  unique_val)
-                    if (cat < max_num_categories-1)
-                        cat_data.AppendIdToCategory(t, cat, var[t][i].second);
-                    else
-                        cat_data.AppendIdToCategory(t, max_num_categories-1, var[t][i].second);
+                if (val ==  unique_val) {
+                    cat_data.AppendIdToCategory(t, cat, var[t][i].second);
+                }
             }
         }
         int cur_cat = u_vals_map[t].size();
@@ -440,22 +433,12 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
         }
         // for labels
         int n_cat = u_vals_map[t].size();
-        if (n_cat > max_num_categories)
-            n_cat = max_num_categories;
         
         std::vector<wxString> labels(n_cat);
         for (int cat=0; cat<n_cat; cat++) {
             wxString ss;
             int n_obs_in_cat = cat_data.GetNumObsInCategory(t, cat);
-            if (cat < max_num_categories - 1) {
-                ss << u_vals_map[t][cat];
-            } else {
-                if (n_obs_in_cat == 1) {
-                    ss << u_vals_map[t][cat];
-                } else {
-                    ss << "Others";
-                }
-            }
+            ss << u_vals_map[t][cat];
             labels[cat] = ss;
             cat_data.SetCategoryLabel(t, cat, labels[cat]);
             cat_data.SetCategoryCount(t, cat, n_obs_in_cat);
@@ -1291,12 +1274,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 continue;
            
             int n_cat = u_vals_map[t].size();
-            if (n_cat > max_num_categories)
-                n_cat = max_num_categories;
-           
             bool reversed = false;
-			cat_data.SetCategoryBrushesAtCanvasTm(CatClassification::unique_color_scheme,
-                                                  n_cat, reversed, t);
+        cat_data.SetCategoryBrushesAtCanvasTm(CatClassification::unique_color_scheme, n_cat, reversed, t);
 		}
 		
 		cat_data.ResetAllCategoryMinMax();
@@ -1318,9 +1297,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                     continue;
                 }
                 
-				if (u_vals_map[t][cur_cat]  != val &&
-                    cur_cat < max_num_categories-1)
-                {
+				if (u_vals_map[t][cur_cat]  != val) {
                     cur_cat++;
                 }
                 
@@ -1340,8 +1317,6 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
             
             // for labels
             int n_cat = u_vals_map[t].size();
-            if (n_cat > max_num_categories)
-                n_cat = max_num_categories;
             
 			std::vector<wxString> labels(n_cat);
 			for (int cat=0; cat<n_cat; cat++) {
@@ -1350,18 +1325,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                 ss.str("");
                 double val_f = u_vals_map[t][cat];
                 int val_l = (int)val_f;
-                
-                if (cat < max_num_categories - 1) {
-                    if (val_f == val_l) ss << val_l;
-                    else ss << val_f;
-                } else {
-                    if (n_obs_in_cat == 1) {
-                        if (val_f == val_l) ss << val_l;
-                        else ss << val_f;
-                    } else {
-                        ss << "Others";
-                    }
-                }
+                if (val_f == val_l) ss << val_l;
+                else ss << val_f;
                 labels[cat] << ss.str();
 				cat_data.SetCategoryLabel(t, cat, labels[cat]);
 				cat_data.SetCategoryCount(t, cat, n_obs_in_cat);
@@ -2089,35 +2054,38 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 								  ColorScheme coltype, int num_color,
 								  bool reversed)
 {
-    
-    
     if (coltype == unique_color_scheme) {
         color_vec.resize(num_color, *wxBLUE);
-        wxColour unique_colors[20] = {
-            wxColour(166,206,227),
-            wxColour(31,120,180),
-            wxColour(178,223,138),
-            wxColour(51,160,44),
-            wxColour(251,154,153),
-            wxColour(227,26,28),
-            wxColour(253,191,111),
-            wxColour(255,127,0),
-            wxColour(106,61,154),
-            wxColour(255,255,153),
-            wxColour(177,89,40),
-            wxColour(255,255,179),
-            wxColour(190,186,218),
-            wxColour(251,128,114),
-            wxColour(128,177,211),
-            wxColour(179,222,105),
-            wxColour(252,205,229),
-            wxColour(217,217,217),
-            wxColour(188,128,189),
-            wxColour(204,235,197)
+        int unique_colors[20][3] = {
+            {166,206,227},
+            {31,120,180},
+            {178,223,138},
+            {51,160,44},
+            {251,154,153},
+            {227,26,28},
+            {253,191,111},
+            {255,127,0},
+            {106,61,154},
+            {255,255,153},
+            {177,89,40},
+            {255,255,179},
+            {190,186,218},
+            {251,128,114},
+            {128,177,211},
+            {179,222,105},
+            {252,205,229},
+            {217,217,217},
+            {188,128,189},
+            {204,235,197}
         };
-        
+        srand (0);
         for (int i = 0; i < num_color; i++) {
-            color_vec[i] = unique_colors[i];
+            int* rgb = unique_colors[i % 20];
+            int rnd = rand() * (i / 20);
+            int r = (rgb[0] + rnd) % 255;
+            int g = (rgb[1] + rnd) % 255;
+            int b = (rgb[2] + rnd) % 255;
+            color_vec[i].Set(r, g, b);
         }
         return;
     }

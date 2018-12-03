@@ -24,7 +24,7 @@
 #include <map>
 #include <wx/choice.h>
 #include <wx/checklst.h>
-
+#include <wx/combobox.h>
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
@@ -58,7 +58,7 @@ public:
     
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
-    
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)=0;
     
     std::vector<GdaVarTools::VarInfo> var_info;
@@ -73,7 +73,7 @@ protected:
     
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    wxChoice* combo_n;
+    wxComboBox* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
@@ -112,6 +112,7 @@ public:
     virtual ~KMediansDlg();
     
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
 };
 
 class KMedoidsDlg : public KClusterDlg
@@ -122,5 +123,6 @@ public:
    
     virtual void ComputeDistMatrix(int dist_sel);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
 };
 #endif

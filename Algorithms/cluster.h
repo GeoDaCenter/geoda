@@ -70,7 +70,7 @@ void kcluster (int nclusters, int ngenes, int ndata, double** data,
   int** mask, double weight[], int transpose, int npass, int n_maxiter, char method, char dist,
   int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2);
 void kmedoids (int nclusters, int nelements, double** distance,
-  int npass, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2);
+  int npass, int n_maxiter, int clusterid[], double* error, int* ifound, double bound_vals[], double min_bound, int s1, int s2);
 
 void test (int nclusters, int nrows, int ncolumns, double** data, int** mask, double weight[], int transpose, int npass, int n_maxiter, char a);
 

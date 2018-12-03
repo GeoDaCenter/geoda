@@ -365,13 +365,13 @@ wxString GdaConst::gda_basemap_sources =
 "\nOpenStreetMap.BlackAndWhite,http://a.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png"
 "\nStamen.Toner,https://stamen-tiles-a.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
 "\nStamen.TonerLite,https://stamen-tiles-a.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
-"\nStamen.Watercolor,https://stamen-tiles-a.a.ssl.fastly.net/watercolor/{z}/{x}/{y}@2x.png"
-"\nOther.高德,http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
-"\nOther.高德(卫星),http://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
-"\nOther.高德(卫星有标签),http://webst01.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
-"\nOther.天地图,http://t0.tianditu.cn/DataServer?T=vec_w&X={x}&Y={y}&L={z}"
-"\nOther.天地图(卫星),http://t0.tianditu.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}"
-"\nOther.天地图(地形),http://t0.tianditu.cn/DataServer?T=cta_w&X={x}&Y={y}&L={z}"
+"\nStamen.Watercolor,https://stamen-tiles-a.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+"\nOther (China).AMAP,http://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
+"\nOther (China).AMAP(Satellite),http://webst01.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+"\nOther (China).AMAP(SatelliteLabel),http://webst01.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
+"\nOther (China).TianDiTu,http://t0.tianditu.cn/DataServer?T=vec_w&X={x}&Y={y}&L={z}"
+"\nOther (China).TianDiTu(Satellite),http://t0.tianditu.cn/DataServer?T=cia_w&X={x}&Y={y}&L={z}"
+"\nOther (China).TianDiTu(Terrain),http://t0.tianditu.cn/DataServer?T=cta_w&X={x}&Y={y}&L={z}"
 ;
 
 

@@ -55,9 +55,10 @@ public:
 	virtual bool OnInit(void);
 	virtual int OnExit(void);
 	virtual void OnFatalException(void);
-    virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+	virtual void OnInitCmdLine(wxCmdLineParser& parser);
+	virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
     virtual void MacOpenFiles(const wxArrayString& fileNames);
-    
+    static const wxCmdLineEntryDesc globalCmdLineDesc[];
 private:
     wxString cmd_line_proj_file_name;
     wxTranslationHelper* m_TranslationHelper;
