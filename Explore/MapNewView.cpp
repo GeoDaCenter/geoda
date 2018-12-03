@@ -307,8 +307,10 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
     TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
     
     // if multi-layer presents and top layer is not current map
-    if ( fg_maps.empty() )
+    if ( fg_maps.empty() ) {
+        UpdateMapTree();
         return;
+    }
     
     BackgroundMapLayer* ml = fg_maps[0];
     int nn = ml->GetNumRecords();
@@ -391,6 +393,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
         highlight_state->SetTotalHighlighted(total_highlighted);
         highlight_timer->Start(50);
     }
+    UpdateMapTree();
 }
 
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
@@ -475,25 +478,37 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
         bool crosshatch = false;
         bool is_print = false;
         helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
-        // paint selected with specified outline color
-        if (conn_selected_color.Alpha() != 0) {
-            wxPen pen(conn_selected_color);
-            for (int i=0; i<gal_weights->num_obs; i++) {
-                if (h[i]) {
-                    selectable_shps[i]->setPen(pen);
-                    selectable_shps[i]->setBrush(*wxTRANSPARENT_BRUSH);
-                    selectable_shps[i]->paintSelf(dc);
-                }
+        if (display_neighbors) {
+            wxPen pen(selectable_outline_color);
+            wxBrush brush(*wxWHITE);
+            if (GetCcType() != CatClassification::no_theme || selectable_shps_type == points) {
+                // only paint neighbors with white if no_theme, otherwise transparent
+                brush = *wxTRANSPARENT_BRUSH;
+            }
+            if (neighbor_fill_color.Alpha() != 0) {
+                // paint neighbors with specified fill color
+                wxBrush spec_brush(neighbor_fill_color);
+                brush = spec_brush;
+            }
+            for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
+                selectable_shps[*it]->setPen(pen);
+                selectable_shps[*it]->setBrush(brush);
+                selectable_shps[*it]->paintSelf(dc);
             }
         }
-        if (display_neighbors) {
-            // paint neighbors with specified fill color
-            if (neighbor_fill_color.Alpha() != 0) {
-                wxBrush brush(neighbor_fill_color);
-                for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
-                    selectable_shps[*it]->setBrush(brush);
-                    selectable_shps[*it]->paintSelf(dc);
-                }
+        // paint selected with specified outline color
+        wxPen pen(selectable_outline_color);
+        if (selectable_shps_type == points || GetCcType() != CatClassification::no_theme ) {
+            pen.SetColour(*wxRED);
+        }
+        if (conn_selected_color.Alpha() != 0) {
+            pen.SetColour(conn_selected_color);
+        } 
+        for (int i=0; i<gal_weights->num_obs; i++) {
+            if (h[i]) {
+                selectable_shps[i]->setPen(pen);
+                selectable_shps[i]->setBrush(*wxTRANSPARENT_BRUSH);
+                selectable_shps[i]->paintSelf(dc);
             }
         }
     }
@@ -1071,6 +1086,18 @@ void MapCanvas::SetHighlight(int idx)
     }
 }
 
+int MapCanvas::GetHighlightRecords()
+{
+    int hl_cnt = 0;
+    vector<bool>& hs = highlight_state->GetHighlight();
+    for (int i=0; i<hs.size(); i++) {
+        if (hs[i]) {
+            hl_cnt += 1;
+        }
+    }
+    return hl_cnt;
+}
+
 void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
 {
     if (selectable_shps.size() == 0) {
@@ -1161,16 +1188,23 @@ void MapCanvas::CleanBasemapCache()
     }
 }
 
+void MapCanvas::UpdateMapTree()
+{
+    if (MapFrame* f = dynamic_cast<MapFrame*>(template_frame)) {
+        f->UpdateMapTree();
+    }
+}
+
 void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	if (MapFrame* f = dynamic_cast<MapFrame*>(template_frame)) {
-		f->OnActivate(ae);
-	}
+    MapFrame* f = dynamic_cast<MapFrame*>(template_frame);
+    f->OnActivate(ae);
+	
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
+	f->AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
                                    GetCcType() != CatClassification::no_theme);
@@ -2927,8 +2961,8 @@ BEGIN_EVENT_TABLE(MapFrame, TemplateFrame)
 END_EVENT_TABLE()
 
 MapFrame::MapFrame(wxFrame *parent, Project* project,
-                   const vector<GdaVarTools::VarInfo>& var_info,
-                   const vector<int>& col_ids,
+                   const vector<GdaVarTools::VarInfo>& _var_info,
+                   const vector<int>& _col_ids,
                    CatClassification::CatClassifType theme_type,
                    MapCanvas::SmoothingType smoothing_type,
                    int num_categories,
@@ -2936,7 +2970,10 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
                    const wxPoint& pos, const wxSize& size,
                    const long style)
 : TemplateFrame(parent, project, _("Map"), pos, size, style),
-w_man_state(project->GetWManState()), export_dlg(NULL),
+var_info(_var_info),
+col_ids(_col_ids),
+w_man_state(project->GetWManState()),
+export_dlg(NULL),
 no_update_weights(false)
 {
 	wxLogMessage("Open MapFrame.");
@@ -2954,7 +2991,7 @@ no_update_weights(false)
 	GetClientSize(&width, &height);
     
 	wxSplitterWindow* splitter_win = 0;
-	splitter_win = new wxSplitterWindow(this,-1, wxDefaultPosition, wxDefaultSize, wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+	splitter_win = new wxSplitterWindow(this,wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
 	splitter_win->SetMinimumPaneSize(10);
 	
 	wxPanel* rpanel = new wxPanel(splitter_win);
@@ -2985,7 +3022,7 @@ no_update_weights(false)
     
 	splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
     
-    wxPanel* toolbar_panel = new wxPanel(this,-1, wxDefaultPosition);
+    wxPanel* toolbar_panel = new wxPanel(this,wxID_ANY, wxDefaultPosition);
 	wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
     toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
     SetupToolbar();
@@ -3010,6 +3047,7 @@ MapFrame::MapFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, _("Map"), pos, size, style),
 w_man_state(project->GetWManState()), export_dlg(NULL)
 {
+    map_tree = NULL;
 	w_man_state->registerObserver(this);
 }
 
@@ -3183,6 +3221,13 @@ void MapFrame::OnMapEditLayer(wxCommandEvent& e)
     map_tree->Show(true);
 }
 
+void MapFrame::UpdateMapTree()
+{
+    if (map_tree != NULL) {
+        map_tree->Refresh();
+    }
+}
+
 void MapFrame::OnMapTreeClose(wxWindowDestroyEvent& event)
 {
     map_tree = NULL;
@@ -3281,11 +3326,65 @@ void MapFrame::MapMenus()
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_MAP_NEW_VIEW_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
+	AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
     
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
+}
+
+void MapFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
+{
+    // search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
+    const int num_sub_menus=3;
+    vector<int> menu_id(num_sub_menus);
+    vector<int> sub_menu_id(num_sub_menus);
+    vector<int> base_id(num_sub_menus);
+    menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
+    menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
+    menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
+    sub_menu_id[0] = XRCID("ID_CAT_CLASSIF_A_MENU");
+    sub_menu_id[1] = XRCID("ID_CAT_CLASSIF_B_MENU");
+    sub_menu_id[2] = XRCID("ID_CAT_CLASSIF_C_MENU");
+    base_id[0] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    base_id[1] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+    base_id[2] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+    
+    for (int i=0; i<num_sub_menus; i++) {
+        wxMenuItem* smii = menu->FindItem(sub_menu_id[i]);
+        if (!smii) continue;
+        wxMenu* smi = smii->GetSubMenu();
+        if (!smi) continue;
+        int m_id = smi->FindItem(_("Custom Breaks"));
+        wxMenuItem* mi = smi->FindItem(m_id);
+        if (!mi) continue;
+        
+        wxMenu* sm = mi->GetSubMenu();
+        // clean
+        wxMenuItemList items = sm->GetMenuItems();
+        for (int i=0; i<items.size(); i++) {
+            sm->Delete(items[i]);
+        }
+        
+        sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
+        sm->AppendSeparator();
+        
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        for (size_t j=0; j<titles.size(); j++) {
+            wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
+        }
+        if (i==0) {
+            // regular map men
+            Bind(wxEVT_COMMAND_MENU_SELECTED, &MapFrame::OnCustomCategoryClick, this, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+        } else if (i==1) {
+            // conditional horizontal map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+        } else if (i==2) {
+            // conditional verticle map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+        }
+    }
 }
 
 void MapFrame::UpdateOptionMenuItems()
@@ -3704,6 +3803,32 @@ void MapFrame::OnSpatialEmpiricalBayes()
 				  true, dlg.var_info, dlg.col_ids);
 }
 
+void MapFrame::OnCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    CatClassifManager* ccm = project->GetCatClassifManager();
+    if (!ccm) return;
+    vector<wxString> titles;
+    ccm->GetTitles(titles);
+    int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    if (idx < 0 || idx >= titles.size()) return;
+    wxString cc_title = titles[idx];
+    
+    if (var_info.empty() == false && col_ids.empty() == false) {
+        ChangeMapType(CatClassification::custom,
+                      MapCanvas::no_smoothing,
+                      4, boost::uuids::nil_uuid(),
+                      true, var_info, col_ids, cc_title);
+    } else {
+        VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
+        if (dlg.ShowModal() != wxID_OK) return;
+        ChangeMapType(CatClassification::custom,
+                      MapCanvas::no_smoothing,
+                      4, boost::uuids::nil_uuid(),
+                      true, dlg.var_info, dlg.col_ids, cc_title);
+    }
+}
+
 void MapFrame::OnSaveRates()
 {
 	((MapCanvas*) template_canvas)->SaveRates();
@@ -3718,6 +3843,8 @@ bool MapFrame::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 								const vector<int>& new_col_ids,
 								const wxString& custom_classif_title)
 {
+    var_info = new_var_info;
+    col_ids = new_col_ids;
 	bool r=((MapCanvas*) template_canvas)->
 		ChangeMapType(new_map_theme, new_map_smoothing, num_categories,
 					  weights_id,

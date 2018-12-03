@@ -517,8 +517,9 @@ void TableBase::update(TableState* o)
 				} else if (e.type == GdaConst::double_type) {
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;
-					GetView()->SetColFormatFloat(e.pos_final, -1,
-						std::min(e.decimals, dd));
+                    dd = std::min(e.decimals, dd);
+                    if (dd <=0) dd = GdaConst::default_dbf_double_decimals;
+					GetView()->SetColFormatFloat(e.pos_final, -1, dd);
 				} else {
 					// leave as a string
 				}

@@ -237,6 +237,7 @@ public:
 	double GetY();
     void SetX(double x);
     void SetY(double y);
+    void SetRadius(double r) {radius = r;}
 };
 
 

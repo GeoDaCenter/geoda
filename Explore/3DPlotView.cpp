@@ -1102,7 +1102,7 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 							   var_info, col_ids,
 							   m_splitter);
 	
-	control = new C3DControlPan(m_splitter, -1, wxDefaultPosition,
+	control = new C3DControlPan(m_splitter, wxID_ANY, wxDefaultPosition,
 								wxDefaultSize, wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	control->template_frame = this;
 	m_splitter->SplitVertically(control, canvas, 70);

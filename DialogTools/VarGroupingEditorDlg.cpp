@@ -431,8 +431,11 @@ void VarGroupingEditorDlg::OnSaveSpaceTimeTableClick( wxCommandEvent& event )
                     table_int->GetColData(i, t, dat);
                     stack_dat.insert(stack_dat.end(), dat.begin(), dat.end());
                     int deci = table_int->GetColDecimals(i, t);
-                    if (deci > n_decimal)
+                    if (deci > 0 && deci > n_decimal) {
                         n_decimal = deci;
+                    } else {
+                        n_decimal = 12; // default
+                    }
                 }
                 OGRColumn* var_col = new OGRColumnDouble(col_name, 18, n_decimal, n);
                 var_col->UpdateData(stack_dat, undefs);

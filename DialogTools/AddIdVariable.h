@@ -30,7 +30,7 @@ class TableInterface;
 class AddIdVariable: public wxDialog {
 public:
 	AddIdVariable(TableInterface* table_int,
-				  wxWindow* parent, wxWindowID id = -1,
+				  wxWindow* parent, wxWindowID id = wxID_ANY,
 				  const wxString& caption = _("Add New ID Variable"),
 				  const wxPoint& pos = wxDefaultPosition,
 				  const wxSize& size = wxDefaultSize,

@@ -453,6 +453,7 @@ GalElement* PolysToContigWeights(Shapefile::Main& main, bool is_queen,
     if (!gl) return NULL;
     GeoDaSet   Neighbors(gRecords), Related(gRecords);
     //  cout << "total steps= " << gMinX.Cells() << endl;
+    
     for (int step= 0; step < gMinX.Cells(); ++step) {
         // include all elements from xmin[step]
         for (curr= gMinX.first(step); curr != GdaConst::EMPTY;

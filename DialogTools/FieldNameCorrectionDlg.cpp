@@ -604,7 +604,7 @@ FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        vector<wxString>& all_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxPanel *panel = new wxPanel(this);
     
@@ -647,7 +647,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        set<wxString>& dup_fname,
                        set<wxString>& bad_fname,
                        wxString title)
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open FieldNameCorrectionDlg:");
     

@@ -63,7 +63,7 @@ void SimpleReportTextCtrl::OnContextMenu(wxContextMenuEvent& event)
 void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
 {
     wxLogMessage("In SimpleReportTextCtrl::OnSaveClick()");
-    wxFileDialog dlg( this, "Save PCA results", wxEmptyString,
+    wxFileDialog dlg( this, "Save Results", wxEmptyString,
                      wxEmptyString,
                      "TXT files (*.txt)|*.txt",
                      wxFD_SAVE );
@@ -85,20 +85,20 @@ void SimpleReportTextCtrl::OnSaveClick( wxCommandEvent& event )
 ////////////////////////////////////////////////////////////////////////
 
 ScrolledDetailMsgDialog::ScrolledDetailMsgDialog(const wxString & title, const wxString & msg, const wxString & details, const wxSize &size, const wxArtID & art_id)
-: wxDialog(NULL, -1, title, wxDefaultPosition, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
     
     wxPanel *panel = new wxPanel(this, -1);
     
     wxBoxSizer *vbox0 = new wxBoxSizer(wxVERTICAL);
-    wxStaticText *st = new wxStaticText(panel, -1, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
+    wxStaticText *st = new wxStaticText(panel, wxID_ANY, msg, wxDefaultPosition, wxDefaultSize, wxTE_WORDWRAP);
     tc = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL_1"), details, wxDefaultPosition, wxSize(-1, 300));
     vbox0->Add(st, 0, wxBOTTOM, 10);
     vbox0->Add(tc, 1, wxEXPAND);
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
     wxBitmap save = wxArtProvider::GetBitmap(wxART_WARNING);
-    wxStaticBitmap *warn = new wxStaticBitmap(panel, -1, save);
+    wxStaticBitmap *warn = new wxStaticBitmap(panel, wxID_ANY, save);
     hbox0->Add(warn, 0, wxRIGHT, 5);
     hbox0->Add(vbox0, 1);
     

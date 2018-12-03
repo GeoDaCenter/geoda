@@ -177,6 +177,10 @@ public:
     virtual void GetDirectColData(int col, std::vector<unsigned long long>& data)=0;
 	virtual bool GetDirectColUndefined(int col, std::vector<bool>& undefs)=0;
     
+    virtual void GetDataByColumns(const std::vector<wxString>& col_names,
+                                  std::vector<std::vector<double> >& data,
+                                  std::vector<std::vector<bool> >& undefs) = 0;
+    
 	virtual void GetMinMaxVals(int col, std::vector<double>& min_vals,
 							   std::vector<double>& max_vals) = 0;
 	virtual bool GetMinMaxVals(int col, int time,
@@ -329,21 +333,19 @@ public:
     
 		
 protected:
-	
+	wxString open_err_msg;
+    
 	TableState* table_state;
 	TimeState*  time_state;
 
+    int rows;
 	bool is_valid;
-	wxString open_err_msg;
-	int rows;
 	bool changed_since_last_save;
     bool project_changed_since_last_save;
-	
 	bool is_set_cell_from_string_fail;
 	wxString set_cell_from_string_fail_msg;
 	
 	/** Table Attributes. Should reflect limitations of underlying database. */
-	
 	wxFontEncoding encoding_type;
 	wxCSConv* m_wx_encoding;  // can be NULL.  Should match encoding_type
 	

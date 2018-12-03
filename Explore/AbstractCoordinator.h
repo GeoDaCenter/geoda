@@ -145,7 +145,7 @@ public:
     virtual void CalcPseudoP_range(int obs_start, int obs_end,
                                    uint64_t seed_start);
     
-    virtual void ComputeLarger(int cnt, std::vector<int> permNeighbors,
+    virtual void ComputeLarger(int cnt, std::vector<int>& permNeighbors,
                                std::vector<uint64_t>& countLarger) = 0;
     
     virtual std::vector<wxString> GetDefaultCategories();

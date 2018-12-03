@@ -215,7 +215,7 @@ void SpectralClusteringDlg::CreateControls()
         seedButton->Enable();
     }
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximal Iterations:"),wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum Iterations:"),wxDefaultPosition, wxSize(128,-1));
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, "300");
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
@@ -490,8 +490,15 @@ void SpectralClusteringDlg::OnClose(wxCloseEvent& ev)
 
 wxString SpectralClusteringDlg::_printConfiguration()
 {
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString txt;
-    txt << _("Number of clusters:\t") << combo_n->GetString(combo_n->GetSelection()) << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
    
     if (chk_kernel->IsChecked())  {
         txt << _("Affinity with Guassian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
@@ -603,6 +610,12 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
    
     int affinity_type = 0;
     
+    // add weight to input_data
+    for (int i=0; i<rows; i++) {
+        for (int j=0; j<columns; j++) {
+            input_data[i][j] = input_data[i][j] * weight[j];
+        }
+    }
     Spectral spectral;
     spectral.set_data(input_data, rows, columns);
     spectral.set_centers(ncluster);

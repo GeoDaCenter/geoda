@@ -531,6 +531,11 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
         OGRFeature* feature = data[row_idx];
         OGRGeometry* geometry= feature->GetGeometryRef();
+		if (geometry == NULL) {
+			// in case of invalid geometry (e.g. rows with empty lat/lon in csv file)
+			geoms.push_back(NULL);
+			continue;
+		}
         if (poCT) {
             geometry->transform(poCT);
         }
@@ -885,6 +890,14 @@ bool OGRLayerProxy::HasError()
     return !error_message.str().empty();
 }
 
+bool OGRLayerProxy::CheckIsTableOnly()
+{
+    layer->ResetReading();
+    OGRFeature *feature = layer->GetNextFeature();
+    OGRGeometry* my_geom = feature->GetGeometryRef();
+    return my_geom == NULL;
+}
+
 bool OGRLayerProxy::ReadData()
 {
 	if (n_rows > 0 && n_rows == data.size()) {
@@ -1136,16 +1149,18 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
 void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
 {
     if (centroids.size() == 0 && n_rows > 0) {
-        centroids.resize(n_rows);
+        // if centroids is empty
         double x, y;
         for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
             OGRFeature* feature = data[row_idx];
             OGRGeometry* geometry= feature->GetGeometryRef();
-            OGRPoint poPoint;
-            geometry->Centroid(&poPoint);
-            x = poPoint.getX();
-            y = poPoint.getY();
-            centroids[row_idx] = new GdaPoint(x, y);
+            if (geometry) {
+                OGRPoint poPoint;
+                geometry->Centroid(&poPoint);
+                x = poPoint.getX();
+                y = poPoint.getY();
+                centroids.push_back(new GdaPoint(x, y));
+            }
         }
     }
 }

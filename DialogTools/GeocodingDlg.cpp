@@ -50,7 +50,7 @@ END_EVENT_TABLE()
 using namespace std;
 
 GeocodingDlg::GeocodingDlg(wxWindow* parent, Project* p, const wxString& title, const wxPoint& pos, const wxSize& size )
-: wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
 frames_manager(p->GetFramesManager()), project(p), table_int(p->GetTableInt()), table_state(p->GetTableState()), t(NULL), stop(false)
 {
     wxLogMessage("Open GeocodingDlg().");
@@ -122,7 +122,7 @@ void GeocodingDlg::CreateControls()
     
     // parameters
     wxNotebook* notebook = new wxNotebook(panel, wxID_ANY, wxDefaultPosition, wxDefaultSize);
-    wxNotebookPage* google_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 180));
+    wxNotebookPage* google_page = new wxNotebookPage(notebook, wxID_ANY, wxDefaultPosition, wxSize(560, 180));
     notebook->AddPage(google_page, _("Google Places API"));
     
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,1,10,0);

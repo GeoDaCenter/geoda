@@ -113,6 +113,17 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+int BackgroundMapLayer::GetHighlightRecords()
+{
+    int hl_cnt = 0;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            hl_cnt += 1;
+        }
+    }
+    return hl_cnt;
+}
+
 void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
     // draw any connected layers
@@ -283,6 +294,10 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
             data[i] << layer_proxy->data[i]->GetFieldAsInteger64(col_idx);
         }
         return true;
+    } else if (type == GdaConst::double_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] << layer_proxy->data[i]->GetFieldAsDouble(col_idx);
+        }
     } else if (type == GdaConst::string_type) {
         for (int i=0; i<shapes.size(); ++i) {
             data[i] << layer_proxy->data[i]->GetFieldAsString(col_idx);

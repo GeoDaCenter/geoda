@@ -197,8 +197,6 @@
 // the application binary.
 extern void GdaInitXmlResource();
 
-const int ID_TEST_MAP_FRAME = wxID_HIGHEST + 10;
-
 IMPLEMENT_APP(GdaApp)
 
 GdaApp::GdaApp() : m_pLogFile(0)
@@ -290,7 +288,7 @@ bool GdaApp::OnInit(void)
             wxString no_crash = items[0];
             if (no_crash == "false") {
                 // ask user to send crash data
-                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team?     \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
+                wxString msg = _("It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team? \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix.");
                 wxString ttl = _("Send Crash Report");
                 wxString user_email = GdaConst::gda_user_email;
                 wxTextEntryDialog msgDlg(GdaFrame::GetGdaFrame(), msg, ttl, user_email,
@@ -352,7 +350,6 @@ bool GdaApp::OnInit(void)
 		// of %100, %125 or %150.
 		// Therefore, we might need to slighly increase the window size
 		// when sizes > %100 are used in the Display options.
-		
 		if (GdaFrame::GetGdaFrame()->GetClientSize().GetHeight() < 22) {
 			GdaFrame::GetGdaFrame()->SetSize(
 				GdaFrame::GetGdaFrame()->GetSize().GetWidth(),
@@ -382,8 +379,7 @@ bool GdaApp::OnInit(void)
 	wxSetEnv("GEODA_GDAL_DATA", gal_data_dir);
     CPLSetConfigOption("GEODA_GDAL_DATA", GET_ENCODED_FILENAME(gal_data_dir));
 #endif
-    
-
+   
     // Setup new Logger after crash check
     wxString loggerFile = GenUtils::GetSamplesDir() +"logger.txt";
     
@@ -401,7 +397,8 @@ bool GdaApp::OnInit(void)
 #ifdef __DEBUG__
     wxLog::SetLogLevel(wxLOG_Message);
 #endif
-    wxLogMessage(GeneralWxUtils::LogOsId());
+    wxString os_id = GeneralWxUtils::LogOsId();
+    wxLogMessage(os_id);
     wxString versionlog = wxString::Format("vs: %d-%d-%d-%d",
                                            Gda::version_major,
                                            Gda::version_minor,
@@ -416,6 +413,11 @@ bool GdaApp::OnInit(void)
         wxArrayString fnames;
         fnames.Add(proj_fname);
         MacOpenFiles(fnames);
+    } else {
+        if (os_id != "\nos: 1-10-14") {
+            wxCommandEvent ev(wxEVT_COMMAND_MENU_SELECTED, XRCID("ID_NEW_PROJECT"));
+            frame->GetEventHandler()->ProcessEvent(ev);
+        }
     }
 
 	return true;
@@ -429,6 +431,22 @@ bool GdaApp::OnCmdLineParsed(wxCmdLineParser& parser)
     return true;
 }
 
+const wxCmdLineEntryDesc GdaApp::globalCmdLineDesc [] =
+{
+	{ wxCMD_LINE_SWITCH, "h", "help",
+		"displays help on the command line parameters",
+		wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP },
+	{ wxCMD_LINE_PARAM, NULL, NULL, "project file",
+		wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL },
+	{ wxCMD_LINE_NONE }
+};
+
+void GdaApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+	parser.SetDesc (GdaApp::globalCmdLineDesc);
+    parser.SetSwitchChars ("-");
+}
+
 void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
 {
     wxLogMessage("MacOpenFiles");
@@ -440,6 +458,7 @@ void GdaApp::MacOpenFiles(const wxArrayString& fileNames)
         while (node) {
             wxWindow* win = node->GetData();
             if (ConnectDatasourceDlg* w = dynamic_cast<ConnectDatasourceDlg*>(win)) {
+				wxLogMessage("Close ConnectDatasourceDlg");
                 w->EndModal(wxID_CANCEL);
             }
             node = node->GetNext();
@@ -694,7 +713,7 @@ void GdaFrame::SetMenusToDefault()
 
 GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
 				   const wxSize& size, long style)
-: wxFrame(NULL, -1, title, pos, size, style)
+: wxFrame(NULL, wxID_ANY, title, pos, size, style)
 {
 	SetBackgroundColour(*wxWHITE);
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
@@ -727,7 +746,7 @@ GdaFrame::GdaFrame(const wxString& title, const wxPoint& pos,
  	UpdateToolbarAndMenus();
     SetEncodingCheckmarks(wxFONTENCODING_UTF8);
     
-    CallAfter(&GdaFrame::ShowOpenDatasourceDlg,wxPoint(80, 220),true);
+    //CallAfter(&GdaFrame::ShowOpenDatasourceDlg,wxPoint(80, 220),true);
     
     // check update in a new thread
     if (GdaConst::disable_auto_upgrade == false) {
@@ -1362,20 +1381,9 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxDEFAULT_FRAME_STYLE);
     if (project_p->IsTableOnlyProject()) {
         tf->Show(true);
+        tf->Raise();
     }
     
-    SetProjectOpen(true);
-    UpdateToolbarAndMenus();
-    
-    // Associate Project with Calculator if open
-    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
-    while (node) {
-        wxWindow* win = node->GetData();
-        if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
-            w->ConnectToProject(GetProject());
-        }
-        node = node->GetNext();
-    }
     
     if (!project_p->IsTableOnlyProject()) {
         std::vector<int> col_ids;
@@ -1393,6 +1401,19 @@ void GdaFrame::InitWithProject(wxString gda_file_path)
                                     wxPoint(80,160),
                                     GdaConst::map_default_size);
         nf->UpdateTitle();
+    }
+    
+    SetProjectOpen(true);
+    UpdateToolbarAndMenus();
+    
+    // Associate Project with Calculator if open
+    wxWindowList::compatibility_iterator node = wxTopLevelWindows.GetFirst();
+    while (node) {
+        wxWindow* win = node->GetData();
+        if (CalculatorDlg* w = dynamic_cast<CalculatorDlg*>(win)) {
+            w->ConnectToProject(GetProject());
+        }
+        node = node->GetNext();
     }
 }
 
@@ -2526,7 +2547,9 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
         return;
     }
     SpatialJoinDlg dlg(this, project_p);
-    dlg.ShowModal();
+    if (dlg.ShowModal() == wxID_OK) {
+        OnOpenNewTable();
+    }
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
@@ -6656,7 +6679,6 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_BUTTON(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_BUTTON(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
     EVT_BUTTON(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
-    EVT_MENU(ID_TEST_MAP_FRAME, GdaFrame::OnExploreTestMap)
     EVT_MENU(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_TOOL(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_BUTTON(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)

@@ -358,18 +358,27 @@ namespace GenUtils {
     wxString IntToStr(int x, int precision = 0);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
+    void Transformation(int trans_type, vector<vector<double> >& data,
+                        vector<vector<bool> >& undef);
+    
 	void MeanAbsoluteDeviation(int nObs, double* data);
     void MeanAbsoluteDeviation(int nObs, double* data, vector<bool>& undef);
 	void MeanAbsoluteDeviation(vector<double>& data);
     void MeanAbsoluteDeviation(vector<double>& data, vector<bool>& undef);
+    
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, vector<bool>& undef);
 	void DeviationFromMean(vector<double>& data);
+    void DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef);
+    
 	double Sum(vector<double>& data);
 	double SumOfSquares(vector<double>& data);
+    
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
 	bool StandardizeData(vector<double>& data);
+    bool StandardizeData(vector<double>& data, vector<bool>& undef);
+    
     double Correlation(vector<double>& x, vector<double>& y);
     double GetVariance(vector<double>& data);
 	wxString swapExtension(const wxString& fname, const wxString& ext);

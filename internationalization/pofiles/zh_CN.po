@@ -3296,7 +3296,7 @@ msgstr "低"
 msgid "Select variable "
 msgstr "选择变量 "
 
-msgid "Maximal Iterations:"
+msgid "Maximum Iterations:"
 msgstr "最大迭代："
 
 msgid "Datasource path is empty."

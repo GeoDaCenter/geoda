@@ -3576,68 +3576,179 @@
                                   <orient>wxVERTICAL</orient>
                                   <label>Distance Weight</label>
                                   <object class="sizeritem">
-                                      <object class="wxFlexGridSizer">
-                                          <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC_DIST_METRIC">
-                                                  <label>Distance metric</label>
-                                              </object>
-                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxChoice" name="IDC_DISTANCE_METRIC">
-                                                  <size>98,-1d</size>
-                                              </object>
-                                              <flag>wxALIGN_CENTER</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="spacer"/>
-                                          <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC_XCOORD_VAR">
-                                                  <label>X-coordinate variable</label>
-                                              </object>
-                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxChoice" name="IDC_XCOORDINATES">
-                                                  <size>98,-1d</size>
-                                              </object>
-                                              <flag>wxALIGN_CENTER</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxChoice" name="IDC_XCOORD_TIME">
-                                                  <size>40,-1d</size>
-                                              </object>
-                                              <flag>wxALIGN_CENTER</flag>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxStaticText" name="IDC_STATIC_YCOORD_VAR">
-                                                  <label>Y-coordinate variable</label>
-                                              </object>
-                                              <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxChoice" name="IDC_YCOORDINATES">
-                                                  <size>98,-1d</size>
-                                              </object>
-                                              <flag>wxALIGN_CENTER</flag>
-                                              <border>2</border>
-                                          </object>
-                                          <object class="sizeritem">
-                                              <object class="wxChoice" name="IDC_YCOORD_TIME">
-                                                  <size>40,-1d</size>
-                                              </object>
-                                              <flag>wxALIGN_CENTER</flag>
-                                          </object>
-                                          <cols>3</cols>
-                                          <rows>3</rows>
-                                          <vgap>5</vgap>
-                                          <hgap>5</hgap>
-                                      </object>
                                       <flag>wxALIGN_LEFT|wxALL</flag>
                                       <border>2</border>
+                                      <object class="wxStaticText">
+                                          <label>Variables:</label>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <object class="wxNotebook" name="IDC_NB_DISTANCE_VARIABLES">
+                                          <object class="notebookpage" name="IDC_NB_PAGE_GEOM_CENTROIDS">
+                                              <object class="wxPanel">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_XCOORD_VAR">
+                                                                      <label>X-coordinate variable</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_XCOORDINATES">
+                                                                      <size>60,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_XCOORD_TIME">
+                                                                      <size>40,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_YCOORD_VAR">
+                                                                      <label>Y-coordinate variable</label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_YCOORDINATES">
+                                                                      <size>60,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER|wxALL</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_YCOORD_TIME">
+                                                                      <size>40,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER_VERTICAL|wxLEFT|wxRIGHT|wxTOP</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="spacer">
+                                                                  <size>30,2</size>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_DIST_METRIC">
+                                                                      <label> Distance metric: </label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_DISTANCE_METRIC">
+                                                                      <size>98,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                  </object>
+                                              </object>
+                                              <label>Geometric centroids</label>
+                                              <flag>wxALL|wxEXPAND</flag>
+                                          </object>
+                                          <object class="notebookpage" name="IDC_NB_PAGE_MULTI_VARS">
+                                              <object class="wxPanel">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER</flag>
+                                                          <border>1</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxListBox" name="IDC_WEIGHTS_DIST_VARS_LIST">
+                                                                      <content/>
+                                                                      <size>160,30d</size>
+                                                                      <style>wxLB_MULTIPLE | wxLB_HSCROLL</style>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER | wxTOP</flag>
+                                                          <border>10</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_DIST_TRANS">
+                                                                      <label>Transformation:  </label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_DISTANCE_TRANSFORMATION">
+                                                                      <size>98,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <flag>wxALIGN_CENTER | wxTOP</flag>
+                                                          <border>5</border>
+                                                          <object class="wxBoxSizer">
+                                                              <orient>wxHORIZONTAL</orient>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxStaticText" name="IDC_STATIC_DIST_METRIC1">
+                                                                      <label>Distance metric: </label>
+                                                                  </object>
+                                                                  <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
+                                                              </object>
+                                                              <object class="sizeritem">
+                                                                  <object class="wxChoice" name="IDC_DISTANCE_METRIC1">
+                                                                      <size>98,-1d</size>
+                                                                  </object>
+                                                                  <flag>wxALIGN_CENTER</flag>
+                                                                  <border>2</border>
+                                                              </object>
+                                                          </object>
+                                                      </object>
+                                                  </object>
+                                                  <size>280,-1d</size>
+                                              </object>
+                                              <label>Table variables</label>
+                                              <flag>wxALL|wxEXPAND</flag>
+                                          </object>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>2</border>
+                                      <object class="wxStaticText">
+                                          <label>Method:</label>
+                                      </object>
                                   </object>
                                   <object class="sizeritem">
                                       <object class="wxNotebook" name="IDC_NB_DISTANCE_WEIGHTS">
@@ -4017,7 +4128,7 @@
                                               <label>Adaptive kernel</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
-                                          <size>480,280</size>
+                                          <size>480,320</size>
                                           <flag>wxALL|wxEXPAND</flag>
                                       </object>
                                       <flag>wxALL|wxEXPAND</flag>
@@ -4026,14 +4137,14 @@
                                   </object>
                               </object>
                               <flag>wxALIGN_CENTRE_HORIZONTAL|wxALL|wxEXPAND</flag>
-                              <border>15</border>
+                              <border>10</border>
                           </object>
                       </object>
                   </object>
                   <label>Distance Weight</label>
                   <flag>wxALL|wxEXPAND</flag>
               </object>
-              <size>500,480</size>
+              <size>500,540</size>
               <flag>wxALL|wxEXPAND</flag>
           </object>
           <flag>wxALL|wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>

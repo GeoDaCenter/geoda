@@ -58,7 +58,7 @@ public:
     
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
-    
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)=0;
     
     std::vector<GdaVarTools::VarInfo> var_info;
@@ -112,6 +112,7 @@ public:
     virtual ~KMediansDlg();
     
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
 };
 
 class KMedoidsDlg : public KClusterDlg
@@ -122,5 +123,6 @@ public:
    
     virtual void ComputeDistMatrix(int dist_sel);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
 };
 #endif

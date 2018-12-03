@@ -102,7 +102,7 @@ void PreferenceDlg::Init()
 	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
 
 	//  visualization tab
-	wxNotebookPage* vis_page = new wxNotebookPage(notebook, -1, wxDefaultPosition, wxSize(560, 680));
+	wxNotebookPage* vis_page = new wxNotebookPage(notebook, wxID_ANY, wxDefaultPosition, wxSize(560, 680));
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
@@ -385,7 +385,7 @@ void PreferenceDlg::Init()
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
 
-	wxButton *resetButton = new wxButton(this, -1, _("Reset"), wxDefaultPosition, wxSize(70, 30));
+	wxButton *resetButton = new wxButton(this, wxID_ANY, _("Reset"), wxDefaultPosition, wxSize(70, 30));
 	wxButton *closeButton = new wxButton(this, wxID_OK, _("Close"), wxDefaultPosition, wxSize(70, 30));
 	resetButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &PreferenceDlg::OnReset, this);
 

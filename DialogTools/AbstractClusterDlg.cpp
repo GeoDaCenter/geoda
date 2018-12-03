@@ -51,7 +51,7 @@
 
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
 : frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState()),
-wxDialog(NULL, -1, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
 validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
@@ -207,10 +207,6 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox, b
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
-    wxStaticText* note_st = new wxStaticText(panel, wxID_ANY,
-                                              _("(Please note: Only supported for smaller datasets.)"),
-                                         wxDefaultPosition, wxDefaultSize);
-    vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
 }
 
@@ -250,11 +246,6 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     hbox0->Add(hbox_c, 0, wxLEFT | wxRIGHT, 10);
     hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
     
-    
-    wxStaticText* note_st = new wxStaticText (panel, wxID_ANY,
-                                              _("(Please note: Only supported for smaller datasets.)"),
-                                              wxDefaultPosition, wxDefaultSize);
-    vbox->Add(note_st, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     
     if (project->IsTableOnlyProject()) {
@@ -746,6 +737,30 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, c
     if (isolated.size()>0)
         summary << _("Number of not clustered observations: ") << isolated.size() << "\n";
     summary << _printConfiguration();
+    
+    // auto weighting
+    if (m_use_centroids->IsChecked()) {
+        wxString w_val = m_wc_txt->GetValue();
+        double w_valf = 0;
+        if (w_val.ToDouble(&w_valf)) {
+            double w_valf_vars = 1 - w_valf;
+            w_valf = w_valf * 0.5;
+            w_valf_vars = w_valf_vars / (columns - 2);
+            
+            summary << _("Use geometric centroids (weighting): \n");
+            for (int i=0; i<columns; i++) {
+                if (col_names[i] == "CENTX") {
+                    summary <<"  " << _("Centroid (X)") << " " << w_valf << "\n";
+                } else if (col_names[i] == "CENTY") {
+                    summary <<"  " << _("Centroid (Y)") << " " << w_valf << "\n";
+                } else {
+                    summary <<"  " << col_names[i] << " " << w_valf_vars << "\n";
+                }
+            }
+        }
+        
+    }
+    summary << "\n";
     summary << _printMeanCenters(mean_centers);
     summary << _("The total sum of squares:\t") << totss << "\n";
     summary << _printWithinSS(withinss);
@@ -851,7 +866,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
 wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
 {
     wxString txt;
-    txt << _("Cluster centers:\n");
+    txt << _("Cluster centers:") << mean_center_type << "\n";
     
     stringstream ss;
     TextTable t( TextTable::MD );

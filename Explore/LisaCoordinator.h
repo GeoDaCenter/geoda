@@ -72,7 +72,7 @@ public:
 	bool isBivariate;
 	LisaType lisa_type;
 	
-    virtual void ComputeLarger(int cnt, std::vector<int> permNeighbors,
+    virtual void ComputeLarger(int cnt, std::vector<int>& permNeighbors,
                                std::vector<uint64_t>& countLarger);
 	virtual void Init();
     virtual void Calc();

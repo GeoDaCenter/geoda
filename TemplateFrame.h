@@ -129,8 +129,7 @@ public:
 	virtual void RemoveGroupDependancy(const wxString& grp_nm);
 	virtual void ClearAllGroupDependencies();
 	
-	virtual void SetDependsOnNonSimpleGroups(bool v) {
-		depends_on_non_simple_groups = v; }
+    virtual void SetDependsOnNonSimpleGroups(bool v);
 
     virtual int GetCurrentCanvasTimeStep();
     

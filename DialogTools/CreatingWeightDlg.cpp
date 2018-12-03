@@ -70,6 +70,7 @@ EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE"), CreatingWeightDlg::OnInverseDis
 EVT_CHECKBOX( XRCID("IDC_CHK_INVERSE_DISTANCE_KNN"), CreatingWeightDlg::OnInverseKNNCheck)
 EVT_SPIN( XRCID("IDC_SPIN_POWER"), CreatingWeightDlg::OnCSpinPowerInverseDistUpdated )
 EVT_SPIN( XRCID("IDC_SPIN_POWER_KNN"), CreatingWeightDlg::OnCSpinPowerInverseKNNUpdated )
+EVT_NOTEBOOK_PAGE_CHANGED( XRCID("IDC_WEIGHTS_DIST_VARS_LIST"), CreatingWeightDlg::OnDistanceWeightsInputUpdate )
 END_EVENT_TABLE()
 
 
@@ -88,6 +89,7 @@ m_arc_in_km(false),
 m_thres_val_valid(false),
 m_threshold_val(0.01),
 project(project_s),
+dist_util(NULL),
 frames_manager(project_s->GetFramesManager()),
 table_int(project_s->GetTableInt()),
 table_state(project_s->GetTableState()),
@@ -104,12 +106,16 @@ suspend_table_state_updates(false)
 	table_state->registerObserver(this);
 	w_man_state->registerObserver(this);
     // use_xy is for MDS creating weights only
-    if (!user_xy)
+    if (!user_xy) {
         Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(CreatingWeightDlg::OnClose) );
+    }
 }
 
 CreatingWeightDlg::~CreatingWeightDlg()
 {
+    if (dist_util) {
+        delete dist_util;
+    }
 	frames_manager->removeObserver(this);
 	table_state->removeObserver(this);
 	w_man_state->removeObserver(this);
@@ -174,10 +180,14 @@ void CreatingWeightDlg::CreateControls()
     m_txt_precision_threshold = XRCCTRL(*this, "IDC_PRECISION_THRESHOLD_EDIT", wxTextCtrl);
     // distance weight
 	m_dist_choice = XRCCTRL(*this, "IDC_DISTANCE_METRIC", wxChoice);
+    m_trans_choice_vars = XRCCTRL(*this, "IDC_DISTANCE_TRANSFORMATION", wxChoice);
+    m_dist_choice_vars = XRCCTRL(*this, "IDC_DISTANCE_METRIC1", wxChoice);
 	m_X = XRCCTRL(*this, "IDC_XCOORDINATES", wxChoice);
     m_X_time = XRCCTRL(*this, "IDC_XCOORD_TIME", wxChoice);
 	m_Y = XRCCTRL(*this, "IDC_YCOORDINATES", wxChoice);
 	m_Y_time = XRCCTRL(*this, "IDC_YCOORD_TIME", wxChoice);
+    m_Vars = XRCCTRL(*this, "IDC_WEIGHTS_DIST_VARS_LIST", wxListBox);
+    m_nb_distance_variables = XRCCTRL(*this, "IDC_NB_DISTANCE_VARIABLES", wxNotebook);
     m_nb_distance_methods = XRCCTRL(*this, "IDC_NB_DISTANCE_WEIGHTS", wxNotebook);
 	m_threshold = XRCCTRL(*this, "IDC_THRESHOLD_EDIT", wxTextCtrl);
 	m_sliderdistance = XRCCTRL(*this, "IDC_THRESHOLD_SLIDER", wxSlider);
@@ -209,7 +219,118 @@ void CreatingWeightDlg::CreateControls()
     m_power->Enable(false);
     m_power_knn->Enable(false);
 
+    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
+    m_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnDistanceWeightsVarsSel, this);
+    m_dist_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
+    m_trans_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
 	InitDlg();
+}
+
+void CreatingWeightDlg::OnDistanceMetricVarsSel( wxCommandEvent& event )
+{
+    int metric = m_dist_choice_vars->GetSelection();
+    if (metric > 0) {
+        m_nb_distance_methods->Enable();
+    } else {
+        m_thres_val_valid = false;
+        m_threshold->ChangeValue("0");
+        m_bandwidth_thres_val_valid = false;
+        m_manu_bandwidth->ChangeValue("0");
+        m_nb_distance_methods->Disable();
+    }
+    UpdateThresholdValuesMultiVars();
+}
+
+void CreatingWeightDlg::OnDistanceWeightsVarsSel( wxCommandEvent& event )
+{
+    m_dist_choice_vars->SetSelection(0);
+    UpdateThresholdValuesMultiVars();
+    
+    m_thres_val_valid = false;
+    m_threshold->ChangeValue("0");
+    m_bandwidth_thres_val_valid = false;
+    m_manu_bandwidth->ChangeValue("0");
+    m_nb_distance_methods->Disable();
+}
+
+void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
+{
+    // distance metric
+    int metric = m_dist_choice_vars->GetSelection();
+    if (metric < 1) {
+        return;
+    }
+    
+    wxArrayInt selections;
+    m_Vars->GetSelections(selections);
+    int num_var = selections.size();
+    if (num_var <= 0) {
+        return;
+    }
+    
+    // update Threshold values for distance weight
+    std::vector<wxString> col_names;
+    std::vector<std::vector<double> > data;
+    std::vector<std::vector<bool> > undefs;
+    for (int i=0; i<num_var; i++) {
+        int idx = selections[i];
+        wxString sel_str = m_Vars->GetString(idx);
+        col_names.push_back(sel_str);
+    }
+    data.resize(num_var);
+    undefs.resize(num_var);
+    table_int->GetDataByColumns(col_names, data, undefs);
+    
+    // transformation
+    int trans_type = m_trans_choice_vars->GetSelection();
+    GenUtils::Transformation(trans_type, data, undefs);
+    
+    // UpdateThresholdValues();
+    if (dist_util) {
+        delete dist_util;
+    }
+    dist_util = new GeoDa::DistUtils(data, metric);
+    m_thres_min_multivars = dist_util->GetMinThreshold();
+    m_thres_max_multivars = dist_util->GetMaxThreshold();
+    double thres_range = m_thres_max_multivars - m_thres_min_multivars;
+    
+    m_thres_val_valid = true;
+    m_threshold_val_multivars = (m_sliderdistance->GetValue() * thres_range /100.0) + m_thres_min_multivars;
+    m_threshold->ChangeValue( wxString::Format("%f", m_threshold_val_multivars));
+
+    m_bandwidth_thres_val_valid = true;
+    m_bandwidth_thres_val_multivars = (m_bandwidth_slider->GetValue() * thres_range/100.0) + m_thres_min_multivars;
+    m_manu_bandwidth->ChangeValue( wxString::Format("%f", m_bandwidth_thres_val_multivars) );
+}
+
+void CreatingWeightDlg::OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event )
+{
+    int sel = event.GetSelection();
+    if (sel == 0) {
+        UpdateThresholdValues();
+        m_nb_distance_methods->Enable();
+        //m_dist_choice_vars->SetSelection(0);
+    } else {
+        wxArrayInt selections;
+        m_Vars->GetSelections(selections);
+        int n_sel = selections.GetCount();
+        if (n_sel <= 0 || m_dist_choice_vars->GetSelection() == 0) {
+            m_thres_val_valid = false;
+            m_threshold->ChangeValue("0");
+            m_bandwidth_thres_val_valid = false;
+            m_manu_bandwidth->ChangeValue("0");
+            m_nb_distance_methods->Disable();
+        } else {
+            m_nb_distance_methods->Enable();
+            double thres_range = m_thres_max_multivars - m_thres_min_multivars;
+            m_thres_val_valid = true;
+            m_threshold_val_multivars = (m_sliderdistance->GetValue() * thres_range /100.0) + m_thres_min_multivars;
+            m_threshold->ChangeValue( wxString::Format("%f", m_threshold_val_multivars));
+            m_bandwidth_thres_val_valid = true;
+            m_bandwidth_thres_val_multivars = (m_bandwidth_slider->GetValue() * thres_range/100.0) + m_thres_min_multivars;
+            m_manu_bandwidth->ChangeValue( wxString::Format("%f", m_bandwidth_thres_val_multivars) );
+        }
+    }
 }
 
 void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
@@ -461,17 +582,27 @@ void CreatingWeightDlg::OnCThresholdSliderUpdated( wxCommandEvent& event )
     wxLogMessage("Click CreatingWeightDlg::OnCThresholdSliderUpdated:");
     
 	if (!all_init) return;
-	bool m_rad_inv_dis_val = false;
 	
-	m_threshold_val = (m_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
-	m_threshold->ChangeValue( wxString::Format("%f", (double) m_threshold_val));
-	if (m_threshold_val > 0)  {
-		FindWindow(XRCID("wxID_OK"))->Enable(true);
-	}
-    
-    wxString str_val;
-    str_val << m_threshold_val;
-    wxLogMessage(str_val);
+    int dist_var_type = m_nb_distance_variables->GetSelection();
+    if (dist_var_type == 0) {
+        m_threshold_val = (m_sliderdistance->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
+        m_threshold->ChangeValue( wxString::Format("%f", (double) m_threshold_val));
+        if (m_threshold_val > 0)  {
+            FindWindow(XRCID("wxID_OK"))->Enable(true);
+        }
+        wxString str_val;
+        str_val << m_threshold_val;
+        wxLogMessage(str_val);
+    } else {
+        m_threshold_val_multivars = (m_sliderdistance->GetValue() * (m_thres_max_multivars-m_thres_min_multivars)/100.0) + m_thres_min_multivars;
+        m_threshold->ChangeValue( wxString::Format("%f", (double) m_threshold_val_multivars));
+        if (m_threshold_val_multivars > 0)  {
+            FindWindow(XRCID("wxID_OK"))->Enable(true);
+        }
+        wxString str_val;
+        str_val << m_threshold_val_multivars;
+        wxLogMessage(str_val);
+    }
 }
 
 void CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated( wxCommandEvent& event )
@@ -480,15 +611,26 @@ void CreatingWeightDlg::OnCBandwidthThresholdSliderUpdated( wxCommandEvent& even
     
     if (!all_init) return;
 
-    m_bandwidth_thres_val = (m_bandwidth_slider->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
-    m_manu_bandwidth->ChangeValue( wxString::Format("%f", (double) m_bandwidth_thres_val));
-    if (m_bandwidth_thres_val > 0)  {
-        m_btn_ok->Enable(true);
+    int dist_var_type = m_nb_distance_variables->GetSelection();
+    if (dist_var_type == 0) {
+        m_bandwidth_thres_val = (m_bandwidth_slider->GetValue() * (m_thres_max-m_thres_min)/100.0) + m_thres_min;
+        m_manu_bandwidth->ChangeValue( wxString::Format("%f", (double) m_bandwidth_thres_val));
+        if (m_bandwidth_thres_val > 0)  {
+            m_btn_ok->Enable(true);
+        }
+        wxString str_val;
+        str_val << m_bandwidth_thres_val;
+        wxLogMessage(str_val);
+    } else {
+        m_bandwidth_thres_val_multivars = (m_bandwidth_slider->GetValue() * (m_thres_max_multivars-m_thres_min_multivars)/100.0) + m_thres_min_multivars;
+        m_manu_bandwidth->ChangeValue( wxString::Format("%f", (double) m_bandwidth_thres_val_multivars));
+        if (m_bandwidth_thres_val_multivars > 0)  {
+            m_btn_ok->Enable(true);
+        }
+        wxString str_val;
+        str_val << m_bandwidth_thres_val_multivars;
+        wxLogMessage(str_val);
     }
-    
-    wxString str_val;
-    str_val << m_bandwidth_thres_val;
-    wxLogMessage(str_val);
 }
 
 void CreatingWeightDlg::OnCSpinPowerInverseDistUpdated( wxSpinEvent& event )
@@ -571,14 +713,27 @@ void CreatingWeightDlg::InitFields()
 	m_id_field->Clear();
 	m_X_time->Clear();
 	m_Y_time->Clear();
+    m_Vars->Clear();
+    
 	ResetThresXandYCombo();
 	
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
 		int col = col_id_map[i];
 		
-		m_X->Append(table_int->GetColName(col));
-		m_Y->Append(table_int->GetColName(col));
+        wxString name = table_int->GetColName(col);
+		m_X->Append(name);
+		m_Y->Append(name);
 		
+        if (table_int->IsColTimeVariant(col)) {
+            for (int t=0; t<table_int->GetColTimeSteps(col); t++) {
+                wxString nm = name;
+                nm << " (" << table_int->GetTimeString(t) << ")";
+                m_Vars->Append(nm);
+            }
+        } else {
+            m_Vars->Append(name);
+        }
+        
 		if (table_int->GetColType(col) == GdaConst::long64_type ||
             table_int->GetColType(col) == GdaConst::string_type) {
 			if (!table_int->IsColTimeVariant(col)) {
@@ -722,7 +877,20 @@ void CreatingWeightDlg::InitDlg()
 	m_dist_choice->Append("Arc Distance (mi)");
 	m_dist_choice->Append("Arc Distance (km)");
 	m_dist_choice->SetSelection(0);
+    
+    m_dist_choice_vars->Clear();
+    m_dist_choice_vars->Append("");
+    m_dist_choice_vars->Append("Manhattan Distance");
+    m_dist_choice_vars->Append("Euclidean Distance");
+    m_dist_choice_vars->SetSelection(0);
 
+    m_trans_choice_vars->Clear();
+    m_trans_choice_vars->Append("Raw");
+    m_trans_choice_vars->Append("Demean");
+    m_trans_choice_vars->Append("Standardize (Z)");
+    m_trans_choice_vars->Append("Standardize (MAD)");
+    m_trans_choice_vars->SetSelection(2);
+    
     m_radio_queen->SetValue(true);
     
 	// Previously from OpenShapefile:
@@ -747,6 +915,7 @@ void CreatingWeightDlg::InitDlg()
     m_nb_weights_type->Enable(false);
     
     if (user_xy) {
+        // MDS create weights
         m_X_time->Hide();
         m_Y_time->Hide();
         m_dist_choice->Hide();
@@ -755,6 +924,7 @@ void CreatingWeightDlg::InitDlg()
         FindWindow(XRCID("IDC_STATIC_DIST_METRIC"))->Hide();
         FindWindow(XRCID("IDC_STATIC_XCOORD_VAR"))->Hide();
         FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
+        m_nb_distance_variables->Hide();
     }
     
 	Refresh();
@@ -911,6 +1081,112 @@ double CreatingWeightDlg::GetBandwidth()
     return bandwidth;
 }
 
+bool CreatingWeightDlg::CheckTableVariableInput()
+{
+    // check selected variables
+    wxArrayInt selections;
+    m_Vars->GetSelections(selections);
+    if (selections.GetCount() == 0) {
+        wxString msg = _("Please select at least one variable.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+    
+    // check distance metric
+    if (m_dist_choice_vars->GetSelection() == 0) {
+        wxString msg = _("Please specify distance metric.");
+        wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+    // check threshold
+    int method = m_nb_distance_methods->GetSelection();
+    if ( method == 0 || method == 2) {
+        wxString not_valid_msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
+        
+        if ( !m_thres_val_valid || !m_bandwidth_thres_val_valid) {
+            wxMessageDialog dlg(this, not_valid_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return false;
+        }
+    }
+    return true;
+}
+
+void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile, WeightsMetaInfo& wmi)
+{
+    GeoDa::Weights w;
+    int metric = m_dist_choice_vars->GetSelection();
+    WeightsMetaInfo::DistanceMetricEnum dist_metric = metric == 1 ? WeightsMetaInfo::DM_manhattan : WeightsMetaInfo::DM_euclidean;
+    
+    int method = m_nb_distance_methods->GetSelection();
+    if (method == 0) {
+        // distance band
+        double band = m_threshold_val_multivars;
+        double power = 1.0;
+        bool is_inverse = m_use_inverse->IsChecked();
+        if (is_inverse) {
+            // if use inverse distance
+            wxString inverse_val = m_power->GetValue();
+            if (inverse_val.ToDouble(&power)) {
+                power = -power;
+            }
+        }
+        w = dist_util->CreateDistBandWeights(band, is_inverse, power);
+        wmi.SetToThres(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, band, power);
+        
+    } else if ( method == 1) {
+        // kNN
+        int k = m_spinneigh->GetValue();
+        double power = 1.0;
+        bool is_inverse = m_use_inverse_knn->IsChecked();
+        if ( is_inverse) {
+            // if use inverse distance
+            wxString inverse_val = m_power_knn->GetValue();
+            if (inverse_val.ToDouble(&power)) {
+                power = -power;
+            }
+        }
+        w = dist_util->CreateKNNWeights(k, is_inverse, power);
+        wmi.SetToKnn(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, k, power);
+        
+    } else if ( method == 2) {
+        // adaptive kernel
+        int kernel_type = m_kernel_methods->GetSelection();
+        wxString kernel = m_kernel_methods->GetString(kernel_type);
+        bool apply_kernel_to_diag = m_kernel_diagnals->GetValue();
+        double bandwidth = GetBandwidth();
+        bool is_adaptive_bandwidth = m_radio_adaptive_bandwidth->GetValue();
+        int k = m_spinn_kernel->GetValue();
+        
+        if (m_radio_manu_bandwdith->GetValue() == true) {
+            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, bandwidth, apply_kernel_to_diag);
+        } else {
+            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, k, is_adaptive_bandwidth, apply_kernel_to_diag);
+        }
+        wmi.SetToKernel(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, kernel, k, bandwidth, is_adaptive_bandwidth, apply_kernel_to_diag);
+    }
+    
+    // save to file
+    GwtWeight* Wp = new GwtWeight;
+    Wp->num_obs = w.size();
+    Wp->is_symmetric = false;
+    Wp->symmetry_checked = true;
+    Wp->gwt = new GwtElement[Wp->num_obs];
+    for (size_t i=0; i<w.size(); i++) {
+        GwtElement& e = Wp->gwt[i];
+        e.alloc(w[i].size());
+        for (size_t j=0; j<w[i].size(); j++) {
+            GwtNeighbor neigh;
+            neigh.nbx = w[i][j].first;
+            neigh.weight =  w[i][j].second;
+            e.Push(neigh);
+        }
+    }
+    WriteWeightFile(NULL, Wp, project->GetProjectTitle(), outputfile, id, wmi);
+}
+
 bool CreatingWeightDlg::CheckThresholdInput()
 {
     if (m_nb_weights_type->GetSelection() == 0) {
@@ -941,14 +1217,15 @@ bool CreatingWeightDlg::CheckThresholdInput()
         ( !is_dist_band && m_bandwidth_thres_val*m_thres_delta_factor < m_thres_min) )
     {
         wxString msg;
-        if (is_dist_band)
+        if (is_dist_band) {
             msg = wxString::Format(nbrless_msg, m_threshold_val, m_thres_min);
-        else
+        } else {
             msg = wxString::Format(nbrless_msg, m_bandwidth_thres_val, m_thres_min);
-        
+        }
         wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
-        if (dlg.ShowModal() != wxID_YES)
+        if (dlg.ShowModal() != wxID_YES) {
             return false;
+        }
     }
     return true;
 }
@@ -989,13 +1266,21 @@ void CreatingWeightDlg::CreateWeights()
         dlg.ShowModal();
         return;
     }
-    
-    if (!CheckThresholdInput())
-        return;
 
     wxString id = m_id_field->GetString(m_id_field->GetSelection());
-    if (!CheckID(id))
+    if (!CheckID(id)) {
         return;
+    }
+    
+    if (m_nb_distance_variables->GetSelection() == 1) {
+        if (CheckTableVariableInput() == false) {
+            return;
+        }
+    } else {
+        if (!CheckThresholdInput()) {
+            return;
+        }
+    }
     
     wxString wildcard;
     wxString defaultFile(project->GetProjectTitle());
@@ -1028,11 +1313,17 @@ void CreatingWeightDlg::CreateWeights()
     wxLogMessage("CreateWeights()");
     wxLogMessage(outputfile);
     
+    // 1/2 case social weights:
+    if (m_nb_distance_variables->GetSelection() == 1) {
+        CreateWeightsFromTable(id, outputfile, wmi);
+        return;
+    }
+    
+    // 2/2 other cases:
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();
     int m_kernel_kNN = m_spinn_kernel->GetValue();
     int m_alpha = 1;
-    
     bool done = false;
     
     wxString str_X = m_X->GetString(m_X->GetSelection());

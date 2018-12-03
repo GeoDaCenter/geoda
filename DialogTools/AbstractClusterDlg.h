@@ -158,14 +158,15 @@ protected:
     // - the between sum of squares
     // - the ratio of between to total sum of squares
 	// -- variables
+    wxString mean_center_type;
     SimpleReportTextCtrl* m_reportbox;
 	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
 	// -- functions
     double _getTotalSumOfSquares();
     double _calcSumOfSquares(const vector<int>& cluster_ids);
-    vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);
-    wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
+    virtual wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
     wxString _printWithinSS(const vector<double>& within_ss);
     virtual wxString _printConfiguration()=0;
     double CreateSummary(const vector<wxInt64>& clusters, bool show_print = true);

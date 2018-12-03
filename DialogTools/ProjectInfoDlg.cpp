@@ -25,7 +25,7 @@
 #include "ProjectInfoDlg.h"
 
 ProjectInfoDlg::ProjectInfoDlg(Project* project)
-: wxDialog(0, -1, "Project Information", wxDefaultPosition, wxSize(250, 150))
+: wxDialog(NULL, wxID_ANY, "Project Information", wxDefaultPosition, wxSize(250, 150))
 {
     wxLogMessage("Open ProjectInfoDlg.");
     
@@ -112,6 +112,13 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
 	
 	key.push_back("Number Table Groups");
 	val.push_back(wxString::Format("%d", grp_cnt));
+    
+    if (project->IsTableOnlyProject() == false) {
+        key.push_back("Map boundary");
+        double minx = 0, miny = 0,  maxx = 0,  maxy = 0;
+        project->GetMapExtent(minx, miny, maxx, maxy);
+        val.push_back(wxString::Format("Lower left: %f, %f Upper right: %f, %f", minx, miny, maxx, maxy));
+    }
 		
 	const int left_offset = 0;
 	const int top_offset = 0;
@@ -121,7 +128,7 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
 		s << key[i] << ": " << val[i];
 		wxStaticText* st;
 		wxPoint pos(left_offset, top_offset + i*line_space);
-		st = new wxStaticText(panel, -1, s, pos, wxDefaultSize, wxALIGN_LEFT);
+		st = new wxStaticText(panel, wxID_ANY, s, pos, wxDefaultSize, wxALIGN_LEFT);
 	}
 	
 	

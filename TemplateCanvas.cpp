@@ -91,7 +91,7 @@ TemplateCanvas::TemplateCanvas(wxWindow* parent,
                                bool fixed_aspect_ratio_mode_s,
                                bool fit_to_window_mode_s,
                                bool enable_high_dpi_support_)
-: wxScrolledWindow(parent, -1, pos, size,
+: wxScrolledWindow(parent, wxID_ANY, pos, size,
                    wxNO_FULL_REPAINT_ON_RESIZE | wxCLIP_CHILDREN),
 mousemode(select), selectstate(start), brushtype(rectangle), is_brushing(false),
 scrollbarmode(none), remember_shiftdown(false), project(project_s),
@@ -799,6 +799,21 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
     event.Skip();
 }
 
+void TemplateCanvas::SetPointRadius(double r)
+{
+    point_radius = r;
+    // also update seletable_shps[] with new point_radius
+    GdaPoint* p;
+    for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        if (_IsShpValid(i)) {
+            p = (GdaPoint*) selectable_shps[i];
+            if (p->isNull()) {
+                continue;
+            }
+            p->SetRadius(point_radius);
+        }
+    }
+}
 
 bool TemplateCanvas::_IsShpValid(int idx)
 {

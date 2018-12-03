@@ -141,7 +141,7 @@ void KClusterDlg::CreateControls()
     }
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
-                                          _("Maximal Iterations:"),
+                                          _("Maximum Iterations:"),
                                          wxDefaultPosition, wxSize(128,-1));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -223,6 +223,11 @@ void KClusterDlg::CreateControls()
     seedButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnChangeSeed, this);
     combo_method->Bind(wxEVT_CHOICE, &KClusterDlg::OnInitMethodChoice, this);
     m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
+}
+
+vector<vector<double> > KClusterDlg::_getMeanCenters(const vector<vector<int> >& solution)
+{
+    return AbstractClusterDlg::_getMeanCenters(solution);
 }
 
 void KClusterDlg::OnDistanceChoice(wxCommandEvent& event)
@@ -321,9 +326,16 @@ void KClusterDlg::OnClose(wxCloseEvent& ev)
 
 wxString KClusterDlg::_printConfiguration()
 {
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString txt;
     txt << _("Method:\t") << cluster_method << "\n";
-    txt << _("Number of clusters:\t") << combo_n->GetSelection() + 2 << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
     txt << _("Initialization method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
     txt << _("Initialization re-runs:\t") << m_pass->GetValue() << "\n";
     txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
@@ -411,6 +423,19 @@ void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<
     
     if ( delta < 0.01 )
         return;
+    
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    if (ncluster < 2 || ncluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
     
     double mid = left + delta /2.0;
     
@@ -572,8 +597,13 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KClusterDlg::OnOK");
    
-    int ncluster = combo_n->GetSelection() + 2;
-   
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
@@ -658,7 +688,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString ttl;
-    ttl << "KMeans " << _("Cluster Map ") << "(";
+    ttl << cluster_method << " " << _("Cluster Map ") << "(";
     ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);
@@ -669,7 +699,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
 // KMeans
 ////////////////////////////////////////////////////////////////////////
 KMeansDlg::KMeansDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMeans Dialog"))
+: KClusterDlg(parent, project, _("KMeans Clustering Settings"))
 {
     wxLogMessage("In KMeansDlg()");
    
@@ -679,6 +709,7 @@ KMeansDlg::KMeansDlg(wxFrame *parent, Project* project)
     cluster_method = "KMeans";
     
     CreateControls();
+    m_distance->Disable();
 }
 
 KMeansDlg::~KMeansDlg()
@@ -717,7 +748,7 @@ void KMeansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_se
 // KMedians
 ////////////////////////////////////////////////////////////////////////
 KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMedians Dialog"))
+: KClusterDlg(parent, project, _("KMedians Clustering Settings"))
 {
     wxLogMessage("In KMediansDlg()");
     
@@ -725,9 +756,10 @@ KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
     show_distance = true;
     show_iteration = true;
     cluster_method = "KMedians";
-    
+    mean_center_type = " (median)";
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
+    m_distance->Disable();
 }
 
 KMediansDlg::~KMediansDlg()
@@ -760,19 +792,51 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     delete[] clusterid;
 }
 
+vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> medians;
+        for (int c=0; c<columns; c++) {
+            double sum = 0;
+            int n = 0;
+            double* data = new double[solutions[i].size()];
+            for (int j=0; j<solutions[i].size(); j++) {
+                int r = solutions[i][j];
+                if (mask[r][c] == 1) {
+                    data[n] = input_data[r][c];
+                    n += 1;
+                }
+            }
+            double v = median(n, data);
+            //if (weight) mean = mean * weight[c];
+            medians.push_back(v);
+            delete[] data;
+        }
+        result[i] = medians;
+    }
+    
+    return result;
+}
+
 ////////////////////////////////////////////////////////////////////////
 //
 // KMedoids
 ////////////////////////////////////////////////////////////////////////
 KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
-: KClusterDlg(parent, project, _("KMedoids Dialog"))
+: KClusterDlg(parent, project, _("KMedoids Clustering Settings"))
 {
     wxLogMessage("In KMedoidsDlg()");
     
     show_initmethod = false;
     show_distance = true;
-    show_iteration = false;
+    show_iteration = true;
     cluster_method = "KMedoids";
+    mean_center_type = " (medoid)";
     
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
@@ -800,7 +864,7 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     
     int s2 = s1==0 ? 0 : s1 + npass;
     
-    kmedoids(ncluster, rows, distmatrix, npass, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
+    kmedoids(ncluster, rows, distmatrix, npass, n_maxiter, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
   
     set<wxInt64> centers;
     map<wxInt64, vector<wxInt64> > c_dist;
@@ -821,4 +885,45 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     sub_clusters[error] = clusters;
     
     delete[] clusterid;
+}
+
+vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+{
+    // The centroid is defined as the element with the
+    // smallest sum of distances to the other elements.
+    int n_clusters = solutions.size();
+    vector<vector<double> > result(n_clusters);
+    
+    if (columns <= 0 || rows <= 0) return result;
+    
+    vector<int> centroid_ids(n_clusters,0);
+    vector<double> errors(n_clusters);
+    for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        for (int j=0; j<solutions[i].size(); j++) {
+            double d = 0;
+            int a_idx = solutions[i][j];
+            for (int k=0; k<solutions[i].size(); k++) {
+                if (j == k) continue;
+                int b_idx = solutions[i][k];
+                d += ( a_idx < b_idx ? distmatrix[b_idx][a_idx]:distmatrix[a_idx][b_idx]);
+            }
+            if (d < errors[i]) {
+                errors[i] = d;
+                centroid_ids[i] = a_idx;
+            }
+        }
+    }
+    
+    for (int i=0; i<solutions.size(); i++ ) {
+        vector<double> means;
+        for (int c=0; c<columns; c++) {
+            double mean = input_data[centroid_ids[i]][c];
+            means.push_back(mean);
+        }
+        result[i] = means;
+    }
+    
+    return result;
 }

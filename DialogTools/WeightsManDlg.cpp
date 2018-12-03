@@ -65,6 +65,10 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
+    // time editor - incorrect number of views open #1754
+    bool is_any_time_variant = false;
+    SetDependsOnNonSimpleGroups(is_any_time_variant);
+    
 	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), _("Create"),  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
 	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), _("Load"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
