@@ -488,22 +488,30 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     */
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
+    
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);
     
     // add weight to input_data
+    double** data  = new double*[rows];
     for (int i=0; i<rows; i++) {
+        data[i] = new double[columns];
         for (int j=0; j<columns; j++) {
-            input_data[i][j] = input_data[i][j] * weight[j];
+            data[i][j] = input_data[i][j] * weight[j];
         }
     }
     
-    GeoDaClustering::HDBScan hdb(minPts, minSamples, alpha, cluster_selection_method, allow_single_cluster, rows, columns, distances, input_data, undefs);
+    GeoDaClustering::HDBScan hdb(minPts, minSamples, alpha, cluster_selection_method, allow_single_cluster, rows, columns, distances, data, undefs);
     
     cluster_ids = hdb.GetRegions();
     core_dist = hdb.core_dist;
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
+    
+    for (int i=0; i<rows; i++) {
+        delete[] data[i];
+    }
+    delete[] data;
     
     int ncluster = cluster_ids.size();
     

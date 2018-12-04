@@ -611,13 +611,16 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
     int affinity_type = 0;
     
     // add weight to input_data
+    double** data = new double*[rows];
     for (int i=0; i<rows; i++) {
+        data[i] = new double[columns];
         for (int j=0; j<columns; j++) {
-            input_data[i][j] = input_data[i][j] * weight[j];
+            data[i][j] = input_data[i][j] * weight[j];
         }
     }
+    
     Spectral spectral;
-    spectral.set_data(input_data, rows, columns);
+    spectral.set_data(data, rows, columns);
     spectral.set_centers(ncluster);
     spectral.set_power_iters(l_iterations);
     if (chk_kernel->IsChecked()) {
@@ -629,9 +632,13 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         affinity_type = 1;
     }
     spectral.cluster(affinity_type);
-    
-    
+
     vector<wxInt64> clusters = spectral.get_assignments();
+    
+    for (int i=0; i<rows; i++) {
+        delete[] data[i];
+    }
+    delete[] data;
 
     vector<bool> clusters_undef;
     
