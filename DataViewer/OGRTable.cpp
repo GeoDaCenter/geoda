@@ -1582,7 +1582,7 @@ int OGRTable::FindOGRColId(int wxgrid_col_pos, int time)
 int OGRTable::FindOGRColId(const wxString& name)
 {
     for (size_t i=0; i < org_var_names.size(); i++ ) {
-        if (name == org_var_names[i] ) {
+        if (name.CmpNoCase(org_var_names[i]) == 0 ) {
             return i;
         }
     }
@@ -1601,7 +1601,7 @@ OGRColumn* OGRTable::FindOGRColumn(const wxString& name)
     if (name.IsEmpty()) return NULL;
     
     for (size_t i=0; i<org_var_names.size(); i++ ) {
-        if (name == org_var_names[i] ) {
+        if ( name.CmpNoCase(org_var_names[i]) == 0 ) {
             return columns[i];
         }
     }

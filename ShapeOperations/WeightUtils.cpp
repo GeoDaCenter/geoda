@@ -857,7 +857,7 @@ GalElement* WeightUtils::Gwt2Gal(GwtElement* Gwt, long obs)
 }
 
 
-void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int)
+void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int, wxString id_field)
 {
     int rows = table_int->GetNumberRows();
     
@@ -872,10 +872,13 @@ void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath
     w->num_obs = rows;
     w->wflnm = filepath;
     w->gal = tempGal;
-    w->id_field = "unknown";
+    w->id_field = id_field;
+    w->is_symmetric = true;
     
     w->GetNbrStats();
     wmi.num_obs = w->GetNumObs();
+    wmi.id_var = id_field;
+    wmi.SetSymmetric(w->is_symmetric);
     wmi.SetMinNumNbrs(w->GetMinNumNbrs());
     wmi.SetMaxNumNbrs(w->GetMaxNumNbrs());
     wmi.SetMeanNumNbrs(w->GetMeanNumNbrs());

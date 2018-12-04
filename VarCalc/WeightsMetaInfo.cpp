@@ -92,6 +92,11 @@ void WeightsMetaInfo::SetToCustom(const wxString& idv)
 	id_var = idv;
 }
 
+void WeightsMetaInfo::SetSymmetric(bool is_sym)
+{
+    sym_type = is_sym ? SYM_symmetric : SYM_unknown;
+}
+
 void WeightsMetaInfo::SetToRook(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();

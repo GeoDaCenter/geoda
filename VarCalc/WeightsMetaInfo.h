@@ -162,7 +162,7 @@ struct WeightsMetaInfo
     void SetMaxNumNbrs(int val);
     void SetMeanNumNbrs(double val);
     void SetMedianNumNbrs(double val);
-    
+    void SetSymmetric(bool is_sym);
 };
 
 #endif

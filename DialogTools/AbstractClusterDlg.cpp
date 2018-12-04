@@ -739,7 +739,7 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, c
     summary << _printConfiguration();
     
     // auto weighting
-    if (m_use_centroids->IsChecked()) {
+    if (m_use_centroids != NULL && m_use_centroids->IsChecked()) {
         wxString w_val = m_wc_txt->GetValue();
         double w_valf = 0;
         if (w_val.ToDouble(&w_valf)) {
