@@ -389,12 +389,19 @@
     <ClCompile Include="..\..\io\MatfileReader.cpp" />
     <ClCompile Include="..\..\io\matlab_mat.cpp" />
     <ClCompile Include="..\..\kNN\ANN.cpp" />
+    <ClCompile Include="..\..\kNN\bd_fix_rad_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_pr_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_search.cpp" />
+    <ClCompile Include="..\..\kNN\bd_tree.cpp" />
+    <ClCompile Include="..\..\kNN\brute.cpp" />
+    <ClCompile Include="..\..\kNN\kd_dump.cpp" />
+    <ClCompile Include="..\..\kNN\kd_fix_rad_search.cpp" />
     <ClCompile Include="..\..\kNN\kd_pr_search.cpp" />
     <ClCompile Include="..\..\kNN\kd_search.cpp" />
     <ClCompile Include="..\..\kNN\kd_split.cpp" />
     <ClCompile Include="..\..\kNN\kd_tree.cpp" />
     <ClCompile Include="..\..\kNN\kd_util.cpp" />
-    <ClCompile Include="..\..\kNN\kNN.cpp" />
+    <ClCompile Include="..\..\kNN\perf.cpp" />
     <ClCompile Include="..\..\libgdiam\gdiam.cpp" />
     <ClCompile Include="..\..\ogl\basic.cpp" />
     <ClCompile Include="..\..\ogl\basic2.cpp" />
@@ -423,6 +430,7 @@
     <ClCompile Include="..\..\VarCalc\NumericTests.cpp" />
     <ClCompile Include="..\..\VarCalc\WeightsMetaInfo.cpp" />
     <ClCompile Include="..\..\VarTools.cpp" />
+    <ClCompile Include="..\..\Weights\DistUtils.cpp" />
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
@@ -538,9 +546,11 @@
     <ClInclude Include="..\..\io\MatfileReader.h" />
     <ClInclude Include="..\..\io\matlab_mat.h" />
     <ClInclude Include="..\..\io\weights_interface.h" />
-    <ClInclude Include="..\..\kNN\ANN.h" />
-    <ClInclude Include="..\..\kNN\ANNperf.h" />
-    <ClInclude Include="..\..\kNN\ANNx.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANN.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANNperf.h" />
+    <ClInclude Include="..\..\kNN\ANN\ANNx.h" />
+    <ClInclude Include="..\..\kNN\bd_tree.h" />
+    <ClInclude Include="..\..\kNN\kd_fix_rad_search.h" />
     <ClInclude Include="..\..\kNN\kd_pr_search.h" />
     <ClInclude Include="..\..\kNN\kd_search.h" />
     <ClInclude Include="..\..\kNN\kd_split.h" />
@@ -548,7 +558,6 @@
     <ClInclude Include="..\..\kNN\kd_util.h" />
     <ClInclude Include="..\..\kNN\pr_queue.h" />
     <ClInclude Include="..\..\kNN\pr_queue_k.h" />
-    <ClInclude Include="..\..\kNN\values.h" />
     <ClInclude Include="..\..\libgdiam\gdiam.hpp" />
     <ClInclude Include="..\..\MapLayerStateObserver.h" />
     <ClInclude Include="..\..\Observable.h" />
@@ -711,6 +720,7 @@
     <ClInclude Include="..\..\VarCalc\WeightsMetaInfo.h" />
     <ClInclude Include="..\..\VarTools.h" />
     <ClInclude Include="..\..\version.h" />
+    <ClInclude Include="..\..\Weights\DistUtils.h" />
     <ClInclude Include="..\..\wxTranslationHelper.h" />
   </ItemGroup>
   <ItemGroup>
