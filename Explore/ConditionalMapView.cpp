@@ -956,20 +956,14 @@ BEGIN_EVENT_TABLE(ConditionalMapFrame, ConditionalNewFrame)
 	EVT_ACTIVATE(ConditionalMapFrame::OnActivate)	
 END_EVENT_TABLE()
 
-ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project,
-									 const vector<GdaVarTools::VarInfo>& var_info,
-									 const vector<int>& col_ids,
-									 const wxString& title, const wxPoint& pos,
-									 const wxSize& size, const long style)
-: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos,
-					  size, style)
+ConditionalMapFrame::ConditionalMapFrame(wxFrame *parent, Project* project, const vector<GdaVarTools::VarInfo>& var_info, const vector<int>& col_ids, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
+: ConditionalNewFrame(parent, project, var_info, col_ids, title, pos, size, style)
 {
     
     wxLogMessage("Open ConditionalNewFrame.");
 	int width, height;
 	GetClientSize(&width, &height);
 
-		
 	wxSplitterWindow* splitter_win = new wxSplitterWindow(this, wxID_ANY,
         wxDefaultPosition, wxDefaultSize,
         wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);

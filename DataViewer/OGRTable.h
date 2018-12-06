@@ -106,7 +106,8 @@ public:
 	virtual bool HasFixedDecimals();
 	virtual bool PermitChangeDecimals();
 	virtual bool PermitChangeDisplayedDecimals();
-	
+
+    virtual int  GetFirstNumericCol();
 	virtual bool DbColNmToColAndTm(const wxString& name, int& col, int& tm);
 	virtual int  FindColId(const wxString& name);
     virtual int  GetColIdx(const wxString& name, bool ignore_case=false);

@@ -121,7 +121,8 @@ public:
 	
 	virtual int GetNumberCols() = 0;
 	virtual int GetNumberRows() = 0;
-	
+
+    virtual int  GetFirstNumericCol() = 0;
 	virtual bool IsColTimeVariant(const wxString& name);
 	virtual bool IsColTimeVariant(int col) = 0;
 	virtual int GetColTimeSteps(int col) = 0;	

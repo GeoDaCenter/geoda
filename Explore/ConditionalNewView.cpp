@@ -97,8 +97,9 @@ full_map_redraw_needed(true)
     else table_int->GetColData(col_ids[VERT_VAR], s_data[VERT_VAR]);
     
 	for (size_t i=0; i<var_info.size(); i++) {
-        if (i != HOR_VAR && i != VERT_VAR)
+        if (i != HOR_VAR && i != VERT_VAR) {
             table_int->GetColData(col_ids[i], data[i]);
+        }
         table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}
@@ -123,12 +124,16 @@ full_map_redraw_needed(true)
         else horiz_str_var_sorted[t].resize(num_obs);
         
 		for (int i=0; i<num_obs; i++) {
-            if (HOR_VAR_NUM) horiz_var_sorted[t][i] = std::make_pair(data[HOR_VAR][t][i], i);
-            else horiz_str_var_sorted[t][i] = std::make_pair(s_data[HOR_VAR][t][i], i);
+            if (HOR_VAR_NUM) {
+                horiz_var_sorted[t][i] = std::make_pair(data[HOR_VAR][t][i], i);
+            } else {
+                horiz_str_var_sorted[t][i] = std::make_pair(s_data[HOR_VAR][t][i], i);
+            }
             horiz_undef_tms[t][i] = horiz_undef_tms[t][i] || data_undef[HOR_VAR][t][i];
 		}
-        if (HOR_VAR_NUM)
+        if (HOR_VAR_NUM) {
             std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
 	}
     
     //setup verticle data
@@ -138,25 +143,32 @@ full_map_redraw_needed(true)
 	vert_cats_error_message.resize(vert_num_time_vals);
     
     if (VERT_VAR_NUM) {
-        SetCatType(VERT_VAR, CatClassification::quantile, 3);
+        SetCatType(VERT_VAR, CatClassification::quantile, vert_num_cats);
         vert_var_sorted.resize(vert_num_time_vals);
     } else {
-        SetCatType(VERT_VAR, CatClassification::unique_values, 3);
+        SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
         vert_str_var_sorted.resize(vert_num_time_vals);
     }
 
 	for (int t=0; t<vert_num_time_vals; t++) {
         vert_undef_tms[t].resize(num_obs);
-        if (VERT_VAR_NUM) vert_var_sorted[t].resize(num_obs);
-        else vert_str_var_sorted[t].resize(num_obs);
+        if (VERT_VAR_NUM) {
+            vert_var_sorted[t].resize(num_obs);
+        } else {
+            vert_str_var_sorted[t].resize(num_obs);
+        }
         
         for (int i=0; i<num_obs; i++) {
-            if (VERT_VAR_NUM) vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR][t][i], i);
-            else vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR][t][i], i);
+            if (VERT_VAR_NUM) {
+                vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR][t][i], i);
+            } else {
+                vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR][t][i], i);
+            }
             vert_undef_tms[t][i] = vert_undef_tms[t][i] ||data_undef[VERT_VAR][t][i];
 		}
-        if (VERT_VAR_NUM)
+        if (VERT_VAR_NUM) {
             std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
 	}
 	
     VarInfoAttributeChange();
@@ -167,6 +179,14 @@ full_map_redraw_needed(true)
 		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
 		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
 	}
+    
+    // case that user only need horizontal axe
+    if (var_info[VERT_VAR].is_hide) {
+        SetCatType(VERT_VAR, CatClassification::no_theme, 1);
+    } else if (var_info[HOR_VAR].is_hide) {
+        SetCatType(HOR_VAR, CatClassification::no_theme, 1);
+    }
+
 	CreateAndUpdateCategories(VERT_VAR);
 	CreateAndUpdateCategories(HOR_VAR);
 	

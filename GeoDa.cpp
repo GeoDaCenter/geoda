@@ -2834,13 +2834,12 @@ void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
                             _("Conditional Map Variables"),
                             _("Horizontal Cells"),
                             _("Vertical Cells"),
-                            _("Map Theme"),
-                            "", false, false, false,
-                            true, true, false, false);
+                            _("Map Theme"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
 	

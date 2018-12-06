@@ -557,6 +557,16 @@ bool OGRTable::DoesNameExist(const wxString& name, bool case_sensitive) const
 	return var_order.DoesNameExist(name, case_sensitive);
 }
 
+int OGRTable::GetFirstNumericCol()
+{
+    int n = GetNumberCols(); // var_order size
+    for (size_t i=0; i<n; i++) {
+        if (IsColNumeric(i)) {
+            return i;
+        }
+    }
+}
+
 /** Return the Group column name. */
 wxString OGRTable::GetColName(int col)
 {

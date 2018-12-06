@@ -134,7 +134,29 @@ public:
 		univariate, bivariate, trivariate, quadvariate, rate_smoothed
 	};
     
-	VariableSettingsDlg( Project* project, VarType v_type,
+    enum Style {
+        DEFAULT_STYLE = 0,
+        SHOW_WEIGHTS = 1, //0b00000001
+        SHOW_DISTANCE = 2, //0b00000010
+        SET_SECOND_FROM_FIRST = 4,
+        SET_FOURTH_FROM_THIRD = 8,
+        SHOW_TIME = 16,
+        ALLOW_STRING_IN_FIRST = 32,
+        ALLOW_STRING_IN_SECOND = 64,
+        ALLOW_STRING_IN_THIRD = 128,
+        ALLOW_STRING_IN_FOURTH = 256,
+        ALLOW_EMPTY_IN_FIRST = 512,
+        ALLOW_EMPTY_IN_SECOND = 1024
+    };
+    
+    VariableSettingsDlg(Project* project, VarType v_type, int style,
+                        const wxString& title=_("Variable Settings"),
+                        const wxString& var1_title=_("First Variable (X)"),
+                        const wxString& var2_title=_("Second Variable (Y)"),
+                        const wxString& var3_title=_("Third Variable (Z)"),
+                        const wxString& var4_title=_("Fourth Variable"));
+    
+	VariableSettingsDlg(Project* project, VarType v_type,
 						bool show_weights = false,
 						bool show_distance = false,
 						const wxString& title=_("Variable Settings"),
@@ -170,6 +192,9 @@ public:
 	void OnOkClick( wxCommandEvent& event );
 	void OnCancelClick( wxCommandEvent& event );
 
+    bool IsFirstVariableEmpty();
+    bool IsSecondVariableEmpty();
+    
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<int> col_ids;
 	CatClassification::CatClassifType GetCatClassifType(); // for rate smoothed
@@ -180,7 +205,8 @@ public:
 	
 protected:
 	int m_theme; // for rate_smoothed
-
+    int style;
+    
     bool var1_str;
     bool var2_str;
     bool var3_str;
