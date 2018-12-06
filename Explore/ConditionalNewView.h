@@ -184,7 +184,8 @@ public:
 								CatClassification::CatClassifType new_theme,
 								int num_categories,
 								const wxString& cc_title = wxEmptyString);
-	
+    void OnClose( wxCloseEvent& event );
+    
     DECLARE_EVENT_TABLE()
 };
 

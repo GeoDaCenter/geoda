@@ -34,16 +34,22 @@ class TableInterface;
 class CatClassifManager : public TableStateObserver {
 public:
 	CatClassifManager(TableInterface* table_int,
-					  TableState* table_state, CustomClassifPtree* cc_ptree);
+					  TableState* table_state,
+                      CustomClassifPtree* cc_ptree);
 	virtual ~CatClassifManager();
+    
 	void GetTitles(std::vector<wxString>& titles);
-	CatClassifState* FindClassifState(const wxString& title);
-	/** Create and return a new CatClassifState object and associate
+	
+    CatClassifState* FindClassifState(const wxString& title);
+	
+    /** Create and return a new CatClassifState object and associate
 	 with a default variable db field name.  If the name is blank,
 	 then no default preview variable associated. */
 	CatClassifState* CreateNewClassifState(const CatClassifDef& cc_data);
-	void RemoveClassifState(CatClassifState* ccs);
-	bool VerifyAgainstTable();
+	
+    void RemoveClassifState(CatClassifState* ccs);
+	
+    bool VerifyAgainstTable();
 	
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);

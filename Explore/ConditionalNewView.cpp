@@ -484,7 +484,10 @@ ChangeThemeType(int var_id,
 			cat_classif_def_horiz = cc_state_horiz->GetCatClassif();
 		}
 	} else {
-		if (ccs) ccs->removeObserver(this);
+        if (ccs) {
+            ccs->removeObserver(this);
+            ccs = 0;
+        }
 		if (var_id == VERT_VAR) {
 			cc_state_vert = 0;
 		} else {
@@ -742,11 +745,20 @@ ConditionalNewFrame(wxFrame *parent,
 : TemplateFrame(parent, project, title, pos, size, style)
 {
 	LOG_MSG("In ConditionalNewFrame::ConditionalNewFrame");
+    
+    Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ConditionalNewFrame::OnClose));
 }
 
 ConditionalNewFrame::~ConditionalNewFrame()
 {
 	LOG_MSG("In ConditionalNewFrame::~ConditionalNewFrame");
+}
+
+void ConditionalNewFrame::OnClose( wxCloseEvent& event )
+{
+    delete template_canvas;
+    Destroy();
+    event.Skip();
 }
 
 void ConditionalNewFrame::MapMenus()

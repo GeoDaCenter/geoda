@@ -39,7 +39,6 @@ CatClassifManager::~CatClassifManager()
 	for (std::list<CatClassifState*>::iterator it=classif_states.begin();
 		 it != classif_states.end(); it++) {
 		(*it)->closeAndDeleteWhenEmpty();
-        delete *it;
 	}
 	table_state->removeObserver(this);
 }

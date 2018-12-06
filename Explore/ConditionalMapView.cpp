@@ -101,7 +101,10 @@ cc_state_map(0)
 
 ConditionalMapCanvas::~ConditionalMapCanvas()
 {
-	if (cc_state_map) cc_state_map->removeObserver(this);
+    if (cc_state_map) {
+        cc_state_map->removeObserver(this);
+        cc_state_map = NULL;
+    }
 }
 
 void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -382,7 +385,7 @@ void ConditionalMapCanvas::ChangeCatThemeType(
         if (cc_state_map) {
             cc_state_map->removeObserver(this);
         }
-		cc_state_map = 0;
+		cc_state_map = NULL;
 	}
 	SetCatType(new_cat_theme);
 	VarInfoAttributeChange();

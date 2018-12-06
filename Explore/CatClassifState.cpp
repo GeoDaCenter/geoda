@@ -34,7 +34,7 @@ void CatClassifState::closeAndDeleteWhenEmpty()
 {
 	delete_self_when_empty = true;
 	if (observers.size() == 0) {
-		//delete this;
+		delete this;
 	}
 }
 
@@ -45,9 +45,8 @@ void CatClassifState::registerObserver(CatClassifStateObserver* o)
 
 void CatClassifState::removeObserver(CatClassifStateObserver* o)
 {
-    if (observers.size() > 0) {
-        observers.remove(o);
-    }
+    observers.remove(o);
+    
     if (observers.size() == 0 && delete_self_when_empty) {
         delete this;
     }
