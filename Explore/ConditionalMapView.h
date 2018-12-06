@@ -71,6 +71,10 @@ public:
 	virtual void CreateAndUpdateCategories();
 	virtual void TimeSyncVariableToggle(int var_index);
 	
+    virtual void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
+    
+    void OnCustomCategoryClick(wxCommandEvent& event);
+
 	CatClassifDef cat_classif_def_map;
 	CatClassification::CatClassifType GetCatType();
 	void SetCatType(CatClassification::CatClassifType cc_type);
@@ -91,8 +95,6 @@ protected:
 	wxBitmap* bin_bm;
 	wxPen bin_bg_map_pen;
 	wxBrush bin_bg_map_brush;
-	
-	bool full_map_redraw_needed;
 	
 	static const int CAT_VAR; // theme variable
 	

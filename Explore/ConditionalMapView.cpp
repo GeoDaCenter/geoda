@@ -64,9 +64,9 @@ ConditionalMapCanvas(wxWindow *parent,
 num_categories(1),bin_bm(0),
 bin_bg_map_pen(wxColor(200,200,200)),
 bin_bg_map_brush(wxColor(200,200,200)),
-cc_state_map(0),
-full_map_redraw_needed(true)
+cc_state_map(0)
 {
+    full_map_redraw_needed = true;
 	using namespace Shapefile;
 	SetCatType(CatClassification::no_theme);
 	
@@ -113,7 +113,7 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COND_MAP_VIEW_MENU_OPTIONS");
 	
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
+	AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -121,6 +121,75 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateOptionMenuItems();
 }
 
+void ConditionalMapCanvas::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
+{
+    // search for ID_CAT_CLASSIF_A(B,C)_MENU submenus
+    const int num_sub_menus=3;
+    vector<int> menu_id(num_sub_menus);
+    vector<int> sub_menu_id(num_sub_menus);
+    vector<int> base_id(num_sub_menus);
+    menu_id[0] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A");
+    menu_id[1] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"); // conditional horizontal menu
+    menu_id[2] = XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"); // conditional verticle menu
+    sub_menu_id[0] = XRCID("ID_CAT_CLASSIF_A_MENU");
+    sub_menu_id[1] = XRCID("ID_CAT_CLASSIF_B_MENU");
+    sub_menu_id[2] = XRCID("ID_CAT_CLASSIF_C_MENU");
+    base_id[0] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    base_id[1] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+    base_id[2] = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+    
+    for (int i=0; i<num_sub_menus; i++) {
+        wxMenuItem* smii = menu->FindItem(sub_menu_id[i]);
+        if (!smii) continue;
+        wxMenu* smi = smii->GetSubMenu();
+        if (!smi) continue;
+        int m_id = smi->FindItem(_("Custom Breaks"));
+        wxMenuItem* mi = smi->FindItem(m_id);
+        if (!mi) continue;
+        
+        wxMenu* sm = mi->GetSubMenu();
+        // clean
+        wxMenuItemList items = sm->GetMenuItems();
+        for (int i=0; i<items.size(); i++) {
+            sm->Delete(items[i]);
+        }
+        
+        sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
+        sm->AppendSeparator();
+        
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+        for (size_t j=0; j<titles.size(); j++) {
+            wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
+        }
+        
+        if (i==0) {
+            // regular map men
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                 &ConditionalMapCanvas::OnCustomCategoryClick, this, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+        } else if (i==1) {
+            // conditional horizontal map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+        } else if (i==2) {
+            // conditional verticle map menu
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+        }
+    }
+}
+
+void ConditionalMapCanvas::OnCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    CatClassifManager* ccm = project->GetCatClassifManager();
+    if (!ccm) return;
+    vector<wxString> titles;
+    ccm->GetTitles(titles);
+    int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+    if (idx < 0 || idx >= titles.size()) return;
+    wxString cc_title = titles[idx];
+    
+    ((ConditionalMapFrame*) template_frame)->ChangeThemeType(CatClassification::custom, 4, cc_title);
+}
 /**
  * Overwrite TemplaceCanvas Scroll
  */
@@ -648,11 +717,13 @@ void ConditionalMapCanvas::PopulateCanvas()
 {
 	
 	int canvas_ts = cat_data.GetCurrentCanvasTmStep();
-	if (!map_valid[canvas_ts]) full_map_redraw_needed = true;
+    if (map_valid[canvas_ts] == false) {
+        full_map_redraw_needed = true;
+    }
 	
 	// Note: only need to delete selectable shapes if the cartogram
 	// relative positions change.  Otherwise, just reuse.
-	if (full_map_redraw_needed) {
+	if (full_map_redraw_needed == true) {
 		BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
 		selectable_shps.clear();
 	}
@@ -661,12 +732,13 @@ void ConditionalMapCanvas::PopulateCanvas()
 	foreground_shps.clear();
 
 	if (map_valid[canvas_ts]) {
-		if (full_map_redraw_needed) {
+		if (full_map_redraw_needed == true) {
 			CreateSelShpsFromProj(selectable_shps, project);
 			BOOST_FOREACH( GdaShape* shp, selectable_shps ) {
 				shp->setPen(bin_bg_map_pen);
 				shp->setBrush(bin_bg_map_brush);
 			}
+            isResize = true;
 			full_map_redraw_needed = false;
 		}
 	} else {
@@ -725,9 +797,9 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 {
 	cat_var_sorted.clear();
 	map_valid.resize(num_time_vals);
-	for (int t=0; t<num_time_vals; t++)
+    for (int t=0; t<num_time_vals; t++) {
         map_valid[t] = true;
-    
+    }
 	map_error_message.resize(num_time_vals);
     
 	for (int t=0; t<num_time_vals; t++)

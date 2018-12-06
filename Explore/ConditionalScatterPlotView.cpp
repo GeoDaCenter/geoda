@@ -59,7 +59,6 @@ ConditionalScatterPlotCanvas(wxWindow *parent,
                              const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   false, true, pos, size),
-full_map_redraw_needed(true),
 X(project_s->GetNumRecords()),
 Y(project_s->GetNumRecords()),
 XY_undef(project_s->GetNumRecords()),
@@ -68,6 +67,7 @@ display_slope_values(true),
 show_linear_smoother(true),
 show_lowess_smoother(false)
 {
+    full_map_redraw_needed = true;
 	double x_max = var_info[IND_VAR].max_over_time;
 	double x_min = var_info[IND_VAR].min_over_time;
 	double y_max = var_info[DEP_VAR].max_over_time;
@@ -450,7 +450,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
         selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
     }
-    
+    isResize = true;
 	layer0_valid = false;
 	Refresh();
 	

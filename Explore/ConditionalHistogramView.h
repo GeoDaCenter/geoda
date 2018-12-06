@@ -82,9 +82,7 @@ protected:
 	void sel_shp_to_cell(int i, int& r, int& c, int& ival);
 	int cell_to_sel_shp_gen(int r, int c, int ival,
 							int cols, int ivals);
-	
-	bool full_map_redraw_needed;
-	
+		
 	static const int HIST_VAR; // histogram variable
 	
 	// size = time_steps if HIST_VAR is time variant

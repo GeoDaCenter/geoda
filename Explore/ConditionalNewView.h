@@ -99,6 +99,8 @@ public:
 	virtual void UpdateStatusBar();
     
 protected:
+    bool full_map_redraw_needed;
+    
 	TableInterface* table_int;
 	CatClassifState* cc_state_vert;
 	CatClassifState* cc_state_horiz;

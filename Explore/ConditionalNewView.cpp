@@ -77,7 +77,8 @@ is_any_time_variant(false),
 is_any_sync_with_global_time(false),
 cc_state_vert(0),
 cc_state_horiz(0),
-all_init(false)
+all_init(false),
+full_map_redraw_needed(true)
 {
     axis_display_precision = 1;
 	
@@ -379,8 +380,9 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
     if (!ccs)
         return;
     
-	if (cc_state_vert)
+    if (cc_state_vert) {
         cc_state_vert->removeObserver(this);
+    }
     
 	cat_classif_def_vert = ccs->GetCatClassif();
 	cc_state_vert = ccs;
@@ -493,6 +495,7 @@ ChangeThemeType(int var_id,
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
+    full_map_redraw_needed = true;
 	PopulateCanvas();
 	if (template_frame) {
 		template_frame->UpdateTitle();

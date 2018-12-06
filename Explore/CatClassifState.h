@@ -43,7 +43,7 @@ public:
 	wxString GetTitle() { return cc_data.title; }
 	int GetNumberObservers() { return observers.size(); }
 	
-private:
+protected:
 	/** The list of registered CatClassifStateObserver objects. */
 	std::list<CatClassifStateObserver*> observers;
 	/** When the project is being closed, this is set to true so that
