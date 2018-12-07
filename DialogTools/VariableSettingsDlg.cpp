@@ -1425,9 +1425,9 @@ void VariableSettingsDlg::InitFieldChoices()
         GdaConst::FieldType ftype = table_int->GetColType(col_id_map[i]);
 		wxString name = table_int->GetColName(col_id_map[i]);
         
-		if (table_int->IsColTimeVariant(col_id_map[i]))
+        if (table_int->IsColTimeVariant(col_id_map[i])) {
             name << t1;
-        
+        }
         if ((var1_str) ||
             (!var1_str && ftype == GdaConst::double_type) ||
             (!var1_str && ftype == GdaConst::long64_type))
@@ -1440,8 +1440,9 @@ void VariableSettingsDlg::InitFieldChoices()
         
 		if (num_var >= 2) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i]))
+            if (table_int->IsColTimeVariant(col_id_map[i])) {
                 name << t2;
+            }
             if ((var2_str) ||
                 (!var2_str && ftype == GdaConst::double_type) ||
                 (!var2_str && ftype == GdaConst::long64_type))
@@ -1455,8 +1456,9 @@ void VariableSettingsDlg::InitFieldChoices()
         
 		if (num_var >= 3) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i]))
+            if (table_int->IsColTimeVariant(col_id_map[i])) {
                 name << t3;
+            }
             if ((var3_str) ||
                 (!var3_str && ftype == GdaConst::double_type) ||
                 (!var3_str && ftype == GdaConst::long64_type))
@@ -1470,8 +1472,9 @@ void VariableSettingsDlg::InitFieldChoices()
         
 		if (num_var >= 4) {
 			wxString name = table_int->GetColName(col_id_map[i]);
-			if (table_int->IsColTimeVariant(col_id_map[i]))
+            if (table_int->IsColTimeVariant(col_id_map[i])) {
                 name << t4;
+            }
             if ((var4_str) ||
                 (!var4_str && ftype == GdaConst::double_type) ||
                 (!var4_str && ftype == GdaConst::long64_type))
@@ -1484,20 +1487,24 @@ void VariableSettingsDlg::InitFieldChoices()
 		}
         
 	}
-    
-    
-    
+
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         wxString item_str = table_int->GetColName(col_id_map[i]);
         if (item_str == default_var_name1) {
             lb1_cur_sel = idx_sel1_map[i];
+            if (style & ALLOW_EMPTY_IN_FIRST) {
+                lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+            }
             if (set_second_from_first_mode && num_var >= 2) {
-                lb2_cur_sel = idx_sel1_map[i];
+                lb2_cur_sel = lb1_cur_sel;
             }
         }
         if (num_var >= 2 && item_str == default_var_name2) {
             if (!set_second_from_first_mode) {
                 lb2_cur_sel = idx_sel2_map[i];
+                if (style & ALLOW_EMPTY_IN_SECOND) {
+                    lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+                }
             }
         }
         if (num_var >= 3 && item_str == default_var_name3){
@@ -1514,7 +1521,6 @@ void VariableSettingsDlg::InitFieldChoices()
     }
   
     if (sel1_idx > 0) {
-    	int pos = lb1->GetScrollPos(wxVERTICAL);
     	lb1->SetSelection(lb1_cur_sel);
     	lb1->SetFirstItem(lb1->GetSelection());
     }
