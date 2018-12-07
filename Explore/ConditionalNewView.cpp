@@ -181,9 +181,9 @@ full_map_redraw_needed(true)
 	}
     
     // case that user only need horizontal axe
-    if (var_info[VERT_VAR].is_hide) {
+    if (var_info[VERT_VAR].is_hide == true) {
         SetCatType(VERT_VAR, CatClassification::no_theme, 1);
-    } else if (var_info[HOR_VAR].is_hide) {
+    } else if (var_info[HOR_VAR].is_hide == true) {
         SetCatType(HOR_VAR, CatClassification::no_theme, 1);
     }
 
