@@ -35,7 +35,7 @@ namespace WeightUtils {
 							 TableInterface* table_int);
 	GwtElement* ReadGwt(const wxString& w_fname, TableInterface* table_int);
 	GalElement* Gwt2Gal(GwtElement* Gwt, long obs);
-    void LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int);
+    void LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int, wxString id_field);
 }
 
 #endif

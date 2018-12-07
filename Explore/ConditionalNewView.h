@@ -99,6 +99,8 @@ public:
 	virtual void UpdateStatusBar();
     
 protected:
+    bool full_map_redraw_needed;
+    
 	TableInterface* table_int;
 	CatClassifState* cc_state_vert;
 	CatClassifState* cc_state_horiz;
@@ -182,7 +184,8 @@ public:
 								CatClassification::CatClassifType new_theme,
 								int num_categories,
 								const wxString& cc_title = wxEmptyString);
-	
+    void OnClose( wxCloseEvent& event );
+    
     DECLARE_EVENT_TABLE()
 };
 

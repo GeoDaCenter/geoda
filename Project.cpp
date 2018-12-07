@@ -189,10 +189,6 @@ Project::~Project()
     if (project_conf) delete project_conf; project_conf=0;
     // datasource* has been deleted in project_conf* layer*
     datasource = 0;
-    if (cat_classif_manager) {
-        delete cat_classif_manager;
-        cat_classif_manager=0;
-    }
     
     // Again, WeightsManInterface is not needed.
 	if (WeightsNewManager* o = dynamic_cast<WeightsNewManager*>(w_man_int)) {
@@ -235,6 +231,11 @@ Project::~Project()
 
     // clean up any global settings
     MapCanvas::ResetEmptyFlag();
+    
+    if (cat_classif_manager) {
+        delete cat_classif_manager;
+        cat_classif_manager=0;
+    }
     
 	wxLogMessage("Exiting Project::~Project");
 }

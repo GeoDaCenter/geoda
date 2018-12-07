@@ -225,12 +225,31 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
 {
     if (skater) {
         wxString filter = "GWT|*.gwt";
-        wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"), wxEmptyString,
+        wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"),
+                            wxEmptyString,
                             wxEmptyString, filter,
                             wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
         if (dialog.ShowModal() != wxID_OK) {
             return;
         }
+        // get info from input weights
+        vector<boost::uuids::uuid> weights_ids;
+        WeightsManInterface* w_man_int = project->GetWManInt();
+        w_man_int->GetIds(weights_ids);
+        int sel = combo_weights->GetSelection();
+        if (sel < 0) sel = 0;
+        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
+        boost::uuids::uuid w_id = weights_ids[sel];
+        GalWeight* gw = w_man_int->GetGal(w_id);
+        GeoDaWeight* gdw = (GeoDaWeight*)gw;
+        wxString id = gdw->GetIDName();
+        int col = table_int->FindColId(id);
+        if (col < 0) {
+            return;
+        }
+        vector<wxString> ids;
+        table_int->GetColData(col, 0, ids);
+        
         wxFileName fname = wxFileName(dialog.GetPath());
         wxString new_main_dir = fname.GetPathWithSep();
         wxString new_main_name = fname.GetName();
@@ -241,20 +260,26 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         file.Clear();
         
         wxString header;
-        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle();
+        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle() << " " << id;
         file.AddLine(header);
         
+        
         for (int i=0; i<skater->ordered_edges.size(); i++) {
-            wxString line;
-            line << skater->ordered_edges[i]->orig->id+1<< " " << skater->ordered_edges[i]->dest->id +1<< " " << skater->ordered_edges[i]->length ;
-            file.AddLine(line);
+            int from_idx = skater->ordered_edges[i]->orig->id;
+            int to_idx = skater->ordered_edges[i]->dest->id;
+            double cost = skater->ordered_edges[i]->length;
+            wxString line1;
+            line1 << ids[from_idx] << " " << ids[to_idx] << " " <<  cost;
+            file.AddLine(line1);
+            wxString line2;
+            line2 << ids[to_idx] << " " << ids[from_idx] << " " <<  cost;
+            file.AddLine(line2);
         }
         file.Write();
         file.Close();
         
         // Load the weights file into Weights Manager
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int);
+        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id);
     }
 }
 

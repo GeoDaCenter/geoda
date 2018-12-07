@@ -50,6 +50,12 @@
     <Filter Include="ogl">
       <UniqueIdentifier>{85fd04ff-4aa4-45d8-8492-8a7d69f0dc17}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Weights">
+      <UniqueIdentifier>{5afad44a-83ce-4cf0-bb16-70dcd9e4b1e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="kNN\ANN">
+      <UniqueIdentifier>{dcde4097-4967-4ebe-98cd-897b7657a5d2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -729,39 +735,6 @@
     <ClInclude Include="..\..\DialogTools\HDBScanDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\kNN\ANN.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\ANNperf.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\ANNx.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\kd_pr_search.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\kd_search.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\kd_split.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\kd_tree.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\kd_util.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\pr_queue.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\pr_queue_k.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\kNN\values.h">
-      <Filter>kNN</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Algorithms\distmatrix.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
@@ -840,6 +813,45 @@
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h">
       <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\bd_tree.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_fix_rad_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_pr_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_search.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_split.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_tree.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\kd_util.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\pr_queue_k.h">
+      <Filter>kNN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Weights\DistUtils.h">
+      <Filter>Weights</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANN\ANN.h">
+      <Filter>kNN\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANN\ANNperf.h">
+      <Filter>kNN\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\kNN\ANN\ANNx.h">
+      <Filter>kNN\ANN</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1419,27 +1431,6 @@
     <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\kNN\ANN.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kd_pr_search.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kd_search.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kd_split.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kd_tree.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kd_util.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\kNN\kNN.cpp">
-      <Filter>kNN</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Algorithms\distmatrix.cpp">
       <Filter>Algorithms</Filter>
     </ClCompile>
@@ -1508,6 +1499,51 @@
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp">
       <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\ANN.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\bd_fix_rad_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\bd_pr_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\bd_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\bd_tree.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\brute.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_dump.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_fix_rad_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_pr_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_search.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_split.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_tree.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\kd_util.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\kNN\perf.cpp">
+      <Filter>kNN</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Weights\DistUtils.cpp">
+      <Filter>Weights</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

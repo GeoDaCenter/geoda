@@ -144,6 +144,7 @@ public:
 	static const int ID_PLOTS_PER_VIEW_OTHER = wxID_HIGHEST + 3100;
 	static const int ID_PLOTS_PER_VIEW_ALL = wxID_HIGHEST + 3200;
 	static const int ID_HISTOGRAM_CLASSIFICATION = wxID_HIGHEST + 3300;
+    static const int ID_CONDITION_CLASSIFICATION = wxID_HIGHEST + 3400;
     
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 = wxID_HIGHEST + 4000;
 	static const int ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 = wxID_HIGHEST + 4100;

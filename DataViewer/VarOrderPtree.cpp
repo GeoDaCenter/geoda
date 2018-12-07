@@ -190,17 +190,17 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
 	bool changed = false;
 	set<wxString> ds_var_set;
-	BOOST_FOREACH(const wxString &v, ds_var_list) { ds_var_set.insert(v); }
+	BOOST_FOREACH(const wxString &v, ds_var_list) { ds_var_set.insert(v.Lower()); }
 	
 	set<wxString> var_set;
 	set<wxString> group_nm_set;
 	BOOST_FOREACH(const VarGroup& e, var_grps) {
 		if (e.vars.size() == 0) {
-			var_set.insert(e.name);
+			var_set.insert(e.name.Lower());
 		} else {
 			group_nm_set.insert(e.name);
 			BOOST_FOREACH(const wxString& v, e.vars) {
-				if (!v.empty()) var_set.insert(v);
+				if (!v.empty()) var_set.insert(v.Lower());
 			}
 		}
 	}

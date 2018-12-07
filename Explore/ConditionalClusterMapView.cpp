@@ -71,10 +71,9 @@ num_categories(1),bin_bm(0),
 bin_bg_map_pen(wxColor(200,200,200)),
 bin_bg_map_brush(wxColor(200,200,200)),
 cc_state_map(0),
-full_map_redraw_needed(true),
 title(ttl)
 {
-
+    full_map_redraw_needed = true;
 }
 
 ConditionalClusterMapCanvas::~ConditionalClusterMapCanvas()
@@ -599,6 +598,7 @@ void ConditionalClusterMapCanvas::PopulateCanvas()
 				shp->setPen(bin_bg_map_pen);
 				shp->setBrush(bin_bg_map_brush);
 			}
+            isResize = true;
 			full_map_redraw_needed = false;
 		}
 	} else {

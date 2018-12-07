@@ -78,7 +78,7 @@ public:
 	virtual void UpdateStatusBar();
     
 protected:
-	bool full_map_redraw_needed;
+	
 	std::vector<double> X;
 	std::vector<double> Y;
     std::vector<bool> XY_undef;

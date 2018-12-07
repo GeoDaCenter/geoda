@@ -620,7 +620,8 @@ all_init(false),
 var1_str(_var1_str),
 var2_str(_var2_str),
 var3_str(_var3_str),
-var4_str(_var4_str)
+var4_str(_var4_str),
+style(0)
 {
     wxLogMessage("Open VariableSettingsDlg");
    
@@ -643,6 +644,61 @@ var4_str(_var4_str)
 	Centre();
 	all_init = true;
 }
+
+VariableSettingsDlg::VariableSettingsDlg(Project* project_s,
+                                         VarType v_type_s,
+                                         int style_s,
+                                         const wxString& title_s,
+                                         const wxString& var1_title_s,
+                                         const wxString& var2_title_s,
+                                         const wxString& var3_title_s,
+                                         const wxString& var4_title_s)
+: project(project_s),
+table_int(project_s->GetTableInt()),
+no_weights_found_fail(false),
+is_time(project_s->GetTableInt()->IsTimeVariant()),
+time_steps(project_s->GetTableInt()->GetTimeSteps()),
+title(title_s),
+var1_title(var1_title_s),
+var2_title(var2_title_s),
+var3_title(var3_title_s),
+var4_title(var4_title_s),
+num_cats_spin(0),
+num_categories(4),
+hide_time(hide_time),
+all_init(false),
+style(style_s),
+show_weights(style & SHOW_WEIGHTS),
+show_distance(style & SHOW_DISTANCE),
+set_second_from_first_mode(style & SET_SECOND_FROM_FIRST),
+set_fourth_from_third_mode(style & SET_FOURTH_FROM_THIRD),
+var1_str(style & ALLOW_STRING_IN_FIRST),
+var2_str(style & ALLOW_STRING_IN_SECOND),
+var3_str(style & ALLOW_STRING_IN_THIRD),
+var4_str(style & ALLOW_STRING_IN_FOURTH)
+{
+    wxLogMessage("Open VariableSettingsDlg");
+    
+    default_var_name1 = project->GetDefaultVarName(0);
+    default_var_name2 = project->GetDefaultVarName(1);
+    default_var_name3 = project->GetDefaultVarName(2);
+    default_var_name4 = project->GetDefaultVarName(3);
+    
+    if (show_weights && project->GetWManInt()->GetIds().size() == 0) {
+        no_weights_found_fail = true;
+        wxXmlResource::Get()->LoadDialog(this, GetParent(),
+                                         "ID_VAR_SETTINGS_NO_W_FAIL_DLG");
+        SetTitle("No Weights Found");
+    } else {
+        Init(v_type_s);
+    }
+    SetParent(0);
+    GetSizer()->Fit(this);
+    GetSizer()->SetSizeHints(this);
+    Centre();
+    all_init = true;
+}
+
 
 VariableSettingsDlg::~VariableSettingsDlg()
 {
@@ -975,6 +1031,9 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb1_cur_sel = lb1->GetSelection();
+    if (style & ALLOW_EMPTY_IN_FIRST) {
+        lb1_cur_sel = lb1_cur_sel == 0 ? 0 : lb1_cur_sel - 1;
+    }
     if (lb1_cur_sel >= 0) {
         int x_pos = sel1_idx_map[lb1_cur_sel];
         if (x_pos >= 0)
@@ -995,6 +1054,9 @@ void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb2_cur_sel = lb2->GetSelection();
+    if (style & ALLOW_EMPTY_IN_SECOND) {
+        lb2_cur_sel = lb2_cur_sel == 0 ? 0 : lb2_cur_sel - 1;
+    }
     if (lb2_cur_sel >= 0) {
         int x_pos = sel2_idx_map[lb2_cur_sel];
         if (x_pos >= 0)
@@ -1055,6 +1117,22 @@ void VariableSettingsDlg::OnCancelClick(wxCommandEvent& event)
 	EndDialog(wxID_CANCEL);
 }
 
+bool VariableSettingsDlg::IsFirstVariableEmpty()
+{
+    if (style & ALLOW_EMPTY_IN_FIRST) {
+        return lb1->GetSelection() == 0;
+    }
+    return false;
+}
+
+bool VariableSettingsDlg::IsSecondVariableEmpty()
+{
+    if (style & ALLOW_EMPTY_IN_SECOND) {
+        return lb2->GetSelection() == 0;
+    }
+    return false;
+}
+
 void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 {
     wxLogMessage("Click VariableSettingsDlg::OnOkClick:");
@@ -1064,6 +1142,17 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
 	
+    if ((style & ALLOW_EMPTY_IN_FIRST) &&
+        (style & ALLOW_EMPTY_IN_SECOND)) {
+        if (lb1->GetSelection() == 0 &&
+            lb2->GetSelection() == 0) {
+            wxString msg(_("No field chosen for first and second variable."));
+            wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
     if (map_theme_ch) {
         m_theme = map_theme_ch->GetSelection();
     }
@@ -1074,8 +1163,11 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		dlg.ShowModal();
 		return;
 	}
-    
-	v1_col_id = col_id_map[sel1_idx_map[lb1->GetSelection()]];
+    int sel_idx = lb1->GetSelection();
+    if (style & ALLOW_EMPTY_IN_FIRST) {
+        sel_idx = sel_idx - 1;
+    }
+	v1_col_id = col_id_map[sel1_idx_map[sel_idx]];
     
 	v1_name = table_int->GetColName(v1_col_id);
 	project->SetDefaultVarName(0, v1_name);
@@ -1094,7 +1186,11 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			dlg.ShowModal();
 			return;
 		}
-		v2_col_id = col_id_map[sel2_idx_map[lb2->GetSelection()]];
+        int sel_idx = lb2->GetSelection();
+        if (style & ALLOW_EMPTY_IN_SECOND) {
+            sel_idx = sel_idx - 1;
+        }
+		v2_col_id = col_id_map[sel2_idx_map[sel_idx]];
 		v2_name = table_int->GetColName(v2_col_id);
 		project->SetDefaultVarName(1, v2_name);
 		if (is_time) {
@@ -1150,9 +1246,9 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
         
     } else {
 	
-    	if (show_weights)
+        if (show_weights) {
             project->GetWManInt()->MakeDefault(GetWeightsId());
-    	
+        }
     	if (GetDistanceMetric() != WeightsMetaInfo::DM_unspecified) {
     		project->SetDefaultDistMetric(GetDistanceMetric());
     	}
@@ -1317,6 +1413,14 @@ void VariableSettingsDlg::InitFieldChoices()
     int sel3_idx = 0;
     int sel4_idx = 0;
     
+    if (style & ALLOW_EMPTY_IN_FIRST) {
+        lb1->Append(" "); // empty selection
+    }
+    
+    if (style & ALLOW_EMPTY_IN_SECOND) {
+        lb2->Append(" "); // empty selection
+    }
+    
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         GdaConst::FieldType ftype = table_int->GetColType(col_id_map[i]);
 		wxString name = table_int->GetColName(col_id_map[i]);
@@ -1380,6 +1484,8 @@ void VariableSettingsDlg::InitFieldChoices()
 		}
         
 	}
+    
+    
     
     for (int i=0, iend=col_id_map.size(); i<iend; i++) {
         wxString item_str = table_int->GetColName(col_id_map[i]);
@@ -1447,10 +1553,20 @@ wxString VariableSettingsDlg::FillData()
 {
     wxString emptyVar;
     
+    
 	col_ids.resize(num_var);
 	var_info.resize(num_var);
 	if (num_var >= 1) {
         int sel_idx = lb1->GetSelection();
+        if (style & ALLOW_EMPTY_IN_FIRST) {
+            if (sel_idx == 0) {
+                // no selection: case ConditionalMap,
+                sel_idx = table_int->GetFirstNumericCol();
+                var_info[0].is_hide = true;
+            } else {
+                sel_idx = sel_idx - 1;
+            }
+        }
         int col_idx = sel1_idx_map[sel_idx];
 		v1_col_id = col_id_map[col_idx];
 		v1_name = table_int->GetColName(v1_col_id);
@@ -1462,13 +1578,21 @@ wxString VariableSettingsDlg::FillData()
         }
 	}
 	if (num_var >= 2) {
-		//v2_col_id = col_id_map[lb2->GetSelection()];
         int sel_idx = lb2->GetSelection();
+        if (style & ALLOW_EMPTY_IN_SECOND) {
+            if (sel_idx == 0) {
+                // no selection: case ConditionalMap,
+                sel_idx = table_int->GetFirstNumericCol();
+                var_info[1].is_hide = true;
+            } else {
+                sel_idx = sel_idx - 1;
+            }
+        }
         int col_idx = sel2_idx_map[sel_idx];
         v2_col_id = col_id_map[col_idx];
-		v2_name = table_int->GetColName(v2_col_id);
-		col_ids[1] = v2_col_id;
-		var_info[1].time = v2_time;
+        v2_name = table_int->GetColName(v2_col_id);
+        col_ids[1] = v2_col_id;
+        var_info[1].time = v2_time;
         
         if (emptyVar.empty() && CheckEmptyColumn(v2_col_id, v2_time)) {
             emptyVar =  v2_name;

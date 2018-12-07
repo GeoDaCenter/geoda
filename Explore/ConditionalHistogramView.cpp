@@ -65,9 +65,9 @@ ConditionalHistogramCanvas(wxWindow *parent,
                            const wxPoint& pos, const wxSize& size)
 : ConditionalNewCanvas(parent, t_frame, project_s, v_info, col_ids,
 					   false, true, pos, size),
-full_map_redraw_needed(true),
 show_axes(true), scale_x_over_time(true), scale_y_over_time(true)
 {
+    full_map_redraw_needed = true;
 	int hist_var_tms = data[HIST_VAR].shape()[0];
     
 	data_stats.resize(hist_var_tms);
@@ -524,6 +524,7 @@ void ConditionalHistogramCanvas::PopulateCanvas()
     last_scale_trans.left_margin = virtual_screen_marg_left;
     last_scale_trans.right_margin = virtual_screen_marg_right;
 	
+    isResize = true;
 	ResizeSelectableShps();
 }
 

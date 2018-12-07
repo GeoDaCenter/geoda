@@ -77,7 +77,8 @@ is_any_time_variant(false),
 is_any_sync_with_global_time(false),
 cc_state_vert(0),
 cc_state_horiz(0),
-all_init(false)
+all_init(false),
+full_map_redraw_needed(true)
 {
     axis_display_precision = 1;
 	
@@ -96,8 +97,9 @@ all_init(false)
     else table_int->GetColData(col_ids[VERT_VAR], s_data[VERT_VAR]);
     
 	for (size_t i=0; i<var_info.size(); i++) {
-        if (i != HOR_VAR && i != VERT_VAR)
+        if (i != HOR_VAR && i != VERT_VAR) {
             table_int->GetColData(col_ids[i], data[i]);
+        }
         table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
 	}
@@ -122,12 +124,16 @@ all_init(false)
         else horiz_str_var_sorted[t].resize(num_obs);
         
 		for (int i=0; i<num_obs; i++) {
-            if (HOR_VAR_NUM) horiz_var_sorted[t][i] = std::make_pair(data[HOR_VAR][t][i], i);
-            else horiz_str_var_sorted[t][i] = std::make_pair(s_data[HOR_VAR][t][i], i);
+            if (HOR_VAR_NUM) {
+                horiz_var_sorted[t][i] = std::make_pair(data[HOR_VAR][t][i], i);
+            } else {
+                horiz_str_var_sorted[t][i] = std::make_pair(s_data[HOR_VAR][t][i], i);
+            }
             horiz_undef_tms[t][i] = horiz_undef_tms[t][i] || data_undef[HOR_VAR][t][i];
 		}
-        if (HOR_VAR_NUM)
+        if (HOR_VAR_NUM) {
             std::sort(horiz_var_sorted[t].begin(), horiz_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
 	}
     
     //setup verticle data
@@ -137,25 +143,32 @@ all_init(false)
 	vert_cats_error_message.resize(vert_num_time_vals);
     
     if (VERT_VAR_NUM) {
-        SetCatType(VERT_VAR, CatClassification::quantile, 3);
+        SetCatType(VERT_VAR, CatClassification::quantile, vert_num_cats);
         vert_var_sorted.resize(vert_num_time_vals);
     } else {
-        SetCatType(VERT_VAR, CatClassification::unique_values, 3);
+        SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
         vert_str_var_sorted.resize(vert_num_time_vals);
     }
 
 	for (int t=0; t<vert_num_time_vals; t++) {
         vert_undef_tms[t].resize(num_obs);
-        if (VERT_VAR_NUM) vert_var_sorted[t].resize(num_obs);
-        else vert_str_var_sorted[t].resize(num_obs);
+        if (VERT_VAR_NUM) {
+            vert_var_sorted[t].resize(num_obs);
+        } else {
+            vert_str_var_sorted[t].resize(num_obs);
+        }
         
         for (int i=0; i<num_obs; i++) {
-            if (VERT_VAR_NUM) vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR][t][i], i);
-            else vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR][t][i], i);
+            if (VERT_VAR_NUM) {
+                vert_var_sorted[t][i] = std::make_pair(data[VERT_VAR][t][i], i);
+            } else {
+                vert_str_var_sorted[t][i] = std::make_pair(s_data[VERT_VAR][t][i], i);
+            }
             vert_undef_tms[t][i] = vert_undef_tms[t][i] ||data_undef[VERT_VAR][t][i];
 		}
-        if (VERT_VAR_NUM)
+        if (VERT_VAR_NUM) {
             std::sort(vert_var_sorted[t].begin(), vert_var_sorted[t].end(), Gda::dbl_int_pair_cmp_less);
+        }
 	}
 	
     VarInfoAttributeChange();
@@ -166,6 +179,14 @@ all_init(false)
 		SetCatType(VERT_VAR, CatClassification::unique_values, vert_num_cats);
 		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
 	}
+    
+    // case that user only need horizontal axe
+    if (var_info[VERT_VAR].is_hide == true) {
+        SetCatType(VERT_VAR, CatClassification::no_theme, 1);
+    } else if (var_info[HOR_VAR].is_hide == true) {
+        SetCatType(HOR_VAR, CatClassification::no_theme, 1);
+    }
+
 	CreateAndUpdateCategories(VERT_VAR);
 	CreateAndUpdateCategories(HOR_VAR);
 	
@@ -379,8 +400,9 @@ void ConditionalNewCanvas::NewCustomCatClassifVert()
     if (!ccs)
         return;
     
-	if (cc_state_vert)
+    if (cc_state_vert) {
         cc_state_vert->removeObserver(this);
+    }
     
 	cat_classif_def_vert = ccs->GetCatClassif();
 	cc_state_vert = ccs;
@@ -482,7 +504,10 @@ ChangeThemeType(int var_id,
 			cat_classif_def_horiz = cc_state_horiz->GetCatClassif();
 		}
 	} else {
-		if (ccs) ccs->removeObserver(this);
+        if (ccs) {
+            ccs->removeObserver(this);
+            ccs = 0;
+        }
 		if (var_id == VERT_VAR) {
 			cc_state_vert = 0;
 		} else {
@@ -493,6 +518,7 @@ ChangeThemeType(int var_id,
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories(var_id);
 	UserChangedCellCategories();
+    full_map_redraw_needed = true;
 	PopulateCanvas();
 	if (template_frame) {
 		template_frame->UpdateTitle();
@@ -739,11 +765,20 @@ ConditionalNewFrame(wxFrame *parent,
 : TemplateFrame(parent, project, title, pos, size, style)
 {
 	LOG_MSG("In ConditionalNewFrame::ConditionalNewFrame");
+    
+    Connect(wxEVT_CLOSE_WINDOW, wxCloseEventHandler(ConditionalNewFrame::OnClose));
 }
 
 ConditionalNewFrame::~ConditionalNewFrame()
 {
 	LOG_MSG("In ConditionalNewFrame::~ConditionalNewFrame");
+}
+
+void ConditionalNewFrame::OnClose( wxCloseEvent& event )
+{
+    delete template_canvas;
+    Destroy();
+    event.Skip();
 }
 
 void ConditionalNewFrame::MapMenus()

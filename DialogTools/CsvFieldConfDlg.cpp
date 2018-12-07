@@ -67,7 +67,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
 {
     
     wxLogMessage("Open CsvFieldConfDlg.");
-    
+    HEADERS = 1;
     lat_box = NULL;
     n_max_rows = 10;
     filepath = _filepath;

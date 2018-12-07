@@ -201,7 +201,8 @@ private:
 	
 struct VarInfo {
 	VarInfo();
-	
+
+    bool is_hide;
 	// Primary Attributes
 	wxString name;
 	bool is_time_variant;
@@ -235,15 +236,6 @@ struct VarInfo {
 	double min_over_time; // within time min/max range
 	double max_over_time; // within time min/max range
 };
-
-struct VarState {
-	bool is_any_time_variant;
-	bool is_any_sync_with_global_time;
-	int ref_var_index;
-	int num_time_vals;
-};
-	
-
 	
 	
 /** Returns new reference variable index, or else -1 if no reference
