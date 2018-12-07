@@ -2854,14 +2854,14 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
     if (!p) return;
-    
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
-							_("Conditional Histogram Variables"),
-							_("Horizontal Cells"),
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
+                            _("Conditional Histogram Variables"),
+                            _("Horizontal Cells"),
                             _("Vertical Cells"),
-							_("Histogram Variable"),
-                            "", false, false, false,
-                            true, true, false, false);
+                            _("Histogram Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalHistogramFrame* subframe =
@@ -2875,16 +2875,16 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
     if (!p) return;
-    
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
-							false, false,
-							_("Conditional Scatter Plot Variables"),
-							_("Horizontal Cells"),
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate, style,
+                            _("Conditional Scatter Plot Variables"),
+                            _("Horizontal Cells"),
                             _("Vertical Cells"),
-							_("Independent Var (x-axis)"),
-							_("Dependent Var (y-axis)"),
-                            false, false, false,
-                            true, true, false, false);
+                            _("Independent Var (x-axis)"),
+                            _("Dependent Var (y-axis)"));
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalScatterPlotFrame* subframe =
