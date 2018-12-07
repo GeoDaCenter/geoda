@@ -118,7 +118,18 @@ void ConditionalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	AddTimeVariantOptionsToMenu(optMenu);
 	AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
-	
+
+    if (var_info[VERT_VAR].is_hide) {
+        wxMenuItem* m = optMenu->FindItem(XRCID("ID_CAT_CLASSIF_B_MENU"));
+        wxMenu* smi = m->GetSubMenu();
+        GeneralWxUtils::EnableMenuRecursive(smi, false);
+    }
+    if (var_info[HOR_VAR].is_hide) {
+        wxMenuItem* m = optMenu->FindItem(XRCID("ID_CAT_CLASSIF_C_MENU"));
+        wxMenu* smi = m->GetSubMenu();
+        GeneralWxUtils::EnableMenuRecursive(smi, false);
+    }
+
 	template_frame->UpdateContextMenuItems(optMenu);
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
