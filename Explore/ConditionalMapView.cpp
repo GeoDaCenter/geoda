@@ -167,8 +167,8 @@ void ConditionalMapCanvas::AppendCustomCategories(wxMenu* menu, CatClassifManage
         for (int i=0; i<items.size(); i++) {
             sm->Delete(items[i]);
         }
-        
-        sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
+        sm->Append(menu_id[i], _("Create New Custom"),
+                   _("Create new custom categories classification."));
         sm->AppendSeparator();
         
         vector<wxString> titles;
@@ -176,17 +176,30 @@ void ConditionalMapCanvas::AppendCustomCategories(wxMenu* menu, CatClassifManage
         for (size_t j=0; j<titles.size(); j++) {
             wxMenuItem* mi = sm->Append(base_id[i]+j, titles[j]);
         }
-        
+
+        GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
+
         if (i==0) {
             // regular map men
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
-                 &ConditionalMapCanvas::OnCustomCategoryClick, this, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            int win_id = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+            int last_id = win_id + titles.size();
+            gda_frame->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                            &ConditionalMapCanvas::OnCustomCategoryClick,
+                            this, win_id, last_id);
         } else if (i==1) {
             // conditional horizontal map menu
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+            int win_id = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0;
+            int last_id = win_id + titles.size();
+            gda_frame->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                            &GdaFrame::OnCustomCategoryClick_B,
+                            gda_frame, win_id, last_id);
         } else if (i==2) {
             // conditional verticle map menu
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+            int win_id = GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0;
+            int last_id = win_id + titles.size();
+            gda_frame->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                            &GdaFrame::OnCustomCategoryClick_C,
+                            gda_frame, win_id, last_id);
         }
     }
 }
@@ -201,8 +214,9 @@ void ConditionalMapCanvas::OnCustomCategoryClick(wxCommandEvent& event)
     int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
     if (idx < 0 || idx >= titles.size()) return;
     wxString cc_title = titles[idx];
-    
-    ((ConditionalMapFrame*) template_frame)->ChangeThemeType(CatClassification::custom, 4, cc_title);
+
+    ConditionalMapFrame* cmap_frame = (ConditionalMapFrame*) template_frame;
+    cmap_frame->ChangeThemeType(CatClassification::custom, 4, cc_title);
 }
 /**
  * Overwrite TemplaceCanvas Scroll
@@ -371,9 +385,9 @@ void ConditionalMapCanvas::NewCustomCatClassifMap()
  and col_ids.  It calls CreateAndUpdateCategories which does all of the
  category classification. */
 void ConditionalMapCanvas::ChangeCatThemeType(
-							CatClassification::CatClassifType new_cat_theme,
-							int num_categories_s,
-							const wxString& custom_classif_title)
+                                              CatClassification::CatClassifType new_cat_theme,
+                                              int num_categories_s,
+                                              const wxString& custom_classif_title)
 {
 	num_categories = num_categories_s;
 	

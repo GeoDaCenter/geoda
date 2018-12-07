@@ -830,7 +830,7 @@
 		DDD593C612E9F90000F7A7C4 /* GalWeight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GalWeight.cpp; sourceTree = "<group>"; };
 		DDD593C812E9F90C00F7A7C4 /* GwtWeight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GwtWeight.h; sourceTree = "<group>"; };
 		DDD593C912E9F90C00F7A7C4 /* GwtWeight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GwtWeight.cpp; sourceTree = "<group>"; };
-		DDDBF284163AD1D50070610C /* ConditionalMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalMapView.cpp; sourceTree = "<group>"; };
+		DDDBF284163AD1D50070610C /* ConditionalMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalMapView.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		DDDBF285163AD1D50070610C /* ConditionalMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalMapView.h; sourceTree = "<group>"; };
 		DDDBF299163AD2BF0070610C /* ConditionalScatterPlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalScatterPlotView.h; sourceTree = "<group>"; };
 		DDDBF29A163AD2BF0070610C /* ConditionalScatterPlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalScatterPlotView.cpp; sourceTree = "<group>"; };

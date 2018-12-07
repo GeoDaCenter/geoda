@@ -40,11 +40,13 @@
 #include <wx/checkbox.h>
 #include <wx/choice.h>
 
+#include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../Algorithms/texttable.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
+
 #include "SaveToTableDlg.h"
 #include "AbstractClusterDlg.h"
 
@@ -134,7 +136,15 @@ bool AbstractClusterDlg::GetDefaultContiguity()
 {
     if (gal== NULL) {
         bool is_queen = true;
-        gal = PolysToContigWeights(project->main_data, is_queen);
+
+        if (project->IsPointTypeData()) {
+            std::vector<std::set<int> > nbr_map;
+            project->GetVoronoiQueenNeighborMap(nbr_map);
+            gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
+        } else {
+            // assume polygons (no lines)
+            gal = PolysToContigWeights(project->main_data, is_queen);
+        }
     }
     return gal != NULL;
 }

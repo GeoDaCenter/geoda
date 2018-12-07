@@ -374,8 +374,7 @@ bool KClusterDlg::CheckContiguity(double w, double& ssd)
     // not show print
     ssd = CreateSummary(clusters, false);
   
-    if (GetDefaultContiguity() == false)
-        return false;
+    if (GetDefaultContiguity() == false) return false;
    
     map<int, set<wxInt64> > groups;
     map<int, set<wxInt64> >::iterator it;
