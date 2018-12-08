@@ -302,8 +302,122 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
     }
 }
 
+bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
+{
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
+
+    vector<wxInt64> clusters;
+    if (Run(clusters) == false) {
+        m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.0");
+        return false;
+    }
+
+    // not show print
+    ssd = CreateSummary(clusters, false);
+
+    if (GetDefaultContiguity() == false) return false;
+
+    map<int, set<wxInt64> > groups;
+    map<int, set<wxInt64> >::iterator it;
+    for (int i=0; i<clusters.size(); i++) {
+        int c = clusters[i];
+        if (groups.find(c)==groups.end()) {
+            set<wxInt64> g;
+            g.insert(i);
+            groups[c] = g;
+        } else {
+            groups[c].insert(i);
+        }
+    }
+
+    bool is_cont = true;
+    set<wxInt64>::iterator item_it;
+    for (it = groups.begin(); it != groups.end(); it++) {
+        // check each group if contiguity
+        set<wxInt64> g = it->second;
+        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
+            int idx = *item_it;
+            const vector<long>& nbrs = gal[idx].GetNbrs();
+            bool not_in_group = true;
+            for (int i=0; i<nbrs.size(); i++ ) {
+                if (g.find(nbrs[i]) != g.end()) {
+                    not_in_group = false;
+                    break;
+                }
+            }
+            if (not_in_group) {
+                is_cont = false;
+                break;
+            }
+        }
+        if (!is_cont) break;
+    }
+
+    return is_cont;
+}
+
+void AbstractClusterDlg::BinarySearch(double left, double right,
+                            std::vector<std::pair<double, double> >& ssd_pairs)
+{
+    double delta = right - left;
+
+    if ( delta < 0.01 ) return;
+
+    double mid = left + delta /2.0;
+
+        // assume left is always not contiguity and right is always contiguity
+        //bool l_conti = CheckContiguity(left);
+    double m_ssd = 0;
+    bool m_conti = CheckContiguity(mid, m_ssd);
+
+    if ( m_conti ) {
+        ssd_pairs.push_back( std::make_pair(mid, m_ssd) );
+        return BinarySearch(left, mid, ssd_pairs);
+
+    } else {
+        return BinarySearch(mid, right, ssd_pairs);
+    }
+}
+
 void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 {
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = value_ncluster;
+    }
+    if (ncluster < 2 || ncluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    // apply custom algorithm to find optimal weighting value between 0 and 1
+    // when w = 1 (fully geometry based)
+    // when w = 0 (fully attributes based)
+    std::vector<std::pair<double, double> > ssd_pairs;
+    BinarySearch(0.0, 1.0, ssd_pairs);
+
+    if (ssd_pairs.empty()) return;
+
+    double w = ssd_pairs[0].first;
+    double ssd = ssd_pairs[0].second;
+
+    for (int i=1; i<ssd_pairs.size(); i++) {
+        if (ssd_pairs[i].second > ssd) {
+            ssd = ssd_pairs[i].second;
+            w = ssd_pairs[i].first;
+        }
+    }
+
+    int val = w * 100;
+    m_weight_centroids->SetValue(val);
+    m_wc_txt->SetValue(wxString::Format("%f", w));
 }
 
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
@@ -315,6 +429,25 @@ void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox
     combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);
+}
+
+void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
+                                                wxFlexGridSizer* gbox,
+                                                bool allow_dropdown)
+{
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY,
+                                         _("Number of Clusters:"),
+                                         wxDefaultPosition, wxSize(128,-1));
+    combo_n = new wxComboBox(panel, wxID_ANY, wxEmptyString, wxDefaultPosition,
+                             wxSize(200,-1), 0, NULL);
+    max_n_clusters = num_obs < 100 ? num_obs : 100;
+    if (allow_dropdown) {
+        for (int i=2; i<max_n_clusters+1; i++) {
+            combo_n->Append(wxString::Format("%d", i));
+        }
+    }
+    gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_n, 1, wxEXPAND);
 }
 
 void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox)

@@ -179,20 +179,9 @@ void HClusterDlg::CreateControls()
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
 
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxDefaultSize);
-    max_n_clusters = num_obs < 60 ? num_obs : 60;
-    wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
-    wxArrayString list;
-    wxString valid_chars("0123456789");
-    size_t len = valid_chars.Length();
-    for (size_t i=0; i<len; i++)
-        list.Add(wxString(valid_chars.GetChar(i)));
-    validator.SetIncludes(list); 
-    m_cluster = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
-    
-    gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox1->Add(m_cluster, 1, wxEXPAND);
+    // NumberOfCluster Control
+    bool allow_dropdown = false;
+    AddNumberOfClusterCtrl(panel, gbox1, allow_dropdown);
     
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
@@ -245,7 +234,6 @@ void HClusterDlg::CreateControls()
     Centre();
     
     // Content
-    //combo_n = box1;
     m_textbox = box3;
     //m_iterations = box11;
     m_method = box12;
@@ -269,11 +257,10 @@ void HClusterDlg::CreateControls()
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
-    m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    combo_n->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
-    //combo_n->Disable();
-    m_cluster->Disable();
+    combo_n->Disable();
 }
 
 void HClusterDlg::OnSpatialConstraintCheck(wxCommandEvent& event)
@@ -360,7 +347,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     
     wxString ttl;
     ttl << "Hierachical " << _("Cluster Map ") << "(";
-    ttl << m_cluster->GetValue();
+    ttl << combo_n->GetValue();
     ttl << " clusters)";
     nf->SetTitle(ttl);
 }
@@ -381,8 +368,7 @@ void HClusterDlg::OnDistanceChoice(wxCommandEvent& event)
 
 void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
 {
-    //int sel_ncluster = combo_n->GetSelection() + 2;
-    wxString tmp_val = m_cluster->GetValue();
+    wxString tmp_val = combo_n->GetValue();
     tmp_val.Trim(false);
     tmp_val.Trim(true);
     long sel_ncluster;
@@ -396,11 +382,9 @@ void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
 
 void HClusterDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
 {
-    //int sel = n - 2;
-    //combo_n->SetSelection(sel);
     wxString str_n;
     str_n << n;
-    m_cluster->SetValue(str_n);
+    combo_n->SetValue(str_n);
     for (int i=0; i<clusters.size(); i++){
         clusters[i] = _clusters[i];
     }
@@ -462,7 +446,7 @@ void HClusterDlg::OnClose(wxCloseEvent& ev)
 wxString HClusterDlg::_printConfiguration()
 {
     wxString txt;
-    txt << _("Number of clusters:\t") << m_cluster->GetValue() << "\n";
+    txt << _("Number of clusters:\t") << combo_n->GetValue() << "\n";
     
     txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
@@ -477,9 +461,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
 {
     wxLogMessage("Click HClusterDlg::OnOK");
     
-    //int ncluster = combo_n->GetSelection() + 2;
-    long ncluster;
-    m_cluster->GetValue().ToLong(&ncluster);
+    long ncluster = 2; // set to 2 clusters by default
     
     int transform = combo_tranform->GetSelection();
     bool success = GetInputData(transform,1);
@@ -613,7 +595,8 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     
 
     saveButton->Enable();
-    m_cluster->Enable();
+    combo_n->Enable();
+    combo_n->SetValue("2");
 }
 
 

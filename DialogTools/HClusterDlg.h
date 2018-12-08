@@ -256,21 +256,17 @@ public:
     void Highlight(vector<int>& ids);
     
 protected:
-    int max_n_clusters;
-    
     double cutoffDistance;
     vector<wxInt64> clusters;
     vector<bool> clusters_undef;
     
     wxButton *saveButton;
-    wxChoice* combo_n;
     wxChoice* combo_cov;
     wxChoice* combo_weights;
     wxTextCtrl* m_textbox;
     wxChoice* m_method;
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
-    wxTextCtrl* m_cluster;
     wxNotebook* notebook;
     wxCheckBox* chk_contiguity;
     
