@@ -93,6 +93,13 @@ class DnDFile;
 class ConnectDatasourceDlg: public DatasourceDlg
 {
 public:
+    enum Style {
+        DEFAULT_STYLE = 0,
+        SHOW_CSV_CONFIGURE = 1, //0b00000001
+        SHOW_RECENT_PANEL = 2, //0b00000010
+        ALLOW_PROJECT_FILE = 4
+    };
+
 	ConnectDatasourceDlg(wxWindow* parent,
                          const wxPoint& pos = wxDefaultPosition,
                          const wxSize& size = wxDefaultSize,
@@ -107,13 +114,14 @@ public:
 	void OnLookupDSTableBtn( wxCommandEvent& event );
 	void OnLookupCartoDBTableBtn( wxCommandEvent& event );
 	IDataSource* GetDataSource(){ return datasource; }
-    
+    wxCSConv* GetEncoding();
     
 protected:
     int dialogType;
     bool showCsvConfigure;
     bool showRecentPanel;
-    
+    wxCSConv* m_wx_encoding;
+
     wxStaticBitmap* m_drag_drop_box;
 	wxBitmapButton* m_database_lookup_table;
 	wxBitmapButton* m_database_lookup_wslayer;
@@ -126,6 +134,8 @@ protected:
     wxNotebook* recent_nb;
     wxCheckBox* noshow_recent;
     wxChoice* m_web_choice;
+    wxChoice*       m_encodings;
+    wxStaticText* m_encoding_lbl;
     DnDFile* m_dnd;
    
     int base_xrcid_recent_thumb;
@@ -147,8 +157,8 @@ protected:
     void OnRecentDelete(wxCommandEvent& event);
     
     void OnNoShowRecent(wxCommandEvent& event);
-   
-    
+
+
 	DECLARE_EVENT_TABLE()
 };
 

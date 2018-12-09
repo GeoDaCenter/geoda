@@ -270,7 +270,7 @@ public:
     
     bool IsUndefined(int rid, int cid);
     
-    wxString GetValueAt(int rid, int cid);
+    wxString GetValueAt(int rid, int cid, wxCSConv* m_wx_encoding = NULL);
     
     void GetValueAt(int rid, int cid, GIntBig* val);
     

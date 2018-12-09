@@ -903,7 +903,8 @@ void OGRColumnString::FillData(vector<wxString> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            const char* val = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            data[i] = wxString(val);
         }
     }
 }
@@ -1029,7 +1030,12 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
         return wxEmptyString;
     
     if (is_new) {
-        return new_data[row_idx];
+        wxString rtn = new_data[row_idx];
+
+        if (m_wx_encoding != NULL)
+            rtn = wxString(rtn.mb_str(), *m_wx_encoding);
+
+        return rtn;
         
     } else {
         int col_idx = GetColIndex();
@@ -1037,7 +1043,7 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
             return wxEmptyString;
         
         const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
-        
+
         wxString rtn;
         if (m_wx_encoding == NULL)
             rtn = wxString(val);

@@ -224,9 +224,13 @@ bool OGRLayerProxy::IsUndefined(int rid, int cid)
     return !data[rid]->IsFieldSet(cid);
 }
 
-wxString OGRLayerProxy::GetValueAt(int rid, int cid)
+wxString OGRLayerProxy::GetValueAt(int rid, int cid, wxCSConv* m_wx_encoding)
 {
-    wxString rst(data[rid]->GetFieldAsString(cid));
+    wxString rst;
+    if (m_wx_encoding == NULL) {
+        rst = data[rid]->GetFieldAsString(cid);
+    } else {
+    }
     return rst;
 }
 
@@ -707,6 +711,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 {
     export_progress = 0;
     stop_exporting = false;
+    wxFontEncoding enc = table->GetFontEncoding();
+    wxCSConv cust(enc);
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
@@ -825,7 +831,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                 vector<wxString> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
-                
+
                 if (ds_type == GdaConst::ds_csv) {
                     for (int m=0; m<col_data.size(); m++) {
                         if (col_data[m].IsEmpty())

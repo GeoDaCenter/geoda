@@ -126,11 +126,8 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
     ds_type = GetGdaDataSourceType(poDriver);
     
 	// create the output data source.
-	const char *papszLCO[50] = {"OVERWRITE=yes"};
-	//ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
-    
-    
+        
 	if(ds == NULL ) {
 		// driver failed to load
 		error_message << "Unfortunately, GeoDa is not able to execute this request. \n\nDetails: "<< CPLGetLastErrorMsg();
@@ -351,7 +348,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     
     // PRECISION is for database e.g. MSSQL
     // LAUNDER is for database: rename desired field name
-    char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
+    char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes", "ENCODING=UTF-8"};
     
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(),
                                            poOutputSRS, eGType, papszLCO);

@@ -99,6 +99,8 @@ public:
 	
 private:
 	FramesManager* frames_manager;
+
+    wxCSConv* m_wx_encoding;
     
 	std::map<wxString, int> dedup_to_id;
 	std::set<wxString> dups;

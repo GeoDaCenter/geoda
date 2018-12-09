@@ -59,6 +59,7 @@ using namespace std;
 
 CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                                  wxString _filepath,
+                                  wxCSConv* encoding,
                                  wxWindowID id,
                                  const wxString& title,
                                  const wxPoint& pos,
@@ -67,6 +68,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
 {
     
     wxLogMessage("Open CsvFieldConfDlg.");
+    m_wx_encoding = encoding;
     HEADERS = 1;
     lat_box = NULL;
     n_max_rows = 10;
@@ -518,6 +520,9 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 previewGrid->SetCellValue(i, j, str);
             } else {
                 wxString str = poFeature->GetFieldAsString(j);
+                if (m_wx_encoding) {
+                    str = wxString(str.mb_str(), *m_wx_encoding);
+                }
                 previewGrid->SetCellValue(i, j, str);
             }
         }

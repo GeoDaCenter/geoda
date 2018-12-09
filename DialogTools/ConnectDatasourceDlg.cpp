@@ -381,28 +381,34 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     //EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
                                            bool showRecentPanel_,
                                            int _dialogType)
-:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_), showRecentPanel(showRecentPanel_)
+:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0),
+showCsvConfigure(showCsvConfigure_),
+showRecentPanel(showRecentPanel_),
+m_wx_encoding(NULL)
 {
+    dialogType = _dialogType;
 
     base_xrcid_recent_thumb = 7000;
     base_xrcid_sample_thumb = 7500;
     
     // init controls defined in parent class
     DatasourceDlg::Init();
-    //type = dialogType;
-    dialogType = _dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
-
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
- 
+
+    if (dialogType == 1) {
+        // in case of Merge, show encoding choice ctrl
+        m_encodings->Show();
+        m_encoding_lbl->Show();
+    }
+
     if (showRecentPanel) {
         RecentDatasource recent_ds;
         if (recent_ds.GetRecords() > 0) {
@@ -416,7 +422,6 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
             recent_panel->Layout();
             sizer->Fit( recent_panel );
         }
-       
         InitSamplePanel();
     }
 
@@ -426,7 +431,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
-         this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
+         this, GdaConst::ID_CONNECT_POPUP_MENU,
+         GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
 	Centre();
     Move(pos);
@@ -441,6 +447,9 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
     if (datasource) {
         delete datasource;
         datasource = NULL;
+    }
+    if (m_wx_encoding) {
+        delete m_wx_encoding;
     }
 }
 
@@ -614,8 +623,11 @@ void ConnectDatasourceDlg::CreateControls()
         recent_nb->SetSelection(1);
         recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
         smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
+
     } else {
         wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+        m_encodings = XRCCTRL(*this, "IDC_CDS_ENCODING_CHOICE",wxChoice);
+        m_encoding_lbl = XRCCTRL(*this, "IDC_CDS_ENCODING_LABEL",wxStaticText);
     }
     
     FindWindow(XRCID("wxID_OK"))->Enable(true);
@@ -747,11 +759,16 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             }
             return;
         }
-       
+
+        if (dialogType == 1) {
+            // case of Merge
+            m_wx_encoding = GetEncoding();
+        }
+
         // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
         if (ds_file_path.GetExt().Lower() == "csv" && showCsvConfigure) {
             wxString csv_path = ds_file_path.GetFullPath();
-            CsvFieldConfDlg csvDlg(this, csv_path);
+            CsvFieldConfDlg csvDlg(this, csv_path, m_wx_encoding);
             csvDlg.ShowModal();
         }
         
@@ -1146,3 +1163,118 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
 
 }
 
+wxCSConv* ConnectDatasourceDlg::GetEncoding()
+{
+    if (m_encodings && m_encodings->IsShown()) {
+        wxFontEncoding encoding_type = wxFONTENCODING_UTF8;
+        int sel = m_encodings->GetSelection();
+        wxString encode_str = m_encodings->GetString(sel);
+
+        if (sel == 0) return NULL;
+
+        if (encode_str.Upper().Contains("UTF-8")) {
+            encoding_type = wxFONTENCODING_UTF8;
+        } else if (encode_str.Upper().Contains("UTF-16")) {
+            encoding_type = wxFONTENCODING_UTF16LE;
+        } else if (encode_str.Upper().Contains("1250")) {
+            encoding_type = wxFONTENCODING_CP1250;
+        } else if (encode_str.Upper().Contains("1251")) {
+            encoding_type = wxFONTENCODING_CP1251;
+        } else if (encode_str.Upper().Contains("1252")) {
+            encoding_type = wxFONTENCODING_CP1252;
+        } else if (encode_str.Upper().Contains("1253")) {
+            encoding_type = wxFONTENCODING_CP1253;
+        } else if (encode_str.Upper().Contains("1254")) {
+            encoding_type = wxFONTENCODING_CP1254;
+        } else if (encode_str.Upper().Contains("1255")) {
+            encoding_type = wxFONTENCODING_CP1255;
+        } else if (encode_str.Upper().Contains("1256")) {
+            encoding_type = wxFONTENCODING_CP1256;
+        } else if (encode_str.Upper().Contains("1257")) {
+            encoding_type = wxFONTENCODING_CP1257;
+        } else if (encode_str.Upper().Contains("1258")) {
+            encoding_type = wxFONTENCODING_CP1258;
+        } else if (encode_str.Upper().Contains("437")) {
+            encoding_type = wxFONTENCODING_CP437;
+        } else if (encode_str.Upper().Contains("850")) {
+            encoding_type = wxFONTENCODING_CP850;
+        } else if (encode_str.Upper().Contains("855")) {
+            encoding_type = wxFONTENCODING_CP855;
+        } else if (encode_str.Upper().Contains("866")) {
+            encoding_type = wxFONTENCODING_CP866;
+        } else if (encode_str.Upper().Contains("874")) {
+            encoding_type = wxFONTENCODING_CP874;
+        } else if (encode_str.Upper().Contains("932")) {
+            encoding_type = wxFONTENCODING_CP932;
+        } else if (encode_str.Upper().Contains("936")) {
+            encoding_type = wxFONTENCODING_CP936;
+        } else if (encode_str.Upper().Contains("949")) {
+            encoding_type = wxFONTENCODING_CP949;
+        } else if (encode_str.Upper().Contains("950")) {
+            encoding_type = wxFONTENCODING_CP950;
+
+        } else if (encode_str.Upper().Contains("885910") ||
+                   encode_str.Upper().Contains("8859_10") ) {
+            encoding_type = wxFONTENCODING_ISO8859_10;
+        } else if (encode_str.Upper().Contains("885911") ||
+                   encode_str.Upper().Contains("8859_11") ) {
+            encoding_type = wxFONTENCODING_ISO8859_11;
+        } else if (encode_str.Upper().Contains("885912") ||
+                   encode_str.Upper().Contains("8859_12") ) {
+            encoding_type = wxFONTENCODING_ISO8859_12;
+        } else if (encode_str.Upper().Contains("885913") ||
+                   encode_str.Upper().Contains("8859_13") ) {
+            encoding_type = wxFONTENCODING_ISO8859_13;
+        } else if (encode_str.Upper().Contains("885914") ||
+                   encode_str.Upper().Contains("8859_14") ) {
+            encoding_type = wxFONTENCODING_ISO8859_14;
+        } else if (encode_str.Upper().Contains("885915") ||
+                   encode_str.Upper().Contains("8859_15") ) {
+            encoding_type = wxFONTENCODING_ISO8859_15;
+        } else if (encode_str.Upper().Contains("88591") ||
+                   encode_str.Upper().Contains("8859_1") ) {
+            encoding_type = wxFONTENCODING_ISO8859_1;
+        } else if (encode_str.Upper().Contains("88592") ||
+                   encode_str.Upper().Contains("8859_2") ) {
+            encoding_type = wxFONTENCODING_ISO8859_2;
+        } else if (encode_str.Upper().Contains("88593") ||
+                   encode_str.Upper().Contains("8859_3") ) {
+            encoding_type = wxFONTENCODING_ISO8859_3;
+        } else if (encode_str.Upper().Contains("88594") ||
+                   encode_str.Upper().Contains("8859_4") ) {
+            encoding_type = wxFONTENCODING_ISO8859_4;
+        } else if (encode_str.Upper().Contains("88595") ||
+                   encode_str.Upper().Contains("8859_5") ) {
+            encoding_type = wxFONTENCODING_ISO8859_5;
+        } else if (encode_str.Upper().Contains("88596") ||
+                   encode_str.Upper().Contains("8859_6") ) {
+            encoding_type = wxFONTENCODING_ISO8859_6;
+        } else if (encode_str.Upper().Contains("88597") ||
+                   encode_str.Upper().Contains("8859_7") ) {
+            encoding_type = wxFONTENCODING_ISO8859_7;
+        } else if (encode_str.Upper().Contains("88598") ||
+                   encode_str.Upper().Contains("8859_8") ) {
+            encoding_type = wxFONTENCODING_ISO8859_8;
+        } else if (encode_str.Upper().Contains("88599") ||
+                   encode_str.Upper().Contains("8859_9") ) {
+            encoding_type = wxFONTENCODING_ISO8859_9;
+        } else if (encode_str.Upper().Contains("GB2312") ||
+                   encode_str.Upper().Contains("2312") ) {
+            encoding_type = wxFONTENCODING_GB2312;
+        } else if (encode_str.Upper().Contains("BIG5")) {
+            encoding_type = wxFONTENCODING_BIG5;
+        } else if (encode_str.Upper().Contains("KOI8")) {
+            encoding_type = wxFONTENCODING_KOI8;
+        } else if (encode_str.Upper().Contains("SHIFT_JIS") ||
+                   encode_str.Upper().Contains("SHIFT JIS") ) {
+            encoding_type = wxFONTENCODING_SHIFT_JIS;
+        } else if (encode_str.Upper().Contains("JP")) {
+            encoding_type = wxFONTENCODING_EUC_JP;
+        } else if (encode_str.Upper().Contains("KR")) {
+            encoding_type = wxFONTENCODING_EUC_KR;
+        }
+        if (m_wx_encoding) delete m_wx_encoding;
+        m_wx_encoding = new wxCSConv(encoding_type);
+    }
+    return m_wx_encoding;
+}

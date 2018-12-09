@@ -261,6 +261,8 @@ bool GdaApp::OnInit(void)
     }
     CPLSetConfigOption("OGR_XLS_HEADERS", "FORCE");
     CPLSetConfigOption("OGR_XLSX_HEADERS", "FORCE");
+
+    //CPLSetConfigOption("SHAPE_ENCODING", "UTF-8");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
