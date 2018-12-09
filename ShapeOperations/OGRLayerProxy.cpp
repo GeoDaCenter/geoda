@@ -230,6 +230,7 @@ wxString OGRLayerProxy::GetValueAt(int rid, int cid, wxCSConv* m_wx_encoding)
     if (m_wx_encoding == NULL) {
         rst = data[rid]->GetFieldAsString(cid);
     } else {
+        rst = wxString(data[rid]->GetFieldAsString(cid), *m_wx_encoding);
     }
     return rst;
 }
