@@ -8202,10 +8202,11 @@
                                           </object>
                                       </object>
                                       <object class="spacer">
-                                          <size>0,30</size>
+                                          <size>2,30</size>
                                       </object>
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
+                                              <orient>wxHORIZONTAL</orient>
                                               <object class="spacer">
                                                   <size>4,14</size>
                                               </object>
@@ -8215,7 +8216,6 @@
                                                       <label>Select encoding (optional): </label>
                                                   </object>
                                               </object>
-                                              <orient>wxHORIZONTAL</orient>
                                               <object class="sizeritem">
                                                   <object class="wxChoice" name="IDC_CDS_ENCODING_CHOICE">
                                                       <hidden>1</hidden>
@@ -8248,11 +8248,6 @@
                                                           <item>West European Latin-1 (ISO-8859-1)</item>
                                                           <item>West European Latin-9 (ISO-8859-15)</item>
                                                       </content>
-                                                  </object>
-                                              </object>
-                                              <object class="sizeritem">
-                                                  <object class="wxStaticText">
-                                                      <label/>
                                                   </object>
                                               </object>
                                           </object>
