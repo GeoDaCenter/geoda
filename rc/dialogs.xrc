@@ -8207,19 +8207,19 @@
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
                                               <object class="spacer">
-                                                  <size>4,1</size>
+                                                  <size>4,14</size>
                                               </object>
                                               <object class="sizeritem">
                                                   <object class="wxStaticText" name="IDC_CDS_ENCODING_LABEL">
                                                       <hidden>1</hidden>
-                                                      <label>Select encoding: </label>
+                                                      <label>Select encoding (optional): </label>
                                                   </object>
                                               </object>
                                               <orient>wxHORIZONTAL</orient>
                                               <object class="sizeritem">
                                                   <object class="wxChoice" name="IDC_CDS_ENCODING_CHOICE">
                                                       <hidden>1</hidden>
-                                                      <size>120,-1</size>
+                                                      <size>160,-1</size>
                                                       <content>
                                                           <item></item>
                                                           <item>Unicode (UTF-8)</item>
@@ -8260,7 +8260,7 @@
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
                                               <object class="spacer">
-                                                  <size>4,10</size>
+                                                  <size>4,14</size>
                                               </object>
                                               <object class="sizeritem">
                                                   <object class="wxStaticText">
