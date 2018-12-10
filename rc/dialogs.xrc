@@ -8235,13 +8235,11 @@
                                               </object>
                                               <object class="sizeritem">
                                                   <object class="wxStaticText" name="IDC_CDS_ENCODING_LABEL">
-                                                      <hidden>1</hidden>
                                                       <label>Select encoding (optional): </label>
                                                   </object>
                                               </object>
                                               <object class="sizeritem">
                                                   <object class="wxChoice" name="IDC_CDS_ENCODING_CHOICE">
-                                                      <hidden>1</hidden>
                                                       <size>160,-1</size>
                                                       <content>
                                                           <item></item>
