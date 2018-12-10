@@ -284,7 +284,8 @@ public:
 	 * column name encoding, but for now remain more restrictive */
 	virtual void SetEncoding(wxFontEncoding enc_type);
 	virtual wxFontEncoding GetFontEncoding() { return encoding_type; }
-	
+    virtual wxCSConv* GetEncoding() { return m_wx_encoding; }
+
 	/** Suggests a group name based on the member names listed in cols.
 	 * Returned value is a unique, valid group name: it is different than
 	 * all other groups and DB fields.  Since group names are stored as

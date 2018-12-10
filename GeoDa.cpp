@@ -230,8 +230,8 @@ bool GdaApp::OnInit(void)
     CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
     CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
     
-    // forcing to C locale, which is used internally in GeoDa
-    setlocale(LC_ALL, "C");
+    // forcing to UTF-8 locale, which is used internally in GeoDa
+    setlocale(LC_ALL, "en_US.UTF-8");
     
     // load preferences
     PreferenceDlg::ReadFromCache();
@@ -261,8 +261,8 @@ bool GdaApp::OnInit(void)
     }
     CPLSetConfigOption("OGR_XLS_HEADERS", "FORCE");
     CPLSetConfigOption("OGR_XLSX_HEADERS", "FORCE");
-
-    //CPLSetConfigOption("SHAPE_ENCODING", "UTF-8");
+    // For reaching DBF file, set SHAPE_ENCODING to "" to avoid any recoding
+    CPLSetConfigOption("SHAPE_ENCODING", "");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac

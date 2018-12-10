@@ -427,7 +427,9 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 	ev.Skip();
 }
 
-OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, TableInterface* table_int, vector<bool>& undefs, int idx, int t)
+OGRColumn* MergeTableDlg::
+CreateNewOGRColumn(int new_rows, TableInterface* table_int,
+                   vector<bool>& undefs, int idx, int t)
 {
     wxString f_name = table_int->GetColName(idx, t);
     int f_length = table_int->GetColLength(idx, t);
@@ -497,7 +499,8 @@ OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows,
     return _col;
 }
 
-void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, map<int, int>& idx2_dict)
+void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
+                                    wxString f_name, map<int, int>& idx2_dict)
 {
     int col_idx = layer_proxy->GetFieldPos(f_name);
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
@@ -859,7 +862,6 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                     undefs[i] = true;
                 } else {
                     data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid,m_wx_encoding));
-                    data[i] = data[i].ToUTF8().data();
                     undefs[i] = false;
                 }
             } else {

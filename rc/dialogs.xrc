@@ -8206,6 +8206,29 @@
                                       </object>
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
+                                              <object class="spacer">
+                                                  <size>4,14</size>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxStaticText">
+                                                      <label>Data Source Overview/Help: </label>
+                                                  </object>
+                                              </object>
+                                              <orient>wxHORIZONTAL</orient>
+                                              <object class="sizeritem">
+                                                  <object class="wxHyperlinkCtrl">
+                                                      <url>http://geodacenter.github.io/formats.html</url>
+                                                  </object>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxStaticText">
+                                                      <label/>
+                                                  </object>
+                                              </object>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxBoxSizer">
                                               <orient>wxHORIZONTAL</orient>
                                               <object class="spacer">
                                                   <size>4,14</size>
@@ -8248,29 +8271,6 @@
                                                           <item>West European Latin-1 (ISO-8859-1)</item>
                                                           <item>West European Latin-9 (ISO-8859-15)</item>
                                                       </content>
-                                                  </object>
-                                              </object>
-                                          </object>
-                                      </object>
-                                      <object class="sizeritem">
-                                          <object class="wxBoxSizer">
-                                              <object class="spacer">
-                                                  <size>4,14</size>
-                                              </object>
-                                              <object class="sizeritem">
-                                                  <object class="wxStaticText">
-                                                      <label>Data Source Overview/Help: </label>
-                                                  </object>
-                                              </object>
-                                              <orient>wxHORIZONTAL</orient>
-                                              <object class="sizeritem">
-                                                  <object class="wxHyperlinkCtrl">
-                                                      <url>http://geodacenter.github.io/formats.html</url>
-                                                  </object>
-                                              </object>
-                                              <object class="sizeritem">
-                                                  <object class="wxStaticText">
-                                                      <label/>
                                                   </object>
                                               </object>
                                           </object>

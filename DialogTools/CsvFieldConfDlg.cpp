@@ -516,12 +516,15 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 
             } else if (types[j] == "Date" || types[j] == "Time" || types[j] == "DateTime") {
                 wxString str = poFeature->GetFieldAsString(j);
-                //wxString str = wxString::Format("%f", val);
                 previewGrid->SetCellValue(i, j, str);
+                
             } else {
-                wxString str = poFeature->GetFieldAsString(j);
-                if (m_wx_encoding) {
-                    str = wxString(str.mb_str(), *m_wx_encoding);
+                const char* val = poFeature->GetFieldAsString(j);
+                wxString str;
+                if (m_wx_encoding == NULL) {
+                    str = val;
+                } else {
+                    str = wxString(val, *m_wx_encoding);
                 }
                 previewGrid->SetCellValue(i, j, str);
             }

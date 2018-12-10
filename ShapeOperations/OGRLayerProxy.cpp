@@ -24,7 +24,7 @@
 #include <climits>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
-
+#include <boost/unordered_map.hpp>
 #include "../ShpFile.h"
 #include "../GdaException.h"
 #include "../logger.h"
@@ -37,6 +37,7 @@
 #include "OGRFieldProxy.h"
 
 using namespace std;
+using namespace boost;
 namespace bt = boost::posix_time;
 
 /**
@@ -46,8 +47,8 @@ OGRLayerProxy::OGRLayerProxy(wxString layer_name,
                              OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
                              bool isNew)
-: mapContour(0), n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type), layer(_layer),
-load_progress(0), stop_reading(false), export_progress(0)
+: mapContour(0), n_rows(0), n_cols(0), name(layer_name),ds_type(_ds_type),
+layer(_layer), load_progress(0), stop_reading(false), export_progress(0)
 {
     if (!isNew) n_rows = layer->GetFeatureCount(FALSE);
     is_writable = layer->TestCapability(OLCCreateField) != 0;
@@ -68,8 +69,9 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
                              OGRwkbGeometryType eGType,
                              int _n_rows)
-: mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type), n_rows(_n_rows),
-eLayerType(eGType), load_progress(0), stop_reading(false), export_progress(0)
+: mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type),
+n_rows(_n_rows), eLayerType(eGType), load_progress(0), stop_reading(false),
+export_progress(0)
 {
     if (n_rows==0) {
         n_rows = layer->GetFeatureCount();
@@ -250,7 +252,8 @@ void OGRLayerProxy::SetValueAt(int rid, int cid, GIntBig val, bool undef)
     if (undef) data[rid]->UnsetField(cid);
     else data[rid]->SetField( cid, val);
     if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-        throw GdaException(wxString("Set value to cell failed.").mb_str());
+        wxString msg = _("Set value to cell failed.");
+        throw GdaException(msg.mb_str());
     }
 }
 
@@ -259,7 +262,8 @@ void OGRLayerProxy::SetValueAt(int rid, int cid, double val, bool undef)
     if (undef) data[rid]->UnsetField(cid);
     else data[rid]->SetField( cid, val);
     if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-        throw GdaException(wxString("Set value to cell failed.").mb_str());
+        wxString msg = _("Set value to cell failed.");
+        throw GdaException(msg.mb_str());
     }
 }
 
@@ -268,7 +272,8 @@ void OGRLayerProxy::SetValueAt(int rid, int cid, int year, int month, int day, b
     if (undef) data[rid]->UnsetField(cid);
     else data[rid]->SetField( cid, year, month, day);
     if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-        throw GdaException(wxString("Set value to cell failed.").mb_str());
+        wxString msg = _("Set value to cell failed.");
+        throw GdaException(msg.mb_str());
     }
 }
 
@@ -276,8 +281,9 @@ void OGRLayerProxy::SetValueAt(int rid, int cid, int year, int month, int day, i
 {
     if (undef) data[rid]->UnsetField(cid);
     else data[rid]->SetField( cid, year, month, day, hour, minute, second);
-    if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-        throw GdaException(wxString("Set value to cell failed.").mb_str());
+    if (layer->SetFeature(data[rid]) != OGRERR_NONE) {
+        wxString msg = _("Set value to cell failed.");
+        throw GdaException(msg.mb_str());
     }
 }
 
@@ -286,7 +292,8 @@ void OGRLayerProxy::SetValueAt(int rid, int cid, const char* val, bool is_new, b
     if (undef) data[rid]->UnsetField(cid);
     else data[rid]->SetField( cid, val);
     if (layer->SetFeature(data[rid]) != OGRERR_NONE){
-        throw GdaException(wxString("Set value to cell failed.").mb_str());
+        wxString msg = _("Set value to cell failed.");
+        throw GdaException(msg.mb_str());
     }
 }
 
@@ -334,9 +341,8 @@ void OGRLayerProxy::UpdateFieldProperties(int col)
     field_proxy->Update();
 	if ( layer->AlterFieldDefn(col, field_proxy->GetFieldDefn(),
 							   ALTER_WIDTH_PRECISION_FLAG)!= OGRERR_NONE ) {
-		wxString msg;
-		msg << "Change field properties (" << name <<") failed.";
-		msg << "\n\nDetails:" << CPLGetLastErrorMsg();
+        wxString tmp = _("Change field properties (%s) failed.\n\nDetails: %s");
+        wxString msg = wxString::Format(tmp, name, CPLGetLastErrorMsg());
 		throw GdaException(msg.mb_str());
 	}
 }
@@ -348,16 +354,16 @@ int OGRLayerProxy::AddField(const wxString& field_name,
 {
 	// check if field existed
 	if (IsFieldExisted(field_name)) {
-		wxString msg;
-		msg << "Field (" << field_name <<") already exited.";
+		wxString tmp = _("Field (%s) already exited.");
+        wxString msg = wxString::Format(tmp, field_name);
 		throw GdaException(msg.mb_str());
 	}
 	OGRFieldType  ogr_type = GetOGRFieldType(field_type);
 	OGRFieldProxy *oField = new OGRFieldProxy(field_name, ogr_type, 
 											  field_length, field_precision);
 	if ( layer->CreateField( oField->GetFieldDefn() ) != OGRERR_NONE ) {
-        wxString msg = wxString::Format(_("Internal Error: Add new field (%s) failed.\n\nDetails:"), field_name);
-        msg << CPLGetLastErrorMsg();
+        wxString tmp = _("Internal Error: Add new field (%s) failed.\n\nDetails:%s");
+        wxString msg = wxString::Format(tmp, field_name, CPLGetLastErrorMsg());
 		throw GdaException(msg.mb_str());
 	}					
 	n_cols++;
@@ -375,9 +381,8 @@ void OGRLayerProxy::DeleteField(int pos)
     }
 	// delete field in actual datasource
 	if( this->layer->DeleteField(pos) != OGRERR_NONE ) {
-		wxString msg;
-		msg << "Internal Error: Delete field failed."
-        << "\n\nDetails:" << CPLGetLastErrorMsg();
+        wxString msg = _("Internal Error: Delete field failed.\n\nDetails:");
+		msg << CPLGetLastErrorMsg();
 		throw GdaException(msg.mb_str());
 	}	
 	n_cols--;
@@ -524,7 +529,8 @@ vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
     return names;
 }
 
-Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms, OGRSpatialReference* input_sr)
+Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms,
+                                                OGRSpatialReference* input_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
     if (input_sr && spatialRef) {
@@ -559,7 +565,8 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     return shape_type;
 }
 
-Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms, OGRSpatialReference* input_sr)
+Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
+                                                OGRSpatialReference* input_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
     if (input_sr && spatialRef) {
@@ -698,8 +705,8 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms, O
             }
             geoms.push_back(new GdaPolygon(pc));
         } else {
-            string open_err_msg = "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.";
-            throw GdaException(open_err_msg.c_str());
+            wxString msg = _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
+            throw GdaException(msg.mb_str());
         }
     }
     return shape_type;
@@ -712,8 +719,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 {
     export_progress = 0;
     stop_exporting = false;
-    wxFontEncoding enc = table->GetFontEncoding();
-    wxCSConv cust(enc);
+    wxCSConv* encoding = table->GetEncoding();
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
@@ -749,10 +755,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             int col_pos = table->GetColIdx(fname, ignore_case);
           
             if (col_pos < 0) {
-                //wxString msg = wxString::Format(_(" Save column %s failed. Please check your data, or contact GeoDa team."), fname);
-                //error_message << msg;
-                //export_progress = -1;
-                //return;
                 continue;
             }
             
@@ -846,7 +848,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     if (undefs[orig_id]) {
                         data[k]->UnsetField(j);
                     } else {
-                        data[k]->SetField(j, col_data[orig_id].mb_str());
+                        char* val = NULL;
+                        if (encoding == NULL)
+                            val = (char*)col_data[orig_id].mb_str().data();
+                        else
+                            val = (char*)col_data[orig_id].mb_str(*encoding).data();
+                        data[k]->SetField(j, val);
                     }
                     if (stop_exporting) return;
                 }
@@ -894,7 +901,7 @@ void OGRLayerProxy::Save()
 
 bool OGRLayerProxy::HasError()
 {
-    return !error_message.str().empty();
+    return error_message.IsEmpty() == false;
 }
 
 bool OGRLayerProxy::CheckIsTableOnly()
@@ -908,7 +915,7 @@ bool OGRLayerProxy::CheckIsTableOnly()
 bool OGRLayerProxy::ReadData()
 {
 	if (n_rows > 0 && n_rows == data.size()) {
-        // if data already been read, skip
+        // skip if data has already been read/loaded
         return true;
     }
     if (n_rows == 0) {
@@ -918,41 +925,31 @@ bool OGRLayerProxy::ReadData()
     }
 	int row_idx = 0;
 	OGRFeature *feature = NULL;
-    map<int, OGRFeature*> feature_dict;
-    
+    unordered_map<int, OGRFeature*> feature_dict;
     layer->ResetReading();
 	while ((feature = layer->GetNextFeature()) != NULL) {
-        if (feature == NULL) {
-            error_message << "GeoDa can't read data from datasource."
-		    << "\n\nDetails:"<< CPLGetLastErrorMsg();
-            return false;
-        }
-        
         // thread feature: user can stop reading
-		if (stop_reading)
-            break;
-        
-        //long fid = feature->GetFID();
+		if (stop_reading) break;
         feature_dict[row_idx] = feature;
-        
-        // keep load_progress not 100%, so that it can finish this function
 		load_progress = row_idx++;
 	}
     if (row_idx == 0) {
-		error_message << "GeoDa can't read data from datasource."
-		    << "\n\nDetails: Datasource is empty. "<< CPLGetLastErrorMsg();
-        
+        error_message << _("GeoDa can't read data from datasource. \n\nDetails: Datasource is empty.");
+		error_message << CPLGetLastErrorMsg();
         return false;
     }
     if (stop_reading) {
         error_message << "Reading data was interrupted.";
+        // clean just read OGRFeatures
+        for (int i = 0; i < row_idx; i++) {
+            OGRFeature::DestroyFeature(feature_dict[i]);
+        }
         return false;
     }
-    
 	n_rows = row_idx;
-    
-    // check empty rows at the end of table, remove empty rows #563
-    for (int i = n_rows-1; i>=0; i--) {
+    // check empty rows at the end of table -- this often occurs in a csv file
+    // , then remove empty rows see issue#563
+    for (int i = n_rows-1; i >= 0; --i) {
         OGRFeature* my_feature = feature_dict[i];
         bool is_empty = true;
         for (int j= 0; j<n_cols; j++) {
@@ -967,19 +964,21 @@ bool OGRLayerProxy::ReadData()
                 n_rows -= 1;
             }
         } else {
+            // visit starts from the bottom of the table, so interupt if
+            // non-empty row is detected
             break;
         }
     }
-    // create copies of OGRFeatures
+    // create copies of OGRFeatures* from OGR,
+    // and manage the copies in this class
     for (int i = 0; i < n_rows; i++) {
         OGRFeature* my_feature = feature_dict[i]->Clone();
         data.push_back(my_feature);
         OGRFeature::DestroyFeature(feature_dict[i]);
     }
-    
+    // Set load_progress 100% to continue
     load_progress = row_idx;
     feature_dict.clear();
-    
 	return true;
 }
 
@@ -1133,7 +1132,9 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
                 }
             }
         }
-        layer->SetFeature(data[id]);
+        if (layer->SetFeature(data[id]) != OGRERR_NONE) {
+            return false;
+        }
     }
     return true;
 }
@@ -1142,14 +1143,15 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
                               double& maxx, double& maxy)
 {
 	OGREnvelope pEnvelope;
-	layer->GetExtent(&pEnvelope);
+    if (layer->GetExtent(&pEnvelope) != OGRERR_NONE) return false;
 	minx = pEnvelope.MinX;
 	miny = pEnvelope.MinY;
 	maxx = pEnvelope.MaxX;
 	maxy = pEnvelope.MaxY;
     
-    if ( minx == miny && maxx == maxy && minx == 0 && maxx==0)
+    if ( minx == miny && maxx == maxy && minx == 0 && maxx==0) {
         return false;
+    }
     return true;
 }
 

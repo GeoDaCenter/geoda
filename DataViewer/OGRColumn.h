@@ -125,7 +125,8 @@ public:
     // interfaces for TableInterface
     virtual void FillData(vector<double>& data);
     virtual void FillData(vector<wxInt64>& data);
-    virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<wxString>& data,
+                          wxCSConv* m_wx_encoding = NULL);
     virtual void FillData(vector<unsigned long long>& data);
     
     virtual void FillData(vector<double>& data,
@@ -133,7 +134,8 @@ public:
     virtual void FillData(vector<wxInt64>& data,
                           vector<bool>& undef_markers);
     virtual void FillData(vector<wxString>& datam,
-                          vector<bool>& undef_markers);
+                          vector<bool>& undef_markers,
+                          wxCSConv* m_wx_encoding = NULL);
     virtual void FillData(vector<unsigned long long>& datam,
                           vector<bool>& undef_markers);
     
@@ -170,7 +172,7 @@ public:
     
     virtual void FillData(vector<wxInt64>& data);
                           
-    virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encoding=NULL);
     
     virtual void UpdateData(const vector<wxInt64>& data);
     
@@ -212,7 +214,7 @@ public:
     
     virtual void FillData(vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
     
     virtual void UpdateData(const vector<wxInt64>& data);
     
@@ -256,7 +258,7 @@ public:
     
     virtual void FillData(vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encodin = NULL);
     
     virtual void FillData(vector<unsigned long long>& data);
     
@@ -271,7 +273,7 @@ public:
     virtual wxString GetValueAt(int row_idx,
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
-    
+
     virtual void SetValueAt(int row_idx, const wxString& value);
 };
 
@@ -292,7 +294,7 @@ public:
     
     virtual void FillData(vector<wxInt64>& data);
     
-    virtual void FillData(vector<wxString>& data);
+    virtual void FillData(vector<wxString>& data, wxCSConv* m_wx_encoding = NULL);
     
     virtual void FillData(vector<unsigned long long>& data);
   

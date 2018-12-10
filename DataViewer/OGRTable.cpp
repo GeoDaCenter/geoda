@@ -61,9 +61,10 @@ ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 {
 	wxLogMessage("Entering OGRTable::OGRTable");
     // default UTF-8, use can change it in menu: Table->Encoding
-    encoding_type = wxFONTENCODING_UTF8;
-	m_wx_encoding = new wxCSConv(wxFONTENCODING_UTF8);
-   
+    encoding_type = wxFONTENCODING_SYSTEM;
+	//m_wx_encoding = new wxCSConv(wxFONTENCODING_UTF8);
+    m_wx_encoding = NULL;
+
 	for (size_t i=0; i<ogr_layer->fields.size(); ++i) {
         AddOGRColumn(ogr_layer, i);
     }
@@ -86,6 +87,7 @@ OGRTable::~OGRTable()
     if (m_wx_encoding) {
         delete m_wx_encoding;
     }
+    encoding_type = wxFONTENCODING_SYSTEM;
 	wxLogMessage("In OGRTable::~OGRTable");
 }
 
@@ -566,6 +568,7 @@ int OGRTable::GetFirstNumericCol()
             return i;
         }
     }
+    return 0;
 }
 
 /** Return the Group column name. */
@@ -748,12 +751,7 @@ void OGRTable::GetColData(int col, s_array_type& data)
 		if (ftr_c[t] != -1) {
             int col_idx = ftr_c[t];
             std::vector<wxString> d(rows);
-            columns[col_idx]->FillData(d);
-            if (m_wx_encoding) {
-                for (size_t i=0; i<rows; ++i) {
-                    d[i]  = wxString(d[i].mb_str(), *m_wx_encoding);
-                }
-            }
+            columns[col_idx]->FillData(d, m_wx_encoding);
 			for (size_t i=0; i<rows; ++i) {
 				data[t][i] = d[i];
 			}
@@ -796,14 +794,7 @@ void OGRTable::GetDirectColData(int col, std::vector<wxString>& data)
     OGRColumn* ogr_col = columns[col];
     if (ogr_col == NULL) return;
     data.resize(rows);
-    ogr_col->FillData(data);
-    // no encoding, since this function will be used by raw data access
-    // e.g. save and read from datasource
-    // if (m_wx_encoding) {
-    //     for (size_t i=0; i<rows; ++i) {
-    //         data[i]  = wxString(data[i].mb_str(), *m_wx_encoding);
-    //     }
-    // }
+    ogr_col->FillData(data, m_wx_encoding);
 }
 
 void OGRTable::GetDirectColData(int col, std::vector<unsigned long long>& data)
@@ -847,12 +838,7 @@ void OGRTable::GetColData(int col, int time, std::vector<wxString>& data)
 	OGRColumn* ogr_col = FindOGRColumn(nm);
 	if (ogr_col == NULL) return;
 	data.resize(rows);
-    ogr_col->FillData(data);
-    if (m_wx_encoding) {
-        for (size_t i=0; i<rows; ++i) {
-            data[i]  = wxString(data[i].mb_str(), *m_wx_encoding);
-        }
-    }
+    ogr_col->FillData(data, m_wx_encoding);
 }
 
 void OGRTable::GetColData(int col, int time, std::vector<unsigned long long>& data)

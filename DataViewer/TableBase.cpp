@@ -105,8 +105,7 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
     template_frame = t_frame;
 	SortByDefaultDecending();
 	
-    for(int i=0;i<cols;i++) 
-        hs_col.push_back(false);
+    for(int i=0;i<cols;i++) hs_col.push_back(false);
 	SetAttrProvider(new TableCellAttrProvider(row_order, hs, hs_col));
 	
 	highlight_state->registerObserver(this);

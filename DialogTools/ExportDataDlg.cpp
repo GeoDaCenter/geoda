@@ -461,7 +461,8 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
             return;
         }
         if (layer->export_progress == -1){
-            wxString msg = wxString::Format(_("Saving to data source (%s) failed.\n\nDetails: %s"), ds_name, layer->error_message.str());
+            wxString tmp = _("Saving to data source (%s) failed.\n\nDetails: %s");
+            wxString msg = wxString::Format(tmp, ds_name, layer->error_message);
             throw GdaException(msg.c_str());
         }
     }
@@ -609,17 +610,21 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
             OGRDataAdapter::GetInstance().CancelExport(new_layer);
             return false;
         }
-        if (new_layer->export_progress == -1){
-            wxString msg = wxString::Format(_("Saving to data source (%s) failed.\n\nDetails: %s"), ds_name, new_layer->error_message.str());
+        if (new_layer->export_progress == -1) {
+            wxString tmp = _("Saving to data source (%s) failed.\n\nDetails: %s");
+            wxString msg = wxString::Format(tmp, ds_name,
+                                            new_layer->error_message);
             throw GdaException(msg.c_str());
         }
     }
     
     OGRDataAdapter::GetInstance().StopExport(); //here new_layer will be deleted
 
-	if (!is_geometry_only)
-		for (size_t i=0; i < geometries.size(); i++) 
+    if (!is_geometry_only) {
+        for (size_t i=0; i < geometries.size(); i++) {
 			delete geometries[i];
+        }
+    }
 
 	//NOTE: export_ds will take ownership of ogr_geometries 
 	//for (size_t i=0; i<ogr_geometries.size(); i++) {
