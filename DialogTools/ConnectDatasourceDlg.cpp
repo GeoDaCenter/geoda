@@ -1166,113 +1166,87 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
 wxCSConv* ConnectDatasourceDlg::GetEncoding()
 {
     if (m_encodings && m_encodings->IsShown()) {
-        wxFontEncoding encoding_type = wxFONTENCODING_UTF8;
+		
+        wxFontEncoding encoding_type = wxFONTENCODING_DEFAULT;
         int sel = m_encodings->GetSelection();
         wxString encode_str = m_encodings->GetString(sel);
 
         if (sel == 0) return NULL;
 
-        if (encode_str.Upper().Contains("UTF-8")) {
+		//encode_str = wxString(encode_str.wc_str(), wxCSConv(wxFONTENCODING_DEFAULT));
+		if (sel == 1) {
             encoding_type = wxFONTENCODING_UTF8;
-        } else if (encode_str.Upper().Contains("UTF-16")) {
+        } else if (sel == 2) {
             encoding_type = wxFONTENCODING_UTF16LE;
-        } else if (encode_str.Upper().Contains("1250")) {
-            encoding_type = wxFONTENCODING_CP1250;
-        } else if (encode_str.Upper().Contains("1251")) {
-            encoding_type = wxFONTENCODING_CP1251;
-        } else if (encode_str.Upper().Contains("1252")) {
-            encoding_type = wxFONTENCODING_CP1252;
-        } else if (encode_str.Upper().Contains("1253")) {
-            encoding_type = wxFONTENCODING_CP1253;
-        } else if (encode_str.Upper().Contains("1254")) {
-            encoding_type = wxFONTENCODING_CP1254;
-        } else if (encode_str.Upper().Contains("1255")) {
-            encoding_type = wxFONTENCODING_CP1255;
-        } else if (encode_str.Upper().Contains("1256")) {
-            encoding_type = wxFONTENCODING_CP1256;
-        } else if (encode_str.Upper().Contains("1257")) {
-            encoding_type = wxFONTENCODING_CP1257;
-        } else if (encode_str.Upper().Contains("1258")) {
-            encoding_type = wxFONTENCODING_CP1258;
-        } else if (encode_str.Upper().Contains("437")) {
-            encoding_type = wxFONTENCODING_CP437;
-        } else if (encode_str.Upper().Contains("850")) {
-            encoding_type = wxFONTENCODING_CP850;
-        } else if (encode_str.Upper().Contains("855")) {
-            encoding_type = wxFONTENCODING_CP855;
-        } else if (encode_str.Upper().Contains("866")) {
-            encoding_type = wxFONTENCODING_CP866;
-        } else if (encode_str.Upper().Contains("874")) {
-            encoding_type = wxFONTENCODING_CP874;
-        } else if (encode_str.Upper().Contains("932")) {
-            encoding_type = wxFONTENCODING_CP932;
-        } else if (encode_str.Upper().Contains("936")) {
-            encoding_type = wxFONTENCODING_CP936;
-        } else if (encode_str.Upper().Contains("949")) {
-            encoding_type = wxFONTENCODING_CP949;
-        } else if (encode_str.Upper().Contains("950")) {
-            encoding_type = wxFONTENCODING_CP950;
 
-        } else if (encode_str.Upper().Contains("885910") ||
-                   encode_str.Upper().Contains("8859_10") ) {
-            encoding_type = wxFONTENCODING_ISO8859_10;
-        } else if (encode_str.Upper().Contains("885911") ||
-                   encode_str.Upper().Contains("8859_11") ) {
-            encoding_type = wxFONTENCODING_ISO8859_11;
-        } else if (encode_str.Upper().Contains("885912") ||
-                   encode_str.Upper().Contains("8859_12") ) {
-            encoding_type = wxFONTENCODING_ISO8859_12;
-        } else if (encode_str.Upper().Contains("885913") ||
-                   encode_str.Upper().Contains("8859_13") ) {
-            encoding_type = wxFONTENCODING_ISO8859_13;
-        } else if (encode_str.Upper().Contains("885914") ||
-                   encode_str.Upper().Contains("8859_14") ) {
-            encoding_type = wxFONTENCODING_ISO8859_14;
-        } else if (encode_str.Upper().Contains("885915") ||
-                   encode_str.Upper().Contains("8859_15") ) {
-            encoding_type = wxFONTENCODING_ISO8859_15;
-        } else if (encode_str.Upper().Contains("88591") ||
-                   encode_str.Upper().Contains("8859_1") ) {
-            encoding_type = wxFONTENCODING_ISO8859_1;
-        } else if (encode_str.Upper().Contains("88592") ||
-                   encode_str.Upper().Contains("8859_2") ) {
+		} else if (sel == 3) {
+            encoding_type = wxFONTENCODING_CP1256;
+
+        } else if (sel == 4 ) {
             encoding_type = wxFONTENCODING_ISO8859_2;
-        } else if (encode_str.Upper().Contains("88593") ||
-                   encode_str.Upper().Contains("8859_3") ) {
-            encoding_type = wxFONTENCODING_ISO8859_3;
-        } else if (encode_str.Upper().Contains("88594") ||
-                   encode_str.Upper().Contains("8859_4") ) {
-            encoding_type = wxFONTENCODING_ISO8859_4;
-        } else if (encode_str.Upper().Contains("88595") ||
-                   encode_str.Upper().Contains("8859_5") ) {
-            encoding_type = wxFONTENCODING_ISO8859_5;
-        } else if (encode_str.Upper().Contains("88596") ||
-                   encode_str.Upper().Contains("8859_6") ) {
-            encoding_type = wxFONTENCODING_ISO8859_6;
-        } else if (encode_str.Upper().Contains("88597") ||
-                   encode_str.Upper().Contains("8859_7") ) {
-            encoding_type = wxFONTENCODING_ISO8859_7;
-        } else if (encode_str.Upper().Contains("88598") ||
-                   encode_str.Upper().Contains("8859_8") ) {
-            encoding_type = wxFONTENCODING_ISO8859_8;
-        } else if (encode_str.Upper().Contains("88599") ||
-                   encode_str.Upper().Contains("8859_9") ) {
-            encoding_type = wxFONTENCODING_ISO8859_9;
-        } else if (encode_str.Upper().Contains("GB2312") ||
-                   encode_str.Upper().Contains("2312") ) {
+
+        } else if (sel == 5) {
+            encoding_type = wxFONTENCODING_CP1250;
+
+        } else if (sel == 6) {
+            encoding_type = wxFONTENCODING_CP852;
+
+        } else if (sel == 7) {
             encoding_type = wxFONTENCODING_GB2312;
-        } else if (encode_str.Upper().Contains("BIG5")) {
+
+        } else if (sel == 8) {
             encoding_type = wxFONTENCODING_BIG5;
-        } else if (encode_str.Upper().Contains("KOI8")) {
+     
+        } else if (sel == 9) {
+            encoding_type = wxFONTENCODING_ISO8859_5;
+
+        } else if (sel == 10) {
             encoding_type = wxFONTENCODING_KOI8;
-        } else if (encode_str.Upper().Contains("SHIFT_JIS") ||
-                   encode_str.Upper().Contains("SHIFT JIS") ) {
+
+        } else if (sel == 11) {
+            encoding_type = wxFONTENCODING_CP1251;
+
+        } else if (sel == 12) {
+            encoding_type = wxFONTENCODING_CP866;
+
+        } else if (sel == 13 ) {
+            encoding_type = wxFONTENCODING_ISO8859_7;
+
+        } else if (sel == 14) {
+            encoding_type = wxFONTENCODING_ISO8859_8;
+
+        } else if (sel == 15) {
+            encoding_type = wxFONTENCODING_CP1255;
+
+        } else if (sel == 16) {
             encoding_type = wxFONTENCODING_SHIFT_JIS;
-        } else if (encode_str.Upper().Contains("JP")) {
+        } else if (sel == 17) {
             encoding_type = wxFONTENCODING_EUC_JP;
-        } else if (encode_str.Upper().Contains("KR")) {
+        } else if (sel == 18) {
             encoding_type = wxFONTENCODING_EUC_KR;
-        }
+    
+        } else if (sel == 19 ) {
+            encoding_type = wxFONTENCODING_ISO8859_10;
+
+        } else if (sel == 20) {
+            encoding_type = wxFONTENCODING_ISO8859_3;
+
+        } else if (sel == 21) {
+            encoding_type = wxFONTENCODING_ISO8859_9;
+        } else if (sel == 22) {
+            encoding_type = wxFONTENCODING_CP1254;
+        } else if (sel == 23) {
+            encoding_type = wxFONTENCODING_CP1258;
+        } else if (sel == 24) {
+            encoding_type = wxFONTENCODING_ISO8859_1;
+
+        } else if (sel == 25) {
+            encoding_type = wxFONTENCODING_ISO8859_15;
+		}
+        
+
+
+
         if (m_wx_encoding) delete m_wx_encoding;
         m_wx_encoding = new wxCSConv(encoding_type);
     }

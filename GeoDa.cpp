@@ -524,7 +524,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SAVE_AS_PROJECT"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_LAYER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_SELECTED"), proj_open);
-
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_PROJECT_INFO"), proj_open);
 	
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), true);
