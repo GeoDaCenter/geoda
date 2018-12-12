@@ -1061,6 +1061,7 @@ void GdaFrame::UpdateRecentDatasourceMenu()
         }
         
         for (size_t i=0; i<recent_ds_list.size(); i++ ) {
+			if (recent_ds_list[i].IsEmpty()) continue;
             wxMenuItem* recent_item = recent_menu->Append(wxID_ANY,
                                                           recent_ds_list[i]);
             int xrc_id = recent_item->GetId();

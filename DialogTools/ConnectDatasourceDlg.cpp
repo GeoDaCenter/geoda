@@ -134,7 +134,10 @@ void RecentDatasource::Init(wxString json_str_)
                 json_spirit::Value val;
                 if (i->name_ == "ds_name") {
                     val = i->value_;
-                    ds_name = wxString::FromUTF8(val.get_str().c_str());
+					std::string tmp = val.get_str();
+					const char* t = tmp.c_str();
+					int n = strlen(t);
+					ds_name = wxString::FromUTF8(t, n);
                 }
                 else if (i->name_ == "layer_name") {
                     val = i->value_;
@@ -171,11 +174,10 @@ void RecentDatasource::Save()
     
     for (int i=0; i<n_ds; i++) {
         json_spirit::Object ds_obj;
-        std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
-        std::string layer_name( GET_ENCODED_FILENAME(ds_layernames[i]));
-        //std::string ds_conf( ds_confs[i].mb_str() );
-		std::string ds_conf( GET_ENCODED_FILENAME(ds_confs[i]) );
-        std::string ds_thumb( GET_ENCODED_FILENAME(ds_thumbnails[i]) );
+        std::string ds_name( ds_names[i].mb_str(wxConvUTF8));
+        std::string layer_name( ds_layernames[i].mb_str(wxConvUTF8));
+		std::string ds_conf( ds_confs[i].mb_str(wxConvUTF8) );
+        std::string ds_thumb( ds_thumbnails[i].mb_str(wxConvUTF8) );
         ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
         ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
         ds_obj.push_back( json_spirit::Pair("ds_config", ds_conf) );

@@ -120,7 +120,7 @@ void GdaCache::AddEntry(wxString param_key, wxString param_val)
     // add to spatialite table
     wxString sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
     //cach_ds_proxy->ExecuteSQL(sql);
-	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, "SQLITE");
+	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(sql,  0, "SQLITE");
 	cach_ds_proxy->ds->ReleaseResultSet(tmp_layer);
 }
 
