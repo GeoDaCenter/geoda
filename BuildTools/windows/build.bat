@@ -1,18 +1,42 @@
 @echo OFF
 
+REM MSVC++ 14.15 _MSC_VER == 1915 (Visual Studio 2017 version 15.8)
+REM MSVC++ 14.14 _MSC_VER == 1914 (Visual Studio 2017 version 15.7)
+REM MSVC++ 14.13 _MSC_VER == 1913 (Visual Studio 2017 version 15.6)
+REM MSVC++ 14.12 _MSC_VER == 1912 (Visual Studio 2017 version 15.5)
+REM MSVC++ 14.11 _MSC_VER == 1911 (Visual Studio 2017 version 15.3)
+REM MSVC++ 14.1  _MSC_VER == 1910 (Visual Studio 2017 version 15.0)
+REM MSVC++ 14.0  _MSC_VER == 1900 (Visual Studio 2015 version 14.0)
+REM MSVC++ 12.0  _MSC_VER == 1800 (Visual Studio 2013 version 12.0)
+REM MSVC++ 11.0  _MSC_VER == 1700 (Visual Studio 2012 version 11.0)
+REM MSVC++ 10.0  _MSC_VER == 1600 (Visual Studio 2010 version 10.0)
+
+set VS_VER=2010
+set MSC_VER=1600
+set MSVC++=10.0
+
 REM call "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
 REM call "C:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat"
 REM call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
 if %PROCESSOR_ARCHITECTURE% == x86 (
   call "C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"
   REM call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat"  
+
 ) else if %PROCESSOR_ARCHITECTURE% == AMD64 (
-  if NOT EXIST "C:\Program Files (x86)\Microsoft Visual Studio 10.0\Microsoft Visual C++ 2010 Express - ENU\License.txt" (
+  if EXIST "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" (
 	call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" amd64
 	echo Looks like you are using Visual Studio 2010 Pro
-  ) else (
-	call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
-	echo Looks like you are using Visual Studio 2010 Express
+  ) 
+  if EXIST "C:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Auxiliary\Build\vcvarsall.bat" (
+        call "C:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64
+        echo Looks like you are using Visual Studio 2017 Professional Preview
+        set VS_VER=2017
+        set MSC_VER=1911
+        set MSVC++=14.1
+  )
+  if EXIST "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" (
+        call "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /x64
+        echo Looks like you are using Visual Studio 2010 Express
   )
   REM Windows SDK for Windows 7 must be installed before the above command will work
   REM Please follow steps here to fully patch SDK 7.1 for 64-bit machines:
@@ -21,6 +45,7 @@ if %PROCESSOR_ARCHITECTURE% == x86 (
   REM call "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\vcvarsall.bat" x64
   REM The above amd64 environment option does not work with the default VS 2010 Express installation.
 )
+
 
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_major" ..\..\version.h') do set VER_MAJOR=%%P
 for /f "tokens=4 delims=;= " %%P in ('findstr /c:"version_minor" ..\..\version.h') do set VER_MINOR=%%P
@@ -32,7 +57,7 @@ set GDA_VERSION=%VER_MAJOR%.%VER_MINOR%.%VER_BUILD%.%VER_SUBBUILD%
 echo.
 echo #####################################################
 echo #
-echo #  Build script for Windows 7, 32-bit and 64-bit
+echo #  Build script for Windows 32-bit and 64-bit
 echo #
 echo #  PROCESSOR_ARCHITECTURE: %PROCESSOR_ARCHITECTURE%
 
@@ -292,7 +317,7 @@ call autogen.bat
 
 REM patch nmake.opt to support nmake with version string 10.00.40219.01
 copy /Y %BUILD_HOME%\dep\%LIB_NAME%\nmake.opt %DOWNLOAD_HOME%\%LIB_NAME%\nmake.opt
-nmake -f makefile.vc MSVC_VER=1600 BUILD_DEBUG=NO
+nmake -f makefile.vc MSVC_VER=%MSC_VER% BUILD_DEBUG=NO
 
 copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\capi\*.h %LIBRARY_HOME%\include
 copy /Y %DOWNLOAD_HOME%\%LIB_NAME%\include\*.h %LIBRARY_HOME%\include
@@ -693,8 +718,8 @@ echo #####################################################
 echo #   build wxWidgets 
 echo #####################################################
 echo.
-set LIB_NAME=wxWidgets-3.1.1
-set LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.1/wxWidgets-3.1.1.7z"
+set LIB_NAME=wxWidgets-3.1.2
+set LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxWidgets-3.1.2.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
@@ -716,7 +741,7 @@ if %ALL_EXIST% == true (
 cd %DOWNLOAD_HOME%
 
 IF NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME% (
-    IF NOT EXIST %LIB_NAME%.7z %CURL_EXE% -# %LIB_URL% > %LIB_NAME%.7z
+    IF NOT EXIST %LIB_NAME%.7z %CURL_EXE% -L %LIB_URL% > %LIB_NAME%.7z
     %UNZIP_EXE% %LIB_NAME%.7z -o%DOWNLOAD_HOME%\%LIB_NAME%
 )
 
@@ -826,8 +851,8 @@ if %GDA_BUILD% == BUILD_32 (
 )
 copy /Y %BUILD_HOME%\dep\gdal-1.9.2\port\cpl_config.h port\cpl_config.h
 
-nmake -f makefile.vc MSVC_VER=1600
-REM nmake -f makefile.vc MSVC_VER=1600 DEBUG=1
+nmake -f makefile.vc MSVC_VER=%MSC_VER%
+REM nmake -f makefile.vc MSVC_VER=%MSC_VER% DEBUG=1
 
 copy /Y %DOWNLOAD_HOME%\gdal\gcore\*.h %LIBRARY_HOME%\include
 copy /Y %DOWNLOAD_HOME%\gdal\port\*.h %LIBRARY_HOME%\include
@@ -860,11 +885,21 @@ set LIB_NAME=boost_1_57_0
 set LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/boost_1_57_0.zip"
 
 set ALL_EXIST=true
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_57.lib set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_57.dll set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_57.dll set ALL_EXIST=false
-if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_57.dll set ALL_EXIST=false
+if EXIST "C:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Auxiliary\Build\vcvarsall.bat" (
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc140-mt-1_57.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc140-mt-gd-1_57.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc140-mt-1_57.dll set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc140-mt-1_57.dll set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc140-mt-1_57.dll set ALL_EXIST=false
+
+) else (
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-gd-1_57.lib set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_chrono-vc100-mt-1_57.dll set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_thread-vc100-mt-1_57.dll set ALL_EXIST=false
+  if NOT EXIST %DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\boost_system-vc100-mt-1_57.dll set ALL_EXIST=false
+)
+
 if %ALL_EXIST% == true (
   echo All %LIB_NAME% library targets exist, skipping build
   goto SKIP_BOOST_BUILD
@@ -882,6 +917,15 @@ cd %BOOST_HOME%
 
 call bootstrap.bat
 
+if %GDA_BUILD% == BUILD_32 (
+  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=%MSVC++% --build-type=complete stage
+  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=%MSVC++% --build-type=complete --debug-symbols=on stage
+) else (
+  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=%MSVC++% --build-type=complete architecture=x86 address-model=64 stage
+)
+cd %BUILD_HOME%
+
+
 echo ###############################################
 echo # for visual studio 2017
 echo edit project-config.jam
@@ -890,16 +934,8 @@ echo   import option;
 echo   using msvc : 14.0 "c:\Program Files (x86)\Microsoft Visual Studio\Preview\Professional\VC\Tools\MSVC\14.10.25017\bin\HostX64\x64\cl.exe";
 echo   option.set keep-going : false ; 
 echo 
-echo Then, run b2 with --toolset=msvc-14.0
+echo Then, run again
 echo ###############################################
-if %GDA_BUILD% == BUILD_32 (
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete stage
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete --debug-symbols=on stage
-) else (
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete architecture=x86 address-model=64 stage
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=msvc-10.0 --build-type=complete --debug-symbols=on architecture=x86 address-model=64 stage
-)
-cd %BUILD_HOME%
 
 set CHK_LIB=%DOWNLOAD_HOME%\%LIB_NAME%\stage\lib\libboost_thread-vc100-mt-1_57.lib
 IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
@@ -1069,8 +1105,13 @@ if %GDA_BUILD% == BUILD_32 (
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="Win32"
   %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="Win32"
 ) else (
-  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
-  %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+  if %VS_VER% == 2017 (
+    REM %MSBUILD_EXE% GeoDa.vs2017.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
+    %MSBUILD_EXE% GeoDa.vs2017.sln /t:GeoDa /property:Configuration="Debug2017" /p:Platform="x64"
+  ) else (
+    %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Release" /p:Platform="x64"
+    %MSBUILD_EXE% GeoDa.vs2010.sln /t:GeoDa /property:Configuration="Debug" /p:Platform="x64"
+  )
 )
 set CHK_LIB=%BUILD_HOME%\Release\GeoDa.lib
 REM IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
@@ -1087,6 +1128,9 @@ IF NOT EXIST %CHK_LIB% goto MISSING_TARGET_END
 
 :SKIP_GEODA_BUILD
 
+if %VS_VER% == 2017 (
+  goto REAL_END
+)
 
 :TO_PACKAGE_BUILD
 echo.

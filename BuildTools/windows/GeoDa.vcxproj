@@ -30,7 +30,7 @@
     <ProjectGuid>{B3CB134F-61C6-48C7-B6E4-353AC473A467}</ProjectGuid>
     <RootNamespace>GeoDa</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -99,6 +99,9 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Release\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">
+    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -205,8 +208,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug2017|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.2\include;temp\wxWidgets-3.1.2\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;WINVER=0X0500;__WXMSW__;WXUSINGDLL;wxUSE_GUI=1;_DEBUG;__WXDEBUG__;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -222,11 +225,11 @@
     <ResourceCompile>
       <PreprocessorDefinitions>__WXMSW__;_UNICODE;_WINDOWS;NOPCH;WXUSINGDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <Culture>0x0409</Culture>
-      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>temp\wxWidgets-3.1.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc140-mt-gd-1_57.lib;libboost_thread-vc140-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.2\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
