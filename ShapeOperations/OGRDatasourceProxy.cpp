@@ -228,7 +228,7 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 
 OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString sql)
 {
-	OGRLayer* tmp_layer = ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, 0);
+	OGRLayer* tmp_layer = ds->ExecuteSQL(sql,  0, 0);
 	//tmp_layer->SyncToDisk();
 	ds->ReleaseResultSet(tmp_layer);
 	return NULL;
