@@ -85,6 +85,8 @@ protected:
     
     virtual bool Init();
 
+    virtual bool CheckAllInputs();
+    
     virtual bool Run(vector<wxInt64>& clusters) { return false;}
     
     virtual double* GetWeights(int columns);

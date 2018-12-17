@@ -72,9 +72,13 @@ void Spectral::affinity_matrix()
 
 void Spectral::generate_kernel_matrix()
 {
-    //If you have an affinity matrix, such as a distance matrix, for which 0 means identical elements, and high values means very dissimilar elements, it can be transformed in a similarity matrix that is well suited for the algorithm by applying the Gaussian (RBF, heat) kernel:
-    //np.exp(- X ** 2 / (2. * delta ** 2))
-    //delta = X.maxCoeff() - X.minCoeff();
+    // If you have an affinity matrix, such as a distance matrix,
+    // for which 0 means identical elements, and high values means very
+    // dissimilar elements, it can be transformed in a similarity matrix
+    // that is well suited for the algorithm by applying
+    // the Gaussian (RBF, heat) kernel:
+    //    np.exp(- X ** 2 / (2. * delta ** 2))
+    //    delta = X.maxCoeff() - X.minCoeff();
     
     // Fill kernel matrix
     K.resize(X.rows(),X.rows());
@@ -200,7 +204,8 @@ void Spectral::fast_eigendecomposition()
     }
 }
 
-void Spectral::eigendecomposition(){
+void Spectral::eigendecomposition()
+{
     
     //Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> edecomp(K, true);
     
@@ -262,6 +267,7 @@ void Spectral::cluster(int affinity_type)
     
     if (power_iter>0) fast_eigendecomposition();
     else eigendecomposition();
+
     kmeans();
 }
 
@@ -273,7 +279,7 @@ void Spectral::kmeans()
     int transpose = 0; // row wise
     int* clusterid = new int[rows];
     double* weight = new double[columns];
-    for (int j=0; j<columns; j++){ weight[j] = 1;}
+    for (int j=0; j<columns; j++) weight[j] = 1;
     
     // init input_data[rows][cols]
     double** input_data = new double*[rows];

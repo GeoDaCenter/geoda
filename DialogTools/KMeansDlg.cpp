@@ -347,7 +347,49 @@ wxString KClusterDlg::_printConfiguration()
 
 void KClusterDlg::ComputeDistMatrix(int dist_sel)
 {
-    
+    // this only be called by KMedoid, which distmatrix will be used as input
+}
+
+bool KClusterDlg::CheckAllInputs()
+{
+    n_cluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        n_cluster = value_ncluster;
+    }
+    if (n_cluster < 2 || n_cluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+
+    transform = combo_tranform->GetSelection();
+
+    if (GetInputData(transform,1) == false) return false;
+
+    if (!CheckMinBound()) return false;
+
+    n_pass = 10;
+    wxString str_pass = m_pass->GetValue();
+    long l_pass;
+    if(str_pass.ToLong(&l_pass)) {
+        n_pass = l_pass;
+    }
+
+    n_maxiter = 300; // max iteration of EM
+    wxString iterations = m_iterations->GetValue();
+    long l_maxiter;
+    if(iterations.ToLong(&l_maxiter)) {
+        n_maxiter = l_maxiter;
+    }
+
+    meth_sel = combo_method->GetSelection();
+
+    dist_sel = m_distance->GetSelection();
+
+    return true;
 }
 
 bool KClusterDlg::Run(vector<wxInt64>& clusters)
@@ -359,48 +401,16 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         setrandomstate(-1);
         resetrandom();
     }
-    
-    int ncluster = 0;
-    wxString str_ncluster = combo_n->GetValue();
-    long value_ncluster;
-    if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
-    }
-    if (ncluster < 2 || ncluster > num_obs) {
-        wxString err_msg = _("Please enter a valid number of clusters.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return false;
-    }
-    
-    int transform = combo_tranform->GetSelection();
-    
-    if (!GetInputData(transform,1))
-        return false;
-    
-    if (!CheckMinBound())
-        return false;
-    
-    int npass = 10;
-    wxString str_pass = m_pass->GetValue();
-    long value_pass;
-    if(str_pass.ToLong(&value_pass)) {
-        npass = value_pass;
-    }
-    
-    int n_maxiter = 300; // max iteration of EM
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        n_maxiter = value;
-    }
-    
-    int meth_sel = combo_method->GetSelection();
-    
+
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    // this function has to be called when use auto-weighting
+    weight = GetWeights(columns);
+
     // start working
     int nCPUs = boost::thread::hardware_concurrency();
-    int quotient = npass / nCPUs;
-    int remainder = npass % nCPUs;
+    int quotient = n_pass / nCPUs;
+    int remainder = n_pass % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     map<double, vector<wxInt64> >::iterator it;
@@ -408,9 +418,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         it->second.clear();
     }
     sub_clusters.clear();
-    
-    int dist_sel = m_distance->GetSelection();
-    
+
     ComputeDistMatrix(dist_sel);
     
     double min_bound = GetMinBound();
@@ -437,7 +445,9 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         if (s1 >0) s1 = a + 1;
         int n_runs = b - a + 1;
         
-        boost::thread* worker = new boost::thread(boost::bind(&KClusterDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
+        boost::thread* worker = new boost::thread(
+            boost::bind(&KClusterDlg::doRun, this, s1, n_cluster, n_runs,
+                        n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }
@@ -468,14 +478,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
 void KClusterDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KClusterDlg::OnOK");
-   
-    int ncluster = 0;
-    wxString str_ncluster = combo_n->GetValue();
-    long value_ncluster;
-    if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
-    }
-    
+
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
@@ -483,20 +486,19 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
-    vector<bool> clusters_undef(num_obs, false);
-    
+    if (CheckAllInputs() == false) return;
+
     vector<wxInt64> clusters;
     if (Run(clusters) == false) return;
     
     // sort result
-    std::vector<std::vector<int> > cluster_ids(ncluster);
+    std::vector<std::vector<int> > cluster_ids(n_cluster);
     for (int i=0; i < clusters.size(); i++) {
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
-    for (int i=0; i < ncluster; i++) {
+    for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
@@ -516,7 +518,9 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         int m_length_val = GdaConst::default_dbf_long_len;
         int m_decimals_val = 0;
         
-        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+        col = table_int->InsertCol(GdaConst::long64_type, field_name,
+                                   col_insert_pos, time_steps,
+                                   m_length_val, m_decimals_val);
     } else {
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col) != GdaConst::long64_type ) {
@@ -528,14 +532,13 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
+        vector<bool> clusters_undef(num_obs, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
     
     // show a cluster map
-    if (project->IsTableOnlyProject()) {
-        return;
-    }
+    if (project->IsTableOnlyProject())  return;
     
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
@@ -558,10 +561,8 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-    wxString ttl;
-    ttl << cluster_method << " " << _("Cluster Map ") << "(";
-    ttl << ncluster;
-    ttl << " clusters)";
+    wxString tmp = _("%s Cluster Map (%d clusters)");
+    wxString ttl = wxString::Format(tmp, cluster_method, n_cluster);
     nf->SetTitle(ttl);
 }
 
