@@ -320,7 +320,8 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     }
 
     // not show print
-    ssd = CreateSummary(clusters, false);
+    bool print_result = false;
+    ssd = CreateSummary(clusters, print_result);
 
     if (GetDefaultContiguity() == false) return false;
 
@@ -328,6 +329,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     map<int, set<wxInt64> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = clusters[i];
+        if (c == 0) continue; // 0 means not clustered
         if (groups.find(c)==groups.end()) {
             set<wxInt64> g;
             g.insert(i);
@@ -373,7 +375,6 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
     double mid = left + delta /2.0;
 
     // assume left is always not contiguity and right is always contiguity
-    //bool l_conti = CheckContiguity(left);
     double m_ssd = 0;
     bool m_conti = CheckContiguity(mid, m_ssd);
 

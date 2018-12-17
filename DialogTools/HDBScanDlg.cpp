@@ -57,8 +57,6 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s,  _("HDBScan Clustering Settings"))
 {
     wxLogMessage("Open HDBScanDlg.");
-    m_distances = NULL;
-
     parent = parent_s;
     project = project_s;
     
@@ -78,10 +76,6 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
 HDBScanDlg::~HDBScanDlg()
 {
     highlight_state->removeObserver(this);
-    if (m_distances) {
-        for (int i = 1; i < rows; i++) delete[] m_distances[i];
-        delete[] m_distances;
-    }
 }
 
 void HDBScanDlg::Highlight(int id)
@@ -130,7 +124,8 @@ void HDBScanDlg::CreateControls()
     
     // Input
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    AddInputCtrls(panel, vbox);
+    bool show_auto_ctrl = true;
+    AddInputCtrls(panel, vbox, show_auto_ctrl);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
@@ -285,7 +280,6 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
 
     vector<bool> undefs(rows, false);
 
-    
     new_data[0].d_val = &core_dist;
     new_data[0].label = "Core Dist";
     new_data[0].field_default = "HDB_CORE";
@@ -304,9 +298,9 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     new_data[2].field_default = "HDB_OUT";
     new_data[2].type = GdaConst::double_type;
     new_data[2].undefined = &undefs;
-    
-    SaveToTableDlg dlg(project, this, new_data,
-                       "Save Results: HDBScan (Core Distances/Probabilities/Outliers)",
+
+    wxString ttl = _("Save Results: HDBScan (Core Distances/Probabilities/Outliers)");
+    SaveToTableDlg dlg(project, this, new_data, ttl,
                        wxDefaultPosition, wxSize(400,400));
     dlg.ShowModal();
     
@@ -423,11 +417,60 @@ wxString HDBScanDlg::_printConfiguration()
     return txt;
 }
 
+bool HDBScanDlg::CheckAllInputs()
+{
+    m_min_pts = 0;
+    long l_min_pts;
+    if (m_minpts->GetValue().ToLong(&l_min_pts)) {
+        m_min_pts = l_min_pts;
+    }
+    if (m_min_pts<=1) {
+        wxString err_msg = _("Minimum cluster size should be greater than one.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+
+    m_min_samples = 10;
+    long l_min_samples;
+    if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
+        m_min_samples = l_min_samples;
+    }
+    if (m_min_samples <= 1) {
+        wxString err_msg = _("Minimum samples should be greater than zero.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+
+    double d_alpha = 1;
+    if (m_ctl_alpha->GetValue().ToDouble(&d_alpha)) {
+        m_alpha = d_alpha;
+    }
+
+    m_cluster_selection_method = m_select_method->GetSelection();
+    m_allow_single_cluster = chk_allowsinglecluster->IsChecked();
+
+    int transform = combo_tranform->GetSelection();
+    if ( GetInputData(transform,1) == false) return false;
+
+    dist = 'e';
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','b'};
+    dist = dist_choices[dist_sel];
+
+    return true;
+}
+
 bool HDBScanDlg::Run(vector<wxInt64>& clusters)
 {
+    cluster_ids.clear();
     clusters.clear();
     clusters.resize(rows, 0);
 
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    weight = GetWeights(columns);
     // add weight to input_data
     double** data  = new double*[rows];
     for (int i=0; i<rows; i++) {
@@ -436,79 +479,37 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
             data[i][j] = input_data[i][j] * weight[j];
         }
     }
-
-    GeoDaClustering::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
-                                 m_cluster_selection_method,
-                                 m_allow_single_cluster, rows, columns,
-                                 m_distances, data, undefs);
+    core_dist = GeoDaClustering::HDBScan::ComputeCoreDistance(
+                                    data, rows, columns, m_min_samples, dist);
 
     for (int i=0; i<rows; i++) delete[] data[i];
     delete[] data;
 
+    double** dist_matrix = NULL;
+    if (dist == 'e') {
+        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
+                                         columns, DataUtils::EuclideanDistance);
+    } else {
+        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
+                                         columns,DataUtils::ManhattanDistance);
+    }
+    
+    GeoDaClustering::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
+                                 m_cluster_selection_method,
+                                 m_allow_single_cluster, rows, columns,
+                                 dist_matrix, core_dist, undefs);
     cluster_ids = hdb.GetRegions();
-    core_dist = hdb.core_dist;
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
-    return true;
-}
 
-void HDBScanDlg::OnOKClick(wxCommandEvent& event )
-{
-    wxLogMessage("Click HDBScanDlg::OnOK");
-
-    m_min_pts = 0;
-    m_minpts->GetValue().ToLong(&m_min_pts);
-    if (m_min_pts<=1) {
-        wxString err_msg = _("Minimum cluster size should be greater than one.");
-        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
-        return;
-    }
-    
-    int transform = combo_tranform->GetSelection();
-    bool success = GetInputData(transform,1);
-    if (!success) return;
-    
-    char method = 's';
-    char dist = 'e';
-    int  transpose = 0; // row wise
-    
-    int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','b'};
-    dist = dist_choices[dist_sel];
-    
-    m_min_samples = 10;
-    m_minsamples->GetValue().ToLong(&m_min_samples);
-    if (m_min_samples<=1) {
-        wxString err_msg = _("Minimum samples should be greater than zero.");
-        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
-        return;
-    }
-    
-    m_alpha = 1;
-    m_ctl_alpha->GetValue().ToDouble(&m_alpha);
-    
-    m_cluster_selection_method = m_select_method->GetSelection();
-    m_allow_single_cluster = chk_allowsinglecluster->IsChecked();
-
-    double** ragged_distances = distancematrix(rows, columns, input_data,
-                                               mask, weight, dist, transpose);
-    if (m_distances) {
-        for (int i = 1; i < rows; i++) delete[] m_distances[i];
-        delete[] m_distances;
-    }
-    m_distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
-    for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-    free(ragged_distances);
-
-    if (Run(clusters) == false) return;
+    for (int i=0; i<rows; i++) delete[] dist_matrix[i];
+    delete[] dist_matrix;
 
     int ncluster = cluster_ids.size();
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    
+
     for (int i=0; i < ncluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
@@ -516,6 +517,26 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
             clusters[idx] = c;
         }
     }
+
+    return true;
+}
+
+void HDBScanDlg::OnOKClick(wxCommandEvent& event )
+{
+    wxLogMessage("Click HDBScanDlg::OnOK");
+
+    // save to table
+    wxString field_name = m_textbox->GetValue();
+    if (field_name.IsEmpty()) {
+        wxString err_msg = _("Please enter a field name for saving clustering results.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    if (CheckAllInputs() == false) return;
+
+    if (Run(clusters) == false) return;
     
     // in case not clustered
     int not_clustered =0;
@@ -534,15 +555,6 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     // summary
     CreateSummary(clusters);
-    
-    // save to table
-    wxString field_name = m_textbox->GetValue();
-    if (field_name.IsEmpty()) {
-        wxString err_msg = _("Please enter a field name for saving clustering results.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
     
     int time=0;
     int col = table_int->FindColId(field_name);
@@ -569,15 +581,9 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
         table_int->SetColUndefined(col, time, clusters_undef);
     }
     
-
-    
-    //delete[] bound_vals;
-    //bound_vals = NULL;
-    
     // show a cluster map
-    if (project->IsTableOnlyProject()) {
-        return;
-    }
+    if (project->IsTableOnlyProject()) return;
+
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
     new_col_ids.resize(1);
@@ -599,15 +605,10 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-    wxString ttl;
-    ttl << "HDBScan " << _("Cluster Map ") << "(";
-    ttl << cluster_ids.size();
-    ttl << " clusters)";
+    wxString tmp = _("HDBScan Cluster Map (%d clusters)");
+    wxString ttl = wxString::Format(tmp, (int)cluster_ids.size());
     nf->SetTitle(ttl);
-    
-    if (not_clustered>0) {
-        nf->SetLegendLabel(0, _("Not Clustered"));
-    }
+    if (not_clustered >0) nf->SetLegendLabel(0, _("Not Clustered"));
     
     saveButton->Enable();
     
@@ -627,5 +628,4 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     */
     
     saveButton->Enable();
-    //m_cluster->Enable();
 }

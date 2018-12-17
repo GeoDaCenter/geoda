@@ -62,14 +62,18 @@ public:
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
     void Highlight(vector<int>& ids);
-    
+
 protected:
-    long     m_min_pts;
-    long     m_min_samples;
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+protected:
+    char     dist;
+    int      m_min_pts;
+    int      m_min_samples;
     double   m_alpha;
     int      m_cluster_selection_method;
     bool     m_allow_single_cluster;
-    double** m_distances;
 
     vector<double> core_dist;
     vector<double> probabilities;
@@ -80,7 +84,6 @@ protected:
     
     double cutoffDistance;
     vector<wxInt64> clusters;
-    //vector<bool> clusters_undef;
     
     wxButton *saveButton;
     wxChoice* combo_n;
@@ -96,8 +99,6 @@ protected:
     wxChoice* m_select_method;
     wxCheckBox* chk_allowsinglecluster;
 
-protected:
-    virtual bool Run(vector<wxInt64>& clusters);
 
     DECLARE_EVENT_TABLE()
 };

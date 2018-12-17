@@ -30,8 +30,8 @@ public:
     {
         double d =0,tmp=0;
         for (size_t i =0; i<size; i++ ) {
-            tmp = (x1[i] - x2[i]) * weight[i];
-            d += tmp * tmp;
+            tmp = (x1[i] - x2[i]);
+            d += tmp * tmp * weight[i];
         }
         return d;
     }
@@ -283,7 +283,29 @@ public:
         
         return copy;
     }
-    
+
+    static double** ComputeFullDistMatrix(double** data, double* weight,
+                                          int rows, int columns
+                                          , double dist(double* , double* , size_t, double*))
+    {
+        double** dist_matrix  = new double*[rows];
+        for (size_t i=0; i<rows; ++i) {
+            dist_matrix[i] = new double[rows];
+        }
+        for (size_t i=0; i<rows; ++i) {
+            for (size_t j=i; j<rows; ++j) {
+                if ( i == j ) {
+                    dist_matrix[i][j] = 0;
+                    continue;
+                }
+                dist_matrix[i][j] = dist(data[i], data[j], columns, weight);
+                dist_matrix[i][j] = sqrt(dist_matrix[i][j]);
+                dist_matrix[j][i] = dist_matrix[i][j] ;
+            }
+        }
+        return dist_matrix;
+    }
+
     // upper triangular part of a symmetric matrix
     static double* getPairWiseDistance(double** matrix, double* weight, int n, int k, double dist(double* , double* , size_t, double*))
     {
