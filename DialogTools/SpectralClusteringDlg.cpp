@@ -374,7 +374,9 @@ void SpectralClusteringDlg::OnKernelCheck(wxCommandEvent& event)
     chk_knn->SetValue(!flag);
     lbl_neighbors->Enable(!flag);
     m_knn->Enable(!flag);
-    
+    lbl_knn->Enable(!flag);
+
+    lbl_kernel->Enable(flag);
     lbl_sigma->Enable(flag);
     m_sigma->Enable(flag);
 }
@@ -384,8 +386,10 @@ void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
     bool flag = chk_knn->IsChecked();
     lbl_neighbors->Enable(flag);
     m_knn->Enable(flag);
-    
+    lbl_knn->Enable(flag);
+
     chk_kernel->SetValue(!flag);
+    lbl_kernel->Enable(!flag);
     lbl_sigma->Enable(!flag);
     m_sigma->Enable(!flag);
 }
@@ -747,7 +751,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
 
-    wxString tmp = _("Spectral Clustering Map (%s clusters)");
-    wxString ttl = wxString::Format(tmp, clusters.size());
+    wxString tmp = _("Spectral Clustering Map (%d clusters)");
+    wxString ttl = wxString::Format(tmp, (int)clusters.size());
     nf->SetTitle(ttl);
 }
