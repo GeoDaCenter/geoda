@@ -368,8 +368,8 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
 
     double mid = left + delta /2.0;
 
-        // assume left is always not contiguity and right is always contiguity
-        //bool l_conti = CheckContiguity(left);
+    // assume left is always not contiguity and right is always contiguity
+    //bool l_conti = CheckContiguity(left);
     double m_ssd = 0;
     bool m_conti = CheckContiguity(mid, m_ssd);
 

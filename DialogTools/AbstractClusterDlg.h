@@ -37,7 +37,8 @@ using namespace std;
 class Project;
 class TableInterface;
 
-class AbstractClusterDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
+class AbstractClusterDlg : public wxDialog, public FramesManagerObserver,
+    public TableStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);

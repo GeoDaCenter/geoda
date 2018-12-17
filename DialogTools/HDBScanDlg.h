@@ -64,6 +64,13 @@ public:
     void Highlight(vector<int>& ids);
     
 protected:
+    long     m_min_pts;
+    long     m_min_samples;
+    double   m_alpha;
+    int      m_cluster_selection_method;
+    bool     m_allow_single_cluster;
+    double** m_distances;
+
     vector<double> core_dist;
     vector<double> probabilities;
     vector<double> outliers;
@@ -73,7 +80,7 @@ protected:
     
     double cutoffDistance;
     vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
+    //vector<bool> clusters_undef;
     
     wxButton *saveButton;
     wxChoice* combo_n;
@@ -83,12 +90,15 @@ protected:
     DendrogramPanel* m_panel;
     wxTextCtrl* m_minpts;
     wxTextCtrl* m_minsamples;
-    wxTextCtrl* m_alpha;
+    wxTextCtrl* m_ctl_alpha;
     wxTextCtrl* m_cluster;
     wxNotebook* notebook;
     wxChoice* m_select_method;
     wxCheckBox* chk_allowsinglecluster;
-    
+
+protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+
     DECLARE_EVENT_TABLE()
 };
 
