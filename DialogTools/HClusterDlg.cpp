@@ -64,7 +64,8 @@ HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s,  _("Hierarchical Clustering Settings"))
 {
     wxLogMessage("Open HClusterDlg.");
-    
+    htree = NULL;
+
     parent = parent_s;
     project = project_s;
     
@@ -84,6 +85,10 @@ HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
 HClusterDlg::~HClusterDlg()
 {
     highlight_state->removeObserver(this);
+    if (htree != NULL) {
+        delete[] htree;
+        htree = NULL;
+    }
 }
 
 void HClusterDlg::Highlight(int id)
@@ -132,10 +137,14 @@ void HClusterDlg::CreateControls()
     
     // Input
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    AddInputCtrls(panel, vbox);
+    bool show_auto_ctrl = true;
+    AddInputCtrls(panel, vbox, show_auto_ctrl);
     
     // Parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(7,2,5,0);
+
+    // NumberOfCluster Control
+    AddNumberOfClusterCtrl(panel, gbox);
 
     // Transformation
     AddTransformation(panel, gbox);
@@ -178,10 +187,6 @@ void HClusterDlg::CreateControls()
     
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
-
-    // NumberOfCluster Control
-    bool allow_dropdown = false;
-    AddNumberOfClusterCtrl(panel, gbox1, allow_dropdown);
     
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
@@ -251,16 +256,16 @@ void HClusterDlg::CreateControls()
         sel_pos = i;
     }
     if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
-    
-    
+
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
     combo_n->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    combo_n->Connect(wxEVT_CHOICE, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+
     chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
-    combo_n->Disable();
 }
 
 void HClusterDlg::OnSpatialConstraintCheck(wxCommandEvent& event)
@@ -290,7 +295,6 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
         return;
     }
 
-    
     // save to table
     int time=0;
     int col = table_int->FindColId(field_name);
@@ -312,6 +316,7 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     }
     
     if (col > 0) {
+        vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
@@ -457,49 +462,138 @@ wxString HClusterDlg::_printConfiguration()
     return txt;
 }
 
-void HClusterDlg::OnOKClick(wxCommandEvent& event )
+
+bool HClusterDlg::CheckAllInputs()
 {
-    wxLogMessage("Click HClusterDlg::OnOK");
-    
-    long ncluster = 2; // set to 2 clusters by default
-    
-    int transform = combo_tranform->GetSelection();
-    bool success = GetInputData(transform,1);
-    if (!success) {
-        return;
+    n_cluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        n_cluster = value_ncluster;
     }
-    
-    char method = 's';
-    char dist = 'e';
-    
-    int transpose = 0; // row wise
-    int* clusterid = new int[rows];
-    
+    if (n_cluster < 2 || n_cluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+
+    int transform = combo_tranform->GetSelection();
+    if(GetInputData(transform,1) == false) return false;
+
+    method = 's';
     int method_sel = m_method->GetSelection();
     char method_choices[] = {'s','w', 'm','a'};
     method = method_choices[method_sel];
 
-    
+    dist = 'e';
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
-    
-    GdaNode* htree = new GdaNode[rows-1];
+
+    return true;
+}
+
+bool HClusterDlg::Run(vector<wxInt64>& clusters)
+{
+    double* pwdist = NULL;
+    if (dist == 'e') {
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
+                                                columns,
+                                                DataUtils::EuclideanDistance);
+    } else {
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
+                                                columns,
+                                                DataUtils::ManhattanDistance);
+    }
+
+    fastcluster::auto_array_ptr<t_index> members;
+    if (htree != NULL) {
+        delete[] htree;
+        htree = NULL;
+    }
+    htree = new GdaNode[rows-1];
     fastcluster::cluster_result Z2(rows-1);
+
+    if (method == 's') {
+        fastcluster::MST_linkage_core(rows, pwdist, Z2);
+    } else if (method == 'w') {
+        members.init(rows, 1);
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
+    } else if (method == 'm') {
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
+    } else if (method == 'a') {
+        members.init(rows, 1);
+        fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
+    }
+
+    delete[] pwdist;
+
+    std::stable_sort(Z2[0], Z2[rows-1]);
+    t_index node1, node2;
+    int i=0;
+    fastcluster::union_find nodes(rows);
+    for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
+        // Find the cluster identifiers for these points.
+        node1 = nodes.Find(NN->node1);
+        node2 = nodes.Find(NN->node2);
+        // Merge the nodes in the union-find data structure by making them
+        // children of a new node.
+        nodes.Union(node1, node2);
+
+        node2 = node2 < rows ? node2 : rows-node2-1;
+        node1 = node1 < rows ? node1 : rows-node1-1;
+
+        //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+        //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
+        htree[i].left = node1;
+        htree[i].right = node2;
+        htree[i].distance = Z2[i]->dist;
+    }
+    clusters.clear();
+    int* clusterid = new int[rows];
+    cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
+    for (int i=0; i<rows; i++) {
+        clusters.push_back(clusterid[i]+1);
+    }
+    delete[] clusterid;
+    clusterid = NULL;
+
+    return true;
+}
+
+
+void HClusterDlg::OnOKClick(wxCommandEvent& event )
+{
+    wxLogMessage("Click HClusterDlg::OnOK");
+
+    if (CheckAllInputs() == false) return;
+
+    if (Run(clusters) == false)  return;
     
-    // Get Weights Selection
+    // draw dendrogram
+    m_panel->Setup(htree, rows, n_cluster, clusters, cutoffDistance);
+
+    saveButton->Enable();
+}
+
+void HClusterDlg::SpatialConstraintClustering()
+{
+    int transpose = 0; // row wise
+    fastcluster::cluster_result Z2(rows-1);
+
     if (chk_contiguity->GetValue()) {
         vector<boost::uuids::uuid> weights_ids;
         WeightsManInterface* w_man_int = project->GetWManInt();
         w_man_int->GetIds(weights_ids);
-        
+
         int sel = combo_weights->GetSelection();
         if (sel < 0) sel = 0;
         if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-        
+
         boost::uuids::uuid w_id = weights_ids[sel];
         GalWeight* gw = w_man_int->GetGal(w_id);
-        
+
         if (gw == NULL) {
             wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
@@ -513,7 +607,7 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
-        
+
         double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
         double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
         for (int i = 1; i < rows; i++) free(ragged_distances[i]);
@@ -525,81 +619,10 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
             Z2[i]->node2 = redcap->ordered_edges[i]->dest->id;
             Z2[i]->dist = redcap->ordered_edges[i]->length;
         }
-        
+
         delete redcap;
-        
-    } else {
-    
-        double* pwdist = NULL;
-        if (dist == 'e') {
-            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::EuclideanDistance);
-        } else {
-            pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows, columns, DataUtils::ManhattanDistance);
-        }
-        
-        fastcluster::auto_array_ptr<t_index> members;
-        
-        if (method == 's') {
-            fastcluster::MST_linkage_core(rows, pwdist, Z2);
-        } else if (method == 'w') {
-            members.init(rows, 1);
-            fastcluster::NN_chain_core<fastcluster::METHOD_METR_WARD, t_index>(rows, pwdist, members, Z2);
-        } else if (method == 'm') {
-            fastcluster::NN_chain_core<fastcluster::METHOD_METR_COMPLETE, t_index>(rows, pwdist, NULL, Z2);
-        } else if (method == 'a') {
-            members.init(rows, 1);
-            fastcluster::NN_chain_core<fastcluster::METHOD_METR_AVERAGE, t_index>(rows, pwdist, members, Z2);
-        }
-        
-        delete[] pwdist;
-        
     }
-    std::stable_sort(Z2[0], Z2[rows-1]);
-    t_index node1, node2;
-    int i=0;
-    fastcluster::union_find nodes(rows);
-    for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
-        // Find the cluster identifiers for these points.
-        node1 = nodes.Find(NN->node1);
-        node2 = nodes.Find(NN->node2);
-        // Merge the nodes in the union-find data structure by making them
-        // children of a new node.
-        nodes.Union(node1, node2);
-        
-        node2 = node2 < rows ? node2 : rows-node2-1;
-        node1 = node1 < rows ? node1 : rows-node1-1;
-        
-        //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
-        //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
-        htree[i].left = node1;
-        htree[i].right = node2;
-        htree[i].distance = Z2[i]->dist;
-    }
-    
-    
-    double cutoffDistance = cuttree (rows, htree, ncluster, clusterid);
-    
-    clusters.clear();
-    clusters_undef.clear();
-   
-    for (int i=0; i<rows; i++) {
-        clusters.push_back(clusterid[i]+1);
-        clusters_undef.push_back(false);
-    }
-    delete[] clusterid;
-    clusterid = NULL;
-    
-    // draw dendrogram
-    m_panel->Setup(htree, rows, ncluster, clusters, cutoffDistance);
-    // free(htree); should be freed in m_panel since drawing still needs it's instance
-    
-
-    saveButton->Enable();
-    combo_n->Enable();
-    combo_n->SetValue("2");
 }
-
-
 
 IMPLEMENT_ABSTRACT_CLASS(DendrogramPanel, wxPanel)
 
@@ -609,7 +632,9 @@ EVT_IDLE(DendrogramPanel::OnIdle)
 EVT_PAINT(DendrogramPanel::OnPaint)
 END_EVENT_TABLE()
 
-DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
+DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent,
+                                 wxWindowID id, const wxPoint &pos,
+                                 const wxSize &size)
 : wxPanel(parent, id, pos, size), max_n_clusters(_max_n_clusters)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -634,7 +659,7 @@ DendrogramPanel::~DendrogramPanel()
         delete end_nodes[i];
     }
     end_nodes.clear();
-    if (root) free(root); root = NULL;
+    if (root) delete[] root;
     if (layer_bm) {
         delete layer_bm;
         layer_bm= NULL;
@@ -643,7 +668,6 @@ DendrogramPanel::~DendrogramPanel()
     if (split_line) {
         delete split_line;
         split_line = NULL;
-        
     }
 }
 
@@ -723,18 +747,16 @@ void DendrogramPanel::OnIdle(wxIdleEvent& event)
         
         wxSize sz = GetClientSize();
         if (sz.x > 0 && sz.y > 0) {
-        if (layer_bm)  {
-            delete layer_bm;
-            layer_bm = 0;
-        }
-        
-        double scale_factor = GetContentScaleFactor();
-        layer_bm = new wxBitmap;
-        layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
+            if (layer_bm)  {
+                delete layer_bm;
+                layer_bm = 0;
+            }
 
-        if (root) {
-            init();
-        }
+            double scale_factor = GetContentScaleFactor();
+            layer_bm = new wxBitmap;
+            layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
+
+            if (root) init();
         }
     }
     event.Skip();
@@ -767,13 +789,16 @@ void DendrogramPanel::OnPaint( wxPaintEvent& event )
     event.Skip();
 }
 
-void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff) {
-    if (root && root != _root) {
-        // free previous tree in memory
-        free(root);
-        root = NULL;
+void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters,
+                            std::vector<wxInt64>& _clusters, double _cutoff)
+{
+    if (root != NULL) {
+        delete[] root;
     }
-    root = _root;
+    root = new GdaNode[_nelements];
+    for (size_t i=0; i<_nelements; ++i) {
+        root[i] = _root[i];
+    }
     nelements = _nelements;
     clusters = _clusters;
     nclusters = _nclusters;

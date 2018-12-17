@@ -265,9 +265,12 @@ void Spectral::cluster(int affinity_type)
         generate_knn_matrix();
     }
     
-    if (power_iter>0) fast_eigendecomposition();
-    else eigendecomposition();
-
+    if (power_iter>0) {
+        fast_eigendecomposition();
+    } else {
+        // try other method than eigen3, e.g. Intel MLK
+        eigendecomposition();
+    }
     kmeans();
 }
 

@@ -103,7 +103,8 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddInputCtrls(panel, vbox);
+    bool show_auto_button = true;
+    AddInputCtrls(panel, vbox, show_auto_button);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(14,2,5,0);
@@ -166,7 +167,7 @@ void SpectralClusteringDlg::CreateControls()
     chk_poweriteration->Bind(wxEVT_CHECKBOX,
                              &SpectralClusteringDlg::OnCheckPowerIteration,
                              this);
-    if (project->GetNumRecords() < 2000) {
+    if (project->GetNumRecords() < 100) {
         lbl_poweriteration->Disable();
         txt_poweriteration->Disable();
     } else {
@@ -527,7 +528,9 @@ wxString SpectralClusteringDlg::_printConfiguration()
     if (chk_knn->IsChecked()) {
         txt << _("Affinity with K-Nearest Neighbors:\tK=") << m_knn->GetValue() << "\n";
     }
-    
+    if (chk_poweriteration->IsChecked()) {
+        txt << _("Use Power Iteration method:\tMax iterations=") << txt_poweriteration->GetValue() << "\n";
+    }
     txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
     txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
@@ -560,7 +563,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     }
 
     // get input: iterations
-    n_power_iter = 300;
+    n_power_iter = 0;
     long l_iterations;
     if (chk_poweriteration->IsChecked()) {
         wxString str_iterations;

@@ -256,9 +256,18 @@ public:
     void Highlight(vector<int>& ids);
     
 protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+    void SpatialConstraintClustering();
+
+    GdaNode* htree;
+    int n_cluster;
+    char dist;
+    char method;
+
     double cutoffDistance;
     vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
     
     wxButton *saveButton;
     wxChoice* combo_cov;

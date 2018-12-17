@@ -75,7 +75,8 @@ void KClusterDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddInputCtrls(panel, vbox, true);
+    bool show_auto_button = true;
+    AddInputCtrls(panel, vbox, show_auto_button);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
@@ -759,7 +760,8 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     delete[] clusterid;
 }
 
-vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+vector<vector<double> > KMedoidsDlg::_getMeanCenters(
+                                        const vector<vector<int> >& solutions)
 {
     // The centroid is defined as the element with the
     // smallest sum of distances to the other elements.
