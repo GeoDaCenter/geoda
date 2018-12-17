@@ -496,6 +496,10 @@ bool HClusterDlg::CheckAllInputs()
 
 bool HClusterDlg::Run(vector<wxInt64>& clusters)
 {
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    weight = GetWeights(columns);
+    
     double* pwdist = NULL;
     if (dist == 'e') {
         pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
