@@ -755,6 +755,6 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
                                 GdaConst::map_default_size);
 
     wxString tmp = _("Spectral Clustering Map (%d clusters)");
-    wxString ttl = wxString::Format(tmp, (int)clusters.size());
+    wxString ttl = wxString::Format(tmp, n_cluster);
     nf->SetTitle(ttl);
 }
