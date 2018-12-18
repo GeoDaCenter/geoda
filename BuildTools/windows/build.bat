@@ -718,8 +718,8 @@ echo #####################################################
 echo #   build wxWidgets 
 echo #####################################################
 echo.
-set LIB_NAME=wxWidgets-3.1.2
-set LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.2/wxWidgets-3.1.2.7z"
+set LIB_NAME=wxWidgets-3.1.0
+set LIB_URL="https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.0/wxWidgets-3.1.0.7z"
 
 REM # We are only checking for a small subset of wxWidgets libraries
 set ALL_EXIST=true
