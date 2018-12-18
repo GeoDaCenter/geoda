@@ -52,8 +52,6 @@ public:
     void OnDistanceChoice(wxCommandEvent& event);
     void OnInitMethodChoice(wxCommandEvent& event);
 
-    virtual bool Run(vector<wxInt64>& clusters);
-    
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
@@ -62,7 +60,17 @@ public:
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
 
-protected:    
+protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+    int n_cluster;
+    int transform;
+    int n_pass;
+    int n_maxiter;
+    int meth_sel;
+    int dist_sel;
+    
     bool show_initmethod;
     bool show_distance;
     bool show_iteration;

@@ -1263,8 +1263,12 @@ wxString GenUtils::DblToStr(double x, int precision)
     if (x < 10000000) {
         ss << std::fixed;
     }
-	ss << std::setprecision(precision);
-    ss << x;
+    if (x == (int)x) {
+        ss << (int)x;
+    } else {
+        ss << std::setprecision(precision);
+        ss << x;
+    }
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
@@ -1272,13 +1276,12 @@ wxString GenUtils::IntToStr(int x, int precision)
 {
     std::stringstream ss;
     
+    if (x < 10000000) {
+        ss << std::fixed;
+    }
+    ss << std::setprecision(precision);
+    ss << x;
 
-        if (x < 10000000) {
-            ss << std::fixed;
-        }
-        ss << std::setprecision(precision);
-        ss << x;
-    
     return wxString(ss.str().c_str(), wxConvUTF8);
 }
 

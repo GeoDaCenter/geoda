@@ -37,7 +37,8 @@ using namespace std;
 class Project;
 class TableInterface;
 
-class AbstractClusterDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
+class AbstractClusterDlg : public wxDialog, public FramesManagerObserver,
+    public TableStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
@@ -84,6 +85,8 @@ protected:
     
     virtual bool Init();
 
+    virtual bool CheckAllInputs();
+    
     virtual bool Run(vector<wxInt64>& clusters) { return false;}
     
     virtual double* GetWeights(int columns);

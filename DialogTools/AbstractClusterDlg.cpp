@@ -52,9 +52,13 @@
 
 
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
-: frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState()),
-wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
-validator(wxFILTER_INCLUDE_CHAR_LIST), input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL), m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL), combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),  slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL)
+  : frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState()),
+    wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+    validator(wxFILTER_INCLUDE_CHAR_LIST),
+    input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL),
+    m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL),
+    combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),
+    slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -316,7 +320,8 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     }
 
     // not show print
-    ssd = CreateSummary(clusters, false);
+    bool print_result = false;
+    ssd = CreateSummary(clusters, print_result);
 
     if (GetDefaultContiguity() == false) return false;
 
@@ -324,6 +329,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     map<int, set<wxInt64> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = clusters[i];
+        if (c == 0) continue; // 0 means not clustered
         if (groups.find(c)==groups.end()) {
             set<wxInt64> g;
             g.insert(i);
@@ -368,8 +374,7 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
 
     double mid = left + delta /2.0;
 
-        // assume left is always not contiguity and right is always contiguity
-        //bool l_conti = CheckContiguity(left);
+    // assume left is always not contiguity and right is always contiguity
     double m_ssd = 0;
     bool m_conti = CheckContiguity(mid, m_ssd);
 
@@ -382,8 +387,9 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
     }
 }
 
-void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
+bool AbstractClusterDlg::CheckAllInputs()
 {
+    // default CheckAllInputs only has "output number of cluster" check
     int ncluster = 0;
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
@@ -394,9 +400,15 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        return;
+        return false;
     }
+    return true;
+}
 
+void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
+{
+    if (CheckAllInputs() == false) return;
+    
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
     // when w = 0 (fully attributes based)
@@ -644,7 +656,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     col_names.clear();
     select_vars.clear();
     
-    if ((!use_centroids && num_var>0) || (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
+    if ((!use_centroids && num_var>0) ||
+        (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
     {
         col_ids.resize(num_var);
         var_info.resize(num_var);
@@ -702,14 +715,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         // get columns (time variables always show upgrouped)
         columns += data.size();
         
-        if (m_weight_centroids && m_use_centroids)
-            weight = GetWeights(columns);
-        else {
-            weight = new double[columns];
-            for (int j=0; j<columns; j++){
-                weight[j] = 1;
-            }
-        }
+        weight = GetWeights(columns);
+
         
         // init input_data[rows][cols]
         input_data = new double*[rows];
@@ -777,23 +784,30 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 
 double* AbstractClusterDlg::GetWeights(int columns)
 {
-    double* weight = new double[columns];
+    if (weight != NULL) {
+        delete[] weight;
+        weight = NULL;
+    }
+    double* _weight = new double[columns];
     double wc = 1;
     for (int j=0; j<columns; j++){
-        weight[j] = 1;
+        _weight[j] = 1;
     }
-    if ( m_weight_centroids && m_weight_centroids->GetValue() > 0 && m_use_centroids->IsChecked() ) {
-        double sel_wc = m_weight_centroids->GetValue();
-        wc = sel_wc / 100.0;
-        double n_var_cols = (double)(columns - 2);
-        for (int j=0; j<columns; j++){
-            if (j==0 || j==1)
-                weight[j] = wc * 0.5;
-            else {
-                weight[j] = (1 - wc) / n_var_cols;
+    if (m_weight_centroids && m_use_centroids) {
+        if (m_weight_centroids->GetValue() > 0 && m_use_centroids->IsChecked()) {
+            double sel_wc = m_weight_centroids->GetValue();
+            wc = sel_wc / 100.0;
+            double n_var_cols = (double)(columns - 2);
+            for (int j=0; j<columns; j++){
+                if (j==0 || j==1)
+                    _weight[j] = wc * 0.5;
+                else {
+                    _weight[j] = (1 - wc) / n_var_cols;
+                }
             }
         }
     }
+    weight = _weight;
     return weight;
 }
 

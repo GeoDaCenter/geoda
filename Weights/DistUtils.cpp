@@ -15,7 +15,8 @@
 
 using namespace GeoDa;
 
-DistUtils::DistUtils(const std::vector<std::vector<double> >& input_data, int distance_metric)
+DistUtils::DistUtils(const std::vector<std::vector<double> >& input_data,
+                     int distance_metric)
 {
     eps = 0.0;
     

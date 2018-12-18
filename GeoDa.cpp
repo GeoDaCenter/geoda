@@ -34,8 +34,6 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-#include <sqlite3.h>
-
 #include "ogrsf_frmts.h"
 #include "cpl_conv.h"
 
@@ -6490,9 +6488,10 @@ bool GdaFrame::GetHtmlMenuItemsSqlite()
 int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 										 char **argv, char **azColName)
 {
-	if (argc != 2) return SQLITE_ERROR;
-	htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
-	return SQLITE_OK;
+	//if (argc != 2) return SQLITE_ERROR;
+	//htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
+	//return SQLITE_OK;
+	return 0;
 }
 
 LineChartEventDelay::LineChartEventDelay()
