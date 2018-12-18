@@ -671,17 +671,31 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
-    
+
+    std::vector<std::vector<double> > raw_data;
+    raw_data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
+    int start = IsUseCentroids() ? 2 : 0;
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> medians;
-        for (int c=0; c<columns; c++) {
+        int end = columns;
+        if (IsUseCentroids()) {
+            end = columns - 2;
+            medians.push_back(0); // CENT_X
+            medians.push_back(0); // CENT_Y
+        }
+        for (int c=0; c<end; c++) {
             double sum = 0;
             int n = 0;
             double* data = new double[solutions[i].size()];
             for (int j=0; j<solutions[i].size(); j++) {
                 int r = solutions[i][j];
                 if (mask[r][c] == 1) {
-                    data[n] = input_data[r][c];
+                    //data[n] = input_data[r][c];
+                    data[n] = raw_data[c][r];
                     n += 1;
                 }
             }
@@ -769,7 +783,13 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
-    
+
+    std::vector<std::vector<double> > raw_data;
+    raw_data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
     vector<int> centroid_ids(n_clusters,0);
     vector<double> errors(n_clusters);
     for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
@@ -789,11 +809,17 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
             }
         }
     }
-    
+
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> means;
-        for (int c=0; c<columns; c++) {
-            double mean = input_data[centroid_ids[i]][c];
+        int end = columns;
+        if (IsUseCentroids()) {
+            end = columns - 2;
+            means.push_back(0); // CENT_X
+            means.push_back(0); // CENT_Y
+        }
+        for (int c=0; c<end; c++) {
+            double mean = raw_data[c][centroid_ids[i]];
             means.push_back(mean);
         }
         result[i] = means;

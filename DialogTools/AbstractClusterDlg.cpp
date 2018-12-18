@@ -434,8 +434,10 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
 {
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"), wxDefaultPosition, wxSize(120,-1));
-    const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)", "Standardize (MAD)"};
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
+                                          wxDefaultPosition, wxSize(120,-1));
+    const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)",
+        "Standardize (MAD)"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                   wxSize(120,-1), 4, _transform);
     combo_tranform->SetSelection(2);
@@ -462,14 +464,18 @@ void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
     gbox->Add(combo_n, 1, wxEXPAND);
 }
 
-void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox)
+void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox,
+                                     bool show_checkbox)
 {
-    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"), wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"),
+                                        wxDefaultPosition, wxSize(128,-1));
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
     chk_floor = new wxCheckBox(panel, wxID_ANY, "");
-    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(128,-1), var_items);
-    txt_floor = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(70,-1), 0, validator);
+    combo_floor = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                               wxSize(128,-1), var_items);
+    txt_floor = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition,
+                               wxSize(70,-1), 0, validator);
     hbox0->Add(chk_floor);
     hbox0->Add(combo_floor);
     hbox0->Add(txt_floor);
@@ -630,6 +636,21 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
     }
 }
 
+bool AbstractClusterDlg::IsUseCentroids()
+{
+    bool use_centroids = false;
+
+    if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
+
+    if (use_centroids && m_weight_centroids) {
+        if (m_weight_centroids->GetValue() == 0) {
+            use_centroids =  false;
+        }
+    }
+
+    return use_centroids;
+}
+
 bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
 {
     CleanData();
@@ -639,7 +660,9 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
     
     if (use_centroids && m_weight_centroids) {
-        if (m_weight_centroids->GetValue() == 0) use_centroids =  false;
+        if (m_weight_centroids->GetValue() == 0) {
+            use_centroids =  false;
+        }
     }
     
     wxArrayInt selections;
@@ -666,9 +689,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             int idx = selections[i];
             wxString sel_str = combo_var->GetString(idx);
             select_vars.push_back(sel_str);
-            
             wxString nm = name_to_nm[sel_str];
-            
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
@@ -676,17 +697,13 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
                 dlg.ShowModal();
                 return false;
             }
-            
             int tm = name_to_tm_id[combo_var->GetString(idx)];
-            col_names.push_back(nm);
-            
+            col_names.push_back(sel_str);
             col_ids[i] = col;
             var_info[i].time = tm;
-            
             // Set Primary GdaVarTools::VarInfo attributes
             var_info[i].name = nm;
             var_info[i].is_time_variant = table_int->IsColTimeVariant(nm);
-            
             // var_info[i].time already set above
             table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
             var_info[i].sync_with_global_time = var_info[i].is_time_variant;
@@ -695,16 +712,13 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         // Call function to set all Secondary Attributes based on Primary Attributes
         GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-        
+        columns = 0;
         rows = project->GetNumRecords();
-        columns =  0;
-        
-        std::vector<d_array_type> data;
-        data.resize(col_ids.size()); // data[variable][time][obs]
+        std::vector<std::vector<double> > data;
+        data.resize(num_var);
         for (int i=0; i<var_info.size(); i++) {
-            table_int->GetColData(col_ids[i], data[i]);
+            table_int->GetColData(col_ids[i], var_info[i].time, data[i]);
         }
-        
         // if use centroids
         if (use_centroids) {
             columns += 2;
@@ -717,14 +731,13 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         weight = GetWeights(columns);
 
-        
         // init input_data[rows][cols]
         input_data = new double*[rows];
         mask = new int*[rows];
         for (int i=0; i<rows; i++) {
             input_data[i] = new double[columns];
             mask[i] = new int[columns];
-            for (int j=0; j<columns; j++){
+            for (int j=0; j<columns; j++) {
                 mask[i][j] = 1;
             }
         }
@@ -756,15 +769,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             }
             col_ii = 2;
         }
-        for (int i=0; i<data.size(); i++ ){ // col
-            std::vector<double> vals;
-            int c_t = 0;
-            if (var_info[i].is_time_variant) {
-                c_t = var_info[i].time;
-            }
-            for (int k=0; k< rows;k++) { // row
-                vals.push_back(data[i][c_t][k]);
-            }
+        for (int i=0; i<col_ids.size(); i++ ){ // col
+            std::vector<double>& vals = data[i];
             if (transform == 3) {
                 GenUtils::MeanAbsoluteDeviation(vals);
             } else if (transform == 2) {
@@ -940,16 +946,28 @@ vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
-    
+
+    std::vector<std::vector<double> > raw_data;
+    raw_data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> means;
-        for (int c=0; c<columns; c++) {
+        int end = columns;
+        if (IsUseCentroids()) {
+            end = columns - 2;
+            means.push_back(0); // CENT_X
+            means.push_back(0); // CENT_Y
+        }
+        for (int c=0; c<end; c++) {
             double sum = 0;
             double n = 0;
             for (int j=0; j<solutions[i].size(); j++) {
                 int r = solutions[i][j];
                 if (mask[r][c] == 1) {
-                    sum += input_data[r][c] ;
+                    sum += raw_data[c][r];
                     n += 1;
                 }
             }

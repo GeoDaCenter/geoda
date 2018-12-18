@@ -96,6 +96,7 @@ protected:
     virtual double* GetBoundVals();
    
     // Utils
+    bool IsUseCentroids();
     bool CheckConnectivity(GalWeight* gw);
     
     // Input related
