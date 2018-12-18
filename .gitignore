@@ -5,6 +5,8 @@
 *.gal
 *.pyc
 
+deps/
+
 swig/*.gwt
 swig/_geoda.so
 swig/geoda.pyc
