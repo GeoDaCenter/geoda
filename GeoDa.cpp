@@ -1332,7 +1332,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
         }
 
     } catch (GdaException &e) {
-        wxString msg( e.what() ) ;
+        wxString msg( e.what(), wxConvUTF8 ) ;
         wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		delete project_p;
