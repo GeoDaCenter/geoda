@@ -230,7 +230,9 @@ wxString OGRLayerProxy::GetValueAt(int rid, int cid, wxCSConv* m_wx_encoding)
 {
     wxString rst;
     if (m_wx_encoding == NULL) {
-        rst = data[rid]->GetFieldAsString(cid);
+        // following GDAL/OGR using UTF8 to read table data,
+        // if no custom encoding specified
+        rst = wxString(data[rid]->GetFieldAsString(cid), wxConvUTF8);
     } else {
         rst = wxString(data[rid]->GetFieldAsString(cid), *m_wx_encoding);
     }

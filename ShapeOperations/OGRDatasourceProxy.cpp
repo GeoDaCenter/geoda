@@ -47,7 +47,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
 
     wxString msg;
-    msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
+    msg << _("Failed to open data source. Please check the data/datasource and "
+             "check if the data type/format is supported by GeoDa.\n\nTip: you "
+             "can set up the necessary GeoDa driver by following the "
+             "instructions at:\n http://geodacenter.github.io/formats.html");
     
     if (ds_type == GdaConst::ds_unknown) {
         throw GdaException(GET_ENCODED_FILENAME(msg));
@@ -226,20 +229,22 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 	return this->layer_names;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString sql)
+OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString _sql)
 {
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
 	OGRLayer* tmp_layer = ds->ExecuteSQL(sql,  0, 0);
 	//tmp_layer->SyncToDisk();
 	ds->ReleaseResultSet(tmp_layer);
 	return NULL;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(wxString sql)
+OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(wxString _sql)
 {
     // Note: layer is not managed here. Memory leak is possible.
-	OGRLayer* layer = ds->ExecuteSQL(sql.c_str(), 0, 0);
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
+	OGRLayer* layer = ds->ExecuteSQL(sql, 0, 0);
 	if (layer == NULL) return NULL;
-	OGRLayerProxy* layer_proxy = new OGRLayerProxy(sql, layer, ds_type);
+	OGRLayerProxy* layer_proxy = new OGRLayerProxy(_sql, layer, ds_type);
 	return layer_proxy;
 }
 

@@ -148,48 +148,37 @@ size_t write_to_string_(void *ptr, size_t size, size_t count, void *stream) {
 	return size*count;
 }
 
-string CreateIssueOnGithub(string& post_data)
+string CreateIssueOnGithub(wxString& post_data)
 {
 	std::vector<wxString> tester_ids = OGRDataAdapter::GetInstance().GetHistory("tester_id");
-	if (tester_ids.empty()) {
-		return "";
-	}
+	if (tester_ids.empty()) return "";
 
 	wxString tester_id = tester_ids[0];
-
-	string url = "https://api.github.com/repos/GeoDaCenter/geoda/issues";
-
+	const char url[] = "https://api.github.com/repos/GeoDaCenter/geoda/issues";
 	wxString header_auth = "Authorization: token " + tester_id;
-
 	wxString header_user_agent = "User-Agent: GeoDaTester";
 
 	string response;
-
 	CURL* curl = curl_easy_init();
 	CURLcode res;
 	if (curl) {
 		struct curl_slist *chunk = NULL;
-
 		chunk = curl_slist_append(chunk, header_auth.c_str());
 		chunk = curl_slist_append(chunk, header_user_agent.c_str());
-
 		// set our custom set of headers
 		res = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
-
-		curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
-
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_POSTFIELDS,
+                         (const char*)post_data.mb_str(wxConvUTF8));
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string_);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
-
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
-
 		/* free the custom headers */
 		curl_slist_free_all(chunk);
-
 	}
+
 	return response;
 }
 
@@ -273,8 +262,6 @@ ReportBugDlg::ReportBugDlg(wxWindow* parent, wxWindowID id,
 	SetParent(parent);
 	SetPosition(pos);
 	Centre();
-
-
 }
 
 ReportBugDlg::~ReportBugDlg()
@@ -349,8 +336,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
     
 	wxTextFile tfile;
     if (tfile.Open(logger_path)) {
-    	while (!tfile.Eof())
-    	{
+    	while (!tfile.Eof()) {
     		body << tfile.GetNextLine() << "\\n";
     	}
     }
@@ -370,14 +356,9 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 	json_msg << "\", \"labels\": ";
 	json_msg << labels;
 	json_msg << "}";
-	//wxString json_msg = wxString::Format(msg_templ, title, body, labels);
 
-	string msg(json_msg.mb_str(wxConvUTF8));
-
-	string result = CreateIssueOnGithub(msg);
-
+    string result = CreateIssueOnGithub(json_msg);
 	// parse results
-
 	if (!result.empty()) {
 		json_spirit::Value v;
 		try {
@@ -392,8 +373,7 @@ bool ReportBugDlg::CreateIssue(wxString title, wxString body)
 			ReportResultDlg dlg(NULL, url_issue);
 			dlg.ShowModal();
 			return true;
-		}
-		catch (std::runtime_error e) {
+		} catch (std::runtime_error e) {
 			wxString msg;
 			msg << "JSON parsing failed: ";
 			msg << e.what();

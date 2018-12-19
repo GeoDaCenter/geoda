@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <string>
 #include <fstream>
+#include <iostream>
 #include <wx/progdlg.h>
 #include <wx/filedlg.h>
 #include <wx/listctrl.h>
@@ -113,43 +114,41 @@ void RecentDatasource::Init(wxString json_str_)
         return;
     
     // "recent_ds" : [{"ds_name":"/data/test.shp", "layer_name":"test", "ds_config":"...", "thumb":"..."}, ]
-    std::string json_str(json_str_.mb_str());
-    json_spirit::Value v;
+    std::wstring json_str = json_str_.ToStdWstring();
+    json_spirit::wValue v;
     
     try {
         if (!json_spirit::read(json_str, v)) {
-            throw std::runtime_error("Could not parse recent ds string");
+            throw GdaException("Could not parse recent ds string");
         }
         
-        const json_spirit::Array& ds_list = v.get_array();
+        const json_spirit::wArray& ds_list = v.get_array();
         
         n_ds = ds_list.size();
         
         for (size_t i=0; i<n_ds; i++) {
-            const json_spirit::Object& o = ds_list[i].get_obj();
+            const json_spirit::wObject& o = ds_list[i].get_obj();
             wxString ds_name, ds_conf, layer_name, ds_thumb;
             
-            for (json_spirit::Object::const_iterator i=o.begin(); i!=o.end(); ++i)
+            for (json_spirit::wObject::const_iterator i=o.begin(); i!=o.end();
+                 ++i)
             {
-                json_spirit::Value val;
-                if (i->name_ == "ds_name") {
+                json_spirit::wValue val;
+                if (i->name_ == L"ds_name") {
                     val = i->value_;
-					std::string tmp = val.get_str();
-					const char* t = tmp.c_str();
-					int n = strlen(t);
-					ds_name = wxString::FromUTF8(t, n);
+					ds_name = val.get_str();
                 }
                 else if (i->name_ == "layer_name") {
                     val = i->value_;
-                    layer_name = wxString::FromUTF8(val.get_str().c_str());
+                    layer_name = val.get_str();
                 }
                 else if (i->name_ == "ds_config") {
                     val = i->value_;
-                    ds_conf = wxString::FromUTF8(val.get_str().c_str());
+                    ds_conf = val.get_str();
                 }
                 else if (i->name_ == "ds_thumb") {
                     val = i->value_;
-                    ds_thumb = wxString(val.get_str());
+                    ds_thumb = val.get_str();
                 }
             }
             ds_names.push_back(ds_name);
@@ -157,8 +156,6 @@ void RecentDatasource::Init(wxString json_str_)
             ds_confs.push_back(ds_conf);
             ds_thumbnails.push_back(ds_thumb);
         }
-        
-        
     } catch (std::runtime_error e) {
         wxString msg;
         msg << "Get Latest DB infor: JSON parsing failed: ";
@@ -170,25 +167,31 @@ void RecentDatasource::Init(wxString json_str_)
 void RecentDatasource::Save()
 {
     // update ds_json_str from ds_names & ds_values
-    json_spirit::Array ds_list_obj;
+    json_spirit::wArray ds_list_obj;
     
     for (int i=0; i<n_ds; i++) {
-        json_spirit::Object ds_obj;
-        std::string ds_name( ds_names[i].mb_str(wxConvUTF8));
-        std::string layer_name( ds_layernames[i].mb_str(wxConvUTF8));
-		std::string ds_conf( ds_confs[i].mb_str(wxConvUTF8) );
-        std::string ds_thumb( ds_thumbnails[i].mb_str(wxConvUTF8) );
-        ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
-        ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
-        ds_obj.push_back( json_spirit::Pair("ds_config", ds_conf) );
-        ds_obj.push_back( json_spirit::Pair("ds_thumb", ds_thumb) );
+        json_spirit::wObject ds_obj;
+        //const char* ds_name = ds_names[i].mb_str(wxConvUTF8);
+        //const char* layer_name = ds_layernames[i].mb_str(wxConvUTF8);
+        //const char* ds_conf = ds_confs[i].mb_str(wxConvUTF8);
+        //const char* ds_thumb = ds_thumbnails[i].mb_str(wxConvUTF8);
+        std::wstring ds_name = ds_names[i].ToStdWstring();
+        std::wstring layer_name = ds_layernames[i].ToStdWstring();
+        std::wstring ds_conf = ds_confs[i].ToStdWstring();
+        std::wstring ds_thumb = ds_thumbnails[i].ToStdWstring();
+        //std::string ds_name( ds_names[i].mb_str(wxConvUTF8));
+        //std::string layer_name( ds_layernames[i].mb_str(wxConvUTF8));
+		//std::string ds_conf( ds_confs[i].mb_str(wxConvUTF8) );
+        //std::string ds_thumb( ds_thumbnails[i].mb_str(wxConvUTF8) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_name", ds_name) );
+        ds_obj.push_back( json_spirit::wPair(L"layer_name", layer_name) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_config", ds_conf) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_thumb", ds_thumb) );
         ds_list_obj.push_back( ds_obj);
     }
     
-    std::string json_str = json_spirit::write(ds_list_obj);
-    ds_json_str = json_str;
-    
-    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
+    ds_json_str = json_spirit::write(ds_list_obj);
+    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, ds_json_str);
 }
 
 void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_name,
