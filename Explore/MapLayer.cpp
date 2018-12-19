@@ -22,18 +22,20 @@ map_boundary(NULL)
     is_hide = true;
 }
 
-BackgroundMapLayer::BackgroundMapLayer(wxString name, OGRLayerProxy* _layer_proxy, OGRSpatialReference* sr)
-: AssociateLayerInt(),
-layer_name(name),
-layer_proxy(_layer_proxy),
-pen_color(wxColour(192, 192, 192)),
-brush_color(wxColour(255, 255, 255, 255)),
-point_radius(2),
-opacity(255),
-pen_size(1),
-show_boundary(false),
-map_boundary(NULL),
-show_connect_line(false)
+BackgroundMapLayer::BackgroundMapLayer(wxString name,
+                                       OGRLayerProxy* _layer_proxy,
+                                       OGRSpatialReference* sr)
+  : AssociateLayerInt(),
+    layer_name(name),
+    layer_proxy(_layer_proxy),
+    pen_color(wxColour(192, 192, 192)),
+    brush_color(wxColour(255, 255, 255, 255)),
+    point_radius(2),
+    opacity(255),
+    pen_size(1),
+    show_boundary(false),
+    map_boundary(NULL),
+    show_connect_line(false)
 {
     is_hide = false;
     num_obs = layer_proxy->GetNumRecords();
@@ -422,11 +424,6 @@ vector<GdaShape*>& BackgroundMapLayer::GetShapes()
 {
     return shapes;
 }
-
-
-
-
-
 
 
 GdaShapeLayer::GdaShapeLayer(wxString _name, BackgroundMapLayer* _ml)

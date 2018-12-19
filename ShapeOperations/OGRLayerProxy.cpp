@@ -530,11 +530,11 @@ vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
 }
 
 Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms,
-                                                OGRSpatialReference* input_sr)
+                                                OGRSpatialReference* dest_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
-    if (input_sr && spatialRef) {
-        poCT = OGRCreateCoordinateTransformation(input_sr, spatialRef);
+    if (dest_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
     Shapefile::ShapeType shape_type;
     //read OGR geometry features
@@ -566,11 +566,11 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
 }
 
 Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
-                                                OGRSpatialReference* input_sr)
+                                                OGRSpatialReference* dest_sr)
 {
     OGRCoordinateTransformation *poCT = NULL;
-    if (input_sr && spatialRef) {
-        poCT = OGRCreateCoordinateTransformation(input_sr, spatialRef);
+    if (dest_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
     Shapefile::ShapeType shape_type;
     //read OGR geometry features
@@ -587,7 +587,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
             shape_type = Shapefile::POINT_TYP;
             if (geometry) {
                 OGRPoint* p = (OGRPoint *) geometry;
-                geoms.push_back(new GdaPoint(p->getX(), p->getY()));
+                double ptX = p->getX(), ptY = p->getY();
+                if (poCT) {
+                    poCT->Transform(1, &ptX, &ptY);
+                }
+                geoms.push_back(new GdaPoint(ptX, ptY));
             }
         } else if (eType == wkbMultiPoint) {
             shape_type = Shapefile::POINT_TYP;
