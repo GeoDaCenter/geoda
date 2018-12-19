@@ -192,19 +192,20 @@ bool GdaCache::CacheLayer(wxString ext_ds_name,
 	
 	//Setup coordinate transformation if we need it.
 	OGRCoordinateTransformation *poCT = NULL;
-	bool bTransform                   = FALSE;
+	bool bTransform = FALSE;
 	OGRSpatialReference *poSourceSRS = NULL;
 	// todo
 	OGRSpatialReference *poOutputSRS = new OGRSpatialReference("EPSG:4326");
 
 	// Cache
-	char *papszLCO[] = {"OVERWRITE=yes","FORMAT=Spatialite"};
-	wxString cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
+	const char *papszLCO[255] = {"OVERWRITE=yes","FORMAT=Spatialite"};
+	wxString cache_layer_name = ext_ds_name + "_" + ext_layer_proxy->name;
+    const char *pszName = (const char*)cache_layer_name.mb_str(wxConvUTF8);
 	GDALDataset *poDstDS = cach_ds_proxy->ds;
-	OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
+	OGRLayer *poDstLayer = poDstDS->CreateLayer(pszName,
 												poOutputSRS, 
 												(OGRwkbGeometryType)eGType, 
-												papszLCO);
+												(char**)papszLCO);
 	if (poDstLayer == NULL) {
 		// raise create cache failed.
 		return false;
@@ -236,8 +237,7 @@ bool GdaCache::CacheLayer(wxString ext_ds_name,
     GIntBig      nFeaturesWritten = 0;
     poSrcLayer->ResetReading();
 	
-    while (poFeature = poSrcLayer->GetNextFeature())
-    {
+    while ((poFeature = poSrcLayer->GetNextFeature()) != NULL) {
         OGRFeature *poDstFeature = OGRFeature::CreateFeature(
 										poDstLayer->GetLayerDefn() );
         poDstFeature->SetFrom(poFeature);

@@ -106,6 +106,8 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 									e.wmi.weights_type = WeightsMetaInfo::WT_knn;
                                 } else if (s == "kernel") {
                                     e.wmi.weights_type = WeightsMetaInfo::WT_kernel;
+                                } else if (s == "tree") {
+                                    e.wmi.weights_type = WeightsMetaInfo::WT_tree;
 								} else { // s == "custom"
 									e.wmi.weights_type = WeightsMetaInfo::WT_custom;
 								}
@@ -304,9 +306,10 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 			if (!e.title.IsEmpty()) ssub.put("title", e.title);
 			if (e.is_default) ssub.put("default", "");
 			ptree& sssub = ssub.add("meta_info", "");
-			if (e.wmi.weights_type == WeightsMetaInfo::WT_custom)
-			{
+
+			if (e.wmi.weights_type == WeightsMetaInfo::WT_custom) {
 				sssub.put("weights_type", "custom");
+
 			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_rook ||
 					   e.wmi.weights_type == WeightsMetaInfo::WT_queen)
 			{
@@ -319,9 +322,11 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 				} else {
 					sssub.put("inc_lower_orders", "false");
 				}
+
 			} else if (e.wmi.weights_type == WeightsMetaInfo::WT_threshold ||
 					   e.wmi.weights_type == WeightsMetaInfo::WT_knn ||
-                       e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
+                       e.wmi.weights_type == WeightsMetaInfo::WT_kernel ||
+                       e.wmi.weights_type == WeightsMetaInfo::WT_tree)
 			{
                 if (e.wmi.weights_type == WeightsMetaInfo::WT_knn)
                     sssub.put("weights_type", "knn");
@@ -329,6 +334,8 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
                     sssub.put("weights_type", "threshold");
                 else if (e.wmi.weights_type == WeightsMetaInfo::WT_kernel)
                     sssub.put("weights_type", "kernel");
+                else if (e.wmi.weights_type == WeightsMetaInfo::WT_tree)
+                    sssub.put("weights_type", "tree");
                 else
                     sssub.put("weights_type", "custom");
                 

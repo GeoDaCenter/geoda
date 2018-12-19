@@ -26,7 +26,7 @@
 struct WeightsMetaInfo
 {
 	enum WeightTypeEnum {
-		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel, WT_knn
+		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel, WT_knn, WT_tree
 	};
 	enum SymmetryEnum {
 		SYM_unknown, SYM_symmetric, SYM_asymmetric
@@ -163,6 +163,7 @@ struct WeightsMetaInfo
     void SetMeanNumNbrs(double val);
     void SetMedianNumNbrs(double val);
     void SetSymmetric(bool is_sym);
+    void SetWeightsType(WeightTypeEnum type);
 };
 
 #endif
