@@ -59,6 +59,7 @@ using namespace std;
 
 CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
                                  wxString _filepath,
+                                  wxCSConv* encoding,
                                  wxWindowID id,
                                  const wxString& title,
                                  const wxPoint& pos,
@@ -67,6 +68,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
 {
     
     wxLogMessage("Open CsvFieldConfDlg.");
+    m_wx_encoding = encoding;
     HEADERS = 1;
     lat_box = NULL;
     n_max_rows = 10;
@@ -514,10 +516,16 @@ void CsvFieldConfDlg::UpdatePreviewGrid( )
                 
             } else if (types[j] == "Date" || types[j] == "Time" || types[j] == "DateTime") {
                 wxString str = poFeature->GetFieldAsString(j);
-                //wxString str = wxString::Format("%f", val);
                 previewGrid->SetCellValue(i, j, str);
+                
             } else {
-                wxString str = poFeature->GetFieldAsString(j);
+                const char* val = poFeature->GetFieldAsString(j);
+                wxString str;
+                if (m_wx_encoding == NULL) {
+                    str = val;
+                } else {
+                    str = wxString(val, *m_wx_encoding);
+                }
                 previewGrid->SetCellValue(i, j, str);
             }
         }

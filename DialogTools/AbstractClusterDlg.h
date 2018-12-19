@@ -37,7 +37,8 @@ using namespace std;
 class Project;
 class TableInterface;
 
-class AbstractClusterDlg : public wxDialog, public FramesManagerObserver, public TableStateObserver
+class AbstractClusterDlg : public wxDialog, public FramesManagerObserver,
+    public TableStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
@@ -83,6 +84,10 @@ protected:
     virtual bool GetDefaultContiguity();
     
     virtual bool Init();
+
+    virtual bool CheckAllInputs();
+    
+    virtual bool Run(vector<wxInt64>& clusters) { return false;}
     
     virtual double* GetWeights(int columns);
     
@@ -91,6 +96,7 @@ protected:
     virtual double* GetBoundVals();
    
     // Utils
+    bool IsUseCentroids();
     bool CheckConnectivity(GalWeight* gw);
     
     // Input related
@@ -107,12 +113,9 @@ protected:
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
     // -- functions
-    virtual void AddInputCtrls(
-       wxPanel *panel,
-       wxBoxSizer* vbox,
-       bool show_auto_button = false);
-    virtual void AddSimpleInputCtrls(
-        wxPanel *panel,
+    virtual void AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
+                               bool show_auto_button = false);
+    virtual void AddSimpleInputCtrls(wxPanel *panel,
         wxBoxSizer* vbox,
         bool integer_only = false);
     void OnUseCentroids(wxCommandEvent& event);
@@ -121,6 +124,10 @@ protected:
                                       bool integer_only=false);
     bool GetInputData(int transform, int min_num_var=2);
     void OnInputWeights(wxCommandEvent& event);
+
+    bool CheckContiguity(double w, double& ssd);
+    void BinarySearch(double left, double right,
+                      std::vector<std::pair<double, double> >& ssd_pairs);
     virtual void OnAutoWeightCentroids(wxCommandEvent& event);
    
     // Transformation control
@@ -149,7 +156,13 @@ protected:
     virtual void  OnTypeMinBound(wxCommandEvent& event);
     virtual void  OnSlideMinBound(wxCommandEvent& event);
     virtual bool  CheckMinBound();
-    
+
+    // output controls
+    wxComboBox* combo_n;
+    int max_n_clusters;
+    virtual void AddNumberOfClusterCtrl(wxPanel *panel, wxFlexGridSizer* gbox,
+                                        bool allow_dropdown = true);
+
     // Summary related
     // The main statistics should be:
     // - mean centers or centroids of each cluster in terms of the variables involved

@@ -57,10 +57,25 @@ public:
     virtual void InitVariableCombobox(wxListBox* var_box);
    
     virtual wxString _printConfiguration();
+
 protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+protected:
+    int transform;
+    int n_cluster;
+    int n_power_iter;
+    double value_sigma;
+    int knn;
+    char method;
+    int npass;
+    int n_maxiter;
+    char dist;
+    int affinity_type;
+
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    wxComboBox* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;

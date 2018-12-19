@@ -857,7 +857,11 @@ GalElement* WeightUtils::Gwt2Gal(GwtElement* Gwt, long obs)
 }
 
 
-void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath, TableInterface* table_int, wxString id_field)
+void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int,
+                               wxString filepath,
+                               TableInterface* table_int,
+                               wxString id_field,
+                               WeightsMetaInfo::WeightTypeEnum type)
 {
     int rows = table_int->GetNumberRows();
     
@@ -885,7 +889,8 @@ void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath
     wmi.SetMedianNumNbrs(w->GetMedianNumNbrs());
     wmi.SetSparsity(w->GetSparsity());
     wmi.SetDensity(w->GetDensity());
-    
+    wmi.SetWeightsType(type);
+
     WeightsMetaInfo e(wmi);
     e.filename = filepath;
     

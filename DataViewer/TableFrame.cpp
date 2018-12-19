@@ -54,8 +54,8 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 					   const wxString& title,
 					   const wxPoint& pos, const wxSize& size,
 					   const long style)
-: TemplateFrame(parent, project, title, pos, size, style),
-popup_col(-1)
+    : TemplateFrame(parent, project, title, pos, size, style),
+    popup_col(-1)
 {
 	wxLogMessage("Open TableFrame.");
 
@@ -286,6 +286,7 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 
 void TableFrame::SetEncodingCheckmarks(wxMenu* m, wxFontEncoding e)
 {
+
 	m->FindItem(XRCID("ID_ENCODING_UTF8"))
 		->Check(e==wxFONTENCODING_UTF8);
 	m->FindItem(XRCID("ID_ENCODING_UTF16"))

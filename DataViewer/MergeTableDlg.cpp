@@ -66,7 +66,8 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s, const wxPoin
 {
     wxLogMessage("Open MergeTableDlg.");
 	SetParent(parent);
-    
+
+    m_wx_encoding = NULL;
 	//table_int->FillColIdMap(col_id_map);
     table_int = project_s->GetTableInt(),
     frames_manager = project_s->GetFramesManager(),
@@ -87,7 +88,9 @@ MergeTableDlg::~MergeTableDlg()
         delete merge_datasource_proxy;
         merge_datasource_proxy = NULL;
     }
-	
+    if (m_wx_encoding) {
+        delete m_wx_encoding;
+    }
     frames_manager->removeObserver(this);
 }
 
@@ -204,7 +207,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
        
         int dialog_type = 1; // no gda is allowed
         bool showRecentPanel = false;
-        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize, showCsvConfigure, showRecentPanel, dialog_type);
+        ConnectDatasourceDlg connect_dlg(this, pos, wxDefaultSize,
+                                         showCsvConfigure,
+                                         showRecentPanel,
+                                         dialog_type);
         
         if (connect_dlg.ShowModal() != wxID_OK) {
             return;
@@ -213,6 +219,10 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         wxString proj_title = connect_dlg.GetProjectTitle();
         wxString layer_name = connect_dlg.GetLayerName();
         IDataSource* datasource = connect_dlg.GetDataSource();
+        m_wx_encoding = connect_dlg.GetEncoding();
+        if (m_wx_encoding) {
+            m_wx_encoding = new wxCSConv(*m_wx_encoding);
+        }
         wxString datasource_name = datasource->GetOGRConnectStr();
         GdaConst::DataSourceType ds_type = datasource->GetType();
        
@@ -417,7 +427,9 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
 	ev.Skip();
 }
 
-OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, TableInterface* table_int, vector<bool>& undefs, int idx, int t)
+OGRColumn* MergeTableDlg::
+CreateNewOGRColumn(int new_rows, TableInterface* table_int,
+                   vector<bool>& undefs, int idx, int t)
 {
     wxString f_name = table_int->GetColName(idx, t);
     int f_length = table_int->GetColLength(idx, t);
@@ -447,7 +459,11 @@ OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, TableInterface* table
     return _col;
 }
 
-OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_proxy, vector<bool>& undefs, wxString f_name, map<int, int>& idx2_dict)
+OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows,
+                                             OGRLayerProxy* layer_proxy,
+                                             vector<bool>& undefs,
+                                             wxString f_name,
+                                             map<int, int>& idx2_dict)
 {
     int col_idx = layer_proxy->GetFieldPos(f_name);
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
@@ -476,14 +492,15 @@ OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows, OGRLayerProxy* layer_
         _col = new OGRColumnString(f_name, f_length, f_decimal, new_rows);
         _col->SetUndefinedMarkers(undefs);
         for (int i=0; i<n_rows; i++) {
-            wxString val = layer_proxy->GetValueAt(i, col_idx);
+            wxString val = layer_proxy->GetValueAt(i, col_idx, m_wx_encoding);
             _col->SetValueAt(idx2_dict[i], val);
         }
     }
     return _col;
 }
 
-void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy, wxString f_name, map<int, int>& idx2_dict)
+void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
+                                    wxString f_name, map<int, int>& idx2_dict)
 {
     int col_idx = layer_proxy->GetFieldPos(f_name);
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
@@ -505,7 +522,7 @@ void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
         }
     } else {
         for (int i=0; i<n_rows; i++) {
-            wxString val = layer_proxy->GetValueAt(i, col_idx);
+            wxString val = layer_proxy->GetValueAt(i, col_idx, m_wx_encoding);
             _col->SetValueAt(idx2_dict[i], val);
         }
     }
@@ -569,8 +586,7 @@ void MergeTableDlg::OuterJoinMerge()
             int n_merge_rows = merge_layer_proxy->GetNumRecords();
             map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
-                wxString tmp;
-                tmp << merge_layer_proxy->GetValueAt(i, col2_id);
+                wxString tmp = merge_layer_proxy->GetValueAt(i, col2_id, m_wx_encoding);
                 key2_vec.push_back(tmp);
             }
             if (CheckKeys(key2_name, key2_vec, key2_map) == false)
@@ -751,8 +767,10 @@ void MergeTableDlg::LeftJoinMerge()
                     key1_vec.push_back(tmp);
                 }
             }
-            if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+
+            if (CheckKeys(key1_name, key1_vec, key1_map) == false) {
                 return;
+            }
             
             // get and check keys from import table
             int key2_id = m_import_key->GetSelection();
@@ -762,11 +780,12 @@ void MergeTableDlg::LeftJoinMerge()
             vector<wxString> key2_vec;
             map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
-                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id));
+                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id, m_wx_encoding));
             }
-            if (CheckKeys(key2_name, key2_vec, key2_map) == false)
+            if (CheckKeys(key2_name, key2_vec, key2_map) == false) {
                 return;
-            
+            }
+
             // make sure key1 <= key2, and store their mappings
             int n_matches = 0;
             map<wxString,int>::iterator key1_it, key2_it;
@@ -842,7 +861,7 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                     data[i] = wxEmptyString;
                     undefs[i] = true;
                 } else {
-                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid));
+                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid,m_wx_encoding));
                     undefs[i] = false;
                 }
             } else {

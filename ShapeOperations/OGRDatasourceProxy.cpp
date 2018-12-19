@@ -47,7 +47,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     const char* pszDsPath = GET_ENCODED_FILENAME(ds_name);
 
     wxString msg;
-    msg << _("Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html");
+    msg << _("Failed to open data source. Please check the data/datasource and "
+             "check if the data type/format is supported by GeoDa.\n\nTip: you "
+             "can set up the necessary GeoDa driver by following the "
+             "instructions at:\n http://geodacenter.github.io/formats.html");
     
     if (ds_type == GdaConst::ds_unknown) {
         throw GdaException(GET_ENCODED_FILENAME(msg));
@@ -66,7 +69,10 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         }
-
+    } else if(ds_type == GdaConst::ds_shapefile) {
+        //const char* papszOpenOptions[255] = {"ENCODING=CP936"};
+        //ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     } else {
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     }
@@ -126,11 +132,8 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource
     ds_type = GetGdaDataSourceType(poDriver);
     
 	// create the output data source.
-	const char *papszLCO[50] = {"OVERWRITE=yes"};
-	//ds = poDriver->CreateDataSource( pszDestDataSource, papszLCO);
 	ds = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
-    
-    
+        
 	if(ds == NULL ) {
 		// driver failed to load
 		error_message << "Unfortunately, GeoDa is not able to execute this request. \n\nDetails: "<< CPLGetLastErrorMsg();
@@ -226,20 +229,22 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 	return this->layer_names;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString sql)
+OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString _sql)
 {
-	OGRLayer* tmp_layer = ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, 0);
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
+	OGRLayer* tmp_layer = ds->ExecuteSQL(sql,  0, 0);
 	//tmp_layer->SyncToDisk();
 	ds->ReleaseResultSet(tmp_layer);
 	return NULL;
 }
 
-OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(wxString sql)
+OGRLayerProxy* OGRDatasourceProxy::GetLayerProxyBySQL(wxString _sql)
 {
     // Note: layer is not managed here. Memory leak is possible.
-	OGRLayer* layer = ds->ExecuteSQL(sql.c_str(), 0, 0);
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
+	OGRLayer* layer = ds->ExecuteSQL(sql, 0, 0);
 	if (layer == NULL) return NULL;
-	OGRLayerProxy* layer_proxy = new OGRLayerProxy(sql, layer, ds_type);
+	OGRLayerProxy* layer_proxy = new OGRLayerProxy(_sql, layer, ds_type);
 	return layer_proxy;
 }
 
@@ -287,16 +292,13 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(wxString layer_name)
 			// for some files, there's no layer name. Just get the first one
 			layer = ds->GetLayer(0);
             if (layer == NULL) {
-                ostringstream error_message;
-                error_message << "No layer was found in this datasource.";
-                throw GdaException(error_message.str().c_str());
+                wxString error_message;
+                error_message << _("No layer was found in this datasource.");
+                throw GdaException(error_message.mb_str());
             }
 		}
 		
-		//bool is_thread_safe = layer->TestCapability(OLCRandomRead);
 		layer_proxy = new OGRLayerProxy(layer_name, layer, ds_type);
-        
-		//todo: if there is one already existed, clean/delete the old first
 		layer_pool[layer_name] = layer_proxy;
 	}
 	
@@ -306,25 +308,28 @@ OGRLayerProxy* OGRDatasourceProxy::GetLayerProxy(wxString layer_name)
 void OGRDatasourceProxy::CreateDataSource(wxString format,
 										  wxString dest_datasource)
 {
-	ostringstream error_message;
+	wxString error_message;
 	const char* pszFormat = format.c_str();
 	const char* pszDestDataSource = dest_datasource.c_str();
 	GDALDriver *poDriver;
 	poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
 	
 	if( poDriver == NULL ){
-		error_message << "Current OGR dirver " + format + " is not supported by GeoDa.\n" << CPLGetLastErrorMsg();
-		throw GdaException(error_message.str().c_str());
+        error_message << _("Current OGR dirver ");
+        error_message << format;
+        error_message << _(" is not supported by GeoDa.\n");
+        error_message << CPLGetLastErrorMsg();
+		throw GdaException(error_message.mb_str());
 	}
 	
 	// Create the output data source.  
 	GDALDataset *poODS = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
 	if( poODS == NULL ) {
 		// driver failed to load
-		error_message << "Can't create output OGR driver. \n\nDetails:"<< CPLGetLastErrorMsg();
-		throw GdaException(error_message.str().c_str());
+        error_message << _("Can't create output OGR driver. \n\nDetails:");
+        error_message << CPLGetLastErrorMsg();
+		throw GdaException(error_message.mb_str());
 	}
-	//OGRDataSource::DestroyDataSource( poODS );
 	GDALClose(poODS);
 }
 
@@ -338,28 +343,31 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                 vector<int>& selected_rows,
                                 OGRSpatialReference* spatial_ref)
 {
-    ostringstream  error_message;
+    wxString error_message;
     if(!ds->TestCapability(ODsCCreateLayer)) {
 		// driver failed to load
-		error_message << "GeoDa can't create a layer."
-		<<"\n\nDetails: "<< CPLGetLastErrorMsg();
-		throw GdaException(error_message.str().c_str());
+        error_message << _("GeoDa can't create a layer.");
+        error_message << _("\n\nDetails: ");
+        error_message << CPLGetLastErrorMsg();
+		throw GdaException(error_message.mb_str());
     }
     
     OGRSpatialReference *poOutputSRS = spatial_ref;
-   
-    
+
     // PRECISION is for database e.g. MSSQL
     // LAUNDER is for database: rename desired field name
-    char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes"};
+    // ENCODING: set to "" to avoid any recoding
+    const char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes", "ENCODING="};
     
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(),
-                                           poOutputSRS, eGType, papszLCO);
+                                           poOutputSRS, eGType, (char**)papszLCO);
     
     if( poDstLayer == NULL ) {
-        error_message << "Can't write/create layer \"" << layer_name.mb_str() << "\". \n\nDetails: Attemp to write a readonly database, or "
-                      << CPLGetLastErrorMsg();
-		throw GdaException(error_message.str().c_str());
+        error_message << _("Can't write/create layer \"");
+        error_message << layer_name;
+        error_message << _("\". \n\nDetails: Attemp to write a readonly database, or ");
+        error_message << CPLGetLastErrorMsg();
+		throw GdaException(error_message.mb_str());
     }
     
     map<wxString, pair<int, int> >::iterator field_it;
@@ -379,9 +387,9 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 
                 wxString fname = table->GetColName(id, t);
                 if (fname.empty()) {
-                    error_message << "Can't create layer \"" << layer_name.mb_str()
-                    << "\" with empty field(" << id << ") name.";
-                    throw GdaException(error_message.str().c_str());
+                    wxString tmp = _("Can't create layer %s with empty field (%s) name.");
+                    error_message << wxString::Format(tmp, layer_name, id);
+                    throw GdaException(error_message.mb_str());
                 }
                 
                 OGRFieldType ogr_type;
@@ -409,8 +417,9 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                     oField.SetPrecision(ogr_fprecision);
                 }
                 if( poDstLayer->CreateField( &oField ) != OGRERR_NONE ) {
-                    error_message << "Creating a field failed.\n\nDetails:" << CPLGetLastErrorMsg();
-                    throw GdaException(error_message.str().c_str());
+                    error_message << _("Creating a field failed.\n\nDetails:");
+                    error_message << CPLGetLastErrorMsg();
+                    throw GdaException(error_message.mb_str());
                 }
             }
         }

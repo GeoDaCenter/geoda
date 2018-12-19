@@ -95,7 +95,6 @@ void DatasourceDlg::CreateControls()
 #ifdef __WIN32__
     SetBackgroundColour(*wxWHITE);
 #endif
-    
     m_ds_filepath_txt = XRCCTRL(*this, "IDC_FIELD_ASC",wxTextCtrl);
 	m_database_type = XRCCTRL(*this, "IDC_CDS_DB_TYPE",wxChoice);
 	m_database_name = XRCCTRL(*this, "IDC_CDS_DB_NAME",AutoTextCtrl);

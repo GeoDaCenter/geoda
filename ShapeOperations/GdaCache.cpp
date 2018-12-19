@@ -17,7 +17,7 @@ const wxString GdaCache::DB_HOST_HIST	= "db_host";
 const wxString GdaCache::DB_PORT_HIST	= "db_port";
 const wxString GdaCache::DB_NAME_HIST	= "db_name";
 const wxString GdaCache::DB_UNAME_HIST	= "db_uname";
-const wxString GdaCache::WS_URL_HIST		= "ws_url";
+const wxString GdaCache::WS_URL_HIST    = "ws_url";
 
 wxString GdaCache::GetFullPath()
 {
@@ -53,14 +53,16 @@ GdaCache::GdaCache()
         
         history_table->ReadData();
         
-        for ( int i=0; i< history_table->n_rows; i++){
+        for ( int i=0; i< history_table->n_rows; i++) {
+            // all strings are encoded and stored using UTF8, so use
+            // wxString::FromUTF8 to read from char*
             wxString key = history_table->GetValueAt(i, 0);
             wxString val = history_table->GetValueAt(i, 1);
             history_keys.push_back(key);
             history_vals.push_back(val);
         }
-    }catch(GdaException& e) {
-        //XXX
+    } catch(GdaException& e) {
+        throw GdaException("Construct GdaCache Failed.");
     }
 }
 
@@ -98,8 +100,9 @@ void GdaCache::AddHistory(wxString param_key, wxString param_val)
 	history_keys.push_back( param_key );
 	history_vals.push_back( param_val );
 	// add to spatialite table
-	wxString sql = "INSERT INTO history VALUES('"
+	wxString _sql = "INSERT INTO history VALUES('"
 						+ param_key +"','"+param_val + "')";
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
 	cach_ds_proxy->ExecuteSQL(sql);
 }
 
@@ -109,7 +112,8 @@ void GdaCache::AddEntry(wxString param_key, wxString param_val)
         if ( param_key == history_keys[i] ){
             // update existing Entry
             history_vals[i] = param_val;
-            wxString sql = "UPDATE history SET param_val='" + param_val +"' WHERE param_key='" + param_key + "'";
+            wxString _sql = "UPDATE history SET param_val='" + param_val +"' WHERE param_key='" + param_key + "'";
+            const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
             cach_ds_proxy->ExecuteSQL(sql);
             return;
         }
@@ -118,9 +122,9 @@ void GdaCache::AddEntry(wxString param_key, wxString param_val)
     history_keys.push_back( param_key );
     history_vals.push_back( param_val );
     // add to spatialite table
-    wxString sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
-    //cach_ds_proxy->ExecuteSQL(sql);
-	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(GET_ENCODED_FILENAME(sql),  0, "SQLITE");
+    wxString _sql = "INSERT INTO history VALUES('" + param_key +"','"+param_val + "')";
+    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
+	OGRLayer* tmp_layer = cach_ds_proxy->ds->ExecuteSQL(sql,  0, "SQLITE");
 	cach_ds_proxy->ds->ReleaseResultSet(tmp_layer);
 }
 
@@ -188,19 +192,20 @@ bool GdaCache::CacheLayer(wxString ext_ds_name,
 	
 	//Setup coordinate transformation if we need it.
 	OGRCoordinateTransformation *poCT = NULL;
-	bool bTransform                   = FALSE;
+	bool bTransform = FALSE;
 	OGRSpatialReference *poSourceSRS = NULL;
 	// todo
 	OGRSpatialReference *poOutputSRS = new OGRSpatialReference("EPSG:4326");
 
 	// Cache
-	char *papszLCO[] = {"OVERWRITE=yes","FORMAT=Spatialite"};
-	wxString cache_layer_name = ext_ds_name + "_"+ext_layer_proxy->name;
+	const char *papszLCO[255] = {"OVERWRITE=yes","FORMAT=Spatialite"};
+	wxString cache_layer_name = ext_ds_name + "_" + ext_layer_proxy->name;
+    const char *pszName = (const char*)cache_layer_name.mb_str(wxConvUTF8);
 	GDALDataset *poDstDS = cach_ds_proxy->ds;
-	OGRLayer *poDstLayer = poDstDS->CreateLayer(cache_layer_name.c_str(), 
+	OGRLayer *poDstLayer = poDstDS->CreateLayer(pszName,
 												poOutputSRS, 
 												(OGRwkbGeometryType)eGType, 
-												papszLCO);
+												(char**)papszLCO);
 	if (poDstLayer == NULL) {
 		// raise create cache failed.
 		return false;
@@ -232,8 +237,7 @@ bool GdaCache::CacheLayer(wxString ext_ds_name,
     GIntBig      nFeaturesWritten = 0;
     poSrcLayer->ResetReading();
 	
-    while (poFeature = poSrcLayer->GetNextFeature())
-    {
+    while ((poFeature = poSrcLayer->GetNextFeature()) != NULL) {
         OGRFeature *poDstFeature = OGRFeature::CreateFeature(
 										poDstLayer->GetLayerDefn() );
         poDstFeature->SetFrom(poFeature);

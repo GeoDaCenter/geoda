@@ -75,21 +75,14 @@ void KClusterDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddInputCtrls(panel, vbox, true);
+    bool show_auto_button = true;
+    AddInputCtrls(panel, vbox, show_auto_button);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
     
 	// NumberOfCluster Control
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY,
-                                         _("Number of Clusters:"),
-                                         wxDefaultPosition, wxSize(128,-1));
-    combo_n = new wxComboBox(panel, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(200,-1), 0, NULL);
-    max_n_clusters = num_obs < 100 ? num_obs : 100;
-    for (int i=2; i<max_n_clusters+1; i++)
-        combo_n->Append(wxString::Format("%d", i));
-    gbox->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_n, 1, wxEXPAND);
+    AddNumberOfClusterCtrl(panel, gbox);
     
 	// Minimum Bound Control
     AddMinBound(panel, gbox);
@@ -355,127 +348,49 @@ wxString KClusterDlg::_printConfiguration()
 
 void KClusterDlg::ComputeDistMatrix(int dist_sel)
 {
-    
+    // this only be called by KMedoid, which distmatrix will be used as input
 }
 
-bool KClusterDlg::CheckContiguity(double w, double& ssd)
+bool KClusterDlg::CheckAllInputs()
 {
-    int val = w * 100;
-    m_weight_centroids->SetValue(val);
-    m_wc_txt->SetValue(wxString::Format("%f", w));
-    
-    vector<wxInt64> clusters;
-    if (Run(clusters) == false) {
-        m_weight_centroids->SetValue(100);
-        m_wc_txt->SetValue("1.0");
-        return false;
-    }
-  
-    // not show print
-    ssd = CreateSummary(clusters, false);
-  
-    if (GetDefaultContiguity() == false)
-        return false;
-   
-    map<int, set<wxInt64> > groups;
-    map<int, set<wxInt64> >::iterator it;
-    for (int i=0; i<clusters.size(); i++) {
-        int c = clusters[i];
-        if (groups.find(c)==groups.end()) {
-            set<wxInt64> g;
-            g.insert(i);
-            groups[c] = g;
-        } else {
-            groups[c].insert(i);
-        }
-    }
-    
-    bool is_cont = true;
-    set<wxInt64>::iterator item_it;
-    for (it = groups.begin(); it != groups.end(); it++) {
-        // check each group if contiguity
-        set<wxInt64> g = it->second;
-        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
-            int idx = *item_it;
-            const vector<long>& nbrs = gal[idx].GetNbrs();
-            bool not_in_group = true;
-            for (int i=0; i<nbrs.size(); i++ ) {
-                if (g.find(nbrs[i]) != g.end()) {
-                    not_in_group = false;
-                    break;
-                }
-            }
-            if (not_in_group) {
-                is_cont = false;
-                break;
-            }
-        }
-        if (!is_cont)
-            break;
-    }
-    
-    return is_cont;
-}
-
-void KClusterDlg::BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs)
-{
-    double delta = right - left;
-    
-    if ( delta < 0.01 )
-        return;
-    
-    int ncluster = 0;
+    n_cluster = 0;
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        n_cluster = value_ncluster;
     }
-    if (ncluster < 2 || ncluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
-        return;
+        return false;
     }
-    
-    double mid = left + delta /2.0;
-    
-    // assume left is always not contiguity and right is always contiguity
-    //bool l_conti = CheckContiguity(left);
-    double m_ssd = 0;
-    bool m_conti = CheckContiguity(mid, m_ssd);
-    
-    if ( m_conti ) {
-        ssd_pairs.push_back( std::make_pair(mid, m_ssd) );
-        return BinarySearch(left, mid, ssd_pairs);
-        
-    } else {
-        return BinarySearch(mid, right, ssd_pairs);
-    }
-}
 
-void KClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
-{
-    // apply custom algorithm to find optimal weighting value between 0 and 1
-    // when w = 1 (fully geometry based)
-    // when w = 0 (fully attributes based)
-    std::vector<std::pair<double, double> > ssd_pairs;
-    BinarySearch(0.0, 1.0, ssd_pairs);
-   
-    if (ssd_pairs.empty()) return;
-    
-    double w = ssd_pairs[0].first;
-    double ssd = ssd_pairs[0].second;
-    
-    for (int i=1; i<ssd_pairs.size(); i++) {
-        if (ssd_pairs[i].second > ssd) {
-            ssd = ssd_pairs[i].second;
-            w = ssd_pairs[i].first;
-        }
+    transform = combo_tranform->GetSelection();
+
+    if (GetInputData(transform,1) == false) return false;
+
+    if (!CheckMinBound()) return false;
+
+    n_pass = 10;
+    wxString str_pass = m_pass->GetValue();
+    long l_pass;
+    if(str_pass.ToLong(&l_pass)) {
+        n_pass = l_pass;
     }
-    
-    int val = w * 100;
-    m_weight_centroids->SetValue(val);
-    m_wc_txt->SetValue(wxString::Format("%f", w));
+
+    n_maxiter = 300; // max iteration of EM
+    wxString iterations = m_iterations->GetValue();
+    long l_maxiter;
+    if(iterations.ToLong(&l_maxiter)) {
+        n_maxiter = l_maxiter;
+    }
+
+    meth_sel = combo_method->GetSelection();
+
+    dist_sel = m_distance->GetSelection();
+
+    return true;
 }
 
 bool KClusterDlg::Run(vector<wxInt64>& clusters)
@@ -487,48 +402,16 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         setrandomstate(-1);
         resetrandom();
     }
-    
-    int ncluster = 0;
-    wxString str_ncluster = combo_n->GetValue();
-    long value_ncluster;
-    if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
-    }
-    if (ncluster < 2 || ncluster > num_obs) {
-        wxString err_msg = _("Please enter a valid number of clusters.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return false;
-    }
-    
-    int transform = combo_tranform->GetSelection();
-    
-    if (!GetInputData(transform,1))
-        return false;
-    
-    if (!CheckMinBound())
-        return false;
-    
-    int npass = 10;
-    wxString str_pass = m_pass->GetValue();
-    long value_pass;
-    if(str_pass.ToLong(&value_pass)) {
-        npass = value_pass;
-    }
-    
-    int n_maxiter = 300; // max iteration of EM
-    wxString iterations = m_iterations->GetValue();
-    long value;
-    if(iterations.ToLong(&value)) {
-        n_maxiter = value;
-    }
-    
-    int meth_sel = combo_method->GetSelection();
-    
+
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    // this function has to be called when use auto-weighting
+    weight = GetWeights(columns);
+
     // start working
     int nCPUs = boost::thread::hardware_concurrency();
-    int quotient = npass / nCPUs;
-    int remainder = npass % nCPUs;
+    int quotient = n_pass / nCPUs;
+    int remainder = n_pass % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
     
     map<double, vector<wxInt64> >::iterator it;
@@ -536,9 +419,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         it->second.clear();
     }
     sub_clusters.clear();
-    
-    int dist_sel = m_distance->GetSelection();
-    
+
     ComputeDistMatrix(dist_sel);
     
     double min_bound = GetMinBound();
@@ -565,7 +446,9 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
         if (s1 >0) s1 = a + 1;
         int n_runs = b - a + 1;
         
-        boost::thread* worker = new boost::thread(boost::bind(&KClusterDlg::doRun, this, s1, ncluster, n_runs, n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
+        boost::thread* worker = new boost::thread(
+            boost::bind(&KClusterDlg::doRun, this, s1, n_cluster, n_runs,
+                        n_maxiter, meth_sel, dist_sel, min_bound, bound_vals));
         
         threadPool.add_thread(worker);
     }
@@ -596,14 +479,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
 void KClusterDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click KClusterDlg::OnOK");
-   
-    int ncluster = 0;
-    wxString str_ncluster = combo_n->GetValue();
-    long value_ncluster;
-    if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
-    }
-    
+
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
         wxString err_msg = _("Please enter a field name for saving clustering results.");
@@ -611,21 +487,19 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
-    vector<bool> clusters_undef(num_obs, false);
-    
+    if (CheckAllInputs() == false) return;
+
     vector<wxInt64> clusters;
-    if (Run(clusters) == false)
-        return;
+    if (Run(clusters) == false) return;
     
     // sort result
-    std::vector<std::vector<int> > cluster_ids(ncluster);
+    std::vector<std::vector<int> > cluster_ids(n_cluster);
     for (int i=0; i < clusters.size(); i++) {
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
     
-    for (int i=0; i < ncluster; i++) {
+    for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
@@ -645,7 +519,9 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         int m_length_val = GdaConst::default_dbf_long_len;
         int m_decimals_val = 0;
         
-        col = table_int->InsertCol(GdaConst::long64_type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
+        col = table_int->InsertCol(GdaConst::long64_type, field_name,
+                                   col_insert_pos, time_steps,
+                                   m_length_val, m_decimals_val);
     } else {
         // detect if column is integer field, if not raise a warning
         if (table_int->GetColType(col) != GdaConst::long64_type ) {
@@ -657,14 +533,13 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
+        vector<bool> clusters_undef(num_obs, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
     
     // show a cluster map
-    if (project->IsTableOnlyProject()) {
-        return;
-    }
+    if (project->IsTableOnlyProject())  return;
     
     std::vector<GdaVarTools::VarInfo> new_var_info;
     std::vector<int> new_col_ids;
@@ -687,10 +562,8 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-    wxString ttl;
-    ttl << cluster_method << " " << _("Cluster Map ") << "(";
-    ttl << ncluster;
-    ttl << " clusters)";
+    wxString tmp = _("%s Cluster Map (%d clusters)");
+    wxString ttl = wxString::Format(tmp, cluster_method, n_cluster);
     nf->SetTitle(ttl);
 }
 
@@ -798,17 +671,31 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
-    
+
+    std::vector<std::vector<double> > raw_data;
+    raw_data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
+    int start = IsUseCentroids() ? 2 : 0;
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> medians;
-        for (int c=0; c<columns; c++) {
+        int end = columns;
+        if (IsUseCentroids()) {
+            end = columns - 2;
+            medians.push_back(0); // CENT_X
+            medians.push_back(0); // CENT_Y
+        }
+        for (int c=0; c<end; c++) {
             double sum = 0;
             int n = 0;
             double* data = new double[solutions[i].size()];
             for (int j=0; j<solutions[i].size(); j++) {
                 int r = solutions[i][j];
                 if (mask[r][c] == 1) {
-                    data[n] = input_data[r][c];
+                    //data[n] = input_data[r][c];
+                    data[n] = raw_data[c][r];
                     n += 1;
                 }
             }
@@ -887,7 +774,8 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     delete[] clusterid;
 }
 
-vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+vector<vector<double> > KMedoidsDlg::_getMeanCenters(
+                                        const vector<vector<int> >& solutions)
 {
     // The centroid is defined as the element with the
     // smallest sum of distances to the other elements.
@@ -895,7 +783,13 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >&
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
-    
+
+    std::vector<std::vector<double> > raw_data;
+    raw_data.resize(col_ids.size());
+    for (int i=0; i<var_info.size(); i++) {
+        table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
     vector<int> centroid_ids(n_clusters,0);
     vector<double> errors(n_clusters);
     for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
@@ -915,11 +809,17 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(const vector<vector<int> >&
             }
         }
     }
-    
+
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> means;
-        for (int c=0; c<columns; c++) {
-            double mean = input_data[centroid_ids[i]][c];
+        int end = columns;
+        if (IsUseCentroids()) {
+            end = columns - 2;
+            means.push_back(0); // CENT_X
+            means.push_back(0); // CENT_Y
+        }
+        for (int c=0; c<end; c++) {
+            double mean = raw_data[c][centroid_ids[i]];
             means.push_back(mean);
         }
         result[i] = means;

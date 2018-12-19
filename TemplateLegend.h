@@ -27,6 +27,7 @@
 #include <wx/gdicmn.h>
 #include <wx/dcgraph.h>
 #include <wx/spinctrl.h>
+#include <wx/dialog.h>
 
 #include <vector>
 #include <map>

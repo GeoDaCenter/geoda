@@ -579,7 +579,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
             }
             if ( new_layer->export_progress == -1 ) {
                 wxString msg = wxString::Format(_("Save as data source (%s) failed.\n\nDetails:"),new_ds_name);
-                msg << new_layer->error_message.str();
+                msg << new_layer->error_message;
                 throw GdaException(msg.mb_str());
             }
             wxMilliSleep(100);
@@ -1403,7 +1403,7 @@ bool Project::CommonProjectInit()
     if (sourceSR ) {
         project_unit = sourceSR->GetAttrValue("UNIT");
     }
-
+    // configurations for save gda project file
     LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
     CustomClassifPtree* cust_classif_ptree = layer_conf->GetCustClassifPtree();
     WeightsManPtree* spatial_weights = layer_conf->GetWeightsManPtree();
@@ -1427,13 +1427,13 @@ bool Project::CommonProjectInit()
 		((WeightsNewManager*) w_man_int)->
 		Init(spatial_weights->GetWeightsMetaInfoList());
 	}
-    
+    // For create Variable Selection Dialog, which has maximum 4 variables
+    // to select from table
 	for (int i=0; i<4; i++) {
 		default_var_name[i] = "";
 		default_var_time[i] = 0;
 	}
-    
-	if (default_vars) {
+	if (default_vars != NULL) {
 		int i=0;
 		std::vector<wxString> tm_strs;
 		table_int->GetTimeStrings(tm_strs);
@@ -1543,13 +1543,13 @@ bool Project::InitFromOgrLayer()
 		throw GdaException(open_err_msg.c_str());
         
 	} else if ( layer_proxy->HasError() ) {
-		open_err_msg << layer_proxy->error_message.str();
+		open_err_msg << layer_proxy->error_message;
 		throw GdaException(open_err_msg.c_str());
 		
 	}
     
     OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
-    
+    // for some datasource, writable flag can only be obtained after ready layer
 	datasource->UpdateWritable(ds_proxy->is_writable);
     
 	// Correct variable_order information, which will be used by OGRTable
@@ -1565,16 +1565,16 @@ bool Project::InitFromOgrLayer()
 	time_state = new TimeState;
 	table_int = new OGRTable(layer_proxy, ds_type, table_state,
                              time_state, *variable_order);
-    
 	if (!table_int) {
 		open_err_msg << _("There was a problem reading the table");
 		delete table_state;
+        delete time_state;
 		throw GdaException(open_err_msg.c_str());
 	}
-    
 	if (!table_int->IsValid()) {
 		open_err_msg = table_int->GetOpenErrorMessage();
 		delete table_state;
+        delete time_state;
 		delete table_int;
 		return false;
 	}
@@ -1589,26 +1589,15 @@ bool Project::InitFromOgrLayer()
         if (wxFileExists(cpg_fn)) {
             wxTextFile cpg_file;
             cpg_file.Open(cpg_fn);
-            
             // read the first line
             wxString encode_str = cpg_file.GetFirstLine();
             SetupEncoding(encode_str);
         }
     }
-    
 	isTableOnly = layer_proxy->IsTableOnly();
-    
     if (ds_type == GdaConst::ds_dbf) isTableOnly = true;
-    
-    if (!isTableOnly) {
-		layer_proxy->ReadGeometries(main_data);
-    } else {
-        // prompt user to select X/Y columns to create a geometry layer
+    if (!isTableOnly) layer_proxy->ReadGeometries(main_data);
 
-    }
-	// run caching in background
-	// OGRDataAdapter::GetInstance().CacheLayer
-	//(ds_name.ToStdString(), layer_name.ToStdString(), layer_proxy);
 	return true;
 }
 

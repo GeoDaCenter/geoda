@@ -45,6 +45,7 @@ public:
     wxFileName      ds_file_path;
 
 protected:
+
 	wxTextCtrl*     m_ds_filepath_txt;
 	wxBitmapButton* m_ds_browse_file_btn;
 	//wxBitmapButton* m_database_lookup_table;

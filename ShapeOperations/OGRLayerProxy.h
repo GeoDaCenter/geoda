@@ -58,14 +58,14 @@ public:
 	~OGRLayerProxy();
 	
     GdaConst::DataSourceType ds_type;
-	ostringstream error_message;
+
     
 	// progress indicator: -1 means error, otherwise means progress
 	int         load_progress;
 	bool        stop_reading;
 	int         export_progress;
 	bool        stop_exporting;
-	
+	wxString    error_message;
     
     bool        is_writable;
 	wxString    name;
@@ -270,7 +270,7 @@ public:
     
     bool IsUndefined(int rid, int cid);
     
-    wxString GetValueAt(int rid, int cid);
+    wxString GetValueAt(int rid, int cid, wxCSConv* m_wx_encoding = NULL);
     
     void GetValueAt(int rid, int cid, GIntBig* val);
     

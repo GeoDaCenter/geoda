@@ -279,7 +279,8 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         file.Close();
         
         // Load the weights file into Weights Manager
-        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id);
+        WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id,
+                                  WeightsMetaInfo::WT_tree);
     }
 }
 

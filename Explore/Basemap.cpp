@@ -724,15 +724,13 @@ wxString Basemap::GetTilePath(int x, int y)
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     
 	wxString newpath;
-	for (int i = 0; i < filepathBuf.length() ;i++)
-	{
-		if(filepathBuf[i] == '\\')
-		{
+	for (int i = 0; i < filepathBuf.length() ;i++) {
+		if(filepathBuf[i] == '\\') {
 			newpath += filepathBuf[i];
 			newpath += filepathBuf[i];
-		}
-		else
+        } else {
 			newpath += filepathBuf[i];
+        }
 	}
     return newpath;
 }
@@ -744,8 +742,7 @@ bool Basemap::Draw(wxBitmap* buffer)
 	dc.SetBackground(*wxWHITE);
     dc.Clear();
 	wxGraphicsContext* gc = wxGraphicsContext::Create(dc);
-    if (!gc)
-        return false;
+    if (!gc) return false;
    
     int x0 = startX;
     int x1 = endX;
@@ -755,19 +752,20 @@ bool Basemap::Draw(wxBitmap* buffer)
             int pos_y = (j-startY) * 256 - offsetY;
             int idx_x = i;
             
-            if ( i >= nn)
+            if ( i >= nn) {
                 idx_x = i - nn;
-            else if (i < 0)
+            } else if (i < 0) {
                 idx_x = nn + i;
+            }
             
-            //int idx_y = j < 0 ? nn + j : j;
             int idx_y = j;
             wxString wxFilePath = GetTilePath(idx_x, idx_y);
             wxFileName fp(wxFilePath);
 			wxBitmap bmp;
-            if (imageSuffix == ".png") {
+            if (imageSuffix.CmpNoCase(".png") == 0) {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_PNG);
-            } else if (imageSuffix == ".jpeg" || imageSuffix == ".jpg" ) {
+            } else if (imageSuffix.CmpNoCase(".jpeg") == 0 ||
+                       imageSuffix.CmpNoCase(".jpg") == 0 ) {
                 bmp.LoadFile(wxFilePath, wxBITMAP_TYPE_JPEG);
             }
             if (bmp.IsOk()) {

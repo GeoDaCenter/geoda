@@ -97,6 +97,11 @@ void WeightsMetaInfo::SetSymmetric(bool is_sym)
     sym_type = is_sym ? SYM_symmetric : SYM_unknown;
 }
 
+void WeightsMetaInfo::SetWeightsType(WeightTypeEnum type)
+{
+    weights_type = type;
+}
+
 void WeightsMetaInfo::SetToRook(const wxString& idv, long order_, bool inc_lower_orders_)
 {
 	SetToDefaults();
@@ -258,7 +263,9 @@ wxString WeightsMetaInfo::TypeToStr() const
         return "kernel";
 	} else if (weights_type == WT_knn) {
 		return "k-NN";
-	}
+    }  else if (weights_type == WT_tree) {
+        return "tree";
+    }
 	return "custom";
 }
 

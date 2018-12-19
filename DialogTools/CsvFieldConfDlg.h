@@ -37,6 +37,7 @@ class CsvFieldConfDlg: public wxDialog
 {
 public:
     CsvFieldConfDlg(wxWindow* parent, wxString filepath,
+                    wxCSConv* encoding = NULL,
                     wxWindowID id = wxID_ANY,
                     const wxString& title = _("GeoDa CSV File Configuration"),
                     const wxPoint& pos = wxDefaultPosition,
@@ -61,7 +62,9 @@ private:
     wxComboBox* lat_box;
     wxComboBox* lng_box;
     wxSpinCtrl* prev_spin;
-   
+
+    wxCSConv* m_wx_encoding;
+
     void ReadCSVT();
     void WriteCSVT();
     

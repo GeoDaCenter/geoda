@@ -180,7 +180,7 @@ full_map_redraw_needed(true)
 		SetCatType(HOR_VAR, CatClassification::unique_values, horiz_num_cats);
 	}
     
-    // case that user only need horizontal axe
+    // case that user only need horizontal or verticle axe
     if (var_info[VERT_VAR].is_hide == true) {
         SetCatType(VERT_VAR, CatClassification::no_theme, 1);
     } else if (var_info[HOR_VAR].is_hide == true) {

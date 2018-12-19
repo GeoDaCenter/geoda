@@ -7801,6 +7801,7 @@
                                           </object>
                                       </object>
                                   </object>
+
                               </object>
                           </object>
                           <label>File</label>
@@ -8201,12 +8202,12 @@
                                           </object>
                                       </object>
                                       <object class="spacer">
-                                          <size>0,40</size>
+                                          <size>2,30</size>
                                       </object>
                                       <object class="sizeritem">
                                           <object class="wxBoxSizer">
                                               <object class="spacer">
-                                                  <size>4,10</size>
+                                                  <size>4,14</size>
                                               </object>
                                               <object class="sizeritem">
                                                   <object class="wxStaticText">
@@ -8222,6 +8223,52 @@
                                               <object class="sizeritem">
                                                   <object class="wxStaticText">
                                                       <label/>
+                                                  </object>
+                                              </object>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxBoxSizer">
+                                              <orient>wxHORIZONTAL</orient>
+                                              <object class="spacer">
+                                                  <size>4,14</size>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxStaticText" name="IDC_CDS_ENCODING_LABEL">
+                                                      <label>Select encoding (optional): </label>
+                                                  </object>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxChoice" name="IDC_CDS_ENCODING_CHOICE">
+                                                      <size>160,-1</size>
+                                                      <content>
+                                                          <item></item>
+                                                          <item>Unicode (UTF-8)</item>
+                                                          <item>Unicode (UTF-16LE)</item>
+                                                          <item>Arabic (Windows-1256)</item>
+                                                          <item>Central European Latin-2 (ISO-8859-2)</item>
+                                                          <item>Central European (Windows-1250)</item>
+                                                          <item>Central European (CP852)</item>
+                                                          <item>Chinese Simplified (GB2312)</item>
+                                                          <item>Chinese Traditional (Big5)</item>
+                                                          <item>Cyrillic (ISO-8859-5)</item>
+                                                          <item>Cyrillic (KOI8-R)</item>
+                                                          <item>Cyrillic (Windows-1251)</item>
+                                                          <item>Cyrillic/Russian (CP866)</item>
+                                                          <item>Greek (ISO-8859-7)</item>
+                                                          <item>Hebrew (ISO-8859-8-1)</item>
+                                                          <item>Hebrew (Windows-1255)</item>
+                                                          <item>Japanese (Shift_JIS)</item>
+                                                          <item>Japanese (EUC-JP)</item>
+                                                          <item>Korean (EUC-KR)</item>
+                                                          <item>Nordic Latin-6 (ISO-8859-10)</item>
+                                                          <item>South European Latin-3 (ISO-8859-3)</item>
+                                                          <item>Turkish Latin-5 (ISO-8859-9)</item>
+                                                          <item>Turkish (Windows-1254)</item>
+                                                          <item>Vietnamese (Windows-1258)</item>
+                                                          <item>West European Latin-1 (ISO-8859-1)</item>
+                                                          <item>West European Latin-9 (ISO-8859-15)</item>
+                                                      </content>
                                                   </object>
                                               </object>
                                           </object>

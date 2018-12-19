@@ -51,11 +51,7 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnDistanceChoice(wxCommandEvent& event);
     void OnInitMethodChoice(wxCommandEvent& event);
-   
-    void BinarySearch(double left, double right, std::vector<std::pair<double, double> >& ssd_pairs);
-    bool CheckContiguity(double w, double& ss);
-    bool Run(vector<wxInt64>& clusters);
-    
+
     virtual void ComputeDistMatrix(int dist_sel);
     virtual wxString _printConfiguration();
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
@@ -65,7 +61,15 @@ public:
     std::vector<int> col_ids;
 
 protected:
-    virtual void OnAutoWeightCentroids(wxCommandEvent& event);
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+    int n_cluster;
+    int transform;
+    int n_pass;
+    int n_maxiter;
+    int meth_sel;
+    int dist_sel;
     
     bool show_initmethod;
     bool show_distance;
@@ -73,7 +77,7 @@ protected:
     
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    wxComboBox* combo_n;
+    
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;

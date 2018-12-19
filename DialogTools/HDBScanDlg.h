@@ -62,8 +62,19 @@ public:
     void UpdateClusterChoice(int n, std::vector<wxInt64>& clusters);
     void Highlight(int id);
     void Highlight(vector<int>& ids);
-    
+
 protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+protected:
+    char     dist;
+    int      m_min_pts;
+    int      m_min_samples;
+    double   m_alpha;
+    int      m_cluster_selection_method;
+    bool     m_allow_single_cluster;
+
     vector<double> core_dist;
     vector<double> probabilities;
     vector<double> outliers;
@@ -73,7 +84,6 @@ protected:
     
     double cutoffDistance;
     vector<wxInt64> clusters;
-    vector<bool> clusters_undef;
     
     wxButton *saveButton;
     wxChoice* combo_n;
@@ -83,12 +93,13 @@ protected:
     DendrogramPanel* m_panel;
     wxTextCtrl* m_minpts;
     wxTextCtrl* m_minsamples;
-    wxTextCtrl* m_alpha;
+    wxTextCtrl* m_ctl_alpha;
     wxTextCtrl* m_cluster;
     wxNotebook* notebook;
     wxChoice* m_select_method;
     wxCheckBox* chk_allowsinglecluster;
-    
+
+
     DECLARE_EVENT_TABLE()
 };
 

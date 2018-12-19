@@ -18,36 +18,51 @@ bool EdgeLess1(SimpleEdge* a,  SimpleEdge* b)
 // HDBSCAN
 //
 ////////////////////////////////////////////////////////////////////////////////
-HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha, int _cluster_selection_method, bool _allow_single_cluster, int rows, int cols, double** _distances, double** _data, const vector<bool>& _undefs
-                 //,GalElement* w, double* _controls, double _control_thres
-                 )
+
+vector<double> HDBScan::ComputeCoreDistance(double** input_data, int n_pts,
+                                            int n_dim, int min_samples,
+                                            char dist)
+{
+    vector<double> core_d;
+    core_d.resize(n_pts);
+
+    double eps = 0; // error bound
+    if (dist == 'e') ANN_DIST_TYPE = 2; // euclidean
+    else if (dist == 'b') ANN_DIST_TYPE = 1; // manhattan
+
+    // since KNN search will always return the query point itself, so add 1
+    // to make sure returning min_samples number of results
+    //min_samples = min_samples + 1;
+
+    ANNkd_tree* kdTree = new ANNkd_tree(input_data, n_pts, n_dim);
+    ANNidxArray nnIdx = new ANNidx[min_samples];
+    ANNdistArray dists = new ANNdist[min_samples];
+    for (size_t i=0; i<n_pts; ++i) {
+        kdTree->annkSearch(input_data[i], min_samples, nnIdx, dists, eps);
+        core_d[i] = sqrt(dists[min_samples-1]);
+    }
+    delete[] nnIdx;
+    delete[] dists;
+    delete kdTree;
+
+    return core_d;
+}
+
+HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
+                 int _cluster_selection_method, bool _allow_single_cluster,
+                 int rows, int cols, double** _distances,
+                 vector<double> _core_dist,
+                 const vector<bool>& _undefs)
 {
     int cluster_selection_method = _cluster_selection_method;
     bool allow_single_cluster = _allow_single_cluster;
     bool match_reference_implementation = false;
     
     // Core distances
-    core_dist.resize(rows);
-    
-    int k = min_samples;
-    int dim = cols;
-    double eps = 0; // error bound
-    int nPts = rows;
-    
-    ANNkd_tree* kdTree = new ANNkd_tree(_data, nPts, dim);
-
-    ANNidxArray nnIdx = new ANNidx[k];
-    ANNdistArray dists = new ANNdist[k];
-    for (int i=0; i<nPts; i++) {
-        kdTree->annkSearch(_data[i], k, nnIdx, dists, eps);
-        core_dist[i] = sqrt(dists[k-1]);
-    }
-    delete[] nnIdx;
-    delete[] dists;
-    delete kdTree;
+    core_dist = _core_dist;
     
     // MST
-    mst_linkage_core_vector(dim, core_dist, _distances, alpha);
+    mst_linkage_core_vector(cols, core_dist, _distances, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
     
     // Extract the HDBSCAN hierarchy as a dendrogram from mst
@@ -741,7 +756,10 @@ vector<int> HDBScan::recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int 
     }
 }
 
-void HDBScan::mst_linkage_core_vector(int num_features, vector<double>& core_distances, double** dist_metric, double alpha)
+void HDBScan::mst_linkage_core_vector(int num_features,
+                                      vector<double>& core_distances,
+                                      double** dist_metric,
+                                      double alpha)
 {
     int dim = core_distances.size();
     

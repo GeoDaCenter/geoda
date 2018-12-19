@@ -34,8 +34,6 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-#include <sqlite3.h>
-
 #include "ogrsf_frmts.h"
 #include "cpl_conv.h"
 
@@ -230,8 +228,8 @@ bool GdaApp::OnInit(void)
     CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
     CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
     
-    // forcing to C locale, which is used internally in GeoDa
-    setlocale(LC_ALL, "C");
+    // forcing to UTF-8 locale, which is used internally in GeoDa
+    setlocale(LC_ALL, "en_US.UTF-8");
     
     // load preferences
     PreferenceDlg::ReadFromCache();
@@ -261,6 +259,8 @@ bool GdaApp::OnInit(void)
     }
     CPLSetConfigOption("OGR_XLS_HEADERS", "FORCE");
     CPLSetConfigOption("OGR_XLSX_HEADERS", "FORCE");
+    // For reaching DBF file, set SHAPE_ENCODING to "" to avoid any recoding
+    CPLSetConfigOption("SHAPE_ENCODING", "");
     
 	// will suppress "iCCP: known incorrect sRGB profile" warning message
 	// in wxWidgets 2.9.5.  This is a bug in libpng.  See wxWidgets trac
@@ -522,7 +522,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SAVE_AS_PROJECT"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_LAYER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_EXPORT_SELECTED"), proj_open);
-
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_PROJECT_INFO"), proj_open);
 	
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), true);
@@ -1060,6 +1059,7 @@ void GdaFrame::UpdateRecentDatasourceMenu()
         }
         
         for (size_t i=0; i<recent_ds_list.size(); i++ ) {
+			if (recent_ds_list[i].IsEmpty()) continue;
             wxMenuItem* recent_item = recent_menu->Append(wxID_ANY,
                                                           recent_ds_list[i]);
             int xrc_id = recent_item->GetId();
@@ -2854,14 +2854,14 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
     if (!p) return;
-    
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, false, false,
-							_("Conditional Histogram Variables"),
-							_("Horizontal Cells"),
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
+                            _("Conditional Histogram Variables"),
+                            _("Horizontal Cells"),
                             _("Vertical Cells"),
-							_("Histogram Variable"),
-                            "", false, false, false,
-                            true, true, false, false);
+                            _("Histogram Variable"));
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalHistogramFrame* subframe =
@@ -2875,16 +2875,16 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
     if (!p) return;
-    
-	VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate,
-							false, false,
-							_("Conditional Scatter Plot Variables"),
-							_("Horizontal Cells"),
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate, style,
+                            _("Conditional Scatter Plot Variables"),
+                            _("Horizontal Cells"),
                             _("Vertical Cells"),
-							_("Independent Var (x-axis)"),
-							_("Dependent Var (y-axis)"),
-                            false, false, false,
-                            true, true, false, false);
+                            _("Independent Var (x-axis)"),
+                            _("Dependent Var (y-axis)"));
+    
 	if (dlg.ShowModal() != wxID_OK) return;
 	
 	ConditionalScatterPlotFrame* subframe =
@@ -6488,9 +6488,10 @@ bool GdaFrame::GetHtmlMenuItemsSqlite()
 int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 										 char **argv, char **azColName)
 {
-	if (argc != 2) return SQLITE_ERROR;
-	htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
-	return SQLITE_OK;
+	//if (argc != 2) return SQLITE_ERROR;
+	//htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
+	//return SQLITE_OK;
+	return 0;
 }
 
 LineChartEventDelay::LineChartEventDelay()

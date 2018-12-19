@@ -207,7 +207,7 @@ void OGRColumn::FillData(vector<wxInt64>& data)
     
 }
 
-void OGRColumn::FillData(vector<wxString>& data)
+void OGRColumn::FillData(vector<wxString>& data, wxCSConv* m_wx_encoding)
 {
     wxString msg = "Internal error: FillData(wxString) not implemented.";
     throw GdaException(msg.mb_str());
@@ -235,7 +235,8 @@ void OGRColumn::FillData(vector<wxInt64> &data,
 }
 
 void OGRColumn::FillData(vector<wxString> &data,
-                         vector<bool>& undef_markers_)
+                         vector<bool>& undef_markers_,
+                         wxCSConv* m_wx_encoding)
 {
     FillData(data);
     undef_markers_ = undef_markers;
@@ -358,7 +359,7 @@ void OGRColumnInteger::FillData(vector<double> &data)
 }
 
 // Return this column to a vector of wxString
-void OGRColumnInteger::FillData(vector<wxString> &data)
+void OGRColumnInteger::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -584,7 +585,7 @@ void OGRColumnDouble::FillData(vector<double> &data)
     }
 }
 
-void OGRColumnDouble::FillData(vector<wxString> &data)
+void OGRColumnDouble::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -894,7 +895,7 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
 }
 
 // This column -> vector<wxString>
-void OGRColumnString::FillData(vector<wxString> &data)
+void OGRColumnString::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     if (is_new) {
         for (int i=0; i<rows; ++i) {
@@ -903,7 +904,9 @@ void OGRColumnString::FillData(vector<wxString> &data)
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
-            data[i] = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
+            const char* val = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            if ( m_wx_encoding == NULL ) data[i] = wxString(val);
+            else data[i] = wxString(val, *m_wx_encoding);
         }
     }
 }
@@ -1029,7 +1032,9 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
         return wxEmptyString;
     
     if (is_new) {
-        return new_data[row_idx];
+        // should be already encoded in String, so return it directly
+        wxString rtn = new_data[row_idx];
+        return rtn;
         
     } else {
         int col_idx = GetColIndex();
@@ -1037,7 +1042,7 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
             return wxEmptyString;
         
         const char* val = ogr_layer->data[row_idx]->GetFieldAsString(col_idx);
-        
+
         wxString rtn;
         if (m_wx_encoding == NULL)
             rtn = wxString(val);
@@ -1054,7 +1059,6 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
     if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
         return;
     }
-    
     
     if (is_new) {
         new_data[row_idx] = value;
@@ -1157,7 +1161,7 @@ void OGRColumnDate::FillData(vector<unsigned long long> &data)
     }
 }
 
-void OGRColumnDate::FillData(vector<wxString> &data)
+void OGRColumnDate::FillData(vector<wxString> &data, wxCSConv* m_wx_encoding)
 {
     int year, month, day, hour, minute, second, tzflag;
     if (is_new) {

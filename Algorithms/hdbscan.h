@@ -212,36 +212,43 @@ namespace GeoDaClustering {
                 bool allow_single_cluster,
                 int rows, int cols,
                 double** _distances,
-                double** data,
+                vector<double> _core_dist,
                 const vector<bool>& undefs
                 //GalElement * w,
                 //double* controls,
                 //double control_thres
         );
         virtual ~HDBScan();
-        
+
+        static vector<double> ComputeCoreDistance(double** input_data, int n_pts,
+                                              int n_dim, int min_samples,
+                                              char dist);
+
         vector<vector<int> > GetRegions();
         
         vector<double> outlier_scores(vector<CondensedTree*>& tree);
         
-        boost::unordered_map<int, double> compute_stability(vector<CondensedTree*>& condensed_tree);
+        boost::unordered_map<int, double> compute_stability(
+                                        vector<CondensedTree*>& condensed_tree);
         
         void condense_tree(double** hierarchy, int N, int min_cluster_size=10);
         
         vector<double> max_lambdas(vector<CondensedTree*>& tree);
         
-        vector<int> do_labelling(vector<CondensedTree*>& tree, set<int>& clusters,
-                                 boost::unordered_map<int, int>& cluster_label_map,
-                                 bool allow_single_cluster = false,
-                                 bool match_reference_implementation = false);
+        vector<int> do_labelling(vector<CondensedTree*>& tree,
+                            set<int>& clusters,
+                            boost::unordered_map<int, int>& cluster_label_map,
+                            bool allow_single_cluster = false,
+                            bool match_reference_implementation = false);
         
         vector<double> get_probabilities(vector<CondensedTree*>& tree,
-                                         boost::unordered_map<int, int>& reverse_cluster_map,
-                                         vector<int>& labels);
+                            boost::unordered_map<int, int>& reverse_cluster_map,
+                            vector<int>& labels);
         
-        vector<double> get_stability_scores(vector<int>& labels, set<int>& clusters,
-                                            boost::unordered_map<int, double>& stability,
-                                            double max_lambda);
+        vector<double> get_stability_scores(vector<int>& labels,
+                                set<int>& clusters,
+                                boost::unordered_map<int, double>& stability,
+                                double max_lambda);
         
         void get_clusters(vector<CondensedTree*>& tree,
                           boost::unordered_map<int, double>& stability,
@@ -253,12 +260,13 @@ namespace GeoDaClustering {
                           bool match_reference_implementation=false);
         
         void mst_linkage_core_vector(int num_features,
-                                                   vector<double>& core_distances,
-                                                   double** dist_metric, double alpha);
+                                     vector<double>& core_distances,
+                                     double** dist_metric, double alpha);
         
         vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
         
-        vector<int> recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int current_node);
+        vector<int> recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree,
+                                     int current_node);
         
         vector<int> bfs_from_hierarchy(double** hierarchy, int dim, int bfs_root)
         {

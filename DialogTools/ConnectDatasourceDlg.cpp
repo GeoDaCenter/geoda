@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <string>
 #include <fstream>
+#include <iostream>
 #include <wx/progdlg.h>
 #include <wx/filedlg.h>
 #include <wx/listctrl.h>
@@ -113,40 +114,41 @@ void RecentDatasource::Init(wxString json_str_)
         return;
     
     // "recent_ds" : [{"ds_name":"/data/test.shp", "layer_name":"test", "ds_config":"...", "thumb":"..."}, ]
-    std::string json_str(json_str_.mb_str());
-    json_spirit::Value v;
+    std::wstring json_str = json_str_.ToStdWstring();
+    json_spirit::wValue v;
     
     try {
         if (!json_spirit::read(json_str, v)) {
-            throw std::runtime_error("Could not parse recent ds string");
+            throw GdaException("Could not parse recent ds string");
         }
         
-        const json_spirit::Array& ds_list = v.get_array();
+        const json_spirit::wArray& ds_list = v.get_array();
         
         n_ds = ds_list.size();
         
         for (size_t i=0; i<n_ds; i++) {
-            const json_spirit::Object& o = ds_list[i].get_obj();
+            const json_spirit::wObject& o = ds_list[i].get_obj();
             wxString ds_name, ds_conf, layer_name, ds_thumb;
             
-            for (json_spirit::Object::const_iterator i=o.begin(); i!=o.end(); ++i)
+            for (json_spirit::wObject::const_iterator i=o.begin(); i!=o.end();
+                 ++i)
             {
-                json_spirit::Value val;
-                if (i->name_ == "ds_name") {
+                json_spirit::wValue val;
+                if (i->name_ == L"ds_name") {
                     val = i->value_;
-                    ds_name = wxString::FromUTF8(val.get_str().c_str());
+					ds_name = val.get_str();
                 }
                 else if (i->name_ == "layer_name") {
                     val = i->value_;
-                    layer_name = wxString::FromUTF8(val.get_str().c_str());
+                    layer_name = val.get_str();
                 }
                 else if (i->name_ == "ds_config") {
                     val = i->value_;
-                    ds_conf = wxString::FromUTF8(val.get_str().c_str());
+                    ds_conf = val.get_str();
                 }
                 else if (i->name_ == "ds_thumb") {
                     val = i->value_;
-                    ds_thumb = wxString(val.get_str());
+                    ds_thumb = val.get_str();
                 }
             }
             ds_names.push_back(ds_name);
@@ -154,8 +156,6 @@ void RecentDatasource::Init(wxString json_str_)
             ds_confs.push_back(ds_conf);
             ds_thumbnails.push_back(ds_thumb);
         }
-        
-        
     } catch (std::runtime_error e) {
         wxString msg;
         msg << "Get Latest DB infor: JSON parsing failed: ";
@@ -167,26 +167,31 @@ void RecentDatasource::Init(wxString json_str_)
 void RecentDatasource::Save()
 {
     // update ds_json_str from ds_names & ds_values
-    json_spirit::Array ds_list_obj;
+    json_spirit::wArray ds_list_obj;
     
     for (int i=0; i<n_ds; i++) {
-        json_spirit::Object ds_obj;
-        std::string ds_name( GET_ENCODED_FILENAME(ds_names[i]));
-        std::string layer_name( GET_ENCODED_FILENAME(ds_layernames[i]));
-        //std::string ds_conf( ds_confs[i].mb_str() );
-		std::string ds_conf( GET_ENCODED_FILENAME(ds_confs[i]) );
-        std::string ds_thumb( GET_ENCODED_FILENAME(ds_thumbnails[i]) );
-        ds_obj.push_back( json_spirit::Pair("ds_name", ds_name) );
-        ds_obj.push_back( json_spirit::Pair("layer_name", layer_name) );
-        ds_obj.push_back( json_spirit::Pair("ds_config", ds_conf) );
-        ds_obj.push_back( json_spirit::Pair("ds_thumb", ds_thumb) );
+        json_spirit::wObject ds_obj;
+        //const char* ds_name = ds_names[i].mb_str(wxConvUTF8);
+        //const char* layer_name = ds_layernames[i].mb_str(wxConvUTF8);
+        //const char* ds_conf = ds_confs[i].mb_str(wxConvUTF8);
+        //const char* ds_thumb = ds_thumbnails[i].mb_str(wxConvUTF8);
+        std::wstring ds_name = ds_names[i].ToStdWstring();
+        std::wstring layer_name = ds_layernames[i].ToStdWstring();
+        std::wstring ds_conf = ds_confs[i].ToStdWstring();
+        std::wstring ds_thumb = ds_thumbnails[i].ToStdWstring();
+        //std::string ds_name( ds_names[i].mb_str(wxConvUTF8));
+        //std::string layer_name( ds_layernames[i].mb_str(wxConvUTF8));
+		//std::string ds_conf( ds_confs[i].mb_str(wxConvUTF8) );
+        //std::string ds_thumb( ds_thumbnails[i].mb_str(wxConvUTF8) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_name", ds_name) );
+        ds_obj.push_back( json_spirit::wPair(L"layer_name", layer_name) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_config", ds_conf) );
+        ds_obj.push_back( json_spirit::wPair(L"ds_thumb", ds_thumb) );
         ds_list_obj.push_back( ds_obj);
     }
     
-    std::string json_str = json_spirit::write(ds_list_obj);
-    ds_json_str = json_str;
-    
-    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, json_str);
+    ds_json_str = json_spirit::write(ds_list_obj);
+    OGRDataAdapter::GetInstance().AddEntry(KEY_NAME_IN_GDA_HISTORY, ds_json_str);
 }
 
 void RecentDatasource::Add(wxString ds_name, wxString ds_conf, wxString layer_name,
@@ -381,28 +386,34 @@ BEGIN_EVENT_TABLE( ConnectDatasourceDlg, wxDialog )
     //EVT_MENU(wxID_EXIT, ConnectDatasourceDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-
 ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
                                            const wxSize& size,
                                            bool showCsvConfigure_,
                                            bool showRecentPanel_,
                                            int _dialogType)
-:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0), showCsvConfigure(showCsvConfigure_), showRecentPanel(showRecentPanel_)
+:DatasourceDlg(), datasource(0), scrl(0), recent_panel(0),
+showCsvConfigure(showCsvConfigure_),
+showRecentPanel(showRecentPanel_),
+m_wx_encoding(NULL)
 {
+    dialogType = _dialogType;
 
     base_xrcid_recent_thumb = 7000;
     base_xrcid_sample_thumb = 7500;
     
     // init controls defined in parent class
     DatasourceDlg::Init();
-    //type = dialogType;
-    dialogType = _dialogType;
     ds_names.Add("GeoDa Project File (*.gda)|*.gda");
-
 	SetParent(parent);
 	CreateControls();
 	SetPosition(pos);
- 
+
+    if (dialogType == 1) {
+        // in case of Merge, show encoding choice ctrl
+        m_encodings->Show();
+        m_encoding_lbl->Show();
+    }
+
     if (showRecentPanel) {
         RecentDatasource recent_ds;
         if (recent_ds.GetRecords() > 0) {
@@ -416,7 +427,6 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
             recent_panel->Layout();
             sizer->Fit( recent_panel );
         }
-       
         InitSamplePanel();
     }
 
@@ -426,7 +436,8 @@ ConnectDatasourceDlg::ConnectDatasourceDlg(wxWindow* parent, const wxPoint& pos,
 	SetIcon(wxIcon(GeoDaIcon_16x16_xpm));
 
     Bind(wxEVT_COMMAND_MENU_SELECTED, &ConnectDatasourceDlg::BrowseDataSource,
-         this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
+         this, GdaConst::ID_CONNECT_POPUP_MENU,
+         GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
 	Centre();
     Move(pos);
@@ -441,6 +452,9 @@ ConnectDatasourceDlg::~ConnectDatasourceDlg()
     if (datasource) {
         delete datasource;
         datasource = NULL;
+    }
+    if (m_wx_encoding) {
+        delete m_wx_encoding;
     }
 }
 
@@ -614,8 +628,11 @@ void ConnectDatasourceDlg::CreateControls()
         recent_nb->SetSelection(1);
         recent_panel = XRCCTRL(*this, "dsRecentListSizer", wxPanel);
         smaples_panel = XRCCTRL(*this, "dsSampleList", wxPanel);
+
     } else {
         wxXmlResource::Get()->LoadDialog(this, GetParent(),"IDD_CONNECT_DATASOURCE_SIMPLE");
+        m_encodings = XRCCTRL(*this, "IDC_CDS_ENCODING_CHOICE",wxChoice);
+        m_encoding_lbl = XRCCTRL(*this, "IDC_CDS_ENCODING_LABEL",wxStaticText);
     }
     
     FindWindow(XRCID("wxID_OK"))->Enable(true);
@@ -747,11 +764,16 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             }
             return;
         }
-       
+
+        if (dialogType == 1) {
+            // case of Merge
+            m_wx_encoding = GetEncoding();
+        }
+
         // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
         if (ds_file_path.GetExt().Lower() == "csv" && showCsvConfigure) {
             wxString csv_path = ds_file_path.GetFullPath();
-            CsvFieldConfDlg csvDlg(this, csv_path);
+            CsvFieldConfDlg csvDlg(this, csv_path, m_wx_encoding);
             csvDlg.ShowModal();
         }
         
@@ -1146,3 +1168,92 @@ void ConnectDatasourceDlg::OnSample(wxCommandEvent& event)
 
 }
 
+wxCSConv* ConnectDatasourceDlg::GetEncoding()
+{
+    if (m_encodings && m_encodings->IsShown()) {
+		
+        wxFontEncoding encoding_type = wxFONTENCODING_DEFAULT;
+        int sel = m_encodings->GetSelection();
+        wxString encode_str = m_encodings->GetString(sel);
+
+        if (sel == 0) return NULL;
+
+		//encode_str = wxString(encode_str.wc_str(), wxCSConv(wxFONTENCODING_DEFAULT));
+		if (sel == 1) {
+            encoding_type = wxFONTENCODING_UTF8;
+        } else if (sel == 2) {
+            encoding_type = wxFONTENCODING_UTF16LE;
+
+		} else if (sel == 3) {
+            encoding_type = wxFONTENCODING_CP1256;
+
+        } else if (sel == 4 ) {
+            encoding_type = wxFONTENCODING_ISO8859_2;
+
+        } else if (sel == 5) {
+            encoding_type = wxFONTENCODING_CP1250;
+
+        } else if (sel == 6) {
+            encoding_type = wxFONTENCODING_CP852;
+
+        } else if (sel == 7) {
+            encoding_type = wxFONTENCODING_GB2312;
+
+        } else if (sel == 8) {
+            encoding_type = wxFONTENCODING_BIG5;
+     
+        } else if (sel == 9) {
+            encoding_type = wxFONTENCODING_ISO8859_5;
+
+        } else if (sel == 10) {
+            encoding_type = wxFONTENCODING_KOI8;
+
+        } else if (sel == 11) {
+            encoding_type = wxFONTENCODING_CP1251;
+
+        } else if (sel == 12) {
+            encoding_type = wxFONTENCODING_CP866;
+
+        } else if (sel == 13 ) {
+            encoding_type = wxFONTENCODING_ISO8859_7;
+
+        } else if (sel == 14) {
+            encoding_type = wxFONTENCODING_ISO8859_8;
+
+        } else if (sel == 15) {
+            encoding_type = wxFONTENCODING_CP1255;
+
+        } else if (sel == 16) {
+            encoding_type = wxFONTENCODING_SHIFT_JIS;
+        } else if (sel == 17) {
+            encoding_type = wxFONTENCODING_EUC_JP;
+        } else if (sel == 18) {
+            encoding_type = wxFONTENCODING_EUC_KR;
+    
+        } else if (sel == 19 ) {
+            encoding_type = wxFONTENCODING_ISO8859_10;
+
+        } else if (sel == 20) {
+            encoding_type = wxFONTENCODING_ISO8859_3;
+
+        } else if (sel == 21) {
+            encoding_type = wxFONTENCODING_ISO8859_9;
+        } else if (sel == 22) {
+            encoding_type = wxFONTENCODING_CP1254;
+        } else if (sel == 23) {
+            encoding_type = wxFONTENCODING_CP1258;
+        } else if (sel == 24) {
+            encoding_type = wxFONTENCODING_ISO8859_1;
+
+        } else if (sel == 25) {
+            encoding_type = wxFONTENCODING_ISO8859_15;
+		}
+        
+
+
+
+        if (m_wx_encoding) delete m_wx_encoding;
+        m_wx_encoding = new wxCSConv(encoding_type);
+    }
+    return m_wx_encoding;
+}
