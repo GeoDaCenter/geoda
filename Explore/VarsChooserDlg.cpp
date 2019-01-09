@@ -30,14 +30,14 @@
 #include "VarsChooserDlg.h"
 
 VarsChooserFrame::VarsChooserFrame(GdaVarTools::Manager& var_man,
-																	 Project* project_,
-																	 bool allow_duplicates_,
-																	 bool specify_times_,
-																	 const wxString& help_html_,
-																	 const wxString& help_title_,
-																	 const wxString& title,
-																	 const wxPoint& pos,
-																	 const wxSize& size)
+                                   Project* project_,
+                                   bool allow_duplicates_,
+                                   bool specify_times_,
+                                   const wxString& help_html_,
+                                   const wxString& help_title_,
+                                   const wxString& title,
+                                   const wxPoint& pos,
+                                   const wxSize& size)
 : wxFrame(NULL, wxID_ANY, title, pos, size, wxDEFAULT_FRAME_STYLE),
 VarsChooserObservable(var_man), project(project_),
 allow_duplicates(allow_duplicates_), specify_times(specify_times_),
@@ -53,11 +53,10 @@ vars_list(0), include_list(0)
 	wxStaticText* include_list_text = new wxStaticText(panel, wxID_ANY, _("Include"));
 	
 	vars_list = new wxListBox(panel, XRCID("ID_VARS_LIST"), wxDefaultPosition,
-														wxSize(-1, 150), 0, 0, wxLB_SINGLE);
-	
+                              wxSize(-1, 150), 0, 0, wxLB_SINGLE);
 	include_list = new wxListBox(panel, XRCID("ID_INCLUDE_LIST"),
-															 wxDefaultPosition, wxSize(-1, 150),
-															 0, 0, wxLB_SINGLE);
+                                 wxDefaultPosition, wxSize(-1, 150),
+                                 0, 0, wxLB_SINGLE);
 	
 	Connect(XRCID("ID_VARS_LIST"), wxEVT_LISTBOX_DCLICK,
 					wxCommandEventHandler(VarsChooserFrame::OnVarsListDClick));
@@ -65,22 +64,22 @@ vars_list(0), include_list(0)
 					wxCommandEventHandler(VarsChooserFrame::OnIncludeListDClick));
 
 	wxButton* include_btn = new wxButton(panel, XRCID("ID_INCLUDE_BTN"), ">",
-																			 wxDefaultPosition, wxDefaultSize,
-																			 wxBU_EXACTFIT);
+                                         wxDefaultPosition, wxDefaultSize,
+                                         wxBU_EXACTFIT);
 	wxButton* remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), "<",
-																			wxDefaultPosition, wxDefaultSize,
-																			wxBU_EXACTFIT);
+                                        wxDefaultPosition, wxDefaultSize,
+                                        wxBU_EXACTFIT);
 	wxButton* up_btn = new wxButton(panel, XRCID("ID_UP_BTN"), _("Up"),
-																	wxDefaultPosition, wxDefaultSize,
-																	wxBU_EXACTFIT);
+                                    wxDefaultPosition, wxDefaultSize,
+                                    wxBU_EXACTFIT);
 	wxButton* down_btn = new wxButton(panel, XRCID("ID_DOWN_BTN"), _("Down"),
-																		wxDefaultPosition, wxDefaultSize,
-																		wxBU_EXACTFIT);
+                                      wxDefaultPosition, wxDefaultSize,
+                                      wxBU_EXACTFIT);
 	wxButton* help_btn = 0;
 	if (!help_html.IsEmpty()) {
 		help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"), _("Help"),
-														wxDefaultPosition, wxDefaultSize,
-														wxBU_EXACTFIT);
+                                wxDefaultPosition, wxDefaultSize,
+                                wxBU_EXACTFIT);
 	}
 	//wxButton* close_btn = new wxButton(panel, XRCID("ID_CLOSE_BTN"), "Cancel",
 	//																		wxDefaultPosition, wxDefaultSize,
@@ -235,7 +234,7 @@ void VarsChooserFrame::OnHelpBtn(wxCommandEvent& ev)
 {
 	LOG_MSG("In VarsChooserFrame::OnHelpBtn");
 	WebViewHelpWin* win = new WebViewHelpWin(project, help_html, NULL, wxID_ANY,
-																					 help_title);
+                                             help_title);
 }
 
 void VarsChooserFrame::OnCloseBtn(wxCommandEvent& ev)
@@ -265,18 +264,38 @@ void VarsChooserFrame::UpdateLists()
 	
 	std::set<wxString> vm_names;
 	include_list->Clear();
+    wxString str_name;
 	for (size_t i=0, sz=var_man.GetVarsCount(); i<sz; ++i) {
-		include_list->Append(var_man.GetName(i));
-		vm_names.insert(var_man.GetName(i));
+        if (var_man.IsTimeVariant(i)) {
+            str_name = var_man.GetNameWithTime(i);
+        } else {
+            str_name = var_man.GetName(i);
+        }
+		include_list->Append(str_name);
+		vm_names.insert(str_name);
 	}
 	
 	vars_list->Clear();
 	std::vector<wxString> names;
 	table_int->FillNumericNameList(names);
+    int steps = table_int->GetTimeSteps();
 	for (size_t i=0, sz=names.size(); i<sz; ++i) {
-		if (vm_names.find(names[i]) == vm_names.end()) {
-			vars_list->Append(names[i]);
-		}
+        int idx = table_int->FindColId(names[i]);
+        if (table_int->IsColTimeVariant(idx)) {
+            for (size_t j=0; j<steps; ++j) {
+                str_name = names[i];
+                str_name << " (" << table_int->GetTimeString(j) << ")";
+                if (vm_names.find(str_name) == vm_names.end()) {
+                    vars_list->Append(str_name);
+                }
+            }
+        } else {
+            str_name = table_int->GetColName(idx);
+            if (vm_names.find(names[i]) == vm_names.end()) {
+                vars_list->Append(names[i]);
+            }
+        }
+		
 	}
 	if (vars_list->GetCount() > 0) vars_list->SetFirstItem(0);
 	
@@ -287,10 +306,27 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
 	if (!vars_list || !include_list || vars_list->GetCount() == 0) return;
 	if (sel == wxNOT_FOUND) return;
 	wxString name = vars_list->GetString(sel);
+    wxString group_name = name;
 	int time = project->GetTimeState()->GetCurrTime();
 	TableInterface* table_int = project->GetTableInt();
+    int time_steps = table_int->GetTimeSteps();
 	int col_id = table_int->FindColId(name);
-	if (col_id < 0 ) return;
+    if (col_id < 0 ) {
+        // possible time grouped variable
+        int pos = name.Find(" (");
+        int pos1 = name.Find(")");
+        if (pos == wxNOT_FOUND && pos1 == wxNOT_FOUND) return;
+        group_name = name.SubString(0, pos-1);
+        col_id = table_int->FindColId(group_name);
+        if (col_id <0) return;
+        wxString group_time = name.SubString(pos+2, pos1-1);
+        for (size_t i=0; i<time_steps; ++i) {
+            if (group_time == table_int->GetTimeString(i)) {
+                time = i;
+                break;
+            }
+        }
+    }
 	std::vector<double> min_vals;
 	std::vector<double> max_vals;
 	table_int->GetMinMaxVals(col_id, min_vals, max_vals);
@@ -304,7 +340,7 @@ void VarsChooserFrame::IncludeFromVarsListSel(int sel)
         return;
     }
     
-	var_man.AppendVar(name, min_vals, max_vals, time);
+	var_man.AppendVar(group_name, min_vals, max_vals, time);
 	include_list->Append(name);
 	vars_list->Delete(sel);
 	if (vars_list->GetCount() > 0) {

@@ -154,7 +154,7 @@ wxString Manager::GetNameWithTime(int var)
 	if (var < 0 || var >= vars.size()) return "";
 	wxString s(vars[var].name);
 	if (!vars[var].is_time_variant) return s;
-	s << " (" << GetStrForTmId(vars[var].time) << ")";
+    s << " (" << GetStrForTmId(vars[var].time) << ")";
 	return s;
 }
 
