@@ -49,6 +49,7 @@ public:
     void clear_colo_control();
     void add_colo_control(bool is_new=false);
     wxColour get_a_color(wxString label);
+    wxColour get_a_color(int idx);
     wxString get_a_label(wxString label);
     bool check_colocations();
    
