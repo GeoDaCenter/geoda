@@ -262,7 +262,7 @@ void HClusterDlg::CreateControls()
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
     combo_n->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
-    combo_n->Connect(wxEVT_CHOICE, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    combo_n->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
 
     chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
@@ -378,7 +378,7 @@ void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
     tmp_val.Trim(true);
     long sel_ncluster;
     bool is_valid = tmp_val.ToLong(&sel_ncluster);
-    if (is_valid) {
+    if (is_valid && m_panel) {
         //sel_ncluster += 2;
         // update dendrogram
         m_panel->UpdateCluster(sel_ncluster, clusters);
@@ -882,6 +882,8 @@ void DendrogramPanel::OnSplitLineChange(int x)
 
 void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clusters)
 {
+    if (root == NULL) return;
+    
     int* clusterid = new int[nelements];
     cutoffDistance = cuttree (nelements, root, _nclusters, clusterid);
     
