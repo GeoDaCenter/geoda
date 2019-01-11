@@ -25,11 +25,20 @@ msgstr "Crear"
 msgid "&Explore"
 msgstr "Explorar"
 
+msgid "E&xplore"
+msgstr "Explorar"
+
+msgid "T&able"
+msgstr "Tabla"
+
 msgid "&New"
 msgstr "Nuevo"
 
 msgid "&Help"
-msgstr "Ayud"
+msgstr "Ayuda"
+
+msgid "Spatial Join"
+msgstr "Unión Espacial"
 
 msgid "&Run"
 msgstr "&Ejecutar"
