@@ -3086,7 +3086,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText" name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3128,7 +3128,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText"  name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3171,7 +3171,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText"  name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
