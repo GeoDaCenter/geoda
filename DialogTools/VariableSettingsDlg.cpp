@@ -1553,6 +1553,7 @@ wxString VariableSettingsDlg::FillData()
 	col_ids.resize(num_var);
 	var_info.resize(num_var);
 	if (num_var >= 1) {
+        var_info[0].is_hide = false;
         int sel_idx = lb1->GetSelection();
         if (style & ALLOW_EMPTY_IN_FIRST) {
             if (sel_idx == 0) {
@@ -1572,6 +1573,7 @@ wxString VariableSettingsDlg::FillData()
         }
 	}
 	if (num_var >= 2) {
+        var_info[1].is_hide = false;
         int sel_idx = lb2->GetSelection();
         if (style & ALLOW_EMPTY_IN_SECOND) {
             if (sel_idx == 0) {
