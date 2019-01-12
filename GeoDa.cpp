@@ -2858,6 +2858,7 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
 
     int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
 
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
                             _("Conditional Histogram Variables"),
@@ -2879,6 +2880,7 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
 
     int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
 
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate, style,
                             _("Conditional Scatter Plot Variables"),
