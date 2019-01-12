@@ -57,8 +57,8 @@ public:
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)=0;
     
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
+    //std::vector<GdaVarTools::VarInfo> var_info;
+    //std::vector<int> col_ids;
 
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
