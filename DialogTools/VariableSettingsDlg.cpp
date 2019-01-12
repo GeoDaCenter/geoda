@@ -1031,9 +1031,7 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb1_cur_sel = lb1->GetSelection();
-    if (style & ALLOW_EMPTY_IN_FIRST) {
-        lb1_cur_sel = lb1_cur_sel == 0 ? 0 : lb1_cur_sel - 1;
-    }
+
     if (lb1_cur_sel >= 0) {
         int x_pos = sel1_idx_map[lb1_cur_sel];
         if (x_pos >= 0)
@@ -1054,9 +1052,7 @@ void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb2_cur_sel = lb2->GetSelection();
-    if (style & ALLOW_EMPTY_IN_SECOND) {
-        lb2_cur_sel = lb2_cur_sel == 0 ? 0 : lb2_cur_sel - 1;
-    }
+
     if (lb2_cur_sel >= 0) {
         int x_pos = sel2_idx_map[lb2_cur_sel];
         if (x_pos >= 0)
@@ -1142,10 +1138,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
 	
-    if ((style & ALLOW_EMPTY_IN_FIRST) &&
-        (style & ALLOW_EMPTY_IN_SECOND)) {
-        if (lb1->GetSelection() == 0 &&
-            lb2->GetSelection() == 0) {
+    if ((style & ALLOW_EMPTY_IN_FIRST) && (style & ALLOW_EMPTY_IN_SECOND)) {
+        if (lb1->GetSelection() == 0 && lb2->GetSelection() == 0) {
             wxString msg(_("No field chosen for first and second variable."));
             wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
@@ -1164,9 +1158,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
     int sel_idx = lb1->GetSelection();
-    if (style & ALLOW_EMPTY_IN_FIRST) {
-        sel_idx = sel_idx - 1;
-    }
 	v1_col_id = col_id_map[sel1_idx_map[sel_idx]];
     
 	v1_name = table_int->GetColName(v1_col_id);
@@ -1187,9 +1178,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			return;
 		}
         int sel_idx = lb2->GetSelection();
-        if (style & ALLOW_EMPTY_IN_SECOND) {
-            sel_idx = sel_idx - 1;
-        }
 		v2_col_id = col_id_map[sel2_idx_map[sel_idx]];
 		v2_name = table_int->GetColName(v2_col_id);
 		project->SetDefaultVarName(1, v2_name);
@@ -1415,10 +1403,12 @@ void VariableSettingsDlg::InitFieldChoices()
     
     if (style & ALLOW_EMPTY_IN_FIRST) {
         lb1->Append(" "); // empty selection
+        sel1_idx += 1;
     }
     
     if (style & ALLOW_EMPTY_IN_SECOND) {
         lb2->Append(" "); // empty selection
+        sel2_idx += 1;
     }
     
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
@@ -1493,7 +1483,7 @@ void VariableSettingsDlg::InitFieldChoices()
         if (item_str == default_var_name1) {
             lb1_cur_sel = idx_sel1_map[i];
             if (style & ALLOW_EMPTY_IN_FIRST) {
-                lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+                //lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
             }
             if (set_second_from_first_mode && num_var >= 2) {
                 lb2_cur_sel = lb1_cur_sel;
@@ -1503,7 +1493,7 @@ void VariableSettingsDlg::InitFieldChoices()
             if (!set_second_from_first_mode) {
                 lb2_cur_sel = idx_sel2_map[i];
                 if (style & ALLOW_EMPTY_IN_SECOND) {
-                    lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+                    //lb2_cur_sel = lb2_cur_sel > 0 ? lb2_cur_sel + 1 : 0;
                 }
             }
         }
@@ -1569,8 +1559,6 @@ wxString VariableSettingsDlg::FillData()
                 // no selection: case ConditionalMap,
                 sel_idx = table_int->GetFirstNumericCol();
                 var_info[0].is_hide = true;
-            } else {
-                sel_idx = sel_idx - 1;
             }
         }
         int col_idx = sel1_idx_map[sel_idx];
@@ -1590,8 +1578,6 @@ wxString VariableSettingsDlg::FillData()
                 // no selection: case ConditionalMap,
                 sel_idx = table_int->GetFirstNumericCol();
                 var_info[1].is_hide = true;
-            } else {
-                sel_idx = sel_idx - 1;
             }
         }
         int col_idx = sel2_idx_map[sel_idx];
