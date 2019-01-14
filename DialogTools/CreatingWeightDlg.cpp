@@ -535,20 +535,38 @@ void CreatingWeightDlg::OnCThresholdTextEdit( wxCommandEvent& event )
 	val.Trim(true);
     
     wxLogMessage(val);
-    
-	double t = m_threshold_val;
-	m_thres_val_valid = val.ToDouble(&t);
-	if (m_thres_val_valid) {
-		m_threshold_val = t;
-		if (t <= m_thres_min) {
-			m_sliderdistance->SetValue(0);
-		} else if (t >= m_thres_max) {
-			m_sliderdistance->SetValue(100);
-		} else {
-			double s = (t-m_thres_min)/(m_thres_max-m_thres_min) * 100;
-			m_sliderdistance->SetValue((int) s);
-		}
-	}
+
+    int dist_var_type = m_nb_distance_variables->GetSelection();
+    if (dist_var_type == 0) {
+        double t = m_threshold_val;
+        m_thres_val_valid = val.ToDouble(&t);
+        if (m_thres_val_valid) {
+            m_threshold_val = t;
+            if (t <= m_thres_min) {
+                m_sliderdistance->SetValue(0);
+            } else if (t >= m_thres_max) {
+                m_sliderdistance->SetValue(100);
+            } else {
+                double s = (t-m_thres_min)/(m_thres_max-m_thres_min) * 100;
+                m_sliderdistance->SetValue((int) s);
+            }
+        }
+    } else {
+        double t = m_threshold_val_multivars;
+        m_thres_val_valid = val.ToDouble(&t);
+        if (m_thres_val_valid) {
+            m_threshold_val_multivars = t;
+            if (t <= m_thres_min_multivars) {
+                m_sliderdistance->SetValue(0);
+            } else if (t >= m_thres_max_multivars) {
+                m_sliderdistance->SetValue(100);
+            } else {
+                double s = (t-m_thres_min_multivars);
+                s = s /(m_thres_max_multivars-m_thres_min_multivars) * 100;
+                m_sliderdistance->SetValue((int) s);
+            }
+        }
+    }
 }
 
 void CreatingWeightDlg::OnCBandwidthThresholdTextEdit( wxCommandEvent& event )
@@ -561,18 +579,36 @@ void CreatingWeightDlg::OnCBandwidthThresholdTextEdit( wxCommandEvent& event )
     val.Trim(true);
     
     wxLogMessage(val);
-    
-    double t = m_bandwidth_thres_val;
-    m_bandwidth_thres_val_valid = val.ToDouble(&t);
-    if (m_bandwidth_thres_val_valid) {
-        m_bandwidth_thres_val = t;
-        if (t <= m_thres_min) {
-            m_bandwidth_slider->SetValue(0);
-        } else if (t >= m_thres_max) {
-            m_bandwidth_slider->SetValue(100);
-        } else {
-            double s = (t-m_thres_min)/(m_thres_max-m_thres_min) * 100;
-            m_bandwidth_slider->SetValue((int) s);
+
+    int dist_var_type = m_nb_distance_variables->GetSelection();
+    if (dist_var_type == 0) {
+        double t = m_bandwidth_thres_val;
+        m_bandwidth_thres_val_valid = val.ToDouble(&t);
+        if (m_bandwidth_thres_val_valid) {
+            m_bandwidth_thres_val = t;
+            if (t <= m_thres_min) {
+                m_bandwidth_slider->SetValue(0);
+            } else if (t >= m_thres_max) {
+                m_bandwidth_slider->SetValue(100);
+            } else {
+                double s = (t-m_thres_min)/(m_thres_max-m_thres_min) * 100;
+                m_bandwidth_slider->SetValue((int) s);
+            }
+        }
+    } else {
+        double t = m_bandwidth_thres_val_multivars;
+        m_bandwidth_thres_val_valid = val.ToDouble(&t);
+        if (m_bandwidth_thres_val_valid) {
+            m_bandwidth_thres_val_multivars = t;
+            if (t <= m_thres_min_multivars) {
+                m_bandwidth_slider->SetValue(0);
+            } else if (t >= m_thres_max_multivars) {
+                m_bandwidth_slider->SetValue(100);
+            } else {
+                double s = (t-m_thres_min_multivars);
+                s = s/(m_thres_max_multivars-m_thres_min_multivars) * 100;
+                m_bandwidth_slider->SetValue((int) s);
+            }
         }
     }
 }
@@ -1103,7 +1139,7 @@ bool CreatingWeightDlg::CheckTableVariableInput()
     // check threshold
     int method = m_nb_distance_methods->GetSelection();
     if ( method == 0 || method == 2) {
-        wxString not_valid_msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
+        wxString not_valid_msg = _("The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number.");
         
         if ( !m_thres_val_valid || !m_bandwidth_thres_val_valid) {
             wxMessageDialog dlg(this, not_valid_msg, _("Error"), wxOK | wxICON_ERROR);
@@ -1111,6 +1147,27 @@ bool CreatingWeightDlg::CheckTableVariableInput()
             return false;
         }
     }
+
+    wxString nbrless_msg = _("The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort.");
+    if ((method == 0 &&
+             m_threshold_val_multivars*m_thres_delta_factor
+                 < m_thres_min_multivars) ||
+        (method == 2 &&
+             m_bandwidth_thres_val_multivars*m_thres_delta_factor
+                 < m_thres_min_multivars))
+    {
+        wxString msg;
+        if (method == 0) {
+            msg = wxString::Format(nbrless_msg, m_threshold_val_multivars,
+                                   m_thres_min_multivars);
+        } else {
+            msg = wxString::Format(nbrless_msg, m_bandwidth_thres_val_multivars,
+                                   m_thres_min_multivars);
+        }
+        wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+        if (dlg.ShowModal() != wxID_YES) return false;
+    }
+
     return true;
 }
 
@@ -1200,15 +1257,16 @@ bool CreatingWeightDlg::CheckThresholdInput()
     }
     
     wxString not_valid_msg = _("The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number.");
-    
     wxString nbrless_msg = _("The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort.");
   
-    bool is_dist_band = m_nb_distance_methods->GetSelection() == 0 ? true : false;
+    bool is_dist_band = m_nb_distance_methods->GetSelection() == 0 ?
+                        true : false;
     
     if ((is_dist_band && !m_thres_val_valid) ||
         (!is_dist_band && !m_bandwidth_thres_val_valid))
     {
-        wxMessageDialog dlg(this, not_valid_msg, _("Error"), wxOK | wxICON_ERROR);
+        wxMessageDialog dlg(this, not_valid_msg, _("Error"),
+                            wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
