@@ -26,13 +26,15 @@
 struct WeightsMetaInfo
 {
 	enum WeightTypeEnum {
-		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel, WT_knn, WT_tree
+		WT_custom, WT_rook, WT_queen, WT_threshold, WT_inverse, WT_kernel,
+        WT_knn, WT_tree
 	};
 	enum SymmetryEnum {
 		SYM_unknown, SYM_symmetric, SYM_asymmetric
 	};
 	enum DistanceValuesEnum {
-		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars, DV_coordinates
+		DV_unspecified, DV_centroids, DV_mean_centers, DV_vars, DV_coordinates,
+        DV_multivars
 	};
 	enum DistanceMetricEnum {
 		DM_unspecified, DM_euclidean, DM_arc, DM_manhattan
@@ -114,6 +116,8 @@ struct WeightsMetaInfo
 	// written to gda file.
 	long dist_tm1; 
 	long dist_tm2;
+
+    std::vector<wxString> dist_multivars;
 	
 	// Used by knn
 	long num_neighbors; // 1 or more.  If knn_make_sym then this will be boosted

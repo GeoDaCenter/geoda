@@ -269,7 +269,7 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
     }
     
     // update Threshold values for distance weight
-    std::vector<wxString> col_names;
+    col_names.clear();
     std::vector<std::vector<double> > data;
     std::vector<std::vector<bool> > undefs;
     for (int i=0; i<num_var; i++) {
@@ -1171,11 +1171,14 @@ bool CreatingWeightDlg::CheckTableVariableInput()
     return true;
 }
 
-void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile, WeightsMetaInfo& wmi)
+void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
+                                               WeightsMetaInfo& wmi)
 {
     GeoDa::Weights w;
     int metric = m_dist_choice_vars->GetSelection();
-    WeightsMetaInfo::DistanceMetricEnum dist_metric = metric == 1 ? WeightsMetaInfo::DM_manhattan : WeightsMetaInfo::DM_euclidean;
+    WeightsMetaInfo::DistanceMetricEnum dist_metric =
+        metric == 1 ? WeightsMetaInfo::DM_manhattan :
+                      WeightsMetaInfo::DM_euclidean;
     
     int method = m_nb_distance_methods->GetSelection();
     if (method == 0) {
@@ -1191,7 +1194,8 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
             }
         }
         w = dist_util->CreateDistBandWeights(band, is_inverse, power);
-        wmi.SetToThres(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, band, power);
+        wmi.SetToThres(id, dist_metric, WeightsMetaInfo::DU_unspecified, "",
+                       WeightsMetaInfo::DV_multivars, band, power);
         
     } else if ( method == 1) {
         // kNN
@@ -1206,7 +1210,8 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
             }
         }
         w = dist_util->CreateKNNWeights(k, is_inverse, power);
-        wmi.SetToKnn(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, k, power);
+        wmi.SetToKnn(id, dist_metric, WeightsMetaInfo::DU_unspecified, "",
+                     WeightsMetaInfo::DV_multivars, k, power);
         
     } else if ( method == 2) {
         // adaptive kernel
@@ -1218,12 +1223,18 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
         int k = m_spinn_kernel->GetValue();
         
         if (m_radio_manu_bandwdith->GetValue() == true) {
-            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, bandwidth, apply_kernel_to_diag);
+            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, bandwidth,
+                                                       apply_kernel_to_diag);
         } else {
-            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, k, is_adaptive_bandwidth, apply_kernel_to_diag);
+            w = dist_util->CreateAdaptiveKernelWeights(kernel_type, k,
+                                is_adaptive_bandwidth, apply_kernel_to_diag);
         }
-        wmi.SetToKernel(id, dist_metric, WeightsMetaInfo::DU_unspecified, "", WeightsMetaInfo::DV_vars, kernel, k, bandwidth, is_adaptive_bandwidth, apply_kernel_to_diag);
+        wmi.SetToKernel(id, dist_metric, WeightsMetaInfo::DU_unspecified, "",
+                        WeightsMetaInfo::DV_multivars, kernel, k, bandwidth,
+                        is_adaptive_bandwidth, apply_kernel_to_diag);
     }
+
+    wmi.dist_multivars = col_names;
     
     // save to file
     GwtWeight* Wp = new GwtWeight;
