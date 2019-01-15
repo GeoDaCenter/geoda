@@ -51,9 +51,12 @@
 #include "AbstractClusterDlg.h"
 
 
-AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s, wxString title)
-  : frames_manager(project_s->GetFramesManager()), table_state(project_s->GetTableState()),
-    wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
+                                       wxString title)
+  : frames_manager(project_s->GetFramesManager()),
+    table_state(project_s->GetTableState()),
+    wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+             wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
     validator(wxFILTER_INCLUDE_CHAR_LIST),
     input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL),
     m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL),
@@ -208,44 +211,55 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
     return true;
 }
 
-void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool integer_only)
+void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
+                                             bool integer_only)
 {
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
                                          wxDefaultPosition, wxDefaultSize);
     
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250), 0, NULL,
-                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                              wxSize(250,250), 0, NULL,
+                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var, integer_only);
     
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel,
+                                                   _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     
     vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
 }
 
-void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool show_auto_button)
+void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
+                                       bool show_auto_button)
 {
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
                                          wxDefaultPosition, wxDefaultSize);
     
-    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition, wxSize(250,250), 0, NULL,
-                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+    combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
+                              wxSize(250,250), 0, NULL,
+                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var);
     
-    m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
+    m_use_centroids = new wxCheckBox(panel, wxID_ANY,
+                                     _("Use geometric centroids"));
     auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));
-    auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids, this);
+    auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids,
+                   this);
     if (!show_auto_button) auto_btn->Hide();
     wxBoxSizer *hbox_c = new wxBoxSizer(wxHORIZONTAL);
     hbox_c->Add(m_use_centroids, 0);
     hbox_c->Add(auto_btn, 0);
     
-    wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"), wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"),
+                                            wxDefaultPosition, wxDefaultSize);
     wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, "0");
     wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, "1");
-    m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(140, -1), wxSL_HORIZONTAL);
-    m_wc_txt = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition, wxSize(40,-1), 0, validator);
+    m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100,
+                                      wxDefaultPosition, wxSize(140, -1),
+                                      wxSL_HORIZONTAL);
+    m_wc_txt = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition,
+                              wxSize(40,-1), 0, validator);
     wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
     hbox_w->Add(st_wc, 0, wxLEFT, 20);
     hbox_w->Add(st_w0, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
@@ -254,7 +268,8 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     hbox_w->Add(m_wc_txt, 0, wxALIGN_TOP|wxLEFT, 5);
     
     
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel,
+                                                   _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(hbox_c, 0, wxLEFT | wxRIGHT, 10);
@@ -268,8 +283,10 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox, bool sh
     m_weight_centroids->Disable();
     m_wc_txt->Disable();
     auto_btn->Disable();
-    m_use_centroids->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnUseCentroids, this);
-	m_weight_centroids->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideWeight, this);
+    m_use_centroids->Bind(wxEVT_CHECKBOX,
+                          &AbstractClusterDlg::OnUseCentroids, this);
+	m_weight_centroids->Bind(wxEVT_SLIDER,
+                             &AbstractClusterDlg::OnSlideWeight, this);
     m_wc_txt->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnInputWeights, this);
 }
 
@@ -481,8 +498,10 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox,
     hbox0->Add(txt_floor);
     
     wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition, wxSize(150,-1), wxSL_HORIZONTAL);
-    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, "10%", wxDefaultPosition, wxSize(70,-1), 0, validator);
+    slider_floor = new wxSlider(panel, wxID_ANY, 10, 0, 100, wxDefaultPosition,
+                                wxSize(150,-1), wxSL_HORIZONTAL);
+    txt_floor_pct = new wxTextCtrl(panel, wxID_ANY, "10%", wxDefaultPosition,
+                                   wxSize(70,-1), 0, validator);
     hbox1->Add(slider_floor);
     hbox1->Add(txt_floor_pct);
     
@@ -593,7 +612,8 @@ void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
 bool AbstractClusterDlg::CheckMinBound()
 {
     if (chk_floor->IsChecked()) {
-        if (combo_floor->GetSelection() < 0 || txt_floor->GetValue().Trim() == wxEmptyString) {
+        if ( combo_floor->GetSelection() < 0 ||
+             txt_floor->GetValue().Trim() == wxEmptyString) {
             wxString err_msg = _("Please input minimum bound value.");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
@@ -603,7 +623,8 @@ bool AbstractClusterDlg::CheckMinBound()
     return true;
 }
 
-void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_only)
+void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
+                                              bool integer_only)
 {
     combo_var->Clear();
     var_items.Clear();
@@ -628,9 +649,9 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box, bool integer_o
             var_items.Add(name);
         }
     }
-    if (!var_items.IsEmpty())
+    if (!var_items.IsEmpty()) {
         var_box->InsertItems(var_items,0);
-    
+    }
     for (int i=0; i<select_vars.size(); i++) {
         var_box->SetStringSelection(select_vars[i], true);
     }
@@ -670,7 +691,9 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     
     int num_var = selections.size();
     if (num_var < min_num_var && !use_centroids) {
-        wxString err_msg = wxString::Format(_("Please select at least %d variables."), min_num_var);
+        wxString err_msg =
+            wxString::Format(_("Please select at least %d variables."),
+            min_num_var);
         wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
@@ -680,7 +703,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     select_vars.clear();
     
     if ((!use_centroids && num_var>0) ||
-        (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 1))
+            (use_centroids && m_weight_centroids &&
+             m_weight_centroids->GetValue() != 1))
     {
         col_ids.resize(num_var);
         var_info.resize(num_var);
@@ -693,7 +717,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, err_msg, _("Error"),
+                                    wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return false;
             }
@@ -800,7 +825,8 @@ double* AbstractClusterDlg::GetWeights(int columns)
         _weight[j] = 1;
     }
     if (m_weight_centroids && m_use_centroids) {
-        if (m_weight_centroids->GetValue() > 0 && m_use_centroids->IsChecked()) {
+        if ( m_weight_centroids->GetValue() > 0 &&
+             m_use_centroids->IsChecked()) {
             double sel_wc = m_weight_centroids->GetValue();
             wc = sel_wc / 100.0;
             double n_var_cols = (double)(columns - 2);
@@ -864,7 +890,8 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 //
 ////////////////////////////////////////////////////////////////
 
-double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters, bool show_print)
+double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
+                                         bool show_print)
 {
     vector<vector<int> > solution;
     vector<int> isolated;
@@ -880,7 +907,9 @@ double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters, bool s
     return CreateSummary(solution, isolated, show_print);
 }
 
-double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated, bool show_print)
+double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
+                                         const vector<int>& isolated,
+                                         bool show_print)
 {
     // mean centers
     vector<vector<double> > mean_centers = _getMeanCenters(solution);

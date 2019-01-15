@@ -125,7 +125,7 @@
 #include "DialogTools/SkaterDlg.h"
 #include "DialogTools/PreferenceDlg.h"
 #include "DialogTools/SpatialJoinDlg.h"
-
+#include "DialogTools/MultiVarSettingsDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"

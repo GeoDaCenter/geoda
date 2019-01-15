@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */; };
 		A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11B85BB1B18DC9C008B64EA /* Basemap.cpp */; };
+		A11EF98E21ED569A00B77413 /* MultiVarSettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */; };
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
 		A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */; };
 		A1230E5E212DF54D002AB30A /* switch-on.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5C212DF54C002AB30A /* switch-on.png */; };
@@ -318,6 +319,8 @@
 		A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractCanvas.hpp; sourceTree = "<group>"; };
 		A11B85BA1B18DC89008B64EA /* Basemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Basemap.h; sourceTree = "<group>"; };
 		A11B85BB1B18DC9C008B64EA /* Basemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Basemap.cpp; sourceTree = "<group>"; };
+		A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiVarSettingsDlg.h; sourceTree = "<group>"; };
+		A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiVarSettingsDlg.cpp; sourceTree = "<group>"; };
 		A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRColumn.cpp; path = DataViewer/OGRColumn.cpp; sourceTree = "<group>"; };
 		A11F1B7E184FDFB3006F5F98 /* OGRColumn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = OGRColumn.h; path = DataViewer/OGRColumn.h; sourceTree = "<group>"; };
 		A11F1B801850437A006F5F98 /* OGRTableOperation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = OGRTableOperation.cpp; path = DataViewer/OGRTableOperation.cpp; sourceTree = "<group>"; };
@@ -1225,6 +1228,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */,
+				A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */,
 				A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */,
 				A4ED7D5A209A6B81008685D6 /* HDBScanDlg.h */,
 				A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */,
@@ -1761,6 +1766,7 @@
 				A4ED7D442097EC55008685D6 /* ANN.cpp in Sources */,
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
 				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,
+				A11EF98E21ED569A00B77413 /* MultiVarSettingsDlg.cpp in Sources */,
 				DD7975920F1D296F00496A84 /* SaveSelectionDlg.cpp in Sources */,
 				A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */,
 				DD7975980F1D296F00496A84 /* VariableSettingsDlg.cpp in Sources */,
