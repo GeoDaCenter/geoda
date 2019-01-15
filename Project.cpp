@@ -1601,7 +1601,9 @@ bool Project::InitFromOgrLayer()
 	return true;
 }
 
-BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::DataSourceType ds_type, wxString layer_name)
+BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name,
+                                         GdaConst::DataSourceType ds_type,
+                                         wxString layer_name)
 {
     wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
     BackgroundMapLayer* map_layer = NULL;
@@ -1618,7 +1620,8 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name, GdaConst::Dat
         if (p_layer->IsTableOnly() == false) {
             // always add to bg_maps
             if (bg_maps.find(layer_name) == bg_maps.end()) {
-                bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer, sourceSR);
+                bg_maps[layer_name] = new BackgroundMapLayer(layer_name, p_layer,
+                                                             sourceSR);
             }
             map_layer = bg_maps[layer_name];
         }

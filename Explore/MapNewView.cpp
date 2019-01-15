@@ -3192,7 +3192,8 @@ void MapFrame::OnMapAddLayer(wxCommandEvent& e)
     wxString datasource_name = datasource->GetOGRConnectStr();
     GdaConst::DataSourceType ds_type = datasource->GetType();
     
-    BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
+    BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name,
+                                                         ds_type, layer_name);
     if (map_layer == NULL) {
         wxMessageDialog dlg (this, _("GeoDa could not load this layer. Please check if the datasource is valid and not table only."), _("Load Layer Failed."), wxOK | wxICON_ERROR);
         dlg.ShowModal();

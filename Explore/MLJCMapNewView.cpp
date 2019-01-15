@@ -565,7 +565,7 @@ MLJCMapFrame::~MLJCMapFrame()
 
 void MLJCMapFrame::OnActivate(wxActivateEvent& event)
 {
-	LOG_MSG("In MLJCMapFrame::OnActivate");
+	wxLogMessage("In MLJCMapFrame::OnActivate");
 	if (event.GetActive()) {
 		RegisterAsActive("MLJCMapFrame", GetTitle());
 	}
@@ -574,7 +574,7 @@ void MLJCMapFrame::OnActivate(wxActivateEvent& event)
 
 void MLJCMapFrame::MapMenus()
 {
-	LOG_MSG("In MLJCMapFrame::MapMenus");
+	wxLogMessage("In MLJCMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
 	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS");
@@ -590,7 +590,7 @@ void MLJCMapFrame::UpdateOptionMenuItems()
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
-        LOG_MSG("MLJCMapFrame::UpdateOptionMenuItems: Options menu not found");
+        wxLogMessage("MLJCMapFrame::UpdateOptionMenuItems: Options menu not found");
 	} else {
 		((MLJCMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
