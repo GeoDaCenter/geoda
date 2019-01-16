@@ -331,6 +331,12 @@ const ANNbool	ANN_ALLOW_SELF_MATCH	= ANNtrue;
 //		uncomment the appropriate set of macros below.
 //----------------------------------------------------------------------
 
+// Original design of ANN allows user to specify the distance norm at
+// compile-time by manually uncommenting the code below
+// The following block is added to specify using manhanttan or euclidean
+// distance in ANN in run-time.
+const int ANNuse_manhattan_dist    = 1;
+const int ANNuse_euclidean_dist    = 2;
 extern int ANN_DIST_TYPE;
 
 double ANN_POW(double v);

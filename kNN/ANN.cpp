@@ -32,13 +32,13 @@
 
 using namespace std;					// make std:: accessible
 
-int ANN_DIST_TYPE = 2;
+int ANN_DIST_TYPE = ANNuse_euclidean_dist;
 
 double ANN_POW(double v)
 {
-    if (ANN_DIST_TYPE == 1) {
+    if (ANN_DIST_TYPE == ANNuse_manhattan_dist) {
         return fabs(v);
-    } else if (ANN_DIST_TYPE == 2) {
+    } else if (ANN_DIST_TYPE == ANNuse_euclidean_dist) {
         return v * v;
     } else {
         return pow(fabs(v), ANN_DIST_TYPE);
@@ -46,9 +46,9 @@ double ANN_POW(double v)
 }
 double ANN_ROOT(double x)
 {
-    if (ANN_DIST_TYPE == 1) {
+    if (ANN_DIST_TYPE == ANNuse_manhattan_dist) {
         return x;
-    } else if (ANN_DIST_TYPE == 2) {
+    } else if (ANN_DIST_TYPE == ANNuse_euclidean_dist) {
         return sqrt(x);
     } else {
         return pow(fabs(x), 1/ANN_DIST_TYPE);

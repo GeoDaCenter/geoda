@@ -289,7 +289,7 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
     if (dist_util) {
         delete dist_util;
     }
-    dist_util = new GeoDa::DistUtils(data, metric);
+    dist_util = new GeoDa::DistUtils(data, undefs, metric);
     m_thres_min_multivars = dist_util->GetMinThreshold();
     m_thres_max_multivars = dist_util->GetMaxThreshold();
     double thres_range = m_thres_max_multivars - m_thres_min_multivars;
@@ -1235,6 +1235,19 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
     }
 
     wmi.dist_multivars = col_names;
+
+    bool has_island = false;
+    for (size_t i=0; i<w.size(); ++i) {
+        if (w[i].empty()) {
+            has_island = true;
+            break;
+        }
+    }
+    if (has_island) {
+        wxString msg = _("There is at least one neighborless observation. Check the islands in weights histogram and linked map.");
+        wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+    }
     
     // save to file
     GwtWeight* Wp = new GwtWeight;

@@ -8,10 +8,12 @@
 #ifndef DistUtils_h
 #define DistUtils_h
 
+#include <map>
 #include <vector>
 #include <stdio.h>
 
 #include "../kNN/ANN/ANN.h"
+
 
 namespace GeoDa {
     typedef std::vector<std::vector<std::pair<int, double> > > Weights;
@@ -24,10 +26,14 @@ namespace GeoDa {
         double eps;
         unsigned long n_cols;
         unsigned long n_rows;
-        
+        unsigned long n_valid_rows;
+        std::vector<bool> row_mask;
+        std::map<unsigned long, unsigned long> ann_idx_to_row;
+        std::map<unsigned long, unsigned long> row_to_ann_idx;
     public:
         DistUtils(const std::vector<std::vector<double> >& input_data,
-                  int distance_metric = 2);
+                  const std::vector<std::vector<bool> >& mask,
+                  int distance_metric = ANNuse_euclidean_dist);
         ~DistUtils();
         
         // The minimum threshold distance guarantees that every observation has
@@ -38,7 +44,8 @@ namespace GeoDa {
         // represents by all data points
         double GetMaxThreshold();
         
-        GeoDa::Weights CreateDistBandWeights(double band, bool is_inverse, int power);
+        GeoDa::Weights CreateDistBandWeights(double band, bool is_inverse,
+                                             int power);
         
         GeoDa::Weights CreateKNNWeights(int k, bool is_inverse, int power);
         
@@ -53,7 +60,8 @@ namespace GeoDa {
         GeoDa::Weights CreateAdaptiveKernelWeights(int kernel_type, double band,
             bool apply_kernel_to_diag = false);
         
-        void ApplyKernel(GeoDa::Weights& w, int kernel_type, bool apply_kernel_to_diag);
+        void ApplyKernel(GeoDa::Weights& w, int kernel_type,
+                         bool apply_kernel_to_diag);
     };
 }
 #endif /* DistUtils_h */
