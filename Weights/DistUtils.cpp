@@ -64,7 +64,8 @@ double DistUtils::GetMinThreshold()
     }
     delete[] nnIdx;
     delete[] dists;
-    
+
+    if (ANN_DIST_TYPE == 1) return max_1nn_dist;
     return sqrt(max_1nn_dist);
 }
 
