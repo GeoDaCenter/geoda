@@ -341,6 +341,7 @@
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
@@ -484,6 +485,7 @@
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />

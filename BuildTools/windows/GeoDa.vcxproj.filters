@@ -853,6 +853,9 @@
     <ClInclude Include="..\..\kNN\ANN\ANNx.h">
       <Filter>kNN\ANN</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1544,6 +1547,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Weights\DistUtils.cpp">
       <Filter>Weights</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
