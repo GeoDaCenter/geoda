@@ -67,6 +67,22 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 	return lag;
 }
 
+bool GwtElement::Check(long nbr_idx)
+{
+    for (size_t i=0; i<nbrs; ++i) {
+        if (data[i].nbx == nbr_idx) return true;
+    }
+    return false;
+}
+
+std::vector<long> GwtElement::GetNbrs()
+{
+    std::vector<long> nbr_ids;
+    for (size_t i=0; i<nbrs; ++i) {
+        nbr_ids.push_back(data[i].nbx);
+    }
+    return nbr_ids;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 //
@@ -74,6 +90,16 @@ double GwtElement::SpatialLag(const double *x, const bool std) const  {
 void GwtWeight::Update(const std::vector<bool>& undefs)
 {
     
+}
+
+const std::vector<long> GwtWeight::GetNeighbors(int obs_idx)
+{
+    return gwt[obs_idx].GetNbrs();
+}
+
+bool GwtWeight::CheckNeighbor(int obs_idx, int nbr_idx)
+{
+    return gwt[obs_idx].Check(nbr_idx);
 }
 
 bool GwtWeight::HasIsolates(GwtElement *gwt, int num_obs)

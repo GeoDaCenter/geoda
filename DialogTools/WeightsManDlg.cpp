@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <set>
 #include <boost/foreach.hpp>
 #include <boost/uuid/nil_generator.hpp>
 #include <wx/filename.h>
@@ -33,6 +34,8 @@
 #include "../Explore/ConnectivityHistView.h"
 #include "../Explore/ConnectivityMapView.h"
 #include "../HighlightState.h"
+#include "../ShapeOperations/GeodaWeight.h"
+#include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/WeightUtils.h"
@@ -65,40 +68,61 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 	
-    // time editor - incorrect number of views open #1754
+    // next 2 lines for time editor - incorrect number of views open #1754
     bool is_any_time_variant = false;
     SetDependsOnNonSimpleGroups(is_any_time_variant);
     
-	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), _("Create"),  wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
-	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), _("Load"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
-	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), _("Remove"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
-    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"), _("Histogram"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
-    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"), _("Connectivity Map"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
-    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"), _("Connectivity Graph"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-	
-	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
-	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
-	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
-    Connect(XRCID("ID_HISTOGRAM_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnHistogramBtn));
-    Connect(XRCID("ID_CONNECT_MAP_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectMapBtn));
-    Connect(XRCID("ID_CONNECT_GRAPH_BTN"), wxEVT_BUTTON, wxCommandEventHandler(WeightsManFrame::OnConnectGraphBtn));
-
-	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition, wxSize(-1, 100), wxLC_REPORT);
-    
+	create_btn = new wxButton(panel, XRCID("ID_CREATE_BTN"), _("Create"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	load_btn = new wxButton(panel, XRCID("ID_LOAD_BTN"), _("Load"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+	remove_btn = new wxButton(panel, XRCID("ID_REMOVE_BTN"), _("Remove"),
+                            wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+    histogram_btn = new wxButton(panel, XRCID("ID_HISTOGRAM_BTN"),
+                            _("Histogram"), wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT);
+    connectivity_map_btn = new wxButton(panel, XRCID("ID_CONNECT_MAP_BTN"),
+                            _("Connectivity Map"), wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT);
+    connectivity_graph_btn = new wxButton(panel, XRCID("ID_CONNECT_GRAPH_BTN"),
+                            _("Connectivity Graph"), wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT);
+    intersection_btn = new wxButton(panel, XRCID("ID_INTERSECTION_BTN"),
+                            _("Weights Intersection"), wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT);
+    union_btn = new wxButton(panel, XRCID("ID_UNION_BTN"),
+                            _("Weights Union"), wxDefaultPosition,
+                            wxDefaultSize, wxBU_EXACTFIT);
+	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
+	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnLoadBtn));
+	Connect(XRCID("ID_REMOVE_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnRemoveBtn));
+    Connect(XRCID("ID_HISTOGRAM_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnHistogramBtn));
+    Connect(XRCID("ID_CONNECT_MAP_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnConnectMapBtn));
+    Connect(XRCID("ID_CONNECT_GRAPH_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnConnectGraphBtn));
+    Connect(XRCID("ID_INTERSECTION_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnIntersectionBtn));
+    Connect(XRCID("ID_UNION_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnUnionBtn));
+	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition,
+            wxSize(-1, 100), wxLC_REPORT);
 	// Note: search for "ungrouped_list" for examples of wxListCtrl usage.
 	w_list->AppendColumn(_("Weights Name"));
 	w_list->SetColumnWidth(TITLE_COL, 300);
 	InitWeightsList();
 	
-	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_SELECTED, wxListEventHandler(WeightsManFrame::OnWListItemSelect));
-	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_DESELECTED, wxListEventHandler(WeightsManFrame::OnWListItemDeselect));
+	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_SELECTED,
+            wxListEventHandler(WeightsManFrame::OnWListItemSelect));
+	Connect(XRCID("ID_W_LIST"), wxEVT_LIST_ITEM_DESELECTED,
+            wxListEventHandler(WeightsManFrame::OnWListItemDeselect));
 	
-	details_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr, wxDefaultPosition, wxSize(-1, 200));
+	details_win = wxWebView::New(panel, wxID_ANY, wxWebViewDefaultURLStr,
+            wxDefaultPosition, wxSize(-1, 200));
 
 	// Arrange above widgets in panel using sizers.
 	// Top level panel sizer will be panel_h_szr
@@ -119,8 +143,13 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
     btns_row2_h_szr->AddSpacer(5);
     btns_row2_h_szr->Add(connectivity_graph_btn, 0, wxALIGN_CENTER_VERTICAL);
     btns_row2_h_szr->AddSpacer(5);
- 
-    
+
+    wxBoxSizer* btns_row3_h_szr = new wxBoxSizer(wxHORIZONTAL);
+    btns_row3_h_szr->Add(intersection_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row3_h_szr->AddSpacer(5);
+    btns_row3_h_szr->Add(union_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row3_h_szr->AddSpacer(5);
+
 	wxBoxSizer* wghts_list_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	wghts_list_h_szr->Add(w_list);
 	
@@ -128,10 +157,10 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
 	panel_v_szr->Add(btns_row1_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
     panel_v_szr->AddSpacer(15);
 	panel_v_szr->Add(wghts_list_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
+    panel_v_szr->Add(btns_row3_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 	panel_v_szr->Add(details_win, 1, wxEXPAND);
 	panel_v_szr->Add(btns_row2_h_szr, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
-	
-	
+
 	wxBoxSizer* panel_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
 	
@@ -200,6 +229,99 @@ void WeightsManFrame::OnConnectMapBtn(wxCommandEvent& ev)
     nf->SetTitle(title);
     ev.SetString("Connectivity");
     nf->OnAddNeighborToSelection(ev);
+}
+
+bool WeightsManFrame::GetSelectWeights(std::vector<GeoDaWeight*>& ws)
+{
+    wxLogMessage("WeightsManFrame::GetSelectWeights()");
+    long item = -1;
+    std::set<long> items;
+    std::set<long>::iterator it;
+    for (long i=0; i<w_list->GetItemCount(); ++i) {
+        item = w_list->GetNextItem(i-1, wxLIST_NEXT_BELOW, wxLIST_STATE_SELECTED);
+        if ( item == -1 ) continue;
+        items.insert(item);
+    }
+    std::set<wxString> id_name_set;
+    for (it=items.begin(); it!=items.end(); ++it) {
+        boost::uuids::uuid w_id = ids[*it];
+        if (w_id.is_nil() == false) {
+            GeoDaWeight* w = w_man_int->GetWeights(w_id);
+            ws.push_back(w);
+            id_name_set.insert(w->GetIDName());
+        }
+    }
+    // check id: should be the same of selected weights
+    return id_name_set.size() == 1;
+}
+
+void WeightsManFrame::SaveGalWeightsFile(GalWeight* new_w)
+{
+    wxString wildcard = _("GAL files (*.gal)|*.gal");
+    wxString defaultFile(project->GetProjectTitle());
+    defaultFile += ".gal";
+    wxFileDialog dlg(this,
+                     _("Choose an output weights file name."),
+                     project->GetWorkingDir().GetPath(),
+                     defaultFile,
+                     wildcard,
+                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    wxString outputfile;
+    if (dlg.ShowModal() != wxID_OK)
+        return;
+    outputfile = dlg.GetPath();
+
+    int  m_num_obs = new_w->GetNumObs();
+    wxString idd = new_w->GetIDName();
+    wxString layer_name = project->GetProjectTitle();
+    int col = table_int->FindColId(idd);
+    bool flag = false;
+    if (table_int->GetColType(col) == GdaConst::long64_type){
+        std::vector<wxInt64> id_vec(m_num_obs);
+        table_int->GetColData(col, 0, id_vec);
+        flag = Gda::SaveGal(new_w->gal, layer_name, outputfile, idd, id_vec);
+
+    } else if (table_int->GetColType(col) == GdaConst::string_type) {
+        std::vector<wxString> id_vec(m_num_obs);
+        table_int->GetColData(col, 0, id_vec);
+        flag = Gda::SaveGal(new_w->gal, layer_name, outputfile, idd, id_vec);
+    }
+    if (!flag) {
+        wxString msg = _("Failed to create the weights file.");
+        wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    } else {
+        wxFileName t_ofn(outputfile);
+        wxString file_name(t_ofn.GetFullName());
+        wxString msg = wxString::Format(_("Weights file \"%s\" created successfully."), file_name);
+        wxMessageDialog dlg(NULL, msg, _("Success"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+
+        WeightUtils::LoadGalInMan(w_man_int, outputfile, table_int, idd,
+                                  WeightsMetaInfo::WT_custom);
+    }
+}
+
+void WeightsManFrame::OnIntersectionBtn(wxCommandEvent& ev)
+{
+    wxLogMessage("WeightsManFrame::OnIntersectionBtn()");
+    std::vector<GeoDaWeight*> ws;
+    if (WeightsManFrame::GetSelectWeights(ws)) {
+        GalWeight* new_w = WeightUtils::WeightsIntersection(ws);
+        SaveGalWeightsFile(new_w);
+        delete new_w;
+    }
+}
+
+void WeightsManFrame::OnUnionBtn(wxCommandEvent& ev)
+{
+    wxLogMessage("WeightsManFrame::OnUnionBtn()");
+    std::vector<GeoDaWeight*> ws;
+    if (WeightsManFrame::GetSelectWeights(ws)) {
+        GalWeight* new_w = WeightUtils::WeightsUnion(ws);
+        SaveGalWeightsFile(new_w);
+        delete new_w;
+    }
 }
 
 void WeightsManFrame::OnConnectGraphBtn(wxCommandEvent& ev)
@@ -817,5 +939,8 @@ void WeightsManFrame::UpdateButtons()
         connectivity_map_btn->Disable();
         connectivity_graph_btn->Disable();
     }
+    int sel_w_cnt = w_list->GetSelectedItemCount();
+    if (intersection_btn) intersection_btn->Enable(sel_w_cnt >= 2);
+    if (union_btn) union_btn->Enable(sel_w_cnt >= 2);
 }
 

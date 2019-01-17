@@ -60,6 +60,10 @@ public:
 	double SpatialLag(const std::vector<double>& x, const bool std=true) const;
     
 	double SpatialLag(const double* x, const bool std=true) const;
+
+    bool Check(long nbr_idx);
+
+    std::vector<long> GetNbrs();
 };
 
 
@@ -79,6 +83,8 @@ public:
     virtual bool SaveSpaceTimeWeights(const wxString& ofname,
                                       WeightsManInterface* wmi,
                                       TableInterface* table_int);
+    virtual bool CheckNeighbor(int obs_idx, int nbr_idx);
+    virtual const std::vector<long> GetNeighbors(int obs_idx);
     virtual void Update(const std::vector<bool>& undefs);
     virtual void GetNbrStats();
 
