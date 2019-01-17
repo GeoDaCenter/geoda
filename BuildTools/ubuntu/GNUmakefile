@@ -8,10 +8,12 @@ GeoDa_OBJ = $(wildcard $(GeoDa_ROOT)/o/*.o)
 
 default:	compile-geoda 
 
-app:  build-geoda-mac
+app:  build-geoda
+
+app18: build-geoda-1804
 
 compile-geoda:	ogl-target io-target algorithms-target dataviewer-target dialogtools-target \
-		knn-target explore-target libgdiam-target regression-target \
+		weights-target knn-target explore-target libgdiam-target regression-target \
 		shapeoperations-target resource-target varcalc-target \
 		geoda-target
 
@@ -25,6 +27,9 @@ resource-target:
 
 ogl-target:
 	(cd $(GeoDa_ROOT)/ogl; $(MAKE))
+
+weights-target:
+	(cd $(GeoDa_ROOT)/Weights; $(MAKE))
 
 knn-target:
 	(cd $(GeoDa_ROOT)/kNN; $(MAKE))
@@ -59,7 +64,7 @@ varcalc-target:
 geoda-target:
 	(cd $(GeoDa_ROOT); $(MAKE))
 
-build-geoda-mac:
+build-geoda:
 	rm -rf build
 	mkdir -p build
 	mkdir build/Resources
@@ -96,7 +101,34 @@ build-geoda-mac:
 	cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
 	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
 	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite
+	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.sqlite build/geoda_prefs.sqlite
+	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
 	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
+	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
+
+build-geoda-1804:
+	rm -rf build
+	mkdir -p build
+	mkdir build/Resources
+	mkdir build/gdaldata
+	mkdir build/plugins
+	mkdir build/basemap_cache
+	mkdir build/web_plugins
+	$(LD) $(LDFLAGS) $(GeoDa_OBJ) $(LIBS) -o build/GeoDa
+	cp run.sh build/run.sh
+	chmod +x build/run.sh
+	cp $(GeoDa_ROOT)/rc/data_viewer_dialogs.xrc build/Resources
+	cp $(GeoDa_ROOT)/rc/dialogs.xrc build/Resources
+	cp $(GeoDa_ROOT)/rc/GeoDa.icns build/Resources
+	cp $(GeoDa_ROOT)/rc/menus.xrc build/Resources
+	cp $(GeoDa_ROOT)/rc/toolbar.xrc build/Resources
+	cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
+	cp /usr/share/gdal/2.2/* build/gdaldata
+	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite
+	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.sqlite build/geoda_prefs.sqlite
+	cp $(GEODA_HOME)/../CommonDistFiles/geoda_prefs.json build/geoda_prefs.json
+	cp -rf $(GEODA_HOME)/../CommonDistFiles/web_plugins/* build/web_plugins
+	cp -rf $(GeoDa_ROOT)/internationalization/lang build/
 
 clean:
 	rm -f ../../o/*

@@ -28,7 +28,7 @@
 #include <wx/msgdlg.h>
 #include "GalWeight.h"
 #include "GwtWeight.h"
-#include "GeoDaWeight.h"
+#include "GeodaWeight.h"
 #include "../DataViewer/TableInterface.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"

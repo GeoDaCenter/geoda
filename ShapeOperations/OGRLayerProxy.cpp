@@ -379,7 +379,11 @@ void OGRLayerProxy::DeleteField(int pos)
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
+#ifdef __linux__
+	// move to official gdal on linux, so no need to call DeleteField()
+#else
 		my_feature->DeleteField(pos);
+#endif
     }
 	// delete field in actual datasource
 	if( this->layer->DeleteField(pos) != OGRERR_NONE ) {

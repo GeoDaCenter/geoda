@@ -610,9 +610,5 @@ echo "%%%%%%%%%%%%%%%%%%%"
     mkdir ../../o
     $MAKER
     cp GNUmakefile1804 GNUmakefile
-    make app
-    #cp plugins/x64/*.so build/plugins/
-    cp ../CommonDistFiles/cache.sqlite build/
-    cp ../CommonDistFiles/geoda_prefs.sqlite build/
-    cp ../CommonDistFiles/geoda_prefs.json build/
+    make app18
 }
