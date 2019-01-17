@@ -916,6 +916,7 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
 {
     if (is_new) {
         wxString test_s = new_data[0];
+        test_s.Trim(true).Trim(false);
         vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         if (pattern.IsEmpty()) {
@@ -928,11 +929,13 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
             throw GdaException(error_msg.mb_str());
         }
         for (int i=0; i<rows; ++i) {
+            new_data[i].Trim(true).Trim(false);
             data[i] = Gda::DateToNumber(new_data[i], regex, date_items);
         }
     } else {
         int col_idx = GetColIndex();
         wxString test_s = ogr_layer->data[0]->GetFieldAsString(col_idx);
+        test_s.Trim(true).Trim(false);
         vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         
@@ -949,6 +952,7 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
         
         for (int i=0; i<rows; ++i) {
             wxString s = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            s.Trim(true).Trim(false);
             unsigned long long val = Gda::DateToNumber(s, regex, date_items);
             data[i] = val;
         }
