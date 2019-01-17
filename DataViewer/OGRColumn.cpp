@@ -1312,11 +1312,13 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;
@@ -1387,11 +1389,13 @@ void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;
@@ -1469,11 +1473,13 @@ void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;
