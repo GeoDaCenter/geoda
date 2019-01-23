@@ -3738,7 +3738,7 @@
                                                   </object>
                                                   <size>280,-1d</size>
                                               </object>
-                                              <label>Table variables</label>
+                                              <label>Variables</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
                                       </object>
