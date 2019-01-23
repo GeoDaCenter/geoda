@@ -776,11 +776,13 @@ void MergeTableDlg::LeftJoinMerge()
             int key2_id = m_import_key->GetSelection();
             wxString key2_name = m_import_key->GetString(key2_id);
             int col2_id = merge_layer_proxy->GetFieldPos(key2_name);
+            if (col2_id == -1) col2_id = dedup_to_id[key2_name];
             int n_merge_rows = merge_layer_proxy->GetNumRecords();
             vector<wxString> key2_vec;
             map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
-                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id, m_wx_encoding));
+                key2_vec.push_back(merge_layer_proxy->GetValueAt(i, col2_id,
+                                                                 m_wx_encoding));
             }
             if (CheckKeys(key2_name, key2_vec, key2_map) == false) {
                 return;
@@ -841,7 +843,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                                    int n_rows,
                                    map<int,int>& rowid_map)
 {
-    int fid = merge_layer_proxy->GetFieldPos(real_field_name);
+    int fid = dedup_to_id[real_field_name];
+    //int fid = merge_layer_proxy->GetFieldPos(real_field_name);
     GdaConst::FieldType ftype = merge_layer_proxy->GetFieldType(fid);
     
     if ( ftype == GdaConst::string_type ) {
