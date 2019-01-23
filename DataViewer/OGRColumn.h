@@ -142,7 +142,8 @@ public:
     virtual wxString GetValueAt(int row_idx,
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL) = 0;
-    virtual void SetValueAt(int row_idx, const wxString& value) = 0;
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL) = 0;
     virtual void SetValueAt(int row_idx, wxInt64 value){}
     virtual void SetValueAt(int row_idx, double value){}
 };
@@ -184,7 +185,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
     
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL);
     void SetValueAt(int row_idx, wxInt64 value);
     
 };
@@ -226,7 +228,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
     
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL);
     void SetValueAt(int row_idx, double value);
     
 };
@@ -274,7 +277,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
 
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding);
 };
 
 /**
@@ -308,7 +312,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
     
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL);
 };
 
 class OGRColumnTime: public OGRColumnDate
@@ -324,7 +329,8 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
  
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL);
 };
 
 class OGRColumnDateTime: public OGRColumnDate
@@ -340,6 +346,7 @@ public:
                                 int disp_decimals=0,
                                 wxCSConv* m_wx_encoding=NULL);
     
-    virtual void SetValueAt(int row_idx, const wxString& value);
+    virtual void SetValueAt(int row_idx, const wxString& value,
+                            wxCSConv* m_wx_encoding=NULL);
 };
 #endif

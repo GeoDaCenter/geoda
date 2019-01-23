@@ -688,6 +688,9 @@ void GdaFrame::UpdateToolbarAndMenus()
             GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
         }
     }
+
+    // Reset encoding
+    if (proj_open == false) SetEncodingCheckmarks(wxFONTENCODING_UTF8);
 }
 
 void GdaFrame::SetMenusToDefault()

@@ -446,7 +446,8 @@ wxString OGRColumnInteger::GetValueAt(int row_idx, int disp_decimals,
 }
 
 // Set a cell value from user input wxString (in Table/wxGrid)
-void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value,
+                                  wxCSConv* m_wx_encoding)
 {
     // if is already undefined, and user inputs nothing
     if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
@@ -687,7 +688,8 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
 }
 
 // Set a cell value from user input wxString (in Table/wxGrid)
-void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value,
+                                 wxCSConv* m_wx_encoding)
 {
     // if user inputs nothing for a double valued cell, GeoDa treats it as NULL
     if ( value.IsEmpty() ) {
@@ -1051,13 +1053,14 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
         if (m_wx_encoding == NULL)
             rtn = wxString(val);
         else
-            rtn = wxString(val,*m_wx_encoding);
+            rtn = wxString(val, *m_wx_encoding);
         
         return rtn;
     }
 }
 
-void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnString::SetValueAt(int row_idx, const wxString &value,
+                                 wxCSConv* m_wx_encoding)
 {
     // if user inputs nothing for a undefined cell
     if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
@@ -1068,7 +1071,7 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
         new_data[row_idx] = value;
     } else {
         int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, value.c_str());
+        ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str(*m_wx_encoding));
     }
     undef_markers[row_idx] = false;
 }
@@ -1304,7 +1307,8 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDate::SetValueAt(int row_idx, const wxString &value,
+                               wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {
@@ -1381,7 +1385,8 @@ wxString OGRColumnTime::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnTime::SetValueAt(int row_idx, const wxString &value,
+                               wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {
@@ -1465,7 +1470,8 @@ wxString OGRColumnDateTime::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value,
+                                   wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {

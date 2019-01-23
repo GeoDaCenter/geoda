@@ -1253,7 +1253,7 @@ bool OGRTable::SetCellFromString(int row, int col, int time,
 		}
 	}
     operations_queue.push(new OGRTableOpUpdateCell(columns[t_col], row, value));
-	columns[t_col]->SetValueAt(row, value);
+	columns[t_col]->SetValueAt(row, value, m_wx_encoding);
 	SetChangedSinceLastSave(true);
     table_state->SetColDataChangeEvtTyp(GetColName(col), col);
 	table_state->notifyObservers();

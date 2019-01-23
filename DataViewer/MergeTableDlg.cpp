@@ -731,7 +731,8 @@ void MergeTableDlg::LeftJoinMerge()
              it != table_fnames.end(); ++it ) {
              merged_fnames_dict[ *it ] = *it;
         }
-        vector<wxString> merged_field_names = GetSelectedFieldNames(merged_fnames_dict);
+        vector<wxString> merged_field_names =
+            GetSelectedFieldNames(merged_fnames_dict);
         
         if (merged_field_names.empty())
             return;
@@ -856,7 +857,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             
             if (!rowid_map.empty()) {
                 // merge by key
-                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 :
+                             rowid_map[i];
             }
             
             if (import_rid >=0) {
@@ -864,7 +866,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                     data[i] = wxEmptyString;
                     undefs[i] = true;
                 } else {
-                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,fid,m_wx_encoding));
+                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,
+                                                        fid, m_wx_encoding));
                     undefs[i] = false;
                 }
             } else {
@@ -882,7 +885,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
             int import_rid = i;
             if (!rowid_map.empty()) {
                 //import_rid = rowid_map[i];
-                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end()
+                             ? -1 : rowid_map[i];
             }
             if (import_rid >=0 ) {
                 if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
@@ -907,8 +911,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
         for (int i=0; i<n_rows; i++) {
             int import_rid = i;
             if (!rowid_map.empty()) {
-                //import_rid = rowid_map[i];
-                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 : rowid_map[i];
+                import_rid = rowid_map.find(i) == rowid_map.end()
+                             ? -1 : rowid_map[i];
             }
             if (import_rid >=0 ) {
                 if (merge_layer_proxy->IsUndefined(import_rid,fid)) {

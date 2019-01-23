@@ -301,7 +301,6 @@ void TableFrame::SetEncodingCheckmarks(wxMenu* m, wxFontEncoding e)
 		->Check(e==wxFONTENCODING_CP1255);
 	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1256"))
 		->Check(e==wxFONTENCODING_CP1256);
-	///MMM: works after 2.9.4 wxFONTENCODING_CP1258
 	m->FindItem(XRCID("ID_ENCODING_WINDOWS_1258"))
 		->Check(e==wxFONTENCODING_CP1258);
 	m->FindItem(XRCID("ID_ENCODING_CP852"))
