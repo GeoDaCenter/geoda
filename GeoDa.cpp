@@ -309,17 +309,17 @@ bool GdaApp::OnInit(void)
         OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     }
     
-	int frameWidth = 980;
+	int frameWidth = 1020;
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1052;
+		frameWidth = 1092;
 		frameHeight = 80;
 	} else if (GeneralWxUtils::isWindows()) {
-		frameWidth = 1160;
+		frameWidth = 1200;
 		frameHeight = 120;
 	} else if (GeneralWxUtils::isUnix()) {  // assumes GTK
-		frameWidth = 1060;
+		frameWidth = 1100;
  		frameHeight = 120;
 #ifdef __linux__
         wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
@@ -528,11 +528,15 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), false);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), false);
 
+    EnableTool(XRCID("ID_TOOLS_MENU"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	
+
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_GEOCODING"), proj_open);
+    
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -3185,6 +3189,16 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
 {
 	OnOpenNewTable();
+}
+
+void GdaFrame::OnToolsChoices(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_TOOLS_MENU");
+
+    if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
 }
 
 void GdaFrame::OnMoranMenuChoices(wxCommandEvent& WXUNUSED(event))
@@ -6701,6 +6715,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
+    EVT_TOOL(XRCID("ID_TOOLS_MENU"), GdaFrame::OnToolsChoices)
     EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
