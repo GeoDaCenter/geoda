@@ -236,21 +236,21 @@ void CreatingWeightDlg::OnDistanceMetricVarsSel( wxCommandEvent& event )
         m_threshold->ChangeValue("0");
         m_bandwidth_thres_val_valid = false;
         m_manu_bandwidth->ChangeValue("0");
-        m_nb_distance_methods->Disable();
     }
     UpdateThresholdValuesMultiVars();
 }
 
 void CreatingWeightDlg::OnDistanceWeightsVarsSel( wxCommandEvent& event )
 {
-    m_dist_choice_vars->SetSelection(0);
+    //m_dist_choice_vars->SetSelection(0);
     UpdateThresholdValuesMultiVars();
     
     m_thres_val_valid = false;
     m_threshold->ChangeValue("0");
     m_bandwidth_thres_val_valid = false;
     m_manu_bandwidth->ChangeValue("0");
-    m_nb_distance_methods->Disable();
+
+    UpdateThresholdValuesMultiVars();
 }
 
 void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
@@ -258,16 +258,18 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
     // distance metric
     int metric = m_dist_choice_vars->GetSelection();
     if (metric < 1) {
+        m_nb_distance_methods->Disable();
         return;
     }
-    
+
     wxArrayInt selections;
     m_Vars->GetSelections(selections);
     int num_var = selections.size();
     if (num_var <= 0) {
         return;
     }
-    
+
+    m_nb_distance_methods->Enable();
     // update Threshold values for distance weight
     col_names.clear();
     std::vector<std::vector<double> > data;
@@ -918,7 +920,7 @@ void CreatingWeightDlg::InitDlg()
     m_dist_choice_vars->Append("");
     m_dist_choice_vars->Append("Manhattan Distance");
     m_dist_choice_vars->Append("Euclidean Distance");
-    m_dist_choice_vars->SetSelection(0);
+    m_dist_choice_vars->SetSelection(2);
 
     m_trans_choice_vars->Clear();
     m_trans_choice_vars->Append("Raw");
