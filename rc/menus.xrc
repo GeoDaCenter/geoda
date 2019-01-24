@@ -70,9 +70,6 @@
       <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
           <label>Spatial Join</label>
       </object>
-      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-          <label>Geocode</label>
-      </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
@@ -4819,9 +4816,6 @@
       </object>
       <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
           <label>Spatial Join</label>
-      </object>
-      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-          <label>Geocode</label>
       </object>
   </object>
   <object class="wxMenu" name="ID_GETIS_MENU">

@@ -129,8 +129,6 @@
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
 		A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
-		A4E138B81F71A29100433256 /* geocoding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E138B61F71A29100433256 /* geocoding.cpp */; };
-		A4E138BB1F71D6B800433256 /* GeocodingDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */; };
 		A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4E5FE171F624D5600D75662 /* AggregateDlg.cpp */; };
 		A4ED7D442097EC55008685D6 /* ANN.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D412097EC54008685D6 /* ANN.cpp */; };
 		A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4ED7D462097EDE9008685D6 /* kd_tree.cpp */; };
@@ -527,10 +525,6 @@
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
 		A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = Guerry.png; path = BuildTools/CommonDistFiles/web_plugins/Guerry.png; sourceTree = "<group>"; };
 		A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.opencl; name = localjc_kernel.cl; path = Algorithms/localjc_kernel.cl; sourceTree = "<group>"; };
-		A4E138B61F71A29100433256 /* geocoding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = geocoding.cpp; path = Algorithms/geocoding.cpp; sourceTree = "<group>"; };
-		A4E138B71F71A29100433256 /* geocoding.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geocoding.h; path = Algorithms/geocoding.h; sourceTree = "<group>"; };
-		A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeocodingDlg.cpp; sourceTree = "<group>"; };
-		A4E138BA1F71D6B800433256 /* GeocodingDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeocodingDlg.h; sourceTree = "<group>"; };
 		A4E5FE171F624D5600D75662 /* AggregateDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AggregateDlg.cpp; sourceTree = "<group>"; };
 		A4E5FE181F624D5600D75662 /* AggregateDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AggregateDlg.h; sourceTree = "<group>"; };
 		A4ED7D412097EC54008685D6 /* ANN.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ANN.cpp; path = ../kNN/ANN.cpp; sourceTree = "<group>"; };
@@ -1014,8 +1008,6 @@
 				A4368CDB1FABBBC60099FA9B /* mds.h */,
 				A4368CD91FABB5260099FA9B /* DataUtils.h */,
 				A46DFA8F1FA92145007F5923 /* texttable.h */,
-				A4E138B61F71A29100433256 /* geocoding.cpp */,
-				A4E138B71F71A29100433256 /* geocoding.h */,
 				A4D5423B1F45037B00572878 /* redcap.cpp */,
 				A4D5423C1F45037B00572878 /* redcap.h */,
 				A43D124D1F2088D50073D408 /* spectral.h */,
@@ -1238,8 +1230,6 @@
 				A42018051FB4CF980029709C /* SkaterDlg.cpp */,
 				A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */,
 				A416A1761F84122B001F2884 /* PCASettingsDlg.h */,
-				A4E138B91F71D6B800433256 /* GeocodingDlg.cpp */,
-				A4E138BA1F71D6B800433256 /* GeocodingDlg.h */,
 				A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */,
 				A42B6F771F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.h */,
 				A4E5FE171F624D5600D75662 /* AggregateDlg.cpp */,
@@ -1914,11 +1904,9 @@
 				A48356BB1E456310002791C8 /* ConditionalClusterMapView.cpp in Sources */,
 				A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */,
 				DD92851C17F5FC7300B9481A /* VarOrderPtree.cpp in Sources */,
-				A4E138B81F71A29100433256 /* geocoding.cpp in Sources */,
 				DD92851F17F5FD4500B9481A /* VarOrderMapper.cpp in Sources */,
 				A4ED7D572097F114008685D6 /* kd_util.cpp in Sources */,
 				DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */,
-				A4E138BB1F71D6B800433256 /* GeocodingDlg.cpp in Sources */,
 				A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */,
 				DD40B083181894F20084173C /* VarGroupingEditorDlg.cpp in Sources */,
 				DD7B2A9D185273FF00727A91 /* SaveButtonManager.cpp in Sources */,

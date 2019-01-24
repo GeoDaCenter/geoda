@@ -591,9 +591,6 @@ msgstr "Alisado LOWESS"
 msgid "Diagonal weights = 1"
 msgstr "pesos Diagonal = 1"
 
-msgid "Geocode"
-msgstr "Geocodificar"
-
 msgid "Select key:"
 msgstr "Seleccionar clave"
 
@@ -3426,9 +3423,6 @@ msgstr "Cuarta Variable"
 msgid "Can't write output file!"
 msgstr "¡Imposible escribir fichero de resultados!"
 
-msgid "Geocode Setting Dialog"
-msgstr "Cuadro Diálogo de Geocodificación"
-
 msgid "Use Power Iteration:"
 msgstr "Utilizar Interación de Potencia:"
 
@@ -3665,9 +3659,6 @@ msgstr "¡No se han encontrado campos!"
 
 msgid "Rename Space-Time Variable"
 msgstr "Renombrar Variable Espacio-Temporal"
-
-msgid "Successful Geocode. Please check results in Table."
-msgstr "Geocodificación realizada. Comprobar resultados en Tabla."
 
 msgid "Independent Var (x-axis)"
 msgstr "Var. Independiente (eje-x)"

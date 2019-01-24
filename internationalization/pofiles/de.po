@@ -496,9 +496,6 @@ msgstr ""
 msgid "Diagonal weights = 1"
 msgstr ""
 
-msgid "Geocode"
-msgstr ""
-
 msgid "Select key:"
 msgstr ""
 

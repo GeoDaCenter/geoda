@@ -176,12 +176,10 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     cbox->Add(mbox, 0, wxALIGN_CENTER | wxALL, 10);
     panel->SetSizerAndFit(cbox);
     
-    wxButton* add_btn = new wxButton(this, XRCID("IDC_SPATIALJOIN_ADD_LAYER"), _("Add Map Layer"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
     wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
     wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
     
     wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
-    hbox->Add(add_btn, 0, wxALIGN_CENTER | wxALL, 5);
     hbox->Add(ok_btn, 0, wxALIGN_CENTER | wxALL, 5);
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
     
@@ -195,7 +193,6 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     Center();
     
     map_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnLayerSelect, this);
-    add_btn->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnAddMapLayer, this);
     ok_btn->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnOK, this);
     
     InitMapList();
@@ -244,30 +241,6 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             field_list->Disable();
             field_st->Disable();
         }
-    }
-}
-
-void SpatialJoinDlg::OnAddMapLayer(wxCommandEvent& e)
-{
-    ConnectDatasourceDlg connect_dlg(this, wxDefaultPosition, wxDefaultSize);
-    if (connect_dlg.ShowModal() != wxID_OK) {
-        return;
-    }
-    wxString proj_title = connect_dlg.GetProjectTitle();
-    wxString layer_name = connect_dlg.GetLayerName();
-    IDataSource* datasource = connect_dlg.GetDataSource();
-    wxString datasource_name = datasource->GetOGRConnectStr();
-    GdaConst::DataSourceType ds_type = datasource->GetType();
-    
-    BackgroundMapLayer* map_layer = project->AddMapLayer(datasource_name, ds_type, layer_name);
-    if (map_layer == NULL) {
-        wxMessageDialog dlg (this, _("GeoDa could not load this layer. \nPlease check if the datasource is valid and not table only."), _("Load Layer Failed."), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-    } else {
-        map_list->Append(layer_name);
-        UpdateFieldList(layer_name);
-        MapLayerState* ml_state = project->GetMapLayerState();
-        ml_state->notifyObservers();
     }
 }
 

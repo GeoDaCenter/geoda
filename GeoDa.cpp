@@ -120,7 +120,6 @@
 #include "DialogTools/RedcapDlg.h"
 #include "DialogTools/MDSDlg.h"
 #include "DialogTools/AggregateDlg.h"
-#include "DialogTools/GeocodingDlg.h"
 #include "DialogTools/PCASettingsDlg.h"
 #include "DialogTools/SkaterDlg.h"
 #include "DialogTools/PreferenceDlg.h"
@@ -167,7 +166,6 @@
 
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
-#include "Algorithms/geocoding.h"
 #include "Algorithms/fastcluster.h"
 
 #include "wxTranslationHelper.h"
@@ -535,8 +533,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
-    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_GEOCODING"), proj_open);
-    
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -2496,28 +2492,6 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
                                             project_p,
                                             wxDefaultPosition);
 	dlg->Show(true);
-}
-
-void GdaFrame::OnGeocoding(wxCommandEvent& event)
-{
-    if (!project_p || !project_p->FindTableBase()) return;
-    
-    FramesManager* fm = project_p->GetFramesManager();
-    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
-    std::list<FramesManagerObserver*>::iterator it;
-    for (it=observers.begin(); it != observers.end(); ++it) {
-        if (GeocodingDlg* w = dynamic_cast<GeocodingDlg*>(*it))
-        {
-            w->Init();
-            w->Show(true);
-            w->Maximize(false);
-            w->Raise();
-            return;
-        }
-    }
-    
-    GeocodingDlg* dlg = new GeocodingDlg(this, project_p);
-    dlg->Show(true);
 }
 
 void GdaFrame::OnAggregateData(wxCommandEvent& event)
@@ -6653,9 +6627,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
-
-    EVT_MENU(XRCID("ID_TABLE_GEOCODING"), GdaFrame::OnGeocoding)
-    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used 
+    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)

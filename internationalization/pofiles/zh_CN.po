@@ -2319,9 +2319,6 @@ msgstr "csv文件:"
 msgid "Downloading updates..."
 msgstr "正在下载更新…"
 
-msgid "Geocode"
-msgstr "地理编码"
-
 msgid "Make selection from expression "
 msgstr "从表达式中选择 "
 
@@ -3380,9 +3377,6 @@ msgstr "软件缺陷报告"
 msgid "Can't write output file!"
 msgstr "无法写入输出文件!"
 
-msgid "Geocode Setting Dialog"
-msgstr "地理编码设置对话框"
-
 msgid "Add New ID Variable"
 msgstr "添加新ID变量"
 
@@ -3978,9 +3972,6 @@ msgstr "通过原点的轴"
 
 msgid "Rename Space-Time Variable"
 msgstr "重命名时空变量"
-
-msgid "Successful Geocode. Please check results in Table."
-msgstr "地理编码成功。请检查表中的结果。"
 
 msgid "Custom Inference"
 msgstr "自定义推断"
