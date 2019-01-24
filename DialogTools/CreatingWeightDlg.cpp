@@ -242,9 +242,6 @@ void CreatingWeightDlg::OnDistanceMetricVarsSel( wxCommandEvent& event )
 
 void CreatingWeightDlg::OnDistanceWeightsVarsSel( wxCommandEvent& event )
 {
-    //m_dist_choice_vars->SetSelection(0);
-    UpdateThresholdValuesMultiVars();
-    
     m_thres_val_valid = false;
     m_threshold->ChangeValue("0");
     m_bandwidth_thres_val_valid = false;
@@ -466,40 +463,42 @@ void CreatingWeightDlg::UpdateThresholdValues()
 	dist_var_2 = v2;
 
     if (!user_xy) {
-	if (v1 == wxEmptyString || v2 == wxEmptyString) {
-		if (mean_center) {
-			project->GetMeanCenters(m_XCOO, m_YCOO);
-		} else {
-			project->GetCentroids(m_XCOO, m_YCOO);
-		}
-	}
-	if (v1 != wxEmptyString || v2 != wxEmptyString) {
-		if (v1 != wxEmptyString) {
-            // minus 2 is for <X-Centroids> and <X-Mean> selection options in Dropdown
-			int x_sel = (project->IsTableOnlyProject() ? m_X->GetSelection() : m_X->GetSelection()-2);
-			int col_id = col_id_map[x_sel];
-			int tm = 0;
-			dist_tm_1 = -1;
-			if (table_int->IsTimeVariant() &&
-					table_int->IsColTimeVariant(col_id)) {
-				tm = m_X_time->GetSelection();
-				dist_tm_1 = tm;
-			}
-			table_int->GetColData(col_id, tm, m_XCOO);
-		}
-		if (v2 != wxEmptyString) {
-			int y_sel = (project->IsTableOnlyProject() ? m_Y->GetSelection() : m_Y->GetSelection()-2);
-			int col_id = col_id_map[y_sel];
-			int tm = 0;
-			dist_tm_2 = -1;
-			if (table_int->IsTimeVariant() &&
-					table_int->IsColTimeVariant(col_id)) {
-				tm = m_Y_time->GetSelection();
-				dist_tm_2 = tm;
-			}
-			table_int->GetColData(col_id, tm, m_YCOO);
-		}
-	}
+        if (v1 == wxEmptyString || v2 == wxEmptyString) {
+            if (mean_center) {
+                project->GetMeanCenters(m_XCOO, m_YCOO);
+            } else {
+                project->GetCentroids(m_XCOO, m_YCOO);
+            }
+        }
+        if (v1 != wxEmptyString || v2 != wxEmptyString) {
+            if (v1 != wxEmptyString) {
+                // minus 2 is for <X-Centroids> and <X-Mean> selection options in Dropdown
+                int x_sel = (project->IsTableOnlyProject() ?
+                             m_X->GetSelection() : m_X->GetSelection()-2);
+                int col_id = col_id_map[x_sel];
+                int tm = 0;
+                dist_tm_1 = -1;
+                if (table_int->IsTimeVariant() &&
+                    table_int->IsColTimeVariant(col_id)) {
+                    tm = m_X_time->GetSelection();
+                    dist_tm_1 = tm;
+                }
+                table_int->GetColData(col_id, tm, m_XCOO);
+            }
+            if (v2 != wxEmptyString) {
+                int y_sel = (project->IsTableOnlyProject() ?
+                             m_Y->GetSelection() : m_Y->GetSelection()-2);
+                int col_id = col_id_map[y_sel];
+                int tm = 0;
+                dist_tm_2 = -1;
+                if (table_int->IsTimeVariant() &&
+                    table_int->IsColTimeVariant(col_id)) {
+                    tm = m_Y_time->GetSelection();
+                    dist_tm_2 = tm;
+                }
+                table_int->GetColData(col_id, tm, m_YCOO);
+            }
+        }
     }
 	
 	m_thres_min = SpatialIndAlgs::find_max_1nn_dist(m_XCOO, m_YCOO,
@@ -858,7 +857,8 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
             }
         }
         
-        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, details);
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"),
+                                                                   msg, details);
         dlg->Show(true);
         
 		return false;
@@ -1101,7 +1101,12 @@ void CreatingWeightDlg::OnIdVariableSelected( wxCommandEvent& event )
     }
   
     UpdateTmSelEnableState();
-    UpdateThresholdValues();
+    int dist_var_type = m_nb_distance_variables->GetSelection();
+    if (dist_var_type == 0) {
+        UpdateThresholdValues();
+    } else {
+        UpdateThresholdValuesMultiVars();
+    }
 	UpdateCreateButtonState();
     
     wxString msg;
@@ -1144,7 +1149,8 @@ bool CreatingWeightDlg::CheckTableVariableInput()
         wxString not_valid_msg = _("The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number.");
         
         if ( !m_thres_val_valid || !m_bandwidth_thres_val_valid) {
-            wxMessageDialog dlg(this, not_valid_msg, _("Error"), wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(this, not_valid_msg, _("Error"),
+                                wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return false;
         }
@@ -1166,7 +1172,8 @@ bool CreatingWeightDlg::CheckTableVariableInput()
             msg = wxString::Format(nbrless_msg, m_bandwidth_thres_val_multivars,
                                    m_thres_min_multivars);
         }
-        wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+        wxMessageDialog dlg(this, msg, _("Warning"),
+                            wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
         if (dlg.ShowModal() != wxID_YES) return false;
     }
 
@@ -1247,7 +1254,8 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
     }
     if (has_island) {
         wxString msg = _("There is at least one neighborless observation. Check the islands in weights histogram and linked map.");
-        wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(NULL, msg, "Neighborless Observation",
+                            wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
     
@@ -1306,7 +1314,8 @@ bool CreatingWeightDlg::CheckThresholdInput()
         } else {
             msg = wxString::Format(nbrless_msg, m_bandwidth_thres_val, m_thres_min);
         }
-        wxMessageDialog dlg(this, msg, _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
+        wxMessageDialog dlg(this, msg, _("Warning"),
+                            wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION );
         if (dlg.ShowModal() != wxID_YES) {
             return false;
         }
@@ -1447,7 +1456,8 @@ void CreatingWeightDlg::CreateWeights()
             Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
             if (!Wp->gal) {
                 wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
-                wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"),
+                                    wxOK | wxICON_ERROR);
                 dlg.ShowModal();
             }
             
@@ -1465,7 +1475,8 @@ void CreatingWeightDlg::CreateWeights()
             Wp->gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
             if (!Wp->gal) {
                 wxString msg = _("There was a problem generating voronoi contiguity neighbors. Please report this.");
-                wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"), wxOK | wxICON_ERROR);
+                wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"),
+                                    wxOK | wxICON_ERROR);
                 dlg.ShowModal();
             }
         } else {
@@ -1500,7 +1511,8 @@ void CreatingWeightDlg::CreateWeights()
             // could be an empty weights file, and should prompt user
             // to setup Precision Threshold
             wxString msg = _("None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold.");
-            wxMessageDialog dlg(NULL, msg, "Empty Contiguity Weights", wxOK | wxICON_WARNING);
+            wxMessageDialog dlg(NULL, msg, "Empty Contiguity Weights",
+                                wxOK | wxICON_WARNING);
             dlg.ShowModal();
             
             m_cbx_precision_threshold->SetValue(true);
@@ -1525,15 +1537,18 @@ void CreatingWeightDlg::CreateWeights()
         }
         if (has_island) {
             wxString msg = _("There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons).");
-            wxMessageDialog dlg(NULL, msg, "Neighborless Observation", wxOK | wxICON_WARNING);
+            wxMessageDialog dlg(NULL, msg, "Neighborless Observation",
+                                wxOK | wxICON_WARNING);
             dlg.ShowModal();
         }
         
         if (m_ooC > 1) {
             Gda::MakeHigherOrdContiguity(m_ooC, m_num_obs, Wp->gal, m_check1);
-            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile,
+                            id, wmi);
         } else {
-            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(Wp, 0, project->GetProjectTitle(), outputfile,
+                            id, wmi);
         }
         if (Wp) delete Wp;
         done = true;
@@ -1554,7 +1569,9 @@ void CreatingWeightDlg::CreateWeights()
             t_val = std::numeric_limits<float>::min();
         }
         if (user_xy) dist_units_str = wxEmptyString;
-        wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values, t_val, power, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+        wmi.SetToThres(id, dist_metric, dist_units, dist_units_str,dist_values,
+                       t_val, power, dist_var_1, dist_tm_1,
+                       dist_var_2, dist_tm_2);
         
         if (m_is_arc && m_arc_in_km) {
             //t_val /= GenGeomAlgs::one_mi_in_km; // convert km to mi
@@ -1562,7 +1579,8 @@ void CreatingWeightDlg::CreateWeights()
         
         if (t_val > 0) {
             using namespace SpatialIndAlgs;
-            Wp = thresh_build(m_XCOO, m_YCOO, t_val * m_thres_delta_factor, power, m_is_arc, !m_arc_in_km);
+            Wp = thresh_build(m_XCOO, m_YCOO, t_val * m_thres_delta_factor,
+                              power, m_is_arc, !m_arc_in_km);
             if (!Wp || !Wp->gwt) {
                 wxString m = _("No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file.");
                 wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -1586,18 +1604,21 @@ void CreatingWeightDlg::CreateWeights()
             }
         }
         
-        wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values, m_kNN, power, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+        wmi.SetToKnn(id, dist_metric, dist_units, dist_units_str, dist_values,
+                     m_kNN, power, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
         
         if (m_kNN > 0 && m_kNN < m_num_obs) {
             GwtWeight* Wp = 0;
             bool is_arc = dist_metric == WeightsMetaInfo::DM_arc;
             bool is_mile = dist_units == WeightsMetaInfo::DU_mile;
             // knn
-            Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, is_arc, is_mile, is_inverse, power);
+            Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kNN, is_arc,
+                                           is_mile, is_inverse, power);
             
             if (!Wp->gwt) return;
             Wp->id_field = id;
-            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile,
+                            id, wmi);
             if (Wp) delete Wp;
             done = true;
         } else {
@@ -1615,18 +1636,28 @@ void CreatingWeightDlg::CreateWeights()
         bool is_adaptive_kernel = m_radio_adaptive_bandwidth->GetValue();
         bool use_kernel_diagnals = m_kernel_diagnals->GetValue();
         
-        wmi.SetToKernel(id, dist_metric, dist_units, dist_units_str, dist_values, kernel, m_kernel_kNN, bandwidth, is_adaptive_kernel, use_kernel_diagnals, dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
+        wmi.SetToKernel(id, dist_metric, dist_units, dist_units_str,
+                        dist_values, kernel, m_kernel_kNN, bandwidth,
+                        is_adaptive_kernel, use_kernel_diagnals,
+                        dist_var_1, dist_tm_1, dist_var_2, dist_tm_2);
        
         if (m_kernel_kNN > 0 && m_kernel_kNN < m_num_obs) {
             GwtWeight* Wp = 0;
             if (m_radio_manu_bandwdith->GetValue()==true) {
-                Wp = SpatialIndAlgs::thresh_build(m_XCOO, m_YCOO, bandwidth, 1.0, m_is_arc, !m_arc_in_km, kernel, use_kernel_diagnals);
+                Wp = SpatialIndAlgs::thresh_build(m_XCOO, m_YCOO, bandwidth,
+                                                  1.0, m_is_arc, !m_arc_in_km,
+                                                  kernel, use_kernel_diagnals);
             } else {
-                Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN, is_arc, is_mile, false, 1.0, kernel, bandwidth, is_adaptive_kernel, use_kernel_diagnals);
+                Wp = SpatialIndAlgs::knn_build(m_XCOO, m_YCOO, m_kernel_kNN,
+                                               is_arc, is_mile, false, 1.0,
+                                               kernel, bandwidth,
+                                               is_adaptive_kernel,
+                                               use_kernel_diagnals);
             }
             if (!Wp->gwt) return;
             Wp->id_field = id;
-            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile, id, wmi);
+            WriteWeightFile(0, Wp, project->GetProjectTitle(), outputfile,
+                            id, wmi);
             if (Wp) delete Wp;
             done = true;
         } else {
