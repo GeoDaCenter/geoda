@@ -2527,6 +2527,13 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
+    if (project_p->GetMapLayerCount() == 0) {
+        wxMessageDialog dlg (this,
+                             _("Please load another layer using map window to apply Spatial Join."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
     SpatialJoinDlg dlg(this, project_p);
     if (dlg.ShowModal() == wxID_OK) {
         OnOpenNewTable();

@@ -1749,6 +1749,11 @@ vector<wxString> Project::GetIntegerAndStringFieldNames()
     return layer_proxy->GetIntegerAndStringFieldNames();
 }
 
+bool Project::IsTableOnlyProject()
+{
+    return isTableOnly;
+}
+
 void Project::SetupEncoding(wxString encode_str)
 {
 	wxLogMessage("Project::SetupEncoding()");
@@ -1864,9 +1869,4 @@ void Project::SetupEncoding(wxString encode_str)
     } else if (encode_str.Upper().Contains("KR")) {
         table_int->SetEncoding(wxFONTENCODING_EUC_KR);
     }
-}
-
-bool Project::IsTableOnlyProject()
-{
-    return isTableOnly;
 }
