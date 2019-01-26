@@ -221,21 +221,23 @@ namespace GDA {
         }
         
         void GetWestNorthEastSouth(double& w, double& n, double& e, double& s) {
+            w = west;
+            n = north;
+            e = east;
+            s = south;
             if (poCT_rev) {
-                w = west;
-                n = north;
-                e = east;
-                s = south;
                 poCT_rev->Transform(1, &w, &n);
                 poCT_rev->Transform(1, &e, &s);
             }
         }
+
         double GetWidth() {
             if (east >= west)
                 return east - west;
             else
                 return 180 - east + 180 + west;
         }
+        
         double GetHeight() { return north - south; }
         
         bool IsWGS84Valid() { return north < 90 && south > -90 && east > -180 && west < 180;}
