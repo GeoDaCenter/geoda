@@ -158,7 +158,7 @@
     </object>
     <object class="tool" name="ID_EDIT_LAYER">
         <bitmap>color/24x24/40.png</bitmap>
-        <tooltip>Edit Layer Settings</tooltip>
+        <tooltip>Map Layer Settings</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_ZOOM_LAYER">

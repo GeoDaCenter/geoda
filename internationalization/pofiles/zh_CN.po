@@ -4561,9 +4561,6 @@ msgstr "值"
 msgid "Add Map Layer"
 msgstr "Add Map Layer"
 
-msgid "Edit Layer Settings"
-msgstr "Edit Layer Settings"
-
 msgid "Map Layer Setting"
 msgstr "Map Layer Setting"
 
