@@ -737,10 +737,13 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     
     wxString menu_name =  _("Set Highlight Association");
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
-    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSetAssociateLayer));
+    Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnSetAssociateLayer));
     
-    popupMenu->Append(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), _("Clear Highlight Association"));
-    Connect(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnClearAssociateLayer));
+    popupMenu->Append(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"),
+                      _("Clear Highlight Association"));
+    Connect(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnClearAssociateLayer));
     
     if (ml == NULL) {
         // if it's current map, then no other options other than "Set Highlight"
@@ -749,14 +752,6 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     }
     
     popupMenu->AppendSeparator();
-    
-    if (canvas->GetShapeType() == MapCanvas::polygons &&
-        ml->GetShapeType() == Shapefile::POINT_TYP)
-    {
-        //popupMenu->Append(XRCID("MAPTREE_POINT_IN_POLYGON"), _("Spatial Join Count"));
-        //Connect(XRCID("MAPTREE_POINT_IN_POLYGON"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnSpatialJoinCount));
-        //popupMenu->AppendSeparator();
-    }
     
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
     popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
@@ -769,17 +764,24 @@ void MapTree::OnRightClick(wxMouseEvent& event)
         if (ml->GetPenSize() > 0) outline->Check();
     }
     
-    Connect(XRCID("MAPTREE_CHANGE_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangeFillColor));
-    Connect(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangeOutlineColor));
-    Connect(XRCID("MAPTREE_OUTLINE_VISIBLE"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnOutlineVisible));
+    Connect(XRCID("MAPTREE_CHANGE_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnChangeFillColor));
+    Connect(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnChangeOutlineColor));
+    Connect(XRCID("MAPTREE_OUTLINE_VISIBLE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnOutlineVisible));
     
     if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-        popupMenu->Append(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), _("Change Point Radius"));
-        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnChangePointRadius));
+        popupMenu->Append(XRCID("MAPTREE_CHANGE_POINT_RADIUS"),
+                          _("Change Point Radius"));
+        Connect(XRCID("MAPTREE_CHANGE_POINT_RADIUS"),
+                wxEVT_COMMAND_MENU_SELECTED,
+                wxCommandEventHandler(MapTree::OnChangePointRadius));
         
     } else {
         popupMenu->Append(XRCID("MAPTREE_BOUNDARY_ONLY"), _("Only Map Boundary"));
-        Connect(XRCID("MAPTREE_BOUNDARY_ONLY"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnShowMapBoundary));
+        Connect(XRCID("MAPTREE_BOUNDARY_ONLY"), wxEVT_COMMAND_MENU_SELECTED,
+                wxCommandEventHandler(MapTree::OnShowMapBoundary));
         wxMenuItem* boundary = popupMenu->FindItem(XRCID("MAPTREE_BOUNDARY_ONLY"));
         if (boundary) {
             boundary->SetCheckable(true);
@@ -789,7 +791,8 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     popupMenu->AppendSeparator();
     
     popupMenu->Append(XRCID("MAPTREE_REMOVE"), _("Remove"));
-    Connect(XRCID("MAPTREE_REMOVE"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapTree::OnRemoveMapLayer));
+    Connect(XRCID("MAPTREE_REMOVE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnRemoveMapLayer));
     
     PopupMenu(popupMenu, event.GetPosition());
 }
