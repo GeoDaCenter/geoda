@@ -699,7 +699,7 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     xx = xx / 360.0 * nn;
 
     x = (int)(xx *256 - leftP);
-    if (x < 0 && x < -256) x = nn*256 + x;
+    if (x < -256) x = nn*256 + x;
     x = x - offsetX;
     
     if ( endX > nn) {
