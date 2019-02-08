@@ -41,7 +41,7 @@
 #include "../DataViewer/TableState.h"
 #include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/WeightsManager.h"
-#include "../GeoDa.h"
+//#include "../GeoDa.h"
 #include "../TemplateCanvas.h"
 #include "../GenUtils.h"
 #include "../SpatialIndAlgs.h"
@@ -288,7 +288,7 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
     if (dist_util) {
         delete dist_util;
     }
-    dist_util = new GeoDa::DistUtils(data, undefs, metric);
+    dist_util = new Gda::DistUtils(data, undefs, metric);
     m_thres_min_multivars = dist_util->GetMinThreshold();
     m_thres_max_multivars = dist_util->GetMaxThreshold();
     double thres_range = m_thres_max_multivars - m_thres_min_multivars;
@@ -1183,7 +1183,7 @@ bool CreatingWeightDlg::CheckTableVariableInput()
 void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
                                                WeightsMetaInfo& wmi)
 {
-    GeoDa::Weights w;
+    Gda::Weights w;
     int metric = m_dist_choice_vars->GetSelection();
     WeightsMetaInfo::DistanceMetricEnum dist_metric =
         metric == 1 ? WeightsMetaInfo::DM_manhattan :

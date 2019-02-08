@@ -464,7 +464,7 @@ void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
     }
 }
 
-void GdaShapeLayer::projectToBasemap(GDA::Basemap *basemap, double scale_factor)
+void GdaShapeLayer::projectToBasemap(Gda::Basemap *basemap, double scale_factor)
 {
     if (ml->IsShowBoundary()) {
         if (ml->map_boundary) {

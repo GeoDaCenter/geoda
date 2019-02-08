@@ -15,7 +15,7 @@
 #include "../kNN/ANN/ANN.h"
 
 
-namespace GeoDa {
+namespace Gda {
     typedef std::vector<std::vector<std::pair<int, double> > > Weights;
     
     class DistUtils
@@ -44,23 +44,23 @@ namespace GeoDa {
         // represents by all data points
         double GetMaxThreshold();
         
-        GeoDa::Weights CreateDistBandWeights(double band, bool is_inverse,
+        Gda::Weights CreateDistBandWeights(double band, bool is_inverse,
                                              int power);
         
-        GeoDa::Weights CreateKNNWeights(int k, bool is_inverse, int power);
+        Gda::Weights CreateKNNWeights(int k, bool is_inverse, int power);
         
         // is_adaptive_bandwidth: true: use distance of k n-neighbors as bandwidth
         //                        false: use max KNN as bandwidth
         // apply_kernel_to_diag:  true: apply kernel to diagnal weights
         //                        false: diagonal weights = 1
-        GeoDa::Weights CreateAdaptiveKernelWeights(int kernel_type, int k,
+        Gda::Weights CreateAdaptiveKernelWeights(int kernel_type, int k,
             bool is_adaptive_bandwidth = true,
             bool apply_kernel_to_diag = false);
         
-        GeoDa::Weights CreateAdaptiveKernelWeights(int kernel_type, double band,
+        Gda::Weights CreateAdaptiveKernelWeights(int kernel_type, double band,
             bool apply_kernel_to_diag = false);
         
-        void ApplyKernel(GeoDa::Weights& w, int kernel_type,
+        void ApplyKernel(Gda::Weights& w, int kernel_type,
                          bool apply_kernel_to_diag);
     };
 }

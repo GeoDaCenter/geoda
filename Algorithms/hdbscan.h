@@ -31,7 +31,7 @@
 
 using namespace SpanningTreeClustering;
 
-namespace GeoDaClustering {
+namespace Gda {
     struct IdxCompare
     {
         const std::vector<int>& target;

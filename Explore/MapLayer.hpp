@@ -163,7 +163,7 @@ public:
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
     virtual void applyScaleTrans(const GdaScaleTrans& A);
-    virtual void projectToBasemap(GDA::Basemap* basemap, double scale_factor = 1.0);
+    virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1.0);
     virtual void paintSelf(wxDC& dc);
     virtual void paintSelf(wxGraphicsContext* gc);
 };

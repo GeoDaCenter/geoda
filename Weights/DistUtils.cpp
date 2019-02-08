@@ -13,7 +13,7 @@
     #define M_PI 3.1415926535897932384626433832795
 #endif
 
-using namespace GeoDa;
+using namespace Gda;
 
 DistUtils::DistUtils(const std::vector<std::vector<double> >& input_data,
                      const std::vector<std::vector<bool> >& mask,
@@ -127,10 +127,10 @@ double DistUtils::GetMaxThreshold()
     return ANN_ROOT(dist_cand);
 }
 
-GeoDa::Weights DistUtils::CreateDistBandWeights(double band, bool is_inverse,
+Gda::Weights DistUtils::CreateDistBandWeights(double band, bool is_inverse,
                                                 int power)
 {
-    GeoDa::Weights weights;
+    Gda::Weights weights;
     
     double radius = ANN_POW(band);
     double w;
@@ -163,9 +163,9 @@ GeoDa::Weights DistUtils::CreateDistBandWeights(double band, bool is_inverse,
     return weights;
 }
 
-GeoDa::Weights DistUtils::CreateKNNWeights(int k, bool is_inverse, int power)
+Gda::Weights DistUtils::CreateKNNWeights(int k, bool is_inverse, int power)
 {
-    GeoDa::Weights weights;
+    Gda::Weights weights;
     
     double w;
     ANNidxArray nnIdx = new ANNidx[k+1];
@@ -196,11 +196,11 @@ GeoDa::Weights DistUtils::CreateKNNWeights(int k, bool is_inverse, int power)
     return weights;
 }
 
-GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
+Gda::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
                                                     bool is_adaptive_bandwidth,
                                                     bool apply_kernel_to_diag)
 {
-    GeoDa::Weights weights;
+    Gda::Weights weights;
     double w;
     double max_knn_bandwidth = 0;
     ANNidxArray nnIdx = new ANNidx[k+1];
@@ -266,10 +266,10 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, int k,
     return weights;
 }
 
-GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, double band,
+Gda::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, double band,
                                            bool apply_kernel_to_diag)
 {
-    GeoDa::Weights weights;
+    Gda::Weights weights;
     double radius = ANN_POW(band);
     double w;
     
@@ -298,7 +298,7 @@ GeoDa::Weights DistUtils::CreateAdaptiveKernelWeights(int kernel_type, double ba
     return weights;
 }
 
-void DistUtils::ApplyKernel(GeoDa::Weights& w, int kernel_type,
+void DistUtils::ApplyKernel(Gda::Weights& w, int kernel_type,
                             bool apply_kernel_to_diag)
 {
     double gaussian_const = pow(M_PI * 2.0, -0.5);

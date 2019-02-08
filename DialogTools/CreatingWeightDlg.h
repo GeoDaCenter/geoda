@@ -193,7 +193,7 @@ protected:
 	std::vector<double>	m_XCOO;
 	std::vector<double>	m_YCOO;
 	
-    GeoDa::DistUtils* dist_util;
+    Gda::DistUtils* dist_util;
     std::vector<wxString> col_names;
     
 	WeightsMetaInfo::DistanceMetricEnum dist_metric;

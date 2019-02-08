@@ -214,18 +214,21 @@ maplayer_state(project_s->GetMapLayerState())
 	}
 	use_category_brushes = true;
 	cat_classif_def.cat_classif_type = theme_type;
-	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories, weights_id, true, var_info_s, col_ids_s)) {
+	if (!ChangeMapType(theme_type, smoothing_type_s, num_categories, weights_id,
+                       true, var_info_s, col_ids_s)) {
 		// The user possibly clicked cancel, so try again with themeless map
 		vector<GdaVarTools::VarInfo> vi(0);
 		vector<int> cids(0);
-		ChangeMapType(CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), true, vi, cids);
+		ChangeMapType(CatClassification::no_theme, no_smoothing, 1,
+                      boost::uuids::nil_uuid(), true, vi, cids);
 	}
 	highlight_state->registerObserver(this);
     maplayer_state->registerObserver(this);
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     isDrawBasemap = GdaConst::use_basemap_by_default;
     if (isDrawBasemap) {
-        basemap_item = GetBasemapSelection(GdaConst::default_basemap_selection);
+        basemap_item = Gda::GetBasemapSelection(GdaConst::default_basemap_selection,
+                                                GdaConst::gda_basemap_sources);
     }
 }
 
@@ -349,7 +352,8 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
             double radius = GenUtils::distance(sel1, sel2);
             // determine if each center is within radius of sel1
             for (int i=0; i<nn; i++) {
-                bool contains = (GenUtils::distance(sel1, shapes[i]->center) <= radius);
+                double dist = GenUtils::distance(sel1, shapes[i]->center);
+                bool contains = (dist <= radius);
                 if (contains) {
                     ml->SetHighlight(i);
                     selection_changed = true;
@@ -399,7 +403,8 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
 {
     TemplateCanvas::DetermineMouseHoverObjects(pointsel);
-    if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 && sel2.x==0 && sel2.y==0) {
+    if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 &&
+        sel2.x==0 && sel2.y==0) {
         vector<bool>& hs = GetSelBitVec();
         if (hover_obs.empty()) {
             //highlight_state->SetTotalHighlighted(0);
@@ -477,11 +482,13 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
         bool revert = false;
         bool crosshatch = false;
         bool is_print = false;
-        helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch, is_print);
+        helper_DrawSelectableShapes_dc(dc, new_hs, hl_only, revert, crosshatch,
+                                       is_print);
         if (display_neighbors) {
             wxPen pen(selectable_outline_color);
             wxBrush brush(*wxWHITE);
-            if (GetCcType() != CatClassification::no_theme || selectable_shps_type == points) {
+            if (GetCcType() != CatClassification::no_theme ||
+                selectable_shps_type == points) {
                 // only paint neighbors with white if no_theme, otherwise transparent
                 brush = *wxTRANSPARENT_BRUSH;
             }
@@ -498,7 +505,8 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
         }
         // paint selected with specified outline color
         wxPen pen(selectable_outline_color);
-        if (selectable_shps_type == points || GetCcType() != CatClassification::no_theme ) {
+        if (selectable_shps_type == points ||
+            GetCcType() != CatClassification::no_theme ) {
             pen.SetColour(*wxRED);
         }
         if (conn_selected_color.Alpha() != 0) {
@@ -739,9 +747,9 @@ bool MapCanvas::InitBasemap()
             destSR.importFromEPSG(4326);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
-        GDA::Screen* screen = new GDA::Screen(screenW, screenH);
-        GDA::MapLayer* current_map = new GDA::MapLayer(last_scale_trans.data_y_max, last_scale_trans.data_x_min, last_scale_trans.data_y_min, last_scale_trans.data_x_max, poCT);
-        GDA::MapLayer* orig_map = new GDA::MapLayer(last_scale_trans.orig_data_y_max, last_scale_trans.orig_data_x_min, last_scale_trans.orig_data_y_min, last_scale_trans.orig_data_x_max, poCT);
+        Gda::Screen* screen = new Gda::Screen(screenW, screenH);
+        Gda::MapLayer* current_map = new Gda::MapLayer(last_scale_trans.data_y_max, last_scale_trans.data_x_min, last_scale_trans.data_y_min, last_scale_trans.data_x_max, poCT);
+        Gda::MapLayer* orig_map = new Gda::MapLayer(last_scale_trans.orig_data_y_max, last_scale_trans.orig_data_x_min, last_scale_trans.orig_data_y_min, last_scale_trans.orig_data_x_max, poCT);
         if (poCT == NULL && !orig_map->IsWGS84Valid()) {
             isDrawBasemap = false;
             wxStatusBar* sb = 0;
@@ -754,7 +762,7 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
-            basemap = new GDA::Basemap(basemap_item, screen, current_map, orig_map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
+            basemap = new Gda::Basemap(basemap_item, screen, current_map, orig_map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
         }
     }
     return true;
@@ -780,7 +788,7 @@ void MapCanvas::SetNoBasemap()
     ReDraw();
 }
 
-bool MapCanvas::DrawBasemap(bool flag, BasemapItem& _basemap_item)
+bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
 {
     ResetBrushing();
     isDrawBasemap = flag;
@@ -1276,7 +1284,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         double shps_orig_xmin = last_scale_trans.orig_data_x_min;
         double shps_orig_ymin = last_scale_trans.orig_data_y_min;
         double shps_orig_xmax = last_scale_trans.orig_data_x_max;
-        GDA::MapLayer maplayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
+        Gda::MapLayer maplayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
         if (poCT && maplayer.IsWGS84Valid()) {
             if (print_detailed_basemap) {
                 basemap->ResizeScreen(w, h);
@@ -3111,7 +3119,7 @@ void MapFrame::UpdateMapLayer()
     }
 }
 
-void MapFrame::OnDrawBasemap(bool flag, BasemapItem& bm_item)
+void MapFrame::OnDrawBasemap(bool flag, Gda::BasemapItem& bm_item)
 {
 	if (!template_canvas) return;
 
@@ -3244,17 +3252,20 @@ void MapFrame::OnBasemapSelect(wxCommandEvent& event)
     int menu_id = event.GetId();
     
     wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    OGRDataAdapter& ogr_instance = OGRDataAdapter::GetInstance();
+    std::vector<wxString> items = ogr_instance.GetHistory("gda_basemap_sources");
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    vector<BasemapGroup> basemap_groups = ExtractBasemapResources(basemap_sources);
+    vector<Gda::BasemapGroup> basemap_groups;
+    basemap_groups = Gda::ExtractBasemapResources(basemap_sources);
     
     for (int i=0; i<basemap_groups.size(); i++) {
-        BasemapGroup& grp = basemap_groups[i];
-        vector<BasemapItem>& items = grp.items;
+        Gda::BasemapGroup& grp = basemap_groups[i];
+        vector<Gda::BasemapItem>& items = grp.items;
         for (int j=0; j<items.size(); j++) {
-            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name,
+                                            items[j].name);
             if (menu_id == XRCID(xid)) {
                 OnDrawBasemap(true, items[j]);
                 break;
@@ -3270,31 +3281,36 @@ void MapFrame::OnMapBasemap(wxCommandEvent& e)
     
     // add basemap options
     wxString basemap_sources = GdaConst::gda_basemap_sources;
-    std::vector<wxString> items = OGRDataAdapter::GetInstance().GetHistory("gda_basemap_sources");
+    OGRDataAdapter& ogr_instance = OGRDataAdapter::GetInstance();
+    std::vector<wxString> items = ogr_instance.GetHistory("gda_basemap_sources");
     if (items.size()>0) {
         basemap_sources = items[0];
     }
-    vector<BasemapGroup> basemap_groups = ExtractBasemapResources(basemap_sources);
+    vector<Gda::BasemapGroup> basemap_groups;
+    basemap_groups = Gda::ExtractBasemapResources(basemap_sources);
     for (int i=0; i<basemap_groups.size(); i++) {
-        BasemapGroup& grp = basemap_groups[i];
+        Gda::BasemapGroup& grp = basemap_groups[i];
         wxMenu* imp = new wxMenu;
-        vector<BasemapItem>& items = grp.items;
+        vector<Gda::BasemapItem>& items = grp.items;
         for (int j=0; j<items.size(); j++) {
-            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+            wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name,
+                                            items[j].name);
             imp->AppendCheckItem(XRCID(xid), items[j].name);
-            Connect(XRCID(xid), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MapFrame::OnBasemapSelect));
+            Connect(XRCID(xid), wxEVT_COMMAND_MENU_SELECTED,
+                    wxCommandEventHandler(MapFrame::OnBasemapSelect));
         }
         popupMenu->AppendSubMenu(imp, grp.name);
     }
     if (popupMenu) {
         // set checkmarks
-        BasemapItem current_item = ((MapCanvas*) template_canvas)->basemap_item;
+        Gda::BasemapItem current_item = ((MapCanvas*) template_canvas)->basemap_item;
         bool no_basemap = true;
         for (int i=0; i<basemap_groups.size(); i++) {
-            BasemapGroup& grp = basemap_groups[i];
-            vector<BasemapItem>& items = grp.items;
+            Gda::BasemapGroup& grp = basemap_groups[i];
+            vector<Gda::BasemapItem>& items = grp.items;
             for (int j=0; j<items.size(); j++) {
-                wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name, items[j].name);
+                wxString xid = wxString::Format("ID_BASEMAP_%s_%s", grp.name,
+                                                items[j].name);
                 wxMenuItem* menu = popupMenu->FindItem(XRCID(xid));
                 if (current_item == items[j]) {
                     menu->Check(true);

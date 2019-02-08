@@ -479,7 +479,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
             data[i][j] = input_data[i][j] * weight[j];
         }
     }
-    core_dist = GeoDaClustering::HDBScan::ComputeCoreDistance(
+    core_dist = Gda::HDBScan::ComputeCoreDistance(
                                     data, rows, columns, m_min_samples, dist);
 
     for (int i=0; i<rows; i++) delete[] data[i];
@@ -494,7 +494,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
                                          columns,DataUtils::ManhattanDistance);
     }
     
-    GeoDaClustering::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
+    Gda::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
                                  m_cluster_selection_method,
                                  m_allow_single_cluster, rows, columns,
                                  dist_matrix, core_dist, undefs);
