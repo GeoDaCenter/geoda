@@ -575,24 +575,6 @@ int OGRTable::GetFirstNumericCol()
 wxString OGRTable::GetColName(int col)
 {
 	wxString name_in_project = var_order.FindVarGroup(col).name;
-    // update it if different in real data. E.g. user may create a column
-    // with name in lowercase, however, it is forced to uppercase in real table
-   
-    
-    /*
-    // deprecated in 1.8.8
-    std::map<wxString, int>::iterator i;
-    if ( (i=var_map.find(name_in_project)) != var_map.end() ||
-        (i=var_map.find(name_in_project.Upper())) != var_map.end() ||
-        (i=var_map.find(name_in_project.Lower())) != var_map.end() ) {
-    
-        OGRColumn* ogr_col = columns[i->second];
-        if (name_in_project != ogr_col->GetName() ) {
-            name_in_project = ogr_col->GetName();
-            var_order.FindVarGroup(col).name = name_in_project;
-        }
-    }
-     */
     
     return name_in_project;
 }
@@ -622,13 +604,16 @@ int OGRTable::GetColDispDecimals(int col)
     // Displayed decimals will be configured in project file
 	VarGroup vg = var_order.FindVarGroup(col);
 	if (vg.GetDispDecs() == -1) {
-        //XXX: in OGR datasource, since there are many database fields that
-        //not use "Decimals". Here we just return -1 to wxGrid/Table so that
-        //all valid values will be displayed
-		//return GdaConst::default_display_decimals;
-        return -1;
+        int deci = GetColDecimals(col, 0);
+        if (deci > 0) {
+            // if read decimal from dataset, use it as display decimal
+            vg.SetDispDecs(deci);
+            return deci;
+        } else {
+            return -1;
+        }
 	} else {
-        //Use user specified display decimals
+        //Use user specified display decimals (in gda project file)
 		return vg.GetDispDecs();
 	}
 }

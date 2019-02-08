@@ -418,7 +418,9 @@ wxString TableBase::GetValue(int row, int col)
 	
 	int curr_ts = (table_int->IsColTimeVariant(col) ?
 				   time_state->GetCurrTime() : 0);
-	return table_int->GetCellString(row_order[row], col, curr_ts);
+	wxString val = table_int->GetCellString(row_order[row], col, curr_ts);
+    LOG_MSG(val);
+    return val;
 }
 
 // Note: when writing to raw_data, we must be careful not to overwrite
@@ -466,15 +468,7 @@ wxString TableBase::GetColLabelValue(int col)
 	}
 	
 	if (col == sorting_col) {
-		// MMM: problem with unicode character encoding on Mac/Unix with
-		// wxWidgets 3, so defaulting everything to Windows for now.
-		//if (GeneralWxUtils::isMac()) {
-		//	label << (sorting_ascending ? " \u02C4" : " \u02C5");
-		//} else if (GeneralWxUtils::isUnix()) {
-		//	label << (sorting_ascending ? " \u25B5" : " \u25BF");
-		//} else {
-			label << (sorting_ascending ? " >" : " <");
-		//}
+        label << (sorting_ascending ? " >" : " <");
 	}
 	return label;
 }

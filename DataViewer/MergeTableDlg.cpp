@@ -499,6 +499,7 @@ OGRColumn* MergeTableDlg::CreateNewOGRColumn(int new_rows,
     return _col;
 }
 
+// update OGRColumn using import layer_proxy[field_name]
 void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
                                     wxString f_name, map<int, int>& idx2_dict)
 {
@@ -506,8 +507,12 @@ void MergeTableDlg::UpdateOGRColumn(OGRColumn* _col, OGRLayerProxy* layer_proxy,
     GdaConst::FieldType f_type = layer_proxy->GetFieldType(col_idx);
     int f_length = layer_proxy->GetFieldLength(col_idx);
     int f_decimal = layer_proxy->GetFieldDecimals(col_idx);
+
+    // update column properties
+    if (f_length > _col->GetLength()) _col->SetLength(f_length);
+    if (f_decimal > _col->GetDecimals()) _col->SetDecimals(f_decimal);
+
     int n_rows = layer_proxy->n_rows;
-    
     if (f_type == GdaConst::long64_type) {
         for (int i=0; i<n_rows; i++) {
             OGRFeature* feat = layer_proxy->GetFeatureAt(i);
@@ -547,35 +552,40 @@ void MergeTableDlg::OuterJoinMerge()
         
         map<int, int> rowid_map;
         
-        vector<wxString> key1_vec;
-        map<wxString,int> key1_map;
-        vector<wxString> key2_vec;
+        vector<wxString> key1_vec; // keys from first table
+        map<wxString,int> key1_map; // key-idx map from first table
+        vector<wxString> key2_vec; // keys from second table
         
-        if (m_key_val_rb->GetValue()==1) { // check merge by key/record order
+        if (m_key_val_rb->GetValue()==1) {
+            // merge by key/record order checked
+
             // get and check keys from original table
             int key1_id = m_current_key->GetSelection();
             wxString key1_name = m_current_key->GetString(key1_id);
             int col1_id = table_int->FindColId(key1_name);
             if (table_int->IsColTimeVariant(col1_id)) {
-                error_msg = wxString::Format(_("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."), key1_name);
+                wxString msg = _("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key.");
+                error_msg = wxString::Format(msg, key1_name);
                 throw GdaException(error_msg.mb_str());
             }
             
-            vector<wxInt64>  key1_l_vec;
+            vector<wxInt64>  key1_l_vec; // keys (int type) from first table
             
             if (table_int->GetColType(col1_id, 0) == GdaConst::string_type) {
                 table_int->GetColData(col1_id, 0, key1_vec);
             }else if (table_int->GetColType(col1_id,0)==GdaConst::long64_type){
                 table_int->GetColData(col1_id, 0, key1_l_vec);
             }
-            
-            if (key1_vec.empty()) { // convert everything (key) to wxString
+
+            // convert key to wxString to check any duplicates
+            if (key1_vec.empty()) {
                 for( int i=0; i< key1_l_vec.size(); i++){
                     wxString tmp;
                     tmp << key1_l_vec[i];
                     key1_vec.push_back(tmp);
                 }
             }
+            // check if keys are valid
             if (CheckKeys(key1_name, key1_vec, key1_map) == false)
                 return;
             
@@ -586,14 +596,15 @@ void MergeTableDlg::OuterJoinMerge()
             int n_merge_rows = merge_layer_proxy->GetNumRecords();
             map<wxString,int> key2_map;
             for (int i=0; i < n_merge_rows; i++) {
-                wxString tmp = merge_layer_proxy->GetValueAt(i, col2_id, m_wx_encoding);
+                wxString tmp = merge_layer_proxy->GetValueAt(i, col2_id,
+                                                             m_wx_encoding);
                 key2_vec.push_back(tmp);
             }
             if (CheckKeys(key2_name, key2_vec, key2_map) == false)
                 return;
             
-        } else if (m_rec_order_rb->GetValue() == 1) { // merge by order sequence, just append
-           
+        } else if (m_rec_order_rb->GetValue() == 1) {
+            // merge by order sequence, just append
             for (int i=0; i<n_rows; i++) {
                 wxString tmp;
                 tmp << i;
@@ -606,14 +617,15 @@ void MergeTableDlg::OuterJoinMerge()
                 key2_vec.push_back(tmp);
             }
         }
-        
+        // start to merge
         std::vector<GdaShape*> geoms;
         OGRSpatialReference* spatial_ref = project_s->GetSpatialReference();
         Shapefile::ShapeType shape_type = project_s->GetGdaGeometries(geoms);
         
         std::vector<GdaShape*> in_geoms;
         OGRSpatialReference* in_spatial_ref = merge_layer_proxy->GetSpatialReference();
-        
+
+        // make sure the projection of import dataset is matched with current
         OGRCoordinateTransformation *poCT = NULL;
         if (spatial_ref !=NULL && in_spatial_ref != NULL) {
             if (!spatial_ref->IsSame(in_spatial_ref) ) {
@@ -622,6 +634,7 @@ void MergeTableDlg::OuterJoinMerge()
                 merge_layer_proxy->ApplyProjection(poCT);
             }
         }
+        // make sure the geometry type is same
         Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
         if (shape_type != in_shape_type) {
             error_msg = _("Merge error: Geometric type of selected datasource has to be the same with current datasource.");
@@ -644,7 +657,7 @@ void MergeTableDlg::OuterJoinMerge()
             }
         }
         
-        // Create in-memory geometries&table
+        // Create a new in-memory geometries&table for merging
         int new_rows = new_key_vec.size();
         OGRTable* mem_table = new OGRTable(new_rows);
         vector<bool> undefs(new_rows, true);
@@ -656,6 +669,7 @@ void MergeTableDlg::OuterJoinMerge()
         for ( int id=0; id < table_int->GetNumberCols(); id++ ) {
             OGRColumn* col;
             if (table_int->IsColTimeVariant(id)) {
+                // for grouped varible
                 for ( int t=0; t < time_steps; t++ ) {
                     col =  CreateNewOGRColumn(new_rows, table_int, undefs, id, t);
                     new_fields_dict[col->GetName()] = col;
@@ -673,14 +687,16 @@ void MergeTableDlg::OuterJoinMerge()
         
         for (int i=0; i<in_cols; i++) {
             wxString fname = merged_field_names[i];
+            OGRColumn* col;
             if (new_fields_dict.find(fname) != new_fields_dict.end()) {
                 // duplicated field
                 if (overwrite_field) {
                     // update column content
-                    OGRColumn* col = new_fields_dict[fname];
+                    col = new_fields_dict[fname];
                     UpdateOGRColumn(col, merge_layer_proxy, fname, idx2_dict);
                 } else {
-                    OGRColumn* col = CreateNewOGRColumn(new_rows, merge_layer_proxy, undefs, fname, idx2_dict);
+                    col = CreateNewOGRColumn(new_rows, merge_layer_proxy,
+                                             undefs, fname, idx2_dict);
                     fname = fname + "_" + Gda::CreateUUID(4);
                     col->Rename(fname);
                     new_fields_dict[fname] = col;
@@ -688,7 +704,8 @@ void MergeTableDlg::OuterJoinMerge()
                 }
             } else {
                 // new field
-                OGRColumn* col = CreateNewOGRColumn(new_rows, merge_layer_proxy, undefs, fname, idx2_dict);
+                col = CreateNewOGRColumn(new_rows, merge_layer_proxy, undefs,
+                                         fname, idx2_dict);
                 new_fields_dict[fname] = col;
                 new_fields.push_back(fname);
             }
@@ -698,17 +715,17 @@ void MergeTableDlg::OuterJoinMerge()
             mem_table->AddOGRColumn(new_fields_dict[new_fields[i]]);
         }
         
-        ExportDataDlg export_dlg(this, shape_type, new_geoms, spatial_ref, mem_table);
+        ExportDataDlg export_dlg(this, shape_type, new_geoms, spatial_ref,
+                                 mem_table);
         if (export_dlg.ShowModal() == wxID_OK) {
-            wxMessageDialog dlg(this, _("File merged into Table successfully."), _("Success"), wxOK);
+            wxMessageDialog dlg(this, _("File merged into Table successfully."),
+                                _("Success"), wxOK);
             dlg.ShowModal();
         }
         
         delete mem_table;
-        // see ExportDataDlg.cpp line:620
-        //for (int i=0; i<new_geoms.size(); i++) {
-        //    delete new_geoms[i];
-        //}
+        // no need to free geometry memory here, see ExportDataDlg.cpp line:620
+
         EndDialog(wxID_OK);
         
     } catch (GdaException& ex) {
