@@ -103,6 +103,18 @@ OGRLayerProxy::~OGRLayerProxy()
 	fields.clear();
 }
 
+bool OGRLayerProxy::IsFieldCaseSensitive(GdaConst::DataSourceType ds_type)
+{
+    if (ds_type == GdaConst::ds_sqlite ||
+        ds_type == GdaConst::ds_gpkg || // based on sqlite
+        ds_type == GdaConst::ds_mysql || // on windows only
+        ds_type == GdaConst::ds_postgresql || // old version
+        ds_type == GdaConst::ds_cartodb // based on postgresql
+    ) {
+        return false;
+    }
+    return true;
+}
 OGRwkbGeometryType OGRLayerProxy::GetShapeType()
 {
     return eGType;
@@ -162,7 +174,7 @@ wxString OGRLayerProxy::GetFieldName(int pos)
 
 void OGRLayerProxy::SetFieldName(int pos, const wxString& new_fname)
 {
-    fields[pos]->SetName(new_fname);
+    fields[pos]->SetName(new_fname, IsFieldCaseSensitive(ds_type));
 }
 
 GdaConst::FieldType OGRLayerProxy::GetFieldType(int pos)
@@ -197,9 +209,10 @@ int OGRLayerProxy::GetFieldDecimals(int pos)
 
 int OGRLayerProxy::GetFieldPos(const wxString& field_name)
 {
+    bool case_sensitive = IsFieldCaseSensitive(ds_type);
 	for (size_t i=0, iend=fields.size(); i<iend; ++i) {
         wxString fname = fields[i]->GetName();
-		if (fname.CmpNoCase(field_name)==0)
+		if (fname.IsSameAs(field_name, case_sensitive))
             return i;
 	}
     return -1;
@@ -326,9 +339,11 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 bool OGRLayerProxy::IsFieldExisted(const wxString& field_name)
 {
 	// check if field existed by given field name
+    bool case_sensitive = IsFieldCaseSensitive(ds_type);
 	vector<OGRFieldProxy*>::iterator it;
 	for (it = fields.begin(); it!=fields.end(); it++){
-		if (field_name.CmpNoCase((*it)->GetName()) == 0 ){
+        wxString name = (*it)->GetName();
+		if (field_name.IsSameAs(name)){
             return true;
 		}
 	}

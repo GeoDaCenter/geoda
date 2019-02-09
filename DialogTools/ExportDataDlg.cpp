@@ -524,7 +524,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
                 geometries.push_back(new GdaPolygon(pc));
             }
 			shape_type = Shapefile::POLYGON;
-        }
+        } //shape_type = project_p->GetGdaGeometries(geometries);
     } else {
         // create datasource from geometries only
         size_t nn = geometries.size();
@@ -557,7 +557,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
 	vector<OGRGeometry*> ogr_geometries;
 	OGRwkbGeometryType geom_type =  OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
 
-    // NOTE: for GeoJSON, transform to WGS84 automatically
+    // for GeoJSON, force transform to WGS84 automatically
     if (spatial_ref && (ds_name.EndsWith(".json") || ds_name.EndsWith(".geojson"))) {
         int epsg = spatial_ref->GetEPSGGeogCS();
         if (epsg != 4326) {

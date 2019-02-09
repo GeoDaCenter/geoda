@@ -99,7 +99,8 @@ void CatClassifManager::update(TableState* o)
 	if (o->GetEventType() == TableState::col_rename) {
 		if (!o->IsSimpleGroupRename()) return;
 		for (i = classif_states.begin(); i != classif_states.end(); ++i) {
-			if ((*i)->GetCatClassif().assoc_db_fld_name.CmpNoCase(o->GetOldColName())==0) {
+            wxString asso_fld = (*i)->GetCatClassif().assoc_db_fld_name;
+			if (asso_fld == o->GetOldColName()) {
 				(*i)->GetCatClassif().assoc_db_fld_name = o->GetNewColName();
 			}
 		}
@@ -109,8 +110,8 @@ void CatClassifManager::update(TableState* o)
 			// remove association for every deleted field
 			if (!e.insert) {
 				for (i = classif_states.begin(); i!=classif_states.end(); ++i) {
-					if ((*i)->GetCatClassif().assoc_db_fld_name.CmpNoCase(e.group_name)==0)
-					{
+                    wxString asso_fld = (*i)->GetCatClassif().assoc_db_fld_name;
+					if (asso_fld == e.group_name) {
 						(*i)->GetCatClassif().assoc_db_fld_name = "";
 						(*i)->notifyObservers();
 					}

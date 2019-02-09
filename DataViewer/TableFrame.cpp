@@ -88,26 +88,20 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
 	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
-        
         GdaConst::FieldType col_type = table_int->GetColType(i);
-        
 		if (col_type == GdaConst::long64_type) {
-			//grid->SetColFormatNumber(i);
-            grid->SetColFormatFloat(i,-1,0);
-            
+            grid->SetColFormatFloat(i, -1, 0);
 		} else if (col_type == GdaConst::double_type) {
 			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
-            
 		} else if (col_type == GdaConst::date_type ||
                    col_type == GdaConst::time_type ||
                    col_type == GdaConst::datetime_type) {
 			// leave as a string
 		}
 		grid->SetColSize(i, -1); // fit column width to lable width
-        
 	}
     
-	int sample = std::min(table_base->GetNumberRows(), 10);
+	int sample = std::min(table_base->GetNumberRows(), 25);
     
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);
@@ -120,7 +114,8 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 			avg_cell_len += cv.length();
 		}
 		if (sample >= 1) { // sample last row
-			avg_cell_len += grid->GetCellValue(table_base->GetNumberRows()-1, i).length();
+            wxString txt = grid->GetCellValue(table_base->GetNumberRows()-1, i);
+			avg_cell_len += txt.length();
 		}
 		avg_cell_len /= (double) sample;
 		if (avg_cell_len > cur_lbl_len &&
@@ -624,10 +619,15 @@ void TableFrame::OnUnGroupVariable(wxCommandEvent& event )
 void TableFrame::OnRenameVariable(wxCommandEvent& event)
 {
 	if (popup_col < 0) return; 
-	TableInterface* ti=table_base->GetTableInt();
+
+    TableInterface* ti=table_base->GetTableInt();
 	wxString curr_name = ti->GetColName(popup_col);
 	wxString new_name = PromptRenameColName(ti, popup_col, curr_name);
-	if (new_name.CmpNoCase(curr_name)==0 || new_name.IsEmpty()) return;
+
+    bool case_sensitive = project->IsFieldCaseSensitive();
+	if (new_name.IsSameAs(curr_name, case_sensitive) || new_name.IsEmpty())
+        return;
+
 	ti->RenameGroup(popup_col, new_name);
 
 	popup_col = -1;
@@ -656,6 +656,8 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 	wxString error_msg = wxEmptyString;
 
 	bool first = true;
+    bool case_sensitive = project->IsFieldCaseSensitive();
+
 	while (!done) {
 		wxString m = is_group_col ? error_pre_msg : error_pre_msg + error_msg;
 		wxTextEntryDialog dlg(this, (first ? initial_msg : m), dlg_title,
@@ -664,11 +666,20 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 			new_name = dlg.GetValue();
 			new_name.Trim(false);
 			new_name.Trim(true);
-			done = ((new_name.CmpNoCase(curr_name)==0) ||
-					(is_group_col && ti->IsValidGroupName(new_name)
-					 && !ti->DoesNameExist(new_name, false)) ||
-					(!is_group_col && ti->IsValidDBColName(new_name, &error_msg)
-					 && !ti->DoesNameExist(new_name, false)));
+
+            bool is_name_exist = ti->DoesNameExist(new_name, case_sensitive);
+            // is_name_exist includes if new_name equals (case) curr_name
+            if (is_name_exist == false ) {
+                if (is_group_col) {
+                    if (ti->IsValidGroupName(new_name)) {
+                        done = true;
+                    }
+                } else {
+                    if (ti->IsValidDBColName(new_name, &error_msg)) {
+                        done = true;
+                    }
+                }
+            }
 			first = false;
 		} else {
 			new_name = "";

@@ -67,18 +67,24 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant()),
 all_init(false)
 {
 	for (int i=0, iend=data.size(); i<iend; i++) {
-		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label, wxDefaultPosition, wxSize(-1, 30));
+		m_check[i] = new wxCheckBox(this, ID_CHECK, data[i].label,
+                                    wxDefaultPosition, wxSize(-1, 30));
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
-		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition, wxSize(180, 20));
-        m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT, data[i].field_default, wxDefaultPosition, wxSize(180, 20), wxTE_PROCESS_ENTER);
+		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition,
+                                  wxSize(180, 20));
+        m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT,
+                                        data[i].field_default,
+                                        wxDefaultPosition, wxSize(180, 20),
+                                        wxTE_PROCESS_ENTER);
         
         m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER,
                                 wxCommandEventHandler(SaveToTableDlg::OnOkClick),
                                 NULL, this);
         
 		if (is_space_time) {
-			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition, wxSize(180, 20));
+			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition,
+                                     wxSize(180, 20));
             m_time[i]->Hide();
 		} else {
 			m_time[i] = 0;
@@ -178,7 +184,9 @@ void SaveToTableDlg::OnAddFieldButton( wxCommandEvent& event )
 	}
 	
 
-    // Multiple time periods seems complex to user, we don't set "multiple time periods" by default, even there is time defined.
+    // Multiple time periods seems complex to user,
+    // we don't set "multiple time periods" by default,
+    // even there is time defined.
 	DataViewerAddColDlg dlg(project, this, true, true,
 							data[obj_id].field_default,
 							data[obj_id].type);
@@ -225,7 +233,7 @@ void SaveToTableDlg::OnFieldChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Field Choice was selected. Please report this error.";
+		wxString msg = _("Could not determine which Field Choice was selected. Please report this error.");
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
@@ -247,7 +255,7 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 		}
 	}
 	if (obj_id == -1) {
-		wxString msg = "Could not determine which Time Choice was selected. Please report this error.";
+		wxString msg = _("Could not determine which Time Choice was selected. Please report this error.");
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;

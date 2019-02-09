@@ -286,7 +286,7 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 	}
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
 		int cid = col_id_map[i];
-		if (fn_freq[table_int->GetColName(cid).Upper()] > 1) {
+		if (fn_freq[table_int->GetColName(cid)] > 1) {
 			field_grid->SetCellTextColour(i, COL_N, *wxRED);
 		} else {
 			field_grid->SetCellTextColour(i, COL_N, *wxBLACK);
@@ -411,7 +411,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			return;
 		}
 	}
-	
+	bool case_sensitive = project->IsFieldCaseSensitive();
 	int min_v;
 	int max_v;
     if (col == COL_T) {
@@ -536,7 +536,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         combo_selection = -1;
         
     } else if (col == COL_N) {
-		if (table_int->DoesNameExist(new_str, false) ||
+		if (table_int->DoesNameExist(new_str, case_sensitive) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -553,7 +553,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			ev.Veto();
 			return;
 		}
-		if (table_int->DoesNameExist(new_str, false) ||
+		if (table_int->DoesNameExist(new_str, case_sensitive) ||
 			!table_int->IsValidGroupName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);

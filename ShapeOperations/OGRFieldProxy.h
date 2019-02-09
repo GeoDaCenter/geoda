@@ -51,7 +51,7 @@ public:
 	
     wxString GetName() { return name; }
     
-    void SetName(const wxString& new_name);
+    void SetName(const wxString& new_name, bool case_sensitive);
     
     OGRFieldType GetOGRType() { return ogr_fieldDefn->GetType(); }
     

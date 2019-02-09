@@ -260,7 +260,8 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
         layer_proxy->GetVarTypeMap(var_list, var_type_map);
         
         VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-        variable_order->CorrectVarGroups(var_type_map, var_list);
+        variable_order->CorrectVarGroups(var_type_map, var_list,
+                                         IsFieldCaseSensitive());
         
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
@@ -338,8 +339,13 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 			geometries.push_back(new GdaPolygon(pc));
 		}
 		shape_type = Shapefile::POLYGON;
-    } else {
-        
+    } else if (main_data.header.shape_type == Shapefile::POLY_LINE) {
+        Shapefile::PolyLineContents* pc;
+        for (int i=0; i<num_geometries; i++) {
+            pc = (Shapefile::PolyLineContents*)main_data.records[i].contents_p;
+            geometries.push_back(new GdaPolyLine(pc));
+        }
+        shape_type = Shapefile::POLY_LINE;
     }
 	return shape_type;
 }
@@ -879,7 +885,7 @@ CovSpHLStateProxy* Project::GetPairsHLState()
 TableBase* Project::FindTableBase()
 {
 	using namespace std;
-	if (!frames_manager) return 0;
+	if (frames_manager == NULL) return NULL;
 	list<FramesManagerObserver*> observers(frames_manager->getCopyObservers());
 	list<FramesManagerObserver*>::iterator it;
 	for (it=observers.begin(); it != observers.end(); ++it) {
@@ -887,7 +893,7 @@ TableBase* Project::FindTableBase()
 			return w->GetTableBase();
 		}
 	}
-	return 0;
+	return NULL;
 }
 
 void Project::GetSelectedRows(vector<int>& rowids)
@@ -1439,8 +1445,9 @@ bool Project::CommonProjectInit()
 		table_int->GetTimeStrings(tm_strs);
 		std::map<wxString, int> tm_map;
 		for (int t=0, sz=tm_strs.size(); t<sz; ++t) tm_map[tm_strs[t]] = t;
+        bool case_sensitive = true;
 		BOOST_FOREACH(const DefaultVar& dv, default_vars->GetDefaultVarList()) {
-			if (!table_int->DoesNameExist(dv.name, false)) {
+			if (!table_int->DoesNameExist(dv.name, case_sensitive)) {
 				default_var_name[i] = "";
 				default_var_time[i] = 0;
 			} else {
@@ -1480,6 +1487,11 @@ bool Project::IsDataTypeChanged()
         realTableFlag = true;
     }
     return isTableOnly != realTableFlag;
+}
+
+bool Project::IsFieldCaseSensitive()
+{
+    return OGRLayerProxy::IsFieldCaseSensitive(layer_proxy->ds_type);
 }
 
 /** Initialize the Table and Shape Layer from OGR source */
@@ -1559,7 +1571,8 @@ bool Project::InitFromOgrLayer()
 	
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-	variable_order->CorrectVarGroups(var_type_map, var_list);
+	variable_order->CorrectVarGroups(var_type_map, var_list,
+                                     IsFieldCaseSensitive());
 	
 	table_state = new TableState;
 	time_state = new TimeState;

@@ -27,6 +27,7 @@
 #include <boost/date_time.hpp>
 #include <wx/filename.h>
 
+#include "../Project.h"
 #include "OGRColumn.h"
 #include "OGRTableOperation.h"
 #include "TableInterface.h"

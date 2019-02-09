@@ -363,6 +363,7 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
         }
         
         // try to correct
+        bool case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
         FieldNameCorrectionDlg fname_correct_dlg(ds_type, all_fnames);
         if ( fname_correct_dlg.NeedCorrection()) {
             if (fname_correct_dlg.ShowModal() != wxID_OK) {

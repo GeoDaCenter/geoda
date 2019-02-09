@@ -40,7 +40,8 @@ END_EVENT_TABLE()
 ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                          GdaConst::DataSourceType ds_type,
                                          vector<wxString>& all_fname)
-: wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)), ds_type(ds_type), need_correction(false)
+: wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
+ds_type(ds_type), need_correction(false)
 {
 	vector<wxString> merged_field_names;
 	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;

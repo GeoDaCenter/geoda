@@ -90,7 +90,7 @@ public:
     bool IsDataTypeChanged();
     bool IsFileDataSource();
     bool HasUnsavedChange();
-    
+    bool IsFieldCaseSensitive();
     bool IsPointTypeData() { return main_data.header.shape_type == Shapefile::POINT_TYP;}
 
 	/** Get the current project filename with absolute path.  If project

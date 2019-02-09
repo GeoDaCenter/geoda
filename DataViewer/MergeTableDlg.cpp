@@ -381,6 +381,7 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
     vector<wxString> merged_field_names;
     set<wxString> dup_merged_field_names, bad_merged_field_names;
 
+    bool case_sensitive = project_s->IsFieldCaseSensitive();
     for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
         wxString inc_n = m_include_list->GetString(i);
         merged_field_names.push_back(inc_n);
@@ -392,7 +393,7 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
             std::set<wxString>::iterator it;
             for (it = table_fnames.begin(); it != table_fnames.end(); it ++) {
                 wxString nm = *it;
-                if (nm.Upper() == inc_n.Upper()) {
+                if (nm.IsSameAs(inc_n, case_sensitive)) {
                     dup_merged_field_names.insert(inc_n);
                     break;
                 }

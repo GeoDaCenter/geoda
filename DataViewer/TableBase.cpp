@@ -418,9 +418,7 @@ wxString TableBase::GetValue(int row, int col)
 	
 	int curr_ts = (table_int->IsColTimeVariant(col) ?
 				   time_state->GetCurrTime() : 0);
-	wxString val = table_int->GetCellString(row_order[row], col, curr_ts);
-    LOG_MSG(val);
-    return val;
+	return table_int->GetCellString(row_order[row], col, curr_ts);
 }
 
 // Note: when writing to raw_data, we must be careful not to overwrite

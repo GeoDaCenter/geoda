@@ -68,28 +68,24 @@ const VarGroup_container& VarOrderMapper::GetVarGroupsRef() const
 
 /** Returns column number for given column.  Returns -1 if not found.  Note,
  does not search in Enteries.vars. */
-int VarOrderMapper::GetColId(const wxString& name) const
+int VarOrderMapper::GetColId(const wxString& name, bool case_sensitive) const
 {
 	int cnt=0;
 	BOOST_FOREACH(const VarGroup& e, var_grps) {
-		if (e.name.CmpNoCase(name) == 0) return cnt;
-        //else if (e.vars.size() > 0) {
-        //    BOOST_FOREACH(const wxString& subname, e.vars)
-        //        if (subname.CmpNoCase(name) == 0) return cnt;
-        //}
+		if (e.name.IsSameAs(name, case_sensitive)) return cnt;
         ++cnt;
 	}
 	return wxNOT_FOUND;
 }
 
-int VarOrderMapper::GetColIdx(const wxString& name) const
+int VarOrderMapper::GetColIdx(const wxString& name, bool case_sensitive) const
 {
     int cnt=0;
     BOOST_FOREACH(const VarGroup& e, var_grps) {
-        if (e.name.CmpNoCase(name) == 0) return cnt;
+        if (e.name.IsSameAs(name, case_sensitive)) return cnt;
         else if (e.vars.size() > 0) {
             BOOST_FOREACH(const wxString& subname, e.vars)
-                if (subname.CmpNoCase(name) == 0) return cnt;
+                if (subname.IsSameAs(name, case_sensitive)) return cnt;
         }
         ++cnt;
     }
@@ -101,7 +97,8 @@ int VarOrderMapper::GetColIdx(const wxString& name) const
  true if name found in VarGroup vars.  col and tm are set to -1 when
  not found. */
 bool VarOrderMapper::SimpleColNameToColAndTm(const wxString& name,
-											 int& col, int& tm)
+											 int& col, int& tm,
+                                             bool case_sensitive)
 {
 	col = -1;
 	tm = -1;
@@ -111,14 +108,14 @@ bool VarOrderMapper::SimpleColNameToColAndTm(const wxString& name,
 		 vg_i != var_grps.end(); ++vg_i)
 	{
 		if (vg_i->IsSimple()) {
-			if (vg_i->GetGroupName().CmpNoCase(name)==0) {
+			if (vg_i->GetGroupName().IsSameAs(name, case_sensitive)) {
 				col = i;
 				tm = 0;
 				return true;
 			}
 		} else {
 			for (int j=0, sz=vg_i->vars.size(); j<sz; ++j) {
-				if (vg_i->vars[j] == name) {
+				if (vg_i->vars[j].IsSameAs(name, case_sensitive)) {
 					col = i;
 					tm = j;
 					return true;
@@ -128,19 +125,6 @@ bool VarOrderMapper::SimpleColNameToColAndTm(const wxString& name,
 		++i;
 	}
 	return false;
-}
-
-/** Returns a copy of VarGroup corresponding to name.  If not found, returns
- an empty VarGroup. */
-VarGroup VarOrderMapper::FindVarGroup(const wxString& name) const
-{
-	/// MMM We should not be using CmpNoCase for no reason here.  Some
-	/// DBs do support case-sensitive names and this logic would
-	/// break that.
-	BOOST_FOREACH(const VarGroup& e, var_grps) {
-		if (e.name.CmpNoCase(name)==0) return e;
-	}
-	return VarGroup();
 }
 
 /** Returns a copy of VarGroup in corresponding position.  If out of range,
@@ -153,14 +137,12 @@ VarGroup VarOrderMapper::FindVarGroup(int i) const
 }
 
 VarGroup_container::iterator VarOrderMapper::FindVarGroupIt(
-													const wxString& name)
+													const wxString& name,
+                                                    bool case_sensitive)
 {
-	/// MMM We should not be using CmpNoCase for no reason here.  Some
-	/// DBs do support case-sensitive names and this logic would
-	/// break that.
 	for (VarGroup_container::iterator i=var_grps.begin();
 		 i!=var_grps.end(); ++i) {
-		if (i->name.CmpNoCase(name)==0) return i;
+		if (i->name.IsSameAs(name, case_sensitive)) return i;
 	}
 	return var_grps.end();
 }
@@ -264,7 +246,8 @@ void VarOrderMapper::RemoveVarGroup(int pos)
  */
 void VarOrderMapper::Group(const std::vector<int>& col_ids,
 						  const wxString& grp_name, int grp_pos,
-						  TableDeltaList_type& tdl)
+						  TableDeltaList_type& tdl,
+                           bool case_sensitive)
 {
 	using namespace std;
 	vector<wxString> cols;
@@ -276,9 +259,11 @@ void VarOrderMapper::Group(const std::vector<int>& col_ids,
 		if (cols[c] == "") {
 			new_e.AppendPlaceholder();
 		} else {
-			VarGroup_container::iterator i = FindVarGroupIt(cols[c]);
+			VarGroup_container::iterator i = FindVarGroupIt(cols[c],
+                                                            case_sensitive);
 			if (i == var_grps.end() || !i->IsSimple()) continue;
-			TableDeltaEntry tde(i->name, false, GetColId(i->name));
+            int column_id = GetColId(i->name, case_sensitive);
+			TableDeltaEntry tde(i->name, false, column_id);
 			tdl.push_back(tde);
 			new_e.Append(i->name);
 			var_grps.erase(i);
@@ -296,7 +281,8 @@ void VarOrderMapper::Group(const std::vector<int>& col_ids,
  all non placeholder var_grps into the table at that position in
  order.
  */
-void VarOrderMapper::Ungroup(int grp_pos, TableDeltaList_type& tdl)
+void VarOrderMapper::Ungroup(int grp_pos, TableDeltaList_type& tdl,
+                             bool case_sensitive)
 {
 	using namespace std;
 	VarGroup e = FindVarGroup(grp_pos);
@@ -308,14 +294,14 @@ void VarOrderMapper::Ungroup(int grp_pos, TableDeltaList_type& tdl)
 		wxString name = e.vars[(e.vars.size()-1) - i];
 		if (name == "")
             continue;
-		VarGroup_container::iterator it = FindVarGroupIt(grp_name);
+		VarGroup_container::iterator it = FindVarGroupIt(grp_name, case_sensitive);
 		++it;
 		var_grps.insert(it, VarGroup(name));
 		TableDeltaEntry tde(name, true, grp_pos+1);
 		tde.pos_final = grp_pos+i;
 		tdl.push_back(tde);
 	}
-	VarGroup_container::iterator it = FindVarGroupIt(grp_name);
+	VarGroup_container::iterator it = FindVarGroupIt(grp_name, case_sensitive);
 	var_grps.erase(it);
 	tdl.push_back(TableDeltaEntry(grp_name, false, grp_pos));
 }
@@ -342,7 +328,8 @@ void VarOrderMapper::SwapTimes(int time1, int time2)
 /** First move through table in reverse and add simple columns from each
  * group. Secondly, do a cleanup pass where pure-placeholder groups
  * are removed from the table. */
-void VarOrderMapper::RemoveTime(int time, TableDeltaList_type& tdl)
+void VarOrderMapper::RemoveTime(int time, TableDeltaList_type& tdl,
+                                bool case_sensitive)
 {
 	if (time < 0 || time >= time_ids.size()) return;
 	time_ids.erase(time_ids.begin() + time);
@@ -378,7 +365,7 @@ void VarOrderMapper::RemoveTime(int time, TableDeltaList_type& tdl)
 	// info to tdl
 	for (TableDeltaList_type::iterator i=tdl.begin(); i!=tdl.end(); ++i) {
 		if (!i->insert) continue;
-		i->pos_final = GetColId(i->group_name);
+		i->pos_final = GetColId(i->group_name, case_sensitive);
 	}
 }
 

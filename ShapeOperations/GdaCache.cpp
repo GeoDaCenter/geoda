@@ -149,7 +149,7 @@ bool GdaCache::IsLayerUpdated(wxString ext_ds_name,
 bool GdaCache::IsLayerCached(wxString ext_ds_name,
 							 wxString ext_layer_name)
 {
-    bool caseSensitive = false;
+    bool caseSensitive = true;
 	for (size_t i=0; i<layer_names.size(); i++) {
 		wxString query_layer_name = ext_ds_name + "_" + ext_layer_name;
 		if (layer_names[i].IsSameAs(query_layer_name, caseSensitive))

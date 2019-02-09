@@ -29,7 +29,7 @@
 #include <wx/grid.h>
 #include <wx/regex.h>
 
-#include "../Project.h"
+
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -60,9 +60,10 @@ OGRTable::OGRTable(OGRLayerProxy* _ogr_layer,
 ogr_layer(_ogr_layer), var_order(var_order_ptree), datasource_type(ds_type)
 {
 	wxLogMessage("Entering OGRTable::OGRTable");
+    cols_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
+
     // default UTF-8, use can change it in menu: Table->Encoding
     encoding_type = wxFONTENCODING_SYSTEM;
-	//m_wx_encoding = new wxCSConv(wxFONTENCODING_UTF8);
     m_wx_encoding = NULL;
 
 	for (size_t i=0; i<ogr_layer->fields.size(); ++i) {
@@ -316,7 +317,7 @@ bool OGRTable::IsReadOnly()
 
 bool OGRTable::DbColNmToColAndTm(const wxString& name, int& col, int& tm)
 {
-	return var_order.SimpleColNameToColAndTm(name, col, tm);
+	return var_order.SimpleColNameToColAndTm(name, col, tm, cols_case_sensitive);
 }
 
 
@@ -328,7 +329,7 @@ int OGRTable::FindColId(const wxString& name)
 	wxString c_name = name;
 	c_name.Trim(false);
 	c_name.Trim(true);
-	return var_order.GetColId(c_name);
+	return var_order.GetColId(c_name, cols_case_sensitive);
 }
 
 
@@ -337,14 +338,10 @@ int OGRTable::GetColIdx(const wxString& name, bool ignore_case)
     wxString c_name = name;
     c_name.Trim(false);
     c_name.Trim(true);
-   
-    // update it if different in real data. E.g. user may create a column
-    // with name in lowercase, however, it is forced to uppercase in real table
-    // or in postgresql, which all table name will be created in lower case
-   
+
     for (size_t i=0; i<org_var_names.size(); i++) {
         if (ignore_case) {
-            if (name.CmpNoCase(org_var_names[i]) ==0 )
+            if (name.CmpNoCase(org_var_names[i]) ==0)
                 return i;
         } else {
             if (name == org_var_names[i] )
@@ -607,7 +604,15 @@ int OGRTable::GetColDispDecimals(int col)
         int deci = GetColDecimals(col, 0);
         if (deci > 0) {
             // if read decimal from dataset, use it as display decimal
-            vg.SetDispDecs(deci);
+            if (deci > 6) {
+                // to keep screenshot the same, when display decimals is larger
+                // (e.g. DBF uses 15 decimals) than default display decimals(6),
+                // use default display decimals
+                deci = 6;
+                vg.SetDispDecs(-1);
+            } else {
+                vg.SetDispDecs(deci);
+            }
             return deci;
         } else {
             return -1;
@@ -1134,8 +1139,8 @@ bool OGRTable::RenameGroup(int col, const wxString& new_name)
     if (!IsColTimeVariant(col)) {
         return RenameSimpleCol(col, 0, new_name);
     }
-    
-	if (DoesNameExist(new_name, false) ||
+    bool case_sensitive = cols_case_sensitive;
+	if (DoesNameExist(new_name, case_sensitive) ||
 		!IsValidGroupName(new_name)) return false;
 	wxString old_name = GetColName(col);
 	
@@ -1167,19 +1172,7 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
     cur_col->Rename(new_name);
     
     //update var_map
-    /*
-    //deprecated in 1.8.8
-	map<wxString, int>::iterator it = var_map.find(old_name);
-    if ( it == var_map.end()) it = var_map.find(old_name.Upper());
-    if ( it == var_map.end()) it = var_map.find(old_name.Lower());
-    if ( it == var_map.end())
-        return false;
-    int ogr_col_idx = it->second;
-    var_map[new_name] = ogr_col_idx;
-    var_map.erase(it);
-    */
     org_var_names[ogr_col_id] = new_name;
-    
 
     // update variable parameters
     var_order.SetGroupName(col, new_name);
@@ -1327,14 +1320,6 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
         vector<wxString>::iterator iter = org_var_names.begin() + pos;
         org_var_names.insert(iter, names[t]);
 	}
-    
-	/*
-    // deprecated in 1.8.8, see ogr_var_names in the above code
-    var_map.clear();
-    for (size_t i=0; i<columns.size(); i++) {
-        var_map[columns[i]->GetName()] = i;
-    }
-    */
 	
 	VarGroup g(name, decimals);
     if (time_steps > 1) {
@@ -1368,11 +1353,12 @@ bool OGRTable::DeleteCol(int pos)
     {
         return false;
     }
-	
+
+    bool case_sensitive = cols_case_sensitive;
     wxString col_name = var_order.GetGroupName(pos);
 	if (!col_name.IsEmpty()) {
         for( size_t i=0; i<columns.size(); ++i) {
-            if (columns[i]->GetName().CmpNoCase(col_name) == 0) {
+            if (col_name.IsSameAs(columns[i]->GetName(), case_sensitive)) {
                 operations_queue.push(new OGRTableOpDeleteColumn(columns[i]));
                 columns.erase(columns.begin()+i);
                 break;
@@ -1382,6 +1368,7 @@ bool OGRTable::DeleteCol(int pos)
     
     for (size_t i=0; i<org_var_names.size(); i++) {
         if (org_var_names[i].CmpNoCase(col_name) == 0) {
+        if (col_name.IsSameAs(org_var_names[i], case_sensitive) ) {
             org_var_names.erase( org_var_names.begin() + i );
             break;
         }
@@ -1421,7 +1408,7 @@ void OGRTable::UngroupCol(int col)
 	int displayed_decimals = GetColDispDecimals(col);
 	
 	TableDeltaList_type tdl;
-	var_order.Ungroup(col, tdl);
+	var_order.Ungroup(col, tdl, cols_case_sensitive);
 	
 	// Add missing information to tdl entries.
 	for (TableDeltaList_type::iterator i=tdl.begin(); i!=tdl.end(); ++i) {
@@ -1483,7 +1470,7 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
     if (displayed_decimals<=0) displayed_decimals = decimals;
     
 	TableDeltaList_type tdl;
-	var_order.Group(cols, name, pos, tdl);
+	var_order.Group(cols, name, pos, tdl, cols_case_sensitive);
 	// Last entry in tdl should be an insert operation.  Add missing
 	// information to this operation.
 	TableDeltaList_type::iterator i=tdl.end();
@@ -1519,7 +1506,7 @@ void OGRTable::RemoveTimeStep(int time)
 	// period results in onr or more VarGroup with only placeholders remaining.
 	// In this case we need to delete these empty columns from the table.
 	TableDeltaList_type tdl;
-	var_order.RemoveTime(time, tdl);
+	var_order.RemoveTime(time, tdl, cols_case_sensitive);
 	
 	// Must fill in details for simple inserted columns
 	for (TableDeltaList_type::iterator i=tdl.begin(); i!=tdl.end(); ++i) {
@@ -1580,8 +1567,9 @@ int OGRTable::FindOGRColId(int wxgrid_col_pos, int time)
 
 int OGRTable::FindOGRColId(const wxString& name)
 {
+    bool case_sensitive = cols_case_sensitive;
     for (size_t i=0; i < org_var_names.size(); i++ ) {
-        if (name.CmpNoCase(org_var_names[i]) == 0 ) {
+        if (name.IsSameAs(org_var_names[i], case_sensitive)) {
             return i;
         }
     }
@@ -1598,9 +1586,9 @@ OGRColumn* OGRTable::FindOGRColumn(int col, int time)
 OGRColumn* OGRTable::FindOGRColumn(const wxString& name)
 {
     if (name.IsEmpty()) return NULL;
-    
+    bool case_sensitive = cols_case_sensitive;
     for (size_t i=0; i<org_var_names.size(); i++ ) {
-        if ( name.CmpNoCase(org_var_names[i]) == 0 ) {
+        if ( name.IsSameAs(org_var_names[i], case_sensitive)) {
             return columns[i];
         }
     }

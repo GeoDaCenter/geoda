@@ -75,14 +75,12 @@ fixed_lengths(project_s->GetTableInt()->HasFixedLengths())
 	// as C, B, A, F, D, E.  In this case, the col_id_map would be
 	// 0->2, 1->1, 2->0, 3->5, 4->3, 5->4
 	std::vector<int> col_id_map;
-	
 	table_int->FillColIdMap(col_id_map);
     
 	for (int i=0, iend=table_int->GetNumberCols(); i<iend; i++) {
         int actual_idx = col_id_map[i];
         wxString col_name = table_int->GetColName(actual_idx);
-        curr_col_labels.insert(col_name.Upper());
-        m_insert_pos->Append(col_name.Upper());
+        m_insert_pos->Append(col_name);
 	}
     
 	m_insert_pos->Append("after last variable");
@@ -175,9 +173,12 @@ void DataViewerAddColDlg::CreateControls()
 	}
 
     
-    Connect(XRCID("ID_TEXT_NEW_NAME"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
-    Connect(XRCID("ID_TEXT_LENGTH"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
-    Connect(XRCID("ID_TEXT_DECIMALS"), wxEVT_COMMAND_TEXT_ENTER,wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    Connect(XRCID("ID_TEXT_NEW_NAME"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    Connect(XRCID("ID_TEXT_LENGTH"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
+    Connect(XRCID("ID_TEXT_DECIMALS"), wxEVT_COMMAND_TEXT_ENTER,
+            wxCommandEventHandler(DataViewerAddColDlg::OnOkClick));
     
 	CheckName();
 	SetDefaultsByType(default_field_type);
@@ -299,20 +300,19 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		dlg.ShowModal();
 		return;
 	}
-	
-	if (curr_col_labels.find(colname.Upper()) != curr_col_labels.end()) {
+	bool case_sensitive = project->IsFieldCaseSensitive();
+	if (table_int->DoesNameExist(colname, case_sensitive)) {
 		wxString msg = _("Error: \"%s\" already exists in Table, please specify a different name.");
-        msg = wxString::Format(msg, colname.Upper());
+        msg = wxString::Format(msg, colname);
 		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
 	}
 	
     bool m_name_valid = table_int->IsValidDBColName(colname);
-	//if ( !DbfFileUtils::isValidFieldName(colname) ) {
     if (!m_name_valid) {
 		wxString msg = _("Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long.");
-        msg = wxString::Format(msg, colname.Upper());
+        msg = wxString::Format(msg, colname);
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		return;
@@ -358,15 +358,16 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 
 	int time_steps = 1; // non-space-time column by default	
 
-	wxLogMessage(wxString::Format(_("Inserting new column %s into Table"), colname.Upper()));
+	wxLogMessage(wxString::Format(_("Inserting new column %s into Table"),
+                                  colname));
 	
 	bool success;
 	if (fixed_lengths) {
-		success = (table_int->InsertCol(cur_type, colname.Upper(),
+		success = (table_int->InsertCol(cur_type, colname,
 									   col_insert_pos, time_steps,
 									   m_length_val, m_decimals_val) != -1);
 	} else {
-		success = (table_int->InsertCol(cur_type, colname.Upper(),
+		success = (table_int->InsertCol(cur_type, colname,
 									   col_insert_pos, time_steps) != -1);
 	}
 	
@@ -376,7 +377,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		dlg.ShowModal();
 		return;
 	}
-    final_col_name = colname.Upper();
+    final_col_name = colname;
 	final_col_id = col_insert_pos;
     
 
@@ -517,10 +518,13 @@ void DataViewerAddColDlg::UpdateMinMaxValues()
 		m_decimals->GetValue().ToLong(&decimals);
 		int suggest_len;
 		int suggest_dec;
-		DbfFileUtils::SuggestDoubleParams(length, decimals, &suggest_len, &suggest_dec);
+		DbfFileUtils::SuggestDoubleParams(length, decimals, &suggest_len,
+                                          &suggest_dec);
 		if (length == suggest_len && decimals == suggest_dec) {
-			m_max_val->SetLabelText(DbfFileUtils::GetMaxDoubleString(length, decimals));
-			m_min_val->SetLabelText(DbfFileUtils::GetMinDoubleString(length, decimals));
+			m_max_val->SetLabelText(DbfFileUtils::GetMaxDoubleString(length,
+                                                                     decimals));
+			m_min_val->SetLabelText(DbfFileUtils::GetMinDoubleString(length,
+                                                                     decimals));
 		}
 	} else { // cur_type == GdaConst::long64_type
 		m_max_val->SetLabelText(DbfFileUtils::GetMaxIntString(length));
