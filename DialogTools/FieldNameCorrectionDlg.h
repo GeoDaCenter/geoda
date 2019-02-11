@@ -35,6 +35,7 @@ class ScrolledWidgetsPane : public wxScrolledWindow
 private:
 	int  n_fields;
 	GdaConst::DataSourceType ds_type;
+    bool is_case_sensitive;
     // old_name : new_name (after correction)
 	map<wxString, wxString> field_names_dict;
 	map<wxString, bool> field_dict;

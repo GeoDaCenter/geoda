@@ -877,34 +877,27 @@ bool OGRTable::GetColUndefined(int col, b_array_type& undefined)
     
     VarGroup vg = var_order.FindVarGroup(col);
     
-    if (vg.IsEmpty())
-        return false;
+    if (vg.IsEmpty()) return false;
     
     vector<wxString> vars;
     vg.GetVarNames(vars);
-    
     size_t tms = vars.size();
     vector<int> ftr_c(tms); // OGRFeature column id
     for (size_t t=0; t<vars.size(); ++t) {
         ftr_c[t] = vars[t].IsEmpty() ? -1 : FindOGRColId(vars[t]);
     }
-    
     bool has_undefined = false;
-    
     undefined.resize(boost::extents[tms][rows]);
-    
     for (size_t t=0; t<tms; ++t) {
         if (ftr_c[t] != -1) {
             int col_idx = ftr_c[t];
             std::vector<bool> markers = columns[col_idx]->GetUndefinedMarkers();
             for (size_t i=0; i<rows; ++i) {
                 undefined[t][i] = markers[i];
-                if (undefined[t][i])
-                    has_undefined = true;
+                if (undefined[t][i]) has_undefined = true;
             }
         } else {
-            for (size_t i=0; i<rows; ++i)
-                undefined[t][i] = false;
+            for (size_t i=0; i<rows; ++i) undefined[t][i] = false;
         }
     }
     return has_undefined;
@@ -917,16 +910,14 @@ bool OGRTable::GetColUndefined(int col, int time, std::vector<bool>& undefined)
 
     int ogr_col_id = FindOGRColId(col, time);
     
-	if (ogr_col_id == wxNOT_FOUND)
-        return false;
+	if (ogr_col_id == wxNOT_FOUND)  return false;
     
     OGRColumn* ogr_col = columns[ogr_col_id];
     
     undefined = ogr_col->GetUndefinedMarkers();
     
     for (size_t i=0; i<undefined.size(); i++) {
-        if (undefined[i] == true)
-            return true;
+        if (undefined[i] == true) return true;
     }
     return false;
 }
@@ -941,8 +932,7 @@ bool OGRTable::GetDirectColUndefined(int col, std::vector<bool>& undefined)
     undefined = ogr_col->GetUndefinedMarkers();
     
     for (size_t i=0; i<undefined.size(); i++) {
-        if (undefined[i] == true)
-            return true;
+        if (undefined[i] == true) return true;
     }
     return false;
 }
@@ -973,22 +963,16 @@ void OGRTable::GetMinMaxVals(int col, vector<double>& min_vals,
             vector<double> data(rows, 0);
             vector<bool> undef(rows, false);
             columns[col_idx]->FillData(data, undef);
-            
             bool has_init = false;
-            
 			for (size_t i=0; i<rows; ++i) {
-                if (undef[i])
-                    continue;
-                
+                if (undef[i])  continue;
 				tmp = data[i];
-                
                 if (!has_init) {
                     has_init = true;
                     tmp_min_val = tmp;
                     tmp_max_val = tmp;
                     continue;
                 }
-                
                 if ( tmp_min_val > tmp ) tmp_min_val = tmp;
                 if ( tmp_max_val < tmp ) tmp_max_val = tmp;
 			}
@@ -1320,8 +1304,10 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
         vector<wxString>::iterator iter = org_var_names.begin() + pos;
         org_var_names.insert(iter, names[t]);
 	}
-	
-	VarGroup g(name, decimals);
+    // when init a column, set display decimals to -1 so that UI will determine
+    // the value based on actual dicmals.
+    int group_disp_decimals = -1;
+	VarGroup g(name, group_disp_decimals);
     if (time_steps > 1) {
         g.vars = names;
     }
@@ -1332,8 +1318,11 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
 	TableDeltaList_type tdl;
 	TableDeltaEntry tde(name, true, pos);
 	tde.pos_final = pos;
-	tde.decimals = decimals < 0 ? GdaConst::default_display_decimals : decimals;
-	tde.displayed_decimals = decimals;
+	tde.decimals = decimals < 0 ? GdaConst::default_dbf_double_decimals : decimals;
+    // to keep screenshot the same, when display decimals is larger
+    // (e.g. DBF uses 15 decimals) than default display decimals(6),
+    // use default display decimals
+    tde.displayed_decimals = decimals > 6 ? 6 : decimals;
 	tde.type = type;
 	tde.length = field_len;
 	tde.change_to_db = true;
@@ -1347,10 +1336,8 @@ bool OGRTable::DeleteCol(int pos)
 {
 	wxLogMessage("Inside OGRTable::DeleteCol");
 	wxLogMessage(wxString::Format("Deleting column from table at postion %d", pos));
-	if (pos < 0 ||
-        pos >= var_order.GetNumVarGroups() ||
-		var_order.GetNumVarGroups() == 0)
-    {
+	if (pos < 0 || pos >= var_order.GetNumVarGroups() ||
+		var_order.GetNumVarGroups() == 0) {
         return false;
     }
 
@@ -1367,7 +1354,6 @@ bool OGRTable::DeleteCol(int pos)
 	}
     
     for (size_t i=0; i<org_var_names.size(); i++) {
-        if (org_var_names[i].CmpNoCase(col_name) == 0) {
         if (col_name.IsSameAs(org_var_names[i], case_sensitive) ) {
             org_var_names.erase( org_var_names.begin() + i );
             break;

@@ -723,15 +723,11 @@ void MergeTableDlg::OuterJoinMerge()
                                 _("Success"), wxOK);
             dlg.ShowModal();
         }
-        
-        delete mem_table;
         // no need to free geometry memory here, see ExportDataDlg.cpp line:620
-
+        delete mem_table;
         EndDialog(wxID_OK);
-        
     } catch (GdaException& ex) {
-        if (ex.type() == GdaException::NORMAL)
-            return;
+        if (ex.type() == GdaException::NORMAL) return;
         wxMessageDialog dlg(this, ex.what(), _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -863,40 +859,14 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                                    map<int,int>& rowid_map)
 {
     int fid = dedup_to_id[real_field_name];
-    //int fid = merge_layer_proxy->GetFieldPos(real_field_name);
     GdaConst::FieldType ftype = merge_layer_proxy->GetFieldType(fid);
-    
-    if ( ftype == GdaConst::string_type ) {
-        int add_pos = table_int->InsertCol(ftype, field_name);
-        vector<wxString> data(n_rows);
-        vector<bool> undefs(n_rows, false);
-        for (int i=0; i<n_rows; i++) {
-            int import_rid = i; // default merge by row
-            
-            if (!rowid_map.empty()) {
-                // merge by key
-                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 :
-                             rowid_map[i];
-            }
-            
-            if (import_rid >=0) {
-                if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
-                    data[i] = wxEmptyString;
-                    undefs[i] = true;
-                } else {
-                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,
-                                                        fid, m_wx_encoding));
-                    undefs[i] = false;
-                }
-            } else {
-                data[i] = wxEmptyString;
-                undefs[i] = true;
-            }
-        }
-        table_int->SetColData(add_pos, 0, data, undefs);
-        
-    } else if ( ftype == GdaConst::long64_type ) {
-        int add_pos = table_int->InsertCol(ftype, field_name);
+    int init_pos = -1, time_steps=1;
+    int field_len = merge_layer_proxy->GetFieldLength(fid);
+    int decimals = merge_layer_proxy->GetFieldDecimals(fid);
+
+    if ( ftype == GdaConst::long64_type ) {
+        int add_pos = table_int->InsertCol(ftype, field_name, init_pos,
+                                           time_steps, field_len, decimals);
         vector<wxInt64> data(n_rows);
         vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
@@ -923,7 +893,8 @@ void MergeTableDlg::AppendNewField(wxString field_name,
         table_int->SetColData(add_pos, 0, data, undefs);
         
     } else if ( ftype == GdaConst::double_type ) {
-        int add_pos=table_int->InsertCol(ftype, field_name);
+        int add_pos=table_int->InsertCol(ftype, field_name, init_pos,
+                                         time_steps, field_len, decimals);
         vector<double> data(n_rows);
         vector<bool> undefs(n_rows);
         for (int i=0; i<n_rows; i++) {
@@ -943,6 +914,34 @@ void MergeTableDlg::AppendNewField(wxString field_name,
                 }
             } else {
                 data[i] = 0.0;
+                undefs[i] = true;
+            }
+        }
+        table_int->SetColData(add_pos, 0, data, undefs);
+    } else {
+        // other types as GdaConst::string_type ) {
+        int add_pos = table_int->InsertCol(ftype, field_name);
+        vector<wxString> data(n_rows);
+        vector<bool> undefs(n_rows, false);
+        for (int i=0; i<n_rows; i++) {
+            int import_rid = i; // default merge by row
+            if (!rowid_map.empty()) {
+                // merge by key
+                import_rid = rowid_map.find(i) == rowid_map.end() ? -1 :
+                rowid_map[i];
+            }
+            if (import_rid >=0) {
+                if (merge_layer_proxy->IsUndefined(import_rid,fid)) {
+                    data[i] = wxEmptyString;
+                    undefs[i] = true;
+                } else {
+                    data[i] = wxString(merge_layer_proxy->GetValueAt(import_rid,
+                                                                     fid,
+                                                                     m_wx_encoding));
+                    undefs[i] = false;
+                }
+            } else {
+                data[i] = wxEmptyString;
                 undefs[i] = true;
             }
         }

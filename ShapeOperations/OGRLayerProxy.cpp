@@ -760,33 +760,17 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
     
     int export_size = data.size()==0 ? table->GetNumberRows() : data.size();
     export_progress = export_size / 4;
-   
-    bool ignore_case = false;
-    
-    if (ds_type == GdaConst::ds_postgresql ||
-        ds_type == GdaConst::ds_sqlite) {
-        ignore_case = true;
-    }
     
     // Fill the feature with content
     if (table != NULL) {
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
-            
             wxString fname = fields[j]->GetName();
-            GdaConst::FieldType ftype = fields[j]->GetType();
-           
+            GdaConst::FieldType ftype = fields[j]->GetType();           
             // get underneath column position (no group and time =0)
-            int col_pos = table->GetColIdx(fname, ignore_case);
-          
-            if (col_pos < 0) {
-                continue;
-            }
-            
+            int col_pos = j;
             vector<bool> undefs;
-            
             if ( ftype == GdaConst::long64_type) {
-                
                 vector<wxInt64> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);

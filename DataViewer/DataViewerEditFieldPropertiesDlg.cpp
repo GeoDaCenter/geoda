@@ -646,7 +646,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	} else if (col == COL_D &&
                table_int->PermitChangeDecimals() &&
                table_int->HasFixedLengths())
-	{ // we know this is a double_type field
+	{ // this is a double_type field
 		min_v = GdaConst::min_dbf_double_decimals;
 		max_v = GdaConst::max_dbf_double_decimals;
 		if (new_val < min_v || max_v < new_val) {
@@ -670,7 +670,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         
 	} else if (col == COL_DD &&
 			   table_int->PermitChangeDisplayedDecimals())
-	{ // we know this is a double_type field
+	{ // this is a double_type field
 		if (new_val > 0) {
 			if (table_int->HasFixedDecimals()) {
 				min_v = 0;

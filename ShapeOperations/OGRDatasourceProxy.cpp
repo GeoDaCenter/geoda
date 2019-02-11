@@ -60,7 +60,8 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     
     if (ds_type == GdaConst::ds_csv) {
         if (GdaConst::gda_ogr_csv_header == 0) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
+                "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         } else if (GdaConst::gda_ogr_csv_header == 1) {
             const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
@@ -353,14 +354,25 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     }
     
     OGRSpatialReference *poOutputSRS = spatial_ref;
+    OGRLayer *poDstLayer;
+    if (ds_type == GdaConst::ds_mysql || ds_type == GdaConst::ds_postgresql ||
+        ds_type == GdaConst::ds_ms_sql || ds_type == GdaConst::ds_sqlite ) {
+        // PRECISION is for database e.g. MSSQL
+        // OVERWRITE: This may be "YES" to force an existing layer of the
+        // desired name to be destroyed before creating the requested layer.
+        // LAUNDER is for database: rename desired field name
+        const char* papszLCO[50] = {"PRECISION=no", "LAUNDER=yes"};
+        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
+                                     (char**)papszLCO);
+    } else {
+        // ENCODING: set to "" to avoid any recoding
+        const char* papszLCO[50] = {"OVERWRITE=yes", "LAUNDER=no", "ENCODING="};
+        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
+                                     (char**)papszLCO);
+    }
 
-    // PRECISION is for database e.g. MSSQL
-    // LAUNDER is for database: rename desired field name
-    // ENCODING: set to "" to avoid any recoding
-    const char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=yes", "ENCODING="};
     
-    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(),
-                                           poOutputSRS, eGType, (char**)papszLCO);
+
     
     if( poDstLayer == NULL ) {
         error_message << _("Can't write/create layer \"");

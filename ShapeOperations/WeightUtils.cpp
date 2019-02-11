@@ -953,15 +953,17 @@ void WeightUtils::LoadGalInMan(WeightsManInterface* w_man_int,
 
 GalWeight* WeightUtils::WeightsIntersection(std::vector<GeoDaWeight*> ws)
 {
+    // Get the intersection from an array of weights
     int num_obs = ws[0]->GetNumObs();
     wxString id_field = ws[0]->GetIDName();
     GalElement* gal = new GalElement[num_obs];
     boost::unordered_map<int, int>::iterator it;
 
+    size_t n_w = ws.size();
     for (size_t i=0; i<num_obs; ++i) {
         boost::unordered_map<int, int> nbr_dict;
 
-        for (size_t j=0; j<ws.size(); ++j) {
+        for (size_t j=0; j<n_w; ++j) {
             GeoDaWeight* w = ws[j];
             const std::vector<long>& nbr_ids = w->GetNeighbors(i);
             for (size_t k=0; k<nbr_ids.size(); ++k) {
@@ -972,10 +974,10 @@ GalWeight* WeightUtils::WeightsIntersection(std::vector<GeoDaWeight*> ws)
                 }
             }
         }
-
+        // the intersect observation should be shared by ws.size() weights
         std::vector<long> nbrs;
         for (it=nbr_dict.begin(); it !=nbr_dict.end(); ++it) {
-            if (it->second > 1) {
+            if (it->second == n_w) {
                 nbrs.push_back(it->first);
             }
         }
@@ -990,7 +992,6 @@ GalWeight* WeightUtils::WeightsIntersection(std::vector<GeoDaWeight*> ws)
     new_w->gal = gal;
     new_w->is_symmetric = false;
 
-    //new_w->wflnm = filepath;
     new_w->id_field = id_field;
     return new_w;
 }
