@@ -416,7 +416,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	int max_v;
     if (col == COL_T) {
         if (combo_selection >=0) {
-            wxString strChoices[6] = {"real", "integer", "string", "date", "time", "datetime"};
+            wxString strChoices[6] = {"real", "integer", "string", "date",
+                "time", "datetime"};
             // change field type
             wxString new_type_str = strChoices[combo_selection];
             if (new_type_str != type_str) {
@@ -450,8 +451,21 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     table_int->UngroupCol(grp_col);
                 }
                 try {
+                    // preseve wxgrid order
+                    wxArrayInt wx_col_order;
+                    wxGrid* grid = GdaFrame::GetProject()->FindTableGrid();
+                    if (grid) {
+                        for (int i=0; i<grid->GetCols(); i++) {
+                            wx_col_order.push_back(grid->GetColPos(i));
+                        }
+                    }
+                    for (size_t i=0; i<wx_col_order.size(); ++i)
+                        LOG_MSG(wx_col_order[i]);
+
+                    // insert new col
                     int from_col = table_int->FindColId(var_name);
                     int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
+
                     // get col index of old var again
                     from_col = table_int->FindColId(var_name);
                     int num_rows = table_int->GetNumberRows();
@@ -482,11 +496,20 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     vector<bool> undefined(num_rows, false);
                     table_int->GetColUndefined(from_col, 0, undefined);
                     table_int->SetColUndefined(to_col, 0, undefined);
+
                     // delete old field
-                    //table_int->DeleteCol(from_col);
+                    table_int->DeleteCol(from_col);
+
                     // get col index of new var again and rename
                     to_col = table_int->FindColId(tmp_name);
-                    //table_int->RenameSimpleCol(to_col, 0, var_name);
+                    table_int->RenameSimpleCol(to_col, 0, var_name);
+
+                    // reset orig wxgrid order
+                    if (grid) {
+                        for (int i=0; i<grid->GetCols(); i++) {
+                            grid->SetColPos(i, wx_col_order[i]);
+                        }
+                    }
                 } catch(GdaLocalSeparatorException& e) {
                     return;
                 } catch(GdaException& e) {
