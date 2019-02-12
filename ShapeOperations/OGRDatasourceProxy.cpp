@@ -64,10 +64,12 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
                 "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         } else if (GdaConst::gda_ogr_csv_header == 1) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
+                "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         } else {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES", "EMPTY_STRING_AS_NULL=YES"};
+            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
+                "EMPTY_STRING_AS_NULL=YES"};
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         }
     } else if(ds_type == GdaConst::ds_shapefile) {
@@ -370,9 +372,6 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
                                      (char**)papszLCO);
     }
-
-    
-
     
     if( poDstLayer == NULL ) {
         error_message << _("Can't write/create layer \"");
@@ -386,24 +385,19 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     
     // create fields using TableInterface:table
     if ( table != NULL ) {
-        
         std::vector<int> col_id_map; // using orders in wxGrid
         table->FillColIdMap(col_id_map);
-        
         for (int _id=0; _id < table->GetNumberCols(); _id++) {
             int id = col_id_map[_id];
             bool is_time_var = table->IsColTimeVariant(id);
             int time_steps = is_time_var ? table->GetTimeSteps() : 1;
-            
             for ( int t=0; t < time_steps; t++ ) {
-                
                 wxString fname = table->GetColName(id, t);
                 if (fname.empty()) {
                     wxString tmp = _("Can't create layer %s with empty field (%s) name.");
                     error_message << wxString::Format(tmp, layer_name, id);
                     throw GdaException(error_message.mb_str());
                 }
-                
                 OGRFieldType ogr_type;
                 int ogr_fwidth = table->GetColLength(id, t);
                 int ogr_fprecision = table->GetColDecimals(id, t);
@@ -437,7 +431,6 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         }
     }
     OGRLayerProxy* layer =  new OGRLayerProxy(poDstLayer, ds_type, eGType);
-    
     layer_pool[layer_name] = layer;
     return layer;
 }

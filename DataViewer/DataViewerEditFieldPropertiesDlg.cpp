@@ -416,34 +416,24 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	int max_v;
     if (col == COL_T) {
         if (combo_selection >=0) {
-            
             wxString strChoices[6] = {"real", "integer", "string", "date", "time", "datetime"};
             // change field type
             wxString new_type_str = strChoices[combo_selection];
-            
-            if (new_type_str != type_str)
-            {
+            if (new_type_str != type_str) {
                 GdaConst::FieldType new_type = GdaConst::unknown_type;
-                
                 if (new_type_str == "real") {
                     new_type = GdaConst::double_type;
-                    
                 } else if (new_type_str == "integer") {
                     new_type = GdaConst::long64_type;
-                    
                 } else if (new_type_str == "string") {
                     new_type = GdaConst::string_type;
-                    
                 } else if (new_type_str == "date") {
                     new_type = GdaConst::date_type;
-                    
                 } else if (new_type_str == "time") {
                     new_type = GdaConst::time_type;
-                    
                 } else if (new_type_str == "datetime") {
                     new_type = GdaConst::datetime_type;
                 }
-                
                 if (new_type == GdaConst::unknown_type) {
                     wxString m = _("GeoDa can't change the variable type to DATE/TIME. Please select another type.");
                     wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -452,70 +442,53 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     ev.Veto();
                     return;
                 }
-                
                 wxString var_name = field_grid->GetCellValue(row, COL_N);
                 wxString tmp_name = var_name + "_";
-                
                 if (var_name != name) {
                     // ungroup first
                     int grp_col = table_int->FindColId(name);
                     table_int->UngroupCol(grp_col);
                 }
-                
                 try {
-                    
                     int from_col = table_int->FindColId(var_name);
                     int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
-                    from_col = from_col + 1;
+                    // get col index of old var again
+                    from_col = table_int->FindColId(var_name);
                     int num_rows = table_int->GetNumberRows();
-                    
-                    if (new_type == GdaConst::long64_type)
-                    {
+                    if (new_type == GdaConst::long64_type) {
                         // get data from old
                         vector<wxInt64> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
-                        
                         field_grid->SetReadOnly(row, COL_DD, true);
-                        
                     } else if (new_type == GdaConst::date_type ||
                                new_type == GdaConst::time_type ||
                                new_type == GdaConst::datetime_type) {
-                        // get data from old
                         vector<unsigned long long> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
-                        
                         field_grid->SetReadOnly(row, COL_DD, true);
-                        
                     } else if (new_type == GdaConst::double_type) {
-                        // get data from old
                         vector<double> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
-                        
                         field_grid->SetReadOnly(row, COL_DD, false);
-                        
                     } else if (new_type == GdaConst::string_type) {
                         vector<wxString> data(num_rows);
                         table_int->GetColData(from_col, 0, data);
                         table_int->SetColData(to_col, 0, data);
-                        
                         field_grid->SetReadOnly(row, COL_DD, true);
                     }
-                    
                     vector<bool> undefined(num_rows, false);
                     table_int->GetColUndefined(from_col, 0, undefined);
                     table_int->SetColUndefined(to_col, 0, undefined);
-                    
                     // delete old field
-                    table_int->DeleteCol(from_col);
-                    // rename
-                    table_int->RenameSimpleCol(to_col, 0, var_name);
-                    
+                    //table_int->DeleteCol(from_col);
+                    // get col index of new var again and rename
+                    to_col = table_int->FindColId(tmp_name);
+                    //table_int->RenameSimpleCol(to_col, 0, var_name);
                 } catch(GdaLocalSeparatorException& e) {
                     return;
-                    
                 } catch(GdaException& e) {
                     // clean up temporary data
                     int tmp_col = table_int->FindColId(tmp_name);
@@ -528,13 +501,10 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     combo_selection = -1;
                     ev.Veto();
                     return;
-
                 }
             }
-            
         }
         combo_selection = -1;
-        
     } else if (col == COL_N) {
 		if (table_int->DoesNameExist(new_str, case_sensitive) ||
 			!table_int->IsValidDBColName(new_str)) {
@@ -572,23 +542,17 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         
 		if (col_type == GdaConst::date_type ||
             col_type == GdaConst::time_type ||
-            col_type == GdaConst::datetime_type) {
-            
+            col_type == GdaConst::datetime_type)
+        {
 			min_v = GdaConst::min_dbf_date_len;
 			max_v = GdaConst::max_dbf_date_len;
-            
 		} else if (col_type == GdaConst::long64_type) {
-            
 			min_v = GdaConst::min_dbf_long_len;
 			max_v = GdaConst::max_dbf_long_len;
-            
 		} else if (col_type == GdaConst::double_type) {
-            
 			min_v = GdaConst::min_dbf_double_len;
 			max_v = GdaConst::max_dbf_double_len;
-            
 		} else  { // table_int->GetColType(cid) == GdaConst::string_type
-            
 			min_v = GdaConst::min_dbf_string_len;
 			max_v = GdaConst::max_dbf_string_len;
 		}
@@ -603,13 +567,11 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			}
 			// proceed with length change
 			table_int->ColChangeProperties(cid, time, new_val);
-            
 		} else if (col_type == GdaConst::date_type ||
                    col_type == GdaConst::time_type ||
                    col_type == GdaConst::datetime_type) {
 			// should never get here since date_type has no editable fields
 			ev.Veto();
-            
 		} else if (col_type == GdaConst::long64_type) {
 			if (new_val < min_v || max_v < new_val) {
 				wxString msg = wxString::Format(_("The length of an integral numeric field must be at least %d and at most %d. Keeping original value."), min_v, max_v);
@@ -620,7 +582,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			}
 			// proceed with length change
 			table_int->ColChangeProperties(cid, time, new_val);
-            
 		} else {
             // table_int->GetColType(cid) == GdaConst::double_type
 			if (new_val < min_v || max_v < new_val) {
@@ -699,29 +660,40 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 	// if the code execution makes it this far, then a cell value of the
 	// table has been changed.
 	GdaFrame::GetGdaFrame()->UpdateToolbarAndMenus();
-	
+
+    // get col index again
+    cid = table_int->FindColId(name);
+
+    // table_int->HasFixedLengths() means Shapefile etc.
 	if (table_int->GetColType(cid) == GdaConst::double_type &&
 		table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
 		// it is possible that the values for length and decimals are
 		// individually valid, but that the combination of values is not
 		// valid.  If this happens, then change these cells in the table to
 		// red.  Otherwise, format them both as black.
-		long length;
-		field_grid->GetCellValue(row, COL_L).ToLong(&length);
-		long decimals;
-		field_grid->GetCellValue(row, COL_D).ToLong(&decimals);
-		int suggest_len;
-		int suggest_dec;
-		DbfFileUtils::SuggestDoubleParams(length, decimals, &suggest_len, &suggest_dec);
-		if (length != suggest_len || decimals != suggest_dec) {
-			// set length and decimals cell text color to red
-			field_grid->SetCellTextColour(row, COL_L, *wxRED);
-			field_grid->SetCellTextColour(row, COL_D, *wxRED);
-		} else {
-			field_grid->SetCellTextColour(row, COL_L, *wxBLACK);
-			field_grid->SetCellTextColour(row, COL_D, *wxBLACK);
-		}
-	}
+        long length = GdaConst::default_dbf_double_len;
+        long decimals = GdaConst::default_dbf_double_decimals;
+		wxString slen, sdec;
+        slen << length;
+        sdec << decimals;
+        field_grid->SetCellValue(row, COL_L, slen);
+        field_grid->SetCellValue(row, COL_D, sdec);
+        field_grid->SetCellValue(row, COL_DD, "");
+    } else if (table_int->GetColType(cid) == GdaConst::long64_type &&
+               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
+        wxString slen;
+        slen << GdaConst::default_dbf_long_len;
+        field_grid->SetCellValue(row, COL_L, slen);
+        field_grid->SetCellValue(row, COL_D, "");
+        field_grid->SetCellValue(row, COL_DD, "");
+    } else if (table_int->GetColType(cid) == GdaConst::string_type &&
+               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
+        wxString slen, sdec;
+        slen << GdaConst::default_dbf_string_len;
+        field_grid->SetCellValue(row, COL_L, slen);
+        field_grid->SetCellValue(row, COL_D, "");
+        field_grid->SetCellValue(row, COL_DD, "");
+    }
 	UpdateMinMax(row);
 	ev.Skip();
 	
@@ -841,5 +813,4 @@ void DataViewerEditFieldPropertiesDlg::update(FramesManager* o)
 
 void DataViewerEditFieldPropertiesDlg::update(TableState* o)
 {
-	//InitTable();
 }

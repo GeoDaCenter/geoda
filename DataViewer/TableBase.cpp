@@ -493,7 +493,9 @@ void TableBase::update(TableState* o)
 				GetView()->ProcessTableMessage(msg);
 			} else {
 				if (e.pos_at_op == sorting_col) { 
-					sorting_col = -1; sorting_ascending = true; }
+					sorting_col = -1;
+                    sorting_ascending = true;
+                }
 				if (e.pos_at_op < sorting_col) sorting_col--;
 				
 				wxGridTableMessage msg(this, wxGRIDTABLE_NOTIFY_COLS_DELETED,

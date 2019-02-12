@@ -382,26 +382,17 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
     }
     
 	// create new OGRLayerProxy
-    OGRLayerProxy* new_layer_proxy = NULL;
-
     if (is_update) {
         // update layer in datasources, e.g. Sqlite
-        export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
-        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
-                                                 geom_type,
-                                                 ogr_geometries,
-                                                 table,
-                                                 selected_rows,
-                                                 spatial_ref);
+        bool bUpdate = true;
+        export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, bUpdate);
     } else {
         export_ds = new OGRDatasourceProxy(o_ds_format, o_ds_name);
-        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
-                                                 geom_type,
-                                                 ogr_geometries,
-                                                 table,
-                                                 selected_rows,
-                                                 spatial_ref);
     }
+    OGRLayerProxy* new_layer_proxy;
+    new_layer_proxy = export_ds->CreateLayer(o_layer_name, geom_type,
+                                             ogr_geometries, table,
+                                             selected_rows, spatial_ref);
 
     wxLogMessage("start OGRLayerProxy::AddFreatures()");
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,

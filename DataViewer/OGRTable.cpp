@@ -1312,12 +1312,16 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
         g.vars = names;
     }
 	var_order.InsertVarGroup(g, pos);
-	
+
+    // update position on wxGrid
+    wxGrid* grid = GdaFrame::GetProject()->FindTableGrid();
+    int ui_pos = grid->GetColPos(pos);
+
 	SetChangedSinceLastSave(true);
-	
+
 	TableDeltaList_type tdl;
-	TableDeltaEntry tde(name, true, pos);
-	tde.pos_final = pos;
+	TableDeltaEntry tde(name, true, ui_pos);
+	tde.pos_final = ui_pos;
 	tde.decimals = decimals < 0 ? GdaConst::default_dbf_double_decimals : decimals;
     // to keep screenshot the same, when display decimals is larger
     // (e.g. DBF uses 15 decimals) than default display decimals(6),
@@ -1361,16 +1365,21 @@ bool OGRTable::DeleteCol(int pos)
     }
 		
 	var_order.RemoveVarGroup(pos);
-	
-	TableDeltaList_type tdl;
-	TableDeltaEntry tde(col_name, false, pos);
-	tde.change_to_db = true;
-	tdl.push_back(tde);
-	table_state->SetColsDeltaEvtTyp(tdl);
-	table_state->notifyObservers();
-    
-	SetChangedSinceLastSave(true);
-    
+
+    // get position on wxGrid
+    // update position on wxGrid
+    wxGrid* grid = GdaFrame::GetProject()->FindTableGrid();
+    int ui_pos = grid->GetColPos(pos);
+
+    TableDeltaList_type tdl;
+    TableDeltaEntry tde(col_name, false, 5);
+    tde.change_to_db = true;
+    tdl.push_back(tde);
+    table_state->SetColsDeltaEvtTyp(tdl);
+    table_state->notifyObservers();
+
+    SetChangedSinceLastSave(true);
+
 	return true;
 }
 

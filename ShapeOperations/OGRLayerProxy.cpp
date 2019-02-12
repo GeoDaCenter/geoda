@@ -748,9 +748,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
-        if (stop_exporting) {
-            return;
-        }
+        if (stop_exporting) return;
         OGRFeature *poFeature = OGRFeature::CreateFeature(featureDefn);
         if ( !geometries.empty()) {
             poFeature->SetGeometryDirectly( geometries[i] );
@@ -758,17 +756,22 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         data.push_back(poFeature);
     }
     
-    int export_size = data.size()==0 ? table->GetNumberRows() : data.size();
+    int export_size = data.size();
     export_progress = export_size / 4;
-    
+
     // Fill the feature with content
     if (table != NULL) {
+        if (export_size == 0) export_size = table->GetNumberRows();
+        export_progress = export_size / 4;
+        // using orders in wxGrid
+        std::vector<int> col_id_map;
+        table->FillColIdMap(col_id_map);
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
             wxString fname = fields[j]->GetName();
-            GdaConst::FieldType ftype = fields[j]->GetType();           
+            GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
-            int col_pos = j;
+            int col_pos = col_id_map[j];
             vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
                 vector<wxInt64> col_data;
@@ -783,12 +786,10 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     } else {
                         data[k]->SetField(j, (GIntBig)(col_data[orig_id]));
                     }
-                    if (stop_exporting)
-                        return;
+                    if (stop_exporting) return;
                 }
                 
             } else if (ftype == GdaConst::double_type) {
-                
                 vector<double> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
@@ -801,10 +802,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     } else {
                         data[k]->SetField(j, col_data[orig_id]);
                     }
-                    if (stop_exporting)
-                        return;
+                    if (stop_exporting) return;
                 }
-                
             } else if (ftype == GdaConst::date_type ||
                        ftype == GdaConst::time_type ||
                        ftype == GdaConst::datetime_type ) {
@@ -831,7 +830,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     }
                     if (stop_exporting) return;
                 }
-                
             } else if (ftype == GdaConst::placeholder_type) {
                 // KML case: there are by default two fields:
                 // [Name, Description], so if placeholder that
@@ -850,7 +848,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                             col_data[m] = " ";
                     }
                 }
-                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
                     
@@ -874,11 +871,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
    
     int n_data = data.size();
     for (int i=0; i<n_data; i++) {
-        if (stop_exporting)
-            return;
-        if ((i+1)%2==0) {
-            export_progress++;
-        }
+        if (stop_exporting) return;
+        if ( (i+1)%2 ==0 ) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
             wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n", i + 1, n_data);
             error_message << msg << CPLGetLastErrorMsg();
