@@ -57,15 +57,22 @@ void HistIntervalDlg::CreateControls()
     wxXmlResource::Get()->LoadDialog(this, GetParent(), "IDD_INTERVALS");
 	m_intervals = wxDynamicCast(FindWindow(XRCID("IDC_EDIT_INTERVAL")),
 								wxTextCtrl);
-
-    m_intervals->Connect(wxEVT_COMMAND_TEXT_ENTER, wxCommandEventHandler(HistIntervalDlg::OnOkClick),NULL, this);
     m_intervals->SetValidator( wxTextValidator(wxFILTER_NUMERIC, &s_int) );
+    m_intervals->Bind(wxEVT_KEY_UP, &HistIntervalDlg::OnKeyUp, this);
+}
+
+void HistIntervalDlg::OnKeyUp( wxEvent& event )
+{
+    if (((wxKeyEvent&)event).GetKeyCode() == WXK_RETURN) {
+        wxCommandEvent ev;
+        OnOkClick(ev);
+    }
 }
 
 void HistIntervalDlg::OnOkClick( wxCommandEvent& event )
 {
 	if (!m_intervals->GetValue().IsNumber()) {
-		wxMessageBox("Please enter a valid positive integer");
+		wxMessageBox(_("Please enter a valid positive integer"));
 		return;
 	}
 	long val;

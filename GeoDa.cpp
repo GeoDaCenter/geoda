@@ -1458,36 +1458,28 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
     
 	wxString proj_fname = project_p->GetProjectFullPath();
 	bool is_new_project = (proj_fname.empty() || !wxFileExists(proj_fname));
-	
-    wxString msg = _("A project file contains extra information not directly stored in the data source such as variable order and grouping.");
-    wxMessageDialog proj_create_dlg(this, msg, _("Create Project File Now?"),
-                                    wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
-    if (proj_create_dlg.ShowModal() != wxID_YES)
-        return;
-    wxString wildcard = _("GeoDa Project (*.gda)|*.gda");
-    wxFileDialog dlg(this, _("New Project Filename"), "", "", wildcard, wxFD_SAVE);
-    
-    if (dlg.ShowModal() != wxID_OK)
-        return;
-    
-    try {
-        project_p->SpecifyProjectConfFile(dlg.GetPath());
-    } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+
+    if (is_new_project) {
+        wxString msg = _("A project file contains extra information not directly stored in the data source such as variable order and grouping.");
+        wxMessageDialog proj_create_dlg(this, msg, _("Create Project File Now?"),
+                                        wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
+        if (proj_create_dlg.ShowModal() != wxID_YES) return;
+        wxString wildcard = _("GeoDa Project (*.gda)|*.gda");
+        wxFileDialog dlg(this, _("New Project Filename"), "", "",
+                         wildcard, wxFD_SAVE);
+        if (dlg.ShowModal() != wxID_OK) return;
+        try {
+            proj_fname = dlg.GetPath();
+            project_p->SpecifyProjectConfFile(proj_fname);
+        } catch (GdaException& e) {
+            wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
     }
-	
 	try {
         project_p->SaveProjectConf();
-		
         wxString msg = _("Saved successfully.");
-        if (project_p->IsTableOnlyProject() &&
-            !project_p->main_data.records.empty() )
-        {
-            // case: users create geometries in a table-only project
-            msg << _("\n\nWarning: Geometries will not be saved. Please use \"File->Save As\" to save geometries and related data.");
-        }
         wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
 	} catch (GdaException& e) {

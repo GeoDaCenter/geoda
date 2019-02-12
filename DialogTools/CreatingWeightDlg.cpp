@@ -1364,8 +1364,9 @@ void CreatingWeightDlg::CreateWeights()
     if (!CheckID(id)) {
         return;
     }
-    
-    if (m_nb_distance_variables->GetSelection() == 1) {
+
+    if (m_nb_weights_type->GetSelection() == 1 &&
+        m_nb_distance_variables->GetSelection() == 1) {
         if (CheckTableVariableInput() == false) {
             return;
         }
@@ -1407,7 +1408,8 @@ void CreatingWeightDlg::CreateWeights()
     wxLogMessage(outputfile);
     
     // 1/2 case social weights:
-    if (m_nb_distance_variables->GetSelection() == 1) {
+    if (m_nb_weights_type->GetSelection() == 1 &&
+        m_nb_distance_variables->GetSelection() == 1) {
         CreateWeightsFromTable(id, outputfile, wmi);
         return;
     }

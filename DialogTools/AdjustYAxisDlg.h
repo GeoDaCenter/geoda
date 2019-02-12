@@ -70,7 +70,8 @@ public:
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
-    
+    void OnKeyUp( wxEvent& event );
+
     wxSpinCtrl* m_precision_spin;
     
     int precision;

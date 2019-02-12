@@ -77,7 +77,6 @@ custom_classif_state(0), is_custom_category(false)
 	using namespace Shapefile;
     
     axis_display_precision = 1;
-    
 	table_int = project->GetTableInt();
   
     // Histogram has only one variable, so size of col_ids = 1
@@ -135,7 +134,8 @@ custom_classif_state(0), is_custom_category(false)
                 data_sorted[t][i].second = i;
             }
             // sort data_sorted by value
-            std::sort(data_sorted[t].begin(),data_sorted[t].end(),Gda::dbl_int_pair_cmp_less);
+            std::sort(data_sorted[t].begin(), data_sorted[t].end(),
+                      Gda::dbl_int_pair_cmp_less);
             
             data_stats[t].CalculateFromSample(data_sorted[t], sel_undefs);
             hinge_stats[t].CalculateHingeStats(data_sorted[t], sel_undefs);
@@ -237,7 +237,8 @@ void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	
 }
 
-int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu, CatClassifManager* ccm)
+int HistogramCanvas::AddClassificationOptionsToMenu(wxMenu* menu,
+                                                    CatClassifManager* ccm)
 {
     if (!IS_VAR_STRING.empty()) {
         if(IS_VAR_STRING[0])
@@ -320,8 +321,10 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
    
     int t = var_info[0].time;
     
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"), !IS_VAR_STRING[t]);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"), !IS_VAR_STRING[t]);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_DISPLAY_STATISTICS"),
+                                   !IS_VAR_STRING[t]);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HISTOGRAM_INTERVALS"),
+                                   !IS_VAR_STRING[t]);
     
 	
 	if (var_info[0].is_time_variant) {
