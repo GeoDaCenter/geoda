@@ -240,6 +240,13 @@ Project::~Project()
 	wxLogMessage("Exiting Project::~Project");
 }
 
+int Project::GetNumFields()
+{
+	int n_fields = 0;
+	if (layer_proxy) n_fields = layer_proxy->GetNumFields();
+	return n_fields;
+}
+
 int Project::GetNumRecordsNoneEmpty()
 {
     return num_records - MapCanvas::GetEmptyNumber();

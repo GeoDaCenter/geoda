@@ -453,9 +453,10 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                 try {
                     // preseve wxgrid order
                     wxArrayInt wx_col_order;
-                    wxGrid* grid = GdaFrame::GetProject()->FindTableGrid();
+                    wxGrid* grid = project->FindTableGrid();
+					int n_cols = project->GetNumFields();
                     if (grid) {
-                        for (int i=0; i<grid->GetCols(); i++) {
+                        for (int i=0; i<n_cols; i++) {
                             wx_col_order.push_back(grid->GetColPos(i));
                         }
                     }
@@ -506,7 +507,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 
                     // reset orig wxgrid order
                     if (grid) {
-                        for (int i=0; i<grid->GetCols(); i++) {
+                        for (int i=0; i<n_cols; i++) {
                             grid->SetColPos(i, wx_col_order[i]);
                         }
                     }

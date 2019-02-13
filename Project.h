@@ -124,6 +124,7 @@ public:
 
     int                 GetNumRecordsNoneEmpty();
 	int                 GetNumRecords() { return num_records; }
+	int                 GetNumFields();
 	HighlightState*     GetHighlightState() { return highlight_state; }
 	HighlightState*     GetConMapHlightState() { return con_map_hl_state; }
 	CovSpHLStateProxy*  GetPairsHLState();
