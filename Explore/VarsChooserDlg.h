@@ -44,14 +44,14 @@ class VarsChooserFrame : public wxFrame, public VarsChooserObservable
 {
 public:
 	VarsChooserFrame(GdaVarTools::Manager& var_man,
-									 Project* project,
-									 bool allow_duplicates = false,
-									 bool specify_times = false,
-									 const wxString& help_html = wxEmptyString,
-									 const wxString& help_title = wxEmptyString,
-									 const wxString& title = "Variables Add/Remove",
-									 const wxPoint& pos = wxDefaultPosition,
-									 const wxSize& size = wxSize(-1, 170));
+                     Project* project,
+                     bool allow_duplicates = false,
+                     bool specify_times = false,
+                     const wxString& help_html = wxEmptyString,
+                     const wxString& help_title = wxEmptyString,
+                     const wxString& title = "Variables Add/Remove",
+                     const wxPoint& pos = wxDefaultPosition,
+                     const wxSize& size = wxSize(-1, 170));
 	virtual ~VarsChooserFrame();
 	
 	void OnVarsListDClick(wxCommandEvent& ev);

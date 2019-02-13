@@ -44,6 +44,8 @@ class ConnectivityMapCanvas;
 class TableInterface;
 class WeightsManState;
 class WeightsManInterface;
+class GeoDaWeight;
+class GalWeight;
 
 class WeightsManFrame : public TemplateFrame, public WeightsManStateObserver
 {
@@ -66,6 +68,8 @@ public:
     void OnHistogramBtn(wxCommandEvent& ev);
     void OnConnectMapBtn(wxCommandEvent& ev);
     void OnConnectGraphBtn(wxCommandEvent& ev);
+    void OnIntersectionBtn(wxCommandEvent& ev);
+    void OnUnionBtn(wxCommandEvent& ev);
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -89,7 +93,10 @@ protected:
 	boost::uuids::uuid GetHighlightId();
     wxString GetMapTitle(wxString title, boost::uuids::uuid id);
 	void UpdateButtons();
-	
+
+    bool GetSelectWeights(std::vector<GeoDaWeight*>& ws);
+    void SaveGalWeightsFile(GalWeight* new_w);
+
 	ConnectivityHistCanvas* conn_hist_canvas;
 	ConnectivityMapCanvas* conn_map_canvas;
 
@@ -102,6 +109,8 @@ protected:
 	wxButton* load_btn; // ID_LOAD_BTN
 	wxButton* remove_btn; // ID_REMOVE_BTN
 	wxListCtrl* w_list;	// ID_W_LIST
+    wxButton* intersection_btn;
+    wxButton* union_btn;
 	static const long TITLE_COL = 0;
 	wxWebView* details_win;
     

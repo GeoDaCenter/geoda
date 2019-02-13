@@ -20,6 +20,8 @@
 #include <set>
 #include <boost/foreach.hpp>
 #include <boost/property_tree/ptree.hpp>
+#include <wx/tokenzr.h>
+
 #include "../ShapeOperations/GeodaWeight.h"
 #include "../ShapeOperations/WeightsManager.h"
 #include "../GdaException.h"
@@ -205,6 +207,16 @@ void WeightsManPtree::ReadPtree(const boost::property_tree::ptree& pt,
 								wxString s = v.second.data();
 								e.wmi.dist_var2 = s;
 								e.wmi.dist_values = WeightsMetaInfo::DV_vars;
+                            } else if (key == "dist_multivars") {
+                                wxString s = v.second.data();
+                                std::vector<wxString> multi_vars;
+                                wxStringTokenizer tokenizer(s, ",");
+                                while (tokenizer.HasMoreTokens() ) {
+                                    wxString token = tokenizer.GetNextToken();
+                                    multi_vars.push_back(token);
+                                }
+                                e.wmi.dist_multivars = multi_vars;
+                                e.wmi.dist_values = WeightsMetaInfo::DV_multivars;
 							} else if (key == "dist_tm1") {
 								long l;
 								wxString(v.second.data()).ToLong(&l);
@@ -375,7 +387,17 @@ void WeightsManPtree::WritePtree(boost::property_tree::ptree& pt,
 							sssub.put("dist_tm2", e.wmi.dist_tm2);
 						}
 					}
-				}
+                } else if (e.wmi.dist_values == WeightsMetaInfo::DV_multivars) {
+                    sssub.put("dist_values", "vars");
+                    if (!e.wmi.dist_multivars.empty()) {
+                        wxString s;
+                        for (size_t i=0; i<e.wmi.dist_multivars.size(); ++i) {
+                            s << e.wmi.dist_multivars[i];
+                            if (i < e.wmi.dist_multivars.size()-1) s << ",";
+                        }
+                        sssub.put("dist_multivars", s);
+                    }
+                }
 				
 				if (e.wmi.weights_type == WeightsMetaInfo::WT_knn) {
 					sssub.put("num_neighbors", e.wmi.num_neighbors);

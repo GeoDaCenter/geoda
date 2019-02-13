@@ -39,12 +39,13 @@ public:
 	int GetNumTms() const;
 	const std::vector<wxString>& GetTimeIdsRef() const;
 	const VarGroup_container& GetVarGroupsRef() const;
-	int GetColId(const wxString& name) const;
-    int GetColIdx(const wxString& name) const;
-	VarGroup FindVarGroup(const wxString& name) const;
+	int GetColId(const wxString& name, bool case_sensitive) const;
+    int GetColIdx(const wxString& name, bool case_sensitive) const;
 	VarGroup FindVarGroup(int i) const;
-	bool SimpleColNameToColAndTm(const wxString& name, int& col, int& tm);
-	VarGroup_container::iterator FindVarGroupIt(const wxString& name);
+	bool SimpleColNameToColAndTm(const wxString& name, int& col, int& tm,
+                                 bool case_sensitive);
+	VarGroup_container::iterator FindVarGroupIt(const wxString& name,
+                                                bool case_sensitive);
 	VarGroup_container::iterator FindVarGroupIt(int i);
 	wxString GetSimpleColName(int col, int time=0) const;
 	wxString GetGroupName(int col) const;
@@ -56,10 +57,12 @@ public:
 	void RemoveVarGroup(int pos);
 	void Group(const std::vector<int>& col_ids,
 			   const wxString& grp_name, int grp_pos,
-			   TableDeltaList_type& tdl);
-	void Ungroup(int grp_pos, TableDeltaList_type& tdl);
+			   TableDeltaList_type& tdl,
+               bool case_sensitive);
+	void Ungroup(int grp_pos, TableDeltaList_type& tdl,
+                 bool case_sensitive);
 	void SwapTimes(int time1, int time2);
-	void RemoveTime(int time, TableDeltaList_type& tdl);
+	void RemoveTime(int time, TableDeltaList_type& tdl, bool case_sensitive);
 	void InsertTime(int time, const wxString& new_time_id);
 	void RenameTime(int time, const wxString& new_time_id);
 	

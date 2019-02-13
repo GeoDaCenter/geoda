@@ -18,7 +18,7 @@
  */
 #include <math.h>
 #include <wx/wx.h>
-
+#include <fstream>
 #include <boost/foreach.hpp>
 #include <boost/random.hpp>
 #include <boost/random/uniform_01.hpp>

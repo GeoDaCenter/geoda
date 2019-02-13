@@ -183,34 +183,42 @@ const VarGroup_container& VarOrderPtree::GetVarGroupsRef() const
 }
 
 bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
-									  GdaConst::FieldType>& ds_var_type_map,
-									  const std::vector<wxString>& ds_var_list)
+                                     GdaConst::FieldType>& ds_var_type_map,
+                                     const std::vector<wxString>& ds_var_list,
+                                     bool case_sensitive)
 {
 	using namespace std;
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
 	bool changed = false;
+
 	set<wxString> ds_var_set;
-	BOOST_FOREACH(const wxString &v, ds_var_list) { ds_var_set.insert(v.Lower()); }
+	BOOST_FOREACH(const wxString &v, ds_var_list) {
+        if (case_sensitive) ds_var_set.insert(v);
+        else ds_var_set.insert(v.Lower());
+    }
 	
 	set<wxString> var_set;
 	set<wxString> group_nm_set;
 	BOOST_FOREACH(const VarGroup& e, var_grps) {
 		if (e.vars.size() == 0) {
-			var_set.insert(e.name.Lower());
+			if (case_sensitive) var_set.insert(e.name);
+            else var_set.insert(e.name.Lower());
 		} else {
-			group_nm_set.insert(e.name);
+			if (case_sensitive)  group_nm_set.insert(e.name);
+            else group_nm_set.insert(e.name.Lower());
 			BOOST_FOREACH(const wxString& v, e.vars) {
-				if (!v.empty()) var_set.insert(v.Lower());
+                if (!v.empty()) {
+                    if (case_sensitive) var_set.insert(v);
+                    else var_set.insert(v.Lower());
+                }
 			}
 		}
 	}
 	
 	// Remove all items in var_set not in ds_var_set
 	BOOST_FOREACH(const wxString& v, var_set) {
-		if (ds_var_set.find(v) == ds_var_set.end() &&
-            ds_var_set.find(v.Upper()) == ds_var_set.end() &&
-            ds_var_set.find(v.Lower()) == ds_var_set.end()) {
-			RemoveFromVarGroups(v);
+        if (ds_var_set.find(v) == ds_var_set.end()) {
+			RemoveFromVarGroups(v, case_sensitive);
 			changed = true;
 		}
 	}
@@ -219,8 +227,7 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 	// compatible, ungroup and append to end.
 	list<wxString> ungroup;
 	for (VarGroup_container::iterator i=var_grps.begin(); i!=var_grps.end();) {
-		if (!IsTypeCompatible(i->vars, ds_var_type_map))
-		{
+		if (!IsTypeCompatible(i->vars, ds_var_type_map)) {
 			BOOST_FOREACH(const wxString& v, i->vars) {
 				ungroup.push_back(v);
 			}
@@ -249,9 +256,7 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 	
 	// Append all items in ds_var_list not in var_set
 	BOOST_FOREACH(const wxString& v, ds_var_list) {
-		if (var_set.find(v) == var_set.end() &&
-            var_set.find(v.Upper()) == var_set.end() &&
-            var_set.find(v.Lower()) == var_set.end() ) {
+		if (var_set.find(v) == var_set.end()) {
 			VarGroup ent;
 			ent.name = v;
 			var_grps.push_back(ent);
@@ -331,19 +336,20 @@ wxString VarOrderPtree::VarOrderToStr() const
 
 
 /// Remove var from var_grps if found.  Replace with placeholder
-bool VarOrderPtree::RemoveFromVarGroups(const wxString& v)
+bool VarOrderPtree::RemoveFromVarGroups(const wxString& v,
+                                        bool case_sensitive)
 {
 	if (v == "") return false;
 	
 	for (VarGroup_container::iterator i=var_grps.begin();
 		 i!=var_grps.end(); ++i) {
-		if (i->name.CmpNoCase(v)==0) {
+		if (i->name.IsSameAs(v)) {
 			var_grps.erase(i);
 			return true;
 		}
 		for (std::vector<wxString>::iterator ii = i->vars.begin();
 			 ii != i->vars.end(); ++ii) {
-			if (*ii == v) {
+			if ((*ii).IsSameAs(v)) {
 				i->vars.erase(ii);
 				return true;
 			}

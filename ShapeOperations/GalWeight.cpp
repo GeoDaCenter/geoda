@@ -320,6 +320,16 @@ void GalWeight::GetNbrStats()
     }
 }
 
+bool GalWeight::CheckNeighbor(int obs_idx, int nbr_idx)
+{
+    return gal[obs_idx].Check(nbr_idx);
+}
+
+const std::vector<long> GalWeight::GetNeighbors(int obs_idx)
+{
+    return gal[obs_idx].GetNbrs();
+}
+
 bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
                                std::vector<wxInt64>& newids,
                                std::vector<wxInt64>& stack_ids,
@@ -374,7 +384,9 @@ bool GalWeight::SaveDIDWeights(Project* project, int num_obs,
     return true;
 }
 
-bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname, WeightsManInterface* wmi, TableInterface* table_int)
+bool GalWeight::SaveSpaceTimeWeights(const wxString& ofname,
+                                     WeightsManInterface* wmi,
+                                     TableInterface* table_int)
 {
     using namespace std;
     

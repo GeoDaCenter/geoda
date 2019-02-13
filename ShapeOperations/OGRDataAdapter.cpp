@@ -324,18 +324,13 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
     // field identifier: a pair value <column pos, time step> to indicate how to
     // retreive real field name and cell value for time-enabled table
     typedef pair<int, int> field_idn;
-    
     vector<field_idn> field_idn_s;
     vector<wxString> field_name_s;
-    
-    
     // check field names first
     if ( table != NULL ) {
         // get all field names for FieldNameCorrectionDlg
-        
         vector<wxString> all_fnames;
         int time_steps = table->GetTimeSteps();
-        
         for ( int id=0; id < table->GetNumberCols(); id++ ) {
             if (table->IsColTimeVariant(id)) {
                 for ( int t=0; t < time_steps; t++ ) {
@@ -343,7 +338,8 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
                     if (fname.IsEmpty()) {
                         wxString msg;
                         msg << "Field name is empty at position: " << id << " and time " << t;
-                        throw GdaException(msg.mb_str(), GdaException::FIELD_NAME_EMPTY);
+                        throw GdaException(msg.mb_str(),
+                                           GdaException::FIELD_NAME_EMPTY);
                     }
                     all_fnames.push_back(fname);
                     field_idn_s.push_back(make_pair(id, t));
@@ -354,7 +350,8 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
                 if (fname.IsEmpty()) {
                     wxString msg;
                     msg << "Field name is empty at position: " << id ;
-                    throw GdaException(msg.mb_str(), GdaException::FIELD_NAME_EMPTY);
+                    throw GdaException(msg.mb_str(),
+                                       GdaException::FIELD_NAME_EMPTY);
                 }
                 all_fnames.push_back(fname);
                 field_idn_s.push_back(make_pair(id, 0));
@@ -363,18 +360,17 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
         }
         
         // try to correct
+        bool case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
         FieldNameCorrectionDlg fname_correct_dlg(ds_type, all_fnames);
         if ( fname_correct_dlg.NeedCorrection()) {
             if (fname_correct_dlg.ShowModal() != wxID_OK) {
                 // cancel at Field Name Correction
                 return NULL;
             }
-            
             vector<wxString> new_field_name_s = fname_correct_dlg.GetNewFieldNames();
             
             for (size_t i=0; i<new_field_name_s.size(); i++) {
                 wxString new_fname = new_field_name_s[i];
-                
                 if (new_fname == field_name_s[i]) {
                     // don't have to change field name
                     continue;
@@ -386,26 +382,17 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
     }
     
 	// create new OGRLayerProxy
-    OGRLayerProxy* new_layer_proxy = NULL;
-
     if (is_update) {
         // update layer in datasources, e.g. Sqlite
-        export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, true);
-        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
-                                                 geom_type,
-                                                 ogr_geometries,
-                                                 table,
-                                                 selected_rows,
-                                                 spatial_ref);
+        bool bUpdate = true;
+        export_ds = new OGRDatasourceProxy(o_ds_name, ds_type, bUpdate);
     } else {
         export_ds = new OGRDatasourceProxy(o_ds_format, o_ds_name);
-        new_layer_proxy = export_ds->CreateLayer(o_layer_name,
-                                                 geom_type,
-                                                 ogr_geometries,
-                                                 table,
-                                                 selected_rows,
-                                                 spatial_ref);
     }
+    OGRLayerProxy* new_layer_proxy;
+    new_layer_proxy = export_ds->CreateLayer(o_layer_name, geom_type,
+                                             ogr_geometries, table,
+                                             selected_rows, spatial_ref);
 
     wxLogMessage("start OGRLayerProxy::AddFreatures()");
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,

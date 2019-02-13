@@ -20,8 +20,11 @@
 #ifndef __GEODA_CENTER_WEIGHT_UTILS_H__
 #define __GEODA_CENTER_WEIGHT_UTILS_H__
 
+#include <vector>
+
 #include "../VarCalc/WeightsMetaInfo.h"
 
+class GeoDaWeight;
 class TableInterface;
 class GalWeight;
 class GwtWeight;
@@ -31,15 +34,26 @@ class WeightsManInterface;
 
 namespace WeightUtils {
 	wxString ReadIdField(const wxString& w_fname);
+
 	GalElement* ReadGal(const wxString& w_fname, TableInterface* table_int);
 	
-	GalElement* ReadGwtAsGal(const wxString& w_fname,
-							 TableInterface* table_int);
+	GalElement* ReadGwtAsGal(const wxString& w_fname, TableInterface* table_int);
+
 	GwtElement* ReadGwt(const wxString& w_fname, TableInterface* table_int);
+
 	GalElement* Gwt2Gal(GwtElement* Gwt, long obs);
+
     void LoadGwtInMan(WeightsManInterface* w_man_int, wxString filepath,
                       TableInterface* table_int, wxString id_field,
                       WeightsMetaInfo::WeightTypeEnum type);
+
+    void LoadGalInMan(WeightsManInterface* w_man_int, wxString filepath,
+                      TableInterface* table_int, wxString id_field,
+                      WeightsMetaInfo::WeightTypeEnum type);
+
+    GalWeight* WeightsIntersection(std::vector<GeoDaWeight*> ws);
+
+    GalWeight* WeightsUnion(std::vector<GeoDaWeight*> ws);
 }
 
 #endif

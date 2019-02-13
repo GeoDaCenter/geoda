@@ -25,11 +25,20 @@ msgstr "Crear"
 msgid "&Explore"
 msgstr "Explorar"
 
+msgid "E&xplore"
+msgstr "Explorar"
+
+msgid "T&able"
+msgstr "Tabla"
+
 msgid "&New"
 msgstr "Nuevo"
 
 msgid "&Help"
-msgstr "Ayud"
+msgstr "Ayuda"
+
+msgid "Spatial Join"
+msgstr "Unión Espacial"
 
 msgid "&Run"
 msgstr "&Ejecutar"
@@ -581,9 +590,6 @@ msgstr "Alisado LOWESS"
 
 msgid "Diagonal weights = 1"
 msgstr "pesos Diagonal = 1"
-
-msgid "Geocode"
-msgstr "Geocodificar"
 
 msgid "Select key:"
 msgstr "Seleccionar clave"
@@ -3417,9 +3423,6 @@ msgstr "Cuarta Variable"
 msgid "Can't write output file!"
 msgstr "¡Imposible escribir fichero de resultados!"
 
-msgid "Geocode Setting Dialog"
-msgstr "Cuadro Diálogo de Geocodificación"
-
 msgid "Use Power Iteration:"
 msgstr "Utilizar Interación de Potencia:"
 
@@ -3657,9 +3660,6 @@ msgstr "¡No se han encontrado campos!"
 msgid "Rename Space-Time Variable"
 msgstr "Renombrar Variable Espacio-Temporal"
 
-msgid "Successful Geocode. Please check results in Table."
-msgstr "Geocodificación realizada. Comprobar resultados en Tabla."
-
 msgid "Independent Var (x-axis)"
 msgstr "Var. Independiente (eje-x)"
 
@@ -3878,9 +3878,6 @@ msgstr "El nº de clústers identificados es menor que "
 
 msgid "Add Map Layer"
 msgstr "Add Map Layer"
-
-msgid "Edit Map Layer"
-msgstr "Edit Map Layer"
 
 msgid "Map Layer Setting"
 msgstr "Map Layer Setting"

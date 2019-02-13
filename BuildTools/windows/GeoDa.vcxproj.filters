@@ -653,14 +653,8 @@
     <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h">
       <Filter>DialogTools</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Algorithms\geocoding.h">
-      <Filter>Algorithms</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\Algorithms\redcap.h">
       <Filter>Algorithms</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\DialogTools\GeocodingDlg.h">
-      <Filter>DialogTools</Filter>
     </ClInclude>
     <ClInclude Include="..\..\DialogTools\MDSDlg.h">
       <Filter>DialogTools</Filter>
@@ -852,6 +846,9 @@
     </ClInclude>
     <ClInclude Include="..\..\kNN\ANN\ANNx.h">
       <Filter>kNN\ANN</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h">
+      <Filter>DialogTools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1361,14 +1358,8 @@
     <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp">
       <Filter>DialogTools</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Algorithms\geocoding.cpp">
-      <Filter>Algorithms</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\Algorithms\redcap.cpp">
       <Filter>Algorithms</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\DialogTools\GeocodingDlg.cpp">
-      <Filter>DialogTools</Filter>
     </ClCompile>
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp">
       <Filter>DialogTools</Filter>
@@ -1544,6 +1535,9 @@
     </ClCompile>
     <ClCompile Include="..\..\Weights\DistUtils.cpp">
       <Filter>Weights</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

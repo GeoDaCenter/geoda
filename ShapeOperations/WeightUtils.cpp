@@ -24,9 +24,11 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <boost/unordered_map.hpp>
 #include <wx/msgdlg.h>
 #include "GalWeight.h"
 #include "GwtWeight.h"
+#include "GeodaWeight.h"
 #include "../DataViewer/TableInterface.h"
 #include "../GdaConst.h"
 #include "../GenUtils.h"
@@ -878,7 +880,7 @@ void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int,
     w->gal = tempGal;
     w->id_field = id_field;
     w->is_symmetric = true;
-    
+
     w->GetNbrStats();
     wmi.num_obs = w->GetNumObs();
     wmi.id_var = id_field;
@@ -903,4 +905,131 @@ void WeightUtils::LoadGwtInMan(WeightsManInterface* w_man_int,
     }
 }
 
+void WeightUtils::LoadGalInMan(WeightsManInterface* w_man_int,
+                               wxString filepath,
+                               TableInterface* table_int,
+                               wxString id_field,
+                               WeightsMetaInfo::WeightTypeEnum type)
+{
+    int rows = table_int->GetNumberRows();
 
+    WeightsMetaInfo wmi;
+
+    GalElement* tempGal = WeightUtils::ReadGal(filepath, table_int);
+    if (tempGal == NULL) {
+        return;
+    }
+
+    GalWeight* w = new GalWeight();
+    w->num_obs = rows;
+    w->wflnm = filepath;
+    w->gal = tempGal;
+    w->id_field = id_field;
+    w->is_symmetric = true;
+
+    w->GetNbrStats();
+    wmi.num_obs = w->GetNumObs();
+    wmi.id_var = id_field;
+    wmi.SetSymmetric(w->is_symmetric);
+    wmi.SetMinNumNbrs(w->GetMinNumNbrs());
+    wmi.SetMaxNumNbrs(w->GetMaxNumNbrs());
+    wmi.SetMeanNumNbrs(w->GetMeanNumNbrs());
+    wmi.SetMedianNumNbrs(w->GetMedianNumNbrs());
+    wmi.SetSparsity(w->GetSparsity());
+    wmi.SetDensity(w->GetDensity());
+    wmi.SetWeightsType(type);
+
+    WeightsMetaInfo e(wmi);
+    e.filename = filepath;
+
+    boost::uuids::uuid uid = w_man_int->RequestWeights(e);
+    if (uid.is_nil()) {
+        bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, w);
+        if (success) {
+            w_man_int->MakeDefault(uid);
+        }
+    }
+}
+
+GalWeight* WeightUtils::WeightsIntersection(std::vector<GeoDaWeight*> ws)
+{
+    // Get the intersection from an array of weights
+    int num_obs = ws[0]->GetNumObs();
+    wxString id_field = ws[0]->GetIDName();
+    GalElement* gal = new GalElement[num_obs];
+    boost::unordered_map<int, int>::iterator it;
+
+    size_t n_w = ws.size();
+    for (size_t i=0; i<num_obs; ++i) {
+        boost::unordered_map<int, int> nbr_dict;
+
+        for (size_t j=0; j<n_w; ++j) {
+            GeoDaWeight* w = ws[j];
+            const std::vector<long>& nbr_ids = w->GetNeighbors(i);
+            for (size_t k=0; k<nbr_ids.size(); ++k) {
+                if (nbr_dict.find(nbr_ids[k])==nbr_dict.end()) {
+                    nbr_dict[ nbr_ids[k] ] = 1;
+                } else {
+                    nbr_dict[ nbr_ids[k] ] += 1;
+                }
+            }
+        }
+        // the intersect observation should be shared by ws.size() weights
+        std::vector<long> nbrs;
+        for (it=nbr_dict.begin(); it !=nbr_dict.end(); ++it) {
+            if (it->second == n_w) {
+                nbrs.push_back(it->first);
+            }
+        }
+        gal[i].SetSizeNbrs(nbrs.size());
+        for (size_t j=0; j<nbrs.size(); ++j) {
+            gal[i].SetNbr(j, nbrs[j]);
+        }
+    }
+
+    GalWeight* new_w = new GalWeight();
+    new_w->num_obs = num_obs;
+    new_w->gal = gal;
+    new_w->is_symmetric = false;
+
+    new_w->id_field = id_field;
+    return new_w;
+}
+
+GalWeight* WeightUtils::WeightsUnion(std::vector<GeoDaWeight*> ws)
+{
+    int num_obs = ws[0]->GetNumObs();
+    wxString id_field = ws[0]->GetIDName();
+    GalElement* gal = new GalElement[num_obs];
+    boost::unordered_map<int, int>::iterator it;
+
+    for (size_t i=0; i<num_obs; ++i) {
+        boost::unordered_map<int, int> nbr_dict;
+
+        for (size_t j=0; j<ws.size(); ++j) {
+            GeoDaWeight* w = ws[j];
+            const std::vector<long>& nbr_ids = w->GetNeighbors(i);
+            for (size_t k=0; k<nbr_ids.size(); ++k) {
+                nbr_dict[ nbr_ids[k] ] = 1;
+            }
+        }
+
+        std::vector<long> nbrs;
+        for (it=nbr_dict.begin(); it !=nbr_dict.end(); ++it) {
+            nbrs.push_back(it->first);
+        }
+        gal[i].SetSizeNbrs(nbrs.size());
+        for (size_t j=0; j<nbrs.size(); ++j) {
+            gal[i].SetNbr(j, nbrs[j]);
+        }
+    }
+
+    GalWeight* new_w = new GalWeight();
+    new_w->num_obs = num_obs;
+    new_w->gal = gal;
+    new_w->is_symmetric = true;
+
+    //new_w->wflnm = filepath;
+    new_w->id_field = id_field;
+    return new_w;
+}

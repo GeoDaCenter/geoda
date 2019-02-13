@@ -446,7 +446,8 @@ wxString OGRColumnInteger::GetValueAt(int row_idx, int disp_decimals,
 }
 
 // Set a cell value from user input wxString (in Table/wxGrid)
-void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value,
+                                  wxCSConv* m_wx_encoding)
 {
     // if is already undefined, and user inputs nothing
     if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
@@ -658,9 +659,12 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
     if (undef_markers[row_idx] == true)
         return wxEmptyString;
     
-    if ( disp_decimals <= 0)
-        disp_decimals = GdaConst::default_dbf_double_decimals;
-    
+    if ( disp_decimals <= 0) {
+        // if has decimals read from datasource, set disp_decimals to decimals
+        if (decimals > 0) disp_decimals = decimals;
+        else disp_decimals = GdaConst::default_dbf_double_decimals;
+    }
+
     double val;
     if (is_new) {
         
@@ -687,7 +691,8 @@ wxString OGRColumnDouble::GetValueAt(int row_idx, int disp_decimals,
 }
 
 // Set a cell value from user input wxString (in Table/wxGrid)
-void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value,
+                                 wxCSConv* m_wx_encoding)
 {
     // if user inputs nothing for a double valued cell, GeoDa treats it as NULL
     if ( value.IsEmpty() ) {
@@ -916,6 +921,7 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
 {
     if (is_new) {
         wxString test_s = new_data[0];
+        test_s.Trim(true).Trim(false);
         vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         if (pattern.IsEmpty()) {
@@ -928,11 +934,13 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
             throw GdaException(error_msg.mb_str());
         }
         for (int i=0; i<rows; ++i) {
+            new_data[i].Trim(true).Trim(false);
             data[i] = Gda::DateToNumber(new_data[i], regex, date_items);
         }
     } else {
         int col_idx = GetColIndex();
         wxString test_s = ogr_layer->data[0]->GetFieldAsString(col_idx);
+        test_s.Trim(true).Trim(false);
         vector<wxString> date_items;
         wxString pattern = Gda::DetectDateFormat(test_s, date_items);
         
@@ -949,6 +957,7 @@ void OGRColumnString::FillData(vector<unsigned long long>& data)
         
         for (int i=0; i<rows; ++i) {
             wxString s = ogr_layer->data[i]->GetFieldAsString(col_idx);
+            s.Trim(true).Trim(false);
             unsigned long long val = Gda::DateToNumber(s, regex, date_items);
             data[i] = val;
         }
@@ -1047,13 +1056,14 @@ wxString OGRColumnString::GetValueAt(int row_idx, int disp_decimals,
         if (m_wx_encoding == NULL)
             rtn = wxString(val);
         else
-            rtn = wxString(val,*m_wx_encoding);
+            rtn = wxString(val, *m_wx_encoding);
         
         return rtn;
     }
 }
 
-void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnString::SetValueAt(int row_idx, const wxString &value,
+                                 wxCSConv* m_wx_encoding)
 {
     // if user inputs nothing for a undefined cell
     if ( undef_markers[row_idx] == true && value.IsEmpty() ) {
@@ -1064,7 +1074,7 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value)
         new_data[row_idx] = value;
     } else {
         int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, value.c_str());
+        ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str(*m_wx_encoding));
     }
     undef_markers[row_idx] = false;
 }
@@ -1300,7 +1310,8 @@ wxString OGRColumnDate::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDate::SetValueAt(int row_idx, const wxString &value,
+                               wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {
@@ -1308,11 +1319,13 @@ void OGRColumnDate::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;
@@ -1375,7 +1388,8 @@ wxString OGRColumnTime::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnTime::SetValueAt(int row_idx, const wxString &value,
+                               wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {
@@ -1383,11 +1397,13 @@ void OGRColumnTime::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;
@@ -1457,7 +1473,8 @@ wxString OGRColumnDateTime::GetValueAt(int row_idx, int disp_decimals,
     return sDateTime;
 }
 
-void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
+void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value,
+                                   wxCSConv* m_wx_encoding)
 {
     int col_idx = GetColIndex();
     if (value.IsEmpty()) {
@@ -1465,11 +1482,13 @@ void OGRColumnDateTime::SetValueAt(int row_idx, const wxString &value)
         ogr_layer->data[row_idx]->UnsetField(col_idx);
         return;
     }
+    wxString _value = value;
+    _value.Trim(true).Trim(false);
     vector<wxString> date_items;
-    wxString pattern = Gda::DetectDateFormat(value, date_items);
+    wxString pattern = Gda::DetectDateFormat(_value, date_items);
     wxRegEx regex;
     regex.Compile(pattern);
-    unsigned long long val = Gda::DateToNumber(value, regex, date_items);
+    unsigned long long val = Gda::DateToNumber(_value, regex, date_items);
     long _l_year =0,  _l_month=0, _l_day=0, _l_hour=0, _l_minute=0, _l_second=0;
     if (is_new) {
         new_data[row_idx] = val;

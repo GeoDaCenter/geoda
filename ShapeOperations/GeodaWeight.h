@@ -44,21 +44,21 @@ public:
     virtual bool SaveSpaceTimeWeights(const wxString& ofname,
                                       WeightsManInterface* wmi,
                                       TableInterface* table_int)=0;
-   
-    virtual void Update(const std::vector<bool>& undefs)=0;
-    
 
-    virtual bool HasIsolates()=0;
-    
-    virtual void GetNbrStats() = 0;
-    
+    virtual bool CheckNeighbor(int obs_idx, int nbr_idx)=0;
+
+    virtual const std::vector<long> GetNeighbors(int obs_idx)=0;
+
+    virtual void   Update(const std::vector<bool>& undefs)=0;
+    virtual bool   HasIsolates()=0;
+    virtual void   GetNbrStats() = 0;
     virtual double GetSparsity();
     virtual double GetDensity();
-    virtual int GetMinNumNbrs();
-    virtual int GetMaxNumNbrs();
+    virtual int    GetMinNumNbrs();
+    virtual int    GetMaxNumNbrs();
     virtual double GetMeanNumNbrs();
     virtual double GetMedianNumNbrs();
-    virtual int GetNumObs();
+    virtual int    GetNumObs();
     
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
@@ -66,22 +66,22 @@ public:
     virtual wxString GetTitle(); // returns portion of wflnm if title empty
    
     virtual wxString GetIDName() { return id_field;}
-  
+
     // Properties
 	enum WeightType { gal_type, gwt_type };
 	WeightType weight_type;
-	wxString wflnm; // filename
-    wxString id_field; 
-	wxString title; // optional title.  Use wflnm if empty
-	bool symmetry_checked; // indicates validity of is_symmetric bool
-	bool is_symmetric; // true iff matrix is symmetric
-	int num_obs;
-    double sparsity;
-    double density;
-    int min_nbrs;
-    int max_nbrs;
-    double mean_nbrs;
-    double median_nbrs;
+	wxString   wflnm; // filename
+    wxString   id_field;
+	wxString   title; // optional title.  Use wflnm if empty
+	bool       symmetry_checked; // indicates validity of is_symmetric bool
+	bool       is_symmetric; // true iff matrix is symmetric
+	int        num_obs;
+    double     sparsity;
+    double     density;
+    int        min_nbrs;
+    int        max_nbrs;
+    double     mean_nbrs;
+    double     median_nbrs;
 };
 
 #endif

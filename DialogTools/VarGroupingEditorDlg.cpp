@@ -482,9 +482,9 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 	wxString grp_nm = new_group_name_txt_ctrl->GetValue();
 	grp_nm.Trim(true);
 	grp_nm.Trim(false);
-	
+    bool case_sensitive = project->IsFieldCaseSensitive();
 	if (!table_int->IsValidGroupName(grp_nm) ||
-		table_int->DoesNameExist(grp_nm, false)) {
+		table_int->DoesNameExist(grp_nm, case_sensitive)) {
 		wxString m;
 		m << "Variable name \"" << grp_nm << "\" is either a duplicate\n";
 		m << "or is invalid. Please enter an alternative,\n";

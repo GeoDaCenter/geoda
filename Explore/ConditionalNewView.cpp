@@ -80,6 +80,8 @@ cc_state_horiz(0),
 all_init(false),
 full_map_redraw_needed(true)
 {
+    wxLogMessage("ConditionalNewCanvas::ConditionalNewCanvas()");
+
     axis_display_precision = 1;
 	
 	template_frame->ClearAllGroupDependencies();
@@ -102,6 +104,7 @@ full_map_redraw_needed(true)
         }
         table_int->GetColUndefined(col_ids[i], data_undef[i]);
 		template_frame->AddGroupDependancy(var_info[i].name);
+        wxLogMessage(var_info[i].name);
 	}
     
     //setup horizontal data

@@ -101,9 +101,9 @@ OGRFieldProxy::~OGRFieldProxy()
 	}*/
 }
 
-void OGRFieldProxy::SetName(const wxString &new_name)
+void OGRFieldProxy::SetName(const wxString &new_name, bool case_sensitive)
 {
-    if ( name.CmpNoCase(new_name)!=0 ) {
+    if ( name.IsSameAs(new_name, case_sensitive) == false ) {
         name = new_name;
         is_field_changed = true;
     }

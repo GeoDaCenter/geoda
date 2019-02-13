@@ -5,8 +5,7 @@
 #include "hdbscan.h"
 
 
-using namespace GeoDaClustering;
-
+using namespace Gda;
 
 bool EdgeLess1(SimpleEdge* a,  SimpleEdge* b)
 {

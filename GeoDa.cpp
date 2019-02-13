@@ -120,12 +120,11 @@
 #include "DialogTools/RedcapDlg.h"
 #include "DialogTools/MDSDlg.h"
 #include "DialogTools/AggregateDlg.h"
-#include "DialogTools/GeocodingDlg.h"
 #include "DialogTools/PCASettingsDlg.h"
 #include "DialogTools/SkaterDlg.h"
 #include "DialogTools/PreferenceDlg.h"
 #include "DialogTools/SpatialJoinDlg.h"
-
+#include "DialogTools/MultiVarSettingsDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"
@@ -167,7 +166,6 @@
 
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
-#include "Algorithms/geocoding.h"
 #include "Algorithms/fastcluster.h"
 
 #include "wxTranslationHelper.h"
@@ -309,17 +307,17 @@ bool GdaApp::OnInit(void)
         OGRDataAdapter::GetInstance().AddEntry("NoCrash", "false");
     }
     
-	int frameWidth = 980;
+	int frameWidth = 1020;
 	int frameHeight = 80;
     
 	if (GeneralWxUtils::isMac()) {
-		frameWidth = 1052;
+		frameWidth = 1092;
 		frameHeight = 80;
 	} else if (GeneralWxUtils::isWindows()) {
-		frameWidth = 1160;
+		frameWidth = 1200;
 		frameHeight = 120;
 	} else if (GeneralWxUtils::isUnix()) {  // assumes GTK
-		frameWidth = 1060;
+		frameWidth = 1100;
  		frameHeight = 120;
 #ifdef __linux__
         wxLinuxDistributionInfo linux_info = wxGetLinuxDistributionInfo();
@@ -528,11 +526,13 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), false);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), false);
 
+    EnableTool(XRCID("ID_TOOLS_MENU"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
-	
+
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -688,6 +688,9 @@ void GdaFrame::UpdateToolbarAndMenus()
             GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
         }
     }
+
+    // Reset encoding
+    if (proj_open == false) SetEncodingCheckmarks(wxFONTENCODING_UTF8);
 }
 
 void GdaFrame::SetMenusToDefault()
@@ -1332,7 +1335,7 @@ void GdaFrame::OpenProject(const wxString& full_proj_path)
         }
 
     } catch (GdaException &e) {
-        wxString msg( e.what() ) ;
+        wxString msg( e.what(), wxConvUTF8 ) ;
         wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
 		dlg.ShowModal();
 		delete project_p;
@@ -1455,36 +1458,28 @@ void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
     
 	wxString proj_fname = project_p->GetProjectFullPath();
 	bool is_new_project = (proj_fname.empty() || !wxFileExists(proj_fname));
-	
-    wxString msg = _("A project file contains extra information not directly stored in the data source such as variable order and grouping.");
-    wxMessageDialog proj_create_dlg(this, msg, _("Create Project File Now?"),
-                                    wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
-    if (proj_create_dlg.ShowModal() != wxID_YES)
-        return;
-    wxString wildcard = _("GeoDa Project (*.gda)|*.gda");
-    wxFileDialog dlg(this, _("New Project Filename"), "", "", wildcard, wxFD_SAVE);
-    
-    if (dlg.ShowModal() != wxID_OK)
-        return;
-    
-    try {
-        project_p->SpecifyProjectConfFile(dlg.GetPath());
-    } catch (GdaException& e) {
-        wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
+
+    if (is_new_project) {
+        wxString msg = _("A project file contains extra information not directly stored in the data source such as variable order and grouping.");
+        wxMessageDialog proj_create_dlg(this, msg, _("Create Project File Now?"),
+                                        wxYES_NO|wxYES_DEFAULT|wxICON_QUESTION);
+        if (proj_create_dlg.ShowModal() != wxID_YES) return;
+        wxString wildcard = _("GeoDa Project (*.gda)|*.gda");
+        wxFileDialog dlg(this, _("New Project Filename"), "", "",
+                         wildcard, wxFD_SAVE);
+        if (dlg.ShowModal() != wxID_OK) return;
+        try {
+            proj_fname = dlg.GetPath();
+            project_p->SpecifyProjectConfFile(proj_fname);
+        } catch (GdaException& e) {
+            wxMessageDialog dlg (this, e.what(), _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
     }
-	
 	try {
         project_p->SaveProjectConf();
-		
         wxString msg = _("Saved successfully.");
-        if (project_p->IsTableOnlyProject() &&
-            !project_p->main_data.records.empty() )
-        {
-            // case: users create geometries in a table-only project
-            msg << _("\n\nWarning: Geometries will not be saved. Please use \"File->Save As\" to save geometries and related data.");
-        }
         wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
 	} catch (GdaException& e) {
@@ -2491,28 +2486,6 @@ void GdaFrame::OnMergeTableData(wxCommandEvent& event)
 	dlg->Show(true);
 }
 
-void GdaFrame::OnGeocoding(wxCommandEvent& event)
-{
-    if (!project_p || !project_p->FindTableBase()) return;
-    
-    FramesManager* fm = project_p->GetFramesManager();
-    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
-    std::list<FramesManagerObserver*>::iterator it;
-    for (it=observers.begin(); it != observers.end(); ++it) {
-        if (GeocodingDlg* w = dynamic_cast<GeocodingDlg*>(*it))
-        {
-            w->Init();
-            w->Show(true);
-            w->Maximize(false);
-            w->Raise();
-            return;
-        }
-    }
-    
-    GeocodingDlg* dlg = new GeocodingDlg(this, project_p);
-    dlg->Show(true);
-}
-
 void GdaFrame::OnAggregateData(wxCommandEvent& event)
 {
     if (!project_p || !project_p->FindTableBase()) return;
@@ -2542,6 +2515,13 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
     if (project_p->IsTableOnlyProject()) {
         wxMessageDialog dlg (this,
                              _("Spatial Join does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    if (project_p->GetMapLayerCount() == 0) {
+        wxMessageDialog dlg (this,
+                             _("Please load another layer using map window to apply Spatial Join."),
                              _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
@@ -2834,7 +2814,9 @@ void GdaFrame::OnShowConditionalMapView(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND ;
+	if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
+
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
                             _("Conditional Map Variables"),
                             _("Horizontal Cells"),
@@ -2856,6 +2838,7 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
 
     int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
 
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
                             _("Conditional Histogram Variables"),
@@ -2877,6 +2860,7 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
     if (!p) return;
 
     int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
 
     VariableSettingsDlg dlg(project_p, VariableSettingsDlg::quadvariate, style,
                             _("Conditional Scatter Plot Variables"),
@@ -3178,6 +3162,16 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
 {
 	OnOpenNewTable();
+}
+
+void GdaFrame::OnToolsChoices(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_TOOLS_MENU");
+
+    if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
 }
 
 void GdaFrame::OnMoranMenuChoices(wxCommandEvent& WXUNUSED(event))
@@ -6632,9 +6626,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
-
-    EVT_MENU(XRCID("ID_TABLE_GEOCODING"), GdaFrame::OnGeocoding)
-    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used 
+    EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_PUBLISH"), GdaFrame::OnPublish)
@@ -6694,6 +6686,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
+    EVT_TOOL(XRCID("ID_TOOLS_MENU"), GdaFrame::OnToolsChoices)
     EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)

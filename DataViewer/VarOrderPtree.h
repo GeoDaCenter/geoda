@@ -46,7 +46,8 @@ public:
 	
 	bool CorrectVarGroups(const std::map<wxString,
 						  GdaConst::FieldType>& ds_var_type_map,
-						  const std::vector<wxString>& ds_var_list);
+						  const std::vector<wxString>& ds_var_list,
+                          bool case_sensitive);
 	/**
 	 * This function clears all data and then reinitializes from the
 	 * TableInterface.  The order of the variables ultimately comes
@@ -60,7 +61,7 @@ public:
     VarOrderPtree* Clone();
 	
 private:
-	bool RemoveFromVarGroups(const wxString& v);
+	bool RemoveFromVarGroups(const wxString& v, bool case_sensitive);
 	static bool IsTypeCompatible(const std::vector<wxString>& vars,
 								 const std::map<wxString,
 								 GdaConst::FieldType>& ds_var_type_map);

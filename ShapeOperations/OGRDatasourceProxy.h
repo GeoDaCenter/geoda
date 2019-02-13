@@ -44,7 +44,8 @@ public:
 	 * Construct function. Create a data source proxy according to the 
 	 * formated ds_name (datasource name).
 	 */
-	OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceType _ds_type, bool bUpdate=true);
+	OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceType _ds_type,
+                       bool bUpdate=true);
 	/**
 	 */
 	OGRDatasourceProxy(GDALDataset* _ds, wxString _ds_name);

@@ -26,6 +26,11 @@
         <bitmap2>gray/32x32/04.png</bitmap2>
       <tooltip>Table</tooltip>
     </object>
+    <object class="tool" name="ID_TOOLS_MENU">
+        <bitmap>color/32x32/41.png</bitmap>
+        <bitmap2>gray/32x32/41.png</bitmap2>
+        <tooltip>Tools</tooltip>
+    </object>
     <object class="tool" name="ID_TOOLS_WEIGHTS_MANAGER">
         <bitmap>color/32x32/05.png</bitmap>
         <bitmap2>gray/32x32/05.png</bitmap2>
@@ -153,7 +158,7 @@
     </object>
     <object class="tool" name="ID_EDIT_LAYER">
         <bitmap>color/24x24/40.png</bitmap>
-        <tooltip>Edit Map Layer</tooltip>
+        <tooltip>Map Layer Settings</tooltip>
     </object>
     <object class="separator"/>
     <object class="tool" name="ID_ZOOM_LAYER">

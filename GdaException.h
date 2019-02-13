@@ -40,13 +40,13 @@ public:
     
 	GdaException(const char* message, Type _t_=GdaException::CRITICLE)
 	{
-		std::ostringstream s;
-		s << message;
-#ifdef DEBUG
+		//std::ostringstream s;
+		//s << message;
+//#ifdef DEBUG
 		//s << " in file " << __FILE__ << " line#" << __LINE__;
-#endif
+//#endif
 		
-		what_ = s.str();
+		what_ = message;
         t_ = _t_;
 	}
 	virtual ~GdaException() throw () {}

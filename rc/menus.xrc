@@ -67,25 +67,17 @@
           <label>Create Grid</label>
         </object>
       </object>
-    </object>
-    <object class="wxMenu" name="ID_MENU">
-      <label>T&amp;able</label>
       <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
           <label>Spatial Join</label>
       </object>
-      <object class="separator"/>
+    </object>
+    <object class="wxMenu" name="ID_MENU">
+      <label>T&amp;able</label>
       <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
         <label>Aggregate</label>
       </object>
       <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
         <label>Merge</label>
-      </object>
-      <object class="separator"/>
-      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-        <label>Geocode</label>
-      </object>
-      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
-          <label>Points from Table</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
@@ -4426,23 +4418,12 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_TABLE_VIEW_MENU_CONTEXT">
-      <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
-          <label>Spatial Join</label>
-      </object>
-      <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_AGGREGATION_DATA">
       <label>Aggregate</label>
     </object>
     <object class="wxMenuItem" name="ID_TABLE_MERGE_TABLE_DATA">
       <label>Merge</label>
     </object>
-    <object class="separator"/>
-      <object class="wxMenuItem" name="ID_TABLE_GEOCODING">
-        <label>Geocode</label>
-      </object>
-      <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
-          <label>Points from Table</label>
-      </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="ID_TABLE_RANGE_SELECTION">
       <label>Selection Tool</label>
@@ -4822,7 +4803,20 @@
     <object class="wxMenuItem" name="IDM_MUL_LOCAL_GEARY">
         <label>Multivariate Local Geary</label>
     </object>
-    
+  </object>
+  <object class="wxMenu" name="ID_TOOLS_MENU">
+      <object class="wxMenu" name="ID_MENU">
+          <label>Shape</label>
+          <object class="wxMenuItem" name="ID_POINTS_FROM_TABLE">
+              <label>Points from Table</label>
+          </object>
+          <object class="wxMenuItem" name="ID_SHAPE_POLYGONS_FROM_GRID">
+              <label>Create Grid</label>
+          </object>
+      </object>
+      <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
+          <label>Spatial Join</label>
+      </object>
   </object>
   <object class="wxMenu" name="ID_GETIS_MENU">
     <label>Local G Maps</label>

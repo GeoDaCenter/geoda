@@ -29,7 +29,7 @@ TableInterface::TableInterface(TableState* table_state_s,
 							   TimeState* time_state_s)
 : table_state(table_state_s), time_state(time_state_s),
 encoding_type(wxFONTENCODING_SYSTEM), m_wx_encoding(0),
-cols_case_sensitive(false), cols_max_length(10),
+cols_case_sensitive(true), cols_max_length(10),
 cols_ascii_only(true), is_valid(false)
 {
 }

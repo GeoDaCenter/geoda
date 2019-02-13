@@ -78,7 +78,13 @@ wxThread::ExitCode LocalGearyWorkerThread::Entry()
     return NULL;
 }
 
-LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id, Project* project, const vector<GdaVarTools::VarInfo>& var_info_s, const vector<int>& col_ids, LocalGearyType local_geary_type_s, bool calc_significances_s, bool row_standardize_s)
+LocalGearyCoordinator::LocalGearyCoordinator(boost::uuids::uuid weights_id,
+                                Project* project,
+                                const vector<GdaVarTools::VarInfo>& var_info_s,
+                                const vector<int>& col_ids,
+                                LocalGearyType local_geary_type_s,
+                                bool calc_significances_s,
+                                bool row_standardize_s)
 : w_man_state(project->GetWManState()),
 w_man_int(project->GetWManInt()),
 w_id(weights_id),
@@ -326,6 +332,9 @@ void LocalGearyCoordinator::InitFromVarInfo()
         for (int i=0; i<var_info.size(); i++) {
             if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
                 num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
+                if (num_time_vals < var_info[i].min.size()) {
+                    num_time_vals = var_info[i].min.size();
+                }
                 is_any_sync_with_global_time = true;
                 ref_var_index = i;
                 break;
@@ -605,11 +614,15 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
         double* localGeary = local_geary_vecs[t];
         
         vector<int> local_t;
+        int delta_t = t - var_info[0].time;
         for (int v=0; v<num_vars; v++) {
             if (data_vecs[v].size()==1) {
                 local_t.push_back(0);
             } else {
-                local_t.push_back(t);
+                int _t = var_info[v].time + delta_t;
+                if (_t < var_info[v].time_min) _t = var_info[v].time_min;
+                else if (_t > var_info[v].time_max) _t = var_info[v].time_max;
+                local_t.push_back(_t);
             }
         }
         
@@ -868,8 +881,20 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 vector<double*> current_data_square(num_vars);
                 
                 if (local_geary_type == multivariate) {
+                    vector<int> local_t;
+                    int delta_t = t - var_info[0].time;
                     for (int v=0; v<num_vars; v++) {
-                        int _t = data_vecs[v].size() == 1 ? 0 : t;
+                        if (data_vecs[v].size()==1) {
+                            local_t.push_back(0);
+                        } else {
+                            int _t = var_info[v].time + delta_t;
+                            if (_t < var_info[v].time_min) _t = var_info[v].time_min;
+                            else if (_t > var_info[v].time_max) _t = var_info[v].time_max;
+                            local_t.push_back(_t);
+                        }
+                    }
+                    for (int v=0; v<num_vars; v++) {
+                        int _t = local_t[v];
                         current_data[v] = data_vecs[v][_t];
                         current_data_square[v] = data_square_vecs[v][_t];
                     }

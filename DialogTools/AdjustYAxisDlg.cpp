@@ -132,10 +132,9 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
                                              long style)
 
 {
-    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.", precision_s));
-    
+    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.",
+                                  precision_s));
     precision = precision_s;
-    
     SetParent(parent);
     CreateControls();
     Centre();
@@ -143,17 +142,27 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
 
 void AxisLabelPrecisionDlg::CreateControls()
 {
-    wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_AXIS_LABEL_PRECISION_DLG");
-    m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")), wxSpinCtrl);
+    wxXmlResource::Get()->LoadDialog(this, GetParent(),
+                                     "ID_AXIS_LABEL_PRECISION_DLG");
+    m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")),
+                                     wxSpinCtrl);
     m_precision_spin->SetRange(0, 6);
     m_precision_spin->SetValue(precision);
+    m_precision_spin->Bind(wxEVT_KEY_DOWN, &AxisLabelPrecisionDlg::OnKeyUp, this);
+}
+
+void AxisLabelPrecisionDlg::OnKeyUp( wxEvent& event )
+{
+    if (((wxKeyEvent&)event).GetKeyCode() == WXK_RETURN) {
+        wxCommandEvent ev;
+        OnOkClick(ev);
+    }
 }
 
 void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
 {
     event.Skip();
     EndDialog(wxID_CANCEL);
-    
 }
 
 void AxisLabelPrecisionDlg::OnOkClick( wxCommandEvent& event )

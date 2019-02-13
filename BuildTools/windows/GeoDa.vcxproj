@@ -315,7 +315,6 @@
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
     <ClCompile Include="..\..\Algorithms\distmatrix.cpp" />
     <ClCompile Include="..\..\Algorithms\fastcluster.cpp" />
-    <ClCompile Include="..\..\Algorithms\geocoding.cpp" />
     <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp" />
     <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
@@ -335,12 +334,12 @@
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp" />
-    <ClCompile Include="..\..\DialogTools\GeocodingDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
@@ -439,7 +438,6 @@
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
     <ClInclude Include="..\..\Algorithms\distmatrix.h" />
     <ClInclude Include="..\..\Algorithms\fastcluster.h" />
-    <ClInclude Include="..\..\Algorithms\geocoding.h" />
     <ClInclude Include="..\..\Algorithms\gpu_lisa.h" />
     <ClInclude Include="..\..\Algorithms\hdbscan.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
@@ -477,13 +475,13 @@
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.h" />
-    <ClInclude Include="..\..\DialogTools\GeocodingDlg.h" />
     <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
     <ClInclude Include="..\..\DialogTools\HDBScanDlg.h" />
     <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />

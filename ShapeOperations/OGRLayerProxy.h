@@ -88,7 +88,9 @@ public:
     OGRwkbGeometryType eGType;
     
     OGRGeometry*       mapContour;
-    
+
+    static bool IsFieldCaseSensitive(GdaConst::DataSourceType ds_type);
+
 	static OGRFieldType GetOGRFieldType(GdaConst::FieldType field_type);
     
     void SetOGRLayer(OGRLayer* new_layer);

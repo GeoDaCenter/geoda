@@ -31,60 +31,88 @@
 
 using namespace std;
 
-class BasemapItem {
-public:
-    BasemapItem() {}
-    BasemapItem(wxString _group, wxString _name, wxString _url) {
-        group = _group;
-        name = _name;
-        url = _url;
-    }
-    ~BasemapItem() {}
-    BasemapItem& operator=(const BasemapItem& other) {
-        group = other.group;
-        name = other.name;
-        url = other.url;
-        return *this;
-    }
-    bool operator==(const BasemapItem& other) {
-        return (group == other.group && name == other.name && url == other.url);
-    }
-    void Reset() {
-        group = "";
-        name = "";
-        url = "";
-    }
-    wxString group;
-    wxString name;
-    wxString url;
-};
+namespace Gda {
+    /**
+     * BasemapItem is for "Basemap Source Configuration" dialog
+     * Each basemap source can be represented in the form of:
+     *   GroupName.Name,url
+     *   For example:
+     *   Carto.Light,https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png
+     *   Carto.Dark,https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png
+     * GeoDa will create a menu from a collection of BasemapItems
+     */
+    class BasemapItem {
+    public:
+        BasemapItem() {}
 
-class BasemapGroup {
-public:
-    BasemapGroup() {}
-    BasemapGroup(wxString _name) {
-        name = _name;
-    }
-    ~BasemapGroup() {}
-    BasemapGroup& operator=(const BasemapGroup& other) {
-        name = other.name;
-        items = other.items;
-        return *this;
-    }
-    void AddItem(BasemapItem item) {
-        items.push_back(item);
-    }
-    wxString name;
-    vector<BasemapItem> items;
-};
+        BasemapItem(wxString _group, wxString _name, wxString _url) {
+            group = _group;
+            name = _name;
+            url = _url;
+        }
 
-BasemapItem GetBasemapSelection(int idx);
+        ~BasemapItem() {}
 
-vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
+        BasemapItem& operator=(const BasemapItem& other) {
+            group = other.group;
+            name = other.name;
+            url = other.url;
+            return *this;
+        }
 
-namespace GDA {
-    inline char separator()
-    {
+        bool operator==(const BasemapItem& other) {
+            return (group == other.group && name == other.name && url == other.url);
+        }
+
+        void Reset() {
+            group = "";
+            name = "";
+            url = "";
+        }
+
+        wxString group;
+        wxString name;
+        wxString url;
+    };
+
+    /**
+     * BasemapGroup is a collection of BasemapItems.
+     * GeoDa will create a menu from an instance of BasemapGroup
+     * For example:
+     *   Carto
+     *    |__Light (https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png)
+     *    |__Dark (https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png)
+     */
+    class BasemapGroup {
+    public:
+        BasemapGroup() {}
+        BasemapGroup(wxString _name) {
+            name = _name;
+        }
+        ~BasemapGroup() {}
+        BasemapGroup& operator=(const BasemapGroup& other) {
+            name = other.name;
+            items = other.items;
+            return *this;
+        }
+        void AddItem(BasemapItem item) {
+            items.push_back(item);
+        }
+        wxString name;
+        vector<BasemapItem> items;
+    };
+
+    // Return an instance of BasemapItem based on the basemap_source, which is
+    // at idx-th row of basemap_sources (e.g. GdaConst::gda_basemap_sources)
+    BasemapItem GetBasemapSelection(int idx, wxString basemap_sources);
+
+    // Construct a std::vector of BasemapGroup (which is a collection of
+    // BasemapItems) using basemap_sources (e.g. GdaConst::gda_basemap_sources
+    // or the value in "Basemap Sources:" TextCtrl in Basemap Configuration Dialog
+    vector<BasemapGroup> ExtractBasemapResources(wxString basemap_sources) ;
+
+    // inline function return separator for local file path
+    inline char separator() {
 #ifdef __WIN32__
         return '\\';
 #else
@@ -92,17 +120,14 @@ namespace GDA {
 #endif
     }
     
-    inline bool is_file_exist(const char *fileName)
-    {
+    inline bool is_file_exist(const char *fileName) {
         std::ifstream infile(fileName);
         return infile.good() && (infile.peek() != std::ifstream::traits_type::eof());
     }
     
-    inline double log2(double n)
-    {
+    inline double log2(double n) {
         return log(n) / log(2.0);
     }
-    
     
     class LatLng {
     public:
@@ -221,21 +246,23 @@ namespace GDA {
         }
         
         void GetWestNorthEastSouth(double& w, double& n, double& e, double& s) {
+            w = west;
+            n = north;
+            e = east;
+            s = south;
             if (poCT_rev) {
-                w = west;
-                n = north;
-                e = east;
-                s = south;
                 poCT_rev->Transform(1, &w, &n);
                 poCT_rev->Transform(1, &e, &s);
             }
         }
+
         double GetWidth() {
             if (east >= west)
                 return east - west;
             else
                 return 180 - east + 180 + west;
         }
+        
         double GetHeight() { return north - south; }
         
         bool IsWGS84Valid() { return north < 90 && south > -90 && east > -180 && west < 180;}

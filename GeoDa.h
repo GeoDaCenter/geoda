@@ -198,7 +198,6 @@ public:
 	void OnMergeTableData(wxCommandEvent& event);
 	void OnAggregateData(wxCommandEvent& event);
     void OnSpatialJoin(wxCommandEvent& event);
-    void OnGeocoding(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);
@@ -235,7 +234,7 @@ public:
 	void OnExploreLineChart(wxCommandEvent& event);
 	void OnExploreCovScatterPlot(wxCommandEvent& event);
 	void OnExploreCorrelogram(wxCommandEvent& event);
-	
+	void OnToolsChoices(wxCommandEvent& event);
 	void OnMoranMenuChoices(wxCommandEvent& event);
 	void OnOpenMSPL(wxCommandEvent& event);
 	void OnOpenGMoran(wxCommandEvent& event);

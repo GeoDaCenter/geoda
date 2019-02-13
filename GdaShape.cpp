@@ -422,7 +422,7 @@ void GdaShape::applyScaleTrans(const GdaScaleTrans& A)
 	A.transform(center_o, &center);
 }
 
-void GdaShape::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
+void GdaShape::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
 {
     basemap->LatLngToXY(center_o.x, center_o.y, center.x, center.y);
     if (scale_factor != 1) {
@@ -1065,7 +1065,7 @@ void GdaRectangle::applyScaleTrans(const GdaScaleTrans& A)
 }
 
 
-void GdaRectangle::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
+void GdaRectangle::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
 {
 	if (null_shape) 
         return;
@@ -1293,7 +1293,7 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 }
 
 
-void GdaPolygon::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
+void GdaPolygon::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
 {
     if (null_shape) 
         return;
@@ -1547,7 +1547,7 @@ GdaPolyLine::~GdaPolyLine()
 	if (count) delete [] count; count = 0;
 }
 
-void GdaPolyLine::projectToBasemap(GDA::Basemap* basemap, double scale_factor)
+void GdaPolyLine::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
 {
     for (int i=0; i<n; i++) {
         basemap->LatLngToXY(points_o[i].x, points_o[i].y, points[i].x, points[i].y);

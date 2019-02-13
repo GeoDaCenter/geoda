@@ -524,7 +524,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
                 geometries.push_back(new GdaPolygon(pc));
             }
 			shape_type = Shapefile::POLYGON;
-        }
+        } //shape_type = project_p->GetGdaGeometries(geometries);
     } else {
         // create datasource from geometries only
         size_t nn = geometries.size();
@@ -536,34 +536,22 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         for(size_t i=0; i < nn; i++)
             selected_rows.push_back(i);
     }
-
-    /*
-    // explictly set SRS with EPSG information
-    wxString cstype = "PROJCS";
-    if (poOutputSRS->IsGeographic() == 1) {
-        cstype = "GEOGCS";
-    }
-    
-    wxString authname= poOutputSRS->GetAuthorityName(cstype.mb_str());
-    wxString authCode = poOutputSRS->GetAuthorityCode(cstype.mb_str());
-    
-    if (authname.IsEmpty()) {
-        int epsg = poOutputSRS->GetEPSGGeogCS();
-        poOutputSRS->SetAuthority(cstype.mb_str(), "EPSG", epsg);
-    }
-     */
     
 	// convert to OGR geometries
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 	vector<OGRGeometry*> ogr_geometries;
-	OGRwkbGeometryType geom_type =  OGRDataAdapter::GetInstance().MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+    OGRwkbGeometryType geom_type;
+    geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
+                                              ogr_geometries, selected_rows);
 
-    // NOTE: for GeoJSON, transform to WGS84 automatically
+    // for GeoJSON, force transform to WGS84 automatically
     if (spatial_ref && (ds_name.EndsWith(".json") || ds_name.EndsWith(".geojson"))) {
         int epsg = spatial_ref->GetEPSGGeogCS();
         if (epsg != 4326) {
             OGRSpatialReference wgs84_ref;
             wgs84_ref.importFromEPSG(4326);
-            OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
+            OGRCoordinateTransformation *poCT;
+            poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
             for (size_t i=0; i < ogr_geometries.size(); i++) {
                 ogr_geometries[i]->transform(poCT);
             }
@@ -580,17 +568,17 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     if (prog_n_max == 0 && table_p)
         prog_n_max = table_p->GetNumberRows();
    
-    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
-    OGRLayerProxy* new_layer =
-    ogr_adapter.ExportDataSource(ds_format.ToStdString(),
-                                 ds_name,
-                                 layer_name.ToStdString(),
-                                 geom_type,
-                                 ogr_geometries,
-                                 table_p,
-                                 selected_rows,
-                                 spatial_ref,
-                                 is_update);
+
+    OGRLayerProxy* new_layer;
+    new_layer = ogr_adapter.ExportDataSource(ds_format.ToStdString(),
+                                             ds_name,
+                                             layer_name.ToStdString(),
+                                             geom_type,
+                                             ogr_geometries,
+                                             table_p,
+                                             selected_rows,
+                                             spatial_ref,
+                                             is_update);
     if (new_layer == NULL)
         return false;
     

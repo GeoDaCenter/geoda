@@ -87,7 +87,6 @@ private:
 	bool can_change_time_variant;
 	wxString final_col_name;
 	int final_col_id;
-	std::set<wxString> curr_col_labels;
 	bool time_variant;
 	bool fixed_lengths;
 	DECLARE_EVENT_TABLE()

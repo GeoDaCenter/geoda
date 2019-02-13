@@ -45,7 +45,7 @@ public:
 	double SpatialLag(const double* x) const;
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
     double GetRW(int idx);
-    bool Check(long nbrIdx);
+    bool   Check(long nbrIdx);
    
     bool is_nbrAvgW_empty;
     std::vector<double> nbrAvgW;
@@ -85,6 +85,10 @@ public:
     virtual bool SaveSpaceTimeWeights(const wxString& ofname,
                                       WeightsManInterface* wmi,
                                       TableInterface* table_int);
+
+    virtual bool CheckNeighbor(int obs_idx, int nbr_idx);
+
+    virtual const std::vector<long> GetNeighbors(int obs_idx);
     
     virtual void GetNbrStats();    
 };
@@ -109,11 +113,8 @@ namespace Gda {
                           const wxString& ofname,
                           const wxString& id_var_name,
                           const std::vector<wxString>& id_vec);
-	
     
 	void MakeHigherOrdContiguity(size_t distance, size_t obs, GalElement* W, bool cummulative);
-    
-    
 }
 
 #endif

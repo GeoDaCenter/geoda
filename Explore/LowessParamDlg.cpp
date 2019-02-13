@@ -41,44 +41,31 @@ project(project_)
 	panel->SetBackgroundColour(*wxWHITE);
 	SetBackgroundColour(*wxWHITE);
 
-	wxButton* help_btn = new wxButton(panel, 
-                                      XRCID("ID_HELP_BTN"), 
-                                      _("Help"),
-                                      wxDefaultPosition, 
-                                      wxDefaultSize,
+	wxButton* help_btn = new wxButton(panel, XRCID("ID_HELP_BTN"),  _("Help"),
+                                      wxDefaultPosition, wxDefaultSize,
                                       wxBU_EXACTFIT);
-	wxButton* apply_btn = new wxButton(panel, 
-                                       XRCID("ID_APPLY_BTN"), 
-                                       _("Apply"),
-                                       wxDefaultPosition, 
-                                       wxDefaultSize,
+	wxButton* apply_btn = new wxButton(panel, XRCID("ID_APPLY_BTN"), _("Apply"),
+                                       wxDefaultPosition, wxDefaultSize,
                                        wxBU_EXACTFIT);
 	wxButton* reset_defaults_btn = new wxButton(panel,
                                                 XRCID("ID_RESET_DEFAULTS_BTN"),
-                                                _("Reset"),
-                                                wxDefaultPosition, 
-                                                wxDefaultSize,
-                                                wxBU_EXACTFIT);
-
+                                                _("Reset"), wxDefaultPosition,
+                                                wxDefaultSize, wxBU_EXACTFIT);
 	wxStaticText* f_stat_t = new wxStaticText(panel, wxID_ANY, _("Bandwidth:"));
-	f_text = new wxTextCtrl(panel, 
-                            XRCID("ID_F_TEXT"),
-                            wxString::Format("%f", GetF()),
-                            wxDefaultPosition, 
-                            wxSize(100, -1),
-                            wxTE_PROCESS_ENTER);
+	f_text = new wxTextCtrl(panel, XRCID("ID_F_TEXT"),
+                            wxString::Format("%f", GetF()), wxDefaultPosition,
+                            wxSize(100, -1), wxTE_PROCESS_ENTER);
 	f_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	Connect(XRCID("ID_F_TEXT"), wxEVT_TEXT,
             wxCommandEventHandler(LowessParamFrame::OnFTextChange));
     Connect(XRCID("ID_F_TEXT"), wxEVT_COMMAND_TEXT_ENTER,
             wxCommandEventHandler(LowessParamFrame::OnApplyBtn));
 
-	wxStaticText* iter_stat_t = new wxStaticText(panel, wxID_ANY, _("Iterations:"));
-	iter_text = new wxTextCtrl(panel, 
-                               XRCID("ID_ITER_TEXT"),
+	wxStaticText* iter_stat_t = new wxStaticText(panel, wxID_ANY,
+                                                 _("Iterations:"));
+	iter_text = new wxTextCtrl(panel, XRCID("ID_ITER_TEXT"),
                                wxString::Format("%d", GetIter()),
-                               wxDefaultPosition, 
-                               wxSize(100, -1),
+                               wxDefaultPosition, wxSize(100, -1),
                                wxTE_PROCESS_ENTER);
 	iter_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
 	Connect(XRCID("ID_ITER_TEXT"), 
@@ -92,8 +79,7 @@ project(project_)
 	delta_factor_text = new wxTextCtrl(panel, 
                                        XRCID("ID_DELTA_FACTOR_TEXT"),
                                        wxString::Format("%.4f", GetDeltaFactor()),
-                                       wxDefaultPosition, 
-                                       wxSize(100, -1),
+                                       wxDefaultPosition, wxSize(100, -1),
                                        wxTE_PROCESS_ENTER);
 	delta_factor_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     
@@ -133,12 +119,9 @@ project(project_)
 	btns_row1_h_szr->Add(apply_btn, 0, wxALIGN_CENTER_VERTICAL);
 		
 	wxBoxSizer* panel_v_szr = new wxBoxSizer(wxVERTICAL);
-	panel_v_szr->Add(fg_sizer, 0,
-									 wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+	panel_v_szr->Add(fg_sizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 	panel_v_szr->AddSpacer(2);
-	
-	panel_v_szr->Add(btns_row1_h_szr, 0,
-									 wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+	panel_v_szr->Add(btns_row1_h_szr, 0,  wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 	
 	wxBoxSizer* panel_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	panel_h_szr->Add(panel_v_szr, 1, wxEXPAND);
@@ -150,7 +133,6 @@ project(project_)
 	top_h_sizer->Add(panel, 1, wxEXPAND|wxALL, 8);
 	
 	SetSizerAndFit(top_h_sizer);
-	
 	Show(true);
 	
 	wxLogMessage("Exiting LowessParamFrame::LowessParamFrame");
@@ -197,8 +179,12 @@ void LowessParamFrame::OnIterTextChange(wxCommandEvent& ev)
 {
 }
 
-void LowessParamFrame::OnDeltaFactorTextChange(wxCommandEvent& ev)
+void LowessParamFrame::OnDeltaFactorTextChange(wxCommandEvent& event)
 {
+    if (((wxKeyEvent&)event).GetKeyCode() == WXK_RETURN) {
+        wxCommandEvent ev;
+        OnApplyBtn(ev);
+    }
 }
 
 void LowessParamFrame::closeAndDeleteWhenEmpty()

@@ -41,6 +41,7 @@ public:
     void CreateControls();
     void OnOkClick( wxCommandEvent& event );
     void OnCancelClick( wxCommandEvent& event );
+    void OnKeyUp( wxEvent& event );
 
     wxTextCtrl* m_intervals;
 	wxString s_int;

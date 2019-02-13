@@ -186,7 +186,15 @@ void WeightsMetaInfo::SetToKnn(const wxString& idv,
 	}
 }
 
-void WeightsMetaInfo::SetToKernel(const wxString &id_var_, WeightsMetaInfo::DistanceMetricEnum dist_metric_, WeightsMetaInfo::DistanceUnitsEnum dist_units_, wxString dist_units_str_, WeightsMetaInfo::DistanceValuesEnum dist_values_, wxString kernel_, long k_, double bandwidth_, bool is_adaptive_kernel_, bool use_kernel_diagnals_,wxString dist_var1_, long dist_tm1_, wxString dist_var2_, long dist_tm2_)
+void WeightsMetaInfo::SetToKernel(const wxString &id_var_,
+                            WeightsMetaInfo::DistanceMetricEnum dist_metric_,
+                            WeightsMetaInfo::DistanceUnitsEnum dist_units_,
+                            wxString dist_units_str_,
+                            WeightsMetaInfo::DistanceValuesEnum dist_values_,
+                            wxString kernel_, long k_, double bandwidth_,
+                            bool is_adaptive_kernel_, bool use_kernel_diagnals_,
+                            wxString dist_var1_, long dist_tm1_,
+                            wxString dist_var2_, long dist_tm2_)
 {
     SetToDefaults();
     id_var = id_var_;
@@ -299,7 +307,14 @@ wxString WeightsMetaInfo::DistValsToStr() const
 			if (dist_tm2 >= 0) s << " (t=" << dist_tm2 << ")";
 		}
 		return s;
-	}
+    } else if (dist_values == DV_multivars) {
+        wxString s;
+        for (size_t i=0; i<dist_multivars.size(); ++i) {
+            s << dist_multivars[i];
+            if (i < dist_multivars.size()-1) s << ",";
+        }
+        return s;
+    }
 	return "unspecified";
 }
 

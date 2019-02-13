@@ -78,47 +78,6 @@ private:
     wxComboBox* combo_weights;
 };
 
-////////////////////////////////////////////////////////////////////////////
-//
-// class MultiVariableSettingsDlg
-//
-////////////////////////////////////////////////////////////////////////////
-class MultiVariableSettingsDlg : public wxDialog
-{
-public:
-    MultiVariableSettingsDlg(Project* project);
-    virtual ~MultiVariableSettingsDlg();
-    
-    void CreateControls();
-    bool Init();
-   
-    void OnOK( wxCommandEvent& event );
-    void OnClose( wxCommandEvent& event );
-    void OnTimeSelect( wxCommandEvent& event );
-    
-    void InitVariableCombobox(wxListBox* var_box);
-    void InitTimeComboboxes(wxChoice* time1);
-    void InitWeightsCombobox(wxChoice* weights_ch);
-    
-    boost::uuids::uuid GetWeightsId();
-    
-    std::vector<GdaVarTools::VarInfo> var_info;
-    std::vector<int> col_ids;
-    
-private:
-    bool has_time;
-    Project* project;
-    TableInterface* table_int;
-    std::vector<wxString> tm_strs;
-    std::vector<boost::uuids::uuid> weights_ids;
-    
-    wxListBox* combo_var;
-    wxChoice* combo_time1;
-    wxChoice* combo_weights;
-    
-	std::map<wxString, wxString> name_to_nm;
-	std::map<wxString, int> name_to_tm_id;
-};
 
 ////////////////////////////////////////////////////////////////////////////
 //

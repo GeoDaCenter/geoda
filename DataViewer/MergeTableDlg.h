@@ -100,6 +100,7 @@ public:
 private:
 	FramesManager* frames_manager;
 
+    // encoding of imported dataset, if user specified
     wxCSConv* m_wx_encoding;
     
 	std::map<wxString, int> dedup_to_id;

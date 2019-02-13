@@ -62,8 +62,6 @@ ColocationSelectDlg::ColocationSelectDlg(wxFrame* parent_s, Project* project_s)
     GdaColorUtils::GetUnique20Colors(m_predef_colors);
     
     CreateControls();
-    
-    
 }
 
 ColocationSelectDlg::~ColocationSelectDlg()
@@ -96,10 +94,21 @@ wxString ColocationSelectDlg::get_a_label(wxString label)
     }
     return label;
 }
+
 wxColour ColocationSelectDlg::get_a_color(wxString label)
 {
     long idx;
-    if (label.ToLong(&idx) && idx >=0 && idx < m_predef_colors.size()) {
+    if (label.ToLong(&idx) && idx >=0 ) {
+        idx = idx % m_predef_colors.size();
+        return m_predef_colors[idx];
+    }
+    return wxColour(240, 240, 240); // not significant color
+}
+
+wxColour ColocationSelectDlg::get_a_color(int idx)
+{
+    if (idx >=0) {
+        idx = idx % m_predef_colors.size();
         return m_predef_colors[idx];
     }
     return wxColour(240, 240, 240); // not significant color
@@ -192,7 +201,8 @@ void ColocationSelectDlg::CreateControls()
     
     // Events
     scrl->Bind(wxEVT_RIGHT_UP, &ColocationSelectDlg::OnRightUp, this);
-	clrscheme_choice->Bind(wxEVT_CHOICE, &ColocationSelectDlg::OnSchemeSelect, this);
+	clrscheme_choice->Bind(wxEVT_CHOICE, &ColocationSelectDlg::OnSchemeSelect,
+                           this);
     combo_var->Bind(wxEVT_LISTBOX, &ColocationSelectDlg::OnVarSelect, this);
     okButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &ColocationSelectDlg::OnClickClose, this);
@@ -203,7 +213,9 @@ void ColocationSelectDlg::OnRightUp( wxMouseEvent& event)
     wxMenu mnu;
     mnu.Append(XRCID("CO_SEL_ALL"), "Select All");
     mnu.Append(XRCID("CO_UNSEL_ALL"), "Unselect All");
-    mnu.Connect(wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(ColocationSelectDlg::OnPopupClick), NULL, this);
+    mnu.Connect(wxEVT_COMMAND_MENU_SELECTED,
+                wxCommandEventHandler(ColocationSelectDlg::OnPopupClick), NULL,
+                this);
     PopupMenu(&mnu);
 }
 
@@ -405,7 +417,7 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
         chk->SetValue(true);
         
         wxBitmap clr;
-        wxColour sel_clr = get_a_color(tmp);
+        wxColour sel_clr = get_a_color(cnt);
         wxStaticBitmap* color_btn = new wxStaticBitmap(scrl, base_color_id+cnt, clr, wxDefaultPosition, wxSize(16,16));
         color_btn->SetBackgroundColour(sel_clr);
         
@@ -460,7 +472,6 @@ void ColocationSelectDlg::OnClickColor( wxMouseEvent& event)
     co_bitmaps[obj_id]->Refresh();
     m_colors[obj_id] = sel_clr;
 }
-
 
 void ColocationSelectDlg::OnOK( wxCommandEvent& event)
 {
@@ -532,11 +543,11 @@ void ColocationSelectDlg::OnClickClose( wxCommandEvent& event)
     Destroy();
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
 //
 //
-/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 IMPLEMENT_CLASS(ColocationMapCanvas, MapCanvas)
 BEGIN_EVENT_TABLE(ColocationMapCanvas, MapCanvas)

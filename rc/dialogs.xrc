@@ -870,6 +870,7 @@
                           <object class="sizeritem">
                               <object class="wxSpinCtrl" name="ID_AXIS_LABEL_PRECISION_SPIN">
                                   <size>60,-1d</size>
+                                  <style>wxTE_PROCESS_ENTER</style>
                               </object>
                               <flag>wxALIGN_CENTRE_VERTICAL</flag>
                           </object>
@@ -3086,7 +3087,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText" name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3128,7 +3129,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText"  name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3171,7 +3172,7 @@
                   <object class="sizeritem">
                     <object class="wxBoxSizer">
                       <object class="sizeritem">
-                        <object class="wxStaticText">
+                        <object class="wxStaticText"  name="ID_VARSEL_TIME">
                           <label>Time</label>
                         </object>
                         <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
@@ -3738,7 +3739,7 @@
                                                   </object>
                                                   <size>280,-1d</size>
                                               </object>
-                                              <label>Table variables</label>
+                                              <label>Variables</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
                                       </object>

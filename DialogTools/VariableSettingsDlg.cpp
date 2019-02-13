@@ -289,272 +289,6 @@ boost::uuids::uuid DiffMoranVarSettingDlg::GetWeightsId()
     return weights_ids[sel];
 }
 
-
-
-////////////////////////////////////////////////////////////////////////////
-//
-// MultiVariableSettingsDlg
-//
-////////////////////////////////////////////////////////////////////////////
-
-MultiVariableSettingsDlg::MultiVariableSettingsDlg(Project* project_s)
-    : wxDialog(NULL, wxID_ANY, _("Multi-Variable Settings"), wxDefaultPosition, wxSize(320, 430))
-{
-    wxLogMessage("Entering MultiVariableSettingsDlg::MultiVariableSettingsDlg().");
-    
-    combo_time1 = NULL;
-    
-    project = project_s;
-    
-    has_time = project->GetTimeState()->GetTimeSteps() > 1 ;
-    
-    bool init_success = Init();
-    
-    if (init_success == false) {
-        EndDialog(wxID_CANCEL);
-    } else {
-        CreateControls();
-    }
-    wxLogMessage("Exiting MultiVariableSettingsDlg::MultiVariableSettingsDlg().");
-}
-
-MultiVariableSettingsDlg::~MultiVariableSettingsDlg()
-{
-    wxLogMessage("In ~MultiVariableSettingsDlg.");
-}
-
-bool MultiVariableSettingsDlg::Init()
-{
-    if (project == NULL)
-        return false;
-    
-    table_int = project->GetTableInt();
-    if (table_int == NULL)
-        return false;
-    
-    
-    table_int->GetTimeStrings(tm_strs);
-    
-    return true;
-}
-
-void MultiVariableSettingsDlg::CreateControls()
-{
-    wxPanel *panel = new wxPanel(this);
-    
-    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-
-    // label & listbox
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables (Multi-Selection)"),
-                                          wxDefaultPosition, wxDefaultSize);
-    
-    wxListBox* box = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                   wxSize(320,200), 0, NULL,
-                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    
-    // weights
-    wxStaticText  *st3 = new wxStaticText(panel, wxID_ANY, _("Weights:"),
-                                           wxDefaultPosition, wxSize(60,-1));
-    wxChoice* box3 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL);
-    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);
-
-    // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, _("OK"), wxDefaultPosition,
-                                      wxSize(70, 30));
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
-                                         wxDefaultPosition, wxSize(70, 30));
-    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
-    
-    vbox->Add(st, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(box, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    
-    // time
-    if (has_time) {
-        wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Time:"),
-                                             wxDefaultPosition, wxSize(40,-1));
-        wxChoice* box1 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                      wxSize(160,-1), 0, NULL);
-        wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-        hbox->Add(st1, 0, wxRIGHT | wxLEFT, 10);
-        hbox->Add(box1, 1, wxEXPAND);
-        combo_time1 = box1;
-        combo_time1->SetSelection(0);
-        vbox->Add(hbox, 1, wxALIGN_CENTER | wxALL, 10);
-    }
-    vbox->Add(hbox1, 1, wxALIGN_CENTER | wxTOP | wxLEFT | wxRIGHT, 10);
-    vbox->Add(hbox2, 1, wxALIGN_CENTER | wxALL, 10);
-    
-
-    panel->SetSizer(vbox);
-    
-    Centre();
-    
-    // Content
-    InitVariableCombobox(box);
-    if (has_time) {
-        InitTimeComboboxes(combo_time1);
-    }
-    InitWeightsCombobox(box3);
-    
-    combo_var = box;
-    
-    combo_weights = box3;
-    
-    // Events
-    okButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnOK, this);
-    closeButton->Bind(wxEVT_BUTTON, &MultiVariableSettingsDlg::OnClose, this);
-    if (combo_time1) {
-        combo_time1->Bind(wxEVT_CHOICE, &MultiVariableSettingsDlg::OnTimeSelect, this);
-    }
-}
-
-void MultiVariableSettingsDlg::OnTimeSelect( wxCommandEvent& event )
-{
-    wxLogMessage("In MultiVariableSettingsDlg::OnTimeSelect()");
-    combo_var->Clear();
-    
-    InitVariableCombobox(combo_var);
-}
-
-void MultiVariableSettingsDlg::InitVariableCombobox(wxListBox* var_box)
-{
-    wxLogMessage("In MultiVariableSettingsDlg::InitVariableCombobox().");
-    var_box->Clear();
-    
-    wxArrayString items;
-    
-	std::vector<int> col_id_map;
-	table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
-        int id = col_id_map[i];
-        wxString name = table_int->GetColName(id);
-        if (table_int->IsColTimeVariant(id)) {
-            int t = combo_time1->GetSelection();
-            if (t< 0) t = 0;
-            
-            wxString nm = name;
-            nm << " (" << project->GetTimeState()->GetTimeString(t) << ")";
-            name_to_nm[nm] = name;
-            name_to_tm_id[nm] = t;
-            items.Add(nm);
-        } else {
-            name_to_nm[name] = name;
-            name_to_tm_id[name] = 0;
-            items.Add(name);
-        }
-    }
-   
-    if (!items.IsEmpty())
-        var_box->InsertItems(items,0);
-}
-
-void MultiVariableSettingsDlg::InitTimeComboboxes(wxChoice* time1)
-{
-    wxLogMessage("In MultiVariableSettingsDlg::InitTimeComboboxes().");
-    for (size_t i=0, n=tm_strs.size(); i < n; i++ ) {
-        time1->Append(tm_strs[i]);
-    }
-    time1->SetSelection(0);
-}
-
-void MultiVariableSettingsDlg::InitWeightsCombobox(wxChoice* weights_ch)
-{
-    wxLogMessage("In MultiVariableSettingsDlg::InitWeightsCombobox().");
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        weights_ch->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
-    }
-    if (weights_ids.size() > 0) weights_ch->SetSelection(sel_pos);
-}
-
-void MultiVariableSettingsDlg::OnClose(wxCommandEvent& event )
-{
-    wxLogMessage("In MultiVariableSettingsDlg::OnClose");
-    
-    event.Skip();
-    EndDialog(wxID_CANCEL);
-}
-
-void MultiVariableSettingsDlg::OnOK(wxCommandEvent& event )
-{
-    wxLogMessage("Entering MultiVariableSettingsDlg::OnOK");
-  
-    wxArrayInt selections;
-    combo_var->GetSelections(selections);
-    
-    int num_var = selections.size();
-    if (num_var < 2) {
-        // show message box
-        wxString err_msg = _("Please select at least 2 variables.");
-        wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
-    col_ids.resize(num_var);
-    var_info.resize(num_var);
-    
-    for (int i=0; i<num_var; i++) {
-        int idx = selections[i];
-        wxString list_item = combo_var->GetString(idx);
-        wxString nm = name_to_nm[list_item];
-        wxLogMessage(nm);
-        int col = table_int->FindColId(nm);
-        if (col == wxNOT_FOUND) {
-            wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm); wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-            return;
-        }
-        
-        int tm = name_to_tm_id[combo_var->GetString(idx)];
-        
-        col_ids[i] = col;
-        var_info[i].time = tm;
-        
-        // Set Primary GdaVarTools::VarInfo attributes
-        var_info[i].name = nm;
-        var_info[i].is_time_variant = table_int->IsColTimeVariant(col);
-        
-        // var_info[i].time already set above
-        table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-        var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-        var_info[i].fixed_scale = true;
-    }
-    
-    // Call function to set all Secondary Attributes based on Primary Attributes
-    GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
-
-    EndDialog(wxID_OK);
-
-    wxLogMessage("Exiting MultiVariableSettingsDlg::OnOK");
-}
-
-boost::uuids::uuid MultiVariableSettingsDlg::GetWeightsId()
-{
-    wxLogMessage("In MultiVariableSettingsDlg::GetWeightsId()");
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-
-    return weights_ids[sel];
-}
-
-
-////////////////////////////////////////////////////////////////////////////
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////
 /**
  * Belows are codes for VariableSettingsDlg
  *
@@ -665,7 +399,7 @@ var3_title(var3_title_s),
 var4_title(var4_title_s),
 num_cats_spin(0),
 num_categories(4),
-hide_time(hide_time),
+hide_time(!(style & SHOW_TIME)),
 all_init(false),
 style(style_s),
 show_weights(style & SHOW_WEIGHTS),
@@ -1031,9 +765,7 @@ void VariableSettingsDlg::OnVar1Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb1_cur_sel = lb1->GetSelection();
-    if (style & ALLOW_EMPTY_IN_FIRST) {
-        lb1_cur_sel = lb1_cur_sel == 0 ? 0 : lb1_cur_sel - 1;
-    }
+
     if (lb1_cur_sel >= 0) {
         int x_pos = sel1_idx_map[lb1_cur_sel];
         if (x_pos >= 0)
@@ -1054,9 +786,7 @@ void VariableSettingsDlg::OnVar2Change(wxCommandEvent& event)
 	if (!all_init)
         return;
 	lb2_cur_sel = lb2->GetSelection();
-    if (style & ALLOW_EMPTY_IN_SECOND) {
-        lb2_cur_sel = lb2_cur_sel == 0 ? 0 : lb2_cur_sel - 1;
-    }
+
     if (lb2_cur_sel >= 0) {
         int x_pos = sel2_idx_map[lb2_cur_sel];
         if (x_pos >= 0)
@@ -1142,10 +872,8 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
 	
-    if ((style & ALLOW_EMPTY_IN_FIRST) &&
-        (style & ALLOW_EMPTY_IN_SECOND)) {
-        if (lb1->GetSelection() == 0 &&
-            lb2->GetSelection() == 0) {
+    if ((style & ALLOW_EMPTY_IN_FIRST) && (style & ALLOW_EMPTY_IN_SECOND)) {
+        if (lb1->GetSelection() == 0 && lb2->GetSelection() == 0) {
             wxString msg(_("No field chosen for first and second variable."));
             wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
@@ -1164,9 +892,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 		return;
 	}
     int sel_idx = lb1->GetSelection();
-    if (style & ALLOW_EMPTY_IN_FIRST) {
-        sel_idx = sel_idx - 1;
-    }
 	v1_col_id = col_id_map[sel1_idx_map[sel_idx]];
     
 	v1_name = table_int->GetColName(v1_col_id);
@@ -1187,9 +912,6 @@ void VariableSettingsDlg::OnOkClick(wxCommandEvent& event)
 			return;
 		}
         int sel_idx = lb2->GetSelection();
-        if (style & ALLOW_EMPTY_IN_SECOND) {
-            sel_idx = sel_idx - 1;
-        }
 		v2_col_id = col_id_map[sel2_idx_map[sel_idx]];
 		v2_name = table_int->GetColName(v2_col_id);
 		project->SetDefaultVarName(1, v2_name);
@@ -1415,10 +1137,12 @@ void VariableSettingsDlg::InitFieldChoices()
     
     if (style & ALLOW_EMPTY_IN_FIRST) {
         lb1->Append(" "); // empty selection
+        sel1_idx += 1;
     }
     
     if (style & ALLOW_EMPTY_IN_SECOND) {
         lb2->Append(" "); // empty selection
+        sel2_idx += 1;
     }
     
 	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
@@ -1493,7 +1217,7 @@ void VariableSettingsDlg::InitFieldChoices()
         if (item_str == default_var_name1) {
             lb1_cur_sel = idx_sel1_map[i];
             if (style & ALLOW_EMPTY_IN_FIRST) {
-                lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+                //lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
             }
             if (set_second_from_first_mode && num_var >= 2) {
                 lb2_cur_sel = lb1_cur_sel;
@@ -1503,7 +1227,7 @@ void VariableSettingsDlg::InitFieldChoices()
             if (!set_second_from_first_mode) {
                 lb2_cur_sel = idx_sel2_map[i];
                 if (style & ALLOW_EMPTY_IN_SECOND) {
-                    lb1_cur_sel = lb1_cur_sel > 0 ? lb1_cur_sel + 1 : 0;
+                    //lb2_cur_sel = lb2_cur_sel > 0 ? lb2_cur_sel + 1 : 0;
                 }
             }
         }
@@ -1563,14 +1287,13 @@ wxString VariableSettingsDlg::FillData()
 	col_ids.resize(num_var);
 	var_info.resize(num_var);
 	if (num_var >= 1) {
+        var_info[0].is_hide = false;
         int sel_idx = lb1->GetSelection();
         if (style & ALLOW_EMPTY_IN_FIRST) {
             if (sel_idx == 0) {
                 // no selection: case ConditionalMap,
                 sel_idx = table_int->GetFirstNumericCol();
                 var_info[0].is_hide = true;
-            } else {
-                sel_idx = sel_idx - 1;
             }
         }
         int col_idx = sel1_idx_map[sel_idx];
@@ -1584,14 +1307,13 @@ wxString VariableSettingsDlg::FillData()
         }
 	}
 	if (num_var >= 2) {
+        var_info[1].is_hide = false;
         int sel_idx = lb2->GetSelection();
         if (style & ALLOW_EMPTY_IN_SECOND) {
             if (sel_idx == 0) {
                 // no selection: case ConditionalMap,
                 sel_idx = table_int->GetFirstNumericCol();
                 var_info[1].is_hide = true;
-            } else {
-                sel_idx = sel_idx - 1;
             }
         }
         int col_idx = sel2_idx_map[sel_idx];

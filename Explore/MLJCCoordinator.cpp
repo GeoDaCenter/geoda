@@ -219,6 +219,9 @@ void JCCoordinator::InitFromVarInfo()
     for (int i=0; i<var_info.size(); i++) {
         if (var_info[i].is_time_variant && var_info[i].sync_with_global_time) {
             num_time_vals = (var_info[i].time_max - var_info[i].time_min) + 1;
+            if (num_time_vals < var_info[i].min.size()) {
+                num_time_vals = var_info[i].min.size();
+            }
             is_any_sync_with_global_time = true;
             ref_var_index = i;
             break;
@@ -348,11 +351,15 @@ void JCCoordinator::CalcMultiLocalJoinCount()
         double* local_jc = local_jc_vecs[t];
         
         vector<int> local_t;
+        int delta_t = t - var_info[0].time;
         for (int v=0; v<num_vars; v++) {
             if (data_vecs[v].size()==1) {
                 local_t.push_back(0);
             } else {
-                local_t.push_back(t);
+                int _t = var_info[v].time + delta_t;
+                if (_t < var_info[v].time_min) _t = var_info[v].time_min;
+                else if (_t > var_info[v].time_max) _t = var_info[v].time_max;
+                local_t.push_back(_t);
             }
         }
        
@@ -567,11 +574,15 @@ void JCCoordinator::CalcPseudoP_range(int t, int obs_start, int obs_end, uint64_
     double* pseudo_p = sig_local_jc_vecs[t];
     
     vector<int> local_t;
+    int delta_t = t - var_info[0].time;
     for (int v=0; v<num_vars; v++) {
         if (data_vecs[v].size()==1) {
             local_t.push_back(0);
         } else {
-            local_t.push_back(t);
+            int _t = var_info[v].time + delta_t;
+            if (_t < var_info[v].time_min) _t = var_info[v].time_min;
+            else if (_t > var_info[v].time_max) _t = var_info[v].time_max;
+            local_t.push_back(_t);
         }
     }
     

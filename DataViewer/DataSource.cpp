@@ -363,7 +363,7 @@ void FileDataSource::ReadPtree(const ptree& pt,
         if (file_exist_flag == false) {
             wxString msg = _("The GeoDa project file cannot find one or more associated data sources.\n\nDetails: GeoDa is looking for: %s\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project.");
             msg = wxString::Format(msg, file_repository_path);
-            throw GdaException(GET_ENCODED_FILENAME(msg));
+            throw GdaException(msg.mb_str(wxConvUTF8));
         }
 	} catch (std::exception &e) {
 		throw GdaException(e.what());

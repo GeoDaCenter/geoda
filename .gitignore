@@ -101,3 +101,4 @@ BuildTools/macosx/temp1/boost_1_57_0/b2
 .vs/slnx.sqlite
 BuildTools/temp/CLAPACK-3.1.1-VisualStudio/BLAS/blas.vcproj
 *.sqlite-journal
+osm/

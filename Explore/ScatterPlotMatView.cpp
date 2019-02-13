@@ -506,7 +506,8 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
 		
 	} else {
 		for (int row=0; row<num_vars; ++row) {
-			wxString row_nm(var_man.GetName(row));
+            wxString row_nm;
+            row_nm = var_man.GetName(row);
 			int row_tm(var_man.GetTime(row));
             
             if (data_map[row_nm].size() == 1)
@@ -523,7 +524,7 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                 }
                 wxString col_nm(var_man.GetName(col));
                 int col_tm = 0;
-                if (!var_man.IsTimeVariant(col)) {
+                if (var_man.IsTimeVariant(col)) {
                     col_tm = var_man.GetTime(col);
                 }
                 const vector<bool>& X_undef = data_undef_map[col_nm][col_tm];
@@ -590,10 +591,10 @@ void ScatterPlotMatFrame::SetupPanelForNumVariables(int num_vars)
                     continue;
                 }
 				wxString col_nm(var_man.GetName(col));
-				int col_tm(var_man.GetTime(col));
-                
-                if (data_map[row_nm].size() == 1)
-                    col_tm = 0;
+                int col_tm = 0;
+                if (var_man.IsTimeVariant(col)) {
+                    col_tm = var_man.GetTime(col);
+                }
                 
 				wxString col_title(var_man.GetNameWithTime(col));
                 
@@ -744,9 +745,16 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
 	TableInterface* table_int = project->GetTableInt();
 	for (set<wxString>::iterator i=to_add.begin(); i!=to_add.end(); ++i) {
 		wxString nm = (*i);
+        wxString group_name = nm;
 		int c_id = table_int->FindColId(nm);
 		if (c_id < 0) {
-			continue;
+            // possible time grouped variable
+            int pos = nm.Find(" (");
+            int pos1 = nm.Find(")");
+            if (pos == wxNOT_FOUND && pos1 == wxNOT_FOUND) return;
+            group_name = nm.SubString(0, pos-1);
+            c_id = table_int->FindColId(group_name);
+            if (c_id <0) continue;
 		}
 		int tms = table_int->GetColTimeSteps(c_id);
         vec_vec_dbl_type dat(tms);
@@ -757,8 +765,8 @@ void ScatterPlotMatFrame::UpdateDataMapFromVarMan()
             table_int->GetColUndefined(c_id, t, dat_undef[t]);
 		}
         
-        data_map[nm] = dat;
-        data_undef_map[nm] = dat_undef;
+        data_map[group_name] = dat;
+        data_undef_map[group_name] = dat_undef;
 	}
 }
 

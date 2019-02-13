@@ -103,6 +103,18 @@ OGRLayerProxy::~OGRLayerProxy()
 	fields.clear();
 }
 
+bool OGRLayerProxy::IsFieldCaseSensitive(GdaConst::DataSourceType ds_type)
+{
+    if (ds_type == GdaConst::ds_sqlite ||
+        ds_type == GdaConst::ds_gpkg || // based on sqlite
+        ds_type == GdaConst::ds_mysql || // on windows only
+        ds_type == GdaConst::ds_postgresql || // old version
+        ds_type == GdaConst::ds_cartodb // based on postgresql
+    ) {
+        return false;
+    }
+    return true;
+}
 OGRwkbGeometryType OGRLayerProxy::GetShapeType()
 {
     return eGType;
@@ -162,7 +174,7 @@ wxString OGRLayerProxy::GetFieldName(int pos)
 
 void OGRLayerProxy::SetFieldName(int pos, const wxString& new_fname)
 {
-    fields[pos]->SetName(new_fname);
+    fields[pos]->SetName(new_fname, IsFieldCaseSensitive(ds_type));
 }
 
 GdaConst::FieldType OGRLayerProxy::GetFieldType(int pos)
@@ -197,9 +209,10 @@ int OGRLayerProxy::GetFieldDecimals(int pos)
 
 int OGRLayerProxy::GetFieldPos(const wxString& field_name)
 {
+    bool case_sensitive = IsFieldCaseSensitive(ds_type);
 	for (size_t i=0, iend=fields.size(); i<iend; ++i) {
         wxString fname = fields[i]->GetName();
-		if (fname.CmpNoCase(field_name)==0)
+		if (fname.IsSameAs(field_name, case_sensitive))
             return i;
 	}
     return -1;
@@ -326,9 +339,11 @@ OGRFieldType OGRLayerProxy::GetOGRFieldType(GdaConst::FieldType field_type)
 bool OGRLayerProxy::IsFieldExisted(const wxString& field_name)
 {
 	// check if field existed by given field name
+    bool case_sensitive = IsFieldCaseSensitive(ds_type);
 	vector<OGRFieldProxy*>::iterator it;
 	for (it = fields.begin(); it!=fields.end(); it++){
-		if (field_name.CmpNoCase((*it)->GetName()) == 0 ){
+        wxString name = (*it)->GetName();
+		if (field_name.IsSameAs(name)){
             return true;
 		}
 	}
@@ -379,7 +394,11 @@ void OGRLayerProxy::DeleteField(int pos)
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
+#ifdef __linux__
+	// move to official gdal on linux, so no need to call DeleteField()
+#else
 		my_feature->DeleteField(pos);
+#endif
     }
 	// delete field in actual datasource
 	if( this->layer->DeleteField(pos) != OGRERR_NONE ) {
@@ -729,9 +748,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {
-        if (stop_exporting) {
-            return;
-        }
+        if (stop_exporting) return;
         OGRFeature *poFeature = OGRFeature::CreateFeature(featureDefn);
         if ( !geometries.empty()) {
             poFeature->SetGeometryDirectly( geometries[i] );
@@ -739,35 +756,24 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         data.push_back(poFeature);
     }
     
-    int export_size = data.size()==0 ? table->GetNumberRows() : data.size();
+    int export_size = data.size();
     export_progress = export_size / 4;
-   
-    bool ignore_case = false;
-    
-    if (ds_type == GdaConst::ds_postgresql ||
-        ds_type == GdaConst::ds_sqlite) {
-        ignore_case = true;
-    }
-    
+
     // Fill the feature with content
     if (table != NULL) {
+        if (export_size == 0) export_size = table->GetNumberRows();
+        export_progress = export_size / 4;
+        // using orders in wxGrid
+        std::vector<int> col_id_map;
+        table->FillColIdMap(col_id_map);
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
-            
             wxString fname = fields[j]->GetName();
             GdaConst::FieldType ftype = fields[j]->GetType();
-           
             // get underneath column position (no group and time =0)
-            int col_pos = table->GetColIdx(fname, ignore_case);
-          
-            if (col_pos < 0) {
-                continue;
-            }
-            
+            int col_pos = col_id_map[j];
             vector<bool> undefs;
-            
             if ( ftype == GdaConst::long64_type) {
-                
                 vector<wxInt64> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
@@ -780,12 +786,10 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     } else {
                         data[k]->SetField(j, (GIntBig)(col_data[orig_id]));
                     }
-                    if (stop_exporting)
-                        return;
+                    if (stop_exporting) return;
                 }
                 
             } else if (ftype == GdaConst::double_type) {
-                
                 vector<double> col_data;
                 table->GetDirectColData(col_pos, col_data);
                 table->GetDirectColUndefined(col_pos, undefs);
@@ -798,10 +802,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     } else {
                         data[k]->SetField(j, col_data[orig_id]);
                     }
-                    if (stop_exporting)
-                        return;
+                    if (stop_exporting) return;
                 }
-                
             } else if (ftype == GdaConst::date_type ||
                        ftype == GdaConst::time_type ||
                        ftype == GdaConst::datetime_type ) {
@@ -828,7 +830,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                     }
                     if (stop_exporting) return;
                 }
-                
             } else if (ftype == GdaConst::placeholder_type) {
                 // KML case: there are by default two fields:
                 // [Name, Description], so if placeholder that
@@ -847,7 +848,6 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
                             col_data[m] = " ";
                     }
                 }
-                
                 for (size_t k=0; k<selected_rows.size();++k) {
                     int orig_id = selected_rows[k];
                     
@@ -871,11 +871,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
    
     int n_data = data.size();
     for (int i=0; i<n_data; i++) {
-        if (stop_exporting)
-            return;
-        if ((i+1)%2==0) {
-            export_progress++;
-        }
+        if (stop_exporting) return;
+        if ( (i+1)%2 ==0 ) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
             wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n", i + 1, n_data);
             error_message << msg << CPLGetLastErrorMsg();
