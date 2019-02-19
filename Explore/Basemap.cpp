@@ -286,6 +286,21 @@ void Basemap::Reset(int map_type)
     SetupMapType(basemap_item);
 }
 
+void Basemap::Extent(double _n, double _w, double _s, double _e,
+                     OGRCoordinateTransformation *_poCT)
+{
+    if (poCT!= NULL) {
+        poCT->Transform(1, &_w, &_n);
+        poCT->Transform(1, &_e, &_s);
+    }
+    map->north = _n;
+    map->south= _s;
+    map->west= _w;
+    map->east= _e;
+    GetEasyZoomLevel();
+    SetupMapType(basemap_item);
+}
+
 void Basemap::ResizeScreen(int _width, int _height)
 {
     if (screen) {

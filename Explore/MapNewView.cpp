@@ -259,6 +259,11 @@ MapCanvas::~MapCanvas()
     }
 }
 
+void MapCanvas::GetExtent(double &minx, double &miny, double &maxx, double &maxy)
+{
+    project->GetMapExtent(minx, miny, maxx, maxy);
+}
+
 Shapefile::Main& MapCanvas::GetGeometryData()
 {
     return project->main_data;
@@ -551,16 +556,40 @@ void MapCanvas::deleteLayerBms()
     TemplateCanvas::deleteLayerBms();
 }
 
+void MapCanvas::ExtentMap()
+{
+    double minx, miny, maxx, maxy;
+    if (fg_maps.empty()) {
+        this->GetExtent(minx, miny, maxx, maxy);
+    } else {
+        // if multi layers are loaded, use top layer to extent map
+        BackgroundMapLayer* top_layer = fg_maps[0];
+        top_layer->GetExtent(minx, miny, maxx, maxy);
+    }
+    if (basemap) {
+        OGRCoordinateTransformation *poCT = NULL;
+        if (project->sourceSR != NULL) {
+            OGRSpatialReference destSR;
+            destSR.importFromEPSG(4326);
+            poCT = OGRCreateCoordinateTransformation(project->sourceSR,
+                                                     &destSR);
+        }
+        basemap->Extent(miny, minx, maxy, maxx, poCT);
+    }
+    last_scale_trans.SetData(minx, miny, maxx, maxy);
+}
+
 void MapCanvas::ResetShapes()
 {
     if (faded_layer_bm) {
         delete faded_layer_bm;
         faded_layer_bm = NULL;
     }
-    if (basemap) {
-        basemap->Reset();
-    }
-    last_scale_trans.Reset();
+
+    // extent map
+    ExtentMap();
+
+    // other rest
     is_pan_zoom = false;
     ResetBrushing();
     SetMouseMode(select);
@@ -748,8 +777,16 @@ bool MapCanvas::InitBasemap()
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
         Gda::Screen* screen = new Gda::Screen(screenW, screenH);
-        Gda::MapLayer* current_map = new Gda::MapLayer(last_scale_trans.data_y_max, last_scale_trans.data_x_min, last_scale_trans.data_y_min, last_scale_trans.data_x_max, poCT);
-        Gda::MapLayer* orig_map = new Gda::MapLayer(last_scale_trans.orig_data_y_max, last_scale_trans.orig_data_x_min, last_scale_trans.orig_data_y_min, last_scale_trans.orig_data_x_max, poCT);
+        Gda::MapLayer* current_map = new Gda::MapLayer(last_scale_trans.data_y_max,
+                                                       last_scale_trans.data_x_min,
+                                                       last_scale_trans.data_y_min,
+                                                       last_scale_trans.data_x_max,
+                                                       poCT);
+        Gda::MapLayer* orig_map = new Gda::MapLayer(last_scale_trans.orig_data_y_max,
+                                                    last_scale_trans.orig_data_x_min,
+                                                    last_scale_trans.orig_data_y_min,
+                                                    last_scale_trans.orig_data_x_max,
+                                                    poCT);
         if (poCT == NULL && !orig_map->IsWGS84Valid()) {
             isDrawBasemap = false;
             wxStatusBar* sb = 0;
@@ -762,7 +799,9 @@ bool MapCanvas::InitBasemap()
             }
             return false;
         } else {
-            basemap = new Gda::Basemap(basemap_item, screen, current_map, orig_map, GenUtils::GetBasemapCacheDir(), poCT, scale_factor);
+            basemap = new Gda::Basemap(basemap_item, screen, current_map,
+                                       orig_map, GenUtils::GetBasemapCacheDir(),
+                                       poCT, scale_factor);
         }
     }
     return true;
@@ -2615,6 +2654,7 @@ void MapCanvas::DisplayMapLayers()
 {
     wxLogMessage("MapCanvas::DisplayMapLayers()");
     full_map_redraw_needed = true;
+    ExtentMap();
     PopulateCanvas();
 }
 
