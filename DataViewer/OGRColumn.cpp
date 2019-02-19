@@ -1074,7 +1074,10 @@ void OGRColumnString::SetValueAt(int row_idx, const wxString &value,
         new_data[row_idx] = value;
     } else {
         int col_idx = GetColIndex();
-        ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str(*m_wx_encoding));
+        if (m_wx_encoding)
+            ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str(*m_wx_encoding));
+        else
+            ogr_layer->data[row_idx]->SetField(col_idx, value.mb_str());
     }
     undef_markers[row_idx] = false;
 }
