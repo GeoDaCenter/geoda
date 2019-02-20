@@ -408,7 +408,7 @@ namespace Gda {
         void Reset();
         void Refresh();
         bool IsReady();
-        
+        bool IsExtentChanged();
         void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();

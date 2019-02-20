@@ -297,6 +297,10 @@ void Basemap::Extent(double _n, double _w, double _s, double _e,
     map->south= _s;
     map->west= _w;
     map->east= _e;
+    origMap->north = _n;
+    origMap->south= _s;
+    origMap->west= _w;
+    origMap->east= _e;
     GetEasyZoomLevel();
     SetupMapType(basemap_item);
 }
@@ -367,6 +371,15 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     GetEasyZoomLevel();
     GetTiles();
     return true;
+}
+
+bool Basemap::IsExtentChanged()
+{
+    bool no_change = (origMap->north == map->north &&
+                      origMap->south == map->south &&
+                      origMap->east == map->east &&
+                      origMap->west == map->west);
+    return !no_change;
 }
 
 void Basemap::ZoomIn(int mouseX, int mouseY)

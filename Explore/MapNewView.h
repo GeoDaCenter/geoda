@@ -151,6 +151,7 @@ public:
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
     virtual void ExtentMap();
+    virtual bool IsExtentChanged();
     virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
                                       int virtual_scrn_h = 0);
 	virtual void PopulateCanvas();

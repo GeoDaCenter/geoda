@@ -556,6 +556,22 @@ void MapCanvas::deleteLayerBms()
     TemplateCanvas::deleteLayerBms();
 }
 
+bool MapCanvas::IsExtentChanged()
+{
+    // indicate if there is any zoom or pan applied on current map
+    bool no_change;
+    if (basemap) {
+        no_change = !basemap->IsExtentChanged();
+    } else {
+        no_change = (last_scale_trans.data_x_min == last_scale_trans.orig_data_x_min &&
+                     last_scale_trans.data_x_max == last_scale_trans.orig_data_x_max &&
+                     last_scale_trans.data_y_min == last_scale_trans.orig_data_y_min &&
+                     last_scale_trans.data_y_max == last_scale_trans.orig_data_y_max);
+    }
+
+    return !no_change;
+}
+
 void MapCanvas::ExtentMap()
 {
     double minx, miny, maxx, maxy;
@@ -574,7 +590,7 @@ void MapCanvas::ExtentMap()
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,
                                                      &destSR);
         }
-        basemap->Extent(miny, minx, maxy, maxx, poCT);
+        basemap->Extent(maxy, minx, miny, maxx, poCT);
     }
     last_scale_trans.SetData(minx, miny, maxx, maxy);
 }
@@ -650,10 +666,10 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         last_scale_trans.SetView(cs_w, cs_h);
         resizeLayerBms(cs_w, cs_h);
         if (isDrawBasemap) {
-            if (basemap == NULL)
-                InitBasemap();
-            if (basemap)
+            if (basemap == NULL) InitBasemap();
+            if (basemap) { // it is not sure InitBasemap will success
                 basemap->ResizeScreen(cs_w, cs_h);
+            }
         }
         ResizeSelectableShps();
         event.RequestMore(); // render continuously, not only once on idle
@@ -769,24 +785,23 @@ bool MapCanvas::InitBasemap()
         int screenW = sz.GetWidth();
         int screenH = sz.GetHeight();
         OGRCoordinateTransformation *poCT = NULL;
-        
         if (project->sourceSR != NULL) {
-            int nGCS = project->sourceSR->GetEPSGGeogCS();
             OGRSpatialReference destSR;
             destSR.importFromEPSG(4326);
             poCT = OGRCreateCoordinateTransformation(project->sourceSR,&destSR);
         }
         Gda::Screen* screen = new Gda::Screen(screenW, screenH);
-        Gda::MapLayer* current_map = new Gda::MapLayer(last_scale_trans.data_y_max,
-                                                       last_scale_trans.data_x_min,
-                                                       last_scale_trans.data_y_min,
-                                                       last_scale_trans.data_x_max,
-                                                       poCT);
-        Gda::MapLayer* orig_map = new Gda::MapLayer(last_scale_trans.orig_data_y_max,
-                                                    last_scale_trans.orig_data_x_min,
-                                                    last_scale_trans.orig_data_y_min,
-                                                    last_scale_trans.orig_data_x_max,
-                                                    poCT);
+        Gda::MapLayer *current_map, *orig_map;
+        current_map = new Gda::MapLayer(last_scale_trans.data_y_max,
+                                        last_scale_trans.data_x_min,
+                                        last_scale_trans.data_y_min,
+                                        last_scale_trans.data_x_max,
+                                        poCT);
+        orig_map = new Gda::MapLayer(last_scale_trans.orig_data_y_max,
+                                     last_scale_trans.orig_data_x_min,
+                                     last_scale_trans.orig_data_y_min,
+                                     last_scale_trans.orig_data_x_max,
+                                     poCT);
         if (poCT == NULL && !orig_map->IsWGS84Valid()) {
             isDrawBasemap = false;
             wxStatusBar* sb = 0;
@@ -797,6 +812,8 @@ bool MapCanvas::InitBasemap()
                     sb->SetStatusText(s);
                 }
             }
+            delete current_map;
+            delete orig_map;
             return false;
         } else {
             basemap = new Gda::Basemap(basemap_item, screen, current_map,
@@ -910,7 +927,6 @@ void MapCanvas::DrawLayerBase()
         if (basemap != 0) {
             layerbase_valid = basemap->Draw(basemap_bm);
             // trigger to draw again, since it's drawing on ONE bitmap,
-            // not multilayer with transparency support
             layer0_valid = false;
         }
     }
@@ -2654,7 +2670,6 @@ void MapCanvas::DisplayMapLayers()
 {
     wxLogMessage("MapCanvas::DisplayMapLayers()");
     full_map_redraw_needed = true;
-    ExtentMap();
     PopulateCanvas();
 }
 
