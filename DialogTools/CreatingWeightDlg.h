@@ -95,6 +95,7 @@ public:
     void OnDistanceWeightsVarsSel( wxCommandEvent& event );
     void OnDistanceMetricVarsSel( wxCommandEvent& event );
     void OnWeightTypeSelect( wxCommandEvent& event );
+    void OnWeightVariableSelect( wxCommandEvent& event );
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
 	

@@ -223,6 +223,8 @@ void CreatingWeightDlg::CreateControls()
     m_nb_weights_type->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                             &CreatingWeightDlg::OnWeightTypeSelect, this);
     m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                            &CreatingWeightDlg::OnWeightVariableSelect, this);
+    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                                   &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
     m_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnDistanceWeightsVarsSel, this);
     m_dist_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
@@ -236,6 +238,16 @@ void CreatingWeightDlg::OnWeightTypeSelect( wxCommandEvent& event )
     if (is_table_only && sel == 0) {
         // force to "distance weight"
         m_nb_weights_type->SetSelection(1);
+        m_nb_distance_variables->SetSelection(1);
+    }
+}
+
+void CreatingWeightDlg::OnWeightVariableSelect( wxCommandEvent& event )
+{
+    int sel = event.GetSelection();
+    if (is_table_only && sel == 0) {
+        // force to "distance weight"
+        m_nb_distance_variables->SetSelection(1);
     }
 }
 
@@ -977,7 +989,12 @@ void CreatingWeightDlg::InitDlg()
         FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
         m_nb_distance_variables->Hide();
     }
-    
+
+    if (is_table_only) {
+        // force to "distance weight"
+        m_nb_weights_type->SetSelection(1);
+        m_nb_distance_variables->SetSelection(1);
+    }
 	Refresh();
 }
 
