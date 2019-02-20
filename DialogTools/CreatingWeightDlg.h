@@ -94,6 +94,7 @@ public:
     void OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event );
     void OnDistanceWeightsVarsSel( wxCommandEvent& event );
     void OnDistanceMetricVarsSel( wxCommandEvent& event );
+    void OnWeightTypeSelect( wxCommandEvent& event );
 	/** Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
 	
@@ -165,7 +166,7 @@ protected:
 	TableState* table_state;
 	WeightsManState* w_man_state;
 	WeightsManInterface* w_man_int;
-
+    bool is_table_only;
     bool user_xy;
 	// col_id_map[i] is a map from the i'th numeric item in the
 	// fields drop-down to the actual col_id_map.  Items

@@ -289,7 +289,7 @@ OGRColumnInteger::OGRColumnInteger(wxString name, int field_length, int decimals
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0;
-        undef_markers[i] = false;
+        undef_markers[i] = true;
     }
 }
 
@@ -303,7 +303,7 @@ OGRColumnInteger::OGRColumnInteger(OGRLayerProxy* ogr_layer, wxString name,
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = 0;
-        undef_markers[i] = false;
+        undef_markers[i] = true;
     }
 }
 
@@ -467,8 +467,8 @@ void OGRColumnInteger::SetValueAt(int row_idx, const wxString &value,
     }
     
     wxInt64 l_val;
-    if ( GenUtils::validInt(value) ) {
-        GenUtils::strToInt64(value, &l_val);
+
+    if (value.ToLongLong(&l_val)) {
         if (is_new) {
             new_data[row_idx] = l_val;
         } else {
@@ -741,7 +741,7 @@ OGRColumnString::OGRColumnString(wxString name, int field_length,
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = wxEmptyString;
-        undef_markers[i] = false;
+        undef_markers[i] = true;
     }
 }
 OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
@@ -754,7 +754,7 @@ OGRColumnString::OGRColumnString(OGRLayerProxy* ogr_layer, wxString name,
     undef_markers.resize(rows);
     for (int i=0; i<rows; ++i) {
         new_data[i] = wxEmptyString;
-        undef_markers[i] = false;
+        undef_markers[i] = true;
     }
 }
 
@@ -787,9 +787,6 @@ void OGRColumnString::FillData(vector<double>& data)
         for (int i=0; i<rows; ++i) {
             double val = 0.0;
             if ( !new_data[i].ToDouble(&val) ) {
-                // internal is always local "C"
-                //wxString error_msg = wxString::Format( "Fill data error: can't convert '%s' to floating-point number.", new_data[i]);
-                //throw GdaException(error_msg.c_str());
                 undef_markers[i] = true;
             }
             data[i] = val;
@@ -815,6 +812,8 @@ void OGRColumnString::FillData(vector<double>& data)
             } else if (tmp.ToDouble(&val)) {
                 data[i] = val;
             } else {
+                // get name of current locale
+                char *old_locale = setlocale(LC_NUMERIC, NULL);
                 // try comma as decimal point
                 setlocale(LC_NUMERIC, "de_DE");
                 double _val;
@@ -824,7 +823,7 @@ void OGRColumnString::FillData(vector<double>& data)
                     data[i] = 0.0;
                     undef_markers[i] = true;
                 }
-                setlocale(LC_NUMERIC, "C");
+                setlocale(LC_NUMERIC, old_locale);
             }
         }
     }
@@ -879,6 +878,8 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 data[i] = val;
                 
             } else {
+                // get name of current locale
+                char *old_locale = setlocale(LC_NUMERIC, NULL);
                 setlocale(LC_NUMERIC, "de_DE");
                 wxInt64 val_;
                 double val_d_;
@@ -893,7 +894,7 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                     data[i] = 0;
                     undef_markers[i] = true;
                 }
-                setlocale(LC_NUMERIC, "C");
+                setlocale(LC_NUMERIC, old_locale);
             }
         }
     }

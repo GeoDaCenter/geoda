@@ -74,9 +74,7 @@ bool wxTranslationHelper::Load()
 	wxArrayString names;
 	wxArrayLong identifiers;
 	GetInstalledLanguages(names, identifiers);
-	
-    //AskUserForLanguage(names, identifiers);
-    
+
     for(size_t i = 0; i < identifiers.Count(); i++) {
 		if(identifiers[i] == language) {
             if(m_Locale) {
