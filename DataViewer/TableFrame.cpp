@@ -106,42 +106,30 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);
 		double cur_lbl_len = grid->GetColLabelValue(i).length();
-		double avg_cell_len = 0;
+		double max_cell_len = 0;
 		for (int j=0; j<sample-1; ++j) {
 			wxString cv = grid->GetCellValue(j, i);
 			cv.Trim(true);
 			cv.Trim(false);
-			avg_cell_len += cv.length();
+            if (cv.length() > max_cell_len) max_cell_len = cv.length();
 		}
-		if (sample >= 1) { // sample last row
-            wxString txt = grid->GetCellValue(table_base->GetNumberRows()-1, i);
-			avg_cell_len += txt.length();
-		}
-		avg_cell_len /= (double) sample;
-		if (avg_cell_len > cur_lbl_len &&
-			avg_cell_len >= 1 && cur_lbl_len >= 1) {
+		if (max_cell_len > cur_lbl_len &&
+			max_cell_len >= 1 && cur_lbl_len >= 1) {
 			// attempt to scale up col width based on cur_col_size
-			double fac = avg_cell_len / cur_lbl_len;
-			fac *= 1.2;
+			double fac = max_cell_len / cur_lbl_len;
 			if (fac < 1) fac = 1;
-			if (fac < 1.5 && fac > 1) fac = 1.5;
 			if (fac > 5) fac = 5;
-            grid->SetColMinimalWidth(i, cur_col_size*fac);
-			grid->SetColSize(i, cur_col_size*fac);
+            fac = fac * 1.2;
+            grid->SetColMinimalWidth(i, cur_col_size * fac);
+			grid->SetColSize(i, cur_col_size * fac);
 		} else {
 			// add a few pixels of buffer to current label
 			grid->SetColMinimalWidth(i, cur_col_size+6);
 			grid->SetColSize(i, cur_col_size+6);
 		}
 	}
-	
-    //if (!project->IsFileDataSource()) {
-    //    grid->DisableDragColMove();
-    //}
-    
-    //grid->SetMargins(0 - wxSYS_VSCROLL_X, 0);
     grid->ForceRefresh();
-   
+
     wxBoxSizer *box = new wxBoxSizer(wxVERTICAL);
     box->Add(grid, 1, wxEXPAND | wxALL, 0);
     panel->SetSizerAndFit(box);
@@ -223,7 +211,6 @@ void TableFrame::OnMenuClose(wxCommandEvent& event)
 void TableFrame::MapMenus()
 {
 	// Map Default Options Menus
-    //wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_DEFAULT_MENU_OPTIONS");
     wxMenu* optMenu=wxXmlResource::Get()->LoadMenu("ID_TABLE_VIEW_MENU_CONTEXT");
 	GeneralWxUtils::ReplaceMenu(GdaFrame::GetGdaFrame()->GetMenuBar(), _("Options"), optMenu);
 }

@@ -97,7 +97,8 @@ w_man_int(project_s->GetWManInt()),
 w_man_state(project_s->GetWManState()),
 m_num_obs(project_s->GetNumRecords()),
 m_cbx_precision_threshold_first_click(true),
-suspend_table_state_updates(false)
+suspend_table_state_updates(false),
+is_table_only(project_s->IsTableOnlyProject())
 {
     wxLogMessage("Open CreatingWeightDlg");
 	Create(parent, id, caption, pos, size, style);
@@ -219,11 +220,35 @@ void CreatingWeightDlg::CreateControls()
     m_power->Enable(false);
     m_power_knn->Enable(false);
 
-    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED, &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
+    m_nb_weights_type->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                            &CreatingWeightDlg::OnWeightTypeSelect, this);
+    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                            &CreatingWeightDlg::OnWeightVariableSelect, this);
+    m_nb_distance_variables->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
+                                  &CreatingWeightDlg::OnDistanceWeightsInputUpdate, this);
     m_Vars->Bind(wxEVT_LISTBOX, &CreatingWeightDlg::OnDistanceWeightsVarsSel, this);
     m_dist_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
     m_trans_choice_vars->Bind(wxEVT_CHOICE, &CreatingWeightDlg::OnDistanceMetricVarsSel, this);
 	InitDlg();
+}
+
+void CreatingWeightDlg::OnWeightTypeSelect( wxCommandEvent& event )
+{
+    int sel = event.GetSelection();
+    if (is_table_only && sel == 0) {
+        // force to "distance weight"
+        m_nb_weights_type->SetSelection(1);
+        m_nb_distance_variables->SetSelection(1);
+    }
+}
+
+void CreatingWeightDlg::OnWeightVariableSelect( wxCommandEvent& event )
+{
+    int sel = event.GetSelection();
+    if (is_table_only && sel == 0) {
+        // force to "distance weight"
+        m_nb_distance_variables->SetSelection(1);
+    }
 }
 
 void CreatingWeightDlg::OnDistanceMetricVarsSel( wxCommandEvent& event )
@@ -964,7 +989,12 @@ void CreatingWeightDlg::InitDlg()
         FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
         m_nb_distance_variables->Hide();
     }
-    
+
+    if (is_table_only) {
+        // force to "distance weight"
+        m_nb_weights_type->SetSelection(1);
+        m_nb_distance_variables->SetSelection(1);
+    }
 	Refresh();
 }
 

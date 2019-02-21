@@ -215,20 +215,10 @@ bool GdaApp::OnInit(void)
 {
 	if (!wxApp::OnInit())
         return false;
-    
+
     // initialize OGR connection
 	OGRDataAdapter::GetInstance();
 
-    // By defaut, GDAL will use user's system locale to read any input datasource
-    // However, user can change the Separators in GeoDa, after re-open the
-    // datasource, CSV reader will use the Separators
-    struct lconv *poLconv = localeconv();
-    CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
-    CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
-    
-    // forcing to UTF-8 locale, which is used internally in GeoDa
-    setlocale(LC_ALL, "en_US.UTF-8");
-    
     // load preferences
     PreferenceDlg::ReadFromCache();
     
@@ -244,7 +234,9 @@ bool GdaApp::OnInit(void)
     m_TranslationHelper = new wxTranslationHelper(*this, search_path, use_native_config);
     m_TranslationHelper->SetConfigPath(config_path);
     m_TranslationHelper->Load();
-     
+    // forcing numeric settings to en_US, which is used internally in GeoDa
+    setlocale(LC_NUMERIC, "en_US");
+
     // Other GDAL configurations
     if (GdaConst::hide_sys_table_postgres == false) {
         CPLSetConfigOption("PG_LIST_ALL_TABLES", "YES");
@@ -253,7 +245,8 @@ bool GdaApp::OnInit(void)
         CPLSetConfigOption("SQLITE_LIST_ALL_TABLES", "YES");
     }
     if (GdaConst::gdal_http_timeout >= 0 ) {
-        CPLSetConfigOption("GDAL_HTTP_TIMEOUT", wxString::Format("%d", GdaConst::gdal_http_timeout));
+        CPLSetConfigOption("GDAL_HTTP_TIMEOUT",
+                           wxString::Format("%d", GdaConst::gdal_http_timeout));
     }
     CPLSetConfigOption("OGR_XLS_HEADERS", "FORCE");
     CPLSetConfigOption("OGR_XLSX_HEADERS", "FORCE");

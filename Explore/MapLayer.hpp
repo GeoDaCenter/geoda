@@ -51,7 +51,8 @@ public:
     
     virtual GdaShape* GetShape(int i) = 0;
     //virtual vector<GdaShape*> GetShapes() = 0;
-    //virtual wxRect GetExtent() = 0;
+    virtual void GetExtent(double &minx, double &miny, double &maxx,
+                           double &maxy) = 0;
     
     virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
                                      wxString key, bool show_connline=true) = 0;
@@ -105,6 +106,7 @@ public:
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
     virtual int GetHighlightRecords();
+    virtual void GetExtent(double &minx, double &miny, double &maxx, double &maxy);
 
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers

@@ -397,7 +397,8 @@ namespace Gda {
         wxString GetTilePath(int x, int y);
         
         bool Draw(wxBitmap* buffer);
-        
+        void Extent(double _n, double _w, double _s, double _e,
+                    OGRCoordinateTransformation *_poCT);
         void ResizeScreen(int _width, int _height);
         void ZoomIn(int mouseX, int mouseY);
         void ZoomOut(int mouseX, int mouseY);
@@ -407,7 +408,7 @@ namespace Gda {
         void Reset();
         void Refresh();
         bool IsReady();
-        
+        bool IsExtentChanged();
         void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();

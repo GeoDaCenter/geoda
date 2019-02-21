@@ -506,7 +506,7 @@ void TableBase::update(TableState* o)
 		BOOST_FOREACH(const TableDeltaEntry& e, o->GetTableDeltaListRef()) {
 			if (e.insert) {
 				if (e.type == GdaConst::long64_type) {
-					GetView()->SetColFormatNumber(e.pos_final);
+                    // leave as a string: for more than 10 digts 64-bit number
 				} else if (e.type == GdaConst::double_type) {
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;

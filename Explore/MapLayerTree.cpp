@@ -1008,6 +1008,7 @@ void MapTree::OnMapLayerChange()
 	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
+    if (!canvas->IsExtentChanged()) canvas->ExtentMap();
     canvas->DisplayMapLayers();
 }
 

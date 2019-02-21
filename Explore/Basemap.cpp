@@ -286,6 +286,25 @@ void Basemap::Reset(int map_type)
     SetupMapType(basemap_item);
 }
 
+void Basemap::Extent(double _n, double _w, double _s, double _e,
+                     OGRCoordinateTransformation *_poCT)
+{
+    if (poCT!= NULL) {
+        poCT->Transform(1, &_w, &_n);
+        poCT->Transform(1, &_e, &_s);
+    }
+    map->north = _n;
+    map->south= _s;
+    map->west= _w;
+    map->east= _e;
+    origMap->north = _n;
+    origMap->south= _s;
+    origMap->west= _w;
+    origMap->east= _e;
+    GetEasyZoomLevel();
+    SetupMapType(basemap_item);
+}
+
 void Basemap::ResizeScreen(int _width, int _height)
 {
     if (screen) {
@@ -352,6 +371,15 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     GetEasyZoomLevel();
     GetTiles();
     return true;
+}
+
+bool Basemap::IsExtentChanged()
+{
+    bool no_change = (origMap->north == map->north &&
+                      origMap->south == map->south &&
+                      origMap->east == map->east &&
+                      origMap->west == map->west);
+    return !no_change;
 }
 
 void Basemap::ZoomIn(int mouseX, int mouseY)

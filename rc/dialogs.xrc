@@ -3482,7 +3482,7 @@
       </object>
       <object class="sizeritem">
           <object class="wxNotebook" name="IDC_NB_WEIGHTS_CREATION">
-              <object class="notebookpage">
+              <object class="notebookpage"  name="IDC_NBPG_CONTIGUITY_WEIGHT">
                   <object class="wxPanel">
                       <object class="wxBoxSizer">
                           <orient>wxVERTICAL</orient>
@@ -3568,7 +3568,7 @@
                   <label>Contiguity Weight</label>
                   <flag>wxALL|wxEXPAND</flag>
               </object>
-              <object class="notebookpage">
+              <object class="notebookpage" name="IDC_NBPG_DISTANCE_WEIGHT">
                   <object class="wxPanel">
                       <object class="wxBoxSizer">
                           <orient>wxVERTICAL</orient>

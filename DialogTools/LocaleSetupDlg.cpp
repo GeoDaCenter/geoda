@@ -59,8 +59,10 @@ LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
 	m_txt_decimal = XRCCTRL(*this, "IDC_FIELD_DECIMAL",wxTextCtrl);
     m_txt_thousands->SetMaxLength(1);
     m_txt_decimal->SetMaxLength(1);
-    wxString thousands_sep = CPLGetConfigOption("GDAL_LOCALE_SEPARATOR", "");
-    wxString decimal_point = CPLGetConfigOption("GDAL_LOCALE_DECIMAL", "");
+
+    struct lconv *poLconv = localeconv();
+    wxString thousands_sep = poLconv->thousands_sep;
+    wxString decimal_point = poLconv->decimal_point;
     
     m_txt_thousands->SetValue(thousands_sep);
     m_txt_decimal->SetValue(decimal_point);
@@ -74,13 +76,7 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
 {
     wxLogMessage("Click LocaleSetupDlg::OnResetSysLocale");
     
-    setlocale(LC_ALL, "");
-    struct lconv *poLconv = localeconv();
-    CPLSetConfigOption("GDAL_LOCALE_SEPARATOR", poLconv->thousands_sep);
-    CPLSetConfigOption("GDAL_LOCALE_DECIMAL", poLconv->decimal_point);
-    // forcing to C locale, which is used internally in GeoDa
-    setlocale(LC_ALL, "C");
-    
+    struct lconv *poLconv = localeconv();    
     wxString thousands_sep = poLconv->thousands_sep;
     wxString decimal_point = poLconv->decimal_point;
     

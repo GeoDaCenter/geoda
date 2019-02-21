@@ -56,6 +56,12 @@ BackgroundMapLayer::~BackgroundMapLayer()
     }
 }
 
+void BackgroundMapLayer::GetExtent(double &minx, double &miny, double &maxx,
+                                   double &maxy)
+{
+    layer_proxy->GetExtent(minx, miny, maxx, maxy);
+}
+
 void BackgroundMapLayer::CleanMemory()
 {
     // shapes and geoms will be not deleted until the map destroyed 

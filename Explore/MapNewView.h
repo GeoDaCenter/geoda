@@ -86,7 +86,8 @@ private:
 };
 
 
-class MapCanvas : public TemplateCanvas, public CatClassifStateObserver, public MapLayerStateObserver, public AssociateLayerInt
+class MapCanvas : public TemplateCanvas, public CatClassifStateObserver,
+                  public MapLayerStateObserver, public AssociateLayerInt
 {
 	DECLARE_CLASS(MapCanvas)
 public:
@@ -149,6 +150,8 @@ public:
     virtual void ResetShapes();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
+    virtual void ExtentMap();
+    virtual bool IsExtentChanged();
     virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
                                       int virtual_scrn_h = 0);
 	virtual void PopulateCanvas();
@@ -211,6 +214,8 @@ public:
     virtual bool IsAssociatedWith(AssociateLayerInt* layer);
     virtual GdaShape* GetShape(int idx);
     virtual int GetHighlightRecords();
+    virtual void GetExtent(double &minx, double &miny, double &maxx,
+                           double &maxy);
     void UpdateMapTree();
     
     Shapefile::Main& GetGeometryData();
