@@ -223,9 +223,7 @@
           <checkable>1</checkable>
         </object>
       </object>
-      <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
-        <label>Set Number Separators</label>
-      </object>
+
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
       <label>&amp;Map</label>
@@ -4596,9 +4594,7 @@
         <checkable>1</checkable>
       </object>
     </object>
-    <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
-      <label>Set Number Separators</label>
-    </object>
+
     <label>Table</label>
   </object>
   <object class="wxMenu" name="ID_REPORT_VIEW_MENU_CONTEXT">

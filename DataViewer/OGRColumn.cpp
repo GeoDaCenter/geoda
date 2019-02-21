@@ -795,16 +795,14 @@ void OGRColumnString::FillData(vector<double>& data)
     } else {
         int col_idx = GetColIndex();
         wxString tmp;
-        
-        // default C locale
+        char *old_locale, *saved_locale = 0;
+
         for (int i=0; i<rows; ++i) {
             if ( undef_markers[i] == true) {
                 data[i] = 0.0;
                 continue;
             }
-           
             tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-            
             double val;
             if (tmp.IsEmpty()) {
                 data[i] = 0.0;
@@ -812,10 +810,15 @@ void OGRColumnString::FillData(vector<double>& data)
             } else if (tmp.ToDouble(&val)) {
                 data[i] = val;
             } else {
-                // get name of current locale
-                char *old_locale = setlocale(LC_NUMERIC, NULL);
-                // try comma as decimal point
-                setlocale(LC_NUMERIC, "de_DE");
+                // try to use different locale
+                if (i==0) {
+                    // get name of current locale
+                    old_locale = setlocale(LC_NUMERIC, NULL);
+                    // Copy the name so it won’t be clobbered by setlocale
+                    saved_locale = strdup (old_locale);
+                    // try comma as decimal point
+                    setlocale(LC_NUMERIC, "de_DE");
+                }
                 double _val;
                 if (tmp.ToDouble(&_val)) {
                     data[i] = _val;
@@ -823,8 +826,12 @@ void OGRColumnString::FillData(vector<double>& data)
                     data[i] = 0.0;
                     undef_markers[i] = true;
                 }
-                setlocale(LC_NUMERIC, old_locale);
             }
+        }
+        if (saved_locale) {
+            // restore locale
+            setlocale(LC_NUMERIC, saved_locale);
+            free(saved_locale);
         }
     }
 }
@@ -854,14 +861,13 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
         int col_idx = GetColIndex();
         bool conv_success = true;
         wxString tmp;
-        
-        // default C locale
+        char *old_locale, *saved_locale = 0;
+
         for (int i=0; i<rows; ++i) {
             if ( undef_markers[i] == true) {
                 data[i] = 0;
                 continue;
             }
-            
             tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
             wxInt64 val;
             double val_d;
@@ -878,9 +884,15 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 data[i] = val;
                 
             } else {
-                // get name of current locale
-                char *old_locale = setlocale(LC_NUMERIC, NULL);
-                setlocale(LC_NUMERIC, "de_DE");
+                // try to use different locale
+                if (i==0) {
+                    // get name of current locale
+                    old_locale = setlocale(LC_NUMERIC, NULL);
+                    // Copy the name so it won’t be clobbered by setlocale
+                    saved_locale = strdup (old_locale);
+                    // try comma as decimal point
+                    setlocale(LC_NUMERIC, "de_DE");
+                }
                 wxInt64 val_;
                 double val_d_;
                 if (tmp.ToLongLong(&val_)) {
@@ -894,8 +906,12 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                     data[i] = 0;
                     undef_markers[i] = true;
                 }
-                setlocale(LC_NUMERIC, old_locale);
             }
+        }
+        if (saved_locale) {
+            // restore locale
+            setlocale(LC_NUMERIC, saved_locale);
+            free(saved_locale);
         }
     }
 }

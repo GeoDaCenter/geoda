@@ -212,8 +212,9 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     
     fieldGrid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
                        wxCommandEventHandler(CsvFieldConfDlg::OnFieldSelected),
-                       NULL,
-                       this);
+                       NULL, this);
+    // hide locale button, since it will be handled in Table directly
+    btn_locale->Hide();
 }
 
 CsvFieldConfDlg::~CsvFieldConfDlg()
