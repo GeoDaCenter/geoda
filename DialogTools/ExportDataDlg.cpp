@@ -96,8 +96,15 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
     Init(parent, pos);
 }
 
-ExportDataDlg::ExportDataDlg(wxWindow* parent, Shapefile::ShapeType _shape_type, std::vector<GdaShape*>& _geometries, OGRSpatialReference* _spatial_ref, OGRTable* table, const wxPoint& pos, const wxSize& size)
-: is_selected_only(false), project_p(NULL), geometries(_geometries), shape_type(_shape_type), is_saveas_op(true), is_geometry_only(false), table_p(table), is_table_only(false), is_save_centroids(false), spatial_ref(_spatial_ref)
+ExportDataDlg::ExportDataDlg(wxWindow* parent, Shapefile::ShapeType _shape_type,
+                             std::vector<GdaShape*>& _geometries,
+                             OGRSpatialReference* _spatial_ref,
+                             OGRTable* table, const wxPoint& pos,
+                             const wxSize& size)
+: is_selected_only(false), project_p(NULL), geometries(_geometries),
+  shape_type(_shape_type), is_saveas_op(true), is_geometry_only(false),
+  table_p(table), is_table_only(false), is_save_centroids(false),
+  spatial_ref(_spatial_ref)
 {
     Init(parent, pos);
 }
@@ -287,26 +294,22 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
                     wxString y_field_name = "COORD_Y";
                     x_field_name.UpperCase();
                     y_field_name.UpperCase();
-                    
                     int col_x = table_p->FindColId(x_field_name);
                     int col_y = table_p->FindColId(y_field_name);
-                    
                     if (col_x == wxNOT_FOUND)
-                        col_x = table_p->InsertCol(GdaConst::double_type, x_field_name);
-                    
+                        col_x = table_p->InsertCol(GdaConst::double_type,
+                                                   x_field_name);
                     if (col_y == wxNOT_FOUND)
-                        col_y = table_p->InsertCol(GdaConst::double_type, y_field_name);
-                    
+                        col_y = table_p->InsertCol(GdaConst::double_type,
+                                                   y_field_name);
                     vector<double> x_data;
                     vector<double> y_data;
                     for(size_t i=0; i<geometries.size(); i++) {
                         x_data.push_back(((GdaPoint*)(geometries[i]))->GetX());
                         y_data.push_back(((GdaPoint*)(geometries[i]))->GetY());
                     }
-                    
                     table_p->SetColData(col_x, 0, x_data);
                     table_p->SetColData(col_y, 0, y_data);
-                    
                 }
             }
             if (o_ds_table_only && !n_ds_table_only) {
@@ -398,9 +401,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             }
         }
 	} catch (GdaException& e) {
-        if (e.type() == GdaException::NORMAL)
-            return;
-        
+        if (e.type() == GdaException::NORMAL) return;
         // special clean up for file datasource
         if ( !tmp_ds_name.empty() ) {
             if ( wxFileExists(tmp_ds_name) &&
@@ -416,13 +417,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-
-	//wxString msg = "Export successfully.";
-    //msg << "\n\nTips: if you want to use exported project/datasource, please"
-    //    << " close current project and then open exported project/datasource.";
-	//wxMessageDialog dlg(this, msg , _("Info"), wxOK | wxICON_INFORMATION);
-    //dlg.ShowModal();
-    
     EndDialog(wxID_OK);
 }
 

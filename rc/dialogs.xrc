@@ -4402,6 +4402,7 @@
               </object>
               <label/>
               <orient>wxHORIZONTAL</orient>
+              <label></label>
             </object>
           </object>
           <object class="sizeritem">

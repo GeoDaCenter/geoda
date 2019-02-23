@@ -61,7 +61,8 @@ END_EVENT_TABLE()
 
 using namespace std;
 
-MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s, const wxPoint& pos)
+MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s,
+                             const wxPoint& pos)
 : merge_datasource_proxy(NULL), project_s(_project_s)
 {
     wxLogMessage("Open MergeTableDlg.");
@@ -101,20 +102,28 @@ void MergeTableDlg::update(FramesManager* o)
 void MergeTableDlg::CreateControls()
 {
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_MERGE_TABLE_DLG");
-	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")), wxTextCtrl);
-	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")), wxRadioButton);
-	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")), wxRadioButton);
-	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), wxChoice);
-	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")), wxChoice);
-	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), wxListBox);
-	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
-	m_left_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_LEFT_JOIN")), wxRadioButton);
-	m_outer_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OUTER_JOIN")), wxRadioButton);
-	m_overwrite_field = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OVERWRITE_SAME_FIELD")), wxCheckBox);
-    
+	m_input_file_name = wxDynamicCast(FindWindow(XRCID("ID_INPUT_FILE_TEXT")),
+                                      wxTextCtrl);
+	m_key_val_rb = wxDynamicCast(FindWindow(XRCID("ID_KEY_VAL_RB")),
+                                 wxRadioButton);
+	m_rec_order_rb = wxDynamicCast(FindWindow(XRCID("ID_REC_ORDER_RB")),
+                                   wxRadioButton);
+	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")),
+                                  wxChoice);
+	m_import_key = wxDynamicCast(FindWindow(XRCID("ID_IMPORT_KEY_CHOICE")),
+                                 wxChoice);
+	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")),
+                                   wxListBox);
+	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")),
+                                   wxListBox);
+	m_left_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_LEFT_JOIN")),
+                                wxRadioButton);
+	m_outer_join = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OUTER_JOIN")),
+                                 wxRadioButton);
+	m_overwrite_field = wxDynamicCast(FindWindow(XRCID("ID_MERGE_OVERWRITE_SAME_FIELD")),
+                                      wxCheckBox);
     m_left_join->Bind(wxEVT_RADIOBUTTON, &MergeTableDlg::OnLeftJoinClick, this);
     m_outer_join->Bind(wxEVT_RADIOBUTTON, &MergeTableDlg::OnOuterJoinClick, this);
-   
     m_left_join->Disable();
     m_outer_join->Disable();
     m_key_val_rb->Disable();
@@ -232,7 +241,8 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
             delete merge_datasource_proxy;
             merge_datasource_proxy = NULL;
         }
-        merge_datasource_proxy = new OGRDatasourceProxy(datasource_name, ds_type, true);
+        merge_datasource_proxy = new OGRDatasourceProxy(datasource_name,
+                                                        ds_type, true);
         merge_layer_proxy = merge_datasource_proxy->GetLayerProxy(layer_name);
         merge_layer_proxy->ReadData();
         m_input_file_name->SetValue(layer_name);
@@ -368,7 +378,8 @@ bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
             }
         }
         
-        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, details);
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"),
+                                                                   msg, details);
         dlg->Show(true);
         return false;
     }
@@ -423,6 +434,13 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
     if (m_left_join->GetValue()) {
         LeftJoinMerge();
     } else {
+        if (!project_s->IsTableOnlyProject() &&
+            merge_layer_proxy->IsTableOnly()) {
+            wxString msg = _("A Table-only data source can't be stacked with current data source.");
+            wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
         OuterJoinMerge();
     }
 	ev.Skip();
@@ -620,30 +638,37 @@ void MergeTableDlg::OuterJoinMerge()
         }
         // start to merge
         std::vector<GdaShape*> geoms;
-        OGRSpatialReference* spatial_ref = project_s->GetSpatialReference();
-        Shapefile::ShapeType shape_type = project_s->GetGdaGeometries(geoms);
-        
         std::vector<GdaShape*> in_geoms;
-        OGRSpatialReference* in_spatial_ref = merge_layer_proxy->GetSpatialReference();
+        OGRSpatialReference* spatial_ref;
+        Shapefile::ShapeType shape_type;
 
-        // make sure the projection of import dataset is matched with current
-        OGRCoordinateTransformation *poCT = NULL;
-        if (spatial_ref !=NULL && in_spatial_ref != NULL) {
-            if (!spatial_ref->IsSame(in_spatial_ref) ) {
-                // convert geometry with original projection if needed
-                poCT = OGRCreateCoordinateTransformation(in_spatial_ref, spatial_ref);
-                merge_layer_proxy->ApplyProjection(poCT);
+        if (!project_s->IsTableOnlyProject()) {
+            // geometric dataset. If table-only dataset, only out join table
+            // of merged dataset.
+            spatial_ref = project_s->GetSpatialReference();
+            shape_type = project_s->GetGdaGeometries(geoms);
+            OGRSpatialReference* in_spatial_ref;
+            in_spatial_ref = merge_layer_proxy->GetSpatialReference();
+
+            // make sure the projection of import dataset is matched with current
+            OGRCoordinateTransformation *poCT = NULL;
+            if (spatial_ref !=NULL && in_spatial_ref != NULL) {
+                if (!spatial_ref->IsSame(in_spatial_ref) ) {
+                    // convert geometry with original projection if needed
+                    poCT = OGRCreateCoordinateTransformation(in_spatial_ref,
+                                                             spatial_ref);
+                    merge_layer_proxy->ApplyProjection(poCT);
+                }
+            }
+            // make sure the geometry type is same
+            Shapefile::ShapeType in_shape_type;
+            in_shape_type = merge_layer_proxy->GetGdaGeometries(in_geoms);
+            if (shape_type != in_shape_type) {
+                error_msg = _("Merge error: Geometric type of selected datasource has to be the same with current datasource.");
+                throw GdaException(error_msg.mb_str());
             }
         }
-        // make sure the geometry type is same
-        Shapefile::ShapeType in_shape_type=merge_layer_proxy->GetGdaGeometries(in_geoms);
-        if (shape_type != in_shape_type) {
-            error_msg = _("Merge error: Geometric type of selected datasource has to be the same with current datasource.");
-            throw GdaException(error_msg.mb_str());
-        }
-        
         std::vector<GdaShape*> new_geoms = geoms;
-        
         vector<wxString> new_key_vec = key1_vec;
         map<int, int> idx2_dict;
         int idx2 = key1_vec.size();
@@ -651,7 +676,9 @@ void MergeTableDlg::OuterJoinMerge()
             wxString tmp = key2_vec[i];
             if (key1_map.find(tmp) == key1_map.end()) {
                 new_key_vec.push_back(tmp);
-                new_geoms.push_back(in_geoms[i]);
+                if (!project_s->IsTableOnlyProject()) {
+                    new_geoms.push_back(in_geoms[i]);
+                }
                 idx2_dict[i] = idx2++;
             } else {
                 idx2_dict[i] = key1_map[tmp];
@@ -715,17 +742,24 @@ void MergeTableDlg::OuterJoinMerge()
         for (int i=0; i<new_fields.size(); i++) {
             mem_table->AddOGRColumn(new_fields_dict[new_fields[i]]);
         }
-        
-        ExportDataDlg export_dlg(this, shape_type, new_geoms, spatial_ref,
-                                 mem_table);
-        if (export_dlg.ShowModal() == wxID_OK) {
+
+        ExportDataDlg *export_dlg;
+        if (!project_s->IsTableOnlyProject()) {
+            export_dlg = new ExportDataDlg(this, shape_type, new_geoms,
+                                           spatial_ref, mem_table);
+        } else {
+            export_dlg = new ExportDataDlg(this, mem_table);
+        }
+
+        if (export_dlg->ShowModal() == wxID_OK) {
             wxMessageDialog dlg(this, _("File merged into Table successfully."),
                                 _("Success"), wxOK);
             dlg.ShowModal();
         }
-        // no need to free geometry memory here, see ExportDataDlg.cpp line:620
         delete mem_table;
+        delete export_dlg;
         EndDialog(wxID_OK);
+
     } catch (GdaException& ex) {
         if (ex.type() == GdaException::NORMAL) return;
         wxMessageDialog dlg(this, ex.what(), _("Error"), wxOK | wxICON_ERROR);

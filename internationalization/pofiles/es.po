@@ -3962,3 +3962,9 @@ msgstr "Basemap Parameters:"
 
 msgid "Multivariate Local Join Count"
 msgstr "Multivariate Local Join Count"
+
+msgid "Weights Intersection"
+msgstr "Weights Intersection"
+
+msgid "Weights Union"
+msgstr "Weights Intersection"

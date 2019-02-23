@@ -2,14 +2,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2019-02-06 21:45-0700\n"
+"PO-Revision-Date: 2019-02-22 22:03-0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.1.1\n"
+"X-Generator: Poedit 2.2.1\n"
 "X-Poedit-Basepath: Regression\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Poedit-KeywordsList: _;wxT\n"
@@ -3658,7 +3658,7 @@ msgid "Raw Rate Smoothed Variable Settings"
 msgstr "原始比率平滑变量设置"
 
 msgid "choose a variable"
-msgstr "选择变量"
+msgstr "选择的变量"
 
 msgid "Choose Weights"
 msgstr "选择空间权重"
@@ -4559,88 +4559,94 @@ msgid "Value"
 msgstr "值"
 
 msgid "Add Map Layer"
-msgstr "Add Map Layer"
+msgstr "添加图层"
 
 msgid "Map Layer Setting"
-msgstr "Map Layer Setting"
+msgstr "图层设置"
 
 msgid "Set Highlight Association"
-msgstr "Set Highlight Association"
+msgstr "设置图层关联"
 
 msgid "Clear Highlight Association"
-msgstr "Clear Highlight Association"
+msgstr "取消图层关联"
 
 msgid "Change Fill Color"
-msgstr "Change Fill Color"
+msgstr "修改填充颜色"
 
 msgid "Change Outline Color"
-msgstr "Change Outline Color"
+msgstr "修改轮廓颜色"
 
 msgid "Outline Visible"
-msgstr "Outline Visible"
+msgstr "设置轮廓可见"
 
 msgid "Only Map Boundary"
-msgstr "Only Map Boundary"
+msgstr "只显示地图轮廓"
 
 msgid "Change Point Radius"
-msgstr "Change Point Radius"
+msgstr "设置点的半径"
 
 msgid "Set Association Dialog"
-msgstr "Set Association Dialog"
+msgstr "图层关联设置对话框"
 
 msgid "Select layer"
-msgstr "Select layer"
+msgstr "选择图层"
 
 msgid "and field"
-msgstr "and field"
+msgstr "以及字段"
 
 msgid "is associated to"
-msgstr "is associated to"
+msgstr "关联于"
 
 msgid "in current layer."
-msgstr "in current layer."
+msgstr "在当前地图中。"
 
 msgid "Show connect line"
-msgstr "Show connect line"
+msgstr "显示关联连接线"
 
 msgid "Point Radius:"
-msgstr "Point Radius:"
+msgstr "点的半径:"
 
 msgid "Map Layout Preview"
-msgstr "Map Layout Preview"
+msgstr "地图打印预览"
 
 msgid "Show Legend"
-msgstr "Show Legend"
+msgstr "显示图例"
 
 msgid "Use Transparent Legend Background"
-msgstr "Use Transparent Legend Background"
+msgstr "图例使用透明的背景"
 
 msgid "Image Dimension Setting"
-msgstr "Image Dimension Setting"
+msgstr "图像大小设置"
 
 msgid "Width:"
-msgstr "Width:"
+msgstr "宽度:"
 
 msgid "Height:"
-msgstr "Height:"
+msgstr "高度:"
 
 msgid "Resolution(dpi):"
-msgstr "Resolution(dpi):"
+msgstr "分辨率(dpi):"
 
 msgid "pixels"
-msgstr "pixels"
+msgstr "像素"
 
 msgid "inches"
-msgstr "inches"
+msgstr "英寸"
 
 msgid "mm"
-msgstr "mm"
+msgstr "毫米"
 
 msgid "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
-msgstr "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
+msgstr "底图格式: (group_name.basemap_name,basemap_url)"
 
 msgid "Basemap Parameters:"
-msgstr "Basemap Parameters:"
+msgstr "底图设置:"
 
 msgid "Multivariate Local Join Count"
 msgstr "Multivariate Local Join Count"
+
+msgid "Weights Intersection"
+msgstr "求空间权重交集"
+
+msgid "Weights Union"
+msgstr "求空间权重并集"

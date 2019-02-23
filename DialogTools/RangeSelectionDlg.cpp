@@ -696,8 +696,8 @@ void RangeSelectionDlg::CheckRangeButtonSettings()
 		m_field_static_txt->SetLabelText(fn);
 		m_field2_static_txt->SetLabelText(fn);
 	} else {
-		m_field_static_txt->SetLabelText("choose a variable");
-		m_field2_static_txt->SetLabelText("choose a variable");
+		m_field_static_txt->SetLabelText(_("choose a variable"));
+		m_field2_static_txt->SetLabelText(_("choose a variable"));
 	}
 	
 	/** Check that min and max range text is valid.  If not valid, set
