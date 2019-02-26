@@ -3459,10 +3459,12 @@
         <label>Line</label>
         <checkable>1</checkable>
       </object>
+      <!--
       <object class="wxMenuItem" name="ID_SELECT_WITH_CUSTOM">
           <label>Custom Shape</label>
           <checkable>1</checkable>
       </object>
+       -->
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>

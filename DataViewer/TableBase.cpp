@@ -18,6 +18,8 @@
  */
 
 #include <wx/statusbr.h>
+#include <wx/valnum.h>
+
 #include <boost/foreach.hpp>
 #include <vector>
 #include "../HighlightState.h"
@@ -31,6 +33,163 @@
 #include "../logger.h"
 #include "../SaveButtonManager.h"
 #include "TableFrame.h"
+
+wxGridCellInt64Renderer::wxGridCellInt64Renderer(int width)
+{
+    m_width = width;
+    SetWidth(width);
+}
+
+wxGridCellRenderer *wxGridCellInt64Renderer::Clone() const
+{
+    wxGridCellInt64Renderer *renderer = new wxGridCellInt64Renderer;
+    renderer->m_width = m_width;
+    return renderer;
+}
+
+wxSize wxGridCellInt64Renderer::GetBestSize(wxGrid& grid,
+                                            wxGridCellAttr& attr,
+                                            wxDC& dc,
+                                            int row, int col)
+{
+    return DoGetBestSize(attr, dc, GetString(grid, row, col));
+}
+
+void wxGridCellInt64Renderer::Draw(wxGrid& grid,
+                                   wxGridCellAttr& attr,
+                                   wxDC& dc,
+                                   const wxRect& rectCell,
+                                   int row, int col,
+                                   bool isSelected)
+{
+    wxGridCellRenderer::Draw(grid, attr, dc, rectCell, row, col, isSelected);
+
+    SetTextColoursAndFont(grid, attr, dc, isSelected);
+
+    // draw the text right aligned by default
+    int hAlign = wxALIGN_RIGHT,
+    vAlign = wxALIGN_INVALID;
+    attr.GetNonDefaultAlignment(&hAlign, &vAlign);
+
+    wxRect rect = rectCell;
+    rect.Inflate(-1);
+
+    grid.DrawTextRectangle(dc, GetString(grid, row, col), rect, hAlign, vAlign);
+}
+
+wxString wxGridCellInt64Renderer::GetString(const wxGrid& grid, int row, int col)
+{
+    wxGridTableBase *table = grid.GetTable();
+
+    bool hasDouble;
+    double val;
+    wxString text = table->GetValue(row, col);
+    return text;
+}
+
+wxGridCellInt64Editor::wxGridCellInt64Editor(int width)
+{
+    m_width = width;
+}
+
+void wxGridCellInt64Editor::Create(wxWindow* parent,
+                                   wxWindowID id,
+                                   wxEvtHandler* evtHandler)
+{
+    wxGridCellTextEditor::Create(parent, id, evtHandler);
+
+#if wxUSE_VALIDATORS
+    Text()->SetValidator(wxIntegerValidator<long long>());
+#endif
+}
+
+void wxGridCellInt64Editor::BeginEdit(int row, int col, wxGrid* grid)
+{
+    // first get the value
+    wxGridTableBase *table = grid->GetTable();
+    const wxString value = table->GetValue(row, col);
+    if ( !value.empty() ) {
+        if ( !value.ToLongLong(&m_value) ) {
+            wxFAIL_MSG( wxT("this cell doesn't have int64 value") );
+            return;
+        }
+        DoBeginEdit(value);
+    } else {
+        DoBeginEdit("0");
+    }
+}
+
+bool wxGridCellInt64Editor::EndEdit(int WXUNUSED(row),
+                                    int WXUNUSED(col),
+                                    const wxGrid* WXUNUSED(grid),
+                                    const wxString& oldval, wxString *newval)
+{
+    long long value = 0;
+    wxString text;
+
+    text = Text()->GetValue();
+    if ( text.empty() ) {
+        if ( oldval.empty() )
+            return false;
+    } else {
+        // non-empty text now (maybe 0)
+        if ( !text.ToLongLong(&value) )
+            return false;
+
+        // if value == m_value == 0 but old text was "" and new one is
+        // "0" something still did change
+        if ( value == m_value && (value || !oldval.empty()) )
+            return false;
+    }
+    m_value = value;
+
+    if ( newval )
+        *newval = text;
+
+    return true;
+}
+
+void wxGridCellInt64Editor::ApplyEdit(int row, int col, wxGrid* grid)
+{
+    wxGridTableBase * const table = grid->GetTable();
+    table->SetValue(row, col, wxString::Format("%lld", m_value));
+}
+
+void wxGridCellInt64Editor::Reset()
+{
+    DoReset(GetString());
+}
+
+bool wxGridCellInt64Editor::IsAcceptedKey(wxKeyEvent& event)
+{
+    if ( wxGridCellEditor::IsAcceptedKey(event) ) {
+        int keycode = event.GetKeyCode();
+        if ( (keycode < 128) &&
+            (wxIsdigit(keycode) || keycode == '+' || keycode == '-')) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void wxGridCellInt64Editor::StartingKey(wxKeyEvent& event)
+{
+    int keycode = event.GetKeyCode();
+    if ( wxIsdigit(keycode) || keycode == '+' || keycode == '-') {
+        wxGridCellTextEditor::StartingKey(event);
+        // skip Skip() below
+        return;
+    }
+    event.Skip();
+}
+
+// return the value in the spin control if it is there (the text control otherwise)
+wxString wxGridCellInt64Editor::GetValue() const
+{
+    wxString s = Text()->GetValue();
+    return s;
+}
+
 
 class TableCellAttrProvider : public wxGridCellAttrProvider
 {
@@ -212,7 +371,6 @@ void TableBase::FromGridSelectRow(int row)
 void TableBase::FromGridDeselectRow(int row)
 {
 	//LOG_MSG(wxString::Format("deselecting %d", (int) row_order[row]));
-    
 	int hl_size = highlight_state->GetHighlightSize();
 	std::vector<bool>& hs = highlight_state->GetHighlight();
    
@@ -435,6 +593,8 @@ void TableBase::SetValue(int row, int col, const wxString &value)
     if (project->GetSaveButtonManager()) {
 		project->GetSaveButtonManager()->SetMetaDataSaveNeeded(true);
 	}
+    //GetView()->SetCellAlignment(row, col, wxALIGN_RIGHT, wxALIGN_RIGHT);
+    GetView()->Refresh();
 }
 
 wxString TableBase::GetRowLabelValue(int row)
@@ -507,6 +667,10 @@ void TableBase::update(TableState* o)
 			if (e.insert) {
 				if (e.type == GdaConst::long64_type) {
                     // leave as a string: for more than 10 digts 64-bit number
+                    GetView()->RegisterDataType("Long64Type",
+                                                new wxGridCellInt64Renderer(),
+                                                new wxGridCellInt64Editor());
+                    GetView()->SetColFormatCustom(e.pos_final, "Long64Type");
 				} else if (e.type == GdaConst::double_type) {
 					int dd = e.displayed_decimals;
 					if (dd == -1) dd = e.decimals;

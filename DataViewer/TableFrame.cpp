@@ -536,6 +536,8 @@ void TableFrame::OnCellChanged( wxGridEvent& ev )
 		dlg.ShowModal();
 		ev.Veto();
 	}
+    //grid->SetCellAlignment (ev.GetRow(), ev.GetCol(), wxALIGN_RIGHT);
+    //grid->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_RIGHT);
 	ev.Skip();
 }
 

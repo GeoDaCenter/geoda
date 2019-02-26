@@ -33,6 +33,69 @@ class TimeState;
 class HighlightState;
 class TemplateFrame;
 
+class wxGridCellInt64Renderer : public wxGridCellStringRenderer
+{
+    // formatting parameters
+    int m_width;
+    wxString m_format;
+public:
+    wxGridCellInt64Renderer(int width=19);
+
+    int GetWidth() const { return m_width; }
+    void SetWidth(int width) { m_width = width; }
+
+    // draw the string right aligned
+    virtual void Draw(wxGrid& grid,
+                      wxGridCellAttr& attr,
+                      wxDC& dc,
+                      const wxRect& rect,
+                      int row, int col,
+                      bool isSelected) wxOVERRIDE;
+
+    virtual wxSize GetBestSize(wxGrid& grid,
+                               wxGridCellAttr& attr,
+                               wxDC& dc,
+                               int row, int col) wxOVERRIDE;
+
+    virtual wxGridCellRenderer *Clone() const wxOVERRIDE;
+
+protected:
+    wxString GetString(const wxGrid& grid, int row, int col);
+};
+
+class wxGridCellInt64Editor : public wxGridCellTextEditor
+{
+public:
+    wxGridCellInt64Editor(int width=19);
+
+    virtual void Create(wxWindow* parent,
+                        wxWindowID id,
+                        wxEvtHandler* evtHandler) wxOVERRIDE;
+
+    virtual bool IsAcceptedKey(wxKeyEvent& event) wxOVERRIDE;
+    virtual void BeginEdit(int row, int col, wxGrid* grid) wxOVERRIDE;
+    virtual bool EndEdit(int row, int col, const wxGrid* grid,
+                         const wxString& oldval, wxString *newval) wxOVERRIDE;
+    virtual void ApplyEdit(int row, int col, wxGrid* grid) wxOVERRIDE;
+
+    virtual void Reset() wxOVERRIDE;
+    virtual void StartingKey(wxKeyEvent& event) wxOVERRIDE;
+    virtual wxGridCellEditor *Clone() const wxOVERRIDE
+    { return new wxGridCellInt64Editor(m_width); }
+    // added GetValue so we can get the value which is in the control
+    virtual wxString GetValue() const wxOVERRIDE;
+
+protected:
+    // string representation of our value
+    wxString GetString()
+    { return wxString::Format(wxT("%lld"), m_value); }
+
+private:
+    int m_width;
+    long long m_value;
+};
+
+
 class TableBase : public TableStateObserver, public TimeStateObserver,
 public HighlightStateObserver,  public wxGridTableBase
 {
