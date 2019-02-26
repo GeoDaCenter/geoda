@@ -110,14 +110,6 @@
       <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
         <label>Edit Variable Properties</label>
       </object>
-      <!--
-       <object class="wxMenuItem" name="ID_CALCULATOR">
-       <label>Calculator (beta)</label>
-       </object>
-      <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
-        <label>Change Variable Type</label>
-      </object>
-       -->
       <object class="separator"/>
       <object class="wxMenu" name="ID_TABLE_ENCODING">
         <label>Encode</label>
@@ -223,7 +215,6 @@
           <checkable>1</checkable>
         </object>
       </object>
-
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
       <label>&amp;Map</label>
@@ -793,7 +784,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
 	  <object class="wxMenu" name="ID_EQUAL_INTERVALS_SUBMENU">
 		<label>Equal Intervals</label>
 		<object class="wxMenuItem" name="ID_EQUAL_INTERVALS_2">
@@ -847,7 +837,6 @@
         <label>Themeless</label>
         <checkable>1</checkable>
       </object>
-      
 	  <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
 		<label>Quantile</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
@@ -1038,12 +1027,10 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_PERCENTILE">
         <label>Percentile</label>
         <checkable>1</checkable>
       </object>
-      
       <object class="wxMenuItem" name="ID_COND_HORIZ_HINGE_15">
           <label>Box Map (Hinge=1.5)</label>
           <checkable>1</checkable>
@@ -1052,7 +1039,6 @@
           <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
       </object>
-      
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
         <checkable>1</checkable>
@@ -1061,7 +1047,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-      
 	  <object class="wxMenu" name="ID_COND_HORIZ_NAT_BRKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_2">
@@ -1101,7 +1086,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
 	  <object class="wxMenu" name="ID_COND_HORIZ_EQU_INTS_SUBMENU">
 		<label>Equal Intervals</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_2">
@@ -1168,6 +1152,10 @@
         <label>Line</label>
         <checkable>1</checkable>
       </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+          <label>Line</label>
+          <checkable>1</checkable>
+      </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>Color</label>
@@ -1191,7 +1179,6 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -1576,9 +1563,7 @@
         <label>Background Color</label>
       </object>
     </object>
-    
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -1596,7 +1581,6 @@
         <label>Themeless</label>
         <checkable>1</checkable>
       </object>
-	  
       <object class="wxMenu" name="ID_COND_VERT_QUANT_SUBMENU">
 		<label>Quantile</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_QUANT_2">
@@ -1636,7 +1620,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <object class="wxMenuItem" name="ID_COND_VERT_CHOROPLETH_PERCENTILE">
         <label>Percentile</label>
         <checkable>1</checkable>
@@ -1657,7 +1640,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-	  
       <object class="wxMenu" name="ID_COND_VERT_NAT_BRKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_NAT_BRKS_2">
@@ -1697,7 +1679,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
 	  <object class="wxMenu" name="ID_COND_VERT_EQU_INTS_SUBMENU">
 		<label>Equal Intervals</label>
 		<object class="wxMenuItem" name="ID_COND_VERT_EQU_INTS_2">
@@ -1751,7 +1732,6 @@
         <label>Themeless</label>
         <checkable>1</checkable>
       </object>
-	  
 	  <object class="wxMenu" name="ID_COND_HORIZ_QUANT_SUBMENU">
 		<label>Quantile</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_QUANT_2">
@@ -1791,7 +1771,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	  
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_PERCENTILE">
         <label>Percentile</label>
         <checkable>1</checkable>
@@ -1804,7 +1783,6 @@
           <label>Box Map (Hinge=3.0)</label>
           <checkable>1</checkable>
       </object>
-
       <object class="wxMenuItem" name="ID_COND_HORIZ_CHOROPLETH_STDDEV">
         <label>Standard Deviation</label>
         <checkable>1</checkable>
@@ -1813,7 +1791,6 @@
         <label>Unique Values</label>
         <checkable>1</checkable>
       </object>
-	  
       <object class="wxMenu" name="ID_COND_HORIZ_NAT_BRKS_SUBMENU">
 		<label>Natural Breaks</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_NAT_BRKS_2">
@@ -1853,7 +1830,6 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
-	
 	  <object class="wxMenu" name="ID_COND_HORIZ_EQU_INTS_SUBMENU">
 		<label>Equal Intervals</label>
 		<object class="wxMenuItem" name="ID_COND_HORIZ_EQU_INTS_2">
@@ -2155,7 +2131,6 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -3483,6 +3458,10 @@
       <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
         <label>Line</label>
         <checkable>1</checkable>
+      </object>
+      <object class="wxMenuItem" name="ID_SELECT_WITH_CUSTOM">
+          <label>Custom Shape</label>
+          <checkable>1</checkable>
       </object>
     </object>
     <object class="wxMenu" name="ID_MENU">

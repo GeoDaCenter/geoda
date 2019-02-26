@@ -1140,6 +1140,39 @@ GdaPolygon::GdaPolygon(const GdaPolygon& s)
 	}
 }
 
+GdaPolygon::GdaPolygon(wxPoint& pt1, wxPoint& pt2)
+: n(2), points_o(0), pc(0), points(0), n_count(1),
+all_points_same(false), count(0)
+{
+    n = 2;
+    count = new int[1];
+    count[0] = n;
+    points = new wxPoint[n];
+    points_o = new wxRealPoint[n];
+
+    points_o[0].x = pt1.x;
+    points_o[0].y = pt1.y;
+    points_o[1].x = pt1.x;
+    points_o[1].y = pt1.y;
+
+    points[0].x = (int) points_o[0].x;
+    points[0].y = (int) points_o[0].y;
+    points[1].x = (int) points_o[1].x;
+    points[1].y = (int) points_o[1].y;
+
+    center_o = GdaShapeAlgs::calculateMeanCenter(n, points_o);
+    center.x = (int) center_o.x;
+    center.y = (int) center_o.y;
+    bb_ll_o = center_o;
+    bb_ur_o = center_o;
+    for (int i=0; i<n; i++) {
+        if (points_o[i].x < bb_ll_o.x) bb_ll_o.x = points_o[i].x;
+        if (points_o[i].x > bb_ur_o.x) bb_ur_o.x = points_o[i].x;
+        if (points_o[i].y < bb_ll_o.y) bb_ll_o.y = points_o[i].y;
+        if (points_o[i].y > bb_ur_o.y) bb_ur_o.y = points_o[i].y;
+    }
+}
+
 /** This constructs a polygon with no holes and only one region.  The
  memory for the original set of points is also maintained internally and
  will be deleted when the constructor is called. */
@@ -1195,12 +1228,9 @@ GdaPolygon::GdaPolygon(Shapefile::PolygonContents* pc_s)
 	n_count = pc->num_parts;
 	n = pc->num_points;
 	points = new wxPoint[n];
-    //points_o = new wxRealPoint[n];
 	for (int i=0; i<n; i++) {
 		points[i].x = (int) pc->points[i].x;
 		points[i].y = (int) pc->points[i].y;
-        //points_o[i].x = pc->points[i].x;
-        //points_o[i].y = pc->points[i].y;
 	}
 	center_o = GdaShapeAlgs::calculateMeanCenter(pc->points);
 	center.x = (int) center_o.x;
@@ -1213,7 +1243,6 @@ GdaPolygon::GdaPolygon(Shapefile::PolygonContents* pc_s)
 		if (pc->points[i].y < bb_ll_o.y) bb_ll_o.y = pc->points[i].y;
 		if (pc->points[i].y > bb_ur_o.y) bb_ur_o.y = pc->points[i].y;
 	}
-	//region = wxRegion(n, points);
 }
 
 
@@ -1257,7 +1286,6 @@ bool GdaPolygon::pointWithin(const wxPoint& pt)
 	} else {
 		return GdaShapeAlgs::pointInPolygon(pt, n, points);
 	}
-	//return region.Contains(pt) != wxOutRegion;
 }
 
 bool GdaPolygon::regionIntersect(const wxRegion& r)
@@ -1272,23 +1300,14 @@ void GdaPolygon::applyScaleTrans(const GdaScaleTrans& A)
 {
 	if (null_shape) return;
 	GdaShape::applyScaleTrans(A); // apply affine transform to base class
-	//all_points_same = true;
-	//wxPoint tpt;
-	//A.transform(bb_ll_o, &tpt);
-	//if (tpt == center) A.transform(bb_ur_o, &tpt);
-	//if (tpt == center) return;
 	if (points_o) {
 		for (int i=0; i<n; i++) {
 			A.transform(points_o[i], &(points[i]));
-			//if (points[i] != center) all_points_same = false;
 		}
-		//region = wxRegion(n, points);
 	} else {
 		for (int i=0; i<n; i++) {
 			A.transform(pc->points[i], &(points[i]));
-			//if (points[i] != center) all_points_same = false;
 		}
-		//region = wxRegion(n, points);  // MMM: needs to support multi-part
 	}
 }
 
@@ -1354,7 +1373,6 @@ void GdaPolygon::paintSelf(wxGraphicsContext* gc)
 	gc->SetBrush(getBrush());
     
 	if (n_count > 1) {
-		//dc.DrawPolyPolygon(n_count, count, points);
         int start = 0;
         for (int c=0; c<n_count; c++) {
             wxGraphicsPath path = gc->CreatePath();
@@ -1372,7 +1390,6 @@ void GdaPolygon::paintSelf(wxGraphicsContext* gc)
         }
         
 	} else {
-		//dc.DrawPolygon(n, points);
         wxGraphicsPath path = gc->CreatePath();
         for (int i=0; i<n-1; i++) {
             path.MoveToPoint(points[i].x, points[i].y);

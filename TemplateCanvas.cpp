@@ -745,21 +745,11 @@ void TemplateCanvas::OnPaint(wxPaintEvent& event)
     if (layer2_bm) {
         wxSize sz = GetClientSize();
         wxMemoryDC dc(*layer2_bm);
-        //dc.SetBackground(*wxTRANSPARENT_BRUSH);
-		//dc.SetBackground(*wxWHITE_BRUSH);
-        //dc.Clear();
-        
         wxPaintDC paint_dc(this);
-        
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
-        
         // Draw optional control objects if needed
         PaintControls(paint_dc);
-        
         helper_PaintSelectionOutline(paint_dc);
-        
-        //wxBufferedPaintDC paint_dc(this, *layer2_bm);
-        //PaintSelectionOutline(paint_dc);
     }
     event.Skip();
 }
@@ -773,19 +763,13 @@ void TemplateCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
         isResize = false;
-        
         int cs_w=0, cs_h=0;
         GetClientSize(&cs_w, &cs_h);
-        
         last_scale_trans.SetView(cs_w, cs_h);
-        
         resizeLayerBms(cs_w, cs_h);
-
         ResizeSelectableShps(cs_w, cs_h);
-        
         event.RequestMore(); // render continuously, not only once on idle
     }
-    
     if (!layer2_valid || !layer1_valid || !layer0_valid) {
         DrawLayers();
         event.RequestMore(); // render continuously, not only once on idle
@@ -933,9 +917,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs, 
 				}
 			}
 		}
-        
 	} else if (selectable_shps_type == polygons) {
-
 		GdaPolygon* p;
 		for (int cat=0; cat<num_cats; cat++) {
             if (hl_only && crosshatch) {
@@ -1421,11 +1403,9 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
         ReleaseMouse();
 	
 	if (mousemode == select) {
-        
 		if (selectstate == start) {
 			if (event.LeftDown()) {
                 prev = GetActualPos(event);
-              
                 if (sel1.x > 0 && sel1.y > 0 && sel2.x > 0 && sel2.y >0) {
                     // already has selection then
                     // detect if click inside brush_shape
@@ -1436,6 +1416,9 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         brush_shape = new GdaCircle(sel1, sel2);
                     } else if (brushtype == line) {
                         brush_shape = new GdaPolyLine(sel1, sel2);
+                    } else if (brushtype == custom_select) {
+                        brush_shape = new GdaPolygon(sel1, sel2);
+                        
                     }
                     if (brush_shape->Contains(prev)) {
                         // brushing
@@ -1449,10 +1432,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         sel2 = prev;
                         selectstate = leftdown;
                         is_showing_brush = false;
-                        //UpdateSelection();
                     }
                     delete brush_shape;
-                    
                 } else {
                     sel1 = prev;
                     selectstate = leftdown;
@@ -1461,7 +1442,6 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 			} else if (event.RightDown()) {
                 ResetBrushing();
 				DisplayRightClickMenu(event.GetPosition());
-
 			} else {
                 // hover
 				if (template_frame && template_frame->IsStatusBarVisible()) {
@@ -1481,8 +1461,6 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 					selectstate = dragging;
 					remember_shiftdown = event.ShiftDown();
 					UpdateSelection(remember_shiftdown);
-					//UpdateStatusBar();
-					//Refresh(false);
 				}
 			} else if (event.LeftUp()) {
 				wxPoint act_pos = GetActualPos(event);
@@ -1500,19 +1478,12 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 		} else if (selectstate == dragging) {
 			if (event.Dragging()) { // mouse moved while buttons still down
 				sel2 = GetActualPos(event);
-
 				UpdateSelection(remember_shiftdown);
-				//UpdateStatusBar();
-				//Refresh(false);
-                
 			} else if (event.LeftUp()) {
 				sel2 = GetActualPos(event);
-
 				UpdateSelection(remember_shiftdown);
 				remember_shiftdown = false;
 				selectstate = start;
-                //Refresh(false);
-                
 			}  else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}
@@ -1532,27 +1503,21 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				wxPoint diff = cur - prev;
 				sel1 += diff;
 				sel2 += diff;
-				//UpdateStatusBar();
 
 				UpdateSelection();
-				//Refresh(false); // keep painting the select rect
                 prev = cur;
 			}
 		}
-		
 	} else if (mousemode == zoom || mousemode == zoomout) {
-
 		if (selectstate == start) {
 			if (event.LeftDown()) {
 				prev = GetActualPos(event);
 				sel1 = prev;
 				selectstate = leftdown;
                 is_showing_brush = true;
-                
 			} else if (event.RightDown()) {
 				DisplayRightClickMenu(event.GetPosition());
 			}
-            
 		} else if (selectstate == leftdown) {
 			if (event.Moving() || event.Dragging()) {
 				wxPoint act_pos = GetActualPos(event);
@@ -1592,7 +1557,8 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 				Refresh(false);
 			} else if (event.LeftUp() ) {
 				sel2 = GetActualPos(event);
-				remember_shiftdown = event.ShiftDown() || event.CmdDown() || mousemode == zoomout;
+				remember_shiftdown = event.ShiftDown() || event.CmdDown() ||
+                    mousemode == zoomout;
 				ZoomShapes(!remember_shiftdown);
 				remember_shiftdown = false;
 				
@@ -1646,8 +1612,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
 
 void TemplateCanvas::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event)
 {
-	if (HasCapture()) 
-        ReleaseMouse();
+	if (HasCapture()) ReleaseMouse();
 }
 
 void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
@@ -1662,18 +1627,19 @@ void TemplateCanvas::PaintSelectionOutline(wxMemoryDC& _dc)
 
 void TemplateCanvas::helper_PaintSelectionOutline(wxDC& dc)
 {
-	if (is_showing_brush && (mousemode == select || mousemode == zoom || mousemode == zoomout))
+	if (is_showing_brush &&
+        (mousemode == select || mousemode == zoom || mousemode == zoomout))
     {
         if (sel1 != sel2) {
-		dc.SetBrush(*wxTRANSPARENT_BRUSH);
-		dc.SetPen(*wxBLACK_PEN);
-		if (brushtype == rectangle) {
-			dc.DrawRectangle(wxRect(sel1, sel2));
-		} else if (brushtype == line) {
-			dc.DrawLine(sel1, sel2);
-		} else if (brushtype == circle) {
-			dc.DrawCircle(sel1, GenUtils::distance(sel1, sel2));
-		}
+            dc.SetBrush(*wxTRANSPARENT_BRUSH);
+            dc.SetPen(*wxBLACK_PEN);
+            if (brushtype == rectangle) {
+                dc.DrawRectangle(wxRect(sel1, sel2));
+            } else if (brushtype == line) {
+                dc.DrawLine(sel1, sel2);
+            } else if (brushtype == circle) {
+                dc.DrawCircle(sel1, GenUtils::distance(sel1, sel2));
+            }
         }
 	}
 }
@@ -1772,7 +1738,8 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
             sm->Delete(items[i]);
         }
         
-		sm->Append(menu_id[i], _("Create New Custom"), _("Create new custom categories classification."));
+		sm->Append(menu_id[i], _("Create New Custom"),
+                   _("Create new custom categories classification."));
 		sm->AppendSeparator();
         
 		vector<wxString> titles;
@@ -1782,13 +1749,25 @@ void TemplateCanvas::AppendCustomCategories(wxMenu* menu,
 		}
         if (i==0) {
             // regular map menu
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                          &GdaFrame::OnCustomCategoryClick,
+                                          GdaFrame::GetGdaFrame(),
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
         } else if (i==1) {
             // conditional horizontal map menu
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_B, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                          &GdaFrame::OnCustomCategoryClick_B,
+                                          GdaFrame::GetGdaFrame(),
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0,
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 + titles.size());
         } else if (i==2) {
             // conditional verticle map menu
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick_C, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                          &GdaFrame::OnCustomCategoryClick_C,
+                                          GdaFrame::GetGdaFrame(),
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0,
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 + titles.size());
         }
 	}
 }

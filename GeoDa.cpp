@@ -518,6 +518,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), true);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), false);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), false);
+    GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"), false);
 
     EnableTool(XRCID("ID_TOOLS_MENU"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
@@ -537,6 +538,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIT_TO_WINDOW_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"), proj_open);
@@ -1511,6 +1513,14 @@ void GdaFrame::OnSelectWithLine(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
 	t->OnSelectWithLine(event);
+}
+
+void GdaFrame::OnSelectWithCustom(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnSelectWithCustom");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    t->OnSelectWithCustom(event);
 }
 
 void GdaFrame::OnSelectionMode(wxCommandEvent& event)
@@ -6541,6 +6551,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SELECT_WITH_RECT"), GdaFrame::OnSelectWithRect)
     EVT_MENU(XRCID("ID_SELECT_WITH_CIRCLE"), GdaFrame::OnSelectWithCircle)
     EVT_MENU(XRCID("ID_SELECT_WITH_LINE"), GdaFrame::OnSelectWithLine)
+    EVT_MENU(XRCID("ID_SELECT_WITH_CUSTOM"), GdaFrame::OnSelectWithCustom)
     EVT_MENU(XRCID("ID_SELECTION_MODE"), GdaFrame::OnSelectionMode)
     EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
     // Fit-To-Window Mode

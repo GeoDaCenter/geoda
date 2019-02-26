@@ -552,7 +552,6 @@ void MapCanvas::deleteLayerBms()
         delete basemap_bm;
         basemap_bm = 0;
     }
-    
     TemplateCanvas::deleteLayerBms();
 }
 
@@ -568,7 +567,6 @@ bool MapCanvas::IsExtentChanged()
                      last_scale_trans.data_y_min == last_scale_trans.orig_data_y_min &&
                      last_scale_trans.data_y_max == last_scale_trans.orig_data_y_max);
     }
-
     return !no_change;
 }
 
@@ -741,7 +739,8 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             if (ms)
                 ms->projectToBasemap(basemap);
         }
-        if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+        if (!w_graph.empty() && display_weights_graph &&
+            boost::uuids::nil_uuid() != weights_id) {
             // this is for resizing window with basemap + connectivity graph
             for (int i=0; i<w_graph.size(); i++) {
                 GdaPolyLine* e = w_graph[i];
@@ -1118,7 +1117,8 @@ void MapCanvas::SetWeightsId(boost::uuids::uuid id)
 {
     weights_id = id;
     
-    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    bool show_graph = display_weights_graph &&
+        boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
     
     if (show_graph || display_neighbors) {
         full_map_redraw_needed = true;
@@ -1169,7 +1169,8 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
     vector<bool>& hs = highlight_state->GetHighlight();
     if (use_category_brushes) {
         bool highlight_only = true;
-        DrawSelectableShapes_dc(dc, highlight_only, revert, GdaConst::use_cross_hatching);
+        DrawSelectableShapes_dc(dc, highlight_only, revert,
+                                GdaConst::use_cross_hatching);
         
     } else {
         for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
@@ -1179,7 +1180,8 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
         }
     }
     // highlight connectivity objects and graphs
-    bool show_graph = display_weights_graph && boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    bool show_graph = display_weights_graph &&
+        boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
     if (show_graph || display_neighbors) {
         // draw neighbors of selection if needed
         WeightsManInterface* w_man_int = project->GetWManInt();
@@ -1230,8 +1232,8 @@ void MapCanvas::SaveThumbnail()
     }
 }
 
-void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only, bool revert,
-                                        bool use_crosshatch)
+void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
+                                        bool revert,  bool use_crosshatch)
 {
     if (!display_map_with_graph)
         return;
@@ -1287,13 +1289,16 @@ void MapCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 	wxMenu* menu1 = new wxMenu(wxEmptyString);
 	for (size_t i=0, sz=GetNumVars(); i<sz; i++) {
 		if (var_info[i].is_time_variant) {
-			wxString s = wxString::Format(_("Synchronize %s with Time Control"), var_info[i].name);
-			wxMenuItem* mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
+			wxString s = wxString::Format(_("Synchronize %s with Time Control"),
+                                          var_info[i].name);
+            wxMenuItem* mi;
+            mi = menu1->AppendCheckItem(GdaConst::ID_TIME_SYNC_VAR1+i, s, s);
 			mi->Check(var_info[i].sync_with_global_time);
 		}
 	}
     menu->AppendSeparator();
-    menu->Append(wxID_ANY, _("Time Variable Options"), menu1, _("Time Variable Options"));
+    menu->Append(wxID_ANY, _("Time Variable Options"), menu1,
+                 _("Time Variable Options"));
 }
 
 
@@ -1339,7 +1344,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
         double shps_orig_xmin = last_scale_trans.orig_data_x_min;
         double shps_orig_ymin = last_scale_trans.orig_data_y_min;
         double shps_orig_xmax = last_scale_trans.orig_data_x_max;
-        Gda::MapLayer maplayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin, shps_orig_xmax, poCT);
+        Gda::MapLayer maplayer(shps_orig_ymax, shps_orig_xmin, shps_orig_ymin,
+                               shps_orig_xmax, poCT);
         if (poCT && maplayer.IsWGS84Valid()) {
             if (print_detailed_basemap) {
                 basemap->ResizeScreen(w, h);
@@ -1360,7 +1366,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
             BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
                 if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
-            if (!w_graph.empty() && display_weights_graph && boost::uuids::nil_uuid() != weights_id) {
+            if (!w_graph.empty() && display_weights_graph &&
+                boost::uuids::nil_uuid() != weights_id) {
                 for (int i=0; i<w_graph.size(); i++) {
                     GdaPolyLine* e = w_graph[i];
                     e->projectToBasemap(basemap, basemap_scale);
@@ -1437,7 +1444,8 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     ReDraw();
 }
 
-void MapCanvas::RenderToSVG(wxDC& dc, int w, int h, int map_w, int map_h, int offset_x, int offset_y)
+void MapCanvas::RenderToSVG(wxDC& dc, int w, int h, int map_w, int map_h,
+                            int offset_x, int offset_y)
 {
     ResizeSelectableShps(w, h);
     BOOST_FOREACH( GdaShape* shp, background_shps ) {
@@ -1473,23 +1481,30 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
 
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"),
 					GetCcType() == CatClassification::no_theme);
-
-    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_THEMELESS"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_QUANTILE_SUBMENU"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_15"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_30"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"), !IS_VAR_STRING);
-    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_SUBMENU"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NATURAL_BREAKS_SUBMENU"), !IS_VAR_STRING);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_QUANTILE_SUBMENU"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_15"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_30"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_EQUAL_INTERVALS_SUBMENU"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NATURAL_BREAKS_SUBMENU"),
+                                   !IS_VAR_STRING);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),
+                                   !IS_VAR_STRING);
     
     CatClassifManager* ccm = project->GetCatClassifManager();
     vector<wxString> titles;
     ccm->GetTitles(titles);
     for (size_t j=0; j<titles.size(); j++) {
-        GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 +j, !IS_VAR_STRING);
+        GeneralWxUtils::EnableMenuItem(menu,
+                                       GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 +j,
+                                       !IS_VAR_STRING);
     }
    
     for (int i=1; i<=10; i++) {
@@ -1797,7 +1812,8 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 	
 	if (smoothing_type != no_smoothing && new_map_smoothing == no_smoothing) {
 		wxString msg = _("The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again.");
-		wxMessageDialog dlg (this, msg, _("Information"), wxOK | wxICON_INFORMATION);
+		wxMessageDialog dlg (this, msg, _("Information"),
+                             wxOK | wxICON_INFORMATION);
 		dlg.ShowModal();
         return false;
 	}
@@ -1939,7 +1955,8 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
     
     TemplateLegend* legend = template_frame->GetTemplateLegend();
     if (legend != NULL ) {
-        legend->isDragDropAllowed = new_map_theme == CatClassification::unique_values;
+        bool flag = new_map_theme == CatClassification::unique_values;
+        legend->isDragDropAllowed = flag;
     }
    
     CallAfter(&MapCanvas::show_empty_shps_msgbox);
@@ -1962,7 +1979,8 @@ void MapCanvas::show_empty_shps_msgbox()
         for (int i=0; i<empty_shps_ids.size(); i++) {
             empty_shps_msg << empty_shps_ids[i] + 1 << "\n";
         }
-        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"), msg, empty_shps_msg);
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"),
+                                                        msg, empty_shps_msg);
         dlg->Show(true);
         has_shown_empty_shps_msg = true;
     }
@@ -2201,8 +2219,10 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
             vector<wxInt64>& ids = aid_idx[aid];
             for (int j=0; j<ids.size(); j++) {
-                if (associated_lines[associated_layer] && !associated_layer->IsHide()) {
-                    dc.DrawLine(selectable_shps[i]->center, associated_layer->GetShape(ids[j])->center);
+                if (associated_lines[associated_layer] &&
+                    !associated_layer->IsHide()) {
+                    dc.DrawLine(selectable_shps[i]->center,
+                                associated_layer->GetShape(ids[j])->center);
                 }
             }
         }
@@ -2217,7 +2237,8 @@ GdaShape* MapCanvas::GetShape(int i)
     return selectable_shps[i];
 }
 
-void MapCanvas::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer, wxString key, bool show_connline)
+void MapCanvas::SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
+                                    wxString key, bool show_connline)
 {
     associated_layers[layer] = make_pair(my_key, key);
     associated_lines[layer] = show_connline;
@@ -2291,7 +2312,8 @@ void MapCanvas::PopulateCanvas()
 			empty_shps_ids = CreateSelShpsFromProj(selectable_shps, project);
 			full_map_redraw_needed = false;
 			
-			if (selectable_shps_type == polygons && (display_mean_centers || display_centroids || display_weights_graph))
+			if (selectable_shps_type == polygons &&
+                (display_mean_centers || display_centroids || display_weights_graph))
             {
 				GdaPoint* p;
 				wxPen cent_pen(wxColour(20, 20, 20));

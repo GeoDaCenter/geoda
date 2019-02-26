@@ -78,13 +78,14 @@ public:
 	
 	/** The selection/brushing tool can be either a rectangle, line or a
 	 circle. */
-	enum BrushType { rectangle, line, circle };
+	enum BrushType { rectangle, line, circle, custom_select };
 
 	/** The selection/brushing tool can be either a rectangle, line or a
 	 circle. */
 	enum ScrollBarMode { none, horiz_only, vert_only, horiz_and_vert };
 	
-	enum SelectableShpType { mixed, circles, points, rectangles, polygons, polylines };
+	enum SelectableShpType { mixed, circles, points, rectangles, polygons,
+        polylines };
 
 	/** Colors */
 	bool selectable_outline_visible;

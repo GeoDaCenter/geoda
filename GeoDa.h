@@ -119,6 +119,7 @@ public:
 	void OnSelectWithRect(wxCommandEvent& event);
 	void OnSelectWithCircle(wxCommandEvent& event);
 	void OnSelectWithLine(wxCommandEvent& event);
+    void OnSelectWithCustom(wxCommandEvent& event);
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);

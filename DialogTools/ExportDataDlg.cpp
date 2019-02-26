@@ -163,7 +163,9 @@ void ExportDataDlg::Init(wxWindow* parent, const wxPoint& pos)
     if( GeneralWxUtils::isWindows())
 		ds_names.Remove("ESRI Personal Geodatabase (*.mdb)|*.mdb");
     
-    Bind(wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource, this, GdaConst::ID_CONNECT_POPUP_MENU, GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
+    Bind(wxEVT_COMMAND_MENU_SELECTED, &ExportDataDlg::BrowseExportDataSource,
+         this, GdaConst::ID_CONNECT_POPUP_MENU,
+         GdaConst::ID_CONNECT_POPUP_MENU + ds_names.Count());
     
     SetParent(parent);
 	CreateControls();
@@ -258,7 +260,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
    
     wxLogMessage(_("ds:") + ds_name);
     if (ds_name.length() <= 0 ) {
-        wxMessageDialog dlg(this, _("Please specify a valid data source name."), _("Warning"), wxOK | wxICON_WARNING);
+        wxMessageDialog dlg(this, _("Please specify a valid data source name."),
+                            _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }

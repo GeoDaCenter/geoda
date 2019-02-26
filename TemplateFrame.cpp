@@ -114,6 +114,40 @@ void TemplateFrame::OnSelectWithLine(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
+void TemplateFrame::OnSelectWithCustom(wxCommandEvent& event)
+{
+    LOG_MSG("Called TemplateFrame::OnSelectWithCustom");
+    if (!template_canvas) return;
+    template_canvas->SetBrushType(TemplateCanvas::custom_select);
+    template_canvas->SetMouseMode(TemplateCanvas::select);
+    UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnDisplayStatusBar(wxCommandEvent& event)
+{
+    DisplayStatusBar(!IsStatusBarVisible());
+}
+
+TemplateLegend* TemplateFrame::GetTemplateLegend()
+{
+    return template_legend;
+}
+
+bool TemplateFrame::AllowObservationAddDelete()
+{
+    return false;
+}
+
+bool TemplateFrame::IsStatusBarVisible()
+{
+    return is_status_bar_visible;
+}
+
+Project* TemplateFrame::GetProject()
+{
+    return project;
+}
+
 void TemplateFrame::OnSelectionMode(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectionMode");
@@ -217,6 +251,9 @@ void TemplateFrame::UpdateOptionMenuItems()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"),
 								  template_canvas->GetBrushType() ==
 								  TemplateCanvas::line);
+    GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"),
+                                  template_canvas->GetBrushType() ==
+                                  TemplateCanvas::custom_select);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECTION_MODE"),
 								  template_canvas->GetMouseMode() ==
 								  TemplateCanvas::select);
@@ -245,7 +282,8 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),IsStatusBarVisible());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),
+                                  IsStatusBarVisible());
 	if (template_canvas == 0) return;
 	// or are not checkable do not appear.
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
@@ -257,6 +295,9 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_LINE"),
 								  template_canvas->GetBrushType() ==
 								  TemplateCanvas::line);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_CUSTOM"),
+                                  template_canvas->GetBrushType() ==
+                                  TemplateCanvas::custom_select);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECTION_MODE"),
 								  template_canvas->GetMouseMode() ==
 								  TemplateCanvas::select);

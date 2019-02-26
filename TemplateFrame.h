@@ -44,25 +44,24 @@ public:
 				  const wxPoint& pos, const wxSize& size, const long style);
 	virtual ~TemplateFrame();
 
-	virtual void MapMenus();
-	void RegisterAsActive(const wxString& name,
-						  const wxString& title = "GeoDa");
-	void DeregisterAsActive();
 	static wxString GetActiveName();
 	static TemplateFrame* GetActiveFrame();
-	virtual void OnActivate(wxActivateEvent& event) {}
-	
 	static bool GetColorFromUser(wxWindow* parent,
 								 const wxColour& cur_color,
 								 wxColour& ret_color,
 								 const wxString& title = _("Choose A Color"));
 	void OnKeyEvent(wxKeyEvent& event);
+    void DeregisterAsActive();
+    void RegisterAsActive(const wxString& name,
+                          const wxString& title = "GeoDa");
+
+    virtual void MapMenus();
+    virtual void OnActivate(wxActivateEvent& event) {}
 	virtual void ExportImage(TemplateCanvas* canvas, const wxString& type);
     virtual void OnChangeMapTransparency();
 	virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
 	virtual void OnCopyLegendToClipboard(wxCommandEvent& event);
 	virtual void OnCopyImageToClipboard(wxCommandEvent& event);
-    
 	virtual void OnLegendUseScientificNotation(wxCommandEvent& event);
 	virtual void OnLegendBackgroundColor(wxCommandEvent& event);
 	virtual void OnCanvasBackgroundColor(wxCommandEvent& event);
@@ -74,6 +73,7 @@ public:
 	virtual void OnSelectWithRect(wxCommandEvent& event);
 	virtual void OnSelectWithCircle(wxCommandEvent& event);
 	virtual void OnSelectWithLine(wxCommandEvent& event);
+    virtual void OnSelectWithCustom(wxCommandEvent& event);
 	virtual void OnSelectionMode(wxCommandEvent& event);
 	virtual void OnResetMap(wxCommandEvent& event);
 	virtual void OnRefreshMap(wxCommandEvent& event);
@@ -92,10 +92,8 @@ public:
 	virtual void OnPlotsPerView(int plots_per_view);
 	virtual void OnPlotsPerViewOther();
 	virtual void OnPlotsPerViewAll();
-	virtual bool IsStatusBarVisible() { return is_status_bar_visible; }
-	virtual void OnDisplayStatusBar(wxCommandEvent& event) {
-		DisplayStatusBar(!IsStatusBarVisible());
-    }
+    virtual bool IsStatusBarVisible();
+    virtual void OnDisplayStatusBar(wxCommandEvent& event);
 	virtual void DisplayStatusBar(bool show);
 	/** Called by TemplateCanvas to determine if TemplateFrame will
 	 generate the Status Bar String. */
@@ -104,10 +102,9 @@ public:
 	virtual void SetGetStatusBarStringFromFrame(bool get_sb_string);
 	virtual wxString GetUpdateStatusBarString(const std::vector<int>& hover_obs,
                                               int total_hover_obs);
-	virtual Project* GetProject() { return project; }
+    virtual Project* GetProject();
 	/** return value can be null */
-	virtual TemplateLegend* GetTemplateLegend() { return template_legend; }
-	
+    virtual TemplateLegend* GetTemplateLegend();
 	/** Default Implementation of FramesManagerObserver interface */
 	virtual void update(FramesManager* o);
 	/** Default Implementation of TableStateObserver interface */
@@ -121,23 +118,20 @@ public:
 	 then return value is true and depends_on_non_simple_groups is ignored. */
 	virtual bool AllowTimelineChanges();
 	virtual bool AllowGroupModify(const wxString& grp_nm);
-	virtual bool AllowObservationAddDelete() { return false; }
-	
+    virtual bool AllowObservationAddDelete();
 	/** Indicate that current view depends on group */
 	virtual void AddGroupDependancy(const wxString& grp_nm);
 	/** Indicate that current view no longer depends on group */
 	virtual void RemoveGroupDependancy(const wxString& grp_nm);
 	virtual void ClearAllGroupDependencies();
-	
     virtual void SetDependsOnNonSimpleGroups(bool v);
-
     virtual int GetCurrentCanvasTimeStep();
     
 protected:
-    wxToolBar* toolbar;
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
-    
+
+    wxToolBar* toolbar;
 	Project* project;
 	TemplateCanvas* template_canvas;
 	TemplateLegend* template_legend; // optional
