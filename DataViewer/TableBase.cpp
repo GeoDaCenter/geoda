@@ -693,7 +693,7 @@ void TableBase::update(TableState* o)
 			int dd = table_int->GetColDispDecimals(pos);
 			GetView()->SetColFormatFloat(pos, -1, dd);
 		}
-	}
+    } 
 	
 	GetView()->Refresh();
 }

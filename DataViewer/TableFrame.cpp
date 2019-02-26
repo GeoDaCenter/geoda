@@ -120,7 +120,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 			if (fac < 1) fac = 1;
 			if (fac > 5) fac = 5;
             fac = fac * 1.2;
-            grid->SetColMinimalWidth(i, cur_col_size * fac);
+            grid->SetColMinimalWidth(i, cur_col_size);
 			grid->SetColSize(i, cur_col_size * fac);
 		} else {
 			// add a few pixels of buffer to current label

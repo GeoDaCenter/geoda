@@ -460,11 +460,10 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                             wx_col_order.push_back(grid->GetColPos(i));
                         }
                     }
-                    for (size_t i=0; i<wx_col_order.size(); ++i)
-                        LOG_MSG(wx_col_order[i]);
 
                     // insert new col
                     int from_col = table_int->FindColId(var_name);
+                    double cur_col_size = grid->GetColSize(from_col);
                     int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
 
                     // get col index of old var again
@@ -511,6 +510,9 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                             grid->SetColPos(i, wx_col_order[i]);
                         }
                     }
+                    // adjust the column size
+                    grid->SetColSize(to_col, cur_col_size);
+
                 } catch(GdaLocalSeparatorException& e) {
                     return;
                 } catch(GdaException& e) {
