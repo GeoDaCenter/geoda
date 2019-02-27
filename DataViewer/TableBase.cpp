@@ -17,8 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <wx/wxprec.h>
+
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
 #include <wx/statusbr.h>
-#include <wx/valnum.h>
 
 #include <boost/foreach.hpp>
 #include <vector>
@@ -99,7 +103,10 @@ void wxGridCellInt64Editor::Create(wxWindow* parent,
     wxGridCellTextEditor::Create(parent, id, evtHandler);
 
 #if wxUSE_VALIDATORS
-    Text()->SetValidator(wxIntegerValidator<long long>());
+    wxString name_chars="-+0123456789";
+    wxTextValidator name_validator(wxFILTER_INCLUDE_CHAR_LIST);
+    name_validator.SetCharIncludes(name_chars);
+    Text()->SetValidator(name_validator);
 #endif
 }
 
