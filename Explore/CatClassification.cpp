@@ -283,7 +283,6 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		num_cats = num_unique_vals;
 		if (num_unique_vals > 10) {
 			num_cats = 10;
-			//FindNaturalBreaks(num_cats, var, var_undef, breaks);
 		} 
 		breaks.resize(num_cats - 1);
 		for (int i = 0; i<num_cats - 1; i++) {
@@ -299,10 +298,6 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		if (num_unique_vals > 10) {
 			cat_labels[9] = "Others";
 		}
-
-		// don't need to correct for
-		//CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
-        
 	} else if (theme == natural_breaks) {
 		FindNaturalBreaks(num_cats, var, var_undef, breaks);
 		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
@@ -1202,7 +1197,7 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			// < -2 sd
 			// >= -2 sd && < -1 sd
 			// >= -1 sd && < mean
-			// => mean && <= 1 sd
+			// >= mean && <= 1 sd
 			// > 1 sd && <= 2 sd
 			// > 2 sd
             
@@ -1825,13 +1820,13 @@ SetNaturalBreaksCats(int num_cats,
 		int num_unique_vals = uv_mapping.size();
 		int t_cats = std::min(num_unique_vals, num_cats);
 		
-		double mean = 0;
+		double mean = 0, max_val;
         int valid_obs = 0;
         for (int i=0; i<num_obs; i++) {
             double val = var[t][i].first;
             int ind = var[t][i].second;
-            if (var_undef[t][ind])
-                continue;
+            if (i==0 || val > max_val) max_val = val;
+            if (var_undef[t][ind]) continue;
             mean += val;
             valid_obs += 1;
         }
@@ -1841,8 +1836,7 @@ SetNaturalBreaksCats(int num_cats,
         for (int i=0; i<num_obs; i++) {
             double val = var[t][i].first;
             int ind = var[t][i].second;
-            if (var_undef[t][ind])
-                continue;
+            if (var_undef[t][ind]) continue;
             gssd += (val-mean)*(val-mean);
         }
 		
@@ -1879,25 +1873,7 @@ SetNaturalBreaksCats(int num_cats,
         
         if (undef_cnts_tms[t]>0)
             cat_data.AppendUndefCategory(t, undef_cnts_tms[t]);
-	
-        /*
-		for (int i=0, nb=best_breaks.size(); i<=nb; i++) {
-			int ss = (i == 0) ? 0 : best_breaks[i-1];
-			int tt = (i == nb) ? v.size() : best_breaks[i];
-			for (int j=ss; j<tt; j++) {
-                double val = var[t][j].first;
-                int ind = var[t][j].second;
-                int c = var_undef[t][ind] ? t_cats : i;
-				cat_data.AppendIdToCategory(t, c, ind);
-			}
-			int end = (i == nb) ? tt -1 : tt;
-			wxString l;
-			l << "[" << GenUtils::DblToStr(var[t][ss].first);
-			l << ":" << GenUtils::DblToStr(var[t][end].first) << "]";
-			cat_data.SetCategoryLabel(t, i, l);
-			
-		}
-       */
+
         stringstream s;
         
         if (useSciNotation) s << std::setprecision(3) << std::scientific;
@@ -1906,41 +1882,38 @@ SetNaturalBreaksCats(int num_cats,
         int num_breaks = best_breaks.size();
         int cur_intervals = num_breaks+1;
         for (int ival=0; ival<cur_intervals; ++ival) {
-            int ss = 0;
-            int tt = 0;
-            int offset_ss = 0;
-            int offset_tt = 0;
+            int ss = 0, tt = 0;
+            int offset_ss = 0, offset_tt = 0;
             s.str("");
             if (cur_intervals <= 1) {
                 s << "";
             } else if (ival == 0) {
+                // first break
                 ss = 0;
                 tt = best_breaks[ival];
                 s << "< ";
-                if (var[t][tt].first == (int)var[t][tt].first) s << (int)var[t][tt].first;
-                else s << var[t][tt].first;
-                
-            } else if (ival == cur_intervals-1 && cur_intervals != 2) {
+                double tt_val = var[t][tt].first;
+                // if floating point number can be render as integer
+                if (tt_val == (int)tt_val) s << (int)tt_val;
+                else s << tt_val;
+
+            } else if (ival == cur_intervals-1) {
+                // last break
                 ss = best_breaks[ival-1];
                 tt = v.size();
-                s << "> ";
-                if (var[t][ss].first == (int)var[t][ss].first) s << (int)var[t][ss].first;
-                else s << var[t][ss].first;
-                offset_ss = 1;
-                
-            } else if (ival == cur_intervals-1 && cur_intervals == 2) {
-                ss = best_breaks[ival-1];
-                tt = v.size();
-                
-                s << ">= ";
-                if (var[t][ss].first == (int)var[t][ss].first) s << (int)var[t][ss].first;
-                else s << var[t][ss].first;
+                double ss_val = var[t][ss].first;
+                // if there is only 2 categories, or last break is equal to
+                // the max value
+                s << ((cur_intervals == 2 || ss_val == max_val) ? ">= " : "> ");
+                // if floating point number can be render as integer
+                if (ss_val == (int)ss_val) s << (int)ss_val;
+                else s << ss_val;
+                if (cur_intervals != 2 && ss_val != max_val) offset_ss = 1;
 
             } else {
                 int num_breaks = cur_intervals-1;
                 int num_breaks_lower = (num_breaks+1)/2;
-                wxString a;
-                wxString b;
+                wxString a,b;
                 if (ival < num_breaks_lower) {
                     a = "[";
                     b = ")";
@@ -1960,12 +1933,19 @@ SetNaturalBreaksCats(int num_cats,
                     offset_ss = 1;
                     offset_tt = 1;
                 }
+                if (ival == cur_intervals-2) {
+                    // in case of last break == max value
+                    b = ")";
+                    offset_tt = 0;
+                }
+                double ss_val = var[t][ss].first;
+                double tt_val = var[t][tt].first;
                 s << a;
-                if (var[t][ss].first == (int)var[t][ss].first) s << (int)var[t][ss].first;
-                else s << var[t][ss].first;
+                if (ss_val == (int)ss_val) s << (int)ss_val;
+                else s << ss_val;
                 s << ", ";
-                if (var[t][tt].first == (int)var[t][tt].first) s << (int)var[t][tt].first;
-                else s << var[t][tt].first;
+                if (tt_val == (int)tt_val) s << (int)tt_val;
+                else s << tt_val;
                 s << b;
             }
             cat_data.SetCategoryLabel(t, ival, s.str());
@@ -2100,39 +2080,30 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
     
 	wxColour Color1[56] = { //Sequential (colorblind safe)
 		wxColour(217, 95, 14),
-		
 		wxColour(254, 196, 79), wxColour(217, 95, 14),
-		
         wxColour(255, 247, 188), wxColour(254, 196, 79),
 		wxColour(217, 95, 14),
-		
         wxColour(255, 255, 212), wxColour(254, 217, 142),
 		wxColour(254, 153, 41), wxColour(204, 76, 2),
-		
         wxColour(255, 255, 212), wxColour(254, 217, 142),
 		wxColour(254, 153, 41), wxColour(217, 95, 14),
 		wxColour(153, 52, 4),
-		
         wxColour(255, 255, 212), wxColour(254, 227, 145),
 		wxColour(254, 196, 79), wxColour(254, 153, 41),
 		wxColour(217, 95, 14), wxColour(153, 52, 4),
-		
         wxColour(255, 255, 212), wxColour(254, 227, 145),
 		wxColour(254, 196, 79), wxColour(254, 153, 41),
 		wxColour(236, 112, 20), wxColour(204, 76, 2),
         wxColour(140, 45, 4),
-		
         wxColour(255, 255, 229), wxColour(255, 247, 188),
 		wxColour(254, 227, 145), wxColour(254, 196, 79),
 		wxColour(254, 153, 41), wxColour(236, 112, 20),
         wxColour(204, 76, 2), wxColour(140, 45, 4),
-		
         wxColour(255, 255, 229), wxColour(255, 247, 188),
 		wxColour(254, 227, 145), wxColour(254, 196, 79),
 		wxColour(254, 153, 41), wxColour(236, 112, 20),
         wxColour(204, 76, 2), wxColour(153, 52, 4),
 		wxColour(102, 37, 6),
-		
         wxColour(255, 255, 229), wxColour(255, 247, 188),
 		wxColour(254, 227, 145), wxColour(254, 196, 79),
 		wxColour(254, 153, 41), wxColour(236, 112, 20),
@@ -2142,39 +2113,30 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 	
     wxColour Color2[56] = { // Diverging (colorblind safe)
 		wxColour(103, 169, 207),
-		
 		wxColour(239, 138, 98), wxColour(103, 169, 207),
-		
 		wxColour(239, 138, 98), wxColour(247, 247, 247),
 		wxColour(103, 169, 207),
-		
         wxColour(202, 0, 32), wxColour(244, 165, 130),
 		wxColour(146, 197, 222), wxColour(5, 113, 176),
-		
         wxColour(202, 0, 32), wxColour(244, 165, 130),
 		wxColour(247, 247, 247), wxColour(146, 197, 222),
 		wxColour(5, 113, 176),
-		
         wxColour(178, 24, 43), wxColour(239, 138, 98),
 		wxColour(253, 219, 199), wxColour(209, 229, 240),
 		wxColour(103, 169, 207), wxColour(33, 102, 172),
-		
         wxColour(178, 24, 43), wxColour(239, 138, 98),
 		wxColour(253, 219, 199), wxColour(247, 247, 247),
         wxColour(209, 229, 240), wxColour(103, 169, 207),
 		wxColour(33, 102, 172),
-		
         wxColour(178, 24, 43), wxColour(214, 96, 77),
 		wxColour(244, 165, 130), wxColour(253, 219, 199),
 		wxColour(209, 229, 240), wxColour(146, 197, 222),
 		wxColour(67, 147, 195), wxColour(33, 102, 172),
-		
         wxColour(178, 24, 43), wxColour(214, 96, 77),
 		wxColour(244, 165, 130), wxColour(253, 219, 199),
 		wxColour(247, 247, 247), wxColour(209, 229, 240),
 		wxColour(146, 197, 222), wxColour(67, 147, 195),
 		wxColour(33, 102, 172),
-		
         wxColour(103, 0, 31), wxColour(178, 24, 43),
 		wxColour(214, 96, 77), wxColour(244, 165, 130),
 		wxColour(253, 219, 199), wxColour(209, 229, 240),
@@ -2184,39 +2146,30 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
 	
 	wxColour Color3[56] = { // Qualitative (colorblind safe up to 4)
 		wxColour(31, 120, 180),
-		
 		wxColour(31, 120, 180), wxColour(51, 160, 44),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138),
-		
         wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153), wxColour(227, 26, 28),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153), wxColour(227, 26, 28),
 		wxColour(253, 191, 111),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153), wxColour(227, 26, 28),
 		wxColour(253, 191, 111), wxColour(255, 127, 0),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153), wxColour(227, 26, 28),
 		wxColour(253, 191, 111), wxColour(255, 127, 0),
 		wxColour(202, 178, 214),
-		
 		wxColour(166, 206, 227), wxColour(31, 120, 180),
 		wxColour(178, 223, 138), wxColour(51, 160, 44),
 		wxColour(251, 154, 153), wxColour(227, 26, 28),

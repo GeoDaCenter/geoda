@@ -549,4 +549,5 @@ public:
 		current = 0;
 	}
 };
+
 #endif
