@@ -76,8 +76,17 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 			if (key == "var") {
 				VarGroup ent;
 				wxString tmp(v.second.data().c_str(), wxConvUTF8);
-				ent.name = tmp;
-				//var_order.push_back(v.second.data());
+				ent.name = tmp.Trim().Trim(false);
+                BOOST_FOREACH(const ptree::value_type &v, v.second) {
+                    wxString tmp(v.first.data(), wxConvUTF8);
+                    wxString key = tmp;
+                    if (key == "displayed_decimals") {
+                        wxString vs(v.second.data().c_str(), wxConvUTF8);
+                        long dd;
+                        if (!vs.ToLong(&dd)) dd = -1;
+                        ent.displayed_decimals = dd;
+                    }
+                }
 				var_grps.push_back(ent);
 			} else if (key == "time_ids") {
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
@@ -149,7 +158,12 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 		// Write variables and groups
 		BOOST_FOREACH(const VarGroup& e, var_grps) {
 			if (e.vars.size() == 0) {				
-				subtree.add("var", e.name);
+				ptree& sstree = subtree.add("var", e.name);
+                if (e.displayed_decimals != -1) {
+                    wxString vs;
+                    vs << e.displayed_decimals;
+                    sstree.put("displayed_decimals", vs);
+                }
 			} else {
 				ptree& sstree = subtree.add("group", "");
 				sstree.put("name", e.name);

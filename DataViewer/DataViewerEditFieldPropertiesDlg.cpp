@@ -690,7 +690,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
     // get col index again
     cid = table_int->FindColId(name);
 
-    // table_int->HasFixedLengths() means Shapefile etc.
+    /*
 	if (table_int->GetColType(cid) == GdaConst::double_type &&
 		table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
 		// it is possible that the values for length and decimals are
@@ -705,6 +705,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         field_grid->SetCellValue(row, COL_L, slen);
         field_grid->SetCellValue(row, COL_D, sdec);
         field_grid->SetCellValue(row, COL_DD, "");
+
     } else if (table_int->GetColType(cid) == GdaConst::long64_type &&
                table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
         wxString slen;
@@ -712,6 +713,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         field_grid->SetCellValue(row, COL_L, slen);
         field_grid->SetCellValue(row, COL_D, "");
         field_grid->SetCellValue(row, COL_DD, "");
+
     } else if (table_int->GetColType(cid) == GdaConst::string_type &&
                table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
         wxString slen, sdec;
@@ -720,6 +722,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
         field_grid->SetCellValue(row, COL_D, "");
         field_grid->SetCellValue(row, COL_DD, "");
     }
+     */
 	UpdateMinMax(row);
 	ev.Skip();
 	
