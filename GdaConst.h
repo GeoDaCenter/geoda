@@ -51,8 +51,8 @@ public:
 		double_type, // N or F with decimals > 0 in DBF
 		long64_type, // N or F with decimals = 0 in DBF
 		string_type, // C in DBF, max 254 characters
-		date_type, // D in DBF, YYYYMMDD format
-        time_type, // HH:MM:SS
+		date_type,   // D in DBF, YYYYMMDD format
+        time_type,   // HH:MM:SS
         datetime_type, // YYYY-MM-DD HH:MM:SS geodatabase
 		placeholder_type
 	};
@@ -92,17 +92,16 @@ public:
 	static std::map<DataSourceType, wxString> datasrc_field_illegal_regex;
 	static std::map<DataSourceType, bool> datasrc_field_casesensitive;
 	
-	static const int max_dbf_numeric_len = 20; // same for long and double
-	static const int max_dbf_long_len = 20;
+	static const int max_dbf_long_len = 20; // 19 digits for max int64 number
 	static const int min_dbf_long_len = 1;
-	static const int default_dbf_long_len = 18;
-	static const int max_dbf_double_len = 20;
+	static const int default_dbf_long_len = 20;
+	static const int max_dbf_double_len = 35; // 19 + 15 +1 = 35
 	static const int min_dbf_double_len = 2; // allow for "0." always
-	static const int default_dbf_double_len = 18;
+    static const int default_dbf_double_len = 24; // follow by OGR:dbf
 	static const int max_dbf_double_decimals = 15;
 	static const int min_dbf_double_decimals = 1;
-	static const int default_display_decimals = 4;
-	static const int default_dbf_double_decimals = 7;
+	static const int default_display_decimals = 6;
+    static const int default_dbf_double_decimals = 15; // follow by OGR:dbf
 	static const int max_dbf_string_len = 254;
 	static const int min_dbf_string_len = 1;
 	static const int default_dbf_string_len = 50;
@@ -110,9 +109,7 @@ public:
 	static const int min_dbf_date_len = 8;
 	static const int default_dbf_date_len = 8;
     
-    
-	
-	// Resource Files
+    // Resource Files
 	static const wxString gda_prefs_fname_json;
 	static const wxString gda_prefs_fname_sqlite;
 	static const wxString gda_prefs_html_table;

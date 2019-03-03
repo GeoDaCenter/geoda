@@ -690,39 +690,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
     // get col index again
     cid = table_int->FindColId(name);
 
-    /*
-	if (table_int->GetColType(cid) == GdaConst::double_type &&
-		table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-		// it is possible that the values for length and decimals are
-		// individually valid, but that the combination of values is not
-		// valid.  If this happens, then change these cells in the table to
-		// red.  Otherwise, format them both as black.
-        long length = GdaConst::default_dbf_double_len;
-        long decimals = GdaConst::default_dbf_double_decimals;
-		wxString slen, sdec;
-        slen << length;
-        sdec << decimals;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, sdec);
-        field_grid->SetCellValue(row, COL_DD, "");
-
-    } else if (table_int->GetColType(cid) == GdaConst::long64_type &&
-               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-        wxString slen;
-        slen << GdaConst::default_dbf_long_len;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, "");
-        field_grid->SetCellValue(row, COL_DD, "");
-
-    } else if (table_int->GetColType(cid) == GdaConst::string_type &&
-               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-        wxString slen, sdec;
-        slen << GdaConst::default_dbf_string_len;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, "");
-        field_grid->SetCellValue(row, COL_DD, "");
-    }
-     */
 	UpdateMinMax(row);
 	ev.Skip();
 	

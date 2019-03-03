@@ -78,7 +78,7 @@ double DbfFileUtils::GetMaxDouble(int length, int decimals,
     SuggestDoubleParams(length, decimals, &length, &decimals);
     
     int len_inter = length - (1+decimals);
-    if (len_inter + decimals > 15) len_inter = 15-decimals;
+    //if (len_inter + decimals > 15) len_inter = 15-decimals;
     double r = 0;
     for (int i=0; i<len_inter+decimals; i++) r = r*10 + 9;
     for (int i=0; i<decimals; i++) r /= 10;
@@ -129,7 +129,10 @@ wxInt64 DbfFileUtils::GetMaxInt(int length)
 
 wxString DbfFileUtils::GetMaxIntString(int length)
 {
-    return wxString::Format("%lld", GetMaxInt(length));
+    if (length < 19)
+        return wxString::Format("%lld", GetMaxInt(length));
+    else
+        return "9223372036854775807"; // max value of int64
 }
 
 wxInt64 DbfFileUtils::GetMinInt(int length)
@@ -143,7 +146,10 @@ wxInt64 DbfFileUtils::GetMinInt(int length)
 
 wxString DbfFileUtils::GetMinIntString(int length)
 {
-    return wxString::Format("%lld", GetMinInt(length));
+    if (length < 19)
+        return wxString::Format("%lld", GetMinInt(length));
+    else
+        return "-9223372036854775808"; // min value of int64
 }
 
 wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)

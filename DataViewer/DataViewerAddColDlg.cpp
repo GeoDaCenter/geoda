@@ -221,7 +221,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 	if (fixed_lengths) {
 		m_length->Enable();
 		m_decimals_lable->SetLabelText("Decimals");
-		m_decimals->SetValue("7");
+		m_decimals->SetValue("15");
 		m_decimals->Disable();
 		m_max_label->SetLabelText("");
 		m_max_val->SetLabelText("");
