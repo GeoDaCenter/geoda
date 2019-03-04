@@ -197,6 +197,76 @@ wxString wxGridCellInt64Editor::GetValue() const
     return s;
 }
 
+wxGridCellDoubleEditor::wxGridCellDoubleEditor(int width, int precision)
+{
+    m_width = width;
+    m_precision = precision;
+}
+
+void wxGridCellDoubleEditor::Create(wxWindow* parent,
+                                   wxWindowID id,
+                                   wxEvtHandler* evtHandler)
+{
+    wxGridCellTextEditor::Create(parent, id, evtHandler);
+
+#if wxUSE_VALIDATORS
+    Text()->SetValidator(wxFloatingPointValidator<double>(m_precision));
+#endif
+}
+
+void wxGridCellDoubleEditor::BeginEdit(int row, int col, wxGrid* grid)
+{
+    // first get the value
+    wxGridTableBase * const table = grid->GetTable();
+    if ( table->CanGetValueAs(row, col, wxGRID_VALUE_FLOAT) ) {
+        m_value = table->GetValueAsDouble(row, col);
+    } else {
+        m_value = 0.0;
+        const wxString value = table->GetValue(row, col);
+        if ( !value.empty() ) {
+            if ( !value.ToDouble(&m_value) ) {
+                wxFAIL_MSG( wxT("this cell doesn't have float value") );
+                return;
+            }
+        }
+    }
+    DoBeginEdit(GetString());
+}
+
+bool wxGridCellDoubleEditor::EndEdit(int WXUNUSED(row),
+                                    int WXUNUSED(col),
+                                    const wxGrid* WXUNUSED(grid),
+                                    const wxString& oldval, wxString *newval)
+{
+    const wxString text(Text()->GetValue());
+
+    double value;
+    if ( !text.empty() )
+        {
+        if ( !text.ToDouble(&value) )
+            return false;
+        }
+    else // new value is empty string
+        {
+        if ( oldval.empty() )
+            return false;           // nothing changed
+
+        value = 0.;
+        }
+
+    // the test for empty strings ensures that we don't skip the value setting
+    // when "" is replaced by "0" or vice versa as "" numeric value is also 0.
+    if ( wxIsSameDouble(value, m_value) && !text.empty() && !oldval.empty() )
+        return false;           // nothing changed
+
+    m_value = value;
+
+    if ( newval )
+        *newval = text;
+
+    return true;
+}
+
 
 class TableCellAttrProvider : public wxGridCellAttrProvider
 {
@@ -277,7 +347,7 @@ TableBase::TableBase(Project* _project,TemplateFrame* t_frame)
 	highlight_state->registerObserver(this);
 	table_state->registerTableBase(this);
 	time_state->registerObserver(this);
-    
+
     UpdateStatusBar();
 }
 
@@ -600,7 +670,6 @@ void TableBase::SetValue(int row, int col, const wxString &value)
     if (project->GetSaveButtonManager()) {
 		project->GetSaveButtonManager()->SetMetaDataSaveNeeded(true);
 	}
-    //GetView()->SetCellAlignment(row, col, wxALIGN_RIGHT, wxALIGN_RIGHT);
     GetView()->Refresh();
 }
 
@@ -679,11 +748,15 @@ void TableBase::update(TableState* o)
                                                 new wxGridCellInt64Editor());
                     GetView()->SetColFormatCustom(e.pos_final, "Long64Type");
 				} else if (e.type == GdaConst::double_type) {
+                    int d = e.decimals;
 					int dd = e.displayed_decimals;
-					if (dd == -1) dd = e.decimals;
-                    dd = std::min(e.decimals, dd);
-                    if (dd <=0) dd = GdaConst::default_dbf_double_decimals;
-					GetView()->SetColFormatFloat(e.pos_final, -1, dd);
+                    if (d == -1) d = GdaConst::default_dbf_double_decimals;
+					if (dd == -1) dd = GdaConst::default_display_decimals;
+                    int w = e.length;
+                    GetView()->RegisterDataType("DoubleType",
+                                                new wxGridCellFloatRenderer(w, dd),
+                                                new wxGridCellFloatEditor(w, d));
+					GetView()->SetColFormatCustom(e.pos_final, "DoubleType");
 				} else {
 					// leave as a string
 				}
@@ -697,8 +770,13 @@ void TableBase::update(TableState* o)
 	} else if (o->GetEventType() == TableState::col_disp_decimals_change) {
 		int pos = o->GetModifiedColPos();
 		if (table_int->GetColType(pos) == GdaConst::double_type) {
+            int d = GdaConst::default_dbf_double_decimals;
 			int dd = table_int->GetColDispDecimals(pos);
-			GetView()->SetColFormatFloat(pos, -1, dd);
+            int w = table_int->GetColLength(pos);
+            GetView()->RegisterDataType("DoubleType",
+                                        new wxGridCellFloatRenderer(w, dd),
+                                        new wxGridCellFloatEditor(w, d));
+            GetView()->SetColFormatCustom(pos, "DoubleType");
 		}
     } 
 	

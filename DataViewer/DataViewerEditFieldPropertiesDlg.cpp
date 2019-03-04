@@ -224,8 +224,8 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				} else {
 					field_grid->SetCellTextColour(r, COL_L, *wxBLACK);
 				}
-                
-				field_grid->SetReadOnly(r, COL_L, !can_edit);
+                if (!can_edit)
+                    field_grid->SetReadOnly(r, COL_L);
 				wxString lv;
 				lv << table_int->GetColLength(cid, t);
 				field_grid->SetCellValue(r, COL_L, lv);

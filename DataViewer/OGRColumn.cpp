@@ -708,7 +708,8 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value,
     }
     
     double d_val;
-    if ( value.ToDouble(&d_val) ) {
+    //if ( value.ToDouble(&d_val) ) {
+    if (wxNumberFormatter::FromString(value, &d_val)) {
         if (is_new) {
             new_data[row_idx] = d_val;
         } else {

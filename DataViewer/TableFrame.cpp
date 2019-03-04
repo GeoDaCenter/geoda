@@ -86,13 +86,25 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	}
     
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
-	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
         GdaConst::FieldType col_type = table_int->GetColType(i);
 		if (col_type == GdaConst::long64_type) {
-            grid->SetColFormatFloat(i, -1, 0);
+            grid->RegisterDataType("Long64Type",
+                                   new wxGridCellInt64Renderer(),
+                                   new wxGridCellInt64Editor());
+            grid->SetColFormatCustom(i, "Long64Type");
+
 		} else if (col_type == GdaConst::double_type) {
-			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
+            int d = table_int->GetColDecimals(i);
+            if (d < 0) d = GdaConst::default_dbf_double_decimals;
+            int dd = table_int->GetColDispDecimals(i);
+            if (dd < 0) dd = GdaConst::default_dbf_double_decimals;
+            int w = table_int->GetColLength(i);
+            grid->RegisterDataType("DoubleType",
+                                    new wxGridCellFloatRenderer(w, dd),
+                                    new wxGridCellFloatEditor(w, d));
+			grid->SetColFormatCustom(i, "DoubleType");
+
 		} else if (col_type == GdaConst::date_type ||
                    col_type == GdaConst::time_type ||
                    col_type == GdaConst::datetime_type) {

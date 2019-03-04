@@ -95,6 +95,37 @@ private:
     long long m_value;
 };
 
+class wxGridCellDoubleEditor : public wxGridCellTextEditor
+{
+public:
+    wxGridCellDoubleEditor(int width, int precision);
+
+    virtual void Create(wxWindow* parent,
+                        wxWindowID id,
+                        wxEvtHandler* evtHandler) wxOVERRIDE;
+
+    virtual bool IsAcceptedKey(wxKeyEvent& event) wxOVERRIDE;
+    virtual void BeginEdit(int row, int col, wxGrid* grid) wxOVERRIDE;
+    virtual bool EndEdit(int row, int col, const wxGrid* grid,
+                         const wxString& oldval, wxString *newval) wxOVERRIDE;
+    virtual void ApplyEdit(int row, int col, wxGrid* grid) wxOVERRIDE;
+
+    virtual void Reset() wxOVERRIDE;
+    virtual void StartingKey(wxKeyEvent& event) wxOVERRIDE;
+    virtual wxGridCellEditor *Clone() const wxOVERRIDE
+    { return new wxGridCellDoubleEditor(m_width, m_precision); }
+    // added GetValue so we can get the value which is in the control
+    virtual wxString GetValue() const wxOVERRIDE;
+
+protected:
+    // string representation of our value
+    wxString GetString();
+
+private:
+    int m_width;
+    int m_precision;
+    double m_value;
+};
 
 class TableBase : public TableStateObserver, public TimeStateObserver,
 public HighlightStateObserver,  public wxGridTableBase
