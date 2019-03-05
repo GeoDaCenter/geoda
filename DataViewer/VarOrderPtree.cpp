@@ -167,6 +167,7 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 			} else {
 				ptree& sstree = subtree.add("group", "");
 				sstree.put("name", e.name);
+            
 				if (e.displayed_decimals != -1) {
 					wxString vs;
 					vs << e.displayed_decimals;

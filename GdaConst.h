@@ -91,7 +91,9 @@ public:
 	static std::map<DataSourceType, wxString> datasrc_field_warning;
 	static std::map<DataSourceType, wxString> datasrc_field_illegal_regex;
 	static std::map<DataSourceType, bool> datasrc_field_casesensitive;
-	
+
+    static int default_display_decimals;
+
 	static const int max_dbf_long_len = 20; // 19 digits for max int64 number
 	static const int min_dbf_long_len = 1;
 	static const int default_dbf_long_len = 20;
@@ -100,7 +102,7 @@ public:
     static const int default_dbf_double_len = 24; // follow by OGR:dbf
 	static const int max_dbf_double_decimals = 15;
 	static const int min_dbf_double_decimals = 1;
-	static const int default_display_decimals = 6;
+
     static const int default_dbf_double_decimals = 15; // follow by OGR:dbf
 	static const int max_dbf_string_len = 254;
 	static const int min_dbf_string_len = 1;

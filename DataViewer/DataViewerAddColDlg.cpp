@@ -356,12 +356,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
         col_insert_pos = table_int->GetNumberCols();
     }
 
-	int time_steps = 1; // non-space-time column by default	
-
-    //wxString log_msg = wxString::Format(_("Inserting new column %s into Table"),
-     //colname);
-	//wxLogMessage(log_msg);
-	
+	int time_steps = 1; // non-space-time column by default
 	bool success;
 	if (fixed_lengths) {
 		success = (table_int->InsertCol(cur_type, colname,

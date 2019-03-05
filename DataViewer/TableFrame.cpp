@@ -102,7 +102,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
             int w = table_int->GetColLength(i);
             grid->RegisterDataType("DoubleType",
                                     new wxGridCellFloatRenderer(w, dd),
-                                    new wxGridCellFloatEditor(w, d));
+                                    new wxGridCellDoubleEditor(w, d));
 			grid->SetColFormatCustom(i, "DoubleType");
 
 		} else if (col_type == GdaConst::date_type ||

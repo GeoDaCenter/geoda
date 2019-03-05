@@ -76,6 +76,7 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 	highlight_state = NULL;
+    table_state = NULL;
 	SetBackgroundColour(*wxWHITE);
 	Init();
     SetMinSize(wxSize(550, -1));
@@ -83,6 +84,7 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 
 PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	HLStateInt* _highlight_state,
+    TableState* _table_state,
 	wxWindowID id,
 	const wxString& title,
 	const wxPoint& pos,
@@ -90,6 +92,7 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
 {
 	highlight_state = _highlight_state;
+    table_state = _table_state;
 	SetBackgroundColour(*wxWHITE);
 	Init();
     SetMinSize(wxSize(550, -1));
@@ -99,10 +102,13 @@ void PreferenceDlg::Init()
 {
 	ReadFromCache();
 
-	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, wxDefaultPosition, wxDefaultSize);
+    long txt_num_style = wxTE_RIGHT | wxTE_PROCESS_ENTER;
+    wxPoint pos = wxDefaultPosition;
 
+	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, pos, wxDefaultSize);
 	//  visualization tab
-	wxNotebookPage* vis_page = new wxNotebookPage(notebook, wxID_ANY, wxDefaultPosition, wxSize(560, 680));
+	wxNotebookPage* vis_page = new wxNotebookPage(notebook, wxID_ANY,
+                                                  pos, wxSize(560, 680));
 #ifdef __WIN32__
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
@@ -114,7 +120,7 @@ void PreferenceDlg::Init()
 
 	wxString lbl0 = _("Use classic yellow cross-hatching to highlight selection in maps:");
 	wxStaticText* lbl_txt0 = new wxStaticText(vis_page, wxID_ANY, lbl0);
-	cbox0 = new wxCheckBox(vis_page, XRCID("PREF_USE_CROSSHATCH"), "", wxDefaultPosition);
+	cbox0 = new wxCheckBox(vis_page, XRCID("PREF_USE_CROSSHATCH"), "", pos);
 	grid_sizer1->Add(lbl_txt0, 1, wxEXPAND);
 	grid_sizer1->Add(cbox0, 0, wxALIGN_RIGHT);
 	cbox0->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCrossHatch, this);
@@ -126,11 +132,9 @@ void PreferenceDlg::Init()
 	wxStaticText* lbl_txt1 = new wxStaticText(vis_page, wxID_ANY, lbl1);
 	wxBoxSizer* box1 = new wxBoxSizer(wxHORIZONTAL);
 	slider1 = new wxSlider(vis_page, wxID_ANY,
-		0, 0, 255,
-		wxDefaultPosition, sl_sz,
-		wxSL_HORIZONTAL);
+		0, 0, 255, pos, sl_sz, wxSL_HORIZONTAL);
 	slider_txt1 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER1_TXT"), "",
-		wxDefaultPosition, txt_sz, wxTE_READONLY);
+		pos, txt_sz, wxTE_READONLY | wxTE_RIGHT);
 	box1->Add(slider1);
 	box1->Add(slider_txt1);
 	grid_sizer1->Add(lbl_txt1, 1, wxEXPAND);
@@ -141,11 +145,9 @@ void PreferenceDlg::Init()
 	wxStaticText* lbl_txt2 = new wxStaticText(vis_page, wxID_ANY, lbl2);
 	wxBoxSizer* box2 = new wxBoxSizer(wxHORIZONTAL);
 	slider2 = new wxSlider(vis_page, wxID_ANY,
-		0, 0, 255,
-		wxDefaultPosition, sl_sz,
-		wxSL_HORIZONTAL);
+		0, 0, 255, pos, sl_sz, wxSL_HORIZONTAL);
 	slider_txt2 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER2_TXT"), "",
-		wxDefaultPosition, txt_sz, wxTE_READONLY);
+		pos, txt_sz, wxTE_READONLY | wxTE_RIGHT);
 	box2->Add(slider2);
 	box2->Add(slider_txt2);
 	grid_sizer1->Add(lbl_txt2, 1, wxEXPAND);
@@ -155,7 +157,8 @@ void PreferenceDlg::Init()
 	wxString lbl3 = _("Add basemap automatically:");
 	wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
-	cmb33 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+	cmb33 = new wxComboBox(vis_page, wxID_ANY, "", pos, wxDefaultSize, 0,
+                           NULL, wxCB_READONLY);
     cmb33->Append("No basemap");
     wxString basemap_sources = GdaConst::gda_basemap_sources;
     wxString encoded_str= wxString::FromUTF8((const char*)basemap_sources.mb_str());
@@ -185,17 +188,18 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
 	grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
 
-	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1, wxTOP | wxBOTTOM, 10);
+	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
+                     wxTOP | wxBOTTOM, 10);
 	grid_sizer1->AddSpacer(10);
 
 	wxString lbl6 = _("Set transparency of highlighted objects in selection:");
 	wxStaticText* lbl_txt6 = new wxStaticText(vis_page, wxID_ANY, lbl6);
 	wxBoxSizer* box6 = new wxBoxSizer(wxHORIZONTAL);
 	slider6 = new wxSlider(vis_page, XRCID("PREF_SLIDER6"),
-		255, 0, 255,
-		wxDefaultPosition, sl_sz,
-		wxSL_HORIZONTAL);
-	wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"), "0.0", wxDefaultPosition, txt_sz, wxTE_READONLY);
+		255, 0, 255, pos, sl_sz, wxSL_HORIZONTAL);
+	wxTextCtrl* slider_txt6 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER6_TXT"),
+                                             "0.0", pos,
+                                             txt_sz, wxTE_READONLY | wxTE_RIGHT);
 	lbl_txt6->Hide();
 	slider6->Hide();
 	slider_txt6->Hide();
@@ -212,9 +216,10 @@ void PreferenceDlg::Init()
 	wxBoxSizer* box7 = new wxBoxSizer(wxHORIZONTAL);
 	slider7 = new wxSlider(vis_page, wxID_ANY,
 		0, 0, 255,
-		wxDefaultPosition, sl_sz,
+		pos, sl_sz,
 		wxSL_HORIZONTAL);
-	slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "", wxDefaultPosition, txt_sz, wxTE_READONLY);
+	slider_txt7 = new wxTextCtrl(vis_page, XRCID("PREF_SLIDER7_TXT"), "", pos,
+                                 txt_sz, wxTE_READONLY);
 	box7->Add(slider7);
 	box7->Add(slider_txt7);
 	grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
@@ -229,7 +234,8 @@ void PreferenceDlg::Init()
 
     wxString lbl113 = _("Language:");
     wxStaticText* lbl_txt113 = new wxStaticText(vis_page, wxID_ANY, lbl113);
-    cmb113 = new wxComboBox(vis_page, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0, NULL, wxCB_READONLY);
+    cmb113 = new wxComboBox(vis_page, wxID_ANY, "", pos, wxDefaultSize, 0,
+                            NULL, wxCB_READONLY);
     cmb113->Append("");
     cmb113->Append("English");
     cmb113->Append("Chinese (Simplified)");
@@ -243,35 +249,35 @@ void PreferenceDlg::Init()
     
 	wxString lbl8 = _("Show Recent/Sample Data panel in Connect Datasource Dialog:");
 	wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
-	cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", wxDefaultPosition);
+	cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", pos);
 	grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);
 	grid_sizer1->Add(cbox8, 0, wxALIGN_RIGHT);
 	cbox8->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowRecent, this);
 
 	wxString lbl9 = _("Show CSV Configuration in Merge Data Dialog:");
 	wxStaticText* lbl_txt9 = new wxStaticText(vis_page, wxID_ANY, lbl9);
-	cbox9 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_CSV_IN_MERGE"), "", wxDefaultPosition);
+	cbox9 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_CSV_IN_MERGE"), "", pos);
 	grid_sizer1->Add(lbl_txt9, 1, wxEXPAND);
 	grid_sizer1->Add(cbox9, 0, wxALIGN_RIGHT);
 	cbox9->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowCsvInMerge, this);
 
 	wxString lbl10 = _("Enable High DPI/Retina support (Mac only):");
 	wxStaticText* lbl_txt10 = new wxStaticText(vis_page, wxID_ANY, lbl10);
-	cbox10 = new wxCheckBox(vis_page, XRCID("PREF_ENABLE_HDPI"), "", wxDefaultPosition);
+	cbox10 = new wxCheckBox(vis_page, XRCID("PREF_ENABLE_HDPI"), "", pos);
 	grid_sizer1->Add(lbl_txt10, 1, wxEXPAND);
 	grid_sizer1->Add(cbox10, 0, wxALIGN_RIGHT);
 	cbox10->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnEnableHDPISupport, this);
 
 	wxString lbl4 = _("Disable crash detection for bug report:");
 	wxStaticText* lbl_txt4 = new wxStaticText(vis_page, wxID_ANY, lbl4);
-	cbox4 = new wxCheckBox(vis_page, XRCID("PREF_CRASH_DETECT"), "", wxDefaultPosition);
+	cbox4 = new wxCheckBox(vis_page, XRCID("PREF_CRASH_DETECT"), "", pos);
 	grid_sizer1->Add(lbl_txt4, 1, wxEXPAND);
 	grid_sizer1->Add(cbox4, 0, wxALIGN_RIGHT);
 	cbox4->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableCrashDetect, this);
 
 	wxString lbl5 = _("Disable auto upgrade:");
 	wxStaticText* lbl_txt5 = new wxStaticText(vis_page, wxID_ANY, lbl5);
-	cbox5 = new wxCheckBox(vis_page, XRCID("PREF_AUTO_UPGRADE"), "", wxDefaultPosition);
+	cbox5 = new wxCheckBox(vis_page, XRCID("PREF_AUTO_UPGRADE"), "", pos);
 	grid_sizer1->Add(lbl_txt5, 1, wxEXPAND);
 	grid_sizer1->Add(cbox5, 0, wxALIGN_RIGHT);
 	cbox5->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDisableAutoUpgrade, this);
@@ -282,14 +288,15 @@ void PreferenceDlg::Init()
     
 	wxString lbl16 = _("Use specified seed:");
 	wxStaticText* lbl_txt16 = new wxStaticText(vis_page, wxID_ANY, lbl16);
-	cbox6 = new wxCheckBox(vis_page, XRCID("PREF_USE_SPEC_SEED"), "", wxDefaultPosition);
+	cbox6 = new wxCheckBox(vis_page, XRCID("PREF_USE_SPEC_SEED"), "", pos);
 	grid_sizer1->Add(lbl_txt16, 1, wxEXPAND);
 	grid_sizer1->Add(cbox6, 0, wxALIGN_RIGHT);
 	cbox6->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnUseSpecifiedSeed, this);
    
 	wxString lbl17 = _("Set seed for randomization:");
 	wxStaticText* lbl_txt17 = new wxStaticText(vis_page, wxID_ANY, lbl17);
-	txt_seed = new wxTextCtrl(vis_page, XRCID("PREF_SEED_VALUE"), "", wxDefaultPosition, wxSize(85, -1));
+	txt_seed = new wxTextCtrl(vis_page, XRCID("PREF_SEED_VALUE"), "", pos,
+                              wxSize(85, -1), txt_num_style);
 	grid_sizer1->Add(lbl_txt17, 1, wxEXPAND);
 	grid_sizer1->Add(txt_seed, 0, wxALIGN_RIGHT);
     txt_seed->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnSeedEnter, this);
@@ -297,8 +304,9 @@ void PreferenceDlg::Init()
 	wxString lbl18 = _("Set number of CPU cores manually:");
 	wxStaticText* lbl_txt18 = new wxStaticText(vis_page, wxID_ANY, lbl18);
     wxBoxSizer* box18 = new wxBoxSizer(wxHORIZONTAL);
-	cbox18 = new wxCheckBox(vis_page, XRCID("PREF_SET_CPU_CORES"), "", wxDefaultPosition);
-	txt_cores = new wxTextCtrl(vis_page, XRCID("PREF_TXT_CPU_CORES"), "", wxDefaultPosition, wxSize(85, -1));
+	cbox18 = new wxCheckBox(vis_page, XRCID("PREF_SET_CPU_CORES"), "", pos);
+	txt_cores = new wxTextCtrl(vis_page, XRCID("PREF_TXT_CPU_CORES"), "", pos,
+                               wxSize(85, -1), txt_num_style);
     box18->Add(cbox18);
     box18->Add(txt_cores);
 	grid_sizer1->Add(lbl_txt18, 1, wxEXPAND);
@@ -308,14 +316,15 @@ void PreferenceDlg::Init()
     
 	wxString lbl19 = _("Stopping criterion for power iteration:");
 	wxStaticText* lbl_txt19 = new wxStaticText(vis_page, wxID_ANY, lbl19);
-	txt_poweriter_eps = new wxTextCtrl(vis_page, XRCID("PREF_POWER_EPS"), "", wxDefaultPosition, wxSize(85, -1));
+	txt_poweriter_eps = new wxTextCtrl(vis_page, XRCID("PREF_POWER_EPS"), "",
+                                       pos, wxSize(85, -1), txt_num_style);
 	grid_sizer1->Add(lbl_txt19, 1, wxEXPAND);
 	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
     txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
     wxString lbl20 = _("Use GPU to Accelerate computation:");
     wxStaticText* lbl_txt20 = new wxStaticText(vis_page, wxID_ANY, lbl20);
-    cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", wxDefaultPosition);
+    cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", pos);
     grid_sizer1->Add(lbl_txt20, 1, wxEXPAND);
     grid_sizer1->Add(cbox_gpu, 0, wxALIGN_RIGHT);
     cbox_gpu->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnUseGPU, this);
@@ -342,7 +351,7 @@ void PreferenceDlg::Init()
 
 	wxString lbl21 = _("Hide system table in Postgresql connection:");
 	wxStaticText* lbl_txt21 = new wxStaticText(gdal_page, wxID_ANY, lbl21);
-	cbox21 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+	cbox21 = new wxCheckBox(gdal_page, wxID_ANY, "", pos);
 	grid_sizer2->Add(lbl_txt21, 1, wxEXPAND | wxTOP, 10);
 	grid_sizer2->Add(cbox21, 0, wxALIGN_RIGHT | wxTOP, 13);
 	cbox21->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTablePostGIS, this);
@@ -350,7 +359,7 @@ void PreferenceDlg::Init()
 
 	wxString lbl22 = _("Hide system table in SQLITE connection:");
 	wxStaticText* lbl_txt22 = new wxStaticText(gdal_page, wxID_ANY, lbl22);
-	cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", wxDefaultPosition);
+	cbox22 = new wxCheckBox(gdal_page, wxID_ANY, "", pos);
 	grid_sizer2->Add(lbl_txt22, 1, wxEXPAND);
 	grid_sizer2->Add(cbox22, 0, wxALIGN_RIGHT);
 	cbox22->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnHideTableSQLITE, this);
@@ -358,18 +367,28 @@ void PreferenceDlg::Init()
     
 	wxString lbl23 = _("Http connection timeout (seconds) for e.g. WFS, Geojson etc.:");
 	wxStaticText* lbl_txt23 = new wxStaticText(gdal_page, wxID_ANY, lbl23);
-	txt23 = new wxTextCtrl(gdal_page, XRCID("ID_HTTP_TIMEOUT"), "", wxDefaultPosition, txt_sz, wxTE_PROCESS_ENTER);
+	txt23 = new wxTextCtrl(gdal_page, XRCID("ID_HTTP_TIMEOUT"), "", pos,
+                           txt_sz, txt_num_style);
 	grid_sizer2->Add(lbl_txt23, 1, wxEXPAND);
 	grid_sizer2->Add(txt23, 0, wxALIGN_RIGHT);
 	txt23->Bind(wxEVT_TEXT, &PreferenceDlg::OnTimeoutInput, this);
    
 	wxString lbl24 = _("Date/Time formats (using comma to separate formats):");
 	wxStaticText* lbl_txt24 = new wxStaticText(gdal_page, wxID_ANY, lbl24);
-	txt24 = new wxTextCtrl(gdal_page, XRCID("ID_DATETIME_FORMATS"), "", wxDefaultPosition, wxSize(200, -1), wxTE_PROCESS_ENTER);
+	txt24 = new wxTextCtrl(gdal_page, XRCID("ID_DATETIME_FORMATS"), "", pos,
+                           wxSize(200, -1), txt_num_style);
 	grid_sizer2->Add(lbl_txt24, 1, wxEXPAND);
 	grid_sizer2->Add(txt24, 0, wxALIGN_RIGHT);
 	txt24->Bind(wxEVT_TEXT, &PreferenceDlg::OnDateTimeInput, this);
-    
+
+    wxString lbl25 = _("Default displayed decimal places:");
+    wxStaticText* lbl_txt25 = new wxStaticText(gdal_page, wxID_ANY, lbl25);
+    txt25 = new wxTextCtrl(gdal_page, XRCID("ID_DISPLAYED_DECIMALS"), "", pos,
+                           txt_sz, txt_num_style);
+    grid_sizer2->Add(lbl_txt25, 1, wxEXPAND);
+    grid_sizer2->Add(txt25, 0, wxALIGN_RIGHT);
+    txt25->Bind(wxEVT_TEXT, &PreferenceDlg::OnDisplayDecimal, this);
+
 	grid_sizer2->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
@@ -384,9 +403,9 @@ void PreferenceDlg::Init()
 
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-
-	wxButton *resetButton = new wxButton(this, wxID_ANY, _("Reset"), wxDefaultPosition, wxSize(70, 30));
-	wxButton *closeButton = new wxButton(this, wxID_OK, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxSize bt_sz = wxSize(70, 30);
+	wxButton *resetButton = new wxButton(this, wxID_ANY, _("Reset"), pos, bt_sz);
+	wxButton *closeButton = new wxButton(this, wxID_OK, _("Close"), pos, bt_sz);
 	resetButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &PreferenceDlg::OnReset, this);
 
 	hbox->Add(resetButton, 1);
@@ -429,6 +448,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gdal_http_timeout = 5;
     GdaConst::use_gda_user_seed= true;
     GdaConst::gda_user_seed = 123456789;
+    GdaConst::default_display_decimals = 6;
     GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
     if (!GdaConst::gda_datetime_formats_str.empty()) {
         wxString patterns = GdaConst::gda_datetime_formats_str;
@@ -467,6 +487,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
     ogr_adapt.AddEntry("gda_ui_language", "0");
     ogr_adapt.AddEntry("gda_use_gpu", "0");
+    ogr_adapt.AddEntry("gda_displayed_decimals", "6");
 }
 
 void PreferenceDlg::SetupControls()
@@ -499,7 +520,8 @@ void PreferenceDlg::SetupControls()
     
     txt23->SetValue(wxString::Format("%d", GdaConst::gdal_http_timeout));
     txt24->SetValue(GdaConst::gda_datetime_formats_str);
-    
+    txt25->SetValue(wxString::Format("%d", GdaConst::default_display_decimals));
+
     cbox6->SetValue(GdaConst::use_gda_user_seed);
     wxString t_seed;
     t_seed << GdaConst::gda_user_seed;
@@ -521,7 +543,9 @@ void PreferenceDlg::SetupControls()
 
 void PreferenceDlg::ReadFromCache()
 {
-	vector<wxString> transp_h = OGRDataAdapter::GetInstance().GetHistory("transparency_highlighted");
+    OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
+    
+	vector<wxString> transp_h = ogr_adapt.GetHistory("transparency_highlighted");
 	if (!transp_h.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_h[0];
@@ -529,7 +553,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_highlighted = transp_l;
 		}
 	}
-	vector<wxString> transp_uh = OGRDataAdapter::GetInstance().GetHistory("transparency_unhighlighted");
+	vector<wxString> transp_uh = ogr_adapt.GetHistory("transparency_unhighlighted");
 	if (!transp_uh.empty()) {
 		long transp_l = 0;
 		wxString transp = transp_uh[0];
@@ -537,7 +561,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<wxString> plot_transparency_unhighlighted = OGRDataAdapter::GetInstance().GetHistory("plot_transparency_unhighlighted");
+	vector<wxString> plot_transparency_unhighlighted = ogr_adapt.GetHistory("plot_transparency_unhighlighted");
 	if (!plot_transparency_unhighlighted.empty()) {
 		long transp_l = 0;
 		wxString transp = plot_transparency_unhighlighted[0];
@@ -545,7 +569,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::plot_transparency_unhighlighted = transp_l;
 		}
 	}
-	vector<wxString> basemap_sel = OGRDataAdapter::GetInstance().GetHistory("default_basemap_selection");
+	vector<wxString> basemap_sel = ogr_adapt.GetHistory("default_basemap_selection");
 	if (!basemap_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_sel[0];
@@ -553,7 +577,7 @@ void PreferenceDlg::ReadFromCache()
 			GdaConst::default_basemap_selection = sel_l;
 		}
 	}
-	vector<wxString> basemap_default = OGRDataAdapter::GetInstance().GetHistory("use_basemap_by_default");
+	vector<wxString> basemap_default = ogr_adapt.GetHistory("use_basemap_by_default");
 	if (!basemap_default.empty()) {
 		long sel_l = 0;
 		wxString sel = basemap_default[0];
@@ -564,7 +588,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_basemap_by_default = false;
 		}
 	}
-	vector<wxString> crossht_sel = OGRDataAdapter::GetInstance().GetHistory("use_cross_hatching");
+	vector<wxString> crossht_sel = ogr_adapt.GetHistory("use_cross_hatching");
 	if (!crossht_sel.empty()) {
 		long cross_l = 0;
 		wxString cross = crossht_sel[0];
@@ -575,7 +599,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_cross_hatching = false;
 		}
 	}
-	vector<wxString> postgres_sys_sel = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_postgres");
+	vector<wxString> postgres_sys_sel = ogr_adapt.GetHistory("hide_sys_table_postgres");
 	if (!postgres_sys_sel.empty()) {
 		long sel_l = 0;
 		wxString sel = postgres_sys_sel[0];
@@ -586,7 +610,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_postgres = false;
 		}
 	}
-	vector<wxString> hide_sys_table_sqlite = OGRDataAdapter::GetInstance().GetHistory("hide_sys_table_sqlite");
+	vector<wxString> hide_sys_table_sqlite = ogr_adapt.GetHistory("hide_sys_table_sqlite");
 	if (!hide_sys_table_sqlite.empty()) {
 		long sel_l = 0;
 		wxString sel = hide_sys_table_sqlite[0];
@@ -597,7 +621,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::hide_sys_table_sqlite = false;
 		}
 	}
-	vector<wxString> disable_crash_detect = OGRDataAdapter::GetInstance().GetHistory("disable_crash_detect");
+	vector<wxString> disable_crash_detect = ogr_adapt.GetHistory("disable_crash_detect");
 	if (!disable_crash_detect.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_crash_detect[0];
@@ -608,7 +632,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::disable_crash_detect = false;
 		}
 	}
-	vector<wxString> disable_auto_upgrade = OGRDataAdapter::GetInstance().GetHistory("disable_auto_upgrade");
+	vector<wxString> disable_auto_upgrade = ogr_adapt.GetHistory("disable_auto_upgrade");
 	if (!disable_auto_upgrade.empty()) {
 		long sel_l = 0;
 		wxString sel = disable_auto_upgrade[0];
@@ -620,7 +644,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<wxString> show_recent_sample_connect_ds_dialog = OGRDataAdapter::GetInstance().GetHistory("show_recent_sample_connect_ds_dialog");
+	vector<wxString> show_recent_sample_connect_ds_dialog = ogr_adapt.GetHistory("show_recent_sample_connect_ds_dialog");
 	if (!show_recent_sample_connect_ds_dialog.empty()) {
 		long sel_l = 0;
 		wxString sel = show_recent_sample_connect_ds_dialog[0];
@@ -632,7 +656,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
 
-	vector<wxString> show_csv_configure_in_merge = OGRDataAdapter::GetInstance().GetHistory("show_csv_configure_in_merge");
+	vector<wxString> show_csv_configure_in_merge = ogr_adapt.GetHistory("show_csv_configure_in_merge");
 	if (!show_csv_configure_in_merge.empty()) {
 		long sel_l = 0;
 		wxString sel = show_csv_configure_in_merge[0];
@@ -643,7 +667,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::show_csv_configure_in_merge = false;
 		}
 	}
-	vector<wxString> enable_high_dpi_support = OGRDataAdapter::GetInstance().GetHistory("enable_high_dpi_support");
+	vector<wxString> enable_high_dpi_support = ogr_adapt.GetHistory("enable_high_dpi_support");
 	if (!enable_high_dpi_support.empty()) {
 		long sel_l = 0;
 		wxString sel = enable_high_dpi_support[0];
@@ -654,7 +678,7 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::enable_high_dpi_support = false;
 		}
 	}
-	vector<wxString> gdal_http_timeout = OGRDataAdapter::GetInstance().GetHistory("gdal_http_timeout");
+	vector<wxString> gdal_http_timeout = ogr_adapt.GetHistory("gdal_http_timeout");
 	if (!gdal_http_timeout.empty()) {
 		long sel_l = 0;
 		wxString sel = gdal_http_timeout[0];
@@ -663,7 +687,7 @@ void PreferenceDlg::ReadFromCache()
 		}
 	}
     
-    vector<wxString> gda_datetime_formats_str = OGRDataAdapter::GetInstance().GetHistory("gda_datetime_formats_str");
+    vector<wxString> gda_datetime_formats_str = ogr_adapt.GetHistory("gda_datetime_formats_str");
     if (!gda_datetime_formats_str.empty()) {
         wxString patterns = gda_datetime_formats_str[0];
         wxStringTokenizer tokenizer(patterns, ",");
@@ -675,7 +699,7 @@ void PreferenceDlg::ReadFromCache()
         GdaConst::gda_datetime_formats_str = patterns;
     }
     
-    vector<wxString> gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("gda_user_seed");
+    vector<wxString> gda_user_seed = ogr_adapt.GetHistory("gda_user_seed");
     if (!gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = gda_user_seed[0];
@@ -683,7 +707,7 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gda_user_seed = sel_l;
         }
     }
-    vector<wxString> use_gda_user_seed = OGRDataAdapter::GetInstance().GetHistory("use_gda_user_seed");
+    vector<wxString> use_gda_user_seed = ogr_adapt.GetHistory("use_gda_user_seed");
     if (!use_gda_user_seed.empty()) {
         long sel_l = 0;
         wxString sel = use_gda_user_seed[0];
@@ -697,7 +721,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_set_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_set_cpu_cores");
+    vector<wxString> gda_set_cpu_cores = ogr_adapt.GetHistory("gda_set_cpu_cores");
     if (!gda_set_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_set_cpu_cores[0];
@@ -708,7 +732,7 @@ void PreferenceDlg::ReadFromCache()
                 GdaConst::gda_set_cpu_cores = false;
         }
     }
-    vector<wxString> gda_cpu_cores = OGRDataAdapter::GetInstance().GetHistory("gda_cpu_cores");
+    vector<wxString> gda_cpu_cores = ogr_adapt.GetHistory("gda_cpu_cores");
     if (!gda_cpu_cores.empty()) {
         long sel_l = 0;
         wxString sel = gda_cpu_cores[0];
@@ -717,7 +741,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_eigen_tol = OGRDataAdapter::GetInstance().GetHistory("gda_eigen_tol");
+    vector<wxString> gda_eigen_tol = ogr_adapt.GetHistory("gda_eigen_tol");
     if (!gda_eigen_tol.empty()) {
         double sel_l = 0;
         wxString sel = gda_eigen_tol[0];
@@ -726,7 +750,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_ui_language = OGRDataAdapter::GetInstance().GetHistory("gda_ui_language");
+    vector<wxString> gda_ui_language = ogr_adapt.GetHistory("gda_ui_language");
     if (!gda_ui_language.empty()) {
         long sel_l = 0;
         wxString sel = gda_ui_language[0];
@@ -735,7 +759,7 @@ void PreferenceDlg::ReadFromCache()
         }
     }
     
-    vector<wxString> gda_use_gpu = OGRDataAdapter::GetInstance().GetHistory("gda_use_gpu");
+    vector<wxString> gda_use_gpu = ogr_adapt.GetHistory("gda_use_gpu");
     if (!gda_use_gpu.empty()) {
         long sel_l = 0;
         wxString sel = gda_use_gpu[0];
@@ -746,14 +770,22 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gda_use_gpu = false;
         }
     }
-    
+
+    vector<wxString> gda_disp_decimals = ogr_adapt.GetHistory("gda_displayed_decimals");
+    if (!gda_disp_decimals.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_disp_decimals[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::default_display_decimals = sel_l;
+        }
+    }
+
     // following are not in this UI, but still global variable
-    vector<wxString> gda_user_email = OGRDataAdapter::GetInstance().GetHistory("gda_user_email");
+    vector<wxString> gda_user_email = ogr_adapt.GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
         wxString email = gda_user_email[0];
         GdaConst::gda_user_email = email;
     }
-    
 }
 
 void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
@@ -793,6 +825,7 @@ void PreferenceDlg::OnChooseLanguage(wxCommandEvent& ev)
     wxMessageDialog dlg(NULL, msg, _("Info"), wxOK | wxICON_INFORMATION);
     dlg.ShowModal();
 }
+
 void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
 {
     GdaConst::gda_datetime_formats.clear();
@@ -805,6 +838,20 @@ void PreferenceDlg::OnDateTimeInput(wxCommandEvent& ev)
     }
     GdaConst::gda_datetime_formats_str = formats_str;
     OGRDataAdapter::GetInstance().AddEntry("gda_datetime_formats_str", formats_str);
+}
+
+void PreferenceDlg::OnDisplayDecimal(wxCommandEvent& ev)
+{
+    wxString val = txt25->GetValue();
+    long _val;
+    if (val.ToLong(&_val)) {
+        GdaConst::default_display_decimals = _val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_displayed_decimals", val);
+        if (table_state) {
+            table_state->SetRefreshEvtTyp();
+            table_state->notifyObservers();
+        }
+    }
 }
 
 void PreferenceDlg::OnTimeoutInput(wxCommandEvent& ev)

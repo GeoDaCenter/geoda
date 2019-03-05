@@ -2582,7 +2582,8 @@ void GdaFrame::OnPreferenceSetup(wxCommandEvent& event)
     	PreferenceDlg dlg(this);
     	dlg.Show(true);
     } else {
-    	PreferenceDlg dlg(this, project_p->GetHighlightState());
+    	PreferenceDlg dlg(this, project_p->GetHighlightState(),
+                          project_p->GetTableState());
     	dlg.Show(true);
     }
 }

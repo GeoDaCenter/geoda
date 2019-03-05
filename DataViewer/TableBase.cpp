@@ -23,7 +23,7 @@
 #include <wx/wx.h>
 #endif
 #include <wx/statusbr.h>
-
+#include <wx/numformatter.h>
 #include <boost/foreach.hpp>
 #include <vector>
 #include "../HighlightState.h"
@@ -197,6 +197,82 @@ wxString wxGridCellInt64Editor::GetValue() const
     return s;
 }
 
+// ----------------------------------------------------------------------------
+// wxGridCellDoubleRenderer
+// ----------------------------------------------------------------------------
+
+wxGridCellDoubleRenderer::wxGridCellDoubleRenderer(int width,
+                                                 int precision)
+{
+    SetWidth(width);
+    SetPrecision(precision);
+}
+
+wxGridCellRenderer *wxGridCellDoubleRenderer::Clone() const
+{
+    wxGridCellDoubleRenderer *renderer = new wxGridCellDoubleRenderer(m_width,
+                                                                      m_precision);
+    return renderer;
+}
+
+wxString wxGridCellDoubleRenderer::GetString(const wxGrid& grid, int row, int col)
+{
+    wxGridTableBase *table = grid.GetTable();
+
+    bool hasDouble;
+    double val;
+    wxString text = table->GetValue(row, col);
+    LOG_MSG(text);
+    if ( text.ToDouble(&val) ) {
+        long double v;
+        sscanf(text.c_str(), "%Lf", &v);
+
+        wxString format;
+        format.Printf(wxT("%%%d.%dLf"), m_width, m_precision);
+        text.Printf(format, v);
+        LOG_MSG(text);
+    }
+    //else: text already contains the string
+
+    return text;
+}
+
+void wxGridCellDoubleRenderer::Draw(wxGrid& grid,
+                                   wxGridCellAttr& attr,
+                                   wxDC& dc,
+                                   const wxRect& rectCell,
+                                   int row, int col,
+                                   bool isSelected)
+{
+    wxGridCellRenderer::Draw(grid, attr, dc, rectCell, row, col, isSelected);
+
+    SetTextColoursAndFont(grid, attr, dc, isSelected);
+
+    // draw the text right aligned by default
+    int hAlign = wxALIGN_RIGHT,
+    vAlign = wxALIGN_INVALID;
+    attr.GetNonDefaultAlignment(&hAlign, &vAlign);
+
+    wxRect rect = rectCell;
+    rect.Inflate(-1);
+
+    wxString val = GetString(grid, row, col);
+    grid.DrawTextRectangle(dc, val, rect, hAlign, vAlign);
+}
+
+wxSize wxGridCellDoubleRenderer::GetBestSize(wxGrid& grid,
+                                            wxGridCellAttr& attr,
+                                            wxDC& dc,
+                                            int row, int col)
+{
+    return DoGetBestSize(attr, dc, GetString(grid, row, col));
+}
+
+
+// ----------------------------------------------------------------------------
+// wxGridCellDoubleEditor
+// ----------------------------------------------------------------------------
+
 wxGridCellDoubleEditor::wxGridCellDoubleEditor(int width, int precision)
 {
     m_width = width;
@@ -210,8 +286,35 @@ void wxGridCellDoubleEditor::Create(wxWindow* parent,
     wxGridCellTextEditor::Create(parent, id, evtHandler);
 
 #if wxUSE_VALIDATORS
-    Text()->SetValidator(wxFloatingPointValidator<double>(m_precision));
+    wxString name_chars="-+.0123456789";
+    wxTextValidator name_validator(wxFILTER_INCLUDE_CHAR_LIST);
+    name_validator.SetCharIncludes(name_chars);
+    Text()->SetValidator(name_validator);
 #endif
+}
+
+bool wxGridCellDoubleEditor::IsAcceptedKey(wxKeyEvent& event)
+{
+    if ( wxGridCellEditor::IsAcceptedKey(event) ) {
+        const int keycode = event.GetKeyCode();
+        if ( wxIsascii(keycode) ) {
+#if wxUSE_INTL
+            const wxString decimalPoint =
+            wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT, wxLOCALE_CAT_NUMBER);
+#else
+            const wxString decimalPoint(wxT('.'));
+#endif
+            // accept digits, 'e' as in '1e+6', also '-', '+', and '.'
+            if ( wxIsdigit(keycode) ||
+                tolower(keycode) == 'e' ||
+                keycode == decimalPoint ||
+                keycode == '+' ||
+                keycode == '-' ) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 void wxGridCellDoubleEditor::BeginEdit(int row, int col, wxGrid* grid)
@@ -222,12 +325,14 @@ void wxGridCellDoubleEditor::BeginEdit(int row, int col, wxGrid* grid)
         m_value = table->GetValueAsDouble(row, col);
     } else {
         m_value = 0.0;
+        double v;
         const wxString value = table->GetValue(row, col);
         if ( !value.empty() ) {
-            if ( !value.ToDouble(&m_value) ) {
+            if ( !value.ToDouble(&v) ) {
                 wxFAIL_MSG( wxT("this cell doesn't have float value") );
                 return;
             }
+            sscanf(value.c_str(), "%Lf", &m_value);
         }
     }
     DoBeginEdit(GetString());
@@ -239,27 +344,24 @@ bool wxGridCellDoubleEditor::EndEdit(int WXUNUSED(row),
                                     const wxString& oldval, wxString *newval)
 {
     const wxString text(Text()->GetValue());
-
     double value;
-    if ( !text.empty() )
-        {
-        if ( !text.ToDouble(&value) )
+    if ( !text.empty() ) {
+        if ( !wxNumberFormatter::FromString(text, &value))
             return false;
-        }
-    else // new value is empty string
-        {
+    } else {// new value is empty string
         if ( oldval.empty() )
             return false;           // nothing changed
-
         value = 0.;
-        }
+    }
+    long double v;
+    sscanf(text.c_str(), "%Lf", &v);
 
     // the test for empty strings ensures that we don't skip the value setting
     // when "" is replaced by "0" or vice versa as "" numeric value is also 0.
-    if ( wxIsSameDouble(value, m_value) && !text.empty() && !oldval.empty() )
+    if ( v == m_value && !text.empty() && !oldval.empty() )
         return false;           // nothing changed
 
-    m_value = value;
+    m_value = v;
 
     if ( newval )
         *newval = text;
@@ -267,6 +369,62 @@ bool wxGridCellDoubleEditor::EndEdit(int WXUNUSED(row),
     return true;
 }
 
+void wxGridCellDoubleEditor::ApplyEdit(int row, int col, wxGrid* grid)
+{
+    wxGridTableBase * const table = grid->GetTable();
+
+    if ( table->CanSetValueAs(row, col, wxGRID_VALUE_FLOAT) )
+        table->SetValueAsDouble(row, col, m_value);
+    else {
+        wxString val = Text()->GetValue();
+        table->SetValue(row, col, val);
+    }
+}
+
+void wxGridCellDoubleEditor::Reset()
+{
+    DoReset(GetString());
+}
+
+void wxGridCellDoubleEditor::StartingKey(wxKeyEvent& event)
+{
+    int keycode = event.GetKeyCode();
+    char tmpbuf[2];
+    tmpbuf[0] = (char) keycode;
+    tmpbuf[1] = '\0';
+    wxString strbuf(tmpbuf, *wxConvCurrent);
+
+#if wxUSE_INTL
+    bool is_decimal_point = ( strbuf ==
+                             wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT, wxLOCALE_CAT_NUMBER) );
+#else
+    bool is_decimal_point = ( strbuf == wxT(".") );
+#endif
+
+    if ( wxIsdigit(keycode) || keycode == '+' || keycode == '-'
+        || is_decimal_point ) {
+        wxGridCellTextEditor::StartingKey(event);
+
+        // skip Skip() below
+        return;
+    }
+
+    event.Skip();
+}
+
+wxString wxGridCellDoubleEditor::GetValue() const
+{
+    wxString s = Text()->GetValue();
+    return s;
+}
+
+wxString wxGridCellDoubleEditor::GetString()
+{
+    wxString format;
+    format.Printf(wxT("%%%d.%dLf"), m_width-m_precision-1, m_precision);
+    wxString val = wxString::Format(format, m_value);
+    return val;
+}
 
 class TableCellAttrProvider : public wxGridCellAttrProvider
 {
@@ -755,7 +913,7 @@ void TableBase::update(TableState* o)
                     int w = e.length;
                     GetView()->RegisterDataType("DoubleType",
                                                 new wxGridCellFloatRenderer(w, dd),
-                                                new wxGridCellFloatEditor(w, d));
+                                                new wxGridCellDoubleEditor(w, d));
 					GetView()->SetColFormatCustom(e.pos_final, "DoubleType");
 				} else {
 					// leave as a string
@@ -775,7 +933,7 @@ void TableBase::update(TableState* o)
             int w = table_int->GetColLength(pos);
             GetView()->RegisterDataType("DoubleType",
                                         new wxGridCellFloatRenderer(w, dd),
-                                        new wxGridCellFloatEditor(w, d));
+                                        new wxGridCellDoubleEditor(w, d));
             GetView()->SetColFormatCustom(pos, "DoubleType");
 		}
     } 

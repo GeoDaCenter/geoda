@@ -601,22 +601,10 @@ int OGRTable::GetColDispDecimals(int col)
     // Displayed decimals will be configured in project file
 	VarGroup vg = var_order.FindVarGroup(col);
 	if (vg.GetDispDecs() == -1) {
-        int deci = GetColDecimals(col, 0);
-        if (deci > 0) {
-            // if read decimal from dataset, use it as display decimal
-            if (deci > 6) {
-                // to keep screenshot the same, when display decimals is larger
-                // (e.g. DBF uses 15 decimals) than default display decimals(6),
-                // use default display decimals
-                deci = 6;
-                vg.SetDispDecs(-1);
-            } else {
-                vg.SetDispDecs(deci);
-            }
-            return deci;
-        } else {
+        if (GetColType(col) == GdaConst::double_type)
+            return GdaConst::default_display_decimals;
+        else
             return -1;
-        }
 	} else {
         //Use user specified display decimals (in gda project file)
 		return vg.GetDispDecs();
@@ -1322,7 +1310,8 @@ int OGRTable::InsertCol(GdaConst::FieldType type,
     // to keep screenshot the same, when display decimals is larger
     // (e.g. DBF uses 15 decimals) than default display decimals(6),
     // use default display decimals
-    tde.displayed_decimals = decimals > 6 ? 6 : decimals;
+    if (type==GdaConst::double_type)
+        tde.displayed_decimals = GdaConst::default_display_decimals;
 	tde.type = type;
 	tde.length = field_len;
 	tde.change_to_db = true;
@@ -1453,7 +1442,7 @@ void OGRTable::GroupCols(const std::vector<int>& cols,
 	}
 	
     if (decimals <=0) decimals = GdaConst::default_dbf_double_decimals;
-    if (displayed_decimals<=0) displayed_decimals = decimals;
+    if (displayed_decimals<=0) displayed_decimals = GdaConst::default_display_decimals;
     
 	TableDeltaList_type tdl;
 	var_order.Group(cols, name, pos, tdl, cols_case_sensitive);

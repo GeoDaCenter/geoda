@@ -319,15 +319,15 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+int GdaConst::default_display_decimals = 6; // move in preference
 bool GdaConst::gda_use_gpu = false;
 int GdaConst::gda_ui_language = 0;
-double GdaConst::gda_eigen_tol = 1.0E-8;
+double GdaConst::gda_eigen_tol = 0.00000001;
 bool GdaConst::gda_set_cpu_cores = true;
 int GdaConst::gda_cpu_cores = 8;
 wxString GdaConst::gda_user_email = "";
 uint64_t GdaConst::gda_user_seed = 123456789;
 bool GdaConst::use_gda_user_seed = true;
-
 int GdaConst::gdal_http_timeout = 5;
 bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::show_csv_configure_in_merge = true;

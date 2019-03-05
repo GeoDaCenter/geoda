@@ -95,6 +95,40 @@ private:
     long long m_value;
 };
 
+class wxGridCellDoubleRenderer : public wxGridCellStringRenderer
+{
+    // formatting parameters
+    int m_width;
+    int m_precision;
+    long double m_value;
+
+public:
+    wxGridCellDoubleRenderer(int width, int precision);
+
+    int GetWidth() const { return m_width; }
+    void SetWidth(int width) { m_width = width; }
+    int GetPrecision() const { return m_precision; }
+    void SetPrecision(int precision) { m_precision = precision; }
+
+    // draw the string right aligned
+    virtual void Draw(wxGrid& grid,
+                      wxGridCellAttr& attr,
+                      wxDC& dc,
+                      const wxRect& rect,
+                      int row, int col,
+                      bool isSelected) wxOVERRIDE;
+
+    virtual wxSize GetBestSize(wxGrid& grid,
+                               wxGridCellAttr& attr,
+                               wxDC& dc,
+                               int row, int col) wxOVERRIDE;
+
+    virtual wxGridCellRenderer *Clone() const wxOVERRIDE;
+
+protected:
+    wxString GetString(const wxGrid& grid, int row, int col);
+};
+
 class wxGridCellDoubleEditor : public wxGridCellTextEditor
 {
 public:
@@ -124,7 +158,7 @@ protected:
 private:
     int m_width;
     int m_precision;
-    double m_value;
+    long double m_value;
 };
 
 class TableBase : public TableStateObserver, public TimeStateObserver,
