@@ -106,7 +106,7 @@ LisaCoordinator(wxString weights_path,
     last_seed_used = 0;
     reuse_last_seed = false;
     isBivariate = false;
- 
+
     // std::vector<GdaVarTools::VarInfo> var_info;
     int num_vars = 1;
     isBivariate = false;
@@ -206,7 +206,12 @@ void LisaCoordinator::DeallocateVectors()
 		if (data2_vecs[i]) delete [] data2_vecs[i];
 	}
 	data2_vecs.clear();
-    
+
+    for (int i=0; i<smoothed_results.size(); i++) {
+        if (smoothed_results[i]) delete [] smoothed_results[i];
+    }
+    smoothed_results.clear();
+
     wxLogMessage("Exiting LisaCoordinator::DeallocateVectors()");
 }
 
@@ -219,11 +224,13 @@ void LisaCoordinator::AllocateVectors()
 	lags_vecs.resize(tms);
 	local_moran_vecs.resize(tms);
 	data1_vecs.resize(tms);
+    smoothed_results.resize(tms);
 
 	for (int i=0; i<tms; i++) {
 		lags_vecs[i] = new double[num_obs];
 		local_moran_vecs[i] = new double[num_obs];
 		data1_vecs[i] = new double[num_obs];
+        smoothed_results[i] = new double[num_obs];
 	}
 	
 	if (lisa_type == bivariate) {
@@ -294,12 +301,13 @@ void LisaCoordinator::Init()
 		}
 	} else { // lisa_type == eb_rate_standardized
 		std::vector<bool> undef_res(num_obs, false);
-		double* smoothed_results = new double[num_obs];
+
 		double* E = new double[num_obs]; // E corresponds to var_info[0]
 		double* P = new double[num_obs]; // P corresponds to var_info[1]
 		// we will only fill data1 for eb_rate_standardized and
 		// further lisa calcs will treat as univariate
 		for (int t=0; t<num_time_vals; t++) {
+            double* local_smoothed_results = smoothed_results[t];
 			int v0_t = var_info[0].time_min;
 			if (var_info[0].is_time_variant &&
 				var_info[0].sync_with_global_time) {
@@ -314,17 +322,16 @@ void LisaCoordinator::Init()
             for (int i=0; i<num_obs; i++) {
                 P[i] = data[1][v1_t][i];
             }
-			bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E, smoothed_results, undef_res);
+			bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E, local_smoothed_results, undef_res);
 			if (!success) {
                 for (int i=0; i<num_obs; i++) {
                     undef_data[0][t][i] = undef_data[0][t][i] || undef_res[i];
                 }
 			}
             for (int i=0; i<num_obs; i++) {
-                data1_vecs[t][i] = smoothed_results[i];
+                data1_vecs[t][i] = local_smoothed_results[i];
             }
 		}
-		if (smoothed_results) delete [] smoothed_results;
 		if (E) delete [] E;
 		if (P) delete [] P;
 	}
@@ -357,7 +364,7 @@ void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
         }
     } else { // lisa_type == eb_rate_standardized
         std::vector<bool> undef_res(num_obs, false);
-        double* smoothed_results = new double[num_obs];
+        double* local_smoothed_results = smoothed_results[time];
         double* E = new double[num_obs]; // E corresponds to var_info[0]
         double* P = new double[num_obs]; // P corresponds to var_info[1]
         // we will only fill data1 for eb_rate_standardized and
@@ -369,7 +376,7 @@ void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
             P[i] = data[1][time][i];
         }
         bool success = GdaAlgs::RateStandardizeEB(num_obs, P, E,
-                                                  smoothed_results,
+                                                  local_smoothed_results,
                                                   undef_res);
         if (!success) {
             for (int i=0; i<num_obs; i++) {
@@ -377,9 +384,8 @@ void LisaCoordinator::GetRawData(int time, double* data1, double* data2)
             }
         }
         for (int i=0; i<num_obs; i++) {
-            data1[i] = smoothed_results[i];
+            data1[i] = local_smoothed_results[i];
         }
-        if (smoothed_results) delete [] smoothed_results;
         if (E) delete [] E;
         if (P) delete [] P;
     }
