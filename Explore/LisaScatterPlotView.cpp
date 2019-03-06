@@ -941,10 +941,8 @@ void LisaScatterPlotCanvas::SaveMoranI()
 	std::vector<double> lag(num_obs);
     std::vector<double> diff(num_obs);
 
-    
 	int xt = sp_var_info[0].time-sp_var_info[0].time_min;
 	int yt = sp_var_info[1].time-sp_var_info[1].time_min;
-
 
 	for (int i=0; i<num_obs; i++) {
 		std_data[i] = x_data[xt][i];
@@ -959,7 +957,7 @@ void LisaScatterPlotCanvas::SaveMoranI()
     
     std::vector<SaveToTableEntry> data;
     
-    if (is_diff) {
+    if (is_diff || is_rate) {
         data.resize(3);
     } else {
         data.resize(2);
@@ -984,7 +982,19 @@ void LisaScatterPlotCanvas::SaveMoranI()
         data[2].type = GdaConst::double_type;
         data[2].undefined = &XYZ_undef;
     }
-	
+
+    std::vector<double> ebr(lisa_coord->num_obs);
+    if (is_rate) {
+        int t = var_info_orig[0].time-var_info_orig[0].time_min;
+        for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
+            ebr[i] = lisa_coord->smoothed_results[t][i];
+        }
+        data[2].d_val = &ebr;
+        data[2].label = "EB Rates";
+        data[2].field_default = "MORAN_EB";
+        data[2].type = GdaConst::double_type;
+        data[2].undefined = &XYZ_undef;
+    }
 	SaveToTableDlg dlg(project, this, data, title,
 					   wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();

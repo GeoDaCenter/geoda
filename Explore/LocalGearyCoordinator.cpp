@@ -994,8 +994,10 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                     // positive && high-high if (cluster[cnt] == 1) cluster[cnt] = 1;
                     // positive && low-low if (cluster[cnt] == 2) cluster[cnt] = 2;
                     // positive && but in outlier qudrant: other pos
-                    if (_cluster[cnt] > 2 && _cluster[cnt] < 5) // ignore neighborless & undefined
+                    if (_cluster[cnt] > 2 && _cluster[cnt] < 5) {
+                        // ignore neighborless & undefined
                         _cluster[cnt] = 3;
+                    }
                 }
             } else {
                 // negative lisasign[cnt] = -1
@@ -1006,7 +1008,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                 }
                 if (local_geary_type == multivariate) {
                     if (_cluster[cnt] < 2) // ignore neighborless & undefined
-                        _cluster[cnt] = 0; // for multivar, only show significant positive (similar)
+                        _cluster[cnt] = 2; // for multivar, only show significant positive (similar)
                 } else {
                     // negative
                     if (_cluster[cnt] < 5) // ignore neighborless & undefined

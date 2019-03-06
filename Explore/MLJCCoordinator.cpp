@@ -487,7 +487,7 @@ void JCCoordinator::CalcPseudoP()
 void JCCoordinator::CalcPseudoP_threaded(int t)
 {
 	LOG_MSG("Entering JCCoordinator::CalcPseudoP_threaded");
-    int nCPUs = 1;//GdaConst::gda_cpu_cores;
+    int nCPUs = GdaConst::gda_cpu_cores;
     if (!GdaConst::gda_set_cpu_cores)
         nCPUs = wxThread::GetCPUCount();
 	

@@ -317,8 +317,9 @@ void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
         data[3].type = GdaConst::double_type;
         data[3].undefined = &undefs;
     }
+
+    std::vector<double> ebr(lisa_coord->num_obs);
     if (lc->is_rate) {
-        std::vector<double> ebr(lisa_coord->num_obs);
         for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
             ebr[i] = lisa_coord->smoothed_results[t][i];
         }
