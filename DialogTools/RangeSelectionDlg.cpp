@@ -51,7 +51,6 @@ BEGIN_EVENT_TABLE( RangeSelectionDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_SEL_RANGE_BUTTON"), RangeSelectionDlg::OnSelRangeClick )
 	EVT_BUTTON( XRCID("ID_SEL_UNDEF_BUTTON"), RangeSelectionDlg::OnSelUndefClick )
 	EVT_BUTTON( XRCID("ID_INVERT_SEL_BUTTON"), RangeSelectionDlg::OnInvertSelClick )
-	//EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"), RangeSelectionDlg::OnRandomSelClick )
 	EVT_BUTTON( XRCID("ID_CLEAR_SEL_BUTTON"), RangeSelectionDlg::OnClearSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON"), RangeSelectionDlg::OnAddNeighsToSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_FIELD"), RangeSelectionDlg::OnAddField )
@@ -115,85 +114,59 @@ void RangeSelectionDlg::CreateControls()
 									 "IDD_RANGE_SELECTION_DLG");
 	m_field_choice = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE")),
 								   wxChoice);
-
 	m_field_choice_tm = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE_TM")),
 									  wxChoice);
-	
 	m_min_text = wxDynamicCast(FindWindow(XRCID("ID_MIN_TEXT")),
 							   wxTextCtrl);
 	m_min_text->Clear();
 	m_min_text->AppendText("0");
 	m_min_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_field_static_txt = wxDynamicCast(FindWindow(XRCID("ID_FIELD_STATIC_TXT")),
 									   wxStaticText);
-	m_field2_static_txt =
-		wxDynamicCast(FindWindow(XRCID("ID_FIELD2_STATIC_TXT")), wxStaticText);
-	
+	m_field2_static_txt = wxDynamicCast(FindWindow(XRCID("ID_FIELD2_STATIC_TXT")),
+                                        wxStaticText);
 	m_max_text = wxDynamicCast(FindWindow(XRCID("ID_MAX_TEXT")),
 							   wxTextCtrl);
 	m_max_text->Clear();
 	m_max_text->AppendText("1");
 	m_max_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_sel_range_button = wxDynamicCast(FindWindow(XRCID("ID_SEL_RANGE_BUTTON")),
 									   wxButton);
 	m_sel_range_button->Enable(false);
-	
 	m_sel_undef_button = wxDynamicCast(FindWindow(XRCID("ID_SEL_UNDEF_BUTTON")),
 									   wxButton);
 	m_sel_undef_button->Enable(false);
-
 	m_clear_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_CLEAR_SEL_BUTTON")), wxButton);
-
 	m_invert_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_INVERT_SEL_BUTTON")), wxButton);
-	
-	//m_num_to_rand_sel_txt = wxDynamicCast(FindWindow(XRCID("ID_NUM_TO_RAND_SEL")), wxTextCtrl);
-	//m_num_to_rand_sel_txt->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-	
 	// Select 10% of objects by default
 	wxString num_to_sel;
 	num_to_sel << (project->GetNumRecords() / 10);
-	//m_num_to_rand_sel_txt->SetValue(num_to_sel);
-	
-	//m_random_sel_button = wxDynamicCast(FindWindow(XRCID("ID_RANDOM_SEL_BUTTON")), wxButton);
-	
-		
-	m_add_neighs_to_sel_button = wxDynamicCast(
-			   FindWindow(XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON")), wxButton);
-														  
+	m_add_neighs_to_sel_button = wxDynamicCast(FindWindow(XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON")),
+                                               wxButton);
 	m_weights_choice = wxDynamicCast(FindWindow(XRCID("ID_WEIGHTS")), wxChoice);
-	
-	m_save_field_choice =
-		wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE")), wxChoice);
-	m_save_field_choice_tm =
-		wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE_TM")), wxChoice);
-	
+	m_save_field_choice = wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE")),
+                                        wxChoice);
+	m_save_field_choice_tm = wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE_TM")),
+                                           wxChoice);
 	m_sel_check_box = wxDynamicCast(FindWindow(XRCID("ID_SEL_CHECK_BOX")),
-									wxCheckBox); 
-	
+									wxCheckBox);
 	m_sel_val_text = wxDynamicCast(FindWindow(XRCID("ID_SEL_VAL_TEXT")),
 									wxTextCtrl);
 	m_sel_val_text->Clear();
 	m_sel_val_text->AppendText("1");
 	m_sel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_unsel_check_box = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_CHECK_BOX")),
-									  wxCheckBox); 
-	
+									  wxCheckBox);
 	m_unsel_val_text = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_VAL_TEXT")),
 									 wxTextCtrl);	
 	m_unsel_val_text->Clear();
 	m_unsel_val_text->AppendText("0");
 	m_unsel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-	
-	m_apply_save_button = wxDynamicCast(
-		FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
+	m_apply_save_button = wxDynamicCast(FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")),
+                                        wxButton);
 	m_apply_save_button->Disable();
-   
-
     m_radio_newselect = XRCCTRL(*this, "IDC_RADIO_NEWSELECT", wxRadioButton);
     m_radio_subselect = XRCCTRL(*this, "IDC_RADIO_SUBSELECT", wxRadioButton);
     m_radio_appendselect = XRCCTRL(*this, "IDC_RADIO_APPENDSELECT", wxRadioButton);
@@ -264,7 +237,6 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
     }
     std::vector<bool> cur_sel(n);
     
-
 	double min_dval = 0;
 	m_min_text->GetValue().ToDouble(&min_dval);
 	double max_dval = 1;
