@@ -1369,14 +1369,21 @@ void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
     double sum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) sum += data[i];
     const double mean = sum / (double) nObs;
-    for (int i=0, iend=nObs; i<iend; i++)
-        data[i] = std::abs(data[i] - mean) / (double) nObs;
+    double mad = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nObs;
+    if (mad == 0) return;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] = (data[i] - mean) / mad;
+    }
 }
 
-void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef)
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data,
+                                     std::vector<bool>& undef)
 {
     if (nObs == 0) return;
-    
     double nValid = 0;
     double sum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
@@ -1385,9 +1392,16 @@ void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& 
         nValid += 1;
     }
     const double mean = sum / nValid;
+    double mad = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
         if (undef[i]) continue;
-        data[i] = std::abs(data[i] - mean) / nValid;
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nValid;
+    if (mad == 0) return;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = (data[i] - mean) / mad;
     }
 }
 void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
@@ -1397,10 +1411,18 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
     double nn = data.size();
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
     const double mean = sum / nn;
-	for (int i=0, iend=data.size(); i<iend; i++)
-        data[i] = std::abs(data[i] - mean) / nn;
+    double mad = 0.0;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nn;
+    if (mad == 0) return;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        data[i] = (data[i] - mean) / mad;
+    }
 }
-void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef)
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data,
+                                     std::vector<bool>& undef)
 {
     if (data.size() == 0) return;
     double sum = 0.0;
@@ -1412,13 +1434,22 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool
         nValid += 1;
     }
     const double mean = sum / nValid;
+    double mad = 0.0;
     for (int i=0, iend=data.size(); i<iend; i++) {
         if (undef[i]) continue;
-        data[i] = std::abs(data[i] - mean) / nValid;
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nValid;
+    if (mad == 0) return;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = (data[i] - mean) / mad;
     }
 }
 
-void GenUtils::Transformation(int trans_type, std::vector<std::vector<double> >& data, std::vector<std::vector<bool> >& undefs)
+void GenUtils::Transformation(int trans_type,
+                              std::vector<std::vector<double> >& data,
+                              std::vector<std::vector<bool> >& undefs)
 {
     if (trans_type < 1) {
         return;
