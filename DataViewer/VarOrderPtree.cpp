@@ -75,14 +75,13 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 			wxString key = v.first.data();
 			if (key == "var") {
 				VarGroup ent;
-                BOOST_FOREACH(const ptree::value_type &vv, v.second) {
-                    wxString tmp(vv.first.data(), wxConvUTF8);
+				wxString tmp(v.second.data().c_str(), wxConvUTF8);
+				ent.name = tmp.Trim().Trim(false);
+                BOOST_FOREACH(const ptree::value_type &v, v.second) {
+                    wxString tmp(v.first.data(), wxConvUTF8);
                     wxString key = tmp;
-                    if (key == "name") {
-                        wxString tmp1(vv.second.data().c_str(), wxConvUTF8);
-                        ent.name = tmp1;
-                    } else if (key == "displayed_decimals") {
-                        wxString vs(vv.second.data().c_str(), wxConvUTF8);
+                    if (key == "displayed_decimals") {
+                        wxString vs(v.second.data().c_str(), wxConvUTF8);
                         long dd;
                         if (!vs.ToLong(&dd)) dd = -1;
                         ent.displayed_decimals = dd;
@@ -106,12 +105,8 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 						wxString tmp1(v.second.data().c_str(), wxConvUTF8);
 						ent.name = tmp1;
 					} else if (key == "var") {
-                        BOOST_FOREACH(const ptree::value_type &vv, v.second) {
-                            if (key == "name") {
-                                wxString tmp1(vv.second.data().c_str(), wxConvUTF8);
-                                ent.vars.push_back(tmp1);
-                            }
-                        }
+						wxString tmp1(v.second.data().c_str(), wxConvUTF8);
+						ent.vars.push_back(tmp1);
 					} else if (key == "placeholder") {
 						ent.vars.push_back("");
                         valid_group = false;
@@ -163,8 +158,7 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 		// Write variables and groups
 		BOOST_FOREACH(const VarGroup& e, var_grps) {
 			if (e.vars.size() == 0) {				
-				ptree& sstree = subtree.add("var", "");
-                sstree.put("name", e.name);
+				ptree& sstree = subtree.add("var", e.name);
                 if (e.displayed_decimals != -1) {
                     wxString vs;
                     vs << e.displayed_decimals;
@@ -173,6 +167,7 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 			} else {
 				ptree& sstree = subtree.add("group", "");
 				sstree.put("name", e.name);
+            
 				if (e.displayed_decimals != -1) {
 					wxString vs;
 					vs << e.displayed_decimals;
@@ -182,8 +177,7 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 					if (v == "") {
 						sstree.add("placeholder", "");
 					} else {
-						ptree& sub_sstree = sstree.add("var", "");
-                        sub_sstree.put("name", v);
+						sstree.add("var", v);
 					}
 				}
 			}
