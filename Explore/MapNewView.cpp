@@ -992,7 +992,8 @@ void MapCanvas::DrawLayer2()
     dc.SetBackground(*wxWHITE_BRUSH);
     dc.Clear();
     dc.DrawBitmap(*layer1_bm, 0, 0);
-    if (display_weights_graph && boost::uuids::nil_uuid() != weights_id && highlight_state->GetTotalHighlighted()==0) {
+    if (display_weights_graph && boost::uuids::nil_uuid() != weights_id &&
+        highlight_state->GetTotalHighlighted()==0) {
         wxPen pen(graph_color, weights_graph_thickness);
         for (int i=0; i<w_graph.size(); i++) {
             w_graph[i]->setPen(pen);
@@ -1167,6 +1168,7 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
         return;
     }
     vector<bool>& hs = highlight_state->GetHighlight();
+    if (display_map_with_graph) {
     if (use_category_brushes) {
         bool highlight_only = true;
         DrawSelectableShapes_dc(dc, highlight_only, revert,
@@ -1179,10 +1181,11 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
             }
         }
     }
+    }
     // highlight connectivity objects and graphs
     bool show_graph = display_weights_graph &&
         boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
-    if (show_graph || display_neighbors) {
+    if (display_map_with_graph && (show_graph || display_neighbors)) {
         // draw neighbors of selection if needed
         WeightsManInterface* w_man_int = project->GetWManInt();
         GalWeight* gal_weights = w_man_int->GetGal(weights_id);
