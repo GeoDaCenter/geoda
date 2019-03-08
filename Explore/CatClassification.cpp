@@ -1868,7 +1868,10 @@ SetNaturalBreaksCats(int num_cats,
 				best_breaks = rand_b;
 			}
 		}
-		
+
+        // check largest break
+        int num_breaks = best_breaks.size();
+
 		cat_data.SetCategoryBrushesAtCanvasTm(coltype, t_cats, false, t);
         
         if (undef_cnts_tms[t]>0)
@@ -1878,8 +1881,7 @@ SetNaturalBreaksCats(int num_cats,
         
         if (useSciNotation) s << std::setprecision(3) << std::scientific;
         else s << std::setprecision(3) << std::fixed;
-        
-        int num_breaks = best_breaks.size();
+
         int cur_intervals = num_breaks+1;
         for (int ival=0; ival<cur_intervals; ++ival) {
             int ss = 0, tt = 0;
@@ -1904,40 +1906,20 @@ SetNaturalBreaksCats(int num_cats,
                 double ss_val = var[t][ss].first;
                 // if there is only 2 categories, or last break is equal to
                 // the max value
-                s << ((cur_intervals == 2 || ss_val == max_val) ? ">= " : "> ");
+                s << ">= ";
                 // if floating point number can be render as integer
                 if (ss_val == (int)ss_val) s << (int)ss_val;
                 else s << ss_val;
-                if (cur_intervals != 2 && ss_val != max_val) offset_ss = 1;
+                //if (cur_intervals != 2 && ss_val != max_val) offset_ss = 1;
 
             } else {
                 int num_breaks = cur_intervals-1;
                 int num_breaks_lower = (num_breaks+1)/2;
                 wxString a,b;
-                if (ival < num_breaks_lower) {
-                    a = "[";
-                    b = ")";
-                    ss = best_breaks[ival-1];
-                    tt = best_breaks[ival];
-                } else if (ival == num_breaks_lower) {
-                    a = "[";
-                    b = "]";
-                    ss = best_breaks[ival-1];
-                    tt = best_breaks[ival];
-                    offset_tt = 1;
-                } else {
-                    a = "(";
-                    b = "]";
-                    ss = best_breaks[ival-1];
-                    tt = best_breaks[ival];
-                    offset_ss = 1;
-                    offset_tt = 1;
-                }
-                if (ival == cur_intervals-2) {
-                    // in case of last break == max value
-                    b = ")";
-                    offset_tt = 0;
-                }
+                a = "[";
+                b = ")";
+                ss = best_breaks[ival-1];
+                tt = best_breaks[ival];
                 double ss_val = var[t][ss].first;
                 double tt_val = var[t][tt].first;
                 s << a;
