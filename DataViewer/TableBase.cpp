@@ -133,11 +133,14 @@ bool wxGridCellInt64Editor::EndEdit(int WXUNUSED(row),
 {
     long long value = 0;
     wxString text;
+    m_empty = false;
 
     text = Text()->GetValue();
     if ( text.empty() ) {
-        if ( oldval.empty() )
+        m_empty = true;
+        if ( oldval.empty() ) {
             return false;
+        }
     } else {
         // non-empty text now (maybe 0)
         if ( !text.ToLongLong(&value) )
@@ -159,7 +162,8 @@ bool wxGridCellInt64Editor::EndEdit(int WXUNUSED(row),
 void wxGridCellInt64Editor::ApplyEdit(int row, int col, wxGrid* grid)
 {
     wxGridTableBase * const table = grid->GetTable();
-    table->SetValue(row, col, wxString::Format("%lld", m_value));
+    if (m_empty) table->SetValue(row, col, "");
+    else table->SetValue(row, col, wxString::Format("%lld", m_value));
 }
 
 void wxGridCellInt64Editor::Reset()

@@ -371,6 +371,7 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 		m_id_field->SetSelection(0);
         bool valid = m_id_field->GetSelection() != wxNOT_FOUND;
 		UpdateCreateButtonState();
+        OnIdVariableSelected(event);
 	} else {
 		// A new id was not added to the dbf file, so do nothing.
 	}

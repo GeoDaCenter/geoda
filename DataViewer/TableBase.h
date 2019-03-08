@@ -93,6 +93,7 @@ protected:
 private:
     int m_width;
     long long m_value;
+    bool m_empty;
 };
 
 class wxGridCellDoubleRenderer : public wxGridCellStringRenderer
@@ -159,6 +160,7 @@ private:
     int m_width;
     int m_precision;
     long double m_value;
+    bool m_empty;
 };
 
 class TableBase : public TableStateObserver, public TimeStateObserver,
