@@ -108,10 +108,12 @@ public:
 	virtual void SetHighlightColor(wxColour color);
 	virtual void SetCanvasBackgroundColor(wxColour color);
 	
-    
     bool useScientificNotation;
     void SetScientificNotation(bool flag);
-    
+
+    int category_disp_precision;
+    void SetCategoryDisplayPrecision(int prec);
+
 	/** This is the implementation of the Observer interface update function.
 	 It is called whenever the Observable's state has changed.  In this case,
 	 the Observable is an instance of the HighlightState, which keeps track

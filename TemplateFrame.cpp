@@ -190,11 +190,11 @@ void TemplateFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
-void TemplateFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+void TemplateFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
 	if (!template_canvas) return;
     
-    AxisLabelPrecisionDlg dlg(template_canvas->axis_display_precision, this);
+    SetDisplayPrecisionDlg dlg(template_canvas->axis_display_precision, this);
     if (dlg.ShowModal () != wxID_OK)
         return;
     int def_precision = dlg.precision;
@@ -641,9 +641,33 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 {
     bool flag = template_canvas->useScientificNotation;
-  
-    
+
     template_canvas->SetScientificNotation(!flag);
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    }
+    template_legend->Recreate();
+    UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
+{
+    int disp_precision = template_canvas->category_disp_precision;
+    SetDisplayPrecisionDlg dlg(disp_precision, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    disp_precision = dlg.precision;
+    template_canvas->SetCategoryDisplayPrecision(disp_precision);
+
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();
     } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {

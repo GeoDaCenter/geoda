@@ -3155,8 +3155,11 @@
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_MAP_VIEW_MENU_LEGEND">
+      <object class="wxMenuItem" name="ID_LEGEND_DISPLAY_PRECISION">
+          <label>Set Display Precision</label>
+      </object>
     <object class="wxMenuItem" name="ID_LEGEND_USE_SCI_NOTATION">
-      <label>Use Scientific Notation</label>
+        <label>Use Scientific Notation</label>
         <checkable>1</checkable>
     </object>
     <object class="wxMenuItem" name="ID_LEGEND_BACKGROUND_COLOR">
@@ -3696,8 +3699,10 @@
         </object>
     </object>
     <object class="wxMenu" name="ID_VIEW_SHOW_SUBMENU">
-        <label>Display</label>
-
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
             <label>Statistics</label>
             <checkable>1</checkable>

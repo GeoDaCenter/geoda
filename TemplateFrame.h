@@ -63,6 +63,7 @@ public:
 	virtual void OnCopyLegendToClipboard(wxCommandEvent& event);
 	virtual void OnCopyImageToClipboard(wxCommandEvent& event);
 	virtual void OnLegendUseScientificNotation(wxCommandEvent& event);
+    virtual void OnLegendDisplayPrecision(wxCommandEvent& event);
 	virtual void OnLegendBackgroundColor(wxCommandEvent& event);
 	virtual void OnCanvasBackgroundColor(wxCommandEvent& event);
 	virtual void OnSelectableFillColor(wxCommandEvent& event);
@@ -79,7 +80,7 @@ public:
 	virtual void OnRefreshMap(wxCommandEvent& event);
 	virtual void OnFitToWindowMode(wxCommandEvent& event);
 	virtual void OnFixedAspectRatioMode(wxCommandEvent& event);
-	virtual void OnSetDisplayPrecision(wxCommandEvent& event);
+	virtual void OnSetAxisDisplayPrecision(wxCommandEvent& event);
 	virtual void OnZoomMode(wxCommandEvent& event);
 	virtual void OnZoomOutMode(wxCommandEvent& event);
 	virtual void OnPanMode(wxCommandEvent& event);

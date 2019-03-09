@@ -381,7 +381,7 @@ void PreferenceDlg::Init()
 	grid_sizer2->Add(txt24, 0, wxALIGN_RIGHT);
 	txt24->Bind(wxEVT_TEXT, &PreferenceDlg::OnDateTimeInput, this);
 
-    wxString lbl25 = _("Default displayed decimal places:");
+    wxString lbl25 = _("Default displayed decimal places in Table:");
     wxStaticText* lbl_txt25 = new wxStaticText(gdal_page, wxID_ANY, lbl25);
     txt25 = new wxTextCtrl(gdal_page, XRCID("ID_DISPLAYED_DECIMALS"), "", pos,
                            txt_sz, txt_num_style);

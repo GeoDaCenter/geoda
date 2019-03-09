@@ -333,10 +333,10 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 	}
 }
 
-void ScatterPlotMatFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+void ScatterPlotMatFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
-    AxisLabelPrecisionDlg dlg(axis_display_precision, this);
+    SetDisplayPrecisionDlg dlg(axis_display_precision, this);
     if (dlg.ShowModal () != wxID_OK)
         return;
     int def_precision = dlg.precision;

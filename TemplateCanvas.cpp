@@ -114,6 +114,7 @@ axis_display_precision(2),
 enable_high_dpi_support(enable_high_dpi_support_),
 scale_factor(1.0),
 point_radius(GdaConst::my_point_click_radius),
+category_disp_precision(3),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
     highlight_timer = new wxTimer(this);
@@ -167,6 +168,12 @@ void TemplateCanvas::SetScientificNotation(bool flag)
 {
     useScientificNotation = flag;
 }
+
+void TemplateCanvas::SetCategoryDisplayPrecision(int prec)
+{
+    category_disp_precision = prec;
+}
+
 
 void TemplateCanvas::deleteLayerBms()
 {

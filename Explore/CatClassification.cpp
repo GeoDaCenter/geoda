@@ -126,11 +126,13 @@ double calc_gvf(const std::vector<int>& b, const std::vector<double>& v,
 void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
 											std::vector<wxString>& cat_labels,
 											const CatClassifType theme,
-                                            bool useScientificNotation)
+                                            bool useScientificNotation,
+                                            int cat_disp_precision)
 {
     stringstream s;
-    if (useScientificNotation) s << std::setprecision(3) << std::scientific;
-    else s << std::setprecision(3) << std::fixed;
+    if (useScientificNotation)
+        s << std::setprecision(cat_disp_precision) << std::scientific;
+    else s << std::setprecision(cat_disp_precision) << std::fixed;
     
 	int num_breaks = breaks.size();
 	int cur_intervals = num_breaks+1;
@@ -189,7 +191,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
                                        const std::vector<bool>& var_undef,
 									   const CatClassifType theme,
                                        int num_cats,
-                                       bool useScientificNotation)
+                                       bool useScientificNotation,
+                                       int cat_disp_precision)
 {
 	int num_obs = var.size();
     
@@ -240,7 +243,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 					Gda::percentile(((i+1.0)*100.0)/((double) num_cats), var);
 			}
 		}
-		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation,
+                            cat_disp_precision);
         
 	} else if (theme == percentile) {
 		breaks[0] = Gda::percentile(1, var);
@@ -266,7 +270,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		breaks[3] = stats.mean + 1.0 * stats.sd_with_bessel;
 		breaks[4] = stats.mean + 2.0 * stats.sd_with_bessel;
 		
-		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation,
+                            cat_disp_precision);
         
 	} else if (theme == unique_values) {
 		std::vector<double> v(num_obs);
@@ -300,7 +305,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 		}
 	} else if (theme == natural_breaks) {
 		FindNaturalBreaks(num_cats, var, var_undef, breaks);
-		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+		CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation,
+                            cat_disp_precision);
         
 	} else {
 		double min_val = var[0].first;
@@ -325,7 +331,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
 			}
 		}
         if (theme != custom)
-            CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation);
+            CatLabelsFromBreaks(breaks, cat_labels, theme, useScientificNotation,
+                                cat_disp_precision);
 	}
 }
 
@@ -338,7 +345,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                        std::vector<bool>& cats_valid,
                        std::vector<wxString>& cats_error_message,
                        bool useSciNotation,
-                       bool useUndefinedCategory)
+                       bool useUndefinedCategory,
+                       int cat_disp_precision)
 {
     // this function is only for string type unique values (categorical classification)
     // theme == unique_values)
@@ -458,7 +466,8 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                        std::vector<bool>& cats_valid,
                        std::vector<wxString>& cats_error_message,
                        bool useSciNotation,
-                       bool useUndefinedCategory)
+                       bool useUndefinedCategory,
+                       int cat_disp_precision)
 {
 	int num_cats = cat_def.num_cats;
 	CatClassifType theme = cat_def.cat_classif_type;
@@ -544,8 +553,10 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 	}
 	
     stringstream ss;
-    if (useSciNotation) ss << std::setprecision(3) << std::scientific;
-    else ss << std::setprecision(3) << std::fixed;
+    if (useSciNotation)
+        ss << std::setprecision(cat_disp_precision) << std::scientific;
+    else
+        ss << std::setprecision(cat_disp_precision) << std::fixed;
     
 	if (num_cats > num_obs) {
 		for (int t=0; t<num_time_vals; t++) {
@@ -1328,7 +1339,10 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
 			}
 		}
 	} else if (theme == natural_breaks) {
-		SetNaturalBreaksCats(num_cats, var, var_undef, cat_data, cats_valid, CatClassification::sequential_color_scheme, useSciNotation);
+		SetNaturalBreaksCats(num_cats, var, var_undef, cat_data, cats_valid,
+                             CatClassification::sequential_color_scheme,
+                             useSciNotation,
+                             cat_disp_precision);
         
 	} else if (theme == equal_intervals) {
 		for (int t=0; t<num_time_vals; t++) {
@@ -1781,7 +1795,8 @@ SetNaturalBreaksCats(int num_cats,
                      const std::vector<std::vector<bool> >& var_undef,
                      CatClassifData& cat_data, std::vector<bool>& cats_valid,
                      CatClassification::ColorScheme coltype,
-                     bool useSciNotation)
+                     bool useSciNotation,
+                     int cat_disp_precision)
 {
 	int num_time_vals = var.size();
 	int num_obs = var[0].size();
@@ -1879,8 +1894,10 @@ SetNaturalBreaksCats(int num_cats,
 
         stringstream s;
         
-        if (useSciNotation) s << std::setprecision(3) << std::scientific;
-        else s << std::setprecision(3) << std::fixed;
+        if (useSciNotation)
+            s << std::setprecision(cat_disp_precision) << std::scientific;
+        else
+            s << std::setprecision(cat_disp_precision) << std::fixed;
 
         int cur_intervals = num_breaks+1;
         for (int ival=0; ival<cur_intervals; ++ival) {

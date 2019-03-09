@@ -116,14 +116,14 @@ void AdjustYAxisDlg::OnCancelClick( wxCommandEvent& event )
 
 }
 
-IMPLEMENT_CLASS( AxisLabelPrecisionDlg, wxDialog )
+IMPLEMENT_CLASS( SetDisplayPrecisionDlg, wxDialog )
 
-BEGIN_EVENT_TABLE( AxisLabelPrecisionDlg, wxDialog )
-EVT_BUTTON( wxID_OK, AxisLabelPrecisionDlg::OnOkClick )
-EVT_BUTTON( wxID_CANCEL, AxisLabelPrecisionDlg::OnCancelClick )
+BEGIN_EVENT_TABLE( SetDisplayPrecisionDlg, wxDialog )
+EVT_BUTTON( wxID_OK, SetDisplayPrecisionDlg::OnOkClick )
+EVT_BUTTON( wxID_CANCEL, SetDisplayPrecisionDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
+SetDisplayPrecisionDlg::SetDisplayPrecisionDlg(int precision_s,
                                              wxWindow* parent,
                                              wxWindowID id,
                                              const wxString& caption,
@@ -140,7 +140,7 @@ AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
     Centre();
 }
 
-void AxisLabelPrecisionDlg::CreateControls()
+void SetDisplayPrecisionDlg::CreateControls()
 {
     wxXmlResource::Get()->LoadDialog(this, GetParent(),
                                      "ID_AXIS_LABEL_PRECISION_DLG");
@@ -148,10 +148,10 @@ void AxisLabelPrecisionDlg::CreateControls()
                                      wxSpinCtrl);
     m_precision_spin->SetRange(0, 6);
     m_precision_spin->SetValue(precision);
-    m_precision_spin->Bind(wxEVT_KEY_DOWN, &AxisLabelPrecisionDlg::OnKeyUp, this);
+    m_precision_spin->Bind(wxEVT_KEY_DOWN, &SetDisplayPrecisionDlg::OnKeyUp, this);
 }
 
-void AxisLabelPrecisionDlg::OnKeyUp( wxEvent& event )
+void SetDisplayPrecisionDlg::OnKeyUp( wxEvent& event )
 {
     if (((wxKeyEvent&)event).GetKeyCode() == WXK_RETURN) {
         wxCommandEvent ev;
@@ -159,13 +159,13 @@ void AxisLabelPrecisionDlg::OnKeyUp( wxEvent& event )
     }
 }
 
-void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
+void SetDisplayPrecisionDlg::OnCancelClick( wxCommandEvent& event )
 {
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
-void AxisLabelPrecisionDlg::OnOkClick( wxCommandEvent& event )
+void SetDisplayPrecisionDlg::OnOkClick( wxCommandEvent& event )
 {
     precision = m_precision_spin->GetValue();
     if (precision < 0 || precision > 6) {

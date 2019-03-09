@@ -2651,7 +2651,7 @@ void MapCanvas::CreateAndUpdateCategories()
         cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	}
     
-    
+    bool useUndefinedCategory=true;
     if (IS_VAR_STRING)
         CatClassification::PopulateCatClassifData(cat_classif_def,
                                                   cat_str_var_sorted,
@@ -2659,7 +2659,9 @@ void MapCanvas::CreateAndUpdateCategories()
                                                   cat_data,
                                                   map_valid,
                                                   map_error_message,
-                                                  this->useScientificNotation);
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory,
+                                                  this->category_disp_precision);
     else
         CatClassification::PopulateCatClassifData(cat_classif_def,
                                                   cat_var_sorted,
@@ -2667,7 +2669,9 @@ void MapCanvas::CreateAndUpdateCategories()
                                                   cat_data,
                                                   map_valid,
                                                   map_error_message,
-                                                  this->useScientificNotation);
+                                                  this->useScientificNotation,
+                                                  useUndefinedCategory,
+                                                  this->category_disp_precision);
 
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time

@@ -862,7 +862,7 @@ void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
 void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 {
 	wxLogMessage("In LineChartFrame:OnAdjustYAxisPrecision()");
-    AxisLabelPrecisionDlg dlg(def_y_precision, this);
+    SetDisplayPrecisionDlg dlg(def_y_precision, this);
     if (dlg.ShowModal () != wxID_OK) return;
     
     def_y_precision = dlg.precision;

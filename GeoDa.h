@@ -123,7 +123,7 @@ public:
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
-	void OnSetDisplayPrecision(wxCommandEvent& event);
+	void OnSetAxisDisplayPrecision(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
@@ -145,6 +145,7 @@ public:
 	void OnSaveSelectedToColumn(wxCommandEvent& event);
 	void OnCanvasBackgroundColor(wxCommandEvent& event);
 	void OnLegendUseScientificNotation(wxCommandEvent& event);
+    void OnLegendDisplayPrecision(wxCommandEvent& event);
 	void OnLegendBackgroundColor(wxCommandEvent& event);
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
@@ -504,7 +505,8 @@ public:
 	void OnExportMeanCntrs(wxCommandEvent& event);
 	void OnExportCentroids(wxCommandEvent& event);
 	void OnSaveVoronoiDupsToTable(wxCommandEvent& event);
-	
+	void OnDisplayPrecision(wxCommandEvent& event);
+
 	// ScatterPlot and PCP specific callbacks
 	void OnViewStandardizedData(wxCommandEvent& event);
 	void OnViewOriginalData(wxCommandEvent& event);

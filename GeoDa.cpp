@@ -1546,11 +1546,11 @@ void GdaFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 	if (t) t->OnFixedAspectRatioMode(event);
 }
 
-void GdaFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+void GdaFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnSetDisplayPrecision(event);
+	if (t) t->OnSetAxisDisplayPrecision(event);
 }
 
 void GdaFrame::OnZoomMode(wxCommandEvent& event)
@@ -1657,6 +1657,14 @@ void GdaFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     t->OnLegendUseScientificNotation(event);
+}
+
+void GdaFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnLegendDisplayPrecision");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    t->OnLegendDisplayPrecision(event);
 }
 
 void GdaFrame::OnLegendBackgroundColor(wxCommandEvent& event)
@@ -5370,6 +5378,15 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    }
+}
+
 void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 {
     wxLogMessage("In OnSaveMoranI()");
@@ -5379,6 +5396,7 @@ void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 		f->OnSaveMoranI(event);
 	}
 }
+
 
 void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 {
@@ -6557,7 +6575,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
     // Fit-To-Window Mode
     EVT_MENU(XRCID("ID_FIXED_ASPECT_RATIO_MODE"), GdaFrame::OnFixedAspectRatioMode)
-    EVT_MENU(XRCID("ID_ADJUST_AXIS_PRECISION"), GdaFrame::OnSetDisplayPrecision)
+    EVT_MENU(XRCID("ID_ADJUST_AXIS_PRECISION"), GdaFrame::OnSetAxisDisplayPrecision)
     EVT_MENU(XRCID("ID_ZOOM_MODE"), GdaFrame::OnZoomMode)
     EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
     // Print Canvas State to Log File.  Used for debugging.
@@ -6570,6 +6588,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"), GdaFrame::OnSaveSelectedToColumn)
     EVT_MENU(XRCID("ID_CANVAS_BACKGROUND_COLOR"), GdaFrame::OnCanvasBackgroundColor)
     EVT_MENU(XRCID("ID_LEGEND_USE_SCI_NOTATION"), GdaFrame::OnLegendUseScientificNotation)
+    EVT_MENU(XRCID("ID_LEGEND_DISPLAY_PRECISION"), GdaFrame::OnLegendDisplayPrecision)
     EVT_MENU(XRCID("ID_LEGEND_BACKGROUND_COLOR"), GdaFrame::OnLegendBackgroundColor)
     EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"), GdaFrame::OnSelectableFillColor)
     EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_COLOR"), GdaFrame::OnSelectableOutlineColor)
@@ -6742,6 +6761,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
     EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
 
+    EVT_MENU(XRCID("ID_VIEW_DISPLAY_PRECISION"),GdaFrame::OnDisplayPrecision)
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
     EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"), GdaFrame::OnSaveConnectivityToTable)
     EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)
@@ -7068,5 +7088,4 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
     EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
     EVT_MENU(XRCID("wxID_REPORTBUG"), GdaFrame::OnReportBug)
-
 END_EVENT_TABLE()

@@ -33,6 +33,7 @@
 #include <wx/xrc/xmlres.h>
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
+#include "../DialogTools/AdjustYAxisDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -65,7 +66,7 @@ custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
-num_categories(6), all_init(false)
+num_categories(6), all_init(false), display_precision(4)
 {
 	using namespace Shapefile;
 	LOG_MSG("Entering PCPCanvas::PCPCanvas");
@@ -571,8 +572,8 @@ void PCPCanvas::PopulateCanvas()
 		}
 		
 		if (display_stats) {
-			m << "[" << GenUtils::DblToStr(t_min, 4);
-			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
+			m << "[" << GenUtils::DblToStr(t_min, display_precision);
+			m << ", " << GenUtils::DblToStr(t_max, display_precision) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
             ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
@@ -582,9 +583,9 @@ void PCPCanvas::PopulateCanvas()
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
 			vals[0] << _("mean");
-			vals[1] << GenUtils::DblToStr(t_mean, 4);
+			vals[1] << GenUtils::DblToStr(t_mean, display_precision);
 			vals[2] << _("s.d.");
-			vals[3] << GenUtils::DblToStr(t_sd, 4);
+			vals[3] << GenUtils::DblToStr(t_sd, display_precision);
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(0, y_pos), GdaShapeText::right,
@@ -674,6 +675,13 @@ void PCPCanvas::TimeChange()
 	Refresh();
 }
 
+void PCPCanvas::SetDisplayPrecision(int prec)
+{
+    display_precision = prec;
+    invalidateBms();
+    PopulateCanvas();
+    Refresh();
+}
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void PCPCanvas::VarInfoAttributeChange()
@@ -1401,3 +1409,16 @@ void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
     if (template_legend) template_legend->Recreate();
 }
 
+void PCPFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    PCPCanvas* t = (PCPCanvas*) template_canvas;
+    if (t == NULL) return;
+
+    int disp_precision = t->GetDisplayPrecision();
+    SetDisplayPrecisionDlg dlg(disp_precision, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    disp_precision = dlg.precision;
+
+    t->SetDisplayPrecision(disp_precision);
+    UpdateOptionMenuItems();
+}

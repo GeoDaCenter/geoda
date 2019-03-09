@@ -126,7 +126,7 @@ public:
 	virtual void update(VarsChooserObservable* o);
 	virtual void notifyOfClosing(VarsChooserObservable* o);
 
-    virtual void OnSetDisplayPrecision(wxCommandEvent& event);
+    virtual void OnSetAxisDisplayPrecision(wxCommandEvent& event);
    
     void OnSaveScreen(wxCommandEvent& event);
     

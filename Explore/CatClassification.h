@@ -59,14 +59,16 @@ namespace CatClassification {
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
                              std::vector<wxString>& cat_labels,
 							 const CatClassifType theme,
-                             bool useScientifcNotation=false);
+                             bool useScientifcNotation=false,
+                             int cat_disp_precision=3);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
                         const std::vector<bool>& var_undef,
 						const CatClassifType theme, int num_cats,
-                        bool useScientificNotation=false);
+                        bool useScientificNotation=false,
+                        int cat_disp_precision=3);
 	
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::dbl_int_pair_vec_type>& var,
@@ -74,7 +76,8 @@ namespace CatClassification {
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
-                                bool useUndefinedCategory=true);
+                                bool useUndefinedCategory=true,
+                                int cat_disp_precision=3);
     
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::str_int_pair_vec_type>& var,
@@ -82,7 +85,8 @@ namespace CatClassification {
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
-                                bool useUndefinedCategory=true);
+                                bool useUndefinedCategory=true,
+                                int cat_disp_precision=3);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int,
@@ -98,7 +102,8 @@ namespace CatClassification {
                               const std::vector<std::vector<bool> >& var_undef,
                               CatClassifData& cat_data, std::vector<bool>& cats_valid,
                               ColorScheme coltype=CatClassification::sequential_color_scheme,
-                              bool useSciNotation=false);
+                              bool useSciNotation=false,
+                              int cat_disp_precision=3);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	
