@@ -770,6 +770,7 @@ void PCPCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
+    bool useUndefinedCategory = true;
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
@@ -777,7 +778,9 @@ void PCPCanvas::CreateAndUpdateCategories()
                                               cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
-                                              this->useScientificNotation);
+                                              this->useScientificNotation,
+                                              useUndefinedCategory,
+                                              this->category_disp_precision);
 	
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time

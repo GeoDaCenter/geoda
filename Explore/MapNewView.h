@@ -190,7 +190,7 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
+    vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
     void SetLegendLabel(int cat, wxString label) {
         cat_data.SetCategoryLabel(0, cat, label);
     }
@@ -265,7 +265,7 @@ protected:
     list<GdaShape*>  foreground_maps;
     
     bool layerbase_valid; // if false, then needs to be redrawn
-    
+    bool is_updating; // true: if triggered by other window
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;

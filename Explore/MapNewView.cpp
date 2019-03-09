@@ -193,7 +193,8 @@ basemap_bm(0),
 ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false),
-maplayer_state(project_s->GetMapLayerState())
+maplayer_state(project_s->GetMapLayerState()),
+is_updating(false)
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     is_hide = false;
@@ -445,10 +446,13 @@ void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_co
     }
 }
 
-void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
+vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 {
+    vector<bool> new_hs(num_obs, false);
+
     if (gal_weights == NULL)
-        return;
+        return new_hs;
+
     int ts = cat_data.GetCurrentCanvasTmStep();
     int num_obs = project->GetNumRecords();
     HighlightState& hs = *project->GetHighlightState();
@@ -474,7 +478,6 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
         }
     }
     if (dc.IsOk()) {
-        vector<bool> new_hs(num_obs, false);
         for (it=ids_of_nbrs.begin(); it!= ids_of_nbrs.end(); it++) {
             new_hs[*it] = true;
         }
@@ -525,6 +528,7 @@ void MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
             }
         }
     }
+    return new_hs;
 }
 
 void MapCanvas::OnSize(wxSizeEvent& event)
@@ -1169,27 +1173,28 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
     }
     vector<bool>& hs = highlight_state->GetHighlight();
     if (display_map_with_graph) {
-    if (use_category_brushes) {
-        bool highlight_only = true;
-        DrawSelectableShapes_dc(dc, highlight_only, revert,
-                                GdaConst::use_cross_hatching);
-        
-    } else {
-        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
-            if (hs[i] == !revert && _IsShpValid(i)) {
-                selectable_shps[i]->paintSelf(dc);
+        if (use_category_brushes) {
+            bool highlight_only = true;
+            DrawSelectableShapes_dc(dc, highlight_only, revert,
+                                    GdaConst::use_cross_hatching);
+
+        } else {
+            for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+                if (hs[i] == !revert && _IsShpValid(i)) {
+                    selectable_shps[i]->paintSelf(dc);
+                }
             }
         }
-    }
     }
     // highlight connectivity objects and graphs
     bool show_graph = display_weights_graph &&
         boost::uuids::nil_uuid() != weights_id && !w_graph.empty();
+    std::vector<bool> new_hs;
     if (display_map_with_graph && (show_graph || display_neighbors)) {
         // draw neighbors of selection if needed
         WeightsManInterface* w_man_int = project->GetWManInt();
         GalWeight* gal_weights = w_man_int->GetGal(weights_id);
-        AddNeighborsToSelection(gal_weights, dc);
+        new_hs = AddNeighborsToSelection(gal_weights, dc);
     }
     if (show_graph) {
         // draw connectivity graph if needed
@@ -1206,6 +1211,14 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
                 }
             }
         }
+    }
+    if (is_updating == false && (show_graph || display_neighbors)) {
+        highlight_timer->Stop();
+        std::vector<bool> old_hs = hs;
+        hs = new_hs;
+        highlight_state->SetEventType(HLStateInt::delta);
+        highlight_state->notifyObservers(this);
+        hs = old_hs;
     }
 }
 
@@ -2881,6 +2894,7 @@ void MapCanvas::SaveRates()
 
 void MapCanvas::update(HLStateInt* o)
 {
+    is_updating = true;
     if (layer2_bm) {
         ResetBrushing();
         
@@ -2902,6 +2916,7 @@ void MapCanvas::update(HLStateInt* o)
         
         UpdateStatusBar();
     }
+    is_updating = false;
 }
 
 void MapCanvas::UpdateStatusBar()
