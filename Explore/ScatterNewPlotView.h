@@ -59,6 +59,8 @@ private:
 	void OnReset(wxCommandEvent& event );
 };
 
+// The design of Bubble Chart/Map should be seperated from Scatter Plot
+// and should be inhereited instead of using parameter inside this class!!
 class ScatterNewPlotCanvas :
 public TemplateCanvas, public CatClassifStateObserver
 {
@@ -129,7 +131,7 @@ public:
 	bool IsShowLowessSmoother() { return show_lowess_smoother; }
 	void UpdateLowessOnRegimes();
     void UpdateBubbleSize(double size_scaler);
-	
+    
     double bubble_size_scaler;
     
 	void ComputeChowTest();
@@ -176,7 +178,6 @@ protected:
 	std::vector<double> Y;
 	std::vector<double> Z;
 	std::vector<bool> XYZ_undef;
-    
     
     std::vector<bool> undef;
 	AxisScale axis_scale_x;
@@ -304,7 +305,6 @@ public:
 	void OnViewRegressionSelectedExcluded(wxCommandEvent& event);
 	void OnDisplayStatistics(wxCommandEvent& event);
 	void OnShowAxesThroughOrigin(wxCommandEvent& event);
-	
 	virtual void OnNewCustomCatClassifA();
 	virtual void OnCustomCatClassifA(const wxString& cc_title);
 	

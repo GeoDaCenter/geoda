@@ -51,6 +51,8 @@ public:
     virtual void UpdateSelection(bool shiftdown, bool pointsel);
     virtual void ResizeSelectableShps(int virtual_scrn_w=0, int virtual_scrn_h=0);
     virtual void OnIdle(wxIdleEvent& event);
+    virtual void SetDisplayPrecision(int n);
+    virtual void SetAxisDisplayPrecision(int n);
     
     //virtual void OnIdle(wxIdleEvent& event);
 	void ShowRandomizationDialog(int permutation);

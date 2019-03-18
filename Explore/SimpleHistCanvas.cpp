@@ -61,11 +61,14 @@ SimpleHistStatsCanvas::SimpleHistStatsCanvas(wxWindow *parent,
                                              const vector<wxString>& lbls,
                                              const vector<vector<double> >& vals,
                                              const vector<double>& stats_,
+                                             const int display_precision_,
                                              const wxString& right_click_menu_id_,
                                              const wxPoint& pos,
                                              const wxSize& size)
 : TemplateCanvas(parent, t_frame, project, hl_state_int, pos, size),
-labels(lbls), values(vals), stats(stats_), right_click_menu_id(right_click_menu_id_)
+labels(lbls), values(vals), stats(stats_),
+right_click_menu_id(right_click_menu_id_),
+display_precision(display_precision_)
 {
     last_scale_trans.SetFixedAspectRatio(false);
     PopulateCanvas();
@@ -164,9 +167,9 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     
     for (int i=0; i<values.size(); i++) {
         std::vector<wxString> vals(rows);
-        vals[0] << GenUtils::DblToStr(values[i][0], 3);
-        vals[1] << GenUtils::DblToStr(values[i][1], 3);
-        vals[2] << GenUtils::DblToStr(values[i][2], 3);
+        vals[0] << GenUtils::DblToStr(values[i][0], display_precision);
+        vals[1] << GenUtils::DblToStr(values[i][1], display_precision);
+        vals[2] << GenUtils::DblToStr(values[i][2], display_precision);
         vals[3] << (int)values[i][3];
         //vals[4] << GenUtils::DblToStr(values[i][4], 3);
         
@@ -181,12 +184,18 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     }
     
     wxString sts;
-    sts << _("min:") <<" " << stats[0];
-    sts << ", " << _("max:") << " " << wxString::Format("%.3f", stats[1]);
+    sts << _("min:") <<" " << GenUtils::DblToStr(stats[0], display_precision);
+    sts << ", " << _("max:") << " ";
+    sts << GenUtils::DblToStr(stats[1], display_precision);
     sts << ", " << _("total # pairs") << ": " << stats[2];
     if (stats[5] >= 0) {
-        sts << ", " << _("Autocorr.") << _(" = 0 at ") << wxString::Format("~%.3f", stats[5]);
-        sts << _(" in range:") << " [" << wxString::Format("%.3f", stats[3]) << ", " << wxString::Format("%.3f", stats[4]) << "]";
+        sts << ", " << _("Autocorr.") << _(" = 0 at ");
+        sts << GenUtils::DblToStr(stats[5], display_precision);
+        sts << _(" in range:") << " [";
+        sts << GenUtils::DblToStr(stats[3], display_precision);
+        sts << ", ";
+        sts << GenUtils::DblToStr(stats[4], display_precision);
+        sts << "]";
     }
     
     s = new GdaShapeText(sts, *GdaConst::small_font,

@@ -5384,6 +5384,16 @@ void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
     if (!t) return;
     if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
         f->OnDisplayPrecision(event);
+    } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (BoxPlotFrame* f = dynamic_cast<BoxPlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (HistogramFrame* f = dynamic_cast<HistogramFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+        f->OnDisplayPrecision(event);
     }
 }
 
@@ -5396,7 +5406,6 @@ void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 		f->OnSaveMoranI(event);
 	}
 }
-
 
 void GdaFrame::OnSigFilter05(wxCommandEvent& event)
 {

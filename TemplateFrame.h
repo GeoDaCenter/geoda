@@ -81,6 +81,7 @@ public:
 	virtual void OnFitToWindowMode(wxCommandEvent& event);
 	virtual void OnFixedAspectRatioMode(wxCommandEvent& event);
 	virtual void OnSetAxisDisplayPrecision(wxCommandEvent& event);
+    virtual void OnDisplayPrecision(wxCommandEvent& event);
 	virtual void OnZoomMode(wxCommandEvent& event);
 	virtual void OnZoomOutMode(wxCommandEvent& event);
 	virtual void OnPanMode(wxCommandEvent& event);

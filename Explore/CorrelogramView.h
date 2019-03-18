@@ -55,7 +55,8 @@ typedef std::map<wxString, vec_vec_bool_type> data_undef_map_type;
  CorrelogramFrame manages all of its canvas child windows.
  */
 class CorrelogramFrame : public TemplateFrame, public CorrelParamsObserver,
-public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt, public LowessParamObserver
+public SimpleScatterPlotCanvasCbInt, public SimpleBinsHistCanvasCbInt,
+public LowessParamObserver
 {
 public:
     CorrelogramFrame(wxFrame *parent, Project* project,
@@ -75,6 +76,8 @@ public:
 	void OnDisplayStatistics(wxCommandEvent& event);
     void OnSaveResult(wxCommandEvent& event);
     void OnEditLowessParams(wxCommandEvent& event);
+    virtual void OnSetAxisDisplayPrecision(wxCommandEvent& event);
+    virtual void OnDisplayPrecision(wxCommandEvent& event);
     
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
@@ -123,6 +126,8 @@ protected:
 	HLStateInt* local_hl_state;
     SimpleScatterPlotCanvas* sp_can;
 
+    int  display_precision;
+    int  axis_display_precision;
     bool display_statistics;
     
 	wxBoxSizer* top_h_sizer;

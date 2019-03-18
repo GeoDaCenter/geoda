@@ -309,7 +309,6 @@ void LisaScatterPlotCanvas::TimeChange()
 	//SetCurrentCanvasTmStep(ref_time - ref_time_min);
 	invalidateBms();
     isResize = true;
-	//PopulateCanvas();
     Refresh();
 }
 
@@ -453,20 +452,12 @@ void LisaScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 void LisaScatterPlotCanvas::OnIdle(wxIdleEvent& event)
 {
     if (isResize) {
-        
-        
         int vs_w, vs_h;
-        
         GetClientSize(&vs_w, &vs_h);
-        
         last_scale_trans.SetView(vs_w, vs_h);
-        
         resizeLayerBms(vs_w, vs_h);
-       
         ResizeSelectableShps();
-        
         PopulateCanvas();
-        
         isResize = false;
         
         event.RequestMore(); // render continuously, not only once on idle
@@ -505,6 +496,18 @@ void LisaScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     layer0_valid = false;
     layer1_valid = false;
     layer2_valid = false;
+}
+
+void LisaScatterPlotCanvas::SetAxisDisplayPrecision(int n)
+{
+    isResize = true;
+    TemplateCanvas::SetAxisDisplayPrecision(n);
+}
+
+void LisaScatterPlotCanvas::SetDisplayPrecision(int prec)
+{
+    isResize = true;
+    TemplateCanvas::SetDisplayPrecision(prec);
 }
 
 void LisaScatterPlotCanvas::PopulateCanvas()
@@ -664,10 +667,8 @@ void LisaScatterPlotCanvas::PopulateCanvas()
             y_axis_through_origin1->setPen(*GdaConst::scatterplot_origin_axes_pen);
             y_axis_through_origin1->applyScaleTrans(ex_scale);
         }
-        
-        wxString str = wxString::Format( _("selected: %.4f"),
-                                        regressionXYselected.beta);
-
+        wxString str = GenUtils::DblToStr(regressionXYselected.beta,
+                                          display_precision);
         morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
                                                          wxRealPoint(50, 100), 0,
                                                          GdaShapeText::h_center,
@@ -676,23 +677,19 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         
         morans_sel_text->setPen(wxPen(*wxRED));
         morans_sel_text->applyScaleTrans(sub_scale);
-        
-        wxString str1 = wxString::Format(_("unselected: %.4f"),
-                                         regressionXYexcluded.beta);
+        wxString str1 = GenUtils::DblToStr(regressionXYexcluded.beta,
+                                           display_precision);
         morans_unsel_text = new GdaShapeText(str1,
-                                                           *GdaConst::small_font,
-                                                           wxRealPoint(50, 100), 0,
-                                                           GdaShapeText::h_center,
-                                                           GdaShapeText::v_center,
-                                                           0, -15);
-        
+                                             *GdaConst::small_font,
+                                             wxRealPoint(50, 100), 0,
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::v_center,
+                                             0, -15);
         morans_unsel_text->setPen(wxPen(*wxBLACK));
         morans_unsel_text->applyScaleTrans(ex_scale);
         foreground_shps.push_back(morans_sel_text);
         foreground_shps.push_back(morans_unsel_text);
-        
     }
-   
 	var_info = var_info_orig;
 }
 
@@ -840,7 +837,7 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 {
     // if has highlighted, then the text will be added after RegimeMoran()
 	wxString s("Moran's I: ");
-	s << regressionXY.beta;
+	s << GenUtils::DblToStr(regressionXY.beta, display_precision);
     
     int t = var_info_orig[0].time-var_info_orig[0].time_min;
     if (t >= lisa_coord->Gal_vecs.size()) {

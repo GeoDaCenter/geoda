@@ -340,7 +340,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_vert.breaks[row];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b,display_precision);
         } else {
             tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
         }
@@ -378,7 +378,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_horiz.breaks[col];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }
@@ -473,7 +473,6 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-			//wxString flt = wxString::Format("%.2g", axis_scale_x.tics[i]);
             wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i], axis_display_precision);
 			axis_scale_x.tics_str[i] = flt.ToStdString();
 			axis_scale_x.tics_str_show[i] = false;

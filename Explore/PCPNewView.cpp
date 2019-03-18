@@ -66,11 +66,12 @@ custom_classif_state(0),
 display_stats(false), show_axes(true), standardized(false),
 pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
-num_categories(6), all_init(false), display_precision(4)
+num_categories(6), all_init(false)
 {
+    LOG_MSG("Entering PCPCanvas::PCPCanvas");
+
 	using namespace Shapefile;
-	LOG_MSG("Entering PCPCanvas::PCPCanvas");
-    
+    display_precision = 4;
 	TableInterface* table_int = project->GetTableInt();
 	data_stats.resize(num_vars);
   
@@ -675,13 +676,6 @@ void PCPCanvas::TimeChange()
 	Refresh();
 }
 
-void PCPCanvas::SetDisplayPrecision(int prec)
-{
-    display_precision = prec;
-    invalidateBms();
-    PopulateCanvas();
-    Refresh();
-}
 /** Update Secondary Attributes based on Primary Attributes.
  Update num_time_vals and ref_var_index based on Secondary Attributes. */
 void PCPCanvas::VarInfoAttributeChange()
@@ -1410,18 +1404,4 @@ void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
     UpdateTitle();
     UpdateOptionMenuItems();
     if (template_legend) template_legend->Recreate();
-}
-
-void PCPFrame::OnDisplayPrecision(wxCommandEvent& event)
-{
-    PCPCanvas* t = (PCPCanvas*) template_canvas;
-    if (t == NULL) return;
-
-    int disp_precision = t->GetDisplayPrecision();
-    SetDisplayPrecisionDlg dlg(disp_precision, this);
-    if (dlg.ShowModal () != wxID_OK) return;
-    disp_precision = dlg.precision;
-
-    t->SetDisplayPrecision(disp_precision);
-    UpdateOptionMenuItems();
 }

@@ -1269,16 +1269,17 @@ wxString GenUtils::DblToStr(double x, int precision)
     if (x < 10000000) {
         ss << std::fixed;
     }
-    /*
+
      if (x == (int)x) {
+         // The default should be that an integer is displayed as an integer
         ss << (int)x;
     } else {
         ss << std::setprecision(precision);
         ss << x;
     }
-     */
-    ss << std::setprecision(precision);
-    ss << x;
+
+    //ss << std::setprecision(precision);
+    //ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 

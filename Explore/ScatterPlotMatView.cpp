@@ -342,10 +342,10 @@ void ScatterPlotMatFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
     int def_precision = dlg.precision;
     
     for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
-        if (vert_labels[i]) vert_labels[i]->SetDisplayPrecision(def_precision);
+        if (vert_labels[i]) vert_labels[i]->SetAxisDisplayPrecision(def_precision);
     }
     for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
-        if (horiz_labels[i]) horiz_labels[i]->SetDisplayPrecision(def_precision);
+        if (horiz_labels[i]) horiz_labels[i]->SetAxisDisplayPrecision(def_precision);
     }
     axis_display_precision = def_precision;
 }

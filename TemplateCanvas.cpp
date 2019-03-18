@@ -110,7 +110,7 @@ total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
 useScientificNotation(false),
 is_showing_brush(false),
-axis_display_precision(2),
+axis_display_precision(2), display_precision(3),
 enable_high_dpi_support(enable_high_dpi_support_),
 scale_factor(1.0),
 point_radius(GdaConst::my_point_click_radius),
@@ -236,10 +236,17 @@ void TemplateCanvas::SetFixedAspectRatioMode(bool mode)
 	ResizeSelectableShps();
 }
 
-void TemplateCanvas::SetDisplayPrecision(int n)
+void TemplateCanvas::SetAxisDisplayPrecision(int n)
 {
     axis_display_precision = n;
     PopulateCanvas();    
+}
+
+void TemplateCanvas::SetDisplayPrecision(int prec)
+{
+    display_precision = prec;
+    //invalidateBms();
+    PopulateCanvas();
 }
 
 bool TemplateCanvas::GetFitToWindowMode()

@@ -96,7 +96,10 @@ public:
 	wxColour canvas_background_color;
     
 	CatClassifData cat_data;
-	
+    bool useScientificNotation;
+    int  category_disp_precision;
+    int  axis_display_precision;
+
 	virtual void SetSelectableOutlineVisible(bool visible);
 	virtual bool IsSelectableOutlineVisible();
     
@@ -107,12 +110,6 @@ public:
 	virtual void SetSelectableFillColor(wxColour color);
 	virtual void SetHighlightColor(wxColour color);
 	virtual void SetCanvasBackgroundColor(wxColour color);
-	
-    bool useScientificNotation;
-    void SetScientificNotation(bool flag);
-
-    int category_disp_precision;
-    void SetCategoryDisplayPrecision(int prec);
 
 	/** This is the implementation of the Observer interface update function.
 	 It is called whenever the Observable's state has changed.  In this case,
@@ -136,29 +133,18 @@ public:
 	/** Where all the drawing action happens.  Should do something similar
 	 to the update() method. */
 	virtual void OnPaint(wxPaintEvent& event);
-	
-    /** This function is needed to handle the Erase Background WX event.  It
-     does nothing, since we handle the Paint event ourselves and draw the
-     background and foreground ourselves. */
-    void OnEraseBackground(wxEraseEvent& event);
-    
+
 	/** The function handles all mouse events. */
 	virtual void OnMouseEvent(wxMouseEvent& event);
-	
-	/** This function handles possible WX Mouse Capture Lost events. */
-	void OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
 		
 	/** Draw the outline of the current selection tool. */
 	virtual void PaintSelectionOutline(wxMemoryDC& dc);
-	void helper_PaintSelectionOutline(wxDC& dc);
 	
 	/** This might go away since we have foreground_shps. */
 	virtual void PaintControls(wxDC& dc);
 	
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
-	
-	static void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
-			
+
 	virtual void UpdateSelection(bool shiftdown = false,
 								 bool pointsel = false);
 	virtual void UpdateSelectionPoints(bool shiftdown = false,
@@ -167,136 +153,110 @@ public:
 										bool pointsel = false);
 	virtual void UpdateSelectionPolylines(bool shiftdown = false,
 										  bool pointsel = false);
-	
 	virtual void UpdateSelectRegion(bool translate = false,
 									wxPoint diff = wxPoint(0,0) );
-	
-	/** Select all observations in a given category for current
-	 canvas time step. Assumes selectable_shps.size() == num obs */
-	void SelectAllInCategory(int category, bool add_to_selection);
-	
 	/** Assumes selectable_shps.size() == num obs **/
 	virtual void NotifyObservables();
-	
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
-	
 	virtual void UpdateStatusBar();
-	
 	virtual wxString GetCanvasTitle();
-	
 	virtual void TimeChange();
-	
 	virtual void TimeSyncVariableToggle(int var_index) {}
 	virtual void FixedScaleVariableToggle(int var_index) {}
-	virtual void PlotsPerView(int plots_per_view) {}
-	virtual void PlotsPerViewOther() {}
-	virtual void PlotsPerViewAll() {}
-    
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
-
     virtual void ResetBrushing();
     virtual void ResetFadedLayer();
 	virtual void ZoomShapes(bool is_zoomin = true);
 	virtual void PanShapes();
 	virtual void ResetShapes();
-	
 	virtual void ApplyLastResizeToShp(GdaShape* s) {
 		s->applyScaleTrans(last_scale_trans); }
-	
 	virtual void SetBrushType(BrushType brush) { brushtype = brush; }
 	virtual BrushType GetBrushType() { return brushtype; }
 	
 	virtual MouseMode GetMouseMode() { return mousemode; }
 	/** Will set the mouse mode and change the mouse cursor */
 	virtual void SetMouseMode(MouseMode mode);
-	
 	virtual bool GetFitToWindowMode();
 	virtual void SetFitToWindowMode(bool mode);
-
 	virtual bool GetFixedAspectRatioMode();
 	virtual void SetFixedAspectRatioMode(bool mode);
-	virtual void SetDisplayPrecision(int n);
-		
-    /** generic function to create and initialized th*e selectable_shps vector
-		based on a passed-in Project pointer and given an initial canvas
-	    screen size. */
-    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
-                               Project* project);
-	
+	virtual void SetAxisDisplayPrecision(int n);
+
 	/** convert mouse coordiante point to original observation-coordinate
 	 points.  This is an inverse of the affine transformation that converts
 	 data points to screen points. */
 	virtual wxRealPoint MousePntToObsPnt(const wxPoint &pt);
-		
-	void CreateZValArrays(int num_canvas_tms, int num_obs);
+
 	virtual wxString GetCategoriesTitle();
 	virtual void SaveCategories(const wxString& title,
                                 const wxString& label,
 								const wxString& field_default,
                                 std::vector<bool>& undefs);
-    
-    
-    
 	virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void RenderToSVG(wxDC &dc, int w, int h);
-    
-    const wxBitmap* GetLayer0() { return layer0_bm; }
-	const wxBitmap* GetLayer1() { return layer1_bm; }
-	const wxBitmap* GetLayer2() { return layer2_bm; }
-	void deleteLayerBms();
-	void resizeLayerBms(int width, int height);
-	void invalidateBms();
-    
-    void ReDraw();
-    
+
 	virtual void DrawLayer0();
 	virtual void DrawLayer1();
 	virtual void DrawLayer2();
 	virtual void DrawLayers();
-    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
-                      double radius,
-                      int alpha = 255,
-                      wxColour fixed_pen_color = *wxWHITE,
-                      bool cross_hatch = false);
-    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
-                      int alpha = 255,
-                      wxColour fixed_pen_color = *wxWHITE, 
-                      bool cross_hatch = false);
-    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
-                      int alpha = 255,
-                      wxColour fixed_pen_color = *wxWHITE,
-                      bool cross_hatch = false);
-    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
-                     int alpha = 255,
-                     wxColour fixed_pen_color = *wxWHITE,
-                     bool cross_hatch = false);
-    
+
     virtual wxBitmap* GetPrintLayer() { return layer2_bm; }
-    
+    // should be implemented by inherited classes for drawing on this canvas
 	virtual void PopulateCanvas() = 0;
-    
-    int GetMarginLeft() { return last_scale_trans.slack_x;}
-    int GetMarginRight() { return last_scale_trans.slack_x;}
-    int GetMarginTop() { return last_scale_trans.slack_y;}
-    int GetMarginBottom() { return last_scale_trans.slack_y;}
-    
-    wxSize GetDrawingSize() {
-        wxSize sz(last_scale_trans.screen_width -  last_scale_trans.slack_x * 2,
-                  last_scale_trans.screen_height -  last_scale_trans.slack_y * 2);
-        return sz;
-    }
-    
 	// draw highlighted sel shapes
 	virtual void DrawHighlightedShapes(wxMemoryDC &dc);
-    
 	// draw unhighlighted sel shapes
 	virtual void DrawSelectableShapes(wxMemoryDC &dc);
-    
     virtual void DrawSelectableShapes_dc(wxMemoryDC &dc,
                                          bool hl_only=false,
                                          bool revert=false);
+
     
+    virtual wxString GetVariableNames() = 0;
+    virtual SelectableShpType GetShapeType() {return selectable_shps_type;}
+    virtual double GetPointRadius() { return point_radius; }
+    virtual void SetPointRadius(double r);
+    virtual int GetDisplayPrecision() { return display_precision;}
+    virtual void SetDisplayPrecision(int prec);
+
+    // The following 3 functions should be enought to create another
+    // inherited class (maybe TemplateMultiCanvas : TemplateCanvas
+    virtual void PlotsPerView(int plots_per_view) {}
+    virtual void PlotsPerViewOther() {}
+    virtual void PlotsPerViewAll() {}
+    
+    // helper functions
+    void SetScientificNotation(bool flag);
+    void SetCategoryDisplayPrecision(int prec);
+    const wxBitmap* GetLayer0() { return layer0_bm; }
+    const wxBitmap* GetLayer1() { return layer1_bm; }
+    const wxBitmap* GetLayer2() { return layer2_bm; }
+    void deleteLayerBms();
+    void resizeLayerBms(int width, int height);
+    void invalidateBms();
+    void ReDraw();
+    void CreateZValArrays(int num_canvas_tms, int num_obs);
+
+    /** generic function to create and initialized th*e selectable_shps vector
+     based on a passed-in Project pointer and given an initial canvas
+     screen size. */
+    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+                                                  Project* project);
+    /** Select all observations in a given category for current
+     canvas time step. Assumes selectable_shps.size() == num obs */
+    void SelectAllInCategory(int category, bool add_to_selection);
+    static void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
+    void helper_PaintSelectionOutline(wxDC& dc);
+
+    /** This function is needed to handle the Erase Background WX event.  It
+     does nothing, since we handle the Paint event ourselves and draw the
+     background and foreground ourselves. */
+    void OnEraseBackground(wxEraseEvent& event);
+    /** This function handles possible WX Mouse Capture Lost events. */
+    void OnMouseCaptureLostEvent(wxMouseCaptureLostEvent& event);
+
     void helper_DrawSelectableShapes_dc(wxDC &dc,
                                         vector<bool>& hs,
                                         bool hl_only=false,
@@ -304,31 +264,49 @@ public:
                                         bool crosshatch= false,
                                         bool is_print = false,
                                         const wxColour& fixed_pen_color = *wxWHITE);
-    
     void helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
                                         vector<bool>& hs,
                                         bool hl_only=false,
                                         bool revert=false,
                                         bool crosshatch= false,
-										int alpha=255);
-    
-    virtual wxString GetVariableNames() = 0;
-    virtual SelectableShpType GetShapeType() {return selectable_shps_type;}
-    virtual double GetPointRadius() { return point_radius; }
-    virtual void SetPointRadius(double r);
-    
+                                        int alpha=255);
+    void DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                    double radius,
+                    int alpha = 255,
+                    wxColour fixed_pen_color = *wxWHITE,
+                    bool cross_hatch = false);
+    void DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                      int alpha = 255,
+                      wxColour fixed_pen_color = *wxWHITE,
+                      bool cross_hatch = false);
+    void DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                     int alpha = 255,
+                     wxColour fixed_pen_color = *wxWHITE,
+                     bool cross_hatch = false);
+    void DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,
+                   int alpha = 255,
+                   wxColour fixed_pen_color = *wxWHITE,
+                   bool cross_hatch = false);
+
+    // following 2 functions are deprecated
 	void GetVizInfo(std::map<wxString, std::vector<int> >& colors);
     void GetVizInfo(wxString& shape_type, std::vector<wxString>& clrs, std::vector<double>& bins);
-	
-    int  axis_display_precision;
-    
+    int GetMarginLeft() { return last_scale_trans.slack_x;}
+    int GetMarginRight() { return last_scale_trans.slack_x;}
+    int GetMarginTop() { return last_scale_trans.slack_y;}
+    int GetMarginBottom() { return last_scale_trans.slack_y;}
+    wxSize GetDrawingSize() {
+        wxSize sz(last_scale_trans.screen_width -  last_scale_trans.slack_x * 2,
+                  last_scale_trans.screen_height -  last_scale_trans.slack_y * 2);
+        return sz;
+    }
+
 protected:
-    
-    int MASK_R;
-    int MASK_G;
-    int MASK_B;
-    
-    wxDouble point_radius;
+    int           MASK_R;
+    int           MASK_G;
+    int           MASK_B;
+    int           display_precision;
+    wxDouble      point_radius;
     bool          enable_high_dpi_support;
     bool          is_showing_brush;
 	SelectState   selectstate;
@@ -338,9 +316,9 @@ protected:
 	ScrollBarMode scrollbarmode;
 	GdaScaleTrans last_scale_trans;
 	bool          fit_to_window_mode;
+    double        scale_factor;
 
-    double scale_factor;
-	/** highlight_state is a pointer to the Observable HighlightState instance.
+    /** highlight_state is a pointer to the Observable HighlightState instance.
 	 A HightlightState instance is a vector of booleans that keep track
 	 of the highlight state for every observation in the currently opened SHP
 	 file. This shared state object is the means by which the different
@@ -370,7 +348,6 @@ protected:
 	// only used when draw_sel_shps_by_z_val is selected
 	std::vector<i_array_type> z_val_order;
 	
-    
 	wxPoint GetActualPos(const wxMouseEvent& event);
 	wxPoint sel_poly_pts[100];  // for UpdateSelectRegion and UpdateSelection
 	int n_sel_poly_pts;         // for UpdateSelectRegion and UpdateSelection
@@ -389,7 +366,6 @@ protected:
 	int  prev_scroll_pos_x;
 	int  prev_scroll_pos_y;
     
-	
 	wxBitmap* faded_layer_bm; // layer1_bm + foreground obs
 	wxBitmap* layer0_bm; // background items + unhighlighted obs
 	wxBitmap* layer1_bm; // layer0_bm + highlighted obs
@@ -430,10 +406,8 @@ protected:
 	// 0 through GetNumNewlyUnsel()-1 are valid.
 	virtual std::vector<int>& GetNewlyUnselList();
 
-
     // helper functions
     bool _IsShpValid(int idx);
-    
     
 	DECLARE_EVENT_TABLE()
 };

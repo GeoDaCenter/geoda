@@ -198,9 +198,48 @@ void TemplateFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
     if (dlg.ShowModal () != wxID_OK)
         return;
     int def_precision = dlg.precision;
-    template_canvas->SetDisplayPrecision(def_precision);
+    template_canvas->SetAxisDisplayPrecision(def_precision);
     
 	UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    // display precision for any printed numbers on canvas (not include axes)
+    if (template_canvas == NULL) return;
+
+    int disp_precision = template_canvas->GetDisplayPrecision();
+    SetDisplayPrecisionDlg dlg(disp_precision, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    disp_precision = dlg.precision;
+
+    template_canvas->SetDisplayPrecision(disp_precision);
+    UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
+{
+    int disp_precision = template_canvas->category_disp_precision;
+    SetDisplayPrecisionDlg dlg(disp_precision, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    disp_precision = dlg.precision;
+    template_canvas->SetCategoryDisplayPrecision(disp_precision);
+
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    }
+    template_legend->Recreate();
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnZoomMode(wxCommandEvent& event)
@@ -643,31 +682,6 @@ void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
     bool flag = template_canvas->useScientificNotation;
 
     template_canvas->SetScientificNotation(!flag);
-    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
-        canvas->CreateAndUpdateCategories();
-    }
-    template_legend->Recreate();
-    UpdateOptionMenuItems();
-}
-
-void TemplateFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
-{
-    int disp_precision = template_canvas->category_disp_precision;
-    SetDisplayPrecisionDlg dlg(disp_precision, this);
-    if (dlg.ShowModal () != wxID_OK) return;
-    disp_precision = dlg.precision;
-    template_canvas->SetCategoryDisplayPrecision(disp_precision);
-
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();
     } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {

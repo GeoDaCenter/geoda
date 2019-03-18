@@ -310,7 +310,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_vert.breaks[row];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(vt, row);
         }
@@ -350,7 +350,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_horiz.breaks[col];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }

@@ -570,6 +570,9 @@
     </object>
     <object class="wxMenu" name="ID_HIST_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
             <label>Set Display Precision on Axes</label>
         </object>
@@ -635,7 +638,6 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -668,7 +670,6 @@
       <checked>1</checked>
     </object>
     <object class="separator"/>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -1137,6 +1138,12 @@
     <object class="wxMenuItem" name="ID_SAVE_CATEGORIES">
       <label>Save Categories</label>
     </object>
+    <object class="wxMenu" name="ID_HIST_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
+    </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
@@ -1516,6 +1523,9 @@
     </object>
     <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
             <label>Set Display Precision on Axes</label>
         </object>
@@ -1883,6 +1893,9 @@
     </object>
     <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
             <label>Set Display Precision on Axes</label>
         </object>
@@ -2148,6 +2161,9 @@
     </object>
     <object class="wxMenu" name="ID_HIST_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
             <label>Set Display Precision on Axes</label>
         </object>
@@ -3063,6 +3079,12 @@
     </object>
     <object class="wxMenu" name="ID_LISA_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
         <object class="wxMenuItem" name="ID_VIEW_REGIMES_REGRESSION">
           <label>Regimes Regression</label>
           <checkable>1</checkable>
@@ -3687,7 +3709,6 @@
     <object class="separator"/>
     <object class="wxMenu" name="ID_VIEW_DATA_SUBMENU">
         <label>Data</label>
-    
         <object class="wxMenuItem" name="ID_VIEW_STANDARDIZED_DATA">
             <label>View Standardized Data</label>
             <checkable>1</checkable>
@@ -3713,9 +3734,7 @@
             <checkable>1</checkable>
             <checked>1</checked>
         </object>
-
     </object>
-    
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
       <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
@@ -3773,48 +3792,6 @@
               <label>Set Display Precision of Y-Axis</label>
           </object>
       </object>
-      
-
-      <!--
-    <object class="wxMenuItem" name="ID_COMPARE_REGIMES">
-      <label>Compare Regimes</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_COMPARE_TIME_PERIODS">
-      <label>Compare Time Periods</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_COMPARE_REG_AND_TM_PER">
-      <label>Compare Regimes and Times</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="separator"/>
-    
-       <object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-       <label>Display Statistics</label>
-       <checkable>1</checkable>
-       <checked>1</checked>
-       </object>
-    <object class="separator"/>
-	<object class="wxMenuItem" name="ID_DISPLAY_STATISTICS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_DID_TEST">
-      <label>Run Diff-in-Diff Test</label>
-      <checkable>0</checkable>
-      <checked>0</checked>
-    </object>
-    <object class="wxMenuItem" name="ID_SAVE_DUMMY">
-      <label>Save Dummy Var. to Table</label>
-      <checkable>0</checkable>
-      <checked>0</checked>
-    </object>
-       -->
     <label>Options</label>
   </object>
   <object class="wxMenu" name="ID_SCATTER_PLOT_MAT_MENU_OPTIONS">
@@ -3905,16 +3882,25 @@
         <label>Edit LOWESS Parameters</label>
         <checkable>0</checkable>
     </object>
-	<object class="wxMenuItem" name="ID_CORRELOGRAM_DISPLAY_STATS">
-      <label>Display Statistics</label>
-      <checkable>1</checkable>
-      <checked>0</checked>
-    </object>
-	<object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
-      <label>Show Status Bar</label>
-      <checkable>1</checkable>
-      <checked>1</checked>
-    </object>
+    <object class="wxMenu" name="ID_LISA_SCATTER_VIEW_MENU">
+        <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
+        <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+            <label>Set Display Precision on Axes</label>
+        </object>
+        <object class="wxMenuItem" name="ID_CORRELOGRAM_DISPLAY_STATS">
+            <label>Display Statistics</label>
+            <checkable>1</checkable>
+            <checked>0</checked>
+        </object>
+        <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+            <label>Show Status Bar</label>
+            <checkable>1</checkable>
+            <checked>1</checked>
+        </object>
+	</object>
 	<object class="wxMenuItem" name="ID_SAVE_CORRELOGRAM_STATS">
       <label>Save Results</label>
       <checkable>0</checkable>
@@ -4017,6 +4003,9 @@
     
     <object class="wxMenu" name="ID_SCATTER_VIEW_MENU">
         <label>View</label>
+        <object class="wxMenuItem" name="ID_VIEW_DISPLAY_PRECISION">
+            <label>Set Display Precision</label>
+        </object>
         <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
             <label>Set Display Precision on Axes</label>
         </object>

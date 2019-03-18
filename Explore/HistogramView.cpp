@@ -747,11 +747,11 @@ void HistogramCanvas::PopulateCanvas()
 			} else if (ival_min > mean && sd > 0) {
 				sd_d = (ival_min - mean)/sd;
 			}
-			vals[0] << GenUtils::DblToStr(ival_min, 3);
-			vals[1] << GenUtils::DblToStr(ival_max, 3);
+			vals[0] << GenUtils::DblToStr(ival_min, display_precision);
+			vals[1] << GenUtils::DblToStr(ival_max, display_precision);
 			vals[2] << ival_obs_cnt[t][i];
-			vals[3] << GenUtils::DblToStr(p, 3);
-			vals[4] << GenUtils::DblToStr(sd_d, 3);
+			vals[3] << GenUtils::DblToStr(p, display_precision);
+			vals[4] << GenUtils::DblToStr(sd_d, display_precision);
 			
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
             s = new GdaShapeTable(vals, attribs, rows, cols,
@@ -1207,7 +1207,7 @@ void HistogramCanvas::UpdateStatusBar()
 	} else if (ival_min > mean && sd > 0) {
 		sd_d = (ival_min - mean)/sd;
 	}
-	s << ", sd from mean: " << GenUtils::DblToStr(sd_d, 3);
+	s << ", sd from mean: " << GenUtils::DblToStr(sd_d, display_precision);
 
 	sb->SetStatusText(s);
 }

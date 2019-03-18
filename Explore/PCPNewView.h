@@ -85,8 +85,6 @@ public:
 	/** Override PaintControls from TemplateCanvas */
 	virtual void PaintControls(wxDC& dc);
 	void MoveControlLine(int final_y);
-    int GetDisplayPrecision() { return display_precision;}
-    void SetDisplayPrecision(int prec);
 
 	CatClassifDef cat_classif_def;
 	CatClassification::CatClassifType GetCcType();
@@ -108,7 +106,6 @@ protected:
 	int num_vars;
 	int num_time_vals;
 	int num_categories;
-    int display_precision;
 	int ref_var_index;
 	std::vector<GdaVarTools::VarInfo> var_info;
 	std::vector<int> var_order; // var id for position 0 to position num_vars-1
@@ -176,7 +173,6 @@ public:
     void OnDisplayStatistics(wxCommandEvent& event);
 	void OnViewOriginalData(wxCommandEvent& event);
     void OnViewStandardizedData(wxCommandEvent& event);
-    void OnDisplayPrecision(wxCommandEvent& event);
 	virtual void OnThemeless();
 	virtual void OnQuantile(int num_cats);
 	virtual void OnPercentile();
