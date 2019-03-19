@@ -27,6 +27,8 @@
 #include "VarOrderPtree.h"
 #include "VarOrderPtree.h"
 
+using namespace std;
+
 VarOrderPtree::VarOrderPtree() : time_ids(1, "time 0")
 {
 }
@@ -57,7 +59,6 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 {
 	LOG_MSG("Entering VarOrderPtree::ReadPtree");
 	using boost::property_tree::ptree;
-	using namespace std;
 	set<wxString> grp_set;
 	try {
 		try {
@@ -146,7 +147,6 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 							   const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	try {
 		ptree& subtree = pt.put("variable_order", "");
 		
@@ -163,6 +163,16 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
                     wxString vs;
                     vs << e.displayed_decimals;
                     sstree.put("displayed_decimals", vs);
+                }
+                if (e.meta_data.empty() == false) {
+                    std::map<wxString, wxString> meta_data = e.meta_data;
+                    std::map<wxString, wxString>::iterator iter;
+                    for (iter = meta_data.begin(); iter != e.meta_data.end(); ++iter) {
+                        wxString meta_name = "meta_data.";
+                        meta_name << iter->first;
+                        wxString meta_value = iter->second;
+                        sstree.add(meta_name.ToStdString(), meta_value);
+                    }
                 }
 			} else {
 				ptree& sstree = subtree.add("group", "");
@@ -202,7 +212,6 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
                                      const std::vector<wxString>& ds_var_list,
                                      bool case_sensitive)
 {
-	using namespace std;
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
 	bool changed = false;
 
@@ -286,7 +295,6 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
  */
 void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 {
-	using namespace std;
     if (!table) return;
 	
 	var_grps.clear();
@@ -323,7 +331,6 @@ void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 
 wxString VarOrderPtree::VarOrderToStr() const
 {
-	using namespace std;
 	wxString ss;
 	int col = 0;
 	ss << "VarGroups_container:\n";
@@ -377,7 +384,6 @@ bool VarOrderPtree::IsTypeCompatible(const std::vector<wxString>& vars,
 									  const std::map<wxString,
 									  GdaConst::FieldType>& ds_var_type_map)
 {
-	using namespace std;
 	if (vars.size() == 0) return true;
 	map<wxString, GdaConst::FieldType>::const_iterator m_it;
     set<GdaConst::FieldType> type_set;

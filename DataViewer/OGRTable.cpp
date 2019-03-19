@@ -1604,3 +1604,12 @@ bool OGRTable::IsValidDBColName(const wxString& col_nm,
 	}
     return false;
 }
+
+void OGRTable::AddMetaInfo(const wxString col_nm, const wxString& key,
+                           const wxString& val)
+{
+    // Add meta info for a specific colmn
+    int col_id = var_order.GetColId(col_nm, true);
+    VarGroup vg = var_order.FindVarGroup(col_id);
+    vg.meta_data[key] = val;
+}

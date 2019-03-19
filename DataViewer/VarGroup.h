@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_VAR_GROUP_H__
 
 #include <list>
+#include <map>
 #include <vector>
 #include <wx/string.h>
 
@@ -64,6 +65,18 @@ struct VarGroup {
 	 used for non-integer numeric types.  -1 indicates not used
 	 or use default for type. */
 	int displayed_decimals;
+
+    // other for meta data:
+    // <save category>
+    // original name : aa
+    // classification type : quantile
+    // classification intervals : 1,2,3,4,5
+    // <save selection>
+    // original name : aa
+    // selection range :
+    // <save selection>
+    // spatial selection :
+    std::map<wxString, wxString> meta_data;
 };
 
 #endif

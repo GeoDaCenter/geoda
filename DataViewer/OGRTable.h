@@ -189,6 +189,8 @@ public:
 	virtual void RenameTimeStep(int time, const wxString& new_name);
 	virtual bool IsValidDBColName(const wxString& col_nm,
 								  wxString* fld_warn_msg=0);
+    virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
+                             const wxString& val);
 };
 
 #endif

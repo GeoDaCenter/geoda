@@ -332,14 +332,15 @@ public:
 	 * column names.  Does not verify that name is unique. */
 	virtual bool IsValidGroupName(const wxString&  grp_nm) const;
     
-    
+    virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
+                             const wxString& val) = 0;
 		
 protected:
 	wxString open_err_msg;
     
 	TableState* table_state;
 	TimeState*  time_state;
-
+    
     int rows;
 	bool is_valid;
 	bool changed_since_last_save;

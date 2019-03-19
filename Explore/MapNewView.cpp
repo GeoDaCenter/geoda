@@ -1695,7 +1695,12 @@ void MapCanvas::OnSaveCategories()
 				undefs[i] = undefs[i] || data_undef[0][t][i];
 			}
 		}
-		SaveCategories(title, label, "CATEGORIES", undefs);
+        std::vector<wxString> new_fields;
+        new_fields = SaveCategories(title, label, "CATEGORIES", undefs);
+        if (new_fields.empty() == false) {
+            // save meta data to project file
+            //table_int->AddMetaInfo(new_fields[0], );
+        }
 	}
 }
 

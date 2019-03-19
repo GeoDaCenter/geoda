@@ -645,7 +645,6 @@ void Project::SaveProjectConf()
             wxString ds_path = datasource->GetOGRConnectStr();
             bool wd_success = SetWorkingDir(ds_path);
             if (wd_success) {
-                
                 wxFileName temp(ds_path);
                 proj_file_no_ext = temp.GetName();
                 wxString prj_path = GetProjectFullPath();
@@ -663,7 +662,6 @@ void Project::SaveProjectConf()
 
 bool Project::IsFileDataSource() 
 {
-    
     if (datasource) return datasource->IsFileDataSource();
     return false;
 }
@@ -671,7 +669,6 @@ bool Project::IsFileDataSource()
 void Project::SaveDataSourceData()
 {
 	wxLogMessage("Entering Project::SaveDataSourceData");
-	
 	// for some read-only datasources, suggest Export dialog
 	GdaConst::DataSourceType ds_type = datasource->GetType();
 	if (ds_type == GdaConst::ds_wfs ||
@@ -722,7 +719,6 @@ void Project::SaveDataSourceData()
 		// NOTE: OGR/GDAL 2.0 is still implementing addGeomField feature.
 		layer_proxy->AddGeometries(main_data);
 	}	
-	
 	wxLogMessage("Exiting Project::SaveDataSourceData");
 }
 
@@ -732,15 +728,13 @@ void Project::UpdateProjectConf()
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	datasource = layer_conf->GetDataSource();
 	VarOrderPtree* var_order = layer_conf->GetVarOrderPtree();
-	if (var_order)
-        var_order->ReInitFromTableInt(table_int);
+	if (var_order) var_order->ReInitFromTableInt(table_int);
 	CustomClassifPtree* cc = layer_conf->GetCustClassifPtree();
-	if (cc)
-        cc->SetCatClassifList(GetCatClassifManager());
+	if (cc) cc->SetCatClassifList(GetCatClassifManager());
 	WeightsManPtree* spatial_weights = layer_conf->GetWeightsManPtree();
 	WeightsNewManager* wnm = ((WeightsNewManager*) GetWManInt());
-	if (spatial_weights) spatial_weights->
-		SetWeightsMetaInfoList(wnm->GetPtreeEntries());
+	if (spatial_weights)
+        spatial_weights->SetWeightsMetaInfoList(wnm->GetPtreeEntries());
 	DefaultVarsPtree* default_vars = layer_conf->GetDefaultVarsPtree();
 	{
 		std::vector<wxString> def_tm_ids(default_var_time.size());

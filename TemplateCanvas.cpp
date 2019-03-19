@@ -2451,14 +2451,16 @@ wxString TemplateCanvas::GetCategoriesTitle()
 	return GetCanvasTitle();
 }
 
+// Design issue: this feature should be taken out from this class!!
 /** Mark each observation according to its
  category with 1, 2, ...,#categories. */
-void TemplateCanvas::SaveCategories(const wxString& title,
+std::vector<wxString> TemplateCanvas::SaveCategories(const wxString& title,
 									const wxString& label,
 									const wxString& field_default,
                                     vector<bool>& undefs)
 {
-	if (project->GetNumRecords() != selectable_shps.size()) return;
+    std::vector<wxString> new_fields;
+	if (project->GetNumRecords() != selectable_shps.size()) return new_fields;
 	vector<SaveToTableEntry> data(1);
 	
 	int cc_ts = cat_data.curr_canvas_tm_step;
@@ -2480,7 +2482,10 @@ void TemplateCanvas::SaveCategories(const wxString& title,
 	
 	SaveToTableDlg dlg(project, this, data,
                        title, wxDefaultPosition, wxSize(500,400));
-	dlg.ShowModal();
+    if (dlg.ShowModal() == wxID_OK) {
+        new_fields = dlg.new_col_names;
+    }
+    return new_fields;
 }
 
 

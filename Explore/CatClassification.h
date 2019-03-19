@@ -37,7 +37,8 @@ namespace CatClassification {
 		
 	enum CatClassifType {
         no_theme, hinge_15, hinge_30, quantile, percentile,
-		stddev, excess_risk_theme, unique_values, colocation, natural_breaks, equal_intervals,
+		stddev, excess_risk_theme, unique_values, colocation,
+        natural_breaks, equal_intervals,
         lisa_categories, lisa_significance, custom,
 		getis_ord_categories, getis_ord_significance,
         local_geary_categories, local_geary_significance,
@@ -51,9 +52,12 @@ namespace CatClassification {
 		no_theme_break_vals, hinge_15_break_vals, hinge_30_break_vals,
 		quantile_break_vals, percentile_break_vals, stddev_break_vals, 
 		unique_values_break_vals, natural_breaks_break_vals,
-		equal_intervals_break_vals, custom_break_vals };
+		equal_intervals_break_vals, custom_break_vals
+    };
 	
-	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme, unique_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme,
+        qualitative_color_scheme, custom_color_scheme, unique_color_scheme
+    };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,

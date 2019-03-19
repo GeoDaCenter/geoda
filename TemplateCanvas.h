@@ -190,7 +190,7 @@ public:
 	virtual wxRealPoint MousePntToObsPnt(const wxPoint &pt);
 
 	virtual wxString GetCategoriesTitle();
-	virtual void SaveCategories(const wxString& title,
+    virtual std::vector<wxString> SaveCategories(const wxString& title,
                                 const wxString& label,
 								const wxString& field_default,
                                 std::vector<bool>& undefs);

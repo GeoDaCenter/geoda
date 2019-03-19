@@ -265,10 +265,6 @@ void SaveToTableDlg::OnTimeChoice( wxCommandEvent& event )
 
 void SaveToTableDlg::OnCheck( wxCommandEvent& event )
 {
-    /*
-	if (!all_init) return;
-	UpdateOkButton();
-     */
 }
 
 void SaveToTableDlg::UpdateOkButton()
@@ -377,9 +373,7 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
 		if (is_check[i])
             names.insert(s);
 	}
-	
 	for (int i=0, iend=data.size(); i<iend; i++) {
-        
         if (is_check[i]) {
             wxString field_name = m_txt_field[i]->GetValue();
             int time=0;
@@ -400,10 +394,8 @@ void SaveToTableDlg::OnOkClick( wxCommandEvent& event )
                     m_length_val = GdaConst::default_dbf_string_len;
                     m_decimals_val = 0;
                 }
-                
                 col = table_int->InsertCol(data[i].type, field_name, col_insert_pos, time_steps, m_length_val, m_decimals_val);
             }
-            
             if (col > 0) {
                 if (data[i].d_val) {
                     table_int->SetColData(col, time, *data[i].d_val);

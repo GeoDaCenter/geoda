@@ -142,7 +142,8 @@ wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 	return GetUniqueGroupName(nm);
 }
 
-std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, wxString prefix, int n) const
+std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name,
+                                                        wxString prefix, int n) const
 {
 	return GetUniqueColNames(prefix, n);
 }
