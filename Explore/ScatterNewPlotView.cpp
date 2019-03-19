@@ -79,13 +79,16 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);
-    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"), wxDefaultPosition, wxSize(100, -1));
+    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"),
+                            wxDefaultPosition, wxSize(100, -1));
     topSizer->Add(resetBtn, 0, wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
     
-    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
-    Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER,
+            wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED,
+            wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
 }
 
 void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
@@ -95,6 +98,7 @@ void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
     slider->SetValue(0);
     canvas->UpdateBubbleSize(1);
 }
+
 void BubbleSizeSliderDlg::OnSliderChange( wxScrollEvent & event )
 {
     wxLogMessage("In BubbleSizeSliderDlg::OnSliderChange()");

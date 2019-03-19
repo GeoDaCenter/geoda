@@ -581,18 +581,18 @@ void TemplateCanvas::update(HLStateInt* o)
         if (draw_sel_shps_by_z_val) {
             // force a full redraw
             layer0_valid = false;
-            return;
-        }
+            DrawLayers();
+        } else {
+            HLStateInt::EventType type = o->GetEventType();
+            if (type == HLStateInt::transparency) {
+                ResetFadedLayer();
+            }
+            // re-paint highlight layer (layer1_bm)
+            layer1_valid = false;
+            DrawLayers();
 
-        HLStateInt::EventType type = o->GetEventType();
-        if (type == HLStateInt::transparency) {
-            ResetFadedLayer();
+            UpdateStatusBar();
         }
-        // re-paint highlight layer (layer1_bm)
-        layer1_valid = false;
-        DrawLayers();
-    
-        UpdateStatusBar();
 	}
 }
 
@@ -2328,7 +2328,7 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
 	}
 }
 

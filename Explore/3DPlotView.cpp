@@ -65,7 +65,7 @@ scaled_d(v_info.size()),
 c3d_plot_frame(t_frame)
 {
     wxLogMessage("Open C3DPlotCanvas.");
-    
+    hs = highlight_state->GetHighlight();
 	m_context = new wxGLContext(this);
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
 	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
@@ -463,8 +463,9 @@ void C3DPlotCanvas::UpdateSelect()
 
     if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
     }
+    this->hs = hs; // update local hs for rendering
 }
 
 void C3DPlotCanvas::SelectByRect()
@@ -579,8 +580,9 @@ void C3DPlotCanvas::SelectByRect()
 	}
     if (selection_changed) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers();
+		highlight_state->notifyObservers(this);
     }
+    this->hs = hs; // update local hs for rendering
 }
 
 void C3DPlotCanvas::InitGL(void)
@@ -645,8 +647,6 @@ void C3DPlotCanvas::SetCanvasBackgroundColor(wxColour color)
 
 void C3DPlotCanvas::RenderScene()
 {
-	std::vector<bool>& hs = highlight_state->GetHighlight();
-	
 	int xt = var_info[0].time;
 	int yt = var_info[1].time;
 	int zt = var_info[2].time;
@@ -986,9 +986,6 @@ void C3DPlotCanvas::TimeChange()
 		}
 	}
 	SetCurrentTmStep(ref_time - ref_time_min);
-	
-	//invalidateBms();
-	//PopulateCanvas();
 	Refresh();
 }
 
@@ -1016,8 +1013,6 @@ void C3DPlotCanvas::VarInfoAttributeChange()
 		num_time_vals = (var_info[ref_var_index].time_max -
 						 var_info[ref_var_index].time_min) + 1;
 	}
-	
-	//GdaVarTools::PrintVarInfoVector(var_info);
 }
 
 void C3DPlotCanvas::UpdateScaledData()
@@ -1062,16 +1057,8 @@ void C3DPlotCanvas::TimeSyncVariableToggle(int var_index)
  that its state has changed. */
 void C3DPlotCanvas::update(HLStateInt* o)
 {
-	HLStateInt::EventType type = highlight_state->GetEventType();
-	if (type == HLStateInt::delta) {
-			
-		Refresh();
-	} else {
-		// type == HLStateInt::unhighlight_all
-		// type == HLStateInt::invert
-			
-		Refresh();
-	}
+    hs = highlight_state->GetHighlight();
+    Refresh();
 }
 
 

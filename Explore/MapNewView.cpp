@@ -412,18 +412,15 @@ void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
     if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 &&
         sel2.x==0 && sel2.y==0) {
         vector<bool>& hs = GetSelBitVec();
-        if (hover_obs.empty()) {
-            //highlight_state->SetTotalHighlighted(0);
-        } else {
+        if (hover_obs.empty() == false) {
             for (int i=0; i<hs.size(); i++) {
                 hs[i] = false;
             }
             hs[hover_obs[0]] = true;
             highlight_state->SetTotalHighlighted(1);
         }
-        HighlightState& h_state = *project->GetHighlightState();
-        h_state.SetEventType(HLStateInt::delta);
-        h_state.notifyObservers();
+        //highlight_state->SetEventType(HLStateInt::delta);
+        //highlight_timer->Start(50);
         layer1_valid = false;
         DrawLayers();
     }
@@ -455,8 +452,8 @@ vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemory
 
     int ts = cat_data.GetCurrentCanvasTmStep();
     int num_obs = project->GetNumRecords();
-    HighlightState& hs = *project->GetHighlightState();
-    std::vector<bool>& h = hs.GetHighlight();
+    //HighlightState& hs = *project->GetHighlightState();
+    std::vector<bool>& h = highlight_state->GetHighlight();
     std::vector<bool> add_elem(gal_weights->num_obs, false);
     std::set<int>::iterator it;
     ids_of_nbrs.clear();
@@ -535,8 +532,7 @@ void MapCanvas::OnSize(wxSizeEvent& event)
 {
     if (!ids_of_nbrs.empty() && (display_neighbors || display_weights_graph)) {
         // in case of display neighbors and weights graph, to prevent adding nbrs again when resizing window
-        HighlightState& hs = *project->GetHighlightState();
-        std::vector<bool>& h = hs.GetHighlight();
+        std::vector<bool>& h = highlight_state->GetHighlight();
         for (int i=0; i<h.size(); i++) {
             h[i] = false;
         }
@@ -1213,12 +1209,12 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
         }
     }
     if (is_updating == false && (show_graph || display_neighbors)) {
-        highlight_timer->Stop();
+        highlight_timer->Stop(); // make linking start immediately
         std::vector<bool> old_hs = hs;
-        hs = new_hs;
+        hs = new_hs; // set highlights to "current+neighbors"
         highlight_state->SetEventType(HLStateInt::delta);
         highlight_state->notifyObservers(this);
-        hs = old_hs;
+        hs = old_hs; // reset highlights to "current"
     }
 }
 
@@ -2901,6 +2897,7 @@ void MapCanvas::update(HLStateInt* o)
         if (draw_sel_shps_by_z_val) {
             // force a full redraw
             layer0_valid = false;
+            DrawLayers();
             return;
         }
         

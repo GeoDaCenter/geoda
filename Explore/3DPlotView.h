@@ -72,7 +72,7 @@ public:
 	void UpdateSelect();
 	void SelectByRect();
     void InitGL(void);
-   
+
 	bool isInit;
 
 	float m_ClearColorBlue;
@@ -122,7 +122,7 @@ public:
 	std::vector<d_array_type> data;
 	std::vector<b_array_type> data_undef;
     std::vector<bool> all_undefs;
-    
+    std::vector<bool> hs;
 	std::vector<d_array_type> scaled_d;
 	std::vector< std::vector<SampleStatistics> > data_stats;
 	std::vector<double> var_min; // min over time
