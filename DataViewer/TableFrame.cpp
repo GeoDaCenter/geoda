@@ -43,9 +43,6 @@ BEGIN_EVENT_TABLE(TableFrame, TemplateFrame)
 	EVT_GRID_COL_SIZE( TableFrame::OnColSizeEvent )
 	EVT_GRID_COL_MOVE( TableFrame::OnColMoveEvent )
 	EVT_GRID_CELL_CHANGED( TableFrame::OnCellChanged )
-
-    //EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
-    //EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
     EVT_MENU(XRCID("ID_TABLE_RENAME_VARIABLE"), TableFrame::OnRenameVariable)
 
 END_EVENT_TABLE()
@@ -58,9 +55,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
     popup_col(-1)
 {
 	wxLogMessage("Open TableFrame.");
-
-    wxPanel *panel = new wxPanel(this, wxID_ANY);
-    
+    wxPanel *panel = new wxPanel(this, wxID_ANY);    
 	DisplayStatusBar(true);
 	wxString new_title(title);
 	new_title << " - " << project->GetProjectTitle();
@@ -262,7 +257,8 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 	if (popup_col != -1) {
 		rename_str << " \"" << ti->GetColName(popup_col) << "\"";
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetItemLabel(rename_str);
+    wxMenuItem* rename_mu = optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"));
+    rename_mu->SetItemLabel(rename_str);
 	bool enable_rename = false;
 	if (popup_col!=-1) {
 		if (ti->IsColTimeVariant(popup_col)) {
@@ -272,15 +268,25 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 		}
 	}
     
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->Enable(enable_rename);
-		
+	rename_mu->Enable(enable_rename);
+
+    // Set meta-data
+    std::map<wxString, wxString> meta_data = ti->GetMetaData(popup_col);
+    if (meta_data.empty() == false) {
+        wxMenu* imp = new wxMenu;
+        std::map<wxString, wxString>::iterator it;
+        for (it = meta_data.begin(); it != meta_data.end(); it++) {
+            wxString lbl = it->first + ": " + it->second;
+            imp->Append(XRCID(lbl), lbl);
+        }
+        optMenu->AppendSubMenu(imp, _("Meta-data"));
+    }
 	PopupMenu(optMenu, ev.GetPosition());
 }
 
 
 void TableFrame::SetEncodingCheckmarks(wxMenu* m, wxFontEncoding e)
 {
-
 	m->FindItem(XRCID("ID_ENCODING_UTF8"))
 		->Check(e==wxFONTENCODING_UTF8);
 	m->FindItem(XRCID("ID_ENCODING_UTF16"))

@@ -44,6 +44,16 @@ void HighlightState::closeAndDeleteWhenEmpty()
 	LOG_MSG("Exiting HighlightState::closeAndDeleteWhenEmpty");
 }
 
+std::map<wxString, wxString> HighlightState::GetMetaData()
+{
+    return meta_data;
+}
+
+void HighlightState::SetMetaData(std::map<wxString, wxString>& _meta_data)
+{
+    meta_data = _meta_data;
+}
+
 void HighlightState::SetSize(int n) {
 	total_highlighted = 0;
 	highlight.resize(n);

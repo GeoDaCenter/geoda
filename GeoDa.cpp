@@ -1426,7 +1426,8 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
         try {
             project_p->SaveProjectConf();
         } catch( GdaException& e) {
-            // do nothing if save project configuration failed, since it's not critical
+            // do nothing if save project configuration failed,
+            // since it's not critical
         }        
 	} catch (GdaException& e) {
         // the title of the message dialog is empty, because
@@ -1447,10 +1448,8 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
 void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSaveAsProject");
-    
 	if (!project_p || !project_p->GetTableInt())
-        return;
-    
+        return;    
 	wxString proj_fname = project_p->GetProjectFullPath();
 	bool is_new_project = (proj_fname.empty() || !wxFileExists(proj_fname));
 

@@ -236,13 +236,12 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
         }
     }
     std::vector<bool> cur_sel(n);
-    
-	double min_dval = 0;
+	double min_dval = 0, max_dval = 1;
 	m_min_text->GetValue().ToDouble(&min_dval);
-	double max_dval = 1;
 	m_max_text->GetValue().ToDouble(&max_dval);
 	std::vector<bool> undefined;
 	table_int->GetColUndefined(mcol, f_tm, undefined);
+    wxString col_name = table_int->GetColName(mcol, f_tm), selection_lbl;
 	if (table_int->GetColType(mcol) == GdaConst::long64_type) {
 		wxInt64 min_ival = ceil(min_dval);
 		wxInt64 max_ival = floor(max_dval);
@@ -255,6 +254,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
                 cur_sel[i] = false;
             }
 		}
+        selection_lbl = wxString::Format("[%lld, %lld]", min_ival, max_ival);
 	} else if (table_int->GetColType(mcol) == GdaConst::double_type) {
 		std::vector<double> vec;
 		table_int->GetColData(mcol, f_tm, vec);
@@ -265,6 +265,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
                 cur_sel[i] = false;
 			}
 		}
+        selection_lbl = wxString::Format("[%f, %f]", min_dval, max_dval);
 	} else {
 		wxString msg("Selected field is should be numeric.");
 		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
@@ -294,6 +295,10 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
     }
 
 	if (update_flag) {
+        std::map<wxString, wxString> meta_data;
+        meta_data["original_variable"] = col_name;
+        meta_data["selection_range"] = selection_lbl;
+        hs.SetMetaData(meta_data);
 		hs.SetEventType(HLStateInt::delta);
 		hs.notifyObservers();
 	}
@@ -423,20 +428,16 @@ void RangeSelectionDlg::OnSelUnselTextChange( wxCommandEvent& event )
 void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
     wxLogMessage("In RangeSelectionDlg::OnApplySaveClick()");
-	 // The Apply button is only enable when Selected / Unselected values
-	 // are valid (only when checked), and at least one checkbox is
-	 // selected.  The Target Variable is not empty, but has not been
-	 // checked for validity.
-	
+    // The Apply button is only enable when Selected / Unselected values
+    // are valid (only when checked), and at least one checkbox is
+    // selected.  The Target Variable is not empty, but has not been
+    // checked for validity.
 	int write_col = GetSaveColInt();
-	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(write_col);
 	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
-	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
-	
 	double sel_c = 0;
     wxString sel_c_str = m_sel_val_text->GetValue();
 	if (sel_checked && !sel_c_str.IsEmpty()) {
@@ -449,10 +450,11 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		unsel_c_str.Trim(false); unsel_c_str.Trim(true);
 		unsel_c_str.ToDouble(&unsel_c);
 	}
-	
 	int sf_tm = GetSaveColTmInt();
-	
-	std::vector<bool>& h = project->GetHighlightState()->GetHighlight();
+    HighlightState* hl_state = project->GetHighlightState();
+	std::vector<bool>& h = hl_state->GetHighlight();
+    std::map<wxString, wxString> meta_data = hl_state->GetMetaData();
+
 	// write_col now refers to a valid field in grid base, so write out
 	// results to that field.
 	int obs = h.size();
@@ -483,6 +485,7 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		}
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
+
 	} else if (table_int->GetColType(write_col) == GdaConst::double_type) {
 		std::vector<double> t(table_int->GetNumberRows());
 		table_int->GetColData(write_col, sf_tm, t);
@@ -509,12 +512,21 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
 		wxString msg = _("Chosen field is not a numeric type. Please select a numeric type field.");
-
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
-	
+    wxString col_nm = table_int->GetColName(write_col, sf_tm);
+    std::map<wxString, wxString>::iterator it;
+    for (it = meta_data.begin(); it != meta_data.end(); ++it) {
+        wxString key = it->first;
+        wxString val = it->second;
+        table_int->AddMetaInfo(col_nm, key, val);
+    }
+    // clean meta_data in hl_state
+    std::map<wxString, wxString> empty_meta_data;
+    hl_state->SetMetaData(empty_meta_data);
+
 	wxString msg = _("Values assigned to target field successfully.");
 	wxMessageDialog dlg(this, msg, "Success", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();

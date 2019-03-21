@@ -135,7 +135,9 @@ GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaCons
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, wxString layer_name)
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name,
+                                           GdaConst::DataSourceType ds_type,
+                                           wxString layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
     

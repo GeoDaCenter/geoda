@@ -172,6 +172,7 @@ public:
 								 std::vector<bool>& undefined) = 0;
     
     // using underneath columns, not vargroup
+    virtual int  GetDirectColIdx(wxString col_nm) = 0;
 	virtual void GetDirectColData(int col, std::vector<double>& data) =0;
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data)=0;
 	virtual void GetDirectColData(int col, std::vector<wxString>& data)=0;

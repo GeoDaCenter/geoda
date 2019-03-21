@@ -1135,8 +1135,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     } else {
         DrawHighlight(dc, this);
-        //DrawHighlighted(dc, revert);
-    }    
+    }
 }
 
 void MapCanvas::SetHighlight(int idx)
@@ -1705,7 +1704,7 @@ void MapCanvas::OnSaveCategories()
             str_cat_num << cat_classif_def.num_cats;
 
             wxString str_orig_nm = GetVariableNames();
-            table_int->AddMetaInfo(new_fld_nm, "original_name", str_orig_nm);
+            table_int->AddMetaInfo(new_fld_nm, "original_variable", str_orig_nm);
             table_int->AddMetaInfo(new_fld_nm, "classification_type", t_name);
             table_int->AddMetaInfo(new_fld_nm, "number_of_categories", str_cat_num);
             int time = cat_data.GetCurrentCanvasTmStep();

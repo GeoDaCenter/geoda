@@ -22,6 +22,7 @@
 
 #include <vector>
 #include <list>
+#include <map>
 #include <wx/string.h>
 #include "HLStateInt.h"
 
@@ -59,7 +60,8 @@ public:
 	virtual wxString GetEventTypeStr();
 	virtual void SetEventType( EventType e ) { event_type = e; }
 	virtual int GetTotalHighlighted() { return total_highlighted; }
-	
+    virtual std::map<wxString, wxString> GetMetaData();
+    virtual void SetMetaData(std::map<wxString, wxString>& meta_data);
 	virtual void registerObserver(HighlightStateObserver* o);
 	virtual void removeObserver(HighlightStateObserver* o);
 	virtual void notifyObservers();
@@ -69,6 +71,7 @@ public:
 private:
 	/** The list of registered HighlightStateObserver objects. */
 	std::list<HighlightStateObserver*> observers;
+
 	/** This array of booleans corresponds to the highlight/not-highlighted
 	 of each underlying SHP file observation. */
 	std::vector<bool> highlight;
@@ -101,6 +104,11 @@ private:
 	/** When this is set to true and the list of observers is empty, the
 	 class instance will automatically delete itself. */
 	bool delete_self_when_empty;
+
+    // #1552 meta data of highlighted: e.g.  what original variable this
+    // pertained to. Or, if it was not based on a range selection, that it was a
+    // purely geographic/spatial selection
+    std::map<wxString, wxString> meta_data;
 };
 
 #endif

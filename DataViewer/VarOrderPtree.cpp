@@ -91,9 +91,10 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
                         BOOST_FOREACH(const ptree::value_type &mv, v.second) {
                             wxString mk(mv.first.data(), wxConvUTF8);
                             wxString ms(mv.second.data().c_str(), wxConvUTF8);
-                            if (mk == "original_name" ||
+                            if (mk == "original_variable" ||
                                 mk == "number_of_categories" ||
-                                mk == "classification_type") {
+                                mk == "classification_type" ||
+                                mk == "selection_range") {
                                 ent.meta_data[mk] = ms;
                             } else if (mk == "categories") {
                                 BOOST_FOREACH(const ptree::value_type &mcv, mv.second) {

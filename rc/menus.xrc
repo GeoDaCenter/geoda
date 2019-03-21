@@ -4417,7 +4417,6 @@
     <object class="wxMenuItem" name="ID_TABLE_FIELD_CALCULATION">
       <label>Calculator</label>
     </object>
-	
     <object class="wxMenuItem" name="ID_TABLE_ADD_COLUMN">
       <label>Add Variable</label>
     </object>
@@ -4430,40 +4429,6 @@
     <object class="wxMenuItem" name="ID_TABLE_EDIT_FIELD_PROP">
       <label>Edit Variable Properties</label>
     </object>
-    <!--
-     <object class="wxMenuItem" name="ID_CALCULATOR">
-     <label>Calculator</label>
-     </object>
-    <object class="wxMenuItem" name="ID_TABLE_CHANGE_FIELD_TYPE">
-      <label>Change Variable Type</label>
-    </object>
-    
-    <object class="separator"/>
-    <object class="wxMenuItem" name="ID_SHOW_DATA_MOVIE">
-      <label>Animation</label>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_TIME_CHOOSER">
-      <label>Time Control</label>
-    </object>
-    <object class="wxMenuItem" name="ID_TIME_EDITOR">
-      <label>Time Editor</label>
-    </object>
-    <object class="wxMenuItem" name="ID_VAR_GROUPING_EDITOR">
-      <label>Variable Grouping Editor</label>
-    </object>
-     
-    <object class="wxMenuItem" name="ID_TABLE_GROUP">
-      <label>Group Selected</label>
-    </object>
-    <object class="wxMenuItem" name="ID_TABLE_UNGROUP">
-      <label>Ungroup Variable</label>
-    </object>
-    <object class="wxMenuItem" name="ID_SHOW_CAT_CLASSIF">
-      <label>Category Editor</label>
-    </object>
-	-->
-    <object class="separator"/>
-    
     <object class="separator"/>
     <object class="wxMenu" name="ID_TABLE_ENCODING">
       <label>Encode</label>
@@ -4569,7 +4534,6 @@
         <checkable>1</checkable>
       </object>
     </object>
-
     <label>Table</label>
   </object>
   <object class="wxMenu" name="ID_REPORT_VIEW_MENU_CONTEXT">

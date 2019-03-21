@@ -409,7 +409,6 @@ void OGRLayerProxy::DeleteField(int pos)
 	n_cols--;
 	// remove this field from OGRFieldProxy
 	this->fields.erase( fields.begin() + pos ); 
-	//this->fields.erase( fields.begin() + pos );
 }
 
 void OGRLayerProxy::DeleteField(const wxString& field_name)
@@ -763,15 +762,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
     if (table != NULL) {
         if (export_size == 0) export_size = table->GetNumberRows();
         export_progress = export_size / 4;
-        // using orders in wxGrid
-        std::vector<int> col_id_map;
-        table->FillColIdMap(col_id_map);
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
             wxString fname = fields[j]->GetName();
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
-            int col_pos = col_id_map[j];
+            int col_pos = table->GetColIdx(fname);
             vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
                 vector<wxInt64> col_data;
@@ -1224,8 +1220,8 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
             } else if (eType == wkbMultiPolygon) {
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
                 int n_geom = mpolygon->getNumGeometries();
-                // if there is more than one polygon, then we need to count which
-                // part is processing accumulatively
+                // if there is more than one polygon, then we need to count 
+                // which part is processing accumulatively
                 for (size_t i = 0; i < n_geom; i++ ){
                     OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
                     geocol.addGeometry(ogrGeom);
@@ -1423,7 +1419,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     pLinearRing = j==0 ?
                         p->getExteriorRing() : p->getInteriorRing(j-1);
                     if (pLinearRing)
-                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++){
+                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++) {
                             pc->points[i].x =  pLinearRing->getX(k);
                             pc->points[i++].y =  pLinearRing->getY(k);
                         }
@@ -1441,8 +1437,8 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     p_main.header.shape_type = Shapefile::POLYGON;
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
                 int n_geom = mpolygon->getNumGeometries();
-                // if there is more than one polygon, then we need to count which
-                // part is processing accumulatively
+                // if there is more than one polygon, then we need to count
+                // which part is processing accumulatively
                 int part_idx = 0, numPoints = 0;
                 OGRLinearRing* pLinearRing = NULL;
                 int pidx =0;
@@ -1503,7 +1499,9 @@ void OGRLayerProxy::T_Export(wxString format,
 {
 	export_progress = 0;
 	stop_exporting = FALSE;
-	boost::thread export_thread(boost::bind(&OGRLayerProxy::Export, this,  format, dest_datasource, new_layer_name, is_update));
+	boost::thread export_thread(boost::bind(&OGRLayerProxy::Export, this,
+                                            format, dest_datasource,
+                                            new_layer_name, is_update));
 }
 
 void OGRLayerProxy::T_StopExport()

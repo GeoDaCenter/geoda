@@ -141,7 +141,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
 	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data);
-    
+    virtual int  GetDirectColIdx(wxString col_nm);
 	virtual void GetDirectColData(int col, std::vector<double>& data);
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);
 	virtual void GetDirectColData(int col, std::vector<wxString>& data);

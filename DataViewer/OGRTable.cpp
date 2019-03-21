@@ -47,8 +47,6 @@ OGRTable::OGRTable(int n_rows)
     // This is in-memory table only.
     ogr_layer = NULL;
     rows = n_rows;
-    
-    //table_state->registerObserver(this);
 }
 
 OGRTable::OGRTable(OGRLayerProxy* _ogr_layer,
@@ -737,6 +735,17 @@ void OGRTable::GetColData(int col, s_array_type& data)
 			for (size_t i=0; i<rows; ++i) data[t][i] = "";
 		}
 	}
+}
+
+int OGRTable::GetDirectColIdx(wxString col_nm)
+{
+    for (size_t i=0; i<columns.size(); ++i) {
+        OGRColumn* ogr_col = columns[i];
+        if (col_nm == ogr_col->GetName()) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void OGRTable::GetDirectColData(int col, std::vector<double>& data)
