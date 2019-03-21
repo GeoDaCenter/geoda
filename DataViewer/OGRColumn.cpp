@@ -69,11 +69,6 @@ OGRColumn::OGRColumn(OGRLayerProxy* _ogr_layer, int _idx)
     decimals = ogr_layer->GetFieldDecimals(idx);
 }
 
-void OGRColumn::AddMetaInfo(const wxString& key, const wxString& val)
-{
-    meta_data[key] = val;
-}
-
 int OGRColumn::GetColIndex()
 {
     if (is_new)

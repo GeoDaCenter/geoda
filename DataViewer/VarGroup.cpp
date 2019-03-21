@@ -25,7 +25,7 @@ VarGroup::VarGroup() : displayed_decimals(-1)
 }
 
 VarGroup::VarGroup(const VarGroup& e) : name(e.name), vars(e.vars),
-displayed_decimals(e.displayed_decimals)
+displayed_decimals(e.displayed_decimals), meta_data(e.meta_data)
 {
 }
 
@@ -50,6 +50,8 @@ VarGroup& VarGroup::operator=(const VarGroup& e)
 {
 	name = e.name;
 	vars = e.vars;
+    displayed_decimals = e.displayed_decimals;
+    meta_data = e.meta_data;
 	return *this;
 }
 
@@ -124,6 +126,11 @@ wxString VarGroup::GetGroupName() const
 void VarGroup::SetGroupName(const wxString& new_name)
 {
 	name = new_name;
+}
+
+void VarGroup::AddMetaInfo(const wxString& key, const wxString& val)
+{
+    meta_data[key] = val;
 }
 
 void VarGroup::SetVarName(const wxString& new_name, int time)

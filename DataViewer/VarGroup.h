@@ -54,9 +54,11 @@ struct VarGroup {
 	wxString ToStr() const;
 	int GetDispDecs() const;
 	void SetDispDecs(int displayed_decimals);
-	
+    void AddMetaInfo(const wxString& key, const wxString& val);
+    
 	/** simple name if only one time period, otherwise group name */
 	wxString name;
+
 	/** var: empty "" indicates placeholder
 	 * if vars.size() == 0, then a simple variable */
 	std::vector<wxString> vars;

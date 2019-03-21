@@ -1610,6 +1610,12 @@ void OGRTable::AddMetaInfo(const wxString col_nm, const wxString& key,
 {
     // Add meta info for a specific colmn
     int col_id = var_order.GetColId(col_nm, true);
+    if (col_id <0) return;
+    var_order.AddMetaInfo(col_id, key, val);
+}
+
+std::map<wxString, wxString> OGRTable::GetMetaData(int col_id)
+{
     VarGroup vg = var_order.FindVarGroup(col_id);
-    vg.meta_data[key] = val;
+    return vg.meta_data;
 }

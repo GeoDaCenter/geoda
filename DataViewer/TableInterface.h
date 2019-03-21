@@ -334,6 +334,8 @@ public:
     
     virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
                              const wxString& val) = 0;
+
+    virtual std::map<wxString, wxString> GetMetaData(int col_id) = 0;
 		
 protected:
 	wxString open_err_msg;

@@ -877,7 +877,11 @@ void TemplateCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
 #endif
 }
 
-void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs, bool hl_only, bool revert, bool crosshatch, bool is_print, const wxColour& fixed_pen_color)
+void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
+                                                    bool hl_only, bool revert,
+                                                    bool crosshatch,
+                                                    bool is_print,
+                                                    const wxColour& fixed_pen_color)
 {
 	int cc_ts = cat_data.curr_canvas_tm_step;
 	int num_cats = cat_data.GetNumCategories(cc_ts);

@@ -191,9 +191,7 @@ public:
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
     vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
-    void SetLegendLabel(int cat, wxString label) {
-        cat_data.SetCategoryLabel(0, cat, label);
-    }
+    void SetLegendLabel(int cat, wxString label);
    
     // multi-layers:
     vector<BackgroundMapLayer*> GetBackgroundMayLayers();

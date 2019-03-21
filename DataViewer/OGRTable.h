@@ -191,6 +191,7 @@ public:
 								  wxString* fld_warn_msg=0);
     virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
                              const wxString& val);
+    virtual std::map<wxString, wxString> GetMetaData(int col_id);
 };
 
 #endif

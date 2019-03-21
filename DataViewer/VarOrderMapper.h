@@ -65,7 +65,7 @@ public:
 	void RemoveTime(int time, TableDeltaList_type& tdl, bool case_sensitive);
 	void InsertTime(int time, const wxString& new_time_id);
 	void RenameTime(int time, const wxString& new_time_id);
-	
+    void AddMetaInfo(int pos, const wxString& key, const wxString& val);
 	wxString VarOrderToStr() const;
 	
 private:

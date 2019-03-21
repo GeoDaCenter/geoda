@@ -87,6 +87,24 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
                         if (!vs.ToLong(&dd)) dd = -1;
                         ent.displayed_decimals = dd;
                     }
+                    if (key == "meta_data") {
+                        BOOST_FOREACH(const ptree::value_type &mv, v.second) {
+                            wxString mk(mv.first.data(), wxConvUTF8);
+                            wxString ms(mv.second.data().c_str(), wxConvUTF8);
+                            if (mk == "original_name" ||
+                                mk == "number_of_categories" ||
+                                mk == "classification_type") {
+                                ent.meta_data[mk] = ms;
+                            } else if (mk == "categories") {
+                                BOOST_FOREACH(const ptree::value_type &mcv, mv.second) {
+                                    wxString mck(mcv.first.data(), wxConvUTF8);
+                                    wxString mcs(mcv.second.data().c_str(), wxConvUTF8);
+                                    mck = "categories." + mck;
+                                    ent.meta_data[mck] = mcs;
+                                }
+                            }
+                        }
+                    }
                 }
 				var_grps.push_back(ent);
 			} else if (key == "time_ids") {
@@ -167,7 +185,8 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
                 if (e.meta_data.empty() == false) {
                     std::map<wxString, wxString> meta_data = e.meta_data;
                     std::map<wxString, wxString>::iterator iter;
-                    for (iter = meta_data.begin(); iter != e.meta_data.end(); ++iter) {
+                    for (iter = meta_data.begin(); iter != meta_data.end();
+                         ++iter) {
                         wxString meta_name = "meta_data.";
                         meta_name << iter->first;
                         wxString meta_value = iter->second;
@@ -325,6 +344,7 @@ void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 			}
 		}
 		e.displayed_decimals = table->GetColDispDecimals(col);
+        e.meta_data = table->GetMetaData(col);
 		this->var_grps.push_back(e);
 	}
 }

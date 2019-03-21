@@ -195,6 +195,14 @@ void VarOrderMapper::SetGroupName(int pos, const wxString& new_name)
 	i->SetGroupName(new_name);
 }
 
+void VarOrderMapper::AddMetaInfo(int pos, const wxString& key,
+                                 const wxString& val)
+{
+    if (pos < 0 || pos >= var_grps.size()) return;
+    VarGroup_container::iterator i = FindVarGroupIt(pos);
+    i->AddMetaInfo(key, val);
+}
+
 void VarOrderMapper::SetSimpleColName(int pos, int time,
 									  const wxString& new_name)
 {

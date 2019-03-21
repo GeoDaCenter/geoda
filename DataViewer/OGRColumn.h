@@ -49,18 +49,6 @@ protected:
     OGRLayerProxy* ogr_layer;
     // markers for a new column if the cell has ben assigned a value
     vector<bool> undef_markers;
-    // other for meta data:
-    // <save category>
-    // original name : aa
-    // classification type : quantile
-    // classification intervals : 1,2,3,4,5
-    // <save selection>
-    // original name : aa
-    // selection range :
-    // <save selection>
-    // spatial selection :
-    std::map<wxString, wxString> meta_data;
-
     int get_date_format(std::string& s);
     
 public:
@@ -91,8 +79,6 @@ public:
     bool IsDeleted() { return is_deleted;}
     
     void SetDeletion(bool is_delete) { is_deleted = is_delete;}
-
-    void AddMetaInfo(const wxString& key, const wxString& val);
     
     wxString GetName();
     void Rename(const wxString& new_name);
