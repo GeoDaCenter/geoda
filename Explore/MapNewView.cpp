@@ -1243,7 +1243,8 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
     wxGCDC dc(_dc);
     helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
 #else
-    helper_DrawSelectableShapes_dc(_dc, hs, hl_only, revert, use_crosshatch);
+	wxGCDC dc(_dc);
+    helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
 #endif
 }
 
@@ -3013,6 +3014,35 @@ void MapNewLegend::OnCategoryFillColor(wxCommandEvent& event)
         for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
             if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
                 wxColor new_color = retData.GetColour();
+                template_canvas->cat_data.SetCategoryBrushColor(ts, opt_menu_cat, new_color);
+                wxString lbl = template_canvas->cat_data.GetCategoryLabel(ts, opt_menu_cat);
+                MapCanvas* w = dynamic_cast<MapCanvas*>(template_canvas);
+                if (w) {
+                    w->UpdatePredefinedColor(lbl, new_color);
+                }
+            }
+        }
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+        Refresh();
+    }
+}
+
+void MapNewLegend::OnCategoryFillOpacity(wxCommandEvent& event)
+{
+    int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
+    if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
+    
+    wxColour col = template_canvas->cat_data.GetCategoryBrushColor(c_ts, opt_menu_cat);
+    double transparency = 1 - col.Alpha() / 255.0;
+	TransparentSettingDialog dialog(this, transparency);
+    if (dialog.ShowModal() == wxID_OK) {
+        transparency = dialog.GetTransparency();
+		char alpha = (int)(255 * (1-transparency));
+        for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
+            if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
+                wxColor new_color(col.Red(), col.Green(), col.Blue(), alpha);
                 template_canvas->cat_data.SetCategoryBrushColor(ts, opt_menu_cat, new_color);
                 wxString lbl = template_canvas->cat_data.GetCategoryLabel(ts, opt_menu_cat);
                 MapCanvas* w = dynamic_cast<MapCanvas*>(template_canvas);

@@ -104,10 +104,12 @@ public:
     int GetDrawingWidth();
     int GetDrawingHeight();
     void RenderToDC(wxDC& dc, double scale);
-	virtual void OnCategoryFillColor(wxCommandEvent& event);
-    virtual void OnCategoryOutlineColor(wxCommandEvent& event);
-    void OnChangePointRadius(wxCommandEvent& event);
+	void OnChangePointRadius(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
+
+	virtual void OnCategoryFillColor(wxCommandEvent& event);
+	virtual void OnCategoryFillOpacity(wxCommandEvent& event);
+    virtual void OnCategoryOutlineColor(wxCommandEvent& event);
 	virtual void OnDraw(wxDC& dc);
 	
 	wxColour legend_background_color;

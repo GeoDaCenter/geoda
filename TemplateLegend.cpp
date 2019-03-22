@@ -27,11 +27,16 @@
 
 #include "logger.h"
 #include "GdaConst.h"
+#include "GeneralWxUtils.h"
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
 #include "Explore/MapNewView.h"
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
 
 PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
 : wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(250, 160))
@@ -344,8 +349,16 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
     Connect(XRCID("IDC_LEGEND_CATEGORY_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(TemplateLegend::OnCategoryOutlineColor));
 
-    s = "";
-    s << _("Fill Color for Category");
+	if (GeneralWxUtils::isWindows()) {
+		s = _("Fill Opacity for Category");
+		cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
+		if (!cat_label.IsEmpty()) s << ": " << cat_label;
+		menu->Prepend(XRCID("IDC_LEGEND_CATEGORY_FILL_OPACITY"), s, s);
+		Connect(XRCID("IDC_LEGEND_CATEGORY_FILL_OPACITY"), wxEVT_COMMAND_MENU_SELECTED,
+			wxCommandEventHandler(TemplateLegend::OnCategoryFillOpacity));
+	}
+
+    s = _("Fill Color for Category");
     cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
     if (!cat_label.IsEmpty()) s << ": " << cat_label;
 	menu->Prepend(XRCID("IDC_LEGEND_CATEGORY_FILL_COLOR"), s, s);
@@ -365,6 +378,12 @@ void TemplateLegend::OnChangePointRadius(wxCommandEvent& event)
         template_canvas->invalidateBms();
         template_canvas->Refresh();
     }
+}
+
+void TemplateLegend::OnCategoryFillOpacity(wxCommandEvent& event)
+{
+	// not implemented here
+	// see MapLegend
 }
 
 void TemplateLegend::OnCategoryFillColor(wxCommandEvent& event)

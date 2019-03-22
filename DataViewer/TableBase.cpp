@@ -85,8 +85,6 @@ wxString wxGridCellInt64Renderer::GetString(const wxGrid& grid, int row, int col
 {
     wxGridTableBase *table = grid.GetTable();
 
-    bool hasDouble;
-    double val;
     wxString text = table->GetValue(row, col);
     return text;
 }
@@ -223,7 +221,6 @@ wxString wxGridCellDoubleRenderer::GetString(const wxGrid& grid, int row, int co
 {
     wxGridTableBase *table = grid.GetTable();
 
-    bool hasDouble;
     double val;
     wxString text = table->GetValue(row, col);
     LOG_MSG(text);

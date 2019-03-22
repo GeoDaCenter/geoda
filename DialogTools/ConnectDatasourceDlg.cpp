@@ -351,7 +351,7 @@ IDataSource* RecentDatasource::GetDatasource(wxString ds_name)
             wxString ds_conf = ds_confs[i];
             try {
                 return IDataSource::CreateDataSource(ds_confs[i]);
-            } catch(GdaException& ex){
+            } catch(GdaException& e){
                 return NULL;
             }
         }

@@ -523,4 +523,70 @@ void GeneralWxUtils::SaveWindowAsImage(wxWindow *win, wxString title)
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
+TransparentSettingDialog::TransparentSettingDialog(
+	wxWindow * parent,
+	double _transparency,
+	wxWindowID id,
+	const wxString & caption,
+	const wxPoint & position,
+	const wxSize & size,
+	long style )                          
+: wxDialog( parent, id, caption, position, size, style),
+transparency(_transparency)
+{
+    wxLogMessage("Open TransparentSettingDialog");   
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(topSizer);
+    
+    wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
+    
+    // A text control for the user’s name
+    int trasp_scale = 100 * transparency;
 
+	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
+    slider = new wxSlider(this, wxID_ANY, trasp_scale, 0, 100,
+                          wxDefaultPosition, wxSize(200, -1),
+                          wxSL_HORIZONTAL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
+    subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
+	subSizer->Add(new wxStaticText(this, wxID_ANY,"0.0"), 0,
+                  wxALIGN_CENTER_VERTICAL|wxALL);
+
+	boxSizer->Add(subSizer);
+    wxString txt_transparency = wxString::Format(_("Current Opacity: %.2f"), 1.0 - transparency);
+    
+    slider_text = new wxStaticText(
+		this,
+		wxID_ANY,
+		txt_transparency,
+		wxDefaultPosition,
+		wxSize(100, -1));
+    boxSizer->Add(slider_text, 0, wxGROW|wxALL, 5);
+    boxSizer->Add(new wxButton(this, wxID_OK, _("OK")), 0, wxALIGN_CENTER|wxALL, 10);
+    
+    topSizer->Fit(this);
+    
+    slider->Bind(wxEVT_SLIDER, &TransparentSettingDialog::OnSliderChange, this);
+}
+
+TransparentSettingDialog::~TransparentSettingDialog()
+{
+}
+
+void TransparentSettingDialog::OnSliderChange( wxCommandEvent & event )
+{
+    int val = event.GetInt();
+    double trasp = 1.0 - val / 100.0;
+    slider_text->SetLabel(wxString::Format(_("Current Transparency: %.2f"), trasp));
+	transparency = trasp;
+}
+
+double TransparentSettingDialog::GetTransparency()
+{
+	return transparency;
+}

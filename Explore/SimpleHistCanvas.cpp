@@ -266,7 +266,7 @@ x_axis(0), y_axis(0), display_stats(false), show_axes(show_axes_),
 obs_id_to_ival(X.size())
 {
 	using namespace Shapefile;
-	for (size_t i=0, sz=X.size(); i<sz; i++) {
+	for (int i=0, sz=X.size(); i<sz; i++) {
         if (X_undef[i])
             continue;
         data_sorted.push_back(std::make_pair(X[i], i));

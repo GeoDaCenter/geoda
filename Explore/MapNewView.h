@@ -315,6 +315,7 @@ public:
     
     // override
     virtual void OnCategoryFillColor(wxCommandEvent& event);
+	virtual void OnCategoryFillOpacity(wxCommandEvent& event);
     virtual void OnCategoryOutlineColor(wxCommandEvent& event);
 };
 
