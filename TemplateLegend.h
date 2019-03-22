@@ -104,7 +104,8 @@ public:
     int GetDrawingWidth();
     int GetDrawingHeight();
     void RenderToDC(wxDC& dc, double scale);
-	void OnCategoryColor(wxCommandEvent& event);
+	virtual void OnCategoryFillColor(wxCommandEvent& event);
+    virtual void OnCategoryOutlineColor(wxCommandEvent& event);
     void OnChangePointRadius(wxCommandEvent& event);
 	void OnEvent(wxMouseEvent& event);
 	virtual void OnDraw(wxDC& dc);
@@ -127,9 +128,6 @@ protected:
 	int d_rect; 
 	bool all_init;
 	int opt_menu_cat; // last category added to Legend menu
-	
-	static const int ID_CATEGORY_COLOR;
-    
     bool recreate_labels;
     std::vector<int> new_order;
     std::vector<GdaLegendLabel*> labels;

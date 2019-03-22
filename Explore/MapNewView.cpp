@@ -225,7 +225,7 @@ is_updating(false)
 	}
 	highlight_state->registerObserver(this);
     maplayer_state->registerObserver(this);
-	SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
+	//SetBackgroundStyle(wxBG_STYLE_CUSTOM);  // default style
     isDrawBasemap = GdaConst::use_basemap_by_default;
     if (isDrawBasemap) {
         basemap_item = Gda::GetBasemapSelection(GdaConst::default_basemap_selection,
@@ -451,7 +451,6 @@ vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemory
 
     int ts = cat_data.GetCurrentCanvasTmStep();
     int num_obs = project->GetNumRecords();
-    //HighlightState& hs = *project->GetHighlightState();
     std::vector<bool>& h = highlight_state->GetHighlight();
     std::vector<bool> add_elem(gal_weights->num_obs, false);
     std::set<int>::iterator it;
@@ -719,24 +718,19 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             basemap->ResizeScreen(virtual_scrn_w, virtual_scrn_h);
         }
         BOOST_FOREACH( GdaShape* ms, background_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
+            if (ms) ms->projectToBasemap(basemap);
         }
         BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
+            if (ms) ms->projectToBasemap(basemap);
         }
         BOOST_FOREACH( GdaShape* ms, background_maps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
+            if (ms) ms->projectToBasemap(basemap);
         }
         BOOST_FOREACH( GdaShape* ms, foreground_maps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
+            if (ms) ms->projectToBasemap(basemap);
         }
         BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
-            if (ms)
-                ms->projectToBasemap(basemap);
+            if (ms) ms->projectToBasemap(basemap);
         }
         if (!w_graph.empty() && display_weights_graph &&
             boost::uuids::nil_uuid() != weights_id) {
@@ -935,8 +929,7 @@ void MapCanvas::DrawLayer0()
     // draw basemap, background, and all other maps
     wxMemoryDC dc;
     
-	if (isDrawBasemap) 
-	{
+	if (isDrawBasemap) {
         // use a special color for mask transparency: 244, 243, 242c
         wxColour maskColor(MASK_R, MASK_G, MASK_B);
         wxBrush maskBrush(maskColor);
@@ -1221,13 +1214,10 @@ void MapCanvas::SaveThumbnail()
 {
     if (MapCanvas::has_thumbnail_saved == false) {
         RecentDatasource recent_ds;
-        
         if (layer_name == recent_ds.GetLastLayerName() &&
             !ds_name.EndsWith("samples.sqlite") &&
             !ds_name.Contains("geodacenter.github.io")) {
-        
             wxImage image = layer2_bm->ConvertToImage();
-            
             long current_time_sec = wxGetUTCTime();
             wxString file_name;
             file_name << current_time_sec << ".png";
@@ -2992,8 +2982,7 @@ MapNewLegend::MapNewLegend(wxWindow *parent, TemplateCanvas* t_canvas,
 						   const wxPoint& pos, const wxSize& size)
 : TemplateLegend(parent, t_canvas, pos, size)
 {
-    Connect(TemplateLegend::ID_CATEGORY_COLOR, wxEVT_COMMAND_MENU_SELECTED,
-            wxCommandEventHandler(MapNewLegend::OnCategoryColor));
+
 }
 
 MapNewLegend::~MapNewLegend()
@@ -3001,13 +2990,13 @@ MapNewLegend::~MapNewLegend()
     LOG_MSG("In MapNewLegend::~MapNewLegend");
 }
 
-void MapNewLegend::OnCategoryColor(wxCommandEvent& event)
+void MapNewLegend::OnCategoryFillColor(wxCommandEvent& event)
 {
     int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
     int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
     if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
     
-    wxColour col = template_canvas->cat_data.GetCategoryColor(c_ts, opt_menu_cat);
+    wxColour col = template_canvas->cat_data.GetCategoryBrushColor(c_ts, opt_menu_cat);
     wxColourData data;
     data.SetColour(col);
     data.SetChooseFull(true);
@@ -3018,13 +3007,50 @@ void MapNewLegend::OnCategoryColor(wxCommandEvent& event)
     }
     
     wxColourDialog dialog(this, &data);
-    dialog.SetTitle(_("Choose Cateogry Color"));
+    dialog.SetTitle(_("Choose Cateogry Fill Color"));
     if (dialog.ShowModal() == wxID_OK) {
         wxColourData retData = dialog.GetColourData();
         for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
             if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
                 wxColor new_color = retData.GetColour();
-                template_canvas->cat_data.SetCategoryColor(ts, opt_menu_cat, new_color);
+                template_canvas->cat_data.SetCategoryBrushColor(ts, opt_menu_cat, new_color);
+                wxString lbl = template_canvas->cat_data.GetCategoryLabel(ts, opt_menu_cat);
+                MapCanvas* w = dynamic_cast<MapCanvas*>(template_canvas);
+                if (w) {
+                    w->UpdatePredefinedColor(lbl, new_color);
+                }
+            }
+        }
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+        Refresh();
+    }
+}
+
+void MapNewLegend::OnCategoryOutlineColor(wxCommandEvent& event)
+{
+    int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
+    if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
+
+    wxColour col = template_canvas->cat_data.GetCategoryPenColor(c_ts, opt_menu_cat);
+    wxColourData data;
+    data.SetColour(col);
+    data.SetChooseFull(true);
+    int ki;
+    for (ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        data.SetCustomColour(ki, colour);
+    }
+
+    wxColourDialog dialog(this, &data);
+    dialog.SetTitle(_("Choose Cateogry Outline Color"));
+    if (dialog.ShowModal() == wxID_OK) {
+        wxColourData retData = dialog.GetColourData();
+        for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
+            if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
+                wxColor new_color = retData.GetColour();
+                template_canvas->cat_data.SetCategoryPenColor(ts, opt_menu_cat, new_color);
                 wxString lbl = template_canvas->cat_data.GetCategoryLabel(ts, opt_menu_cat);
                 MapCanvas* w = dynamic_cast<MapCanvas*>(template_canvas);
                 if (w) {

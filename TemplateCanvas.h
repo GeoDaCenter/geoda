@@ -156,7 +156,6 @@ public:
 	virtual void UpdateSelectRegion(bool translate = false,
 									wxPoint diff = wxPoint(0,0) );
 	/** Assumes selectable_shps.size() == num obs **/
-	virtual void NotifyObservables();
 	virtual void DetermineMouseHoverObjects(wxPoint pt);
 	virtual void UpdateStatusBar();
 	virtual wxString GetCanvasTitle();

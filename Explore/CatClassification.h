@@ -201,16 +201,23 @@ struct CatClassifData {
 									  int num_obs);
 	void CreateCategoriesAtCanvasTm(int num_cats, int canvas_tm);
 	void SetCategoryBrushesAllCanvasTms(std::vector<wxColour> colors);
+    void SetCategoryPensAllCanvasTms(std::vector<wxColour> colors);
 	void SetCategoryBrushesAllCanvasTms(CatClassification::ColorScheme coltype,
 										int ncolor, bool reversed);
+    void SetCategoryPensAllCanvasTms(CatClassification::ColorScheme coltype,
+                                        int ncolor, bool reversed);
 	void SetCategoryBrushesAtCanvasTm(CatClassification::ColorScheme coltype,
 									  int ncolor, bool reversed, int canvas_tm);
+    void SetCategoryPensAtCanvasTm(CatClassification::ColorScheme coltype,
+                                      int ncolor, bool reversed, int canvas_tm);
 	int GetNumCategories(int canvas_tm);
 	int GetNumObsInCategory(int canvas_tm, int cat);
 	std::vector<int>& GetIdsRef(int canvas_tm, int cat);
 	void SetCategoryColor(int canvas_tm, int cat, wxColour color);
     void SetCategoryBrushColor(int canvas_tm, int cat, wxColour color);
     void SetCategoryPenColor(int canvas_tm, int cat, wxColour color);
+    wxColour GetCategoryPenColor(int canvas_tm, int cat);
+    wxColour GetCategoryBrushColor(int canvas_tm, int cat);
 	wxColour GetCategoryColor(int canvas_tm, int cat);
 	wxBrush GetCategoryBrush(int canvas_tm, int cat);
 	wxPen GetCategoryPen(int canvas_tm, int cat);

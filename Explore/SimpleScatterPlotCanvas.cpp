@@ -324,7 +324,7 @@ void SimpleScatterPlotCanvas::SetSelectableFillColor(wxColour color)
 {
     // In Scatter Plot, Fill color is for points
     selectable_fill_color = color;
-	cat_data.SetCategoryColor(0, 0, selectable_fill_color);
+	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
     TemplateCanvas::SetSelectableFillColor(color);
     PopulateCanvas();
     

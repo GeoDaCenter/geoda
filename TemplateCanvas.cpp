@@ -953,7 +953,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 }
                 dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
-			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
+			vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
             
 			for (int i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert))
@@ -1038,7 +1038,9 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
 	}
 }
 
-void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs, double radius, int alpha, wxColour fixed_pen_color, bool cross_hatch)
+void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data,
+                                vector<bool>& hs, double radius, int alpha,
+                                wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
     int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1065,11 +1067,13 @@ void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<boo
             if (fixed_pen_color != *wxWHITE) {
                 pen_color = fixed_pen_color;
             }
-            wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+            wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(),
+                                     pen_color.Blue(), alpha);
             dc.SetPen(wxPen(pen_color_alpha));
             
             wxColour brush_color = cat_data.GetCategoryColor(cc_ts, cat);
-            wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(), brush_color.Blue(), alpha);
+            wxColour brush_color_alpha(brush_color.Red(), brush_color.Green(),
+                                       brush_color.Blue(), alpha);
             dc.SetBrush(wxBrush(brush_color_alpha));
         }
         vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
@@ -1090,7 +1094,9 @@ void TemplateCanvas::DrawPoints(wxGCDC& dc, CatClassifData& cat_data, vector<boo
     }
 }
 
-void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+void TemplateCanvas::DrawPolygons(wxGCDC& dc, CatClassifData& cat_data,
+                                  vector<bool>& hs, int alpha,
+                                  wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
     int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1185,7 +1191,9 @@ void TemplateCanvas::DrawCircles(wxGCDC& dc, CatClassifData& cat_data, vector<bo
     }
 }
 
-void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool>& hs,int alpha, wxColour fixed_pen_color, bool cross_hatch)
+void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data,
+                               vector<bool>& hs, int alpha,
+                               wxColour fixed_pen_color, bool cross_hatch)
 {
     //int alpha = GdaConst::plot_transparency_unhighlighted;;
     int cc_ts = cat_data.curr_canvas_tm_step;
@@ -1206,7 +1214,8 @@ void TemplateCanvas::DrawLines(wxGCDC& dc, CatClassifData& cat_data, vector<bool
         if (fixed_pen_color != *wxWHITE) {
             pen_color = fixed_pen_color;
         }
-        wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(), pen_color.Blue(), alpha);
+        wxColour pen_color_alpha(pen_color.Red(), pen_color.Green(),
+                                 pen_color.Blue(), alpha);
         dc.SetPen(wxPen(pen_color_alpha));
         
         vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
@@ -1232,8 +1241,6 @@ void TemplateCanvas::helper_DrawSelectableShapes_gc(wxGraphicsContext &gc,
 													bool crosshatch,
 													int alpha)
 {
-    //vector<bool>& hs = GetSelBitVec();
-    
     gc.SetAntialiasMode(wxANTIALIAS_NONE);
     gc.SetInterpolationQuality( wxINTERPOLATION_NONE );
     
@@ -2332,41 +2339,7 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	
 	if ( selection_changed ) {
 		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->notifyObservers(this);
-	}
-}
-
-
-/** In this default implementation of NotifyObservables, we assume
- that the selectable_shps are in one-to-one correspondence
- with the shps in the highlight_state observable vector.  If this is
- not true, then NotifyObservables() needs to be redefined in the
- child class.  This method looks at the vectors of newly highlighted
- and unhighlighted observations as set by the calling UpdateSelection
- method, and determines the best notification to broadcast to all
- other HighlightStateObserver instances.
- */
-void TemplateCanvas::NotifyObservables()
-{
-	// Goal: assuming that all views have the ability to draw
-	// deltas, try to determine set of operations that will minimize
-	// number of shapes to draw/erease.  Remember that all classes
-	// have the ability to erase all shapes for free.  But, we will also
-	// assume that when a delta update is given, that the class can
-	// also determine how best to do the update.
-	
-	int total_newly_selected = highlight_state->GetTotalNewlyHighlighted();
-	int total_newly_unselected = highlight_state->GetTotalNewlyUnhighlighted();
-	
-	if (total_newly_selected == 0 &&
-		total_newly_unselected == highlight_state->GetTotalHighlighted()) {
-		highlight_state->SetEventType(HLStateInt::unhighlight_all);
-		highlight_state->notifyObservers(this);
-	} else {
-		highlight_state->SetEventType(HLStateInt::delta);
-		highlight_state->SetTotalNewlyHighlighted(total_newly_selected);
-		highlight_state->SetTotalNewlyUnhighlighted(total_newly_unselected);
-		highlight_state->notifyObservers(this);
+		highlight_state->notifyObservers(); // notify self to update drawing
 	}
 }
 

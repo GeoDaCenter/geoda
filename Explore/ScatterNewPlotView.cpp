@@ -728,7 +728,7 @@ void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 		selectable_fill_color = color;
 		pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
 		for (int t=0; t<cat_data.GetCanvasTmSteps(); t++) {
-			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+			cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
 		}
 		UpdateRegExcludedLine();
 		if (IsShowLowessSmoother() && IsShowRegimes()) {
@@ -1197,8 +1197,11 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 			cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		}
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
+        wxColour pen_clr = GdaColorUtils::ChangeBrightness(GdaConst::map_default_fill_colour);
+
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0, GdaConst::map_default_fill_colour);
+			cat_data.SetCategoryBrushColor(t, 0, GdaConst::map_default_fill_colour);
+            cat_data.SetCategoryPenColor(t, 0, pen_clr);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);

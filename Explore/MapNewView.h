@@ -314,7 +314,8 @@ public:
 	virtual ~MapNewLegend();
     
     // override
-    void OnCategoryColor(wxCommandEvent& event);
+    virtual void OnCategoryFillColor(wxCommandEvent& event);
+    virtual void OnCategoryOutlineColor(wxCommandEvent& event);
 };
 
 class MapFrame : public TemplateFrame, public WeightsManStateObserver

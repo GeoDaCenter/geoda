@@ -2577,7 +2577,6 @@ void CatClassifData::AppendUndefCategory(int t, int count)
 {
     Category c_undef;
     c_undef.brush.SetColour(wxColour(70, 70, 70));
-    //c_undef.pen.SetColour(wxColour(0,0,0));
     c_undef.label = "undefined";
     c_undef.min_val = 0;
     c_undef.max_val = 0;
@@ -2612,10 +2611,18 @@ void CatClassifData::SetCategoryBrushesAllCanvasTms(
 	for (int t=0; t<categories.size(); t++) {
 		for (int i=0; i<colors.size(); i++) {
 			categories[t].cat_vec[i].brush.SetColour(colors[i]);
-			categories[t].cat_vec[i].pen.SetColour(
-				GdaColorUtils::ChangeBrightness(colors[i]));
+			categories[t].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
 		}
 	}
+}
+
+void CatClassifData::SetCategoryPensAllCanvasTms(std::vector<wxColour> colors)
+{
+    for (int t=0; t<categories.size(); t++) {
+        for (int i=0; i<colors.size(); i++) {
+            categories[t].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
+        }
+    }
 }
 
 void CatClassifData::SetCategoryBrushesAllCanvasTms(
@@ -2627,10 +2634,21 @@ void CatClassifData::SetCategoryBrushesAllCanvasTms(
 	for (int t=0; t<categories.size(); t++) {
 		for (int i=0; i<colors.size(); i++) {
 			categories[t].cat_vec[i].brush.SetColour(colors[i]);
-			categories[t].cat_vec[i].pen.SetColour(
-							GdaColorUtils::ChangeBrightness(colors[i]));
+			categories[t].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
 		}
 	}
+}
+
+void CatClassifData::SetCategoryPensAllCanvasTms(CatClassification::ColorScheme coltype,
+                                                    int ncolor, bool reversed)
+{
+    std::vector<wxColour> colors;
+    CatClassification::PickColorSet(colors, coltype, ncolor, reversed);
+    for (int t=0; t<categories.size(); t++) {
+        for (int i=0; i<colors.size(); i++) {
+            categories[t].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
+        }
+    }
 }
 
 void CatClassifData::SetCategoryBrushesAtCanvasTm(
@@ -2642,9 +2660,19 @@ void CatClassifData::SetCategoryBrushesAtCanvasTm(
 	CatClassification::PickColorSet(colors, coltype, ncolor, reversed);
 	for (int i=0; i<colors.size(); i++) {
 		categories[canvas_tm].cat_vec[i].brush.SetColour(colors[i]);
-		categories[canvas_tm].cat_vec[i].pen.SetColour(
-							   GdaColorUtils::ChangeBrightness(colors[i]));
+		categories[canvas_tm].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
 	}
+}
+
+void CatClassifData::SetCategoryPensAtCanvasTm(CatClassification::ColorScheme coltype,
+                                                  int ncolor, bool reversed, int canvas_tm)
+{
+    categories[canvas_tm].cat_vec.resize(ncolor);
+    std::vector<wxColour> colors;
+    CatClassification::PickColorSet(colors, coltype, ncolor, reversed);
+    for (int i=0; i<colors.size(); i++) {
+        categories[canvas_tm].cat_vec[i].pen.SetColour(GdaColorUtils::ChangeBrightness(colors[i]));
+    }
 }
 
 int CatClassifData::GetNumCategories(int canvas_tm)
@@ -2668,8 +2696,7 @@ void CatClassifData::SetCategoryColor(int canvas_tm, int cat, wxColour color)
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
         return;
 	categories[canvas_tm].cat_vec[cat].brush.SetColour(color);
-	categories[canvas_tm].cat_vec[cat].pen.SetColour(
-								 GdaColorUtils::ChangeBrightness(color));
+	categories[canvas_tm].cat_vec[cat].pen.SetColour(GdaColorUtils::ChangeBrightness(color));
 }
 
 void CatClassifData::SetCategoryBrushColor(int canvas_tm, int cat, wxColour color)
@@ -2686,12 +2713,25 @@ void CatClassifData::SetCategoryPenColor(int canvas_tm, int cat, wxColour color)
     categories[canvas_tm].cat_vec[cat].pen.SetColour(color);
 }
 
+wxColour CatClassifData::GetCategoryPenColor(int canvas_tm, int cat)
+{
+    if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return *wxBLACK;
+    return categories[canvas_tm].cat_vec[cat].pen.GetColour();
+}
+
+wxColour CatClassifData::GetCategoryBrushColor(int canvas_tm, int cat)
+{
+    if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
+        return *wxWHITE;
+    return categories[canvas_tm].cat_vec[cat].brush.GetColour();
+}
+
 wxColour CatClassifData::GetCategoryColor(int canvas_tm, int cat)
 {
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())
         return *wxBLACK;
-	return
-        categories[canvas_tm].cat_vec[cat].brush.GetColour();
+	return categories[canvas_tm].cat_vec[cat].brush.GetColour();
 }
 
 wxBrush CatClassifData::GetCategoryBrush(int canvas_tm, int cat)
