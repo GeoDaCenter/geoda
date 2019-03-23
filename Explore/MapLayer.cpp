@@ -44,6 +44,7 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
     field_names = layer_proxy->GetIntegerFieldNames();
     key_names = layer_proxy->GetIntegerAndStringFieldNames();
+    layer_proxy->GetExtent(minx, miny, maxx, maxy, sr);
     for (int i=0; i<shapes.size(); i++) {
         highlight_flags.push_back(false);
     }
@@ -56,10 +57,13 @@ BackgroundMapLayer::~BackgroundMapLayer()
     }
 }
 
-void BackgroundMapLayer::GetExtent(double &minx, double &miny, double &maxx,
-                                   double &maxy)
+void BackgroundMapLayer::GetExtent(double &_minx, double &_miny, double &_maxx,
+                                   double &_maxy)
 {
-    layer_proxy->GetExtent(minx, miny, maxx, maxy);
+    _minx = minx;
+    _miny = miny;
+    _maxx = maxx;
+    _maxy = maxy;
 }
 
 void BackgroundMapLayer::CleanMemory()
@@ -234,7 +238,11 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->SetFieldNames(field_names);
     copy->associated_layers = associated_layers;
     copy->associated_lines = associated_lines;
-
+    copy->minx = minx;
+    copy->miny = miny;
+    copy->maxx = maxx;
+    copy->maxy = maxy;
+    
     if (clone_style) {
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);

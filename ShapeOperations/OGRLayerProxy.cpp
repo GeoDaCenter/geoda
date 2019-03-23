@@ -1139,7 +1139,8 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
 }
 
 bool OGRLayerProxy::GetExtent(double& minx, double& miny,
-                              double& maxx, double& maxy)
+                              double& maxx, double& maxy,
+                              OGRSpatialReference* dest_sr)
 {
 	OGREnvelope pEnvelope;
     if (layer->GetExtent(&pEnvelope) != OGRERR_NONE) return false;
@@ -1147,6 +1148,21 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
 	miny = pEnvelope.MinY;
 	maxx = pEnvelope.MaxX;
 	maxy = pEnvelope.MaxY;
+    
+    OGRCoordinateTransformation *poCT = NULL;
+    if (dest_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
+    }
+    if (poCT) {
+        OGRPoint pt1(minx, miny);
+        pt1.transform(poCT);
+        minx = pt1.getX();
+        miny = pt1.getY();
+        OGRPoint pt2(maxx, maxy);
+        pt2.transform(poCT);
+        maxx = pt2.getX();
+        maxy = pt2.getY();
+    }
     
     if ( minx == miny && maxx == maxy && minx == 0 && maxx==0) {
         return false;

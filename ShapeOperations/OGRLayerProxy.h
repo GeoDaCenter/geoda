@@ -97,7 +97,8 @@ public:
     
     bool HasError();
     
-    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy);
+    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy,
+                   OGRSpatialReference* dest_sr=NULL);
     
     OGRwkbGeometryType GetShapeType();
     

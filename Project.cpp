@@ -439,8 +439,6 @@ OGRSpatialReference* Project::GetSpatialReference()
 		// it's a OGRTable
 		OGRLayerProxy* exist_layer = ogr_table->GetOGRLayer();
 		spatial_ref = exist_layer->GetSpatialReference();
-		if (spatial_ref)
-            spatial_ref->Clone();
 	} else {
 		// DbfTable
 		wxString ds_name = datasource->GetOGRConnectStr();
@@ -453,7 +451,6 @@ OGRSpatialReference* Project::GetSpatialReference()
                                                             true);
 		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername);
 		spatial_ref = ogr_layer->GetSpatialReference();
-		if (spatial_ref) spatial_ref = spatial_ref->Clone();
 		delete ogr_ds;
 	}
 	return spatial_ref;

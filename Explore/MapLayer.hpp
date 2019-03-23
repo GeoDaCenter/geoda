@@ -81,7 +81,10 @@ class BackgroundMapLayer : public AssociateLayerInt
     int opacity;
     int pen_size;
     bool show_boundary;
-    
+    double minx;
+    double miny;
+    double maxx;
+    double maxy;
     
 public:
     OGRLayerProxy* layer_proxy;
