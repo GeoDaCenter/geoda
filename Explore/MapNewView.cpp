@@ -1243,8 +1243,12 @@ void MapCanvas::DrawSelectableShapes_dc(wxMemoryDC &_dc, bool hl_only,
     wxGCDC dc(_dc);
     helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
 #else
-	wxGCDC dc(_dc);
-    helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
+    if (GdaConst::gda_enable_set_transparency_windows) {
+        wxGCDC dc(_dc);
+        helper_DrawSelectableShapes_dc(dc, hs, hl_only, revert, use_crosshatch);
+    } else {
+        helper_DrawSelectableShapes_dc(_dc, hs, hl_only, revert, use_crosshatch);
+    }
 #endif
 }
 

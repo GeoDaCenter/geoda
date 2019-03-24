@@ -113,7 +113,7 @@ void PreferenceDlg::Init()
 	vis_page->SetBackgroundColour(*wxWHITE);
 #endif
 	notebook->AddPage(vis_page, _("System"));
-	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(21, 2, 8, 10);
+	wxFlexGridSizer* grid_sizer1 = new wxFlexGridSizer(22, 2, 8, 10);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Maps:")), 1);
 	grid_sizer1->AddSpacer(10);
@@ -154,6 +154,13 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(box2, 0, wxALIGN_RIGHT);
 	slider2->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider2, this);
 
+    wxString lbl26 = _("Enable transparency setup of category color in map (Windows only):");
+    wxStaticText* lbl_txt26 = new wxStaticText(vis_page, wxID_ANY, lbl26);
+    cbox26 = new wxCheckBox(vis_page, XRCID("PREF_USE_CROSSHATCH"), "", pos);
+    grid_sizer1->Add(lbl_txt26, 1, wxEXPAND);
+    grid_sizer1->Add(cbox26, 0, wxALIGN_RIGHT);
+    cbox26->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnEnableTransparencyWin, this);
+    
 	wxString lbl3 = _("Add basemap automatically:");
 	wxStaticText* lbl_txt3 = new wxStaticText(vis_page, wxID_ANY, lbl3);
 	//wxStaticText* lbl_txt33 = new wxStaticText(vis_page, wxID_ANY, lbl3);
@@ -450,6 +457,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gda_user_seed = 123456789;
     GdaConst::default_display_decimals = 6;
     GdaConst::gda_datetime_formats_str = "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";
+    GdaConst::gda_enable_set_transparency_windows = false;
     if (!GdaConst::gda_datetime_formats_str.empty()) {
         wxString patterns = GdaConst::gda_datetime_formats_str;
         wxStringTokenizer tokenizer(patterns, ",");
@@ -488,6 +496,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("gda_ui_language", "0");
     ogr_adapt.AddEntry("gda_use_gpu", "0");
     ogr_adapt.AddEntry("gda_displayed_decimals", "6");
+    ogr_adapt.AddEntry("gda_enable_set_transparency_windows", "0");
 }
 
 void PreferenceDlg::SetupControls()
@@ -539,6 +548,7 @@ void PreferenceDlg::SetupControls()
     cmb113->SetSelection(GdaConst::gda_ui_language);
     
     cbox_gpu->SetValue(GdaConst::gda_use_gpu);
+    cbox26->SetValue(GdaConst::gda_enable_set_transparency_windows);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -599,6 +609,17 @@ void PreferenceDlg::ReadFromCache()
 				GdaConst::use_cross_hatching = false;
 		}
 	}
+    vector<wxString> enable_transp_sel = ogr_adapt.GetHistory("gda_enable_set_transparency_windows");
+    if (!enable_transp_sel.empty()) {
+        long enable_l = 0;
+        wxString enable_transp = enable_transp_sel[0];
+        if (enable_transp.ToLong(&enable_l)) {
+            if (enable_l == 1)
+                GdaConst::gda_enable_set_transparency_windows = true;
+            else if (enable_l == 0)
+                GdaConst::gda_enable_set_transparency_windows = false;
+        }
+    }
 	vector<wxString> postgres_sys_sel = ogr_adapt.GetHistory("hide_sys_table_postgres");
 	if (!postgres_sys_sel.empty()) {
 		long sel_l = 0;
@@ -967,6 +988,19 @@ void PreferenceDlg::OnCrossHatch(wxCommandEvent& ev)
 	if (highlight_state) {
 		highlight_state->notifyObservers();
 	}
+}
+
+void PreferenceDlg::OnEnableTransparencyWin(wxCommandEvent& ev)
+{
+    int setup_transp_sel = ev.GetSelection();
+    if (setup_transp_sel == 0) {
+        GdaConst::gda_enable_set_transparency_windows = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_enable_set_transparency_windows", "0");
+    }
+    else if (setup_transp_sel == 1) {
+        GdaConst::gda_enable_set_transparency_windows = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_enable_set_transparency_windows", "1");
+    }
 }
 
 void PreferenceDlg::OnHideTablePostGIS(wxCommandEvent& ev)

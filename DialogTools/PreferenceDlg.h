@@ -111,6 +111,8 @@ protected:
     wxComboBox* cmb113;
     // gpu
     wxCheckBox* cbox_gpu;
+    // transp
+    wxCheckBox* cbox26;
     
     void Init();
     void SetupControls();    
@@ -142,6 +144,8 @@ protected:
    
     void OnPowerEpsEnter(wxCommandEvent& ev);
     void OnUseGPU(wxCommandEvent& ev);
+    
+    void OnEnableTransparencyWin(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

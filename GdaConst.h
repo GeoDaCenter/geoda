@@ -270,6 +270,7 @@ public:
     static wxString gda_datetime_formats_str;
     static wxString gda_display_datetime_format;
     static int gda_ogr_csv_header;
+    static bool gda_enable_set_transparency_windows;
     
 	static const wxSize map_default_size;
 	static const int map_default_legend_width;
