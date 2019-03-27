@@ -43,6 +43,7 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
     field_names = layer_proxy->GetIntegerFieldNames();
+    num_field_names = layer_proxy->GetNumericFieldNames();
     key_names = layer_proxy->GetIntegerAndStringFieldNames();
     layer_proxy->GetExtent(minx, miny, maxx, maxy, sr);
     for (int i=0; i<shapes.size(); i++) {
@@ -236,6 +237,7 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->SetShapeType(shape_type);
     copy->SetKeyNames(key_names);
     copy->SetFieldNames(field_names);
+    copy->SetNumericFieldNames(num_field_names);
     copy->associated_layers = associated_layers;
     copy->associated_lines = associated_lines;
     copy->minx = minx;
@@ -325,6 +327,16 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
 vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 {
     return field_names;
+}
+
+vector<wxString> BackgroundMapLayer::GetNumericFieldNames()
+{
+    return num_field_names;
+}
+
+void BackgroundMapLayer::SetNumericFieldNames(vector<wxString>& names)
+{
+    num_field_names = names;
 }
 
 vector<wxString> BackgroundMapLayer::GetKeyNames()

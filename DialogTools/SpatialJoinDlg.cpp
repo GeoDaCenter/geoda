@@ -26,14 +26,14 @@ SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* _ml, Project* _project)
     ml = _ml;
     project = _project;
     spatial_counts.resize(project->GetNumRecords());
-    
+
     // always use points to create a rtree, since in normal case
     // the number of points are larger than the number of polygons
 }
 
 SpatialJoinWorker::~SpatialJoinWorker()
 {
-    
+
 }
 
 vector<wxInt64> SpatialJoinWorker::GetResults()
@@ -48,7 +48,7 @@ void SpatialJoinWorker::Run()
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
-    
+
     boost::thread_group threadPool;
     for (int i=0; i<tot_threads; i++) {
         int a=0;
@@ -63,15 +63,18 @@ void SpatialJoinWorker::Run()
         boost::thread* worker = new boost::thread(boost::bind(&SpatialJoinWorker::sub_run,this,a,b));
         threadPool.add_thread(worker);
     }
-    
+
     threadPool.join_all();
 }
 
-CountPointsInPolygon::CountPointsInPolygon(BackgroundMapLayer* _ml, Project* _project)
+CountPointsInPolygon::CountPointsInPolygon(BackgroundMapLayer* _ml,
+                                           Project* _project,
+                                           std::vector<double> values,
+                                           Operation op)
 : SpatialJoinWorker(_ml, _project)
 {
     num_polygons = project->GetNumRecords();
-    
+
     // using selected layer (points) to create rtree
     int n = ml->shapes.size();
     double x, y;
@@ -107,7 +110,9 @@ void CountPointsInPolygon::sub_run(int start, int end)
         }
     }
 }
-AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml, Project* _project, vector<wxInt64>& _poly_ids)
+
+AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
+                                Project* _project, vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
     poly_ids = _poly_ids;
@@ -134,7 +139,7 @@ void AssignPolygonToPoint::sub_run(int start, int end)
         // create a box, tl, br
         OGREnvelope box;
         ogr_poly->getEnvelope(&box);
-        
+
         box_2d b(pt_2d(box.MinX, box.MinY), pt_2d(box.MaxX, box.MaxY));
         // query points in this box
         std::vector<pt_2d_val> q;
@@ -152,59 +157,215 @@ void AssignPolygonToPoint::sub_run(int start, int end)
     }
 }
 
+CountLinesInPolygon::CountLinesInPolygon(BackgroundMapLayer* _ml, Project* _project)
+: SpatialJoinWorker(_ml, _project)
+{
+    num_polygons = project->GetNumRecords();
+
+    // using selected layer (lines) to create rtree
+    int n = ml->shapes.size();
+    double x, y;
+    for (int i=0; i<n; i++) {
+        OGRGeometry* geom = ml->geoms[i];
+        OGREnvelope bbox;
+        geom->getEnvelope(&bbox);
+        pt_2d ll(bbox.MinX, bbox.MinY);
+        pt_2d ur(bbox.MaxX, bbox.MaxY);
+        box_2d b(ll, ur);
+        rtree.insert(std::make_pair(b, i));
+    }
+}
+
+void CountLinesInPolygon::sub_run(int start, int end)
+{
+    Shapefile::Main& main_data = project->main_data;
+    OGRLayerProxy* ogr_layer = project->layer_proxy;
+    Shapefile::PolygonContents* pc;
+    for (int i=start; i<=end; i++) {
+        pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
+        // create a box, tl, br
+        box_2d b(pt_2d(pc->box[0], pc->box[1]),
+                 pt_2d(pc->box[2], pc->box[3]));
+        // query boxes in this box
+        std::vector<box_2d_val> q;
+        rtree.query(bgi::within(b), std::back_inserter(q));
+        OGRGeometry* ogr_poly = ogr_layer->GetGeometry(i);
+        for (int j=0; j<q.size(); j++) {
+            const box_2d_val& v = q[j];
+            int row_idx = v.second;
+            OGRGeometry* geom = ml->geoms[row_idx];
+            if (geom->Intersects(ogr_poly)) {
+                spatial_counts[i] += 1;
+            }
+        }
+    }
+}
+
+AssignPolygonToLine::AssignPolygonToLine(BackgroundMapLayer* _ml,
+                                         Project* _project,
+                                         vector<wxInt64>& _poly_ids)
+: SpatialJoinWorker(_ml, _project)
+{
+    poly_ids = _poly_ids;
+    num_polygons = ml->GetNumRecords();
+    // using current map(lines) to create rtree
+    Shapefile::Main& main_data = project->main_data;
+    Shapefile::PolyLineContents* pc;
+    int n = project->GetNumRecords();
+    std::vector<wxFloat64> box;
+    for (int i=0; i<n; i++) {
+        pc = (Shapefile::PolyLineContents*)main_data.records[i].contents_p;
+        box = pc->box;
+        pt_2d ll(box[0], box[1]);
+        pt_2d ur(box[2], box[3]);
+        box_2d b(ll, ur);
+        rtree.insert(std::make_pair(b, i));
+        spatial_counts[i] = -1;
+    }
+}
+
+void AssignPolygonToLine::sub_run(int start, int end)
+{
+    // for every polygon in sub-layer
+    for (int i=start; i<=end; i++) {
+        OGRGeometry* ogr_poly = ml->geoms[i];
+        // create a box, tl, br
+        OGREnvelope box;
+        ogr_poly->getEnvelope(&box);
+        box_2d b(pt_2d(box.MinX, box.MinY), pt_2d(box.MaxX, box.MaxY));
+        // query lines in this box
+        std::vector<box_2d_val> q;
+        rtree.query(bgi::intersects(b), std::back_inserter(q));
+        for (int j=0; j<q.size(); j++) {
+            const box_2d_val& v = q[j];
+            int row_idx = v.second;
+            OGRGeometry* geom = project->layer_proxy->GetGeometry(row_idx);
+            if (geom->Intersects(ogr_poly)) {
+                spatial_counts[row_idx] = poly_ids[i];
+            }
+        }
+    }
+}
+
+CountPolygonInPolygon::CountPolygonInPolygon(BackgroundMapLayer* _ml,
+                                         Project* _project)
+: SpatialJoinWorker(_ml, _project)
+{
+    num_polygons = project->GetNumRecords();
+
+    // using selected layer (polygons) to create rtree
+    int n = ml->shapes.size();
+    double x, y;
+    for (int i=0; i<n; i++) {
+        OGRGeometry* geom = ml->geoms[i];
+        OGREnvelope bbox;
+        geom->getEnvelope(&bbox);
+        pt_2d ll(bbox.MinX, bbox.MinY);
+        pt_2d ur(bbox.MaxX, bbox.MaxY);
+        box_2d b(ll, ur);
+        rtree.insert(std::make_pair(b, i));
+    }
+}
+
+void CountPolygonInPolygon::sub_run(int start, int end)
+{
+    Shapefile::Main& main_data = project->main_data;
+    OGRLayerProxy* ogr_layer = project->layer_proxy;
+    Shapefile::PolygonContents* pc;
+    for (int i=start; i<=end; i++) {
+        pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
+        // create a box, tl, br
+        box_2d b(pt_2d(pc->box[0], pc->box[1]),
+                 pt_2d(pc->box[2], pc->box[3]));
+        // query boxes in this box
+        std::vector<box_2d_val> q;
+        rtree.query(bgi::within(b), std::back_inserter(q));
+        OGRGeometry* ogr_poly = ogr_layer->GetGeometry(i);
+        for (int j=0; j<q.size(); j++) {
+            const box_2d_val& v = q[j];
+            int row_idx = v.second;
+            OGRGeometry* geom = ml->geoms[row_idx];
+            if (geom->Intersects(ogr_poly)) {
+                spatial_counts[i] += 1;
+            }
+        }
+    }
+}
 
 SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
 : wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxSize(350, 250))
 {
     project = _project;
     panel = new wxPanel(this, -1);
-    
-    wxString info = _("Please select a map layer to apply spatial join to current map (%s):");
+
+    wxString info = _("Please select a map layer to apply "
+                      "spatial join to current map (%s):");
     info = wxString::Format(info, project->GetProjectTitle());
     wxStaticText* st = new wxStaticText(panel, wxID_ANY, info);
-    
+
     map_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
-    field_st = new wxStaticText(panel, wxID_ANY, "Select ID Variable (Optional)");
+    field_st = new wxStaticText(panel, wxID_ANY, _("Select ID Variable (Optional)"));
     field_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(100,-1));
     wxBoxSizer* mbox = new wxBoxSizer(wxHORIZONTAL);
     mbox->Add(map_list, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(field_st, 0, wxALIGN_CENTER | wxALL, 5);
     mbox->Add(field_list, 0, wxALIGN_CENTER | wxALL, 5);
-    
+
+    join_var_st = new wxStaticText(panel, wxID_ANY, _("Join Variable:"));
+    join_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    wxBoxSizer* join_box = new wxBoxSizer(wxHORIZONTAL);
+    join_box->Add(join_var_st, 0, wxALIGN_LEFT | wxALL, 0);
+    join_box->Add(join_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
+
+    join_op_st = new wxStaticText(panel, wxID_ANY, _("Join Operation:"));
+    join_op_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
+    wxBoxSizer* join_op_box = new wxBoxSizer(wxHORIZONTAL);
+    join_op_box->Add(join_op_st, 0, wxALIGN_LEFT | wxTOP, 5);
+    join_op_box->Add(join_op_list, 0, wxALIGN_LEFT | wxTOP, 5);
+
     cbox = new wxBoxSizer(wxVERTICAL);
     cbox->Add(st, 0, wxALIGN_CENTER | wxALL, 15);
     cbox->Add(mbox, 0, wxALIGN_CENTER | wxALL, 10);
+    cbox->AddSpacer(10);
+    cbox->Add(join_box, 0, wxALIGN_LEFT | wxLEFT, 10);
+    cbox->Add(join_op_box, 0, wxALIGN_LEFT | wxLEFT, 10);
     panel->SetSizerAndFit(cbox);
-    
-    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,  wxDefaultSize, wxBU_EXACTFIT);
-    wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"), wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-    
+
+    wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
+                                    wxDefaultSize, wxBU_EXACTFIT);
+    wxButton* cancel_btn = new wxButton(this, wxID_CANCEL, _("Close"),
+                                        wxDefaultPosition, wxDefaultSize,
+                                        wxBU_EXACTFIT);
+
     wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
     hbox->Add(ok_btn, 0, wxALIGN_CENTER | wxALL, 5);
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
-    
+
     vbox = new wxBoxSizer(wxVERTICAL);
     vbox->Add(panel, 1, wxALL, 15);
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    
+
     SetSizer(vbox);
     vbox->Fit(this);
-    
+
     Center();
-    
+
     map_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnLayerSelect, this);
     ok_btn->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnOK, this);
-    
+
     InitMapList();
     field_st->Disable();
     field_list->Disable();
+
+    wxCommandEvent e;
+    OnLayerSelect(e);
 }
 
 void SpatialJoinDlg::InitMapList()
 {
     map_list->Clear();
     map<wxString, BackgroundMapLayer*>::iterator it;
-    
+
     for (it=project->bg_maps.begin(); it!=project->bg_maps.end(); it++) {
         wxString name = it->first;
         map_list->Append(name);
@@ -225,7 +386,7 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
     BackgroundMapLayer* ml = project->GetMapLayer(name);
     if (ml) {
         if (Shapefile::POLYGON == ml->GetShapeType() &&
-            project->IsPointTypeData()) {
+            project->GetShapeType() != Shapefile::POLYGON ) {
             // assign polygon to point
             field_list->Clear();
             vector<wxString> field_names = ml->GetIntegerFieldNames();
@@ -233,13 +394,36 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             for (int i=0; i<field_names.size(); i++) {
                 field_list->Append(field_names[i]);
             }
-            field_list->Enable();
-            field_st->Enable();
-            
+            field_list->Show();
+            field_st->Show();
+
+            join_var_list->Hide();
+            join_var_st->Hide();
+            join_op_list->Hide();
+            join_op_st->Hide();
         } else {
             field_list->Clear();
-            field_list->Disable();
-            field_st->Disable();
+            field_list->Hide();
+            field_st->Hide();
+
+            join_var_list->Show();
+            join_var_st->Show();
+            join_op_list->Show();
+            join_op_st->Show();
+            // spatial join
+            join_var_list->Clear();
+            vector<wxString> field_names = ml->GetNumericFieldNames();
+            join_var_list->Append("(Spatial Counting)");
+            for (int i=0; i<field_names.size(); i++) {
+                join_var_list->Append(field_names[i]);
+            }
+            join_var_list->SetSelection(0);
+            join_op_list->Clear();
+            join_op_list->Append("");
+            join_op_list->Append("Average");
+            join_op_list->Append("Mean");
+            join_op_list->Append("Median");
+            join_op_list->Append("Sum");
         }
     }
 }
@@ -263,43 +447,71 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
     wxString layer_name = map_list->GetString(layer_idx);
     BackgroundMapLayer* ml = NULL;
     ml = project->GetMapLayer(layer_name);
-    
+
     if (ml) {
         int n = ml->GetNumRecords();
         if (project->IsPointTypeData() &&
             ml->GetShapeType() == Shapefile::POINT_TYP) {
-            wxMessageDialog dlg (this, _("Spatial Join can not be applied on two points layers. Please select another layer."), _("Warning"), wxOK | wxICON_INFORMATION);
+            wxMessageDialog dlg (this, _("Spatial Join can not be applied on "
+                                         "two points layers. Please select "
+                                         "another layer."),
+                                 _("Warning"), wxOK | wxICON_INFORMATION);
             dlg.ShowModal();
             return;
         }
         wxString label = "Spatial Count";
         wxString field_name = "SC";
-        
+
         SpatialJoinWorker* sj;
-        if (project->IsPointTypeData()) {
+        if (project->GetShapeType() == Shapefile::POINT_TYP ||
+            project->GetShapeType() == Shapefile::POLY_LINE) {
+            // working layer is Points/Lines
             vector<wxInt64> poly_ids;
             for (int i=0; i<n; i++) {
                 poly_ids.push_back(i);
             }
-            
+
             int field_idx = field_list->GetSelection();
             if (field_idx > 0) {
                 wxString field_name = field_list->GetString(field_idx);
                 bool success = ml->GetIntegerColumnData(field_name, poly_ids);
                 if ( !success || poly_ids.size() != n) {
-                    wxMessageDialog dlg (this, _("Select field is not integer type. Default record order will be used instead."), _("Warning"), wxOK | wxICON_INFORMATION);
+                    wxMessageDialog dlg (this, _("Select field is not integer "
+                                                 "type. Default record order "
+                                                 "will be used instead."),
+                                         _("Warning"), wxOK | wxICON_INFORMATION);
                     dlg.ShowModal();
                     poly_ids.clear();
                 }
             }
-            sj = new AssignPolygonToPoint(ml, project, poly_ids);
+            if (project->GetShapeType() == Shapefile::POINT_TYP) {
+                sj = new AssignPolygonToPoint(ml, project, poly_ids);
+            } else if (project->GetShapeType() == Shapefile::POLY_LINE) {
+                sj = new AssignPolygonToLine(ml, project, poly_ids);
+            }
             label = "Spatial Assign";
             field_name = "SA";
+
         } else {
-            sj = new CountPointsInPolygon(ml, project);
+            // working layer is Polygon: spatial counting
+
+            if (ml->GetShapeType() == Shapefile::POINT_TYP) {
+                sj = new CountPointsInPolygon(ml, project);
+            } else if (ml->GetShapeType() == Shapefile::POLY_LINE) {
+                sj = new CountLinesInPolygon(ml, project);
+            } else if (ml->GetShapeType() == Shapefile::POLYGON) {
+                sj = new CountPolygonInPolygon(ml, project);
+            } else {
+                wxMessageDialog dlg (this, _("Spatial Join can not be applied on "
+                                             "unknonwn layers. Please select "
+                                             "another layer."),
+                                     _("Warning"), wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
+                return;
+            }
         }
         sj->Run();
-        
+
         wxString dlg_title = _("Save Results to Table: ") + label;
         vector<wxInt64> spatial_counts = sj->GetResults();
         // save results
@@ -314,9 +526,8 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         SaveToTableDlg dlg(project, this, new_data, dlg_title,
                            wxDefaultPosition, wxSize(400,400));
         dlg.ShowModal();
-        
+
         delete sj;
         EndDialog(wxID_OK);
     }
 }
-

@@ -537,6 +537,18 @@ vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
     return names;
 }
 
+vector<wxString> OGRLayerProxy::GetNumericFieldNames()
+{
+    vector<wxString> names;
+    for (int i=0; i<fields.size(); i++) {
+        if (GdaConst::long64_type == fields[i]->GetType() ||
+            GdaConst::double_type == fields[i]->GetType()) {
+            names.push_back(GetFieldName(i));
+        }
+    }
+    return names;
+}
+
 vector<wxString> OGRLayerProxy::GetIntegerAndStringFieldNames()
 {
     vector<wxString> names;

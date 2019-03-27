@@ -20,13 +20,13 @@ class MapLayerStateObserver;
 class SpatialJoinWorker
 {
 protected:
-    rtree_pt_2d_t rtree;
     vector<wxInt64> spatial_counts;
     Project* project;
     BackgroundMapLayer* ml;
     int num_polygons;
     
 public:
+    enum Operation {AVERAGE, MEAN, MEDIAN, SUM};
     SpatialJoinWorker(BackgroundMapLayer* ml, Project* project);
     virtual ~SpatialJoinWorker();
     
@@ -41,24 +41,64 @@ public:
 class CountPointsInPolygon : public SpatialJoinWorker
 {
 public:
-    CountPointsInPolygon(BackgroundMapLayer* ml, Project* project);
+    CountPointsInPolygon(BackgroundMapLayer* ml, Project* project,
+                         std::vector<double> values,
+                         Operation op);
+    virtual void sub_run(int start, int end);
+protected:
+    rtree_pt_2d_t rtree;
+};
+
+class CountLinesInPolygon : public SpatialJoinWorker
+{
+public:
+    CountLinesInPolygon(BackgroundMapLayer* ml, Project* project);
+    virtual void sub_run(int start, int end);
+protected:
+    rtree_box_2d_t rtree;
+};
+
+class CountPolygonInPolygon : public SpatialJoinWorker
+{
+protected:
+    rtree_box_2d_t rtree;
+public:
+    CountPolygonInPolygon(BackgroundMapLayer* ml, Project* project);
     virtual void sub_run(int start, int end);
 };
 
 class AssignPolygonToPoint : public SpatialJoinWorker
 {
+protected:
     vector<wxInt64> poly_ids;
+    rtree_pt_2d_t rtree;
 public:
     AssignPolygonToPoint(BackgroundMapLayer* ml, Project* project, vector<wxInt64>& poly_ids);
     virtual void sub_run(int start, int end);
 };
 
+class AssignPolygonToLine : public SpatialJoinWorker
+{
+protected:
+    vector<wxInt64> poly_ids;
+    rtree_box_2d_t rtree;
+public:
+    AssignPolygonToLine(BackgroundMapLayer* ml, Project* project, vector<wxInt64>& poly_ids);
+    virtual void sub_run(int start, int end);
+};
+
+
+
 class SpatialJoinDlg : public wxDialog
 {
     Project* project;
     wxChoice* map_list;
+    wxChoice* join_var_list;
+    wxChoice* join_op_list;
     wxChoice* field_list;
     wxStaticText* field_st;
+    wxStaticText* join_var_st;
+    wxStaticText* join_op_st;
     wxBoxSizer* vbox;
     wxBoxSizer* cbox;
     wxPanel* panel;

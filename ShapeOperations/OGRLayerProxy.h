@@ -268,6 +268,8 @@ public:
     OGRGeometry* GetGeometry(int idx);
     
     vector<wxString> GetIntegerFieldNames();
+
+    vector<wxString> GetNumericFieldNames();
     
     vector<wxString> GetIntegerAndStringFieldNames();
     
