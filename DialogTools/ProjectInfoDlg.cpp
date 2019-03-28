@@ -118,6 +118,17 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
         double minx = 0, miny = 0,  maxx = 0,  maxy = 0;
         project->GetMapExtent(minx, miny, maxx, maxy);
         val.push_back(wxString::Format("Lower left: %f, %f Upper right: %f, %f", minx, miny, maxx, maxy));
+
+        key.push_back("Projection EPSG code");
+        OGRSpatialReference* sr = project->GetSpatialReference();
+        wxString str_EPSG = "Unknown";
+        if (sr) {
+            int epsg_code = sr->GetEPSGGeogCS();
+            if (epsg_code > -1) {
+                str_EPSG = wxString::Format("%d", epsg_code);
+            }
+        }
+        val.push_back(str_EPSG);
     }
 		
 	const int left_offset = 0;
