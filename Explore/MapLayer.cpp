@@ -272,6 +272,27 @@ int BackgroundMapLayer::GetNumRecords()
     return shapes.size();
 }
 
+bool BackgroundMapLayer::GetDoubleColumnData(wxString field_name,
+                                             vector<double>& data)
+{
+    if (field_name.empty()) return false;
+    
+    if (data.empty()) {
+        data.resize(shapes.size());
+    }
+    // this function is for finding numeric data from multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::double_type ||
+        type == GdaConst::long64_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] = layer_proxy->data[i]->GetFieldAsDouble(col_idx);
+        }
+        return true;
+    }
+    return false;
+}
+
 bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt64>& data)
 {
     if (data.empty()) {

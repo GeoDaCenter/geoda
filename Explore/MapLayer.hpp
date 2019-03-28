@@ -152,6 +152,7 @@ public:
 
     void SetNumericFieldNames(vector<wxString>& names);
     vector<wxString> GetNumericFieldNames();
+    bool GetDoubleColumnData(wxString field_name, vector<double>& data);
 
     void SetFieldNames(vector<wxString>& names);
     vector<wxString> GetIntegerFieldNames();

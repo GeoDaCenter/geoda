@@ -373,6 +373,7 @@ namespace GenUtils {
     
 	double Sum(vector<double>& data);
 	double SumOfSquares(vector<double>& data);
+    double Median(std::vector<double>& data);
     
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);

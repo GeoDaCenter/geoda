@@ -8,6 +8,7 @@
 #ifndef SpatialJoinDlg_hpp
 #define SpatialJoinDlg_hpp
 
+#include <boost/thread/mutex.hpp>
 #include <wx/dialog.h>
 #include <wx/choice.h>
 #include "../SpatialIndTypes.h"
@@ -19,31 +20,41 @@ class MapLayerStateObserver;
 
 class SpatialJoinWorker
 {
-protected:
-    vector<wxInt64> spatial_counts;
-    Project* project;
-    BackgroundMapLayer* ml;
-    int num_polygons;
-    
 public:
-    enum Operation {AVERAGE, MEAN, MEDIAN, SUM};
+    enum Operation {NONE, MEAN, MEDIAN, STD, SUM};
     SpatialJoinWorker(BackgroundMapLayer* ml, Project* project);
     virtual ~SpatialJoinWorker();
     
     void Run();
     void points_in_polygons(int start, int end);
     void polygon_at_point(int start, int end);
+    bool JoinVariable();
     vector<wxInt64> GetResults();
-    
+    vector<double> GetJoinResults();
     virtual void sub_run(int start, int end) = 0;
+
+protected:
+    Project* project;
+    BackgroundMapLayer* ml;
+    int num_polygons;
+    boost::mutex mutex;
+
+    // results
+    vector<wxInt64> spatial_counts;
+    vector<double> spatial_joins;
+
+    // for join variable
+    bool join_variable;
+    std::vector<double> join_values;
+    Operation join_operation;
+    std::vector<std::vector<wxInt64> > join_ids;
 };
 
 class CountPointsInPolygon : public SpatialJoinWorker
 {
 public:
     CountPointsInPolygon(BackgroundMapLayer* ml, Project* project,
-                         std::vector<double> values,
-                         Operation op);
+                         wxString join_variable_nm, Operation op);
     virtual void sub_run(int start, int end);
 protected:
     rtree_pt_2d_t rtree;
@@ -52,7 +63,8 @@ protected:
 class CountLinesInPolygon : public SpatialJoinWorker
 {
 public:
-    CountLinesInPolygon(BackgroundMapLayer* ml, Project* project);
+    CountLinesInPolygon(BackgroundMapLayer* ml, Project* project,
+                        wxString join_variable_nm, Operation op);
     virtual void sub_run(int start, int end);
 protected:
     rtree_box_2d_t rtree;
@@ -63,7 +75,8 @@ class CountPolygonInPolygon : public SpatialJoinWorker
 protected:
     rtree_box_2d_t rtree;
 public:
-    CountPolygonInPolygon(BackgroundMapLayer* ml, Project* project);
+    CountPolygonInPolygon(BackgroundMapLayer* ml, Project* project,
+                          wxString join_variable_nm, Operation op);
     virtual void sub_run(int start, int end);
 };
 
@@ -110,7 +123,7 @@ public:
     
     void OnOK(wxCommandEvent& e);
     void OnLayerSelect(wxCommandEvent& e);
-    
+    void OnJoinVariableSel(wxCommandEvent& e);
     void InitMapList();
 };
 

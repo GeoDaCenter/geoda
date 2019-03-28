@@ -1311,6 +1311,18 @@ wxString GenUtils::PtToStr(const wxRealPoint& p)
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
+double GenUtils::Median(std::vector<double>& data)
+{
+    if (data.empty()) return 0;
+    
+    std::sort(data.begin(), data.end());
+
+    int n = data.size();
+    if (n % 2 == 1) return data[n/2];
+
+    return 0.5 * (data[n/2 -1] + data[n/2]);
+}
+
 void GenUtils::DeviationFromMean(int nObs, double* data)
 {
 	if (nObs == 0) return;
