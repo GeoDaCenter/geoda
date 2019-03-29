@@ -83,6 +83,7 @@ public:
     void Init(wxWindow* parent, const wxPoint& pos);
     void CreateControls();
     void BrowseExportDataSource( wxCommandEvent& event );
+    void OnOpenCRS(wxCommandEvent& event );
     virtual void OnOkClick( wxCommandEvent& event );
 
 	bool IsTableOnly();
@@ -92,7 +93,7 @@ public:
 protected:
 	AutoTextCtrl* m_database_table;
 	wxCheckBox* m_chk_create_project;
-    
+    wxTextCtrl* m_crs_input;
 	Project* project_p;
     TableInterface* table_p;
 	vector<GdaShape*> geometries;

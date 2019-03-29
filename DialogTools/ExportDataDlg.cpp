@@ -46,6 +46,7 @@
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
+#include "ConnectDatasourceDlg.h"
 #include "../rc/GeoDaIcon-16x16.xpm"
 #include "ExportDataDlg.h"
 
@@ -54,7 +55,7 @@ using namespace std;
 BEGIN_EVENT_TABLE( ExportDataDlg, wxDialog )
     EVT_BUTTON( XRCID("IDC_OPEN_IASC"), ExportDataDlg::OnBrowseDSfileBtn )
     EVT_BUTTON( wxID_OK, ExportDataDlg::OnOkClick )
-    //EVT_BUTTON( wxID_CANCEL, ExportDataDlg::OnCancelClick )
+    EVT_BUTTON( XRCID("IDC_OPEN_CRS"), ExportDataDlg::OnOpenCRS )
 END_EVENT_TABLE()
 
 ExportDataDlg::ExportDataDlg(wxWindow* parent,
@@ -87,7 +88,10 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), geometries(_geometries), shape_type(_shape_type), is_saveas_op(false), is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(false),spatial_ref(NULL)
+: is_selected_only(isSelectedOnly), project_p(_project),
+  geometries(_geometries), shape_type(_shape_type), is_saveas_op(false),
+  is_geometry_only(true), table_p(NULL), is_table_only(false),
+  is_save_centroids(false),spatial_ref(NULL)
 {
     if( project_p) {
         project_file_name = project_p->GetProjectTitle();
@@ -118,7 +122,9 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              bool isSelectedOnly,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false), shape_type(_shape_type),is_geometry_only(true), table_p(NULL), is_table_only(false), is_save_centroids(true), spatial_ref(NULL)
+: is_selected_only(isSelectedOnly), project_p(_project), is_saveas_op(false),
+  shape_type(_shape_type),is_geometry_only(true), table_p(NULL),
+  is_table_only(false), is_save_centroids(true), spatial_ref(NULL)
 {
     
     if( project_p) {
@@ -137,7 +143,10 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
                              TableInterface* _table,
                              const wxPoint& pos,
                              const wxSize& size)
-: is_selected_only(false), project_p(NULL), is_saveas_op(false), shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false), is_table_only(true), table_p(_table), is_save_centroids(false), spatial_ref(NULL)
+: is_selected_only(false), project_p(NULL), is_saveas_op(false),
+  shape_type(Shapefile::NULL_SHAPE), is_geometry_only(false),
+  is_table_only(true), table_p(_table), is_save_centroids(false),
+  spatial_ref(NULL)
 {
     Init(parent, pos);
 }
@@ -184,6 +193,22 @@ void ExportDataDlg::CreateControls()
         m_chk_create_project->SetValue(false);
         m_chk_create_project->Hide();
     }
+    m_crs_input = XRCCTRL(*this, "IDC_FIELD_CRS", wxTextCtrl);
+    if (project_p->IsTableOnlyProject()) {
+        // if table only ds, disable CRS controls
+        m_crs_input->Disable();
+        XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
+    } else {
+        OGRSpatialReference*  sr = project_p->GetSpatialReference();
+        if (sr) {
+            char* tmp = new char[1024];
+            if (sr->exportToProj4(&tmp) == OGRERR_NONE) {
+                wxString str_prj4 = tmp;
+                m_crs_input->SetValue(str_prj4);
+            }
+            delete[] tmp;
+        }
+    }
     // Create the rest controls from parent
     DatasourceDlg::CreateControls();
     
@@ -191,6 +216,48 @@ void ExportDataDlg::CreateControls()
     m_cartodb_tablename->Show();
 }
 
+void ExportDataDlg::OnOpenCRS( wxCommandEvent& event )
+{
+    ConnectDatasourceDlg connect_dlg(this, wxDefaultPosition, wxDefaultSize);
+    connect_dlg.SetTitle("Load CRS from Data Source");
+    if (connect_dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    wxString proj_title = connect_dlg.GetProjectTitle();
+    wxString layer_name = connect_dlg.GetLayerName();
+    IDataSource* datasource = connect_dlg.GetDataSource();
+    wxString datasource_name = datasource->GetOGRConnectStr();
+    GdaConst::DataSourceType ds_type = datasource->GetType();
+
+    OGRDatasourceProxy* proxy = NULL;
+    try {
+        proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+    } catch (GdaException& e) {
+        proxy = NULL;
+    }
+    if (proxy == NULL) {
+        wxMessageDialog dlg(this, _("GeoDa can not open the input data source. Please try another data source."),
+                            _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
+    if (p_layer == NULL || p_layer->CheckIsTableOnly()) {
+        wxMessageDialog dlg(this, _("GeoDa can not get valid spatial reference from input data source. Please try another data source."),
+                            _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    OGRSpatialReference* input_sr = p_layer->GetSpatialReference();
+    if (input_sr) {
+        char* tmp = new char[1024];
+        if (input_sr->exportToProj4(&tmp) == OGRERR_NONE) {
+            wxString str_prj4 = tmp;
+            m_crs_input->SetValue(str_prj4);
+        }
+        delete[] tmp;
+    }
+}
 
 void ExportDataDlg::BrowseExportDataSource ( wxCommandEvent& event )
 {
@@ -420,6 +487,8 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
+    wxMessageDialog dlg(this, "Saved Successfully.", _("Success"), wxOK);
+    dlg.ShowModal();
     EndDialog(wxID_OK);
 }
 
@@ -541,17 +610,28 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
                                               ogr_geometries, selected_rows);
 
-    // for GeoJSON, force transform to WGS84 automatically
-    if (spatial_ref && (ds_name.EndsWith(".json") || ds_name.EndsWith(".geojson"))) {
-        int epsg = spatial_ref->GetEPSGGeogCS();
-        if (epsg != 4326) {
-            OGRSpatialReference wgs84_ref;
-            wgs84_ref.importFromEPSG(4326);
+    // reproject if needed
+    OGRSpatialReference new_ref;
+    if (spatial_ref) {
+        wxString str_crs = m_crs_input->GetValue();
+        bool valid_input_crs = false;
+        if (!str_crs.IsEmpty()) {
+            if (new_ref.importFromProj4(str_crs.c_str()) == OGRERR_NONE) {
+                valid_input_crs = true;
+            }
+        }
+        if (ds_name.EndsWith(".json") || ds_name.EndsWith(".geojson")) {
+            // for GeoJSON, force transform to EPSG4326 automatically
+            new_ref.importFromEPSG(4326);
+            valid_input_crs = true;
+        }
+        if (valid_input_crs && !spatial_ref->IsSame(&new_ref)) {
             OGRCoordinateTransformation *poCT;
-            poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
+            poCT = OGRCreateCoordinateTransformation(spatial_ref, &new_ref);
             for (size_t i=0; i < ogr_geometries.size(); i++) {
                 ogr_geometries[i]->transform(poCT);
             }
+            spatial_ref = &new_ref; // use new CRS
         }
     }
     
@@ -567,17 +647,11 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
    
 
     OGRLayerProxy* new_layer;
-    new_layer = ogr_adapter.ExportDataSource(ds_format.ToStdString(),
-                                             ds_name,
-                                             layer_name.ToStdString(),
-                                             geom_type,
-                                             ogr_geometries,
-                                             table_p,
-                                             selected_rows,
-                                             spatial_ref,
-                                             is_update);
-    if (new_layer == NULL)
-        return false;
+    new_layer = ogr_adapter.ExportDataSource(ds_format, ds_name, layer_name,
+                                             geom_type, ogr_geometries,
+                                             table_p, selected_rows,
+                                             spatial_ref, is_update);
+    if (new_layer == NULL) return false;
     
     wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                               _("Saving data..."),
