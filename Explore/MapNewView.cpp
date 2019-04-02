@@ -3326,7 +3326,9 @@ void MapFrame::OnSelectableOutlineVisible(wxCommandEvent& event)
 void MapFrame::OnMapAddLayer(wxCommandEvent& e)
 {
     wxLogMessage("In MapFrame::OnMapAddLayer()");
-    ConnectDatasourceDlg connect_dlg(this, wxDefaultPosition, wxDefaultSize);
+    bool show_csv_config = true;
+    ConnectDatasourceDlg connect_dlg(this, wxDefaultPosition, wxDefaultSize,
+                                     show_csv_config);
     if (connect_dlg.ShowModal() != wxID_OK) {
         return;
     }

@@ -770,7 +770,8 @@ void ConnectDatasourceDlg::OnOkClick( wxCommandEvent& event )
             m_wx_encoding = GetEncoding();
         }
 
-        // For csv file, if no csvt file, pop-up a field definition dialog and create a csvt file
+        // For csv file, if no csvt file,
+        // pop-up a field definition dialog and create a csvt file
         if (ds_file_path.GetExt().Lower() == "csv" && showCsvConfigure) {
             wxString csv_path = ds_file_path.GetFullPath();
             CsvFieldConfDlg csvDlg(this, csv_path, m_wx_encoding);
