@@ -131,7 +131,7 @@ public:
 	HighlightState*     GetConMapHlightState() { return con_map_hl_state; }
 	CovSpHLStateProxy*  GetPairsHLState();
 	TableInterface*     GetTableInt() { return table_int; }
-	CatClassifManager*  GetCatClassifManager() { return cat_classif_manager; }
+    CatClassifManager*  GetCatClassifManager();
 	WeightsManInterface* GetWManInt() { return w_man_int; }
 	WeightsManState*	GetWManState() { return w_man_state; }
 	SaveButtonManager*	GetSaveButtonManager() { return save_manager; }

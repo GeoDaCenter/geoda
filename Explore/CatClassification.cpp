@@ -180,7 +180,7 @@ void CatClassification::CatLabelsFromBreaks(const std::vector<double>& breaks,
                 s << breaks[ival];
             s << b;
 		}
-		cat_labels[ival] = s.str();
+        if (cat_labels[ival].IsEmpty()) cat_labels[ival] = s.str();
 	}	
 }
 
@@ -195,12 +195,8 @@ void CatClassification::SetBreakPoints(std::vector<double>& breaks,
                                        int cat_disp_precision)
 {
 	int num_obs = var.size();
-    
-	if (num_cats < 1)
-        num_cats = 1;
-    
-	if (num_cats > 10)
-        num_cats = 10;
+	if (num_cats < 1) num_cats = 1;
+	if (num_cats > 10) num_cats = 10;
     
 	breaks.resize(num_cats-1);
 	cat_labels.resize(num_cats);
@@ -1523,22 +1519,23 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 												   TableInterface* table_int,
                                                    bool auto_label)
 {
-	if (!table_int)
-        return false;
+	if (!table_int) return false;
     
 	int num_obs = table_int->GetNumberRows();
 	CatClassifDef cc;
 	cc = _cc;
 
     std::vector<wxString> user_def_labels = cc.names;
-    
-	std::sort(cc.breaks.begin(), cc.breaks.end());
+
+    // correct cc.uniform_dist_min, cc.uniform_dist_max
 	if (cc.uniform_dist_min > cc.uniform_dist_max) {
 		double t = cc.uniform_dist_min;
 		cc.uniform_dist_min = cc.uniform_dist_max;
 		cc.uniform_dist_max = t;
 	}
 	if (cc.breaks.size() > 0) {
+        std::sort(cc.breaks.begin(), cc.breaks.end());
+        // use min/max breaks as min/max for uniform dist
 		if (cc.uniform_dist_min > cc.breaks[0]) {
 			cc.uniform_dist_min = cc.breaks[0];
 		}
@@ -1546,23 +1543,16 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 			cc.uniform_dist_max = cc.breaks[cc.breaks.size()-1];
 		}
 	}
-	// At this point, uniform_dist min/max and breaks consistent with each
-	// other
+
 	
 	int col = -1, tm = 0;
-	// first ensure that assoc_db_fld_name exists in table
-	bool field_removed = (cc.assoc_db_fld_name != "" && (!table_int->DbColNmToColAndTm(cc.assoc_db_fld_name, col, tm) || !table_int->IsColNumeric(col)));
-	
-	if (field_removed) {
-		// use min/max breaks as min/max for uniform dist
-		if (cc.breaks.size() > 0) {
-			cc.uniform_dist_min = cc.breaks[0];
-			cc.uniform_dist_max = cc.breaks[cc.breaks.size()-1];
-		}
-		cc.assoc_db_fld_name = "";
-	}
+	// ensure that assoc_db_fld_name exists in table
+    bool field_removed = cc.assoc_db_fld_name != "";
+    field_removed = field_removed && (!table_int->DbColNmToColAndTm(cc.assoc_db_fld_name, col, tm) || !table_int->IsColNumeric(col));
+	if (field_removed) cc.assoc_db_fld_name = "";
 	
 	bool uni_dist_mode = cc.assoc_db_fld_name.IsEmpty();
+
 	Gda::dbl_int_pair_vec_type data(num_obs);
     std::vector<bool> data_undef(num_obs, false);
     
@@ -1588,22 +1578,15 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 	}
 	
 	// ensure that CatClassifType and BreakValsType are consistent
-	if (cc.cat_classif_type != CatClassification::custom) {
-		cc.break_vals_type = CatClassification::by_cat_classif_type;
-	}
 	if (cc.cat_classif_type == CatClassification::custom &&
-		cc.break_vals_type == CatClassification::by_cat_classif_type) {
-		// this is an illegal combination, so default to quantile_break_vals 
-		cc.break_vals_type = CatClassification::quantile_break_vals;
-	}
+        cc.break_vals_type != CatClassification::custom_break_vals)
+    {
+        cc.break_vals_type = CatClassification::custom_break_vals;
+    }
 	
 	// ensure that num_cats is correct
-	if (cc.num_cats < 1)
-        cc.num_cats = 1;
-    
-	if (cc.num_cats > 10)
-        cc.num_cats = 10;
-    
+	if (cc.num_cats < 1) cc.num_cats = 1;
+	if (cc.num_cats > 10) cc.num_cats = 10;
 	if (cc.cat_classif_type == CatClassification::no_theme ||
 		cc.break_vals_type == CatClassification::no_theme_break_vals)
     {
@@ -1633,15 +1616,11 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
         }
 		std::vector<UniqueValElem> uv_mapping;
 		create_unique_val_mapping(uv_mapping, v, v_undef);
-        
 		int num_unique_vals = uv_mapping.size();
-        if (num_unique_vals > 10) {
-            num_unique_vals = 10;
-        }
+        if (num_unique_vals > 10) num_unique_vals = 10;
 		cc.num_cats = num_unique_vals;
 	}
-	// otherwise the user can choose the number of categories
-	
+
 	// ensure that size of breaks, colors and names matches num_cats
 	if (cc.breaks.size() != cc.num_cats-1) cc.breaks.resize(cc.num_cats-1);
 	if (cc.colors.size() != cc.num_cats) cc.colors.resize(cc.num_cats);
@@ -1656,51 +1635,39 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		cc.uniform_dist_min = col_min;
 		cc.uniform_dist_max = col_max;
 		for (int i=0, sz=cc.breaks.size(); i<sz; ++i) {
-			if (cc.breaks[i] < col_min)
-                cc.breaks[i] = col_min;
-			if (cc.breaks[i] > col_max)
-                cc.breaks[i] = col_max;
+			if (cc.breaks[i] < col_min) cc.breaks[i] = col_min;
+			if (cc.breaks[i] > col_max) cc.breaks[i] = col_max;
 		}
 	}
-	
-	if (cc.cat_classif_type == CatClassification::hinge_15 ||
-		cc.break_vals_type == CatClassification::hinge_15_break_vals ||
-		cc.cat_classif_type == CatClassification::hinge_30 ||
-		cc.break_vals_type == CatClassification::hinge_30_break_vals ||
-		cc.cat_classif_type == CatClassification::percentile ||
-		cc.break_vals_type == CatClassification::percentile_break_vals ||
-		cc.cat_classif_type == CatClassification::stddev ||
-		cc.break_vals_type == CatClassification::stddev_break_vals ||
-		cc.cat_classif_type == CatClassification::quantile ||
-		cc.break_vals_type == CatClassification::quantile_break_vals ||
-		cc.cat_classif_type == CatClassification::unique_values ||
-		cc.break_vals_type == CatClassification::unique_values_break_vals ||
-		cc.cat_classif_type == CatClassification::natural_breaks ||
-		cc.break_vals_type == CatClassification::natural_breaks_break_vals ||
-		cc.cat_classif_type == CatClassification::equal_intervals ||
-		cc.break_vals_type == CatClassification::equal_intervals_break_vals)
-	{
-	}
     
-    // Calculate breaks from data
-    CatClassification::CatClassifType cct = cc.cat_classif_type;
-    if (cc.break_vals_type != CatClassification::by_cat_classif_type) {
-        cct = BreakValsTypeToCatClassifType(cc.break_vals_type);
+    // re-Calculate breaks from data if needed (non-custom)
+    if (cc.cat_classif_type == CatClassification::hinge_15 ||
+        cc.break_vals_type == CatClassification::hinge_15_break_vals ||
+        cc.cat_classif_type == CatClassification::hinge_30 ||
+        cc.break_vals_type == CatClassification::hinge_30_break_vals ||
+        cc.cat_classif_type == CatClassification::percentile ||
+        cc.break_vals_type == CatClassification::percentile_break_vals ||
+        cc.cat_classif_type == CatClassification::stddev ||
+        cc.break_vals_type == CatClassification::stddev_break_vals ||
+        cc.cat_classif_type == CatClassification::quantile ||
+        cc.break_vals_type == CatClassification::quantile_break_vals ||
+        cc.cat_classif_type == CatClassification::unique_values ||
+        cc.break_vals_type == CatClassification::unique_values_break_vals ||
+        cc.cat_classif_type == CatClassification::natural_breaks ||
+        cc.break_vals_type == CatClassification::natural_breaks_break_vals ||
+        cc.cat_classif_type == CatClassification::equal_intervals ||
+        cc.break_vals_type == CatClassification::equal_intervals_break_vals)
+    {
+        CatClassification::SetBreakPoints(cc.breaks, cc.names, data, data_undef,
+                                          cc.cat_classif_type, cc.num_cats);
     }
-    CatClassification::SetBreakPoints(cc.breaks, cc.names, data, data_undef, cct, cc.num_cats);
-	
-	if (cc.color_scheme != CatClassification::custom_color_scheme)
-	{
-		// Calculate colors
+
+    // re-Generate colors
+	if (cc.color_scheme != CatClassification::custom_color_scheme) {
 		CatClassification::PickColorSet(cc.colors, cc.color_scheme, cc.num_cats);
 	}
-	
-	bool changed = false;
-	if (cc != _cc) {
-		_cc = cc;
-		changed = true;
-	}
-    
+
+    // re-Generate labels if auto is ON
     if (auto_label == false) {
         int best_n = user_def_labels.size();
         if (cc.names.size() < best_n) best_n = cc.names.size();
@@ -1708,6 +1675,12 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
         for (size_t t=0; t< best_n; t++) {
             cc.names[t] = user_def_labels[t];
         }
+    }
+
+    bool changed = false;
+    if (cc != _cc) {
+        _cc = cc;
+        changed = true;
     }
 	return changed;
 }
@@ -2460,9 +2433,6 @@ CatClassifDef& CatClassifDef::operator=(const CatClassifDef& s)
 
 bool CatClassifDef::operator==(const CatClassifDef& s) const
 {
-	if (cat_classif_type == s.cat_classif_type &&
-		num_cats == s.num_cats &&
-		cat_classif_type != CatClassification::custom) return true;
 	if (cat_classif_type != s.cat_classif_type) return false;
 	if (break_vals_type != s.break_vals_type) return false;
 	if (num_cats != s.num_cats) return false;

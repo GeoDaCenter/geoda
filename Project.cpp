@@ -241,6 +241,11 @@ Project::~Project()
 	wxLogMessage("Exiting Project::~Project");
 }
 
+CatClassifManager* Project::GetCatClassifManager()
+{
+    return cat_classif_manager;
+}
+
 int Project::GetNumFields()
 {
 	int n_fields = 0;
