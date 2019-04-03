@@ -1088,7 +1088,23 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
         if (idx < 0 || idx >= titles.size()) return;
             
         wxString cc_title = titles[idx];
-        
+
+        TemplateFrame* t = TemplateFrame::GetActiveFrame();
+        if (!t) return;
+        if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (ConditionalMapFrame* f = dynamic_cast<ConditionalMapFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        }
+        /*
         VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
         if (dlg.ShowModal() != wxID_OK) return;
         MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -1100,6 +1116,7 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
                                     GdaConst::map_default_size);
         nf->ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4, boost::uuids::nil_uuid(), true, dlg.var_info, dlg.col_ids, cc_title);
         nf->UpdateTitle();
+         */
     }
 }
 

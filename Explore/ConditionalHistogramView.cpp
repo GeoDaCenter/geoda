@@ -581,7 +581,8 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 		}
 		if (!any_selected) {
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-			highlight_state->notifyObservers(this);
+            highlight_timer->Start(50);
+			//highlight_state->notifyObservers(this);
             selection_changed = true;
 		}
 	}
@@ -628,7 +629,8 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     	}
     	if ( selection_changed ) {
     		highlight_state->SetEventType(HLStateInt::delta);
-    		highlight_state->notifyObservers(this);
+            highlight_timer->Start(50);
+    		//highlight_state->notifyObservers(this);
         }
     }
 	
