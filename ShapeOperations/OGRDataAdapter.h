@@ -49,6 +49,23 @@ using namespace std;
  * \endcode
  */
 class OGRDataAdapter {
+    
+    // Thread realted variables
+    //todo: we should have a thread pool that manage their lifecycle
+    boost::thread* layer_thread;
+    boost::thread* cache_thread;
+    boost::thread* export_thread;
+    
+    // Configuration Cache
+    GdaCache* gda_cache;
+    
+    // Store opened data source in memory
+    // In multi-layer scenario, this ogr-datasource pool will automatically
+    // manage ogr datasources and layers.
+    map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
+    
+    OGRDatasourceProxy* export_ds;
+    
 public:
 	static OGRDataAdapter& GetInstance() {
 		static OGRDataAdapter instance;
@@ -67,10 +84,6 @@ private:
 	 * constructor
 	 */
 	OGRDataAdapter();
-	
-    /**
-     */
-	OGRDataAdapter(bool enable_cache);
 		
 	/**
 	 * dummy constructor. Not implemented.
@@ -82,25 +95,7 @@ private:
 	 * dummy operator =. Not implemented.
 	 * To prevent assignment
 	 */
-	void operator = (OGRDataAdapter const&);		
-	
-private:
-	// Thread realted variables
-	//todo: we should have a thread pool that manage their lifecycle
-	boost::thread* layer_thread;
-	boost::thread* cache_thread;
-    boost::thread* export_thread;
-	
-	// Cache realted variables
-	bool enable_cache;
-	GdaCache* gda_cache;
-	
-	// Store opened data source in memory
-	// In multi-layer scenario, this ogr-datasource pool will automatically
-	// manage ogr datasources and layers.
-	map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
-
-	OGRDatasourceProxy* export_ds;
+	void operator = (OGRDataAdapter const&);
     
 public:
 	// export progress indicator: -1 means error, otherwise means progress
@@ -116,12 +111,14 @@ public:
 	 * Otherwise, create a new OGR datasource, store it in ogr_ds_pool,
 	 * then return it.
 	 */
-	OGRDatasourceProxy* GetDatasourceProxy(wxString ds_name, GdaConst::DataSourceType ds_type);
+	OGRDatasourceProxy* GetDatasourceProxy(const wxString& ds_name, GdaConst::DataSourceType ds_type);
 	
-	vector<wxString> GetHistory(wxString param_key);
+    void RemoveDatasourceProxy(const wxString& ds_name);
+    
+	vector<wxString> GetHistory(const wxString& param_key);
 
-	void AddHistory(wxString param_key, wxString param_val);
-    void AddEntry(wxString param_key, wxString param_val);
+	void AddHistory(const wxString& param_key, const wxString& param_val);
+    void AddEntry(const wxString& param_key, const wxString& param_val);
 	void CleanHistory();
 	
 	/**
@@ -129,13 +126,7 @@ public:
 	 * @param ds_name OGR data source name
 	 * @param layer_names a reference to a string vector that stores layer names
 	 */
-	GdaConst::DataSourceType GetLayerNames(wxString ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names);
-
-	/**
-	 * cacher existing layer (memory) to local spatialite
-	 */
-	void CacheLayer(wxString ds_name, wxString layer_name,
-                    OGRLayerProxy* layer_proxy);
+	GdaConst::DataSourceType GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names);
 	
 		
 	/**
@@ -148,7 +139,9 @@ public:
 	 * @param ds_name OGR data source name
 	 * @param layer_name OGR table name
 	 */
-	OGRLayerProxy* T_ReadLayer(wxString ds_name, GdaConst::DataSourceType ds_type, wxString layer_name);
+	OGRLayerProxy* T_ReadLayer(const wxString& ds_name,
+                               GdaConst::DataSourceType ds_type,
+                               const wxString& layer_name);
 	
 	void T_StopReadLayer(OGRLayerProxy* layer_proxy);
 	
@@ -160,9 +153,9 @@ public:
     /**
      * Create a OGR datasource that contains input geometries and table.
      */
-    OGRLayerProxy* ExportDataSource(wxString o_ds_format, 
-                                    wxString o_ds_name,
-                                    wxString o_layer_name,
+    OGRLayerProxy* ExportDataSource(const wxString& o_ds_format,
+                                    const wxString& o_ds_name,
+                                    const wxString& o_layer_name,
                                     OGRwkbGeometryType geom_type,
                                     vector<OGRGeometry*> ogr_geometries,
                                     TableInterface* table,
@@ -174,9 +167,9 @@ public:
 	void CancelExport(OGRLayerProxy* layer);
     
     void Export(OGRLayerProxy* source_layer_proxy,
-                wxString format,
-                wxString dest_datasource,
-                wxString new_layer_name,
+                const wxString& format,
+                const wxString& dest_datasource,
+                const wxString& new_layer_name,
                 bool is_update);
 
 	OGRwkbGeometryType MakeOGRGeometries(vector<GdaShape*>& geometries, 

@@ -1642,9 +1642,10 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name,
     wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
     BackgroundMapLayer* map_layer = NULL;
     // Use global OGR adapter to manage all datasources, so they can be reused
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
     OGRDatasourceProxy* proxy = NULL;
     try {
-        proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+        proxy = ogr_adapter.GetDatasourceProxy(datasource_name, ds_type);
     } catch (GdaException& e) {
         return NULL;
     }
@@ -1653,6 +1654,8 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name,
 	}
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
 	if (p_layer == NULL || p_layer->CheckIsTableOnly()) {
+        // remove this datasource_proxy from cache
+        ogr_adapter.RemoveDatasourceProxy(datasource_name);
 		return NULL;
 	}
     if (p_layer->ReadData()) {

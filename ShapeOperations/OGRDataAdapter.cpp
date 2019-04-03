@@ -54,19 +54,6 @@ OGRDataAdapter::OGRDataAdapter()
 	
 	layer_thread = NULL;
 	gda_cache = NULL;
-	enable_cache = true;
-}
-
-OGRDataAdapter::OGRDataAdapter(bool enable_cache)
-{
-	OGRRegisterAll();
-	
-	layer_thread = NULL;
-	gda_cache = NULL;
-	this->enable_cache = enable_cache;
-	//if (enable_cache && gda_cache==NULL) {
-	//	gda_cache = new GdaCache();
-	//}
 }
 
 void OGRDataAdapter::Close()
@@ -85,32 +72,45 @@ void OGRDataAdapter::Close()
 	if ( !gda_cache) delete gda_cache;
 }
 
-OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(wxString ds_name, GdaConst::DataSourceType ds_type)
+OGRDatasourceProxy* OGRDataAdapter::GetDatasourceProxy(const wxString& ds_name,
+                                                       GdaConst::DataSourceType ds_type)
 {
 	OGRDatasourceProxy* ds_proxy;
 	
-	if (ogr_ds_pool.count(ds_name) > 0) {
+	if (ogr_ds_pool.find(ds_name) != ogr_ds_pool.end()) {
 		ds_proxy = ogr_ds_pool[ds_name];
 	} else {
 		ds_proxy = new OGRDatasourceProxy(ds_name, ds_type, true);
+        // if OGRDatasourceProxy is failed to initialized, an exception will
+        // be thrown and catched, so the line below will not be executed.
+        // There is no case that ds_proxy = NULL
 		ogr_ds_pool[ds_name] = ds_proxy;
 	}
 	
 	return ds_proxy;
 }
 
-std::vector<wxString> OGRDataAdapter::GetHistory(wxString param_key)
+void OGRDataAdapter::RemoveDatasourceProxy(const wxString& ds_name)
+{
+    if (ogr_ds_pool.find(ds_name) != ogr_ds_pool.end()) {
+        OGRDatasourceProxy* ds_proxy = ogr_ds_pool[ds_name];
+        if (ds_proxy) delete ds_proxy;
+        ogr_ds_pool.erase(ogr_ds_pool.find(ds_name));
+    }
+}
+
+std::vector<wxString> OGRDataAdapter::GetHistory(const wxString& param_key)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	return gda_cache->GetHistory(param_key);
 }
 
-void OGRDataAdapter::AddHistory(wxString param_key, wxString param_val)
+void OGRDataAdapter::AddHistory(const wxString& param_key, const wxString& param_val)
 {
 	if (gda_cache==NULL) gda_cache = new GdaCache();
 	gda_cache->AddHistory(param_key, param_val);
 }
-void OGRDataAdapter::AddEntry(wxString param_key, wxString param_val)
+void OGRDataAdapter::AddEntry(const wxString& param_key, const wxString& param_val)
 {
     if (gda_cache==NULL) gda_cache = new GdaCache();
     gda_cache->AddEntry(param_key, param_val);
@@ -122,7 +122,7 @@ void OGRDataAdapter::CleanHistory()
 	gda_cache->CleanHistory();
 }
 
-GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names)
+GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(const wxString& ds_name, GdaConst::DataSourceType& ds_type, vector<wxString>& layer_names)
 {	
 	OGRDatasourceProxy* ds_proxy = GetDatasourceProxy(ds_name, ds_type);
     ds_type = ds_proxy->ds_type;
@@ -135,9 +135,9 @@ GdaConst::DataSourceType OGRDataAdapter::GetLayerNames(wxString ds_name, GdaCons
 // When read, related OGRDatasourceProxy instance and OGRLayerProxy instance
 // will be created and stored in memory, or just get from memory if already
 // there.
-OGRLayerProxy* OGRDataAdapter::T_ReadLayer(wxString ds_name,
+OGRLayerProxy* OGRDataAdapter::T_ReadLayer(const wxString& ds_name,
                                            GdaConst::DataSourceType ds_type,
-                                           wxString layer_name)
+                                           const wxString& layer_name)
 {
 	OGRLayerProxy* layer_proxy = NULL;
     
@@ -168,17 +168,6 @@ void OGRDataAdapter::T_StopReadLayer(OGRLayerProxy* layer_proxy)
 void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)
 {
 	if (layer_proxy != NULL) layer_proxy->Save();
-}
-
-void OGRDataAdapter::CacheLayer
-(wxString ds_name, wxString layer_name, OGRLayerProxy* layer_proxy)
-{
-	//XXX: we don't cache layer in 1.5.x
-	// cache current layer in a thread
-	if (enable_cache && !gda_cache->IsLayerCached(ds_name, layer_name)) {
-		boost::thread cache_thread(boost::bind(
-			&GdaCache::CacheLayer, gda_cache, ds_name, layer_proxy));
-	}
 }
 
 void OGRDataAdapter::StopExport()
@@ -310,9 +299,9 @@ OGRDataAdapter::MakeOGRGeometries(vector<GdaShape*>& geometries,
 }
 
 OGRLayerProxy*
-OGRDataAdapter::ExportDataSource(wxString o_ds_format, 
-								 wxString o_ds_name,
-                                 wxString o_layer_name,
+OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
+								 const wxString& o_ds_name,
+                                 const wxString& o_layer_name,
                                  OGRwkbGeometryType geom_type,
                                  vector<OGRGeometry*> ogr_geometries,
                                  TableInterface* table,
@@ -408,9 +397,9 @@ OGRDataAdapter::ExportDataSource(wxString o_ds_format,
 
 
 void OGRDataAdapter::Export(OGRLayerProxy* source_layer_proxy,
-                            wxString format,
-                            wxString dest_datasource,
-                            wxString new_layer_name,
+                            const wxString& format,
+                            const wxString& dest_datasource,
+                            const wxString& new_layer_name,
                             bool is_update)
 {
     OGRLayer* poSrcLayer = source_layer_proxy->layer;

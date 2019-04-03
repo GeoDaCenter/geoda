@@ -569,7 +569,12 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
         recent_ds.Add(ds_name, ds_name, layer_name);
         EndDialog(wxID_CANCEL);
     } else {
-    
+        // For csv file, if no csvt file,
+        // pop-up a field definition dialog and create a csvt file
+        if (ds_name.EndsWith("csv") && showCsvConfigure) {
+            CsvFieldConfDlg csvDlg(this, ds_name, m_wx_encoding);
+            csvDlg.ShowModal();
+        }
         IDataSource* ds = recent_ds.GetDatasource(ds_name);
         if (ds == NULL) {
             // raise message dialog show can't connect to datasource
@@ -1249,9 +1254,6 @@ wxCSConv* ConnectDatasourceDlg::GetEncoding()
         } else if (sel == 25) {
             encoding_type = wxFONTENCODING_ISO8859_15;
 		}
-        
-
-
 
         if (m_wx_encoding) delete m_wx_encoding;
         m_wx_encoding = new wxCSConv(encoding_type);
