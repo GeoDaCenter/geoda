@@ -979,6 +979,12 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
     CatClassification::CatClassifType cl_type = GetClassifTypeChoice();
     cc_data.cat_classif_type = cl_type;
 
+    if (cl_type == CatClassification::quantile ||
+        cl_type == CatClassification::natural_breaks ||
+        cl_type == CatClassification::equal_intervals)
+        cc_data.color_scheme = CatClassification::sequential_color_scheme;
+    
+
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
