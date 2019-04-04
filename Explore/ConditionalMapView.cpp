@@ -871,14 +871,13 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 		}
 	}
 	
-	if (cat_classif_def_map.cat_classif_type !=
-		CatClassification::custom) {
+	if (cat_classif_def_map.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
 	}
+    cat_classif_def_map.assoc_db_fld_name = var_info[CAT_VAR].name;
     bool useUndefinedCategory = true;
-	cat_classif_def_map.color_scheme =
-		CatClassification::GetColSchmForType(
-							 cat_classif_def_map.cat_classif_type);
+	cat_classif_def_map.color_scheme = CatClassification::GetColSchmForType(
+                                        cat_classif_def_map.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
                                               cat_var_undef,

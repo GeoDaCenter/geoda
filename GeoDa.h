@@ -598,7 +598,8 @@ public:
 	void SetMenusToDefault();
    
     void RemoveInvalidRecentDS();
-   
+
+    void OnEmptyCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);

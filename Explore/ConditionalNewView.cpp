@@ -626,9 +626,8 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		for (int t=0; t<vert_num_time_vals; t++) {
 			vert_cats_error_message[t] = wxEmptyString;
 		}
-		
-		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom)
-        {
+        cat_classif_def_vert.assoc_db_fld_name = var_info[VERT_VAR].name;
+		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
 			CatClassification::ChangeNumCats(vert_num_cats,
 											 cat_classif_def_vert);
 		}
@@ -677,7 +676,7 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		cat_classif_def_horiz.color_scheme =
 			CatClassification::GetColSchmForType(
 									cat_classif_def_horiz.cat_classif_type);
-        
+        cat_classif_def_horiz.assoc_db_fld_name = var_info[HOR_VAR].name;
         bool useUndefinedCategory = false;
         if (HOR_VAR_NUM)
             CatClassification::PopulateCatClassifData(cat_classif_def_horiz,

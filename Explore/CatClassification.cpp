@@ -1577,13 +1577,6 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		std::sort(data.begin(), data.end(), Gda::dbl_int_pair_cmp_less);
 	}
 	
-	// ensure that CatClassifType and BreakValsType are consistent
-	if (cc.cat_classif_type == CatClassification::custom &&
-        cc.break_vals_type != CatClassification::custom_break_vals)
-    {
-        cc.break_vals_type = CatClassification::custom_break_vals;
-    }
-	
 	// ensure that num_cats is correct
 	if (cc.num_cats < 1) cc.num_cats = 1;
 	if (cc.num_cats > 10) cc.num_cats = 10;
@@ -1635,8 +1628,14 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
 		cc.uniform_dist_min = col_min;
 		cc.uniform_dist_max = col_max;
 		for (int i=0, sz=cc.breaks.size(); i<sz; ++i) {
-			if (cc.breaks[i] < col_min) cc.breaks[i] = col_min;
-			if (cc.breaks[i] > col_max) cc.breaks[i] = col_max;
+            if (cc.breaks[i] < col_min) {
+                if (i == 0) cc.breaks[i] = col_min;
+                else cc.breaks[i] = cc.breaks[i-1];
+            }
+            if (cc.breaks[i] > col_max) {
+                if (i == 0) cc.breaks[i] = col_max;
+                else cc.breaks[i] = cc.breaks[i-1];
+            }
 		}
 	}
     
@@ -1662,6 +1661,13 @@ bool CatClassification::CorrectCatClassifFromTable(CatClassifDef& _cc,
                                           cc.cat_classif_type, cc.num_cats);
     }
 
+    // ensure that CatClassifType and BreakValsType are consistent
+    if (cc.cat_classif_type == CatClassification::custom &&
+        cc.break_vals_type != CatClassification::custom_break_vals)
+    {
+        cc.break_vals_type = CatClassification::custom_break_vals;
+    }
+    
     // re-Generate colors
 	if (cc.color_scheme != CatClassification::custom_color_scheme) {
 		CatClassification::PickColorSet(cc.colors, cc.color_scheme, cc.num_cats);

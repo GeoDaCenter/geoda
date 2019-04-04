@@ -674,13 +674,19 @@ void GdaFrame::UpdateToolbarAndMenus()
             CatClassifManager* ccm = project_p->GetCatClassifManager();
             ccm->GetTitles(titles);
             
-            sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
+            sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),
+                       _("Create New Custom"),
+                       _("Create new custom categories classification."));
             sm->AppendSeparator();
             
             for (size_t j=0; j<titles.size(); j++) {
                 wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
             }
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                          &GdaFrame::OnEmptyCustomCategoryClick,
+                                          GdaFrame::GetGdaFrame(),
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
         }
     }
 
@@ -1104,7 +1110,26 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
         } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
             f->OnCustomCatClassifA(cc_title);
         }
-        /*
+    }
+}
+
+void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+        if (idx < 0 || idx >= titles.size()) return;
+
+        wxString cc_title = titles[idx];
+
+        TemplateFrame* t = TemplateFrame::GetActiveFrame();
+        if (!t) return;
+
         VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
         if (dlg.ShowModal() != wxID_OK) return;
         MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
@@ -1116,7 +1141,6 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
                                     GdaConst::map_default_size);
         nf->ChangeMapType(CatClassification::custom, MapCanvas::no_smoothing, 4, boost::uuids::nil_uuid(), true, dlg.var_info, dlg.col_ids, cc_title);
         nf->UpdateTitle();
-         */
     }
 }
 
@@ -2147,7 +2171,11 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
                 for (size_t j=0; j<titles.size(); j++) {
                     wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
                 }
-                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                              &GdaFrame::OnCustomCategoryClick,
+                                              GdaFrame::GetGdaFrame(),
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
             }
         }
         PopupMenu(popupMenu, wxDefaultPosition);

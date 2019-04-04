@@ -1749,9 +1749,7 @@ void MapCanvas::NewCustomCatClassif()
         std::sort(cat_var_sorted[t].begin(), cat_var_sorted[t].end(),
                   Gda::dbl_int_pair_cmp_less);
     }
-
     if (var_info.empty()) return;
-    
 	// Fully update cat_classif_def fields according to current
 	// categorization state
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
@@ -1772,24 +1770,17 @@ void MapCanvas::NewCustomCatClassif()
 		int tm = var_info[0].time;
 		cat_classif_def.assoc_db_fld_name = table_int->GetColName(col, tm);
 	}
-
     GdaFrame* gda_frame = GdaFrame::GetGdaFrame();
 	CatClassifFrame* ccf = gda_frame->GetCatClassifFrame(this->useScientificNotation);
-    
 	if (!ccf) return;
-    
 	CatClassifState* ccs = ccf->PromptNew(cat_classif_def, "",
-                                          var_info[0].name,
-                                          var_info[0].time);
+                                          var_info[0].name, var_info[0].time);
 	if (!ccs) return;
-    
-	if (custom_classif_state)
-        custom_classif_state->removeObserver(this);
-    
+	if (custom_classif_state) custom_classif_state->removeObserver(this);
 	cat_classif_def = ccs->GetCatClassif();
 	custom_classif_state = ccs;
 	custom_classif_state->registerObserver(this);
-    
+    num_categories = cat_classif_def.num_cats;
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -1988,6 +1979,7 @@ void MapCanvas::update(CatClassifState* o)
 {
 	wxLogMessage("In MapCanvas::update(CatClassifState*)");
 	cat_classif_def = o->GetCatClassif();
+    num_categories = cat_classif_def.num_cats;
 	CreateAndUpdateCategories();
 	PopulateCanvas();
 	if (template_frame) {
@@ -2359,7 +2351,8 @@ void MapCanvas::PopulateCanvas()
                         int nbr = e[j];
                         if (i!=nbr) {
                             // connect i<->nbr
-                            edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(), c[nbr]->GetX(), c[nbr]->GetY());
+                            edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(),
+                                                   c[nbr]->GetX(), c[nbr]->GetY());
                             edge->from = i;
                             edge->to = nbr;
                             edge->setPen(pen);
