@@ -1126,10 +1126,11 @@ void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
         if (idx < 0 || idx >= titles.size()) return;
 
         wxString cc_title = titles[idx];
-
-        TemplateFrame* t = TemplateFrame::GetActiveFrame();
-        if (!t) return;
-
+        CatClassifState* cc_state = ccm->FindClassifState(cc_title);
+        CatClassifDef& cc_def = cc_state->GetCatClassif();
+        wxString fld_name = cc_def.assoc_db_fld_name;
+        project_p->SetDefaultVarName(0, fld_name);
+        
         VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
         if (dlg.ShowModal() != wxID_OK) return;
         MapFrame* nf = new MapFrame(GdaFrame::gda_frame, project_p,
