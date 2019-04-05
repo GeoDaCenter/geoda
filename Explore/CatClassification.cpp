@@ -2752,6 +2752,7 @@ void CatClassifData::ClearAllCategoryIds()
 
 wxString CatClassifData::GetCatLblWithCnt(int canvas_tm, int cat)
 {
+    if (categories.empty()) return wxEmptyString;
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return wxEmptyString;
 	}
@@ -2765,6 +2766,7 @@ wxString CatClassifData::GetCatLblWithCnt(int canvas_tm, int cat)
 
 wxString CatClassifData::GetCategoryLabel(int canvas_tm, int cat)
 {
+    if (categories.empty()) return wxEmptyString;
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) {
 		return wxEmptyString;
 	}
@@ -2774,6 +2776,7 @@ wxString CatClassifData::GetCategoryLabel(int canvas_tm, int cat)
 void CatClassifData::SetCategoryLabel(int canvas_tm, int cat,
 									const wxString& label)
 {
+    if (categories.empty()) return;
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
 	categories[canvas_tm].cat_vec[cat].label = label;
 }
@@ -2781,12 +2784,14 @@ void CatClassifData::SetCategoryLabel(int canvas_tm, int cat,
 void CatClassifData::SetCategoryLabelExt(int canvas_tm, int cat,
 									const wxString& label)
 {
+    if (categories.empty()) return;
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return;
 	categories[canvas_tm].cat_vec[cat].label_ext = label;
 }
 
 int CatClassifData::GetCategoryCount(int canvas_tm, int cat)
 {
+    if (categories.empty()) return 0;
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size()) return 0;
 	return categories[canvas_tm].cat_vec[cat].count;
 }

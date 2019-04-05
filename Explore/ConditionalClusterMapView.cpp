@@ -257,6 +257,7 @@ ChangeCatThemeType(CatClassification::CatClassifType new_cat_theme,
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
 	UserChangedCellCategories();
+    full_map_redraw_needed = true;
 	PopulateCanvas();
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();

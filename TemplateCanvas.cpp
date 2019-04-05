@@ -709,7 +709,15 @@ void TemplateCanvas::DrawLayer1()
     dc.SetBackground(wxBrush(canvas_background_color));
     dc.Clear();    
     // faded the background half transparency
-    if (highlight_state->GetTotalHighlighted()>0) {
+    std::vector<bool>& hl = highlight_state->GetHighlight();
+    bool has_hl = false;
+    for (size_t i=0; i<hl.size(); ++i) {
+        if (hl[i]) {
+            has_hl = true;
+            break;
+        }
+    }
+    if (has_hl) {
         if (faded_layer_bm == NULL) {
             wxImage image = layer0_bm->ConvertToImage();
             if (!image.HasAlpha()) {

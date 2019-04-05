@@ -296,12 +296,20 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, st
     
     double val_max = max_val;
     double val_min = min_val;
+
+    // check if min_val and max_val is in the range of breaks, sometimes the
+    // breaks has wider range than data (e.g. box range)
+    if ((*breaks)[0] < val_min) val_min = (*breaks)[0];
+    int break_size = (*breaks).size();
+    if ( break_size > 0 && (*breaks)[break_size-1] > val_max) {
+        val_max = (*breaks)[break_size-1];
+    }
     double val_range = val_max - val_min;
     double left = val_min;
     
     std::vector<double> ticks;
     ticks.push_back(val_min);
-    for(int i=0; i<breaks->size();i++) {
+    for (int i=0; i<breaks->size();i++) {
         ticks.push_back((*breaks)[i]);
     }
     ticks.push_back(val_max);
@@ -338,11 +346,22 @@ void CatClassifHistCanvas::PopulateCanvas()
 	selectable_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
 	foreground_shps.clear();
-	
+
+    double val_max = max_val;
+    double val_min = min_val;
+
+    // check if min_val and max_val is in the range of breaks, sometimes the
+    // breaks has wider range than data (e.g. box range)
+    if ((*breaks)[0] < val_min) val_min = (*breaks)[0];
+    int break_size = (*breaks).size();
+    if ( break_size > 0 && (*breaks)[break_size-1] > val_max) {
+        val_max = (*breaks)[break_size-1];
+    }
+
 	double x_min = 0;
 	double x_max = left_pad_const + right_pad_const
-	+ interval_width_const * cur_intervals + 
-	+ interval_gap_const * (cur_intervals-1);
+        + interval_width_const * cur_intervals +
+	    + interval_gap_const * (cur_intervals-1);
 	
     std::vector<double> orig_x_pos(cur_intervals);
     std::vector<double> orig_x_pos_left(cur_intervals);
@@ -380,15 +399,14 @@ void CatClassifHistCanvas::PopulateCanvas()
         
         if (i==0) {
             GdaShapeText* brk =
-            new GdaShapeText(GenUtils::DblToStr(min_val),
+            new GdaShapeText(GenUtils::DblToStr(val_min),
                              *GdaConst::small_font,
                              wxRealPoint(x0, y0), 90,
                              GdaShapeText::right,
                              GdaShapeText::v_center, 0, 10);
             brk->GetSize(dc, s_w, s_h);
             foreground_shps.push_back(brk);
-        }
-		if (i<cur_intervals-1) {
+        } else if (i<cur_intervals-1) {
 			GdaShapeText* brk = 
 				new GdaShapeText(GenUtils::DblToStr((*breaks)[i]),
 								 *GdaConst::small_font,
@@ -397,10 +415,9 @@ void CatClassifHistCanvas::PopulateCanvas()
 								 GdaShapeText::v_center, 0, 10);
             brk->GetSize(dc, s_w, s_h);
 			foreground_shps.push_back(brk);
-		}
-        if (i==cur_intervals-1) {
+		} else if (i==cur_intervals-1) {
             GdaShapeText* brk =
-            new GdaShapeText(GenUtils::DblToStr(max_val),
+            new GdaShapeText(GenUtils::DblToStr(val_max),
                              *GdaConst::small_font,
                              wxRealPoint(x1, y0), 90,
                              GdaShapeText::right,

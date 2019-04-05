@@ -243,33 +243,37 @@ void ConditionalNewCanvas::SetCheckMarks(wxMenu* menu)
     
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"),
 					GetCatType(VERT_VAR) == CatClassification::no_theme);
-	
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_QUANT_SUBMENU"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_15"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_30"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), VERT_VAR_NUM);
-    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_SUBMENU"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_SUBMENU"), VERT_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"), VERT_VAR_NUM);
+
+    bool vert_flag = VERT_VAR_NUM;
+    if (var_info[VERT_VAR].is_hide) vert_flag = false;
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_THEMELESS"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_QUANT_SUBMENU"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_PERCENTILE"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_15"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_HINGE_30"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_CHOROPLETH_STDDEV"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_UNIQUE_VALUES"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_EQU_INTS_SUBMENU"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_VERT_NAT_BRKS_SUBMENU"), vert_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_B"), vert_flag);
     for (size_t j=0; j<titles.size(); j++) {
-       GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 +j, VERT_VAR_NUM);
+       GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_B0 +j, vert_flag);
     }
-    
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_THEMELESS"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_SUBMENU"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_15"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_30"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), HOR_VAR_NUM);
-    //GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_SUBMENU"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_SUBMENU"), HOR_VAR_NUM);
-    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"), HOR_VAR_NUM);
+
+    bool hori_flag = HOR_VAR_NUM;
+    if (var_info[HOR_VAR].is_hide) hori_flag = false;
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_THEMELESS"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_QUANT_SUBMENU"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_PERCENTILE"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_15"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_HINGE_30"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_CHOROPLETH_STDDEV"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_UNIQUE_VALUES"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_EQU_INTS_SUBMENU"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_COND_HORIZ_NAT_BRKS_SUBMENU"), hori_flag);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_C"), hori_flag);
     for (size_t j=0; j<titles.size(); j++) {
-        GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 +j, HOR_VAR_NUM);
+        GeneralWxUtils::EnableMenuItem(menu, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_C0 +j, hori_flag);
     }
     
     for (int i=1; i<=10; i++) {
@@ -351,6 +355,8 @@ wxString ConditionalNewCanvas::GetCategoriesTitle(int var_id)
 wxString ConditionalNewCanvas::GetNameWithTime(int var)
 {
 	if (var < 0 || var >= (int)var_info.size()) return wxEmptyString;
+    if (var_info[var].is_hide) return "N/A";
+
 	wxString s(var_info[var].name);
 	if (var_info[var].is_time_variant) {
 		s << " (" << project->GetTableInt()->GetTimeString(var_info[var].time);
@@ -630,11 +636,9 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
 		if (cat_classif_def_vert.cat_classif_type != CatClassification::custom){
 			CatClassification::ChangeNumCats(vert_num_cats,
 											 cat_classif_def_vert);
+            cat_classif_def_vert.color_scheme = CatClassification::GetColSchmForType(
+                                        cat_classif_def_vert.cat_classif_type);
 		}
-        CatClassification::CatClassifType& theme = cat_classif_def_vert.cat_classif_type;
-		cat_classif_def_vert.color_scheme = CatClassification::GetColSchmForType(theme);
-        
-        
         bool useUndefinedCategory = false;
         if (VERT_VAR_NUM)
             CatClassification::PopulateCatClassifData(cat_classif_def_vert,
@@ -657,25 +661,27 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                                       useUndefinedCategory,
                                                       this->category_disp_precision);
 		int vt = var_info[var_id].time;
-		vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
-		CatClassification::ChangeNumCats(vert_num_cats, cat_classif_def_vert);
+        if (!vert_cat_data.categories.empty()) {
+            vert_num_cats = vert_cat_data.categories[vt].cat_vec.size();
+            if (vert_num_cats != cat_classif_def_vert.num_cats) {
+                CatClassification::ChangeNumCats(vert_num_cats,
+                                                 cat_classif_def_vert);
+            }
+        }
         
 	} else {
-		for (int t=0; t<horiz_num_time_vals; t++)
+        for (int t=0; t<horiz_num_time_vals; t++) {
             horiz_cats_valid[t] = true;
-        
+        }
 		for (int t=0; t<horiz_num_time_vals; t++) {
 			horiz_cats_error_message[t] = wxEmptyString;
 		}
-		
-		if (cat_classif_def_horiz.cat_classif_type !=
-			CatClassification::custom) {
+		if (cat_classif_def_horiz.cat_classif_type != CatClassification::custom) {
 			CatClassification::ChangeNumCats(horiz_num_cats,
 											 cat_classif_def_horiz);
+            cat_classif_def_horiz.color_scheme = CatClassification::GetColSchmForType(
+                                        cat_classif_def_horiz.cat_classif_type);
 		}		
-		cat_classif_def_horiz.color_scheme =
-			CatClassification::GetColSchmForType(
-									cat_classif_def_horiz.cat_classif_type);
         cat_classif_def_horiz.assoc_db_fld_name = var_info[HOR_VAR].name;
         bool useUndefinedCategory = false;
         if (HOR_VAR_NUM)
@@ -697,8 +703,13 @@ void ConditionalNewCanvas::CreateAndUpdateCategories(int var_id)
                                                       this->useScientificNotation,
                                                       useUndefinedCategory);
 		int ht = var_info[var_id].time;
-		horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();
-		CatClassification::ChangeNumCats(horiz_num_cats, cat_classif_def_horiz);
+        if (!horiz_cat_data.categories.empty()) {
+            horiz_num_cats = horiz_cat_data.categories[ht].cat_vec.size();
+            if (horiz_num_cats != cat_classif_def_horiz.num_cats) {
+                CatClassification::ChangeNumCats(horiz_num_cats,
+                                                 cat_classif_def_horiz);
+            }
+        }
 	}
 }
 

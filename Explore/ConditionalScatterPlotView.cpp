@@ -441,13 +441,16 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         }
     }
     
-    int row_c;
-    int col_c;
+    int row_c = 0, col_c = 0;
     for (int i=0; i<num_obs; i++) {
         int v_time = var_info[VERT_VAR].time;
         int h_time = var_info[HOR_VAR].time;
-        row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-        col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        if (!vert_cat_data.categories.empty()) {
+            row_c = vert_cat_data.categories[v_time].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        }
         selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
     }
     isResize = true;
@@ -529,8 +532,13 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 	for (int i=0; i<num_obs; i++) {
         if (XY_undef[i])
             continue;
-		int row = vert_cat_data.categories[vt].id_to_cat[i];
-		int col = horiz_cat_data.categories[ht].id_to_cat[i];		
+        int row = 0, col = 0;
+        if (!vert_cat_data.categories.empty()) {
+            row = vert_cat_data.categories[vt].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col = horiz_cat_data.categories[ht].id_to_cat[i];
+        }
 		sizes[row][col]++;
 	}
 	for (int i=0; i<vert_num_cats; i++) {
@@ -544,8 +552,13 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
             continue;
 		double x = data[IND_VAR][xt][i];
 		double y = data[DEP_VAR][yt][i];
-		int row = vert_cat_data.categories[vt].id_to_cat[i];
-		int col = horiz_cat_data.categories[ht].id_to_cat[i];
+        int row = 0, col = 0;
+        if (!vert_cat_data.categories.empty()) {
+            row = vert_cat_data.categories[vt].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col = horiz_cat_data.categories[ht].id_to_cat[i];
+        }
 		std::vector<double>& xref = *dvec_xp[row][col];
 		std::vector<double>& yref = *dvec_yp[row][col];
 		int index = ind[row][col];

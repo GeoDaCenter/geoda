@@ -580,14 +580,18 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 			}
 		}
 		if (!any_selected) {
+            for (size_t j=0; j<hs.size(); j++) hs[j] = false;
 			highlight_state->SetEventType(HLStateInt::unhighlight_all);
-            highlight_timer->Start(50);
-			//highlight_state->notifyObservers(this);
             selection_changed = true;
+            //highlight_timer->Start(50);
+			//highlight_state->notifyObservers(this);
+            //selection_changed = true;
+            //return;
 		}
 	}
 
     if (selection_changed ==  false) {
+        std::vector<bool> new_hs(hs.size(), false);
     	for (int i=0; i<total_sel_shps; i++) {
     		int r, c, ival;
     		sel_shp_to_cell(i, r, c, ival);
@@ -599,38 +603,19 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     												   lower_left, upper_right)));
     		bool all_sel = (cell_data[0][r][c].ival_obs_cnt[ival] ==
     						cell_data[0][r][c].ival_obs_sel_cnt[ival]);
-    		if (pointsel && all_sel && selected) {
-    			// unselect all in ival
-    			for (std::list<int>::iterator it =
-    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
-                    hs[(*it)]= false;
+            if (selected) {
+                // select currently unselected in ival
+                for (std::list<int>::iterator it =
+                     cell_data[0][r][c].ival_to_obs_ids[ival].begin();
+                     it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
+                    new_hs[(*it)]= true;
                     selection_changed = true;
-    			}
-    		} else if (!all_sel && selected) {
-    			// select currently unselected in ival
-    			for (std::list<int>::iterator it =
-    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
-    				if (hs[*it]) continue;
-                    hs[(*it)]= true;
-                    selection_changed = true;
-    			}
-    		} else if (!selected && !shiftdown) {
-    			// unselect all selected in ival
-    			for (std::list<int>::iterator it =
-    					cell_data[0][r][c].ival_to_obs_ids[ival].begin();
-    				 it != cell_data[0][r][c].ival_to_obs_ids[ival].end(); it++) {
-    				if (!hs[*it]) continue;
-                    hs[(*it)]= false;
-                    selection_changed = true;
-    			}
-    		}
+                }
+            }
     	}
     	if ( selection_changed ) {
-    		highlight_state->SetEventType(HLStateInt::delta);
-            highlight_timer->Start(50);
-    		//highlight_state->notifyObservers(this);
+            hs = new_hs;
+
         }
     }
 	
@@ -639,11 +624,10 @@ void ConditionalHistogramCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         layer1_valid = false;
         UpdateIvalSelCnts();
         DrawLayers();
-        Refresh();
+
+        highlight_state->SetEventType(HLStateInt::delta);
+        highlight_timer->Start(50);
 	}
-    
-    
-    
 	UpdateStatusBar();
 }
 
@@ -671,10 +655,10 @@ void ConditionalHistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
 	for (int r=0; r<vert_num_cats; r++) {
 		for (int c=0; c<horiz_num_cats; c++) {
 			for (int ival=0; ival<cur_intervals; ival++) {
-				if (cell_data[0][r][c].ival_obs_sel_cnt[ival] != 0) {
-					s = (((double) cell_data[0][r][c].ival_obs_sel_cnt[ival]) /
-						 ((double) cell_data[0][r][c].ival_obs_cnt[ival]));
-                    
+                int sel_cnt = cell_data[0][r][c].ival_obs_sel_cnt[ival];
+                double tol_cnt = cell_data[0][r][c].ival_obs_cnt[ival];
+				if ( sel_cnt != 0) {
+					s = sel_cnt/ tol_cnt;
                     GdaShape* shp = selectable_shps[i];
                     dc.SetPen(shp->getPen());
                     dc.SetBrush(shp->getBrush());
@@ -683,7 +667,6 @@ void ConditionalHistogramCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
                                      rec->lower_left.y,
                                      rec->upper_right.x - rec->lower_left.x,
                                      (rec->upper_right.y - rec->lower_left.y)*s);
-                    
 				}
 				i++;
 			}
@@ -767,8 +750,13 @@ void ConditionalHistogramCanvas::InitIntervals()
 		if (var_info[HOR_VAR].sync_with_global_time)
             ht += t;
         
-		int rows = vert_cat_data.categories[vt].cat_vec.size();
-		int cols = horiz_cat_data.categories[ht].cat_vec.size();
+        int rows = 1, cols = 1;
+        if (!vert_cat_data.categories.empty()) {
+            rows = vert_cat_data.categories[vt].cat_vec.size();
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            cols = horiz_cat_data.categories[ht].cat_vec.size();
+        }
         
 		cell_data[0].resize(boost::extents[rows][cols]);
 		for (int r=0; r<rows; r++) {
@@ -790,28 +778,25 @@ void ConditionalHistogramCanvas::InitIntervals()
         
 		// record each obs in the correct cell and ival.
         int cur_ival = 0;
-		for (int i=0; i<num_obs; i++)
-        {
+		for (int i=0; i<num_obs; i++) {
 			int id = data_sorted[dt][i].second;
-            
-            if (undef_tms[t][id])
-                continue;
-            
+            if (undef_tms[t][id]) continue;
 			while (cur_ival <= cur_intervals-2 &&
 				   data_sorted[dt][i].first >= ival_breaks[0][cur_ival])
             {
 				cur_ival++;
 			}
-			int r = vert_cat_data.categories[vt].id_to_cat[id];
-			int c = horiz_cat_data.categories[ht].id_to_cat[id];
-            
+            int r = 0, c = 0;
+            if (!vert_cat_data.categories.empty()) {
+                r = vert_cat_data.categories[vt].id_to_cat[id];
+            }
+            if (!horiz_cat_data.categories.empty()) {
+                c = horiz_cat_data.categories[ht].id_to_cat[id];
+            }
 			obs_id_to_sel_shp[t][id] = cell_to_sel_shp_gen(r, c, cur_ival,
 														   cols, cur_intervals);
-            
 			cell_data[0][r][c].ival_to_obs_ids[cur_ival].push_front(id);
-            
 			cell_data[0][r][c].ival_obs_cnt[cur_ival]++;
-            
 			if (cell_data[0][r][c].ival_obs_cnt[cur_ival] > max_num_obs_in_ival[t])
             {
 				max_num_obs_in_ival[t] =
@@ -820,7 +805,6 @@ void ConditionalHistogramCanvas::InitIntervals()
 					overall_max_num_obs_in_ival = max_num_obs_in_ival[t];
 				}
 			}
-			
 			if (hs[data_sorted[dt][i].second]) {
 				cell_data[0][r][c].ival_obs_sel_cnt[cur_ival]++;
 			}
@@ -836,12 +820,15 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 		for (int t=0; t<num_time_vals; t++) {
 			int vt = var_info[VERT_VAR].time_min;
 			int ht = var_info[HOR_VAR].time_min;
-            
 			if (var_info[VERT_VAR].sync_with_global_time) vt += t;
 			if (var_info[HOR_VAR].sync_with_global_time) ht += t;
-            
-			int rows = vert_cat_data.categories[vt].cat_vec.size();
-			int cols = horiz_cat_data.categories[ht].cat_vec.size();
+            int rows = 1, cols = 1;
+            if (!vert_cat_data.categories.empty()) {
+                rows = vert_cat_data.categories[vt].cat_vec.size();
+            }
+            if (!horiz_cat_data.categories.empty()) {
+                cols = horiz_cat_data.categories[ht].cat_vec.size();
+            }
 			for (int r=0; r<rows; r++) {
 				for (int c=0; c<cols; c++) {
 					for (int i=0; i<cur_intervals; i++) {
@@ -852,10 +839,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 		}
 	} else if (type == HLStateInt::delta) {
 		std::vector<bool>& hs = highlight_state->GetHighlight();
-		std::vector<int>& nuh = highlight_state->GetNewlyUnhighlighted();
-		int nh_cnt = highlight_state->GetTotalNewlyHighlighted();
-		int nuh_cnt = highlight_state->GetTotalNewlyUnhighlighted();
-	
+
 		for (int t=0; t<num_time_vals; t++) {
 			int vt = var_info[VERT_VAR].time_min;
 			int ht = var_info[HOR_VAR].time_min;
@@ -863,8 +847,13 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 			if (var_info[VERT_VAR].sync_with_global_time) vt += t;
 			if (var_info[HOR_VAR].sync_with_global_time) ht += t;
             
-			int rows = vert_cat_data.categories[vt].cat_vec.size();
-			int cols = horiz_cat_data.categories[ht].cat_vec.size();
+            int rows = 1, cols = 1;
+            if (!vert_cat_data.categories.empty()) {
+                rows = vert_cat_data.categories[vt].cat_vec.size();
+            }
+            if (!horiz_cat_data.categories.empty()) {
+                cols = horiz_cat_data.categories[ht].cat_vec.size();
+            }
 			int ivals = cell_data[0][0][0].ival_obs_cnt.size();
 			
 			for (int r=0; r<rows; r++) {
@@ -876,7 +865,7 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 			}
             
 			int r, c, ival;
-            for (int i=0; i< (int)hs.size(); i++) {
+            for (int i=0; i< hs.size(); i++) {
                 if (hs[i] && !undef_tms[t][i]) {
     				sel_shp_to_cell_gen(obs_id_to_sel_shp[t][i],
     									r, c, ival, cols, ivals);
@@ -892,8 +881,13 @@ void ConditionalHistogramCanvas::UpdateIvalSelCnts()
 			if (var_info[VERT_VAR].sync_with_global_time) vt += t;
 			if (var_info[HOR_VAR].sync_with_global_time) ht += t;
             
-			int rows = vert_cat_data.categories[vt].cat_vec.size();
-			int cols = horiz_cat_data.categories[ht].cat_vec.size();
+            int rows = 1, cols = 1;
+            if (!vert_cat_data.categories.empty()) {
+                rows = vert_cat_data.categories[vt].cat_vec.size();
+            }
+            if (!horiz_cat_data.categories.empty()) {
+                cols = horiz_cat_data.categories[ht].cat_vec.size();
+            }
 			for (int r=0; r<rows; r++) {
 				for (int c=0; c<cols; c++) {
 					for (int i=0; i<cur_intervals; i++) {
