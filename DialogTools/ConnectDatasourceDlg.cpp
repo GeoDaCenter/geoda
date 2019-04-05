@@ -572,8 +572,10 @@ void ConnectDatasourceDlg::OnRecent(wxCommandEvent& event)
         // For csv file, if no csvt file,
         // pop-up a field definition dialog and create a csvt file
         if (ds_name.EndsWith("csv") && showCsvConfigure) {
-            CsvFieldConfDlg csvDlg(this, ds_name, m_wx_encoding);
-            csvDlg.ShowModal();
+            if (wxFileExists(ds_name)) {
+                CsvFieldConfDlg csvDlg(this, ds_name, m_wx_encoding);
+                csvDlg.ShowModal();
+            }
         }
         IDataSource* ds = recent_ds.GetDatasource(ds_name);
         if (ds == NULL) {
