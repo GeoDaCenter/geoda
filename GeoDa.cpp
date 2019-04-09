@@ -156,7 +156,7 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
-
+#include "Explore/GroupingMapView.h"
 #include "Regression/DiagnosticReport.h"
 
 #include "ShapeOperations/CsvFileUtils.h"
@@ -527,6 +527,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_GROUPING_MAP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -2586,6 +2587,22 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
     if (dlg.ShowModal() == wxID_OK) {
         OnOpenNewTable();
     }
+}
+
+void GdaFrame::OnGroupingMap(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Grouping Map does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    
+    GroupingSelectDlg dlg(this, project_p);
+    dlg.ShowModal();
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
@@ -6704,6 +6721,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
+    EVT_MENU(XRCID("ID_GROUPING_MAP"), GdaFrame::OnGroupingMap)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
