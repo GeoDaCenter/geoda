@@ -2602,7 +2602,16 @@ void GdaFrame::OnGroupingMap(wxCommandEvent& event)
     }
     
     GroupingSelectDlg dlg(this, project_p);
-    dlg.ShowModal();
+    if (dlg.ShowModal() == wxID_OK) {
+        GroupingMapFrame* nf = new GroupingMapFrame(this, project_p,
+                                                    dlg.GetVarInfo(),
+                                                    dlg.GetColIds(),
+                                                    dlg.GetWUID(),
+                                                    dlg.GetTitle(),
+                                                    wxDefaultPosition,
+                                                    GdaConst::map_default_size);
+        nf->Show(true);
+    }
 }
 
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
@@ -2810,7 +2819,6 @@ void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 
 void GdaFrame::OnPublish(wxCommandEvent& event)
 {
-    
 	Project* p = GetProject();
     if (p) {
         PublishDlg dlg(this,p);
@@ -5629,6 +5637,26 @@ void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnChangeConnRootSize(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootSize()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+        f->OnChangeConnRootSize(event);
+    }
+}
+
+void GdaFrame::OnChangeConnRootColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+        f->OnChangeConnRootColor(event);
+    }
+}
+
 void GdaFrame::OnChangeNeighborFillColor(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnChangeNeighborFillColor()");
@@ -6863,6 +6891,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
     EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
+EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
+EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)

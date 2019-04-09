@@ -52,22 +52,22 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
     
     project = project_s;
     wxPanel* panel = new wxPanel(this, -1);
-    
+
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(2, 2, 5, 5);
+
     wxStaticText* group_var_st = new wxStaticText(panel, wxID_ANY,
                                                   _("Group Variable:"));
     group_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                   wxSize(160,-1));
-    wxBoxSizer* group_box = new wxBoxSizer(wxHORIZONTAL);
-    group_box->Add(group_var_st, 0, wxALIGN_LEFT | wxALL, 0);
-    group_box->Add(group_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
+    gbox->Add(group_var_st, 0, wxALIGN_LEFT | wxALL, 0);
+    gbox->Add(group_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
     
     wxStaticText* root_var_st = new wxStaticText(panel, wxID_ANY,
                                                  _("Root Variable:"));
     root_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                  wxSize(160,-1));
-    wxBoxSizer* root_box = new wxBoxSizer(wxHORIZONTAL);
-    root_box->Add(root_var_st, 0, wxALIGN_LEFT | wxALL, 0);
-    root_box->Add(root_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
+    gbox->Add(root_var_st, 0, wxALIGN_LEFT | wxALL, 0);
+    gbox->Add(root_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
     
     wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
                                     wxDefaultSize, wxBU_EXACTFIT);
@@ -79,8 +79,7 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
     hbox->Add(cancel_btn, 0, wxALIGN_CENTER | wxALL, 5);
     
     wxBoxSizer* cbox = new wxBoxSizer(wxVERTICAL);
-    cbox->Add(group_box, 0, wxALIGN_LEFT | wxALL, 10);
-    cbox->Add(root_box, 0, wxALIGN_LEFT | wxALL, 10);
+    cbox->Add(gbox, 0, wxALIGN_CENTER | wxALL, 10);
     panel->SetSizerAndFit(cbox);
     
     wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
@@ -122,11 +121,21 @@ GroupingSelectDlg::~GroupingSelectDlg()
     
 }
 
+std::vector<GdaVarTools::VarInfo> GroupingSelectDlg::GetVarInfo()
+{
+    return vars;
+}
+
+std::vector<int> GroupingSelectDlg::GetColIds()
+{
+    return col_ids;
+}
+
 void GroupingSelectDlg::OnOK( wxCommandEvent& event)
 {
     wxLogMessage("GroupingSelectDlg::OnOK()");
-    std::vector<GdaVarTools::VarInfo> vars(2);
-    std::vector<int> col_ids(2);
+    vars.resize(2);
+    col_ids.resize(2);
     
     wxString group_nm = group_var_list->GetString(group_var_list->GetSelection());
     wxString group_field = name_to_nm[group_nm];
@@ -196,16 +205,23 @@ void GroupingSelectDlg::OnOK( wxCommandEvent& event)
     WeightsMetaInfo e(wmi);
     e.filename = group_nm + "/" + root_nm;
     WeightsManInterface* w_man_int = project->GetWManInt();
-    boost::uuids::uuid uid = w_man_int->RequestWeights(e);
+    uid = w_man_int->RequestWeights(e);
     bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, Wp);
     if (success == false) return;
-    
-    GroupingMapFrame* nf = new GroupingMapFrame(NULL, project, vars, col_ids,
-                                                uid, _("Grouping Map"),
-                                                wxDefaultPosition,
-                                                GdaConst::map_default_size);
+    title = _("Grouping Map: ");
+    title << e.filename;
+    EndDialog(wxID_OK);
 }
 
+wxString GroupingSelectDlg::GetTitle()
+{
+    return title;
+}
+
+boost::uuids::uuid GroupingSelectDlg::GetWUID()
+{
+    return uid;
+}
 ////////////////////////////////////////////////////////////////////////////////
 //
 //
@@ -229,8 +245,18 @@ GroupingMapCanvas::GroupingMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
             w_uuid, pos, size)
 {
 	wxLogMessage("Entering GroupingMapCanvas::GroupingMapCanvas");
+    root_radius = 4;
     group_field_nm = vars[0].name;
     root_field_nm = vars[1].name;
+    root_field_id = table_int->GetColIdx(vars[1].name);
+    // Get Root values and related row id
+    std::vector<wxInt64> vals;
+    table_int->GetColData(root_field_id, vars[1].time, vals);
+    for (size_t i=0; i<vals.size(); ++i) {
+        if (vals[i] == 1) {
+            grp_root[i] = true;
+        }
+    }
     display_weights_graph = true;
 	CreateAndUpdateCategories();
     UpdateStatusBar();
@@ -245,6 +271,66 @@ GroupingMapCanvas::~GroupingMapCanvas()
 	wxLogMessage("In GroupingMapCanvas::~GroupingMapCanvas");
 }
 
+void GroupingMapCanvas::DrawConnectivityGraph(wxMemoryDC &dc)
+{
+    std::vector<bool>& hs = highlight_state->GetHighlight();
+    if (highlight_state->GetTotalHighlighted() >0) {
+        wxPen pen(graph_color, weights_graph_thickness);
+        for (int i=0; i<w_graph.size(); i++) {
+            GdaPolyLine* e = w_graph[i];
+            if (hs[e->from]) {
+                e->setPen(pen);
+                e->paintSelf(dc);
+            } else {
+                e->setPen(*wxTRANSPARENT_PEN);
+            }
+        }
+    }
+}
+
+void GroupingMapCanvas::CreateConnectivityGraph()
+{
+    // use centroids to draw graph
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+    const vector<GdaPoint*>& c = project->GetCentroids();
+    vector<bool>& hs = highlight_state->GetHighlight();
+    GdaPolyLine* edge;
+    std::set<int> w_nodes;
+    wxPen pen(graph_color, weights_graph_thickness);
+    for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
+        GalElement& e = gal_weights->gal[i];
+        for (int j=0, jend=e.Size(); j<jend; j++) {
+            int nbr = e[j];
+            if (i!=nbr) {
+                // connect i<->nbr
+                edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(),
+                                       c[nbr]->GetX(), c[nbr]->GetY());
+                edge->from = i;
+                edge->to = nbr;
+                edge->setPen(pen);
+                edge->setBrush(*wxTRANSPARENT_BRUSH);
+                foreground_shps.push_back(edge);
+                w_graph.push_back(edge);
+                w_nodes.insert(i);
+                w_nodes.insert(nbr);
+
+            }
+        }
+    }
+
+    std::map<int, bool>::iterator it;
+    for (it = grp_root.begin(); it != grp_root.end(); ++it) {
+        int row = it->first;
+        GdaPoint* pt = c[row];
+        GdaPoint* circle = new GdaPoint(pt->GetX(), pt->GetY());
+        circle->SetRadius(root_radius);
+        circle->setPen(wxPen(root_color));
+        circle->setBrush(*wxTRANSPARENT_BRUSH);
+        foreground_shps.push_back(circle);
+    }
+}
+
 void GroupingMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	wxLogMessage("Entering GroupingMapCanvas::DisplayRightClickMenu");
@@ -253,7 +339,7 @@ void GroupingMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((GroupingMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COLOCATION_VIEW_MENU_OPTIONS");
+		LoadMenu("ID_GROUPING_MAP_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
@@ -261,6 +347,30 @@ void GroupingMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->PopupMenu(optMenu, pos + GetPosition());
 	template_frame->UpdateOptionMenuItems();
 	wxLogMessage("Exiting GroupingMapCanvas::DisplayRightClickMenu");
+}
+
+void GroupingMapCanvas::ChangeRootSize(int root_sz)
+{
+    root_radius = root_sz;
+    full_map_redraw_needed = true;
+    PopulateCanvas();
+}
+
+int GroupingMapCanvas::GetRootSize()
+{
+    return root_radius;
+}
+
+void GroupingMapCanvas::ChangeRootColor(wxColour root_clr)
+{
+    root_color = root_clr;
+    full_map_redraw_needed = true;
+    PopulateCanvas();
+}
+
+wxColour GroupingMapCanvas::GetRootColor()
+{
+    return root_color;
 }
 
 wxString GroupingMapCanvas::GetCanvasTitle()
@@ -293,7 +403,6 @@ void GroupingMapCanvas::TimeChange()
 	wxLogMessage("Entering GroupingMapCanvas::TimeChange");
 	wxLogMessage("Exiting GroupingMapCanvas::TimeChange");
 }
-
 
 void GroupingMapCanvas::TimeSyncVariableToggle(int var_index)
 {
@@ -410,7 +519,8 @@ void GroupingMapFrame::OnActivate(wxActivateEvent& event)
 	if (event.GetActive()) {
 		RegisterAsActive("GroupingMapFrame", GetTitle());
 	}
-    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+    if ( event.GetActive() && template_canvas )
+        template_canvas->SetFocus();
 }
 
 void GroupingMapFrame::MapMenus()
@@ -418,7 +528,7 @@ void GroupingMapFrame::MapMenus()
 	wxLogMessage("In GroupingMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COLOCATION_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_GROUPING_MAP_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
@@ -442,3 +552,27 @@ void GroupingMapFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
+
+void GroupingMapFrame::OnChangeConnRootSize(wxCommandEvent& event)
+{
+    int root_size = ((GroupingMapCanvas*) template_canvas)->GetRootSize();
+    wxString root_val;
+    root_val << root_size;
+    wxTextEntryDialog dlg(this, "Change Radius Size of Root Observations:",
+                          "", root_val);
+    if (dlg.ShowModal() == wxID_OK) {
+        root_val = dlg.GetValue();
+        long new_sz;
+        if (root_val.ToLong(&new_sz)) {
+            ((GroupingMapCanvas*) template_canvas)->ChangeRootSize(new_sz);
+        }
+    }
+}
+
+void GroupingMapFrame::OnChangeConnRootColor(wxCommandEvent& event)
+{
+    wxColour root_color = ((GroupingMapCanvas*) template_canvas)->GetRootColor();
+    root_color = GeneralWxUtils::PickColor(this, root_color);
+    ((GroupingMapCanvas*) template_canvas)->ChangeRootColor(root_color);
+}
+

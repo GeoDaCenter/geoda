@@ -1186,19 +1186,7 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
     }
     if (show_graph) {
         // draw connectivity graph if needed
-        const vector<GdaPoint*>& c = project->GetMeanCenters();
-        if (highlight_state->GetTotalHighlighted() >0) {
-            wxPen pen(graph_color, weights_graph_thickness);
-            for (int i=0; i<w_graph.size(); i++) {
-                GdaPolyLine* e = w_graph[i];
-                if (hs[e->from]) {
-                    e->setPen(pen);
-                    e->paintSelf(dc);
-                } else {
-                    e->setPen(*wxTRANSPARENT_PEN);
-                }
-            }
-        }
+        DrawConnectivityGraph(dc);
     }
     if (is_updating == false && (show_graph || display_neighbors)) {
         highlight_timer->Stop(); // make linking start immediately
@@ -2303,7 +2291,8 @@ void MapCanvas::PopulateCanvas()
 			full_map_redraw_needed = false;
 			
 			if (selectable_shps_type == polygons &&
-                (display_mean_centers || display_centroids || display_weights_graph))
+                (display_mean_centers || display_centroids ||
+                 display_weights_graph))
             {
 				GdaPoint* p;
 				wxPen cent_pen(wxColour(20, 20, 20));
@@ -2337,33 +2326,8 @@ void MapCanvas::PopulateCanvas()
 				}
 			}
             if (display_weights_graph) {
-                // use men centers to draw graph
-                WeightsManInterface* w_man_int = project->GetWManInt();
-                GalWeight* gal_weights = w_man_int->GetGal(weights_id);
-                const vector<GdaPoint*>& c = project->GetCentroids();
-                vector<bool>& hs = highlight_state->GetHighlight();
-                GdaPolyLine* edge;
-                std::set<int> w_nodes;
-                wxPen pen(graph_color, weights_graph_thickness);
-                for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
-                    GalElement& e = gal_weights->gal[i];
-                    for (int j=0, jend=e.Size(); j<jend; j++) {
-                        int nbr = e[j];
-                        if (i!=nbr) {
-                            // connect i<->nbr
-                            edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(),
-                                                   c[nbr]->GetX(), c[nbr]->GetY());
-                            edge->from = i;
-                            edge->to = nbr;
-                            edge->setPen(pen);
-                            edge->setBrush(*wxTRANSPARENT_BRUSH);
-                            foreground_shps.push_back(edge);
-                            w_graph.push_back(edge);
-                            w_nodes.insert(i);
-                            w_nodes.insert(nbr);
-                        }
-                    }
-                }
+                // use centroids to draw graph
+                CreateConnectivityGraph();
             }
 		}
 	} else {
@@ -2375,6 +2339,54 @@ void MapCanvas::PopulateCanvas()
 	}
 
     ReDraw();
+}
+
+void MapCanvas::DrawConnectivityGraph(wxMemoryDC &dc)
+{
+    std::vector<bool>& hs = highlight_state->GetHighlight();
+    if (highlight_state->GetTotalHighlighted() >0) {
+        wxPen pen(graph_color, weights_graph_thickness);
+        for (int i=0; i<w_graph.size(); i++) {
+            GdaPolyLine* e = w_graph[i];
+            if (hs[e->from]) {
+                e->setPen(pen);
+                e->paintSelf(dc);
+            } else {
+                e->setPen(*wxTRANSPARENT_PEN);
+            }
+        }
+    }
+}
+
+void MapCanvas::CreateConnectivityGraph()
+{
+    // use centroids to draw graph
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+    const vector<GdaPoint*>& c = project->GetCentroids();
+    vector<bool>& hs = highlight_state->GetHighlight();
+    GdaPolyLine* edge;
+    std::set<int> w_nodes;
+    wxPen pen(graph_color, weights_graph_thickness);
+    for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
+        GalElement& e = gal_weights->gal[i];
+        for (int j=0, jend=e.Size(); j<jend; j++) {
+            int nbr = e[j];
+            if (i!=nbr) {
+                // connect i<->nbr
+                edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(),
+                                       c[nbr]->GetX(), c[nbr]->GetY());
+                edge->from = i;
+                edge->to = nbr;
+                edge->setPen(pen);
+                edge->setBrush(*wxTRANSPARENT_BRUSH);
+                foreground_shps.push_back(edge);
+                w_graph.push_back(edge);
+                w_nodes.insert(i);
+                w_nodes.insert(nbr);
+            }
+        }
+    }
 }
 
 void MapCanvas::TimeChange()

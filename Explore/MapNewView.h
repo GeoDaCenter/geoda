@@ -240,6 +240,7 @@ public:
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour neighbor_fill_color;
+    int conn_selected_size;
     set<int> ids_of_nbrs;
     vector<int> ids_wo_nbrs;
 	vector<GdaVarTools::VarInfo> var_info;
@@ -303,6 +304,8 @@ protected:
     void show_empty_shps_msgbox();
     void SaveThumbnail();
     bool InitBasemap();
+    virtual void DrawConnectivityGraph(wxMemoryDC &dc);
+    virtual void CreateConnectivityGraph();
 
 	DECLARE_EVENT_TABLE()
 };

@@ -2751,6 +2751,146 @@
       </object>
       <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_GROUPING_MAP_MENU_OPTIONS">
+      <object class="wxMenu" name="ID_MENU">
+          <label>Connectivity</label>
+          <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
+              <label>Show Graph</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenu" name="ID_MENU">
+              <label>Change Edge Thickness</label>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_LIGHT">
+                  <label>Light</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_NORM">
+                  <label>Normal</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_THICKNESS_STRONG">
+                  <label>Strong</label>
+                  <checkable>1</checkable>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_WEIGHTS_GRAPH_COLOR">
+              <label>Change Edge Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HIDE_MAP_WITH_GRAPH">
+              <label>Hide Map</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
+              <label>Change Outline Color of Selected</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_CONN_ROOT_SIZE">
+              <label>Change Size of Root</label>
+          </object>
+          <object class="wxMenuItem" name="ID_CONN_ROOT_COLOR">
+              <label>Change Color of Root</label>
+          </object>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
+          <object class="wxMenuItem" name="ID_MAP_ADDMEANCENTERS">
+              <label>Add Mean Centers to Table</label>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_ADDCENTROIDS">
+              <label>Add Centroids to Table</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_DISPLAY_MEAN_CENTERS">
+              <label>Display Mean Centers</label>
+              <checkable>1</checkable>
+              <enabled>0</enabled>
+          </object>
+          <object class="wxMenuItem" name="ID_DISPLAY_CENTROIDS">
+              <label>Display Centroids</label>
+              <checkable>1</checkable>
+              <enabled>0</enabled>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_EXPORT_MEAN_CNTRS">
+              <label>Save Mean Centers</label>
+              <enabled>1</enabled>
+          </object>
+          <object class="wxMenuItem" name="ID_EXPORT_CENTROIDS">
+              <label>Save Centroids</label>
+              <enabled>1</enabled>
+          </object>
+          <label>Shape Centers</label>
+      </object>
+      <object class="wxMenu" name="ID_VORONOI_DIAGRAM_MENU">
+          <object class="wxMenuItem" name="ID_DISPLAY_VORONOI_DIAGRAM">
+              <label>Display Thiessen Polygons</label>
+              <checkable>1</checkable>
+              <enabled>0</enabled>
+          </object>
+          <object class="wxMenuItem" name="ID_EXPORT_VORONOI">
+              <label>Save Thiessen Polygons</label>
+              <enabled>0</enabled>
+          </object>
+          <object class="wxMenuItem" name="ID_SAVE_VORONOI_DUPS_TO_TABLE">
+              <label>Save Duplicate Thiessen Polygons to Table</label>
+              <enabled>0</enabled>
+          </object>
+          <label>Thiessen Polygons</label>
+      </object>
+      <object class="separator"/>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Selection Shape</label>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_RECT">
+              <label>Rectangle</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_CIRCLE">
+              <label>Circle</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECT_WITH_LINE">
+              <label>Line</label>
+              <checkable>1</checkable>
+          </object>
+      </object>
+      <object class="wxMenu" name="ID_MENU">
+          <label>Color</label>
+          <object class="wxMenuItem" name="ID_SELECTABLE_OUTLINE_VISIBLE">
+              <label>Outlines Visible</label>
+              <checkable>1</checkable>
+              <checked>1</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_SHOW_MAP_CONTOUR">
+              <label>Show Map Boundary</label>
+              <checkable>1</checkable>
+              <checked>0</checked>
+          </object>
+          <object class="wxMenuItem" name="ID_SELECTABLE_FILL_COLOR">
+              <label>Selectable Fill Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_CANVAS_BACKGROUND_COLOR">
+              <label>Background Color</label>
+          </object>
+      </object>
+      <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+          <label>Show Status Bar</label>
+          <checkable>1</checkable>
+          <checked>1</checked>
+      </object>
+      <object class="separator"/>
+
+      <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
+          <label>Save Selection</label>
+      </object>
+      <object class="wxMenuItem" name="ID_COPY_IMAGE_TO_CLIPBOARD">
+          <label>Copy Image To Clipboard</label>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_CANVAS_IMAGE_AS">
+          <label>Save Image As</label>
+      </object>
+      <label>Options</label>
+  </object>
   <object class="wxMenu" name="ID_COLOCATION_VIEW_MENU_OPTIONS">
       <object class="wxMenuItem" name="ID_SAVE_COLOCATION">
           <label>Save Results</label>

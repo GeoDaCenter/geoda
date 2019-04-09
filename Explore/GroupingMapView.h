@@ -29,6 +29,10 @@ using namespace std;
 
 class GroupingSelectDlg : public wxDialog
 {
+    std::vector<GdaVarTools::VarInfo> vars;
+    std::vector<int> col_ids;
+    boost::uuids::uuid uid;
+    wxString title;
     Project* project;
     TableInterface* table_int;
     wxChoice* group_var_list;
@@ -41,11 +45,27 @@ public:
     virtual ~GroupingSelectDlg();
     
     void OnOK( wxCommandEvent& event );
+    std::vector<GdaVarTools::VarInfo> GetVarInfo();
+    std::vector<int> GetColIds();
+    wxString GetTitle();
+    boost::uuids::uuid GetWUID();
 };
 
 class GroupingMapCanvas : public MapCanvas
 {
 	DECLARE_CLASS(GroupingMapCanvas)
+
+    wxString group_field_nm;
+    wxString root_field_nm;
+    int root_field_id;
+
+    std::map<int, bool> grp_root;
+    int root_radius;
+    wxColour root_color;
+
+    virtual void DrawConnectivityGraph(wxMemoryDC &dc);
+    virtual void CreateConnectivityGraph();
+
 public:	
     GroupingMapCanvas(wxWindow *parent,
                       TemplateFrame* t_frame,
@@ -67,9 +87,11 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
 
-    wxString group_field_nm;
-    wxString root_field_nm;
-    
+    void ChangeRootSize(int root_size);
+    void ChangeRootColor(wxColour root_color);
+    int GetRootSize();
+    wxColour GetRootColor();
+
 	DECLARE_EVENT_TABLE()
 };
 
@@ -93,6 +115,9 @@ public:
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
+
+    void OnChangeConnRootSize(wxCommandEvent& event);
+    void OnChangeConnRootColor(wxCommandEvent& event);
     
     DECLARE_EVENT_TABLE()
 };
