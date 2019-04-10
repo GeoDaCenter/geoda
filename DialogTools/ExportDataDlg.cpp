@@ -194,7 +194,7 @@ void ExportDataDlg::CreateControls()
         m_chk_create_project->Hide();
     }
     m_crs_input = XRCCTRL(*this, "IDC_FIELD_CRS", wxTextCtrl);
-    if (project_p->IsTableOnlyProject()) {
+    if (project_p == NULL || project_p->IsTableOnlyProject()) {
         // if table only ds, disable CRS controls
         m_crs_input->Disable();
         XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
@@ -342,7 +342,7 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             //geometries only, e.g. boundray file or in-memory geometries&table
             if (spatial_ref && table_p) {
                 // https://github.com/GeoDaCenter/geoda/issues/1046
-                
+                // do nothing here
             }
         } else {
             //case: save current open datasource as a new datasource
@@ -500,17 +500,17 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
 {
     // Exporting layer in multi-layer cases will not use OGRTable anymore,
     // we will use OGRDataAdapter to get ogr layer by layer name
-    OGRTable* tbl = dynamic_cast<OGRTable*>(project_p->GetTableInt());
+    OGRTable* tbl = NULL;
+    if (project_p) {
+        tbl = dynamic_cast<OGRTable*>(project_p->GetTableInt());
+    }
 	if (!tbl) {
 		// DBFTable case, try to read into
         wxString msg = _("Only OGR datasource can be saved as.");
 		throw GdaException(msg.mb_str());
 	}
-
     OGRLayerProxy* layer = tbl->GetOGRLayer();
-    
-    layer->T_Export(ds_format.ToStdString(), ds_name.ToStdString(),
-                    layer_name.ToStdString(), is_update);
+    layer->T_Export(ds_format, ds_name, layer_name, is_update);
     int prog_n_max = project_p->GetNumRecords();
     wxProgressDialog prog_dlg(_("Save As progress dialog"),
                               _("Saving data..."),
@@ -521,7 +521,6 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
     while (layer->export_progress < prog_n_max) {
         wxSleep(1);
         cont = prog_dlg.Update(layer->export_progress);
-        
         if (!cont ) {
             layer->T_StopExport();
             return;
@@ -685,10 +684,6 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
         }
     }
 
-	//NOTE: export_ds will take ownership of ogr_geometries 
-	//for (size_t i=0; i<ogr_geometries.size(); i++) {
-	//	OGRGeometryFactory::destroyGeometry( ogr_geometries[i]);
-	//}
     return true;
 }
 
@@ -727,21 +722,15 @@ IDataSource* ExportDataDlg::GetDatasource()
         
         // save user inputs to history table
         if (!dbhost.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_host",  dbhost.ToStdString());
+            OGRDataAdapter::GetInstance().AddHistory("db_host",  dbhost);
         if (!dbname.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_name", dbname.ToStdString());
+            OGRDataAdapter::GetInstance().AddHistory("db_name", dbname);
         if (!dbport.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_port", dbport.ToStdString());
+            OGRDataAdapter::GetInstance().AddHistory("db_port", dbport);
         if (!dbuser.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("db_user", dbuser.ToStdString());
+            OGRDataAdapter::GetInstance().AddHistory("db_user", dbuser);
         if (!layer_name.IsEmpty())
-            OGRDataAdapter::GetInstance()
-            .AddHistory("tbl_name", layer_name.ToStdString());
-        
+            OGRDataAdapter::GetInstance().AddHistory("tbl_name", layer_name);
         
         GdaConst::DataSourceType ds_type = GdaConst::ds_unknown;
         if (cur_sel == DBTYPE_ORACLE) ds_type = GdaConst::ds_oci;
@@ -765,8 +754,7 @@ IDataSource* ExportDataDlg::GetDatasource()
         
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
         return new DBDataSource(ds_type, dbname,dbhost,dbport,dbuser,dbpwd);
-        //ds_name = ds.GetOGRConnectStr();
-        
+
     } else {
         std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
         std::string key(m_cartodb_key->GetValue().Trim().mb_str());
