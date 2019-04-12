@@ -3560,7 +3560,7 @@ void MapFrame::UpdateContextMenuItems(wxMenu* menu)
 /** Implementation of TimeStateObserver interface */
 void  MapFrame::update(TimeState* o)
 {
-	template_canvas->TimeChange();
+	((MapCanvas*) template_canvas)->TimeChange();
 	UpdateTitle();
 	if (template_legend) template_legend->Recreate();
 }

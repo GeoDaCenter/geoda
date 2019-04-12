@@ -840,9 +840,9 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 	s << GenUtils::DblToStr(regressionXY.beta, display_precision);
     
     int t = var_info_orig[0].time-var_info_orig[0].time_min;
-    if (t >= lisa_coord->Gal_vecs.size()) {
-        return;
-    }
+    if (is_diff) t = 0; // differential case
+    if (t >= lisa_coord->Gal_vecs.size()) return;
+    
     GalWeight* w = lisa_coord->Gal_vecs[t];
     GalElement* gal = w->gal;
     bool has_island = false;
