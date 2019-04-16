@@ -1422,19 +1422,20 @@ void CreatingWeightDlg::CreateWeights()
             wildcard = _("GWT files (*.gwt)|*.gwt");
         }
     }
-    
-    wxFileDialog dlg(this,
-                     _("Choose an output weights file name."),
-                     project->GetWorkingDir().GetPath(),
-                     defaultFile,
-                     wildcard,
+    wxString working_dir = project->GetWorkingDir().GetPath();
+    wxFileDialog dlg(this, _("Choose an output weights file name."),
+                     working_dir, defaultFile, wildcard,
                      wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     
     wxString outputfile;
-    if (dlg.ShowModal() != wxID_OK)
-        return;
+    if (dlg.ShowModal() != wxID_OK) return;
     outputfile = dlg.GetPath();
-    
+
+    // update working directory
+    wxString new_dir = dlg.GetDirectory();
+    if (working_dir != new_dir) {
+        project->SetWorkingDir(new_dir);
+    }
     wxLogMessage("CreateWeights()");
     wxLogMessage(outputfile);
     

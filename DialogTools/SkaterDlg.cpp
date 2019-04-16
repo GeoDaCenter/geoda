@@ -260,7 +260,9 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         file.Clear();
         
         wxString header;
-        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle() << " " << id;
+        header << "0 " << project->GetNumRecords() << " ";
+        header << "\"" << project->GetProjectTitle() << "\" ";
+        header << id;
         file.AddLine(header);
         
         
