@@ -420,11 +420,11 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         file.Create(new_txt);
         file.Open(new_txt);
         file.Clear();
-        
+
         wxString header;
-        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle() << " " << id;
-        file.AddLine(header);
-        
+        header << "0 " << project->GetNumRecords() << " ";
+        header << "\"" << project->GetProjectTitle() << "\" ";
+        header << id;
         
         for (int i=0; i<redcap->ordered_edges.size(); i++) {
             wxString line;
