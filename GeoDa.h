@@ -557,7 +557,7 @@ public:
 	void OnPlotsPerViewAll(wxCommandEvent& event);
 	
 	void OnDisplayStatusBar(wxCommandEvent& event);
-	
+	void OnDonate(wxCommandEvent& event);
 	void OnHelpAbout(wxCommandEvent& event);
 	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);

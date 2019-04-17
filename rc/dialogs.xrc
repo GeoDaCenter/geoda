@@ -810,18 +810,32 @@
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
+            <object class="spacer">
+                <size>5,2d</size>
+            </object>
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
               <label>OK</label>
             </object>
           </object>
           <object class="spacer">
-            <size>10,2d</size>
+            <size>5,2d</size>
           </object>
           <object class="sizeritem">
             <object class="wxButton" name="ID_CHECKUPDATES">
               <label>Check Updates</label>
             </object>
+          </object>
+          <object class="spacer">
+              <size>5,2d</size>
+          </object>
+          <object class="sizeritem">
+              <object class="wxButton" name="wxID_DONATE">
+                  <label>Donate</label>
+              </object>
+          </object>
+          <object class="spacer">
+              <size>5,2d</size>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>

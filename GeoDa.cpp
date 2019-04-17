@@ -6268,6 +6268,12 @@ void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
     OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
 }
 
+void GdaFrame::OnDonate(wxCommandEvent& WXUNUSED(event) )
+{
+    wxString donate_url = "https://giving.uchicago.edu/site/Donation2?1838.donation=form1&df_id=1838&mfc_pref=T&set.Designee=1901";
+    wxLaunchDefaultBrowser(donate_url);
+}
+
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("In GdaFrame::OnHelpAbout()");
@@ -6333,6 +6339,7 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	vl_s << " " << Gda::version_year;
 	if (vl) vl->SetLabelText(vl_s);
 
+    wxButton* btn_donate = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("wxID_DONATE"), &dlg));
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
     wxCheckBox* chk_testmode_stable = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE_STABLE"), &dlg));
     std::vector<wxString> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
@@ -6346,9 +6353,9 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
             chk_testmode_stable->SetValue(true);
         }
     }
-    
+
+    btn_donate->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnDonate), NULL, this);
     chk_testmode_stable->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
-    
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();
 }
@@ -7140,6 +7147,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_ALL, GdaFrame::OnPlotsPerViewAll)
     EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
     EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
+    EVT_MENU(XRCID("wxID_DONATE"), GdaFrame::OnDonate)
     EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
     EVT_MENU(XRCID("wxID_REPORTBUG"), GdaFrame::OnReportBug)
 END_EVENT_TABLE()

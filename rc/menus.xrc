@@ -32,6 +32,7 @@
         <label>Project Information</label>
       </object>
       <object class="separator"/>
+
       <object class="wxMenuItem" name="wxID_PREFERENCES">
         <label>Preferences...</label>
       </object>
@@ -532,6 +533,9 @@
       </object>
       <object class="wxMenuItem" name="wxID_REPORTBUG">
         <label>Bug Report</label>
+      </object>
+      <object class="wxMenuItem" name="wxID_DONATE">
+          <label>Donate</label>
       </object>
       <object class="wxMenuItem" name="wxID_ABOUT">
         <label>About GeoDa</label>
