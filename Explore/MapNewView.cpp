@@ -4028,7 +4028,13 @@ void MapFrame::OnClose(wxCloseEvent& event)
 
 void MapFrame::OnExportVoronoi()
 {
-    if (project->ExportVoronoi()) {
+    if (project->ExportVoronoi() == false) {
+        // can't export voronoi because of duplicate points
+        wxString msg = _("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Please try to export current dataset without duplicates.");
+        wxMessageDialog dlg(NULL, msg, _("Can't save Thiessen polygons"),
+                            wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+    } else {
         if (export_dlg != NULL) {
             export_dlg->Destroy();
             delete export_dlg;

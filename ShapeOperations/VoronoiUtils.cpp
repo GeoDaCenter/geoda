@@ -201,10 +201,10 @@ bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 	SampleStatistics::CalcMinMax(x, x_orig_min, x_orig_max);
 	SampleStatistics::CalcMinMax(y, y_orig_min, y_orig_max);
 	double orig_scale = std::max(x_orig_max-x_orig_min,
-											  y_orig_max-y_orig_min);
+                                 y_orig_max-y_orig_min);
 	if (orig_scale == 0) orig_scale = 1;
-	double big_dbl = 1073741824; // 2^30
-	double p = (big_dbl/orig_scale);
+	double big_dbl = 1073741824; // 2^30 should be replaced with DBL_MAX
+	double p = big_dbl / orig_scale;
 	
 	std::map<int, std::list<int> > dups;
 	std::map<int, std::list<int> >::iterator dups_iter;
@@ -321,7 +321,7 @@ bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 			double x1 = (edge_x1 / p) + x_orig_min;
 			double y1 = (edge_y1 / p) + y_orig_min;
 			if (edge_cnt == 0) {
-				x_init == x0;
+				x_init == x0; // ???
 				y_init == y0;
 			}
 			//wxString msg;
@@ -394,17 +394,13 @@ bool Gda::VoronoiUtils::MakePolygons(const std::vector<double>& x,
 			
 			// make sure that the cell's internal point is also within the
 			// convex hull.
-			{
-				double x0 =
-					(((double) x_int[cell.source_index()]) / p) + x_orig_min;
-				double y0 =
-					(((double) y_int[cell.source_index()]) / p) + y_orig_min;
-				append(h_pts, make<point_xy<double> >(x0, y0));
-			}
+			double x0 = (((double) x_int[cell.source_index()]) / p) + x_orig_min;
+            double y0 = (((double) y_int[cell.source_index()]) / p) + y_orig_min;
+            append(h_pts, make<point_xy<double> >(x0, y0));
 			
 			boost::geometry::convex_hull(h_pts, hull);
 			
-				ring_type outer_ring = hull.outer();
+            ring_type outer_ring = hull.outer();
 			int pts_cnt = 0;
 			for (ring_type::iterator it=outer_ring.begin();
 				 it != outer_ring.end(); it++) {

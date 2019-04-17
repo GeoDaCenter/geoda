@@ -820,7 +820,6 @@ void Project::DisplayPointDupsWarning()
 {
 	wxLogMessage("Project::DisplayPointDupsWarning()");
 
-	if (point_dups_warn_prev_displayed) return;
 	wxString msg = _("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
 	wxMessageDialog dlg(NULL, msg, _("Duplicate Thiessen Polygons Found"),
                         wxOK | wxCANCEL | wxICON_INFORMATION);
@@ -869,12 +868,14 @@ void Project::SaveVoronoiDupsToTable()
 	std::vector<SaveToTableEntry> data(1);
 	std::vector<wxInt64> dup_ids(num_records, -1);
 	std::vector<bool> undefined(num_records, true);
-	for (std::list<std::list<int> >::iterator dups_iter
-			 = point_duplicates.begin();
-			 dups_iter != point_duplicates.end(); dups_iter++) {
+	for (std::list<std::list<int> >::iterator dups_iter = point_duplicates.begin();
+         dups_iter != point_duplicates.end(); dups_iter++)
+    {
 		int head_id = *(dups_iter->begin());
-		for (std::list<int>::iterator iter=dups_iter->begin();
-				 iter != dups_iter->end(); iter++) {
+        std::list<int>::iterator iter = dups_iter->begin();
+        iter++; // ignore first one
+		for (; iter != dups_iter->end(); iter++)
+        {
 			undefined[*iter] = false;
 			dup_ids[*iter] = head_id+1;
 		}			
