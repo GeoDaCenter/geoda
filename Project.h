@@ -85,7 +85,8 @@ public:
 	IDataSource* GetDataSource() { return datasource; }
 	wxString GetProjectTitle(); /// assumed to be layer name
 	GdaConst::DataSourceType GetDatasourceType();
-    
+
+    bool HasNullGeometry() { return has_null_geometry;}
 	bool IsTableOnlyProject();
     bool IsDataTypeChanged();
     bool IsFileDataSource();
@@ -295,7 +296,8 @@ protected:
 	TimeState*          time_state;
 	TimeChooserDlg*     time_chooser;
     MapLayerState*      maplayer_state;
-    
+
+    bool has_null_geometry;
 	bool point_duplicates_initialized;
 	bool point_dups_warn_prev_displayed;
 	

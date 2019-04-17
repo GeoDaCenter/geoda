@@ -1196,6 +1196,8 @@ void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
                 x = poPoint.getX();
                 y = poPoint.getY();
                 centroids.push_back(new GdaPoint(x, y));
+            } else {
+                centroids.push_back(new GdaPoint(0,0)); // no geomeetry
             }
         }
     }
@@ -1342,6 +1344,8 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
 
 bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 {
+    bool has_null_geometry = false;
+
 	// get geometry envelope
 	OGREnvelope pEnvelope;
     if (layer->GetExtent(&pEnvelope) == OGRERR_NONE) {
@@ -1369,8 +1373,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 		OGRGeometry* geometry= feature->GetGeometryRef();
 		OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
 		// sometime OGR can't return correct value from GetGeomType() call
-		if (eGType == wkbUnknown)
-            eGType = eType;
+		if (eGType == wkbUnknown) eGType = eType;
         
 		if (eType == wkbPoint) {
 			Shapefile::PointContents* pc = new Shapefile::PointContents();
@@ -1390,6 +1393,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                         GetExtent(p_main, pc, row_idx);
                 }
             } else {
+                has_null_geometry = true;
                 pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
@@ -1409,10 +1413,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
 					pc->x = p->getX();
 					pc->y = p->getY();
-					if (noExtent)
-						GetExtent(p_main, pc, row_idx);
-					
+					if (noExtent) GetExtent(p_main, pc, row_idx);
 				}
+            } else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
 			
@@ -1452,8 +1457,10 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                             pc->points[i++].y =  pLinearRing->getY(k);
                         }
                 }
-                if (noExtent)
-                    GetExtent(p_main, pc, row_idx);
+                if (noExtent) GetExtent(p_main, pc, row_idx);
+            } else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
             
@@ -1470,8 +1477,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                 int part_idx = 0, numPoints = 0;
                 OGRLinearRing* pLinearRing = NULL;
                 int pidx =0;
-                for (size_t i = 0; i < n_geom; i++ )
-                {	
+                for (size_t i = 0; i < n_geom; i++ ) {
                     OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
                     OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
                     if ( i == 0 ) {
@@ -1505,9 +1511,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                             pc->points[pidx++].y = pLinearRing->getY(k);
                         }
                     }
-                    if (noExtent)
-                        GetExtent(p_main, pc, row_idx);
+                    if (noExtent) GetExtent(p_main, pc, row_idx);
                 }
+            }  else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
             
@@ -1517,7 +1525,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
         }
 	}
     
-	return true;
+	return has_null_geometry;
 }
 
 void OGRLayerProxy::T_Export(wxString format,

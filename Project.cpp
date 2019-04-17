@@ -89,7 +89,7 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL), rtree_bbox_ready(false)
+sourceSR(NULL), rtree_bbox_ready(false), has_null_geometry(false)
 {
     
 	wxLogMessage("Entering Project::Project (existing project)");
@@ -1631,8 +1631,9 @@ bool Project::InitFromOgrLayer()
     }
 	isTableOnly = layer_proxy->IsTableOnly();
     if (ds_type == GdaConst::ds_dbf) isTableOnly = true;
-    if (!isTableOnly) layer_proxy->ReadGeometries(main_data);
-
+    if (!isTableOnly) {
+        has_null_geometry = layer_proxy->ReadGeometries(main_data);
+    }
 	return true;
 }
 

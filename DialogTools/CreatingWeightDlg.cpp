@@ -1447,6 +1447,14 @@ void CreatingWeightDlg::CreateWeights()
     }
     
     // 2/2 other cases:
+    if (project->HasNullGeometry()) {
+        wxString msg = _("Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again.");
+        wxMessageDialog dlg(NULL, msg, _("Warning: NULL geometry"),
+                            wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();
     int m_kernel_kNN = m_spinn_kernel->GetValue();

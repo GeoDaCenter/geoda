@@ -2349,7 +2349,7 @@ void MapCanvas::PopulateCanvas()
                     GalElement& e = gal_weights->gal[i];
                     for (int j=0, jend=e.Size(); j<jend; j++) {
                         int nbr = e[j];
-                        if (i!=nbr) {
+                        if (i != nbr) {
                             // connect i<->nbr
                             edge = new GdaPolyLine(c[i]->GetX(),c[i]->GetY(),
                                                    c[nbr]->GetX(), c[nbr]->GetY());
