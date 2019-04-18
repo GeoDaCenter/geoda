@@ -533,7 +533,7 @@ void LisaCoordinator::CalcPseudoP()
         GalElement* w = weights->gal;
         double* _sigLocal = sig_local_vecs[0];
         
-        wxString exePath = GenUtils::GetBasemapCacheDir();
+        wxString exePath = GenUtils::GetExeDir();
         wxString clPath = exePath + "lisa_kernel.cl";
         bool flag = gpu_lisa(clPath.mb_str(), num_obs, permutations, last_seed_used, values, local_moran, w, _sigLocal);
         

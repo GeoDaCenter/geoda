@@ -2551,8 +2551,11 @@ void CatClassifData::ExchangeLabels(int from, int to)
 
 void CatClassifData::AppendUndefCategory(int t, int count)
 {
+    wxColour brush_clr = wxColour(70, 70, 70);
+    wxColour pen_clr = GdaColorUtils::ChangeBrightness(brush_clr);
     Category c_undef;
-    c_undef.brush.SetColour(wxColour(70, 70, 70));
+    c_undef.brush.SetColour(brush_clr);
+    c_undef.pen.SetColour(pen_clr);
     c_undef.label = "undefined";
     c_undef.min_val = 0;
     c_undef.max_val = 0;

@@ -2086,7 +2086,7 @@ wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 	return wrapper.GetWrapped();
 }
 
-wxString GenUtils::GetBasemapCacheDir()
+wxString GenUtils::GetExeDir()
 {
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
@@ -2120,5 +2120,44 @@ wxString GenUtils::GetSamplesDir()
     return GetResourceDir();
 #else
     return GetWebPluginsDir();
+#endif
+}
+
+wxString GenUtils::GetBasemapDir()
+{
+#ifdef __linux__
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Unix: ~ (the home directory)
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + ".geoda";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString basemapDir = geodaUserDir + wxFileName::GetPathSeparator() + "basemap_cache";
+    if (wxDirExists(basemapDir) == false) {
+        wxFileName::Mkdir(basemapDir);
+    }
+    return basemapDir;
+#else
+    return GetExeDir() + "basemap_cache";
+#endif
+}
+
+wxString GenUtils::GetCachePath()
+{
+#ifdef __linux__
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Unix: ~ (the home directory)
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + ".geoda";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString cachePath = geodaUserDir + wxFileName::GetPathSeparator() + "cache.sqlite";
+    if (wxFileExists(cachePath) == false) {
+        wxString origCachePath = GetExeDir() + "cache.sqlite";
+        wxCopyFile(origCachePath, cachePath);
+    }
+    return cachePath;
+#else
+    return GetExeDir() + "cache.sqlite";
 #endif
 }

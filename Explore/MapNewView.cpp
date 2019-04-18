@@ -809,7 +809,7 @@ bool MapCanvas::InitBasemap()
             return false;
         } else {
             basemap = new Gda::Basemap(basemap_item, screen, current_map,
-                                       orig_map, GenUtils::GetBasemapCacheDir(),
+                                       orig_map, GenUtils::GetBasemapDir(),
                                        poCT, scale_factor);
         }
     }

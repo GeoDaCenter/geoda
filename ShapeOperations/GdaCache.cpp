@@ -21,25 +21,22 @@ const wxString GdaCache::WS_URL_HIST    = "ws_url";
 
 wxString GdaCache::GetFullPath()
 {
-    wxString exePath = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName exeFile(exePath);
-    wxString exeDir = exeFile.GetPathWithSep();
-    exeDir = exeDir + "cache.sqlite";
-    return exeDir;
+    wxString cache_path = GenUtils::GetCachePath();
+    return cache_path;
 }
 
 GdaCache::GdaCache()
 {
-    wxString exePath = GdaCache::GetFullPath();
+    wxString cache_path = GdaCache::GetFullPath();
     
 	// if cache file not exists, create one
-    if (!wxFileExists(exePath)) {
-        OGRDatasourceProxy::CreateDataSource("SQLite", exePath);
+    if (!wxFileExists(cache_path)) {
+        OGRDatasourceProxy::CreateDataSource("SQLite", cache_path);
     }
     
 	// connect to cache file
     try {
-        cach_ds_proxy = new OGRDatasourceProxy(exePath, GdaConst::ds_sqlite, true);
+        cach_ds_proxy = new OGRDatasourceProxy(cache_path, GdaConst::ds_sqlite, true);
         layer_names = cach_ds_proxy->GetLayerNames();
         wxString sql = "SELECT * FROM history";
         history_table = cach_ds_proxy->GetLayerProxyBySQL(sql);

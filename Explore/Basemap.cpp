@@ -214,7 +214,7 @@ Basemap::~Basemap() {
 void Basemap::CleanCache()
 {
     wxString filename;
-    filename << cachePath << "basemap_cache"<< separator();
+    filename << cachePath << separator();
     wxDir dir(filename);
     if (dir.IsOpened() ) {
         wxString file;
@@ -752,7 +752,7 @@ wxString Basemap::GetTilePath(int x, int y)
 {
     //std::ostringstream filepathBuf;
     wxString filepathBuf;
-    filepathBuf << cachePath << "basemap_cache"<< separator();
+    filepathBuf << cachePath << separator();
     filepathBuf << basemapName << "-";
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     

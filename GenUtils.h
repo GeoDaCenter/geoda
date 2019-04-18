@@ -432,10 +432,12 @@ namespace GenUtils {
 	wxString FindLongestSubString(const vector<wxString> strings,
 								  bool case_sensitive=false);
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
-	wxString GetBasemapCacheDir();
+	wxString GetExeDir();
 	wxString GetWebPluginsDir();
 	wxString GetResourceDir();
     wxString GetSamplesDir();
+    wxString GetBasemapDir();
+    wxString GetCachePath();
     bool less_vectors(const vector<int>& a,const vector<int>& b);
     
     // Act like matlab's [Y,I] = SORT(X)
