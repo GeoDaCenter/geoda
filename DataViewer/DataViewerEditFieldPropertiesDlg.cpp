@@ -689,7 +689,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 
     // get col index again
     cid = table_int->FindColId(name);
-
+    UpdateLength(row);
 	UpdateMinMax(row);
 	ev.Skip();
 	
@@ -792,6 +792,49 @@ void DataViewerEditFieldPropertiesDlg::UpdateMinMax(int row)
 	}
 	field_grid->SetCellValue(row, COL_MAX, smax);
 	field_grid->SetCellValue(row, COL_MIN, smin);
+}
+
+void DataViewerEditFieldPropertiesDlg::UpdateLength(int row)
+{
+    if (row < 0) return;
+    wxString pg = field_grid->GetCellValue(row, COL_PG);
+    wxString name;
+    if (pg.IsEmpty()) {
+        name = field_grid->GetCellValue(row, COL_N);
+    } else {
+        name = pg;
+    }
+    int cid = table_int->FindColId(name);
+    if (cid < 0) return;
+    int t=0;
+    wxString tm_str = field_grid->GetCellValue(row, COL_TM);
+    if (!tm_str.IsEmpty()) t = tm_str_map[tm_str];
+    GdaConst::FieldType type = table_int->GetColType(cid, t);
+    // Update length, decimal places, displayed decimal places
+    wxString lv;
+    lv << table_int->GetColLength(cid, t);
+    field_grid->SetCellValue(row, COL_L, lv);
+
+    if (type == GdaConst::double_type) {
+        wxString dv;
+        dv << table_int->GetColDecimals(cid, t);
+        field_grid->SetCellValue(row, COL_D, dv);
+    } else {
+        field_grid->SetCellValue(row, COL_D, "");
+    }
+
+    if (type == GdaConst::double_type) {
+        wxString ddv;
+        if (table_int->GetColDispDecimals(cid) > 0) {
+            ddv << table_int->GetColDispDecimals(cid);
+        } else {
+            // otherwise default (-1) shown as ""
+            ddv = "";
+        }
+        field_grid->SetCellValue(row, COL_DD, ddv);
+    } else {
+        field_grid->SetCellValue(row, COL_DD, "");
+    }
 }
 
 void DataViewerEditFieldPropertiesDlg::UpdateTmStrMap()

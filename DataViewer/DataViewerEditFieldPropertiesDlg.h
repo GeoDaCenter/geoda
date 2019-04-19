@@ -53,7 +53,7 @@ public:
     void OnCellEditorShown( wxGridEvent& ev );
     void OnCellEditorHidden( wxGridEvent& ev );
 	void UpdateMinMax(int row);
-    
+    void UpdateLength(int row);
     void OnGridComboBox(wxCommandEvent& ev );
     
     void OnFieldSelected( wxCommandEvent& ev );

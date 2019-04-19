@@ -342,21 +342,33 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 		Shapefile::PointContents* pc;
 		for (int i=0; i<num_geometries; i++) {
 			pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
-			geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPoint());
+            } else {
+                geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+            }
 		}
 		shape_type = Shapefile::POINT_TYP;
 	} else if (main_data.header.shape_type == Shapefile::POLYGON) {
 		Shapefile::PolygonContents* pc;
 		for (int i=0; i<num_geometries; i++) {
 			pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
-			geometries.push_back(new GdaPolygon(pc));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPolygon());
+            } else {
+                geometries.push_back(new GdaPolygon(pc));
+            }
 		}
 		shape_type = Shapefile::POLYGON;
     } else if (main_data.header.shape_type == Shapefile::POLY_LINE) {
         Shapefile::PolyLineContents* pc;
         for (int i=0; i<num_geometries; i++) {
             pc = (Shapefile::PolyLineContents*)main_data.records[i].contents_p;
-            geometries.push_back(new GdaPolyLine(pc));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPolyLine());
+            } else {
+                geometries.push_back(new GdaPolyLine(pc));
+            }
         }
         shape_type = Shapefile::POLY_LINE;
     }
