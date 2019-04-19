@@ -810,30 +810,35 @@ void DataViewerEditFieldPropertiesDlg::UpdateLength(int row)
     wxString tm_str = field_grid->GetCellValue(row, COL_TM);
     if (!tm_str.IsEmpty()) t = tm_str_map[tm_str];
     GdaConst::FieldType type = table_int->GetColType(cid, t);
+
     // Update length, decimal places, displayed decimal places
-    wxString lv;
-    lv << table_int->GetColLength(cid, t);
-    field_grid->SetCellValue(row, COL_L, lv);
-
-    if (type == GdaConst::double_type) {
-        wxString dv;
-        dv << table_int->GetColDecimals(cid, t);
-        field_grid->SetCellValue(row, COL_D, dv);
-    } else {
-        field_grid->SetCellValue(row, COL_D, "");
+    if (COL_L >= 0) {
+        wxString lv;
+        lv << table_int->GetColLength(cid, t);
+        field_grid->SetCellValue(row, COL_L, lv);
     }
-
-    if (type == GdaConst::double_type) {
-        wxString ddv;
-        if (table_int->GetColDispDecimals(cid) > 0) {
-            ddv << table_int->GetColDispDecimals(cid);
+    if (COL_D >= 0) {
+        if (type == GdaConst::double_type) {
+            wxString dv;
+            dv << table_int->GetColDecimals(cid, t);
+            field_grid->SetCellValue(row, COL_D, dv);
         } else {
-            // otherwise default (-1) shown as ""
-            ddv = "";
+            field_grid->SetCellValue(row, COL_D, "");
         }
-        field_grid->SetCellValue(row, COL_DD, ddv);
-    } else {
-        field_grid->SetCellValue(row, COL_DD, "");
+    }
+    if (COL_DD >= 0) {
+        if (type == GdaConst::double_type) {
+            wxString ddv;
+            if (table_int->GetColDispDecimals(cid) > 0) {
+                ddv << table_int->GetColDispDecimals(cid);
+            } else {
+                // otherwise default (-1) shown as ""
+                ddv = "";
+            }
+            field_grid->SetCellValue(row, COL_DD, ddv);
+        } else {
+            field_grid->SetCellValue(row, COL_DD, "");
+        }
     }
 }
 

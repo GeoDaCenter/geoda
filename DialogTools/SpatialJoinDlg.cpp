@@ -355,7 +355,7 @@ void CountPolygonInPolygon::sub_run(int start, int end)
                  pt_2d(pc->box[2], pc->box[3]));
         // query boxes in this box
         std::vector<box_2d_val> q;
-        rtree.query(bgi::within(b), std::back_inserter(q));
+        rtree.query(bgi::intersects(b), std::back_inserter(q));
         OGRGeometry* ogr_poly = ogr_layer->GetGeometry(i);
         for (int j=0; j<q.size(); j++) {
             const box_2d_val& v = q[j];
