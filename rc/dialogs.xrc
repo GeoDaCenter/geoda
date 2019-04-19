@@ -3593,7 +3593,7 @@
                                   <object class="sizeritem">
                                       <flag>wxALIGN_LEFT|wxALL</flag>
                                       <border>2</border>
-                                      <object class="wxStaticText">
+                                      <object class="wxStaticText" name="IDC_W_STATIC_VARIABLES">
                                           <label>Variables:</label>
                                       </object>
                                   </object>

@@ -988,6 +988,8 @@ void CreatingWeightDlg::InitDlg()
         FindWindow(XRCID("IDC_STATIC_DIST_METRIC"))->Hide();
         FindWindow(XRCID("IDC_STATIC_XCOORD_VAR"))->Hide();
         FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
+        FindWindow(XRCID("IDC_W_STATIC_VARIABLES"))->Hide();
+
         m_nb_distance_variables->Hide();
     }
 
@@ -1447,7 +1449,7 @@ void CreatingWeightDlg::CreateWeights()
     }
     
     // 2/2 other cases:
-    if (project->HasNullGeometry()) {
+    if (!user_xy && project->HasNullGeometry()) {
         wxString msg = _("Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again.");
         wxMessageDialog dlg(NULL, msg, _("Warning: NULL geometry"),
                             wxOK | wxICON_WARNING);
