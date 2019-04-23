@@ -23,6 +23,7 @@ using namespace std;
 
 SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* _ml, Project* _project)
 {
+    duplicate_count = false;
     ml = _ml;
     project = _project;
     int n_joins = project->GetNumRecords();
@@ -36,6 +37,11 @@ SpatialJoinWorker::SpatialJoinWorker(BackgroundMapLayer* _ml, Project* _project)
 SpatialJoinWorker::~SpatialJoinWorker()
 {
 
+}
+
+bool SpatialJoinWorker::IsDuplicateCount()
+{
+    return duplicate_count;
 }
 
 bool SpatialJoinWorker::JoinVariable()
@@ -78,9 +84,33 @@ void SpatialJoinWorker::Run()
 
     threadPool.join_all();
 
+    // check if duplicated counting
+    int n_joins = project->GetNumRecords();
+    if (is_spatial_assign == false) {
+        wxInt64 sum = 0;
+        for (size_t i=0; i<spatial_counts.size(); i++) {
+            sum += spatial_counts[i];
+        }
+        if (sum > ml->GetNumRecords()) {
+            duplicate_count = true;
+        }
+    } else {
+        // spatial assigning
+        std::map<wxInt64, bool> dup_dict;
+        for (size_t i=0; i<spatial_counts.size(); i++) {
+            wxInt64 iid = spatial_counts[i];
+            if ( iid >=0) {
+                if (dup_dict.find(iid) != dup_dict.end()) {
+                    duplicate_count = true;
+                    break;
+                }
+                dup_dict[iid] = true;
+            }
+        }
+    }
+
     // join variable if needed
     if (join_variable) {
-        int n_joins = project->GetNumRecords();
         int n_values = join_values.size();
         for (size_t i=0; i<n_joins; ++i) {
             size_t cnt = join_ids[i].size();
@@ -115,6 +145,7 @@ CountPointsInPolygon::CountPointsInPolygon(BackgroundMapLayer* _ml,
                                            Operation _op)
 : SpatialJoinWorker(_ml, _project)
 {
+    is_spatial_assign = false;
     join_operation = _op;
     join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
 
@@ -151,12 +182,11 @@ void CountPointsInPolygon::sub_run(int start, int end)
             double y = v.first.get<1>();
             OGRPoint ogr_pt(x, y);
             if (ogr_pt.Within(ogr_poly)) {
+                spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
                     join_ids[i].push_back(pt_idx);
                     mutex.unlock();
-                } else {
-                    spatial_counts[i] += 1;
                 }
             }
         }
@@ -169,6 +199,7 @@ AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
                                 Project* _project, vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
+    is_spatial_assign = true;
     poly_ids = _poly_ids;
     num_polygons = ml->GetNumRecords();
     // using current map(points) to create rtree
@@ -212,14 +243,13 @@ void AssignPolygonToPoint::sub_run(int start, int end)
 }
 
 
-
-
 CountLinesInPolygon::CountLinesInPolygon(BackgroundMapLayer* _ml,
                                          Project* _project,
                                          wxString join_variable_nm,
                                          Operation _op)
 : SpatialJoinWorker(_ml, _project)
 {
+    is_spatial_assign = false;
     join_operation = _op;
     join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
 
@@ -258,12 +288,11 @@ void CountLinesInPolygon::sub_run(int start, int end)
             int row_idx = v.second;
             OGRGeometry* geom = ml->geoms[row_idx];
             if (geom->Intersects(ogr_poly)) {
+                spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
                     join_ids[i].push_back(row_idx);
                     mutex.unlock();
-                } else {
-                    spatial_counts[i] += 1;
                 }
             }
         }
@@ -275,6 +304,7 @@ AssignPolygonToLine::AssignPolygonToLine(BackgroundMapLayer* _ml,
                                          vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
+    is_spatial_assign = true;
     poly_ids = _poly_ids;
     num_polygons = ml->GetNumRecords();
     // using current map(lines) to create rtree
@@ -324,6 +354,7 @@ CountPolygonInPolygon::CountPolygonInPolygon(BackgroundMapLayer* _ml,
                                              Operation _op)
 : SpatialJoinWorker(_ml, _project)
 {
+    is_spatial_assign = false;
     join_operation = _op;
     join_variable = _ml->GetDoubleColumnData(join_variable_nm, join_values);
 
@@ -362,13 +393,11 @@ void CountPolygonInPolygon::sub_run(int start, int end)
             int row_idx = v.second;
             OGRGeometry* geom = ml->geoms[row_idx];
             if (geom->Intersects(ogr_poly)) {
+                spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
                     join_ids[i].push_back(row_idx);
-                    spatial_counts[i] += 1;
                     mutex.unlock();
-                } else {
-                    spatial_counts[i] += 1;
                 }
             }
         }
@@ -497,7 +526,7 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             // spatial join
             join_var_list->Clear();
             vector<wxString> field_names = ml->GetNumericFieldNames();
-            join_var_list->Append("(Spatial Counting)");
+            join_var_list->Append("(Spatial Count)");
             for (int i=0; i<field_names.size(); i++) {
                 join_var_list->Append(field_names[i]);
             }
@@ -589,7 +618,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
             field_name = "SA";
 
         } else {
-            // working layer is Polygon: spatial counting
+            // working layer is Polygon: spatial count
             int join_list_sel = join_var_list->GetSelection();
             bool join_variable = join_list_sel > 0;
             if (join_variable) {
@@ -636,6 +665,12 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
 
         wxString dlg_title = _("Save Results to Table: ") + label;
 
+        if (sj->IsDuplicateCount()) {
+            wxMessageDialog dlg (this, _("There are spatial objects being counted more than once. Please check the results."),
+                                 _("Warning"), wxOK | wxICON_INFORMATION);
+            dlg.ShowModal();
+        }
+
         if (sj->JoinVariable()) {
             // Spatial Join with variable
             vector<double> spatial_joins = sj->GetJoinResults();
@@ -651,7 +686,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
                                wxDefaultPosition, wxSize(400,400));
             dlg.ShowModal();
         } else {
-            // Spatial counting or Spatial assigning
+            // Spatial count or Spatial assigning
             vector<wxInt64> spatial_counts = sj->GetResults();
             int new_col = 1;
             std::vector<SaveToTableEntry> new_data(new_col);
@@ -669,3 +704,4 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
         EndDialog(wxID_OK);
     }
 }
+

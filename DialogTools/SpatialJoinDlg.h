@@ -24,7 +24,8 @@ public:
     enum Operation {NONE, MEAN, MEDIAN, STD, SUM};
     SpatialJoinWorker(BackgroundMapLayer* ml, Project* project);
     virtual ~SpatialJoinWorker();
-    
+
+    bool IsDuplicateCount();
     void Run();
     void points_in_polygons(int start, int end);
     void polygon_at_point(int start, int end);
@@ -38,6 +39,9 @@ protected:
     BackgroundMapLayer* ml;
     int num_polygons;
     boost::mutex mutex;
+
+    bool is_spatial_assign;
+    bool duplicate_count;
 
     // results
     vector<wxInt64> spatial_counts;
@@ -117,7 +121,7 @@ class SpatialJoinDlg : public wxDialog
     wxPanel* panel;
     
     void UpdateFieldList(wxString name);
-    
+
 public:
     SpatialJoinDlg(wxWindow* parent, Project* project);
     
