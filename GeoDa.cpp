@@ -156,7 +156,7 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
-
+#include "Explore/GroupingMapView.h"
 #include "Regression/DiagnosticReport.h"
 
 #include "ShapeOperations/CsvFileUtils.h"
@@ -527,6 +527,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_GROUPING_MAP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -2588,6 +2589,31 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnGroupingMap(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Grouping Map does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    
+    GroupingSelectDlg dlg(this, project_p);
+    if (dlg.ShowModal() == wxID_OK) {
+        GroupingMapFrame* nf = new GroupingMapFrame(this, project_p,
+                                                    dlg.GetVarInfo(),
+                                                    dlg.GetColIds(),
+                                                    dlg.GetWUID(),
+                                                    dlg.GetTitle(),
+                                                    wxDefaultPosition,
+                                                    GdaConst::map_default_size);
+        nf->Show(true);
+    }
+}
+
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->GetTableInt()) return;
@@ -2793,7 +2819,6 @@ void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 
 void GdaFrame::OnPublish(wxCommandEvent& event)
 {
-    
 	Project* p = GetProject();
     if (p) {
         PublishDlg dlg(this,p);
@@ -5612,6 +5637,26 @@ void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnChangeConnRootSize(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootSize()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+        f->OnChangeConnRootSize(event);
+    }
+}
+
+void GdaFrame::OnChangeConnRootColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+        f->OnChangeConnRootColor(event);
+    }
+}
+
 void GdaFrame::OnChangeNeighborFillColor(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnChangeNeighborFillColor()");
@@ -6711,6 +6756,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
+    EVT_MENU(XRCID("ID_GROUPING_MAP"), GdaFrame::OnGroupingMap)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
@@ -6852,6 +6898,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
     EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
+EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
+EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)

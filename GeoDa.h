@@ -200,6 +200,7 @@ public:
 	void OnMergeTableData(wxCommandEvent& event);
 	void OnAggregateData(wxCommandEvent& event);
     void OnSpatialJoin(wxCommandEvent& event);
+    void OnGroupingMap(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);
@@ -495,7 +496,8 @@ public:
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
-	
+	void OnChangeConnRootSize(wxCommandEvent& event);
+    void OnChangeConnRootColor(wxCommandEvent& event);
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);
 	void OnDisplayMeanCenters(wxCommandEvent& event);
