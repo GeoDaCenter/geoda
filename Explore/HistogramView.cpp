@@ -573,6 +573,7 @@ void HistogramCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, y_min, x_max, y_max);
     
 	if (show_axes) {
+        // frequencies always show integer numbers
 		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
 		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
@@ -580,7 +581,9 @@ void HistogramCanvas::PopulateCanvas()
                              -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val[time], 5, axis_display_precision);
+		axis_scale_x = AxisScale(0, max_ival_val[time], 5,
+                                 axis_display_precision,
+                                 axis_display_fixed_point);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val[time];
 		axis_scale_x.data_max = max_ival_val[time];
@@ -613,8 +616,9 @@ void HistogramCanvas::PopulateCanvas()
            
             if (i==0) {
                 axis_scale_x.tics[i] = axis_scale_x.data_min;
-                wxString tic_str;
-                tic_str << axis_scale_x.data_min;
+                wxString tic_str = GenUtils::DblToStr(axis_scale_x.data_min,
+                                                      axis_display_precision,
+                                                      axis_display_fixed_point);
                 axis_scale_x.tics_str[i] = tic_str;
                 
                 GdaShapeText* brk;
@@ -629,7 +633,8 @@ void HistogramCanvas::PopulateCanvas()
                 else
                     brk =
                     new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_min,
-                                                        axis_display_precision),
+                                                        axis_display_precision,
+                                                        axis_display_fixed_point),
                                      *GdaConst::small_font,
                                      wxRealPoint(x0, y0), 0,
                                      GdaShapeText::h_center,
@@ -640,8 +645,9 @@ void HistogramCanvas::PopulateCanvas()
             if (i<cur_intervals-1) {
                 axis_scale_x.tics[i] = ival_breaks[time][i];
                 
-                wxString tic_str;
-                tic_str << ival_breaks[time][i];
+                wxString tic_str =  GenUtils::DblToStr(ival_breaks[time][i],
+                                                       axis_display_precision,
+                                                       axis_display_fixed_point);
                 axis_scale_x.tics_str[i] = tic_str;
                 
                 GdaShapeText* brk;
@@ -655,7 +661,8 @@ void HistogramCanvas::PopulateCanvas()
                 else
                     brk =
                     new GdaShapeText(GenUtils::DblToStr(ival_breaks[time][i],
-                                                        axis_display_precision),
+                                                        axis_display_precision,
+                                                        axis_display_fixed_point),
                                      *GdaConst::small_font,
                                      wxRealPoint(x1, y0), 0,
                                      GdaShapeText::h_center,
@@ -665,8 +672,9 @@ void HistogramCanvas::PopulateCanvas()
             }
             if (i==cur_intervals-1) {
                 axis_scale_x.tics[i] = axis_scale_x.data_max;
-                wxString tic_str;
-                tic_str << axis_scale_x.data_max;
+                wxString tic_str = GenUtils::DblToStr(axis_scale_x.data_max,
+                                                      axis_display_precision,
+                                                      axis_display_fixed_point);
                 axis_scale_x.tics_str[i] = tic_str;
                 GdaShapeText* brk;
                 if (IS_VAR_STRING[time])
@@ -679,7 +687,8 @@ void HistogramCanvas::PopulateCanvas()
                 else
                     brk =
                     new GdaShapeText(GenUtils::DblToStr(axis_scale_x.data_max,
-                                                        axis_display_precision),
+                                                        axis_display_precision,
+                                                        axis_display_fixed_point),
                                      *GdaConst::small_font,
                                      wxRealPoint(x1, y0), 0,
                                      GdaShapeText::h_center,
@@ -747,11 +756,11 @@ void HistogramCanvas::PopulateCanvas()
 			} else if (ival_min > mean && sd > 0) {
 				sd_d = (ival_min - mean)/sd;
 			}
-			vals[0] << GenUtils::DblToStr(ival_min, display_precision);
-			vals[1] << GenUtils::DblToStr(ival_max, display_precision);
+			vals[0] << GenUtils::DblToStr(ival_min, display_precision, display_precision_fixed_point);
+			vals[1] << GenUtils::DblToStr(ival_max, display_precision, display_precision_fixed_point);
 			vals[2] << ival_obs_cnt[t][i];
-			vals[3] << GenUtils::DblToStr(p, display_precision);
-			vals[4] << GenUtils::DblToStr(sd_d, display_precision);
+			vals[3] << GenUtils::DblToStr(p, display_precision, display_precision_fixed_point);
+			vals[4] << GenUtils::DblToStr(sd_d, display_precision, display_precision_fixed_point);
 			
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
             s = new GdaShapeTable(vals, attribs, rows, cols,
@@ -1207,7 +1216,7 @@ void HistogramCanvas::UpdateStatusBar()
 	} else if (ival_min > mean && sd > 0) {
 		sd_d = (ival_min - mean)/sd;
 	}
-	s << ", sd from mean: " << GenUtils::DblToStr(sd_d, display_precision);
+	s << ", sd from mean: " << GenUtils::DblToStr(sd_d, display_precision, display_precision_fixed_point);
 
 	sb->SetStatusText(s);
 }

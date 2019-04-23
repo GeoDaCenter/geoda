@@ -139,6 +139,7 @@ protected:
 	wxString GetHelpHtml();
 
     int axis_display_precision;
+    bool axis_display_fixed_point;
 	LowessParamFrame* lowess_param_frame;
 	VarsChooserFrame* vars_chooser_frame;
 	GdaVarTools::Manager var_man;

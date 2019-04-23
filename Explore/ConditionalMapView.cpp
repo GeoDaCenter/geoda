@@ -628,7 +628,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_vert.breaks[row];
 			}
-			tmp_lbl = GenUtils::DblToStr(b, display_precision);
+			tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
         }
@@ -662,7 +662,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_horiz.breaks[col];
 			}
-			tmp_lbl  = GenUtils::DblToStr(b, display_precision);
+			tmp_lbl  = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }

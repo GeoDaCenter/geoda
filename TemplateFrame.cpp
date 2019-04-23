@@ -193,12 +193,16 @@ void TemplateFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 void TemplateFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
 	if (!template_canvas) return;
-    
-    SetDisplayPrecisionDlg dlg(template_canvas->axis_display_precision, this);
-    if (dlg.ShowModal () != wxID_OK)
-        return;
+
+    int display_precision = template_canvas->axis_display_precision;
+    bool display_fixed_point = template_canvas->axis_display_fixed_point;
+
+    SetDisplayPrecisionDlg dlg(display_precision, display_fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+
     int def_precision = dlg.precision;
-    template_canvas->SetAxisDisplayPrecision(def_precision);
+    bool def_fixed_point = dlg.fixed_point;
+    template_canvas->SetAxisDisplayPrecision(def_precision, def_fixed_point);
     
 	UpdateOptionMenuItems();
 }
@@ -209,21 +213,27 @@ void TemplateFrame::OnDisplayPrecision(wxCommandEvent& event)
     if (template_canvas == NULL) return;
 
     int disp_precision = template_canvas->GetDisplayPrecision();
-    SetDisplayPrecisionDlg dlg(disp_precision, this);
-    if (dlg.ShowModal () != wxID_OK) return;
-    disp_precision = dlg.precision;
+    bool fixed_point = template_canvas->GetDisplayFixedPoint();
 
-    template_canvas->SetDisplayPrecision(disp_precision);
+    SetDisplayPrecisionDlg dlg(disp_precision, fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+
+    disp_precision = dlg.precision;
+    fixed_point = dlg.fixed_point;
+    template_canvas->SetDisplayPrecision(disp_precision, fixed_point);
     UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
 {
     int disp_precision = template_canvas->category_disp_precision;
-    SetDisplayPrecisionDlg dlg(disp_precision, this);
+    bool fixed_point = template_canvas->category_disp_fixed_point;
+
+    SetDisplayPrecisionDlg dlg(disp_precision, fixed_point, this);
     if (dlg.ShowModal () != wxID_OK) return;
     disp_precision = dlg.precision;
-    template_canvas->SetCategoryDisplayPrecision(disp_precision);
+    fixed_point = dlg.fixed_point;
+    template_canvas->SetCategoryDisplayPrecision(disp_precision, fixed_point);
 
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();

@@ -62,14 +62,16 @@ SimpleHistStatsCanvas::SimpleHistStatsCanvas(wxWindow *parent,
                                              const vector<vector<double> >& vals,
                                              const vector<double>& stats_,
                                              const int display_precision_,
+                                             const bool display_fixed_point_,
                                              const wxString& right_click_menu_id_,
                                              const wxPoint& pos,
                                              const wxSize& size)
 : TemplateCanvas(parent, t_frame, project, hl_state_int, pos, size),
 labels(lbls), values(vals), stats(stats_),
-right_click_menu_id(right_click_menu_id_),
-display_precision(display_precision_)
+right_click_menu_id(right_click_menu_id_)
 {
+    display_precision = display_precision_;
+    display_precision_fixed_point = display_fixed_point_;
     last_scale_trans.SetFixedAspectRatio(false);
     PopulateCanvas();
     highlight_state->registerObserver(this);
@@ -167,9 +169,9 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     
     for (int i=0; i<values.size(); i++) {
         std::vector<wxString> vals(rows);
-        vals[0] << GenUtils::DblToStr(values[i][0], display_precision);
-        vals[1] << GenUtils::DblToStr(values[i][1], display_precision);
-        vals[2] << GenUtils::DblToStr(values[i][2], display_precision);
+        vals[0] << GenUtils::DblToStr(values[i][0], display_precision, display_precision_fixed_point);
+        vals[1] << GenUtils::DblToStr(values[i][1], display_precision, display_precision_fixed_point);
+        vals[2] << GenUtils::DblToStr(values[i][2], display_precision, display_precision_fixed_point);
         vals[3] << (int)values[i][3];
         //vals[4] << GenUtils::DblToStr(values[i][4], 3);
         
@@ -184,17 +186,17 @@ void SimpleHistStatsCanvas::PopulateCanvas()
     }
     
     wxString sts;
-    sts << _("min:") <<" " << GenUtils::DblToStr(stats[0], display_precision);
+    sts << _("min:") <<" " << GenUtils::DblToStr(stats[0], display_precision, display_precision_fixed_point);
     sts << ", " << _("max:") << " ";
-    sts << GenUtils::DblToStr(stats[1], display_precision);
+    sts << GenUtils::DblToStr(stats[1], display_precision, display_precision_fixed_point);
     sts << ", " << _("total # pairs") << ": " << stats[2];
     if (stats[5] >= 0) {
         sts << ", " << _("Autocorr.") << _(" = 0 at ");
-        sts << GenUtils::DblToStr(stats[5], display_precision);
+        sts << GenUtils::DblToStr(stats[5], display_precision, display_precision_fixed_point);
         sts << _(" in range:") << " [";
-        sts << GenUtils::DblToStr(stats[3], display_precision);
+        sts << GenUtils::DblToStr(stats[3], display_precision, display_precision_fixed_point);
         sts << ", ";
-        sts << GenUtils::DblToStr(stats[4], display_precision);
+        sts << GenUtils::DblToStr(stats[4], display_precision, display_precision_fixed_point);
         sts << "]";
     }
     
@@ -607,14 +609,16 @@ void SimpleHistCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
     
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
+		axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision,
+                                 axis_display_fixed_point);
 		y_max = axis_scale_y.scale_max;
         y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
                              wxRealPoint(0,0), wxRealPoint(0, y_max),
                              -9, 0);
 		foreground_shps.push_back(y_axis);
 		
-		axis_scale_x = AxisScale(0, max_ival_val, 5, axis_display_precision);
+		axis_scale_x = AxisScale(0, max_ival_val, 5, axis_display_precision,
+                                 axis_display_fixed_point);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val;
 		axis_scale_x.data_max = max_ival_val;

@@ -60,7 +60,8 @@ correl_params_frame(0), panel(0),lowess_param_frame(0), sp_can(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
 hist_plot(0), local_hl_state(0), message_win(0), project(project),
 shs_plot(0), display_statistics(false), display_precision(3),
-axis_display_precision(1)
+axis_display_precision(1), display_fixed_point(false),
+axis_display_fixed_point(false)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -182,17 +183,21 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
 
 void CorrelogramFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
-    SetDisplayPrecisionDlg dlg(axis_display_precision, this);
+    SetDisplayPrecisionDlg dlg(axis_display_precision,
+                               axis_display_fixed_point, this);
     if (dlg.ShowModal () != wxID_OK) return;
     axis_display_precision = dlg.precision;
+    axis_display_fixed_point = dlg.fixed_point;
     ReDraw();
 }
 
 void CorrelogramFrame::OnDisplayPrecision(wxCommandEvent& event)
 {
-    SetDisplayPrecisionDlg dlg(display_precision, this);
+    SetDisplayPrecisionDlg dlg(display_precision,
+                               display_fixed_point, this);
     if (dlg.ShowModal () != wxID_OK) return;
     display_precision = dlg.precision;
+    display_fixed_point = dlg.fixed_point;
     ReDraw();
 }
 
@@ -525,6 +530,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
             
 			AxisScale v_axs;
             v_axs.lbl_precision = axis_display_precision;
+            v_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 			v_axs.ticks = 5;
 			v_axs.data_min = -1;
 			v_axs.data_max = 1;
@@ -540,7 +546,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 				double d = i;
 				v_axs.tics[i] = v_axs.data_min + d*v_axs.tic_inc;
                 v_axs.tics_str[i] = GenUtils::DblToStr(v_axs.tics[i],
-                                                       axis_display_precision);
+                                                       axis_display_precision,
+                                                       axis_display_fixed_point);
 				v_axs.tics_str_show[i] = true;
 			}
 
@@ -598,6 +605,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		{
 			AxisScale v_axs;
             v_axs.lbl_precision = axis_display_precision;
+            v_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 			v_axs.ticks = 4;
 			v_axs.data_min = freq_min;
 			v_axs.data_max = freq_max;
@@ -677,6 +685,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		
 		AxisScale h_axs;
         h_axs.lbl_precision = axis_display_precision;
+        h_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 		h_axs.ticks = cbins.size()+1;
 		h_axs.data_min = cbins[0].dist_min;
 		h_axs.data_max = cbins[cbins.size()-1].dist_max;
@@ -692,7 +701,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			double d = i;
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
             h_axs.tics_str[i] = GenUtils::DblToStr(h_axs.tics[i],
-                                                   axis_display_precision);
+                                                   axis_display_precision,
+                                                   axis_display_fixed_point);
 			h_axs.tics_str_show[i] = true;
 		}
 		
@@ -788,6 +798,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
                                         lbls, vals, stats, display_precision,
+                                        display_fixed_point,
                                         "ID_CORRELOGRAM_MENU_OPTIONS",
                                         wxDefaultPosition, wxSize(-1, 110));
     shs_can->SetFixedAspectRatioMode(false);

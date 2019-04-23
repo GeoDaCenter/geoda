@@ -896,8 +896,10 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
-	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5, axis_display_precision);
-	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5, axis_display_precision);
+	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
 
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(num_obs);
@@ -1647,30 +1649,30 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 			attributes[k].color = selectable_outline_color;
 		}
 		vals[i*cols+j++] << tot_obs;
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.r_squared, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.alpha, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_alpha, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_alpha, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_alpha, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.beta, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_beta, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_beta, display_precision);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_beta, display_precision);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.r_squared, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_beta, display_precision,  display_precision_fixed_point);
 		if (IsRegressionSelected()) {
 			i++; j=0;
 			for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 				attributes[k].color = highlight_color;
 			}
 			vals[i*cols+j++] << tot_sel_obs;
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.r_squared, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_beta, display_precision);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.r_squared, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_beta, display_precision, display_precision_fixed_point);
 		}
 		if (IsRegressionExcluded()) {
 			i++; j=0;
@@ -1678,15 +1680,15 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 				attributes[k].color = selectable_fill_color;
 			}
 			vals[i*cols+j++] << tot_unsel_obs;
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.r_squared, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_alpha, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_beta, display_precision);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_beta, display_precision);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.r_squared, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_beta, display_precision, display_precision_fixed_point);
 		}
         int x_nudge = last_scale_trans.GetXNudge();
 		

@@ -200,7 +200,8 @@ void SimpleAxisCanvas::PopulateCanvas()
 		axis_scale_x = AxisScale(x_min - (add_auto_padding_min ? x_pad : 0.0),
 								 x_max + (add_auto_padding_max ? x_pad : 0.0),
 								 (number_ticks < 0 ? 4 : number_ticks),
-                                 axis_display_precision);
+                                 axis_display_precision,
+                                 axis_display_fixed_point);
 	}
 	
     

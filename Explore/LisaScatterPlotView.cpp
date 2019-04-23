@@ -668,7 +668,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
             y_axis_through_origin1->applyScaleTrans(ex_scale);
         }
         wxString str = GenUtils::DblToStr(regressionXYselected.beta,
-                                          display_precision);
+                                          display_precision, display_precision_fixed_point);
         morans_sel_text = new GdaShapeText(str, *GdaConst::small_font,
                                                          wxRealPoint(50, 100), 0,
                                                          GdaShapeText::h_center,
@@ -678,7 +678,7 @@ void LisaScatterPlotCanvas::PopulateCanvas()
         morans_sel_text->setPen(wxPen(*wxRED));
         morans_sel_text->applyScaleTrans(sub_scale);
         wxString str1 = GenUtils::DblToStr(regressionXYexcluded.beta,
-                                           display_precision);
+                                           display_precision, display_precision_fixed_point);
         morans_unsel_text = new GdaShapeText(str1,
                                              *GdaConst::small_font,
                                              wxRealPoint(50, 100), 0,
@@ -837,7 +837,7 @@ void LisaScatterPlotCanvas::PopCanvPreResizeShpsHook()
 {
     // if has highlighted, then the text will be added after RegimeMoran()
 	wxString s("Moran's I: ");
-	s << GenUtils::DblToStr(regressionXY.beta, display_precision);
+	s << GenUtils::DblToStr(regressionXY.beta, display_precision, display_precision_fixed_point);
     
     int t = var_info_orig[0].time-var_info_orig[0].time_min;
     if (is_diff) t = 0; // differential case

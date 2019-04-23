@@ -573,8 +573,8 @@ void PCPCanvas::PopulateCanvas()
 		}
 		
 		if (display_stats) {
-			m << "[" << GenUtils::DblToStr(t_min, display_precision);
-			m << ", " << GenUtils::DblToStr(t_max, display_precision) << "]";
+			m << "[" << GenUtils::DblToStr(t_min, display_precision, display_precision_fixed_point);
+			m << ", " << GenUtils::DblToStr(t_max, display_precision, display_precision_fixed_point) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
             ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
@@ -584,9 +584,9 @@ void PCPCanvas::PopulateCanvas()
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
 			vals[0] << _("mean");
-			vals[1] << GenUtils::DblToStr(t_mean, display_precision);
+			vals[1] << GenUtils::DblToStr(t_mean, display_precision, display_precision_fixed_point);
 			vals[2] << _("s.d.");
-			vals[3] << GenUtils::DblToStr(t_sd, display_precision);
+			vals[3] << GenUtils::DblToStr(t_sd, display_precision, display_precision_fixed_point);
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(0, y_pos), GdaShapeText::right,

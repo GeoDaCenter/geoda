@@ -98,7 +98,9 @@ public:
 	CatClassifData cat_data;
     bool useScientificNotation;
     int  category_disp_precision;
+    bool category_disp_fixed_point;
     int  axis_display_precision;
+    bool axis_display_fixed_point;
 
 	virtual void SetSelectableOutlineVisible(bool visible);
 	virtual bool IsSelectableOutlineVisible();
@@ -181,7 +183,7 @@ public:
 	virtual void SetFitToWindowMode(bool mode);
 	virtual bool GetFixedAspectRatioMode();
 	virtual void SetFixedAspectRatioMode(bool mode);
-	virtual void SetAxisDisplayPrecision(int n);
+	virtual void SetAxisDisplayPrecision(int n, bool fixed_point=false);
 
 	/** convert mouse coordiante point to original observation-coordinate
 	 points.  This is an inverse of the affine transformation that converts
@@ -218,7 +220,8 @@ public:
     virtual double GetPointRadius() { return point_radius; }
     virtual void SetPointRadius(double r);
     virtual int GetDisplayPrecision() { return display_precision;}
-    virtual void SetDisplayPrecision(int prec);
+    virtual void SetDisplayPrecision(int prec, bool fixed_point=false);
+    virtual bool GetDisplayFixedPoint() { return display_precision_fixed_point;}
 
     // The following 3 functions should be enought to create another
     // inherited class (maybe TemplateMultiCanvas : TemplateCanvas
@@ -228,7 +231,7 @@ public:
     
     // helper functions
     void SetScientificNotation(bool flag);
-    void SetCategoryDisplayPrecision(int prec);
+    void SetCategoryDisplayPrecision(int prec, bool fixed_point=false);
     const wxBitmap* GetLayer0() { return layer0_bm; }
     const wxBitmap* GetLayer1() { return layer1_bm; }
     const wxBitmap* GetLayer2() { return layer2_bm; }
@@ -305,6 +308,7 @@ protected:
     int           MASK_G;
     int           MASK_B;
     int           display_precision;
+    bool          display_precision_fixed_point;
     wxDouble      point_radius;
     bool          enable_high_dpi_support;
     bool          is_showing_brush;

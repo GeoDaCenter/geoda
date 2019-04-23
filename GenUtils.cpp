@@ -1110,9 +1110,11 @@ scale_range(0), tic_inc(0), p(0)
 {
 }
 
-AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
+AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s,
+                     int lbl_precision_s, bool lbl_prec_fixed_point_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
-scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
+scale_range(0), tic_inc(0), p(0), ticks(ticks_s),
+lbl_precision(lbl_precision_s), lbl_prec_fixed_point(lbl_prec_fixed_point_s)
 {
 	CalculateScale(data_min_s, data_max_s, ticks_s);
 }
@@ -1122,7 +1124,8 @@ AxisScale::AxisScale(const AxisScale& s)
 	scale_min(s.scale_min), scale_max(s.scale_max),
 	scale_range(s.scale_range), tic_inc(s.tic_inc), p(s.p),
 	tics(s.tics), tics_str(s.tics_str), tics_str_show(s.tics_str_show),
-	ticks(s.ticks)
+	ticks(s.ticks), lbl_precision(s.lbl_precision),
+    lbl_prec_fixed_point(s.lbl_prec_fixed_point)
 {
 }
 
@@ -1139,6 +1142,8 @@ AxisScale& AxisScale::operator=(const AxisScale& s)
 	tics_str = s.tics_str;
 	tics_str_show = s.tics_str_show;
 	ticks = s.ticks;
+    lbl_precision = s.lbl_precision;
+    lbl_prec_fixed_point = s.lbl_prec_fixed_point;
 	return *this;
 }
 
@@ -1185,7 +1190,8 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	}
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
-        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision);
+        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision,
+                                         lbl_prec_fixed_point);
 		tics_str_show[i] = true;
 	}
 }
@@ -1263,14 +1269,14 @@ wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
     return output;
 }
 
-wxString GenUtils::DblToStr(double x, int precision)
+wxString GenUtils::DblToStr(double x, int precision, bool fixed_point)
 {
 	std::stringstream ss;
     if (x < 10000000) {
         ss << std::fixed;
     }
 
-     if (x == (int)x) {
+     if (x == (int)x && fixed_point == false) {
          // The default should be that an integer is displayed as an integer
         ss << (int)x;
     } else {

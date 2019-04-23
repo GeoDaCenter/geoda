@@ -372,7 +372,8 @@ void CatClassifHistCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, 0, x_max, max_num_obs_in_ival);
     
 	
-	axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision);
+	axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision,
+                             axis_display_fixed_point);
 	y_max = axis_scale_y.scale_max;
 	y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 						wxRealPoint(0,0), wxRealPoint(0, y_max),

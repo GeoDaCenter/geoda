@@ -224,6 +224,7 @@ protected:
     OGRTable* mem_table_int;
 	
     int def_y_precision;
+    bool def_y_prec_fixed_point;
     bool use_def_y_range;
     wxString def_y_min;
     wxString def_y_max;

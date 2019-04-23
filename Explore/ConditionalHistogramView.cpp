@@ -340,7 +340,8 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_vert.breaks[row];
             }
-            tmp_lbl = GenUtils::DblToStr(b,display_precision);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision,
+                                         display_precision_fixed_point);
         } else {
             tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
         }
@@ -378,7 +379,8 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_horiz.breaks[col];
             }
-            tmp_lbl = GenUtils::DblToStr(b, display_precision);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision,
+                                         display_precision_fixed_point);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }
@@ -450,13 +452,15 @@ void ConditionalHistogramCanvas::PopulateCanvas()
     last_scale_trans.SetData(x_min, 0, x_max, y_max);
     
 	if (show_axes) {
-		axis_scale_y = AxisScale(0, y_max, 3, axis_display_precision);
+		axis_scale_y = AxisScale(0, y_max, 3, axis_display_precision,
+                                 axis_display_fixed_point);
 		y_max = axis_scale_y.scale_max;
 		y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 							wxRealPoint(0,0), wxRealPoint(0, y_max),
 							-9, 0);
 		
-		axis_scale_x = AxisScale(0, max_ival_val[t], 5, axis_display_precision);
+		axis_scale_x = AxisScale(0, max_ival_val[t], 5, axis_display_precision,
+                                 axis_display_fixed_point);
 		//shps_orig_xmax = axis_scale_x.scale_max;
 		axis_scale_x.data_min = min_ival_val[t];
 		axis_scale_x.data_max = max_ival_val[t];
@@ -473,7 +477,9 @@ void ConditionalHistogramCanvas::PopulateCanvas()
 			axis_scale_x.tics[i] =
 			axis_scale_x.data_min +
 			range*((double) i)/((double) axis_scale_x.ticks-1);
-            wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i], axis_display_precision);
+            wxString flt = GenUtils::DblToStr(axis_scale_x.tics[i],
+                                              axis_display_precision,
+                                              axis_display_fixed_point);
 			axis_scale_x.tics_str[i] = flt.ToStdString();
 			axis_scale_x.tics_str_show[i] = false;
 		}

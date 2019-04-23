@@ -324,7 +324,8 @@ struct SimpleLinearRegression {
 
 struct AxisScale {
     AxisScale();
-	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
+	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5,
+              int lbl_precision=2, bool lbl_prec_fixed_point=false);
 	AxisScale(const AxisScale& s);
     AxisScale& operator=(const AxisScale& s);
 	void CalculateScale(double data_min_s, double data_max_s,
@@ -340,6 +341,7 @@ struct AxisScale {
 	double scale_range;
 	double tic_inc;	
     int lbl_precision;
+    bool lbl_prec_fixed_point;
 	int ticks;
 	int p; // power of ten to scale significant digit
 	vector<double>tics; // numerical tic values
@@ -354,7 +356,7 @@ namespace GenUtils {
 	bool StrToBool(const wxString& s);
 	wxString Pad(const wxString& s, int width, bool pad_left=true);
     wxString PadTrim(const wxString& s, int width, bool pad_left=true);
-	wxString DblToStr(double x, int precision = 3);
+	wxString DblToStr(double x, int precision = 3, bool fixed_point=false);
     wxString IntToStr(int x, int precision = 0);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);

@@ -54,7 +54,7 @@ brush_rectangle(true), brush_circle(false), brush_line(false),
 selectable_outline_color(GdaConst::scatterplot_regression_color),
 selectable_fill_color(GdaConst::scatterplot_regression_excluded_color),
 highlight_color(GdaConst::scatterplot_regression_selected_color),
-axis_display_precision(1)
+axis_display_precision(1), axis_display_fixed_point(false)
 {
 	wxLogMessage("Open ScatterPlotMatFrame.");
     
@@ -336,18 +336,22 @@ void ScatterPlotMatFrame::OnEditLowessParams(wxCommandEvent& event)
 void ScatterPlotMatFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
-    SetDisplayPrecisionDlg dlg(axis_display_precision, this);
+    SetDisplayPrecisionDlg dlg(axis_display_precision,
+                               axis_display_fixed_point, this);
     if (dlg.ShowModal () != wxID_OK)
         return;
     int def_precision = dlg.precision;
-    
+    bool fixed_point = dlg.fixed_point;
     for (size_t i=0, sz=vert_labels.size(); i<sz; ++i) {
-        if (vert_labels[i]) vert_labels[i]->SetAxisDisplayPrecision(def_precision);
+        if (vert_labels[i])
+            vert_labels[i]->SetAxisDisplayPrecision(def_precision, fixed_point);
     }
     for (size_t i=0, sz=horiz_labels.size(); i<sz; ++i) {
-        if (horiz_labels[i]) horiz_labels[i]->SetAxisDisplayPrecision(def_precision);
+        if (horiz_labels[i])
+            horiz_labels[i]->SetAxisDisplayPrecision(def_precision, fixed_point);
     }
     axis_display_precision = def_precision;
+    axis_display_fixed_point = fixed_point;
 }
 
 void ScatterPlotMatFrame::OnShowVarsChooser(wxCommandEvent& event)

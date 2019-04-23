@@ -555,10 +555,12 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	double y_pad = 0.1 * (y_max - y_min);
 	axis_scale_x = AxisScale(x_min - (add_auto_padding_min ? x_pad : 0.0),
 							 x_max + (add_auto_padding_max ? x_pad : 0.0),
-                             5, axis_display_precision);
+                             5, axis_display_precision,
+                             axis_display_fixed_point);
 	axis_scale_y = AxisScale(y_min - (add_auto_padding_min ? y_pad : 0.0),
 							 y_max + (add_auto_padding_max ? y_pad : 0.0),
-                             5, axis_display_precision);
+                             5, axis_display_precision,
+                             axis_display_fixed_point);
 
     /*
 	// used by status bar for showing selection rectangle range

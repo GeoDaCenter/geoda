@@ -83,6 +83,7 @@ tms_subset0_tm_inv(1, true),
 tms_subset1_tm_inv(1, false),
 regReportDlg(0),
 def_y_precision(2),
+def_y_prec_fixed_point(false),
 use_def_y_range(false),
 has_selection(1),
 has_excluded(1),
@@ -862,13 +863,15 @@ void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
 void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 {
 	wxLogMessage("In LineChartFrame:OnAdjustYAxisPrecision()");
-    SetDisplayPrecisionDlg dlg(def_y_precision, this);
+    SetDisplayPrecisionDlg dlg(def_y_precision, def_y_prec_fixed_point, this);
     if (dlg.ShowModal () != wxID_OK) return;
     
     def_y_precision = dlg.precision;
-    
+    def_y_prec_fixed_point = dlg.fixed_point;
+
     for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-        line_charts[i]->UpdateYAxisPrecision(def_y_precision);
+        line_charts[i]->UpdateYAxisPrecision(def_y_precision,
+                                             def_y_prec_fixed_point);
         line_charts[i]->UpdateAll();
     }
     
@@ -1907,7 +1910,8 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
                 canvas->UpdateAll();
             }
             if (def_y_precision !=2) {
-                canvas->UpdateYAxisPrecision(def_y_precision);
+                canvas->UpdateYAxisPrecision(def_y_precision,
+                                             def_y_prec_fixed_point);
                 canvas->UpdateAll();
             }
 			bag_szr->Add(canvas, 1, wxEXPAND);

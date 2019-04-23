@@ -57,7 +57,9 @@ LineChartCanvas::LineChartCanvas(wxWindow *parent, TemplateFrame* t_frame,
 : TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos,
                  size, false, true),
 lcs(lcs_), lc_canv_cb(lc_canv_cb_), summ_avg_circs(4, (GdaCircle*) 0),
-y_axis_precision(2), fixed_scale_over_change(true), prev_y_axis_min(DBL_MIN), prev_y_axis_max(DBL_MAX)
+y_axis_precision(2), y_axis_prec_fixed_point(false),
+fixed_scale_over_change(true),
+prev_y_axis_min(DBL_MIN), prev_y_axis_max(DBL_MAX)
 {
 	LOG_MSG("Entering LineChartCanvas::LineChartCanvas");
     last_scale_trans.SetFixedAspectRatio(false);
@@ -307,9 +309,10 @@ void LineChartCanvas::UpdateYAxis(wxString y_min, wxString y_max)
     def_y_max = y_max;
 }
 
-void LineChartCanvas::UpdateYAxisPrecision(int precision_s)
+void LineChartCanvas::UpdateYAxisPrecision(int precision_s, bool fixed_point)
 {
     y_axis_precision = precision_s;
+    y_axis_prec_fixed_point = fixed_point;
 }
 
 void LineChartCanvas::PopulateCanvas()
@@ -380,7 +383,8 @@ void LineChartCanvas::PopulateCanvas()
     if (!def_y_max.IsEmpty())
           def_y_max.ToDouble(&axis_max);
 
-	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision);
+	axis_scale_y = AxisScale(axis_min, axis_max, 4, y_axis_precision,
+                             y_axis_prec_fixed_point);
 	
 	scaleY = 100.0 / (axis_scale_y.scale_range);
     

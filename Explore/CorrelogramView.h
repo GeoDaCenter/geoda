@@ -127,7 +127,9 @@ protected:
     SimpleScatterPlotCanvas* sp_can;
 
     int  display_precision;
+    bool display_fixed_point;
     int  axis_display_precision;
+    bool axis_display_fixed_point;
     bool display_statistics;
     
 	wxBoxSizer* top_h_sizer;

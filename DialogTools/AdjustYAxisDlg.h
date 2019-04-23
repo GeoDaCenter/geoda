@@ -60,7 +60,7 @@ class SetDisplayPrecisionDlg : public wxDialog{
     DECLARE_EVENT_TABLE()
     
 public:
-    SetDisplayPrecisionDlg( int precision,
+    SetDisplayPrecisionDlg( int precision, bool fixed_point,
                    wxWindow* parent, wxWindowID id = wxID_ANY,
                    const wxString& caption = _("Set Display Precision"),
                    const wxPoint& pos = wxDefaultPosition,
@@ -73,8 +73,10 @@ public:
     void OnKeyUp( wxEvent& event );
 
     wxSpinCtrl* m_precision_spin;
+    wxCheckBox* m_fixed_point;
     
     int precision;
+    bool fixed_point;
 };
 
 #endif

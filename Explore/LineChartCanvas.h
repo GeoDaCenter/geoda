@@ -55,7 +55,7 @@ class LineChartCanvas : public TemplateCanvas
     
     void UpdateYAxis(wxString y_min="", wxString y_max="");
     
-    void UpdateYAxisPrecision(int precision_s);
+    void UpdateYAxisPrecision(int precision_s, bool fixed_point=false);
     
     double GetYAxisMinVal() {return axis_scale_y.scale_min;}
     double GetYAxisMaxVal() {return axis_scale_y.scale_max;}
@@ -77,7 +77,7 @@ protected:
 	AxisScale axis_scale_y;
 	double scaleY;
     int y_axis_precision;
-    
+    bool y_axis_prec_fixed_point;
     double prev_y_axis_min;
     double prev_y_axis_max;
     

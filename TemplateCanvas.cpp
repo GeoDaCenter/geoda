@@ -110,11 +110,12 @@ total_hover_obs(0), max_hover_obs(11), hover_obs(11),
 is_pan_zoom(false), prev_scroll_pos_x(0), prev_scroll_pos_y(0),
 useScientificNotation(false),
 is_showing_brush(false),
-axis_display_precision(2), display_precision(3),
+axis_display_precision(2), axis_display_fixed_point(false),
+display_precision(3), display_precision_fixed_point(false),
+category_disp_precision(3), category_disp_fixed_point(false),
 enable_high_dpi_support(enable_high_dpi_support_),
 scale_factor(1.0),
 point_radius(GdaConst::my_point_click_radius),
-category_disp_precision(3),
 MASK_R(183), MASK_G(184), MASK_B(185)
 {
     highlight_timer = new wxTimer(this);
@@ -169,11 +170,11 @@ void TemplateCanvas::SetScientificNotation(bool flag)
     useScientificNotation = flag;
 }
 
-void TemplateCanvas::SetCategoryDisplayPrecision(int prec)
+void TemplateCanvas::SetCategoryDisplayPrecision(int prec, bool fixed_point)
 {
     category_disp_precision = prec;
+    category_disp_fixed_point = fixed_point;
 }
-
 
 void TemplateCanvas::deleteLayerBms()
 {
@@ -236,15 +237,17 @@ void TemplateCanvas::SetFixedAspectRatioMode(bool mode)
 	ResizeSelectableShps();
 }
 
-void TemplateCanvas::SetAxisDisplayPrecision(int n)
+void TemplateCanvas::SetAxisDisplayPrecision(int n, bool fixed_point)
 {
     axis_display_precision = n;
+    axis_display_fixed_point = fixed_point;
     PopulateCanvas();    
 }
 
-void TemplateCanvas::SetDisplayPrecision(int prec)
+void TemplateCanvas::SetDisplayPrecision(int prec, bool fixed_point)
 {
     display_precision = prec;
+    display_precision_fixed_point = fixed_point;
     //invalidateBms();
     PopulateCanvas();
 }
