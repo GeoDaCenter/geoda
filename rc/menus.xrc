@@ -71,9 +71,6 @@
       <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
           <label>Spatial Join</label>
       </object>
-      <object class="wxMenuItem" name="ID_GROUPING_MAP">
-          <label>Grouping Map</label>
-      </object>
     </object>
     <object class="wxMenu" name="ID_MENU">
       <label>T&amp;able</label>
@@ -332,6 +329,10 @@
 	    <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
           <label>10</label>
 	    </object>
+      </object>
+      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
+          <label>Hierarchical Map</label>
+          <checkable>0</checkable>
       </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
@@ -831,6 +832,10 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
+          <label>Hierarchical Map</label>
+          <checkable>0</checkable>
+      </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
           <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -2755,7 +2760,7 @@
       </object>
       <label>Options</label>
   </object>
-  <object class="wxMenu" name="ID_GROUPING_MAP_MENU_OPTIONS">
+  <object class="wxMenu" name="ID_HIERARCHICAL_MAP_MENU_OPTIONS">
       <object class="wxMenu" name="ID_MENU">
           <label>Connectivity</label>
           <object class="wxMenuItem" name="ID_DISPLAY_WEIGHTS_GRAPH">
@@ -3489,6 +3494,10 @@
 		  <checkable>1</checkable>
         </object>
 	  </object>
+      <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
+          <label>Hierarchical Map</label>
+          <checkable>0</checkable>
+      </object>
       <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
           <label>Custom Breaks</label>
           <object class="wxMenuItem" name="ID_NEW_CUSTOM_CAT_CLASSIF_A">
@@ -4899,9 +4908,6 @@
       <object class="wxMenuItem" name="ID_TABLE_SPATIAL_JOIN">
           <label>Spatial Join</label>
       </object>
-      <object class="wxMenuItem" name="ID_GROUPING_MAP">
-          <label>Grouping Map</label>
-      </object>
   </object>
   <object class="wxMenu" name="ID_GETIS_MENU">
     <label>Local G Maps</label>
@@ -5034,6 +5040,10 @@
 	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
         <label>10</label>
 	  </object>
+    </object>
+    <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
+        <label>Hierarchical Map</label>
+        <checkable>0</checkable>
     </object>
     <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
         <label>Custom Breaks</label>
@@ -5174,6 +5184,10 @@
 	  <object class="wxMenuItem" name="ID_OPEN_EQUAL_INTERVALS_10">
         <label>10</label>
 	  </object>
+    </object>
+    <object class="wxMenuItem" name="ID_HIERARCHICAL_MAP">
+        <label>Hierarchical Map</label>
+        <checkable>0</checkable>
     </object>
     <object class="wxMenu" name="ID_OPEN_CUSTOM_BREAKS_SUBMENU">
         <label>Custom Breaks</label>

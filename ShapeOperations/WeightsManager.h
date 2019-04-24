@@ -47,7 +47,8 @@ public:
 	bool AssociateGal(boost::uuids::uuid w_uuid, GalWeight* gw);
 	
 	// Implementation of WeightsManInterface
-	virtual void GetIds(std::vector<boost::uuids::uuid>& ids) const;
+	virtual void GetIds(std::vector<boost::uuids::uuid>& ids,
+                        bool allow_internal_weights = false) const;
 	virtual boost::uuids::uuid FindIdByMetaInfo(const WeightsMetaInfo& wmi) const;
 	virtual boost::uuids::uuid FindIdByFilename(const wxString& file) const;
 	virtual boost::uuids::uuid FindIdByTitle(const wxString& title) const;
@@ -80,7 +81,8 @@ public:
 	virtual bool IsValid(boost::uuids::uuid w_uuid);
     virtual bool IsBinaryWeights(boost::uuids::uuid w_uuid);
     virtual WeightsMetaInfo::WeightTypeEnum GetWeightsType(boost::uuids::uuid w_uuid);
-	
+    virtual bool IsInternalUse(boost::uuids::uuid w_uuid) const;
+    
 private:
 	struct Entry {
 		Entry() : gal_weight(0), geoda_weight(0) {}

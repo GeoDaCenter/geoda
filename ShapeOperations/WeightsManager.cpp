@@ -47,7 +47,6 @@ WeightsNewManager::WeightsNewManager(WeightsManState* w_man_state_,
 
 WeightsNewManager::~WeightsNewManager()
 {
-    
 	for (EmTypeCItr it=entry_map.begin(); it != entry_map.end(); ++it) {
         Entry e = it->second;
         if (e.gal_weight) {
@@ -96,7 +95,9 @@ std::list<WeightsPtreeEntry> WeightsNewManager::GetPtreeEntries() const
 {
 	std::list<WeightsPtreeEntry> p;
 	BOOST_FOREACH(const boost::uuids::uuid& w_uuid, uuid_order) {
-		p.push_back(entry_map.find(w_uuid)->second.wpte);
+        if (entry_map.find(w_uuid)->second.wpte.wmi.weights_type != WeightsMetaInfo::WT_internal) {
+            p.push_back(entry_map.find(w_uuid)->second.wpte);
+        }
 	}
 	return p;
 }
@@ -121,10 +122,19 @@ bool WeightsNewManager::AssociateGal(boost::uuids::uuid w_uuid, GalWeight* gw)
 
 
 
-void WeightsNewManager::GetIds(std::vector<boost::uuids::uuid>& ids) const
+void WeightsNewManager::GetIds(std::vector<boost::uuids::uuid>& ids,
+                               bool allow_internal_weights) const
 {
 	ids.clear();
-	BOOST_FOREACH(boost::uuids::uuid u, uuid_order) ids.push_back(u);
+    BOOST_FOREACH(boost::uuids::uuid u, uuid_order) {
+        if (allow_internal_weights == true ||
+            (allow_internal_weights == false &&
+             entry_map.find(u)->second.wpte.wmi.weights_type !=
+             WeightsMetaInfo::WT_internal))
+        {
+            ids.push_back(u);
+        }
+    }
 }
 
 boost::uuids::uuid WeightsNewManager::FindIdByMetaInfo(const WeightsMetaInfo& wmi) const
@@ -210,7 +220,7 @@ std::list<boost::uuids::uuid> WeightsNewManager::GetIds() const
 }
 
 WeightsMetaInfo::SymmetryEnum
-	WeightsNewManager::IsSym(boost::uuids::uuid w_uuid) const
+WeightsNewManager::IsSym(boost::uuids::uuid w_uuid) const
 {
 	EmTypeCItr it = entry_map.find(w_uuid);
 	if (it == entry_map.end()) return WeightsMetaInfo::SYM_unknown;
@@ -218,7 +228,7 @@ WeightsMetaInfo::SymmetryEnum
 }
 
 WeightsMetaInfo::SymmetryEnum
-	WeightsNewManager::CheckSym(boost::uuids::uuid w_uuid, ProgressDlg* p_dlg)
+WeightsNewManager::CheckSym(boost::uuids::uuid w_uuid, ProgressDlg* p_dlg)
 {
 	if (IsSym(w_uuid) != WeightsMetaInfo::SYM_unknown) return IsSym(w_uuid);
 	EmType::iterator it = entry_map.find(w_uuid);
@@ -496,6 +506,18 @@ wxString WeightsNewManager::SuggestTitleFromFileName(const wxString& fname) cons
 		}
 	}
 	return title;
+}
+
+bool WeightsNewManager::IsInternalUse(boost::uuids::uuid w_uuid) const
+{
+    bool flag = false;
+    EmTypeCItr it = entry_map.find(w_uuid);
+    if (it != entry_map.end()) {
+        if (it->second.wpte.wmi.weights_type == WeightsMetaInfo::WT_internal) {
+            flag = true;
+        }
+    }
+    return flag;
 }
 
 wxString WeightsNewManager::GetTitle(boost::uuids::uuid w_uuid) const

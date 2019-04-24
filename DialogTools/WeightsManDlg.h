@@ -84,6 +84,7 @@ public:
 	void OnSelectIsolates(wxCommandEvent& event);
 	
 protected:
+    int GetIdCount();
 	void InitWeightsList();
 	void SetDetailsForId(boost::uuids::uuid id);
 	void SetDetailsWin(const std::vector<wxString>& row_title,

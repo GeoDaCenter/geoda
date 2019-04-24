@@ -27,7 +27,7 @@
 
 using namespace std;
 
-class GroupingSelectDlg : public wxDialog
+class HierachicalMapSelectDlg : public wxDialog
 {
     std::vector<GdaVarTools::VarInfo> vars;
     std::vector<int> col_ids;
@@ -41,8 +41,8 @@ class GroupingSelectDlg : public wxDialog
     std::map<wxString, int> name_to_tm_id;
     
 public:
-    GroupingSelectDlg(wxFrame *parent, Project* project);
-    virtual ~GroupingSelectDlg();
+    HierachicalMapSelectDlg(wxFrame *parent, Project* project);
+    virtual ~HierachicalMapSelectDlg();
     
     void OnOK( wxCommandEvent& event );
     std::vector<GdaVarTools::VarInfo> GetVarInfo();
@@ -51,7 +51,7 @@ public:
     boost::uuids::uuid GetWUID();
 };
 
-class GroupingMapCanvas : public MapCanvas
+class HierachicalMapCanvas : public MapCanvas
 {
 	DECLARE_CLASS(GroupingMapCanvas)
 
@@ -67,7 +67,7 @@ class GroupingMapCanvas : public MapCanvas
     virtual void CreateConnectivityGraph();
 
 public:	
-    GroupingMapCanvas(wxWindow *parent,
+    HierachicalMapCanvas(wxWindow *parent,
                       TemplateFrame* t_frame,
                       Project* project,
                       std::vector<GdaVarTools::VarInfo> vars,
@@ -75,7 +75,7 @@ public:
                       boost::uuids::uuid w_uuid,
                       const wxPoint& pos = wxDefaultPosition,
                       const wxSize& size = wxDefaultSize);
-	virtual ~GroupingMapCanvas();
+	virtual ~HierachicalMapCanvas();
     
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
@@ -96,11 +96,11 @@ public:
 };
 
 
-class GroupingMapFrame : public MapFrame
+class HierachicalMapFrame : public MapFrame
 {
 	DECLARE_CLASS(GroupingMapFrame)
 public:
-    GroupingMapFrame(wxFrame *parent,
+    HierachicalMapFrame(wxFrame *parent,
                      Project* project,
                      std::vector<GdaVarTools::VarInfo> vars,
                      std::vector<int> col_ids,
@@ -109,13 +109,14 @@ public:
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = GdaConst::map_default_size,
                      const long style = wxDEFAULT_FRAME_STYLE);
-    virtual ~GroupingMapFrame();
+    virtual ~HierachicalMapFrame();
 	
     void OnActivate(wxActivateEvent& event);
 	virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
-
+    virtual void update(WeightsManState* o);
+    
     void OnChangeConnRootSize(wxCommandEvent& event);
     void OnChangeConnRootColor(wxCommandEvent& event);
     

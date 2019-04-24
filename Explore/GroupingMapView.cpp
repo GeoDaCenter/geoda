@@ -44,8 +44,8 @@
 
 using namespace std;
 
-GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
-: wxDialog(parent_s, wxID_ANY, "Grouping Map", wxDefaultPosition,
+HierachicalMapSelectDlg::HierachicalMapSelectDlg(wxFrame* parent_s, Project* project_s)
+: wxDialog(parent_s, wxID_ANY, "Hierarchical Map", wxDefaultPosition,
            wxSize(350, 250))
 {
     wxLogMessage("Open GroupingSelectDlg.");
@@ -54,6 +54,12 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
     wxPanel* panel = new wxPanel(this, -1);
 
     wxFlexGridSizer* gbox = new wxFlexGridSizer(2, 2, 5, 5);
+    wxStaticText* root_var_st = new wxStaticText(panel, wxID_ANY,
+                                                 _("Root Variable:"));
+    root_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                 wxSize(160,-1));
+    gbox->Add(root_var_st, 0, wxALIGN_LEFT | wxALL, 0);
+    gbox->Add(root_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
 
     wxStaticText* group_var_st = new wxStaticText(panel, wxID_ANY,
                                                   _("Group Variable:"));
@@ -61,13 +67,6 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
                                   wxSize(160,-1));
     gbox->Add(group_var_st, 0, wxALIGN_LEFT | wxALL, 0);
     gbox->Add(group_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
-    
-    wxStaticText* root_var_st = new wxStaticText(panel, wxID_ANY,
-                                                 _("Root Variable:"));
-    root_var_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(160,-1));
-    gbox->Add(root_var_st, 0, wxALIGN_LEFT | wxALL, 0);
-    gbox->Add(root_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
     
     wxButton* ok_btn = new wxButton(this, wxID_ANY, _("OK"), wxDefaultPosition,
                                     wxDefaultSize, wxBU_EXACTFIT);
@@ -90,7 +89,7 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
     vbox->Fit(this);
     
     Center();
-    ok_btn->Bind(wxEVT_BUTTON, &GroupingSelectDlg::OnOK, this);
+    ok_btn->Bind(wxEVT_BUTTON, &HierachicalMapSelectDlg::OnOK, this);
     
     std::vector<int> col_id_map;
     table_int = project->GetTableInt();
@@ -116,22 +115,22 @@ GroupingSelectDlg::GroupingSelectDlg(wxFrame* parent_s, Project* project_s)
     }
 }
 
-GroupingSelectDlg::~GroupingSelectDlg()
+HierachicalMapSelectDlg::~HierachicalMapSelectDlg()
 {
     
 }
 
-std::vector<GdaVarTools::VarInfo> GroupingSelectDlg::GetVarInfo()
+std::vector<GdaVarTools::VarInfo> HierachicalMapSelectDlg::GetVarInfo()
 {
     return vars;
 }
 
-std::vector<int> GroupingSelectDlg::GetColIds()
+std::vector<int> HierachicalMapSelectDlg::GetColIds()
 {
     return col_ids;
 }
 
-void GroupingSelectDlg::OnOK( wxCommandEvent& event)
+void HierachicalMapSelectDlg::OnOK( wxCommandEvent& event)
 {
     wxLogMessage("GroupingSelectDlg::OnOK()");
     vars.resize(2);
@@ -181,7 +180,8 @@ void GroupingSelectDlg::OnOK( wxCommandEvent& event)
     Wp->is_symmetric = true;
     Wp->symmetry_checked = true;
     Wp->gal = new GalElement[n];
-    
+    Wp->is_internal_use = true;
+
     std::map<wxInt64, int>::iterator it;
     for (it=grp_root.begin(); it != grp_root.end(); ++it) {
         wxInt64 grp_id = it->first;
@@ -204,21 +204,22 @@ void GroupingSelectDlg::OnOK( wxCommandEvent& event)
     WeightsMetaInfo wmi;
     WeightsMetaInfo e(wmi);
     e.filename = group_nm + "/" + root_nm;
+    e.weights_type = WeightsMetaInfo::WT_internal;
     WeightsManInterface* w_man_int = project->GetWManInt();
     uid = w_man_int->RequestWeights(e);
     bool success = ((WeightsNewManager*) w_man_int)->AssociateGal(uid, Wp);
     if (success == false) return;
-    title = _("Grouping Map: ");
+    title = _("Hierachical Map: ");
     title << e.filename;
     EndDialog(wxID_OK);
 }
 
-wxString GroupingSelectDlg::GetTitle()
+wxString HierachicalMapSelectDlg::GetTitle()
 {
     return title;
 }
 
-boost::uuids::uuid GroupingSelectDlg::GetWUID()
+boost::uuids::uuid HierachicalMapSelectDlg::GetWUID()
 {
     return uid;
 }
@@ -228,15 +229,15 @@ boost::uuids::uuid GroupingSelectDlg::GetWUID()
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-IMPLEMENT_CLASS(GroupingMapCanvas, MapCanvas)
-BEGIN_EVENT_TABLE(GroupingMapCanvas, MapCanvas)
+IMPLEMENT_CLASS(HierachicalMapCanvas, MapCanvas)
+BEGIN_EVENT_TABLE(HierachicalMapCanvas, MapCanvas)
 	EVT_PAINT(TemplateCanvas::OnPaint)
 	EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
 	EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
 	EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-GroupingMapCanvas::GroupingMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+HierachicalMapCanvas::HierachicalMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
     Project* project, std::vector<GdaVarTools::VarInfo> vars,
     std::vector<int> col_ids, boost::uuids::uuid w_uuid,
     const wxPoint& pos, const wxSize& size)
@@ -266,19 +267,19 @@ GroupingMapCanvas::GroupingMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
 	wxLogMessage("Exiting GroupingMapCanvas::GroupingMapCanvas");
 }
 
-GroupingMapCanvas::~GroupingMapCanvas()
+HierachicalMapCanvas::~HierachicalMapCanvas()
 {
 	wxLogMessage("In GroupingMapCanvas::~GroupingMapCanvas");
 }
 
-void GroupingMapCanvas::DrawConnectivityGraph(wxMemoryDC &dc)
+void HierachicalMapCanvas::DrawConnectivityGraph(wxMemoryDC &dc)
 {
     std::vector<bool>& hs = highlight_state->GetHighlight();
     if (highlight_state->GetTotalHighlighted() >0) {
         wxPen pen(graph_color, weights_graph_thickness);
         for (int i=0; i<w_graph.size(); i++) {
             GdaPolyLine* e = w_graph[i];
-            if (hs[e->from]) {
+            if (hs[e->from] || hs[e->to]) {
                 e->setPen(pen);
                 e->paintSelf(dc);
             } else {
@@ -288,7 +289,7 @@ void GroupingMapCanvas::DrawConnectivityGraph(wxMemoryDC &dc)
     }
 }
 
-void GroupingMapCanvas::CreateConnectivityGraph()
+void HierachicalMapCanvas::CreateConnectivityGraph()
 {
     // use centroids to draw graph
     WeightsManInterface* w_man_int = project->GetWManInt();
@@ -331,15 +332,15 @@ void GroupingMapCanvas::CreateConnectivityGraph()
     }
 }
 
-void GroupingMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
+void HierachicalMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
 	wxLogMessage("Entering GroupingMapCanvas::DisplayRightClickMenu");
 	// Workaround for right-click not changing window focus in OSX / wxW 3.0
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
-	((GroupingMapFrame*) template_frame)->OnActivate(ae);
+	((HierachicalMapFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_GROUPING_MAP_MENU_OPTIONS");
+		LoadMenu("ID_HIERARCHICAL_MAP_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	SetCheckMarks(optMenu);
 	
@@ -349,67 +350,67 @@ void GroupingMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxLogMessage("Exiting GroupingMapCanvas::DisplayRightClickMenu");
 }
 
-void GroupingMapCanvas::ChangeRootSize(int root_sz)
+void HierachicalMapCanvas::ChangeRootSize(int root_sz)
 {
     root_radius = root_sz;
     full_map_redraw_needed = true;
     PopulateCanvas();
 }
 
-int GroupingMapCanvas::GetRootSize()
+int HierachicalMapCanvas::GetRootSize()
 {
     return root_radius;
 }
 
-void GroupingMapCanvas::ChangeRootColor(wxColour root_clr)
+void HierachicalMapCanvas::ChangeRootColor(wxColour root_clr)
 {
     root_color = root_clr;
     full_map_redraw_needed = true;
     PopulateCanvas();
 }
 
-wxColour GroupingMapCanvas::GetRootColor()
+wxColour HierachicalMapCanvas::GetRootColor()
 {
     return root_color;
 }
 
-wxString GroupingMapCanvas::GetCanvasTitle()
+wxString HierachicalMapCanvas::GetCanvasTitle()
 {
 	wxString ttl;
     ttl << group_field_nm;
 	return ttl;
 }
 
-wxString GroupingMapCanvas::GetVariableNames()
+wxString HierachicalMapCanvas::GetVariableNames()
 {
     wxString ttl;
     ttl << group_field_nm << "/"  << root_field_nm;
     return ttl;
 }
 
-bool GroupingMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme, SmoothingType new_map_smoothing)
+bool HierachicalMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme, SmoothingType new_map_smoothing)
 {
 	wxLogMessage("In GroupingMapCanvas::ChangeMapType");
 	return false;
 }
 
-void GroupingMapCanvas::SetCheckMarks(wxMenu* menu)
+void HierachicalMapCanvas::SetCheckMarks(wxMenu* menu)
 {
 	MapCanvas::SetCheckMarks(menu);
 }
 
-void GroupingMapCanvas::TimeChange()
+void HierachicalMapCanvas::TimeChange()
 {
 	wxLogMessage("Entering GroupingMapCanvas::TimeChange");
 	wxLogMessage("Exiting GroupingMapCanvas::TimeChange");
 }
 
-void GroupingMapCanvas::TimeSyncVariableToggle(int var_index)
+void HierachicalMapCanvas::TimeSyncVariableToggle(int var_index)
 {
 	wxLogMessage("In GroupingMapCanvas::TimeSyncVariableToggle");
 }
 
-void GroupingMapCanvas::UpdateStatusBar()
+void HierachicalMapCanvas::UpdateStatusBar()
 {
     wxStatusBar* sb = 0;
     if (template_frame) {
@@ -448,12 +449,12 @@ void GroupingMapCanvas::UpdateStatusBar()
 //
 //
 ////////////////////////////////////////////////////////////////////////////////
-IMPLEMENT_CLASS(GroupingMapFrame, MapFrame)
-	BEGIN_EVENT_TABLE(GroupingMapFrame, MapFrame)
-	EVT_ACTIVATE(GroupingMapFrame::OnActivate)
+IMPLEMENT_CLASS(HierachicalMapFrame, MapFrame)
+	BEGIN_EVENT_TABLE(HierachicalMapFrame, MapFrame)
+	EVT_ACTIVATE(HierachicalMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-GroupingMapFrame::GroupingMapFrame(wxFrame *parent, Project* project,
+HierachicalMapFrame::HierachicalMapFrame(wxFrame *parent, Project* project,
                                    std::vector<GdaVarTools::VarInfo> vars,
                                    std::vector<int> col_ids,
                                    boost::uuids::uuid w_uuid,
@@ -471,7 +472,7 @@ GroupingMapFrame::GroupingMapFrame(wxFrame *parent, Project* project,
 	splitter_win->SetMinimumPaneSize(10);
     
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new GroupingMapCanvas(rpanel, this, project, vars,
+    template_canvas = new HierachicalMapCanvas(rpanel, this, project, vars,
                                             col_ids, w_uuid);
 	template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
@@ -508,12 +509,12 @@ GroupingMapFrame::GroupingMapFrame(wxFrame *parent, Project* project,
 	wxLogMessage("Exiting GroupingMapFrame::GroupingMapFrame");
 }
 
-GroupingMapFrame::~GroupingMapFrame()
+HierachicalMapFrame::~HierachicalMapFrame()
 {
 	wxLogMessage("In GroupingMapFrame::~GroupingMapFrame");
 }
 
-void GroupingMapFrame::OnActivate(wxActivateEvent& event)
+void HierachicalMapFrame::OnActivate(wxActivateEvent& event)
 {
 	wxLogMessage("In GroupingMapFrame::OnActivate");
 	if (event.GetActive()) {
@@ -523,19 +524,19 @@ void GroupingMapFrame::OnActivate(wxActivateEvent& event)
         template_canvas->SetFocus();
 }
 
-void GroupingMapFrame::MapMenus()
+void HierachicalMapFrame::MapMenus()
 {
 	wxLogMessage("In GroupingMapFrame::MapMenus");
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_GROUPING_MAP_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_HIERARCHICAL_MAP_MENU_OPTIONS");
 	((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
 	((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
 }
 
-void GroupingMapFrame::UpdateOptionMenuItems()
+void HierachicalMapFrame::UpdateOptionMenuItems()
 {
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
@@ -544,18 +545,18 @@ void GroupingMapFrame::UpdateOptionMenuItems()
         wxLogMessage("GroupingMapFrame::UpdateOptionMenuItems: "
 				"Options menu not found");
 	} else {
-		((GroupingMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+		((HierachicalMapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
-void GroupingMapFrame::UpdateContextMenuItems(wxMenu* menu)
+void HierachicalMapFrame::UpdateContextMenuItems(wxMenu* menu)
 {
 	TemplateFrame::UpdateContextMenuItems(menu); // set common items
 }
 
-void GroupingMapFrame::OnChangeConnRootSize(wxCommandEvent& event)
+void HierachicalMapFrame::OnChangeConnRootSize(wxCommandEvent& event)
 {
-    int root_size = ((GroupingMapCanvas*) template_canvas)->GetRootSize();
+    int root_size = ((HierachicalMapCanvas*) template_canvas)->GetRootSize();
     wxString root_val;
     root_val << root_size;
     wxTextEntryDialog dlg(this, "Change Radius Size of Root Observations:",
@@ -564,15 +565,18 @@ void GroupingMapFrame::OnChangeConnRootSize(wxCommandEvent& event)
         root_val = dlg.GetValue();
         long new_sz;
         if (root_val.ToLong(&new_sz)) {
-            ((GroupingMapCanvas*) template_canvas)->ChangeRootSize(new_sz);
+            ((HierachicalMapCanvas*) template_canvas)->ChangeRootSize(new_sz);
         }
     }
 }
 
-void GroupingMapFrame::OnChangeConnRootColor(wxCommandEvent& event)
+void HierachicalMapFrame::OnChangeConnRootColor(wxCommandEvent& event)
 {
-    wxColour root_color = ((GroupingMapCanvas*) template_canvas)->GetRootColor();
+    wxColour root_color = ((HierachicalMapCanvas*) template_canvas)->GetRootColor();
     root_color = GeneralWxUtils::PickColor(this, root_color);
-    ((GroupingMapCanvas*) template_canvas)->ChangeRootColor(root_color);
+    ((HierachicalMapCanvas*) template_canvas)->ChangeRootColor(root_color);
 }
 
+void HierachicalMapFrame::update(WeightsManState* o)
+{
+}

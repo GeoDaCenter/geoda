@@ -527,7 +527,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
-    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_GROUPING_MAP"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_HIERARCHICAL_MAP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -2595,15 +2595,15 @@ void GdaFrame::OnGroupingMap(wxCommandEvent& event)
     
     if (project_p->IsTableOnlyProject()) {
         wxMessageDialog dlg (this,
-                             _("Grouping Map does not work with Table only datasource."),
+                             _("Hierachical Map does not work with Table only datasource."),
                              _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;
     }
     
-    GroupingSelectDlg dlg(this, project_p);
+    HierachicalMapSelectDlg dlg(this, project_p);
     if (dlg.ShowModal() == wxID_OK) {
-        GroupingMapFrame* nf = new GroupingMapFrame(this, project_p,
+        HierachicalMapFrame* nf = new HierachicalMapFrame(this, project_p,
                                                     dlg.GetVarInfo(),
                                                     dlg.GetColIds(),
                                                     dlg.GetWUID(),
@@ -5642,7 +5642,7 @@ void GdaFrame::OnChangeConnRootSize(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnChangeConnRootSize()");
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
-    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+    if (HierachicalMapFrame* f = dynamic_cast<HierachicalMapFrame*>(t)) {
         f->OnChangeConnRootSize(event);
     }
 }
@@ -5652,7 +5652,7 @@ void GdaFrame::OnChangeConnRootColor(wxCommandEvent& event)
     wxLogMessage("In GdaFrame::OnChangeConnRootColor()");
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
-    if (GroupingMapFrame* f = dynamic_cast<GroupingMapFrame*>(t)) {
+    if (HierachicalMapFrame* f = dynamic_cast<HierachicalMapFrame*>(t)) {
         f->OnChangeConnRootColor(event);
     }
 }
@@ -6756,7 +6756,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
-    EVT_MENU(XRCID("ID_GROUPING_MAP"), GdaFrame::OnGroupingMap)
+    EVT_MENU(XRCID("ID_HIERARCHICAL_MAP"), GdaFrame::OnGroupingMap)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)

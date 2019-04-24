@@ -2751,9 +2751,7 @@ void MapCanvas::DisplayMapBoundray(bool flag)
     display_map_boundary = flag;
     if (selectable_outline_visible) display_map_boundary = false;
     full_map_redraw_needed = true;
-
     PopulateCanvas();
-
 }
 
 void MapCanvas::ChangeGraphThickness(int val)
@@ -3623,7 +3621,7 @@ GalWeight* MapFrame::checkWeights()
 {
     std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
+    w_man_int->GetIds(weights_ids, true);
     if (weights_ids.size()==0) {
         wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();

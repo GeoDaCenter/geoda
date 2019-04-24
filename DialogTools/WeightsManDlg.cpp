@@ -511,7 +511,7 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 		return;
 	}
 	ids.push_back(id);
-	long last = ids.size()-1;
+	long last = GetIdCount() - 1;
 	w_list->InsertItem(last, wxEmptyString);
 	w_list->SetItem(last, TITLE_COL, w_man_int->GetTitle(id));
 	w_man_int->MakeDefault(id);
@@ -519,6 +519,17 @@ void WeightsManFrame::OnLoadBtn(wxCommandEvent& ev)
 	SelectId(id);
 	Refresh();
 	suspend_w_man_state_updates = false;
+}
+
+int WeightsManFrame::GetIdCount()
+{
+    int cnt = 0;
+    for (size_t i=0; i<ids.size(); ++i) {
+        if (w_man_int->IsInternalUse(ids[i]) == false) {
+            cnt += 1;
+        }
+    }
+    return cnt;
 }
 
 void WeightsManFrame::OnRemoveBtn(wxCommandEvent& ev)
@@ -564,20 +575,23 @@ void WeightsManFrame::update(WeightsManState* o)
 		return;
 	}
 	boost::uuids::uuid id = o->GetWeightsId();
+    if (w_man_int->IsInternalUse(id)) {
+        return;
+    }
+
 	if (o->GetEventType() == WeightsManState::add_evt) {
 		ids.push_back(id);
-		if (!ids.size()-1 == w_list->GetItemCount()) {
-		}
-		long x = w_list->InsertItem(ids.size(), wxEmptyString);
-		if (x == -1) {
-		} else {
+		long x = w_list->InsertItem(GetIdCount(), wxEmptyString);
+		if (x >= 0) {
 			w_list->SetItem(x, TITLE_COL, w_man_int->GetTitle(id));
 		}
 		HighlightId(id);
 		Refresh();
+
 	} else if (o->GetEventType() == WeightsManState::remove_evt) {
 		std::vector<boost::uuids::uuid> new_ids;
 		for (size_t i=0; i<ids.size(); ++i) {
+            if (w_man_int->IsInternalUse(id)) continue;
 			if (ids[i] == id) {
 				w_list->DeleteItem(i);
 			} else {
@@ -585,10 +599,12 @@ void WeightsManFrame::update(WeightsManState* o)
 			}
 		}
 		ids = new_ids;
-		if (ids.size() > 0) HighlightId(ids[0]);
+		if (GetIdCount() > 0) HighlightId(ids[0]);
 		SelectId(GetHighlightId());
+
 	} else if (o->GetEventType() == WeightsManState::name_change_evt) {
 		for (size_t i=0; i<ids.size(); ++i) {
+            if (w_man_int->IsInternalUse(id)) continue;
 			if (ids[i] == id) {
 				// no need to change default
 				w_list->SetItem(i, TITLE_COL, w_man_int->GetTitle(ids[i]));
@@ -653,19 +669,21 @@ void WeightsManFrame::InitWeightsList()
 	w_man_int->GetIds(ids);
 	boost::uuids::uuid def_id = w_man_int->GetDefault();
 	for (size_t i=0; i<ids.size(); ++i) {
-		w_list->InsertItem(i, wxEmptyString);
-		w_list->SetItem(i, TITLE_COL, w_man_int->GetTitle(ids[i]));
-		if (ids[i] == def_id) {
-			w_list->SetItemState(i, wxLIST_STATE_SELECTED,
-								 wxLIST_STATE_SELECTED);
-		}
+        if (w_man_int->IsInternalUse(ids[i]) == false) {
+            w_list->InsertItem(i, wxEmptyString);
+            w_list->SetItem(i, TITLE_COL, w_man_int->GetTitle(ids[i]));
+            if (ids[i] == def_id) {
+                w_list->SetItemState(i, wxLIST_STATE_SELECTED,
+                                     wxLIST_STATE_SELECTED);
+            }
+        }
 	}
 }
 
 void WeightsManFrame::SetDetailsForId(boost::uuids::uuid id)
 {
 	wxLogMessage("In WeightsManFrame::SetDetailsForItem");
-	if (id.is_nil()) {
+	if (id.is_nil() ||  w_man_int->IsInternalUse(id)) {
 		SetDetailsWin(std::vector<wxString>(0), std::vector<wxString>(0));
 		return;
 	}
@@ -903,6 +921,7 @@ void WeightsManFrame::SelectId(boost::uuids::uuid id)
 void WeightsManFrame::HighlightId(boost::uuids::uuid id)
 {
 	for (size_t i=0; i<ids.size(); ++i) {
+        if (w_man_int->IsInternalUse(ids[i])) continue;
 		if (ids[i] == id) {
 			w_list->SetItemState(i, wxLIST_STATE_SELECTED,
 								 wxLIST_STATE_SELECTED);

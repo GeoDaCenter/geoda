@@ -37,38 +37,38 @@ const GeoDaWeight& GeoDaWeight::operator=(const GeoDaWeight& gw)
 	return *this;
 }
 
-wxString GeoDaWeight::GetTitle()
+wxString GeoDaWeight::GetTitle()  const
 {
 	if (!title.IsEmpty()) return title;
 	return wxFileName(wflnm).GetName();
 }
 
-double GeoDaWeight::GetSparsity()
+double GeoDaWeight::GetSparsity() const
 {
     return sparsity;
 }
-double GeoDaWeight::GetDensity()
+double GeoDaWeight::GetDensity() const
 {
     return density;
 }
-int GeoDaWeight::GetNumObs()
+int GeoDaWeight::GetNumObs() const
 {
     return num_obs;
 }
 
-int GeoDaWeight::GetMinNumNbrs()
+int GeoDaWeight::GetMinNumNbrs() const
 {
     return min_nbrs;
 }
-int GeoDaWeight::GetMaxNumNbrs()
+int GeoDaWeight::GetMaxNumNbrs() const
 {
     return max_nbrs;
 }
-double GeoDaWeight::GetMeanNumNbrs()
+double GeoDaWeight::GetMeanNumNbrs() const
 {
     return mean_nbrs;
 }
-double GeoDaWeight::GetMedianNumNbrs()
+double GeoDaWeight::GetMedianNumNbrs() const
 {
     return median_nbrs;
 }
