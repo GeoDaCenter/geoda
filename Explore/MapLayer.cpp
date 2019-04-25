@@ -442,7 +442,7 @@ void BackgroundMapLayer::ShowBoundary(bool show)
     show_boundary = show;
     if (show) {
         if (map_boundary == NULL) {
-            map_boundary = OGRLayerProxy::GetMapBoundary(geoms);
+            map_boundary = OGRLayerProxy::DissolvePolygons(geoms);
         }
     }
 }

@@ -224,6 +224,7 @@ public:
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
+
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;

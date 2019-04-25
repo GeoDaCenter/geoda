@@ -72,10 +72,7 @@ public:
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
-    
-    //!< Geometry type of OGRLayer
-    OGRwkbGeometryType eLayerType;
-    
+
     //!< Fields and the meta data are stored in OGRFieldProxy.
 	vector<OGRFieldProxy*> fields;
     
@@ -146,10 +143,13 @@ public:
     void GetCentroids(vector<GdaPoint*>& centroids);
     
     static GdaPolygon* OGRGeomToGdaShape(OGRGeometry* geom);
-    static GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
+
+    static GdaPolygon* DissolvePolygons(vector<OGRGeometry*>& geoms);
 
     GdaPolygon* GetMapBoundary();
-    
+
+    void DissolveMap(const std::vector<std::vector<int> >& cids);
+
     Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
     
@@ -310,6 +310,14 @@ protected:
 	bool IsFieldExisted(const wxString& field_name);
     
     bool CallCartoDBAPI(wxString url);
+
+    static bool IsWkbPoint(OGRwkbGeometryType etype);
+
+    static bool IsWkbLine(OGRwkbGeometryType etype);
+
+    static bool IsWkbSinglePolygon(OGRwkbGeometryType etype);
+
+    static bool IsWkbMultiPolygon(OGRwkbGeometryType etype);
 };
 
 #endif

@@ -67,10 +67,10 @@ layer(_layer), load_progress(0), stop_reading(false), export_progress(0)
  */
 OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
-                             OGRwkbGeometryType eGType,
+                             OGRwkbGeometryType _eGType,
                              int _n_rows)
 : mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type),
-n_rows(_n_rows), eLayerType(eGType), load_progress(0), stop_reading(false),
+n_rows(_n_rows), eGType(_eGType), load_progress(0), stop_reading(false),
 export_progress(0)
 {
     if (n_rows==0) {
@@ -1210,21 +1210,18 @@ OGRGeometry* OGRLayerProxy::GetGeometry(int idx)
     return geometry;
 }
 
-GdaPolygon* OGRLayerProxy::GetMapBoundary(vector<OGRGeometry*>& geoms)
+GdaPolygon* OGRLayerProxy::DissolvePolygons(vector<OGRGeometry*>& geoms)
 {
     OGRMultiPolygon geocol;
-    for ( int i=0; i < geoms.size(); i++ ) {
+    for (size_t i=0; i < geoms.size(); i++ ) {
         OGRGeometry* geometry= geoms[i];
-        OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
-        if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+        OGRwkbGeometryType etype = wkbFlatten(geometry->getGeometryType());
+        if (IsWkbSinglePolygon(etype)) {
             geocol.addGeometry(geometry);
-        } else if (eType == wkbMultiPolygon) {
+        } else if (IsWkbMultiPolygon(etype)) {
             OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
-            int n_geom = mpolygon->getNumGeometries();
-            // if there is more than one polygon, then we need to count which
-            // part is processing accumulatively
-            for (size_t i = 0; i < n_geom; i++ ){
-                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+            for (size_t j = 0; j < mpolygon->getNumGeometries(); j++ ){
+                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(j);
                 geocol.addGeometry(ogrGeom);
             }
         }
@@ -1240,14 +1237,14 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
 {
     if (mapContour == NULL) {
         OGRMultiPolygon geocol;
-        for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
+        for (size_t row_idx=0; row_idx < n_rows; row_idx++ ) {
             OGRFeature* feature = data[row_idx];
             OGRGeometry* geometry= feature->GetGeometryRef();
-            OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
-            if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+            OGRwkbGeometryType etype = wkbFlatten(geometry->getGeometryType());
+            if (IsWkbSinglePolygon(etype)) {
                 geocol.addGeometry(geometry);
                 
-            } else if (eType == wkbMultiPolygon) {
+            } else if (IsWkbMultiPolygon(etype)) {
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
                 int n_geom = mpolygon->getNumGeometries();
                 // if there is more than one polygon, then we need to count 
@@ -1265,6 +1262,60 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
         return OGRGeomToGdaShape(mapContour);
     }
     return NULL;
+}
+
+void OGRLayerProxy::DissolveMap(const std::vector<std::vector<int> >& cids)
+{
+    if (data.empty()) return;
+
+    if (IsWkbPoint(eGType) || IsWkbLine(eGType)) return;
+
+    std::vector<GdaShape*> results;
+
+    for (size_t i=0; i<cids.size(); ++i) {
+        std::vector<OGRGeometry*> geom_set;
+        for (size_t j=0; j<cids[i].size(); j++) {
+            int rid = cids[i][j];
+            OGRFeature* feature = data[rid];
+            OGRGeometry* geometry= feature->GetGeometryRef();
+            geom_set.push_back(geometry);
+        }
+        GdaPolygon* new_poly = DissolvePolygons(geom_set);
+        results.push_back((GdaShape*)new_poly);
+    }
+}
+
+bool OGRLayerProxy::IsWkbSinglePolygon(OGRwkbGeometryType etype)
+{
+    if (etype == wkbPolygon || etype == wkbCurvePolygon ||
+        etype == wkbPolygon25D || etype == wkbCurvePolygonZ ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbMultiPolygon(OGRwkbGeometryType etype)
+{
+    if (etype == wkbMultiPolygon || etype == wkbMultiPolygon25D ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbPoint(OGRwkbGeometryType etype)
+{
+    if (etype == wkbPoint || etype == wkbMultiPoint ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbLine(OGRwkbGeometryType etype)
+{
+    if (etype == wkbLineString || etype == wkbMultiLineString ) {
+        return true;
+    }
+    return false;
 }
 
 GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)

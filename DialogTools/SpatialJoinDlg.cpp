@@ -94,20 +94,7 @@ void SpatialJoinWorker::Run()
         if (sum > ml->GetNumRecords()) {
             duplicate_count = true;
         }
-    } else {
-        // spatial assigning
-        std::map<wxInt64, bool> dup_dict;
-        for (size_t i=0; i<spatial_counts.size(); i++) {
-            wxInt64 iid = spatial_counts[i];
-            if ( iid >=0) {
-                if (dup_dict.find(iid) != dup_dict.end()) {
-                    duplicate_count = true;
-                    break;
-                }
-                dup_dict[iid] = true;
-            }
-        }
-    }
+    } 
 
     // join variable if needed
     if (join_variable) {
