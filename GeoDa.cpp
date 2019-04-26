@@ -78,6 +78,7 @@
 #include "DataViewer/TableInterface.h"
 #include "DataViewer/TableState.h"
 #include "DataViewer/TimeState.h"
+#include "DialogTools/DissolveDlg.h"
 #include "DialogTools/CreatingWeightDlg.h"
 #include "DialogTools/CatClassifDlg.h"
 #include "DialogTools/PCPDlg.h"
@@ -158,16 +159,13 @@
 #include "Explore/ColocationMapView.h"
 #include "Explore/GroupingMapView.h"
 #include "Regression/DiagnosticReport.h"
-
 #include "ShapeOperations/CsvFileUtils.h"
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManState.h"
 #include "ShapeOperations/OGRDataAdapter.h"
-
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
 #include "Algorithms/fastcluster.h"
-
 #include "wxTranslationHelper.h"
 #include "GdaException.h"
 #include "FramesManager.h"
@@ -526,8 +524,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_SHAPE_DISSOLVE"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
-    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_HIERARCHICAL_MAP"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
@@ -2587,6 +2585,28 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
     if (dlg.ShowModal() == wxID_OK) {
         OnOpenNewTable();
     }
+}
+
+void GdaFrame::OnDissolve(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Dissolve does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    if (project_p->GetShapeType() != Shapefile::POLYGON) {
+        wxMessageDialog dlg (this,
+                             _("Dissolve only works on polygon dataset."),
+                             _("Warning"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    DissolveDlg dlg(this, project_p);
+    dlg.ShowModal();
 }
 
 void GdaFrame::OnGroupingMap(wxCommandEvent& event)
@@ -6756,6 +6776,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
+    EVT_MENU(XRCID("ID_SHAPE_DISSOLVE"), GdaFrame::OnDissolve)
     EVT_MENU(XRCID("ID_HIERARCHICAL_MAP"), GdaFrame::OnGroupingMap)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)

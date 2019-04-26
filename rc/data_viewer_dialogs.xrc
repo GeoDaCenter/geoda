@@ -1835,6 +1835,213 @@ All Rights Reserved</label>
       <centered>1</centered>
       <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
   </object>
+  <object class="wxDialog" name="ID_DISSOLVE_DLG" subclass="DissolveDlg">
+      <object class="wxBoxSizer">
+          <orient>wxVERTICAL</orient>
+          <object class="sizeritem">
+              <object class="wxScrolledWindow" name="ID_DISSOLVE_SCROLL_WIN">
+                  <style>wxHSCROLL|wxVSCROLL</style>
+                  <object class="wxBoxSizer" name="ID_DISSOLVE_SCROLL_WIN_SIZER">
+                      <object class="sizeritem">
+                          <object class="wxBoxSizer">
+                              <object class="sizeritem">
+                                  <object class="wxStaticText">
+                                      <label>Select variable for dissolving:</label>
+                                  </object>
+                                  <flag>wxALIGN_CENTRE_VERTICAL|wxRIGHT</flag>
+                                  <border>7</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxChoice" name="ID_CURRENT_KEY_CHOICE">
+                                      <size>85,-1d</size>
+                                  </object>
+                                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                              </object>
+                              <orient>wxHORIZONTAL</orient>
+                          </object>
+                          <flag>wxALIGN_CENTRE_VERTICAL|wxALL</flag>
+                          <border>10</border>
+                      </object>
+                      <object class="sizeritem">
+                          <object class="wxStaticBoxSizer" name="wxID_ANY">
+                              <object class="sizeritem">
+                                  <object class="wxBoxSizer">
+                                      <object class="sizeritem">
+                                          <object class="wxStaticText">
+                                              <label>Select variables:</label>
+                                          </object>
+                                          <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                          <border>0</border>
+                                      </object>
+                                      <orient>wxHORIZONTAL</orient>
+                                  </object>
+                                  <flag>wxEXPAND|wxALL</flag>
+                                  <border>8</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxBoxSizer">
+                                      <object class="sizeritem">
+                                          <object class="wxBoxSizer">
+                                              <object class="sizeritem">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <object class="wxListBox" name="ID_EXCLUDE_LIST">
+                                                              <size>90,87d</size>
+                                                              <style>wxLB_SINGLE</style>
+                                                          </object>
+                                                          <option>1</option>
+                                                          <flag>wxEXPAND</flag>
+                                                      </object>
+                                                  </object>
+                                                  <option>1</option>
+                                                  <flag>wxEXPAND</flag>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxBoxSizer">
+                                                      <object class="sizeritem">
+                                                          <object class="wxButton" name="ID_INC_ALL_BUTTON">
+                                                              <size>30,-1d</size>
+                                                              <label>&gt;&gt;</label>
+                                                          </object>
+                                                          <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                                          <border>5</border>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <object class="wxButton" name="ID_INC_ONE_BUTTON">
+                                                              <size>30,-1d</size>
+                                                              <label>&gt;</label>
+                                                          </object>
+                                                          <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                                          <border>5</border>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <object class="wxButton" name="ID_EXCL_ONE_BUTTON">
+                                                              <size>30,-1d</size>
+                                                              <label>&lt;</label>
+                                                          </object>
+                                                          <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                                          <border>5</border>
+                                                      </object>
+                                                      <object class="sizeritem">
+                                                          <object class="wxButton" name="ID_EXCL_ALL_BUTTON">
+                                                              <size>30,-1d</size>
+                                                              <label>&lt;&lt;</label>
+                                                          </object>
+                                                          <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                                          <border>5</border>
+                                                      </object>
+                                                      <orient>wxVERTICAL</orient>
+                                                  </object>
+                                                  <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                              </object>
+                                              <object class="sizeritem">
+                                                  <object class="wxBoxSizer">
+                                                      <orient>wxVERTICAL</orient>
+                                                      <object class="sizeritem">
+                                                          <object class="wxListBox" name="ID_INCLUDE_LIST">
+                                                              <size>90,87d</size>
+                                                              <style>wxLB_SINGLE</style>
+                                                          </object>
+                                                          <option>1</option>
+                                                          <flag>wxEXPAND</flag>
+                                                      </object>
+                                                  </object>
+                                                  <option>1</option>
+                                                  <flag>wxEXPAND</flag>
+                                              </object>
+                                              <orient>wxHORIZONTAL</orient>
+                                          </object>
+                                          <option>1</option>
+                                          <flag>wxALL|wxEXPAND</flag>
+                                          <border>5</border>
+                                      </object>
+                                      <orient>wxVERTICAL</orient>
+                                  </object>
+                                  <option>1</option>
+                                  <flag>wxEXPAND|wxALIGN_CENTRE_HORIZONTAL</flag>
+                                  <border>8</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxBoxSizer">
+                                      <object class="sizeritem">
+                                          <object class="wxStaticText">
+                                              <label>Method:</label>
+                                          </object>
+                                          <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                          <border>0</border>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxRadioButton" name="ID_DISSOLVE_COUNT">
+                                              <label>Count</label>
+                                              <value>0</value>
+                                              <style>wxRB_GROUP</style>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxRadioButton" name="ID_DISSOLVE_AVG">
+                                              <label>Average</label>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxRadioButton" name="ID_DISSOLVE_MAX">
+                                              <label>Max</label>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxRadioButton" name="ID_DISSOLVE_MIN">
+                                              <label>Min</label>
+                                          </object>
+                                      </object>
+                                      <object class="sizeritem">
+                                          <object class="wxRadioButton" name="ID_DISSOLVE_SUM">
+                                              <label>Sum</label>
+                                          </object>
+                                      </object>
+                                      <orient>wxHORIZONTAL</orient>
+                                  </object>
+                                  <flag>wxEXPAND|wxALIGN_CENTRE_HORIZONTAL|wxALL</flag>
+                                  <border>8</border>
+                              </object>
+                              <label>Attributes (Optional)</label>
+                              <orient>wxVERTICAL</orient>
+                          </object>
+                          <flag>wxEXPAND|wxALL</flag>
+                          <border>7</border>
+                      </object>
+                      <object class="sizeritem">
+                          <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                          <border>5</border>
+                          <object class="wxBoxSizer">
+                              <orient>wxHORIZONTAL</orient>
+                              <object class="sizeritem">
+                                  <object class="wxButton" name="wxID_DISSOLVE">
+                                      <label>Dissolve</label>
+                                  </object>
+                                  <flag>wxBOTTOM|wxLEFT|wxRIGHT</flag>
+                                  <border>5</border>
+                              </object>
+                              <object class="sizeritem">
+                                  <object class="wxButton" name="wxID_CLOSE">
+                                      <label>Close</label>
+                                  </object>
+                                  <flag>wxBOTTOM|wxLEFT|wxRIGHT</flag>
+                                  <border>5</border>
+                              </object>
+                          </object>
+                      </object>
+                      <orient>wxVERTICAL</orient>
+                  </object>
+              </object>
+              <flag>wxEXPAND|wxALL</flag>
+              <option>1</option>
+              <border>7</border>
+          </object>
+      </object>
+      <title>Dissolve</title>
+      <centered>1</centered>
+      <style>wxCAPTION|wxSYSTEM_MENU|wxRESIZE_BORDER|wxCLOSE_BOX</style>
+  </object>
   <object class="wxDialog" name="ID_AGGREGATE_DATA_DLG" subclass="AggregateDlg">
       <object class="wxBoxSizer">
           <orient>wxVERTICAL</orient>

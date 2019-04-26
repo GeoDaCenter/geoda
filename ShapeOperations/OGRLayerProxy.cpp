@@ -1264,13 +1264,13 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
     return NULL;
 }
 
-void OGRLayerProxy::DissolveMap(const std::vector<std::vector<int> >& cids)
+std::vector<GdaShape*> OGRLayerProxy::DissolveMap(const std::vector<std::vector<int> >& cids)
 {
-    if (data.empty()) return;
-
-    if (IsWkbPoint(eGType) || IsWkbLine(eGType)) return;
-
     std::vector<GdaShape*> results;
+
+    if (data.empty()) return results;
+
+    if (IsWkbPoint(eGType) || IsWkbLine(eGType)) return results;
 
     for (size_t i=0; i<cids.size(); ++i) {
         std::vector<OGRGeometry*> geom_set;
@@ -1283,6 +1283,7 @@ void OGRLayerProxy::DissolveMap(const std::vector<std::vector<int> >& cids)
         GdaPolygon* new_poly = DissolvePolygons(geom_set);
         results.push_back((GdaShape*)new_poly);
     }
+    return results;
 }
 
 bool OGRLayerProxy::IsWkbSinglePolygon(OGRwkbGeometryType etype)
@@ -1322,7 +1323,7 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
 {
     OGRwkbGeometryType eType = wkbFlatten(geom->getGeometryType());
     Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
-    if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+    if (IsWkbSinglePolygon(eType)) {
         pc->shape_type = Shapefile::POLYGON;
         OGRPolygon* p = (OGRPolygon *)geom;
         OGRLinearRing* pLinearRing = NULL;
@@ -1355,7 +1356,7 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
                 }
             }
         }
-    } else if (eType == wkbMultiPolygon) {
+    } else if (IsWkbMultiPolygon(eType)) {
         pc->shape_type = Shapefile::POLYGON;
         OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geom;
         int n_geom = mpolygon->getNumGeometries();

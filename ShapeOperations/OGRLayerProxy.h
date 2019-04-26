@@ -148,7 +148,7 @@ public:
 
     GdaPolygon* GetMapBoundary();
 
-    void DissolveMap(const std::vector<std::vector<int> >& cids);
+    std::vector<GdaShape*> DissolveMap(const std::vector<std::vector<int> >& cids);
 
     Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);

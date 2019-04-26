@@ -205,7 +205,7 @@ public:
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);
 	void OnGeneratePointShpFile(wxCommandEvent& event);
-	
+    void OnDissolve(wxCommandEvent& event);
 	void OnRegressionClassic(wxCommandEvent& event);
 	
 	void OnPublish(wxCommandEvent& event);

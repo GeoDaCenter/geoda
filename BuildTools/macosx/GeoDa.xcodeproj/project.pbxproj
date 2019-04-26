@@ -30,6 +30,7 @@
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
+		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
@@ -352,6 +353,8 @@
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
+		A178F771227381CA00EB9CB7 /* DissolveDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DissolveDlg.h; sourceTree = "<group>"; };
+		A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DissolveDlg.cpp; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpatialJoinDlg.cpp; sourceTree = "<group>"; };
@@ -1223,6 +1226,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */,
+				A178F771227381CA00EB9CB7 /* DissolveDlg.h */,
 				A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */,
 				A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */,
 				A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */,
@@ -1793,6 +1798,7 @@
 				DD27ECBC0F2E43B5009C5C42 /* GenUtils.cpp in Sources */,
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				A42018031FB3C0AC0029709C /* skater.cpp in Sources */,
+				A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */,
 				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
