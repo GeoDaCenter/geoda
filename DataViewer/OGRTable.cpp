@@ -398,6 +398,27 @@ void OGRTable::FillNumericColIdMap(std::vector<int>& col_map)
 	}
 }
 
+void OGRTable::FillStringAndIntegerColIdMap(std::vector<int>& col_map)
+{
+    std::vector<int> t;
+    FillColIdMap(t);
+    int numeric_cnt = 0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::long64_type ||
+            GetColType(t[i]) == GdaConst::string_type) {
+            numeric_cnt++;
+        }
+    }
+    col_map.resize(numeric_cnt);
+    int cnt=0;
+    for (int i=0, iend=t.size(); i<iend; i++) {
+        if (GetColType(t[i]) == GdaConst::long64_type ||
+            GetColType(t[i]) == GdaConst::string_type) {
+            col_map[cnt++] = t[i];
+        }
+    }
+}
+
 void OGRTable::FillStringColIdMap(std::vector<int>& col_map)
 {
     std::vector<int> t;

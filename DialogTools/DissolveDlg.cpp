@@ -67,8 +67,8 @@ DissolveDlg::DissolveDlg(wxWindow* parent, Project* _project_s, const wxPoint& p
     
 	CreateControls();
 	Init();
-	wxString nm;
-	SetTitle(_("Dissolve - ") + table_int->GetTableName());
+	wxString nm = _("Dissolve - ") + table_int->GetTableName();
+	SetTitle(nm);
 	SetPosition(pos);
     Centre();
     
@@ -93,7 +93,7 @@ void DissolveDlg::CreateControls()
 {
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DISSOLVE_DLG");
 	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), wxChoice);
-	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), wxListBox);
+	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), GdaListBox);
 	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
 	m_count = wxDynamicCast(FindWindow(XRCID("ID_DISSOLVE_COUNT")), wxRadioButton);
 	m_sum = wxDynamicCast(FindWindow(XRCID("ID_DISSOLVE_SUM")), wxRadioButton);
@@ -125,16 +125,18 @@ void DissolveDlg::Init()
     m_current_key->Clear();
     m_include_list->Clear();
     m_exclude_list->Clear();
-  
+
+    m_exclude_list->InitContent(table_int, GdaListBox::SHOW_STRING_INTEGER);
+
 	vector<wxString> col_names;
 	// get the field names from table interface
     set<wxString> key_name_set;
     set<wxString> field_name_set;
     int time_steps = table_int->GetTimeSteps();
     int n_fields   = table_int->GetNumberCols();
-    for (int cid=0; cid<n_fields; cid++) {
+    for (size_t cid=0; cid<n_fields; cid++) {
         wxString group_name = table_int->GetColName(cid);
-        for (int i=0; i<time_steps; i++) {
+        for (size_t i=0; i<time_steps; i++) {
             GdaConst::FieldType field_type = table_int->GetColType(cid,i);
             wxString field_name = table_int->GetColName(cid, i);
             // only String, Integer can be keys for merging
@@ -148,12 +150,13 @@ void DissolveDlg::Init()
             }
             if (field_type == GdaConst::long64_type || field_type == GdaConst::double_type ) {
                 if ( field_name_set.count(field_name) == 0) {
-                    m_exclude_list->Append(field_name);
+                    //m_exclude_list->Append(field_name);
                     field_name_set.insert(field_name);
                 }
             }
         }
     }
+    
 	UpdateMergeButton();
 }
 

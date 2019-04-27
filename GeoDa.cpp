@@ -2605,8 +2605,8 @@ void GdaFrame::OnDissolve(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
-    DissolveDlg dlg(this, project_p);
-    dlg.ShowModal();
+    DissolveDlg* dlg = new DissolveDlg(this, project_p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnGroupingMap(wxCommandEvent& event)
@@ -6277,32 +6277,6 @@ void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
     wxLogMessage("In GdaFrame::OnReportBug()");
     ReportBugDlg bugDlg(this);
     bugDlg.ShowModal();
-  
-    
-    /*
-    wxString toEmail = "spatial@uchicago.edu";
-    wxString subject = "Report GeoDa Bug";
-    wxString content;
-    
-    wxString logger_path;
-    if (GeneralWxUtils::isMac()) {
-        logger_path <<  GenUtils::GetBasemapCacheDir() <<  "../../../logger.txt";
-    } else {
-        logger_path <<  GenUtils::GetBasemapCacheDir() << "\\logger.txt";
-    }
-    wxTextFile tfile;
-    tfile.Open(logger_path);
-    while(!tfile.Eof())
-    {
-        content << tfile.GetNextLine() << "\n";
-    }
-   
-    wxString mail = wxString::Format("mailto:%s?subject=%s&body=[Bug Description]: please simply describe the bug\n\n[Data]: Point/Polygon? can you share your data for troubleshooting?\n\n[Details]:\n%s", toEmail, subject, content);
-    wxURI url(mail);
-    wxString encoded_url = "open " + url.BuildURI();
-    
-    wxExecute(encoded_url);
-     */
 }
 
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )

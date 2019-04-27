@@ -31,6 +31,7 @@
 #include <wx/listbox.h>
 #include <wx/grid.h>
 
+#include "AutoCompTextCtrl.h"
 #include "../DataViewer/DataSource.h"
 #include "../FramesManagerObserver.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
@@ -70,11 +71,11 @@ public:
     void OnClose( wxCloseEvent& ev);
 	void OnLeftJoinClick( wxCommandEvent& ev );
 	void OnOuterJoinClick( wxCommandEvent& ev );
-	void UpdateMergeButton();    
+	void UpdateMergeButton();
 	void OnMethodSelect( wxCommandEvent& ev );
 
 	wxChoice* m_current_key;
-	wxListBox* m_exclude_list;
+	GdaListBox* m_exclude_list;
 	wxListBox* m_include_list;
 	wxRadioButton* m_count;
     wxRadioButton* m_sum;

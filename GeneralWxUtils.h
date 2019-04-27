@@ -113,4 +113,5 @@ public:
 
 	double GetTransparency();
 };
+
 #endif
