@@ -660,6 +660,8 @@ void Basemap::DownloadTile(int x, int y)
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             

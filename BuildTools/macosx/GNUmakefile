@@ -106,6 +106,10 @@ build-geoda-mac:
 	cp libraries/lib/libgeos-3.3.8.dylib build/GeoDa.app/Contents/Resources/plugins/
 	cp libraries/lib/libcurl.4.dylib build/GeoDa.app/Contents/Resources/plugins/
 	cp libraries/lib/libcares.2.dylib build/GeoDa.app/Contents/Resources/plugins/
+	cp /usr/local/opt/openssl/lib/libssl.1.0.0.dylib build/GeoDa.app/Contents/Resources/plugins/
+	cp /usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib build/GeoDa.app/Contents/Resources/plugins/
+	chmod +w build/GeoDa.app/Contents/Resources/plugins/libssl.1.0.0.dylib
+	chmod +w build/GeoDa.app/Contents/Resources/plugins/libcrypto.1.0.0.dylib
 	#cp libraries/lib/libmysqlclient.18.dylib build/GeoDa.app/Contents/Resources/plugins/
 	cp plugins/ogr_OCI.so build/GeoDa.app/Contents/Resources/plugins/ogr_OCI.so
 	cp plugins/ogr_FileGDB.so build/GeoDa.app/Contents/Resources/plugins/ogr_FileGDB.so
@@ -132,6 +136,9 @@ build-geoda-mac:
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcurl.4.dylib" "@executable_path/../Resources/plugins/libcurl.4.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libcurl.4.dylib 
+	install_name_tool -change "/usr/local/opt/openssl/lib/libssl.1.0.0.dylib" "@executable_path/../Resources/plugins/libssl.1.0.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libcurl.4.dylib 
+	install_name_tool -change "/usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib" "@executable_path/../Resources/plugins/libcrypto.1.0.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libcurl.4.dylib 
+	install_name_tool -change "/usr/local/Cellar/openssl/1.0.2q/lib/libcrypto.1.0.0.dylib" "@executable_path/../Resources/plugins/libcrypto.1.0.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libssl.1.0.0.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libcares.2.dylib" "@executable_path/../Resources/plugins/libcares.2.dylib" build/GeoDa.app/Contents/Resources/plugins/libxerces-c-3.1.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libkmlengine.0.dylib" "@executable_path/../Resources/plugins/libkmlengine.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libkmlengine.0.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libkmlbase.0.dylib" "@executable_path/../Resources/plugins/libkmlbase.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libkmlengine.0.dylib 
