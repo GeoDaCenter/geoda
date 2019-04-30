@@ -333,6 +333,19 @@ bool Project::SetWorkingDir(const wxString& path)
 	return true;
 }
 
+Shapefile::ShapeType Project::GetShapefileType()
+{
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
+    if ( main_data.header.shape_type == Shapefile::POINT_TYP) {
+        shape_type = Shapefile::POINT_TYP;
+    } else if (main_data.header.shape_type == Shapefile::POLYGON) {
+        shape_type = Shapefile::POLYGON;
+    } else if (main_data.header.shape_type == Shapefile::POLY_LINE) {
+        shape_type = Shapefile::POLY_LINE;
+    }
+    return shape_type;
+}
+
 Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 {
 	wxLogMessage("Project::GetGdaGeometries()");

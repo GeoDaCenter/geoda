@@ -100,11 +100,12 @@ ExportDataDlg::ExportDataDlg(wxWindow* parent,
     Init(parent, pos);
 }
 
-ExportDataDlg::ExportDataDlg(wxWindow* parent, Shapefile::ShapeType _shape_type,
+ExportDataDlg::ExportDataDlg(wxWindow* parent,
+                             Shapefile::ShapeType _shape_type,
                              std::vector<GdaShape*>& _geometries,
                              OGRSpatialReference* _spatial_ref,
-                             OGRTable* table, const wxPoint& pos,
-                             const wxSize& size)
+                             OGRTable* table,
+                             const wxPoint& pos, const wxSize& size)
 : is_selected_only(false), project_p(NULL), geometries(_geometries),
   shape_type(_shape_type), is_saveas_op(true), is_geometry_only(false),
   table_p(table), is_table_only(false), is_save_centroids(false),

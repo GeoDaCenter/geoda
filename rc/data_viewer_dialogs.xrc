@@ -1852,7 +1852,7 @@ All Rights Reserved</label>
                                   <border>7</border>
                               </object>
                               <object class="sizeritem">
-                                  <object class="wxChoice" name="ID_CURRENT_KEY_CHOICE">
+                                  <object class="wxChoice" name="ID_CURRENT_KEY_CHOICE" subclass="GdaChoice">
                                       <size>85,-1d</size>
                                   </object>
                                   <flag>wxALIGN_CENTRE_VERTICAL</flag>
@@ -1939,7 +1939,7 @@ All Rights Reserved</label>
                                                   <object class="wxBoxSizer">
                                                       <orient>wxVERTICAL</orient>
                                                       <object class="sizeritem">
-                                                          <object class="wxListBox" name="ID_INCLUDE_LIST">
+                                                          <object class="wxListBox" name="ID_INCLUDE_LIST" subclass="GdaListBox">
                                                               <size>90,87d</size>
                                                               <style>wxLB_SINGLE</style>
                                                           </object>

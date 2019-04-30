@@ -3838,12 +3838,12 @@ void MapFrame::OnUniqueValues()
 		if (dlg.ShowModal() != wxID_OK) return;
 		ChangeMapType(CatClassification::unique_values,
 					  MapCanvas::no_smoothing,
-					  6, boost::uuids::nil_uuid(),
+					  1, boost::uuids::nil_uuid(),
 					  true, dlg.var_info, dlg.col_ids);
 	} else {
 		ChangeMapType(CatClassification::unique_values,
 					  MapCanvas::no_smoothing,
-					  6, boost::uuids::nil_uuid(),
+					  1, boost::uuids::nil_uuid(),
 					  false, vector<GdaVarTools::VarInfo>(0),
 					  vector<int>(0));
 	}

@@ -92,9 +92,9 @@ void DissolveDlg::update(FramesManager* o)
 void DissolveDlg::CreateControls()
 {
 	wxXmlResource::Get()->LoadDialog(this, GetParent(), "ID_DISSOLVE_DLG");
-	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), wxChoice);
+	m_current_key = wxDynamicCast(FindWindow(XRCID("ID_CURRENT_KEY_CHOICE")), GdaChoice);
 	m_exclude_list = wxDynamicCast(FindWindow(XRCID("ID_EXCLUDE_LIST")), GdaListBox);
-	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), wxListBox);
+	m_include_list = wxDynamicCast(FindWindow(XRCID("ID_INCLUDE_LIST")), GdaListBox);
 	m_count = wxDynamicCast(FindWindow(XRCID("ID_DISSOLVE_COUNT")), wxRadioButton);
 	m_sum = wxDynamicCast(FindWindow(XRCID("ID_DISSOLVE_SUM")), wxRadioButton);
 	m_avg = wxDynamicCast(FindWindow(XRCID("ID_DISSOLVE_AVG")), wxRadioButton);
@@ -126,36 +126,11 @@ void DissolveDlg::Init()
     m_include_list->Clear();
     m_exclude_list->Clear();
 
-    m_exclude_list->InitContent(table_int, GdaListBox::SHOW_STRING_INTEGER);
-
-	vector<wxString> col_names;
-	// get the field names from table interface
-    set<wxString> key_name_set;
-    set<wxString> field_name_set;
-    int time_steps = table_int->GetTimeSteps();
-    int n_fields   = table_int->GetNumberCols();
-    for (size_t cid=0; cid<n_fields; cid++) {
-        wxString group_name = table_int->GetColName(cid);
-        for (size_t i=0; i<time_steps; i++) {
-            GdaConst::FieldType field_type = table_int->GetColType(cid,i);
-            wxString field_name = table_int->GetColName(cid, i);
-            // only String, Integer can be keys for merging
-            if (field_type == GdaConst::long64_type ||
-                field_type == GdaConst::string_type )
-            {
-                if ( key_name_set.count(field_name) == 0) {
-                    m_current_key->Append(field_name);
-                    key_name_set.insert(field_name);
-                }
-            }
-            if (field_type == GdaConst::long64_type || field_type == GdaConst::double_type ) {
-                if ( field_name_set.count(field_name) == 0) {
-                    //m_exclude_list->Append(field_name);
-                    field_name_set.insert(field_name);
-                }
-            }
-        }
-    }
+    m_exclude_list->GdaInitContent(table_int,
+                                   GdaListBox::SHOW_INTEGER |
+                                   GdaListBox::SHOW_FLOAT);
+    m_current_key->GdaInitContent(table_int, GdaChoice::SHOW_INTEGER |
+                                  GdaChoice::SHOW_STRING);
     
 	UpdateMergeButton();
 }
@@ -169,10 +144,24 @@ void DissolveDlg::OnMethodSelect( wxCommandEvent& ev)
 void DissolveDlg::OnIncAllClick( wxCommandEvent& ev)
 {
     wxLogMessage("Entering DissolveDlg::OnIncAllClick()");
-	for (int i=0, iend=m_exclude_list->GetCount(); i<iend; i++) {
-		m_include_list->Append(m_exclude_list->GetString(i));
+    for (int i=0; i< m_exclude_list->GetCount(); ++i) {
+        int col_id = wxNOT_FOUND;
+        int tm_id = wxNOT_FOUND;
+        wxString sel_str = m_exclude_list->GdaGetString(i, col_id, tm_id);
+        if (sel_str.IsEmpty() == false &&
+            sel_str != m_current_key->GetString(m_current_key->GetSelection())) {
+            m_include_list->GdaAppend(sel_str, col_id, tm_id);
+        }
 	}
-	m_exclude_list->Clear();
+    for (int i=m_exclude_list->GetCount()-1; i>=0; --i) {
+        int col_id = wxNOT_FOUND;
+        int tm_id = wxNOT_FOUND;
+        wxString sel_str = m_exclude_list->GdaGetString(i, col_id, tm_id);
+        if (sel_str.IsEmpty() == false &&
+            sel_str != m_current_key->GetString(m_current_key->GetSelection())) {
+            m_exclude_list->Delete(i);
+        }
+    }
 	UpdateMergeButton();
 }
 
@@ -180,9 +169,13 @@ void DissolveDlg::OnIncOneClick( wxCommandEvent& ev)
 {
     wxLogMessage("Entering DissolveDlg::OnIncOneClick()");
 	if (m_exclude_list->GetSelection() >= 0) {
-		wxString k = m_exclude_list->GetString(m_exclude_list->GetSelection());
-		m_include_list->Append(k);
-		m_exclude_list->Delete(m_exclude_list->GetSelection());
+        int sel_id = m_exclude_list->GetSelection();
+        int col_id, tm_id;
+		wxString k = m_exclude_list->GdaGetString(sel_id, col_id, tm_id);
+        if (k != m_current_key->GetString(m_current_key->GetSelection())) {
+            m_include_list->GdaAppend(k, col_id, tm_id);
+            m_exclude_list->Delete(sel_id);
+        }
 	}
 	UpdateMergeButton();
 }
@@ -197,7 +190,9 @@ void DissolveDlg::OnExclAllClick( wxCommandEvent& ev)
 {
     wxLogMessage("Entering DissolveDlg::OnExclAllClick()");
 	for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
-		m_exclude_list->Append(m_include_list->GetString(i));
+        int col_id, tm_id;
+        wxString k = m_include_list->GdaGetString(i, col_id, tm_id);
+		m_exclude_list->GdaAppend(k, col_id, tm_id);
 	}
 	m_include_list->Clear();
 	UpdateMergeButton();
@@ -207,9 +202,11 @@ void DissolveDlg::OnExclOneClick( wxCommandEvent& ev)
 {
     wxLogMessage("Entering DissolveDlg::OnExclOneClick()");
 	if (m_include_list->GetSelection() >= 0) {
-		m_exclude_list->
-			Append(m_include_list->GetString(m_include_list->GetSelection()));
-		m_include_list->Delete(m_include_list->GetSelection());
+        int i = m_include_list->GetSelection();
+        int col_id, tm_id;
+        wxString k = m_include_list->GdaGetString(i, col_id, tm_id);
+		m_exclude_list->GdaAppend(k, col_id, tm_id);
+		m_include_list->Delete(i);
 	}
 	UpdateMergeButton();
 }
@@ -222,7 +219,8 @@ void DissolveDlg::OnExclListDClick( wxCommandEvent& ev)
     }
 }
 
-bool DissolveDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map<int, vector<int> >& key_map)
+bool DissolveDlg::CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
+                            std::map<int, vector<int> >& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
     std::vector<wxString> uniq_fnames;
@@ -256,94 +254,98 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
     wxLogMessage("In DissolveDlg::OnOKClick()");
    
     try {
-        wxString error_msg;
-       
         // get selected field names from merging table
-        vector<wxString> aggregate_field_names;
-        for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
-            wxString inc_n = m_include_list->GetString(i);
-            aggregate_field_names.push_back(inc_n);
-        }
-        int n_rows = table_int->GetNumberRows();
-        
-        vector<wxString> key1_vec;
-        map<int,vector<int> > key1_map;
-        
-        // get and check keys from original table
-        int key1_id = m_current_key->GetSelection();
-        wxString key1_name = m_current_key->GetString(key1_id);
-        int col1_id = table_int->FindColId(key1_name);
-        if (table_int->IsColTimeVariant(col1_id)) {
-            error_msg = wxString::Format(_("Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."), key1_name);
-            throw GdaException(error_msg.mb_str());
-        }
-        
-        vector<wxInt64>  key1_l_vec;
-        GdaConst::FieldType key_ftype = table_int->GetColType(col1_id, 0);
-        
-        if (key_ftype == GdaConst::string_type) {
-            table_int->GetColData(col1_id, 0, key1_vec);
-        }else if (key_ftype==GdaConst::long64_type){
-            table_int->GetColData(col1_id, 0, key1_l_vec);
-        }
-        
-        if (key1_vec.empty()) { // convert everything (key) to wxString
-            for( int i=0; i< key1_l_vec.size(); i++){
-                wxString tmp;
-                tmp << key1_l_vec[i];
-                key1_vec.push_back(tmp);
-            }
-        }
-        if (CheckKeys(key1_name, key1_vec, key1_map) == false)
+        int pos = m_current_key->GetSelection();
+        GdaConst::FieldType key_ftype = m_current_key->GdaGetSelectionFieldType(pos);
+        std::map<wxString, std::vector<int> > key1_map;
+        key1_map = m_current_key->GdaGetUniqueValues(pos);
+        int col_id, tm_id;
+        wxString key1_name = m_current_key->GdaGetSelection(col_id, tm_id);
+
+        if (key1_map.size() == 0 || key_ftype == GdaConst::unknown_type) {
+            wxString msg = _("Chosen key field is not valid. Please select another key field");
+            wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
             return;
-        
+        }
+
         // Create in-memory geometries&table
         int new_rows = key1_map.size();
         OGRTable* mem_table = new OGRTable(new_rows);
-        vector<bool> undefs(new_rows, true);
-       
-        int in_cols = aggregate_field_names.size();
-        map<wxString, OGRColumn*> new_fields_dict;
-        vector<wxString> new_fields;
+
+        std::vector<int> col_ids;
+        std::vector<int> tm_ids;
+        m_include_list->GdaGetAllItems(col_ids, tm_ids);
+
+        int in_cols = col_ids.size();
+        std::map<wxString, OGRColumn*> new_fields_dict;
+        std::vector<wxString> new_fields;
     
         // create key column
         OGRColumn* key_col;
+        std::map<wxString, std::vector<int> >::iterator it;
+        size_t i;
+
         if (key_ftype == GdaConst::string_type) {
             key_col = new OGRColumnString(key1_name, 50, 0, new_rows);
-            for(int i=0; i<new_rows; i++) key_col->SetValueAt(i, key1_vec[key1_map[i][0]]);
+            for (i=0, it = key1_map.begin(); it != key1_map.end(); ++it, ++i) {
+                key_col->SetValueAt(i, it->first);
+            }
         }else if (key_ftype==GdaConst::long64_type){
             key_col = new OGRColumnInteger(key1_name, 18, 0, new_rows);
-            for(int i=0; i<new_rows; i++) key_col->SetValueAt(i, key1_l_vec[key1_map[i][0]]);
+            for (i=0, it = key1_map.begin(); it != key1_map.end(); ++it, ++i) {
+                key_col->SetValueAt(i, it->first);
+            }
+        } else {
+            // should not be here
+            return;
         }
         new_fields_dict[key1_name] = key_col;
         new_fields.push_back(key1_name);
         
         // create count column
-        OGRColumn* _col = new OGRColumnInteger("AGG_COUNT", 18, 0, new_rows);
-        for(int i=0; i<new_rows; i++)
-            _col->SetValueAt(i, (wxInt64)(key1_map[i].size()));
-        new_fields_dict[_col->GetName()] = _col;
-        new_fields.push_back(_col->GetName());
+        OGRColumn* cnt_col = new OGRColumnInteger("AGG_COUNT", 18, 0, new_rows);
+        for (i=0, it = key1_map.begin(); it != key1_map.end(); ++it, ++i) {
+            cnt_col->SetValueAt(i, (wxInt64)(it->second.size()));
+        }
+        new_fields_dict[cnt_col->GetName()] = cnt_col;
+        new_fields.push_back(cnt_col->GetName());
         
         // get columns from table
-        for ( int i=0; i < in_cols; i++ ) {
-            wxString fname = aggregate_field_names[i];
-            OGRColumn* col =  CreateNewOGRColumn(new_rows, table_int, key1_map, fname);
-            new_fields_dict[fname] = col;
-            new_fields.push_back(col->GetName());
+        for (i=0; i < in_cols; i++ ) {
+            int col_id = col_ids[i];
+            int tm_id = tm_ids[i];
+            OGRColumn* col = CreateNewOGRColumn(new_rows, col_id, tm_id, key1_map);
+            if (col) {
+                new_fields_dict[col->GetName()] = col;
+                new_fields.push_back(col->GetName());
+            }
         }
         
-        for (int i=0; i<new_fields.size(); i++) {
+        for (i=0; i<new_fields.size(); i++) {
             mem_table->AddOGRColumn(new_fields_dict[new_fields[i]]);
         }
+
+        // create geometries
+        OGRLayerProxy* ogr_layer = project_s->GetOGRLayerProxy();
+        if (ogr_layer == NULL) {
+            delete mem_table;
+            return;
+        }
+        std::vector<GdaShape*> geoms = ogr_layer->DissolveMap(key1_map);
+        Shapefile::ShapeType shp_type = project_s->GetShapefileType();
+        OGRSpatialReference* spatial_ref = project_s->GetSpatialReference();
         
+        // export dialog
         if (export_dlg != NULL) {
             export_dlg->Destroy();
             delete export_dlg;
         }
-        export_dlg = new ExportDataDlg(this, mem_table);
+        export_dlg = new ExportDataDlg(this, shp_type, geoms, spatial_ref,
+                                       mem_table);
         if (export_dlg->ShowModal() == wxID_OK) {
-            wxMessageDialog dlg(this, _("Successful aggregation."), _("Success"), wxOK);
+            wxMessageDialog dlg(this, _("Successful aggregation."),
+                                _("Success"), wxOK);
             dlg.ShowModal();
         }
         delete mem_table;
@@ -357,7 +359,8 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
 	ev.Skip();
 }
 
-double DissolveDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs, vector<int>& ids)
+double DissolveDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs,
+                               vector<int>& ids)
 {
     if (m_sum->GetValue()) {
         double v_sum = 0;
@@ -407,48 +410,54 @@ double DissolveDlg::ComputeAgg(vector<double>& vals, vector<bool>& undefs, vecto
 	return 0;
 }
 
-OGRColumn* DissolveDlg::CreateNewOGRColumn(int new_rows, TableInterface* table_int, std::map<int, vector<int> >& key_map, wxString f_name)
+OGRColumn* DissolveDlg::CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
+                                           std::map<wxString, vector<int> >& key_map)
 {
-    int idx = table_int->FindColId(f_name);
-    int t = 0;
-    int f_length = table_int->GetColLength(idx, 0);
-    int f_decimal = table_int->GetColDecimals(idx, 0);
-    GdaConst::FieldType f_type = table_int->GetColType(idx, 0);
-    
-    OGRColumn* _col;
+    int f_length = table_int->GetColLength(col_id, tm_id);
+    int f_decimal = table_int->GetColDecimals(col_id, tm_id);
+    GdaConst::FieldType f_type = table_int->GetColType(col_id, tm_id);
+    wxString f_name = table_int->GetColName(col_id, tm_id);
+    std::map<wxString, std::vector<int> >::iterator it;
+    size_t cnt = 0;
+    std::vector<double> vals;
+    std::vector<bool> undefs;
+
+    OGRColumn* _col = NULL;
     if (f_type == GdaConst::long64_type) {
         bool is_integer = false;
         if (m_max->GetValue() || m_min->GetValue() || m_sum->GetValue()) {
             _col = new OGRColumnInteger(f_name, f_length, f_decimal, new_rows);
             is_integer = true;
-        } else 
-            _col = new OGRColumnDouble(f_name, GdaConst::default_dbf_double_len, GdaConst::default_dbf_double_decimals, new_rows);
-            
-        vector<double> vals;
-        vector<bool> undefs;
-        table_int->GetColData(idx, t, vals, undefs);
-        
-        for(int i=0; i<new_rows; i++) {
-            vector<int>& ids = key_map[i];
-            double v = ComputeAgg(vals, undefs, ids);
+        } else {
+            _col = new OGRColumnDouble(f_name, GdaConst::default_dbf_double_len,
+                                       GdaConst::default_dbf_double_decimals,
+                                       new_rows);
+        }
+        cnt = 0;
+        table_int->GetColData(col_id, tm_id, vals, undefs);
+
+        for (it = key_map.begin(); it != key_map.end(); ++it) {
+            double v = ComputeAgg(vals, undefs, it->second);
             if (is_integer) {
                 wxInt64 vv = v;
-                _col->SetValueAt(i, vv);
-            } else
-                _col->SetValueAt(i, v);
+                _col->SetValueAt(cnt, vv);
+            } else {
+                _col->SetValueAt(cnt, v);
+            }
+            cnt += 1;
         }
         
     } else if (f_type == GdaConst::double_type) {
         _col = new OGRColumnDouble(f_name, f_length, f_decimal, new_rows);
-        vector<double> vals;
-        vector<bool> undefs;
-        table_int->GetColData(idx, t, vals, undefs);
-        for(int i=0; i<new_rows; i++) {
-            vector<int>& ids = key_map[i];
+        cnt = 0;
+        table_int->GetColData(col_id, tm_id, vals, undefs);
+        for (it = key_map.begin(); it != key_map.end(); ++it) {
+            vector<int>& ids = it->second;
             double v = ComputeAgg(vals, undefs, ids);
-            _col->SetValueAt(i, v);
+            _col->SetValueAt(cnt, v);
+            cnt += 1;
         }
-        
+
     }
     return _col;
 }
@@ -483,11 +492,11 @@ void DissolveDlg::OnKeyChoice( wxCommandEvent& ev )
 
 void DissolveDlg::UpdateMergeButton()
 {
-	bool enable = m_count->GetValue() || (!m_include_list->IsEmpty() && m_current_key->GetSelection() != wxNOT_FOUND);
-	FindWindow(XRCID("wxID_DISSOLVE"))->Enable(enable);
+    bool enable = true;
+    FindWindow(XRCID("wxID_DISSOLVE"))->Enable(enable);
    
-    m_inc_all->Enable(!m_count->GetValue());
-    m_inc_one->Enable(!m_count->GetValue());
-    m_exc_all->Enable(!m_count->GetValue());
-    m_exc_one->Enable(!m_count->GetValue());
+    m_inc_all->Enable(enable);
+    m_inc_one->Enable(enable);
+    m_exc_all->Enable(enable);
+    m_exc_one->Enable(enable);
 }

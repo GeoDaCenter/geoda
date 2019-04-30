@@ -31,7 +31,8 @@
 #include <wx/listbox.h>
 #include <wx/grid.h>
 
-#include "AutoCompTextCtrl.h"
+#include "GdaListBox.h"
+#include "GdaChoice.h"
 #include "../DataViewer/DataSource.h"
 #include "../FramesManagerObserver.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
@@ -74,9 +75,9 @@ public:
 	void UpdateMergeButton();
 	void OnMethodSelect( wxCommandEvent& ev );
 
-	wxChoice* m_current_key;
+	GdaChoice* m_current_key;
 	GdaListBox* m_exclude_list;
-	wxListBox* m_include_list;
+	GdaListBox* m_include_list;
 	wxRadioButton* m_count;
     wxRadioButton* m_sum;
     wxRadioButton* m_avg;
@@ -107,7 +108,8 @@ private:
     bool CheckKeys(wxString key_name, std::vector<wxString>& key_vec,
                    std::map<int, vector<int> >& key_map);
     
-    OGRColumn* CreateNewOGRColumn(int new_rows, TableInterface* table_int, std::map<int, vector<int> >& key_map, wxString f_name);
+    OGRColumn* CreateNewOGRColumn(int new_rows, int col_id, int tm_id,
+                                  std::map<wxString, vector<int> >& key_map);
     
     double ComputeAgg(vector<double>& vals, vector<bool>& undefs, vector<int>& ids);
     

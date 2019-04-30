@@ -42,36 +42,4 @@ private:
 	DECLARE_EVENT_TABLE()
 };
 
-class GdaListBox : public wxListBox
-{
-    int data_type;
-    wxArrayString var_items;
-    std::map<wxString, int> name_to_nm;
-    std::map<wxString, int> name_to_tm_id;
-
-public:
-    enum DataType {
-        SHOW_ALL = 0,
-        SHOW_INTEGER = 1, //0b00000001
-        SHOW_STRING = 2, //0b00000010
-        SHOW_NUMERIC = 4,
-        SHOW_STRING_INTEGER = 8
-    };
-    GdaListBox(){}
-    GdaListBox(wxWindow *parent,
-               wxWindowID id,
-               const wxPoint &pos=wxDefaultPosition,
-               const wxSize &size=wxDefaultSize,
-               int n=0,
-               const wxString choices[]=NULL,
-               long style=0,
-               const wxValidator &validator=wxDefaultValidator,
-               const wxString &name=wxListBoxNameStr);
-    virtual ~GdaListBox();
-
-    void InitContent(TableInterface* table_int, int data_type);
-
-    DECLARE_DYNAMIC_CLASS(GdaListBox)
-};
-
 #endif

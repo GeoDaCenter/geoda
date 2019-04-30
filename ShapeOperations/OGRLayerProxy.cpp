@@ -1264,7 +1264,7 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
     return NULL;
 }
 
-std::vector<GdaShape*> OGRLayerProxy::DissolveMap(const std::vector<std::vector<int> >& cids)
+std::vector<GdaShape*> OGRLayerProxy::DissolveMap(const std::map<wxString, std::vector<int> >& cids)
 {
     std::vector<GdaShape*> results;
 
@@ -1272,10 +1272,11 @@ std::vector<GdaShape*> OGRLayerProxy::DissolveMap(const std::vector<std::vector<
 
     if (IsWkbPoint(eGType) || IsWkbLine(eGType)) return results;
 
-    for (size_t i=0; i<cids.size(); ++i) {
+    std::map<wxString, std::vector<int> >::const_iterator it;
+    for (it = cids.begin(); it != cids.end(); ++it) {
         std::vector<OGRGeometry*> geom_set;
-        for (size_t j=0; j<cids[i].size(); j++) {
-            int rid = cids[i][j];
+        for (size_t j=0; j<it->second.size(); j++) {
+            int rid = it->second[j];
             OGRFeature* feature = data[rid];
             OGRGeometry* geometry= feature->GetGeometryRef();
             geom_set.push_back(geometry);

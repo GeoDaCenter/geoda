@@ -145,6 +145,10 @@ public:
     MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
+    OGRLayerProxy*        GetOGRLayerProxy() {return layer_proxy;}
+    /** Save in-memory Table+Geometries to OGR DataSource */
+    Shapefile::ShapeType  GetGdaGeometries(vector<GdaShape*>& geometries);
+    Shapefile::ShapeType  GetShapefileType();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
 	bool ExportVoronoi();
@@ -253,10 +257,7 @@ public:
     std::vector<GdaPoint*> mean_centers;
     std::vector<GdaPoint*> centroids;
     std::vector<GdaShape*> voronoi_polygons;
-    
-	/** Save in-memory Table+Geometries to OGR DataSource */
-	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
-    
+
 protected:
 	bool CommonProjectInit();
 	bool InitFromOgrLayer();
