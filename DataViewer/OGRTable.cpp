@@ -1566,8 +1566,9 @@ void OGRTable::RenameTimeStep(int time, const wxString& new_name)
 int OGRTable::FindOGRColId(int wxgrid_col_pos, int time)
 {
     wxString name = var_order.GetSimpleColName(wxgrid_col_pos, time);
-	
 	return FindOGRColId(name);
+    //const VarGroup& vg = var_order.FindVarGroup(wxgrid_col_pos);
+    //vg.GetNameByTime(time);
 }
 
 int OGRTable::FindOGRColId(const wxString& name)

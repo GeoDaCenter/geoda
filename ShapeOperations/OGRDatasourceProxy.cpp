@@ -363,7 +363,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         // OVERWRITE: This may be "YES" to force an existing layer of the
         // desired name to be destroyed before creating the requested layer.
         // LAUNDER is for database: rename desired field name
-        const char* papszLCO[50] = {"PRECISION=no", "LAUNDER=yes"};
+        const char* papszLCO[50] = {"PRECISION=no", "LAUNDER=no"};
         poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
                                      (char**)papszLCO);
     } else {
@@ -427,6 +427,8 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                     error_message << CPLGetLastErrorMsg();
                     throw GdaException(error_message.mb_str());
                 }
+                // check if field name has been launder-ed
+                if (oField.GetNameRef())
             }
         }
     }

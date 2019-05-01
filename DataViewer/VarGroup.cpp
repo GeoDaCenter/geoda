@@ -25,6 +25,7 @@ VarGroup::VarGroup() : displayed_decimals(-1)
 }
 
 VarGroup::VarGroup(const VarGroup& e) : name(e.name), vars(e.vars),
+ogr_pos(e.ogr_pos), ogr_positions(e.ogr_positions),
 displayed_decimals(e.displayed_decimals), meta_data(e.meta_data)
 {
 }
@@ -109,6 +110,15 @@ void VarGroup::GetVarNames(std::vector<wxString>& var_nms) const
 	} else {
 		var_nms = vars;
 	}
+}
+
+int VarGroup::GetOGRPosition(int time) const
+{
+    if (time == 0) return ogr_pos;
+
+    if (time >= 0 && time < ogr_positions.size()) return ogr_positions[time];
+
+    return -1;
 }
 
 wxString VarGroup::GetNameByTime(int time) const

@@ -34,6 +34,7 @@ struct VarGroup {
 	VarGroup(const wxString &name, int displayed_decimals=-1);
 	VarGroup(const wxString &name, std::vector<wxString> vars,
 			 int displayed_decimals=-1);
+
 	bool operator<(const VarGroup& e) const;
 	VarGroup& operator=(const VarGroup& e);
 	void Append(const VarGroup& e);
@@ -53,16 +54,23 @@ struct VarGroup {
 	bool IsEmpty() const;
 	wxString ToStr() const;
 	int GetDispDecs() const;
+    int GetOGRPosition(int time) const;
 	void SetDispDecs(int displayed_decimals);
     void AddMetaInfo(const wxString& key, const wxString& val);
     
 	/** simple name if only one time period, otherwise group name */
 	wxString name;
 
+    // remember the position in ogr table, to prevent duplicate names
+    unsigned int ogr_pos;
+
 	/** var: empty "" indicates placeholder
 	 * if vars.size() == 0, then a simple variable */
 	std::vector<wxString> vars;
-	
+
+    // remember the position in ogr table, to prevent duplicate names
+    std::vector<unsigned int> ogr_positions;
+
 	/** Number of displayed decimals for the entire group.  Only
 	 used for non-integer numeric types.  -1 indicates not used
 	 or use default for type. */
