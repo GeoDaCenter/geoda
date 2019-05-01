@@ -268,14 +268,11 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
     if (layername == _layername) {
         // we only update Custom Categories
         // first correct variable_order
-        std::vector<wxString> var_list;
-        std::map<wxString, GdaConst::FieldType> var_type_map;
-        layer_proxy->GetVarTypeMap(var_list, var_type_map);
-        
+        std::vector<wxString> var_list = layer_proxy->GetFieldNames();
+        std::vector<GdaConst::FieldType> var_types = layer_proxy->GetFieldTypes();
         VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-        variable_order->CorrectVarGroups(var_type_map, var_list,
+        variable_order->CorrectVarGroups(var_list, var_types,
                                          IsFieldCaseSensitive());
-        
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
     } else {
@@ -1612,15 +1609,12 @@ bool Project::InitFromOgrLayer()
 	datasource->UpdateWritable(ds_proxy->is_writable);
     
 	// Correct variable_order information, which will be used by OGRTable
-	std::vector<wxString> var_list;
-	std::map<wxString, GdaConst::FieldType> var_type_map;
-	layer_proxy->GetVarTypeMap(var_list, var_type_map);
-	
+	std::vector<wxString> var_list = layer_proxy->GetFieldNames();
+    std::vector<GdaConst::FieldType> var_types = layer_proxy->GetFieldTypes();
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-	variable_order->CorrectVarGroups(var_type_map, var_list,
+	variable_order->CorrectVarGroups(var_list, var_types,
                                      IsFieldCaseSensitive());
-	
 	table_state = new TableState;
 	time_state = new TimeState;
 	table_int = new OGRTable(layer_proxy, ds_type, table_state,

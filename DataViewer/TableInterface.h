@@ -108,7 +108,6 @@ public:
 	 and tm are set to -1 */
 	virtual bool DbColNmToColAndTm(const wxString& name,
 								   int& col, int& tm) = 0;
-	virtual bool ColNameExists(const wxString& name);
 	virtual int FindColId(const wxString& name) = 0;
 	
 	virtual void FillColIdMap(std::vector<int>& col_map) = 0;

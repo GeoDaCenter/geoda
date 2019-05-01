@@ -162,7 +162,6 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
 	layer_pool.clear();
     
 	// clean ogr data sources
-	//OGRDataSource::DestroyDataSource(ds);
 	GDALClose(ds);
 }
 
@@ -326,7 +325,7 @@ void OGRDatasourceProxy::CreateDataSource(wxString format,
 	}
 	
 	// Create the output data source.  
-	GDALDataset *poODS = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
+	GDALDataset *poODS = poDriver->Create(pszDestDataSource,0,0,0,GDT_Unknown, NULL);
 	if( poODS == NULL ) {
 		// driver failed to load
         error_message << _("Can't create output OGR driver. \n\nDetails:");
@@ -381,6 +380,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
 		throw GdaException(error_message.mb_str());
     }
     
+    OGRFeatureDefn* poFeatDef = poDstLayer->GetLayerDefn();
     map<wxString, pair<int, int> >::iterator field_it;
     
     // create fields using TableInterface:table
@@ -422,13 +422,19 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 if ( ogr_fprecision>0 ) {
                     oField.SetPrecision(ogr_fprecision);
                 }
-                if( poDstLayer->CreateField( &oField ) != OGRERR_NONE ) {
-                    error_message << _("Creating a field failed.\n\nDetails:");
+                if( poDstLayer->CreateField( &oField, false ) != OGRERR_NONE ) {
+                    error_message << _("OGR failed to create field.\n\nDetails:");
                     error_message << CPLGetLastErrorMsg();
                     throw GdaException(error_message.mb_str());
                 }
                 // check if field name has been launder-ed
-                if (oField.GetNameRef())
+                int n_field = poFeatDef->GetFieldCount();
+                OGRFieldDefn *fieldDefn = poFeatDef->GetFieldDefn(n_field - 1);
+                
+                wxString ogr_field_nm = fieldDefn->GetNameRef();
+                if (fname.Cmp(ogr_field_nm) != 0) {
+                    table->RenameSimpleCol(id, t, ogr_field_nm);
+                }
             }
         }
     }

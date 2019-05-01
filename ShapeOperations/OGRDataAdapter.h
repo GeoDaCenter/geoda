@@ -164,14 +164,9 @@ public:
                                     bool is_update);
                                  
     void StopExport();
+    
 	void CancelExport(OGRLayerProxy* layer);
     
-    void Export(OGRLayerProxy* source_layer_proxy,
-                const wxString& format,
-                const wxString& dest_datasource,
-                const wxString& new_layer_name,
-                bool is_update);
-
 	OGRwkbGeometryType MakeOGRGeometries(vector<GdaShape*>& geometries, 
 								  Shapefile::ShapeType shape_type,
 								  vector<OGRGeometry*>& ogr_geometries,

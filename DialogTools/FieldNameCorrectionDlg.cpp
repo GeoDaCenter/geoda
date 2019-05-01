@@ -44,8 +44,9 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 : wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
 ds_type(ds_type), need_correction(false)
 {
-    is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
-	vector<wxString> merged_field_names;
+    //is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
+    is_case_sensitive = false;
+    vector<wxString> merged_field_names;
 	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
     set<wxString>::iterator uniq_iter;
     vector<int> bad_fname_idx_s, dup_fname_idx_s;
@@ -166,8 +167,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
 
     size_t ctrl_cnt = 0;
 
-    for (size_t i=0; i < dup_fname_idx_s.size(); i++)
-    {
+    for (size_t i=0; i < dup_fname_idx_s.size(); i++) {
         int fname_idx = dup_fname_idx_s[i];
         wxString field_name = old_field_names[fname_idx];
         warn_msg=DUP_WARN;
@@ -200,8 +200,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
         ++ctrl_cnt;
     }
     
-    for (size_t i=0; i < bad_fname_idx_s.size(); i++)
-    {
+    for (size_t i=0; i < bad_fname_idx_s.size(); i++) {
         int fname_idx = bad_fname_idx_s[i];
         wxString field_name = old_field_names[fname_idx];
         warn_msg=INV_WARN;
@@ -676,7 +675,8 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        set<wxString>& dup_fname,
                        set<wxString>& bad_fname,
                        wxString title)
-: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+           wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open FieldNameCorrectionDlg:");
     

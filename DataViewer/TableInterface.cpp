@@ -79,14 +79,10 @@ void TableInterface::SetProjectChangedSinceLastSave(bool chg)
     project_changed_since_last_save = chg;
 }
 
-bool TableInterface::ColNameExists(const wxString& name)
-{
-	return (FindColId(name) != wxNOT_FOUND);
-}
-
 bool TableInterface::IsColTimeVariant(const wxString& name)
 {
-	if (!ColNameExists(name)) return false;
+	if (!DoesNameExist(name, cols_case_sensitive)) return false;
+    
 	return IsColTimeVariant(FindColId(name));
 }
 
@@ -114,7 +110,6 @@ void TableInterface::SetEncoding(wxFontEncoding enc_type)
 
 wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 {
-	using namespace std;
 	wxString nm(GenUtils::FindLongestSubString(cols));
 	// remove trailing and leading whitespace, underscores and numbers
 	bool done=false;
@@ -166,10 +161,8 @@ wxString TableInterface::GetUniqueGroupName(wxString grp_nm) const
 std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 														int n) const
 {
-	using namespace std;
-	vector<wxString> ret(n, col_nm);
-	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive))
-        return ret;
+    std::vector<wxString> ret(n, col_nm);
+	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive)) return ret;
 	
 	const int MAX_TRIES = 100000;
     if (col_nm.IsEmpty()) {

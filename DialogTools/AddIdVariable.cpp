@@ -80,9 +80,9 @@ void AddIdVariable::OnOkClick( wxCommandEvent& event )
 		dlg.ShowModal();
 		return;
 	}
-	
-	bool name_exists = false;
-	name_exists = table_int->ColNameExists(new_id_var_name);
+	// make sure no duplicated fields when adding a new field
+    bool case_sensitive = false;
+	bool name_exists = table_int->DoesNameExist(new_id_var_name, case_sensitive);
 	if (name_exists) {
 		wxString msg;
 		msg << "Variable name \"" + new_id_var_name;

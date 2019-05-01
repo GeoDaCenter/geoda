@@ -227,9 +227,8 @@ const VarGroup_container& VarOrderPtree::GetVarGroupsRef() const
 	return var_grps;
 }
 
-bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
-                                     GdaConst::FieldType>& ds_var_type_map,
-                                     const std::vector<wxString>& ds_var_list,
+bool VarOrderPtree::CorrectVarGroups(const std::vector<wxString>& ds_var_list,
+                                     const std::vector<GdaConst::FieldType>& ds_var_type,
                                      bool case_sensitive)
 {
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
@@ -271,7 +270,7 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 	// compatible, ungroup and append to end.
 	list<wxString> ungroup;
 	for (VarGroup_container::iterator i=var_grps.begin(); i!=var_grps.end();) {
-		if (!IsTypeCompatible(i->vars, ds_var_type_map)) {
+		if (!IsTypeCompatible(i->vars, ds_var_list, ds_var_type)) {
 			BOOST_FOREACH(const wxString& v, i->vars) {
 				ungroup.push_back(v);
 			}
@@ -402,26 +401,26 @@ bool VarOrderPtree::RemoveFromVarGroups(const wxString& v,
 }
 
 bool VarOrderPtree::IsTypeCompatible(const std::vector<wxString>& vars,
-									  const std::map<wxString,
-									  GdaConst::FieldType>& ds_var_type_map)
+                                     const std::vector<wxString>& ds_var_list,
+                                     const std::vector<GdaConst::FieldType>& ds_var_type)
 {
 	if (vars.size() == 0) return true;
-	map<wxString, GdaConst::FieldType>::const_iterator m_it;
     set<GdaConst::FieldType> type_set;
     
 	BOOST_FOREACH(const wxString& v, vars) {
 		if (!v.empty()) {
-            m_it = ds_var_type_map.find(v);
-			if ( m_it == ds_var_type_map.end())
-                m_it = ds_var_type_map.find(v.Upper());
-            if ( m_it == ds_var_type_map.end())
-                m_it = ds_var_type_map.find(v.Lower());
-            if ( m_it == ds_var_type_map.end()) {
+            GdaConst::FieldType type = GdaConst::unknown_type;
+            for (size_t i=0; i<ds_var_list.size(); ++i) {
+                if (ds_var_list[i].Cmp(v) == 0) {
+                    type = ds_var_type[i];
+                    break;
+                }
+            }
+            if ( GdaConst::unknown_type == type) {
 				wxString ss;
 				ss << "Error: could not find type for var: " << v;
 				return false;
 			}
-            GdaConst::FieldType type = m_it->second;
             if (type != GdaConst::placeholder_type) {
                 type_set.insert(type);
             }

@@ -54,7 +54,7 @@ private:
     OGRLayerProxy* ogr_layer;
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
-    
+    // may contains duplicated variable names e.g. in csv file
     vector<wxString> org_var_names;
 
     // queues of table operations

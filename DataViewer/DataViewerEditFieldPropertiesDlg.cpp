@@ -295,12 +295,8 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 	field_grid->EndBatch();
     
     
-    field_grid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
-                       wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected),
-                       NULL,
-                       this);
+    field_grid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected), NULL, this);
 }
-
 
 void DataViewerEditFieldPropertiesDlg::OnFieldSelected( wxCommandEvent& ev )
 {
@@ -329,7 +325,6 @@ void DataViewerEditFieldPropertiesDlg::OnClose( wxCloseEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 {
-	
 	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnCellChanging");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
@@ -387,7 +382,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		ev.Veto();
 		return;
 	}
-	
 	
 	if (col == COL_TM ||
         col == COL_MIN ||
@@ -531,8 +525,11 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
             }
         }
         combo_selection = -1;
+        
     } else if (col == COL_N) {
-		if (table_int->DoesNameExist(new_str, case_sensitive) ||
+        // proceed with rename
+        bool case_change = new_str.CmpNoCase(cur_str) == 0;
+        if ( (!case_change && table_int->DoesNameExist(new_str, false)) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -540,7 +537,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			ev.Veto();
 			return;
 		}
-		// proceed with rename
 		table_int->RenameSimpleCol(cid, time, new_str);
         
 	} else if (col == COL_PG) {
@@ -549,7 +545,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			ev.Veto();
 			return;
 		}
-		if (table_int->DoesNameExist(new_str, case_sensitive) ||
+        bool case_change = new_str.CmpNoCase(cur_str) == 0;
+		if ( (!case_change && table_int->DoesNameExist(new_str, false)) ||
 			!table_int->IsValidGroupName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);

@@ -182,9 +182,7 @@ public:
 	int AddField(const wxString& field_name,
                  GdaConst::FieldType field_type,
 				 int field_length, int field_precision);
-	/**
-	 *
-	 */
+
 	void UpdateFieldProperties(int col);
     
     /**
@@ -192,77 +190,44 @@ public:
 	 */
 	wxString GetFieldName(int pos);
     
-    /**
-	 * Set field name at an input field position.
-	 */
+	// Set field name at an input field position.
     void SetFieldName(int pos, const wxString& new_fname);
-    
-	/**
-	 *
-	 */
+
 	void DeleteField(int pos);
-    
-	/**
-	 *
-	 */
+
 	void DeleteField(const wxString& field_name);
-    
-	/**
-	 *
-	 */
+
 	int GetFieldPos(const wxString& field_name);
-    
-    /**
-     */
+
 	GdaConst::FieldType GetFieldType(int pos);
-    
-    /**
-     */
+
     GdaConst::FieldType GetFieldType(const wxString& field_name);
-	/**
-	 *
-	 */
+
 	int GetFieldLength(int pos);
     void SetFieldLength(int pos, int new_len);
-	/**
-	 *
-	 */
+
 	int GetFieldDecimals(int pos);
     void SetFieldDecimals(int pos, int new_dec);
-	/**
-	 *
-	 */
+
 	bool UpdateColumn();
     bool UpdateColumn(int col_idx, vector<double> &vals);
     bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
     bool UpdateColumn(int col_idx, vector<wxString> &vals);
-	/**
-	 *
-	 */
+
 	bool IsTableOnly();
+    
 	bool CheckIsTableOnly();
-	/**
-	 *
-	 */
+
 	bool UpdateOGRFeature(OGRFeature* feature);
-	/**
-	 *
-	 */
+
 	bool AppendOGRFeature(vector<wxString>& content);
-	/**
-	 *
-	 */
+
 	bool InsertOGRFeature();
 	
-	/**
-	 * var_list:  variable/column/field list
-	 * var_type_map: variable/column/field -- field type
-	 */
-	void GetVarTypeMap(vector<wxString>& var_list,
-					   map<wxString, GdaConst::FieldType>& var_type_map);
-	/**
-	 *
-	 */
+	vector<GdaConst::FieldType> GetFieldTypes();
+
+    vector<wxString> GetFieldNames();
+    
     OGRFeature* GetFeatureAt(int rid);
     
     OGRGeometry* GetGeometry(int idx);

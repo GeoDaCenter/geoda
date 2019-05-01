@@ -631,9 +631,7 @@ void TableFrame::OnRenameVariable(wxCommandEvent& event)
 	wxString curr_name = ti->GetColName(popup_col);
 	wxString new_name = PromptRenameColName(ti, popup_col, curr_name);
 
-    bool case_sensitive = project->IsFieldCaseSensitive();
-	if (new_name.IsSameAs(curr_name, case_sensitive) || new_name.IsEmpty())
-        return;
+    if (new_name.IsEmpty()) return;
 
 	ti->RenameGroup(popup_col, new_name);
 
@@ -663,6 +661,7 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 	wxString error_msg = wxEmptyString;
 
 	bool first = true;
+    // rename field name may allow different case, e.g. ID->id
     bool case_sensitive = project->IsFieldCaseSensitive();
 
 	while (!done) {
@@ -674,7 +673,12 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 			new_name.Trim(false);
 			new_name.Trim(true);
 
-            bool is_name_exist = ti->DoesNameExist(new_name, case_sensitive);
+            bool is_name_exist = false;
+            bool case_change = new_name.CmpNoCase(curr_name) == 0;
+            if ( !case_change && ti->DoesNameExist(new_name, false)) {
+                is_name_exist = true;
+            }
+            
             // is_name_exist includes if new_name equals (case) curr_name
             if (is_name_exist == false ) {
                 if (is_group_col) {

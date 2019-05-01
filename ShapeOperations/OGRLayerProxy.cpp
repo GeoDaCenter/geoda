@@ -73,7 +73,8 @@ OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
 n_rows(_n_rows), eGType(_eGType), load_progress(0), stop_reading(false),
 export_progress(0)
 {
-    if (n_rows==0) {
+    if (n_rows == 0) {
+        // sometimes the OGR returns 0 features (falsely)
         n_rows = layer->GetFeatureCount();
     }
     
@@ -147,6 +148,18 @@ void OGRLayerProxy::SetOGRLayer(OGRLayer* new_layer)
 
 bool OGRLayerProxy::ReadFieldInfo()
 {
+    // check duplicated field names
+    std::set<wxString> field_nms;
+    for (int col_idx=0; col_idx < n_cols; col_idx++) {
+        OGRFieldDefn *fieldDefn = featureDefn->GetFieldDefn(col_idx);
+        field_nms.insert(fieldDefn->GetNameRef());
+    }
+    if (field_nms.size() < n_cols) {
+        wxString msg = _("GeoDa can't load dataset with duplicate field names.");
+        error_message << msg;
+        throw GdaException(msg.mb_str());
+    }
+    
 	for (int col_idx=0; col_idx<n_cols; col_idx++) {
 		OGRFieldDefn *fieldDefn = featureDefn->GetFieldDefn(col_idx);
 		OGRFieldProxy *fieldProxy = new OGRFieldProxy(fieldDefn);
@@ -155,16 +168,23 @@ bool OGRLayerProxy::ReadFieldInfo()
 	return true;
 }
 
-void OGRLayerProxy::GetVarTypeMap(vector<wxString>& var_list,
-                                map<wxString,GdaConst::FieldType>& var_type_map)
+vector<GdaConst::FieldType> OGRLayerProxy::GetFieldTypes()
 {
-	// Get field/variable list of current ogr_layer, store in var_list vector
-	// Get field/variable:(its type) pair of current ogr_layer, store in map
+    vector<GdaConst::FieldType> field_types;
 	for( int i=0; i< n_cols; i++) {
-        wxString var = fields[i]->GetName();
-		var_list.push_back( var );
-		var_type_map[ var ] = fields[i]->GetType();
+		field_types.push_back(fields[i]->GetType());
 	}
+    return field_types;
+}
+
+vector<wxString> OGRLayerProxy::GetFieldNames()
+{
+    vector<wxString> field_names;
+    for( int i=0; i< n_cols; i++) {
+        wxString var = fields[i]->GetName();
+        field_names.push_back(var);
+    }
+    return field_names;
 }
 
 wxString OGRLayerProxy::GetFieldName(int pos)
@@ -882,7 +902,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (stop_exporting) return;
         if ( (i+1)%2 ==0 ) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-            wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n", i + 1, n_data);
+            wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n",
+                                            i + 1, n_data);
             error_message << msg << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;
@@ -1347,11 +1368,9 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
         // read points
         int i=0;
         for (size_t j=0; j < pc->num_parts; j++) {
-            pLinearRing = j==0 ?
-            p->getExteriorRing() : p->getInteriorRing(j-1);
+            pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
             if (pLinearRing) {
-                for (size_t k=0; k < pLinearRing->getNumPoints(); k++)
-                {
+                for (size_t k=0; k < pLinearRing->getNumPoints(); k++) {
                     pc->points[i].x =  pLinearRing->getX(k);
                     pc->points[i++].y =  pLinearRing->getY(k);
                 }
@@ -1370,7 +1389,7 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
             OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
             OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
             // number of interior rings + 1 exterior ring
-            int ni_rings = p->getNumInteriorRings()+1;
+            int ni_rings = p->getNumInteriorRings() + 1;
             pc->num_parts += ni_rings;
             pc->parts.resize(pc->num_parts);
             

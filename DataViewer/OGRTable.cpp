@@ -1141,11 +1141,12 @@ bool OGRTable::RenameGroup(int col, const wxString& new_name)
     if (!IsColTimeVariant(col)) {
         return RenameSimpleCol(col, 0, new_name);
     }
+    // may allow e.g. ID->id
     bool case_sensitive = cols_case_sensitive;
 	if (DoesNameExist(new_name, case_sensitive) ||
 		!IsValidGroupName(new_name)) return false;
-	wxString old_name = GetColName(col);
-	
+
+    wxString old_name = GetColName(col);
 	var_order.SetGroupName(col, new_name);
 	table_state->SetColRenameEvtTyp(old_name, new_name, false);
 	table_state->notifyObservers();
