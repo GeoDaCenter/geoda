@@ -24,6 +24,15 @@ void GdaChoice::Clear()
     name_to_tm_id.clear();
 }
 
+std::set<wxString> GdaChoice::GetAllItems()
+{
+    std::set<wxString> all_items;
+    for (size_t i=0; i<var_items.size(); ++i) {
+        all_items.insert(var_items[i]);
+    }
+    return all_items;
+}
+
 void GdaChoice::GdaInitContent(TableInterface *table_int, int data_type) {
     this->table_int = table_int;
     std::vector<int> col_id_map;

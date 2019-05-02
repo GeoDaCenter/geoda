@@ -97,12 +97,12 @@ fixed_scale_over_change(true)
     
     // Init variables
 	supports_timeline_changes = true;
-    int n_cols = project->GetTableInt()->GetNumberCols();
-    for (int i=0; i<n_cols; i++) {
-        if (project->GetTableInt()->IsColNumeric(i)) {
-            wxString col_name = project->GetTableInt()->GetColName(i);
-            variable_names.push_back(col_name);
-        }
+    std::vector<int> col_id_map;
+    project->GetTableInt()->FillNumericColIdMap(col_id_map);
+    for (size_t i=0; i<col_id_map.size(); i++) {
+        int id = col_id_map[i];
+        wxString col_name = project->GetTableInt()->GetColName(id);
+        variable_names.push_back(col_name);
     }
     
     // UI

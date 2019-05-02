@@ -56,6 +56,8 @@ public:
 
     GdaConst::FieldType GdaGetSelectionFieldType(unsigned int pos);
 
+    std::set<wxString> GetAllItems();
+    
     DECLARE_DYNAMIC_CLASS(GdaChoice)
 };
 

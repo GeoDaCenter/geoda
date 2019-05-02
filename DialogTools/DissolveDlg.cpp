@@ -261,14 +261,14 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
         key1_map = m_current_key->GdaGetUniqueValues(pos);
         int col_id, tm_id;
         wxString key1_name = m_current_key->GdaGetSelection(col_id, tm_id);
-
+        
         if (key1_map.size() == 0 || key_ftype == GdaConst::unknown_type) {
             wxString msg = _("Chosen key field is not valid. Please select another key field");
             wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
-
+        
         // Create in-memory geometries&table
         int new_rows = key1_map.size();
         OGRTable* mem_table = new OGRTable(new_rows);
