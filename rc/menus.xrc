@@ -499,7 +499,7 @@
           <label>Bivariate Local Join Count</label>
       </object>
       <object class="wxMenuItem" name="IDM_MUL_LJC">
-          <label>Multivariate Local Join Count</label>
+          <label>Co-location Join Count</label>
       </object>
       <object class="separator"/>
       <label>Local Geary Maps</label>
@@ -4887,7 +4887,7 @@
         <label>Bivariate Local Join Count</label>
     </object>
     <object class="wxMenuItem" name="IDM_MUL_LJC">
-        <label>Multivariate Local Join Count</label>
+        <label>Co-location Join Count</label>
     </object>
     <object class="separator"/>
     <label>Local Geary Maps</label>
@@ -4931,7 +4931,7 @@
         <label>Bivariate Local Join Count</label>
     </object>
     <object class="wxMenuItem" name="IDM_MUL_LJC">
-        <label>Multivariate Local Join Count</label>
+        <label>Co-location Join Count</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_MAP_CHOICES">

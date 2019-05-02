@@ -3960,8 +3960,8 @@ msgstr "Basemap Sources: (Format: group_name.basemap_name,basemap_url)"
 msgid "Basemap Parameters:"
 msgstr "Basemap Parameters:"
 
-msgid "Multivariate Local Join Count"
-msgstr "Multivariate Local Join Count"
+msgid "Co-location Join Count"
+msgstr "Co-location Join Count"
 
 msgid "Weights Intersection"
 msgstr "Weights Intersection"

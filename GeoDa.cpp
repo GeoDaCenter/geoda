@@ -4037,7 +4037,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         table_int->GetColData(VS.col_ids[c], VS.var_info[c].time, data);
         for (int i=0; i<data.size(); i++) {
             if (data[i] !=0 && data[i] != 1) {
-                wxString msg = _("Please select binary variables for Multivariate Local Join Count.");
+                wxString msg = _("Please select binary variables for Co-location Join Count.");
                 wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
                 dlg.ShowModal();
                 return;
@@ -4094,7 +4094,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         }
         bool nocolocation = sum == 0;
         if (nocolocation) {
-            wxMessageDialog dlg (this, _("Multivariate Local Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."), _("Error"), wxOK | wxICON_WARNING);
+            wxMessageDialog dlg (this, _("Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."), _("Error"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }

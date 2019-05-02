@@ -4642,8 +4642,8 @@ msgstr "底图格式: (group_name.basemap_name,basemap_url)"
 msgid "Basemap Parameters:"
 msgstr "底图设置:"
 
-msgid "Multivariate Local Join Count"
-msgstr "Multivariate Local Join Count"
+msgid "Co-location Join Count"
+msgstr "Co-location Join Count"
 
 msgid "Weights Intersection"
 msgstr "求空间权重交集"
