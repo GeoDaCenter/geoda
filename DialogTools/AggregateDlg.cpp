@@ -62,7 +62,6 @@ AggregationDlg::AggregationDlg(wxWindow* parent, Project* _project_s, const wxPo
     wxLogMessage("Open AggregationDlg.");
 	SetParent(parent);
     
-	//table_int->FillColIdMap(col_id_map);
     table_int = project_s->GetTableInt(),
     frames_manager = project_s->GetFramesManager(),
     
@@ -118,7 +117,6 @@ void AggregationDlg::CreateControls()
     win->SetScrollRate(5, 5);
     
     FitInside();
-    
     
     m_count->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
     m_sum->Bind(wxEVT_RADIOBUTTON, &AggregationDlg::OnMethodSelect, this);
@@ -223,7 +221,8 @@ void AggregationDlg::OnExclListDClick( wxCommandEvent& ev)
 	OnIncOneClick(ev);
 }
 
-bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map<int, vector<int> >& key_map)
+bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
+                               map<int, vector<int> >& key_map)
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
     std::vector<wxString> uniq_fnames;
@@ -256,7 +255,6 @@ bool AggregationDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec, map
 void AggregationDlg::OnOKClick( wxCommandEvent& ev )
 {
     wxLogMessage("In AggregationDlg::OnOKClick()");
-   
     try {
         wxString error_msg;
        
@@ -275,7 +273,7 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
             return;
         }
         
-        // Create in-memory geometries&table
+        // create in-memory geometries&table
         int new_rows = key1_map.size();
         OGRTable* mem_table = new OGRTable(new_rows);
         

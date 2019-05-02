@@ -362,7 +362,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         // OVERWRITE: This may be "YES" to force an existing layer of the
         // desired name to be destroyed before creating the requested layer.
         // LAUNDER is for database: rename desired field name
-        const char* papszLCO[50] = {"PRECISION=no", "LAUNDER=no"};
+        const char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=no"};
         poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
                                      (char**)papszLCO);
     } else {

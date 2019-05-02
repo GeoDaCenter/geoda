@@ -69,7 +69,6 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s,
 	SetParent(parent);
 
     m_wx_encoding = NULL;
-	//table_int->FillColIdMap(col_id_map);
     table_int = project_s->GetTableInt(),
     frames_manager = project_s->GetFramesManager(),
     
@@ -167,24 +166,25 @@ void MergeTableDlg::Init()
     m_import_key->Disable();
     m_exclude_list->Disable();
     m_include_list->Disable();
-    
-	vector<wxString> col_names;
-	table_fnames.clear();
-	// get the field names from table interface
-    set<wxString> field_name_set;
-    int time_steps = table_int->GetTimeSteps();
-    int n_fields   = table_int->GetNumberCols();
-    for (int cid=0; cid<n_fields; cid++) {
-        wxString group_name = table_int->GetColName(cid);
+
+    table_fnames.clear();
+    // get the field names from table interface
+    std::set<wxString> field_name_set;
+    std::vector<int> col_id_map;
+    table_int->FillColIdMap(col_id_map);
+    for (size_t i=0; i<col_id_map.size(); i++) {
+        int id = col_id_map[i];
+        wxString group_name = table_int->GetColName(id);
         table_fnames.insert(group_name);
-        for (int i=0; i<time_steps; i++) {
-            GdaConst::FieldType field_type = table_int->GetColType(cid,i);
-            wxString field_name = table_int->GetColName(cid, i);
+        int tms = table_int->IsColTimeVariant(id) ? table_int->GetColTimeSteps(id) : 1;
+        for (size_t t=0; t<tms; t++) {
+            GdaConst::FieldType field_type = table_int->GetColType(id, i);
+            wxString field_name = table_int->GetColName(id, i);
             // only String, Integer can be keys for merging
-            if ( field_type == GdaConst::long64_type ||
+            if (field_type == GdaConst::long64_type ||
                 field_type == GdaConst::string_type )
             {
-                if ( field_name_set.count(field_name) == 0) {
+                if (field_name_set.count(field_name) == 0) {
                     m_current_key->Append(field_name);
                     field_name_set.insert(field_name);
                 }
@@ -220,10 +220,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
                                          showCsvConfigure,
                                          showRecentPanel,
                                          dialog_type);
-        
-        if (connect_dlg.ShowModal() != wxID_OK) {
-            return;
-        }
+        if (connect_dlg.ShowModal() != wxID_OK) return;
         
         wxString proj_title = connect_dlg.GetProjectTitle();
         wxString layer_name = connect_dlg.GetLayerName();
@@ -257,7 +254,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         m_include_list->Clear();
         m_exclude_list->Clear();
         
-        for (int i=0, iend=merge_layer_proxy->GetNumFields(); i<iend; i++) {
+        for (size_t i=0; i < merge_layer_proxy->GetNumFields(); i++) {
             GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
             wxString name = merge_layer_proxy->GetFieldName(i);
             wxString dedup_name = name;
@@ -392,7 +389,7 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
     vector<wxString> merged_field_names;
     set<wxString> dup_merged_field_names, bad_merged_field_names;
 
-    bool case_sensitive = project_s->IsFieldCaseSensitive();
+    bool case_sensitive = false;//project_s->IsFieldCaseSensitive();
     for (int i=0, iend=m_include_list->GetCount(); i<iend; i++) {
         wxString inc_n = m_include_list->GetString(i);
         merged_field_names.push_back(inc_n);
@@ -775,8 +772,8 @@ void MergeTableDlg::LeftJoinMerge()
         
         // get selected field names from merging table
         map<wxString, wxString> merged_fnames_dict;
-        for (set<wxString>::iterator it = table_fnames.begin();
-             it != table_fnames.end(); ++it ) {
+        for (set<wxString>::iterator it = dups.begin();
+             it != dups.end(); ++it ) {
              merged_fnames_dict[ *it ] = *it;
         }
         vector<wxString> merged_field_names =
