@@ -97,13 +97,6 @@ fixed_scale_over_change(true)
     
     // Init variables
 	supports_timeline_changes = true;
-    std::vector<int> col_id_map;
-    project->GetTableInt()->FillNumericColIdMap(col_id_map);
-    for (size_t i=0; i<col_id_map.size(); i++) {
-        int id = col_id_map[i];
-        wxString col_name = project->GetTableInt()->GetColName(id);
-        variable_names.push_back(col_name);
-    }
     
     // UI
     /*
@@ -300,9 +293,16 @@ void LineChartFrame::InitVariableChoiceCtrl()
         wxLogMessage("ERROR: Table interface NULL.");
         return;
     }
-  
-    int n_times = table_int->GetTimeSteps();
+    variable_names.clear();
+    std::vector<int> col_id_map;
+    project->GetTableInt()->FillNumericColIdMap(col_id_map);
+    for (size_t i=0; i<col_id_map.size(); i++) {
+        int id = col_id_map[i];
+        wxString col_name = project->GetTableInt()->GetColName(id);
+        variable_names.push_back(col_name);
+    }
 
+    int n_times = table_int->GetTimeSteps();
     wxString time_range_str("");
     if (n_times == 1) {
         time_range_str = wxString::Format("(%s)", table_int->GetTimeString(0));
@@ -311,7 +311,9 @@ void LineChartFrame::InitVariableChoiceCtrl()
                                           table_int->GetTimeString(0),
                                           table_int->GetTimeString(n_times-1));
     }
-    
+    wxString old_sel = choice_variable->GetStringSelection();
+    choice_variable->Clear();
+    int sel_idx = 0;
     for (size_t i=0, sz=variable_names.size(); i<sz; ++i) {
         wxString col_name = variable_names[i];
         int col = table_int->FindColId(col_name);
@@ -319,11 +321,14 @@ void LineChartFrame::InitVariableChoiceCtrl()
             col_name = col_name + " " + time_range_str;
         }
         choice_variable->Append(col_name);
+        if (!old_sel.IsEmpty() && old_sel == col_name) {
+            sel_idx = i;
+        }
     }
-	choice_variable->SetSelection(0);
 	choice_variable->Connect(wxEVT_CHOICE,
                              wxCommandEventHandler(LineChartFrame::OnVariableChoice),
                              NULL, this);
+    choice_variable->SetSelection(sel_idx);
 }
 
 void LineChartFrame::InitGroupsChoiceCtrl()
@@ -1523,7 +1528,8 @@ void LineChartFrame::RunDIDTest()
                             do_white_test);
         
         m_resid1= m_DR->GetResidual();
-        printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, n, nX, do_white_test);
+        printAndShowClassicalResults(row_nm, y, table_int->GetTableName(),
+                                     wxEmptyString, m_DR, n, nX, do_white_test);
         m_yhat1 = m_DR->GetYHAT();
         
 
@@ -1536,10 +1542,11 @@ void LineChartFrame::RunDIDTest()
     
     // display regression in dialog
     if (regReportDlg == 0) {
-        regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY, "Diff-in-Diff Regression Report");
-        regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LineChartFrame::OnReportClose), NULL, this);
-        
-        
+        regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY,
+                                               "Diff-in-Diff Regression Report");
+        regReportDlg->Connect(wxEVT_DESTROY,
+                              wxWindowDestroyEventHandler(LineChartFrame::OnReportClose),
+                              NULL, this);
     } else {
         regReportDlg->AddNewReport(logReport);
     }
@@ -1648,6 +1655,7 @@ void LineChartFrame::update(HLStateInt* o)
 /** Implementation of TableStateObserver interface */
 void LineChartFrame::update(TableState* o)
 {
+    InitVariableChoiceCtrl();
 	UpdateDataMapFromVarMan();
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
@@ -1663,7 +1671,8 @@ void LineChartFrame::update(TableState* o)
 	}
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
 		UpdateStatsWinContent(i);
-	}	
+	}
+    Refresh();
 }
 
 void LineChartFrame::update(VarsChooserObservable* o)
