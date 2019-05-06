@@ -118,7 +118,8 @@ protected:
 	IDataSource* GetDatasource();
     void OpenDatasourceFile(const wxFileName& ds_fname);
     void ExportOGRLayer(wxString& ds_name, bool is_update);
-    bool CreateOGRLayer(wxString& ds_name, OGRSpatialReference* spatial_ref, bool is_update);
+    bool CreateOGRLayer(wxString& ds_name, bool is_table,
+                        OGRSpatialReference* spatial_ref, bool is_update);
     
 	DECLARE_EVENT_TABLE()
 };

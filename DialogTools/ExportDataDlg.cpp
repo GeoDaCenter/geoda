@@ -427,7 +427,9 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 				}
 			}
 		}
-        if( !CreateOGRLayer(ds_name, spatial_ref, is_update) ) {
+        //
+        bool is_table = IDataSource::IsTableOnly(ds_type);
+        if( !CreateOGRLayer(ds_name, is_table, spatial_ref, is_update) ) {
             wxString msg = _("Save As has been cancelled.");
             throw GdaException(msg.mb_str(), GdaException::NORMAL);
         }
@@ -539,7 +541,7 @@ void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
  * This function will be called by OnOKClick (When user clicks OK)
  */
 bool
-ExportDataDlg::CreateOGRLayer(wxString& ds_name,
+ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
 							  OGRSpatialReference* spatial_ref,
                               bool is_update)
 {
@@ -603,16 +605,16 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
             selected_rows.push_back(i);
     }
     
-	// convert to OGR geometries
+	// convert to OGR geometries, reproject if needed
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 	vector<OGRGeometry*> ogr_geometries;
-    OGRwkbGeometryType geom_type;
-    geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
-                                              ogr_geometries, selected_rows);
-
-    // reproject if needed
-    OGRSpatialReference new_ref;
-    if (spatial_ref) {
+    OGRwkbGeometryType geom_type = wkbNone;
+    OGRSpatialReference new_ref = NULL;
+    if (is_table) {
+        spatial_ref = NULL; // table only data, void creating e.g. prj file
+    } else if (spatial_ref) {
+        geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
+                                                  ogr_geometries, selected_rows);
         wxString str_crs = m_crs_input->GetValue();
         bool valid_input_crs = false;
         if (!str_crs.IsEmpty()) {
@@ -639,20 +641,14 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
     if (layer_name.empty()) {
         layer_name = table_p ? table_p->GetTableName() : "NO_NAME";
     }
-    
     int prog_n_max = selected_rows.size();
-    
-    if (prog_n_max == 0 && table_p)
-        prog_n_max = table_p->GetNumberRows();
-   
-
+    if (prog_n_max == 0 && table_p) prog_n_max = table_p->GetNumberRows();
     OGRLayerProxy* new_layer;
     new_layer = ogr_adapter.ExportDataSource(ds_format, ds_name, layer_name,
                                              geom_type, ogr_geometries,
                                              table_p, selected_rows,
                                              spatial_ref, is_update);
     if (new_layer == NULL) return false;
-    
     wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                               _("Saving data..."),
                               prog_n_max, this,
@@ -684,7 +680,6 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name,
 			delete geometries[i];
         }
     }
-
     return true;
 }
 

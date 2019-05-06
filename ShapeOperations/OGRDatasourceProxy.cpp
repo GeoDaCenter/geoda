@@ -73,8 +73,6 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         }
     } else if(ds_type == GdaConst::ds_shapefile) {
-        //const char* papszOpenOptions[255] = {"ENCODING=CP936"};
-        //ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     } else {
         ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
@@ -367,7 +365,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                      (char**)papszLCO);
     } else {
         // ENCODING: set to "" to avoid any recoding
-        const char* papszLCO[50] = {"OVERWRITE=yes", "LAUNDER=no", "ENCODING="};
+        const char* papszLCO[50] = {"OVERWRITE=yes", "LAUNDER=no"};
         poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
                                      (char**)papszLCO);
     }
