@@ -18,34 +18,17 @@
  */
 
 #include <cmath>
-#include <string>
-#include <vector>
-#include <map>
-#include <boost/multi_array.hpp>
-#include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <ogrsf_frmts.h>
 #include <ogr_api.h>
-#include <wx/wx.h>
-
-#include <wx/wx.h>
 
 #include "OGRDataAdapter.h"
-#include "OGRDatasourceProxy.h"
 #include "OGRLayerProxy.h"
-#include "GdaCache.h"
 
-#include "../DataViewer/TableInterface.h"
 #include "../DataViewer/DataSource.h"
 #include "../DialogTools/FieldNameCorrectionDlg.h"
 #include "../GdaShape.h"
-
-#include "../GdaConst.h"
-#include "../Project.h"
 #include "../GdaException.h"
-
-using namespace Shapefile;
-using namespace std;
 
 OGRDataAdapter::OGRDataAdapter()
 {
@@ -164,11 +147,6 @@ void OGRDataAdapter::T_StopReadLayer(OGRLayerProxy* layer_proxy)
 	layer_thread->join();
 	delete layer_thread;
     layer_thread = NULL;
-}
-				
-void OGRDataAdapter::SaveLayer(OGRLayerProxy* layer_proxy)
-{
-	if (layer_proxy != NULL) layer_proxy->Save();
 }
 
 void OGRDataAdapter::StopExport()
@@ -308,7 +286,8 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
                                  TableInterface* table,
 								 vector<int>& selected_rows,
                                  OGRSpatialReference* spatial_ref,
-								 bool is_update)
+								 bool is_update,
+                                 wxString cpg_encode)
 {
     wxLogMessage("In OGRDataAdapter::ExportDataSource()");
     GdaConst::DataSourceType ds_type = IDataSource::FindDataSourceType(o_ds_format);
@@ -383,7 +362,8 @@ OGRDataAdapter::ExportDataSource(const wxString& o_ds_format,
     OGRLayerProxy* new_layer_proxy;
     new_layer_proxy = export_ds->CreateLayer(o_layer_name, geom_type,
                                              ogr_geometries, table,
-                                             selected_rows, spatial_ref);
+                                             selected_rows, spatial_ref,
+                                             cpg_encode);
 
     wxLogMessage("start OGRLayerProxy::AddFreatures()");
     export_thread = new boost::thread(boost::bind(&OGRLayerProxy::AddFeatures,

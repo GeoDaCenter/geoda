@@ -95,7 +95,8 @@ public:
     bool IsPointTypeData() { return main_data.header.shape_type == Shapefile::POINT_TYP;}
 
     int GetShapeType() { return main_data.header.shape_type; }
-    
+
+    wxString GetCpgEncode() { return cpg_encode;}
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
@@ -282,7 +283,8 @@ protected:
 
 	bool is_project_valid; // true if project Shapefile created successfully
 	wxString open_err_msg; // error message for project open failure.
-	
+    wxString cpg_encode;
+
 	// without Shapefile.
 	int					num_records;
 	TableInterface*     table_int;

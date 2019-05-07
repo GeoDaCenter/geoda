@@ -118,12 +118,8 @@ public:
                                vector<int>& selected_rows,
                                OGRSpatialReference* spatial_ref,
                                wxString cpg_encode = wxEmptyString);
-    
-    void StopCreateLayer();
+
     bool DeleteLayer(wxString layer_name);
-    
-private:
-    boost::thread* create_layer_thread;
 };
 
 

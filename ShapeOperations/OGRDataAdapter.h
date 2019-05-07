@@ -25,11 +25,10 @@
 #include <map>
 #include <boost/multi_array.hpp>
 #include <boost/thread.hpp>
-
+#include <wx/wx.h>
 
 #include "../GdaConst.h"
 #include "../DataViewer/TableInterface.h"
-#include "../DataViewer/OGRTable.h"
 #include "../GdaShape.h"
 
 #include "OGRDatasourceProxy.h"
@@ -42,16 +41,13 @@ using namespace std;
 /**
  * A singleton data adapter for communicating with all OGR data sources.
  * This class automatically maintains the connections to all OGR data sources.
- * This class also provides operations to OGR data sources, which include:
- *  GetHistory(), AddHistory(), GetDataSourceType(), GetLayerNames(),
- *  ReadLayer(),StopReadLayer(),SaveLayer(),T_Export(),T_StopExport()
+ * This class also provides operations to OGR data sources
  * \code
  * \endcode
  */
 class OGRDataAdapter {
     
     // Thread realted variables
-    //todo: we should have a thread pool that manage their lifecycle
     boost::thread* layer_thread;
     boost::thread* cache_thread;
     boost::thread* export_thread;
@@ -65,19 +61,6 @@ class OGRDataAdapter {
     map<wxString, OGRDatasourceProxy*> ogr_ds_pool;
     
     OGRDatasourceProxy* export_ds;
-    
-public:
-	static OGRDataAdapter& GetInstance() {
-		static OGRDataAdapter instance;
-		return instance;
-	}
-    
-	/**
-	 * Call to destroy OGRDataAdapter instance.
-	 * Free all allocated memory, disconnect OGR data sources,
-	 * and execute a safe exit.
-	 */
-	void Close();
 	
 private:
 	/**
@@ -105,24 +88,43 @@ public:
 	ostringstream error_message;
 	
 public:
+    static OGRDataAdapter& GetInstance() {
+        static OGRDataAdapter instance;
+        return instance;
+    }
+
+    /**
+     * Call to destroy OGRDataAdapter instance.
+     * Free all allocated memory, disconnect OGR data sources,
+     * and execute a safe exit.
+     */
+    void Close();
+
 	/**
-	 * Get OGR datasource.
-	 * If there is one in the ogr_ds_pool, return it directly.
+	 * Get OGR datasource. If there is one in the ogr_ds_pool, return it directly.
 	 * Otherwise, create a new OGR datasource, store it in ogr_ds_pool,
 	 * then return it.
 	 */
 	OGRDatasourceProxy* GetDatasourceProxy(const wxString& ds_name, GdaConst::DataSourceType ds_type);
-	
-    void RemoveDatasourceProxy(const wxString& ds_name);
-    
-	vector<wxString> GetHistory(const wxString& param_key);
 
+    /**
+     * Used by multi-layers, so users can remove a layer from cache
+     *
+     */
+    void RemoveDatasourceProxy(const wxString& ds_name);
+
+    /**
+     * functions for cache.sqlite used by GeoDa
+     *
+     */
+	vector<wxString> GetHistory(const wxString& param_key);
 	void AddHistory(const wxString& param_key, const wxString& param_val);
     void AddEntry(const wxString& param_key, const wxString& param_val);
 	void CleanHistory();
 	
 	/**
 	 * get OGR layer names from a datasource
+     *
 	 * @param ds_name OGR data source name
 	 * @param layer_names a reference to a string vector that stores layer names
 	 */
@@ -144,13 +146,11 @@ public:
                                const wxString& layer_name);
 	
 	void T_StopReadLayer(OGRLayerProxy* layer_proxy);
-	
-    /**
-     * 
-     */
-	void SaveLayer(OGRLayerProxy* layer_proxy);
+
     
     /**
+     * A threaded version of exporting OGRLayer to a data source.
+     *
      * Create a OGR datasource that contains input geometries and table.
      */
     OGRLayerProxy* ExportDataSource(const wxString& o_ds_format,
@@ -161,12 +161,16 @@ public:
                                     TableInterface* table,
                                     vector<int>& selected_rows,
                                     OGRSpatialReference* spatial_ref,
-                                    bool is_update);
+                                    bool is_update,
+                                    wxString cpg_encode = wxEmptyString);
                                  
     void StopExport();
     
 	void CancelExport(OGRLayerProxy* layer);
-    
+
+    /**
+     * Create OGR geometries from internal GdaShapes
+     */
 	OGRwkbGeometryType MakeOGRGeometries(vector<GdaShape*>& geometries, 
 								  Shapefile::ShapeType shape_type,
 								  vector<OGRGeometry*>& ogr_geometries,

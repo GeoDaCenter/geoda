@@ -26,10 +26,7 @@
 #include <wx/button.h>
 #include <wx/filedlg.h>
 #include <wx/textdlg.h>
-#include "MergeTableDlg.h"
-#include "DataSource.h"
-#include "TableBase.h"
-#include "TableInterface.h"
+
 #include "../FramesManagerObserver.h"
 #include "../FramesManager.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
@@ -40,9 +37,13 @@
 #include "../logger.h"
 #include "../GeneralWxUtils.h"
 #include "../Project.h"
+#include "MergeTableDlg.h"
+#include "DataSource.h"
+#include "TableBase.h"
+#include "TableInterface.h"
+#include "OGRTable.h"
 
 BEGIN_EVENT_TABLE( MergeTableDlg, wxDialog )
-
 	EVT_RADIOBUTTON( XRCID("ID_KEY_VAL_RB"), MergeTableDlg::OnKeyValRB )
 	EVT_RADIOBUTTON( XRCID("ID_REC_ORDER_RB"), MergeTableDlg::OnRecOrderRB )
 	EVT_BUTTON( XRCID("ID_OPEN_BUTTON"), MergeTableDlg::OnOpenClick )

@@ -37,17 +37,18 @@
 
 #include "ogr_srs_api.h"
 
-#include "../Project.h"
+#include "../rc/GeoDaIcon-16x16.xpm"
 #include "../DataViewer/TableInterface.h"
+#include "../DataViewer/OGRTable.h"
 #include "../DataViewer/DataSource.h"
-#include "../GenUtils.h"
-#include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaException.h"
 #include "../GeneralWxUtils.h"
 #include "../GdaCartoDB.h"
+#include "../GenUtils.h"
+#include "../logger.h"
+#include "../Project.h"
 #include "ConnectDatasourceDlg.h"
-#include "../rc/GeoDaIcon-16x16.xpm"
 #include "ExportDataDlg.h"
 
 using namespace std;
@@ -496,47 +497,6 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
 }
 
 /**
- * Exporting OGR layer in project to another datasource name
- * This function will be called by OnOKClick (When user clicks OK)
- */
-void ExportDataDlg::ExportOGRLayer(wxString& ds_name, bool is_update)
-{
-    // Exporting layer in multi-layer cases will not use OGRTable anymore,
-    // we will use OGRDataAdapter to get ogr layer by layer name
-    OGRTable* tbl = NULL;
-    if (project_p) {
-        tbl = dynamic_cast<OGRTable*>(project_p->GetTableInt());
-    }
-	if (!tbl) {
-		// DBFTable case, try to read into
-        wxString msg = _("Only OGR datasource can be saved as.");
-		throw GdaException(msg.mb_str());
-	}
-    OGRLayerProxy* layer = tbl->GetOGRLayer();
-    layer->T_Export(ds_format, ds_name, layer_name, is_update);
-    int prog_n_max = project_p->GetNumRecords();
-    wxProgressDialog prog_dlg(_("Save As progress dialog"),
-                              _("Saving data..."),
-                              prog_n_max, // range
-                              this,
-                              wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
-    bool cont = true;
-    while (layer->export_progress < prog_n_max) {
-        wxSleep(1);
-        cont = prog_dlg.Update(layer->export_progress);
-        if (!cont ) {
-            layer->T_StopExport();
-            return;
-        }
-        if (layer->export_progress == -1){
-            wxString tmp = _("Saving to data source (%s) failed.\n\nDetails: %s");
-            wxString msg = wxString::Format(tmp, ds_name, layer->error_message);
-            throw GdaException(msg.c_str());
-        }
-    }
-}
-
-/**
  * Exporting (in-memory) geometries/table in project to another datasource name
  * This function will be called by OnOKClick (When user clicks OK)
  */
@@ -636,7 +596,11 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
             spatial_ref = &new_ref; // use new CRS
         }
     }
-    
+    wxString cpg_encode;
+    if (project_p) cpg_encode = project_p->GetCpgEncode();
+    if (cpg_encode.IsEmpty() && table_p) {
+        cpg_encode = table_p->GetEncodingName();
+    }
 	// take care of empty layer name
     if (layer_name.empty()) {
         layer_name = table_p ? table_p->GetTableName() : "NO_NAME";
@@ -647,7 +611,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     new_layer = ogr_adapter.ExportDataSource(ds_format, ds_name, layer_name,
                                              geom_type, ogr_geometries,
                                              table_p, selected_rows,
-                                             spatial_ref, is_update);
+                                             spatial_ref, is_update, cpg_encode);
     if (new_layer == NULL) return false;
     wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                               _("Saving data..."),

@@ -114,17 +114,6 @@ public:
 	 * It may return failure because the layer doesn't support writeback.
 	 */
 	void Save();
-	
-    /**
-	 * Export current ogr layer to  layer in other ogr data source
-	 * @param format exported driver name (OGR style)
-	 * @param dest_datasource exported data source name (OGR style)
-	 */
-	void Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
-    
-	void T_Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
-    
-	void T_StopExport();
 
     /**
      * Add new features to an empty OGRLayer

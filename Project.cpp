@@ -613,7 +613,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                                  layername, geom_type,
                                                  ogr_geometries, table_int,
                                                  selected_rows, spatial_ref,
-                                                 is_update);
+                                                 is_update, cpg_encode);
         if (new_layer == NULL) {
             wxString msg = _("Saving data source cancelled.");
             throw GdaException(msg.mb_str());
@@ -1632,7 +1632,6 @@ bool Project::InitFromOgrLayer()
 		delete table_int;
 		return false;
 	}
-
     // read cpg file for ESRI shapefile to setup encoding
     if (ds_type == GdaConst::ds_shapefile) {
         wxFileName fn(datasource_name);
@@ -1644,8 +1643,8 @@ bool Project::InitFromOgrLayer()
             wxTextFile cpg_file;
             cpg_file.Open(cpg_fn);
             // read the first line
-            wxString cpg_str = cpg_file.GetFirstLine();
-            wxString encode_str = ConvertCpgCodePage(cpg_str);
+            cpg_encode = cpg_file.GetFirstLine();
+            wxString encode_str = ConvertCpgCodePage(cpg_encode);
             SetupEncoding(encode_str);
         }
     }
@@ -1872,7 +1871,6 @@ void Project::SetupEncoding(wxString encode_str)
         table_int->SetEncoding(wxFONTENCODING_CP949);
     } else if (encode_str.Upper().Contains("950")) {
         table_int->SetEncoding(wxFONTENCODING_CP950);
-        
     } else if (encode_str.Upper().Contains("885910") ||
                encode_str.Upper().Contains("8859_10") ) {
         table_int->SetEncoding(wxFONTENCODING_ISO8859_10);
@@ -1937,10 +1935,8 @@ void Project::SetupEncoding(wxString encode_str)
 
 wxString Project::ConvertCpgCodePage(const wxString& code_page)
 {
-    wxString l_osEncoding;
-    
     if( code_page.IsEmpty() )
-        return l_osEncoding;
+        return code_page;
     
     if(code_page.StartsWith("LDID/")) {
         int nCP = -1; // windows code page.
@@ -2013,9 +2009,10 @@ wxString Project::ConvertCpgCodePage(const wxString& code_page)
             case 204: nCP = 1257;    break;
             default: break;
         }
-        
-        if (nCP > -1 ) l_osEncoding << nCP;
+        wxString new_code;
+        if (nCP > -1 ) new_code << nCP;
+        return new_code;
     }
     
-    return l_osEncoding;
+    return code_page;
 }

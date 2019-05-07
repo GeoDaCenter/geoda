@@ -286,6 +286,7 @@ public:
 	virtual void SetEncoding(wxFontEncoding enc_type);
 	virtual wxFontEncoding GetFontEncoding() { return encoding_type; }
     virtual wxCSConv* GetEncoding() { return m_wx_encoding; }
+    virtual wxString GetEncodingName();
 
 	/** Suggests a group name based on the member names listed in cols.
 	 * Returned value is a unique, valid group name: it is different than

@@ -56,36 +56,19 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         throw GdaException(GET_ENCODED_FILENAME(msg));
     }
     CPLErrorReset();
-    
-    std::vector<wxString> opts;
-    if (ds_type == GdaConst::ds_csv) {
-        opts.push_back("AUTODETECT_TYPE=YES");
-        opts.push_back("EMPTY_STRING_AS_NULL=YES");
-        if (GdaConst::gda_ogr_csv_header == 0) {
-            opts.push_back("HEADERS=NO");
-        } else if (GdaConst::gda_ogr_csv_header == 1) {
-            opts.push_back("HEADERS=YES");
-        }
-    }
-    
     char **papszOpenOptions = NULL;
-    if (opts.empty() == false) {
-        papszOpenOptions = new char*[opts.size()];
-        for (size_t i=0; i<opts.size(); ++i) {
-            papszOpenOptions[i] = new char[opts[i].size() + 1];
-            strcpy(papszOpenOptions[i], opts[i].c_str());
-            papszOpenOptions[i][opts[i].size()] = '\0';
+    if (ds_type == GdaConst::ds_csv) {
+        papszOpenOptions = CSLAddString(papszOpenOptions, "AUTODETECT_TYPE=YES");
+        papszOpenOptions = CSLAddString(papszOpenOptions, "EMPTY_STRING_AS_NULL=YES");
+
+        if (GdaConst::gda_ogr_csv_header == 0) {
+            papszOpenOptions = CSLAddString(papszOpenOptions, "HEADERS=NO");
+        } else if (GdaConst::gda_ogr_csv_header == 1) {
+            papszOpenOptions = CSLAddString(papszOpenOptions, "HEADERS=YES");
         }
     }
-    
     ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE,
                                    NULL, papszOpenOptions, NULL);
-    
-    if (papszOpenOptions) {
-        for(size_t i=0; i < opts.size(); i++) delete [] papszOpenOptions[i];
-        delete [] papszOpenOptions;
-    }
-    
     is_writable = true;
 	if (!ds) {
         // try without UPDATE
@@ -97,6 +80,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             } else {
                 msg << _("\n\nDetails: ") << error_detail;
             }
+             CSLDestroy(papszOpenOptions);
             throw GdaException(GET_ENCODED_FILENAME(msg));
         }
         is_writable = false;
@@ -110,8 +94,8 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         ds_type = GdaConst::datasrc_str_to_type[driver_name];
     }
     
-    //is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
+    CSLDestroy(papszOpenOptions);
 }
 
 OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource)
@@ -365,37 +349,25 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     // OVERWRITE: This may be "YES" to force an existing layer of the
     // desired name to be destroyed before creating the requested layer.
     // LAUNDER is for database: rename desired field name
-    std::vector<wxString> opts;
-    opts.push_back("OVERWRITE=yes");
-    opts.push_back("LAUNDER=no");
-    
+    char** papszLCO = NULL;
+    papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
+    papszLCO = CSLAddString(papszLCO, "LAUNDER=no");
+
     OGRSpatialReference *poOutputSRS = spatial_ref;
     if (ds_type == GdaConst::ds_mysql || ds_type == GdaConst::ds_postgresql ||
         ds_type == GdaConst::ds_ms_sql || ds_type == GdaConst::ds_sqlite ) {
-        opts.push_back("PRECISION=no");
+        papszLCO = CSLAddString(papszLCO, "PRECISION=no");
     } else {
         if (ds_type == GdaConst::ds_shapefile || ds_type == GdaConst::ds_dbf) {
             if (cpg_encode.IsEmpty() == false) {
                 wxString opt = "ENCODING=";
                 opt << cpg_encode;
-                opts.push_back(opt);
+                papszLCO = CSLAddString(papszLCO, opt.c_str());
             }
         }
     }
-    
-    char** papszLCO = new char*[opts.size()];
-    for (size_t i=0; i<opts.size(); ++i) {
-        papszLCO[i] = new char[opts[i].size() + 1];
-        strcpy(papszLCO[i], opts[i].c_str());
-        papszLCO[i][opts[i].size()] = '\0';
-    }
-    
     OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS,
                                            eGType, papszLCO);
-    
-    for(size_t i=0; i < opts.size(); i++) delete [] papszLCO[i];
-    delete [] papszLCO;
-    
     if( poDstLayer == NULL ) {
         error_message << _("Can't write/create layer \"");
         error_message << layer_name;
@@ -403,10 +375,8 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         error_message << CPLGetLastErrorMsg();
 		throw GdaException(error_message.mb_str());
     }
-    
     OGRFeatureDefn* poFeatDef = poDstLayer->GetLayerDefn();
     map<wxString, pair<int, int> >::iterator field_it;
-    
     // create fields using TableInterface:table
     if ( table != NULL ) {
         std::vector<int> col_id_map; // using orders in wxGrid
@@ -464,5 +434,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
     }
     OGRLayerProxy* layer =  new OGRLayerProxy(poDstLayer, ds_type, eGType);
     layer_pool[layer_name] = layer;
+
+    CSLDestroy(papszLCO);
     return layer;
 }

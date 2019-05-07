@@ -94,11 +94,6 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 OGRFieldProxy::~OGRFieldProxy()
 {
     // we don't need to free OGRFieldDefn
-    /*
-	if ( ogr_fieldDefn != NULL) {
-		delete ogr_fieldDefn;
-		ogr_fieldDefn = NULL;
-	}*/
 }
 
 void OGRFieldProxy::SetName(const wxString &new_name, bool case_sensitive)
