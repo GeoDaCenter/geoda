@@ -1644,7 +1644,8 @@ bool Project::InitFromOgrLayer()
             wxTextFile cpg_file;
             cpg_file.Open(cpg_fn);
             // read the first line
-            wxString encode_str = cpg_file.GetFirstLine();
+            wxString cpg_str = cpg_file.GetFirstLine();
+            wxString encode_str = ConvertCpgCodePage(cpg_str);
             SetupEncoding(encode_str);
         }
     }
@@ -1932,4 +1933,89 @@ void Project::SetupEncoding(wxString encode_str)
     } else if (encode_str.Upper().Contains("KR")) {
         table_int->SetEncoding(wxFONTENCODING_EUC_KR);
     }
+}
+
+wxString Project::ConvertCpgCodePage(const wxString& code_page)
+{
+    wxString l_osEncoding;
+    
+    if( code_page.IsEmpty() )
+        return l_osEncoding;
+    
+    if(code_page.StartsWith("LDID/")) {
+        int nCP = -1; // windows code page.
+        //http://www.autopark.ru/ASBProgrammerGuide/DBFSTRUC.HTM
+        const char* pszCodePage = code_page.c_str();
+        switch( atoi(pszCodePage+5) )
+        {
+            case 1: nCP = 437;      break;
+            case 2: nCP = 850;      break;
+            case 3: nCP = 1252;     break;
+            case 4: nCP = 10000;    break;
+            case 8: nCP = 865;      break;
+            case 10: nCP = 850;     break;
+            case 11: nCP = 437;     break;
+            case 13: nCP = 437;     break;
+            case 14: nCP = 850;     break;
+            case 15: nCP = 437;     break;
+            case 16: nCP = 850;     break;
+            case 17: nCP = 437;     break;
+            case 18: nCP = 850;     break;
+            case 19: nCP = 932;     break;
+            case 20: nCP = 850;     break;
+            case 21: nCP = 437;     break;
+            case 22: nCP = 850;     break;
+            case 23: nCP = 865;     break;
+            case 24: nCP = 437;     break;
+            case 25: nCP = 437;     break;
+            case 26: nCP = 850;     break;
+            case 27: nCP = 437;     break;
+            case 28: nCP = 863;     break;
+            case 29: nCP = 850;     break;
+            case 31: nCP = 852;     break;
+            case 34: nCP = 852;     break;
+            case 35: nCP = 852;     break;
+            case 36: nCP = 860;     break;
+            case 37: nCP = 850;     break;
+            case 38: nCP = 866;     break;
+            case 55: nCP = 850;     break;
+            case 64: nCP = 852;     break;
+            case 77: nCP = 936;     break;
+            case 78: nCP = 949;     break;
+            case 79: nCP = 950;     break;
+            case 80: nCP = 874;     break;
+            case 87: nCP = 88591;   break;
+            case 88: nCP = 1252;     break;
+            case 89: nCP = 1252;     break;
+            case 100: nCP = 852;     break;
+            case 101: nCP = 866;     break;
+            case 102: nCP = 865;     break;
+            case 103: nCP = 861;     break;
+            case 104: nCP = 895;     break;
+            case 105: nCP = 620;     break;
+            case 106: nCP = 737;     break;
+            case 107: nCP = 857;     break;
+            case 108: nCP = 863;     break;
+            case 120: nCP = 950;     break;
+            case 121: nCP = 949;     break;
+            case 122: nCP = 936;     break;
+            case 123: nCP = 932;     break;
+            case 124: nCP = 874;     break;
+            case 134: nCP = 737;     break;
+            case 135: nCP = 852;     break;
+            case 136: nCP = 857;     break;
+            case 150: nCP = 10007;   break;
+            case 151: nCP = 10029;   break;
+            case 200: nCP = 1250;    break;
+            case 201: nCP = 1251;    break;
+            case 202: nCP = 1254;    break;
+            case 203: nCP = 1253;    break;
+            case 204: nCP = 1257;    break;
+            default: break;
+        }
+        
+        if (nCP > -1 ) l_osEncoding << nCP;
+    }
+    
+    return l_osEncoding;
 }

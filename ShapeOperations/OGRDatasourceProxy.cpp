@@ -55,27 +55,35 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     if (ds_type == GdaConst::ds_unknown) {
         throw GdaException(GET_ENCODED_FILENAME(msg));
     }
-    
     CPLErrorReset();
     
+    std::vector<wxString> opts;
     if (ds_type == GdaConst::ds_csv) {
+        opts.push_back("AUTODETECT_TYPE=YES");
+        opts.push_back("EMPTY_STRING_AS_NULL=YES");
         if (GdaConst::gda_ogr_csv_header == 0) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            opts.push_back("HEADERS=NO");
         } else if (GdaConst::gda_ogr_csv_header == 1) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-        } else {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            opts.push_back("HEADERS=YES");
         }
-    } else if(ds_type == GdaConst::ds_shapefile) {
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
-    } else {
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
+    }
+    
+    char **papszOpenOptions = NULL;
+    if (opts.empty() == false) {
+        papszOpenOptions = new char*[opts.size()];
+        for (size_t i=0; i<opts.size(); ++i) {
+            papszOpenOptions[i] = new char[opts[i].size() + 1];
+            strcpy(papszOpenOptions[i], opts[i].c_str());
+            papszOpenOptions[i][opts[i].size()] = '\0';
+        }
+    }
+    
+    ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE,
+                                   NULL, papszOpenOptions, NULL);
+    
+    if (papszOpenOptions) {
+        for(size_t i=0; i < opts.size(); i++) delete [] papszOpenOptions[i];
+        delete [] papszOpenOptions;
     }
     
     is_writable = true;
@@ -341,7 +349,8 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                 vector<OGRGeometry*>& geometries,
                                 TableInterface* table,
                                 vector<int>& selected_rows,
-                                OGRSpatialReference* spatial_ref)
+                                OGRSpatialReference* spatial_ref,
+                                wxString cpg_encode)
 {
     wxString error_message;
     if(!ds->TestCapability(ODsCCreateLayer)) {
@@ -352,23 +361,40 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
 		throw GdaException(error_message.mb_str());
     }
     
+    // PRECISION is for database e.g. MSSQL
+    // OVERWRITE: This may be "YES" to force an existing layer of the
+    // desired name to be destroyed before creating the requested layer.
+    // LAUNDER is for database: rename desired field name
+    std::vector<wxString> opts;
+    opts.push_back("OVERWRITE=yes");
+    opts.push_back("LAUNDER=no");
+    
     OGRSpatialReference *poOutputSRS = spatial_ref;
-    OGRLayer *poDstLayer;
     if (ds_type == GdaConst::ds_mysql || ds_type == GdaConst::ds_postgresql ||
         ds_type == GdaConst::ds_ms_sql || ds_type == GdaConst::ds_sqlite ) {
-        // PRECISION is for database e.g. MSSQL
-        // OVERWRITE: This may be "YES" to force an existing layer of the
-        // desired name to be destroyed before creating the requested layer.
-        // LAUNDER is for database: rename desired field name
-        const char* papszLCO[50] = {"OVERWRITE=yes", "PRECISION=no", "LAUNDER=no"};
-        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
-                                     (char**)papszLCO);
+        opts.push_back("PRECISION=no");
     } else {
-        // ENCODING: set to "" to avoid any recoding
-        const char* papszLCO[50] = {"OVERWRITE=yes", "LAUNDER=no"};
-        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
-                                     (char**)papszLCO);
+        if (ds_type == GdaConst::ds_shapefile || ds_type == GdaConst::ds_dbf) {
+            if (cpg_encode.IsEmpty() == false) {
+                wxString opt = "ENCODING=";
+                opt << cpg_encode;
+                opts.push_back(opt);
+            }
+        }
     }
+    
+    char** papszLCO = new char*[opts.size()];
+    for (size_t i=0; i<opts.size(); ++i) {
+        papszLCO[i] = new char[opts[i].size() + 1];
+        strcpy(papszLCO[i], opts[i].c_str());
+        papszLCO[i][opts[i].size()] = '\0';
+    }
+    
+    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS,
+                                           eGType, papszLCO);
+    
+    for(size_t i=0; i < opts.size(); i++) delete [] papszLCO[i];
+    delete [] papszLCO;
     
     if( poDstLayer == NULL ) {
         error_message << _("Can't write/create layer \"");

@@ -116,7 +116,8 @@ public:
                                vector<OGRGeometry*>& geometries,
                                TableInterface* table,
                                vector<int>& selected_rows,
-                               OGRSpatialReference* spatial_ref);
+                               OGRSpatialReference* spatial_ref,
+                               wxString cpg_encode = wxEmptyString);
     
     void StopCreateLayer();
     bool DeleteLayer(wxString layer_name);

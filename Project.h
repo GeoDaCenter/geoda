@@ -263,6 +263,7 @@ protected:
 	bool InitFromOgrLayer();
     // only for ESRI Shapefile .cpg file
     void SetupEncoding(wxString encode_str);
+    wxString ConvertCpgCodePage(const wxString& code_page);
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();
