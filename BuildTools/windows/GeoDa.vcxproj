@@ -333,7 +333,10 @@
     <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\DissolveDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\GdaChoice.cpp" />
+    <ClCompile Include="..\..\DialogTools\GdaListBox.cpp" />
     <ClCompile Include="..\..\DialogTools\HClusterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\HDBScanDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
@@ -364,6 +367,7 @@
     <ClCompile Include="..\..\Explore\CovSpHLStateProxy.cpp" />
     <ClCompile Include="..\..\Explore\CovSpView.cpp" />
     <ClCompile Include="..\..\Explore\DistancesCalc.cpp" />
+    <ClCompile Include="..\..\Explore\GroupingMapView.cpp" />
     <ClCompile Include="..\..\Explore\LineChartCanvas.cpp" />
     <ClCompile Include="..\..\Explore\LineChartStats.cpp" />
     <ClCompile Include="..\..\Explore\LineChartView.cpp" />
@@ -472,9 +476,12 @@
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
     <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
+    <ClInclude Include="..\..\DialogTools\DissolveDlg.h" />
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.h" />
+    <ClInclude Include="..\..\DialogTools\GdaChoice.h" />
+    <ClInclude Include="..\..\DialogTools\GdaListBox.h" />
     <ClInclude Include="..\..\DialogTools\HClusterDlg.h" />
     <ClInclude Include="..\..\DialogTools\HDBScanDlg.h" />
     <ClInclude Include="..\..\DialogTools\KMeansDlg.h" />
@@ -512,6 +519,7 @@
     <ClInclude Include="..\..\Explore\CovSpHLStateProxy.h" />
     <ClInclude Include="..\..\Explore\CovSpView.h" />
     <ClInclude Include="..\..\Explore\DistancesCalc.h" />
+    <ClInclude Include="..\..\Explore\GroupingMapView.h" />
     <ClInclude Include="..\..\Explore\LineChartCanvas.h" />
     <ClInclude Include="..\..\Explore\LineChartStats.h" />
     <ClInclude Include="..\..\Explore\LineChartView.h" />
