@@ -57,12 +57,12 @@ void wxOGLInitialize()
 
   g_oglNormalFont = new wxFont(10, wxSWISS, wxNORMAL, wxNORMAL);
 
-  g_oglBlackPen = new wxPen(wxT("BLACK"), 1, wxSOLID);
+  g_oglBlackPen = new wxPen("BLACK", 1, wxSOLID);
 
-  g_oglWhiteBackgroundPen = new wxPen(wxT("WHITE"), 1, wxSOLID);
-  g_oglTransparentPen = new wxPen(wxT("WHITE"), 1, wxTRANSPARENT);
-  g_oglWhiteBackgroundBrush = new wxBrush(wxT("WHITE"), wxSOLID);
-  g_oglBlackForegroundPen = new wxPen(wxT("BLACK"), 1, wxSOLID);
+  g_oglWhiteBackgroundPen = new wxPen("WHITE", 1, wxSOLID);
+  g_oglTransparentPen = new wxPen("WHITE", 1, wxTRANSPARENT);
+  g_oglWhiteBackgroundBrush = new wxBrush("WHITE", wxSOLID);
+  g_oglBlackForegroundPen = new wxPen("BLACK", 1, wxSOLID);
 
   OGLInitializeConstraintTypes();
 
@@ -162,7 +162,7 @@ int FontSizeDialog(wxFrame *parent, int old_size)
     old_size = 10;
   wxString buf;
   buf << old_size;
-  wxString ans = wxGetTextFromUser(wxT("Enter point size"), wxT("Font size"), buf, parent);
+  wxString ans = wxGetTextFromUser("Enter point size", "Font size", buf, parent);
   if (ans.Length() == 0)
     return 0;
 
@@ -170,7 +170,7 @@ int FontSizeDialog(wxFrame *parent, int old_size)
   ans.ToLong(&new_size);
   if ((new_size <= 0) || (new_size > 40))
   {
-    wxMessageBox(wxT("Invalid point size!"), wxT("Error"), wxOK);
+    wxMessageBox("Invalid point size!", "Error", wxOK);
     return 0;
   }
   return new_size;
@@ -385,17 +385,17 @@ wxStringList *oglFormatText(wxDC& dc, const wxString& text, double width, double
   {
     switch ((char)text[i])
     {
-      case wxT('%'):
+      case '%':
       {
         i ++;
         if (i == len)
-        { word[j] = wxT('%'); j ++; }
+        { word[j] = '%'; j ++; }
         else
         {
-          if (text[i] == wxT('n'))
+          if (text[i] == 'n')
           { new_line = true; end_word = true; i++; }
           else
-          { word[j] = wxT('%'); j ++; word[j] = text[i]; j ++; i ++; }
+          { word[j] = '%'; j ++; word[j] = text[i]; j ++; i ++; }
         }
         break;
       }
@@ -409,7 +409,7 @@ wxStringList *oglFormatText(wxDC& dc, const wxString& text, double width, double
         new_line = true; end_word = true; i++;
         break;
       }
-      case wxT(' '):
+      case ' ':
       {
         end_word = true;
         i ++;
@@ -459,7 +459,7 @@ wxStringList *oglFormatText(wxDC& dc, const wxString& text, double width, double
     else
     {
       if (buffer.Length() != 0)
-        buffer += wxT(" ");
+        buffer += " ";
 
       buffer += s;
       dc.GetTextExtent(buffer, &x, &y);
@@ -823,10 +823,10 @@ bool oglRoughlyEqual(double val1, double val2, double tol)
  */
 
 // Array used in DecToHex conversion routine.
-static wxChar sg_HexArray[] = { wxT('0'), wxT('1'), wxT('2'), wxT('3'),
-                                wxT('4'), wxT('5'), wxT('6'), wxT('7'),
-                                wxT('8'), wxT('9'), wxT('A'), wxT('B'),
-                                wxT('C'), wxT('D'), wxT('E'), wxT('F')
+static wxChar sg_HexArray[] = { '0', '1', '2', '3',
+                                '4', '5', '6', '7',
+                                '8', '9', 'A', 'B',
+                                'C', 'D', 'E', 'F'
 };
 
 // Convert 2-digit hex number to decimal
@@ -834,15 +834,15 @@ unsigned int oglHexToDec(wxChar* buf)
 {
   int firstDigit, secondDigit;
 
-  if (buf[0] >= wxT('A'))
-    firstDigit = buf[0] - wxT('A') + 10;
+  if (buf[0] >= 'A')
+    firstDigit = buf[0] - 'A' + 10;
   else
-    firstDigit = buf[0] - wxT('0');
+    firstDigit = buf[0] - '0';
 
-  if (buf[1] >= wxT('A'))
-    secondDigit = buf[1] - wxT('A') + 10;
+  if (buf[1] >= 'A')
+    secondDigit = buf[1] - 'A' + 10;
   else
-    secondDigit = buf[1] - wxT('0');
+    secondDigit = buf[1] - '0';
 
   return firstDigit * 16 + secondDigit;
 }

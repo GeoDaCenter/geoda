@@ -45,7 +45,7 @@ BEGIN_EVENT_TABLE(wxShapeCanvas, wxScrolledWindow)
     EVT_MOUSE_EVENTS(wxShapeCanvas::OnMouseEvent)
 END_EVENT_TABLE()
 
-const wxChar* wxShapeCanvasNameStr = wxT("shapeCanvas");
+const wxChar* wxShapeCanvasNameStr = wxT("shapeCanvas"); // need to use wxT()
 
 // Object canvas
 wxShapeCanvas::wxShapeCanvas(wxWindow *parent, wxWindowID id,

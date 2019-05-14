@@ -1,0 +1,5079 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#: ../DialogTools/MaxpDlg.cpp:95 ../DialogTools/VariableSettingsDlg.cpp:132
+#: ../DialogTools/SkaterDlg.cpp:109 ../DialogTools/HClusterDlg.cpp:177
+#: ../DialogTools/RandomizationDlg.cpp:78
+#: ../DialogTools/RandomizationDlg.cpp:83
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-13 16:23-0700\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../DialogTools/PCASettingsDlg.cpp:276
+msgid ""
+"\n"
+"\n"
+"95% threshold criterion: "
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:272
+msgid ""
+"\n"
+"\n"
+"Cumulative proportion:\n"
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:81
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:343
+msgid ""
+"\n"
+"\n"
+"Details: "
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:280
+msgid ""
+"\n"
+"\n"
+"Eigenvalues:\n"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:275
+msgid ""
+"\n"
+"\n"
+"Kaiser criterion: "
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:269
+msgid ""
+"\n"
+"\n"
+"Proportion of variance:\n"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:351
+msgid ""
+"\n"
+"\n"
+"Squared correlations:\n"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:266
+msgid ""
+"\n"
+"\n"
+"Standard deviation:\n"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:286
+msgid ""
+"\n"
+"\n"
+"Variable Loadings:\n"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:820
+msgid ""
+"\n"
+"REGRESSION\n"
+"----------\n"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:856
+msgid " (isolates in weights are removed)"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:194
+msgid " = 0 at "
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:95
+msgid " BiLISA Cluster Map"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:99
+msgid " BiLISA Significance Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:140
+msgid " Bivariate Local Geary Cluster Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:149
+msgid " Bivariate LocalGeary Significance Map"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1668 ../Explore/ScatterNewPlotView.cpp:705
+msgid " Categories"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:96
+msgid " Differential LISA Cluster Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:143
+msgid " Differential Local Geary Cluster Map"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:100 ../Explore/LocalGearyMapNewView.cpp:152
+msgid " Differential Significance Map"
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:176
+#, c-format
+msgid " GL error %d. "
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:180
+msgid " GL reports: "
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:94
+msgid " LISA Cluster Map"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:98
+msgid " LISA Significance Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:137
+msgid " Local Geary Cluster Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:146
+msgid " Local Geary Significance Map"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:865
+msgid " already exists.  OK to overwrite?"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:115
+msgid " and "
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:109
+msgid " and two time periods: "
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:395
+msgid " for obs within distance band "
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:872
+msgid ""
+" has duplicate values. Please choose a different ID Variable.\n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:196
+msgid " in range:"
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:312
+msgid " is not supported by GeoDa.\n"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:680
+msgid " km"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:678
+msgid " mi"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:413
+msgid " pairs in distance band "
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:851
+msgid ""
+" should contains only numbers/letters as IDs.  Please choose a different ID "
+"Variable."
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:396 ../Explore/CorrelogramView.cpp:414
+msgid " to "
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:264
+#, c-format
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:337 ../DialogTools/RedcapDlg.cpp:305
+#: ../DialogTools/SkaterDlg.cpp:351 ../DialogTools/KMeansDlg.cpp:293
+#: ../DialogTools/SpectralClusteringDlg.cpp:445
+#: ../Explore/CorrelParamsDlg.cpp:346 ../Explore/LisaScatterPlotView.cpp:1078
+#: ../Explore/AbstractClusterMap.cpp:628
+#: ../Explore/LocalGearyMapNewView.cpp:846
+#, c-format
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:374
+msgid ""
+"\". \n"
+"\n"
+"Details: Attemp to write a readonly database, or "
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:114
+msgid "# Iterations:"
+msgstr ""
+
+#: ../DialogTools/MDSDlg.cpp:72 ../DialogTools/SpectralClusteringDlg.cpp:163
+msgid "# Max Iteration:"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:120
+msgid "# Neighors:"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:227 ../Explore/CorrelogramView.cpp:772
+msgid "# Pairs"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:419
+msgid "# iterations:\t"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:789
+msgid "# observations"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:700
+#: ../Explore/SimpleScatterPlotCanvas.cpp:271 ../Explore/MapNewView.cpp:2970
+#: ../Explore/MLJCMapNewView.cpp:437 ../Explore/CartogramNewView.cpp:753
+#: ../Explore/ScatterNewPlotView.cpp:1836 ../Explore/BoxNewPlotView.cpp:945
+#: ../Explore/ConditionalMapView.cpp:951 ../Explore/AbstractClusterMap.cpp:412
+#: ../Explore/LocalGearyMapNewView.cpp:606
+#: ../Explore/ConditionalScatterPlotView.cpp:790
+#: ../Explore/GetisOrdMapNewView.cpp:463 ../Explore/GroupingMapView.cpp:430
+#: ../Explore/ConditionalClusterMapView.cpp:1233
+#: ../Explore/ConditionalClusterMapView.cpp:1661
+#: ../Explore/ConditionalClusterMapView.cpp:1877
+msgid "#hover obs "
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:620 ../Explore/SimpleHistCanvas.cpp:666
+#: ../Explore/ConnectivityHistView.cpp:381 ../Explore/HistogramView.cpp:725
+msgid "#obs"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:722 ../Explore/ConnectivityHistView.cpp:437
+#: ../Explore/HistogramView.cpp:781
+msgid "#obs:"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:692 ../Explore/MapNewView.cpp:2913
+#: ../Explore/MapNewView.cpp:2915 ../Explore/MLJCMapNewView.cpp:429
+#: ../Explore/AbstractClusterMap.cpp:404
+#: ../Explore/LocalGearyMapNewView.cpp:598
+#: ../Explore/GetisOrdMapNewView.cpp:455 ../Explore/GroupingMapView.cpp:422
+msgid "#obs="
+msgstr ""
+
+#: ../DataViewer/TableBase.cpp:525
+msgid "#row="
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:696 ../Explore/PCPNewView.cpp:1070
+#: ../Explore/SimpleScatterPlotCanvas.cpp:238 ../Explore/MapNewView.cpp:2926
+#: ../Explore/MapNewView.cpp:2928 ../Explore/MLJCMapNewView.cpp:433
+#: ../Explore/CartogramNewView.cpp:749 ../Explore/ScatterNewPlotView.cpp:1812
+#: ../Explore/BoxNewPlotView.cpp:911 ../Explore/ConditionalMapView.cpp:935
+#: ../Explore/AbstractClusterMap.cpp:408
+#: ../Explore/LocalGearyMapNewView.cpp:602
+#: ../Explore/ConditionalHistogramView.cpp:928
+#: ../Explore/HistogramView.cpp:1182
+#: ../Explore/ConditionalScatterPlotView.cpp:775
+#: ../Explore/GetisOrdMapNewView.cpp:459 ../Explore/GroupingMapView.cpp:426
+#: ../Explore/ConditionalNewView.cpp:741
+#: ../Explore/ConditionalClusterMapView.cpp:1218
+#: ../Explore/ConditionalClusterMapView.cpp:1431
+#: ../Explore/ConditionalClusterMapView.cpp:1647
+#: ../Explore/ConditionalClusterMapView.cpp:1859
+#: ../DataViewer/TableBase.cpp:527
+msgid "#selected="
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:822
+#, c-format
+msgid "% non-zero"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:667 ../Explore/ConnectivityHistView.cpp:382
+#: ../Explore/HistogramView.cpp:726
+#, c-format
+msgid "% of total"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1245
+#, c-format
+msgid "%d of %d variables to include"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1247
+#, c-format
+msgid "%d variables to include"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:208
+#, c-format
+msgid "%s (Weights: %s)"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:565
+#, c-format
+msgid "%s Cluster Map (%d clusters)"
+msgstr ""
+
+#: ../DialogTools/HClusterDlg.cpp:965
+msgid ""
+"(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:140
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:271
+msgid "(Duplicate field name)"
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:141
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:272
+msgid "(Field name is not valid)"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:136
+msgid "(Gaussian) Sigma:"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:141
+msgid "(Optional) First record has field names? "
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:125
+msgid "(Optional) Longitude/X:"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:77
+msgid "(Optional) You can change the data type for a field:"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:2127 ../Explore/MapLayerTree.cpp:117
+#: ../Explore/MapLayerTree.cpp:212
+msgid "(Use Sequences)"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:264
+msgid ""
+"---\n"
+"\n"
+"PCA method: "
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:1057
+msgid ""
+".\n"
+"Enter a seed value to use between\n"
+"0 and "
+msgstr ""
+
+#: ../GeoDa.cpp:3218
+msgid "3D Plot"
+msgstr ""
+
+#: ../GeoDa.cpp:3211
+msgid "3D Scatter Plot Variables"
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:437
+msgid "A Table-only data source can't be stacked with current data source."
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:320
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr ""
+
+#: ../GeoDa.cpp:1498
+msgid ""
+"A project file contains extra information not directly stored in the data "
+"source such as variable order and grouping."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:401
+msgid "About Precision Threshold"
+msgstr ""
+
+#: ../Project.cpp:1075
+msgid "Add Centroids to Table"
+msgstr ""
+
+#: ../Project.cpp:1036
+msgid "Add Mean Centers to Table"
+msgstr ""
+
+#: ../DialogTools/AddIdVariable.h:34
+msgid "Add New ID Variable"
+msgstr ""
+
+#: ../DataViewer/OGRTable.cpp:1317
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr ""
+
+#: ../DataViewer/OGRTable.cpp:183
+msgid "Add OGR column error. Field type is unknown."
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:975
+msgid "Add Time"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1268
+msgid ""
+"Add a name for your group of variables. \n"
+"\n"
+"You can edit the time period labels for easier interpretation of results."
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:164
+msgid "Add basemap automatically:"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:334
+msgid "Adjust Bubble Size"
+msgstr ""
+
+#: ../DialogTools/AdjustYAxisDlg.h:36
+msgid "Adjust Values of Y Axis"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:526
+msgid "Affinity with Guassian Kernel:\tSigma="
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:116
+msgid "Affinity with K-NN:"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:529
+msgid "Affinity with K-Nearest Neighbors:\tK="
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:132
+msgid "Affinity with Kernel:"
+msgstr ""
+
+#: ../DialogTools/AggregateDlg.cpp:71
+msgid "Aggregate - "
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:834 ../Explore/LineChartView.cpp:339
+#: ../Explore/LineChartView.cpp:720 ../Explore/LineChartView.cpp:724
+msgid "All"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:173
+msgid "All Pairs"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:168
+msgid "Allow a single cluster:"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:153
+msgid "Alpha:"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:236 ../Explore/LowessParamDlg.cpp:47
+msgid "Apply"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:676
+msgid "Arc Distance"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:246
+msgid "Auto Weighting"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:194 ../Explore/CorrelogramView.cpp:224
+#: ../Explore/CorrelogramView.cpp:251 ../Explore/CorrelogramView.cpp:769
+msgid "Autocorr."
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:518
+msgid "Autocorr. of "
+msgstr ""
+
+#: ../GeoDa.cpp:3229
+msgid "Average Comparison Chart"
+msgstr ""
+
+#: ../Explore/LineChartView.h:106
+msgid "Averages Chart"
+msgstr ""
+
+#: ../Explore/LowessParamDlg.cpp:54
+msgid "Bandwidth:"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3896 ../Explore/MapNewView.cpp:3909
+#: ../Explore/MapNewView.cpp:3921 ../Explore/MapNewView.cpp:3935
+#: ../Explore/MapNewView.cpp:3949 ../GeoDa.cpp:3491 ../GeoDa.cpp:3859
+#: ../GeoDa.cpp:5167 ../GeoDa.cpp:5198 ../GeoDa.cpp:5230 ../GeoDa.cpp:5261
+msgid "Base Variable"
+msgstr ""
+
+#: ../DialogTools/BasemapConfDlg.h:40
+msgid "Basemap Configuration Dialog"
+msgstr ""
+
+#: ../DataViewer/TableState.cpp:206
+#, c-format
+msgid ""
+"Before add/delete observations, please close the %d view(s) that depend on "
+"it."
+msgstr ""
+
+#: ../DataViewer/TableState.cpp:163
+#, c-format
+msgid ""
+"Before proceed with operation (add/remove, move, or rename), please close %d "
+"views that depend on it."
+msgstr ""
+
+#: ../DataViewer/TableState.cpp:185
+#, c-format
+msgid ""
+"Before you can modify the variable %s, please close the %d view(s) that "
+"depend on it."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcBinDlg.h:44
+msgid "Bivariate"
+msgstr ""
+
+#: ../GeoDa.cpp:3433
+msgid "Bivariate Moran Variable Settings"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:172
+#, c-format
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:77
+msgid "Bonferroni bound:"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:560
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:495
+msgid "Box Map (Hinge=1.5)"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:496
+msgid "Box Map (Hinge=3.0)"
+msgstr ""
+
+#: ../Explore/BoxNewPlotView.cpp:455 ../Explore/BoxNewPlotView.h:121
+#: ../GeoDa.cpp:3190
+msgid "Box Plot"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1122
+msgid ""
+"Breaks with same values were created. Please choose a smaller categories, or "
+"manually edit the break values."
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:519
+#, c-format
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr ""
+
+#: ../GeoDa.cpp:3131
+msgid "Bubble Chart Variables"
+msgstr ""
+
+#: ../GeoDa.cpp:3133
+msgid "Bubble Size"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.h:51
+msgid "Bubble Size Adjust Dialog"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:334
+msgid "CSV Configuration Warning"
+msgstr ""
+
+#: ../GeoDa.cpp:2432
+msgid "Calculator"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:583
+#: ../DialogTools/ConnectDatasourceDlg.cpp:1167 ../GeoDa.cpp:1178
+msgid "Can't connect to datasource: "
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:391
+#, c-format
+msgid "Can't create layer %s with empty field (%s) name."
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:321
+msgid ""
+"Can't create output OGR driver. \n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../DialogTools/CreateGridDlg.cpp:273
+msgid ""
+"Can't get bounding box information from this datasource. Please try another "
+"datasource."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:304
+#, c-format
+msgid ""
+"Can't get datasource type from: %s\n"
+"\n"
+"Please select datasource supported by GeoDa or add extension  to file "
+"datasource."
+msgstr ""
+
+#: ../DialogTools/DatasourceDlg.cpp:240
+msgid ""
+"Can't get layers from unknown datasource. Please complete the datasource "
+"fields."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:4044
+msgid "Can't save Thiessen polygons"
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:372
+msgid "Can't write/create layer \""
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:646
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:693
+#: ../DialogTools/CsvFieldConfDlg.cpp:164 ../DialogTools/ReportBugDlg.cpp:233
+#: ../DialogTools/AutoUpdateDlg.cpp:343
+msgid "Cancel"
+msgstr ""
+
+#: ../Explore/CartogramNewView.cpp:1234 ../Explore/ScatterNewPlotView.cpp:2245
+#: ../TemplateFrame.cpp:552
+msgid "Canvas Layout Preview"
+msgstr ""
+
+#: ../Explore/CartogramNewView.cpp:365 ../Explore/CartogramNewView.h:167
+#: ../GeoDa.cpp:2999
+msgid "Cartogram"
+msgstr ""
+
+#: ../GeoDa.cpp:2990
+msgid "Cartogram Variables"
+msgstr ""
+
+#: ../DialogTools/NumCategoriesDlg.h:37
+msgid "Categories"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1696
+#, c-format
+msgid ""
+"Categories \"%s\" is currently in use by another view. Please close or "
+"change all views using this custom categories before deleting."
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1708
+msgid "Categories of "
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:909 ../DialogTools/CatClassifDlg.cpp:1604
+#: ../DialogTools/CatClassifDlg.cpp:1639
+#, c-format
+msgid ""
+"Categories title \"%s\" already exists. Please choose a different title."
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.h:299 ../DialogTools/CatClassifDlg.cpp:282
+msgid "Category Editor"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:945
+msgid "Centroid (X)"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:947
+msgid "Centroid (Y)"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:216
+msgid "Change"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1595
+msgid "Change Categories Title"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:756
+msgid "Change Fill Color"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:757
+msgid "Change Outline Color"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:534 ../Explore/MapLayerTree.cpp:776
+#: ../TemplateLegend.cpp:341 ../TemplateLegend.cpp:374
+msgid "Change Point Radius"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:157 ../DialogTools/RedcapDlg.cpp:162
+#: ../DialogTools/SkaterDlg.cpp:128 ../DialogTools/KMeansDlg.cpp:123
+#: ../DialogTools/SpectralClusteringDlg.cpp:215
+msgid "Change Seed"
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:381
+#, c-format
+msgid ""
+"Change field properties (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1592
+#, c-format
+msgid "Change title \"%s\" to"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:518
+#, c-format
+msgid ""
+"Change variable type for \"%s\" has failed. Please check all values are "
+"valid for conversion."
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.h:73
+msgid "Check Bug Report on Github"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:641 ../DialogTools/RegressionDlg.cpp:697
+msgid "Checking Symmetry..."
+msgstr ""
+
+#: ../TemplateFrame.h:52
+msgid "Choose A Color"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1559 ../GeneralWxUtils.cpp:465
+msgid "Choose Cateogry Color"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3018 ../TemplateLegend.cpp:406
+msgid "Choose Cateogry Fill Color"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3084 ../TemplateLegend.cpp:438
+msgid "Choose Cateogry Outline Color"
+msgstr ""
+
+#: ../DialogTools/SelectWeightsDlg.h:45 ../GeoDa.h:83
+msgid "Choose Weights"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:387
+msgid "Choose Weights File"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:264
+#: ../DialogTools/CreatingWeightDlg.cpp:1428
+msgid "Choose an output weights file name."
+msgstr ""
+
+#: ../DialogTools/SaveSelectionDlg.cpp:392
+msgid ""
+"Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr ""
+
+#: ../DialogTools/RangeSelectionDlg.cpp:514
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:584 ../DataViewer/MergeTableDlg.cpp:796
+#, c-format
+msgid ""
+"Chosen key field '%s' s a time variant. Please choose a non-time variant "
+"field as key."
+msgstr ""
+
+#: ../DialogTools/DissolveDlg.cpp:266 ../DialogTools/AggregateDlg.cpp:270
+msgid "Chosen key field is not valid. Please select another key field"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:1557
+msgid "Chow test for sel/unsel regression subsets: "
+msgstr ""
+
+#: ../GeoDa.cpp:2991
+msgid "Circle Color"
+msgstr ""
+
+#: ../GeoDa.cpp:2991
+msgid "Circle Size"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:744
+msgid "Clear Highlight Association"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:846
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:838
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:120
+#: ../DialogTools/PreferenceDlg.cpp:415 ../DialogTools/MaxpDlg.cpp:185
+#: ../DialogTools/PCASettingsDlg.cpp:103 ../DialogTools/RedcapDlg.cpp:193
+#: ../DialogTools/MDSDlg.cpp:106 ../DialogTools/SaveToTableDlg.cpp:153
+#: ../DialogTools/VariableSettingsDlg.cpp:145 ../DialogTools/SkaterDlg.cpp:159
+#: ../DialogTools/HDBScanDlg.cpp:213 ../DialogTools/KMeansDlg.cpp:177
+#: ../DialogTools/SpatialJoinDlg.cpp:435 ../DialogTools/HClusterDlg.cpp:202
+#: ../DialogTools/SpectralClusteringDlg.cpp:276
+#: ../DialogTools/RandomizationDlg.cpp:99 ../Explore/ColocationMapView.cpp:173
+#: ../Explore/MapNewView.cpp:116 ../Explore/MapLayerTree.cpp:69
+#: ../Explore/MapLayoutView.cpp:62 ../Explore/MapLayoutView.cpp:384
+#: ../Explore/GroupingMapView.cpp:73 ../TemplateLegend.cpp:64
+msgid "Close"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:684 ../DialogTools/RedcapDlg.cpp:665
+#: ../DialogTools/SkaterDlg.cpp:680 ../DialogTools/HClusterDlg.cpp:354
+msgid "Cluster Map "
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:1073
+msgid "Cluster centers:"
+msgstr ""
+
+#: ../GeoDa.cpp:4097
+msgid ""
+"Co-location Join Count only applies to co-location case. The selected "
+"variables have no co-location. Please change your selection, or use "
+"Univariate/Bivariate Local Join Count."
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:521
+msgid "Co-location Map"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:600
+msgid "Co-location Map: "
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:54
+msgid "Co-location Settings"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:61
+#: ../Explore/ConditionalClusterMapView.cpp:1788
+msgid "Colocation Cluster"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:422
+msgid "Column Name"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:90
+msgid "Components:"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:859
+msgid "Conditional Co-location Map Variables"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:926 ../Explore/GetisOrdMapNewView.cpp:1066
+msgid "Conditional G Cluster Map Variables"
+msgstr ""
+
+#: ../Explore/ConditionalClusterMapView.h:137
+msgid "Conditional GetisOrd Map"
+msgstr ""
+
+#: ../Explore/ConditionalHistogramView.h:134 ../GeoDa.cpp:2955
+msgid "Conditional Histogram"
+msgstr ""
+
+#: ../GeoDa.cpp:2946
+msgid "Conditional Histogram Variables"
+msgstr ""
+
+#: ../Explore/ConditionalClusterMapView.h:128
+msgid "Conditional LISA Map"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:342
+msgid "Conditional LISA Map Variables"
+msgstr ""
+
+#: ../Explore/ConditionalClusterMapView.h:145
+msgid "Conditional Local Geary Map"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:1135
+msgid "Conditional Local Geary Map Variables"
+msgstr ""
+
+#: ../Explore/ConditionalClusterMapView.h:153
+msgid "Conditional Local Join Count Map"
+msgstr ""
+
+#: ../Explore/ConditionalScatterPlotView.h:120
+#: ../Explore/ConditionalMapView.cpp:290 ../Explore/ConditionalMapView.h:118
+#: ../Explore/ConditionalNewView.h:159
+#: ../Explore/ConditionalClusterMapView.cpp:153 ../GeoDa.cpp:2933
+msgid "Conditional Map"
+msgstr ""
+
+#: ../GeoDa.cpp:2923
+msgid "Conditional Map Variables"
+msgstr ""
+
+#: ../GeoDa.cpp:2979
+msgid "Conditional Scatter Plot"
+msgstr ""
+
+#: ../GeoDa.cpp:2968
+msgid "Conditional Scatter Plot Variables"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3649 ../Explore/MapNewView.cpp:3662
+msgid "Connectivity"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:88 ../DialogTools/WeightsManDlg.cpp:342
+msgid "Connectivity Graph"
+msgstr ""
+
+#: ../Explore/ConnectivityHistView.h:124
+msgid "Connectivity Histogram"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:85 ../DialogTools/WeightsManDlg.cpp:228
+msgid "Connectivity Map"
+msgstr ""
+
+#: ../Explore/ConnectivityMapView.cpp:402
+msgid "Connectivity Map - "
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.h:31 ../DialogTools/Bnd2ShpDlg.h:37
+msgid "Convert Boundary to SHP"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:131
+msgid "Cooling Rate:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:589
+msgid ""
+"Cooling rate for Simulated Annealing algorithm has to be a float number "
+"between 0 and 1 (e.g. 0.85)."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:429
+msgid "Cooling rate:"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:50
+msgid "Copy"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:506 ../Explore/CorrelogramView.cpp:515
+#: ../GeoDa.cpp:3260
+msgid "Correlogram"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:38
+msgid "Correlogram Parameters"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:361
+msgid "Correlogram Parameters Help"
+msgstr ""
+
+#: ../DataViewer/DataViewerAddColDlg.cpp:372
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.cpp:236
+msgid ""
+"Could not determine which Field Choice was selected. Please report this "
+"error."
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.cpp:258
+msgid ""
+"Could not determine which Time Choice was selected. Please report this error."
+msgstr ""
+
+#: ../GeoDa.cpp:1285 ../GeoDa.cpp:1287
+msgid "Could not initialize new project."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:75
+msgid "Create"
+msgstr ""
+
+#: ../TemplateCanvas.cpp:1777 ../DialogTools/CatClassifDlg.cpp:2513
+#: ../Explore/PCPNewView.cpp:1243 ../Explore/MapNewView.cpp:3527
+#: ../Explore/ConditionalMapView.cpp:170 ../Explore/HistogramView.cpp:251
+#: ../GeoDa.cpp:677 ../GeoDa.cpp:2168
+msgid "Create New Custom"
+msgstr ""
+
+#: ../GeoDa.cpp:1499
+msgid "Create Project File Now?"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:2286
+msgid "Create Weights"
+msgstr ""
+
+#: ../TemplateCanvas.cpp:1778 ../DialogTools/CatClassifDlg.cpp:2513
+#: ../Explore/PCPNewView.cpp:1243 ../Explore/MapNewView.cpp:3528
+#: ../Explore/ConditionalMapView.cpp:171 ../GeoDa.cpp:678 ../GeoDa.cpp:2168
+msgid "Create new custom categories classification."
+msgstr ""
+
+#: ../DialogTools/CreateGridDlg.h:34 ../DialogTools/CreateGridDlg.h:40
+msgid "Creating Grid"
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:310
+msgid "Current OGR dirver "
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:560
+#, c-format
+msgid "Current Opacity: %.2f"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:108 ../Explore/MapNewView.cpp:131
+#: ../GeneralWxUtils.cpp:584
+#, c-format
+msgid "Current Transparency: %.2f"
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:155
+msgid "Current field name:"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:204
+msgid ""
+"Current layer has already been associated with selected layer. Please select "
+"another layer to associate with."
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1997
+msgid "Custom"
+msgstr ""
+
+#: ../TemplateCanvas.cpp:1766 ../DialogTools/CatClassifDlg.cpp:2463
+#: ../DialogTools/CatClassifDlg.cpp:2499 ../Explore/PCPNewView.cpp:1232
+#: ../Explore/MapNewView.cpp:3516 ../Explore/ConditionalMapView.cpp:160
+#: ../GeoDa.cpp:2154
+msgid "Custom Breaks"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:49
+msgid "Cut"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2338
+msgid "D.F."
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:100
+msgid "Data Preview - number of preview records:"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:423
+msgid "Data Type"
+msgstr ""
+
+#: ../DataViewer/DataSource.cpp:418
+#, c-format
+msgid ""
+"Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:942
+msgid "Database port is empty. Please input one."
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:114
+msgid "Datasource in project is not valid."
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:198
+msgid "Datasource path is empty."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcDateTimeDlg.h:44
+msgid "Date/Time"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:383
+msgid "Date/Time formats (using comma to separate formats):"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:391
+msgid "Default displayed decimal places in Table:"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:509 ../GeneralWxUtils.cpp:52
+msgid "Delete"
+msgstr ""
+
+#: ../Explore/LowessParamDlg.cpp:78
+msgid "Delta Factor:"
+msgstr ""
+
+#: ../DialogTools/HClusterDlg.cpp:217
+msgid "Dendrogram"
+msgstr ""
+
+#: ../GeoDa.cpp:2972
+msgid "Dependent Var (y-axis)"
+msgstr ""
+
+#: ../GeoDa.cpp:3111
+msgid "Dependent Var Y"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:977
+msgid "Diff Values"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:138
+msgid "Difference-in-Means Test:"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:55
+msgid "Differential Moran Variable Settings"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:178
+#, c-format
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr ""
+
+#: ../GeoDa.cpp:3361 ../GeoDa.cpp:3785
+msgid ""
+"Differential Moran's I tests whether the change in a variable over time is "
+"spatially correlated.\n"
+"\n"
+"Please first group variables by time period: Select Time --> Time Editor."
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:285
+msgid "Disable auto upgrade:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:278
+msgid "Disable crash detection for bug report:"
+msgstr ""
+
+#: ../DialogTools/DissolveDlg.cpp:70
+msgid "Dissolve - "
+msgstr ""
+
+#: ../GeoDa.cpp:2596
+msgid "Dissolve does not work with Table only datasource."
+msgstr ""
+
+#: ../GeoDa.cpp:2603
+msgid "Dissolve only works on polygon dataset."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:142 ../DialogTools/RedcapDlg.cpp:147
+#: ../DialogTools/MDSDlg.cpp:89 ../DialogTools/SkaterDlg.cpp:114
+#: ../DialogTools/HDBScanDlg.cpp:177 ../DialogTools/KMeansDlg.cpp:149
+#: ../DialogTools/HClusterDlg.cpp:161
+#: ../DialogTools/SpectralClusteringDlg.cpp:246
+msgid "Distance Function:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:432 ../DialogTools/RedcapDlg.cpp:382
+#: ../DialogTools/KMeansDlg.cpp:344 ../DialogTools/HClusterDlg.cpp:460
+#: ../DialogTools/SpectralClusteringDlg.cpp:536
+msgid "Distance function:\t"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:96
+msgid "Distance:"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2333 ../Explore/LineChartView.cpp:2367
+msgid "Do Means Differ? (ANOVA)"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1557
+msgid ""
+"Do you want to save the results of Diff-in-Diff test?\n"
+"\n"
+"Note: the results can only be saved into an external data file, due to the "
+"change of cross-sectional observations in a space-time context."
+msgstr ""
+
+#: ../GeoDa.cpp:872
+msgid "Do you want to save your data?"
+msgstr ""
+
+#: ../Explore/VarsChooserDlg.cpp:75
+msgid "Down"
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:403
+msgid "Downloading updates..."
+msgstr ""
+
+#: ../Project.cpp:907
+msgid "Duplicate IDs"
+msgstr ""
+
+#: ../Project.cpp:846
+msgid "Duplicate Thiessen Polygons Found"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:4043
+msgid ""
+"Duplicate Thiessen polygons exist due to duplicate or near-duplicate map "
+"points. Please try to export current dataset without duplicates."
+msgstr ""
+
+#: ../Project.cpp:845
+msgid ""
+"Duplicate Thiessen polygons exist due to duplicate or near-duplicate map "
+"points. Press OK to save duplicate polygon ids to Table."
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.cpp:368
+msgid "Duplicate variable names specified."
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:175
+#, c-format
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr ""
+
+#: ../GeoDa.cpp:3490
+msgid "Empirical Bayes Rate Standardization Variables"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3920 ../GeoDa.cpp:5197
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3948 ../GeoDa.cpp:5260
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:271
+msgid "Enable High DPI/Retina support (Mac only):"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:157
+msgid "Enable transparency setup of category color in map (Windows only):"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:320 ../DialogTools/RedcapDlg.cpp:288
+#: ../DialogTools/SkaterDlg.cpp:334 ../DialogTools/KMeansDlg.cpp:276
+#: ../DialogTools/SpectralClusteringDlg.cpp:428
+#: ../DialogTools/RegressionDlg.cpp:251 ../Explore/CorrelParamsDlg.cpp:329
+#: ../Explore/LisaScatterPlotView.cpp:1066
+#: ../Explore/AbstractClusterMap.cpp:617
+#: ../Explore/LocalGearyMapNewView.cpp:832
+msgid "Enter a seed value"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:313 ../DialogTools/RedcapDlg.cpp:281
+#: ../DialogTools/SkaterDlg.cpp:327 ../DialogTools/KMeansDlg.cpp:269
+#: ../DialogTools/SpectralClusteringDlg.cpp:421
+#: ../Explore/CorrelParamsDlg.cpp:322
+msgid "Enter a seed value for random number generator:"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:499
+#: ../Explore/CatClassification.cpp:1976
+msgid "Equal Intervals"
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:182
+#: ../ShapeOperations/WeightUtils.cpp:236
+#: ../ShapeOperations/WeightUtils.cpp:253
+#: ../ShapeOperations/WeightUtils.cpp:261
+#: ../ShapeOperations/WeightUtils.cpp:286
+#: ../ShapeOperations/WeightUtils.cpp:324
+#: ../ShapeOperations/WeightUtils.cpp:359
+#: ../ShapeOperations/WeightUtils.cpp:449
+#: ../ShapeOperations/WeightUtils.cpp:486
+#: ../ShapeOperations/WeightUtils.cpp:502
+#: ../ShapeOperations/WeightUtils.cpp:510
+#: ../ShapeOperations/WeightUtils.cpp:536
+#: ../ShapeOperations/WeightUtils.cpp:599
+#: ../ShapeOperations/WeightUtils.cpp:697
+#: ../ShapeOperations/WeightUtils.cpp:737
+#: ../ShapeOperations/WeightUtils.cpp:748
+#: ../ShapeOperations/WeightUtils.cpp:756
+#: ../ShapeOperations/WeightUtils.cpp:768
+#: ../ShapeOperations/WeightUtils.cpp:826 ../DialogTools/ExportDataDlg.cpp:242
+#: ../DialogTools/ExportDataDlg.cpp:249 ../DialogTools/ExportDataDlg.cpp:490
+#: ../DialogTools/ConnectDatasourceDlg.cpp:584
+#: ../DialogTools/ConnectDatasourceDlg.cpp:710
+#: ../DialogTools/ConnectDatasourceDlg.cpp:848
+#: ../DialogTools/ConnectDatasourceDlg.cpp:853
+#: ../DialogTools/ConnectDatasourceDlg.cpp:1168
+#: ../DialogTools/FieldNewCalcSpecialDlg.cpp:112
+#: ../DialogTools/FieldNewCalcSpecialDlg.cpp:130
+#: ../DialogTools/MultiVarSettingsDlg.cpp:228
+#: ../DialogTools/DissolveDlg.cpp:241 ../DialogTools/DissolveDlg.cpp:267
+#: ../DialogTools/DissolveDlg.cpp:355 ../DialogTools/MaxpDlg.cpp:339
+#: ../DialogTools/MaxpDlg.cpp:461 ../DialogTools/MaxpDlg.cpp:469
+#: ../DialogTools/MaxpDlg.cpp:511 ../DialogTools/MaxpDlg.cpp:520
+#: ../DialogTools/MaxpDlg.cpp:556 ../DialogTools/MaxpDlg.cpp:581
+#: ../DialogTools/MaxpDlg.cpp:590 ../DialogTools/RangeSelectionDlg.cpp:271
+#: ../DialogTools/RangeSelectionDlg.cpp:515
+#: ../DialogTools/PCASettingsDlg.cpp:244
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:110
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:122
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:132
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:250
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:268
+#: ../DialogTools/FieldNewCalcUniDlg.cpp:279 ../DialogTools/RedcapDlg.cpp:307
+#: ../DialogTools/RedcapDlg.cpp:469 ../DialogTools/RedcapDlg.cpp:477
+#: ../DialogTools/RedcapDlg.cpp:486 ../DialogTools/VarGroupingEditorDlg.cpp:493
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1304
+#: ../DialogTools/AddIdVariable.cpp:79 ../DialogTools/AddIdVariable.cpp:90
+#: ../DialogTools/AddIdVariable.cpp:107 ../DialogTools/SaveToTableDlg.cpp:175
+#: ../DialogTools/SaveToTableDlg.cpp:237 ../DialogTools/SaveToTableDlg.cpp:259
+#: ../DialogTools/SaveToTableDlg.cpp:351 ../DialogTools/SaveToTableDlg.cpp:369
+#: ../DialogTools/SaveSelectionDlg.cpp:296
+#: ../DialogTools/SaveSelectionDlg.cpp:394
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:105
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:117
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:127
+#: ../DialogTools/VariableSettingsDlg.cpp:878
+#: ../DialogTools/VariableSettingsDlg.cpp:890
+#: ../DialogTools/VariableSettingsDlg.cpp:910
+#: ../DialogTools/VariableSettingsDlg.cpp:929
+#: ../DialogTools/VariableSettingsDlg.cpp:947
+#: ../DialogTools/AbstractClusterDlg.cpp:418
+#: ../DialogTools/AbstractClusterDlg.cpp:577
+#: ../DialogTools/AbstractClusterDlg.cpp:618
+#: ../DialogTools/AbstractClusterDlg.cpp:720
+#: ../DialogTools/FieldNewCalcBinDlg.cpp:109
+#: ../DialogTools/FieldNewCalcBinDlg.cpp:127
+#: ../DialogTools/FieldNewCalcBinDlg.cpp:140 ../DialogTools/SkaterDlg.cpp:353
+#: ../DialogTools/SkaterDlg.cpp:459 ../DialogTools/SkaterDlg.cpp:467
+#: ../DialogTools/SkaterDlg.cpp:508 ../DialogTools/ExportCsvDlg.cpp:100
+#: ../DialogTools/ExportCsvDlg.cpp:118 ../DialogTools/FieldNewCalcLagDlg.cpp:99
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:106
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:113
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:130
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:165
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:114
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:123
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:130
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:137
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:155
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:164
+#: ../DialogTools/AggregateDlg.cpp:244 ../DialogTools/AggregateDlg.cpp:271
+#: ../DialogTools/AggregateDlg.cpp:346 ../DialogTools/HDBScanDlg.cpp:532
+#: ../DialogTools/WeightsManDlg.cpp:291 ../DialogTools/WeightsManDlg.cpp:396
+#: ../DialogTools/WeightsManDlg.cpp:446 ../DialogTools/WeightsManDlg.cpp:452
+#: ../DialogTools/WeightsManDlg.cpp:458 ../DialogTools/WeightsManDlg.cpp:464
+#: ../DialogTools/WeightsManDlg.cpp:469 ../DialogTools/WeightsManDlg.cpp:499
+#: ../DialogTools/WeightsManDlg.cpp:507 ../DialogTools/WeightsManDlg.cpp:558
+#: ../DialogTools/CatClassifDlg.cpp:910 ../DialogTools/CatClassifDlg.cpp:1123
+#: ../DialogTools/CatClassifDlg.cpp:1606 ../DialogTools/CatClassifDlg.cpp:1641
+#: ../DialogTools/CatClassifDlg.cpp:1698
+#: ../DialogTools/RegressionReportDlg.cpp:170 ../DialogTools/KMeansDlg.cpp:295
+#: ../DialogTools/KMeansDlg.cpp:364 ../DialogTools/KMeansDlg.cpp:486
+#: ../DialogTools/SaveAsDlg.cpp:115 ../DialogTools/SaveAsDlg.cpp:250
+#: ../DialogTools/CreatingWeightDlg.cpp:1185
+#: ../DialogTools/CreatingWeightDlg.cpp:1335
+#: ../DialogTools/CreatingWeightDlg.cpp:1377
+#: ../DialogTools/CreatingWeightDlg.cpp:1391
+#: ../DialogTools/CreatingWeightDlg.cpp:1630
+#: ../DialogTools/CreatingWeightDlg.cpp:1769 ../DialogTools/HClusterDlg.cpp:293
+#: ../DialogTools/HClusterDlg.cpp:476
+#: ../DialogTools/SpectralClusteringDlg.cpp:447
+#: ../DialogTools/SpectralClusteringDlg.cpp:560
+#: ../DialogTools/SpectralClusteringDlg.cpp:694
+#: ../DialogTools/RegressionDlg.cpp:266 ../DialogTools/RegressionDlg.cpp:313
+#: ../DialogTools/RegressionDlg.cpp:334 ../DialogTools/RegressionDlg.cpp:375
+#: ../DialogTools/RegressionDlg.cpp:533 ../DialogTools/RegressionDlg.cpp:611
+#: ../DialogTools/RegressionDlg.cpp:648 ../DialogTools/RegressionDlg.cpp:704
+#: ../DialogTools/RegressionDlg.cpp:726 ../DialogTools/RegressionDlg.cpp:778
+#: ../DialogTools/RegressionDlg.cpp:896 ../DialogTools/RegressionDlg.cpp:1150
+#: ../Explore/ColocationMapView.cpp:330 ../Explore/ColocationMapView.cpp:508
+#: ../Explore/PCPNewView.cpp:118 ../Explore/MapLayerTree.cpp:204
+#: ../Explore/MapLayerTree.cpp:630 ../Explore/MLJCMapNewView.cpp:686
+#: ../Explore/MLJCCoordinator.cpp:478 ../Explore/CorrelParamsDlg.cpp:348
+#: ../Explore/VarsChooserDlg.cpp:338 ../Explore/LisaScatterPlotView.cpp:1080
+#: ../Explore/AbstractClusterMap.cpp:630
+#: ../Explore/LocalGearyMapNewView.cpp:848
+#: ../Explore/GetisOrdMapNewView.cpp:733 ../Explore/LisaCoordinator.cpp:555
+#: ../DataViewer/DataViewerAddColDlg.cpp:299
+#: ../DataViewer/DataViewerAddColDlg.cpp:308
+#: ../DataViewer/DataViewerAddColDlg.cpp:317
+#: ../DataViewer/DataViewerAddColDlg.cpp:338
+#: ../DataViewer/DataViewerAddColDlg.cpp:373
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:434
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:519
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:535
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:552
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:586
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:601
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:612
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:638
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:664
+#: ../DataViewer/DataViewerResizeColDlg.cpp:67
+#: ../DataViewer/MergeTableDlg.cpp:287 ../DataViewer/MergeTableDlg.cpp:438
+#: ../DataViewer/MergeTableDlg.cpp:763 ../DataViewer/MergeTableDlg.cpp:877
+#: ../DataViewer/DataViewerDeleteColDlg.cpp:88
+#: ../DataViewer/DataViewerDeleteColDlg.cpp:118
+#: ../Regression/DiagnosticReport.cpp:46 ../Regression/DiagnosticReport.cpp:69
+#: ../GeoDa.cpp:1179 ../GeoDa.cpp:1194 ../GeoDa.cpp:1219 ../GeoDa.cpp:1233
+#: ../GeoDa.cpp:1278 ../GeoDa.cpp:1294 ../GeoDa.cpp:1335 ../GeoDa.cpp:1350
+#: ../GeoDa.cpp:1375 ../GeoDa.cpp:1510 ../GeoDa.cpp:1521 ../GeoDa.cpp:4097
+msgid "Error"
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:148
+msgid "Error in shader compilation."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:145
+msgid "Error in shader creation."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:151
+msgid "Error in shader linkage."
+msgstr ""
+
+#: ../GeoDa.cpp:1368
+msgid ""
+"Error while opening project:\n"
+"\n"
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:529
+msgid "Error: "
+msgstr ""
+
+#: ../DataViewer/DataViewerAddColDlg.cpp:306
+#, c-format
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr ""
+
+#: ../DataViewer/DataViewerAddColDlg.cpp:315
+#, c-format
+msgid ""
+"Error: \"%s\" is an invalid variable name. The first character must be "
+"alphabetic, and the remaining characters can be either alphanumeric or "
+"underscores. For DBF table, a valid variable name is between one and ten "
+"characters long."
+msgstr ""
+
+#: ../GeoDa.cpp:1330
+#, c-format
+msgid "Error: \"%s\" not found."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:2577
+msgid ""
+"Error: Base values contain non-positive numbers which will result in "
+"undefined values."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:166
+msgid "Error: Can't draw the string."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:163
+msgid "Error: Can't draw the triangles."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:154
+msgid "Error: Can't get uniforms locations."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:157
+msgid "Error: Can't load buffer. Likely out of GPU memory."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:160
+msgid "Error: Can't load texture. Likely out of GPU memory."
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:376
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr ""
+
+#: ../DataViewer/DataViewerAddColDlg.cpp:336
+#, c-format
+msgid ""
+"Error: Due to restrictions on the DBF file format, the particular "
+"combination of length and decimals entered is not valid.  Based on your "
+"current choices, we recommend length = %d and decimals = %d"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1669
+#: ../DialogTools/CreatingWeightDlg.cpp:1708
+#, c-format
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr ""
+
+#: ../DataViewer/DataViewerAddColDlg.cpp:298
+msgid "Error: The table variable name is empty."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:1149
+msgid "Error: no records found in data source."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:532 ../DialogTools/RegressionDlg.cpp:610
+#: ../DialogTools/RegressionDlg.cpp:669 ../DialogTools/RegressionDlg.cpp:725
+#: ../DialogTools/RegressionDlg.cpp:777
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:180
+msgid "Estimated Pairs:"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:683
+msgid "Euclidean Distance"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3896 ../Explore/MapNewView.cpp:3909
+#: ../Explore/MapNewView.cpp:3921 ../Explore/MapNewView.cpp:3935
+#: ../Explore/MapNewView.cpp:3949 ../GeoDa.cpp:3491 ../GeoDa.cpp:3859
+#: ../GeoDa.cpp:5167 ../GeoDa.cpp:5198 ../GeoDa.cpp:5230 ../GeoDa.cpp:5261
+msgid "Event Variable"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1986
+msgid "Excess Risk"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3908 ../GeoDa.cpp:5166
+msgid "Excess Risk Map Variable Settings"
+msgstr ""
+
+#: ../GeoDa.cpp:985
+msgid "Exit with unsaved changes?"
+msgstr ""
+
+#: ../GeoDa.cpp:990
+msgid "Exit?"
+msgstr ""
+
+#: ../GeoDa.cpp:547 ../GeoDa.cpp:727
+msgid "Explore"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:290
+msgid "Export or save layer to"
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:126
+#, c-format
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:290
+#: ../DialogTools/CreatingWeightDlg.cpp:1768
+msgid "Failed to create the weights file."
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:50
+msgid ""
+"Failed to open data source. Please check the data/datasource and check if "
+"the data type/format is supported by GeoDa.\n"
+"\n"
+"Tip: you can set up the necessary GeoDa driver by following the instructions "
+"at:\n"
+" http://geodacenter.github.io/formats.html"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:82
+msgid "False Discovery Rate:"
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:394
+#, c-format
+msgid "Field (%s) already exited."
+msgstr ""
+
+#: ../GeoDa.cpp:482 ../GeoDa.cpp:499 ../GeoDa.cpp:500 ../GeoDa.cpp:501
+#: ../GeoDa.cpp:707
+msgid "File"
+msgstr ""
+
+#: ../DialogTools/CreateGridDlg.cpp:179
+msgid "File doesn't exist!"
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:753 ../DataViewer/MergeTableDlg.cpp:882
+msgid "File merged into Table successfully."
+msgstr ""
+
+#: ../Explore/ScatterPlotMatView.cpp:247
+msgid "Fill Color"
+msgstr ""
+
+#: ../TemplateLegend.cpp:361
+msgid "Fill Color for Category"
+msgstr ""
+
+#: ../TemplateLegend.cpp:353
+msgid "Fill Opacity for Category"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:643 ../DialogTools/RegressionDlg.cpp:699
+msgid "Finished"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.h:113
+#: ../DialogTools/VariableSettingsDlg.h:122
+msgid "First Variable (X)"
+msgstr ""
+
+#: ../GeoDa.cpp:2724
+msgid "First Variable (X/Longitude)"
+msgstr ""
+
+#: ../Explore/BoxNewPlotView.cpp:186
+msgid "Fixed scale over time"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:363
+msgid "Fixed x-axis scale over time"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:369
+msgid "Fixed y-axis scale over time"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.h:116
+#: ../DialogTools/VariableSettingsDlg.h:125
+msgid "Fourth Variable"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:378 ../Explore/SimpleHistCanvas.cpp:615
+#: ../Explore/CorrelogramView.cpp:633 ../Explore/ConnectivityHistView.cpp:322
+#: ../Explore/SimpleBinsHistCanvas.cpp:192
+#: ../Explore/ConditionalHistogramView.cpp:458 ../Explore/HistogramView.cpp:579
+msgid "Frequency"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:260
+#: ../DialogTools/CreatingWeightDlg.cpp:1417
+msgid "GAL files (*.gal)|*.gal"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1424
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.h:91
+msgid "GeoDa Bug Report Dialog"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.h:42
+msgid "GeoDa CSV File Configuration"
+msgstr ""
+
+#: ../DialogTools/WebViewHelpWin.h:41
+msgid "GeoDa Help"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.h:49 ../DialogTools/PreferenceDlg.h:57
+msgid "GeoDa Preference Setup"
+msgstr ""
+
+#: ../GeoDa.cpp:1502
+msgid "GeoDa Project (*.gda)|*.gda"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1295 ../GeoDa.cpp:1394
+msgid "GeoDa Project File to Open"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:450
+msgid "GeoDa Project to Save As"
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.h:46
+msgid "GeoDa Update Dialog"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:248
+msgid ""
+"GeoDa can not get valid spatial reference from input data source. Please try "
+"another data source."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:241
+msgid ""
+"GeoDa can not open the input data source. Please try another data source."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:433
+msgid ""
+"GeoDa can't change the variable type to DATE/TIME. Please select another "
+"type."
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:342
+msgid "GeoDa can't create a layer."
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:158
+msgid "GeoDa can't load dataset with duplicate field names."
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:969
+msgid ""
+"GeoDa can't read data from datasource. \n"
+"\n"
+"Details: Datasource is empty."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:394
+msgid ""
+"GeoDa can't save a Table-only data source as a Geometry enabled data source. "
+"Please try to add a geometry layer and then use File->Save As."
+msgstr ""
+
+#: ../DataViewer/OGRTable.cpp:291 ../DataViewer/OGRTable.cpp:306
+msgid ""
+"GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:803 ../Explore/MapNewView.cpp:3273
+msgid ""
+"GeoDa cannot find proper projection or geographic coordinate system "
+"information to add a basemap. Please update this information (e.g. in .prj "
+"file)."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3626 ../GeoDa.cpp:1908 ../GeoDa.cpp:1938
+#: ../GeoDa.cpp:1968 ../GeoDa.cpp:3300 ../GeoDa.cpp:3352 ../GeoDa.cpp:3426
+#: ../GeoDa.cpp:3483 ../GeoDa.cpp:3558 ../GeoDa.cpp:3610 ../GeoDa.cpp:3661
+#: ../GeoDa.cpp:3716 ../GeoDa.cpp:3777 ../GeoDa.cpp:3849 ../GeoDa.cpp:3907
+#: ../GeoDa.cpp:3956 ../GeoDa.cpp:4012 ../GeoDa.cpp:4119 ../GeoDa.cpp:4178
+msgid ""
+"GeoDa could not find the required weights file. \n"
+"Please specify weights in Tools > Weights Manager."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3347
+msgid ""
+"GeoDa could not load this layer. Please check if the datasource is valid and "
+"not table only."
+msgstr ""
+
+#: ../Project.cpp:569
+#, c-format
+msgid ""
+"GeoDa does not support creating data of %s. Please try to 'Export' to other "
+"supported data source format."
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:764 ../Project.cpp:1560
+msgid ""
+"GeoDa does not support datasource with line data at this time.  Please "
+"choose a datasource with either point or polygon data."
+msgstr ""
+
+#: ../GeoDa.cpp:467
+msgid "GeoDa has run into a problem and will close."
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:1243
+#: ../Explore/LisaScatterPlotView.cpp:1265
+msgid "GeoDa was unable to save the file."
+msgstr ""
+
+#: ../GeoDa.cpp:902
+msgid ""
+"Geometries have been added to existing Table-only data source. Do you want "
+"to save them as a new datasource?"
+msgstr ""
+
+#: ../GeoDa.cpp:903
+msgid "Geometries not saved"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1992
+msgid "Getis-Ord"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:423
+msgid "Greedy"
+msgstr ""
+
+#: ../DialogTools/CreateGridDlg.cpp:294
+msgid "Grid file was successfully created."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2206
+msgid "Group"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:144
+msgid "Group 1:"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:150
+msgid "Group 2:"
+msgstr ""
+
+#: ../Explore/GroupingMapView.cpp:65
+msgid "Group Variable:"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:129
+msgid "Groups:"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:608
+#, c-format
+msgid "HDBScan Cluster Map (%d clusters)"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:57
+msgid "HDBScan Clustering Settings"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:60
+#: ../Explore/ConditionalClusterMapView.cpp:1786
+msgid "Has Colocation"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:36
+msgid "Height:"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:234 ../Explore/VarsChooserDlg.cpp:80
+#: ../Explore/LowessParamDlg.cpp:44 ../GeoDa.cpp:710
+msgid "Help"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:359
+msgid "Hide system table in Postgresql connection:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:367
+msgid "Hide system table in SQLITE connection:"
+msgstr ""
+
+#: ../GeoDa.cpp:2618
+msgid "Hierachical Map does not work with Table only datasource."
+msgstr ""
+
+#: ../Explore/GroupingMapView.cpp:212
+msgid "Hierachical Map: "
+msgstr ""
+
+#: ../DialogTools/HClusterDlg.cpp:64
+msgid "Hierarchical Clustering Settings"
+msgstr ""
+
+#: ../Explore/GetisOrdMapNewView.cpp:72
+#: ../Explore/ConditionalClusterMapView.cpp:1357
+msgid "High"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:71 ../Explore/LocalGearyMapNewView.cpp:72
+#: ../Explore/ConditionalClusterMapView.cpp:1570 ../GdaConst.cpp:383
+msgid "High-High"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:72 ../GdaConst.cpp:386
+msgid "High-Low"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1980
+msgid "Hinge=1.5"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1982
+msgid "Hinge=3.0"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:82 ../Explore/HistogramView.h:165
+#: ../GeoDa.cpp:3096
+msgid "Histogram"
+msgstr ""
+
+#: ../Explore/HistogramView.cpp:259
+msgid "Histogram Classification"
+msgstr ""
+
+#: ../GeoDa.cpp:2949
+msgid "Histogram Variable"
+msgstr ""
+
+#: ../Explore/HistogramView.cpp:481
+msgid "Histogram: "
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:860 ../Explore/MLJCMapNewView.cpp:927
+#: ../Explore/LisaMapNewView.cpp:343 ../Explore/LocalGearyMapNewView.cpp:1136
+#: ../Explore/GetisOrdMapNewView.cpp:1067 ../GeoDa.cpp:2924 ../GeoDa.cpp:2947
+#: ../GeoDa.cpp:2969
+msgid "Horizontal Cells"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:375
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:261
+msgid "ID is not specified!"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:413 ../TemplateFrame.cpp:562
+msgid "Image Dimension Settings"
+msgstr ""
+
+#: ../Explore/VarsChooserDlg.cpp:53
+msgid "Include"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:989
+msgid "Incomplete Group Variable"
+msgstr ""
+
+#: ../GeoDa.cpp:2971
+msgid "Independent Var (x-axis)"
+msgstr ""
+
+#: ../GeoDa.cpp:3110
+msgid "Independent Var X"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.h:42 ../Explore/MLJCMapNewView.cpp:727
+#: ../Explore/LocalGearyMapNewView.cpp:897
+#: ../Explore/GetisOrdMapNewView.cpp:783
+msgid "Inference Settings"
+msgstr ""
+
+#: ../Explore/AbstractClusterMap.cpp:669
+#, c-format
+msgid "Inference Settings (%d perm)"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:752
+#: ../DialogTools/DatasourceDlg.cpp:266
+#: ../DialogTools/MultiVarSettingsDlg.cpp:212
+#: ../DialogTools/PreferenceDlg.cpp:846
+#: ../DialogTools/AbstractClusterDlg.cpp:697 ../DialogTools/SaveAsDlg.cpp:240
+#: ../DialogTools/SaveAsDlg.cpp:245 ../DataViewer/DataViewerDeleteColDlg.cpp:95
+#: ../GeoDa.cpp:1518 ../GeoDa.cpp:2573 ../GeoDa.cpp:2580 ../GeoDa.cpp:2597
+#: ../GeoDa.cpp:2619 ../GeoDa.cpp:2646
+msgid "Info"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:551 ../Explore/MapNewView.cpp:1807
+#: ../Explore/MapNewView.cpp:2825
+msgid "Information"
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:178
+msgid "Information: "
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:100
+msgid "Initial Groups:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:416
+msgid "Initial groups:\t"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:95 ../DialogTools/SpectralClusteringDlg.cpp:193
+msgid "Initialization Method:"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:112
+#: ../DialogTools/SpectralClusteringDlg.cpp:205
+msgid "Initialization Re-runs:"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:332
+#: ../DialogTools/SpectralClusteringDlg.cpp:538
+msgid "Initialization method:\t"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:333
+#: ../DialogTools/SpectralClusteringDlg.cpp:539
+msgid "Initialization re-runs:\t"
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:209 ../DialogTools/CreateGridDlg.cpp:161
+msgid "Input ASCII file"
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:552
+msgid "Input is duplicated."
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:553
+msgid "Input is not valid."
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:285 ../DialogTools/ReportBugDlg.cpp:293
+msgid "Input is required"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:87
+msgid "Input significance:"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:226
+#: ../DialogTools/AbstractClusterDlg.cpp:272
+msgid "Input:"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:819
+msgid "Insufficient Random Sampling"
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:402
+#, c-format
+msgid ""
+"Internal Error: Add new field (%s) failed.\n"
+"\n"
+"Details:%s"
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:425
+msgid ""
+"Internal Error: Delete field failed.\n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../DataViewer/OGRTableOperation.cpp:383
+msgid "Internal Error: can't update an in-memory cell."
+msgstr ""
+
+#: ../DialogTools/HistIntervalDlg.h:36
+msgid "Intervals in the Histogram"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:966
+msgid "Invalid Variable"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:493 ../DialogTools/RedcapDlg.cpp:504
+#: ../DialogTools/SkaterDlg.cpp:489 ../DialogTools/HClusterDlg.cpp:602
+#: ../GeoDa.cpp:3314 ../GeoDa.cpp:3386 ../GeoDa.cpp:3445 ../GeoDa.cpp:3499
+#: ../GeoDa.cpp:3571 ../GeoDa.cpp:3624 ../GeoDa.cpp:3674 ../GeoDa.cpp:3970
+#: ../GeoDa.cpp:4026
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights "
+"Manager\n"
+" to define a valid weights file."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3635 ../GeoDa.cpp:3730 ../GeoDa.cpp:3812
+#: ../GeoDa.cpp:3866 ../GeoDa.cpp:3922 ../GeoDa.cpp:4133 ../GeoDa.cpp:4192
+msgid ""
+"Invalid Weights Information:\n"
+"\n"
+" The selected weights file is not valid.\n"
+" Please choose another weights file, or use Tools > Weights > Weights "
+"Manager to define a valid weights file."
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:630
+msgid ""
+"Invalid layer association has been detected, which will cause infinite "
+"highlighting loop. Please try to reset highlight association between layers."
+msgstr ""
+
+#: ../GeoDa.cpp:280
+msgid ""
+"It looks like GeoDa has been terminated abnormally. \n"
+"Do you want to send a crash report to GeoDa team? \n"
+"\n"
+"(Optional) Please leave your email address,\n"
+"so we can send a follow-up email once we have a fix."
+msgstr ""
+
+#: ../Explore/LowessParamDlg.cpp:65
+msgid "Iterations:"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:419
+msgid "Join Operation:"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:413
+msgid "Join Variable:"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:575
+msgid "KMeans Clustering Settings"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:624
+msgid "KMedians Clustering Settings"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:718
+msgid "KMedoids Clustering Settings"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1421
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1989
+msgid "LISA"
+msgstr ""
+
+#: ../Explore/LowessParamDlg.cpp:151
+msgid "LOWESS Smoother Help"
+msgstr ""
+
+#: ../Explore/LowessParamDlg.cpp:33
+msgid "LOWESS Smoother Parameters"
+msgstr ""
+
+#: ../wxTranslationHelper.cpp:162
+msgid "Language"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:242
+msgid "Language:"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:126
+msgid "Latitude/Y:"
+msgstr ""
+
+#: ../DialogTools/DatasourceDlg.cpp:256
+msgid "Layer names"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:333
+msgid ""
+"Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time "
+"(HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
+"\n"
+"Please try to load customized date/time type as string and covert it using "
+"Table->Edit Variable Property"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1259
+msgid ""
+"List of existing ungrouped variables. To group variables by time, move them "
+"to the list on the right.\n"
+"\n"
+"For example, to group Pop80 and Pop90, select them on the left and move them "
+"to the right."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:77
+msgid "Load"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3347
+msgid "Load Layer Failed."
+msgstr ""
+
+#: ../Project.cpp:1572
+msgid "Loading data..."
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1995
+msgid "Local Geary"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:124
+msgid "Local Join Count "
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:120
+msgid "Local Search:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:423 ../DialogTools/MaxpDlg.cpp:425
+#: ../DialogTools/MaxpDlg.cpp:428
+msgid "Local search:"
+msgstr ""
+
+#: ../DialogTools/LocaleSetupDlg.cpp:108
+msgid ""
+"Locale for numbers has been setup successfully. Please re-open current "
+"project to enable this locale."
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:169
+msgid "Log info: "
+msgstr ""
+
+#: ../Explore/GetisOrdMapNewView.cpp:73
+#: ../Explore/ConditionalClusterMapView.cpp:1359
+msgid "Low"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:74 ../GdaConst.cpp:385
+msgid "Low-High"
+msgstr ""
+
+#: ../Explore/LisaMapNewView.cpp:73 ../Explore/LocalGearyMapNewView.cpp:73
+#: ../Explore/ConditionalClusterMapView.cpp:1572 ../GdaConst.cpp:384
+msgid "Low-Low"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:226 ../Explore/CatClassification.cpp:623
+#: ../GdaConst.cpp:396
+msgid "Lower outlier"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.h:382
+msgid "MDS Plot"
+msgstr ""
+
+#: ../DialogTools/MDSDlg.cpp:320
+msgid "MDS Plot - "
+msgstr ""
+
+#: ../DialogTools/MDSDlg.cpp:42
+msgid "MDS Settings"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:2496 ../Explore/MapNewView.cpp:1623
+#: ../Explore/MapNewView.cpp:3119 ../Explore/MapNewView.cpp:3194
+#: ../GeoDa.cpp:648
+msgid "Map"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:807
+msgid "Map Layer Settings"
+msgstr ""
+
+#: ../TemplateFrame.cpp:550
+msgid "Map Layout Preview"
+msgstr ""
+
+#: ../GeoDa.cpp:2926
+msgid "Map Theme"
+msgstr ""
+
+#: ../DialogTools/GetisOrdChoiceDlg.h:31
+msgid "Maps To Open"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:118
+msgid "Maps:"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:226 ../Explore/CorrelogramView.cpp:771
+msgid "Max"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:141
+msgid "Max Distance:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:57
+msgid "Max-p Settings"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:141
+msgid "Maximum # of regions:"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:137
+#: ../DialogTools/SpectralClusteringDlg.cpp:229
+msgid "Maximum Iterations:"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:334
+#: ../DialogTools/SpectralClusteringDlg.cpp:540
+msgid "Maximum iterations:\t"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2212
+msgid "Mean"
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:79
+msgid "Merge - "
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:665
+msgid ""
+"Merge error: Geometric type of selected datasource has to be the same with "
+"current datasource."
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:282
+msgid "Meta-data"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:159
+msgid "Method of selecting clusters:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:292 ../DialogTools/PCASettingsDlg.cpp:75
+#: ../DialogTools/RedcapDlg.cpp:129 ../DialogTools/HClusterDlg.cpp:152
+msgid "Method:"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:370 ../DialogTools/KMeansDlg.cpp:330
+#: ../DialogTools/HClusterDlg.cpp:458
+msgid "Method:\t"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:225 ../Explore/CorrelogramView.cpp:770
+msgid "Min"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:94
+msgid "Min # per Region:"
+msgstr ""
+
+#: ../DialogTools/SkaterDlg.cpp:108
+msgid "Min Region Size:"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:133
+msgid "Min cluster size:"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:147
+msgid "Min samples:"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:487
+msgid "Minimum Bound:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:410 ../DialogTools/RedcapDlg.cpp:375
+#: ../DialogTools/KMeansDlg.cpp:339
+msgid "Minimum bound:\t"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:428
+msgid "Minimum cluster size should be greater than one."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:412 ../DialogTools/RedcapDlg.cpp:378
+msgid "Minimum region size:\t"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:440
+msgid "Minimum samples should be greater than zero."
+msgstr ""
+
+#: ../GeoDa.cpp:3322 ../GeoDa.cpp:3394 ../GeoDa.cpp:3453 ../GeoDa.cpp:3507
+msgid ""
+"Moran scatter plot is not supported when isolates are present in weights. Do "
+"you want to continue by removing the isolates when compute Moran's I?"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:181
+#, c-format
+msgid "Moran's I (%s): %s"
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:55
+msgid "Multi-Variable Settings"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:164
+#: ../DialogTools/VarGroupingEditorDlg.cpp:177
+msgid "Name"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:498
+#: ../Explore/CatClassification.cpp:1974
+msgid "Natural Breaks"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:75
+#: ../Explore/ConditionalClusterMapView.cpp:1576 ../GdaConst.cpp:388
+msgid "Negative"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:63 ../Explore/AbstractClusterMap.cpp:67
+#: ../Explore/LocalGearyMapNewView.cpp:78 ../Explore/GetisOrdMapNewView.cpp:75
+#: ../Explore/ConditionalClusterMapView.cpp:1378
+#: ../Explore/ConditionalClusterMapView.cpp:1593
+#: ../Explore/ConditionalClusterMapView.cpp:1805 ../GdaConst.cpp:382
+msgid "Neighborless"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:900 ../DialogTools/CatClassifDlg.cpp:1629
+msgid "New Categories Title"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:893 ../DialogTools/CatClassifDlg.cpp:1625
+msgid "New Custom Categories Title:"
+msgstr ""
+
+#: ../GeoDa.cpp:2723
+msgid "New Map Coordinates"
+msgstr ""
+
+#: ../GeoDa.cpp:1503
+msgid "New Project Filename"
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:650
+msgid "New space-time variable name"
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:653
+msgid "New variable name"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:59
+#: ../Explore/ConditionalClusterMapView.cpp:1784
+msgid "No Colocation"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3626 ../GeoDa.cpp:1908 ../GeoDa.cpp:1938
+#: ../GeoDa.cpp:1968 ../GeoDa.cpp:3300 ../GeoDa.cpp:3352 ../GeoDa.cpp:3426
+#: ../GeoDa.cpp:3483 ../GeoDa.cpp:3558 ../GeoDa.cpp:3610 ../GeoDa.cpp:3661
+#: ../GeoDa.cpp:3716 ../GeoDa.cpp:3777 ../GeoDa.cpp:3850 ../GeoDa.cpp:3908
+#: ../GeoDa.cpp:3956 ../GeoDa.cpp:4012
+msgid "No Weights Found"
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:550
+msgid "No clusters can be found using current parameters."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:877
+msgid "No field chosen for first and second variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:889
+msgid "No field chosen for first variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:946
+msgid "No field chosen for fourth variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:909
+msgid "No field chosen for second variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:928
+msgid "No field chosen for third variable."
+msgstr ""
+
+#: ../DialogTools/DatasourceDlg.cpp:270
+msgid "No layer has been selected. Please select a layer."
+msgstr ""
+
+#: ../DialogTools/DatasourceDlg.cpp:266
+msgid "No layer was found in the selected data source."
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:288
+msgid "No layer was found in this datasource."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:79
+#: ../DialogTools/RegressionDlg.cpp:138
+msgid "No numeric variables found in table."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:483
+msgid "No numeric variables found."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:2824
+msgid "No rates currently calculated to save."
+msgstr ""
+
+#: ../GeoDa.cpp:6292
+msgid "No update required"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1629
+msgid ""
+"No weights file was created due to all observations being isolates for the "
+"specified threshold value. Increase the threshold to create a non-empty "
+"weights file."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1557
+msgid ""
+"None of your observations have neighbors. This could be related to "
+"digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr ""
+
+#: ../DialogTools/SkaterDlg.cpp:686 ../DialogTools/HDBScanDlg.cpp:611
+msgid "Not Clustered"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:58 ../Explore/AbstractClusterMap.cpp:65
+#: ../Explore/LocalGearyMapNewView.cpp:71 ../Explore/GetisOrdMapNewView.cpp:71
+#: ../Explore/ConditionalClusterMapView.cpp:1134
+#: ../Explore/ConditionalClusterMapView.cpp:1353
+#: ../Explore/ConditionalClusterMapView.cpp:1355
+#: ../Explore/ConditionalClusterMapView.cpp:1563
+#: ../Explore/ConditionalClusterMapView.cpp:1777 ../GdaConst.cpp:380
+msgid "Not Significant"
+msgstr ""
+
+#: ../arizona/viz3/plots/scatterplot.cpp:172
+msgid "Not a GL message."
+msgstr ""
+
+#: ../Regression/DiagnosticReport.cpp:68
+msgid "Not enough memory!"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:547
+msgid "Notice"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1453
+msgid ""
+"Null geometry was detected in dataset. GeoDa can't create weights with NULL "
+"geometry. Please try to save as records with valid geometries and try again."
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:121
+msgid "Number Bins:"
+msgstr ""
+
+#: ../Explore/BoxNewPlotView.cpp:220
+msgid "Number of Box Plots"
+msgstr ""
+
+#: ../DialogTools/NumCategoriesDlg.h:36
+msgid "Number of Categories"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:470 ../DialogTools/SkaterDlg.cpp:92
+msgid "Number of Clusters:"
+msgstr ""
+
+#: ../Explore/ConnectivityHistView.cpp:354
+msgid "Number of Neighbors"
+msgstr ""
+
+#: ../DialogTools/KMeansDlg.cpp:331 ../DialogTools/HClusterDlg.cpp:454
+#: ../DialogTools/SpectralClusteringDlg.cpp:523
+msgid "Number of clusters:\t"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:930
+msgid "Number of not clustered observations: "
+msgstr ""
+
+#: ../ShapeOperations/OGRDatasourceProxy.cpp:420
+msgid ""
+"OGR failed to create field.\n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:645
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:692
+#: ../DialogTools/MultiVarSettingsDlg.cpp:118
+#: ../DialogTools/CsvFieldConfDlg.cpp:168 ../DialogTools/SaveToTableDlg.cpp:150
+#: ../DialogTools/VariableSettingsDlg.cpp:143
+#: ../DialogTools/ProjectInfoDlg.cpp:162 ../DialogTools/SpatialJoinDlg.cpp:433
+#: ../DialogTools/RandomizationDlg.cpp:97 ../Explore/ColocationMapView.cpp:172
+#: ../Explore/MapLayerTree.cpp:68 ../Explore/GroupingMapView.cpp:71
+#: ../GeneralWxUtils.cpp:569
+msgid "OK"
+msgstr ""
+
+#: ../GeoDa.cpp:991
+msgid "OK to Exit?"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:585
+msgid "OLS Model has been selected."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:581
+msgid "OLS Model with White test has been selected."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2209
+msgid "Obs."
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:60 ../TemplateLegend.cpp:62
+#: ../GeneralWxUtils.cpp:108
+msgid "Ok"
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:595
+#, c-format
+msgid ""
+"On line %d of weights file, observation id %d encountered which does not "
+"exist in field \"%s\" of the Table."
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:592
+#, c-format
+msgid ""
+"On line %d of weights file, observation id %d encountered which is out of "
+"allowed observation range of 1 through %d."
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1277
+msgid ""
+"Once you have grouped variables, you can save a new space-time table and "
+"weights: To add a spatial ID to your space-time table and create space-time "
+"weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:395
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:782
+msgid "Only Map Boundary"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:313
+msgid ""
+"Oops. GeoDa was unable to submit a bug report. Please try again or create it "
+"here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:838
+msgid "Open Datasource:"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:839
+msgid "Open Layer:"
+msgstr ""
+
+#: ../Project.cpp:1571
+msgid "Open data source progress dialog"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:759
+msgid "Open project file:"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:116
+msgid "Operation requires a valid field name or constant."
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:800 ../Explore/ColocationMapView.cpp:808
+#: ../Explore/PCPNewView.cpp:1206 ../Explore/PCPNewView.cpp:1285
+#: ../Explore/ConnectivityMapView.cpp:616
+#: ../Explore/ConnectivityMapView.cpp:624 ../Explore/3DPlotView.cpp:1133
+#: ../Explore/3DPlotView.cpp:1141 ../Explore/MapNewView.cpp:3490
+#: ../Explore/MapNewView.cpp:3553 ../Explore/MLJCMapNewView.cpp:583
+#: ../Explore/MLJCMapNewView.cpp:591 ../Explore/CartogramNewView.cpp:1106
+#: ../Explore/CartogramNewView.cpp:1114 ../Explore/ScatterNewPlotView.cpp:2008
+#: ../Explore/ScatterNewPlotView.cpp:2022 ../Explore/BoxNewPlotView.cpp:1014
+#: ../Explore/BoxNewPlotView.cpp:1022 ../Explore/CorrelogramView.cpp:276
+#: ../Explore/CorrelogramView.cpp:284 ../Explore/ConditionalMapView.cpp:1058
+#: ../Explore/ConditionalMapView.cpp:1066 ../Explore/ScatterPlotMatView.cpp:151
+#: ../Explore/ScatterPlotMatView.cpp:158
+#: ../Explore/ConnectivityHistView.cpp:764
+#: ../Explore/ConnectivityHistView.cpp:772
+#: ../Explore/LisaScatterPlotView.cpp:1102
+#: ../Explore/LisaScatterPlotView.cpp:1110 ../Explore/LineChartView.cpp:772
+#: ../Explore/LineChartView.cpp:780 ../Explore/AbstractClusterMap.cpp:529
+#: ../Explore/AbstractClusterMap.cpp:537
+#: ../Explore/LocalGearyMapNewView.cpp:733
+#: ../Explore/LocalGearyMapNewView.cpp:741
+#: ../Explore/ConditionalHistogramView.cpp:1040
+#: ../Explore/ConditionalHistogramView.cpp:1048
+#: ../Explore/HistogramView.cpp:1290 ../Explore/HistogramView.cpp:1298
+#: ../Explore/ConditionalScatterPlotView.cpp:872
+#: ../Explore/ConditionalScatterPlotView.cpp:880
+#: ../Explore/GetisOrdMapNewView.cpp:628 ../Explore/GetisOrdMapNewView.cpp:636
+#: ../Explore/CovSpView.cpp:152 ../Explore/CovSpView.cpp:160
+#: ../Explore/GroupingMapView.cpp:535 ../Explore/GroupingMapView.cpp:543
+#: ../Explore/ConditionalNewView.cpp:808
+#: ../Explore/ConditionalClusterMapView.cpp:929
+#: ../Explore/ConditionalClusterMapView.cpp:937
+#: ../DataViewer/TableFrame.cpp:222 ../GeoDa.cpp:660
+msgid "Options"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:896
+msgid "Options > Change Parameters"
+msgstr ""
+
+#: ../Explore/ConditionalClusterMapView.cpp:1574 ../GdaConst.cpp:387
+msgid "Other Pos"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:74
+msgid "Other Positive"
+msgstr ""
+
+#: ../Explore/ScatterPlotMatView.cpp:236
+msgid "Outline Color"
+msgstr ""
+
+#: ../TemplateLegend.cpp:345
+msgid "Outline Color for Category"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:758
+msgid "Outline Visible"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:177 ../DialogTools/PCASettingsDlg.cpp:93
+#: ../DialogTools/RedcapDlg.cpp:183 ../DialogTools/SkaterDlg.cpp:149
+#: ../DialogTools/HDBScanDlg.cpp:207 ../DialogTools/KMeansDlg.cpp:170
+#: ../DialogTools/HClusterDlg.cpp:196
+#: ../DialogTools/SpectralClusteringDlg.cpp:268
+msgid "Output:"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:866
+msgid "Overwrite?"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:49
+msgid "PCA Settings"
+msgstr ""
+
+#: ../DialogTools/PCPDlg.h:37
+msgid "Parallel Coordinate Plot"
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:272
+msgid "Parallel Coordinate Plot: "
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:170 ../DialogTools/PCASettingsDlg.cpp:86
+#: ../DialogTools/RedcapDlg.cpp:175 ../DialogTools/MDSDlg.cpp:100
+#: ../DialogTools/SkaterDlg.cpp:142 ../DialogTools/HDBScanDlg.cpp:186
+#: ../DialogTools/KMeansDlg.cpp:162 ../DialogTools/HClusterDlg.cpp:185
+#: ../DialogTools/SpectralClusteringDlg.cpp:257
+msgid "Parameters:"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:51
+msgid "Paste"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1978
+msgid "Percentile"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:494
+msgid "Percentile Map"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2236 ../Explore/LineChartView.cpp:2257
+#: ../Explore/LineChartView.cpp:2268
+msgid "Period 1"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:147
+msgid "Period 1:"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2287 ../Explore/LineChartView.cpp:2306
+#: ../Explore/LineChartView.cpp:2317
+msgid "Period 2"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:153
+msgid "Period 2:"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:284
+msgid "Please briefly describe what went wrong."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:374
+msgid "Please check the selected variables are all valid."
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:496
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1414 ../Explore/LineChartView.cpp:1482
+msgid "Please choose Period 1 first."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1001 ../Explore/LineChartView.cpp:1047
+msgid "Please choose Period 1."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1423 ../Explore/LineChartView.cpp:1491
+msgid "Please choose Period 2 first."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1010 ../Explore/LineChartView.cpp:1056
+msgid "Please choose Period 2."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:966 ../Explore/LineChartView.cpp:1332
+msgid "Please choose Periods first."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:104
+msgid "Please choose a Result field."
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:292
+msgid "Please describe steps you took before something went wrong."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:468 ../DialogTools/RedcapDlg.cpp:485
+#: ../DialogTools/SkaterDlg.cpp:466 ../DialogTools/HDBScanDlg.cpp:531
+#: ../DialogTools/KMeansDlg.cpp:485 ../DialogTools/HClusterDlg.cpp:292
+#: ../DialogTools/SpectralClusteringDlg.cpp:693
+msgid "Please enter a field name for saving clustering results."
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:559
+msgid "Please enter a valid number of cluster."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:417 ../DialogTools/KMeansDlg.cpp:363
+#: ../DialogTools/HClusterDlg.cpp:475
+msgid "Please enter a valid number of clusters."
+msgstr ""
+
+#: ../DialogTools/HistIntervalDlg.cpp:75
+msgid "Please enter a valid positive integer"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:460
+msgid "Please enter iteration number"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:468
+msgid "Please enter maximum number of regions."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:510 ../DialogTools/RedcapDlg.cpp:476
+#: ../DialogTools/SkaterDlg.cpp:507
+msgid "Please enter minimum bound value"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:519
+msgid ""
+"Please enter minimum number of observations per regions, or use minimum "
+"bound instead."
+msgstr ""
+
+#: ../DialogTools/SkaterDlg.cpp:458
+msgid "Please enter number of regions"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1316
+msgid "Please first select observations in one of the other data or map views."
+msgstr ""
+
+#: ../DialogTools/CreateGridDlg.cpp:291
+msgid "Please fix the grid bounding box."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:727
+#: ../DialogTools/ConnectDatasourceDlg.cpp:1009
+msgid "Please input Carto App Key."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:723
+#: ../DialogTools/ConnectDatasourceDlg.cpp:1005
+msgid "Please input Carto User Name."
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:976
+msgid "Please input a valid url address."
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:980
+msgid "Please input a valid url."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:707
+#: ../DialogTools/ConnectDatasourceDlg.cpp:946
+msgid "Please input database host."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:708
+#: ../DialogTools/ConnectDatasourceDlg.cpp:947
+msgid "Please input database name."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:709
+#: ../DialogTools/ConnectDatasourceDlg.cpp:948
+msgid "Please input database port."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:617
+msgid "Please input minimum bound value."
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:950
+msgid "Please input password."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:711
+msgid "Please input table name."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:710
+#: ../DialogTools/ConnectDatasourceDlg.cpp:949
+msgid "Please input user name."
+msgstr ""
+
+#: ../GeoDa.cpp:2579
+msgid "Please load another layer using map window to apply Spatial Join."
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:751
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:203
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:845
+msgid "Please restart GeoDa to apply the language setup."
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:488
+msgid "Please restart GeoDa to finish installing updates."
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:895
+msgid "Please right-click or use<br />"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:615
+msgid "Please select Join Operation with Join Variable."
+msgstr ""
+
+#: ../GeoDa.cpp:3934
+msgid "Please select a binary variable for Local Join Count."
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:400
+#, c-format
+msgid "Please select a map layer to apply spatial join to current map (%s):"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:98
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:113
+msgid "Please select a results field."
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:613
+msgid ""
+"Please select a time variable first, and make sure more than one time steps "
+"have been defined."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1390
+msgid "Please select a weights type."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:136
+msgid "Please select an Base field."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:129
+msgid "Please select an Event field."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:112
+msgid "Please select an Variable field."
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:1022
+msgid ""
+"Please select another variable with values more suitable for computing a "
+"correlogram."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:695
+#, c-format
+msgid "Please select at least %d variables."
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:211
+msgid "Please select at least 2 variables."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1166
+msgid "Please select at least one variable."
+msgstr ""
+
+#: ../GeoDa.cpp:4040
+msgid "Please select binary variables for Co-location Join Count."
+msgstr ""
+
+#: ../GeoDa.cpp:2645
+msgid "Please select features first."
+msgstr ""
+
+#: ../DialogTools/DatasourceDlg.cpp:256
+msgid "Please select the layer name to connect:"
+msgstr ""
+
+#: ../GeoDa.cpp:3981 ../GeoDa.cpp:3990
+msgid "Please select two binary variables for Bivariate Local Join Count."
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:507
+msgid "Please setup co-locations first."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:105
+msgid "Please specify a Weights matrix."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:332
+msgid "Please specify a valid data source name."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1174
+msgid "Please specify distance metric."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:245
+msgid ""
+"Please specify the p-value to be used in tests; \n"
+"default: p-value = 0.01"
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:524
+msgid ""
+"Please use<br /><font color=\"blue\">Options > Change Variable<br /></"
+"font>to specify a variable."
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:198
+msgid "Plots:"
+msgstr ""
+
+#: ../TemplateLegend.cpp:51
+msgid "Point Radius:"
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:76 ../GdaConst.cpp:389
+msgid "Positive"
+msgstr ""
+
+#: ../DialogTools/ProgressDlg.h:31
+msgid "Progress"
+msgstr ""
+
+#: ../DialogTools/ProjectInfoDlg.cpp:30
+msgid "Project Information"
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:190
+msgid "Project file path is empty."
+msgstr ""
+
+#: ../Project.cpp:657
+msgid "Project filename not specified."
+msgstr ""
+
+#: ../DialogTools/SelectWeightsDlg.cpp:345 ../DialogTools/WeightsManDlg.cpp:878
+msgid "Property"
+msgstr ""
+
+#: ../DialogTools/PublishDlg.h:77
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1970
+msgid "Quantile"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:493
+msgid "Quantile Map"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:63
+msgid "REDCAP Settings"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcSpecialDlg.cpp:313
+#, c-format
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:191
+msgid "Random Sample"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcSpecialDlg.cpp:318
+msgid "Random uniform dist on unit interval"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.h:163 ../DialogTools/RandomizationDlg.h:177
+msgid "Randomization"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:282
+msgid "Rate calculation successful."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.h:43
+msgid "Rates"
+msgstr ""
+
+#: ../GeoDa.cpp:3858
+msgid "Rates Variable Settings"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3895
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:484
+#, c-format
+msgid ""
+"Record order specified, but found minimum and maximum observation values of "
+"%d and %d which is incompatible with number of observations specified in "
+"first line of weights file:  %d ."
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:47
+msgid "Redo"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.h:51 ../DialogTools/RegressionDlg.h:53
+#: ../DialogTools/RegressionDlg.h:60
+msgid "Regression"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:851
+msgid "Regression Output Text File"
+msgstr ""
+
+#: ../DialogTools/RegressionReportDlg.h:33
+#: ../DialogTools/RegressionReportDlg.h:40
+msgid "Regression Report"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:79 ../Explore/MapLayerTree.cpp:793
+msgid "Remove"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:976
+msgid "Remove Time"
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:649
+msgid "Rename Space-Time Variable"
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:256 ../DataViewer/TableFrame.cpp:652
+msgid "Rename Variable"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:414 ../Explore/ScatterNewPlotView.cpp:82
+#: ../Explore/LowessParamDlg.cpp:52
+msgid "Reset"
+msgstr ""
+
+#: ../DialogTools/LocaleSetupDlg.cpp:88
+msgid "Reset to system locale information"
+msgstr ""
+
+#: ../DialogTools/LocaleSetupDlg.cpp:86
+msgid ""
+"Reset to system locale successfully. Please re-open current project with "
+"system locale."
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:37
+msgid "Resolution(dpi):"
+msgstr ""
+
+#: ../Explore/GroupingMapView.cpp:58
+msgid "Root Variable:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:183 ../DialogTools/PCASettingsDlg.cpp:99
+#: ../DialogTools/RedcapDlg.cpp:189 ../DialogTools/MDSDlg.cpp:104
+#: ../DialogTools/SkaterDlg.cpp:155 ../DialogTools/HDBScanDlg.cpp:211
+#: ../DialogTools/KMeansDlg.cpp:176 ../DialogTools/HClusterDlg.cpp:200
+#: ../DialogTools/SpectralClusteringDlg.cpp:274
+#: ../DialogTools/RandomizationDlg.cpp:815
+#: ../DialogTools/RandomizationDlg.cpp:830
+msgid "Run"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:169
+msgid "Run Diff-in-Diff Test"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:2215
+msgid "S.D"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:226
+msgid ""
+"SVD will be automatically used for PCA since the number of rows is less than "
+"the number of columns."
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:404
+msgid "Sample Autocorrelation"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:194
+msgid "Sample Size:"
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:101 ../DialogTools/HDBScanDlg.cpp:212
+#: ../Explore/MapLayoutView.cpp:382 ../GeneralWxUtils.cpp:44
+msgid "Save"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1670 ../Explore/ScatterNewPlotView.cpp:707
+msgid "Save "
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:151
+msgid "Save As Datasource"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:434
+msgid "Save As has been cancelled."
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:1707
+msgid "Save Categories to Table"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:174 ../DialogTools/RedcapDlg.cpp:180
+#: ../DialogTools/SkaterDlg.cpp:146 ../DialogTools/HDBScanDlg.cpp:202
+#: ../DialogTools/KMeansDlg.cpp:167 ../DialogTools/HClusterDlg.cpp:191
+#: ../DialogTools/SpectralClusteringDlg.cpp:263
+msgid "Save Cluster in Field:"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:107
+msgid "Save Details"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:1557
+msgid "Save Diff-in-Diff Test Results"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:168
+msgid "Save Dummy"
+msgstr ""
+
+#: ../Project.cpp:911
+msgid "Save Duplicate Thiessen Polygon Ids"
+msgstr ""
+
+#: ../Explore/ScatterPlotMatView.cpp:172
+msgid "Save Image As"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:1204 ../Explore/MapLayoutView.cpp:427
+#: ../TemplateFrame.cpp:572 ../GeneralWxUtils.cpp:511
+msgid "Save Image to File"
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.h:41
+msgid "Save Project File As..."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:2861
+#, c-format
+msgid "Save Rates - %s over %s"
+msgstr ""
+
+#: ../DialogTools/RegressionReportDlg.cpp:98
+#: ../DialogTools/RegressionDlg.cpp:1091
+msgid "Save Regression Results"
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.h:55
+msgid "Save Results"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:653
+msgid "Save Results to Table: "
+msgstr ""
+
+#: ../DialogTools/HDBScanDlg.cpp:302
+msgid "Save Results: HDBScan (Core Distances/Probabilities/Outliers)"
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:765
+msgid "Save Results: Local Join Count stats, "
+msgstr ""
+
+#: ../Explore/LocalGearyMapNewView.cpp:992
+msgid "Save Results: LocalGeary"
+msgstr ""
+
+#: ../DialogTools/MDSDlg.cpp:294
+msgid "Save Results: MDS"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:936
+msgid "Save Results: Moran's I"
+msgstr ""
+
+#: ../DialogTools/SaveSelectionDlg.h:38
+msgid "Save Selection"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:191 ../DialogTools/SkaterDlg.cpp:157
+msgid "Save Spanning Tree"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:390 ../DialogTools/SkaterDlg.cpp:228
+msgid "Save Spanning Tree to a Weights File"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:208
+msgid "Save Statistics file"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:174
+msgid "Save Test Results"
+msgstr ""
+
+#: ../Project.cpp:631
+#, c-format
+msgid ""
+"Save as data source (%s) failed.\n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../Project.cpp:607 ../DialogTools/ExportDataDlg.cpp:616
+msgid "Save data source progress dialog"
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:132
+#, c-format
+msgid ""
+"Save is not supported on current data source type: %s. Please try to use "
+"\"File->Save As\" other data source. However, the project file can still be "
+"saved as other project file."
+msgstr ""
+
+#: ../DialogTools/HClusterDlg.cpp:201
+msgid "Save/Show Map"
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:244 ../GeoDa.cpp:1517
+msgid "Saved successfully."
+msgstr ""
+
+#: ../Project.cpp:618
+msgid "Saving data source cancelled."
+msgstr ""
+
+#: ../Project.cpp:608 ../DialogTools/ExportDataDlg.cpp:617
+msgid "Saving data..."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:522
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:633
+#, c-format
+msgid ""
+"Saving to data source (%s) failed.\n"
+"\n"
+"Details: %s"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:372
+msgid "Scale Basemap"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:375 ../Explore/BoxNewPlotView.cpp:221
+msgid "Scale Options"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.h:278
+msgid "Scatter Plot"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:522
+#, c-format
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr ""
+
+#: ../Explore/CorrelogramView.h:63 ../Explore/ScatterPlotMatView.h:84
+#: ../GeoDa.cpp:3153
+msgid "Scatter Plot Matrix"
+msgstr ""
+
+#: ../Explore/ScatterPlotMatView.cpp:367
+msgid "Scatter Plot Matrix Help"
+msgstr ""
+
+#: ../Explore/ScatterPlotMatView.cpp:364
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr ""
+
+#: ../GeoDa.cpp:3109
+msgid "Scatter Plot Variables"
+msgstr ""
+
+#: ../Explore/SimpleScatterPlotCanvas.cpp:209
+#, c-format
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.h:114
+#: ../DialogTools/VariableSettingsDlg.h:123
+msgid "Second Variable (Y)"
+msgstr ""
+
+#: ../GeoDa.cpp:2725
+msgid "Second Variable (Y/Latitude)"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:54
+msgid "Select All"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:406
+msgid "Select ID Variable (Optional)"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:217
+#: ../DialogTools/AbstractClusterDlg.cpp:236
+msgid "Select Variables"
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:101
+msgid "Select Variables (Multi-Selection)"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:280
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:160
+msgid "Select color scheme:"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:591
+msgid ""
+"Select field is not integer type. Default record order will be used instead."
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:56
+msgid "Select layer"
+msgstr ""
+
+#: ../wxTranslationHelper.cpp:162
+msgid "Select the language"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:102
+msgid "Select variable "
+msgstr ""
+
+#: ../DialogTools/3DControlPan.cpp:130
+msgid "Select, hold CMD for brushing"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:838 ../Explore/LineChartView.cpp:708
+#: ../Explore/LineChartView.cpp:714 ../Explore/LineChartView.cpp:2231
+#: ../Explore/LineChartView.cpp:2255 ../Explore/LineChartView.cpp:2304
+msgid "Selected"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:338
+msgid "Selected vs. Unselected"
+msgstr ""
+
+#: ../DialogTools/RangeSelectionDlg.h:48
+msgid "Selection Tool"
+msgstr ""
+
+#: ../GeoDa.cpp:281
+msgid "Send Crash Report"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:585
+msgid "Set Association Dialog"
+msgstr ""
+
+#: ../DialogTools/AdjustYAxisDlg.h:65
+msgid "Set Display Precision"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:738
+msgid "Set Highlight Association"
+msgstr ""
+
+#: ../DialogTools/CsvFieldConfDlg.cpp:160
+msgid "Set Number Separators"
+msgstr ""
+
+#: ../DialogTools/PermutationCounterDlg.h:33
+#: ../DialogTools/PermutationCounterDlg.h:39
+msgid "Set Number of Permutation"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:311
+msgid "Set number of CPU cores manually:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:303
+msgid "Set seed for randomization:"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:400
+msgid ""
+"Set the threshold to bridge the gap between disconnected polygons (often "
+"caused by digitizing errors). The value depends on your measurement unit (e."
+"g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect "
+"neighborless observations."
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:131 ../DialogTools/PreferenceDlg.cpp:202
+msgid "Set transparency of highlighted objects in selection:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:144 ../DialogTools/PreferenceDlg.cpp:221
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr ""
+
+#: ../ShapeOperations/OGRLayerProxy.cpp:290
+#: ../ShapeOperations/OGRLayerProxy.cpp:300
+#: ../ShapeOperations/OGRLayerProxy.cpp:310
+#: ../ShapeOperations/OGRLayerProxy.cpp:320
+#: ../ShapeOperations/OGRLayerProxy.cpp:330
+msgid "Set value to cell failed."
+msgstr ""
+
+#: ../DialogTools/LocaleSetupDlg.h:40
+msgid "Setup Locale of GeoDa Table"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:168
+msgid "Setup co-locations:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:264
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:364
+msgid "Show Legend"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:257
+msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:40
+msgid "Show connect line"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:428
+msgid "Simulated Annealing"
+msgstr ""
+
+#: ../DialogTools/SkaterDlg.cpp:61
+msgid "Skater Settings"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:277
+msgid ""
+"Some calculated values were undefined and this is most likely due to "
+"neighborless observations in the weight matrix. Rate calculation successful "
+"for observations with neighbors."
+msgstr ""
+
+#: ../DataViewer/VarOrderPtree.cpp:147
+#, c-format
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr ""
+
+#: ../DialogTools/HClusterDlg.cpp:170
+msgid "Spatial Constraint:"
+msgstr ""
+
+#: ../Explore/CovSpView.h:97 ../Explore/CovSpView.cpp:187
+msgid "Spatial Correlogram"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:567
+msgid ""
+"Spatial Join can not be applied on two points layers. Please select another "
+"layer."
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:643
+msgid ""
+"Spatial Join can not be applied on unknonwn layers. Please select another "
+"layer."
+msgstr ""
+
+#: ../GeoDa.cpp:2572
+msgid "Spatial Join does not work with Table only datasource."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcLagDlg.h:42
+#: ../Explore/LisaScatterPlotView.cpp:970
+msgid "Spatial Lag"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:3934 ../GeoDa.cpp:5229
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:647 ../DialogTools/RegressionDlg.cpp:703
+msgid ""
+"Spatial lag and error regressions require symmetric weights (not KNN). You "
+"can still use KNN weights to obtain spatial diagnostics for classic "
+"regressions."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcSpecialDlg.h:45
+msgid "Special"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:462
+#, c-format
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:450
+#, c-format
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:456
+#, c-format
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:284
+#: ../ShapeOperations/WeightUtils.cpp:534
+#: ../ShapeOperations/WeightUtils.cpp:766
+#, c-format
+msgid ""
+"Specified key value field \"%s\" in weights file contains duplicate values "
+"in the currently loaded Table."
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:259
+#: ../ShapeOperations/WeightUtils.cpp:508
+#: ../ShapeOperations/WeightUtils.cpp:754
+#, c-format
+msgid ""
+"Specified key value field \"%s\" on first line of weights file is not an "
+"integer type in the currently loaded Table."
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:251
+#: ../ShapeOperations/WeightUtils.cpp:500
+#: ../ShapeOperations/WeightUtils.cpp:746
+#, c-format
+msgid ""
+"Specified key value field \"%s\" on first line of weights file not found in "
+"currently loaded Table."
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:757
+#, c-format
+msgid "Spectral Clustering Map (%d clusters)"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:59
+msgid "Spectral Clustering Settings"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1984
+msgid "Standard Deviation"
+msgstr ""
+
+#: ../GeoDa.cpp:3133
+msgid "Standard Deviation Color"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:497
+msgid "Standard Deviation Map"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:964
+msgid "Standardized Data"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:324
+msgid "Stopping criterion for power iteration:"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:314
+msgid "Submit Bug Error"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:236
+msgid "Submit Bug Report"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:494 ../DialogTools/DissolveDlg.cpp:348
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:283
+#: ../DialogTools/AggregateDlg.cpp:339 ../DialogTools/WeightsManDlg.cpp:297
+#: ../DialogTools/CreatingWeightDlg.cpp:1775
+#: ../DataViewer/MergeTableDlg.cpp:754 ../DataViewer/MergeTableDlg.cpp:883
+msgid "Success"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:278
+msgid "Success / Warning"
+msgstr ""
+
+#: ../DialogTools/DissolveDlg.cpp:347 ../DialogTools/AggregateDlg.cpp:339
+msgid "Successful aggregation."
+msgstr ""
+
+#: ../DialogTools/FieldNameCorrectionDlg.cpp:162
+msgid "Suggested field name:"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:882 ../DialogTools/HDBScanDlg.cpp:230
+#: ../DialogTools/HClusterDlg.cpp:219 ../Explore/CorrelogramView.cpp:250
+msgid "Summary"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1286 ../Explore/ScatterNewPlotView.cpp:354
+#: ../Explore/BoxNewPlotView.cpp:178 ../Explore/LisaScatterPlotView.cpp:139
+#, c-format
+msgid "Synchronize %s with Time Control"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:115
+msgid "System"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:237
+msgid "System:"
+msgstr ""
+
+#: ../GdaConst.cpp:458 ../GeoDa.cpp:594 ../GeoDa.cpp:709 ../GeoDa.cpp:1417
+msgid "Table"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:126
+msgid "Tabu Length:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:425
+msgid "Tabu Search"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:580
+msgid ""
+"Tabu length for Tabu Search algorithm has to be an integer number larger "
+"than 1 (e.g. 85)."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:426
+msgid "Tabu length:"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:124
+msgid ""
+"Thank you for helping us improve GeoDa with your bug report! \n"
+"\n"
+"You can track our response and add screenshots or details here (or email us "
+"at spatial@uchicago.edu):"
+msgstr ""
+
+#: ../DataViewer/DataSource.cpp:364
+#, c-format
+msgid ""
+"The GeoDa project file cannot find one or more associated data sources.\n"
+"\n"
+"Details: GeoDa is looking for: %s\n"
+"\n"
+"Tip: You can open the .gda project file in a text editor to modify the "
+"path(s) of the data source associated with your project."
+msgstr ""
+
+#: ../GeoDa.cpp:842
+msgid ""
+"The Table should always be open, although somtimes it is hidden while the "
+"project is open.  This condition has been violated.  Please report this to "
+"the program developers."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:960
+msgid "The between-cluster sum of squares:\t"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:381
+msgid ""
+"The categories of the selected variables do not overlap in space. Please "
+"select other variables."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:500 ../DialogTools/RedcapDlg.cpp:511
+#: ../DialogTools/SkaterDlg.cpp:496 ../DialogTools/HClusterDlg.cpp:609
+msgid ""
+"The connectivity of selected spatial weights is incomplete, please adjust "
+"the spatial weights."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1326
+msgid ""
+"The currently entered threshold value is not a valid number.  Please move "
+"the slider, or enter a valid number."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1182
+msgid ""
+"The currently entered threshold value is not a valid number. Please move the "
+"slider, or enter a valid number."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1192
+#: ../DialogTools/CreatingWeightDlg.cpp:1327
+#, c-format
+msgid ""
+"The currently entered threshold value of %f is less than %f which is the "
+"minimum value for which there will be no neighborless observations "
+"(isolates). \n"
+"\n"
+"Press Yes to proceed anyhow, press No to abort."
+msgstr ""
+
+#: ../Project.cpp:717
+msgid "The data source is read only. Please try to save as other data source."
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:247
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:401
+msgid ""
+"The geometries will not be saved when exporting to a Table-only data "
+"source.\n"
+"\n"
+"Do you want to continue?"
+msgstr ""
+
+#: ../Explore/LisaScatterPlotView.cpp:1054
+msgid ""
+"The last seed used by the pseudo random\n"
+"number generator was "
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:585
+#, c-format
+msgid ""
+"The length of a string field must be at least %d and at most %d. Keeping "
+"original value."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:600
+#, c-format
+msgid ""
+"The length of an integral numeric field must be at least %d and at most %d. "
+"Keeping original value."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:611
+#, c-format
+msgid ""
+"The length of an non-integral numeric field must be at least %d and at most "
+"%d. Keeping original value."
+msgstr ""
+
+#: ../DataViewer/OGRTable.cpp:1621
+#, c-format
+msgid ""
+"The length of field name should be between 1 and %d.\n"
+"Current field length (%d) is not valid"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1806
+msgid ""
+"The new theme chosen will no longer include rates smoothing. Please use the "
+"Rates submenu to choose a theme with rates again."
+msgstr ""
+
+#: ../Regression/DiagnosticReport.cpp:45
+msgid ""
+"The number of covariates should be more than the number of observations."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:637
+#, c-format
+msgid ""
+"The number of decimal places for a non-integral numeric field must be at "
+"least %d and at most %d. Keeping original value."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:663
+#, c-format
+msgid ""
+"The number of displayed decimal places for a non-integral numeric field must "
+"be at least %d and at most %d. Keeping original value."
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:578 ../DialogTools/SkaterDlg.cpp:600
+msgid "The number of identified clusters is less than "
+msgstr ""
+
+#: ../ShapeOperations/WeightUtils.cpp:447
+#, c-format
+msgid ""
+"The number of observations specified in chosen weights file is %d, but the "
+"number in the current Table is %d, which is incompatible."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:445
+msgid ""
+"The number of observations specified in chosen weights file is incompatible "
+"with current Table."
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:858
+#, c-format
+msgid ""
+"The number of records in current table is larger than the number of records "
+"in import table. Please choose import table >= %d records"
+msgstr ""
+
+#: ../DialogTools/SaveAsDlg.cpp:143
+#, c-format
+msgid ""
+"The original datasource %s is not a valid file. GeoDa \"Save\" only works on "
+"file datasource."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:961
+msgid "The ratio of between to total sum of squares:\t"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:818
+msgid ""
+"The sample size for random sampling is too small.\n"
+"Please increase the number of iterations."
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:702
+#: ../DialogTools/ConnectDatasourceDlg.cpp:920
+msgid ""
+"The selected database driver is not supported on this platform. Please check "
+"GeoDa website for more information about database support and connection."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:270
+#, c-format
+msgid ""
+"The selected group variable should contains %d items. Please modify the "
+"group variable in Time Editor, or select another variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:988
+#, c-format
+msgid ""
+"The selected group variable should contains %d items. Please modify the "
+"group variable in Time->Time Editor, or select another variable."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:965
+#, c-format
+msgid ""
+"The selected variable %s is not valid. If it's a grouped variable, please "
+"modify it in Time->Time Editor. Or please select another variable."
+msgstr ""
+
+#: ../GeoDa.cpp:3374 ../GeoDa.cpp:3796
+msgid "The selected variable is not numeric. Please select another variable."
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:851
+msgid ""
+"The set of values in the import key fields has no match in current table. "
+"Please choose keys with matching sets of values."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:957
+msgid "The total sum of squares:\t"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:959
+msgid "The total within-cluster sum of squares:\t"
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:292 ../Explore/CartogramNewView.cpp:352
+#: ../Explore/CatClassification.cpp:1968 ../Explore/ScatterNewPlotView.cpp:542
+#: ../Explore/ConditionalMapView.cpp:279 ../Explore/ConditionalNewView.cpp:340
+msgid "Themeless"
+msgstr ""
+
+#: ../DialogTools/SpatialJoinDlg.cpp:656
+msgid ""
+"There are spatial objects being counted more than once. Please check the "
+"results."
+msgstr ""
+
+#: ../GeoDa.cpp:874 ../GeoDa.cpp:987
+msgid "There are unsaved data source or weights/time definition changes."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:553
+msgid ""
+"There is a view could not be closed. Please manually close and try again."
+msgstr ""
+
+#: ../DialogTools/PCASettingsDlg.cpp:243
+msgid ""
+"There is an error during PCA calculation. Please check if the data is valid."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1289
+msgid ""
+"There is at least one neighborless observation. Check the islands in weights "
+"histogram and linked map."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1583
+msgid ""
+"There is at least one neighborless observation. Check the weights histogram "
+"and linked map to see if the islands are real or not. If not, adjust the "
+"distance threshold (points) or the precision threshold (polygons)."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:555
+msgid ""
+"There is at least one view could not be closed. Please manually close and "
+"try again."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:544
+msgid ""
+"There is at least one view open that depends on this matrix. Ok to close "
+"these views and remove?"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:542
+msgid ""
+"There is one other view open that depends on this matrix. Ok to close this "
+"view and remove?"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:506
+msgid "There was a problem associating the weights file."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1502
+#: ../DialogTools/CreatingWeightDlg.cpp:1521
+msgid ""
+"There was a problem generating voronoi contiguity neighbors. Please report "
+"this."
+msgstr ""
+
+#: ../Project.cpp:1597
+msgid "There was a problem reading the layer"
+msgstr ""
+
+#: ../Project.cpp:1623
+msgid "There was a problem reading the table"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:498
+msgid "There was a problem requesting the weights file."
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1953
+msgid "These are the row numbers of the records without location information."
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.h:115
+#: ../DialogTools/VariableSettingsDlg.h:124
+msgid "Third Variable (Z)"
+msgstr ""
+
+#: ../DataViewer/OGRTable.cpp:1613
+msgid ""
+"This datasource is not supported. Please export to other datasource that "
+"GeoDa supports first."
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:646 ../DialogTools/RedcapDlg.cpp:620
+#: ../DialogTools/SkaterDlg.cpp:642 ../DialogTools/HDBScanDlg.cpp:571
+#: ../DialogTools/KMeansDlg.cpp:528 ../DialogTools/HClusterDlg.cpp:311
+#: ../DialogTools/SpectralClusteringDlg.cpp:719
+msgid ""
+"This field name already exists (non-integer type). Please input a unique "
+"name."
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:102 ../DialogTools/Bnd2ShpDlg.cpp:111
+#: ../DialogTools/Bnd2ShpDlg.cpp:151
+msgid "This format is not supported."
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1286
+msgid ""
+"This is the list of existing grouped variables. As new groups are created, "
+"they will appear on this list. You can open an existing .gda file and edit "
+"it here."
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:519
+#, c-format
+msgid ""
+"This view currently supports data with at most 1000 observations. The "
+"Spatial Correlogram Scatterplot plots distances between all pairs of "
+"observations. The current data set has %d observations and %d unordered "
+"pairs of observations."
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:162
+msgid "Time"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.h:50
+msgid "Time Editor"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1294 ../Explore/MapNewView.cpp:1295
+#: ../Explore/CartogramNewView.cpp:277 ../Explore/CartogramNewView.cpp:278
+#: ../Explore/ScatterNewPlotView.cpp:377 ../Explore/ScatterNewPlotView.cpp:378
+#: ../Explore/BoxNewPlotView.cpp:225 ../Explore/BoxNewPlotView.cpp:226
+#: ../Explore/LisaScatterPlotView.cpp:148
+#: ../Explore/LisaScatterPlotView.cpp:149 ../Explore/HistogramView.cpp:235
+#: ../Explore/HistogramView.cpp:236
+msgid "Time Variable Options"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:60
+msgid "Time:"
+msgstr ""
+
+#: ../GeoDa.cpp:527 ../GeoDa.cpp:528 ../GeoDa.cpp:529 ../GeoDa.cpp:530
+#: ../GeoDa.cpp:531 ../GeoDa.cpp:532 ../GeoDa.cpp:533 ../GeoDa.cpp:708
+msgid "Tools"
+msgstr ""
+
+#: ../DialogTools/RedcapDlg.cpp:380 ../DialogTools/AbstractClusterDlg.cpp:454
+msgid "Transformation:"
+msgstr ""
+
+#: ../DialogTools/MaxpDlg.cpp:434 ../DialogTools/KMeansDlg.cpp:342
+#: ../DialogTools/HClusterDlg.cpp:456
+#: ../DialogTools/SpectralClusteringDlg.cpp:534
+msgid "Transformation:\t"
+msgstr ""
+
+#: ../DialogTools/VarGroupingEditorDlg.cpp:179
+msgid "Type"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:895
+msgid "Unable to overwrite "
+msgstr ""
+
+#: ../Explore/MLJCMapNewView.cpp:62 ../Explore/AbstractClusterMap.cpp:66
+#: ../Explore/LocalGearyMapNewView.cpp:77 ../Explore/GetisOrdMapNewView.cpp:74
+#: ../Explore/ConditionalClusterMapView.cpp:1374
+#: ../Explore/ConditionalClusterMapView.cpp:1589
+#: ../Explore/ConditionalClusterMapView.cpp:1801 ../GdaConst.cpp:381
+msgid "Undefined"
+msgstr ""
+
+#: ../GeneralWxUtils.cpp:46
+msgid "Undo"
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:1972
+msgid "Unique Values"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcUniDlg.h:44
+msgid "Univariate"
+msgstr ""
+
+#: ../DialogTools/ConnectDatasourceDlg.cpp:852
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:842 ../Explore/LineChartView.cpp:709
+#: ../Explore/LineChartView.cpp:715 ../Explore/LineChartView.cpp:2266
+#: ../Explore/LineChartView.cpp:2282 ../Explore/LineChartView.cpp:2315
+msgid "Unselected"
+msgstr ""
+
+#: ../Explore/VarsChooserDlg.cpp:72
+msgid "Up"
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:489
+msgid "Update GeoDa completed"
+msgstr ""
+
+#: ../DialogTools/AutoUpdateDlg.cpp:497
+msgid "Update GeoDa failed"
+msgstr ""
+
+#: ../Project.cpp:279
+msgid ""
+"Update project information failed. \n"
+"\n"
+"Details: The layer information defined in project file does no match opened "
+"datasource."
+msgstr ""
+
+#: ../Explore/CatClassification.cpp:231 ../Explore/CatClassification.cpp:628
+#: ../GdaConst.cpp:401
+msgid "Upper outlier"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:332
+msgid "Use GPU to Accelerate computation:"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:532
+msgid "Use Power Iteration method:\tMax iterations="
+msgstr ""
+
+#: ../DialogTools/MDSDlg.cpp:69 ../DialogTools/SpectralClusteringDlg.cpp:159
+msgid "Use Power Iteration:"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:367
+msgid "Use Transparent Legend Background"
+msgstr ""
+
+#: ../DialogTools/SpectralClusteringDlg.cpp:146
+msgid "Use Weights:"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:121
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:245
+msgid "Use geometric centroids"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:942
+msgid "Use geometric centroids (weighting): \n"
+msgstr ""
+
+#: ../DialogTools/RandomizationDlg.cpp:106
+msgid "Use selected as specified alpha level"
+msgstr ""
+
+#: ../DialogTools/PreferenceDlg.cpp:296 ../DialogTools/MaxpDlg.cpp:153
+#: ../DialogTools/RedcapDlg.cpp:158 ../DialogTools/SkaterDlg.cpp:124
+#: ../DialogTools/KMeansDlg.cpp:119
+#: ../DialogTools/SpectralClusteringDlg.cpp:211
+#: ../Explore/CorrelParamsDlg.cpp:212
+msgid "Use specified seed:"
+msgstr ""
+
+#: ../DialogTools/SelectWeightsDlg.cpp:346 ../DialogTools/WeightsManDlg.cpp:879
+msgid "Value"
+msgstr ""
+
+#: ../DialogTools/RangeSelectionDlg.cpp:530
+#: ../DialogTools/SaveSelectionDlg.cpp:399
+msgid "Values assigned to target field successfully."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcSheetDlg.h:48
+#: ../DialogTools/FieldNewCalcSheetDlg.h:55
+msgid "Var Calc Container"
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:259 ../GeoDa.cpp:3240
+msgid "Variable"
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:641
+#, c-format
+msgid "Variable %s at time %d could not be standardized."
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:599
+#, c-format
+msgid "Variable %s at time %d is a placeholer"
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:597 ../Explore/CovSpView.cpp:639
+#, c-format
+msgid "Variable %s is a placeholer"
+msgstr ""
+
+#: ../DataViewer/DataViewerDeleteColDlg.cpp:94
+#, c-format
+msgid ""
+"Variable %s is a time-grouped variable.  Please ungroup this variable to "
+"delete."
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:312
+#, c-format
+msgid ""
+"Variable %s is no longer in the Table.  Please close and reopen the "
+"Regression Dialog to synchronize with Table data."
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:227 ../DialogTools/MaxpDlg.cpp:555
+#: ../DialogTools/AbstractClusterDlg.cpp:576
+#: ../DialogTools/AbstractClusterDlg.cpp:719
+#: ../Explore/ColocationMapView.cpp:329
+#: ../DataViewer/DataViewerDeleteColDlg.cpp:87
+#, c-format
+msgid ""
+"Variable %s is no longer in the Table.  Please close and reopen this dialog "
+"to synchronize with Table data."
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:117 ../Explore/VarsChooserDlg.cpp:337
+#, c-format
+msgid "Variable %s is not valid. Please select another variable."
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:526
+#, c-format
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr ""
+
+#: ../Explore/CovSpView.cpp:259 ../GeoDa.cpp:3240
+msgid "Variable Choice"
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.cpp:98
+msgid "Variable Name"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:53
+msgid "Variable Properties"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:84
+msgid "Variable Properties - "
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.h:112
+#: ../DialogTools/VariableSettingsDlg.h:121 ../Explore/MapNewView.cpp:3835
+#: ../GeoDa.cpp:3089 ../GeoDa.cpp:4752
+msgid "Variable Settings"
+msgstr ""
+
+#: ../GeoDa.cpp:3374 ../GeoDa.cpp:3797
+msgid "Variable Type Error"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:1023
+msgid "Variable Value Error"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:551
+#, c-format
+msgid ""
+"Variable name \"%s\" is either a duplicate or is invalid. Please enter an "
+"alternative, non-duplicate variable name."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:534
+#, c-format
+msgid ""
+"Variable name \"%s\" is either a duplicate or is invalid. Please enter an "
+"alternative, non-duplicate variable name. The first character must be a "
+"letter, and the remaining characters can be either letters, numbers or "
+"underscores. For DBF table, a valid variable name is between one and ten "
+"characters long."
+msgstr ""
+
+#: ../DialogTools/SaveToTableDlg.cpp:350
+#: ../DialogTools/SaveSelectionDlg.cpp:295
+msgid "Variable name can't be empty."
+msgstr ""
+
+#: ../DataViewer/TableFrame.cpp:660
+msgid ""
+"Variable name is either a duplicate or is invalid. Please\n"
+"enter an alternative, non-duplicate variable name.\n"
+"\n"
+msgstr ""
+
+#: ../Explore/CorrelParamsDlg.cpp:53 ../Explore/LineChartView.cpp:126
+msgid "Variable:"
+msgstr ""
+
+#: ../Explore/VarsChooserDlg.cpp:52
+msgid "Variables"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:860 ../Explore/MLJCMapNewView.cpp:928
+#: ../Explore/LisaMapNewView.cpp:343 ../Explore/LocalGearyMapNewView.cpp:1137
+#: ../Explore/GetisOrdMapNewView.cpp:1068 ../GeoDa.cpp:2925 ../GeoDa.cpp:2948
+#: ../GeoDa.cpp:2970
+msgid "Vertical Cells"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1503
+#: ../DialogTools/CreatingWeightDlg.cpp:1522
+msgid "Voronoi Contiguity Error"
+msgstr ""
+
+#: ../Project.cpp:1326 ../DialogTools/ExportDataDlg.cpp:305
+#: ../DialogTools/ExportDataDlg.cpp:333 ../DialogTools/MaxpDlg.cpp:493
+#: ../DialogTools/MaxpDlg.cpp:501 ../DialogTools/MaxpDlg.cpp:647
+#: ../DialogTools/RedcapDlg.cpp:504 ../DialogTools/RedcapDlg.cpp:512
+#: ../DialogTools/RedcapDlg.cpp:580 ../DialogTools/RedcapDlg.cpp:621
+#: ../DialogTools/VarGroupingEditorDlg.cpp:513
+#: ../DialogTools/VarGroupingEditorDlg.cpp:1089
+#: ../DialogTools/VariableSettingsDlg.cpp:223
+#: ../DialogTools/VariableSettingsDlg.cpp:234
+#: ../DialogTools/VariableSettingsDlg.cpp:484
+#: ../DialogTools/VariableSettingsDlg.cpp:1266
+#: ../DialogTools/AbstractClusterDlg.cpp:80 ../DialogTools/SkaterDlg.cpp:489
+#: ../DialogTools/SkaterDlg.cpp:497 ../DialogTools/SkaterDlg.cpp:602
+#: ../DialogTools/SkaterDlg.cpp:643 ../DialogTools/HDBScanDlg.cpp:429
+#: ../DialogTools/HDBScanDlg.cpp:441 ../DialogTools/HDBScanDlg.cpp:572
+#: ../DialogTools/KMeansDlg.cpp:529 ../DialogTools/SaveAsDlg.cpp:134
+#: ../DialogTools/SaveAsDlg.cpp:145 ../DialogTools/CreatingWeightDlg.cpp:886
+#: ../DialogTools/CreatingWeightDlg.cpp:1167
+#: ../DialogTools/CreatingWeightDlg.cpp:1175
+#: ../DialogTools/CreatingWeightDlg.cpp:1208
+#: ../DialogTools/CreatingWeightDlg.cpp:1350
+#: ../DialogTools/SpatialJoinDlg.cpp:570 ../DialogTools/SpatialJoinDlg.cpp:594
+#: ../DialogTools/SpatialJoinDlg.cpp:616 ../DialogTools/SpatialJoinDlg.cpp:646
+#: ../DialogTools/SpatialJoinDlg.cpp:657 ../DialogTools/HClusterDlg.cpp:312
+#: ../DialogTools/HClusterDlg.cpp:602 ../DialogTools/HClusterDlg.cpp:610
+#: ../DialogTools/TimeEditorDlg.cpp:99 ../DialogTools/TimeEditorDlg.cpp:127
+#: ../DialogTools/TimeEditorDlg.cpp:143 ../DialogTools/TimeEditorDlg.cpp:159
+#: ../DialogTools/TimeEditorDlg.cpp:202
+#: ../DialogTools/SpectralClusteringDlg.cpp:720
+#: ../DialogTools/RegressionDlg.cpp:139 ../Explore/ColocationMapView.cpp:382
+#: ../Explore/MapNewView.cpp:1959 ../Explore/MapNewView.cpp:3636
+#: ../DataViewer/MergeTableDlg.cpp:379 ../DataViewer/TableFrame.cpp:552
+#: ../DataViewer/TableFrame.cpp:604 ../GeoDa.cpp:843 ../GeoDa.cpp:2604
+#: ../GeoDa.cpp:3314 ../GeoDa.cpp:3322 ../GeoDa.cpp:3361 ../GeoDa.cpp:3386
+#: ../GeoDa.cpp:3394 ../GeoDa.cpp:3445 ../GeoDa.cpp:3453 ../GeoDa.cpp:3499
+#: ../GeoDa.cpp:3507 ../GeoDa.cpp:3571 ../GeoDa.cpp:3624 ../GeoDa.cpp:3674
+#: ../GeoDa.cpp:3731 ../GeoDa.cpp:3785 ../GeoDa.cpp:3813 ../GeoDa.cpp:3867
+#: ../GeoDa.cpp:3923 ../GeoDa.cpp:3935 ../GeoDa.cpp:3970 ../GeoDa.cpp:3982
+#: ../GeoDa.cpp:3991 ../GeoDa.cpp:4026 ../GeoDa.cpp:4041 ../GeoDa.cpp:4134
+#: ../GeoDa.cpp:4193
+msgid "Warning"
+msgstr ""
+
+#: ../Explore/ConnectivityHistView.cpp:362
+#, c-format
+msgid "Warning: %d observations are neighborless."
+msgstr ""
+
+#: ../Explore/ConnectivityHistView.cpp:364
+#, c-format
+msgid "Warning: %d observations is neighborless."
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1454
+msgid "Warning: NULL geometry"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:402
+msgid "Warning: loss data"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:164
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:163
+msgid "Was not able to load weights matrix."
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:121
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:254
+msgid "Weighting:"
+msgstr ""
+
+#: ../DialogTools/VariableSettingsDlg.cpp:129
+msgid "Weights"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.h:57 ../DialogTools/CreatingWeightDlg.h:64
+msgid "Weights File Creation"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:91
+msgid "Weights Intersection"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.h:54
+msgid "Weights Manager"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:115
+msgid "Weights Name"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:639 ../DialogTools/RegressionDlg.cpp:695
+msgid "Weights Symmetry Check"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:94
+msgid "Weights Union"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:296
+#: ../DialogTools/CreatingWeightDlg.cpp:1774
+#, c-format
+msgid "Weights file \"%s\" created successfully."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:468
+msgid "Weights file/format is not valid."
+msgstr ""
+
+#: ../DialogTools/MultiVarSettingsDlg.cpp:109 ../DialogTools/MaxpDlg.cpp:85
+#: ../DialogTools/MaxpDlg.cpp:405 ../DialogTools/RedcapDlg.cpp:122
+#: ../DialogTools/RedcapDlg.cpp:368 ../DialogTools/SkaterDlg.cpp:99
+msgid "Weights:"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.h:51
+msgid "Welcome to GeoDa"
+msgstr ""
+
+#: ../DialogTools/LisaWhat2OpenDlg.h:30 ../DialogTools/LisaWhat2OpenDlg.h:57
+#: ../DialogTools/LisaWhat2OpenDlg.h:86
+msgid "What windows to open?"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcRateDlg.cpp:154
+msgid ""
+"When \"all times\" selected for either variable, result field must also be "
+"\"all times.\""
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcDateTimeDlg.cpp:125
+#: ../DialogTools/FieldNewCalcLagDlg.cpp:128
+msgid ""
+"When \"all times\" selected for variable, result field must also be \"all "
+"times.\""
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:35
+msgid "Width:"
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:1125
+msgid "Within cluster S.S."
+msgstr ""
+
+#: ../DialogTools/AbstractClusterDlg.cpp:1118
+msgid "Within-cluster sum of squares:\n"
+msgstr ""
+
+#: ../DialogTools/Bnd2ShpDlg.cpp:256
+msgid "Wrong number of rows!"
+msgstr ""
+
+#: ../GeoDa.cpp:1525
+msgid "Wrote GeoDa Project File: "
+msgstr ""
+
+#: ../GeoDa.cpp:3132
+msgid "X-Axis"
+msgstr ""
+
+#: ../Project.cpp:1026 ../Project.cpp:1065
+msgid "X-Coordinates"
+msgstr ""
+
+#: ../GeoDa.cpp:3132
+msgid "Y-Axis"
+msgstr ""
+
+#: ../Project.cpp:1032 ../Project.cpp:1071
+msgid "Y-Coordinates"
+msgstr ""
+
+#: ../SpatialIndAlgs.cpp:695
+msgid ""
+"You can try to proceed but the current threshold distance value might be too "
+"large to compute. If it fails, please input a smaller distance band (which "
+"might leave some observations neighborless) or use other weights (e.g. KNN)."
+msgstr ""
+
+#: ../GeoDa.cpp:1321 ../GeoDa.cpp:1348
+#, c-format
+msgid ""
+"You have requested to create a new file project %s  while another project is "
+"open. Please close project %s and try again."
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:223
+msgid "Your Email address (Optional):"
+msgstr ""
+
+#: ../GeoDa.cpp:6291
+msgid "Your GeoDa is already up-to-date."
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:215
+msgid "Your Github account (Optional):"
+msgstr ""
+
+#: ../DialogTools/DissolveDlg.cpp:240 ../DialogTools/AggregateDlg.cpp:242
+#, c-format
+msgid ""
+"Your table cannot be aggregated because the key field \"%s\" is unique. "
+"Please use another key."
+msgstr ""
+
+#: ../DataViewer/MergeTableDlg.cpp:365
+#, c-format
+msgid ""
+"Your table cannot be merged because the key field \"%s\" is not unique. \n"
+"It contains undefined or duplicate values.\n"
+"\n"
+"Details:"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:203
+msgid "[Please briefly describe what went wrong]"
+msgstr ""
+
+#: ../DialogTools/ReportBugDlg.cpp:204
+msgid "[Steps you took before something went wrong]"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:716
+msgid "adaptive kernel"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:58
+msgid "and field"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:394
+msgid "autocorrelation is "
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:706
+msgid "bandwidth"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:277
+msgid "calculating..."
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:1565
+msgid "can't compute"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:982
+msgid "choice:"
+msgstr ""
+
+#: ../DialogTools/RangeSelectionDlg.cpp:683
+#: ../DialogTools/RangeSelectionDlg.cpp:684
+msgid "choose a variable"
+msgstr ""
+
+#: ../DialogTools/ExportCsvDlg.cpp:106
+msgid "csv file:"
+msgstr ""
+
+#: ../DataViewer/DataSource.cpp:234 ../DataViewer/DataSource.cpp:347
+#: ../DataViewer/DataSource.cpp:459 ../DataViewer/DataSource.cpp:621
+#, c-format
+msgid "datasource.type %s unknown.."
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:105
+msgid ""
+"decimal\n"
+"places"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:106
+msgid ""
+"displayed\n"
+"decimal places"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:766
+msgid "distance metric"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:773
+msgid "distance unit"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:769
+msgid "distance vars"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:813
+msgid "done"
+msgstr ""
+
+#: ../DialogTools/ExportDataDlg.cpp:330
+msgid "ds:"
+msgstr ""
+
+#: ../DialogTools/FieldNewCalcSpecialDlg.cpp:320
+msgid "enumerate as 1, 2, 3, ..."
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:717 ../DialogTools/WeightsManDlg.cpp:723
+#: ../DialogTools/WeightsManDlg.cpp:761
+msgid "false"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:924
+msgid "field name:"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:739
+msgid "file"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:664 ../Explore/ConnectivityHistView.cpp:379
+#: ../Explore/HistogramView.cpp:723
+msgid "from"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:747
+msgid "id variable"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:62
+msgid "in current layer."
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:43
+msgid "inches"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:757
+msgid "include lower orders"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:727
+msgid "inverse distance"
+msgstr ""
+
+#: ../Explore/MapLayerTree.cpp:60
+msgid "is associated to"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:699
+msgid "kernel method"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:722
+msgid "kernel to diagonal"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:78
+msgid "large"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:104
+msgid "length"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:251
+msgid "max dist"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:801
+msgid "max neighbors"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:190 ../Explore/SimpleHistCanvas.cpp:718
+#: ../Explore/ConnectivityHistView.cpp:433 ../Explore/HistogramView.cpp:777
+msgid "max:"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:110
+msgid ""
+"maximum\n"
+"possible"
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:586
+msgid "mean"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:807
+msgid "mean neighbors"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:720 ../Explore/ConnectivityHistView.cpp:435
+#: ../Explore/HistogramView.cpp:779
+msgid "mean:"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:813
+msgid "median neighbors"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:719 ../Explore/ConnectivityHistView.cpp:434
+#: ../Explore/HistogramView.cpp:778
+msgid "median:"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:251
+msgid "min dist"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:795
+msgid "min neighbors"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:189 ../Explore/SimpleHistCanvas.cpp:717
+#: ../Explore/ConnectivityHistView.cpp:432 ../Explore/HistogramView.cpp:776
+msgid "min:"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:109
+msgid ""
+"minimum\n"
+"possible"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:43
+msgid "mm"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:1594
+msgid "need two valid regressions"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:778
+msgid "neighbors"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:741
+msgid "not saved"
+msgstr ""
+
+#: ../Explore/ColocationMapView.cpp:704 ../Explore/ColocationMapView.cpp:708
+#: ../Explore/PCPNewView.cpp:1096 ../Explore/ConnectivityMapView.cpp:518
+#: ../Explore/SimpleScatterPlotCanvas.cpp:277
+#: ../Explore/SimpleScatterPlotCanvas.cpp:283 ../Explore/MapNewView.cpp:2949
+#: ../Explore/MapNewView.cpp:2974 ../Explore/MapNewView.cpp:2978
+#: ../Explore/MLJCMapNewView.cpp:441 ../Explore/MLJCMapNewView.cpp:445
+#: ../Explore/CartogramNewView.cpp:759 ../Explore/CartogramNewView.cpp:765
+#: ../Explore/ScatterNewPlotView.cpp:1846
+#: ../Explore/ScatterNewPlotView.cpp:1856 ../Explore/BoxNewPlotView.cpp:949
+#: ../Explore/BoxNewPlotView.cpp:953 ../Explore/ConditionalMapView.cpp:956
+#: ../Explore/ConditionalMapView.cpp:961 ../Explore/AbstractClusterMap.cpp:416
+#: ../Explore/AbstractClusterMap.cpp:420
+#: ../Explore/LocalGearyMapNewView.cpp:610
+#: ../Explore/LocalGearyMapNewView.cpp:614
+#: ../Explore/ConditionalScatterPlotView.cpp:796
+#: ../Explore/ConditionalScatterPlotView.cpp:802
+#: ../Explore/GetisOrdMapNewView.cpp:467 ../Explore/GetisOrdMapNewView.cpp:471
+#: ../Explore/GroupingMapView.cpp:434 ../Explore/GroupingMapView.cpp:438
+#: ../Explore/ConditionalClusterMapView.cpp:1238
+#: ../Explore/ConditionalClusterMapView.cpp:1243
+#: ../Explore/ConditionalClusterMapView.cpp:1666
+#: ../Explore/ConditionalClusterMapView.cpp:1671
+#: ../Explore/ConditionalClusterMapView.cpp:1882
+#: ../Explore/ConditionalClusterMapView.cpp:1887
+msgid "obs "
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:752
+msgid "order"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:107
+msgid "parent group"
+msgstr ""
+
+#: ../Explore/MapLayoutView.cpp:43
+msgid "pixels"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:729
+msgid "power"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:251
+msgid "range, est. distance"
+msgstr ""
+
+#: ../Explore/MapNewView.cpp:1954
+msgid "row:\n"
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:588
+msgid "s.d."
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:721 ../Explore/ConnectivityHistView.cpp:436
+#: ../Explore/HistogramView.cpp:780
+msgid "s.d.:"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:668 ../Explore/ConnectivityHistView.cpp:383
+#: ../Explore/HistogramView.cpp:727
+msgid "sd from mean"
+msgstr ""
+
+#: ../DialogTools/CreatingWeightDlg.cpp:1030
+#: ../DialogTools/CreatingWeightDlg.cpp:1146
+msgid "selected:"
+msgstr ""
+
+#: ../Explore/ScatterNewPlotView.cpp:75
+msgid "small"
+msgstr ""
+
+#: ../DataViewer/VarOrderPtree.cpp:143
+msgid "space-time variable found with no name"
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:923
+msgid "suggested title:"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:736
+msgid "symmetry"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:783
+msgid "threshold value"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:108
+msgid "time"
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:665 ../Explore/ConnectivityHistView.cpp:380
+#: ../Explore/HistogramView.cpp:724
+msgid "to"
+msgstr ""
+
+#: ../Explore/CorrelogramView.cpp:897
+msgid "to specify variable and distance parameters."
+msgstr ""
+
+#: ../Explore/SimpleHistCanvas.cpp:192 ../Explore/CorrelogramView.cpp:251
+msgid "total # pairs"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:717 ../DialogTools/WeightsManDlg.cpp:723
+#: ../DialogTools/WeightsManDlg.cpp:728 ../DialogTools/WeightsManDlg.cpp:759
+msgid "true"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:695
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:103
+msgid "type"
+msgstr ""
+
+#: ../Explore/PCPNewView.cpp:1079 ../Explore/ScatterNewPlotView.cpp:1821
+#: ../Explore/BoxNewPlotView.cpp:922 ../Explore/BoxNewPlotView.cpp:938
+#: ../Explore/ConditionalMapView.cpp:946
+#: ../Explore/ConditionalHistogramView.cpp:937
+#: ../Explore/HistogramView.cpp:1191
+#: ../Explore/ConditionalScatterPlotView.cpp:784
+#: ../Explore/ConditionalClusterMapView.cpp:1227
+#: ../Explore/ConditionalClusterMapView.cpp:1440
+#: ../Explore/ConditionalClusterMapView.cpp:1656
+#: ../Explore/ConditionalClusterMapView.cpp:1868
+msgid "undefined: "
+msgstr ""
+
+#: ../DialogTools/CatClassifDlg.cpp:629
+msgid "uniform distribution"
+msgstr ""
+
+#: ../DialogTools/WeightsManDlg.cpp:701 ../DialogTools/WeightsManDlg.cpp:793
+#: ../DialogTools/WeightsManDlg.cpp:799 ../DialogTools/WeightsManDlg.cpp:805
+#: ../DialogTools/WeightsManDlg.cpp:811 ../DialogTools/WeightsManDlg.cpp:817
+#: ../DialogTools/WeightsManDlg.cpp:819
+msgid "unknown"
+msgstr ""
+
+#: ../Explore/LineChartView.cpp:608
+msgid "var name:"
+msgstr ""
+
+#: ../DataViewer/DataViewerEditFieldPropertiesDlg.cpp:102
+msgid "variable name"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:749
+msgid "wrong model number"
+msgstr ""
+
+#: ../DialogTools/RegressionDlg.cpp:281
+msgid "y:"
+msgstr ""

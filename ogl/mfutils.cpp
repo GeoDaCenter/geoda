@@ -154,7 +154,7 @@ bool wxXMetaFile::ReadFile(const wxChar *file)
 {
   HandleTableSize = 0;
 
-  FILE *handle = wxFopen(file, wxT("rb"));
+  FILE *handle = wxFopen(file, "rb");
   if (!handle) return false;
 
   // Read placeable metafile header, if any

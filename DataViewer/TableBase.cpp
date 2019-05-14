@@ -115,7 +115,7 @@ void wxGridCellInt64Editor::BeginEdit(int row, int col, wxGrid* grid)
     const wxString value = table->GetValue(row, col);
     if ( !value.empty() ) {
         if ( !value.ToLongLong(&m_value) ) {
-            wxFAIL_MSG( wxT("this cell doesn't have int64 value") );
+            wxFAIL_MSG("this cell doesn't have int64 value");
             return;
         }
         DoBeginEdit(value);
@@ -229,7 +229,7 @@ wxString wxGridCellDoubleRenderer::GetString(const wxGrid& grid, int row, int co
         sscanf(text.c_str(), "%Lf", &v);
 
         wxString format;
-        format.Printf(wxT("%%%d.%dLf"), m_width, m_precision);
+        format.Printf("%%%d.%dLf", m_width, m_precision);
         text.Printf(format, v);
         LOG_MSG(text);
     }
@@ -303,7 +303,7 @@ bool wxGridCellDoubleEditor::IsAcceptedKey(wxKeyEvent& event)
             const wxString decimalPoint =
             wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT, wxLOCALE_CAT_NUMBER);
 #else
-            const wxString decimalPoint(wxT('.'));
+            const wxString decimalPoint('.');
 #endif
             // accept digits, 'e' as in '1e+6', also '-', '+', and '.'
             if ( wxIsdigit(keycode) ||
@@ -330,7 +330,7 @@ void wxGridCellDoubleEditor::BeginEdit(int row, int col, wxGrid* grid)
         const wxString value = table->GetValue(row, col);
         if ( !value.empty() ) {
             if ( !value.ToDouble(&v) ) {
-                wxFAIL_MSG( wxT("this cell doesn't have float value") );
+                wxFAIL_MSG("this cell doesn't have float value");
                 return;
             }
             sscanf(value.c_str(), "%Lf", &m_value);
@@ -399,7 +399,7 @@ void wxGridCellDoubleEditor::StartingKey(wxKeyEvent& event)
     bool is_decimal_point = ( strbuf ==
                              wxLocale::GetInfo(wxLOCALE_DECIMAL_POINT, wxLOCALE_CAT_NUMBER) );
 #else
-    bool is_decimal_point = ( strbuf == wxT(".") );
+    bool is_decimal_point = ( strbuf == "." );
 #endif
 
     if ( wxIsdigit(keycode) || keycode == '+' || keycode == '-'
@@ -422,7 +422,7 @@ wxString wxGridCellDoubleEditor::GetValue() const
 wxString wxGridCellDoubleEditor::GetString()
 {
     wxString format;
-    format.Printf(wxT("%%%d.%dLf"), m_width-m_precision-1, m_precision);
+    format.Printf("%%%d.%dLf", m_width-m_precision-1, m_precision);
     wxString val = wxString::Format(format, m_value);
     return val;
 }

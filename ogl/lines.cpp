@@ -62,17 +62,17 @@ wxLineShape::wxLineShape()
   // and make the three line regions.
   ClearRegions();
   wxShapeRegion *newRegion = new wxShapeRegion;
-  newRegion->SetName(wxT("Middle"));
+  newRegion->SetName("Middle");
   newRegion->SetSize(150, 50);
   m_regions.Append((wxObject *)newRegion);
 
   newRegion = new wxShapeRegion;
-  newRegion->SetName(wxT("Start"));
+  newRegion->SetName("Start");
   newRegion->SetSize(150, 50);
   m_regions.Append((wxObject *)newRegion);
 
   newRegion = new wxShapeRegion;
-  newRegion->SetName(wxT("End"));
+  newRegion->SetName("End");
   newRegion->SetSize(150, 50);
   m_regions.Append((wxObject *)newRegion);
 
@@ -805,7 +805,7 @@ void wxLineShape::DrawArrow(wxDC& dc, wxArrowHead *arrow, double xOffset, bool p
 
         else
         {
-          wxLogFatalError(wxT("Unknown arrowhead rotation case in lines.cc"));
+          wxLogFatalError("Unknown arrowhead rotation case in lines.cc");
         }
 
         // Rotate about the centre of the object, then place
@@ -1364,23 +1364,23 @@ void wxLineShape::WriteAttributes(wxExpr *clause)
   wxShape::WriteAttributes(clause);
 
   if (m_from)
-    clause->AddAttributeValue(_T("from"), m_from->GetId());
+    clause->AddAttributeValue("from", m_from->GetId());
   if (m_to)
-    clause->AddAttributeValue(_T("to"), m_to->GetId());
+    clause->AddAttributeValue("to", m_to->GetId());
 
   if (m_attachmentTo != 0)
-    clause->AddAttributeValue(_T("attachment_to"), (long)m_attachmentTo);
+    clause->AddAttributeValue("attachment_to", (long)m_attachmentTo);
   if (m_attachmentFrom != 0)
-    clause->AddAttributeValue(_T("attachment_from"), (long)m_attachmentFrom);
+    clause->AddAttributeValue("attachment_from", (long)m_attachmentFrom);
 
   if (m_alignmentStart != 0)
-    clause->AddAttributeValue(_T("align_start"), (long)m_alignmentStart);
+    clause->AddAttributeValue("align_start", (long)m_alignmentStart);
   if (m_alignmentEnd != 0)
-    clause->AddAttributeValue(_T("align_end"), (long)m_alignmentEnd);
+    clause->AddAttributeValue("align_end", (long)m_alignmentEnd);
 
-  clause->AddAttributeValue(_T("is_spline"), (long)m_isSpline);
+  clause->AddAttributeValue("is_spline", (long)m_isSpline);
   if (m_maintainStraightLines)
-    clause->AddAttributeValue(_T("keep_lines_straight"), (long)m_maintainStraightLines);
+    clause->AddAttributeValue("keep_lines_straight", (long)m_maintainStraightLines);
 
   // Make a list of lists for the (sp)line controls
   wxExpr *list = new wxExpr(wxExprList);
@@ -1397,7 +1397,7 @@ void wxLineShape::WriteAttributes(wxExpr *clause)
 
     node = node->GetNext();
   }
-  clause->AddAttributeValue(_T("controls"), list);
+  clause->AddAttributeValue("controls", list);
 
   // Write arc arrows in new OGL format, if there are any.
   // This is a list of lists. Each sublist comprises:
@@ -1425,7 +1425,7 @@ void wxLineShape::WriteAttributes(wxExpr *clause)
 
       node = node->GetNext();
     }
-    clause->AddAttributeValue(_T("arrows"), arrow_list);
+    clause->AddAttributeValue("arrows", arrow_list);
   }
 }
 
@@ -1434,21 +1434,21 @@ void wxLineShape::ReadAttributes(wxExpr *clause)
   wxShape::ReadAttributes(clause);
 
   int iVal = (int) m_isSpline;
-  clause->AssignAttributeValue(wxT("is_spline"), &iVal);
+  clause->AssignAttributeValue("is_spline", &iVal);
   m_isSpline = (iVal != 0);
 
   iVal = (int) m_maintainStraightLines;
-  clause->AssignAttributeValue(wxT("keep_lines_straight"), &iVal);
+  clause->AssignAttributeValue("keep_lines_straight", &iVal);
   m_maintainStraightLines = (iVal != 0);
 
-  clause->AssignAttributeValue(wxT("align_start"), &m_alignmentStart);
-  clause->AssignAttributeValue(wxT("align_end"), &m_alignmentEnd);
+  clause->AssignAttributeValue("align_start", &m_alignmentStart);
+  clause->AssignAttributeValue("align_end", &m_alignmentEnd);
 
   // Compatibility: check for no regions.
   if (m_regions.GetCount() == 0)
   {
     wxShapeRegion *newRegion = new wxShapeRegion;
-    newRegion->SetName(_T("Middle"));
+    newRegion->SetName("Middle");
     newRegion->SetSize(150, 50);
     m_regions.Append((wxObject *)newRegion);
     if (m_text.GetCount() > 0)
@@ -1466,12 +1466,12 @@ void wxLineShape::ReadAttributes(wxExpr *clause)
     }
 
     newRegion = new wxShapeRegion;
-    newRegion->SetName(wxT("Start"));
+    newRegion->SetName("Start");
     newRegion->SetSize(150, 50);
     m_regions.Append((wxObject *)newRegion);
 
     newRegion = new wxShapeRegion;
-    newRegion->SetName(wxT("End"));
+    newRegion->SetName("End");
     newRegion->SetSize(150, 50);
     m_regions.Append((wxObject *)newRegion);
   }
@@ -1479,14 +1479,14 @@ void wxLineShape::ReadAttributes(wxExpr *clause)
   m_attachmentTo = 0;
   m_attachmentFrom = 0;
 
-  clause->AssignAttributeValue(wxT("attachment_to"), &m_attachmentTo);
-  clause->AssignAttributeValue(wxT("attachment_from"), &m_attachmentFrom);
+  clause->AssignAttributeValue("attachment_to", &m_attachmentTo);
+  clause->AssignAttributeValue("attachment_from", &m_attachmentFrom);
 
   wxExpr *line_list = NULL;
 
   // When image is created, there are default control points. Override
   // them if there are some in the file.
-  clause->AssignAttributeValue(wxT("controls"), &line_list);
+  clause->AssignAttributeValue("controls", &line_list);
 
   if (line_list)
   {
@@ -1518,7 +1518,7 @@ void wxLineShape::ReadAttributes(wxExpr *clause)
   // Read arrow list, for new OGL code
   wxExpr *arrow_list = NULL;
 
-  clause->AssignAttributeValue(wxT("arrows"), &arrow_list);
+  clause->AssignAttributeValue("arrows", &arrow_list);
   if (arrow_list)
   {
     wxExpr *node = arrow_list->value.first;

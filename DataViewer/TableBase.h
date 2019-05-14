@@ -88,7 +88,7 @@ public:
 protected:
     // string representation of our value
     wxString GetString()
-    { return wxString::Format(wxT("%lld"), m_value); }
+    { return wxString::Format("%lld", m_value); }
 
 private:
     int m_width;
