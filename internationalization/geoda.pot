@@ -3,16 +3,12 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#: ../DialogTools/MaxpDlg.cpp:95 ../DialogTools/VariableSettingsDlg.cpp:132
-#: ../DialogTools/SkaterDlg.cpp:109 ../DialogTools/HClusterDlg.cpp:177
-#: ../DialogTools/RandomizationDlg.cpp:78
-#: ../DialogTools/RandomizationDlg.cpp:83
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-13 16:23-0700\n"
+"POT-Creation-Date: 2019-05-14 14:19-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -130,15 +126,6 @@ msgstr ""
 
 #: ../Explore/LisaMapNewView.cpp:100 ../Explore/LocalGearyMapNewView.cpp:152
 msgid " Differential Significance Map"
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:176
-#, c-format
-msgid " GL error %d. "
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:180
-msgid " GL reports: "
 msgstr ""
 
 #: ../Explore/LisaMapNewView.cpp:94
@@ -362,15 +349,15 @@ msgstr ""
 msgid "(Gaussian) Sigma:"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:141
+#: ../osm/CsvFieldConfDlg.cpp:139 ../DialogTools/CsvFieldConfDlg.cpp:141
 msgid "(Optional) First record has field names? "
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:125
+#: ../osm/CsvFieldConfDlg.cpp:123 ../DialogTools/CsvFieldConfDlg.cpp:125
 msgid "(Optional) Longitude/X:"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:77
+#: ../osm/CsvFieldConfDlg.cpp:75 ../DialogTools/CsvFieldConfDlg.cpp:77
 msgid "(Optional) You can change the data type for a field:"
 msgstr ""
 
@@ -585,6 +572,14 @@ msgstr ""
 msgid "Both are significant, Spatial Lag Model has been selected."
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:57
+msgid "Bottom"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:73
+msgid "Bounding Box"
+msgstr ""
+
 #: ../DialogTools/VariableSettingsDlg.cpp:495
 msgid "Box Map (Hinge=1.5)"
 msgstr ""
@@ -621,8 +616,16 @@ msgstr ""
 msgid "Bubble Size Adjust Dialog"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:334
+#: ../osm/uiRoadDownload.cpp:116
+msgid "Buffer query area:"
+msgstr ""
+
+#: ../osm/CsvFieldConfDlg.cpp:334 ../DialogTools/CsvFieldConfDlg.cpp:334
 msgid "CSV Configuration Warning"
+msgstr ""
+
+#: ../osm/CsvFieldConfDlg.h:42
+msgid "CSV File Configuration"
 msgstr ""
 
 #: ../GeoDa.cpp:2432
@@ -675,6 +678,7 @@ msgstr ""
 msgid "Can't write/create layer \""
 msgstr ""
 
+#: ../osm/CsvFieldConfDlg.cpp:162 ../osm/uiRoadDownload.cpp:111
 #: ../DialogTools/FieldNameCorrectionDlg.cpp:646
 #: ../DialogTools/FieldNameCorrectionDlg.cpp:693
 #: ../DialogTools/CsvFieldConfDlg.cpp:164 ../DialogTools/ReportBugDlg.cpp:233
@@ -906,7 +910,7 @@ msgstr ""
 msgid "Colocation Cluster"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:422
+#: ../osm/CsvFieldConfDlg.cpp:422 ../DialogTools/CsvFieldConfDlg.cpp:422
 msgid "Column Name"
 msgstr ""
 
@@ -1120,11 +1124,11 @@ msgstr ""
 msgid "D.F."
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:100
+#: ../osm/CsvFieldConfDlg.cpp:98 ../DialogTools/CsvFieldConfDlg.cpp:100
 msgid "Data Preview - number of preview records:"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:423
+#: ../osm/CsvFieldConfDlg.cpp:423 ../DialogTools/CsvFieldConfDlg.cpp:423
 msgid "Data Type"
 msgstr ""
 
@@ -1261,6 +1265,10 @@ msgstr ""
 msgid "Down"
 msgstr ""
 
+#: ../osm/uiRoadDownload.h:15 ../osm/uiRoadDownload.h:19
+msgid "Download OSM Roads"
+msgstr ""
+
 #: ../DialogTools/AutoUpdateDlg.cpp:403
 msgid "Downloading updates..."
 msgstr ""
@@ -1336,7 +1344,7 @@ msgstr ""
 msgid "Equal Intervals"
 msgstr ""
 
-#: ../ShapeOperations/WeightUtils.cpp:182
+#: ../osm/uiRoadDownload.cpp:203 ../ShapeOperations/WeightUtils.cpp:182
 #: ../ShapeOperations/WeightUtils.cpp:236
 #: ../ShapeOperations/WeightUtils.cpp:253
 #: ../ShapeOperations/WeightUtils.cpp:261
@@ -1478,18 +1486,6 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: ../arizona/viz3/plots/scatterplot.cpp:148
-msgid "Error in shader compilation."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:145
-msgid "Error in shader creation."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:151
-msgid "Error in shader linkage."
-msgstr ""
-
 #: ../GeoDa.cpp:1368
 msgid ""
 "Error while opening project:\n"
@@ -1523,26 +1519,6 @@ msgstr ""
 msgid ""
 "Error: Base values contain non-positive numbers which will result in "
 "undefined values."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:166
-msgid "Error: Can't draw the string."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:163
-msgid "Error: Can't draw the triangles."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:154
-msgid "Error: Can't get uniforms locations."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:157
-msgid "Error: Can't load buffer. Likely out of GPU memory."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:160
-msgid "Error: Can't load texture. Likely out of GPU memory."
 msgstr ""
 
 #: ../Explore/CatClassification.cpp:376
@@ -1614,6 +1590,10 @@ msgstr ""
 
 #: ../DialogTools/ExportDataDlg.cpp:290
 msgid "Export or save layer to"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:48
+msgid "Extent"
 msgstr ""
 
 #: ../DialogTools/Bnd2ShpDlg.cpp:126
@@ -2006,7 +1986,7 @@ msgstr ""
 msgid "Inference Settings (%d perm)"
 msgstr ""
 
-#: ../DialogTools/ConnectDatasourceDlg.cpp:752
+#: ../osm/uiRoadDownload.cpp:357 ../DialogTools/ConnectDatasourceDlg.cpp:752
 #: ../DialogTools/DatasourceDlg.cpp:266
 #: ../DialogTools/MultiVarSettingsDlg.cpp:212
 #: ../DialogTools/PreferenceDlg.cpp:846
@@ -2020,10 +2000,6 @@ msgstr ""
 #: ../DialogTools/HDBScanDlg.cpp:551 ../Explore/MapNewView.cpp:1807
 #: ../Explore/MapNewView.cpp:2825
 msgid "Information"
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:178
-msgid "Information: "
 msgstr ""
 
 #: ../DialogTools/MaxpDlg.cpp:100
@@ -2055,6 +2031,10 @@ msgstr ""
 
 #: ../DialogTools/Bnd2ShpDlg.cpp:209 ../DialogTools/CreateGridDlg.cpp:161
 msgid "Input ASCII file"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:104
+msgid "Input data source"
 msgstr ""
 
 #: ../DialogTools/FieldNameCorrectionDlg.cpp:552
@@ -2196,15 +2176,19 @@ msgstr ""
 msgid "Language:"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:126
+#: ../osm/CsvFieldConfDlg.cpp:124 ../DialogTools/CsvFieldConfDlg.cpp:126
 msgid "Latitude/Y:"
 msgstr ""
 
-#: ../DialogTools/DatasourceDlg.cpp:256
+#: ../osm/uiRoadDownload.cpp:250 ../DialogTools/DatasourceDlg.cpp:256
 msgid "Layer names"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:333
+#: ../osm/uiRoadDownload.cpp:53
+msgid "Left"
+msgstr ""
+
+#: ../osm/CsvFieldConfDlg.cpp:333 ../DialogTools/CsvFieldConfDlg.cpp:333
 msgid ""
 "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time "
 "(HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
@@ -2255,10 +2239,6 @@ msgstr ""
 msgid ""
 "Locale for numbers has been setup successfully. Please re-open current "
 "project to enable this locale."
-msgstr ""
-
-#: ../arizona/viz3/plots/scatterplot.cpp:169
-msgid "Log info: "
 msgstr ""
 
 #: ../Explore/GetisOrdMapNewView.cpp:73
@@ -2572,10 +2552,6 @@ msgstr ""
 msgid "Not Significant"
 msgstr ""
 
-#: ../arizona/viz3/plots/scatterplot.cpp:172
-msgid "Not a GL message."
-msgstr ""
-
 #: ../Regression/DiagnosticReport.cpp:68
 msgid "Not enough memory!"
 msgstr ""
@@ -2626,7 +2602,7 @@ msgid ""
 "Details:"
 msgstr ""
 
-#: ../DialogTools/FieldNameCorrectionDlg.cpp:645
+#: ../osm/CsvFieldConfDlg.cpp:166 ../DialogTools/FieldNameCorrectionDlg.cpp:645
 #: ../DialogTools/FieldNameCorrectionDlg.cpp:692
 #: ../DialogTools/MultiVarSettingsDlg.cpp:118
 #: ../DialogTools/CsvFieldConfDlg.cpp:168 ../DialogTools/SaveToTableDlg.cpp:150
@@ -2654,8 +2630,8 @@ msgstr ""
 msgid "Obs."
 msgstr ""
 
-#: ../Explore/MapLayoutView.cpp:60 ../TemplateLegend.cpp:62
-#: ../GeneralWxUtils.cpp:108
+#: ../osm/uiRoadDownload.cpp:110 ../Explore/MapLayoutView.cpp:60
+#: ../TemplateLegend.cpp:62 ../GeneralWxUtils.cpp:108
 msgid "Ok"
 msgstr ""
 
@@ -2706,6 +2682,10 @@ msgstr ""
 msgid "Open data source progress dialog"
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:157 ../osm/uiRoadDownload.cpp:169
+msgid "Open file"
+msgstr ""
+
 #: ../DialogTools/ConnectDatasourceDlg.cpp:759
 msgid "Open project file:"
 msgstr ""
@@ -2752,6 +2732,10 @@ msgstr ""
 
 #: ../Explore/CorrelogramView.cpp:896
 msgid "Options > Change Parameters"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:86
+msgid "Options:"
 msgstr ""
 
 #: ../Explore/ConditionalClusterMapView.cpp:1574 ../GdaConst.cpp:387
@@ -2840,6 +2824,10 @@ msgstr ""
 msgid "Please briefly describe what went wrong."
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:198
+msgid "Please check input values are valid"
+msgstr ""
+
 #: ../DialogTools/RegressionDlg.cpp:374
 msgid "Please check the selected variables are all valid."
 msgstr ""
@@ -2917,6 +2905,10 @@ msgstr ""
 
 #: ../DialogTools/SkaterDlg.cpp:458
 msgid "Please enter number of regions"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:195
+msgid "Please enter values of bounding box."
 msgstr ""
 
 #: ../Explore/LineChartView.cpp:1316
@@ -3068,7 +3060,7 @@ msgstr ""
 msgid "Please select features first."
 msgstr ""
 
-#: ../DialogTools/DatasourceDlg.cpp:256
+#: ../osm/uiRoadDownload.cpp:251 ../DialogTools/DatasourceDlg.cpp:256
 msgid "Please select the layer name to connect:"
 msgstr ""
 
@@ -3246,6 +3238,10 @@ msgstr ""
 msgid "Resolution(dpi):"
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:55
+msgid "Right"
+msgstr ""
+
 #: ../Explore/GroupingMapView.cpp:58
 msgid "Root Variable:"
 msgstr ""
@@ -3333,6 +3329,14 @@ msgstr ""
 #: ../Explore/LisaScatterPlotView.cpp:1204 ../Explore/MapLayoutView.cpp:427
 #: ../TemplateFrame.cpp:572 ../GeneralWxUtils.cpp:511
 msgid "Save Image to File"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:331
+msgid "Save OSM roads file"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:356
+msgid "Save OSM roads to file successfully."
 msgstr ""
 
 #: ../DialogTools/SaveAsDlg.h:41
@@ -3510,6 +3514,10 @@ msgstr ""
 msgid "Select Variables (Multi-Selection)"
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:78
+msgid "Select a file:"
+msgstr ""
+
 #: ../DialogTools/ExportDataDlg.cpp:280
 msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
 msgstr ""
@@ -3569,7 +3577,7 @@ msgstr ""
 msgid "Set Highlight Association"
 msgstr ""
 
-#: ../DialogTools/CsvFieldConfDlg.cpp:160
+#: ../osm/CsvFieldConfDlg.cpp:158 ../DialogTools/CsvFieldConfDlg.cpp:160
 msgid "Set Number Separators"
 msgstr ""
 
@@ -4218,6 +4226,10 @@ msgstr ""
 msgid "Tools"
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:51
+msgid "Top"
+msgstr ""
+
 #: ../DialogTools/RedcapDlg.cpp:380 ../DialogTools/AbstractClusterDlg.cpp:454
 msgid "Transformation:"
 msgstr ""
@@ -4226,6 +4238,10 @@ msgstr ""
 #: ../DialogTools/HClusterDlg.cpp:456
 #: ../DialogTools/SpectralClusteringDlg.cpp:534
 msgid "Transformation:\t"
+msgstr ""
+
+#: ../osm/uiTravelDistances.h:15 ../osm/uiTravelDistances.h:18
+msgid "Travel Distances Tool"
 msgstr ""
 
 #: ../DialogTools/VarGroupingEditorDlg.cpp:179
@@ -4311,6 +4327,10 @@ msgstr ""
 msgid "Use Weights:"
 msgstr ""
 
+#: ../osm/uiRoadDownload.cpp:88
+msgid "Use bounding box of input datasource"
+msgstr ""
+
 #: ../DialogTools/PreferenceDlg.cpp:121
 msgid "Use classic yellow cross-hatching to highlight selection in maps:"
 msgstr ""
@@ -4321,6 +4341,14 @@ msgstr ""
 
 #: ../DialogTools/AbstractClusterDlg.cpp:942
 msgid "Use geometric centroids (weighting): \n"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:93
+msgid "Use outline + motorway(~bbox) of input datasource"
+msgstr ""
+
+#: ../osm/uiRoadDownload.cpp:91
+msgid "Use outline of input datasource"
 msgstr ""
 
 #: ../DialogTools/RandomizationDlg.cpp:106

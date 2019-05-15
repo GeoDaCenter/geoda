@@ -129,7 +129,7 @@ void DiffMoranVarSettingDlg::CreateControls()
     wxStaticText  *st3 = new wxStaticText (panel, wxID_ANY, _("Weights"),
                                            wxDefaultPosition, wxSize(70,-1));
     
-    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, _(""), wxDefaultPosition,
+    wxComboBox* box3 = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
                                       wxSize(160,-1), 0, NULL, wxCB_READONLY);
     
     hbox1->Add(st3, 0, wxALIGN_CENTER | wxLEFT| wxTOP | wxBOTTOM, 10);

@@ -142,42 +142,42 @@ void fOGLErrHandler(int err, int glerr, const GLchar* glMsg)
     switch (err)
     {
         case myoglERR_SHADERCREATE:
-            msg = _("Error in shader creation.");
+            msg = "Error in shader creation.";
             break;
         case myoglERR_SHADERCOMPILE:
-            msg = _("Error in shader compilation.");
+            msg = "Error in shader compilation.";
             break;
         case myoglERR_SHADERLINK:
-            msg = _("Error in shader linkage.");
+            msg = "Error in shader linkage.";
             break;
         case myoglERR_SHADERLOCATION:
-            msg = _("Error: Can't get uniforms locations.");
+            msg = "Error: Can't get uniforms locations.";
             break;
         case myoglERR_BUFFER:
-            msg = _("Error: Can't load buffer. Likely out of GPU memory.");
+            msg = "Error: Can't load buffer. Likely out of GPU memory.";
             break;
         case myoglERR_TEXTIMAGE:
-            msg = _("Error: Can't load texture. Likely out of GPU memory.");
+            msg = "Error: Can't load texture. Likely out of GPU memory.";
             break;
         case myoglERR_DRAWING_TRI:
-            msg = _("Error: Can't draw the triangles.");
+            msg = "Error: Can't draw the triangles.";
             break;
         case myoglERR_DRAWING_STR:
-            msg = _("Error: Can't draw the string.");
+            msg = "Error: Can't draw the string.";
             break;
         case myoglERR_JUSTLOG:
-            msg = _("Log info: ");
+            msg = "Log info: ";
             break;
         default:
-            msg = _("Not a GL message.");
+            msg = "Not a GL message.";
     }
     
     if ( glerr != GL_NO_ERROR )
-        msg += wxString::Format(_(" GL error %d. "), glerr);
+        msg += wxString::Format(" GL error %d. ", glerr);
     else if ( err == 0 )
-        msg = _("Information: ");
+        msg = "Information: ";
     else if ( err != myoglERR_JUSTLOG )
-        msg += _(" GL reports: ");
+        msg += " GL reports: ";
     
     if ( glMsg != NULL )
         msg += wxString::FromUTF8( reinterpret_cast<const char *>(glMsg) );

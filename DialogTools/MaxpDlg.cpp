@@ -92,7 +92,7 @@ void MaxpDlg::CreateControls()
 
     // Min regions
     st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"), wxDefaultPosition, wxSize(128,-1));
-    txt_minregions = new wxTextCtrl(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(200,-1));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);

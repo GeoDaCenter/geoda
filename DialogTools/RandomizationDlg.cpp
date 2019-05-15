@@ -75,12 +75,12 @@ InferenceSettingsDlg::InferenceSettingsDlg(wxWindow* parent,
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,10,0);
     
     m_rdo_1 = new wxRadioButton(panel, wxID_ANY, _("Bonferroni bound:"), wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-    m_txt_bo = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
+    m_txt_bo = new wxStaticText(panel, wxID_ANY, "", wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_bo, 1, wxEXPAND);
     
     m_rdo_2 = new wxRadioButton(panel, wxID_ANY, _("False Discovery Rate:"), wxDefaultPosition, wxDefaultSize);
-    m_txt_fdr = new wxStaticText(panel, wxID_ANY, _(""), wxDefaultPosition, wxSize(150,-1));
+    m_txt_fdr = new wxStaticText(panel, wxID_ANY, "", wxDefaultPosition, wxSize(150,-1));
     gbox->Add(m_rdo_2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_txt_fdr, 1, wxEXPAND);
     
