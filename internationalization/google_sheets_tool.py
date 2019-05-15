@@ -55,11 +55,11 @@ def google_get_po_items(locale_code):
             # Print columns A and E, which correspond to indices 0 and 4.
             #print('%s, %s, %s' % (row[0], row[1], row[2]))
             #print(row)
-            msgid = row[0]
+            msgid = row[0][1:-1]
             msgstr = ''
             contrib = ''
             if (len(row)>1):
-                msgstr = row[1]
+                msgstr = row[1][1:-1]
             if (len(row)>2):
                 contrib = row[2]
             po_items[msgid] = [msgstr, contrib]
