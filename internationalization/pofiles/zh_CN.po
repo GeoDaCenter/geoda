@@ -26,7 +26,7 @@ msgstr " 双变量局部Geary聚类图"
 msgid " Bivariate LocalGeary Significance Map"
 msgstr " 双变量局部Geary显著性地图"
 
-#contributors:
+#contributors:lixun910
 msgid " Categories"
 msgstr " 类别"
 
@@ -88,7 +88,7 @@ msgstr " 大致在范围："
 
 #contributors:
 msgid " is not supported by GeoDa.\n"
-msgstr ""
+msgstr " GeoDa不支持.\n"
 
 #contributors:
 msgid " km"
@@ -180,7 +180,7 @@ msgstr "%s（空间权重： %s）"
 
 #contributors:
 msgid "%s Cluster Map (%d clusters)"
-msgstr ""
+msgstr "%s 聚类地图 (%d 聚类)"
 
 #contributors:
 msgid "&Add ID Variable..."
@@ -276,7 +276,7 @@ msgstr "（可选）可以为字段更改数据类型："
 
 #contributors:
 msgid "(Use Sequences)"
-msgstr ""
+msgstr "(使用整数顺序)"
 
 #contributors:
 msgid "---\n\nPCA method: "
@@ -364,11 +364,11 @@ msgstr "999次置换"
 
 #contributors:
 msgid "<"
-msgstr ""
+msgstr "<"
 
 #contributors:
 msgid "<<"
-msgstr ""
+msgstr "<<"
 
 #contributors:
 msgid "<="
@@ -384,11 +384,11 @@ msgstr ">"
 
 #contributors:
 msgid ">>"
-msgstr ""
+msgstr ">>"
 
 #contributors:
 msgid "A Table-only data source can't be stacked with current data source."
-msgstr ""
+msgstr "表格数据无法叠加到当前的数据。"
 
 #contributors:
 msgid "A newer version of GeoDa is found. Do you want to update to version "
@@ -524,7 +524,7 @@ msgstr "所有的对数(All pairs)"
 
 #contributors:
 msgid "All Rights Reserved"
-msgstr "All Rights Reserved"
+msgstr "版权所有"
 
 #contributors:
 msgid "Allow a single cluster:"
@@ -532,11 +532,11 @@ msgstr "允许只生成一个聚类:"
 
 #contributors:
 msgid "Alpha:"
-msgstr ""
+msgstr "透明度:"
 
 #contributors:
 msgid "Always using fixed-point notation"
-msgstr ""
+msgstr "使用定点表示法（显示小数位）"
 
 #contributors:
 msgid "Animation"
@@ -544,7 +544,7 @@ msgstr "动画"
 
 #contributors:
 msgid "App Key"
-msgstr "App Key"
+msgstr "应用密钥"
 
 #contributors:
 msgid "Append To Current Selection"
@@ -592,7 +592,7 @@ msgstr "相关变量"
 
 #contributors:
 msgid "Attributes (Optional)"
-msgstr ""
+msgstr "属性 (可选)"
 
 #contributors:
 msgid "Auto Weighting"
@@ -672,7 +672,7 @@ msgstr "底图设置:"
 
 #contributors:
 msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
-msgstr ""
+msgstr "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
 
 #contributors:
 msgid "Before add/delete observations, please close the %d view(s) that depend on it."
@@ -720,11 +720,11 @@ msgstr "两者都是显著的，已选择空间滞后模型。"
 
 #contributors:
 msgid "Bottom"
-msgstr ""
+msgstr "Bottom"
 
 #contributors:
 msgid "Bounding Box"
-msgstr ""
+msgstr "边框"
 
 #contributors:
 msgid "Box Map (Hinge=1.5)"
@@ -772,7 +772,7 @@ msgstr "气泡大小设置"
 
 #contributors:
 msgid "Buffer query area:"
-msgstr ""
+msgstr "缓冲查询区域:"
 
 #contributors:
 msgid "Bug Report"
@@ -784,7 +784,7 @@ msgstr "创建"
 
 #contributors:
 msgid "CRS (proj4 format)"
-msgstr ""
+msgstr "CRS (proj4 格式)"
 
 #contributors:
 msgid "CSV Configuration Warning"
@@ -796,7 +796,7 @@ msgstr "CSV是否包含变量名？"
 
 #contributors:
 msgid "CSV File Configuration"
-msgstr ""
+msgstr "CSV 文件设置"
 
 #contributors:
 msgid "Calculator"
@@ -808,11 +808,11 @@ msgstr "无法连接到数据源: "
 
 #contributors:
 msgid "Can't create layer %s with empty field (%s) name."
-msgstr ""
+msgstr "无法创建层 %s， 字段 (%s) 为空."
 
 #contributors:
 msgid "Can't create output OGR driver. \n\nDetails:"
-msgstr ""
+msgstr "无法创建OGR数据. \n\n详细:"
 
 #contributors:
 msgid "Can't get bounding box information from this datasource. Please try another datasource."
@@ -828,11 +828,11 @@ msgstr "无法从未知数据源获取图层。 请填写数据源字段。"
 
 #contributors:
 msgid "Can't save Thiessen polygons"
-msgstr ""
+msgstr "无法保存泰森多边形"
 
 #contributors:
 msgid "Can't write/create layer \""
-msgstr ""
+msgstr "无法创建层 \""
 
 #contributors:
 msgid "Cancel"
@@ -840,7 +840,7 @@ msgstr "取消"
 
 #contributors:
 msgid "Canvas Layout Preview"
-msgstr ""
+msgstr "输出图像预览"
 
 #contributors:
 msgid "Carto"
@@ -944,7 +944,7 @@ msgstr "修改轮廓颜色"
 
 #contributors:
 msgid "Change Outline Color of Selected"
-msgstr ""
+msgstr "修改选择对象轮廓颜色"
 
 #contributors:
 msgid "Change Parameters"
@@ -960,7 +960,7 @@ msgstr "改变随机数的种子"
 
 #contributors:
 msgid "Change Size of Root"
-msgstr ""
+msgstr "修改根(root)大小"
 
 #contributors:
 msgid "Change field properties (%s) failed.\n\nDetails: %s"
@@ -1004,11 +1004,11 @@ msgstr "选择分类颜色"
 
 #contributors:
 msgid "Choose Cateogry Fill Color"
-msgstr ""
+msgstr "选择分类填充色"
 
 #contributors:
 msgid "Choose Cateogry Outline Color"
-msgstr ""
+msgstr "选择分类轮廓色"
 
 #contributors:
 msgid "Choose Intervals"
@@ -1100,7 +1100,7 @@ msgstr "聚类地图"
 
 #contributors:
 msgid "Cluster centers:"
-msgstr ""
+msgstr "聚类中心:"
 
 #contributors:
 msgid "Clusters"
@@ -1108,7 +1108,7 @@ msgstr "聚类"
 
 #contributors:
 msgid "Co-location Join Count"
-msgstr "Co-location Join Count"
+msgstr "同值同位(Colocation) Join Count"
 
 #contributors:
 msgid "Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."
@@ -1120,7 +1120,7 @@ msgstr "同值同位(Colocation)地图"
 
 #contributors:
 msgid "Co-location Map: "
-msgstr ""
+msgstr "同值同位(Colocation)地图:"
 
 #contributors:
 msgid "Co-location Settings"
@@ -1244,7 +1244,7 @@ msgstr "连通性地图"
 
 #contributors:
 msgid "Connectivity Map - "
-msgstr ""
+msgstr "连通性地图 - "
 
 #contributors:
 msgid "Contiguity Weight"
@@ -1292,11 +1292,11 @@ msgstr "复制图例到剪贴板"
 
 #contributors:
 msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\nAll Rights Reserved"
-msgstr ""
+msgstr "版权 (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\n版权所有"
 
 #contributors:
 msgid "Copyright (C) year-year by Luc Anselin"
-msgstr "Copyright (C) year-year by Luc Anselin"
+msgstr "版权所有 (C) year-year  Luc Anselin"
 
 #contributors:
 msgid "Cores"
@@ -1648,11 +1648,11 @@ msgstr "显示小数点位数"
 
 #contributors:
 msgid "Dissolve"
-msgstr ""
+msgstr "空间融合(Dissolve)"
 
 #contributors:
 msgid "Dissolve - "
-msgstr ""
+msgstr "空间融合(Dissolve) - "
 
 #contributors:
 msgid "Dissolve does not work with Table only datasource."
@@ -1684,7 +1684,7 @@ msgstr "距离函数:\t"
 
 #contributors:
 msgid "Distance metric: "
-msgstr ""
+msgstr "距离度量: "
 
 #contributors:
 msgid "Distance:"
@@ -1968,7 +1968,7 @@ msgstr "伪发现率:"
 
 #contributors:
 msgid "Field (%s) already exited."
-msgstr ""
+msgstr "字段 (%s)已经存在."
 
 #contributors:
 msgid "File"
@@ -1988,15 +1988,15 @@ msgstr "文件已成功合并到表中。"
 
 #contributors:
 msgid "Fill Color"
-msgstr ""
+msgstr "填充色"
 
 #contributors:
 msgid "Fill Color for Category"
-msgstr ""
+msgstr "分类填充色"
 
 #contributors:
 msgid "Fill Opacity for Category"
-msgstr ""
+msgstr "分类填充色透明度"
 
 #contributors:
 msgid "Finished"
@@ -2180,7 +2180,7 @@ msgstr "Geography Markup Language (*.gml)|*.gml"
 
 #contributors:
 msgid "Geometric centroids"
-msgstr ""
+msgstr "几何中心"
 
 #contributors:
 msgid "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?"
@@ -2204,7 +2204,7 @@ msgstr "获得免费诺基亚/HERE地图帐户： "
 
 #contributors:
 msgid "Getis-Ord"
-msgstr ""
+msgstr "Getis-Ord"
 
 #contributors:
 msgid "Gi cluster map, pseudo p-val"
@@ -2264,19 +2264,19 @@ msgstr ""
 
 #contributors:
 msgid "HDBScan Cluster Map (%d clusters)"
-msgstr ""
+msgstr "HDBScan 聚类地图 (%d 聚类)"
 
 #contributors:
 msgid "HDBScan Clustering Settings"
-msgstr ""
+msgstr "HDBScan 聚类设置"
 
 #contributors:
 msgid "HERE App ID"
-msgstr ""
+msgstr "HERE 应用 ID"
 
 #contributors:
 msgid "HERE App Key"
-msgstr ""
+msgstr "HERE 应用密钥"
 
 #contributors:
 msgid "Has Colocation"
@@ -2288,7 +2288,7 @@ msgstr "希伯来语（ISO-8598-1）"
 
 #contributors:
 msgid "Hebrew (Windows-1255)"
-msgstr ""
+msgstr "希伯来语（Windows-1255）"
 
 #contributors:
 msgid "Height:"
@@ -2312,11 +2312,11 @@ msgstr "在SQLite连接中隐藏系统表："
 
 #contributors:
 msgid "Hierachical Map does not work with Table only datasource."
-msgstr ""
+msgstr "表格数据无法创建层次分类地图"
 
 #contributors:
 msgid "Hierachical Map: "
-msgstr ""
+msgstr "层次分类地图:"
 
 #contributors:
 msgid "Hierarchical"
@@ -2328,7 +2328,7 @@ msgstr "层次聚类设置"
 
 #contributors:
 msgid "Hierarchical Map"
-msgstr ""
+msgstr "层次分类地图"
 
 #contributors:
 msgid "High"
@@ -2392,7 +2392,7 @@ msgstr "没有指定ID！"
 
 #contributors:
 msgid "Image Dimension Settings"
-msgstr ""
+msgstr "图像大小设置"
 
 #contributors:
 msgid "Improve Cartogram"
@@ -2448,7 +2448,7 @@ msgstr "初始组："
 
 #contributors:
 msgid "Initial groups:\t"
-msgstr ""
+msgstr "初始组：\t"
 
 #contributors:
 msgid "Initialization Method:"
@@ -2476,7 +2476,7 @@ msgstr "输入ASCII文件"
 
 #contributors:
 msgid "Input data source"
-msgstr ""
+msgstr "输入数据源"
 
 #contributors:
 msgid "Input datasource"
@@ -2580,15 +2580,15 @@ msgstr "日语（Shift&JIS）"
 
 #contributors:
 msgid "Japanese (Shift_JIS)"
-msgstr ""
+msgstr "日语（Shift_JIS）"
 
 #contributors:
 msgid "Join Operation:"
-msgstr ""
+msgstr "合并操作:"
 
 #contributors:
 msgid "Join Variable:"
-msgstr ""
+msgstr "合并变量:"
 
 #contributors:
 msgid "K Means"
@@ -2608,15 +2608,15 @@ msgstr "K-近邻"
 
 #contributors:
 msgid "KMeans Clustering Settings"
-msgstr ""
+msgstr "K均值聚类设置"
 
 #contributors:
 msgid "KMedians Clustering Settings"
-msgstr ""
+msgstr "K中值聚类设置"
 
 #contributors:
 msgid "KMedoids Clustering Settings"
-msgstr ""
+msgstr "K中心聚类设置"
 
 #contributors:
 msgid "KWT files (*.kwt)|*.kwt"
@@ -2708,11 +2708,11 @@ msgstr "打开"
 
 #contributors:
 msgid "Load CRS from a data source"
-msgstr ""
+msgstr "从数据中读取CRS"
 
 #contributors:
 msgid "Load Layer Failed."
-msgstr ""
+msgstr "加载层失败。"
 
 #contributors:
 msgid "Load time definition from project file."
@@ -2740,7 +2740,7 @@ msgstr "局部G*"
 
 #contributors:
 msgid "Local Geary"
-msgstr ""
+msgstr "局部Geary"
 
 #contributors:
 msgid "Local Geary Maps"
@@ -2748,7 +2748,7 @@ msgstr "局部Geary图"
 
 #contributors:
 msgid "Local Join Count "
-msgstr ""
+msgstr "局部Join Count"
 
 #contributors:
 msgid "Local Moran's I Maps"
@@ -2832,7 +2832,7 @@ msgstr "地图颜色分类"
 
 #contributors:
 msgid "Map Layer Settings"
-msgstr ""
+msgstr "地图打印设置"
 
 #contributors:
 msgid "Map Layout Preview"
@@ -2924,7 +2924,7 @@ msgstr "消息区"
 
 #contributors:
 msgid "Meta-data"
-msgstr ""
+msgstr "元数据"
 
 #contributors:
 msgid "Method"
@@ -2932,7 +2932,7 @@ msgstr "方法"
 
 #contributors:
 msgid "Method of selecting clusters:"
-msgstr ""
+msgstr "选取聚类的方法:"
 
 #contributors:
 msgid "Method:"
@@ -2960,7 +2960,7 @@ msgstr "聚类最小对象数(Min Cluster size):"
 
 #contributors:
 msgid "Min samples:"
-msgstr ""
+msgstr "最小采样数:"
 
 #contributors:
 msgid "Min value of Y axis"
@@ -3148,7 +3148,7 @@ msgstr "在选定的数据源中没有发现任何图层/表。"
 
 #contributors:
 msgid "No layer was found in this datasource."
-msgstr ""
+msgstr "在选定的数据源中没有发现任何图层/表。"
 
 #contributors:
 msgid "No numeric variables found in table."
@@ -3244,7 +3244,7 @@ msgstr "无法聚类的对象数："
 
 #contributors:
 msgid "OGR failed to create field.\n\nDetails:"
-msgstr ""
+msgstr "创建OGR字段失败。\n\n详细:"
 
 #contributors:
 msgid "OK"
@@ -3316,7 +3316,7 @@ msgstr "打开数据进度"
 
 #contributors:
 msgid "Open file"
-msgstr ""
+msgstr "打开文件"
 
 #contributors:
 msgid "Open project file:"
@@ -3344,7 +3344,7 @@ msgstr "选项 > 修改参数"
 
 #contributors:
 msgid "Options:"
-msgstr ""
+msgstr "选项:"
 
 #contributors:
 msgid "Order of contiguity"
@@ -3364,11 +3364,11 @@ msgstr "其他正相关"
 
 #contributors:
 msgid "Outline Color"
-msgstr ""
+msgstr "轮廓色"
 
 #contributors:
 msgid "Outline Color for Category"
-msgstr ""
+msgstr "分类的轮廓色"
 
 #contributors:
 msgid "Outline Visible"
@@ -3708,7 +3708,7 @@ msgstr "请指定一个有效的数据源名称。"
 
 #contributors:
 msgid "Please specify distance metric."
-msgstr ""
+msgstr "请指定一个距离度量。"
 
 #contributors:
 msgid "Please specify the p-value to be used in tests; \ndefault: p-value = 0.01"
@@ -3964,7 +3964,7 @@ msgstr "Rook邻接"
 
 #contributors:
 msgid "Root Variable:"
-msgstr ""
+msgstr "根(Root)变量:"
 
 #contributors:
 msgid "Run"
@@ -4172,7 +4172,7 @@ msgstr "保存泰森多边形"
 
 #contributors:
 msgid "Save as data source (%s) failed.\n\nDetails:"
-msgstr ""
+msgstr "保存数据 (%s) 失败。\n\n详细:"
 
 #contributors:
 msgid "Save data source progress dialog"
@@ -4212,7 +4212,7 @@ msgstr "保存到数据源（%s）失败。\n\n详情：%s"
 
 #contributors:
 msgid "Scale Basemap"
-msgstr ""
+msgstr "缩放底图"
 
 #contributors:
 msgid "Scale Options"
@@ -4284,7 +4284,7 @@ msgstr "选择ID变量"
 
 #contributors:
 msgid "Select ID Variable (Optional)"
-msgstr ""
+msgstr "选择ID变量 (可选)"
 
 #contributors:
 msgid "Select Neighborless Observations"
@@ -4300,7 +4300,7 @@ msgstr "选择变量（多选）"
 
 #contributors:
 msgid "Select a file:"
-msgstr ""
+msgstr "选择文件:"
 
 #contributors:
 msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
@@ -4316,7 +4316,7 @@ msgstr "选择数据源"
 
 #contributors:
 msgid "Select encoding (optional): "
-msgstr ""
+msgstr "选择编码(可选): "
 
 #contributors:
 msgid "Select field is not integer type. Default record order will be used instead."
@@ -4348,7 +4348,7 @@ msgstr "选择变量 "
 
 #contributors:
 msgid "Select variable for dissolving:"
-msgstr ""
+msgstr "选择进行融合(dissolve)的变量:"
 
 #contributors:
 msgid "Select variables to delete "
@@ -4356,7 +4356,7 @@ msgstr "选择需要删除的变量名 "
 
 #contributors:
 msgid "Select variables:"
-msgstr ""
+msgstr "选择变量:"
 
 #contributors:
 msgid "Select, hold CMD for brushing"
@@ -4516,7 +4516,7 @@ msgstr "显示线性平滑"
 
 #contributors:
 msgid "Show Map Boundary"
-msgstr ""
+msgstr "显示地图边界"
 
 #contributors:
 msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
@@ -4576,7 +4576,7 @@ msgstr "找到重复名称为 \"%s\" 的时空变量。"
 
 #contributors:
 msgid "Spatial Constraint:"
-msgstr ""
+msgstr "空间约束:"
 
 #contributors:
 msgid "Spatial Correlogram"
@@ -4592,7 +4592,7 @@ msgstr "空间误差模型"
 
 #contributors:
 msgid "Spatial Join"
-msgstr ""
+msgstr "空间合并(Spatial Join)"
 
 #contributors:
 msgid "Spatial Join can not be applied on two points layers. Please select another layer."
@@ -4668,7 +4668,7 @@ msgstr "谱聚类(Spectral)"
 
 #contributors:
 msgid "Spectral Clustering Map (%d clusters)"
-msgstr ""
+msgstr "谱聚类地图 (%d 聚类)"
 
 #contributors:
 msgid "Spectral Clustering Settings"
@@ -4788,7 +4788,7 @@ msgstr "禁忌搜索算法的禁忌长度必须是大于1的整数（例如85）
 
 #contributors:
 msgid "Tabu length:"
-msgstr ""
+msgstr "禁忌搜索算法长度:"
 
 #contributors:
 msgid "Target"
@@ -5084,11 +5084,11 @@ msgstr ""
 
 #contributors:
 msgid "Transformation:"
-msgstr "数据转换："
+msgstr "数据转换:"
 
 #contributors:
 msgid "Transformation:  "
-msgstr ""
+msgstr "数据转换: "
 
 #contributors:
 msgid "Transformation:\t"
@@ -5124,7 +5124,7 @@ msgstr "Type 2"
 
 #contributors:
 msgid "Type 2a"
-msgstr ""
+msgstr "Type 2a"
 
 #contributors:
 msgid "Unable to overwrite "
@@ -5220,7 +5220,7 @@ msgstr "使用GPU来加速计算（部分功能）"
 
 #contributors:
 msgid "Use Power Iteration method:\tMax iterations="
-msgstr ""
+msgstr "使用幂迭代法：\t最大迭代次数="
 
 #contributors:
 msgid "Use Power Iteration:"
@@ -5244,7 +5244,7 @@ msgstr "使用空间权重："
 
 #contributors:
 msgid "Use bounding box of input datasource"
-msgstr ""
+msgstr "使用输入数据的边框"
 
 #contributors:
 msgid "Use classic yellow cross-hatching to highlight selection in maps:"
@@ -5260,7 +5260,7 @@ msgstr "使用几何质心"
 
 #contributors:
 msgid "Use geometric centroids (weighting): \n"
-msgstr ""
+msgstr "使用几何质心加权: \n"
 
 #contributors:
 msgid "Use inverse distance?"
@@ -5416,7 +5416,7 @@ msgstr "变量"
 
 #contributors:
 msgid "Variables:"
-msgstr ""
+msgstr "变量:"
 
 #contributors:
 msgid "Vertical Bins Breaks"
@@ -5448,7 +5448,7 @@ msgstr "泰森多边形有邻接性错误"
 
 #contributors:
 msgid "WFS URL"
-msgstr "WFS URL"
+msgstr "WFS 网址"
 
 #contributors:
 msgid "Warning"
@@ -5464,7 +5464,7 @@ msgstr "警告:%d 个对象没有任何邻居。"
 
 #contributors:
 msgid "Warning: NULL geometry"
-msgstr ""
+msgstr "警告：空的几何形状"
 
 #contributors:
 msgid "Warning: loss data"
@@ -5476,7 +5476,7 @@ msgstr "不能加载空间权重矩阵。"
 
 #contributors:
 msgid "Web"
-msgstr "Web"
+msgstr "网路"
 
 #contributors:
 msgid "Weight"
