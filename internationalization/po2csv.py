@@ -19,21 +19,17 @@ def dict2PO(po_items, file_path):
         f.write('\n')
     f.close()
 
-def dict2excel(po_items, file_path):
-    # Create a workbook and add a worksheet.
-    workbook = xlsxwriter.Workbook(file_path)
-    worksheet = workbook.add_worksheet()
-    row = 0
-    col = 0
 
+def dict2csv(po_items, file_path):
+    f = open(file_path, 'w')
+    line = 'msgid`msgstr`contributors\n'
+    f.write(line)
     msgid_list = sorted(po_items)
     for msgid in msgid_list:
         msgstr, contrib = po_items[msgid]
-        worksheet.write(row, col,     msgid)
-        worksheet.write(row, col + 1, msgstr)
-        worksheet.write(row, col + 2, contrib)
-        row += 1
-    workbook.close()
+        line = '[' + msgid + ']`[' + msgstr + ']`' + contrib + '\n'
+        f.write(line)
+    f.close()
 
 def po2dict(po_file, result):
     mode = 0
@@ -45,72 +41,39 @@ def po2dict(po_file, result):
         source = ''
         dest = ''
         contrib = ''
+        next_contrib = ''
 
         for i, line in enumerate(f, 1):
             line = line.strip()
             if(line.startswith('#') or len(line) == 0):
                 if (line.startswith('#contributors')):
-                    contrib = line.split(':')[1]
-                mode = 0
+                    if (mode == 2):
+                        next_contrib = line.split(':')[1] 
+                    else:
+                        contrib = line.split(':')[1]
 
-            elif (line.startswith('msgid') or (mode == 1 and not line.startswith('msgstr')) ):
-                if (line.startswith('msgid')):
+            elif (line.startswith('msgid') or (mode == 1 and not line.startswith('msgstr'))):
+                if (mode == 2 and len(source + dest + contrib) > 0):
                     # store previously processed item if any
                     result[source] = [dest, contrib]
                     source = ''
                     dest = '' 
-                    contrib = ''
-                mode = 1
+                    contrib = next_contrib
+
                 start = line.find('"') + 1
                 end = line.rfind('"')
                 source += line[start: end]
+                mode = 1
                 
-            elif ( (mode == 1 and line.startswith('msgstr')) or mode == 2):
+            elif (line.startswith('msgstr') or mode == 2):
                 mode = 2
                 start = line.find('"') + 1
                 end = line.rfind('"')
                 dest += line[start : end]
 
-def po2csv(po_file, csv_file):
-    mode = 0
-
-    with open(po_file) as f, open(csv_file, 'w') as c:
-        start = 0
-        end = 0
-
-        source = ''
-        dest = ''
-        contrib = ''
-
-        new_l = 'msgid`msgstr`contributors\n'
-        c.write(new_l)
-
-        for i, line in enumerate(f, 1):
-            line = line.strip()
-            if(line.startswith('#') or len(line) == 0):
-                if (line.startswith('#contributors')):
-                    contrib = line.split(':')[1]
-                mode = 0
-                continue
-
-            elif (line.startswith('msgid') or (mode == 1 and not line.startswith('msgstr')) ):
-                if (line.startswith('msgid') and len(source+dest) > 0):
-                    # store previously processed item if any
-                    new_l = '[' + source + ']`[' + dest + ']`' + contrib + '\n'
-                    c.write(new_l)
-                    source = ''
-                    dest = '' 
-                    contrib = ''
-                mode = 1
-                start = line.find('"') + 1
-                end = line.rfind('"')
-                source += line[start: end]
-                
-            elif ( (mode == 1 and line.startswith('msgstr')) or mode == 2):
-                mode = 2
-                start = line.find('"') + 1
-                end = line.rfind('"')
-                dest += line[start : end]
+        if (mode == 2 and len(source + dest + contrib) > 0):
+            # store previously processed item if any
+            result[source] = [dest, contrib]
 
 if __name__ == "__main__":
     if (len(sys.argv) != 3) :
@@ -118,4 +81,6 @@ if __name__ == "__main__":
     else:
         po_file, csv_file = sys.argv[1:]
         if (po_file and csv_file):
-            po2csv(po_file, csv_file)
+            po_items = {}
+            po2dict(po_file, po_items)
+            dict2csv(po_items, csv_file)

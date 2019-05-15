@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-05-14 14:19-0700\n"
+"POT-Creation-Date: 2019-05-15 10:50-0700\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -478,6 +478,10 @@ msgstr ""
 msgid "All Pairs"
 msgstr ""
 
+#: ../GeoDa.cpp:6333
+msgid "All Rights Reserved"
+msgstr ""
+
 #: ../DialogTools/HDBScanDlg.cpp:168
 msgid "Allow a single cluster:"
 msgstr ""
@@ -490,8 +494,16 @@ msgstr ""
 msgid "Apply"
 msgstr ""
 
+#: ../GeoDa.cpp:6362
+msgid "April"
+msgstr ""
+
 #: ../Explore/CorrelogramView.cpp:676
 msgid "Arc Distance"
+msgstr ""
+
+#: ../GeoDa.cpp:6370
+msgid "August"
 msgstr ""
 
 #: ../DialogTools/AbstractClusterDlg.cpp:246
@@ -1019,6 +1031,11 @@ msgstr ""
 msgid "Copy"
 msgstr ""
 
+#: ../GeoDa.cpp:6326
+#, c-format
+msgid "Copyright (C) 2011-%d by Luc Anselin"
+msgstr ""
+
 #: ../Explore/CorrelogramView.cpp:506 ../Explore/CorrelogramView.cpp:515
 #: ../GeoDa.cpp:3260
 msgid "Correlogram"
@@ -1156,6 +1173,10 @@ msgstr ""
 
 #: ../DialogTools/PreferenceDlg.cpp:383
 msgid "Date/Time formats (using comma to separate formats):"
+msgstr ""
+
+#: ../GeoDa.cpp:6378
+msgid "December"
 msgstr ""
 
 #: ../DialogTools/PreferenceDlg.cpp:391
@@ -1618,6 +1639,10 @@ msgstr ""
 
 #: ../DialogTools/RandomizationDlg.cpp:82
 msgid "False Discovery Rate:"
+msgstr ""
+
+#: ../GeoDa.cpp:6358
+msgid "February"
 msgstr ""
 
 #: ../ShapeOperations/OGRLayerProxy.cpp:394
@@ -2132,12 +2157,24 @@ msgstr ""
 msgid "Iterations:"
 msgstr ""
 
+#: ../GeoDa.cpp:6356
+msgid "January"
+msgstr ""
+
 #: ../DialogTools/SpatialJoinDlg.cpp:419
 msgid "Join Operation:"
 msgstr ""
 
 #: ../DialogTools/SpatialJoinDlg.cpp:413
 msgid "Join Variable:"
+msgstr ""
+
+#: ../GeoDa.cpp:6368
+msgid "July"
+msgstr ""
+
+#: ../GeoDa.cpp:6366
+msgid "June"
 msgstr ""
 
 #: ../DialogTools/KMeansDlg.cpp:575
@@ -2298,6 +2335,10 @@ msgstr ""
 msgid "Maps:"
 msgstr ""
 
+#: ../GeoDa.cpp:6360
+msgid "March"
+msgstr ""
+
 #: ../Explore/CorrelogramView.cpp:226 ../Explore/CorrelogramView.cpp:771
 msgid "Max"
 msgstr ""
@@ -2322,6 +2363,10 @@ msgstr ""
 #: ../DialogTools/KMeansDlg.cpp:334
 #: ../DialogTools/SpectralClusteringDlg.cpp:540
 msgid "Maximum iterations:\t"
+msgstr ""
+
+#: ../GeoDa.cpp:6364
+msgid "May"
 msgstr ""
 
 #: ../Explore/LineChartView.cpp:2212
@@ -2560,6 +2605,10 @@ msgstr ""
 msgid "Notice"
 msgstr ""
 
+#: ../GeoDa.cpp:6376
+msgid "November"
+msgstr ""
+
 #: ../DialogTools/CreatingWeightDlg.cpp:1453
 msgid ""
 "Null geometry was detected in dataset. GeoDa can't create weights with NULL "
@@ -2628,6 +2677,10 @@ msgstr ""
 
 #: ../Explore/LineChartView.cpp:2209
 msgid "Obs."
+msgstr ""
+
+#: ../GeoDa.cpp:6374
+msgid "October"
 msgstr ""
 
 #: ../osm/uiRoadDownload.cpp:110 ../Explore/MapLayoutView.cpp:60
@@ -3563,6 +3616,10 @@ msgstr ""
 
 #: ../GeoDa.cpp:281
 msgid "Send Crash Report"
+msgstr ""
+
+#: ../GeoDa.cpp:6372
+msgid "September"
 msgstr ""
 
 #: ../Explore/MapLayerTree.cpp:585

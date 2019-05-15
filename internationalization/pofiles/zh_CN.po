@@ -14,7 +14,7 @@ msgstr "=0 时的距离约"
 msgid " BiLISA Cluster Map"
 msgstr " 双变量LISA聚类地图"
 
-#contributors:
+#contributors:testtest
 msgid " BiLISA Significance Map"
 msgstr " 双变量LISA显著性地图"
 
@@ -22,11 +22,11 @@ msgstr " 双变量LISA显著性地图"
 msgid " Bivariate Local Geary Cluster Map"
 msgstr " 双变量局部Geary聚类图"
 
-#contributors:
+#contributors:lixun910
 msgid " Bivariate LocalGeary Significance Map"
 msgstr " 双变量局部Geary显著性地图"
 
-#contributors:lixun910
+#contributors:
 msgid " Categories"
 msgstr " 类别"
 
@@ -567,6 +567,10 @@ msgid "Apply kernel to diagonal weights"
 msgstr "将核函数应用于对角线权重值"
 
 #contributors:
+msgid "April"
+msgstr "四月"
+
+#contributors:
 msgid "Arabic (Windows-1256)"
 msgstr "阿拉伯语（Windows 1256）"
 
@@ -593,6 +597,10 @@ msgstr "相关变量"
 #contributors:
 msgid "Attributes (Optional)"
 msgstr "属性 (可选)"
+
+#contributors:
+msgid "August"
+msgstr "八月"
 
 #contributors:
 msgid "Auto Weighting"
@@ -1295,6 +1303,10 @@ msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computa
 msgstr "版权 (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\n版权所有"
 
 #contributors:
+msgid "Copyright (C) 2011-%d by Luc Anselin"
+msgstr "版权所有 (C) 2011-%d Luc Anselin"
+
+#contributors:
 msgid "Copyright (C) year-year by Luc Anselin"
 msgstr "版权所有 (C) year-year  Luc Anselin"
 
@@ -1521,6 +1533,10 @@ msgstr "日期/时间"
 #contributors:
 msgid "Date/Time formats (using comma to separate formats):"
 msgstr "日期/时间格式（使用逗号分隔格式）："
+
+#contributors:
+msgid "December"
+msgstr "十二月"
 
 #contributors:
 msgid "Decimal:"
@@ -1967,6 +1983,10 @@ msgid "False Discovery Rate:"
 msgstr "伪发现率:"
 
 #contributors:
+msgid "February"
+msgstr "二月"
+
+#contributors:
 msgid "Field (%s) already exited."
 msgstr "字段 (%s)已经存在."
 
@@ -2168,7 +2188,7 @@ msgstr "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
 
 #contributors:
 msgid "GeoJson URL"
-msgstr "GeoJson URL"
+msgstr "GeoJson 网址"
 
 #contributors:
 msgid "GeoPackage (*.gpkg)|*.gpkg"
@@ -2571,6 +2591,10 @@ msgid "Iterations:"
 msgstr "迭代次数 ："
 
 #contributors:
+msgid "January"
+msgstr "一月"
+
+#contributors:
 msgid "Japanese (EUC-JP)"
 msgstr "日语（EUC-JP）"
 
@@ -2589,6 +2613,14 @@ msgstr "合并操作:"
 #contributors:
 msgid "Join Variable:"
 msgstr "合并变量:"
+
+#contributors:
+msgid "July"
+msgstr "七月"
+
+#contributors:
+msgid "June"
+msgstr "六月"
 
 #contributors:
 msgid "K Means"
@@ -2867,6 +2899,10 @@ msgid "Maps:"
 msgstr "地图："
 
 #contributors:
+msgid "March"
+msgstr "三月"
+
+#contributors:
 msgid "Max"
 msgstr "最大值"
 
@@ -2893,6 +2929,10 @@ msgstr "最大迭代："
 #contributors:
 msgid "Maximum iterations:\t"
 msgstr "最大迭代次数:\t"
+
+#contributors:
+msgid "May"
+msgstr "五月"
 
 #contributors:
 msgid "Mean"
@@ -3199,6 +3239,10 @@ msgid "Notice"
 msgstr "通知"
 
 #contributors:
+msgid "November"
+msgstr "十一月"
+
+#contributors:
 msgid "Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again."
 msgstr ""
 
@@ -3265,6 +3309,10 @@ msgstr "选择了OLS模型（White测试）。"
 #contributors:
 msgid "Obs."
 msgstr "对象数"
+
+#contributors:
+msgid "October"
+msgstr "十月"
 
 #contributors:
 msgid "Ok"
@@ -3887,6 +3935,10 @@ msgid "Redo"
 msgstr "重做"
 
 #contributors:
+msgid "Refresh"
+msgstr ""
+
+#contributors:
 msgid "Regimes Regression"
 msgstr "分区域(Regimes)回归"
 
@@ -4405,6 +4457,10 @@ msgstr "选择变量"
 #contributors:
 msgid "Send Crash Report"
 msgstr "发送崩溃报告"
+
+#contributors:
+msgid "September"
+msgstr "九月"
 
 #contributors:
 msgid "Set Association Dialog"
@@ -6217,4 +6273,8 @@ msgstr "空间权重："
 #contributors:
 msgid "wrong model number"
 msgstr "错误的模型序号"
+
+#contributors:
+msgid "y:"
+msgstr ""
 
