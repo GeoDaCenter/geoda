@@ -21,6 +21,7 @@
 #include <map>
 #include <algorithm>
 #include <limits>
+#include <set>
 
 #include <wx/wx.h>
 #include <wx/textfile.h>
@@ -265,10 +266,19 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         header << id;
         file.AddLine(header);
         
-        
+        vector<vector<int> > cluster_ids = skater->GetRegions();
+        map<int, int> nid_cid; // node id -> cluster id
+        for (int c=0; c<cluster_ids.size(); ++c) {
+            for (int i=0; i<cluster_ids[c].size(); ++i) {
+                nid_cid[ cluster_ids[c][i] ] = c;
+            }
+        }
+
         for (int i=0; i<skater->ordered_edges.size(); i++) {
             int from_idx = skater->ordered_edges[i]->orig->id;
             int to_idx = skater->ordered_edges[i]->dest->id;
+            if (nid_cid[from_idx] != nid_cid[to_idx]) continue;
+            
             double cost = skater->ordered_edges[i]->length;
             wxString line1;
             line1 << ids[from_idx] << " " << ids[to_idx] << " " <<  cost;
