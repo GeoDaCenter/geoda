@@ -144,14 +144,20 @@ void SkaterDlg::CreateControls()
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
+    wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
+    wxStaticText* st3 = new wxStaticText(panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_out->Add(m_textbox, 1, wxEXPAND);
+    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
+    gbox_out->Add(new wxStaticText(panel, wxID_ANY, _("(Optional)")),
+                  0, wxALIGN_RIGHT | wxRIGHT | wxLEFT, 10);
+    gbox_out->Add(chk_save_mst, 1, wxEXPAND);
+
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
-    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-    
+    hbox1->Add(gbox_out, 1, wxEXPAND);
+
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
@@ -170,7 +176,7 @@ void SkaterDlg::CreateControls()
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
-    
+
 	// Summary control 
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
 	wxNotebook* notebook = AddSimpleReportCtrls(panel);
@@ -277,7 +283,11 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         for (int i=0; i<skater->ordered_edges.size(); i++) {
             int from_idx = skater->ordered_edges[i]->orig->id;
             int to_idx = skater->ordered_edges[i]->dest->id;
-            if (nid_cid[from_idx] != nid_cid[to_idx]) continue;
+
+            if (chk_save_mst->GetValue() == false) {
+                if (nid_cid[from_idx] != nid_cid[to_idx])
+                    continue;
+            }
             
             double cost = skater->ordered_edges[i]->length;
             wxString line1;
