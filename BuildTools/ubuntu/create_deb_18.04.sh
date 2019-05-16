@@ -39,7 +39,7 @@ fi
 
 rm -f *.deb
 if [ $# -ne 1 ]; then
-    dpkg -b product/ geoda_1.12-1xenial1.deb
+    dpkg -b product/ geoda_1.12-1bionic1.deb
 else
     dpkg -b product/ geoda_1.12-1$1.deb
 fi

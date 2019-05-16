@@ -569,7 +569,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 	vector<OGRGeometry*> ogr_geometries;
     OGRwkbGeometryType geom_type = wkbNone;
-    OGRSpatialReference new_ref = NULL;
+    OGRSpatialReference new_ref;
     if (is_table) {
         spatial_ref = NULL; // table only data, void creating e.g. prj file
     } else if (spatial_ref) {
