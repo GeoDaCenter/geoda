@@ -89,7 +89,7 @@ dist_metric(WeightsMetaInfo::DM_euclidean),
 dist_units(WeightsMetaInfo::DU_mile),
 min_1nn_dist_euc(-1), max_1nn_dist_euc(-1), max_dist_euc(-1),
 min_1nn_dist_arc(-1), max_1nn_dist_arc(-1), max_dist_arc(-1),
-sourceSR(NULL), rtree_bbox_ready(false)
+sourceSR(NULL), rtree_bbox_ready(false), has_null_geometry(false)
 {
     
 	wxLogMessage("Entering Project::Project (existing project)");
@@ -205,7 +205,8 @@ Project::~Project()
 	if (voronoi_rook_nbr_gal)
         delete [] voronoi_rook_nbr_gal;
     
-	for (std::map<wxString, i_array_type*>::iterator i= shared_category_scratch.begin(); i != shared_category_scratch.end(); ++i) {
+	for (std::map<wxString, i_array_type*>::iterator i= shared_category_scratch.begin();
+         i != shared_category_scratch.end(); ++i) {
 		delete i->second;
 	}
 	
@@ -240,6 +241,11 @@ Project::~Project()
 	wxLogMessage("Exiting Project::~Project");
 }
 
+CatClassifManager* Project::GetCatClassifManager()
+{
+    return cat_classif_manager;
+}
+
 int Project::GetNumFields()
 {
 	int n_fields = 0;
@@ -262,14 +268,11 @@ void Project::UpdateProjectConf(ProjectConfiguration* conf)
     if (layername == _layername) {
         // we only update Custom Categories
         // first correct variable_order
-        std::vector<wxString> var_list;
-        std::map<wxString, GdaConst::FieldType> var_type_map;
-        layer_proxy->GetVarTypeMap(var_list, var_type_map);
-        
+        std::vector<wxString> var_list = layer_proxy->GetFieldNames();
+        std::vector<GdaConst::FieldType> var_types = layer_proxy->GetFieldTypes();
         VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-        variable_order->CorrectVarGroups(var_type_map, var_list,
+        variable_order->CorrectVarGroups(var_list, var_types,
                                          IsFieldCaseSensitive());
-        
         project_conf->GetLayerConfiguration()->SetVariableOrder(variable_order);
         table_int->Update(*variable_order);
     } else {
@@ -327,6 +330,19 @@ bool Project::SetWorkingDir(const wxString& path)
 	return true;
 }
 
+Shapefile::ShapeType Project::GetShapefileType()
+{
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
+    if ( main_data.header.shape_type == Shapefile::POINT_TYP) {
+        shape_type = Shapefile::POINT_TYP;
+    } else if (main_data.header.shape_type == Shapefile::POLYGON) {
+        shape_type = Shapefile::POLYGON;
+    } else if (main_data.header.shape_type == Shapefile::POLY_LINE) {
+        shape_type = Shapefile::POLY_LINE;
+    }
+    return shape_type;
+}
+
 Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 {
 	wxLogMessage("Project::GetGdaGeometries()");
@@ -336,21 +352,33 @@ Shapefile::ShapeType Project::GetGdaGeometries(vector<GdaShape*>& geometries)
 		Shapefile::PointContents* pc;
 		for (int i=0; i<num_geometries; i++) {
 			pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
-			geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPoint());
+            } else {
+                geometries.push_back(new GdaPoint(wxRealPoint(pc->x, pc->y)));
+            }
 		}
 		shape_type = Shapefile::POINT_TYP;
 	} else if (main_data.header.shape_type == Shapefile::POLYGON) {
 		Shapefile::PolygonContents* pc;
 		for (int i=0; i<num_geometries; i++) {
 			pc = (Shapefile::PolygonContents*)main_data.records[i].contents_p;
-			geometries.push_back(new GdaPolygon(pc));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPolygon());
+            } else {
+                geometries.push_back(new GdaPolygon(pc));
+            }
 		}
 		shape_type = Shapefile::POLYGON;
     } else if (main_data.header.shape_type == Shapefile::POLY_LINE) {
         Shapefile::PolyLineContents* pc;
         for (int i=0; i<num_geometries; i++) {
             pc = (Shapefile::PolyLineContents*)main_data.records[i].contents_p;
-            geometries.push_back(new GdaPolyLine(pc));
+            if (pc->shape_type == 0) {
+                geometries.push_back(new GdaPolyLine());
+            } else {
+                geometries.push_back(new GdaPolyLine(pc));
+            }
         }
         shape_type = Shapefile::POLY_LINE;
     }
@@ -396,7 +424,9 @@ void Project::CalcEucPlaneRtreeStats()
     }
     SpatialIndAlgs::fill_pt_rtree(rtree_2d, pts);
     double mean_d_1nn, median_d_1nn;
-    SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc, max_1nn_dist_euc, mean_d_1nn, median_d_1nn);
+    SpatialIndAlgs::get_pt_rtree_stats(rtree_2d, min_1nn_dist_euc,
+                                       max_1nn_dist_euc, mean_d_1nn,
+                                       median_d_1nn);
     wxRealPoint pt1, pt2;
     max_dist_euc = PointSetAlgs::EstDiameter(x, y, false, pt1, pt2);
 }
@@ -419,7 +449,9 @@ void Project::CalcUnitSphereRtreeStats()
 	SpatialIndAlgs::to_3d_centroids(pts_ll, pts_3d);
 	SpatialIndAlgs::fill_pt_rtree(rtree_3d, pts_3d);
 	double mean_d_1nn, median_d_1nn;
-	SpatialIndAlgs::get_pt_rtree_stats(rtree_3d, min_1nn_dist_arc, max_1nn_dist_arc, mean_d_1nn, median_d_1nn);
+	SpatialIndAlgs::get_pt_rtree_stats(rtree_3d, min_1nn_dist_arc,
+                                       max_1nn_dist_arc, mean_d_1nn,
+                                       median_d_1nn);
 	wxRealPoint pt1, pt2;
 	double d = PointSetAlgs::EstDiameter(x, y, true, pt1, pt2);
 	max_dist_arc = GenGeomAlgs::DegToRad(d);
@@ -434,8 +466,6 @@ OGRSpatialReference* Project::GetSpatialReference()
 		// it's a OGRTable
 		OGRLayerProxy* exist_layer = ogr_table->GetOGRLayer();
 		spatial_ref = exist_layer->GetSpatialReference();
-		if (spatial_ref)
-            spatial_ref->Clone();
 	} else {
 		// DbfTable
 		wxString ds_name = datasource->GetOGRConnectStr();
@@ -444,10 +474,10 @@ OGRSpatialReference* Project::GetSpatialReference()
 		if (!wxFileExists(ds_name)) {
 			return NULL;
 		}
-		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, true);
+		OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type,
+                                                            true);
 		OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layername);
 		spatial_ref = ogr_layer->GetSpatialReference();
-		if (spatial_ref) spatial_ref = spatial_ref->Clone();
 		delete ogr_ds;
 	}
 	return spatial_ref;
@@ -496,7 +526,8 @@ void Project::SaveOGRDataSource()
                 while ( cont )
                 {
                     if (filename.Contains(tmp_prefix)) {
-                        wxString path = dirname + wxFileName::GetPathSeparator() + filename;
+                        wxString path = dirname;
+                        path << wxFileName::GetPathSeparator() << filename;
                         all_tmp_files.push_back(path);
                     }
                     cont = wdir.GetNext(&filename);
@@ -556,13 +587,15 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         // Create in-memory OGR geometries
 		vector<OGRGeometry*> ogr_geometries;
         OGRwkbGeometryType geom_type;
-        geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type, ogr_geometries, selected_rows);
+        geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
+                                                  ogr_geometries, selected_rows);
         
         // NOTE: for GeoJSON, automatically transform to WGS84
         if (spatial_ref && ds_type == GdaConst::ds_geo_json) {
             OGRSpatialReference wgs84_ref;
             wgs84_ref.importFromEPSG(4326);
-            OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation( spatial_ref, &wgs84_ref );
+            OGRCoordinateTransformation *poCT;
+            poCT = OGRCreateCoordinateTransformation(spatial_ref, &wgs84_ref);
             for (size_t i=0; i < ogr_geometries.size(); i++) {
                 ogr_geometries[i]->transform(poCT);
             }
@@ -576,7 +609,11 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
         OGRLayerProxy* new_layer;
-        new_layer = OGRDataAdapter::GetInstance().ExportDataSource(ds_format.ToStdString(), new_ds_name, layername.ToStdString(), geom_type, ogr_geometries, table_int, selected_rows, spatial_ref, is_update);
+        new_layer = ogr_adapter.ExportDataSource(ds_format, new_ds_name,
+                                                 layername, geom_type,
+                                                 ogr_geometries, table_int,
+                                                 selected_rows, spatial_ref,
+                                                 is_update, cpg_encode);
         if (new_layer == NULL) {
             wxString msg = _("Saving data source cancelled.");
             throw GdaException(msg.mb_str());
@@ -587,7 +624,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
             cont = prog_dlg.Update(new_layer->export_progress);
             if ( !cont ) {
                 new_layer->stop_exporting = true;
-                OGRDataAdapter::GetInstance().CancelExport(new_layer);
+                ogr_adapter.CancelExport(new_layer);
                 return;
             }
             if ( new_layer->export_progress == -1 ) {
@@ -597,7 +634,7 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
             }
             wxMilliSleep(100);
         }
-        OGRDataAdapter::GetInstance().StopExport();
+        ogr_adapter.StopExport();
 		
 		for (size_t i=0; i<geometries.size(); i++) {
 			delete geometries[i];
@@ -645,7 +682,6 @@ void Project::SaveProjectConf()
             wxString ds_path = datasource->GetOGRConnectStr();
             bool wd_success = SetWorkingDir(ds_path);
             if (wd_success) {
-                
                 wxFileName temp(ds_path);
                 proj_file_no_ext = temp.GetName();
                 wxString prj_path = GetProjectFullPath();
@@ -663,7 +699,6 @@ void Project::SaveProjectConf()
 
 bool Project::IsFileDataSource() 
 {
-    
     if (datasource) return datasource->IsFileDataSource();
     return false;
 }
@@ -671,7 +706,6 @@ bool Project::IsFileDataSource()
 void Project::SaveDataSourceData()
 {
 	wxLogMessage("Entering Project::SaveDataSourceData");
-	
 	// for some read-only datasources, suggest Export dialog
 	GdaConst::DataSourceType ds_type = datasource->GetType();
 	if (ds_type == GdaConst::ds_wfs ||
@@ -722,7 +756,6 @@ void Project::SaveDataSourceData()
 		// NOTE: OGR/GDAL 2.0 is still implementing addGeomField feature.
 		layer_proxy->AddGeometries(main_data);
 	}	
-	
 	wxLogMessage("Exiting Project::SaveDataSourceData");
 }
 
@@ -732,15 +765,13 @@ void Project::UpdateProjectConf()
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	datasource = layer_conf->GetDataSource();
 	VarOrderPtree* var_order = layer_conf->GetVarOrderPtree();
-	if (var_order)
-        var_order->ReInitFromTableInt(table_int);
+	if (var_order) var_order->ReInitFromTableInt(table_int);
 	CustomClassifPtree* cc = layer_conf->GetCustClassifPtree();
-	if (cc)
-        cc->SetCatClassifList(GetCatClassifManager());
+	if (cc) cc->SetCatClassifList(GetCatClassifManager());
 	WeightsManPtree* spatial_weights = layer_conf->GetWeightsManPtree();
 	WeightsNewManager* wnm = ((WeightsNewManager*) GetWManInt());
-	if (spatial_weights) spatial_weights->
-		SetWeightsMetaInfoList(wnm->GetPtreeEntries());
+	if (spatial_weights)
+        spatial_weights->SetWeightsMetaInfoList(wnm->GetPtreeEntries());
 	DefaultVarsPtree* default_vars = layer_conf->GetDefaultVarsPtree();
 	{
 		std::vector<wxString> def_tm_ids(default_var_time.size());
@@ -811,9 +842,9 @@ void Project::DisplayPointDupsWarning()
 {
 	wxLogMessage("Project::DisplayPointDupsWarning()");
 
-	if (point_dups_warn_prev_displayed) return;
 	wxString msg = _("Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table.");
-	wxMessageDialog dlg(NULL, msg, _("Duplicate Thiessen Polygons Found"), wxOK | wxCANCEL | wxICON_INFORMATION);
+	wxMessageDialog dlg(NULL, msg, _("Duplicate Thiessen Polygons Found"),
+                        wxOK | wxCANCEL | wxICON_INFORMATION);
 	if (dlg.ShowModal() == wxID_OK) SaveVoronoiDupsToTable();
 	point_dups_warn_prev_displayed = true;
 }
@@ -859,12 +890,14 @@ void Project::SaveVoronoiDupsToTable()
 	std::vector<SaveToTableEntry> data(1);
 	std::vector<wxInt64> dup_ids(num_records, -1);
 	std::vector<bool> undefined(num_records, true);
-	for (std::list<std::list<int> >::iterator dups_iter
-			 = point_duplicates.begin();
-			 dups_iter != point_duplicates.end(); dups_iter++) {
+	for (std::list<std::list<int> >::iterator dups_iter = point_duplicates.begin();
+         dups_iter != point_duplicates.end(); dups_iter++)
+    {
 		int head_id = *(dups_iter->begin());
-		for (std::list<int>::iterator iter=dups_iter->begin();
-				 iter != dups_iter->end(); iter++) {
+        std::list<int>::iterator iter = dups_iter->begin();
+        iter++; // ignore first one
+		for (; iter != dups_iter->end(); iter++)
+        {
 			undefined[*iter] = false;
 			dup_ids[*iter] = head_id+1;
 		}			
@@ -876,7 +909,8 @@ void Project::SaveVoronoiDupsToTable()
 	data[0].type = GdaConst::long64_type;
 	
 	wxString title = _("Save Duplicate Thiessen Polygon Ids");
-	SaveToTableDlg dlg(this, NULL, data, title, wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, title, wxDefaultPosition,
+                       wxSize(400,400));
 	dlg.ShowModal();	
 }
 
@@ -1038,7 +1072,8 @@ void Project::AddCentroids()
 	data[1].field_default = "COORD_Y";
 	data[1].type = GdaConst::double_type;	
 	
-	SaveToTableDlg dlg(this, NULL, data, _("Add Centroids to Table"), wxDefaultPosition, wxSize(400,400));
+	SaveToTableDlg dlg(this, NULL, data, _("Add Centroids to Table"),
+                       wxDefaultPosition, wxSize(400,400));
 	dlg.ShowModal();
 }
 
@@ -1100,7 +1135,8 @@ const std::vector<GdaPoint*>& Project::GetCentroids()
             centroids.resize(num_records);
             double x, y;
             for ( int row_idx=0; row_idx < num_records; row_idx++ ) {
-                Shapefile::PointContents* pc = (Shapefile::PointContents*)main_data.records[row_idx].contents_p;
+                Shapefile::PointContents* pc;
+                pc = (Shapefile::PointContents*)main_data.records[row_idx].contents_p;
                 centroids[row_idx] = new GdaPoint(pc->x, pc->y);
             }
         }
@@ -1400,15 +1436,16 @@ void Project::CleanupPairsHLState()
 bool Project::CommonProjectInit()
 {	
 	wxLogMessage("Project::CommonProjectInit()");
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
     if (!InitFromOgrLayer()) {
-        OGRDataAdapter::GetInstance().Close();
+        ogr_adapter.Close();
         return false;
     }
 	
 	num_records = table_int->GetNumberRows();
    
     if (!isTableOnly) {
-        OGRDataAdapter::GetInstance().GetHistory("db_host");
+        ogr_adapter.GetHistory("db_host");
     }
     
     // convert projection to WGS84 by default if there is projection
@@ -1513,11 +1550,10 @@ bool Project::InitFromOgrLayer()
     wxLogMessage(ds_str);
     
     GdaConst::DataSourceType ds_type = datasource->GetType();
-   
-	// OK. ReadLayer() is running in a seperate thread.
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
+	// ReadLayer() is running in a seperate thread.
 	// This gives us a chance to get its progress for a Progress window.
-	layer_proxy = OGRDataAdapter::GetInstance().T_ReadLayer(datasource_name, ds_type, layername.ToStdString());
-	
+	layer_proxy = ogr_adapter.T_ReadLayer(datasource_name, ds_type, layername);
 	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
@@ -1551,7 +1587,7 @@ bool Project::InitFromOgrLayer()
 			}
 		}
 		if (!cont)  { // or if cancel clicked
-			OGRDataAdapter::GetInstance().T_StopReadLayer(layer_proxy);
+			ogr_adapter.T_StopReadLayer(layer_proxy);
 			return false;
 		}
 		wxMilliSleep(100);
@@ -1567,20 +1603,18 @@ bool Project::InitFromOgrLayer()
 		
 	}
     
-    OGRDatasourceProxy* ds_proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
+    OGRDatasourceProxy* ds_proxy = ogr_adapter.GetDatasourceProxy(datasource_name,
+                                                                  ds_type);
     // for some datasource, writable flag can only be obtained after ready layer
 	datasource->UpdateWritable(ds_proxy->is_writable);
     
 	// Correct variable_order information, which will be used by OGRTable
-	std::vector<wxString> var_list;
-	std::map<wxString, GdaConst::FieldType> var_type_map;
-	layer_proxy->GetVarTypeMap(var_list, var_type_map);
-	
+	std::vector<wxString> var_list = layer_proxy->GetFieldNames();
+    std::vector<GdaConst::FieldType> var_types = layer_proxy->GetFieldTypes();
 	LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
 	VarOrderPtree* variable_order = layer_conf->GetVarOrderPtree();
-	variable_order->CorrectVarGroups(var_type_map, var_list,
+	variable_order->CorrectVarGroups(var_list, var_types,
                                      IsFieldCaseSensitive());
-	
 	table_state = new TableState;
 	time_state = new TimeState;
 	table_int = new OGRTable(layer_proxy, ds_type, table_state,
@@ -1598,7 +1632,6 @@ bool Project::InitFromOgrLayer()
 		delete table_int;
 		return false;
 	}
-
     // read cpg file for ESRI shapefile to setup encoding
     if (ds_type == GdaConst::ds_shapefile) {
         wxFileName fn(datasource_name);
@@ -1610,14 +1643,16 @@ bool Project::InitFromOgrLayer()
             wxTextFile cpg_file;
             cpg_file.Open(cpg_fn);
             // read the first line
-            wxString encode_str = cpg_file.GetFirstLine();
+            cpg_encode = cpg_file.GetFirstLine();
+            wxString encode_str = ConvertCpgCodePage(cpg_encode);
             SetupEncoding(encode_str);
         }
     }
 	isTableOnly = layer_proxy->IsTableOnly();
     if (ds_type == GdaConst::ds_dbf) isTableOnly = true;
-    if (!isTableOnly) layer_proxy->ReadGeometries(main_data);
-
+    if (!isTableOnly) {
+        has_null_geometry = layer_proxy->ReadGeometries(main_data);
+    }
 	return true;
 }
 
@@ -1628,12 +1663,20 @@ BackgroundMapLayer* Project::AddMapLayer(wxString datasource_name,
     wxLogMessage("ds:" + datasource_name + " layer: " + layer_name);
     BackgroundMapLayer* map_layer = NULL;
     // Use global OGR adapter to manage all datasources, so they can be reused
-    OGRDatasourceProxy* proxy = OGRDataAdapter::GetInstance().GetDatasourceProxy(datasource_name, ds_type);
-	if (proxy == NULL) {
+    OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
+    OGRDatasourceProxy* proxy = NULL;
+    try {
+        proxy = ogr_adapter.GetDatasourceProxy(datasource_name, ds_type);
+    } catch (GdaException& e) {
+        return NULL;
+    }
+    if (proxy == NULL) {
 		return NULL;
 	}
     OGRLayerProxy* p_layer = proxy->GetLayerProxy(layer_name);
 	if (p_layer == NULL || p_layer->CheckIsTableOnly()) {
+        // remove this datasource_proxy from cache
+        ogr_adapter.RemoveDatasourceProxy(datasource_name);
 		return NULL;
 	}
     if (p_layer->ReadData()) {
@@ -1828,7 +1871,6 @@ void Project::SetupEncoding(wxString encode_str)
         table_int->SetEncoding(wxFONTENCODING_CP949);
     } else if (encode_str.Upper().Contains("950")) {
         table_int->SetEncoding(wxFONTENCODING_CP950);
-        
     } else if (encode_str.Upper().Contains("885910") ||
                encode_str.Upper().Contains("8859_10") ) {
         table_int->SetEncoding(wxFONTENCODING_ISO8859_10);
@@ -1889,4 +1931,88 @@ void Project::SetupEncoding(wxString encode_str)
     } else if (encode_str.Upper().Contains("KR")) {
         table_int->SetEncoding(wxFONTENCODING_EUC_KR);
     }
+}
+
+wxString Project::ConvertCpgCodePage(const wxString& code_page)
+{
+    if( code_page.IsEmpty() )
+        return code_page;
+    
+    if(code_page.StartsWith("LDID/")) {
+        int nCP = -1; // windows code page.
+        //http://www.autopark.ru/ASBProgrammerGuide/DBFSTRUC.HTM
+        const char* pszCodePage = code_page.c_str();
+        switch( atoi(pszCodePage+5) )
+        {
+            case 1: nCP = 437;      break;
+            case 2: nCP = 850;      break;
+            case 3: nCP = 1252;     break;
+            case 4: nCP = 10000;    break;
+            case 8: nCP = 865;      break;
+            case 10: nCP = 850;     break;
+            case 11: nCP = 437;     break;
+            case 13: nCP = 437;     break;
+            case 14: nCP = 850;     break;
+            case 15: nCP = 437;     break;
+            case 16: nCP = 850;     break;
+            case 17: nCP = 437;     break;
+            case 18: nCP = 850;     break;
+            case 19: nCP = 932;     break;
+            case 20: nCP = 850;     break;
+            case 21: nCP = 437;     break;
+            case 22: nCP = 850;     break;
+            case 23: nCP = 865;     break;
+            case 24: nCP = 437;     break;
+            case 25: nCP = 437;     break;
+            case 26: nCP = 850;     break;
+            case 27: nCP = 437;     break;
+            case 28: nCP = 863;     break;
+            case 29: nCP = 850;     break;
+            case 31: nCP = 852;     break;
+            case 34: nCP = 852;     break;
+            case 35: nCP = 852;     break;
+            case 36: nCP = 860;     break;
+            case 37: nCP = 850;     break;
+            case 38: nCP = 866;     break;
+            case 55: nCP = 850;     break;
+            case 64: nCP = 852;     break;
+            case 77: nCP = 936;     break;
+            case 78: nCP = 949;     break;
+            case 79: nCP = 950;     break;
+            case 80: nCP = 874;     break;
+            case 87: nCP = 88591;   break;
+            case 88: nCP = 1252;     break;
+            case 89: nCP = 1252;     break;
+            case 100: nCP = 852;     break;
+            case 101: nCP = 866;     break;
+            case 102: nCP = 865;     break;
+            case 103: nCP = 861;     break;
+            case 104: nCP = 895;     break;
+            case 105: nCP = 620;     break;
+            case 106: nCP = 737;     break;
+            case 107: nCP = 857;     break;
+            case 108: nCP = 863;     break;
+            case 120: nCP = 950;     break;
+            case 121: nCP = 949;     break;
+            case 122: nCP = 936;     break;
+            case 123: nCP = 932;     break;
+            case 124: nCP = 874;     break;
+            case 134: nCP = 737;     break;
+            case 135: nCP = 852;     break;
+            case 136: nCP = 857;     break;
+            case 150: nCP = 10007;   break;
+            case 151: nCP = 10029;   break;
+            case 200: nCP = 1250;    break;
+            case 201: nCP = 1251;    break;
+            case 202: nCP = 1254;    break;
+            case 203: nCP = 1253;    break;
+            case 204: nCP = 1257;    break;
+            default: break;
+        }
+        wxString new_code;
+        if (nCP > -1 ) new_code << nCP;
+        return new_code;
+    }
+    
+    return code_page;
 }

@@ -31,6 +31,7 @@
 #include <wx/xrc/xmlres.h>
 
 #include "../HLStateInt.h"
+#include "../DataViewer/TableState.h"
 #include "../HighlightStateObserver.h"
 
 using namespace std;
@@ -51,6 +52,7 @@ public:
     
     PreferenceDlg(wxWindow* parent,
                   HLStateInt* highlight_state,
+                  TableState* table_state,
                   wxWindowID id = wxID_ANY,
                   const wxString& title = _("GeoDa Preference Setup"),
                   const wxPoint& pos = wxDefaultPosition,
@@ -60,6 +62,7 @@ public:
     
 protected:
     HLStateInt* highlight_state;
+    TableState* table_state;
     // PREF_USE_CROSSHATCH
     wxCheckBox* cbox0;
     // PREF_SLIDER1_TXT
@@ -97,6 +100,8 @@ protected:
     wxTextCtrl* txt23;
     // data/tome 
     wxTextCtrl* txt24;
+    // displayed decimals
+    wxTextCtrl* txt25;
     // cpu cores
     wxCheckBox* cbox18;
     wxTextCtrl* txt_cores;
@@ -106,11 +111,11 @@ protected:
     wxComboBox* cmb113;
     // gpu
     wxCheckBox* cbox_gpu;
+    // transp
+    wxCheckBox* cbox26;
     
     void Init();
-    void SetupControls();
-    
-    
+    void SetupControls();    
     void OnChooseLanguage(wxCommandEvent& ev);
     void OnCrossHatch(wxCommandEvent& ev);
     void OnSlider1(wxCommandEvent& ev);
@@ -130,7 +135,7 @@ protected:
     void OnHideTableSQLITE(wxCommandEvent& ev);
     void OnTimeoutInput(wxCommandEvent& ev);
     void OnDateTimeInput(wxCommandEvent& ev);
-    
+    void OnDisplayDecimal(wxCommandEvent& ev);
     void OnUseSpecifiedSeed(wxCommandEvent& ev);
     void OnSeedEnter(wxCommandEvent& ev);
     
@@ -139,6 +144,8 @@ protected:
    
     void OnPowerEpsEnter(wxCommandEvent& ev);
     void OnUseGPU(wxCommandEvent& ev);
+    
+    void OnEnableTransparencyWin(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);
 };

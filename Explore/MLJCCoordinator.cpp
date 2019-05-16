@@ -468,7 +468,7 @@ void JCCoordinator::CalcPseudoP()
             GalElement* w = Gal_vecs[t]->gal;
             double* _sigLocal = sig_local_jc_vecs[t];
             
-            wxString exePath = GenUtils::GetBasemapCacheDir();
+            wxString exePath = GenUtils::GetExeDir();
             wxString clPath = exePath + "localjc_kernel.cl";
             bool flag = gpu_localjoincount(clPath.mb_str(), num_obs, permutations, last_seed_used, num_vars, zz, local_jc, w, _sigLocal);
             

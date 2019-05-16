@@ -197,6 +197,7 @@ public:
 	void SetAutomaticLabels(bool auto_labels);
 	CatClassification::ColorScheme GetColorSchemeChoice();
 	void SetColorSchemeChoice(CatClassification::ColorScheme cs);
+    CatClassification::CatClassifType GetClassifTypeChoice();
 	CatClassification::BreakValsType GetBreakValsTypeChoice();
 	void SetBreakValsTypeChoice(CatClassification::BreakValsType bvt);
 	wxString GetAssocDbFldNm();

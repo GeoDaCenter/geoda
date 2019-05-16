@@ -607,7 +607,7 @@ void wxCompositeShape::WriteAttributes(wxExpr *clause)
   while (node)
   {
     wxOGLConstraint *constraint = (wxOGLConstraint *)node->GetData();
-    wxSprintf(m_constraintNameBuf, _T("constraint%d"), constraintNo);
+    wxSprintf(m_constraintNameBuf, "constraint%d", constraintNo);
 
     // Each constraint is stored in the form
     // (type name id xspacing yspacing m_constrainingObjectId constrainedObjectIdList)
@@ -644,7 +644,7 @@ void wxCompositeShape::WriteAttributes(wxExpr *clause)
     childrenExpr->Append(new wxExpr(child->GetId()));
     node = node->GetNext();
   }
-  clause->AddAttributeValue(_T("children"), childrenExpr);
+  clause->AddAttributeValue("children", childrenExpr);
 
   // Write the ids of all the division images
   if (m_divisions.GetCount() > 0)
@@ -657,7 +657,7 @@ void wxCompositeShape::WriteAttributes(wxExpr *clause)
       divisionsExpr->Append(new wxExpr(child->GetId()));
       node = node->GetNext();
     }
-    clause->AddAttributeValue(_T("divisions"), divisionsExpr);
+    clause->AddAttributeValue("divisions", divisionsExpr);
   }
 }
 
@@ -681,7 +681,7 @@ void wxCompositeShape::ReadConstraints(wxExpr *clause, wxExprDatabase *database)
 
   while (haveConstraints)
   {
-    wxSprintf(m_constraintNameBuf, _T("constraint%d"), constraintNo);
+    wxSprintf(m_constraintNameBuf, "constraint%d", constraintNo);
     wxExpr *constraintExpr = NULL;
     clause->GetAttributeValue(m_constraintNameBuf, &constraintExpr);
     if (!constraintExpr)
@@ -710,25 +710,25 @@ void wxCompositeShape::ReadConstraints(wxExpr *clause, wxExprDatabase *database)
     cName = nameExpr->StringValue();
     long cId = idExpr->IntegerValue();
 
-    wxExpr *objExpr1 = database->HashFind(_T("node_image"), constrainingExpr->IntegerValue());
+    wxExpr *objExpr1 = database->HashFind("node_image", constrainingExpr->IntegerValue());
     if (objExpr1 && objExpr1->GetClientData())
       m_constrainingObject = (wxShape *)objExpr1->GetClientData();
     else
-      wxLogFatalError(wxT("Object graphics error: Couldn't find constraining image of composite."));
+      wxLogFatalError("Object graphics error: Couldn't find constraining image of composite.");
 
     int i = 0;
     wxExpr *currentIdExpr = constrainedExpr->Nth(i);
     while (currentIdExpr)
     {
       long currentId = currentIdExpr->IntegerValue();
-      wxExpr *objExpr2 = database->HashFind(_T("node_image"), currentId);
+      wxExpr *objExpr2 = database->HashFind("node_image", currentId);
       if (objExpr2 && objExpr2->GetClientData())
       {
         m_constrainedObjects.Append((wxShape *)objExpr2->GetClientData());
       }
       else
       {
-        wxLogFatalError(wxT("Object graphics error: Couldn't find constrained image of composite."));
+        wxLogFatalError("Object graphics error: Couldn't find constrained image of composite.";
       }
 
       i ++;
@@ -817,10 +817,10 @@ wxDivisionShape::wxDivisionShape()
   m_handleSide = DIVISION_SIDE_NONE;
   m_leftSidePen = wxBLACK_PEN;
   m_topSidePen = wxBLACK_PEN;
-  m_leftSideColour = wxT("BLACK");
-  m_topSideColour = wxT("BLACK");
-  m_leftSideStyle = wxT("Solid");
-  m_topSideStyle = wxT("Solid");
+  m_leftSideColour = "BLACK";
+  m_topSideColour = "BLACK";
+  m_leftSideStyle = "Solid";
+  m_topSideStyle = "Solid";
   ClearRegions();
 }
 
@@ -981,30 +981,30 @@ void wxDivisionShape::WriteAttributes(wxExpr *clause)
   wxCompositeShape::WriteAttributes(clause);
 
   if (m_leftSide)
-    clause->AddAttributeValue(_T("left_side"), (long)m_leftSide->GetId());
+    clause->AddAttributeValue("left_side", (long)m_leftSide->GetId());
   if (m_topSide)
-    clause->AddAttributeValue(_T("top_side"), (long)m_topSide->GetId());
+    clause->AddAttributeValue("top_side", (long)m_topSide->GetId());
   if (m_rightSide)
-    clause->AddAttributeValue(_T("right_side"), (long)m_rightSide->GetId());
+    clause->AddAttributeValue("right_side", (long)m_rightSide->GetId());
   if (m_bottomSide)
-    clause->AddAttributeValue(_T("bottom_side"), (long)m_bottomSide->GetId());
+    clause->AddAttributeValue("bottom_side", (long)m_bottomSide->GetId());
 
-  clause->AddAttributeValue(_T("handle_side"), (long)m_handleSide);
-  clause->AddAttributeValueString(_T("left_colour"), m_leftSideColour);
-  clause->AddAttributeValueString(_T("top_colour"), m_topSideColour);
-  clause->AddAttributeValueString(_T("left_style"), m_leftSideStyle);
-  clause->AddAttributeValueString(_T("top_style"), m_topSideStyle);
+  clause->AddAttributeValue("handle_side", (long)m_handleSide);
+  clause->AddAttributeValueString("left_colour", m_leftSideColour);
+  clause->AddAttributeValueString("top_colour", m_topSideColour);
+  clause->AddAttributeValueString("left_style", m_leftSideStyle);
+  clause->AddAttributeValueString("top_style", m_topSideStyle);
 }
 
 void wxDivisionShape::ReadAttributes(wxExpr *clause)
 {
   wxCompositeShape::ReadAttributes(clause);
 
-  clause->GetAttributeValue(_T("handle_side"), m_handleSide);
-  clause->GetAttributeValue(_T("left_colour"), m_leftSideColour);
-  clause->GetAttributeValue(_T("top_colour"), m_topSideColour);
-  clause->GetAttributeValue(_T("left_style"), m_leftSideStyle);
-  clause->GetAttributeValue(_T("top_style"), m_topSideStyle);
+  clause->GetAttributeValue("handle_side", m_handleSide);
+  clause->GetAttributeValue("left_colour", m_leftSideColour);
+  clause->GetAttributeValue("top_colour", m_topSideColour);
+  clause->GetAttributeValue("left_style", m_leftSideStyle);
+  clause->GetAttributeValue("top_style", m_topSideStyle);
 }
 #endif
 
@@ -1564,11 +1564,11 @@ bool wxDivisionShape::ResizeAdjoining(int side, double newPos, bool test)
 class OGLPopupDivisionMenu : public wxMenu {
 public:
     OGLPopupDivisionMenu() : wxMenu() {
-        Append(DIVISION_MENU_SPLIT_HORIZONTALLY, wxT("Split horizontally"));
-        Append(DIVISION_MENU_SPLIT_VERTICALLY, wxT("Split vertically"));
+        Append(DIVISION_MENU_SPLIT_HORIZONTALLY, "Split horizontally");
+        Append(DIVISION_MENU_SPLIT_VERTICALLY, "Split vertically");
         AppendSeparator();
-        Append(DIVISION_MENU_EDIT_LEFT_EDGE, wxT("Edit left edge"));
-        Append(DIVISION_MENU_EDIT_TOP_EDGE, wxT("Edit top edge"));
+        Append(DIVISION_MENU_EDIT_LEFT_EDGE, "Edit left edge");
+        Append(DIVISION_MENU_EDIT_TOP_EDGE, "Edit top edge");
     }
 
     void OnMenu(wxCommandEvent& event);
@@ -1615,7 +1615,7 @@ void OGLPopupDivisionMenu::OnMenu(wxCommandEvent& event)
 
 void wxDivisionShape::EditEdge(int WXUNUSED(side))
 {
-  wxMessageBox(wxT("EditEdge() not implemented"), wxT("OGL"), wxOK);
+  wxMessageBox("EditEdge() not implemented", "OGL", wxOK);
 
 #if 0
   wxBeginBusyCursor();

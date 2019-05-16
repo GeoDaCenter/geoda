@@ -94,4 +94,24 @@ public:
     void OnSaveClick( wxCommandEvent& event );
 };
 
+class TransparentSettingDialog: public wxDialog
+{
+	double transparency;
+    wxSlider* slider;
+    wxStaticText* slider_text;
+	void OnSliderChange(wxCommandEvent& event );
+public:
+    TransparentSettingDialog ();
+    TransparentSettingDialog (wxWindow * parent,
+		double trasp,
+		wxWindowID id=wxID_ANY,
+		const wxString & caption="Transparent Setting Dialog",
+		const wxPoint & pos = wxDefaultPosition,
+		const wxSize & size = wxDefaultSize,
+		long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~TransparentSettingDialog ();
+
+	double GetTransparency();
+};
+
 #endif

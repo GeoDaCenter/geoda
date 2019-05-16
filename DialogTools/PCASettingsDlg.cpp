@@ -352,9 +352,9 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     
     int num_pc = col_lim;
     vector<vector<double> > pc_data(num_pc);
-    for (int i=0; i<col_lim; i++ ) {
+    for (unsigned int i=0; i<col_lim; i++ ) {
         pc_data[i].resize(row_lim);
-        for (int j=0; j<row_lim; j++ ) {
+        for (unsigned int j=0; j<row_lim; j++ ) {
             pc_data[i][j] = scores[i + col_lim*j];
         }
     }
@@ -399,7 +399,7 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
     m_textbox->SetValue(pca_log);
     
     combo_n->Clear();
-    for (int i=0; i<col_lim; i++){
+    for (unsigned int i=0; i<col_lim; i++){
         combo_n->Append(wxString::Format("%d", i+1));
     }
     combo_n->SetSelection((int)thresh95 -1);

@@ -55,31 +55,20 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
     if (ds_type == GdaConst::ds_unknown) {
         throw GdaException(GET_ENCODED_FILENAME(msg));
     }
-    
     CPLErrorReset();
-    
+    char **papszOpenOptions = NULL;
     if (ds_type == GdaConst::ds_csv) {
+        papszOpenOptions = CSLAddString(papszOpenOptions, "AUTODETECT_TYPE=YES");
+        papszOpenOptions = CSLAddString(papszOpenOptions, "EMPTY_STRING_AS_NULL=YES");
+
         if (GdaConst::gda_ogr_csv_header == 0) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES", "HEADERS=NO"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            papszOpenOptions = CSLAddString(papszOpenOptions, "HEADERS=NO");
         } else if (GdaConst::gda_ogr_csv_header == 1) {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES", "HEADERS=YES"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-        } else {
-            const char *papszOpenOptions[255] = {"AUTODETECT_TYPE=YES",
-                "EMPTY_STRING_AS_NULL=YES"};
-            ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
+            papszOpenOptions = CSLAddString(papszOpenOptions, "HEADERS=YES");
         }
-    } else if(ds_type == GdaConst::ds_shapefile) {
-        //const char* papszOpenOptions[255] = {"ENCODING=CP936"};
-        //ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, papszOpenOptions, NULL);
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
-    } else {
-        ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE, NULL, NULL, NULL);
     }
-    
+    ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE,
+                                   NULL, papszOpenOptions, NULL);
     is_writable = true;
 	if (!ds) {
         // try without UPDATE
@@ -91,6 +80,7 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
             } else {
                 msg << _("\n\nDetails: ") << error_detail;
             }
+             CSLDestroy(papszOpenOptions);
             throw GdaException(GET_ENCODED_FILENAME(msg));
         }
         is_writable = false;
@@ -104,8 +94,8 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         ds_type = GdaConst::datasrc_str_to_type[driver_name];
     }
     
-    //is_writable = ds->TestCapability( ODsCCreateLayer );
 	layer_count = ds->GetLayerCount();
+    CSLDestroy(papszOpenOptions);
 }
 
 OGRDatasourceProxy::OGRDatasourceProxy(wxString format, wxString dest_datasource)
@@ -162,7 +152,6 @@ OGRDatasourceProxy::~OGRDatasourceProxy()
 	layer_pool.clear();
     
 	// clean ogr data sources
-	//OGRDataSource::DestroyDataSource(ds);
 	GDALClose(ds);
 }
 
@@ -326,7 +315,7 @@ void OGRDatasourceProxy::CreateDataSource(wxString format,
 	}
 	
 	// Create the output data source.  
-	GDALDataset *poODS = poDriver->Create( pszDestDataSource, 0,0,0,GDT_Unknown, NULL);
+	GDALDataset *poODS = poDriver->Create(pszDestDataSource,0,0,0,GDT_Unknown, NULL);
 	if( poODS == NULL ) {
 		// driver failed to load
         error_message << _("Can't create output OGR driver. \n\nDetails:");
@@ -344,7 +333,8 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                                 vector<OGRGeometry*>& geometries,
                                 TableInterface* table,
                                 vector<int>& selected_rows,
-                                OGRSpatialReference* spatial_ref)
+                                OGRSpatialReference* spatial_ref,
+                                wxString cpg_encode)
 {
     wxString error_message;
     if(!ds->TestCapability(ODsCCreateLayer)) {
@@ -355,24 +345,29 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
 		throw GdaException(error_message.mb_str());
     }
     
+    // PRECISION is for database e.g. MSSQL
+    // OVERWRITE: This may be "YES" to force an existing layer of the
+    // desired name to be destroyed before creating the requested layer.
+    // LAUNDER is for database: rename desired field name
+    char** papszLCO = NULL;
+    papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
+    papszLCO = CSLAddString(papszLCO, "LAUNDER=no");
+
     OGRSpatialReference *poOutputSRS = spatial_ref;
-    OGRLayer *poDstLayer;
     if (ds_type == GdaConst::ds_mysql || ds_type == GdaConst::ds_postgresql ||
         ds_type == GdaConst::ds_ms_sql || ds_type == GdaConst::ds_sqlite ) {
-        // PRECISION is for database e.g. MSSQL
-        // OVERWRITE: This may be "YES" to force an existing layer of the
-        // desired name to be destroyed before creating the requested layer.
-        // LAUNDER is for database: rename desired field name
-        const char* papszLCO[50] = {"PRECISION=no", "LAUNDER=yes"};
-        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
-                                     (char**)papszLCO);
+        papszLCO = CSLAddString(papszLCO, "PRECISION=no");
     } else {
-        // ENCODING: set to "" to avoid any recoding
-        const char* papszLCO[50] = {"OVERWRITE=yes", "LAUNDER=no", "ENCODING="};
-        poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS, eGType,
-                                     (char**)papszLCO);
+        if (ds_type == GdaConst::ds_shapefile || ds_type == GdaConst::ds_dbf) {
+            if (cpg_encode.IsEmpty() == false) {
+                wxString opt = "ENCODING=";
+                opt << cpg_encode;
+                papszLCO = CSLAddString(papszLCO, opt.c_str());
+            }
+        }
     }
-    
+    OGRLayer *poDstLayer = ds->CreateLayer(layer_name.mb_str(), poOutputSRS,
+                                           eGType, papszLCO);
     if( poDstLayer == NULL ) {
         error_message << _("Can't write/create layer \"");
         error_message << layer_name;
@@ -380,9 +375,8 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
         error_message << CPLGetLastErrorMsg();
 		throw GdaException(error_message.mb_str());
     }
-    
+    OGRFeatureDefn* poFeatDef = poDstLayer->GetLayerDefn();
     map<wxString, pair<int, int> >::iterator field_it;
-    
     // create fields using TableInterface:table
     if ( table != NULL ) {
         std::vector<int> col_id_map; // using orders in wxGrid
@@ -422,15 +416,25 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 if ( ogr_fprecision>0 ) {
                     oField.SetPrecision(ogr_fprecision);
                 }
-                if( poDstLayer->CreateField( &oField ) != OGRERR_NONE ) {
-                    error_message << _("Creating a field failed.\n\nDetails:");
+                if( poDstLayer->CreateField( &oField, false ) != OGRERR_NONE ) {
+                    error_message << _("OGR failed to create field.\n\nDetails:");
                     error_message << CPLGetLastErrorMsg();
                     throw GdaException(error_message.mb_str());
+                }
+                // check if field name has been launder-ed
+                int n_field = poFeatDef->GetFieldCount();
+                OGRFieldDefn *fieldDefn = poFeatDef->GetFieldDefn(n_field - 1);
+                
+                wxString ogr_field_nm = fieldDefn->GetNameRef();
+                if (fname.Cmp(ogr_field_nm) != 0) {
+                    table->RenameSimpleCol(id, t, ogr_field_nm);
                 }
             }
         }
     }
     OGRLayerProxy* layer =  new OGRLayerProxy(poDstLayer, ds_type, eGType);
     layer_pool[layer_name] = layer;
+
+    CSLDestroy(papszLCO);
     return layer;
 }

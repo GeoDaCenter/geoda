@@ -232,8 +232,8 @@ void wxDrawnShape::WriteAttributes(wxExpr *clause)
 {
   wxRectangleShape::WriteAttributes(clause);
 
-  clause->AddAttributeValue(_T("current_angle"), (long)m_currentAngle);
-  clause->AddAttributeValue(_T("save_metafile"), (long)m_saveToFile);
+  clause->AddAttributeValue("current_angle", (long)m_currentAngle);
+  clause->AddAttributeValue("save_metafile", (long)m_saveToFile);
   if (m_saveToFile)
   {
     for (int i = 0; i < 4; i++)
@@ -249,8 +249,8 @@ void wxDrawnShape::ReadAttributes(wxExpr *clause)
   wxRectangleShape::ReadAttributes(clause);
 
   int iVal = (int) m_saveToFile;
-  clause->GetAttributeValue(_T("save_metafile"), iVal);
-  clause->GetAttributeValue(_T("current_angle"), m_currentAngle);
+  clause->GetAttributeValue("save_metafile", iVal);
+  clause->GetAttributeValue("current_angle", m_currentAngle);
   m_saveToFile = (iVal != 0);
 
   if (m_saveToFile)
@@ -1272,8 +1272,8 @@ bool wxOpPolyDraw::GetPerimeterPoint(double x1, double y1,
 #if wxUSE_PROLOGIO
 
 static char hexArray[] = {
-    _T('0'), _T('1'), _T('2'), _T('3'), _T('4'), _T('5'), _T('6'), _T('7'),
-    _T('8'), _T('9'), _T('A'), _T('B'), _T('C'), _T('D'), _T('E'), _T('F') };
+    '0', '1', '2', '3', '4', '5', '6', '7',
+    '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
 
 // Convert unsigned 16-bit integer to 4-character hex string
 static void IntToHex(unsigned int dec, wxChar *buf)
@@ -1295,37 +1295,37 @@ static int HexToInt1(wxChar hex)
 {
   switch (hex)
   {
-    case _T('0'):
+    case '0':
       return 0;
-    case _T('1'):
+    case '1':
       return 1;
-    case _T('2'):
+    case '2':
       return 2;
-    case _T('3'):
+    case '3':
       return 3;
-    case _T('4'):
+    case '4':
       return 4;
-    case _T('5'):
+    case '5':
       return 5;
-    case _T('6'):
+    case '6':
       return 6;
-    case _T('7'):
+    case '7':
       return 7;
-    case _T('8'):
+    case '8':
       return 8;
-    case _T('9'):
+    case '9':
       return 9;
-    case _T('A'):
+    case 'A':
       return 10;
-    case _T('B'):
+    case 'B':
       return 11;
-    case _T('C'):
+    case 'C':
       return 12;
-    case _T('D'):
+    case 'D':
       return 13;
-    case _T('E'):
+    case 'E':
       return 14;
-    case _T('F'):
+    case 'F':
       return 15;
   }
 
@@ -1445,16 +1445,16 @@ void wxPseudoMetaFile::Rotate(double x, double y, double theta)
 void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
 {
   wxString widthStr;
-  widthStr.Printf(wxT("meta_width%d"), whichAngle);
+  widthStr.Printf("meta_width%d", whichAngle);
 
   wxString heightStr;
-  heightStr.Printf(wxT("meta_height%d"), whichAngle);
+  heightStr.Printf("meta_height%d", whichAngle);
 
   wxString outlineStr;
-  outlineStr.Printf(wxT("outline_op%d"), whichAngle);
+  outlineStr.Printf("outline_op%d", whichAngle);
 
   wxString rotateableStr;
-  rotateableStr.Printf(wxT("meta_rotateable%d"), whichAngle);
+  rotateableStr.Printf("meta_rotateable%d", whichAngle);
 
   // Write width and height
   clause->AddAttributeValue(widthStr, m_width);
@@ -1468,7 +1468,7 @@ void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
   wxNode *node = m_gdiObjects.GetFirst();
   while (node)
   {
-    wxSprintf(buf, _T("gdi%d_%d"), whichAngle, i);
+    wxSprintf(buf, "gdi%d_%d", whichAngle, i);
     wxObject *obj = (wxObject *)node->GetData();
     wxExpr *expr = NULL;
     if (obj)
@@ -1526,7 +1526,7 @@ void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
   node = m_ops.GetFirst();
   while (node)
   {
-    wxSprintf(buf, _T("op%d_%d"), whichAngle, i);
+    wxSprintf(buf, "op%d_%d", whichAngle, i);
     wxDrawOp *op = (wxDrawOp *)node->GetData();
     wxExpr *expr = op->WriteExpr(this);
     if (expr)
@@ -1548,7 +1548,7 @@ void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
       node = node->GetNext();
     }
     wxString outlineObjectsStr;
-    outlineObjectsStr.Printf(wxT("outline_objects%d"), whichAngle);
+    outlineObjectsStr.Printf("outline_objects%d", whichAngle);
 
     clause->AddAttributeValue(outlineObjectsStr, outlineExpr);
   }
@@ -1562,7 +1562,7 @@ void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
       node = node->GetNext();
     }
     wxString fillObjectsStr;
-    fillObjectsStr.Printf(wxT("fill_objects%d"), whichAngle);
+    fillObjectsStr.Printf("fill_objects%d", whichAngle);
 
     clause->AddAttributeValue(fillObjectsStr, fillExpr);
   }
@@ -1572,16 +1572,16 @@ void wxPseudoMetaFile::WriteAttributes(wxExpr *clause, int whichAngle)
 void wxPseudoMetaFile::ReadAttributes(wxExpr *clause, int whichAngle)
 {
   wxString widthStr;
-  widthStr.Printf(wxT("meta_width%d"), whichAngle);
+  widthStr.Printf("meta_width%d", whichAngle);
 
   wxString heightStr;
-  heightStr.Printf(wxT("meta_height%d"), whichAngle);
+  heightStr.Printf("meta_height%d", whichAngle);
 
   wxString outlineStr;
-  outlineStr.Printf(wxT("outline_op%d"), whichAngle);
+  outlineStr.Printf("outline_op%d", whichAngle);
 
   wxString rotateableStr;
-  rotateableStr.Printf(wxT("meta_rotateable%d"), whichAngle);
+  rotateableStr.Printf("meta_rotateable%d", whichAngle);
 
   clause->GetAttributeValue(widthStr, m_width);
   clause->GetAttributeValue(heightStr, m_height);
@@ -1597,7 +1597,7 @@ void wxPseudoMetaFile::ReadAttributes(wxExpr *clause, int whichAngle)
   bool keepGoing = true;
   while (keepGoing)
   {
-    wxSprintf(buf, _T("gdi%d_%d"), whichAngle, i);
+    wxSprintf(buf, "gdi%d_%d", whichAngle, i);
     wxExpr *expr = NULL;
     clause->GetAttributeValue(buf, &expr);
     if (!expr)
@@ -1663,7 +1663,7 @@ void wxPseudoMetaFile::ReadAttributes(wxExpr *clause, int whichAngle)
   i = 1;
   while (keepGoing)
   {
-    wxSprintf(buf, _T("op%d_%d"), whichAngle, i);
+    wxSprintf(buf, "op%d_%d", whichAngle, i);
     wxExpr *expr = NULL;
     clause->GetAttributeValue(buf, &expr);
     if (!expr)
@@ -1728,7 +1728,7 @@ void wxPseudoMetaFile::ReadAttributes(wxExpr *clause, int whichAngle)
   }
 
   wxString outlineObjectsStr;
-  outlineObjectsStr.Printf(wxT("outline_objects%d"), whichAngle);
+  outlineObjectsStr.Printf("outline_objects%d", whichAngle);
 
   // Now read in the list of outline and fill operations, if any
   wxExpr *expr1 = clause->AttributeValue(outlineObjectsStr);
@@ -1743,7 +1743,7 @@ void wxPseudoMetaFile::ReadAttributes(wxExpr *clause, int whichAngle)
   }
 
   wxString fillObjectsStr;
-  fillObjectsStr.Printf(wxT("fill_objects%d"), whichAngle);
+  fillObjectsStr.Printf("fill_objects%d", whichAngle);
 
   expr1 = clause->AttributeValue(fillObjectsStr);
   if (expr1)

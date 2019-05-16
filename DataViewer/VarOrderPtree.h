@@ -27,6 +27,10 @@
 #include "VarGroup.h"
 
 class VarOrderPtree : public PtreeInterface {
+    // Data
+    std::vector<wxString> time_ids;
+    VarGroup_container var_grps;
+    
 public:
     VarOrderPtree();
 	VarOrderPtree(const VarOrderPtree& vo);
@@ -44,9 +48,8 @@ public:
 	const std::vector<wxString>& GetTimeIdsRef() const;
 	const VarGroup_container& GetVarGroupsRef() const;
 	
-	bool CorrectVarGroups(const std::map<wxString,
-						  GdaConst::FieldType>& ds_var_type_map,
-						  const std::vector<wxString>& ds_var_list,
+    bool CorrectVarGroups(const std::vector<wxString>& ds_var_list,
+                          const std::vector<GdaConst::FieldType>& ds_var_type,
                           bool case_sensitive);
 	/**
 	 * This function clears all data and then reinitializes from the
@@ -62,13 +65,10 @@ public:
 	
 private:
 	bool RemoveFromVarGroups(const wxString& v, bool case_sensitive);
-	static bool IsTypeCompatible(const std::vector<wxString>& vars,
-								 const std::map<wxString,
-								 GdaConst::FieldType>& ds_var_type_map);
-	
-	// Data
-    std::vector<wxString> time_ids;
-	VarGroup_container var_grps;
+    
+    static bool IsTypeCompatible(const std::vector<wxString>& vars,
+                                 const std::vector<wxString>& ds_var_list,
+                                 const std::vector<GdaConst::FieldType>& ds_var_type);
 };
 
 #endif

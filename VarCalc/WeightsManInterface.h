@@ -39,7 +39,8 @@ class ProgressDlg;
 class WeightsManInterface
 {
 public:
-	virtual void GetIds(std::vector<boost::uuids::uuid>& ids) const = 0;
+	virtual void GetIds(std::vector<boost::uuids::uuid>& ids,
+                        bool allow_internal_weights = false) const = 0;
 	virtual boost::uuids::uuid FindIdByMetaInfo(const WeightsMetaInfo& wmi) const = 0;
 	virtual boost::uuids::uuid FindIdByFilename(const wxString& file) const = 0;
 	virtual boost::uuids::uuid FindIdByTitle(const wxString& title) const = 0;
@@ -72,6 +73,7 @@ public:
 	virtual bool IsValid(boost::uuids::uuid w_uuid) = 0;
     virtual bool IsBinaryWeights(boost::uuids::uuid w_uuid) = 0;
     virtual WeightsMetaInfo::WeightTypeEnum GetWeightsType(boost::uuids::uuid w_uuid) = 0;
+    virtual bool IsInternalUse(boost::uuids::uuid w_uuid) const = 0;
 };
 
 #endif

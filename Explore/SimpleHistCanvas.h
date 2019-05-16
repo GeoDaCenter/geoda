@@ -45,6 +45,8 @@ public:
                           const vector<wxString>& labels,
                           const vector<vector<double> >& values,
                           const vector<double>& stats_,
+                          const int display_precision = 3,
+                          const bool display_fixed_point = false,
                           const wxString& right_click_menu_id = wxEmptyString,
                           const wxPoint& pos = wxDefaultPosition,
                           const wxSize& size = wxDefaultSize);
@@ -63,7 +65,6 @@ protected:
     vector<wxString> labels;
     vector<vector<double> > values;
     vector<double> stats;
-    
     DECLARE_EVENT_TABLE()
 };
 

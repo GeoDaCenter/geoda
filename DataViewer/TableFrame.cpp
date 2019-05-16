@@ -43,9 +43,6 @@ BEGIN_EVENT_TABLE(TableFrame, TemplateFrame)
 	EVT_GRID_COL_SIZE( TableFrame::OnColSizeEvent )
 	EVT_GRID_COL_MOVE( TableFrame::OnColMoveEvent )
 	EVT_GRID_CELL_CHANGED( TableFrame::OnCellChanged )
-
-    //EVT_MENU(XRCID("ID_TABLE_GROUP"), TableFrame::OnGroupVariables)
-    //EVT_MENU(XRCID("ID_TABLE_UNGROUP"), TableFrame::OnUnGroupVariable)
     EVT_MENU(XRCID("ID_TABLE_RENAME_VARIABLE"), TableFrame::OnRenameVariable)
 
 END_EVENT_TABLE()
@@ -58,9 +55,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
     popup_col(-1)
 {
 	wxLogMessage("Open TableFrame.");
-
-    wxPanel *panel = new wxPanel(this, wxID_ANY);
-    
+    wxPanel *panel = new wxPanel(this, wxID_ANY);    
 	DisplayStatusBar(true);
 	wxString new_title(title);
 	new_title << " - " << project->GetProjectTitle();
@@ -86,13 +81,25 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	}
     
 	grid->SetSelectionMode(wxGrid::wxGridSelectRowsOrColumns);
-	//grid->SetSelectionMode(wxGrid::wxGridSelectCells);
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
         GdaConst::FieldType col_type = table_int->GetColType(i);
 		if (col_type == GdaConst::long64_type) {
-            grid->SetColFormatFloat(i, -1, 0);
+            grid->RegisterDataType("Long64Type",
+                                   new wxGridCellInt64Renderer(),
+                                   new wxGridCellInt64Editor());
+            grid->SetColFormatCustom(i, "Long64Type");
+
 		} else if (col_type == GdaConst::double_type) {
-			grid->SetColFormatFloat(i, -1, table_int->GetColDispDecimals(i));
+            int d = table_int->GetColDecimals(i);
+            if (d < 0) d = GdaConst::default_dbf_double_decimals;
+            int dd = table_int->GetColDispDecimals(i);
+            if (dd < 0) dd = GdaConst::default_dbf_double_decimals;
+            int w = table_int->GetColLength(i);
+            grid->RegisterDataType("DoubleType",
+                                    new wxGridCellFloatRenderer(w, dd),
+                                    new wxGridCellDoubleEditor(w, d));
+			grid->SetColFormatCustom(i, "DoubleType");
+
 		} else if (col_type == GdaConst::date_type ||
                    col_type == GdaConst::time_type ||
                    col_type == GdaConst::datetime_type) {
@@ -120,7 +127,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 			if (fac < 1) fac = 1;
 			if (fac > 5) fac = 5;
             fac = fac * 1.2;
-            grid->SetColMinimalWidth(i, cur_col_size * fac);
+            grid->SetColMinimalWidth(i, cur_col_size);
 			grid->SetColSize(i, cur_col_size * fac);
 		} else {
 			// add a few pixels of buffer to current label
@@ -250,7 +257,8 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 	if (popup_col != -1) {
 		rename_str << " \"" << ti->GetColName(popup_col) << "\"";
 	}
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->SetItemLabel(rename_str);
+    wxMenuItem* rename_mu = optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"));
+    rename_mu->SetItemLabel(rename_str);
 	bool enable_rename = false;
 	if (popup_col!=-1) {
 		if (ti->IsColTimeVariant(popup_col)) {
@@ -260,15 +268,25 @@ void TableFrame::DisplayPopupMenu( wxGridEvent& ev )
 		}
 	}
     
-	optMenu->FindItem(XRCID("ID_TABLE_RENAME_VARIABLE"))->Enable(enable_rename);
-		
+	rename_mu->Enable(enable_rename);
+
+    // Set meta-data
+    std::map<wxString, wxString> meta_data = ti->GetMetaData(popup_col);
+    if (meta_data.empty() == false) {
+        wxMenu* imp = new wxMenu;
+        std::map<wxString, wxString>::iterator it;
+        for (it = meta_data.begin(); it != meta_data.end(); it++) {
+            wxString lbl = it->first + ": " + it->second;
+            imp->Append(XRCID(lbl), lbl);
+        }
+        optMenu->AppendSubMenu(imp, _("Meta-data"));
+    }
 	PopupMenu(optMenu, ev.GetPosition());
 }
 
 
 void TableFrame::SetEncodingCheckmarks(wxMenu* m, wxFontEncoding e)
 {
-
 	m->FindItem(XRCID("ID_ENCODING_UTF8"))
 		->Check(e==wxFONTENCODING_UTF8);
 	m->FindItem(XRCID("ID_ENCODING_UTF16"))
@@ -536,6 +554,8 @@ void TableFrame::OnCellChanged( wxGridEvent& ev )
 		dlg.ShowModal();
 		ev.Veto();
 	}
+    //grid->SetCellAlignment (ev.GetRow(), ev.GetCol(), wxALIGN_RIGHT);
+    //grid->SetDefaultCellAlignment(wxALIGN_RIGHT, wxALIGN_RIGHT);
 	ev.Skip();
 }
 
@@ -611,9 +631,7 @@ void TableFrame::OnRenameVariable(wxCommandEvent& event)
 	wxString curr_name = ti->GetColName(popup_col);
 	wxString new_name = PromptRenameColName(ti, popup_col, curr_name);
 
-    bool case_sensitive = project->IsFieldCaseSensitive();
-	if (new_name.IsSameAs(curr_name, case_sensitive) || new_name.IsEmpty())
-        return;
+    if (new_name.IsEmpty()) return;
 
 	ti->RenameGroup(popup_col, new_name);
 
@@ -643,6 +661,7 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 	wxString error_msg = wxEmptyString;
 
 	bool first = true;
+    // rename field name may allow different case, e.g. ID->id
     bool case_sensitive = project->IsFieldCaseSensitive();
 
 	while (!done) {
@@ -654,7 +673,12 @@ wxString TableFrame::PromptRenameColName(TableInterface* ti, int curr_col,
 			new_name.Trim(false);
 			new_name.Trim(true);
 
-            bool is_name_exist = ti->DoesNameExist(new_name, case_sensitive);
+            bool is_name_exist = false;
+            bool case_change = new_name.CmpNoCase(curr_name) == 0;
+            if ( !case_change && ti->DoesNameExist(new_name, false)) {
+                is_name_exist = true;
+            }
+            
             // is_name_exist includes if new_name equals (case) curr_name
             if (is_name_exist == false ) {
                 if (is_group_col) {

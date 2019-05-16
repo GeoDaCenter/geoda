@@ -70,6 +70,8 @@ private:
 
     wxButton* seedButton;
     wxButton* saveButton;
+
+    wxCheckBox* chk_save_mst;
     
     SpanningTreeClustering::Skater* skater;
     

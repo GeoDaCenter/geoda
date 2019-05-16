@@ -30,6 +30,9 @@
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
+		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
+		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
+		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
 		A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */; };
 		A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */; };
 		A19483932118BAAA009A87A2 /* composit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194837A2118BAA7009A87A2 /* composit.cpp */; };
@@ -125,6 +128,7 @@
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
 		A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B1F992207730FA00905246 /* matlab_mat.cpp */; };
 		A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */; };
+		A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */; };
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
@@ -351,6 +355,12 @@
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
+		A178F771227381CA00EB9CB7 /* DissolveDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DissolveDlg.h; sourceTree = "<group>"; };
+		A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DissolveDlg.cpp; sourceTree = "<group>"; };
+		A178F774227772FC00EB9CB7 /* GdaListBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaListBox.cpp; sourceTree = "<group>"; };
+		A178F775227772FC00EB9CB7 /* GdaListBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaListBox.h; sourceTree = "<group>"; };
+		A178F777227773C500EB9CB7 /* GdaChoice.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaChoice.cpp; sourceTree = "<group>"; };
+		A178F778227773C500EB9CB7 /* GdaChoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaChoice.h; sourceTree = "<group>"; };
 		A186F09F1C16508A00AEBA13 /* GdaCartoDB.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaCartoDB.cpp; sourceTree = "<group>"; };
 		A186F0A01C16508A00AEBA13 /* GdaCartoDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaCartoDB.h; sourceTree = "<group>"; };
 		A1894C3D213F29DC00718FFC /* SpatialJoinDlg.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = SpatialJoinDlg.cpp; sourceTree = "<group>"; };
@@ -520,6 +530,8 @@
 		A4B1F99620783CC100905246 /* weights_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = weights_interface.h; path = io/weights_interface.h; sourceTree = "<group>"; };
 		A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCMapNewView.cpp; sourceTree = "<group>"; };
 		A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCMapNewView.h; sourceTree = "<group>"; };
+		A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupingMapView.h; sourceTree = "<group>"; };
+		A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GroupingMapView.cpp; sourceTree = "<group>"; };
 		A4D5423B1F45037B00572878 /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
 		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
@@ -1220,6 +1232,12 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A178F777227773C500EB9CB7 /* GdaChoice.cpp */,
+				A178F778227773C500EB9CB7 /* GdaChoice.h */,
+				A178F774227772FC00EB9CB7 /* GdaListBox.cpp */,
+				A178F775227772FC00EB9CB7 /* GdaListBox.h */,
+				A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */,
+				A178F771227381CA00EB9CB7 /* DissolveDlg.h */,
 				A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */,
 				A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */,
 				A4ED7D59209A6B81008685D6 /* HDBScanDlg.cpp */,
@@ -1357,6 +1375,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */,
+				A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */,
 				A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */,
 				A4596B4F2033DDFF00C9BCC8 /* AbstractClusterMap.h */,
 				A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */,
@@ -1775,6 +1795,7 @@
 				DD7976BD0F1D2CA800496A84 /* ML_im.cpp in Sources */,
 				DD7976BE0F1D2CA800496A84 /* PowerLag.cpp in Sources */,
 				A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */,
+				A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */,
 				DD7976BF0F1D2CA800496A84 /* PowerSymLag.cpp in Sources */,
 				DD7976C10F1D2CA800496A84 /* smile2.cpp in Sources */,
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,
@@ -1788,6 +1809,7 @@
 				DD27ECBC0F2E43B5009C5C42 /* GenUtils.cpp in Sources */,
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				A42018031FB3C0AC0029709C /* skater.cpp in Sources */,
+				A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */,
 				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
@@ -1804,6 +1826,7 @@
 				A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */,
 				A194839A2118BAAA009A87A2 /* lines.cpp in Sources */,
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
+				A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
 				A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */,
@@ -1928,6 +1951,7 @@
 				DDA4F0AD196315AF007645E2 /* WeightUtils.cpp in Sources */,
 				DD817EA819676AF100228B0A /* WeightsManState.cpp in Sources */,
 				DD8183C3197054CA00228B0A /* WeightsMapCanvas.cpp in Sources */,
+				A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */,
 				DD8183C81970619800228B0A /* WeightsManDlg.cpp in Sources */,
 				A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */,
 				A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */,

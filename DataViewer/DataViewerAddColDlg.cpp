@@ -221,7 +221,7 @@ void DataViewerAddColDlg::SetDefaultsByType(GdaConst::FieldType type)
 	if (fixed_lengths) {
 		m_length->Enable();
 		m_decimals_lable->SetLabelText("Decimals");
-		m_decimals->SetValue("7");
+		m_decimals->SetValue("15");
 		m_decimals->Disable();
 		m_max_label->SetLabelText("");
 		m_max_val->SetLabelText("");
@@ -300,7 +300,8 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
 		dlg.ShowModal();
 		return;
 	}
-	bool case_sensitive = project->IsFieldCaseSensitive();
+    // make sure no duplicated fields when adding a new field
+    bool case_sensitive = false; //project->IsFieldCaseSensitive();
 	if (table_int->DoesNameExist(colname, case_sensitive)) {
 		wxString msg = _("Error: \"%s\" already exists in Table, please specify a different name.");
         msg = wxString::Format(msg, colname);
@@ -356,12 +357,7 @@ void DataViewerAddColDlg::OnOkClick( wxCommandEvent& ev )
         col_insert_pos = table_int->GetNumberCols();
     }
 
-	int time_steps = 1; // non-space-time column by default	
-
-    //wxString log_msg = wxString::Format(_("Inserting new column %s into Table"),
-     //colname);
-	//wxLogMessage(log_msg);
-	
+	int time_steps = 1; // non-space-time column by default
 	bool success;
 	if (fixed_lengths) {
 		success = (table_int->InsertCol(cur_type, colname,

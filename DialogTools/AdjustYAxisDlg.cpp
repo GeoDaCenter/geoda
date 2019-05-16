@@ -74,29 +74,8 @@ void AdjustYAxisDlg::OnOkClick( wxCommandEvent& event )
         wxMessageBox("Please enter a valid Max value for Y axis");
         return;
     }
-  
-    /*
-    if (min_val > o_min_val) {
-        wxString msg;
-        msg << "Please make sure the input Min value <= " << o_min_val;
-        wxMessageBox(msg);
-        return;
-        
-    }
-    if (max_val < o_max_val - 0.0000001) {
-        wxString msg;
-        msg << "Please make sure the input Max value >= " << o_max_val;
-        wxMessageBox(msg);
-
-        return;
-        
-    }
-    */
-    
 	wxString _min_val = m_min_val->GetValue();
     wxString _max_val = m_max_val->GetValue();
-
-    
     if (max_val <= min_val) {
         wxMessageBox("Please make sure input Max value is larger than input Min value");
         return;
@@ -116,42 +95,47 @@ void AdjustYAxisDlg::OnCancelClick( wxCommandEvent& event )
 
 }
 
-IMPLEMENT_CLASS( AxisLabelPrecisionDlg, wxDialog )
+IMPLEMENT_CLASS( SetDisplayPrecisionDlg, wxDialog )
 
-BEGIN_EVENT_TABLE( AxisLabelPrecisionDlg, wxDialog )
-EVT_BUTTON( wxID_OK, AxisLabelPrecisionDlg::OnOkClick )
-EVT_BUTTON( wxID_CANCEL, AxisLabelPrecisionDlg::OnCancelClick )
+BEGIN_EVENT_TABLE( SetDisplayPrecisionDlg, wxDialog )
+EVT_BUTTON( wxID_OK, SetDisplayPrecisionDlg::OnOkClick )
+EVT_BUTTON( wxID_CANCEL, SetDisplayPrecisionDlg::OnCancelClick )
 END_EVENT_TABLE()
 
-AxisLabelPrecisionDlg::AxisLabelPrecisionDlg(int precision_s,
+SetDisplayPrecisionDlg::SetDisplayPrecisionDlg(int precision_s,
+                                               bool fixed_point_s,
                                              wxWindow* parent,
                                              wxWindowID id,
                                              const wxString& caption,
                                              const wxPoint& pos,
                                              const wxSize& size,
                                              long style)
-
 {
-    wxLogMessage(wxString::Format("AxisLabelPrecisionDlg with precision = %d.",
+    wxLogMessage(wxString::Format("SetDisplayPrecisionDlg with precision = %d.",
                                   precision_s));
     precision = precision_s;
+    fixed_point = fixed_point_s;
     SetParent(parent);
     CreateControls();
     Centre();
 }
 
-void AxisLabelPrecisionDlg::CreateControls()
+void SetDisplayPrecisionDlg::CreateControls()
 {
     wxXmlResource::Get()->LoadDialog(this, GetParent(),
-                                     "ID_AXIS_LABEL_PRECISION_DLG");
-    m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_AXIS_LABEL_PRECISION_SPIN")),
+                                     "ID_LABEL_PRECISION_DLG");
+    m_precision_spin = wxDynamicCast(FindWindow(XRCID("ID_LABEL_PRECISION_SPIN")),
                                      wxSpinCtrl);
     m_precision_spin->SetRange(0, 6);
     m_precision_spin->SetValue(precision);
-    m_precision_spin->Bind(wxEVT_KEY_DOWN, &AxisLabelPrecisionDlg::OnKeyUp, this);
+    m_precision_spin->Bind(wxEVT_KEY_DOWN, &SetDisplayPrecisionDlg::OnKeyUp, this);
+
+    m_fixed_point = wxDynamicCast(FindWindow(XRCID("IDC_FIX_POINT_CHECK")),
+                                  wxCheckBox);
+    m_fixed_point->SetValue(fixed_point);
 }
 
-void AxisLabelPrecisionDlg::OnKeyUp( wxEvent& event )
+void SetDisplayPrecisionDlg::OnKeyUp( wxEvent& event )
 {
     if (((wxKeyEvent&)event).GetKeyCode() == WXK_RETURN) {
         wxCommandEvent ev;
@@ -159,17 +143,18 @@ void AxisLabelPrecisionDlg::OnKeyUp( wxEvent& event )
     }
 }
 
-void AxisLabelPrecisionDlg::OnCancelClick( wxCommandEvent& event )
+void SetDisplayPrecisionDlg::OnCancelClick( wxCommandEvent& event )
 {
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
-void AxisLabelPrecisionDlg::OnOkClick( wxCommandEvent& event )
+void SetDisplayPrecisionDlg::OnOkClick( wxCommandEvent& event )
 {
     precision = m_precision_spin->GetValue();
-    if (precision < 0 || precision > 6) {
+    if (precision < 0 || precision > 12) {
         precision = 1;
     }
+    fixed_point = m_fixed_point->GetValue();
     EndDialog(wxID_OK);
 }

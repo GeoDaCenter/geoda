@@ -50,22 +50,23 @@ public:
     virtual const std::vector<long> GetNeighbors(int obs_idx)=0;
 
     virtual void   Update(const std::vector<bool>& undefs)=0;
-    virtual bool   HasIsolates()=0;
+    virtual bool   HasIsolates() = 0;
     virtual void   GetNbrStats() = 0;
-    virtual double GetSparsity();
-    virtual double GetDensity();
-    virtual int    GetMinNumNbrs();
-    virtual int    GetMaxNumNbrs();
-    virtual double GetMeanNumNbrs();
-    virtual double GetMedianNumNbrs();
-    virtual int    GetNumObs();
+    virtual double GetSparsity() const;
+    virtual double GetDensity() const;
+    virtual int    GetMinNumNbrs() const;
+    virtual int    GetMaxNumNbrs() const;
+    virtual double GetMeanNumNbrs() const;
+    virtual double GetMedianNumNbrs() const;
+    virtual int    GetNumObs() const;
+    virtual bool   IsInternalUse() const { return is_internal_use; }
     
     // Others
     virtual const GeoDaWeight& operator=(const GeoDaWeight& gw);
    
-    virtual wxString GetTitle(); // returns portion of wflnm if title empty
+    virtual wxString GetTitle() const; // returns portion of wflnm if title empty
    
-    virtual wxString GetIDName() { return id_field;}
+    virtual wxString GetIDName() const { return id_field;}
 
     // Properties
 	enum WeightType { gal_type, gwt_type };
@@ -82,6 +83,7 @@ public:
     int        max_nbrs;
     double     mean_nbrs;
     double     median_nbrs;
+    bool       is_internal_use; // if internally used weights structure, will not be shown and used by users
 };
 
 #endif

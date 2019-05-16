@@ -85,7 +85,8 @@ public:
 	IDataSource* GetDataSource() { return datasource; }
 	wxString GetProjectTitle(); /// assumed to be layer name
 	GdaConst::DataSourceType GetDatasourceType();
-    
+
+    bool HasNullGeometry() { return has_null_geometry;}
 	bool IsTableOnlyProject();
     bool IsDataTypeChanged();
     bool IsFileDataSource();
@@ -93,6 +94,9 @@ public:
     bool IsFieldCaseSensitive();
     bool IsPointTypeData() { return main_data.header.shape_type == Shapefile::POINT_TYP;}
 
+    int GetShapeType() { return main_data.header.shape_type; }
+
+    wxString GetCpgEncode() { return cpg_encode;}
 	/** Get the current project filename with absolute path.  If project
 	 file is not set, then empty string is returned. */
 	wxString GetProjectFullPath();
@@ -129,7 +133,7 @@ public:
 	HighlightState*     GetConMapHlightState() { return con_map_hl_state; }
 	CovSpHLStateProxy*  GetPairsHLState();
 	TableInterface*     GetTableInt() { return table_int; }
-	CatClassifManager*  GetCatClassifManager() { return cat_classif_manager; }
+    CatClassifManager*  GetCatClassifManager();
 	WeightsManInterface* GetWManInt() { return w_man_int; }
 	WeightsManState*	GetWManState() { return w_man_state; }
 	SaveButtonManager*	GetSaveButtonManager() { return save_manager; }
@@ -142,6 +146,10 @@ public:
     MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
+    OGRLayerProxy*        GetOGRLayerProxy() {return layer_proxy;}
+    /** Save in-memory Table+Geometries to OGR DataSource */
+    Shapefile::ShapeType  GetGdaGeometries(vector<GdaShape*>& geometries);
+    Shapefile::ShapeType  GetShapefileType();
 
 	void AddNeighborsToSelection(boost::uuids::uuid weights_id);
 	bool ExportVoronoi();
@@ -250,15 +258,13 @@ public:
     std::vector<GdaPoint*> mean_centers;
     std::vector<GdaPoint*> centroids;
     std::vector<GdaShape*> voronoi_polygons;
-    
-	/** Save in-memory Table+Geometries to OGR DataSource */
-	Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geometries);
-    
+
 protected:
 	bool CommonProjectInit();
 	bool InitFromOgrLayer();
     // only for ESRI Shapefile .cpg file
     void SetupEncoding(wxString encode_str);
+    wxString ConvertCpgCodePage(const wxString& code_page);
 	/** Save in-memory Table+Geometries to OGR DataSource */
 	void SaveOGRDataSource();
 	void UpdateProjectConf();
@@ -277,7 +283,8 @@ protected:
 
 	bool is_project_valid; // true if project Shapefile created successfully
 	wxString open_err_msg; // error message for project open failure.
-	
+    wxString cpg_encode;
+
 	// without Shapefile.
 	int					num_records;
 	TableInterface*     table_int;
@@ -293,7 +300,8 @@ protected:
 	TimeState*          time_state;
 	TimeChooserDlg*     time_chooser;
     MapLayerState*      maplayer_state;
-    
+
+    bool has_null_geometry;
 	bool point_duplicates_initialized;
 	bool point_dups_warn_prev_displayed;
 	

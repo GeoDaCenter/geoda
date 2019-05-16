@@ -306,20 +306,23 @@ public:
 	GdaPolygon(const GdaPolygon& s);
 	GdaPolygon(int n_s, wxRealPoint* points_o_s);
 	GdaPolygon(Shapefile::PolygonContents* pc_s);
+    GdaPolygon(wxPoint& pt1, wxPoint& pt2);
+
 	virtual ~GdaPolygon();
 	virtual GdaPolygon* clone() { return new GdaPolygon(*this); }
 	
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
-    
+
 	virtual bool pointWithin(const wxPoint& pt);
 	virtual bool regionIntersect(const wxRegion& r);
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
-	virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1.0);
+	virtual void projectToBasemap(Gda::Basemap* basemap,
+                                  double scale_factor = 1.0);
 	static wxRealPoint CalculateCentroid(int n, wxRealPoint* pts);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);
-    
+
 	// All values in points array are the same.  Can render render
 	// as a single point at points[0]
 	bool all_points_same;
@@ -338,7 +341,6 @@ public:
 	wxRealPoint* points_o;
 	wxRealPoint bb_ll_o; // bounding box lower left
 	wxRealPoint bb_ur_o; // bounding box upper right
-	//wxRegion region;
 };
 
 

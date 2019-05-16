@@ -92,32 +92,43 @@ void CustomClassifPtree::ReadPtree(const boost::property_tree::ptree& pt,
 					} else if (key == "type") {
 						wxString s = v.second.data();
 						CatClassification::BreakValsType t;
+                        CatClassification::CatClassifType c;
 						if (s == "no_theme") {
 							t = CatClassification::no_theme_break_vals;
+                            c = CatClassification::no_theme;
 						} else if (s == "hinge_15") {
 							t = CatClassification::hinge_15_break_vals;
+                            c = CatClassification::hinge_15;
 						} else if (s == "hinge_30") {
 							t = CatClassification::hinge_30_break_vals;
+                            c = CatClassification::hinge_30;
 						} else if (s == "quantile") {
 							t = CatClassification::quantile_break_vals;
+                            c = CatClassification::quantile;
 						} else if (s == "percentile") {
 							t = CatClassification::percentile_break_vals;
+                            c = CatClassification::percentile;
 						} else if (s == "stddev") {
 							t = CatClassification::stddev_break_vals;
+                            c = CatClassification::stddev;
 						} else if (s == "unique_values") {
 							t = CatClassification::unique_values_break_vals;
+                            c = CatClassification::unique_values;
 						} else if (s == "natural_breaks") {
 							t = CatClassification::natural_breaks_break_vals;
+                            c = CatClassification::natural_breaks;
 						} else if (s == "equal_intervals") {
 							t = CatClassification::equal_intervals_break_vals;
+                            c = CatClassification::equal_intervals;
 						} else if (s == "custom") {
 							t = CatClassification::custom_break_vals;
+                            c = CatClassification::custom;
 						} else {
 							wxString msg("unrecognized type: ");
 							msg << s;
 							throw GdaException(msg.mb_str());
 						}
-						cc_data.cat_classif_type = CatClassification::custom;
+						cc_data.cat_classif_type = c;
 						cc_data.break_vals_type = t;
 					} else if (key == "num_cats") {
 						wxString s = v.second.data();

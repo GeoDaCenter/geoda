@@ -1,0 +1,1914 @@
+msgid "&File"
+msgstr ""
+
+msgid "New From Recent"
+msgstr ""
+
+msgid "&New"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Save As"
+msgstr ""
+
+msgid "Save Selected As"
+msgstr ""
+
+msgid "&Open Project"
+msgstr ""
+
+msgid "Save Project"
+msgstr ""
+
+msgid "Project Information"
+msgstr ""
+
+msgid "Preferences..."
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Exit"
+msgstr ""
+
+msgid "&Edit"
+msgstr ""
+
+msgid "Time"
+msgstr ""
+
+msgid "Category"
+msgstr ""
+
+msgid "&Tools"
+msgstr ""
+
+msgid "Weights Manager"
+msgstr ""
+
+msgid "Shape"
+msgstr ""
+
+msgid "Points from Table"
+msgstr ""
+
+msgid "Create Grid"
+msgstr ""
+
+msgid "Spatial Join"
+msgstr ""
+
+msgid "Dissolve"
+msgstr ""
+
+msgid "T&able"
+msgstr ""
+
+msgid "Aggregate"
+msgstr ""
+
+msgid "Merge"
+msgstr ""
+
+msgid "Selection Tool"
+msgstr ""
+
+msgid "Invert Selection"
+msgstr ""
+
+msgid "Clear Selection"
+msgstr ""
+
+msgid "Save Selection"
+msgstr ""
+
+msgid "Move Selected to Top"
+msgstr ""
+
+msgid "Calculator"
+msgstr ""
+
+msgid "Add Variable"
+msgstr ""
+
+msgid "Delete Variable(s)"
+msgstr ""
+
+msgid "Edit Variable Properties"
+msgstr ""
+
+msgid "Encode"
+msgstr ""
+
+msgid "Unicode (UTF-8)"
+msgstr ""
+
+msgid "Unicode (UTF-16LE)"
+msgstr ""
+
+msgid "Arabic (Windows-1256)"
+msgstr ""
+
+msgid "Central European Latin-2 (ISO-8859-2)"
+msgstr ""
+
+msgid "Central European (Windows-1250)"
+msgstr ""
+
+msgid "Central European (CP852)"
+msgstr ""
+
+msgid "Chinese Simplified (GB2312)"
+msgstr ""
+
+msgid "Chinese Traditional (Big5)"
+msgstr ""
+
+msgid "Cyrillic (ISO-8859-5)"
+msgstr ""
+
+msgid "Cyrillic (KOI8-R)"
+msgstr ""
+
+msgid "Cyrillic (Windows-1251)"
+msgstr ""
+
+msgid "Cyrillic/Russian (CP866)"
+msgstr ""
+
+msgid "Greek (ISO-8859-7)"
+msgstr ""
+
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr ""
+
+msgid "Hebrew (Windows-1255)"
+msgstr ""
+
+msgid "Japanese (Shift&JIS)"
+msgstr ""
+
+msgid "Japanese (EUC-JP)"
+msgstr ""
+
+msgid "Korean (EUC-KR)"
+msgstr ""
+
+msgid "Nordic Latin-6 (ISO-8859-10)"
+msgstr ""
+
+msgid "South European Latin-3 (ISO-8859-3)"
+msgstr ""
+
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr ""
+
+msgid "Turkish (Windows-1254)"
+msgstr ""
+
+msgid "Vietnamese (Windows-1258)"
+msgstr ""
+
+msgid "West European Latin-1 (ISO-8859-1)"
+msgstr ""
+
+msgid "West European Latin-9 (ISO-8859-15)"
+msgstr ""
+
+msgid "&Map"
+msgstr ""
+
+msgid "Themeless Map"
+msgstr ""
+
+msgid "Quantile Map"
+msgstr ""
+
+msgid "Percentile Map"
+msgstr ""
+
+msgid "Box Map (Hinge=1.5)"
+msgstr ""
+
+msgid "Box Map (Hinge=3.0)"
+msgstr ""
+
+msgid "Standard Deviation Map"
+msgstr ""
+
+msgid "Unique Values Map"
+msgstr ""
+
+msgid "Co-location Map"
+msgstr ""
+
+msgid "Natural Breaks Map"
+msgstr ""
+
+msgid "Equal Intervals Map"
+msgstr ""
+
+msgid "Hierarchical Map"
+msgstr ""
+
+msgid "Custom Breaks"
+msgstr ""
+
+msgid "Create New Custom"
+msgstr ""
+
+msgid "Raw Rate"
+msgstr ""
+
+msgid "Excess Risk"
+msgstr ""
+
+msgid "Empirical Bayes"
+msgstr ""
+
+msgid "Spatial Rate"
+msgstr ""
+
+msgid "Spatial Empirical Bayes"
+msgstr ""
+
+msgid "Rates-Calculated Map"
+msgstr ""
+
+msgid "Conditional Map"
+msgstr ""
+
+msgid "Cartogram"
+msgstr ""
+
+msgid "Map Movie"
+msgstr ""
+
+msgid "Histogram"
+msgstr ""
+
+msgid "Box Plot"
+msgstr ""
+
+msgid "Scatter Plot"
+msgstr ""
+
+msgid "Scatter Plot Matrix"
+msgstr ""
+
+msgid "Bubble Chart"
+msgstr ""
+
+msgid "3D Scatter Plot"
+msgstr ""
+
+msgid "Parallel Coordinate Plot"
+msgstr ""
+
+msgid "Averages Chart"
+msgstr ""
+
+msgid "Conditional Plot"
+msgstr ""
+
+msgid "Map"
+msgstr ""
+
+msgid "E&xplore"
+msgstr ""
+
+msgid "Clusters"
+msgstr ""
+
+msgid "PCA"
+msgstr ""
+
+msgid "MDS"
+msgstr ""
+
+msgid "K Means"
+msgstr ""
+
+msgid "K Medians"
+msgstr ""
+
+msgid "K Medoids"
+msgstr ""
+
+msgid "Spectral"
+msgstr ""
+
+msgid "Hierarchical"
+msgstr ""
+
+msgid "HDBScan"
+msgstr ""
+
+msgid "skater"
+msgstr ""
+
+msgid "redcap"
+msgstr ""
+
+msgid "max-p"
+msgstr ""
+
+msgid "&Space"
+msgstr ""
+
+msgid "Univariate Moran's I"
+msgstr ""
+
+msgid "Bivariate Moran's I"
+msgstr ""
+
+msgid "Differential Moran's I"
+msgstr ""
+
+msgid "Moran's I with EB Rate"
+msgstr ""
+
+msgid "Univariate Local Moran's I"
+msgstr ""
+
+msgid "Bivariate Local Moran's I"
+msgstr ""
+
+msgid "Differential Local Moran's I"
+msgstr ""
+
+msgid "Local Moran's I with EB Rate"
+msgstr ""
+
+msgid "Local G"
+msgstr ""
+
+msgid "Local G*"
+msgstr ""
+
+msgid "Univariate Local Join Count"
+msgstr ""
+
+msgid "Bivariate Local Join Count"
+msgstr ""
+
+msgid "Co-location Join Count"
+msgstr ""
+
+msgid "Local Geary Maps"
+msgstr ""
+
+msgid "Univariate Local Geary"
+msgstr ""
+
+msgid "Multivariate Local Geary"
+msgstr ""
+
+msgid "Spatial Correlogram"
+msgstr ""
+
+msgid "Tim&e"
+msgstr ""
+
+msgid "Time Player"
+msgstr ""
+
+msgid "Time Editor"
+msgstr ""
+
+msgid "&Regression"
+msgstr ""
+
+msgid "Regression"
+msgstr ""
+
+msgid "Options"
+msgstr ""
+
+msgid "&Help"
+msgstr ""
+
+msgid "Check Updates"
+msgstr ""
+
+msgid "Bug Report"
+msgstr ""
+
+msgid "Donate"
+msgstr ""
+
+msgid "About GeoDa"
+msgstr ""
+
+msgid "Color"
+msgstr ""
+
+msgid "Point Color"
+msgstr ""
+
+msgid "Highlight Color"
+msgstr ""
+
+msgid "Background Color"
+msgstr ""
+
+msgid "Hinge"
+msgstr ""
+
+msgid "View"
+msgstr ""
+
+msgid "Set Display Precision"
+msgstr ""
+
+msgid "Set Display Precision on Axes"
+msgstr ""
+
+msgid "Display Statistics"
+msgstr ""
+
+msgid "Show Vertical Axis"
+msgstr ""
+
+msgid "Show Status Bar"
+msgstr ""
+
+msgid "Copy Image To Clipboard"
+msgstr ""
+
+msgid "Save Image As"
+msgstr ""
+
+msgid "Background"
+msgstr ""
+
+msgid "Themeless"
+msgstr ""
+
+msgid "Quantile"
+msgstr ""
+
+msgid "Percentile"
+msgstr ""
+
+msgid "Standard Deviation"
+msgstr ""
+
+msgid "Unique Values"
+msgstr ""
+
+msgid "Natural Breaks"
+msgstr ""
+
+msgid "Equal Intervals"
+msgstr ""
+
+msgid "Map Color Classification"
+msgstr ""
+
+msgid "Vertical Bins Breaks"
+msgstr ""
+
+msgid "Horizontal Bins Breaks"
+msgstr ""
+
+msgid "Save Categories"
+msgstr ""
+
+msgid "Selection Shape"
+msgstr ""
+
+msgid "Rectangle"
+msgstr ""
+
+msgid "Circle"
+msgstr ""
+
+msgid "Line"
+msgstr ""
+
+msgid "Outlines Visible"
+msgstr ""
+
+msgid "Show Map Boundary"
+msgstr ""
+
+msgid "Show Linear Smoother"
+msgstr ""
+
+msgid "Show LOWESS Smoother"
+msgstr ""
+
+msgid "Edit LOWESS Parameters"
+msgstr ""
+
+msgid "Display Axes Scale Values"
+msgstr ""
+
+msgid "Display Slope Values"
+msgstr ""
+
+msgid "Regression Line Color"
+msgstr ""
+
+msgid "Choose Intervals"
+msgstr ""
+
+msgid "Show Axes"
+msgstr ""
+
+msgid "Classification Themes"
+msgstr ""
+
+msgid "Improve Cartogram"
+msgstr ""
+
+msgid "1 Iteration"
+msgstr ""
+
+msgid "2 Iteration"
+msgstr ""
+
+msgid "3 Iteration"
+msgstr ""
+
+msgid "4 Iteration"
+msgstr ""
+
+msgid "5 Iteration"
+msgstr ""
+
+msgid "6 Iteration"
+msgstr ""
+
+msgid "Status Bar"
+msgstr ""
+
+msgid "Save Connectivity To Table"
+msgstr ""
+
+msgid "Select Neighborless Observations"
+msgstr ""
+
+msgid "Display Thiessen Polygons"
+msgstr ""
+
+msgid "Save Thiessen Polygons"
+msgstr ""
+
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr ""
+
+msgid "Thiessen Polygons"
+msgstr ""
+
+msgid "Selection Mode"
+msgstr ""
+
+msgid "Panning Mode"
+msgstr ""
+
+msgid "Zooming Mode"
+msgstr ""
+
+msgid "Fit-To-Window Mode"
+msgstr ""
+
+msgid "Fixed Aspect Ratio Mode"
+msgstr ""
+
+msgid "Basemap"
+msgstr ""
+
+msgid "Basemap Configuration"
+msgstr ""
+
+msgid "Clean Basemap Cache"
+msgstr ""
+
+msgid "Change Map Transparency"
+msgstr ""
+
+msgid "No Basemap"
+msgstr ""
+
+msgid "Randomization"
+msgstr ""
+
+msgid "99 Permutations"
+msgstr ""
+
+msgid "199 Permutations"
+msgstr ""
+
+msgid "499 Permutations"
+msgstr ""
+
+msgid "999 Permutations"
+msgstr ""
+
+msgid "Other (up to 99999)"
+msgstr ""
+
+msgid "Use Specified Seed"
+msgstr ""
+
+msgid "Specify Seed..."
+msgstr ""
+
+msgid "Significance Filter"
+msgstr ""
+
+msgid "Custom Inference"
+msgstr ""
+
+msgid "Save Results"
+msgstr ""
+
+msgid "Show As Conditional Map"
+msgstr ""
+
+msgid "Connectivity"
+msgstr ""
+
+msgid "Show Selection and Neighbors"
+msgstr ""
+
+msgid "Change Fill Color of Neighbors"
+msgstr ""
+
+msgid "Show Graph"
+msgstr ""
+
+msgid "Change Edge Thickness"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Normal"
+msgstr ""
+
+msgid "Strong"
+msgstr ""
+
+msgid "Change Edge Color"
+msgstr ""
+
+msgid "Hide Map"
+msgstr ""
+
+msgid "Change Outline Color of Selected"
+msgstr ""
+
+msgid "Select All..."
+msgstr ""
+
+msgid "Cores"
+msgstr ""
+
+msgid "Neighbors of Cores"
+msgstr ""
+
+msgid "Cores and Neighbors"
+msgstr ""
+
+msgid "Selectable Fill Color"
+msgstr ""
+
+msgid "Change Size of Root"
+msgstr ""
+
+msgid "Change Color of Root"
+msgstr ""
+
+msgid "Add Mean Centers to Table"
+msgstr ""
+
+msgid "Add Centroids to Table"
+msgstr ""
+
+msgid "Display Mean Centers"
+msgstr ""
+
+msgid "Display Centroids"
+msgstr ""
+
+msgid "Save Mean Centers"
+msgstr ""
+
+msgid "Save Centroids"
+msgstr ""
+
+msgid "Shape Centers"
+msgstr ""
+
+msgid "Regimes Regression"
+msgstr ""
+
+msgid "Linear Smoother"
+msgstr ""
+
+msgid "LOWESS Smoother"
+msgstr ""
+
+msgid "Show Axes Through Origin"
+msgstr ""
+
+msgid "Use Scientific Notation"
+msgstr ""
+
+msgid "Legend Background Color"
+msgstr ""
+
+msgid "Copy Legend To Clipboard"
+msgstr ""
+
+msgid "Change Current Map Type"
+msgstr ""
+
+msgid "Rates"
+msgstr ""
+
+msgid "Save Rates"
+msgstr ""
+
+msgid "Hinge=1.5"
+msgstr ""
+
+msgid "Hinge=3.0"
+msgstr ""
+
+msgid "Boxplot Theme"
+msgstr ""
+
+msgid "Data"
+msgstr ""
+
+msgid "View Standardized Data"
+msgstr ""
+
+msgid "View Original Data"
+msgstr ""
+
+msgid "Statistics"
+msgstr ""
+
+msgid "Fixed scale over time"
+msgstr ""
+
+msgid "Axis Option"
+msgstr ""
+
+msgid "Enable User Defined Value Range of Y-Axis"
+msgstr ""
+
+msgid "Adjust Value Range of Y-Axis"
+msgstr ""
+
+msgid "Set Display Precision of Y-Axis"
+msgstr ""
+
+msgid "Add/Remove Variables"
+msgstr ""
+
+msgid "Smoother"
+msgstr ""
+
+msgid "Change Parameters"
+msgstr ""
+
+msgid "Curve Color"
+msgstr ""
+
+msgid "Axes Through Origin"
+msgstr ""
+
+msgid "Rename Variable"
+msgstr ""
+
+msgid "Table"
+msgstr ""
+
+msgid "Change Font"
+msgstr ""
+
+msgid "Moran Scatter Plot"
+msgstr ""
+
+msgid "Local Moran's I Maps"
+msgstr ""
+
+msgid "Local G Maps"
+msgstr ""
+
+msgid "Rates-Calculated Maps"
+msgstr ""
+
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr ""
+
+msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
+msgstr ""
+
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr ""
+
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr ""
+
+msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr ""
+
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr ""
+
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr ""
+
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr ""
+
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr ""
+
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr ""
+
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr ""
+
+msgid "MS Excel (*.xls)|*.xls"
+msgstr ""
+
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr ""
+
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr ""
+
+msgid "Create Custom Breaks"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "Edit Title"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Assoc. Var."
+msgstr ""
+
+msgid "Breaks"
+msgstr ""
+
+msgid "User Defined"
+msgstr ""
+
+msgid "Color Scheme"
+msgstr ""
+
+msgid "sequential"
+msgstr ""
+
+msgid "diverging"
+msgstr ""
+
+msgid "thematic"
+msgstr ""
+
+msgid "custom"
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid "uni. dist. Min"
+msgstr ""
+
+msgid "Max"
+msgstr ""
+
+msgid "Save Categories to Table"
+msgstr ""
+
+msgid "Edit Custom Breaks"
+msgstr ""
+
+msgid "Automatic Labels"
+msgstr ""
+
+msgid "category 1"
+msgstr ""
+
+msgid "break 0"
+msgstr ""
+
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr ""
+
+msgid "All Rights Reserved"
+msgstr ""
+
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr ""
+
+msgid "Stable Version and Bug Fixes Only"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "Run"
+msgstr ""
+
+msgid "Set Display Precision:"
+msgstr ""
+
+msgid "Always using fixed-point notation"
+msgstr ""
+
+msgid "Number of Categories"
+msgstr ""
+
+msgid "Min value of Y axis"
+msgstr ""
+
+msgid "Max value of Y axis"
+msgstr ""
+
+msgid "Adjust Value Range of Y Axis"
+msgstr ""
+
+msgid "Intervals"
+msgstr ""
+
+msgid "Intervals in the Histogram"
+msgstr ""
+
+msgid "GeoDa could not find the required weights file."
+msgstr ""
+
+msgid "Please specify weights in Tools > Weights Manager."
+msgstr ""
+
+msgid "to define weights."
+msgstr ""
+
+msgid "No Weights Found"
+msgstr ""
+
+msgid "Variable"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Variable Setting"
+msgstr ""
+
+msgid "Weights"
+msgstr ""
+
+msgid "Distance"
+msgstr ""
+
+msgid "1st Variable (X)"
+msgstr ""
+
+msgid "2nd Variable (Y)"
+msgstr ""
+
+msgid "Variable Settings"
+msgstr ""
+
+msgid "Event Variable"
+msgstr ""
+
+msgid "Base Variable"
+msgstr ""
+
+msgid "Map Themes"
+msgstr ""
+
+msgid "3rd Variable (Z)"
+msgstr ""
+
+msgid "4th Variable"
+msgstr ""
+
+msgid "Weights File Creation"
+msgstr ""
+
+msgid "Select ID Variable"
+msgstr ""
+
+msgid "&Add ID Variable..."
+msgstr ""
+
+msgid "Queen contiguity"
+msgstr ""
+
+msgid "Order of contiguity"
+msgstr ""
+
+msgid "Rook contiguity"
+msgstr ""
+
+msgid "Include lower orders"
+msgstr ""
+
+msgid "Precision threshold"
+msgstr ""
+
+msgid "Contiguity Weight"
+msgstr ""
+
+msgid "Distance Weight"
+msgstr ""
+
+msgid "Variables:"
+msgstr ""
+
+msgid "X-coordinate variable"
+msgstr ""
+
+msgid "Y-coordinate variable"
+msgstr ""
+
+msgid " Distance metric: "
+msgstr ""
+
+msgid "Geometric centroids"
+msgstr ""
+
+msgid "Transformation:  "
+msgstr ""
+
+msgid "Distance metric: "
+msgstr ""
+
+msgid "Variables"
+msgstr ""
+
+msgid "Method:"
+msgstr ""
+
+msgid "Specify bandwidth"
+msgstr ""
+
+msgid "Use inverse distance?"
+msgstr ""
+
+msgid "Power"
+msgstr ""
+
+msgid "Distance band"
+msgstr ""
+
+msgid "Number of neighbors"
+msgstr ""
+
+msgid "K-Nearest neighbors"
+msgstr ""
+
+msgid "Kernel function"
+msgstr ""
+
+msgid "Diagonal weights = 1"
+msgstr ""
+
+msgid "Apply kernel to diagonal weights"
+msgstr ""
+
+msgid "Adaptive bandwidth"
+msgstr ""
+
+msgid "Use max knn distance as bandwidth"
+msgstr ""
+
+msgid "Adaptive kernel"
+msgstr ""
+
+msgid "Create"
+msgstr ""
+
+msgid "Add New ID Variable"
+msgstr ""
+
+msgid "Enter new ID variable name:"
+msgstr ""
+
+msgid "POLY&ID"
+msgstr ""
+
+msgid "Existing Variables"
+msgstr ""
+
+msgid "New Selection"
+msgstr ""
+
+msgid "New selection"
+msgstr ""
+
+msgid "Select From Current Selection"
+msgstr ""
+
+msgid "Select from current selection"
+msgstr ""
+
+msgid "Append To Current Selection"
+msgstr ""
+
+msgid "Append to current selection"
+msgstr ""
+
+msgid "Selection Variable"
+msgstr ""
+
+msgid "Select All In Range"
+msgstr ""
+
+msgid "<="
+msgstr ""
+
+msgid "choose a variable"
+msgstr ""
+
+msgid "Select All Undefined"
+msgstr ""
+
+msgid "Add Neighbors To Selection"
+msgstr ""
+
+msgid "Selection"
+msgstr ""
+
+msgid "Target Variable"
+msgstr ""
+
+msgid "Selected ="
+msgstr ""
+
+msgid "Unselected ="
+msgstr ""
+
+msgid "(Leave empty for undefined values)"
+msgstr ""
+
+msgid "Appl&y"
+msgstr ""
+
+msgid "Assign Values to Currently Selected / Unselected"
+msgstr ""
+
+msgid "Convert ASCII to SHP"
+msgstr ""
+
+msgid "Input file (text file)"
+msgstr ""
+
+msgid "Output file (*.shp)"
+msgstr ""
+
+msgid "X-coord"
+msgstr ""
+
+msgid "Y-coord"
+msgstr ""
+
+msgid "C&reate"
+msgstr ""
+
+msgid "&Close"
+msgstr ""
+
+msgid "Exporting Shape to Boundary"
+msgstr ""
+
+msgid "Input datasource"
+msgstr ""
+
+msgid "Output file (text file)"
+msgstr ""
+
+msgid "Key"
+msgstr ""
+
+msgid "Type 1"
+msgstr ""
+
+msgid "Type 1a"
+msgstr ""
+
+msgid "Type 2"
+msgstr ""
+
+msgid "Type 2a"
+msgstr ""
+
+msgid "Produce bounding-box file?"
+msgstr ""
+
+msgid "Yes"
+msgstr ""
+
+msgid "Set Number of Permutation"
+msgstr ""
+
+msgid "What windows to open?"
+msgstr ""
+
+msgid "Significance Map"
+msgstr ""
+
+msgid "Cluster Map "
+msgstr ""
+
+msgid "show normal distribution p-val map"
+msgstr ""
+
+msgid "using row-standardized weights"
+msgstr ""
+
+msgid "Gi cluster map, pseudo p-val"
+msgstr ""
+
+msgid "Gi* cluster map, pseudo p-val"
+msgstr ""
+
+msgid "show significance maps"
+msgstr ""
+
+msgid "show normal distribution p-val maps"
+msgstr ""
+
+msgid "weights:"
+msgstr ""
+
+msgid "row-standardized"
+msgstr ""
+
+msgid "binary"
+msgstr ""
+
+msgid "Local G Statistics Maps"
+msgstr ""
+
+msgid "Result"
+msgstr ""
+
+msgid "Add new column to table"
+msgstr ""
+
+msgid "="
+msgstr ""
+
+msgid "Operator"
+msgstr ""
+
+msgid "mean"
+msgstr ""
+
+msgid "standard deviation"
+msgstr ""
+
+msgid "Variable / Constant"
+msgstr ""
+
+msgid "Weight"
+msgstr ""
+
+msgid "Open weights file"
+msgstr ""
+
+msgid "Use row-standardized weights"
+msgstr ""
+
+msgid "Include diagonal of weights matrix"
+msgstr ""
+
+msgid "Method"
+msgstr ""
+
+msgid "Variable Name"
+msgstr ""
+
+msgid "SELECTED"
+msgstr ""
+
+msgid "&Cancel"
+msgstr ""
+
+msgid "Exclude"
+msgstr ""
+
+msgid ">>"
+msgstr ""
+
+msgid ">"
+msgstr ""
+
+msgid "<"
+msgstr ""
+
+msgid "<<"
+msgstr ""
+
+msgid "Include"
+msgstr ""
+
+msgid "Dependent Variable"
+msgstr ""
+
+msgid "Covariates"
+msgstr ""
+
+msgid "Weights File"
+msgstr ""
+
+msgid "Classic "
+msgstr ""
+
+msgid "Spatial Lag"
+msgstr ""
+
+msgid "Spatial Error"
+msgstr ""
+
+msgid "Pred. Val. and Res."
+msgstr ""
+
+msgid "Coeff. Var. Mat."
+msgstr ""
+
+msgid "White Test"
+msgstr ""
+
+msgid "Models"
+msgstr ""
+
+msgid "Progress"
+msgstr ""
+
+msgid "&Run"
+msgstr ""
+
+msgid "&Save to Table"
+msgstr ""
+
+msgid "Save to File"
+msgstr ""
+
+msgid "Re&set"
+msgstr ""
+
+msgid "Regression Report"
+msgstr ""
+
+msgid "Creating Grid"
+msgstr ""
+
+msgid "Grid Bounding Box"
+msgstr ""
+
+msgid "Specify manually"
+msgstr ""
+
+msgid "X-coordinate"
+msgstr ""
+
+msgid "Y-coordinate"
+msgstr ""
+
+msgid "Lower-left corner"
+msgstr ""
+
+msgid "Upper-right corner"
+msgstr ""
+
+msgid "Read from an ASCII file"
+msgstr ""
+
+msgid "Use the bounding box of shape datasource"
+msgstr ""
+
+msgid "Grid Size"
+msgstr ""
+
+msgid "Number of Rows"
+msgstr ""
+
+msgid "Number of Columns"
+msgstr ""
+
+msgid "Convert Boundary to Shape Datasource"
+msgstr ""
+
+msgid "Axis Selection"
+msgstr ""
+
+msgid "X Variable"
+msgstr ""
+
+msgid "Y Variable"
+msgstr ""
+
+msgid "Z Variable"
+msgstr ""
+
+msgid "Data Point"
+msgstr ""
+
+msgid "Project to Z-Y"
+msgstr ""
+
+msgid "Project to X-Z"
+msgstr ""
+
+msgid "Project to X-Y"
+msgstr ""
+
+msgid "Select, hold CTRL for brushing"
+msgstr ""
+
+msgid "X"
+msgstr ""
+
+msgid "Y"
+msgstr ""
+
+msgid "Z"
+msgstr ""
+
+msgid "Zoom : press right-mouse button"
+msgstr ""
+
+msgid "Welcome to GeoDa 1.8.16"
+msgstr ""
+
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr ""
+
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr ""
+
+msgid "Input file "
+msgstr ""
+
+msgid "Data Source Overview/Help: "
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "Database Type"
+msgstr ""
+
+msgid "Database Host"
+msgstr ""
+
+msgid "Database Port"
+msgstr ""
+
+msgid "Database/Instance Name"
+msgstr ""
+
+msgid "User name"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Table Name"
+msgstr ""
+
+msgid "Database"
+msgstr ""
+
+msgid "GeoJson URL"
+msgstr ""
+
+msgid "WFS URL"
+msgstr ""
+
+msgid "Web"
+msgstr ""
+
+msgid "User Name"
+msgstr ""
+
+msgid "App Key"
+msgstr ""
+
+msgid "Get a free Carto account: "
+msgstr ""
+
+msgid "Carto"
+msgstr ""
+
+msgid "Recent"
+msgstr ""
+
+msgid "Sample Data"
+msgstr ""
+
+msgid "Don't show Recent/Sample Data panel again"
+msgstr ""
+
+msgid "Connect"
+msgstr ""
+
+msgid "Connect to Data Source"
+msgstr ""
+
+msgid "Select encoding (optional): "
+msgstr ""
+
+msgid "Japanese (Shift_JIS)"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Time Setup"
+msgstr ""
+
+msgid "File Path"
+msgstr ""
+
+msgid "Database Name/Instance"
+msgstr ""
+
+msgid "CRS (proj4 format)"
+msgstr ""
+
+msgid "Load CRS from a data source"
+msgstr ""
+
+msgid "Create a project file?"
+msgstr ""
+
+msgid "New project file:"
+msgstr ""
+
+msgid "New datasource:"
+msgstr ""
+
+msgid "Save Projet File As"
+msgstr ""
+
+msgid "\nSelect whether to use periods or commas as\nseparators in numeric fields. \n\nE.g., by default, GeoDa uses commas to\nseparate thousands and periods\nfor decimals (1,000.00).\n                "
+msgstr ""
+
+msgid "Decimal:"
+msgstr ""
+
+msgid "Thousands:"
+msgstr ""
+
+msgid "Reset to default"
+msgstr ""
+
+msgid "Set Number Separators in Table"
+msgstr ""
+
+msgid "Title of Visualization"
+msgstr ""
+
+msgid "Description"
+msgstr ""
+
+msgid "Get a free GeoDa-Web account: "
+msgstr ""
+
+msgid "Publish to GeoDa-Web"
+msgstr ""
+
+msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
+msgstr ""
+
+msgid "Basemap Parameters:"
+msgstr ""
+
+msgid "HERE App ID"
+msgstr ""
+
+msgid "HERE App Key"
+msgstr ""
+
+msgid "Get a free Nokia/HERE account: "
+msgstr ""
+
+msgid "Reset"
+msgstr ""
+
+msgid "Basemap Configuration Dialog"
+msgstr ""
+
+msgid "observation:"
+msgstr ""
+
+msgid "obs#"
+msgstr ""
+
+msgid "value:"
+msgstr ""
+
+msgid "value"
+msgstr ""
+
+msgid "min:"
+msgstr ""
+
+msgid "max:"
+msgstr ""
+
+msgid "Loop"
+msgstr ""
+
+msgid "Reverse"
+msgstr ""
+
+msgid "Speed"
+msgstr ""
+
+msgid "Cumulative"
+msgstr ""
+
+msgid "Ascending order"
+msgstr ""
+
+msgid "Descending order"
+msgstr ""
+
+msgid "Animation"
+msgstr ""
+
+msgid "Current time:"
+msgstr ""
+
+msgid "time"
+msgstr ""
+
+msgid "First row of CSV file"
+msgstr ""
+
+msgid "First line of CSV is variable names?"
+msgstr ""
+
+msgid "Continue"
+msgstr ""
+
+msgid "CSV Contains Variable Names?"
+msgstr ""
+
+msgid "Include Variable Names"
+msgstr ""
+
+msgid "Save Table As CSV File"
+msgstr ""
+
+msgid "Ungrouped Variables"
+msgstr ""
+
+msgid "New Group Details"
+msgstr ""
+
+msgid "name:"
+msgstr ""
+
+msgid "numeric"
+msgstr ""
+
+msgid "5 of 5 variables needed"
+msgstr ""
+
+msgid "Sort"
+msgstr ""
+
+msgid "Edit"
+msgstr ""
+
+msgid "Move Up"
+msgstr ""
+
+msgid "Move Down"
+msgstr ""
+
+msgid "Grouped Variables"
+msgstr ""
+
+msgid "Load time definition from project file."
+msgstr ""
+
+msgid "Save Space-Time Table/Weights"
+msgstr ""
+
+msgid "About DBF Viewer"
+msgstr ""
+
+msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\nAll Rights Reserved"
+msgstr ""
+
+msgid "DBF Viewer 0.8 (July 29, 2011)"
+msgstr ""
+
+msgid "Select variables to delete "
+msgstr ""
+
+msgid "Message area"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid "Insert before"
+msgstr ""
+
+msgid "Length (max 254)"
+msgstr ""
+
+msgid "Decimals (max 15)"
+msgstr ""
+
+msgid "Displayed decimals places"
+msgstr ""
+
+msgid "maximum"
+msgstr ""
+
+msgid "minimum"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Displayed decimal places"
+msgstr ""
+
+msgid "Displayed decimals"
+msgstr ""
+
+msgid "Column Number (from 0)"
+msgstr ""
+
+msgid "Width in pixels"
+msgstr ""
+
+msgid "Resize"
+msgstr ""
+
+msgid "Manual Resize Column"
+msgstr ""
+
+msgid "DBF File Information"
+msgstr ""
+
+msgid "version:"
+msgstr ""
+
+msgid "0x03 (dBASE III+)"
+msgstr ""
+
+msgid "year:"
+msgstr ""
+
+msgid "month:"
+msgstr ""
+
+msgid "day:"
+msgstr ""
+
+msgid "fields:"
+msgstr ""
+
+msgid "records:"
+msgstr ""
+
+msgid "file size:"
+msgstr ""
+
+msgid "Select datasource"
+msgstr ""
+
+msgid "Input"
+msgstr ""
+
+msgid "Stack"
+msgstr ""
+
+msgid "Merge by key values"
+msgstr ""
+
+msgid "current table key"
+msgstr ""
+
+msgid "import table key"
+msgstr ""
+
+msgid "Merge by record order"
+msgstr ""
+
+msgid "Use existing field name"
+msgstr ""
+
+msgid "Parameters"
+msgstr ""
+
+msgid "&Merge"
+msgstr ""
+
+msgid "Select variable for dissolving:"
+msgstr ""
+
+msgid "Select variables:"
+msgstr ""
+
+msgid "Count"
+msgstr ""
+
+msgid "Average"
+msgstr ""
+
+msgid "Min"
+msgstr ""
+
+msgid "Sum"
+msgstr ""
+
+msgid "Attributes (Optional)"
+msgstr ""
+
+msgid "Select key:"
+msgstr ""
+
+msgid "Select fields:"
+msgstr ""
+
+msgid "Expression"
+msgstr ""
+
+msgid "Make selection from expression "
+msgstr ""
+
+msgid "Select"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+msgid "Assign To Target"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Tools"
+msgstr ""
+
+msgid "Maps and Rates"
+msgstr ""
+
+msgid "Category Editor"
+msgstr ""
+
+msgid "Cluster Maps"
+msgstr ""
+
+msgid "Invert Select"
+msgstr ""
+
+msgid "Add Map Layer"
+msgstr ""
+
+msgid "Map Layer Settings"
+msgstr ""
+
+msgid "Zoom In"
+msgstr ""
+
+msgid "Zoom Out"
+msgstr ""
+
+msgid "Pan"
+msgstr ""
+
+msgid "Full Extent"
+msgstr ""
+
+msgid "Base Map "
+msgstr ""
+
+msgid "Refresh"
+msgstr ""
+

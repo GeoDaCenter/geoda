@@ -72,10 +72,7 @@ public:
 	int			n_rows;
 	int			n_cols;
 	OGRLayer*	layer;
-    
-    //!< Geometry type of OGRLayer
-    OGRwkbGeometryType eLayerType;
-    
+
     //!< Fields and the meta data are stored in OGRFieldProxy.
 	vector<OGRFieldProxy*> fields;
     
@@ -97,7 +94,8 @@ public:
     
     bool HasError();
     
-    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy);
+    bool GetExtent(double& minx, double& miny, double& maxx, double& maxy,
+                   OGRSpatialReference* dest_sr=NULL);
     
     OGRwkbGeometryType GetShapeType();
     
@@ -116,17 +114,6 @@ public:
 	 * It may return failure because the layer doesn't support writeback.
 	 */
 	void Save();
-	
-    /**
-	 * Export current ogr layer to  layer in other ogr data source
-	 * @param format exported driver name (OGR style)
-	 * @param dest_datasource exported data source name (OGR style)
-	 */
-	void Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
-    
-	void T_Export(wxString format, wxString dest_datasource, wxString new_layer_name, bool is_update);
-    
-	void T_StopExport();
 
     /**
      * Add new features to an empty OGRLayer
@@ -145,10 +132,13 @@ public:
     void GetCentroids(vector<GdaPoint*>& centroids);
     
     static GdaPolygon* OGRGeomToGdaShape(OGRGeometry* geom);
-    static GdaPolygon* GetMapBoundary(vector<OGRGeometry*>& geoms);
+
+    static GdaPolygon* DissolvePolygons(vector<OGRGeometry*>& geoms);
 
     GdaPolygon* GetMapBoundary();
-    
+
+    std::vector<GdaShape*> DissolveMap(const std::map<wxString, std::vector<int> >& cids);
+
     Shapefile::ShapeType GetGdaGeometries(vector<GdaShape*>& geoms,
                                           OGRSpatialReference* input_sr=NULL);
     
@@ -181,9 +171,7 @@ public:
 	int AddField(const wxString& field_name,
                  GdaConst::FieldType field_type,
 				 int field_length, int field_precision);
-	/**
-	 *
-	 */
+
 	void UpdateFieldProperties(int col);
     
     /**
@@ -191,82 +179,51 @@ public:
 	 */
 	wxString GetFieldName(int pos);
     
-    /**
-	 * Set field name at an input field position.
-	 */
+	// Set field name at an input field position.
     void SetFieldName(int pos, const wxString& new_fname);
-    
-	/**
-	 *
-	 */
+
 	void DeleteField(int pos);
-    
-	/**
-	 *
-	 */
+
 	void DeleteField(const wxString& field_name);
-    
-	/**
-	 *
-	 */
+
 	int GetFieldPos(const wxString& field_name);
-    
-    /**
-     */
+
 	GdaConst::FieldType GetFieldType(int pos);
-    
-    /**
-     */
+
     GdaConst::FieldType GetFieldType(const wxString& field_name);
-	/**
-	 *
-	 */
+
 	int GetFieldLength(int pos);
     void SetFieldLength(int pos, int new_len);
-	/**
-	 *
-	 */
+
 	int GetFieldDecimals(int pos);
     void SetFieldDecimals(int pos, int new_dec);
-	/**
-	 *
-	 */
+
 	bool UpdateColumn();
     bool UpdateColumn(int col_idx, vector<double> &vals);
     bool UpdateColumn(int col_idx, vector<wxInt64> &vals);
     bool UpdateColumn(int col_idx, vector<wxString> &vals);
-	/**
-	 *
-	 */
+
 	bool IsTableOnly();
+    
 	bool CheckIsTableOnly();
-	/**
-	 *
-	 */
+
 	bool UpdateOGRFeature(OGRFeature* feature);
-	/**
-	 *
-	 */
+
 	bool AppendOGRFeature(vector<wxString>& content);
-	/**
-	 *
-	 */
+
 	bool InsertOGRFeature();
 	
-	/**
-	 * var_list:  variable/column/field list
-	 * var_type_map: variable/column/field -- field type
-	 */
-	void GetVarTypeMap(vector<wxString>& var_list,
-					   map<wxString, GdaConst::FieldType>& var_type_map);
-	/**
-	 *
-	 */
+	vector<GdaConst::FieldType> GetFieldTypes();
+
+    vector<wxString> GetFieldNames();
+    
     OGRFeature* GetFeatureAt(int rid);
     
     OGRGeometry* GetGeometry(int idx);
     
     vector<wxString> GetIntegerFieldNames();
+
+    vector<wxString> GetNumericFieldNames();
     
     vector<wxString> GetIntegerAndStringFieldNames();
     
@@ -307,6 +264,14 @@ protected:
 	bool IsFieldExisted(const wxString& field_name);
     
     bool CallCartoDBAPI(wxString url);
+
+    static bool IsWkbPoint(OGRwkbGeometryType etype);
+
+    static bool IsWkbLine(OGRwkbGeometryType etype);
+
+    static bool IsWkbSinglePolygon(OGRwkbGeometryType etype);
+
+    static bool IsWkbMultiPolygon(OGRwkbGeometryType etype);
 };
 
 #endif

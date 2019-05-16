@@ -455,9 +455,9 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	//    and fit_to_window_mode being false currently.
     int vs_w=virtual_scrn_w;
     int vs_h=virtual_scrn_h;
-	if (vs_w <= 0 && vs_h <= 0)
+    if (vs_w <= 0 && vs_h <= 0) {
         GetVirtualSize(&vs_w, &vs_h);
-	
+    }
 	// last_scale_trans is only used in calls made to ApplyLastResizeToShp
 	// which are made in ScaterNewPlotView
 	GdaScaleTrans **st;
@@ -471,9 +471,9 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	// pixels between columns/rows
 	double fac = 0.02;
-	if (vert_num_cats >= 4 || horiz_num_cats >=4)
+    if (vert_num_cats >= 4 || horiz_num_cats >=4) {
         fac = 0.015;
-    
+    }
 	double pad_w = scn_w * fac;
 	double pad_h = scn_h * fac;
     
@@ -569,13 +569,17 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		bin_bm_redraw_needed = false;
 	}
 	
-	int row_c;
-	int col_c;
+	int row_c = 0;
+	int col_c = 0;
 	for (int i=0; i<num_obs; i++) {
         int v_time = var_info[VERT_VAR].time;
         int h_time = var_info[HOR_VAR].time;
-		row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-		col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        if (!vert_cat_data.categories.empty()) {
+            row_c = vert_cat_data.categories[v_time].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        }
 		selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
 	}
 	
@@ -624,7 +628,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_vert.breaks[row];
 			}
-			tmp_lbl = GenUtils::DblToStr(b);
+			tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << vert_cat_data.GetCategoryLabel(vt, row);
         }
@@ -658,7 +662,7 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			else {
 				b = cat_classif_def_horiz.breaks[col];
 			}
-			tmp_lbl  = GenUtils::DblToStr(b);
+			tmp_lbl  = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }
@@ -697,7 +701,6 @@ void ConditionalMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	
 	for (int i=0; i<vert_num_cats; i++) delete [] st[i];
 	delete [] st;
-	
 }
 
 // Draw all solid background, background decorations and unhighlighted
@@ -830,9 +833,9 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
     }
 	map_error_message.resize(num_time_vals);
     
-	for (int t=0; t<num_time_vals; t++)
+    for (int t=0; t<num_time_vals; t++) {
         map_error_message[t] = wxEmptyString;
-	
+    }
 	//NOTE: cat_var_sorted is sized to current num_time_vals, but
 	// cat_var_sorted_vert and horiz is sized to all available number time
 	// vals.  Perhaps this should be moved into the constructor since
@@ -871,20 +874,22 @@ void ConditionalMapCanvas::CreateAndUpdateCategories()
 		}
 	}
 	
-	if (cat_classif_def_map.cat_classif_type !=
-		CatClassification::custom) {
+	if (cat_classif_def_map.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def_map);
 	}
-	cat_classif_def_map.color_scheme =
-		CatClassification::GetColSchmForType(
-							 cat_classif_def_map.cat_classif_type);
+    cat_classif_def_map.assoc_db_fld_name = var_info[CAT_VAR].name;
+    bool useUndefinedCategory = true;
+	cat_classif_def_map.color_scheme = CatClassification::GetColSchmForType(
+                                        cat_classif_def_map.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def_map,
 											  cat_var_sorted,
                                               cat_var_undef,
 											  cat_data,
                                               map_valid,
 											  map_error_message,
-                                              this->useScientificNotation);
+                                              this->useScientificNotation,
+                                              useUndefinedCategory,
+                                              this->category_disp_precision);
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
 										- var_info[ref_var_index].time_min);

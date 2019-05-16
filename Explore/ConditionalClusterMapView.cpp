@@ -257,6 +257,7 @@ ChangeCatThemeType(CatClassification::CatClassifType new_cat_theme,
 	VarInfoAttributeChange();
 	CreateAndUpdateCategories();
 	UserChangedCellCategories();
+    full_map_redraw_needed = true;
 	PopulateCanvas();
 	if (all_init && template_frame) {
 		template_frame->UpdateTitle();
@@ -461,7 +462,7 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_vert.breaks[row];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl = vert_cat_data.GetCategoryLabel(vt, row);
         }
@@ -493,7 +494,7 @@ void ConditionalClusterMapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_horiz.breaks[col];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl = horiz_cat_data.GetCategoryLabel(ht, col);
         }

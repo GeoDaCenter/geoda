@@ -371,6 +371,7 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
 		m_id_field->SetSelection(0);
         bool valid = m_id_field->GetSelection() != wxNOT_FOUND;
 		UpdateCreateButtonState();
+        OnIdVariableSelected(event);
 	} else {
 		// A new id was not added to the dbf file, so do nothing.
 	}
@@ -987,6 +988,8 @@ void CreatingWeightDlg::InitDlg()
         FindWindow(XRCID("IDC_STATIC_DIST_METRIC"))->Hide();
         FindWindow(XRCID("IDC_STATIC_XCOORD_VAR"))->Hide();
         FindWindow(XRCID("IDC_STATIC_YCOORD_VAR"))->Hide();
+        FindWindow(XRCID("IDC_W_STATIC_VARIABLES"))->Hide();
+
         m_nb_distance_variables->Hide();
     }
 
@@ -1421,19 +1424,20 @@ void CreatingWeightDlg::CreateWeights()
             wildcard = _("GWT files (*.gwt)|*.gwt");
         }
     }
-    
-    wxFileDialog dlg(this,
-                     _("Choose an output weights file name."),
-                     project->GetWorkingDir().GetPath(),
-                     defaultFile,
-                     wildcard,
+    wxString working_dir = project->GetWorkingDir().GetPath();
+    wxFileDialog dlg(this, _("Choose an output weights file name."),
+                     working_dir, defaultFile, wildcard,
                      wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     
     wxString outputfile;
-    if (dlg.ShowModal() != wxID_OK)
-        return;
+    if (dlg.ShowModal() != wxID_OK) return;
     outputfile = dlg.GetPath();
-    
+
+    // update working directory
+    wxString new_dir = dlg.GetDirectory();
+    if (working_dir != new_dir) {
+        project->SetWorkingDir(new_dir);
+    }
     wxLogMessage("CreateWeights()");
     wxLogMessage(outputfile);
     
@@ -1445,6 +1449,14 @@ void CreatingWeightDlg::CreateWeights()
     }
     
     // 2/2 other cases:
+    if (!user_xy && project->HasNullGeometry()) {
+        wxString msg = _("Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again.");
+        wxMessageDialog dlg(NULL, msg, _("Warning: NULL geometry"),
+                            wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();
     int m_kernel_kNN = m_spinn_kernel->GetValue();

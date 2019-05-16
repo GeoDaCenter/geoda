@@ -44,8 +44,9 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 : wxScrolledWindow(parent, id, wxDefaultPosition, wxSize(700,300)),
 ds_type(ds_type), need_correction(false)
 {
-    is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
-	vector<wxString> merged_field_names;
+    //is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
+    is_case_sensitive = false;
+    vector<wxString> merged_field_names;
 	set<wxString> bad_fnames, dup_fname, uniq_upper_fname;
     set<wxString>::iterator uniq_iter;
     vector<int> bad_fname_idx_s, dup_fname_idx_s;
@@ -128,7 +129,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
     // build a dict for searching duplicated field
     for (size_t i=0; i<old_field_names.size(); i++) {
         wxString old_name = old_field_names[i];
-        field_dict[old_name] = true;
+        field_dict[old_name.Lower()] = true;
     }
     
 	n_fields = dup_fname_idx_s.size() + bad_fname_idx_s.size();
@@ -166,8 +167,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
 
     size_t ctrl_cnt = 0;
 
-    for (size_t i=0; i < dup_fname_idx_s.size(); i++)
-    {
+    for (size_t i=0; i < dup_fname_idx_s.size(); i++) {
         int fname_idx = dup_fname_idx_s[i];
         wxString field_name = old_field_names[fname_idx];
         warn_msg=DUP_WARN;
@@ -200,8 +200,7 @@ void ScrolledWidgetsPane::Init(vector<int>& dup_fname_idx_s,
         ++ctrl_cnt;
     }
     
-    for (size_t i=0; i < bad_fname_idx_s.size(); i++)
-    {
+    for (size_t i=0; i < bad_fname_idx_s.size(); i++) {
         int fname_idx = bad_fname_idx_s[i];
         wxString field_name = old_field_names[fname_idx];
         warn_msg=INV_WARN;
@@ -262,7 +261,7 @@ void ScrolledWidgetsPane::Init(vector<wxString>& merged_field_names,
          iter != field_names_dict.end(); ++iter )
     {
         wxString old_name = iter->first;
-        field_dict[old_name] = true;
+        field_dict[old_name.Lower()] = true;
     }
     
 	n_fields = dup_fname.size() + bad_fname.size();
@@ -393,7 +392,7 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(int field_idx)
     user_input_dict[old_name] = field_idx;
 	
     // add any new suggest name to search dict
-    field_dict[new_name] = true;
+    field_dict[new_name.Lower()] = true;
     
 	return new_name;
 }
@@ -414,7 +413,7 @@ wxString ScrolledWidgetsPane::GetSuggestFieldName(const wxString& old_name)
 	field_names_dict[old_name] = new_name;
 	
     // add any new suggest name to search dict
-    field_dict[new_name] = true;
+    field_dict[new_name.Lower()] = true;
     
 	return new_name;
 }
@@ -479,14 +478,11 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
     wxLogMessage(old_name);
     
 	wxString new_name(old_name);
-    map<wxString, bool>::iterator field_it;
 
     // prevent same field name been added in dataset, no matter if its
     // case-sensitive or not
-    while (field_dict.find(new_name) != field_dict.end() ||
-           field_dict.find(new_name.Upper()) != field_dict.end() ||
-           field_dict.find(new_name.Lower()) != field_dict.end()) {
-        
+    while (field_dict.find(new_name.Lower()) != field_dict.end()) {
+
     	// duplicated name, try to append suffix in the form "_x"
     	wxRegEx regex;
     	long suffix_number = 1;
@@ -635,7 +631,8 @@ FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        vector<wxString>& all_fname,
                        wxString title)
-: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+           wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
     wxPanel *panel = new wxPanel(this);
     
@@ -664,8 +661,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
-    
-    
+
     Centre();
 }
 
@@ -676,7 +672,8 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
                        set<wxString>& dup_fname,
                        set<wxString>& bad_fname,
                        wxString title)
-: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
+: wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
+           wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open FieldNameCorrectionDlg:");
     
@@ -711,7 +708,6 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
-    
     
     Centre();
 }
@@ -753,10 +749,3 @@ void FieldNameCorrectionDlg::OnCancelClick( wxCommandEvent& event )
 	event.Skip();
 	EndDialog(wxID_CANCEL);	
 }
-
-
-
-
-
-
-

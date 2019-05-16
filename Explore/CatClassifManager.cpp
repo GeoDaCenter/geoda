@@ -76,7 +76,7 @@ void CatClassifManager::RemoveClassifState(CatClassifState* ccs)
 {
 	ccs->closeAndDeleteWhenEmpty();
 	classif_states.remove(ccs);
-    delete ccs;
+    //delete ccs;
 }
 
 bool CatClassifManager::VerifyAgainstTable()

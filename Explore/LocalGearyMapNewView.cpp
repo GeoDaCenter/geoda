@@ -336,7 +336,7 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
         
 		if (is_clust) {
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
-                num_cats += 2;
+                num_cats += 3;
             } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
                 num_cats += 3;
             } else {
@@ -353,15 +353,16 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 cat_data.SetCategoryLabel(t, 1, str_positive);
                 cat_data.SetCategoryColor(t, 1, lbl_color_dict[str_positive]);
-                
+                cat_data.SetCategoryLabel(t, 2, str_negative);
+                cat_data.SetCategoryColor(t, 2, lbl_color_dict[str_negative]);
                 if (local_geary_coord->GetHasIsolates(t) &&
                     local_geary_coord->GetHasUndefined(t)) {
-                    isolates_cat = 2;
-                    undefined_cat = 3;
+                    isolates_cat = 3;
+                    undefined_cat = 4;
                 } else if (local_geary_coord->GetHasUndefined(t)) {
-                    undefined_cat = 2;
+                    undefined_cat = 3;
                 } else if (local_geary_coord->GetHasIsolates(t)) {
-                    isolates_cat = 2;
+                    isolates_cat = 3;
                 }
                 
             } else if (local_geary_coord->local_geary_type == LocalGearyCoordinator::bivariate) {
@@ -410,11 +411,11 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             }
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
+                    if (p[i] > sig_cutoff && cluster[i] != 3 && cluster[i] != 4) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 2) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 3) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 4) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else {
                         cat_data.AppendIdToCategory(t, cluster[i], i);
@@ -499,11 +500,11 @@ void LocalGearyMapCanvas::CreateAndUpdateCategories()
             int s_f = local_geary_coord->GetSignificanceFilter();
             if (local_geary_coord->local_geary_type == LocalGearyCoordinator::multivariate) {
                 for (int i=0, iend=local_geary_coord->num_obs; i<iend; i++) {
-                    if (p[i] > sig_cutoff && cluster[i] != 2 && cluster[i] != 3) {
+                    if (p[i] > sig_cutoff && cluster[i] != 3 && cluster[i] != 4) {
                         cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    } else if (cluster[i] == 2) {
-                        cat_data.AppendIdToCategory(t, isolates_cat, i);
                     } else if (cluster[i] == 3) {
+                        cat_data.AppendIdToCategory(t, isolates_cat, i);
+                    } else if (cluster[i] == 4) {
                         cat_data.AppendIdToCategory(t, undefined_cat, i);
                     } else {
                         //cat_data.AppendIdToCategory(t, (sigCat[i]-s_f)+1, i);

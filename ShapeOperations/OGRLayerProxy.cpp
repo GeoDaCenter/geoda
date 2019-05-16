@@ -67,13 +67,14 @@ layer(_layer), load_progress(0), stop_reading(false), export_progress(0)
  */
 OGRLayerProxy::OGRLayerProxy(OGRLayer* _layer,
                              GdaConst::DataSourceType _ds_type,
-                             OGRwkbGeometryType eGType,
+                             OGRwkbGeometryType _eGType,
                              int _n_rows)
 : mapContour(0), layer(_layer), name(_layer->GetName()), ds_type(_ds_type),
-n_rows(_n_rows), eLayerType(eGType), load_progress(0), stop_reading(false),
+n_rows(_n_rows), eGType(_eGType), load_progress(0), stop_reading(false),
 export_progress(0)
 {
-    if (n_rows==0) {
+    if (n_rows == 0) {
+        // sometimes the OGR returns 0 features (falsely)
         n_rows = layer->GetFeatureCount();
     }
     
@@ -147,6 +148,18 @@ void OGRLayerProxy::SetOGRLayer(OGRLayer* new_layer)
 
 bool OGRLayerProxy::ReadFieldInfo()
 {
+    // check duplicated field names
+    std::set<wxString> field_nms;
+    for (int col_idx=0; col_idx < n_cols; col_idx++) {
+        OGRFieldDefn *fieldDefn = featureDefn->GetFieldDefn(col_idx);
+        field_nms.insert(fieldDefn->GetNameRef());
+    }
+    if (field_nms.size() < n_cols) {
+        wxString msg = _("GeoDa can't load dataset with duplicate field names.");
+        error_message << msg;
+        throw GdaException(msg.mb_str());
+    }
+    
 	for (int col_idx=0; col_idx<n_cols; col_idx++) {
 		OGRFieldDefn *fieldDefn = featureDefn->GetFieldDefn(col_idx);
 		OGRFieldProxy *fieldProxy = new OGRFieldProxy(fieldDefn);
@@ -155,16 +168,23 @@ bool OGRLayerProxy::ReadFieldInfo()
 	return true;
 }
 
-void OGRLayerProxy::GetVarTypeMap(vector<wxString>& var_list,
-                                map<wxString,GdaConst::FieldType>& var_type_map)
+vector<GdaConst::FieldType> OGRLayerProxy::GetFieldTypes()
 {
-	// Get field/variable list of current ogr_layer, store in var_list vector
-	// Get field/variable:(its type) pair of current ogr_layer, store in map
+    vector<GdaConst::FieldType> field_types;
 	for( int i=0; i< n_cols; i++) {
-        wxString var = fields[i]->GetName();
-		var_list.push_back( var );
-		var_type_map[ var ] = fields[i]->GetType();
+		field_types.push_back(fields[i]->GetType());
 	}
+    return field_types;
+}
+
+vector<wxString> OGRLayerProxy::GetFieldNames()
+{
+    vector<wxString> field_names;
+    for( int i=0; i< n_cols; i++) {
+        wxString var = fields[i]->GetName();
+        field_names.push_back(var);
+    }
+    return field_names;
 }
 
 wxString OGRLayerProxy::GetFieldName(int pos)
@@ -409,7 +429,6 @@ void OGRLayerProxy::DeleteField(int pos)
 	n_cols--;
 	// remove this field from OGRFieldProxy
 	this->fields.erase( fields.begin() + pos ); 
-	//this->fields.erase( fields.begin() + pos );
 }
 
 void OGRLayerProxy::DeleteField(const wxString& field_name)
@@ -532,6 +551,18 @@ vector<wxString> OGRLayerProxy::GetIntegerFieldNames()
     vector<wxString> names;
     for (int i=0; i<fields.size(); i++) {
         if (GdaConst::long64_type == fields[i]->GetType()) {
+            names.push_back(GetFieldName(i));
+        }
+    }
+    return names;
+}
+
+vector<wxString> OGRLayerProxy::GetNumericFieldNames()
+{
+    vector<wxString> names;
+    for (int i=0; i<fields.size(); i++) {
+        if (GdaConst::long64_type == fields[i]->GetType() ||
+            GdaConst::double_type == fields[i]->GetType()) {
             names.push_back(GetFieldName(i));
         }
     }
@@ -763,15 +794,12 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
     if (table != NULL) {
         if (export_size == 0) export_size = table->GetNumberRows();
         export_progress = export_size / 4;
-        // using orders in wxGrid
-        std::vector<int> col_id_map;
-        table->FillColIdMap(col_id_map);
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
         for (size_t j=0; j< fields.size(); j++) {
             wxString fname = fields[j]->GetName();
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
-            int col_pos = col_id_map[j];
+            int col_pos = table->GetColIdx(fname);
             vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
                 vector<wxInt64> col_data;
@@ -874,7 +902,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (stop_exporting) return;
         if ( (i+1)%2 ==0 ) export_progress++;
         if( layer->CreateFeature( data[i] ) != OGRERR_NONE ) {
-            wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n", i + 1, n_data);
+            wxString msg = wxString::Format(" Failed to create feature (%d/%d).\n",
+                                            i + 1, n_data);
             error_message << msg << CPLGetLastErrorMsg();
             export_progress = -1;
 			return;
@@ -1143,7 +1172,8 @@ bool OGRLayerProxy::AddGeometries(Shapefile::Main& p_main)
 }
 
 bool OGRLayerProxy::GetExtent(double& minx, double& miny,
-                              double& maxx, double& maxy)
+                              double& maxx, double& maxy,
+                              OGRSpatialReference* dest_sr)
 {
 	OGREnvelope pEnvelope;
     if (layer->GetExtent(&pEnvelope) != OGRERR_NONE) return false;
@@ -1151,6 +1181,21 @@ bool OGRLayerProxy::GetExtent(double& minx, double& miny,
 	miny = pEnvelope.MinY;
 	maxx = pEnvelope.MaxX;
 	maxy = pEnvelope.MaxY;
+    
+    OGRCoordinateTransformation *poCT = NULL;
+    if (dest_sr && spatialRef) {
+        poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
+    }
+    if (poCT) {
+        OGRPoint pt1(minx, miny);
+        pt1.transform(poCT);
+        minx = pt1.getX();
+        miny = pt1.getY();
+        OGRPoint pt2(maxx, maxy);
+        pt2.transform(poCT);
+        maxx = pt2.getX();
+        maxy = pt2.getY();
+    }
     
     if ( minx == miny && maxx == maxy && minx == 0 && maxx==0) {
         return false;
@@ -1172,6 +1217,8 @@ void OGRLayerProxy::GetCentroids(vector<GdaPoint*>& centroids)
                 x = poPoint.getX();
                 y = poPoint.getY();
                 centroids.push_back(new GdaPoint(x, y));
+            } else {
+                centroids.push_back(new GdaPoint(0,0)); // no geomeetry
             }
         }
     }
@@ -1184,21 +1231,18 @@ OGRGeometry* OGRLayerProxy::GetGeometry(int idx)
     return geometry;
 }
 
-GdaPolygon* OGRLayerProxy::GetMapBoundary(vector<OGRGeometry*>& geoms)
+GdaPolygon* OGRLayerProxy::DissolvePolygons(vector<OGRGeometry*>& geoms)
 {
     OGRMultiPolygon geocol;
-    for ( int i=0; i < geoms.size(); i++ ) {
+    for (size_t i=0; i < geoms.size(); i++ ) {
         OGRGeometry* geometry= geoms[i];
-        OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
-        if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+        OGRwkbGeometryType etype = wkbFlatten(geometry->getGeometryType());
+        if (IsWkbSinglePolygon(etype)) {
             geocol.addGeometry(geometry);
-        } else if (eType == wkbMultiPolygon) {
+        } else if (IsWkbMultiPolygon(etype)) {
             OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
-            int n_geom = mpolygon->getNumGeometries();
-            // if there is more than one polygon, then we need to count which
-            // part is processing accumulatively
-            for (size_t i = 0; i < n_geom; i++ ){
-                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
+            for (size_t j = 0; j < mpolygon->getNumGeometries(); j++ ){
+                OGRGeometry* ogrGeom = mpolygon->getGeometryRef(j);
                 geocol.addGeometry(ogrGeom);
             }
         }
@@ -1214,18 +1258,18 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
 {
     if (mapContour == NULL) {
         OGRMultiPolygon geocol;
-        for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
+        for (size_t row_idx=0; row_idx < n_rows; row_idx++ ) {
             OGRFeature* feature = data[row_idx];
             OGRGeometry* geometry= feature->GetGeometryRef();
-            OGRwkbGeometryType eType = wkbFlatten(geometry->getGeometryType());
-            if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+            OGRwkbGeometryType etype = wkbFlatten(geometry->getGeometryType());
+            if (IsWkbSinglePolygon(etype)) {
                 geocol.addGeometry(geometry);
                 
-            } else if (eType == wkbMultiPolygon) {
+            } else if (IsWkbMultiPolygon(etype)) {
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
                 int n_geom = mpolygon->getNumGeometries();
-                // if there is more than one polygon, then we need to count which
-                // part is processing accumulatively
+                // if there is more than one polygon, then we need to count 
+                // which part is processing accumulatively
                 for (size_t i = 0; i < n_geom; i++ ){
                     OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
                     geocol.addGeometry(ogrGeom);
@@ -1241,11 +1285,67 @@ GdaPolygon* OGRLayerProxy::GetMapBoundary()
     return NULL;
 }
 
+std::vector<GdaShape*> OGRLayerProxy::DissolveMap(const std::map<wxString, std::vector<int> >& cids)
+{
+    std::vector<GdaShape*> results;
+
+    if (data.empty()) return results;
+
+    if (IsWkbPoint(eGType) || IsWkbLine(eGType)) return results;
+
+    std::map<wxString, std::vector<int> >::const_iterator it;
+    for (it = cids.begin(); it != cids.end(); ++it) {
+        std::vector<OGRGeometry*> geom_set;
+        for (size_t j=0; j<it->second.size(); j++) {
+            int rid = it->second[j];
+            OGRFeature* feature = data[rid];
+            OGRGeometry* geometry= feature->GetGeometryRef();
+            geom_set.push_back(geometry);
+        }
+        GdaPolygon* new_poly = DissolvePolygons(geom_set);
+        results.push_back((GdaShape*)new_poly);
+    }
+    return results;
+}
+
+bool OGRLayerProxy::IsWkbSinglePolygon(OGRwkbGeometryType etype)
+{
+    if (etype == wkbPolygon || etype == wkbCurvePolygon ||
+        etype == wkbPolygon25D || etype == wkbCurvePolygonZ ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbMultiPolygon(OGRwkbGeometryType etype)
+{
+    if (etype == wkbMultiPolygon || etype == wkbMultiPolygon25D ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbPoint(OGRwkbGeometryType etype)
+{
+    if (etype == wkbPoint || etype == wkbMultiPoint ) {
+        return true;
+    }
+    return false;
+}
+
+bool OGRLayerProxy::IsWkbLine(OGRwkbGeometryType etype)
+{
+    if (etype == wkbLineString || etype == wkbMultiLineString ) {
+        return true;
+    }
+    return false;
+}
+
 GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
 {
     OGRwkbGeometryType eType = wkbFlatten(geom->getGeometryType());
     Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
-    if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
+    if (IsWkbSinglePolygon(eType)) {
         pc->shape_type = Shapefile::POLYGON;
         OGRPolygon* p = (OGRPolygon *)geom;
         OGRLinearRing* pLinearRing = NULL;
@@ -1268,17 +1368,15 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
         // read points
         int i=0;
         for (size_t j=0; j < pc->num_parts; j++) {
-            pLinearRing = j==0 ?
-            p->getExteriorRing() : p->getInteriorRing(j-1);
+            pLinearRing = j==0 ? p->getExteriorRing() : p->getInteriorRing(j-1);
             if (pLinearRing) {
-                for (size_t k=0; k < pLinearRing->getNumPoints(); k++)
-                {
+                for (size_t k=0; k < pLinearRing->getNumPoints(); k++) {
                     pc->points[i].x =  pLinearRing->getX(k);
                     pc->points[i++].y =  pLinearRing->getY(k);
                 }
             }
         }
-    } else if (eType == wkbMultiPolygon) {
+    } else if (IsWkbMultiPolygon(eType)) {
         pc->shape_type = Shapefile::POLYGON;
         OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geom;
         int n_geom = mpolygon->getNumGeometries();
@@ -1291,7 +1389,7 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
             OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
             OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
             // number of interior rings + 1 exterior ring
-            int ni_rings = p->getNumInteriorRings()+1;
+            int ni_rings = p->getNumInteriorRings() + 1;
             pc->num_parts += ni_rings;
             pc->parts.resize(pc->num_parts);
             
@@ -1318,6 +1416,8 @@ GdaPolygon* OGRLayerProxy::OGRGeomToGdaShape(OGRGeometry* geom)
 
 bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 {
+    bool has_null_geometry = false;
+
 	// get geometry envelope
 	OGREnvelope pEnvelope;
     if (layer->GetExtent(&pEnvelope) == OGRERR_NONE) {
@@ -1345,8 +1445,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
 		OGRGeometry* geometry= feature->GetGeometryRef();
 		OGRwkbGeometryType eType = geometry ? wkbFlatten(geometry->getGeometryType()) : eGType;
 		// sometime OGR can't return correct value from GetGeomType() call
-		if (eGType == wkbUnknown)
-            eGType = eType;
+		if (eGType == wkbUnknown) eGType = eType;
         
 		if (eType == wkbPoint) {
 			Shapefile::PointContents* pc = new Shapefile::PointContents();
@@ -1366,6 +1465,7 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                         GetExtent(p_main, pc, row_idx);
                 }
             } else {
+                has_null_geometry = true;
                 pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
@@ -1385,10 +1485,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     OGRPoint* p = static_cast<OGRPoint*>(ogrGeom);
 					pc->x = p->getX();
 					pc->y = p->getY();
-					if (noExtent)
-						GetExtent(p_main, pc, row_idx);
-					
+					if (noExtent) GetExtent(p_main, pc, row_idx);
 				}
+            } else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
 			
@@ -1423,13 +1524,15 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     pLinearRing = j==0 ?
                         p->getExteriorRing() : p->getInteriorRing(j-1);
                     if (pLinearRing)
-                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++){
+                        for (size_t k=0; k < pLinearRing->getNumPoints(); k++) {
                             pc->points[i].x =  pLinearRing->getX(k);
                             pc->points[i++].y =  pLinearRing->getY(k);
                         }
                 }
-                if (noExtent)
-                    GetExtent(p_main, pc, row_idx);
+                if (noExtent) GetExtent(p_main, pc, row_idx);
+            } else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
             
@@ -1441,13 +1544,12 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                     p_main.header.shape_type = Shapefile::POLYGON;
                 OGRMultiPolygon* mpolygon = (OGRMultiPolygon *) geometry;
                 int n_geom = mpolygon->getNumGeometries();
-                // if there is more than one polygon, then we need to count which
-                // part is processing accumulatively
+                // if there is more than one polygon, then we need to count
+                // which part is processing accumulatively
                 int part_idx = 0, numPoints = 0;
                 OGRLinearRing* pLinearRing = NULL;
                 int pidx =0;
-                for (size_t i = 0; i < n_geom; i++ )
-                {	
+                for (size_t i = 0; i < n_geom; i++ ) {
                     OGRGeometry* ogrGeom = mpolygon->getGeometryRef(i);
                     OGRPolygon* p = static_cast<OGRPolygon*>(ogrGeom);
                     if ( i == 0 ) {
@@ -1481,9 +1583,11 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
                             pc->points[pidx++].y = pLinearRing->getY(k);
                         }
                     }
-                    if (noExtent)
-                        GetExtent(p_main, pc, row_idx);
+                    if (noExtent) GetExtent(p_main, pc, row_idx);
                 }
+            }  else {
+                has_null_geometry = true;
+                pc->shape_type = Shapefile::NULL_SHAPE;
             }
 			p_main.records[feature_counter++].contents_p = pc;
             
@@ -1493,177 +1597,5 @@ bool OGRLayerProxy::ReadGeometries(Shapefile::Main& p_main)
         }
 	}
     
-	return true;
+	return has_null_geometry;
 }
-
-void OGRLayerProxy::T_Export(wxString format,
-                             wxString dest_datasource,
-							 wxString new_layer_name,
-                             bool is_update)
-{
-	export_progress = 0;
-	stop_exporting = FALSE;
-	boost::thread export_thread(boost::bind(&OGRLayerProxy::Export, this,  format, dest_datasource, new_layer_name, is_update));
-}
-
-void OGRLayerProxy::T_StopExport()
-{
-	stop_exporting = TRUE;
-	export_progress = 0;	
-}
-
-void OGRLayerProxy::Export(wxString format,
-                           wxString dest_datasource,
-                           wxString new_layer_name,
-                           bool is_update)
-{
-	const char* pszFormat = format.c_str();
-	const char* pszDestDataSource = dest_datasource.c_str();
-	const char* pszNewLayerName = new_layer_name.c_str();
-	char** papszDSCO = NULL;
-	char*  pszOutputSRSDef = NULL;
-	char**  papszLCO = NULL;
-	papszLCO = CSLAddString(papszLCO, "OVERWRITE=yes");
-	OGRLayer* poSrcLayer = this->layer;
-	OGRFeatureDefn *poSrcFDefn = poSrcLayer->GetLayerDefn();
-    
-	// get information from current layer: geomtype, layer_name
-    // (don't consider coodinator system and translation here)
-	int bForceToPoint = FALSE;
-    int bForceToPolygon = FALSE;
-    int bForceToMultiPolygon = FALSE;
-    int bForceToMultiLineString = FALSE;
-	
-	if( wkbFlatten(eGType) == wkbPoint ) 
-        bForceToPoint = TRUE;
-    else if(wkbFlatten(eGType) == wkbPolygon)  
-        bForceToPolygon = TRUE;
-    else if(wkbFlatten(eGType) == wkbMultiPolygon) 
-        bForceToMultiPolygon = TRUE;
-    else if(wkbFlatten(eGType) == wkbMultiLineString) {
-		bForceToMultiLineString = TRUE;
-	} else { // not supported geometry type
-		export_progress = -1;
-		return;
-	}
-	// Try opening the output datasource as an existing, writable
-    GDALDataset  *poODS = NULL;
-    
-    if (is_update == true) {
-        poODS = (GDALDataset*) GDALOpenEx( pszDestDataSource,
-                                          GDAL_OF_VECTOR, NULL, NULL, NULL );
-    } else {
-        // Find the output driver.
-        GDALDriver *poDriver;
-        poDriver = GetGDALDriverManager()->GetDriverByName(pszFormat);
-        
-        if( poDriver == NULL ) {
-            // raise driver not supported failure
-            error_message << "Current OGR dirver " + format + " is not "
-                          << "supported by GeoDa.\n" << CPLGetLastErrorMsg();
-            export_progress = -1;
-            return;
-        }
-
-        // Create the output data source.  
-        poODS = poDriver->Create(pszDestDataSource, 0, 0, 0, GDT_Unknown, NULL);
-    }
-    
-	if( poODS == NULL ) {
-		// driver failed to create
-		// throw GdaException("Can't create output OGR driver.");
-		error_message << "Can't create output OGR driver."
-                      <<"\n\nDetails:"<< CPLGetLastErrorMsg();
-		export_progress = -1;
-		return;
-	}
-
-    // Parse the output SRS definition if possible.
-	OGRSpatialReference *poOutputSRS = this->GetSpatialReference();
-	if( pszOutputSRSDef != NULL ) {
-		poOutputSRS = (OGRSpatialReference*)OSRNewSpatialReference(NULL);
-        if( poOutputSRS->SetFromUserInput( pszOutputSRSDef ) != OGRERR_NONE){
-			// raise failed to process SRS definition:
-			error_message << "Can't setup SRS spatial definition.";
-			export_progress = -1;
-			return;
-		}
-	}
-	if( !poODS->TestCapability( ODsCCreateLayer ) ){
-		// "Layer %s not found, and CreateLayer not supported by driver.", 
-		error_message << "Current OGR driver does not support layer creation."
-                      <<"\n" << CPLGetLastErrorMsg();
-		export_progress = -1;
-		return;
-	}
-
-    // Create Layer
-	OGRLayer *poDstLayer = poODS->CreateLayer( pszNewLayerName, poOutputSRS,
-											  (OGRwkbGeometryType) eGType, 
-											  papszLCO );
-	if( poDstLayer == NULL ){
-		//Layer creation failed.
-		error_message << "Creating layer field.\n:" << CPLGetLastErrorMsg();
-		export_progress = -1;
-		return;
-	}
-    
-	// Process Layer style table
-	poDstLayer->SetStyleTable( poSrcLayer->GetStyleTable() );
-	OGRFeatureDefn *poDstFDefn = poDstLayer->GetLayerDefn();
-	int nSrcFieldCount = poSrcFDefn->GetFieldCount();
-	// Add fields. here to copy all field.
-    for( int iField = 0; iField < nSrcFieldCount; iField++ ){   
-        OGRFieldDefn* poSrcFieldDefn = poSrcFDefn->GetFieldDefn(iField);
-        OGRFieldDefn oFieldDefn( poSrcFieldDefn );
-        // The field may have been already created at layer creation
-        if (poDstLayer->CreateField( &oFieldDefn ) == OGRERR_NONE){   
-            // now that we've created a field, GetLayerDefn() won't return NULL
-            if (poDstFDefn == NULL) {
-                poDstFDefn = poDstLayer->GetLayerDefn();
-			}
-        }   
-    }
-
-    // Create OGR geometry features
-	for(int row=0; row< this->n_rows; row++){
-		if(stop_exporting) return;
-		export_progress++;
-		OGRFeature *poFeature;
-		poFeature = OGRFeature::CreateFeature(poDstLayer->GetLayerDefn());		
-		poFeature->SetFrom( this->data[row] );
-        if (poFeature != NULL){   
-            if(bForceToPoint) {   
-                poFeature->SetGeometryDirectly(
-					this->data[row]->StealGeometry() );
-            }   
-			else if( bForceToPolygon ) {
-                poFeature->SetGeometryDirectly(
-					OGRGeometryFactory::forceToPolygon(
-						this->data[row]->StealGeometry() ) );
-            }
-            else if( bForceToMultiPolygon ) {   
-                poFeature->SetGeometryDirectly(
-					OGRGeometryFactory::forceToMultiPolygon(
-						this->data[row]->StealGeometry() ) );
-            }   
-            else if ( bForceToMultiLineString ){   
-                poFeature->SetGeometryDirectly(
-					OGRGeometryFactory::forceToMultiLineString(
-						this->data[row]->StealGeometry() ) );
-            }   
-        }   
-        if( poDstLayer->CreateFeature( poFeature ) != OGRERR_NONE ){
-			// raise "Failed to create feature in shapefile.\n"		
-			error_message << "Creating feature (" <<row<<") failed."
-                          << "\n" << CPLGetLastErrorMsg();
-			export_progress = -1;
-			return;
-        }
-		OGRFeature::DestroyFeature( poFeature );
-	}
-
-    // Clean
-    GDALClose(poODS);
-}
-

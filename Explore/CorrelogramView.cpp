@@ -34,6 +34,7 @@
 #include "../GeoDa.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../DialogTools/AdjustYAxisDlg.h"
 #include "SimpleAxisCanvas.h"
 #include "SimpleHistCanvas.h"
 #include "CorrelogramView.h"
@@ -57,7 +58,10 @@ CorrelogramFrame::CorrelogramFrame(wxFrame *parent, Project* project,
 : TemplateFrame(parent, project, title, pos, size, wxDEFAULT_FRAME_STYLE),
 correl_params_frame(0), panel(0),lowess_param_frame(0), sp_can(0),
 panel_v_szr(0), bag_szr(0), top_h_sizer(0),
-hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), display_statistics(false)
+hist_plot(0), local_hl_state(0), message_win(0), project(project),
+shs_plot(0), display_statistics(false), display_precision(3),
+axis_display_precision(1), display_fixed_point(false),
+axis_display_fixed_point(false)
 {
     wxLogMessage("Open CorrelogramFrame.");
 	local_hl_state = new HighlightState();
@@ -100,7 +104,6 @@ hist_plot(0), local_hl_state(0), message_win(0), project(project), shs_plot(0), 
     
 	SetupPanelForNumVariables(var_man.GetVarsCount());
 	
-    
 	Show(true);
 	
 	wxCommandEvent ev;
@@ -143,7 +146,8 @@ void CorrelogramFrame::OnEditLowessParams(wxCommandEvent& event)
         lowess_param_frame->SetFocus();
     } else {
         Lowess l;
-        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(), l.GetDeltaFactor(), project);
+        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
+                                                  l.GetDeltaFactor(), project);
         lowess_param_frame->registerObserver(this);
     }
 }
@@ -167,14 +171,34 @@ void CorrelogramFrame::OnRightClick(const wxPoint& pos)
     if (!optMenu) return;
     
     UpdateContextMenuItems(optMenu);
-    GeneralWxUtils::CheckMenuItem(optMenu, XRCID("ID_CORRELOGRAM_DISPLAY_STATS"), display_statistics);
+    GeneralWxUtils::CheckMenuItem(optMenu, XRCID("ID_CORRELOGRAM_DISPLAY_STATS"),
+                                  display_statistics);
     PopupMenu(optMenu, pos);
     UpdateOptionMenuItems();
    
-    
     wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_CORRELOGRAM_STATS"));
     Connect(save_menu->GetId(), wxEVT_MENU,
             wxCommandEventHandler(CorrelogramFrame::OnSaveResult));
+}
+
+void CorrelogramFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
+{
+    SetDisplayPrecisionDlg dlg(axis_display_precision,
+                               axis_display_fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    axis_display_precision = dlg.precision;
+    axis_display_fixed_point = dlg.fixed_point;
+    ReDraw();
+}
+
+void CorrelogramFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    SetDisplayPrecisionDlg dlg(display_precision,
+                               display_fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    display_precision = dlg.precision;
+    display_fixed_point = dlg.fixed_point;
+    ReDraw();
 }
 
 void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
@@ -187,9 +211,9 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
         return;
     
     wxFileOutputStream output_stream(saveFileDialog.GetPath());
-    if (!output_stream.IsOk())
-    {
-        wxLogError("Cannot save current contents in file '%s'.", saveFileDialog.GetPath());
+    if (!output_stream.IsOk()) {
+        wxLogError("Cannot save current contents in file '%s'.",
+                   saveFileDialog.GetPath());
         return;
     }
     // write logReport to a text file
@@ -202,7 +226,6 @@ void CorrelogramFrame::OnSaveResult(wxCommandEvent& event)
     lbls.push_back(_("Max"));
     lbls.push_back(_("# Pairs"));
   
-    
     wxString header = "";
     int total_pairs = 0;
     for (size_t i=0; i<cbins.size(); ++i) {
@@ -506,6 +529,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			}
             
 			AxisScale v_axs;
+            v_axs.lbl_precision = axis_display_precision;
+            v_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 			v_axs.ticks = 5;
 			v_axs.data_min = -1;
 			v_axs.data_max = 1;
@@ -520,9 +545,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 			for (int i=0; i<v_axs.ticks; ++i) {
 				double d = i;
 				v_axs.tics[i] = v_axs.data_min + d*v_axs.tic_inc;
-				std::stringstream s;
-				s << v_axs.tics[i];
-				v_axs.tics_str[i] = s.str();
+                v_axs.tics_str[i] = GenUtils::DblToStr(v_axs.tics[i],
+                                                       axis_display_precision,
+                                                       axis_display_fixed_point);
 				v_axs.tics_str_show[i] = true;
 			}
 
@@ -579,6 +604,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 	{
 		{
 			AxisScale v_axs;
+            v_axs.lbl_precision = axis_display_precision;
+            v_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 			v_axs.ticks = 4;
 			v_axs.data_min = freq_min;
 			v_axs.data_max = freq_max;
@@ -594,7 +621,7 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 				double d = i;
 				v_axs.tics[i] = v_axs.data_min + d*v_axs.tic_inc;
 				std::stringstream s;
-				// round to nearest whole number
+				// round to nearest whole number for frequency?
 				s << setprecision(0) << fixed << v_axs.tics[i];
 				v_axs.tics_str[i] = s.str();
 				v_axs.tics_str_show[i] = true;
@@ -657,6 +684,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		}
 		
 		AxisScale h_axs;
+        h_axs.lbl_precision = axis_display_precision;
+        h_axs.lbl_prec_fixed_point = axis_display_fixed_point;
 		h_axs.ticks = cbins.size()+1;
 		h_axs.data_min = cbins[0].dist_min;
 		h_axs.data_max = cbins[cbins.size()-1].dist_max;
@@ -671,20 +700,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		for (int i=0; i<h_axs.ticks; ++i) {
 			double d = i;
 			h_axs.tics[i] = h_axs.data_min + d*h_axs.tic_inc;
-			stringstream ss;
-			if (h_axs.tics[i] < 10000000) {
-                if (  h_axs.tics[i] == (int) h_axs.tics[i])
-                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
-				else
-                    ss << std::fixed << std::setprecision(1) << h_axs.tics[i];
-				h_axs.tics_str[i] = ss.str();
-			} else {
-                if (  h_axs.tics[i] == (int) h_axs.tics[i])
-                    ss << wxString::Format("%d", (int)  h_axs.tics[i]);
-                else 
-                    ss << std::setprecision(1) << h_axs.tics[i];
-				h_axs.tics_str[i] = ss.str();
-			}
+            h_axs.tics_str[i] = GenUtils::DblToStr(h_axs.tics[i],
+                                                   axis_display_precision,
+                                                   axis_display_fixed_point);
 			h_axs.tics_str_show[i] = true;
 		}
 		
@@ -744,21 +762,9 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
 		bag_szr->RemoveGrowableRow(num_top_rows);
 	}
 	bag_szr->AddGrowableRow(num_top_rows, 1);
-    
-	// last row
-   /*
-	if (bag_szr->IsRowGrowable(num_top_rows+1)) {
-		bag_szr->RemoveGrowableRow(num_top_rows+1);
-	}
-	bag_szr->AddGrowableRow(num_top_rows+1, 1);
-	if (bag_szr->IsRowGrowable(num_top_rows+2)) {
-		bag_szr->RemoveGrowableRow(num_top_rows+2);
-	}
-	bag_szr->AddGrowableRow(num_top_rows+2, 1);
-	*/
+
 	panel_v_szr->Add(bag_szr, 1, wxALL | wxEXPAND);
-    
-    
+
     vector<wxString> lbls;
     lbls.push_back(_("Autocorr."));
     lbls.push_back(_("Min"));
@@ -791,7 +797,8 @@ void CorrelogramFrame::SetupPanelForNumVariables(int num_vars)
    
     SimpleHistStatsCanvas* shs_can = 0;
     shs_can = new SimpleHistStatsCanvas(panel, this, project, local_hl_state,
-                                        lbls, vals, stats,
+                                        lbls, vals, stats, display_precision,
+                                        display_fixed_point,
                                         "ID_CORRELOGRAM_MENU_OPTIONS",
                                         wxDefaultPosition, wxSize(-1, 110));
     shs_can->SetFixedAspectRatioMode(false);

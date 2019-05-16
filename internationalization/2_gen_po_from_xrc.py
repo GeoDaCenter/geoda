@@ -22,7 +22,7 @@ def process_xrc(xrcfile):
     
     
 def create_po(txtfiles):
-    pofile = 'xrc.po'
+    pofile = 'xrc.pot'
     en_strings = {}
     for txtfile in txtfiles:
         f = open(txtfile)
@@ -46,7 +46,7 @@ def create_po(txtfiles):
     o.flush()
     o.close()
 
-xrcfiles = ['../rc/menus.xrc', '../rc/dialogs.xrc', '../rc/data_viewer_dialogs.xrc', '../rc/panel.xrc', '../rc/toolbar.xrc']
+xrcfiles = ['../rc/menus.xrc', '../rc/dialogs.xrc', '../rc/data_viewer_dialogs.xrc', '../rc/toolbar.xrc']
 
 txtfiles = [process_xrc(xrcfile) for xrcfile in xrcfiles]
 create_po(txtfiles)

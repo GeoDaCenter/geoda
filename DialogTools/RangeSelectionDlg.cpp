@@ -51,7 +51,6 @@ BEGIN_EVENT_TABLE( RangeSelectionDlg, wxDialog )
     EVT_BUTTON( XRCID("ID_SEL_RANGE_BUTTON"), RangeSelectionDlg::OnSelRangeClick )
 	EVT_BUTTON( XRCID("ID_SEL_UNDEF_BUTTON"), RangeSelectionDlg::OnSelUndefClick )
 	EVT_BUTTON( XRCID("ID_INVERT_SEL_BUTTON"), RangeSelectionDlg::OnInvertSelClick )
-	//EVT_BUTTON( XRCID("ID_RANDOM_SEL_BUTTON"), RangeSelectionDlg::OnRandomSelClick )
 	EVT_BUTTON( XRCID("ID_CLEAR_SEL_BUTTON"), RangeSelectionDlg::OnClearSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON"), RangeSelectionDlg::OnAddNeighsToSelClick )
 	EVT_BUTTON( XRCID("ID_ADD_FIELD"), RangeSelectionDlg::OnAddField )
@@ -115,85 +114,59 @@ void RangeSelectionDlg::CreateControls()
 									 "IDD_RANGE_SELECTION_DLG");
 	m_field_choice = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE")),
 								   wxChoice);
-
 	m_field_choice_tm = wxDynamicCast(FindWindow(XRCID("ID_FIELD_CHOICE_TM")),
 									  wxChoice);
-	
 	m_min_text = wxDynamicCast(FindWindow(XRCID("ID_MIN_TEXT")),
 							   wxTextCtrl);
 	m_min_text->Clear();
 	m_min_text->AppendText("0");
 	m_min_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_field_static_txt = wxDynamicCast(FindWindow(XRCID("ID_FIELD_STATIC_TXT")),
 									   wxStaticText);
-	m_field2_static_txt =
-		wxDynamicCast(FindWindow(XRCID("ID_FIELD2_STATIC_TXT")), wxStaticText);
-	
+	m_field2_static_txt = wxDynamicCast(FindWindow(XRCID("ID_FIELD2_STATIC_TXT")),
+                                        wxStaticText);
 	m_max_text = wxDynamicCast(FindWindow(XRCID("ID_MAX_TEXT")),
 							   wxTextCtrl);
 	m_max_text->Clear();
 	m_max_text->AppendText("1");
 	m_max_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_sel_range_button = wxDynamicCast(FindWindow(XRCID("ID_SEL_RANGE_BUTTON")),
 									   wxButton);
 	m_sel_range_button->Enable(false);
-	
 	m_sel_undef_button = wxDynamicCast(FindWindow(XRCID("ID_SEL_UNDEF_BUTTON")),
 									   wxButton);
 	m_sel_undef_button->Enable(false);
-
 	m_clear_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_CLEAR_SEL_BUTTON")), wxButton);
-
 	m_invert_sel_button = wxDynamicCast(
 						FindWindow(XRCID("ID_INVERT_SEL_BUTTON")), wxButton);
-	
-	//m_num_to_rand_sel_txt = wxDynamicCast(FindWindow(XRCID("ID_NUM_TO_RAND_SEL")), wxTextCtrl);
-	//m_num_to_rand_sel_txt->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-	
 	// Select 10% of objects by default
 	wxString num_to_sel;
 	num_to_sel << (project->GetNumRecords() / 10);
-	//m_num_to_rand_sel_txt->SetValue(num_to_sel);
-	
-	//m_random_sel_button = wxDynamicCast(FindWindow(XRCID("ID_RANDOM_SEL_BUTTON")), wxButton);
-	
-		
-	m_add_neighs_to_sel_button = wxDynamicCast(
-			   FindWindow(XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON")), wxButton);
-														  
+	m_add_neighs_to_sel_button = wxDynamicCast(FindWindow(XRCID("ID_ADD_NEIGHS_TO_SEL_BUTTON")),
+                                               wxButton);
 	m_weights_choice = wxDynamicCast(FindWindow(XRCID("ID_WEIGHTS")), wxChoice);
-	
-	m_save_field_choice =
-		wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE")), wxChoice);
-	m_save_field_choice_tm =
-		wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE_TM")), wxChoice);
-	
+	m_save_field_choice = wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE")),
+                                        wxChoice);
+	m_save_field_choice_tm = wxDynamicCast(FindWindow(XRCID("ID_SAVE_FIELD_CHOICE_TM")),
+                                           wxChoice);
 	m_sel_check_box = wxDynamicCast(FindWindow(XRCID("ID_SEL_CHECK_BOX")),
-									wxCheckBox); 
-	
+									wxCheckBox);
 	m_sel_val_text = wxDynamicCast(FindWindow(XRCID("ID_SEL_VAL_TEXT")),
 									wxTextCtrl);
 	m_sel_val_text->Clear();
 	m_sel_val_text->AppendText("1");
 	m_sel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-
 	m_unsel_check_box = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_CHECK_BOX")),
-									  wxCheckBox); 
-	
+									  wxCheckBox);
 	m_unsel_val_text = wxDynamicCast(FindWindow(XRCID("ID_UNSEL_VAL_TEXT")),
 									 wxTextCtrl);	
 	m_unsel_val_text->Clear();
 	m_unsel_val_text->AppendText("0");
 	m_unsel_val_text->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-	
-	m_apply_save_button = wxDynamicCast(
-		FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")), wxButton);
+	m_apply_save_button = wxDynamicCast(FindWindow(XRCID("ID_APPLY_SAVE_BUTTON")),
+                                        wxButton);
 	m_apply_save_button->Disable();
-   
-
     m_radio_newselect = XRCCTRL(*this, "IDC_RADIO_NEWSELECT", wxRadioButton);
     m_radio_subselect = XRCCTRL(*this, "IDC_RADIO_SUBSELECT", wxRadioButton);
     m_radio_appendselect = XRCCTRL(*this, "IDC_RADIO_APPENDSELECT", wxRadioButton);
@@ -263,14 +236,12 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
         }
     }
     std::vector<bool> cur_sel(n);
-    
-
-	double min_dval = 0;
+	double min_dval = 0, max_dval = 1;
 	m_min_text->GetValue().ToDouble(&min_dval);
-	double max_dval = 1;
 	m_max_text->GetValue().ToDouble(&max_dval);
 	std::vector<bool> undefined;
 	table_int->GetColUndefined(mcol, f_tm, undefined);
+    wxString col_name = table_int->GetColName(mcol, f_tm), selection_lbl;
 	if (table_int->GetColType(mcol) == GdaConst::long64_type) {
 		wxInt64 min_ival = ceil(min_dval);
 		wxInt64 max_ival = floor(max_dval);
@@ -283,6 +254,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
                 cur_sel[i] = false;
             }
 		}
+        selection_lbl = wxString::Format("[%lld, %lld]", min_ival, max_ival);
 	} else if (table_int->GetColType(mcol) == GdaConst::double_type) {
 		std::vector<double> vec;
 		table_int->GetColData(mcol, f_tm, vec);
@@ -293,6 +265,7 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
                 cur_sel[i] = false;
 			}
 		}
+        selection_lbl = wxString::Format("[%f, %f]", min_dval, max_dval);
 	} else {
 		wxString msg("Selected field is should be numeric.");
 		wxMessageDialog dlg (this, msg, _("Error"), wxOK | wxICON_ERROR);
@@ -322,6 +295,10 @@ void RangeSelectionDlg::OnSelRangeClick( wxCommandEvent& event )
     }
 
 	if (update_flag) {
+        std::map<wxString, wxString> meta_data;
+        meta_data["original_variable"] = col_name;
+        meta_data["selection_range"] = selection_lbl;
+        hs.SetMetaData(meta_data);
 		hs.SetEventType(HLStateInt::delta);
 		hs.notifyObservers();
 	}
@@ -451,20 +428,16 @@ void RangeSelectionDlg::OnSelUnselTextChange( wxCommandEvent& event )
 void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 {
     wxLogMessage("In RangeSelectionDlg::OnApplySaveClick()");
-	 // The Apply button is only enable when Selected / Unselected values
-	 // are valid (only when checked), and at least one checkbox is
-	 // selected.  The Target Variable is not empty, but has not been
-	 // checked for validity.
-	
+    // The Apply button is only enable when Selected / Unselected values
+    // are valid (only when checked), and at least one checkbox is
+    // selected.  The Target Variable is not empty, but has not been
+    // checked for validity.
 	int write_col = GetSaveColInt();
-	
 	TableState* ts = project->GetTableState();
 	wxString grp_nm = table_int->GetColName(write_col);
 	if (!Project::CanModifyGrpAndShowMsgIfNot(ts, grp_nm)) return;
-	
 	bool sel_checked = m_sel_check_box->GetValue() == 1;
 	bool unsel_checked = m_unsel_check_box->GetValue() == 1;
-	
 	double sel_c = 0;
     wxString sel_c_str = m_sel_val_text->GetValue();
 	if (sel_checked && !sel_c_str.IsEmpty()) {
@@ -477,10 +450,11 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		unsel_c_str.Trim(false); unsel_c_str.Trim(true);
 		unsel_c_str.ToDouble(&unsel_c);
 	}
-	
 	int sf_tm = GetSaveColTmInt();
-	
-	std::vector<bool>& h = project->GetHighlightState()->GetHighlight();
+    HighlightState* hl_state = project->GetHighlightState();
+	std::vector<bool>& h = hl_state->GetHighlight();
+    std::map<wxString, wxString> meta_data = hl_state->GetMetaData();
+
 	// write_col now refers to a valid field in grid base, so write out
 	// results to that field.
 	int obs = h.size();
@@ -511,6 +485,7 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		}
 		table_int->SetColData(write_col, sf_tm, t);
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
+
 	} else if (table_int->GetColType(write_col) == GdaConst::double_type) {
 		std::vector<double> t(table_int->GetNumberRows());
 		table_int->GetColData(write_col, sf_tm, t);
@@ -537,12 +512,21 @@ void RangeSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		table_int->SetColUndefined(write_col, sf_tm, undefined);
 	} else {
 		wxString msg = _("Chosen field is not a numeric type. Please select a numeric type field.");
-
 		wxMessageDialog dlg(this, msg, _("Error"), wxOK | wxICON_ERROR );
 		dlg.ShowModal();
 		return;
 	}
-	
+    wxString col_nm = table_int->GetColName(write_col, sf_tm);
+    std::map<wxString, wxString>::iterator it;
+    for (it = meta_data.begin(); it != meta_data.end(); ++it) {
+        wxString key = it->first;
+        wxString val = it->second;
+        table_int->AddMetaInfo(col_nm, key, val);
+    }
+    // clean meta_data in hl_state
+    std::map<wxString, wxString> empty_meta_data;
+    hl_state->SetMetaData(empty_meta_data);
+
 	wxString msg = _("Values assigned to target field successfully.");
 	wxMessageDialog dlg(this, msg, "Success", wxOK | wxICON_INFORMATION );
 	dlg.ShowModal();
@@ -696,8 +680,8 @@ void RangeSelectionDlg::CheckRangeButtonSettings()
 		m_field_static_txt->SetLabelText(fn);
 		m_field2_static_txt->SetLabelText(fn);
 	} else {
-		m_field_static_txt->SetLabelText("choose a variable");
-		m_field2_static_txt->SetLabelText("choose a variable");
+		m_field_static_txt->SetLabelText(_("choose a variable"));
+		m_field2_static_txt->SetLabelText(_("choose a variable"));
 	}
 	
 	/** Check that min and max range text is valid.  If not valid, set

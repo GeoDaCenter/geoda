@@ -55,14 +55,14 @@ public:
     wxString s_max_val;
 };
 
-class AxisLabelPrecisionDlg : public wxDialog{
+class SetDisplayPrecisionDlg : public wxDialog{
     DECLARE_CLASS( AdjustYAxisDlg )
     DECLARE_EVENT_TABLE()
     
 public:
-    AxisLabelPrecisionDlg( int precision,
+    SetDisplayPrecisionDlg( int precision, bool fixed_point,
                    wxWindow* parent, wxWindowID id = wxID_ANY,
-                   const wxString& caption = _("Set Display Precision on Axis"),
+                   const wxString& caption = _("Set Display Precision"),
                    const wxPoint& pos = wxDefaultPosition,
                    const wxSize& size = wxDefaultSize,
                    long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
@@ -73,8 +73,10 @@ public:
     void OnKeyUp( wxEvent& event );
 
     wxSpinCtrl* m_precision_spin;
+    wxCheckBox* m_fixed_point;
     
     int precision;
+    bool fixed_point;
 };
 
 #endif

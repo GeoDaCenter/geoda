@@ -482,7 +482,8 @@ void VarGroupingEditorDlg::OnCreateGrpClick( wxCommandEvent& event )
 	wxString grp_nm = new_group_name_txt_ctrl->GetValue();
 	grp_nm.Trim(true);
 	grp_nm.Trim(false);
-    bool case_sensitive = project->IsFieldCaseSensitive();
+    // make sure no duplicated group when adding a new group
+    bool case_sensitive = false;
 	if (!table_int->IsValidGroupName(grp_nm) ||
 		table_int->DoesNameExist(grp_nm, case_sensitive)) {
 		wxString m;

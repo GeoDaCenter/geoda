@@ -199,12 +199,16 @@ ProjectConfiguration::ProjectConfiguration(const wxString& proj_path)
 {
     project_fpath = proj_path;
 	ptree xml_tree;
+    try{
 #ifdef __WIN32__
 	std::ifstream in_file(project_fpath.wc_str());
 	read_xml(in_file, xml_tree);
 #else
 	read_xml(std::string(GET_ENCODED_FILENAME(project_fpath)), xml_tree);
 #endif
+    }catch(const boost::property_tree::xml_parser::xml_parser_error& e){
+        throw GdaException("XML parsing error.");
+    }
     ReadPtree(xml_tree, proj_path);
 }
 

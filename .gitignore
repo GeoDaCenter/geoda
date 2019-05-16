@@ -102,3 +102,8 @@ BuildTools/macosx/temp1/boost_1_57_0/b2
 BuildTools/temp/CLAPACK-3.1.1-VisualStudio/BLAS/blas.vcproj
 *.sqlite-journal
 osm/
+internationalization/.vscode/launch.json
+*.swo
+internationalization/pofiles/new_zh_CN.mo
+internationalization/.vscode/settings.json
+internationalization/~$zh_CN.xlsx

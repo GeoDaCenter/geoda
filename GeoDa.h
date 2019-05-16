@@ -119,10 +119,11 @@ public:
 	void OnSelectWithRect(wxCommandEvent& event);
 	void OnSelectWithCircle(wxCommandEvent& event);
 	void OnSelectWithLine(wxCommandEvent& event);
+    void OnSelectWithCustom(wxCommandEvent& event);
 	void OnSelectionMode(wxCommandEvent& event);
 	void OnFitToWindowMode(wxCommandEvent& event);
 	void OnFixedAspectRatioMode(wxCommandEvent& event);
-	void OnSetDisplayPrecision(wxCommandEvent& event);
+	void OnSetAxisDisplayPrecision(wxCommandEvent& event);
 	void OnZoomMode(wxCommandEvent& event);
 	void OnPanMode(wxCommandEvent& event);
 	void OnPrintCanvasState(wxCommandEvent& event);
@@ -144,6 +145,7 @@ public:
 	void OnSaveSelectedToColumn(wxCommandEvent& event);
 	void OnCanvasBackgroundColor(wxCommandEvent& event);
 	void OnLegendUseScientificNotation(wxCommandEvent& event);
+    void OnLegendDisplayPrecision(wxCommandEvent& event);
 	void OnLegendBackgroundColor(wxCommandEvent& event);
 	void OnSelectableFillColor(wxCommandEvent& event);
 	void OnSelectableOutlineColor(wxCommandEvent& event);
@@ -198,11 +200,12 @@ public:
 	void OnMergeTableData(wxCommandEvent& event);
 	void OnAggregateData(wxCommandEvent& event);
     void OnSpatialJoin(wxCommandEvent& event);
+    void OnGroupingMap(wxCommandEvent& event);
 	void OnExportToCsvFile(wxCommandEvent& event); // not used currently
 	void OnExportToOGR(wxCommandEvent& event);
 	void OnExportSelectedToOGR(wxCommandEvent& event);
 	void OnGeneratePointShpFile(wxCommandEvent& event);
-	
+    void OnDissolve(wxCommandEvent& event);
 	void OnRegressionClassic(wxCommandEvent& event);
 	
 	void OnPublish(wxCommandEvent& event);
@@ -493,7 +496,8 @@ public:
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
-	
+	void OnChangeConnRootSize(wxCommandEvent& event);
+    void OnChangeConnRootColor(wxCommandEvent& event);
 	void OnAddMeanCenters(wxCommandEvent& event);
 	void OnAddCentroids(wxCommandEvent& event);
 	void OnDisplayMeanCenters(wxCommandEvent& event);
@@ -503,7 +507,8 @@ public:
 	void OnExportMeanCntrs(wxCommandEvent& event);
 	void OnExportCentroids(wxCommandEvent& event);
 	void OnSaveVoronoiDupsToTable(wxCommandEvent& event);
-	
+	void OnDisplayPrecision(wxCommandEvent& event);
+
 	// ScatterPlot and PCP specific callbacks
 	void OnViewStandardizedData(wxCommandEvent& event);
 	void OnViewOriginalData(wxCommandEvent& event);
@@ -554,7 +559,7 @@ public:
 	void OnPlotsPerViewAll(wxCommandEvent& event);
 	
 	void OnDisplayStatusBar(wxCommandEvent& event);
-	
+	void OnDonate(wxCommandEvent& event);
 	void OnHelpAbout(wxCommandEvent& event);
 	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
@@ -595,7 +600,8 @@ public:
 	void SetMenusToDefault();
    
     void RemoveInvalidRecentDS();
-   
+
+    void OnEmptyCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick(wxCommandEvent& event);
     void OnCustomCategoryClick_B(wxCommandEvent& event);
     void OnCustomCategoryClick_C(wxCommandEvent& event);

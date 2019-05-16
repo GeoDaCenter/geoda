@@ -446,6 +446,16 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
 void CsvFieldConfDlg::UpdateXYcombox( )
 {
 	wxLogMessage("CsvFieldConfDlg::UpdateXYcombox()");
+    // reserve previous selected lat/lng variables
+    wxString prev_lat, prev_lng;
+    if (lat_box->GetSelection() > 0) {
+        prev_lat = lat_box->GetString(lat_box->GetSelection());
+    }
+    if (lng_box->GetSelection() > 0) {
+        prev_lng = lng_box->GetString(lng_box->GetSelection());
+    }
+    
+    // reset lat lng combobox
     lat_box->Clear();
     lng_box->Clear();
   
@@ -462,8 +472,21 @@ void CsvFieldConfDlg::UpdateXYcombox( )
             }
             lat_box->Append(col_names[i]);
             lng_box->Append(col_names[i]);
-            if (types[i] == "CoordX") coord_x_idx = cnt;
-            else if (types[i] == "CoordY") coord_y_idx = cnt;
+            if (!prev_lat.IsEmpty()) {
+                if (col_names[i].CmpNoCase(prev_lat) == 0) {
+                    coord_x_idx = cnt;
+                }
+            } else if (types[i] == "CoordX") {
+                coord_x_idx = cnt;
+            }
+            
+            if (!prev_lng.IsEmpty()) {
+                if (col_names[i].CmpNoCase(prev_lng) == 0) {
+                    coord_y_idx = cnt;
+                }
+            } else if (types[i] == "CoordY") {
+                coord_y_idx = cnt;
+            }
             cnt ++;
         }
     }

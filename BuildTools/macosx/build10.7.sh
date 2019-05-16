@@ -131,7 +131,8 @@ fi
 
 if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
     cd $LIB_NAME
-    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+    #./configure --enable-static --enable-ares=$PREFIX --with-ssl=/usr/local/etc/openssl --disable-ldap --disable-ldaps --disable-shared CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX
+    ./configure --with-ssl=/usr/local/opt/openssl --disable-ldap --disable-ldaps LDFLAGS="-L/usr/local/opt/openssl/lib -L/usr/lib" CPPFLAGS="-I/usr/local/opt/openssl/include -mmacosx-version-min=10.7" --without-brotli --prefix=$PREFIX
     $MAKER
     make install
 fi

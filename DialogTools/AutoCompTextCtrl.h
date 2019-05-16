@@ -8,6 +8,9 @@
 #include <string>
 #include <algorithm>
 #include <wx/textctrl.h>
+#include <wx/listbox.h>
+
+#include "../DataViewer/TableInterface.h"
 
 class AutoTextCtrl: public wxTextCtrl {
 	DECLARE_DYNAMIC_CLASS(AutoTextCtrl) 

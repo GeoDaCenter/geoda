@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <boost/date_time.hpp>
-
+#include <wx/fontmap.h>
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "TableInterface.h"
@@ -79,14 +79,10 @@ void TableInterface::SetProjectChangedSinceLastSave(bool chg)
     project_changed_since_last_save = chg;
 }
 
-bool TableInterface::ColNameExists(const wxString& name)
-{
-	return (FindColId(name) != wxNOT_FOUND);
-}
-
 bool TableInterface::IsColTimeVariant(const wxString& name)
 {
-	if (!ColNameExists(name)) return false;
+	if (!DoesNameExist(name, cols_case_sensitive)) return false;
+    
 	return IsColTimeVariant(FindColId(name));
 }
 
@@ -114,7 +110,6 @@ void TableInterface::SetEncoding(wxFontEncoding enc_type)
 
 wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 {
-	using namespace std;
 	wxString nm(GenUtils::FindLongestSubString(cols));
 	// remove trailing and leading whitespace, underscores and numbers
 	bool done=false;
@@ -142,7 +137,8 @@ wxString TableInterface::SuggestGroupName(std::vector<wxString> cols) const
 	return GetUniqueGroupName(nm);
 }
 
-std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name, wxString prefix, int n) const
+std::vector<wxString> TableInterface::SuggestDBColNames(wxString new_grp_name,
+                                                        wxString prefix, int n) const
 {
 	return GetUniqueColNames(prefix, n);
 }
@@ -165,10 +161,8 @@ wxString TableInterface::GetUniqueGroupName(wxString grp_nm) const
 std::vector<wxString> TableInterface::GetUniqueColNames(wxString col_nm,
 														int n) const
 {
-	using namespace std;
-	vector<wxString> ret(n, col_nm);
-	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive))
-        return ret;
+    std::vector<wxString> ret(n, col_nm);
+	if (n==1 && !DoesNameExist(col_nm, cols_case_sensitive)) return ret;
 	
 	const int MAX_TRIES = 100000;
     if (col_nm.IsEmpty()) {
@@ -279,4 +273,95 @@ void TableInterface::GetColData(int col, int time, std::vector<unsigned long lon
 {
     GetColData(col, time, data);
     GetColUndefined(col, time, undefs);
+}
+
+
+wxString TableInterface::GetEncodingName()
+{
+    if (encoding_type == wxFONTENCODING_UTF8) {
+        return "UTF-8";
+    } else if (encoding_type == wxFONTENCODING_UTF16LE) {
+        return "UTF-16";
+    } else if (encoding_type == wxFONTENCODING_UTF16LE) {
+        return "UTF-16";
+    } else if (encoding_type == wxFONTENCODING_CP1250) {
+        return "CP1250";
+    } else if (encoding_type == wxFONTENCODING_CP1251) {
+        return "CP1251";
+    } else if (encoding_type == wxFONTENCODING_CP1252) {
+        return "CP1252";
+    } else if (encoding_type == wxFONTENCODING_CP1253) {
+        return "CP1253";
+    } else if (encoding_type == wxFONTENCODING_CP1254) {
+        return "CP1254";
+    } else if (encoding_type == wxFONTENCODING_CP1255) {
+        return "CP1255";
+    } else if (encoding_type == wxFONTENCODING_CP1256) {
+        return "CP1256";
+    } else if (encoding_type == wxFONTENCODING_CP1257) {
+        return "CP1257";
+    } else if (encoding_type == wxFONTENCODING_CP1258) {
+        return "CP1258";
+    } else if (encoding_type == wxFONTENCODING_CP437) {
+        return "CP437";
+    } else if (encoding_type == wxFONTENCODING_CP850) {
+        return "CP850";
+    } else if (encoding_type == wxFONTENCODING_CP855) {
+        return "CP855";
+    } else if (encoding_type == wxFONTENCODING_CP866) {
+        return "CP866";
+    } else if (encoding_type == wxFONTENCODING_CP874) {
+        return "CP874";
+    } else if (encoding_type == wxFONTENCODING_CP932) {
+        return "CP932";
+    } else if (encoding_type == wxFONTENCODING_CP936) {
+        return "CP936";
+    } else if (encoding_type == wxFONTENCODING_CP949) {
+        return "CP949";
+    } else if (encoding_type == wxFONTENCODING_CP950) {
+        return "CP950";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_10) {
+        return "ISO8859_10";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_11) {
+        return "ISO8859_11";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_12) {
+        return "ISO8859_12";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_13) {
+        return "ISO8859_13";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_14) {
+        return "ISO8859_14";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_15) {
+        return "ISO8859_15";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_1) {
+        return "ISO8859_1";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_2) {
+        return "ISO8859_2";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_3) {
+        return "ISO8859_3";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_4) {
+        return "ISO8859_4";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_5) {
+        return "ISO8859_5";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_6) {
+        return "ISO8859_6";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_7) {
+        return "ISO8859_7";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_8) {
+        return "ISO8859_8";
+    } else if (encoding_type == wxFONTENCODING_ISO8859_9) {
+        return "ISO8859_9";
+    } else if (encoding_type == wxFONTENCODING_GB2312) {
+        return "GB2312";
+    } else if (encoding_type == wxFONTENCODING_BIG5) {
+        return "BIG5";
+    } else if (encoding_type == wxFONTENCODING_KOI8) {
+        return "KOI8";
+    } else if (encoding_type == wxFONTENCODING_SHIFT_JIS) {
+        return "SHIFT_JIS";
+    } else if (encoding_type == wxFONTENCODING_EUC_JP) {
+        return "JP";
+    } else if (encoding_type == wxFONTENCODING_EUC_KR) {
+        return "KR";
+    }
+    return wxEmptyString;
 }

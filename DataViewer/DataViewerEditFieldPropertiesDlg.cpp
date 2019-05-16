@@ -224,8 +224,8 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 				} else {
 					field_grid->SetCellTextColour(r, COL_L, *wxBLACK);
 				}
-                
-				field_grid->SetReadOnly(r, COL_L, !can_edit);
+                if (!can_edit)
+                    field_grid->SetReadOnly(r, COL_L);
 				wxString lv;
 				lv << table_int->GetColLength(cid, t);
 				field_grid->SetCellValue(r, COL_L, lv);
@@ -295,12 +295,8 @@ void DataViewerEditFieldPropertiesDlg::InitTable()
 	field_grid->EndBatch();
     
     
-    field_grid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED,
-                       wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected),
-                       NULL,
-                       this);
+    field_grid->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(DataViewerEditFieldPropertiesDlg::OnFieldSelected), NULL, this);
 }
-
 
 void DataViewerEditFieldPropertiesDlg::OnFieldSelected( wxCommandEvent& ev )
 {
@@ -329,7 +325,6 @@ void DataViewerEditFieldPropertiesDlg::OnClose( wxCloseEvent& ev )
 
 void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 {
-	
 	wxLogMessage("Entering DataViewerEditFieldPropertiesDlg::OnCellChanging");
 	int row = ev.GetRow();
 	int col = ev.GetCol();
@@ -387,7 +382,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 		ev.Veto();
 		return;
 	}
-	
 	
 	if (col == COL_TM ||
         col == COL_MIN ||
@@ -454,17 +448,16 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
                     // preseve wxgrid order
                     wxArrayInt wx_col_order;
                     wxGrid* grid = project->FindTableGrid();
-					int n_cols = project->GetNumFields();
+					int n_cols = table_int->GetNumberCols();
                     if (grid) {
                         for (int i=0; i<n_cols; i++) {
                             wx_col_order.push_back(grid->GetColPos(i));
                         }
                     }
-                    for (size_t i=0; i<wx_col_order.size(); ++i)
-                        LOG_MSG(wx_col_order[i]);
 
                     // insert new col
                     int from_col = table_int->FindColId(var_name);
+                    double cur_col_size = grid->GetColSize(from_col);
                     int to_col = table_int->InsertCol(new_type, tmp_name, from_col);
 
                     // get col index of old var again
@@ -507,10 +500,13 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 
                     // reset orig wxgrid order
                     if (grid) {
-                        for (int i=0; i<n_cols; i++) {
+                        for (int i=0; i<table_int->GetNumberCols(); i++) {
                             grid->SetColPos(i, wx_col_order[i]);
                         }
                     }
+                    // adjust the column size
+                    grid->SetColSize(to_col, cur_col_size);
+
                 } catch(GdaLocalSeparatorException& e) {
                     return;
                 } catch(GdaException& e) {
@@ -529,8 +525,11 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
             }
         }
         combo_selection = -1;
+        
     } else if (col == COL_N) {
-		if (table_int->DoesNameExist(new_str, case_sensitive) ||
+        // proceed with rename
+        bool case_change = new_str.CmpNoCase(cur_str) == 0;
+        if ( (!case_change && table_int->DoesNameExist(new_str, false)) ||
 			!table_int->IsValidDBColName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -538,7 +537,6 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			ev.Veto();
 			return;
 		}
-		// proceed with rename
 		table_int->RenameSimpleCol(cid, time, new_str);
         
 	} else if (col == COL_PG) {
@@ -547,7 +545,8 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 			ev.Veto();
 			return;
 		}
-		if (table_int->DoesNameExist(new_str, case_sensitive) ||
+        bool case_change = new_str.CmpNoCase(cur_str) == 0;
+		if ( (!case_change && table_int->DoesNameExist(new_str, false)) ||
 			!table_int->IsValidGroupName(new_str)) {
 			wxString m = wxString::Format(_("Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."), new_str);
 			wxMessageDialog dlg(this, m, _("Error"), wxOK | wxICON_ERROR);
@@ -687,37 +686,7 @@ void DataViewerEditFieldPropertiesDlg::OnCellChanging( wxGridEvent& ev )
 
     // get col index again
     cid = table_int->FindColId(name);
-
-    // table_int->HasFixedLengths() means Shapefile etc.
-	if (table_int->GetColType(cid) == GdaConst::double_type &&
-		table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-		// it is possible that the values for length and decimals are
-		// individually valid, but that the combination of values is not
-		// valid.  If this happens, then change these cells in the table to
-		// red.  Otherwise, format them both as black.
-        long length = GdaConst::default_dbf_double_len;
-        long decimals = GdaConst::default_dbf_double_decimals;
-		wxString slen, sdec;
-        slen << length;
-        sdec << decimals;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, sdec);
-        field_grid->SetCellValue(row, COL_DD, "");
-    } else if (table_int->GetColType(cid) == GdaConst::long64_type &&
-               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-        wxString slen;
-        slen << GdaConst::default_dbf_long_len;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, "");
-        field_grid->SetCellValue(row, COL_DD, "");
-    } else if (table_int->GetColType(cid) == GdaConst::string_type &&
-               table_int->HasFixedLengths() && COL_D != -1 && COL_L != -1) {
-        wxString slen, sdec;
-        slen << GdaConst::default_dbf_string_len;
-        field_grid->SetCellValue(row, COL_L, slen);
-        field_grid->SetCellValue(row, COL_D, "");
-        field_grid->SetCellValue(row, COL_DD, "");
-    }
+    UpdateLength(row);
 	UpdateMinMax(row);
 	ev.Skip();
 	
@@ -820,6 +789,54 @@ void DataViewerEditFieldPropertiesDlg::UpdateMinMax(int row)
 	}
 	field_grid->SetCellValue(row, COL_MAX, smax);
 	field_grid->SetCellValue(row, COL_MIN, smin);
+}
+
+void DataViewerEditFieldPropertiesDlg::UpdateLength(int row)
+{
+    if (row < 0) return;
+    wxString pg = field_grid->GetCellValue(row, COL_PG);
+    wxString name;
+    if (pg.IsEmpty()) {
+        name = field_grid->GetCellValue(row, COL_N);
+    } else {
+        name = pg;
+    }
+    int cid = table_int->FindColId(name);
+    if (cid < 0) return;
+    int t=0;
+    wxString tm_str = field_grid->GetCellValue(row, COL_TM);
+    if (!tm_str.IsEmpty()) t = tm_str_map[tm_str];
+    GdaConst::FieldType type = table_int->GetColType(cid, t);
+
+    // Update length, decimal places, displayed decimal places
+    if (COL_L >= 0) {
+        wxString lv;
+        lv << table_int->GetColLength(cid, t);
+        field_grid->SetCellValue(row, COL_L, lv);
+    }
+    if (COL_D >= 0) {
+        if (type == GdaConst::double_type) {
+            wxString dv;
+            dv << table_int->GetColDecimals(cid, t);
+            field_grid->SetCellValue(row, COL_D, dv);
+        } else {
+            field_grid->SetCellValue(row, COL_D, "");
+        }
+    }
+    if (COL_DD >= 0) {
+        if (type == GdaConst::double_type) {
+            wxString ddv;
+            if (table_int->GetColDispDecimals(cid) > 0) {
+                ddv << table_int->GetColDispDecimals(cid);
+            } else {
+                // otherwise default (-1) shown as ""
+                ddv = "";
+            }
+            field_grid->SetCellValue(row, COL_DD, ddv);
+        } else {
+            field_grid->SetCellValue(row, COL_DD, "");
+        }
+    }
 }
 
 void DataViewerEditFieldPropertiesDlg::UpdateTmStrMap()

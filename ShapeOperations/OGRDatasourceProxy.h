@@ -116,13 +116,10 @@ public:
                                vector<OGRGeometry*>& geometries,
                                TableInterface* table,
                                vector<int>& selected_rows,
-                               OGRSpatialReference* spatial_ref);
-    
-    void StopCreateLayer();
+                               OGRSpatialReference* spatial_ref,
+                               wxString cpg_encode = wxEmptyString);
+
     bool DeleteLayer(wxString layer_name);
-    
-private:
-    boost::thread* create_layer_thread;
 };
 
 

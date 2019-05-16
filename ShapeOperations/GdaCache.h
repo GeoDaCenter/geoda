@@ -94,26 +94,7 @@ public:
 	 * Clean the content of "history" table
 	 */
 	void CleanHistory();
-	
-	/**
-	 * GdaCache is used to store OGR layer (in memory) to local Spatialite.
-	 * This is done in a thread that will not impact the usage of main program.
-	 *
-	 * If layer has been cached before, update the layer in cache.
-	 * Otherwise, create a new layer and store it in Geoda cache.
-	 */
-	bool CacheLayer(wxString ext_ds_name,
-					OGRLayerProxy* ext_layer_proxy);
-	
-	bool UpdateLayer(wxString ext_ds_name,
-					 OGRLayerProxy* ext_layer_proxy);
-	
-	bool IsLayerUpdated(wxString ext_ds_name,
-						OGRLayerProxy* ext_layer_proxy);
-	
-	bool IsLayerCached(wxString ext_ds_name,
-					   wxString ext_layer_name);
-	
+
 	OGRLayerProxy* GetLayerProxy(wxString ext_ds_name,
 								 wxString ext_layer_name);
 };

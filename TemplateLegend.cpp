@@ -27,11 +27,16 @@
 
 #include "logger.h"
 #include "GdaConst.h"
+#include "GeneralWxUtils.h"
 #include "TemplateCanvas.h"
 #include "TemplateFrame.h"
 #include "TemplateLegend.h"
 #include "Explore/MapNewView.h"
 
+
+///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
 
 PointRadiusDialog::PointRadiusDialog(const wxString & title, int r)
 : wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(250, 160))
@@ -165,12 +170,9 @@ void GdaLegendLabel::drawMove(wxDC& dc)
 //
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////
-const int TemplateLegend::ID_CATEGORY_COLOR = XRCID("IDC_LEGEND_CATEGORY_COLOR");
-
 IMPLEMENT_ABSTRACT_CLASS(TemplateLegend, wxScrolledWindow)
 
 BEGIN_EVENT_TABLE(TemplateLegend, wxScrolledWindow)
-	EVT_MENU(TemplateLegend::ID_CATEGORY_COLOR, TemplateLegend::OnCategoryColor)
     EVT_MENU(XRCID("IDC_CHANGE_POINT_RADIUS"), TemplateLegend::OnChangePointRadius)
 	EVT_MOUSE_EVENTS(TemplateLegend::OnEvent)
 END_EVENT_TABLE()
@@ -334,15 +336,35 @@ void TemplateLegend::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)
 	int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
 	if (cat_clicked < 0 || cat_clicked >= num_cats) return;
-	wxString s;
-	s << _("Color for Category");
-	wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
-	if (!cat_label.IsEmpty())
-        s << ": " << cat_label;
+
     if ( template_canvas->GetShapeType() == TemplateCanvas::points) {
         menu->Prepend(XRCID("IDC_CHANGE_POINT_RADIUS"), _("Change Point Radius"), "");
     }
-	menu->Prepend(ID_CATEGORY_COLOR, s, s);
+
+    wxString s;
+    s << _("Outline Color for Category");
+    wxString cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
+    if (!cat_label.IsEmpty()) s << ": " << cat_label;
+    menu->Prepend(XRCID("IDC_LEGEND_CATEGORY_OUTLINE_COLOR"), s, s);
+    Connect(XRCID("IDC_LEGEND_CATEGORY_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(TemplateLegend::OnCategoryOutlineColor));
+
+	if (GeneralWxUtils::isWindows()) {
+		s = _("Fill Opacity for Category");
+		cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
+		if (!cat_label.IsEmpty()) s << ": " << cat_label;
+		menu->Prepend(XRCID("IDC_LEGEND_CATEGORY_FILL_OPACITY"), s, s);
+		Connect(XRCID("IDC_LEGEND_CATEGORY_FILL_OPACITY"), wxEVT_COMMAND_MENU_SELECTED,
+			wxCommandEventHandler(TemplateLegend::OnCategoryFillOpacity));
+	}
+
+    s = _("Fill Color for Category");
+    cat_label = template_canvas->cat_data.GetCategoryLabel(c_ts, cat_clicked);
+    if (!cat_label.IsEmpty()) s << ": " << cat_label;
+	menu->Prepend(XRCID("IDC_LEGEND_CATEGORY_FILL_COLOR"), s, s);
+    Connect(XRCID("IDC_LEGEND_CATEGORY_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(TemplateLegend::OnCategoryFillColor));
+
 	opt_menu_cat = cat_clicked;
 }
 
@@ -358,13 +380,19 @@ void TemplateLegend::OnChangePointRadius(wxCommandEvent& event)
     }
 }
 
-void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
+void TemplateLegend::OnCategoryFillOpacity(wxCommandEvent& event)
+{
+	// not implemented here
+	// see MapLegend
+}
+
+void TemplateLegend::OnCategoryFillColor(wxCommandEvent& event)
 {
 	int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
 	int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
 	if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
 	
-	wxColour col = template_canvas->cat_data.GetCategoryColor(c_ts, opt_menu_cat);
+	wxColour col = template_canvas->cat_data.GetCategoryBrushColor(c_ts, opt_menu_cat);
 	wxColourData data;
 	data.SetColour(col);
 	data.SetChooseFull(true);
@@ -375,12 +403,12 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 	}
 	
 	wxColourDialog dialog(this, &data);
-	dialog.SetTitle(_("Choose Cateogry Color"));
+	dialog.SetTitle(_("Choose Cateogry Fill Color"));
 	if (dialog.ShowModal() == wxID_OK) {
 		wxColourData retData = dialog.GetColourData();
 		for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
 			if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
-				template_canvas->cat_data.SetCategoryColor(ts, opt_menu_cat,
+				template_canvas->cat_data.SetCategoryBrushColor(ts, opt_menu_cat,
 														   retData.GetColour());
 			}
 		}
@@ -388,6 +416,38 @@ void TemplateLegend::OnCategoryColor(wxCommandEvent& event)
 		template_canvas->Refresh();
 		Refresh();
 	}
+}
+
+void TemplateLegend::OnCategoryOutlineColor(wxCommandEvent& event)
+{
+    int c_ts = template_canvas->cat_data.GetCurrentCanvasTmStep();
+    int num_cats = template_canvas->cat_data.GetNumCategories(c_ts);
+    if (opt_menu_cat < 0 || opt_menu_cat >= num_cats) return;
+
+    wxColour col = template_canvas->cat_data.GetCategoryPenColor(c_ts, opt_menu_cat);
+    wxColourData data;
+    data.SetColour(col);
+    data.SetChooseFull(true);
+    int ki;
+    for (ki = 0; ki < 16; ki++) {
+        wxColour colour(ki * 16, ki * 16, ki * 16);
+        data.SetCustomColour(ki, colour);
+    }
+
+    wxColourDialog dialog(this, &data);
+    dialog.SetTitle(_("Choose Cateogry Outline Color"));
+    if (dialog.ShowModal() == wxID_OK) {
+        wxColourData retData = dialog.GetColourData();
+        for (int ts=0; ts<template_canvas->cat_data.GetCanvasTmSteps(); ts++) {
+            if (num_cats == template_canvas->cat_data.GetNumCategories(ts)) {
+                template_canvas->cat_data.SetCategoryPenColor(ts, opt_menu_cat,
+                                                                retData.GetColour());
+            }
+        }
+        template_canvas->invalidateBms();
+        template_canvas->Refresh();
+        Refresh();
+    }
 }
 
 void TemplateLegend::OnDraw(wxDC& dc)
@@ -435,11 +495,17 @@ void TemplateLegend::OnDraw(wxDC& dc)
     }
     
 	for (int i=0; i<numRect; i++) {
-        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk())
-            dc.SetBrush(clr);
+        wxColour brush_clr = template_canvas->cat_data.GetCategoryBrushColor(time, i);
+        wxColour pen_clr = template_canvas->cat_data.GetCategoryPenColor(time, i);
+        if (brush_clr.IsOk())
+            dc.SetBrush(brush_clr);
         else
-            dc.SetBrush(*wxBLACK_BRUSH);
+            dc.SetBrush(*wxWHITE_BRUSH);
+        if (pen_clr.IsOk())
+            dc.SetPen(pen_clr);
+        else
+            dc.SetPen(*wxBLACK_PEN);
+
 		dc.DrawRectangle(px, cur_y - 8, m_l, m_w);
 		cur_y += d_rect;
 	}
@@ -527,14 +593,17 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
         cur_y = 2* scale + title_sz.GetHeight() + gap;
     }
     
-    dc.SetPen(*wxBLACK_PEN);
     for (int i=0; i<numRect; i++) {
-        wxColour clr = template_canvas->cat_data.GetCategoryColor(time, i);
-        if (clr.IsOk()) {
-            dc.SetBrush(clr);
-        } else {
-            dc.SetBrush(*wxBLACK_BRUSH);
-        }
+        wxColour brush_clr = template_canvas->cat_data.GetCategoryBrushColor(time, i);
+        wxColour pen_clr = template_canvas->cat_data.GetCategoryPenColor(time, i);
+        if (brush_clr.IsOk())
+            dc.SetBrush(brush_clr);
+        else
+            dc.SetBrush(*wxWHITE_BRUSH);
+        if (pen_clr.IsOk())
+            dc.SetPen(pen_clr);
+        else
+            dc.SetPen(*wxBLACK_PEN);
         
         int rect_x = px;
         int rect_y = cur_y;
@@ -546,7 +615,6 @@ void TemplateLegend::RenderToDC(wxDC& dc, double scale)
 		double lbl_x = px + rect_w + gap;
         double lbl_y = cur_y + 2;
         dc.DrawText(lbl, lbl_x, lbl_y);
-        
 
         cur_y += d_rect * scale;
     }

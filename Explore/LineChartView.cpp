@@ -83,6 +83,7 @@ tms_subset0_tm_inv(1, true),
 tms_subset1_tm_inv(1, false),
 regReportDlg(0),
 def_y_precision(2),
+def_y_prec_fixed_point(false),
 use_def_y_range(false),
 has_selection(1),
 has_excluded(1),
@@ -96,13 +97,6 @@ fixed_scale_over_change(true)
     
     // Init variables
 	supports_timeline_changes = true;
-    int n_cols = project->GetTableInt()->GetNumberCols();
-    for (int i=0; i<n_cols; i++) {
-        if (project->GetTableInt()->IsColNumeric(i)) {
-            wxString col_name = project->GetTableInt()->GetColName(i);
-            variable_names.push_back(col_name);
-        }
-    }
     
     // UI
     /*
@@ -299,9 +293,16 @@ void LineChartFrame::InitVariableChoiceCtrl()
         wxLogMessage("ERROR: Table interface NULL.");
         return;
     }
-  
-    int n_times = table_int->GetTimeSteps();
+    variable_names.clear();
+    std::vector<int> col_id_map;
+    project->GetTableInt()->FillNumericColIdMap(col_id_map);
+    for (size_t i=0; i<col_id_map.size(); i++) {
+        int id = col_id_map[i];
+        wxString col_name = project->GetTableInt()->GetColName(id);
+        variable_names.push_back(col_name);
+    }
 
+    int n_times = table_int->GetTimeSteps();
     wxString time_range_str("");
     if (n_times == 1) {
         time_range_str = wxString::Format("(%s)", table_int->GetTimeString(0));
@@ -310,7 +311,9 @@ void LineChartFrame::InitVariableChoiceCtrl()
                                           table_int->GetTimeString(0),
                                           table_int->GetTimeString(n_times-1));
     }
-    
+    wxString old_sel = choice_variable->GetStringSelection();
+    choice_variable->Clear();
+    int sel_idx = 0;
     for (size_t i=0, sz=variable_names.size(); i<sz; ++i) {
         wxString col_name = variable_names[i];
         int col = table_int->FindColId(col_name);
@@ -318,11 +321,14 @@ void LineChartFrame::InitVariableChoiceCtrl()
             col_name = col_name + " " + time_range_str;
         }
         choice_variable->Append(col_name);
+        if (!old_sel.IsEmpty() && old_sel == col_name) {
+            sel_idx = i;
+        }
     }
-	choice_variable->SetSelection(0);
 	choice_variable->Connect(wxEVT_CHOICE,
                              wxCommandEventHandler(LineChartFrame::OnVariableChoice),
                              NULL, this);
+    choice_variable->SetSelection(sel_idx);
 }
 
 void LineChartFrame::InitGroupsChoiceCtrl()
@@ -862,13 +868,15 @@ void LineChartFrame::OnAdjustYAxis(wxCommandEvent& event)
 void LineChartFrame::OnAdjustYAxisPrecision(wxCommandEvent& event)
 {
 	wxLogMessage("In LineChartFrame:OnAdjustYAxisPrecision()");
-    AxisLabelPrecisionDlg dlg(def_y_precision, this);
+    SetDisplayPrecisionDlg dlg(def_y_precision, def_y_prec_fixed_point, this);
     if (dlg.ShowModal () != wxID_OK) return;
     
     def_y_precision = dlg.precision;
-    
+    def_y_prec_fixed_point = dlg.fixed_point;
+
     for (size_t i=0, sz=line_charts.size(); i<sz; ++i) {
-        line_charts[i]->UpdateYAxisPrecision(def_y_precision);
+        line_charts[i]->UpdateYAxisPrecision(def_y_precision,
+                                             def_y_prec_fixed_point);
         line_charts[i]->UpdateAll();
     }
     
@@ -1520,7 +1528,8 @@ void LineChartFrame::RunDIDTest()
                             do_white_test);
         
         m_resid1= m_DR->GetResidual();
-        printAndShowClassicalResults(row_nm, y, table_int->GetTableName(), wxEmptyString, m_DR, n, nX, do_white_test);
+        printAndShowClassicalResults(row_nm, y, table_int->GetTableName(),
+                                     wxEmptyString, m_DR, n, nX, do_white_test);
         m_yhat1 = m_DR->GetYHAT();
         
 
@@ -1533,10 +1542,11 @@ void LineChartFrame::RunDIDTest()
     
     // display regression in dialog
     if (regReportDlg == 0) {
-        regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY, "Diff-in-Diff Regression Report");
-        regReportDlg->Connect(wxEVT_DESTROY, wxWindowDestroyEventHandler(LineChartFrame::OnReportClose), NULL, this);
-        
-        
+        regReportDlg = new RegressionReportDlg(this, logReport, wxID_ANY,
+                                               "Diff-in-Diff Regression Report");
+        regReportDlg->Connect(wxEVT_DESTROY,
+                              wxWindowDestroyEventHandler(LineChartFrame::OnReportClose),
+                              NULL, this);
     } else {
         regReportDlg->AddNewReport(logReport);
     }
@@ -1645,6 +1655,7 @@ void LineChartFrame::update(HLStateInt* o)
 /** Implementation of TableStateObserver interface */
 void LineChartFrame::update(TableState* o)
 {
+    InitVariableChoiceCtrl();
 	UpdateDataMapFromVarMan();
 	const std::vector<bool>& hs(highlight_state->GetHighlight());
 	for (size_t i=0, sz=lc_stats.size(); i<sz; ++i) {
@@ -1660,7 +1671,8 @@ void LineChartFrame::update(TableState* o)
 	}
 	for (size_t i=0, sz=stats_wins.size(); i<sz; ++i) {
 		UpdateStatsWinContent(i);
-	}	
+	}
+    Refresh();
 }
 
 void LineChartFrame::update(VarsChooserObservable* o)
@@ -1907,7 +1919,8 @@ void LineChartFrame::SetupPanelForNumVariables(int num_vars)
                 canvas->UpdateAll();
             }
             if (def_y_precision !=2) {
-                canvas->UpdateYAxisPrecision(def_y_precision);
+                canvas->UpdateYAxisPrecision(def_y_precision,
+                                             def_y_prec_fixed_point);
                 canvas->UpdateAll();
             }
 			bag_szr->Add(canvas, 1, wxEXPAND);

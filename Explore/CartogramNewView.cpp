@@ -182,13 +182,33 @@ improve_table(6), realtime_updates(false), all_init(false)
 	// Enable realtime_updates for future calls to ImproveAll
 	realtime_updates = true;
 	
-	double max_rad = 
-		SampleStatistics::CalcMax(carts[cur_cart_ts]->output_radius);
-	double min_out_x, max_out_x, min_out_y, max_out_y;
-	SampleStatistics::CalcMinMax(carts[cur_cart_ts]->output_x,
-								 min_out_x, max_out_x);
-	SampleStatistics::CalcMinMax(carts[cur_cart_ts]->output_y,
-								 min_out_y, max_out_y);
+    double max_rad = DBL_MIN;
+    double min_out_x = DBL_MAX, max_out_x = DBL_MIN;
+    double min_out_y = DBL_MAX, max_out_y = DBL_MIN;
+    for (int t=0; t<num_time_vals; t++) {
+        int thm_t = (var_info[THM_VAR].sync_with_global_time ?  t + var_info[THM_VAR].time_min : var_info[THM_VAR].time);
+        int rad_t = (var_info[RAD_VAR].sync_with_global_time ?  t + var_info[RAD_VAR].time_min : var_info[RAD_VAR].time);
+        for (int i=0; i<num_obs; i++) {
+            if (data_undef[THM_VAR][thm_t][i] == false &&
+                data_undef[RAD_VAR][rad_t][i] == false) {
+                if (max_rad < carts[cur_cart_ts]->output_radius[i]) {
+                    max_rad = carts[cur_cart_ts]->output_radius[i];
+                }
+                if (min_out_x > carts[cur_cart_ts]->output_x[i]) {
+                    min_out_x = carts[cur_cart_ts]->output_x[i];
+                }
+                if (min_out_y > carts[cur_cart_ts]->output_y[i]) {
+                    min_out_y = carts[cur_cart_ts]->output_y[i];
+                }
+                if (max_out_x < carts[cur_cart_ts]->output_x[i]) {
+                    max_out_x = carts[cur_cart_ts]->output_x[i];
+                }
+                if (max_out_y < carts[cur_cart_ts]->output_y[i]) {
+                    max_out_y = carts[cur_cart_ts]->output_y[i];
+                }
+            }
+        }
+    }
 	min_out_x -= max_rad;
 	min_out_y -= max_rad;
 	max_out_x += max_rad;
@@ -686,6 +706,7 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
+    bool useUndefinedCategory = true;
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
@@ -693,7 +714,9 @@ void CartogramNewCanvas::CreateAndUpdateCategories()
                                               var_undefs,
 											  cat_data, map_valid,
 											  map_error_message,
-                                              this->useScientificNotation);
+                                              this->useScientificNotation,
+                                              useUndefinedCategory,
+                                              this->category_disp_precision);
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
 										- var_info[ref_var_index].time_min);

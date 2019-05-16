@@ -418,7 +418,7 @@ void wxDividedShape::ReadAttributes(wxExpr *clause)
 
 void wxDividedShape::EditRegions()
 {
-  wxMessageBox(wxT("EditRegions() is unimplemented."), wxT("OGL"), wxOK);
+  wxMessageBox("EditRegions() is unimplemented.", "OGL", wxOK);
 
   // TODO
 #if 0

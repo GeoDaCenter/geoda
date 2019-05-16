@@ -112,9 +112,7 @@ protected:
 	std::vector<d_array_type> data;
 	std::vector<b_array_type> data_undef;
     std::vector<std::vector<bool> > var_undefs;
-    
-	//std::vector<b_array_type> data_undef;
-    
+        
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
 	std::vector<bool> map_valid;

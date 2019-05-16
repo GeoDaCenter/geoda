@@ -810,18 +810,32 @@
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
+            <object class="spacer">
+                <size>5,2d</size>
+            </object>
           <object class="sizeritem">
             <object class="wxButton" name="wxID_OK">
               <label>OK</label>
             </object>
           </object>
           <object class="spacer">
-            <size>10,2d</size>
+            <size>5,2d</size>
           </object>
           <object class="sizeritem">
             <object class="wxButton" name="ID_CHECKUPDATES">
               <label>Check Updates</label>
             </object>
+          </object>
+          <object class="spacer">
+              <size>5,2d</size>
+          </object>
+          <object class="sizeritem">
+              <object class="wxButton" name="wxID_DONATE">
+                  <label>Donate</label>
+              </object>
+          </object>
+          <object class="spacer">
+              <size>5,2d</size>
           </object>
           <orient>wxHORIZONTAL</orient>
         </object>
@@ -849,7 +863,7 @@
     <centered>1</centered>
     <style>wxCAPTION|wxCLOSE_BOX</style>
   </object>
-  <object class="wxDialog" name="ID_AXIS_LABEL_PRECISION_DLG" subclass="AxisLabelPrecisionDlg">
+  <object class="wxDialog" name="ID_LABEL_PRECISION_DLG" subclass="SetDisplayPrecisionDlg">
       <object class="wxBoxSizer">
           <object class="sizeritem">
               <object class="wxBoxSizer">
@@ -868,7 +882,7 @@
                               <size>5,-1d</size>
                           </object>
                           <object class="sizeritem">
-                              <object class="wxSpinCtrl" name="ID_AXIS_LABEL_PRECISION_SPIN">
+                              <object class="wxSpinCtrl" name="ID_LABEL_PRECISION_SPIN">
                                   <size>60,-1d</size>
                                   <style>wxTE_PROCESS_ENTER</style>
                               </object>
@@ -878,6 +892,16 @@
                       </object>
                       <flag>wxTOP|wxALIGN_CENTRE_HORIZONTAL</flag>
                       <border>5</border>
+                  </object>
+                  <object class="spacer">
+                      <size>-1,5d</size>
+                  </object>
+                  <object class="sizeritem">
+                      <object class="wxCheckBox" name="IDC_FIX_POINT_CHECK">
+                          <label>Always using fixed-point notation</label>
+                          <checked>1</checked>
+                      </object>
+                      <flag>wxALIGN_LEFT|wxALIGN_CENTRE_VERTICAL</flag>
                   </object>
                   <object class="spacer">
                       <size>-1,5d</size>
@@ -1023,7 +1047,6 @@
                       <flag>wxLEFT|wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
                       <border>10</border>
                   </object>
-                  
               </object>
               <flag>wxALL</flag>
               <border>10</border>
@@ -3579,7 +3602,7 @@
                                   <object class="sizeritem">
                                       <flag>wxALIGN_LEFT|wxALL</flag>
                                       <border>2</border>
-                                      <object class="wxStaticText">
+                                      <object class="wxStaticText" name="IDC_W_STATIC_VARIABLES">
                                           <label>Variables:</label>
                                       </object>
                                   </object>
@@ -4400,8 +4423,8 @@
                   </object>
                 </object>
               </object>
-              <label/>
               <orient>wxHORIZONTAL</orient>
+              <label></label>
             </object>
           </object>
           <object class="sizeritem">
@@ -8981,6 +9004,33 @@
         <border>5</border>
       </object>
       <object class="sizeritem">
+          <object class="wxBoxSizer">
+              <orient>wxHORIZONTAL</orient>
+              <object class="sizeritem">
+                  <object class="wxStaticText">
+                      <label>CRS (proj4 format)</label>
+                  </object>
+                  <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              </object>
+              <object class="sizeritem">
+                  <object class="wxTextCtrl" name="IDC_FIELD_CRS">
+                      <size>200,-1d</size>
+                  </object>
+                  <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL|wxEXPAND</flag>
+              </object>
+              <object class="sizeritem">
+                  <object class="wxBitmapButton" name="IDC_OPEN_CRS">
+                      <bitmap>open-crs.png</bitmap>
+                      <style>wxBORDER_NONE</style>
+                      <tooltip>Load CRS from a data source</tooltip>
+                  </object>
+                  <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+              </object>
+          </object>
+          <flag>wxALIGN_LEFT|wxLEFT</flag>
+          <border>15</border>
+      </object>
+      <object class="sizeritem">
         <object class="wxBoxSizer">
           <orient>wxHORIZONTAL</orient>
           <object class="sizeritem">
@@ -8998,7 +9048,8 @@
             </object>
           </object>
         </object>
-        <flag>wxALIGN_CENTRE_HORIZONTAL</flag>
+        <flag>wxALIGN_CENTER_HORIZONTAL|wxTOP</flag>
+        <border>5</border>
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">

@@ -174,7 +174,7 @@ void HClusterDlg::CreateControls()
     gbox->Add(chk_contiguity, 1, wxEXPAND);
     chk_contiguity->Disable();
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _(""),
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, "",
                                           wxDefaultPosition, wxSize(128,-1));
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                  wxSize(200,-1));

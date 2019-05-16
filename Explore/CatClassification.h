@@ -37,7 +37,8 @@ namespace CatClassification {
 		
 	enum CatClassifType {
         no_theme, hinge_15, hinge_30, quantile, percentile,
-		stddev, excess_risk_theme, unique_values, colocation, natural_breaks, equal_intervals,
+		stddev, excess_risk_theme, unique_values, colocation,
+        natural_breaks, equal_intervals,
         lisa_categories, lisa_significance, custom,
 		getis_ord_categories, getis_ord_significance,
         local_geary_categories, local_geary_significance,
@@ -51,22 +52,27 @@ namespace CatClassification {
 		no_theme_break_vals, hinge_15_break_vals, hinge_30_break_vals,
 		quantile_break_vals, percentile_break_vals, stddev_break_vals, 
 		unique_values_break_vals, natural_breaks_break_vals,
-		equal_intervals_break_vals, custom_break_vals };
+		equal_intervals_break_vals, custom_break_vals
+    };
 	
-	enum ColorScheme { sequential_color_scheme, diverging_color_scheme, qualitative_color_scheme, custom_color_scheme, unique_color_scheme };
+	enum ColorScheme { sequential_color_scheme, diverging_color_scheme,
+        qualitative_color_scheme, custom_color_scheme, unique_color_scheme
+    };
 	
 	
 	void CatLabelsFromBreaks(const std::vector<double>& breaks,
                              std::vector<wxString>& cat_labels,
 							 const CatClassifType theme,
-                             bool useScientifcNotation=false);
+                             bool useScientifcNotation=false,
+                             int cat_disp_precision=3);
 	
 	void SetBreakPoints(std::vector<double>& breaks,
 						std::vector<wxString>& cat_labels,
 						const Gda::dbl_int_pair_vec_type& var,
                         const std::vector<bool>& var_undef,
 						const CatClassifType theme, int num_cats,
-                        bool useScientificNotation=false);
+                        bool useScientificNotation=false,
+                        int cat_disp_precision=3);
 	
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::dbl_int_pair_vec_type>& var,
@@ -74,7 +80,8 @@ namespace CatClassification {
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
-                                bool useUndefinedCategory=true);
+                                bool useUndefinedCategory=true,
+                                int cat_disp_precision=3);
     
     void PopulateCatClassifData(const CatClassifDef& cat_def,
                                 const std::vector<Gda::str_int_pair_vec_type>& var,
@@ -82,7 +89,8 @@ namespace CatClassification {
                                 CatClassifData& cat_data, std::vector<bool>& cats_valid,
                                 std::vector<wxString>& cats_error_message,
                                 bool useSciNotation=false,
-                                bool useUndefinedCategory=true);
+                                bool useUndefinedCategory=true,
+                                int cat_disp_precision=3);
 		
 	bool CorrectCatClassifFromTable(CatClassifDef& cc,
 									TableInterface* table_int,
@@ -98,7 +106,8 @@ namespace CatClassification {
                               const std::vector<std::vector<bool> >& var_undef,
                               CatClassifData& cat_data, std::vector<bool>& cats_valid,
                               ColorScheme coltype=CatClassification::sequential_color_scheme,
-                              bool useSciNotation=false);
+                              bool useSciNotation=false,
+                              int cat_disp_precision=3);
 	
 	ColorScheme GetColSchmForType(CatClassifType theme_type);
 	
@@ -192,16 +201,23 @@ struct CatClassifData {
 									  int num_obs);
 	void CreateCategoriesAtCanvasTm(int num_cats, int canvas_tm);
 	void SetCategoryBrushesAllCanvasTms(std::vector<wxColour> colors);
+    void SetCategoryPensAllCanvasTms(std::vector<wxColour> colors);
 	void SetCategoryBrushesAllCanvasTms(CatClassification::ColorScheme coltype,
 										int ncolor, bool reversed);
+    void SetCategoryPensAllCanvasTms(CatClassification::ColorScheme coltype,
+                                        int ncolor, bool reversed);
 	void SetCategoryBrushesAtCanvasTm(CatClassification::ColorScheme coltype,
 									  int ncolor, bool reversed, int canvas_tm);
+    void SetCategoryPensAtCanvasTm(CatClassification::ColorScheme coltype,
+                                      int ncolor, bool reversed, int canvas_tm);
 	int GetNumCategories(int canvas_tm);
 	int GetNumObsInCategory(int canvas_tm, int cat);
 	std::vector<int>& GetIdsRef(int canvas_tm, int cat);
 	void SetCategoryColor(int canvas_tm, int cat, wxColour color);
     void SetCategoryBrushColor(int canvas_tm, int cat, wxColour color);
     void SetCategoryPenColor(int canvas_tm, int cat, wxColour color);
+    wxColour GetCategoryPenColor(int canvas_tm, int cat);
+    wxColour GetCategoryBrushColor(int canvas_tm, int cat);
 	wxColour GetCategoryColor(int canvas_tm, int cat);
 	wxBrush GetCategoryBrush(int canvas_tm, int cat);
 	wxPen GetCategoryPen(int canvas_tm, int cat);

@@ -319,15 +319,16 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+bool GdaConst::gda_enable_set_transparency_windows = false;
+int GdaConst::default_display_decimals = 6; // move in preference
 bool GdaConst::gda_use_gpu = false;
 int GdaConst::gda_ui_language = 0;
-double GdaConst::gda_eigen_tol = 1.0E-8;
+double GdaConst::gda_eigen_tol = 0.00000001;
 bool GdaConst::gda_set_cpu_cores = true;
 int GdaConst::gda_cpu_cores = 8;
 wxString GdaConst::gda_user_email = "";
 uint64_t GdaConst::gda_user_seed = 123456789;
 bool GdaConst::use_gda_user_seed = true;
-
 int GdaConst::gdal_http_timeout = 5;
 bool GdaConst::enable_high_dpi_support = true;
 bool GdaConst::show_csv_configure_in_merge = true;
@@ -727,8 +728,8 @@ void GdaConst::init()
 	datasrc_table_lens[ds_dbf] = 128;
 	datasrc_field_lens[ds_dbf] = 10;
 	datasrc_field_warning[ds_dbf] = default_field_warning;
-	datasrc_field_regex[ds_dbf] = default_field_name_regex;
-	datasrc_field_illegal_regex[ds_dbf] = default_field_name_illegal_regex;
+	datasrc_field_regex[ds_dbf] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_dbf] = db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_dbf] = false;
 	
 	datasrc_str_to_type["ESRI Shapefile"] = ds_shapefile;
@@ -738,8 +739,8 @@ void GdaConst::init()
 	datasrc_table_lens[ds_shapefile] = 128;
 	datasrc_field_lens[ds_shapefile] = 10;
 	datasrc_field_warning[ds_shapefile] = default_field_warning;
-	datasrc_field_regex[ds_shapefile] = default_field_name_regex;
-	datasrc_field_illegal_regex[ds_shapefile] = default_field_name_illegal_regex;
+	datasrc_field_regex[ds_shapefile] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_shapefile] = db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_shapefile] = false;
 	
 	datasrc_str_to_type["FileGDB"] = ds_esri_file_geodb;
@@ -770,8 +771,8 @@ void GdaConst::init()
 	datasrc_table_lens[ds_esri_arc_sde] = 32;
 	datasrc_field_lens[ds_esri_arc_sde] = 32;
 	datasrc_field_warning[ds_esri_arc_sde] = default_field_warning;
-	datasrc_field_regex[ds_esri_arc_sde] = default_field_name_regex;
-	datasrc_field_illegal_regex[ds_esri_arc_sde]=default_field_name_illegal_regex;
+	datasrc_field_regex[ds_esri_arc_sde] = db_field_name_regex;
+	datasrc_field_illegal_regex[ds_esri_arc_sde]=db_field_name_illegal_regex;
 	datasrc_field_casesensitive[ds_esri_arc_sde] = true;
 	
 	datasrc_str_to_type["CSV"] = ds_csv;

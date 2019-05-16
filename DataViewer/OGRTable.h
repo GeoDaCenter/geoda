@@ -54,7 +54,7 @@ private:
     OGRLayerProxy* ogr_layer;
     vector<OGRColumn*> columns;
 	VarOrderMapper var_order;
-    
+    // may contains duplicated variable names e.g. in csv file
     vector<wxString> org_var_names;
 
     // queues of table operations
@@ -114,6 +114,7 @@ public:
     virtual int  GetColIdx(const wxString& name, bool ignore_case=false);
 	virtual void FillColIdMap(std::vector<int>& col_map);
 	virtual void FillStringColIdMap(std::vector<int>& col_map);
+    virtual void FillStringAndIntegerColIdMap(std::vector<int>& col_map);
 	virtual void FillNumericColIdMap(std::vector<int>& col_map);
 	virtual void FillDateTimeColIdMap(std::vector<int>& col_map);
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map);
@@ -141,7 +142,7 @@ public:
 	virtual void GetColData(int col, int time, std::vector<wxInt64>& data);
 	virtual void GetColData(int col, int time, std::vector<wxString>& data);
 	virtual void GetColData(int col, int time, std::vector<unsigned long long>& data);
-    
+    virtual int  GetDirectColIdx(wxString col_nm);
 	virtual void GetDirectColData(int col, std::vector<double>& data);
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data);
 	virtual void GetDirectColData(int col, std::vector<wxString>& data);
@@ -189,6 +190,9 @@ public:
 	virtual void RenameTimeStep(int time, const wxString& new_name);
 	virtual bool IsValidDBColName(const wxString& col_nm,
 								  wxString* fld_warn_msg=0);
+    virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
+                             const wxString& val);
+    virtual std::map<wxString, wxString> GetMetaData(int col_id);
 };
 
 #endif

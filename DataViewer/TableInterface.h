@@ -108,7 +108,6 @@ public:
 	 and tm are set to -1 */
 	virtual bool DbColNmToColAndTm(const wxString& name,
 								   int& col, int& tm) = 0;
-	virtual bool ColNameExists(const wxString& name);
 	virtual int FindColId(const wxString& name) = 0;
 	
 	virtual void FillColIdMap(std::vector<int>& col_map) = 0;
@@ -118,7 +117,8 @@ public:
 	virtual void FillIntegerColIdMap(std::vector<int>& col_map) = 0;
 	virtual void FillNumericNameList(std::vector<wxString>& num_names) = 0;
 	virtual void FillStringNameList(std::vector<wxString>& num_names) = 0;
-	
+    virtual void FillStringAndIntegerColIdMap(std::vector<int>& col_map) = 0;
+    
 	virtual int GetNumberCols() = 0;
 	virtual int GetNumberRows() = 0;
 
@@ -172,6 +172,7 @@ public:
 								 std::vector<bool>& undefined) = 0;
     
     // using underneath columns, not vargroup
+    virtual int  GetDirectColIdx(wxString col_nm) = 0;
 	virtual void GetDirectColData(int col, std::vector<double>& data) =0;
 	virtual void GetDirectColData(int col, std::vector<wxInt64>& data)=0;
 	virtual void GetDirectColData(int col, std::vector<wxString>& data)=0;
@@ -285,6 +286,7 @@ public:
 	virtual void SetEncoding(wxFontEncoding enc_type);
 	virtual wxFontEncoding GetFontEncoding() { return encoding_type; }
     virtual wxCSConv* GetEncoding() { return m_wx_encoding; }
+    virtual wxString GetEncodingName();
 
 	/** Suggests a group name based on the member names listed in cols.
 	 * Returned value is a unique, valid group name: it is different than
@@ -332,14 +334,17 @@ public:
 	 * column names.  Does not verify that name is unique. */
 	virtual bool IsValidGroupName(const wxString&  grp_nm) const;
     
-    
+    virtual void AddMetaInfo(const wxString col_nm, const wxString& key,
+                             const wxString& val) = 0;
+
+    virtual std::map<wxString, wxString> GetMetaData(int col_id) = 0;
 		
 protected:
 	wxString open_err_msg;
     
 	TableState* table_state;
 	TimeState*  time_state;
-
+    
     int rows;
 	bool is_valid;
 	bool changed_since_last_save;

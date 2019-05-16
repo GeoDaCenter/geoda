@@ -76,7 +76,7 @@ hinge_15(true)
 {
 	using namespace Shapefile;
 	wxLogMessage("Open BoxPlotCanvas.");
-    
+    display_precision = 4; 
 	TableInterface* table_int = project->GetTableInt();
     
 	table_int->GetColData(col_ids[0], data[0]);
@@ -584,7 +584,8 @@ void BoxPlotCanvas::PopulateCanvas()
 		if (var_info[0].min[t] < y_min) y_min = var_info[0].min[t];
 	}
 	if (show_axes) {
-		axis_scale = AxisScale(y_min, y_max, 5, axis_display_precision);
+		axis_scale = AxisScale(y_min, y_max, 5, axis_display_precision,
+                               axis_display_fixed_point);
 		y_min = axis_scale.scale_min;
 		y_max = axis_scale.scale_max;
 		vert_axis = new GdaAxis(var_info[0].name, axis_scale,
@@ -624,45 +625,14 @@ void BoxPlotCanvas::PopulateCanvas()
 			int rows = 8;
 			std::vector<wxString> vals(rows);
 
-            if ((int)hinge_stats[t].min_val == hinge_stats[t].min_val)
-                vals[0] << GenUtils::IntToStr(hinge_stats[t].min_val);
-            else
-                vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, 4);
-            
-            if ((int)hinge_stats[t].max_val == hinge_stats[t].max_val)
-                vals[1] << GenUtils::IntToStr(hinge_stats[t].max_val);
-			else
-                vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, 4);
-            
-            if ((int)hinge_stats[t].Q1 == hinge_stats[t].Q1)
-                vals[2] << GenUtils::IntToStr(hinge_stats[t].Q1);
-            else
-                vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, 4);
-            
-            if ((int)hinge_stats[t].Q2 == hinge_stats[t].Q2)
-                vals[3] << GenUtils::IntToStr(hinge_stats[t].Q2);
-            else
-                vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, 4);
-            
-            if ((int)hinge_stats[t].Q3 == hinge_stats[t].Q3)
-                vals[4] << GenUtils::IntToStr(hinge_stats[t].Q3);
-            else
-                vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, 4);
-            
-            if ((int)hinge_stats[t].IQR == hinge_stats[t].IQR)
-                vals[5] << GenUtils::IntToStr(hinge_stats[t].IQR);
-            else
-                vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, 4);
-            
-            if ((int)data_stats[t].mean == data_stats[t].mean)
-                vals[6] << GenUtils::IntToStr(data_stats[t].mean);
-            else
-                vals[6] << GenUtils::DblToStr(data_stats[t].mean, 4);
-            
-            if ((int)data_stats[t].sd_with_bessel == data_stats[t].sd_with_bessel)
-                vals[7] << GenUtils::IntToStr(data_stats[t].sd_with_bessel);
-            else
-                vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, 4);
+            vals[0] << GenUtils::DblToStr(hinge_stats[t].min_val, display_precision, display_precision_fixed_point);
+            vals[1] << GenUtils::DblToStr(hinge_stats[t].max_val, display_precision, display_precision_fixed_point);
+            vals[2] << GenUtils::DblToStr(hinge_stats[t].Q1, display_precision, display_precision_fixed_point);
+            vals[3] << GenUtils::DblToStr(hinge_stats[t].Q2, display_precision, display_precision_fixed_point);
+            vals[4] << GenUtils::DblToStr(hinge_stats[t].Q3, display_precision, display_precision_fixed_point);
+            vals[5] << GenUtils::DblToStr(hinge_stats[t].IQR, display_precision, display_precision_fixed_point);
+            vals[6] << GenUtils::DblToStr(data_stats[t].mean, display_precision, display_precision_fixed_point);
+            vals[7] << GenUtils::DblToStr(data_stats[t].sd_with_bessel, display_precision, display_precision_fixed_point);
 
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
             s = new GdaShapeTable(vals, attribs, rows, cols,

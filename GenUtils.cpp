@@ -78,7 +78,7 @@ double DbfFileUtils::GetMaxDouble(int length, int decimals,
     SuggestDoubleParams(length, decimals, &length, &decimals);
     
     int len_inter = length - (1+decimals);
-    if (len_inter + decimals > 15) len_inter = 15-decimals;
+    //if (len_inter + decimals > 15) len_inter = 15-decimals;
     double r = 0;
     for (int i=0; i<len_inter+decimals; i++) r = r*10 + 9;
     for (int i=0; i<decimals; i++) r /= 10;
@@ -129,7 +129,10 @@ wxInt64 DbfFileUtils::GetMaxInt(int length)
 
 wxString DbfFileUtils::GetMaxIntString(int length)
 {
-    return wxString::Format("%lld", GetMaxInt(length));
+    if (length < 19)
+        return wxString::Format("%lld", GetMaxInt(length));
+    else
+        return "9223372036854775807"; // max value of int64
 }
 
 wxInt64 DbfFileUtils::GetMinInt(int length)
@@ -143,7 +146,10 @@ wxInt64 DbfFileUtils::GetMinInt(int length)
 
 wxString DbfFileUtils::GetMinIntString(int length)
 {
-    return wxString::Format("%lld", GetMinInt(length));
+    if (length < 19)
+        return wxString::Format("%lld", GetMinInt(length));
+    else
+        return "-9223372036854775808"; // min value of int64
 }
 
 wxString Gda::DetectDateFormat(wxString s, vector<wxString>& date_items)
@@ -1104,9 +1110,11 @@ scale_range(0), tic_inc(0), p(0)
 {
 }
 
-AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s, int lbl_precision_s)
+AxisScale::AxisScale(double data_min_s, double data_max_s, int ticks_s,
+                     int lbl_precision_s, bool lbl_prec_fixed_point_s)
 : data_min(0), data_max(0), scale_min(0), scale_max(0),
-scale_range(0), tic_inc(0), p(0), ticks(ticks_s), lbl_precision(lbl_precision_s)
+scale_range(0), tic_inc(0), p(0), ticks(ticks_s),
+lbl_precision(lbl_precision_s), lbl_prec_fixed_point(lbl_prec_fixed_point_s)
 {
 	CalculateScale(data_min_s, data_max_s, ticks_s);
 }
@@ -1116,7 +1124,8 @@ AxisScale::AxisScale(const AxisScale& s)
 	scale_min(s.scale_min), scale_max(s.scale_max),
 	scale_range(s.scale_range), tic_inc(s.tic_inc), p(s.p),
 	tics(s.tics), tics_str(s.tics_str), tics_str_show(s.tics_str_show),
-	ticks(s.ticks)
+	ticks(s.ticks), lbl_precision(s.lbl_precision),
+    lbl_prec_fixed_point(s.lbl_prec_fixed_point)
 {
 }
 
@@ -1133,6 +1142,8 @@ AxisScale& AxisScale::operator=(const AxisScale& s)
 	tics_str = s.tics_str;
 	tics_str_show = s.tics_str_show;
 	ticks = s.ticks;
+    lbl_precision = s.lbl_precision;
+    lbl_prec_fixed_point = s.lbl_prec_fixed_point;
 	return *this;
 }
 
@@ -1179,7 +1190,8 @@ void AxisScale::CalculateScale(double data_min_s, double data_max_s,
 	}
 	tics_str_show.resize(tics_str.size());
 	for (int i=0, iend=tics.size(); i<iend; i++) {
-        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision);
+        tics_str[i] = GenUtils::DblToStr(tics[i], lbl_precision,
+                                         lbl_prec_fixed_point);
 		tics_str_show[i] = true;
 	}
 }
@@ -1257,22 +1269,23 @@ wxString GenUtils::PadTrim(const wxString& s, int width, bool pad_left)
     return output;
 }
 
-wxString GenUtils::DblToStr(double x, int precision)
+wxString GenUtils::DblToStr(double x, int precision, bool fixed_point)
 {
 	std::stringstream ss;
     if (x < 10000000) {
         ss << std::fixed;
     }
-    /*
-     if (x == (int)x) {
+
+     if (x == (int)x && fixed_point == false) {
+         // The default should be that an integer is displayed as an integer
         ss << (int)x;
     } else {
         ss << std::setprecision(precision);
         ss << x;
     }
-     */
-    ss << std::setprecision(precision);
-    ss << x;
+
+    //ss << std::setprecision(precision);
+    //ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 
@@ -1302,6 +1315,18 @@ wxString GenUtils::PtToStr(const wxRealPoint& p)
 	ss << std::setprecision(5);
 	ss << "(" << p.x << "," << p.y << ")";
 	return wxString(ss.str().c_str(), wxConvUTF8);
+}
+
+double GenUtils::Median(std::vector<double>& data)
+{
+    if (data.empty()) return 0;
+    
+    std::sort(data.begin(), data.end());
+
+    int n = data.size();
+    if (n % 2 == 1) return data[n/2];
+
+    return 0.5 * (data[n/2 -1] + data[n/2]);
 }
 
 void GenUtils::DeviationFromMean(int nObs, double* data)
@@ -1363,14 +1388,21 @@ void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
     double sum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) sum += data[i];
     const double mean = sum / (double) nObs;
-    for (int i=0, iend=nObs; i<iend; i++)
-        data[i] = std::abs(data[i] - mean) / (double) nObs;
+    double mad = 0.0;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nObs;
+    if (mad == 0) return;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        data[i] = (data[i] - mean) / mad;
+    }
 }
 
-void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& undef)
+void GenUtils::MeanAbsoluteDeviation(int nObs, double* data,
+                                     std::vector<bool>& undef)
 {
     if (nObs == 0) return;
-    
     double nValid = 0;
     double sum = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
@@ -1379,9 +1411,16 @@ void GenUtils::MeanAbsoluteDeviation(int nObs, double* data, std::vector<bool>& 
         nValid += 1;
     }
     const double mean = sum / nValid;
+    double mad = 0.0;
     for (int i=0, iend=nObs; i<iend; i++) {
         if (undef[i]) continue;
-        data[i] = std::abs(data[i] - mean) / nValid;
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nValid;
+    if (mad == 0) return;
+    for (int i=0, iend=nObs; i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = (data[i] - mean) / mad;
     }
 }
 void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
@@ -1391,10 +1430,18 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data)
     double nn = data.size();
 	for (int i=0, iend=data.size(); i<iend; i++) sum += data[i];
     const double mean = sum / nn;
-	for (int i=0, iend=data.size(); i<iend; i++)
-        data[i] = std::abs(data[i] - mean) / nn;
+    double mad = 0.0;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nn;
+    if (mad == 0) return;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        data[i] = (data[i] - mean) / mad;
+    }
 }
-void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool>& undef)
+void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data,
+                                     std::vector<bool>& undef)
 {
     if (data.size() == 0) return;
     double sum = 0.0;
@@ -1406,13 +1453,22 @@ void GenUtils::MeanAbsoluteDeviation(std::vector<double>& data, std::vector<bool
         nValid += 1;
     }
     const double mean = sum / nValid;
+    double mad = 0.0;
     for (int i=0, iend=data.size(); i<iend; i++) {
         if (undef[i]) continue;
-        data[i] = std::abs(data[i] - mean) / nValid;
+        mad += std::abs(data[i] - mean);
+    }
+    mad = mad / nValid;
+    if (mad == 0) return;
+    for (int i=0, iend=data.size(); i<iend; i++) {
+        if (undef[i]) continue;
+        data[i] = (data[i] - mean) / mad;
     }
 }
 
-void GenUtils::Transformation(int trans_type, std::vector<std::vector<double> >& data, std::vector<std::vector<bool> >& undefs)
+void GenUtils::Transformation(int trans_type,
+                              std::vector<std::vector<double> >& data,
+                              std::vector<std::vector<bool> >& undefs)
 {
     if (trans_type < 1) {
         return;
@@ -2036,7 +2092,7 @@ wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 	return wrapper.GetWrapped();
 }
 
-wxString GenUtils::GetBasemapCacheDir()
+wxString GenUtils::GetExeDir()
 {
 	wxString exePath = wxStandardPaths::Get().GetExecutablePath();
 	wxFileName exeFile(exePath);
@@ -2070,5 +2126,44 @@ wxString GenUtils::GetSamplesDir()
     return GetResourceDir();
 #else
     return GetWebPluginsDir();
+#endif
+}
+
+wxString GenUtils::GetBasemapDir()
+{
+#ifdef __linux__
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Unix: ~ (the home directory)
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + ".geoda";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString basemapDir = geodaUserDir + wxFileName::GetPathSeparator() + "basemap_cache";
+    if (wxDirExists(basemapDir) == false) {
+        wxFileName::Mkdir(basemapDir);
+    }
+    return basemapDir;
+#else
+    return GetExeDir() + "basemap_cache";
+#endif
+}
+
+wxString GenUtils::GetCachePath()
+{
+#ifdef __linux__
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Unix: ~ (the home directory)
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + ".geoda";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString cachePath = geodaUserDir + wxFileName::GetPathSeparator() + "cache.sqlite";
+    if (wxFileExists(cachePath) == false) {
+        wxString origCachePath = GetExeDir() + "cache.sqlite";
+        wxCopyFile(origCachePath, cachePath);
+    }
+    return cachePath;
+#else
+    return GetExeDir() + "cache.sqlite";
 #endif
 }

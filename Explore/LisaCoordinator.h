@@ -64,6 +64,7 @@ protected:
 	double* sigLocalMoran;	// The significances / pseudo p-vals
 
 public:
+    std::vector<double*> smoothed_results; // LISA EB
 	std::vector<double*> lags_vecs;
 	std::vector<double*> local_moran_vecs;
 	std::vector<double*> data1_vecs;

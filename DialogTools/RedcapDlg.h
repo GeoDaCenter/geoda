@@ -73,6 +73,8 @@ protected:
     
     wxButton* seedButton;
     wxButton* saveButton;
+
+    wxCheckBox* chk_save_mst;
     
     SpanningTreeClustering::AbstractClusterFactory* redcap;
     GeoDaWeight* weights;

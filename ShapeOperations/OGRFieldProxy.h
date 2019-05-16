@@ -30,6 +30,19 @@
  * field that read from a OGR data source, 
  */
 class OGRFieldProxy {
+
+    OGRFieldDefn* ogr_fieldDefn;
+
+    wxString name;
+
+    GdaConst::FieldType type;
+
+    int length;
+
+    int decimals;
+
+    bool is_field_changed;
+
 public:
 	/**
 	 * Constuctor function. Construct OGRFieldProxy instance from an existed 
@@ -70,14 +83,7 @@ public:
     bool IsChanged() { return is_field_changed; }
     
     void Update();
-    
-private:
-	OGRFieldDefn* ogr_fieldDefn;
-	wxString name;
-	GdaConst::FieldType type;
-    int length;
-    int decimals;
-    bool is_field_changed;
+
 };
 
 

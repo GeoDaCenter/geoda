@@ -78,6 +78,7 @@
 #include "DataViewer/TableInterface.h"
 #include "DataViewer/TableState.h"
 #include "DataViewer/TimeState.h"
+#include "DialogTools/DissolveDlg.h"
 #include "DialogTools/CreatingWeightDlg.h"
 #include "DialogTools/CatClassifDlg.h"
 #include "DialogTools/PCPDlg.h"
@@ -156,18 +157,15 @@
 #include "Explore/WebViewExampleWin.h"
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
-
+#include "Explore/GroupingMapView.h"
 #include "Regression/DiagnosticReport.h"
-
 #include "ShapeOperations/CsvFileUtils.h"
 #include "ShapeOperations/WeightsManager.h"
 #include "ShapeOperations/WeightsManState.h"
 #include "ShapeOperations/OGRDataAdapter.h"
-
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
 #include "Algorithms/fastcluster.h"
-
 #include "wxTranslationHelper.h"
 #include "GdaException.h"
 #include "FramesManager.h"
@@ -518,6 +516,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), true);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), false);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), false);
+    GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"), false);
 
     EnableTool(XRCID("ID_TOOLS_MENU"), proj_open);
 	EnableTool(XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
@@ -525,6 +524,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	EnableTool(XRCID("ID_CONNECTIVITY_HIST_VIEW"), proj_open);
 	EnableTool(XRCID("ID_CONNECTIVITY_MAP_VIEW"), proj_open);
 
+    GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_SHAPE_DISSOLVE"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TABLE_SPATIAL_JOIN"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_MANAGER"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, _("Tools"), XRCID("ID_TOOLS_WEIGHTS_CREATE"), proj_open);
@@ -537,6 +537,7 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_RECT"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CIRCLE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SELECTION_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIT_TO_WINDOW_MODE"), proj_open);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_FIXED_ASPECT_RATIO_MODE"), proj_open);
@@ -672,13 +673,19 @@ void GdaFrame::UpdateToolbarAndMenus()
             CatClassifManager* ccm = project_p->GetCatClassifManager();
             ccm->GetTitles(titles);
             
-            sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
+            sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),
+                       _("Create New Custom"),
+                       _("Create new custom categories classification."));
             sm->AppendSeparator();
             
             for (size_t j=0; j<titles.size(); j++) {
                 wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
             }
-            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+            GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                          &GdaFrame::OnEmptyCustomCategoryClick,
+                                          GdaFrame::GetGdaFrame(),
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                          GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
         }
     }
 
@@ -1086,6 +1093,42 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
         if (idx < 0 || idx >= titles.size()) return;
             
         wxString cc_title = titles[idx];
+
+        TemplateFrame* t = TemplateFrame::GetActiveFrame();
+        if (!t) return;
+        if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (ConditionalMapFrame* f = dynamic_cast<ConditionalMapFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+            f->OnCustomCatClassifA(cc_title);
+        }
+    }
+}
+
+void GdaFrame::OnEmptyCustomCategoryClick(wxCommandEvent& event)
+{
+    int xrc_id = event.GetId();
+    if (project_p) {
+        CatClassifManager* ccm = project_p->GetCatClassifManager();
+        if (!ccm) return;
+        vector<wxString> titles;
+        ccm->GetTitles(titles);
+
+        int idx = xrc_id - GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0;
+        if (idx < 0 || idx >= titles.size()) return;
+
+        wxString cc_title = titles[idx];
+        CatClassifState* cc_state = ccm->FindClassifState(cc_title);
+        CatClassifDef& cc_def = cc_state->GetCatClassif();
+        wxString fld_name = cc_def.assoc_db_fld_name;
+        project_p->SetDefaultVarName(0, fld_name);
         
         VariableSettingsDlg dlg(project_p, VariableSettingsDlg::univariate);
         if (dlg.ShowModal() != wxID_OK) return;
@@ -1424,7 +1467,8 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
         try {
             project_p->SaveProjectConf();
         } catch( GdaException& e) {
-            // do nothing if save project configuration failed, since it's not critical
+            // do nothing if save project configuration failed,
+            // since it's not critical
         }        
 	} catch (GdaException& e) {
         // the title of the message dialog is empty, because
@@ -1445,10 +1489,8 @@ void GdaFrame::OnSaveProject(wxCommandEvent& event)
 void GdaFrame::OnSaveAsProject(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSaveAsProject");
-    
 	if (!project_p || !project_p->GetTableInt())
-        return;
-    
+        return;    
 	wxString proj_fname = project_p->GetProjectFullPath();
 	bool is_new_project = (proj_fname.empty() || !wxFileExists(proj_fname));
 
@@ -1513,6 +1555,14 @@ void GdaFrame::OnSelectWithLine(wxCommandEvent& event)
 	t->OnSelectWithLine(event);
 }
 
+void GdaFrame::OnSelectWithCustom(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnSelectWithCustom");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    t->OnSelectWithCustom(event);
+}
+
 void GdaFrame::OnSelectionMode(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSelectionMode");
@@ -1536,11 +1586,11 @@ void GdaFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 	if (t) t->OnFixedAspectRatioMode(event);
 }
 
-void GdaFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+void GdaFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnSetDisplayPrecision");
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
-	if (t) t->OnSetDisplayPrecision(event);
+	if (t) t->OnSetAxisDisplayPrecision(event);
 }
 
 void GdaFrame::OnZoomMode(wxCommandEvent& event)
@@ -1647,6 +1697,14 @@ void GdaFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 	TemplateFrame* t = TemplateFrame::GetActiveFrame();
 	if (!t) return;
     t->OnLegendUseScientificNotation(event);
+}
+
+void GdaFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
+{
+    wxLogMessage("Click GdaFrame::OnLegendDisplayPrecision");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    t->OnLegendDisplayPrecision(event);
 }
 
 void GdaFrame::OnLegendBackgroundColor(wxCommandEvent& event)
@@ -2113,7 +2171,11 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
                 for (size_t j=0; j<titles.size(); j++) {
                     wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
                 }
-                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                              &GdaFrame::OnCustomCategoryClick,
+                                              GdaFrame::GetGdaFrame(),
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
             }
         }
         PopupMenu(popupMenu, wxDefaultPosition);
@@ -2525,6 +2587,53 @@ void GdaFrame::OnSpatialJoin(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnDissolve(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Dissolve does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    if (project_p->GetShapeType() != Shapefile::POLYGON) {
+        wxMessageDialog dlg (this,
+                             _("Dissolve only works on polygon dataset."),
+                             _("Warning"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    DissolveDlg* dlg = new DissolveDlg(this, project_p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnGroupingMap(wxCommandEvent& event)
+{
+    if (!project_p || !project_p->FindTableBase()) return;
+    
+    if (project_p->IsTableOnlyProject()) {
+        wxMessageDialog dlg (this,
+                             _("Hierachical Map does not work with Table only datasource."),
+                             _("Info"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
+        return;
+    }
+    
+    HierachicalMapSelectDlg dlg(this, project_p);
+    if (dlg.ShowModal() == wxID_OK) {
+        HierachicalMapFrame* nf = new HierachicalMapFrame(this, project_p,
+                                                    dlg.GetVarInfo(),
+                                                    dlg.GetColIds(),
+                                                    dlg.GetWUID(),
+                                                    dlg.GetTitle(),
+                                                    wxDefaultPosition,
+                                                    GdaConst::map_default_size);
+        nf->Show(true);
+    }
+}
+
 void GdaFrame::OnExportSelectedToOGR(wxCommandEvent& event)
 {
 	if (!project_p || !project_p->GetTableInt()) return;
@@ -2572,7 +2681,8 @@ void GdaFrame::OnPreferenceSetup(wxCommandEvent& event)
     	PreferenceDlg dlg(this);
     	dlg.Show(true);
     } else {
-    	PreferenceDlg dlg(this, project_p->GetHighlightState());
+    	PreferenceDlg dlg(this, project_p->GetHighlightState(),
+                          project_p->GetTableState());
     	dlg.Show(true);
     }
 }
@@ -2729,7 +2839,6 @@ void GdaFrame::OnRegressionClassic(wxCommandEvent& event)
 
 void GdaFrame::OnPublish(wxCommandEvent& event)
 {
-    
 	Project* p = GetProject();
     if (p) {
         PublishDlg dlg(this,p);
@@ -3928,7 +4037,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         table_int->GetColData(VS.col_ids[c], VS.var_info[c].time, data);
         for (int i=0; i<data.size(); i++) {
             if (data[i] !=0 && data[i] != 1) {
-                wxString msg = _("Please select binary variables for Multivariate Local Join Count.");
+                wxString msg = _("Please select binary variables for Co-location Join Count.");
                 wxMessageDialog dlg (this, msg, _("Warning"), wxOK | wxICON_WARNING);
                 dlg.ShowModal();
                 return;
@@ -3985,7 +4094,7 @@ void GdaFrame::OnOpenMultiLJC(wxCommandEvent& event)
         }
         bool nocolocation = sum == 0;
         if (nocolocation) {
-            wxMessageDialog dlg (this, _("Multivariate Local Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."), _("Error"), wxOK | wxICON_WARNING);
+            wxMessageDialog dlg (this, _("Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."), _("Error"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
@@ -5359,6 +5468,25 @@ void GdaFrame::OnSpecifySeedDlg(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (BoxPlotFrame* f = dynamic_cast<BoxPlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (HistogramFrame* f = dynamic_cast<HistogramFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (ConditionalNewFrame* f = dynamic_cast<ConditionalNewFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    }
+}
+
 void GdaFrame::OnSaveMoranI(wxCommandEvent& event)
 {
     wxLogMessage("In OnSaveMoranI()");
@@ -5526,6 +5654,26 @@ void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     if (!t) return;
     if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
         f->OnChangeConnSelectedColor(event);
+    }
+}
+
+void GdaFrame::OnChangeConnRootSize(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootSize()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (HierachicalMapFrame* f = dynamic_cast<HierachicalMapFrame*>(t)) {
+        f->OnChangeConnRootSize(event);
+    }
+}
+
+void GdaFrame::OnChangeConnRootColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnRootColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (HierachicalMapFrame* f = dynamic_cast<HierachicalMapFrame*>(t)) {
+        f->OnChangeConnRootColor(event);
     }
 }
 
@@ -6129,32 +6277,6 @@ void GdaFrame::OnReportBug(wxCommandEvent& WXUNUSED(event) )
     wxLogMessage("In GdaFrame::OnReportBug()");
     ReportBugDlg bugDlg(this);
     bugDlg.ShowModal();
-  
-    
-    /*
-    wxString toEmail = "spatial@uchicago.edu";
-    wxString subject = "Report GeoDa Bug";
-    wxString content;
-    
-    wxString logger_path;
-    if (GeneralWxUtils::isMac()) {
-        logger_path <<  GenUtils::GetBasemapCacheDir() <<  "../../../logger.txt";
-    } else {
-        logger_path <<  GenUtils::GetBasemapCacheDir() << "\\logger.txt";
-    }
-    wxTextFile tfile;
-    tfile.Open(logger_path);
-    while(!tfile.Eof())
-    {
-        content << tfile.GetNextLine() << "\n";
-    }
-   
-    wxString mail = wxString::Format("mailto:%s?subject=%s&body=[Bug Description]: please simply describe the bug\n\n[Data]: Point/Polygon? can you share your data for troubleshooting?\n\n[Details]:\n%s", toEmail, subject, content);
-    wxURI url(mail);
-    wxString encoded_url = "open " + url.BuildURI();
-    
-    wxExecute(encoded_url);
-     */
 }
 
 void GdaFrame::OnCheckUpdates(wxCommandEvent& WXUNUSED(event) )
@@ -6185,6 +6307,12 @@ void GdaFrame::OnCheckTestMode(wxCommandEvent& event)
     OGRDataAdapter::GetInstance().AddEntry("test_mode", checked);
 }
 
+void GdaFrame::OnDonate(wxCommandEvent& WXUNUSED(event) )
+{
+    wxString donate_url = "https://giving.uchicago.edu/site/Donation2?1838.donation=form1&df_id=1838&mfc_pref=T&set.Designee=1901";
+    wxLaunchDefaultBrowser(donate_url);
+}
+
 void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("In GdaFrame::OnHelpAbout()");
@@ -6194,13 +6322,15 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
     wxStaticText* cr = dynamic_cast<wxStaticText*>
 		(wxWindow::FindWindowById(XRCID("ID_COPYRIGHT"), &dlg));
 	wxString cr_s;
-	cr_s << "Copyright (C) 2011-" << Gda::version_year << " by Luc Anselin";
+    
+    cr_s << wxString::Format(_("Copyright (C) 2011-%d by Luc Anselin"),
+                             Gda::version_year);
 	if (cr) cr->SetLabelText(cr_s);
 	
 	wxStaticText* arr = dynamic_cast<wxStaticText*>
 		(wxWindow::FindWindowById(XRCID("ID_ALL_RIGHTS_RESERVED"), &dlg));
 	wxString arr_s;
-	arr_s << "All Rights Reserved";
+	arr_s << _("All Rights Reserved");
 	if (arr) arr->SetLabelText(arr_s);
 	
 	wxStaticText* vl = dynamic_cast<wxStaticText*>
@@ -6223,33 +6353,34 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	} // otherwise assumed to be release
 	vl_s << " " << Gda::version_day << " ";
 	if (Gda::version_month == 1) {
-		vl_s << "January";
+		vl_s << _("January");
 	} else if (Gda::version_month == 2) {
-		vl_s << "February";
+		vl_s << _("February");
 	} else if (Gda::version_month == 3) {
-		vl_s << "March";
+		vl_s << _("March");
 	} else if (Gda::version_month == 4) {
-		vl_s << "April";
+		vl_s << _("April");
 	} else if (Gda::version_month == 5) {
-		vl_s << "May";
+		vl_s << _("May");
 	} else if (Gda::version_month == 6) {
-		vl_s << "June";
+		vl_s << _("June");
 	} else if (Gda::version_month == 7) {
-		vl_s << "July";
+		vl_s << _("July");
 	} else if (Gda::version_month == 8) {
-		vl_s << "August";
+		vl_s << _("August");
 	} else if (Gda::version_month == 9) {
-		vl_s << "September";
+		vl_s << _("September");
 	} else if (Gda::version_month == 10) {
-		vl_s << "October";
+		vl_s << _("October");
 	} else if (Gda::version_month == 11) {
-		vl_s << "November";
+		vl_s << _("November");
 	} else {
-		vl_s << "December";
+		vl_s << _("December");
 	} 
 	vl_s << " " << Gda::version_year;
 	if (vl) vl->SetLabelText(vl_s);
 
+    wxButton* btn_donate = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("wxID_DONATE"), &dlg));
     wxButton* btn_update = dynamic_cast<wxButton*>(wxWindow::FindWindowById(XRCID("ID_CHECKUPDATES"), &dlg));
     wxCheckBox* chk_testmode_stable = dynamic_cast<wxCheckBox*>(wxWindow::FindWindowById(XRCID("IDC_CHECK_TESTMODE_STABLE"), &dlg));
     std::vector<wxString> test_mode = OGRDataAdapter::GetInstance().GetHistory("test_mode");
@@ -6263,9 +6394,9 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
             chk_testmode_stable->SetValue(true);
         }
     }
-    
+
+    btn_donate->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnDonate), NULL, this);
     chk_testmode_stable->Connect(wxEVT_CHECKBOX, wxCommandEventHandler(GdaFrame::OnCheckTestMode), NULL, this);
-    
     btn_update->Connect(wxEVT_BUTTON, wxCommandEventHandler(GdaFrame::OnCheckUpdates), NULL, this);
 	dlg.ShowModal();
 }
@@ -6541,11 +6672,12 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SELECT_WITH_RECT"), GdaFrame::OnSelectWithRect)
     EVT_MENU(XRCID("ID_SELECT_WITH_CIRCLE"), GdaFrame::OnSelectWithCircle)
     EVT_MENU(XRCID("ID_SELECT_WITH_LINE"), GdaFrame::OnSelectWithLine)
+    EVT_MENU(XRCID("ID_SELECT_WITH_CUSTOM"), GdaFrame::OnSelectWithCustom)
     EVT_MENU(XRCID("ID_SELECTION_MODE"), GdaFrame::OnSelectionMode)
     EVT_MENU(XRCID("ID_FIT_TO_WINDOW_MODE"), GdaFrame::OnFitToWindowMode)
     // Fit-To-Window Mode
     EVT_MENU(XRCID("ID_FIXED_ASPECT_RATIO_MODE"), GdaFrame::OnFixedAspectRatioMode)
-    EVT_MENU(XRCID("ID_ADJUST_AXIS_PRECISION"), GdaFrame::OnSetDisplayPrecision)
+    EVT_MENU(XRCID("ID_ADJUST_AXIS_PRECISION"), GdaFrame::OnSetAxisDisplayPrecision)
     EVT_MENU(XRCID("ID_ZOOM_MODE"), GdaFrame::OnZoomMode)
     EVT_MENU(XRCID("ID_PAN_MODE"), GdaFrame::OnPanMode)
     // Print Canvas State to Log File.  Used for debugging.
@@ -6558,6 +6690,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SAVE_SELECTED_TO_COLUMN"), GdaFrame::OnSaveSelectedToColumn)
     EVT_MENU(XRCID("ID_CANVAS_BACKGROUND_COLOR"), GdaFrame::OnCanvasBackgroundColor)
     EVT_MENU(XRCID("ID_LEGEND_USE_SCI_NOTATION"), GdaFrame::OnLegendUseScientificNotation)
+    EVT_MENU(XRCID("ID_LEGEND_DISPLAY_PRECISION"), GdaFrame::OnLegendDisplayPrecision)
     EVT_MENU(XRCID("ID_LEGEND_BACKGROUND_COLOR"), GdaFrame::OnLegendBackgroundColor)
     EVT_MENU(XRCID("ID_SELECTABLE_FILL_COLOR"), GdaFrame::OnSelectableFillColor)
     EVT_MENU(XRCID("ID_SELECTABLE_OUTLINE_COLOR"), GdaFrame::OnSelectableOutlineColor)
@@ -6619,6 +6752,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TABLE_MERGE_TABLE_DATA"), GdaFrame::OnMergeTableData)
     EVT_MENU(XRCID("ID_TABLE_AGGREGATION_DATA"), GdaFrame::OnAggregateData)
     EVT_MENU(XRCID("ID_TABLE_SPATIAL_JOIN"), GdaFrame::OnSpatialJoin)
+    EVT_MENU(XRCID("ID_SHAPE_DISSOLVE"), GdaFrame::OnDissolve)
+    EVT_MENU(XRCID("ID_HIERARCHICAL_MAP"), GdaFrame::OnGroupingMap)
     EVT_MENU(XRCID("ID_EXPORT_TO_CSV_FILE"),   GdaFrame::OnExportToCsvFile) // not used
     EVT_MENU(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
     EVT_TOOL(XRCID("ID_REGRESSION_CLASSIC"), GdaFrame::OnRegressionClassic)
@@ -6730,6 +6865,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
     EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
 
+    EVT_MENU(XRCID("ID_VIEW_DISPLAY_PRECISION"),GdaFrame::OnDisplayPrecision)
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
     EVT_MENU(XRCID("ID_SAVE_CONNECTIVITY_TO_TABLE"), GdaFrame::OnSaveConnectivityToTable)
     EVT_MENU(XRCID("ID_SELECT_ISOLATES"), GdaFrame::OnSelectIsolates)
@@ -6759,6 +6895,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
     EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
+EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
+EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
@@ -7054,7 +7192,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(GdaConst::ID_PLOTS_PER_VIEW_ALL, GdaFrame::OnPlotsPerViewAll)
     EVT_MENU(XRCID("ID_DISPLAY_STATUS_BAR"), GdaFrame::OnDisplayStatusBar)
     EVT_MENU(XRCID("wxID_ABOUT"), GdaFrame::OnHelpAbout)
+    EVT_MENU(XRCID("wxID_DONATE"), GdaFrame::OnDonate)
     EVT_MENU(XRCID("wxID_CHECKUPDATES"), GdaFrame::OnCheckUpdates)
     EVT_MENU(XRCID("wxID_REPORTBUG"), GdaFrame::OnReportBug)
-
 END_EVENT_TABLE()

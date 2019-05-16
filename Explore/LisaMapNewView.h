@@ -50,12 +50,12 @@ public:
 	virtual wxString GetCanvasTitle();
     virtual wxString GetVariableNames();
     bool is_diff;
-    
+    bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
+
 protected:
 	LisaCoordinator* lisa_coord;
 	bool is_bi; // true = Bivariate, false = Univariate
-	bool is_rate; // true = Moran Empirical Bayes Rate Smoothing
-	
+    
     wxString str_highhigh;
     wxString str_highlow;
     wxString str_lowlow;

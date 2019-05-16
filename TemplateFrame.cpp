@@ -114,6 +114,40 @@ void TemplateFrame::OnSelectWithLine(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
+void TemplateFrame::OnSelectWithCustom(wxCommandEvent& event)
+{
+    LOG_MSG("Called TemplateFrame::OnSelectWithCustom");
+    if (!template_canvas) return;
+    template_canvas->SetBrushType(TemplateCanvas::custom_select);
+    template_canvas->SetMouseMode(TemplateCanvas::select);
+    UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnDisplayStatusBar(wxCommandEvent& event)
+{
+    DisplayStatusBar(!IsStatusBarVisible());
+}
+
+TemplateLegend* TemplateFrame::GetTemplateLegend()
+{
+    return template_legend;
+}
+
+bool TemplateFrame::AllowObservationAddDelete()
+{
+    return false;
+}
+
+bool TemplateFrame::IsStatusBarVisible()
+{
+    return is_status_bar_visible;
+}
+
+Project* TemplateFrame::GetProject()
+{
+    return project;
+}
+
 void TemplateFrame::OnSelectionMode(wxCommandEvent& event)
 {
 	LOG_MSG("Called TemplateFrame::OnSelectionMode");
@@ -156,17 +190,66 @@ void TemplateFrame::OnFixedAspectRatioMode(wxCommandEvent& event)
 	UpdateOptionMenuItems();
 }
 
-void TemplateFrame::OnSetDisplayPrecision(wxCommandEvent& event)
+void TemplateFrame::OnSetAxisDisplayPrecision(wxCommandEvent& event)
 {
 	if (!template_canvas) return;
-    
-    AxisLabelPrecisionDlg dlg(template_canvas->axis_display_precision, this);
-    if (dlg.ShowModal () != wxID_OK)
-        return;
+
+    int display_precision = template_canvas->axis_display_precision;
+    bool display_fixed_point = template_canvas->axis_display_fixed_point;
+
+    SetDisplayPrecisionDlg dlg(display_precision, display_fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+
     int def_precision = dlg.precision;
-    template_canvas->SetDisplayPrecision(def_precision);
+    bool def_fixed_point = dlg.fixed_point;
+    template_canvas->SetAxisDisplayPrecision(def_precision, def_fixed_point);
     
 	UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnDisplayPrecision(wxCommandEvent& event)
+{
+    // display precision for any printed numbers on canvas (not include axes)
+    if (template_canvas == NULL) return;
+
+    int disp_precision = template_canvas->GetDisplayPrecision();
+    bool fixed_point = template_canvas->GetDisplayFixedPoint();
+
+    SetDisplayPrecisionDlg dlg(disp_precision, fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+
+    disp_precision = dlg.precision;
+    fixed_point = dlg.fixed_point;
+    template_canvas->SetDisplayPrecision(disp_precision, fixed_point);
+    UpdateOptionMenuItems();
+}
+
+void TemplateFrame::OnLegendDisplayPrecision(wxCommandEvent& event)
+{
+    int disp_precision = template_canvas->category_disp_precision;
+    bool fixed_point = template_canvas->category_disp_fixed_point;
+
+    SetDisplayPrecisionDlg dlg(disp_precision, fixed_point, this);
+    if (dlg.ShowModal () != wxID_OK) return;
+    disp_precision = dlg.precision;
+    fixed_point = dlg.fixed_point;
+    template_canvas->SetCategoryDisplayPrecision(disp_precision, fixed_point);
+
+    if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (CartogramNewCanvas* canvas = dynamic_cast<CartogramNewCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ConditionalMapCanvas* canvas = dynamic_cast<ConditionalMapCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (PCPCanvas* canvas = dynamic_cast<PCPCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    } else if (ScatterNewPlotCanvas* canvas = dynamic_cast<ScatterNewPlotCanvas*>(template_canvas)) {
+        canvas->CreateAndUpdateCategories();
+    }
+    template_legend->Recreate();
+    UpdateOptionMenuItems();
 }
 
 void TemplateFrame::OnZoomMode(wxCommandEvent& event)
@@ -217,6 +300,9 @@ void TemplateFrame::UpdateOptionMenuItems()
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_LINE"),
 								  template_canvas->GetBrushType() ==
 								  TemplateCanvas::line);
+    GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECT_WITH_CUSTOM"),
+                                  template_canvas->GetBrushType() ==
+                                  TemplateCanvas::custom_select);
 	GeneralWxUtils::CheckMenuItem(mb, XRCID("ID_SELECTION_MODE"),
 								  template_canvas->GetMouseMode() ==
 								  TemplateCanvas::select);
@@ -245,7 +331,8 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	// Update the checkmarks and enable/disable state for the
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
-	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),IsStatusBarVisible());
+	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISPLAY_STATUS_BAR"),
+                                  IsStatusBarVisible());
 	if (template_canvas == 0) return;
 	// or are not checkable do not appear.
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_RECT"),
@@ -257,6 +344,9 @@ void TemplateFrame::UpdateContextMenuItems(wxMenu* menu)
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_LINE"),
 								  template_canvas->GetBrushType() ==
 								  TemplateCanvas::line);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECT_WITH_CUSTOM"),
+                                  template_canvas->GetBrushType() ==
+                                  TemplateCanvas::custom_select);
 	GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SELECTION_MODE"),
 								  template_canvas->GetMouseMode() ==
 								  TemplateCanvas::select);
@@ -600,8 +690,7 @@ void TemplateFrame::OnCopyImageToClipboard(wxCommandEvent& event)
 void TemplateFrame::OnLegendUseScientificNotation(wxCommandEvent& event)
 {
     bool flag = template_canvas->useScientificNotation;
-  
-    
+
     template_canvas->SetScientificNotation(!flag);
     if (MapCanvas* canvas = dynamic_cast<MapCanvas*>(template_canvas)) {
         canvas->CreateAndUpdateCategories();

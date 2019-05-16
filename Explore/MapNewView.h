@@ -190,10 +190,8 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    void AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
-    void SetLegendLabel(int cat, wxString label) {
-        cat_data.SetCategoryLabel(0, cat, label);
-    }
+    vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
+    void SetLegendLabel(int cat, wxString label);
    
     // multi-layers:
     vector<BackgroundMapLayer*> GetBackgroundMayLayers();
@@ -226,6 +224,7 @@ public:
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
+
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
 	bool is_rate_smoother;
@@ -242,6 +241,7 @@ public:
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour neighbor_fill_color;
+    int conn_selected_size;
     set<int> ids_of_nbrs;
     vector<int> ids_wo_nbrs;
 	vector<GdaVarTools::VarInfo> var_info;
@@ -265,7 +265,7 @@ protected:
     list<GdaShape*>  foreground_maps;
     
     bool layerbase_valid; // if false, then needs to be redrawn
-    
+    bool is_updating; // true: if triggered by other window
     vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
@@ -305,6 +305,8 @@ protected:
     void show_empty_shps_msgbox();
     void SaveThumbnail();
     bool InitBasemap();
+    virtual void DrawConnectivityGraph(wxMemoryDC &dc);
+    virtual void CreateConnectivityGraph();
 
 	DECLARE_EVENT_TABLE()
 };
@@ -316,7 +318,9 @@ public:
 	virtual ~MapNewLegend();
     
     // override
-    void OnCategoryColor(wxCommandEvent& event);
+    virtual void OnCategoryFillColor(wxCommandEvent& event);
+	virtual void OnCategoryFillOpacity(wxCommandEvent& event);
+    virtual void OnCategoryOutlineColor(wxCommandEvent& event);
 };
 
 class MapFrame : public TemplateFrame, public WeightsManStateObserver

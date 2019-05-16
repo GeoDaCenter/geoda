@@ -254,7 +254,7 @@ void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
     
     std::vector<SaveToTableEntry> data;
     
-    if (lc->is_diff) {
+    if (lc->is_diff || lc->is_rate) {
         data.resize(4);
     } else {
         data.resize(3);
@@ -297,8 +297,6 @@ void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
     
 	for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
 		sig[i] = p[i];
-        
-        
         if (lc->is_diff ) {
             int t0 =  lisa_coord->var_info[0].time;
             int t1 =  lisa_coord->var_info[1].time;
@@ -319,7 +317,18 @@ void LisaMapFrame::OnSaveResult(wxCommandEvent& event)
         data[3].type = GdaConst::double_type;
         data[3].undefined = &undefs;
     }
-    
+
+    std::vector<double> ebr(lisa_coord->num_obs);
+    if (lc->is_rate) {
+        for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {
+            ebr[i] = lisa_coord->smoothed_results[t][i];
+        }
+        data[3].d_val = &ebr;
+        data[3].label = "EB Rates";
+        data[3].field_default = "LISA_EB";
+        data[3].type = GdaConst::double_type;
+        data[3].undefined = &undefs;
+    }
 	SaveToTableDlg dlg(project, this, data,
 					   "Save Results: LISA",
 					   wxDefaultPosition, wxSize(400,400));

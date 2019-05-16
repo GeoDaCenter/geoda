@@ -27,6 +27,8 @@
 #include "VarOrderPtree.h"
 #include "VarOrderPtree.h"
 
+using namespace std;
+
 VarOrderPtree::VarOrderPtree() : time_ids(1, "time 0")
 {
 }
@@ -57,7 +59,6 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 {
 	LOG_MSG("Entering VarOrderPtree::ReadPtree");
 	using boost::property_tree::ptree;
-	using namespace std;
 	set<wxString> grp_set;
 	try {
 		try {
@@ -76,8 +77,36 @@ void VarOrderPtree::ReadPtree(const boost::property_tree::ptree& pt,
 			if (key == "var") {
 				VarGroup ent;
 				wxString tmp(v.second.data().c_str(), wxConvUTF8);
-				ent.name = tmp;
-				//var_order.push_back(v.second.data());
+				ent.name = tmp.Trim().Trim(false);
+                BOOST_FOREACH(const ptree::value_type &v, v.second) {
+                    wxString tmp(v.first.data(), wxConvUTF8);
+                    wxString key = tmp;
+                    if (key == "displayed_decimals") {
+                        wxString vs(v.second.data().c_str(), wxConvUTF8);
+                        long dd;
+                        if (!vs.ToLong(&dd)) dd = -1;
+                        ent.displayed_decimals = dd;
+                    }
+                    if (key == "meta_data") {
+                        BOOST_FOREACH(const ptree::value_type &mv, v.second) {
+                            wxString mk(mv.first.data(), wxConvUTF8);
+                            wxString ms(mv.second.data().c_str(), wxConvUTF8);
+                            if (mk == "original_variable" ||
+                                mk == "number_of_categories" ||
+                                mk == "classification_type" ||
+                                mk == "selection_range") {
+                                ent.meta_data[mk] = ms;
+                            } else if (mk == "categories") {
+                                BOOST_FOREACH(const ptree::value_type &mcv, mv.second) {
+                                    wxString mck(mcv.first.data(), wxConvUTF8);
+                                    wxString mcs(mcv.second.data().c_str(), wxConvUTF8);
+                                    mck = "categories." + mck;
+                                    ent.meta_data[mck] = mcs;
+                                }
+                            }
+                        }
+                    }
+                }
 				var_grps.push_back(ent);
 			} else if (key == "time_ids") {
 				BOOST_FOREACH(const ptree::value_type &v, v.second) {
@@ -137,7 +166,6 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 							   const wxString& proj_path)
 {
 	using boost::property_tree::ptree;
-	using namespace std;
 	try {
 		ptree& subtree = pt.put("variable_order", "");
 		
@@ -149,10 +177,27 @@ void VarOrderPtree::WritePtree(boost::property_tree::ptree& pt,
 		// Write variables and groups
 		BOOST_FOREACH(const VarGroup& e, var_grps) {
 			if (e.vars.size() == 0) {				
-				subtree.add("var", e.name);
+				ptree& sstree = subtree.add("var", e.name);
+                if (e.displayed_decimals != -1) {
+                    wxString vs;
+                    vs << e.displayed_decimals;
+                    sstree.put("displayed_decimals", vs);
+                }
+                if (e.meta_data.empty() == false) {
+                    std::map<wxString, wxString> meta_data = e.meta_data;
+                    std::map<wxString, wxString>::iterator iter;
+                    for (iter = meta_data.begin(); iter != meta_data.end();
+                         ++iter) {
+                        wxString meta_name = "meta_data.";
+                        meta_name << iter->first;
+                        wxString meta_value = iter->second;
+                        sstree.add(meta_name.ToStdString(), meta_value);
+                    }
+                }
 			} else {
 				ptree& sstree = subtree.add("group", "");
 				sstree.put("name", e.name);
+            
 				if (e.displayed_decimals != -1) {
 					wxString vs;
 					vs << e.displayed_decimals;
@@ -182,12 +227,10 @@ const VarGroup_container& VarOrderPtree::GetVarGroupsRef() const
 	return var_grps;
 }
 
-bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
-                                     GdaConst::FieldType>& ds_var_type_map,
-                                     const std::vector<wxString>& ds_var_list,
+bool VarOrderPtree::CorrectVarGroups(const std::vector<wxString>& ds_var_list,
+                                     const std::vector<GdaConst::FieldType>& ds_var_type,
                                      bool case_sensitive)
 {
-	using namespace std;
 	LOG_MSG("Entering VarOrderPtree::CorrectVarGroups");
 	bool changed = false;
 
@@ -227,7 +270,7 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
 	// compatible, ungroup and append to end.
 	list<wxString> ungroup;
 	for (VarGroup_container::iterator i=var_grps.begin(); i!=var_grps.end();) {
-		if (!IsTypeCompatible(i->vars, ds_var_type_map)) {
+		if (!IsTypeCompatible(i->vars, ds_var_list, ds_var_type)) {
 			BOOST_FOREACH(const wxString& v, i->vars) {
 				ungroup.push_back(v);
 			}
@@ -271,7 +314,6 @@ bool VarOrderPtree::CorrectVarGroups(const std::map<wxString,
  */
 void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 {
-	using namespace std;
     if (!table) return;
 	
 	var_grps.clear();
@@ -302,13 +344,13 @@ void VarOrderPtree::ReInitFromTableInt(TableInterface* table)
 			}
 		}
 		e.displayed_decimals = table->GetColDispDecimals(col);
+        e.meta_data = table->GetMetaData(col);
 		this->var_grps.push_back(e);
 	}
 }
 
 wxString VarOrderPtree::VarOrderToStr() const
 {
-	using namespace std;
 	wxString ss;
 	int col = 0;
 	ss << "VarGroups_container:\n";
@@ -359,27 +401,26 @@ bool VarOrderPtree::RemoveFromVarGroups(const wxString& v,
 }
 
 bool VarOrderPtree::IsTypeCompatible(const std::vector<wxString>& vars,
-									  const std::map<wxString,
-									  GdaConst::FieldType>& ds_var_type_map)
+                                     const std::vector<wxString>& ds_var_list,
+                                     const std::vector<GdaConst::FieldType>& ds_var_type)
 {
-	using namespace std;
 	if (vars.size() == 0) return true;
-	map<wxString, GdaConst::FieldType>::const_iterator m_it;
     set<GdaConst::FieldType> type_set;
     
 	BOOST_FOREACH(const wxString& v, vars) {
 		if (!v.empty()) {
-            m_it = ds_var_type_map.find(v);
-			if ( m_it == ds_var_type_map.end())
-                m_it = ds_var_type_map.find(v.Upper());
-            if ( m_it == ds_var_type_map.end())
-                m_it = ds_var_type_map.find(v.Lower());
-            if ( m_it == ds_var_type_map.end()) {
+            GdaConst::FieldType type = GdaConst::unknown_type;
+            for (size_t i=0; i<ds_var_list.size(); ++i) {
+                if (ds_var_list[i].Cmp(v) == 0) {
+                    type = ds_var_type[i];
+                    break;
+                }
+            }
+            if ( GdaConst::unknown_type == type) {
 				wxString ss;
 				ss << "Error: could not find type for var: " << v;
 				return false;
 			}
-            GdaConst::FieldType type = m_it->second;
             if (type != GdaConst::placeholder_type) {
                 type_set.insert(type);
             }

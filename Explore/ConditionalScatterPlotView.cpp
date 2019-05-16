@@ -74,9 +74,11 @@ show_lowess_smoother(false)
 	double y_min = var_info[DEP_VAR].min_over_time;
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
-	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4, axis_display_precision);
+	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4,
+                             axis_display_precision, axis_display_fixed_point);
 	axis_scale_x.SkipEvenTics();
-	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4, axis_display_precision);
+	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4,
+                             axis_display_precision, axis_display_fixed_point);
 	axis_scale_y.SkipEvenTics();
 	
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
@@ -310,7 +312,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_vert.breaks[row];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(vt, row);
         }
@@ -350,7 +352,7 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
             } else {
                 b = cat_classif_def_horiz.breaks[col];
             }
-            tmp_lbl = GenUtils::DblToStr(b);
+            tmp_lbl = GenUtils::DblToStr(b, display_precision, display_precision_fixed_point);
         } else {
             tmp_lbl << horiz_cat_data.GetCategoryLabel(ht, col);
         }
@@ -441,13 +443,16 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         }
     }
     
-    int row_c;
-    int col_c;
+    int row_c = 0, col_c = 0;
     for (int i=0; i<num_obs; i++) {
         int v_time = var_info[VERT_VAR].time;
         int h_time = var_info[HOR_VAR].time;
-        row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-        col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        if (!vert_cat_data.categories.empty()) {
+            row_c = vert_cat_data.categories[v_time].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
+        }
         selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
     }
     isResize = true;
@@ -472,9 +477,11 @@ void ConditionalScatterPlotCanvas::PopulateCanvas()
     double y_min = var_info[DEP_VAR].min_over_time;
     double x_pad = 0.1 * (x_max - x_min);
     double y_pad = 0.1 * (y_max - y_min);
-    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4, axis_display_precision);
+    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 4,
+                             axis_display_precision, axis_display_fixed_point);
     axis_scale_x.SkipEvenTics();
-    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4, axis_display_precision);
+    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 4,
+                             axis_display_precision, axis_display_fixed_point);
     axis_scale_y.SkipEvenTics();
     
 	for (int i=0; i<num_obs; i++) {
@@ -529,8 +536,13 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
 	for (int i=0; i<num_obs; i++) {
         if (XY_undef[i])
             continue;
-		int row = vert_cat_data.categories[vt].id_to_cat[i];
-		int col = horiz_cat_data.categories[ht].id_to_cat[i];		
+        int row = 0, col = 0;
+        if (!vert_cat_data.categories.empty()) {
+            row = vert_cat_data.categories[vt].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col = horiz_cat_data.categories[ht].id_to_cat[i];
+        }
 		sizes[row][col]++;
 	}
 	for (int i=0; i<vert_num_cats; i++) {
@@ -544,8 +556,13 @@ void ConditionalScatterPlotCanvas::CalcCellsRegression()
             continue;
 		double x = data[IND_VAR][xt][i];
 		double y = data[DEP_VAR][yt][i];
-		int row = vert_cat_data.categories[vt].id_to_cat[i];
-		int col = horiz_cat_data.categories[ht].id_to_cat[i];
+        int row = 0, col = 0;
+        if (!vert_cat_data.categories.empty()) {
+            row = vert_cat_data.categories[vt].id_to_cat[i];
+        }
+        if (!horiz_cat_data.categories.empty()) {
+            col = horiz_cat_data.categories[ht].id_to_cat[i];
+        }
 		std::vector<double>& xref = *dvec_xp[row][col];
 		std::vector<double>& yref = *dvec_yp[row][col];
 		int index = ind[row][col];

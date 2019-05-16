@@ -49,7 +49,6 @@ protected:
     OGRLayerProxy* ogr_layer;
     // markers for a new column if the cell has ben assigned a value
     vector<bool> undef_markers;
-   
     int get_date_format(std::string& s);
     
 public:
@@ -80,7 +79,6 @@ public:
     bool IsDeleted() { return is_deleted;}
     
     void SetDeletion(bool is_delete) { is_deleted = is_delete;}
-    
     
     wxString GetName();
     void Rename(const wxString& new_name);

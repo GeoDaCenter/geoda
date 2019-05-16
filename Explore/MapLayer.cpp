@@ -43,7 +43,9 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
     field_names = layer_proxy->GetIntegerFieldNames();
+    num_field_names = layer_proxy->GetNumericFieldNames();
     key_names = layer_proxy->GetIntegerAndStringFieldNames();
+    layer_proxy->GetExtent(minx, miny, maxx, maxy, sr);
     for (int i=0; i<shapes.size(); i++) {
         highlight_flags.push_back(false);
     }
@@ -56,10 +58,13 @@ BackgroundMapLayer::~BackgroundMapLayer()
     }
 }
 
-void BackgroundMapLayer::GetExtent(double &minx, double &miny, double &maxx,
-                                   double &maxy)
+void BackgroundMapLayer::GetExtent(double &_minx, double &_miny, double &_maxx,
+                                   double &_maxy)
 {
-    layer_proxy->GetExtent(minx, miny, maxx, maxy);
+    _minx = minx;
+    _miny = miny;
+    _maxx = maxx;
+    _maxy = maxy;
 }
 
 void BackgroundMapLayer::CleanMemory()
@@ -232,9 +237,14 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->SetShapeType(shape_type);
     copy->SetKeyNames(key_names);
     copy->SetFieldNames(field_names);
+    copy->SetNumericFieldNames(num_field_names);
     copy->associated_layers = associated_layers;
     copy->associated_lines = associated_lines;
-
+    copy->minx = minx;
+    copy->miny = miny;
+    copy->maxx = maxx;
+    copy->maxy = maxy;
+    
     if (clone_style) {
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
@@ -260,6 +270,27 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
 int BackgroundMapLayer::GetNumRecords()
 {
     return shapes.size();
+}
+
+bool BackgroundMapLayer::GetDoubleColumnData(wxString field_name,
+                                             vector<double>& data)
+{
+    if (field_name.empty()) return false;
+    
+    if (data.empty()) {
+        data.resize(shapes.size());
+    }
+    // this function is for finding numeric data from multi-layer
+    GdaConst::FieldType type = layer_proxy->GetFieldType(field_name);
+    int col_idx = layer_proxy->GetFieldPos(field_name);
+    if (type == GdaConst::double_type ||
+        type == GdaConst::long64_type) {
+        for (int i=0; i<shapes.size(); ++i) {
+            data[i] = layer_proxy->data[i]->GetFieldAsDouble(col_idx);
+        }
+        return true;
+    }
+    return false;
 }
 
 bool BackgroundMapLayer::GetIntegerColumnData(wxString field_name, vector<wxInt64>& data)
@@ -317,6 +348,16 @@ bool BackgroundMapLayer::GetKeyColumnData(wxString field_name, vector<wxString>&
 vector<wxString> BackgroundMapLayer::GetIntegerFieldNames()
 {
     return field_names;
+}
+
+vector<wxString> BackgroundMapLayer::GetNumericFieldNames()
+{
+    return num_field_names;
+}
+
+void BackgroundMapLayer::SetNumericFieldNames(vector<wxString>& names)
+{
+    num_field_names = names;
 }
 
 vector<wxString> BackgroundMapLayer::GetKeyNames()
@@ -401,7 +442,7 @@ void BackgroundMapLayer::ShowBoundary(bool show)
     show_boundary = show;
     if (show) {
         if (map_boundary == NULL) {
-            map_boundary = OGRLayerProxy::GetMapBoundary(geoms);
+            map_boundary = OGRLayerProxy::DissolvePolygons(geoms);
         }
     }
 }

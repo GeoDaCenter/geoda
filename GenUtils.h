@@ -324,7 +324,8 @@ struct SimpleLinearRegression {
 
 struct AxisScale {
     AxisScale();
-	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5, int lbl_precision=2);
+	AxisScale(double data_min_s, double data_max_s, int ticks_s = 5,
+              int lbl_precision=2, bool lbl_prec_fixed_point=false);
 	AxisScale(const AxisScale& s);
     AxisScale& operator=(const AxisScale& s);
 	void CalculateScale(double data_min_s, double data_max_s,
@@ -340,6 +341,7 @@ struct AxisScale {
 	double scale_range;
 	double tic_inc;	
     int lbl_precision;
+    bool lbl_prec_fixed_point;
 	int ticks;
 	int p; // power of ten to scale significant digit
 	vector<double>tics; // numerical tic values
@@ -354,7 +356,7 @@ namespace GenUtils {
 	bool StrToBool(const wxString& s);
 	wxString Pad(const wxString& s, int width, bool pad_left=true);
     wxString PadTrim(const wxString& s, int width, bool pad_left=true);
-	wxString DblToStr(double x, int precision = 3);
+	wxString DblToStr(double x, int precision = 3, bool fixed_point=false);
     wxString IntToStr(int x, int precision = 0);
 	wxString PtToStr(const wxPoint& p);
 	wxString PtToStr(const wxRealPoint& p);
@@ -373,6 +375,7 @@ namespace GenUtils {
     
 	double Sum(vector<double>& data);
 	double SumOfSquares(vector<double>& data);
+    double Median(std::vector<double>& data);
     
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
@@ -431,10 +434,12 @@ namespace GenUtils {
 	wxString FindLongestSubString(const vector<wxString> strings,
 								  bool case_sensitive=false);
 	wxString WrapText(wxWindow *win, const wxString& text, int widthMax);
-	wxString GetBasemapCacheDir();
+	wxString GetExeDir();
 	wxString GetWebPluginsDir();
 	wxString GetResourceDir();
     wxString GetSamplesDir();
+    wxString GetBasemapDir();
+    wxString GetCachePath();
     bool less_vectors(const vector<int>& a,const vector<int>& b);
     
     // Act like matlab's [Y,I] = SORT(X)
@@ -549,4 +554,5 @@ public:
 		current = 0;
 	}
 };
+
 #endif

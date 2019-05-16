@@ -214,7 +214,7 @@ Basemap::~Basemap() {
 void Basemap::CleanCache()
 {
     wxString filename;
-    filename << cachePath << "basemap_cache"<< separator();
+    filename << cachePath << separator();
     wxDir dir(filename);
     if (dir.IsOpened() ) {
         wxString file;
@@ -610,6 +610,7 @@ void Basemap::_GetTiles(int i, int start_y, int end_y)
         int idx_y = j < 0 ? nn + j : j;
         if (idx_x > nn)
             idx_x = idx_x - nn;
+        wxMicroSleep(10);
         DownloadTile(idx_x, idx_y);
     }
 }
@@ -659,6 +660,8 @@ void Basemap::DownloadTile(int x, int y)
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
+                curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
                 curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
@@ -723,13 +726,9 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     double yy = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
     y = (int)(yy * 256 - topP) - offsetY;
    
-    double xx = (lng + 180.0 );
-    xx = xx / 360.0 * nn;
+    double xx = (lng + 180.0 ) / 360.0 * nn;
+    x = (int)(xx * 256 - leftP) - offsetX;
 
-    x = (int)(xx *256 - leftP);
-    if (x < -256) x = nn*256 + x;
-    x = x - offsetX;
-    
     if ( endX > nn) {
         if (x <0) {
             x = nn*256 + x;
@@ -752,7 +751,7 @@ wxString Basemap::GetTilePath(int x, int y)
 {
     //std::ostringstream filepathBuf;
     wxString filepathBuf;
-    filepathBuf << cachePath << "basemap_cache"<< separator();
+    filepathBuf << cachePath << separator();
     filepathBuf << basemapName << "-";
     filepathBuf << zoom << "-" << x <<  "-" << y << imageSuffix;
     

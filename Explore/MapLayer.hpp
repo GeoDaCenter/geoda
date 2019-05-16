@@ -71,6 +71,7 @@ class BackgroundMapLayer : public AssociateLayerInt
     int num_obs;
     Shapefile::ShapeType shape_type;
     vector<wxString> field_names;
+    vector<wxString> num_field_names;
     vector<wxString> key_names;
     
     bool show_connect_line;
@@ -81,7 +82,10 @@ class BackgroundMapLayer : public AssociateLayerInt
     int opacity;
     int pen_size;
     bool show_boundary;
-    
+    double minx;
+    double miny;
+    double maxx;
+    double maxy;
     
 public:
     OGRLayerProxy* layer_proxy;
@@ -145,7 +149,11 @@ public:
     
     void SetKeyNames(vector<wxString>& names);
     vector<wxString> GetKeyNames();
-    
+
+    void SetNumericFieldNames(vector<wxString>& names);
+    vector<wxString> GetNumericFieldNames();
+    bool GetDoubleColumnData(wxString field_name, vector<double>& data);
+
     void SetFieldNames(vector<wxString>& names);
     vector<wxString> GetIntegerFieldNames();
     bool GetIntegerColumnData(wxString field_name, vector<wxInt64>& data);

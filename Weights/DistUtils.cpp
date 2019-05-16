@@ -179,7 +179,7 @@ Gda::Weights DistUtils::CreateKNNWeights(int k, bool is_inverse, int power)
             for (size_t j=0; j<k+1; j++) {
                 // iter each neighbor
                 int nbr_id = ann_idx_to_row[ nnIdx[j] ];
-                if (nbr_id != i) {
+                if (nbr_id != i && nbrs.size() < k) {
                     w = ANN_ROOT(dists[j]);
                     if (is_inverse) {
                         w = pow(w, power);

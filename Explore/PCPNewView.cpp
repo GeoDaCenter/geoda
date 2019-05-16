@@ -33,6 +33,7 @@
 #include <wx/xrc/xmlres.h>
 #include "CatClassifState.h"
 #include "CatClassifManager.h"
+#include "../DialogTools/AdjustYAxisDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -67,9 +68,10 @@ pcp_selectstate(pcp_start), show_pcp_control(false),
 overall_abs_max_std_exists(false), theme_var(0),
 num_categories(6), all_init(false)
 {
+    LOG_MSG("Entering PCPCanvas::PCPCanvas");
+
 	using namespace Shapefile;
-	LOG_MSG("Entering PCPCanvas::PCPCanvas");
-    
+    display_precision = 4;
 	TableInterface* table_int = project->GetTableInt();
 	data_stats.resize(num_vars);
   
@@ -571,8 +573,8 @@ void PCPCanvas::PopulateCanvas()
 		}
 		
 		if (display_stats) {
-			m << "[" << GenUtils::DblToStr(t_min, 4);
-			m << ", " << GenUtils::DblToStr(t_max, 4) << "]";
+			m << "[" << GenUtils::DblToStr(t_min, display_precision, display_precision_fixed_point);
+			m << ", " << GenUtils::DblToStr(t_max, display_precision, display_precision_fixed_point) << "]";
 			s = new GdaShapeText(m, *GdaConst::small_font, wxRealPoint(0, y_pos), 0,
 						   GdaShapeText::right, GdaShapeText::v_center, -25, 15+y_del);
             ((GdaShapeText*)s)->GetSize(dc, s_w, s_h);
@@ -582,9 +584,9 @@ void PCPCanvas::PopulateCanvas()
 			int rows = 2;
 			std::vector<wxString> vals(rows*cols);
 			vals[0] << _("mean");
-			vals[1] << GenUtils::DblToStr(t_mean, 4);
+			vals[1] << GenUtils::DblToStr(t_mean, display_precision, display_precision_fixed_point);
 			vals[2] << _("s.d.");
-			vals[3] << GenUtils::DblToStr(t_sd, 4);
+			vals[3] << GenUtils::DblToStr(t_sd, display_precision, display_precision_fixed_point);
 			std::vector<GdaShapeTable::CellAttrib> attribs(0); // undefined
 			s = new GdaShapeTable(vals, attribs, rows, cols, *GdaConst::small_font,
 							wxRealPoint(0, y_pos), GdaShapeText::right,
@@ -762,6 +764,7 @@ void PCPCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
+    bool useUndefinedCategory = true;
 	cat_classif_def.color_scheme =
 		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
@@ -769,7 +772,9 @@ void PCPCanvas::CreateAndUpdateCategories()
                                               cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
-                                              this->useScientificNotation);
+                                              this->useScientificNotation,
+                                              useUndefinedCategory,
+                                              this->category_disp_precision);
 	
 	if (ref_var_index != -1) {
 		cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
@@ -1400,4 +1405,3 @@ void PCPFrame::ChangeThemeType(CatClassification::CatClassifType new_theme,
     UpdateOptionMenuItems();
     if (template_legend) template_legend->Recreate();
 }
-

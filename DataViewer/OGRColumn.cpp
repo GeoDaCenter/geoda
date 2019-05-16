@@ -380,11 +380,13 @@ void OGRColumnInteger::UpdateData(const vector<wxInt64>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
+            undef_markers[i] = false;
         }
     }
 }
@@ -394,11 +396,13 @@ void OGRColumnInteger::UpdateData(const vector<double>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = (int)data[i];
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, (GIntBig)data[i]);
+            undef_markers[i] = false;
         }
     }
 }
@@ -613,6 +617,7 @@ void OGRColumnDouble::UpdateData(const vector<double>& data)
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, data[i]);
+            undef_markers[i] = false;
         }
     }
 }
@@ -708,7 +713,8 @@ void OGRColumnDouble::SetValueAt(int row_idx, const wxString &value,
     }
     
     double d_val;
-    if ( value.ToDouble(&d_val) ) {
+    //if ( value.ToDouble(&d_val) ) {
+    if (wxNumberFormatter::FromString(value, &d_val)) {
         if (is_new) {
             new_data[row_idx] = d_val;
         } else {
@@ -987,11 +993,13 @@ void OGRColumnString::UpdateData(const vector<wxString>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
         for (int i=0; i<rows; ++i) {
             ogr_layer->data[i]->SetField(col_idx, data[i].c_str());
+            undef_markers[i] = false;
         }
     }
 }
@@ -1003,6 +1011,7 @@ void OGRColumnString::UpdateData(const vector<wxInt64>& data)
             wxString tmp;
             tmp << data[i];
             new_data[i] = tmp.c_str();
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
@@ -1010,6 +1019,7 @@ void OGRColumnString::UpdateData(const vector<wxInt64>& data)
             wxString tmp;
             tmp << data[i];
             ogr_layer->data[i]->SetField(col_idx, tmp.c_str());
+            undef_markers[i] = false;
         }
     }
 }
@@ -1021,6 +1031,7 @@ void OGRColumnString::UpdateData(const vector<double>& data)
             wxString tmp;
             tmp << data[i];
             new_data[i] = tmp.c_str();
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
@@ -1028,6 +1039,7 @@ void OGRColumnString::UpdateData(const vector<double>& data)
             wxString tmp;
             tmp << data[i];
             ogr_layer->data[i]->SetField(col_idx, tmp.c_str());
+            undef_markers[i] = false;
         }
     }
 }
@@ -1251,6 +1263,7 @@ void OGRColumnDate::UpdateData(const vector<unsigned long long> &data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             new_data[i] = data[i];
+            undef_markers[i] = false;
         }
     } else {
         int col_idx = GetColIndex();
@@ -1265,6 +1278,7 @@ void OGRColumnDate::UpdateData(const vector<unsigned long long> &data)
             l_second = data[i] % 100;
             
             ogr_layer->data[i]->SetField(col_idx, l_year, l_month, l_day, l_hour, l_minute, l_second, 0); // last TZFlag
+            undef_markers[i] = false;
         }
     }
 }

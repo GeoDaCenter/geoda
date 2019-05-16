@@ -37,6 +37,7 @@
 #include "../DialogTools/CreatingWeightDlg.h"
 #include "../ShapeOperations/GwtWeight.h"
 #include "../ShapeOperations/GalWeight.h"
+#include "../DialogTools/AdjustYAxisDlg.h"
 #include "../SpatialIndAlgs.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
@@ -78,13 +79,16 @@ BubbleSizeSliderDlg::BubbleSizeSliderDlg (ScatterNewPlotCanvas* _canvas,
                   wxALIGN_CENTER_VERTICAL|wxALL);
     
 	boxSizer->Add(subSizer);
-    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"), wxDefaultPosition, wxSize(100, -1));
+    resetBtn = new wxButton(this, XRCID("ID_RESET"), _("Reset"),
+                            wxDefaultPosition, wxSize(100, -1));
     topSizer->Add(resetBtn, 0, wxGROW|wxALL, 5);
     
     topSizer->Fit(this);
     
-    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER, wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
-    Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
+    Connect(XRCID("ID_BUBBLE_SLIDER"), wxEVT_SLIDER,
+            wxScrollEventHandler(BubbleSizeSliderDlg::OnSliderChange));
+    Connect(XRCID("ID_RESET"), wxEVT_COMMAND_BUTTON_CLICKED,
+            wxCommandEventHandler(BubbleSizeSliderDlg::OnReset));
 }
 
 void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
@@ -94,6 +98,7 @@ void BubbleSizeSliderDlg::OnReset(wxCommandEvent& event )
     slider->SetValue(0);
     canvas->UpdateBubbleSize(1);
 }
+
 void BubbleSizeSliderDlg::OnSliderChange( wxScrollEvent & event )
 {
     wxLogMessage("In BubbleSizeSliderDlg::OnSliderChange()");
@@ -723,7 +728,7 @@ void ScatterNewPlotCanvas::SetSelectableFillColor(wxColour color)
 		selectable_fill_color = color;
 		pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
 		for (int t=0; t<cat_data.GetCanvasTmSteps(); t++) {
-			cat_data.SetCategoryColor(t, 0, selectable_fill_color);
+			cat_data.SetCategoryPenColor(t, 0, selectable_fill_color);
 		}
 		UpdateRegExcludedLine();
 		if (IsShowLowessSmoother() && IsShowRegimes()) {
@@ -891,17 +896,11 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	
 	double x_pad = 0.1 * (x_max - x_min);
 	double y_pad = 0.1 * (y_max - y_min);
-	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5, axis_display_precision);
-	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5, axis_display_precision);
+	axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+	axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
 
-    /*
-	// used by status bar for showing selection rectangle range
-	data_scale_xmin = axis_scale_x.scale_min;
-	data_scale_xmax = axis_scale_x.scale_max;
-	data_scale_ymin = axis_scale_y.scale_min;
-	data_scale_ymax = axis_scale_y.scale_max;
-     */
-	
 	// Populate TemplateCanvas::selectable_shps
 	selectable_shps.resize(num_obs);
     selectable_shps_undefs.resize(num_obs);
@@ -910,7 +909,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
     
 	if (is_bubble_plot) {
 		selectable_shps_type = circles;
-		
+		// this should be macro and defined in one place for reuse!
 		const double pi = 3.141592653589793238463;
 		const double rad_mn = 10;
 		const double area_mn = pi * rad_mn * rad_mn;
@@ -1200,8 +1199,11 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 			cat_classif_def.colors[0] = GdaConst::map_default_fill_colour;
 		}
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
+        wxColour pen_clr = GdaColorUtils::ChangeBrightness(GdaConst::map_default_fill_colour);
+
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t, 0, GdaConst::map_default_fill_colour);
+			cat_data.SetCategoryBrushColor(t, 0, GdaConst::map_default_fill_colour);
+            cat_data.SetCategoryPenColor(t, 0, pen_clr);
 			cat_data.SetCategoryLabel(t, 0, "");
 			cat_data.SetCategoryCount(t, 0, num_obs);
 			for (int i=0; i<num_obs; i++) cat_data.AppendIdToCategory(t, 0, i);
@@ -1263,14 +1265,16 @@ void ScatterNewPlotCanvas::CreateAndUpdateCategories()
 	if (cat_classif_def.cat_classif_type != CatClassification::custom) {
 		CatClassification::ChangeNumCats(GetNumCats(), cat_classif_def);
 	}
-	cat_classif_def.color_scheme =
-		CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
+    bool useUndefinedCategory = true;
+	cat_classif_def.color_scheme = CatClassification::GetColSchmForType(cat_classif_def.cat_classif_type);
 	CatClassification::PopulateCatClassifData(cat_classif_def,
 											  cat_var_sorted,
                                               cat_var_undef,
 											  cat_data, cats_valid,
 											  cats_error_message,
-                                              this->useScientificNotation);
+                                              this->useScientificNotation,
+                                              useUndefinedCategory,
+                                              this->category_disp_precision);
 	
 	CreateZValArrays(num_time_vals, num_obs);
 	for (int t=0; t<num_time_vals; t++) {
@@ -1645,30 +1649,30 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 			attributes[k].color = selectable_outline_color;
 		}
 		vals[i*cols+j++] << tot_obs;
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.r_squared);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.alpha);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_alpha);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_alpha);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_alpha);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.beta);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_beta);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_beta);
-		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_beta);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.r_squared, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_alpha, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.std_err_of_beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.t_score_beta, display_precision,  display_precision_fixed_point);
+		vals[i*cols+j++] << GenUtils::DblToStr(regressionXY.p_value_beta, display_precision,  display_precision_fixed_point);
 		if (IsRegressionSelected()) {
 			i++; j=0;
 			for (int k=i*cols, kend=i*cols+cols; k<kend; k++) {
 				attributes[k].color = highlight_color;
 			}
 			vals[i*cols+j++] << tot_sel_obs;
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.r_squared);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_beta);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.r_squared, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.std_err_of_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.t_score_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYselected.p_value_beta, display_precision, display_precision_fixed_point);
 		}
 		if (IsRegressionExcluded()) {
 			i++; j=0;
@@ -1676,15 +1680,15 @@ void ScatterNewPlotCanvas::UpdateDisplayStats()
 				attributes[k].color = selectable_fill_color;
 			}
 			vals[i*cols+j++] << tot_unsel_obs;
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.r_squared);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_alpha);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_beta);
-			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_beta);		
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.r_squared, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_alpha, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.std_err_of_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.t_score_beta, display_precision, display_precision_fixed_point);
+			vals[i*cols+j++] << GenUtils::DblToStr(regressionXYexcluded.p_value_beta, display_precision, display_precision_fixed_point);
 		}
         int x_nudge = last_scale_trans.GetXNudge();
 		
@@ -2283,7 +2287,8 @@ void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     optMenu->Prepend(XRCID("MDS_WEIGHTS"), menu_txt);
     optMenu->AppendSeparator();
     
-    template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
+    template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED,
+                            wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
     
     SetCheckMarks(optMenu);
     
@@ -2308,20 +2313,30 @@ BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
 EVT_ACTIVATE(MDSPlotFrame::OnActivate)
 END_EVENT_TABLE()
 
-MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const wxPoint& pos, const wxSize& size, const long style)
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
+                           const wxPoint& pos, const wxSize& size,
+                           const long style)
 : ScatterNewPlotFrame(parent, project, pos, size, style)
 {
 }
 
-MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids, bool is_bubble_plot, const wxString& title, const wxPoint& pos, const wxSize& size, const long style)
-: ScatterNewPlotFrame(parent, project, var_info, col_ids, is_bubble_plot, title, pos, size, style, true)
+MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
+                           const std::vector<GdaVarTools::VarInfo>& var_info,
+                           const std::vector<int>& col_ids,
+                           bool is_bubble_plot, const wxString& title,
+                           const wxPoint& pos, const wxSize& size,
+                           const long style)
+: ScatterNewPlotFrame(parent, project, var_info, col_ids, is_bubble_plot, title,
+                      pos, size, style, true)
 {
     wxLogMessage("Open MDSPlotFrame.");
     int width, height;
     GetClientSize(&width, &height);
     wxSplitterWindow* splitter_win = 0;
     if (is_bubble_plot) {
-        splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+        splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition,
+                                            wxDefaultSize,
+                                            wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
         splitter_win->SetMinimumPaneSize(10);
     }
     template_canvas = new MDSPlotCanvas(this, this, project,

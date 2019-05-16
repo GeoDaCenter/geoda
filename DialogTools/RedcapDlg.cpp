@@ -180,11 +180,18 @@ void RedcapDlg::CreateControls()
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
                                          wxDefaultPosition, wxDefaultSize);
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
+
+    wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
+    gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_out->Add(m_textbox, 1, wxEXPAND);
+    gbox_out->Add(new wxStaticText(panel, wxID_ANY, _("(Optional)")),
+                  0, wxALIGN_RIGHT | wxRIGHT | wxLEFT, 10);
+    gbox_out->Add(chk_save_mst, 1, wxEXPAND);
+
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
-    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL |wxLEFT, 10);
-    
-    
+    hbox1->Add(gbox_out, 1, wxEXPAND);
+
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
@@ -420,16 +427,30 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         file.Create(new_txt);
         file.Open(new_txt);
         file.Clear();
-        
+
         wxString header;
-        header << "0 " << project->GetNumRecords() << " " << project->GetProjectTitle() << " " << id;
-        file.AddLine(header);
-        
-        
+        header << "0 " << project->GetNumRecords() << " ";
+        header << "\"" << project->GetProjectTitle() << "\" ";
+        header << id;
+
+        vector<vector<int> > cluster_ids = redcap->GetRegions();
+        map<int, int> nid_cid; // node id -> cluster id
+        for (int c=0; c<cluster_ids.size(); ++c) {
+            for (int i=0; i<cluster_ids[c].size(); ++i) {
+                nid_cid[ cluster_ids[c][i] ] = c;
+            }
+        }
+
         for (int i=0; i<redcap->ordered_edges.size(); i++) {
             wxString line;
             int from_idx = redcap->ordered_edges[i]->orig->id;
             int to_idx = redcap->ordered_edges[i]->dest->id;
+
+            if (chk_save_mst->GetValue() == false) {
+                if (nid_cid[from_idx] != nid_cid[to_idx])
+                    continue;
+            }
+            
             double cost = redcap->ordered_edges[i]->length;
             wxString line1;
             line1 << ids[from_idx] << " " << ids[to_idx] << " " <<  cost;

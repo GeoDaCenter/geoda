@@ -24,18 +24,13 @@
 #include "../Project.h"
 #include "ProjectInfoDlg.h"
 
+using namespace std;
+
 ProjectInfoDlg::ProjectInfoDlg(Project* project)
-: wxDialog(NULL, wxID_ANY, "Project Information", wxDefaultPosition, wxSize(250, 150))
+: wxDialog(NULL, wxID_ANY, _("Project Information"), wxDefaultPosition,
+           wxSize(250, 150), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     wxLogMessage("Open ProjectInfoDlg.");
-    
-	using namespace std;
-	wxPanel* panel = new wxPanel(this, -1);
-	
-	wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
-	wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
-	
-	
 	vector<wxString> key;
 	vector<wxString> val;
 	key.push_back("Project Title");
@@ -118,26 +113,57 @@ ProjectInfoDlg::ProjectInfoDlg(Project* project)
         double minx = 0, miny = 0,  maxx = 0,  maxy = 0;
         project->GetMapExtent(minx, miny, maxx, maxy);
         val.push_back(wxString::Format("Lower left: %f, %f Upper right: %f, %f", minx, miny, maxx, maxy));
+
+        key.push_back("CRS (proj4 format)");
+        OGRSpatialReference* sr = project->GetSpatialReference();
+        wxString str_crs = "Unknown";
+        if (sr) {
+            char* tmp = new char[1024];
+            if (sr->exportToProj4(&tmp) == OGRERR_NONE) {
+                str_crs = tmp;
+            }
+            delete[] tmp;
+        }
+        val.push_back(str_crs);
+
+        key.push_back("CRS (EPSG code)");
+        wxString str_EPSG = "Unknown";
+        if (sr) {
+            int epsg_code = sr->GetEPSGGeogCS();
+            if (epsg_code > -1) {
+                str_EPSG = wxString::Format("%d", epsg_code);
+            }
+        }
+        val.push_back(str_EPSG);
     }
-		
-	const int left_offset = 0;
-	const int top_offset = 0;
-	const int line_space = 25;
+
+    wxPanel* panel = new wxPanel(this, -1);
+
+    wxBoxSizer* vbox = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* hbox = new wxBoxSizer(wxHORIZONTAL);
+
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(12, 2, 5, 5);
+    gbox->SetFlexibleDirection(wxBOTH);
+    gbox->AddGrowableCol(1, 1);
 	for (int i=0, sz=key.size(); i<sz; ++i) {
-		wxString s;
-		s << key[i] << ": " << val[i];
-		wxStaticText* st;
-		wxPoint pos(left_offset, top_offset + i*line_space);
-		st = new wxStaticText(panel, wxID_ANY, s, pos, wxDefaultSize, wxALIGN_LEFT);
+        wxString s = key[i] + ": ";
+		wxStaticText* st = new wxStaticText(panel, wxID_ANY, s);
+        wxTextCtrl* txt = new wxTextCtrl(panel, wxID_ANY, val[i],
+                                         wxDefaultPosition, wxSize(400, -1),
+                                         wxTE_READONLY);
+        wxBoxSizer* txtbox = new wxBoxSizer(wxHORIZONTAL);
+        txtbox->Add(txt, 1, wxEXPAND);
+        gbox->Add(st);
+        gbox->Add(txtbox, 1, wxEXPAND | wxALL);
 	}
 	
-	
-	wxButton* ok_btn = new wxButton(this, wxID_OK, "OK", wxDefaultPosition,
+	panel->SetSizerAndFit(gbox);
+
+	wxButton* ok_btn = new wxButton(this, wxID_OK, _("OK"), wxDefaultPosition,
 									wxDefaultSize, wxBU_EXACTFIT);
 	
 	hbox->Add(ok_btn, 1, wxLEFT, 15);
-	
-	vbox->Add(panel, 1, wxALL, 15);
+	vbox->Add(panel, 1, wxALL | wxEXPAND, 15);
 	vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
 	
 	SetSizer(vbox);
