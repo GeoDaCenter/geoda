@@ -2,44 +2,85 @@
 
 from __future__ import print_function
 import re
-import csv
 import sys
+#import xlsxwriter
 
-def po2csv(po_file, csv_file):
+def dict2PO(po_items, file_path):
+    f = open(file_path, 'w')
+    msgid_list = sorted(po_items)
+    for msgid in msgid_list:
+        msgstr, contrib = po_items[msgid]
+        line = '#contributors:' + contrib + '\n'
+        f.write(line)
+        line = 'msgid "' + msgid + '"\n'
+        f.write(line)
+        line = 'msgstr "' + msgstr + '"\n'
+        f.write(line)
+        f.write('\n')
+    f.close()
+
+
+def dict2csv(po_items, file_path):
+    f = open(file_path, 'w')
+    line = 'msgid`msgstr`contributors\n'
+    f.write(line)
+    msgid_list = sorted(po_items)
+    for msgid in msgid_list:
+        msgstr, contrib = po_items[msgid]
+        line = '[' + msgid + ']`[' + msgstr + ']`' + contrib + '\n'
+        f.write(line)
+    f.close()
+
+def po2dict(po_file, result):
     mode = 0
 
-    with open("geoda.po") as f, open('translations.csv', 'w') as c:
+    with open(po_file) as f:
         start = 0
         end = 0
+
         source = ''
         dest = ''
+        contrib = ''
+        next_contrib = ''
 
         for i, line in enumerate(f, 1):
-            if(line.startswith('#')):
-                mode = 0
-                continue
+            line = line.strip()
+            if(line.startswith('#') or len(line) == 0):
+                if (line.startswith('#contributors')):
+                    if (mode == 2):
+                        next_contrib = line.split(':')[1] 
+                    else:
+                        contrib = line.split(':')[1]
 
-            if (line.startswith('msgid') or (mode == 1 and not line.startswith('msgstr')) ):
-                if (line.startswith('msgid')):
+            elif (line.startswith('msgid') or (mode == 1 and not line.startswith('msgstr'))):
+                if (mode == 2 and len(source + dest + contrib) > 0):
                     # store previously processed item if any
-                    if len(source) > 0:
-                        new_l = '"' + source + '","' + dest + '"\n'
-                        c.write(new_l)
+                    result[source] = [dest, contrib]
                     source = ''
                     dest = '' 
-                mode = 1
+                    contrib = next_contrib
+
                 start = line.find('"') + 1
                 end = line.rfind('"')
                 source += line[start: end]
+                mode = 1
                 
-            elif ( (mode == 1 and line.startswith('msgstr')) or mode == 2):
+            elif (line.startswith('msgstr') or mode == 2):
                 mode = 2
                 start = line.find('"') + 1
                 end = line.rfind('"')
                 dest += line[start : end]
 
+        if (mode == 2 and len(source + dest + contrib) > 0):
+            # store previously processed item if any
+            result[source] = [dest, contrib]
+
 if __name__ == "__main__":
-    #po_file, csv_file = sys.argv[1:]
-    po_file, csv_file = "geoda.po", "geoda.csv"
-    if (po_file and csv_file):
-        po2csv(po_file, csv_file)
+    if (len(sys.argv) != 3) :
+        print("Usage: python po2csv.py po_file csv_file")
+    else:
+        po_file, csv_file = sys.argv[1:]
+        if (po_file and csv_file):
+            po_items = {}
+            po2dict(po_file, po_items)
+            dict2csv(po_items, csv_file)

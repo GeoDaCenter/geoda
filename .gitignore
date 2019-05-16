@@ -105,3 +105,5 @@ osm/
 internationalization/.vscode/launch.json
 *.swo
 internationalization/pofiles/new_zh_CN.mo
+internationalization/.vscode/settings.json
+internationalization/~$zh_CN.xlsx

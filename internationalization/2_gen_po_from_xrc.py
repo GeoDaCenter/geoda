@@ -22,7 +22,7 @@ def process_xrc(xrcfile):
     
     
 def create_po(txtfiles):
-    pofile = 'xrc.po'
+    pofile = 'xrc.pot'
     en_strings = {}
     for txtfile in txtfiles:
         f = open(txtfile)

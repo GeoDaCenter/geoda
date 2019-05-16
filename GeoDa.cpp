@@ -6322,13 +6322,15 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
     wxStaticText* cr = dynamic_cast<wxStaticText*>
 		(wxWindow::FindWindowById(XRCID("ID_COPYRIGHT"), &dlg));
 	wxString cr_s;
-	cr_s << "Copyright (C) 2011-" << Gda::version_year << " by Luc Anselin";
+    
+    cr_s << wxString::Format(_("Copyright (C) 2011-%d by Luc Anselin"),
+                             Gda::version_year);
 	if (cr) cr->SetLabelText(cr_s);
 	
 	wxStaticText* arr = dynamic_cast<wxStaticText*>
 		(wxWindow::FindWindowById(XRCID("ID_ALL_RIGHTS_RESERVED"), &dlg));
 	wxString arr_s;
-	arr_s << "All Rights Reserved";
+	arr_s << _("All Rights Reserved");
 	if (arr) arr->SetLabelText(arr_s);
 	
 	wxStaticText* vl = dynamic_cast<wxStaticText*>
@@ -6351,29 +6353,29 @@ void GdaFrame::OnHelpAbout(wxCommandEvent& WXUNUSED(event) )
 	} // otherwise assumed to be release
 	vl_s << " " << Gda::version_day << " ";
 	if (Gda::version_month == 1) {
-		vl_s << "January";
+		vl_s << _("January");
 	} else if (Gda::version_month == 2) {
-		vl_s << "February";
+		vl_s << _("February");
 	} else if (Gda::version_month == 3) {
-		vl_s << "March";
+		vl_s << _("March");
 	} else if (Gda::version_month == 4) {
-		vl_s << "April";
+		vl_s << _("April");
 	} else if (Gda::version_month == 5) {
-		vl_s << "May";
+		vl_s << _("May");
 	} else if (Gda::version_month == 6) {
-		vl_s << "June";
+		vl_s << _("June");
 	} else if (Gda::version_month == 7) {
-		vl_s << "July";
+		vl_s << _("July");
 	} else if (Gda::version_month == 8) {
-		vl_s << "August";
+		vl_s << _("August");
 	} else if (Gda::version_month == 9) {
-		vl_s << "September";
+		vl_s << _("September");
 	} else if (Gda::version_month == 10) {
-		vl_s << "October";
+		vl_s << _("October");
 	} else if (Gda::version_month == 11) {
-		vl_s << "November";
+		vl_s << _("November");
 	} else {
-		vl_s << "December";
+		vl_s << _("December");
 	} 
 	vl_s << " " << Gda::version_year;
 	if (vl) vl->SetLabelText(vl_s);
