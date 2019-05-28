@@ -572,7 +572,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     OGRSpatialReference new_ref;
     if (is_table) {
         spatial_ref = NULL; // table only data, void creating e.g. prj file
-    } else if (spatial_ref) {
+    } else {
         geom_type = ogr_adapter.MakeOGRGeometries(geometries, shape_type,
                                                   ogr_geometries, selected_rows);
         wxString str_crs = m_crs_input->GetValue();
@@ -587,7 +587,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
             new_ref.importFromEPSG(4326);
             valid_input_crs = true;
         }
-        if (valid_input_crs && !spatial_ref->IsSame(&new_ref)) {
+        if (spatial_ref && (valid_input_crs && !spatial_ref->IsSame(&new_ref))) {
             OGRCoordinateTransformation *poCT;
             poCT = OGRCreateCoordinateTransformation(spatial_ref, &new_ref);
             for (size_t i=0; i < ogr_geometries.size(); i++) {
