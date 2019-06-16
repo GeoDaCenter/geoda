@@ -792,7 +792,7 @@ void OGRColumnString::FillData(vector<double>& data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             double val = 0.0;
-            if ( !new_data[i].ToDouble(&val) ) {
+            if (!wxNumberFormatter::FromString(new_data[i], &val)) {
                 undef_markers[i] = true;
             }
             data[i] = val;
@@ -848,20 +848,10 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             wxInt64 val = 0;
-            if (!new_data[i].ToLongLong(&val)) {
-                //wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to integer number.", new_data[i]);
-                //throw GdaException(error_msg.mb_str());
-                double d_val;
-                if (new_data[i].ToDouble(&d_val)) {
-                    val = static_cast<wxInt64>(d_val);
-                    data[i] = val;
-                } else {
-                    undef_markers[i] = true;
-                    data[i] = 0;
-                }
-            } else {
-                data[i] = val;
+            if (!wxNumberFormatter::FromString(new_data[i], &val)) {
+                undef_markers[i] = true;
             }
+            data[i] = val;
         }
     } else {
         int col_idx = GetColIndex();
