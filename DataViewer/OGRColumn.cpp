@@ -813,7 +813,7 @@ void OGRColumnString::FillData(vector<double>& data)
             if (tmp.IsEmpty()) {
                 data[i] = 0.0;
                 undef_markers[i] = true;
-            } else if (tmp.ToDouble(&val)) {
+            } else if (wxNumberFormatter::FromString(tmp, &val)) {
                 data[i] = val;
             } else {
                 // try to use different locale
@@ -826,7 +826,7 @@ void OGRColumnString::FillData(vector<double>& data)
                     setlocale(LC_NUMERIC, "de_DE");
                 }
                 double _val;
-                if (tmp.ToDouble(&_val)) {
+                if (wxNumberFormatter::FromString(tmp, &_val)) {
                     data[i] = _val;
                 } else {
                     data[i] = 0.0;
@@ -882,10 +882,10 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 undef_markers[i] = true;
                 data[i] = 0;
                 
-            } else if (tmp.ToLongLong(&val)) {
+            } else if (wxNumberFormatter::FromString(tmp, &val)) {
                 data[i] = val;
                 
-            } else if (tmp.ToDouble(&val_d)) {
+            } else if (wxNumberFormatter::FromString(tmp, &val_d)) {
                 val = static_cast<wxInt64>(val_d);
                 data[i] = val;
                 
@@ -901,10 +901,10 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 }
                 wxInt64 val_;
                 double val_d_;
-                if (tmp.ToLongLong(&val_)) {
+                if (wxNumberFormatter::FromString(tmp, &val_)) {
                     data[i] = val_;
                     
-                } else if (tmp.ToDouble(&val_d_)) {
+                } else if (wxNumberFormatter::FromString(tmp, &val_d_)) {
                     val_ = static_cast<wxInt64>(val_d_);
                     data[i] = val_;
                     
