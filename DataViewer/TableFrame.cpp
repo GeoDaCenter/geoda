@@ -113,27 +113,18 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
 	for (int i=0, iend=table_base->GetNumberCols(); i<iend; i++) {
 		double cur_col_size = grid->GetColSize(i);
 		double cur_lbl_len = grid->GetColLabelValue(i).length();
-		double max_cell_len = 0;
+		double max_cell_len = cur_lbl_len;
 		for (int j=0; j<sample-1; ++j) {
-			wxString cv = grid->GetCellValue(j, i);
-			cv.Trim(true);
-			cv.Trim(false);
-            if (cv.length() > max_cell_len) max_cell_len = cv.length();
+			//wxString cv = grid->GetCellValue(j, i);
+            int cv_length = table_int->GetCellStringLength(j,i,true);
+            if (cv_length > max_cell_len) max_cell_len = cv_length;
 		}
-		if (max_cell_len > cur_lbl_len &&
-			max_cell_len >= 1 && cur_lbl_len >= 1) {
-			// attempt to scale up col width based on cur_col_size
-			double fac = max_cell_len / cur_lbl_len;
-			if (fac < 1) fac = 1;
-			if (fac > 5) fac = 5;
-            fac = fac * 1.2;
-            grid->SetColMinimalWidth(i, cur_col_size);
-			grid->SetColSize(i, cur_col_size * fac);
-		} else {
-			// add a few pixels of buffer to current label
-			grid->SetColMinimalWidth(i, cur_col_size+6);
-			grid->SetColSize(i, cur_col_size+6);
-		}
+        // width (pixel) per number
+        double pw = 10;
+        grid->SetColMinimalWidth(i, cur_lbl_len * pw + 8);
+        // attempt to scale up col width based on cur_col_size
+        //double fac = 1.2;
+        grid->SetColSize(i, max_cell_len * pw);
 	}
     grid->ForceRefresh();
 

@@ -60,12 +60,15 @@ LocaleSetupDlg::LocaleSetupDlg(wxWindow* parent,
     m_txt_thousands->SetMaxLength(1);
     m_txt_decimal->SetMaxLength(1);
 
-    struct lconv *poLconv = localeconv();
-    wxString thousands_sep = poLconv->thousands_sep;
-    wxString decimal_point = poLconv->decimal_point;
+    const char* thousands_sep = CPLGetConfigOption("GEODA_LOCALE_SEPARATOR", ",");
+    const char* decimal_sep = CPLGetConfigOption("GEODA_LOCALE_DECIMAL", ".");
+
+    //struct lconv *poLconv = localeconv();
+    //wxString thousands_sep = poLconv->thousands_sep;
+    //wxString decimal_point = poLconv->decimal_point;
     
     m_txt_thousands->SetValue(thousands_sep);
-    m_txt_decimal->SetValue(decimal_point);
+    m_txt_decimal->SetValue(decimal_sep);
     
     SetParent(parent);
 	SetPosition(pos);
@@ -83,7 +86,7 @@ void LocaleSetupDlg::OnResetSysLocale( wxCommandEvent& event )
     m_txt_thousands->SetValue(thousands_sep);
     m_txt_decimal->SetValue(decimal_point);
     
-    wxString msg = _("Reset to system locale successfully. Please re-open current project with system locale.");
+    wxString msg = _("Reset to system locale successfully.");
     wxMessageDialog msg_dlg(this, msg,
                            _("Reset to system locale information"),
                            wxOK | wxOK_DEFAULT | wxICON_INFORMATION);
@@ -98,14 +101,14 @@ void LocaleSetupDlg::OnOkClick( wxCommandEvent& event )
     wxString thousands_sep = m_txt_thousands->GetValue();
     wxString decimal_point = m_txt_decimal->GetValue();
     
-    CPLSetConfigOption("GDAL_LOCALE_SEPARATOR",
+    CPLSetConfigOption("GEODA_LOCALE_SEPARATOR",
                        (const char*)thousands_sep.mb_str());
     if ( !decimal_point.IsEmpty() )
-        CPLSetConfigOption("GDAL_LOCALE_DECIMAL",
+        CPLSetConfigOption("GEODA_LOCALE_DECIMAL",
                            (const char*)decimal_point.mb_str());
    
     if (need_reopen) {
-        wxString msg = _("Locale for numbers has been setup successfully. Please re-open current project to enable this locale.");
+        wxString msg = _("Locale for numbers has been setup successfully.");
         wxMessageDialog msg_dlg(this, msg,
                                "Setup locale",
                                wxOK | wxOK_DEFAULT | wxICON_INFORMATION);

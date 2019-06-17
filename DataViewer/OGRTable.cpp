@@ -1189,7 +1189,18 @@ bool OGRTable::RenameSimpleCol(int col, int time, const wxString& new_name)
 	return true;
 }
 
-wxString OGRTable::GetCellString(int row, int col, int time)
+int OGRTable::GetCellStringLength(int row, int col, bool use_disp_decimal)
+{
+    int str_length = 0;
+    int ts = GetColTimeSteps(col);
+    for (int t=0; t<ts; ++t) {
+        wxString val = GetCellString(row, col, t, use_disp_decimal);
+        if (val.length() > str_length) str_length = val.length();
+    }
+    return str_length;
+}
+
+wxString OGRTable::GetCellString(int row, int col, int time, bool use_disp_decimal)
 {
 	// NOTE: if called from wxGrid, must use row_order[row] to permute
 	if (row < 0 || row >= rows) return wxEmptyString;
@@ -1198,15 +1209,16 @@ wxString OGRTable::GetCellString(int row, int col, int time)
         cur_type == GdaConst::unknown_type) {
         return wxEmptyString;
     }
-    // get display number of decimals
-	int disp_dec = GetColDispDecimals(col);
     
 	// mapping col+time to underneath OGR col
     OGRColumn* ogr_col = FindOGRColumn(col, time);
 	if (ogr_col == NULL) {
 		return "";
 	}
-    return ogr_col->GetValueAt(row, disp_dec, m_wx_encoding);
+    // get display number of decimals
+    int col_dec = GetColDecimals(col, time);
+    if (use_disp_decimal) col_dec = GetColDispDecimals(col);
+    return ogr_col->GetValueAt(row, col_dec, m_wx_encoding);
 }
 
 

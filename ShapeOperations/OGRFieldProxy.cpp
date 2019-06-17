@@ -73,21 +73,28 @@ OGRFieldProxy::OGRFieldProxy(OGRFieldDefn *field_defn)
 	
 	if (ogr_type == OFTString){
 		type = GdaConst::string_type;
+        if (length == 0) length = GdaConst::max_dbf_string_len;
 	}
 	else if (ogr_type == OFTInteger64 || ogr_type == OFTInteger) {
 		type = GdaConst::long64_type;
+        if (length == 0) length = GdaConst::max_dbf_long_len;
 	}
 	else if (ogr_type == OFTReal) {
 		type = GdaConst::double_type;
+        if (length == 0) length = GdaConst::max_dbf_long_len;
+        if (decimals == 0) decimals = GdaConst::max_dbf_double_decimals;
 	}
     else if (ogr_type == OFTDate ) {
         type = GdaConst::date_type;
+        if (length == 0) length = GdaConst::default_dbf_string_len;
         
     } else if (ogr_type == OFTTime) {
         type = GdaConst::time_type;
+        if (length == 0) length = GdaConst::default_dbf_string_len;
         
     } else if (ogr_type == OFTDateTime) {
         type = GdaConst::datetime_type;
+        if (length == 0) length = GdaConst::default_dbf_string_len;
     }
 }
 
