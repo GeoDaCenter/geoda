@@ -174,8 +174,9 @@ public:
 	virtual bool ColChangeDisplayedDecimals(int col, int new_disp_dec);
 	virtual bool RenameGroup(int col, const wxString& new_name);
 	virtual bool RenameSimpleCol(int col, int time, const wxString& new_name);
-	virtual wxString GetCellString(int row, int col, int time=0);
-	virtual bool SetCellFromString(int row, int col, int time,
+	virtual wxString GetCellString(int row, int col, int time=0, bool use_disp_decimal=false);
+    virtual int   GetCellStringLength(int row, int col, bool use_disp_decimal=true);
+    virtual bool SetCellFromString(int row, int col, int time,
 								   const wxString &value);
 	virtual int  InsertCol(GdaConst::FieldType type, const wxString& name,
 						   int pos=-1, int time_steps=1,

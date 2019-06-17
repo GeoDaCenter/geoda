@@ -226,8 +226,10 @@ public:
 								 const wxString& new_name) = 0;
     /** wxGrid will call this function to fill data in displayed part 
      automatically. Returns formated string (e.g. nummeric numbers) */
-	virtual wxString GetCellString(int row, int col, int time=0) = 0;
-	/** Attempts to set the wxGrid cell from a user-entered value.  Returns
+	virtual wxString GetCellString(int row, int col, int time=0,  bool use_disp_decimal = false) = 0;
+    virtual int   GetCellStringLength(int row, int col, bool use_disp_decimal=true) = 0;
+
+    /** Attempts to set the wxGrid cell from a user-entered value.  Returns
 	 true on success. If failured, then IsCellFromStringFail() returns false
 	 and GetSetCellFromStringFailMsg() retuns a meaningful failure message
 	 that can be displayed to the user. */
