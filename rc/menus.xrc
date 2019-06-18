@@ -219,6 +219,9 @@
           <checkable>1</checkable>
         </object>
       </object>
+      <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
+          <label>Setup Number Formatting</label>
+      </object>
     </object>
     <object class="wxMenu" name="ID_CAT_CLASSIF_A_MENU">
       <label>&amp;Map</label>

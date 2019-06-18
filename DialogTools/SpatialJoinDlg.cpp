@@ -186,6 +186,7 @@ AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
                                 Project* _project, vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
+    join_variable = false;
     is_spatial_assign = true;
     poly_ids = _poly_ids;
     num_polygons = ml->GetNumRecords();
@@ -291,6 +292,7 @@ AssignPolygonToLine::AssignPolygonToLine(BackgroundMapLayer* _ml,
                                          vector<wxInt64>& _poly_ids)
 : SpatialJoinWorker(_ml, _project)
 {
+    join_variable = false;
     is_spatial_assign = true;
     poly_ids = _poly_ids;
     num_polygons = ml->GetNumRecords();

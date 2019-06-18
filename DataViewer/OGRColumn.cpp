@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <string.h>
 #include <istream>
 #include <time.h>
 #include <sstream>
@@ -30,7 +31,7 @@
 #include <wx/numformatter.h>
 
 #include "../GenUtils.h"
-#include "../GeoDa.h"
+//#include "../GeoDa.h"
 #include "../logger.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../GdaException.h"
@@ -789,19 +790,29 @@ OGRColumnString::~OGRColumnString()
 // This column -> vector<double>
 void OGRColumnString::FillData(vector<double>& data)
 {
+    const char* thousand_sep = CPLGetConfigOption("GEODA_LOCALE_SEPARATOR", ",");
+    const char* decimal_sep = CPLGetConfigOption("GEODA_LOCALE_DECIMAL", ".");
+    bool use_custom_locale = false;
+    if ((strlen(thousand_sep) > 0 && strcmp(thousand_sep, ",") != 0) ||
+        (strlen(decimal_sep) > 0 && strcmp(decimal_sep, ".") != 0)) {
+        // customized locale numeric
+        use_custom_locale = true;
+    }
+
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             double val = 0.0;
-            if ( !new_data[i].ToDouble(&val) ) {
-                undef_markers[i] = true;
+            if (use_custom_locale) {
+                new_data[i].Replace(thousand_sep, "");
+                new_data[i].Replace(decimal_sep, ".");
             }
+            wxNumberFormatter::FromString(new_data[i], &val);
             data[i] = val;
         }
         
     } else {
         int col_idx = GetColIndex();
         wxString tmp;
-        char *old_locale, *saved_locale = 0;
 
         for (int i=0; i<rows; ++i) {
             if ( undef_markers[i] == true) {
@@ -809,35 +820,15 @@ void OGRColumnString::FillData(vector<double>& data)
                 continue;
             }
             tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-            double val;
-            if (tmp.IsEmpty()) {
-                data[i] = 0.0;
-                undef_markers[i] = true;
-            } else if (tmp.ToDouble(&val)) {
-                data[i] = val;
-            } else {
-                // try to use different locale
-                if (i==0) {
-                    // get name of current locale
-                    old_locale = setlocale(LC_NUMERIC, NULL);
-                    // Copy the name so it won’t be clobbered by setlocale
-                    saved_locale = strdup (old_locale);
-                    // try comma as decimal point
-                    setlocale(LC_NUMERIC, "de_DE");
-                }
-                double _val;
-                if (tmp.ToDouble(&_val)) {
-                    data[i] = _val;
-                } else {
-                    data[i] = 0.0;
-                    undef_markers[i] = true;
-                }
+
+            if (use_custom_locale) {
+                tmp.Replace(thousand_sep, "");
+                tmp.Replace(decimal_sep, ".");
             }
-        }
-        if (saved_locale) {
-            // restore locale
-            setlocale(LC_NUMERIC, saved_locale);
-            free(saved_locale);
+
+            double val = 0.0;
+            wxNumberFormatter::FromString(tmp, &val);
+            data[i] = val;
         }
     }
 }
@@ -845,29 +836,29 @@ void OGRColumnString::FillData(vector<double>& data)
 // This column -> vector<wxInt64>
 void OGRColumnString::FillData(vector<wxInt64> &data)
 {
+    const char* thousand_sep = CPLGetConfigOption("GEODA_LOCALE_SEPARATOR", ",");
+    const char* decimal_sep = CPLGetConfigOption("GEODA_LOCALE_DECIMAL", ".");
+    bool use_custom_locale = false;
+    if ((strlen(thousand_sep) > 0 && strcmp(thousand_sep, ",") != 0) ||
+        (strlen(decimal_sep) > 0 && strcmp(decimal_sep, ".") != 0)) {
+        // customized locale numeric
+        use_custom_locale = true;
+    }
+
     if (is_new) {
         for (int i=0; i<rows; ++i) {
             wxInt64 val = 0;
-            if (!new_data[i].ToLongLong(&val)) {
-                //wxString error_msg = wxString::Format("Fill data error: can't convert '%s' to integer number.", new_data[i]);
-                //throw GdaException(error_msg.mb_str());
-                double d_val;
-                if (new_data[i].ToDouble(&d_val)) {
-                    val = static_cast<wxInt64>(d_val);
-                    data[i] = val;
-                } else {
-                    undef_markers[i] = true;
-                    data[i] = 0;
-                }
-            } else {
-                data[i] = val;
+            if (use_custom_locale) {
+                new_data[i].Replace(thousand_sep, "");
+                new_data[i].Replace(decimal_sep, ".");
             }
+            wxNumberFormatter::FromString(new_data[i], &val);
+            data[i] = val;
         }
     } else {
         int col_idx = GetColIndex();
         bool conv_success = true;
         wxString tmp;
-        char *old_locale, *saved_locale = 0;
 
         for (int i=0; i<rows; ++i) {
             if ( undef_markers[i] == true) {
@@ -875,49 +866,15 @@ void OGRColumnString::FillData(vector<wxInt64> &data)
                 continue;
             }
             tmp = wxString(ogr_layer->data[i]->GetFieldAsString(col_idx));
-            wxInt64 val;
-            double val_d;
-            
-            if (tmp.IsEmpty()) {
-                undef_markers[i] = true;
-                data[i] = 0;
-                
-            } else if (tmp.ToLongLong(&val)) {
-                data[i] = val;
-                
-            } else if (tmp.ToDouble(&val_d)) {
-                val = static_cast<wxInt64>(val_d);
-                data[i] = val;
-                
-            } else {
-                // try to use different locale
-                if (i==0) {
-                    // get name of current locale
-                    old_locale = setlocale(LC_NUMERIC, NULL);
-                    // Copy the name so it won’t be clobbered by setlocale
-                    saved_locale = strdup (old_locale);
-                    // try comma as decimal point
-                    setlocale(LC_NUMERIC, "de_DE");
-                }
-                wxInt64 val_;
-                double val_d_;
-                if (tmp.ToLongLong(&val_)) {
-                    data[i] = val_;
-                    
-                } else if (tmp.ToDouble(&val_d_)) {
-                    val_ = static_cast<wxInt64>(val_d_);
-                    data[i] = val_;
-                    
-                } else {
-                    data[i] = 0;
-                    undef_markers[i] = true;
-                }
+            wxInt64 val = 0;
+
+            if (use_custom_locale) {
+                tmp.Replace(thousand_sep, "");
+                tmp.Replace(decimal_sep, ".");
             }
-        }
-        if (saved_locale) {
-            // restore locale
-            setlocale(LC_NUMERIC, saved_locale);
-            free(saved_locale);
+            
+            wxNumberFormatter::FromString(tmp, &val);
+            data[i] = val;
         }
     }
 }

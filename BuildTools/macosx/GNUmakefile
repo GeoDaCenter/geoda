@@ -130,6 +130,8 @@ build-geoda-mac:
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libspatialite.5.dylib" "@executable_path/../Resources/plugins/libspatialite.5.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libfreexl.1.dylib" "@executable_path/../Resources/plugins/libfreexl.1.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libproj.0.dylib" "@executable_path/../Resources/plugins/libproj.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
+	install_name_tool -change "/usr/local/opt/openssl/lib/libssl.1.0.0.dylib" "@executable_path/../Resources/plugins/libssl.1.0.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib
+	install_name_tool -change "/usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib" "@executable_path/../Resources/plugins/libcrypto.1.0.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libsqlite3.0.dylib" "@executable_path/../Resources/plugins/libsqlite3.0.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libgeos_c.1.dylib" "@executable_path/../Resources/plugins/libgeos_c.1.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 
 	install_name_tool -change "$(GEODA_HOME)/libraries/lib/libgeos-3.3.8.dylib" "@executable_path/../Resources/plugins/libgeos-3.3.8.dylib" build/GeoDa.app/Contents/Resources/plugins/libgdal.20.dylib 

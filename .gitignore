@@ -5,6 +5,7 @@
 *.gal
 *.pyc
 
+.vscode/
 deps/
 
 swig/*.gwt
