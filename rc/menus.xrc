@@ -4696,6 +4696,9 @@
         <checkable>1</checkable>
       </object>
     </object>
+    <object class="wxMenuItem" name="ID_TABLE_SET_LOCALE">
+        <label>Setup Number Formatting</label>
+    </object>
     <label>Table</label>
   </object>
   <object class="wxMenu" name="ID_REPORT_VIEW_MENU_CONTEXT">
