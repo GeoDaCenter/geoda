@@ -176,9 +176,6 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     isTileReady = false;
     isTileDrawn = false;
     
-    nokia_id = "oRnRceLPyM8OFQQA5LYH";
-    nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
-    
     wxInitAllImageHandlers();
     
     GetEasyZoomLevel();
@@ -246,7 +243,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     //     basemapUrl.Replace("@2x", "");
     // }
     
-    // get a latest CartoDB account
+    // get a latest HERE account
     vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
         wxString user = nokia_user[0];

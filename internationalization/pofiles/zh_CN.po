@@ -2219,8 +2219,8 @@ msgid "Get a free GeoDa-Web account: "
 msgstr "获得免费的GeoDa-Web帐户: "
 
 #contributors:
-msgid "Get a free Nokia/HERE account: "
-msgstr "获得免费诺基亚/HERE地图帐户： "
+msgid "Get a free HERE account: "
+msgstr "获得免费HERE地图帐户： "
 
 #contributors:
 msgid "Getis-Ord"

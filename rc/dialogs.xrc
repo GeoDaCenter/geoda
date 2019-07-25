@@ -9483,7 +9483,7 @@
                               </object>
                               <object class="sizeritem">
                                   <object class="wxStaticText" name="IDC_STATIC">
-                                      <label>HERE App Key</label>
+                                      <label>HERE App Code</label>
                                   </object>
                               </object>
                               <object class="sizeritem">
@@ -9508,7 +9508,7 @@
                               </object>
                               <object class="sizeritem">
                                   <object class="wxStaticText">
-                                      <label>Get a free Nokia/HERE account: </label>
+                                      <label>Get a free HERE account: </label>
                                   </object>
                               </object>
                               <orient>wxHORIZONTAL</orient>
