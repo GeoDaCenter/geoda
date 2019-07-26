@@ -1095,7 +1095,11 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
         wxString cc_title = titles[idx];
 
         TemplateFrame* t = TemplateFrame::GetActiveFrame();
-        if (!t) return;
+        if (!t) {
+            // if there is no active map window, pop to create new map window
+            OnEmptyCustomCategoryClick(event);
+            return;
+        }
         if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
             f->OnCustomCatClassifA(cc_title);
         } else if (ConditionalMapFrame* f = dynamic_cast<ConditionalMapFrame*>(t)) {
@@ -1108,6 +1112,9 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
             f->OnCustomCatClassifA(cc_title);
         } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
             f->OnCustomCatClassifA(cc_title);
+        } else {
+            // if there is no active map window, pop to create new map window
+            OnEmptyCustomCategoryClick(event);
         }
     }
 }
