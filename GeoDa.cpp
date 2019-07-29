@@ -5481,6 +5481,8 @@ void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
     if (!t) return;
     if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
         f->OnDisplayPrecision(event);
+    } else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
     } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
         f->OnDisplayPrecision(event);
     } else if (BoxPlotFrame* f = dynamic_cast<BoxPlotFrame*>(t)) {
