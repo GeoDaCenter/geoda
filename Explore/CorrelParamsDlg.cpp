@@ -560,7 +560,7 @@ void CorrelParamsFrame::OnThreshCheckBox(wxCommandEvent& ev)
 	thresh_tctrl->Enable(checked);
 	thresh_slider->Enable(checked);
 	UpdateEstPairs();
-    
+    UpdateThreshTctrlVal();
     
     OnApplyBtn(ev);
     ev.Skip();
@@ -795,6 +795,10 @@ void CorrelParamsFrame::UpdateApplyState()
 void CorrelParamsFrame::UpdateThreshTctrlVal()
 {
 	if (!thresh_tctrl) return;
+    if (thresh_cbx->GetValue()==false) {
+        thresh_tctrl->ChangeValue("");
+        return;
+    }
 	double sf = 0.5;
 	if (thresh_slider) {
 		sf = (((double) thresh_slider->GetValue()) / ((double) sldr_tcks));
