@@ -938,9 +938,14 @@ bool OGRLayerProxy::HasError()
 
 bool OGRLayerProxy::CheckIsTableOnly()
 {
-    layer->ResetReading();
-    OGRFeature *feature = layer->GetNextFeature();
-    OGRGeometry* my_geom = feature->GetGeometryRef();
+    OGRGeometry* my_geom = NULL;
+    if (layer) {
+        layer->ResetReading();
+        OGRFeature *feature = layer->GetNextFeature();
+        if (feature) {
+            my_geom = feature->GetGeometryRef();
+        }
+    }
     return my_geom == NULL;
 }
 
