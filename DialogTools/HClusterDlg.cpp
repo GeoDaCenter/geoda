@@ -181,6 +181,10 @@ void HClusterDlg::CreateControls()
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
     combo_weights->Disable();
+
+    st17->Hide();
+    chk_contiguity->Hide();
+    combo_weights->Hide();
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
