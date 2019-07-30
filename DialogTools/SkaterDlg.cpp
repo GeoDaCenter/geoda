@@ -533,7 +533,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     }
     
     double* bound_vals = GetBoundVals();
-    /*
+
     if (bound_vals == NULL) {
         wxString str_min_regions = txt_minregions->GetValue();
         long val_min_regions;
@@ -545,7 +545,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
         for (int i=0; i<rows; i++)
             bound_vals[i] = 1;
     }
-    */
+    
 	// Get region numbers
     int n_regions = 0;
     long value_initial;
