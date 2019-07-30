@@ -889,10 +889,10 @@ useScientificNotation(_useScientificNotation)
 	if (cc_state) {
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
-        cc_data.cat_classif_type = GetClassifyType();
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
-                                                      IsAutomaticLabels());
-        cc_data.cat_classif_type = CatClassification::custom;
+        //cc_data.cat_classif_type = GetClassifyType();
+        //CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
+        //                                              IsAutomaticLabels());
+        //cc_data.cat_classif_type = CatClassification::custom;
 		InitFromCCData();
 		EnableControls(true);
         
@@ -961,14 +961,10 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         if (cc_data.cat_classif_type == CatClassification::no_theme) {
             CatClassification::CatClassifTypeToBreakValsType(cc_data.cat_classif_type);
 
-            cc_data.cat_classif_type = GetClassifyType();
+            cc_data.cat_classif_type = CatClassification::quantile;
             cc_data.break_vals_type = CatClassification::quantile_break_vals;
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                       IsAutomaticLabels());
-            cc_data.cat_classif_type = CatClassification::custom;
-            // CorrectCatClassifFromTable() will change the break_vals_type
-            // to custom_break_vals, and will impact the "Breaks" contrl
-            cc_data.break_vals_type = CatClassification::quantile_break_vals;
         } else {
             cc_data.cat_classif_type = CatClassification::custom;
             cc_data.break_vals_type = CatClassification::custom_break_vals;
@@ -1018,10 +1014,8 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    cc_data.cat_classif_type = GetClassifyType();
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    cc_data.cat_classif_type = CatClassification::custom;
 	InitFromCCData();
 	UpdateCCState();
 	EnableControls(true);
@@ -1050,10 +1044,8 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    cc_data.cat_classif_type = GetClassifyType();
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    cc_data.cat_classif_type = CatClassification::custom;
     cc_data.break_vals_type = bv_type;
     InitFromCCData();
 	UpdateCCState();
@@ -1203,10 +1195,8 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    cc_data.cat_classif_type = GetClassifyType();
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    cc_data.cat_classif_type = CatClassification::custom;
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -1221,10 +1211,8 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
     
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
-    cc_data.cat_classif_type = GetClassifyType();
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    cc_data.cat_classif_type = CatClassification::custom;
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -1345,10 +1333,8 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            cc_data.cat_classif_type = GetClassifyType();
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                           IsAutomaticLabels());
-            cc_data.cat_classif_type = CatClassification::custom;
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1399,10 +1385,8 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
             
         	// Verify that cc data is self-consistent and correct if not.  This
         	// will result in all breaks, colors and names being initialized.
-            cc_data.cat_classif_type = GetClassifyType();
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                           IsAutomaticLabels());
-            cc_data.cat_classif_type = CatClassification::custom;
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1698,7 +1682,9 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
                 
 			} else {
 				cc_data.title = new_title;
-                cc_data.cat_classif_type = CatClassification::custom;
+                // new custom breaks is set to quantile by default
+                cc_data.cat_classif_type = CatClassification::quantile;
+                cc_data.break_vals_type = CatClassification::quantile_break_vals;
 				cc_data.assoc_db_fld_name = GetAssocDbFldNm();
 				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
 				cur_cats_choice->Append(new_title);
@@ -1707,11 +1693,8 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
 
             	// Verify that cc data is self-consistent and correct if not.  This
             	// will result in all breaks, colors and names being initialized.
-                cc_data.cat_classif_type = GetClassifyType();
                 CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                               IsAutomaticLabels());
-                cc_data.cat_classif_type = CatClassification::custom;
-                cc_data.break_vals_type = CatClassification::quantile_break_vals;
 
 				InitFromCCData();
 				EnableControls(true);
