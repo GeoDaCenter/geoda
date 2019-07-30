@@ -375,7 +375,7 @@ bool Tree::checkControl(vector<int>& cand_ids, vector<int>& ids, int flag)
         }
     }
     
-    return val > control_thres;
+    return val >= control_thres;
 }
 
 pair<Tree*, Tree*> Tree::GetSubTrees()
