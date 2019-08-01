@@ -477,6 +477,10 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
                     progressDlg.Update(current_job++);
                 }
             }
+        } else {
+            // if there is no items for upgrade, raise warning message to
+            // prompt user to download GeoDa from website
+            success = false;
         }
     } catch(...) {
         // raise warning message
@@ -493,7 +497,7 @@ void AutoUpdateDlg::OnOkClick( wxCommandEvent& event )
     } else {
         // raise warning message
         wxMessageDialog msgDlg(this,
-                               _("Please check your network connection, or contact GeoDa support team."),
+                               _("Please check your network connection, or download GeoDa from https://geodacenter.github.io"),
                                _("Update GeoDa failed"),
                                wxOK |wxICON_ERROR);
         msgDlg.ShowModal();
