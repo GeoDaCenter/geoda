@@ -512,10 +512,12 @@ void Basemap::GetTiles()
     
     // if offset to left, need to zoom out
     if (map_offx < 0 && zoom > 0) {
-        zoom = zoom -1;
-        nn = pow(2.0, zoom);
-        GetTiles();
-        return;
+        if (zoom > 1) {
+            zoom = zoom -1;
+            nn = pow(2.0, zoom);
+            GetTiles();
+            return;
+        }
     }
     
     offsetX = topleft->GetXFrac() * 255 - map_offx;
@@ -697,7 +699,9 @@ XYFraction* Basemap::LatLngToRawXY(LatLng &latlng)
 {
     double lat_rad = latlng.GetLatRad();
     double x = (latlng.GetLngDeg() + 180.0 ) / 360.0 * nn;
-    double y = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
+    double tan_lat = tan(lat_rad);
+    double cos_lat = cos(lat_rad);
+    double y = (1.0 - log(tan_lat + 1.0/cos_lat) / M_PI) / 2.0 * nn;
     return new XYFraction(x, y);
 }
 
@@ -718,19 +722,14 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     if (poCT!= NULL) {
         poCT->Transform(1, &lng, &lat);
     }
-    
+    if (lat > 85.0511) lat = 85.0511;
+    if (lat < -85.0511) lat = -85.0511;
     double lat_rad = lat * M_PI / 180.0;
     double yy = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
     y = (int)(yy * 256 - topP) - offsetY;
    
     double xx = (lng + 180.0 ) / 360.0 * nn;
     x = (int)(xx * 256 - leftP) - offsetX;
-
-    if ( endX > nn) {
-        if (x <0) {
-            x = nn*256 + x;
-        }
-    }
 }
 
 wxString Basemap::GetTileUrl(int x, int y)

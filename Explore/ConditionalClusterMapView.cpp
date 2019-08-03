@@ -542,7 +542,7 @@ void ConditionalClusterMapCanvas::DrawLayer0()
 	wxSize sz = GetVirtualSize();
 	if (!layer0_bm)
         resizeLayerBms(sz.GetWidth(), sz.GetHeight());
-    
+    ResetFadedLayer();
 	wxMemoryDC dc(*layer0_bm);
     dc.SetBackground(wxBrush(canvas_background_color));
     dc.Clear();
@@ -1077,17 +1077,18 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
     // we do not allow smoothing with multiple time variables.
     cat_var_sorted.resize(num_time_vals);
     cat_var_undef.resize(num_time_vals);
-    
+    int lisa_time = lisa_coord->num_time_vals;
+    int lisa_t = 0;
     for (int t=0; t<num_time_vals; t++) {
         cat_var_sorted[t].resize(num_obs);
         cat_var_undef[t].resize(num_obs);
-        
-        int* clst = lisa_coord->GetClusterIndicators(t);
+        if (t < lisa_time-1) lisa_t = t;
+        int* clst = lisa_coord->GetClusterIndicators(lisa_t);
         for (int i=0; i<num_obs; i++) {
             cat_var_sorted[t][i].first = clst[i];
             cat_var_sorted[t][i].second = i;
             
-            cat_var_undef[t][i] = lisa_coord->undef_data[0][t][i];
+            cat_var_undef[t][i] = lisa_coord->undef_data[0][lisa_t][i];
         }
     }
     
@@ -1112,17 +1113,17 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
     // get cat_data
     int num_time = lisa_coord->num_time_vals;
     int num_obs = lisa_coord->num_obs;
-    cat_data.CreateEmptyCategories(num_time, num_obs);
-    
+    cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    lisa_t = 0;
     for (int t=0; t<num_time_vals; t++) {
         int undefined_cat = -1;
         int isolates_cat = -1;
         int num_cats = 0;
         double stop_sig = 0;
-        
-        if (lisa_coord->GetHasIsolates(t))
+        if (lisa_t < num_time -1) lisa_t = t;
+        if (lisa_coord->GetHasIsolates(lisa_t))
             num_cats++;
-        if (lisa_coord->GetHasUndefined(t))
+        if (lisa_coord->GetHasUndefined(lisa_t))
             num_cats++;
         
         num_cats += 5;
@@ -1146,13 +1147,13 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         cat_data.SetCategoryColor(t, 3, wxColour(150, 150, 255));
         cat_data.SetCategoryLabel(t, 4, "High-Low");
         cat_data.SetCategoryColor(t, 4, wxColour(255, 150, 150));
-        if (lisa_coord->GetHasIsolates(t) &&
-            lisa_coord->GetHasUndefined(t)) {
+        if (lisa_coord->GetHasIsolates(lisa_t) &&
+            lisa_coord->GetHasUndefined(lisa_t)) {
             isolates_cat = 5;
             undefined_cat = 6;
-        } else if (lisa_coord->GetHasUndefined(t)) {
+        } else if (lisa_coord->GetHasUndefined(lisa_t)) {
             undefined_cat = 5;
-        } else if (lisa_coord->GetHasIsolates(t)) {
+        } else if (lisa_coord->GetHasIsolates(lisa_t)) {
             isolates_cat = 5;
         }
         
@@ -1166,8 +1167,8 @@ void ConditionalLISAClusterMapCanvas::CreateAndUpdateCategories()
         }
         
         double cuttoff = lisa_coord->GetSignificanceCutoff();
-        double* p = lisa_coord->GetLocalSignificanceValues(t);
-        int* cluster = lisa_coord->GetClusterIndicators(t);
+        double* p = lisa_coord->GetLocalSignificanceValues(lisa_t);
+        int* cluster = lisa_coord->GetClusterIndicators(lisa_t);
         //int* sigCat = lisa_coord->sig_cat_vecs[t];
         
         for (int i=0, iend=lisa_coord->num_obs; i<iend; i++) {

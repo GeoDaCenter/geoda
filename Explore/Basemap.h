@@ -135,6 +135,8 @@ namespace Gda {
         LatLng(double _lat, double _lng) {
             lat = _lat;
             lng = _lng;
+            if (lat > 85.0511) lat = 85.0511;
+            if (lat < -85.0511) lat = -85.0511;
         }
         ~LatLng(){}
         
