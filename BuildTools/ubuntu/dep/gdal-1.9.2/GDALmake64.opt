@@ -11,7 +11,7 @@ LIBTOOL	=	$(SHELL) $(top_builddir)/libtool
 ifeq ($(HAVE_LIBTOOL),yes)
 LIBTOOL_COMPILE_CC =	$(LIBTOOL) --mode=compile --tag=CC
 LIBTOOL_COMPILE_CXX =	$(LIBTOOL) --mode=compile --tag=CXX
-LIBTOOL_LINK	=	$(LIBTOOL) --mode=link
+LIBTOOL_LINK	=	$(LIBTOOL) --mode=link --tag=LD
 LIBTOOL_INSTALL	=	$(LIBTOOL) --mode=install
 LIBTOOL_FINISH	=	$(LIBTOOL) --mode=finish --silent
 LIBTOOL_CLEAN	=	$(LIBTOOL) --mode=clean
@@ -128,7 +128,7 @@ INGRES_INC =
 # MySQL support.
 #
 HAVE_MYSQL =	yes
-MYSQL_LIB  =	/usr/lib/x86_64-linux-gnu/libmysqlclient.a  -lpthread
+MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
 MYSQL_INC  =	-I/usr/include/mysql -I$(GEODA_HOME)/dep/mysql-5.6.14/include
 LIBS	   +=	$(MYSQL_LIB)
 
@@ -279,8 +279,8 @@ HAVE_VFK = yes
 # Curl
 #
 CURL_SETTING 	=	yes
-CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz -lcares
-CURL_INC	=	-I$(GEODA_HOME)/libraries/include
+CURL_LIB	=	-L/lib/x86_64-linux-gnu -lcurl
+CURL_INC	=	-I/usr/include/curl
 
 #
 # libjson-c

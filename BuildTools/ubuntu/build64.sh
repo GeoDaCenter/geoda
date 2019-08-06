@@ -34,7 +34,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo apt-get update
     sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-openssl-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
-# for 14.10, experimenting with adding librtmp-dev, libidn11-dev and libldap-dev
+    sudo apt-get install librtmp-dev libidn11-dev libldap-dev
 fi
 
 unset ORACLE_HOME

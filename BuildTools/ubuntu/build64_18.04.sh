@@ -606,9 +606,9 @@ echo "% Building: GeoDa %"
 echo "%%%%%%%%%%%%%%%%%%%"
 {
     cd $GEODA_HOME
-    cp ../../GeoDamake.ubuntu.opt ../../GeoDamake.opt
+    cp ../../GeoDamake.ubuntu.1804.opt ../../GeoDamake.opt
     mkdir ../../o
     $MAKER
-    cp GNUmakefile1804 GNUmakefile
+    cp GNUmakefile GNUmakefile
     make app18
 }
