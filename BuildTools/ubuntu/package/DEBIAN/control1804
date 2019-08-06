@@ -1,9 +1,9 @@
 Package: geoda
-Version: 1.12-1bionic1
+Version: 1.14-1bionic1
 Architecture: amd64
 Priority: optional
 Section: graphics
-Installed-Size: 88128
+Installed-Size: 12179512
 Depends: libcurl4-openssl-dev, libgdal-dev, zlib1g, libexpat1, freeglut3, libreadline7, libgtk-3-0, libc-dev-bin, libssl1.0.0, libwebkitgtk-1.0-0
 Maintainer: Luc Anselin < anselin@uchicago.edu >
 Provides: geoda
