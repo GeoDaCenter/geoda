@@ -640,7 +640,7 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 {
 	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
-    WriteCSVT();
+    //WriteCSVT();
     EndDialog(wxID_OK);
 }
 

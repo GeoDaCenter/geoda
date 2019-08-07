@@ -396,6 +396,13 @@ void PreferenceDlg::Init()
     grid_sizer2->Add(txt25, 0, wxALIGN_RIGHT);
     txt25->Bind(wxEVT_TEXT, &PreferenceDlg::OnDisplayDecimal, this);
 
+    wxString lbl27 = _("Create CSVT when saving CSV file:");
+    wxStaticText* lbl_txt27 = new wxStaticText(gdal_page, wxID_ANY, lbl27);
+    cbox_csvt = new wxCheckBox(gdal_page, wxID_ANY, "", pos);
+    grid_sizer2->Add(lbl_txt27, 1, wxEXPAND);
+    grid_sizer2->Add(cbox_csvt, 0, wxALIGN_RIGHT);
+    cbox_csvt->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnCreateCSVT, this);
+
 	grid_sizer2->AddGrowableCol(0, 1);
 
 	wxBoxSizer *nb_box2 = new wxBoxSizer(wxVERTICAL);
@@ -432,6 +439,7 @@ void PreferenceDlg::Init()
 
 void PreferenceDlg::OnReset(wxCommandEvent& ev)
 {
+    GdaConst::gda_create_csvt = false;
     GdaConst::gda_use_gpu = false;
     GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
@@ -497,6 +505,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("gda_use_gpu", "0");
     ogr_adapt.AddEntry("gda_displayed_decimals", "6");
     ogr_adapt.AddEntry("gda_enable_set_transparency_windows", "0");
+    ogr_adapt.AddEntry("gda_create_csvt", "0");
 }
 
 void PreferenceDlg::SetupControls()
@@ -549,6 +558,8 @@ void PreferenceDlg::SetupControls()
     
     cbox_gpu->SetValue(GdaConst::gda_use_gpu);
     cbox26->SetValue(GdaConst::gda_enable_set_transparency_windows);
+
+    cbox_csvt->SetValue(GdaConst::gda_create_csvt);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -789,6 +800,18 @@ void PreferenceDlg::ReadFromCache()
             GdaConst::gda_use_gpu = true;
             else if (sel_l == 0)
             GdaConst::gda_use_gpu = false;
+        }
+    }
+
+    vector<wxString> gda_create_csvt = ogr_adapt.GetHistory("gda_create_csvt");
+    if (!gda_create_csvt.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_create_csvt[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::gda_create_csvt = true;
+            else if (sel_l == 0)
+                GdaConst::gda_create_csvt = false;
         }
     }
 
@@ -1156,5 +1179,17 @@ void PreferenceDlg::OnUseGPU(wxCommandEvent& ev)
     else {
         GdaConst::gda_use_gpu = true;
         OGRDataAdapter::GetInstance().AddEntry("gda_use_gpu", "1");
+    }
+}
+void PreferenceDlg::OnCreateCSVT(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::gda_create_csvt = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_create_csvt", "0");
+    }
+    else {
+        GdaConst::gda_create_csvt = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_create_csvt", "1");
     }
 }

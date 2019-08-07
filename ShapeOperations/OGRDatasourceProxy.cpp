@@ -364,7 +364,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 opt << cpg_encode;
                 papszLCO = CSLAddString(papszLCO, opt.c_str());
             }
-        } else if (ds_type == GdaConst::ds_csv) {
+        } else if (ds_type == GdaConst::ds_csv && GdaConst::gda_create_csvt) {
             wxString opt = "CREATE_CSVT=YES";
             papszLCO = CSLAddString(papszLCO, opt.c_str());
         }

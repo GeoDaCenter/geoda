@@ -241,6 +241,7 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static bool gda_create_csvt;
     static wxString gda_basemap_sources;
     static bool gda_use_gpu;
     static int gda_ui_language;
