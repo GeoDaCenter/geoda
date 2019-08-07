@@ -68,7 +68,7 @@ private:
     void ReadCSVT();
     void WriteCSVT();
     
-    void PrereadCSV(int HEADERS=2);
+    void PrereadCSV(int HEADERS=1);
     
     void UpdateFieldGrid();
     void UpdatePreviewGrid();

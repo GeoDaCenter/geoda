@@ -346,7 +346,7 @@ bool GdaConst::disable_crash_detect = false;
 bool GdaConst::disable_auto_upgrade = false;
 int GdaConst::plot_transparency_highlighted = 255;
 int GdaConst::plot_transparency_unhighlighted = 50;
-int GdaConst::gda_ogr_csv_header = 2;
+int GdaConst::gda_ogr_csv_header = 1;
 wxString GdaConst::gda_display_datetime_format = "";
 std::vector<wxString> GdaConst::gda_datetime_formats(10);
 wxString GdaConst::gda_datetime_formats_str =  "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p";

@@ -77,7 +77,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxString prmop_txt = _("(Optional) You can change the data type for a field:");
     wxString csvt_path = filepath + "t";
     
-    PrereadCSV();
+    PrereadCSV(HEADERS);
     
     // Create controls UI
     wxPanel* panel = new wxPanel(this);
@@ -425,7 +425,7 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
     for (int i=0; i<col_names.size(); i++) {
         wxString col_name = col_names[i];
         fieldGrid->SetCellValue(i, 0, col_name);
-        
+        fieldGrid->SetReadOnly(i, 0);
         wxString strChoices[7] = {"Real", "Integer", "Integer64","String", "Date", "Time", "DateTime"};
         int COL_T = 1;
         wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(7, strChoices, false);
