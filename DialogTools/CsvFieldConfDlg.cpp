@@ -641,6 +641,20 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
     //WriteCSVT();
+    int lon_sel = lng_box->GetSelection();
+    if (lon_sel > -1) {
+        wxString lon_name = lng_box->GetString(lon_sel);
+        if (lon_name.IsEmpty()==false) {
+            GdaConst::gda_ogr_csv_y_name = lon_name;
+        }
+    }
+    int lat_sel = lat_box->GetSelection();
+    if (lat_sel > -1) {
+        wxString lat_name = lat_box->GetString(lat_sel);
+        if (lat_name.IsEmpty()==false) {
+            GdaConst::gda_ogr_csv_x_name = lat_name;
+        }
+    }
     EndDialog(wxID_OK);
 }
 

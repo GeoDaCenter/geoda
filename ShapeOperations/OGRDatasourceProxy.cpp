@@ -66,6 +66,16 @@ OGRDatasourceProxy::OGRDatasourceProxy(wxString _ds_name, GdaConst::DataSourceTy
         } else if (GdaConst::gda_ogr_csv_header == 1) {
             papszOpenOptions = CSLAddString(papszOpenOptions, "HEADERS=YES");
         }
+        if (GdaConst::gda_ogr_csv_x_name.IsEmpty() == false) {
+            wxString opt = "X_POSSIBLE_NAMES=";
+            opt << GdaConst::gda_ogr_csv_x_name;
+            papszOpenOptions = CSLAddString(papszOpenOptions, opt.c_str());
+        }
+        if (GdaConst::gda_ogr_csv_y_name.IsEmpty() == false) {
+            wxString opt = "Y_POSSIBLE_NAMES=";
+            opt << GdaConst::gda_ogr_csv_y_name;
+            papszOpenOptions = CSLAddString(papszOpenOptions, opt.c_str());
+        }
     }
     ds = (GDALDataset*) GDALOpenEx(pszDsPath, GDAL_OF_VECTOR|GDAL_OF_UPDATE,
                                    NULL, papszOpenOptions, NULL);
