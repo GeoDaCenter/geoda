@@ -177,7 +177,8 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     isTileDrawn = false;
     
     wxInitAllImageHandlers();
-    
+    curl_global_init(CURL_GLOBAL_ALL);
+
     GetEasyZoomLevel();
     SetupMapType(basemap_item);
 }
@@ -237,7 +238,7 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
                basemapUrl.Find("JPEG") != wxNOT_FOUND) {
         imageSuffix = ".jpeg";
     } else {
-        imageSuffix = ".jpeg";
+        imageSuffix = ".png";
     }
     // if ( !hdpi ) {
     //     basemapUrl.Replace("@2x", "");
@@ -661,7 +662,8 @@ void Basemap::DownloadTile(int x, int y)
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
+                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
+				curl_easy_setopt(image, CURLOPT_TIMEOUT, 2L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
                 // Grab image
