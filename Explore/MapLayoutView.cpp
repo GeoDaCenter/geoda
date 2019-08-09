@@ -193,10 +193,10 @@ void CanvasExportSettingDialog::setTextValue(wxTextCtrl* tc, double val)
     wxString tmp;
     if (unit_choice == 0) {
         tmp = wxString::Format("%d", (int)(val) );
-        tc->SetLabel(tmp);
+        tc->ChangeValue(tmp);
     } else {
         tmp = wxString::Format("%.2f", val);
-        tc->SetLabel(tmp);
+        tc->ChangeValue(tmp);
     }
     if (tc == tc1) {
         tc1_value = val;

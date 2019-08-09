@@ -111,7 +111,7 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
 
-    vector<wxString>& select_vars;
+    vector<wxString> select_vars;
     vector<wxString> co_vals;
     vector<wxColour> co_clrs;
     vector<wxString> co_lbls;

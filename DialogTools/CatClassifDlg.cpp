@@ -1080,7 +1080,7 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
 		}
     }
-    
+    cc_data.cat_classif_type = CatClassification::custom;
 	InitFromCCData();
 	UpdateCCState();
 }
