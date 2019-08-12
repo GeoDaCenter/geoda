@@ -20,7 +20,8 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <wx/math.h>
@@ -150,7 +151,6 @@ XYFraction::XYFraction(double _x, double _y)
     yfrac = modf(_y, &yint);
 }
 
-
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
                  MapLayer* _map,
@@ -238,7 +238,14 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
                basemapUrl.Find("JPEG") != wxNOT_FOUND) {
         imageSuffix = ".jpeg";
     } else {
-        imageSuffix = ".png";
+        if (basemapUrl.Find("ArcGIS")) {
+            imageSuffix = ".jpeg";
+        } else if (basemapUrl.Find("autonavi")) {
+            imageSuffix = ".png";
+        } else {
+            imageSuffix = ".png";
+        }
+
     }
     // if ( !hdpi ) {
     //     basemapUrl.Replace("@2x", "");
@@ -637,7 +644,7 @@ void Basemap::DownloadTile(int x, int y)
     wxString filepathStr = GetTilePath(x, y);
     std::string filepath = GET_ENCODED_FILENAME(filepathStr);
 
-    if (!wxFileExists(filepathStr)) {
+    if (!wxFileExists(filepathStr) || wxFileName::GetSize(filepathStr) == 0) {
         // otherwise, download the image
         wxString urlStr = GetTileUrl(x, y);
         char* url = new char[urlStr.length() + 1];
@@ -654,16 +661,15 @@ void Basemap::DownloadTile(int x, int y)
 #else
             fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
 #endif
-            if (fp)
-            {
+            if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 2L);
-				curl_easy_setopt(image, CURLOPT_TIMEOUT, 2L);
+                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);
+				curl_easy_setopt(image, CURLOPT_TIMEOUT, 1L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
                 // Grab image
@@ -673,9 +679,7 @@ void Basemap::DownloadTile(int x, int y)
                 fclose(fp);
             }
         }
-        
         delete[] url;
-        
     }
     isTileReady = false; // notice template_canvas to draw
     //canvas->Refresh(true);
@@ -734,6 +738,42 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     x = (int)(xx * 256 - leftP) - offsetX;
 }
 
+wxString Basemap::GetRandomSubdomain(wxString url)
+{
+    unsigned int initseed = (unsigned int) time(0);
+    srand(initseed);
+
+    std::vector<wxString> domains;
+    if (url.Find("openstreetmap") != wxNOT_FOUND ||
+        url.Find("carto") != wxNOT_FOUND ||
+        url.Find("wmflabs") != wxNOT_FOUND ||
+        url.Find("fastly") != wxNOT_FOUND)
+    {
+        domains.push_back("a");
+        domains.push_back("b");
+        domains.push_back("c");
+    } else if (url.Find("here") != wxNOT_FOUND ||
+               url.Find("bdimg") != wxNOT_FOUND) {
+        domains.push_back("1");
+        domains.push_back("2");
+        domains.push_back("3");
+        domains.push_back("4");
+    } else if (url.Find("autonavi") != wxNOT_FOUND) {
+        domains.push_back("01");
+        domains.push_back("02");
+        domains.push_back("03");
+        domains.push_back("04");
+    } else {
+        return wxEmptyString;
+    }
+
+    int n_domains = domains.size();
+    int idx = rand() % n_domains;
+    if (idx < 0 || idx >= n_domains) return wxEmptyString;
+
+    return domains[idx];
+}
+
 wxString Basemap::GetTileUrl(int x, int y)
 {
     wxString url = basemapUrl;
@@ -742,6 +782,8 @@ wxString Basemap::GetTileUrl(int x, int y)
     url.Replace("{y}", wxString::Format("%d", y));
     url.Replace("HERE_APP_ID", nokia_id);
     url.Replace("HERE_APP_CODE", nokia_code);
+    url.Replace("{s}", GetRandomSubdomain(url));
+    std::cout << url.c_str() << std::endl;
     return url;
 }
 

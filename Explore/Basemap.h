@@ -333,18 +333,16 @@ namespace Gda {
         boost::thread* downloadThread;
         boost::thread* downloadThread1;
         
+        wxString GetRandomSubdomain(wxString url);
         int GetOptimalZoomLevel(double paddingFactor=1.2);
         int GetEasyZoomLevel();
-        
         void GetTiles();
         void _GetTiles(int start_x, int start_y, int end_x, int end_y);
         void _GetTiles(int x, int start_y, int end_y);
-        
         void DownloadTile(int x, int y);
-        
-        bool _HasInternet();
+
     public:
-        Basemap(){}
+        Basemap() {}
         Basemap(BasemapItem& basemap_item,
                 Screen* _screen,
                 MapLayer* _map,
