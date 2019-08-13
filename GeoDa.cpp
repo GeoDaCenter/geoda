@@ -991,12 +991,12 @@ void GdaFrame::OnClose(wxCloseEvent& event)
             msg = _("OK to Exit?");
         }
         
-        if (IsProjectOpen()) {
-            wxMessageDialog msgDlg(this, msg, title,
-                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-            // Show the message dialog, and if it returns wxID_YES...
-            if (msgDlg.ShowModal() != wxID_YES)
-                return;
+        wxMessageDialog msgDlg(this, msg, title,
+                               wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        // Show the message dialog, and if it returns wxID_YES...
+        if (msgDlg.ShowModal() != wxID_YES) {
+            event.Veto();
+            return;
         }
         
         OnCloseProject(true);
