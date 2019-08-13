@@ -370,10 +370,9 @@ wxString GdaConst::gda_basemap_sources =
 "\nStamen.Toner,https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}@2x.png"
 "\nStamen.TonerLite,https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}@2x.png"
 "\nStamen.Watercolor,https://stamen-tiles-{s}.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
-"\nOther (China).GaoDe,http://webrd{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}"
-"\nOther (China).GeoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
+"\nOther (China).GaoDe,http://webst{s}.is.autonavi.com/appmaptile?style=8&x={x}&y={y}&z={z}"
+"\nOther (China).GaoDe(Satellite),http://webst{s}.is.autonavi.com/appmaptile?style=6&x={x}&y={y}&z={z}"
 ;
-
 
 const wxString GdaConst::gda_lbl_not_sig = _("Not Significant");
 const wxString GdaConst::gda_lbl_undefined = _("Undefined");
