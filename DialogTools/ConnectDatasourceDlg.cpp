@@ -1180,7 +1180,7 @@ wxCSConv* ConnectDatasourceDlg::GetEncoding()
 {
     if (m_encodings && m_encodings->IsShown()) {
 		
-        wxFontEncoding encoding_type = wxFONTENCODING_DEFAULT;
+        wxFontEncoding encoding_type = wxFONTENCODING_SYSTEM;
         int sel = m_encodings->GetSelection();
         wxString encode_str = m_encodings->GetString(sel);
 
