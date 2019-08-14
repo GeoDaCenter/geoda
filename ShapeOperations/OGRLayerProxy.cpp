@@ -872,6 +872,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 
                 if (ds_type == GdaConst::ds_csv) {
                     for (int m=0; m<col_data.size(); m++) {
+                        undefs[m] = false; // no undefs in csv file
                         if (col_data[m].IsEmpty())
                             col_data[m] = " ";
                     }
