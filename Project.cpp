@@ -604,10 +604,12 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		// Start saving
 		int prog_n_max = 0;
 		if (table_int) prog_n_max = table_int->GetNumberRows();
+#ifndef __linux__
 		wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                                   _("Saving data..."),
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
+#endif
         OGRLayerProxy* new_layer;
         new_layer = ogr_adapter.ExportDataSource(ds_format, new_ds_name,
                                                  layername, geom_type,
@@ -621,12 +623,14 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         
         bool cont = true;
         while ( new_layer && new_layer->export_progress < prog_n_max ) {
+#ifndef __linux__
             cont = prog_dlg.Update(new_layer->export_progress);
             if ( !cont ) {
                 new_layer->stop_exporting = true;
                 ogr_adapter.CancelExport(new_layer);
                 return;
             }
+#endif
             if ( new_layer->export_progress == -1 ) {
                 wxString msg = wxString::Format(_("Save as data source (%s) failed.\n\nDetails:"),new_ds_name);
                 msg << new_layer->error_message;

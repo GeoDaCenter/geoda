@@ -613,22 +613,26 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
                                              table_p, selected_rows,
                                              spatial_ref, is_update, cpg_encode);
     if (new_layer == NULL) return false;
+#ifndef __linux__
     wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                               _("Saving data..."),
                               prog_n_max, this,
                               wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
+#endif
     bool cont = true;
     while (new_layer->export_progress < prog_n_max) {
         wxMilliSleep(100);
         if ( new_layer->stop_exporting == true )
             return false;
         // update progress bar
+#ifndef __linux__
         cont = prog_dlg.Update(new_layer->export_progress);
         if (!cont ) {
             new_layer->stop_exporting = true;
             OGRDataAdapter::GetInstance().CancelExport(new_layer);
             return false;
         }
+#endif
         if (new_layer->export_progress == -1) {
             wxString tmp = _("Saving to data source (%s) failed.\n\nDetails: %s");
             wxString msg = wxString::Format(tmp, ds_name,
