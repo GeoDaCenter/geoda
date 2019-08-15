@@ -11,7 +11,7 @@ LIBTOOL	=	$(SHELL) $(top_builddir)/libtool
 ifeq ($(HAVE_LIBTOOL),yes)
 LIBTOOL_COMPILE_CC =	$(LIBTOOL) --mode=compile --tag=CC
 LIBTOOL_COMPILE_CXX =	$(LIBTOOL) --mode=compile --tag=CXX
-LIBTOOL_LINK	=	$(LIBTOOL) --mode=link
+LIBTOOL_LINK	=	$(LIBTOOL) --mode=link --tag=LD
 LIBTOOL_INSTALL	=	$(LIBTOOL) --mode=install
 LIBTOOL_FINISH	=	$(LIBTOOL) --mode=finish --silent
 LIBTOOL_CLEAN	=	$(LIBTOOL) --mode=clean
@@ -21,9 +21,9 @@ LIBTOOL_FINISH	=	/bin/true
 OBJ_EXT = o
 endif
 
-CC	=	$(LIBTOOL_COMPILE_CC) gcc-5
-CXX	=	$(LIBTOOL_COMPILE_CXX) g++-5
-LD	=	$(LIBTOOL_LINK)	g++-5
+CC	=	$(LIBTOOL_COMPILE_CC) gcc
+CXX	=	$(LIBTOOL_COMPILE_CXX) g++
+LD	=	$(LIBTOOL_LINK)	g++
 RM	=	$(LIBTOOL_CLEAN) /bin/rm -f *.lo
 INSTALL = 	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
 INSTALL_LIB 	=	$(LIBTOOL_INSTALL) $(GDAL_ROOT)/install-sh -c
@@ -32,8 +32,8 @@ INSTALL_DIR	= 	$(GDAL_ROOT)/install-sh -d
 
 # SDE_LIB needs to be first because it embeds zlib.  We need to use its symbols instead of -lz's
 
-LIBS	=	-L/lib/x86_64-linux-gnu -lssl $(SDE_LIB) -lrtmp -L/usr/lib/x86_64-linux-gnu -lidn -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
-        $(KAK_LIBS) $(DWG_LIBS) $(CURL_LIB) \
+LIBS	=	-L/lib/x86_64-linux-gnu -lexpat -lz -lpthread -lm -lrt -ldl $(GEODA_HOME)/libraries/lib/libpq.a -L$(GEODA_HOME)/libraries/lib -lgeos -lgeos_c -lproj -lfreexl -lxerces-c -lspatialite -lsqlite3 \
+        $(KAK_LIBS) $(DWG_LIBS) $(CURL_LIB) $(SDE_LIB) \
 		$(MRSID_LIBS) $(MRSID_LIDAR_LIBS) $(INGRES_LIB) \
 		$(PCIDSK_LIB) $(RASDAMAN_LIB) $(CHARLS_LIB) \
 		$(OPENCL_LIB) $(JVM_LIB) $(LIBICONV) $(FGDB_LIB)
@@ -128,7 +128,7 @@ INGRES_INC =
 # MySQL support.
 #
 HAVE_MYSQL =	yes
-MYSQL_LIB  =	/usr/lib/x86_64-linux-gnu/libmysqlclient.a  -lpthread
+MYSQL_LIB  =	$(GEODA_HOME)/temp/mysql-5.6.14/bld/libmysql/libmysqlclient.a  -lpthread
 MYSQL_INC  =	-I/usr/include/mysql -I$(GEODA_HOME)/dep/mysql-5.6.14/include
 LIBS	   +=	$(MYSQL_LIB)
 
@@ -279,7 +279,7 @@ HAVE_VFK = yes
 # Curl
 #
 CURL_SETTING 	=	yes
-CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl -lldap -lz -lcares
+CURL_LIB	=	-L$(GEODA_HOME)/libraries/lib -lcurl
 CURL_INC	=	-I$(GEODA_HOME)/libraries/include
 
 #

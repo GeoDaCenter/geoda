@@ -604,10 +604,12 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
 		// Start saving
 		int prog_n_max = 0;
 		if (table_int) prog_n_max = table_int->GetNumberRows();
+#ifndef __linux__
 		wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                                   _("Saving data..."),
                                   prog_n_max, NULL,
                                   wxPD_CAN_ABORT|wxPD_AUTO_HIDE|wxPD_APP_MODAL);
+#endif
         OGRLayerProxy* new_layer;
         new_layer = ogr_adapter.ExportDataSource(ds_format, new_ds_name,
                                                  layername, geom_type,
@@ -621,12 +623,14 @@ void Project::SaveDataSourceAs(const wxString& new_ds_name, bool is_update)
         
         bool cont = true;
         while ( new_layer && new_layer->export_progress < prog_n_max ) {
+#ifndef __linux__
             cont = prog_dlg.Update(new_layer->export_progress);
             if ( !cont ) {
                 new_layer->stop_exporting = true;
                 ogr_adapter.CancelExport(new_layer);
                 return;
             }
+#endif
             if ( new_layer->export_progress == -1 ) {
                 wxString msg = wxString::Format(_("Save as data source (%s) failed.\n\nDetails:"),new_ds_name);
                 msg << new_layer->error_message;
@@ -1553,8 +1557,16 @@ bool Project::InitFromOgrLayer()
     OGRDataAdapter& ogr_adapter = OGRDataAdapter::GetInstance();
 	// ReadLayer() is running in a seperate thread.
 	// This gives us a chance to get its progress for a Progress window.
-	layer_proxy = ogr_adapter.T_ReadLayer(datasource_name, ds_type, layername);
-	OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
+    try {
+        layer_proxy = ogr_adapter.T_ReadLayer(datasource_name, ds_type, layername);
+    } catch (GdaException& e) {
+        // remove this datasource_proxy from cache
+        ogr_adapter.RemoveDatasourceProxy(datasource_name);
+        throw e;
+        return false;
+    }
+
+    OGRwkbGeometryType eGType = layer_proxy->GetShapeType();
     
 	if ( eGType == wkbLineString || eGType == wkbMultiLineString ) {
 		open_err_msg << _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
