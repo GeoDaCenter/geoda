@@ -228,6 +228,7 @@ public:
 	bool IsOkToDelete(const wxString& custom_cat_title);
 	void UpdateCCState();
     CatClassification::CatClassifType GetClassifyType();
+	void ChangeColorButton(wxStaticBitmap* ctrl, wxColour& sel_clr);
 
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);

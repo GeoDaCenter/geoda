@@ -289,8 +289,16 @@ void ColocationSelectDlg::OnSchemeSelect( wxCommandEvent& event)
         if (co_bitmaps[i]) {
             wxString sel_val = co_boxes[i]->GetLabel();
             wxColour sel_clr = get_a_color(sel_val);
+
+            wxBitmap clr(16,16);
+            wxMemoryDC dc;
+            dc.SelectObject(clr);
+            dc.SetBackground(sel_clr);
+            dc.Clear();
+            dc.SelectObject(wxNullBitmap);
+
             m_colors.push_back(sel_clr);
-            co_bitmaps[i]->SetBackgroundColour(sel_clr);
+            co_bitmaps[i]->SetBitmap(clr);
             co_bitmaps[i]->Refresh();
         }
     }
@@ -416,10 +424,14 @@ void ColocationSelectDlg::add_colo_control(bool is_new)
         wxCheckBox* chk = new wxCheckBox(scrl, base_choice_id+cnt, tmp);
         chk->SetValue(true);
         
-        wxBitmap clr;
         wxColour sel_clr = get_a_color(cnt);
+        wxBitmap clr(16,16);
+        wxMemoryDC dc;
+        dc.SelectObject(clr);
+        dc.SetBackground(sel_clr);
+        dc.Clear();
+        dc.SelectObject(wxNullBitmap);
         wxStaticBitmap* color_btn = new wxStaticBitmap(scrl, base_color_id+cnt, clr, wxDefaultPosition, wxSize(16,16));
-        color_btn->SetBackgroundColour(sel_clr);
         
         color_btn->Bind(wxEVT_LEFT_UP, &ColocationSelectDlg::OnClickColor, this);
         
@@ -468,7 +480,15 @@ void ColocationSelectDlg::OnClickColor( wxMouseEvent& event)
     
     wxColourData retData = dialog.GetColourData();
     wxColour sel_clr = retData.GetColour();
-    co_bitmaps[obj_id]->SetBackgroundColour(sel_clr);
+
+    wxBitmap clr(16,16);
+    wxMemoryDC dc;
+    dc.SelectObject(clr);
+    dc.SetBackground(sel_clr);
+    dc.Clear();
+    dc.SelectObject(wxNullBitmap);
+
+    co_bitmaps[obj_id]->SetBitmap(clr);
     co_bitmaps[obj_id]->Refresh();
     m_colors[obj_id] = sel_clr;
 }
