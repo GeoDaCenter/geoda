@@ -336,8 +336,8 @@ void AggregationDlg::OnOKClick( wxCommandEvent& ev )
         }
         export_dlg = new ExportDataDlg(this, mem_table);
         if (export_dlg->ShowModal() == wxID_OK) {
-            wxMessageDialog dlg(this, _("Successful aggregation."), _("Success"), wxOK);
-            dlg.ShowModal();
+            //wxMessageDialog dlg(this, _("Successful aggregation."), _("Success"), wxOK);
+            //dlg.ShowModal();
         }
         delete mem_table;
     } catch (GdaException& ex) {
