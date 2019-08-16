@@ -584,7 +584,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
                 {
                     wxLogMessage("BMP selected");
                     wxBitmap canvas_bm;
+#ifdef __linux__
+                    canvas_bm.CreateScaled(out_res_x, out_res_y, 32, 1);
+#else
                     canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+#endif
                     wxMemoryDC canvas_dc(canvas_bm);
                     canvas_dc.SetBackground(*wxWHITE_BRUSH);
                     canvas_dc.Clear();
@@ -596,7 +600,11 @@ void TemplateFrame::ExportImage(TemplateCanvas* canvas, const wxString& type)
                 {
                     wxLogMessage("PNG selected");
                     wxBitmap canvas_bm;
+#ifdef __linux__
+                    canvas_bm.CreateScaled(out_res_x, out_res_y, 32, 1);
+#else
                     canvas_bm.CreateScaled(canvas_width, canvas_height, 32, canvas_scale);
+#endif
                     wxMemoryDC canvas_dc(canvas_bm);
                     canvas_dc.SetBackground(*wxWHITE_BRUSH);
                     canvas_dc.Clear();
