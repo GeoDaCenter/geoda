@@ -1,4 +1,0 @@
-#!bin/sh
-
-chmod +x /usr/bin/run_geoda.sh
-chmod +x /usr/local/geoda/GeoDa

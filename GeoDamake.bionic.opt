@@ -30,8 +30,8 @@ EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3
 GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
 
 CPPFLAGS	=  -I$(GeoDa_ROOT) -std=c++98
-CFLAGS		=  -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
-CXXFLAGS	=  -O2 $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
+CFLAGS		=  -O0 -g -DDEBUG -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CXXFLAGS	=  -O0 -g -DDEBUG $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = 
 
 OBJ_EXT     = o

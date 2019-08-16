@@ -349,6 +349,7 @@ echo "%%%%%%%%%%%%%%%%%%%"
     if ! [ -f "$GEODA_HOME/temp/mysql-5.6.14/bld/libmysql/$LIB_CHECKER" ] ; then
         echo "HERE"
         cd $LIB_NAME
+        cp $GEODA_HOME/dep/mysql-5.6.14/CMakeLists.txt .
         mkdir -p bld
         cd bld
         cmake -DCURSES_LIBRARY=/usr/lib/libncurses.so -DCURSES_INCLUDE_PATH=/usr/include ..
@@ -632,7 +633,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=2 --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        ./configure --with-gtk=2 --disable-optimise --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
         $MAKER
         make install
         cd ..
