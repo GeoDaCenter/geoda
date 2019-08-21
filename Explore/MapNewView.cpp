@@ -964,9 +964,12 @@ void MapCanvas::DrawLayer1()
     if (layer1_bm == NULL)
         return;
     wxMemoryDC dc(*layer1_bm);
-    dc.Clear();
     if (isDrawBasemap) {
+        dc.Clear();
         dc.DrawBitmap(*basemap_bm,0,0);
+    } else {
+        dc.SetBackground(wxBrush(canvas_background_color));
+        dc.Clear();
     }
     TranslucentLayer0(dc);
     dc.SelectObject(wxNullBitmap);

@@ -174,6 +174,7 @@ void VarGroupingEditorDlg::CreateControls()
 	ungroup_button = wxDynamicCast(FindWindow(XRCID("ID_UNGROUP_BUTTON")),   wxButton);
 	
 	ungrouped_list = wxDynamicCast(FindWindow(XRCID("ID_UNGROUPED_LIST")), wxListCtrl);
+    ungrouped_list->SetBackgroundColour(*wxWHITE);
 	ungrouped_list->AppendColumn(_("Name"));
 	ungrouped_list->SetColumnWidth(0, 120);
 	ungrouped_list->AppendColumn(_("Type"));
