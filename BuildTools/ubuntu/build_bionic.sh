@@ -12,10 +12,10 @@ NODEBUG=1
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 echo "% Install prerequisit ?"
 echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-read -p "Install pre-requisites for development: cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlibg-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkit-dev libssl-dev? [y/n]" -n 1 -r
+read -p "Install pre-requisites for development: cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlibg-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-dev libssl-dev? [y/n]" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo apt install cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlib1g-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkit2gtk-dev libssl-dev
+    sudo apt install cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlib1g-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-dev libssl-dev
 fi
 
 
@@ -202,7 +202,34 @@ install_library proj-4.8.0 https://s3.us-east-2.amazonaws.com/geodabuild/proj-4.
 #########################################################################
 # install FreeXL
 #########################################################################
-install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
+#install_library freexl-1.0.0f https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz libfreexl.a
+LIB_NAME=freexl-1.0.0f
+LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/freexl-1.0.0f.tar.gz
+LIB_CHECKER=libfreexl.a
+LIB_FILENAME=$LIB_NAME.tar.gz
+echo $LIB_FILENAME
+cd $DOWNLOAD_HOME
+
+if ! [ -f "$LIB_FILENAME" ] ; then
+        curl -O $LIB_URL
+fi
+
+if ! [ -d "$LIB_NAME" ]; then
+    tar -xf $LIB_FILENAME
+fi
+
+cd $DOWNLOAD_HOME/$LIB_NAME
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    cd $LIB_NAME
+    ./configure CFLAGS="-m64" CXXFLAGS="-m64 -I$PREFIX/include" LDFLAGS="-m64 -L$PREFIX/lib -liconv -L/usr/lib/x86_64-linux-gnu" --prefix=$PREFIX  
+    $MAKER
+    make install
+fi
+
+if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
+    echo "Error! Exit"
+    exit
+fi
 
 #########################################################################
 # install SQLite
@@ -613,9 +640,9 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 # sudo apt-get install libgtk2.0-dev libglu1-mesa-dev libgl1-mesa-dev
 {
     LIB_NAME=wxWidgets-3.1.0
-    LIB_URL="https://s3.us-east-2.amazonaws.com/geodabuild/wxWidgets-3.1.0.tar.bz2"
+    LIB_URL="https://geodabuild.s3.us-east-2.amazonaws.com/wxWidgets-3.1.0.tar.bz2"
 
-    LIB_FILENAME=$(basename "$LIB_URL" ".tar")
+    LIB_FILENAME=$(basename "$LIB_URL" ".tar.bz2")
     LIB_CHECKER=wx-config
     echo $LIB_FILENAME
 
@@ -633,7 +660,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=2 --disable-optimise --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        ./configure --with-gtk=3 --disable-optimise --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
         $MAKER
         make install
         cd ..
