@@ -1059,18 +1059,6 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
     }
 }
 
-void CatClassifPanel::ChangeColorButton(wxStaticBitmap* ctrl, wxColour& sel_clr)
-{
-    wxBitmap clr(16, 16);
-    wxMemoryDC dc;
-    dc.SelectObject(clr);
-    dc.SetBackground(sel_clr);
-    dc.Clear();
-    dc.SelectObject(wxNullBitmap);
-    ctrl->SetBitmap(clr);
-    ctrl->Refresh();
-}
-
 void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 {
     wxLogMessage("CatClassifPanel::OnColorSchemeChoice");
@@ -1082,16 +1070,14 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 										cc_data.color_scheme,
 										cc_data.num_cats, false);
 		for (size_t i=0; i<cc_data.colors.size(); i++) {
-			//cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
-			ChangeColorButton(cat_color_button[i], cc_data.colors[i]);
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		}
     } else {
 		CatClassification::PickColorSet(cc_data.colors,
 										cc_data.color_scheme,
 										cc_data.num_cats, false);
 		for (size_t i=0; i<cc_data.colors.size(); i++) {
-			//cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
-			ChangeColorButton(cat_color_button[i], cc_data.colors[0]);
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
 		}
     }
     cc_data.cat_classif_type = CatClassification::custom;
@@ -1151,8 +1137,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
         }
         if (cc_data.num_cats > 1) {
             for (size_t i=0; i<new_num_cats; i++) {
-                //cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
-                ChangeColorButton(cat_color_button[i], cc_data.colors[i]);
+                cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
             }
         } else if (event.GetSelection() > 0 && color_scheme->GetSelection()==3){
             // if create more than one breaks from themeless map,
@@ -1527,8 +1512,7 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
                            &cc_data.breaks, &cc_data.colors);
     
     for (int i=0; i<cc_data.num_cats; i++) {
-        //cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
-        ChangeColorButton(cat_color_button[i], cc_data.colors[i]);
+        cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
         cat_title_txt[i]->ChangeValue(cc_data.names[i]);
     }
     
@@ -1617,8 +1601,7 @@ void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 	SetColorSchemeChoice(CatClassification::custom_color_scheme);
 	cc_data.color_scheme = CatClassification::custom_color_scheme;
 	cc_data.colors[obj_id] = retData.GetColour();
-	//cat_color_button[obj_id]->SetBackgroundColour(retData.GetColour());
-	ChangeColorButton(cat_color_button[obj_id], retData.GetColour());
+	cat_color_button[obj_id]->SetBackgroundColour(retData.GetColour());
 	UpdateCCState();
 	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
                            &cc_data.breaks, &cc_data.colors);
@@ -1914,8 +1897,7 @@ void CatClassifPanel::ResetValuesToDefault()
 									CatClassification::diverging_color_scheme,
 									default_intervals, false);
 	for (int i=0; i<default_intervals; i++) {
-		//cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
-		ChangeColorButton(cat_color_button[i], cc_data.colors[i]);
+		cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 	}
 	
 	Refresh();
@@ -1979,8 +1961,7 @@ void CatClassifPanel::InitFromCCData()
 	SetUnifDistMode(cc_data.assoc_db_fld_name.IsEmpty());
 	SetNumCats(cc_data.num_cats);
 	for (int i=0; i<cc_data.num_cats; i++) {
-		//cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
-		ChangeColorButton(cat_color_button[i], cc_data.colors[i]);
+		cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		cat_title_txt[i]->ChangeValue(cc_data.names[i]);
 		cat_title_txt[i]->SetEditable(!cc_data.automatic_labels);
 	}
