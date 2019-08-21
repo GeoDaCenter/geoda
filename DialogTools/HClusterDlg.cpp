@@ -149,8 +149,7 @@ void HClusterDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices12[] = {"Single-linkage","Ward's-linkage", "Complete-linkage","Average-linkage"};
     wxChoice* box12 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                        wxSize(120,-1), 4, choices12);
@@ -158,8 +157,7 @@ void HClusterDlg::CreateControls()
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box12, 1, wxEXPAND);
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, choices13);
     box13->SetSelection(0);
@@ -167,15 +165,13 @@ void HClusterDlg::CreateControls()
     gbox->Add(box13, 1, wxEXPAND);
 
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatial Constraint:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatial Constraint:"));
     chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(chk_contiguity, 1, wxEXPAND);
     chk_contiguity->Disable();
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, "",
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, "");
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                  wxSize(200,-1));
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -192,7 +188,7 @@ void HClusterDlg::CreateControls()
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
     
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);

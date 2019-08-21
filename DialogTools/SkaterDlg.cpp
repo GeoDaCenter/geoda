@@ -90,14 +90,13 @@ void SkaterDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
     m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
     
 	// Weights Control
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"), wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
@@ -106,14 +105,13 @@ void SkaterDlg::CreateControls()
     AddMinBound(panel, gbox);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"), wxDefaultPosition, wxSize(128,-1));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -122,8 +120,7 @@ void SkaterDlg::CreateControls()
 
     AddTransformation(panel, gbox);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -145,8 +142,7 @@ void SkaterDlg::CreateControls()
     
     // Output
     wxFlexGridSizer* gbox_out = new wxFlexGridSizer(2,2,5,0);
-    wxStaticText* st3 = new wxStaticText(panel, wxID_ANY, _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText(panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     gbox_out->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox_out->Add(m_textbox, 1, wxEXPAND);

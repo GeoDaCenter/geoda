@@ -119,15 +119,13 @@ void RedcapDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(200,-1));
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
     
-    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
     combo_method->SetSelection(2);
@@ -138,14 +136,12 @@ void RedcapDlg::CreateControls()
     // Minimum Bound Control
     AddMinBound(panel, gbox);
 
-	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"));
     m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
     
-	 wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+	 wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -155,8 +151,7 @@ void RedcapDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -177,8 +172,7 @@ void RedcapDlg::CreateControls()
     
     
     // Output
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     chk_save_mst = new wxCheckBox(panel, wxID_ANY, "Save Minimum Spanning Tree");
 

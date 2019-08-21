@@ -113,8 +113,7 @@ void SpectralClusteringDlg::CreateControls()
     AddNumberOfClusterCtrl(panel, gbox);
     
     // Spectral controls: KNN
-    lbl_knn = new wxStaticText(panel, wxID_ANY, _("Affinity with K-NN:"),
-                               wxDefaultPosition, wxSize(130,-1));
+    lbl_knn = new wxStaticText(panel, wxID_ANY, _("Affinity with K-NN:"));
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
@@ -129,8 +128,7 @@ void SpectralClusteringDlg::CreateControls()
     double suggest_sigma = sqrt(1.0/(double)num_obs);
     wxString str_sigma;
     str_sigma << suggest_sigma;
-    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("Affinity with Kernel:"),
-                                          wxDefaultPosition, wxSize(130,-1));
+    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("Affinity with Kernel:"));
     wxBoxSizer* hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_kernel = new wxCheckBox(panel, wxID_ANY, "");
     lbl_sigma = new wxStaticText(panel, wxID_ANY, _("(Gaussian) Sigma:"));
@@ -143,8 +141,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(hbox18, 1, wxEXPAND);
 
     // Weights (not enabled)
-    lbl_weights = new wxStaticText(panel, wxID_ANY, _("Use Weights:"),
-                                   wxDefaultPosition, wxSize(128,-1));
+    lbl_weights = new wxStaticText(panel, wxID_ANY, _("Use Weights:"));
     wxBoxSizer *hbox22 = new wxBoxSizer(wxHORIZONTAL);
     chk_weights = new wxCheckBox(panel, wxID_ANY, "");
     combo_weights = new wxChoice(panel, wxID_ANY);
@@ -156,8 +153,7 @@ void SpectralClusteringDlg::CreateControls()
     
     // power iteration option approximation
     wxStaticText* st15 = new wxStaticText(panel, wxID_ANY,
-                                          _("Use Power Iteration:"),
-                                          wxDefaultPosition, wxSize(134,-1));
+                                          _("Use Power Iteration:"));
     wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
     chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
     lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
@@ -182,16 +178,14 @@ void SpectralClusteringDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, "(K-Means)",
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, "(K-Means)");
     wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, "",
                                           wxDefaultPosition, wxSize(0,-1));
     gbox->Add(st20, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(st21, 1, wxEXPAND);
     
     wxStaticText* st16 = new wxStaticText(panel, wxID_ANY,
-                                          _("Initialization Method:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+                                          _("Initialization Method:"));
     wxString choices16[] = {"KMeans++", "Random"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(160,-1), 2, choices16);
@@ -202,14 +196,12 @@ void SpectralClusteringDlg::CreateControls()
 
     
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY,
-                                          _("Initialization Re-runs:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+                                          _("Initialization Re-runs:"));
     wxTextCtrl  *box10 = new wxTextCtrl(panel, wxID_ANY, "150", wxDefaultPosition, wxSize(160,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box10, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -226,8 +218,7 @@ void SpectralClusteringDlg::CreateControls()
     }
     
     wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
-                                          _("Maximum Iterations:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+                                          _("Maximum Iterations:"));
     wxTextCtrl  *box11 = new wxTextCtrl(panel, wxID_ANY, "300");
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box11, 1, wxEXPAND);
@@ -243,8 +234,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(box12, 1, wxEXPAND);
    */
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
-                                          _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+                                          _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(160,-1), 2, choices13);
@@ -260,8 +250,7 @@ void SpectralClusteringDlg::CreateControls()
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY,
-                                          _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+                                          _("Save Cluster in Field:"));
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition,
                                        wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel,
