@@ -15,7 +15,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
 read -p "Install pre-requisites for development: cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlibg-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-dev libssl-dev? [y/n]" -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    sudo apt install cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlib1g-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-dev libssl-dev
+    sudo apt install cmake curl dh-autoreconf libexpat1-dev libreadline-dev zlib1g-dev libgtk-3-dev libgl1-mesa-dev libglu1-mesa-dev libwebkitgtk-3.0-dev libssl-dev
 fi
 
 
@@ -660,7 +660,7 @@ echo "%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
         cp -rf $GEODA_HOME/dep/$LIB_NAME/* .
         chmod +x configure
         chmod +x src/stc/gen_iface.py
-        ./configure --with-gtk=3 --disable-optimise --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
+        ./configure --with-gtk=3 --disable-shared --disable-monolithic --with-opengl --enable-postscript --without-libtiff --disable-debug --enable-webview --prefix=$PREFIX
         $MAKER
         make install
         cd ..
