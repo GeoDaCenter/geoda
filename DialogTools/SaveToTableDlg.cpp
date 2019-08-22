@@ -72,10 +72,10 @@ all_init(false)
         m_check[i]->SetValue(true);
 		m_add_button[i] = new wxButton(this, ID_ADD_BUTTON, "Add Variable");
 		m_field[i] = new wxChoice(this, ID_FIELD_CHOICE, wxDefaultPosition,
-                                  wxSize(180, 20));
+                                  wxSize(180, -1));
         m_txt_field[i] = new wxTextCtrl(this, ID_FIELD_TEXT,
                                         data[i].field_default,
-                                        wxDefaultPosition, wxSize(180, 20),
+                                        wxDefaultPosition, wxSize(180, -1),
                                         wxTE_PROCESS_ENTER);
         
         m_txt_field[i]->Connect(wxEVT_COMMAND_TEXT_ENTER,
@@ -84,7 +84,7 @@ all_init(false)
         
 		if (is_space_time) {
 			m_time[i] = new wxChoice(this, ID_TIME_CHOICE, wxDefaultPosition,
-                                     wxSize(180, 20));
+                                     wxSize(180, -1));
             m_time[i]->Hide();
 		} else {
 			m_time[i] = 0;

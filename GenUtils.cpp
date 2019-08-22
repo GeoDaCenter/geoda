@@ -2142,7 +2142,7 @@ wxString GenUtils::GetUserSamplesDir()
     if (wxDirExists(webDir) == false) {
         wxFileName::Mkdir(webDir);
     }
-    return webDir;
+    return webDir + wxFileName::GetPathSeparator();
 }
 
 wxString GenUtils::GetBasemapDir()

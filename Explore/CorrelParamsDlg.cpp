@@ -52,7 +52,7 @@ help_btn(0), apply_btn(0)
 	{
 		var_txt = new wxStaticText(panel, XRCID("ID_VAR_TXT"), _("Variable:"));
 		var_choice = new wxChoice(panel, XRCID("ID_VAR_CHOICE"),
-                                  wxDefaultPosition,wxSize(80,-1));
+                                  wxDefaultPosition,wxSize(100,-1));
 		wxString var_nm = "";
 		if (var_man.GetVarsCount() > 0)
             var_nm = var_man.GetName(0);
