@@ -1002,9 +1002,10 @@ void MapCanvas::DrawLayer2()
     layer2_valid = true;
     if ( MapCanvas::has_thumbnail_saved == false) {
         if (isDrawBasemap && layerbase_valid == false) {
-            return;
+            //return;
+        } else {
+            CallAfter(&MapCanvas::SaveThumbnail);
         }
-        CallAfter(&MapCanvas::SaveThumbnail);
     }
     dc.SelectObject(wxNullBitmap);
 }
@@ -1206,14 +1207,18 @@ void MapCanvas::SaveThumbnail()
     if (MapCanvas::has_thumbnail_saved == false) {
         RecentDatasource recent_ds;
         if (layer_name == recent_ds.GetLastLayerName() &&
-            !ds_name.EndsWith("samples.sqlite") &&
+            //!ds_name.EndsWith("samples.sqlite") &&
             !ds_name.Contains("geodacenter.github.io")) {
             wxImage image = layer2_bm->ConvertToImage();
             long current_time_sec = wxGetUTCTime();
             wxString file_name;
             file_name << current_time_sec << ".png";
             wxString file_path;
+#ifdef __linux__
+            file_path << GenUtils::GetUserSamplesDir() << file_name;
+#else
             file_path << GenUtils::GetSamplesDir() << file_name;
+#endif
             bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
             if (su) {
                 recent_ds.UpdateLastThumb(file_name);

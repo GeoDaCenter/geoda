@@ -2129,6 +2129,22 @@ wxString GenUtils::GetSamplesDir()
 #endif
 }
 
+wxString GenUtils::GetUserSamplesDir()
+{
+    // this function will be only called in linux env
+    wxString confDir = wxStandardPaths::Get().GetUserConfigDir();
+    // Unix: ~ (the home directory)
+    wxString geodaUserDir = confDir + wxFileName::GetPathSeparator() + ".geoda";
+    if (wxDirExists(geodaUserDir) == false) {
+        wxFileName::Mkdir(geodaUserDir);
+    }
+    wxString webDir = geodaUserDir + wxFileName::GetPathSeparator() + "web_plugins";
+    if (wxDirExists(webDir) == false) {
+        wxFileName::Mkdir(webDir);
+    }
+    return webDir;
+}
+
 wxString GenUtils::GetBasemapDir()
 {
 #ifdef __linux__

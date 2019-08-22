@@ -31,7 +31,6 @@
 #include <wx/checkbox.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
-
 #include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <wx/artprov.h>
@@ -472,9 +471,16 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     
     wxImage img;
     if (!wxFileExists(file_path_str)) {
+#ifdef __linux__
+        file_path_str = GenUtils::GetUserSamplesDir() + ds_thumb;
+        if (!wxFileExists(file_path_str)) {
+            ds_thumb = "no_map.png";
+            file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
+        }
+#else
         ds_thumb = "no_map.png";
         file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
-        
+#endif
     }
     img.LoadFile(file_path_str);
     if (!img.IsOk()) {

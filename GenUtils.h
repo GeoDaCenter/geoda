@@ -438,6 +438,7 @@ namespace GenUtils {
 	wxString GetWebPluginsDir();
 	wxString GetResourceDir();
     wxString GetSamplesDir();
+    wxString GetUserSamplesDir();
     wxString GetBasemapDir();
     wxString GetCachePath();
     bool less_vectors(const vector<int>& a,const vector<int>& b);
