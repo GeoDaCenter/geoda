@@ -96,7 +96,7 @@ void SaveSelectionDlg::CreateControls()
    
     m_save_sel_var_name = wxDynamicCast(FindWindow(XRCID("ID_SAVE_SEL_VAR_NAME")),
                                         wxTextCtrl);
-    
+    m_save_sel_var_name->SetValue("SELECTED");
     Connect(XRCID("ID_SAVE_SEL_VAR_NAME"), wxEVT_COMMAND_TEXT_ENTER,
             wxCommandEventHandler(SaveSelectionDlg::OnApplySaveClick));
     
