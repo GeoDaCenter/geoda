@@ -670,8 +670,9 @@ void MapCanvas::OnIdle(wxIdleEvent& event)
         event.RequestMore(); // render continuously, not only once on idle
     }
     if (!layer2_valid || !layer1_valid || !layer0_valid ||
-        (isDrawBasemap && !layerbase_valid) )
+        (isDrawBasemap && basemap->IsReady()) )
     {
+        if (isDrawBasemap) basemap->SetReady(false);
         DrawLayers();
         event.RequestMore();
     }

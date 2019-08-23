@@ -26,13 +26,13 @@
 
 using namespace std;
 
-class WeightsNotValidException: public exception {
+class WeightsNotValidException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: weights file not valid";
     }
 };
 
-class WeightsMismatchObsException: public exception {
+class WeightsMismatchObsException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: mismatch obervations";
     }
@@ -41,7 +41,7 @@ public:
     int num_obs;
 };
 
-class WeightsStringKeyNotFoundException: public exception {
+class WeightsStringKeyNotFoundException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: key not found";
     }
@@ -50,7 +50,7 @@ public:
     const char* key;
 };
 
-class WeightsIntegerKeyNotFoundException: public exception {
+class WeightsIntegerKeyNotFoundException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: key not found";
     }
@@ -59,7 +59,7 @@ public:
     int key;
 };
 
-class WeightsIdNotFoundException: public exception {
+class WeightsIdNotFoundException: public std::exception {
     virtual const char* what() const throw() {
         return "weights exception: id not found";
     }

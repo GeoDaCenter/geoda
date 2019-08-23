@@ -24,6 +24,9 @@
 #include <stdlib.h>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 #include <wx/math.h>
 #include <wx/tokenzr.h>
 #include <wx/dcbuffer.h>
@@ -167,8 +170,7 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     poCT = _poCT;
     scale_factor = _scale_factor;
 
-    bDownload = false;
-    downloadThread = NULL;
+
     isPan = false;
     panX = 0;
     panY = 0;
@@ -200,12 +202,6 @@ Basemap::~Basemap() {
     if (poCT) {
         delete poCT;
         poCT = 0;
-    }
-    if (bDownload && downloadThread) {
-        bDownload = false;
-		downloadThread->join();
-        delete downloadThread;
-        downloadThread = NULL;
     }
 }
 
@@ -335,8 +331,8 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     double offsetLon = p1->lng - p0->lng;
     
     if (map->Pan(-offsetLat, -offsetLon)) {
-        isTileDrawn = false;
-        isTileReady = false;
+        //isTileDrawn = false;
+        //isTileReady = false;
         GetTiles();
     }
 }
@@ -371,8 +367,8 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     
     map->UpdateExtent(west, south, east, north);
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     GetEasyZoomLevel();
     GetTiles();
     return true;
@@ -566,21 +562,22 @@ void Basemap::GetTiles()
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
 
-    isTileReady = false;
-    isTileDrawn = false;
-    
-    if (bDownload && downloadThread) {
-        bDownload = false;
-		downloadThread->join();
-        delete downloadThread;
-        downloadThread = NULL;
-    }
-    
-    if (downloadThread == NULL) {
-        bDownload = true;
-        downloadThread = new boost::thread(boost::bind(&Basemap::_GetTiles,this, startX, startY, endX, endY));
+    SetReady(false);
+    //isTileDrawn = false;
+
+    for (int i=startX; i<=endX; i++) {
+        int start_i = i > nn ? nn - i : i;
+        for (int j=startY; j<=endY; j++) {
+            int idx_x = i < 0 ? nn + i : i;
+            int idx_y = j < 0 ? nn + j : j;
+            if (idx_x > nn)
+                idx_x = idx_x - nn;
+            pool.enqueue(boost::bind(&Basemap::DownloadTile, this, idx_x, idx_y));
+        }
     }
 
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
+    SetReady(true);
     delete topleft;
     delete bottomright;
 }
@@ -588,38 +585,6 @@ void Basemap::GetTiles()
 bool Basemap::IsReady()
 {
     return isTileReady;
-}
-
-void Basemap::_GetTiles(int start_x, int start_y, int end_x, int end_y)
-{
-    boost::thread_group threadPool;
-    for (int i=start_x; i<=end_x; i++) {
-        if (bDownload == false) {
-            return;
-        }
-        int start_i = i > nn ? nn - i : i;
-            
-        boost::thread* worker = new boost::thread(boost::bind(&Basemap::_GetTiles,this, start_i, startY, endY));
-        threadPool.add_thread(worker);
-    }
-    threadPool.join_all();
-    isTileReady = true;
-}
-
-
-void Basemap::_GetTiles(int i, int start_y, int end_y)
-{
-    for (int j=start_y; j<=end_y; j++) {
-        if (bDownload == false) {
-            return;
-        }
-        int idx_x = i < 0 ? nn + i : i;
-        int idx_y = j < 0 ? nn + j : j;
-        if (idx_x > nn)
-            idx_x = idx_x - nn;
-        wxMicroSleep(10);
-        DownloadTile(idx_x, idx_y);
-    }
 }
 
 size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
@@ -663,6 +628,7 @@ void Basemap::DownloadTile(int x, int y)
 #endif
             if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url);
+                curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
@@ -681,10 +647,16 @@ void Basemap::DownloadTile(int x, int y)
         }
         delete[] url;
     }
-    isTileReady = false; // notice template_canvas to draw
-    //canvas->Refresh(true);
+    boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
+    SetReady(true);  // notice template_canvas to draw
 }
 
+void Basemap::SetReady(bool flag)
+{
+    mutex.lock();
+    isTileReady = flag;
+    mutex.unlock();
+}
 
 LatLng* Basemap::XYToLatLng(XYFraction &xy, bool isLL)
 {
@@ -848,5 +820,5 @@ bool Basemap::Draw(wxBitmap* buffer)
 	}
     delete gc;
     isTileDrawn = true;
-    return isTileReady;
+    return true;
 }

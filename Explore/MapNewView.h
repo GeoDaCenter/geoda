@@ -307,7 +307,7 @@ protected:
     bool InitBasemap();
     virtual void DrawConnectivityGraph(wxMemoryDC &dc);
     virtual void CreateConnectivityGraph();
-
+    
 	DECLARE_EVENT_TABLE()
 };
 

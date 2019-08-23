@@ -25,13 +25,81 @@
 #include <wx/dcgraph.h>
 #include <utility>
 #include <boost/thread/thread.hpp>
+#include <boost/bind.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/thread.hpp>
+#include <boost/phoenix.hpp>
+#include <boost/optional.hpp>
 #include <iostream>
 #include <fstream>
 #include <ogr_spatialref.h>
 
 using namespace std;
+using namespace boost;
 
 namespace Gda {
+    class thread_pool
+    {
+    private:
+        mutex mx;
+        condition_variable cv;
+
+        typedef function<void()> job_t;
+        std::deque<job_t> _queue;
+
+        thread_group pool;
+
+        boost::atomic_bool shutdown;
+        static void worker_thread(thread_pool& q)
+        {
+            while (optional<job_t> job = q.dequeue())
+                (*job)();
+        }
+
+    public:
+        thread_pool() : shutdown(false) {
+            int cores = boost::thread::hardware_concurrency();
+            if (cores > 1) cores = cores -1;
+            for (unsigned i = 0; i < cores; ++i)
+                pool.create_thread(bind(worker_thread, ref(*this)));
+        }
+
+        void enqueue(job_t job)
+        {
+            lock_guard<mutex> lk(mx);
+            _queue.push_back(job);
+
+            cv.notify_one();
+        }
+
+        optional<job_t> dequeue()
+        {
+            unique_lock<mutex> lk(mx);
+            namespace phx = boost::phoenix;
+
+            cv.wait(lk, phx::ref(shutdown) || !phx::empty(phx::ref(_queue)));
+
+            if (_queue.empty())
+                return none;
+
+            job_t job = _queue.front();
+            _queue.pop_front();
+
+            return job;
+        }
+
+        ~thread_pool()
+        {
+            shutdown = true;
+            {
+                lock_guard<mutex> lk(mx);
+                cv.notify_all();
+            }
+
+            pool.join_all();
+        }
+    };
+
     /**
      * BasemapItem is for "Basemap Source Configuration" dialog
      * Each basemap source can be represented in the form of:
@@ -329,16 +397,14 @@ namespace Gda {
     // only for Web mercator projection
     class Basemap {
         int nn; // pow(2.0, zoom)
-        bool bDownload;
-        boost::thread* downloadThread;
-        boost::thread* downloadThread1;
-        
+
+        thread_pool pool;
+        boost::mutex mutex;
+
         wxString GetRandomSubdomain(wxString url);
         int GetOptimalZoomLevel(double paddingFactor=1.2);
         int GetEasyZoomLevel();
         void GetTiles();
-        void _GetTiles(int start_x, int start_y, int end_x, int end_y);
-        void _GetTiles(int x, int start_y, int end_y);
         void DownloadTile(int x, int y);
 
     public:
@@ -408,6 +474,7 @@ namespace Gda {
         void Reset();
         void Refresh();
         bool IsReady();
+        void SetReady(bool flag);
         bool IsExtentChanged();
         void SetupMapType(BasemapItem& basemap_item);
         
