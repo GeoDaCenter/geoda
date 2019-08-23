@@ -424,7 +424,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 } else {
                     ogr_type = OFTString;
                 }
-                OGRFieldDefn oField(fname, ogr_type);
+                OGRFieldDefn oField(fname.utf8_str(), ogr_type);
                 oField.SetWidth(ogr_fwidth);
                 if ( ogr_fprecision>0 ) {
                     oField.SetPrecision(ogr_fprecision);
@@ -438,7 +438,7 @@ OGRDatasourceProxy::CreateLayer(wxString layer_name,
                 int n_field = poFeatDef->GetFieldCount();
                 OGRFieldDefn *fieldDefn = poFeatDef->GetFieldDefn(n_field - 1);
                 
-                wxString ogr_field_nm = fieldDefn->GetNameRef();
+                wxString ogr_field_nm = wxString(fieldDefn->GetNameRef(), wxConvUTF8);
                 if (fname.Cmp(ogr_field_nm) != 0) {
                     table->RenameSimpleCol(id, t, ogr_field_nm);
                 }
