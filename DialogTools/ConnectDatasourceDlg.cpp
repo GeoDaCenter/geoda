@@ -1100,7 +1100,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     layername->SetFont(*GdaConst::medium_font);
     layername->SetForegroundColour(wxColour(100,100,100));
     layername->SetToolTip(ds_layername);
-    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL, 5);
+    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL | wxEXPAND, 5);
     
     wxString lbl_name = name;
     lbl_name = GenUtils::PadTrim(lbl_name, 60, false);
