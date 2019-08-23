@@ -800,6 +800,13 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
             int col_pos = table->GetColIdx(fname);
+			// check if field name can be found in current opened layer
+			if (col_pos < 0) {
+				wxString msg = wxString::Format(" Failed to create field %s.\n", fname);
+				error_message << msg << CPLGetLastErrorMsg();
+				export_progress = -1;
+				return;
+			}
             vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
                 vector<wxInt64> col_data;

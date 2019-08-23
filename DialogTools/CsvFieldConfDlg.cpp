@@ -268,7 +268,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
     for(int iField = 0; iField < nFields; iField++)
     {
         OGRFieldDefn *poFieldDefn = poFDefn->GetFieldDefn( iField );
-        wxString fieldName = poFieldDefn->GetNameRef();
+        wxString fieldName = wxString(poFieldDefn->GetNameRef(), wxConvUTF8);
         col_names.push_back(fieldName);
         
         if( poFieldDefn->GetType() == OFTInteger ) {
