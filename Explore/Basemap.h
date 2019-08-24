@@ -30,12 +30,15 @@
 #include <boost/thread.hpp>
 #include <boost/phoenix.hpp>
 #include <boost/optional.hpp>
+#include <boost/container/deque.hpp>
 #include <iostream>
 #include <fstream>
 #include <ogr_spatialref.h>
 
 using namespace std;
 using namespace boost;
+
+typedef boost::function<void()> job_t;
 
 namespace Gda {
     class thread_pool
@@ -44,10 +47,9 @@ namespace Gda {
         mutex mx;
         condition_variable cv;
 
-        typedef function<void()> job_t;
-        std::deque<job_t> _queue;
+        boost::container::deque<job_t> _queue;
 
-        thread_group pool;
+        boost::thread_group pool;
 
         boost::atomic_bool shutdown;
         static void worker_thread(thread_pool& q)
@@ -61,7 +63,7 @@ namespace Gda {
             int cores = boost::thread::hardware_concurrency();
             if (cores > 1) cores = cores -1;
             for (unsigned i = 0; i < cores; ++i)
-                pool.create_thread(bind(worker_thread, ref(*this)));
+                pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
         }
 
         void enqueue(job_t job)
