@@ -28,14 +28,18 @@
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/thread.hpp>
+#include <boost/atomic/atomic.hpp>
 #include <boost/phoenix.hpp>
 #include <boost/optional.hpp>
+#include <boost/container/deque.hpp>
 #include <iostream>
 #include <fstream>
 #include <ogr_spatialref.h>
 
 using namespace std;
 using namespace boost;
+
+typedef boost::function<void()> job_t;
 
 namespace Gda {
     class thread_pool
@@ -44,10 +48,9 @@ namespace Gda {
         mutex mx;
         condition_variable cv;
 
-        typedef function<void()> job_t;
-        std::deque<job_t> _queue;
+        boost::container::deque<job_t> _queue;
 
-        thread_group pool;
+        boost::thread_group pool;
 
         boost::atomic_bool shutdown;
         static void worker_thread(thread_pool& q)
@@ -61,7 +64,7 @@ namespace Gda {
             int cores = boost::thread::hardware_concurrency();
             if (cores > 1) cores = cores -1;
             for (unsigned i = 0; i < cores; ++i)
-                pool.create_thread(bind(worker_thread, ref(*this)));
+                pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
         }
 
         void enqueue(job_t job)
@@ -384,11 +387,13 @@ namespace Gda {
             east = other->east;
             poCT = NULL;
             poCT_rev = NULL;
-            if (other->poCT) {
-                poCT = OGRCreateCoordinateTransformation(other->poCT->GetSourceCS(), other->poCT->GetTargetCS());
-            }
-            if (other->poCT_rev) {
-                poCT_rev = OGRCreateCoordinateTransformation(other->poCT_rev->GetSourceCS(), other->poCT_rev->GetTargetCS());
+            if (other) {
+                if (other->poCT) {
+                    poCT = OGRCreateCoordinateTransformation(other->poCT->GetSourceCS(), other->poCT->GetTargetCS());
+                }
+                if (other->poCT_rev) {
+                    poCT_rev = OGRCreateCoordinateTransformation(other->poCT_rev->GetSourceCS(), other->poCT_rev->GetTargetCS());
+                }
             }
             return this;
         }
@@ -400,6 +405,10 @@ namespace Gda {
 
         thread_pool pool;
         boost::mutex mutex;
+
+        bool start_download;
+        int n_tasks;
+        int complete_tasks;
 
         wxString GetRandomSubdomain(wxString url);
         int GetOptimalZoomLevel(double paddingFactor=1.2);
@@ -473,7 +482,7 @@ namespace Gda {
         void Reset(int map_type);
         void Reset();
         void Refresh();
-        bool IsReady();
+        bool IsDownloading();
         void SetReady(bool flag);
         bool IsExtentChanged();
         void SetupMapType(BasemapItem& basemap_item);

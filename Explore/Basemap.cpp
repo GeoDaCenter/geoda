@@ -174,7 +174,10 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     isPan = false;
     panX = 0;
     panY = 0;
-    
+
+    start_download = false;
+    n_tasks = 0;
+    complete_tasks = 0;
     isTileReady = false;
     isTileDrawn = false;
     
@@ -562,11 +565,14 @@ void Basemap::GetTiles()
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
 
-    SetReady(false);
+    //SetReady(true);
     //isTileDrawn = false;
 
+    start_download = true;
+    n_tasks = (endX - startX + 1) * (endY - startY + 1);
+    complete_tasks = 0;
+
     for (int i=startX; i<=endX; i++) {
-        int start_i = i > nn ? nn - i : i;
         for (int j=startY; j<=endY; j++) {
             int idx_x = i < 0 ? nn + i : i;
             int idx_y = j < 0 ? nn + j : j;
@@ -576,15 +582,13 @@ void Basemap::GetTiles()
         }
     }
 
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-    SetReady(true);
     delete topleft;
     delete bottomright;
 }
 
-bool Basemap::IsReady()
+bool Basemap::IsDownloading()
 {
-    return isTileReady;
+    return start_download;
 }
 
 size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
@@ -640,15 +644,18 @@ void Basemap::DownloadTile(int x, int y)
             
                 // Grab image
                 imgResult = curl_easy_perform(image);
-           
-                curl_easy_cleanup(image);
+                if (imgResult == CURLE_OK) {
+                    curl_easy_cleanup(image);
+                }
                 fclose(fp);
             }
         }
         delete[] url;
     }
-    boost::this_thread::sleep_for(boost::chrono::milliseconds(10));
-    SetReady(true);  // notice template_canvas to draw
+
+    mutex.lock();
+    complete_tasks += 1;
+    mutex.unlock();
 }
 
 void Basemap::SetReady(bool flag)
@@ -781,6 +788,11 @@ wxString Basemap::GetTilePath(int x, int y)
 
 bool Basemap::Draw(wxBitmap* buffer)
 {
+    bool draw_complete = false;
+    if (n_tasks > 0 && n_tasks <= complete_tasks) {
+        draw_complete = true;
+        complete_tasks = 0;
+    }
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
 	dc.SetBackground(*wxWHITE);
@@ -819,6 +831,5 @@ bool Basemap::Draw(wxBitmap* buffer)
 		}
 	}
     delete gc;
-    isTileDrawn = true;
-    return true;
+    return draw_complete;
 }
