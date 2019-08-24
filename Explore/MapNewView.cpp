@@ -831,9 +831,9 @@ void MapCanvas::SetNoBasemap()
     }
     layerbase_valid = false;
     layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    ReDraw();
+    //layer1_valid = false;
+    //layer2_valid = false;
+    //ReDraw();
 }
 
 bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
@@ -861,10 +861,10 @@ bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
         }
     }
     layerbase_valid = false;
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    ReDraw();
+    //layer0_valid = false;
+    //layer1_valid = false;
+    //layer2_valid = false;
+    //ReDraw();
     return true;
 }
 
