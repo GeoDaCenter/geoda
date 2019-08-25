@@ -513,7 +513,7 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 bool ScrolledWidgetsPane::IsFieldNameValid(const wxString& col_name)
 {
     wxLogMessage("ScrolledWidgetsPane::IsFieldNameValid");
-    wxLogMessage(col_name);
+    //wxLogMessage(col_name);
     
 	if ( GdaConst::datasrc_field_lens.find(ds_type) ==
 			GdaConst::datasrc_field_lens.end() )

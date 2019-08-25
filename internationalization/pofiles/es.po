@@ -2219,8 +2219,8 @@ msgid "Get a free GeoDa-Web account: "
 msgstr "Obtener una cuenta de GeoDa-Web gratis"
 
 #contributors:
-msgid "Get a free Nokia/HERE account: "
-msgstr "Obtener una cuenta gratis de Nokia/HERE"
+msgid "Get a free HERE account: "
+msgstr "Obtener una cuenta gratis de HERE"
 
 #contributors:
 msgid "Getis-Ord"

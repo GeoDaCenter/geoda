@@ -831,9 +831,9 @@ void MapCanvas::SetNoBasemap()
     }
     layerbase_valid = false;
     layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    ReDraw();
+    //layer1_valid = false;
+    //layer2_valid = false;
+    //ReDraw();
 }
 
 bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
@@ -850,6 +850,7 @@ bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
             return false;
         } else {
             basemap->SetupMapType(basemap_item);
+            ResizeSelectableShps();
         }
     } else {
         if ( basemap ) {
@@ -861,10 +862,10 @@ bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
         }
     }
     layerbase_valid = false;
-    layer0_valid = false;
-    layer1_valid = false;
-    layer2_valid = false;
-    ReDraw();
+    //layer0_valid = false;
+    //layer1_valid = false;
+    //layer2_valid = false;
+    //ReDraw();
     return true;
 }
 
@@ -964,9 +965,12 @@ void MapCanvas::DrawLayer1()
     if (layer1_bm == NULL)
         return;
     wxMemoryDC dc(*layer1_bm);
-    dc.Clear();
     if (isDrawBasemap) {
+        dc.Clear();
         dc.DrawBitmap(*basemap_bm,0,0);
+    } else {
+        dc.SetBackground(wxBrush(canvas_background_color));
+        dc.Clear();
     }
     TranslucentLayer0(dc);
     dc.SelectObject(wxNullBitmap);
@@ -999,9 +1003,10 @@ void MapCanvas::DrawLayer2()
     layer2_valid = true;
     if ( MapCanvas::has_thumbnail_saved == false) {
         if (isDrawBasemap && layerbase_valid == false) {
-            return;
+            //return;
+        } else {
+            CallAfter(&MapCanvas::SaveThumbnail);
         }
-        CallAfter(&MapCanvas::SaveThumbnail);
     }
     dc.SelectObject(wxNullBitmap);
 }
@@ -1203,14 +1208,18 @@ void MapCanvas::SaveThumbnail()
     if (MapCanvas::has_thumbnail_saved == false) {
         RecentDatasource recent_ds;
         if (layer_name == recent_ds.GetLastLayerName() &&
-            !ds_name.EndsWith("samples.sqlite") &&
+            //!ds_name.EndsWith("samples.sqlite") &&
             !ds_name.Contains("geodacenter.github.io")) {
             wxImage image = layer2_bm->ConvertToImage();
             long current_time_sec = wxGetUTCTime();
             wxString file_name;
             file_name << current_time_sec << ".png";
             wxString file_path;
+#ifdef __linux__
+            file_path << GenUtils::GetUserSamplesDir() << file_name;
+#else
             file_path << GenUtils::GetSamplesDir() << file_name;
+#endif
             bool su = image.SaveFile(file_path, wxBITMAP_TYPE_PNG );
             if (su) {
                 recent_ds.UpdateLastThumb(file_name);
@@ -1412,7 +1421,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
     layer1_dc.Clear();
     if (isDrawBasemap) {
         wxImage im = basemap_bm->ConvertToImage();
-#if defined(__WIN32__) || defined(__linux__)
+#if defined(__WIN32__)
         im.Rescale(w*basemap_scale, h*basemap_scale, wxIMAGE_QUALITY_HIGH);
 #endif
         layer1_dc.DrawBitmap(im, 0, 0);

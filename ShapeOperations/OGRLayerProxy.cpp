@@ -800,6 +800,13 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)
             int col_pos = table->GetColIdx(fname);
+			// check if field name can be found in current opened layer
+			if (col_pos < 0) {
+				wxString msg = wxString::Format(" Failed to create field %s.\n", fname);
+				error_message << msg << CPLGetLastErrorMsg();
+				export_progress = -1;
+				return;
+			}
             vector<bool> undefs;
             if ( ftype == GdaConst::long64_type) {
                 vector<wxInt64> col_data;
@@ -872,6 +879,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 
                 if (ds_type == GdaConst::ds_csv) {
                     for (int m=0; m<col_data.size(); m++) {
+                        undefs[m] = false; // no undefs in csv file
                         if (col_data[m].IsEmpty())
                             col_data[m] = " ";
                     }
@@ -938,9 +946,14 @@ bool OGRLayerProxy::HasError()
 
 bool OGRLayerProxy::CheckIsTableOnly()
 {
-    layer->ResetReading();
-    OGRFeature *feature = layer->GetNextFeature();
-    OGRGeometry* my_geom = feature->GetGeometryRef();
+    OGRGeometry* my_geom = NULL;
+    if (layer) {
+        layer->ResetReading();
+        OGRFeature *feature = layer->GetNextFeature();
+        if (feature) {
+            my_geom = feature->GetGeometryRef();
+        }
+    }
     return my_geom == NULL;
 }
 

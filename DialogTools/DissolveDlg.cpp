@@ -344,9 +344,9 @@ void DissolveDlg::OnOKClick( wxCommandEvent& ev )
         export_dlg = new ExportDataDlg(this, shp_type, geoms, spatial_ref,
                                        mem_table);
         if (export_dlg->ShowModal() == wxID_OK) {
-            wxMessageDialog dlg(this, _("Successful aggregation."),
-                                _("Success"), wxOK);
-            dlg.ShowModal();
+            //wxMessageDialog dlg(this, _("Successful aggregation."),
+            //                    _("Success"), wxOK);
+            //dlg.ShowModal();
         }
         delete mem_table;
     } catch (GdaException& ex) {

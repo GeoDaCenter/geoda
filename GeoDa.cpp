@@ -991,12 +991,12 @@ void GdaFrame::OnClose(wxCloseEvent& event)
             msg = _("OK to Exit?");
         }
         
-        if (IsProjectOpen()) {
-            wxMessageDialog msgDlg(this, msg, title,
-                                   wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
-            // Show the message dialog, and if it returns wxID_YES...
-            if (msgDlg.ShowModal() != wxID_YES)
-                return;
+        wxMessageDialog msgDlg(this, msg, title,
+                               wxYES_NO | wxNO_DEFAULT | wxICON_QUESTION);
+        // Show the message dialog, and if it returns wxID_YES...
+        if (msgDlg.ShowModal() != wxID_YES) {
+            event.Veto();
+            return;
         }
         
         OnCloseProject(true);
@@ -1095,7 +1095,11 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
         wxString cc_title = titles[idx];
 
         TemplateFrame* t = TemplateFrame::GetActiveFrame();
-        if (!t) return;
+        if (!t) {
+            // if there is no active map window, pop to create new map window
+            OnEmptyCustomCategoryClick(event);
+            return;
+        }
         if (CartogramNewFrame* f = dynamic_cast<CartogramNewFrame*>(t)) {
             f->OnCustomCatClassifA(cc_title);
         } else if (ConditionalMapFrame* f = dynamic_cast<ConditionalMapFrame*>(t)) {
@@ -1108,6 +1112,9 @@ void GdaFrame::OnCustomCategoryClick(wxCommandEvent& event)
             f->OnCustomCatClassifA(cc_title);
         } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
             f->OnCustomCatClassifA(cc_title);
+        } else {
+            // if there is no active map window, pop to create new map window
+            OnEmptyCustomCategoryClick(event);
         }
     }
 }
@@ -5473,6 +5480,8 @@ void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
     TemplateFrame* t = TemplateFrame::GetActiveFrame();
     if (!t) return;
     if (PCPFrame* f = dynamic_cast<PCPFrame*>(t)) {
+        f->OnDisplayPrecision(event);
+    } else if (LisaScatterPlotFrame* f = dynamic_cast<LisaScatterPlotFrame*>(t)) {
         f->OnDisplayPrecision(event);
     } else if (ScatterNewPlotFrame* f = dynamic_cast<ScatterNewPlotFrame*>(t)) {
         f->OnDisplayPrecision(event);

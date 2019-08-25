@@ -85,7 +85,8 @@ public:
 	static const double default_max;
 
 	void ChangeAll(Gda::dbl_int_pair_vec_type* new_data,
-				   std::vector<double>* new_breaks,
+                   CatClassification::BreakValsType new_break_type,
+                   std::vector<double>* new_breaks,
 				   std::vector<wxColour>* new_colors);
 	static void InitRandNormData(Gda::dbl_int_pair_vec_type& rn_data);
 	static void InitUniformData(Gda::dbl_int_pair_vec_type& data,
@@ -94,7 +95,7 @@ public:
 protected:
 
     Project* project;
-    
+    CatClassification::BreakValsType break_type;
 	int num_obs;
 	Gda::dbl_int_pair_vec_type* data;
 	Gda::dbl_int_pair_vec_type default_data;
@@ -226,7 +227,9 @@ public:
 	
 	bool IsOkToDelete(const wxString& custom_cat_title);
 	void UpdateCCState();
-	
+    CatClassification::CatClassifType GetClassifyType();
+	void ChangeColorButton(wxStaticBitmap* ctrl, wxColour& sel_clr);
+
 	/** Implementation of TableStateObserver interface */
 	virtual void update(TableState* o);
 	virtual bool AllowTimelineChanges() { return true; }

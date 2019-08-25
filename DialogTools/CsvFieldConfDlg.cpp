@@ -77,7 +77,7 @@ CsvFieldConfDlg::CsvFieldConfDlg(wxWindow* parent,
     wxString prmop_txt = _("(Optional) You can change the data type for a field:");
     wxString csvt_path = filepath + "t";
     
-    PrereadCSV();
+    PrereadCSV(HEADERS);
     
     // Create controls UI
     wxPanel* panel = new wxPanel(this);
@@ -268,7 +268,7 @@ void CsvFieldConfDlg::PrereadCSV(int HEADERS)
     for(int iField = 0; iField < nFields; iField++)
     {
         OGRFieldDefn *poFieldDefn = poFDefn->GetFieldDefn( iField );
-        wxString fieldName = poFieldDefn->GetNameRef();
+        wxString fieldName = wxString(poFieldDefn->GetNameRef(), wxConvUTF8);
         col_names.push_back(fieldName);
         
         if( poFieldDefn->GetType() == OFTInteger ) {
@@ -425,7 +425,7 @@ void CsvFieldConfDlg::UpdateFieldGrid( )
     for (int i=0; i<col_names.size(); i++) {
         wxString col_name = col_names[i];
         fieldGrid->SetCellValue(i, 0, col_name);
-        
+        fieldGrid->SetReadOnly(i, 0);
         wxString strChoices[7] = {"Real", "Integer", "Integer64","String", "Date", "Time", "DateTime"};
         int COL_T = 1;
         wxGridCellChoiceEditor* m_editor = new wxGridCellChoiceEditor(7, strChoices, false);
@@ -640,7 +640,21 @@ void CsvFieldConfDlg::OnOkClick( wxCommandEvent& event )
 {
 	wxLogMessage("CsvFieldConfDlg::OnOkClick()");
    
-    WriteCSVT();
+    //WriteCSVT();
+    int lon_sel = lng_box->GetSelection();
+    if (lon_sel > -1) {
+        wxString lon_name = lng_box->GetString(lon_sel);
+        if (lon_name.IsEmpty()==false) {
+            GdaConst::gda_ogr_csv_y_name = lon_name;
+        }
+    }
+    int lat_sel = lat_box->GetSelection();
+    if (lat_sel > -1) {
+        wxString lat_name = lat_box->GetString(lat_sel);
+        if (lat_name.IsEmpty()==false) {
+            GdaConst::gda_ogr_csv_x_name = lat_name;
+        }
+    }
     EndDialog(wxID_OK);
 }
 

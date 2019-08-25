@@ -214,8 +214,7 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                              bool integer_only)
 {
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL,
@@ -233,8 +232,7 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                        bool show_auto_button)
 {
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL,
@@ -251,8 +249,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
     hbox_c->Add(m_use_centroids, 0);
     hbox_c->Add(auto_btn, 0);
     
-    wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"),
-                                            wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st_wc = new wxStaticText (panel, wxID_ANY, _("Weighting:"));
     wxStaticText* st_w0 = new wxStaticText (panel, wxID_ANY, "0");
     wxStaticText* st_w1 = new wxStaticText (panel, wxID_ANY, "1");
     m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100,
@@ -451,12 +448,11 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
 {
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"));
     const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)",
         "Standardize (MAD)"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(120,-1), 4, _transform);
+                                  wxSize(140,-1), 4, _transform);
     combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);
@@ -466,9 +462,7 @@ void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
                                                 wxFlexGridSizer* gbox,
                                                 bool allow_dropdown)
 {
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY,
-                                         _("Number of Clusters:"),
-                                         wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
     combo_n = new wxComboBox(panel, wxID_ANY, wxEmptyString, wxDefaultPosition,
                              wxSize(200,-1), 0, NULL);
     max_n_clusters = num_obs < 100 ? num_obs : 100;
@@ -484,8 +478,7 @@ void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
 void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox,
                                      bool show_checkbox)
 {
-    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"),
-                                        wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st = new wxStaticText(panel, wxID_ANY, _("Minimum Bound:"));
     
     wxBoxSizer *hbox0 = new wxBoxSizer(wxHORIZONTAL);
     chk_floor = new wxCheckBox(panel, wxID_ANY, "");

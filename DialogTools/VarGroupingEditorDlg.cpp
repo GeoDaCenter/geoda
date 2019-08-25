@@ -48,7 +48,6 @@
 
 BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 	EVT_CLOSE( VarGroupingEditorDlg::OnClose )
-
     EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_TABLE"),
 			   VarGroupingEditorDlg::OnSaveSpaceTimeTableClick )
     EVT_BUTTON( XRCID("ID_CREATE_GRP_BUTTON"),
@@ -84,10 +83,8 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
                         VarGroupingEditorDlg::OnIncludeListEditEnd)
     EVT_LIST_COL_CLICK(XRCID("ID_INCLUDE_LIST"),
                        VarGroupingEditorDlg::OnIncludeListColClick)
-
 	EVT_LISTBOX( XRCID("ID_GROUPED_LIST"),
 				VarGroupingEditorDlg::OnGroupedListSelection )
-
 	EVT_TEXT( XRCID("ID_NEW_GROUP_NAME_TXT_CTRL"),
 			 VarGroupingEditorDlg::OnNewGroupNameChange )
 	EVT_BUTTON( XRCID("ID_UNGROUPED_VARS_HELP"),
@@ -98,7 +95,6 @@ BEGIN_EVENT_TABLE( VarGroupingEditorDlg, wxDialog )
 			   VarGroupingEditorDlg::OnCurGroupedHelp )
 	EVT_BUTTON( XRCID("ID_SAVE_SPACETIME_HELP"),
 			   VarGroupingEditorDlg::OnSaveSTHelp )
-
     EVT_BUTTON( XRCID("ID_TIME_LOAD_FROM_GDA"),
            VarGroupingEditorDlg::OnLoadFromGda )
 END_EVENT_TABLE()
@@ -124,7 +120,6 @@ export_dlg(NULL), mem_table_int(NULL)
 	SetPosition(pos);
 	SetTitle(title);
     Centre();
-	
 	frames_manager->registerObserver(this);
 	table_state->registerObserver(this);
 	all_init = true;
@@ -195,6 +190,8 @@ void VarGroupingEditorDlg::CreateControls()
     include_list->Bind(wxEVT_LEFT_DCLICK, &VarGroupingEditorDlg::OnIncludeListDblClicked, this);
     include_list->Bind(wxEVT_RIGHT_UP, &VarGroupingEditorDlg::OnIncludeListRightUp, this);
     include_list->Bind(wxEVT_RIGHT_DOWN, &VarGroupingEditorDlg::OnIncludeListRightDown, this);
+
+    this->SetBackgroundColour(*wxWHITE);
 
 }
 

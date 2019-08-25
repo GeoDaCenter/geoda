@@ -1591,7 +1591,7 @@ msgstr ""
 msgid "What windows to open?"
 msgstr ""
 
-msgid "Get a free Nokia/HERE account: "
+msgid "Get a free HERE account: "
 msgstr ""
 
 msgid "&Merge"
@@ -1639,7 +1639,7 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-msgid "Nokia/HERE App Key"
+msgid "HERE App Key"
 msgstr ""
 
 msgid "1 Iteration"

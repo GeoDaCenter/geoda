@@ -727,7 +727,7 @@ void TemplateFrame::OnLegendBackgroundColor(wxCommandEvent& event)
     if (dialog.ShowModal() == wxID_OK) {
         wxColourData retData = dialog.GetColourData();
         col = retData.GetColour();
-        template_legend->SetBackgroundColour(col);
+        template_legend->legend_background_color = col;
         template_legend->Refresh();
     }
     UpdateOptionMenuItems();

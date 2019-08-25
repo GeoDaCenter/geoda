@@ -498,16 +498,16 @@ void LisaScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     layer2_valid = false;
 }
 
-void LisaScatterPlotCanvas::SetAxisDisplayPrecision(int n)
+void LisaScatterPlotCanvas::SetAxisDisplayPrecision(int n, bool fixed_point)
 {
     isResize = true;
-    TemplateCanvas::SetAxisDisplayPrecision(n);
+    TemplateCanvas::SetAxisDisplayPrecision(n, fixed_point);
 }
 
-void LisaScatterPlotCanvas::SetDisplayPrecision(int prec)
+void LisaScatterPlotCanvas::SetDisplayPrecision(int prec, bool fixed_point)
 {
     isResize = true;
-    TemplateCanvas::SetDisplayPrecision(prec);
+    TemplateCanvas::SetDisplayPrecision(prec, fixed_point);
 }
 
 void LisaScatterPlotCanvas::PopulateCanvas()

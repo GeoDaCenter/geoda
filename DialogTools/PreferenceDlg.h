@@ -113,6 +113,8 @@ protected:
     wxCheckBox* cbox_gpu;
     // transp
     wxCheckBox* cbox26;
+    // csvt
+    wxCheckBox* cbox_csvt;
     
     void Init();
     void SetupControls();    
@@ -144,7 +146,7 @@ protected:
    
     void OnPowerEpsEnter(wxCommandEvent& ev);
     void OnUseGPU(wxCommandEvent& ev);
-    
+    void OnCreateCSVT(wxCommandEvent& ev);
     void OnEnableTransparencyWin(wxCommandEvent& ev);
     
     void OnReset(wxCommandEvent& ev);

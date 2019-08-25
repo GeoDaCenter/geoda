@@ -130,8 +130,7 @@ void HDBScanDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
-    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min cluster size:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min cluster size:"));
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
     wxString valid_chars(".0123456789");
@@ -144,20 +143,17 @@ void HDBScanDlg::CreateControls()
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minpts, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"));
     m_minsamples = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
     
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"),
-                                          wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"));
     m_ctl_alpha = new wxTextCtrl(panel, wxID_ANY, "1.0", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_ctl_alpha, 1, wxEXPAND);
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of selecting clusters:"),
-                                          wxDefaultPosition, wxSize(180,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of selecting clusters:"));
     wxString choices16[] = {"Excess of Mass", "Leaf"};
     m_select_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(138,-1), 2, choices16);
     m_select_method->SetSelection(0);
@@ -165,8 +161,7 @@ void HDBScanDlg::CreateControls()
     gbox->Add(m_select_method, 1, wxEXPAND);
     
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a single cluster:"),
-                                          wxDefaultPosition, wxSize(138,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a single cluster:"));
     chk_allowsinglecluster = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(chk_allowsinglecluster, 1, wxEXPAND);
@@ -174,8 +169,7 @@ void HDBScanDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     wxChoice* box13 = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, choices13);
     box13->SetSelection(0);
@@ -199,7 +193,7 @@ void HDBScanDlg::CreateControls()
     gbox1->Add(m_cluster, 1, wxEXPAND);
      */
     
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"), wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(box3, 1, wxALIGN_CENTER_VERTICAL);

@@ -1334,7 +1334,7 @@ wxString VariableSettingsDlg::FillData()
 		v3_name = table_int->GetColName(v3_col_id);
 		col_ids[2] = v3_col_id;
 		var_info[2].time = v3_time;
-       
+		var_info[2].is_hide = false;
         if (emptyVar.empty() && CheckEmptyColumn(v3_col_id, v3_time)) {
             emptyVar =  v3_name;
         }
@@ -1347,7 +1347,7 @@ wxString VariableSettingsDlg::FillData()
 		v4_name = table_int->GetColName(v4_col_id);
 		col_ids[3] = v4_col_id;
 		var_info[3].time = v4_time;
-        
+        var_info[3].is_hide = false;
         if (emptyVar.empty() && CheckEmptyColumn(v4_col_id, v4_time)) {
             emptyVar =  v4_name;
         }

@@ -310,6 +310,10 @@ void WeightsManFrame::OnIntersectionBtn(wxCommandEvent& ev)
         GalWeight* new_w = WeightUtils::WeightsIntersection(ws);
         SaveGalWeightsFile(new_w);
         delete new_w;
+    } else {
+        wxString msg = _("Selected weights are not valid for intersection, e.g. weights have different ID variable. Please select different weights.");
+        wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
     }
 }
 
@@ -321,6 +325,10 @@ void WeightsManFrame::OnUnionBtn(wxCommandEvent& ev)
         GalWeight* new_w = WeightUtils::WeightsUnion(ws);
         SaveGalWeightsFile(new_w);
         delete new_w;
+    } else {
+        wxString msg = _("Selected weights are not valid for union, e.g. weights have different ID variable. Please select different weights.");
+        wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_INFORMATION);
+        dlg.ShowModal();
     }
 }
 

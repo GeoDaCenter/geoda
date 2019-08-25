@@ -124,7 +124,7 @@ TableFrame::TableFrame(wxFrame *parent, Project* project,
         grid->SetColMinimalWidth(i, cur_lbl_len * pw + 8);
         // attempt to scale up col width based on cur_col_size
         //double fac = 1.2;
-        grid->SetColSize(i, max_cell_len * pw);
+        grid->SetColSize(i, max_cell_len * 8);
 	}
     grid->ForceRefresh();
 

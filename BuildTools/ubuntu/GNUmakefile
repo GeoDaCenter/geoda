@@ -6,7 +6,7 @@ include ../../GeoDamake.opt
 
 GeoDa_OBJ = $(wildcard $(GeoDa_ROOT)/o/*.o)
 
-default:	compile-geoda 
+default:	compile-geoda
 
 app:  build-geoda
 
@@ -90,14 +90,14 @@ build-geoda:
 	cp $(GEODA_HOME)/libraries/lib/libspatialite.so.5.0.1 build/plugins/libspatialite.so.5
 	cp $(GEODA_HOME)/libraries/lib/libfreexl.so.1.0.0 build/plugins/libfreexl.so.1
 	cp $(GEODA_HOME)/libraries/lib/libproj.so.0.7.0 build/plugins/libproj.so.0
-	cp $(GEODA_HOME)/libraries/lib/libgeos_c.so.1.7.8 build/plugins/libgeos_c.so.1
+	cp $(GEODA_HOME)/libraries/lib/libgeos_c.so.1.10.2 build/plugins/libgeos_c.so.1
 	cp $(GEODA_HOME)/libraries/lib/libsqlite3.so.0.8.6 build/plugins/libsqlite3.so.0
 	cp $(GEODA_HOME)/libraries/lib/libiconv.so.2.5.0 build/plugins/libiconv.so.2
 	chmod +x build/plugins/libiconv.so.2
 	cp $(GEODA_HOME)/libraries/lib/libminizip.so.0.0.0 build/plugins/libminizip.so.0
 	cp $(GEODA_HOME)/libraries/lib/liburiparser.so.1.0.5 build/plugins/liburiparser.so.1
-	cp $(GEODA_HOME)/libraries/lib/libgeos-3.3.8.so build/plugins/libgeos-3.3.8.so
-	cp $(GEODA_HOME)/libraries/lib/libcurl.so.4.4.0 build/plugins/libcurl.so.4
+	cp $(GEODA_HOME)/libraries/lib/libgeos-3.6.2.so build/plugins/libgeos-3.6.2.so
+	cp $(GEODA_HOME)/libraries/lib/libcurl.so.4.5.0 build/plugins/libcurl.so.4
 	cp $(GEODA_HOME)/libraries/lib/libcares.so.2.1.0 build/plugins/libcares.so.2
 	cp $(GEODA_HOME)/libraries/share/gdal/* build/gdaldata
 	cp $(GEODA_HOME)/../CommonDistFiles/cache.sqlite build/cache.sqlite

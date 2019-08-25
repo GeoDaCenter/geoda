@@ -34,7 +34,7 @@ echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     sudo apt-get update
     sudo apt-get install g++ libssl-dev libreadline6-dev zlib1g-dev libexpat1-dev dh-autoreconf libcurl4-openssl-dev libgtk-3-dev libwebkit-dev mesa-common-dev freeglut3-dev libglu1-mesa-dev libgl1-mesa-dev libgtk2.0-dev
-# for 14.10, experimenting with adding librtmp-dev, libidn11-dev and libldap-dev
+    sudo apt-get install librtmp-dev libidn11-dev libldap-dev 
 fi
 
 unset ORACLE_HOME
@@ -141,35 +141,7 @@ install_library c-ares-1.10.0 http://c-ares.haxx.se/download/c-ares-1.10.0.tar.g
 #########################################################################
 # install cURL
 #########################################################################
-
-LIB_NAME=curl-7.46.0
-LIB_CHECKER=libcurl.a
-LIB_URL=https://s3.us-east-2.amazonaws.com/geodabuild/curl-7.46.0.zip
-LIB_FILENAME=curl-7.46.0.zip
-echo $LIB_NAME
-
-cd $DOWNLOAD_HOME
-
-if ! [ -d "$LIB_NAME" ] ; then
-    curl -O $LIB_URL
-    unzip $LIB_FILENAME
-fi
-
-if ! [ -d "$LIB_NAME" ]; then
-    tar -xf $LIB_FILENAME
-fi
-
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    cd $LIB_NAME
-    ./configure --enable-ares=$PREFIX CC="$GDA_CC" CFLAGS="$GDA_CFLAGS" CXX="$GDA_CXX" CXXFLAGS="$GDA_CXXFLAGS" LDFLAGS="$GDA_LDFLAGS" --prefix=$PREFIX --without-librtmp
-    $MAKER
-    make install
-fi
-
-if ! [ -f "$PREFIX/lib/$LIB_CHECKER" ] ; then
-    echo "Error! Exit"
-    exit
-fi
+# libcurl4-openssl-dev is used instead
 
 #########################################################################
 # install Xerces

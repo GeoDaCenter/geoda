@@ -92,13 +92,9 @@ void BasemapConfDlg::OnOkClick( wxCommandEvent& event )
 void BasemapConfDlg::OnResetClick( wxCommandEvent& event )
 {
     wxLogMessage("BasemapConfDlg: Click Reset Button.");
-    
-    wxString nokia_uname = "oRnRceLPyM8OFQQA5LYH";
-    wxString nokia_key = "uEt3wtyghaTfPdDHdOsEGQ";
-    
-    OGRDataAdapter::GetInstance().AddEntry("nokia_user", nokia_uname);
-    OGRDataAdapter::GetInstance().AddEntry("nokia_key", nokia_key);
-    OGRDataAdapter::GetInstance().AddEntry("gda_basemap_sources", basemap_resources);
+
+    m_txt_basemap->SetValue(GdaConst::gda_basemap_sources);
+    OGRDataAdapter::GetInstance().AddEntry("gda_basemap_sources", GdaConst::gda_basemap_sources);
     
     EndDialog(wxID_OK);
 }

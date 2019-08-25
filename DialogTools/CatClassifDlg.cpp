@@ -326,9 +326,11 @@ void CatClassifHistCanvas::GetBarPositions(std::vector<double>& x_center_pos, st
             x_right = val_range==0 ? 0 : x_max * (ticks[i+1] - left) / val_range;
            
             if (x_left == x_right && ival_obs_cnt[i] > 0 && j>0) {
-                for (int k=j-1; k>=0; k--)
-                    if (x_left_pos[k] != x_left)
+                for (int k=j-1; k>=0; k--) {
+                    if (x_left_pos[k] != x_left) {
                         x_left = x_left_pos[j];
+                    }
+                }
             }
         }
         x_left_pos[j] = x_left;
@@ -370,16 +372,13 @@ void CatClassifHistCanvas::PopulateCanvas()
 
     double y_max = max_num_obs_in_ival;
     last_scale_trans.SetData(x_min, 0, x_max, max_num_obs_in_ival);
-    
-	
-	axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision,
+    axis_scale_y = AxisScale(0, y_max, 5, axis_display_precision,
                              axis_display_fixed_point);
 	y_max = axis_scale_y.scale_max;
 	y_axis = new GdaAxis(_("Frequency"), axis_scale_y,
 						wxRealPoint(0,0), wxRealPoint(0, y_max),
 						-9, 0);
 	foreground_shps.push_back(y_axis);
-	
 	selectable_shps.resize(cur_intervals);
     
     wxClientDC dc(this);
@@ -459,46 +458,63 @@ void CatClassifHistCanvas::InitIntervals()
 		ival_obs_cnt[0] = num_obs;
 		ival_obs_sel_cnt[0] = highlight_state->GetTotalHighlighted();
 	} else {
-		int num_breaks = breaks->size();
-		int num_breaks_lower = (num_breaks+1)/2;
-		
-		double val;
-		int ind;
-        
+        double val;
+        int ind;
+        int num_breaks = breaks->size();
+        // get max, min values
         max_val = (*data)[0].first;
         min_val = (*data)[num_obs-1].first;
-        
-		for (int i=0; i<num_obs; i++) {
-			val = (*data)[i].first;
-			ind = (*data)[i].second;
-            if (val > max_val)
-                max_val = val;
-            if (val < min_val)
-                min_val = val;
-            
-			bool found = false;
-			int cat = num_breaks; // last cat by default
-			for (int j=0; j<num_breaks_lower; j++) {
-				if (val < (*breaks)[j]) {
-					found = true;
-					cat = j;
-					break;
-				}
-			}
-			if (!found) {
-				for (int j=num_breaks_lower; j<num_breaks; j++) {
-					if (val <= (*breaks)[j]) {
-						cat = j;
-						break;
-					}
-				}
-			}
-			// at this point we know that index ind belongs to category cat
-			obs_id_to_ival[ind] = cat;
-			ival_to_obs_ids[cat].push_front(ind);
-			ival_obs_cnt[cat]++;
-			if (hs[ind]) ival_obs_sel_cnt[cat]++;
-		}
+        for (int i=0; i<num_obs; i++) {
+            val = (*data)[i].first;
+            ind = (*data)[i].second;
+            if (val > max_val) max_val = val;
+            if (val < min_val) min_val = val;
+        }
+        if (break_type == CatClassification::natural_breaks_break_vals) {
+            int cat = 0;
+            double brk_val = (*breaks)[0];
+            for (int j=0; j<num_obs; j++) {
+                val = (*data)[j].first;
+                if (cat < num_breaks && val >= brk_val) {
+                    cat += 1;
+                    brk_val = (*breaks)[cat];
+                }
+                // at this point we know that index ind belongs to category cat
+                ind = (*data)[j].second;
+                obs_id_to_ival[ind] = cat;
+                ival_to_obs_ids[cat].push_front(ind);
+                ival_obs_cnt[cat]++;
+                if (hs[ind]) ival_obs_sel_cnt[cat]++;
+            }
+        } else {
+            int num_breaks_lower = (num_breaks+1)/2;
+            for (int i=0; i<num_obs; i++) {
+                val = (*data)[i].first;
+                ind = (*data)[i].second;
+                bool found = false;
+                int cat = num_breaks; // last cat by default
+                for (int j=0; j<num_breaks_lower; j++) {
+                    if (val < (*breaks)[j]) {
+                        found = true;
+                        cat = j;
+                        break;
+                    }
+                }
+                if (!found) {
+                    for (int j=num_breaks_lower; j<num_breaks; j++) {
+                        if (val <= (*breaks)[j]) {
+                            cat = j;
+                            break;
+                        }
+                    }
+                }
+                // at this point we know that index ind belongs to category cat
+                obs_id_to_ival[ind] = cat;
+                ival_to_obs_ids[cat].push_front(ind);
+                ival_obs_cnt[cat]++;
+                if (hs[ind]) ival_obs_sel_cnt[cat]++;
+            }
+        }
 	}
 	
 	max_num_obs_in_ival = 0;
@@ -537,10 +553,12 @@ void CatClassifHistCanvas::UpdateIvalSelCnts()
 }
 
 void CatClassifHistCanvas::ChangeAll(Gda::dbl_int_pair_vec_type* new_data,
+                                     CatClassification::BreakValsType new_break_type,
 									 std::vector<double>* new_breaks,
 									 std::vector<wxColour>* new_colors)
 {
 	data = new_data;
+    break_type = new_break_type;
 	breaks = new_breaks;
 	colors = new_colors;
 	cur_intervals = breaks->size() + 1;
@@ -591,31 +609,44 @@ void CatClassifHistCanvas::UpdateStatusBar()
 	int ival = hover_obs[0];
 	wxString s;
 	s << "bin: " << ival+1 << ", range: ";
-	if (cur_intervals <= 1) {
-		s << "(-inf, inf)";
-	} else if (ival == 0) {
-		s << "(-inf, " << (*breaks)[ival] << ")";
-	} else if (ival == cur_intervals-1 && cur_intervals != 2) {
-		s << "(" << (*breaks)[ival-1] << ", inf)";
-	} else if (ival == cur_intervals-1 && cur_intervals == 2) {
-		s << "[" << (*breaks)[ival-1] << ", inf)";
-	} else {
-		int num_breaks = cur_intervals-1;
-		int num_breaks_lower = (num_breaks+1)/2;
-		wxString a;
-		wxString b;
-		if (ival < num_breaks_lower) {
-			a = "[";
-			b = ")";
-		} else if (ival == num_breaks_lower) {
-			a = "[";
-			b = "]";
-		} else {
-			a = "(";
-			b = "]";
-		}
-		s << a << (*breaks)[ival-1] << ", " << (*breaks)[ival] << b;
-	}
+
+    if (break_type == CatClassification::natural_breaks_break_vals) {
+        if (cur_intervals <= 1) {
+            s << "(-inf, inf)";
+        } else if (ival == 0) {
+            s << "(-inf, " << (*breaks)[ival] << ")";
+        } else if (ival == cur_intervals-1) {
+            s << "[" << (*breaks)[ival-1] << ", inf)";
+        } else {
+            s << "[" << (*breaks)[ival-1] << ", " << (*breaks)[ival] << ")";
+        }
+    } else {
+        if (cur_intervals <= 1) {
+            s << "(-inf, inf)";
+        } else if (ival == 0) {
+            s << "(-inf, " << (*breaks)[ival] << ")";
+        } else if (ival == cur_intervals-1 && cur_intervals != 2) {
+            s << "(" << (*breaks)[ival-1] << ", inf)";
+        } else if (ival == cur_intervals-1 && cur_intervals == 2) {
+            s << "[" << (*breaks)[ival-1] << ", inf)";
+        } else {
+            int num_breaks = cur_intervals-1;
+            int num_breaks_lower = (num_breaks+1)/2;
+            wxString a;
+            wxString b;
+            if (ival < num_breaks_lower) {
+                a = "[";
+                b = ")";
+            } else if (ival == num_breaks_lower) {
+                a = "[";
+                b = "]";
+            } else {
+                a = "(";
+                b = "]";
+            }
+            s << a << (*breaks)[ival-1] << ", " << (*breaks)[ival] << b;
+        }
+    }
     s << ", ";
     s << _("#obs") << ": " << ival_obs_cnt[ival];
 	double p = 100.0*((double) ival_obs_cnt[ival])/((double) num_obs);
@@ -698,7 +729,7 @@ useScientificNotation(_useScientificNotation)
 										  cc_data.uniform_dist_min,
 										  cc_data.uniform_dist_max);
 	cc_data.cat_classif_type = CatClassification::custom;
-	cc_data.break_vals_type = CatClassification::custom_break_vals;
+	cc_data.break_vals_type = CatClassification::quantile_break_vals;
 	cc_data.color_scheme = CatClassification::diverging_color_scheme;
 	CatClassification::ChangeNumCats(default_intervals, cc_data);
 	
@@ -858,10 +889,10 @@ useScientificNotation(_useScientificNotation)
 	if (cc_state) {
 		cc_data = cc_state->GetCatClassif();
 		SetSyncVars(true);
-        
-        CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
-                                                      IsAutomaticLabels());
-        
+        //cc_data.cat_classif_type = GetClassifyType();
+        //CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
+        //                                              IsAutomaticLabels());
+        //cc_data.cat_classif_type = CatClassification::custom;
 		InitFromCCData();
 		EnableControls(true);
         
@@ -929,13 +960,11 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
 
         if (cc_data.cat_classif_type == CatClassification::no_theme) {
             CatClassification::CatClassifTypeToBreakValsType(cc_data.cat_classif_type);
-            cc_data.cat_classif_type = CatClassification::custom;
+
+            cc_data.cat_classif_type = CatClassification::quantile;
             cc_data.break_vals_type = CatClassification::quantile_break_vals;
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                       IsAutomaticLabels());
-            // CorrectCatClassifFromTable() will change the break_vals_type
-            // to custom_break_vals, and will impact the "Breaks" contrl
-            cc_data.break_vals_type = CatClassification::quantile_break_vals;
         } else {
             cc_data.cat_classif_type = CatClassification::custom;
             cc_data.break_vals_type = CatClassification::custom_break_vals;
@@ -961,9 +990,11 @@ CatClassifState* CatClassifPanel::PromptNew(const CatClassifDef& ccd,
         EnableControls(true);
         
         return cc_state;
+    } else {
+        wxCommandEvent ev;
+        OnBreaksChoice(ev);
+        return NULL;
     }
-        
-    return NULL;    
 }
 
 /** A new Custom Category was selected.  Copy cc_data from cc_state and
@@ -985,7 +1016,6 @@ void CatClassifPanel::OnCurCatsChoice(wxCommandEvent& event)
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-
 	InitFromCCData();
 	UpdateCCState();
 	EnableControls(true);
@@ -1016,8 +1046,6 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    // always mark the custom breaks CatClassification::custom
-    cc_data.cat_classif_type = CatClassification::custom;
     cc_data.break_vals_type = bv_type;
     InitFromCCData();
 	UpdateCCState();
@@ -1052,15 +1080,26 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
 		}
     }
-    
-    
-	// Verify that cc data is self-consistent and correct if not.  This
-	// will result in all breaks, colors and names being initialized.
-    CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
-                                                  IsAutomaticLabels());
-    
+    cc_data.cat_classif_type = CatClassification::custom;
 	InitFromCCData();
 	UpdateCCState();
+}
+
+CatClassification::CatClassifType CatClassifPanel::GetClassifyType()
+{
+    // Get classifytype from the breaks dropdown control
+    CatClassification::BreakValsType new_cat_typ = GetBreakValsTypeChoice();
+    if (new_cat_typ == CatClassification::quantile_break_vals) {
+        return CatClassification::quantile;
+    } else if (new_cat_typ == CatClassification::unique_values_break_vals) {
+        return CatClassification::unique_values;
+    } else if (new_cat_typ == CatClassification::natural_breaks_break_vals) {
+        return CatClassification::natural_breaks;
+    } else if (new_cat_typ == CatClassification::equal_intervals_break_vals) {
+        return CatClassification::equal_intervals;
+    } else {
+        return CatClassification::custom;
+    }
 }
 
 void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
@@ -1112,8 +1151,10 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	cc_data.num_cats = new_num_cats;
 	// Verify that cc data is self-consistent and correct if not.  This
 	// will result in all breaks, colors and names being initialized.
+    cc_data.cat_classif_type = GetClassifyType();
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
+    cc_data.cat_classif_type = CatClassification::custom;
     // check if breaks have same values
     std::set<double> brks;
     for (int i=0; i<cc_data.breaks.size(); i++)
@@ -1127,7 +1168,7 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
 	UpdateCCState();
     // revert the choice of "Breaks" control
     breaks_choice->SetSelection(old_breaks_choice);
-	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type, &cc_data.breaks, &cc_data.colors);
 }
 
 void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
@@ -1156,7 +1197,6 @@ void CatClassifPanel::OnAssocVarChoice(wxCommandEvent& ev)
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -1173,7 +1213,6 @@ void CatClassifPanel::OnAssocVarTmChoice(wxCommandEvent& ev)
 	// will result in all breaks, colors and names being initialized.
     CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                   IsAutomaticLabels());
-    
 	InitFromCCData();
 	UpdateCCState();
 }
@@ -1226,7 +1265,7 @@ void CatClassifPanel::OnPreviewVarChoice(wxCommandEvent& ev)
 		}
 		CatClassifHistCanvas::InitUniformData(preview_data, prev_min, prev_max);
 	}
-	hist_canvas->ChangeAll(&preview_data,
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
 						   &cc_data.breaks, &cc_data.colors);
 	Refresh();
 }
@@ -1248,7 +1287,7 @@ void CatClassifPanel::OnPreviewVarTmChoice(wxCommandEvent& ev)
 		preview_data[i].first = dd[i];
 		preview_data[i].second = i;
 	}
-	hist_canvas->ChangeAll(&preview_data,
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
 						   &cc_data.breaks, &cc_data.colors);
 	Refresh();	
 }
@@ -1296,7 +1335,6 @@ void CatClassifPanel::OnUnifDistMinEnter(wxCommandEvent& event)
         	// will result in all breaks, colors and names being initialized.
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                           IsAutomaticLabels());
-            
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1349,7 +1387,6 @@ void CatClassifPanel::OnUnifDistMaxEnter(wxCommandEvent& event)
         	// will result in all breaks, colors and names being initialized.
             CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                           IsAutomaticLabels());
-            
 			InitFromCCData();
 			UpdateCCState();
 		}
@@ -1438,8 +1475,8 @@ void CatClassifPanel::OnBrkTxtEnter(wxCommandEvent& event)
 			SetUnifDistMinMaxTxt(cc_data.uniform_dist_min,
 								 cc_data.uniform_dist_max);
 			UpdateCCState();
-			hist_canvas->ChangeAll(&preview_data, &cc_data.breaks,
-								   &cc_data.colors);
+			hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
+                                   &cc_data.breaks, &cc_data.colors);
 			SetSliderFromBreak(nbrk);
 		}
 	} else {
@@ -1471,7 +1508,8 @@ void CatClassifPanel::OnBrkSlider(wxCommandEvent& event)
     cc_data.cat_classif_type = CatClassification::custom;
 	SetBrkTxtFromVec(cc_data.breaks);
 	SetActiveBrkRadio(nbrk);
-	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
+                           &cc_data.breaks, &cc_data.colors);
     
     for (int i=0; i<cc_data.num_cats; i++) {
         cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
@@ -1506,8 +1544,8 @@ void CatClassifPanel::OnKillFocusEvent(wxFocusEvent& event)
 																   cc_data);
 					SetBrkTxtFromVec(cc_data.breaks);
 					SetActiveBrkRadio(nbrk);
-					hist_canvas->ChangeAll(&preview_data, &cc_data.breaks,
-										   &cc_data.colors);
+                    hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
+                                           &cc_data.breaks, &cc_data.colors);
 					max_lbl->SetLabelText(GenUtils::DblToStr(GetBrkSliderMin()));
 					SetSliderFromBreak(nbrk);
 					UpdateCCState();
@@ -1565,7 +1603,8 @@ void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 	cc_data.colors[obj_id] = retData.GetColour();
 	cat_color_button[obj_id]->SetBackgroundColour(retData.GetColour());
 	UpdateCCState();
-	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
+                           &cc_data.breaks, &cc_data.colors);
 	Refresh();
 }
 
@@ -1643,24 +1682,28 @@ void CatClassifPanel::OnButtonNew(wxCommandEvent& event)
                 
 			} else {
 				cc_data.title = new_title;
-                cc_data.cat_classif_type = CatClassification::custom;
+                // new custom breaks is set to quantile by default
+                cc_data.cat_classif_type = CatClassification::quantile;
+                cc_data.break_vals_type = CatClassification::quantile_break_vals;
 				cc_data.assoc_db_fld_name = GetAssocDbFldNm();
 				cc_state = cat_classif_manager->CreateNewClassifState(cc_data);
 				cur_cats_choice->Append(new_title);
 				cur_cats_choice->SetSelection(cur_cats_choice->GetCount()-1);
 				SetSyncVars(true);
-                
+
             	// Verify that cc data is self-consistent and correct if not.  This
             	// will result in all breaks, colors and names being initialized.
                 CatClassification::CorrectCatClassifFromTable(cc_data, table_int,
                                                               IsAutomaticLabels());
-                
+
 				InitFromCCData();
 				EnableControls(true);
                 UpdateCCState();
 				retry = false;
 			}
 		} else {
+            wxCommandEvent ev;
+            OnCurCatsChoice(ev);
 			retry = false;
 		}
 	}
@@ -1688,7 +1731,7 @@ void CatClassifPanel::OnButtonDelete(wxCommandEvent& event)
 												  default_min, default_max);
 			CatClassifHistCanvas::InitUniformData(preview_data,
 												  default_min, default_max);
-			hist_canvas->ChangeAll(&preview_data,
+            hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
 								   &cc_data.breaks, &cc_data.colors);
 			EnableControls(false);
 		}
@@ -1825,7 +1868,7 @@ void CatClassifPanel::ResetValuesToDefault()
 	
 	cc_data.names.clear();
     cc_data.cat_classif_type = CatClassification::custom;
-	cc_data.break_vals_type = CatClassification::custom_break_vals;
+	cc_data.break_vals_type = CatClassification::quantile_break_vals;
 	CatClassification::SetBreakPoints(cc_data.breaks, cc_data.names,
                                       data, data_undef,
 									  CatClassification::quantile,
@@ -1988,7 +2031,8 @@ void CatClassifPanel::InitFromCCData()
         auto_labels_cb->SetValue(true);
     }
     
-	hist_canvas->ChangeAll(&preview_data, &cc_data.breaks, &cc_data.colors);
+	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
+                           &cc_data.breaks, &cc_data.colors);
     Refresh();
 }
 
@@ -2353,17 +2397,22 @@ void CatClassifPanel::SetBrkTxtFromVec(const std::vector<double>& brks)
 	for (int i=0, sz=brks.size(); i<sz && i<max_intervals; ++i) {
 		brk_txt[i]->ChangeValue(GenUtils::DblToStr(brks[i]));
 	}
-	if (IsAutomaticLabels() && 
-		GetBreakValsTypeChoice() != CatClassification::unique_values_break_vals) {
-		std::vector<wxString> new_labels;
-		CatClassification::CatLabelsFromBreaks(brks, new_labels,
-                                               cc_data.cat_classif_type,
-                                               useScientificNotation);
-		int sz = new_labels.size();
-		cc_data.names.resize(sz);
-		for (int i=0; i<sz; ++i) {
-            cc_data.names[i] = new_labels[i];
-            cat_title_txt[i]->ChangeValue(new_labels[i]);
+    CatClassification::BreakValsType brk_type = GetBreakValsTypeChoice();
+    bool auto_lbl = IsAutomaticLabels();
+	if (auto_lbl && brk_type != CatClassification::unique_values_break_vals) {
+        if (brk_type != CatClassification::natural_breaks_break_vals) {
+            std::vector<wxString> new_labels;
+            CatClassification::CatLabelsFromBreaks(brks, new_labels,
+                                                   cc_data.cat_classif_type,
+                                                   useScientificNotation);
+            int sz = new_labels.size();
+            cc_data.names.resize(sz);
+            for (int i=0; i<sz; ++i) {
+                cc_data.names[i] = new_labels[i];
+            }
+        }
+        for (int i=0; i<cc_data.names.size(); ++i) {
+            cat_title_txt[i]->ChangeValue(cc_data.names[i]);
 		}
 	}
 }
@@ -2460,7 +2509,7 @@ wxString CatClassifPanel::GetDefaultTitle(const wxString& field_name,
 {
 	int max_tries = 500;
 	int cur_try = 1;
-	wxString ret_title_base = _("Custom Breaks");
+	wxString ret_title_base = "Custom Breaks";
     bool case_sensitive = false;
 	if (table_int->DoesNameExist(field_name, case_sensitive)) {
 		ret_title_base << " (" << field_name;

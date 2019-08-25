@@ -91,9 +91,7 @@ void KClusterDlg::CreateControls()
     AddTransformation(panel, gbox);
     
     // Initialization Method
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY,
-                                          _("Initialization Method:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"));
     wxString choices16[] = {"KMeans++", "Random"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                    wxSize(200,-1), 2, choices16);
@@ -108,16 +106,12 @@ void KClusterDlg::CreateControls()
         combo_method->SetSelection(1); // use Random if hide init
     } 
     
-    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY,
-                                          _("Initialization Re-runs:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, _("Initialization Re-runs:"));
     m_pass = new wxTextCtrl(panel, wxID_ANY, "150", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_pass, 1, wxEXPAND);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY,
-                                          _("Use specified seed:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -133,9 +127,7 @@ void KClusterDlg::CreateControls()
         seedButton->Enable();
     }
     
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY,
-                                          _("Maximum Iterations:"),
-                                         wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum Iterations:"));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
@@ -145,9 +137,7 @@ void KClusterDlg::CreateControls()
         m_iterations->Hide();
     }
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY,
-                                          _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -164,8 +154,7 @@ void KClusterDlg::CreateControls()
     
     
     // Output
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);

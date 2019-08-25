@@ -31,7 +31,6 @@
 #include <wx/checkbox.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/regex.h>
-
 #include <wx/bmpbuttn.h>
 #include <wx/statbmp.h>
 #include <wx/artprov.h>
@@ -472,9 +471,16 @@ void ConnectDatasourceDlg::AddRecentItem(wxBoxSizer* sizer, wxScrolledWindow* sc
     
     wxImage img;
     if (!wxFileExists(file_path_str)) {
+#ifdef __linux__
+        file_path_str = GenUtils::GetUserSamplesDir() + ds_thumb;
+        if (!wxFileExists(file_path_str)) {
+            ds_thumb = "no_map.png";
+            file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
+        }
+#else
         ds_thumb = "no_map.png";
         file_path_str = GenUtils::GetSamplesDir() + ds_thumb;
-        
+#endif
     }
     img.LoadFile(file_path_str);
     if (!img.IsOk()) {
@@ -1094,7 +1100,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     layername->SetFont(*GdaConst::medium_font);
     layername->SetForegroundColour(wxColour(100,100,100));
     layername->SetToolTip(ds_layername);
-    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL, 5);
+    text_sizer->Add(layername, 1, wxALIGN_LEFT | wxALL | wxEXPAND, 5);
     
     wxString lbl_name = name;
     lbl_name = GenUtils::PadTrim(lbl_name, 60, false);
@@ -1109,7 +1115,7 @@ void ConnectDatasourceDlg::AddSampleItem(wxBoxSizer* sizer,
     wxString lbl_ds_name = ds_url;
     lbl_ds_name = GenUtils::PadTrim(lbl_ds_name, 50, false);
     wxHyperlinkCtrl* filepath;
-    filepath = new wxHyperlinkCtrl(scrl, wxID_ANY, ds_url, ds_url);
+    filepath = new wxHyperlinkCtrl(scrl, wxID_ANY, ds_url, ds_url, wxDefaultPosition, wxDefaultSize, wxHL_ALIGN_LEFT);
     filepath->SetFont(*GdaConst::extra_small_font);
     filepath->SetForegroundColour(wxColour(70,70,70));
     filepath->SetToolTip(ds_url);
@@ -1180,7 +1186,7 @@ wxCSConv* ConnectDatasourceDlg::GetEncoding()
 {
     if (m_encodings && m_encodings->IsShown()) {
 		
-        wxFontEncoding encoding_type = wxFONTENCODING_DEFAULT;
+        wxFontEncoding encoding_type = wxFONTENCODING_SYSTEM;
         int sel = m_encodings->GetSelection();
         wxString encode_str = m_encodings->GetString(sel);
 

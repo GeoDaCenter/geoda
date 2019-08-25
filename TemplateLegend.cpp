@@ -454,6 +454,12 @@ void TemplateLegend::OnDraw(wxDC& dc)
 {
 	if (!template_canvas)
         return;
+    wxPen bg_pen(legend_background_color);
+    dc.SetPen(bg_pen);
+    wxBrush bg_brush(legend_background_color);
+    dc.SetBrush(bg_brush);
+    wxSize sz = this->GetSize();
+    dc.DrawRectangle(0, 0, sz.GetWidth(), sz.GetHeight());
     
     dc.SetFont(*GdaConst::small_font);
     wxString title = template_canvas->GetCategoriesTitle();
@@ -540,8 +546,8 @@ int TemplateLegend::GetDrawingWidth()
             max_width = lbl->getWidth();
         }
     }
-#ifdef __WIN32__
-	max_width = max_width * 1.2;
+#if defined(__WIN32__) ||defined(__linux__)
+	max_width = max_width * 1.5;
 #endif
     return max_width;
 }

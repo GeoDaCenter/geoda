@@ -15,7 +15,7 @@
 	<key>CFBundleIconFile</key>
 	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>edu.asu.geodacenter.GeoDa</string>
+	<string>edu.uchicago.spatial</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
@@ -23,7 +23,9 @@
 	<key>CFBundleSignature</key>
 	<string>io.gitub.geodacenter</string>
 	<key>CFBundleVersion</key>
-	<string>1.12</string>
+	<string>1.14</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.14</string>
 	<key>DTCompiler</key>
 	<string>4.2</string>
 	<key>DTPlatformBuild</key>

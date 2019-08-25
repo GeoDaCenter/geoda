@@ -72,8 +72,7 @@ void PCASettingsDlg::CreateControls()
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
     
-    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"),
-                                          wxDefaultPosition, wxSize(120,-1));
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     const wxString _methods[2] = {"SVD", "Eigen"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                   wxSize(120,-1), 2, _methods);

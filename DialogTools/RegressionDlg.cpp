@@ -1374,8 +1374,8 @@ void RegressionDlg::printAndShowClassicalResults(const wxString& datasetname,
 		slog << wxString::Format("MULTICOLLINEARITY CONDITION NUMBER   %7f\n",
 								 r->GetConditionNumber());
         cnt++;
-		slog << "                                ";
-		slog << "      (Extreme Multicollinearity)\n";
+		//slog << "                                ";
+		//slog << "      (Extreme Multicollinearity)\n";
         cnt++;
 	}
 	slog << "TEST ON NORMALITY OF ERRORS\n";

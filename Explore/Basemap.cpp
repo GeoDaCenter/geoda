@@ -20,9 +20,13 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-#include "stdio.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
+#include <boost/asio.hpp>
+#include <boost/thread.hpp>
+
 #include <wx/math.h>
 #include <wx/tokenzr.h>
 #include <wx/dcbuffer.h>
@@ -150,7 +154,6 @@ XYFraction::XYFraction(double _x, double _y)
     yfrac = modf(_y, &yint);
 }
 
-
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
                  MapLayer* _map,
@@ -167,20 +170,20 @@ Basemap::Basemap(BasemapItem& _basemap_item,
     poCT = _poCT;
     scale_factor = _scale_factor;
 
-    bDownload = false;
-    downloadThread = NULL;
+
     isPan = false;
     panX = 0;
     panY = 0;
-    
+
+    start_download = false;
+    n_tasks = 0;
+    complete_tasks = 0;
     isTileReady = false;
     isTileDrawn = false;
     
-    nokia_id = "oRnRceLPyM8OFQQA5LYH";
-    nokia_code = "uEt3wtyghaTfPdDHdOsEGQ";
-    
     wxInitAllImageHandlers();
-    
+    curl_global_init(CURL_GLOBAL_ALL);
+
     GetEasyZoomLevel();
     SetupMapType(basemap_item);
 }
@@ -202,12 +205,6 @@ Basemap::~Basemap() {
     if (poCT) {
         delete poCT;
         poCT = 0;
-    }
-    if (bDownload && downloadThread) {
-        bDownload = false;
-		downloadThread->join();
-        delete downloadThread;
-        downloadThread = NULL;
     }
 }
 
@@ -240,13 +237,20 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
                basemapUrl.Find("JPEG") != wxNOT_FOUND) {
         imageSuffix = ".jpeg";
     } else {
-        imageSuffix = ".jpeg";
+        if (basemapUrl.Find("ArcGIS")) {
+            imageSuffix = ".jpeg";
+        } else if (basemapUrl.Find("autonavi")) {
+            imageSuffix = ".png";
+        } else {
+            imageSuffix = ".png";
+        }
+
     }
     // if ( !hdpi ) {
     //     basemapUrl.Replace("@2x", "");
     // }
     
-    // get a latest CartoDB account
+    // get a latest HERE account
     vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
     if (!nokia_user.empty()) {
         wxString user = nokia_user[0];
@@ -330,8 +334,8 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     double offsetLon = p1->lng - p0->lng;
     
     if (map->Pan(-offsetLat, -offsetLon)) {
-        isTileDrawn = false;
-        isTileReady = false;
+        //isTileDrawn = false;
+        //isTileReady = false;
         GetTiles();
     }
 }
@@ -366,8 +370,8 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     
     map->UpdateExtent(west, south, east, north);
     
-    isTileDrawn = false;
-    isTileReady = false;
+    //isTileDrawn = false;
+    //isTileReady = false;
     GetEasyZoomLevel();
     GetTiles();
     return true;
@@ -515,10 +519,12 @@ void Basemap::GetTiles()
     
     // if offset to left, need to zoom out
     if (map_offx < 0 && zoom > 0) {
-        zoom = zoom -1;
-        nn = pow(2.0, zoom);
-        GetTiles();
-        return;
+        if (zoom > 1) {
+            zoom = zoom -1;
+            nn = pow(2.0, zoom);
+            GetTiles();
+            return;
+        }
     }
     
     offsetX = topleft->GetXFrac() * 255 - map_offx;
@@ -559,60 +565,30 @@ void Basemap::GetTiles()
     offsetX = offsetX - panX;
     offsetY = offsetY - panY;
 
-    isTileReady = false;
-    isTileDrawn = false;
-    
-    if (bDownload && downloadThread) {
-        bDownload = false;
-		downloadThread->join();
-        delete downloadThread;
-        downloadThread = NULL;
-    }
-    
-    if (downloadThread == NULL) {
-        bDownload = true;
-        downloadThread = new boost::thread(boost::bind(&Basemap::_GetTiles,this, startX, startY, endX, endY));
+    //SetReady(true);
+    //isTileDrawn = false;
+
+    start_download = true;
+    n_tasks = (endX - startX + 1) * (endY - startY + 1);
+    complete_tasks = 0;
+
+    for (int i=startX; i<=endX; i++) {
+        for (int j=startY; j<=endY; j++) {
+            int idx_x = i < 0 ? nn + i : i;
+            int idx_y = j < 0 ? nn + j : j;
+            if (idx_x > nn)
+                idx_x = idx_x - nn;
+            pool.enqueue(boost::bind(&Basemap::DownloadTile, this, idx_x, idx_y));
+        }
     }
 
     delete topleft;
     delete bottomright;
 }
 
-bool Basemap::IsReady()
+bool Basemap::IsDownloading()
 {
-    return isTileReady;
-}
-
-void Basemap::_GetTiles(int start_x, int start_y, int end_x, int end_y)
-{
-    boost::thread_group threadPool;
-    for (int i=start_x; i<=end_x; i++) {
-        if (bDownload == false) {
-            return;
-        }
-        int start_i = i > nn ? nn - i : i;
-            
-        boost::thread* worker = new boost::thread(boost::bind(&Basemap::_GetTiles,this, start_i, startY, endY));
-        threadPool.add_thread(worker);
-    }
-    threadPool.join_all();
-    isTileReady = true;
-}
-
-
-void Basemap::_GetTiles(int i, int start_y, int end_y)
-{
-    for (int j=start_y; j<=end_y; j++) {
-        if (bDownload == false) {
-            return;
-        }
-        int idx_x = i < 0 ? nn + i : i;
-        int idx_y = j < 0 ? nn + j : j;
-        if (idx_x > nn)
-            idx_x = idx_x - nn;
-        wxMicroSleep(10);
-        DownloadTile(idx_x, idx_y);
-    }
+    return start_download;
 }
 
 size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
@@ -637,7 +613,7 @@ void Basemap::DownloadTile(int x, int y)
     wxString filepathStr = GetTilePath(x, y);
     std::string filepath = GET_ENCODED_FILENAME(filepathStr);
 
-    if (!wxFileExists(filepathStr)) {
+    if (!wxFileExists(filepathStr) || wxFileName::GetSize(filepathStr) == 0) {
         // otherwise, download the image
         wxString urlStr = GetTileUrl(x, y);
         char* url = new char[urlStr.length() + 1];
@@ -654,32 +630,40 @@ void Basemap::DownloadTile(int x, int y)
 #else
             fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
 #endif
-            if (fp)
-            {
+            if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url);
+                curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYHOST, 0);
                 curl_easy_setopt(image, CURLOPT_SSL_VERIFYPEER, 0);
-                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 10L);
+                curl_easy_setopt(image, CURLOPT_CONNECTTIMEOUT, 1L);
+				curl_easy_setopt(image, CURLOPT_TIMEOUT, 1L);
                 curl_easy_setopt(image, CURLOPT_NOSIGNAL, 1L);
             
                 // Grab image
                 imgResult = curl_easy_perform(image);
-           
-                curl_easy_cleanup(image);
+                if (imgResult == CURLE_OK) {
+                    curl_easy_cleanup(image);
+                }
                 fclose(fp);
             }
         }
-        
         delete[] url;
-        
     }
-    isTileReady = false; // notice template_canvas to draw
-    //canvas->Refresh(true);
+
+    mutex.lock();
+    complete_tasks += 1;
+    mutex.unlock();
 }
 
+void Basemap::SetReady(bool flag)
+{
+    mutex.lock();
+    isTileReady = flag;
+    mutex.unlock();
+}
 
 LatLng* Basemap::XYToLatLng(XYFraction &xy, bool isLL)
 {
@@ -700,7 +684,9 @@ XYFraction* Basemap::LatLngToRawXY(LatLng &latlng)
 {
     double lat_rad = latlng.GetLatRad();
     double x = (latlng.GetLngDeg() + 180.0 ) / 360.0 * nn;
-    double y = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
+    double tan_lat = tan(lat_rad);
+    double cos_lat = cos(lat_rad);
+    double y = (1.0 - log(tan_lat + 1.0/cos_lat) / M_PI) / 2.0 * nn;
     return new XYFraction(x, y);
 }
 
@@ -721,19 +707,50 @@ void Basemap::LatLngToXY(double lng, double lat, int &x, int &y)
     if (poCT!= NULL) {
         poCT->Transform(1, &lng, &lat);
     }
-    
+    if (lat > 85.0511) lat = 85.0511;
+    if (lat < -85.0511) lat = -85.0511;
     double lat_rad = lat * M_PI / 180.0;
     double yy = (1.0 - log(tan(lat_rad) + 1.0 / cos(lat_rad)) / M_PI) / 2.0 * nn;
     y = (int)(yy * 256 - topP) - offsetY;
    
     double xx = (lng + 180.0 ) / 360.0 * nn;
     x = (int)(xx * 256 - leftP) - offsetX;
+}
 
-    if ( endX > nn) {
-        if (x <0) {
-            x = nn*256 + x;
-        }
+wxString Basemap::GetRandomSubdomain(wxString url)
+{
+    unsigned int initseed = (unsigned int) time(0);
+    srand(initseed);
+
+    std::vector<wxString> domains;
+    if (url.Find("openstreetmap") != wxNOT_FOUND ||
+        url.Find("carto") != wxNOT_FOUND ||
+        url.Find("wmflabs") != wxNOT_FOUND ||
+        url.Find("fastly") != wxNOT_FOUND)
+    {
+        domains.push_back("a");
+        domains.push_back("b");
+        domains.push_back("c");
+    } else if (url.Find("here") != wxNOT_FOUND ||
+               url.Find("bdimg") != wxNOT_FOUND) {
+        domains.push_back("1");
+        domains.push_back("2");
+        domains.push_back("3");
+        domains.push_back("4");
+    } else if (url.Find("autonavi") != wxNOT_FOUND) {
+        domains.push_back("01");
+        domains.push_back("02");
+        domains.push_back("03");
+        domains.push_back("04");
+    } else {
+        return wxEmptyString;
     }
+
+    int n_domains = domains.size();
+    int idx = rand() % n_domains;
+    if (idx < 0 || idx >= n_domains) return wxEmptyString;
+
+    return domains[idx];
 }
 
 wxString Basemap::GetTileUrl(int x, int y)
@@ -744,6 +761,8 @@ wxString Basemap::GetTileUrl(int x, int y)
     url.Replace("{y}", wxString::Format("%d", y));
     url.Replace("HERE_APP_ID", nokia_id);
     url.Replace("HERE_APP_CODE", nokia_code);
+    url.Replace("{s}", GetRandomSubdomain(url));
+    std::cout << url.c_str() << std::endl;
     return url;
 }
 
@@ -769,6 +788,11 @@ wxString Basemap::GetTilePath(int x, int y)
 
 bool Basemap::Draw(wxBitmap* buffer)
 {
+    bool draw_complete = false;
+    if (n_tasks > 0 && n_tasks <= complete_tasks) {
+        draw_complete = true;
+        complete_tasks = 0;
+    }
 	// when tiles pngs are ready, draw them on a buffer
 	wxMemoryDC dc(*buffer);
 	dc.SetBackground(*wxWHITE);
@@ -807,6 +831,5 @@ bool Basemap::Draw(wxBitmap* buffer)
 		}
 	}
     delete gc;
-    isTileDrawn = true;
-    return isTileReady;
+    return draw_complete;
 }

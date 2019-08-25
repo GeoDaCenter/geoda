@@ -66,7 +66,7 @@ void MDSDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
    
     // power iteration option approximation
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"), wxDefaultPosition, wxSize(134,-1));
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"));
     wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
     chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
     lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
@@ -86,8 +86,7 @@ void MDSDlg::CreateControls()
     gbox->Add(hbox15, 1, wxEXPAND);
     
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(134,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);

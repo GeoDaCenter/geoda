@@ -182,6 +182,8 @@ void DataViewerAddColDlg::CreateControls()
     
 	CheckName();
 	SetDefaultsByType(default_field_type);
+    FitInside();
+    Fit();
 }
 
 void DataViewerAddColDlg::OnChoiceType( wxCommandEvent& ev )

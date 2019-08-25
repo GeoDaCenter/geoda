@@ -82,7 +82,7 @@ void MaxpDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
 	// Weights Control
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"), wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
     combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_weights, 1, wxEXPAND);
@@ -91,14 +91,13 @@ void MaxpDlg::CreateControls()
     AddMinBound(panel, gbox);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"), wxDefaultPosition, wxSize(128,-1));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);
     
-    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Groups:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Groups:"));
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_lisa = new wxCheckBox(panel, wxID_ANY, "");
     combo_lisa = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
@@ -111,24 +110,22 @@ void MaxpDlg::CreateControls()
     
     InitLISACombobox();
     
-	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# Iterations:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("# Iterations:"));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "99", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
     
-	wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Local Search:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+	wxStaticText* st19 = new wxStaticText(panel, wxID_ANY, _("Local Search:"));
     wxString choices19[] = {"Greedy", "Tabu Search", "Simulated Annealing"};
     m_localsearch = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices19);
     m_localsearch->SetSelection(0);
     wxBoxSizer *hbox19_1 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:"), wxDefaultPosition, wxSize(108,-1)));
+    hbox19_1->Add(new wxStaticText(panel, wxID_ANY, _("Tabu Length:")));
     m_tabulength = new wxTextCtrl(panel, wxID_ANY, "85");
     hbox19_1->Add(m_tabulength);
     m_tabulength->Disable();
     wxBoxSizer *hbox19_2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:"), wxDefaultPosition, wxSize(108,-1)));
+    hbox19_2->Add(new wxStaticText(panel, wxID_ANY, _("Cooling Rate:")));
     m_coolrate= new wxTextCtrl(panel, wxID_ANY, "0.85");
     hbox19_2->Add(m_coolrate);
     m_coolrate->Disable();
@@ -139,8 +136,7 @@ void MaxpDlg::CreateControls()
     gbox->Add(st19, 0, wxALIGN_TOP | wxRIGHT | wxLEFT, 10);
     gbox->Add(vbox19, 1, wxEXPAND);
     
-    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -150,8 +146,7 @@ void MaxpDlg::CreateControls()
     // Transformation
     AddTransformation(panel, gbox);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"),
-                                          wxDefaultPosition, wxSize(128,-1));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
@@ -171,8 +166,7 @@ void MaxpDlg::CreateControls()
     hbox->Add(gbox, 1, wxEXPAND);
     
     // Output
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"),
-                                         wxDefaultPosition, wxDefaultSize);
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
