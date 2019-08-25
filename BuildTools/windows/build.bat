@@ -918,10 +918,9 @@ cd %BOOST_HOME%
 call bootstrap.bat
 
 if %GDA_BUILD% == BUILD_32 (
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=%MSVC++% --build-type=complete stage
-  call b2 --with-thread --with-date_time --with-chrono --with-system --toolset=%MSVC++% --build-type=complete --debug-symbols=on stage
+  call b2 --with-thread --with-date_time --with-chrono --with-system --with-atomic --with-regex --toolset=%MSVC++% --build-type=complete stage
 ) else (
-  call b2 --with-thread --with-date_time --with-chrono --with-system --with-atomic --toolset=%MSVC++% --build-type=complete architecture=x86 address-model=64 stage
+  call b2 --with-thread --with-date_time --with-chrono --with-system --with-atomic --with-regex --toolset=%MSVC++% --build-type=complete architecture=x86 address-model=64 stage
 )
 cd %BUILD_HOME%
 
