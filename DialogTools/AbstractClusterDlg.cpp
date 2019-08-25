@@ -452,7 +452,7 @@ void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox
     const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)",
         "Standardize (MAD)"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(100,-1), 4, _transform);
+                                  wxSize(140,-1), 4, _transform);
     combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);

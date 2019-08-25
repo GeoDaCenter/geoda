@@ -16,6 +16,7 @@
           <object class="sizeritem">
             <object class="wxStaticText">
               <label>Create Custom Breaks</label>
+              <size>105,-1d</size>
               <font>
                 <weight>bold</weight>
               </font>
@@ -234,6 +235,7 @@
           <object class="sizeritem">
             <object class="wxStaticText">
               <label>Edit Custom Breaks</label>
+              <size>105,-1d</size>
               <font>
                 <weight>bold</weight>
               </font>
@@ -3634,9 +3636,9 @@
                                                               </object>
                                                               <object class="sizeritem">
                                                                   <object class="wxChoice" name="IDC_XCOORDINATES">
-                                                                      <size>60,-1d</size>
+                                                                      <size>80,-1d</size>
                                                                   </object>
-                                                                  <flag>wxALIGN_CENTER|wxALL</flag>
+                                                                  <flag>wxALIGN_CENTER|wxALL|wxEXPAND</flag>
                                                                   <border>2</border>
                                                               </object>
                                                               <object class="sizeritem">
@@ -3664,9 +3666,9 @@
                                                               </object>
                                                               <object class="sizeritem">
                                                                   <object class="wxChoice" name="IDC_YCOORDINATES">
-                                                                      <size>60,-1d</size>
+                                                                      <size>80,-1d</size>
                                                                   </object>
-                                                                  <flag>wxALIGN_CENTER|wxALL</flag>
+                                                                  <flag>wxALIGN_CENTER|wxALL|wxEXPAND</flag>
                                                                   <border>2</border>
                                                               </object>
                                                               <object class="sizeritem">

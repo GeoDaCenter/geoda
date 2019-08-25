@@ -850,6 +850,7 @@ bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
             return false;
         } else {
             basemap->SetupMapType(basemap_item);
+            ResizeSelectableShps();
         }
     } else {
         if ( basemap ) {

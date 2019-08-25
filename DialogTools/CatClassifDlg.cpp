@@ -2509,7 +2509,7 @@ wxString CatClassifPanel::GetDefaultTitle(const wxString& field_name,
 {
 	int max_tries = 500;
 	int cur_try = 1;
-	wxString ret_title_base = _("Custom Breaks");
+	wxString ret_title_base = "Custom Breaks";
     bool case_sensitive = false;
 	if (table_int->DoesNameExist(field_name, case_sensitive)) {
 		ret_title_base << " (" << field_name;
