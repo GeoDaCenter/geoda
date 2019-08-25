@@ -601,7 +601,7 @@ void TemplateCanvas::update(HLStateInt* o)
 
 void TemplateCanvas::RenderToDC(wxDC &dc, int w, int h)
 {
-#if defined(__WIN32__) || defined(__linux__)
+#ifdef __WIN32__
 	GdaScaleTrans old_scale_trans = last_scale_trans;
 
 	int screen_w = GetClientSize().GetWidth();
