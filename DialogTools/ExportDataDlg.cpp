@@ -613,7 +613,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
                                              table_p, selected_rows,
                                              spatial_ref, is_update, cpg_encode);
     if (new_layer == NULL) return false;
-#ifndef __linux__
+#ifdef __WXOSX__
     wxProgressDialog prog_dlg(_("Save data source progress dialog"),
                               _("Saving data..."),
                               prog_n_max, this,
@@ -625,7 +625,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
         if ( new_layer->stop_exporting == true )
             return false;
         // update progress bar
-#ifndef __linux__
+#ifdef __WXOSX__
         cont = prog_dlg.Update(new_layer->export_progress);
         if (!cont ) {
             new_layer->stop_exporting = true;
