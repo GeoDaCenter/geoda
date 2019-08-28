@@ -24,7 +24,7 @@ Note:  contributions of build scripts under other platforms are welcomed, please
 
 GeoDa Internationalization (I18n) and Localization(L10n) project aims to provide an online tool that GeoDa users could help to translate the GeoDa UI to different languages.
 
-For crowdsourcing, we use Google Spreadsheet with the public address here. Anyone can access this spreadsheet, and edit each translation.
+For crowdsourcing, we use Google Spreadsheet with the public address [here](https://docs.google.com/spreadsheets/d/1iZa4wCIyTDlIRYoW7229YoZWKZ0lmIiOFsCJG3ZVw-s/edit?usp=sharing). Anyone can access this spreadsheet, and edit each translation.
 
 Contributors:
 
