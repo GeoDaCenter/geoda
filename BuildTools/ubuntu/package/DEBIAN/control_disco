@@ -1,0 +1,13 @@
+Package: geoda
+Version: 1.14-1bionic1
+Architecture: amd64
+Priority: optional
+Section: graphics
+Installed-Size: 121795
+Depends: zlib1g, libexpat1, freeglut3, libreadline7, libgtk-3-0, libssl1.0.0, libwebkit2gtk-4.0-37
+Maintainer: Luc Anselin < anselin@uchicago.edu >
+Provides: geoda
+Homepage: http://spatial.uchicago.edu
+Description: GeoDa Software
+  GeoDa Software for Geospatial Analysis and Computation	
+
