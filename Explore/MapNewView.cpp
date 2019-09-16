@@ -161,7 +161,7 @@ MapCanvas::MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                      const wxPoint& pos, const wxSize& size)
 : TemplateCanvas(parent, t_frame, project_s,
                  project_s->GetHighlightState(),
-                 pos, size, true, true),
+                 pos, size, true, true, GdaConst::enable_high_dpi_support),
 num_obs(project_s->GetNumRecords()),
 p_datasource(project_s->GetDataSource()),
 num_time_vals(1),
