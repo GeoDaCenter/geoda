@@ -73,7 +73,7 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	const wxString& title,
 	const wxPoint& pos,
 	const wxSize& size)
-	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
 	highlight_state = NULL;
     table_state = NULL;
@@ -89,7 +89,7 @@ PreferenceDlg::PreferenceDlg(wxWindow* parent,
 	const wxString& title,
 	const wxPoint& pos,
 	const wxSize& size)
-	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE)
+	: wxDialog(parent, id, title, pos, size, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
 	highlight_state = _highlight_state;
     table_state = _table_state;
@@ -102,10 +102,15 @@ void PreferenceDlg::Init()
 {
 	ReadFromCache();
 
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,820), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+
+    wxPanel *panel = new wxPanel(scrl);
+
     long txt_num_style = wxTE_RIGHT | wxTE_PROCESS_ENTER;
     wxPoint pos = wxDefaultPosition;
 
-	wxNotebook* notebook = new wxNotebook(this, wxID_ANY, pos, wxDefaultSize);
+	wxNotebook* notebook = new wxNotebook(panel, wxID_ANY, pos, wxDefaultSize);
 	//  visualization tab
 	wxNotebookPage* vis_page = new wxNotebookPage(notebook, wxID_ANY,
                                                   pos, wxSize(560, 680));
@@ -418,8 +423,8 @@ void PreferenceDlg::Init()
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 	wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
     wxSize bt_sz = wxSize(70, 30);
-	wxButton *resetButton = new wxButton(this, wxID_ANY, _("Reset"), pos, bt_sz);
-	wxButton *closeButton = new wxButton(this, wxID_OK, _("Close"), pos, bt_sz);
+	wxButton *resetButton = new wxButton(panel, wxID_ANY, _("Reset"), pos, bt_sz);
+	wxButton *closeButton = new wxButton(panel, wxID_OK, _("Close"), pos, bt_sz);
 	resetButton->Bind(wxEVT_COMMAND_BUTTON_CLICKED, &PreferenceDlg::OnReset, this);
 
 	hbox->Add(resetButton, 1);
@@ -428,9 +433,19 @@ void PreferenceDlg::Init()
 	vbox->Add(notebook, 1, wxEXPAND | wxALL, 10);
 	vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
 
-	SetSizer(vbox);
-	vbox->Fit(this);
-    
+    panel->SetSizer(vbox);
+
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+
+    scrl->SetSizer(panelSizer);
+
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+
 	Centre();
 	ShowModal();
 
