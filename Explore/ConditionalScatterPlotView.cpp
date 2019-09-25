@@ -330,11 +330,11 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			vert_label << CatClassification::CatClassifTypeToString(
 														GetCatType(VERT_VAR));
 		}
-		vert_label << " vert cat var: ";
+		vert_label << _(" vert cat var: ");
 		vert_label << GetNameWithTime(VERT_VAR);
 		vert_label << ",   ";
 	}
-	vert_label << "dep. var: " << GetNameWithTime(DEP_VAR);
+	vert_label << _("dep. var: ") << GetNameWithTime(DEP_VAR);
 	s = new GdaShapeText(vert_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0), 90,
 				   GdaShapeText::h_center, GdaShapeText::bottom, -(label_offset+18), 0);
@@ -369,11 +369,11 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			horiz_label << CatClassification::CatClassifTypeToString(
 														GetCatType(HOR_VAR));
 		}
-		horiz_label << " horiz cat var: ";
+		horiz_label << _(" horiz cat var: ");
 		horiz_label << GetNameWithTime(HOR_VAR);
 		horiz_label << ",   ";
 	}
-	horiz_label << "ind. var: " << GetNameWithTime(IND_VAR);
+	horiz_label << _("ind. var: ") << GetNameWithTime(IND_VAR);
 	s = new GdaShapeText(horiz_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin+(bg_xmax-bg_xmin)/2.0, bg_ymin), 0,
 				   GdaShapeText::h_center, GdaShapeText::top, 0, (label_offset+18));

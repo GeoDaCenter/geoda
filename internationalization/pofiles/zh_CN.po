@@ -1,20 +1,6 @@
 # contributors:
 msgid ""
-msgstr ""
-"Project-Id-Version: \n"
-"POT-Creation-Date: 2018-04-26 14:58+0800\n"
-"PO-Revision-Date: 2019-08-24 21:22-0700\n"
-"Last-Translator: \n"
-"Language-Team: \n"
-"Language: zh_CN\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.2.1\n"
-"X-Poedit-Basepath: Regression\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Poedit-KeywordsList: _;wxT\n"
-"X-Poedit-SearchPath-0: .\n"
+msgstr "Project-Id-Version: \nPOT-Creation-Date: 2018-04-26 14:58+0800\nPO-Revision-Date: 2019-03-06 14:33-0700\nLast-Translator: \nLanguage-Team: \nLanguage: zh_CN\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nX-Generator: Poedit 2.2.1\nX-Poedit-Basepath: Regression\nPlural-Forms: nplurals=1; plural=0;\nX-Poedit-KeywordsList: _;wxT\nX-Poedit-SearchPath-0: .\n"
 
 # contributors:
 msgid " (isolates in weights are removed)"
@@ -93,14 +79,12 @@ msgid " for obs within distance band "
 msgstr " 观察对象在距离带："
 
 # contributors:
-msgid ""
-" has duplicate values. Please choose a different ID Variable.\n"
-"\n"
-"Details:"
-msgstr ""
-" 有重复的值。请选择一个不同的ID变量。\n"
-"\n"
-"详情："
+msgid " has duplicate values. Please choose a different ID Variable.\n\nDetails:"
+msgstr " 有重复的值。请选择一个不同的ID变量。\n\n详情："
+
+# contributors:
+msgid " horiz cat var: "
+msgstr " 横轴分类变量: "
 
 # contributors:
 msgid " in range:"
@@ -129,6 +113,10 @@ msgstr " 应该只包含数字/字母作为id. 请选择一个不同的ID变量.
 # contributors:
 msgid " to "
 msgstr " 至 "
+
+# contributors:
+msgid " vert cat var: "
+msgstr " 纵轴分类变量: "
 
 # contributors:
 msgid "# Iterations:"
@@ -283,6 +271,10 @@ msgid "(Leave empty for undefined values)"
 msgstr "（未定义的值为空）"
 
 # contributors:
+msgid "(Optional)"
+msgstr ""
+
+# contributors:
 msgid "(Optional) First record has field names? "
 msgstr "(可选)第一行记录是否为字段名? "
 
@@ -299,23 +291,12 @@ msgid "(Use Sequences)"
 msgstr "(使用整数顺序)"
 
 # contributors:
-msgid ""
-"---\n"
-"\n"
-"PCA method: "
-msgstr ""
-"---\n"
-"\n"
-"PCA 方法: "
+msgid "---\n\nPCA method: "
+msgstr "---\n\nPCA 方法: "
 
 # contributors:
-msgid ""
-".\n"
-"Enter a seed value to use between\n"
-"0 and "
-msgstr ""
-".\n"
-"输入一个种子值，范围是0和 "
+msgid ".\nEnter a seed value to use between\n0 and "
+msgstr ".\n输入一个种子值，范围是0和 "
 
 # contributors:
 msgid "0x03 (dBASE III+)"
@@ -490,14 +471,8 @@ msgid "Add Variable"
 msgstr "添加变量"
 
 # contributors:
-msgid ""
-"Add a name for your group of variables. \n"
-"\n"
-"You can edit the time period labels for easier interpretation of results."
-msgstr ""
-"命名该组变量。\n"
-"\n"
-"您可以编辑时间标签, 以便更容易地解释结果。"
+msgid "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results."
+msgstr "命名该组变量。\n\n您可以编辑时间标签, 以便更容易地解释结果。"
 
 # contributors:
 msgid "Add basemap automatically:"
@@ -764,20 +739,12 @@ msgid "Both are significant, Spatial Lag Model has been selected."
 msgstr "两者都是显著的，已选择空间滞后模型。"
 
 # contributors:
-msgid "Bottom"
-msgstr "Bottom"
-
-# contributors:
-msgid "Bounding Box"
-msgstr "边框"
-
-# contributors:
 msgid "Box Map (Hinge=1.5)"
-msgstr "箱线地图 (Hinge=1.5)"
+msgstr "箱线地图 (折叶点=1.5)"
 
 # contributors:
 msgid "Box Map (Hinge=3.0)"
-msgstr "箱线地图 (Hinge=3.0)"
+msgstr "箱线地图 (折叶点=3.0)"
 
 # contributors:
 msgid "Box Plot"
@@ -816,10 +783,6 @@ msgid "Bubble Size Adjust Dialog"
 msgstr "气泡大小设置"
 
 # contributors:
-msgid "Buffer query area:"
-msgstr "缓冲查询区域:"
-
-# contributors:
 msgid "Bug Report"
 msgstr "软件缺陷报告"
 
@@ -840,10 +803,6 @@ msgid "CSV Contains Variable Names?"
 msgstr "CSV是否包含变量名？"
 
 # contributors:
-msgid "CSV File Configuration"
-msgstr "CSV 文件设置"
-
-# contributors:
 msgid "Calculator"
 msgstr "计算器"
 
@@ -856,28 +815,16 @@ msgid "Can't create layer %s with empty field (%s) name."
 msgstr "无法创建层 %s， 字段 (%s) 为空."
 
 # contributors:
-msgid ""
-"Can't create output OGR driver. \n"
-"\n"
-"Details:"
-msgstr ""
-"无法创建OGR数据. \n"
-"\n"
-"详细:"
+msgid "Can't create output OGR driver. \n\nDetails:"
+msgstr "无法创建OGR数据. \n\n详细:"
 
 # contributors:
 msgid "Can't get bounding box information from this datasource. Please try another datasource."
 msgstr "无法从此数据源获取边界信息。请尝试另一个数据源。"
 
 # contributors:
-msgid ""
-"Can't get datasource type from: %s\n"
-"\n"
-"Please select datasource supported by GeoDa or add extension  to file datasource."
-msgstr ""
-"无法从%s获取数据源类型\n"
-"\n"
-"请选择GeoDa支持的数据源或将扩展名添加到文件数据源。"
+msgid "Can't get datasource type from: %s\n\nPlease select datasource supported by GeoDa or add extension  to file datasource."
+msgstr "无法从%s获取数据源类型\n\n请选择GeoDa支持的数据源或将扩展名添加到文件数据源。"
 
 # contributors:
 msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
@@ -1020,10 +967,7 @@ msgid "Change Size of Root"
 msgstr "修改根(root)大小"
 
 # contributors:
-msgid ""
-"Change field properties (%s) failed.\n"
-"\n"
-"Details: %s"
+msgid "Change field properties (%s) failed.\n\nDetails: %s"
 msgstr ""
 
 # contributors:
@@ -1351,16 +1295,8 @@ msgid "Copy Legend To Clipboard"
 msgstr "复制图例到剪贴板"
 
 # contributors:
-msgid ""
-"Copyright (C) 1998-2011\n"
-"GeoDa Center for Geospatial Analysis and Computation\n"
-"and Arizona Board of Regents\n"
-"All Rights Reserved"
-msgstr ""
-"版权 (C) 1998-2011\n"
-"GeoDa Center for Geospatial Analysis and Computation\n"
-"and Arizona Board of Regents\n"
-"版权所有"
+msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\nAll Rights Reserved"
+msgstr "版权 (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\n版权所有"
 
 # contributors:
 msgid "Copyright (C) 2011-%d by Luc Anselin"
@@ -1417,6 +1353,10 @@ msgstr "协变量"
 # contributors:
 msgid "Create"
 msgstr "创建"
+
+# contributors:
+msgid "Create CSVT when saving CSV file:"
+msgstr ""
 
 # contributors:
 msgid "Create Custom Breaks"
@@ -1675,14 +1615,8 @@ msgid "Differential Moran's I (%s): %s - %s"
 msgstr "差分Moran's I (%s):%s - %s"
 
 # contributors:
-msgid ""
-"Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n"
-"\n"
-"Please first group variables by time period: Select Time --> Time Editor."
-msgstr ""
-"差分Moran’s I 检验变量随时间的变化是否在空间上存在相关性。\n"
-"\n"
-"请首先按时间段对变量进行分组：选择“时间” - >“时间编辑器”。"
+msgid "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."
+msgstr "差分Moran’s I 检验变量随时间的变化是否在空间上存在相关性。\n\n请首先按时间段对变量进行分组：选择“时间” - >“时间编辑器”。"
 
 # contributors:
 msgid "Disable auto upgrade:"
@@ -1777,14 +1711,8 @@ msgid "Do Means Differ? (ANOVA)"
 msgstr "均值比较检验(ANOVA)"
 
 # contributors:
-msgid ""
-"Do you want to save the results of Diff-in-Diff test?\n"
-"\n"
-"Note: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
-msgstr ""
-"是否保存Diff-in-Diff测试结果？\n"
-"\n"
-"注意: 结果只能保存到外部数据文件中, 这是因为当前的横截面观测值在空时上下文中发生了变化。"
+msgid "Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+msgstr "是否保存Diff-in-Diff测试结果？\n\n注意: 结果只能保存到外部数据文件中, 这是因为当前的横截面观测值在空时上下文中发生了变化。"
 
 # contributors:
 msgid "Do you want to save your data?"
@@ -1805,10 +1733,6 @@ msgstr "捐赠"
 # contributors:
 msgid "Down"
 msgstr "向下移动"
-
-# contributors:
-msgid "Download OSM Roads"
-msgstr ""
 
 # contributors:
 msgid "Downloading updates..."
@@ -1931,9 +1855,7 @@ msgid "Error"
 msgstr "错误"
 
 # contributors:
-msgid ""
-"Error while opening project:\n"
-"\n"
+msgid "Error while opening project:\n\n"
 msgstr "打开工程时出错\n"
 
 # contributors:
@@ -2037,10 +1959,6 @@ msgid "Expression"
 msgstr "表达式"
 
 # contributors:
-msgid "Extent"
-msgstr ""
-
-# contributors:
 msgid "Fail in reading the Boundary file: at polygon-%d"
 msgstr "读取边界文件失败：在多边形-%d"
 
@@ -2049,15 +1967,8 @@ msgid "Failed to create the weights file."
 msgstr "创建空间权重文件失败。"
 
 # contributors:
-msgid ""
-"Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n"
-"\n"
-"Tip: you can set up the necessary GeoDa driver by following the instructions at:\n"
-" http://geodacenter.github.io/formats.html"
-msgstr ""
-"无法打开数据源。请检查GeoDa是否支持该数据源的类型/格式。\n"
-"\n"
-"提示: 您可以参考这个链接来设置相关的驱动程序: http://geodacenter.github.io/formats.html"
+msgid "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html"
+msgstr "无法打开数据源。请检查GeoDa是否支持该数据源的类型/格式。\n\n提示: 您可以参考这个链接来设置相关的驱动程序: http://geodacenter.github.io/formats.html"
 
 # contributors:
 msgid "False Discovery Rate:"
@@ -2145,7 +2056,7 @@ msgstr "第四变量"
 
 # contributors:
 msgid "Frequency"
-msgstr "频率"
+msgstr "频数"
 
 # contributors:
 msgid "Full Extent"
@@ -2169,9 +2080,7 @@ msgstr "GeoDa CSV文件配置"
 
 # contributors:
 msgid "GeoDa Help"
-msgstr ""
-"GeoDa\n"
-"帮助"
+msgstr "GeoDa\n帮助"
 
 # contributors:
 msgid "GeoDa Preference Setup"
@@ -2218,10 +2127,7 @@ msgid "GeoDa can't load dataset with duplicate field names."
 msgstr ""
 
 # contributors:
-msgid ""
-"GeoDa can't read data from datasource. \n"
-"\n"
-"Details: Datasource is empty."
+msgid "GeoDa can't read data from datasource. \n\nDetails: Datasource is empty."
 msgstr ""
 
 # contributors:
@@ -2241,9 +2147,7 @@ msgid "GeoDa could not find the required weights file."
 msgstr "GeoDa找不到所需的空间权重文件。"
 
 # contributors:
-msgid ""
-"GeoDa could not find the required weights file. \n"
-"Please specify weights in Tools > Weights Manager."
+msgid "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."
 msgstr "GeoDa找不到所需的空间权重文件。请在：工具>权重管理器 中指定权重。"
 
 # contributors:
@@ -2308,7 +2212,7 @@ msgstr "获得免费的GeoDa-Web帐户: "
 
 # contributors:
 msgid "Get a free HERE account: "
-msgstr "获得免费HERE地图帐户： "
+msgstr "获得免费诺HERE地图帐户： "
 
 # contributors:
 msgid "Getis-Ord"
@@ -2379,12 +2283,12 @@ msgid "HDBScan Clustering Settings"
 msgstr "HDBScan 聚类设置"
 
 # contributors:
-msgid "HERE App ID"
-msgstr "HERE 应用 ID"
+msgid "HERE App Code"
+msgstr ""
 
 # contributors:
-msgid "HERE App Key"
-msgstr "HERE 应用密钥"
+msgid "HERE App ID"
+msgstr "HERE 应用 ID"
 
 # contributors:
 msgid "Has Colocation"
@@ -2456,15 +2360,15 @@ msgstr "高亮颜色"
 
 # contributors:
 msgid "Hinge"
-msgstr "Hinge"
+msgstr "折叶点"
 
 # contributors:
 msgid "Hinge=1.5"
-msgstr "Hinge=1.5"
+msgstr "折叶点=1.5"
 
 # contributors:
 msgid "Hinge=3.0"
-msgstr "Hinge=3.0"
+msgstr "折叶点=3.0"
 
 # contributors:
 msgid "Histogram"
@@ -2484,7 +2388,7 @@ msgstr "直方图: "
 
 # contributors:
 msgid "Horizontal Bins Breaks"
-msgstr "横向区间(Bins)断点"
+msgstr "竖直方向区间(Bins)断点"
 
 # contributors:
 msgid "Horizontal Cells"
@@ -2583,10 +2487,6 @@ msgid "Input ASCII file"
 msgstr "输入ASCII文件"
 
 # contributors:
-msgid "Input data source"
-msgstr "输入数据源"
-
-# contributors:
 msgid "Input datasource"
 msgstr "输入数据源"
 
@@ -2627,17 +2527,11 @@ msgid "Insufficient Random Sampling"
 msgstr "随机抽样不足"
 
 # contributors:
-msgid ""
-"Internal Error: Add new field (%s) failed.\n"
-"\n"
-"Details:%s"
+msgid "Internal Error: Add new field (%s) failed.\n\nDetails:%s"
 msgstr ""
 
 # contributors:
-msgid ""
-"Internal Error: Delete field failed.\n"
-"\n"
-"Details:"
+msgid "Internal Error: Delete field failed.\n\nDetails:"
 msgstr ""
 
 # contributors:
@@ -2657,25 +2551,12 @@ msgid "Invalid Variable"
 msgstr "无效变量"
 
 # contributors:
-msgid ""
-"Invalid Weights Information:\n"
-"\n"
-" The selected weights file is not valid.\n"
-" Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
 msgstr ""
 
 # contributors:
-msgid ""
-"Invalid Weights Information:\n"
-"\n"
-" The selected weights file is not valid.\n"
-" Please choose another weights file, or use Tools > Weights > Weights Manager\n"
-" to define a valid weights file."
-msgstr ""
-"无效的空间权重信息：\n"
-"\n"
-" 选定的空间权重文件无效。\n"
-" 请选择另外一个空间权重文件，通过菜单来定义一个有效的权重文件：工具>权重>权重管理"
+msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."
+msgstr "无效的空间权重信息：\n\n 选定的空间权重文件无效。\n 请选择另外一个空间权重文件，通过菜单来定义一个有效的权重文件：工具>权重>权重管理"
 
 # contributors:
 msgid "Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."
@@ -2690,12 +2571,7 @@ msgid "Invert Selection"
 msgstr "反选"
 
 # contributors:
-msgid ""
-"It looks like GeoDa has been terminated abnormally. \n"
-"Do you want to send a crash report to GeoDa team? \n"
-"\n"
-"(Optional) Please leave your email address,\n"
-"so we can send a follow-up email once we have a fix."
+msgid "It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team? \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix."
 msgstr ""
 
 # contributors:
@@ -2815,10 +2691,6 @@ msgid "Layer names"
 msgstr "层名称"
 
 # contributors:
-msgid "Left"
-msgstr ""
-
-# contributors:
 msgid "Legend Background Color"
 msgstr "图例背景颜色"
 
@@ -2831,14 +2703,8 @@ msgid "Light"
 msgstr "细"
 
 # contributors:
-msgid ""
-"Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n"
-"\n"
-"Please try to load customized date/time type as string and covert it using Table->Edit Variable Property"
-msgstr ""
-"可识别的日期/时间类型仅限于日期（YYYY-MM-DD），时间（HH：MM：SS + nn）和日期时间（YYYY-MM-DD HH：MM：SS + nn），\n"
-"\n"
-"如有自定义的日期/时间类型， 请在偏好设置中设置，然后使用菜单 “表格 ->编辑变量属性” 进行日期转换"
+msgid "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+msgstr "可识别的日期/时间类型仅限于日期（YYYY-MM-DD），时间（HH：MM：SS + nn）和日期时间（YYYY-MM-DD HH：MM：SS + nn），\n\n如有自定义的日期/时间类型， 请在偏好设置中设置，然后使用菜单 “表格 ->编辑变量属性” 进行日期转换"
 
 # contributors:
 msgid "Line"
@@ -2849,14 +2715,8 @@ msgid "Linear Smoother"
 msgstr "线性平滑器"
 
 # contributors:
-msgid ""
-"List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n"
-"\n"
-"For example, to group Pop80 and Pop90, select them on the left and move them to the right."
-msgstr ""
-"未分组变量列表。 如要创建时间（分组）变量，请将它们移到右侧的列表中。\n"
-"\n"
-"例如，要将Pop80和Pop90组合创建一个时间变量，请在左侧选择它们并将它们移到右侧。"
+msgid "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\nFor example, to group Pop80 and Pop90, select them on the left and move them to the right."
+msgstr "未分组变量列表。 如要创建时间（分组）变量，请将它们移到右侧的列表中。\n\n例如，要将Pop80和Pop90组合创建一个时间变量，请在左侧选择它们并将它们移到右侧。"
 
 # contributors:
 msgid "Load"
@@ -2923,7 +2783,7 @@ msgid "Local search:"
 msgstr "局部搜索:"
 
 # contributors:
-msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgid "Locale for numbers has been setup successfully."
 msgstr "已成功设置区域设置。请重新打开当前项目以启用此区域设置。"
 
 # contributors:
@@ -3411,14 +3271,8 @@ msgid "Number of not clustered observations: "
 msgstr "无法聚类的对象数："
 
 # contributors:
-msgid ""
-"OGR failed to create field.\n"
-"\n"
-"Details:"
-msgstr ""
-"创建OGR字段失败。\n"
-"\n"
-"详细:"
+msgid "OGR failed to create field.\n\nDetails:"
+msgstr "创建OGR字段失败。\n\n详细:"
 
 # contributors:
 msgid "OK"
@@ -3493,10 +3347,6 @@ msgid "Open data source progress dialog"
 msgstr "打开数据进度"
 
 # contributors:
-msgid "Open file"
-msgstr "打开文件"
-
-# contributors:
 msgid "Open project file:"
 msgstr "打开项目文件："
 
@@ -3519,10 +3369,6 @@ msgstr "选项"
 # contributors:
 msgid "Options > Change Parameters"
 msgstr "选项 > 修改参数"
-
-# contributors:
-msgid "Options:"
-msgstr "选项:"
 
 # contributors:
 msgid "Order of contiguity"
@@ -3645,15 +3491,11 @@ msgid "Please briefly describe what went wrong."
 msgstr "请简要描述出什么地方出错了。"
 
 # contributors:
-msgid "Please check input values are valid"
-msgstr ""
-
-# contributors:
 msgid "Please check the selected variables are all valid."
 msgstr "请检查所选变量是否都有效。"
 
 # contributors:
-msgid "Please check your network connection, or contact GeoDa support team."
+msgid "Please check your network connection, or download GeoDa from https://geodacenter.github.io"
 msgstr "请检查您的网络连接，或联系GEODA支持团队。"
 
 # contributors:
@@ -3723,10 +3565,6 @@ msgstr "请输入每个区域的最小观测次数, 或者使用最小范围。"
 # contributors:
 msgid "Please enter number of regions"
 msgstr "请输入区域数"
-
-# contributors:
-msgid "Please enter values of bounding box."
-msgstr ""
 
 # contributors:
 msgid "Please first select observations in one of the other data or map views."
@@ -3889,12 +3727,8 @@ msgid "Please specify distance metric."
 msgstr "请指定一个距离度量。"
 
 # contributors:
-msgid ""
-"Please specify the p-value to be used in tests; \n"
-"default: p-value = 0.01"
-msgstr ""
-"请指定在测试中使用的p值;\n"
-"默认值：p值= 0.01"
+msgid "Please specify the p-value to be used in tests; \ndefault: p-value = 0.01"
+msgstr "请指定在测试中使用的p值;\n默认值：p值= 0.01"
 
 # contributors:
 msgid "Please specify weights in Tools > Weights Manager."
@@ -4121,7 +3955,7 @@ msgid "Reset to system locale information"
 msgstr "重置系统区域信息"
 
 # contributors:
-msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgid "Reset to system locale successfully."
 msgstr "成功重置为系统区域设置。请重新打开当前项目使用系统区域设置。"
 
 # contributors:
@@ -4139,10 +3973,6 @@ msgstr "结果"
 # contributors:
 msgid "Reverse"
 msgstr "反向"
-
-# contributors:
-msgid "Right"
-msgstr ""
 
 # contributors:
 msgid "Rook contiguity"
@@ -4261,14 +4091,6 @@ msgid "Save Mean Centers"
 msgstr "保存平均中心"
 
 # contributors:
-msgid "Save OSM roads file"
-msgstr ""
-
-# contributors:
-msgid "Save OSM roads to file successfully."
-msgstr ""
-
-# contributors:
 msgid "Save Project"
 msgstr "保存项目"
 
@@ -4357,14 +4179,8 @@ msgid "Save Thiessen Polygons"
 msgstr "保存泰森多边形"
 
 # contributors:
-msgid ""
-"Save as data source (%s) failed.\n"
-"\n"
-"Details:"
-msgstr ""
-"保存数据 (%s) 失败。\n"
-"\n"
-"详细:"
+msgid "Save as data source (%s) failed.\n\nDetails:"
+msgstr "保存数据 (%s) 失败。\n\n详细:"
 
 # contributors:
 msgid "Save data source progress dialog"
@@ -4399,14 +4215,8 @@ msgid "Saving failed: GeoDa can't save as empty datasource."
 msgstr "保存失败：GeoDa不能保存空数据源。"
 
 # contributors:
-msgid ""
-"Saving to data source (%s) failed.\n"
-"\n"
-"Details: %s"
-msgstr ""
-"保存到数据源（%s）失败。\n"
-"\n"
-"详情：%s"
+msgid "Saving to data source (%s) failed.\n\nDetails: %s"
+msgstr "保存到数据源（%s）失败。\n\n详情：%s"
 
 # contributors:
 msgid "Scale Basemap"
@@ -4497,10 +4307,6 @@ msgid "Select Variables (Multi-Selection)"
 msgstr "选择变量（多选）"
 
 # contributors:
-msgid "Select a file:"
-msgstr "选择文件:"
-
-# contributors:
 msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
 msgstr "选择一个现有的*.gdb目录，或者创建一个名称已*.gdb结尾的新文件夹"
 
@@ -4579,6 +4385,14 @@ msgstr "选中="
 # contributors:
 msgid "Selected vs. Unselected"
 msgstr "选中的与未选中的"
+
+# contributors:
+msgid "Selected weights are not valid for intersection, e.g. weights have different ID variable. Please select different weights."
+msgstr ""
+
+# contributors:
+msgid "Selected weights are not valid for union, e.g. weights have different ID variable. Please select different weights."
+msgstr ""
 
 # contributors:
 msgid "Selection"
@@ -4671,6 +4485,10 @@ msgstr ""
 # contributors:
 msgid "Setup Locale of GeoDa Table"
 msgstr "区域设置"
+
+# contributors:
+msgid "Setup Number Formatting"
+msgstr ""
 
 # contributors:
 msgid "Setup co-locations:"
@@ -4810,7 +4628,7 @@ msgstr ""
 
 # contributors:
 msgid "Spatial Lag"
-msgstr "空间滞后模型"
+msgstr "空间滞后"
 
 # contributors:
 msgid "Spatial Rate"
@@ -4937,10 +4755,6 @@ msgid "Success / Warning"
 msgstr "成功/警告"
 
 # contributors:
-msgid "Successful aggregation."
-msgstr "聚合成功。"
-
-# contributors:
 msgid "Suggested field name:"
 msgstr "建议字段名："
 
@@ -5001,27 +4815,12 @@ msgid "Target Variable"
 msgstr "目标变量"
 
 # contributors:
-msgid ""
-"Thank you for helping us improve GeoDa with your bug report! \n"
-"\n"
-"You can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
-msgstr ""
-"感谢您帮助我们改进 GeoDa 与您的 bug 报告!\n"
-"\n"
-"您可以跟踪我们的响应, 并在链接的网页中添加截图或细节 (或发送电子邮件至 spatial@uchicago.edu):"
+msgid "Thank you for helping us improve GeoDa with your bug report! \n\nYou can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+msgstr "感谢您帮助我们改进 GeoDa 与您的 bug 报告!\n\n您可以跟踪我们的响应, 并在链接的网页中添加截图或细节 (或发送电子邮件至 spatial@uchicago.edu):"
 
 # contributors:
-msgid ""
-"The GeoDa project file cannot find one or more associated data sources.\n"
-"\n"
-"Details: GeoDa is looking for: %s\n"
-"\n"
-"Tip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
-msgstr ""
-"GeoDa项目文件不能找到一个或多个相关数据源。\n"
-"详情：GeoDa找不到数据：%s\n"
-"\n"
-"提示：您可以在文本编辑器中打开.gda项目文件，以修改与您的项目关联的数据源的路径。"
+msgid "The GeoDa project file cannot find one or more associated data sources.\n\nDetails: GeoDa is looking for: %s\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+msgstr "GeoDa项目文件不能找到一个或多个相关数据源。\n详情：GeoDa找不到数据：%s\n\n提示：您可以在文本编辑器中打开.gda项目文件，以修改与您的项目关联的数据源的路径。"
 
 # contributors:
 msgid "The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers."
@@ -5048,14 +4847,8 @@ msgid "The currently entered threshold value is not a valid number. Please move 
 msgstr ""
 
 # contributors:
-msgid ""
-"The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n"
-"\n"
-"Press Yes to proceed anyhow, press No to abort."
-msgstr ""
-"当前输入的阈值%f小于%f（该值是保证每个对象都有至少一个邻居的最小值）。\n"
-"\n"
-"点击“是”继续进行，点击“否”中止。"
+msgid "The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."
+msgstr "当前输入的阈值%f小于%f（该值是保证每个对象都有至少一个邻居的最小值）。\n\n点击“是”继续进行，点击“否”中止。"
 
 # contributors:
 msgid "The data source is read only. Please try to save as other data source."
@@ -5066,19 +4859,11 @@ msgid "The first line should have comma separated number of rows and ID name!"
 msgstr "第一行应该有逗号分隔的行数和ID字段名"
 
 # contributors:
-msgid ""
-"The geometries will not be saved when exporting to a Table-only data source.\n"
-"\n"
-"Do you want to continue?"
-msgstr ""
-"注意：导出到表格数据格式时矢量数据将会丢失 。\n"
-"\n"
-"继续导出吗 ？"
+msgid "The geometries will not be saved when exporting to a Table-only data source.\n\nDo you want to continue?"
+msgstr "注意：导出到表格数据格式时矢量数据将会丢失 。\n\n继续导出吗 ？"
 
 # contributors:
-msgid ""
-"The last seed used by the pseudo random\n"
-"number generator was "
+msgid "The last seed used by the pseudo random\nnumber generator was "
 msgstr "伪随机数生成器使用的最后一个种子是 "
 
 # contributors:
@@ -5094,12 +4879,8 @@ msgid "The length of an non-integral numeric field must be at least %d and at mo
 msgstr "非整数数值字段的长度必须至少为%d, 最多为%d。"
 
 # contributors:
-msgid ""
-"The length of field name should be between 1 and %d.\n"
-"Current field length (%d) is not valid"
-msgstr ""
-"字段名的长度应介于1和%d 之间。\n"
-"当前字段长度 (%d) 无效"
+msgid "The length of field name should be between 1 and %d.\nCurrent field length (%d) is not valid"
+msgstr "字段名的长度应介于1和%d 之间。\n当前字段长度 (%d) 无效"
 
 # contributors:
 msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
@@ -5142,9 +4923,7 @@ msgid "The ratio of between to total sum of squares:\t"
 msgstr "聚类间之总平方和 / 总平方和 ：\t"
 
 # contributors:
-msgid ""
-"The sample size for random sampling is too small.\n"
-"Please increase the number of iterations."
+msgid "The sample size for random sampling is too small.\nPlease increase the number of iterations."
 msgstr "随机抽样的样本数太小。请增加迭代次数。"
 
 # contributors:
@@ -5316,10 +5095,6 @@ msgid "Tools"
 msgstr "工具"
 
 # contributors:
-msgid "Top"
-msgstr ""
-
-# contributors:
 msgid "Transformation:"
 msgstr "数据转换:"
 
@@ -5330,10 +5105,6 @@ msgstr "数据转换: "
 # contributors:
 msgid "Transformation:\t"
 msgstr "数据转换:\t"
-
-# contributors:
-msgid "Travel Distances Tool"
-msgstr ""
 
 # contributors:
 msgid "Turkish (Windows-1254)"
@@ -5440,14 +5211,8 @@ msgid "Update GeoDa failed"
 msgstr "更新GeoDa失败"
 
 # contributors:
-msgid ""
-"Update project information failed. \n"
-"\n"
-"Details: The layer information defined in project file does no match opened datasource."
-msgstr ""
-"更新项目信息失败。\n"
-"\n"
-"详细信息：项目文件中定义的图层信息与打开的数据源不匹配。"
+msgid "Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource."
+msgstr "更新项目信息失败。\n\n详细信息：项目文件中定义的图层信息与打开的数据源不匹配。"
 
 # contributors:
 msgid "Upper outlier"
@@ -5486,10 +5251,6 @@ msgid "Use Weights:"
 msgstr "使用空间权重："
 
 # contributors:
-msgid "Use bounding box of input datasource"
-msgstr "使用输入数据的边框"
-
-# contributors:
 msgid "Use classic yellow cross-hatching to highlight selection in maps:"
 msgstr "使用经典的黄色交叉阴影来高亮地图中的选中的对象："
 
@@ -5512,14 +5273,6 @@ msgstr "使用反距离？"
 # contributors:
 msgid "Use max knn distance as bandwidth"
 msgstr "使用最大KNN距离作为带宽"
-
-# contributors:
-msgid "Use outline + motorway(~bbox) of input datasource"
-msgstr ""
-
-# contributors:
-msgid "Use outline of input datasource"
-msgstr ""
 
 # contributors:
 msgid "Use row-standardized weights"
@@ -5646,10 +5399,7 @@ msgid "Variable name can't be empty."
 msgstr "变量名不能为空。"
 
 # contributors:
-msgid ""
-"Variable name is either a duplicate or is invalid. Please\n"
-"enter an alternative, non-duplicate variable name.\n"
-"\n"
+msgid "Variable name is either a duplicate or is invalid. Please\nenter an alternative, non-duplicate variable name.\n\n"
 msgstr "变量名称是重复的或无效的。请重新输入一个新的变量名。\n"
 
 # contributors:
@@ -5666,7 +5416,7 @@ msgstr "变量:"
 
 # contributors:
 msgid "Vertical Bins Breaks"
-msgstr "竖向区间(Bins)断点"
+msgstr "竖直方向区间(Bins)断点"
 
 # contributors:
 msgid "Vertical Cells"
@@ -5921,16 +5671,8 @@ msgid "Your table cannot be aggregated because the key field \"%s\" is unique. P
 msgstr "该表不能被聚合，因为键字段“%s”是唯一的。请使用另一个键。"
 
 # contributors:
-msgid ""
-"Your table cannot be merged because the key field \"%s\" is not unique. \n"
-"It contains undefined or duplicate values.\n"
-"\n"
-"Details:"
-msgstr ""
-"无法合并表, 因为键字段 \"%s\" 不是唯一的。\n"
-"它包含未定义的或重复的值。\n"
-"\n"
-"详情："
+msgid "Your table cannot be merged because the key field \"%s\" is not unique. \nIt contains undefined or duplicate values.\n\nDetails:"
+msgstr "无法合并表, 因为键字段 \"%s\" 不是唯一的。\n它包含未定义的或重复的值。\n\n详情："
 
 # contributors:
 msgid "Z"
@@ -5946,7 +5688,7 @@ msgstr "缩放：按鼠标右键"
 
 # contributors:
 msgid "Zoom In"
-msgstr "缩小"
+msgstr "放大"
 
 # contributors:
 msgid "Zoom Out"
@@ -5973,120 +5715,52 @@ msgid "\"%s\" is not a valid seed. Seed unchanged."
 msgstr "\"%s\" 不是一个有效的种子。"
 
 # contributors:
-msgid ""
-"\". \n"
-"\n"
-"Details: Attemp to write a readonly database, or "
+msgid "\". \n\nDetails: Attemp to write a readonly database, or "
 msgstr ""
 
 # contributors:
-msgid ""
-"\n"
-"REGRESSION\n"
-"----------\n"
-msgstr ""
-"\n"
-"回归分析\n"
-"----------\n"
+msgid "\nREGRESSION\n----------\n"
+msgstr "\n回归分析\n----------\n"
 
 # contributors:
-msgid ""
-"\n"
-"Select whether to use periods or commas as\n"
-"separators in numeric fields. \n"
-"\n"
-"E.g., by default, GeoDa uses commas to\n"
-"separate thousands and periods\n"
-"for decimals (1,000.00).\n"
-"                "
+msgid "\nSelect whether to use periods or commas as\nseparators in numeric fields. \n\nE.g., by default, GeoDa uses commas to\nseparate thousands and periods\nfor decimals (1,000.00).\n                "
 msgstr ""
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"95% threshold criterion: "
-msgstr ""
-"\n"
-"\n"
-"贡献达95%阈值准则: "
+msgid "\n\n95% threshold criterion: "
+msgstr "\n\n贡献达95%阈值准则: "
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Cumulative proportion:\n"
-msgstr ""
-"\n"
-"\n"
-"变量累计贡献率(Cumulative proportion):\n"
+msgid "\n\nCumulative proportion:\n"
+msgstr "\n\n变量累计贡献率(Cumulative proportion):\n"
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Details: "
+msgid "\n\nDetails: "
 msgstr ""
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Eigenvalues:\n"
-msgstr ""
-"\n"
-"\n"
-"特征值(Eigenvalues):\n"
+msgid "\n\nEigenvalues:\n"
+msgstr "\n\n特征值(Eigenvalues):\n"
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Kaiser criterion: "
-msgstr ""
-"\n"
-"\n"
-"Kaiser准则（特征值>1): "
+msgid "\n\nKaiser criterion: "
+msgstr "\n\nKaiser准则（特征值>1): "
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Proportion of variance:\n"
-msgstr ""
-"\n"
-"\n"
-"各变量贡献率(Proportion of variance):\n"
+msgid "\n\nProportion of variance:\n"
+msgstr "\n\n各变量贡献率(Proportion of variance):\n"
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Squared correlations:\n"
-msgstr ""
-"\n"
-"\n"
-"变量与主成分平方相关系数(Squared correlations):\n"
+msgid "\n\nSquared correlations:\n"
+msgstr "\n\n变量与主成分平方相关系数(Squared correlations):\n"
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Standard deviation:\n"
-msgstr ""
-"\n"
-"\n"
-"标准差:\n"
+msgid "\n\nStandard deviation:\n"
+msgstr "\n\n标准差:\n"
 
 # contributors:
-msgid ""
-"\n"
-"\n"
-"Variable Loadings:\n"
-msgstr ""
-"\n"
-"\n"
-"主成分载荷(Variable Loadings):\n"
+msgid "\n\nVariable Loadings:\n"
+msgstr "\n\n主成分载荷(Variable Loadings):\n"
 
 # contributors:
 msgid "adaptive kernel"
@@ -6157,20 +5831,16 @@ msgid "day:"
 msgstr "天："
 
 # contributors:
-msgid ""
-"decimal\n"
-"places"
-msgstr ""
-"小数精度\n"
-"位数"
+msgid "decimal\nplaces"
+msgstr "小数精度\n位数"
 
 # contributors:
-msgid ""
-"displayed\n"
-"decimal places"
-msgstr ""
-"显示小数精度\n"
-"位数"
+msgid "dep. var: "
+msgstr "因变量: "
+
+# contributors:
+msgid "displayed\ndecimal places"
+msgstr "显示小数精度\n位数"
 
 # contributors:
 msgid "distance metric"
@@ -6245,6 +5915,10 @@ msgid "include lower orders"
 msgstr "是否包含低阶的邻居"
 
 # contributors:
+msgid "ind. var: "
+msgstr "自变量: "
+
+# contributors:
 msgid "inverse distance"
 msgstr "使用反距离"
 
@@ -6289,9 +5963,7 @@ msgid "maximum"
 msgstr "最大值"
 
 # contributors:
-msgid ""
-"maximum\n"
-"possible"
+msgid "maximum\npossible"
 msgstr "可能最大值"
 
 # contributors:
@@ -6331,9 +6003,7 @@ msgid "minimum"
 msgstr "最小值"
 
 # contributors:
-msgid ""
-"minimum\n"
-"possible"
+msgid "minimum\npossible"
 msgstr "可能最小值"
 
 # contributors:
@@ -6555,3 +6225,8 @@ msgstr "错误的模型序号"
 # contributors:
 msgid "y:"
 msgstr ""
+
+# contributors:
+msgid "year:"
+msgstr "年:"
+

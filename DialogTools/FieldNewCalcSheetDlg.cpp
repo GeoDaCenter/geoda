@@ -64,12 +64,12 @@ w_man_state(project_s->GetWManState())
 	pRate->SetOtherPanelPointers(pSpecial, pUni, pBin, pLag);
 	pDT->SetOtherPanelPointers(pSpecial, pBin, pLag, pRate);
 
-	m_note->AddPage(pSpecial, "Special");
-	m_note->AddPage(pUni, "Univariate");
-	m_note->AddPage(pBin, "Bivariate");
-	m_note->AddPage(pLag, "Spatial Lag");
-	m_note->AddPage(pRate, "Rates");
-	m_note->AddPage(pDT, "Date/Time");
+	m_note->AddPage(pSpecial, _("Special"));
+	m_note->AddPage(pUni, _("Univariate"));
+	m_note->AddPage(pBin, _("Bivariate"));
+	m_note->AddPage(pLag, _("Spatial Lag"));
+	m_note->AddPage(pRate, _("Rates"));
+	m_note->AddPage(pDT, _("Date/Time"));
 	pLag->InitWeightsList();
 	pRate->InitWeightsList();
 	this->SetSize(-1,-1,-1,-1);
