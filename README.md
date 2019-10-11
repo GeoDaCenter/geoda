@@ -26,9 +26,11 @@ GeoDa Internationalization (I18n) and Localization(L10n) project aims to provide
 
 For crowdsourcing, we use Google Spreadsheet with the public address [here](https://docs.google.com/spreadsheets/d/1iZa4wCIyTDlIRYoW7229YoZWKZ0lmIiOFsCJG3ZVw-s/edit?usp=sharing). Anyone can access this spreadsheet, and edit each translation.
 
-Contributors:
+# Contributors: #
 
 * @corochasco
+
+Thanks for your contributions!
 
 # Dependencies #
 
