@@ -1,0 +1,6284 @@
+# contributors:
+msgid ""
+msgstr "Project-Id-Version: \nPOT-Creation-Date: 2019-10-10 14:58+0800\nPO-Revision-Date: 2019-10-10 14:33-0700\nLast-Translator: \nLanguage-Team: <LL@li.org> \nLanguage: ru\nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nX-Generator: Poedit 2.2.1\nX-Poedit-Basepath: Regression\nPlural-Forms: nplurals=1; plural=0;\nX-Poedit-KeywordsList: _;wxT\nX-Poedit-SearchPath-0: .\n"
+
+# contributors:
+msgid " (isolates in weights are removed)"
+msgstr " (изолированные значения в весовых коэффициентах удалены)"
+
+# contributors:
+msgid " = 0 at "
+msgstr " = 0 при "
+
+# contributors:
+msgid " BiLISA Cluster Map"
+msgstr " Карта кластеров с использованием BiLISA"
+
+# contributors:
+msgid " BiLISA Significance Map"
+msgstr " Карта статистической значимости с использованием BiLISA"
+
+# contributors:
+msgid " Bivariate Local Geary Cluster Map"
+msgstr " Карта кластеров с использованием двумерного локального индекса Гири"
+
+# contributors:
+msgid " Bivariate LocalGeary Significance Map"
+msgstr " Карта кластеров с использованием двумерного локальногоиндексаГири"
+
+# contributors:
+msgid " Categories"
+msgstr " Категория"
+
+# contributors:
+msgid " Differential LISA Cluster Map"
+msgstr " Карта кластеров с использованием дифференциальных LISA"
+
+# contributors:
+msgid " Differential Local Geary Cluster Map"
+msgstr " Карта кластеров с использованием дифференциального локального индекса Гири"
+
+# contributors:
+msgid " Differential Significance Map"
+msgstr " Карта статистической значимости с использованием дифференциального локального индекса Гири"
+
+# contributors:
+msgid " Distance metric: "
+msgstr " Метрика расстояния: "
+
+# contributors:
+msgid " LISA Cluster Map"
+msgstr " Карта кластеров с использованием LISA"
+
+# contributors:
+msgid " LISA Significance Map"
+msgstr " Карта статистической значимости с использованием LISA"
+
+# contributors:
+msgid " Local Geary Cluster Map"
+msgstr " Карта кластеров с использованием локального индекса Гири"
+
+# contributors:
+msgid " Local Geary Significance Map"
+msgstr " Карта статистической значимости с использованием локального индекса Гири"
+
+# contributors:
+msgid " already exists.  OK to overwrite?"
+msgstr " уже существует. Согласны перезаписать?"
+
+# contributors:
+msgid " and "
+msgstr " и "
+
+# contributors:
+msgid " and two time periods: "
+msgstr " и два временных периода: "
+
+# contributors:
+msgid " for obs within distance band "
+msgstr " по набл. в пределах диапазона расстояний"
+
+# contributors:
+msgid " has duplicate values. Please choose a different ID Variable.\n\nDetails:"
+msgstr " содержит повторяющиеся значения. Пожалуйста, выберите другой идентификатор переменной.\n\nДетали:"
+
+# contributors:
+msgid " in range:"
+msgstr " в диапазоне:"
+
+# contributors:
+msgid " is not supported by GeoDa.\n"
+msgstr " не поддерживается GeoDa.\n"
+
+# contributors:
+msgid " km"
+msgstr " км"
+
+# contributors:
+msgid " mi"
+msgstr " миль"
+
+# contributors:
+msgid " pairs in distance band "
+msgstr " пар в диапазоне расстояний"
+
+# contributors:
+msgid " should contains only numbers/letters as IDs.  Please choose a different ID Variable."
+msgstr " должно содержать только числа/буквы в качестве идентификатора.  Пожалуйста, выберите другой идентификатор переменной."
+
+# contributors:
+msgid " to "
+msgstr " к "
+
+# contributors:
+msgid "# Iterations:"
+msgstr "# итераций:"
+
+# contributors:
+msgid "# Max Iteration:"
+msgstr "# макс. итераций:"
+
+# contributors:
+msgid "# Neighors:"
+msgstr "# соседей:"
+
+# contributors:
+msgid "# Pairs"
+msgstr "# пар"
+
+# contributors:
+msgid "# iterations:\t"
+msgstr "# итераций:\t"
+
+# contributors:
+msgid "# observations"
+msgstr "# наблюдений"
+
+# contributors:
+msgid "#hover obs "
+msgstr "#количество наблюдений "
+
+# contributors:
+msgid "#obs"
+msgstr "#obs"
+
+# contributors:
+msgid "#obs:"
+msgstr "#набл.:"
+
+# contributors:
+msgid "#obs="
+msgstr "#набл.="
+
+# contributors:
+msgid "#row="
+msgstr "#строка="
+
+# contributors:
+msgid "#selected="
+msgstr "#выбранный="
+
+# contributors:
+msgid "% non-zero"
+msgstr "% ненулевых"
+
+# contributors:
+msgid "% of total"
+msgstr "% от общего"
+
+# contributors:
+msgid "%d of %d variables to include"
+msgstr "%d от %d переменных для включения"
+
+# contributors:
+msgid "%d variables to include"
+msgstr "%d переменных для включения"
+
+# contributors:
+msgid "%s (Weights: %s)"
+msgstr "%s (Весовые коэффициенты: %s)"
+
+# contributors:
+msgid "%s Cluster Map (%d clusters)"
+msgstr "%s Карта кластеров (%d кластеров)"
+
+# contributors:
+msgid "&Add ID Variable..."
+msgstr "&Добавить идентификатор переменной..."
+
+# contributors:
+msgid "&Cancel"
+msgstr "&Отменить"
+
+# contributors:
+msgid "&Close"
+msgstr "&Закрыть"
+
+# contributors:
+msgid "&Edit"
+msgstr "&Редактировать"
+
+# contributors:
+msgid "&File"
+msgstr "&Файл"
+
+# contributors:
+msgid "&Help"
+msgstr "&Справка"
+
+# contributors:
+msgid "&Map"
+msgstr "&Карта"
+
+# contributors:
+msgid "&Merge"
+msgstr "&Слияние"
+
+# contributors:
+msgid "&New"
+msgstr "&Новый"
+
+# contributors:
+msgid "&Open Project"
+msgstr "&Открыть Проект"
+
+# contributors:
+msgid "&Regression"
+msgstr "&Регрессия"
+
+# contributors:
+msgid "&Run"
+msgstr "&Выполнить"
+
+# contributors:
+msgid "&Save to Table"
+msgstr "&Сохранить в Таблицу"
+
+# contributors:
+msgid "&Space"
+msgstr "&Пробел"
+
+# contributors:
+msgid "&Tools"
+msgstr "&Инструменты"
+
+# contributors:
+msgid "(Dendrogram is too complex to draw. Please view clustering results in map.)"
+msgstr "(Дендрограмму (древовидную диаграмму) слишком сложно начертить. Пожалуйста, смотрите результаты группировки по кластерам на карте).)"
+
+# contributors:
+msgid "(Duplicate field name)"
+msgstr "(Повторяющееся наименование поля)"
+
+# contributors:
+msgid "(Field name is not valid)"
+msgstr "(Наименование поля не действительно)"
+
+# contributors:
+msgid "(Gaussian) Sigma:"
+msgstr "(Гауссова) Сигма (Среднеквадратическое отклонение):"
+
+# contributors:
+msgid "(Leave empty for undefined values)"
+msgstr "(Оставить пустым по неопределенным значениям)"
+
+# contributors:
+msgid "(Optional) First record has field names? "
+msgstr "(Необязательно) В первой записи есть наименования полей? "
+
+# contributors:
+msgid "(Optional) Longitude/X:"
+msgstr "(Необязательно) Долгота/X:"
+
+# contributors:
+msgid "(Optional) You can change the data type for a field:"
+msgstr "(Необязательно) Вы можете поменять тип данных для поля:"
+
+# contributors:
+msgid "(Use Sequences)"
+msgstr "(Использовать последовательности)"
+
+# contributors:
+msgid "---\n\nPCA method: "
+msgstr "метод ---\n\nАГК: "
+
+# contributors:
+msgid ".\nEnter a seed value to use between\n0 and "
+msgstr ".\nВвести случайное значение для использования между\n0 и "
+
+# contributors:
+msgid "0x03 (dBASE III+)"
+msgstr "0x03 (dBASE III+)"
+
+# contributors:
+msgid "1 Iteration"
+msgstr "1 итерация"
+
+# contributors:
+msgid "199 Permutations"
+msgstr "199 перестановок"
+
+# contributors:
+msgid "1st Variable (X)"
+msgstr "1-я переменная (X)"
+
+# contributors:
+msgid "2 Iteration"
+msgstr "2 итерации"
+
+# contributors:
+msgid "2nd Variable (Y)"
+msgstr "2-я переменная (Y)"
+
+# contributors:
+msgid "3 Iteration"
+msgstr "3 итерации"
+
+# contributors:
+msgid "3D Plot"
+msgstr "3D график"
+
+# contributors:
+msgid "3D Scatter Plot"
+msgstr "3D график множества точек"
+
+# contributors:
+msgid "3D Scatter Plot Variables"
+msgstr "Переменные 3D графика множества точек"
+
+# contributors:
+msgid "3rd Variable (Z)"
+msgstr "3-я переменная (Z)"
+
+# contributors:
+msgid "4 Iteration"
+msgstr "4 итерации"
+
+# contributors:
+msgid "499 Permutations"
+msgstr "499 перестановок"
+
+# contributors:
+msgid "4th Variable"
+msgstr "4-я переменная"
+
+# contributors:
+msgid "5 Iteration"
+msgstr "5 итераций"
+
+# contributors:
+msgid "5 of 5 variables needed"
+msgstr "необходимы 5 из 5 переменных"
+
+# contributors:
+msgid "6 Iteration"
+msgstr "6 итераций"
+
+# contributors:
+msgid "99 Permutations"
+msgstr "99 перестановок"
+
+# contributors:
+msgid "999 Permutations"
+msgstr "999 перестановок"
+
+# contributors:
+msgid "<"
+msgstr "<"
+
+# contributors:
+msgid "<<"
+msgstr "<<"
+
+# contributors:
+msgid "<="
+msgstr "<="
+
+# contributors:
+msgid "="
+msgstr "="
+
+# contributors:
+msgid ">"
+msgstr ">"
+
+# contributors:
+msgid ">>"
+msgstr ">>"
+
+# contributors:
+msgid "A Table-only data source can't be stacked with current data source."
+msgstr "Только табличные данные не могут комплектоваться с текущим источником данных."
+
+# contributors:
+msgid "A newer version of GeoDa is found. Do you want to update to version "
+msgstr "Обнаружена новая версия программы GeoDa. Вы желаете обновить программу до новой версии "
+
+# contributors:
+msgid "A project file contains extra information not directly stored in the data source such as variable order and grouping."
+msgstr "Файл проекта содержит лишнюю информацию, которая не хранится непосредственно в источнике данных, например, порядок и группировка переменных."
+
+# contributors:
+msgid "About DBF Viewer"
+msgstr "Об (окне просмотра файлов базы данных) DBF Viewer"
+
+# contributors:
+msgid "About GeoDa"
+msgstr "О программе GeoDa"
+
+# contributors:
+msgid "About Precision Threshold"
+msgstr "О предельной степени точности"
+
+# contributors:
+msgid "Adaptive bandwidth"
+msgstr "Настраивающаяся ширина полос"
+
+# contributors:
+msgid "Adaptive kernel"
+msgstr "Адаптивное ядро"
+
+# contributors:
+msgid "Add"
+msgstr "Добавить"
+
+# contributors:
+msgid "Add Centroids to Table"
+msgstr "Добавить центроид к таблице"
+
+# contributors:
+msgid "Add Map Layer"
+msgstr "Добавить слой карты"
+
+# contributors:
+msgid "Add Mean Centers to Table"
+msgstr "Добавить центры средних значений к таблице"
+
+# contributors:
+msgid "Add Neighbors To Selection"
+msgstr "Добавить сосейдей к выделению"
+
+# contributors:
+msgid "Add New ID Variable"
+msgstr "Добавить новый идентификатор переменной"
+
+# contributors:
+msgid "Add OGR column error. Field type is unknown or not supported."
+msgstr "Добавить ошибку стобца OGR. Не известный или неподдерживаемый тип файла."
+
+# contributors:
+msgid "Add OGR column error. Field type is unknown."
+msgstr "Добавить ошибку столбца OGR. Неизвестный тип файла."
+
+# contributors:
+msgid "Add Time"
+msgstr "Добавить время"
+
+# contributors:
+msgid "Add Variable"
+msgstr "Добавить переменную"
+
+# contributors:
+msgid "Add a name for your group of variables. \n\nYou can edit the time period labels for easier interpretation of results."
+msgstr "Добавить наименование для вашей группы переменных. \n\nВы моежете отредактировать метки временных периодов, чтобы облегчить интерпретацию результатов."
+
+# contributors:
+msgid "Add basemap automatically:"
+msgstr "Добавить базовую карту автоматически:"
+
+# contributors:
+msgid "Add new column to table"
+msgstr "Добавить новый столбец к таблице"
+
+# contributors:
+msgid "Add/Remove Variables"
+msgstr "Добавить/Удалить переменные"
+
+# contributors:
+msgid "Adjust Bubble Size"
+msgstr "Скорректировать размер пузырька"
+
+# contributors:
+msgid "Adjust Value Range of Y Axis"
+msgstr "Скорректировать диапазон значений Оси Y"
+
+# contributors:
+msgid "Adjust Value Range of Y-Axis"
+msgstr "Скоерриктировать диапащон значений Оси-Y"
+
+# contributors:
+msgid "Adjust Values of Y Axis"
+msgstr "Скорректировать значения Оси Y"
+
+# contributors:
+msgid "Affinity with Guassian Kernel:\tSigma="
+msgstr "Близость к Гауссовому ядру:\tSigma="
+
+# contributors:
+msgid "Affinity with K-NN:"
+msgstr "Близость к K-БС:"
+
+# contributors:
+msgid "Affinity with K-Nearest Neighbors:\tK="
+msgstr "Близость к К-ближайшим соседям:\tK="
+
+# contributors:
+msgid "Affinity with Kernel:"
+msgstr "Близость к ядру:"
+
+# contributors:
+msgid "Aggregate"
+msgstr "Агрегированный показатель"
+
+# contributors:
+msgid "Aggregate - "
+msgstr "Агрегированный показатель - "
+
+# contributors:
+msgid "All"
+msgstr "Все"
+
+# contributors:
+msgid "All Pairs"
+msgstr "Все пары"
+
+# contributors:
+msgid "All Rights Reserved"
+msgstr "Все права защищены"
+
+# contributors:
+msgid "Allow a single cluster:"
+msgstr "Допустить единый кластер:"
+
+# contributors:
+msgid "Alpha:"
+msgstr "Альфа:"
+
+# contributors:
+msgid "Always using fixed-point notation"
+msgstr "Всегда используется представление чисел с фиксированной запятой"
+
+# contributors:
+msgid "Animation"
+msgstr "Анимация"
+
+# contributors:
+msgid "App Key"
+msgstr "Клавиша приложения"
+
+# contributors:
+msgid "Append To Current Selection"
+msgstr "Присоединить к Текущему выделению"
+
+# contributors:
+msgid "Append to current selection"
+msgstr "Присоединить к текущему выделению"
+
+# contributors:
+msgid "Appl&y"
+msgstr "Примени&ть"
+
+# contributors:
+msgid "Apply"
+msgstr "Применить"
+
+# contributors:
+msgid "Apply kernel to diagonal weights"
+msgstr "Применить ядро к диагональным весовым коэффициентам"
+
+# contributors:
+msgid "April"
+msgstr "Апрель"
+
+# contributors:
+msgid "Arabic (Windows-1256)"
+msgstr "Арабский (Windows-1256)"
+
+# contributors:
+msgid "Arc Distance"
+msgstr "Длина дуги"
+
+# contributors:
+msgid "Ascending order"
+msgstr "По возрастанию"
+
+# contributors:
+msgid "Assign To Target"
+msgstr "Присвоить целевому показателю"
+
+# contributors:
+msgid "Assign Values to Currently Selected / Unselected"
+msgstr "Присвоить значения к Текущим выделенным / невыделенным объектам"
+
+# contributors:
+msgid "Assoc. Var."
+msgstr "Ассоц. пер."
+
+# contributors:
+msgid "Attributes (Optional)"
+msgstr "Атрибуты (Дополнительно)"
+
+# contributors:
+msgid "August"
+msgstr "Август"
+
+# contributors:
+msgid "Auto Weighting"
+msgstr "Автоматическая весовая обработка данных"
+
+# contributors:
+msgid "Autocorr."
+msgstr "Автокорр."
+
+# contributors:
+msgid "Autocorr. of "
+msgstr "Автокорр. ..."
+
+# contributors:
+msgid "Automatic Labels"
+msgstr "Автоматически присваемые метки"
+
+# contributors:
+msgid "Average"
+msgstr "Среднее значение"
+
+# contributors:
+msgid "Average Comparison Chart"
+msgstr "Диаграмма сравнения средних значений"
+
+# contributors:
+msgid "Averages Chart"
+msgstr "Контрольная карта для средних (значений)"
+
+# contributors:
+msgid "Axes Through Origin"
+msgstr "Оси через точку происхождения"
+
+# contributors:
+msgid "Axis Option"
+msgstr "Вариант оси"
+
+# contributors:
+msgid "Axis Selection"
+msgstr "Выбор оси"
+
+# contributors:
+msgid "Background"
+msgstr "Фон"
+
+# contributors:
+msgid "Background Color"
+msgstr "Цвет фона"
+
+# contributors:
+msgid "Bandwidth:"
+msgstr "Ширина полосы:"
+
+# contributors:
+msgid "Base Map "
+msgstr "Базовая карта"
+
+# contributors:
+msgid "Base Variable"
+msgstr "Базовая переменная"
+
+# contributors:
+msgid "Basemap"
+msgstr "Базовая карта"
+
+# contributors:
+msgid "Basemap Configuration"
+msgstr "Конфигурация базовой карты"
+
+# contributors:
+msgid "Basemap Configuration Dialog"
+msgstr "Диалоговое окно для конфигурации базовой карты"
+
+# contributors:
+msgid "Basemap Parameters:"
+msgstr "Свойства базовой карты:"
+
+# contributors:
+msgid "Basemap Sources: (Format: group&name.basemap&name,basemap&url)"
+msgstr "Источники базовой карты: (Формат: группа&наименование.картоснова&наименование,базовая карта&url)"
+
+# contributors:
+msgid "Before add/delete observations, please close the %d view(s) that depend on it."
+msgstr "До добавления/удаления наблюдений, пожалуйста, закройте окно(а) просмотра %d, которые зависят от них."
+
+# contributors:
+msgid "Before proceed with operation (add/remove, move, or rename), please close %d views that depend on it."
+msgstr "До продолжения операции (добавить/удалить, переместить или переименовать), пожалуйста, закройте окна просмотра %d, которые зависят от нее."
+
+# contributors:
+msgid "Before you can modify the variable %s, please close the %d view(s) that depend on it."
+msgstr "До изменения переменной %s, пожалуйста, закройте окно(а) просмотра %d, которые зависят от нее."
+
+# contributors:
+msgid "Bivariate"
+msgstr "С двумя переменными"
+
+# contributors:
+msgid "Bivariate Local Join Count"
+msgstr "Подсчет локальных соединений с двумя переменными"
+
+# contributors:
+msgid "Bivariate Local Moran's I"
+msgstr "Локальный индекс Морана I с двумя переменными"
+
+# contributors:
+msgid "Bivariate Moran Variable Settings"
+msgstr "Параметры настройки переменных Индекса Морана с двумя переменными"
+
+# contributors:
+msgid "Bivariate Moran's I"
+msgstr "Двумерный индекс Морана I"
+
+# contributors:
+msgid "Bivariate Moran's I (%s): %s and lagged %s"
+msgstr "Двумерный индекс Морана I (%s): %s и лаг (отставание) %s"
+
+# contributors:
+msgid "Bonferroni bound:"
+msgstr "Граница Бонферрони:"
+
+# contributors:
+msgid "Both are significant, Spatial Lag Model has been selected."
+msgstr "Оба имеют значение, была выбрана Модель пространственного лага."
+
+# contributors:
+msgid "Bottom"
+msgstr "Низ"
+
+# contributors:
+msgid "Bounding Box"
+msgstr "Ограничительная рамка"
+
+# contributors:
+msgid "Box Map (Hinge=1.5)"
+msgstr "Блочная карта (Линия створа=1.5)"
+
+# contributors:
+msgid "Box Map (Hinge=3.0)"
+msgstr "Блочная карта (Линия створа=3.0)"
+
+# contributors:
+msgid "Box Plot"
+msgstr "Блочный график"
+
+# contributors:
+msgid "Boxplot Theme"
+msgstr "Тема блочного графика"
+
+# contributors:
+msgid "Breaks"
+msgstr "Границы"
+
+# contributors:
+msgid "Breaks with same values were created. Please choose a smaller categories, or manually edit the break values."
+msgstr "Созданы границы с одинаковыми значения. Пожалуйста, выберите меньшие категории или вручную отредактируйте значения интервалов."
+
+# contributors:
+msgid "Bubble Chart"
+msgstr "Пузырьковая диаграмма"
+
+# contributors:
+msgid "Bubble Chart - x: %s, y: %s, size: %s, %s"
+msgstr "Пузыоьковая диаграмма - x: %s, y: %s, size: %s, %s"
+
+# contributors:
+msgid "Bubble Chart Variables"
+msgstr "Переменные пузырьковой диаграммы"
+
+# contributors:
+msgid "Bubble Size"
+msgstr "Размер пузырька"
+
+# contributors:
+msgid "Bubble Size Adjust Dialog"
+msgstr "Диалог для корректировки размера пузырька"
+
+# contributors:
+msgid "Buffer query area:"
+msgstr "Зона запроса в буфер:"
+
+# contributors:
+msgid "Bug Report"
+msgstr "Отчет об ошибках"
+
+# contributors:
+msgid "C&reate"
+msgstr "С&оздать"
+
+# contributors:
+msgid "CRS (proj4 format)"
+msgstr "CRS (формат proj4)"
+
+# contributors:
+msgid "CSV Configuration Warning"
+msgstr "Предупреждение о конфигурации CSV"
+
+# contributors:
+msgid "CSV Contains Variable Names?"
+msgstr "CSV содержит наименования переменных?"
+
+# contributors:
+msgid "CSV File Configuration"
+msgstr "Конфигурация CSV файла"
+
+# contributors:
+msgid "Calculator"
+msgstr "Калькулятор"
+
+# contributors:
+msgid "Can't connect to datasource: "
+msgstr "Невозможно связаться с источником данных: "
+
+# contributors:
+msgid "Can't create layer %s with empty field (%s) name."
+msgstr "Невозможно создать слой %s с пустым полем (%s) наименования."
+
+# contributors:
+msgid "Can't create output OGR driver. \n\nDetails:"
+msgstr "Невозможно создать выходной драйвер OGR. \n\nДетали:"
+
+# contributors:
+msgid "Can't get bounding box information from this datasource. Please try another datasource."
+msgstr "Невозможно получить информацию об ограничительной рамке из этого источника данных. Пожалуйста, попробуйте другой источник данных."
+
+# contributors:
+msgid "Can't get datasource type from: %s\n\nPlease select datasource supported by GeoDa or add extension  to file datasource."
+msgstr "Неозможно получить тип источника данных из: %s\n\nПожалуйста, выберите источник данных, поддерживаемый GeoDa или добавьте расширение к файлу источника данных."
+
+# contributors:
+msgid "Can't get layers from unknown datasource. Please complete the datasource fields."
+msgstr "Невозможно получить слои из неизвестного источника данных. Пожалуйста, заполните поля источников данных."
+
+# contributors:
+msgid "Can't save Thiessen polygons"
+msgstr "Невозможно сохранить полигоны Тиссена"
+
+# contributors:
+msgid "Can't write/create layer \""
+msgstr "Невозможно записать/создать слой \""
+
+# contributors:
+msgid "Cancel"
+msgstr "Отменить"
+
+# contributors:
+msgid "Canvas Layout Preview"
+msgstr "Предварительный просмотр макета холста карты "
+
+# contributors:
+msgid "Carto"
+msgstr "Карто"
+
+# contributors:
+msgid "Cartogram"
+msgstr "Картограмма (статистическая карта)"
+
+# contributors:
+msgid "Cartogram Variables"
+msgstr "Переменные картограммы"
+
+# contributors:
+msgid "Categories"
+msgstr "Категории"
+
+# contributors:
+msgid "Categories \"%s\" is currently in use by another view. Please close or change all views using this custom categories before deleting."
+msgstr "Катеории \"%s\" сейчас спользуются в другом окне просмотра. Пожалуйста, закройте или изените все окна просмотра, использующие эти заданные пользователем категории до удаления."
+
+# contributors:
+msgid "Categories of "
+msgstr "Категории ..."
+
+# contributors:
+msgid "Categories title \"%s\" already exists. Please choose a different title."
+msgstr "Название \"%s\" категории уже существует. Пожалуйста, выберите другое название."
+
+# contributors:
+msgid "Category"
+msgstr "Категория"
+
+# contributors:
+msgid "Category Editor"
+msgstr "Редактор категорий"
+
+# contributors:
+msgid "Central European (CP852)"
+msgstr "Центрально-европейский (CP852)"
+
+# contributors:
+msgid "Central European (Windows-1250)"
+msgstr "Центрально-европейский (Windows-1250)"
+
+# contributors:
+msgid "Central European Latin-2 (ISO-8859-2)"
+msgstr "Центрально-европейский Латиница-2 (ISO-8859-2)"
+
+# contributors:
+msgid "Centroid (X)"
+msgstr "Центроид (X)"
+
+# contributors:
+msgid "Centroid (Y)"
+msgstr "Центроид (Y)"
+
+# contributors:
+msgid "Change"
+msgstr "Изменить"
+
+# contributors:
+msgid "Change Categories Title"
+msgstr "Изменить название категории"
+
+# contributors:
+msgid "Change Color of Root"
+msgstr "Изменить цвет корня"
+
+# contributors:
+msgid "Change Current Map Type"
+msgstr "Изменить текущий тип карты"
+
+# contributors:
+msgid "Change Edge Color"
+msgstr "Изменить цвет края"
+
+# contributors:
+msgid "Change Edge Thickness"
+msgstr "Изменить толщину края"
+
+# contributors:
+msgid "Change Fill Color"
+msgstr "Изменить цвет заливки"
+
+# contributors:
+msgid "Change Fill Color of Neighbors"
+msgstr "Изменить цвет заливки соседей"
+
+# contributors:
+msgid "Change Font"
+msgstr "Изменить шрифт"
+
+# contributors:
+msgid "Change Map Transparency"
+msgstr "Изменить прозрачность карты"
+
+# contributors:
+msgid "Change Outline Color"
+msgstr "Изменит цвет контура"
+
+# contributors:
+msgid "Change Outline Color of Selected"
+msgstr "Изменить цвет контура выделенных объектов"
+
+# contributors:
+msgid "Change Parameters"
+msgstr "Изменить параметры"
+
+# contributors:
+msgid "Change Point Radius"
+msgstr "Изменить радиус точки"
+
+# contributors:
+msgid "Change Seed"
+msgstr "Изменить начальное число"
+
+# contributors:
+msgid "Change Size of Root"
+msgstr "Изменить размер корня"
+
+# contributors:
+msgid "Change field properties (%s) failed.\n\nDetails: %s"
+msgstr "Не получилось изменить свойства (%s) поля.\n\nДетали: %s"
+
+# contributors:
+msgid "Change title \"%s\" to"
+msgstr "Изменить название \"%s\" на"
+
+# contributors:
+msgid "Change variable type for \"%s\" has failed. Please check all values are valid for conversion."
+msgstr "Не получилось изменить тип переменной на \"%s\" . Пожалуйста, проверьте, что все значения подходят для конверсии."
+
+# contributors:
+msgid "Check Bug Report on Github"
+msgstr "Проверить Отчет об ошибках на Github"
+
+# contributors:
+msgid "Check Updates"
+msgstr "Проверить обновления"
+
+# contributors:
+msgid "Checking Symmetry..."
+msgstr "Проверка симметрии..."
+
+# contributors:
+msgid "Chinese Simplified (GB2312)"
+msgstr "Упрощенный китайский (GB2312)"
+
+# contributors:
+msgid "Chinese Traditional (Big5)"
+msgstr "Традиционный китайский (Big5)"
+
+# contributors:
+msgid "Choose A Color"
+msgstr "Выбрать цвет"
+
+# contributors:
+msgid "Choose Cateogry Color"
+msgstr "Выбрать категорию цвета"
+
+# contributors:
+msgid "Choose Cateogry Fill Color"
+msgstr "Выбрать цвет заливки категории"
+
+# contributors:
+msgid "Choose Cateogry Outline Color"
+msgstr "Выбрать цвет контура категории"
+
+# contributors:
+msgid "Choose Intervals"
+msgstr "Выбрать интервалы"
+
+# contributors:
+msgid "Choose Weights"
+msgstr "Выбрать весовые коэффициенты"
+
+# contributors:
+msgid "Choose Weights File"
+msgstr "Выбрать файл с весовыми коэффициентами"
+
+# contributors:
+msgid "Choose an output weights file name."
+msgstr "Выбрать наименование выходного файла с весовыми коэффициентами."
+
+# contributors:
+msgid "Chosen field is not a numeric type.  Please select a numeric type field."
+msgstr "Выбранный тип поля не является числовым.  Пожалуйста, выберить числовой тип поля."
+
+# contributors:
+msgid "Chosen field is not a numeric type. Please select a numeric type field."
+msgstr "Выбранный тип поля не является числовым. Пожалуйста, выберить числовой тип поля"
+
+# contributors:
+msgid "Chosen key field '%s' s a time variant. Please choose a non-time variant field as key."
+msgstr "Выбранное ключевое поле '%s' является переменной, изменяющейся во времени. Пожалуйста, выберите поле признака с переменной, не изменяющейся во времени, в качестве ключа."
+
+# contributors:
+msgid "Chosen key field is not valid. Please select another key field"
+msgstr "Выбранное ключевое поле недействительно. Пожалуйста, выберите другое ключевое поле"
+
+# contributors:
+msgid "Chow test for sel/unsel regression subsets: "
+msgstr "Критерий Чоу для выдел./отмены выдел. подмассивов регрессии: "
+
+# contributors:
+msgid "Circle"
+msgstr "Круг"
+
+# contributors:
+msgid "Circle Color"
+msgstr "Цвет круга"
+
+# contributors:
+msgid "Circle Size"
+msgstr "Размер круга"
+
+# contributors:
+msgid "Classic "
+msgstr "Классический "
+
+# contributors:
+msgid "Classification Themes"
+msgstr "Темы классификации"
+
+# contributors:
+msgid "Clean Basemap Cache"
+msgstr "Чистый кэш картосновы"
+
+# contributors:
+msgid "Clear Highlight Association"
+msgstr "Очистить ассоциацию участков изображения, выделенных цветом"
+
+# contributors:
+msgid "Clear Selection"
+msgstr "Очистить выделение"
+
+# contributors:
+msgid "Click RegressionDlg::OnSaveToTxtFileClick"
+msgstr "Щелкнуть по RegressionDlg::OnSaveToTxtFileClick"
+
+# contributors:
+msgid "Click RegressionDlg::OnViewResultsClick"
+msgstr "Щелкнуть по RegressionDlg::OnViewResultsClick"
+
+# contributors:
+msgid "Close"
+msgstr "Закрыть"
+
+# contributors:
+msgid "Cluster Map "
+msgstr "Карта кластеров "
+
+# contributors:
+msgid "Cluster Maps"
+msgstr "Карты кластеров"
+
+# contributors:
+msgid "Cluster centers:"
+msgstr "Центры кластеров:"
+
+# contributors:
+msgid "Clusters"
+msgstr "Кластеры"
+
+# contributors:
+msgid "Co-location Join Count"
+msgstr "Подсчет соединения ко-локаций"
+
+# contributors:
+msgid "Co-location Join Count only applies to co-location case. The selected variables have no co-location. Please change your selection, or use Univariate/Bivariate Local Join Count."
+msgstr "Подсчет соединения ко-локаций распространяется только на случай ко-локаций. Выбранные переменные не имеют ко-локации. Пожалуйста, измените выбранные объекты или используйте Одномерный/Двухмерный подсчет локальных соеднинений."
+
+# contributors:
+msgid "Co-location Map"
+msgstr "Карта ко-локаций"
+
+# contributors:
+msgid "Co-location Map: "
+msgstr "Карта ко-локаций: "
+
+# contributors:
+msgid "Co-location Settings"
+msgstr "Настройки ко-локаций"
+
+# contributors:
+msgid "Coeff. Var. Mat."
+msgstr "матрица коэффициентов дисперсии"
+
+# contributors:
+msgid "Colocation Cluster"
+msgstr "Кластер ко-локаций"
+
+# contributors:
+msgid "Color"
+msgstr "Цвет"
+
+# contributors:
+msgid "Color Scheme"
+msgstr "Цветовая гамма"
+
+# contributors:
+msgid "Column Name"
+msgstr "Наименование столбца"
+
+# contributors:
+msgid "Column Number (from 0)"
+msgstr "Номер столбца (с 0)"
+
+# contributors:
+msgid "Comma Separated Value (*.csv)|*.csv"
+msgstr "Значения, разделённые запятыми (*.csv)|*.csv"
+
+# contributors:
+msgid "Components:"
+msgstr "Компоненты:"
+
+# contributors:
+msgid "Conditional Co-location Map Variables"
+msgstr "Переменные условной карты ко-локаций"
+
+# contributors:
+msgid "Conditional G Cluster Map Variables"
+msgstr "Условные переменные кластерной карты G"
+
+# contributors:
+msgid "Conditional GetisOrd Map"
+msgstr "Условная карта GetisOrd"
+
+# contributors:
+msgid "Conditional Histogram"
+msgstr "Условная гистограмма"
+
+# contributors:
+msgid "Conditional Histogram Variables"
+msgstr "Переменные условной гистограммы"
+
+# contributors:
+msgid "Conditional LISA Map"
+msgstr "Условная карта LISA"
+
+# contributors:
+msgid "Conditional LISA Map Variables"
+msgstr "Переменные условной карты LISA"
+
+# contributors:
+msgid "Conditional Local Geary Map"
+msgstr "Условная карта по локальному индексу Гири"
+
+# contributors:
+msgid "Conditional Local Geary Map Variables"
+msgstr "Переменные условной карты по локальному индексу Гири"
+
+# contributors:
+msgid "Conditional Local Join Count Map"
+msgstr "Условная карта Подсчета локальных соединений"
+
+# contributors:
+msgid "Conditional Map"
+msgstr "Условная карта"
+
+# contributors:
+msgid "Conditional Map Variables"
+msgstr "Переменные условной карты"
+
+# contributors:
+msgid "Conditional Plot"
+msgstr "Условная диаграмма"
+
+# contributors:
+msgid "Conditional Scatter Plot"
+msgstr "Условный график множества точек"
+
+# contributors:
+msgid "Conditional Scatter Plot Variables"
+msgstr "Переменные условного графика множества точек"
+
+# contributors:
+msgid "Connect"
+msgstr "Связать"
+
+# contributors:
+msgid "Connect to Data Source"
+msgstr "Связать с источником данных"
+
+# contributors:
+msgid "Connectivity"
+msgstr "Связанность"
+
+# contributors:
+msgid "Connectivity Graph"
+msgstr "График связанности"
+
+# contributors:
+msgid "Connectivity Histogram"
+msgstr "Гистограмма связанности"
+
+# contributors:
+msgid "Connectivity Map"
+msgstr "Карта связанности"
+
+# contributors:
+msgid "Connectivity Map - "
+msgstr "Карта связанности - "
+
+# contributors:
+msgid "Contiguity Weight"
+msgstr "Весовой коэффициент ассоциативной связи"
+
+# contributors:
+msgid "Continue"
+msgstr "Продолжить"
+
+# contributors:
+msgid "Convert ASCII to SHP"
+msgstr "Преобразовать ASCII в SHP"
+
+# contributors:
+msgid "Convert Boundary to SHP"
+msgstr "Преобразовать границу в SHP"
+
+# contributors:
+msgid "Convert Boundary to Shape Datasource"
+msgstr "Преобразовать границу в источник данных Shape"
+
+# contributors:
+msgid "Cooling Rate:"
+msgstr "Скорость охлаждения:"
+
+# contributors:
+msgid "Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85)."
+msgstr "Скорость охлаждения для Алгоритма симулированного нормирования должен быть числом с плавающей запятой от 0 до 1 (напр. 0,85)."
+
+# contributors:
+msgid "Cooling rate:"
+msgstr "Скорость охлаждения:"
+
+# contributors:
+msgid "Copy"
+msgstr "Копировать"
+
+# contributors:
+msgid "Copy Image To Clipboard"
+msgstr "Копировать изображение в Буфер обмена"
+
+# contributors:
+msgid "Copy Legend To Clipboard"
+msgstr "Копирать Легенду (Условные обозначения) в Буфер обмена"
+
+# contributors:
+msgid "Copyright (C) 1998-2011\nGeoDa Center for Geospatial Analysis and Computation\nand Arizona Board of Regents\nAll Rights Reserved"
+msgstr "Авторское право (C) 1998-2011\nGeoDa Центр геопространственного анализа и вычислений\nи Попечительский совет Аризоны\nВсе права защищены"
+
+# contributors:
+msgid "Copyright (C) 2011-%d by Luc Anselin"
+msgstr "Авторское право (C) 2011-%d Люка Анселина"
+
+# contributors:
+msgid "Copyright (C) year-year by Luc Anselin"
+msgstr "Авторское право (C) год-год Люка Анселина"
+
+# contributors:
+msgid "Cores"
+msgstr "Центры (кластеров)"
+
+# contributors:
+msgid "Cores and Neighbors"
+msgstr "Центры и соседи"
+
+# contributors:
+msgid "Correlogram"
+msgstr "Коррелограмма"
+
+# contributors:
+msgid "Correlogram Parameters"
+msgstr "Параметры коррелограммы"
+
+# contributors:
+msgid "Correlogram Parameters Help"
+msgstr "Справка Параметров коррелограммы"
+
+# contributors:
+msgid "Could not create a new variable. Possibly a read-only data source."
+msgstr "Невозможно создание новой переменной. Возможно, источник данных доступен только для чтения."
+
+# contributors:
+msgid "Could not determine which Field Choice was selected. Please report this error."
+msgstr "Невозможно определить какой Выбор поля был выделен. Пожалуйста, сообщите об этой ошибке."
+
+# contributors:
+msgid "Could not determine which Time Choice was selected. Please report this error."
+msgstr "Невозможно определить какой Выбор времени был выделен. Пожалуйста, сообщите об этой ошибке."
+
+# contributors:
+msgid "Could not initialize new project."
+msgstr "Невозможно инициализировать новый проект."
+
+# contributors:
+msgid "Count"
+msgstr "Подсчет"
+
+# contributors:
+msgid "Covariates"
+msgstr "Сопутствующие переменные"
+
+# contributors:
+msgid "Create"
+msgstr "Создать"
+
+# contributors:
+msgid "Create Custom Breaks"
+msgstr "Создать границы, заданные пользователем"
+
+# contributors:
+msgid "Create Grid"
+msgstr "Создать сетку"
+
+# contributors:
+msgid "Create New Custom"
+msgstr "Создать новое значение (объект), задаваемое пользователем"
+
+# contributors:
+msgid "Create Project File Now?"
+msgstr "Создать Файл Проекта сейчас?"
+
+# contributors:
+msgid "Create Weights"
+msgstr "Создать весовые коэффициенты"
+
+# contributors:
+msgid "Create a project file?"
+msgstr "Создать файл проекта?"
+
+# contributors:
+msgid "Create new custom categories classification."
+msgstr "Создать новую классификацию категорий, задаваемых пользователем."
+
+# contributors:
+msgid "Creating Grid"
+msgstr "Создание сетки"
+
+# contributors:
+msgid "Cumulative"
+msgstr "Кумулятивное"
+
+# contributors:
+msgid "Current OGR dirver "
+msgstr "Текущий драйвер OGR"
+
+# contributors:
+msgid "Current Opacity: %.2f"
+msgstr "Текущая плотность заливки: %.2f"
+
+# contributors:
+msgid "Current Transparency: %.2f"
+msgstr "Текущая прозрачность: %.2f"
+
+# contributors:
+msgid "Current field name:"
+msgstr "Текущее название поля:"
+
+# contributors:
+msgid "Current layer has already been associated with selected layer. Please select another layer to associate with."
+msgstr "Текущий слой уже ассоциируется с выделенным слоем. Пожалуйста, выберите другой слой для ассоциации."
+
+# contributors:
+msgid "Current time:"
+msgstr "Текущее время:"
+
+# contributors:
+msgid "Curve Color"
+msgstr "Цвет кривой"
+
+# contributors:
+msgid "Custom"
+msgstr "Задается пользователем"
+
+# contributors:
+msgid "Custom Breaks"
+msgstr "Границы, задаваемые пользователем"
+
+# contributors:
+msgid "Custom Inference"
+msgstr "Логический вывод, задаваемый пользователем"
+
+# contributors:
+msgid "Cut"
+msgstr "Вырезать"
+
+# contributors:
+msgid "Cyrillic (ISO-8859-5)"
+msgstr "Кириллица (ISO-8859-5)"
+
+# contributors:
+msgid "Cyrillic (KOI8-R)"
+msgstr "Кириллица (KOI8-R)"
+
+# contributors:
+msgid "Cyrillic (Windows-1251)"
+msgstr "Кириллица (Windows-1251)"
+
+# contributors:
+msgid "Cyrillic/Russian (CP866)"
+msgstr "Кириллица/Русский (CP866)"
+
+# contributors:
+msgid "D.F."
+msgstr "структура данных"
+
+# contributors:
+msgid "DBF File Information"
+msgstr "Информация о файле DBF"
+
+# contributors:
+msgid "DBF Viewer 0.8 (July 29, 2011)"
+msgstr "Окно просмотра DBF 0.8 (29 июля 2011 г.)"
+
+# contributors:
+msgid "Data"
+msgstr "Данные"
+
+# contributors:
+msgid "Data Point"
+msgstr "Точка данных"
+
+# contributors:
+msgid "Data Preview - number of preview records:"
+msgstr "Предварительный просмотр данных - число записей о предварительном просмотре:"
+
+# contributors:
+msgid "Data Source Overview/Help: "
+msgstr "Обзор/Помощь с источником данных: "
+
+# contributors:
+msgid "Data Type"
+msgstr "Тип данных"
+
+# contributors:
+msgid "Data source (%s) doesn't exist. Please check the project configuration file."
+msgstr "Источник данных (%s) не существует. Пожалуйста, проверьте файл конфигурации проекта."
+
+# contributors:
+msgid "Database"
+msgstr "База данных"
+
+# contributors:
+msgid "Database Host"
+msgstr "Хост базы даных"
+
+# contributors:
+msgid "Database Name/Instance"
+msgstr "Наименование/Экземпляр базы данных"
+
+# contributors:
+msgid "Database Port"
+msgstr "Порт базы данных"
+
+# contributors:
+msgid "Database Type"
+msgstr "Тип базы данных"
+
+# contributors:
+msgid "Database port is empty. Please input one."
+msgstr "Порт базы данных пуст. Пожалуйста, введите базу данных."
+
+# contributors:
+msgid "Database/Instance Name"
+msgstr "Наименование базы данных/экземпляра"
+
+# contributors:
+msgid "Datasource in project is not valid."
+msgstr "Источник данных в проекте не действителен."
+
+# contributors:
+msgid "Datasource path is empty."
+msgstr "Путь к источнику данных пуст."
+
+# contributors:
+msgid "Date/Time"
+msgstr "Дата/Время"
+
+# contributors:
+msgid "Date/Time formats (using comma to separate formats):"
+msgstr "Форматы Даты/Времени (использовать запятую для разделения форматов):"
+
+# contributors:
+msgid "December"
+msgstr "Декабрь"
+
+# contributors:
+msgid "Decimal:"
+msgstr "Десятичная дробь:"
+
+# contributors:
+msgid "Decimals (max 15)"
+msgstr "Десятичные дроби (макс. 15)"
+
+# contributors:
+msgid "Default displayed decimal places in Table:"
+msgstr "Разряды десятичной дроби, по умолчанию отображаемые в Таблице:"
+
+# contributors:
+msgid "Delete"
+msgstr "Удалить"
+
+# contributors:
+msgid "Delete Variable(s)"
+msgstr "Удалить переменную(-ые)"
+
+# contributors:
+msgid "Delta Factor:"
+msgstr "Дельта-коэффициент:"
+
+# contributors:
+msgid "Dendrogram"
+msgstr "Дендрограмма (древовидная диаграмма)"
+
+# contributors:
+msgid "Dependent Var (y-axis)"
+msgstr "Зависимая пер. (ось-y)"
+
+# contributors:
+msgid "Dependent Var Y"
+msgstr "Зависимая пер. Y"
+
+# contributors:
+msgid "Dependent Variable"
+msgstr "Зависимая переменная"
+
+# contributors:
+msgid "Descending order"
+msgstr "По убыванию"
+
+# contributors:
+msgid "Description"
+msgstr "Описание"
+
+# contributors:
+msgid "Diagonal weights = 1"
+msgstr "Диагональные весовые коэффициенты = 1"
+
+# contributors:
+msgid "Diff Values"
+msgstr "Дифф. значения"
+
+# contributors:
+msgid "Difference-in-Means Test:"
+msgstr "Тест разности между средними:"
+
+# contributors:
+msgid "Differential Local Moran's I"
+msgstr "Дифференциальный локальный индекс Морана I"
+
+# contributors:
+msgid "Differential Moran Variable Settings"
+msgstr "Настройка параметров переменных дифференциального индекса Морана"
+
+# contributors:
+msgid "Differential Moran's I"
+msgstr "Дифференциальный индекс Морана I"
+
+# contributors:
+msgid "Differential Moran's I (%s): %s - %s"
+msgstr "Дифференциальный индекс Морана I (%s): %s - %s"
+
+# contributors:
+msgid "Differential Moran's I tests whether the change in a variable over time is spatially correlated.\n\nPlease first group variables by time period: Select Time --> Time Editor."
+msgstr "Тесты с применением дифференциального индекса Морана I для проверки пространственной корреляции изменений в переменных во времении.\n\nПожалуйста, сначала сгруппируйте переменные по временному периоду: Выбрать время --> Редактор времени."
+
+# contributors:
+msgid "Disable auto upgrade:"
+msgstr "Деактивировать автоматическую модернизацию:"
+
+# contributors:
+msgid "Disable crash detection for bug report:"
+msgstr "Деактивировать выявление системных сбоев для отчета об ошибках:"
+
+# contributors:
+msgid "Display Axes Scale Values"
+msgstr "Отобразить значения шкалы осей"
+
+# contributors:
+msgid "Display Centroids"
+msgstr "Отобразить центроиды"
+
+# contributors:
+msgid "Display Mean Centers"
+msgstr "Отобразить центры средних"
+
+# contributors:
+msgid "Display Slope Values"
+msgstr "Отобразить значения крутизны"
+
+# contributors:
+msgid "Display Statistics"
+msgstr "Отобразить статистику"
+
+# contributors:
+msgid "Display Thiessen Polygons"
+msgstr "Отобразить полигоны Тиссена"
+
+# contributors:
+msgid "Displayed decimal places"
+msgstr "Отображенные разряды десятичной дроби"
+
+# contributors:
+msgid "Displayed decimals"
+msgstr "Отображенные десятичные дроби"
+
+# contributors:
+msgid "Displayed decimals places"
+msgstr "Отображенные разряды десятичных дробей"
+
+# contributors:
+msgid "Dissolve"
+msgstr "Рассеять"
+
+# contributors:
+msgid "Dissolve - "
+msgstr "Рассеять - "
+
+# contributors:
+msgid "Dissolve does not work with Table only datasource."
+msgstr "Рассеять не работает с источниками данных только в формате Таблицы."
+
+# contributors:
+msgid "Dissolve only works on polygon dataset."
+msgstr "Рассеять только работает с полигональным массивом данных."
+
+# contributors:
+msgid "Distance"
+msgstr "Расстояние"
+
+# contributors:
+msgid "Distance Function:"
+msgstr "Функция расстояния:"
+
+# contributors:
+msgid "Distance Weight"
+msgstr "Весовой коэффициент расстояния"
+
+# contributors:
+msgid "Distance band"
+msgstr "Диапазон расстояний"
+
+# contributors:
+msgid "Distance function:\t"
+msgstr "Функция расстояния:\t"
+
+# contributors:
+msgid "Distance metric: "
+msgstr "Система измерения расстояний: "
+
+# contributors:
+msgid "Distance:"
+msgstr "Расстояние:"
+
+# contributors:
+msgid "Do Means Differ? (ANOVA)"
+msgstr "Средние различаются? (ANOVA)"
+
+# contributors:
+msgid "Do you want to save the results of Diff-in-Diff test?\n\nNote: the results can only be saved into an external data file, due to the change of cross-sectional observations in a space-time context."
+msgstr "Вы хотите сохранить результаты теста Разница в разнице?\n\nПримечание: результаты можно только сохранить во внешний файл данных из-за изменения в перекрестных наблюдениях в контексте пространства-времени."
+
+# contributors:
+msgid "Do you want to save your data?"
+msgstr "Вы хотите сохранить ваши данные?"
+
+# contributors:
+msgid "Don't show Recent/Sample Data panel again"
+msgstr "Больше не показывать панель Недавних/Выборочных данных"
+
+# contributors:
+msgid "Don't show this dialog again (You can always change this setting using menu: File->Preferences)"
+msgstr "Больше не показывать этот диалог (Вы всегда сможете поменять настройки параметров через меню: Файл->Параметры настройки)"
+
+# contributors:
+msgid "Donate"
+msgstr "Помочь проекту"
+
+# contributors:
+msgid "Down"
+msgstr "Вниз"
+
+# contributors:
+msgid "Download OSM Roads"
+msgstr "Скачать карту OSM Дороги"
+
+# contributors:
+msgid "Downloading updates..."
+msgstr "Скачиваются обновления..."
+
+# contributors:
+msgid "Duplicate IDs"
+msgstr "Дублирующиеся идентификаторы"
+
+# contributors:
+msgid "Duplicate Thiessen Polygons Found"
+msgstr "Найдены дублирующиеся полигоны Тиссена"
+
+# contributors:
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Please try to export current dataset without duplicates."
+msgstr "Дублирующиеся полигоны Тиссена существуют из-за дублирующихся или почти-дублирующихся точек на карте. Пожалуйста, попытайтесь экспортровать массив данных без дублирующихся значений."
+
+# contributors:
+msgid "Duplicate Thiessen polygons exist due to duplicate or near-duplicate map points. Press OK to save duplicate polygon ids to Table."
+msgstr "Дублирующиеся полигоны Тиссена существуют из-за дублирующихся или почти-дублирующихся точек на карте. Нажмите ОК, чтобы сохранить идентификаторы дублирующихся полигонов в Таблице."
+
+# contributors:
+msgid "Duplicate variable names specified."
+msgstr "Наименования дублирующихся переменных определены."
+
+# contributors:
+msgid "E&xplore"
+msgstr "И&зучить"
+
+# contributors:
+msgid "ESRI File Geodatabase (*.gdb)|*.gdb"
+msgstr "База геоданных файлов ESRI (*.gdb)|*.gdb"
+
+# contributors:
+msgid "ESRI Personal Geodatabase (*.mdb)|*.mdb"
+msgstr "Персональная база геоданных ESRI (*.mdb)|*.mdb"
+
+# contributors:
+msgid "ESRI Shapefile (*.shp)|*.shp"
+msgstr "ESRI шейп-файл (*.shp)|*.shp"
+
+# contributors:
+msgid "Edit"
+msgstr "Редактировать"
+
+# contributors:
+msgid "Edit Custom Breaks"
+msgstr "Редактировать интервалы, задаваемые пользователем"
+
+# contributors:
+msgid "Edit LOWESS Parameters"
+msgstr "Редактировать параметры LOWESS"
+
+# contributors:
+msgid "Edit Title"
+msgstr "Редактировать название"
+
+# contributors:
+msgid "Edit Variable Properties"
+msgstr "Редактировать свойства переменных"
+
+# contributors:
+msgid "Emp Bayes Rate Std Moran's I (%s): %s / %s"
+msgstr "Стандартизированная по индексу Морана I скорость с исп. эмп. подхода Байеса (%s): %s / %s"
+
+# contributors:
+msgid "Empirical Bayes"
+msgstr "Эмпирический подход Байеса"
+
+# contributors:
+msgid "Empirical Bayes Rate Standardization Variables"
+msgstr "Переменные стандартизации скорости с использованием эмпирического подхода Байеса"
+
+# contributors:
+msgid "Empirical Bayes Smoothed Variable Settings"
+msgstr "Настройки переменной, сглаженной с применением эмпирического подхода Байеса"
+
+# contributors:
+msgid "Empirical Spatial Rate Smoothed Variable Settings"
+msgstr "Настройки переменных эмпирически сглаженной скорости изменения в пространстве"
+
+# contributors:
+msgid "Enable High DPI/Retina support (Mac only):"
+msgstr "Разрешить высокое число точек на дюйм/поддержку Retina (только для Mac):"
+
+# contributors:
+msgid "Enable User Defined Value Range of Y-Axis"
+msgstr "Разрешить диапазон значений оси-Y, определенных пользователем"
+
+# contributors:
+msgid "Enable transparency setup of category color in map (Windows only):"
+msgstr "Разрешить настройку прозрачности цвета категории в карте (только для Windows):"
+
+# contributors:
+msgid "Encode"
+msgstr "Зашифровать"
+
+# contributors:
+msgid "Enter a seed value"
+msgstr "Ввести величину рандомизации"
+
+# contributors:
+msgid "Enter a seed value for random number generator:"
+msgstr "Ввести величину рандомизации для генератора случайных чисел:"
+
+# contributors:
+msgid "Enter new ID variable name:"
+msgstr "Ввести новое наименование идентификатора переменной:"
+
+# contributors:
+msgid "Equal Intervals"
+msgstr "Равные интервалы"
+
+# contributors:
+msgid "Equal Intervals Map"
+msgstr "Карта равных интервалов"
+
+# contributors:
+msgid "Error"
+msgstr "Ошибка"
+
+# contributors:
+msgid "Error while opening project:\n\n"
+msgstr "Ошибка при открытии проекта:\n\n"
+
+# contributors:
+msgid "Error: "
+msgstr "Ошибка: "
+
+# contributors:
+msgid "Error: Base values contain non-positive numbers which will result in undefined values."
+msgstr "Ошибка: Базовые значения содержат неположительные числа, что в результате даст неопределенные значения."
+
+# contributors:
+msgid "Error: Chosen theme requires more cateogries than observations."
+msgstr "Ошибка: Для выбранной темы необходимо больше категорий, чем наблюдений."
+
+# contributors:
+msgid "Error: Due to restrictions on the DBF file format, the particular combination of length and decimals entered is not valid.  Based on your current choices, we recommend length = %d and decimals = %d"
+msgstr "Ошибка: Из-за ограничения формата файла DBF, данная комбинация введенной длины и десятичных дробей не действительна. Исходя из вашего текущего выбора, рекомендуем длину = %d и десятичные дроби = %d"
+
+# contributors:
+msgid "Error: Maximum number of neighbors %d exceeded."
+msgstr "Ошибка: Превышено максимальное количество соседей %d."
+
+# contributors:
+msgid "Error: The table variable name is empty."
+msgstr "Ошибка: Наименование табличной переменной пустое."
+
+# contributors:
+msgid "Error: \"%s\" already exists in Table, please specify a different name."
+msgstr "Ошибка: \"%s\" уже существует в Таблице, пожалуйста, определите другое наименование."
+
+# contributors:
+msgid "Error: \"%s\" is an invalid variable name. The first character must be alphabetic, and the remaining characters can be either alphanumeric or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Ошибка: Название переменной \"%s\" не действительно. Первый символ должен быть буквенным, а остальные символы могут быть буквенно-цифровыми знаками или нижним подчеркиванием. Для таблицы DBF, действительное наименование переменной должно содержать от одного до десяти знаков."
+
+# contributors:
+msgid "Error: \"%s\" not found."
+msgstr "Ошибка: \"%s\" не найден."
+
+# contributors:
+msgid "Error: no records found in data source."
+msgstr "Ошибка: в источнике данных не найдены записи."
+
+# contributors:
+msgid "Error: the inverse matrix is ill-conditioned."
+msgstr "Ошибка: параметры обратной матрицы не соотвествуют параметрам."
+
+# contributors:
+msgid "Estimated Pairs:"
+msgstr "Расчетное количество пар:"
+
+# contributors:
+msgid "Euclidean Distance"
+msgstr "Евклидово расстояние"
+
+# contributors:
+msgid "Event Variable"
+msgstr "Переменная типа событие"
+
+# contributors:
+msgid "Excess Risk"
+msgstr "Повышенный риск"
+
+# contributors:
+msgid "Excess Risk Map Variable Settings"
+msgstr "Настройка переменных карты зон повышенного риска"
+
+# contributors:
+msgid "Exclude"
+msgstr "Исключить"
+
+# contributors:
+msgid "Existing Variables"
+msgstr "Существующие переменные"
+
+# contributors:
+msgid "Exit"
+msgstr "Выход"
+
+# contributors:
+msgid "Exit with unsaved changes?"
+msgstr "Выйти без сохранения изменений?"
+
+# contributors:
+msgid "Exit?"
+msgstr "Выйти?"
+
+# contributors:
+msgid "Explore"
+msgstr "Изучить"
+
+# contributors:
+msgid "Export or save layer to"
+msgstr "Экспортировать или сохранить слой в"
+
+# contributors:
+msgid "Exporting Shape to Boundary"
+msgstr "Экспортировать геометрическую форму в границу"
+
+# contributors:
+msgid "Expression"
+msgstr "Выражение"
+
+# contributors:
+msgid "Extent"
+msgstr "текущий вид"
+
+# contributors:
+msgid "Fail in reading the Boundary file: at polygon-%d"
+msgstr "Не удалось прочитать файл Границы: в полигоне-%d"
+
+# contributors:
+msgid "Failed to create the weights file."
+msgstr "Не удалось создать файл с весовыми коэффициентами."
+
+# contributors:
+msgid "Failed to open data source. Please check the data/datasource and check if the data type/format is supported by GeoDa.\n\nTip: you can set up the necessary GeoDa driver by following the instructions at:\n http://geodacenter.github.io/formats.html"
+msgstr "Не удалось открыть источник данных. Пожалуйста, проверьте данные / источник данных и проверьте, поддерживается ли тип данных/формат Geo Da.\n\nTip: вы можете настроить необходимый драйвер GeoDa, следуя инструкциям по адресу:\n http://geodacenter.github.io/formats.html"
+
+# contributors:
+msgid "False Discovery Rate:"
+msgstr "Уровень ложноположительных результатов:"
+
+# contributors:
+msgid "February"
+msgstr "Февраль"
+
+# contributors:
+msgid "Field (%s) already exited."
+msgstr "Поле (%s) уже существует."
+
+# contributors:
+msgid "File"
+msgstr "Файл"
+
+# contributors:
+msgid "File Path"
+msgstr "Путь к файлу"
+
+# contributors:
+msgid "File doesn't exist!"
+msgstr "Файл не существет!"
+
+# contributors:
+msgid "File merged into Table successfully."
+msgstr "Файл успешно объединен с Таблицей."
+
+# contributors:
+msgid "Fill Color"
+msgstr "Цвет заливки"
+
+# contributors:
+msgid "Fill Color for Category"
+msgstr "Цвет заливки для Категории"
+
+# contributors:
+msgid "Fill Opacity for Category"
+msgstr "Плотность заливки для категории"
+
+# contributors:
+msgid "Finished"
+msgstr "Завершено"
+
+# contributors:
+msgid "First Variable (X)"
+msgstr "Первая переменная (X)"
+
+# contributors:
+msgid "First Variable (X/Longitude)"
+msgstr "Первая переменная (X/Долгота)"
+
+# contributors:
+msgid "First line of CSV is variable names?"
+msgstr "Первая строка CSV является наимеованиями переменных?"
+
+# contributors:
+msgid "First row of CSV file"
+msgstr "Первый ряд CSV файла"
+
+# contributors:
+msgid "Fit-To-Window Mode"
+msgstr "Режим Вписать в окно"
+
+# contributors:
+msgid "Fixed Aspect Ratio Mode"
+msgstr "Режим фиксированного отношения высоты и ширины объекта"
+
+# contributors:
+msgid "Fixed scale over time"
+msgstr "Фиксированная шкала во времени"
+
+# contributors:
+msgid "Fixed x-axis scale over time"
+msgstr "Фиксированная шкала оси-x во времени"
+
+# contributors:
+msgid "Fixed y-axis scale over time"
+msgstr "Фиксированная шкала оси-y в во времени"
+
+# contributors:
+msgid "Fourth Variable"
+msgstr "Четвертая переменная"
+
+# contributors:
+msgid "Frequency"
+msgstr "Частота"
+
+# contributors:
+msgid "Full Extent"
+msgstr "полный вид"
+
+# contributors:
+msgid "GAL files (*.gal)|*.gal"
+msgstr "Файлы GAL (*.gal)|*.gal"
+
+# contributors:
+msgid "GWT files (*.gwt)|*.gwt"
+msgstr "Файлы GWT (*.gwt)|*.gwt"
+
+# contributors:
+msgid "GeoDa Bug Report Dialog"
+msgstr "Диалог Отчет программы GeoDa об ошибках"
+
+# contributors:
+msgid "GeoDa CSV File Configuration"
+msgstr "Конфигурация CSV файла программой GeoDa"
+
+# contributors:
+msgid "GeoDa Help"
+msgstr "Справка программы GeoDa"
+
+# contributors:
+msgid "GeoDa Preference Setup"
+msgstr "Настройка параметров программы GeoDa"
+
+# contributors:
+msgid "GeoDa Project (*.gda)|*.gda"
+msgstr "Проект программы GeoDa (*.gda)|*.gda"
+
+# contributors:
+msgid "GeoDa Project File (*.gda)|*.gda"
+msgstr "Файл Проекта программы GeoDa (*.gda)|*.gda"
+
+# contributors:
+msgid "GeoDa Project File to Open"
+msgstr "Открыть файл Проекта программы GeoDa"
+
+# contributors:
+msgid "GeoDa Project to Save As"
+msgstr "Сохранить Проект программы GeoDa как"
+
+# contributors:
+msgid "GeoDa Update Dialog"
+msgstr "Диалог для обновления программы GeoDa"
+
+# contributors:
+msgid "GeoDa can not get valid spatial reference from input data source. Please try another data source."
+msgstr "Программе GeoDa не может получить действительную пространственную привязку из источника вводных данных. Попробуйте другой источник данных."
+
+# contributors:
+msgid "GeoDa can not open the input data source. Please try another data source."
+msgstr "Программа GeoDa не может открыть источник вводных данных. Попробуйте другой источник данных."
+
+# contributors:
+msgid "GeoDa can't change the variable type to DATE/TIME. Please select another type."
+msgstr "Программа GeoDa не может изменить тип переменной на ДАТУ/ВРЕМЯ. Пожалуйста, выберите другой тип."
+
+# contributors:
+msgid "GeoDa can't create a layer."
+msgstr "Программа GeoDa не может создать слой."
+
+# contributors:
+msgid "GeoDa can't load dataset with duplicate field names."
+msgstr "Программа GeoDa не может загрузить массив данных с дублирующимися наименованиями полей."
+
+# contributors:
+msgid "GeoDa can't read data from datasource. \n\nDetails: Datasource is empty."
+msgstr "Программа GeoDa не может прочитать данные из источника данных. \n\nДетали: Источник данных пуст."
+
+# contributors:
+msgid "GeoDa can't save a Table-only data source as a Geometry enabled data source. Please try to add a geometry layer and then use File->Save As."
+msgstr "Программа GeoDa не может сохранить только табличный источник данных как источник данных с включенными свойствами геометрии. Пожалуйста, попытайтесь добавить геометрический слой, а потом воспользоваться меню Файл->Сохранить как."
+
+# contributors:
+msgid "GeoDa can't save changes to this datasource. Please try to use File->Export."
+msgstr "Программа GeoDa не может сохранить изменения в этом источнике данных. Пожалуйста, воспользуйтесь меню Файл->Экспорт."
+
+# contributors:
+msgid "GeoDa cannot find proper projection or geographic coordinate system information to add a basemap. Please update this information (e.g. in .prj file)."
+msgstr "Программа GeoDa не может найти правильную проекцию или информацию о географической системе координат для добавления базовой карты. Пожалуйста, обновите эту информаци. (например, в файле с расширением .prj)."
+
+# contributors:
+msgid "GeoDa could not find the required weights file."
+msgstr "Программа GeoDa не смогла найти требуемый файл с весовыми коэффициентами."
+
+# contributors:
+msgid "GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."
+msgstr "Программа GeoDa не смогла найти требуемый файл с весовыми коэффициентами. \nПожалуйста, укажите весовые коэффициенты в меню Инструменты > Менеджер весовых коэффициентов."
+
+# contributors:
+msgid "GeoDa could not load this layer. Please check if the datasource is valid and not table only."
+msgstr "Программа GeoDa не смогла загрузить этот слой. Пожалуйста, проверьте, является ли источник данных является действительным и не только табличным."
+
+# contributors:
+msgid "GeoDa does not support creating data of %s. Please try to 'Export' to other supported data source format."
+msgstr "Программа GeoDa не поддерживает создание данных %s. Пожалуйста, воспользуйтесь опцией 'Экспорт' в другой поддерживаемый формат источника данных."
+
+# contributors:
+msgid "GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data."
+msgstr "Программа GeoDa в настоящее время не поддерживает источник данных с линейными данными. Пожалуйста, выберите источник данных либо с точечными, либо полигональными данными."
+
+# contributors:
+msgid "GeoDa has run into a problem and will close."
+msgstr "Программа GeoDa столкнулась с проблемой и закроется."
+
+# contributors:
+msgid "GeoDa maj.min.bld (type), day month year"
+msgstr "Программа GeoDa maj.min.bld (тип), день месяц год"
+
+# contributors:
+msgid "GeoDa was unable to save the file."
+msgstr "Программе GeoDa не удалось сохранить файл."
+
+# contributors:
+msgid "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+msgstr "GeoJSON (*.geojson;*.json)|*.geojson;*.json"
+
+# contributors:
+msgid "GeoJson URL"
+msgstr "GeoJson URL"
+
+# contributors:
+msgid "GeoPackage (*.gpkg)|*.gpkg"
+msgstr "GeoPackage (*.gpkg)|*.gpkg"
+
+# contributors:
+msgid "Geography Markup Language (*.gml)|*.gml"
+msgstr "Географический язык разметки (*.gml)|*.gml"
+
+# contributors:
+msgid "Geometric centroids"
+msgstr "Геометрические центроиды"
+
+# contributors:
+msgid "Geometries have been added to existing Table-only data source. Do you want to save them as a new datasource?"
+msgstr "Геометрические параметры были добавлены к существующему источнику данных в табличном формате. Вы хотите сохранить их как новый источник данных?"
+
+# contributors:
+msgid "Geometries not saved"
+msgstr "Геометрические параметры не сохранены"
+
+# contributors:
+msgid "Get a free Carto account: "
+msgstr "Получить бесплатную учетную запись Carto: "
+
+# contributors:
+msgid "Get a free GeoDa-Web account: "
+msgstr "Получить бесплатную учетную запись GeoDa-Web: "
+
+# contributors:
+msgid "Get a free Nokia/HERE account: "
+msgstr "Получить бесплатную учетную запись Nokia/HERE: "
+
+# contributors:
+msgid "Getis-Ord"
+msgstr "Getis-Ord"
+
+# contributors:
+msgid "Gi cluster map, pseudo p-val"
+msgstr "Карта кластеров Gi, псевдо p-знач."
+
+# contributors:
+msgid "Gi* cluster map, pseudo p-val"
+msgstr "Карта кластеров Gi*, псевдо p-знач."
+
+# contributors:
+msgid "Greedy"
+msgstr "Жадный"
+
+# contributors:
+msgid "Greek (ISO-8859-7)"
+msgstr "Греческий (ISO-8859-7)"
+
+# contributors:
+msgid "Grid Bounding Box"
+msgstr "Блок привязки к сетке"
+
+# contributors:
+msgid "Grid Size"
+msgstr "Размер сетки"
+
+# contributors:
+msgid "Grid file was successfully created."
+msgstr "Файл сетки был успешно создан."
+
+# contributors:
+msgid "Group"
+msgstr "Группа"
+
+# contributors:
+msgid "Group 1:"
+msgstr "Группа 1:"
+
+# contributors:
+msgid "Group 2:"
+msgstr "Группа 2:"
+
+# contributors:
+msgid "Group Variable:"
+msgstr "Переменная группы:"
+
+# contributors:
+msgid "Grouped Variables"
+msgstr "Сгруппированные переменные"
+
+# contributors:
+msgid "Groups:"
+msgstr "Группы:"
+
+# contributors:
+msgid "HDBScan"
+msgstr "HDBScan"
+
+# contributors:
+msgid "HDBScan Cluster Map (%d clusters)"
+msgstr "Карта кластеров HDBScan (%d кластеров)"
+
+# contributors:
+msgid "HDBScan Clustering Settings"
+msgstr "Настройка кластеризации HDBScan"
+
+# contributors:
+msgid "HERE App ID"
+msgstr "Идентификатор приложения HERE"
+
+# contributors:
+msgid "HERE App Key"
+msgstr "Клавиша приложения HERE"
+
+# contributors:
+msgid "Has Colocation"
+msgstr "Имеет совместное расположение"
+
+# contributors:
+msgid "Hebrew (ISO-8859-8-1)"
+msgstr "Иврит (ISO-8859-8-1)"
+
+# contributors:
+msgid "Hebrew (Windows-1255)"
+msgstr "Иврит (Windows-1255)"
+
+# contributors:
+msgid "Height:"
+msgstr "Высота:"
+
+# contributors:
+msgid "Help"
+msgstr "Помощь"
+
+# contributors:
+msgid "Hide Map"
+msgstr "Скрыть карту"
+
+# contributors:
+msgid "Hide system table in Postgresql connection:"
+msgstr "Скрыть таблицу системы в соединении с Postgresql:"
+
+# contributors:
+msgid "Hide system table in SQLITE connection:"
+msgstr "Скрыть таблицу системы в соединении с SQLITE:"
+
+# contributors:
+msgid "Hierachical Map does not work with Table only datasource."
+msgstr "Иерархическая карта не работает с исключительно табличным источником данных."
+
+# contributors:
+msgid "Hierachical Map: "
+msgstr "Иерархическая карта: "
+
+# contributors:
+msgid "Hierarchical"
+msgstr "Иерархический"
+
+# contributors:
+msgid "Hierarchical Clustering Settings"
+msgstr "Настройки иерархической кластеризации"
+
+# contributors:
+msgid "Hierarchical Map"
+msgstr "Иерархическая карта"
+
+# contributors:
+msgid "High"
+msgstr "Высокий"
+
+# contributors:
+msgid "High-High"
+msgstr "Высокий-Высокий"
+
+# contributors:
+msgid "High-Low"
+msgstr "Высокий-Низкий"
+
+# contributors:
+msgid "Highlight Color"
+msgstr "Цвет выделения"
+
+# contributors:
+msgid "Hinge"
+msgstr "Линия створа"
+
+# contributors:
+msgid "Hinge=1.5"
+msgstr "Линия створа=1,5"
+
+# contributors:
+msgid "Hinge=3.0"
+msgstr "Линия створа=3,0"
+
+# contributors:
+msgid "Histogram"
+msgstr "Гистограмма"
+
+# contributors:
+msgid "Histogram Classification"
+msgstr "Классификация гистограмм"
+
+# contributors:
+msgid "Histogram Variable"
+msgstr "Переменная гистограммы"
+
+# contributors:
+msgid "Histogram: "
+msgstr "Гистограмма: "
+
+# contributors:
+msgid "Horizontal Bins Breaks"
+msgstr "Интервалы горизонтальных столбиков"
+
+# contributors:
+msgid "Horizontal Cells"
+msgstr "Горизонтальные ячейки"
+
+# contributors:
+msgid "Http connection timeout (seconds) for e.g. WFS, Geojson etc.:"
+msgstr "Время ожидания подключения к http (секунды), например, к WFS, Geojson и др.:"
+
+# contributors:
+msgid "ID is not specified!"
+msgstr "Идентификатор не определен!"
+
+# contributors:
+msgid "Image Dimension Settings"
+msgstr "Настройки размеров изображения"
+
+# contributors:
+msgid "Improve Cartogram"
+msgstr "Улучшить картограмму"
+
+# contributors:
+msgid "Include"
+msgstr "Включить"
+
+# contributors:
+msgid "Include Variable Names"
+msgstr "Включить наименования переменных"
+
+# contributors:
+msgid "Include diagonal of weights matrix"
+msgstr "Включить диагональ матрицы весовых коэффициентов"
+
+# contributors:
+msgid "Include lower orders"
+msgstr "Включить низшие порядки"
+
+# contributors:
+msgid "Incomplete Group Variable"
+msgstr "Неполная переменная группы"
+
+# contributors:
+msgid "Independent Var (x-axis)"
+msgstr "Независимая пер.(ось-x)"
+
+# contributors:
+msgid "Independent Var X"
+msgstr "Независимая пер. X"
+
+# contributors:
+msgid "Inference Settings"
+msgstr "Настройки логического вывода"
+
+# contributors:
+msgid "Inference Settings (%d perm)"
+msgstr "Настройки логического вывода (%d перестановок)"
+
+# contributors:
+msgid "Info"
+msgstr "Инфо"
+
+# contributors:
+msgid "Information"
+msgstr "Информация"
+
+# contributors:
+msgid "Initial Groups:"
+msgstr "Первоначальные группы:"
+
+# contributors:
+msgid "Initial groups:\t"
+msgstr "Первоначальные группы:\t"
+
+# contributors:
+msgid "Initialization Method:"
+msgstr "Метод инициализации:"
+
+# contributors:
+msgid "Initialization Re-runs:"
+msgstr "Повторные циклы нициализации:"
+
+# contributors:
+msgid "Initialization method:\t"
+msgstr "Метод инициализации:\t"
+
+# contributors:
+msgid "Initialization re-runs:\t"
+msgstr "Повторные циклы инициализации:\t"
+
+# contributors:
+msgid "Input"
+msgstr "Вводные"
+
+# contributors:
+msgid "Input ASCII file"
+msgstr "Вводный файл ASCII"
+
+# contributors:
+msgid "Input data source"
+msgstr "Источник вводных данных"
+
+# contributors:
+msgid "Input datasource"
+msgstr "Источник вводных данных"
+
+# contributors:
+msgid "Input file "
+msgstr "Вводный файл"
+
+# contributors:
+msgid "Input file (text file)"
+msgstr "Вводный файл (текстовый файл)"
+
+# contributors:
+msgid "Input is duplicated."
+msgstr "Вводные данные дублированы."
+
+# contributors:
+msgid "Input is not valid."
+msgstr "Вводные данные не действительны."
+
+# contributors:
+msgid "Input is required"
+msgstr "Необходимо ввести данные"
+
+# contributors:
+msgid "Input significance:"
+msgstr "Значимость вводных данных:"
+
+# contributors:
+msgid "Input:"
+msgstr "Вводные данные:"
+
+# contributors:
+msgid "Insert before"
+msgstr "Вставить до"
+
+# contributors:
+msgid "Insufficient Random Sampling"
+msgstr "Недостаточность случайной выборки"
+
+# contributors:
+msgid "Internal Error: Add new field (%s) failed.\n\nDetails:%s"
+msgstr "Внутренняя ошибка: Не удалось добавить новое поле (%s).\n\nДетали:%s"
+
+# contributors:
+msgid "Internal Error: Delete field failed.\n\nDetails:"
+msgstr "Внутренняя ошибка: Не удалось удалить файл.\n\nДетали:"
+
+# contributors:
+msgid "Internal Error: can't update an in-memory cell."
+msgstr "Внутренняя ошибка: невозможно обновить ячейку внутренней памяти."
+
+# contributors:
+msgid "Intervals"
+msgstr "Интервалы"
+
+# contributors:
+msgid "Intervals in the Histogram"
+msgstr "Интервал в Гистограмме"
+
+# contributors:
+msgid "Invalid Variable"
+msgstr "Недействительная переменная"
+
+# contributors:
+msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager to define a valid weights file."
+msgstr "Недействительная информация о весовых коэффициентах:\n\n Выбранный файл с весовыми коэффициентами недействителен.\n Пожалуйста, выберите другой файл с весовыми коэффициентами или воспользуйтесь меню Инструменты > Весовые коэффициенты > Менеджер весовых коэффициентов, чтобы определить действительный файл с весовыми коэффициентами."
+
+# contributors:
+msgid "Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."
+msgstr "Недействительная информация о весовых коэффициентах:\n\n Выбранный файл с весовыми коэффициентами недействителен.\n Пожалуйста, выберите другой файл с весовыми коэффициентами или воспользуйтесь меню Инструменты > Весовые коэффициенты > Менеджер весовых коэффициентов, чтобы определить действительный файл с весовыми коэффициентами."
+
+# contributors:
+msgid "Invalid layer association has been detected, which will cause infinite highlighting loop. Please try to reset highlight association between layers."
+msgstr "Обнаружена недопустимая ассоциация слоев, что приведет к бесконечному циклу выделений. Пожалуйста, попробуйте сбросить выделение ассоциаций между слоями."
+
+# contributors:
+msgid "Invert Select"
+msgstr "Инвертировать выбор"
+
+# contributors:
+msgid "Invert Selection"
+msgstr "Инвертировать выбранную область"
+
+# contributors:
+msgid "It looks like GeoDa has been terminated abnormally. \nDo you want to send a crash report to GeoDa team? \n\n(Optional) Please leave your email address,\nso we can send a follow-up email once we have a fix."
+msgstr "Видимо работа программы GeoDa была прекращена из-за ошибки. \nХотите отправить отчет о сбое программы команде программы GeoDa? \n\n(Необязательно) Пожалуйста, оставьте адрес своей эл. почты,\nчтобы мы направили вам ответное электронное письмо как только будет найдено решение."
+
+# contributors:
+msgid "Iterations:"
+msgstr "Повторы:"
+
+# contributors:
+msgid "January"
+msgstr "Январь"
+
+# contributors:
+msgid "Japanese (EUC-JP)"
+msgstr "Японский (EUC-JP)"
+
+# contributors:
+msgid "Japanese (Shift&JIS)"
+msgstr "Японский (Shift&JIS)"
+
+# contributors:
+msgid "Japanese (Shift_JIS)"
+msgstr "Японский (Shift_JIS)"
+
+# contributors:
+msgid "Join Operation:"
+msgstr "Операция Соединение:"
+
+# contributors:
+msgid "Join Variable:"
+msgstr "Соединить переменную:"
+
+# contributors:
+msgid "July"
+msgstr "Июль"
+
+# contributors:
+msgid "June"
+msgstr "Июнь"
+
+# contributors:
+msgid "K Means"
+msgstr "Среднее K"
+
+# contributors:
+msgid "K Medians"
+msgstr "Медианы K"
+
+# contributors:
+msgid "K Medoids"
+msgstr "Медоиды K"
+
+# contributors:
+msgid "K-Nearest neighbors"
+msgstr "K-ближайшие соседи"
+
+# contributors:
+msgid "KMeans Clustering Settings"
+msgstr "Настройки кластеризации средних K"
+
+# contributors:
+msgid "KMedians Clustering Settings"
+msgstr "Настройки кластеризации медиан K"
+
+# contributors:
+msgid "KMedoids Clustering Settings"
+msgstr "Настройки кластеризации медоидов K"
+
+# contributors:
+msgid "KWT files (*.kwt)|*.kwt"
+msgstr "Файлы KWT (*.kwt)|*.kwt"
+
+# contributors:
+msgid "Kernel function"
+msgstr "Функция ядра"
+
+# contributors:
+msgid "Key"
+msgstr "Ключ"
+
+# contributors:
+msgid "Keyhole Markup Language (*.kml)|*.kml"
+msgstr "Язык разметки Keyhole (*.kml)|*.kml"
+
+# contributors:
+msgid "Korean (EUC-KR)"
+msgstr "Корейский (EUC-KR)"
+
+# contributors:
+msgid "LISA"
+msgstr "LISA (Локальные индикаторы пространственной ассоциации)"
+
+# contributors:
+msgid "LOWESS Smoother"
+msgstr "Сглаживатель LOWESS"
+
+# contributors:
+msgid "LOWESS Smoother Help"
+msgstr "Справка сглаживателя LOWESS"
+
+# contributors:
+msgid "LOWESS Smoother Parameters"
+msgstr "Параметры сглаживателя LOWESS"
+
+# contributors:
+msgid "Language"
+msgstr "Язык"
+
+# contributors:
+msgid "Language:"
+msgstr "Язык:"
+
+# contributors:
+msgid "Latitude/Y:"
+msgstr "Широта/Y:"
+
+# contributors:
+msgid "Layer names"
+msgstr "Наименования слоев"
+
+# contributors:
+msgid "Left"
+msgstr "Левый"
+
+# contributors:
+msgid "Legend Background Color"
+msgstr "Цвет фона легенды (условных обозначений)"
+
+# contributors:
+msgid "Length (max 254)"
+msgstr "Длина (макс. 254)"
+
+# contributors:
+msgid "Light"
+msgstr "Светлый"
+
+# contributors:
+msgid "Limited date/time type recognition can be done for Date (YYYY-MM-DD), Time (HH:MM:SS+nn) and DateTime (YYYY-MM-DD HH:MM:SS+nn) in configuration.\n\nPlease try to load customized date/time type as string and covert it using Table->Edit Variable Property"
+msgstr "Ограниченное распознавание типа даты/времени можно выполнить для Даты (ГГГГ-ММ-ДД), Времени (ЧЧ:ММ:СС+nn) и ДатыВремени (ГГГГ-ММ-ДД ЧЧ:ММ:СС+nn) в конфигурации.\n\nПожалуйста, попытайтесь загрузить заданные в этом формате тип даты/времени в виде строки и преобразуйте, используя меню Таблица->Редактировать свойства переменной"
+
+# contributors:
+msgid "Line"
+msgstr "Линия"
+
+# contributors:
+msgid "Linear Smoother"
+msgstr "Сглаживатель линии"
+
+# contributors:
+msgid "List of existing ungrouped variables. To group variables by time, move them to the list on the right.\n\nFor example, to group Pop80 and Pop90, select them on the left and move them to the right."
+msgstr "Список существующих негруппированных переменных. Для группировки переменных по времени, переместите их в список справа.\n\nНапример, для группировки Pop80 и Pop90, выберите их слева и перетащите направо."
+
+# contributors:
+msgid "Load"
+msgstr "Загрузить"
+
+# contributors:
+msgid "Load CRS from a data source"
+msgstr "Загрузить CRS из источника данных"
+
+# contributors:
+msgid "Load Layer Failed."
+msgstr "Не удалось загрузить слой."
+
+# contributors:
+msgid "Load time definition from project file."
+msgstr "Загрузить определение времени из файла проекта."
+
+# contributors:
+msgid "Loading data..."
+msgstr "Загружаются данные..."
+
+# contributors:
+msgid "Local G"
+msgstr "Локальный G"
+
+# contributors:
+msgid "Local G Maps"
+msgstr "Карты локальных G"
+
+# contributors:
+msgid "Local G Statistics Maps"
+msgstr "Статистические карты локальных G"
+
+# contributors:
+msgid "Local G*"
+msgstr "Локальный G*"
+
+# contributors:
+msgid "Local Geary"
+msgstr "Локальный индекс Гири"
+
+# contributors:
+msgid "Local Geary Maps"
+msgstr "Карты по локальному индексу Гири"
+
+# contributors:
+msgid "Local Join Count "
+msgstr "Подсчет локальных соединений"
+
+# contributors:
+msgid "Local Moran's I Maps"
+msgstr "Карты по локальному индексу Морана I"
+
+# contributors:
+msgid "Local Moran's I with EB Rate"
+msgstr "Локальный индекс Морана I с показателем ЭБ (эмпирического Байеса)"
+
+# contributors:
+msgid "Local Search:"
+msgstr "Локальный Поиск:"
+
+# contributors:
+msgid "Local search:"
+msgstr "Локальный поиск:"
+
+# contributors:
+msgid "Locale for numbers has been setup successfully. Please re-open current project to enable this locale."
+msgstr "Область для чисел была успешно установлена. Пожалуйста, снова откройте текущий проект, чтобы задействовать эту область ."
+
+# contributors:
+msgid "Loop"
+msgstr "Петля"
+
+# contributors:
+msgid "Low"
+msgstr "Низкий"
+
+# contributors:
+msgid "Low-High"
+msgstr "Низкий-Высокий"
+
+# contributors:
+msgid "Low-Low"
+msgstr "Низкий-Низкий"
+
+# contributors:
+msgid "Lower outlier"
+msgstr "Нижний выброс"
+
+# contributors:
+msgid "Lower-left corner"
+msgstr "Нижний левый угол"
+
+# contributors:
+msgid "MDS"
+msgstr "ММШ (Многомерное шкалирование)"
+
+# contributors:
+msgid "MDS Plot"
+msgstr "График многомерного шкалирования Plot"
+
+# contributors:
+msgid "MDS Plot - "
+msgstr "График ММШ - "
+
+# contributors:
+msgid "MDS Settings"
+msgstr "Настройки ММШ"
+
+# contributors:
+msgid "MS Excel (*.xls)|*.xls"
+msgstr "MS Excel (*.xls)|*.xls"
+
+# contributors:
+msgid "Make selection from expression "
+msgstr "Выделить из выражения"
+
+# contributors:
+msgid "Manual Resize Column"
+msgstr "Изменение размера столбца вручную"
+
+# contributors:
+msgid "Map"
+msgstr "Карта"
+
+# contributors:
+msgid "Map Color Classification"
+msgstr "Классификация цветов карты"
+
+# contributors:
+msgid "Map Layer Settings"
+msgstr "Настройки слоя карты"
+
+# contributors:
+msgid "Map Layout Preview"
+msgstr "Предварительный просмотр макета карты"
+
+# contributors:
+msgid "Map Movie"
+msgstr "Видео карты"
+
+# contributors:
+msgid "Map Theme"
+msgstr "Тема карты"
+
+# contributors:
+msgid "Map Themes"
+msgstr "Темы карты"
+
+# contributors:
+msgid "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+msgstr "MapInfo (*.tab;*.mif;*.mid)|*.tab;*.mif;*.mid"
+
+# contributors:
+msgid "Maps To Open"
+msgstr "Открыть карты"
+
+# contributors:
+msgid "Maps and Rates"
+msgstr "Карты и Показатели"
+
+# contributors:
+msgid "Maps:"
+msgstr "Карты:"
+
+# contributors:
+msgid "March"
+msgstr "Март"
+
+# contributors:
+msgid "Max"
+msgstr "Макс."
+
+# contributors:
+msgid "Max Distance:"
+msgstr "Макс. расстояние:"
+
+# contributors:
+msgid "Max value of Y axis"
+msgstr "Макс. значение оси Y"
+
+# contributors:
+msgid "Max-p Settings"
+msgstr "Настройки макс.-p"
+
+# contributors:
+msgid "Maximum # of regions:"
+msgstr "Максимальное количество регионов:"
+
+# contributors:
+msgid "Maximum Iterations:"
+msgstr "Максимальное число повторов:"
+
+# contributors:
+msgid "Maximum iterations:\t"
+msgstr "Максимальное число повторов:\t"
+
+# contributors:
+msgid "May"
+msgstr "Май"
+
+# contributors:
+msgid "Mean"
+msgstr "Среднее"
+
+# contributors:
+msgid "Merge"
+msgstr "Объединить"
+
+# contributors:
+msgid "Merge - "
+msgstr "Объединить - "
+
+# contributors:
+msgid "Merge by key values"
+msgstr "Объединить по ключевым значениям"
+
+# contributors:
+msgid "Merge by record order"
+msgstr "Объединить в соответствии с порядком записей"
+
+# contributors:
+msgid "Merge error: Geometric type of selected datasource has to be the same with current datasource."
+msgstr "Ощибка объединения: Геометрический тип выбранного источника данных должен быть таким же, что и у текущего источника данных."
+
+# contributors:
+msgid "Message area"
+msgstr "Область сообщений"
+
+# contributors:
+msgid "Meta-data"
+msgstr "Мета-данные"
+
+# contributors:
+msgid "Method"
+msgstr "Метод"
+
+# contributors:
+msgid "Method of selecting clusters:"
+msgstr "Метод выбора кластеров:"
+
+# contributors:
+msgid "Method:"
+msgstr "Метод:"
+
+# contributors:
+msgid "Method:\t"
+msgstr "Метод:\t"
+
+# contributors:
+msgid "Min"
+msgstr "Мин."
+
+# contributors:
+msgid "Min # per Region:"
+msgstr "Мин. количесто на Регион:"
+
+# contributors:
+msgid "Min Region Size:"
+msgstr "Мин. размер Региона:"
+
+# contributors:
+msgid "Min cluster size:"
+msgstr "Мин. размер кластера:"
+
+# contributors:
+msgid "Min samples:"
+msgstr "Мин. выборок:"
+
+# contributors:
+msgid "Min value of Y axis"
+msgstr "Мин. значение оси Y"
+
+# contributors:
+msgid "Minimum Bound:"
+msgstr "Минимальная граница:"
+
+# contributors:
+msgid "Minimum bound:\t"
+msgstr "Минимальная граница:\t"
+
+# contributors:
+msgid "Minimum cluster size should be greater than one."
+msgstr "Минимальный размер кластера должен быть больше единицы."
+
+# contributors:
+msgid "Minimum region size:\t"
+msgstr "Минимальный размер региона:\t"
+
+# contributors:
+msgid "Minimum samples should be greater than zero."
+msgstr "Минимум выборок должен быть больше нуля."
+
+# contributors:
+msgid "Models"
+msgstr "Модели"
+
+# contributors:
+msgid "Moran Scatter Plot"
+msgstr "График множества точек по индексу Морана"
+
+# contributors:
+msgid "Moran scatter plot is not supported when isolates are present in weights. Do you want to continue by removing the isolates when compute Moran's I?"
+msgstr "График множества точек по индексу Морана не поддерживается, когда в весовых коэффициентах присутствуют изоляты. Вы хотите продолжить, удалив изоляты при расчете индекса Морана I?"
+
+# contributors:
+msgid "Moran's I (%s): %s"
+msgstr "Индекс Морана I (%s): %s"
+
+# contributors:
+msgid "Moran's I with EB Rate"
+msgstr "Индекс Морана I с показателем ЭБ"
+
+# contributors:
+msgid "Move Down"
+msgstr "Переместить вниз"
+
+# contributors:
+msgid "Move Selected to Top"
+msgstr "Переместить выделенное вверх"
+
+# contributors:
+msgid "Move Up"
+msgstr "Переместить вверх"
+
+# contributors:
+msgid "Multi-Variable Settings"
+msgstr "Настройки множества переменных"
+
+# contributors:
+msgid "Multivariate Local Geary"
+msgstr "Местный индекс Гири с множеством переменных"
+
+# contributors:
+msgid "Name"
+msgstr "Наименование"
+
+# contributors:
+msgid "Natural Breaks"
+msgstr "Естественны границы"
+
+# contributors:
+msgid "Natural Breaks Map"
+msgstr "Карта естественных границ"
+
+# contributors:
+msgid "Negative"
+msgstr "Отрицательный"
+
+# contributors:
+msgid "Neighborless"
+msgstr "Отсутствуют соседи"
+
+# contributors:
+msgid "Neighbors of Cores"
+msgstr "Соседи Центров"
+
+# contributors:
+msgid "New"
+msgstr "Новый"
+
+# contributors:
+msgid "New Categories Title"
+msgstr "Название новых категорий"
+
+# contributors:
+msgid "New Custom Categories Title:"
+msgstr "Название новых категорий, задаваемых пользователем:"
+
+# contributors:
+msgid "New From Recent"
+msgstr "Новый из Недавних"
+
+# contributors:
+msgid "New Group Details"
+msgstr "Детали новой группы"
+
+# contributors:
+msgid "New Map Coordinates"
+msgstr "Координаты новой карты"
+
+# contributors:
+msgid "New Project Filename"
+msgstr "Наименование файла нового проекта"
+
+# contributors:
+msgid "New Selection"
+msgstr "Новое Выделение"
+
+# contributors:
+msgid "New datasource:"
+msgstr "Новый источник данных:"
+
+# contributors:
+msgid "New project file:"
+msgstr "Новый файл проекта:"
+
+# contributors:
+msgid "New selection"
+msgstr "Новое выделение"
+
+# contributors:
+msgid "New space-time variable name"
+msgstr "Наименование новой переменной пространства-времени"
+
+# contributors:
+msgid "New variable name"
+msgstr "Наименование новой переменной"
+
+# contributors:
+msgid "No Basemap"
+msgstr "Нет базовой карты"
+
+# contributors:
+msgid "No Colocation"
+msgstr "Нет совместного расположения"
+
+# contributors:
+msgid "No Weights Found"
+msgstr "Не обнаружены весовые коэффициенты"
+
+# contributors:
+msgid "No clusters can be found using current parameters."
+msgstr "Не найдены кластеры при помощи текущих параметров."
+
+# contributors:
+msgid "No field chosen for first and second variable."
+msgstr "Не выбрано поле для первой и второй переменной."
+
+# contributors:
+msgid "No field chosen for first variable."
+msgstr "Не выбрано поле для первой переменной."
+
+# contributors:
+msgid "No field chosen for fourth variable."
+msgstr "Не выбрано поле для четвертой переменной."
+
+# contributors:
+msgid "No field chosen for second variable."
+msgstr "Не выбрано поле для второй переменной."
+
+# contributors:
+msgid "No field chosen for third variable."
+msgstr "Не выбрано поле для третьей переменной."
+
+# contributors:
+msgid "No layer has been selected. Please select a layer."
+msgstr "Не выбран слой. Пожалуйста, выберите слой."
+
+# contributors:
+msgid "No layer was found in the selected data source."
+msgstr "Слой не найден в выбранном источнике данных."
+
+# contributors:
+msgid "No layer was found in this datasource."
+msgstr "Слой не найден в этом источнике данных."
+
+# contributors:
+msgid "No numeric variables found in table."
+msgstr "Числовые переменные не найдены в таблице."
+
+# contributors:
+msgid "No numeric variables found."
+msgstr "Числовые переменные не найдены."
+
+# contributors:
+msgid "No rates currently calculated to save."
+msgstr "Нет уровней, рассчитанных для сохранения."
+
+# contributors:
+msgid "No update required"
+msgstr "Обновление не требуется"
+
+# contributors:
+msgid "No weights file was created due to all observations being isolates for the specified threshold value. Increase the threshold to create a non-empty weights file."
+msgstr "Не создан файл с весовыми коэффициентами из-за того, что все наблюдения являются изолятами для указанного порогового значения. Повысьте порог для создания непустого файла с весовыми коэффициентами."
+
+# contributors:
+msgid "None of your observations have neighbors. This could be related to digitizing problems, which can be fixed by adjusting the precision threshold."
+msgstr "Ни у одного из ваших наблюдений нет соседей. Это может быть связано с проблемами оцифровки, которые можно устранить путем корректировки порога точности."
+
+# contributors:
+msgid "Nordic Latin-6 (ISO-8859-10)"
+msgstr "Североевропейская латиница-6 (ISO-8859-10)"
+
+# contributors:
+msgid "Normal"
+msgstr "Нормальный"
+
+# contributors:
+msgid "Not Clustered"
+msgstr "Не кластерзованный"
+
+# contributors:
+msgid "Not Significant"
+msgstr "Не значительный"
+
+# contributors:
+msgid "Not enough memory!"
+msgstr "Недостаточно памяти!"
+
+# contributors:
+msgid "Notice"
+msgstr "Примечание"
+
+# contributors:
+msgid "November"
+msgstr "Ноябрь"
+
+# contributors:
+msgid "Null geometry was detected in dataset. GeoDa can't create weights with NULL geometry. Please try to save as records with valid geometries and try again."
+msgstr "В массиве данных обнаружена нулевая геометрия. Программа GeoDa не может создать весовые коэффициенты с НУЛЕВОЙ геометрией. Пожалуйста, сохраните как записи со всеми действительными геометрическими параметрами и попытайтесь снова."
+
+# contributors:
+msgid "Number Bins:"
+msgstr "Количество Столбиков:"
+
+# contributors:
+msgid "Number of Box Plots"
+msgstr "Количество Блочных графиков"
+
+# contributors:
+msgid "Number of Categories"
+msgstr "Количество Категорий"
+
+# contributors:
+msgid "Number of Clusters:"
+msgstr "Количество Кластеров:"
+
+# contributors:
+msgid "Number of Columns"
+msgstr "Количество Столбцов"
+
+# contributors:
+msgid "Number of Neighbors"
+msgstr "Количество Соседей"
+
+# contributors:
+msgid "Number of Rows"
+msgstr "Количество Рядов"
+
+# contributors:
+msgid "Number of clusters:\t"
+msgstr "Количество кластеров:\t"
+
+# contributors:
+msgid "Number of neighbors"
+msgstr "Количество соседей"
+
+# contributors:
+msgid "Number of not clustered observations: "
+msgstr "Количество некластеризованных наблюдений: "
+
+# contributors:
+msgid "OGR failed to create field.\n\nDetails:"
+msgstr "OGR не удалось создать поле.\n\nДетали:"
+
+# contributors:
+msgid "OK"
+msgstr "ОК"
+
+# contributors:
+msgid "OK to Exit?"
+msgstr "Согласны выйти?"
+
+# contributors:
+msgid "OLS Model has been selected."
+msgstr "Выбрана модель МНК (Метод наименьших квадратов)."
+
+# contributors:
+msgid "OLS Model with White test has been selected."
+msgstr "Выбрана модель МНК с Тестом Уайта."
+
+# contributors:
+msgid "Obs."
+msgstr "Набл."
+
+# contributors:
+msgid "October"
+msgstr "Октябрь"
+
+# contributors:
+msgid "Ok"
+msgstr "Ок"
+
+# contributors:
+msgid "On line %d of weights file, observation id %d encountered which does not exist in field \"%s\" of the Table."
+msgstr "В строке %d файла с весовыми коэффициентами, обнаружен идентификатор наблюдения %d, который не существует в поле  \"%s\" Таблицы."
+
+# contributors:
+msgid "On line %d of weights file, observation id %d encountered which is out of allowed observation range of 1 through %d."
+msgstr "В строке %d файла с весовыми коэффициентами обнаружен идентификатор наблюдения %d, который выходит за пределы допустимого диапазона наблюдний от 1 до %d."
+
+# contributors:
+msgid "Once you have grouped variables, you can save a new space-time table and weights: To add a spatial ID to your space-time table and create space-time weights, you need to have an active weights file (Tools-Weights Manager)."
+msgstr "Как только вы сгруппируете переменные, вы сможете сохранить новую пространственно-временную таблицу и весовые коэффициенты: Для добавления пространственного идентификатора в пространственно-временную таблицу и создания пространственно-временных весовых коэффициентов, вам потребуется активный файл с весовыми коэффициентами (Инструменты-Менеджер весовых коэффициентов)."
+
+# contributors:
+msgid "Only 'gal', 'gwt', 'kwt', 'mat' and 'swm' weights files supported."
+msgstr "Поддерживаются файлы с весовыми коэффициентами только в форматах 'gal', 'gwt', 'kwt', 'mat' и 'swm'."
+
+# contributors:
+msgid "Only Map Boundary"
+msgstr "Только граница карты"
+
+# contributors:
+msgid "Oops. GeoDa was unable to submit a bug report. Please try again or create it here instead: https://github.com/GeoDaCenter/geoda/issues Thanks!"
+msgstr "Ой! Программе GeoDa не удалось отправить отчет об ошибках. Пожалуйста, попробуйте еще раз или создайте его здесь: https://github.com/GeoDaCenter/geoda/issues Спасибо!"
+
+# contributors:
+msgid "Open"
+msgstr "Открыть"
+
+# contributors:
+msgid "Open Datasource:"
+msgstr "Открыть источник данных:"
+
+# contributors:
+msgid "Open Document Spreadsheet (*.ods)|*.ods"
+msgstr "Электронная таблица в формате открытого документа (Open Document Spreadsheet) (*.ods)|*.ods"
+
+# contributors:
+msgid "Open Layer:"
+msgstr "Открыть слой:"
+
+# contributors:
+msgid "Open data source progress dialog"
+msgstr "Открыть диалоговое окно хода процесса источника данных"
+
+# contributors:
+msgid "Open file"
+msgstr "Открыть файл"
+
+# contributors:
+msgid "Open project file:"
+msgstr "Открыть файл проект:"
+
+# contributors:
+msgid "Open weights file"
+msgstr "Открыть файл с весовыми коэффициентами"
+
+# contributors:
+msgid "Operation requires a valid field name or constant."
+msgstr "Для операции требуется действительное наименование поля или константы."
+
+# contributors:
+msgid "Operator"
+msgstr "Оператор"
+
+# contributors:
+msgid "Options"
+msgstr "Опции"
+
+# contributors:
+msgid "Options > Change Parameters"
+msgstr "Опции > Изменить параметры"
+
+# contributors:
+msgid "Options:"
+msgstr "Опции:"
+
+# contributors:
+msgid "Order of contiguity"
+msgstr "Порядок ассоциативных связей"
+
+# contributors:
+msgid "Other (up to 99999)"
+msgstr "Прочее (до 99999)"
+
+# contributors:
+msgid "Other Pos"
+msgstr "Прочее пол."
+
+# contributors:
+msgid "Other Positive"
+msgstr "Прочее положительное"
+
+# contributors:
+msgid "Outline Color"
+msgstr "Цвет контура"
+
+# contributors:
+msgid "Outline Color for Category"
+msgstr "Цвет контура для категории"
+
+# contributors:
+msgid "Outline Visible"
+msgstr "Видимый контур"
+
+# contributors:
+msgid "Outlines Visible"
+msgstr "Видимые контуры"
+
+# contributors:
+msgid "Output file (*.shp)"
+msgstr "Выходной файл (*.shp)"
+
+# contributors:
+msgid "Output file (text file)"
+msgstr "Выходной файл (текстовый файл)"
+
+# contributors:
+msgid "Output:"
+msgstr "Результат:"
+
+# contributors:
+msgid "Overwrite?"
+msgstr "Перезаписать?"
+
+# contributors:
+msgid "PCA"
+msgstr "АГК (Анализ главных компонентов)"
+
+# contributors:
+msgid "PCA Settings"
+msgstr "Настройки АГК"
+
+# contributors:
+msgid "POLY&ID"
+msgstr "ПОЛИ&ИД"
+
+# contributors:
+msgid "Pan"
+msgstr "Панорамировать"
+
+# contributors:
+msgid "Panning Mode"
+msgstr "Режим панорамирования"
+
+# contributors:
+msgid "Parallel Coordinate Plot"
+msgstr "График параллельных координат"
+
+# contributors:
+msgid "Parallel Coordinate Plot: "
+msgstr "График параллельных координат: "
+
+# contributors:
+msgid "Parameters"
+msgstr "Параметры"
+
+# contributors:
+msgid "Parameters:"
+msgstr "Параметры:"
+
+# contributors:
+msgid "Password"
+msgstr "Пароль"
+
+# contributors:
+msgid "Paste"
+msgstr "Вставить"
+
+# contributors:
+msgid "Percentile"
+msgstr "Процентиль"
+
+# contributors:
+msgid "Percentile Map"
+msgstr "Карта процентилей"
+
+# contributors:
+msgid "Period 1"
+msgstr "Период 1"
+
+# contributors:
+msgid "Period 1:"
+msgstr "Период 1:"
+
+# contributors:
+msgid "Period 2"
+msgstr "Период 2"
+
+# contributors:
+msgid "Period 2:"
+msgstr "Период 2:"
+
+# contributors:
+msgid "Please briefly describe what went wrong."
+msgstr "Пожалуйста, вкратце опишите что пошло нет так."
+
+# contributors:
+msgid "Please check input values are valid"
+msgstr "Пожалуйста, проверьте действительны ли вводные значения"
+
+# contributors:
+msgid "Please check the selected variables are all valid."
+msgstr "Пожалуйста, проверьте действительны ли выбранные переменные."
+
+# contributors:
+msgid "Please check your network connection, or contact GeoDa support team."
+msgstr "Пожалуйста, проверьте ваше сетевое соединение или свяжитесь с командой поддержки программы GeoDa."
+
+# contributors:
+msgid "Please choose Period 1 first."
+msgstr "Пожалуйста, сначала выберите Период 1."
+
+# contributors:
+msgid "Please choose Period 1."
+msgstr "Пожалуйста, выберите Период 1."
+
+# contributors:
+msgid "Please choose Period 2 first."
+msgstr "Пожалуйста, сначала выберите Период 2."
+
+# contributors:
+msgid "Please choose Period 2."
+msgstr "Пожалуйста, выберите Период 2."
+
+# contributors:
+msgid "Please choose Periods first."
+msgstr "Пожалуйста, сначала выберите Периоды."
+
+# contributors:
+msgid "Please choose a Result field."
+msgstr "Пожалуйста, выберите поле Результат."
+
+# contributors:
+msgid "Please click to choose a highlighting style in GeoDa:"
+msgstr "Пожалуйста, щелкните, чтобы выбрать стиль выделения цветом в программе GeoDa:"
+
+# contributors:
+msgid "Please describe steps you took before something went wrong."
+msgstr "Пожалуйста, опишите шаги, которые вы выполнили до того как что-то пошло не так."
+
+# contributors:
+msgid "Please enter a field name for saving clustering results."
+msgstr "Пожалуйста, введите наименование поля для сохранения результатов кластеризации."
+
+# contributors:
+msgid "Please enter a valid number of cluster."
+msgstr "Пожалуйста, введите действительное число кластеров."
+
+# contributors:
+msgid "Please enter a valid number of clusters."
+msgstr "Пожалуйста, введите действиельное число кластеров."
+
+# contributors:
+msgid "Please enter a valid positive integer"
+msgstr "Пожалуйста, введите действительное положительное целое число"
+
+# contributors:
+msgid "Please enter iteration number"
+msgstr "Пожалуйста, введите число повторов"
+
+# contributors:
+msgid "Please enter maximum number of regions."
+msgstr "Пожалуйста, введите максимальное число регионов."
+
+# contributors:
+msgid "Please enter minimum bound value"
+msgstr "Пожалуйста, введите минимальное связанное значение"
+
+# contributors:
+msgid "Please enter minimum number of observations per regions, or use minimum bound instead."
+msgstr "Пожалуйста, введите минимальное число наблюдений на регионы или используйте вместо этого минимальную границу."
+
+# contributors:
+msgid "Please enter number of regions"
+msgstr "Пожалуйста, введите число регионов"
+
+# contributors:
+msgid "Please enter values of bounding box."
+msgstr "Пожалуйста, введите значения ограничительной рамки."
+
+# contributors:
+msgid "Please first select observations in one of the other data or map views."
+msgstr "Пожалуйста, сначала выберите наблюдения в одном или другом массиве данных или изображениях карты ."
+
+# contributors:
+msgid "Please fix the grid bounding box."
+msgstr "Пожалуйста, зафиксируйте сетку ограничительной рамки."
+
+# contributors:
+msgid "Please input Carto App Key."
+msgstr "Пожалуйста, введите Ключ приложения Carto."
+
+# contributors:
+msgid "Please input Carto User Name."
+msgstr "Пожалуйста, введите Имя пользователя Carto."
+
+# contributors:
+msgid "Please input a valid url address."
+msgstr "Пожалуйста, введите действительные url-адрес."
+
+# contributors:
+msgid "Please input a valid url."
+msgstr "Пожалуйста, введите действительный url."
+
+# contributors:
+msgid "Please input database host."
+msgstr "Пожалуйста, введите хоста базы данных."
+
+# contributors:
+msgid "Please input database name."
+msgstr "Пожалуйста, введите наименование базы данных."
+
+# contributors:
+msgid "Please input database port."
+msgstr "Пожалуйста, введите порт базы данных."
+
+# contributors:
+msgid "Please input minimum bound value."
+msgstr "Пожалуйста, введите минимальное связанное значение."
+
+# contributors:
+msgid "Please input password."
+msgstr "Пожалуйста, введите пароль."
+
+# contributors:
+msgid "Please input table name."
+msgstr "Пожалуйста, введите наименование таблицы."
+
+# contributors:
+msgid "Please input user name."
+msgstr "Пожалуйста, введите имя пользователя."
+
+# contributors:
+msgid "Please load another layer using map window to apply Spatial Join."
+msgstr "Пожалуйста, загрузить еще один слой, используя окно карты, чтобы применить Пространственное соединение."
+
+# contributors:
+msgid "Please open a data file rather than a project file (*.gda)."
+msgstr "Пожалуйста, откройте файл с данными, а не файл проекта (*.gda)."
+
+# contributors:
+msgid "Please provide paths for both Project file and  Datasource."
+msgstr "Пожалуйста, укажите пути как к файлу Проекта, так и к Источнику данных."
+
+# contributors:
+msgid "Please restart GeoDa to apply the language setup."
+msgstr "Пожалуйста, перезапустите программу GeoDa, чтобы применить языковые настройки."
+
+# contributors:
+msgid "Please restart GeoDa to finish installing updates."
+msgstr "Пожалуйста, перезапустите программу GeoDa, чтобы завершить установку обновлений."
+
+# contributors:
+msgid "Please right-click or use<br />"
+msgstr "Пожалуйста, щелкните по правой кнопке мыши или воспользуйтесь <br />"
+
+# contributors:
+msgid "Please select Join Operation with Join Variable."
+msgstr "Пожалуйста, выберите Операцию соединения с Переменной соединения."
+
+# contributors:
+msgid "Please select a binary variable for Local Join Count."
+msgstr "Пожалуйста, выберите бинарную переменую для Подсчета локальных соединений."
+
+# contributors:
+msgid "Please select a map layer to apply spatial join to current map (%s):"
+msgstr "Пожалуйста, выберите слой карты, чтобы применить пространственное соединение к текущей карте (%s):"
+
+# contributors:
+msgid "Please select a results field."
+msgstr "Пожалуйста, выберите поле результатов."
+
+# contributors:
+msgid "Please select a time variable first, and make sure more than one time steps have been defined."
+msgstr "Пожалуйста, выберите сначала выберите временную переменную и убедитесь в то, чтобы было определено более одного временного шага ."
+
+# contributors:
+msgid "Please select a weights type."
+msgstr "Пожалуйста, выберите тип весовых коэффициентов."
+
+# contributors:
+msgid "Please select an Base field."
+msgstr "Пожалуйста, выберите поле База."
+
+# contributors:
+msgid "Please select an Event field."
+msgstr "Пожалуйста, выберите поле Событие."
+
+# contributors:
+msgid "Please select an Variable field."
+msgstr "Пожалуйста, выберите поле Переменная."
+
+# contributors:
+msgid "Please select another variable with values more suitable for computing a correlogram."
+msgstr "Пожалуйста, выберите еще одну переменную со значения, которые больше подходят для расчета коррелограммы."
+
+# contributors:
+msgid "Please select at least %d variables."
+msgstr "Пожалуйста, выберите, как минимум, %d переменных."
+
+# contributors:
+msgid "Please select at least 2 variables."
+msgstr "Пожалуйста, выберите, как минимум, 2 переменные."
+
+# contributors:
+msgid "Please select at least one variable."
+msgstr "Пожалуйста, выберите, как минимум, одну переменную."
+
+# contributors:
+msgid "Please select binary variables for Co-location Join Count."
+msgstr "Пожалуйста, выберите двоичные переменные для Подсчета ко-локальных соединений."
+
+# contributors:
+msgid "Please select features first."
+msgstr "Пожалуйста, сначала выберите признаки."
+
+# contributors:
+msgid "Please select the layer name to connect:"
+msgstr "Пожалуйста, выберите наименование слоя для соединения:"
+
+# contributors:
+msgid "Please select two binary variables for Bivariate Local Join Count."
+msgstr "Пожалуйста, выберите две двоичные переменные для Подсчета локальных соединений с двумя переменными."
+
+# contributors:
+msgid "Please setup co-locations first."
+msgstr "Пожалуйста, сначала определите настройки ко-локаций."
+
+# contributors:
+msgid "Please specify a Weights matrix."
+msgstr "Пожалуйста, укажите матрицу Весовые коэффициенты."
+
+# contributors:
+msgid "Please specify a valid data source name."
+msgstr "Пожалуйста, укажите действительное наименование источника данных."
+
+# contributors:
+msgid "Please specify distance metric."
+msgstr "Пожалуйста, укажите систему измерения расстояний."
+
+# contributors:
+msgid "Please specify the p-value to be used in tests; \ndefault: p-value = 0.01"
+msgstr "Пожалуйста, укажите p-значение для использования в тестах; \ndefault: p-значение = 0,01"
+
+# contributors:
+msgid "Please specify weights in Tools > Weights Manager."
+msgstr "Пожалуйста, укажите весовые коэффициенты в меню Инструменты > Менеджер весовых коэффициентов."
+
+# contributors:
+msgid "Please use<br /><font color=\"blue\">Options > Change Variable<br /></font>to specify a variable."
+msgstr "Пожалуйста, используйте <br /><цвет шрифта=\"blue\">Опции > Изменить переменную<br /></шрифт>для указания переменной."
+
+# contributors:
+msgid "Plots:"
+msgstr "Графики:"
+
+# contributors:
+msgid "Point Color"
+msgstr "Цвет точки"
+
+# contributors:
+msgid "Point Radius:"
+msgstr "Радиус точки:"
+
+# contributors:
+msgid "Points from Table"
+msgstr "Точки из Таблицы"
+
+# contributors:
+msgid "Positive"
+msgstr "Положительный"
+
+# contributors:
+msgid "Power"
+msgstr "Степень"
+
+# contributors:
+msgid "Precision threshold"
+msgstr "Предел точности"
+
+# contributors:
+msgid "Pred. Val. and Res."
+msgstr "Ожид. знач. и остат."
+
+# contributors:
+msgid "Preferences..."
+msgstr "Параметры настройки..."
+
+# contributors:
+msgid "Produce bounding-box file?"
+msgstr "Создать файл с ограничительной рамкой?"
+
+# contributors:
+msgid "Progress"
+msgstr "Ход процесса"
+
+# contributors:
+msgid "Project Information"
+msgstr "Информация о Проекте"
+
+# contributors:
+msgid "Project file path is empty."
+msgstr "Путь к файлу Проекта пуст."
+
+# contributors:
+msgid "Project filename not specified."
+msgstr "Не указано наименование файла Проекта."
+
+# contributors:
+msgid "Project to X-Y"
+msgstr "Проецировать на X-Y"
+
+# contributors:
+msgid "Project to X-Z"
+msgstr "Проецировать на X-Z"
+
+# contributors:
+msgid "Project to Z-Y"
+msgstr "Проецировать на Z-Y"
+
+# contributors:
+msgid "Property"
+msgstr "Свойство"
+
+# contributors:
+msgid "Publish Maps and Plots to GeoDa-Web"
+msgstr "Опубликовать Карты и Графики в GeoDa-Web"
+
+# contributors:
+msgid "Publish to GeoDa-Web"
+msgstr "Опубликовать в GeoDa-Web"
+
+# contributors:
+msgid "Quantile"
+msgstr "Квантиль"
+
+# contributors:
+msgid "Quantile Map"
+msgstr "Карта Квантилей"
+
+# contributors:
+msgid "Queen contiguity"
+msgstr "Ассоциативная связь по типу хода ферзя"
+
+# contributors:
+msgid "REDCAP Settings"
+msgstr "Настройки REDCAP"
+
+# contributors:
+msgid "Random Gaussian dist with mean=%s, sd=%s"
+msgstr "Случайное Гауссово расст. со средней=%s, sd=%s"
+
+# contributors:
+msgid "Random Sample"
+msgstr "Случайная выборка"
+
+# contributors:
+msgid "Random uniform dist on unit interval"
+msgstr "Случайное равномерное расс. на единичном интервале"
+
+# contributors:
+msgid "Randomization"
+msgstr "Рандомизация"
+
+# contributors:
+msgid "Rate calculation successful."
+msgstr "Успешный расчет уровня."
+
+# contributors:
+msgid "Rates"
+msgstr "Уровни"
+
+# contributors:
+msgid "Rates Variable Settings"
+msgstr "Настройки переменной Уровни"
+
+# contributors:
+msgid "Rates-Calculated Map"
+msgstr "Карта с рассчитанными уровнями"
+
+# contributors:
+msgid "Rates-Calculated Maps"
+msgstr "Карты с рассчитанными уровнями"
+
+# contributors:
+msgid "Raw Rate"
+msgstr "Необработанные уровни"
+
+# contributors:
+msgid "Raw Rate Smoothed Variable Settings"
+msgstr "Настройки сглаженных переменных необработанных уровней"
+
+# contributors:
+msgid "Re&set"
+msgstr "С&брос"
+
+# contributors:
+msgid "Read from an ASCII file"
+msgstr "Читать из файла ASCII"
+
+# contributors:
+msgid "Recent"
+msgstr "Недавний"
+
+# contributors:
+msgid "Record order specified, but found minimum and maximum observation values of %d and %d which is incompatible with number of observations specified in first line of weights file:  %d ."
+msgstr "Указан порядок записей, но найденные минимальные и максимальные значения наблюдений %d и %d не соответствуют числу наблюдений, указанных в первой строке файла с весовыми коэффициентами:  %d ."
+
+# contributors:
+msgid "Rectangle"
+msgstr "Прямоугольник"
+
+# contributors:
+msgid "Redo"
+msgstr "Повторить"
+
+# contributors:
+msgid "Refresh"
+msgstr "Обновить"
+
+# contributors:
+msgid "Regimes Regression"
+msgstr "Регрессия режимов"
+
+# contributors:
+msgid "Regression"
+msgstr "Регрессия"
+
+# contributors:
+msgid "Regression Line Color"
+msgstr "Цвет линии регрессии"
+
+# contributors:
+msgid "Regression Output Text File"
+msgstr "Текстовый файл с результатом регрессии"
+
+# contributors:
+msgid "Regression Report"
+msgstr "Отчет о регрессии"
+
+# contributors:
+msgid "Remove"
+msgstr "Удалить"
+
+# contributors:
+msgid "Remove Time"
+msgstr "Удалить время"
+
+# contributors:
+msgid "Rename Space-Time Variable"
+msgstr "Переименовать пространственно-временную переменную"
+
+# contributors:
+msgid "Rename Variable"
+msgstr "Переименовать переменную"
+
+# contributors:
+msgid "Reset"
+msgstr "Сброс"
+
+# contributors:
+msgid "Reset to default"
+msgstr "Сбросить настройки"
+
+# contributors:
+msgid "Reset to system locale information"
+msgstr "Сбросить до региональных настройк системы"
+
+# contributors:
+msgid "Reset to system locale successfully. Please re-open current project with system locale."
+msgstr "Успешный сброс до языка системы. Пожалуйста, снова откройте текущий проект с языком системы (региональными настройками системы)."
+
+# contributors:
+msgid "Resize"
+msgstr "Изменить размер"
+
+# contributors:
+msgid "Resolution(dpi):"
+msgstr "Разрешение (dpi):"
+
+# contributors:
+msgid "Result"
+msgstr "Результат"
+
+# contributors:
+msgid "Reverse"
+msgstr "Вернуть"
+
+# contributors:
+msgid "Right"
+msgstr "Правый"
+
+# contributors:
+msgid "Rook contiguity"
+msgstr "Ассоциативная связь под типу хода ладьи"
+
+# contributors:
+msgid "Root Variable:"
+msgstr "Корневая переменная:"
+
+# contributors:
+msgid "Run"
+msgstr "Выполнить"
+
+# contributors:
+msgid "Run Diff-in-Diff Test"
+msgstr "Выполнить тест Разница в разнице"
+
+# contributors:
+msgid "S.D"
+msgstr "S.D"
+
+# contributors:
+msgid "SELECTED"
+msgstr "ВЫДЕЛЕННЫЙ"
+
+# contributors:
+msgid "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+msgstr "SQLite/SpatiaLite (*.sqlite)|*.sqlite"
+
+# contributors:
+msgid "SVD will be automatically used for PCA since the number of rows is less than the number of columns."
+msgstr "SVD будет автоматически использоваться для АГК, так как число рядов меньше числа столбцов."
+
+# contributors:
+msgid "Sample Autocorrelation"
+msgstr "Автокорреляция выборки"
+
+# contributors:
+msgid "Sample Data"
+msgstr "Данные выборки"
+
+# contributors:
+msgid "Sample Size:"
+msgstr "Размер выборки:"
+
+# contributors:
+msgid "Save"
+msgstr "Сохранить"
+
+# contributors:
+msgid "Save "
+msgstr "Сохранить "
+
+# contributors:
+msgid "Save As"
+msgstr "Сохранить как"
+
+# contributors:
+msgid "Save As Datasource"
+msgstr "Сохранить как Источник данных"
+
+# contributors:
+msgid "Save As has been cancelled."
+msgstr "Сохранить как было отменено."
+
+# contributors:
+msgid "Save Categories"
+msgstr "Сохранить категории"
+
+# contributors:
+msgid "Save Categories to Table"
+msgstr "Сохранить Категории в Таблицу"
+
+# contributors:
+msgid "Save Centroids"
+msgstr "Сохранить Центроиды"
+
+# contributors:
+msgid "Save Cluster in Field:"
+msgstr "Сохранить Кластер в Поле:"
+
+# contributors:
+msgid "Save Connectivity To Table"
+msgstr "Сохранить Связность в Таблицу"
+
+# contributors:
+msgid "Save Details"
+msgstr "Сохранить Детали"
+
+# contributors:
+msgid "Save Diff-in-Diff Test Results"
+msgstr "Сохранить Результаты теста Разница в разнице"
+
+# contributors:
+msgid "Save Dummy"
+msgstr "Сохранить Шаблон"
+
+# contributors:
+msgid "Save Duplicate Thiessen Polygon Ids"
+msgstr "Сохранить идентификаторы Дублирующихся полигонов Тиссена"
+
+# contributors:
+msgid "Save Duplicate Thiessen Polygons to Table"
+msgstr "Сохранить Дублирующиеся полигоны Тиссена в Таблицу"
+
+# contributors:
+msgid "Save Image As"
+msgstr "Сохранить Изорбражение как"
+
+# contributors:
+msgid "Save Image to File"
+msgstr "Сохранить Изображение в Файл"
+
+# contributors:
+msgid "Save Mean Centers"
+msgstr "Сохранть Центры Средних"
+
+# contributors:
+msgid "Save OSM roads file"
+msgstr "Сохранить файл карты OSM дороги"
+
+# contributors:
+msgid "Save OSM roads to file successfully."
+msgstr "Сохранить файл карты OSM дороги успешно."
+
+# contributors:
+msgid "Save Project"
+msgstr "Сохранить Проект"
+
+# contributors:
+msgid "Save Project File As..."
+msgstr "Сохранить Файл Проекта как..."
+
+# contributors:
+msgid "Save Projet File As"
+msgstr "Сохранить Файл Проекта как"
+
+# contributors:
+msgid "Save Rates"
+msgstr "Сохранить уровни"
+
+# contributors:
+msgid "Save Rates - %s over %s"
+msgstr "Сохранть Нормы - %s выше %s"
+
+# contributors:
+msgid "Save Regression Results"
+msgstr "Сохранить Результаты Регрессии"
+
+# contributors:
+msgid "Save Results"
+msgstr "Сохранить Результаты"
+
+# contributors:
+msgid "Save Results to Table: "
+msgstr "Сохранть Результаты в Таблицу: "
+
+# contributors:
+msgid "Save Results: HDBScan (Core Distances/Probabilities/Outliers)"
+msgstr "Сохранить Результаты: HDBScan (Расстояния между центрами кластеров/Вероятности/Выбросы)"
+
+# contributors:
+msgid "Save Results: Local Join Count stats, "
+msgstr "Сохранить Результаты: Статистика Подсчета локальных соединений "
+
+# contributors:
+msgid "Save Results: LocalGeary"
+msgstr "Сохранить Результаты: Локальный индекс Гири"
+
+# contributors:
+msgid "Save Results: MDS"
+msgstr "Сохранить Результаты: ММШ"
+
+# contributors:
+msgid "Save Results: Moran's I"
+msgstr "Сохранить Результаты: Индекс Морана I"
+
+# contributors:
+msgid "Save Selected As"
+msgstr "Сохранить Выделение как"
+
+# contributors:
+msgid "Save Selection"
+msgstr "Сохранить Выделение"
+
+# contributors:
+msgid "Save Space-Time Table/Weights"
+msgstr "Сохранить Пространственно-временную таблицу/весовые коэффициенты"
+
+# contributors:
+msgid "Save Spanning Tree"
+msgstr "Сохранить Простирающееся дерево"
+
+# contributors:
+msgid "Save Spanning Tree to a Weights File"
+msgstr "Сохранить Простиающееся дерево в Файл с весовыми коэффициентами"
+
+# contributors:
+msgid "Save Statistics file"
+msgstr "Сохранить Файл статистики"
+
+# contributors:
+msgid "Save Table As CSV File"
+msgstr "Сохранить Таблицу как файл в формате CSV"
+
+# contributors:
+msgid "Save Test Results"
+msgstr "Сохранить Результаты теста"
+
+# contributors:
+msgid "Save Thiessen Polygons"
+msgstr "Сохранить Полигоны Тиссена"
+
+# contributors:
+msgid "Save as data source (%s) failed.\n\nDetails:"
+msgstr "Не удалось сохранить как источник данных (%s).\n\nДетали:"
+
+# contributors:
+msgid "Save data source progress dialog"
+msgstr "Диалоговое окно ход процесса сохранения источника данных"
+
+# contributors:
+msgid "Save is not supported on current data source type: %s. Please try to use \"File->Save As\" other data source. However, the project file can still be saved as other project file."
+msgstr "Функция сохранения не поддерживается по текущему типу источника данных: %s. Пожалуйста, воспользуйтесь меню  \"Сохранить->Сохранить как\" другой источник. Однако файл проекта все еще можно сохранить как другой файл проекта."
+
+# contributors:
+msgid "Save to File"
+msgstr "Сохранить в Файл"
+
+# contributors:
+msgid "Save/Show Map"
+msgstr "Сохранить/Показать Карту"
+
+# contributors:
+msgid "Saved successfully."
+msgstr "Сохранено успешно."
+
+# contributors:
+msgid "Saving data source cancelled."
+msgstr "Сохранение источника данных отменено."
+
+# contributors:
+msgid "Saving data..."
+msgstr "Сохраняются данные..."
+
+# contributors:
+msgid "Saving failed: GeoDa can't save as empty datasource."
+msgstr "Не удалось сохранить: Программа GeoDa не может сохранить как пустой источник данных."
+
+# contributors:
+msgid "Saving to data source (%s) failed.\n\nDetails: %s"
+msgstr "Не удалось сохранить в источник данных (%s).\n\nДетали: %s"
+
+# contributors:
+msgid "Scale Basemap"
+msgstr "Масштабировать Базовую карту"
+
+# contributors:
+msgid "Scale Options"
+msgstr "Опции масштабирования"
+
+# contributors:
+msgid "Scatter Plot"
+msgstr "График множества точек"
+
+# contributors:
+msgid "Scatter Plot - x: %s, y: %s"
+msgstr "График множества точек - x: %s, y: %s"
+
+# contributors:
+msgid "Scatter Plot Matrix"
+msgstr "Матрица Графика множества точек"
+
+# contributors:
+msgid "Scatter Plot Matrix Help"
+msgstr "Справка Матрицы Графика множества точек"
+
+# contributors:
+msgid "Scatter Plot Matrix Variables Add/Remove"
+msgstr "Добавить/Удалить переменные Матрицы Графика множества точек"
+
+# contributors:
+msgid "Scatter Plot Variables"
+msgstr "Переменные Графика множества точек"
+
+# contributors:
+msgid "Scatter Plot- x: %s, y: %s"
+msgstr "График множества точек- x: %s, y: %s"
+
+# contributors:
+msgid "Second Variable (Y)"
+msgstr "Вторая переменная (Y)"
+
+# contributors:
+msgid "Second Variable (Y/Latitude)"
+msgstr "Вторая переменная (Y/Широта)"
+
+# contributors:
+msgid "Select"
+msgstr "Выбрать"
+
+# contributors:
+msgid "Select All"
+msgstr "Выбрать все"
+
+# contributors:
+msgid "Select All In Range"
+msgstr "Выбрать все в диапазоне"
+
+# contributors:
+msgid "Select All Undefined"
+msgstr "Выбрать все неопределенные"
+
+# contributors:
+msgid "Select All..."
+msgstr "Выбрать все..."
+
+# contributors:
+msgid "Select From Current Selection"
+msgstr "Выбрать из текущего выделения"
+
+# contributors:
+msgid "Select ID Variable"
+msgstr "Выбрать Идентификатор переменной"
+
+# contributors:
+msgid "Select ID Variable (Optional)"
+msgstr "Выбрать Идентификатор переменной (Необязательно)"
+
+# contributors:
+msgid "Select Neighborless Observations"
+msgstr "Выбрать Наблюдения с отсутствующими соседями"
+
+# contributors:
+msgid "Select Variables"
+msgstr "Выбрать Переменные"
+
+# contributors:
+msgid "Select Variables (Multi-Selection)"
+msgstr "Выбрать Переменные (Мульти-выбор)"
+
+# contributors:
+msgid "Select a file:"
+msgstr "Выбрать файл:"
+
+# contributors:
+msgid "Select an existing *.gdb directory, or create an New Folder named *.gdb"
+msgstr "Выбрать существующую директорию *.gdb или создать Новую папку с названием *.gdb"
+
+# contributors:
+msgid "Select color scheme:"
+msgstr "Выбрать цветовую гамму:"
+
+# contributors:
+msgid "Select datasource"
+msgstr "Выбрать источник данных"
+
+# contributors:
+msgid "Select encoding (optional): "
+msgstr "Выбрать кодировку (необязательно): "
+
+# contributors:
+msgid "Select field is not integer type. Default record order will be used instead."
+msgstr "Выбранное поле не является типом поля для целых чисел. Вместо этого будет использован порядок записей по умолчанию."
+
+# contributors:
+msgid "Select fields:"
+msgstr "Выбрать поля:"
+
+# contributors:
+msgid "Select from current selection"
+msgstr "Выбрать из текущего выделения"
+
+# contributors:
+msgid "Select key:"
+msgstr "Выбрать ключ:"
+
+# contributors:
+msgid "Select layer"
+msgstr "Выбрать слой"
+
+# contributors:
+msgid "Select the language"
+msgstr "Выбрать язык"
+
+# contributors:
+msgid "Select variable "
+msgstr "Выбрать переменную "
+
+# contributors:
+msgid "Select variable for dissolving:"
+msgstr "Выбрать переменную для рассеивания:"
+
+# contributors:
+msgid "Select variables to delete "
+msgstr "Выбраь переменную для удаления "
+
+# contributors:
+msgid "Select variables:"
+msgstr "Выбрать переменные:"
+
+# contributors:
+msgid "Select, hold CMD for brushing"
+msgstr "Выбрать, удерживать CMD для обработки кистью"
+
+# contributors:
+msgid "Select, hold CTRL for brushing"
+msgstr "Выбрать, удерживать CTRL для обработки кистью"
+
+# contributors:
+msgid "Selectable Fill Color"
+msgstr "Доступный для выбора Цвет заливки"
+
+# contributors:
+msgid "Selected"
+msgstr "Выбранный"
+
+# contributors:
+msgid "Selected ="
+msgstr "Выбранный ="
+
+# contributors:
+msgid "Selected vs. Unselected"
+msgstr "Выбранный в сравнении с Невыбранным"
+
+# contributors:
+msgid "Selection"
+msgstr "Выбор"
+
+# contributors:
+msgid "Selection Mode"
+msgstr "Режим Выбора"
+
+# contributors:
+msgid "Selection Shape"
+msgstr "Форма Выбора"
+
+# contributors:
+msgid "Selection Tool"
+msgstr "Инструмент Выбора"
+
+# contributors:
+msgid "Selection Variable"
+msgstr "Переменная Выбора"
+
+# contributors:
+msgid "Send Crash Report"
+msgstr "Отправить Отчет о сбое"
+
+# contributors:
+msgid "September"
+msgstr "Сентябрь"
+
+# contributors:
+msgid "Set Association Dialog"
+msgstr "Настроить Диалог ассоциации"
+
+# contributors:
+msgid "Set Display Precision"
+msgstr "Настроить Точность отображения"
+
+# contributors:
+msgid "Set Display Precision of Y-Axis"
+msgstr "Настроить Точность отображения Оси-Y"
+
+# contributors:
+msgid "Set Display Precision on Axes"
+msgstr "Настроить Точность отображения на Осях"
+
+# contributors:
+msgid "Set Display Precision:"
+msgstr "Настроить Точность отображения:"
+
+# contributors:
+msgid "Set Highlight Association"
+msgstr "Настроить Выделение ассоциаций цветом"
+
+# contributors:
+msgid "Set Number Separators"
+msgstr "Настроить Разделители чисел"
+
+# contributors:
+msgid "Set Number Separators in Table"
+msgstr "Настроить Разделители чисел в Таблице"
+
+# contributors:
+msgid "Set Number of Permutation"
+msgstr "Настроить Число перестановок"
+
+# contributors:
+msgid "Set number of CPU cores manually:"
+msgstr "Настроить количество ядер CPU вручную:"
+
+# contributors:
+msgid "Set seed for randomization:"
+msgstr "Настроить начальное число для рандомизации:"
+
+# contributors:
+msgid "Set the threshold to bridge the gap between disconnected polygons (often caused by digitizing errors). The value depends on your measurement unit (e.g. 1 foot or 0.0000001 degrees). Use the weights histogram to detect neighborless observations."
+msgstr "Установить порог для восполнения пробела между разъединенными полигонами (часто являющимися результатом ошибок оцифровки). Значение зависит от вашей единицы изменения (напр., 1 фут или 0,0000001 градусов). Используйте гистограмму весовых коэффициентов для выявления наблюдений без соседей."
+
+# contributors:
+msgid "Set transparency of highlighted objects in selection:"
+msgstr "Настроить прозрачность объектов, выделенных цветом, в выделенной области:"
+
+# contributors:
+msgid "Set transparency of unhighlighted objects in selection:"
+msgstr "Настроить прозрачность невыделенных цветом объектов в выделенной области:"
+
+# contributors:
+msgid "Set value to cell failed."
+msgstr "Не удалось задать значение ячейки."
+
+# contributors:
+msgid "Setup Locale of GeoDa Table"
+msgstr "Настройки Локали таблицы программы GeoDa"
+
+# contributors:
+msgid "Setup co-locations:"
+msgstr "Настройка ко-локаций:"
+
+# contributors:
+msgid "Shape"
+msgstr "Форма"
+
+# contributors:
+msgid "Shape Centers"
+msgstr "Центры форм"
+
+# contributors:
+msgid "Show As Conditional Map"
+msgstr "Показать как Условную карту"
+
+# contributors:
+msgid "Show Axes"
+msgstr "Показать Оси"
+
+# contributors:
+msgid "Show Axes Through Origin"
+msgstr "Показать Оси через начальную точку"
+
+# contributors:
+msgid "Show CSV Configuration in Merge Data Dialog:"
+msgstr "Показать Конфигурацию CSV в Диалоге слияния данных:"
+
+# contributors:
+msgid "Show Graph"
+msgstr "Показать Схему"
+
+# contributors:
+msgid "Show LOWESS Smoother"
+msgstr "Показать Сглаживатель LOWESS"
+
+# contributors:
+msgid "Show Legend"
+msgstr "Показать Легенду (Условные обозначения)"
+
+# contributors:
+msgid "Show Linear Smoother"
+msgstr "Показать Линейный сглаживатель"
+
+# contributors:
+msgid "Show Map Boundary"
+msgstr "Показать Границу карты"
+
+# contributors:
+msgid "Show Recent/Sample Data panel in Connect Datasource Dialog:"
+msgstr "Показать Панель Недавние/Образец данных в Диалоге соединения с источником данных:"
+
+# contributors:
+msgid "Show Selection and Neighbors"
+msgstr "Показать выбор и Соседей"
+
+# contributors:
+msgid "Show Status Bar"
+msgstr "Показать Строку состояния"
+
+# contributors:
+msgid "Show Vertical Axis"
+msgstr "Показать Вертикальную ось"
+
+# contributors:
+msgid "Show connect line"
+msgstr "Показать линию связи"
+
+# contributors:
+msgid "Significance Filter"
+msgstr "Фильтр Статистической значимости"
+
+# contributors:
+msgid "Significance Map"
+msgstr "Карта Статистической значимости"
+
+# contributors:
+msgid "Simulated Annealing"
+msgstr "Симулированная нормализация"
+
+# contributors:
+msgid "Skater Settings"
+msgstr "настройки функции Skater"
+
+# contributors:
+msgid "Smoother"
+msgstr "Сглаживатель"
+
+# contributors:
+msgid "Some calculated values were undefined and this is most likely due to neighborless observations in the weight matrix. Rate calculation successful for observations with neighbors."
+msgstr "Некоторые вычисленные значения были неопределенными, и это, скорее всего, связано с наблюдениями без соседей в матрице весовых коэффициентов. Успешное вычисление скорости для наблюдений с соседями."
+
+# contributors:
+msgid "Sort"
+msgstr "Сортировать"
+
+# contributors:
+msgid "South European Latin-3 (ISO-8859-3)"
+msgstr "Южно-европейский Латиница-3 (ISO-8859-3)"
+
+# contributors:
+msgid "Space-time variables with duplicate name \"%s\" found."
+msgstr "Обнаружены пространственно-временные переменные с дублирующимися наименованиями \"%s\"."
+
+# contributors:
+msgid "Spatial Constraint:"
+msgstr "Пространственная константа:"
+
+# contributors:
+msgid "Spatial Correlogram"
+msgstr "Пространственная коррелограмма"
+
+# contributors:
+msgid "Spatial Empirical Bayes"
+msgstr "Пространственный эмпирический байесовский"
+
+# contributors:
+msgid "Spatial Error"
+msgstr "Пространственная ошибка"
+
+# contributors:
+msgid "Spatial Join"
+msgstr "Пространственное соединение"
+
+# contributors:
+msgid "Spatial Join can not be applied on two points layers. Please select another layer."
+msgstr "Пространственное соединение нельзя применить на двух слоях. Пожалуйста, выберите другой слой."
+
+# contributors:
+msgid "Spatial Join can not be applied on unknonwn layers. Please select another layer."
+msgstr "Пространственное соединение невозможно применить к неизвестным слоям. Пожалуйста, выберите другой слой."
+
+# contributors:
+msgid "Spatial Join does not work with Table only datasource."
+msgstr "Пространственное соединение не работает с источником данных в Табличном формате."
+
+# contributors:
+msgid "Spatial Lag"
+msgstr "Пространственный лаг"
+
+# contributors:
+msgid "Spatial Rate"
+msgstr "Скорость изменения в пространстве"
+
+# contributors:
+msgid "Spatial Rate Smoothed Variable Settings"
+msgstr "Настройки Переменной сглаживания скорости изменения в пространстве"
+
+# contributors:
+msgid "Spatial lag and error regressions require symmetric weights (not KNN). You can still use KNN weights to obtain spatial diagnostics for classic regressions."
+msgstr "Для пространственного лага и регрессий ошибок требуются симметричные весовые коэффициенты (не K-ближайшие соседи). Вы все же можете использовать весовые коэффициенты K-ближайших соседей для получения пространственной диагностики для классических регрессий."
+
+# contributors:
+msgid "Special"
+msgstr "Специальный"
+
+# contributors:
+msgid "Specified id field (%s) not found in currently loaded Table."
+msgstr "Не найден указанный идентификатор поля (%s) в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specified key (%d) not found in currently loaded Table."
+msgstr "Указанный ключ (%d) не найден в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specified key (%s) not found in currently loaded Table."
+msgstr "Указанный ключ (%s) не найден в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specified key value field \"%s\" in weights file contains duplicate values in the currently loaded Table."
+msgstr "Указанное поле со значением ключа \"%s\" в файле с весовыми коэффициентами содержит дублирующиеся значения в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specified key value field \"%s\" on first line of weights file is not an integer type in the currently loaded Table."
+msgstr "Указанное поле со значение ключа \"%s\" в первой строке файла с весовыми коэффициентами не подходит для данных по типу целого числа в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specified key value field \"%s\" on first line of weights file not found in currently loaded Table."
+msgstr "Указанное поле со значение ключа \"%s\" в первой строке файла с весовыми коэффициентами не найдено в текущей загруженной Таблице."
+
+# contributors:
+msgid "Specify Seed..."
+msgstr "Указать Начальное число..."
+
+# contributors:
+msgid "Specify bandwidth"
+msgstr "Указать ширину полосы"
+
+# contributors:
+msgid "Specify manually"
+msgstr "Указать вручную"
+
+# contributors:
+msgid "Spectral"
+msgstr "Спектральный"
+
+# contributors:
+msgid "Spectral Clustering Map (%d clusters)"
+msgstr "Карта спектральной кластеризации (%d кластеров)"
+
+# contributors:
+msgid "Spectral Clustering Settings"
+msgstr "Настройки Спектральной кластризации"
+
+# contributors:
+msgid "Speed"
+msgstr "Скорость"
+
+# contributors:
+msgid "Stable Version and Bug Fixes Only"
+msgstr "Стабильная версия и только устранение ошибок"
+
+# contributors:
+msgid "Stack"
+msgstr "Стек"
+
+# contributors:
+msgid "Standard Deviation"
+msgstr "Стандартное отклонение"
+
+# contributors:
+msgid "Standard Deviation Color"
+msgstr "Цвет Стандартного отклонения"
+
+# contributors:
+msgid "Standard Deviation Map"
+msgstr "Карта Стандартного отклонения"
+
+# contributors:
+msgid "Standardized Data"
+msgstr "Стандартизированные данные"
+
+# contributors:
+msgid "Statistics"
+msgstr "Статистика"
+
+# contributors:
+msgid "Status Bar"
+msgstr "Строка состояния"
+
+# contributors:
+msgid "Stopping criterion for power iteration:"
+msgstr "Критерий остановки степенной итерации:"
+
+# contributors:
+msgid "Strong"
+msgstr "Сильный"
+
+# contributors:
+msgid "Submit Bug Error"
+msgstr "Сообщить об ошибке из-за помехи"
+
+# contributors:
+msgid "Submit Bug Report"
+msgstr "Отправить Отчет об ошибках"
+
+# contributors:
+msgid "Success"
+msgstr "Успех"
+
+# contributors:
+msgid "Success / Warning"
+msgstr "Успех / Предупреждение"
+
+# contributors:
+msgid "Successful aggregation."
+msgstr "Успешное агрегирование."
+
+# contributors:
+msgid "Suggested field name:"
+msgstr "Предлагаемое наименование поля:"
+
+# contributors:
+msgid "Sum"
+msgstr "Сумма"
+
+# contributors:
+msgid "Summary"
+msgstr "Резюме"
+
+# contributors:
+msgid "Synchronize %s with Time Control"
+msgstr "Синхронизировать %s с Контролем времени"
+
+# contributors:
+msgid "System"
+msgstr "Система"
+
+# contributors:
+msgid "System:"
+msgstr "Система:"
+
+# contributors:
+msgid "T&able"
+msgstr "Т&аблица"
+
+# contributors:
+msgid "Table"
+msgstr "Таблица"
+
+# contributors:
+msgid "Table Name"
+msgstr "Наименование таблицы"
+
+# contributors:
+msgid "Tabu Length:"
+msgstr "Табу-длина:"
+
+# contributors:
+msgid "Tabu Search"
+msgstr "Табу-поиск"
+
+# contributors:
+msgid "Tabu length for Tabu Search algorithm has to be an integer number larger than 1 (e.g. 85)."
+msgstr "Табу-длина для алгоритма Табу-поиска должна быть целым число больше 1 (напр., 85)."
+
+# contributors:
+msgid "Tabu length:"
+msgstr "Табу-длина:"
+
+# contributors:
+msgid "Target"
+msgstr "Целевой ориентир"
+
+# contributors:
+msgid "Target Variable"
+msgstr "Целевая переменная"
+
+# contributors:
+msgid "Thank you for helping us improve GeoDa with your bug report! \n\nYou can track our response and add screenshots or details here (or email us at spatial@uchicago.edu):"
+msgstr "Спасибо, что помогли нам улучшить программу GeoDa при помощи вашего Отчета об ошибке! \n\nВы сможете отслеживать ваш ответ и добавлять скриншоты или детали здесь (или напишите нам по адресу spatial@uchicago.edu)"
+
+# contributors:
+msgid "The GeoDa project file cannot find one or more associated data sources.\n\nDetails: GeoDa is looking for: %s\n\nTip: You can open the .gda project file in a text editor to modify the path(s) of the data source associated with your project."
+msgstr "Файл проекта GeoDa не может найти один или несколько связанных источников данных.\n\nДетали: Программа GeoDa ищет: %s\n\nСовет: вы можете открыть файл проекта в формате .gda в текстовом редакторе для изменения пути (путей) к источнику данных, связанных с вашим проектом."
+
+# contributors:
+msgid "The Table should always be open, although somtimes it is hidden while the project is open.  This condition has been violated.  Please report this to the program developers."
+msgstr "Таблица всегда должна быть открыта, хотя иногда она скрыта, когда проект открыт. Это условие было нарушено. Пожалуйста, сообщите об этом разработчикам программы."
+
+# contributors:
+msgid "The between-cluster sum of squares:\t"
+msgstr "Межкластерная сумма квадратов:\t"
+
+# contributors:
+msgid "The categories of the selected variables do not overlap in space. Please select other variables."
+msgstr "Нет наложения выбранных категорий в пространстве. Пожалуйста, выберите другие переменные."
+
+# contributors:
+msgid "The connectivity of selected spatial weights is incomplete, please adjust the spatial weights."
+msgstr "Связуемость выбранных пространственных весовых коэффициентов неполная, пожалуйста, скорректируйте пространственные весовые коэффициенты."
+
+# contributors:
+msgid "The currently entered threshold value is not a valid number.  Please move the slider, or enter a valid number."
+msgstr "Текущее введенное пороговое значение не является допустимым числом.  Пожалуйста, переместите бегунок или введите действительное число."
+
+# contributors:
+msgid "The currently entered threshold value is not a valid number. Please move the slider, or enter a valid number."
+msgstr "Текущее введенное пороговое значение не является допустимым числом. Пожалуйста, переместите бегунок или введите действительное число."
+
+# contributors:
+msgid "The currently entered threshold value of %f is less than %f which is the minimum value for which there will be no neighborless observations (isolates). \n\nPress Yes to proceed anyhow, press No to abort."
+msgstr "Текущее введенне пороговое значение %f меньше, чем %f, что является минимальным значением, по которому не будет наблюдений без соседей (изолированных точек). \n\nНажмите Да для продолжения в любом случае, нажмите Нет для прекращения действия."
+
+# contributors:
+msgid "The data source is read only. Please try to save as other data source."
+msgstr "Источник данных только для чтения. Пожалуйста, попробуйте сохранить как другой источник данных."
+
+# contributors:
+msgid "The first line should have comma separated number of rows and ID name!"
+msgstr "Первая строка должна содержать число строк и наименование идентификатора, разделенных запятыми!"
+
+# contributors:
+msgid "The geometries will not be saved when exporting to a Table-only data source.\n\nDo you want to continue?"
+msgstr "Геометрические параметры не будут сохранены при экспорте с Табличный источник данных.\n\nПродолжить?"
+
+# contributors:
+msgid "The last seed used by the pseudo random\nnumber generator was "
+msgstr "Последнее начальное число, использованное псевдо-случайным/nгенератором чисел было"
+
+# contributors:
+msgid "The length of a string field must be at least %d and at most %d. Keeping original value."
+msgstr "Длина строкового поля должна быть не менее %d и не более %d. Сохраняется первоначальное значение."
+
+# contributors:
+msgid "The length of an integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Длина целочисленного числового поля должна быть не менее %d и не более %d. Сохраняется первоначальное значение."
+
+# contributors:
+msgid "The length of an non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Длина нецелочисленного поля должна быть не менее %d и не более %d. Сохраняется первоначальное значение."
+
+# contributors:
+msgid "The length of field name should be between 1 and %d.\nCurrent field length (%d) is not valid"
+msgstr "Длина наименования поля должна быть от 1 до % d.\nТекущая длина поля (% d) недопустима"
+
+# contributors:
+msgid "The new theme chosen will no longer include rates smoothing. Please use the Rates submenu to choose a theme with rates again."
+msgstr "Новая выбранная тема больше не будет включать сглаживание уровней. Пожалуйста, используйте подменю Уровни, чтобы снова выбрать тему с уровнями."
+
+# contributors:
+msgid "The number of covariates should be more than the number of observations."
+msgstr "Количество ковариатов должно быть больше количества наблюдений."
+
+# contributors:
+msgid "The number of decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Количество десятичных разрядов для нецелочисленного поля должно быть не менее %d и не более %d. Сохраняется первоначальное значение."
+
+# contributors:
+msgid "The number of displayed decimal places for a non-integral numeric field must be at least %d and at most %d. Keeping original value."
+msgstr "Количество отображаемых десятичных разрядов для нецелочисленного поля должно быть не менее %d и не более %d. Сохраняется первоначальное значение."
+
+# contributors:
+msgid "The number of identified clusters is less than "
+msgstr "Количество идентифицированных кластеров меньше "
+
+# contributors:
+msgid "The number of observations specified in chosen weights file is %d, but the number in the current Table is %d, which is incompatible."
+msgstr "Количество наблюдений, указанное в выбранном файле с весовыми коэффициентами, равно %d, но количество в текущей Таблице равно %d, что несопоставимо."
+
+# contributors:
+msgid "The number of observations specified in chosen weights file is incompatible with current Table."
+msgstr "Количество наблюдений, указанное в выбранном файле с весовыми коэффициентами, несопоставимо с текущей Таблицей."
+
+# contributors:
+msgid "The number of records in current table is larger than the number of records in import table. Please choose import table >= %d records"
+msgstr "Количество записей в текущей Таблице превышает количество записей в импортированной таблице. Пожалуйста, выберите >= %d записей в импортированной таблице"
+
+# contributors:
+msgid "The original datasource %s is not a valid file. GeoDa \"Save\" only works on file datasource."
+msgstr "Исходный источник данный %s является недопустимым файлом. Функция программы GeoDa \"Сохранить\" только работает с файлами истоников данных."
+
+# contributors:
+msgid "The ratio of between to total sum of squares:\t"
+msgstr "Соотношение между промежуточной и общей суммой квадратов:\t"
+
+# contributors:
+msgid "The sample size for random sampling is too small.\nPlease increase the number of iterations."
+msgstr "Размер выборки слишком мал для формирования случайной выборки.\nПожалуйста, увеличьте количество итераций."
+
+# contributors:
+msgid "The selected database driver is not supported on this platform. Please check GeoDa website for more information about database support and connection."
+msgstr "Выбранный драйвер базы данных не поддерживается на этой платформе. Пожалуйста, ознакомьтесь с более подробной информацией о поддержке баз данных и связи с ними на вебсайте программы GeoDa."
+
+# contributors:
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time Editor, or select another variable."
+msgstr "Выбранная групповая переменная должна содержать %d элементов. Пожалуйста, измените групповую переменную в Редакторе времени или выберите другую переменную."
+
+# contributors:
+msgid "The selected group variable should contains %d items. Please modify the group variable in Time->Time Editor, or select another variable."
+msgstr "Выбранная групповая переменная должна содержать %d элементов. Пожалуйста, измените групповую переменную в меню Время-> Редактор времени или выберите другую переменную."
+
+# contributors:
+msgid "The selected variable %s is not valid. If it's a grouped variable, please modify it in Time->Time Editor. Or please select another variable."
+msgstr "Выбранная переменная %s недопустима. Если это сгруппированная переменная, пожалуйста, измените ее в меню Время-> Редактор времени. Или выберите другую переменную."
+
+# contributors:
+msgid "The selected variable is not numeric. Please select another variable."
+msgstr "Выбранная переменная не является числовой. Пожалуйста, выберите другую переменную."
+
+# contributors:
+msgid "The set of values in the import key fields has no match in current table. Please choose keys with matching sets of values."
+msgstr "Для набора значений в полях ключа импорта нет совпадающих значений в текущей таблице. Пожалуйста, выберите ключи с совпадающими наборами значений."
+
+# contributors:
+msgid "The total sum of squares:\t"
+msgstr "Общая сумма квадратов:\t"
+
+# contributors:
+msgid "The total within-cluster sum of squares:\t"
+msgstr "Общая внутрикластерная сумма квадратов:\t"
+
+# contributors:
+msgid "Themeless"
+msgstr "Без темы"
+
+# contributors:
+msgid "Themeless Map"
+msgstr "Карта без темы"
+
+# contributors:
+msgid "There are spatial objects being counted more than once. Please check the results."
+msgstr "Присутствуют пространственные объекты, которые учитываются более одного раза. Пожалуйста, проверьте результаты."
+
+# contributors:
+msgid "There are unsaved data source or weights/time definition changes."
+msgstr "Есть несохраненные изменения источника данных или определения весовых коэффициентов/времени."
+
+# contributors:
+msgid "There is a view could not be closed. Please manually close and try again."
+msgstr "Присутствует окно просмотра, которое не удалось закрыть. Пожалуйста, закройте вручную и попробуйте снова."
+
+# contributors:
+msgid "There is an error during PCA calculation. Please check if the data is valid."
+msgstr "При расчете АГК произошла ошибка. Пожалуйста, проверьте правильность данных."
+
+# contributors:
+msgid "There is at least one neighborless observation. Check the islands in weights histogram and linked map."
+msgstr "Присутствует, как минимум, одно наблюдение без соседей. Проверьте изолированные участки в гистограмме весовых коэффициентов и связанной карте."
+
+# contributors:
+msgid "There is at least one neighborless observation. Check the weights histogram and linked map to see if the islands are real or not. If not, adjust the distance threshold (points) or the precision threshold (polygons)."
+msgstr "Присутствует, как минимум, одно наблюдение без соседей. Проверьте гистограмму весовых коэффициентов и связанную карту, чтобы проверить, соответствуют ли действительности изолированные участки. Если нет, то внесите корректировки в предел расстояния (точки) или предел точности (полигоны)."
+
+# contributors:
+msgid "There is at least one view could not be closed. Please manually close and try again."
+msgstr "Присутствует, как минимум, одно окно просмотра, которое не удалось закрыть. Пожалуйста, закройте вручную и попробуйте снова."
+
+# contributors:
+msgid "There is at least one view open that depends on this matrix. Ok to close these views and remove?"
+msgstr "Присутствует окно просмотра, которое зависит от матрицы. Закрыть эти окна просмотра и удалить?"
+
+# contributors:
+msgid "There is one other view open that depends on this matrix. Ok to close this view and remove?"
+msgstr "Присутствует еще одно окно просмотра, которое зависит от матрицы. Закрыть это окно просмотра и удалить?"
+
+# contributors:
+msgid "There was a problem associating the weights file."
+msgstr "Не удалось связать файл с весовыми коэффициентами."
+
+# contributors:
+msgid "There was a problem generating voronoi contiguity neighbors. Please report this."
+msgstr "Возникла проблема с генерированием соседей Области (Зоны близости) Вороного. Пожалуйста, сообщите об этом."
+
+# contributors:
+msgid "There was a problem reading the layer"
+msgstr "При чтении этого слоя возникла проблема"
+
+# contributors:
+msgid "There was a problem reading the table"
+msgstr "При чтении этой таблицы возникла проблема"
+
+# contributors:
+msgid "There was a problem requesting the weights file."
+msgstr "При запросе файла с весовыми коэффициентами возникла проблема."
+
+# contributors:
+msgid "These are the row numbers of the records without location information."
+msgstr "Это номера строк записей без информации о местоположении."
+
+# contributors:
+msgid "Thiessen Polygons"
+msgstr "Полигоны Тиссена"
+
+# contributors:
+msgid "Third Variable (Z)"
+msgstr "Третья Переменная (Z)"
+
+# contributors:
+msgid "This datasource is not supported. Please export to other datasource that GeoDa supports first."
+msgstr "Этот источник данных не поддерживается. Пожалуйста, сначала экспортируйте в другой источник данных, который поддерживает программа GeoDa."
+
+# contributors:
+msgid "This field name already exists (non-integer type). Please input a unique name."
+msgstr "Это наименование поля уже существует (нецелочисленный тип). Пожалуйста, введите уникальное наименование."
+
+# contributors:
+msgid "This format is not supported."
+msgstr "Этот формат не поддерживается."
+
+# contributors:
+msgid "This is the list of existing grouped variables. As new groups are created, they will appear on this list. You can open an existing .gda file and edit it here."
+msgstr "Это список существующих сгруппированных переменных. По мере создания новых групп они будут отображаться в этом списке. Вы можете открыть существующий файл .gda и отредактировать его здесь."
+
+# contributors:
+msgid "This view currently supports data with at most 1000 observations. The Spatial Correlogram Scatterplot plots distances between all pairs of observations. The current data set has %d observations and %d unordered pairs of observations."
+msgstr "Это окно просмотра в настоящее время поддерживает данные с максимум 1000 наблюдений. График множества точек Пространственной коррелограммы показывает расстояния между всеми парами наблюдений. В текущем массиве данных есть %d наблюдений и %d неупорядоченных пар наблюдений."
+
+# contributors:
+msgid "Thousands:"
+msgstr "Тысячи:"
+
+# contributors:
+msgid "Tim&e"
+msgstr "Вре&мя"
+
+# contributors:
+msgid "Time"
+msgstr "Время"
+
+# contributors:
+msgid "Time Editor"
+msgstr "Редактор времени"
+
+# contributors:
+msgid "Time Player"
+msgstr "Плеер времени"
+
+# contributors:
+msgid "Time Setup"
+msgstr "Настройка времени"
+
+# contributors:
+msgid "Time Variable Options"
+msgstr "Опции временных переменных"
+
+# contributors:
+msgid "Time:"
+msgstr "Время:"
+
+# contributors:
+msgid "Title of Visualization"
+msgstr "Название визуализации"
+
+# contributors:
+msgid "Tools"
+msgstr "Инструменты"
+
+# contributors:
+msgid "Top"
+msgstr "Верх"
+
+# contributors:
+msgid "Transformation:"
+msgstr "Трансформация:"
+
+# contributors:
+msgid "Transformation:  "
+msgstr "Трансформация:  "
+
+# contributors:
+msgid "Transformation:\t"
+msgstr "Трансформация:\t"
+
+# contributors:
+msgid "Travel Distances Tool"
+msgstr "Инструмент расстояния хода"
+
+# contributors:
+msgid "Turkish (Windows-1254)"
+msgstr "Турецкий (Windows-1254)"
+
+# contributors:
+msgid "Turkish Latin-5 (ISO-8859-9)"
+msgstr "Турецкий Латиница-5 (ISO-8859-9)"
+
+# contributors:
+msgid "Type"
+msgstr "Тип"
+
+# contributors:
+msgid "Type 1"
+msgstr "Тип 1"
+
+# contributors:
+msgid "Type 1a"
+msgstr "Тип 1a"
+
+# contributors:
+msgid "Type 2"
+msgstr "Тип 2"
+
+# contributors:
+msgid "Type 2a"
+msgstr "Тип 2a"
+
+# contributors:
+msgid "Unable to overwrite "
+msgstr "Невозможно перезаписать "
+
+# contributors:
+msgid "Undefined"
+msgstr "Неопределенный"
+
+# contributors:
+msgid "Undo"
+msgstr "Отмена"
+
+# contributors:
+msgid "Ungrouped Variables"
+msgstr "Несгруппированные переменные"
+
+# contributors:
+msgid "Unicode (UTF-16LE)"
+msgstr "Юникод (UTF-16LE)"
+
+# contributors:
+msgid "Unicode (UTF-8)"
+msgstr "Юникод (UTF-8)"
+
+# contributors:
+msgid "Unique Values"
+msgstr "Уникальные значения"
+
+# contributors:
+msgid "Unique Values Map"
+msgstr "Карта уникальных значений"
+
+# contributors:
+msgid "Univariate"
+msgstr "Одномерный"
+
+# contributors:
+msgid "Univariate Local Geary"
+msgstr "Одномерный локальный индекс Гири"
+
+# contributors:
+msgid "Univariate Local Join Count"
+msgstr "Одномерный подсчет локальных соединений"
+
+# contributors:
+msgid "Univariate Local Moran's I"
+msgstr "Одномерный локальный индекс Морана I"
+
+# contributors:
+msgid "Univariate Moran's I"
+msgstr "Одномерный индекс Морана I"
+
+# contributors:
+msgid "Unknow exception. Please contact GeoDa support."
+msgstr "Неизвестное исключение. Пожалуйста, свяжитесь с командой поддержки программы GeoDa."
+
+# contributors:
+msgid "Unselected"
+msgstr "Невыбранный"
+
+# contributors:
+msgid "Unselected ="
+msgstr "Невыбранный ="
+
+# contributors:
+msgid "Up"
+msgstr "Вверх"
+
+# contributors:
+msgid "Update GeoDa completed"
+msgstr "Обновление программы GeoDa завершено"
+
+# contributors:
+msgid "Update GeoDa failed"
+msgstr "Не удалось обновить программу GeoDa"
+
+# contributors:
+msgid "Update project information failed. \n\nDetails: The layer information defined in project file does no match opened datasource."
+msgstr "Не удалось обновить информацию о проекте. \n\nДетали: Информация о слое, которая определена в файле проекта, не совпадает с открытым источником данных."
+
+# contributors:
+msgid "Upper outlier"
+msgstr "Верхний выброс"
+
+# contributors:
+msgid "Upper-right corner"
+msgstr "Верхний правый угол"
+
+# contributors:
+msgid "Use GPU to Accelerate computation:"
+msgstr "Использовать GPU для Ускорения расчетов:"
+
+# contributors:
+msgid "Use Power Iteration method:\tMax iterations="
+msgstr "Использовать Метод степенных итераций:\tМакс. итераций="
+
+# contributors:
+msgid "Use Power Iteration:"
+msgstr "Использовать Степенную итерацию:"
+
+# contributors:
+msgid "Use Scientific Notation"
+msgstr "Использовать Экспоненциальное представление чисел"
+
+# contributors:
+msgid "Use Specified Seed"
+msgstr "Использовать Указанное начальное число"
+
+# contributors:
+msgid "Use Transparent Legend Background"
+msgstr "Использовать Прозрачный фон легенды (условных обозначений)"
+
+# contributors:
+msgid "Use Weights:"
+msgstr "Использовать Весовые коэффициенты:"
+
+# contributors:
+msgid "Use bounding box of input datasource"
+msgstr "Использовать ограничительную рамку входного источника данных"
+
+# contributors:
+msgid "Use classic yellow cross-hatching to highlight selection in maps:"
+msgstr "Использовать классическую штриховку накрест для выделения цветом областей в картах:"
+
+# contributors:
+msgid "Use existing field name"
+msgstr "Использовать существующее наименование поля"
+
+# contributors:
+msgid "Use geometric centroids"
+msgstr "Использовать геометрические центроиды"
+
+# contributors:
+msgid "Use geometric centroids (weighting): \n"
+msgstr "Использовать геометрические центроиды (взвешивание): \n"
+
+# contributors:
+msgid "Use inverse distance?"
+msgstr "Использовать инверсное расстояние?"
+
+# contributors:
+msgid "Use max knn distance as bandwidth"
+msgstr "Использовать макс. расстояние между k-ближайшими соседями в качестве ширины полосы"
+
+# contributors:
+msgid "Use outline + motorway(~bbox) of input datasource"
+msgstr "Использовать контур + автомобильную дорогу(~огр. рамка) входного источника данных"
+
+# contributors:
+msgid "Use outline of input datasource"
+msgstr "Использовать контур входного источника данных"
+
+# contributors:
+msgid "Use row-standardized weights"
+msgstr "Использовать весовые коэффциенты, стандартизировнные по строкам"
+
+# contributors:
+msgid "Use selected as specified alpha level"
+msgstr "Использовать выбранное как указанный альфа уровень"
+
+# contributors:
+msgid "Use specified seed:"
+msgstr "Использовать указанное начальное число:"
+
+# contributors:
+msgid "Use the bounding box of shape datasource"
+msgstr "Использовать ограничительную рамку источник данных с формами"
+
+# contributors:
+msgid "User Defined"
+msgstr "Задается пользователем"
+
+# contributors:
+msgid "User Name"
+msgstr "Имя пользователя"
+
+# contributors:
+msgid "User name"
+msgstr "Имя пользователя"
+
+# contributors:
+msgid "Value"
+msgstr "Значение"
+
+# contributors:
+msgid "Values assigned to target field successfully."
+msgstr "Значени успешно присвоены целевому полю."
+
+# contributors:
+msgid "Var Calc Container"
+msgstr "Контейнер Кальк. перем."
+
+# contributors:
+msgid "Variable"
+msgstr "Переменная"
+
+# contributors:
+msgid "Variable %s at time %d could not be standardized."
+msgstr "Невозможна стандартизация переменной %s во время %d."
+
+# contributors:
+msgid "Variable %s at time %d is a placeholer"
+msgstr "Переменная %s во время %d является меткой-заполнителем"
+
+# contributors:
+msgid "Variable %s is a placeholer"
+msgstr "Переменная %s является меткой-заполнителем"
+
+# contributors:
+msgid "Variable %s is a time-grouped variable.  Please ungroup this variable to delete."
+msgstr "Переменная %s является переменной, сгруппированной по времени.  Пожалуйста, разгруппируйте эту переменную, чтобы удалить."
+
+# contributors:
+msgid "Variable %s is no longer in the Table.  Please close and reopen the Regression Dialog to synchronize with Table data."
+msgstr "Переменной %s больше нет в Таблице.  Пожалуйста закройте и снова откройте Диалоговое окно регрессии, чтобы сихнронизировать с данными Таблицы."
+
+# contributors:
+msgid "Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."
+msgstr "Переменной %s больше нет в Таблице.  Пожалуйста, закройти и снова откройте это диалоговое окно, чтобы сихнронизировать с данными в Таблице."
+
+# contributors:
+msgid "Variable %s is not valid. Please select another variable."
+msgstr "Переменная %s недействительна. Пожалуйста, выберите другую переменную."
+
+# contributors:
+msgid "Variable / Constant"
+msgstr "Переменная / Константа"
+
+# contributors:
+msgid "Variable <font color=\"blue\">%s</font> is specified. "
+msgstr "Переменная <цвет шрифта=\"синий\">%s</шрифт> определена. "
+
+# contributors:
+msgid "Variable Choice"
+msgstr "Выбор переменной"
+
+# contributors:
+msgid "Variable Name"
+msgstr "Наименование переменной"
+
+# contributors:
+msgid "Variable Properties"
+msgstr "Свойства переменной"
+
+# contributors:
+msgid "Variable Properties - "
+msgstr "Свойства переменной - "
+
+# contributors:
+msgid "Variable Setting"
+msgstr "Настройка переменной"
+
+# contributors:
+msgid "Variable Settings"
+msgstr "Настройки переменной"
+
+# contributors:
+msgid "Variable Type Error"
+msgstr "Ошибка типа переменной"
+
+# contributors:
+msgid "Variable Value Error"
+msgstr "Ошибка значения переменной"
+
+# contributors:
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name."
+msgstr "Наименование переменной \"%s\" либо дублирующееся, либо недействительное. Пожалуйста, введите альтернативное, недублирующееся наименование переменной."
+
+# contributors:
+msgid "Variable name \"%s\" is either a duplicate or is invalid. Please enter an alternative, non-duplicate variable name. The first character must be a letter, and the remaining characters can be either letters, numbers or underscores. For DBF table, a valid variable name is between one and ten characters long."
+msgstr "Наименование переменной \"%s\" либо дублирующееся, либо недействительное. Пожалуйста, введите альтернативное, недублирующееся наименование переменной. Первый символ должен быть буквой, остальные символы могут быть буквами, числами или нижним подчеркиванием. Для таблицы DBF, допустимое наименование переменной должо содержать от одного до десяти символов."
+
+# contributors:
+msgid "Variable name can't be empty."
+msgstr "Наименование переменной не может быть пустым."
+
+# contributors:
+msgid "Variable name is either a duplicate or is invalid. Please\nenter an alternative, non-duplicate variable name.\n\n"
+msgstr "Наименование переменной либо дублирующееся, либо недействительное. Пожалуйста,\nвведите альтернативное, недублирующееся наименование переменной.\n\n"
+
+# contributors:
+msgid "Variable:"
+msgstr "Переменная:"
+
+# contributors:
+msgid "Variables"
+msgstr "Переменные"
+
+# contributors:
+msgid "Variables:"
+msgstr "Переменные:"
+
+# contributors:
+msgid "Vertical Bins Breaks"
+msgstr "Интервалы вертикальных столбиков"
+
+# contributors:
+msgid "Vertical Cells"
+msgstr "Вертикальные ячейки"
+
+# contributors:
+msgid "Vietnamese (Windows-1258)"
+msgstr "Вьетнамский (Windows-1258)"
+
+# contributors:
+msgid "View"
+msgstr "Вид"
+
+# contributors:
+msgid "View Original Data"
+msgstr "Просмотреть первоначальные данные"
+
+# contributors:
+msgid "View Standardized Data"
+msgstr "Просмотреть стндартизированные данные"
+
+# contributors:
+msgid "Voronoi Contiguity Error"
+msgstr "Ошибка Области (Зоны близости) Вороного"
+
+# contributors:
+msgid "WFS URL"
+msgstr "WFS URL"
+
+# contributors:
+msgid "Warning"
+msgstr "Предупреждение"
+
+# contributors:
+msgid "Warning: %d observations are neighborless."
+msgstr "Предупреждение: %d наблюдений без соседей."
+
+# contributors:
+msgid "Warning: %d observations is neighborless."
+msgstr "Предупреждение: %d наблюдений без соседей."
+
+# contributors:
+msgid "Warning: NULL geometry"
+msgstr "Предупреждение: НУЛЕВАЯ геометрия"
+
+# contributors:
+msgid "Warning: loss data"
+msgstr "Предупреждение: данные о потере"
+
+# contributors:
+msgid "Was not able to load weights matrix."
+msgstr "Невозможно загрузить матрицу весовых коэффициентов."
+
+# contributors:
+msgid "Web"
+msgstr "Веб"
+
+# contributors:
+msgid "Weight"
+msgstr "Весовой коэффициент"
+
+# contributors:
+msgid "Weight matrix required for chosen spatial rate method."
+msgstr "Матрица весовых коэффициентов необходима для выбранного метода скорости изменения в пространстве."
+
+# contributors:
+msgid "Weighting:"
+msgstr "Взвешивание:"
+
+# contributors:
+msgid "Weights"
+msgstr "Весовые коэффициенты"
+
+# contributors:
+msgid "Weights File"
+msgstr "Файл с весовыми коэффициентами"
+
+# contributors:
+msgid "Weights File Creation"
+msgstr "Создание файла с весовыми коэффициентами"
+
+# contributors:
+msgid "Weights Intersection"
+msgstr "Пересечение весовых коэффициентов"
+
+# contributors:
+msgid "Weights Manager"
+msgstr "Менеджер весовых коэффициентов"
+
+# contributors:
+msgid "Weights Name"
+msgstr "Наименование весовых коэффициентов"
+
+# contributors:
+msgid "Weights Symmetry Check"
+msgstr "Проверка симметрии весовых коэффициентов"
+
+# contributors:
+msgid "Weights Union"
+msgstr "объединение весов"
+
+# contributors:
+msgid "Weights file \"%s\" created successfully."
+msgstr "Файл с весовыми коэффициентами \"%s\" был успешно создан."
+
+# contributors:
+msgid "Weights file/format is not valid."
+msgstr "Файл/формат весовых коэффициентов недействителен."
+
+# contributors:
+msgid "Weights:"
+msgstr "Весовые коэффициенты:"
+
+# contributors:
+msgid "Welcome to GeoDa"
+msgstr "Добро пожаловать в программу GeoDa"
+
+# contributors:
+msgid "Welcome to GeoDa 1.8.16"
+msgstr "Добро пожаловать в программу GeoDa 1.8.16"
+
+# contributors:
+msgid "West European Latin-1 (ISO-8859-1)"
+msgstr "Западно-европейский Латиница-1 (ISO-8859-1)"
+
+# contributors:
+msgid "West European Latin-9 (ISO-8859-15)"
+msgstr "Западно-европейский Латиница-9 (ISO-8859-15)"
+
+# contributors:
+msgid "What windows to open?"
+msgstr "Какие окна открыть?"
+
+# contributors:
+msgid "When \"all times\" selected for either variable, result field must also be \"all times.\""
+msgstr "Когда \"все времена\" выбрано для любой из переменных, выбранным полем результата также должно быть \"все времена.\""
+
+# contributors:
+msgid "When \"all times\" selected for variable, result field must also be \"all times.\""
+msgstr "Когда \"все времена\" выбрано для переменной, выбранным полем результатов также должно быть \"все времена.\""
+
+# contributors:
+msgid "White Test"
+msgstr "Тест Уайта"
+
+# contributors:
+msgid "Width in pixels"
+msgstr "Ширина в пикселях"
+
+# contributors:
+msgid "Width:"
+msgstr "Ширина:"
+
+# contributors:
+msgid "Within cluster S.S."
+msgstr "Внутрикластерная С.К."
+
+# contributors:
+msgid "Within-cluster sum of squares:\n"
+msgstr "Внутрикластерная сумма квадратов:\n"
+
+# contributors:
+msgid "Wrong number of rows!"
+msgstr "Неверное число строк!"
+
+# contributors:
+msgid "Wrote GeoDa Project File: "
+msgstr "Написал Файл проекта GeoDa: "
+
+# contributors:
+msgid "X"
+msgstr "X"
+
+# contributors:
+msgid "X Variable"
+msgstr "Переменная X"
+
+# contributors:
+msgid "X-Axis"
+msgstr "Ось-X"
+
+# contributors:
+msgid "X-Coordinates"
+msgstr "Координаты-X"
+
+# contributors:
+msgid "X-coord"
+msgstr "Коорд.-X"
+
+# contributors:
+msgid "X-coordinate"
+msgstr "Координата-X"
+
+# contributors:
+msgid "X-coordinate variable"
+msgstr "Переменная координат-X"
+
+# contributors:
+msgid "Y"
+msgstr "Y"
+
+# contributors:
+msgid "Y Variable"
+msgstr "Переменная Y"
+
+# contributors:
+msgid "Y-Axis"
+msgstr "Ось-Y"
+
+# contributors:
+msgid "Y-Coordinates"
+msgstr "Координаты-Y"
+
+# contributors:
+msgid "Y-coord"
+msgstr "Коорд.-Y"
+
+# contributors:
+msgid "Y-coordinate"
+msgstr "Координата-Y"
+
+# contributors:
+msgid "Y-coordinate variable"
+msgstr "Переменная координат-Y"
+
+# contributors:
+msgid "Yes"
+msgstr "Да"
+
+# contributors:
+msgid "You can try to proceed but the current threshold distance value might be too large to compute. If it fails, please input a smaller distance band (which might leave some observations neighborless) or use other weights (e.g. KNN)."
+msgstr "Вы можете попытаться продолжить, но текущее пороговое значение расстояния может быть слишком большим для вычисления. Если не получится, пожалуйста, введите меньшую полосу расстояний (которая может оставить некоторые наблюдения без соседей) или используйте другие весовые коэффициенты (напр., K-ближайших соседей)."
+
+# contributors:
+msgid "You have requested to create a new file project %s  while another project is open. Please close project %s and try again."
+msgstr "Вы запросили создание нового файла проекта %s в то время, когда открыт другой проект. Пожалуйста, закройте проект %s и попробуйте снова."
+
+# contributors:
+msgid "Your Email address (Optional):"
+msgstr "Адрес вашей электронной почты (Необязательно):"
+
+# contributors:
+msgid "Your GeoDa is already up-to-date."
+msgstr "У вас самая новая версия программы GeoDa."
+
+# contributors:
+msgid "Your Github account (Optional):"
+msgstr "Ваша учетная запись в Github (Необязательно):"
+
+# contributors:
+msgid "Your table cannot be aggregated because the key field \"%s\" is unique. Please use another key."
+msgstr "Вашу таблицу невозможно агрегировать, потому что поле ключа \"%s\" уникальное. Пожалуйста, используйте другой ключa."
+
+# contributors:
+msgid "Your table cannot be merged because the key field \"%s\" is not unique. \nIt contains undefined or duplicate values.\n\nDetails:"
+msgstr "Слияние вашей таблицы невозможно, потому поле ключа \"%s\" не уникальное. \nОно содержит неопределенные или дублирующиеся значения.\n\nДетали:"
+
+# contributors:
+msgid "Z"
+msgstr "Z"
+
+# contributors:
+msgid "Z Variable"
+msgstr "Переменная Z"
+
+# contributors:
+msgid "Zoom : press right-mouse button"
+msgstr " Изменение масштаба изображения : нажмите на правую клавишу мыши"
+
+# contributors:
+msgid "Zoom In"
+msgstr "Приблизить изображение"
+
+# contributors:
+msgid "Zoom Out"
+msgstr "Отдалить изображение"
+
+# contributors:
+msgid "Zooming Mode"
+msgstr "Режим масштабирования изображения"
+
+# contributors:
+msgid "[Please briefly describe what went wrong]"
+msgstr "[Пожалуйста, кратко опишите, что пошло не так]"
+
+# contributors:
+msgid "[Steps you took before something went wrong]"
+msgstr "[Действия, которые вы выполнили, прежде чем что-то пошло не так]"
+
+# contributors:
+msgid "\"%s\" is not a valid p-value. Default p-value (0.01) is used"
+msgstr "\"%s\" недопустимое p-значение. Используется p-значение по умолчанию (0,01)"
+
+# contributors:
+msgid "\"%s\" is not a valid seed. Seed unchanged."
+msgstr "\"%s\" недопустимое начальное число. Начальное число остается без изменений."
+
+# contributors:
+msgid "\". \n\nDetails: Attemp to write a readonly database, or "
+msgstr "\". \n\nДетали: Попытка записать базу данных, доступную только для чтения или "
+
+# contributors:
+msgid "\nREGRESSION\n----------\n"
+msgstr "\nРЕГРЕССИЯ\n----------\n"
+
+# contributors:
+msgid "\nSelect whether to use periods or commas as\nseparators in numeric fields. \n\nE.g., by default, GeoDa uses commas to\nseparate thousands and periods\nfor decimals (1,000.00).\n                "
+msgstr "\nВыберите, использовать точки или запятые в качестве\n разделителей в числовых полях. \n\nНапр., по умолчанию программа GeoDa использует запятые для\n разделения тысяч и точки \nдля десятичных знаков (1,000.00).\n                "
+
+# contributors:
+msgid "\n\n95% threshold criterion: "
+msgstr "\n\n95% пороговый критерий: "
+
+# contributors:
+msgid "\n\nCumulative proportion:\n"
+msgstr "\n\nКумулятивная пропорция:\n"
+
+# contributors:
+msgid "\n\nDetails: "
+msgstr "\n\nДетали: "
+
+# contributors:
+msgid "\n\nEigenvalues:\n"
+msgstr "\n\nСобственноезначение:\n"
+
+# contributors:
+msgid "\n\nKaiser criterion: "
+msgstr "\n\nКритарий Кайзера: "
+
+# contributors:
+msgid "\n\nProportion of variance:\n"
+msgstr "\n\nПропорция дисперсии:\n"
+
+# contributors:
+msgid "\n\nSquared correlations:\n"
+msgstr "\n\nКвадратичные корреляции:\n"
+
+# contributors:
+msgid "\n\nStandard deviation:\n"
+msgstr "\n\nСтандартное отклонение:\n"
+
+# contributors:
+msgid "\n\nVariable Loadings:\n"
+msgstr "\n\nНагрузки переменных:\n"
+
+# contributors:
+msgid "adaptive kernel"
+msgstr "адаптивное ядро"
+
+# contributors:
+msgid "and field"
+msgstr "и поле"
+
+# contributors:
+msgid "autocorrelation is "
+msgstr "автокорреляция является "
+
+# contributors:
+msgid "bandwidth"
+msgstr "ширина полосы"
+
+# contributors:
+msgid "binary"
+msgstr "бинарный"
+
+# contributors:
+msgid "break 0"
+msgstr "интервал 0"
+
+# contributors:
+msgid "calculating..."
+msgstr "рассчитывается..."
+
+# contributors:
+msgid "can't compute"
+msgstr "невозможно подсчитать"
+
+# contributors:
+msgid "category 1"
+msgstr "категория 1"
+
+# contributors:
+msgid "choice:"
+msgstr "выбор:"
+
+# contributors:
+msgid "choose a variable"
+msgstr "выберите переменную"
+
+# contributors:
+msgid "csv file:"
+msgstr "файл csv:"
+
+# contributors:
+msgid "current table key"
+msgstr "текущий табличный ключ"
+
+# contributors:
+msgid "custom"
+msgstr "задается пользователем"
+
+# contributors:
+msgid "dBase Database File (*.dbf)|*.dbf"
+msgstr "Файл базы данных dBase (*.dbf)|*.dbf"
+
+# contributors:
+msgid "datasource.type %s unknown.."
+msgstr "источник данных.тип %s неизвестный.."
+
+# contributors:
+msgid "day:"
+msgstr "день:"
+
+# contributors:
+msgid "decimal\nplaces"
+msgstr "десятичные\nразряды"
+
+# contributors:
+msgid "displayed\ndecimal places"
+msgstr "отображенные\nдесятичные разряды"
+
+# contributors:
+msgid "distance metric"
+msgstr "метрика расстояния"
+
+# contributors:
+msgid "distance unit"
+msgstr "единица расстояния"
+
+# contributors:
+msgid "distance vars"
+msgstr "перем-е расстояния"
+
+# contributors:
+msgid "diverging"
+msgstr "расхождение"
+
+# contributors:
+msgid "done"
+msgstr "выполнено"
+
+# contributors:
+msgid "ds:"
+msgstr "ds:"
+
+# contributors:
+msgid "enumerate as 1, 2, 3, ..."
+msgstr "нумеровать как 1, 2, 3, ..."
+
+# contributors:
+msgid "false"
+msgstr "ложный"
+
+# contributors:
+msgid "field name:"
+msgstr "наименование поля:"
+
+# contributors:
+msgid "fields:"
+msgstr "поля:"
+
+# contributors:
+msgid "file"
+msgstr "файл"
+
+# contributors:
+msgid "file size:"
+msgstr "размер файла:"
+
+# contributors:
+msgid "from"
+msgstr "из"
+
+# contributors:
+msgid "id variable"
+msgstr "идентификатор переменной"
+
+# contributors:
+msgid "import table key"
+msgstr "импортировать табличный ключ"
+
+# contributors:
+msgid "in current layer."
+msgstr "в текущем слое."
+
+# contributors:
+msgid "inches"
+msgstr "дюймы"
+
+# contributors:
+msgid "include lower orders"
+msgstr "включить нижние порядки"
+
+# contributors:
+msgid "inverse distance"
+msgstr "инверсное расстояние"
+
+# contributors:
+msgid "is associated to"
+msgstr "связано с"
+
+# contributors:
+msgid "kernel method"
+msgstr "метод ядра"
+
+# contributors:
+msgid "kernel to diagonal"
+msgstr "ядро к диагонали"
+
+# contributors:
+msgid "large"
+msgstr "большой"
+
+# contributors:
+msgid "length"
+msgstr "длина"
+
+# contributors:
+msgid "max dist"
+msgstr "макс. расст."
+
+# contributors:
+msgid "max neighbors"
+msgstr "макс. соседей"
+
+# contributors:
+msgid "max-p"
+msgstr "макс.-p"
+
+# contributors:
+msgid "max:"
+msgstr "макс.:"
+
+# contributors:
+msgid "maximum"
+msgstr "максимум"
+
+# contributors:
+msgid "maximum\npossible"
+msgstr "максимум\nвозможный"
+
+# contributors:
+msgid "mean"
+msgstr "среднее"
+
+# contributors:
+msgid "mean neighbors"
+msgstr "средние соседи"
+
+# contributors:
+msgid "mean:"
+msgstr "среднее:"
+
+# contributors:
+msgid "median neighbors"
+msgstr "медианные соседи"
+
+# contributors:
+msgid "median:"
+msgstr "медиана:"
+
+# contributors:
+msgid "min dist"
+msgstr "мин. расст."
+
+# contributors:
+msgid "min neighbors"
+msgstr "мин. соседей"
+
+# contributors:
+msgid "min:"
+msgstr "мин:"
+
+# contributors:
+msgid "minimum"
+msgstr "минимум"
+
+# contributors:
+msgid "minimum\npossible"
+msgstr "минимум\nвозможный"
+
+# contributors:
+msgid "mm"
+msgstr "мм"
+
+# contributors:
+msgid "month:"
+msgstr "месяц:"
+
+# contributors:
+msgid "name:"
+msgstr "наименование:"
+
+# contributors:
+msgid "need two valid regressions"
+msgstr "необходимы две допустимые регрессии"
+
+# contributors:
+msgid "neighbors"
+msgstr "соседи"
+
+# contributors:
+msgid "not saved"
+msgstr "не сохранено"
+
+# contributors:
+msgid "numeric"
+msgstr "числовой"
+
+# contributors:
+msgid "obs "
+msgstr "набл."
+
+# contributors:
+msgid "obs#"
+msgstr "набл.#"
+
+# contributors:
+msgid "observation:"
+msgstr "наблюдение: "
+
+# contributors:
+msgid "order"
+msgstr "порядок"
+
+# contributors:
+msgid "parent group"
+msgstr "родительская группа"
+
+# contributors:
+msgid "pixels"
+msgstr "пиксели"
+
+# contributors:
+msgid "power"
+msgstr "степень"
+
+# contributors:
+msgid "range, est. distance"
+msgstr "диапазон, прим. расстояние"
+
+# contributors:
+msgid "records:"
+msgstr "записи: "
+
+# contributors:
+msgid "redcap"
+msgstr "Redcap"
+
+# contributors:
+msgid "row-standardized"
+msgstr "стандартизированный по строкам"
+
+# contributors:
+msgid "row:\n"
+msgstr "ряд:\n"
+
+# contributors:
+msgid "s.d."
+msgstr "с.о."
+
+# contributors:
+msgid "s.d.:"
+msgstr "с.о.:"
+
+# contributors:
+msgid "sd from mean"
+msgstr "СО от среднего значения"
+
+# contributors:
+msgid "selected:"
+msgstr "выделенный: "
+
+# contributors:
+msgid "sequential"
+msgstr "последовательный"
+
+# contributors:
+msgid "show normal distribution p-val map"
+msgstr "показать карту с нормальным распределением p-знач."
+
+# contributors:
+msgid "show normal distribution p-val maps"
+msgstr "показать карты с нормальным распределение p-знач."
+
+# contributors:
+msgid "show significance maps"
+msgstr "показать карты статистической значимости"
+
+# contributors:
+msgid "skater"
+msgstr "skater"
+
+# contributors:
+msgid "small"
+msgstr "маленький"
+
+# contributors:
+msgid "space-time variable found with no name"
+msgstr "пространственно-временная переменная, найденная без наименования"
+
+# contributors:
+msgid "standard deviation"
+msgstr "стандартное отклонение"
+
+# contributors:
+msgid "suggested title:"
+msgstr "предлагаемое название: "
+
+# contributors:
+msgid "symmetry"
+msgstr "симметрия"
+
+# contributors:
+msgid "thematic"
+msgstr "тематический"
+
+# contributors:
+msgid "threshold value"
+msgstr "пороговое значение"
+
+# contributors:
+msgid "time"
+msgstr "время"
+
+# contributors:
+msgid "to"
+msgstr "к"
+
+# contributors:
+msgid "to define weights."
+msgstr "определить весовые коэффициенты."
+
+# contributors:
+msgid "to specify variable and distance parameters."
+msgstr "указать параметры переменной и расстояния."
+
+# contributors:
+msgid "total # pairs"
+msgstr "общее количество пар"
+
+# contributors:
+msgid "true"
+msgstr "истинный"
+
+# contributors:
+msgid "type"
+msgstr "тип"
+
+# contributors:
+msgid "undefined: "
+msgstr "неопределенный: "
+
+# contributors:
+msgid "uni. dist. Min"
+msgstr "равномер. распред. Мин."
+
+# contributors:
+msgid "uniform distribution"
+msgstr "равномерное распределение"
+
+# contributors:
+msgid "unknown"
+msgstr "неизвестный"
+
+# contributors:
+msgid "using row-standardized weights"
+msgstr "использование весовых коэффициентов, стандартизированных по строкам "
+
+# contributors:
+msgid "value"
+msgstr "значение"
+
+# contributors:
+msgid "value:"
+msgstr "значение: "
+
+# contributors:
+msgid "var name:"
+msgstr "наименование пер.: "
+
+# contributors:
+msgid "variable name"
+msgstr "наименование переменной"
+
+# contributors:
+msgid "version:"
+msgstr "версия: "
+
+# contributors:
+msgid "weights:"
+msgstr "веса: "
+
+# contributors:
+msgid "wrong model number"
+msgstr "неверный номер модели"
+
+# contributors:
+msgid "y:"
+msgstr "г.:"
+
+# contributors:
+msgid "year:"
+msgstr "год: "
+
