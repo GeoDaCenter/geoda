@@ -199,6 +199,10 @@ begin
     begin
       langCode := '179';  // spanish
     end;
+    3:
+    begin
+      langCode := '159';  // russian
+    end;
   end;
 end;
 
@@ -223,6 +227,7 @@ begin
   ComboBox.Items.Add('English');
   ComboBox.Items.Add('Chinese (Simplified)');
   ComboBox.Items.Add('Spanish');
+  ComboBox.Items.Add('Russian');
   ComboBox.ItemIndex := 0;
   ComboBox.OnChange := @ComboBoxChange;
   langCode := '58';

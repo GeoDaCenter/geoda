@@ -5,6 +5,7 @@
 //  Created by Xun Li on 8/6/18.
 //
 #include <stdio.h>
+#include <wx/wx.h>
 #include <wx/dcsvg.h>
 #include <wx/dcps.h>
 

@@ -587,11 +587,15 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
             new_ref.importFromEPSG(4326);
             valid_input_crs = true;
         }
-        if (spatial_ref && (valid_input_crs && !spatial_ref->IsSame(&new_ref))) {
-            OGRCoordinateTransformation *poCT;
-            poCT = OGRCreateCoordinateTransformation(spatial_ref, &new_ref);
-            for (size_t i=0; i < ogr_geometries.size(); i++) {
-                ogr_geometries[i]->transform(poCT);
+        if (ogr_geometries.size() > 0 && valid_input_crs) {
+            if (spatial_ref && spatial_ref->IsSame(&new_ref) == false) {
+                // transform geometries from old CRS to new CRS
+                OGRCoordinateTransformation *poCT;
+                poCT = OGRCreateCoordinateTransformation(spatial_ref, &new_ref);
+                for (size_t i=0; i < ogr_geometries.size(); i++) {
+                    ogr_geometries[i]->transform(poCT);
+                }
+                OGRCoordinateTransformation::DestroyCT(poCT);
             }
             spatial_ref = &new_ref; // use new CRS
         }

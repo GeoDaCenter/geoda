@@ -758,8 +758,10 @@ void CreatingWeightDlg::UpdateCreateButtonState()
 	// Check that a Weights File ID variable is selected.
 	if (m_id_field->GetSelection() == wxNOT_FOUND) enable = false;
 	// Check that a weight type radio button choice is selected.
-	if (m_X->GetSelection() == wxNOT_FOUND ||
-        m_Y->GetSelection() == wxNOT_FOUND) enable = false;
+	if (!project->IsTableOnlyProject()) {
+	    if (m_X->GetSelection() == wxNOT_FOUND ||
+            m_Y->GetSelection() == wxNOT_FOUND) enable = false;
+	}
 	
 	m_btn_ok->Enable(enable);
     m_nb_weights_type->Enable(enable);
