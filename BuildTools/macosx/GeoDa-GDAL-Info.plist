@@ -11,7 +11,7 @@
 	<key>CFBundleName</key>
 	<string>GeoDa</string>
 	<key>CFBundleExecutable</key>
-	<string>run.sh</string>
+	<string>GeoDa</string>
 	<key>CFBundleIconFile</key>
 	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -57,5 +57,16 @@
 	    <string>Owner</string>
 	  </dict>
 	</array>
+	<key>NSAppleScriptEnabled</key>
+	<string>YES</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>GeoDa requires permission to access the Downloads folder.</string>
+	<key>LSEnvironment</key>
+	<dict>
+	    <key>GEODA_OGR_DRIVER_PATH</key>
+	    <string>/Applications/GeoDa.app/Contents/Resources/plugins</string>
+	    <key>GEODA_GDAL_DATA</key>
+	    <string>/Applications/GeoDa.app/Contents/Resources/gdaldata</string>
+	</dict>
 </dict>
 </plist>
