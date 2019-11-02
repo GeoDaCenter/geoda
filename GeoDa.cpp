@@ -403,7 +403,7 @@ bool GdaApp::OnInit(void)
         fnames.Add(proj_fname);
         MacOpenFiles(fnames);
     } else {
-        if (os_id != "\nos: 1-10-14") {
+        if (GeneralWxUtils::isMac1014plus() == false) {
             wxCommandEvent ev(wxEVT_COMMAND_MENU_SELECTED, XRCID("ID_NEW_PROJECT"));
             frame->GetEventHandler()->ProcessEvent(ev);
         }

@@ -34,6 +34,7 @@ public:
 	static wxString LogOsId();
 	static bool isMac();
 	static bool isMac106();
+    static bool isMac1014plus();
 	static bool isWindows();
 	static bool isUnix();
 	static bool isXP();
