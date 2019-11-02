@@ -22,6 +22,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <wx/dir.h>
 #include <wx/progdlg.h>
 #include <wx/filedlg.h>
 #include <wx/listctrl.h>
@@ -74,6 +75,17 @@ bool DnDFile::OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames)
     {
         wxString fpath = filenames[0];
         wxFileName fn = wxFileName::FileName(fpath);
+
+        // activate file/dir access permission for osx 10.15+
+        wxFileName dirname = wxFileName::DirName(fpath);
+        wxString dir_path = dirname.GetPath();
+        wxDir dir;
+        dir.Open(dir_path);
+        if ( dir.IsOpened() ) {
+            wxString filename;
+            dir.GetFirst(&filename);
+        }
+
         m_pOwner->ds_file_path = fn;
         wxCommandEvent ev;
         m_pOwner->OnOkClick(ev);
