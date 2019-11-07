@@ -45,8 +45,8 @@ namespace Gda {
     class thread_pool
     {
     private:
-        mutex mx;
-        condition_variable cv;
+        boost::mutex mx;
+        boost::condition_variable cv;
 
         boost::container::deque<job_t> _queue;
 
@@ -69,7 +69,7 @@ namespace Gda {
 
         void enqueue(job_t job)
         {
-            lock_guard<mutex> lk(mx);
+            boost::lock_guard<boost::mutex> lk(mx);
             _queue.push_back(job);
 
             cv.notify_one();
@@ -77,7 +77,7 @@ namespace Gda {
 
         optional<job_t> dequeue()
         {
-            unique_lock<mutex> lk(mx);
+            boost::unique_lock<boost::mutex> lk(mx);
             namespace phx = boost::phoenix;
 
             cv.wait(lk, phx::ref(shutdown) || !phx::empty(phx::ref(_queue)));
@@ -95,7 +95,7 @@ namespace Gda {
         {
             shutdown = true;
             {
-                lock_guard<mutex> lk(mx);
+                boost::lock_guard<boost::mutex> lk(mx);
                 cv.notify_all();
             }
 
