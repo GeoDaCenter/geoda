@@ -49,8 +49,9 @@ Build machine assumptions:
  
 3. cd to ~/geoda/BuildTools/ubuntu
 
-4. run ./build**64**.sh to download and build GeoDa and everything it depends upon
---you need to manually build ogr plugins
+4. run ./build_**version**.sh to download and build GeoDa and everything it depends upon
+--you need to manually build ogr plugins.
+e.g. for ubuntu bionic versoin run ./build_bionic.sh
 
 5. Package GeoDa for distribution / installation.
 -- run create_deb.sh, you will find dep package geoda*.deb in current directory 
