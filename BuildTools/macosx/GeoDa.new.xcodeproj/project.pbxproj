@@ -35,6 +35,9 @@
 		A14B3AD8237622A6007EE3AB /* cache.sqlite in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1F1BA98178D46B8005A46E5 /* cache.sqlite */; };
 		A14B3AD9237622AE007EE3AB /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
+		A1563A06237DE6E100628FA0 /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
+		A1563A07237DE6E100628FA0 /* distmat_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792320AA084B000AFE57 /* distmat_kernel.cl */; };
+		A1563A08237DE6E100628FA0 /* lisa_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
@@ -297,15 +300,18 @@
 /* Begin PBXCopyFilesBuildPhase section */
 		A12007F623749AC200CBA5B1 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
+			buildActionMask = 8;
 			dstPath = "";
 			dstSubfolderSpec = 6;
 			files = (
+				A1563A06237DE6E100628FA0 /* localjc_kernel.cl in CopyFiles */,
+				A1563A07237DE6E100628FA0 /* distmat_kernel.cl in CopyFiles */,
+				A1563A08237DE6E100628FA0 /* lisa_kernel.cl in CopyFiles */,
 				A14B3AD9237622AE007EE3AB /* basemap_cache in CopyFiles */,
 				A14B3AD8237622A6007EE3AB /* cache.sqlite in CopyFiles */,
 				A14B3AD72376229A007EE3AB /* lang in CopyFiles */,
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -2050,7 +2056,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -2087,7 +2093,6 @@
 					"-DEIGEN_NO_DEBUG",
 				);
 				OTHER_LDFLAGS = (
-					./libraries/lib/libjson_spirit.a,
 					./libraries/include/boost/stage/lib/libboost_date_time.a,
 					./libraries/include/boost/stage/lib/libboost_system.a,
 					./libraries/include/boost/stage/lib/libboost_thread.a,
@@ -2109,6 +2114,7 @@
 					AGL,
 					"-framework",
 					WebKit,
+					/Users/xun/Downloads/json_spirit/lib/libjson_spirit.a,
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_xrc-3.1.a",
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_html-3.1.a",
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_qa-3.1.a",
@@ -2154,7 +2160,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;

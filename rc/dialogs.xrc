@@ -6377,6 +6377,28 @@
       </object>
       <object class="sizeritem">
         <object class="wxBoxSizer">
+          <object class="spacer">
+            <size>27,5d</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxCheckBox" name="ID_SEL_CHB_INCLUDE_NBRS">
+              <checked>0</checked>
+            </object>
+            <flag>wxALIGN_CENTRE_VERTICAL</flag>
+          </object>
+
+          <object class="sizeritem">
+            <object class="wxStaticText" name="ID_TXT_CHB_INCLUDE_NBRS">
+              <label>include neighbors?</label>
+              <size>150,-1d</size>
+            </object>
+            <flag>wxALIGN_CENTRE_VERTICAL</flag>
+          </object>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
           <object class="sizeritem">
             <object class="wxButton" name="wxID_CANCEL">
               <label>&amp;Cancel</label>
@@ -6569,6 +6591,28 @@
             </object>
           </object>
           <label>Assign Values to Currently Selected / Unselected</label>
+          <orient>wxHORIZONTAL</orient>
+        </object>
+      </object>
+      <object class="sizeritem">
+        <object class="wxBoxSizer">
+          <object class="spacer">
+            <size>27,5d</size>
+          </object>
+          <object class="sizeritem">
+            <object class="wxCheckBox" name="ID_SEL_CHB_INCLUDE_NBRS">
+              <checked>0</checked>
+            </object>
+            <flag>wxALIGN_CENTRE_VERTICAL</flag>
+          </object>
+
+          <object class="sizeritem">
+            <object class="wxStaticText" name="ID_TXT_CHB_INCLUDE_NBRS">
+              <label>include neighbors?</label>
+              <size>150,-1d</size>
+            </object>
+            <flag>wxALIGN_CENTRE_VERTICAL</flag>
+          </object>
           <orient>wxHORIZONTAL</orient>
         </object>
       </object>

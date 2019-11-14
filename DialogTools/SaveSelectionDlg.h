@@ -27,6 +27,7 @@
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
 
+class GalWeight;
 class TableInterface;
 class Project;
 
@@ -64,7 +65,9 @@ private:
 	wxCheckBox* m_unsel_check_box;	
 	wxTextCtrl* m_unsel_val_text;
 	wxButton* m_apply_save_button;
-	
+    wxCheckBox* m_inc_neighbors;
+
+    GalWeight* gal_weights;
 	bool m_all_init;
 	bool is_space_time;
 	void CheckApplySaveSettings();

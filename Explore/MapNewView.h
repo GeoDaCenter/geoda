@@ -224,6 +224,7 @@ public:
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
+    void UpdateNeighborSelections(vector<bool> new_hs);
 
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;

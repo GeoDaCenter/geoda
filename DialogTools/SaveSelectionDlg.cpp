@@ -23,6 +23,8 @@
 #include <wx/valtext.h>
 #include "../GdaConst.h"
 #include "../Project.h"
+#include "../ShapeOperations/WeightsManager.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "../DataViewer/DataViewerAddColDlg.h"
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
@@ -53,10 +55,15 @@ SaveSelectionDlg::SaveSelectionDlg(Project* project_s,
 								   const wxPoint& pos,
 								   const wxSize& size, long style )
 : project(project_s), table_int(project_s->GetTableInt()),
-m_all_init(false), is_space_time(project_s->GetTableInt()->IsTimeVariant())
+m_all_init(false), is_space_time(project_s->GetTableInt()->IsTimeVariant()),
+gal_weights(NULL)
 {
     wxLogMessage("Open SaveSelectionDlg.");
-    
+
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    boost::uuids::uuid w_id = w_man_int->GetDefault();
+    gal_weights = w_man_int->GetGal(w_id);
+
 	SetParent(parent);
     CreateControls();
     Centre();
@@ -85,6 +92,13 @@ void SaveSelectionDlg::CreateControls()
 											wxChoice);
 	}
 
+    m_inc_neighbors = wxDynamicCast(FindWindow(XRCID("ID_SEL_CHB_INCLUDE_NBRS")),
+                                    wxCheckBox);
+    if (gal_weights == NULL) {
+        m_inc_neighbors->Hide();
+        wxDynamicCast(FindWindow(XRCID("ID_TXT_CHB_INCLUDE_NBRS")),
+                      wxStaticText)->Hide();
+    }
 	m_sel_check_box = wxDynamicCast(FindWindow(XRCID("ID_SEL_CHECK_BOX")),
 									wxCheckBox); 
 	
@@ -336,12 +350,19 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 		m_save_field_choice_tm) {
 		sf_tm = m_save_field_choice_tm->GetSelection();
 	}
-	
+
+    bool with_neighbors = false;
+    if (gal_weights != NULL) {
+        if (m_inc_neighbors->IsChecked()) {
+            with_neighbors = true;
+        }
+    }
+
 	std::vector<bool>& h = project->GetHighlightState()->GetHighlight();
 	// write_col now refers to a valid field in grid base, so write out
 	// results to that field.
 	int obs = h.size();
-	std::vector<bool> undefined;
+	std::vector<bool> undefined, selected(obs, false);
 	if (table_int->GetColType(write_col) == GdaConst::long64_type) {
 		wxInt64 sel_c_i = sel_c;
 		wxInt64 unsel_c_i = unsel_c;
@@ -352,13 +373,24 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
 					t[i] = sel_c_i;
+                    selected[i] = true;
 					undefined[i] = false;
+                    // add neighbors
+                    if (gal_weights && with_neighbors) {
+                        GalElement& e = gal_weights->gal[i];
+                        for (int j=0, jend=e.Size(); j<jend; j++) {
+                            int obs = e[j];
+                            t[obs] = sel_c_i;
+                            selected[obs] = true;
+                            undefined[obs] = false;
+                        }
+                    }
 				}
 			}
 		}
 		if (unsel_checked) {
 			for (int i=0; i<obs; i++) {
-				if (!h[i]) {
+				if (selected[i] == false) {
 					t[i] = unsel_c_i;
 					undefined[i] = false;
 				}
@@ -374,13 +406,24 @@ void SaveSelectionDlg::OnApplySaveClick( wxCommandEvent& event )
 			for (int i=0; i<obs; i++) {
 				if (h[i]) {
 					t[i] = sel_c;
+                    selected[i] = true;
 					undefined[i] = false;
+                    // add neighbors
+                    if (gal_weights && with_neighbors) {
+                        GalElement& e = gal_weights->gal[i];
+                        for (int j=0, jend=e.Size(); j<jend; j++) {
+                            int obs = e[j];
+                            t[obs] = sel_c;
+                            selected[obs] = true;
+                            undefined[obs] = false;
+                        }
+                    }
 				}
 			}
 		}
 		if (unsel_checked) {
 			for (int i=0; i<obs; i++) {
-				if (!h[i]) {
+				if (selected[i] == false) {
 					t[i] = unsel_c;
 					undefined[i] = false;
 				}

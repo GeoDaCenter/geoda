@@ -2349,9 +2349,11 @@ void TemplateCanvas::SelectAllInCategory(int category,
 	}
 	
 	if ( selection_changed ) {
+        LOG_MSG("start notifyObservers()");
 		highlight_state->SetEventType(HLStateInt::delta);
 		highlight_state->notifyObservers(); // notify self to update drawing
-	}
+        LOG_MSG("end notifyObservers()");
+    }
 }
 
 void TemplateCanvas::DetermineMouseHoverObjects(wxPoint pt)

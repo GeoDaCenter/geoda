@@ -280,13 +280,16 @@ void AbstractMapCanvas::CreateAndUpdateCategories()
             // issue #474 only show significance levels that can
             // be mapped for the given number of permutations,
             // e.g., for 99 it would stop at 0.01, for 999 at 0.001, etc.
-            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ){ //0.0001
+            if ( sig_cutoff >= def_cutoffs[3] && stop_sig > def_cutoffs[3] ) {
+                //0.0001
                 num_cats -= 1;
             }
-            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ){ //0.001
+            if ( sig_cutoff >= def_cutoffs[2] && stop_sig > def_cutoffs[2] ) {
+                //0.001
                 num_cats -= 1;
             }
-            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ){ //0.01
+            if ( sig_cutoff >= def_cutoffs[1] && stop_sig > def_cutoffs[1] ) {
+                //0.01
                 num_cats -= 1;
             }
             cat_data.CreateCategoriesAtCanvasTm(num_cats, t);

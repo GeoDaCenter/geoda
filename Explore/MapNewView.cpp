@@ -24,6 +24,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include <wx/wx.h>
+#include <wx/event.h>
 #include <wx/msgdlg.h>
 #include <wx/splitter.h>
 #include <wx/xrc/xmlres.h>
@@ -408,21 +409,46 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
 {
+    std::vector<int> old_hover_obs = hover_obs;
+
     TemplateCanvas::DetermineMouseHoverObjects(pointsel);
+
+    bool hover_changed = old_hover_obs.size() != hover_obs.size();
+
+    if (hover_changed == false && hover_obs.empty() != true) {
+        std::map<int, bool> hover_dict;
+        for (size_t i=0; i<old_hover_obs.size(); ++i) {
+            hover_dict[old_hover_obs[i]] = true;
+        }
+        for (size_t i=0; i<hover_obs.size(); ++i) {
+            if (hover_dict.find(hover_obs[i]) == hover_dict.end()) {
+                hover_changed = true;
+                break;
+            }
+        }
+    }
+
     if (layer0_bm && display_neighbors && sel1.x==0 && sel1.y==0 &&
         sel2.x==0 && sel2.y==0) {
         vector<bool>& hs = GetSelBitVec();
-        if (hover_obs.empty() == false) {
-            for (int i=0; i<hs.size(); i++) {
+
+        if (hover_changed) {
+            for (size_t i=0; i<hs.size(); i++) {
                 hs[i] = false;
             }
-            hs[hover_obs[0]] = true;
-            highlight_state->SetTotalHighlighted(1);
+            for (size_t i=0; i<hover_obs.size(); i++) {
+                hs[hover_obs[i]] = true;
+            }
+
+            int total_highlighted = hover_obs.size();
+            highlight_state->SetTotalHighlighted(total_highlighted);
+
+            layer1_valid = false;
+            DrawLayers();
+
+            highlight_state->SetEventType(HLStateInt::delta);
+            highlight_timer->Start(50);
         }
-        //highlight_state->SetEventType(HLStateInt::delta);
-        //highlight_timer->Start(50);
-        layer1_valid = false;
-        DrawLayers();
     }
 }
 
@@ -1193,14 +1219,26 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
         // draw connectivity graph if needed
         DrawConnectivityGraph(dc);
     }
+
     if (is_updating == false && (show_graph || display_neighbors)) {
-        highlight_timer->Stop(); // make linking start immediately
-        std::vector<bool> old_hs = hs;
-        hs = new_hs; // set highlights to "current+neighbors"
-        highlight_state->SetEventType(HLStateInt::delta);
-        highlight_state->notifyObservers(this);
-        hs = old_hs; // reset highlights to "current"
+        //CallAfter(&MapCanvas::UpdateNeighborSelections, new_hs);
+        //highlight_timer->Stop(); // make linking start immediately
+        //highlight_state->SetEventType(HLStateInt::delta);
+        //highlight_state->notifyObservers(this);
     }
+}
+
+void MapCanvas::UpdateNeighborSelections(vector<bool> new_hs)
+{
+    LOG_MSG("UpdateNeighborSelections()");
+    // highlight connectivity objects and graphs
+    vector<bool>& hs = highlight_state->GetHighlight();
+    highlight_timer->Stop(); // make linking start immediately
+    std::vector<bool> old_hs = hs;
+    hs = new_hs; // set highlights to "current+neighbors"
+    highlight_state->SetEventType(HLStateInt::delta);
+    highlight_state->notifyObservers(this);
+    hs = old_hs; // reset highlights to "current"
 }
 
 void MapCanvas::SaveThumbnail()
@@ -2738,8 +2776,7 @@ void MapCanvas::DisplayNeighbors()
     if (display_neighbors) {
         display_map_with_graph = true;
         display_weights_graph = false;
-    } else {
-    }
+    } 
     PopulateCanvas();
 }
 
