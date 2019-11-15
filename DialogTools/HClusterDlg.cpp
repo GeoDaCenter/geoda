@@ -538,21 +538,23 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
     int i=0;
     fastcluster::union_find nodes(rows);
     for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
-        // Find the cluster identifiers for these points.
-        node1 = nodes.Find(NN->node1);
-        node2 = nodes.Find(NN->node2);
-        // Merge the nodes in the union-find data structure by making them
-        // children of a new node.
-        nodes.Union(node1, node2);
-
-        node2 = node2 < rows ? node2 : rows-node2-1;
-        node1 = node1 < rows ? node1 : rows-node1-1;
-
-        //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
-        //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
-        htree[i].left = node1;
-        htree[i].right = node2;
-        htree[i].distance = Z2[i]->dist;
+        if (NN) {
+            // Find the cluster identifiers for these points.
+            node1 = nodes.Find(NN->node1);
+            node2 = nodes.Find(NN->node2);
+            // Merge the nodes in the union-find data structure by making them
+            // children of a new node.
+            nodes.Union(node1, node2);
+            
+            node2 = node2 < rows ? node2 : rows-node2-1;
+            node1 = node1 < rows ? node1 : rows-node1-1;
+            
+            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
+            htree[i].left = node1;
+            htree[i].right = node2;
+            htree[i].distance = Z2[i]->dist;
+        }
     }
     clusters.clear();
     int* clusterid = new int[rows];

@@ -783,7 +783,7 @@ void ScatterNewPlotCanvas::PopulateCanvas()
 	int yt = var_info[1].time-var_info[1].time_min;
 
     // for undefined values, we have to search [min max] for both axies
-    double x_max, x_min, y_max, y_min;
+    double x_max = DBL_MIN, x_min = DBL_MAX, y_max = DBL_MIN, y_min = DBL_MAX;
     bool has_init = false;
     
     XYZ_undef.resize(num_obs);
@@ -1952,7 +1952,7 @@ void ScatterNewPlotFrame::Init(const std::vector<GdaVarTools::VarInfo>& var_info
     else
         SetTitle(title);
 	
-	if (is_bubble_plot) {
+	if (is_bubble_plot && splitter_win) {
         lpanel = new wxPanel(splitter_win);
 		template_legend = new ScatterNewPlotLegend(lpanel,
 												   template_canvas,

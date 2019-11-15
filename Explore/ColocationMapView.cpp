@@ -526,6 +526,7 @@ void ColocationSelectDlg::OnOK( wxCommandEvent& event)
             ttl << " - ";
         }
     }
+    // memory will be managed by wxWidgets
     ColocationMapFrame* nf = new ColocationMapFrame(parent, project, select_vars, sel_vals, sel_clrs, sel_lbls, sel_ids, w_id, ttl, wxDefaultPosition, GdaConst::map_default_size);
 }
 

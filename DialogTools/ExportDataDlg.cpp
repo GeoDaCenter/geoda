@@ -463,15 +463,19 @@ void ExportDataDlg::OnOkClick( wxCommandEvent& event )
             // save project file
             wxFileName new_proj_fname(proj_fname);
             wxString proj_title = new_proj_fname.GetName();
-            LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
-            layer_conf->SetName(layer_name);
-            layer_conf->UpdateDataSource(datasource);
-            project_conf->Save(proj_fname);
-          
-            // in export case, delete cloned project_conf
-            if ( proj_fname.empty() ) {
-                delete project_conf;
-                //delete datasource; Note: it is deleted in project_conf
+            if (project_conf) {
+                LayerConfiguration* layer_conf = project_conf->GetLayerConfiguration();
+                if (layer_conf) {
+                    layer_conf->SetName(layer_name);
+                    layer_conf->UpdateDataSource(datasource);
+                }
+                project_conf->Save(proj_fname);
+
+                // in export case, delete cloned project_conf
+                if ( proj_fname.empty() ) {
+                    delete project_conf;
+                    //delete datasource; Note: it is deleted in project_conf
+                }
             }
         }
 	} catch (GdaException& e) {

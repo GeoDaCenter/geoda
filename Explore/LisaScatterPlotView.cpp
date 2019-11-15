@@ -358,7 +358,8 @@ void LisaScatterPlotCanvas::SyncVarInfoFromCoordinator()
     GalElement* gal = w->gal;
     
 	for (int t=0; t<lisa_coord->num_time_vals; t++) {
-        double x_min, x_max, y_min, y_max;
+        double x_min = DBL_MAX, x_max = DBL_MIN;
+        double y_min = DBL_MAX, y_max = DBL_MIN;
         
         bool has_init = false;
         

@@ -593,7 +593,7 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
 {
     vector<vector<int> > local_best_solution;
     unordered_map<int, int> local_best_area2region;
-    double local_best_ssd;
+    double local_best_ssd = 0;
     
     int nr = init_regions.size();
     

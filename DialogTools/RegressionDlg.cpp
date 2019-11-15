@@ -477,7 +477,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             }
         }
     }
-    
+    bool is_new_gal = false;
+
 	if (m_WeightCheck) {
 		boost::uuids::uuid id = GetWeightsId();
         GalElement* gal_weight = NULL;
@@ -490,6 +491,8 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
             // construct a new weights with only valid records
             if (gw) {
                 gal_weight = new GalElement[valid_obs];
+                is_new_gal = true;
+
                 int cnt = 0;
                 for (int i=0; i<m_obs; i++) {
                     if (!undefs[i]) {
@@ -628,7 +631,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			}
 
 			m_DR.release_Var();
-			gal_weight = NULL;
+			if (!is_new_gal) gal_weight = NULL;
 
 		} else if (RegressModel == 2) {
             wxLogMessage("Spatial Lag model");
@@ -684,7 +687,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			}
 			
 			m_DR.release_Var();
-			gal_weight = NULL;
+			if (!is_new_gal) gal_weight = NULL;
             
 		} else if (RegressModel == 3) {
             wxLogMessage("Spatial Error model");
@@ -743,9 +746,10 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
 			}
 
 			m_DR.release_Var();
-			gal_weight = NULL;
+			if (!is_new_gal) gal_weight = NULL;
 
 		} else {
+            if (is_new_gal && gal_weight) delete[] gal_weight;
 			wxMessageBox(_("wrong model number"));
 			UpdateMessageBox("");
 			return;
@@ -758,7 +762,7 @@ void RegressionDlg::OnRunClick( wxCommandEvent& event )
         
         
         if (valid_obs == m_obs) {
-            delete[] gal_weight;
+            if (gal_weight) delete[] gal_weight;
         }
         
 	} else {

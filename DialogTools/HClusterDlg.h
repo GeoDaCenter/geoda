@@ -137,7 +137,8 @@ public:
 class DendroColorPoint
 {
 public:
-    DendroColorPoint(){
+    DendroColorPoint() {
+        color = *wxBLACK;
         is_valid = false;
     }
     DendroColorPoint(const wxPoint& _pt, const wxColour& _clr){

@@ -588,7 +588,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
     if (dest_sr && spatialRef) {
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
-    Shapefile::ShapeType shape_type;
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
     int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
@@ -624,7 +624,7 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
     if (dest_sr && spatialRef) {
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
     }
-    Shapefile::ShapeType shape_type;
+    Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
     //read OGR geometry features
     int feature_counter =0;
     for ( int row_idx=0; row_idx < n_rows; row_idx++ ) {
@@ -795,7 +795,7 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
         if (export_size == 0) export_size = table->GetNumberRows();
         export_progress = export_size / 4;
         // fields already have been created by OGRDatasourceProxy::CreateLayer()
-        for (size_t j=0; j< fields.size(); j++) {
+        for (int j=0; j< fields.size(); j++) {
             wxString fname = fields[j]->GetName();
             GdaConst::FieldType ftype = fields[j]->GetType();
             // get underneath column position (no group and time =0)

@@ -956,8 +956,8 @@ void ConditionalHistogramCanvas::sel_shp_to_cell_gen(int i,
 													 int cols, int ivals)
 {	
 	int t = cols*ivals;
-	r = i/t;
-	t = i%t;
+	r = t > 0 ? i/t : 0;
+	t = t > 0 ? i%t : i;
 	c = t/ivals;
 	ival = t%ivals;
 }

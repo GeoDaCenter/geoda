@@ -777,7 +777,7 @@ FullOrderSLKRedCap::~FullOrderSLKRedCap()
 
 double FullOrderSLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist = 0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];
@@ -996,7 +996,7 @@ void FullOrderALKRedCap::Clustering()
 
 double FullOrderALKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist = 0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];
@@ -1059,7 +1059,7 @@ FullOrderCLKRedCap::~FullOrderCLKRedCap()
 
 double FullOrderCLKRedCap::UpdateClusterDist(int cur_id, int o_id, int d_id, bool conn_c_o, bool conn_c_d, vector<int>& clst_ids, vector<int>& clst_startpos, vector<int>& clst_nodenum)
 {
-    double new_dist;
+    double new_dist = 0.0;
     if (conn_c_o && conn_c_d) {
         double d_c_o = dist_dict[cur_id][o_id];
         double d_c_d = dist_dict[cur_id][d_id];

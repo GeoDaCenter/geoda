@@ -1456,7 +1456,7 @@ void TemplateCanvas::OnMouseEvent(wxMouseEvent& event)
                         brush_shape = new GdaPolygon(sel1, sel2);
                         
                     }
-                    if (brush_shape->Contains(prev)) {
+                    if (brush_shape != NULL && brush_shape->Contains(prev)) {
                         // brushing
                         is_brushing = true;
                         remember_shiftdown = false;  // brush will cancel shift

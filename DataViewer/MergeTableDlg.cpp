@@ -637,8 +637,8 @@ void MergeTableDlg::OuterJoinMerge()
         // start to merge
         std::vector<GdaShape*> geoms;
         std::vector<GdaShape*> in_geoms;
-        OGRSpatialReference* spatial_ref;
-        Shapefile::ShapeType shape_type;
+        OGRSpatialReference* spatial_ref = NULL;
+        Shapefile::ShapeType shape_type = Shapefile::NULL_SHAPE;
 
         if (!project_s->IsTableOnlyProject()) {
             // geometric dataset. If table-only dataset, only out join table

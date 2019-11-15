@@ -99,8 +99,8 @@ void GdaCache::AddHistory(wxString param_key, wxString param_val)
 	// add to spatialite table
 	wxString _sql = "INSERT INTO history VALUES('"
 						+ param_key +"','"+param_val + "')";
-    const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
-	cach_ds_proxy->ExecuteSQL(sql);
+    //const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
+	cach_ds_proxy->ExecuteSQL(_sql.mb_str(wxConvUTF8));
 }
 
 void GdaCache::AddEntry(wxString param_key, wxString param_val)

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */; };
 		A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11B85BB1B18DC9C008B64EA /* Basemap.cpp */; };
 		A11EF98E21ED569A00B77413 /* MultiVarSettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */; };
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
@@ -77,10 +76,6 @@
 		A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1F1BA5A178D3B46005A46E5 /* GdaCache.cpp */; };
 		A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1FD8C17186908B800C35C41 /* CustomClassifPtree.cpp */; };
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
-		A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92020F559F500F94543 /* scatterplot.cpp */; };
-		A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92420F675B600F94543 /* mathstuff.cpp */; };
-		A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92520F675B600F94543 /* oglstuff.cpp */; };
-		A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40AB92720F675B600F94543 /* oglpfuncs.cpp */; };
 		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
@@ -316,8 +311,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCanvas.cpp; sourceTree = "<group>"; };
-		A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractCanvas.hpp; sourceTree = "<group>"; };
 		A11B85BA1B18DC89008B64EA /* Basemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Basemap.h; sourceTree = "<group>"; };
 		A11B85BB1B18DC9C008B64EA /* Basemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Basemap.cpp; sourceTree = "<group>"; };
 		A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiVarSettingsDlg.h; sourceTree = "<group>"; };
@@ -434,14 +427,6 @@
 		A1FD8C18186908B800C35C41 /* CustomClassifPtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CustomClassifPtree.h; path = DataViewer/CustomClassifPtree.h; sourceTree = "<group>"; };
 		A40A6A7C20226B3B003CDD79 /* PreferenceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceDlg.h; sourceTree = "<group>"; };
 		A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PreferenceDlg.cpp; sourceTree = "<group>"; };
-		A40AB91F20F559F500F94543 /* scatterplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scatterplot.h; sourceTree = "<group>"; };
-		A40AB92020F559F500F94543 /* scatterplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scatterplot.cpp; sourceTree = "<group>"; };
-		A40AB92220F675B500F94543 /* mathstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathstuff.h; sourceTree = "<group>"; };
-		A40AB92320F675B600F94543 /* oglpfuncs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglpfuncs.h; sourceTree = "<group>"; };
-		A40AB92420F675B600F94543 /* mathstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mathstuff.cpp; sourceTree = "<group>"; };
-		A40AB92520F675B600F94543 /* oglstuff.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglstuff.cpp; sourceTree = "<group>"; };
-		A40AB92620F675B600F94543 /* oglstuff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oglstuff.h; sourceTree = "<group>"; };
-		A40AB92720F675B600F94543 /* oglpfuncs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = oglpfuncs.cpp; sourceTree = "<group>"; };
 		A414C889207BED2700520546 /* MatfileReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MatfileReader.h; path = io/MatfileReader.h; sourceTree = "<group>"; };
 		A414C88A207BED2700520546 /* MatfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatfileReader.cpp; path = io/MatfileReader.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
@@ -898,15 +883,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A10EF2ED21273E4900564FE1 /* visualization */ = {
-			isa = PBXGroup;
-			children = (
-				A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */,
-				A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */,
-			);
-			path = visualization;
-			sourceTree = "<group>";
-		};
 		A14735A721A5F6CE00CA69B2 /* Weights */ = {
 			isa = PBXGroup;
 			children = (
@@ -948,53 +924,6 @@
 				A19483812118BAA8009A87A2 /* oglmisc.cpp */,
 			);
 			path = ogl;
-			sourceTree = "<group>";
-		};
-		A40AB91A20F5336600F94543 /* arizona */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB91C20F5338D00F94543 /* models */,
-				A40AB91B20F5338200F94543 /* viz3 */,
-			);
-			path = arizona;
-			sourceTree = "<group>";
-		};
-		A40AB91B20F5338200F94543 /* viz3 */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB92420F675B600F94543 /* mathstuff.cpp */,
-				A40AB92220F675B500F94543 /* mathstuff.h */,
-				A40AB92720F675B600F94543 /* oglpfuncs.cpp */,
-				A40AB92320F675B600F94543 /* oglpfuncs.h */,
-				A40AB92520F675B600F94543 /* oglstuff.cpp */,
-				A40AB92620F675B600F94543 /* oglstuff.h */,
-				A40AB91E20F533A500F94543 /* plots */,
-				A40AB91D20F533A000F94543 /* maps */,
-			);
-			path = viz3;
-			sourceTree = "<group>";
-		};
-		A40AB91C20F5338D00F94543 /* models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = models;
-			sourceTree = "<group>";
-		};
-		A40AB91D20F533A000F94543 /* maps */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = maps;
-			sourceTree = "<group>";
-		};
-		A40AB91E20F533A500F94543 /* plots */ = {
-			isa = PBXGroup;
-			children = (
-				A40AB92020F559F500F94543 /* scatterplot.cpp */,
-				A40AB91F20F559F500F94543 /* scatterplot.h */,
-			);
-			path = plots;
 			sourceTree = "<group>";
 		};
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
@@ -1135,9 +1064,7 @@
 			isa = PBXGroup;
 			children = (
 				A14735A721A5F6CE00CA69B2 /* Weights */,
-				A10EF2ED21273E4900564FE1 /* visualization */,
 				A19483772118BA8B009A87A2 /* ogl */,
-				A40AB91A20F5336600F94543 /* arizona */,
 				A4ED7D3F2097EC0F008685D6 /* kNN */,
 				A4CFF027207D6D7500E2E6DE /* internationalization */,
 				A47614AC20759E6100D9F3BE /* io */,
@@ -1687,7 +1614,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = NO;
-				LastUpgradeCheck = 0510;
+				LastUpgradeCheck = 1120;
 				TargetAttributes = {
 					DD7974800F1D1B6600496A84 = {
 						DevelopmentTeam = 3VRCAMAT4L;
@@ -1697,13 +1624,14 @@
 			};
 			buildConfigurationList = DD79746A0F1D1B0700496A84 /* Build configuration list for PBXProject "GeoDa.new" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
+				en,
+				ja,
+				Base,
+				de,
+				fr,
 			);
 			mainGroup = DD7974650F1D1B0700496A84 /* ../../ */;
 			productRefGroup = DD7974820F1D1B6600496A84 /* Products */;
@@ -1765,10 +1693,8 @@
 				A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
 				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
-				A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
-				A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,
 				A19483942118BAAA009A87A2 /* divided.cpp in Sources */,
@@ -1880,7 +1806,6 @@
 				DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */,
 				DDAD0218162754EA00748874 /* ConditionalNewView.cpp in Sources */,
 				DDDBF286163AD1D50070610C /* ConditionalMapView.cpp in Sources */,
-				A40AB92A20F675B600F94543 /* oglpfuncs.cpp in Sources */,
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
 				A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */,
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
@@ -1915,7 +1840,6 @@
 				DD4974E21770CE9E0007BB9F /* TableInterface.cpp in Sources */,
 				A1E77E1A177D6A2E00CC1037 /* ExportDataDlg.cpp in Sources */,
 				A14735B821A65F1800CA69B2 /* kd_fix_rad_search.cpp in Sources */,
-				A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */,
@@ -1965,7 +1889,6 @@
 				DD4DED12197E16FF00FE29E8 /* SelectWeightsDlg.cpp in Sources */,
 				DD5AA73D1982D200009B30C6 /* CalcHelp.cpp in Sources */,
 				DD26CBE419A41A480092C0F2 /* WebViewExampleWin.cpp in Sources */,
-				A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */,
 				A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */,
 				DD2AE42A19D4F4CA00B23FB9 /* GdaJson.cpp in Sources */,
 				A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */,
@@ -2021,12 +1944,38 @@
 		DD7974680F1D1B0700496A84 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
 				GCC_MODEL_TUNING = "";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2038,12 +1987,37 @@
 		DD7974690F1D1B0700496A84 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_MODEL_TUNING = "";
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_PKGINFO_FILE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_LDFLAGS = "";
@@ -2056,14 +2030,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = 3VRCAMAT4L;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -2145,7 +2120,6 @@
 					"-lgdal",
 					"-lcurl",
 				);
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.geoda;
 				PRODUCT_NAME = GeoDa;
@@ -2160,14 +2134,15 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = 3VRCAMAT4L;
+				ENABLE_HARDENED_RUNTIME = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
@@ -2248,7 +2223,6 @@
 					"-lcurl",
 					./libraries/lib/libjson_spirit.a,
 				);
-				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.geoda;
 				PRODUCT_NAME = GeoDa;

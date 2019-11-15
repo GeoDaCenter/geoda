@@ -524,10 +524,9 @@ double Gda::ThomasWangDouble(uint64_t& key) {
 
 double Gda::factorial(unsigned int n)
 {
-    double r;
-    int i;
-    for(i = n-1; i > 1; i--)
-    r *= i;
+    double r = 1;
+    for(int i = n-1; i > 1; i--)
+        r *= i;
     
     return r;
 }

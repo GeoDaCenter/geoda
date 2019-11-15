@@ -948,7 +948,7 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                permutedLag += _data2[perm_idx];
+                                if (_data2) permutedLag += _data2[perm_idx];
                             }
                         }
                     } else {
@@ -957,14 +957,18 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
                             int perm_idx = permNeighbors[cp];
                             if (!undefs[perm_idx]) {
                                 validNeighbors ++;
-                                wwx += _data1[perm_idx];
-                                wwx2 += _data1_square[perm_idx];
+                                if (_data1 && _data1_square) {
+                                    wwx += _data1[perm_idx];
+                                    wwx2 += _data1_square[perm_idx];
+                                }
                             }
                         }
                     }
                     //NOTE: we shouldn't have to row-standardize or multiply by data1[cnt]
                     if (validNeighbors && row_standardize) {
-                        gci[t][perm] = _data1_square[cnt] - 2.0*_data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                        if (_data1_square && _data1) {
+                            gci[t][perm] = _data1_square[cnt] - 2.0*_data1[cnt]*wwx/validNeighbors + wwx2/validNeighbors;
+                        }
                     }
                 }
                 gci_sum[t] += gci[t][perm];

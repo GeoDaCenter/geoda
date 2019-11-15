@@ -199,6 +199,7 @@ void WeightsManFrame::OnHistogramBtn(wxCommandEvent& ev)
     wxLogMessage("WeightsManFrame::OnHistogramBtn()");
     boost::uuids::uuid id = GetHighlightId();
     if (id.is_nil()) return;
+    // memory will be managed by wxWidgets
     ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
 }
 
@@ -962,12 +963,14 @@ void WeightsManFrame::UpdateButtons()
 	if (histogram_btn) histogram_btn->Enable(any_sel);
 	if (connectivity_map_btn) connectivity_map_btn->Enable(any_sel);
     if (connectivity_graph_btn) connectivity_graph_btn->Enable(any_sel);
-    if (project_p->isTableOnly) {
-        connectivity_map_btn->Disable();
-        connectivity_graph_btn->Disable();
+    if (project_p && project_p->isTableOnly) {
+        if (connectivity_map_btn) connectivity_map_btn->Disable();
+        if (connectivity_graph_btn) connectivity_graph_btn->Disable();
     }
-    int sel_w_cnt = w_list->GetSelectedItemCount();
-    if (intersection_btn) intersection_btn->Enable(sel_w_cnt >= 2);
-    if (union_btn) union_btn->Enable(sel_w_cnt >= 2);
+    if (w_list) {
+        int sel_w_cnt = w_list->GetSelectedItemCount();
+        if (intersection_btn) intersection_btn->Enable(sel_w_cnt >= 2);
+        if (union_btn) union_btn->Enable(sel_w_cnt >= 2);
+    }
 }
 

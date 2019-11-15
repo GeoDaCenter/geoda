@@ -55,7 +55,7 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     int total_nbrs = 0;
     
     for (size_t i=0; i<rows; i++) {
-        int nnbrs = w[i].Size();
+        long nnbrs = w[i].Size();
         if (nnbrs > max_n_nbrs) {
             max_n_nbrs = nnbrs;
         }
@@ -67,9 +67,11 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     size_t idx = 0;
     
     for (size_t i=0; i<rows; i++) {
-        int nnbrs = w[i].Size();
+        long nnbrs = w[i].Size();
         for (size_t j=0; j<nnbrs; j++) {
-            nbr_idx[idx++] = w[i][j];
+            if (idx < total_nbrs) {
+                nbr_idx[idx++] = w[i][j];
+            }
         }
     }
     
@@ -80,6 +82,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     
     fp = fopen(cl_path, "r");
     if (!fp) {
+        if (num_nbrs) delete[] num_nbrs;
+        delete[] nbr_idx;
         fprintf(stderr, "Failed to load kernel.\n");
         return false;
     }
@@ -113,11 +117,13 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     cl_uint nrDevices;
     ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, maxDevices, devices, &ret_num_devices);
     if (ret != CL_SUCCESS) {
+        delete[] devices;
         delete[] num_nbrs;
         delete[] nbr_idx;
         return false;
     }
 	if (ret_num_devices==0) {
+        delete[] devices;
         delete[] num_nbrs;
         delete[] nbr_idx;
 		return false;
@@ -258,7 +264,7 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
 
     delete[] num_nbrs;
     delete[] nbr_idx;
-
+    delete[] devices;
 	return true;
 }
 
@@ -269,7 +275,7 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     int total_nbrs = 0;
     
     for (size_t i=0; i<rows; i++) {
-        int nnbrs = w[i].Size();
+        long nnbrs = w[i].Size();
         if (nnbrs > max_n_nbrs) {
             max_n_nbrs = nnbrs;
         }
@@ -281,9 +287,11 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     size_t idx = 0;
     
     for (size_t i=0; i<rows; i++) {
-        int nnbrs = w[i].Size();
+        long nnbrs = w[i].Size();
         for (size_t j=0; j<nnbrs; j++) {
-            nbr_idx[idx++] = w[i][j];
+            if (idx < total_nbrs) {
+                nbr_idx[idx++] = w[i][j];
+            }
         }
     }
     
@@ -294,6 +302,8 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     
     fp = fopen(cl_path, "r");
     if (!fp) {
+        delete[] nbr_idx;
+        delete[] num_nbrs;
         fprintf(stderr, "Failed to load kernel.\n");
         return false;
     }
@@ -336,13 +346,15 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     cl_uint nrDevices;
     ret = clGetDeviceIDs(platform_id, CL_DEVICE_TYPE_GPU, maxDevices, devices, &ret_num_devices);
     if (ret != CL_SUCCESS) {
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if (devices) delete[] devices;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         return false;
     }
     if (ret_num_devices==0) {
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if (devices) delete[] devices;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         return false;
     }
     cl_device_id device_id = devices[0];
@@ -388,11 +400,11 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     ret = clEnqueueWriteBuffer(command_queue, d_mem_obj, CL_TRUE, 0, sizeof(unsigned short)*total_nbrs, nbr_idx, 0, NULL, NULL);
     ret = clEnqueueWriteBuffer(command_queue, p_mem_obj, CL_TRUE, 0, sizeof(float)*rows, v_p, 0, NULL, NULL);
     if (ret != CL_SUCCESS) {
-        delete[] v_zz;
-        delete[] v_local_jc;
-        delete[] v_p;
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if(v_zz) delete[] v_zz;
+        if(v_local_jc) delete[] v_local_jc;
+        if(v_p) delete[] v_p;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         return false;
     }
     // Create a program from the kernel source
@@ -409,11 +421,11 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
         clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, sizeof(buffer), buffer, &length);
         cout<<"--- Build log ---\n "<<buffer<<endl;
         
-        delete[] v_zz;
-        delete[] v_local_jc;
-        delete[] v_p;
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if(v_zz) delete[] v_zz;
+        if(v_local_jc) delete[] v_local_jc;
+        if(v_p) delete[] v_p;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         
         ret = clReleaseProgram(program);
         ret = clReleaseMemObject(a_mem_obj);
@@ -440,11 +452,11 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     ret = clSetKernelArg(kernel, 8, sizeof(cl_mem), (void *)&p_mem_obj);
     
     if (ret != CL_SUCCESS) {
-        delete[] v_zz;
-        delete[] v_local_jc;
-        delete[] v_p;
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if(v_zz) delete[] v_zz;
+        if(v_local_jc) delete[] v_local_jc;
+        if(v_p) delete[] v_p;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         
         ret = clReleaseKernel(kernel);
         ret = clReleaseProgram(program);
@@ -487,19 +499,19 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
     ret = clReleaseContext(context);
     
     if (ret != CL_SUCCESS) {
-        delete[] v_zz;
-        delete[] v_local_jc;
-        delete[] v_p;
-        delete[] num_nbrs;
-        delete[] nbr_idx;
+        if(v_zz) delete[] v_zz;
+        if(v_local_jc) delete[] v_local_jc;
+        if(v_p) delete[] v_p;
+        if(num_nbrs) delete[] num_nbrs;
+        if(nbr_idx) delete[] nbr_idx;
         return false;
     }
     
-    delete[] v_zz;
-    delete[] v_local_jc;
-    delete[] v_p;
-    delete[] num_nbrs;
-    delete[] nbr_idx;
+    if(v_zz) delete[] v_zz;
+    if(v_local_jc) delete[] v_local_jc;
+    if(v_p) delete[] v_p;
+    if(num_nbrs) delete[] num_nbrs;
+    if(nbr_idx) delete[] nbr_idx;
     
     return true;
 }

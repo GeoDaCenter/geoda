@@ -1513,6 +1513,7 @@ void CreatingWeightDlg::CreateWeights()
                 wxMessageDialog dlg(NULL, msg, _("Voronoi Contiguity Error"),
                                     wxOK | wxICON_ERROR);
                 dlg.ShowModal();
+                return;
             }
             
         } else if (project->main_data.header.shape_type == Shapefile::POINT_TYP) {

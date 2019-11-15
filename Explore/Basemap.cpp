@@ -314,12 +314,12 @@ void Basemap::ResizeScreen(int _width, int _height)
     if (screen) {
         screen->width = _width;
         screen->height = _height;
-    }
 
-    //isTileDrawn = false;
-    GetEasyZoomLevel();
-    
-    SetupMapType(basemap_item);
+        //isTileDrawn = false;
+        GetEasyZoomLevel();
+
+        SetupMapType(basemap_item);
+    }
 }
 
 void Basemap::Pan(int x0, int y0, int x1, int y1)
@@ -332,7 +332,10 @@ void Basemap::Pan(int x0, int y0, int x1, int y1)
     
     double offsetLat = p1->lat - p0->lat;
     double offsetLon = p1->lng - p0->lng;
-    
+
+    delete p0;
+    delete p1;
+
     if (map->Pan(-offsetLat, -offsetLon)) {
         //isTileDrawn = false;
         //isTileReady = false;
@@ -367,6 +370,9 @@ bool Basemap::Zoom(bool is_zoomin, int x0, int y0, int x1, int y1)
     double west = p0->lng;
     double south = p1->lat;
     double east = p1->lng;
+
+    delete p0;
+    delete p1;
     
     map->UpdateExtent(west, south, east, north);
     

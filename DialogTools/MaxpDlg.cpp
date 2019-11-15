@@ -546,6 +546,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
             wxString nm = name_to_nm[select_lisa];
             int col = table_int->FindColId(nm);
             if (col == wxNOT_FOUND) {
+                if (bound_vals) delete[] bound_vals;
                 wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
@@ -580,6 +581,7 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
         wxString str_coolrate = m_coolrate->GetValue();
         str_coolrate.ToDouble(&cool_rate);
         if ( cool_rate > 1 || cool_rate <= 0) {
+            if (bound_vals) delete[] bound_vals;
             wxString err_msg = _("Cooling rate for Simulated Annealing algorithm has to be a float number between 0 and 1 (e.g. 0.85).");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
@@ -601,8 +603,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 		z.push_back(vals);
 	}
     Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, local_search_method, tabu_length, cool_rate, rnd_seed, dist);
-    
-	delete[] bound_vals;
+
+    if (bound_vals) delete[] bound_vals;
 
     vector<vector<int> > cluster_ids = maxp.GetRegions();
     int ncluster = cluster_ids.size();

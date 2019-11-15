@@ -577,6 +577,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
 
    
     if (redcap==NULL) {
+        for (int i = 1; i < rows; i++) delete[] distances[i];
+        delete[] distances;
         delete[] bound_vals;
         bound_vals = NULL;
         return;
@@ -645,8 +647,8 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
     // free memory
-    for (int i = 1; i < rows; i++) free(distances[i]);
-    free(distances);
+    for (int i = 1; i < rows; i++) delete[] distances[i];
+    delete[] distances;
     
 	delete[] bound_vals;
 	bound_vals = NULL;

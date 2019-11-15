@@ -299,6 +299,10 @@ void GStatCoordinator::InitFromVarInfo()
             Gal_vecs[t] = gw;
             Gal_vecs_orig[t] = w_man_int->GetGal(w_id);
         }
+        if (W == NULL) {
+            // should never be here
+            return;
+        }
 		x = x_vecs[t];
         
         if (is_local_joint_count) {

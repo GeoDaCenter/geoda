@@ -433,8 +433,8 @@ void LisaCoordinator::StandardizeData()
 void LisaCoordinator::Calc()
 {
     wxLogMessage("Entering LisaCoordinator::Calc()");
-    double *data1;
-    double *data2;
+    double *data1 = NULL;
+    double *data2 = NULL;
     int* cluster;
     
 	for (int t=0; t<num_time_vals; t++) {
@@ -500,19 +500,24 @@ void LisaCoordinator::Calc()
             
 			double Wdata = 0;
 			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2);
+                if (data2) Wdata = W[i].SpatialLag(data2);
 			} else {
-				Wdata = W[i].SpatialLag(data1);
+				if (data1) Wdata = W[i].SpatialLag(data1);
 			}
+            
 			lags[i] = Wdata;
-			localMoran[i] = data1[i] * Wdata;
+            if (data1) {
+                localMoran[i] = data1[i] * Wdata;
+            }
 				
 			// assign the cluster
 			//if (W[i].Size() > 0) {
-            if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
-            else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
-            else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
-            else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+            if (data1) {
+                if (data1[i] > 0 && Wdata < 0) cluster[i] = 4;
+                else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
+                else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
+                else cluster[i] = 1; //data1[i] > 0 && Wdata > 0
+            }
 		}
 	}
     wxLogMessage("Exiting LisaCoordinator::Calc()");

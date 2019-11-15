@@ -119,7 +119,7 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
                     } else if (brushtype == line) {
                         brush_shape = new GdaPolyLine(sel1, sel2);
                     }
-                    if (brush_shape->Contains(prev)) {
+                    if (brush_shape && brush_shape->Contains(prev)) {
                         // brushing
                         is_brushing = true;
                         remember_shiftdown = false;  // brush will cancel shift

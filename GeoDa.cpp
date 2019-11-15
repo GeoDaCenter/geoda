@@ -2093,7 +2093,7 @@ void GdaFrame::OnToolsWeightsManager(wxCommandEvent& WXUNUSED(event) )
 			return;
 		}
 	}
-	
+	// memory managed by wx
 	WeightsManFrame* f = new WeightsManFrame(this, p);
 }
 
@@ -2122,6 +2122,7 @@ void GdaFrame::OnConnectivityHistView(wxCommandEvent& event )
 {
 	boost::uuids::uuid id = GetWeightsId();
 	if (id.is_nil()) return;
+    // memory managed by wx
 	ConnectivityHistFrame* f = new ConnectivityHistFrame(this, project_p, id);
 }
 
@@ -2130,6 +2131,7 @@ void GdaFrame::OnConnectivityMapView(wxCommandEvent& event )
 	boost::uuids::uuid id = GetWeightsId("Choose Weights for Connectivity Map");
 	if (id.is_nil()) return;
     if (project_p->isTableOnly) return;
+    // memory managed by wx
     ConnectivityMapFrame* f =
 		new ConnectivityMapFrame(this, project_p, id,
 								 wxDefaultPosition,
@@ -2308,7 +2310,7 @@ void GdaFrame::OnShowCatClassif(wxCommandEvent& event)
 			return;
 		}
 	}
-	
+	// memory managed by wx
 	CatClassifFrame* dlg = new CatClassifFrame(this, project_p, false, true);
 }
 
@@ -2979,7 +2981,7 @@ void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
                             _("Dependent Var (y-axis)"));
     
 	if (dlg.ShowModal() != wxID_OK) return;
-	
+	// memory managed by wx
 	ConditionalScatterPlotFrame* subframe =
 	new ConditionalScatterPlotFrame(GdaFrame::gda_frame, project_p,
 									dlg.var_info, dlg.col_ids,
@@ -2999,7 +3001,7 @@ void GdaFrame::OnShowCartogramNewView(wxCommandEvent& WXUNUSED(event) )
 							true, false); // set second var from first
 	if (dlg.ShowModal() != wxID_OK)
         return;
-	
+	// memory managed by wx
 	CartogramNewFrame* subframe =
 		new CartogramNewFrame(GdaFrame::gda_frame, project_p,
 							  dlg.var_info, dlg.col_ids,
@@ -3097,7 +3099,7 @@ void GdaFrame::OnExploreHist(wxCommandEvent& WXUNUSED(event))
                            show_str_var);
 	if (VS.ShowModal() != wxID_OK)
         return;
-	
+	// memory managed by wx
 	HistogramFrame* f = new HistogramFrame(GdaFrame::gda_frame, project_p,
 										   VS.var_info, VS.col_ids,
                                            _("Histogram"),

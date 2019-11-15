@@ -116,10 +116,12 @@ void ConnectivityHistCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	optMenu = wxXmlResource::Get()->
 		LoadMenu("ID_CONNECTIVITY_HIST_VIEW_MENU_OPTIONS");
 	SetCheckMarks(optMenu);
-	
-	template_frame->UpdateContextMenuItems(optMenu);
-	template_frame->PopupMenu(optMenu, cp_pos + GetPosition());
-	template_frame->UpdateOptionMenuItems();
+
+    if (template_frame) {
+        template_frame->UpdateContextMenuItems(optMenu);
+        template_frame->PopupMenu(optMenu, cp_pos + GetPosition());
+        template_frame->UpdateOptionMenuItems();
+    }
 }
 
 void ConnectivityHistCanvas::SetCheckMarks(wxMenu* menu)

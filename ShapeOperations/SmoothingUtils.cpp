@@ -438,7 +438,7 @@ bool SmoothingUtils::ExtendEndpointsToBB(const std::vector<double>& X,
 		// First extend towards right.
 		// Find first point that differs from X[n-1], Y[n-1];
 		double x1=X[n-1], y1=Y[n-1];
-		double x0, y0;
+		double x0, y0; // error: never initialized
 		double x2=x1;
 		double y2=y1;
 		bool found = false;

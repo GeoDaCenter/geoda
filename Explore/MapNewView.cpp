@@ -821,6 +821,7 @@ bool MapCanvas::InitBasemap()
                                      last_scale_trans.orig_data_x_max,
                                      poCT);
         if (poCT == NULL && !orig_map->IsWGS84Valid()) {
+
             isDrawBasemap = false;
             wxStatusBar* sb = 0;
             if (template_frame) {
@@ -830,10 +831,14 @@ bool MapCanvas::InitBasemap()
                     sb->SetStatusText(s);
                 }
             }
-            delete current_map;
-            delete orig_map;
+            // clean allocated memory
+            if (screen)  delete screen;
+            if (current_map) delete current_map;
+            if (orig_map) delete orig_map;
             return false;
         } else {
+            // memory of "screen", "current_map" and "orig_map"
+            // will be managed in Basemap class
             basemap = new Gda::Basemap(basemap_item, screen, current_map,
                                        orig_map, GenUtils::GetBasemapDir(),
                                        poCT, scale_factor);
@@ -2583,26 +2588,26 @@ void MapCanvas::CreateAndUpdateCategories()
 
 		if (smoothing_type != no_smoothing) {
             for (int i=0; i<num_obs; i++) {
-                E[i] = data[0][var_info[0].time][i];
+                if (E) E[i] = data[0][var_info[0].time][i];
             }
 
 			if (var_info[0].sync_with_global_time) {
 				for (int i=0; i<num_obs; i++) {
-					E[i] = data[0][t+var_info[0].time_min][i];
+					if (E) E[i] = data[0][t+var_info[0].time_min][i];
 				}
 			} else {
 				for (int i=0; i<num_obs; i++) {
-					E[i] = data[0][var_info[0].time][i];
+					if (E) E[i] = data[0][var_info[0].time][i];
 				}
 			}
 
 			if (var_info[1].sync_with_global_time) {
 				for (int i=0; i<num_obs; i++) {
-					P[i] = data[1][t+var_info[1].time_min][i];
+					if (P) P[i] = data[1][t+var_info[1].time_min][i];
 				}
 			} else {
 				for (int i=0; i<num_obs; i++) {
-					P[i] = data[1][var_info[1].time][i];
+					if (P) P[i] = data[1][var_info[1].time][i];
 				}
 			}
 
@@ -2612,14 +2617,14 @@ void MapCanvas::CreateAndUpdateCategories()
 
 			for (int i=0; i<num_obs; i++) {
                 if (undef_res[i]) continue;
-                if (P[i] == 0) {
+                if (P && P[i] == 0) {
                     undef_res[i] = true;
                     hasZeroBaseVal = true;
                     hs[i] = false;
                 } else {
                     hs[i] = true;
                 }
-				if (P[i] <= 0) {
+				if (P && P[i] <= 0) {
 					//map_valid[t] = false;
 					map_error_message[t] = _("Error: Base values contain non-positive numbers which will result in undefined values.");
 					continue;
@@ -2649,7 +2654,9 @@ void MapCanvas::CreateAndUpdateCategories()
                                            smoothed_results, undef_res);
 			}
 			for (int i=0; i<num_obs; i++) {
-                cat_var_sorted[t].push_back(std::make_pair(smoothed_results[i],i));
+                if (smoothed_results) {
+                    cat_var_sorted[t].push_back(std::make_pair(smoothed_results[i],i));
+                }
 			}
 		} else {
             if (IS_VAR_STRING) {
@@ -2667,11 +2674,12 @@ void MapCanvas::CreateAndUpdateCategories()
         cat_var_undef.push_back(undef_res);
 	}
 
-	if (smoothing_type != no_smoothing) {
+	//if (smoothing_type != no_smoothing) {
+        // memory should be fine
 		if (P) delete [] P;
 		if (E) delete [] E;
 		if (smoothed_results) delete [] smoothed_results;
-	}
+	//}
 
 	// Sort each vector in ascending order
 	for (int t=0; t<num_time_vals; t++) {
