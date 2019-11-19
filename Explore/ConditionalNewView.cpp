@@ -791,7 +791,6 @@ ConditionalNewFrame::~ConditionalNewFrame()
 
 void ConditionalNewFrame::OnClose( wxCloseEvent& event )
 {
-    delete template_canvas;
     Destroy();
     event.Skip();
 }

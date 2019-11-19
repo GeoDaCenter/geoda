@@ -414,9 +414,8 @@ void OGRLayerProxy::DeleteField(int pos)
     // remove this field in local OGRFeature vector
     for (size_t i=0; i < data.size(); ++i) {
         OGRFeature* my_feature = data[i];
-#ifdef __linux__
-	// move to official gdal on linux, so no need to call DeleteField()
-#else
+#ifdef __WIN32__
+	// move to official gdal on linux and mac, so no need to call DeleteField()
 		my_feature->DeleteField(pos);
 #endif
     }
@@ -970,7 +969,7 @@ bool OGRLayerProxy::ReadData()
     }
 	int row_idx = 0;
 	OGRFeature *feature = NULL;
-    unordered_map<int, OGRFeature*> feature_dict;
+    boost::unordered_map<int, OGRFeature*> feature_dict;
     layer->ResetReading();
 	while ((feature = layer->GetNextFeature()) != NULL) {
         // thread feature: user can stop reading

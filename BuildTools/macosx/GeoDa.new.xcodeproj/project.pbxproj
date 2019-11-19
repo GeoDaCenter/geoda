@@ -2031,7 +2031,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -2056,6 +2056,7 @@
 					"$(OTHER_CFLAGS)",
 					"-I/Users/xun/Downloads/wx_build/lib/wx/include/osx_cocoa-unicode-static-3.1",
 					"-I/Users/xun/Downloads/wx_build/include/wx-3.1/",
+					"-I/usr/local/include",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
 					"-I./libraries/include/eigen3",
@@ -2089,7 +2090,7 @@
 					AGL,
 					"-framework",
 					WebKit,
-					/Users/xun/Downloads/json_spirit/lib/libjson_spirit.a,
+					/Users/xun/Dropbox/json_spirit/lib/libjson_spirit.a,
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_xrc-3.1.a",
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_html-3.1.a",
 					"/Users/xun/Downloads/wx_build/lib/libwx_osx_cocoau_qa-3.1.a",
@@ -2116,12 +2117,12 @@
 					"./temp/CLAPACK-3.2.1/blas.a",
 					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
 					"./temp/CLAPACK-3.2.1/lapack.a",
-					"-L./libraries/lib",
+					"-L/usr/local/lib",
 					"-lgdal",
 					"-lcurl",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.geoda;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SHARED_PRECOMPS_DIR = "";
@@ -2224,7 +2225,7 @@
 					./libraries/lib/libjson_spirit.a,
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.geoda;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SHARED_PRECOMPS_DIR = "";

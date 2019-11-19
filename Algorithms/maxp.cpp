@@ -91,7 +91,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         
         best_ss = objective_function();
         vector<vector<int> > best_regions;
-        unordered_map<int, int> best_area2region;
+        boost::unordered_map<int, int> best_area2region;
 
         int attemps = 0;
         
@@ -101,7 +101,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
         
         for (int i=0; i<initial; i++) {
             vector<vector<int> >& current_regions = regions_group[i];
-            unordered_map<int, int>& current_area2region = area2region_group[i];
+            boost::unordered_map<int, int>& current_area2region = area2region_group[i];
             
             //print_regions(current_regions);
             LOG_MSG(initial_wss[i]);
@@ -190,13 +190,13 @@ void Maxp::init_solution(int solution_idx)
     int attempts = 0;
     
     vector<vector<int> > _regions;
-    unordered_map<int, int> _area2region;
+    boost::unordered_map<int, int> _area2region;
     
     while (solving && attempts <= MAX_ATTEMPTS) {
         vector<vector<int> > regn;
         list<int> enclaves;
         list<int> candidates;
-        unordered_map<int, bool> candidates_dict;
+        boost::unordered_map<int, bool> candidates_dict;
         
         if (seeds.empty()) {
             vector<int> _candidates(num_obs);
@@ -215,8 +215,8 @@ void Maxp::init_solution(int solution_idx)
         } else {
             //nonseeds = [i for i in self.w.id_order if i not in seeds]
             // candidates.extend(nonseeds)
-            unordered_map<int, bool> cand_dict;
-            unordered_map<int, bool>::iterator it;
+            boost::unordered_map<int, bool> cand_dict;
+            boost::unordered_map<int, bool>::iterator it;
             for (int i=0; i<seeds.size(); i++) {
                 cand_dict[ seeds[i] ] = true;
             }
@@ -239,7 +239,7 @@ void Maxp::init_solution(int solution_idx)
             // try to grow it till threshold constraint is satisfied
             vector<int> region;
             region.push_back(seed);
-            unordered_map<int, bool> region_dict;
+            boost::unordered_map<int, bool> region_dict;
             region_dict[seed] = true;
             candidates_dict[seed] = false;
             
@@ -265,7 +265,7 @@ void Maxp::init_solution(int solution_idx)
                 }
             }
             if (is_floor) {
-                unordered_map<int, bool>::iterator rit;
+                boost::unordered_map<int, bool>::iterator rit;
                 vector<int> _region;
                 for (rit=region_dict.begin(); rit!=region_dict.end();rit++) {
                     if (rit->second)
@@ -283,7 +283,7 @@ void Maxp::init_solution(int solution_idx)
             break;
         }
         // self.enclaves = enclaves[:]
-        unordered_map<int, int> a2r;
+        boost::unordered_map<int, int> a2r;
         for (int i=0; i<regn.size(); i++) {
             for (int j=0; j<regn[i].size(); j++) {
                 a2r[ regn[i][j] ] = i;
@@ -404,10 +404,10 @@ void Maxp::shuffle(vector<int>& arry, uint64_t& seed)
 }
 
 
-void Maxp::simulated_annealing(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local)
+void Maxp::simulated_annealing(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, double alpha, double temperature, uint64_t seed_local)
 {
     vector<vector<int> > local_best_solution;
-    unordered_map<int, int> local_best_area2region;
+    boost::unordered_map<int, int> local_best_area2region;
     double local_best_ssd = 1;
     
     int nr = init_regions.size();
@@ -439,8 +439,8 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, unordered_map
             for (int r=0; r<nr; r++) changed_regions[r] = 0;
             for (int i=0; i<regionIds.size(); i++) {
                 int seed = regionIds[i];
-                unordered_map<int, bool>::iterator m_it, n_it;
-                unordered_map<int, bool> member_dict, neighbors_dict;
+                boost::unordered_map<int, bool>::iterator m_it, n_it;
+                boost::unordered_map<int, bool> member_dict, neighbors_dict;
                 for (int j=0; j<init_regions[seed].size();j++) {
                     int member = init_regions[seed][j];
                     member_dict[member]=true;
@@ -589,10 +589,10 @@ void Maxp::simulated_annealing(vector<vector<int> >& init_regions, unordered_map
     }
 }
 
-void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
+void Maxp::tabu_search(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, int tabuLength, uint64_t seed_local)
 {
     vector<vector<int> > local_best_solution;
-    unordered_map<int, int> local_best_area2region;
+    boost::unordered_map<int, int> local_best_area2region;
     double local_best_ssd = 0;
     
     int nr = init_regions.size();
@@ -620,8 +620,8 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
             int seed = regionIds[i];
             
             // get neighbors of current region
-            unordered_map<int, bool>::iterator m_it, n_it;
-            unordered_map<int, bool> member_dict, neighbors_dict;
+            boost::unordered_map<int, bool>::iterator m_it, n_it;
+            boost::unordered_map<int, bool> member_dict, neighbors_dict;
             
             for (int j=0; j<init_regions[seed].size();j++) {
                 int member = init_regions[seed][j];
@@ -748,7 +748,7 @@ void Maxp::tabu_search(vector<vector<int> >& init_regions, unordered_map<int, in
 }
 
 
-void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, unordered_map<int, int>& _area2region)
+void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, boost::unordered_map<int, int>& _area2region)
 {
     vector<int>& rgn = _regions[from_region];
     rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
@@ -757,7 +757,7 @@ void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& 
     _regions[to_region].push_back(area);
 }
 
-void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, unordered_map<int, int>& _area2region, vector<TabuMove>& tabu_list, int max_labu_length)
+void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& _regions, boost::unordered_map<int, int>& _area2region, vector<TabuMove>& tabu_list, int max_labu_length)
 {
     vector<int>& rgn = _regions[from_region];
     rgn.erase(remove(rgn.begin(),rgn.end(), area), rgn.end());
@@ -775,7 +775,7 @@ void Maxp::move(int area, int from_region, int to_region, vector<vector<int> >& 
     }
 }
 
-void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& init_area2region, uint64_t seed_local)
+void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, int>& init_area2region, uint64_t seed_local)
 {
     // local search AZP
     
@@ -814,8 +814,8 @@ void Maxp::swap(vector<vector<int> >& init_regions, unordered_map<int, int>& ini
             int seed = regionIds[i];
             // get neighbors
             
-            unordered_map<int, bool>::iterator m_it, n_it;
-            unordered_map<int, bool> member_dict, neighbors_dict;
+            boost::unordered_map<int, bool>::iterator m_it, n_it;
+            boost::unordered_map<int, bool> member_dict, neighbors_dict;
            
             for (int j=0; j<init_regions[seed].size();j++) {
                 int member = init_regions[seed][j];
@@ -1050,7 +1050,7 @@ bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
 {
     //Check if the set of ids form a single connected component
     int components = 0;
-    unordered_map<int, int> marks;
+    boost::unordered_map<int, int> marks;
     for (int i=0; i<ids.size(); i++) marks[ids[i]] = 0;
     
     list<int> q;
@@ -1090,7 +1090,7 @@ bool Maxp::check_contiguity(const GalElement* w, vector<int>& ids, int leaver)
     //ids.erase(remove(ids.begin(),ids.end(), leaver), ids.end());
     //return is_component(w, ids);
     list<int> q;
-    unordered_map<int, bool> marks;
+    boost::unordered_map<int, bool> marks;
     for (int i=0; i<ids.size(); i++) {
         if (ids[i]!=leaver) {
             marks[ids[i]] = false;
@@ -1117,7 +1117,7 @@ bool Maxp::check_contiguity(const GalElement* w, vector<int>& ids, int leaver)
             }
         }
     }
-    unordered_map<int, bool>::iterator it;
+    boost::unordered_map<int, bool>::iterator it;
     for (it=marks.begin(); it!=marks.end(); it++) {
         if (it->second == false)
             return false;

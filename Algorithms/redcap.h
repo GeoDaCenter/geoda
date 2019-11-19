@@ -105,7 +105,7 @@ namespace SpanningTreeClustering {
                 n2 = nbr;
                 e2 = e;
             } else {
-                cout << "AddNeighbor() > 2" << endl;
+                //cout << "AddNeighbor() > 2" << endl;
             }
         }
     };
