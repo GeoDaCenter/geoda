@@ -191,29 +191,57 @@ void GalElement::SortNbrs()
 
 /** Compute spatial lag for a contiguity weights matrix.
  Automatically performs standardization of the result. */
-double GalElement::SpatialLag(const std::vector<double>& x) const
+double GalElement::SpatialLag(const std::vector<double>& x, bool is_binary) const
 {
 	double lag = 0;
 	size_t sz = Size();
-   
-    for (size_t i=0; i<sz; ++i) {
-        lag += x[nbr[i]];
+
+    if (is_binary) {
+        for (size_t i=0; i<sz; ++i) {
+            lag += x[nbr[i]];
+        }
+        if (sz>1) lag /= (double) sz;
+    } else {
+        double sumW = 0;
+        for (size_t i=0; i<sz; ++i) {
+            sumW += nbrWeight[i];
+        }
+
+        if (sumW == 0)
+            lag = 0;
+        else {
+            for (size_t i=0; i<sz; ++i) {
+                lag += x[nbr[i]] * nbrWeight[i] / sumW;
+            }
+        }
     }
-    if (sz>1) lag /= (double) sz;
-	
 	return lag;
 }
 
 /** Compute spatial lag for a contiguity weights matrix.
  Automatically performs standardization of the result. */
-double GalElement::SpatialLag(const double *x) const
+double GalElement::SpatialLag(const double *x, bool is_binary) const
 {
 	double lag = 0;
 	size_t sz = Size();
-    
-    for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
-    if (sz>1) lag /= (double) sz;
 
+    if (is_binary) {
+        for (size_t i=0; i<sz; ++i) lag += x[nbr[i]];
+        if (sz>1) lag /= (double) sz;
+    } else {
+        double sumW = 0;
+        for (size_t i=0; i<sz; ++i) {
+            sumW += nbrWeight[i];
+        }
+
+        if (sumW == 0)
+            lag = 0;
+        else {
+            for (size_t i=0; i<sz; ++i) {
+                lag += x[nbr[i]] * nbrWeight[i] / sumW;
+            }
+        }
+    }
 	return lag;
 }
 

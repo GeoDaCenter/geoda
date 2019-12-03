@@ -41,8 +41,8 @@ public:
 	void SortNbrs();
 	long Size() const { return nbr.size(); }
 	long operator[](size_t n) const { return nbr[n]; }
-	double SpatialLag(const std::vector<double>& x) const;
-	double SpatialLag(const double* x) const;
+	double SpatialLag(const std::vector<double>& x, bool is_binary=true) const;
+	double SpatialLag(const double* x, bool is_binary=true) const;
 	double SpatialLag(const std::vector<double>& x, const int* perm) const;
     double GetRW(int idx);
     bool   Check(long nbrIdx);

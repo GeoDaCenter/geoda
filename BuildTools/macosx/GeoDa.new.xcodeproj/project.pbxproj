@@ -2056,8 +2056,8 @@
 					"$(OTHER_CFLAGS)",
 					"-I/Users/xun/Downloads/wx_build/lib/wx/include/osx_cocoa-unicode-static-3.1",
 					"-I/Users/xun/Downloads/wx_build/include/wx-3.1/",
-					"-I/usr/local/include",
 					"-I./libraries/include/boost",
+					"-I/usr/local/include",
 					"-I./libraries/include",
 					"-I./libraries/include/eigen3",
 					"-D_FILE_OFFSET_BITS=64",
@@ -2071,6 +2071,7 @@
 				OTHER_LDFLAGS = (
 					./libraries/include/boost/stage/lib/libboost_date_time.a,
 					./libraries/include/boost/stage/lib/libboost_system.a,
+					./libraries/include/boost/stage/lib/libboost_chrono.a,
 					./libraries/include/boost/stage/lib/libboost_thread.a,
 					"-framework",
 					OpenCL,
