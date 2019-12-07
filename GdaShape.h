@@ -485,6 +485,7 @@ public:
 	virtual void applyScaleTrans(const GdaScaleTrans& A);
 	virtual void paintSelf(wxDC& dc);
 	virtual void paintSelf(wxGraphicsContext* gc);
+    virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1);
     
 	static wxPoint calcRefPoint(wxDC& dc, const wxString& text,
 								const wxFont& font,
@@ -497,7 +498,7 @@ public:
 	void setText(wxString t) { text = t; }
 	wxString text;
 	wxFont font;
-	wxRealPoint ref_pt;
+	wxPoint ref_pt;
 	HorizAlignment horiz_align;
 	VertAlignment vert_align;
 	bool hidden;

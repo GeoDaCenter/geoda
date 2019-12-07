@@ -2336,6 +2336,51 @@ void MapCanvas::PopulateCanvas()
             foreground_shps.push_back(bg);
         }
     }
+    
+    if (GdaConst::gda_draw_map_labels) {
+        // draw text labels
+        if (var_info.size() > 0) {
+            const GdaVarTools::VarInfo& vi = var_info[0];
+            if (table_int) {
+                int col_idx = table_int->GetColIdx(vi.name);
+                int time_idx = vi.time;
+                std::vector<wxString> labels;
+                GdaConst::FieldType col_type = table_int->GetColType(col_idx, time_idx);
+                if (col_type == GdaConst::long64_type) {
+                    std::vector<wxInt64> lbl_data;
+                    table_int->GetColData(col_idx, time_idx, lbl_data);
+                    labels.resize(lbl_data.size());
+                    for (size_t i=0; i<lbl_data.size(); ++i) {
+                        labels[i] << lbl_data[i];
+                    }
+                } else if (col_type == GdaConst::double_type) {
+                    std::vector<double> lbl_data;
+                    table_int->GetColData(col_idx, time_idx, lbl_data);
+                    labels.resize(lbl_data.size());
+                    for (size_t i=0; i<lbl_data.size(); ++i) {
+                        labels[i] << GenUtils::DblToStr(lbl_data[i]);
+                    }
+                } else {
+                    table_int->GetColData(col_idx, time_idx, labels);
+                }
+                const vector<GdaPoint*>& c = project->GetCentroids();
+                int font_sz = GdaConst::gda_map_label_font_size;
+                wxFont* font = wxFont::New(font_sz, wxFONTFAMILY_SWISS,
+                                           wxFONTSTYLE_NORMAL,
+                                           wxFONTWEIGHT_NORMAL, false,
+                                           wxEmptyString,
+                                           wxFONTENCODING_DEFAULT);
+                for (size_t i=0; i<labels.size(); ++i) {
+                    GdaShapeText* lbl =
+                    new GdaShapeText(labels[i], *font,
+                                     wxRealPoint(c[i]->GetX(), c[i]->GetY()),
+                                     0, GdaShapeText::h_center,
+                                     GdaShapeText::v_center, 0, 0);
+                    foreground_shps.push_back(lbl);
+                }
+            }
+        }
+    }
 
 	if ( map_valid[canvas_ts] ) {
 		if (full_map_redraw_needed) {
@@ -2381,6 +2426,7 @@ void MapCanvas::PopulateCanvas()
                 // use centroids to draw graph
                 CreateConnectivityGraph();
             }
+            
 		}
 	} else {
 		wxRealPoint cntr_ref_pnt = last_scale_trans.GetDataCenter();

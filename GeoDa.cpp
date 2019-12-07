@@ -1638,6 +1638,7 @@ void GdaFrame::OnChangeMapTransparency(wxCommandEvent& event)
     if (f)
         f->OnChangeMapTransparency();
 }
+
 void GdaFrame::OnCleanBasemap(wxCommandEvent& event)
 {
     wxLogMessage("Click GdaFrame::OnCleanBasemap");

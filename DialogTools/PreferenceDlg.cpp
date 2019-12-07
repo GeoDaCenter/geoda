@@ -196,9 +196,19 @@ void PreferenceDlg::Init()
     }
 	cmb33->SetSelection(0);
 	cmb33->Bind(wxEVT_COMBOBOX, &PreferenceDlg::OnChoice3, this);
-
-	grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
-	grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
+    grid_sizer1->Add(lbl_txt3, 1, wxEXPAND);
+    grid_sizer1->Add(cmb33, 0, wxALIGN_RIGHT);
+    
+    grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Draw the values of selected variable on map (input font size):")), 1,
+        wxEXPAND);
+    wxBoxSizer* box29 = new wxBoxSizer(wxHORIZONTAL);
+    cbox_lbl = new wxCheckBox(vis_page, XRCID("PREF_DRAW_LABELS"), "", pos);
+    txt_lbl_font = new wxTextCtrl(vis_page, XRCID("PREF_DRAW_LABEL_FONT_SIZE"), "8", pos, wxSize(85, -1), txt_num_style);
+    box29->Add(cbox_lbl);
+    box29->Add(txt_lbl_font);
+    grid_sizer1->Add(box29, 0, wxALIGN_RIGHT);
+    cbox_lbl->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnDrawLabels, this);
+    txt_lbl_font->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnLabelFontSizeEnter, this);
 
 	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("Plots:")), 1,
                      wxTOP | wxBOTTOM, 10);
@@ -237,11 +247,6 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(lbl_txt7, 1, wxEXPAND);
 	grid_sizer1->Add(box7, 0, wxALIGN_RIGHT);
 	slider7->Bind(wxEVT_SLIDER, &PreferenceDlg::OnSlider7, this);
-
-
-	grid_sizer1->Add(new wxStaticText(vis_page, wxID_ANY, _("System:")), 1,
-		wxTOP | wxBOTTOM, 10);
-	grid_sizer1->AddSpacer(10);
 
 
     wxString lbl113 = _("Language:");
@@ -459,6 +464,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gda_use_gpu = false;
     GdaConst::gda_ui_language = 0;
     GdaConst::gda_eigen_tol = 1.0E-8;
+    GdaConst::gda_draw_map_labels = false;
+    GdaConst::gda_map_label_font_size = 8;
 	GdaConst::gda_set_cpu_cores = true;
 	GdaConst::gda_cpu_cores = 8;
 	GdaConst::use_cross_hatching = false;
@@ -522,6 +529,8 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     ogr_adapt.AddEntry("gda_displayed_decimals", "6");
     ogr_adapt.AddEntry("gda_enable_set_transparency_windows", "0");
     ogr_adapt.AddEntry("gda_create_csvt", "0");
+    ogr_adapt.AddEntry("gda_draw_map_labels", "0");
+    ogr_adapt.AddEntry("gda_map_label_font_size", "8");
 }
 
 void PreferenceDlg::SetupControls()
@@ -576,6 +585,11 @@ void PreferenceDlg::SetupControls()
     cbox26->SetValue(GdaConst::gda_enable_set_transparency_windows);
 
     cbox_csvt->SetValue(GdaConst::gda_create_csvt);
+    
+    cbox_lbl->SetValue(GdaConst::gda_draw_map_labels);
+    wxString t_lbl_font_size;
+    t_lbl_font_size << GdaConst::gda_map_label_font_size;
+    txt_cores->SetValue(t_lbl_font_size);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -840,6 +854,26 @@ void PreferenceDlg::ReadFromCache()
         }
     }
 
+    vector<wxString> gda_draw_map_labels = ogr_adapt.GetHistory("gda_draw_map_labels");
+    if (!gda_draw_map_labels.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_draw_map_labels[0];
+        if (sel.ToLong(&sel_l)) {
+            if (sel_l == 1)
+                GdaConst::gda_draw_map_labels = true;
+            else if (sel_l == 0)
+                GdaConst::gda_draw_map_labels = false;
+        }
+    }
+    vector<wxString> gda_map_label_font_size = ogr_adapt.GetHistory("gda_map_label_font_size");
+    if (!gda_map_label_font_size.empty()) {
+        long sel_l = 0;
+        wxString sel = gda_map_label_font_size[0];
+        if (sel.ToLong(&sel_l)) {
+            GdaConst::gda_map_label_font_size = sel_l;
+        }
+    }
+    
     // following are not in this UI, but still global variable
     vector<wxString> gda_user_email = ogr_adapt.GetHistory("gda_user_email");
     if (!gda_user_email.empty()) {
@@ -1171,8 +1205,32 @@ void PreferenceDlg::OnCPUCoresEnter(wxCommandEvent& ev)
     wxString val = txt_cores->GetValue();
     long _val;
     if (val.ToLong(&_val)) {
-        GdaConst::gda_cpu_cores = _val;
+        GdaConst::gda_cpu_cores = (int)_val;
         OGRDataAdapter::GetInstance().AddEntry("gda_cpu_cores", val);
+    }
+}
+
+void PreferenceDlg::OnDrawLabels(wxCommandEvent& ev)
+{
+    int sel = ev.GetSelection();
+    if (sel == 0) {
+        GdaConst::gda_draw_map_labels = false;
+        OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "0");
+        txt_cores->Disable();
+    }
+    else {
+        GdaConst::gda_draw_map_labels = true;
+        OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "1");
+        txt_cores->Enable();
+    }
+}
+void PreferenceDlg::OnLabelFontSizeEnter(wxCommandEvent& ev)
+{
+    wxString val = txt_lbl_font->GetValue();
+    long _val;
+    if (val.ToLong(&_val)) {
+        GdaConst::gda_map_label_font_size = (int)_val;
+        OGRDataAdapter::GetInstance().AddEntry("gda_map_label_font_size", val);
     }
 }
 

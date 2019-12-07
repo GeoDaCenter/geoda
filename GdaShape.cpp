@@ -2150,6 +2150,15 @@ bool GdaShapeText::pointWithin(const wxPoint& pt)
 	return GdaShapeAlgs::pointInPolygon(pt, 5, bb_poly);
 }
 
+void GdaShapeText::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
+{
+    basemap->LatLngToXY(ref_pt_o.x, ref_pt_o.y, ref_pt.x, ref_pt.y);
+    if (scale_factor != 1) {
+        ref_pt.x = ref_pt.x * scale_factor;
+        ref_pt.y = ref_pt.y * scale_factor;
+    }
+}
+
 void GdaShapeText::paintSelf(wxDC& dc)
 {
 	//LOG_MSG("Entering GdaShapeText::paintSelf");
@@ -2231,6 +2240,8 @@ void GdaShapeText::GetSize(wxDC& dc, int& w, int& h)
 
 void GdaShapeText::applyScaleTrans(const GdaScaleTrans& A)
 {
+    GdaShape::applyScaleTrans(A); // apply affine transform to base class
+   
 	A.transform(ref_pt_o, &ref_pt);
 	// adjust degs_rot_cc_from_horiz according to A.scale_x and A.scale_y
 	// begin by calculating the unit vector that represents

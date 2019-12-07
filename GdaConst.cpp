@@ -319,6 +319,8 @@ wxFont* GdaConst::small_font = 0;
 wxFont* GdaConst::medium_font = 0;
 wxFont* GdaConst::large_font = 0;
 
+bool GdaConst::gda_draw_map_labels = false;
+int GdaConst::gda_map_label_font_size = 6;
 bool GdaConst::gda_create_csvt = false;
 bool GdaConst::gda_enable_set_transparency_windows = false;
 int GdaConst::default_display_decimals = 6; // move in preference
