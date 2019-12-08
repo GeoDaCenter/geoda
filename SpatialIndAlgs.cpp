@@ -705,6 +705,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
             
         }
 		GwtElement& e = Wp->gwt[obs];
+        if (!kernel.IsEmpty()) lcnt += 1;
 		e.alloc(lcnt);
 		BOOST_FOREACH(pt_2d_val const& w, l) {
 			GwtNeighbor neigh;
@@ -716,6 +717,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_2d_t& rtree, double th, d
 			e.Push(neigh);
 			++cnt;
 		}
+        if (!kernel.IsEmpty()) {
+            // add diagonal item: ii
+            GwtNeighbor neigh;
+            neigh.nbx = obs;
+            neigh.weight = 1;
+            e.Push(neigh);
+        }
 	}
 
     if (!kernel.IsEmpty()) {
@@ -815,6 +823,7 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 			}
 		}
 		GwtElement& e = Wp->gwt[obs];
+        if (!kernel.IsEmpty()) lcnt += 1;
 		e.alloc(lcnt);
 		BOOST_FOREACH(pt_3d_val const& w, l) {
 			GwtNeighbor neigh;
@@ -836,6 +845,13 @@ GwtWeight* SpatialIndAlgs::thresh_build(const rtree_pt_3d_t& rtree, double th, d
 			e.Push(neigh);
 			++cnt;
 		}
+        if (!kernel.IsEmpty()) {
+            // add diagonal item: ii
+            GwtNeighbor neigh;
+            neigh.nbx = obs;
+            neigh.weight = 1;
+            e.Push(neigh);
+        }
 	}
 
 	stringstream ss;
