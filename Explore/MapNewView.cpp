@@ -907,6 +907,8 @@ void MapCanvas::resizeLayerBms(int width, int height)
     GetClientSize(&vs_w, &vs_h);
     if (width > 0) vs_w = width;
     if (height >0 ) vs_h = height;
+    if (vs_w <= 0) vs_w = 1;
+    if (vs_h <= 0) vs_h = 1;
     basemap_bm = new wxBitmap(vs_w, vs_h, 32);
     layer0_bm = new wxBitmap(vs_w, vs_h, 32);
     layer1_bm = new wxBitmap(vs_w, vs_h, 32);
