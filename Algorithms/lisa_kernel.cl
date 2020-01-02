@@ -14,6 +14,19 @@ float wang_rnd(uint seed)
     return ((float)seed)/(float)maxint;
 }
 
+double ThomasWangHashDouble(ulong key);
+double ThomasWangHashDouble(ulong key)
+{
+    key = (~key) + (key << 21); // key = (key << 21) - key - 1;
+    key = key ^ (key >> 24);
+    key = (key + (key << 3)) + (key << 8); // key * 265
+    key = key ^ (key >> 14);
+    key = (key + (key << 2)) + (key << 4); // key * 21
+    key = key ^ (key >> 28);
+    key = key + (key << 31);
+    return 5.42101086242752217E-20 * key;
+}
+
 __kernel void lisa(const int n, const int permutations, const unsigned long last_seed, __global double *values,  __global double *local_moran,  __global int *num_nbrs, __global int *nbr_idx, __global double *p) {
     
     // Get the index of the current element
@@ -48,7 +61,7 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     double permutedLag =0;
     double localMoranPermuted=0;
     size_t countLarger = 0;
-    
+
     size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
     
     for (perm=0; perm<permutations; perm++ ) {
@@ -56,7 +69,7 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
         permutedLag =0;
         while (rand < numNeighbors) {
             is_valid = true;
-            rng_val = wang_rnd(seed_start++) * max_rand;
+            rng_val = ThomasWangHashDouble(seed_start++) * max_rand;
             newRandom = (int)rng_val;
           
             if (newRandom != i ) {
