@@ -233,7 +233,7 @@ vector<wxString> OGRDatasourceProxy::GetLayerNames()
 
 OGRLayerProxy* OGRDatasourceProxy::ExecuteSQL(wxString _sql)
 {
-    if (ds->GetAccess() == GA_ReadOnly) return NULL;
+    if (is_writable == false) return NULL;
     
     const char * sql = (const char*) _sql.mb_str(wxConvUTF8);
 	OGRLayer* tmp_layer = ds->ExecuteSQL(sql,  0, 0);
