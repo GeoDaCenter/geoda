@@ -489,7 +489,7 @@ const wxColour GdaConst::three_d_plot_default_highlight_colour(255, 255, 0);
 const wxColour GdaConst::three_d_plot_default_point_colour(255, 255, 255);
 // black
 const wxColour GdaConst::three_d_plot_default_background_colour(0, 0, 0);
-const wxSize GdaConst::three_d_default_size(700, 500);
+const wxSize GdaConst::three_d_default_size(820, 620);
 
 // Boxplot
 const wxSize GdaConst::boxplot_default_size(380, 500);

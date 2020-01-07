@@ -31,6 +31,7 @@
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/mds.h"
 #include "../Explore/ScatterNewPlotView.h"
+#include "../Explore/3DPlotView.h"
 #include "SaveToTableDlg.h"
 #include "MDSDlg.h"
 
@@ -229,7 +230,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
   
-    int new_col = 2;
+    int new_col = 3;
     vector<vector<double> > results;
     
     if (chk_poweriteration->IsChecked()) {
@@ -252,13 +253,13 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         str_iterations = txt_poweriteration->GetValue();
         long l_iterations = 0;
         str_iterations.ToLong(&l_iterations);
-        FastMDS mds(distances, 2, (int)l_iterations);
+        FastMDS mds(distances, 3, (int)l_iterations);
         results = mds.GetResult();
         
     } else {
         results.resize(new_col);
         for (int i=0; i<new_col; i++) results[i].resize(rows);
-        double** rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, 2);
+        double** rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, new_col);
         for (int i=0; i<new_col; i++) {
             for (int j = 0; j < rows; ++j) {
                 results[i][j] = rst[j][i];
@@ -296,9 +297,14 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             // show in a scatter plot
             std::vector<int>& new_col_ids = dlg.new_col_ids;
             std::vector<wxString>& new_col_names = dlg.new_col_names;
-            
+
+            // at least 2 variables
+            if (new_col_ids.size() < 2) return;
+
+            int num_new_vars = new_col_ids.size();
+
             std::vector<GdaVarTools::VarInfo> new_var_info;
-            new_var_info.resize(2);
+            new_var_info.resize(num_new_vars);
             
             new_var_info[0].time = 0;
             // Set Primary GdaVarTools::VarInfo attributes
@@ -315,18 +321,39 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             table_int->GetMinMaxVals(new_col_ids[1], new_var_info[1].min, new_var_info[1].max);
             new_var_info[1].sync_with_global_time = new_var_info[1].is_time_variant;
             new_var_info[1].fixed_scale = true;
+
+            if (num_new_vars == 2) {
+                wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
-            wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
-            
-            MDSPlotFrame* subframe =
-            new MDSPlotFrame(parent, project,
+                MDSPlotFrame* subframe =
+                new MDSPlotFrame(parent, project,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
                                     wxDEFAULT_FRAME_STYLE);
-            wxCommandEvent ev;
-            subframe->OnViewLinearSmoother(ev);
-            subframe->OnDisplayStatistics(ev);
+                wxCommandEvent ev;
+                subframe->OnViewLinearSmoother(ev);
+                subframe->OnDisplayStatistics(ev);
+
+            } else if (num_new_vars == 3) {
+
+                new_var_info[2].time = 0;
+                // Set Primary GdaVarTools::VarInfo attributes
+                new_var_info[2].name = new_col_names[2];
+                new_var_info[2].is_time_variant = table_int->IsColTimeVariant(new_col_ids[2]);
+                table_int->GetMinMaxVals(new_col_ids[2], new_var_info[2].min, new_var_info[2].max);
+                new_var_info[2].sync_with_global_time = new_var_info[2].is_time_variant;
+                new_var_info[2].fixed_scale = true;
+
+                wxString title = _("MDS 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
+
+                C3DPlotFrame *subframe =
+                new C3DPlotFrame(parent, project,
+                                 new_var_info, new_col_ids,
+                                 title, wxDefaultPosition,
+                                 GdaConst::three_d_default_size,
+                                 wxDEFAULT_FRAME_STYLE);
+            }
         }
 
     }

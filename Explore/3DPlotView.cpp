@@ -30,6 +30,8 @@
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/3DControlPan.h"
 #include "../FramesManager.h"
+#include "../VarCalc/WeightsManInterface.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "Geom3D.h"
 #include "../GdaConst.h"
 #include "../GeneralWxUtils.h"
@@ -62,9 +64,13 @@ var_info(v_info),
 data(v_info.size()),
 data_undef(v_info.size()),
 scaled_d(v_info.size()),
-c3d_plot_frame(t_frame)
+c3d_plot_frame(t_frame),
+ShowNeighbors(true),
+ShowConnections(true),
+quality(10), radius(0.03)
 {
     wxLogMessage("Open C3DPlotCanvas.");
+
     hs = highlight_state->GetHighlight();
 	m_context = new wxGLContext(this);
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
@@ -647,6 +653,8 @@ void C3DPlotCanvas::SetCanvasBackgroundColor(wxColour color)
 
 void C3DPlotCanvas::RenderScene()
 {
+    glEnable(GL_LINE_SMOOTH);
+
 	int xt = var_info[0].time;
 	int yt = var_info[1].time;
 	int zt = var_info[2].time;
@@ -654,19 +662,9 @@ void C3DPlotCanvas::RenderScene()
 	GLUquadric* myQuad = 0;
 	myQuad = gluNewQuadric();
 	if (m_d) {
-		//glColor3f(1.0, 1.0, 1.0);
-		glColor3f(((GLfloat) selectable_fill_color.Red())/((GLfloat) 255.0),
-				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
-				  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
-		for (int i=0; i<num_obs; i++) {
-			if (all_undefs[i]) continue;
-			if (hs[i]) continue;
-			glPushMatrix();
-			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
-						 scaled_d[2][zt][i]);
-			gluSphere(myQuad, 0.03, 5, 5); 	
-			glPopMatrix();
-		}
+        std::vector<bool> draw_pts(num_obs, false);
+
+        // draw highlighted points
 		//glColor3f(1.0, 1.0, 0.0);
 		glColor3f(((GLfloat) highlight_color.Red())/((GLfloat) 255.0),
 				  ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
@@ -674,17 +672,98 @@ void C3DPlotCanvas::RenderScene()
 		for (int i=0; i<num_obs; i++) {
 			if (all_undefs[i]) continue;
 			if (!hs[i]) continue;
+            draw_pts[i] = true;
 			glPushMatrix();
 			glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
 						 scaled_d[2][zt][i]);
-			gluSphere(myQuad, 0.03, 5, 5); 	
+			gluSphere(myQuad, radius, quality, quality);
 			glPopMatrix();
 		}
-		
+
+        if (ShowNeighbors) {
+            // weights
+            WeightsManInterface* w_man_int = project->GetWManInt();
+            boost::uuids::uuid weights_id = w_man_int->GetDefault();
+            GalWeight* gal_weights = w_man_int->GetGal(weights_id);
+            if (gal_weights) {
+                // Enable blending
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                // connection lines
+                if (ShowConnections) {
+                    glDisable(GL_LIGHTING);
+                    glDepthMask(false);
+                    glColor4f(((GLfloat) selectable_fill_color.Red())/((GLfloat) 255.0),
+                              ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
+                              ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0),
+                              0.4);
+
+                    for (int i=0; i<num_obs; i++) {
+                        if (all_undefs[i]) continue;
+                        if (!hs[i]) continue;
+
+                        GalElement& e = gal_weights->gal[i];
+                        for (int j=0, jend=e.Size(); j<jend; j++) {
+                            int obs = e[j];
+                            if (i != obs) {
+                                glBegin(GL_LINES);
+                                glVertex3f(scaled_d[0][xt][i], scaled_d[1][yt][i],
+                                           scaled_d[2][zt][i]);
+                                glVertex3f(scaled_d[0][xt][obs], scaled_d[1][yt][obs],
+                                           scaled_d[2][zt][obs]);
+                                glEnd();
+                            }
+                        }
+                    }
+                    glDepthMask(true);
+                    glEnable(GL_LIGHTING);
+                }
+                // neighbors
+                glColor4f(((GLfloat) highlight_color.Red())/((GLfloat) 255.0),
+                          ((GLfloat) highlight_color.Green())/((GLfloat) 255.0),
+                          ((GLfloat) highlight_color.Blue())/((GLfloat) 255.0),
+                          0.4);
+                for (int i=0; i<num_obs; i++) {
+                    if (all_undefs[i]) continue;
+                    if (!hs[i]) continue;
+
+                    GalElement& e = gal_weights->gal[i];
+                    for (int j=0, jend=e.Size(); j<jend; j++) {
+                        int obs = e[j];
+                        if (i != obs) {
+                            draw_pts[obs] = true;
+                            glPushMatrix();
+                            glTranslatef(scaled_d[0][xt][obs], scaled_d[1][yt][obs],
+                                         scaled_d[2][zt][obs]);
+                            gluSphere(myQuad, radius, quality, quality);
+                            glPopMatrix();
+                        }
+                    }
+                }
+            }
+        }
+
+        // draw rest points
+        //glColor3f(1.0, 1.0, 1.0);
+        glColor3f(((GLfloat) selectable_fill_color.Red())/((GLfloat) 255.0),
+                  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
+                  ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0));
+        for (int i=0; i<num_obs; i++) {
+            if (all_undefs[i]) continue;
+            if (hs[i]) continue;
+            if (draw_pts[i]) continue;
+
+            glPushMatrix();
+            glTranslatef(scaled_d[0][xt][i], scaled_d[1][yt][i],
+                         scaled_d[2][zt][i]);
+            gluSphere(myQuad, radius, quality, quality);     // radius, slices, stacks
+            glPopMatrix();
+        }
 	}
 
 	glDisable(GL_LIGHTING);
 	if (m_x) {
+        // draw y-z panel
 		//glColor3f(0.75, 0.75, 0.75);
 		glColor3f(((GLfloat) selectable_fill_color.Red())/((GLfloat) 255.0),
 				  ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
@@ -695,7 +774,7 @@ void C3DPlotCanvas::RenderScene()
 			glPushMatrix();
 			glTranslatef(-1, scaled_d[1][yt][i], scaled_d[2][zt][i]);
 			glRotatef(90, 0.0, 1.0, 0.0);	
-			gluDisk(myQuad, 0, 0.02, 5, 3);
+			gluDisk(myQuad, 0, 0.02, 5, 3); // inner, outer, slices, loops
 			glPopMatrix();
 		}
 		//glColor3f(1.0, 1.0, 0.0);
@@ -771,6 +850,7 @@ void C3DPlotCanvas::RenderScene()
 	glEnable(GL_LIGHTING);
 
 	if (b_select) {
+        // select box
 		double minx = xp - xs;
 		double maxx = xp + xs;
 		double miny = yp - ys;
@@ -778,7 +858,7 @@ void C3DPlotCanvas::RenderScene()
 		double minz = zp - zs;
 		double maxz = zp + zs;
 		glDisable(GL_LIGHTING);
-		glLineWidth(2.0);
+		//glLineWidth(2.0);
 		glColor3f(1.0, 0.0, 0.0);
 		glBegin(GL_LINES);
 			glVertex3f(maxx,maxy,maxz);
@@ -809,7 +889,8 @@ void C3DPlotCanvas::RenderScene()
 		glEnable(GL_LIGHTING);
 	}
 
-	glLineWidth(3.0);
+    // draw text: x,y,z
+	glLineWidth(2.0);
 
 	glColor3f((GLfloat) 0.95,(GLfloat) 0.0,(GLfloat) 0.95);
 	glDisable(GL_LIGHTING);
@@ -849,6 +930,7 @@ void C3DPlotCanvas::RenderScene()
 		glVertex3f((GLfloat) -1.0,(GLfloat) -0.9,(GLfloat) 1.1);		
 	glEnd();
 
+    // extent box
 	glLineWidth(1.0);
 	glColor3f(1.0, 1.0, 1.0);
 	glBegin(GL_LINES);

@@ -1,7 +1,11 @@
 #include <stdio.h>
+#include <string>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <math.h>
 #include <stdlib.h>
+#include <boost/algorithm/string/replace.hpp>
 #include "../ShapeOperations/GalWeight.h"
 #ifdef __linux__
 // do nothing; we got opencl sdk issue on centos
@@ -28,7 +32,7 @@ bool gpu_localjoincount(const char* cl_path, int rows, int permutations, unsigne
 
 using namespace std;
 
-char *replace_str(char *str, char *orig, char *rep, int start)
+char *replace_str(char *str, char *orig, const char *rep, int start)
 {
     static char temp[4096];
     static char buffer[4096];
@@ -76,30 +80,19 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     }
     
     // Load the kernel source code into the array source_str
-    FILE *fp;
-    char *source_str;
-    size_t source_size;
-    
-    fp = fopen(cl_path, "r");
-    if (!fp) {
-        if (num_nbrs) delete[] num_nbrs;
-        delete[] nbr_idx;
-        fprintf(stderr, "Failed to load kernel.\n");
-        return false;
-    }
-    source_str = (char*)malloc(MAX_SOURCE_SIZE);
-    source_size = fread( source_str, 1, MAX_SOURCE_SIZE, fp);
-    fclose( fp );
-    
+    std::ifstream t(cl_path);
+    std::stringstream buffer;
+    buffer << t.rdbuf();
+    std::string src_code(buffer.str());
+
     // replace 123 with max_n_nbrs
-    char msg[25];
-#ifdef __WIN32__
-    _snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
-#else
-	snprintf(msg, sizeof(msg), "%d", max_n_nbrs);
-#endif
-    replace_str(source_str, "123", msg, 0);
-    source_size = strlen(source_str);
+    //if (max_n_nbrs * 2 < 500) max_n_nbrs = 500;
+    std::ostringstream s;
+    s << max_n_nbrs * 2;
+    boost::replace_all(src_code, "123", s.str());
+
+    char *source_str = strdup(src_code.c_str());
+    size_t source_size = strlen(source_str);
     
     // Get platform and device information
     cl_platform_id platform_id = NULL;

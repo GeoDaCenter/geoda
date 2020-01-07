@@ -21,6 +21,7 @@
 #define __GEODA_CENTER_3D_PLOT_VIEW_H__
 
 #include <wx/glcanvas.h>
+#include <wx/splitter.h>
 #include "../FramesManagerObserver.h"
 #include "../HLStateInt.h"
 #include "../HighlightStateObserver.h"
@@ -96,6 +97,10 @@ public:
 	Arcball* ball;
 	double xs, xp, ys, yp, zs, zp;
 
+    int quality;
+    double radius;
+    bool ShowNeighbors;
+    bool ShowConnections;
 	bool ShowFirst;
 	bool m_d;
 	bool m_z;

@@ -3214,6 +3214,9 @@ void GdaFrame::OnExplorePCP(wxCommandEvent& WXUNUSED(event))
 
 void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 {
+    //MyFrame* subframe = new MyFrame("rwar");
+    //subframe->Show();
+
     Project* p = GetProject();
     if (!p) return;
     
