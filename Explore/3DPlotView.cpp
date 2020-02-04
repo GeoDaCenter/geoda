@@ -67,7 +67,7 @@ scaled_d(v_info.size()),
 c3d_plot_frame(t_frame),
 ShowNeighbors(true),
 ShowConnections(true),
-quality(10), radius(0.03)
+quality(10), radius(0.03), linewidth(1.0)
 {
     wxLogMessage("Open C3DPlotCanvas.");
 
@@ -76,7 +76,8 @@ quality(10), radius(0.03)
 	selectable_fill_color = GdaConst::three_d_plot_default_point_colour;
 	highlight_color = GdaConst::three_d_plot_default_highlight_colour;
 	canvas_background_color=GdaConst::three_d_plot_default_background_colour;
-	
+	linecolor = GdaConst::three_d_plot_default_point_colour;
+
 	data_stats.resize(var_info.size());
 	var_min.resize(var_info.size());
 	var_max.resize(var_info.size());
@@ -693,11 +694,11 @@ void C3DPlotCanvas::RenderScene()
                 if (ShowConnections) {
                     glDisable(GL_LIGHTING);
                     glDepthMask(false);
-                    glColor4f(((GLfloat) selectable_fill_color.Red())/((GLfloat) 255.0),
-                              ((GLfloat) selectable_fill_color.Green())/((GLfloat) 255.0),
-                              ((GLfloat) selectable_fill_color.Blue())/((GLfloat) 255.0),
-                              0.4);
-
+                    glColor4f(((GLfloat) linecolor.Red())/((GLfloat) 255.0),
+                              ((GLfloat) linecolor.Green())/((GLfloat) 255.0),
+                              ((GLfloat) linecolor.Blue())/((GLfloat) 255.0),
+                              0.9);
+                    glLineWidth(linewidth);
                     for (int i=0; i<num_obs; i++) {
                         if (all_undefs[i]) continue;
                         if (!hs[i]) continue;

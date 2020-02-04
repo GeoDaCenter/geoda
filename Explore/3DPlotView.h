@@ -87,6 +87,7 @@ public:
 	int height, width;
 	double bb_min[3], bb_max[3];
 
+    wxColour linecolor;
 	wxColour selectable_fill_color;
 	wxColour highlight_color;
 	wxColour canvas_background_color;
@@ -97,6 +98,7 @@ public:
 	Arcball* ball;
 	double xs, xp, ys, yp, zs, zp;
 
+    float linewidth;
     int quality;
     double radius;
     bool ShowNeighbors;

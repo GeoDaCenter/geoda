@@ -7538,246 +7538,314 @@
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
       <object class="sizeritem">
-        <flag>wxALIGN_LEFT|wxALL</flag>
-        <border>5</border>
-        <object class="wxStaticBoxSizer" name="wxID_ANY">
-          <orient>wxVERTICAL</orient>
-          <label>View</label>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALL</flag>
-            <border>5</border>
-            <object class="wxCheckBox" name="IDC_DATAPOINT">
-              <style>wxCHK_2STATE</style>
-              <label>Data Point</label>
-              <checked>1</checked>
-            </object>
+          <object class="wxNotebook" name="IDC_DS_NOTEBOOK">
+              <object class="notebookpage">
+                  <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                          <orient>wxVERTICAL</orient>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_LEFT|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                  <orient>wxVERTICAL</orient>
+                                  <label>View</label>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_DATAPOINT">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Data Point</label>
+                                          <checked>1</checked>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_TOX">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Project to Z-Y</label>
+                                          <checked>0</checked>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_TOY">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Project to X-Z</label>
+                                          <checked>0</checked>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_TOZ">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Project to X-Y</label>
+                                          <checked>0</checked>
+                                      </object>
+                                  </object>
+                              </object>
+                          </object>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_LEFT|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxCheckBox" name="IDC_SELECT">
+                                  <style>wxCHK_2STATE</style>
+                                  <label>Select, hold CTRL for brushing</label>
+                                  <checked>0</checked>
+                              </object>
+                          </object>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxFlexGridSizer">
+                                  <cols>2</cols>
+                                  <rows>6</rows>
+                                  <vgap>0</vgap>
+                                  <hgap>0</hgap>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALIGN_TOP|wxALL|wxADJUST_MINSIZE</flag>
+                                      <border>5</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_X">
+                                          <label>X</label>
+                                      </object>
+                                  </object>
+                                  <object class="spacer">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>5</border>
+                                      <size>5,5d</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_TOP|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLXP">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_TOP|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLXS">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
+                                      <border>5</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_Y">
+                                          <label>Y</label>
+                                      </object>
+                                  </object>
+                                  <object class="spacer">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>5</border>
+                                      <size>5,5d</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLYP">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLYS">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALIGN_BOTTOM|wxALL|wxADJUST_MINSIZE</flag>
+                                      <border>5</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_Z">
+                                          <label>Z</label>
+                                      </object>
+                                  </object>
+                                  <object class="spacer">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>5</border>
+                                      <size>5,5d</size>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLZP">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxSlider" name="IDC_SLZS">
+                                          <size>56,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>0</value>
+                                          <min>0</min>
+                                          <max>100</max>
+                                      </object>
+                                  </object>
+                              </object>
+                              <object class="sizeritem">
+                                  <flag>wxALIGN_LEFT|wxALIGN_TOP|wxALL|wxADJUST_MINSIZE</flag>
+                                  <border>5</border>
+                                  <object class="wxStaticText" name="ID_STATICTEXT2">
+                                      <label>Zoom : press right-mouse button</label>
+                                  </object>
+                              </object>
+                          </object>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_LEFT|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                  <orient>wxVERTICAL</orient>
+                                  <label>Connectivity</label>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_SHOW_NEIGHBORS">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Show selection and neighbors</label>
+                                          <checked>1</checked>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>5</border>
+                                      <object class="wxCheckBox" name="IDC_SHOW_CONNECTIONS">
+                                          <style>wxCHK_2STATE</style>
+                                          <label>Show connection line</label>
+                                          <checked>1</checked>
+                                      </object>
+                                  </object>
+                              </object>
+                          </object>
+                      </object>
+                  </object>
+                  <label>Data</label>
+              </object>
+              <object class="notebookpage">
+                  <object class="wxPanel">
+                      <object class="wxBoxSizer">
+                          <orient>wxVERTICAL</orient>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_LEFT|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                  <orient>wxVERTICAL</orient>
+                                  <label>Points</label>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_QUALITY">
+                                          <label>Rendering quality of points:</label>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxSlider" name="IDC_SL_QUALITY">
+                                          <size>100,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>10</value>
+                                          <min>5</min>
+                                          <max>200</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_QUALITY">
+                                          <label>Radius of points:</label>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxSlider" name="IDC_SL_RADIUS">
+                                          <size>100,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>3</value>
+                                          <min>1</min>
+                                          <max>10</max>
+                                      </object>
+                                  </object>
+                                  
+                              </object>
+                          </object>
+                          <object class="sizeritem">
+                              <flag>wxALIGN_LEFT|wxALL</flag>
+                              <border>5</border>
+                              <object class="wxStaticBoxSizer" name="wxID_ANY">
+                                  <orient>wxVERTICAL</orient>
+                                  <label>Lines</label>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_LEFT|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxStaticText" name="ID_3D_STATICTEXT_LINEWIDTH">
+                                          <label>Line width/thickness:</label>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxSlider" name="IDC_SL_LINEWIDTH">
+                                          <size>100,-1d</size>
+                                          <style>wxSL_HORIZONTAL</style>
+                                          <value>1</value>
+                                          <min>1</min>
+                                          <max>10</max>
+                                      </object>
+                                  </object>
+                                  <object class="sizeritem">
+                                      <flag>wxEXPAND|wxALL</flag>
+                                      <border>1</border>
+                                      <object class="wxBoxSizer">
+                                          <orient>wxHORIZONTAL</orient>
+                                          <object class="sizeritem">
+                                          <object class="wxStaticText" name="ID_3D_STATICTEXT_LINECOLOR">
+                                              <size>80,-1d</size>
+                                              <label>Line color:</label>
+                                          </object>
+                                          </object>
+                                          <object class="sizeritem">
+                                          <object class="wxStaticBitmap" name="IDC_LINECOLOR">
+                                              <size>11,8d</size>
+                                              <bg>#FFFFFF</bg>
+                                          </object>
+                                          </object>
+                                      </object>
+                                  </object>
+                              </object>
+                          </object>
+                      </object>
+                  </object>
+                  <label>OpenGL</label>
+              </object>
           </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALL</flag>
-            <border>5</border>
-            <object class="wxCheckBox" name="IDC_TOX">
-              <style>wxCHK_2STATE</style>
-              <label>Project to Z-Y</label>
-              <checked>0</checked>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALL</flag>
-            <border>5</border>
-            <object class="wxCheckBox" name="IDC_TOY">
-              <style>wxCHK_2STATE</style>
-              <label>Project to X-Z</label>
-              <checked>0</checked>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-            <border>5</border>
-            <object class="wxCheckBox" name="IDC_TOZ">
-              <style>wxCHK_2STATE</style>
-              <label>Project to X-Y</label>
-              <checked>0</checked>
-            </object>
-          </object>
-        </object>
-      </object>
-      <object class="sizeritem">
-        <flag>wxALIGN_LEFT|wxALL</flag>
-        <border>5</border>
-        <object class="wxCheckBox" name="IDC_SELECT">
-          <style>wxCHK_2STATE</style>
-          <label>Select, hold CTRL for brushing</label>
-          <checked>0</checked>
-        </object>
-      </object>
-      <object class="sizeritem">
-        <flag>wxALIGN_CENTER_HORIZONTAL|wxALL</flag>
-        <border>5</border>
-        <object class="wxFlexGridSizer">
-          <cols>2</cols>
-          <rows>6</rows>
-          <vgap>0</vgap>
-          <hgap>0</hgap>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALIGN_TOP|wxALL|wxADJUST_MINSIZE</flag>
-            <border>5</border>
-            <object class="wxStaticText" name="ID_3D_STATICTEXT_X">
-              <label>X</label>
-            </object>
-          </object>
-          <object class="spacer">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-            <border>5</border>
-            <size>5,5d</size>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_TOP|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLXP">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_TOP|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLXS">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALIGN_CENTER_VERTICAL|wxALL|wxADJUST_MINSIZE</flag>
-            <border>5</border>
-            <object class="wxStaticText" name="ID_3D_STATICTEXT_Y">
-              <label>Y</label>
-            </object>
-          </object>
-          <object class="spacer">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-            <border>5</border>
-            <size>5,5d</size>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLYP">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLYS">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_LEFT|wxALIGN_BOTTOM|wxALL|wxADJUST_MINSIZE</flag>
-            <border>5</border>
-            <object class="wxStaticText" name="ID_3D_STATICTEXT_Z">
-              <label>Z</label>
-            </object>
-          </object>
-          <object class="spacer">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-            <border>5</border>
-            <size>5,5d</size>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLZP">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-          <object class="sizeritem">
-            <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_BOTTOM|wxALL</flag>
-            <border>5</border>
-            <object class="wxSlider" name="IDC_SLZS">
-              <size>56,-1d</size>
-              <style>wxSL_HORIZONTAL</style>
-              <value>0</value>
-              <min>0</min>
-              <max>100</max>
-            </object>
-          </object>
-        </object>
-        <object class="sizeritem">
-          <flag>wxALIGN_LEFT|wxALIGN_TOP|wxALL|wxADJUST_MINSIZE</flag>
+          <flag>wxALL|wxEXPAND</flag>
           <border>5</border>
-          <object class="wxStaticText" name="ID_STATICTEXT2">
-            <label>Zoom : press right-mouse button</label>
-          </object>
-        </object>
-      </object>
-      <object class="sizeritem">
-          <flag>wxALIGN_LEFT|wxALL</flag>
-          <border>5</border>
-          <object class="wxStaticBoxSizer" name="wxID_ANY">
-              <orient>wxVERTICAL</orient>
-              <label>Connectivity</label>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>5</border>
-                  <object class="wxCheckBox" name="IDC_SHOW_NEIGHBORS">
-                      <style>wxCHK_2STATE</style>
-                      <label>Show selection and neighbors</label>
-                      <checked>1</checked>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>5</border>
-                  <object class="wxCheckBox" name="IDC_SHOW_CONNECTIONS">
-                      <style>wxCHK_2STATE</style>
-                      <label>Show connection line</label>
-                      <checked>1</checked>
-                  </object>
-              </object>
-          </object>
-      </object>
-      <object class="sizeritem">
-          <flag>wxALIGN_LEFT|wxALL</flag>
-          <border>5</border>
-          <object class="wxStaticBoxSizer" name="wxID_ANY">
-              <orient>wxVERTICAL</orient>
-              <label>OpenGL</label>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>1</border>
-                  <object class="wxStaticText" name="ID_3D_STATICTEXT_QUALITY">
-                      <label>Rendering quality of points:</label>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                  <border>1</border>
-                  <object class="wxSlider" name="IDC_SL_QUALITY">
-                      <size>100,-1d</size>
-                      <style>wxSL_HORIZONTAL</style>
-                      <value>10</value>
-                      <min>5</min>
-                      <max>200</max>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_LEFT|wxALL</flag>
-                  <border>1</border>
-                  <object class="wxStaticText" name="ID_3D_STATICTEXT_QUALITY">
-                      <label>Radius of points:</label>
-                  </object>
-              </object>
-              <object class="sizeritem">
-                  <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
-                  <border>1</border>
-                  <object class="wxSlider" name="IDC_SL_RADIUS">
-                      <size>100,-1d</size>
-                      <style>wxSL_HORIZONTAL</style>
-                      <value>3</value>
-                      <min>1</min>
-                      <max>10</max>
-                  </object>
-              </object>
-          </object>
       </object>
     </object>
   </object>
