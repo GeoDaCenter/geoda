@@ -158,6 +158,7 @@
 #include "Explore/Basemap.h"
 #include "Explore/ColocationMapView.h"
 #include "Explore/GroupingMapView.h"
+#include "Explore/DistancePlotView.h"
 #include "Regression/DiagnosticReport.h"
 #include "ShapeOperations/CsvFileUtils.h"
 #include "ShapeOperations/WeightsManager.h"
@@ -644,6 +645,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
+    EnableTool(XRCID("IDM_DISTANCE_PLOT"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DISTANCE_PLOT"), shp_proj);
 	
 	GeneralWxUtils::EnableMenuAll(mb, _("Map"), shp_proj);
 	EnableTool(XRCID("ID_MAP_CHOICES"), shp_proj);
@@ -3272,6 +3275,60 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
     CorrelogramFrame* f = new CorrelogramFrame(GdaFrame::gda_frame, p,
                                                _("Correlogram"), wxDefaultPosition,
                                                GdaConst::scatterplot_default_size);
+}
+
+#include "Algorithms/distanceplot.h"
+
+void GdaFrame::OnDistancePlot(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    const std::vector<GdaPoint*>& centroids = p->GetCentroids();
+    TableInterface*  table = p->GetTableInt();
+
+    std::vector<std::vector<double> > data(1);
+    std::vector<std::vector<bool> > data_undefs(1);
+    size_t num_obs = p->GetNumRecords();
+    data[0].resize(num_obs);
+    //data[1].resize(num_obs);
+    //data[2].resize(num_obs);
+
+    data_undefs[0].resize(num_obs);
+    //data_undefs[1].resize(num_obs);
+    //data_undefs[2].resize(num_obs);
+
+    table->GetColData(6, 0, data[0]);
+    //able->GetColData(7, 0, data[1]);
+    //table->GetColData(8, 0, data[2]);
+
+    table->GetColUndefined(6, 0, data_undefs[0]);
+    //table->GetColUndefined(7, 0, data_undefs[1]);
+    //table->GetColUndefined(8, 0, data_undefs[2]);
+
+    GenUtils::StandardizeData(data[0], data_undefs[0]);
+    //GenUtils::StandardizeData(data[1], data_undefs[1]);
+    //GenUtils::StandardizeData(data[2], data_undefs[2]);
+
+    DistancePlot distplot(centroids, data, data_undefs, 'e',
+                          true, 20);
+    distplot.run();
+
+    const std::vector<double>& X = distplot.GetX();
+    const std::vector<double>& Y = distplot.GetY();
+    const std::vector<bool>& X_undefs = distplot.GetXUndefs();
+    const std::vector<bool>& Y_undefs = distplot.GetYUndefs();
+    double x_min = distplot.GetMinX();
+    double x_max = distplot.GetMaxX();
+    double y_min = distplot.GetMinY();
+    double y_max = distplot.GetMaxY();
+    wxString X_label = _("geographical distance");
+    wxString Y_label = _("variable distance");
+    DistancePlotFrame* f = new DistancePlotFrame(GdaFrame::gda_frame, p,
+                                                 X, Y, X_undefs, Y_undefs,
+                                                 x_min, x_max,
+                                                 y_min, y_max,
+                                                 X_label, Y_label);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
@@ -6803,6 +6860,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_MENU(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
     EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_MENU(XRCID("IDM_DISTANCE_PLOT"), GdaFrame::OnDistancePlot)
     EVT_MENU(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
     EVT_TOOL(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
     EVT_TOOL(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)

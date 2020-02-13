@@ -48,6 +48,7 @@
 #include "../ShapeOperations/VoronoiUtils.h"
 #include "../ShapeOperations/Lowess.h"
 #include "MapLayoutView.h"
+#include "SimpleScatterPlotCanvas.h"
 #include "ScatterNewPlotView.h"
 
 
@@ -2362,3 +2363,8 @@ void MDSPlotFrame::OnCreateWeights(wxCommandEvent& event)
     wxLogMessage("In MDSPlotFrame::OnCreateWeights()");
     ((MDSPlotCanvas*) template_canvas)->OnCreateWeights();
 }
+
+/////////////////////////////////////////////////////
+
+
+

@@ -52,6 +52,8 @@
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
+		A1B18E9D23F36F0900465937 /* distanceplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18E9C23F36F0900465937 /* distanceplot.cpp */; };
+		A1B18EA223F4C29E00465937 /* DistancePlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C194A31B38FC67003DA7CA /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C194A21B38FC67003DA7CA /* libc++.dylib */; };
@@ -401,6 +403,11 @@
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
 		A1B13EE11C3EDFF90064AD87 /* BasemapConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BasemapConfDlg.h; sourceTree = "<group>"; };
 		A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BasemapConfDlg.cpp; sourceTree = "<group>"; };
+		A1B18E9C23F36F0900465937 /* distanceplot.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = distanceplot.cpp; path = Algorithms/distanceplot.cpp; sourceTree = "<group>"; };
+		A1B18E9E23F474B700465937 /* threadpool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = threadpool.h; path = Algorithms/threadpool.h; sourceTree = "<group>"; };
+		A1B18E9F23F4815000465937 /* distanceplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = distanceplot.h; path = Algorithms/distanceplot.h; sourceTree = "<group>"; };
+		A1B18EA023F4C28900465937 /* DistancePlotView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DistancePlotView.h; sourceTree = "<group>"; };
+		A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DistancePlotView.cpp; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
 		A1B93ABF17D18735007F8195 /* ProjectConf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectConf.cpp; sourceTree = "<group>"; };
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
@@ -1030,6 +1037,9 @@
 				A45DBDF01EDDEDAD00C2AA8A /* pca.h */,
 				A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */,
 				A45DBDF21EDDEDAD00C2AA8A /* cluster.h */,
+				A1B18E9F23F4815000465937 /* distanceplot.h */,
+				A1B18E9C23F36F0900465937 /* distanceplot.cpp */,
+				A1B18E9E23F474B700465937 /* threadpool.h */,
 			);
 			name = Algorithms;
 			sourceTree = "<group>";
@@ -1494,6 +1504,8 @@
 				A1230E612130E783002AB30A /* MapLayer.hpp */,
 				A1230E632130E81A002AB30A /* MapLayerTree.cpp */,
 				A1230E642130E81A002AB30A /* MapLayerTree.hpp */,
+				A1B18EA023F4C28900465937 /* DistancePlotView.h */,
+				A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */,
 			);
 			path = Explore;
 			sourceTree = "<group>";
@@ -1827,6 +1839,7 @@
 				A194839A2118BAAA009A87A2 /* lines.cpp in Sources */,
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
 				A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */,
+				A1B18EA223F4C29E00465937 /* DistancePlotView.cpp in Sources */,
 				DDD593CA12E9F90C00F7A7C4 /* GwtWeight.cpp in Sources */,
 				DD694685130307C00072386B /* RateSmoothing.cpp in Sources */,
 				A4E00F1020FD8ECD0038BA80 /* localjc_kernel.cl in Sources */,
@@ -1882,6 +1895,7 @@
 				DD4E8B86164818A70014F1E7 /* ConnectivityHistView.cpp in Sources */,
 				A4F5D61F1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp in Sources */,
 				DD8FACE11649595D007598CE /* DataMovieDlg.cpp in Sources */,
+				A1B18E9D23F36F0900465937 /* distanceplot.cpp in Sources */,
 				DDA462FF164D785500EBBD8F /* TableState.cpp in Sources */,
 				A4ED7D562097F114008685D6 /* kd_search.cpp in Sources */,
 				A19483A22118BE8F009A87A2 /* MapLayoutView.cpp in Sources */,

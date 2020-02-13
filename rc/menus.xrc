@@ -516,6 +516,9 @@
       <object class="wxMenuItem" name="IDM_CORRELOGRAM">
         <label>Spatial Correlogram</label>
       </object>
+      <object class="wxMenuItem" name="IDM_DISTANCE_PLOT">
+          <label>Distance Scatter Plot</label>
+      </object>
     </object>
 	<object class="wxMenu" name="ID_MENU">
       <label>Tim&amp;e</label>

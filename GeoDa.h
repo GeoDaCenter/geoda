@@ -237,6 +237,7 @@ public:
 	void OnExploreLineChart(wxCommandEvent& event);
 	void OnExploreCovScatterPlot(wxCommandEvent& event);
 	void OnExploreCorrelogram(wxCommandEvent& event);
+    void OnDistancePlot(wxCommandEvent& event);
 	void OnToolsChoices(wxCommandEvent& event);
 	void OnMoranMenuChoices(wxCommandEvent& event);
 	void OnOpenMSPL(wxCommandEvent& event);

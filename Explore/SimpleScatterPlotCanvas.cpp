@@ -609,9 +609,9 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 	}
     
 	if (show_axes) {
-		y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
     	y_baseline = new GdaAxis(Yname, axis_scale_y,
     							 wxRealPoint(0,0), wxRealPoint(0, 100));
+        y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
         foreground_shps.push_back(y_baseline);
 	}
 	
@@ -744,7 +744,7 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 
 void SimpleScatterPlotCanvas::UpdateMargins()
 {
-	int virtual_screen_marg_top = 5;//20;
+	int virtual_screen_marg_top = 20;//20;
 	int virtual_screen_marg_right = 5;//20;
 	int virtual_screen_marg_bottom = 5;//45;
 	int virtual_screen_marg_left = 5;//45;
