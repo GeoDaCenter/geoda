@@ -65,6 +65,7 @@ SimpleScatterPlotCanvas(wxWindow *parent,
                         bool show_lowess_smoother_,
                         bool show_slope_values_,
                         bool view_standardized_data_,
+                        bool show_data_points,
                         const wxPoint& pos,
                         const wxSize& size)
 :TemplateCanvas(parent, t_frame, project, hl_state_int, pos, size, false, true),
@@ -83,7 +84,8 @@ show_regimes(show_regimes_),
 show_linear_smoother(show_linear_smoother_),
 show_lowess_smoother(show_lowess_smoother_),
 show_slope_values(show_slope_values_),
-view_standardized_data(view_standardized_data_)
+view_standardized_data(view_standardized_data_),
+show_data_points(show_data_points)
 {
 	highlight_color = GdaConst::scatterplot_regression_selected_color;
 	selectable_fill_color = GdaConst::scatterplot_regression_excluded_color;
@@ -114,7 +116,7 @@ SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 {
 	wxLogMessage("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 	EmptyLowessCache();
-	highlight_state->removeObserver(this);
+    if (highlight_state) highlight_state->removeObserver(this);
 	wxLogMessage("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 }
 
@@ -557,8 +559,16 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
 							 x_max + (add_auto_padding_max ? x_pad : 0.0),
                              5, axis_display_precision,
                              axis_display_fixed_point);
-	axis_scale_y = AxisScale(y_min - (add_auto_padding_min ? y_pad : 0.0),
-							 y_max + (add_auto_padding_max ? y_pad : 0.0),
+
+    double axis_min = y_min - (add_auto_padding_min ? y_pad : 0.0);
+    double axis_max = y_max + (add_auto_padding_max ? y_pad : 0.0);
+    if (!def_y_min.IsEmpty())
+        def_y_min.ToDouble(&axis_min);
+
+    if (!def_y_max.IsEmpty())
+        def_y_max.ToDouble(&axis_max);
+
+	axis_scale_y = AxisScale(axis_min, axis_max,
                              5, axis_display_precision,
                              axis_display_fixed_point);
 
@@ -571,34 +581,38 @@ void SimpleScatterPlotCanvas::PopulateCanvas()
      */
 	
 	// Populate TemplateCanvas::selectable_shps
-	selectable_shps.resize(X.size());
-    selectable_shps_undefs.resize(X.size());
-	scaleX = 100.0 / (axis_scale_x.scale_range);
-	scaleY = 100.0 / (axis_scale_y.scale_range);
-	
-	if (use_larger_filled_circles) {
-		selectable_shps_type = circles;
-		for (size_t i=0, sz=X.size(); i<sz; ++i) {
-            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
-            
-			GdaCircle* c = 0;
-			c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
-										  (Y[i]-axis_scale_y.scale_min) * scaleY),
-							  2.5);
-			c->setPen(GdaConst::scatterplot_regression_excluded_color);
-			c->setBrush(GdaConst::scatterplot_regression_excluded_color);
-			selectable_shps[i] = c;
-		}
-	} else {
-		selectable_shps_type = points;
-		for (size_t i=0, sz=X.size(); i<sz; ++i) {
-            selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
-            
-			selectable_shps[i] = 
-			new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
-									 (Y[i] - axis_scale_y.scale_min) * scaleY));
-		}
-	}
+    scaleX = 100.0 / (axis_scale_x.scale_range);
+    scaleY = 100.0 / (axis_scale_y.scale_range);
+
+    if (show_data_points) {
+        selectable_shps.resize(X.size());
+        selectable_shps_undefs.resize(X.size());
+        
+        
+        if (use_larger_filled_circles) {
+            selectable_shps_type = circles;
+            for (size_t i=0, sz=X.size(); i<sz; ++i) {
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+                
+                GdaCircle* c = 0;
+                c = new GdaCircle(wxRealPoint((X[i]-axis_scale_x.scale_min) * scaleX,
+                                              (Y[i]-axis_scale_y.scale_min) * scaleY),
+                                  2.5);
+                c->setPen(GdaConst::scatterplot_regression_excluded_color);
+                c->setBrush(GdaConst::scatterplot_regression_excluded_color);
+                selectable_shps[i] = c;
+            }
+        } else {
+            selectable_shps_type = points;
+            for (size_t i=0, sz=X.size(); i<sz; ++i) {
+                selectable_shps_undefs[i] = X_undef[i] || Y_undef[i];
+                
+                selectable_shps[i] =
+                new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                         (Y[i] - axis_scale_y.scale_min) * scaleY));
+            }
+        }
+    }
 	
 	// create axes
 	if (show_axes) {
@@ -762,5 +776,6 @@ void SimpleScatterPlotCanvas::UpdateMargins()
 /** Free allocated points arrays in lowess_cache and clear cache */
 void SimpleScatterPlotCanvas::EmptyLowessCache()
 {
-	SmoothingUtils::EmptyLowessCache(lowess_cache);
+    if (!lowess_cache.empty())
+        SmoothingUtils::EmptyLowessCache(lowess_cache);
 }

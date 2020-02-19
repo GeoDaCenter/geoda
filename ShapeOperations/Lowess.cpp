@@ -254,6 +254,7 @@ void Lowess::clowess(const double *x, const double *y, int n,
 			
 			lowest(&x[1], &y[1], n, &x[i], &ys[i],
 						 nleft, nright, res, cur_iter>1, rw, &ok);
+            
 			if (!ok) ys[i] = y[i];
 			
 			/* all weights zero */

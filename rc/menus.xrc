@@ -4072,6 +4072,46 @@
     </object>
     <label>Options</label>
   </object>
+  <object class="wxMenu" name="ID_DISTPLOT_MENU_OPTIONS">
+      <object class="wxMenuItem" name="ID_EDIT_LOWESS_PARAMS">
+          <label>Edit LOWESS Parameters</label>
+          <checkable>0</checkable>
+      </object>
+      <object class="wxMenu" name="ID_DISTPLOT_VIEW_MENU">
+          <label>View</label>
+          <object class="wxMenuItem" name="ID_DISTPLOT_SHOW_POINTS">
+              <label>Show Data Points</label>
+              <checkable>1</checkable>
+              <checked>0</checked>
+          </object>
+          <object class="wxMenu" name="ID_MENU">
+              <label>Axis Option</label>
+              <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
+                  <label>Set Display Precision on Axes</label>
+              </object>
+              <object class="wxMenuItem" name="ID_USE_ADJUST_Y_AXIS">
+                  <label>Enable User Defined Value Range of Y-Axis</label>
+                  <checkable>1</checkable>
+                  <checked>0</checked>
+              </object>
+              <object class="wxMenuItem" name="ID_ADJUST_Y_AXIS">
+                  <label>Adjust Value Range of Y-Axis</label>
+                  <checkable>0</checkable>
+                  <checked>0</checked>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
+              <label>Show Status Bar</label>
+              <checkable>1</checkable>
+              <checked>1</checked>
+          </object>
+      </object>
+      <object class="wxMenuItem" name="ID_SAVE_DISTPLOT">
+          <label>Save Results</label>
+          <checkable>0</checkable>
+      </object>
+      <label>Options</label>
+  </object>
 	<object class="wxMenu" name="ID_COV_SCATTER_PLOT_MENU_OPTIONS">
 	  <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>

@@ -3,6 +3,9 @@
 #include <time.h>
 #include <stdlib.h>
 
+#include <boost/foreach.hpp>
+
+#include "../GenGeomAlgs.h"
 #include "distanceplot.h"
 
 
@@ -10,14 +13,13 @@ DistancePlot::DistancePlot(const std::vector<GdaPoint*>& points,
                            const std::vector<std::vector<double> >& data,
                            const std::vector<std::vector<bool> >& data_undefs,
                            char dist_method,
-                           bool rand_sample,
-                           size_t num_rand,
+                           bool is_arc, bool is_mile,
                            uint64_t last_seed_used,
                            bool reuse_last_seed)
 : points(points), data(data), data_undefs(data_undefs),
 last_seed_used(last_seed_used), reuse_last_seed(reuse_last_seed),
-dist_method(dist_method), rand_sample(rand_sample), num_rand(num_rand),
-rand_count(0)
+is_arc(is_arc), is_mile(is_mile),
+dist_method(dist_method), rand_count(0), num_pts(0)
 {
     min_x = DBL_MAX;
     min_y = DBL_MAX;
@@ -27,39 +29,67 @@ rand_count(0)
     num_obs = points.size();
     num_vars = data.size();
 
-    num_pts = (num_obs * num_obs - num_obs) / 2;
-    rand_flags.resize(num_pts, false);
-
     if (!reuse_last_seed) {
         unsigned int initseed = (unsigned int) time(0);
         srand(initseed);
         last_seed_used = rand();
     }
-
-    if (rand_sample) {
-        thread_pool pool;
-        for (size_t i=0; i<num_pts; ++i) {
-            pool.enqueue(boost::bind(&DistancePlot::gen_rand_flag, this, i));
-        }
-        num_pts = num_rand;
-
-    } else {
-        // init return result
-        x.resize(num_pts);
-        y.resize(num_pts);
-        x_undefs.resize(num_pts);
-        y_undefs.resize(num_pts);
-    }
 }
+
 
 DistancePlot::~DistancePlot()
 {
 
 }
 
-void DistancePlot::gen_rand_flag(size_t i)
+bool DistancePlot::compute_var_dist(size_t i, size_t j, double& var_dist)
 {
-    if (rand_count > num_rand) return;
+    bool undef = false;
+    double val;
+    if (dist_method == 'e') {
+        for (size_t v=0; v < num_vars; ++v) {
+            val = data[v][i] - data[v][j];
+            var_dist += val * val;
+            undef = undef || data_undefs[v][i];
+            undef = undef || data_undefs[v][j];
+        }
+        var_dist = sqrt(var_dist);
+    }
+
+    return undef;
+}
+
+double DistancePlot::compute_geo_dist(size_t i, size_t j)
+{
+    double dist = 0;
+    if (is_arc) {
+        if (is_mile) {
+            dist = GenGeomAlgs::ComputeArcDistMi(points[i]->GetY(),
+                                                 points[i]->GetX(),
+                                                 points[j]->GetY(),
+                                                 points[j]->GetX());
+        } else {
+            dist = GenGeomAlgs::ComputeArcDistKm(points[i]->GetY(),
+                                                 points[i]->GetX(),
+                                                 points[j]->GetY(),
+                                                 points[j]->GetX());
+        }
+    } else {
+        dist = GenGeomAlgs::ComputeEucDist(points[i]->GetX(),
+                                           points[i]->GetY(),
+                                           points[j]->GetX(),
+                                           points[j]->GetY());
+    }
+    return dist;
+}
+
+/**
+ * mark which index is randomly selected for sampling approach
+ */
+void DistancePlot::gen_rand_flag(size_t i, size_t num_rand)
+{
+    if (rand_count >= num_rand)
+        return;
 
     size_t rand_idx = Gda::ThomasWangHashDouble(last_seed_used+i) * num_pts;
     if (rand_flags[rand_idx] == false) {
@@ -70,19 +100,46 @@ void DistancePlot::gen_rand_flag(size_t i)
     }
 }
 
-void DistancePlot::run()
+void DistancePlot::pick_random_list(size_t num_rand)
 {
-
     thread_pool pool;
-    for (size_t i=0; i<num_obs; ++i) {
-        pool.enqueue(boost::bind(&DistancePlot::compute_dist, this, i));
+    for (size_t i=0; i<num_pts; ++i) {
+        if (rand_count > num_rand)
+            break;
+        pool.enqueue(boost::bind(&DistancePlot::gen_rand_flag, this, i, num_rand));
     }
-    //for (size_t i=0; i<num_obs; ++i) {
-    //    compute_dist(i);
-    //}
 }
 
-void DistancePlot::compute_dist(size_t row_idx)
+void DistancePlot::run(bool rand_sample, size_t num_rand)
+{
+    // init return result
+    num_pts = (num_obs * num_obs - num_obs) / 2;
+    if (rand_sample) {
+        if (num_rand < num_pts) {
+            rand_flags.resize(num_pts, false);
+            pick_random_list(num_rand);
+            num_pts = num_rand;
+        } else {
+            rand_sample = false;
+        }
+
+    }
+
+    if (!rand_sample){
+        x.resize(num_pts);
+        y.resize(num_pts);
+        x_undefs.resize(num_pts);
+        y_undefs.resize(num_pts);
+    }
+
+    // run
+    thread_pool pool;
+    for (size_t i=0; i<num_obs; ++i) {
+        pool.enqueue(boost::bind(&DistancePlot::compute_dist, this, i, rand_sample));
+    }
+}
+
+void DistancePlot::compute_dist(size_t row_idx, bool rand_sample)
 {
     double geo_dist, var_dist, val;
     size_t scatter_pos, sum_to_m, sum_to_n = num_obs * (num_obs - 1) / 2;
@@ -97,25 +154,11 @@ void DistancePlot::compute_dist(size_t row_idx)
             }
         }
 
-        bool undef = false;
-        if (dist_method == 'e') {
-            // compute geo distance
-            val = points[row_idx]->GetX() - points[j]->GetX();
-            geo_dist = val * val;
-            val = points[row_idx]->GetY() - points[j]->GetY();
-            geo_dist = geo_dist + val * val;
-            geo_dist = sqrt(geo_dist);
+        // compute geo distance
+        geo_dist = compute_geo_dist(row_idx, j);
 
-            // compute variable distance
-            var_dist = 0;
-            for (size_t v=0; v < num_vars; ++v) {
-                val = data[v][row_idx] - data[v][j];
-                var_dist += val * val;
-                undef = undef || data_undefs[v][row_idx];
-                undef = undef || data_undefs[v][j];
-            }
-            var_dist = sqrt(var_dist);
-        }
+        // compute variable distance
+        bool undef = compute_var_dist(row_idx, j, var_dist);
 
         if (rand_sample) {
             mutex.lock();
@@ -136,6 +179,110 @@ void DistancePlot::compute_dist(size_t row_idx)
         if (geo_dist > max_x) max_x = geo_dist;
         if (var_dist < min_y) min_y = var_dist;
         if (var_dist > max_y) max_y = var_dist;
+    }
+}
+
+void DistancePlot::run(const rtree_pt_2d_t& rtree, double thresh)
+{
+    thread_pool pool;
+    for (size_t i=0; i<num_obs; ++i) {
+        pool.enqueue(boost::bind(&DistancePlot::compute_dist_thres, this, i,
+                                 rtree, thresh));
+    }
+}
+
+void DistancePlot::compute_dist_thres(size_t row_idx, const rtree_pt_2d_t& rtree,
+                                      double thresh)
+{
+    double geo_dist, var_dist, val;
+
+    double pt_x = points[row_idx]->GetX();
+    double pt_y = points[row_idx]->GetY();
+    box_2d b(pt_2d(pt_x-thresh, pt_y-thresh), pt_2d(pt_x+thresh, pt_y+thresh));
+
+    // query points within threshold distance
+    std::vector<pt_2d_val> q;
+    rtree.query(bgi::intersects(b), std::back_inserter(q));
+
+    BOOST_FOREACH(const pt_2d_val& w, q) {
+        const size_t j = w.second;
+        if (j > row_idx) {
+            // compute geo distance
+            geo_dist = compute_geo_dist(row_idx, j);
+            if (geo_dist > thresh) continue;
+
+            // compute variable distance
+            bool undef = compute_var_dist(row_idx, j, var_dist);
+
+            // save to results
+            mutex.lock();
+            x.push_back(geo_dist);
+            y.push_back(var_dist);
+            x_undefs.push_back(undef);
+            y_undefs.push_back(undef);
+            mutex.unlock();
+
+            // update min/max
+            if (geo_dist < min_x) min_x = geo_dist;
+            if (geo_dist > max_x) max_x = geo_dist;
+            if (var_dist < min_y) min_y = var_dist;
+            if (var_dist > max_y) max_y = var_dist;
+        }
+    }
+}
+
+void DistancePlot::run(const rtree_pt_3d_t& rtree, double thresh)
+{
+    thread_pool pool;
+    for (size_t i=0; i<num_obs; ++i) {
+        pool.enqueue(boost::bind(&DistancePlot::compute_dist_thres3d, this, i,
+                                 rtree, thresh));
+    }
+}
+
+void DistancePlot::compute_dist_thres3d(size_t row_idx, const rtree_pt_3d_t& rtree,
+                                        double thresh)
+{
+    double geo_dist, var_dist, val;
+
+    double pt_x = points[row_idx]->GetX();
+    double pt_y = points[row_idx]->GetY();
+    double x_3d, y_3d, z_3d;
+    GenGeomAlgs::LongLatDegToUnit(pt_x, pt_y, x_3d, y_3d, z_3d);
+
+    // thresh is in radians.  Need to convert to unit sphere secant distance
+    double sec_thresh = thresh;// GenGeomAlgs::RadToUnitDist(thresh);
+
+    box_3d b(pt_3d(x_3d - sec_thresh, y_3d - sec_thresh, z_3d - sec_thresh),
+             pt_3d(x_3d + sec_thresh, y_3d + sec_thresh, z_3d + sec_thresh));
+
+    // query points within threshold distance
+    std::vector<pt_3d_val> q;
+    rtree.query(bgi::intersects(b), std::back_inserter(q));
+
+    BOOST_FOREACH(const pt_3d_val& w, q) {
+        const size_t j = w.second;
+        if (j > row_idx) {
+            // compute geo distance
+            geo_dist = compute_geo_dist(row_idx, j);
+            if (geo_dist > thresh) continue;
+            // compute variable distance
+            bool undef = compute_var_dist(row_idx, j, var_dist);
+
+            // save to results
+            mutex.lock();
+            x.push_back(geo_dist);
+            y.push_back(var_dist);
+            x_undefs.push_back(undef);
+            y_undefs.push_back(undef);
+            mutex.unlock();
+
+            // update min/max
+            if (geo_dist < min_x) min_x = geo_dist;
+            if (geo_dist > max_x) max_x = geo_dist;
+            if (var_dist < min_y) min_y = var_dist;
+            if (var_dist > max_y) max_y = var_dist;
+        }
     }
 }
 

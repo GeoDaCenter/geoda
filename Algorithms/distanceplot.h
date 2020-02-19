@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "../SpatialIndAlgs.h"
 #include "../GdaShape.h"
 
 class DistancePlot
@@ -13,13 +14,15 @@ public:
                  const std::vector<std::vector<double> >& data,
                  const std::vector<std::vector<bool> >& data_undefs,
                  char dist_method = 'e',
-                 bool rand_sample = false,
-                 size_t num_rand = 0,
+                 bool is_arc = false, bool is_mile = false,
                  uint64_t last_seed_used = 1234567890,
                  bool reuse_last_seed = true);
+    
     virtual ~DistancePlot();
 
-    void run();
+    void run(bool is_rand_sample=false, size_t num_rand=0);
+    void run(const rtree_pt_2d_t& rtree, double thresh);
+    void run(const rtree_pt_3d_t& rtree, double thresh);
 
     const std::vector<double>& GetX();
     const std::vector<double>& GetY();
@@ -31,14 +34,21 @@ public:
     double GetMinY();
     double GetMaxY();
 
+    bool IsArc() { return is_arc;}
+    bool IsMile() { return is_mile;}
+    char DistMethod() { return dist_method;}
+
+    size_t GetNumPoints() { return num_pts;}
+
 protected:
-    bool rand_sample;
-    size_t num_rand;
     size_t num_obs;
     size_t num_vars;
     size_t num_pts;
     size_t rand_count;
-    
+
+    bool is_mile;
+    bool is_arc;
+
     char dist_method;
     uint64_t last_seed_used;
     bool reuse_last_seed;
@@ -61,9 +71,21 @@ protected:
 
     std::vector<bool> rand_flags;
 
-    void compute_dist(size_t row_idx);
+    double compute_geo_dist(size_t i, size_t j);
 
-    void gen_rand_flag(size_t i);
+    bool compute_var_dist(size_t i, size_t j, double& var_dist);
+
+    void gen_rand_flag(size_t i, size_t num_rand);
+    
+    void pick_random_list(size_t num_rand);
+    
+    void compute_dist(size_t row_idx, bool rand_sample);
+
+    void compute_dist_thres(size_t row_idx, const rtree_pt_2d_t& rtree,
+                            double thresh);
+
+    void compute_dist_thres3d(size_t row_idx, const rtree_pt_3d_t& rtree,
+                              double thresh);
 };
 
 #endif

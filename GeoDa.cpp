@@ -167,6 +167,7 @@
 #include "VarCalc/CalcHelp.h"
 #include "Algorithms/redcap.h"
 #include "Algorithms/fastcluster.h"
+#include "Algorithms/distanceplot.h"
 #include "wxTranslationHelper.h"
 #include "GdaException.h"
 #include "FramesManager.h"
@@ -3277,58 +3278,49 @@ void GdaFrame::OnExploreCorrelogram(wxCommandEvent& WXUNUSED(event))
                                                GdaConst::scatterplot_default_size);
 }
 
-#include "Algorithms/distanceplot.h"
 
 void GdaFrame::OnDistancePlot(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
     if (!p) return;
 
-    const std::vector<GdaPoint*>& centroids = p->GetCentroids();
-    TableInterface*  table = p->GetTableInt();
+    DistancePlotDlg distplot_dlg(this, p);
+    if (distplot_dlg.ShowModal() != wxID_OK) return;
 
-    std::vector<std::vector<double> > data(1);
-    std::vector<std::vector<bool> > data_undefs(1);
-    size_t num_obs = p->GetNumRecords();
-    data[0].resize(num_obs);
-    //data[1].resize(num_obs);
-    //data[2].resize(num_obs);
+    DistancePlot* distplot = distplot_dlg.GetDistancePlot();
 
-    data_undefs[0].resize(num_obs);
-    //data_undefs[1].resize(num_obs);
-    //data_undefs[2].resize(num_obs);
+    if (distplot) {
+        const std::vector<double>& X = distplot->GetX();
+        const std::vector<double>& Y = distplot->GetY();
+        const std::vector<bool>& X_undefs = distplot->GetXUndefs();
+        const std::vector<bool>& Y_undefs = distplot->GetYUndefs();
+        double x_min = distplot->GetMinX();
+        double x_max = distplot->GetMaxX();
+        double y_min = distplot->GetMinY();
+        double y_max = distplot->GetMaxY();
+        
+        wxString X_label = _("Geographical distance");
+        if (!distplot_dlg.str_threshold.IsEmpty())
+            X_label << ": threshold=" << distplot_dlg.str_threshold;
+        if (distplot->IsArc() && distplot->IsMile())
+            X_label << " (mile)";
+        else if (distplot->IsArc() && !distplot->IsMile())
+            X_label << " (km)";
+        wxString Y_label = _("Variable distance");
+        if (distplot->DistMethod() == 'e')
+            Y_label << " (Euclidean)";
+        else if (distplot->DistMethod() == 'm')
+            Y_label << " (Manhanttan)";
 
-    table->GetColData(6, 0, data[0]);
-    //able->GetColData(7, 0, data[1]);
-    //table->GetColData(8, 0, data[2]);
-
-    table->GetColUndefined(6, 0, data_undefs[0]);
-    //table->GetColUndefined(7, 0, data_undefs[1]);
-    //table->GetColUndefined(8, 0, data_undefs[2]);
-
-    GenUtils::StandardizeData(data[0], data_undefs[0]);
-    //GenUtils::StandardizeData(data[1], data_undefs[1]);
-    //GenUtils::StandardizeData(data[2], data_undefs[2]);
-
-    DistancePlot distplot(centroids, data, data_undefs, 'e',
-                          true, 20);
-    distplot.run();
-
-    const std::vector<double>& X = distplot.GetX();
-    const std::vector<double>& Y = distplot.GetY();
-    const std::vector<bool>& X_undefs = distplot.GetXUndefs();
-    const std::vector<bool>& Y_undefs = distplot.GetYUndefs();
-    double x_min = distplot.GetMinX();
-    double x_max = distplot.GetMaxX();
-    double y_min = distplot.GetMinY();
-    double y_max = distplot.GetMaxY();
-    wxString X_label = _("geographical distance");
-    wxString Y_label = _("variable distance");
-    DistancePlotFrame* f = new DistancePlotFrame(GdaFrame::gda_frame, p,
-                                                 X, Y, X_undefs, Y_undefs,
-                                                 x_min, x_max,
-                                                 y_min, y_max,
-                                                 X_label, Y_label);
+        wxString title = distplot_dlg.title;
+        title << " (" << X.size() << " data points)";
+        DistancePlotFrame* f = new DistancePlotFrame(GdaFrame::gda_frame, p,
+                                                     X, Y, X_undefs, Y_undefs,
+                                                     x_min, x_max,
+                                                     y_min, y_max,
+                                                     X_label, Y_label, title);
+        delete distplot;
+    }
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
@@ -5556,6 +5548,8 @@ void GdaFrame::OnDisplayPrecision(wxCommandEvent& event)
         f->OnDisplayPrecision(event);
     } else if (CorrelogramFrame* f = dynamic_cast<CorrelogramFrame*>(t)) {
         f->OnDisplayPrecision(event);
+    } else if (DistancePlotFrame* f = dynamic_cast<DistancePlotFrame*>(t)) {
+        f->OnDisplayPrecision(event);
     }
 }
 
@@ -6014,6 +6008,8 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 	} else if (ConditionalScatterPlotFrame* f =
 						 dynamic_cast<ConditionalScatterPlotFrame*>(t)) {
 		f->OnEditLowessParams(event);
+    } else if (DistancePlotFrame* f = dynamic_cast<DistancePlotFrame*>(t)) {
+        f->OnEditLowessParams(event);
 	}
 }
 
