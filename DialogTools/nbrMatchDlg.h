@@ -17,8 +17,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __GEODA_CENTER_TSNE_DLG_H__
-#define __GEODA_CENTER_TSNE_DLG_H__
+#ifndef __GEODA_CENTER_NEIGHBORMATCH_DLG_H__
+#define __GEODA_CENTER_NEIGHBORMATCH_DLG_H__
 
 #include <map>
 #include <vector>
@@ -28,11 +28,11 @@
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
 
-class TSNEDlg : public AbstractClusterDlg
+class NbrMatchDlg : public AbstractClusterDlg
 {
 public:
-    TSNEDlg(wxFrame *parent, Project* project);
-    virtual ~TSNEDlg();
+    NbrMatchDlg(wxFrame *parent, Project* project);
+    virtual ~NbrMatchDlg();
     
     void CreateControls();
     
@@ -54,19 +54,10 @@ protected:
 
     wxChoice* m_distance;
 
-    wxTextCtrl* txt_iteration;
-    wxTextCtrl* txt_perplexity;
-    wxTextCtrl* txt_theta;
-    wxTextCtrl* txt_momentum;
-    wxTextCtrl* txt_finalmomentum;
-    wxTextCtrl* txt_mom_switch_iter;
-    wxTextCtrl* txt_learningrate;
-    wxTextCtrl* txt_outdim;
+    wxTextCtrl* txt_knn;
 
     wxCheckBox* chk_seed;
     wxButton* seedButton;
-
-    wxStaticText* lbl_poweriteration;
     
     DECLARE_EVENT_TABLE()
 };

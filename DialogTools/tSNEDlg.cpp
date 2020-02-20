@@ -31,6 +31,8 @@
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/mds.h"
+#include "../Algorithms/vptree.h"
+#include "../Algorithms/splittree.h"
 #include "../Algorithms/tsne.h"
 #include "../Explore/ScatterNewPlotView.h"
 #include "../Explore/3DPlotView.h"
@@ -56,7 +58,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(420,560), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(480,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -70,8 +72,13 @@ void TSNEDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(15,2,10,0);
 
     // perplexity
+    size_t num_obs = project->GetNumRecords();
+    wxString str_perplexity;
+    if ((int)((num_obs - 1) /  3)  < 30) str_perplexity << (int)((num_obs - 1) /  3);
+    else str_perplexity << 30;
+
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Perplexity:"));
-    txt_perplexity = new wxTextCtrl(panel, wxID_ANY, "30",wxDefaultPosition, wxSize(70,-1));
+    txt_perplexity = new wxTextCtrl(panel, wxID_ANY, str_perplexity,wxDefaultPosition, wxSize(70,-1));
     txt_perplexity->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
 
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -156,7 +163,13 @@ void TSNEDlg::CreateControls()
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
 
-    
+    // Output
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Number of Dimension:"));
+    txt_outdim = new wxTextCtrl(panel, wxID_ANY, "2", wxDefaultPosition, wxSize(158,-1));
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(txt_outdim, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
@@ -169,6 +182,7 @@ void TSNEDlg::CreateControls()
     
     // Container
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -328,16 +342,24 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
    
     int transform = combo_tranform->GetSelection();
    
-    if (!GetInputData(transform, 2))
+    if (!GetInputData(transform, 1))
         return;
 
     double* weight = GetWeights(columns);
 
     double perplexity = 0;
+    int suggest_perp = (int)((project->GetNumRecords() - 1) /  3);
     wxString val = txt_perplexity->GetValue();
     if (!val.ToDouble(&perplexity)) {
         wxString err_msg = _("Please input a valid numeric value for perplexity.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"),
+                            wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    if (perplexity > suggest_perp) {
+        wxString err_msg = _("Perplexity parameter should not be larger than %d.");
+        wxMessageDialog dlg(NULL, wxString::Format(err_msg, suggest_perp), _("Error"),
                             wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
@@ -396,6 +418,22 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+    long out_dim;
+    val = txt_outdim->GetValue();
+    if (!val.ToLong(&out_dim)) {
+        wxString err_msg = _("Please input a valid numeric value for output dimension.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"),
+                            wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    if (out_dim >= project->GetNumRecords()) {
+        wxString err_msg = _("Output dimension should be less than number of observations (default value is 2 or 3).");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"),
+                            wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
 
     int transpose = 0; // row wise
     char dist = 'e'; // euclidean
@@ -403,7 +441,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
   
-    int new_col = 3;
+    int new_col = out_dim;
     vector<vector<double> > results;
 
     double *data = new double[rows * columns];
@@ -414,9 +452,18 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     }
     double* Y = new double[rows * new_col];
 
-    TSNE::run(data, rows, columns, Y, new_col, perplexity, theta,
-              GdaConst::gda_user_seed, GdaConst::use_gda_user_seed,
-              max_iteration, 250, mom_switch_iter);
+    int num_threads = 1;
+    int verbose = 0;
+#ifdef DEBUG
+    verbose = 1;
+#endif
+    double early_exaggeration = 12;
+
+    TSNE tsne;
+    tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
+             max_iteration, (int)mom_switch_iter,
+            (int)GdaConst::gda_user_seed, GdaConst::use_gda_user_seed,
+            verbose, early_exaggeration, learningrate, NULL);
 
     results.resize(new_col);
     for (int i=0; i<new_col; i++) {
@@ -449,7 +496,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         }
         
         SaveToTableDlg dlg(project, this, new_data,
-                           _("Save Results: MDS"),
+                           _("Save Results: t-SNE"),
                            wxDefaultPosition, wxSize(400,400));
         if (dlg.ShowModal() == wxID_OK) {
             // show in a scatter plot
@@ -481,7 +528,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             new_var_info[1].fixed_scale = true;
 
             if (num_new_vars == 2) {
-                wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
+                wxString title = _("t-SNE Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
                 MDSPlotFrame* subframe =
                 new MDSPlotFrame(parent, project,
@@ -503,7 +550,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 new_var_info[2].sync_with_global_time = new_var_info[2].is_time_variant;
                 new_var_info[2].fixed_scale = true;
 
-                wxString title = _("MDS 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
+                wxString title = _("t-SNE 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
 
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,

@@ -45,8 +45,16 @@ DistancePlot::~DistancePlot()
 bool DistancePlot::compute_var_dist(size_t i, size_t j, double& var_dist)
 {
     bool undef = false;
-    double val;
-    if (dist_method == 'e') {
+    double val = 0;
+    if (dist_method == 'm') {
+        for (size_t v=0; v < num_vars; ++v) {
+            val += fabs(data[v][i] - data[v][j]);
+            undef = undef || data_undefs[v][i];
+            undef = undef || data_undefs[v][j];
+        }
+        var_dist = sqrt(var_dist);
+    } else {
+        // euclidean as default 'e'
         for (size_t v=0; v < num_vars; ++v) {
             val = data[v][i] - data[v][j];
             var_dist += val * val;
