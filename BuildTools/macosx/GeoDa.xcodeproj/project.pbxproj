@@ -54,6 +54,9 @@
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
 		A1B18E9D23F36F0900465937 /* distanceplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18E9C23F36F0900465937 /* distanceplot.cpp */; };
 		A1B18EA223F4C29E00465937 /* DistancePlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */; };
+		A1B18EA823FDDDEE00465937 /* sptree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EA323FDDDEC00465937 /* sptree.cpp */; };
+		A1B18EA923FDDDEE00465937 /* tsne.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EA623FDDDEE00465937 /* tsne.cpp */; };
+		A1B18EAC23FDE29200465937 /* tSNEDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B18EAA23FDE29100465937 /* tSNEDlg.cpp */; };
 		A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B93ABF17D18735007F8195 /* ProjectConf.cpp */; };
 		A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */; };
 		A1C194A31B38FC67003DA7CA /* libc++.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C194A21B38FC67003DA7CA /* libc++.dylib */; };
@@ -408,6 +411,13 @@
 		A1B18E9F23F4815000465937 /* distanceplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = distanceplot.h; path = Algorithms/distanceplot.h; sourceTree = "<group>"; };
 		A1B18EA023F4C28900465937 /* DistancePlotView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DistancePlotView.h; sourceTree = "<group>"; };
 		A1B18EA123F4C29E00465937 /* DistancePlotView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DistancePlotView.cpp; sourceTree = "<group>"; };
+		A1B18EA323FDDDEC00465937 /* sptree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sptree.cpp; path = Algorithms/sptree.cpp; sourceTree = "<group>"; };
+		A1B18EA423FDDDED00465937 /* sptree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sptree.h; path = Algorithms/sptree.h; sourceTree = "<group>"; };
+		A1B18EA523FDDDEE00465937 /* tsne.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tsne.h; path = Algorithms/tsne.h; sourceTree = "<group>"; };
+		A1B18EA623FDDDEE00465937 /* tsne.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tsne.cpp; path = Algorithms/tsne.cpp; sourceTree = "<group>"; };
+		A1B18EA723FDDDEE00465937 /* vptree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vptree.h; path = Algorithms/vptree.h; sourceTree = "<group>"; };
+		A1B18EAA23FDE29100465937 /* tSNEDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tSNEDlg.cpp; sourceTree = "<group>"; };
+		A1B18EAB23FDE29100465937 /* tSNEDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tSNEDlg.h; sourceTree = "<group>"; };
 		A1B93ABE17D18735007F8195 /* ProjectConf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectConf.h; sourceTree = "<group>"; };
 		A1B93ABF17D18735007F8195 /* ProjectConf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjectConf.cpp; sourceTree = "<group>"; };
 		A1BE9E4F174DD85F007B9C64 /* GdaAppResources.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaAppResources.cpp; sourceTree = "<group>"; };
@@ -1010,6 +1020,11 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A1B18EA323FDDDEC00465937 /* sptree.cpp */,
+				A1B18EA423FDDDED00465937 /* sptree.h */,
+				A1B18EA623FDDDEE00465937 /* tsne.cpp */,
+				A1B18EA523FDDDEE00465937 /* tsne.h */,
+				A1B18EA723FDDDEE00465937 /* vptree.h */,
 				A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */,
 				A47F792320AA084B000AFE57 /* distmat_kernel.cl */,
 				A47F792120AA082A000AFE57 /* lisa_kernel.cl */,
@@ -1242,6 +1257,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1B18EAA23FDE29100465937 /* tSNEDlg.cpp */,
+				A1B18EAB23FDE29100465937 /* tSNEDlg.h */,
 				A178F777227773C500EB9CB7 /* GdaChoice.cpp */,
 				A178F778227773C500EB9CB7 /* GdaChoice.h */,
 				A178F774227772FC00EB9CB7 /* GdaListBox.cpp */,
@@ -1788,6 +1805,7 @@
 				A4ED7D442097EC55008685D6 /* ANN.cpp in Sources */,
 				A1C9F3ED18B55EE000E14394 /* FieldNameCorrectionDlg.cpp in Sources */,
 				A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */,
+				A1B18EA823FDDDEE00465937 /* sptree.cpp in Sources */,
 				A11EF98E21ED569A00B77413 /* MultiVarSettingsDlg.cpp in Sources */,
 				DD7975920F1D296F00496A84 /* SaveSelectionDlg.cpp in Sources */,
 				A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */,
@@ -1828,6 +1846,7 @@
 				DDB0E42C10B34DBB00F96D57 /* AddIdVariable.cpp in Sources */,
 				A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */,
 				A1894C3F213F29DC00718FFC /* SpatialJoinDlg.cpp in Sources */,
+				A1B18EA923FDDDEE00465937 /* tsne.cpp in Sources */,
 				DD00ADE811138A2C008FE572 /* TemplateFrame.cpp in Sources */,
 				DDAA6540117F9B5D00D1010C /* Project.cpp in Sources */,
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
@@ -1953,6 +1972,7 @@
 				DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */,
 				DD0FEBBC1909B7A000930418 /* NumCategoriesDlg.cpp in Sources */,
 				DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */,
+				A1B18EAC23FDE29200465937 /* tSNEDlg.cpp in Sources */,
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
 				DDEA3CBE193CEE5C0028B746 /* GdaLexer.cpp in Sources */,

@@ -167,6 +167,7 @@ public:
     void OnToolsDataSpectral(wxCommandEvent& event);
     void OnToolsDataRedcap(wxCommandEvent& event);
     void OnToolsDataMDS(wxCommandEvent& event);
+    void OnToolsDataTSNE(wxCommandEvent& event);
     
 	void OnToolsWeightsManager(wxCommandEvent& event);
 	void OnToolsWeightsCreate(wxCommandEvent& event);

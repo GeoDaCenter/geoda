@@ -430,6 +430,9 @@
         <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
             <label>MDS</label>
         </object>
+        <object class="wxMenuItem" name="ID_TOOLS_DATA_TSNE">
+            <label>t-SNE</label>
+        </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
             <label>K Means</label>
@@ -4860,6 +4863,9 @@
       </object>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_MDS">
           <label>MDS</label>
+      </object>
+      <object class="wxMenuItem" name="ID_TOOLS_DATA_TSNE">
+          <label>t-SNE</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="ID_TOOLS_DATA_KMEANS">
