@@ -4,7 +4,7 @@
 #include <map>
 #include "ScatterNewPlotView.h"
 #include "SimpleScatterPlotCanvas.h"
-
+#include "../DialogTools/AbstractClusterDlg.h"
 class DistancePlot;
 
 class DistancePlotCanvas : public SimpleScatterPlotCanvas
@@ -93,16 +93,17 @@ public:
     DECLARE_EVENT_TABLE()
 };
 
-class DistancePlotDlg : public wxDialog
+
+
+
+class DistancePlotDlg : public AbstractClusterDlg
 {
 public:
-    DistancePlotDlg(wxWindow* parent, Project* project,
-                    const wxString& title = _("Distance Scatter Plot"),
-                    const wxPoint& pos = wxDefaultPosition,
-                    const wxSize& size = wxDefaultSize);
-
+    DistancePlotDlg(wxFrame* parent, Project* project);
+    virtual ~DistancePlotDlg();
+    
     void OnCancelBtn(wxCommandEvent& ev);
-    void OnApplyBtn(wxCommandEvent& ev);
+    void OnOK(wxCommandEvent& ev);
 
     void OnAllPairsRadioSelected(wxCommandEvent& ev);
     void OnRandSampRadioSelected(wxCommandEvent& ev);
@@ -116,7 +117,9 @@ public:
     void OnDistanceChoiceSelected(wxCommandEvent& ev);
     void OnChangeSeed(wxCommandEvent& ev);
     void UpdateEstPairs();
-
+    void OnClose(wxCloseEvent& ev);
+    virtual wxString _printConfiguration();
+    
     DistancePlot* GetDistancePlot();
     wxString title;
     wxString str_threshold;
@@ -124,7 +127,6 @@ public:
 protected:
     DistancePlot* distplot;
 
-    Project* project;
     wxStaticText* vardist_txt; //
     wxChoice* vardist_choice; //
     wxStaticText* dist_txt; // ID_DIST_TXT
@@ -147,7 +149,7 @@ protected:
     wxButton* seedButton;
     static const long sldr_tcks = 1000;
 
-    void create_controls();
+    void CreateControls();
 
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
@@ -168,6 +170,8 @@ protected:
                               std::vector<std::vector<bool> >& data_undefs);
 
     void UpdateThreshTctrlVal();
+
+    DECLARE_EVENT_TABLE()
 };
 
 #endif

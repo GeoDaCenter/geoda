@@ -268,17 +268,22 @@ void DistancePlotFrame::update(LowessParamObservable* o)
 
 
 ///////////////////////////////////////////////////////////////////////////
-DistancePlotDlg::DistancePlotDlg(wxWindow* parent, Project* project,
-                                 const wxString& title,
-                                 const wxPoint& pos,
-                                 const wxSize& size)
-: wxDialog(parent, wxID_ANY, title, pos, size, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
-project(project)
+BEGIN_EVENT_TABLE( DistancePlotDlg, wxDialog )
+EVT_CLOSE( DistancePlotDlg::OnClose )
+END_EVENT_TABLE()
+
+DistancePlotDlg::DistancePlotDlg(wxFrame* parent, Project* project)
+: AbstractClusterDlg(parent, project,  _("Distance Scatter Plot"))
 {
-    create_controls();
+    CreateControls();
 }
 
-void DistancePlotDlg::create_controls()
+DistancePlotDlg::~DistancePlotDlg()
+{
+
+}
+
+void DistancePlotDlg::CreateControls()
 {
     wxPanel* panel = new wxPanel(this);
     panel->SetBackgroundColour(*wxWHITE);
@@ -428,7 +433,7 @@ void DistancePlotDlg::create_controls()
     Connect(XRCID("ID_CANCEL_BTN"), wxEVT_BUTTON,
             wxCommandEventHandler(DistancePlotDlg::OnCancelBtn));
     Connect(XRCID("ID_APPLY_BTN"), wxEVT_BUTTON,
-            wxCommandEventHandler(DistancePlotDlg::OnApplyBtn));
+            wxCommandEventHandler(DistancePlotDlg::OnOK));
 
     wxBoxSizer* btns_h_szr = new wxBoxSizer(wxHORIZONTAL);
     btns_h_szr->Add(help_btn, 0, wxALIGN_CENTER_VERTICAL);
@@ -541,12 +546,28 @@ void DistancePlotDlg::GetSelectedVariables(wxListBox* var_box,
     }
 }
 
-void DistancePlotDlg::OnCancelBtn(wxCommandEvent &ev)
+wxString DistancePlotDlg::_printConfiguration()
 {
-    EndDialog(wxID_CANCEL);
+    return "";
 }
 
-void DistancePlotDlg::OnApplyBtn(wxCommandEvent &ev)
+
+void DistancePlotDlg::OnCancelBtn(wxCommandEvent &ev)
+{
+    ev.Skip();
+    EndDialog(wxID_CANCEL);
+    Destroy();
+}
+
+void DistancePlotDlg::OnClose(wxCloseEvent& ev)
+{
+    wxLogMessage("Close DistancePlotDlg");
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    Destroy();
+}
+
+void DistancePlotDlg::OnOK(wxCommandEvent &ev)
 {
     bool is_all_pairs = all_pairs_rad->GetValue();
     bool is_threshold = thresh_cbx->GetValue();
@@ -628,7 +649,36 @@ void DistancePlotDlg::OnApplyBtn(wxCommandEvent &ev)
         distplot->run(true, num_rand);
     }
 
-    EndDialog(wxID_OK);
+    const std::vector<double>& X = distplot->GetX();
+    const std::vector<double>& Y = distplot->GetY();
+    const std::vector<bool>& X_undefs = distplot->GetXUndefs();
+    const std::vector<bool>& Y_undefs = distplot->GetYUndefs();
+    double x_min = distplot->GetMinX();
+    double x_max = distplot->GetMaxX();
+    double y_min = distplot->GetMinY();
+    double y_max = distplot->GetMaxY();
+
+    wxString X_label = _("Geographical distance");
+    if (!str_threshold.IsEmpty())
+        X_label << ": threshold=" << str_threshold;
+    if (distplot->IsArc() && distplot->IsMile())
+        X_label << " (mile)";
+    else if (distplot->IsArc() && !distplot->IsMile())
+        X_label << " (km)";
+    wxString Y_label = _("Variable distance");
+    if (distplot->DistMethod() == 'e')
+        Y_label << " (Euclidean)";
+    else if (distplot->DistMethod() == 'm')
+        Y_label << " (Manhanttan)";
+
+    wxString win_title = title;
+    win_title << " (" << X.size() << " data points)";
+    DistancePlotFrame* f = new DistancePlotFrame(parent, project,
+                                                 X, Y, X_undefs, Y_undefs,
+                                                 x_min, x_max,
+                                                 y_min, y_max,
+                                                 X_label, Y_label, win_title);
+    delete distplot;
 }
 
 DistancePlot* DistancePlotDlg::GetDistancePlot()

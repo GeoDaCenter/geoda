@@ -36,6 +36,7 @@
 #include "../Algorithms/tsne.h"
 #include "../Explore/ScatterNewPlotView.h"
 #include "../Explore/3DPlotView.h"
+#include "../kNN/ANN/ANN.h"
 #include "SaveToTableDlg.h"
 #include "nbrMatchDlg.h"
 
@@ -58,7 +59,7 @@ NbrMatchDlg::~NbrMatchDlg()
 void NbrMatchDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(480,820), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(440,620), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -307,4 +308,26 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
 
+    // create knn spatial weights GAL
+
+    // create knn variable weights
+    double eps = 0; // error bound
+    if (dist == 'e') ANN_DIST_TYPE = 2; // euclidean
+    else if (dist == 'b') ANN_DIST_TYPE = 1; // manhattan
+    
+    // since KNN search will always return the query point itself, so add 1
+    // to make sure returning min_samples number of results
+    //min_samples = min_samples + 1;
+
+    ANNkd_tree* kdTree = new ANNkd_tree(input_data, rows, columns);
+    ANNidxArray nnIdx = new ANNidx[knn+1];
+    ANNdistArray dists = new ANNdist[knn+1];
+    for (size_t i=0; i<rows; ++i) {
+        kdTree->annkSearch(input_data[i], knn+1, nnIdx, dists, eps);
+        //core_d[i] = sqrt(dists[min_samples-1]);
+    }
+    delete[] nnIdx;
+    delete[] dists;
+    delete kdTree;
+    // intersection weights
 }

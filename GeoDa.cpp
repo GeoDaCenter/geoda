@@ -127,6 +127,7 @@
 #include "DialogTools/PreferenceDlg.h"
 #include "DialogTools/SpatialJoinDlg.h"
 #include "DialogTools/MultiVarSettingsDlg.h"
+#include "DialogTools/nbrMatchDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"
@@ -640,11 +641,15 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("IDM_MUL_LJC"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LJC"), shp_proj);
 
-    
     EnableTool(XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_GEARY"), shp_proj);
     EnableTool(XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
+
+    EnableTool(XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
+    EnableTool(XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
 	
 	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
@@ -3308,43 +3313,20 @@ void GdaFrame::OnDistancePlot(wxCommandEvent& WXUNUSED(event))
     Project* p = GetProject();
     if (!p) return;
 
-    DistancePlotDlg distplot_dlg(this, p);
-    if (distplot_dlg.ShowModal() != wxID_OK) return;
-
-    DistancePlot* distplot = distplot_dlg.GetDistancePlot();
-
-    if (distplot) {
-        const std::vector<double>& X = distplot->GetX();
-        const std::vector<double>& Y = distplot->GetY();
-        const std::vector<bool>& X_undefs = distplot->GetXUndefs();
-        const std::vector<bool>& Y_undefs = distplot->GetYUndefs();
-        double x_min = distplot->GetMinX();
-        double x_max = distplot->GetMaxX();
-        double y_min = distplot->GetMinY();
-        double y_max = distplot->GetMaxY();
-        
-        wxString X_label = _("Geographical distance");
-        if (!distplot_dlg.str_threshold.IsEmpty())
-            X_label << ": threshold=" << distplot_dlg.str_threshold;
-        if (distplot->IsArc() && distplot->IsMile())
-            X_label << " (mile)";
-        else if (distplot->IsArc() && !distplot->IsMile())
-            X_label << " (km)";
-        wxString Y_label = _("Variable distance");
-        if (distplot->DistMethod() == 'e')
-            Y_label << " (Euclidean)";
-        else if (distplot->DistMethod() == 'm')
-            Y_label << " (Manhanttan)";
-
-        wxString title = distplot_dlg.title;
-        title << " (" << X.size() << " data points)";
-        DistancePlotFrame* f = new DistancePlotFrame(GdaFrame::gda_frame, p,
-                                                     X, Y, X_undefs, Y_undefs,
-                                                     x_min, x_max,
-                                                     y_min, y_max,
-                                                     X_label, Y_label, title);
-        delete distplot;
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (DistancePlotDlg* w = dynamic_cast<DistancePlotDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
     }
+
+    DistancePlotDlg* dlg = new DistancePlotDlg(this, p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnToolOpenNewTable(wxCommandEvent& WXUNUSED(event))
@@ -3620,6 +3602,16 @@ void GdaFrame::OnLisaMenuChoices(wxCommandEvent& WXUNUSED(event))
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
 }
 
+void GdaFrame::OnCorrelogramMenuChoices(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_CORRELO_MENU");
+
+    if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+}
+
 void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 {
     Project* p = GetProject();
@@ -3628,6 +3620,29 @@ void GdaFrame::OnGetisMenuChoices(wxCommandEvent& WXUNUSED(event))
 	wxMenu* popupMenu = wxXmlResource::Get()->LoadMenu("ID_GETIS_MENU");
 	
 	if (popupMenu) PopupMenu(popupMenu, wxDefaultPosition);
+}
+
+void GdaFrame::OnOpenLocalMatch(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenLocalMatch.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (NbrMatchDlg* w = dynamic_cast<NbrMatchDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    NbrMatchDlg* dlg = new NbrMatchDlg(this, p);
+    dlg->Show(true);
 }
 
 void GdaFrame::OnOpenUniLocalGeary(wxCommandEvent& event)
@@ -6880,84 +6895,76 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
     EVT_MENU(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_MENU(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
     EVT_MENU(XRCID("IDM_DISTANCE_PLOT"), GdaFrame::OnDistancePlot)
     EVT_MENU(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
     EVT_TOOL(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
     EVT_TOOL(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_TOOL(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
-    EVT_TOOL(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
+    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+    EVT_MENU(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
+    EVT_TOOL(XRCID("ID_CORRELO_MENU"), GdaFrame::OnCorrelogramMenuChoices)
+    EVT_BUTTON(XRCID("ID_CORRELO_MENU"), GdaFrame::OnExploreCorrelogram)
+
     EVT_TOOL(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
     EVT_BUTTON(XRCID("IDM_SCATTERPLOT"), GdaFrame::OnExploreScatterNewPlot)
-    EVT_BUTTON(XRCID("IDM_CORRELOGRAM"), GdaFrame::OnExploreCorrelogram)
+
     EVT_BUTTON(XRCID("IDM_BUBBLECHART"), GdaFrame::OnExploreBubbleChart)
     EVT_BUTTON(XRCID("IDM_SCATTERPLOT_MAT"), GdaFrame::OnExploreScatterPlotMat)
     EVT_BUTTON(XRCID("IDM_COV_SCATTERPLOT"), GdaFrame::OnExploreCovScatterPlot)
+
     EVT_MENU(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_TOOL(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
     EVT_BUTTON(XRCID("IDM_BOX"), GdaFrame::OnExploreNewBox)
+
     EVT_MENU(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
     EVT_TOOL(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
     EVT_BUTTON(XRCID("IDM_PCP"), GdaFrame::OnExplorePCP)
+
     EVT_MENU(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
     EVT_TOOL(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
     EVT_BUTTON(XRCID("IDM_3DP"), GdaFrame::OnExplore3DP)
+
     EVT_MENU(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
     EVT_TOOL(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
     EVT_BUTTON(XRCID("IDM_LINE_CHART"), GdaFrame::OnExploreLineChart)
+
     EVT_TOOL(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
     EVT_BUTTON(XRCID("IDM_NEW_TABLE"), GdaFrame::OnToolOpenNewTable)
+
     EVT_TOOL(XRCID("ID_MORAN_MENU"), GdaFrame::OnMoranMenuChoices)
     EVT_TOOL(XRCID("ID_TOOLS_MENU"), GdaFrame::OnToolsChoices)
+
     EVT_MENU(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-    EVT_TOOL(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
-    EVT_BUTTON(XRCID("IDM_MSPL"), GdaFrame::OnOpenMSPL)
     EVT_MENU(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_TOOL(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
-    EVT_BUTTON(XRCID("IDM_DMORAN"), GdaFrame::OnOpenDiffMoran)
     EVT_MENU(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-    EVT_TOOL(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
-    EVT_BUTTON(XRCID("IDM_GMORAN"), GdaFrame::OnOpenGMoran)
     EVT_MENU(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-    EVT_TOOL(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
-    EVT_BUTTON(XRCID("IDM_MORAN_EBRATE"), GdaFrame::OnOpenMoranEB)
+
     EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
 
     EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-    EVT_TOOL(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-    EVT_BUTTON(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
-
     EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-    EVT_TOOL(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
-    EVT_BUTTON(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
+
 
     EVT_MENU(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-    EVT_TOOL(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-    EVT_BUTTON(XRCID("IDM_DIFF_LISA"), GdaFrame::OnOpenDiffLisa)
-
     EVT_MENU(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-    EVT_TOOL(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
-    EVT_BUTTON(XRCID("IDM_LISA_EBRATE"), GdaFrame::OnOpenLisaEB)
 
     EVT_MENU(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-    EVT_TOOL(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-    EVT_BUTTON(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
-
     EVT_MENU(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
-    EVT_TOOL(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
-    EVT_BUTTON(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
+
+    EVT_MENU(XRCID("IDM_UNI_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
+    EVT_MENU(XRCID("IDM_MUL_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
 
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
-    EVT_BUTTON(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
 
     EVT_MENU(XRCID("IDM_LOCAL_G"), GdaFrame::OnOpenGetisOrd)
     EVT_MENU(XRCID("IDM_LOCAL_G_STAR"), GdaFrame::OnOpenGetisOrdStar)
     EVT_MENU(XRCID("IDM_LOCAL_JOINT_COUNT"), GdaFrame::OnOpenLocalJoinCount)
 
     EVT_MENU(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
-    EVT_TOOL(XRCID("IDM_BIV_LJC"), GdaFrame::OnOpenBivariateLJC)
     EVT_MENU(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
-    EVT_TOOL(XRCID("IDM_MUL_LJC"), GdaFrame::OnOpenMultiLJC)
 
     EVT_MENU(XRCID("ID_VIEW_DISPLAY_PRECISION"),GdaFrame::OnDisplayPrecision)
     EVT_MENU(XRCID("ID_HISTOGRAM_INTERVALS"), GdaFrame::OnHistogramIntervals)
@@ -6989,8 +6996,8 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_THICKNESS_STRONG"), GdaFrame::OnChangeGraphThickness)
     EVT_MENU(XRCID("ID_WEIGHTS_GRAPH_COLOR"), GdaFrame::OnChangeGraphColor)
     EVT_MENU(XRCID("ID_CONN_SELECTED_COLOR"), GdaFrame::OnChangeConnSelectedColor)
-EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
-EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
+    EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
+    EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)

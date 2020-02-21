@@ -516,6 +516,13 @@
           <label>Multivariate Local Geary</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="IDM_UNI_LOCAL_MATCH">
+          <label>Univariate Local Neighbor Match Test</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_MUL_LOCAL_MATCH">
+          <label>Multivariate Local Neighbor Match Test</label>
+      </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="IDM_CORRELOGRAM">
         <label>Spatial Correlogram</label>
       </object>
@@ -4911,6 +4918,15 @@
     <object class="wxMenuItem" name="IDM_MORAN_EBRATE">
       <label>Moran's I with EB Rate</label>
     </object>
+  </object>
+  <object class="wxMenu" name="ID_CORRELO_MENU">
+      <label>Distance based Methods</label>
+      <object class="wxMenuItem" name="IDM_CORRELOGRAM">
+          <label>Spatial Correlogram</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_DISTANCE_PLOT">
+          <label>Distance Scatter Plot</label>
+      </object>
   </object>
   <object class="wxMenu" name="ID_LISA_MENU">
     <label>Local Moran's I Maps</label>

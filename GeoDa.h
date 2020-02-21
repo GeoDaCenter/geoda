@@ -246,6 +246,7 @@ public:
     void OnOpenDiffMoran(wxCommandEvent& event);
 	void OnOpenMoranEB(wxCommandEvent& event);
 	void OnLisaMenuChoices(wxCommandEvent& event);
+    void OnCorrelogramMenuChoices(wxCommandEvent& event);
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
@@ -258,6 +259,8 @@ public:
 	void OnOpenMultiLocalGeary(wxCommandEvent& event);
 	void OnOpenBivariateLJC(wxCommandEvent& event);
     void OnOpenMultiLJC(wxCommandEvent& event);
+
+    void OnOpenLocalMatch(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);
 	void OnNewCustomCatClassifB(wxCommandEvent& event);
