@@ -133,9 +133,9 @@ namespace Gda {
 	inline bool IsNaN(double x) { return x != x; }
 	inline bool IsFinite(double x) { return x-x == 0; }
     
-    double factorial(unsigned int n);
+    uint64_t factorial(unsigned int n);
     
-    double nChoosek(unsigned int n, unsigned int r);
+    double combinatorial(unsigned int n, unsigned int r);
     
     wxString CreateUUID(int nSize);
     

@@ -1863,6 +1863,7 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
 		dlg.ShowModal();
         return false;
 	}
+    
 	if (new_map_theme == CatClassification::custom) {
 		CatClassifManager* ccm = project->GetCatClassifManager();
 		if (!ccm) return false;
@@ -1879,15 +1880,18 @@ MapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme,
             custom_classif_state->removeObserver(this);
 		custom_classif_state = 0;
 	}
+    
 	if (new_map_smoothing == excess_risk) {
 		new_map_theme = CatClassification::excess_risk_theme;
 	}
+    
 	int new_num_vars = 1;
 	if (new_map_smoothing != no_smoothing) {
 		new_num_vars = 2;
 	} else if (new_map_theme == CatClassification::no_theme) {
 		new_num_vars = 0;
 	}
+    
 	int num_vars = GetNumVars();
 	if (new_num_vars == 0) {
 		var_info.clear();
@@ -2578,7 +2582,7 @@ void MapCanvas::CreateAndUpdateCategories()
 		 // 1 = #cats
 		cat_data.CreateCategoriesAllCanvasTms(1, num_time_vals, num_obs);
 		for (int t=0; t<num_time_vals; t++) {
-			cat_data.SetCategoryColor(t,0, GdaConst::map_default_fill_colour);
+			cat_data.SetCategoryColor(t, 0, GdaConst::map_default_fill_colour);
 			cat_data.SetCategoryLabel(t, 0, "");
             int num_valid_obs = num_obs - GetEmptyNumber();
 			cat_data.SetCategoryCount(t, 0, num_valid_obs);

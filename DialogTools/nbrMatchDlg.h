@@ -26,6 +26,7 @@
 #include <wx/listbox.h>
 
 #include "../VarTools.h"
+#include "../Explore/MapNewView.h"
 #include "AbstractClusterDlg.h"
 
 class NbrMatchDlg : public AbstractClusterDlg
@@ -53,7 +54,7 @@ public:
 protected:
 
     wxChoice* m_distance;
-
+    wxChoice* m_geo_dist_metric;
     wxTextCtrl* txt_knn;
 
     wxCheckBox* chk_seed;
@@ -61,5 +62,77 @@ protected:
     
     DECLARE_EVENT_TABLE()
 };
+
+class LocalMatchMapCanvas : public MapCanvas
+{
+    DECLARE_CLASS(LocalMatchMapCanvas)
+public:
+    LocalMatchMapCanvas(wxWindow *parent,
+                        TemplateFrame* t_frame,
+                        Project* project,
+                        vector<wxString>& select_vars,
+                        vector<wxString>& co_vals,
+                        vector<wxColour>& co_clrs,
+                        vector<wxString>& co_lbls,
+                        vector<vector<int> >& co_ids,
+                        CatClassification::CatClassifType theme_type,
+                        boost::uuids::uuid weights_id_s,
+                        const wxPoint& pos = wxDefaultPosition,
+                        const wxSize& size = wxDefaultSize);
+    virtual ~LocalMatchMapCanvas();
+    
+    virtual void DisplayRightClickMenu(const wxPoint& pos);
+    virtual wxString GetCanvasTitle();
+    virtual wxString GetVariableNames();
+    virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
+                               SmoothingType new_map_smoothing);
+    virtual void SetCheckMarks(wxMenu* menu);
+    virtual void TimeChange();
+    virtual void CreateAndUpdateCategories();
+    virtual void TimeSyncVariableToggle(int var_index);
+    virtual void UpdateStatusBar();
+
+    vector<wxString> select_vars;
+    vector<wxString> co_vals;
+    vector<wxColour> co_clrs;
+    vector<wxString> co_lbls;
+    vector<vector<int> > co_ids;
+    
+    DECLARE_EVENT_TABLE()
+};
+
+
+class LocalMatchMapFrame : public MapFrame
+{
+    DECLARE_CLASS(LocalMatchMapFrame)
+public:
+    LocalMatchMapFrame(wxFrame *parent,
+                       Project* project,
+                       vector<wxString>& select_vars,
+                       vector<wxString>& co_vals,
+                       vector<wxColour>& co_clrs,
+                       vector<wxString>& co_lbls,
+                       vector<vector<int> >& co_ids,
+                       boost::uuids::uuid weights_id_s,
+                       const wxString title,
+                       const wxPoint& pos = wxDefaultPosition,
+                       const wxSize& size = GdaConst::map_default_size,
+                       const long style = wxDEFAULT_FRAME_STYLE);
+    virtual ~LocalMatchMapFrame();
+    
+    void OnActivate(wxActivateEvent& event);
+    virtual void MapMenus();
+    virtual void UpdateOptionMenuItems();
+    virtual void UpdateContextMenuItems(wxMenu* menu);
+    
+    void OnSave(wxCommandEvent& event);
+    
+    void OnShowAsConditionalMap(wxCommandEvent& event);
+    
+    virtual void closeObserver(LisaCoordinator* o);
+    
+    DECLARE_EVENT_TABLE()
+};
+
 
 #endif

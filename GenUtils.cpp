@@ -522,25 +522,28 @@ double Gda::ThomasWangDouble(uint64_t& key) {
 	return 5.42101086242752217E-20 * key;
 }
 
-double Gda::factorial(unsigned int n)
+uint64_t Gda::factorial(unsigned int n)
 {
-    double r = 1;
-    for(int i = n-1; i > 1; i--)
+    uint64_t r = 1;
+    for(size_t i = n-1; i > 1; i--)
         r *= i;
     
     return r;
 }
 
-double Gda::nChoosek(unsigned int n, unsigned int k) {
+double Gda::combinatorial(unsigned int n, unsigned int k) {
    
-    double r = 1;
-    double s = 1;
-    int i;
+    uint64_t r = 1;
+    uint64_t s = 1;
+    
+    size_t i;
     int kk = k > n/2 ? k : n-k;
     
     for(i=n; i > kk; i--) r *= i;
+    
     for(i=(n-kk); i>0; i--) s *= i;
-    return r/s;
+    
+    return (double)s / r;
 }
 
 wxString Gda::CreateUUID(int nSize)

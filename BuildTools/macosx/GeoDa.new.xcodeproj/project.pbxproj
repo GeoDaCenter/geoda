@@ -78,6 +78,12 @@
 		A40A6A7E20226B3C003CDD79 /* PreferenceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A40A6A7D20226B3B003CDD79 /* PreferenceDlg.cpp */; };
 		A414C88B207BED2700520546 /* MatfileReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A414C88A207BED2700520546 /* MatfileReader.cpp */; };
 		A416A1771F84122B001F2884 /* PCASettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */; };
+		A41C2BAC2400441500C341A2 /* tsne.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BA52400441400C341A2 /* tsne.cpp */; };
+		A41C2BAD2400441500C341A2 /* distanceplot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BA72400441400C341A2 /* distanceplot.cpp */; };
+		A41C2BAE2400441500C341A2 /* splittree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BAB2400441500C341A2 /* splittree.cpp */; };
+		A41C2BB32400442400C341A2 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */; };
+		A41C2BB42400442400C341A2 /* tSNEDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BB12400442400C341A2 /* tSNEDlg.cpp */; };
+		A41C2BB72400443000C341A2 /* DistancePlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
 		A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018051FB4CF980029709C /* SkaterDlg.cpp */; };
 		A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */; };
@@ -431,6 +437,20 @@
 		A414C88A207BED2700520546 /* MatfileReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MatfileReader.cpp; path = io/MatfileReader.cpp; sourceTree = "<group>"; };
 		A416A1751F84122B001F2884 /* PCASettingsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PCASettingsDlg.cpp; sourceTree = "<group>"; };
 		A416A1761F84122B001F2884 /* PCASettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PCASettingsDlg.h; sourceTree = "<group>"; };
+		A41C2BA42400440200C341A2 /* vptree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vptree.h; path = Algorithms/vptree.h; sourceTree = "<group>"; };
+		A41C2BA52400441400C341A2 /* tsne.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tsne.cpp; path = Algorithms/tsne.cpp; sourceTree = "<group>"; };
+		A41C2BA62400441400C341A2 /* distanceplot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = distanceplot.h; path = Algorithms/distanceplot.h; sourceTree = "<group>"; };
+		A41C2BA72400441400C341A2 /* distanceplot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = distanceplot.cpp; path = Algorithms/distanceplot.cpp; sourceTree = "<group>"; };
+		A41C2BA82400441400C341A2 /* threadpool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threadpool.h; path = Algorithms/threadpool.h; sourceTree = "<group>"; };
+		A41C2BA92400441400C341A2 /* splittree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = splittree.h; path = Algorithms/splittree.h; sourceTree = "<group>"; };
+		A41C2BAA2400441400C341A2 /* tsne.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tsne.h; path = Algorithms/tsne.h; sourceTree = "<group>"; };
+		A41C2BAB2400441500C341A2 /* splittree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = splittree.cpp; path = Algorithms/splittree.cpp; sourceTree = "<group>"; };
+		A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
+		A41C2BB02400442400C341A2 /* tSNEDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tSNEDlg.h; sourceTree = "<group>"; };
+		A41C2BB12400442400C341A2 /* tSNEDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tSNEDlg.cpp; sourceTree = "<group>"; };
+		A41C2BB22400442400C341A2 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
+		A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DistancePlotView.cpp; sourceTree = "<group>"; };
+		A41C2BB62400442F00C341A2 /* DistancePlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DistancePlotView.h; sourceTree = "<group>"; };
 		A42018011FB3C0AC0029709C /* skater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skater.cpp; path = Algorithms/skater.cpp; sourceTree = "<group>"; };
 		A42018021FB3C0AC0029709C /* skater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skater.h; path = Algorithms/skater.h; sourceTree = "<group>"; };
 		A42018041FB4CF980029709C /* SkaterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkaterDlg.h; sourceTree = "<group>"; };
@@ -929,6 +949,14 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A41C2BA72400441400C341A2 /* distanceplot.cpp */,
+				A41C2BA62400441400C341A2 /* distanceplot.h */,
+				A41C2BAB2400441500C341A2 /* splittree.cpp */,
+				A41C2BA92400441400C341A2 /* splittree.h */,
+				A41C2BA82400441400C341A2 /* threadpool.h */,
+				A41C2BA52400441400C341A2 /* tsne.cpp */,
+				A41C2BAA2400441400C341A2 /* tsne.h */,
+				A41C2BA42400440200C341A2 /* vptree.h */,
 				A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */,
 				A47F792320AA084B000AFE57 /* distmat_kernel.cl */,
 				A47F792120AA082A000AFE57 /* lisa_kernel.cl */,
@@ -1155,6 +1183,10 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */,
+				A41C2BB22400442400C341A2 /* nbrMatchDlg.h */,
+				A41C2BB12400442400C341A2 /* tSNEDlg.cpp */,
+				A41C2BB02400442400C341A2 /* tSNEDlg.h */,
 				A178F777227773C500EB9CB7 /* GdaChoice.cpp */,
 				A178F778227773C500EB9CB7 /* GdaChoice.h */,
 				A178F774227772FC00EB9CB7 /* GdaListBox.cpp */,
@@ -1298,6 +1330,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */,
+				A41C2BB62400442F00C341A2 /* DistancePlotView.h */,
 				A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */,
 				A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */,
 				A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */,
@@ -1753,6 +1787,7 @@
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
+				A41C2BB32400442400C341A2 /* nbrMatchDlg.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
 				A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */,
 				A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */,
@@ -1772,6 +1807,7 @@
 				A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */,
 				A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */,
 				DDF85D1813B257B6006C1B08 /* DataViewerEditFieldPropertiesDlg.cpp in Sources */,
+				A41C2BAE2400441500C341A2 /* splittree.cpp in Sources */,
 				DDB252B513BBFD6700A7CE26 /* MergeTableDlg.cpp in Sources */,
 				DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */,
 				DD89C87413D86BC7006C068D /* FieldNewCalcBinDlg.cpp in Sources */,
@@ -1793,6 +1829,7 @@
 				DDF1637015064C2900E3E6BD /* GetisOrdMapNewView.cpp in Sources */,
 				DD7E91D3151A8F3A001AAC4C /* LisaScatterPlotView.cpp in Sources */,
 				DD2B42B11522552B00888E51 /* BoxNewPlotView.cpp in Sources */,
+				A41C2BB42400442400C341A2 /* tSNEDlg.cpp in Sources */,
 				DD2B433F1522A93700888E51 /* HistogramView.cpp in Sources */,
 				DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */,
 				A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */,
@@ -1869,6 +1906,7 @@
 				DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */,
 				DD0FEBBC1909B7A000930418 /* NumCategoriesDlg.cpp in Sources */,
 				DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */,
+				A41C2BAC2400441500C341A2 /* tsne.cpp in Sources */,
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
 				DDEA3CBE193CEE5C0028B746 /* GdaLexer.cpp in Sources */,
@@ -1885,6 +1923,7 @@
 				DD8183C81970619800228B0A /* WeightsManDlg.cpp in Sources */,
 				A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */,
 				A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */,
+				A41C2BB72400443000C341A2 /* DistancePlotView.cpp in Sources */,
 				DD81857C19709B7800228B0A /* ConnectivityMapView.cpp in Sources */,
 				DD4DED12197E16FF00FE29E8 /* SelectWeightsDlg.cpp in Sources */,
 				DD5AA73D1982D200009B30C6 /* CalcHelp.cpp in Sources */,
@@ -1911,6 +1950,7 @@
 				DD6CDA7A1A255CEF00FCF2B8 /* LineChartStats.cpp in Sources */,
 				DD88CF081A4253B700803196 /* CovSpView.cpp in Sources */,
 				A4ED7D582097F114008685D6 /* kd_split.cpp in Sources */,
+				A41C2BAD2400441500C341A2 /* distanceplot.cpp in Sources */,
 				DD88CF0B1A4254D000803196 /* CovSpHLStateProxy.cpp in Sources */,
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
 				A19483982118BAAA009A87A2 /* basic.cpp in Sources */,
@@ -2031,7 +2071,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
@@ -2137,7 +2177,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_WEAK = YES;
-				CODE_SIGN_IDENTITY = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;

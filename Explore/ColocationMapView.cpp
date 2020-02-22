@@ -307,7 +307,7 @@ void ColocationSelectDlg::OnVarSelect( wxCommandEvent& event)
     vector<int> tms;
     
     combo_var->GetSelections(var_selections);
-    int num_var = var_selections.size();
+    size_t num_var = var_selections.size();
     if (num_var >= 2) {
         // check selected variables for any co-located values, and add them to choice box
         col_ids.resize(num_var);

@@ -650,7 +650,7 @@ void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)
         helper_DrawSelectableShapes_dc(dc, hs, false, false);
         
     } else {
-        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        for (size_t i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (_IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
             }
@@ -868,7 +868,7 @@ void TemplateCanvas::DrawHighlightedShapes(wxMemoryDC &dc)
         
     } else {
         vector<bool>& hs = GetSelBitVec();
-        for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+        for (size_t i=0, iend=selectable_shps.size(); i<iend; i++) {
             if (hs[i] && _IsShpValid(i)) {
                 selectable_shps[i]->paintSelf(dc);
             }
@@ -929,7 +929,7 @@ void TemplateCanvas::helper_DrawSelectableShapes_dc(wxDC &dc, vector<bool>& hs,
                 dc.SetBrush(cat_data.GetCategoryBrush(cc_ts, cat));
             }
 			vector<int>& ids =	cat_data.GetIdsRef(cc_ts, cat);
-			for (int i=0, iend=ids.size(); i<iend; i++) {
+			for (size_t i=0, iend=ids.size(); i<iend; i++) {
                 if (!_IsShpValid(ids[i]) || (hl_only && hs[ids[i]] == revert)) {
                     continue;
                 }

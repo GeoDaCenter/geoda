@@ -56,7 +56,8 @@ namespace CatClassification {
     };
 	
 	enum ColorScheme { sequential_color_scheme, diverging_color_scheme,
-        qualitative_color_scheme, custom_color_scheme, unique_color_scheme
+        qualitative_color_scheme, custom_color_scheme, unique_color_scheme,
+        bugn_color_scheme
     };
 	
 	
