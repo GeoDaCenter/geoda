@@ -45,6 +45,8 @@
 #include "../Explore/ScatterNewPlotView.h"
 #include "../Explore/3DPlotView.h"
 #include "../kNN/ANN/ANN.h"
+#include "PermutationCounterDlg.h"
+#include "RandomizationDlg.h"
 #include "../GeoDa.h"
 #include "../Explore/MapNewView.h"
 #include "../GenColor.h"
@@ -947,4 +949,818 @@ void LocalMatchMapFrame::OnSave(wxCommandEvent& event)
         }
     }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+LocalMatchCoordinator::LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w, const std::vector<int>& cadinality, int permutations, uint64_t last_seed_used, bool reuse_last_seed)
+: spatial_w(spatial_w), variable_w(variable_w), cadinality(cadinality),
+last_seed_used(last_seed_used), reuse_last_seed(reuse_last_seed), permutations(permutations), num_obs(spatial_w->num_obs)
+{
+    
+}
+
+void LocalMatchCoordinator::job(size_t nbr_sz, size_t idx, uint64_t seed_start)
+{
+    GeoDaSet workPermutation(num_obs);
+    int max_rand = num_obs-1;
+    
+    int rand=0, newRandom, countLarger=0;
+    double rng_val;
+
+    for (size_t i=0; i<permutations; ++i) {
+        // for each observation, get random neighbors
+        while (rand < nbr_sz) {
+            // computing 'perfect' permutation of given size
+            rng_val = Gda::ThomasWangHashDouble(seed_start++) * max_rand;
+            // round is needed to fix issue
+            // https://github.com/GeoDaCenter/geoda/issues/488
+            newRandom = (int)(rng_val<0.0?ceil(rng_val - 0.5):floor(rng_val + 0.5));
+                
+            if (newRandom != idx && !workPermutation.Belongs(newRandom) && spatial_w->gwt[newRandom].Size()>0) // neighborless is out of shuffle
+            {
+                workPermutation.Push(newRandom);
+                rand++;
+            }
+        }
+        // compute common local match
+        int perm_nbr, match = 0;
+        for (int cp=0; cp<nbr_sz; cp++) {
+            perm_nbr = workPermutation.Pop();
+            if (variable_w->CheckNeighbor(idx, perm_nbr)) {
+                match += 1;
+            }
+        }
+        if (match >= cadinality[idx]) {
+            countLarger += 1;
+        }
+    }
+    
+    // pick the smallest
+    if (permutations-countLarger <= countLarger) {
+        countLarger = permutations-countLarger;
+    }
+    // compute pseudo-p-value
+    sigVal[idx] = (countLarger + 1.0)/(permutations+1);
+    
+    if (sigVal[idx] <= 0.0001) sigCat[idx] = 4;
+    else if (sigVal[idx] <= 0.001) sigCat[idx] = 3;
+    else if (sigVal[idx] <= 0.01) sigCat[idx] = 2;
+    else if (sigVal[idx] <= 0.05) sigCat[idx]= 1;
+    else sigCat[idx]= 0;
+}
+
+void LocalMatchCoordinator::run()
+{
+    long nbr_sz;
+    for(size_t i=0; i< num_obs; ++i) {
+        // for each observation, get random neighbors
+        nbr_sz = spatial_w->gwt[i].Size();
+        uint64_t seed_start = reuse_last_seed ? last_seed_used + i : i;
+        job(nbr_sz, i, seed_start);
+    }
+}
+
+void LocalMatchCoordinator::SetSignificanceFilter(int filter_id)
+{
+    wxLogMessage("Entering LocalMatchCoordinator::SetSignificanceFilter()");
+    if (filter_id == -1) {
+        // user input cutoff
+        significance_filter = filter_id;
+        return;
+    }
+    // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+    if (filter_id < 1 || filter_id > 4) return;
+    significance_filter = filter_id;
+    if (filter_id == 1) significance_cutoff = 0.05;
+    if (filter_id == 2) significance_cutoff = 0.01;
+    if (filter_id == 3) significance_cutoff = 0.001;
+    if (filter_id == 4) significance_cutoff = 0.0001;
+    wxLogMessage("Exiting AbstractCoordinator::SetSignificanceFilter()");
+}
+
+std::vector<wxString> LocalMatchCoordinator::GetDefaultCategories()
+{
+    std::vector<wxString> cats;
+    cats.push_back("p = 0.05");
+    cats.push_back("p = 0.01");
+    cats.push_back("p = 0.001");
+    cats.push_back("p = 0.0001");
+    return cats;
+}
+
+std::vector<double> LocalMatchCoordinator::GetDefaultCutoffs()
+{
+    std::vector<double> cutoffs;
+    cutoffs.push_back(0.05);
+    cutoffs.push_back(0.01);
+    cutoffs.push_back(0.001);
+    cutoffs.push_back(0.0001);
+    return cutoffs;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+
+IMPLEMENT_CLASS(LocalMatchSignificanceCanvas, MapCanvas)
+BEGIN_EVENT_TABLE(LocalMatchSignificanceCanvas, MapCanvas)
+    EVT_PAINT(TemplateCanvas::OnPaint)
+    EVT_ERASE_BACKGROUND(TemplateCanvas::OnEraseBackground)
+    EVT_MOUSE_EVENTS(TemplateCanvas::OnMouseEvent)
+    EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
+END_EVENT_TABLE()
+
+
+LocalMatchSignificanceCanvas::LocalMatchSignificanceCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, LocalMatchCoordinator* gs_coordinator, const wxPoint& pos, const wxSize& size)
+: MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
+gs_coord(gs_coordinator)
+{
+    wxLogMessage("Entering LocalMatchSignificanceCanvas::LocalMatchSignificanceCanvas");
+    
+    str_sig = _("Not Significant");
+    str_low = _("No Colocation");
+    str_med = _("Has Colocation");
+    str_high = _("Colocation Cluster");
+    str_undefined = _("Undefined");
+    str_neighborless = _("Neighborless");
+    str_p005 = "p = 0.05";
+    str_p001 = "p = 0.01";
+    str_p0001 = "p = 0.001";
+    str_p00001 ="p = 0.0001";
+    
+    SetPredefinedColor(str_sig, wxColour(240, 240, 240));
+    SetPredefinedColor(str_high, wxColour(255, 0, 0));
+    SetPredefinedColor(str_med, wxColour(0, 255, 0));
+    SetPredefinedColor(str_low, wxColour(0, 0, 255));
+    SetPredefinedColor(str_undefined, wxColour(70, 70, 70));
+    SetPredefinedColor(str_neighborless, wxColour(140, 140, 140));
+    SetPredefinedColor(str_p005, wxColour(75, 255, 80));
+    SetPredefinedColor(str_p001, wxColour(6, 196, 11));
+    SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
+    SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
+
+    if (is_clust) {
+        cat_classif_def.cat_classif_type = CatClassification::local_join_count_categories;
+    } else {
+        cat_classif_def.cat_classif_type = CatClassification::local_join_count_significance;
+    }
+    
+    // must set var_info times from JCCoordinator initially
+    //var_info = gs_coord->var_info;
+    //template_frame->ClearAllGroupDependencies();
+    //for (int t=0, sz=var_info.size(); t<sz; ++t) {
+    //    template_frame->AddGroupDependancy(var_info[t].name);
+    //}
+    
+    CreateAndUpdateCategories();
+    UpdateStatusBar();
+    
+    wxLogMessage("Exiting MLJCMapCanvas::MLJCMapCanvas");
+}
+
+LocalMatchSignificanceCanvas::~LocalMatchSignificanceCanvas()
+{
+    wxLogMessage("In LocalMatchSignificanceCanvas::~LocalMatchSignificanceCanvas");
+}
+
+void LocalMatchSignificanceCanvas::DisplayRightClickMenu(const wxPoint& pos)
+{
+    wxLogMessage("Entering LocalMatchSignificanceCanvas::DisplayRightClickMenu");
+    // Workaround for right-click not changing window focus in OSX / wxW 3.0
+    wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
+    ((LocalMatchSignificanceFrame*) template_frame)->OnActivate(ae);
+    
+    wxMenu* optMenu = wxXmlResource::Get()->
+        LoadMenu("ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS");
+    AddTimeVariantOptionsToMenu(optMenu);
+    SetCheckMarks(optMenu);
+    
+    template_frame->UpdateContextMenuItems(optMenu);
+    template_frame->PopupMenu(optMenu, pos + GetPosition());
+    template_frame->UpdateOptionMenuItems();
+    wxLogMessage("Exiting LocalMatchSignificanceCanvas::DisplayRightClickMenu");
+}
+
+wxString LocalMatchSignificanceCanvas::GetCanvasTitle()
+{
+    wxString new_title;
+    
+    new_title << _("Local Neighbor Match Test");
+    new_title << " Significance Map ";
+    new_title << wxString::Format(", pseudo p (%d perm)", gs_coord->permutations);
+    
+    return new_title;
+}
+
+wxString LocalMatchSignificanceCanvas::GetVariableNames()
+{
+    wxString new_title;
+
+    return new_title;
+}
+
+/** This method definition is empty.  It is here to override any call
+ to the parent-class method since smoothing and theme changes are not
+ supported by MLJC maps */
+bool LocalMatchSignificanceCanvas::ChangeMapType(CatClassification::CatClassifType new_theme, SmoothingType new_smoothing)
+{
+    wxLogMessage("In LocalMatchSignificanceCanvas::ChangeMapType");
+    return false;
+}
+
+void LocalMatchSignificanceCanvas::SetCheckMarks(wxMenu* menu)
+{
+    // Update the checkmarks and enable/disable state for the
+    // following menu items if they were specified for this particular
+    // view in the xrc file.  Items that cannot be enable/disabled,
+    // or are not checkable do not appear.
+    MapCanvas::SetCheckMarks(menu);
+    
+    int sig_filter = ((LocalMatchSignificanceFrame*) template_frame)->GetLocalMatchCoordinator()->GetSignificanceFilter();
+    
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_05"),
+                                  sig_filter == 1);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_01"),
+                                  sig_filter == 2);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_001"),
+                                  sig_filter == 3);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_0001"),
+                                  sig_filter == 4);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SIGNIFICANCE_FILTER_SETUP"),
+                                  sig_filter == -1);
+
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_SPECIFIED_SEED"),
+                                  gs_coord->IsReuseLastSeed());
+}
+
+void LocalMatchSignificanceCanvas::TimeChange()
+{
+    wxLogMessage("Entering LocalMatchSignificanceCanvas::TimeChange");
+
+    wxLogMessage("Exiting LocalMatchSignificanceCanvas::TimeChange");
+}
+
+/** Update Categories based on info in JCCoordinator */
+void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
+{
+    //SyncVarInfoFromCoordinator();
+    template_frame->ClearAllGroupDependencies();
+    for (int t=0; t<var_info.size(); t++) {
+        var_info[t].time = my_times[t];
+        template_frame->AddGroupDependancy(var_info[t].name);
+    }
+    is_any_time_variant = gs_coord->is_any_time_variant;
+    is_any_sync_with_global_time = gs_coord->is_any_sync_with_global_time;
+    ref_var_index = gs_coord->ref_var_index;
+    num_time_vals = gs_coord->num_time_vals;
+    map_valid = gs_coord->map_valid;
+    map_error_message = gs_coord->map_error_message;
+    
+    cat_data.CreateEmptyCategories(num_time_vals, num_obs);
+    
+    std::vector<wxInt64> cluster;
+    for (int t=0; t<num_time_vals; t++) {
+        if (!map_valid[t])
+            break;
+        
+        int undefined_cat = -1;
+        int isolates_cat = -1;
+        int num_cats = 0;
+        double stop_sig = 0;
+        
+        //if (gs_coord->GetHasIsolates(t)) {
+        //    num_cats++;
+        //}
+        //if (gs_coord->GetHasUndefined(t)) {
+        //    num_cats++;
+        //}
+        
+        int set_perm = gs_coord->permutations;
+        stop_sig = 1.0 / (1.0 + set_perm);
+        double sig_cutoff = gs_coord->significance_cutoff;
+        
+        if (gs_coord->GetSignificanceFilter() < 0) {
+            // user specified cutoff
+            num_cats += 2;
+        } else {
+            num_cats += 6 - gs_coord->GetSignificanceFilter();
+            
+            if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+                num_cats -= 1;
+            }
+            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+                num_cats -= 1;
+            }
+        }
+        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+        cat_data.SetCategoryLabel(t, 0, str_sig);
+                cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
+        
+                if (gs_coord->GetSignificanceFilter() < 0) {
+                    // user specified cutoff
+                    wxString lbl = wxString::Format("p = %g", gs_coord->significance_cutoff);
+                    cat_data.SetCategoryLabel(t, 1, lbl);
+                    cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
+                    
+                    if (gs_coord->GetHasIsolates(t) &&
+                        gs_coord->GetHasUndefined(t))
+                    {
+                        isolates_cat = 2;
+                        undefined_cat = 3;
+                    } else if (gs_coord->GetHasUndefined(t)) {
+                        undefined_cat = 2;
+                    } else if (gs_coord->GetHasIsolates(t)) {
+                        isolates_cat = 2;
+                    }
+                    
+                } else {
+                    int s_f = gs_coord->GetSignificanceFilter();
+                    int set_perm = gs_coord->permutations;
+                    stop_sig = 1.0 / (1.0 + set_perm);
+                    
+                    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
+                    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+                    
+                    int cat_idx = 1;
+                    for (int j=s_f-1; j < 4; j++) {
+                        if (def_cutoffs[j] >= stop_sig) {
+                            cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
+                        }
+                    }
+                    if (gs_coord->GetHasIsolates(t) &&
+                        gs_coord->GetHasUndefined(t)) {
+                        isolates_cat = cat_idx++;
+                        undefined_cat = cat_idx++;
+                        
+                    } else if (gs_coord->GetHasUndefined(t)) {
+                        undefined_cat = cat_idx++;
+                        
+                    } else if (gs_coord->GetHasIsolates(t)) {
+                        isolates_cat = cat_idx++;
+                    }
+                }
+        
+        if (undefined_cat != -1) {
+            cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
+            cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
+        }
+        if (isolates_cat != -1) {
+            cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
+            cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
+        }
+        
+        double* p_val = gs_coord->sig_local_jc_vecs[t];
+        
+        if (gs_coord->GetSignificanceFilter() < 0) {
+            // user specified cutoff
+            int s_f = 1;
+            double sig_cutoff = gs_coord->significance_cutoff;
+            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+                if (cluster[i] == 4) {
+                    cat_data.AppendIdToCategory(t, isolates_cat, i);
+                } else if (cluster[i] == 5) {
+                    cat_data.AppendIdToCategory(t, undefined_cat, i);
+                } else if (cluster[i] == 0) {
+                    cat_data.AppendIdToCategory(t, 0, i); // not significant
+                } else {
+                    if (p_val[i] <= sig_cutoff) {
+                        cat_data.AppendIdToCategory(t, 1, i);
+                    } else {
+                        cat_data.AppendIdToCategory(t, 0, i); // not significant
+                    }
+                }
+
+            }
+        } else {
+            int s_f = gs_coord->GetSignificanceFilter();
+            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
+                if (cluster[i] == 0) {
+                    cat_data.AppendIdToCategory(t, 0, i); // not significant
+                } else if (cluster[i] == 4) {
+                    cat_data.AppendIdToCategory(t, isolates_cat, i);
+                } else if (cluster[i] == 5) {
+                    cat_data.AppendIdToCategory(t, undefined_cat, i);
+                } else if (p_val[i] <= 0.0001) {
+                    cat_data.AppendIdToCategory(t, 5-s_f, i);
+                } else if (p_val[i] <= 0.001) {
+                    cat_data.AppendIdToCategory(t, 4-s_f, i);
+                } else if (p_val[i] <= 0.01) {
+                    cat_data.AppendIdToCategory(t, 3-s_f, i);
+                } else if (p_val[i] <= 0.05) {
+                    cat_data.AppendIdToCategory(t, 2-s_f, i);
+                }
+            }
+        }
+        
+        for (int cat=0; cat<num_cats; cat++) {
+            cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
+    
+    if (ref_var_index != -1) {
+        cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
+                                        - var_info[ref_var_index].time_min);
+    }
+    PopulateCanvas();
+}
+
+void LocalMatchSignificanceCanvas::UpdateStatusBar()
+{
+    wxStatusBar* sb = 0;
+    if (template_frame) {
+        sb = template_frame->GetStatusBar();
+    }
+    if (!sb)
+        return;
+    wxString s;
+    s << _("#obs=") << project->GetNumRecords() <<" ";
+    
+    if ( highlight_state->GetTotalHighlighted() > 0) {
+        // for highlight from other windows
+        s << _("#selected=") << highlight_state->GetTotalHighlighted()<< "  ";
+    }
+    if (mousemode == select && selectstate == start) {
+        if (total_hover_obs >= 1) {
+            s << _("#hover obs ") << hover_obs[0]+1;
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << _("obs ") << hover_obs[1]+1;
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << _("obs ") << hover_obs[2]+1;
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
+    }
+    if (is_clust && gs_coord) {
+        double p_val = gs_coord->significance_cutoff;
+        wxString inf_str = wxString::Format(" p <= %g", p_val);
+        s << inf_str;
+    }
+    sb->SetStatusText(s);
+}
+
+void LocalMatchSignificanceCanvas::TimeSyncVariableToggle(int var_index)
+{
+    wxLogMessage("In LocalMatchSignificanceCanvas::TimeSyncVariableToggle");
+}
+
+/** Copy everything in var_info except for current time field for each
+ variable.  Also copy over is_any_time_variant, is_any_sync_with_global_time,
+ ref_var_index, num_time_vales, map_valid and map_error_message */
+void LocalMatchSignificanceCanvas::SyncVarInfoFromCoordinator()
+{
+}
+
+IMPLEMENT_CLASS(LocalMatchSignificanceFrame, MapFrame)
+    BEGIN_EVENT_TABLE(LocalMatchSignificanceFrame, MapFrame)
+    EVT_ACTIVATE(LocalMatchSignificanceFrame::OnActivate)
+END_EVENT_TABLE()
+
+LocalMatchSignificanceFrame::LocalMatchSignificanceFrame(wxFrame *parent, Project* project, LocalMatchCoordinator* gs_coordinator, const wxPoint& pos, const wxSize& size, const long style)
+: MapFrame(parent, project, pos, size, style), gs_coord(gs_coordinator)
+{
+    wxLogMessage("Entering LocalMatchSignificanceFrame::LocalMatchSignificanceFrame");
+    
+    no_update_weights = true;
+    int width, height;
+    GetClientSize(&width, &height);
+
+    DisplayStatusBar(true);
+    
+    wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY,
+        wxDefaultPosition, wxDefaultSize,
+        wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+    splitter_win->SetMinimumPaneSize(10);
+    
+    wxPanel* rpanel = new wxPanel(splitter_win);
+    template_canvas = new LocalMatchSignificanceCanvas(rpanel, this, project, gs_coordinator);
+    template_canvas->SetScrollRate(1,1);
+    wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
+    rbox->Add(template_canvas, 1, wxEXPAND);
+    rpanel->SetSizer(rbox);
+    
+    //WeightsManInterface* w_man_int = project->GetWManInt();
+    //((MapCanvas*) template_canvas)->SetWeightsId(w_man_int->GetDefault());
+
+    wxPanel* lpanel = new wxPanel(splitter_win);
+    template_legend = new MapNewLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+    wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+    template_legend->GetContainingSizer()->Detach(template_legend);
+    lbox->Add(template_legend, 1, wxEXPAND);
+    lpanel->SetSizer(lbox);
+    
+    splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
+    
+    
+    wxPanel* toolbar_panel = new wxPanel(this,wxID_ANY, wxDefaultPosition);
+    wxBoxSizer* toolbar_sizer= new wxBoxSizer(wxVERTICAL);
+    toolbar = wxXmlResource::Get()->LoadToolBar(toolbar_panel, "ToolBar_MAP");
+    SetupToolbar();
+    toolbar_sizer->Add(toolbar, 0, wxEXPAND|wxALL);
+    toolbar_panel->SetSizerAndFit(toolbar_sizer);
+    
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    sizer->Add(toolbar_panel, 0, wxEXPAND|wxALL);
+    sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+    SetSizer(sizer);
+    SetAutoLayout(true);
+       
+    SetTitle(template_canvas->GetCanvasTitle());
+    Show(true);
+    wxLogMessage("Exiting LocalMatchSignificanceFrame::LocalMatchSignificanceFrame");
+}
+
+LocalMatchSignificanceFrame::~LocalMatchSignificanceFrame()
+{
+    wxLogMessage("In LocalMatchSignificanceFrame::~LocalMatchSignificanceFrame");
+    if (gs_coord) {
+        gs_coord = 0;
+    }
+}
+
+void LocalMatchSignificanceFrame::OnActivate(wxActivateEvent& event)
+{
+    wxLogMessage("In LocalMatchSignificanceFrame::OnActivate");
+    if (event.GetActive()) {
+        RegisterAsActive("LocalMatchSignificanceFrame", GetTitle());
+    }
+    if ( event.GetActive() && template_canvas ) template_canvas->SetFocus();
+}
+
+void LocalMatchSignificanceFrame::MapMenus()
+{
+    wxLogMessage("In LocalMatchSignificanceFrame::MapMenus");
+    wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
+    // Map Options Menus
+    wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LOCALJOINCOUNT_NEW_VIEW_MENU_OPTIONS");
+    ((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+    ((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
+    GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
+    UpdateOptionMenuItems();
+}
+
+void LocalMatchSignificanceFrame::UpdateOptionMenuItems()
+{
+    TemplateFrame::UpdateOptionMenuItems(); // set common items first
+    wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
+    int menu = mb->FindMenu(_("Options"));
+    if (menu == wxNOT_FOUND) {
+        wxLogMessage("LocalMatchSignificanceFrame::UpdateOptionMenuItems: Options menu not found");
+    } else {
+        ((LocalMatchSignificanceCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+    }
+}
+
+void LocalMatchSignificanceFrame::UpdateContextMenuItems(wxMenu* menu)
+{
+    // Update the checkmarks and enable/disable state for the
+    // following menu items if they were specified for this particular
+    // view in the xrc file.  Items that cannot be enable/disabled,
+    // or are not checkable do not appear.
+    TemplateFrame::UpdateContextMenuItems(menu); // set common items
+}
+
+void LocalMatchSignificanceFrame::RanXPer(int permutation)
+{
+    if (permutation < 9) permutation = 9;
+    if (permutation > 99999) permutation = 99999;
+    gs_coord->permutations = permutation;
+    gs_coord->run();
+}
+
+void LocalMatchSignificanceFrame::OnRan99Per(wxCommandEvent& event)
+{
+    RanXPer(99);
+}
+
+void LocalMatchSignificanceFrame::OnRan199Per(wxCommandEvent& event)
+{
+    RanXPer(199);
+}
+
+void LocalMatchSignificanceFrame::OnRan499Per(wxCommandEvent& event)
+{
+    RanXPer(499);
+}
+
+void LocalMatchSignificanceFrame::OnRan999Per(wxCommandEvent& event)
+{
+    RanXPer(999);
+}
+
+void LocalMatchSignificanceFrame::OnRanOtherPer(wxCommandEvent& event)
+{
+    PermutationCounterDlg dlg(this);
+    if (dlg.ShowModal() == wxID_OK) {
+        long num;
+        wxString input = dlg.m_number->GetValue();
+        input.ToLong(&num);
+        RanXPer(num);
+    }
+}
+
+void LocalMatchSignificanceFrame::OnUseSpecifiedSeed(wxCommandEvent& event)
+{
+    gs_coord->SetReuseLastSeed(!gs_coord->IsReuseLastSeed());
+}
+
+void LocalMatchSignificanceFrame::OnSpecifySeedDlg(wxCommandEvent& event)
+{
+    uint64_t last_seed = gs_coord->GetLastUsedSeed();
+    wxString m;
+    m << "The last seed used by the pseudo random\nnumber ";
+    m << "generator was " << last_seed << ".\n";
+    m << "Enter a seed value to use between\n0 and ";
+    m << std::numeric_limits<uint64_t>::max() << ".";
+    long long unsigned int val;
+    wxString dlg_val;
+    wxString cur_val;
+    cur_val << last_seed;
+    
+    wxTextEntryDialog dlg(NULL, m, "\nEnter a seed value", cur_val);
+    if (dlg.ShowModal() != wxID_OK) return;
+    dlg_val = dlg.GetValue();
+    
+    wxLogMessage(dlg_val);
+    
+    dlg_val.Trim(true);
+    dlg_val.Trim(false);
+    if (dlg_val.IsEmpty()) return;
+    if (dlg_val.ToULongLong(&val)) {
+        if (!gs_coord->IsReuseLastSeed()) gs_coord->SetLastUsedSeed(true);
+        uint64_t new_seed_val = val;
+        gs_coord->SetLastUsedSeed(new_seed_val);
+    } else {
+        wxString m;
+        m << "\"" << dlg_val << "\" is not a valid seed. Seed unchanged.";
+        wxMessageDialog dlg(NULL, m, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+}
+
+void LocalMatchSignificanceFrame::SetSigFilterX(int filter)
+{
+    if (filter == gs_coord->GetSignificanceFilter())
+        return;
+    gs_coord->SetSignificanceFilter(filter);
+    
+    //gs_coord->notifyObservers();
+    LocalMatchSignificanceCanvas* lc = (LocalMatchSignificanceCanvas*) template_canvas;
+    lc->CreateAndUpdateCategories();
+    if (template_legend) template_legend->Recreate();
+    SetTitle(lc->GetCanvasTitle());
+    lc->Refresh();
+    lc->UpdateStatusBar();
+    
+    UpdateOptionMenuItems();
+}
+
+void LocalMatchSignificanceFrame::OnSigFilter05(wxCommandEvent& event)
+{
+    SetSigFilterX(1);
+}
+
+void LocalMatchSignificanceFrame::OnSigFilter01(wxCommandEvent& event)
+{
+    SetSigFilterX(2);
+}
+
+void LocalMatchSignificanceFrame::OnSigFilter001(wxCommandEvent& event)
+{
+    SetSigFilterX(3);
+}
+
+void LocalMatchSignificanceFrame::OnSigFilter0001(wxCommandEvent& event)
+{
+    SetSigFilterX(4);
+}
+
+void LocalMatchSignificanceFrame::OnSigFilterSetup(wxCommandEvent& event)
+{
+    LocalMatchSignificanceCanvas* lc = (LocalMatchSignificanceCanvas*)template_canvas;
+    int n = gs_coord->num_obs;
+    double* p_val = new double[n];
+    for (size_t i=0; i<n; ++i) p_val[i] = gs_coord->sigVal[i];
+    
+    wxString ttl = _("Inference Settings");
+    ttl << "  (" << gs_coord->permutations << " perm)";
+    
+    double user_sig = gs_coord->significance_cutoff;
+    if (gs_coord->GetSignificanceFilter()<0)
+        user_sig = gs_coord->user_sig_cutoff;
+  
+    if (n > 0) {
+        InferenceSettingsDlg dlg(this, user_sig, p_val, n, ttl);
+        if (dlg.ShowModal() == wxID_OK) {
+            gs_coord->SetSignificanceFilter(-1);
+            gs_coord->significance_cutoff = dlg.GetAlphaLevel();
+            gs_coord->user_sig_cutoff = dlg.GetUserInput();
+            //gs_coord->notifyObservers();
+            gs_coord->bo = dlg.GetBO();
+            gs_coord->fdr = dlg.GetFDR();
+            UpdateOptionMenuItems();
+        }
+        delete[] p_val;
+    }
+}
+
+
+
+void LocalMatchSignificanceFrame::OnSaveMLJC(wxCommandEvent& event)
+{
+    wxString title = _("Save Results: Local Match Test, ");
+    title += wxString::Format("pseudo p (%d perm), ", gs_coord->permutations);
+
+    int num_obs = gs_coord->num_obs;
+    std::vector<bool> p_undefs(num_obs, false);
+    std::vector<int> c_val = gs_coord->sigCat;
+    
+    std::vector<double> pp_val = gs_coord->sigVal;
+    wxString pp_label = "Pseudo p-value";
+    wxString pp_field_default = "PP_VAL";
+
+    int num_data = 1;
+    
+    std::vector<SaveToTableEntry> data(num_data);
+    std::vector<bool> undefs(gs_coord->num_obs, false);
+   
+    int data_i = 0;
+    
+    data[data_i].d_val = &pp_val;
+    data[data_i].label = pp_label;
+    data[data_i].field_default = pp_field_default;
+    data[data_i].type = GdaConst::double_type;
+    data[data_i].undefined = &p_undefs;
+    data_i++;
+    
+    SaveToTableDlg dlg(project, this, data, title,
+                       wxDefaultPosition, wxSize(400,400));
+    dlg.ShowModal();
+}
+
+void LocalMatchSignificanceFrame::CoreSelectHelper(const std::vector<bool>& elem)
+{
+    HighlightState* highlight_state = project->GetHighlightState();
+    std::vector<bool>& hs = highlight_state->GetHighlight();
+    bool selection_changed = false;
+    
+    for (int i=0; i<gs_coord->num_obs; i++) {
+        if (!hs[i] && elem[i]) {
+            hs[i] = true;
+            selection_changed  = true;
+        } else if (hs[i] && !elem[i]) {
+            hs[i] = false;
+            selection_changed  = true;
+        }
+    }
+    if (selection_changed ) {
+        highlight_state->SetEventType(HLStateInt::delta);
+        highlight_state->notifyObservers();
+    }
+}
+
+void LocalMatchSignificanceFrame::OnSelectCores(wxCommandEvent& event)
+{
+    wxLogMessage("Entering LocalMatchSignificanceFrame::OnSelectCores");
+    wxLogMessage("Exiting LocalMatchSignificanceFrame::OnSelectCores");
+}
+
+void LocalMatchSignificanceFrame::OnSelectNeighborsOfCores(wxCommandEvent& event)
+{
+    wxLogMessage("Entering LocalMatchSignificanceFrame::OnSelectNeighborsOfCores");
+    wxLogMessage("Exiting LocalMatchSignificanceFrame::OnSelectNeighborsOfCores");
+}
+
+void LocalMatchSignificanceFrame::OnSelectCoresAndNeighbors(wxCommandEvent& event)
+{
+    wxLogMessage("Entering LocalMatchSignificanceFrame::OnSelectCoresAndNeighbors");
+    wxLogMessage("Exiting LocalMatchSignificanceFrame::OnSelectCoresAndNeighbors");
+}
+
+void LocalMatchSignificanceFrame::OnShowAsConditionalMap(wxCommandEvent& event)
+{
+    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
+                            false, false,
+                            _("Conditional Local Match Test Map"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"));
+    
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+}
+
 

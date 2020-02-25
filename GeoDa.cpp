@@ -651,9 +651,9 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
 	
-	EnableTool(XRCID("IDM_CORRELOGRAM"), shp_proj);
+	EnableTool(XRCID("ID_CORRELO_MENU"), shp_proj);
+    
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_CORRELOGRAM"), shp_proj);
-    EnableTool(XRCID("IDM_DISTANCE_PLOT"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_DISTANCE_PLOT"), shp_proj);
 	
 	GeneralWxUtils::EnableMenuAll(mb, _("Map"), shp_proj);
