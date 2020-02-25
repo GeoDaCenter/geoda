@@ -543,7 +543,7 @@ double Gda::combinatorial(unsigned int n, unsigned int k) {
     
     for(i=(n-kk); i>0; i--) s *= i;
     
-    return (double)s / r;
+    return (double)r / s;
 }
 
 wxString Gda::CreateUUID(int nSize)

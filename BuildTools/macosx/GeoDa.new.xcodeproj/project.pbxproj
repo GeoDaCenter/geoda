@@ -84,6 +84,7 @@
 		A41C2BB32400442400C341A2 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */; };
 		A41C2BB42400442400C341A2 /* tSNEDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BB12400442400C341A2 /* tSNEDlg.cpp */; };
 		A41C2BB72400443000C341A2 /* DistancePlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */; };
+		A41C2BBB2404471D00C341A2 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A41C2BBA2404471D00C341A2 /* GenColor.cpp */; };
 		A42018031FB3C0AC0029709C /* skater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018011FB3C0AC0029709C /* skater.cpp */; };
 		A42018061FB4CF980029709C /* SkaterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42018051FB4CF980029709C /* SkaterDlg.cpp */; };
 		A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A42B6F761F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp */; };
@@ -451,6 +452,8 @@
 		A41C2BB22400442400C341A2 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
 		A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DistancePlotView.cpp; sourceTree = "<group>"; };
 		A41C2BB62400442F00C341A2 /* DistancePlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DistancePlotView.h; sourceTree = "<group>"; };
+		A41C2BB92404470C00C341A2 /* GenColor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GenColor.h; sourceTree = "<group>"; };
+		A41C2BBA2404471D00C341A2 /* GenColor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
 		A42018011FB3C0AC0029709C /* skater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = skater.cpp; path = Algorithms/skater.cpp; sourceTree = "<group>"; };
 		A42018021FB3C0AC0029709C /* skater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skater.h; path = Algorithms/skater.h; sourceTree = "<group>"; };
 		A42018041FB4CF980029709C /* SkaterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkaterDlg.h; sourceTree = "<group>"; };
@@ -1112,6 +1115,8 @@
 				DDEA3CB6193CEE250028B746 /* VarCalc */,
 				DDBDFE6119E73E07004CCEDA /* web_plugins */,
 				A19F514D1756A11E006E31B4 /* plugins */,
+				A41C2BB92404470C00C341A2 /* GenColor.h */,
+				A41C2BBA2404471D00C341A2 /* GenColor.cpp */,
 				DD3BA4471871EE9A00CA4152 /* DefaultVarsPtree.h */,
 				DD3BA4461871EE9A00CA4152 /* DefaultVarsPtree.cpp */,
 				DD9C1B361910267900C0A427 /* GdaConst.h */,
@@ -1870,6 +1875,7 @@
 				A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */,
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
 				A14735B921A65F1800CA69B2 /* bd_search.cpp in Sources */,
+				A41C2BBB2404471D00C341A2 /* GenColor.cpp in Sources */,
 				A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */,
 				A19483962118BAAA009A87A2 /* oglmisc.cpp in Sources */,
 				DD4974B71770AC700007BB9F /* TableFrame.cpp in Sources */,

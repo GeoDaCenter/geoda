@@ -28,6 +28,7 @@
 #include "../ShapeOperations/WeightsManager.h"
 #include "../ShapeOperations/WeightUtils.h"
 #include "../ShapeOperations/GwtWeight.h"
+#include "../ShapeOperations/GalWeight.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -46,6 +47,7 @@
 #include "../kNN/ANN/ANN.h"
 #include "../GeoDa.h"
 #include "../Explore/MapNewView.h"
+#include "../GenColor.h"
 #include "SaveToTableDlg.h"
 #include "nbrMatchDlg.h"
 
@@ -381,8 +383,8 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     for (size_t i=0; i<rows; ++i) {
         // p = C(k,v).C(nn-k,k-v) / C(N,k),
         v = val_cnbrs[i];
-        val_p[i] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-1-k, k-v)
-            / Gda::combinatorial(rows, k);
+        val_p[i] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-1-k, k-v);
+        val_p[i] /= Gda::combinatorial(rows, k);
     }
     
     // save the weights intersection
@@ -421,16 +423,16 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     std::vector<std::vector<double> > vals(new_col);
     std::vector<bool> undefs(rows, false);
     
-    wxString field_name = "Card";
+    wxString field_name = "card";
     
     new_data[0].l_val = &val_cnbrs;
-    new_data[0].label = field_name;
+    new_data[0].label = "Cardinality";
     new_data[0].field_default = field_name;
     new_data[0].type = GdaConst::long64_type;
     new_data[0].undefined = &undefs;
     
     new_data[1].d_val = &val_p;
-    new_data[1].label = "cpval";
+    new_data[1].label = "Probability";
     new_data[1].field_default = "cpval";
     new_data[1].type = GdaConst::double_type;
     new_data[1].undefined = &undefs;
@@ -455,13 +457,6 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
     new_var_info[0].fixed_scale = true;
     
-    MapFrame* nf = new MapFrame(parent, project,
-                                new_var_info, new_col_ids,
-                                CatClassification::unique_values,
-                                MapCanvas::no_smoothing, k,
-                                id,
-                                wxDefaultPosition,
-                                GdaConst::map_default_size);
     wxString var_name;
     wxArrayInt selections;
     combo_var->GetSelections(selections);
@@ -472,8 +467,15 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     }
     wxString tmp = _("Local Neighbor Match Test Map (%d-nn: %s)");
     wxString ttl = wxString::Format(tmp, k, var_name);
-    nf->SetTitle(ttl);
-    nf->SetLegendLabel(0, _("No Match"));
+    
+    std::vector<std::vector<int> > groups(k);
+    for (int i=0; i<num_obs; ++i) {
+        groups[val_cnbrs[i]].push_back(i);
+    }
+    LocalMatchMapFrame* nf = new LocalMatchMapFrame(parent, project,
+                                groups, id, ttl,
+                                wxDefaultPosition, GdaConst::map_default_size);
+    
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -490,14 +492,14 @@ BEGIN_EVENT_TABLE(LocalMatchMapCanvas, MapCanvas)
     EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-LocalMatchMapCanvas::LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, vector<wxString>& _select_vars,vector<wxString>& _co_vals, vector<wxColour>& _co_clrs, vector<wxString>& _co_lbls, vector<vector<int> >& _co_ids, CatClassification::CatClassifType theme_type_s, boost::uuids::uuid weights_id_s, const wxPoint& pos, const wxSize& size)
-:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id_s, pos, size),
-select_vars(_select_vars), co_vals(_co_vals), co_clrs(_co_clrs), co_ids(_co_ids), co_lbls(_co_lbls)
+LocalMatchMapCanvas::LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<std::vector<int> >& groups, boost::uuids::uuid weights_id, const wxPoint& pos, const wxSize& size)
+:MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id, pos, size),
+groups(groups)
 {
     wxLogMessage("Entering LocalMatchMapCanvas::LocalMatchMapCanvas");
-
-    cat_classif_def.cat_classif_type = theme_type_s;
    
+    display_weights_graph = true;
+    graph_color = *wxRED;
     CreateAndUpdateCategories();
     UpdateStatusBar();
     
@@ -528,27 +530,7 @@ void LocalMatchMapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
 wxString LocalMatchMapCanvas::GetCanvasTitle()
 {
-    wxString ttl;
-    ttl = _("Local Neighbor Match Test Map: ");
-    for (int i=0; i<select_vars.size(); i++) {
-        ttl << select_vars[i];
-        if (i < select_vars.size() -1) {
-            ttl << "/";
-        }
-    }
-    return ttl;
-}
-
-wxString LocalMatchMapCanvas::GetVariableNames()
-{
-    wxString ttl;
-    for (int i=0; i<select_vars.size(); i++) {
-        ttl << select_vars[i];
-        if (i < select_vars.size() -1) {
-            ttl << "/";
-        }
-    }
-    return ttl;
+    return "Cardinality";
 }
 
 bool LocalMatchMapCanvas::ChangeMapType(CatClassification::CatClassifType new_map_theme, SmoothingType new_map_smoothing)
@@ -570,40 +552,43 @@ void LocalMatchMapCanvas::TimeChange()
 
 void LocalMatchMapCanvas::CreateAndUpdateCategories()
 {
-    cat_data.CreateEmptyCategories(1, num_obs);
+    int num_categories = (int)groups.size();
+    if (num_categories == 0) return;
     
     int t = 0;
-    int undefined_cat = -1;
-    int num_cats = co_vals.size() + 1;
+    //cat_data.CreateEmptyCategories(1, num_obs);
+    cat_data.CreateCategoriesAtCanvasTm(num_categories, t);
+    cat_data.ClearAllCategoryIds();
+    // update color scheme
+    std::vector<std::vector<wxColour> > BuGn = {/*1*/{wxColour(229,245,249)}, /*2*/{wxColour(229,245,249),wxColour(153,216,201)}, /*3*/{wxColour(229,245,249),wxColour(153,216,201),wxColour(44,162,95)}, /*4*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(35,139,69)},/*5*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*6*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*7*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69), wxColour(0,88,36)},/*8*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,88,36)},/*9*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,109,44),wxColour(0,68,27)}};
     
-    cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-    
-    map<int, bool> sig_dict;
-    for (int i=0; i<num_obs; i++) {
-        sig_dict[i] = false;
-    }
-    for (int i=0; i<co_vals.size(); i++) {
-        cat_data.SetCategoryLabel(t, i+1, co_lbls[i]);
-        cat_data.SetCategoryColor(t, i+1, co_clrs[i]);
-        for (int j=0; j<co_ids[i].size();j++) {
-            cat_data.AppendIdToCategory(t, i+1, co_ids[i][j]);
-            sig_dict[ co_ids[i][j] ] = true;
+    if (num_categories <= 9) {
+        for (int i=0; i<num_categories; ++i) {
+            cat_data.SetCategoryLabel(t, i, wxString::Format("%d", i));
+            cat_data.SetCategoryColor(t, i, BuGn[num_categories-1][i]);
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
+        }
+    } else {
+        ColorSpace::Rgb a(247,252,253);
+        ColorSpace::Rgb b(0,68,27);
+        std::vector<ColorSpace::Rgb> color = ColorSpace::ColorSpectrumHSV(a, b, num_categories);
+        for (int i=0; i<num_categories; ++i) {
+            cat_data.SetCategoryLabel(t, i, wxString::Format("%d", i));
+            cat_data.SetCategoryColor(t, i, wxColour(color[i].r, color[i].g, color[i].b));
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
         }
     }
     
-    // not significant
-    cat_data.SetCategoryLabel(t, 0, "Others");
-    cat_data.SetCategoryColor(t, 0, wxColour(240, 240, 240));
-    for (int i=0; i<num_obs; i++) {
-        if (sig_dict[i]==false) {
-            cat_data.AppendIdToCategory(t, 0, i);
-        }
-    }
-    
-    for (int cat=0; cat<num_cats; cat++) {
+    for (int cat=0; cat<num_categories; cat++) {
         cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
     }
+    cat_data.SetCategoryLabel(t, 0, "No Match");
     
+    full_map_redraw_needed = true;
     PopulateCanvas();
 }
 
@@ -645,32 +630,187 @@ void LocalMatchMapCanvas::UpdateStatusBar()
     }
     sb->SetStatusText(s);
 }
+///////////////////////////////////////////////////////////////////////////////
+//
+//
+//
+///////////////////////////////////////////////////////////////////////////////
+NbrMatchSaveWeightsDialog::NbrMatchSaveWeightsDialog(TableInterface* table_int, const wxString & title)
+       : wxDialog(NULL, -1, title, wxDefaultPosition, wxSize(250, 230)),
+table_int(table_int)
+{
+    wxPanel *panel = new wxPanel(this, -1);
 
-/////////////////////////////////////////////////////////////////////////////////////////////
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Select ID Variable"));
+    m_id_field = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 0, NULL);
+    table_int->FillColIdMap(col_id_map);
+    for (size_t i=0, iend=col_id_map.size(); i<iend; i++) {
+        int col = col_id_map[i];
+        wxString name = table_int->GetColName(col);
+        if (table_int->GetColType(col) == GdaConst::long64_type ||
+            table_int->GetColType(col) == GdaConst::string_type) {
+            if (!table_int->IsColTimeVariant(col)) {
+                m_id_field->Append(table_int->GetColName(col));
+            }
+        }
+    }
+    m_id_field->SetSelection(-1);
+    m_id_field->Connect(wxEVT_CHOICE,
+                        wxCommandEventHandler(NbrMatchSaveWeightsDialog::OnIdVariableSelected),
+                        NULL, this);
+    
+    wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st14, 1, wxRIGHT, 5);
+    hbox1->Add(m_id_field, 1, wxLEFT, 5);
+    
+    wxButton *okButton = new wxButton(this, wxID_OK, _("Ok"),
+        wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(this, wxID_CANCEL, _("Close"),
+        wxDefaultPosition, wxSize(70, 30));
+
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    hbox->Add(okButton, 1);
+    hbox->Add(closeButton, 1, wxLEFT, 5);
+
+    vbox->Add(hbox1, 1, wxALL, 10);
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+     
+    panel->SetSizer(container);
+    
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+     
+     
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(panelSizer, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+    
+    //SetSizer(vbox);
+    Centre();
+}
+
+void NbrMatchSaveWeightsDialog::OnIdVariableSelected( wxCommandEvent& event )
+{
+    wxLogMessage("Click CreatingWeightDlg::OnIdVariableSelected");
+    // we must have key id variable
+    bool isValid = m_id_field->GetSelection() != wxNOT_FOUND;
+    if (!isValid)
+        return;
+    
+    wxString id = m_id_field->GetString(m_id_field->GetSelection());
+    if (!CheckID(id)) {
+        m_id_field->SetSelection(-1);
+        return;
+    }
+}
+
+wxString NbrMatchSaveWeightsDialog::GetSelectID()
+{
+    int sel_idx = m_id_field->GetSelection();
+    if (sel_idx < 0) {
+        wxMessageBox(_("Please select a ID variable."));
+        return wxEmptyString;
+    }
+    return m_id_field->GetString(sel_idx);
+}
+
+bool NbrMatchSaveWeightsDialog::CheckID(const wxString& id)
+{
+    std::vector<wxString> str_id_vec(table_int->GetNumberRows());
+    int col = table_int->FindColId(id);
+    if (table_int->GetColType(col) == GdaConst::long64_type){
+        table_int->GetColData(col, 0, str_id_vec);
+        
+    } else if (table_int->GetColType(col) == GdaConst::string_type) {
+        // to handle string field with only numbers
+        // Note: can't handle real string (a-zA-Z) here since it's hard
+        // to control in weights file (.gal/.gwt/..)
+        table_int->GetColData(col, 0, str_id_vec);
+        
+        wxRegEx regex;
+        regex.Compile("^[0-9a-zA-Z_]+$");
+        
+        for (size_t i=0, iend=str_id_vec.size(); i<iend; i++) {
+            wxString item  = str_id_vec[i];
+            if (regex.Matches(item)) {
+                str_id_vec[i] = item;
+            } else {
+                wxString msg = id;
+                msg += _(" should contains only numbers/letters as IDs.  Please choose a different ID Variable.");
+                wxMessageBox(msg);
+                return false;
+            }
+        }
+    }
+    
+    std::set<wxString> dup_ids;
+    std::set<wxString> id_set;
+    std::map<wxString, std::vector<int> > dup_dict; // value:[]
+    
+    for (size_t i=0, iend=str_id_vec.size(); i<iend; i++) {
+        wxString str_id = str_id_vec[i];
+        if (id_set.find(str_id) == id_set.end()) {
+            id_set.insert(str_id);
+            std::vector<int> ids;
+            dup_dict[str_id] = ids;
+        }
+        dup_dict[str_id].push_back((int)i);
+    }
+    if (id_set.size() != table_int->GetNumberRows()) {
+        wxString msg = id + _(" has duplicate values. Please choose a different ID Variable.\n\nDetails:");
+        wxString details = "value, row\n";
+        
+        std::map<wxString, std::vector<int> >::iterator it;
+        for (it=dup_dict.begin(); it!=dup_dict.end(); it++) {
+            wxString val = it->first;
+            std::vector<int>& ids = it->second;
+            if (ids.size() > 1) {
+                for (int i=0; i<ids.size(); i++) {
+                    details << val << ", " << ids[i]+1 << "\n";
+                }
+            }
+        }
+        
+        ScrolledDetailMsgDialog *dlg = new ScrolledDetailMsgDialog(_("Warning"),
+                                                                   msg, details);
+        dlg->Show(true);
+        
+        return false;
+    }
+    return true;
+}
+///////////////////////////////////////////////////////////////////////////////
 //
 //
 //
-/////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_CLASS(LocalMatchMapFrame, MapFrame)
     BEGIN_EVENT_TABLE(LocalMatchMapFrame, MapFrame)
     EVT_ACTIVATE(LocalMatchMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project, vector<wxString>& select_vars, vector<wxString>& co_vals, vector<wxColour>& co_clrs, vector<wxString>& co_lbls, vector<vector<int> >& co_ids, boost::uuids::uuid weights_id_s, const wxString title, const wxPoint& pos, const wxSize& size, const long style)
-: MapFrame(parent, project, pos, size, style)
+LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project, const std::vector<std::vector<int> >& groups, boost::uuids::uuid weights_id, const wxString& title, const wxPoint& pos, const wxSize& size)
+:MapFrame(parent, project, pos, size), weights_id(weights_id)
 {
     wxLogMessage("Entering LocalMatchMapFrame::LocalMatchMapFrame");
+    
+    SetTitle(title);
     
     int width, height;
     GetClientSize(&width, &height);
     
     wxSplitterWindow* splitter_win = new wxSplitterWindow(this,wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
     splitter_win->SetMinimumPaneSize(10);
-    
-    CatClassification::CatClassifType theme_type_s = CatClassification::colocation;
-    
+        
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new LocalMatchMapCanvas(rpanel, this, project, select_vars, co_vals, co_clrs, co_lbls, co_ids, theme_type_s, weights_id_s);
+    template_canvas = new LocalMatchMapCanvas(rpanel, this, project, groups, weights_id);
     template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
@@ -700,7 +840,6 @@ LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project, vector
     //splitter_win->SetSize(wxSize(width,height));
     
     SetAutoLayout(true);
-    SetTitle(title);
     DisplayStatusBar(true);
     
     Show(true);
@@ -727,10 +866,13 @@ void LocalMatchMapFrame::MapMenus()
     wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
     // Map Options Menus
     wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_LOCALMATCH_VIEW_MENU_OPTIONS");
-    ((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
-    ((MapCanvas*) template_canvas)->SetCheckMarks(optMenu);
+    //((MapCanvas*) template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+    ((LocalMatchMapCanvas*) template_canvas)->SetCheckMarks(optMenu);
     GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
     UpdateOptionMenuItems();
+    
+    wxMenuItem* save_menu = optMenu->FindItem(XRCID("ID_SAVE_LOCALMATCH_WEIGHTS"));
+    Connect(save_menu->GetId(), wxEVT_MENU,  wxCommandEventHandler(LocalMatchMapFrame::OnSave));
 }
 
 void LocalMatchMapFrame::UpdateOptionMenuItems()
@@ -753,57 +895,56 @@ void LocalMatchMapFrame::UpdateContextMenuItems(wxMenu* menu)
 
 void LocalMatchMapFrame::OnSave(wxCommandEvent& event)
 {
-    int t = this->GetCurrentCanvasTimeStep();
-    LocalMatchMapCanvas* lc = (LocalMatchMapCanvas*)template_canvas;
-    int num_obs = lc->num_obs;
-    
-    std::vector<SaveToTableEntry> data(1);
-    std::vector<bool> undefs(num_obs, true);
-    std::vector<wxInt64> dt(num_obs);
-    
-    for (int i=0; i<lc->co_vals.size(); i++) {
-        wxString tmp = lc->co_vals[i];
-        long l_tmp;
-        if (tmp.ToLong(&l_tmp)) {
-            for (int j=0; j<lc->co_ids[i].size(); j++) {
-                undefs[ lc->co_ids[i][j] ] = false;
-                dt[ lc->co_ids[i][j] ] = l_tmp;
+    NbrMatchSaveWeightsDialog dlg(project->GetTableInt(), _("Save Local Match Weights"));
+    if(dlg.ShowModal() == wxID_OK) {
+        wxString id_var = dlg.GetSelectID();
+        
+        TableInterface* table_int = project->GetTableInt();
+        int m_num_obs = table_int->GetNumberRows();
+        
+        if (table_int && !id_var.IsEmpty()) {
+            int col = project->GetTableInt()->FindColId(id_var);
+            if (col < 0) return;
+            
+            bool flag = false;
+            wxString wildcard = _("GAL files (*.gal)|*.gal");
+            wxString defaultFile(project->GetProjectTitle());
+            defaultFile += "_match.gal";
+             
+            wxString working_dir = project->GetWorkingDir().GetPath();
+            wxFileDialog dlg(this, _("Choose an output weights file name."),
+                             working_dir, defaultFile, wildcard,
+                             wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+            
+            wxString ofn;
+            if (dlg.ShowModal() != wxID_OK) return;
+            ofn = dlg.GetPath();
+            
+            wxString layer_name = project->GetProjectTitle();
+            
+            WeightsManInterface* w_man_int = project->GetWManInt();
+            GalWeight* w = w_man_int->GetGal(weights_id);
+            
+            if (table_int->GetColType(col) == GdaConst::long64_type){
+                std::vector<wxInt64> id_vec(m_num_obs);
+                table_int->GetColData(col, 0, id_vec);
+                flag = Gda::SaveGal(w->gal, layer_name, ofn, id_var, id_vec);
+                
+            } else if (table_int->GetColType(col) == GdaConst::string_type) {
+                std::vector<wxString> id_vec(m_num_obs);
+                table_int->GetColData(col, 0, id_vec);
+                flag = Gda::SaveGal(w->gal, layer_name, ofn, id_var, id_vec);
+            }
+            if (!flag) {
+                wxString msg = _("Failed to create the weights file.");
+                wxMessageDialog dlg(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+            } else {
+                wxString msg = _("Weights file created successfully.");
+                wxMessageDialog dlg(NULL, msg, _("Success"), wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
             }
         }
     }
-    
-    data[0].l_val = &dt;
-    data[0].label = "Coloc Indices";
-    data[0].field_default = "CO_I";
-    data[0].type = GdaConst::long64_type;
-    data[0].undefined = &undefs;
-    
-    SaveToTableDlg dlg(project, this, data,
-                       "Save Results: Co-locations",
-                       wxDefaultPosition, wxSize(400,400));
-    dlg.ShowModal();
 }
 
-void LocalMatchMapFrame::OnShowAsConditionalMap(wxCommandEvent& event)
-{
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::bivariate,
-                            false, false,
-                            _("Conditional Co-location Map Variables"),
-                            _("Horizontal Cells"), _("Vertical Cells"),
-                            "", "", false, false, false, // default
-                            true, true, false, false);
-    
-    if (dlg.ShowModal() != wxID_OK) {
-        return;
-    }
-    
-    LocalMatchMapCanvas* lc = (LocalMatchMapCanvas*) template_canvas;
-    wxString title = lc->GetCanvasTitle();
-    //ConditionalClusterMapFrame* subframe = new ConditionalClusterMapFrame(this, project, dlg.var_info, dlg.col_ids, lisa_coord, title, wxDefaultPosition, GdaConst::cond_view_default_size);
-}
-
-void LocalMatchMapFrame::closeObserver(LisaCoordinator* o)
-{
-    wxLogMessage("In LocalMatchMapFrame::closeObserver(LisaCoordinator*)");
-    Close(true);
-}

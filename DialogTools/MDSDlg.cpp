@@ -301,7 +301,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             // at least 2 variables
             if (new_col_ids.size() < 2) return;
 
-            size_t num_new_vars = new_col_ids.size();
+            int num_new_vars = new_col_ids.size();
 
             std::vector<GdaVarTools::VarInfo> new_var_info;
             new_var_info.resize(num_new_vars);

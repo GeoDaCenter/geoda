@@ -129,13 +129,14 @@ public:
     virtual void SetDependsOnNonSimpleGroups(bool v);
     virtual int GetCurrentCanvasTimeStep();
     
+    TemplateCanvas* template_canvas;
 protected:
 	static TemplateFrame* activeFrame;
 	static wxString activeFrName;
 
     wxToolBar* toolbar;
 	Project* project;
-	TemplateCanvas* template_canvas;
+	
 	TemplateLegend* template_legend; // optional
 	FramesManager* frames_manager;
 	TableState* table_state;

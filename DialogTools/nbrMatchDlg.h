@@ -25,6 +25,7 @@
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 
+#include "../DataViewer/TableInterface.h"
 #include "../VarTools.h"
 #include "../Explore/MapNewView.h"
 #include "AbstractClusterDlg.h"
@@ -63,27 +64,32 @@ protected:
     DECLARE_EVENT_TABLE()
 };
 
+class NbrMatchSaveWeightsDialog : public wxDialog
+{
+    wxChoice* m_id_field;
+    std::vector<int> col_id_map;
+    TableInterface* table_int;
+public:
+    NbrMatchSaveWeightsDialog(TableInterface* table_int, const wxString& title);
+    void OnIdVariableSelected( wxCommandEvent& event );
+    bool CheckID(const wxString& id);
+    wxString GetSelectID();
+};
+
 class LocalMatchMapCanvas : public MapCanvas
 {
     DECLARE_CLASS(LocalMatchMapCanvas)
 public:
-    LocalMatchMapCanvas(wxWindow *parent,
-                        TemplateFrame* t_frame,
+    LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                         Project* project,
-                        vector<wxString>& select_vars,
-                        vector<wxString>& co_vals,
-                        vector<wxColour>& co_clrs,
-                        vector<wxString>& co_lbls,
-                        vector<vector<int> >& co_ids,
-                        CatClassification::CatClassifType theme_type,
-                        boost::uuids::uuid weights_id_s,
+                        const std::vector<std::vector<int> >& groups,
+                        boost::uuids::uuid weights_id,
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
     virtual ~LocalMatchMapCanvas();
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     virtual wxString GetCanvasTitle();
-    virtual wxString GetVariableNames();
     virtual bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
                                SmoothingType new_map_smoothing);
     virtual void SetCheckMarks(wxMenu* menu);
@@ -91,12 +97,8 @@ public:
     virtual void CreateAndUpdateCategories();
     virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
-
-    vector<wxString> select_vars;
-    vector<wxString> co_vals;
-    vector<wxColour> co_clrs;
-    vector<wxString> co_lbls;
-    vector<vector<int> > co_ids;
+    
+    const std::vector<std::vector<int> >& groups;
     
     DECLARE_EVENT_TABLE()
 };
@@ -106,18 +108,12 @@ class LocalMatchMapFrame : public MapFrame
 {
     DECLARE_CLASS(LocalMatchMapFrame)
 public:
-    LocalMatchMapFrame(wxFrame *parent,
-                       Project* project,
-                       vector<wxString>& select_vars,
-                       vector<wxString>& co_vals,
-                       vector<wxColour>& co_clrs,
-                       vector<wxString>& co_lbls,
-                       vector<vector<int> >& co_ids,
-                       boost::uuids::uuid weights_id_s,
-                       const wxString title,
+    LocalMatchMapFrame(wxFrame *parent, Project* project,
+                       const std::vector<std::vector<int> >& groups,
+                       boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
+                       const wxString& title = wxEmptyString,
                        const wxPoint& pos = wxDefaultPosition,
-                       const wxSize& size = GdaConst::map_default_size,
-                       const long style = wxDEFAULT_FRAME_STYLE);
+                       const wxSize& size = GdaConst::map_default_size);
     virtual ~LocalMatchMapFrame();
     
     void OnActivate(wxActivateEvent& event);
@@ -127,9 +123,7 @@ public:
     
     void OnSave(wxCommandEvent& event);
     
-    void OnShowAsConditionalMap(wxCommandEvent& event);
-    
-    virtual void closeObserver(LisaCoordinator* o);
+    boost::uuids::uuid weights_id;
     
     DECLARE_EVENT_TABLE()
 };
