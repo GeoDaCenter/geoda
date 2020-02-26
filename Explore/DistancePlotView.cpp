@@ -105,7 +105,25 @@ void DistancePlotCanvas::OnAdjustYAxis(wxCommandEvent& event)
 
 void DistancePlotCanvas::OnSaveResult(wxCommandEvent& event)
 {
+    wxString wildcard = _("CSV files (*.csv)|*.csv");
+    wxString defaultFile(project->GetProjectTitle());
+    defaultFile += "_dist.csv";
 
+    wxString working_dir = project->GetWorkingDir().GetPath();
+    wxFileDialog dlg(this, _("Save to a csv file."),
+                     working_dir, defaultFile, wildcard,
+                     wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+
+    wxString ofn;
+    if (dlg.ShowModal() != wxID_OK) return;
+    wxFile file( dlg.GetPath(), wxFile::write );
+    if( file.IsOpened() ) {
+        file.Write( "geo_distance, var_distance\n");
+        for (size_t i=0; i< X.size(); ++i) {
+            file.Write(wxString::Format("%f,%f\n", X[i], Y[i]));
+        }
+        file.Close();
+    }
 }
 
 void DistancePlotCanvas::OnToggleDataPoints(wxCommandEvent& event)

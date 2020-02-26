@@ -52,7 +52,7 @@ bool DistancePlot::compute_var_dist(size_t i, size_t j, double& var_dist)
             undef = undef || data_undefs[v][i];
             undef = undef || data_undefs[v][j];
         }
-        var_dist = sqrt(var_dist);
+        var_dist = sqrt(val);
     } else {
         // euclidean as default 'e'
         for (size_t v=0; v < num_vars; ++v) {
