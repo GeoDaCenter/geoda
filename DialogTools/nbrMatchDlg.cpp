@@ -18,6 +18,8 @@
  */
 
 #include <set>
+#include <limits>
+#include <cstddef>
 #include <wx/wx.h>
 #include <wx/string.h>
 #include <wx/dialog.h>
@@ -369,10 +371,11 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     gw->GetNbrStats();
     
     // intersection weights
-    std::vector<GeoDaWeight*> two_weights = {sw, gw};
+    std::vector<GeoDaWeight*> two_weights;
+    two_weights.push_back(sw);
+    two_weights.push_back(gw);
     GalWeight* intersect_w = WeightUtils::WeightsIntersection(two_weights);
-    delete sw; // clean up
-    delete gw;
+
 
     // compute cnbrs (number of common neighbors), p value
     gal = intersect_w->gal;
@@ -380,13 +383,17 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     for (size_t i=0; i<rows; ++i) {
         val_cnbrs[i] = (wxInt64)gal[i].Size();
     }
-    std::vector<double> val_p(rows);
-    int k = (int)knn, v;
-    for (size_t i=0; i<rows; ++i) {
+
+    int k = (int)knn;
+    std::vector<double> pval_dict(knn,0);
+    for (size_t v=1; v<knn; ++v) {
         // p = C(k,v).C(nn-k,k-v) / C(N,k),
-        v = val_cnbrs[i];
-        val_p[i] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-1-k, k-v);
-        val_p[i] /= Gda::combinatorial(rows, k);
+        pval_dict[v] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-1-k, k-v);
+        pval_dict[v] /= Gda::combinatorial(rows, k);
+    }
+    std::vector<double> val_p(rows);
+    for (size_t i=0; i<rows; ++i) {
+        val_p[i] = pval_dict[val_cnbrs[i]];
     }
     
     // save the weights intersection
@@ -413,7 +420,7 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
         wxString msg = _("There was a problem associating the weights file.");
         wxMessageDialog dlg(this, msg, _("Error"), wxOK|wxICON_ERROR);
         dlg.ShowModal();
-        delete gw;
+        delete intersect_w;
         return;
     }
 
@@ -444,21 +451,8 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
                        wxDefaultPosition, wxSize(400,400));
     if (dlg.ShowModal() != wxID_OK)
         return;
-    
+
     // show map
-    std::vector<GdaVarTools::VarInfo> new_var_info;
-    std::vector<int> new_col_ids;
-    new_col_ids.resize(1);
-    new_var_info.resize(1);
-    new_col_ids[0] = table_int->GetColIdx(field_name);
-    new_var_info[0].time = 0;
-    // Set Primary GdaVarTools::VarInfo attributes
-    new_var_info[0].name = field_name;
-    new_var_info[0].is_time_variant = table_int->IsColTimeVariant(table_int->GetColIdx(field_name));
-    table_int->GetMinMaxVals(new_col_ids[0], new_var_info[0].min, new_var_info[0].max);
-    new_var_info[0].sync_with_global_time = new_var_info[0].is_time_variant;
-    new_var_info[0].fixed_scale = true;
-    
     wxString var_name;
     wxArrayInt selections;
     combo_var->GetSelections(selections);
@@ -475,9 +469,17 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
         groups[val_cnbrs[i]].push_back(i);
     }
     LocalMatchMapFrame* nf = new LocalMatchMapFrame(parent, project,
-                                groups, id, ttl,
+                                groups, val_p, id, ttl,
                                 wxDefaultPosition, GdaConst::map_default_size);
-    
+
+    /*
+    // run perm sig
+    LocalMatchCoordinator* lm_coord = new LocalMatchCoordinator(sw, gw, val_cnbrs, 999,
+                                                                GdaConst::gda_user_seed,
+                                                                GdaConst::use_gda_user_seed);
+    LocalMatchSignificanceFrame* snf = new LocalMatchSignificanceFrame(parent, project,
+                                                                       lm_coord);
+     */
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -494,9 +496,14 @@ BEGIN_EVENT_TABLE(LocalMatchMapCanvas, MapCanvas)
     EVT_MOUSE_CAPTURE_LOST(TemplateCanvas::OnMouseCaptureLostEvent)
 END_EVENT_TABLE()
 
-LocalMatchMapCanvas::LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<std::vector<int> >& groups, boost::uuids::uuid weights_id, const wxPoint& pos, const wxSize& size)
+LocalMatchMapCanvas::LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                                         Project* project,
+                                         const std::vector<std::vector<int> >& groups,
+                                         const std::vector<double>& pval,
+                                         boost::uuids::uuid weights_id,
+                                         const wxPoint& pos, const wxSize& size)
 :MapCanvas(parent, t_frame, project, vector<GdaVarTools::VarInfo>(0), vector<int>(0), CatClassification::no_theme, no_smoothing, 1, weights_id, pos, size),
-groups(groups)
+groups(groups), pval(pval)
 {
     wxLogMessage("Entering LocalMatchMapCanvas::LocalMatchMapCanvas");
    
@@ -562,8 +569,8 @@ void LocalMatchMapCanvas::CreateAndUpdateCategories()
     cat_data.CreateCategoriesAtCanvasTm(num_categories, t);
     cat_data.ClearAllCategoryIds();
     // update color scheme
-    std::vector<std::vector<wxColour> > BuGn = {/*1*/{wxColour(229,245,249)}, /*2*/{wxColour(229,245,249),wxColour(153,216,201)}, /*3*/{wxColour(229,245,249),wxColour(153,216,201),wxColour(44,162,95)}, /*4*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(35,139,69)},/*5*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*6*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*7*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69), wxColour(0,88,36)},/*8*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,88,36)},/*9*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,109,44),wxColour(0,68,27)}};
-    
+    wxColour BuGn[][9] = {{wxColour(229,245,249)}, {wxColour(229,245,249),wxColour(153,216,201)},{wxColour(229,245,249),wxColour(153,216,201),wxColour(44,162,95)}, /*4*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(35,139,69)},/*5*/{wxColour(237,248,251),wxColour(178,226,226),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*6*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(44,162,95),wxColour(0,109,44)},/*7*/{wxColour(237,248,251),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69), wxColour(0,88,36)},/*8*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,88,36)},/*9*/{wxColour(247,252,253),wxColour(229,245,249),wxColour(204,236,230),wxColour(153,216,201),wxColour(102,194,164),wxColour(65,174,118),wxColour(35,139,69),wxColour(0,109,44),wxColour(0,68,27)}};
+
     if (num_categories <= 9) {
         for (int i=0; i<num_categories; ++i) {
             cat_data.SetCategoryLabel(t, i, wxString::Format("%d", i));
@@ -617,6 +624,7 @@ void LocalMatchMapCanvas::UpdateStatusBar()
     if (mousemode == select && selectstate == start) {
         if (total_hover_obs >= 1) {
             s << _("#hover obs ") << hover_obs[0]+1;
+            s << " p=" << wxString::Format("%f", pval[hover_obs[0]]);
         }
         if (total_hover_obs >= 2) {
             s << ", ";
@@ -798,7 +806,10 @@ IMPLEMENT_CLASS(LocalMatchMapFrame, MapFrame)
     EVT_ACTIVATE(LocalMatchMapFrame::OnActivate)
 END_EVENT_TABLE()
 
-LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project, const std::vector<std::vector<int> >& groups, boost::uuids::uuid weights_id, const wxString& title, const wxPoint& pos, const wxSize& size)
+LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project,
+                                       const std::vector<std::vector<int> >& groups,
+                                       const std::vector<double>& pval,
+                                       boost::uuids::uuid weights_id, const wxString& title, const wxPoint& pos, const wxSize& size)
 :MapFrame(parent, project, pos, size), weights_id(weights_id)
 {
     wxLogMessage("Entering LocalMatchMapFrame::LocalMatchMapFrame");
@@ -812,7 +823,7 @@ LocalMatchMapFrame::LocalMatchMapFrame(wxFrame *parent, Project* project, const 
     splitter_win->SetMinimumPaneSize(10);
         
     wxPanel* rpanel = new wxPanel(splitter_win);
-    template_canvas = new LocalMatchMapCanvas(rpanel, this, project, groups, weights_id);
+    template_canvas = new LocalMatchMapCanvas(rpanel, this, project, groups, pval, weights_id);
     template_canvas->SetScrollRate(1,1);
     wxBoxSizer* rbox = new wxBoxSizer(wxVERTICAL);
     rbox->Add(template_canvas, 1, wxEXPAND);
@@ -955,11 +966,21 @@ void LocalMatchMapFrame::OnSave(wxCommandEvent& event)
 //
 //
 ///////////////////////////////////////////////////////////////////////////////
-LocalMatchCoordinator::LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w, const std::vector<int>& cadinality, int permutations, uint64_t last_seed_used, bool reuse_last_seed)
+LocalMatchCoordinator::LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w, const std::vector<wxInt64>& cadinality, int permutations, uint64_t last_seed_used, bool reuse_last_seed)
 : spatial_w(spatial_w), variable_w(variable_w), cadinality(cadinality),
 last_seed_used(last_seed_used), reuse_last_seed(reuse_last_seed), permutations(permutations), num_obs(spatial_w->num_obs)
 {
+    SetSignificanceFilter(1);
+    user_sig_cutoff = 0;
     
+    sigVal.resize(num_obs);
+    sigCat.resize(num_obs);
+    run();
+}
+
+LocalMatchCoordinator::~LocalMatchCoordinator()
+{
+
 }
 
 void LocalMatchCoordinator::job(size_t nbr_sz, size_t idx, uint64_t seed_start)
@@ -1076,7 +1097,9 @@ BEGIN_EVENT_TABLE(LocalMatchSignificanceCanvas, MapCanvas)
 END_EVENT_TABLE()
 
 
-LocalMatchSignificanceCanvas::LocalMatchSignificanceCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, LocalMatchCoordinator* gs_coordinator, const wxPoint& pos, const wxSize& size)
+LocalMatchSignificanceCanvas::
+LocalMatchSignificanceCanvas(wxWindow *parent, TemplateFrame* t_frame,
+                             Project* project, LocalMatchCoordinator* gs_coordinator, const wxPoint& pos, const wxSize& size)
 : MapCanvas(parent, t_frame, project, std::vector<GdaVarTools::VarInfo>(0), std::vector<int>(0), CatClassification::no_theme, no_smoothing, 1, boost::uuids::nil_uuid(), pos, size),
 gs_coord(gs_coordinator)
 {
@@ -1104,11 +1127,7 @@ gs_coord(gs_coordinator)
     SetPredefinedColor(str_p0001, wxColour(3, 116, 6));
     SetPredefinedColor(str_p00001, wxColour(1, 70, 3));
 
-    if (is_clust) {
-        cat_classif_def.cat_classif_type = CatClassification::local_join_count_categories;
-    } else {
-        cat_classif_def.cat_classif_type = CatClassification::local_join_count_significance;
-    }
+    cat_classif_def.cat_classif_type = CatClassification::no_theme;
     
     // must set var_info times from JCCoordinator initially
     //var_info = gs_coord->var_info;
@@ -1120,7 +1139,7 @@ gs_coord(gs_coordinator)
     CreateAndUpdateCategories();
     UpdateStatusBar();
     
-    wxLogMessage("Exiting MLJCMapCanvas::MLJCMapCanvas");
+    wxLogMessage("Exiting LocalMatchSignificanceCanvas::LocalMatchSignificanceCanvas");
 }
 
 LocalMatchSignificanceCanvas::~LocalMatchSignificanceCanvas()
@@ -1210,165 +1229,100 @@ void LocalMatchSignificanceCanvas::CreateAndUpdateCategories()
 {
     //SyncVarInfoFromCoordinator();
     template_frame->ClearAllGroupDependencies();
-    for (int t=0; t<var_info.size(); t++) {
-        var_info[t].time = my_times[t];
-        template_frame->AddGroupDependancy(var_info[t].name);
+    is_any_time_variant = false;
+    is_any_sync_with_global_time = false;
+    ref_var_index = -1;
+    num_time_vals = 1;
+    //map_valid = true;
+    //map_error_message = "";
+
+    int t = 0;
+    int num_cats = 0;
+    double stop_sig = 0;
+
+
+    int set_perm = gs_coord->permutations;
+    stop_sig = 1.0 / (1.0 + set_perm);
+    double sig_cutoff = gs_coord->significance_cutoff;
+
+    if (gs_coord->GetSignificanceFilter() < 0) {
+        // user specified cutoff
+        num_cats += 2;
+    } else {
+        num_cats += 6 - gs_coord->GetSignificanceFilter();
+
+        if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
+            num_cats -= 1;
+        }
+        if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
+            num_cats -= 1;
+        }
+        if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
+            num_cats -= 1;
+        }
     }
-    is_any_time_variant = gs_coord->is_any_time_variant;
-    is_any_sync_with_global_time = gs_coord->is_any_sync_with_global_time;
-    ref_var_index = gs_coord->ref_var_index;
-    num_time_vals = gs_coord->num_time_vals;
-    map_valid = gs_coord->map_valid;
-    map_error_message = gs_coord->map_error_message;
     
-    cat_data.CreateEmptyCategories(num_time_vals, num_obs);
-    
-    std::vector<wxInt64> cluster;
-    for (int t=0; t<num_time_vals; t++) {
-        if (!map_valid[t])
-            break;
-        
-        int undefined_cat = -1;
-        int isolates_cat = -1;
-        int num_cats = 0;
-        double stop_sig = 0;
-        
-        //if (gs_coord->GetHasIsolates(t)) {
-        //    num_cats++;
-        //}
-        //if (gs_coord->GetHasUndefined(t)) {
-        //    num_cats++;
-        //}
-        
+    cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
+    cat_data.ClearAllCategoryIds();
+
+    cat_data.SetCategoryLabel(t, 0, str_sig);
+    cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
+
+    if (gs_coord->GetSignificanceFilter() < 0) {
+        // user specified cutoff
+        wxString lbl = wxString::Format("p = %g", gs_coord->significance_cutoff);
+        cat_data.SetCategoryLabel(t, 1, lbl);
+        cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
+
+    } else {
+        int s_f = gs_coord->GetSignificanceFilter();
         int set_perm = gs_coord->permutations;
         stop_sig = 1.0 / (1.0 + set_perm);
-        double sig_cutoff = gs_coord->significance_cutoff;
-        
-        if (gs_coord->GetSignificanceFilter() < 0) {
-            // user specified cutoff
-            num_cats += 2;
-        } else {
-            num_cats += 6 - gs_coord->GetSignificanceFilter();
-            
-            if ( sig_cutoff >= 0.0001 && stop_sig > 0.0001) {
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= 0.001 && stop_sig > 0.001 ) {
-                num_cats -= 1;
-            }
-            if ( sig_cutoff >= 0.01 && stop_sig > 0.01 ) {
-                num_cats -= 1;
-            }
-        }
-        cat_data.CreateCategoriesAtCanvasTm(num_cats, t);
-        cat_data.SetCategoryLabel(t, 0, str_sig);
-                cat_data.SetCategoryColor(t, 0, lbl_color_dict[str_sig]);
-        
-                if (gs_coord->GetSignificanceFilter() < 0) {
-                    // user specified cutoff
-                    wxString lbl = wxString::Format("p = %g", gs_coord->significance_cutoff);
-                    cat_data.SetCategoryLabel(t, 1, lbl);
-                    cat_data.SetCategoryColor(t, 1, wxColour(3, 116, 6));
-                    
-                    if (gs_coord->GetHasIsolates(t) &&
-                        gs_coord->GetHasUndefined(t))
-                    {
-                        isolates_cat = 2;
-                        undefined_cat = 3;
-                    } else if (gs_coord->GetHasUndefined(t)) {
-                        undefined_cat = 2;
-                    } else if (gs_coord->GetHasIsolates(t)) {
-                        isolates_cat = 2;
-                    }
-                    
-                } else {
-                    int s_f = gs_coord->GetSignificanceFilter();
-                    int set_perm = gs_coord->permutations;
-                    stop_sig = 1.0 / (1.0 + set_perm);
-                    
-                    wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
-                    double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
-                    
-                    int cat_idx = 1;
-                    for (int j=s_f-1; j < 4; j++) {
-                        if (def_cutoffs[j] >= stop_sig) {
-                            cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
-                            cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
-                        }
-                    }
-                    if (gs_coord->GetHasIsolates(t) &&
-                        gs_coord->GetHasUndefined(t)) {
-                        isolates_cat = cat_idx++;
-                        undefined_cat = cat_idx++;
-                        
-                    } else if (gs_coord->GetHasUndefined(t)) {
-                        undefined_cat = cat_idx++;
-                        
-                    } else if (gs_coord->GetHasIsolates(t)) {
-                        isolates_cat = cat_idx++;
-                    }
-                }
-        
-        if (undefined_cat != -1) {
-            cat_data.SetCategoryLabel(t, undefined_cat, str_undefined);
-            cat_data.SetCategoryColor(t, undefined_cat, lbl_color_dict[str_undefined]);
-        }
-        if (isolates_cat != -1) {
-            cat_data.SetCategoryLabel(t, isolates_cat, str_neighborless);
-            cat_data.SetCategoryColor(t, isolates_cat, lbl_color_dict[str_neighborless]);
-        }
-        
-        double* p_val = gs_coord->sig_local_jc_vecs[t];
-        
-        if (gs_coord->GetSignificanceFilter() < 0) {
-            // user specified cutoff
-            int s_f = 1;
-            double sig_cutoff = gs_coord->significance_cutoff;
-            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                if (cluster[i] == 4) {
-                    cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 5) {
-                    cat_data.AppendIdToCategory(t, undefined_cat, i);
-                } else if (cluster[i] == 0) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else {
-                    if (p_val[i] <= sig_cutoff) {
-                        cat_data.AppendIdToCategory(t, 1, i);
-                    } else {
-                        cat_data.AppendIdToCategory(t, 0, i); // not significant
-                    }
-                }
 
+        wxString def_cats[4] = {str_p005, str_p001, str_p0001, str_p00001};
+        double def_cutoffs[4] = {0.05, 0.01, 0.001, 0.0001};
+
+        int cat_idx = 1;
+        for (int j=s_f-1; j < 4; j++) {
+            if (def_cutoffs[j] >= stop_sig) {
+                cat_data.SetCategoryLabel(t, cat_idx, def_cats[j]);
+                cat_data.SetCategoryColor(t, cat_idx++, lbl_color_dict[def_cats[j]]);
             }
-        } else {
-            int s_f = gs_coord->GetSignificanceFilter();
-            for (int i=0, iend=gs_coord->num_obs; i<iend; i++) {
-                if (cluster[i] == 0) {
-                    cat_data.AppendIdToCategory(t, 0, i); // not significant
-                } else if (cluster[i] == 4) {
-                    cat_data.AppendIdToCategory(t, isolates_cat, i);
-                } else if (cluster[i] == 5) {
-                    cat_data.AppendIdToCategory(t, undefined_cat, i);
-                } else if (p_val[i] <= 0.0001) {
-                    cat_data.AppendIdToCategory(t, 5-s_f, i);
-                } else if (p_val[i] <= 0.001) {
-                    cat_data.AppendIdToCategory(t, 4-s_f, i);
-                } else if (p_val[i] <= 0.01) {
-                    cat_data.AppendIdToCategory(t, 3-s_f, i);
-                } else if (p_val[i] <= 0.05) {
-                    cat_data.AppendIdToCategory(t, 2-s_f, i);
-                }
-            }
-        }
-        
-        for (int cat=0; cat<num_cats; cat++) {
-            cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
         }
     }
-    
-    if (ref_var_index != -1) {
-        cat_data.SetCurrentCanvasTmStep(var_info[ref_var_index].time
-                                        - var_info[ref_var_index].time_min);
+
+    std::vector<double> p_val = gs_coord->sigVal;
+    std::vector<int> cluster = gs_coord->sigCat;
+    if (gs_coord->GetSignificanceFilter() < 0) {
+        // user specified cutoff
+        int s_f = 1;
+        double sig_cutoff = gs_coord->significance_cutoff;
+        for (size_t i=0, iend=gs_coord->num_obs; i<iend; i++) {
+            if (p_val[i] <= sig_cutoff) {
+                cat_data.AppendIdToCategory(t, 1, i);
+            } else {
+                cat_data.AppendIdToCategory(t, 0, i); // not significant
+            }
+        }
+    } else {
+        int s_f = gs_coord->GetSignificanceFilter();
+        for (size_t i=0, iend=gs_coord->num_obs; i<iend; i++) {
+            if (p_val[i] <= 0.0001) {
+                cat_data.AppendIdToCategory(t, 5-s_f, i);
+            } else if (p_val[i] <= 0.001) {
+                cat_data.AppendIdToCategory(t, 4-s_f, i);
+            } else if (p_val[i] <= 0.01) {
+                cat_data.AppendIdToCategory(t, 3-s_f, i);
+            } else if (p_val[i] <= 0.05) {
+                cat_data.AppendIdToCategory(t, 2-s_f, i);
+            } else {
+                cat_data.AppendIdToCategory(t, 1-s_f, i);
+            }
+        }
+    }
+
+    for (size_t cat=0; cat<num_cats; cat++) {
+        cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
     }
     PopulateCanvas();
 }
@@ -1487,6 +1441,7 @@ LocalMatchSignificanceFrame::~LocalMatchSignificanceFrame()
 {
     wxLogMessage("In LocalMatchSignificanceFrame::~LocalMatchSignificanceFrame");
     if (gs_coord) {
+        delete gs_coord;
         gs_coord = 0;
     }
 }
@@ -1583,8 +1538,7 @@ void LocalMatchSignificanceFrame::OnSpecifySeedDlg(wxCommandEvent& event)
     wxString m;
     m << "The last seed used by the pseudo random\nnumber ";
     m << "generator was " << last_seed << ".\n";
-    m << "Enter a seed value to use between\n0 and ";
-    m << std::numeric_limits<uint64_t>::max() << ".";
+    m << "Enter a seed value to use:";
     long long unsigned int val;
     wxString dlg_val;
     wxString cur_val;
@@ -1676,8 +1630,6 @@ void LocalMatchSignificanceFrame::OnSigFilterSetup(wxCommandEvent& event)
         delete[] p_val;
     }
 }
-
-
 
 void LocalMatchSignificanceFrame::OnSaveMLJC(wxCommandEvent& event)
 {

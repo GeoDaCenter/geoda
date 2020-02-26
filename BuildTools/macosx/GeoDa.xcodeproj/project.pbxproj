@@ -20,6 +20,7 @@
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
 		A144201D23FF2EDB00BD6F93 /* nbrMatchDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */; };
+		A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A144201E2405DB7300BD6F93 /* GenColor.cpp */; };
 		A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735A921A5F72D00CA69B2 /* DistUtils.cpp */; };
 		A14735B521A65F1800CA69B2 /* bd_tree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735AB21A65F1600CA69B2 /* bd_tree.cpp */; };
 		A14735B621A65F1800CA69B2 /* kd_dump.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735AC21A65F1600CA69B2 /* kd_dump.cpp */; };
@@ -345,6 +346,8 @@
 		A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveAsDlg.cpp; sourceTree = "<group>"; };
 		A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nbrMatchDlg.cpp; sourceTree = "<group>"; };
 		A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nbrMatchDlg.h; sourceTree = "<group>"; };
+		A144201E2405DB7300BD6F93 /* GenColor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GenColor.cpp; sourceTree = "<group>"; };
+		A144201F2405DB7300BD6F93 /* GenColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GenColor.h; sourceTree = "<group>"; };
 		A14735A821A5F72D00CA69B2 /* DistUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DistUtils.h; sourceTree = "<group>"; };
 		A14735A921A5F72D00CA69B2 /* DistUtils.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DistUtils.cpp; sourceTree = "<group>"; };
 		A14735AB21A65F1600CA69B2 /* bd_tree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bd_tree.cpp; sourceTree = "<group>"; };
@@ -1191,6 +1194,8 @@
 				A19F514D1756A11E006E31B4 /* plugins */,
 				DD3BA4471871EE9A00CA4152 /* DefaultVarsPtree.h */,
 				DD3BA4461871EE9A00CA4152 /* DefaultVarsPtree.cpp */,
+				A144201F2405DB7300BD6F93 /* GenColor.h */,
+				A144201E2405DB7300BD6F93 /* GenColor.cpp */,
 				DD9C1B361910267900C0A427 /* GdaConst.h */,
 				DD9C1B351910267900C0A427 /* GdaConst.cpp */,
 				A171FBFE1792332A000DD5A0 /* GdaException.h */,
@@ -1796,6 +1801,7 @@
 				A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
 				DD7975710F1D296F00496A84 /* CreatingWeightDlg.cpp in Sources */,
+				A14420202405DB7400BD6F93 /* GenColor.cpp in Sources */,
 				A40AB92120F559F500F94543 /* scatterplot.cpp in Sources */,
 				DD79757C0F1D296F00496A84 /* HistIntervalDlg.cpp in Sources */,
 				DD79757F0F1D296F00496A84 /* LisaWhat2OpenDlg.cpp in Sources */,

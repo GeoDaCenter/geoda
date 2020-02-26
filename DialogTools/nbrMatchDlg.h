@@ -26,6 +26,7 @@
 #include <wx/listbox.h>
 #include <wx/string.h>
 
+#include "../ShapeOperations/OGRDataAdapter.h"
 #include "../DataViewer/TableInterface.h"
 #include "../VarTools.h"
 #include "../Explore/MapNewView.h"
@@ -84,6 +85,7 @@ public:
     LocalMatchMapCanvas(wxWindow *parent, TemplateFrame* t_frame,
                         Project* project,
                         const std::vector<std::vector<int> >& groups,
+                        const std::vector<double>& pval,
                         boost::uuids::uuid weights_id,
                         const wxPoint& pos = wxDefaultPosition,
                         const wxSize& size = wxDefaultSize);
@@ -99,7 +101,8 @@ public:
     virtual void TimeSyncVariableToggle(int var_index);
     virtual void UpdateStatusBar();
     
-    const std::vector<std::vector<int> >& groups;
+    std::vector<std::vector<int> > groups;
+    std::vector<double> pval;
     
     DECLARE_EVENT_TABLE()
 };
@@ -110,6 +113,7 @@ class LocalMatchMapFrame : public MapFrame
 public:
     LocalMatchMapFrame(wxFrame *parent, Project* project,
                        const std::vector<std::vector<int> >& groups,
+                       const std::vector<double>& pval,
                        boost::uuids::uuid weights_id = boost::uuids::nil_uuid(),
                        const wxString& title = wxEmptyString,
                        const wxPoint& pos = wxDefaultPosition,
@@ -128,13 +132,71 @@ public:
     DECLARE_EVENT_TABLE()
 };
 
-class LocalMatchCoordinator;  // forward declaration
 
-class LocalMatchCoordinatorObserver {
+
+class LocalMatchCoordinator
+{
 public:
-    virtual void update(LocalMatchCoordinator* o) = 0;
-    /** Request for the Observer to close itself */
-    virtual void closeObserver(LocalMatchCoordinator* o) = 0;
+    LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w,
+                          const std::vector<wxInt64>& cadinality,
+                          int permutations,
+                          uint64_t last_seed_used,
+                          bool reuse_last_seed=false);
+    virtual ~LocalMatchCoordinator();
+
+    bool IsOk() { return true; }
+    wxString GetErrorMessage() { return "Error Message"; }
+
+    void run();
+    void job(size_t nbr_sz, size_t idx, uint64_t seed_start);
+
+    int num_obs;
+    GwtWeight* spatial_w;
+    GalWeight* variable_w;
+    std::vector<double> sigVal;
+    std::vector<int> sigCat;
+    std::vector<wxInt64> cadinality;
+
+    int significance_filter; // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
+    double significance_cutoff; // either 0.05, 0.01, 0.001 or 0.0001
+    void SetSignificanceFilter(int filter_id);
+    int GetSignificanceFilter() { return significance_filter; }
+    int permutations; // any number from 9 to 99999, 99 will be default
+    double bo; //Bonferroni bound
+    double fdr; //False Discovery Rate
+    double user_sig_cutoff; // user defined cutoff
+    uint64_t last_seed_used;
+    bool reuse_last_seed;
+
+    uint64_t GetLastUsedSeed() { return last_seed_used;}
+
+    void SetLastUsedSeed(uint64_t seed) {
+        reuse_last_seed = true;
+        last_seed_used = seed;
+        // update global one
+        GdaConst::use_gda_user_seed = true;
+        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        GdaConst::gda_user_seed =  last_seed_used;
+        wxString val;
+        val << last_seed_used;
+        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
+    }
+
+    bool IsReuseLastSeed() { return reuse_last_seed; }
+    void SetReuseLastSeed(bool reuse) {
+        reuse_last_seed = reuse;
+        // update global one
+        GdaConst::use_gda_user_seed = reuse;
+        if (reuse) {
+            last_seed_used = GdaConst::gda_user_seed;
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
+        } else {
+            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
+        }
+    }
+
+    virtual std::vector<wxString> GetDefaultCategories();
+    virtual std::vector<double> GetDefaultCutoffs();
 };
 
 
@@ -183,7 +245,7 @@ protected:
     DECLARE_EVENT_TABLE()
 };
 
-class LocalMatchSignificanceFrame : public MapFrame, public LocalMatchCoordinatorObserver
+class LocalMatchSignificanceFrame : public MapFrame
 {
     DECLARE_CLASS(LocalMatchSignificanceFrame)
 public:
@@ -235,69 +297,6 @@ protected:
     DECLARE_EVENT_TABLE()
 };
 
-class LocalMatchCoordinator
-{
-public:
-    LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w,
-                          const std::vector<int>& cadinality,
-                          int permutations,
-                          uint64_t last_seed_used,
-                          bool reuse_last_seed=false);
-    virtual ~LocalMatchCoordinator();
-    
-    bool IsOk() { return true; }
-    wxString GetErrorMessage() { return "Error Message"; }
-        
-    void run();
-    void job(size_t nbr_sz, size_t idx, uint64_t seed_start);
-    
-    int num_obs;
-    GwtWeight* spatial_w;
-    GalWeight* variable_w;
-    std::vector<double> sigVal;
-    std::vector<int> sigCat;
-    std::vector<int> cadinality;
-    
-    int significance_filter; // 0: >0.05 1: 0.05, 2: 0.01, 3: 0.001, 4: 0.0001
-    double significance_cutoff; // either 0.05, 0.01, 0.001 or 0.0001
-    void SetSignificanceFilter(int filter_id);
-    int GetSignificanceFilter() { return significance_filter; }
-    int permutations; // any number from 9 to 99999, 99 will be default
-    double bo; //Bonferroni bound
-    double fdr; //False Discovery Rate
-    double user_sig_cutoff; // user defined cutoff
-    uint64_t last_seed_used;
-    bool reuse_last_seed;
-    
-    uint64_t GetLastUsedSeed() { return last_seed_used;}
-    
-    void SetLastUsedSeed(uint64_t seed) {
-        reuse_last_seed = true;
-        last_seed_used = seed;
-        // update global one
-        GdaConst::use_gda_user_seed = true;
-        OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
-        GdaConst::gda_user_seed =  last_seed_used;
-        wxString val;
-        val << last_seed_used;
-        OGRDataAdapter::GetInstance().AddEntry("gda_user_seed", val);
-    }
-    
-    bool IsReuseLastSeed() { return reuse_last_seed; }
-    void SetReuseLastSeed(bool reuse) {
-        reuse_last_seed = reuse;
-        // update global one
-        GdaConst::use_gda_user_seed = reuse;
-        if (reuse) {
-            last_seed_used = GdaConst::gda_user_seed;
-            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "1");
-        } else {
-            OGRDataAdapter::GetInstance().AddEntry("use_gda_user_seed", "0");
-        }
-    }
-    
-    virtual std::vector<wxString> GetDefaultCategories();
-    virtual std::vector<double> GetDefaultCutoffs();
-};
+
 
 #endif

@@ -648,8 +648,6 @@ void GdaFrame::UpdateToolbarAndMenus()
 
     EnableTool(XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
-    EnableTool(XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
-    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_MATCH"), shp_proj);
 	
 	EnableTool(XRCID("ID_CORRELO_MENU"), shp_proj);
     
@@ -6955,7 +6953,6 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
 
     EVT_MENU(XRCID("IDM_UNI_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
-    EVT_MENU(XRCID("IDM_MUL_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
 
     EVT_TOOL(XRCID("IDM_GETIS_ORD_MENU"), GdaFrame::OnGetisMenuChoices)
 

@@ -517,10 +517,7 @@
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="IDM_UNI_LOCAL_MATCH">
-          <label>Univariate Local Neighbor Match Test</label>
-      </object>
-      <object class="wxMenuItem" name="IDM_MUL_LOCAL_MATCH">
-          <label>Multivariate Local Neighbor Match Test</label>
+          <label>Local Neighbor Match Test</label>
       </object>
       <object class="separator"/>
       <object class="wxMenuItem" name="IDM_CORRELOGRAM">
@@ -5115,10 +5112,7 @@
     </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="IDM_UNI_LOCAL_MATCH">
-        <label>Univariate Local Neighbor Match Test</label>
-    </object>
-    <object class="wxMenuItem" name="IDM_MUL_LOCAL_MATCH">
-        <label>Multivariate Local Neighbor Match Test</label>
+        <label>Local Neighbor Match Test</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_TOOLS_MENU">

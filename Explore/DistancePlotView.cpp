@@ -286,8 +286,7 @@ DistancePlotDlg::~DistancePlotDlg()
 void DistancePlotDlg::CreateControls()
 {
     wxPanel* panel = new wxPanel(this);
-    panel->SetBackgroundColour(*wxWHITE);
-    SetBackgroundColour(*wxWHITE);
+    //panel->SetBackgroundColour(*wxWHITE);
 
     // label & listbox
     wxStaticText* var_st = new wxStaticText (panel, wxID_ANY,
@@ -388,7 +387,14 @@ void DistancePlotDlg::CreateControls()
     max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"),
                                     _("Sample Size:"));
     {
-        wxString max_iterations = "1000000";
+        size_t nobs = project->GetNumRecords();
+        size_t max_pairs = (nobs*(nobs-1))/2;
+
+        wxString max_iterations;
+        if (max_pairs > 1000000)
+            max_iterations = "1000000";
+        else
+            max_iterations << max_pairs;
         max_iter_tctrl = new wxTextCtrl(panel, XRCID("ID_MAX_ITER_TCTRL"),
                                         max_iterations, wxDefaultPosition,
                                         wxSize(100,-1), wxTE_PROCESS_ENTER);
