@@ -387,9 +387,9 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     int k = (int)knn;
     std::vector<double> pval_dict(knn,0);
     for (size_t v=1; v<knn; ++v) {
-        // p = C(k,v).C(nn-k,k-v) / C(N,k),
-        pval_dict[v] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-1-k, k-v);
-        pval_dict[v] /= Gda::combinatorial(rows, k);
+        // p = C(k,v).C(N-k,k-v) / C(N,k),
+        pval_dict[v] = Gda::combinatorial(k, v) * Gda::combinatorial(rows-k-1, k-v);
+        pval_dict[v] /= Gda::combinatorial(rows-1, k);
     }
     std::vector<double> val_p(rows);
     for (size_t i=0; i<rows; ++i) {
