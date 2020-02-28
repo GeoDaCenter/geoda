@@ -5,6 +5,7 @@
 #include "ScatterNewPlotView.h"
 #include "SimpleScatterPlotCanvas.h"
 #include "../DialogTools/AbstractClusterDlg.h"
+
 class DistancePlot;
 
 class DistancePlotCanvas : public SimpleScatterPlotCanvas
@@ -36,6 +37,10 @@ public:
 
     virtual void DisplayRightClickMenu(const wxPoint& pos);
 
+    virtual void update(HLStateInt* o) {}
+
+    virtual void UpdateSelection(bool shiftdown, bool pointsel) {}
+    
     Lowess GetLowess() { return lowess; }
 
     void OnSaveResult(wxCommandEvent& event);
@@ -140,7 +145,8 @@ protected:
     wxRadioButton* rand_samp_rad; // ID_RAND_SAMP_RAD
     wxStaticText* max_iter_txt; // ID_MAX_ITER_TXT
     wxTextCtrl* max_iter_tctrl; // ID_MAX_ITER_TCTRL
-    wxListBox* combo_var;
+    //wxListBox* combo_var;
+    wxChoice* maxdist_choice;
 
     wxButton* help_btn; // ID_HELP_BTN
     wxButton* apply_btn; // ID_APPLY_BTN

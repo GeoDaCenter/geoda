@@ -36,6 +36,7 @@
 #include "../TemplateFrame.h"
 #include "../VarTools.h"
 #include "../GdaShape.h"
+#include "../Algorithms/dloess/loess.h"
 
 class HighlightState;
 class Project;
@@ -189,7 +190,13 @@ protected:
 	
 	SimpleScatterPlotCanvasCbInt* ssp_canv_cb;
 	wxString right_click_menu_id;
-	
+
+    // loess predictions
+    std::vector<double> fit, se_fit;
+
+    loess_struct lo;
+    pred_struct pre;
+
 	DECLARE_EVENT_TABLE()
 };
 

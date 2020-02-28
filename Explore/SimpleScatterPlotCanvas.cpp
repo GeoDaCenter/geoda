@@ -105,7 +105,28 @@ show_data_points(show_data_points)
     cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
 	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
 	cat_data.SetCurrentCanvasTmStep(0);
-	
+
+    // loess
+    loess_setup((double*)&X.at(0), (double*)&Y.at(0), (long)X.size(), 1, &lo);
+
+    lo.model.span = 0.75;
+    lo.model.family = "gaussian";
+    lo.model.degree = 2;
+
+    loess(&lo);
+
+    loess_summary(&lo);
+    
+    long int se_fit = 0; //FALSE
+
+    long int m = 100;
+    double  *eval = new double[m];
+    predict(eval, m, &lo,  &pre, se_fit);
+
+    double coverage = 0.9;
+    ci_struct ci;
+    pointwise(&pre, X.size(), coverage, &ci);
+
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
@@ -117,6 +138,7 @@ SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 	wxLogMessage("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 	EmptyLowessCache();
     if (highlight_state) highlight_state->removeObserver(this);
+    //loess_free_mem(&lo);
 	wxLogMessage("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 }
 
@@ -154,8 +176,7 @@ void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     if (IsShowRegimes() && IsShowLowessSmoother()) {
         UpdateLowessOnRegimes();
     }
-    //if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
-    
+
     if (IsShowRegimes()) {
         // we only need to redraw everything if the optional
         // regression lines have changed.
@@ -163,6 +184,7 @@ void SimpleScatterPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     }
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 }
+
 /**
  Override of TemplateCanvas method.  We must still call the
  TemplateCanvas method after we update the regression lines
@@ -186,8 +208,7 @@ void SimpleScatterPlotCanvas::update(HLStateInt* o)
 	if (IsShowRegimes() && IsShowLowessSmoother()) {
 		UpdateLowessOnRegimes();
 	}
-	//if (IsDisplayStats() && IsShowLinearSmoother()) UpdateDisplayStats();
-	
+
 	// Call TemplateCanvas::update to redraw objects as needed.
 	TemplateCanvas::update(o);
 	
@@ -301,12 +322,10 @@ void SimpleScatterPlotCanvas::UpdateStatusBar()
 
 void SimpleScatterPlotCanvas::TimeSyncVariableToggle(int var_index)
 {
-	
 }
 
 void SimpleScatterPlotCanvas::FixedScaleVariableToggle(int var_index)
 {
-	
 }
 
 void SimpleScatterPlotCanvas::SetSelectableOutlineColor(wxColour color)
@@ -329,7 +348,6 @@ void SimpleScatterPlotCanvas::SetSelectableFillColor(wxColour color)
 	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
     TemplateCanvas::SetSelectableFillColor(color);
     PopulateCanvas();
-    
 }
 
 void SimpleScatterPlotCanvas::ShowAxes(bool display)
@@ -438,7 +456,6 @@ void SimpleScatterPlotCanvas::UpdateLowessOnRegimes()
 	if (!lowess_reg_line_selected && !lowess_reg_line_excluded) return;
 	size_t n = X.size();
 	wxString key = SmoothingUtils::LowessCacheKey(0, 0);
-	LOG(key);
 	SmoothingUtils::LowessCacheType::iterator it = lowess_cache.find(key);
 	SmoothingUtils::LowessCacheEntry* lce = 0;
 	if (it != lowess_cache.end()) {

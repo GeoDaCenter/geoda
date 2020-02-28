@@ -343,15 +343,11 @@ void DistancePlotDlg::CreateControls()
     // distance
     thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), _("Max Distance:"));
     thresh_cbx->SetValue(false);
-    thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "",
-                                  wxDefaultPosition, wxSize(100,-1),
-                                  wxTE_PROCESS_ENTER);
-    thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
-    thresh_tctrl->Enable(false);
+    maxdist_choice = new wxChoice(panel, XRCID("ID_MAXDIST_CHOICE"),
+                               wxDefaultPosition, wxSize(160,-1));
+    maxdist_choice->Append("Maximum pairwise distance");
+    maxdist_choice->Append("1/2 diagonal of bounding box");
 
-    thresh_tctrl->Bind(wxEVT_TEXT_ENTER, &DistancePlotDlg::OnMaxDistanceTextCtrl, this);
-
-    UpdateThreshTctrlVal();
     Connect(XRCID("ID_THRESH_CBX"), wxEVT_CHECKBOX,
             wxCommandEventHandler(DistancePlotDlg::OnThreshCheckBox));
     Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_TEXT_ENTER,
@@ -360,17 +356,28 @@ void DistancePlotDlg::CreateControls()
     wxBoxSizer* thresh_h_szr = new wxBoxSizer(wxHORIZONTAL);
     thresh_h_szr->Add(thresh_cbx, 0, wxALIGN_CENTER_VERTICAL);
     thresh_h_szr->AddSpacer(5);
-    thresh_h_szr->Add(thresh_tctrl, 0, wxALIGN_CENTER_VERTICAL);
+    thresh_h_szr->Add(maxdist_choice, 0, wxALIGN_CENTER_VERTICAL);
+
+
+    thresh_tctrl = new wxTextCtrl(panel, XRCID("ID_THRESH_TCTRL"), "",
+                                  wxDefaultPosition, wxSize(100,-1),
+                                  wxTE_PROCESS_ENTER);
+    thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    thresh_tctrl->Enable(false);
+    thresh_tctrl->Bind(wxEVT_TEXT_ENTER, &DistancePlotDlg::OnMaxDistanceTextCtrl, this);
+    UpdateThreshTctrlVal();
     thresh_slider = new wxSlider(panel, XRCID("ID_THRESH_SLDR"),
                                  sldr_tcks/2, 0, sldr_tcks,
                                  wxDefaultPosition, wxSize(180,-1));
-
     Connect(XRCID("ID_THRESH_SLDR"), wxEVT_SLIDER,
             wxCommandEventHandler(DistancePlotDlg::OnThreshSlider));
-
     thresh_slider->Enable(false);
+
     wxBoxSizer* thresh_sld_h_szr = new wxBoxSizer(wxHORIZONTAL);
+    thresh_sld_h_szr->AddSpacer(18);
     thresh_sld_h_szr->Add(thresh_slider, 0, wxALIGN_CENTER_VERTICAL);
+    thresh_sld_h_szr->Add(thresh_tctrl, 0, wxALIGN_CENTER_VERTICAL);
+
     wxBoxSizer* thresh_v_szr = new wxBoxSizer(wxVERTICAL);
     thresh_v_szr->Add(thresh_h_szr, 0, wxBOTTOM, 5);
     thresh_v_szr->Add(thresh_sld_h_szr, 0, wxALIGN_CENTER_HORIZONTAL);
