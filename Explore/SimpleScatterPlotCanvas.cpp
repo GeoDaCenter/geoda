@@ -106,27 +106,6 @@ show_data_points(show_data_points)
 	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
 	cat_data.SetCurrentCanvasTmStep(0);
 
-    // loess
-    loess_setup((double*)&X.at(0), (double*)&Y.at(0), (long)X.size(), 1, &lo);
-
-    lo.model.span = 0.75;
-    lo.model.family = "gaussian";
-    lo.model.degree = 2;
-
-    loess(&lo);
-
-    loess_summary(&lo);
-    
-    long int se_fit = 0; //FALSE
-
-    long int m = 100;
-    double  *eval = new double[m];
-    predict(eval, m, &lo,  &pre, se_fit);
-
-    double coverage = 0.99;
-    ci_struct ci;
-    pointwise(&pre, X.size(), coverage, &ci);
-
 	PopulateCanvas();
 	ResizeSelectableShps();
 	
@@ -138,7 +117,6 @@ SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas()
 	wxLogMessage("Entering SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 	EmptyLowessCache();
     if (highlight_state) highlight_state->removeObserver(this);
-    //loess_free_mem(&lo);
 	wxLogMessage("Exiting SimpleScatterPlotCanvas::~SimpleScatterPlotCanvas");
 }
 

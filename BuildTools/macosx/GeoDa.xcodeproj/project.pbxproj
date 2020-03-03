@@ -50,14 +50,14 @@
 		A194839D2118BAAA009A87A2 /* drawn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A194838C2118BAA9009A87A2 /* drawn.cpp */; };
 		A194839E2118BAAA009A87A2 /* ogldiag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483912118BAAA009A87A2 /* ogldiag.cpp */; };
 		A19483A22118BE8F009A87A2 /* MapLayoutView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */; };
-		A19580912408A4DE0089C6CE /* loessf.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580862408A4DC0089C6CE /* loessf.c */; };
-		A19580922408A4DE0089C6CE /* loessc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580892408A4DD0089C6CE /* loessc.c */; };
-		A19580932408A4DE0089C6CE /* loess.c in Sources */ = {isa = PBXBuildFile; fileRef = A195808A2408A4DD0089C6CE /* loess.c */; };
-		A19580952408A4DE0089C6CE /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = A195808F2408A4DD0089C6CE /* misc.c */; };
-		A19580962408A4DE0089C6CE /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580902408A4DE0089C6CE /* predict.c */; };
-		A19580992408A85B0089C6CE /* dsvdc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580972408A85B0089C6CE /* dsvdc.c */; };
-		A195809A2408A85B0089C6CE /* dqrsl.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580982408A85B0089C6CE /* dqrsl.c */; };
 		A195809D2409A8760089C6CE /* LoessPlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */; };
+		A19580AC240E15020089C6CE /* loessc.c in Sources */ = {isa = PBXBuildFile; fileRef = A195809F240E15000089C6CE /* loessc.c */; };
+		A19580AD240E15020089C6CE /* loessf.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A0240E15010089C6CE /* loessf.c */; };
+		A19580AE240E15020089C6CE /* dqrsl.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A2240E15010089C6CE /* dqrsl.c */; };
+		A19580B0240E15020089C6CE /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A5240E15010089C6CE /* misc.c */; };
+		A19580B1240E15020089C6CE /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A6240E15010089C6CE /* predict.c */; };
+		A19580B2240E15020089C6CE /* dsvdc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A7240E15020089C6CE /* dsvdc.c */; };
+		A19580B3240E15020089C6CE /* loess.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A8240E15020089C6CE /* loess.c */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -414,20 +414,20 @@
 		A19483922118BAAA009A87A2 /* drawn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = drawn.h; sourceTree = "<group>"; };
 		A19483A02118BE8E009A87A2 /* MapLayoutView.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayoutView.cpp; sourceTree = "<group>"; };
 		A19483A12118BE8F009A87A2 /* MapLayoutView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapLayoutView.h; sourceTree = "<group>"; };
-		A19580862408A4DC0089C6CE /* loessf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessf.c; path = Algorithms/dloess/loessf.c; sourceTree = "<group>"; };
-		A19580872408A4DD0089C6CE /* loessf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessf.h; path = Algorithms/dloess/loessf.h; sourceTree = "<group>"; };
-		A19580882408A4DD0089C6CE /* loess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loess.h; path = Algorithms/dloess/loess.h; sourceTree = "<group>"; };
-		A19580892408A4DD0089C6CE /* loessc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessc.c; path = Algorithms/dloess/loessc.c; sourceTree = "<group>"; };
-		A195808A2408A4DD0089C6CE /* loess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loess.c; path = Algorithms/dloess/loess.c; sourceTree = "<group>"; };
-		A195808C2408A4DD0089C6CE /* loessc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessc.h; path = Algorithms/dloess/loessc.h; sourceTree = "<group>"; };
-		A195808D2408A4DD0089C6CE /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = misc.h; path = Algorithms/dloess/misc.h; sourceTree = "<group>"; };
-		A195808E2408A4DD0089C6CE /* S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = S.h; path = Algorithms/dloess/S.h; sourceTree = "<group>"; };
-		A195808F2408A4DD0089C6CE /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = Algorithms/dloess/misc.c; sourceTree = "<group>"; };
-		A19580902408A4DE0089C6CE /* predict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = predict.c; path = Algorithms/dloess/predict.c; sourceTree = "<group>"; };
-		A19580972408A85B0089C6CE /* dsvdc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsvdc.c; path = Algorithms/dloess/dsvdc.c; sourceTree = "<group>"; };
-		A19580982408A85B0089C6CE /* dqrsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dqrsl.c; path = Algorithms/dloess/dqrsl.c; sourceTree = "<group>"; };
 		A195809B2409A8750089C6CE /* LoessPlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoessPlotCanvas.h; sourceTree = "<group>"; };
 		A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoessPlotCanvas.cpp; sourceTree = "<group>"; };
+		A195809F240E15000089C6CE /* loessc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessc.c; path = Algorithms/loessc.c; sourceTree = "<group>"; };
+		A19580A0240E15010089C6CE /* loessf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessf.c; path = Algorithms/loessf.c; sourceTree = "<group>"; };
+		A19580A1240E15010089C6CE /* loessc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessc.h; path = Algorithms/loessc.h; sourceTree = "<group>"; };
+		A19580A2240E15010089C6CE /* dqrsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dqrsl.c; path = Algorithms/dqrsl.c; sourceTree = "<group>"; };
+		A19580A4240E15010089C6CE /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = misc.h; path = Algorithms/misc.h; sourceTree = "<group>"; };
+		A19580A5240E15010089C6CE /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = Algorithms/misc.c; sourceTree = "<group>"; };
+		A19580A6240E15010089C6CE /* predict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = predict.c; path = Algorithms/predict.c; sourceTree = "<group>"; };
+		A19580A7240E15020089C6CE /* dsvdc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsvdc.c; path = Algorithms/dsvdc.c; sourceTree = "<group>"; };
+		A19580A8240E15020089C6CE /* loess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loess.c; path = Algorithms/loess.c; sourceTree = "<group>"; };
+		A19580A9240E15020089C6CE /* S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = S.h; path = Algorithms/S.h; sourceTree = "<group>"; };
+		A19580AA240E15020089C6CE /* loessf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessf.h; path = Algorithms/loessf.h; sourceTree = "<group>"; };
+		A19580AB240E15020089C6CE /* loess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loess.h; path = Algorithms/loess.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
@@ -998,23 +998,23 @@
 			path = ogl;
 			sourceTree = "<group>";
 		};
-		A19580852408A4C80089C6CE /* loess */ = {
+		A195809E240E14E70089C6CE /* dloess */ = {
 			isa = PBXGroup;
 			children = (
-				A19580982408A85B0089C6CE /* dqrsl.c */,
-				A19580972408A85B0089C6CE /* dsvdc.c */,
-				A195808A2408A4DD0089C6CE /* loess.c */,
-				A19580882408A4DD0089C6CE /* loess.h */,
-				A19580892408A4DD0089C6CE /* loessc.c */,
-				A195808C2408A4DD0089C6CE /* loessc.h */,
-				A19580862408A4DC0089C6CE /* loessf.c */,
-				A19580872408A4DD0089C6CE /* loessf.h */,
-				A195808F2408A4DD0089C6CE /* misc.c */,
-				A195808D2408A4DD0089C6CE /* misc.h */,
-				A19580902408A4DE0089C6CE /* predict.c */,
-				A195808E2408A4DD0089C6CE /* S.h */,
+				A19580A2240E15010089C6CE /* dqrsl.c */,
+				A19580A7240E15020089C6CE /* dsvdc.c */,
+				A19580A8240E15020089C6CE /* loess.c */,
+				A19580AB240E15020089C6CE /* loess.h */,
+				A195809F240E15000089C6CE /* loessc.c */,
+				A19580A1240E15010089C6CE /* loessc.h */,
+				A19580A0240E15010089C6CE /* loessf.c */,
+				A19580AA240E15020089C6CE /* loessf.h */,
+				A19580A5240E15010089C6CE /* misc.c */,
+				A19580A4240E15010089C6CE /* misc.h */,
+				A19580A6240E15010089C6CE /* predict.c */,
+				A19580A9240E15020089C6CE /* S.h */,
 			);
-			name = loess;
+			name = dloess;
 			sourceTree = "<group>";
 		};
 		A40AB91A20F5336600F94543 /* arizona */ = {
@@ -1067,7 +1067,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
-				A19580852408A4C80089C6CE /* loess */,
+				A195809E240E14E70089C6CE /* dloess */,
 				A1B18EB123FEF50400465937 /* splittree.cpp */,
 				A1B18EAF23FEF50300465937 /* splittree.h */,
 				A1B18EB023FEF50300465937 /* tsne.cpp */,
@@ -1841,6 +1841,7 @@
 				DD7975670F1D296F00496A84 /* 3DControlPan.cpp in Sources */,
 				A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
+				A19580B0240E15020089C6CE /* misc.c in Sources */,
 				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
 				A40AB92920F675B600F94543 /* oglstuff.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
@@ -1872,6 +1873,7 @@
 				A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */,
 				DD7976B90F1D2CA800496A84 /* DenseVector.cpp in Sources */,
 				A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */,
+				A19580AE240E15020089C6CE /* dqrsl.c in Sources */,
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
 				A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */,
@@ -1886,7 +1888,6 @@
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,
 				DD7976C30F1D2CA800496A84 /* SparseRow.cpp in Sources */,
 				A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */,
-				A19580912408A4DE0089C6CE /* loessf.c in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
@@ -1926,7 +1927,6 @@
 				DDF14CDD139432CB00363FA1 /* DataViewerAddColDlg.cpp in Sources */,
 				DDB77C0D139820CB00569A1E /* GStatCoordinator.cpp in Sources */,
 				DD209598139F129900B9E648 /* GetisOrdChoiceDlg.cpp in Sources */,
-				A19580952408A4DE0089C6CE /* misc.c in Sources */,
 				DD181BC813A90445004B0EC2 /* SaveToTableDlg.cpp in Sources */,
 				A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */,
 				A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */,
@@ -1948,7 +1948,6 @@
 				DDA8D55214479228008156FB /* ScatterNewPlotView.cpp in Sources */,
 				DD6456CA14881EA700AABF59 /* TimeChooserDlg.cpp in Sources */,
 				DD203F9D14C0C960006A731B /* MapNewView.cpp in Sources */,
-				A19580962408A4DE0089C6CE /* predict.c in Sources */,
 				DDF1636B15064B7800E3E6BD /* LisaMapNewView.cpp in Sources */,
 				DDF1637015064C2900E3E6BD /* GetisOrdMapNewView.cpp in Sources */,
 				DD7E91D3151A8F3A001AAC4C /* LisaScatterPlotView.cpp in Sources */,
@@ -1961,7 +1960,7 @@
 				DDC9DD9C15937C0200A0E5BA /* ImportCsvDlg.cpp in Sources */,
 				A14735B721A65F1800CA69B2 /* bd_fix_rad_search.cpp in Sources */,
 				DD75A04115E81AF9008A7F8C /* VoronoiUtils.cpp in Sources */,
-				A19580922408A4DE0089C6CE /* loessc.c in Sources */,
+				A19580AC240E15020089C6CE /* loessc.c in Sources */,
 				DDB2A75F15FA7DA900022ABE /* CartogramNewView.cpp in Sources */,
 				A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */,
 				DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */,
@@ -1971,7 +1970,9 @@
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
 				A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */,
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
+				A19580B2240E15020089C6CE /* dsvdc.c in Sources */,
 				DDDBF2AE163AD3AB0070610C /* ConditionalHistogramView.cpp in Sources */,
+				A19580B1240E15020089C6CE /* predict.c in Sources */,
 				DD4E8B86164818A70014F1E7 /* ConnectivityHistView.cpp in Sources */,
 				A4F5D61F1F4EA0D2007ADF25 /* AbstractClusterDlg.cpp in Sources */,
 				DD8FACE11649595D007598CE /* DataMovieDlg.cpp in Sources */,
@@ -1987,8 +1988,6 @@
 				DDF5400B167A39CA0042B453 /* CatClassifDlg.cpp in Sources */,
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
 				A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */,
-				A195809A2408A85B0089C6CE /* dqrsl.c in Sources */,
-				A19580992408A85B0089C6CE /* dsvdc.c in Sources */,
 				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
 				A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */,
 				DD64925C16DFF63400B3B0AB /* GeoDa.cpp in Sources */,
@@ -2009,6 +2008,7 @@
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */,
+				A19580B3240E15020089C6CE /* loess.c in Sources */,
 				A4404A12209275550007753D /* hdbscan.cpp in Sources */,
 				A1E78139178A90A100CC1037 /* OGRDatasourceProxy.cpp in Sources */,
 				A4ED7D552097F114008685D6 /* kd_pr_search.cpp in Sources */,
@@ -2062,7 +2062,6 @@
 				A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */,
 				A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */,
 				DD30798E19ED80E0001E5E89 /* Lowess.cpp in Sources */,
-				A19580932408A4DE0089C6CE /* loess.c in Sources */,
 				DD3079C719ED9F61001E5E89 /* LowessParamObservable.cpp in Sources */,
 				A14735B521A65F1800CA69B2 /* bd_tree.cpp in Sources */,
 				DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */,
@@ -2102,6 +2101,7 @@
 				A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */,
 				DDFFC7F21AC1C7CF00F7DD6D /* HighlightState.cpp in Sources */,
 				DD9373F71AC1FEAA0066AF21 /* PolysToContigWeights.cpp in Sources */,
+				A19580AD240E15020089C6CE /* loessf.c in Sources */,
 				DDCCB5CC1AD47C200067D6C4 /* SimpleBinsHistCanvas.cpp in Sources */,
 				A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */,
 			);

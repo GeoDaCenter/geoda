@@ -30,7 +30,7 @@
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../GdaShape.h"
-#include "../Algorithms/dloess/loess.h"
+#include "../Algorithms/loess.h"
 
 class HighlightState;
 class Project;

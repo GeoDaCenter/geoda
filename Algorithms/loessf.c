@@ -10,8 +10,8 @@
 		http://www.netlib.org/f2c/libf2c.zip
 */
 
-#include "../../Regression/f2c.h"
-#include "../../Regression/blaswrap.h"
+#include "../Regression/f2c.h"
+#include "../Regression/blaswrap.h"
 /* Table of constant values */
 
 static integer c__2 = 2;
