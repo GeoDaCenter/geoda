@@ -501,7 +501,7 @@ void LoessSettingsDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,5,0);
 
     // span
-    wxStaticText* st_span = new wxStaticText(panel, wxID_ANY, _("Span (degree of smoothing):"));
+    wxStaticText* st_span = new wxStaticText(panel, wxID_ANY, _("Degree of smoothing (span):"));
     m_span = new wxTextCtrl(panel, wxID_ANY, "0.75", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st_span, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_span, 1, wxEXPAND);
@@ -621,7 +621,7 @@ void LoessSettingsDlg::OnOK(wxCommandEvent& event )
         bool success = false;
         double v_span;
         success =  m_span->GetValue().ToDouble(&v_span);
-        if (!success) {
+        if (!success || v_span <= 0 || v_span > 1) {
             wxMessageDialog dlg(this, _("Please input a valid numeric value for span."), _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
@@ -635,7 +635,7 @@ void LoessSettingsDlg::OnOK(wxCommandEvent& event )
         }
         long iterations;
         success = m_iterations->GetValue().ToLong(&iterations);
-        if (!success) {
+        if (!success || iterations < 2) {
             wxMessageDialog dlg(this, _("Please input a valid numeric value for iterations."), _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
