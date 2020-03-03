@@ -12,12 +12,16 @@
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../GeoDa.h"
+#include "LoessPlotCanvas.h"
 #include "SimpleScatterPlotCanvas.h"
 #include "DistancePlotView.h"
 
-IMPLEMENT_CLASS(DistancePlotCanvas, SimpleScatterPlotCanvas)
-BEGIN_EVENT_TABLE(DistancePlotCanvas, SimpleScatterPlotCanvas)
+IMPLEMENT_CLASS(DistancePlotCanvas, LoessPlotCanvas)
+BEGIN_EVENT_TABLE(DistancePlotCanvas, LoessPlotCanvas)
 END_EVENT_TABLE()
+
+const int DistancePlotCanvas::default_style = LoessPlotCanvas::DEFAULT_STYLE |
+LoessPlotCanvas::show_axes | LoessPlotCanvas::show_confidence_interval | LoessPlotCanvas::show_lowess_smoother;
 
 DistancePlotCanvas::DistancePlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                        Project* project,
@@ -31,12 +35,9 @@ DistancePlotCanvas::DistancePlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                        const wxString& Y_label,
                                        const wxPoint& pos,
                                        const wxSize& size)
-: SimpleScatterPlotCanvas(parent, t_frame, project, project->GetHighlightState(),
-                          0, X, Y, X_undef, Y_undef, X_label, Y_label,
-                          x_min, x_max, y_min, y_max, false, false, true,
-                          "ID_DISTPLOT_MENU_OPTIONS", true, true,
-                          false, false, false, true, false, false, false,
-                          pos, size),
+: LoessPlotCanvas(parent, t_frame, project, project->GetHighlightState(),
+                  X, Y, X_undef, Y_undef, X_label, Y_label, default_style,
+                  "ID_DISTPLOT_MENU_OPTIONS", "", pos, size),
 use_def_y_range(false),prev_y_axis_min(DBL_MIN), prev_y_axis_max(DBL_MAX)
 {
 
@@ -63,6 +64,10 @@ void DistancePlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 
     wxMenuItem* toggle_menu = optMenu->FindItem(XRCID("ID_DISTPLOT_SHOW_POINTS"));
     Connect(toggle_menu->GetId(), wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnToggleDataPoints));
+
+    Connect(XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnToggleConfidenceInterval));
+
+    Connect(XRCID("ID_EDIT_LOESS_PARAMS"),  wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnEditLoess));
 
     Connect(XRCID("ID_USE_ADJUST_Y_AXIS"),  wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnUseAdjustYAxis));
     Connect(XRCID("ID_ADJUST_Y_AXIS"), wxEVT_MENU, wxCommandEventHandler(DistancePlotCanvas::OnAdjustYAxis));
@@ -128,15 +133,29 @@ void DistancePlotCanvas::OnSaveResult(wxCommandEvent& event)
 
 void DistancePlotCanvas::OnToggleDataPoints(wxCommandEvent& event)
 {
-    show_data_points = !show_data_points;
-    invalidateBms();
+    if (style & show_data_points) {
+        style = style & (~show_data_points);
+    } else {
+        style = style | show_data_points;
+    }
     PopulateCanvas();
-    Refresh();
 }
+
+void DistancePlotCanvas::OnToggleConfidenceInterval(wxCommandEvent& event)
+{
+    if (style & show_confidence_interval) {
+        style = style & (~show_confidence_interval);
+    } else {
+        style = style | show_confidence_interval;
+    }
+    PopulateCanvas();
+}
+
 
 void DistancePlotCanvas::SetCheckMarks(wxMenu* menu)
 {
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_POINTS"), show_data_points);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_POINTS"), style & show_data_points);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), style & show_confidence_interval);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_ADJUST_Y_AXIS"), use_def_y_range);
 }
 
@@ -157,8 +176,7 @@ DistancePlotFrame::DistancePlotFrame(wxFrame *parent, Project* project,
                                      const wxString& title,
                                      const wxPoint& pos, const wxSize& size,
                                      const long style)
-: TemplateFrame(parent, project, title, pos, size, style),
-lowess_param_frame(0)
+: TemplateFrame(parent, project, title, pos, size, style)
 {
     int width, height;
     GetClientSize(&width, &height);
@@ -195,10 +213,6 @@ lowess_param_frame(0)
 
 DistancePlotFrame::~DistancePlotFrame()
 {
-    if (lowess_param_frame) {
-        lowess_param_frame->removeObserver(this);
-        lowess_param_frame->closeAndDeleteWhenEmpty();
-    }
     DeregisterAsActive();
 }
 
@@ -255,33 +269,6 @@ void DistancePlotFrame::UpdateContextMenuItems(wxMenu* menu)
     // view in the xrc file.  Items that cannot be enable/disabled,
     // or are not checkable do not appear.
     TemplateFrame::UpdateContextMenuItems(menu); // set common items
-}
-
-void DistancePlotFrame::OnEditLowessParams(wxCommandEvent& event)
-{
-    DistancePlotCanvas* c = (DistancePlotCanvas*) template_canvas;
-    if (lowess_param_frame) {
-        lowess_param_frame->Iconize(false);
-        lowess_param_frame->Raise();
-        lowess_param_frame->SetFocus();
-    } else {
-        Lowess l = c->GetLowess();
-        lowess_param_frame = new LowessParamFrame(l.GetF(), l.GetIter(),
-                                                  l.GetDeltaFactor(),
-                                                  project);
-        lowess_param_frame->registerObserver(this);
-    }
-}
-
-void DistancePlotFrame::notifyOfClosing(LowessParamObservable* o)
-{
-    lowess_param_frame = 0;
-}
-
-void DistancePlotFrame::update(LowessParamObservable* o)
-{
-    DistancePlotCanvas* c = (DistancePlotCanvas*) template_canvas;
-    c->ChangeLoessParams(o->GetF(), o->GetIter(), o->GetDeltaFactor());
 }
 
 
@@ -348,6 +335,11 @@ void DistancePlotDlg::CreateControls()
     maxdist_choice->Append("Maximum pairwise distance");
     maxdist_choice->Append("1/2 diagonal of bounding box");
 
+    size_t nobs = project->GetNumRecords();
+    if (nobs < 10000) maxdist_choice->SetSelection(0);
+    else maxdist_choice->SetSelection(1);
+
+    maxdist_choice->Bind(wxEVT_CHOICE, &DistancePlotDlg::OnMaxDistMethodChoice, this);
     Connect(XRCID("ID_THRESH_CBX"), wxEVT_CHECKBOX,
             wxCommandEventHandler(DistancePlotDlg::OnThreshCheckBox));
     Connect(XRCID("ID_THRESH_TCTRL"), wxEVT_TEXT_ENTER,
@@ -412,7 +404,6 @@ void DistancePlotDlg::CreateControls()
     max_iter_txt = new wxStaticText(panel, XRCID("ID_MAX_ITER_TXT"),
                                     _("Sample Size:"));
     {
-        size_t nobs = project->GetNumRecords();
         size_t max_pairs = (nobs*(nobs-1))/2;
 
         wxString max_iterations;
@@ -750,6 +741,12 @@ void DistancePlotDlg::OnThreshCheckBox(wxCommandEvent &ev) {
     ev.Skip();
 }
 
+void DistancePlotDlg::OnMaxDistMethodChoice(wxCommandEvent &ev) {
+    UpdateEstPairs();
+    UpdateThreshTctrlVal();
+    ev.Skip();
+}
+
 void DistancePlotDlg::OnThreshTextCtrl(wxCommandEvent &ev)
 {
     wxString val = thresh_tctrl->GetValue();
@@ -952,12 +949,27 @@ double DistancePlotDlg::GetThreshMin()
 
 double DistancePlotDlg::GetThreshMax()
 {
-    if (IsArc()) {
-        double r = project->GetMaxDistArc();
-        if (IsMi()) return GenGeomAlgs::EarthRadToMi(r);
-        return GenGeomAlgs::EarthRadToKm(r);
+    if (maxdist_choice->GetSelection() == 0) {
+        if (IsArc()) {
+            double r = project->GetMaxDistArc();
+            if (IsMi()) return GenGeomAlgs::EarthRadToMi(r);
+            return GenGeomAlgs::EarthRadToKm(r);
+        }
+        return project->GetMaxDistEuc();
+    } else {
+        // using bbox diagonal
+        double minx, miny, maxx, maxy;
+        project->GetMapExtent(minx, miny, maxx, maxy);
+        double xx = (maxx - minx);
+        double yy = (maxy - miny);
+        double r = sqrt(xx * xx + yy * yy) / 2.0;
+
+        if (IsArc()) {
+            if (IsMi()) return GenGeomAlgs::EarthRadToMi(r);
+            return GenGeomAlgs::EarthRadToKm(r);
+        } else
+            return r;
     }
-    return project->GetMaxDistEuc();
 }
 
 

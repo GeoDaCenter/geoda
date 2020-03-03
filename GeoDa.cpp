@@ -6046,7 +6046,7 @@ void GdaFrame::OnEditLowessParams(wxCommandEvent& event)
 						 dynamic_cast<ConditionalScatterPlotFrame*>(t)) {
 		f->OnEditLowessParams(event);
     } else if (DistancePlotFrame* f = dynamic_cast<DistancePlotFrame*>(t)) {
-        f->OnEditLowessParams(event);
+        //f->OnEditLowessParams(event);
 	}
 }
 

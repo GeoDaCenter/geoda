@@ -123,7 +123,7 @@ show_data_points(show_data_points)
     double  *eval = new double[m];
     predict(eval, m, &lo,  &pre, se_fit);
 
-    double coverage = 0.9;
+    double coverage = 0.99;
     ci_struct ci;
     pointwise(&pre, X.size(), coverage, &ci);
 

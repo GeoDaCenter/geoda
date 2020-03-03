@@ -3,12 +3,12 @@
 
 #include <map>
 #include "ScatterNewPlotView.h"
-#include "SimpleScatterPlotCanvas.h"
+#include "LoessPlotCanvas.h"
 #include "../DialogTools/AbstractClusterDlg.h"
 
 class DistancePlot;
 
-class DistancePlotCanvas : public SimpleScatterPlotCanvas
+class DistancePlotCanvas : public LoessPlotCanvas
 {
     DECLARE_CLASS(DistancePlotCanvas)
     bool use_def_y_range;
@@ -18,6 +18,8 @@ class DistancePlotCanvas : public SimpleScatterPlotCanvas
 
     double y_axis_min;
     double y_axis_max;
+
+    const static int default_style;
 
 public:
     DistancePlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
@@ -40,8 +42,6 @@ public:
     virtual void update(HLStateInt* o) {}
 
     virtual void UpdateSelection(bool shiftdown, bool pointsel) {}
-    
-    Lowess GetLowess() { return lowess; }
 
     void OnSaveResult(wxCommandEvent& event);
 
@@ -51,17 +51,16 @@ public:
 
     void OnToggleDataPoints(wxCommandEvent& event);
 
+    void OnToggleConfidenceInterval(wxCommandEvent& event);
+
     void SetCheckMarks(wxMenu* menu);
     
     DECLARE_EVENT_TABLE()
 };
 
-class DistancePlotFrame : public TemplateFrame, public LowessParamObserver
+class DistancePlotFrame : public TemplateFrame
 {
     DECLARE_CLASS(DistancePlotFrame)
-
-    LowessParamFrame* lowess_param_frame;
-
 public:
     DistancePlotFrame(wxFrame *parent, Project* project,
                       const std::vector<double>& X,
@@ -89,11 +88,6 @@ public:
 
     virtual void UpdateContextMenuItems(wxMenu* menu);
 
-    /** Implementation of LowessParamObserver interface */
-    virtual void update(LowessParamObservable* o);
-    virtual void notifyOfClosing(LowessParamObservable* o);
-
-    void OnEditLowessParams(wxCommandEvent& event);
 
     DECLARE_EVENT_TABLE()
 };
@@ -121,6 +115,8 @@ public:
     void OnSeedCheck(wxCommandEvent& ev);
     void OnDistanceChoiceSelected(wxCommandEvent& ev);
     void OnChangeSeed(wxCommandEvent& ev);
+    void OnMaxDistMethodChoice(wxCommandEvent& ev);
+
     void UpdateEstPairs();
     void OnClose(wxCloseEvent& ev);
     virtual wxString _printConfiguration();

@@ -57,6 +57,7 @@
 		A19580962408A4DE0089C6CE /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580902408A4DE0089C6CE /* predict.c */; };
 		A19580992408A85B0089C6CE /* dsvdc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580972408A85B0089C6CE /* dsvdc.c */; };
 		A195809A2408A85B0089C6CE /* dqrsl.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580982408A85B0089C6CE /* dqrsl.c */; };
+		A195809D2409A8760089C6CE /* LoessPlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -425,6 +426,8 @@
 		A19580902408A4DE0089C6CE /* predict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = predict.c; path = Algorithms/dloess/predict.c; sourceTree = "<group>"; };
 		A19580972408A85B0089C6CE /* dsvdc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsvdc.c; path = Algorithms/dloess/dsvdc.c; sourceTree = "<group>"; };
 		A19580982408A85B0089C6CE /* dqrsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dqrsl.c; path = Algorithms/dloess/dqrsl.c; sourceTree = "<group>"; };
+		A195809B2409A8750089C6CE /* LoessPlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoessPlotCanvas.h; sourceTree = "<group>"; };
+		A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoessPlotCanvas.cpp; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
@@ -1451,6 +1454,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */,
+				A195809B2409A8750089C6CE /* LoessPlotCanvas.h */,
 				A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */,
 				A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */,
 				A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */,
@@ -1886,6 +1891,7 @@
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
 				DD64A2880F20FE06006B1E6D /* GeneralWxUtils.cpp in Sources */,
+				A195809D2409A8760089C6CE /* LoessPlotCanvas.cpp in Sources */,
 				DD64A5580F2910D2006B1E6D /* logger.cpp in Sources */,
 				DD27ECBC0F2E43B5009C5C42 /* GenUtils.cpp in Sources */,
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,

@@ -47,7 +47,7 @@ struct  ci_struct	*ci;
         ci->upper = (double *) malloc(m * sizeof(double));
 	ci->lower = (double *) malloc(m * sizeof(double));
 
-	t_dist = qt(1 - (1 - coverage)/2, pre->df);
+    t_dist = qt(1 - (1 - coverage)/2, (int)pre->df);
 	for(i = 0; i < m; i++) {
 		limit = pre->se_fit[i] * t_dist;
 		ci->fit[i] = fit = pre->fit[i];
