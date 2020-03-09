@@ -21,7 +21,7 @@ BEGIN_EVENT_TABLE(DistancePlotCanvas, LoessPlotCanvas)
 END_EVENT_TABLE()
 
 const int DistancePlotCanvas::default_style = LoessPlotCanvas::DEFAULT_STYLE |
-LoessPlotCanvas::show_axes | LoessPlotCanvas::show_confidence_interval | LoessPlotCanvas::show_lowess_smoother;
+LoessPlotCanvas::show_axes | LoessPlotCanvas::show_lowess_smoother;
 
 DistancePlotCanvas::DistancePlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
                                        Project* project,
@@ -65,7 +65,7 @@ void DistancePlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     wxMenuItem* toggle_menu = optMenu->FindItem(XRCID("ID_DISTPLOT_SHOW_POINTS"));
     Connect(toggle_menu->GetId(), wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnToggleDataPoints));
 
-    Connect(XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnToggleConfidenceInterval));
+    //Connect(XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnToggleConfidenceInterval));
 
     Connect(XRCID("ID_EDIT_LOESS_PARAMS"),  wxEVT_MENU,  wxCommandEventHandler(DistancePlotCanvas::OnEditLoess));
 
@@ -155,7 +155,7 @@ void DistancePlotCanvas::OnToggleConfidenceInterval(wxCommandEvent& event)
 void DistancePlotCanvas::SetCheckMarks(wxMenu* menu)
 {
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_POINTS"), style & show_data_points);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), style & show_confidence_interval);
+    //GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL"), style & show_confidence_interval);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_USE_ADJUST_Y_AXIS"), use_def_y_range);
 }
 
@@ -357,13 +357,15 @@ void DistancePlotDlg::CreateControls()
     thresh_tctrl->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     thresh_tctrl->Enable(false);
     thresh_tctrl->Bind(wxEVT_TEXT_ENTER, &DistancePlotDlg::OnMaxDistanceTextCtrl, this);
-    UpdateThreshTctrlVal();
+    
     thresh_slider = new wxSlider(panel, XRCID("ID_THRESH_SLDR"),
                                  sldr_tcks/2, 0, sldr_tcks,
                                  wxDefaultPosition, wxSize(180,-1));
     Connect(XRCID("ID_THRESH_SLDR"), wxEVT_SLIDER,
             wxCommandEventHandler(DistancePlotDlg::OnThreshSlider));
     thresh_slider->Enable(false);
+    
+    UpdateThreshTctrlVal();
 
     wxBoxSizer* thresh_sld_h_szr = new wxBoxSizer(wxHORIZONTAL);
     thresh_sld_h_szr->AddSpacer(18);

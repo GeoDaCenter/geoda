@@ -91,8 +91,9 @@ public:
 	bool IsShowAxes() { return show_axes; }
 
     void RunLoess();
-    loess_struct* GetLoess() { return &lo; }
-
+    //loess_struct* GetLoess() { return &lo; }
+    loess* GetLoess() { return &lo; }
+    
 protected:
     
     virtual void PopulateCanvas();
@@ -105,6 +106,7 @@ protected:
     size_t n_pts;
 	std::vector<double> X;
 	std::vector<double> Y;
+    std::vector<double> W;
 	std::vector<bool> X_undef;
 	std::vector<bool> Y_undef;
 	const std::vector<double>& orgX;
@@ -141,8 +143,8 @@ protected:
 	wxString right_click_menu_id;
 
     // loess
-    loess_struct lo;
-    pred_struct pre;
+    loess lo;
+    prediction pre;
     double loess_span;
     double loess_coverage;
     int loess_degree;
@@ -168,8 +170,9 @@ public:
     void OnOK( wxCommandEvent& event );
     void OnClose( wxCommandEvent& event );
 
-    void Setup(loess_struct* lo);
-
+    //void Setup(loess_struct* lo);
+    void Setup(loess* lo);
+    
 protected:
     wxTextCtrl* m_span;
     wxChoice* m_degree;

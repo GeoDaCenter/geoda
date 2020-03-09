@@ -1,10 +1,8 @@
-#ifndef DLOESS_S_H_
-#define DLOESS_S_H_
-
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
+
+#ifndef __LOESS_S__
+#define __LOESS_S__
 
 #define Calloc(n,t)	(t *)calloc((unsigned)(n),sizeof(t))
 #define Free(p)		free((char *)(p))
@@ -25,11 +23,13 @@
 #define F77_SUB(x) x##_
 #define F77_COM(x) x##_
 #else
-#define F77_SUB(x) x
-#define F77_COM(x) x
+#define F77_SUB(x) x/**/_
+#define F77_COM(x) x/**/_
 #endif
 #endif
 
 #define NULL_ENTRY          ((int *)NULL)
 
-#endif // DLOESS_S_H_
+#endif
+
+

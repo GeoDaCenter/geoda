@@ -4236,11 +4236,7 @@
               <checkable>1</checkable>
               <checked>0</checked>
           </object>
-          <object class="wxMenuItem" name="ID_DISTPLOT_SHOW_CONFIDENCE_INTERVAL">
-              <label>Show Confidence Interval</label>
-              <checkable>1</checkable>
-              <checked>0</checked>
-          </object>
+          
           <object class="wxMenuItem" name="ID_DISPLAY_STATUS_BAR">
               <label>Show Status Bar</label>
               <checkable>1</checkable>

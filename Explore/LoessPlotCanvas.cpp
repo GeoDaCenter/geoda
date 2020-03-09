@@ -95,10 +95,11 @@ right_click_menu_id(right_click_menu_id), style(style)
 
     // run loess
     long p = 1; // p    number of variables/predictors.
-    loess_setup((double*)&X.at(0), (double*)&Y.at(0), (long)X.size(), p, &lo);
-    lo.model.span = 0.75;
-    lo.model.family = "gaussian";
-    lo.model.degree = 2;
+    W.resize(n_pts, 1);
+    loess_setup((double*)&X.at(0), (double*)&Y.at(0), &W.at(0), (long)X.size(), p, &lo);
+    //lo.model.span = 0.75;
+    //lo.model.family = "gaussian";
+    //lo.model.degree = 2;
     RunLoess();
 
 	//PopulateCanvas();
@@ -118,36 +119,35 @@ LoessPlotCanvas::~LoessPlotCanvas()
 
 void LoessPlotCanvas::RunLoess()
 {
-    loess(&lo);
+    loess_fit(&lo);
     loess_summary(&lo);
-    long int se_fit = 1; //FALSE
 
-    loess_pts_sz = 50;
-    wxSize size(GetVirtualSize());
-    //if ( size.GetWidth()  > 300) loess_pts_sz = size.GetWidth() / 3;
+    loess_pts_sz = 100;
 
     fit_x.clear();
-
     fit_x.resize(loess_pts_sz);
     double x_itv = (Xmax - Xmin) / loess_pts_sz;
     for (size_t i=0; i<loess_pts_sz; ++i) {
         fit_x[i] = Xmin + x_itv * i;
     }
-    predict(&fit_x.at(0), loess_pts_sz, &lo,  &pre, se_fit);
+    pre.m = loess_pts_sz;
+    pre.se = 0; // 1 will crash the program for some dataset
+    predict(&fit_x.at(0), &lo,  &pre);
 
-    double coverage = 0.99;
-    ci_struct ci;
-    pointwise(&pre, loess_pts_sz, coverage, &ci);
+    //double coverage = 0.99;
+    //confidence_intervals ci;
+    //pointwise(&pre, coverage, &ci);
 
+    fit_y.clear();
     fit_y.resize(loess_pts_sz);
-    fit_y_upper.resize(loess_pts_sz);
-    fit_y_lower.resize(loess_pts_sz);
+    //fit_y_upper.resize(loess_pts_sz);
+    //fit_y_lower.resize(loess_pts_sz);
     for (size_t i=0; i<loess_pts_sz; ++i) {
-        fit_y[i] = ci.fit[i];
-        fit_y_upper[i] = ci.upper[i];
-        fit_y_lower[i] = ci.lower[i];
+        fit_y[i] = pre.fit[i];
+        //fit_y_upper[i] = ci.upper[i];
+        //fit_y_lower[i] = ci.lower[i];
     }
-
+    
     PopulateCanvas();
 }
 
@@ -547,14 +547,14 @@ void LoessSettingsDlg::CreateControls()
     // statistics = c("approximate", "exact", "none"),
     wxStaticText* st_statistics = new wxStaticText(panel, wxID_ANY, _("Statistics:"));
     wxString choices16[] = {"approximate", "exact", "none"};
-    m_statistics = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices16);
+    m_statistics = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 3, choices16);
     m_statistics->SetSelection(0);
     gbox1->Add(st_statistics, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox1->Add(m_statistics, 1, wxEXPAND);
 
     // trace.hat = c("exact", "approximate"),
     wxStaticText* st_tracehat = new wxStaticText(panel, wxID_ANY, _("Trace Hat:"));
-    wxString choices_tracehat[] = {"exact", "approximate"};
+    wxString choices_tracehat[] = {"approximate", "exact"};
     m_tracehat = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices_tracehat);
     m_tracehat->SetSelection(0);
     gbox1->Add(st_tracehat, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -603,6 +603,8 @@ void LoessSettingsDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &LoessSettingsDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &LoessSettingsDlg::OnClose, this);
+    
+    Setup(canvas->GetLoess());
 }
 
 
@@ -612,6 +614,56 @@ void LoessSettingsDlg::OnClose(wxCommandEvent& event )
 
     event.Skip();
     EndDialog(wxID_CANCEL);
+}
+
+void LoessSettingsDlg::Setup(loess* lo)
+{
+    wxString str_span;
+    str_span << lo->model->span;
+    m_span->SetValue(str_span);
+    
+    if(lo->model->degree == 1)
+        m_degree->SetSelection(0);
+    else
+        m_degree->SetSelection(1);
+
+    if (strcmp(lo->model->family, "gaussian") ==0)
+        m_family->SetSelection(0);
+    else
+        m_family->SetSelection(1);
+
+    if (lo->model->normalize == 1)
+        m_normalize->SetValue(true);
+    else
+        m_normalize->SetValue(false);
+    
+    wxString str_cell;
+    str_cell <<  lo->control->cell;
+    m_cell->SetValue(str_cell);
+    
+    wxString str_iter;
+    str_iter << lo->control->iterations;
+    m_iterations->SetValue(str_iter);
+
+    // "approximate", "exact", "none"
+    if (strcmp(lo->control->statistics, "approximate") ==0)
+        m_statistics->SetSelection(0);
+    else if (strcmp(lo->control->statistics, "exact") ==0)
+        m_statistics->SetSelection(1);
+    else
+        m_statistics->SetSelection(2);
+
+    // surface  interpolate direct
+    if (strcmp(lo->control->surface, "interpolate") ==0)
+        m_surface->SetSelection(0);
+    else
+        m_surface->SetSelection(1);
+
+    // "exact", "approximate"
+    if (strcmp(lo->control->trace_hat, "approximate") ==0)
+        m_tracehat->SetSelection(0);
+    else
+        m_tracehat->SetSelection(1);
 }
 
 void LoessSettingsDlg::OnOK(wxCommandEvent& event )
@@ -648,30 +700,31 @@ void LoessSettingsDlg::OnOK(wxCommandEvent& event )
         const char* statistics = m_statistics->GetStringSelection().c_str();
         const char* trace_hat = m_tracehat->GetStringSelection().c_str();
 
-        loess_struct* lo = canvas->GetLoess();
-        lo->model.span = v_span;
-        lo->model.degree = degree;
+        
+        loess* lo = canvas->GetLoess();
+        lo->model->span = v_span;
+        lo->model->degree = degree;
 
-        if (m_family->GetSelection()==0) lo->model.family = "gaussian";
-        else lo->model.family ="symmetric";
+        if (m_family->GetSelection()==0) lo->model->family = "gaussian";
+        else lo->model->family ="symmetric";
 
-        lo->model.normalize = (long)normalize;
-        lo->control.cell = cell;
-        lo->control.iterations = iterations;
+        lo->model->normalize = (long)normalize;
+        lo->control->cell = cell;
+        lo->control->iterations = iterations;
 
         // "approximate", "exact", "none"
-        if (m_statistics->GetSelection() == 0) lo->control.statistics = "approximate";
-        else if (m_statistics->GetSelection() == 1) lo->control.statistics = "exact";
-        else lo->control.statistics = "none";
+        if (m_statistics->GetSelection() == 0) lo->control->statistics = "approximate";
+        else if (m_statistics->GetSelection() == 1) lo->control->statistics = "exact";
+        else lo->control->statistics = "none";
 
         // surface  interpolate direct
-        if (m_surface->GetSelection() == 0) lo->control.surface ="interpolate";
-        else lo->control.surface = "direct";
+        if (m_surface->GetSelection() == 0) lo->control->surface ="interpolate";
+        else lo->control->surface = "direct";
 
         // "exact", "approximate"
-        if (m_tracehat->GetSelection() == 0) lo->control.trace_hat = "exact";
-        else lo->control.trace_hat = "approximate";
-
+        if (m_tracehat->GetSelection() == 0) lo->control->trace_hat = "approximate";
+        else lo->control->trace_hat = "exact";
+         
         canvas->RunLoess();
     }
 }

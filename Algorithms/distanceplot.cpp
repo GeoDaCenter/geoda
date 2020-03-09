@@ -202,7 +202,7 @@ void DistancePlot::run(const rtree_pt_2d_t& rtree, double thresh)
 void DistancePlot::compute_dist_thres(size_t row_idx, const rtree_pt_2d_t& rtree,
                                       double thresh)
 {
-    double geo_dist, var_dist, val;
+    double geo_dist, var_dist = 0, val;
 
     double pt_x = points[row_idx]->GetX();
     double pt_y = points[row_idx]->GetY();

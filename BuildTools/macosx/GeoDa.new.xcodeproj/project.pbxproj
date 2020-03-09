@@ -96,6 +96,7 @@
 		A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D12511F20AE450073D408 /* SpectralClusteringDlg.cpp */; };
 		A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31521E845985007488D9 /* LocalGearyCoordinator.cpp */; };
 		A43D31581E845C3D007488D9 /* LocalGearyMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */; };
+		A43F343C2412C8290096E33B /* LoessPlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A43F343A2412C8280096E33B /* LoessPlotCanvas.cpp */; };
 		A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */; };
 		A4404A05208E9E390007753D /* lang in Resources */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
 		A4404A0F209270FB0007753D /* pofiles in Resources */ = {isa = PBXBuildFile; fileRef = A4404A0E209270FB0007753D /* pofiles */; };
@@ -105,6 +106,12 @@
 		A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */; };
 		A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */; };
 		A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */; };
+		A46099A22416E41B000A53E2 /* linpack_lite.c in Sources */ = {isa = PBXBuildFile; fileRef = A460999B2416E41B000A53E2 /* linpack_lite.c */; };
+		A46099A32416E41B000A53E2 /* loess.c in Sources */ = {isa = PBXBuildFile; fileRef = A460999C2416E41B000A53E2 /* loess.c */; };
+		A46099A42416E41B000A53E2 /* loessc.c in Sources */ = {isa = PBXBuildFile; fileRef = A460999E2416E41B000A53E2 /* loessc.c */; };
+		A46099A52416E41B000A53E2 /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A460999F2416E41B000A53E2 /* predict.c */; };
+		A46099A62416E41B000A53E2 /* loessf.c in Sources */ = {isa = PBXBuildFile; fileRef = A46099A12416E41B000A53E2 /* loessf.c */; };
+		A46099A82416E562000A53E2 /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = A46099A72416E562000A53E2 /* misc.c */; };
 		A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47614AD20759EAD00D9F3BE /* arcgis_swm.cpp */; };
 		A47F792020A9F67A000AFE57 /* gpu_lisa.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A47F791E20A9F679000AFE57 /* gpu_lisa.cpp */; };
 		A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */ = {isa = PBXBuildFile; fileRef = A47F792120AA082A000AFE57 /* lisa_kernel.cl */; };
@@ -478,6 +485,8 @@
 		A43D31551E845A0C007488D9 /* LocalGearyCoordinatorObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyCoordinatorObserver.h; sourceTree = "<group>"; };
 		A43D31561E845C3D007488D9 /* LocalGearyMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LocalGearyMapNewView.cpp; sourceTree = "<group>"; };
 		A43D31571E845C3D007488D9 /* LocalGearyMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LocalGearyMapNewView.h; sourceTree = "<group>"; };
+		A43F343A2412C8280096E33B /* LoessPlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoessPlotCanvas.cpp; sourceTree = "<group>"; };
+		A43F343B2412C8280096E33B /* LoessPlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LoessPlotCanvas.h; sourceTree = "<group>"; };
 		A4404A00208E65DC0007753D /* wxTranslationHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wxTranslationHelper.cpp; sourceTree = "<group>"; };
 		A4404A01208E65DD0007753D /* wxTranslationHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wxTranslationHelper.h; sourceTree = "<group>"; };
 		A4404A03208E9E380007753D /* lang */ = {isa = PBXFileReference; lastKnownFileType = folder; path = lang; sourceTree = "<group>"; };
@@ -494,6 +503,14 @@
 		A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cluster.cpp; path = Algorithms/cluster.cpp; sourceTree = "<group>"; };
 		A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxp.cpp; path = Algorithms/maxp.cpp; sourceTree = "<group>"; };
 		A45DBDF91EDDEE4D00C2AA8A /* maxp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = maxp.h; path = Algorithms/maxp.h; sourceTree = "<group>"; };
+		A460999B2416E41B000A53E2 /* linpack_lite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linpack_lite.c; path = Algorithms/linpack_lite.c; sourceTree = "<group>"; };
+		A460999C2416E41B000A53E2 /* loess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loess.c; path = Algorithms/loess.c; sourceTree = "<group>"; };
+		A460999D2416E41B000A53E2 /* S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = S.h; path = Algorithms/S.h; sourceTree = "<group>"; };
+		A460999E2416E41B000A53E2 /* loessc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessc.c; path = Algorithms/loessc.c; sourceTree = "<group>"; };
+		A460999F2416E41B000A53E2 /* predict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = predict.c; path = Algorithms/predict.c; sourceTree = "<group>"; };
+		A46099A02416E41B000A53E2 /* loess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loess.h; path = Algorithms/loess.h; sourceTree = "<group>"; };
+		A46099A12416E41B000A53E2 /* loessf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessf.c; path = Algorithms/loessf.c; sourceTree = "<group>"; };
+		A46099A72416E562000A53E2 /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = Algorithms/misc.c; sourceTree = "<group>"; };
 		A46DFA8F1FA92145007F5923 /* texttable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = texttable.h; path = Algorithms/texttable.h; sourceTree = "<group>"; };
 		A47533BC20A3BD5000695283 /* fastcluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fastcluster.h; path = Algorithms/fastcluster.h; sourceTree = "<group>"; };
 		A47614AB20759E5600D9F3BE /* arcgis_swm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arcgis_swm.h; path = io/arcgis_swm.h; sourceTree = "<group>"; };
@@ -952,6 +969,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4F733C82416B75600AEDCFE /* loess */,
 				A41C2BA72400441400C341A2 /* distanceplot.cpp */,
 				A41C2BA62400441400C341A2 /* distanceplot.h */,
 				A41C2BAB2400441500C341A2 /* splittree.cpp */,
@@ -1080,6 +1098,21 @@
 				A4ED7D412097EC54008685D6 /* ANN.cpp */,
 			);
 			path = kNN;
+			sourceTree = "<group>";
+		};
+		A4F733C82416B75600AEDCFE /* loess */ = {
+			isa = PBXGroup;
+			children = (
+				A46099A72416E562000A53E2 /* misc.c */,
+				A460999B2416E41B000A53E2 /* linpack_lite.c */,
+				A460999C2416E41B000A53E2 /* loess.c */,
+				A46099A02416E41B000A53E2 /* loess.h */,
+				A460999E2416E41B000A53E2 /* loessc.c */,
+				A46099A12416E41B000A53E2 /* loessf.c */,
+				A460999F2416E41B000A53E2 /* predict.c */,
+				A460999D2416E41B000A53E2 /* S.h */,
+			);
+			name = loess;
 			sourceTree = "<group>";
 		};
 		DD7686D41A9FF446009EFC6D /* libgdiam */ = {
@@ -1335,6 +1368,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A43F343A2412C8280096E33B /* LoessPlotCanvas.cpp */,
+				A43F343B2412C8280096E33B /* LoessPlotCanvas.h */,
 				A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */,
 				A41C2BB62400442F00C341A2 /* DistancePlotView.h */,
 				A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */,
@@ -1739,6 +1774,7 @@
 				A19483942118BAAA009A87A2 /* divided.cpp in Sources */,
 				A4D5423D1F45037B00572878 /* redcap.cpp in Sources */,
 				DD7975820F1D296F00496A84 /* PCPDlg.cpp in Sources */,
+				A46099A22416E41B000A53E2 /* linpack_lite.c in Sources */,
 				DD7975830F1D296F00496A84 /* PermutationCounterDlg.cpp in Sources */,
 				DD7975850F1D296F00496A84 /* RandomizationDlg.cpp in Sources */,
 				DD7975890F1D296F00496A84 /* RegressionDlg.cpp in Sources */,
@@ -1775,6 +1811,7 @@
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
+				A46099A62416E41B000A53E2 /* loessf.c in Sources */,
 				DD64A2880F20FE06006B1E6D /* GeneralWxUtils.cpp in Sources */,
 				DD64A5580F2910D2006B1E6D /* logger.cpp in Sources */,
 				DD27ECBC0F2E43B5009C5C42 /* GenUtils.cpp in Sources */,
@@ -1792,6 +1829,7 @@
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
+				A46099A52416E41B000A53E2 /* predict.c in Sources */,
 				A41C2BB32400442400C341A2 /* nbrMatchDlg.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
 				A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */,
@@ -1846,6 +1884,7 @@
 				DDB2A75F15FA7DA900022ABE /* CartogramNewView.cpp in Sources */,
 				A11F1B821850437A006F5F98 /* OGRTableOperation.cpp in Sources */,
 				DD579B6A160BDAFE00BF8D53 /* DorlingCartogram.cpp in Sources */,
+				A46099A42416E41B000A53E2 /* loessc.c in Sources */,
 				DDAD0218162754EA00748874 /* ConditionalNewView.cpp in Sources */,
 				DDDBF286163AD1D50070610C /* ConditionalMapView.cpp in Sources */,
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
@@ -1873,6 +1912,7 @@
 				A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */,
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,
 				A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */,
+				A46099A82416E562000A53E2 /* misc.c in Sources */,
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
 				A14735B921A65F1800CA69B2 /* bd_search.cpp in Sources */,
 				A41C2BBB2404471D00C341A2 /* GenColor.cpp in Sources */,
@@ -1910,11 +1950,13 @@
 				DD3BA0D0187111DE00CA4152 /* WeightsManPtree.cpp in Sources */,
 				DD3BA4481871EE9A00CA4152 /* DefaultVarsPtree.cpp in Sources */,
 				DDC48EF618AE506400FD773F /* ProjectInfoDlg.cpp in Sources */,
+				A43F343C2412C8290096E33B /* LoessPlotCanvas.cpp in Sources */,
 				DD0FEBBC1909B7A000930418 /* NumCategoriesDlg.cpp in Sources */,
 				DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */,
 				A41C2BAC2400441500C341A2 /* tsne.cpp in Sources */,
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
+				A46099A32416E41B000A53E2 /* loess.c in Sources */,
 				DDEA3CBE193CEE5C0028B746 /* GdaLexer.cpp in Sources */,
 				A14735BA21A65F1800CA69B2 /* perf.cpp in Sources */,
 				DDEA3CBF193CEE5C0028B746 /* GdaParser.cpp in Sources */,
