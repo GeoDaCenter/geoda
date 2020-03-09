@@ -47,7 +47,7 @@ struct  ci_struct	*ci;
         ci->upper = (double *) malloc(m * sizeof(double));
 	ci->lower = (double *) malloc(m * sizeof(double));
 
-    t_dist = qt(1 - (1 - coverage)/2, (int)pre->df);
+    t_dist = qt(1 - (1 - coverage)/2, pre->df);
 	for(i = 0; i < m; i++) {
 		limit = pre->se_fit[i] * t_dist;
 		ci->fit[i] = fit = pre->fit[i];
@@ -144,7 +144,8 @@ double x, a, b;
                                 pn[i] /= IBETA_SMALL;
         } while (fabs(next-prev) > DOUBLE_EPS*prev);
         factor = a*log(x) + (b-1)*log(1-x);
-        factor -= gamma(a+1) + gamma(b) - gamma(a+b);
+        if (a>=171 && a+b>=172) factor -= gamma(b); //xun
+	else factor -= gamma(a+1) + gamma(b) - gamma(a+b);
         I = exp(factor) * next;
         return(flipped ? 1-I : I);
 }

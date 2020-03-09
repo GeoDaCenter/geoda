@@ -329,7 +329,7 @@ void DistancePlotDlg::CreateControls()
 
     // distance
     thresh_cbx = new wxCheckBox(panel, XRCID("ID_THRESH_CBX"), _("Max Distance:"));
-    thresh_cbx->SetValue(false);
+    thresh_cbx->SetValue(true);
     maxdist_choice = new wxChoice(panel, XRCID("ID_MAXDIST_CHOICE"),
                                wxDefaultPosition, wxSize(160,-1));
     maxdist_choice->Append("Maximum pairwise distance");
@@ -501,6 +501,7 @@ void DistancePlotDlg::CreateControls()
         OnRandSampRadioSelected(ev);
     else
         OnAllPairsRadioSelected(ev);
+	OnThreshCheckBox(ev);
 
     Centre();
 }
