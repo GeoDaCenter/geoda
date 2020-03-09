@@ -482,7 +482,7 @@ void LoessPlotCanvas::UpdateMargins()
 
 LoessSettingsDlg::LoessSettingsDlg(LoessPlotCanvas* canvas)
 : wxDialog(NULL, wxID_ANY, _("Loess Settings"), wxDefaultPosition,
-           wxSize(420, 400), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+           wxSize(420, 450), wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
 canvas(canvas)
 {
     CreateControls();

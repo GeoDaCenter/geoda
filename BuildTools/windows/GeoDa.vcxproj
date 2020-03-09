@@ -125,7 +125,7 @@
       <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;libboost_atomic-vc100-mt-gd-1_57.lib;libboost_regex-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;sqlite3_i.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x86;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\Win32;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -192,7 +192,7 @@
       <AdditionalIncludeDirectories>temp\wxWidgets-3.1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_atomic-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;libboost_regex-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencl.lib;zlibstat.lib;gdal_i.lib;libcurl.lib;libboost_atomic-vc100-mt-gd-1_57.lib;libboost_regex-vc100-mt-gd-1_57.lib;libboost_date_time-vc100-mt-gd-1_57.lib;libboost_thread-vc100-mt-gd-1_57.lib;BLAS.lib;clapack.lib;libf2c.lib;json_spirit_lib.lib;GlU32.lib;OpenGL32.lib;wxmsw31ud.lib;wxmsw31ud_gl.lib;wxtiffd.lib;wxjpegd.lib;wxpngd.lib;wxzlibd.lib;wxregexud.lib;wxexpatd.lib;wsock32.lib;comctl32.lib;winmm.lib;rpcrt4.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\Intel\OpenCL\sdk\lib\x64;dep\zlib\lib;C:\OSGeo4W\lib;temp\wxWidgets-3.1.0\lib\vc_x64_dll;temp\CLAPACK-3.1.1-VisualStudio\LIB\x64;temp\boost_1_57_0\stage\lib;temp\json_spirit_v4.08\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>
       </IgnoreAllDefaultLibraries>
@@ -313,16 +313,25 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\distanceplot.cpp" />
     <ClCompile Include="..\..\Algorithms\distmatrix.cpp" />
     <ClCompile Include="..\..\Algorithms\fastcluster.cpp" />
     <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp" />
     <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
+    <ClCompile Include="..\..\Algorithms\linpack_lite.c" />
+    <ClCompile Include="..\..\Algorithms\loess.c" />
+    <ClCompile Include="..\..\Algorithms\loessc.c" />
+    <ClCompile Include="..\..\Algorithms\loessf.c" />
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
     <ClCompile Include="..\..\Algorithms\mds.cpp" />
+    <ClCompile Include="..\..\Algorithms\misc.c" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
+    <ClCompile Include="..\..\Algorithms\predict.c" />
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
     <ClCompile Include="..\..\Algorithms\skater.cpp" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
+    <ClCompile Include="..\..\Algorithms\splittree.cpp" />
+    <ClCompile Include="..\..\Algorithms\tsne.cpp" />
     <ClCompile Include="..\..\arizona\viz3\mathstuff.cpp" />
     <ClCompile Include="..\..\arizona\viz3\oglpfuncs.cpp" />
     <ClCompile Include="..\..\arizona\viz3\oglstuff.cpp" />
@@ -343,6 +352,7 @@
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\nbrMatchDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
@@ -352,6 +362,7 @@
     <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SpectralClusteringDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\tSNEDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\WebViewHelpWin.cpp" />
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
     <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp" />
@@ -366,6 +377,7 @@
     <ClCompile Include="..\..\Explore\CorrelParamsObservable.cpp" />
     <ClCompile Include="..\..\Explore\CovSpHLStateProxy.cpp" />
     <ClCompile Include="..\..\Explore\CovSpView.cpp" />
+    <ClCompile Include="..\..\Explore\DistancePlotView.cpp" />
     <ClCompile Include="..\..\Explore\DistancesCalc.cpp" />
     <ClCompile Include="..\..\Explore\GroupingMapView.cpp" />
     <ClCompile Include="..\..\Explore\LineChartCanvas.cpp" />
@@ -373,6 +385,7 @@
     <ClCompile Include="..\..\Explore\LineChartView.cpp" />
     <ClCompile Include="..\..\Explore\LocalGearyCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\LocalGearyMapNewView.cpp" />
+    <ClCompile Include="..\..\Explore\LoessPlotCanvas.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamDlg.cpp" />
     <ClCompile Include="..\..\Explore\LowessParamObservable.cpp" />
     <ClCompile Include="..\..\Explore\MapLayer.cpp" />
@@ -390,6 +403,7 @@
     <ClCompile Include="..\..\Explore\WebViewExampleWin.cpp" />
     <ClCompile Include="..\..\GdaJson.cpp" />
     <ClCompile Include="..\..\GdaShape.cpp" />
+    <ClCompile Include="..\..\GenColor.cpp" />
     <ClCompile Include="..\..\HighlightState.cpp" />
     <ClCompile Include="..\..\io\arcgis_swm.cpp" />
     <ClCompile Include="..\..\io\MatfileReader.cpp" />
@@ -440,17 +454,23 @@
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
+    <ClInclude Include="..\..\Algorithms\distanceplot.h" />
     <ClInclude Include="..\..\Algorithms\distmatrix.h" />
     <ClInclude Include="..\..\Algorithms\fastcluster.h" />
     <ClInclude Include="..\..\Algorithms\gpu_lisa.h" />
     <ClInclude Include="..\..\Algorithms\hdbscan.h" />
+    <ClInclude Include="..\..\Algorithms\loess.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
     <ClInclude Include="..\..\Algorithms\mds.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\Algorithms\redcap.h" />
+    <ClInclude Include="..\..\Algorithms\S.h" />
     <ClInclude Include="..\..\Algorithms\skater.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
+    <ClInclude Include="..\..\Algorithms\splittree.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
+    <ClInclude Include="..\..\Algorithms\tsne.h" />
+    <ClInclude Include="..\..\Algorithms\vptree.h" />
     <ClInclude Include="..\..\arizona\viz3\mathstuff.h" />
     <ClInclude Include="..\..\arizona\viz3\oglpfuncs.h" />
     <ClInclude Include="..\..\arizona\viz3\oglstuff.h" />
@@ -489,6 +509,7 @@
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
     <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\nbrMatchDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
     <ClInclude Include="..\..\DialogTools\PCASettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />
@@ -502,6 +523,7 @@
     <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h" />
     <ClInclude Include="..\..\DialogTools\SpectralClusteringDlg.h" />
     <ClInclude Include="..\..\DialogTools\TimeEditorDlg.h" />
+    <ClInclude Include="..\..\DialogTools\tSNEDlg.h" />
     <ClInclude Include="..\..\DialogTools\VarGroupingEditorDlg.h" />
     <ClInclude Include="..\..\DialogTools\WebViewHelpWin.h" />
     <ClInclude Include="..\..\DialogTools\WeightsManDlg.h" />
@@ -518,6 +540,7 @@
     <ClInclude Include="..\..\Explore\CorrelParamsObserver.h" />
     <ClInclude Include="..\..\Explore\CovSpHLStateProxy.h" />
     <ClInclude Include="..\..\Explore\CovSpView.h" />
+    <ClInclude Include="..\..\Explore\DistancePlotView.h" />
     <ClInclude Include="..\..\Explore\DistancesCalc.h" />
     <ClInclude Include="..\..\Explore\GroupingMapView.h" />
     <ClInclude Include="..\..\Explore\LineChartCanvas.h" />
@@ -526,6 +549,7 @@
     <ClInclude Include="..\..\Explore\LocalGearyCoordinator.h" />
     <ClInclude Include="..\..\Explore\LocalGearyCoordinatorObserver.h" />
     <ClInclude Include="..\..\Explore\LocalGearyMapNewView.h" />
+    <ClInclude Include="..\..\Explore\LoessPlotCanvas.h" />
     <ClInclude Include="..\..\Explore\LowessParamDlg.h" />
     <ClInclude Include="..\..\Explore\LowessParamObservable.h" />
     <ClInclude Include="..\..\Explore\LowessParamObserver.h" />
@@ -548,6 +572,7 @@
     <ClInclude Include="..\..\GdaException.h" />
     <ClInclude Include="..\..\GdaJson.h" />
     <ClInclude Include="..\..\GdaShape.h" />
+    <ClInclude Include="..\..\GenColor.h" />
     <ClInclude Include="..\..\HighlightState.h" />
     <ClInclude Include="..\..\HighlightStateObserver.h" />
     <ClInclude Include="..\..\HLStateInt.h" />

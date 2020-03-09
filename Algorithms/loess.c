@@ -283,11 +283,11 @@ loess_(double *y, double *x_, long int *size_info, double *weights, double *span
             fitted_residuals[i] = y[i] - fitted_values[i];
         };
         if(j < (*iterations))
-            F77_SUB(lowesw)(fitted_residuals, &N, robust, temp);
+            lowesw_(fitted_residuals, &N, robust, temp);
     }
 
     if((*iterations) > 0) {
-        F77_SUB(lowesp)(&N, y, fitted_values, weights, robust, temp,
+        lowesp_(&N, y, fitted_values, weights, robust, temp,
 						pseudovalues);
         loess_raw(pseudovalues, x, weights, weights, &D, &N, span,
                   degree, &nonparametric, order_drop_sqr, &sum_drop_sqr,

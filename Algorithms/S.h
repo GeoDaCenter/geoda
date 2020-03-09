@@ -23,8 +23,8 @@
 #define F77_SUB(x) x##_
 #define F77_COM(x) x##_
 #else
-#define F77_SUB(x) x/**/_
-#define F77_COM(x) x/**/_
+#define F77_SUB(x) x_
+#define F77_COM(x) x_
 #endif
 #endif
 

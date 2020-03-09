@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
+#include <math.h>  
 
 
 void *safe_malloc(size_t n, unsigned long line)
@@ -234,7 +235,7 @@ double ibeta(double x, double a, double b)
                 pn[i] /= DBL_MIN;
     } while (fabs(next-prev) > DBL_EPSILON*prev);
     factor = a*log(x) + (b-1)*log(1-x);
-    factor -= lgamma(a+1) + lgamma(b) - lgamma(a+b);
+    //factor -= lgamma(a+1) + lgamma(b) - lgamma(a+b);
     I = exp(factor) * next;
     return(flipped ? 1-I : I);
 }
@@ -308,7 +309,7 @@ void Recover(char *a, int *b)
     send d1mach from core.
 */
 
-doublereal F77_SUB(d1mach) (integer *i)
+doublereal d1mach_ (integer *i)
 {
 switch(*i){
     case 1: return DBL_MIN;

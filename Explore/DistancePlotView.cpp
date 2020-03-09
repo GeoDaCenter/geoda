@@ -308,6 +308,8 @@ void DistancePlotDlg::CreateControls()
                                wxDefaultPosition, wxSize(160,-1));
     vardist_choice->Append("Euclidean Distance");
     vardist_choice->Append("Manhatten Distance");
+	vardist_choice->SetSelection(0);
+
     wxBoxSizer* vardist_h_szr = new wxBoxSizer(wxHORIZONTAL);
     vardist_h_szr->Add(vardist_txt, 0, wxALIGN_CENTER_VERTICAL);
     vardist_h_szr->AddSpacer(5);
@@ -319,6 +321,8 @@ void DistancePlotDlg::CreateControls()
     dist_choice->Append("Euclidean Distance");
     dist_choice->Append("Arc Distance (mi)");
     dist_choice->Append("Arc Distance (km)");
+	dist_choice->SetSelection(0);
+
     wxBoxSizer* dist_h_szr = new wxBoxSizer(wxHORIZONTAL);
     dist_h_szr->Add(dist_txt, 0, wxALIGN_CENTER_VERTICAL);
     dist_h_szr->AddSpacer(5);

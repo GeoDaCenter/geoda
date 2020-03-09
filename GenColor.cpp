@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 
+
 #include "GenColor.h"
 
 #ifndef M_PI
@@ -26,6 +27,10 @@
 #endif
 #ifndef RadToDeg
 #define RadToDeg(x) ((x)/M_PI*180)
+#endif
+
+#ifndef cbrt
+#define cbrt(x) pow(x, 1.0/3.0)
 #endif
 
 namespace ColorSpace {
