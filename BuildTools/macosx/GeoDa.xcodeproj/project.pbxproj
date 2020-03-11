@@ -53,11 +53,10 @@
 		A195809D2409A8760089C6CE /* LoessPlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */; };
 		A19580AC240E15020089C6CE /* loessc.c in Sources */ = {isa = PBXBuildFile; fileRef = A195809F240E15000089C6CE /* loessc.c */; };
 		A19580AD240E15020089C6CE /* loessf.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A0240E15010089C6CE /* loessf.c */; };
-		A19580AE240E15020089C6CE /* dqrsl.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A2240E15010089C6CE /* dqrsl.c */; };
 		A19580B0240E15020089C6CE /* misc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A5240E15010089C6CE /* misc.c */; };
 		A19580B1240E15020089C6CE /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A6240E15010089C6CE /* predict.c */; };
-		A19580B2240E15020089C6CE /* dsvdc.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A7240E15020089C6CE /* dsvdc.c */; };
 		A19580B3240E15020089C6CE /* loess.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A8240E15020089C6CE /* loess.c */; };
+		A19580B6241992CA0089C6CE /* linpack_lite.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580B4241992CA0089C6CE /* linpack_lite.c */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -418,16 +417,12 @@
 		A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LoessPlotCanvas.cpp; sourceTree = "<group>"; };
 		A195809F240E15000089C6CE /* loessc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessc.c; path = Algorithms/loessc.c; sourceTree = "<group>"; };
 		A19580A0240E15010089C6CE /* loessf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loessf.c; path = Algorithms/loessf.c; sourceTree = "<group>"; };
-		A19580A1240E15010089C6CE /* loessc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessc.h; path = Algorithms/loessc.h; sourceTree = "<group>"; };
-		A19580A2240E15010089C6CE /* dqrsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dqrsl.c; path = Algorithms/dqrsl.c; sourceTree = "<group>"; };
-		A19580A4240E15010089C6CE /* misc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = misc.h; path = Algorithms/misc.h; sourceTree = "<group>"; };
 		A19580A5240E15010089C6CE /* misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = misc.c; path = Algorithms/misc.c; sourceTree = "<group>"; };
 		A19580A6240E15010089C6CE /* predict.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = predict.c; path = Algorithms/predict.c; sourceTree = "<group>"; };
-		A19580A7240E15020089C6CE /* dsvdc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsvdc.c; path = Algorithms/dsvdc.c; sourceTree = "<group>"; };
 		A19580A8240E15020089C6CE /* loess.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = loess.c; path = Algorithms/loess.c; sourceTree = "<group>"; };
 		A19580A9240E15020089C6CE /* S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = S.h; path = Algorithms/S.h; sourceTree = "<group>"; };
-		A19580AA240E15020089C6CE /* loessf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loessf.h; path = Algorithms/loessf.h; sourceTree = "<group>"; };
 		A19580AB240E15020089C6CE /* loess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loess.h; path = Algorithms/loess.h; sourceTree = "<group>"; };
+		A19580B4241992CA0089C6CE /* linpack_lite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linpack_lite.c; path = Algorithms/linpack_lite.c; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
@@ -1001,16 +996,12 @@
 		A195809E240E14E70089C6CE /* dloess */ = {
 			isa = PBXGroup;
 			children = (
-				A19580A2240E15010089C6CE /* dqrsl.c */,
-				A19580A7240E15020089C6CE /* dsvdc.c */,
+				A19580B4241992CA0089C6CE /* linpack_lite.c */,
 				A19580A8240E15020089C6CE /* loess.c */,
 				A19580AB240E15020089C6CE /* loess.h */,
 				A195809F240E15000089C6CE /* loessc.c */,
-				A19580A1240E15010089C6CE /* loessc.h */,
 				A19580A0240E15010089C6CE /* loessf.c */,
-				A19580AA240E15020089C6CE /* loessf.h */,
 				A19580A5240E15010089C6CE /* misc.c */,
-				A19580A4240E15010089C6CE /* misc.h */,
 				A19580A6240E15010089C6CE /* predict.c */,
 				A19580A9240E15020089C6CE /* S.h */,
 			);
@@ -1873,7 +1864,6 @@
 				A48814EB20A50B0F005490A7 /* fastcluster.cpp in Sources */,
 				DD7976B90F1D2CA800496A84 /* DenseVector.cpp in Sources */,
 				A4F5D6221F513EA1007ADF25 /* MDSDlg.cpp in Sources */,
-				A19580AE240E15020089C6CE /* dqrsl.c in Sources */,
 				DD7976BA0F1D2CA800496A84 /* DiagnosticReport.cpp in Sources */,
 				DD7976BC0F1D2CA800496A84 /* mix.cpp in Sources */,
 				A47F792420AA084B000AFE57 /* distmat_kernel.cl in Sources */,
@@ -1970,7 +1960,6 @@
 				DDDBF29B163AD2BF0070610C /* ConditionalScatterPlotView.cpp in Sources */,
 				A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */,
 				A43D12521F20AE450073D408 /* SpectralClusteringDlg.cpp in Sources */,
-				A19580B2240E15020089C6CE /* dsvdc.c in Sources */,
 				DDDBF2AE163AD3AB0070610C /* ConditionalHistogramView.cpp in Sources */,
 				A19580B1240E15020089C6CE /* predict.c in Sources */,
 				DD4E8B86164818A70014F1E7 /* ConnectivityHistView.cpp in Sources */,
@@ -1991,6 +1980,7 @@
 				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
 				A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */,
 				DD64925C16DFF63400B3B0AB /* GeoDa.cpp in Sources */,
+				A19580B6241992CA0089C6CE /* linpack_lite.c in Sources */,
 				A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */,
 				A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */,
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,

@@ -314,14 +314,14 @@ void MapCanvas::SetupColor()
 
 void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 {
-    TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
-
-    // if multi-layer presents and top layer is not current map
+    // if top layer is not current map
     if ( fg_maps.empty() ) {
+        TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
         UpdateMapTree();
         return;
     }
 
+    // apply selection on top layer
     BackgroundMapLayer* ml = fg_maps[0];
     int nn = ml->GetNumRecords();
     vector<OGRGeometry*>& geoms = ml->geoms;
@@ -1158,14 +1158,26 @@ void MapCanvas::SetWeightsId(boost::uuids::uuid id)
 // draw highlighted selectable shapes
 void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
 {
+    if ( !bg_maps.empty() ) {
+        for (size_t i=0; i<bg_maps.size(); ++i) {
+            BackgroundMapLayer* ml = bg_maps[i];
+            if (ml && ml->IsHide() == false) {
+                ml->DrawHighlight(dc, this);
+            }
+        }
+    }
+
+
+    DrawHighlight(dc, this);
+
     if ( !fg_maps.empty() ) {
         // multi-layer highlight: using top layer
-        BackgroundMapLayer* ml = fg_maps[0];
-        if (ml && ml->IsHide() == false) {
-            ml->DrawHighlight(dc, this);
+        for (int i=fg_maps.size()-1; i>=0; --i) {
+            BackgroundMapLayer* ml = fg_maps[i];
+            if (ml && ml->IsHide() == false) {
+                ml->DrawHighlight(dc, this);
+            }
         }
-    } else {
-        DrawHighlight(dc, this);
     }
 }
 
