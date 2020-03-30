@@ -481,6 +481,9 @@
       <object class="wxMenuItem" name="IDM_UNI_LISA">
         <label>Univariate Local Moran's I</label>
       </object>
+      <object class="wxMenuItem" name="IDM_UNI_MEDIAN_LISA">
+          <label>Univariate Median Local Moran's I</label>
+      </object>
       <object class="wxMenuItem" name="IDM_MULTI_LISA">
         <label>Bivariate Local Moran's I</label>
       </object>
@@ -5087,6 +5090,9 @@
     <label>Local Moran's I Maps</label>
     <object class="wxMenuItem" name="IDM_UNI_LISA">
       <label>Univariate Local Moran's I</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_UNI_MEDIAN_LISA">
+        <label>Univariate Median Local Moran's I</label>
     </object>
     <object class="wxMenuItem" name="IDM_MULTI_LISA">
       <label>Bivariate Local Moran's I</label>

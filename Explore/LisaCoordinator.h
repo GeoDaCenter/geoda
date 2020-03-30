@@ -42,7 +42,8 @@ public:
 					const std::vector<int>& col_ids,
 					LisaType lisa_type,
                     bool calc_significances = true,
-                    bool row_standardize_s = true);
+                    bool row_standardize_s = true,
+                    bool using_median = false);
     
     LisaCoordinator(wxString weights_path,
                     int n,
@@ -62,6 +63,7 @@ protected:
 	double* lags;
 	double*	localMoran;		// The LISA
 	double* sigLocalMoran;	// The significances / pseudo p-vals
+    bool using_median;
 
 public:
     std::vector<double*> smoothed_results; // LISA EB

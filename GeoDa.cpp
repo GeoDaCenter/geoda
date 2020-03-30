@@ -624,6 +624,8 @@ void GdaFrame::UpdateToolbarAndMenus()
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MORAN_EBRATE"), proj_open);
 	EnableTool(XRCID("IDM_UNI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LISA"), shp_proj);
+    EnableTool(XRCID("IDM_UNI_MEDIAN_LISA"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_MEDIAN_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_MULTI_LISA"), shp_proj);
 	GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MULTI_LISA"), shp_proj);
 	EnableTool(XRCID("IDM_DIFF_LISA"), shp_proj);
@@ -3801,6 +3803,62 @@ void GdaFrame::OnOpenUniLisa(wxCommandEvent& event)
 	}
 }
 
+void GdaFrame::OnOpenUniMedianLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open LisaMapFrame (OnOpenUniMedianLisa).");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    VariableSettingsDlg VS(p, VariableSettingsDlg::univariate, true, false);
+    if (VS.ShowModal() != wxID_OK) return;
+    boost::uuids::uuid w_id = VS.GetWeightsId();
+    if (w_id.is_nil()) return;
+
+    GalWeight* gw = w_man_int->GetGal(w_id);
+
+    if (gw == NULL) {
+        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return;
+    }
+
+    LisaWhat2OpenDlg LWO(this);
+    if (LWO.ShowModal() != wxID_OK) return;
+    if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
+
+    bool using_median = true;
+    LisaCoordinator* lc = new LisaCoordinator(w_id, p,
+                                              VS.var_info,
+                                              VS.col_ids,
+                                              LisaCoordinator::univariate,
+                                              true, LWO.m_RowStand,
+                                              using_median);
+
+    if (LWO.m_Moran) {
+        LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
+                                                            p, lc);
+    }
+    if (LWO.m_ClustMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
+                                            lc, true, false, false);
+    }
+    if (LWO.m_SigMap) {
+        LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
+                                            lc, false, false, false,
+                                            wxDefaultPosition);
+    }
+}
+
 void GdaFrame::OnOpenMultiLisa(wxCommandEvent& event)
 {
     wxLogMessage("Open LisaMapFrame (OnOpenMultiLisa).");
@@ -6943,6 +7001,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_TOOL(XRCID("ID_LISA_MENU"), GdaFrame::OnLisaMenuChoices)
 
     EVT_MENU(XRCID("IDM_UNI_LISA"), GdaFrame::OnOpenUniLisa)
+    EVT_MENU(XRCID("IDM_UNI_MEDIAN_LISA"), GdaFrame::OnOpenUniMedianLisa)
     EVT_MENU(XRCID("IDM_MULTI_LISA"), GdaFrame::OnOpenMultiLisa)
 
 
