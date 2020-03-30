@@ -11,7 +11,7 @@
 	<key>CFBundleName</key>
 	<string>GeoDa</string>
 	<key>CFBundleExecutable</key>
-	<string>run.sh</string>
+	<string>GeoDa</string>
 	<key>CFBundleIconFile</key>
 	<string>GeoDa.icns</string>
 	<key>CFBundleIdentifier</key>
