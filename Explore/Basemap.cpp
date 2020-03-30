@@ -229,26 +229,21 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     basemap_item = _basemap_item;
     basemapName = basemap_item.group + "." + basemap_item.name;
     basemapUrl = basemap_item.url;
-    
-    if (basemapUrl.Find("png") != wxNOT_FOUND ||
-        basemapUrl.Find("PNG") != wxNOT_FOUND) {
-        imageSuffix = ".png";
-    } else if (basemapUrl.Find("jpeg") != wxNOT_FOUND ||
-               basemapUrl.Find("JPEG") != wxNOT_FOUND) {
-        imageSuffix = ".jpeg";
-    } else {
-        if (basemapUrl.Find("ArcGIS")) {
-            imageSuffix = ".jpeg";
-        } else if (basemapUrl.Find("autonavi")) {
-            imageSuffix = ".png";
-        } else {
-            imageSuffix = ".png";
-        }
 
+    wxString content_type = GetContentType();
+    content_type.MakeUpper();
+
+    if (content_type.Find("PNG") != wxNOT_FOUND) {
+        imageSuffix = ".png";
+    } else if (content_type.Find("JPG") != wxNOT_FOUND) {
+        imageSuffix = ".jpg";
+    } else if (content_type.Find("JPEG") != wxNOT_FOUND) {
+        imageSuffix = ".jpeg";
+    } else if (content_type.Find("GIF") != wxNOT_FOUND) {
+        imageSuffix = ".gif";
+    } else {
+        imageSuffix = ".png";
     }
-    // if ( !hdpi ) {
-    //     basemapUrl.Replace("@2x", "");
-    // }
     
     // get a latest HERE account
     vector<wxString> nokia_user = OGRDataAdapter::GetInstance().GetHistory("nokia_user");
@@ -610,6 +605,31 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
     return written;
 }
 
+wxString Basemap::GetContentType()
+{
+    wxString url = GetTileUrl(0, 0);
+    wxString content_type;
+    CURL *curl = curl_easy_init();
+    CURLcode res;
+    if(curl) {
+        curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
+
+        res = curl_easy_perform(curl);
+
+        if(!res) {
+            /* extract the content-type */
+            char *ct = NULL;
+            res = curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, &ct);
+            if(!res && ct) {
+                content_type = ct;
+            }
+        }
+        curl_easy_cleanup(curl);
+    }
+
+    return content_type;
+}
+
 void Basemap::DownloadTile(int x, int y)
 {
     if (x < 0 || y < 0)
@@ -621,10 +641,8 @@ void Basemap::DownloadTile(int x, int y)
 
     if (!wxFileExists(filepathStr) || wxFileName::GetSize(filepathStr) == 0) {
         // otherwise, download the image
-        wxString urlStr = GetTileUrl(x, y);
-        char* url = new char[urlStr.length() + 1];
-        std::strcpy(url, urlStr.c_str());
-        
+        wxString url = GetTileUrl(x, y);
+
         FILE* fp;
         CURL* image;
         CURLcode imgResult;
@@ -637,7 +655,7 @@ void Basemap::DownloadTile(int x, int y)
             fp = fopen(GET_ENCODED_FILENAME(filepathStr), "wb");
 #endif
             if (fp) {
-                curl_easy_setopt(image, CURLOPT_URL, url);
+                curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
@@ -656,7 +674,6 @@ void Basemap::DownloadTile(int x, int y)
                 fclose(fp);
             }
         }
-        delete[] url;
     }
 
     mutex.lock();

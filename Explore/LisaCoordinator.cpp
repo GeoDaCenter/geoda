@@ -35,6 +35,7 @@
 #include "../VarCalc/WeightsManInterface.h"
 #include "../logger.h"
 #include "../Project.h"
+#include "../GenUtils.h"
 #include "LisaCoordinator.h"
 
 #include "../Algorithms/gpu_lisa.h"
@@ -72,10 +73,12 @@ LisaCoordinator(boost::uuids::uuid weights_id,
                 const std::vector<int>& col_ids,
                 LisaType lisa_type_s,
                 bool calc_significances_s,
-                bool row_standardize_s)
+                bool row_standardize_s,
+                bool using_median)
 : AbstractCoordinator(weights_id, project, var_info_s, col_ids, calc_significances_s, row_standardize_s),
 lisa_type(lisa_type_s),
-isBivariate(lisa_type_s == bivariate)
+isBivariate(lisa_type_s == bivariate),
+using_median(using_median)
 {
     wxLogMessage("Entering LisaCoordinator::LisaCoordinator().");
 	for (int i=0; i<var_info.size(); i++) {
@@ -499,11 +502,21 @@ void LisaCoordinator::Calc()
             }
             
 			double Wdata = 0;
-			if (isBivariate) {
-                if (data2) Wdata = W[i].SpatialLag(data2);
-			} else {
-				if (data1) Wdata = W[i].SpatialLag(data1);
-			}
+            if (using_median) {
+                std::vector<double> nbr_data(W[i].Size());
+                const std::vector<long>& nbrs = W[i].GetNbrs();
+                for (size_t j=0; j<W[i].Size(); ++j) {
+                    nbr_data[j] = data1[nbrs[j]];
+                }
+                Wdata = GenUtils::Median(nbr_data);
+
+            } else {
+                if (isBivariate) {
+                    if (data2) Wdata = W[i].SpatialLag(data2);
+                } else {
+                    if (data1) Wdata = W[i].SpatialLag(data1);
+                }
+            }
             
 			lags[i] = Wdata;
             if (data1) {
@@ -588,32 +601,49 @@ void LisaCoordinator::ComputeLarger(int cnt, std::vector<int>& permNeighbors, st
         int numNeighbors = permNeighbors.size();
         // use permutation to compute the lag
         // compute the lag for binary weights
-        if (isBivariate) {
+
+        if (using_median) {
+            std::vector<double> nbr_data;
             for (int cp=0; cp<numNeighbors; cp++) {
                 int nb = permNeighbors[cp];
                 if (!undefs[nb]) {
-                    permutedLag += data2[nb];
+                    nbr_data.push_back(data1[nb]);
                     validNeighbors ++;
                 }
             }
-        } else {
-            for (int cp=0; cp<numNeighbors; cp++) {
-                int nb = permNeighbors[cp];
-                if (!undefs[nb]) {
-                    permutedLag += data1[nb];
-                    validNeighbors ++;
+            double nbr_median = GenUtils::Median(nbr_data);
+            const double localMoranPermuted = nbr_median * data1[cnt];
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger[t]++;
+            }
+
+        } else{
+            if (isBivariate) {
+                for (int cp=0; cp<numNeighbors; cp++) {
+                    int nb = permNeighbors[cp];
+                    if (!undefs[nb]) {
+                        permutedLag += data2[nb];
+                        validNeighbors ++;
+                    }
+                }
+            } else {
+                for (int cp=0; cp<numNeighbors; cp++) {
+                    int nb = permNeighbors[cp];
+                    if (!undefs[nb]) {
+                        permutedLag += data1[nb];
+                        validNeighbors ++;
+                    }
                 }
             }
-        }
-        
-        //NOTE: we shouldn't have to row-standardize or
-        // multiply by data1[cnt]
-        if (validNeighbors > 0 && row_standardize) {
-            permutedLag /= validNeighbors;
-        }
-        const double localMoranPermuted = permutedLag * data1[cnt];
-        if (localMoranPermuted >= localMoran[cnt]) {
-            countLarger[t]++;
+            //NOTE: we shouldn't have to row-standardize or
+            // multiply by data1[cnt]
+            if (validNeighbors > 0 && row_standardize) {
+                permutedLag /= validNeighbors;
+            }
+            const double localMoranPermuted = permutedLag * data1[cnt];
+            if (localMoranPermuted >= localMoran[cnt]) {
+                countLarger[t]++;
+            }
         }
     }
 }

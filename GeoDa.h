@@ -249,6 +249,7 @@ public:
     void OnCorrelogramMenuChoices(wxCommandEvent& event);
 	void OnGetisMenuChoices(wxCommandEvent& event);
 	void OnOpenUniLisa(wxCommandEvent& event);
+    void OnOpenUniMedianLisa(wxCommandEvent& event);
 	void OnOpenMultiLisa(wxCommandEvent& event);
 	void OnOpenDiffLisa(wxCommandEvent& event);
 	void OnOpenLisaEB(wxCommandEvent& event);

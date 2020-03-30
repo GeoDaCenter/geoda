@@ -420,7 +420,7 @@ namespace Gda {
         void SetupMapType(BasemapItem& basemap_item);
         
         void CleanCache();
-
+        wxString GetContentType();
     };
     
 }
