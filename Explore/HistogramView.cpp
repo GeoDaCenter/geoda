@@ -968,9 +968,6 @@ void HistogramCanvas::InitIntervals()
 	for (int t=0; t<ts; t++) {
         if (IS_VAR_STRING[t]) {
             cat_classif_def.names = VAR_STRING[t];
-            for (int i=0; i<cur_intervals; i++) {
-                s_ival_breaks[t][i] = cat_classif_def.names[i];
-            }
             
             std::map<wxString, int> unique_dict;
             // data_sorted is a pair value {string value: index}
@@ -978,7 +975,6 @@ void HistogramCanvas::InitIntervals()
                 wxString val = s_data_sorted[t][i].first;
                 if (unique_dict.find(val) == unique_dict.end()) {
                     unique_dict[val] = 0;
-                    VAR_STRING[t].push_back(val);
                 }
                 unique_dict[val] += 1;
             }
@@ -988,6 +984,7 @@ void HistogramCanvas::InitIntervals()
             std::map<wxString, int>::iterator it;
             for (it=unique_dict.begin(); it!=unique_dict.end();it++){
                 wxString lbl = it->first;
+                s_ival_breaks[t][cur_ival] = lbl;
                 for (int idx=0; idx<num_obs; idx++) {
                     if (s_data_sorted[t][idx].first == lbl) {
                         ival_to_obs_ids[t][cur_ival].push_front(idx);
