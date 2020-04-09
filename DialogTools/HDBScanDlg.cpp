@@ -301,20 +301,6 @@ void HDBScanDlg::OnSave(wxCommandEvent& event )
     event.Skip();
 }
 
-void HDBScanDlg::OnDistanceChoice(wxCommandEvent& event)
-{
-    
-    if (m_distance->GetSelection() == 0) {
-        m_distance->SetSelection(1);
-    } else if (m_distance->GetSelection() == 3) {
-        m_distance->SetSelection(4);
-    } else if (m_distance->GetSelection() == 6) {
-        m_distance->SetSelection(7);
-    } else if (m_distance->GetSelection() == 9) {
-        m_distance->SetSelection(10);
-    }
-}
-
 void HDBScanDlg::OnClusterChoice(wxCommandEvent& event)
 {
     //int sel_ncluster = combo_n->GetSelection() + 2;

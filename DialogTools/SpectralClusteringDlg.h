@@ -52,7 +52,6 @@ public:
     void OnKNNCheck(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
-    void OnDistanceChoice(wxCommandEvent& event);
     
     virtual void InitVariableCombobox(wxListBox* var_box);
    

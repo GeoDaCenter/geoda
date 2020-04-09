@@ -44,7 +44,6 @@ public:
 
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnDistanceChoice( wxCommandEvent& event );
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void InitVariableCombobox(wxListBox* var_box);

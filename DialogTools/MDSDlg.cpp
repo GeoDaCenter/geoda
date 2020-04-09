@@ -30,6 +30,7 @@
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/mds.h"
+#include "../Algorithms/smacof.h"
 #include "../Explore/ScatterNewPlotView.h"
 #include "../Explore/3DPlotView.h"
 #include "SaveToTableDlg.h"
@@ -43,7 +44,6 @@ MDSDlg::MDSDlg(wxFrame *parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("MDS Settings"))
 {
     wxLogMessage("Open MDSDlg.");
-   
     CreateControls();
 }
 
@@ -53,7 +53,7 @@ MDSDlg::~MDSDlg()
 
 void MDSDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,560), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,660), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -64,10 +64,18 @@ void MDSDlg::CreateControls()
     AddSimpleInputCtrls(panel, vbox);
 
     // parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(5,2,10,0);
-   
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(7,2,10,0);
+
+    // method
+    wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"));
+    const wxString _methods[2] = {"classic metric", "smacof"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(120,-1), 2, _methods);
+    gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_method, 1, wxEXPAND);
+
     // power iteration option approximation
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"));
+    txt_usepower= new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"));
     wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
     chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
     lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
@@ -83,10 +91,20 @@ void MDSDlg::CreateControls()
     hbox15->Add(chk_poweriteration);
     hbox15->Add(lbl_poweriteration);
     hbox15->Add(txt_poweriteration);
-    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_usepower, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox15, 1, wxEXPAND);
     
-    
+    // smacof
+    txt_maxit = new wxStaticText(panel, wxID_ANY, _("Maximum # of Iterations:"));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "100", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_maxit, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_iterations, 1, wxEXPAND);
+
+    txt_eps = new wxStaticText(panel, wxID_ANY, _("Convergence Criterion:"));
+    m_eps = new wxTextCtrl(panel, wxID_ANY, "0.000001", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_eps, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_eps, 1, wxEXPAND);
+
     wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
@@ -99,7 +117,16 @@ void MDSDlg::CreateControls()
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
-    
+
+    // Output
+    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("# of Dimensions:"), wxDefaultPosition, wxSize(160,-1));
+    const wxString dims[2] = {"2", "3"};
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, dims);
+
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(combo_n, 1, wxEXPAND);
+
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
@@ -111,11 +138,17 @@ void MDSDlg::CreateControls()
     
     // Container
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
-    
+
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
+    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
-    
+    container->Add(vbox1,1, wxEXPAND | wxALL);
+
     panel->SetSizer(container);
    
     wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
@@ -134,21 +167,28 @@ void MDSDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &MDSDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &MDSDlg::OnCloseClick, this);
+    combo_method->Bind(wxEVT_CHOICE, &MDSDlg::OnMethodChoice, this);
+
+    wxCommandEvent evt;
+    OnMethodChoice(evt);
 }
 
-void MDSDlg::OnDistanceChoice(wxCommandEvent& event)
+void MDSDlg::OnMethodChoice(wxCommandEvent &event)
 {
-    
-    if (m_distance->GetSelection() == 0) {
-        m_distance->SetSelection(1);
-    } else if (m_distance->GetSelection() == 3) {
-        m_distance->SetSelection(4);
-    } else if (m_distance->GetSelection() == 6) {
-        m_distance->SetSelection(7);
-    } else if (m_distance->GetSelection() == 9) {
-        m_distance->SetSelection(10);
-    }
-    
+    bool flag = combo_method->GetSelection() == 0 ? false : true;
+
+    m_iterations->Enable(flag);
+    m_eps->Enable(flag);
+    m_distance->Enable(flag);
+    txt_maxit->Enable(flag);
+    txt_eps->Enable(flag);
+    if (flag) chk_poweriteration->SetValue(false);
+
+    chk_poweriteration->Enable(!flag);
+    txt_poweriteration->Enable(!flag);
+    lbl_poweriteration->Enable(!flag);
+    txt_usepower->Enable(!flag);
+    if (!flag) m_distance->SetSelection(0);
 }
 
 void MDSDlg::OnCheckPowerIteration(wxCommandEvent& event)
@@ -229,47 +269,105 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};
     dist = dist_choices[dist_sel];
-  
-    int new_col = 3;
+
+    wxString str_iterations = m_iterations->GetValue();
+    long n_iter;
+    if (!str_iterations.ToLong(&n_iter)) {
+        wxString err_msg = _("Please enter a valid number for maximum number of iterations.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    wxString str_eps = m_eps->GetValue();
+    double eps;
+    if (!str_eps.ToDouble(&eps)) {
+        wxString err_msg = _("Please enter a valid value for convergence criterion.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    int new_col = combo_n->GetSelection() == 0 ? 2 : 3;
     vector<vector<double> > results;
-    
-    if (chk_poweriteration->IsChecked()) {
-        double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-        
-        vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
-        for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-        free(ragged_distances);
-        
-        if (dist == 'b') {
-            for (int i=0; i<distances.size(); i++) {
-                for (int j=0; j<distances.size(); j++) {
-                    distances[i][j] = distances[i][j]*distances[i][j];
-                    distances[i][j] = distances[i][j]*distances[i][j];
+    double stress = 0;
+    int itel = 0;
+
+    if (combo_method->GetSelection() == 1) {
+        double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+
+        // column-wise lower-triangle matrix for SMACOF
+        size_t idx = 0;
+        double *delta = new double[rows * (rows-1)/2];
+        for (size_t i=0; i< rows-1; ++i) { // col idx
+            for (size_t j=1+i; j < rows; ++j) { // row idx
+                delta[idx] = ragged_distances[j][i];
+                std::cout << delta[idx] << ",";
+                idx += 1;
+            }
+        }
+        int m = idx;
+        double *xnew;
+        stress = runSmacof(delta, m, new_col, n_iter, eps, &itel, &xnew);
+        delete[] delta;
+
+        results.resize(new_col);
+        for (size_t i=0; i<new_col; ++i) {
+            for (size_t j=0; j<rows; ++j) {
+                results[i].push_back(xnew[j + i*rows]);
+            }
+        }
+        free(xnew);
+    } else {
+        if (chk_poweriteration->IsChecked()) {
+            // classical MDS with power iteration
+            double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+            // full matrix
+            vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
+            for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
+            free(ragged_distances);
+
+            if (dist == 'b') {
+                for (size_t i=0; i<distances.size(); i++) {
+                    for (int j=0; j<distances.size(); j++) {
+                        distances[i][j] = distances[i][j]*distances[i][j];
+                        distances[i][j] = distances[i][j]*distances[i][j];
+                    }
                 }
             }
-        }
-       
-        wxString str_iterations;
-        str_iterations = txt_poweriteration->GetValue();
-        long l_iterations = 0;
-        str_iterations.ToLong(&l_iterations);
-        FastMDS mds(distances, 3, (int)l_iterations);
-        results = mds.GetResult();
-        
-    } else {
-        results.resize(new_col);
-        for (int i=0; i<new_col; i++) results[i].resize(rows);
-        double** rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, new_col);
-        for (int i=0; i<new_col; i++) {
-            for (int j = 0; j < rows; ++j) {
-                results[i][j] = rst[j][i];
-            }
 
+            wxString str_iterations;
+            str_iterations = txt_poweriteration->GetValue();
+            long l_iterations = 0;
+            str_iterations.ToLong(&l_iterations);
+            FastMDS mds(distances, 3, (int)l_iterations);
+            results = mds.GetResult();
+
+        } else {
+            // classical MDS
+            results.resize(new_col);
+            for (size_t i=0; i<new_col; i++) results[i].resize(rows);
+            double **rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, new_col);
+            for (size_t i=0; i<new_col; i++) {
+                for (size_t j = 0; j < rows; ++j) {
+                    results[i][j] = rst[j][i];
+                }
+            }
+            for (size_t j = 0; j < rows; ++j) delete[] rst[j];
+            delete[] rst;
         }
-        for (int j = 0; j < rows; ++j) delete[] rst[j];
-        delete[] rst;
     }
-   
+
+    wxString md_log;
+    wxString method = combo_method->GetStringSelection();
+    md_log << _("---\n\nMDS method: ") << method;
+    if (combo_method->GetSelection() == 1) {
+        md_log << _("\n# of iterations executed: ") << itel;
+    }
+    md_log << _("\n\nstress value: ") << stress;
+    md_log << m_textbox->GetValue();
+    m_textbox->SetValue(md_log);
+
     if (!results.empty()) {
         
         std::vector<SaveToTableEntry> new_data(new_col);
@@ -293,6 +391,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         SaveToTableDlg dlg(project, this, new_data,
                            _("Save Results: MDS"),
                            wxDefaultPosition, wxSize(400,400));
+        //dlg.SetCheck(2, false);
+        
         if (dlg.ShowModal() == wxID_OK) {
             // show in a scatter plot
             std::vector<int>& new_col_ids = dlg.new_col_ids;

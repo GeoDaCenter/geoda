@@ -118,6 +118,13 @@ all_init(false)
 	all_init = true;
 }
 
+void SaveToTableDlg::SetCheck(size_t i, bool flag)
+{
+    if (i < data.size()) {
+        m_check[i]->SetValue(flag);
+    }
+}
+
 void SaveToTableDlg::CreateControls()
 {
 	wxBoxSizer *top_sizer = new wxBoxSizer(wxVERTICAL);

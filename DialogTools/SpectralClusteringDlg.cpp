@@ -336,10 +336,6 @@ void SpectralClusteringDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnChangeSeed, this);
-    
-    m_distance->Connect(wxEVT_CHOICE,
-                        wxCommandEventHandler(SpectralClusteringDlg::OnDistanceChoice),
-                        NULL, this);
 }
 
 void SpectralClusteringDlg::OnCheckPowerIteration(wxCommandEvent& event)
@@ -439,20 +435,6 @@ void SpectralClusteringDlg::OnChangeSeed(wxCommandEvent& event)
         OGRDataAdapter& ogr_adapt = OGRDataAdapter::GetInstance();
         ogr_adapt.AddEntry("use_gda_user_seed", "0");
     }
-}
-
-void SpectralClusteringDlg::OnDistanceChoice(wxCommandEvent& event)
-{
-    
-     if (m_distance->GetSelection() == 0) {
-         m_distance->SetSelection(1);
-     } else if (m_distance->GetSelection() == 3) {
-         m_distance->SetSelection(4);
-     } else if (m_distance->GetSelection() == 6) {
-         m_distance->SetSelection(7);
-     } else if (m_distance->GetSelection() == 9) {
-         m_distance->SetSelection(10);
-     }
 }
 
 void SpectralClusteringDlg::InitVariableCombobox(wxListBox* var_box)

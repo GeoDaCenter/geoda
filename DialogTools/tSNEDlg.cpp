@@ -208,21 +208,6 @@ void TSNEDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnCloseClick, this);
 }
 
-void TSNEDlg::OnDistanceChoice(wxCommandEvent& event)
-{
-    
-    if (m_distance->GetSelection() == 0) {
-        m_distance->SetSelection(1);
-    } else if (m_distance->GetSelection() == 3) {
-        m_distance->SetSelection(4);
-    } else if (m_distance->GetSelection() == 6) {
-        m_distance->SetSelection(7);
-    } else if (m_distance->GetSelection() == 9) {
-        m_distance->SetSelection(10);
-    }
-    
-}
-
 
 void TSNEDlg::OnClose(wxCloseEvent& ev)
 {

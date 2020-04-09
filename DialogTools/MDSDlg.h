@@ -40,9 +40,8 @@ public:
 
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnDistanceChoice( wxCommandEvent& event );
     void OnCheckPowerIteration( wxCommandEvent& event );
-   
+    void OnMethodChoice(wxCommandEvent &event);
     void InitVariableCombobox(wxListBox* var_box);
     
     virtual wxString _printConfiguration();
@@ -51,11 +50,19 @@ public:
     std::vector<int> col_ids;
     
 protected:
+    wxChoice* combo_method;
+    SimpleReportTextCtrl* m_textbox;
+    wxTextCtrl* m_iterations;
+    wxTextCtrl* m_eps;
+    wxChoice* combo_n;
 
     wxChoice* m_distance;
     wxCheckBox* chk_poweriteration;
     wxTextCtrl* txt_poweriteration;
     wxStaticText* lbl_poweriteration;
+    wxStaticText* txt_usepower;
+    wxStaticText* txt_maxit;
+    wxStaticText* txt_eps;
     
     DECLARE_EVENT_TABLE()
 };

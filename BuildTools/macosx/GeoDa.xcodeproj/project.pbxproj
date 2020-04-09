@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */; };
+		A119BEBD243BE845006E1BE6 /* smacof.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEB8243BE844006E1BE6 /* smacof.c */; };
+		A119BEBE243BE845006E1BE6 /* smacof_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEBA243BE844006E1BE6 /* smacof_utils.c */; };
+		A119BEBF243BE845006E1BE6 /* lapacke.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEBB243BE844006E1BE6 /* lapacke.c */; };
+		A119BEC0243BE845006E1BE6 /* jacobi.c in Sources */ = {isa = PBXBuildFile; fileRef = A119BEBC243BE844006E1BE6 /* jacobi.c */; };
 		A11B85BC1B18DC9C008B64EA /* Basemap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11B85BB1B18DC9C008B64EA /* Basemap.cpp */; };
 		A11EF98E21ED569A00B77413 /* MultiVarSettingsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11EF98D21ED569A00B77413 /* MultiVarSettingsDlg.cpp */; };
 		A11F1B7F184FDFB3006F5F98 /* OGRColumn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A11F1B7D184FDFB3006F5F98 /* OGRColumn.cpp */; };
@@ -333,6 +337,11 @@
 /* Begin PBXFileReference section */
 		A10EF2EE21273E7E00564FE1 /* AbstractCanvas.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCanvas.cpp; sourceTree = "<group>"; };
 		A10EF2EF21273E7E00564FE1 /* AbstractCanvas.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = AbstractCanvas.hpp; sourceTree = "<group>"; };
+		A119BEB8243BE844006E1BE6 /* smacof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof.c; path = Algorithms/smacof.c; sourceTree = "<group>"; };
+		A119BEB9243BE844006E1BE6 /* smacof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smacof.h; path = Algorithms/smacof.h; sourceTree = "<group>"; };
+		A119BEBA243BE844006E1BE6 /* smacof_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof_utils.c; path = Algorithms/smacof_utils.c; sourceTree = "<group>"; };
+		A119BEBB243BE844006E1BE6 /* lapacke.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lapacke.c; path = Algorithms/lapacke.c; sourceTree = "<group>"; };
+		A119BEBC243BE844006E1BE6 /* jacobi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jacobi.c; path = Algorithms/jacobi.c; sourceTree = "<group>"; };
 		A11B85BA1B18DC89008B64EA /* Basemap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Basemap.h; sourceTree = "<group>"; };
 		A11B85BB1B18DC9C008B64EA /* Basemap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Basemap.cpp; sourceTree = "<group>"; };
 		A11EF98C21ED569A00B77413 /* MultiVarSettingsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiVarSettingsDlg.h; sourceTree = "<group>"; };
@@ -1008,6 +1017,18 @@
 			name = dloess;
 			sourceTree = "<group>";
 		};
+		A1A97FCD2437F91F00636483 /* smacof */ = {
+			isa = PBXGroup;
+			children = (
+				A119BEBC243BE844006E1BE6 /* jacobi.c */,
+				A119BEBB243BE844006E1BE6 /* lapacke.c */,
+				A119BEBA243BE844006E1BE6 /* smacof_utils.c */,
+				A119BEB8243BE844006E1BE6 /* smacof.c */,
+				A119BEB9243BE844006E1BE6 /* smacof.h */,
+			);
+			name = smacof;
+			sourceTree = "<group>";
+		};
 		A40AB91A20F5336600F94543 /* arizona */ = {
 			isa = PBXGroup;
 			children = (
@@ -1058,6 +1079,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A1A97FCD2437F91F00636483 /* smacof */,
 				A195809E240E14E70089C6CE /* dloess */,
 				A1B18EB123FEF50400465937 /* splittree.cpp */,
 				A1B18EAF23FEF50300465937 /* splittree.h */,
@@ -1898,6 +1920,7 @@
 				A1B18EB223FEF50400465937 /* tsne.cpp in Sources */,
 				DDAA6540117F9B5D00D1010C /* Project.cpp in Sources */,
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
+				A119BEBE243BE845006E1BE6 /* smacof_utils.c in Sources */,
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
@@ -1976,6 +1999,7 @@
 				A1230E622130E783002AB30A /* MapLayer.cpp in Sources */,
 				DDF5400B167A39CA0042B453 /* CatClassifDlg.cpp in Sources */,
 				DD60546816A83EEF0004BF02 /* CatClassifManager.cpp in Sources */,
+				A119BEBF243BE845006E1BE6 /* lapacke.c in Sources */,
 				A4E5FE191F624D5600D75662 /* AggregateDlg.cpp in Sources */,
 				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
 				A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */,
@@ -2049,6 +2073,7 @@
 				A40AB92820F675B600F94543 /* mathstuff.cpp in Sources */,
 				A4320FC81F4735020007BE0D /* RedcapDlg.cpp in Sources */,
 				DD2AE42A19D4F4CA00B23FB9 /* GdaJson.cpp in Sources */,
+				A119BEC0243BE845006E1BE6 /* jacobi.c in Sources */,
 				A1CE3D331C1A427A0010F170 /* PublishDlg.cpp in Sources */,
 				A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */,
 				DD30798E19ED80E0001E5E89 /* Lowess.cpp in Sources */,
@@ -2073,6 +2098,7 @@
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
 				A19483982118BAAA009A87A2 /* basic.cpp in Sources */,
 				DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */,
+				A119BEBD243BE845006E1BE6 /* smacof.c in Sources */,
 				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
 				A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */,

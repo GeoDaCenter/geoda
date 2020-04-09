@@ -48,7 +48,6 @@ public:
     void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
-    void OnDistanceChoice(wxCommandEvent& event);
     void OnClusterChoice(wxCommandEvent& event);
     void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
