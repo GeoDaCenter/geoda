@@ -17,6 +17,26 @@ using namespace std;
 
 class DataUtils {
 public:
+    static double ManhattanDistance(const std::vector<std::vector<double> >& col_data, int p, int q)
+    {
+        double d =0;
+        for (size_t i =0; i<col_data.size(); i++ ) {
+            d += fabs(col_data[i][p] - col_data[i][q]);
+        }
+        return d;
+    }
+
+    static double ManhattanDistance(const std::vector<double>& x1, const std::vector<double>& x2)
+    {
+        double d =0;
+        size_t size = x1.size();
+        for (size_t i =0; i<size; i++ ) {
+            d += fabs(x1[i] - x2[i]);
+        }
+        return d;
+    }
+
+    
     static double ManhattanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0;
@@ -25,7 +45,29 @@ public:
         }
         return d;
     }
-    
+
+    static double EuclideanDistance(const std::vector<std::vector<double> >& col_data, int p, int q)
+    {
+        double d =0, tmp=0;
+        for (size_t i =0; i<col_data.size(); i++ ) {
+            tmp = (col_data[i][p] - col_data[i][q]);
+            d += tmp * tmp;
+        }
+        return d;
+    }
+
+    static double EuclideanDistance(const std::vector<double>& x1, const std::vector<double>& x2)
+    {
+        double d =0,tmp=0;
+        size_t size = x1.size();
+
+        for (size_t i =0; i<size; i++ ) {
+            tmp = (x1[i] - x2[i]);
+            d += tmp * tmp;
+        }
+        return d; // squared
+    }
+
     static double EuclideanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0,tmp=0;

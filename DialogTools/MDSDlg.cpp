@@ -53,7 +53,7 @@ MDSDlg::~MDSDlg()
 
 void MDSDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,660), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,700), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -253,6 +253,29 @@ wxString MDSDlg::_printConfiguration()
     return "";
 }
 
+double MDSDlg::_calculateStress(char dist, int rows, double **ragged_distances, const std::vector<std::vector<double> >& result)
+{
+    double d, tmp;
+    double sum_dist = 0;
+    double sum_diff = 0;
+    double stress = 0;
+    for (size_t r=1; r<rows; ++r) {
+        for (size_t c=0; c<r; ++c) {
+            if (dist == 'b') {
+                d = DataUtils::ManhattanDistance(result, r, c);
+            } else {
+                d = DataUtils::EuclideanDistance(result, r, c);
+            }
+            tmp = ragged_distances[r][c] - d;
+            tmp = tmp * tmp;
+            sum_diff += tmp;
+            sum_dist += ragged_distances[r][c] * ragged_distances[r][c];
+        }
+    }
+    stress = sum_dist == 0 ? 0 : sqrt( sum_diff/ sum_dist);
+    return stress;
+}
+
 void MDSDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click MDSDlg::OnOK");
@@ -293,15 +316,17 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     double stress = 0;
     int itel = 0;
 
-    if (combo_method->GetSelection() == 1) {
-        double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 
+    if (combo_method->GetSelection() == 1) {
         // column-wise lower-triangle matrix for SMACOF
         size_t idx = 0;
         double *delta = new double[rows * (rows-1)/2];
         for (size_t i=0; i< rows-1; ++i) { // col idx
             for (size_t j=1+i; j < rows; ++j) { // row idx
                 delta[idx] = ragged_distances[j][i];
+                // squared value for Manhattan distance as well
+                //if (dist == 'b') delta[idx] = delta[idx] * ragged_distances[j][i];
                 std::cout << delta[idx] << ",";
                 idx += 1;
             }
@@ -317,16 +342,15 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 results[i].push_back(xnew[j + i*rows]);
             }
         }
+        for (size_t i=0; i<new_col; ++i) {
+            GenUtils::StandardizeData(results[i]);
+        }
         free(xnew);
+
     } else {
         if (chk_poweriteration->IsChecked()) {
-            // classical MDS with power iteration
-            double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-            // full matrix
+            // classical MDS with power iteration and full matrix
             vector<vector<double> > distances = DataUtils::copyRaggedMatrix(ragged_distances, rows, rows);
-            for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
-            free(ragged_distances);
-
             if (dist == 'b') {
                 for (size_t i=0; i<distances.size(); i++) {
                     for (int j=0; j<distances.size(); j++) {
@@ -335,7 +359,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                     }
                 }
             }
-
             wxString str_iterations;
             str_iterations = txt_poweriteration->GetValue();
             long l_iterations = 0;
@@ -347,7 +370,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             // classical MDS
             results.resize(new_col);
             for (size_t i=0; i<new_col; i++) results[i].resize(rows);
-            double **rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  NULL, new_col);
+            double **rst = mds(rows, columns, input_data,  mask, weight, transpose, dist,  ragged_distances, new_col);
             for (size_t i=0; i<new_col; i++) {
                 for (size_t j = 0; j < rows; ++j) {
                     results[i][j] = rst[j][i];
@@ -358,13 +381,22 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         }
     }
 
+    stress = _calculateStress(dist, rows, ragged_distances, results);
+
+    // clean distance matrix
+    for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
+    free(ragged_distances);
+
     wxString md_log;
     wxString method = combo_method->GetStringSelection();
     md_log << _("---\n\nMDS method: ") << method;
     if (combo_method->GetSelection() == 1) {
         md_log << _("\n# of iterations executed: ") << itel;
+    } else if (chk_poweriteration->IsChecked()){
+        md_log << _("\nusing Power Iteration");
     }
     md_log << _("\n\nstress value: ") << stress;
+    md_log << _("\n\n");
     md_log << m_textbox->GetValue();
     m_textbox->SetValue(md_log);
 

@@ -4995,10 +4995,13 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
                 Y[i][j] = E[i][j] * S[j];
       
     }
-    for (i = 1; i < n; i++) free(distmatrix[i]);
+    if(ldistmatrix) {
+        for (i = 1; i < n; i++) free(distmatrix[i]);
+        free(distmatrix);
+    }
     for (i = 0; i < n; i++) free(E[i]);
     for (i = 0; i < n; i++) free(V[i]);
-    free(distmatrix);
+
     free(E);
     free(V);
     free(S);

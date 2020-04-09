@@ -43,7 +43,9 @@ public:
     void OnCheckPowerIteration( wxCommandEvent& event );
     void OnMethodChoice(wxCommandEvent &event);
     void InitVariableCombobox(wxListBox* var_box);
-    
+
+    double _calculateStress(char dist, int rows, double **ragged_distances,
+                            const std::vector<std::vector<double> >& result);
     virtual wxString _printConfiguration();
     
     std::vector<GdaVarTools::VarInfo> var_info;
