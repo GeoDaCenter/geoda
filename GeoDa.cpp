@@ -3833,6 +3833,7 @@ void GdaFrame::OnOpenUniMedianLisa(wxCommandEvent& event)
     }
 
     LisaWhat2OpenDlg LWO(this);
+    LWO.HideMoranScatter();
     if (LWO.ShowModal() != wxID_OK) return;
     if (!LWO.m_ClustMap && !LWO.m_SigMap && !LWO.m_Moran) return;
 
@@ -3844,10 +3845,6 @@ void GdaFrame::OnOpenUniMedianLisa(wxCommandEvent& event)
                                               true, LWO.m_RowStand,
                                               using_median);
 
-    if (LWO.m_Moran) {
-        LisaScatterPlotFrame *sf = new LisaScatterPlotFrame(GdaFrame::gda_frame,
-                                                            p, lc);
-    }
     if (LWO.m_ClustMap) {
         LisaMapFrame *sf = new LisaMapFrame(GdaFrame::gda_frame, p,
                                             lc, true, false, false);

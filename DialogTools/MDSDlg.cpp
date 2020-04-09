@@ -391,9 +391,12 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     wxString method = combo_method->GetStringSelection();
     md_log << _("---\n\nMDS method: ") << method;
     if (combo_method->GetSelection() == 1) {
-        md_log << _("\n# of iterations executed: ") << itel;
+        md_log << _("\n\n# of maximum iterations: ") << n_iter;
+        md_log << _("\n\nconvergence criterion:: ") << eps;
+        md_log << _("\n\n# of iterations executed: ") << itel;
+
     } else if (chk_poweriteration->IsChecked()){
-        md_log << _("\nusing Power Iteration");
+        md_log << _("\n\nusing Power Iteration");
     }
     md_log << _("\n\nstress value: ") << stress;
     md_log << _("\n\n");

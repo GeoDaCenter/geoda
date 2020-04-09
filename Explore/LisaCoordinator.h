@@ -63,7 +63,7 @@ protected:
 	double* lags;
 	double*	localMoran;		// The LISA
 	double* sigLocalMoran;	// The significances / pseudo p-vals
-    bool using_median;
+
 
 public:
     std::vector<double*> smoothed_results; // LISA EB
@@ -72,6 +72,7 @@ public:
 	std::vector<double*> data1_vecs;
 	std::vector<double*> data2_vecs;
 
+    bool using_median;
 	bool isBivariate;
 	LisaType lisa_type;
 	
