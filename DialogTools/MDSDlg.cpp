@@ -257,6 +257,26 @@ wxString MDSDlg::_printConfiguration()
     return "";
 }
 
+double MDSDlg::_calculateRankCorr(char dist, int rows, double **ragged_distances,
+                                  const std::vector<std::vector<double> >& result)
+{
+    double d;
+    std::vector<double> x, y;
+    for (size_t r=1; r<rows; ++r) {
+        for (size_t c=0; c<r; ++c) {
+            x.push_back(ragged_distances[r][c]);
+            if (dist == 'b') {
+                d = DataUtils::ManhattanDistance(result, r, c);
+            } else {
+                d = DataUtils::EuclideanDistance(result, r, c);
+            }
+            y.push_back(d);
+        }
+    }
+    double r = GenUtils::RankCorrelation(x, y);
+    return r;
+}
+
 double MDSDlg::_calculateStress(char dist, int rows, double **ragged_distances, const std::vector<std::vector<double> >& result)
 {
     double d, tmp;
@@ -397,7 +417,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     }
 
     stress = _calculateStress(dist, rows, ragged_distances, results);
-
+    double r = _calculateRankCorr(dist, rows, ragged_distances, results);
     // clean distance matrix
     for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
     free(ragged_distances);
@@ -414,6 +434,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         md_log << _("\n\nusing Power Iteration");
     }
     md_log << _("\n\nstress value: ") << stress;
+    md_log << _("\n\nrank correlation: ") << r;
     md_log << _("\n\n");
     md_log << m_textbox->GetValue();
     m_textbox->SetValue(md_log);

@@ -381,7 +381,9 @@ namespace GenUtils {
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
 	bool StandardizeData(vector<double>& data);
     bool StandardizeData(vector<double>& data, vector<bool>& undef);
-    
+
+    std::vector<double> rankify(const vector<double>& x);
+    double RankCorrelation(vector<double>& x, vector<double>& y);
     double Correlation(vector<double>& x, vector<double>& y);
     double GetVariance(vector<double>& data);
 	wxString swapExtension(const wxString& fname, const wxString& ext);

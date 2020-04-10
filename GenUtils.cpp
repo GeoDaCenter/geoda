@@ -1489,6 +1489,49 @@ void GenUtils::Transformation(int trans_type,
     }
 }
 
+std::vector<double> GenUtils::rankify(const vector<double>& x)
+{
+    size_t N = x.size();
+    // Rank Vector
+    std::vector<double>  Rank_X(N);
+
+    for(size_t i = 0; i < N; i++) {
+        int r = 1, s = 1;
+
+        // Count no of smaller elements
+        // in 0 to i-1
+        for(size_t j = 0; j < i; j++) {
+            if (x[j] < x[i] ) r++;
+            if (x[j] == x[i] ) s++;
+        }
+
+        // Count no of smaller elements
+        // in i+1 to N-1
+        for (size_t j = i+1; j < N; j++) {
+            if (x[j] < x[i] ) r++;
+            if (x[j] == x[i] ) s++;
+        }
+
+        // Use Fractional Rank formula
+        // fractional_rank = r + (n-1)/2
+        Rank_X[i] = r + (s-1) * 0.5;
+    }
+
+    // Return Rank Vector
+    return Rank_X;
+}
+
+double GenUtils::RankCorrelation(vector<double>& x, vector<double>& y)
+{
+    // Get ranks of vector X y
+    vector<double> rank_x = rankify(x);
+    vector<double> rank_y = rankify(y);
+
+    double spearmans_r = Correlation(rank_x, rank_y);
+
+    return spearmans_r;
+}
+
 double GenUtils::Correlation(std::vector<double>& x, std::vector<double>& y)
 {
     int nObs = x.size();
