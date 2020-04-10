@@ -138,7 +138,7 @@ public:
 	void UpdateRegSelectedLine();
 	void UpdateRegExcludedLine();
 
-	void UpdateDisplayStats();
+	virtual void UpdateDisplayStats();
 	void UpdateAxesThroughOrigin();
 	
 	virtual void UpdateStatusBar();
@@ -247,7 +247,7 @@ protected:
 	// table_display_lines: 0 if no table shown, 1 if just blue line
 	// 2 if blue and just green or red, 3 if blue, green and red shown.
 	int table_display_lines;
-	bool UpdateDisplayLinesAndMargins();
+	bool virtual UpdateDisplayLinesAndMargins();
 	bool all_init;
 
 	DECLARE_EVENT_TABLE()
@@ -323,7 +323,7 @@ public:
 	/** Implementation of LowessParamObserver interface */
 	virtual void update(LowessParamObservable* o);
 	virtual void notifyOfClosing(LowessParamObservable* o);
-	
+
 	void GetVizInfo(wxString& x, wxString& y);
 	
 protected:
@@ -360,9 +360,13 @@ public:
     virtual ~MDSPlotCanvas();
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
-    
+    virtual void UpdateDisplayStats();
+    bool virtual UpdateDisplayLinesAndMargins();
+
     void OnCreateWeights();
-    
+
+    double stress;
+    double rank_corr;
     DECLARE_EVENT_TABLE()
 };
 

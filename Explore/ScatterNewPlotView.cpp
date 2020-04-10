@@ -2260,13 +2260,16 @@ END_EVENT_TABLE()
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const wxPoint& pos, const wxSize& size)
 : ScatterNewPlotCanvas(parent, t_frame, project, pos, size)
 {
-    
+    display_stats = true;
+    DisplayStatistics(display_stats);
 }
 
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
 : ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
-    
+    display_stats = true;
+    DisplayStatistics(display_stats);
+    PopulateCanvas();
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
@@ -2287,7 +2290,13 @@ void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
     wxString menu_txt = _("Create Weights");
     optMenu->Prepend(XRCID("MDS_WEIGHTS"), menu_txt);
     optMenu->AppendSeparator();
-    
+    optMenu->Destroy(XRCID("ID_SCATTER_DATA_MENU"));
+    optMenu->Destroy(XRCID("ID_SCATTER_SMOOTHER_MENU"));
+
+    wxMenu* viewMenu = optMenu->FindItem(XRCID("ID_VIEW_REGIMES_REGRESSION"))->GetMenu();
+    //GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_VIEW_REGIMES_REGRESSION"), false);
+    viewMenu->Destroy(XRCID("ID_VIEW_REGIMES_REGRESSION"));
+
     template_frame->Connect(XRCID("MDS_WEIGHTS"), wxEVT_COMMAND_MENU_SELECTED,
                             wxCommandEventHandler(MDSPlotFrame::OnCreateWeights));
     
@@ -2308,6 +2317,79 @@ void MDSPlotCanvas::OnCreateWeights()
     dlg.ShowModal();
 }
 
+void MDSPlotCanvas::UpdateDisplayStats()
+{
+    if (IsDisplayStats()) {
+        // fill out the regression stats table
+        int rows = 2;
+        int cols = 2;
+        std::vector<wxString> vals(rows*cols);
+        std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
+        int i=0; int j=0;
+
+        attributes[0].color = *wxBLACK;
+        vals[0] = "stress value";
+        attributes[1].color = selectable_outline_color;
+        vals[1] << GenUtils::DblToStr(stress, display_precision,  display_precision_fixed_point);
+        attributes[2].color = *wxBLACK;
+        vals[2] = "rank correlation";
+        attributes[3].color = selectable_outline_color;
+        vals[3] << GenUtils::DblToStr(rank_corr, display_precision,  display_precision_fixed_point);
+
+        int x_nudge = last_scale_trans.GetXNudge();
+
+        stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
+                                             *GdaConst::small_font,
+                                             wxRealPoint(50, 0),
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::top,
+                                             GdaShapeText::h_center,
+                                             GdaShapeText::v_center,
+                                             3, 8, -x_nudge, 45)); //62));
+        stats_table->setPen(*wxBLACK_PEN);
+        stats_table->hidden = false;
+        chow_test_text->setText("");
+        chow_test_text->hidden = true;
+        ApplyLastResizeToShp(chow_test_text);
+        ApplyLastResizeToShp(stats_table);
+    } else {
+        chow_test_text->setText("");
+        chow_test_text->hidden = true;
+
+        stats_table->hidden = true;
+    }
+    layer2_valid = false;
+}
+
+bool MDSPlotCanvas::UpdateDisplayLinesAndMargins()
+{
+    bool changed = false;
+    int lines = 0;
+    int table_w=0, table_h=0;
+    if (IsDisplayStats() && stats_table) {
+        wxClientDC dc(this);
+        stats_table->GetSize(dc, table_w, table_h);
+    }
+    last_scale_trans.bottom_margin = 50;
+    if (!IsDisplayStats()) {
+        lines = 0;
+    } else {
+        lines = 1;
+        last_scale_trans.bottom_margin += 10;
+
+    }
+    last_scale_trans.bottom_margin += table_h;
+
+    if (table_display_lines != lines) {
+        layer0_valid = false;
+        layer1_valid = false;
+        layer2_valid = false;
+        changed = true;
+    }
+
+    table_display_lines = lines;
+    return changed;
+}
 
 IMPLEMENT_CLASS(MDSPlotFrame, TemplateFrame)
 BEGIN_EVENT_TABLE(MDSPlotFrame, TemplateFrame)
