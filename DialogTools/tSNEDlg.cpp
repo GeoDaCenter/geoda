@@ -58,7 +58,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(480,820), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(780,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -184,9 +184,14 @@ void TSNEDlg::CreateControls()
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
     vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
-    
+
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
+    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    
@@ -319,6 +324,26 @@ void TSNEDlg::InitVariableCombobox(wxListBox* var_box)
 wxString TSNEDlg::_printConfiguration()
 {
     return "";
+}
+
+double TSNEDlg::_calculateRankCorr(char dist, int rows, double **ragged_distances,
+                                  const std::vector<std::vector<double> >& result)
+{
+    double d;
+    std::vector<double> x, y;
+    for (size_t r=1; r<rows; ++r) {
+        for (size_t c=0; c<r; ++c) {
+            x.push_back(ragged_distances[r][c]);
+            if (dist == 'b') {
+                d = DataUtils::ManhattanDistance(result, r, c);
+            } else {
+                d = DataUtils::EuclideanDistance(result, r, c);
+            }
+            y.push_back(d);
+        }
+    }
+    double r = GenUtils::RankCorrelation(x, y);
+    return r;
 }
 
 void TSNEDlg::OnOK(wxCommandEvent& event )
@@ -457,11 +482,24 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             results[i][j] = Y[j*new_col +i];
         }
     }
+
+    // compute rank correlation
+    double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+    double r = _calculateRankCorr(dist, rows, ragged_distances, results);
+    for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
+    free(ragged_distances);
+
     delete[] Y;
     delete[] data;
    
     if (!results.empty()) {
-        
+        wxString tsne_log;
+        tsne_log << _("---\n\nt-SNE: ");
+        tsne_log << _("\n\nrank correlation: ") << r;
+        tsne_log << _("\n\n");
+        tsne_log << m_textbox->GetValue();
+        m_textbox->SetValue(tsne_log);
+
         std::vector<SaveToTableEntry> new_data(new_col);
         std::vector<std::vector<double> > vals(new_col);
         std::vector<std::vector<bool> > undefs(new_col);

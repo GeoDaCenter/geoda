@@ -45,7 +45,9 @@ public:
     void InitVariableCombobox(wxListBox* var_box);
     
     virtual wxString _printConfiguration();
-    
+
+    double _calculateRankCorr(char dist, int rows, double **ragged_distances,
+                              const std::vector<std::vector<double> >& result);
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
@@ -66,6 +68,8 @@ protected:
     wxButton* seedButton;
 
     wxStaticText* lbl_poweriteration;
+
+    SimpleReportTextCtrl *m_textbox;
     
     DECLARE_EVENT_TABLE()
 };
