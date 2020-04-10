@@ -86,7 +86,8 @@ void smacofHessianC(const double *, const double *, const double *,
                     const int *, double *, double *);
 void smacofInitialC(const double *, const int *, const int *, double *,
                     double *, double *, double *, double *);
-double runSmacof(const double *delta, int m, int p, int itmax, double eps,int* _itel, double **xnew);
+double runSmacof(const double *delta, int m, int p, int itmax, double eps,
+                 double *_xold, int* _itel, double **xnew);
 
 static inline int VINDEX(const int i) { return i - 1; }
 

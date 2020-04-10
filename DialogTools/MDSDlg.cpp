@@ -23,6 +23,10 @@
 #include <wx/dialog.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
+#include <boost/random.hpp>
+#include <boost/random/uniform_01.hpp>
+#include <boost/random/normal_distribution.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
 
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -263,13 +267,15 @@ double MDSDlg::_calculateStress(char dist, int rows, double **ragged_distances, 
         for (size_t c=0; c<r; ++c) {
             if (dist == 'b') {
                 d = DataUtils::ManhattanDistance(result, r, c);
+                tmp = ragged_distances[r][c] - d;
+                sum_dist += ragged_distances[r][c] * ragged_distances[r][c];
             } else {
                 d = DataUtils::EuclideanDistance(result, r, c);
+                tmp = sqrt(ragged_distances[r][c]) - sqrt(d);
+                sum_dist += ragged_distances[r][c];
             }
-            tmp = ragged_distances[r][c] - d;
             tmp = tmp * tmp;
             sum_diff += tmp;
-            sum_dist += ragged_distances[r][c] * ragged_distances[r][c];
         }
     }
     stress = sum_dist == 0 ? 0 : sqrt( sum_diff/ sum_dist);
@@ -327,13 +333,22 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 delta[idx] = ragged_distances[j][i];
                 // squared value for Manhattan distance as well
                 //if (dist == 'b') delta[idx] = delta[idx] * ragged_distances[j][i];
-                std::cout << delta[idx] << ",";
+                //std::cout << delta[idx] << ",";
                 idx += 1;
             }
         }
-        int m = idx;
+         int m = idx;
+
+        // init random xold for smacof
+        boost::mt19937 rng(GdaConst::gda_user_seed);
+        boost::uniform_01<boost::mt19937> X(rng);
+        double *xold = new double[m * new_col];
+        for (size_t i=0; i< m * new_col; ++i) {
+            xold[i] =  X();
+        }
+
         double *xnew;
-        stress = runSmacof(delta, m, new_col, n_iter, eps, &itel, &xnew);
+        stress = runSmacof(delta, m, new_col, n_iter, eps, xold, &itel, &xnew);
         delete[] delta;
 
         results.resize(new_col);
@@ -363,7 +378,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             str_iterations = txt_poweriteration->GetValue();
             long l_iterations = 0;
             str_iterations.ToLong(&l_iterations);
-            FastMDS mds(distances, 3, (int)l_iterations);
+            FastMDS mds(distances, new_col, (int)l_iterations);
             results = mds.GetResult();
 
         } else {

@@ -153,7 +153,8 @@ void smacofHessianC(const double *x, const double *bmat, const double *vmat,
 void smacofNewtonC() { return; }
 
 
-double runSmacof(const double *delta, int m, int p, int itmax, double eps, int* _itel, double **_xnew)
+double runSmacof(const double *delta, int m, int p, int itmax, double eps,
+                 double *_xold, int* _itel, double **_xnew)
 {
     int itel = 1;
 
@@ -174,6 +175,7 @@ double runSmacof(const double *delta, int m, int p, int itmax, double eps, int* 
 
     int x_length = n * p;
     xold = calloc(x_length, sizeof(double));
+    for (int i=0; i<x_length; i++) xold[i] = _xold[i];
 
     smacofInitialC(delta, &n, &p, work1, work2, work3, work4, xold);
     free(work1);
