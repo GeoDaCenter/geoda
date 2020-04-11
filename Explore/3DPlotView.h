@@ -154,7 +154,8 @@ public:
 	C3DPlotFrame(wxFrame *parent, Project* project,
 				 const std::vector<GdaVarTools::VarInfo>& var_info,
 				 const std::vector<int>& col_ids,
-				 const wxString& title, const wxPoint& pos,
+				 const wxString& title, const wxString& add_text,
+                 const wxPoint& pos,
 				 const wxSize& size, const long style);
 	virtual ~C3DPlotFrame();	
     

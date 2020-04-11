@@ -20,6 +20,7 @@
 		A1230E5F212DF54D002AB30A /* switch-off.png in Resources */ = {isa = PBXBuildFile; fileRef = A1230E5D212DF54D002AB30A /* switch-off.png */; };
 		A1230E622130E783002AB30A /* MapLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1230E602130E783002AB30A /* MapLayer.cpp */; };
 		A1230E652130E81A002AB30A /* MapLayerTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1230E632130E81A002AB30A /* MapLayerTree.cpp */; };
+		A128C5862441368000EAEDFA /* wxGLString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A128C5842441367D00EAEDFA /* wxGLString.cpp */; };
 		A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */; };
 		A1311C6720FFDF7100008D7F /* localjc_kernel.cl in CopyFiles */ = {isa = PBXBuildFile; fileRef = A4E00F0F20FD8ECC0038BA80 /* localjc_kernel.cl */; };
 		A13B6B9418760CF100F93ACF /* SaveAsDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A13B6B9318760CF100F93ACF /* SaveAsDlg.cpp */; };
@@ -356,6 +357,8 @@
 		A1230E612130E783002AB30A /* MapLayer.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapLayer.hpp; sourceTree = "<group>"; };
 		A1230E632130E81A002AB30A /* MapLayerTree.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = MapLayerTree.cpp; sourceTree = "<group>"; };
 		A1230E642130E81A002AB30A /* MapLayerTree.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MapLayerTree.hpp; sourceTree = "<group>"; };
+		A128C5842441367D00EAEDFA /* wxGLString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wxGLString.cpp; sourceTree = "<group>"; };
+		A128C5852441367E00EAEDFA /* wxGLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wxGLString.h; sourceTree = "<group>"; };
 		A12E0F4D1705087A00B6059C /* OGRDataAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OGRDataAdapter.h; sourceTree = "<group>"; };
 		A12E0F4E1705087A00B6059C /* OGRDataAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OGRDataAdapter.cpp; sourceTree = "<group>"; };
 		A13B6B9218760CF100F93ACF /* SaveAsDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SaveAsDlg.h; sourceTree = "<group>"; };
@@ -1467,6 +1470,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A128C5842441367D00EAEDFA /* wxGLString.cpp */,
+				A128C5852441367E00EAEDFA /* wxGLString.h */,
 				A195809C2409A8760089C6CE /* LoessPlotCanvas.cpp */,
 				A195809B2409A8750089C6CE /* LoessPlotCanvas.h */,
 				A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */,
@@ -2081,6 +2086,7 @@
 				A14735B521A65F1800CA69B2 /* bd_tree.cpp in Sources */,
 				DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */,
 				DD307DB919F0483B001E5E89 /* SmoothingUtils.cpp in Sources */,
+				A128C5862441368000EAEDFA /* wxGLString.cpp in Sources */,
 				DD3082B319F709BB001E5E89 /* WebViewHelpWin.cpp in Sources */,
 				DD409DFB19FF099E00C21A2B /* ScatterPlotMatView.cpp in Sources */,
 				DD409E4C19FFD43000C21A2B /* VarTools.cpp in Sources */,

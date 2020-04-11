@@ -48,12 +48,15 @@ public:
 
     double _calculateRankCorr(char dist, int rows, double **ragged_distances,
                               const std::vector<std::vector<double> >& result);
+    double _calculateStress(char dist, int rows, double **ragged_distances,
+                            const std::vector<std::vector<double> >& result);
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     
 protected:
 
     wxChoice* m_distance;
+    wxChoice* combo_n;
 
     wxTextCtrl* txt_iteration;
     wxTextCtrl* txt_perplexity;
@@ -62,14 +65,11 @@ protected:
     wxTextCtrl* txt_finalmomentum;
     wxTextCtrl* txt_mom_switch_iter;
     wxTextCtrl* txt_learningrate;
-    wxTextCtrl* txt_outdim;
 
     wxCheckBox* chk_seed;
     wxButton* seedButton;
 
     wxStaticText* lbl_poweriteration;
-
-    SimpleReportTextCtrl *m_textbox;
     
     DECLARE_EVENT_TABLE()
 };

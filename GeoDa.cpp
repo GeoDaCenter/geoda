@@ -3261,7 +3261,7 @@ void GdaFrame::OnExplore3DP(wxCommandEvent& WXUNUSED(event))
 	C3DPlotFrame *subframe =
 		new C3DPlotFrame(GdaFrame::gda_frame, p,
 						 dlg.var_info, dlg.col_ids,
-						 _("3D Plot"), wxDefaultPosition,
+						 _("3D Plot"), "", wxDefaultPosition,
 						 GdaConst::three_d_default_size,
 						 wxDEFAULT_FRAME_STYLE);
 }

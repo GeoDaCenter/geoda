@@ -38,6 +38,7 @@
 #include "../GeoDa.h"
 #include "../Project.h"
 #include "3DPlotView.h"
+#include  "wxGLString.h"
 
 BEGIN_EVENT_TABLE(C3DPlotCanvas, wxGLCanvas)
     EVT_SIZE(C3DPlotCanvas::OnSize)
@@ -209,7 +210,6 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
     wxPaintDC dc(this);
 
 	wxGLCanvas::SetCurrent(*m_context);
-    
 
     /* initialize OpenGL */
     if (isInit == false) {
@@ -220,6 +220,8 @@ void C3DPlotCanvas::OnPaint( wxPaintEvent& event )
 	begin_redraw();
     RenderScene();
 	end_redraw();
+
+
 
 	if (bSelect) {
 		double world11[3],world12[3], world22[3], world21[3];
@@ -1156,7 +1158,8 @@ END_EVENT_TABLE()
 C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 						   const std::vector<GdaVarTools::VarInfo>& var_info,
 						   const std::vector<int>& col_ids,
-						   const wxString& title, const wxPoint& pos,
+						   const wxString& title, const wxString& add_text,
+                           const wxPoint& pos,
 						   const wxSize& size, const long style)
 	: TemplateFrame(parent, project, title, pos, size, style)
 {
@@ -1165,17 +1168,36 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 	wxGLAttributes glAttributes; 
 	//glAttributes.Defaults().RGBA().DoubleBuffer().Depth(16).Stencil(8).SampleBuffers(1).Samplers(4).EndList(); 
 	glAttributes.PlatformDefaults().RGBA().DoubleBuffer().Depth(24).EndList();
-	
 
-	canvas = new C3DPlotCanvas(project, this, glAttributes,
-							   project->GetHighlightState(),
-							   var_info, col_ids,
-							   m_splitter);
-	
 	control = new C3DControlPan(m_splitter, wxID_ANY, wxDefaultPosition,
 								wxDefaultSize, wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	control->template_frame = this;
-	m_splitter->SplitVertically(control, canvas, 70);
+
+    if (add_text.IsEmpty()) {
+        canvas = new C3DPlotCanvas(project, this, glAttributes,
+                                   project->GetHighlightState(),
+                                   var_info, col_ids,
+                                   m_splitter);
+        m_splitter->SplitVertically(control, canvas, 70);
+    } else {
+        wxPanel *panel = new wxPanel(m_splitter);
+        panel->SetBackgroundColour(*wxBLACK);
+        wxStaticText* st = new wxStaticText(panel, wxID_ANY, add_text);
+        st->SetForegroundColour(*wxWHITE);
+        canvas = new C3DPlotCanvas(project, this, glAttributes,
+                                   project->GetHighlightState(),
+                                   var_info, col_ids,
+                                   panel);
+        wxBoxSizer *container = new wxBoxSizer(wxVERTICAL);
+        container->Add(st, 0, wxALIGN_CENTER | wxALL, 0);
+        container->Add(canvas, 1, wxEXPAND | wxALL);
+        panel->SetSizer(container);
+
+        wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
+        vbox->Add(panel, 0, wxEXPAND | wxALL, 10);
+
+        m_splitter->SplitVertically(control, panel, 70);
+    }
 	UpdateTitle();
     
     SetMinSize(wxSize(600,400));

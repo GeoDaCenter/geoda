@@ -350,7 +350,7 @@ public:
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
-                  Project* project,
+                  Project* project, double stress, double rank_corr,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
                   const std::vector<int>& col_ids,
                   bool is_bubble_plot = false,
@@ -380,6 +380,7 @@ public:
                  const long style = wxDEFAULT_FRAME_STYLE);
     
     MDSPlotFrame(wxFrame *parent, Project* project,
+                 double stress, double rank_corr,
                  const std::vector<GdaVarTools::VarInfo>& var_info,
                  const std::vector<int>& col_ids,
                  bool is_bubble_plot,

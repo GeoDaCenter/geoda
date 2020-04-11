@@ -2264,12 +2264,10 @@ MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* 
     DisplayStatistics(display_stats);
 }
 
-MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
-: ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, double stress, double rank_corr, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
+: stress(stress), rank_corr(rank_corr), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
-    display_stats = true;
-    DisplayStatistics(display_stats);
-    PopulateCanvas();
+
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
@@ -2404,6 +2402,7 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
 }
 
 MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
+                           double stress, double rank_corr,
                            const std::vector<GdaVarTools::VarInfo>& var_info,
                            const std::vector<int>& col_ids,
                            bool is_bubble_plot, const wxString& title,
@@ -2423,6 +2422,7 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
         splitter_win->SetMinimumPaneSize(10);
     }
     template_canvas = new MDSPlotCanvas(this, this, project,
+                                        stress, rank_corr,
                                         var_info, col_ids,
                                         is_bubble_plot,
                                         false, wxDefaultPosition,
@@ -2433,6 +2433,8 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
     if (title.empty())
         SetTitle(template_canvas->GetCanvasTitle());
     Show(true);
+    wxCommandEvent ev;
+    OnDisplayStatistics(ev);
 }
 
 MDSPlotFrame::~MDSPlotFrame()

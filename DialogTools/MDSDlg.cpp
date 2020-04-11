@@ -57,7 +57,7 @@ MDSDlg::~MDSDlg()
 
 void MDSDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,700), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(420,700), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -145,13 +145,8 @@ void MDSDlg::CreateControls()
     vbox->Add(hbox1, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
-    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
-    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
-
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
-    container->Add(vbox1,1, wxEXPAND | wxALL);
 
     panel->SetSizer(container);
    
@@ -422,23 +417,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
     free(ragged_distances);
 
-    wxString md_log;
-    wxString method = combo_method->GetStringSelection();
-    md_log << _("---\n\nMDS method: ") << method;
-    if (combo_method->GetSelection() == 1) {
-        md_log << _("\n\n# of maximum iterations: ") << n_iter;
-        md_log << _("\n\nconvergence criterion:: ") << eps;
-        md_log << _("\n\n# of iterations executed: ") << itel;
-
-    } else if (chk_poweriteration->IsChecked()){
-        md_log << _("\n\nusing Power Iteration");
-    }
-    md_log << _("\n\nstress value: ") << stress;
-    md_log << _("\n\nrank correlation: ") << r;
-    md_log << _("\n\n");
-    md_log << m_textbox->GetValue();
-    m_textbox->SetValue(md_log);
-
     if (!results.empty()) {
         
         std::vector<SaveToTableEntry> new_data(new_col);
@@ -497,7 +475,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project,
+                new MDSPlotFrame(parent, project, stress, r,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
@@ -517,11 +495,11 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 new_var_info[2].fixed_scale = true;
 
                 wxString title = _("MDS 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
-
+                wxString addition_text = wxString::Format("stress: %.3f, rank correlation: %.3f", stress, r);
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,
                                  new_var_info, new_col_ids,
-                                 title, wxDefaultPosition,
+                                 title, addition_text, wxDefaultPosition,
                                  GdaConst::three_d_default_size,
                                  wxDEFAULT_FRAME_STYLE);
             }

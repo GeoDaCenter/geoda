@@ -58,7 +58,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(780,820), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(480,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -164,12 +164,14 @@ void TSNEDlg::CreateControls()
     hbox->Add(gbox, 1, wxEXPAND);
 
     // Output
-    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Number of Dimension:"));
-    txt_outdim = new wxTextCtrl(panel, wxID_ANY, "2", wxDefaultPosition, wxSize(158,-1));
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("# of Dimensions:"));
+    const wxString dims[2] = {"2", "3"};
+    combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, dims);
+
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(txt_outdim, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+    hbox1->Add(combo_n, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
@@ -185,13 +187,8 @@ void TSNEDlg::CreateControls()
     vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
-    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
-    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
-
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
-    container->Add(vbox1,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    
@@ -346,6 +343,30 @@ double TSNEDlg::_calculateRankCorr(char dist, int rows, double **ragged_distance
     return r;
 }
 
+double TSNEDlg::_calculateStress(char dist, int rows, double **ragged_distances, const std::vector<std::vector<double> >& result)
+{
+    double d, tmp;
+    double sum_dist = 0;
+    double sum_diff = 0;
+    double stress = 0;
+    for (size_t r=1; r<rows; ++r) {
+        for (size_t c=0; c<r; ++c) {
+            if (dist == 'b') {
+                d = DataUtils::ManhattanDistance(result, r, c);
+                tmp = ragged_distances[r][c] - d;
+                sum_dist += ragged_distances[r][c] * ragged_distances[r][c];
+            } else {
+                d = DataUtils::EuclideanDistance(result, r, c);
+                tmp = sqrt(ragged_distances[r][c]) - sqrt(d);
+                sum_dist += ragged_distances[r][c];
+            }
+            tmp = tmp * tmp;
+            sum_diff += tmp;
+        }
+    }
+    stress = sum_dist == 0 ? 0 : sqrt( sum_diff/ sum_dist);
+    return stress;
+}
 void TSNEDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click TSNEDlg::OnOK");
@@ -428,22 +449,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    long out_dim;
-    val = txt_outdim->GetValue();
-    if (!val.ToLong(&out_dim)) {
-        wxString err_msg = _("Please input a valid numeric value for output dimension.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"),
-                            wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    if (out_dim >= project->GetNumRecords()) {
-        wxString err_msg = _("Output dimension should be less than number of observations (default value is 2 or 3).");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"),
-                            wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
+    long out_dim = combo_n->GetSelection() == 0 ? 2 : 3;
 
     int transpose = 0; // row wise
     char dist = 'e'; // euclidean
@@ -486,6 +492,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     // compute rank correlation
     double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
     double r = _calculateRankCorr(dist, rows, ragged_distances, results);
+    double stress = _calculateStress(dist, rows, ragged_distances, results);
     for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
     free(ragged_distances);
 
@@ -493,12 +500,6 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     delete[] data;
    
     if (!results.empty()) {
-        wxString tsne_log;
-        tsne_log << _("---\n\nt-SNE: ");
-        tsne_log << _("\n\nrank correlation: ") << r;
-        tsne_log << _("\n\n");
-        tsne_log << m_textbox->GetValue();
-        m_textbox->SetValue(tsne_log);
 
         std::vector<SaveToTableEntry> new_data(new_col);
         std::vector<std::vector<double> > vals(new_col);
@@ -555,6 +556,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             
                 MDSPlotFrame* subframe =
                 new MDSPlotFrame(parent, project,
+                                 stress, r,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
@@ -574,11 +576,12 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 new_var_info[2].fixed_scale = true;
 
                 wxString title = _("t-SNE 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
+                wxString addition_text = wxString::Format("stress: %.3f, rank correlation: %.3f", stress, r);
 
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,
                                  new_var_info, new_col_ids,
-                                 title, wxDefaultPosition,
+                                 title,addition_text, wxDefaultPosition,
                                  GdaConst::three_d_default_size,
                                  wxDEFAULT_FRAME_STYLE);
             }
