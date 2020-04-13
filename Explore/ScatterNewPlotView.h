@@ -350,7 +350,8 @@ public:
                   const wxPoint& pos = wxDefaultPosition,
                   const wxSize& size = wxDefaultSize);
     MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
-                  Project* project, double stress, double rank_corr,
+                  Project* project, wxString info_str, double stress,
+                  double rank_corr, double eps, int itel,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
                   const std::vector<int>& col_ids,
                   bool is_bubble_plot = false,
@@ -365,8 +366,11 @@ public:
 
     void OnCreateWeights();
 
+    wxString info_str;
     double stress;
     double rank_corr;
+    double eps;
+    int itel;
     DECLARE_EVENT_TABLE()
 };
 
@@ -380,7 +384,8 @@ public:
                  const long style = wxDEFAULT_FRAME_STYLE);
     
     MDSPlotFrame(wxFrame *parent, Project* project,
-                 double stress, double rank_corr,
+                 wxString info_str, double stress, double rank_corr,
+                 double eps, int itel,
                  const std::vector<GdaVarTools::VarInfo>& var_info,
                  const std::vector<int>& col_ids,
                  bool is_bubble_plot,

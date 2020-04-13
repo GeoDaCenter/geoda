@@ -139,6 +139,10 @@
 		A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A6AD7A207F198E00D29677 /* ShpFile.cpp */; };
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
 		A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B1F992207730FA00905246 /* matlab_mat.cpp */; };
+		A4BBAB9E2444D82B00BD4E57 /* lapacke.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB992444D82B00BD4E57 /* lapacke.c */; };
+		A4BBAB9F2444D82B00BD4E57 /* jacobi.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9A2444D82B00BD4E57 /* jacobi.c */; };
+		A4BBABA02444D82B00BD4E57 /* smacof_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9B2444D82B00BD4E57 /* smacof_utils.c */; };
+		A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9C2444D82B00BD4E57 /* smacof.c */; };
 		A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */; };
 		A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */; };
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
@@ -551,6 +555,11 @@
 		A4B1F992207730FA00905246 /* matlab_mat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matlab_mat.cpp; path = io/matlab_mat.cpp; sourceTree = "<group>"; };
 		A4B1F9952077311F00905246 /* matlab_mat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matlab_mat.h; path = io/matlab_mat.h; sourceTree = "<group>"; };
 		A4B1F99620783CC100905246 /* weights_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = weights_interface.h; path = io/weights_interface.h; sourceTree = "<group>"; };
+		A4BBAB992444D82B00BD4E57 /* lapacke.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lapacke.c; path = Algorithms/lapacke.c; sourceTree = "<group>"; };
+		A4BBAB9A2444D82B00BD4E57 /* jacobi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jacobi.c; path = Algorithms/jacobi.c; sourceTree = "<group>"; };
+		A4BBAB9B2444D82B00BD4E57 /* smacof_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof_utils.c; path = Algorithms/smacof_utils.c; sourceTree = "<group>"; };
+		A4BBAB9C2444D82B00BD4E57 /* smacof.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof.c; path = Algorithms/smacof.c; sourceTree = "<group>"; };
+		A4BBAB9D2444D82B00BD4E57 /* smacof.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = smacof.h; path = Algorithms/smacof.h; sourceTree = "<group>"; };
 		A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MLJCMapNewView.cpp; sourceTree = "<group>"; };
 		A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCMapNewView.h; sourceTree = "<group>"; };
 		A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupingMapView.h; sourceTree = "<group>"; };
@@ -969,6 +978,7 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4BBAB982444D81300BD4E57 /* smacof */,
 				A4F733C82416B75600AEDCFE /* loess */,
 				A41C2BA72400441400C341A2 /* distanceplot.cpp */,
 				A41C2BA62400441400C341A2 /* distanceplot.h */,
@@ -1058,6 +1068,18 @@
 				A47614AB20759E5600D9F3BE /* arcgis_swm.h */,
 			);
 			name = io;
+			sourceTree = "<group>";
+		};
+		A4BBAB982444D81300BD4E57 /* smacof */ = {
+			isa = PBXGroup;
+			children = (
+				A4BBAB9A2444D82B00BD4E57 /* jacobi.c */,
+				A4BBAB992444D82B00BD4E57 /* lapacke.c */,
+				A4BBAB9B2444D82B00BD4E57 /* smacof_utils.c */,
+				A4BBAB9C2444D82B00BD4E57 /* smacof.c */,
+				A4BBAB9D2444D82B00BD4E57 /* smacof.h */,
+			);
+			name = smacof;
 			sourceTree = "<group>";
 		};
 		A4CFF027207D6D7500E2E6DE /* internationalization */ = {
@@ -1810,6 +1832,7 @@
 				A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
+				A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
 				A46099A62416E41B000A53E2 /* loessf.c in Sources */,
 				DD64A2880F20FE06006B1E6D /* GeneralWxUtils.cpp in Sources */,
@@ -1908,6 +1931,7 @@
 				A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */,
 				A4368CDC1FABBBC60099FA9B /* mds.cpp in Sources */,
 				DD64925C16DFF63400B3B0AB /* GeoDa.cpp in Sources */,
+				A4BBABA02444D82B00BD4E57 /* smacof_utils.c in Sources */,
 				A47FC9DB1F74DE1600BEFBF2 /* MLJCCoordinator.cpp in Sources */,
 				A12E0F4F1705087A00B6059C /* OGRDataAdapter.cpp in Sources */,
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,
@@ -1933,6 +1957,7 @@
 				A1E7813B178A90A100CC1037 /* OGRLayerProxy.cpp in Sources */,
 				DD2A6FE0178C7F7C00197093 /* DataSource.cpp in Sources */,
 				A1F1BA5C178D3B46005A46E5 /* GdaCache.cpp in Sources */,
+				A4BBAB9F2444D82B00BD4E57 /* jacobi.c in Sources */,
 				DD92D22417BAAF2300F8FE01 /* TimeEditorDlg.cpp in Sources */,
 				A1DA623A17BCBC070070CAAB /* AutoCompTextCtrl.cpp in Sources */,
 				A1B93AC017D18735007F8195 /* ProjectConf.cpp in Sources */,
@@ -2011,6 +2036,7 @@
 				DD72C19A1AAE95480000420B /* SpatialIndAlgs.cpp in Sources */,
 				DDD2392D1AB86D8F00E4E1BF /* NumericTests.cpp in Sources */,
 				A43D31541E845985007488D9 /* LocalGearyCoordinator.cpp in Sources */,
+				A4BBAB9E2444D82B00BD4E57 /* lapacke.c in Sources */,
 				A43D124F1F2088D50073D408 /* spectral.cpp in Sources */,
 				A42B6F781F666C57004AFAB8 /* FieldNewCalcDateTimeDlg.cpp in Sources */,
 				DDFFC7CC1AC0E58B00F7DD6D /* CorrelogramView.cpp in Sources */,

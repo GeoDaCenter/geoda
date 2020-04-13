@@ -501,6 +501,14 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
    
     if (!results.empty()) {
 
+        wxString info_str;
+        info_str << "t-SNE (";
+        for (size_t k=0; k<col_names.size(); k++) {
+            info_str << col_names[k];
+            if (k < col_names.size()-1 ) info_str << ", ";
+        }
+        info_str << ")";
+        
         std::vector<SaveToTableEntry> new_data(new_col);
         std::vector<std::vector<double> > vals(new_col);
         std::vector<std::vector<bool> > undefs(new_col);
@@ -555,8 +563,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 wxString title = _("t-SNE Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project,
-                                 stress, r,
+                new MDSPlotFrame(parent, project, info_str,
+                                 stress, r, 0, 0,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,

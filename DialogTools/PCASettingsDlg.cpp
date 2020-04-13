@@ -335,7 +335,6 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
         row_lim = nrows;
         col_lim = ncols;
     }
-    
     //https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
     /*
     pca_log << "\n\nRotated data: \n";

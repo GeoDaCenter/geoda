@@ -1765,8 +1765,6 @@ bool ScatterNewPlotCanvas::UpdateDisplayLinesAndMargins()
 	if (IsDisplayStats() && stats_table && IsShowLinearSmoother()) {
 		wxClientDC dc(this);	
 		stats_table->GetSize(dc, table_w, table_h);
-		LOG(table_w);
-		LOG(table_h);
 	}
 	last_scale_trans.bottom_margin = 50;
 	if (!IsDisplayStats() || !IsShowLinearSmoother()) {
@@ -2264,8 +2262,8 @@ MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* 
     DisplayStatistics(display_stats);
 }
 
-MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, double stress, double rank_corr, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
-: stress(stress), rank_corr(rank_corr), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project, wxString info_str, double stress, double rank_corr, double eps, int itel, const std::vector<GdaVarTools::VarInfo>& var_info, const std::vector<int>& col_ids,bool is_bubble_plot, bool standardized, const wxPoint& pos, const wxSize& size)
+: stress(stress), rank_corr(rank_corr), info_str(info_str), eps(eps), itel(itel), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
 
 }
@@ -2318,12 +2316,19 @@ void MDSPlotCanvas::OnCreateWeights()
 void MDSPlotCanvas::UpdateDisplayStats()
 {
     if (IsDisplayStats()) {
-        // fill out the regression stats table
+        // add method and variable names
+        GdaShapeText* info_text = new GdaShapeText(info_str, *GdaConst::small_font,
+                                           wxRealPoint(50, 100), 0,
+                                           GdaShapeText::h_center,
+                                           GdaShapeText::v_center,
+                                           0, -35);
+        ApplyLastResizeToShp(info_text);
+        foreground_shps.push_back(info_text);
+        // fill out the stats table
         int rows = 2;
-        int cols = 2;
+        int cols = 4;
         std::vector<wxString> vals(rows*cols);
         std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
-        int i=0; int j=0;
 
         attributes[0].color = *wxBLACK;
         vals[0] = "stress value";
@@ -2333,6 +2338,14 @@ void MDSPlotCanvas::UpdateDisplayStats()
         vals[2] = "rank correlation";
         attributes[3].color = selectable_outline_color;
         vals[3] << GenUtils::DblToStr(rank_corr, display_precision,  display_precision_fixed_point);
+        attributes[4].color = *wxBLACK;
+        vals[4] = "convergence criterion";
+        attributes[5].color = selectable_outline_color;
+        vals[5] << eps;
+        attributes[6].color = *wxBLACK;
+        vals[6] = "final # of iterations";
+        attributes[7].color = selectable_outline_color;
+        vals[7] << itel;
 
         int x_nudge = last_scale_trans.GetXNudge();
 
@@ -2343,7 +2356,7 @@ void MDSPlotCanvas::UpdateDisplayStats()
                                              GdaShapeText::top,
                                              GdaShapeText::h_center,
                                              GdaShapeText::v_center,
-                                             3, 8, -x_nudge, 45)); //62));
+                                             3, 8, -x_nudge, 45));
         stats_table->setPen(*wxBLACK_PEN);
         stats_table->hidden = false;
         chow_test_text->setText("");
@@ -2368,6 +2381,7 @@ bool MDSPlotCanvas::UpdateDisplayLinesAndMargins()
         wxClientDC dc(this);
         stats_table->GetSize(dc, table_w, table_h);
     }
+    last_scale_trans.top_margin = 60; // adding variable + method info
     last_scale_trans.bottom_margin = 50;
     if (!IsDisplayStats()) {
         lines = 0;
@@ -2402,7 +2416,8 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
 }
 
 MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
-                           double stress, double rank_corr,
+                           wxString info_str, double stress, double rank_corr,
+                           double eps, int itel,
                            const std::vector<GdaVarTools::VarInfo>& var_info,
                            const std::vector<int>& col_ids,
                            bool is_bubble_plot, const wxString& title,
@@ -2421,8 +2436,8 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
                                             wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
         splitter_win->SetMinimumPaneSize(10);
     }
-    template_canvas = new MDSPlotCanvas(this, this, project,
-                                        stress, rank_corr,
+    template_canvas = new MDSPlotCanvas(this, this, project, info_str,
+                                        stress, rank_corr, eps, itel,
                                         var_info, col_ids,
                                         is_bubble_plot,
                                         false, wxDefaultPosition,
@@ -2447,8 +2462,3 @@ void MDSPlotFrame::OnCreateWeights(wxCommandEvent& event)
     wxLogMessage("In MDSPlotFrame::OnCreateWeights()");
     ((MDSPlotCanvas*) template_canvas)->OnCreateWeights();
 }
-
-/////////////////////////////////////////////////////
-
-
-

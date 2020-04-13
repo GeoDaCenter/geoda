@@ -346,16 +346,13 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         for (size_t i=0; i< rows-1; ++i) { // col idx
             for (size_t j=1+i; j < rows; ++j) { // row idx
                 delta[idx] = ragged_distances[j][i];
-                // squared value for Manhattan distance as well
-                //if (dist == 'b') delta[idx] = delta[idx] * ragged_distances[j][i];
-                //std::cout << delta[idx] << ",";
                 idx += 1;
             }
         }
-         int m = idx;
+        int m = (int)idx;
 
         // init random xold for smacof
-        boost::mt19937 rng(GdaConst::gda_user_seed);
+        boost::mt19937 rng((const unsigned  int)GdaConst::gda_user_seed);
         boost::uniform_01<boost::mt19937> X(rng);
         double *xold = new double[m * new_col];
         for (size_t i=0; i< m * new_col; ++i) {
@@ -363,7 +360,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         }
 
         double *xnew;
-        stress = runSmacof(delta, m, new_col, n_iter, eps, xold, &itel, &xnew);
+        stress = runSmacof(delta, m, new_col, (int)n_iter, eps, xold, &itel, &xnew);
         delete[] delta;
 
         results.resize(new_col);
@@ -440,7 +437,14 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         SaveToTableDlg dlg(project, this, new_data,
                            _("Save Results: MDS"),
                            wxDefaultPosition, wxSize(400,400));
-        //dlg.SetCheck(2, false);
+        
+        wxString info_str;
+        info_str << combo_method->GetStringSelection() << " (";
+        for (size_t k=0; k<col_names.size(); k++) {
+            info_str << col_names[k];
+            if (k < col_names.size()-1 ) info_str << ", ";
+        }
+        info_str << ")";
         
         if (dlg.ShowModal() == wxID_OK) {
             // show in a scatter plot
@@ -450,7 +454,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
             // at least 2 variables
             if (new_col_ids.size() < 2) return;
 
-            int num_new_vars = new_col_ids.size();
+            size_t num_new_vars = new_col_ids.size();
 
             std::vector<GdaVarTools::VarInfo> new_var_info;
             new_var_info.resize(num_new_vars);
@@ -475,7 +479,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project, stress, r,
+                new MDSPlotFrame(parent, project, info_str, stress, r, eps, itel,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
