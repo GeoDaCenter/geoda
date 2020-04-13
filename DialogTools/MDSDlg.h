@@ -63,8 +63,6 @@ protected:
 
     wxChoice* m_distance;
     wxCheckBox* chk_poweriteration;
-    wxTextCtrl* txt_poweriteration;
-    wxStaticText* lbl_poweriteration;
     wxStaticText* txt_usepower;
     wxStaticText* txt_maxit;
     wxStaticText* txt_eps;

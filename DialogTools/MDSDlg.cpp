@@ -82,27 +82,26 @@ void MDSDlg::CreateControls()
     txt_usepower= new wxStaticText(panel, wxID_ANY, _("Use Power Iteration:"));
     wxBoxSizer *hbox15 = new wxBoxSizer(wxHORIZONTAL);
     chk_poweriteration = new wxCheckBox(panel, wxID_ANY, "");
-    lbl_poweriteration = new wxStaticText(panel, wxID_ANY, _("# Max Iteration:"));
-    txt_poweriteration = new wxTextCtrl(panel, wxID_ANY, "100",wxDefaultPosition, wxSize(70,-1));
-    txt_poweriteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
+
     chk_poweriteration->Bind(wxEVT_CHECKBOX, &MDSDlg::OnCheckPowerIteration, this);
-    if (project->GetNumRecords() < 150) {
-        lbl_poweriteration->Disable();
-        txt_poweriteration->Disable();
-    } else {
-        chk_poweriteration->SetValue(true);
-    }
+
     hbox15->Add(chk_poweriteration);
-    hbox15->Add(lbl_poweriteration);
-    hbox15->Add(txt_poweriteration);
     gbox->Add(txt_usepower, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox15, 1, wxEXPAND);
     
     // smacof
     txt_maxit = new wxStaticText(panel, wxID_ANY, _("Maximum # of Iterations:"));
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "100", wxDefaultPosition, wxSize(200,-1));
+    m_iterations->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
     gbox->Add(txt_maxit, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
+
+    if (project->GetNumRecords() < 150) {
+        txt_maxit->Disable();
+        m_iterations->Disable();
+    } else {
+        chk_poweriteration->SetValue(true);
+    }
 
     txt_eps = new wxStaticText(panel, wxID_ANY, _("Convergence Criterion:"));
     m_eps = new wxTextCtrl(panel, wxID_ANY, "0.000001", wxDefaultPosition, wxSize(200,-1));
@@ -180,12 +179,11 @@ void MDSDlg::OnMethodChoice(wxCommandEvent &event)
     m_eps->Enable(flag);
     m_distance->Enable(flag);
     txt_maxit->Enable(flag);
+    m_iterations->Enable(flag);
     txt_eps->Enable(flag);
     if (flag) chk_poweriteration->SetValue(false);
 
     chk_poweriteration->Enable(!flag);
-    txt_poweriteration->Enable(!flag);
-    lbl_poweriteration->Enable(!flag);
     txt_usepower->Enable(!flag);
     if (!flag) m_distance->SetSelection(0);
 }
@@ -193,11 +191,11 @@ void MDSDlg::OnMethodChoice(wxCommandEvent &event)
 void MDSDlg::OnCheckPowerIteration(wxCommandEvent& event)
 {
     if (chk_poweriteration->IsChecked()) {
-        txt_poweriteration->Enable();
-        lbl_poweriteration->Enable();
+        m_iterations->Enable();
+        txt_maxit->Enable();
     } else {
-        txt_poweriteration->Disable();
-        lbl_poweriteration->Disable();
+        m_iterations->Disable();
+        txt_maxit->Disable();
     }
 }
 
@@ -390,7 +388,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 }
             }
             wxString str_iterations;
-            str_iterations = txt_poweriteration->GetValue();
+            str_iterations = m_iterations->GetValue();
             long l_iterations = 0;
             str_iterations.ToLong(&l_iterations);
             FastMDS mds(distances, new_col, (int)l_iterations);
