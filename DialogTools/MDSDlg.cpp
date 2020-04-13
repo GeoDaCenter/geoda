@@ -336,6 +336,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
     vector<vector<double> > results;
     double stress = 0;
     int itel = 0;
+    std::vector<std::pair<wxString, double> > output_vals;
 
     double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 
@@ -374,6 +375,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         }
         free(xnew);
 
+        output_vals.push_back(std::make_pair("convergence criterion", eps));
+        output_vals.push_back(std::make_pair("final # of iterations", itel));
     } else {
         if (chk_poweriteration->IsChecked()) {
             // classical MDS with power iteration and full matrix
@@ -410,6 +413,10 @@ void MDSDlg::OnOK(wxCommandEvent& event )
 
     stress = _calculateStress(dist, rows, ragged_distances, results);
     double r = _calculateRankCorr(dist, rows, ragged_distances, results);
+
+    output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", r));
+    output_vals.insert(output_vals.begin(), std::make_pair("stress value", stress));
+
     // clean distance matrix
     for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
     free(ragged_distances);
@@ -477,9 +484,9 @@ void MDSDlg::OnOK(wxCommandEvent& event )
 
             if (num_new_vars == 2) {
                 wxString title = _("MDS Plot - ") + new_col_names[0] + ", " + new_col_names[1];
-            
+
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project, info_str, stress, r, eps, itel,
+                new MDSPlotFrame(parent, project, info_str, output_vals,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
@@ -503,7 +510,7 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,
                                  new_var_info, new_col_ids,
-                                 title, addition_text, wxDefaultPosition,
+                                 title, info_str, output_vals, wxDefaultPosition,
                                  GdaConst::three_d_default_size,
                                  wxDEFAULT_FRAME_STYLE);
             }

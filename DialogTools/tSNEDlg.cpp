@@ -432,7 +432,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         return;
     }
     long max_iteration;
-    val = txt_learningrate->GetValue();
+    val = txt_iteration->GetValue();
     if (!val.ToLong(&max_iteration)) {
         wxString err_msg = _("Please input a valid numeric value for max iterations.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"),
@@ -475,11 +475,12 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
 #endif
     double early_exaggeration = 12;
 
+    double final_cost;
     TSNE tsne;
     tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
              max_iteration, (int)mom_switch_iter,
             (int)GdaConst::gda_user_seed, GdaConst::use_gda_user_seed,
-            verbose, early_exaggeration, learningrate, NULL);
+            verbose, early_exaggeration, learningrate, &final_cost);
 
     results.resize(new_col);
     for (int i=0; i<new_col; i++) {
@@ -495,6 +496,10 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     double stress = _calculateStress(dist, rows, ragged_distances, results);
     for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
     free(ragged_distances);
+
+    std::vector<std::pair<wxString, double> > output_vals;
+    output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", r));
+    output_vals.insert(output_vals.begin(), std::make_pair("final cost", final_cost));
 
     delete[] Y;
     delete[] data;
@@ -563,8 +568,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 wxString title = _("t-SNE Plot - ") + new_col_names[0] + ", " + new_col_names[1];
             
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project, info_str,
-                                 stress, r, 0, 0,
+                new MDSPlotFrame(parent, project, info_str, output_vals,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
@@ -589,7 +593,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,
                                  new_var_info, new_col_ids,
-                                 title,addition_text, wxDefaultPosition,
+                                 title, info_str, output_vals, wxDefaultPosition,
                                  GdaConst::three_d_default_size,
                                  wxDEFAULT_FRAME_STYLE);
             }

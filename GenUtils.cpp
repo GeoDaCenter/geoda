@@ -1286,8 +1286,6 @@ wxString GenUtils::DblToStr(double x, int precision, bool fixed_point)
         ss << x;
     }
 
-    //ss << std::setprecision(precision);
-    //ss << x;
 	return wxString(ss.str().c_str(), wxConvUTF8);
 }
 

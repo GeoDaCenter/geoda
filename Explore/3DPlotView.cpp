@@ -1158,7 +1158,8 @@ END_EVENT_TABLE()
 C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 						   const std::vector<GdaVarTools::VarInfo>& var_info,
 						   const std::vector<int>& col_ids,
-						   const wxString& title, const wxString& add_text,
+						   const wxString& title, const wxString& info_text,
+                           const std::vector<std::pair<wxString, double> >& output_vals,
                            const wxPoint& pos,
 						   const wxSize& size, const long style)
 	: TemplateFrame(parent, project, title, pos, size, style)
@@ -1173,7 +1174,7 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 								wxDefaultSize, wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	control->template_frame = this;
 
-    if (add_text.IsEmpty()) {
+    if (info_text.IsEmpty()) {
         canvas = new C3DPlotCanvas(project, this, glAttributes,
                                    project->GetHighlightState(),
                                    var_info, col_ids,
@@ -1182,15 +1183,38 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
     } else {
         wxPanel *panel = new wxPanel(m_splitter);
         panel->SetBackgroundColour(*wxBLACK);
-        wxStaticText* st = new wxStaticText(panel, wxID_ANY, add_text);
+        wxStaticText* st = new wxStaticText(panel, wxID_ANY, info_text);
         st->SetForegroundColour(*wxWHITE);
         canvas = new C3DPlotCanvas(project, this, glAttributes,
                                    project->GetHighlightState(),
                                    var_info, col_ids,
                                    panel);
+
         wxBoxSizer *container = new wxBoxSizer(wxVERTICAL);
         container->Add(st, 0, wxALIGN_CENTER | wxALL, 0);
         container->Add(canvas, 1, wxEXPAND | wxALL);
+
+        int idx = 0;
+        int display_precision = 3;
+        wxString out_text;
+
+        for (size_t i=0; i<output_vals.size(); ++i) {
+            out_text << output_vals[i].first << ": ";
+            idx = idx + 1;
+            if (output_vals[i].second < pow(0.1, display_precision)) {
+                out_text << output_vals[i].second;
+            } else {
+                out_text << GenUtils::DblToStr(output_vals[i].second, display_precision,  false);
+            }
+            out_text << " ";
+            idx = idx + 1;
+            if (idx == output_vals.size() || idx % 4 == 0) {
+                wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, out_text);
+                st1->SetForegroundColour(*wxWHITE);
+                container->Add(st1, 0, wxALIGN_CENTER | wxALL, 0);
+                out_text = "";
+            }
+        }
         panel->SetSizer(container);
 
         wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);
