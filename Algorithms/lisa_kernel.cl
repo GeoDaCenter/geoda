@@ -158,28 +158,44 @@ __kernel void lisa(const int n, const int permutations, const unsigned long last
     }
     
     size_t max_rand = n-1;
+    int newRandom;
+
+    size_t perm=0;
+    size_t rand = 0;
+
+    bool is_valid;
+    double rng_val;
+    double permutedLag =0;
+    double localMoranPermuted=0;
     size_t countLarger = 0;
 
-    int rnd_dict[123];
+    size_t rnd_numbers[123]; // 1234 can be replaced with max #nbr
 
-    for (size_t perm=0; perm<permutations; perm++ ) {
-        size_t randNeighbors = 0;
-        double permutedLag = 0;
-        init_bucket(rnd_dict, 123);
+    for (perm=0; perm<permutations; perm++ ) {
+        rand=0;
+        permutedLag =0;
+        while (rand < numNeighbors) {
+            is_valid = true;
+            rng_val = ThomasWangHashDouble(seed_start++) * max_rand;
+            newRandom = (int)rng_val;
 
-        while (randNeighbors < numNeighbors) {
-            double rng_val = ThomasWangHashDouble(seed_start++) * max_rand;
-            int newRandom = (int)rng_val;
-
-            if (search_bucket(newRandom, rnd_dict, 123) == false) {
-                permutedLag += values[newRandom];
-                //rnd_numbers[rand] = newRandom;
-                randNeighbors++;
-                insert_bucket(newRandom, rnd_dict, 123);
+            if (newRandom != i ) {
+                for (j=0; j<rand; j++) {
+                    if (newRandom == rnd_numbers[j]) {
+                        is_valid = false;
+                        break;
+                    }
+                }
+                if (is_valid) {
+                    permutedLag += values[newRandom];
+                    rnd_numbers[rand] = newRandom;
+                    rand++;
+                }
             }
+
         }
         permutedLag /= numNeighbors;
-        double localMoranPermuted = permutedLag * values[i];
+        localMoranPermuted = permutedLag * values[i];
         if (localMoranPermuted > local_moran[i]) {
             countLarger++;
         }
