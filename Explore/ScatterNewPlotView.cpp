@@ -2263,15 +2263,17 @@ MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* 
 }
 
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
-                             Project* project, const wxString& info_str,
+                             Project* project, const std::vector<wxString>& info_str,
                              const std::vector<std::pair<wxString, double> >& output_vals,
                              const std::vector<GdaVarTools::VarInfo>& var_info,
                              const std::vector<int>& col_ids,
                              bool is_bubble_plot, bool standardized,
                              const wxPoint& pos, const wxSize& size)
-: info_str(info_str), output_vals(output_vals), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+: vn_tbl(0), info_str(info_str), output_vals(output_vals), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
-
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = true;
+    foreground_shps.push_back(vn_tbl);
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
@@ -2323,16 +2325,41 @@ void MDSPlotCanvas::UpdateDisplayStats()
 {
     if (IsDisplayStats()) {
         // add method and variable names
-        GdaShapeText* info_text = new GdaShapeText(info_str, *GdaConst::small_font,
-                                           wxRealPoint(50, 100), 0,
-                                           GdaShapeText::h_center,
-                                           GdaShapeText::v_center,
-                                           0, -35);
-        ApplyLastResizeToShp(info_text);
-        foreground_shps.push_back(info_text);
+        wxClientDC dc(this);
+        int w, h;
+        dc.GetSize(dc, w, h);
+        std::vector<wxString> vn_vals;
+        wxString tmp_info_str;
+        for (size_t k=0; k<info_str.size(); k++) {
+            tmp_info_str << info_str[k];
+            if (tmp_info_str.length() * 10 > w - 50) {
+                vn_vals.push_back(tmp_info_str);
+                tmp_info_str = "";
+            } else if (k < info_str.size()-1 ) {
+                tmp_info_str << ", ";
+            }
+        }
+        int rows = vn_vals.size();
+        int cols = 1;
+        std::vector<GdaShapeTable::CellAttrib> vn_attributes(rows*cols);
+
+        int x_nudge = last_scale_trans.GetXNudge();
+        vn_tbl->operator=(GdaShapeTable(vn_vals, vn_attributes,
+                                                  rows, cols,
+                                                  *GdaConst::small_font,
+                                                  wxRealPoint(50, 0),
+                                                  GdaShapeText::h_center,
+                                                  GdaShapeText::v_center,
+                                                  GdaShapeText::h_center,
+                                                  GdaShapeText::v_center,
+                                                  3, 8, -x_nudge, 70));
+        vn_tbl->setPen(*wxBLACK_PEN);
+        vn_tbl->hidden = false;
+        ApplyLastResizeToShp(vn_tbl);
+        //foreground_shps.push_back(vn_tbl);
         // fill out the stats table
-        int rows = 2;
-        int cols = (int)output_vals.size();
+        rows = 2;
+        cols = (int)output_vals.size();
         std::vector<wxString> vals(rows*cols);
         std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
         size_t idx = 0;
@@ -2347,7 +2374,7 @@ void MDSPlotCanvas::UpdateDisplayStats()
                 vals[idx] << GenUtils::DblToStr(output_vals[i].second, display_precision,  display_precision_fixed_point);
             idx = idx + 1;
         }
-        int x_nudge = last_scale_trans.GetXNudge();
+        x_nudge = last_scale_trans.GetXNudge();
         stats_table->operator=(GdaShapeTable(vals, attributes, rows, cols,
                                              *GdaConst::small_font,
                                              wxRealPoint(50, 0),
@@ -2365,7 +2392,7 @@ void MDSPlotCanvas::UpdateDisplayStats()
     } else {
         chow_test_text->setText("");
         chow_test_text->hidden = true;
-
+        if (vn_tbl) vn_tbl->hidden = true;
         stats_table->hidden = true;
     }
     layer2_valid = false;
@@ -2378,9 +2405,14 @@ bool MDSPlotCanvas::UpdateDisplayLinesAndMargins()
     int table_w=0, table_h=0;
     if (IsDisplayStats() && stats_table) {
         wxClientDC dc(this);
-        stats_table->GetSize(dc, table_w, table_h);
+        int w, h;
+        stats_table->GetSize(dc, w, h);
+        table_w = w;
+        table_h += h;
+        vn_tbl->GetSize(dc, w, h);
+        table_h += h;
     }
-    last_scale_trans.top_margin = 60; // adding variable + method info
+
     last_scale_trans.bottom_margin = 50;
     if (!IsDisplayStats()) {
         lines = 0;
@@ -2415,7 +2447,7 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
 }
 
 MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
-                           const wxString& info_str,
+                           const std::vector<wxString>& info_str,
                            const std::vector<std::pair<wxString, double> >& output_vals,
                            const std::vector<GdaVarTools::VarInfo>& var_info,
                            const std::vector<int>& col_ids,

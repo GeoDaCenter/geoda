@@ -506,13 +506,11 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
    
     if (!results.empty()) {
 
-        wxString info_str;
-        info_str << "t-SNE (";
+        wxString method_str = combo_method->GetStringSelection();
+        std::vector<wxString> info_str;
         for (size_t k=0; k<col_names.size(); k++) {
-            info_str << col_names[k];
-            if (k < col_names.size()-1 ) info_str << ", ";
+            info_str.push_back(col_names[k]);
         }
-        info_str << ")";
         
         std::vector<SaveToTableEntry> new_data(new_col);
         std::vector<std::vector<double> > vals(new_col);
@@ -565,8 +563,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             new_var_info[1].fixed_scale = true;
 
             if (num_new_vars == 2) {
-                wxString title = _("t-SNE Plot - ") + new_col_names[0] + ", " + new_col_names[1];
-            
+                wxString title = _("t-SNE Plot (%s) - %s, %s");
+                title = wxString::Format(title, method_str, new_col_names[0], new_col_names[1]);
                 MDSPlotFrame* subframe =
                 new MDSPlotFrame(parent, project, info_str, output_vals,
                                     new_var_info, new_col_ids,
@@ -587,7 +585,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 new_var_info[2].sync_with_global_time = new_var_info[2].is_time_variant;
                 new_var_info[2].fixed_scale = true;
 
-                wxString title = _("t-SNE 3D Plot - ") + new_col_names[0] + ", " + new_col_names[1] + ", " + new_col_names[2];
+
+                wxString title = _("t-SNE 3D Plot (%s) - %s, %s, %s");
                 wxString addition_text = wxString::Format("stress: %.3f, rank correlation: %.3f", stress, r);
 
                 C3DPlotFrame *subframe =

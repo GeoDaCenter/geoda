@@ -237,8 +237,8 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
         //printf("%f\n", p[i]);
     
     // Clean up
-    ret = clFlush(command_queue);
-    ret = clFinish(command_queue);
+    //ret = clFlush(command_queue);
+    //ret = clFinish(command_queue);
     ret = clReleaseKernel(kernel);
     ret = clReleaseProgram(program);
     ret = clReleaseMemObject(a_mem_obj);
@@ -246,7 +246,7 @@ bool gpu_lisa(const char* cl_path, int rows, int permutations, unsigned long lon
     ret = clReleaseMemObject(c_mem_obj);
     ret = clReleaseMemObject(d_mem_obj);
     ret = clReleaseMemObject(p_mem_obj);
-    ret = clReleaseCommandQueue(command_queue);
+    //ret = clReleaseCommandQueue(command_queue);
     ret = clReleaseContext(context);
 
 	if (ret != CL_SUCCESS) {

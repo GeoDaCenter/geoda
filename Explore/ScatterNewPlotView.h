@@ -209,7 +209,7 @@ protected:
 	
 	GdaPolyLine* reg_line;
 	GdaSpline* lowess_reg_line;
-	GdaShapeTable* stats_table;
+    GdaShapeTable* stats_table;
 	GdaShapeText* chow_test_text;
 	
 	bool show_reg_selected;
@@ -351,7 +351,7 @@ public:
                   const wxSize& size = wxDefaultSize);
     MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
                   Project* project,
-                  const wxString& info_str,
+                  const std::vector<wxString>& info_str,
                   const std::vector<std::pair<wxString, double> >& output_vals,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
                   const std::vector<int>& col_ids,
@@ -367,7 +367,8 @@ public:
 
     void OnCreateWeights();
 
-    wxString info_str;
+    GdaShapeTable* vn_tbl;
+    std::vector<wxString> info_str;
     std::vector<std::pair<wxString, double> > output_vals;
     DECLARE_EVENT_TABLE()
 };
@@ -382,7 +383,7 @@ public:
                  const long style = wxDEFAULT_FRAME_STYLE);
     
     MDSPlotFrame(wxFrame *parent, Project* project,
-                 const wxString& info_str,
+                 const std::vector<wxString>& info_str,
                  const std::vector<std::pair<wxString, double> >& output_vals,
                  const std::vector<GdaVarTools::VarInfo>& var_info,
                  const std::vector<int>& col_ids,
