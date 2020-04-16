@@ -147,6 +147,8 @@ protected:
     virtual void TimeChange();
     virtual void PopulateCanvas();
     virtual void PopCanvPreResizeShpsHook();
+    virtual void DrawLayer2();
+
     void VarInfoAttributeChange();
     
 	ScatterPlotPens pens;
@@ -364,12 +366,18 @@ public:
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     virtual void UpdateDisplayStats();
     bool virtual UpdateDisplayLinesAndMargins();
-
+    virtual void UpdateSelection(bool shiftdown, bool pointsel);
+    
     void OnCreateWeights();
 
+protected:
+    virtual void PopulateCanvas();
+    virtual void DrawLayer2();
+    
     GdaShapeTable* vn_tbl;
     std::vector<wxString> info_str;
     std::vector<std::pair<wxString, double> > output_vals;
+
     DECLARE_EVENT_TABLE()
 };
 

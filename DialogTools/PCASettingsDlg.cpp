@@ -308,7 +308,11 @@ void PCASettingsDlg::OnOK(wxCommandEvent& event )
             while (pos < n_len){
                 if ( start && sub_len > 0 && (token[pos] == ' ' || pos == n_len-1) ) {
                     // end of a number
-                    pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    if (pc_idx < 10) {
+                        pca_log << wxString::Format("%*s%d", sub_len-1, "PC", pc_idx++);
+                    } else {
+                        pca_log << wxString::Format("%*s%d", sub_len-2, "PC", pc_idx++);
+                    }
                     sub_len = 1;
                     start = false;
                 } else {

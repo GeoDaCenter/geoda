@@ -1353,6 +1353,11 @@ void ScatterNewPlotCanvas::ShowLowessSmoother(bool display)
 	PopulateCanvas();
 }
 
+void ScatterNewPlotCanvas::DrawLayer2()
+{
+    TemplateCanvas::DrawLayer2();
+}
+
 void ScatterNewPlotCanvas::ChangeLoessParams(double f, int iter,
                                              double delta_factor)
 
@@ -2269,16 +2274,40 @@ MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
                              const std::vector<int>& col_ids,
                              bool is_bubble_plot, bool standardized,
                              const wxPoint& pos, const wxSize& size)
-: vn_tbl(0), info_str(info_str), output_vals(output_vals), ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
+: vn_tbl(0), info_str(info_str), output_vals(output_vals),
+ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot, standardized, pos, size)
 {
     vn_tbl = new GdaShapeTable();
-    vn_tbl->hidden = true;
+    vn_tbl->hidden = false;
     foreground_shps.push_back(vn_tbl);
+
+    ShowLinearSmoother(false);
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
 {
     
+}
+
+void MDSPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
+{
+    TemplateCanvas::UpdateSelection(shiftdown, pointsel);
+}
+
+void MDSPlotCanvas::DrawLayer2()
+{
+    foreground_shps.pop_back();
+    foreground_shps.pop_back();
+    stats_table = new GdaShapeTable();
+    stats_table->hidden = true;
+    foreground_shps.push_back(stats_table);
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = true;
+    foreground_shps.push_back(vn_tbl);
+    UpdateDisplayStats();
+    UpdateDisplayLinesAndMargins();
+    TemplateCanvas::DrawLayer2();
+
 }
 
 void MDSPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -2321,49 +2350,196 @@ void MDSPlotCanvas::OnCreateWeights()
     dlg.ShowModal();
 }
 
+void MDSPlotCanvas::PopulateCanvas()
+{
+    wxSize size(GetVirtualSize());
+    int screen_w = size.GetWidth();
+    int screen_h = size.GetHeight();
+    last_scale_trans.SetView(screen_w, screen_h);
+
+    pens.SetPenColor(pens.GetRegPen(), selectable_outline_color);
+    pens.SetPenColor(pens.GetRegSelPen(), highlight_color);
+    pens.SetPenColor(pens.GetRegExlPen(), selectable_fill_color);
+
+    BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
+    background_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
+    selectable_shps.clear();
+    BOOST_FOREACH( GdaShape* shp, foreground_shps ) { delete shp; }
+    foreground_shps.clear();
+
+    int xt = var_info[0].time-var_info[0].time_min;
+    int yt = var_info[1].time-var_info[1].time_min;
+
+    // for undefined values, we have to search [min max] for both axies
+    double x_max = DBL_MIN, x_min = DBL_MAX, y_max = DBL_MIN, y_min = DBL_MAX;
+    bool has_init = false;
+
+    XYZ_undef.resize(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        X[i] = x_data[xt][i];
+        Y[i] = y_data[yt][i];
+        XYZ_undef[i] = x_undef_data[xt][i] ||y_undef_data[yt][i];
+        if (!XYZ_undef[i]) {
+            if (!has_init) {
+                x_max = X[i];
+                x_min = X[i];
+                y_max = Y[i];
+                y_min = Y[i];
+                has_init = true;
+            } else {
+                if (X[i] > x_max)
+                    x_max = X[i];
+                if (X[i] < x_min)
+                    x_min = X[i];
+                if (Y[i] > y_max)
+                    y_max = Y[i];
+                if (Y[i] < y_min)
+                    y_min = Y[i];
+            }
+        }
+    }
+
+    if (standardized) {
+        double local_x_max = DBL_MIN;
+        double local_x_min = DBL_MAX;
+        double local_y_max = DBL_MIN;
+        double local_y_min = DBL_MAX;
+        for (int i=0, iend=X.size(); i<iend; i++) {
+            X[i] = (X[i]-statsX.mean)/statsX.sd_with_bessel;
+            Y[i] = (Y[i]-statsY.mean)/statsY.sd_with_bessel;
+            if (is_bubble_plot) {
+                Z[i] = (Z[i]-statsZ.mean)/statsZ.sd_with_bessel;
+            }
+            if (local_x_max < X[i]) local_x_max = X[i];
+            if (local_x_min > X[i]) local_x_min = X[i];
+            if (local_y_max < Y[i]) local_y_max = Y[i];
+            if (local_y_min > Y[i]) local_y_min = Y[i];
+        }
+        x_max = local_x_max;
+        x_min = local_x_min;
+        y_max = local_y_max;
+        y_min = local_y_min;
+    }
+
+    if (var_info[0].is_moran || (!var_info[0].fixed_scale && !standardized)) {
+        x_max = var_info[0].max[var_info[0].time];
+        x_min = var_info[0].min[var_info[0].time];
+    } else if (var_info[0].fixed_scale && !standardized) {
+        // this is for fixed x-axis over time
+        x_max = var_info[0].max_over_time;
+        x_min = var_info[0].min_over_time;
+    }
+    if (var_info[1].is_moran || (!var_info[1].fixed_scale && !standardized)) {
+        y_max = var_info[1].max[var_info[1].time];
+        y_min = var_info[1].min[var_info[1].time];
+    } else if (var_info[1].fixed_scale&& !standardized){
+        // this is for fixed y-axis over time
+        y_max = var_info[1].max_over_time;
+        y_min = var_info[1].min_over_time;
+    }
+
+    double x_pad = 0.1 * (x_max - x_min);
+    double y_pad = 0.1 * (y_max - y_min);
+    axis_scale_x = AxisScale(x_min - x_pad, x_max + x_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+    axis_scale_y = AxisScale(y_min - y_pad, y_max + y_pad, 5,
+                             axis_display_precision, axis_display_fixed_point);
+
+    // Populate TemplateCanvas::selectable_shps
+    selectable_shps.resize(num_obs);
+    selectable_shps_undefs.resize(num_obs);
+    scaleX = 100.0 / (axis_scale_x.scale_range);
+    scaleY = 100.0 / (axis_scale_y.scale_range);
+
+    {
+        selectable_shps_type = points;
+        for (int i=0; i<num_obs; i++) {
+            selectable_shps_undefs[i] = XYZ_undef[i];
+            selectable_shps[i] =
+            new GdaPoint(wxRealPoint((X[i] - axis_scale_x.scale_min) * scaleX,
+                                     (Y[i] - axis_scale_y.scale_min) * scaleY));
+        }
+    }
+
+    // create axes
+    x_baseline = new GdaAxis(GetNameWithTime(0), axis_scale_x,
+                             wxRealPoint(0,0), wxRealPoint(100, 0));
+    x_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+    foreground_shps.push_back(x_baseline);
+    y_baseline = new GdaAxis(GetNameWithTime(1), axis_scale_y,
+                             wxRealPoint(0,0), wxRealPoint(0, 100));
+    y_baseline->setPen(*GdaConst::scatterplot_scale_pen);
+    foreground_shps.push_back(y_baseline);
+
+    // create optional axes through origin
+    x_axis_through_origin = new GdaPolyLine(0,50,100,50);
+    x_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+    y_axis_through_origin = new GdaPolyLine(50,0,50,100);
+    y_axis_through_origin->setPen(*wxTRANSPARENT_PEN);
+    foreground_shps.push_back(x_axis_through_origin);
+    foreground_shps.push_back(y_axis_through_origin);
+    UpdateAxesThroughOrigin();
+
+    stats_table = new GdaShapeTable();
+    stats_table->hidden = true;
+    foreground_shps.push_back(stats_table);
+
+    vn_tbl = new GdaShapeTable();
+    vn_tbl->hidden = true;
+    foreground_shps.push_back(vn_tbl);
+
+    UpdateDisplayStats();
+    PopCanvPreResizeShpsHook();
+    ResizeSelectableShps();
+}
+
 void MDSPlotCanvas::UpdateDisplayStats()
 {
     if (IsDisplayStats()) {
         // add method and variable names
         wxClientDC dc(this);
         int w, h;
-        dc.GetSize(dc, w, h);
+        dc.GetSize(&w, &h);
+        if (w<=0) w = 500;
         std::vector<wxString> vn_vals;
         wxString tmp_info_str;
         for (size_t k=0; k<info_str.size(); k++) {
             tmp_info_str << info_str[k];
-            if (tmp_info_str.length() * 10 > w - 50) {
+            if (tmp_info_str.length() * 10 > w - 20) {
                 vn_vals.push_back(tmp_info_str);
                 tmp_info_str = "";
             } else if (k < info_str.size()-1 ) {
                 tmp_info_str << ", ";
             }
         }
+        if (tmp_info_str.length() > 0) vn_vals.push_back(tmp_info_str);
         int rows = vn_vals.size();
         int cols = 1;
-        std::vector<GdaShapeTable::CellAttrib> vn_attributes(rows*cols);
-
         int x_nudge = last_scale_trans.GetXNudge();
-        vn_tbl->operator=(GdaShapeTable(vn_vals, vn_attributes,
-                                                  rows, cols,
-                                                  *GdaConst::small_font,
-                                                  wxRealPoint(50, 0),
-                                                  GdaShapeText::h_center,
-                                                  GdaShapeText::v_center,
-                                                  GdaShapeText::h_center,
-                                                  GdaShapeText::v_center,
-                                                  3, 8, -x_nudge, 70));
-        vn_tbl->setPen(*wxBLACK_PEN);
-        vn_tbl->hidden = false;
-        ApplyLastResizeToShp(vn_tbl);
+        if (rows > 0) {
+            std::vector<GdaShapeTable::CellAttrib> vn_attributes(rows*cols);
+            vn_tbl->operator=(GdaShapeTable(vn_vals, vn_attributes,
+                                            rows, cols,
+                                            *GdaConst::small_font,
+                                            wxRealPoint(50, 0),
+                                            GdaShapeText::h_center,
+                                            GdaShapeText::v_center,
+                                            GdaShapeText::h_center,
+                                            GdaShapeText::v_center,
+                                            3, 8, -x_nudge, 55));
+            vn_tbl->setPen(*wxBLACK_PEN);
+            vn_tbl->hidden = false;
+            ApplyLastResizeToShp(vn_tbl);
+        }
         //foreground_shps.push_back(vn_tbl);
         // fill out the stats table
-        rows = 2;
-        cols = (int)output_vals.size();
+        rows = 1;
+        cols = (int)output_vals.size() * 2;
         std::vector<wxString> vals(rows*cols);
         std::vector<GdaShapeTable::CellAttrib> attributes(rows*cols);
         size_t idx = 0;
-        for (size_t i=0; i<cols; ++i) {
+        for (size_t i=0; i<output_vals.size(); ++i) {
             //attributes[idx].color = *wxBLACK;
             vals[idx] = output_vals[i].first;
             idx = idx + 1;
@@ -2385,14 +2561,9 @@ void MDSPlotCanvas::UpdateDisplayStats()
                                              3, 8, -x_nudge, 45));
         stats_table->setPen(*wxBLACK_PEN);
         stats_table->hidden = false;
-        chow_test_text->setText("");
-        chow_test_text->hidden = true;
-        ApplyLastResizeToShp(chow_test_text);
         ApplyLastResizeToShp(stats_table);
     } else {
-        chow_test_text->setText("");
-        chow_test_text->hidden = true;
-        if (vn_tbl) vn_tbl->hidden = true;
+        vn_tbl->hidden = true;
         stats_table->hidden = true;
     }
     layer2_valid = false;
@@ -2411,6 +2582,7 @@ bool MDSPlotCanvas::UpdateDisplayLinesAndMargins()
         table_h += h;
         vn_tbl->GetSize(dc, w, h);
         table_h += h;
+        if (vn_tbl->rows>1) table_h += 2;
     }
 
     last_scale_trans.bottom_margin = 50;
@@ -2477,8 +2649,8 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
     if (title.empty())
         SetTitle(template_canvas->GetCanvasTitle());
     Show(true);
-    wxCommandEvent ev;
-    OnDisplayStatistics(ev);
+    //wxCommandEvent ev;
+    //OnViewLinearSmoother(ev);
 }
 
 MDSPlotFrame::~MDSPlotFrame()

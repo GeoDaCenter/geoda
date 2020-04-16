@@ -1158,7 +1158,8 @@ END_EVENT_TABLE()
 C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 						   const std::vector<GdaVarTools::VarInfo>& var_info,
 						   const std::vector<int>& col_ids,
-						   const wxString& title, const wxString& info_text,
+						   const wxString& title,
+                           const std::vector<wxString>& info_text,
                            const std::vector<std::pair<wxString, double> >& output_vals,
                            const wxPoint& pos,
 						   const wxSize& size, const long style)
@@ -1174,7 +1175,7 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
 								wxDefaultSize, wxCAPTION|wxDEFAULT_DIALOG_STYLE);
 	control->template_frame = this;
 
-    if (info_text.IsEmpty()) {
+    if (output_vals.empty()) {
         canvas = new C3DPlotCanvas(project, this, glAttributes,
                                    project->GetHighlightState(),
                                    var_info, col_ids,
@@ -1183,15 +1184,13 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
     } else {
         wxPanel *panel = new wxPanel(m_splitter);
         panel->SetBackgroundColour(*wxBLACK);
-        wxStaticText* st = new wxStaticText(panel, wxID_ANY, info_text);
-        st->SetForegroundColour(*wxWHITE);
+
         canvas = new C3DPlotCanvas(project, this, glAttributes,
                                    project->GetHighlightState(),
                                    var_info, col_ids,
                                    panel);
 
         wxBoxSizer *container = new wxBoxSizer(wxVERTICAL);
-        container->Add(st, 0, wxALIGN_CENTER | wxALL, 0);
         container->Add(canvas, 1, wxEXPAND | wxALL);
 
         int idx = 0;
@@ -1199,7 +1198,7 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
         wxString out_text;
 
         for (size_t i=0; i<output_vals.size(); ++i) {
-            out_text << output_vals[i].first << ": ";
+            out_text << output_vals[i].first << " ";
             idx = idx + 1;
             if (output_vals[i].second < pow(0.1, display_precision)) {
                 out_text << output_vals[i].second;
@@ -1208,13 +1207,22 @@ C3DPlotFrame::C3DPlotFrame(wxFrame *parent, Project* project,
             }
             out_text << " ";
             idx = idx + 1;
-            if (idx == output_vals.size() || idx % 4 == 0) {
-                wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, out_text);
-                st1->SetForegroundColour(*wxWHITE);
-                container->Add(st1, 0, wxALIGN_CENTER | wxALL, 0);
-                out_text = "";
+        }
+        wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, out_text, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_WORDWRAP);
+        st1->SetForegroundColour(*wxWHITE);
+        container->Add(st1, 0, wxALIGN_CENTER | wxALL, 0);
+
+        wxString tmp_info_str;
+        for (size_t k=0; k<info_text.size(); k++) {
+            tmp_info_str << info_text[k];
+            if (k < info_text.size()-1 ) {
+                tmp_info_str << ", ";
             }
         }
+        wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, tmp_info_str, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE | wxTE_WORDWRAP);
+        st2->SetForegroundColour(*wxWHITE);
+        container->Add(st2, 0, wxALIGN_CENTER | wxALL, 0);
+
         panel->SetSizer(container);
 
         wxBoxSizer *vbox = new wxBoxSizer(wxHORIZONTAL);

@@ -91,7 +91,7 @@ void MDSDlg::CreateControls()
     
     // smacof
     txt_maxit = new wxStaticText(panel, wxID_ANY, _("Maximum # of Iterations:"));
-    m_iterations = new wxTextCtrl(panel, wxID_ANY, "100", wxDefaultPosition, wxSize(200,-1));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "1000", wxDefaultPosition, wxSize(200,-1));
     m_iterations->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
     gbox->Add(txt_maxit, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
@@ -373,8 +373,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         }
         free(xnew);
 
-        output_vals.push_back(std::make_pair("convergence criterion", eps));
-        output_vals.push_back(std::make_pair("final # of iterations", itel));
+        output_vals.push_back(std::make_pair("iterations", itel));
+        output_vals.push_back(std::make_pair("/", n_iter));
     } else {
         if (chk_poweriteration->IsChecked()) {
             // classical MDS with power iteration and full matrix
@@ -487,9 +487,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
                                     wxDEFAULT_FRAME_STYLE);
-                wxCommandEvent ev;
-                subframe->OnViewLinearSmoother(ev);
-                subframe->OnDisplayStatistics(ev);
 
             } else if (num_new_vars == 3) {
 
@@ -504,7 +501,6 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 wxString title = _("MDS 3D Plot (%s) - %s, %s, %s");
                 title = wxString::Format(title, method_str, new_col_names[0], new_col_names[1], new_col_names[2]);
 
-                wxString addition_text = wxString::Format("stress: %.3f, rank correlation: %.3f", stress, r);
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,
                                  new_var_info, new_col_ids,

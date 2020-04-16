@@ -506,7 +506,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
    
     if (!results.empty()) {
 
-        wxString method_str = combo_method->GetStringSelection();
+        wxString method_str = "t-SNE";
         std::vector<wxString> info_str;
         for (size_t k=0; k<col_names.size(); k++) {
             info_str.push_back(col_names[k]);
@@ -571,9 +571,6 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
                                     wxDEFAULT_FRAME_STYLE);
-                wxCommandEvent ev;
-                subframe->OnViewLinearSmoother(ev);
-                subframe->OnDisplayStatistics(ev);
 
             } else if (num_new_vars == 3) {
 
