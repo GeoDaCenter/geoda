@@ -2294,6 +2294,12 @@ void MDSPlotCanvas::UpdateSelection(bool shiftdown, bool pointsel)
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 }
 
+void MDSPlotCanvas::update(HLStateInt* o)
+{
+    // Call TemplateCanvas::update to redraw objects as needed.
+    TemplateCanvas::update(o);
+}
+
 void MDSPlotCanvas::DrawLayer2()
 {
     foreground_shps.pop_back();
