@@ -365,6 +365,7 @@ public:
     
     virtual void DisplayRightClickMenu(const wxPoint& pos);
     virtual void UpdateDisplayStats();
+    virtual void update(HLStateInt* o);
     bool virtual UpdateDisplayLinesAndMargins();
     virtual void UpdateSelection(bool shiftdown, bool pointsel);
     
