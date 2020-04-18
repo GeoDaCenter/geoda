@@ -58,7 +58,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(480,820), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(480,850), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -99,6 +99,14 @@ void TSNEDlg::CreateControls()
 
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_iteration, 1, wxEXPAND);
+
+    // min cost
+    wxStaticText* st22 = new wxStaticText(panel, wxID_ANY, _("Min Cost:"));
+    txt_min_cost = new wxTextCtrl(panel, wxID_ANY, "0.000001",wxDefaultPosition, wxSize(70,-1));
+    txt_min_cost->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
+
+    gbox->Add(st22, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_min_cost, 1, wxEXPAND);
 
     // lr
     wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, _("Learning Rate:"));
@@ -413,6 +421,16 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+    double min_cost;
+    val = txt_min_cost->GetValue();
+    if (!val.ToDouble(&min_cost)) {
+        wxString err_msg = _("Please input a valid numeric value for min cost.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"),
+                            wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
     double finalmomentum;
     val = txt_finalmomentum->GetValue();
     if (!val.ToDouble(&finalmomentum)) {
@@ -476,11 +494,12 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     double early_exaggeration = 12;
 
     double final_cost;
+    int last_iter = max_iteration;
     TSNE tsne;
     tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
-             max_iteration, (int)mom_switch_iter,
+             max_iteration, min_cost, (int)mom_switch_iter,
             (int)GdaConst::gda_user_seed, GdaConst::use_gda_user_seed,
-            verbose, early_exaggeration, learningrate, &final_cost);
+            verbose, early_exaggeration, learningrate, &final_cost, &last_iter);
 
     results.resize(new_col);
     for (int i=0; i<new_col; i++) {
@@ -498,9 +517,11 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     free(ragged_distances);
 
     std::vector<std::pair<wxString, double> > output_vals;
+    output_vals.push_back(std::make_pair("iterations", last_iter));
+    output_vals.push_back(std::make_pair("/", max_iteration));
     output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", r));
     output_vals.insert(output_vals.begin(), std::make_pair("final cost", final_cost));
-
+    
     delete[] Y;
     delete[] data;
    
@@ -583,8 +604,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 new_var_info[2].fixed_scale = true;
 
 
-                wxString title = _("t-SNE 3D Plot (%s) - %s, %s, %s");
-                wxString addition_text = wxString::Format("stress: %.3f, rank correlation: %.3f", stress, r);
+                wxString title = _("t-SNE 3D Plot - %s, %s, %s");
+                title = wxString::Format(title,  new_col_names[0], new_col_names[1], new_col_names[2]);
 
                 C3DPlotFrame *subframe =
                 new C3DPlotFrame(parent, project,

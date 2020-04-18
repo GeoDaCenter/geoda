@@ -42,10 +42,10 @@
 */
 void TSNE::run(double* X, int N, int D, double* Y,
                int no_dims, double perplexity, double theta ,
-               int num_threads, int max_iter, int n_iter_early_exag,
+               int num_threads, int max_iter, double min_error, int n_iter_early_exag,
                int random_state, bool skip_random_init, int verbose,
                double early_exaggeration, double learning_rate,
-               double *final_error) {
+               double *final_error, int *act_iter) {
 
     if (N - 1 < 3 * perplexity) {
         perplexity = (N - 1) / 3;
@@ -153,8 +153,10 @@ void TSNE::run(double* X, int N, int D, double* Y,
     }
 
     // Perform main training loop
+    int executed_iter = 0;
     start = time(0);
     for (int iter = 0; iter < max_iter; iter++) {
+        executed_iter += 1;
 
         bool need_eval_error = (verbose && ((iter > 0 && iter % 50 == 0) || (iter == max_iter - 1)));
 
@@ -193,14 +195,20 @@ void TSNE::run(double* X, int N, int D, double* Y,
                 total_time += (float) (end - start);
                 fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
             }
+            if (error < min_error) {
+                break;
+            }
             start = time(0);
         }
+
 
     }
     end = time(0); total_time += (float) (end - start) ;
 
     if (final_error != NULL)
         *final_error = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
+    if (act_iter != NULL)
+        *act_iter = executed_iter;
 
     // Clean up memory
     free(dY);

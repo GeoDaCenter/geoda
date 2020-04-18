@@ -21,10 +21,12 @@ class TSNE
 public:
     void run(double* X, int N, int D, double* Y,
                int no_dims = 2, double perplexity = 30, double theta = .5,
-               int num_threads = 1, int max_iter = 1000, int n_iter_early_exag = 250,
+               int num_threads = 1, int max_iter = 1000, double min_error = 0,
+               int n_iter_early_exag = 250,
                int random_state = 0, bool init_from_Y = false, int verbose = 0,
                double early_exaggeration = 12, double learning_rate = 200,
-               double *final_error = NULL);
+               double *final_error = NULL,
+               int *act_iter = NULL);
     void symmetrizeMatrix(int** row_P, int** col_P, double** val_P, int N);
 private:
     double computeGradient(int* inp_row_P, int* inp_col_P, double* inp_val_P, double* Y, int N, int D, double* dC, double theta, bool eval_error);

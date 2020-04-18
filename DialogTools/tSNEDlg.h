@@ -62,6 +62,7 @@ protected:
     wxTextCtrl* txt_perplexity;
     wxTextCtrl* txt_theta;
     wxTextCtrl* txt_momentum;
+    wxTextCtrl* txt_min_cost;
     wxTextCtrl* txt_finalmomentum;
     wxTextCtrl* txt_mom_switch_iter;
     wxTextCtrl* txt_learningrate;
