@@ -167,7 +167,7 @@ void TSNEDlg::CreateControls()
         chk_seed->SetValue(true);
         seedButton->Enable();
     }
-    
+
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
 
@@ -221,6 +221,8 @@ void TSNEDlg::CreateControls()
     // Events
     okButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnCloseClick, this);
+    chk_seed->Bind(wxEVT_CHECKBOX, &TSNEDlg::OnSeedCheck, this);
+    seedButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnChangeSeed, this);
 }
 
 
@@ -503,7 +505,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     TSNE tsne;
     tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
              max_iteration, min_cost, (int)mom_switch_iter,
-            (int)GdaConst::gda_user_seed, false, // not skip random init
+            (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed, // false = not skip random init
             verbose, early_exaggeration, learningrate, &final_cost, &last_iter, &report);
 
     results.resize(new_col);

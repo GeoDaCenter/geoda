@@ -160,7 +160,7 @@ void TSNE::run(double* X, int N, int D, double* Y,
     for (int iter = 0; iter < max_iter; iter++) {
         executed_iter += 1;
 
-        bool need_eval_error = (verbose && ((iter > 0 && iter % 50 == 0) || (iter == max_iter - 1)));
+        bool need_eval_error = (true && ((iter > 0 && (iter+1) % 50 == 0) || (iter == max_iter - 1)));
 
         // Compute approximate gradient
         double error = computeGradient(row_P, col_P, val_P, Y, N, no_dims, dY, theta, need_eval_error);
@@ -191,11 +191,11 @@ void TSNE::run(double* X, int N, int D, double* Y,
         if (need_eval_error) {
             end = time(0);
 
-            if (iter == 0)
-                fprintf(stderr, "Iteration %d: error is %f\n", iter + 1, error);
-            else {
+            if (iter == 0) {
+                //fprintf(stderr, "Iteration %d: error is %f\n", iter + 1, error);
+            } else {
                 total_time += (float) (end - start);
-                fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
+                //fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
                 ss << "Iteration " << iter + 1 << ": error is " << error << "\n";
             }
             if (error < min_error) {
