@@ -15,6 +15,7 @@
 #include <cstring>
 #include <ctime>
 #include <iostream>
+#include <sstream>
 
 #ifdef _OPENMP
 #include <omp.h>
@@ -45,7 +46,7 @@ void TSNE::run(double* X, int N, int D, double* Y,
                int num_threads, int max_iter, double min_error, int n_iter_early_exag,
                int random_state, bool skip_random_init, int verbose,
                double early_exaggeration, double learning_rate,
-               double *final_error, int *act_iter) {
+               double *final_error, int *act_iter, std::string* report) {
 
     if (N - 1 < 3 * perplexity) {
         perplexity = (N - 1) / 3;
@@ -65,9 +66,10 @@ void TSNE::run(double* X, int N, int D, double* Y,
             Step 1
         ======================
     */
-
+    std::ostringstream ss;
     if (verbose)
         fprintf(stderr, "Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
+    ss << "Using no_dims = " << no_dims << ", perplexity = " << perplexity << ", and theta = " << theta << "\n\n";
 
     // Set learning parameters
     float total_time = .0;
@@ -194,6 +196,7 @@ void TSNE::run(double* X, int N, int D, double* Y,
             else {
                 total_time += (float) (end - start);
                 fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
+                ss << "Iteration " << iter + 1 << ": error is " << error << "\n";
             }
             if (error < min_error) {
                 break;
@@ -209,7 +212,9 @@ void TSNE::run(double* X, int N, int D, double* Y,
         *final_error = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
     if (act_iter != NULL)
         *act_iter = executed_iter;
-
+    if (report != NULL)
+        *report = ss.str();
+    
     // Clean up memory
     free(dY);
     free(uY);

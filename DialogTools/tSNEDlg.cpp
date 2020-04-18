@@ -58,7 +58,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(480,850), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(880,850), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -195,8 +195,13 @@ void TSNEDlg::CreateControls()
     vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
+    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
+
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
+    container->Add(vbox1,1, wxEXPAND | wxALL);
     
     panel->SetSizer(container);
    
@@ -492,14 +497,14 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     verbose = 1;
 #endif
     double early_exaggeration = 12;
-
+    std::string report;
     double final_cost;
     int last_iter = max_iteration;
     TSNE tsne;
     tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
              max_iteration, min_cost, (int)mom_switch_iter,
-            (int)GdaConst::gda_user_seed, GdaConst::use_gda_user_seed,
-            verbose, early_exaggeration, learningrate, &final_cost, &last_iter);
+            (int)GdaConst::gda_user_seed, false, // not skip random init
+            verbose, early_exaggeration, learningrate, &final_cost, &last_iter, &report);
 
     results.resize(new_col);
     for (int i=0; i<new_col; i++) {
@@ -521,7 +526,17 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     output_vals.push_back(std::make_pair("/", max_iteration));
     output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", r));
     output_vals.insert(output_vals.begin(), std::make_pair("final cost", final_cost));
-    
+
+    wxString tsne_log;
+    tsne_log << _("---\n\nt-SNE: ");
+    tsne_log << report;
+    tsne_log << "\nrank correlation:" << r;
+    tsne_log << "\nfinal cost:" << final_cost;
+    tsne_log << "\n";
+
+    tsne_log << m_textbox->GetValue();
+    m_textbox->SetValue(tsne_log);
+
     delete[] Y;
     delete[] data;
    

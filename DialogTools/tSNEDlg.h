@@ -71,7 +71,7 @@ protected:
     wxButton* seedButton;
 
     wxStaticText* lbl_poweriteration;
-    
+    SimpleReportTextCtrl* m_textbox;
     DECLARE_EVENT_TABLE()
 };
 
