@@ -26,6 +26,7 @@
 #include <wx/listbox.h>
 
 #include "../VarTools.h"
+#include "../Explore/AnimatePlotCanvas.h"
 #include "AbstractClusterDlg.h"
 
 class TSNEDlg : public AbstractClusterDlg
@@ -37,26 +38,40 @@ public:
     void CreateControls();
     
     void OnOK( wxCommandEvent& event );
-
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
-    
+    void OnSlider(wxCommandEvent& ev);
+    void OnSave( wxCommandEvent& event );
     virtual wxString _printConfiguration();
+    double _calculateRankCorr(const std::vector<std::vector<double> >& result);
 
-    double _calculateRankCorr(char dist, int rows, double **ragged_distances,
-                              const std::vector<std::vector<double> >& result);
-    double _calculateStress(char dist, int rows, double **ragged_distances,
-                            const std::vector<std::vector<double> >& result);
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
-    
+
+    static AnimatePlotcanvas* m_animate;
+    static SimpleReportTextCtrl* m_textbox;
+    static wxButton* saveButton;
+    static wxSlider* m_slider;
+    static double final_cost;
+    static double rank_corr;
+    static std::string report;
+    static std::string old_report;
+    static char dist;
+
 protected:
+    long max_iteration;
+    int last_iter;
+    double *data ;
+    double* Y;
+    double **ragged_distances;
+
 
     wxChoice* m_distance;
     wxChoice* combo_n;
+
 
     wxTextCtrl* txt_iteration;
     wxTextCtrl* txt_perplexity;
@@ -71,8 +86,8 @@ protected:
     wxButton* seedButton;
 
     wxStaticText* lbl_poweriteration;
-    SimpleReportTextCtrl* m_textbox;
     DECLARE_EVENT_TABLE()
+    
 };
 
 #endif

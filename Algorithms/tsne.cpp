@@ -33,6 +33,21 @@
     #define NUM_THREADS(N) (1)
 #endif
 
+TSNE::TSNE(double* X, int N, int D, double* Y,
+               int no_dims, double perplexity, double theta ,
+               int num_threads, int max_iter, double min_error, int n_iter_early_exag,
+               int random_state, bool skip_random_init, int verbose,
+               double early_exaggeration, double learning_rate,
+               double *final_error, int *act_iter, std::string* report)
+: X(X), N(N), D(D), Y(Y), no_dims(no_dims), perplexity(perplexity) , theta(theta),
+num_threads(num_threads), max_iter(max_iter), min_error(min_error),
+n_iter_early_exag(n_iter_early_exag), random_state(random_state),
+skip_random_init(skip_random_init), verbose(verbose),
+early_exaggeration(early_exaggeration), learning_rate(learning_rate),
+final_error(final_error), act_iter(act_iter), report(report)
+{
+
+}
 
 /*  
     Perform t-SNE
@@ -41,12 +56,7 @@
         Y -- array to fill with the result of size [N, no_dims]
         no_dims -- target dimentionality
 */
-void TSNE::run(double* X, int N, int D, double* Y,
-               int no_dims, double perplexity, double theta ,
-               int num_threads, int max_iter, double min_error, int n_iter_early_exag,
-               int random_state, bool skip_random_init, int verbose,
-               double early_exaggeration, double learning_rate,
-               double *final_error, int *act_iter, std::string* report) {
+void TSNE::run(void(*update)(int, double*), void(*done)()) {
 
     if (N - 1 < 3 * perplexity) {
         perplexity = (N - 1) / 3;
@@ -177,6 +187,9 @@ void TSNE::run(double* X, int N, int D, double* Y,
         // Make solution zero-mean
         zeroMean(Y, N, no_dims);
 
+        if (update) {
+            (*update)(iter, Y);
+        }
         // Stop lying about the P-values after a while, and switch momentum
         if (iter == stop_lying_iter) {
             for (int i = 0; i < row_P[N]; i++) {
@@ -226,6 +239,8 @@ void TSNE::run(double* X, int N, int D, double* Y,
 
     if (verbose)
         fprintf(stderr, "Fitting performed in %4.2f seconds.\n", total_time);
+
+    (*done)();
 }
 
 // Compute gradient of the t-SNE cost function (using Barnes-Hut algorithm)

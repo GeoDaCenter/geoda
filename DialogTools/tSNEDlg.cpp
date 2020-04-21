@@ -23,7 +23,8 @@
 #include <wx/dialog.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
-
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -43,16 +44,29 @@ BEGIN_EVENT_TABLE( TSNEDlg, wxDialog )
 EVT_CLOSE( TSNEDlg::OnClose )
 END_EVENT_TABLE()
 
+AnimatePlotcanvas* TSNEDlg::m_animate = 0;
+SimpleReportTextCtrl* TSNEDlg::m_textbox = 0;
+wxButton* TSNEDlg::saveButton = 0;
+wxSlider* TSNEDlg::m_slider = 0;
+double TSNEDlg::final_cost = 0;
+double TSNEDlg::rank_corr = 0;
+std::string TSNEDlg::report = "";
+std::string TSNEDlg::old_report = "";
+char TSNEDlg::dist = 'e';
+
+
 TSNEDlg::TSNEDlg(wxFrame *parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s, _("t-SNE Settings"))
+: AbstractClusterDlg(parent_s, project_s, _("t-SNE Settings")),
+data(0), Y(0), ragged_distances(0)
 {
     wxLogMessage("Open tSNE Dialog.");
-   
     CreateControls();
 }
 
 TSNEDlg::~TSNEDlg()
 {
+    if (data) delete[] data;
+    if (Y) delete[] Y;
 }
 
 void TSNEDlg::CreateControls()
@@ -94,7 +108,7 @@ void TSNEDlg::CreateControls()
 
     // max iteration
     wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Max Iteration:"));
-    txt_iteration = new wxTextCtrl(panel, wxID_ANY, "1000",wxDefaultPosition, wxSize(70,-1));
+    txt_iteration = new wxTextCtrl(panel, wxID_ANY, "5000",wxDefaultPosition, wxSize(70,-1));
     txt_iteration->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
 
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -175,6 +189,7 @@ void TSNEDlg::CreateControls()
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("# of Dimensions:"));
     const wxString dims[2] = {"2", "3"};
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, dims);
+    combo_n->Enable(false);
 
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
@@ -184,10 +199,14 @@ void TSNEDlg::CreateControls()
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
+    saveButton = new wxButton(panel, wxID_OK, _("Save"), wxDefaultPosition,
+                                      wxSize(70, 30));
+    saveButton->Enable(false);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
@@ -196,8 +215,19 @@ void TSNEDlg::CreateControls()
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
-    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "");
-    vbox1->Add(m_textbox, 1, wxEXPAND|wxALL,20);
+    int n = project->GetNumRecords();
+    std::vector<double> X(n, 0), Y(n,0);
+    std::vector<bool> X_undef(n, false), Y_undef(n,false);
+    int style = AnimatePlotcanvas::DEFAULT_STYLE | AnimatePlotcanvas::show_vert_axis_through_origin | AnimatePlotcanvas::show_data_points | AnimatePlotcanvas::show_horiz_axis_through_origin;
+    m_animate = new AnimatePlotcanvas(this, NULL, project, X, Y, X_undef, Y_undef,
+                                      "", "", style, "", "", wxDefaultPosition,
+                                      wxSize(300, 300));
+    m_slider = new wxSlider(panel, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_LABELS);
+    m_slider->Enable(false);
+    m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(300,400));
+    vbox1->Add(m_animate, 1, wxEXPAND|wxLEFT|wxRIGHT,20);
+    vbox1->Add(m_slider, 0, wxEXPAND|wxLEFT|wxRIGHT,20);
+    vbox1->Add(m_textbox, 0, wxEXPAND|wxALL,20);
 
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
@@ -220,9 +250,12 @@ void TSNEDlg::CreateControls()
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnOK, this);
+    saveButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnCloseClick, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &TSNEDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnChangeSeed, this);
+    m_slider->Bind(wxEVT_SLIDER, &TSNEDlg::OnSlider, this);
+
 }
 
 
@@ -338,8 +371,7 @@ wxString TSNEDlg::_printConfiguration()
     return "";
 }
 
-double TSNEDlg::_calculateRankCorr(char dist, int rows, double **ragged_distances,
-                                  const std::vector<std::vector<double> >& result)
+double TSNEDlg::_calculateRankCorr(const std::vector<std::vector<double> >& result)
 {
     double d;
     std::vector<double> x, y;
@@ -358,40 +390,56 @@ double TSNEDlg::_calculateRankCorr(char dist, int rows, double **ragged_distance
     return r;
 }
 
-double TSNEDlg::_calculateStress(char dist, int rows, double **ragged_distances, const std::vector<std::vector<double> >& result)
+
+void OnUpdate(int idx, double* Y)
 {
-    double d, tmp;
-    double sum_dist = 0;
-    double sum_diff = 0;
-    double stress = 0;
-    for (size_t r=1; r<rows; ++r) {
-        for (size_t c=0; c<r; ++c) {
-            if (dist == 'b') {
-                d = DataUtils::ManhattanDistance(result, r, c);
-                tmp = ragged_distances[r][c] - d;
-                sum_dist += ragged_distances[r][c] * ragged_distances[r][c];
-            } else {
-                d = DataUtils::EuclideanDistance(result, r, c);
-                tmp = sqrt(ragged_distances[r][c]) - sqrt(d);
-                sum_dist += ragged_distances[r][c];
-            }
-            tmp = tmp * tmp;
-            sum_diff += tmp;
-        }
-    }
-    stress = sum_dist == 0 ? 0 : sqrt( sum_diff/ sum_dist);
-    return stress;
+    TSNEDlg::m_animate->UpdateCanvas(idx, Y);
+    TSNEDlg::m_slider->SetValue(idx+1);
+
 }
+
+void OnDone()
+{
+    TSNEDlg::saveButton->Enable(true);
+    TSNEDlg::m_slider->Enable(true);
+
+    int sel_iter = TSNEDlg::m_slider->GetValue() - 1;
+    vector<vector<double> > results;
+    results.push_back(TSNEDlg::m_animate->GetSelectX(sel_iter));
+    results.push_back(TSNEDlg::m_animate->GetSelectY(sel_iter));
+
+    //TSNEDlg::rank_corr = (TSNEDlg::m_animate->GetRankCorr(sel_iter,);
+
+    wxString tsne_log;
+    tsne_log << _("---\n\nt-SNE: ");
+    tsne_log << TSNEDlg::report;
+    //tsne_log << "\nrank correlation:" << TSNEDlg::rank_corr;
+    tsne_log << "\nfinal cost:" << TSNEDlg::final_cost;
+    tsne_log << "\n";
+
+    tsne_log << TSNEDlg::m_textbox->GetValue();
+    TSNEDlg::m_textbox->SetValue(tsne_log);
+
+    TSNEDlg::old_report = tsne_log;
+}
+
+void TSNEDlg::OnSlider(wxCommandEvent& ev)
+{
+    int idx = m_slider->GetValue();
+    OnUpdate(idx, NULL);
+}
+
 void TSNEDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click TSNEDlg::OnOK");
-   
+    TSNEDlg::saveButton->Enable(false);
+    TSNEDlg::m_slider->Enable(false);
     int transform = combo_tranform->GetSelection();
    
     if (!GetInputData(transform, 1))
         return;
 
-    double* weight = GetWeights(columns);
+
 
     double perplexity = 0;
     int suggest_perp = (int)((project->GetNumRecords() - 1) /  3);
@@ -456,7 +504,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    long max_iteration;
+
     val = txt_iteration->GetValue();
     if (!val.ToLong(&max_iteration)) {
         wxString err_msg = _("Please input a valid numeric value for max iterations.");
@@ -475,23 +523,34 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         return;
     }
     long out_dim = combo_n->GetSelection() == 0 ? 2 : 3;
-
-    int transpose = 0; // row wise
-    char dist = 'e'; // euclidean
-    int dist_sel = m_distance->GetSelection();
-    char dist_choices[] = {'e','b'};
-    dist = dist_choices[dist_sel];
   
     int new_col = out_dim;
-    vector<vector<double> > results;
 
-    double *data = new double[rows * columns];
+    if (data) delete[] data;
+    data = new double[rows * columns];
     for (size_t i=0; i<rows; ++i) {
         for (size_t j=0; j<columns; ++j) {
             data[i*columns + j] = input_data[i][j];
         }
     }
-    double* Y = new double[rows * new_col];
+
+    int transpose = 0; // row wise
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','b'};
+    dist = dist_choices[dist_sel];
+
+    if (ragged_distances) {
+
+        for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
+        free(ragged_distances);
+    }
+    ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+
+    if (Y) delete[] Y;
+    Y = new double[rows * new_col];
+
+    m_slider->SetMin(1);
+    m_slider->SetMax(max_iteration);
 
     int num_threads = 1;
     int verbose = 0;
@@ -499,51 +558,31 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     verbose = 1;
 #endif
     double early_exaggeration = 12;
-    std::string report;
-    double final_cost;
-    int last_iter = max_iteration;
-    TSNE tsne;
-    tsne.run(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
-             max_iteration, min_cost, (int)mom_switch_iter,
-            (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed, // false = not skip random init
-            verbose, early_exaggeration, learningrate, &final_cost, &last_iter, &report);
+    last_iter = max_iteration;
+    TSNE *tsne = new TSNE(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
+                          max_iteration, min_cost, (int)mom_switch_iter,
+                          (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed, // false = not skip random init
+                          verbose, early_exaggeration, learningrate, &final_cost,
+                          &last_iter, &report);
+    boost::thread th(&TSNE::run, tsne, OnUpdate, OnDone);
+}
 
-    results.resize(new_col);
-    for (int i=0; i<new_col; i++) {
-        results[i].resize(rows);
-        for (int j = 0; j < rows; ++j) {
-            results[i][j] = Y[j*new_col +i];
-        }
-    }
+void TSNEDlg::OnSave( wxCommandEvent& event ) {
+    long new_col = combo_n->GetSelection() == 0 ? 2 : 3;
+    double* weight = GetWeights(columns);
 
-    // compute rank correlation
-    double **ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-    double r = _calculateRankCorr(dist, rows, ragged_distances, results);
-    double stress = _calculateStress(dist, rows, ragged_distances, results);
-    for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
-    free(ragged_distances);
+    int sel_iter = m_slider->GetValue() - 1;
+    vector<vector<double> > results;
+    results.push_back(m_animate->GetSelectX(sel_iter));
+    results.push_back(m_animate->GetSelectY(sel_iter));
+    rank_corr = _calculateRankCorr(results);
 
     std::vector<std::pair<wxString, double> > output_vals;
-    output_vals.push_back(std::make_pair("iterations", last_iter));
-    output_vals.push_back(std::make_pair("/", max_iteration));
-    output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", r));
+    output_vals.push_back(std::make_pair("iterations", max_iteration));
+    output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", rank_corr));
     output_vals.insert(output_vals.begin(), std::make_pair("final cost", final_cost));
 
-    wxString tsne_log;
-    tsne_log << _("---\n\nt-SNE: ");
-    tsne_log << report;
-    tsne_log << "\nrank correlation:" << r;
-    tsne_log << "\nfinal cost:" << final_cost;
-    tsne_log << "\n";
-
-    tsne_log << m_textbox->GetValue();
-    m_textbox->SetValue(tsne_log);
-
-    delete[] Y;
-    delete[] data;
-   
     if (!results.empty()) {
-
         wxString method_str = "t-SNE";
         std::vector<wxString> info_str;
         for (size_t k=0; k<col_names.size(); k++) {
