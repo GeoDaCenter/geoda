@@ -664,7 +664,6 @@ void TemplateCanvas::RenderToSVG(wxDC &dc, int w, int h)
 
 void TemplateCanvas::DrawLayers()
 {
-    is_drawing = true;
 	if (layer2_valid && layer1_valid && layer0_valid)
 		return;
     if (!layer0_valid) {
@@ -677,7 +676,7 @@ void TemplateCanvas::DrawLayers()
         DrawLayer2();
     }
     //wxWakeUpIdle();
-    is_drawing = false;
+
     Refresh(false);
 }
 

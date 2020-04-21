@@ -23,6 +23,7 @@
 #include <math.h>
 #include <sstream>
 #include <boost/math/distributions/students_t.hpp>
+#include <boost/thread.hpp>
 #include <wx/dc.h>
 #include <wx/msgdlg.h>
 #include <wx/stdpaths.h>
@@ -1487,6 +1488,41 @@ void GenUtils::Transformation(int trans_type,
     }
 }
 
+void GenUtils::rankify_fast(const std::vector<double>& x,
+                                           std::vector<double>& Rank_X)
+{
+    size_t sz = x.size();
+    // Rank Vector
+    Rank_X.resize(sz);
+
+    std::vector<std::pair<double, size_t> > ordered_X(sz);
+    for(size_t i = 0; i < sz; i++) {
+        ordered_X[i].first = x[i];
+        ordered_X[i].second = i;
+    }
+    std::sort(ordered_X.begin(), ordered_X.end());
+
+    size_t rank = 1, n = 1, i = 0, j, idx;
+
+    while (i < sz) {
+        j = i;
+        // get # of elements with euqal rank
+        while (j < sz -1 && ordered_X[j].first == ordered_X[j+1].first) {
+            j += 1;
+        }
+        n = j - i + 1;
+
+        for (j=0; j<n; ++j) {
+            // for each equal element use formula obtain index of T[i+j].first
+            idx = ordered_X[i + j].second;
+            Rank_X[idx] = rank + (n-1) * 0.5;
+        }
+        // increment rank and i
+        rank += n;
+        i += n;
+    }
+}
+
 std::vector<double> GenUtils::rankify(const vector<double>& x)
 {
     size_t N = x.size();
@@ -1522,8 +1558,11 @@ std::vector<double> GenUtils::rankify(const vector<double>& x)
 double GenUtils::RankCorrelation(vector<double>& x, vector<double>& y)
 {
     // Get ranks of vector X y
-    vector<double> rank_x = rankify(x);
-    vector<double> rank_y = rankify(y);
+    vector<double> rank_x,  rank_y;
+    boost::thread_group threadPool;
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, x, rank_x));
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, y, rank_y));
+    threadPool.join_all();
 
     double spearmans_r = Correlation(rank_x, rank_y);
 

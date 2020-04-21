@@ -24,10 +24,14 @@
 #include <vector>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 
 #include "../VarTools.h"
 #include "../Explore/AnimatePlotCanvas.h"
 #include "AbstractClusterDlg.h"
+#include "../Algorithms/tsne.h"
+
 
 class TSNEDlg : public AbstractClusterDlg
 {
@@ -67,7 +71,8 @@ protected:
     double *data ;
     double* Y;
     double **ragged_distances;
-
+    TSNE *tsne;
+    boost::thread *tsne_job;
 
     wxChoice* m_distance;
     wxChoice* combo_n;

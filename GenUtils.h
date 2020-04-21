@@ -383,6 +383,7 @@ namespace GenUtils {
     bool StandardizeData(vector<double>& data, vector<bool>& undef);
 
     std::vector<double> rankify(const vector<double>& x);
+    void rankify_fast(const vector<double>& x, std::vector<double>& Rank_X);
     double RankCorrelation(vector<double>& x, vector<double>& y);
     double Correlation(vector<double>& x, vector<double>& y);
     double GetVariance(vector<double>& data);

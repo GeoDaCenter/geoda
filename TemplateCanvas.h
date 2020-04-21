@@ -303,7 +303,7 @@ public:
         return sz;
     }
 
-    bool  is_drawing;
+    
 protected:
     int           MASK_R;
     int           MASK_G;

@@ -49,7 +49,7 @@ AnimatePlotcanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
 :TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true),
 X(X), Y(Y), X_undef(X_undef), Y_undef(Y_undef),
 orgX(X), orgY(Y), Xname(Xname), Yname(Yname),
-right_click_menu_id(right_click_menu_id), style(style)
+right_click_menu_id(right_click_menu_id), style(style), is_drawing(false)
 {
     // setup colors
     use_category_brushes = true;
@@ -116,6 +116,69 @@ void AnimatePlotcanvas::DisplayRightClickMenu(const wxPoint& pos)
     //template_frame->PopupMenu(optMenu, pos + GetPosition());
     //template_frame->UpdateOptionMenuItems();
 	wxLogMessage("Exiting AnimatePlotcanvas::DisplayRightClickMenu");
+}
+
+void AnimatePlotcanvas::UpdateCanvas(int idx, double *data)
+{
+    if (data) {
+        size_t new_col = 2; // hard coded to 2
+        for (size_t i=0; i<new_col; i++) {
+            for (int j = 0; j < n_pts; ++j) {
+                if (i ==0)
+                    X[j] = data[j*new_col + i];
+                else
+                    Y[j] = data[j*new_col + i];
+            }
+        }
+        if (idx < X_cache.size()) X_cache[idx] = X;
+        else X_cache.push_back(X);
+        if (idx < Y_cache.size()) Y_cache[idx] = Y;
+        else Y_cache.push_back(Y);
+
+    } else {
+        if (idx < X_cache.size())  X = X_cache[idx];
+        if (idx < X_cache.size())  Y = Y_cache[idx];
+    }
+
+    Xmin = DBL_MAX; Ymin = DBL_MAX;
+    Xmax = DBL_MIN; Ymax = DBL_MIN;
+    for (size_t i=0; i<n_pts; ++i) {
+        if (Xmin > X[i]) Xmin = X[i];
+        if (Xmax < X[i]) Xmax = X[i];
+        if (Ymin > Y[i]) Ymin = Y[i];
+        if (Ymax < Y[i]) Ymax = Y[i];
+    }
+    if (is_drawing == false) {
+        is_drawing = true;
+        PopulateCanvas();
+        Refresh();
+    } else {
+        std::cout << "not drawing: " << idx << std::endl;
+    }
+}
+
+void AnimatePlotcanvas::DrawLayers()
+{
+    //mutex.Lock();
+    wxMutexLocker lock(mutex_prerender); // make sure prerender lock is released
+    TemplateCanvas::DrawLayers();
+    //mutex.Unlock();
+}
+
+void AnimatePlotcanvas::OnPaint(wxPaintEvent& event)
+{
+    //TemplateCanvas::OnPaint(event);
+    if (layer2_bm) {
+        wxSize sz = GetClientSize();
+        wxMemoryDC dc(*layer2_bm);
+        wxPaintDC paint_dc(this);
+        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+        // Draw optional control objects if needed
+        PaintControls(paint_dc);
+        helper_PaintSelectionOutline(paint_dc);
+        is_drawing = false;
+    }
+    event.Skip();
 }
 
 void AnimatePlotcanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -192,42 +255,6 @@ void AnimatePlotcanvas::ShowAxes(bool display)
 	PopulateCanvas();
 }
 
-void AnimatePlotcanvas::UpdateCanvas(int idx, double *data)
-{
-    if (data) {
-        size_t new_col = 2; // hard coded to 2
-        for (size_t i=0; i<new_col; i++) {
-            for (int j = 0; j < n_pts; ++j) {
-                if (i ==0)
-                    X[j] = data[j*new_col + i];
-                else
-                    Y[j] = data[j*new_col + i];
-            }
-        }
-        if (idx < X_cache.size()) X_cache[idx] = X;
-        else X_cache.push_back(X);
-        if (idx < Y_cache.size()) Y_cache[idx] = Y;
-        else Y_cache.push_back(Y);
-
-    } else {
-        if (idx < X_cache.size())  X = X_cache[idx];
-        if (idx < X_cache.size())  Y = Y_cache[idx];
-    }
-
-    Xmin = DBL_MAX; Ymin = DBL_MAX;
-    Xmax = DBL_MIN; Ymax = DBL_MIN;
-    for (size_t i=0; i<n_pts; ++i) {
-        if (Xmin > X[i]) Xmin = X[i];
-        if (Xmax < X[i]) Xmax = X[i];
-        if (Ymin > Y[i]) Ymin = Y[i];
-        if (Ymax < Y[i]) Ymax = Y[i];
-    }
-    if (is_drawing == false) {
-        PopulateCanvas();
-        Refresh();
-    }
-}
-
 std::vector<double> AnimatePlotcanvas::GetSelectX(int idx)
 {
     if (idx < X_cache.size()) {
@@ -247,6 +274,7 @@ std::vector<double> AnimatePlotcanvas::GetSelectY(int idx)
 void AnimatePlotcanvas::PopulateCanvas()
 {
 	LOG_MSG("Entering AnimatePlotcanvas::PopulateCanvas");
+    mutex_prerender.Lock();
 	BOOST_FOREACH( GdaShape* shp, background_shps ) { delete shp; }
 	background_shps.clear();
 	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
@@ -363,6 +391,7 @@ void AnimatePlotcanvas::PopulateCanvas()
 	}
 
 	ResizeSelectableShps();
+    mutex_prerender.Unlock();
 	LOG_MSG("Exiting AnimatePlotcanvas::PopulateCanvas");
 }
 

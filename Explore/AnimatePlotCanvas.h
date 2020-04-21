@@ -24,6 +24,7 @@
 #include <vector>
 #include <wx/gbsizer.h>
 #include <wx/menu.h>
+#include <wx/thread.h>
 
 #include "../TemplateCanvas.h"
 #include "../GdaShape.h"
@@ -73,6 +74,9 @@ public:
 	virtual void TimeSyncVariableToggle(int var_index);
 	virtual void FixedScaleVariableToggle(int var_index);
 
+    virtual void DrawLayers();
+    virtual void OnPaint(wxPaintEvent& event);
+    
     void SetSelectableOutlineColor(wxColour color);
     void SetSelectableFillColor(wxColour color);
     void SetHighlightColor(wxColour color);
@@ -88,6 +92,10 @@ protected:
     
     virtual void PopulateCanvas();
     void UpdateMargins();
+
+    bool  is_drawing;
+    wxMutex mutex;
+    wxMutex mutex_prerender;
 
 	//ScatterPlotPens pens;
 	// data

@@ -23,8 +23,7 @@
 #include <wx/dialog.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
-#include <boost/thread.hpp>
-#include <boost/bind.hpp>
+
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -34,7 +33,6 @@
 #include "../Algorithms/mds.h"
 #include "../Algorithms/vptree.h"
 #include "../Algorithms/splittree.h"
-#include "../Algorithms/tsne.h"
 #include "../Explore/ScatterNewPlotView.h"
 #include "../Explore/3DPlotView.h"
 #include "SaveToTableDlg.h"
@@ -57,7 +55,7 @@ char TSNEDlg::dist = 'e';
 
 TSNEDlg::TSNEDlg(wxFrame *parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("t-SNE Settings")),
-data(0), Y(0), ragged_distances(0)
+data(0), Y(0), ragged_distances(0), tsne(0), tsne_job(0)
 {
     wxLogMessage("Open tSNE Dialog.");
     CreateControls();
@@ -67,6 +65,13 @@ TSNEDlg::~TSNEDlg()
 {
     if (data) delete[] data;
     if (Y) delete[] Y;
+    if (tsne) {
+        delete tsne;
+    }
+    if (tsne_job) {
+        tsne_job->join();
+        delete tsne_job;
+    }
 }
 
 void TSNEDlg::CreateControls()
@@ -540,7 +545,6 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     dist = dist_choices[dist_sel];
 
     if (ragged_distances) {
-
         for (size_t i=1; i< rows; ++i) free(ragged_distances[i]);
         free(ragged_distances);
     }
@@ -559,12 +563,19 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
 #endif
     double early_exaggeration = 12;
     last_iter = max_iteration;
-    TSNE *tsne = new TSNE(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
+    if (tsne) {
+        delete tsne;
+    }
+    tsne = new TSNE(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
                           max_iteration, min_cost, (int)mom_switch_iter,
                           (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed, // false = not skip random init
                           verbose, early_exaggeration, learningrate, &final_cost,
                           &last_iter, &report);
-    boost::thread th(&TSNE::run, tsne, OnUpdate, OnDone);
+    if (tsne_job) {
+        tsne_job->join();
+        delete tsne_job;
+    }
+    tsne_job = new boost::thread(&TSNE::run, tsne, OnUpdate, OnDone);
 }
 
 void TSNEDlg::OnSave( wxCommandEvent& event ) {
