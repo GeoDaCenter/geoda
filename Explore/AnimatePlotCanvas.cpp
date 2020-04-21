@@ -276,7 +276,7 @@ void AnimatePlotcanvas::PopulateCanvas()
 	axis_scale_x = AxisScale(data_min_s, data_max_s, 5, axis_display_precision,
                              axis_display_fixed_point);
 
-    std::cout << data_min_s << "," << data_max_s << std::endl;
+    //std::cout << data_min_s << "," << data_max_s << std::endl;
     double axis_min = y_min;
     double axis_max = y_max;
     double y_pad = 0.1 * (y_max - y_min);
