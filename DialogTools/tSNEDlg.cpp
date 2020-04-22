@@ -23,7 +23,7 @@
 #include <wx/dialog.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
-
+#include <wx/event.h>
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -45,6 +45,8 @@ END_EVENT_TABLE()
 AnimatePlotcanvas* TSNEDlg::m_animate = 0;
 SimpleReportTextCtrl* TSNEDlg::m_textbox = 0;
 wxButton* TSNEDlg::saveButton = 0;
+wxButton* TSNEDlg::runButton = 0;
+wxButton* TSNEDlg::pauseButton = 0;
 wxSlider* TSNEDlg::m_slider = 0;
 double TSNEDlg::final_cost = 0;
 double TSNEDlg::rank_corr = 0;
@@ -77,7 +79,7 @@ TSNEDlg::~TSNEDlg()
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(880,850), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(880,880), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -166,7 +168,28 @@ void TSNEDlg::CreateControls()
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
-    
+
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Categeory Variable:"));
+    wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
+    chk_group = new wxCheckBox(panel, wxID_ANY, "");
+    {
+        std::vector<int> col_id_map;
+        table_int->FillStringAndIntegerColIdMap(col_id_map);
+        for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+            int id = col_id_map[i];
+            wxString name = table_int->GetColName(id);
+            if (!table_int->IsColTimeVariant(id)) {
+                cat_var_items.Add(name);
+            }
+        }
+    }
+    m_group = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                               wxSize(128,-1), cat_var_items);
+    hbox18->Add(chk_group,0, wxALIGN_CENTER_VERTICAL);
+    hbox18->Add(m_group,0,wxALIGN_CENTER_VERTICAL);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox18, 1, wxEXPAND);
+
     // Transformation
     AddTransformation(panel, gbox);
 
@@ -202,15 +225,19 @@ void TSNEDlg::CreateControls()
     hbox1->Add(combo_n, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
     
     // buttons
-    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
+    runButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
+    pauseButton = new wxButton(panel, wxID_OK, _("Stop"), wxDefaultPosition,
+                             wxSize(70, 30));
     saveButton = new wxButton(panel, wxID_OK, _("Save"), wxDefaultPosition,
                                       wxSize(70, 30));
     saveButton->Enable(false);
+    pauseButton->Enable(false);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
-    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(runButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(pauseButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
@@ -225,7 +252,8 @@ void TSNEDlg::CreateControls()
     std::vector<bool> X_undef(n, false), Y_undef(n,false);
     int style = AnimatePlotcanvas::DEFAULT_STYLE | AnimatePlotcanvas::show_vert_axis_through_origin | AnimatePlotcanvas::show_data_points | AnimatePlotcanvas::show_horiz_axis_through_origin;
     m_animate = new AnimatePlotcanvas(this, NULL, project, X, Y, X_undef, Y_undef,
-                                      "", "", style, "", "", wxDefaultPosition,
+                                      "", "", style, std::vector<std::vector<int> >(),
+                                      "", "", wxDefaultPosition,
                                       wxSize(300, 300));
     m_slider = new wxSlider(panel, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_LABELS);
     m_slider->Enable(false);
@@ -254,7 +282,8 @@ void TSNEDlg::CreateControls()
     Centre();
     
     // Events
-    okButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnOK, this);
+    runButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnOK, this);
+    pauseButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnPause, this);
     saveButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnCloseClick, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &TSNEDlg::OnSeedCheck, this);
@@ -395,34 +424,47 @@ double TSNEDlg::_calculateRankCorr(const std::vector<std::vector<double> >& resu
     return r;
 }
 
+wxDEFINE_EVENT(MY_EVT_APPENDTEXT, wxCommandEvent);
 
+void UpdateText()
+{
+    TSNEDlg::m_textbox->SetValue(TSNEDlg::report);
+}
 void OnUpdate(int idx, double* Y)
 {
     TSNEDlg::m_animate->UpdateCanvas(idx, Y);
     TSNEDlg::m_slider->SetValue(idx+1);
-
+    if (Y != NULL && idx % 50 == 0) {
+        (*TSNEDlg::m_textbox) << TSNEDlg::report;
+    }
+    // thread safe way to setvalue
+    //wxCommandEvent event(MY_EVT_APPENDTEXT, TSNEDlg::m_textbox->GetId());
+    //event.SetEventObject(TSNEDlg::m_textbox);
+    //event.SetString(TSNEDlg::report);
+    //TSNEDlg::m_textbox->GetEventHandler()->AddPendingEvent(event);
+    //TSNEDlg::m_textbox->Update();
 }
 
 void OnDone()
 {
     TSNEDlg::saveButton->Enable(true);
+    TSNEDlg::runButton->Enable(true);
+    TSNEDlg::pauseButton->Enable(false);
     TSNEDlg::m_slider->Enable(true);
 
-    int sel_iter = TSNEDlg::m_slider->GetValue() - 1;
-    vector<vector<double> > results;
-    results.push_back(TSNEDlg::m_animate->GetSelectX(sel_iter));
-    results.push_back(TSNEDlg::m_animate->GetSelectY(sel_iter));
-
-    //TSNEDlg::rank_corr = (TSNEDlg::m_animate->GetRankCorr(sel_iter,);
+    if (TSNEDlg::m_slider->GetValue() < TSNEDlg::m_slider->GetMax()) {
+        TSNEDlg::m_slider->Enable(false);
+    }
 
     wxString tsne_log;
     tsne_log << _("---\n\nt-SNE: ");
-    tsne_log << TSNEDlg::report;
     //tsne_log << "\nrank correlation:" << TSNEDlg::rank_corr;
     tsne_log << "\nfinal cost:" << TSNEDlg::final_cost;
     tsne_log << "\n";
 
     tsne_log << TSNEDlg::m_textbox->GetValue();
+    tsne_log << TSNEDlg::report;
+    tsne_log << TSNEDlg::old_report;
     TSNEDlg::m_textbox->SetValue(tsne_log);
 
     TSNEDlg::old_report = tsne_log;
@@ -434,17 +476,26 @@ void TSNEDlg::OnSlider(wxCommandEvent& ev)
     OnUpdate(idx, NULL);
 }
 
+void TSNEDlg::OnPause(wxCommandEvent& event )
+{
+    if (tsne) {
+        tsne->stop();
+        runButton->Enable(true);
+        pauseButton->Enable(false);
+    }
+}
+
 void TSNEDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click TSNEDlg::OnOK");
-    TSNEDlg::saveButton->Enable(false);
-    TSNEDlg::m_slider->Enable(false);
+    runButton->Enable(false);
+    saveButton->Enable(false);
+    m_slider->Enable(false);
+    m_textbox->SetValue("");
     int transform = combo_tranform->GetSelection();
    
     if (!GetInputData(transform, 1))
         return;
-
-
 
     double perplexity = 0;
     int suggest_perp = (int)((project->GetNumRecords() - 1) /  3);
@@ -527,6 +578,40 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
+    std::vector<std::vector<int> > groups;
+    if (chk_group->IsChecked()) {
+        int idx = m_group->GetSelection();
+        wxString nm = name_to_nm[m_group->GetString(idx)];
+        int col = table_int->FindColId(nm);
+        if (col != wxNOT_FOUND) {
+            if (table_int->IsColNumeric(col)) {
+                std::vector<double> group_variable(rows, 0);
+                table_int->GetColData(col, 0, group_variable);
+                std::map<int, std::vector<int> > group_ids;
+                std::map<int, std::vector<int> >::iterator it;
+                for (size_t i=0; i<rows; ++i) {
+                    group_ids[group_variable[i]].push_back(i);
+                }
+                for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
+                    groups.push_back(it->second);
+                }
+            } else {
+
+                std::vector<wxString> group_variable(rows);
+                table_int->GetColData(col, 0, group_variable);
+                std::map<wxString, std::vector<int> > group_ids;
+                std::map<wxString, std::vector<int> >::iterator it;
+                for (size_t i=0; i<rows; ++i) {
+                    group_ids[group_variable[i]].push_back(i);
+                }
+                for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
+                    groups.push_back(it->second);
+                }
+
+            }
+            m_animate->CreateAndUpdateCategories(groups);
+        }
+    }
     long out_dim = combo_n->GetSelection() == 0 ? 2 : 3;
   
     int new_col = out_dim;
@@ -576,6 +661,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         delete tsne_job;
     }
     tsne_job = new boost::thread(&TSNE::run, tsne, OnUpdate, OnDone);
+
+     pauseButton->Enable(true);
 }
 
 void TSNEDlg::OnSave( wxCommandEvent& event ) {

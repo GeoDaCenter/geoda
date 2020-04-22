@@ -1492,8 +1492,6 @@ void GenUtils::rankify_fast(const std::vector<double>& x,
                                            std::vector<double>& Rank_X)
 {
     size_t sz = x.size();
-    // Rank Vector
-    Rank_X.resize(sz);
 
     std::vector<std::pair<double, size_t> > ordered_X(sz);
     for(size_t i = 0; i < sz; i++) {
@@ -1558,10 +1556,10 @@ std::vector<double> GenUtils::rankify(const vector<double>& x)
 double GenUtils::RankCorrelation(vector<double>& x, vector<double>& y)
 {
     // Get ranks of vector X y
-    vector<double> rank_x,  rank_y;
+    vector<double> rank_x(x.size(), 0),  rank_y(y.size(), 0);
     boost::thread_group threadPool;
-    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, x, rank_x));
-    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, y, rank_y));
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, x, boost::ref(rank_x)));
+    threadPool.add_thread(new boost::thread(&GenUtils::rankify_fast, y, boost::ref(rank_y)));
     threadPool.join_all();
 
     double spearmans_r = Correlation(rank_x, rank_y);

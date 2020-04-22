@@ -44,12 +44,13 @@ AnimatePlotcanvas(wxWindow *parent, TemplateFrame* t_frame, Project* project,
                 const std::vector<double>& X, const std::vector<double>& Y,
                 const std::vector<bool>& X_undef, const std::vector<bool>& Y_undef,
                 const wxString& Xname, const wxString& Yname, int style,
+                  const std::vector<std::vector<int> >& groups,
                 const wxString& right_click_menu_id, const wxString& title,
                 const wxPoint& pos, const wxSize& size)
 :TemplateCanvas(parent, t_frame, project, project->GetHighlightState(), pos, size, false, true),
 X(X), Y(Y), X_undef(X_undef), Y_undef(Y_undef),
 orgX(X), orgY(Y), Xname(Xname), Yname(Yname),
-right_click_menu_id(right_click_menu_id), style(style), is_drawing(false)
+right_click_menu_id(right_click_menu_id), style(style), is_drawing(false), groups(groups)
 {
     // setup colors
     use_category_brushes = true;
@@ -85,12 +86,27 @@ right_click_menu_id(right_click_menu_id), style(style), is_drawing(false)
         if (Ymax < Y[i]) Ymax = Y[i];
     }
 
-	// put all scatter points in 1 category
-	cat_data.CreateCategoriesAllCanvasTms(1 /*time*/, 1/*cats*/, X.size());
-	cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
-    cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
-	for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
-	cat_data.SetCurrentCanvasTmStep(0);
+    int num_categories = (int)groups.size();
+    if (num_categories <= 1) {
+        // put all scatter points in 1 category
+        cat_data.CreateCategoriesAllCanvasTms(1 /*time*/, 1/*cats*/, X.size());
+        cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
+        cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
+        for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
+        cat_data.SetCurrentCanvasTmStep(0);
+    } else {
+        int t = 0;
+        std::vector<wxColour> m_predef_colors;
+        GdaColorUtils::GetUnique20Colors(m_predef_colors);
+        for (int i=0; i<num_categories; ++i) {
+            wxColour clr = m_predef_colors[ i % 20 ];
+            cat_data.SetCategoryLabel(t, i, wxString::Format("%d", i));
+            cat_data.SetCategoryColor(t, i, clr);
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
+        }
+    }
 
 	PopulateCanvas();
 	ResizeSelectableShps();
@@ -105,6 +121,40 @@ AnimatePlotcanvas::~AnimatePlotcanvas()
 	wxLogMessage("Exiting AnimatePlotcanvas::~AnimatePlotcanvas");
 }
 
+void AnimatePlotcanvas::CreateAndUpdateCategories(const std::vector<std::vector<int> >& groups)
+{
+    int num_categories = (int)groups.size();
+    if (num_categories == 0) return;
+
+    int t = 0;
+    cat_data.CreateCategoriesAtCanvasTm(num_categories, t);
+    cat_data.ClearAllCategoryIds();
+
+    if (num_categories <= 1) {
+        // put all scatter points in 1 category
+        cat_data.CreateCategoriesAllCanvasTms(1 /*time*/, 1/*cats*/, X.size());
+        cat_data.SetCategoryPenColor(0, 0, selectable_fill_color);
+        cat_data.SetCategoryBrushColor(0, 0, *wxWHITE);
+        for (int i=0, sz=X.size(); i<sz; i++) cat_data.AppendIdToCategory(0, 0, i);
+        cat_data.SetCurrentCanvasTmStep(0);
+    } else {
+
+        std::vector<wxColour> m_predef_colors;
+        GdaColorUtils::GetUnique20Colors(m_predef_colors);
+        for (int i=0; i<num_categories; ++i) {
+            wxColour clr = m_predef_colors[ i % 20 ];
+            cat_data.SetCategoryLabel(t, i, wxString::Format("%d", i));
+            cat_data.SetCategoryColor(t, i, clr);
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
+        }
+        for (int cat=0; cat<num_categories; cat++) {
+            cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
+    PopulateCanvas();
+}
 
 void AnimatePlotcanvas::DisplayRightClickMenu(const wxPoint& pos)
 {
@@ -153,16 +203,14 @@ void AnimatePlotcanvas::UpdateCanvas(int idx, double *data)
         PopulateCanvas();
         Refresh();
     } else {
-        std::cout << "not drawing: " << idx << std::endl;
+        //std::cout << "not drawing: " << idx << std::endl;
     }
 }
 
 void AnimatePlotcanvas::DrawLayers()
 {
-    //mutex.Lock();
     wxMutexLocker lock(mutex_prerender); // make sure prerender lock is released
     TemplateCanvas::DrawLayers();
-    //mutex.Unlock();
 }
 
 void AnimatePlotcanvas::OnPaint(wxPaintEvent& event)
@@ -183,6 +231,7 @@ void AnimatePlotcanvas::OnPaint(wxPaintEvent& event)
 
 void AnimatePlotcanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
+     wxMutexLocker lock(mutex_prerender); // make sure prerender lock is released
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 }
 

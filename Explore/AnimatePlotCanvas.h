@@ -57,6 +57,7 @@ public:
                     const wxString& Xname,
                     const wxString& Yname,
                     int style,
+                      const std::vector<std::vector<int> >& groups,
                     const wxString& right_click_menu_id = wxEmptyString,
                     const wxString& title = wxEmptyString,
                     const wxPoint& pos = wxDefaultPosition,
@@ -85,7 +86,7 @@ public:
 	void ShowRegimes(bool display);
 	bool IsShowAxes() { return show_axes; }
     void UpdateCanvas(int idx, double *data);
-
+    void CreateAndUpdateCategories(const std::vector<std::vector<int> >& groups);
     std::vector<double> GetSelectX(int idx);
     std::vector<double> GetSelectY(int idx);
 protected:
@@ -94,7 +95,6 @@ protected:
     void UpdateMargins();
 
     bool  is_drawing;
-    wxMutex mutex;
     wxMutex mutex_prerender;
 
 	//ScatterPlotPens pens;
@@ -107,7 +107,7 @@ protected:
 	std::vector<bool> Y_undef;
 	const std::vector<double>& orgX;
 	const std::vector<double>& orgY;
-
+    std::vector<std::vector<int> > groups;
     std::vector<std::vector<double> > X_cache;
     std::vector<std::vector<double> > Y_cache;
     // x,y labels or variable name

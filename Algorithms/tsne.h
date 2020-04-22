@@ -28,9 +28,11 @@ public:
          double *final_error = NULL,
          int *act_iter = NULL,
          std::string *report = NULL);
-    
+
+    void stop();
     void run( void(*update)(int, double*) = NULL, void(*done)() = NULL);
     void symmetrizeMatrix(int** row_P, int** col_P, double** val_P, int N);
+    
 private:
     double computeGradient(int* inp_row_P, int* inp_col_P, double* inp_val_P, double* Y, int N, int D, double* dC, double theta, bool eval_error);
     double evaluateError(int* row_P, int* col_P, double* val_P, double* Y, int N, int no_dims, double theta);
@@ -57,6 +59,8 @@ private:
     double *final_error;
     int *act_iter;
     std::string* report;
+
+    bool is_stop;
 };
 
 #endif

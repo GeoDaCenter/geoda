@@ -42,6 +42,7 @@ public:
     void CreateControls();
     
     void OnOK( wxCommandEvent& event );
+    void OnPause( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnSeedCheck(wxCommandEvent& event);
@@ -58,6 +59,8 @@ public:
     static AnimatePlotcanvas* m_animate;
     static SimpleReportTextCtrl* m_textbox;
     static wxButton* saveButton;
+    static wxButton* runButton;
+    static wxButton* pauseButton;
     static wxSlider* m_slider;
     static double final_cost;
     static double rank_corr;
@@ -76,7 +79,9 @@ protected:
 
     wxChoice* m_distance;
     wxChoice* combo_n;
-
+    wxChoice* m_group;
+    wxCheckBox* chk_group;
+    wxArrayString cat_var_items;
 
     wxTextCtrl* txt_iteration;
     wxTextCtrl* txt_perplexity;
