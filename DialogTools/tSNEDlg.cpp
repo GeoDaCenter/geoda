@@ -587,7 +587,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     std::vector<std::vector<int> > groups;
     if (chk_group->IsChecked()) {
         int idx = m_group->GetSelection();
-        wxString nm = name_to_nm[m_group->GetString(idx)];
+        wxString nm = m_group->GetString(idx);
         int col = table_int->FindColId(nm);
         if (col != wxNOT_FOUND) {
             if (table_int->IsColNumeric(col)) {
