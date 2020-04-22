@@ -424,7 +424,7 @@ double TSNEDlg::_calculateRankCorr(const std::vector<std::vector<double> >& resu
     return r;
 }
 
-wxDEFINE_EVENT(MY_EVT_APPENDTEXT, wxCommandEvent);
+//wxDEFINE_EVENT(MY_EVT_APPENDTEXT, wxCommandEvent);
 
 void UpdateText()
 {
@@ -434,8 +434,10 @@ void OnUpdate(int idx, double* Y)
 {
     TSNEDlg::m_animate->UpdateCanvas(idx, Y);
     TSNEDlg::m_slider->SetValue(idx+1);
-    if (Y != NULL && idx % 50 == 0) {
-        (*TSNEDlg::m_textbox) << TSNEDlg::report;
+    if (Y != NULL && idx % 100 == 0) {
+
+        //(*TSNEDlg::m_textbox) << TSNEDlg::report;
+        //wxMilliSleep(200);
     }
     // thread safe way to setvalue
     //wxCommandEvent event(MY_EVT_APPENDTEXT, TSNEDlg::m_textbox->GetId());

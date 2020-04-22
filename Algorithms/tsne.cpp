@@ -85,11 +85,6 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
         fprintf(stderr, "Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
     ss << "Using no_dims = " << no_dims << ", perplexity = " << perplexity << ", and theta = " << theta << "\n\n";
 
-    if (report != NULL) {
-        *report = ss.str();
-        ss.str("");
-    }
-    
     // Set learning parameters
     float total_time = .0;
     time_t start, end;
@@ -221,10 +216,6 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
                 total_time += (float) (end - start);
                 //fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
                 ss << "Iteration " << iter + 1 << ": error is " << error << "\n";
-                if (report != NULL) {
-                    *report = ss.str();
-                    ss.str("");
-                }
             }
             if (error < min_error) {
                 break;
@@ -240,7 +231,8 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
         *final_error = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
     if (act_iter != NULL)
         *act_iter = executed_iter;
-
+    if (report != NULL)
+        *report = ss.str();
     
     // Clean up memory
     free(dY);
