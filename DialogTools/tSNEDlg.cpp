@@ -60,6 +60,8 @@ TSNEDlg::TSNEDlg(wxFrame *parent_s, Project* project_s)
 data(0), Y(0), ragged_distances(0), tsne(0), tsne_job(0)
 {
     wxLogMessage("Open tSNE Dialog.");
+    old_report = "";
+    report = "";
     CreateControls();
 }
 
@@ -474,8 +476,10 @@ void OnDone()
 
 void TSNEDlg::OnSlider(wxCommandEvent& ev)
 {
+    if (m_slider->IsEnabled()) {
     int idx = m_slider->GetValue();
     OnUpdate(idx, NULL);
+    }
 }
 
 void TSNEDlg::OnPause(wxCommandEvent& event )
