@@ -2,7 +2,7 @@
 #define SMACOF_H
 
 #include <math.h>
-#include <stdbool.h>
+//#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 

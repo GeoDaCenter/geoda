@@ -13,6 +13,7 @@
 #define TSNE_H
 
 #include "vptree.h"
+#include <boost/lockfree/queue.hpp>
 
 static inline double sign(double x) { return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0)); }
 
@@ -21,16 +22,18 @@ class TSNE
 public:
     TSNE(double* X, int N, int D, double* Y,
          int no_dims = 2, double perplexity = 30, double theta = .5,
-         int num_threads = 1, int max_iter = 1000, double min_error = 0,
+         int num_threads = 1, int max_iter = 1000, 
          int n_iter_early_exag = 250,
          int random_state = 0, bool init_from_Y = false, int verbose = 0,
          double early_exaggeration = 12, double learning_rate = 200,
-         double *final_error = NULL,
-         int *act_iter = NULL,
-         std::string *report = NULL);
+         double *final_error = NULL);
 
     void stop();
-    void run( void(*update)(int, double*) = NULL, void(*done)() = NULL);
+
+    void run(boost::lockfree::queue<int>& tsne_queue,
+             std::vector<std::string>& tsne_log,
+             std::vector<std::vector<double> >& results);
+
     void symmetrizeMatrix(int** row_P, int** col_P, double** val_P, int N);
     
 private:
@@ -49,7 +52,6 @@ private:
     double theta;
     int num_threads;
     int max_iter;
-    double min_error;
     int n_iter_early_exag;
     int random_state;
     bool skip_random_init;

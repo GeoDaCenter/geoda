@@ -14,7 +14,7 @@ void jacobiC(const int *nn, double *a, double *evec, double *oldi, double *oldj,
     for (int i = 1; i <= n; i++) {
         fold += SQUARE(a[TINDEX(i, i, n)]);
     }
-    while (true) {
+    while (1) {
         for (int j = 1; j <= n - 1; j++) {
             for (int i = j + 1; i <= n; i++) {
                 p = a[TINDEX(i, j, n)];

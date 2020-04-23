@@ -77,6 +77,7 @@ public:
 
     virtual void DrawLayers();
     virtual void OnPaint(wxPaintEvent& event);
+    virtual void OnIdle(wxIdleEvent& event);
     
     void SetSelectableOutlineColor(wxColour color);
     void SetSelectableFillColor(wxColour color);
@@ -85,10 +86,11 @@ public:
 	void ShowAxes(bool display);
 	void ShowRegimes(bool display);
 	bool IsShowAxes() { return show_axes; }
-    void UpdateCanvas(int idx, double *data);
+    void UpdateCanvas(int idx, const std::vector<std::vector<double> >& tsne_results);
     void CreateAndUpdateCategories(const std::vector<std::vector<int> >& groups);
     std::vector<double> GetSelectX(int idx);
     std::vector<double> GetSelectY(int idx);
+
 protected:
     
     virtual void PopulateCanvas();

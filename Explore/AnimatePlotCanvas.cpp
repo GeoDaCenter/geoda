@@ -168,9 +168,10 @@ void AnimatePlotcanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxLogMessage("Exiting AnimatePlotcanvas::DisplayRightClickMenu");
 }
 
-void AnimatePlotcanvas::UpdateCanvas(int idx, double *data)
+void AnimatePlotcanvas::UpdateCanvas(int idx, const std::vector<std::vector<double> >& tsne_results)
 {
-    if (data) {
+    if (idx < tsne_results.size() && tsne_results[idx].size() > 0) {
+        const std::vector<double>& data = tsne_results[idx];
         size_t new_col = 2; // hard coded to 2
         for (size_t i=0; i<new_col; i++) {
             for (int j = 0; j < n_pts; ++j) {
@@ -180,30 +181,21 @@ void AnimatePlotcanvas::UpdateCanvas(int idx, double *data)
                     Y[j] = data[j*new_col + i];
             }
         }
-        if (idx < X_cache.size()) X_cache[idx] = X;
-        else X_cache.push_back(X);
-        if (idx < Y_cache.size()) Y_cache[idx] = Y;
-        else Y_cache.push_back(Y);
-
-    } else {
-        if (idx < X_cache.size())  X = X_cache[idx];
-        if (idx < X_cache.size())  Y = Y_cache[idx];
-    }
-
-    Xmin = DBL_MAX; Ymin = DBL_MAX;
-    Xmax = DBL_MIN; Ymax = DBL_MIN;
-    for (size_t i=0; i<n_pts; ++i) {
-        if (Xmin > X[i]) Xmin = X[i];
-        if (Xmax < X[i]) Xmax = X[i];
-        if (Ymin > Y[i]) Ymin = Y[i];
-        if (Ymax < Y[i]) Ymax = Y[i];
-    }
-    if (is_drawing == false) {
-        is_drawing = true;
-        PopulateCanvas();
-        Refresh();
-    } else {
-        //std::cout << "not drawing: " << idx << std::endl;
+        Xmin = DBL_MAX; Ymin = DBL_MAX;
+        Xmax = DBL_MIN; Ymax = DBL_MIN;
+        for (size_t i=0; i<n_pts; ++i) {
+            if (Xmin > X[i]) Xmin = X[i];
+            if (Xmax < X[i]) Xmax = X[i];
+            if (Ymin > Y[i]) Ymin = Y[i];
+            if (Ymax < Y[i]) Ymax = Y[i];
+        }
+        if (is_drawing == false) {
+            is_drawing = true;
+            PopulateCanvas();
+            Refresh();
+        } else {
+            std::cout << "not drawing: " << idx << std::endl;
+        }
     }
 }
 
@@ -318,6 +310,24 @@ std::vector<double> AnimatePlotcanvas::GetSelectY(int idx)
         return Y_cache[idx];
     }
     return std::vector<double>();
+}
+
+void AnimatePlotcanvas::OnIdle(wxIdleEvent& event)
+{
+    if (isResize) {
+        wxMutexLocker lock(mutex_prerender); // make sure prerender lock is released
+        isResize = false;
+        int cs_w=0, cs_h=0;
+        GetClientSize(&cs_w, &cs_h);
+        last_scale_trans.SetView(cs_w, cs_h);
+        resizeLayerBms(cs_w, cs_h);
+        ResizeSelectableShps(cs_w, cs_h);
+        event.RequestMore(); // render continuously, not only once on idle
+    }
+    if (!layer2_valid || !layer1_valid || !layer0_valid) {
+        DrawLayers();
+        event.RequestMore(); // render continuously, not only once on idle
+    }
 }
 
 void AnimatePlotcanvas::PopulateCanvas()

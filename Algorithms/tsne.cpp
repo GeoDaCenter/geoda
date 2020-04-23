@@ -34,17 +34,17 @@
 #endif
 
 TSNE::TSNE(double* X, int N, int D, double* Y,
-               int no_dims, double perplexity, double theta ,
-               int num_threads, int max_iter, double min_error, int n_iter_early_exag,
-               int random_state, bool skip_random_init, int verbose,
-               double early_exaggeration, double learning_rate,
-               double *final_error, int *act_iter, std::string* report)
+           int no_dims, double perplexity, double theta ,
+           int num_threads, int max_iter, int n_iter_early_exag,
+           int random_state, bool skip_random_init, int verbose,
+           double early_exaggeration, double learning_rate,
+           double *final_error)
 : X(X), N(N), D(D), Y(Y), no_dims(no_dims), perplexity(perplexity) , theta(theta),
-num_threads(num_threads), max_iter(max_iter), min_error(min_error),
+num_threads(num_threads), max_iter(max_iter),
 n_iter_early_exag(n_iter_early_exag), random_state(random_state),
 skip_random_init(skip_random_init), verbose(verbose),
 early_exaggeration(early_exaggeration), learning_rate(learning_rate),
-final_error(final_error), act_iter(act_iter), report(report),is_stop(false)
+final_error(final_error), is_stop(false)
 {
 
 }
@@ -60,7 +60,10 @@ void TSNE::stop()
         Y -- array to fill with the result of size [N, no_dims]
         no_dims -- target dimentionality
 */
-void TSNE::run(void(*update)(int, double*), void(*done)()) {
+void TSNE::run(boost::lockfree::queue<int>& tsne_queue,
+               std::vector<std::string>& tsne_log,
+               std::vector<std::vector<double> >& results)
+{
 
     if (N - 1 < 3 * perplexity) {
         perplexity = (N - 1) / 3;
@@ -84,6 +87,9 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
     if (verbose)
         fprintf(stderr, "Using no_dims = %d, perplexity = %f, and theta = %f\n", no_dims, perplexity, theta);
     ss << "Using no_dims = " << no_dims << ", perplexity = " << perplexity << ", and theta = " << theta << "\n\n";
+    // add log
+    tsne_log.push_back(ss.str());
+    ss.str("");
 
     // Set learning parameters
     float total_time = .0;
@@ -140,16 +146,12 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
             Step 2
         ======================
     */
-
-
     // Lie about the P-values
     for (int i = 0; i < row_P[N]; i++) {
         val_P[i] *= early_exaggeration;
     }
 
     // Initialize solution (randomly), unless Y is already initialized
-
-
     bool init_from_Y = false; // always start from random
 
     if (init_from_Y) {
@@ -193,9 +195,6 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
         // Make solution zero-mean
         zeroMean(Y, N, no_dims);
 
-        if (update) {
-            (*update)(iter, Y);
-        }
         // Stop lying about the P-values after a while, and switch momentum
         if (iter == stop_lying_iter) {
             for (int i = 0; i < row_P[N]; i++) {
@@ -216,23 +215,27 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
                 total_time += (float) (end - start);
                 //fprintf(stderr, "Iteration %d: error is %f (50 iterations in %4.2f seconds)\n", iter + 1, error, (float) (end - start) );
                 ss << "Iteration " << iter + 1 << ": error is " << error << "\n";
+                // add log
+                tsne_log.push_back(ss.str());
+                ss.str("");
             }
-            if (error < min_error) {
-                break;
-            }
+
             start = time(0);
         }
 
-
+        // For other thread to fetch the intermedian results for animation
+        {
+            // save results to iter-th slot
+            for (int i = 0; i < N * no_dims; i++) {
+                results[iter].push_back(Y[i]);
+            }
+            tsne_queue.push(iter); // thread-safe
+        }
     }
     end = time(0); total_time += (float) (end - start) ;
 
     if (final_error != NULL)
         *final_error = evaluateError(row_P, col_P, val_P, Y, N, no_dims, theta);
-    if (act_iter != NULL)
-        *act_iter = executed_iter;
-    if (report != NULL)
-        *report = ss.str();
     
     // Clean up memory
     free(dY);
@@ -245,8 +248,6 @@ void TSNE::run(void(*update)(int, double*), void(*done)()) {
 
     if (verbose)
         fprintf(stderr, "Fitting performed in %4.2f seconds.\n", total_time);
-
-    (*done)();
 }
 
 // Compute gradient of the t-SNE cost function (using Barnes-Hut algorithm)

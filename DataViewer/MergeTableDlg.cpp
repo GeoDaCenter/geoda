@@ -832,7 +832,7 @@ void MergeTableDlg::LeftJoinMerge()
                                                                  m_wx_encoding));
             }
             if (CheckKeys(key2_name, key2_vec, key2_map) == false) {
-                return;
+                //return;
             }
 
             // make sure key1 <= key2, and store their mappings

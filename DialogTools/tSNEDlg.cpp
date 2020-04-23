@@ -24,6 +24,8 @@
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
 #include <wx/event.h>
+#include <boost/lockfree/queue.hpp>
+
 #include "../ShapeOperations/OGRDataAdapter.h"
 #include "../FramesManager.h"
 #include "../DataViewer/TableInterface.h"
@@ -38,31 +40,35 @@
 #include "SaveToTableDlg.h"
 #include "tSNEDlg.h"
 
+
+// exchange data between t-SNE and UI safely
+boost::lockfree::queue<int> tsne_queue(0);
+
+wxDEFINE_EVENT(myEVT_THREAD_UPDATE, wxThreadEvent);
+wxDEFINE_EVENT(myEVT_THREAD_DONE, wxThreadEvent);
+
 BEGIN_EVENT_TABLE( TSNEDlg, wxDialog )
 EVT_CLOSE( TSNEDlg::OnClose )
 END_EVENT_TABLE()
 
-AnimatePlotcanvas* TSNEDlg::m_animate = 0;
-SimpleReportTextCtrl* TSNEDlg::m_textbox = 0;
-wxButton* TSNEDlg::saveButton = 0;
-wxButton* TSNEDlg::runButton = 0;
-wxButton* TSNEDlg::pauseButton = 0;
-wxSlider* TSNEDlg::m_slider = 0;
-double TSNEDlg::final_cost = 0;
-double TSNEDlg::rank_corr = 0;
-std::string TSNEDlg::report = "";
-std::string TSNEDlg::old_report = "";
-char TSNEDlg::dist = 'e';
-
 
 TSNEDlg::TSNEDlg(wxFrame *parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("t-SNE Settings")),
-data(0), Y(0), ragged_distances(0), tsne(0), tsne_job(0)
+data(0), Y(0), ragged_distances(0), tsne(0), tsne_job(0),
+old_report(""), dist('e')
 {
     wxLogMessage("Open tSNE Dialog.");
-    old_report = "";
-    report = "";
     CreateControls();
+
+    this->Connect(myEVT_THREAD_UPDATE, wxThreadEventHandler(TSNEDlg::OnThreadUpdate ) );
+    this->Connect(myEVT_THREAD_DONE, wxThreadEventHandler(TSNEDlg::OnThreadDone ) );
+
+    // we want to start a long task, but we don't want our GUI to block
+    // while it's executed, so we use a thread to do it.
+    if (CreateThread(wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR)  {
+        wxLogError("Could not create the worker thread!");
+        return;
+    }
 }
 
 TSNEDlg::~TSNEDlg()
@@ -76,6 +82,30 @@ TSNEDlg::~TSNEDlg()
         tsne_job->join();
         delete tsne_job;
     }
+}
+
+void TSNEDlg::OnClose(wxCloseEvent& ev)
+{
+    wxLogMessage("Close TSNEDlg");
+    GetThread()->Kill();
+    // Note: it seems that if we don't explictly capture the close event
+    //       and call Destory, then the destructor is not called.
+    // important: before terminating, we _must_ wait for our joinable
+    // thread to end, if it's running; in fact it uses variables of this
+    // instance and posts events to *this event handler
+    if (GetThread() &&      // DoStartALongTask() may have not been called
+        GetThread()->IsRunning()) {
+        GetThread()->Wait();
+    }
+    Destroy();
+}
+
+void TSNEDlg::OnCloseClick(wxCommandEvent& event )
+{
+    wxLogMessage("Close TSNEDlg.");
+    wxCloseEvent ev;
+    OnClose(ev);
+    event.Skip();
 }
 
 void TSNEDlg::CreateControls()
@@ -123,13 +153,6 @@ void TSNEDlg::CreateControls()
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_iteration, 1, wxEXPAND);
 
-    // min cost
-    wxStaticText* st22 = new wxStaticText(panel, wxID_ANY, _("Min Cost:"));
-    txt_min_cost = new wxTextCtrl(panel, wxID_ANY, "0.000001",wxDefaultPosition, wxSize(70,-1));
-    txt_min_cost->SetValidator( wxTextValidator(wxFILTER_NUMERIC) );
-
-    gbox->Add(st22, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(txt_min_cost, 1, wxEXPAND);
 
     // lr
     wxStaticText* st21 = new wxStaticText(panel, wxID_ANY, _("Learning Rate:"));
@@ -216,6 +239,7 @@ void TSNEDlg::CreateControls()
     hbox->Add(gbox, 1, wxEXPAND);
 
     // Output
+    /*
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("# of Dimensions:"));
     const wxString dims[2] = {"2", "3"};
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, dims);
@@ -225,6 +249,7 @@ void TSNEDlg::CreateControls()
     //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
     hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(combo_n, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+     */
     
     // buttons
     runButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
@@ -245,7 +270,7 @@ void TSNEDlg::CreateControls()
     
     // Container
     vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
-    vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
+    //vbox->Add(hbox1, 0, wxALL |wxEXPAND, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
     wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
@@ -292,24 +317,6 @@ void TSNEDlg::CreateControls()
     seedButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnChangeSeed, this);
     m_slider->Bind(wxEVT_SLIDER, &TSNEDlg::OnSlider, this);
 
-}
-
-
-void TSNEDlg::OnClose(wxCloseEvent& ev)
-{
-    wxLogMessage("Close TSNEDlg");
-    // Note: it seems that if we don't explictly capture the close event
-    //       and call Destory, then the destructor is not called.
-    Destroy();
-}
-
-void TSNEDlg::OnCloseClick(wxCommandEvent& event )
-{
-    wxLogMessage("Close TSNEDlg.");
-    
-    event.Skip();
-    EndDialog(wxID_CANCEL);
-    Destroy();
 }
 
 void TSNEDlg::OnSeedCheck(wxCommandEvent& event)
@@ -426,59 +433,11 @@ double TSNEDlg::_calculateRankCorr(const std::vector<std::vector<double> >& resu
     return r;
 }
 
-//wxDEFINE_EVENT(MY_EVT_APPENDTEXT, wxCommandEvent);
-
-void UpdateText()
-{
-    TSNEDlg::m_textbox->SetValue(TSNEDlg::report);
-}
-void OnUpdate(int idx, double* Y)
-{
-    TSNEDlg::m_animate->UpdateCanvas(idx, Y);
-    TSNEDlg::m_slider->SetValue(idx+1);
-    if (Y != NULL && idx % 100 == 0) {
-
-        //(*TSNEDlg::m_textbox) << TSNEDlg::report;
-        //wxMilliSleep(200);
-    }
-    // thread safe way to setvalue
-    //wxCommandEvent event(MY_EVT_APPENDTEXT, TSNEDlg::m_textbox->GetId());
-    //event.SetEventObject(TSNEDlg::m_textbox);
-    //event.SetString(TSNEDlg::report);
-    //TSNEDlg::m_textbox->GetEventHandler()->AddPendingEvent(event);
-    //TSNEDlg::m_textbox->Update();
-}
-
-void OnDone()
-{
-    TSNEDlg::saveButton->Enable(true);
-    TSNEDlg::runButton->Enable(true);
-    TSNEDlg::pauseButton->Enable(false);
-    TSNEDlg::m_slider->Enable(true);
-
-    if (TSNEDlg::m_slider->GetValue() < TSNEDlg::m_slider->GetMax()) {
-        TSNEDlg::m_slider->Enable(false);
-    }
-
-    wxString tsne_log;
-    tsne_log << _("---\n\nt-SNE: ");
-    //tsne_log << "\nrank correlation:" << TSNEDlg::rank_corr;
-    tsne_log << "\nfinal cost:" << TSNEDlg::final_cost;
-    tsne_log << "\n";
-
-    tsne_log << TSNEDlg::m_textbox->GetValue();
-    tsne_log << TSNEDlg::report;
-    tsne_log << TSNEDlg::old_report;
-    TSNEDlg::m_textbox->SetValue(tsne_log);
-
-    TSNEDlg::old_report = tsne_log;
-}
-
 void TSNEDlg::OnSlider(wxCommandEvent& ev)
 {
     if (m_slider->IsEnabled()) {
-    int idx = m_slider->GetValue();
-    OnUpdate(idx, NULL);
+        int idx = m_slider->GetValue();
+        m_animate->UpdateCanvas(idx, tsne_results);
     }
 }
 
@@ -502,6 +461,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
    
     if (!GetInputData(transform, 1))
         return;
+
+    double* weight = GetWeights(columns);
 
     double perplexity = 0;
     int suggest_perp = (int)((project->GetNumRecords() - 1) /  3);
@@ -533,15 +494,6 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     val = txt_momentum->GetValue();
     if (!val.ToDouble(&momentum)) {
         wxString err_msg = _("Please input a valid numeric value for momentum.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"),
-                            wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    double min_cost;
-    val = txt_min_cost->GetValue();
-    if (!val.ToDouble(&min_cost)) {
-        wxString err_msg = _("Please input a valid numeric value for min cost.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"),
                             wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -618,7 +570,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             m_animate->CreateAndUpdateCategories(groups);
         }
     }
-    long out_dim = combo_n->GetSelection() == 0 ? 2 : 3;
+    long out_dim = 2; //combo_n->GetSelection() == 0 ? 2 : 3;
   
     int new_col = out_dim;
 
@@ -652,37 +604,135 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
 #ifdef DEBUG
     verbose = 1;
 #endif
-    double early_exaggeration = 12;
-    last_iter = max_iteration;
+    double early_exaggeration = 12; // default from R-tSNE
+    final_cost = 0;
+    m_textbox->SetValue(""); // clean text box
+    // start tsne instance
     if (tsne) {
         delete tsne;
     }
     tsne = new TSNE(data, rows, columns, Y, new_col, perplexity, theta, num_threads,
-                          max_iteration, min_cost, (int)mom_switch_iter,
-                          (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed, // false = not skip random init
-                          verbose, early_exaggeration, learningrate, &final_cost,
-                          &last_iter, &report);
+                    max_iteration, (int)mom_switch_iter,
+                    (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed,
+                    verbose, early_exaggeration, learningrate, &final_cost);
+
+    // run tsne in a separate thread
+    tsne_results.clear();
+    tsne_results.resize(max_iteration);
+    tsne_log.clear();
+    
     if (tsne_job) {
         tsne_job->join();
         delete tsne_job;
     }
-    tsne_job = new boost::thread(&TSNE::run, tsne, OnUpdate, OnDone);
+    tsne_job = new boost::thread(&TSNE::run, tsne, boost::ref(tsne_queue),
+                                 boost::ref(tsne_log), boost::ref(tsne_results));
 
-     pauseButton->Enable(true);
+    // start ui thread to listen to changes in tsne
+    if (GetThread()->IsRunning() == false) {
+        if (GetThread()->Run() != wxTHREAD_NO_ERROR) {
+            wxLogError("Could not run the worker thread!");
+            return;
+        }
+    }
+
+    pauseButton->Enable(true);
+}
+
+void TSNEDlg::OnThreadUpdate(wxThreadEvent& evt)
+{
+    int iter = evt.GetInt();
+    if (iter < max_iteration) {
+        m_animate->UpdateCanvas(iter, tsne_results);
+        m_slider->SetValue(iter+1);
+
+        wxString log;
+        for (int i=tsne_log.size()-1; i >=0; --i) {
+            log << tsne_log[i];
+        }
+        m_textbox->SetValue(log);
+    }
+}
+
+void TSNEDlg::OnThreadDone(wxThreadEvent& evt)
+{
+    saveButton->Enable(true);
+    runButton->Enable(true);
+    pauseButton->Enable(false);
+    m_slider->Enable(true);
+
+    if (m_slider->GetValue() < m_slider->GetMax()) {
+        m_slider->Enable(false);
+    }
+
+    wxString tsne_log;
+    tsne_log << _("---\n\nt-SNE: ");
+    tsne_log << "\nfinal cost:" << final_cost;
+    tsne_log << "\n";
+
+    tsne_log << m_textbox->GetValue();
+    tsne_log << old_report;
+    m_textbox->SetValue(tsne_log);
+
+    old_report = tsne_log;
+}
+
+wxThread::ExitCode TSNEDlg::Entry()
+{
+    // IMPORTANT:
+    // this function gets executed in the secondary thread context!
+    // here we do our long task, periodically calling TestDestroy():
+    while (!GetThread()->TestDestroy())
+    {
+        int iter = 0;
+        while (iter < max_iteration - 1) {
+            int processed_iter = 0;
+            while (tsne_queue.pop(iter)) {
+                processed_iter++;
+            }
+            if (processed_iter > 0) {
+                wxThreadEvent* te = new wxThreadEvent(myEVT_THREAD_UPDATE);
+                te->SetInt(iter);
+                wxQueueEvent(this, te);
+            }
+            if (GetThread()->IsRunning()) {
+                GetThread()->Sleep(100);
+            }
+        }
+
+        // VERY IMPORTANT: do not call any GUI function inside this
+        //                 function; rather use wxQueueEvent():
+        wxQueueEvent(this, new wxThreadEvent(myEVT_THREAD_DONE));
+        // we used pointer 'this' assuming it's safe; see OnClose()
+    }
+    // TestDestroy() returned true (which means the main thread asked us
+    // to terminate as soon as possible) or we ended the long task...
+    return (wxThread::ExitCode)0;
 }
 
 void TSNEDlg::OnSave( wxCommandEvent& event ) {
-    long new_col = combo_n->GetSelection() == 0 ? 2 : 3;
-    double* weight = GetWeights(columns);
+    long new_col = 2;//combo_n->GetSelection() == 0 ? 2 : 3;
 
     int sel_iter = m_slider->GetValue() - 1;
-    vector<vector<double> > results;
-    results.push_back(m_animate->GetSelectX(sel_iter));
-    results.push_back(m_animate->GetSelectY(sel_iter));
-    rank_corr = _calculateRankCorr(results);
+
+    // get results from selected iteration
+    const std::vector<double>& data = tsne_results[sel_iter];
+    std::vector<double> X(rows), Y(rows);
+    for (int j = 0; j < rows; ++j) {
+        X[j] = data[j*new_col];
+    }
+    for (int j = 0; j < rows; ++j) {
+        Y[j] = data[j*new_col + 1];
+    }
+    std::vector<std::vector<double> > results;
+    results.push_back(X);
+    results.push_back(Y);
+
+    // compute rank correlation
+    double rank_corr = _calculateRankCorr(results);
 
     std::vector<std::pair<wxString, double> > output_vals;
-    output_vals.push_back(std::make_pair("iterations", max_iteration));
+    output_vals.push_back(std::make_pair("iterations", sel_iter + 1));
     output_vals.insert(output_vals.begin(), std::make_pair("rank correlation", rank_corr));
     output_vals.insert(output_vals.begin(), std::make_pair("final cost", final_cost));
 
