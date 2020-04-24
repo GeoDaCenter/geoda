@@ -306,7 +306,7 @@ void TSNEDlg::CreateControls()
     //stopButton->Enable(false);
     wxStaticText* st28 = new wxStaticText(panel, wxID_ANY, _("Speed"),
                                           wxDefaultPosition, wxSize(40, 30));
-    m_speed_slider = new wxSlider(panel, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxSize(70, 30), wxSL_HORIZONTAL);
+    m_speed_slider = new wxSlider(panel, wxID_ANY, 100, 0, 100, wxDefaultPosition, wxSize(70, 30), wxSL_HORIZONTAL);
 
     hbox_3->Add(playButton, 0, wxALIGN_CENTER | wxALL, 5);
     hbox_3->Add(pauseButton, 0, wxALIGN_CENTER | wxALL, 5);
@@ -478,7 +478,7 @@ void TSNEDlg::OnSpeedSlider(wxCommandEvent& ev)
 {
     if (m_speed_slider->IsEnabled()) {
         if (tsne) {
-            int idx = m_speed_slider->GetValue();
+            int idx = 100 - m_speed_slider->GetValue();
             tsne->set_speed(idx);
         }
     }
@@ -693,7 +693,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                     max_iteration, (int)mom_switch_iter,
                     (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed,
                     verbose, early_exaggeration, learningrate, &final_cost);
-    int idx = m_speed_slider->GetValue();
+    int idx = 100 - m_speed_slider->GetValue();
     tsne->set_speed(idx);
 
     // run tsne in a separate thread
@@ -702,7 +702,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     tsne_log.clear();
     
     if (tsne_job) {
-        int t =  m_speed_slider->GetValue();
+        int t =  100 - m_speed_slider->GetValue();
         if (t > 0) tsne_job->interrupt();
 
         if (tsne_job->joinable()) {
