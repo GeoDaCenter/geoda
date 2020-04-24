@@ -254,17 +254,17 @@ void TSNEDlg::CreateControls()
     // buttons
     runButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition,
                                       wxSize(70, 30));
-    pauseButton = new wxButton(panel, wxID_OK, _("Stop"), wxDefaultPosition,
+    stopButton = new wxButton(panel, wxID_OK, _("Stop"), wxDefaultPosition,
                              wxSize(70, 30));
     saveButton = new wxButton(panel, wxID_OK, _("Save"), wxDefaultPosition,
                                       wxSize(70, 30));
     saveButton->Enable(false);
-    pauseButton->Enable(false);
+    stopButton->Enable(false);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(runButton, 1, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(pauseButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(stopButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(saveButton, 1, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
@@ -282,11 +282,36 @@ void TSNEDlg::CreateControls()
                                       "", "", style, std::vector<std::vector<int> >(),
                                       "", "", wxDefaultPosition,
                                       wxSize(300, 300));
+
+    wxBoxSizer *hbox_4 = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* st29 = new wxStaticText(panel, wxID_ANY, _("Iteration"),
+                                          wxDefaultPosition, wxSize(60, 30));
     m_slider = new wxSlider(panel, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL | wxSL_LABELS);
     m_slider->Enable(false);
+    hbox_4->Add(st29, 0, wxALIGN_CENTER_VERTICAL | wxTOP, 15);
+    hbox_4->Add(m_slider, 1, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+
+    wxBoxSizer *hbox_3 = new wxBoxSizer(wxHORIZONTAL);
+    playButton = new wxButton(panel, wxID_OK, _(">"), wxDefaultPosition, wxSize(30, 30));
+    pauseButton = new wxButton(panel, wxID_OK, _("||"), wxDefaultPosition, wxSize(30, 30));
+    //stopButton = new wxButton(panel, wxID_OK, _("■"), wxDefaultPosition, wxSize(30, 30));
+    playButton->Enable(false);
+    pauseButton->Enable(false);
+    //stopButton->Enable(false);
+    wxStaticText* st28 = new wxStaticText(panel, wxID_ANY, _("Speed"),
+                                          wxDefaultPosition, wxSize(40, 30));
+    m_speed_slider = new wxSlider(panel, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxSize(70, 30), wxSL_HORIZONTAL);
+
+    hbox_3->Add(playButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox_3->Add(pauseButton, 0, wxALIGN_CENTER | wxALL, 5);
+    //hbox_3->Add(stopButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox_3->Add(st28, 0, wxALIGN_CENTER_VERTICAL | wxTOP | wxLEFT, 10);
+    hbox_3->Add(m_speed_slider, 1, wxALIGN_CENTER | wxALL, 5);
+    
     m_textbox = new SimpleReportTextCtrl(panel, XRCID("ID_TEXTCTRL"), "", wxDefaultPosition, wxSize(300,400));
     vbox1->Add(m_animate, 1, wxEXPAND|wxLEFT|wxRIGHT,20);
-    vbox1->Add(m_slider, 0, wxEXPAND|wxLEFT|wxRIGHT,20);
+    vbox1->Add(hbox_4, 0, wxEXPAND|wxLEFT|wxRIGHT,20);
+    vbox1->Add(hbox_3, 0, wxEXPAND|wxLEFT|wxRIGHT,20);
     vbox1->Add(m_textbox, 0, wxEXPAND|wxALL,20);
 
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
@@ -310,13 +335,15 @@ void TSNEDlg::CreateControls()
     
     // Events
     runButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnOK, this);
+    playButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnPlay, this);
     pauseButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnPause, this);
+    stopButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnStop, this);
     saveButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnCloseClick, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &TSNEDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &TSNEDlg::OnChangeSeed, this);
     m_slider->Bind(wxEVT_SLIDER, &TSNEDlg::OnSlider, this);
-
+    m_speed_slider->Bind(wxEVT_SLIDER, &TSNEDlg::OnSpeedSlider, this);
 }
 
 void TSNEDlg::OnSeedCheck(wxCommandEvent& event)
@@ -441,22 +468,52 @@ void TSNEDlg::OnSlider(wxCommandEvent& ev)
     }
 }
 
+void TSNEDlg::OnSpeedSlider(wxCommandEvent& ev)
+{
+    if (m_speed_slider->IsEnabled()) {
+        if (tsne) {
+            int idx = m_speed_slider->GetValue();
+            tsne->set_speed(idx);
+        }
+    }
+}
+
+void TSNEDlg::OnPlay(wxCommandEvent& event )
+{
+    if (tsne) {
+        tsne->set_paused(false);
+        playButton->Enable(false);
+        pauseButton->Enable(true);
+        stopButton->Enable(true);
+    }
+}
+
 void TSNEDlg::OnPause(wxCommandEvent& event )
 {
     if (tsne) {
-        tsne->stop();
-        runButton->Enable(true);
+        tsne->set_paused(true);
+        playButton->Enable(true);
         pauseButton->Enable(false);
+        stopButton->Enable(true);
+    }
+}
+
+void TSNEDlg::OnStop(wxCommandEvent& event )
+{
+    if (tsne) {
+        tsne->set_paused(false);
+        runButton->Enable(true);
+        playButton->Enable(false);
+        pauseButton->Enable(false);
+        stopButton->Enable(false);
+        tsne->stop();
     }
 }
 
 void TSNEDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click TSNEDlg::OnOK");
-    runButton->Enable(false);
-    saveButton->Enable(false);
-    m_slider->Enable(false);
-    m_textbox->SetValue("");
+
     int transform = combo_tranform->GetSelection();
    
     if (!GetInputData(transform, 1))
@@ -570,6 +627,17 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
             m_animate->CreateAndUpdateCategories(groups);
         }
     }
+
+    runButton->Enable(false);
+    saveButton->Enable(false);
+
+    playButton->Enable(false);
+    pauseButton->Enable(true);
+    stopButton->Enable(true);
+
+    m_slider->Enable(false);
+    m_textbox->SetValue("");
+
     long out_dim = 2; //combo_n->GetSelection() == 0 ? 2 : 3;
   
     int new_col = out_dim;
@@ -615,6 +683,8 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                     max_iteration, (int)mom_switch_iter,
                     (int)GdaConst::gda_user_seed, !GdaConst::use_gda_user_seed,
                     verbose, early_exaggeration, learningrate, &final_cost);
+    int idx = m_speed_slider->GetValue();
+    tsne->set_speed(idx);
 
     // run tsne in a separate thread
     tsne_results.clear();
@@ -622,7 +692,12 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     tsne_log.clear();
     
     if (tsne_job) {
-        tsne_job->join();
+        int t =  m_speed_slider->GetValue();
+        if (t > 0) tsne_job->interrupt();
+
+        if (tsne_job->joinable()) {
+            tsne_job->join();
+        }
         delete tsne_job;
     }
     tsne_job = new boost::thread(&TSNE::run, tsne, boost::ref(tsne_queue),
@@ -642,7 +717,14 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
 void TSNEDlg::OnThreadUpdate(wxThreadEvent& evt)
 {
     int iter = evt.GetInt();
-    if (iter < max_iteration) {
+    if (iter < 0 ) {
+        // pause and stop
+        max_iteration = m_slider->GetValue();
+        m_slider->SetMax(max_iteration);
+        m_animate->UpdateCanvas(iter, tsne_results);
+        m_slider->Enable(true);
+        saveButton->Enable(true);
+    } else if (iter < max_iteration) {
         m_animate->UpdateCanvas(iter, tsne_results);
         m_slider->SetValue(iter+1);
 
@@ -658,8 +740,13 @@ void TSNEDlg::OnThreadDone(wxThreadEvent& evt)
 {
     saveButton->Enable(true);
     runButton->Enable(true);
+
+    playButton->Enable(false);
     pauseButton->Enable(false);
+    stopButton->Enable(false);
+
     m_slider->Enable(true);
+    m_speed_slider->Enable(true);
 
     if (m_slider->GetValue() < m_slider->GetMax()) {
         m_slider->Enable(false);

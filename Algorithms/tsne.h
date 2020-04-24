@@ -12,8 +12,12 @@
 #ifndef TSNE_H
 #define TSNE_H
 
-#include "vptree.h"
+#include <boost/chrono.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/lockfree/queue.hpp>
+
+
+#include "vptree.h"
 
 static inline double sign(double x) { return (x == .0 ? .0 : (x < .0 ? -1.0 : 1.0)); }
 
@@ -29,7 +33,8 @@ public:
          double *final_error = NULL);
 
     void stop();
-
+    void set_paused(bool new_value);
+    void set_speed(int speed);
     void run(boost::lockfree::queue<int>& tsne_queue,
              std::vector<std::string>& tsne_log,
              std::vector<std::vector<double> >& results);
@@ -63,6 +68,10 @@ private:
     std::string* report;
 
     bool is_stop;
+    int m_speed;
+    bool m_pause; // initialise to false in constructor!
+    boost::mutex m_pause_mutex;
+    boost::condition_variable m_pause_changed;
 };
 
 #endif

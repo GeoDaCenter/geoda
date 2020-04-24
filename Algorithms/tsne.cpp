@@ -21,6 +21,8 @@
 #include <omp.h>
 #endif
 
+#include <wx/utils.h> 
+
 // #include "quadtree.h"
 #include "splittree.h"
 #include "vptree.h"
@@ -44,9 +46,24 @@ num_threads(num_threads), max_iter(max_iter),
 n_iter_early_exag(n_iter_early_exag), random_state(random_state),
 skip_random_init(skip_random_init), verbose(verbose),
 early_exaggeration(early_exaggeration), learning_rate(learning_rate),
-final_error(final_error), is_stop(false)
+final_error(final_error), is_stop(false), m_pause(false)
 {
 
+}
+
+void TSNE::set_paused(bool new_value)
+{
+    {
+        boost::unique_lock<boost::mutex> lock(m_pause_mutex);
+        m_pause = new_value;
+    }
+
+    m_pause_changed.notify_all();
+}
+
+void TSNE::set_speed(int speed)
+{
+    m_speed = speed;
 }
 
 void TSNE::stop()
@@ -176,8 +193,6 @@ void TSNE::run(boost::lockfree::queue<int>& tsne_queue,
     for (int iter = 0; iter < max_iter; iter++) {
         executed_iter += 1;
 
-        if (is_stop) break;
-
         bool need_eval_error = (true && ((iter > 0 && (iter+1) % 50 == 0) || (iter == max_iter - 1)));
 
         // Compute approximate gradient
@@ -225,6 +240,22 @@ void TSNE::run(boost::lockfree::queue<int>& tsne_queue,
 
         // For other thread to fetch the intermedian results for animation
         {
+            if (is_stop) {
+                tsne_queue.push(-1); // -1 for pause-stop
+                break;
+            }
+            // sleep option
+            boost::unique_lock<boost::mutex> lock(m_pause_mutex);
+            if (m_speed > 0) {
+                //boost::this_thread::sleep_for(boost::chrono::milliseconds(m_speed));
+                wxMilliSleep(m_speed);
+            }
+            // pause option
+
+            while(m_pause)
+            {
+                m_pause_changed.wait(lock);
+            }
             // save results to iter-th slot
             for (int i = 0; i < N * no_dims; i++) {
                 results[iter].push_back(Y[i]);

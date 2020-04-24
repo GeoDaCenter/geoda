@@ -48,13 +48,16 @@ public:
     void OnThreadDone(wxThreadEvent& evt);
 
     void OnOK( wxCommandEvent& event );
+    void OnPlay( wxCommandEvent& event );
     void OnPause( wxCommandEvent& event );
+    void OnStop( wxCommandEvent& event );
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
     void OnSlider(wxCommandEvent& ev);
+    void OnSpeedSlider(wxCommandEvent& ev);
     void OnSave( wxCommandEvent& event );
     virtual wxString _printConfiguration();
     double _calculateRankCorr(const std::vector<std::vector<double> >& result);
@@ -82,8 +85,11 @@ protected:
     SimpleReportTextCtrl* m_textbox;
     wxButton* saveButton;
     wxButton* runButton;
+    wxButton* playButton;
     wxButton* pauseButton;
+    wxButton* stopButton;
     wxSlider* m_slider;
+    wxSlider* m_speed_slider;
 
     wxChoice* m_distance;
     //wxChoice* combo_n;
