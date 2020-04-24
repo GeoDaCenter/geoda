@@ -75,18 +75,24 @@ TSNEDlg::~TSNEDlg()
 {
     if (data) delete[] data;
     if (Y) delete[] Y;
-    if (tsne) {
-        delete tsne;
-    }
     if (tsne_job) {
         tsne_job->join();
         delete tsne_job;
+    }
+    if (tsne) {
+        delete tsne;
     }
 }
 
 void TSNEDlg::OnClose(wxCloseEvent& ev)
 {
     wxLogMessage("Close TSNEDlg");
+    // stop tsne
+    if (tsne) {
+        tsne->set_paused(false);
+        tsne->stop();
+    }
+    
     GetThread()->Kill();
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
@@ -675,6 +681,10 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     double early_exaggeration = 12; // default from R-tSNE
     final_cost = 0;
     m_textbox->SetValue(""); // clean text box
+
+    int iter;
+    while (tsne_queue.pop(iter)){} // clean tsne_queue
+    
     // start tsne instance
     if (tsne) {
         delete tsne;
