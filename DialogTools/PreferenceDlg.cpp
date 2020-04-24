@@ -589,7 +589,7 @@ void PreferenceDlg::SetupControls()
     cbox_lbl->SetValue(GdaConst::gda_draw_map_labels);
     wxString t_lbl_font_size;
     t_lbl_font_size << GdaConst::gda_map_label_font_size;
-    txt_cores->SetValue(t_lbl_font_size);
+    txt_lbl_font->SetValue(t_lbl_font_size);
 }
 
 void PreferenceDlg::ReadFromCache()
@@ -1216,12 +1216,12 @@ void PreferenceDlg::OnDrawLabels(wxCommandEvent& ev)
     if (sel == 0) {
         GdaConst::gda_draw_map_labels = false;
         OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "0");
-        txt_cores->Disable();
+        txt_lbl_font->Disable();
     }
     else {
         GdaConst::gda_draw_map_labels = true;
         OGRDataAdapter::GetInstance().AddEntry("gda_draw_map_labels", "1");
-        txt_cores->Enable();
+        txt_lbl_font->Enable();
     }
 }
 void PreferenceDlg::OnLabelFontSizeEnter(wxCommandEvent& ev)

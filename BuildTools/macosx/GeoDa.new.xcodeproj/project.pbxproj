@@ -103,6 +103,8 @@
 		A4404A12209275550007753D /* hdbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A10209275540007753D /* hdbscan.cpp */; };
 		A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */; };
 		A4596B512033DDFF00C9BCC8 /* AbstractClusterMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */; };
+		A45CFF082453A516001F00B9 /* AnimatePlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */; };
+		A45CFF092453A516001F00B9 /* wxGLString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45CFF062453A516001F00B9 /* wxGLString.cpp */; };
 		A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */; };
 		A45DBDF51EDDEDAD00C2AA8A /* cluster.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF31EDDEDAD00C2AA8A /* cluster.cpp */; };
 		A45DBDFA1EDDEE4D00C2AA8A /* maxp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45DBDF81EDDEE4D00C2AA8A /* maxp.cpp */; };
@@ -501,6 +503,10 @@
 		A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCoordinator.cpp; sourceTree = "<group>"; };
 		A4596B4F2033DDFF00C9BCC8 /* AbstractClusterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterMap.h; sourceTree = "<group>"; };
 		A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractClusterMap.cpp; sourceTree = "<group>"; };
+		A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatePlotCanvas.cpp; sourceTree = "<group>"; };
+		A45CFF052453A516001F00B9 /* wxGLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wxGLString.h; sourceTree = "<group>"; };
+		A45CFF062453A516001F00B9 /* wxGLString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wxGLString.cpp; sourceTree = "<group>"; };
+		A45CFF072453A516001F00B9 /* AnimatePlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatePlotCanvas.h; sourceTree = "<group>"; };
 		A45DBDF01EDDEDAD00C2AA8A /* pca.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pca.h; path = Algorithms/pca.h; sourceTree = "<group>"; };
 		A45DBDF11EDDEDAD00C2AA8A /* pca.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pca.cpp; path = Algorithms/pca.cpp; sourceTree = "<group>"; };
 		A45DBDF21EDDEDAD00C2AA8A /* cluster.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cluster.h; path = Algorithms/cluster.h; sourceTree = "<group>"; };
@@ -1390,6 +1396,10 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */,
+				A45CFF072453A516001F00B9 /* AnimatePlotCanvas.h */,
+				A45CFF062453A516001F00B9 /* wxGLString.cpp */,
+				A45CFF052453A516001F00B9 /* wxGLString.h */,
 				A43F343A2412C8280096E33B /* LoessPlotCanvas.cpp */,
 				A43F343B2412C8280096E33B /* LoessPlotCanvas.h */,
 				A41C2BB52400442F00C341A2 /* DistancePlotView.cpp */,
@@ -1982,6 +1992,7 @@
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
 				A46099A32416E41B000A53E2 /* loess.c in Sources */,
+				A45CFF082453A516001F00B9 /* AnimatePlotCanvas.cpp in Sources */,
 				DDEA3CBE193CEE5C0028B746 /* GdaLexer.cpp in Sources */,
 				A14735BA21A65F1800CA69B2 /* perf.cpp in Sources */,
 				DDEA3CBF193CEE5C0028B746 /* GdaParser.cpp in Sources */,
@@ -2027,6 +2038,7 @@
 				DD88CF0B1A4254D000803196 /* CovSpHLStateProxy.cpp in Sources */,
 				DD6EE55F1A434302003AB41E /* DistancesCalc.cpp in Sources */,
 				A19483982118BAAA009A87A2 /* basic.cpp in Sources */,
+				A45CFF092453A516001F00B9 /* wxGLString.cpp in Sources */,
 				DDE4DFD61A963B07005B9158 /* GdaShape.cpp in Sources */,
 				A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */,
 				DD0FC7E81A9EC17500A6715B /* CorrelogramAlgs.cpp in Sources */,
