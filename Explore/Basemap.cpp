@@ -231,8 +231,9 @@ void Basemap::SetupMapType(BasemapItem& _basemap_item)
     basemapUrl = basemap_item.url;
 
     wxString content_type = GetContentType();
-    content_type.MakeUpper();
+    if (content_type.IsEmpty()) content_type = GetContentType();
 
+    content_type.MakeUpper();
     if (content_type.Find("PNG") != wxNOT_FOUND) {
         imageSuffix = ".png";
     } else if (content_type.Find("JPG") != wxNOT_FOUND) {
@@ -272,7 +273,8 @@ void Basemap::Reset()
     map->west= origMap->west;
     map->east= origMap->east;
     GetEasyZoomLevel();
-    SetupMapType(basemap_item);
+    //SetupMapType(basemap_item);
+    GetTiles();
 }
 
 void Basemap::Reset(int map_type)
@@ -301,7 +303,8 @@ void Basemap::Extent(double _n, double _w, double _s, double _e,
     origMap->west= _w;
     origMap->east= _e;
     GetEasyZoomLevel();
-    SetupMapType(basemap_item);
+    //SetupMapType(basemap_item);
+    GetTiles();
 }
 
 void Basemap::ResizeScreen(int _width, int _height)
@@ -313,7 +316,8 @@ void Basemap::ResizeScreen(int _width, int _height)
         //isTileDrawn = false;
         GetEasyZoomLevel();
 
-        SetupMapType(basemap_item);
+        //SetupMapType(basemap_item);
+        GetTiles();
     }
 }
 
@@ -607,13 +611,19 @@ size_t curlCallback(void *ptr, size_t size, size_t nmemb, void* userdata)
 
 wxString Basemap::GetContentType()
 {
-    wxString url = GetTileUrl(0, 0);
+    wxString url = GetTileUrl(16, 11); // guerry
     wxString content_type;
     CURL *curl = curl_easy_init();
     CURLcode res;
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
-
+        curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, "GeoDa 1.14 contact spatial@uchiago.edu");
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
         res = curl_easy_perform(curl);
 
         if(!res) {
@@ -626,7 +636,7 @@ wxString Basemap::GetContentType()
         }
         curl_easy_cleanup(curl);
     }
-
+    //std::cout << "ContentType():" << content_type << "," << url.c_str() << ","  << url.ToUTF8().data() << std::endl;
     return content_type;
 }
 
@@ -657,6 +667,7 @@ void Basemap::DownloadTile(int x, int y)
             if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+	        curl_easy_setopt(image, CURLOPT_USERAGENT, "GeoDa 1.14 contact spatial@uchiago.edu");
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
@@ -785,7 +796,7 @@ wxString Basemap::GetTileUrl(int x, int y)
     url.Replace("HERE_APP_ID", nokia_id);
     url.Replace("HERE_APP_CODE", nokia_code);
     url.Replace("{s}", GetRandomSubdomain(url));
-    std::cout << url.c_str() << std::endl;
+    //std::cout << url.c_str() << std::endl;
     return url;
 }
 
