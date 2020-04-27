@@ -200,7 +200,7 @@ void TSNEDlg::CreateControls()
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
 
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Categeory Variable:"));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Category Variable:"));
     wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_group = new wxCheckBox(panel, wxID_ANY, "");
     {
