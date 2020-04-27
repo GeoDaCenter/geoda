@@ -5,7 +5,6 @@
 #include <queue>
 #include <stdlib.h>
 
-#ifndef __JSGEODA__
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
@@ -14,6 +13,8 @@
 #include <boost/phoenix.hpp>
 #include <boost/optional.hpp>
 #include <boost/container/deque.hpp>
+
+#include "../GdaConst.h"
 
 typedef boost::function<void()> job_t;
 
@@ -37,6 +38,7 @@ private:
 public:
     thread_pool() : shutdown(false) {
         int cores = boost::thread::hardware_concurrency();
+        if (GdaConst::gda_set_cpu_cores) cores = GdaConst::gda_cpu_cores;
         if (cores > 1) cores = cores -1;
         for (unsigned i = 0; i < cores; ++i)
             pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
@@ -234,6 +236,5 @@ int test() {
     delete tp;
     printf("Done with all work!\n");
 }
-#endif
 
 #endif

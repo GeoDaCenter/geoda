@@ -358,7 +358,8 @@ namespace Gda {
                 OGRCoordinateTransformation* _poCT,
                 double scale_factor = 1.0);
         ~Basemap();
-        
+
+        static const char* USER_AGENT;
         OGRCoordinateTransformation *poCT;
         BasemapItem basemap_item;
         wxString basemapName;
@@ -391,8 +392,7 @@ namespace Gda {
         Screen* screen;
         MapLayer* map;
         MapLayer* origMap;
-        
-        
+
         double Deg2Rad (double degree) { return degree * M_PI / 180.0; }
         double Rad2Deg (double radians) { return radians * 180.0 / M_PI;}
         XYFraction* LatLngToXY(LatLng &latlng);

@@ -467,7 +467,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
     GdaConst::gda_draw_map_labels = false;
     GdaConst::gda_map_label_font_size = 8;
 	GdaConst::gda_set_cpu_cores = true;
-	GdaConst::gda_cpu_cores = 8;
+	GdaConst::gda_cpu_cores = 6;
 	GdaConst::use_cross_hatching = false;
 	GdaConst::transparency_highlighted = 255;
 	GdaConst::transparency_unhighlighted = 100;
@@ -521,7 +521,7 @@ void PreferenceDlg::OnReset(wxCommandEvent& ev)
 	ogr_adapt.AddEntry("use_gda_user_seed", "1");
 	ogr_adapt.AddEntry("gda_user_seed", "123456789");
 	ogr_adapt.AddEntry("gda_datetime_formats_str", "%Y-%m-%d %H:%M:%S,%Y/%m/%d %H:%M:%S,%d.%m.%Y %H:%M:%S,%m/%d/%Y %H:%M:%S,%Y-%m-%d,%m/%d/%Y,%Y/%m/%d,%H:%M:%S,%H:%M,%Y/%m/%d %H:%M %p");
-	ogr_adapt.AddEntry("gda_cpu_cores", "8");
+	ogr_adapt.AddEntry("gda_cpu_cores", "6");
 	ogr_adapt.AddEntry("gda_set_cpu_cores", "1");
 	ogr_adapt.AddEntry("gda_eigen_tol", "1.0E-8");
     ogr_adapt.AddEntry("gda_ui_language", "0");

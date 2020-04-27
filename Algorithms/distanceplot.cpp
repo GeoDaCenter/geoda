@@ -63,7 +63,6 @@ bool DistancePlot::compute_var_dist(size_t i, size_t j, double& var_dist)
         }
         var_dist = sqrt(var_dist);
     }
-
     return undef;
 }
 
@@ -166,6 +165,7 @@ void DistancePlot::compute_dist(size_t row_idx, bool rand_sample)
         geo_dist = compute_geo_dist(row_idx, j);
 
         // compute variable distance
+        var_dist = 0;
         bool undef = compute_var_dist(row_idx, j, var_dist);
 
         if (rand_sample) {
@@ -202,7 +202,7 @@ void DistancePlot::run(const rtree_pt_2d_t& rtree, double thresh)
 void DistancePlot::compute_dist_thres(size_t row_idx, const rtree_pt_2d_t& rtree,
                                       double thresh)
 {
-    double geo_dist, var_dist = 0, val;
+    double geo_dist, var_dist, val;
 
     double pt_x = points[row_idx]->GetX();
     double pt_y = points[row_idx]->GetY();
@@ -220,6 +220,7 @@ void DistancePlot::compute_dist_thres(size_t row_idx, const rtree_pt_2d_t& rtree
             if (geo_dist > thresh) continue;
 
             // compute variable distance
+            var_dist = 0;
             bool undef = compute_var_dist(row_idx, j, var_dist);
 
             // save to results
@@ -275,6 +276,7 @@ void DistancePlot::compute_dist_thres3d(size_t row_idx, const rtree_pt_3d_t& rtr
             geo_dist = compute_geo_dist(row_idx, j);
             if (geo_dist > thresh) continue;
             // compute variable distance
+            var_dist = 0;
             bool undef = compute_var_dist(row_idx, j, var_dist);
 
             // save to results

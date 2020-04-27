@@ -647,7 +647,7 @@ void DistancePlotDlg::OnOK(wxCommandEvent &ev)
     distplot = new DistancePlot(centroids, data, data_undefs, vardist_method,
                           IsArc(), IsMi(), last_seed_used, reuse_last_seed);
 
-
+    str_threshold = "";
     title = _("Distance Scatter Plot: ");
     wxArrayInt selections;
     combo_var->GetSelections(selections);

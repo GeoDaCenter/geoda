@@ -154,6 +154,8 @@ XYFraction::XYFraction(double _x, double _y)
     yfrac = modf(_y, &yint);
 }
 
+const char *Basemap::USER_AGENT = "GeoDa 1.14 contact spatial@uchiago.edu";
+
 Basemap::Basemap(BasemapItem& _basemap_item,
                  Screen* _screen,
                  MapLayer* _map,
@@ -618,11 +620,11 @@ wxString Basemap::GetContentType()
     if(curl) {
         curl_easy_setopt(curl, CURLOPT_URL, url.ToUTF8().data());
         curl_easy_setopt(curl, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, "GeoDa 1.14 contact spatial@uchiago.edu");
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, Basemap::USER_AGENT);
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 1L);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 1L);
         curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
         res = curl_easy_perform(curl);
 
@@ -667,7 +669,7 @@ void Basemap::DownloadTile(int x, int y)
             if (fp) {
                 curl_easy_setopt(image, CURLOPT_URL, url.ToUTF8().data());
                 curl_easy_setopt(image, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
-	        curl_easy_setopt(image, CURLOPT_USERAGENT, "GeoDa 1.14 contact spatial@uchiago.edu");
+                curl_easy_setopt(image, CURLOPT_USERAGENT, Basemap::USER_AGENT);
                 curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, curlCallback);
                 curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
                 //curl_easy_setopt(image, CURLOPT_FOLLOWLOCATION, 1);
