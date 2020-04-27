@@ -227,6 +227,7 @@ void CreatingWeightDlg::CreateControls()
     m_txt_precision_threshold->Enable(false);
     m_power->Enable(false);
     m_power_knn->Enable(false);
+    m_include_lower->Enable(false);
 
     m_nb_weights_type->Bind(wxEVT_NOTEBOOK_PAGE_CHANGED,
                             &CreatingWeightDlg::OnWeightTypeSelect, this);
@@ -729,6 +730,14 @@ void CreatingWeightDlg::OnCSpinOrderofcontiguityUpdated( wxSpinEvent& event )
 	wxString val;
 	val << m_spincont->GetValue();
 	m_contiguity->SetValue(val);
+    long l_val;
+    if (val.ToLong(&l_val) ) {
+        if (l_val > 1) {
+            m_include_lower->Enable(true);
+        } else {
+            m_include_lower->Enable(false);
+        }
+    }
 }
 
 void CreatingWeightDlg::OnCSpinKnnUpdated( wxSpinEvent& event )
@@ -1490,7 +1499,7 @@ void CreatingWeightDlg::CreateWeights()
     }
     
     bool m_check1 = m_include_lower->GetValue();
-   
+
     if (m_nb_weights_type->GetSelection()== 0) {
         // queen/rook
         GalWeight* Wp = new GalWeight;
