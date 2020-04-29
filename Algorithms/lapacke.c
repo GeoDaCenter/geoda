@@ -41,6 +41,9 @@ void dposv(const int *n, const int *m, double *a, double *b) {
 }
 
 void dsyevd(const int *n, double *a, double *x) {
+	lapack_int* iwork = NULL;
+    double* work = NULL;
+	double work_query;
     lapack_int nn = to_lapack_int(n);
     //(void)LAPACKE_dsyevd(LAPACK_COL_MAJOR, 'V', 'U', nn, a, nn, x);
     // ref: lapacke_dstevd.c
@@ -50,7 +53,7 @@ void dsyevd(const int *n, double *a, double *x) {
     lapack_int info = 0;
     lapack_int iwork_query;
     lapack_int lwork = -1;
-    double work_query;
+    
     lapack_int liwork = -1;
 
     /* Query optimal working array(s) size */
@@ -60,8 +63,7 @@ void dsyevd(const int *n, double *a, double *x) {
     lwork = (lapack_int)work_query;
 
     /* Allocate memory for work arrays */
-    lapack_int* iwork = NULL;
-    double* work = NULL;
+
 
     iwork = (lapack_int*)LAPACKE_malloc( sizeof(lapack_int) * liwork );
     work = (double*)LAPACKE_malloc( sizeof(double) * lwork );

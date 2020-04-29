@@ -59,6 +59,9 @@
     <Filter Include="Algorithms\loess">
       <UniqueIdentifier>{d0a2af4e-5095-4527-93ef-766cbb72f6f5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Algorithms\smacof">
+      <UniqueIdentifier>{499e618f-f33a-4130-81c6-09205aad99f8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\rc\GeoDa.ico">
@@ -896,6 +899,12 @@
     <ClInclude Include="..\..\Algorithms\vptree.h">
       <Filter>Algorithms</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\smacof.h">
+      <Filter>Algorithms\smacof</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1636,6 +1645,21 @@
     </ClCompile>
     <ClCompile Include="..\..\Algorithms\splittree.cpp">
       <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\jacobi.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\lapacke.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\smacof.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\smacof_utils.c">
+      <Filter>Algorithms\smacof</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp">
+      <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

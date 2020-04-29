@@ -10,6 +10,10 @@
 extern "C" {
 #endif /* __cplusplus */
 
+#ifdef _MSC_VER
+#define inline _inline
+#endif
+
 #ifndef lapack_int
 #define lapack_int long int
 #endif

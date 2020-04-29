@@ -5,6 +5,7 @@
 #include <queue>
 #include <stdlib.h>
 
+#ifndef __JSGEODA__
 #include <boost/thread/thread.hpp>
 #include <boost/bind.hpp>
 #include <boost/make_shared.hpp>
@@ -237,4 +238,5 @@ int test() {
     printf("Done with all work!\n");
 }
 
+#endif
 #endif

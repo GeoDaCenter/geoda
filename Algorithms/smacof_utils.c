@@ -2,11 +2,14 @@
 
 // complete set of orthogonal polynomials
 
-void dorpol(const int *n, double *p) {
-    for (int i = 1; i <= *n; i++) {
+void dorpol(const int *n, double *p) 
+{
+	int i, j;
+	double di;
+    for (i = 1; i <= *n; i++) {
         p[MINDEX(i, 1, *n)] = 1.0;
-        double di = (double)i;
-        for (int j = 2; j <= *n; j++) {
+        di = (double)i;
+        for (j = 2; j <= *n; j++) {
             p[MINDEX(i, j, *n)] = p[MINDEX(i, j - 1, *n)] * di;
         }
     }
@@ -19,19 +22,21 @@ void dorpol(const int *n, double *p) {
 void docent(const int *n, double *x, double *y) {
     int nn = *n;
     double *ssum = (double *)calloc((size_t)nn, sizeof(double)), t = 0.0;
-    for (int i = 1; i <= nn; i++) {
-        double s = 0.0;
-        for (int j = 1; j <= nn; j++) {
-            int ij = IMAX(i, j);
-            int ji = IMIN(j, i);
+	int i,j, ij, ji;
+	double s;
+    for ( i = 1; i <= nn; i++) {
+        s = 0.0;
+        for (j = 1; j <= nn; j++) {
+            ij = IMAX(i, j);
+            ji = IMIN(j, i);
             s += x[TINDEX(ij, ji, nn)];
             t += x[TINDEX(ij, ji, nn)];
         }
         ssum[VINDEX(i)] = s / ((double)nn);
     }
     t /= (double)SQUARE(nn);
-    for (int j = 1; j <= nn; j++) {
-        for (int i = j; i <= nn; i++) {
+    for (j = 1; j <= nn; j++) {
+        for (i = j; i <= nn; i++) {
             y[TINDEX(i, j, nn)] =
                 -(x[TINDEX(i, j, nn)] - ssum[VINDEX(i)] - ssum[VINDEX(j)] + t) /
                 2.0;
@@ -44,9 +49,11 @@ void docent(const int *n, double *x, double *y) {
 // print a general matrix
 
 void primat(const int *n, const int *m, const int *w, const int *p,
-            const double *x) {
-    for (int i = 1; i <= *n; i++) {
-        for (int j = 1; j <= *m; j++) {
+            const double *x) 
+{
+	int i,j;
+    for (i = 1; i <= *n; i++) {
+        for (j = 1; j <= *m; j++) {
             printf(" %+*.*f ", *w, *p, x[MINDEX(i, j, *n)]);
         }
         printf("\n");
@@ -57,11 +64,13 @@ void primat(const int *n, const int *m, const int *w, const int *p,
 
 // print strict lower triangle
 
-void pritrl(const int *n, const int *w, const int *p, const double *x) {
-    for (int i = 1; i <= *n; i++) {
-        for (int j = 1; j <= i; j++) {
+void pritrl(const int *n, const int *w, const int *p, const double *x) 
+{
+	int i,j,k;
+    for (i = 1; i <= *n; i++) {
+        for (j = 1; j <= i; j++) {
             if (i == j) {
-                for (int k = 1; k <= *w + 2; k++) {
+                for (k = 1; k <= *w + 2; k++) {
                     printf("%c", '*');
                 }
             }
@@ -77,9 +86,11 @@ void pritrl(const int *n, const int *w, const int *p, const double *x) {
 
 // print inclusive lower triangle
 
-void pritru(const int *n, const int *w, const int *p, const double *x) {
-    for (int i = 1; i <= *n; i++) {
-        for (int j = 1; j <= i; j++) {
+void pritru(const int *n, const int *w, const int *p, const double *x) 
+{
+	int i,j;
+    for ( i = 1; i <= *n; i++) {
+        for ( j = 1; j <= i; j++) {
             printf(" %+*.*f ", *w, *p, x[TINDEX(i, j, *n)]);
         }
         printf("\n");
@@ -91,10 +102,12 @@ void pritru(const int *n, const int *w, const int *p, const double *x) {
 // print general array
 
 void priarr(const int *n, const int *m, const int *r, const int *w,
-            const int *p, const double *x) {
-    for (int k = 1; k <= *r; k++) {
-        for (int i = 1; i <= *n; i++) {
-            for (int j = 1; j <= *m; j++) {
+            const int *p, const double *x) 
+{
+	int i,j,k;
+    for ( k = 1; k <= *r; k++) {
+        for ( i = 1; i <= *n; i++) {
+            for ( j = 1; j <= *m; j++) {
                 printf(" %+*.*f ", *w, *p, x[AINDEX(i, j, k, *n, *m)]);
             }
             printf("\n");
@@ -107,23 +120,28 @@ void priarr(const int *n, const int *m, const int *r, const int *w,
 
 // arbitrary power of a matrix
 
-void mpower(const int *n, double *x, double *power, double *xpow) {
+void mpower(const int *n, double *x, double *power, double *xpow) 
+{
     int nn = *n, itmax = 100;
     double eps = 1e-6;
     double *e = (double *)calloc((size_t)SQUARE(nn), sizeof(double));
     double *oldi = (double *)calloc((size_t)nn, sizeof(double));
     double *oldj = (double *)calloc((size_t)nn, sizeof(double));
+
+	int k = 1, i, j;
+	double s;
+
     (void)jacobiC(n, x, e, oldi, oldj, &itmax, &eps);
-    int k = 1;
-    for (int i = 1; i <= nn; i++) {
-        double s = x[VINDEX(k)];
+    
+    for ( i = 1; i <= nn; i++) {
+        s = x[VINDEX(k)];
         oldi[VINDEX(i)] = (s > 1e-10) ? pow(s, *power) : 0.0;
         k += (nn - (i - 1));
     }
-    for (int j = 1; j <= nn; j++) {
-        for (int i = j; i <= nn; i++) {
-            double s = 0.0;
-            for (int k = 1; k <= nn; k++) {
+    for (j = 1; j <= nn; j++) {
+        for (i = j; i <= nn; i++) {
+            s = 0.0;
+            for (k = 1; k <= nn; k++) {
                 s +=
                     e[MINDEX(i, k, nn)] * e[MINDEX(j, k, nn)] * oldi[VINDEX(k)];
             }
@@ -138,10 +156,12 @@ void mpower(const int *n, double *x, double *power, double *xpow) {
 
 // inclusive lower triangle to symmetric
 
-void trimat(const int *n, const double *x, double *y) {
+void trimat(const int *n, const double *x, double *y) 
+{
     int nn = *n;
-    for (int i = 1; i <= nn; i++) {
-        for (int j = 1; j <= nn; j++) {
+	int i,j;
+    for (i = 1; i <= nn; i++) {
+        for (j = 1; j <= nn; j++) {
             y[MINDEX(i, j, nn)] =
                 (i >= j) ? x[TINDEX(i, j, nn)] : x[TINDEX(j, i, nn)];
         }
@@ -151,10 +171,12 @@ void trimat(const int *n, const double *x, double *y) {
 
 // symmetric to inclusive lower triangular
 
-void mattri(const int *n, const double *x, double *y) {
+void mattri(const int *n, const double *x, double *y) 
+{
     int nn = *n;
-    for (int j = 1; j <= nn; j++) {
-        for (int i = j; i <= nn; i++) {
+	int i,j;
+    for (j = 1; j <= nn; j++) {
+        for (i = j; i <= nn; i++) {
             y[TINDEX(i, j, nn)] = x[MINDEX(i, j, nn)];
         }
     }
@@ -164,14 +186,17 @@ void mattri(const int *n, const double *x, double *y) {
 // premultiply matrix by symmetric matrix in inclusive triangular storage
 
 void mutrma(const int *n, const int *m, const double *a, const double *x,
-            double *y) {
+            double *y) 
+{
     int nn = *n, mm = *m;
-    for (int i = 1; i <= nn; i++) {
-        for (int j = 1; j <= mm; j++) {
-            double s = 0.0;
-            for (int k = 1; k <= nn; k++) {
-                int ik = IMAX(i, k);
-                int ki = IMIN(i, k);
+	int i,j,k, ik, ki;
+	double s;
+    for (i = 1; i <= nn; i++) {
+        for (j = 1; j <= mm; j++) {
+            s = 0.0;
+            for (k = 1; k <= nn; k++) {
+                ik = IMAX(i, k);
+                ki = IMIN(i, k);
                 s += a[TINDEX(ik, ki, nn)] * x[MINDEX(k, j, nn)];
             }
             y[MINDEX(i, j, nn)] = s;
@@ -182,15 +207,17 @@ void mutrma(const int *n, const int *m, const double *a, const double *x,
 // direct sum of two matrices -- can be used recursively
 
 void dirsum(const int *n, const int *m, const double *a, const double *b,
-            double *c) {
+            double *c) 
+{
     int nn = *n, mm = *m, mn = nn + mm;
-    for (int j = 1; j <= nn; j++) {
-        for (int i = j; i <= nn; i++) {
+	int i,j;
+    for (j = 1; j <= nn; j++) {
+        for (i = j; i <= nn; i++) {
             c[TINDEX(i, j, mn)] = a[TINDEX(i, j, nn)];
         }
     }
-    for (int j = 1; j <= mm; j++) {
-        for (int i = j; i <= mm; i++) {
+    for (j = 1; j <= mm; j++) {
+        for (i = j; i <= mm; i++) {
             c[TINDEX(nn + i, nn + j, mn)] = b[TINDEX(i, j, mm)];
         }
     }

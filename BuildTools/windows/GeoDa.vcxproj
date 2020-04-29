@@ -318,6 +318,8 @@
     <ClCompile Include="..\..\Algorithms\fastcluster.cpp" />
     <ClCompile Include="..\..\Algorithms\gpu_lisa.cpp" />
     <ClCompile Include="..\..\Algorithms\hdbscan.cpp" />
+    <ClCompile Include="..\..\Algorithms\jacobi.c" />
+    <ClCompile Include="..\..\Algorithms\lapacke.c" />
     <ClCompile Include="..\..\Algorithms\linpack_lite.c" />
     <ClCompile Include="..\..\Algorithms\loess.c" />
     <ClCompile Include="..\..\Algorithms\loessc.c" />
@@ -329,6 +331,8 @@
     <ClCompile Include="..\..\Algorithms\predict.c" />
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
     <ClCompile Include="..\..\Algorithms\skater.cpp" />
+    <ClCompile Include="..\..\Algorithms\smacof.c" />
+    <ClCompile Include="..\..\Algorithms\smacof_utils.c" />
     <ClCompile Include="..\..\Algorithms\spectral.cpp" />
     <ClCompile Include="..\..\Algorithms\splittree.cpp" />
     <ClCompile Include="..\..\Algorithms\tsne.cpp" />
@@ -367,6 +371,7 @@
     <ClCompile Include="..\..\DialogTools\WeightsManDlg.cpp" />
     <ClCompile Include="..\..\Explore\AbstractClusterMap.cpp" />
     <ClCompile Include="..\..\Explore\AbstractCoordinator.cpp" />
+    <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp" />
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
@@ -466,6 +471,7 @@
     <ClInclude Include="..\..\Algorithms\redcap.h" />
     <ClInclude Include="..\..\Algorithms\S.h" />
     <ClInclude Include="..\..\Algorithms\skater.h" />
+    <ClInclude Include="..\..\Algorithms\smacof.h" />
     <ClInclude Include="..\..\Algorithms\spectral.h" />
     <ClInclude Include="..\..\Algorithms\splittree.h" />
     <ClInclude Include="..\..\Algorithms\texttable.h" />
@@ -529,6 +535,7 @@
     <ClInclude Include="..\..\DialogTools\WeightsManDlg.h" />
     <ClInclude Include="..\..\Explore\AbstractClusterMap.h" />
     <ClInclude Include="..\..\Explore\AbstractCoordinator.h" />
+    <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h" />
     <ClInclude Include="..\..\Explore\Basemap.h" />
     <ClInclude Include="..\..\Explore\ColocationMapView.h" />
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
