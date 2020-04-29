@@ -120,7 +120,7 @@ LoessPlotCanvas::~LoessPlotCanvas()
 void LoessPlotCanvas::RunLoess()
 {
     loess_fit(&lo);
-    loess_summary(&lo);
+    //loess_summary(&lo);
 
     loess_pts_sz = 20;
 

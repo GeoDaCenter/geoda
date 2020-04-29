@@ -18,7 +18,7 @@
 #include <limits.h>
 
 #ifndef snprintf
-#define snprintf _snprintf
+#define snprintf printf
 #endif
 
 /* Declarations */

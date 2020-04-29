@@ -31,7 +31,7 @@ EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3
 GDAL_HEADER = -I$(GEODA_HOME)/libraries/include -I/usr/include
 
 CPPFLAGS	=  -I$(GeoDa_ROOT) 
-CFLAGS		=  -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
+CFLAGS		=  -std=gnu99 -O2 -Wdeclaration-after-statement $(USER_DEFS) $(GDAL_HEADER) $(EIGEN_HEADER)
 CXXFLAGS	=  -O2 $(USER_DEFS) $(WX_HEADER) $(BOOST_HEADER) $(GDAL_HEADER) $(EIGEN_HEADER)
 LDFLAGS     = 
 

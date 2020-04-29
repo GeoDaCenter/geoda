@@ -35,8 +35,18 @@
 #include <limits.h>
 #include <string.h>
 #include "cluster.h"
-#ifdef WINDOWS
-#  include <windows.h>
+
+#if defined(__cplusplus) && !defined(__GNUC__)
+  #include <algorithm>
+  #define min std::min
+  #define max std::max
+#else
+  #ifndef min
+  #define min(x, y)	((x) < (y) ? (x) : (y))
+  #endif
+  #ifndef max
+  #define	max(x, y)	((x) > (y) ? (x) : (y))
+  #endif
 #endif
 
 /* ************************************************************************ */
