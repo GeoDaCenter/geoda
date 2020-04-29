@@ -41,7 +41,7 @@ public:
         int cores = boost::thread::hardware_concurrency();
         if (GdaConst::gda_set_cpu_cores) cores = GdaConst::gda_cpu_cores;
         if (cores > 1) cores = cores -1;
-        for (unsigned i = 0; i < cores; ++i)
+        for (int i = 0; i < cores; ++i)
             pool.create_thread(boost::bind(worker_thread, boost::ref(*this)));
     }
 

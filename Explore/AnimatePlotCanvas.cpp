@@ -296,21 +296,6 @@ void AnimatePlotcanvas::ShowAxes(bool display)
 	PopulateCanvas();
 }
 
-std::vector<double> AnimatePlotcanvas::GetSelectX(int idx)
-{
-    if (idx < X_cache.size()) {
-        return X_cache[idx];
-    }
-    return std::vector<double>();
-}
-
-std::vector<double> AnimatePlotcanvas::GetSelectY(int idx)
-{
-    if (idx < Y_cache.size()) {
-        return Y_cache[idx];
-    }
-    return std::vector<double>();
-}
 
 void AnimatePlotcanvas::OnIdle(wxIdleEvent& event)
 {

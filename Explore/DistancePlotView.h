@@ -41,7 +41,9 @@ public:
 
     virtual void update(HLStateInt* o) {}
 
-    virtual void UpdateSelection(bool shiftdown, bool pointsel) {}
+    virtual void UpdateSelection(bool shiftdown, bool pointsel) {} // do nothing
+
+	virtual void DrawHighlightedShapes(wxMemoryDC &dc) {} // do nothing
 
     void OnSaveResult(wxCommandEvent& event);
 

@@ -88,8 +88,7 @@ public:
 	bool IsShowAxes() { return show_axes; }
     void UpdateCanvas(int idx, const std::vector<std::vector<double> >& tsne_results);
     void CreateAndUpdateCategories(const std::vector<std::vector<int> >& groups);
-    std::vector<double> GetSelectX(int idx);
-    std::vector<double> GetSelectY(int idx);
+
 
 protected:
     
@@ -110,8 +109,7 @@ protected:
 	const std::vector<double>& orgX;
 	const std::vector<double>& orgY;
     std::vector<std::vector<int> > groups;
-    std::vector<std::vector<double> > X_cache;
-    std::vector<std::vector<double> > Y_cache;
+
     // x,y labels or variable name
     wxString Xname;
 	wxString Yname;

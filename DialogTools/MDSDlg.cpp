@@ -75,6 +75,7 @@ void MDSDlg::CreateControls()
     const wxString _methods[2] = {"classic metric", "smacof"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(120,-1), 2, _methods);
+	combo_method->SetSelection(0);
     gbox->Add(st12, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_method, 1, wxEXPAND);
 
@@ -125,7 +126,7 @@ void MDSDlg::CreateControls()
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("# of Dimensions:"), wxDefaultPosition, wxSize(160,-1));
     const wxString dims[2] = {"2", "3"};
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 2, dims);
-
+	combo_n->SetSelection(0);
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
     hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
     hbox1->Add(combo_n, 1, wxEXPAND);
