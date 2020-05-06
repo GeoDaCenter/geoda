@@ -439,7 +439,6 @@ void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
             for (size_t i=0; i<hover_obs.size(); i++) {
                 hs[hover_obs[i]] = true;
             }
-
             int total_highlighted = hover_obs.size();
             highlight_state->SetTotalHighlighted(total_highlighted);
 
@@ -1240,10 +1239,10 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
     }
 
     if (is_updating == false && (show_graph || display_neighbors)) {
-        //CallAfter(&MapCanvas::UpdateNeighborSelections, new_hs);
-        //highlight_timer->Stop(); // make linking start immediately
-        //highlight_state->SetEventType(HLStateInt::delta);
-        //highlight_state->notifyObservers(this);
+        CallAfter(&MapCanvas::UpdateNeighborSelections, new_hs);
+        highlight_timer->Stop(); // make linking start immediately
+        highlight_state->SetEventType(HLStateInt::delta);
+        highlight_state->notifyObservers(this);
     }
 }
 
