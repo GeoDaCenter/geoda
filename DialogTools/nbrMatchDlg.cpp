@@ -460,7 +460,7 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
                                 wxDefaultPosition, GdaConst::map_default_size);
 
     /*
-    // run perm sig
+    // run perm sig, ignore for now since p = C(k,v).C(N-k,k-v) / C(N,k) is used
     LocalMatchCoordinator* lm_coord = new LocalMatchCoordinator(sw, gw, val_cnbrs, 999,
                                                                 GdaConst::gda_user_seed,
                                                                 GdaConst::use_gda_user_seed);
@@ -629,7 +629,7 @@ void LocalMatchMapCanvas::UpdateStatusBar()
 }
 ///////////////////////////////////////////////////////////////////////////////
 //
-//
+// NbrMatchSaveWeightsDialog
 //
 ///////////////////////////////////////////////////////////////////////////////
 NbrMatchSaveWeightsDialog::NbrMatchSaveWeightsDialog(TableInterface* table_int, const wxString & title)
@@ -785,7 +785,7 @@ bool NbrMatchSaveWeightsDialog::CheckID(const wxString& id)
 }
 ///////////////////////////////////////////////////////////////////////////////
 //
-//
+// LocalMatchMapFrame
 //
 ///////////////////////////////////////////////////////////////////////////////
 IMPLEMENT_CLASS(LocalMatchMapFrame, MapFrame)
@@ -888,6 +888,12 @@ void LocalMatchMapFrame::UpdateOptionMenuItems()
     }
 }
 
+/** Implementation of WeightsManStateObserver interface */
+void LocalMatchMapFrame::update(WeightsManState* o)
+{
+    // do nothing since it has its own weights structure
+}
+
 void LocalMatchMapFrame::UpdateContextMenuItems(wxMenu* menu)
 {
     TemplateFrame::UpdateContextMenuItems(menu); // set common items
@@ -950,7 +956,7 @@ void LocalMatchMapFrame::OnSave(wxCommandEvent& event)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//
+// LocalMatchCoordinator
 //
 ///////////////////////////////////////////////////////////////////////////////
 LocalMatchCoordinator::LocalMatchCoordinator(GwtWeight* spatial_w, GalWeight* variable_w, const std::vector<wxInt64>& cadinality, int permutations, uint64_t last_seed_used, bool reuse_last_seed)
@@ -1071,7 +1077,7 @@ std::vector<double> LocalMatchCoordinator::GetDefaultCutoffs()
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-//
+// LocalMatchSignificanceCanvas
 //
 ///////////////////////////////////////////////////////////////////////////////
 

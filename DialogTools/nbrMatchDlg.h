@@ -123,7 +123,7 @@ public:
     virtual void MapMenus();
     virtual void UpdateOptionMenuItems();
     virtual void UpdateContextMenuItems(wxMenu* menu);
-    
+    virtual void update(WeightsManState* o);
     void OnSave(wxCommandEvent& event);
     
     boost::uuids::uuid weights_id;
