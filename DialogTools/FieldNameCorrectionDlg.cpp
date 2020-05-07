@@ -95,6 +95,7 @@ ds_type(ds_type), need_correction(false)
 
 ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
                                         GdaConst::DataSourceType ds_type,
+                                         std::set<wxString> table_fnames,
                                         map<wxString, wxString>& fnames_dict,
                                         vector<wxString>& merged_field_names,
                                         set<wxString>& dup_fname,
@@ -103,7 +104,8 @@ ScrolledWidgetsPane::ScrolledWidgetsPane(wxWindow* parent, wxWindowID id,
 field_names_dict(fnames_dict),
 ds_type(ds_type),
 merged_field_names(merged_field_names),
-need_correction(true)
+need_correction(true),
+table_fnames(table_fnames)
 {
     is_case_sensitive = OGRLayerProxy::IsFieldCaseSensitive(ds_type);
 	Init(merged_field_names, dup_fname, bad_fname);
@@ -481,7 +483,8 @@ wxString ScrolledWidgetsPane::RenameDupFieldName(const wxString& old_name)
 
     // prevent same field name been added in dataset, no matter if its
     // case-sensitive or not
-    while (field_dict.find(new_name.Lower()) != field_dict.end()) {
+    while (field_dict.find(new_name.Lower()) != field_dict.end() ||
+           table_fnames.find(new_name) != table_fnames.end()) {
 
     	// duplicated name, try to append suffix in the form "_x"
     	wxRegEx regex;
@@ -667,6 +670,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
 
 FieldNameCorrectionDlg::
 FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
+                       std::set<wxString> table_fnames,
                        map<wxString, wxString>& fnames_dict,
                        vector<wxString>& merged_field_names,
                        set<wxString>& dup_fname,
@@ -683,6 +687,7 @@ FieldNameCorrectionDlg(GdaConst::DataSourceType ds_type,
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
 	fieldPane = new ScrolledWidgetsPane(panel, wxID_ANY,
                                         ds_type,
+                                        table_fnames,
                                         fnames_dict,
                                         merged_field_names,
                                         dup_fname,

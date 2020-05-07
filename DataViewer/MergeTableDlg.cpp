@@ -414,6 +414,7 @@ GetSelectedFieldNames(map<wxString,wxString>& merged_fnames_dict)
         // show a field name correction dialog
         GdaConst::DataSourceType ds_type = table_int->GetDataSourceType();
         FieldNameCorrectionDlg fc_dlg(ds_type,
+                                      table_fnames,
                                       merged_fnames_dict,
                                       merged_field_names,
                                       dup_merged_field_names,
@@ -441,6 +442,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         }
         OuterJoinMerge();
     }
+    Init();
 	ev.Skip();
 }
 
