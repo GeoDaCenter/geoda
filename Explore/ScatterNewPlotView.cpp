@@ -2268,7 +2268,9 @@ MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame, Project* 
 }
 
 MDSPlotCanvas::MDSPlotCanvas(wxWindow *parent, TemplateFrame* t_frame,
-                             Project* project, const std::vector<wxString>& info_str,
+                             Project* project, const std::vector<std::vector<int> >& groups,
+                             const std::vector<wxString>& group_labels,
+                             const std::vector<wxString>& info_str,
                              const std::vector<std::pair<wxString, double> >& output_vals,
                              const std::vector<GdaVarTools::VarInfo>& var_info,
                              const std::vector<int>& col_ids,
@@ -2282,6 +2284,27 @@ ScatterNewPlotCanvas(parent, t_frame, project, var_info, col_ids, is_bubble_plot
     foreground_shps.push_back(vn_tbl);
 
     ShowLinearSmoother(false);
+
+    // update cateogry if needed
+    int num_categories = (int)groups.size();
+    if (num_categories > 1) {
+        int t = 0;
+        cat_data.CreateCategoriesAtCanvasTm(num_categories, t);
+        cat_data.ClearAllCategoryIds();
+        std::vector<wxColour> m_predef_colors;
+        GdaColorUtils::GetUnique20Colors(m_predef_colors);
+        for (int i=0; i<num_categories; ++i) {
+            wxColour clr = m_predef_colors[ i % 20 ];
+            cat_data.SetCategoryLabel(t, i, group_labels[i]);
+            cat_data.SetCategoryColor(t, i, clr);
+            for (size_t j=0; j<groups[i].size(); ++j) {
+                cat_data.AppendIdToCategory(t, i, groups[i][j]);
+            }
+        }
+        for (int cat=0; cat<num_categories; cat++) {
+            cat_data.SetCategoryCount(t, cat, cat_data.GetNumObsInCategory(t, cat));
+        }
+    }
 }
 
 MDSPlotCanvas::~MDSPlotCanvas()
@@ -2625,6 +2648,8 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
 }
 
 MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
+                           const std::vector<std::vector<int> >& groups,
+                           const std::vector<wxString >& group_labels,
                            const std::vector<wxString>& info_str,
                            const std::vector<std::pair<wxString, double> >& output_vals,
                            const std::vector<GdaVarTools::VarInfo>& var_info,
@@ -2639,17 +2664,41 @@ MDSPlotFrame::MDSPlotFrame(wxFrame *parent, Project* project,
     int width, height;
     GetClientSize(&width, &height);
     wxSplitterWindow* splitter_win = 0;
-    if (is_bubble_plot) {
-        splitter_win = new wxSplitterWindow(this,wxID_ANY,wxDefaultPosition,
-                                            wxDefaultSize,
-                                            wxSP_3D|wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
+    if (groups.empty()) {
+        template_canvas = new MDSPlotCanvas(this, this, project, groups,
+                                            group_labels,info_str,
+                                            output_vals, var_info, col_ids,
+                                            is_bubble_plot, false, wxDefaultPosition,
+                                            wxSize(width,height));
+        template_canvas->SetScrollRate(1,1);
+    } else {
+        splitter_win = new wxSplitterWindow(this,wxID_ANY, wxDefaultPosition, wxDefaultSize, wxSP_3D |wxSP_LIVE_UPDATE|wxCLIP_CHILDREN);
         splitter_win->SetMinimumPaneSize(10);
+
+        // right panel
+        wxPanel* rpanel = new wxPanel(splitter_win);
+        template_canvas = new MDSPlotCanvas(rpanel, this, project, groups, group_labels,
+                                            info_str,  output_vals, var_info, col_ids,
+                                            is_bubble_plot, false, wxDefaultPosition,
+                                            wxSize(width,height));
+        template_canvas->SetScrollRate(1,1);
+        wxBoxSizer *rbox = new wxBoxSizer(wxVERTICAL);
+        rbox->Add(template_canvas, 1, wxEXPAND);
+        rpanel->SetSizer(rbox);
+        // left panel
+        wxPanel* lpanel = new wxPanel(splitter_win);
+        template_legend = new TemplateLegend(lpanel, template_canvas, wxPoint(0,0), wxSize(0,0));
+        wxBoxSizer* lbox = new wxBoxSizer(wxVERTICAL);
+        template_legend->GetContainingSizer()->Detach(template_legend);
+        lbox->Add(template_legend, 1, wxEXPAND);
+        lpanel->SetSizer(lbox);
+        // setup panels
+        splitter_win->SplitVertically(lpanel, rpanel, GdaConst::map_default_legend_width);
+        wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+        sizer->Add(splitter_win, 1, wxEXPAND|wxALL);
+        SetSizer(sizer);
+        SetAutoLayout(true);
     }
-    template_canvas = new MDSPlotCanvas(this, this, project, info_str,
-                                        output_vals, var_info, col_ids,
-                                        is_bubble_plot, false, wxDefaultPosition,
-                                        wxSize(width,height));
-    template_canvas->SetScrollRate(1,1);
     DisplayStatusBar(true);
     SetTitle(title);
     if (title.empty())

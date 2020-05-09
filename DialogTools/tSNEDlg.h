@@ -77,7 +77,9 @@ protected:
     double **ragged_distances;
     TSNE *tsne;
     boost::thread *tsne_job;
-    
+
+    std::vector<std::vector<int> > groups;
+    std::vector<wxString> group_labels;
     std::vector<std::vector<double> > tsne_results;
     std::vector<std::string> tsne_log;
 

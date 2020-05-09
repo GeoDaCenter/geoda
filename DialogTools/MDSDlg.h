@@ -55,6 +55,9 @@ public:
     std::vector<int> col_ids;
     
 protected:
+    std::vector<std::vector<int> > groups;
+    std::vector<wxString> group_labels;
+    
     wxChoice* combo_method;
     SimpleReportTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
@@ -66,6 +69,10 @@ protected:
     wxStaticText* txt_usepower;
     wxStaticText* txt_maxit;
     wxStaticText* txt_eps;
+
+    wxChoice* m_group;
+    wxCheckBox* chk_group;
+    wxArrayString cat_var_items;
     
     DECLARE_EVENT_TABLE()
 };

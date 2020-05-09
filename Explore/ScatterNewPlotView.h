@@ -353,6 +353,8 @@ public:
                   const wxSize& size = wxDefaultSize);
     MDSPlotCanvas(wxWindow *parent,  TemplateFrame* t_frame,
                   Project* project,
+                  const std::vector<std::vector<int> >& groups,
+                  const std::vector<wxString >& group_labels,
                   const std::vector<wxString>& info_str,
                   const std::vector<std::pair<wxString, double> >& output_vals,
                   const std::vector<GdaVarTools::VarInfo>& var_info,
@@ -392,6 +394,8 @@ public:
                  const long style = wxDEFAULT_FRAME_STYLE);
     
     MDSPlotFrame(wxFrame *parent, Project* project,
+                 const std::vector<std::vector<int> >& groups,
+                 const std::vector<wxString >& group_labels,
                  const std::vector<wxString>& info_str,
                  const std::vector<std::pair<wxString, double> >& output_vals,
                  const std::vector<GdaVarTools::VarInfo>& var_info,

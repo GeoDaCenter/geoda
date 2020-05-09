@@ -117,7 +117,7 @@ void TSNEDlg::OnCloseClick(wxCommandEvent& event )
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(880,880), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(900,900), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -599,7 +599,9 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    std::vector<std::vector<int> > groups;
+    
+    groups.clear();
+    group_labels.clear();
     if (chk_group->IsChecked()) {
         int idx = m_group->GetSelection();
         wxString nm = m_group->GetString(idx);
@@ -615,6 +617,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 }
                 for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
                     groups.push_back(it->second);
+                    group_labels.push_back(wxString::Format("%d",it->first));
                 }
             } else {
 
@@ -627,6 +630,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
                 }
                 for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
                     groups.push_back(it->second);
+                    group_labels.push_back(it->first);
                 }
 
             }
@@ -894,7 +898,8 @@ void TSNEDlg::OnSave( wxCommandEvent& event ) {
                 wxString title = _("t-SNE Plot (%s) - %s, %s");
                 title = wxString::Format(title, method_str, new_col_names[0], new_col_names[1]);
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project, info_str, output_vals,
+                new MDSPlotFrame(parent, project, groups, group_labels,
+                                 info_str, output_vals,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,

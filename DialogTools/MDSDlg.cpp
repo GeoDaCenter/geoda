@@ -68,7 +68,7 @@ void MDSDlg::CreateControls()
     AddSimpleInputCtrls(panel, vbox);
 
     // parameters
-    wxFlexGridSizer* gbox = new wxFlexGridSizer(7,2,10,0);
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(8,2,10,0);
 
     // method
     wxStaticText* st12 = new wxStaticText(panel, wxID_ANY, _("Method:"));
@@ -115,7 +115,29 @@ void MDSDlg::CreateControls()
     m_distance->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_distance, 1, wxEXPAND);
-    
+
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Category Variable:"));
+    wxBoxSizer *hbox18 = new wxBoxSizer(wxHORIZONTAL);
+    chk_group = new wxCheckBox(panel, wxID_ANY, "");
+    {
+        std::vector<int> col_id_map;
+        table_int->FillStringAndIntegerColIdMap(col_id_map);
+        for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+            int id = col_id_map[i];
+            wxString name = table_int->GetColName(id);
+            if (!table_int->IsColTimeVariant(id)) {
+                cat_var_items.Add(name);
+            }
+        }
+    }
+    m_group = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                           wxSize(128,-1), cat_var_items);
+    hbox18->Add(chk_group,0, wxALIGN_CENTER_VERTICAL);
+    hbox18->Add(m_group,0,wxALIGN_CENTER_VERTICAL);
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox18, 1, wxEXPAND);
+
+
     // Transformation
     AddTransformation(panel, gbox);
     
@@ -331,6 +353,43 @@ void MDSDlg::OnOK(wxCommandEvent& event )
         return;
     }
 
+    groups.clear();
+    group_labels.clear();
+    if (chk_group->IsChecked()) {
+        int idx = m_group->GetSelection();
+        wxString nm = m_group->GetString(idx);
+        int col = table_int->FindColId(nm);
+        if (col != wxNOT_FOUND) {
+            if (table_int->IsColNumeric(col)) {
+                std::vector<double> group_variable(rows, 0);
+                table_int->GetColData(col, 0, group_variable);
+                std::map<int, std::vector<int> > group_ids;
+                std::map<int, std::vector<int> >::iterator it;
+                for (size_t i=0; i<rows; ++i) {
+                    group_ids[group_variable[i]].push_back(i);
+                }
+                for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
+                    groups.push_back(it->second);
+                    group_labels.push_back(wxString::Format("%d",it->first));
+                }
+            } else {
+
+                std::vector<wxString> group_variable(rows);
+                table_int->GetColData(col, 0, group_variable);
+                std::map<wxString, std::vector<int> > group_ids;
+                std::map<wxString, std::vector<int> >::iterator it;
+                for (size_t i=0; i<rows; ++i) {
+                    group_ids[group_variable[i]].push_back(i);
+                }
+                for (it=group_ids.begin(); it!=group_ids.end(); ++it ) {
+                    groups.push_back(it->second);
+                    group_labels.push_back(it->first);
+                }
+
+            }
+        }
+    }
+
     int new_col = combo_n->GetSelection() == 0 ? 2 : 3;
     vector<vector<double> > results;
     double stress = 0;
@@ -483,7 +542,8 @@ void MDSDlg::OnOK(wxCommandEvent& event )
                 title = wxString::Format(title, method_str, new_col_names[0], new_col_names[1]);
 
                 MDSPlotFrame* subframe =
-                new MDSPlotFrame(parent, project, info_str, output_vals,
+                new MDSPlotFrame(parent, project, groups, group_labels,
+                                 info_str, output_vals,
                                     new_var_info, new_col_ids,
                                     false, title, wxDefaultPosition,
                                     GdaConst::scatterplot_default_size,
