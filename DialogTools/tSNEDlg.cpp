@@ -117,7 +117,7 @@ void TSNEDlg::OnCloseClick(wxCommandEvent& event )
 void TSNEDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition,
-                                                  wxSize(900,900), wxHSCROLL|wxVSCROLL );
+                                                  wxSize(880,880), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
