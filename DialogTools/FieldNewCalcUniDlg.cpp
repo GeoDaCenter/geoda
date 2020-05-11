@@ -60,7 +60,7 @@ FieldNewCalcUniDlg::FieldNewCalcUniDlg(Project* project_s,
 									   wxWindowID id, const wxString& caption,
 									   const wxPoint& pos, const wxSize& size,
 									   long style )
-: all_init(false), op_string(10), project(project_s),
+: all_init(false), op_string(12), project(project_s),
 table_int(project_s->GetTableInt()),
 m_valid_const(false), m_const(1), m_var_sel(wxNOT_FOUND),
 is_space_time(project_s->GetTableInt()->IsTimeVariant())
@@ -79,6 +79,8 @@ is_space_time(project_s->GetTableInt()->IsTimeVariant())
 	op_string[standardize_op] = "STANDARDIZED (Z)";
     op_string[mad_op] = "STANDARDIZED (MAD)";
 	op_string[shuffle_op] = "SHUFFLE";
+    op_string[range_adjust_op] = "RANGE ADJUST";
+    op_string[range_standardize_op] = "RANGE STANDARDIZE";
 	
 	for (int i=0, iend=op_string.size(); i<iend; i++) {
 		m_op->Append(op_string[i]);
@@ -315,6 +317,24 @@ void FieldNewCalcUniDlg::Apply()
 				}
 			}
 				break;
+            case range_adjust_op:
+            {
+                for (int i=0; i<rows; i++) {
+                    r_data[i] = data[i];
+                    r_undefined[i] = undefined[i];
+                }
+                GenUtils::RangeAdjust(r_data, r_undefined);
+            }
+                break;
+            case range_standardize_op:
+            {
+                for (int i=0; i<rows; i++) {
+                    r_data[i] = data[i];
+                    r_undefined[i] = undefined[i];
+                }
+                GenUtils::RangeStandardize(r_data, r_undefined);
+            }
+                break;
 			default:
 				return;
 				break;
@@ -430,6 +450,10 @@ void FieldNewCalcUniDlg::Display()
 		if (!var.IsEmpty()) rhs << "standardized dev from mean of " << var;
     } else if (op_sel == mad_op) {
         if (!var.IsEmpty()) rhs << "mean abosolute deviation of " << var;
+    } else if (op_sel == range_adjust_op) {
+        if (!var.IsEmpty()) rhs << "range adjust of " << var;
+    } else if (op_sel == range_standardize_op) {
+        if (!var.IsEmpty()) rhs << "range standardize of " << var;
 	} else { // op_sel == shuffle_op
 		if (!var.IsEmpty()) rhs << "randomly permute values in " << var;
 	}

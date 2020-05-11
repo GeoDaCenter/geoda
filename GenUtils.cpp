@@ -1383,6 +1383,74 @@ void GenUtils::DeviationFromMean(std::vector<double>& data, std::vector<bool>& u
     }
 }
 
+void GenUtils::RangeAdjust(std::vector<double>& data)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  divide each variable by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            data[i] = data[i] /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeAdjust(std::vector<double>& data, std::vector<bool>& undef)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (undef[i]) continue;
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  divide each variable by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            if (undef[i]) continue;
+            data[i] = data[i] /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeStandardize(std::vector<double>& data)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  subtract the min from each variable and then divide by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            data[i] = (data[i] - min_val) /  range_val;
+        }
+    }
+}
+
+void GenUtils::RangeStandardize(std::vector<double>& data, std::vector<bool>& undef)
+{
+    double min_val = DBL_MAX, max_val = DBL_MIN;
+    for (size_t i=0; i<data.size(); ++i) {
+        if (undef[i]) continue;
+        if (data[i] < min_val) min_val = data[i];
+        else if (data[i] > max_val) max_val = data[i];
+    }
+    //  subtract the min from each variable and then divide by the range
+    double range_val = max_val - min_val;
+    if (range_val != 0) {
+        for (size_t i=0; i<data.size(); ++i) {
+            if (undef[i]) continue;
+            data[i] = (data[i] - min_val) /  range_val;
+        }
+    }
+}
+
 void GenUtils::MeanAbsoluteDeviation(int nObs, double* data)
 {
     if (nObs == 0) return;

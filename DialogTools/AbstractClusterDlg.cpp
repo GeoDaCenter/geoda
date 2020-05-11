@@ -449,10 +449,10 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 void AbstractClusterDlg::AddTransformation(wxPanel *panel, wxFlexGridSizer* gbox)
 {
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Transformation:"));
-    const wxString _transform[4] = {"Raw", "Demean", "Standardize (Z)",
-        "Standardize (MAD)"};
+    const wxString _transform[6] = {"Raw", "Demean", "Standardize (Z)",
+        "Standardize (MAD)", "Range Adjust", "Range Standardize"};
     combo_tranform = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(140,-1), 4, _transform);
+                                  wxSize(140,-1), 6, _transform);
     combo_tranform->SetSelection(2);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_tranform, 1, wxEXPAND);
@@ -771,7 +771,13 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
                 cent_xs.push_back(cents[i]->GetX());
                 cent_ys.push_back(cents[i]->GetY());
             }
-            if (transform == 3) {
+            if (transform == 5) {
+                GenUtils::RangeStandardize(cent_xs);
+                GenUtils::RangeStandardize(cent_ys);
+            } else if (transform == 4) {
+                GenUtils::RangeAdjust(cent_xs);
+                GenUtils::RangeAdjust(cent_ys);
+            } else if (transform == 3) {
                 GenUtils::MeanAbsoluteDeviation(cent_xs);
                 GenUtils::MeanAbsoluteDeviation(cent_ys);
             } else if (transform == 2) {
@@ -789,7 +795,11 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         }
         for (int i=0; i<col_ids.size(); i++ ){ // col
             std::vector<double>& vals = data[i];
-            if (transform == 3) {
+            if (transform == 5) {
+                GenUtils::RangeStandardize(vals);
+            } else if (transform == 4) {
+                GenUtils::RangeAdjust(vals);
+            } else if (transform == 3) {
                 GenUtils::MeanAbsoluteDeviation(vals);
             } else if (transform == 2) {
                 GenUtils::StandardizeData(vals);
