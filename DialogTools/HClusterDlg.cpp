@@ -255,8 +255,10 @@ void HClusterDlg::CreateControls()
         if (w_man_int->GetDefault() == weights_ids[i])
         sel_pos = i;
     }
-    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
-
+    if (weights_ids.size() > 0) {
+        combo_weights->SetSelection((int)sel_pos);
+    }
+    combo_n->SetSelection(0);
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
@@ -367,7 +369,7 @@ void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
     if (is_valid && m_panel) {
         //sel_ncluster += 2;
         // update dendrogram
-        m_panel->UpdateCluster(sel_ncluster, clusters);
+        m_panel->UpdateCluster((int)sel_ncluster, clusters);
     }
 }
 
@@ -389,7 +391,7 @@ void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
     
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+    for (int i=0; i<col_id_map.size(); i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
         if (table_int->IsColTimeVariant(id)) {
@@ -416,6 +418,15 @@ void HClusterDlg::InitVariableCombobox(wxListBox* var_box)
 
 void HClusterDlg::update(HLStateInt* o)
 {
+    std::vector<bool>& hs = o->GetHighlight();
+    std::vector<int> hl_ids;
+    for (size_t i=0; i<hs.size(); ++i) {
+        if (hs[i])
+            hl_ids.push_back(i);
+    }
+    if (m_panel) {
+        m_panel->SetHighlight(hl_ids);
+    }
 }
 
 void HClusterDlg::OnClickClose(wxCommandEvent& event )
@@ -455,7 +466,7 @@ bool HClusterDlg::CheckAllInputs()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        n_cluster = value_ncluster;
+        n_cluster = (int)value_ncluster;
     }
     if (n_cluster < 2 || n_cluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of clusters.");
@@ -581,8 +592,9 @@ void HClusterDlg::SpatialConstraintClustering()
 
         int sel = combo_weights->GetSelection();
         if (sel < 0) sel = 0;
-        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-
+        if (sel >= weights_ids.size()) {
+            sel = weights_ids.size() - 1;
+        }
         boost::uuids::uuid w_id = weights_ids[sel];
         GalWeight* gw = w_man_int->GetGal(w_id);
 
@@ -627,7 +639,11 @@ END_EVENT_TABLE()
 DendrogramPanel::DendrogramPanel(int _max_n_clusters, wxWindow* parent,
                                  wxWindowID id, const wxPoint &pos,
                                  const wxSize &size)
-: wxPanel(parent, id, pos, size), max_n_clusters(_max_n_clusters)
+: wxPanel(parent, id, pos, size),
+isMovingSelectBox(false),
+max_n_clusters(_max_n_clusters),
+select_box(0),
+hs(_max_n_clusters)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
@@ -668,6 +684,20 @@ void DendrogramPanel::SetActive(bool flag)
     isWindowActive = flag;
 }
 
+void DendrogramPanel::SetHighlight(const std::vector<int>& ids)
+{
+    hl_ids = ids;
+    for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+    for (size_t i=0; i<hl_ids.size(); ++i) hs[ hl_ids[i] ] = true;
+    
+    if (select_box) {
+        // clean up existing select box
+        delete select_box;
+        select_box = 0;
+    }
+    init();
+}
+
 void DendrogramPanel::OnEvent( wxMouseEvent& event )
 {
     if (event.LeftDown()) {
@@ -681,36 +711,60 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
             }
         }
         if (!isMovingSplitLine) {
-			// test end_nodes
-            if ( !event.ShiftDown() && !event.CmdDown() ) {
-                hl_ids.clear();
-            }
-			for (int i=0;i<end_nodes.size();i++) {
-				if (end_nodes[i]->contains(startPos)) {
-                    hl_ids.push_back(end_nodes[i]->idx);
-				}
-			}
-            // highlight i selected
-            wxWindow* parent = GetParent();
-            while (parent) {
-                wxWindow* w = parent;
-                HClusterDlg* dlg = dynamic_cast<HClusterDlg*>(w);
-                if (dlg) {
-                    dlg->Highlight(hl_ids);
-                    break;
+            // test end_nodes
+            if (select_box == 0) {
+                select_box = new wxRect(startPos.x, startPos.y, 0, 0);
+            } else {
+                if (select_box->Contains(startPos))  {
+                    // drag&move select box
+                    isMovingSelectBox = true;
+                } else {
+                    if ( !event.ShiftDown() && !event.CmdDown() ) {
+                        hl_ids.clear();
+                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                    }
+                    isMovingSelectBox = false;
+                    select_box->SetPosition(startPos);
+                                    
+                    for (int i=0;i<end_nodes.size();i++) {
+                        if (end_nodes[i]->contains(startPos)) {
+                            hl_ids.push_back(end_nodes[i]->idx);
+                            hs[end_nodes[i]->idx] = true;
+                        }
+                    }
                 }
-                parent = w->GetParent();
+                NotifySelection();
             }
         }
     } else if (event.Dragging()) {
         if (isLeftDown) {
             isLeftMove = true;
-            // moving
+            // moving split line
             if (isMovingSplitLine && split_line) {
                 split_line->move(event.GetPosition(), startPos);
                 int x = split_line->getX();
                 Refresh();
                 OnSplitLineChange(x);
+            } else {
+                // if drawing select box
+                if (select_box != 0) {
+                    if (isMovingSelectBox) {
+                        hl_ids.clear();
+                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                        select_box->Offset(event.GetPosition() - startPos);
+                    } else {
+                        select_box->SetBottomRight(event.GetPosition());
+                    }
+                    for (int i=0;i<end_nodes.size();i++) {
+                        if (end_nodes[i]->intersects(*select_box)) {
+                            hl_ids.push_back(end_nodes[i]->idx);
+                            hs[end_nodes[i]->idx] = true;
+                        }
+                    }
+                    // highlight i selected
+                    NotifySelection();
+                    Refresh();
+                }
             }
             startPos = event.GetPosition();
         }
@@ -721,9 +775,31 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
             isMovingSplitLine = false;
         } else {
             // only left click
+            if (select_box) {
+                delete select_box;
+                select_box = 0;
+                NotifySelection();
+                Refresh();
+            }
         }
+        isMovingSelectBox = false;
         isLeftDown = false;
     }
+}
+
+void DendrogramPanel::NotifySelection()
+{
+    wxWindow* parent = GetParent();
+    while (parent) {
+        wxWindow* w = parent;
+        HClusterDlg* dlg = dynamic_cast<HClusterDlg*>(w);
+        if (dlg) {
+            dlg->Highlight(hl_ids);
+            break;
+        }
+        parent = w->GetParent();
+    }
+    init();
 }
 
 void DendrogramPanel::OnSize(  wxSizeEvent& event)
@@ -767,6 +843,11 @@ void DendrogramPanel::OnPaint( wxPaintEvent& event )
         if (split_line) {
             split_line->draw(paint_dc);
         }
+        if (select_box) {
+            paint_dc.SetPen(*wxBLACK_PEN);
+            paint_dc.SetBrush(*wxTRANSPARENT_BRUSH);
+            paint_dc.DrawRectangle(*select_box);
+        }
         dc.SelectObject(wxNullBitmap);
     } else {
         
@@ -806,6 +887,7 @@ void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters,
     levels = countLevels(-(nelements-2) - 1, 0);
     
     maxDistance = root[nelements-2].distance;
+    minDistance = root[0].distance;
     
     init();
 }
@@ -813,19 +895,24 @@ void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters,
 void DendrogramPanel::OnSplitLineChange(int x)
 {
     wxSize sz = this->GetClientSize();
-    double hh = sz.y;
     double ww = sz.x;
     
     cutoffDistance = maxDistance * (ww - margin - 30 - x) / (double) (ww - margin*2 - 30);
     
-    for (int i = nelements-2; i >= 0; i--)
-    {
+    bool all_nodes = true;
+    for (int i = nelements-2; i >= 0; --i) {
         if (cutoffDistance >=  root[i].distance) {
             nclusters = nelements - i - 1;
+            all_nodes = false;
             break;
         }
     }
+    
+    if (all_nodes) nclusters = nelements;
+    if (cutoffDistance < minDistance) cutoffDistance = minDistance;
 
+    //std::cout << "x:" << x << ", cutoff:" << cutoffDistance << "nclusters:" << nclusters << std::endl;
+    
     if (nclusters > max_n_clusters) nclusters = max_n_clusters;
     
     int* clusterid = new int[nelements];
@@ -905,7 +992,6 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
         nclusters = _nclusters;
         color_vec.clear();
         CatClassification::PickColorSet(color_vec, nclusters);
-    
         init();
     }
 }
@@ -977,7 +1063,6 @@ DendroColorPoint DendrogramPanel::doDraw(wxDC &dc, int node_idx, int y)
 {
     
     wxSize sz = this->GetClientSize();
-    double hh = sz.y;
     double ww = sz.x;
     
     if (node_idx >= 0) {
@@ -985,7 +1070,7 @@ DendroColorPoint DendrogramPanel::doDraw(wxDC &dc, int node_idx, int y)
 
         wxColour clr =  color_vec[clusters[node_idx] -1];
         RectNode* end = new RectNode(node_idx, x, currentY, clr);
-        end->draw(dc);
+        end->draw(dc, hs[node_idx]);
         end_nodes.push_back(end);
         
         int resultX = x;
@@ -1012,8 +1097,9 @@ DendroColorPoint DendrogramPanel::doDraw(wxDC &dc, int node_idx, int y)
     wxPoint p1 = cp1.pt;
     wxColour c1 = cp1.color;
     
-    //dc.DrawRectangle(wxRect(p0.x-2, p0.y-2, 4, 4));
-    //dc.DrawRectangle(wxRect(p1.x-2, p1.y-2, 4, 4));
+    dc.SetPen(*wxTRANSPARENT_PEN);
+    //dc.DrawRectangle(wxRect(p0.x-1, p0.y-1, 2, 2));
+    //dc.DrawRectangle(wxRect(p1.x-1, p1.y-1, 2, 2));
     
     double dist = level_node[node_idx];
     int vx = ww - margin - 30 - (ww - 2*margin - 30) * dist / maxDistance ;

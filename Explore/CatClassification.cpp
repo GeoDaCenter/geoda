@@ -2103,7 +2103,7 @@ wxString CatClassification::CatClassifTypeToString(CatClassifType theme_type)
 void CatClassification::PickColorSet(std::vector<wxColour>& color_vec, int num_color)
 {
     for (int i=0; i<num_color; i++) {
-        color_vec.push_back(GdaConst::unique_colors_60[i]);
+        color_vec.push_back(GdaConst::unique_colors_60[i % 60]);
     }
 }
 

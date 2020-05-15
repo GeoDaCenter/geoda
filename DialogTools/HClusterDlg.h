@@ -41,9 +41,9 @@ public:
         y = _y;
         
         w = 20;
-        h = 8;
+        h = 4;
         
-        rec = wxRect(x + 8, y - 5,w,h);
+        rec = wxRect(x + 8, y - 2,w,h);
         color = _color;
     }
     ~RectNode() {
@@ -55,16 +55,20 @@ public:
         return rec.Contains(cur_pos);
     }
     
-    void draw(wxDC& dc) {
+    bool intersects(const wxRect& rect) {
+        return rec.Intersects(rect);
+    }
+    
+    void draw(wxDC& dc, bool is_hl=false) {
         wxBrush brush(color);
         wxPen pen(color);
         dc.SetBrush(brush);
         dc.SetPen(pen);
-        dc.DrawRectangle(wxRect(x, y-2, 4, 4));
-        
+        //dc.DrawRectangle(wxRect(x, y-2, 4, 4));
+                
+        if (is_hl)
+            dc.SetPen(*wxRED);
         dc.DrawRectangle(rec);
-        dc.SetPen(*wxBLACK_PEN);
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
     }
     
     int idx;
@@ -113,8 +117,8 @@ public:
         pt0.x += offset_x;
         pt1.x += offset_x;
         
-        if (pt0.x < 5) pt0.x = 5;
-        if (pt1.x < 5) pt1.x = 5;
+        if (pt0.x < 15) pt0.x = 15;
+        if (pt1.x < 15) pt1.x = 15;
         
         rec = wxRect(pt0.x -5, pt0.y, 10, pt1.y - pt0.y);
     }
@@ -176,10 +180,11 @@ public:
     void OnSplitLineChange(int x);
     
     void SetActive(bool flag);
+    void SetHighlight(const std::vector<int>& ids);
     
 private:
     bool isWindowActive;
-    
+    bool isMovingSelectBox;
     int leaves;
     int levels;
     int nelements;
@@ -192,6 +197,7 @@ private:
     double heightPerLeaf;
     double widthPerLevel;
     double maxDistance;
+    double minDistance;
     double cutoffDistance;
     
     bool isResize;
@@ -205,6 +211,7 @@ private:
     bool isMovingSplitLine;
     wxPoint startPos;
     std::vector<int> hl_ids;
+    std::vector<bool> hs;
     
     std::map<int, int> accessed_node;
     std::map<int, double> level_node;
@@ -212,6 +219,7 @@ private:
     std::vector<wxInt64> clusters;
     std::vector<wxColour> color_vec;
     DendroSplitLine* split_line;
+    wxRect* select_box;
     
     int countLeaves(GdaNode* node);
     
@@ -222,6 +230,7 @@ private:
     
     DendroColorPoint doDraw(wxDC &dc, int node_idx, int y);
     void init();
+    void NotifySelection();
     
     DECLARE_ABSTRACT_CLASS(DendrogramPanel)
     DECLARE_EVENT_TABLE()
