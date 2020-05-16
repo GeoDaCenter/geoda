@@ -56,7 +56,14 @@ public:
     }
     
     bool intersects(const wxRect& rect) {
-        return rec.Intersects(rect);
+        int x_left = rect.width >= 0 ? rect.x : rect.x + rect.width;
+        int x_right = rect.width >= 0 ? rect.x + rect.width : rect.x;
+        int y_top = rect.height >= 0 ? rect.y : rect.y + rect.height;
+        int y_bottom = rect.height >= 0 ? rect.y + rect.height : rect.y;
+        
+        return !(rec.x + rec.width < x_left || rec.x > x_right ||
+                 rec.y > y_bottom || rec.y + rec.height < y_top);
+        //return rec.Intersects(rect);
     }
     
     void draw(wxDC& dc, bool is_hl=false) {
