@@ -725,6 +725,8 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                     }
                     isMovingSelectBox = false;
                     select_box->SetPosition(startPos);
+                    select_box->SetWidth(0);
+                    select_box->SetHeight(0);
                                     
                     for (int i=0;i<end_nodes.size();i++) {
                         if (end_nodes[i]->contains(startPos)) {
@@ -746,14 +748,16 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                 Refresh();
                 OnSplitLineChange(x);
             } else {
-                // if drawing select box
+                // if using select box
                 if (select_box != 0) {
+                    hl_ids.clear();
+                    for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
                     if (isMovingSelectBox) {
-                        hl_ids.clear();
-                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                        
                         select_box->Offset(event.GetPosition() - startPos);
                     } else {
                         select_box->SetBottomRight(event.GetPosition());
+                        //std::cout <<select_box->width << select_box->height <<std::endl;
                     }
                     for (int i=0;i<end_nodes.size();i++) {
                         if (end_nodes[i]->intersects(*select_box)) {
