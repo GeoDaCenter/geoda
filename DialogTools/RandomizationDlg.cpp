@@ -147,41 +147,21 @@ void InferenceSettingsDlg::Init(double* p_vals, int n, double current_p)
     // sort all p-values from smallest to largets
     std::sort(pvals.begin(), pvals.end());
 
-    int i_0 = -1;
-    bool stop = false;
-    double p_start = current_p;
-    
-    while (!stop) {
-        // find the i_0 that corresponds to p = alpha
-        for (int i=1; i<=n; i++) {
-            if (pvals[i] >= p_start) {
-                if (i_0 == i) {
-                    stop = true;
-                }
-                i_0 = i;
-                break;
-            }
+    fdr = 0;
+
+    for (size_t i=0; i<n; i++) {
+        double val = (i+1) * current_p / (double)n;
+        if (i==0) fdr = val;
+        if (pvals[i] >= val) {
+            break;
         }
-        if (i_0 < 0)
-            stop = true;
-        
-        // compute p* = i_0 x alpha / N
-        p_start = i_0 * current_p / (double)n ;
+        fdr = val;
     }
     
-    wxString fdr_str;
-    
-    if (i_0 >= 0)
-        fdr_str = wxString::Format("%g", p_start);
-    else {
-        fdr_str = "nan";
-        p_start = 0.0;
-    }
-    
+    wxString fdr_str  = wxString::Format("%g", fdr);
     m_txt_fdr->SetLabel(fdr_str);
     
     bo = bonferroni_bound;
-    fdr = p_start;
 }
 
 void InferenceSettingsDlg::OnAlphaTextCtrl(wxCommandEvent& ev)
