@@ -124,8 +124,8 @@ public:
         pt0.x += offset_x;
         pt1.x += offset_x;
         
-        if (pt0.x < 15) pt0.x = 15;
-        if (pt1.x < 15) pt1.x = 15;
+        if (pt0.x < 5) pt0.x = 5;
+        if (pt1.x < 5) pt1.x = 5;
         
         rec = wxRect(pt0.x -5, pt0.y, 10, pt1.y - pt0.y);
     }
@@ -260,6 +260,7 @@ public:
     void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
     void OnSpatialConstraintCheck(wxCommandEvent& event);
+    void OnMethodChoice(wxCommandEvent& event);
     
     virtual void update(HLStateInt* o);
     

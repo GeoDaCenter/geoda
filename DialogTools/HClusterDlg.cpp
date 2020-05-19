@@ -243,6 +243,8 @@ void HClusterDlg::CreateControls()
     //m_iterations = box11;
     m_method = box12;
     m_distance = box13;
+    m_distance->SetSelection(0);
+    m_distance->Enable(false);
     
     // init weights
     vector<boost::uuids::uuid> weights_ids;
@@ -263,8 +265,8 @@ void HClusterDlg::CreateControls()
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
-    combo_n->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
-    combo_n->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    combo_n->Bind(wxEVT_CHOICE, &HClusterDlg::OnClusterChoice, this);
+    m_method->Bind(wxEVT_CHOICE, &HClusterDlg::OnMethodChoice, this);
 
     chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
@@ -357,6 +359,18 @@ void HClusterDlg::OnSave(wxCommandEvent& event )
     ttl << combo_n->GetValue();
     ttl << " clusters)";
     nf->SetTitle(ttl);
+}
+
+void HClusterDlg::OnMethodChoice(wxCommandEvent& event)
+{
+    int method_sel = m_method->GetSelection();
+    if (method_sel == 1) {
+        // ward
+        m_distance->SetSelection(0);
+        m_distance->Enable(false);
+    } else {
+        m_distance->Enable(true);
+    }
 }
 
 void HClusterDlg::OnClusterChoice(wxCommandEvent& event)
@@ -743,15 +757,26 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
             isLeftMove = true;
             // moving split line
             if (isMovingSplitLine && split_line) {
-                split_line->move(event.GetPosition(), startPos);
+                wxPoint pt = event.GetPosition();
+                wxSize sz = GetClientSize();
+                
+                if (sz.GetWidth()> 0 && pt.x > sz.GetWidth() - 10)
+                    pt.x = sz.GetWidth() - 10;
+                
+                split_line->move(pt, startPos);
                 int x = split_line->getX();
+                //std::cout << x << "," << pt.x << std::endl;
                 Refresh();
                 OnSplitLineChange(x);
+                startPos = pt;
             } else {
                 // if using select box
                 if (select_box != 0) {
-                    hl_ids.clear();
-                    for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                    if ( !event.ShiftDown() && !event.CmdDown() ) {
+                        hl_ids.clear();
+                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                    }
+                    
                     if (isMovingSelectBox) {
                         
                         select_box->Offset(event.GetPosition() - startPos);
@@ -769,8 +794,9 @@ void DendrogramPanel::OnEvent( wxMouseEvent& event )
                     NotifySelection();
                     Refresh();
                 }
+                startPos = event.GetPosition();
             }
-            startPos = event.GetPosition();
+            
         }
     } else if (event.LeftUp()) {
         if (isLeftMove) {
