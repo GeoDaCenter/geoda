@@ -265,7 +265,8 @@ void HClusterDlg::CreateControls()
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnClickClose, this);
-    combo_n->Bind(wxEVT_CHOICE, &HClusterDlg::OnClusterChoice, this);
+    combo_n->Connect(wxEVT_TEXT, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
+    combo_n->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     m_method->Bind(wxEVT_CHOICE, &HClusterDlg::OnMethodChoice, this);
 
     chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
