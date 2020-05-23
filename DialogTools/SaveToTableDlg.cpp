@@ -133,14 +133,14 @@ void SaveToTableDlg::CreateControls()
 	//space_sizer->AddSpacer(400);
 	//top_sizer->Add(space_sizer, 0, wxALL, 1);	
 	
-	int fg_cols = is_space_time ? 4 : 3;
+	//int fg_cols = is_space_time ? 4 : 3;
 	// data.size() rows, fg_cols columns, vgap=3, hgap=3
 	wxFlexGridSizer *fg_sizer = new wxFlexGridSizer((int) data.size() + 1, 2, 3, 3);
     
     fg_sizer->AddSpacer(10);
     fg_sizer->Add(m_field_label, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5);
     //wxBoxSizer* fg_sizer = new wxBoxSizer(wxVERTICAL);
-    for (int i=0, iend=data.size(); i<iend; i++) {
+    for (size_t i=0, iend=data.size(); i<iend; i++) {
 		//fg_sizer->Add(m_check[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//fg_sizer->Add(m_add_button[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);
 		//fg_sizer->Add(m_field[i], 0, wxALIGN_CENTRE_VERTICAL | wxALL, 5);

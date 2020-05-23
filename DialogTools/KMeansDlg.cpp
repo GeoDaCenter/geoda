@@ -43,6 +43,7 @@
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
 #include "../Algorithms/cluster.h"
+#include "../Algorithms/pam.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"

@@ -452,7 +452,7 @@ case 999:
     mess="not yet implemented";
     break;
 default:
-    sprintf(mess=mess2,"Assert failed; error code %d\n",*i);
+    sprintf(mess=mess2,"Assert failed; error code %ld\n",*i);
     break;
     }
     error_status = 1;
@@ -466,7 +466,7 @@ void ehg183a_(char *s, long int *nc, long int *i, long int *n,long int *inc)
     strncpy(mess,s,*nc);
     mess[*nc] = '\0';
     for (j=0; j<*n; j++) {
-	    snprintf(num, 20, " %d",i[j * *inc]);
+	    snprintf(num, 20, " %ld",i[j * *inc]);
 	    strcat(mess,num);
     }
     strcat(mess,"\n");

@@ -356,7 +356,7 @@ void MapTree::Init()
     for (int i=0; i<map_titles.size(); i++) {
         wxString lbl = map_titles[i];
         int x =  px;
-        int y =  py + (leg_h + leg_pad_y) * i;
+        //int y =  py + (leg_h + leg_pad_y) * i;
         wxPoint pt(x, py);
         wxSize sz(w - x, leg_h);
         new_order.push_back(i);
@@ -684,7 +684,7 @@ void MapTree::OnEvent(wxMouseEvent& event)
             // moving
             if (select_id > -1 ) {
                 // paint selected label with mouse
-                int label_id = new_order[select_id];
+                //int label_id = new_order[select_id];
                 move_pos = event.GetPosition();
                 if (cat_clicked > -1 && select_id != cat_clicked) {
                     // reorganize new_order
