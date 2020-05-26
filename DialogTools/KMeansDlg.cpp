@@ -312,7 +312,7 @@ wxString KClusterDlg::_printConfiguration()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        ncluster = (int)value_ncluster;
     }
     
     wxString txt;
@@ -346,7 +346,7 @@ bool KClusterDlg::CheckAllInputs()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        n_cluster = value_ncluster;
+        n_cluster = (int)value_ncluster;
     }
     if (n_cluster < 2 || n_cluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of clusters.");
@@ -365,14 +365,14 @@ bool KClusterDlg::CheckAllInputs()
     wxString str_pass = m_pass->GetValue();
     long l_pass;
     if(str_pass.ToLong(&l_pass)) {
-        n_pass = l_pass;
+        n_pass = (int)l_pass;
     }
 
     n_maxiter = 300; // max iteration of EM
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
     if(iterations.ToLong(&l_maxiter)) {
-        n_maxiter = l_maxiter;
+        n_maxiter = (int)l_maxiter;
     }
 
     meth_sel = combo_method->GetSelection();
@@ -385,7 +385,7 @@ bool KClusterDlg::CheckAllInputs()
 bool KClusterDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
+        setrandomstate((int)GdaConst::gda_user_seed);
         resetrandom();
     } else {
         setrandomstate(-1);
@@ -416,7 +416,7 @@ bool KClusterDlg::Run(vector<wxInt64>& clusters)
     
     int s1 = 0;
     if (GdaConst::use_gda_user_seed) {
-        srand(GdaConst::gda_user_seed);
+        srand((int)GdaConst::gda_user_seed);
         s1 = rand();
     }
     
@@ -656,7 +656,7 @@ void KMediansDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
 
 vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >& solutions)
 {
-    int n_clusters = solutions.size();
+    int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
@@ -667,7 +667,7 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
     }
 
-    int start = IsUseCentroids() ? 2 : 0;
+    //int start = IsUseCentroids() ? 2 : 0;
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> medians;
         int end = columns;
@@ -677,7 +677,7 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
             medians.push_back(0); // CENT_Y
         }
         for (int c=0; c<end; c++) {
-            double sum = 0;
+            //double sum = 0;
             int n = 0;
             double* data = new double[solutions[i].size()];
             for (int j=0; j<solutions[i].size(); j++) {
@@ -734,6 +734,14 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
 
 void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
+    RawDistMatrix dist_matrix(distmatrix);
+    PAM pam(num_obs, &dist_matrix, ncluster, n_maxiter);
+    std::vector<int> clusterid = pam.run();
+    std::vector<wxInt64> cluster;
+    for (size_t i=0; i<clusterid.size(); ++i)  cluster.push_back(clusterid[i]);
+    sub_clusters[0] = cluster;
+    
+    /*
     double error;
     int ifound;
     int* clusterid = new int[rows];
@@ -761,6 +769,7 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
     sub_clusters[error] = clusters;
     
     delete[] clusterid;
+     */
 }
 
 vector<vector<double> > KMedoidsDlg::_getMeanCenters(
@@ -768,7 +777,7 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
 {
     // The centroid is defined as the element with the
     // smallest sum of distances to the other elements.
-    int n_clusters = solutions.size();
+    int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;

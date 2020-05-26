@@ -148,7 +148,7 @@ void DistancePlot::run(bool rand_sample, size_t num_rand)
 
 void DistancePlot::compute_dist(size_t row_idx, bool rand_sample)
 {
-    double geo_dist, var_dist, val;
+    double geo_dist, var_dist;
     size_t scatter_pos, sum_to_m, sum_to_n = num_obs * (num_obs - 1) / 2;
 
     for (size_t j=row_idx + 1; j<num_obs; ++j) {

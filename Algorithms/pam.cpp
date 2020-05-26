@@ -14,12 +14,12 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-PAM::PAM(int num_obs, const std::vector<double>& dist, int k, int maxiter)
-: num_obs(num_obs), dist(dist), k(k), maxiter(100), rng(123456789)
+PAM::PAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter)
+: num_obs(num_obs), dist_matrix(dist_matrix), k(k), maxiter(100), rng(123456789)
 {
     ids.resize(num_obs);
     for (int i=0; i<num_obs; ++i) {
-        ids[i] = 1;
+        ids[i] = i;
     }
 }
 
@@ -37,8 +37,8 @@ std::vector<int> PAM::run() {
     
     //
     std::vector<int> cluster_result(num_obs, 0);
-    for (int i=0; i<ids[i]; ++i) {
-        cluster_result[i] = assignment[ids[i]];
+    for (int i=0; i<ids.size(); ++i) {
+        cluster_result[i] = assignment[ids[i]] + 1;
     }
     return cluster_result;
 }
@@ -133,15 +133,7 @@ void PAM::shuffle(std::vector<int> &samples, int ssize, int end) {
 }
 
 double PAM::getDistance(int i, int j) {
-    if (i == j) return 0;
-    
-    // lower part triangle
-    int r = i > j ? i : j;
-    int c = i < j ? i : j;
-    
-    int idx = c + r * (r - 1) / 2;
-    
-    return idx;
+    return sqrt(dist_matrix->getDistance(i, j));
 }
 
 // PAM initialization
@@ -277,14 +269,12 @@ double PAM::computeReassignmentCost(int h, int mnum) {
 }
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-FastPAM::FastPAM(int num_obs, const std::vector<double>& dist, int k, int maxiter, double fasttol)
-: PAM(num_obs, dist, k, maxiter), fasttol(fasttol)
+FastPAM::FastPAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter, double fasttol)
+: PAM(num_obs, dist_matrix, k, maxiter), fasttol(fasttol)
 {
     //super(distQ, ids, assignment);
     fastswap = 1 - fasttol;

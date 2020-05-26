@@ -1997,7 +1997,7 @@ nearest(int d_idx, int n_cluster, double *d2,
     setmetric(dist);
     
     int k, min_k;
-    double d, min_d;
+    double min_d;
     
     min_d = HUGE_VAL;
     min_k = clusterid[d_idx];
@@ -2048,7 +2048,7 @@ static void kplusplusassign (int nclusters, int ndata, int nelements, int cluste
     }
     double current_pot;
     double distance;
-    double best_pot = DBL_MAX;
+    //double best_pot = DBL_MAX;
     
     current_pot = 0;
     for (j = 0; j < nelements; j++) {
@@ -4931,7 +4931,7 @@ double** mds(int nrows, int ncolumns, double** data, int** mask,
         if (E[i]==NULL) break; /* Not enough memory available */
     }
     
-    double sum_E = 0, avg_E = 0;
+    double sum_E = 0;// avg_E = 0;
     /* Calculate the distances and save them in the ragged array */
     /*  E = (-0.5 * d*d) */
     for (i=0; i<n; i++)

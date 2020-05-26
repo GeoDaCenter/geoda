@@ -3,13 +3,60 @@
 
 #include <vector>
 #include <boost/random.hpp>
+
+class DistMatrix
+{
+public:
+    DistMatrix() {}
+    virtual ~DistMatrix() {}
+    // Get distance between i-th and j-th object
+    virtual double getDistance(int i, int j) = 0;
+};
+
+class RawDistMatrix : public DistMatrix
+{
+    double** dist;
+public:
+    RawDistMatrix(double** dist) : dist(dist) {}
+    virtual ~RawDistMatrix() {}
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        // lower part triangle
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        return dist[r][c];
+    }
+};
+
+class RDistMatrix : public DistMatrix
+{
+    int num_obs;
+    int n;
+    const std::vector<double>& dist;
+public:
+    RDistMatrix(int num_obs, const std::vector<double>& dist)
+    : num_obs(num_obs), dist(dist), DistMatrix() {
+        n = (num_obs - 1) * num_obs / 2;
+    }
+    virtual ~RDistMatrix() {}
+    
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        // lower part triangle, store column wise
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        int idx = n - (num_obs - c + 1) * (num_obs - c) / 2 + r ;
+        return idx;
+    }
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class PAM
 {
 public:
-    PAM(int num_obs, const std::vector<double>& dist, int k, int maxiter);
+    PAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter);
     virtual ~PAM();
     
     std::vector<int> run();
@@ -51,8 +98,8 @@ protected:
     // Number of observations
     int num_obs;
     
-    // Distance matrix, column wise flatted 1D
-    std::vector<double> dist;
+    // Distance matrix
+    DistMatrix* dist_matrix;
     
     // Number of clusters
     int k;
@@ -82,7 +129,7 @@ protected:
 class FastPAM : public PAM
 {
 public:
-    FastPAM(int num_obs, const std::vector<double>& dist, int k, int maxiter,
+    FastPAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter,
             double fasttol=1.0);
     virtual ~FastPAM();
     
