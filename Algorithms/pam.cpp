@@ -4,10 +4,6 @@
 #include <math.h>
 #include <float.h>
 #include <algorithm>    // std::max
-#include <boost/range/algorithm.hpp>
-#include <boost/random/uniform_int.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/mersenne_twister.hpp>
 
 #include "pam.h"
 
@@ -15,12 +11,24 @@
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 PAM::PAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter)
-: num_obs(num_obs), dist_matrix(dist_matrix), k(k), maxiter(100), rng(123456789)
+: num_obs(num_obs), dist_matrix(dist_matrix), k(k), maxiter(100)
 {
     ids.resize(num_obs);
     for (int i=0; i<num_obs; ++i) {
         ids[i] = i;
     }
+    
+    // set seed
+    long long xor64 = 123456789;
+    // XorShift64* generator to seed:
+    xor64 ^= (unsigned long long)xor64 >> 12; // a
+    xor64 ^= xor64 << 25; // b
+    xor64 ^= (unsigned long long)xor64 >> 27; // c
+    s0 = xor64 * 2685821657736338717L;
+    xor64 ^= (unsigned long long)xor64 >> 12; // a
+    xor64 ^= xor64 << 25; // b
+    xor64 ^= (unsigned long long)xor64 >> 27; // c
+    s1 = xor64 * 2685821657736338717L;
 }
 
 PAM::~PAM() {
@@ -28,14 +36,18 @@ PAM::~PAM() {
 }
 
 std::vector<int> PAM::run() {
+    // Initialization
     std::vector<int> medoids = initialMedoids();
+    
     // Setup cluster assignment store
-    for (int i=0; i<ids.size(); ++i) {
-        assignment[i] = -1;
-    }
+    assignment.resize(num_obs, -1);
+    nearest.resize(num_obs, -1);
+    second.resize(num_obs, -1);
+    
+    // Run partition
     run(medoids, maxiter);
     
-    //
+    // Get results
     std::vector<int> cluster_result(num_obs, 0);
     for (int i=0; i<ids.size(); ++i) {
         cluster_result[i] = assignment[ids[i]] + 1;
@@ -102,18 +114,16 @@ double PAM::run(std::vector<int> &medoids, int maxiter) {
 }
 
 //Get the minimum distance to previous medoids.
-double PAM::getMinDist(int j, std::vector<int>& medids, std::map<int, double>& mindist)
+double PAM::getMinDist(int j, std::vector<int>& medids, std::vector<double>& mindist)
 {
-    double prev = 0;
-    if (mindist.find(j) == mindist.end()) {
+    double prev = mindist[j];
+    if (prev == DBL_MIN) {
         prev = DBL_MAX;
         for (int i=0; i<medids.size(); ++i) {
             double d = getDistance(j, medids[i]);
             prev = d < prev ? d : prev;
         }
         mindist[j] = prev;
-    } else {
-        prev = mindist[j];
     }
     return prev;
 }
@@ -123,13 +133,38 @@ void PAM::shuffle(std::vector<int> &samples, int ssize, int end) {
     ssize = ssize < end ? ssize : end; // Guard for choosing from tiny sets
     
     for(int i = 1; i < ssize; i++) {
-        boost::random::uniform_int_distribution<> nextInt(end - i);
-        //ids.swap(i - 1, i + nextInt(rng));
-        int a = i-1, b = i+nextInt(rng);
-        int tmp = ids[b];
-        ids[b] = ids[a];
-        ids[a] = tmp;
+        int a = i-1, b = i+nextInt(end - i);
+        int tmp = samples[b];
+        samples[b] = samples[a];
+        samples[a] = tmp;
     }
+}
+
+
+long long PAM::nextLong()
+{
+    // seed = (seed * 0x5DEECE66DL + 0xBL) & ((1L << 48) - 1)
+    //  return (int)(seed >>> (48 - bits)).
+    // Using Xoroshiro 128 Nonthread safe
+    long long t0 = s0, t1 = s1;
+    long long result = t0 + t1;
+    t1 ^= t0;
+    // left rotate: (n << d)|(n >> (INT_BITS - d));
+    s0 = (t0 << 55) | ((unsigned long long)t0 >> (64 - 55));
+    s0 = s0 ^ t1 ^ (t1 << 14); // a, b
+    s1 = (t1 << 36) | ((unsigned long long)t1 >> (64 -36));
+    
+    return result;
+}
+
+int PAM::nextInt(int n)
+{
+    if (n <=0)
+        return 0;
+    
+    int r =  (int)((n & -n) == n ? nextLong() & n - 1 // power of two
+        : (unsigned long long)(((unsigned long long)nextLong() >> 32) * n) >> 32);
+    return r;
 }
 
 double PAM::getDistance(int i, int j) {
@@ -146,7 +181,7 @@ std::vector<int> PAM::initialMedoids() {
     if (ssize < ids.size()) ssize = (int)ids.size();
     
     // We need three temporary storage arrays:
-    std::map<int, double> mindist, bestd, tempd, temp;
+    std::vector<double> mindist(num_obs), bestd(num_obs), tempd(num_obs), temp;
     
     int bestid;
     // First mean is chosen by having the smallest distance sum to all others.
@@ -358,16 +393,13 @@ std::vector<int> FastPAM::initialMedoids() {
     std::set<int> medids_set;
     // O(sqrt(n)) sample if k^2 < n.
     int ssize = 10 + (int)ceil(sqrt(ids.size()));
-    if (ssize < ids.size()) ssize = (int)ids.size();
+    if (ssize > ids.size()) ssize = (int)ids.size();
     
     // We need three temporary storage arrays:
-    std::map<int, double> mindist, bestd, tempd;
+    std::vector<double> mindist(num_obs, DBL_MIN), bestd(num_obs), tempd(num_obs), tmp;
     std::vector<int> sample = ids;
     int range = (int)sample.size();
     
-    //boost::uniform_int<> uni_dist;
-    //boost::variate_generator<boost::mt19937&, boost::uniform_int<> > rs(rng, uni_dist);
-    //boost::range::random_shuffle(sample, rs);
     shuffle(sample, ssize, range);
     
     // First mean is chosen by having the smallest distance sum to all others.
@@ -387,7 +419,6 @@ std::vector<int> FastPAM::initialMedoids() {
                 best = sum;
                 bestoff = i;
                 // Swap mindist and newd:
-                std::map<int, double> tmp;
                 tmp = mindist;
                 mindist = tempd;
                 tempd = tmp;
@@ -422,15 +453,15 @@ std::vector<int> FastPAM::initialMedoids() {
                 }
                 v = std::min(getDistance(sample[i], sample[j]), prev);
                 sum += v;
-                tempd[j] =  v;
+                tempd[sample[j]] =  v;
             }
             if(sum < best) {
                 best = sum;
                 bestoff = i;
                 // Swap bestd and newd:
-                std::map<int, double> temp = bestd;
+                tmp = bestd;
                 bestd = tempd;
-                tempd = temp;
+                tempd = tmp;
             }
         }
         if(bestoff < 0) {
@@ -440,13 +471,13 @@ std::vector<int> FastPAM::initialMedoids() {
         medids.push_back(sample[bestoff]);
         medids_set.insert(sample[bestoff]);
         // sample.swap(bestoff, --range);
-        int tmp = sample[--range];
+        int tmp_val = sample[--range];
         sample[range] = sample[bestoff];
-        sample[bestoff] = tmp;
+        sample[bestoff] = tmp_val;
         // Swap bestd and mindist:
-        std::map<int, double> temp = bestd;
+        tmp = bestd;
         bestd = mindist;
-        mindist = temp;
+        mindist = tmp;
     }
     
     mindist.clear();
@@ -461,6 +492,7 @@ void FastPAM::findBestSwaps(std::vector<int> &medoids, std::vector<int> &bestids
     size_t n_medoids = medoids.size();
     
     best.resize(n_medoids, DBL_MAX);
+    cost.resize(n_medoids, 0);
     
     // Iterate over all non-medoids:
     for (int k=0; k<ids.size(); ++k) {
@@ -471,7 +503,7 @@ void FastPAM::findBestSwaps(std::vector<int> &medoids, std::vector<int> &bestids
         }
         
         // The cost we get back by making the non-medoid h medoid.
-        cost.resize(n_medoids, -nearest[h]);
+        for (int j=0; j<n_medoids; ++j) cost[j] = -nearest[h];
 
         computeReassignmentCost(h, cost);
         
@@ -575,7 +607,7 @@ double FastPAM::assignToNearestCluster(std::vector<int> &means) {
             return 0;
         }
         //assignment.put(iditer, minindx | (minindx2 << 16));
-        assignment[iditer]  = minindx;
+        assignment[iditer]  = minindx | (minindx2 << 16);
         //nearest.put(iditer, mindist);
         nearest[iditer] = mindist;
         //second.put(iditer, mindist2);
@@ -667,11 +699,11 @@ int FastPAM::updateSecondNearest(int j, std::vector<int> &medoids, int h, double
     double sdist = dist_h;
     int sbest = h;
     for (int i=0; i<medoids.size(); ++i) {
-        if (medoids[i] != h && medoids[i] != n) {
+        if (i != h && i != n) {
             double d = getDistance(j, medoids[i]);
             if(d < sdist) {
                 sdist = d;
-                sbest = medoids[i];
+                sbest = i;
             }
         }
     }

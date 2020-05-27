@@ -2,7 +2,6 @@
 #define __GEODA_CENTER_PAM_H
 
 #include <vector>
-#include <boost/random.hpp>
 
 class DistMatrix
 {
@@ -59,7 +58,7 @@ public:
     PAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter);
     virtual ~PAM();
     
-    std::vector<int> run();
+    virtual std::vector<int> run();
     
 protected:
     // Partial Fisher-Yates shuffle.
@@ -72,7 +71,7 @@ protected:
     // j j current object
     // mindist distance storage
     // return minimum distance
-    double getMinDist(int j, std::vector<int>& medids, std::map<int, double>& mindist);
+    double getMinDist(int j, std::vector<int>& medids, std::vector<double>& mindist);
     
     // Get distance between i-th and j-th object
     double getDistance(int i, int j);
@@ -94,6 +93,11 @@ protected:
     // mnum Medoid number to be replaced
     virtual double computeReassignmentCost(int h, int mnum);
     
+    // random number generator
+    int nextInt(int bound);
+    
+    long long nextLong();
+    
 protected:
     // Number of observations
     int num_obs;
@@ -108,19 +112,20 @@ protected:
     std::vector<int> ids;
     
     // id : value
-    std::map<int, int> assignment;
+    std::vector<int> assignment;
     
     // distance to nearest
-    std::map<int, double> nearest;
+    std::vector<double> nearest;
     
     // distance to second nearest
-    std::map<int, double> second;
+    std::vector<double> second;
     
     // Max iteration
     int maxiter;
     
-    // random number generator
-    boost::mt19937 rng;
+    // seed
+    long long s0;
+    long long s1;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +185,7 @@ protected:
     int updateSecondNearest(int j, std::vector<int>& medoids,
                             int h, double dist_h, int n);
     
+    
 protected:
     // Tolerance for fast swapping behavior (may perform worse swaps).
     double fastswap = 0.;
@@ -187,5 +193,6 @@ protected:
     // Tolerance for fast swapping behavior (may perform worse swaps).
     double fasttol = 0;
 };
+
 
 #endif

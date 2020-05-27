@@ -735,12 +735,12 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
 void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     RawDistMatrix dist_matrix(distmatrix);
-    PAM pam(num_obs, &dist_matrix, ncluster, n_maxiter);
-    std::vector<int> clusterid = pam.run();
+    PAM* pam = new FastPAM(num_obs, &dist_matrix, ncluster, n_maxiter);
+    std::vector<int> clusterid = pam->run();
     std::vector<wxInt64> cluster;
     for (size_t i=0; i<clusterid.size(); ++i)  cluster.push_back(clusterid[i]);
     sub_clusters[0] = cluster;
-    
+    delete pam;
     /*
     double error;
     int ifound;
