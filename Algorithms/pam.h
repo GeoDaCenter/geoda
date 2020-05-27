@@ -2,24 +2,105 @@
 #define __GEODA_CENTER_PAM_H
 
 #include <vector>
+#if __cplusplus >= 201103
+#include <unordered_map>
+using namespace std;
+#else
+#include <boost/unordered_map.hpp>
+using namespace boost;
+#endif
+/**
+ * title = "xoroshiro+ / xorshift* / xorshift+ generators and the PRNG shootout", //
+ * booktitle = "Online", //
+ * url = "http://xoroshiro.di.unimi.it/", //
+ */
+class Xoroshiro128Random
+{
+    long long s0;
+    long long s1;
+public:
+    Xoroshiro128Random(long long xor64 = 123456789) {
+        // set seed
+        // XorShift64* generator to seed:
+        xor64 ^= (unsigned long long)xor64 >> 12; // a
+        xor64 ^= xor64 << 25; // b
+        xor64 ^= (unsigned long long)xor64 >> 27; // c
+        s0 = xor64 * 2685821657736338717L;
+        xor64 ^= (unsigned long long)xor64 >> 12; // a
+        xor64 ^= xor64 << 25; // b
+        xor64 ^= (unsigned long long)xor64 >> 27; // c
+        s1 = xor64 * 2685821657736338717L;
+    }
+    virtual ~Xoroshiro128Random() {}
+    int nextInt(int n) {
+        if (n <=0) return 0;
+        int r =  (int)((n & -n) == n ? nextLong() & n - 1 // power of two
+            : (unsigned long long)(((unsigned long long)nextLong() >> 32) * n) >> 32);
+        return r;
+    }
+    long long nextLong() {
+        long long t0 = s0, t1 = s1;
+        long long result = t0 + t1;
+        t1 ^= t0;
+        // left rotate: (n << d)|(n >> (INT_BITS - d));
+        s0 = (t0 << 55) | ((unsigned long long)t0 >> (64 - 55));
+        s0 = s0 ^ t1 ^ (t1 << 14); // a, b
+        s1 = (t1 << 36) | ((unsigned long long)t1 >> (64 -36));
+        return result;
+    }
+    double nextDouble() {
+        return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
+    }
+    std::vector<int> randomSample(int samplesize, int n)
+    {
+        unordered_map<int, bool> sample_dict;
+        unordered_map<int, bool>::iterator it;
+        while (sample_dict.size() < samplesize) {
+            sample_dict[nextInt(n)] = true;
+        }
+        std::vector<int>  samples(samplesize);
+        int i=0;
+        for (it = sample_dict.begin(); it != sample_dict.end(); ++it) {
+            samples[i++] = it->first;
+        }
+        return samples;
+    }
+};
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class DistMatrix
 {
+protected:
+    std::vector<int> ids;
+    bool has_ids;
 public:
-    DistMatrix() {}
+    DistMatrix(const std::vector<int>& _ids=std::vector<int>())
+    : ids(_ids), has_ids(!_ids.empty()) {}
     virtual ~DistMatrix() {}
     // Get distance between i-th and j-th object
+    // if ids vector is provided, the distance (i,j) -> distance(ids[i], ids[j])
     virtual double getDistance(int i, int j) = 0;
+    virtual void setIds(const std::vector<int>& _ids) {
+        ids = _ids;
+        has_ids = !ids.empty();
+    }
 };
 
 class RawDistMatrix : public DistMatrix
 {
     double** dist;
 public:
-    RawDistMatrix(double** dist) : dist(dist) {}
+    RawDistMatrix(double** dist, const std::vector<int>& _ids=std::vector<int>())
+    : DistMatrix(_ids), dist(dist) {}
     virtual ~RawDistMatrix() {}
     virtual double getDistance(int i, int j) {
         if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
         // lower part triangle
         int r = i > j ? i : j;
         int c = i < j ? i : j;
@@ -33,14 +114,18 @@ class RDistMatrix : public DistMatrix
     int n;
     const std::vector<double>& dist;
 public:
-    RDistMatrix(int num_obs, const std::vector<double>& dist)
-    : num_obs(num_obs), dist(dist), DistMatrix() {
+    RDistMatrix(int num_obs, const std::vector<double>& dist, const std::vector<int>& _ids=std::vector<int>())
+    : DistMatrix(_ids), num_obs(num_obs), dist(dist) {
         n = (num_obs - 1) * num_obs / 2;
     }
     virtual ~RDistMatrix() {}
     
     virtual double getDistance(int i, int j) {
         if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
         // lower part triangle, store column wise
         int r = i > j ? i : j;
         int c = i < j ? i : j;
@@ -50,17 +135,34 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
+/// Initializer
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class PAM
+class PAMInitializer
+{
+protected:
+    DistMatrix* dist;
+public:
+    PAMInitializer(DistMatrix* dist) : dist(dist) {}
+    virtual ~PAMInitializer() {}
+    virtual std::vector<int> run(const std::vector<int>& ids, int k) = 0;
+};
+
+class BUILD : public PAMInitializer
 {
 public:
-    PAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter);
-    virtual ~PAM();
+    BUILD(DistMatrix* dist) : PAMInitializer(dist) {}
+    virtual ~BUILD(){}
+    virtual std::vector<int> run(const std::vector<int>& ids, int k);
+};
+
+class LAB : public PAMInitializer
+{
     
-    virtual std::vector<int> run();
+public:
+    LAB(DistMatrix* dist) : PAMInitializer(dist) {}
+    virtual ~LAB(){}
+    virtual std::vector<int> run(const std::vector<int>& ids, int k);
     
-protected:
     // Partial Fisher-Yates shuffle.
     // ids IDs to shuffle
     // ssize sample size to generate
@@ -73,12 +175,30 @@ protected:
     // return minimum distance
     double getMinDist(int j, std::vector<int>& medids, std::vector<double>& mindist);
     
+    // seed
+    Xoroshiro128Random random;
+};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class PAM
+{
+public:
+    PAM(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
+        int k, int maxiter, const std::vector<int>& ids=std::vector<int>());
+    virtual ~PAM();
+    
+    virtual double run();
+    
+    virtual std::vector<int> getResults();
+    
+    virtual std::vector<int> getMedoids();
+    
+    virtual std::vector<int> getAssignement() { return assignment;}
+protected:
+    
     // Get distance between i-th and j-th object
     double getDistance(int i, int j);
-    
-    // Choose the initial medoids.
-    // return Initial medoids
-    virtual std::vector<int> initialMedoids();
     
     // Run the PAM optimization phase.
     virtual double run(std::vector<int>& medoids, int maxiter);
@@ -93,11 +213,6 @@ protected:
     // mnum Medoid number to be replaced
     virtual double computeReassignmentCost(int h, int mnum);
     
-    // random number generator
-    int nextInt(int bound);
-    
-    long long nextLong();
-    
 protected:
     // Number of observations
     int num_obs;
@@ -105,13 +220,19 @@ protected:
     // Distance matrix
     DistMatrix* dist_matrix;
     
+    // PAM Initializer
+    PAMInitializer* initializer;
+    
     // Number of clusters
     int k;
     
-    // ids
-    std::vector<int> ids;
+    // Max iteration
+    int maxiter;
     
-    // id : value
+    // ids: could be non-enumeric numbers
+    std::vector<int> ids;
+
+    // cluster assignment
     std::vector<int> assignment;
     
     // distance to nearest
@@ -120,12 +241,8 @@ protected:
     // distance to second nearest
     std::vector<double> second;
     
-    // Max iteration
-    int maxiter;
-    
-    // seed
-    long long s0;
-    long long s1;
+    // medoids
+    std::vector<int> medoids;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,13 +251,11 @@ protected:
 class FastPAM : public PAM
 {
 public:
-    FastPAM(int num_obs, DistMatrix* dist_matrix, int k, int maxiter,
-            double fasttol=1.0);
+    FastPAM(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
+            int k, int maxiter, double fasttol=1.0, const std::vector<int>& ids=std::vector<int>());
     virtual ~FastPAM();
     
 protected:
-    // LAB initialization
-    virtual std::vector<int> initialMedoids();
     
     // Run the PAM optimization phase.
     virtual double run(std::vector<int>& medoids, int maxiter);
@@ -192,6 +307,147 @@ protected:
     
     // Tolerance for fast swapping behavior (may perform worse swaps).
     double fasttol = 0;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class CLARA
+{
+public:
+    // k Number of clusters to produce
+    // maxiter Maximum number of iterations
+    // numsamples Number of samples (sampling iterations)
+    // sampling Sampling rate (absolute or relative)
+    // keepmed Keep the previous medoids in the next sample
+    CLARA(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
+    int k, int maxiter, int numsamples, double sampling, bool keepmed);
+    
+    virtual ~CLARA();
+    
+    virtual double run();
+    
+    virtual std::vector<int> getResults();
+    
+    virtual std::vector<int> getMedoids() { return bestmedoids;}
+    
+protected:
+    
+    // Assign remining to nearest cluster
+    double assignRemainingToNearestCluster(std::vector<int>& means,
+                                           std::vector<int>& rids,
+                                           std::vector<int>& r_assignment,
+                                           std::vector<int>& assignment);
+protected:
+    // Number of observations
+    int num_obs;
+    
+    // Distance matrix
+    DistMatrix* dist_matrix;
+    
+    // PAM Initializer
+    PAMInitializer* initializer;
+    
+    // Number of clusters
+    int k;
+    
+    // Max iteration
+    int maxiter;
+    
+    // Sampling rate. If less than 1, it is considered to be a relative value.
+    double sampling;
+    
+    //  Number of samples to draw (i.e. iterations).
+    int numsamples;
+    
+    // Keep the previous medoids in the sample (see page 145).
+    bool keepmed;
+    
+    // Random factory for initialization.
+    Xoroshiro128Random random;
+    
+    std::vector<int> bestmedoids;
+    
+    std::vector<int> bestclusters;
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class Assignment
+{
+public:
+    Assignment();
+    virtual ~Assignment();
+    
+    std::vector<int> medoids;
+    std::vector<int> assignment;
+    std::vector<double> nearest;
+    std::vector<int> secondid;
+    std::vector<double> second;
+    
+    // Compute the reassignment cost, for one swap.
+    double computeCostDifferential(int h, int mnum, Assignment& scratch);
+    
+    //Recompute the assignment of one point.
+    double recompute(int i, int mnumn, double known, int snum, double sknown);
+    
+    // Assign each point to the nearest medoid.
+    double assignToNearestCluster();
+    
+    bool hasMedoid(int cand);
+};
+
+class CLARANS
+{
+public:
+    // k Number of clusters to produce
+    // maxiter Maximum number of iterations
+    // numsamples Number of samples (sampling iterations)
+    // sampling Sampling rate (absolute or relative)
+    CLARANS(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
+    int k, int numlocal, double maxneighbor);
+    
+    virtual ~CLARANS();
+    
+    virtual double run();
+    
+    virtual std::vector<int> getResults();
+    
+    virtual std::vector<int> getMedoids() { return bestmedoids;}
+    
+protected:
+    
+    // Assign remining to nearest cluster
+    double assignRemainingToNearestCluster(std::vector<int>& means,
+                                           std::vector<int>& rids,
+                                           std::vector<int>& r_assignment,
+                                           std::vector<int>& assignment);
+protected:
+    // Number of observations
+    int num_obs;
+    
+    // Distance matrix
+    DistMatrix* dist_matrix;
+    
+    // PAM Initializer
+    PAMInitializer* initializer;
+    
+    // Number of clusters
+    int k;
+    
+    // Number of samples to draw (i.e. restarts).
+    int numlocal;
+    
+    //  Sampling rate. If less than 1, it is considered to be a relative value.
+    double maxneighbor;
+    
+    // Random factory for initialization.
+    Xoroshiro128Random random;
+    
+    std::vector<int> bestmedoids;
+    
+    std::vector<int> bestclusters;
 };
 
 
