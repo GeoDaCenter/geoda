@@ -735,14 +735,22 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
 void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
     RawDistMatrix dist_matrix(distmatrix);
+    /*
     BUILD pam_init(&dist_matrix);
-    PAM* pam = new FastPAM(num_obs, &dist_matrix, &pam_init, ncluster, n_maxiter);
-    double cost = pam->run();
-    std::vector<int> clusterid = pam->getResults();
+    FastPAM pam(num_obs, &dist_matrix, &pam_init, ncluster, n_maxiter);
+    double cost = pam.run();
+    std::vector<int> clusterid = pam.getResults();
+     */
+    
+    int numlocal = 2;
+    double maxneighbor = 0.0125;
+    CLARANS clarans(num_obs, &dist_matrix, ncluster, numlocal, maxneighbor);
+    clarans.run();
+    std::vector<int> clusterid = clarans.getResults();
+    
     std::vector<wxInt64> cluster;
     for (size_t i=0; i<clusterid.size(); ++i)  cluster.push_back(clusterid[i]);
     sub_clusters[0] = cluster;
-    delete pam;
     
     /*
     double error;

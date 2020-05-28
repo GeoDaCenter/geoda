@@ -71,7 +71,7 @@ void SSDUtils::MeasureSplit(double ssd, vector<int> &ids, int split_position,  M
     int start1 = 0;
     int end1 = split_position;
     int start2 = split_position;
-    int end2 = ids.size();
+    int end2 = (int)ids.size();
     
     double ssd1 = ComputeSSD(ids, start1, end1);
     double ssd2 = ComputeSSD(ids, start2, end2);
@@ -185,8 +185,8 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
     controls = cluster->controls;
     control_thres = cluster->control_thres;
     
-    int size = ordered_ids.size();
-    int edge_size = edges.size();
+    int size = (int)ordered_ids.size();
+    int edge_size = (int)edges.size();
     this->ssd = 0;
     this->ssd_reduce = 0;
     
@@ -216,7 +216,7 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
         }
         
         if (size < 1000) {
-            Partition(0, od_array.size()-1, ordered_ids, od_array, nbr_dict);
+            Partition(0, (int)od_array.size()-1, ordered_ids, od_array, nbr_dict);
         } else {
             run_threads(ordered_ids, od_array, nbr_dict);
         }
@@ -248,7 +248,7 @@ void Tree::run_threads(vector<int>& ids,
                        vector<pair<int, int> >& od_array,
                        boost::unordered_map<int, vector<int> >& nbr_dict)
 {
-    int n_jobs = od_array.size();
+    int n_jobs = (int)od_array.size();
     
     int nCPUs = boost::thread::hardware_concurrency();;
     int quotient = n_jobs / nCPUs;
@@ -279,11 +279,11 @@ void Tree::Partition(int start, int end, vector<int>& ids,
                            vector<pair<int, int> >& od_array,
                            boost::unordered_map<int, vector<int> >& nbr_dict)
 {
-    int size = nbr_dict.size();
-    int id, orig_id, dest_id;
-    int i, e_idx, k = 1, cnt=0;
+    int size = (int)nbr_dict.size();
+    int orig_id, dest_id;
+    int i;
     
-    int best_edge = -1;
+    //int best_edge = -1;
     int evaluated = 0;
     int best_pos = -1;
     double tmp_ssd_reduce = 0, tmp_ssd=0;
@@ -352,7 +352,7 @@ void Tree::Split(int orig, int dest, boost::unordered_map<int, vector<int> >& nb
         visited_ids.pop();
         cand_ids[cur_id] = 1;
         vector<int>& nbrs = nbr_dict[cur_id];
-        nbr_size = nbrs.size();
+        nbr_size = (int)nbrs.size();
         for (i=0; i<nbr_size; i++) {
             nbr = nbrs[i];
             if (nbr != dest && cand_ids[nbr] == -1) {
@@ -383,7 +383,7 @@ pair<Tree*, Tree*> Tree::GetSubTrees()
     if (split_ids.empty()) {
         return this->subtrees;
     }
-    int size = this->split_ids.size();
+    int size = (int)this->split_ids.size();
     vector<int> part1_ids(this->split_pos);
     vector<int> part2_ids(size -this->split_pos);
     
@@ -478,7 +478,7 @@ void AbstractClusterFactory::init()
         orig = nodes[i];
         const vector<long>& nbrs = w[i].GetNbrs();
         for (int j=0; j<w[i].Size(); j++) {
-            int nbr = nbrs[j];
+            int nbr = (int)nbrs[j];
             dest = nodes[nbr];
             length = dist_matrix[orig->id][dest->id];
             
@@ -666,11 +666,11 @@ void FirstOrderSLKRedCap::Clustering()
 {
     std::sort(edges.begin(), edges.end(), EdgeLess);
     
-    int num_nodes = nodes.size();
+    int num_nodes = (int)nodes.size();
 
     ordered_edges.resize(num_nodes-1);
     int cnt = 0;
-    double sum_length = 0;
+    //double sum_length = 0;
     
     for (int i=0; i<edges.size(); i++) {
         Edge* edge = edges[i];
@@ -827,7 +827,7 @@ FullOrderALKRedCap::~FullOrderALKRedCap()
 
 void FullOrderALKRedCap::Clustering()
 {
-    int num_nodes = nodes.size();
+    int num_nodes = (int)nodes.size();
     vector<Node*> ordered_nodes(num_nodes);
     
     for (int i=0; i< this->edges.size(); i++) {
@@ -839,7 +839,7 @@ void FullOrderALKRedCap::Clustering()
     }
 
     std::sort(edges.begin(), edges.end(), EdgeLess);
-    int num_edges = edges.size();
+    int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
     for (int i=0; i<num_edges; i++) {
         edges_copy[i] = edges[i];
@@ -1103,7 +1103,7 @@ FullOrderWardRedCap::~FullOrderWardRedCap()
 
 void FullOrderWardRedCap::Clustering()
 {
-    int num_nodes = nodes.size();
+    int num_nodes = (int)nodes.size();
     vector<Node*> ordered_nodes(num_nodes);
     
     for (int i=0; i< this->edges.size(); i++) {
@@ -1115,7 +1115,7 @@ void FullOrderWardRedCap::Clustering()
     }
     
     std::sort(edges.begin(), edges.end(), EdgeLess);
-    int num_edges = edges.size();
+    int num_edges = (int)edges.size();
     vector<Edge*> edges_copy(num_edges);
     for (int i=0; i<num_edges; i++) {
         edges_copy[i] = edges[i];

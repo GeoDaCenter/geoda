@@ -1,3 +1,15 @@
+// Author: Xun Li <lixun910@gmail.com>
+// May 27, 2020
+//
+// Code ported from elki project: http://elki-project.github.io/
+// Copyright follows elki project: http://elki-project.github.io/
+// AGPLv3: https://github.com/elki-project/elki/blob/master/LICENSE.md
+//
+// 5-27-2020
+// Xoroshiro128Random random number generator
+// PAM, CLARA, CLARANS
+// Initializer: BUILD and LAB
+// FastPAM, FastCLARA, FastCLARANS
 #ifndef __GEODA_CENTER_PAM_H
 #define __GEODA_CENTER_PAM_H
 
@@ -9,6 +21,7 @@ using namespace std;
 #include <boost/unordered_map.hpp>
 using namespace boost;
 #endif
+
 /**
  * title = "xoroshiro+ / xorshift* / xorshift+ generators and the PRNG shootout", //
  * booktitle = "Online", //
@@ -53,15 +66,16 @@ public:
     }
     std::vector<int> randomSample(int samplesize, int n)
     {
+        std::vector<int>  samples(samplesize);
+        int i=0;
         unordered_map<int, bool> sample_dict;
         unordered_map<int, bool>::iterator it;
         while (sample_dict.size() < samplesize) {
-            sample_dict[nextInt(n)] = true;
-        }
-        std::vector<int>  samples(samplesize);
-        int i=0;
-        for (it = sample_dict.begin(); it != sample_dict.end(); ++it) {
-            samples[i++] = it->first;
+            int rnd = nextInt(n);
+            if (sample_dict.find(rnd) == sample_dict.end()) {
+                samples[i++] = rnd;
+            }
+            sample_dict[rnd] = true;
         }
         return samples;
     }
@@ -104,7 +118,7 @@ public:
         // lower part triangle
         int r = i > j ? i : j;
         int c = i < j ? i : j;
-        return dist[r][c];
+        return sqrt(dist[r][c]);
     }
 };
 
@@ -130,7 +144,7 @@ public:
         int r = i > j ? i : j;
         int c = i < j ? i : j;
         int idx = n - (num_obs - c + 1) * (num_obs - c) / 2 + r ;
-        return idx;
+        return dist[idx];
     }
 };
 
@@ -255,6 +269,7 @@ public:
             int k, int maxiter, double fasttol=1.0, const std::vector<int>& ids=std::vector<int>());
     virtual ~FastPAM();
     
+    virtual double run() { return PAM::run(); }
 protected:
     
     // Run the PAM optimization phase.
@@ -320,8 +335,8 @@ public:
     // numsamples Number of samples (sampling iterations)
     // sampling Sampling rate (absolute or relative)
     // keepmed Keep the previous medoids in the next sample
-    CLARA(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
-    int k, int maxiter, int numsamples, double sampling, bool keepmed);
+    CLARA(int num_obs, DistMatrix* dist_matrix,
+          int k, int maxiter, int numsamples, double sampling, bool keepmed);
     
     virtual ~CLARA();
     
@@ -344,9 +359,6 @@ protected:
     
     // Distance matrix
     DistMatrix* dist_matrix;
-    
-    // PAM Initializer
-    PAMInitializer* initializer;
     
     // Number of clusters
     int k;
@@ -377,24 +389,33 @@ protected:
 class Assignment
 {
 public:
-    Assignment();
-    virtual ~Assignment();
+    Assignment() {}
+    Assignment(int k, int num_obs, DistMatrix* dist_matrix);
+    virtual ~Assignment() {}
     
+    int k;
+    int num_obs;
+    // Distance matrix
+    DistMatrix* dist_matrix;
+    unordered_map<int, bool> medoids_dict;
     std::vector<int> medoids;
     std::vector<int> assignment;
     std::vector<double> nearest;
     std::vector<int> secondid;
     std::vector<double> second;
     
+    Assignment& operator=(const Assignment& other);
+    
     // Compute the reassignment cost, for one swap.
-    double computeCostDifferential(int h, int mnum, Assignment& scratch);
+    virtual double computeCostDifferential(int h, int mnum, Assignment& scratch);
     
     //Recompute the assignment of one point.
-    double recompute(int i, int mnumn, double known, int snum, double sknown);
+    double recompute(int id, int mnum, double known, int snum, double sknown);
     
     // Assign each point to the nearest medoid.
     double assignToNearestCluster();
     
+    // Check if medoid is already assigned
     bool hasMedoid(int cand);
 };
 
@@ -405,8 +426,8 @@ public:
     // maxiter Maximum number of iterations
     // numsamples Number of samples (sampling iterations)
     // sampling Sampling rate (absolute or relative)
-    CLARANS(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
-    int k, int numlocal, double maxneighbor);
+    CLARANS(int num_obs, DistMatrix* dist_matrix,
+            int k, int numlocal, double maxneighbor);
     
     virtual ~CLARANS();
     
@@ -430,9 +451,6 @@ protected:
     // Distance matrix
     DistMatrix* dist_matrix;
     
-    // PAM Initializer
-    PAMInitializer* initializer;
-    
     // Number of clusters
     int k;
     
@@ -450,5 +468,34 @@ protected:
     std::vector<int> bestclusters;
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
+class FastAssignment : public Assignment
+{
+public:
+    FastAssignment();
+    virtual ~FastAssignment();
+    
+    std::vector<double> cost;
+    
+    int lastbest;
+    
+    // Compute the reassignment cost, for one swap.
+    double computeCostDifferential(int h, int mnum, Assignment& scratch);
+    
+    void performLastSwap(int h);
+};
+
+class FastCLARANS : public CLARANS
+{
+public:
+    FastCLARANS();
+    virtual ~FastCLARANS();
+    
+    virtual double run();
+};
+*/
 
 #endif

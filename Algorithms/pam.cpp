@@ -340,7 +340,7 @@ double PAM::run(std::vector<int> &medoids, int maxiter) {
 
 
 double PAM::getDistance(int i, int j) {
-    return sqrt(dist_matrix->getDistance(i, j));
+    return dist_matrix->getDistance(i, j);
 }
 
 // Assign each object to the nearest cluster, return the cost.
@@ -708,8 +708,8 @@ int FastPAM::updateSecondNearest(int j, std::vector<int> &medoids, int h, double
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, PAMInitializer *init, int k, int maxiter, int numsamples, double sampling, bool keepmed)
-:  num_obs(num_obs), dist_matrix(dist_matrix), initializer(init), k(k),
+CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, int numsamples, double sampling, bool keepmed)
+:  num_obs(num_obs), dist_matrix(dist_matrix), k(k),
 maxiter(maxiter), numsamples(numsamples),sampling(sampling), keepmed(keepmed)
 {
     
@@ -802,8 +802,9 @@ double CLARA::assignRemainingToNearestCluster(std::vector<int>& means, std::vect
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-CLARANS::CLARANS(int num_obs, DistMatrix *dist_matrix, PAMInitializer *init, int k, int numlocal, double maxneighbor)
-: num_obs(num_obs), dist_matrix(dist_matrix), initializer(init), k(k),
+
+CLARANS::CLARANS(int num_obs, DistMatrix *dist_matrix, int k, int numlocal, double maxneighbor)
+: num_obs(num_obs), dist_matrix(dist_matrix), k(k),
 numlocal(numlocal), maxneighbor(maxneighbor)
 {
     
@@ -823,30 +824,34 @@ double CLARANS::run() {
     int cand  = 0;
     
     // Setup cluster assignment store
-    Assignment best, curr, scratch;
+    Assignment best(k, num_obs, dist_matrix), curr(k, num_obs, dist_matrix),
+               scratch(k, num_obs, dist_matrix), tmp;
     
     // 1. initialize
     double bestscore = DBL_MAX;
     for(int i = 0; i < numlocal; i++) {
         // 2. choose random initial medoids
         curr.medoids = random.randomSample(k, num_obs);
+        
+        //curr.medoids[0]=431;curr.medoids[1] = 211;curr.medoids[2]=293;curr.medoids[3]=10;
+        
         // Cost of initial solution
         double total = curr.assignToNearestCluster();
         
         // 3. Set j to 1
         int j = 1;
-        while (j < retries) {
+        step: while (j < retries) {
             // 4 part a. choose a random non-medoid (~ neighbor in G):
             for (int r = 0;; r++) {
                 // // Random point
-                int cand = random.nextInt(num_obs);
+                cand = random.nextInt(num_obs);
                 if (curr.nearest[cand] > 0) {
                     break; // Good: not a medoid.
                 }
                 // We may have many duplicate points
                 if (curr.second[cand] ==  0) {
                     ++j; // Cannot yield an improvement if we are metric.
-                    continue; // NOTE: this should go back to top while()
+                    goto step; // NOTE: this should go back to top while()
                 } else if (!curr.hasMedoid(cand)) {
                     // Probably not a good candidate, but try nevertheless
                     break;
@@ -867,7 +872,7 @@ double CLARANS::run() {
             }
             total += cost; // cost is negative!
             // Swap:
-             Assignment tmp = curr;
+            tmp = curr;
             curr = scratch;
             scratch = tmp;
             j = 1;
@@ -893,6 +898,146 @@ std::vector<int> CLARANS::getResults() {
         cluster_result[i] = bestclusters[i] + 1;
     }
     return cluster_result;
+}
+
+
+Assignment::Assignment(int k, int num_obs, DistMatrix* dist_matrix)
+:  k(k), num_obs(num_obs), dist_matrix(dist_matrix), medoids(k),
+assignment(num_obs), nearest(num_obs), secondid(num_obs), second(num_obs)
+{
+}
+
+Assignment &Assignment::operator=(const Assignment &other) {
+    num_obs = other.num_obs;
+    dist_matrix = other.dist_matrix;
+    medoids_dict = other.medoids_dict;
+    medoids = other.medoids;
+    assignment = other.assignment;
+    nearest = other.nearest;
+    secondid = other.secondid;
+    second = other.second;
+    return *this;
+}
+
+// h Current object to swap with any medoid.
+// mnum Medoid number to swap with h.
+// Scratch assignment to fill.
+// return Cost change
+double Assignment::computeCostDifferential(int h, int mnum, Assignment& scratch)
+{
+    // Update medoids of scratch copy.
+    scratch.medoids = medoids;
+    scratch.medoids[mnum] = h;
+    double cost = 0;
+    // Compute costs of reassigning other objects j:
+    for (int j=0; j<num_obs; ++j) {
+        if (h == j) {
+            scratch.recompute(j, mnum, 0, -1, DBL_MAX);
+            continue;
+        }
+        // distance(j, i) to nearest medoid
+        double distcur = nearest[j];
+        // distance(j, h) to new medoid
+        double dist_h = dist_matrix->getDistance(h, j);
+        // current assignment of j
+        int jcur = assignment[j];
+        // Check if current medoid of j is removed:
+        if(jcur == mnum) {
+            // distance(j, o) to second nearest / possible reassignment
+            double distsec = second[j];
+            // Case 1b: j switches to new medoid, or to the second nearest:
+            if (dist_h < distsec) {
+                cost += dist_h - distcur;
+                scratch.assignment[j] = mnum;
+                scratch.nearest[j] = dist_h;
+                scratch.second[j] = distsec;
+                scratch.secondid[j] = jcur;
+            } else {
+                // Second nearest is the new assignment.
+                cost += distsec - distcur;
+                // We have to recompute, because we do not know the true new second
+                // nearest.
+                scratch.recompute(j, mnum, dist_h, jcur, distsec);
+            }
+        }
+        else if(dist_h < distcur) {
+            // Case 1c: j is closer to h than its current medoid
+            // and the current medoid is not removed (jcur != mnum).
+            cost += dist_h - distcur;
+            // Second nearest is the previous assignment
+            scratch.assignment[j] = mnum;
+            scratch.nearest[j] = dist_h;
+            scratch.second[j] = distcur;
+            scratch.secondid[j] = jcur;
+        }
+        else { // else Case 1a): j is closer to i than h and m, so no change.
+            int jsec = secondid[j];
+            double distsec = second[j];
+            // Second nearest is still valid.
+            if(jsec != mnum && distsec <= dist_h) {
+                scratch.assignment[j] = jcur;
+                scratch.nearest[j] = distcur;
+                scratch.secondid[j] = jsec;
+                scratch.second[j] = distsec;
+            } else {
+                scratch.recompute(j, jcur, distcur, mnum, dist_h);
+            }
+        }
+    }
+    return cost;
+}
+
+//Recompute the assignment of one point.
+// id Point id
+// mnum Medoid number for known distance
+// known Known distance
+// return cost
+double Assignment::recompute(int id, int mnum, double known, int snum, double sknown) {
+    double mindist = mnum >= 0 ? known : DBL_MAX, mindist2 = DBL_MAX;
+    int minIndex = mnum, minIndex2 = -1;
+    for(int i = 0; i < medoids.size(); i++) {
+        if(i == mnum) {
+            continue;
+        }
+        double dist = i == snum ? sknown : dist_matrix->getDistance(id, medoids[i]);
+        if (id == medoids[i] || dist < mindist) {
+            minIndex2 = minIndex;
+            mindist2 = mindist;
+            minIndex = i;
+            mindist = dist;
+        } else if(dist < mindist2) {
+            minIndex2 = i;
+            mindist2 = dist;
+        }
+    }
+    if(minIndex < 0) {
+        // "Too many infinite distances. Cannot assign objects.");
+        return 0;
+    }
+    assignment[id] = minIndex;
+    nearest[id] = mindist;
+    secondid[id] = minIndex2;
+    second[id] = mindist2;
+    return mindist;
+}
+
+// Assign each point to the nearest medoid.
+// return Assignment cost
+double Assignment::assignToNearestCluster() { 
+    double cost = 0.;
+    for (int i=0; i< num_obs; ++i) {
+        cost += recompute(i, -1, DBL_MAX, -1, DBL_MAX);
+    }
+    return cost;
+}
+
+bool Assignment::hasMedoid(int cand) { 
+    if (medoids_dict.empty()) {
+        for (int i=0; i<medoids.size(); ++i) {
+            medoids_dict[medoids[i]] = true;
+        }
+    }
+    return medoids_dict.find(cand) != medoids_dict.end();
 }
 
 
