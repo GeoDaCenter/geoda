@@ -383,16 +383,23 @@ protected:
     std::vector<int> bestclusters;
 };
 
+class FastCLARA : public CLARA
+{
+public:
+    FastCLARA(int num_obs, DistMatrix* dist_matrix,
+              int k, int maxiter, int numsamples, double sampling, bool keepmed);
+    
+    virtual ~FastCLARA() {}
+    
+    virtual double run();
+};
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 class Assignment
 {
 public:
-    Assignment() {}
-    Assignment(int k, int num_obs, DistMatrix* dist_matrix);
-    virtual ~Assignment() {}
-    
     int k;
     int num_obs;
     // Distance matrix
@@ -404,19 +411,25 @@ public:
     std::vector<int> secondid;
     std::vector<double> second;
     
-    Assignment& operator=(const Assignment& other);
+public:
+    Assignment() {}
+    Assignment(int k, int num_obs, DistMatrix* dist_matrix);
+    virtual ~Assignment() {}
+    
+    // Overload = operator
+    virtual Assignment& operator=(const Assignment& other);
     
     // Compute the reassignment cost, for one swap.
     virtual double computeCostDifferential(int h, int mnum, Assignment& scratch);
     
     //Recompute the assignment of one point.
-    double recompute(int id, int mnum, double known, int snum, double sknown);
+    virtual double recompute(int id, int mnum, double known, int snum, double sknown);
     
     // Assign each point to the nearest medoid.
-    double assignToNearestCluster();
+    virtual double assignToNearestCluster();
     
     // Check if medoid is already assigned
-    bool hasMedoid(int cand);
+    virtual bool hasMedoid(int cand);
 };
 
 class CLARANS
@@ -471,31 +484,45 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/*
 class FastAssignment : public Assignment
 {
 public:
-    FastAssignment();
-    virtual ~FastAssignment();
-    
+    // Array for storing the per-medoid costs.
     std::vector<double> cost;
     
+    // Last best medoid number
     int lastbest;
     
-    // Compute the reassignment cost, for one swap.
-    double computeCostDifferential(int h, int mnum, Assignment& scratch);
+public:
+    FastAssignment() : Assignment() {}
+    FastAssignment(int k, int num_obs, DistMatrix* dist_matrix)
+    : Assignment(k, num_obs, dist_matrix), cost(k) {}
     
+    virtual ~FastAssignment()  {}
+    
+    // Compute the reassignment cost, for one swap.
+    virtual double computeCostDifferential(int h);
+    
+    // Perform last swap
     void performLastSwap(int h);
 };
 
+// A faster variation of CLARANS, that can explore O(k) as many swaps at a
+// similar cost by considering all medoids for each candidate non-medoid. Since
+// this means sampling fewer non-medoids, we suggest to increase the subsampling
+// rate slightly to get higher quality than CLARANS, at better runtime.
+//
 class FastCLARANS : public CLARANS
 {
 public:
-    FastCLARANS();
-    virtual ~FastCLARANS();
+    // k Number of clusters to produce
+    // numlocal Number of samples (restarts)
+    // maxneighbor Neighbor sampling rate (absolute or relative)
+    FastCLARANS(int num_obs, DistMatrix* dist_matrix,
+                int k, int numlocal, double maxneighbor);
+    virtual ~FastCLARANS() {}
     
     virtual double run();
 };
-*/
 
 #endif
