@@ -704,12 +704,53 @@ int FastPAM::updateSecondNearest(int j, std::vector<int> &medoids, int h, double
     return sbest;
 }
 
+std::vector<int> PAMUtils::randomSample(Xoroshiro128Random& rand,
+                                        int samplesize, int n,
+                                        const std::vector<int>& previous)
+{
+    if (previous.empty()) {
+        return rand.randomSample(samplesize, n);
+    }
+    int cnt = 0;
+    std::vector<int> sample(samplesize);
+    unordered_map<int, bool> sample_dict;
+    unordered_map<int, bool>::iterator it;
+    for (int i=0; i<previous.size(); ++i) {
+        if (sample_dict.find(previous[i]) == sample_dict.end()) {
+            sample[cnt++] = previous[i];
+            sample_dict[ previous[i] ] = true;
+        }
+    }
+    
+    std::vector<int> rest_rnds = rand.randomSample(samplesize - (int)previous.size(), n);
+    for (int i=0; i<rest_rnds.size(); ++i) {
+        if (sample_dict.find(rest_rnds[i]) == sample_dict.end()) {
+            sample[cnt++] = rest_rnds[i];
+            sample_dict[ rest_rnds[i] ] = true;
+        }
+    }
+    
+    // If these two were not disjoint, we can be short of the desired size!
+    if (sample_dict.size() < samplesize) {
+        // Draw a large enough sample to make sure to be able to fill it now.
+        // This can be less random though, because the iterator may impose an
+        // order; but this is a rare code path.
+        std::vector<int> rnd_picks = rand.randomSample(samplesize, n);
+        for (int i=0; i<samplesize && sample_dict.size() < samplesize; ++i) {
+            if (sample_dict.find(rnd_picks[i]) == sample_dict.end()) {
+                sample[cnt++] = rnd_picks[i];
+                sample_dict[ rnd_picks[i] ] = true;
+            }
+        }
+    }
+    return sample;
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, int numsamples, double sampling, bool keepmed)
+CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, int numsamples, double sampling, bool independent)
 :  num_obs(num_obs), dist_matrix(dist_matrix), k(k),
-maxiter(maxiter), numsamples(numsamples),sampling(sampling), keepmed(keepmed)
+maxiter(maxiter), numsamples(numsamples),sampling(sampling), keepmed(!independent)
 {
     
 }
@@ -731,7 +772,12 @@ double CLARA::run()
     double best = DBL_MAX;
     
     for(int j = 0; j < numsamples; j++) {
-        std::vector<int> rids = random.randomSample(samplesize, num_obs);
+        std::vector<int> rids;
+        
+        if (keepmed)
+            rids = PAMUtils::randomSample(random, samplesize, num_obs, bestmedoids);
+        else
+            rids = PAMUtils::randomSample(random, samplesize, num_obs);
         
         //  run PAM using rids
         //PAM pam(samplesize, dist_matrix,
@@ -739,6 +785,9 @@ double CLARA::run()
         BUILD pam_init(dist_matrix);
         PAM pam(samplesize, dist_matrix, &pam_init, k, maxiter);
         double score = pam.run();
+        
+        // allow to work on full dist matrix
+        dist_matrix->setIds(std::vector<int>());
         
         std::vector<int> assignment;
         std::vector<int> medoids = pam.getMedoids();
@@ -784,14 +833,14 @@ double CLARA::assignRemainingToNearestCluster(std::vector<int>& means, std::vect
         double mindist = DBL_MAX;
         int minIndex = 0;
         for (int i=0; i<means.size(); ++i) {
-            double dist = dist_matrix->getDistance(rids[ means[i] ], j);
+            double dist = dist_matrix->getDistance(rids[means[i]], j);
             if (dist < mindist)  {
-                minIndex = j;
+                minIndex = i;
                 mindist = dist;
             }
-            distsum += mindist;
-            assignment[j] = minIndex;
         }
+        distsum += mindist;
+        assignment[j] = minIndex;
     }
     return distsum;
 }
@@ -799,8 +848,9 @@ double CLARA::assignRemainingToNearestCluster(std::vector<int>& means, std::vect
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FastCLARA::FastCLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, int numsamples, double sampling, bool keepmed)
-:  CLARA(num_obs, dist_matrix, k, maxiter, numsamples,sampling, keepmed)
+FastCLARA::FastCLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, double fasttol, int numsamples, double sampling, bool independent)
+:  CLARA(num_obs, dist_matrix, k, maxiter, numsamples, sampling, independent),
+fasttol(fasttol)
 {}
 
 // Using LAB + PAM on random samples
@@ -817,14 +867,22 @@ double FastCLARA::run()
     double best = DBL_MAX;
     
     for(int j = 0; j < numsamples; j++) {
-        std::vector<int> rids = random.randomSample(samplesize, num_obs);
+        std::vector<int> rids;
+        
+        if (keepmed)
+            rids = PAMUtils::randomSample(random, samplesize, num_obs, bestmedoids);
+        else
+            rids = PAMUtils::randomSample(random, samplesize, num_obs);
         
         //  run PAM using rids
         //PAM pam(samplesize, dist_matrix,
         dist_matrix->setIds(rids);
         LAB pam_init(dist_matrix);
-        FastPAM pam(samplesize, dist_matrix, &pam_init, k, maxiter);
+        FastPAM pam(samplesize, dist_matrix, &pam_init, k, maxiter, fasttol);
         double score = pam.run();
+        
+        // allow to work on full dist matrix
+        dist_matrix->setIds(std::vector<int>());
         
         std::vector<int> assignment;
         std::vector<int> medoids = pam.getMedoids();
@@ -873,7 +931,7 @@ double CLARANS::run() {
     double bestscore = DBL_MAX;
     for(int i = 0; i < numlocal; i++) {
         // 2. choose random initial medoids
-        curr.medoids = random.randomSample(k, num_obs);
+        curr.medoids = PAMUtils::randomSample(random, k, num_obs);
         
         //curr.medoids[0]=431;curr.medoids[1] = 211;curr.medoids[2]=293;curr.medoids[3]=10;
         
@@ -929,6 +987,7 @@ double CLARANS::run() {
         }
     }
     
+    bestmedoids = best.medoids;
     bestclusters = best.assignment;
     return bestscore;
 }
@@ -1111,7 +1170,10 @@ double FastCLARANS::run() {
     double bestscore = DBL_MAX;
     for(int i = 0; i < numlocal; i++) {
         // 2. choose random initial medoids
-        curr.medoids = random.randomSample(k, num_obs);
+        curr.medoids = PAMUtils::randomSample(random, k, num_obs);
+        
+        //curr.medoids[0]=431;curr.medoids[1] = 211;curr.medoids[2]=293;curr.medoids[3]=10;
+        
         //  Cost of initial solution:
         double total = curr.assignToNearestCluster();
         
@@ -1127,7 +1189,7 @@ double FastCLARANS::run() {
                 subsampler[r] = subsampler[rnd];
                 subsampler[rnd] = tmp;
                 
-                cand = r; // Random point
+                cand = subsampler[r]; // Random point
                 if(curr.nearest[cand] > 0) {
                     break; // Good: not a medoid.
                 }
@@ -1166,6 +1228,7 @@ double FastCLARANS::run() {
         }
     }
     
+    bestmedoids = best.medoids;
     bestclusters = best.assignment;
     return bestscore;
 }
@@ -1174,6 +1237,7 @@ double FastCLARANS::run() {
 double FastAssignment::computeCostDifferential(int h)
 {
     int k = (int)cost.size();
+    for (int i=0; i<k; ++i)  cost[i] = 0;
     // Compute costs of reassigning other objects j:
     for (int j=0; j<num_obs; ++j) {
         if (h == j) {

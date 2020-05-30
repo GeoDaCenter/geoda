@@ -35,6 +35,8 @@ public:
     Xoroshiro128Random(long long xor64 = 123456789) {
         // set seed
         // XorShift64* generator to seed:
+        if (xor64 == 0)
+            xor64 = 4101842887655102017L;
         xor64 ^= (unsigned long long)xor64 >> 12; // a
         xor64 ^= xor64 << 25; // b
         xor64 ^= (unsigned long long)xor64 >> 27; // c
@@ -66,7 +68,7 @@ public:
     }
     std::vector<int> randomSample(int samplesize, int n)
     {
-        std::vector<int>  samples(samplesize);
+        std::vector<int> samples(samplesize);
         int i=0;
         unordered_map<int, bool> sample_dict;
         unordered_map<int, bool>::iterator it;
@@ -81,6 +83,13 @@ public:
     }
 };
 
+class PAMUtils
+{
+public:
+    static std::vector<int> randomSample(Xoroshiro128Random& rand,
+                                         int samplesize, int n,
+                                         const std::vector<int>& previous = std::vector<int>());
+};
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,6 +178,7 @@ public:
     virtual std::vector<int> run(const std::vector<int>& ids, int k);
 };
 
+// LAB (linear approximative BUILD)
 class LAB : public PAMInitializer
 {
     
@@ -265,8 +275,15 @@ protected:
 class FastPAM : public PAM
 {
 public:
+    // fasttol: controls how many additional swaps are performed.
+    //   When set to 0, it will only execute an additional swap if it
+    //   appears to be independent (i.e., the improvements resulting from the
+    //   swap have not decreased when the first swap was executed).
+    //   Default: 1 which means to perform any additional swap that gives an improvement.
+    //   We could not observe a tendency to find worse results when doing these
+    //   additional swaps, but a reduced runtime.
     FastPAM(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
-            int k, int maxiter, double fasttol=1.0, const std::vector<int>& ids=std::vector<int>());
+            int k, int maxiter, double fasttol, const std::vector<int>& ids=std::vector<int>());
     virtual ~FastPAM();
     
     virtual double run() { return PAM::run(); }
@@ -333,10 +350,14 @@ public:
     // k Number of clusters to produce
     // maxiter Maximum number of iterations
     // numsamples Number of samples (sampling iterations)
+    //    default: 5
     // sampling Sampling rate (absolute or relative)
-    // keepmed Keep the previous medoids in the next sample
+    //    Default sample size suggested by Kaufman and Rousseeuw
+    //    default: 40 + 2. * k
+    // independent NOT Keep the previous medoids in the next sample
+    //    false: using previous medoids in next sample
     CLARA(int num_obs, DistMatrix* dist_matrix,
-          int k, int maxiter, int numsamples, double sampling, bool keepmed);
+          int k, int maxiter, int numsamples, double sampling, bool independent);
     
     virtual ~CLARA();
     
@@ -386,12 +407,26 @@ protected:
 class FastCLARA : public CLARA
 {
 public:
+    // k Number of clusters to produce
+    // maxiter Maximum number of iterations
+    // fasttol: FastPAM
+    // numsamples Number of samples (sampling iterations)
+    //    default: 5
+    // sampling Sampling rate (absolute or relative)
+    //    Larger sample size, used by Schubert and Rousseeuw, 2019
+    //    default: 80 + 4. * k (has to > 3*k)
+    // keepmed Keep the previous medoids in the next sample
+    //    true if numsamples > 1
     FastCLARA(int num_obs, DistMatrix* dist_matrix,
-              int k, int maxiter, int numsamples, double sampling, bool keepmed);
+              int k, int maxiter, double fasttol,
+              int numsamples, double sampling, bool independent);
     
     virtual ~FastCLARA() {}
     
     virtual double run();
+    
+protected:
+    double fasttol;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,9 +471,10 @@ class CLARANS
 {
 public:
     // k Number of clusters to produce
-    // maxiter Maximum number of iterations
-    // numsamples Number of samples (sampling iterations)
-    // sampling Sampling rate (absolute or relative)
+    // numlocal  Number of samples to draw (i.e. restarts).
+    //    default: 2
+    // maxneighbor Sampling rate. If less than 1, it is considered to be a relative value.
+    //    default:  0.0125
     CLARANS(int num_obs, DistMatrix* dist_matrix,
             int k, int numlocal, double maxneighbor);
     
@@ -516,8 +552,10 @@ class FastCLARANS : public CLARANS
 {
 public:
     // k Number of clusters to produce
-    // numlocal Number of samples (restarts)
-    // maxneighbor Neighbor sampling rate (absolute or relative)
+    // numlocal  Number of samples to draw (i.e. restarts).
+    //    default: 2
+    // maxneighbor Sampling rate. If less than 1, it is considered to be a relative value.
+    //    default:  2 * 0.0125, larger sampling rate
     FastCLARANS(int num_obs, DistMatrix* dist_matrix,
                 int k, int numlocal, double maxneighbor);
     virtual ~FastCLARANS() {}
