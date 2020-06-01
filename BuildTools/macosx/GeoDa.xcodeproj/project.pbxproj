@@ -36,6 +36,7 @@
 		A14735BB21A65F1800CA69B2 /* bd_pr_search.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B221A65F1700CA69B2 /* bd_pr_search.cpp */; };
 		A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14735B321A65F1700CA69B2 /* brute.cpp */; };
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
+		A152ACBE2483551500BFC788 /* pam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152ACBC2483551500BFC788 /* pam.cpp */; };
 		A161939F244CDCE9004269A7 /* AnimatePlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
@@ -382,6 +383,8 @@
 		A14735B421A65F1700CA69B2 /* bd_tree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bd_tree.h; sourceTree = "<group>"; };
 		A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CsvFieldConfDlg.cpp; sourceTree = "<group>"; };
 		A14C496E1D76174000D9831C /* CsvFieldConfDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CsvFieldConfDlg.h; sourceTree = "<group>"; };
+		A152ACBC2483551500BFC788 /* pam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pam.cpp; path = Algorithms/pam.cpp; sourceTree = "<group>"; };
+		A152ACBD2483551500BFC788 /* pam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pam.h; path = Algorithms/pam.h; sourceTree = "<group>"; };
 		A161939D244CDCE8004269A7 /* AnimatePlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatePlotCanvas.h; sourceTree = "<group>"; };
 		A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatePlotCanvas.cpp; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
@@ -1085,6 +1088,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A152ACBC2483551500BFC788 /* pam.cpp */,
+				A152ACBD2483551500BFC788 /* pam.h */,
 				A1A97FCD2437F91F00636483 /* smacof */,
 				A195809E240E14E70089C6CE /* dloess */,
 				A1B18EB123FEF50400465937 /* splittree.cpp */,
@@ -1932,6 +1937,7 @@
 				DDB37A0811CBBB730020C8A9 /* TemplateLegend.cpp in Sources */,
 				A119BEBE243BE845006E1BE6 /* smacof_utils.c in Sources */,
 				DD115EA312BBDDA000E1CC73 /* ProgressDlg.cpp in Sources */,
+				A152ACBE2483551500BFC788 /* pam.cpp in Sources */,
 				DDD593AC12E9F34C00F7A7C4 /* GeodaWeight.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
 				A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */,

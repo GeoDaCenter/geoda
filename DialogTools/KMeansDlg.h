@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <wx/choice.h>
+#include <wx/checkbox.h>
 #include <wx/checklst.h>
 #include <wx/combobox.h>
 
@@ -41,7 +42,7 @@ public:
     KClusterDlg(wxFrame *parent, Project* project, wxString title="");
     virtual ~KClusterDlg();
     
-    void CreateControls();
+    virtual void CreateControls();
     
     void OnOK( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
@@ -77,14 +78,14 @@ protected:
     
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
-    
+
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     wxChoice* m_distance;
     wxButton* seedButton;
-   
+
     wxString cluster_method;
     
     unsigned int row_lim;
@@ -124,9 +125,27 @@ class KMedoidsDlg : public KClusterDlg
 public:
     KMedoidsDlg(wxFrame *parent, Project* project);
     virtual ~KMedoidsDlg();
-   
+
+    virtual void CreateControls();
+
     virtual void ComputeDistMatrix(int dist_sel);
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    virtual wxString _printConfiguration();
+    void OnMethodChoice(wxCommandEvent& evt);
+
+protected:
+    virtual bool Run(vector<wxInt64>& clusters);
+    virtual bool CheckAllInputs();
+
+    wxStaticText* txt_iterations;
+    wxStaticText* txt_initmethod;
+    wxChoice* combo_initmethod;
+    wxCheckBox* m_fastswap;
+    wxStaticText* txt_numsamples;
+    wxTextCtrl* m_numsamples;
+    wxStaticText* txt_sampling;
+    wxTextCtrl* m_sampling;
+    wxCheckBox* m_keepmed;
 };
 #endif

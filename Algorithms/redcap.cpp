@@ -181,6 +181,7 @@ Tree::Tree(vector<int> _ordered_ids, vector<Edge*> _edges, AbstractClusterFactor
 : ordered_ids(_ordered_ids), edges(_edges), cluster(_cluster)
 {
     ssd_reduce = 0;
+    split_pos = 0;
     ssd_utils = cluster->ssd_utils;
     controls = cluster->controls;
     control_thres = cluster->control_thres;

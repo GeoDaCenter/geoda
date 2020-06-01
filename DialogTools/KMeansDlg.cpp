@@ -723,6 +723,227 @@ KMedoidsDlg::~KMedoidsDlg()
     wxLogMessage("In ~KMedoidsDlg()");
 }
 
+void KMedoidsDlg::CreateControls()
+{
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,840), wxHSCROLL|wxVSCROLL );
+    scrl->SetScrollRate( 5, 5 );
+
+    wxPanel *panel = new wxPanel(scrl);
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+
+    // Input
+    bool show_auto_button = true;
+    AddInputCtrls(panel, vbox, show_auto_button);
+
+    // Parameters
+    wxFlexGridSizer* gbox = new wxFlexGridSizer(13, 2, 5, 0);
+
+    // NumberOfCluster Control
+    AddNumberOfClusterCtrl(panel, gbox);
+
+    // Minimum Bound Control
+   // AddMinBound(panel, gbox);
+
+    // Transformation Control
+    AddTransformation(panel, gbox);
+
+    // KMedoids method
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Method:"));
+    wxString choices15[] = {"FastPAM", "FastCLARA", "FastCLARANS"};
+    combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(200,-1), 3, choices15);
+    combo_method->SetSelection(0);
+
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_method, 1, wxEXPAND);
+
+    // Initialization Method
+    txt_initmethod = new wxStaticText(panel, wxID_ANY, _("Initialization Method:"));
+    wxString choices16[] = {"BUILD", "LAB"};
+    combo_initmethod = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
+                                wxSize(200,-1), 2, choices16);
+    combo_initmethod->SetSelection(1);
+
+    gbox->Add(txt_initmethod, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_initmethod, 1, wxEXPAND);
+
+    txt_iterations = new wxStaticText(panel, wxID_ANY, _("Maximum Iterations:"));
+    m_iterations = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_iterations, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_iterations, 1, wxEXPAND);
+
+    wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, "");
+    m_fastswap = new wxCheckBox(panel, wxID_ANY, _("Use Additonal Swaps"));
+    m_fastswap->SetValue(true); // default 1
+    gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_fastswap, 1, wxEXPAND);
+
+    // FastCLARA and FastCLARANS
+    txt_numsamples = new wxStaticText(panel, wxID_ANY, _("Number of Samples:"));
+    m_numsamples = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_numsamples, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_numsamples, 1, wxEXPAND);
+
+    txt_sampling = new wxStaticText(panel, wxID_ANY, _("Sampling Rate:"));
+    m_sampling = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(txt_sampling, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_sampling, 1, wxEXPAND);
+
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, "");
+    m_keepmed = new wxCheckBox(panel, wxID_ANY, "Keep Previous Medoids");
+    gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_keepmed, 1, wxEXPAND);
+
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
+    wxString choices13[] = {"Euclidean", "Manhattan"};
+    m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
+    m_distance->SetSelection(0);
+    gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_distance, 1, wxEXPAND);
+    if (!show_distance) {
+        st13->Hide();
+        m_distance->Hide();
+        m_distance->SetSelection(1); // set manhattan
+    }
+
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+    wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
+    chk_seed = new wxCheckBox(panel, wxID_ANY, "");
+    seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
+
+    hbox17->Add(chk_seed,0, wxALIGN_CENTER_VERTICAL);
+    hbox17->Add(seedButton,0,wxALIGN_CENTER_VERTICAL);
+    seedButton->Disable();
+    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox17, 1, wxEXPAND);
+
+    if (GdaConst::use_gda_user_seed) {
+        chk_seed->SetValue(true);
+        seedButton->Enable();
+    }
+
+    wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
+    hbox->Add(gbox, 1, wxEXPAND);
+
+    // Output
+    wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
+    m_textbox = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(158,-1));
+    wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
+    //wxBoxSizer *hbox1 = new wxBoxSizer(wxHORIZONTAL);
+    hbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL);
+    hbox1->Add(m_textbox, 1, wxALIGN_CENTER_VERTICAL | wxLEFT, 5);
+
+    // Buttons
+    wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
+    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
+    wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
+    hbox2->Add(okButton, 1, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
+
+    // Container
+    vbox->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
+    vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
+
+
+    // Summary control
+    wxBoxSizer *vbox1 = new wxBoxSizer(wxVERTICAL);
+    wxNotebook* notebook = AddSimpleReportCtrls(panel);
+    vbox1->Add(notebook, 1, wxEXPAND|wxALL,20);
+
+    wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
+    container->Add(vbox);
+    container->Add(vbox1, 1, wxEXPAND | wxALL);
+
+    panel->SetSizer(container);
+
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
+
+    scrl->SetSizer(panelSizer);
+
+    wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
+    sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
+    SetSizer(sizerAll);
+    SetAutoLayout(true);
+    sizerAll->Fit(this);
+
+    Centre();
+
+    // Events
+    okButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnOK, this);
+    closeButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnClickClose, this);
+    chk_seed->Bind(wxEVT_CHECKBOX, &KClusterDlg::OnSeedCheck, this);
+    seedButton->Bind(wxEVT_BUTTON, &KClusterDlg::OnChangeSeed, this);
+    combo_method->Bind(wxEVT_CHOICE, &KMedoidsDlg::OnMethodChoice, this);
+    m_distance->Bind(wxEVT_CHOICE, &KClusterDlg::OnDistanceChoice, this);
+
+    wxCommandEvent ev;
+    OnMethodChoice(ev);
+}
+
+void KMedoidsDlg::OnMethodChoice(wxCommandEvent& evt)
+{
+    long k = 0;
+    combo_n->GetValue().ToLong(&k);
+
+    if (evt.GetSelection() == 0) {
+        // FastPAM
+        bool flag = true;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        flag = false;
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(flag);
+    } else if (evt.GetSelection() == 1) {
+        // FastCLARA
+        bool flag = true;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(flag);
+
+        m_numsamples->SetValue("5");
+        // Larger sample size, used by Schubert and Rousseeuw, 2019
+        //  80 + 4. * k
+        double sa = (80 + 4*k) / (double)num_obs;
+        if (sa >= 1.0) sa = 0.8;
+        m_sampling->SetValue(wxString::Format("%f", sa));
+    } else {
+        // FastCLARANS
+        bool flag = false;
+        txt_initmethod->Enable(flag);
+        combo_initmethod->Enable(flag);
+        txt_iterations->Enable(flag);
+        m_iterations->Enable(flag);
+        m_fastswap->Enable(flag);
+
+        flag = true;
+        txt_numsamples->Enable(flag);
+        m_numsamples->Enable(flag);
+        txt_sampling->Enable(flag);
+        m_sampling->Enable(flag);
+        m_keepmed->Enable(!flag);
+
+        m_numsamples->SetValue("2");
+        m_sampling->SetValue(wxString::Format("%f", 0.0125));
+    }
+}
+
 void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
 {
     int transpose = 0; // row wise
@@ -732,70 +953,140 @@ void KMedoidsDlg::ComputeDistMatrix(int dist_sel)
     distmatrix = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 }
 
+bool KMedoidsDlg::CheckAllInputs()
+{
+    n_cluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        n_cluster = (int)value_ncluster;
+    }
+    if (n_cluster < 2 || n_cluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+
+    transform = combo_tranform->GetSelection();
+
+    if (GetInputData(transform,1) == false) return false;
+
+    //if (!CheckMinBound()) return false;
+
+    //n_pass = 10;
+    //wxString str_pass = m_pass->GetValue();
+    //long l_pass;
+    //if(str_pass.ToLong(&l_pass)) {
+    //    n_pass = (int)l_pass;
+    //}
+
+    n_maxiter = 10;
+    wxString iterations = m_iterations->GetValue();
+    long l_maxiter;
+    if(iterations.ToLong(&l_maxiter)) {
+        n_maxiter = (int)l_maxiter;
+    }
+
+    //meth_sel = combo_method->GetSelection();
+
+    dist_sel = m_distance->GetSelection();
+
+    return true;
+}
+
+bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
+{
+    if (GdaConst::use_gda_user_seed) {
+        setrandomstate((int)GdaConst::gda_user_seed);
+        resetrandom();
+    } else {
+        setrandomstate(-1);
+        resetrandom();
+    }
+
+    double cost;
+    std::vector<int> clusterid;
+
+    // compute distance matrix
+    ComputeDistMatrix(dist_sel);
+    RawDistMatrix dist_matrix(distmatrix);
+
+    double pam_fasttol = m_fastswap->GetValue() ? 0 : 1;
+    int init_method = combo_initmethod->GetSelection();
+    bool keepmed = m_keepmed->GetValue();
+
+    if (n_cluster < 2 || n_cluster > num_obs) {
+        wxString err_msg = _("Please enter a valid number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return false;
+    }
+    int method = combo_method->GetSelection();
+    if (method < 2) {
+        // fastPAM & fastCLARA
+        PAMInitializer* pam_init;
+        if (init_method == 0) {
+            pam_init = new BUILD(&dist_matrix);
+        } else {
+            if (GdaConst::use_gda_user_seed) {
+                pam_init = new LAB(&dist_matrix, (int)GdaConst::gda_user_seed);
+            } else {
+                pam_init = new LAB(&dist_matrix);
+            }
+        }
+        if (method == 0) {
+            FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,  pam_fasttol);
+            cost = pam.run();
+            clusterid = pam.getResults();
+        } else {
+            // FastCLARA
+            long samples = 5;
+            m_numsamples->GetValue().ToLong(&samples);
+            double sample_rate = 0.025;
+            m_sampling->GetValue().ToDouble(&sample_rate);
+
+            if (sample_rate*num_obs < 3 * n_cluster) {
+                wxString err_msg = _("The sampling rate is set to a small value, please set another value to make sampling size larger than 3*k.");
+                wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+                dlg.ShowModal();
+                return false;
+            }
+            FastCLARA clara(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,
+                            pam_fasttol, (int)samples, sample_rate, !keepmed);
+            cost = clara.run();
+            clusterid = clara.getResults();
+        }
+        delete pam_init;
+
+    } else if (combo_method->GetSelection() == 2) {
+        // FastCLARANS
+        long samples = 2;
+        m_numsamples->GetValue().ToLong(&samples);
+        double sample_rate = 0.025;
+        m_sampling->GetValue().ToDouble(&sample_rate);
+
+        if (sample_rate <=0 || sample_rate >=1.0) {
+            wxString err_msg = _("Please input a valid value between 0 and 1 for sample rate.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return false;
+        }
+
+        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, samples, sample_rate);
+        cost = clarans.run();
+        clusterid = clarans.getResults();
+    }
+
+    for (int i=0; i<clusterid.size(); ++i) {
+        clusters.push_back(wxInt64(clusterid[i]));
+    }
+
+    return true;
+}
 void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals)
 {
-    RawDistMatrix dist_matrix(distmatrix);
-    
-    double pam_fasttol = 1.0;
-    
-    
-    LAB pam_init(&dist_matrix);
-    PAM pam(num_obs, &dist_matrix, &pam_init, ncluster, n_maxiter);
-    //FastPAM pam(num_obs, &dist_matrix, &pam_init, ncluster, n_maxiter,  pam_fasttol);
-    double cost = pam.run();
-    std::vector<int> clusterid = pam.getResults();
-    
-    
-    /*
-    int samples = 5;
-    double sample_size = 96.0;
-    bool independent = false;
-    FastCLARA clara(num_obs, &dist_matrix, ncluster, n_maxiter, samples, sample_size, independent);
-    clara.run();
-    std::vector<int> clusterid = clara.getResults();
-    */
-    
-    /*
-    int numlocal = 2;
-    double maxneighbor = 0.025;
-    CLARANS clarans(num_obs, &dist_matrix, ncluster, numlocal, maxneighbor);
-    clarans.run();
-    std::vector<int> clusterid = clarans.getResults();
-    */
-    
-    std::vector<wxInt64> cluster;
-    for (size_t i=0; i<clusterid.size(); ++i)  cluster.push_back(clusterid[i]);
-    sub_clusters[0] = cluster;
-    
-    /*
-    double error;
-    int ifound;
-    int* clusterid = new int[rows];
-    
-    int s2 = s1==0 ? 0 : s1 + npass;
-    
-    kmedoids(ncluster, rows, distmatrix, npass, n_maxiter, clusterid, &error, &ifound, bound_vals, min_bound, s1, s2);
-  
-    set<wxInt64> centers;
-    map<wxInt64, vector<wxInt64> > c_dist;
-    for (int i=0; i<rows; i++) {
-        centers.insert(clusterid[i]);
-        c_dist[clusterid[i]].push_back(i);
-    }
-    int cid = 1;
-    vector<wxInt64> clusters(rows);
-    set<wxInt64>::iterator it;
-    for (it=centers.begin(); it!=centers.end(); it++) {
-        vector<wxInt64>& ids = c_dist[*it];
-        for (int i=0; i<ids.size(); i++) {
-            clusters[ids[i]] = cid;
-        }
-        cid += 1;
-    }
-    sub_clusters[error] = clusters;
-    
-    delete[] clusterid;
-     */
+    // do nothing
 }
 
 vector<vector<double> > KMedoidsDlg::_getMeanCenters(
@@ -850,4 +1141,50 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     }
     
     return result;
+}
+
+wxString KMedoidsDlg::_printConfiguration()
+{
+    int ncluster = 0;
+    wxString str_ncluster = combo_n->GetValue();
+    long value_ncluster;
+    if (str_ncluster.ToLong(&value_ncluster)) {
+        ncluster = (int)value_ncluster;
+    }
+
+    wxString txt;
+    txt << _("Method:\t") << cluster_method << " (";
+    txt << combo_method->GetString(combo_method->GetSelection()) << ")" << "\n";
+    txt << _("Number of clusters:\t") << ncluster << "\n";
+
+    //if (chk_floor && chk_floor->IsChecked()) {
+    //    int idx = combo_floor->GetSelection();
+    //    wxString nm = name_to_nm[combo_floor->GetString(idx)];
+    //    txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    //}
+
+    if (combo_method->GetSelection() < 2) {
+        txt << _("Initialization method:\t") << combo_initmethod->GetString(combo_initmethod->GetSelection()) << "\n";
+        txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
+        if (m_fastswap) {
+            txt << _("\tUse additional Swaps.\n");
+        }
+        if (combo_method->GetSelection() == 1 ) {
+            txt << _("Number of samples:\t") << m_numsamples->GetValue() << "\n";
+            txt << _("Sampling rate:\t") << m_sampling->GetValue() << "\n";
+            if (m_keepmed->GetValue()) {
+                txt << _("\tKeep previous medoids in samples\n");
+            }
+        }
+    } else if (combo_method->GetSelection() == 2) {
+        txt << _("Number of samples:\t") << m_numsamples->GetValue() << "\n";
+        txt << _("Sampling rate:\t") << m_sampling->GetValue() << "\n";
+
+    }
+
+    txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
+
+    txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
+
+    return txt;
 }

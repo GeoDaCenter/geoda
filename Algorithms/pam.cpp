@@ -1,3 +1,16 @@
+// Author: Xun Li <lixun910@gmail.com>
+// May 27, 2020
+//
+// Code ported from elki project: http://elki-project.github.io/
+// Copyright follows elki project: http://elki-project.github.io/
+// AGPLv3: https://github.com/elki-project/elki/blob/master/LICENSE.md
+//
+// 5-27-2020
+// Xoroshiro128Random random number generator
+// PAM, CLARA, CLARANS
+// Initializer: BUILD and LAB
+// FastPAM, FastCLARA, FastCLARANS
+
 #include <map>
 #include <vector>
 #include <set>
@@ -748,9 +761,9 @@ std::vector<int> PAMUtils::randomSample(Xoroshiro128Random& rand,
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, int numsamples, double sampling, bool independent)
-:  num_obs(num_obs), dist_matrix(dist_matrix), k(k),
-maxiter(maxiter), numsamples(numsamples),sampling(sampling), keepmed(!independent)
+CLARA::CLARA(int num_obs, DistMatrix *dist_matrix, PAMInitializer* init, int k, int maxiter, int numsamples, double sampling, bool independent, int seed)
+:  num_obs(num_obs), dist_matrix(dist_matrix), initializer(init), k(k),
+maxiter(maxiter), sampling(sampling), numsamples(numsamples), keepmed(!independent), random(seed)
 {
     
 }
@@ -782,8 +795,7 @@ double CLARA::run()
         //  run PAM using rids
         //PAM pam(samplesize, dist_matrix,
         dist_matrix->setIds(rids);
-        BUILD pam_init(dist_matrix);
-        PAM pam(samplesize, dist_matrix, &pam_init, k, maxiter);
+        PAM pam(samplesize, dist_matrix, initializer, k, maxiter);
         double score = pam.run();
         
         // allow to work on full dist matrix
@@ -848,8 +860,8 @@ double CLARA::assignRemainingToNearestCluster(std::vector<int>& means, std::vect
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FastCLARA::FastCLARA(int num_obs, DistMatrix *dist_matrix, int k, int maxiter, double fasttol, int numsamples, double sampling, bool independent)
-:  CLARA(num_obs, dist_matrix, k, maxiter, numsamples, sampling, independent),
+FastCLARA::FastCLARA(int num_obs, DistMatrix *dist_matrix, PAMInitializer* init, int k, int maxiter, double fasttol, int numsamples, double sampling, bool independent, int seed)
+:  CLARA(num_obs, dist_matrix, init, k, maxiter, numsamples, sampling, independent, seed),
 fasttol(fasttol)
 {}
 
@@ -877,8 +889,7 @@ double FastCLARA::run()
         //  run PAM using rids
         //PAM pam(samplesize, dist_matrix,
         dist_matrix->setIds(rids);
-        LAB pam_init(dist_matrix);
-        FastPAM pam(samplesize, dist_matrix, &pam_init, k, maxiter, fasttol);
+        FastPAM pam(samplesize, dist_matrix, initializer, k, maxiter, fasttol);
         double score = pam.run();
         
         // allow to work on full dist matrix
@@ -903,9 +914,9 @@ double FastCLARA::run()
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-CLARANS::CLARANS(int num_obs, DistMatrix *dist_matrix, int k, int numlocal, double maxneighbor)
+CLARANS::CLARANS(int num_obs, DistMatrix *dist_matrix, int k, int numlocal, double maxneighbor, int seed)
 : num_obs(num_obs), dist_matrix(dist_matrix), k(k),
-numlocal(numlocal), maxneighbor(maxneighbor)
+numlocal(numlocal), maxneighbor(maxneighbor), random(seed)
 {
     
 }
@@ -1144,8 +1155,8 @@ bool Assignment::hasMedoid(int cand) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FastCLARANS::FastCLARANS(int num_obs, DistMatrix *dist_matrix, int k, int numlocal, double maxneighbor)
-: CLARANS(num_obs, dist_matrix, k, numlocal, maxneighbor)
+FastCLARANS::FastCLARANS(int num_obs, DistMatrix *dist_matrix, int k, int numlocal, double maxneighbor, int seed)
+: CLARANS(num_obs, dist_matrix, k, numlocal, maxneighbor, seed)
 {
     
 }
@@ -1250,7 +1261,7 @@ double FastAssignment::computeCostDifferential(int h)
         // current assignment of j
         int jcur = assignment[j];
         // Check if current medoid of j is removed:
-        cost[jcur] += min(dist_h, second[j]) - distcur;
+        cost[jcur] += std::min(dist_h, second[j]) - distcur;
         double change = dist_h - distcur;
         if (change < 0) {
             for(int mnum = 0; mnum < jcur; mnum++) {

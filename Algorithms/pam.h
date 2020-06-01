@@ -10,8 +10,8 @@
 // PAM, CLARA, CLARANS
 // Initializer: BUILD and LAB
 // FastPAM, FastCLARA, FastCLARANS
-#ifndef __GEODA_CENTER_PAM_H
-#define __GEODA_CENTER_PAM_H
+#ifndef __XL_PAM_H
+#define __XL_PAM_H
 
 #include <vector>
 #if __cplusplus >= 201103
@@ -152,7 +152,7 @@ public:
         // lower part triangle, store column wise
         int r = i > j ? i : j;
         int c = i < j ? i : j;
-        int idx = n - (num_obs - c + 1) * (num_obs - c) / 2 + r ;
+        int idx = n - (num_obs - c - 1) * (num_obs - c) / 2 + (r -c) -1 ;
         return dist[idx];
     }
 };
@@ -183,7 +183,7 @@ class LAB : public PAMInitializer
 {
     
 public:
-    LAB(DistMatrix* dist) : PAMInitializer(dist) {}
+    LAB(DistMatrix* dist, int seed=123456789) : PAMInitializer(dist), random(seed) {}
     virtual ~LAB(){}
     virtual std::vector<int> run(const std::vector<int>& ids, int k);
     
@@ -335,10 +335,10 @@ protected:
     
 protected:
     // Tolerance for fast swapping behavior (may perform worse swaps).
-    double fastswap = 0.;
+    double fastswap;
     
     // Tolerance for fast swapping behavior (may perform worse swaps).
-    double fasttol = 0;
+    double fasttol;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -356,8 +356,8 @@ public:
     //    default: 40 + 2. * k
     // independent NOT Keep the previous medoids in the next sample
     //    false: using previous medoids in next sample
-    CLARA(int num_obs, DistMatrix* dist_matrix,
-          int k, int maxiter, int numsamples, double sampling, bool independent);
+    CLARA(int num_obs, DistMatrix* dist_matrix,  PAMInitializer* init,
+          int k, int maxiter, int numsamples, double sampling, bool independent, int seed=123456789);
     
     virtual ~CLARA();
     
@@ -380,6 +380,9 @@ protected:
     
     // Distance matrix
     DistMatrix* dist_matrix;
+    
+    // PAM Initializer
+    PAMInitializer* initializer;
     
     // Number of clusters
     int k;
@@ -417,9 +420,9 @@ public:
     //    default: 80 + 4. * k (has to > 3*k)
     // keepmed Keep the previous medoids in the next sample
     //    true if numsamples > 1
-    FastCLARA(int num_obs, DistMatrix* dist_matrix,
+    FastCLARA(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init,
               int k, int maxiter, double fasttol,
-              int numsamples, double sampling, bool independent);
+              int numsamples, double sampling, bool independent, int seed=123456789);
     
     virtual ~FastCLARA() {}
     
@@ -455,7 +458,7 @@ public:
     virtual Assignment& operator=(const Assignment& other);
     
     // Compute the reassignment cost, for one swap.
-    virtual double computeCostDifferential(int h, int mnum, Assignment& scratch);
+    double computeCostDifferential(int h, int mnum, Assignment& scratch);
     
     //Recompute the assignment of one point.
     virtual double recompute(int id, int mnum, double known, int snum, double sknown);
@@ -476,7 +479,7 @@ public:
     // maxneighbor Sampling rate. If less than 1, it is considered to be a relative value.
     //    default:  0.0125
     CLARANS(int num_obs, DistMatrix* dist_matrix,
-            int k, int numlocal, double maxneighbor);
+            int k, int numlocal, double maxneighbor, int seed=123456789);
     
     virtual ~CLARANS();
     
@@ -537,7 +540,7 @@ public:
     virtual ~FastAssignment()  {}
     
     // Compute the reassignment cost, for one swap.
-    virtual double computeCostDifferential(int h);
+    double computeCostDifferential(int h);
     
     // Perform last swap
     void performLastSwap(int h);
@@ -557,7 +560,7 @@ public:
     // maxneighbor Sampling rate. If less than 1, it is considered to be a relative value.
     //    default:  2 * 0.0125, larger sampling rate
     FastCLARANS(int num_obs, DistMatrix* dist_matrix,
-                int k, int numlocal, double maxneighbor);
+                int k, int numlocal, double maxneighbor,  int seed=123456789);
     virtual ~FastCLARANS() {}
     
     virtual double run();
