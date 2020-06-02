@@ -171,9 +171,9 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
     
     std::list<int> magzine;
     for (int i=0; i<W[0].Size(); i++) {
-        if (access_dict.find(W[0][i]) == access_dict.end()) {
-            magzine.push_back(W[0][i]);
-            access_dict[W[0][i]] = true;
+        if (access_dict.find((int)W[0][i]) == access_dict.end()) {
+            magzine.push_back((int)W[0][i]);
+            access_dict[(int)W[0][i]] = true;
         }
     }
     // breadth first traversal (BFS)
@@ -181,9 +181,9 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
         int nbr = magzine.front();
         magzine.pop_front();
         for (int i=0; i<W[nbr].Size(); i++) {
-            if (access_dict.find(W[nbr][i]) == access_dict.end()) {
-                magzine.push_back(W[nbr][i]);
-                access_dict[W[nbr][i]] = true;
+            if (access_dict.find((int)W[nbr][i]) == access_dict.end()) {
+                magzine.push_back((int)W[nbr][i]);
+                access_dict[(int)W[nbr][i]] = true;
             }
         }
     }
@@ -195,7 +195,7 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
                 bool rev_conn = false;
                 // then manually check if this one is connected
                 for (int j=0; j<W[i].Size(); j++) {
-                    if (access_dict.find(W[i][j]) != access_dict.end()) {
+                    if (access_dict.find((int)W[i][j]) != access_dict.end()) {
                         rev_conn = true;
                         break;
                     }
@@ -342,7 +342,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     map<int, set<wxInt64> > groups;
     map<int, set<wxInt64> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
-        int c = clusters[i];
+        int c = (int)clusters[i];
         if (c == 0) continue; // 0 means not clustered
         if (groups.find(c)==groups.end()) {
             set<wxInt64> g;
@@ -359,7 +359,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
         // check each group if contiguity
         set<wxInt64> g = it->second;
         for (item_it=g.begin(); item_it!=g.end(); item_it++) {
-            int idx = *item_it;
+            int idx = (int)*item_it;
             const vector<long>& nbrs = gal[idx].GetNbrs();
             bool not_in_group = true;
             for (int i=0; i<nbrs.size(); i++ ) {
@@ -408,7 +408,7 @@ bool AbstractClusterDlg::CheckAllInputs()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        ncluster = (int)value_ncluster;
     }
     if (ncluster < 2 || ncluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of clusters.");
@@ -625,7 +625,7 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
     std::vector<int> col_id_map;
     if (integer_only) table_int->FillIntegerColIdMap(col_id_map);
     else table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+    for (int i=0, iend=(int)col_id_map.size(); i<iend; i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
         if (table_int->IsColTimeVariant(id)) {
@@ -682,7 +682,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     wxArrayInt selections;
     combo_var->GetSelections(selections);
     
-    int num_var = selections.size();
+    int num_var = (int)selections.size();
     if (num_var < min_num_var && !use_centroids) {
         wxString err_msg =
             wxString::Format(_("Please select at least %d variables."),
@@ -899,7 +899,7 @@ double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
     vector<vector<int> > solution;
     vector<int> isolated;
     for (int i=0; i<clusters.size(); i++) {
-        int c = clusters[i];
+        int c = (int)clusters[i];
         if (c > solution.size()) solution.resize(c);
         
         if (c-1 >= 0)
@@ -974,7 +974,7 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
 
 vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<int> >& solutions)
 {
-    int n_clusters = solutions.size();
+    int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;

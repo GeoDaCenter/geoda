@@ -370,13 +370,18 @@ namespace GenUtils {
     
 	void DeviationFromMean(int nObs, double* data);
     void DeviationFromMean(int nObs, double* data, vector<bool>& undef);
-	void DeviationFromMean(vector<double>& data);
     void DeviationFromMean(std::vector<double>& data, std::vector<bool>& undef);
-    
+    void DeviationFromMean(vector<double>& data);
+    void DeviationFromMedian(vector<double>& data);
+    void DeviationFromMedoid(vector<double>& data, int medoid);
+
 	double Sum(vector<double>& data);
-	double SumOfSquares(vector<double>& data);
     double Median(std::vector<double>& data);
-    
+
+	double SumOfSquares(vector<double>& data);
+    double SumOfSquaresMedian(vector<double>& data);
+    double SumOfSquaresMedoid(vector<double>& data, int medoid);
+
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
 	bool StandardizeData(vector<double>& data);

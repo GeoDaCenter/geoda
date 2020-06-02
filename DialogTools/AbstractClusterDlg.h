@@ -187,6 +187,8 @@ protected:
     virtual wxString _printConfiguration()=0;
     double CreateSummary(const vector<wxInt64>& clusters, bool show_print = true);
     double CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>(), bool show_print = true);
+    
+    // get addtional content for summary,e.g. medoids (within distance to median)
 };
 
 #endif
