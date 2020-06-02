@@ -77,7 +77,10 @@ protected:
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
     std::map<int, double> idx_sum;
-    
+
+    std::vector<double> cent_xs;
+    std::vector<double> cent_ys;
+
     wxTextValidator validator;
     wxArrayString var_items;
   

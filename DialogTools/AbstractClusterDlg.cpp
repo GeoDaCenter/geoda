@@ -765,8 +765,8 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
         
         if (use_centroids) {
             std::vector<GdaPoint*> cents = project->GetCentroids();
-            std::vector<double> cent_xs;
-            std::vector<double> cent_ys;
+            cent_xs.clear();
+            cent_ys.clear();
             for (int i=0; i< rows; i++) {
                 cent_xs.push_back(cents[i]->GetX());
                 cent_ys.push_back(cents[i]->GetY());
@@ -1054,8 +1054,9 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
     double ssq = 0;
     
     for (int i=0; i<columns; i++) {
-        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
+        }
         vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];

@@ -147,5 +147,7 @@ protected:
     wxStaticText* txt_sampling;
     wxTextCtrl* m_sampling;
     wxCheckBox* m_keepmed;
+
+    std::vector<int> medoid_ids;
 };
 #endif

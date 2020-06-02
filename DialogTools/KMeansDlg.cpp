@@ -487,7 +487,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
         cluster_ids[ clusters[i] - 1 ].push_back(i);
     }
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-    
+
     for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
@@ -1039,6 +1039,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,  pam_fasttol);
             cost = pam.run();
             clusterid = pam.getResults();
+            medoid_ids = pam.getMedoids();
         } else {
             // FastCLARA
             long samples = 5;
@@ -1056,6 +1057,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
                             pam_fasttol, (int)samples, sample_rate, !keepmed);
             cost = clara.run();
             clusterid = clara.getResults();
+            medoid_ids = clara.getMedoids();
         }
         delete pam_init;
 
@@ -1076,6 +1078,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
         FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, samples, sample_rate);
         cost = clarans.run();
         clusterid = clarans.getResults();
+        medoid_ids = clarans.getMedoids();
     }
 
     for (int i=0; i<clusterid.size(); ++i) {
@@ -1092,11 +1095,27 @@ void KMedoidsDlg::doRun(int s1,int ncluster, int npass, int n_maxiter, int meth_
 vector<vector<double> > KMedoidsDlg::_getMeanCenters(
                                         const vector<vector<int> >& solutions)
 {
-    // The centroid is defined as the element with the
-    // smallest sum of distances to the other elements.
+    // Using medoids instead of mean centers
     int n_clusters = (int)solutions.size();
     vector<vector<double> > result(n_clusters);
-    
+
+    // update order of medoids using solutions
+    unordered_map<int, int> medoids_dict;
+    for (int i=0; i<medoid_ids.size(); ++i) {
+        medoids_dict[medoid_ids[i]] = 0;
+    }
+    std::vector<int> ordered_medoids;
+    std::vector<int>::iterator it;
+    for (int i=0; i<solutions.size(); ++i) {
+        for (int j=0; j<solutions[i].size(); ++j) {
+            int idx = solutions[i][j];
+            if (medoids_dict.find(idx) != medoids_dict.end()) {
+                ordered_medoids.push_back(idx);
+            }
+        }
+    }
+    medoid_ids = ordered_medoids;
+
     if (columns <= 0 || rows <= 0) return result;
 
     std::vector<std::vector<double> > raw_data;
@@ -1105,36 +1124,16 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
     }
 
-    vector<int> centroid_ids(n_clusters,0);
-    vector<double> errors(n_clusters);
-    for (int j=0; j<n_clusters; j++) errors[j] = DBL_MAX;
-    
-    for (int i=0; i<solutions.size(); i++ ) {
-        for (int j=0; j<solutions[i].size(); j++) {
-            double d = 0;
-            int a_idx = solutions[i][j];
-            for (int k=0; k<solutions[i].size(); k++) {
-                if (j == k) continue;
-                int b_idx = solutions[i][k];
-                d += ( a_idx < b_idx ? distmatrix[b_idx][a_idx]:distmatrix[a_idx][b_idx]);
-            }
-            if (d < errors[i]) {
-                errors[i] = d;
-                centroid_ids[i] = a_idx;
-            }
-        }
-    }
-
     for (int i=0; i<solutions.size(); i++ ) {
         vector<double> means;
         int end = columns;
         if (IsUseCentroids()) {
             end = columns - 2;
-            means.push_back(0); // CENT_X
-            means.push_back(0); // CENT_Y
+            means.push_back(cent_xs[medoid_ids[i]]); // CENT_X
+            means.push_back(cent_ys[medoid_ids[i]]); // CENT_Y
         }
         for (int c=0; c<end; c++) {
-            double mean = raw_data[c][centroid_ids[i]];
+            double mean = raw_data[c][medoid_ids[i]];
             means.push_back(mean);
         }
         result[i] = means;
@@ -1186,5 +1185,9 @@ wxString KMedoidsDlg::_printConfiguration()
 
     txt << _("Distance function:\t") << m_distance->GetString(m_distance->GetSelection()) << "\n";
 
+    txt << _("Medoids:\n");
+    for (int i=0; i<medoid_ids.size(); ++i) {
+        txt <<"\t" << medoid_ids[i] << "\n";
+    }
     return txt;
 }
