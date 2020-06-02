@@ -972,23 +972,12 @@ bool KMedoidsDlg::CheckAllInputs()
 
     if (GetInputData(transform,1) == false) return false;
 
-    //if (!CheckMinBound()) return false;
-
-    //n_pass = 10;
-    //wxString str_pass = m_pass->GetValue();
-    //long l_pass;
-    //if(str_pass.ToLong(&l_pass)) {
-    //    n_pass = (int)l_pass;
-    //}
-
     n_maxiter = 10;
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
     if(iterations.ToLong(&l_maxiter)) {
         n_maxiter = (int)l_maxiter;
     }
-
-    //meth_sel = combo_method->GetSelection();
 
     dist_sel = m_distance->GetSelection();
 
@@ -1075,7 +1064,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             return false;
         }
 
-        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, samples, sample_rate);
+        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, (int)samples, sample_rate);
         cost = clarans.run();
         clusterid = clarans.getResults();
         medoid_ids = clarans.getMedoids();
@@ -1187,7 +1176,7 @@ wxString KMedoidsDlg::_printConfiguration()
 
     txt << _("Medoids:\n");
     for (int i=0; i<medoid_ids.size(); ++i) {
-        txt <<"\t" << medoid_ids[i] << "\n";
+        txt <<"\t" << medoid_ids[i] + 1 << "\n"; // row order starts from 0
     }
     return txt;
 }
