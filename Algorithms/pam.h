@@ -127,7 +127,7 @@ public:
         // lower part triangle
         int r = i > j ? i : j;
         int c = i < j ? i : j;
-        return sqrt(dist[r][c]);
+        return dist[r][c];
     }
 };
 

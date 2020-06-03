@@ -1121,17 +1121,18 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
     return txt;
 }
 
-wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss)
+wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
+                                            const wxString& title, const wxString& header)
 {
     wxString summary;
-    summary << _("Within-cluster sum of squares:\n");
+    summary << title;
     
     //            # obs  Within cluster SS
     // C1          12            62.1
     // C2          3             42.3
     // C3
     
-    wxString ss_str = _("Within cluster S.S.");
+    wxString ss_str = header;
     
     stringstream ss;
     TextTable t( TextTable::MD );

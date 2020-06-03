@@ -69,7 +69,7 @@ KClusterDlg::~KClusterDlg()
 
 void KClusterDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,820), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(940,820), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
     wxPanel *panel = new wxPanel(scrl);
@@ -781,16 +781,9 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
-        // betweenss
-        betweenss = totss - totwithiness;
         // ratio
-        ratio = betweenss / totss;
-        summary << _("The total sum of squares:\t") << totss << "\n";
-        summary << _printWithinSS(withinss);
-        summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
-        summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
-        summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
-        
+        ratio = totwithiness / totss;
+
     } else {
         // manhattan distance
         summary << _("(Using Manhattan distance to medians)\n");
@@ -814,17 +807,14 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
         // betweenss
-        betweenss = totss - totwithiness;
+        //betweenss = totss - totwithiness;
         // ratio
-        ratio = betweenss / totss;
-        
-        summary << _("The total sum of Manhattan distance:\t") << totss << "\n";
-        summary << _printWithinSS(withinss);
-        summary << _("The total within-cluster sum of Manhattan distance:\t") << totwithiness << "\n";
-        summary << _("The between-cluster sum of Manhattan distance:\t") << betweenss << "\n";
-        summary << _("The ratio of between to total sum of distance:\t") << ratio << "\n\n";
+        ratio = totwithiness / totss;
     }
-    
+    summary << _("The total sum of distance:\t") << totss << "\n";
+    summary << _printWithinSS(withinss, _("Within-cluster sum of distances:\n"), _("Within Cluster D"));
+    summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
+    summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
     return summary;
 }
 ////////////////////////////////////////////////////////////////////////
@@ -853,7 +843,7 @@ KMedoidsDlg::~KMedoidsDlg()
 
 void KMedoidsDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,840), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(940,840), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
 
     wxPanel *panel = new wxPanel(scrl);
@@ -1398,10 +1388,9 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
-        // betweenss
-        betweenss = totss - totwithiness;
         // ratio
-        ratio = betweenss / totss;
+        ratio = totwithiness / totss;
+
     } else {
         // manhattan distance
         summary << _("(Using Manhattan distance to medoids)\n");
@@ -1424,18 +1413,15 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
-        // betweenss
-        betweenss = totss - totwithiness;
         // ratio
-        ratio = betweenss / totss;
+        ratio = totwithiness / totss;
     }
-    
-    summary << _("The total sum of Manhattan distance:\t") << totss << "\n";
-    summary << _printWithinSS(withinss);
-    summary << _("The total within-cluster sum of Manhattan distance:\t") << totwithiness << "\n";
-    summary << _("The between-cluster sum of Manhattan distance:\t") << betweenss << "\n";
-    summary << _("The ratio of between to total sum of distance:\t") << ratio << "\n\n";
-    
+    summary << _("The total sum of distance:\t") << totss << "\n";
+    summary << _printWithinSS(withinss, _("Within-cluster sum of distances:\n"), _("Within Cluster D"));
+    summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
+    summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
+
+
     return summary;
 }
 
