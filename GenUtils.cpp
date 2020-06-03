@@ -1722,6 +1722,19 @@ double GenUtils::SumOfSquaresMedian(std::vector<double>& data)
     return ssum;
 }
 
+double GenUtils::SumOfManhattanMedian(std::vector<double>& data)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedian(data);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += abs(data[i]);
+    }
+    return ssum;
+}
+
 double GenUtils::SumOfSquaresMedoid(std::vector<double>& data, double medoid_val)
 {
     int nObs = (int)data.size();
@@ -1731,6 +1744,19 @@ double GenUtils::SumOfSquaresMedoid(std::vector<double>& data, double medoid_val
     double ssum = 0.0;
     for (int i=0; i<nObs; i++) {
         ssum += data[i] * data[i];
+    }
+    return ssum;
+}
+
+double GenUtils::SumOfManhattanMedoid(std::vector<double>& data, double medoid_val)
+{
+    int nObs = (int)data.size();
+    if (nObs <= 1)
+        return 0;
+    GenUtils::DeviationFromMedoid(data, medoid_val);
+    double ssum = 0.0;
+    for (int i=0; i<nObs; i++) {
+        ssum += abs(data[i]);
     }
     return ssum;
 }

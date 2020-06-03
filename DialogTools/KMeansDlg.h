@@ -101,6 +101,11 @@ protected:
     DECLARE_EVENT_TABLE()
 };
 
+////////////////////////////////////////////////////////////////////////
+//
+// KMeansDlg
+////////////////////////////////////////////////////////////////////////
+
 class KMeansDlg : public KClusterDlg
 {
 public:
@@ -110,6 +115,10 @@ public:
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
 };
 
+////////////////////////////////////////////////////////////////////////
+//
+// KMediansDlg
+////////////////////////////////////////////////////////////////////////
 class KMediansDlg : public KClusterDlg
 {
 public:
@@ -118,8 +127,20 @@ public:
     
     virtual void doRun(int s1, int ncluster, int npass, int n_maxiter, int meth_sel, int dist_sel, double min_bound, double* bound_vals);
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
+    
+protected:
+    // get addtional content for summary,e.g. medoids (within distance to median)
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution);
+
+    double _calcSumOfSquaresMedian(const vector<int>& cluster_ids);
+    
+    double _calcSumOfManhattanMedian(const vector<int>& cluster_ids);
 };
 
+////////////////////////////////////////////////////////////////////////
+//
+// KMedoids
+////////////////////////////////////////////////////////////////////////
 class KMedoidsDlg : public KClusterDlg
 {
 public:
@@ -142,6 +163,8 @@ protected:
     virtual wxString _additionalSummary(const vector<vector<int> >& solution);
 
     double _calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx);
+    
+    double _calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx);
         
     wxStaticText* txt_iterations;
     wxStaticText* txt_initmethod;

@@ -382,6 +382,9 @@ namespace GenUtils {
     double SumOfSquaresMedian(vector<double>& data);
     double SumOfSquaresMedoid(vector<double>& data, double medoid_val);
 
+    double SumOfManhattanMedian(vector<double>& data);
+    double SumOfManhattanMedoid(vector<double>& data, double medoid_val);
+
 	bool StandardizeData(int nObs, double* data);
     bool StandardizeData(int nObs, double* data, vector<bool>& undef);
 	bool StandardizeData(vector<double>& data);

@@ -699,6 +699,134 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     return result;
 }
 
+double KMediansDlg::_calcSumOfSquaresMedian(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfSquaresMedian(vals);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfManhattanMedian(vals);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
+{
+    // computing Sum of Square Differences from Medoids
+    if (columns <= 0 || rows <= 0) return wxEmptyString;
+    
+    int dist_sel = m_distance->GetSelection();
+    
+    double totss = 0, totwithiness, betweenss, ratio;
+    vector<double> withinss;
+    
+    wxString summary;
+    
+    if (dist_sel == 0) {
+        // euclidean distance
+        summary << _("(Using Euclidean distance (squared) to medians)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfSquaresMedian(vals);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfSquaresMedian(solution[i]);
+            withinss.push_back(ss);
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // betweenss
+        betweenss = totss - totwithiness;
+        // ratio
+        ratio = betweenss / totss;
+        summary << _("The total sum of squares:\t") << totss << "\n";
+        summary << _printWithinSS(withinss);
+        summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
+        summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
+        summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
+        
+    } else {
+        // manhattan distance
+        summary << _("(Using Manhattan distance to medians)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfManhattanMedian(vals);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfManhattanMedian(solution[i]);
+            withinss.push_back(ss);
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // betweenss
+        betweenss = totss - totwithiness;
+        // ratio
+        ratio = betweenss / totss;
+        
+        summary << _("The total sum of Manhattan distance:\t") << totss << "\n";
+        summary << _printWithinSS(withinss);
+        summary << _("The total within-cluster sum of Manhattan distance:\t") << totwithiness << "\n";
+        summary << _("The between-cluster sum of Manhattan distance:\t") << betweenss << "\n";
+        summary << _("The ratio of between to total sum of distance:\t") << ratio << "\n\n";
+    }
+    
+    return summary;
+}
 ////////////////////////////////////////////////////////////////////////
 //
 // KMedoids
@@ -1212,44 +1340,101 @@ double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int 
     return ssq;
 }
 
+double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfManhattanMedoid(vals, input_data[medoid_idx][i]);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
 wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
 {
     // computing Sum of Square Differences from Medoids
     if (columns <= 0 || rows <= 0) return wxEmptyString;
     
-    // totss double totss = _getTotalSumOfSquares();
-    double totss = 0.0;
-    for (int i=0; i<columns; i++) {
-        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
-            continue;
-        vector<double> vals;
-        for (int j=0; j<rows; j++) {
-            if (mask[j][i] == 1)
-                vals.push_back(input_data[j][i]);
-        }
-        double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[first_medoid][i]);
-        totss += ss;
-    }
-    // withinss
+    int dist_sel = m_distance->GetSelection();
+    
+    double totss = 0, totwithiness, betweenss, ratio;
     vector<double> withinss;
-    for (int i=0; i<solution.size(); i++ ) {
-        double ss = _calcSumOfSquaresMedoid(solution[i], medoid_ids[i]);
-        withinss.push_back(ss);
-    }
-    // tot.withiness
-    double totwithiness = GenUtils::Sum(withinss);
-    // betweenss
-    double betweenss = totss - totwithiness;
-    // ratio
-    double ratio = betweenss / totss;
     
     wxString summary;
-    summary << _("(Using difference to medoids)\n");
-    summary << _("The total sum of squares(medoids):\t") << totss << "\n";
+    
+    if (dist_sel == 0) {
+        // euclidean distance
+        summary << _("(Using Euclidean distance (squared) to medoids)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[first_medoid][i]);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfSquaresMedoid(solution[i], medoid_ids[i]);
+            withinss.push_back(ss);
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // betweenss
+        betweenss = totss - totwithiness;
+        // ratio
+        ratio = betweenss / totss;
+    } else {
+        // manhattan distance
+        summary << _("(Using Manhattan distance to medoids)\n");
+        // totss double totss = _getTotalSumOfSquares();
+        for (int i=0; i<columns; i++) {
+            if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+                continue;
+            vector<double> vals;
+            for (int j=0; j<rows; j++) {
+                if (mask[j][i] == 1)
+                    vals.push_back(input_data[j][i]);
+            }
+            double ss = GenUtils::SumOfManhattanMedoid(vals, input_data[first_medoid][i]);
+            totss += ss;
+        }
+        // withinss
+        for (int i=0; i<solution.size(); i++ ) {
+            double ss = _calcSumOfManhattanMedoid(solution[i], medoid_ids[i]);
+            withinss.push_back(ss);
+        }
+        // tot.withiness
+        totwithiness = GenUtils::Sum(withinss);
+        // betweenss
+        betweenss = totss - totwithiness;
+        // ratio
+        ratio = betweenss / totss;
+    }
+    
+    summary << _("The total sum of Manhattan distance:\t") << totss << "\n";
     summary << _printWithinSS(withinss);
-    summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
-    summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
-    summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
+    summary << _("The total within-cluster sum of Manhattan distance:\t") << totwithiness << "\n";
+    summary << _("The between-cluster sum of Manhattan distance:\t") << betweenss << "\n";
+    summary << _("The ratio of between to total sum of distance:\t") << ratio << "\n\n";
     
     return summary;
 }
