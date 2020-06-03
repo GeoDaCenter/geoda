@@ -112,12 +112,19 @@ void SpectralClusteringDlg::CreateControls()
     // NumberOfCluster Control
     AddNumberOfClusterCtrl(panel, gbox);
     
+    // Affinity heading
+    gbox->Add(new wxStaticText(panel, wxID_ANY,"Affinity"), 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(new wxStaticText(panel, wxID_ANY,""), 1, wxEXPAND);
+    
     // Spectral controls: KNN
-    lbl_knn = new wxStaticText(panel, wxID_ANY, _("Affinity with K-NN:"));
+    int suggest_k = log((double)num_obs);
+    wxString str_k;
+    str_k << suggest_k;
+    lbl_knn = new wxStaticText(panel, wxID_ANY, _("        K-NN:"));
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
-    m_knn = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(40,-1));
+    m_knn = new wxTextCtrl(panel, wxID_ANY, str_k, wxDefaultPosition, wxSize(40,-1));
     hbox19->Add(chk_knn);
     hbox19->Add(lbl_neighbors);
     hbox19->Add(m_knn);
@@ -125,13 +132,13 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(hbox19, 1, wxEXPAND);
     
 	// Spectral Controls: Kernel
-    double suggest_sigma = sqrt(1.0/(double)num_obs);
+    double suggest_sigma = log((double)num_obs) + 1;
     wxString str_sigma;
     str_sigma << suggest_sigma;
-    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("Affinity with Kernel:"));
+    lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
     wxBoxSizer* hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_kernel = new wxCheckBox(panel, wxID_ANY, "");
-    lbl_sigma = new wxStaticText(panel, wxID_ANY, _("(Gaussian) Sigma:"));
+    lbl_sigma = new wxStaticText(panel, wxID_ANY, _(" Sigma:"));
     m_sigma = new wxTextCtrl(panel, wxID_ANY, str_sigma,
                              wxDefaultPosition, wxSize(40,-1));
     hbox18->Add(chk_kernel);
@@ -303,7 +310,7 @@ void SpectralClusteringDlg::CreateControls()
     
     // temp solution:
     chk_kernel->SetValue(false);
-    lbl_kernel->Disable();
+    //lbl_kernel->Disable();
     lbl_sigma->Disable();
     m_sigma->Disable();
     
@@ -362,7 +369,7 @@ void SpectralClusteringDlg::OnKernelCheck(wxCommandEvent& event)
     m_knn->Enable(!flag);
     lbl_knn->Enable(!flag);
 
-    lbl_kernel->Enable(flag);
+    //lbl_kernel->Enable(flag);
     lbl_sigma->Enable(flag);
     m_sigma->Enable(flag);
 }
@@ -375,7 +382,7 @@ void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
     lbl_knn->Enable(flag);
 
     chk_kernel->SetValue(!flag);
-    lbl_kernel->Enable(!flag);
+    //lbl_kernel->Enable(!flag);
     lbl_sigma->Enable(!flag);
     m_sigma->Enable(!flag);
 }
@@ -494,7 +501,7 @@ wxString SpectralClusteringDlg::_printConfiguration()
     txt << _("Number of clusters:\t") << ncluster << "\n";
    
     if (chk_kernel->IsChecked())  {
-        txt << _("Affinity with Guassian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
+        txt << _("Affinity with Gaussian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
     }
     if (chk_knn->IsChecked()) {
         txt << _("Affinity with K-Nearest Neighbors:\tK=") << m_knn->GetValue() << "\n";
