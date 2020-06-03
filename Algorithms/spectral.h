@@ -52,6 +52,8 @@ public:
     void cluster(int affinity_type=0);
     const std::vector<wxInt64> &get_assignments() const {return assignments;};
     
+    MatrixXd X, K, eigenvectors;
+    
 private:
     void affinity_matrix();
     void generate_kernel_matrix();
@@ -63,7 +65,6 @@ private:
     void fast_eigendecomposition();
     void kmeans();
     
-    MatrixXd X, K, eigenvectors;
     VectorXd eigenvalues, cumulative;
     unsigned int centers, kernel_type, normalise, max_iters, knn;
     double sigma, constant, order;

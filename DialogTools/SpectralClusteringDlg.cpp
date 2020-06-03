@@ -43,7 +43,7 @@
 #include "../Algorithms/cluster.h"
 #include "../Algorithms/spectral.h"
 #include "../Algorithms/DataUtils.h"
-
+#include "../kNN/ANN/ANN.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -130,6 +130,18 @@ void SpectralClusteringDlg::CreateControls()
     hbox19->Add(m_knn);
     gbox->Add(lbl_knn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox19, 1, wxEXPAND);
+    
+    // Mutual KNN
+    wxStaticText *lbl_mknn = new wxStaticText(panel, wxID_ANY, _("        Mutual K-NN:"));
+    wxBoxSizer* hbox20 = new wxBoxSizer(wxHORIZONTAL);
+    chk_mknn = new wxCheckBox(panel, wxID_ANY, "");
+    lbl_m_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
+    m_mknn = new wxTextCtrl(panel, wxID_ANY, str_k, wxDefaultPosition, wxSize(40,-1));
+    hbox20->Add(chk_mknn);
+    hbox20->Add(lbl_m_neighbors);
+    hbox20->Add(m_mknn);
+    gbox->Add(lbl_mknn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(hbox20, 1, wxEXPAND);
     
 	// Spectral Controls: Kernel
     double suggest_sigma = log((double)num_obs) + 1;
@@ -316,10 +328,11 @@ void SpectralClusteringDlg::CreateControls()
     
     
     chk_knn->SetValue(true);
-    lbl_knn ->Enable();
+    //lbl_knn ->Enable();
     lbl_neighbors->Enable();
     m_knn->Enable();
     
+    lbl_m_neighbors->Disable();
     chk_weights->SetValue(false);
     chk_weights->Disable();
     lbl_weights->Disable();
@@ -337,6 +350,7 @@ void SpectralClusteringDlg::CreateControls()
     // Events
     chk_kernel->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnKernelCheck, this);
     chk_knn->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnKNNCheck, this);
+    chk_mknn->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnMutualKNNCheck, this);
     chk_weights->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnWeightsCheck, this);
     
     okButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnOK, this);
@@ -364,14 +378,16 @@ void SpectralClusteringDlg::OnWeightsCheck(wxCommandEvent& event)
 void SpectralClusteringDlg::OnKernelCheck(wxCommandEvent& event)
 {
     bool flag = chk_kernel->IsChecked();
+    lbl_sigma->Enable(flag);
+    m_sigma->Enable(flag);
+    
     chk_knn->SetValue(!flag);
     lbl_neighbors->Enable(!flag);
     m_knn->Enable(!flag);
-    lbl_knn->Enable(!flag);
-
-    //lbl_kernel->Enable(flag);
-    lbl_sigma->Enable(flag);
-    m_sigma->Enable(flag);
+    
+    chk_mknn->SetValue(!flag);
+    lbl_m_neighbors->Enable(!flag);
+    m_mknn->Enable(!flag);
 }
 
 void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
@@ -379,10 +395,28 @@ void SpectralClusteringDlg::OnKNNCheck(wxCommandEvent& event)
     bool flag = chk_knn->IsChecked();
     lbl_neighbors->Enable(flag);
     m_knn->Enable(flag);
-    lbl_knn->Enable(flag);
+
+    chk_mknn->SetValue(!flag);
+    lbl_m_neighbors->Enable(!flag);
+    m_mknn->Enable(!flag);
+    
+    chk_kernel->SetValue(!flag);
+    lbl_sigma->Enable(!flag);
+    m_sigma->Enable(!flag);
+}
+
+void SpectralClusteringDlg::OnMutualKNNCheck(wxCommandEvent& event)
+{
+    bool flag = chk_mknn->IsChecked();
+    chk_mknn->SetValue(flag);
+    lbl_m_neighbors->Enable(flag);
+    m_mknn->Enable(flag);
+    
+    chk_knn->SetValue(!flag);
+    lbl_neighbors->Enable(!flag);
+    m_knn->Enable(!flag);
 
     chk_kernel->SetValue(!flag);
-    //lbl_kernel->Enable(!flag);
     lbl_sigma->Enable(!flag);
     m_sigma->Enable(!flag);
 }
@@ -450,7 +484,7 @@ void SpectralClusteringDlg::InitVariableCombobox(wxListBox* var_box)
     
     std::vector<int> col_id_map;
     table_int->FillNumericColIdMap(col_id_map);
-    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+    for (int i=0; i<col_id_map.size(); i++) {
         int id = col_id_map[i];
         wxString name = table_int->GetColName(id);
         if (table_int->IsColTimeVariant(id)) {
@@ -494,7 +528,7 @@ wxString SpectralClusteringDlg::_printConfiguration()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        ncluster = value_ncluster;
+        ncluster = (int)value_ncluster;
     }
     
     wxString txt;
@@ -531,7 +565,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString str_ncluster = combo_n->GetValue();
     long value_ncluster;
     if (str_ncluster.ToLong(&value_ncluster)) {
-        n_cluster = value_ncluster;
+        n_cluster = (int)value_ncluster;
     }
     if (n_cluster < 2 || n_cluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of cluster.");
@@ -547,7 +581,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
         wxString str_iterations;
         str_iterations = txt_poweriteration->GetValue();
         if (str_iterations.ToLong(&l_iterations)) {
-            n_power_iter = l_iterations;
+            n_power_iter = (int)l_iterations;
         }
     }
 
@@ -564,7 +598,15 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString str_knn = m_knn->GetValue();
     long value_knn;
     if(str_knn.ToLong(&value_knn)) {
-        knn = value_knn;
+        knn = (int)value_knn;
+    }
+    
+    // get input: mutual knn
+    mutual_knn = 4;
+    wxString str_mknn = m_mknn->GetValue();
+    long value_mknn;
+    if(str_mknn.ToLong(&value_mknn)) {
+        mutual_knn = (int)value_mknn;
     }
 
     // get input: kmeans init
@@ -576,7 +618,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString str_pass = m_pass->GetValue();
     long value_pass;
     if(str_pass.ToLong(&value_pass)) {
-        npass = value_pass;
+        npass = (int)value_pass;
     }
 
     // get input: kmeans max iteration
@@ -584,7 +626,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
     if(iterations.ToLong(&l_maxiter)) {
-        n_maxiter = l_maxiter;
+        n_maxiter = (int)l_maxiter;
     }
 
     // get input: distance
@@ -599,10 +641,52 @@ bool SpectralClusteringDlg::CheckAllInputs()
     return true;
 }
 
+void SpectralClusteringDlg::CreateKNN(double** data, int n_pts, int n_dim, int k, MatrixXd& KM, bool is_mutual)
+{
+    double eps = 0; // error bound
+    if (dist == 'e') ANN_DIST_TYPE = 2; // euclidean
+    else if (dist == 'b') ANN_DIST_TYPE = 1; // manhattan
+
+    // since KNN search will always return the query point itself, so add 1
+    // to make sure returning min_samples number of results
+    int min_samples = k + 1;
+    GalElement gal[n_pts];
+    
+    ANNkd_tree* kdTree = new ANNkd_tree(data, n_pts, n_dim);
+    ANNidxArray nnIdx = new ANNidx[min_samples];
+    ANNdistArray dists = new ANNdist[min_samples];
+    for (size_t i=0; i<n_pts; ++i) {
+        kdTree->annkSearch(data[i], min_samples, nnIdx, dists, eps);
+        gal[i].SetSizeNbrs(k);
+        for (int j=0; j<k; ++j) {
+            gal[i].SetNbr(j, nnIdx[j+1]);
+        }
+    }
+    
+    KM = MatrixXd::Zero(n_pts, n_pts);
+    for (int i=0; i<n_pts; ++i) {
+        for (int j=0; j<k; ++j) {
+            int nbr = (int)gal[i][j];
+            if (is_mutual) {
+                if (gal[nbr].Check(i)) {
+                    // mutual neighbor
+                    KM(i, nbr) = KM(nbr, i) = 1;
+                }
+            } else {
+                // KNN graph
+                KM(i, nbr) = KM(nbr, i) = 1;
+            }
+        }
+    }
+    delete[] nnIdx;
+    delete[] dists;
+    delete kdTree;
+}
+
 bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
-        setrandomstate(GdaConst::gda_user_seed);
+        setrandomstate((int)GdaConst::gda_user_seed);
         resetrandom();
     } else {
         setrandomstate(-1);
@@ -629,7 +713,11 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
         spectral.set_kernel(0);
         spectral.set_sigma(value_sigma);
     } else {
-        spectral.set_knn(knn);
+        bool is_mutual = chk_mknn->GetValue();
+        int k = is_mutual ? mutual_knn : knn;
+        //CreateKNN(data, rows, columns, k, spectral.K, is_mutual);
+        //std::cout << spectral.K << std::endl;
+        spectral.set_knn(k);
     }
     spectral.set_kmeans_dist(dist);
     spectral.set_kmeans_method(method);

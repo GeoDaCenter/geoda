@@ -25,6 +25,9 @@
 #include <wx/choice.h>
 #include <wx/checklst.h>
 #include <wx/combobox.h>
+#include <Eigen/Dense>
+
+using namespace Eigen;
 
 #include "../FramesManager.h"
 #include "../VarTools.h"
@@ -50,6 +53,7 @@ public:
     void OnWeightsCheck(wxCommandEvent& event);
     void OnKernelCheck(wxCommandEvent& event);
     void OnKNNCheck(wxCommandEvent& event);
+    void OnMutualKNNCheck(wxCommandEvent& event);
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     
@@ -60,13 +64,16 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
-
+    void CreateKNN(double** data, int rows, int columns, int k, MatrixXd& KM,
+                   bool is_mutual);
+    
 protected:
     int transform;
     int n_cluster;
     int n_power_iter;
     double value_sigma;
     int knn;
+    int mutual_knn;
     char method;
     int npass;
     int n_maxiter;
@@ -89,9 +96,12 @@ protected:
     wxStaticText* lbl_sigma;
     
     wxCheckBox* chk_knn;
+    wxCheckBox* chk_mknn;
     wxStaticText* lbl_knn;
     wxStaticText* lbl_neighbors;
+    wxStaticText* lbl_m_neighbors;
     wxTextCtrl* m_knn;
+    wxTextCtrl* m_mknn;
     
     wxStaticText* lbl_weights;
     wxCheckBox* chk_weights;

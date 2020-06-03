@@ -485,7 +485,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     for (int i=0; i<rows; i++) delete[] dist_matrix[i];
     delete[] dist_matrix;
 
-    int ncluster = cluster_ids.size();
+    int ncluster = (int)cluster_ids.size();
 
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);

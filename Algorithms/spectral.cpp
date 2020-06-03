@@ -119,7 +119,9 @@ void Spectral::generate_knn_matrix()
         for(unsigned int j = i; j < X.rows(); j++){
             squared_dist =  (X.row(i) - X.row(j)).norm();
             K(i,j) = K(j,i) = squared_dist;
-            if (i != j) top_K.push(std::make_pair(j,squared_dist));
+            if (i != j) {
+                top_K.push(std::make_pair(j,squared_dist));
+            }
         }
         if (top_K.size() > knn) {
             double min_dist = 0;
@@ -140,6 +142,7 @@ void Spectral::generate_knn_matrix()
             }
         }
     }
+    //std::cout << K << std::endl;
     
     // Normalise kernel matrix
     VectorXd d = K.rowwise().sum();
@@ -163,7 +166,7 @@ static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<doub
 void Spectral::fast_eigendecomposition()
 {
     // get top N = centers eigen values/vectors
-    int n = K.rows();
+    int n = (int)K.rows();
     vector<vector<double> > matrix(n);
     for (int i=0; i< n; i++) {
         matrix[i].resize(n);
@@ -228,7 +231,7 @@ void Spectral::eigendecomposition()
     // http://stackoverflow.com/questions/5122804/sorting-with-lambda
     sort(eigen_pairs.begin(),eigen_pairs.end(), eigen_greater);
     
-    if(centers > eigen_pairs.size()) centers = eigen_pairs.size();
+    if(centers > eigen_pairs.size()) centers = (int)eigen_pairs.size();
     
     for(unsigned int i = 0; i < eigen_pairs.size(); i++){
         eigenvalues(i) = eigen_pairs[i].first;
@@ -257,7 +260,6 @@ void Spectral::cluster(int affinity_type)
 {
     if (affinity_type == 0) {
         // kernel
-        //affinity_matrix();
         generate_kernel_matrix();
         
     } else {
@@ -276,8 +278,8 @@ void Spectral::cluster(int affinity_type)
 
 void Spectral::kmeans()
 {
-    int rows = eigenvectors.rows();
-    int columns = eigenvectors.cols();
+    int rows = (int)eigenvectors.rows();
+    int columns = (int)eigenvectors.cols();
     
     int transpose = 0; // row wise
     int* clusterid = new int[rows];
@@ -301,7 +303,7 @@ void Spectral::kmeans()
     int s1=0;
     int s2 =0;
     if (GdaConst::use_gda_user_seed) {
-        srand(GdaConst::gda_user_seed);
+        srand((int)GdaConst::gda_user_seed);
         s1 = rand();
     }
     if (s1 > 0) {
