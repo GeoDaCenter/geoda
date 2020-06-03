@@ -914,6 +914,7 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
                                          const vector<int>& isolated,
                                          bool show_print)
 {
+    // compute Sum of Squared Differences (from means)
     // mean centers
     vector<vector<double> > mean_centers = _getMeanCenters(solution);
     // totss
@@ -956,12 +957,16 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
         
     }
     summary << "\n";
+    
     summary << _printMeanCenters(mean_centers);
     summary << _("The total sum of squares:\t") << totss << "\n";
     summary << _printWithinSS(withinss);
     summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
     summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
     summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
+    
+    // allow any inherited class to report additional text in summary
+    summary << _additionalSummary(solution);
     
     if (m_reportbox && show_print) {
         wxString report = m_reportbox->GetValue();

@@ -940,7 +940,7 @@ void KMedoidsDlg::OnMethodChoice(wxCommandEvent& evt)
         m_keepmed->Enable(!flag);
 
         m_numsamples->SetValue("2");
-        m_sampling->SetValue(wxString::Format("%f", 0.0125));
+        m_sampling->SetValue(wxString::Format("%f", 0.025));
     }
 }
 
@@ -961,7 +961,7 @@ bool KMedoidsDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 1 || n_cluster > num_obs) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -1004,27 +1004,26 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
     double pam_fasttol = m_fastswap->GetValue() ? 0 : 1;
     int init_method = combo_initmethod->GetSelection();
     bool keepmed = m_keepmed->GetValue();
-
-    if (n_cluster < 2 || n_cluster > num_obs) {
-        wxString err_msg = _("Please enter a valid number of clusters.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return false;
-    }
     int method = combo_method->GetSelection();
+    
+    int seed = 0;
+    if (GdaConst::use_gda_user_seed) {
+        seed = (int)GdaConst::gda_user_seed;
+    }
+    
     if (method < 2) {
         // fastPAM & fastCLARA
         PAMInitializer* pam_init;
         if (init_method == 0) {
             pam_init = new BUILD(&dist_matrix);
         } else {
-            if (GdaConst::use_gda_user_seed) {
-                pam_init = new LAB(&dist_matrix, (int)GdaConst::gda_user_seed);
-            } else {
-                pam_init = new LAB(&dist_matrix);
-            }
+            pam_init = new LAB(&dist_matrix, seed);
         }
         if (method == 0) {
+            FastPAM pam0(num_obs, &dist_matrix, pam_init, 1, 1,  pam_fasttol);
+            pam0.run();
+            first_medoid = pam0.getMedoids()[0];
+            
             FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,  pam_fasttol);
             cost = pam.run();
             clusterid = pam.getResults();
@@ -1042,8 +1041,13 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
                 dlg.ShowModal();
                 return false;
             }
+            FastCLARA clara0(num_obs, &dist_matrix, pam_init, 1, 1,
+                            pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
+            clara0.run();
+            first_medoid = clara0.getMedoids()[0];
+            
             FastCLARA clara(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,
-                            pam_fasttol, (int)samples, sample_rate, !keepmed);
+                            pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
             cost = clara.run();
             clusterid = clara.getResults();
             medoid_ids = clara.getMedoids();
@@ -1063,8 +1067,11 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             dlg.ShowModal();
             return false;
         }
-
-        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, (int)samples, sample_rate);
+        FastCLARANS clarans0(num_obs, &dist_matrix, 1, 1, sample_rate, seed);
+        clarans0.run();
+        first_medoid = clarans0.getMedoids()[0];
+        
+        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, (int)samples, sample_rate, seed);
         cost = clarans.run();
         clusterid = clarans.getResults();
         medoid_ids = clarans.getMedoids();
@@ -1180,3 +1187,70 @@ wxString KMedoidsDlg::_printConfiguration()
     }
     return txt;
 }
+
+double KMedoidsDlg::_calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx)
+{
+    if (cluster_ids.empty() || input_data==NULL || mask == NULL)
+        return 0;
+    
+    double ssq = 0;
+    
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
+            continue;
+        }
+        vector<double> vals;
+        for (int j=0; j<cluster_ids.size(); j++) {
+            int r = cluster_ids[j];
+            if (mask[r][i] == 1)
+                vals.push_back(input_data[r][i]);
+        }
+        double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[medoid_idx][i]);
+        ssq += ss;
+    }
+    
+    return ssq;
+}
+
+wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
+{
+    // computing Sum of Square Differences from Medoids
+    if (columns <= 0 || rows <= 0) return wxEmptyString;
+    
+    // totss double totss = _getTotalSumOfSquares();
+    double totss = 0.0;
+    for (int i=0; i<columns; i++) {
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+            continue;
+        vector<double> vals;
+        for (int j=0; j<rows; j++) {
+            if (mask[j][i] == 1)
+                vals.push_back(input_data[j][i]);
+        }
+        double ss = GenUtils::SumOfSquaresMedoid(vals, input_data[first_medoid][i]);
+        totss += ss;
+    }
+    // withinss
+    vector<double> withinss;
+    for (int i=0; i<solution.size(); i++ ) {
+        double ss = _calcSumOfSquaresMedoid(solution[i], medoid_ids[i]);
+        withinss.push_back(ss);
+    }
+    // tot.withiness
+    double totwithiness = GenUtils::Sum(withinss);
+    // betweenss
+    double betweenss = totss - totwithiness;
+    // ratio
+    double ratio = betweenss / totss;
+    
+    wxString summary;
+    summary << _("(Using difference to medoids)\n");
+    summary << _("The total sum of squares(medoids):\t") << totss << "\n";
+    summary << _printWithinSS(withinss);
+    summary << _("The total within-cluster sum of squares:\t") << totwithiness << "\n";
+    summary << _("The between-cluster sum of squares:\t") << betweenss << "\n";
+    summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
+    
+    return summary;
+}
+

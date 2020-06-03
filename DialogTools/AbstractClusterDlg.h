@@ -189,6 +189,7 @@ protected:
     double CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>(), bool show_print = true);
     
     // get addtional content for summary,e.g. medoids (within distance to median)
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution) { return wxEmptyString;}
 };
 
 #endif

@@ -137,7 +137,12 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
+    
+    // get addtional content for summary,e.g. medoids (within distance to median)
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution);
 
+    double _calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx);
+        
     wxStaticText* txt_iterations;
     wxStaticText* txt_initmethod;
     wxChoice* combo_initmethod;
@@ -149,5 +154,7 @@ protected:
     wxCheckBox* m_keepmed;
 
     std::vector<int> medoid_ids;
+    // first medoid is the medoid when cluster number is specified to 1
+    int first_medoid;
 };
 #endif

@@ -1382,13 +1382,12 @@ void GenUtils::DeviationFromMedian(std::vector<double>& data)
     }
 }
 
-void GenUtils::DeviationFromMedoid(std::vector<double>& data, int medoid_idx)
+void GenUtils::DeviationFromMedoid(std::vector<double>& data, double medoid_val)
 {
-    if (data.size() == 0 || medoid_idx < 0 || medoid_idx > data.size())
+    if (data.size() == 0)
         return;
-    double medoid = data[medoid_idx];
     for (int i=0; i<data.size(); i++) {
-        data[i] -= medoid;
+        data[i] -= medoid_val;
     }
 }
 
@@ -1723,12 +1722,12 @@ double GenUtils::SumOfSquaresMedian(std::vector<double>& data)
     return ssum;
 }
 
-double GenUtils::SumOfSquaresMedoid(std::vector<double>& data, int medoid)
+double GenUtils::SumOfSquaresMedoid(std::vector<double>& data, double medoid_val)
 {
     int nObs = (int)data.size();
-    if (nObs <= 1 || medoid < 0 || medoid > nObs - 1)
+    if (nObs <= 1)
         return 0;
-    GenUtils::DeviationFromMedoid(data, medoid);
+    GenUtils::DeviationFromMedoid(data, medoid_val);
     double ssum = 0.0;
     for (int i=0; i<nObs; i++) {
         ssum += data[i] * data[i];
