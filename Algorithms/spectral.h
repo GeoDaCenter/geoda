@@ -64,7 +64,8 @@ private:
     void eigendecomposition();
     void fast_eigendecomposition();
     void kmeans();
-    
+
+    VectorXd d; // for KNN affinity matrix
     VectorXd eigenvalues, cumulative;
     unsigned int centers, kernel_type, normalise, max_iters, knn;
     double sigma, constant, order;

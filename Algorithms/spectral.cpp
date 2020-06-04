@@ -109,6 +109,7 @@ struct CompareDist
 
 void Spectral::generate_knn_matrix()
 {
+    /*
     typedef boost::heap::priority_queue<pair<int, double>, boost::heap::compare<CompareDist> > PriorityQueue;
     
     // Fill euclidean dista matrix and filter using KNN
@@ -156,6 +157,41 @@ void Spectral::generate_knn_matrix()
         }
     }
     K = l;
+     */
+
+    // The following implementation is ported from sklearn
+    // https://github.com/scikit-learn/scikit-learn/blob/fd237278e/sklearn/cluster/_spectral.py#L160
+    MatrixXd KT = K.transpose();
+    K = (K + KT)/2.0;
+    std::cout << K << std::endl;
+
+    std::vector<bool> isolated_node_mask(K.size());
+
+    // Normalise Laplacian
+    d = K.rowwise().sum() - K.diagonal();
+    for(unsigned int i = 0; i < d.rows(); i++){
+        if (d(i) == 0) {
+            d(i) = 1;
+            isolated_node_mask[i] = true;
+        } else {
+            d(i) = 1.0/sqrt(d(i));
+            isolated_node_mask[i] = false;
+        }
+    }
+    std::cout << d << std::endl;
+    MatrixXd l = d.asDiagonal() * K * d.asDiagonal();
+    K = l * -1;
+
+    for (int i=0; i<K.rows(); ++i) {
+        K(i, i) = isolated_node_mask[i] ? 0 : 1;
+    }
+    std::cout << K << std::endl;
+    // set the diagonal of the laplacian matrix
+    for (int i=0; i<K.rows(); ++i) {
+        K(i, i) = 1;
+    }
+
+    K *= -1;
 }
 
 static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)
@@ -215,9 +251,11 @@ void Spectral::eigendecomposition()
     EigenSolver<MatrixXd> edecomp(K);
     eigenvalues = edecomp.eigenvalues().real();
     eigenvectors = edecomp.eigenvectors().real();
+#ifdef DEBUG
     for(unsigned int i = 0; i < eigenvalues.rows(); i++){
         cout << "Eigenvalue: " << eigenvalues(i) << endl;
     }
+#endif
     cumulative.resize(eigenvalues.rows());
     vector<pair<double,VectorXd> > eigen_pairs;
     double c = 0.0;
@@ -239,6 +277,7 @@ void Spectral::eigendecomposition()
         cumulative(i) = c;
         eigenvectors.col(i) = eigen_pairs[i].second;
     }
+#ifdef DEBUG
      cout << "Sorted eigenvalues:" << endl;
      for(unsigned int i = 0; i < eigenvalues.rows(); i++){
          if(i<2){
@@ -248,11 +287,11 @@ void Spectral::eigendecomposition()
          }
      }
      cout << endl;
+#endif
     MatrixXd tmp = eigenvectors;
     
     // Select top K eigenvectors where K = centers
     eigenvectors = tmp.block(0,0,tmp.rows(),centers);
-    
 }
 
 
@@ -272,6 +311,15 @@ void Spectral::cluster(int affinity_type)
     } else {
         // try other method than eigen3, e.g. Intel MLK
         eigendecomposition();
+    }
+
+    if (affinity_type == 1) {
+        // KNN, multiply diagonal. see sklearn _spectral_embedding.py
+        for (int i=0; i<eigenvectors.cols(); ++i) {
+            for (int j=0; j<eigenvectors.rows(); ++j) {
+                eigenvectors(i,j) = eigenvectors(i,j) * d(j);
+            }
+        }
     }
     kmeans();
 }
@@ -311,9 +359,7 @@ void Spectral::kmeans()
         for (int i = 0; i < rows; i++) uniform(s1, s2);
     }
     kcluster(centers, rows, columns, input_data, mask, weight, transpose, npass, n_maxiter, method, dist, clusterid, &error, &ifound, NULL, 0, s1, s2);
-    
-    //vector<bool> clusters_undef;
-    
+
     // clean memory
     for (int i=0; i<rows; i++) {
         delete[] input_data[i];

@@ -647,9 +647,8 @@ void SpectralClusteringDlg::CreateKNN(double** data, int n_pts, int n_dim, int k
     if (dist == 'e') ANN_DIST_TYPE = 2; // euclidean
     else if (dist == 'b') ANN_DIST_TYPE = 1; // manhattan
 
-    // since KNN search will always return the query point itself, so add 1
-    // to make sure returning min_samples number of results
-    int min_samples = k + 1;
+    // NOTE: KNN search will always return the query point itself
+    int min_samples = k;
     GalElement gal[n_pts];
     
     ANNkd_tree* kdTree = new ANNkd_tree(data, n_pts, n_dim);
@@ -659,7 +658,7 @@ void SpectralClusteringDlg::CreateKNN(double** data, int n_pts, int n_dim, int k
         kdTree->annkSearch(data[i], min_samples, nnIdx, dists, eps);
         gal[i].SetSizeNbrs(k);
         for (int j=0; j<k; ++j) {
-            gal[i].SetNbr(j, nnIdx[j+1]);
+            gal[i].SetNbr(j, nnIdx[j]);
         }
     }
     
@@ -670,11 +669,11 @@ void SpectralClusteringDlg::CreateKNN(double** data, int n_pts, int n_dim, int k
             if (is_mutual) {
                 if (gal[nbr].Check(i)) {
                     // mutual neighbor
-                    KM(i, nbr) = KM(nbr, i) = 1;
+                    KM(i, nbr) = 1;
                 }
             } else {
                 // KNN graph
-                KM(i, nbr) = KM(nbr, i) = 1;
+                KM(i, nbr) = 1;
             }
         }
     }
@@ -715,7 +714,7 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
     } else {
         bool is_mutual = chk_mknn->GetValue();
         int k = is_mutual ? mutual_knn : knn;
-        //CreateKNN(data, rows, columns, k, spectral.K, is_mutual);
+        CreateKNN(data, rows, columns, k, spectral.K, is_mutual);
         //std::cout << spectral.K << std::endl;
         spectral.set_knn(k);
     }
