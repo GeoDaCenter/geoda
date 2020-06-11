@@ -1163,3 +1163,56 @@ wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
     
     return summary;
 }
+
+wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
+                                     const vector<double>& avgs,
+                                     const wxString& title,
+                                     const wxString& header1,
+                                     const wxString& header2)
+{
+    wxString summary;
+    summary << title;
+
+    //            # obs  Within cluster SS  Average
+    // C1          12            62.1           x
+    // C2          3             42.3           x
+    // C3
+
+    wxString ss_str = header1;
+    wxString ss_str2 = header2;
+    stringstream ss;
+    TextTable t( TextTable::MD );
+
+    // first row
+    t.add("");
+    //t.add("#obs");
+    t.add(ss_str.ToStdString());
+    t.add(ss_str2.ToStdString());
+    t.endOfRow();
+
+    // second row
+    for (int i=0; i<within_ss.size(); i++) {
+        ss.str("");
+        ss << "C" << i+1;
+        t.add(ss.str());
+
+        ss.str("");
+        ss << within_ss[i];
+        t.add(ss.str());
+
+        ss.str("");
+        ss << avgs[i];
+        t.add(ss.str());
+
+        t.endOfRow();
+    }
+    //t.setAlignment( 4, TextTable::Alignment::RIGHT );
+
+    stringstream ss1;
+    ss1 << t;
+    summary << ss1.str();
+    summary << "\n";
+
+    return summary;
+}
+

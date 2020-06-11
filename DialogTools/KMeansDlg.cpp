@@ -755,7 +755,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
     int dist_sel = m_distance->GetSelection();
     
     double totss = 0, totwithiness, betweenss, ratio;
-    vector<double> withinss;
+    vector<double> withinss, avgs;
     
     wxString summary;
     
@@ -778,6 +778,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         for (int i=0; i<solution.size(); i++ ) {
             double ss = _calcSumOfSquaresMedian(solution[i]);
             withinss.push_back(ss);
+            avgs.push_back(ss / solution[i].size());
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
@@ -803,6 +804,7 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         for (int i=0; i<solution.size(); i++ ) {
             double ss = _calcSumOfManhattanMedian(solution[i]);
             withinss.push_back(ss);
+            avgs.push_back(ss / solution[i].size());
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
@@ -812,7 +814,8 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         ratio = totwithiness / totss;
     }
     summary << _("The total sum of distance:\t") << totss << "\n";
-    summary << _printWithinSS(withinss, _("Within-cluster sum of distances:\n"), _("Within Cluster D"));
+    summary << _printWithinSS(withinss, avgs, _("Within-cluster sum of distances:\n"),
+                              _("Within Cluster D"), _("Average"));
     summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
     summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
     return summary;
@@ -881,6 +884,8 @@ void KMedoidsDlg::CreateControls()
     combo_initmethod = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(200,-1), 2, choices16);
     combo_initmethod->SetSelection(1);
+    txt_initmethod->Hide();
+    combo_initmethod->Hide();
 
     gbox->Add(txt_initmethod, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_initmethod, 1, wxEXPAND);
@@ -889,26 +894,31 @@ void KMedoidsDlg::CreateControls()
     m_iterations = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(txt_iterations, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_iterations, 1, wxEXPAND);
+    txt_iterations->Hide();
+    m_iterations->Hide();
 
     wxStaticText* st10 = new wxStaticText(panel, wxID_ANY, "");
-    m_fastswap = new wxCheckBox(panel, wxID_ANY, _("Use Additonal Swaps"));
+    m_fastswap = new wxCheckBox(panel, wxID_ANY, _("Use Additonal Swaps (FastPAM2)"));
     m_fastswap->SetValue(true); // default 1
     gbox->Add(st10, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_fastswap, 1, wxEXPAND);
+    st10->Hide();
+    m_fastswap->Hide();
 
     // FastCLARA and FastCLARANS
-    txt_numsamples = new wxStaticText(panel, wxID_ANY, _("Number of Samples:"));
+    txt_numsamples = new wxStaticText(panel, wxID_ANY, _("Number of Samples/Iterations:"));
     m_numsamples = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(txt_numsamples, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_numsamples, 1, wxEXPAND);
 
-    txt_sampling = new wxStaticText(panel, wxID_ANY, _("Sampling Rate:"));
+    txt_sampling = new wxStaticText(panel, wxID_ANY, _("Sample Size/Rate:"));
     m_sampling = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(txt_sampling, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_sampling, 1, wxEXPAND);
 
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, "");
-    m_keepmed = new wxCheckBox(panel, wxID_ANY, "Keep Previous Medoids");
+    m_keepmed = new wxCheckBox(panel, wxID_ANY, "Include Previous Medoids");
+    m_keepmed->SetValue(true);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_keepmed, 1, wxEXPAND);
 
@@ -1034,13 +1044,14 @@ void KMedoidsDlg::OnMethodChoice(wxCommandEvent& evt)
         txt_sampling->Enable(flag);
         m_sampling->Enable(flag);
         m_keepmed->Enable(flag);
+        m_keepmed->SetValue(true);
 
-        m_numsamples->SetValue("5");
+        m_numsamples->SetValue(num_obs <= 100 ? "5" : "10");
         // Larger sample size, used by Schubert and Rousseeuw, 2019
         //  80 + 4. * k
-        double sa = (80 + 4*k) / (double)num_obs;
-        if (sa >= 1.0) sa = 0.8;
-        m_sampling->SetValue(wxString::Format("%f", sa));
+        int ns = num_obs <= 100 ? 40 + 2*k : 80 + 4*k;
+        if (ns >= num_obs) ns = num_obs;
+        m_sampling->SetValue(wxString::Format("%d", ns));
     } else {
         // FastCLARANS
         bool flag = false;
@@ -1102,6 +1113,27 @@ bool KMedoidsDlg::CheckAllInputs()
     return true;
 }
 
+int KMedoidsDlg::GetFirstMedoid(double** distmatrix)
+{
+    int n = 0;
+    double min_sum = DBL_MAX, tmp_sum=0;
+    for (size_t i=0; i<num_obs; ++i) {
+        // sum of distance from i to everyone else
+        tmp_sum = 0;
+        for (size_t j=0; j<num_obs; ++j) {
+            if (i != j) {
+                tmp_sum += i > j ? distmatrix[i][j] : distmatrix[j][i];
+            }
+        }
+        if (tmp_sum < min_sum) {
+            n = i;
+            min_sum = tmp_sum;
+        }
+    }
+
+    return n;
+}
+
 bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
 {
     if (GdaConst::use_gda_user_seed) {
@@ -1118,6 +1150,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
     // compute distance matrix
     ComputeDistMatrix(dist_sel);
     RawDistMatrix dist_matrix(distmatrix);
+    first_medoid = GetFirstMedoid(distmatrix);
 
     double pam_fasttol = m_fastswap->GetValue() ? 0 : 1;
     int init_method = combo_initmethod->GetSelection();
@@ -1138,11 +1171,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             pam_init = new LAB(&dist_matrix, seed);
         }
         if (method == 0) {
-            FastPAM pam0(num_obs, &dist_matrix, pam_init, 1, 1,  pam_fasttol);
-            pam0.run();
-            first_medoid = pam0.getMedoids()[0];
-            
-            FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,  pam_fasttol);
+            FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, 0,  pam_fasttol);
             cost = pam.run();
             clusterid = pam.getResults();
             medoid_ids = pam.getMedoids();
@@ -1153,18 +1182,14 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             double sample_rate = 0.025;
             m_sampling->GetValue().ToDouble(&sample_rate);
 
-            if (sample_rate*num_obs < 3 * n_cluster) {
-                wxString err_msg = _("The sampling rate is set to a small value, please set another value to make sampling size larger than 3*k.");
+            if (sample_rate <= 1 && sample_rate*num_obs < 3 * n_cluster) {
+                wxString err_msg = _("The sampling rate is set to a small value, please set another value to make sample size larger than 3*k.");
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return false;
             }
-            FastCLARA clara0(num_obs, &dist_matrix, pam_init, 1, 1,
-                            pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
-            clara0.run();
-            first_medoid = clara0.getMedoids()[0];
-            
-            FastCLARA clara(num_obs, &dist_matrix, pam_init, n_cluster, n_maxiter,
+
+            FastCLARA clara(num_obs, &dist_matrix, pam_init, n_cluster, 0,
                             pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
             cost = clara.run();
             clusterid = clara.getResults();
@@ -1179,15 +1204,12 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
         double sample_rate = 0.025;
         m_sampling->GetValue().ToDouble(&sample_rate);
 
-        if (sample_rate <=0 || sample_rate >=1.0) {
+        if (sample_rate <=0 || sample_rate > 1.0) {
             wxString err_msg = _("Please input a valid value between 0 and 1 for sample rate.");
             wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return false;
         }
-        FastCLARANS clarans0(num_obs, &dist_matrix, 1, 1, sample_rate, seed);
-        clarans0.run();
-        first_medoid = clarans0.getMedoids()[0];
         
         FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, (int)samples, sample_rate, seed);
         cost = clarans.run();
@@ -1278,20 +1300,20 @@ wxString KMedoidsDlg::_printConfiguration()
 
     if (combo_method->GetSelection() < 2) {
         txt << _("Initialization method:\t") << combo_initmethod->GetString(combo_initmethod->GetSelection()) << "\n";
-        txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
-        if (m_fastswap) {
-            txt << _("\tUse additional Swaps.\n");
+        //txt << _("Maximum iterations:\t") << m_iterations->GetValue() << "\n";
+        if (m_fastswap->GetValue()) {
+            //txt << _("\tUse additional swaps(FastPAM2).\n");
         }
         if (combo_method->GetSelection() == 1 ) {
-            txt << _("Number of samples:\t") << m_numsamples->GetValue() << "\n";
-            txt << _("Sampling rate:\t") << m_sampling->GetValue() << "\n";
+            txt << _("Number of samples/iterations:\t") << m_numsamples->GetValue() << "\n";
+            txt << _("Sample size/rate:\t") << m_sampling->GetValue() << "\n";
             if (m_keepmed->GetValue()) {
-                txt << _("\tKeep previous medoids in samples\n");
+                txt << _("\tInclude previous medoids\n");
             }
         }
     } else if (combo_method->GetSelection() == 2) {
-        txt << _("Number of samples:\t") << m_numsamples->GetValue() << "\n";
-        txt << _("Sampling rate:\t") << m_sampling->GetValue() << "\n";
+        txt << _("Number of samples/iterations:\t") << m_numsamples->GetValue() << "\n";
+        txt << _("Sample size/rate:\t") << m_sampling->GetValue() << "\n";
 
     }
 
@@ -1362,7 +1384,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
     int dist_sel = m_distance->GetSelection();
     
     double totss = 0, totwithiness, betweenss, ratio;
-    vector<double> withinss;
+    vector<double> withinss, avgs;
     
     wxString summary;
     
@@ -1385,6 +1407,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
         for (int i=0; i<solution.size(); i++ ) {
             double ss = _calcSumOfSquaresMedoid(solution[i], medoid_ids[i]);
             withinss.push_back(ss);
+            avgs.push_back(ss/solution[i].size());
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
@@ -1410,6 +1433,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
         for (int i=0; i<solution.size(); i++ ) {
             double ss = _calcSumOfManhattanMedoid(solution[i], medoid_ids[i]);
             withinss.push_back(ss);
+            avgs.push_back(ss/solution[i].size());
         }
         // tot.withiness
         totwithiness = GenUtils::Sum(withinss);
@@ -1417,7 +1441,8 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
         ratio = totwithiness / totss;
     }
     summary << _("The total sum of distance:\t") << totss << "\n";
-    summary << _printWithinSS(withinss, _("Within-cluster sum of distances:\n"), _("Within Cluster D"));
+    summary << _printWithinSS(withinss, avgs, _("Within-cluster sum of distances:\n"),
+                              _("Within Cluster D"), _("Averages"));
     summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
     summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
 

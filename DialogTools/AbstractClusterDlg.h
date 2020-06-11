@@ -186,6 +186,11 @@ protected:
     wxString _printWithinSS(const vector<double>& within_ss,
                             const wxString& title = _("Within-cluster sum of squares:\n"),
                             const wxString& header = _("Within cluster S.S."));
+    wxString _printWithinSS(const vector<double>& within_ss,
+                            const vector<double>& avgs,
+                            const wxString& title = _("Within-cluster sum of squares:\n"),
+                            const wxString& header1 = _("Within cluster S.S."),
+                            const wxString& header2 = _("Averages"));
     virtual wxString _printConfiguration()=0;
     double CreateSummary(const vector<wxInt64>& clusters, bool show_print = true);
     double CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>(), bool show_print = true);

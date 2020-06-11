@@ -162,6 +162,8 @@ protected:
     // get addtional content for summary,e.g. medoids (within distance to median)
     virtual wxString _additionalSummary(const vector<vector<int> >& solution);
 
+    int GetFirstMedoid(double** distmatrix);
+    
     double _calcSumOfSquaresMedoid(const vector<int>& cluster_ids, int medoid_idx);
     
     double _calcSumOfManhattanMedoid(const vector<int>& cluster_ids, int medoid_idx);
