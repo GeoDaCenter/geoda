@@ -141,7 +141,7 @@ std::vector<int> LAB::run(const std::vector<int>& ids, int k)
     if (ssize > nn) ssize = nn;
     
     // We need three temporary storage arrays:
-    std::vector<double> mindist(nn, DBL_MIN), bestd(nn), tempd(nn), tmp;
+    std::vector<double> mindist(nn, DBL_MIN), bestd(nn), tempd(nn, DBL_MIN), tmp;
     std::vector<int> sample(nn);
     for (int i=0; i<nn; ++i) sample[i] = ids[i];
     int range = (int)sample.size();
@@ -155,7 +155,7 @@ std::vector<int> LAB::run(const std::vector<int>& ids, int k)
         
         for (int i=0; i<ssize; ++i) {
             double sum = 0, d;
-            tempd.clear();
+            for (int j=0; j<tempd.size(); ++j) tempd[j] = DBL_MIN;
             for (int j=0; j<ssize; ++j) {
                 d = dist->getDistance(sample[i], sample[j]);
                 sum += d;
@@ -191,7 +191,8 @@ std::vector<int> LAB::run(const std::vector<int>& ids, int k)
                 continue;
             }
             double sum = 0., v;
-            tempd.clear();
+            //tempd.clear();
+            for (int j=0; j<tempd.size(); ++j) tempd[j] = DBL_MIN;
             for (int j=0; j<ssize; ++j) {
                 double prev = getMinDist(sample[j], medids, mindist);
                 if(prev == 0) {
@@ -237,7 +238,7 @@ std::vector<int> LAB::run(const std::vector<int>& ids, int k)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 PAM::PAM(int num_obs, DistMatrix* dist_matrix, PAMInitializer* init, int k, int maxiter, const std::vector<int>& _ids)
 : num_obs(num_obs), dist_matrix(dist_matrix), initializer(init),
-k(k), maxiter(100), ids(_ids)
+k(k), maxiter(maxiter), ids(_ids)
 {
     if (initializer == NULL) {
         // set default to PAM classic initializer
