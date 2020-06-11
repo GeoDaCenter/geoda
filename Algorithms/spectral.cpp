@@ -13,6 +13,13 @@
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
 #include <Eigen/QR>
+#include <Eigen/Core>
+//#include <Spectra/SymEigsSolver.h>
+//#include <Spectra/SymEigsShiftSolver.h>
+//#include <Spectra/GenEigsRealShiftSolver.h>
+//#include <Spectra/GenEigsSolver.h>
+// <Spectra/MatOp/DenseSymShiftSolve.h> is implicitly included
+#include <iostream>
 
 #include "cluster.h"
 #include "spectral.h"
@@ -20,7 +27,7 @@
 
 using namespace Eigen;
 using namespace std;
-
+//using namespace Spectra;
 
 void Spectral::set_data(double** input_data, int nrows, int  ncols)
 {
@@ -161,9 +168,7 @@ void Spectral::generate_knn_matrix()
 
     // The following implementation is ported from sklearn
     // https://github.com/scikit-learn/scikit-learn/blob/fd237278e/sklearn/cluster/_spectral.py#L160
-    MatrixXd KT = K.transpose();
-    K = (K + KT)/2.0;
-    std::cout << K << std::endl;
+    MatrixXd A = (K + K.transpose())/2.0;
 
     std::vector<bool> isolated_node_mask(K.size());
 
@@ -178,20 +183,49 @@ void Spectral::generate_knn_matrix()
             isolated_node_mask[i] = false;
         }
     }
+    MatrixXd L = (d.asDiagonal() * K * d.asDiagonal()) * -1;
+
+    for (int i=0; i<L.rows(); ++i) {
+        L(i, i) = isolated_node_mask[i] ? 0 : 1;
+    }
+
+    std::cout << L << std::endl;
     std::cout << d << std::endl;
-    MatrixXd l = d.asDiagonal() * K * d.asDiagonal();
-    K = l * -1;
 
-    for (int i=0; i<K.rows(); ++i) {
-        K(i, i) = isolated_node_mask[i] ? 0 : 1;
-    }
-    std::cout << K << std::endl;
-    // set the diagonal of the laplacian matrix
-    for (int i=0; i<K.rows(); ++i) {
-        K(i, i) = 1;
+    // get largest eigenvalues for (I - K)
+    //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
+    for (int i=0; i<L.rows(); ++i) {
+        for (int j=0; j<L.rows(); ++j) {
+            L(i,j) *= -1;
+        }
+        L(i, i) = 1;
     }
 
-    K *= -1;
+    K = L;
+
+    arpack_eigendecomposition();
+}
+
+void Spectral::arpack_eigendecomposition()
+{
+    /*
+    //Eigen::MatrixXd A = Eigen::MatrixXd::Random(10, 10);
+    //Eigen::MatrixXd M = A + A.transpose();
+
+    // Construct matrix operation object using the wrapper class
+    DenseSymMatProd<double> op(K);
+
+    // Construct eigen solver object with shift 1 (the value of the shift)
+    // This will find eigenvalues that are closest to 1
+    SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, centers, 2*centers);
+
+    eigs.init();
+    int nconv =  eigs.compute();
+    if(eigs.info() == SUCCESSFUL) {
+        Eigen::VectorXd evalues = eigs.eigenvalues();
+        eigenvectors = eigs.eigenvectors();
+    }
+     */
 }
 
 static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)

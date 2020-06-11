@@ -2204,6 +2204,7 @@
 					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
 					"-I./libraries/include",
+					"-I./temp/spectra/include",
 					"-I./libraries/include/eigen3",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",

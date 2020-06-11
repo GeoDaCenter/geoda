@@ -63,9 +63,11 @@ private:
     
     void eigendecomposition();
     void fast_eigendecomposition();
+    void arpack_eigendecomposition();
+    
     void kmeans();
 
-    VectorXd d; // for KNN affinity matrix
+    VectorXd d; // for KNN affinity matrix, diagnoal W
     VectorXd eigenvalues, cumulative;
     unsigned int centers, kernel_type, normalise, max_iters, knn;
     double sigma, constant, order;
