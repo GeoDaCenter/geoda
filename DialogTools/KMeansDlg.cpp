@@ -1268,7 +1268,7 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
             means.push_back(cent_xs[medoid_ids[i]]); // CENT_X
             means.push_back(cent_ys[medoid_ids[i]]); // CENT_Y
         }
-        for (int c=0; c<end; c++) {
+        for (int c=0; c<raw_data.size(); c++) {
             double mean = raw_data[c][medoid_ids[i]];
             means.push_back(mean);
         }

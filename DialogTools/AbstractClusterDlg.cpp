@@ -255,6 +255,8 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
     m_weight_centroids = new wxSlider(panel, wxID_ANY, 100, 0, 100,
                                       wxDefaultPosition, wxSize(140, -1),
                                       wxSL_HORIZONTAL);
+    m_weight_centroids->SetRange(0,100);
+    m_weight_centroids->SetValue(100);
     m_wc_txt = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition,
                               wxSize(40,-1), 0, validator);
     wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
