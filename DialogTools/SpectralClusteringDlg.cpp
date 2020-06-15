@@ -145,6 +145,8 @@ void SpectralClusteringDlg::CreateControls()
     
 	// Spectral Controls: Kernel
     double suggest_sigma = log((double)num_obs) + 1;
+    // sklearn: gamma = 1.0 / N,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma/ 2.0);
+    suggest_sigma = sqrt(num_obs/2.0);
     wxString str_sigma;
     str_sigma << suggest_sigma;
     lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
@@ -692,9 +694,8 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
         resetrandom();
     }
 
-    // NOTE input_data should be retrieved first!!
-    // get input: weights (auto)
-    weight = GetWeights(columns);
+    // NOTE input_data should be retrieved first!! (see CheckAllInput())
+
     // add weight to input_data
     double** data = new double*[rows];
     for (int i=0; i<rows; i++) {
@@ -715,7 +716,6 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
         bool is_mutual = chk_mknn->GetValue();
         int k = is_mutual ? mutual_knn : knn;
         CreateKNN(data, rows, columns, k, spectral.K, is_mutual);
-        //std::cout << spectral.K << std::endl;
         spectral.set_knn(k);
     }
     spectral.set_kmeans_dist(dist);
@@ -725,8 +725,10 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
     spectral.cluster(affinity_type);
     clusters = spectral.get_assignments();
 
-    for (int i=0; i<rows; i++) delete[] data[i];
-    delete[] data;
+    for (int i=0; i<rows; i++) {
+        if (data[i]) delete[] data[i];
+    }
+    if (data) delete[] data;
 
     // sort result
     std::vector<std::vector<int> > cluster_ids(n_cluster);
@@ -750,7 +752,6 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
 void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
 {
     wxLogMessage("Click SpectralClusteringDlg::OnOK");
-    if (CheckAllInputs() == false) return;
 
     // get input: save to field name
     wxString field_name = m_textbox->GetValue();
@@ -761,7 +762,7 @@ void SpectralClusteringDlg::OnOK(wxCommandEvent& event )
         return;
     }
 
-    vector<wxInt64> clusters;
+    if (CheckAllInputs() == false) return;
 
     if (Run(clusters) == false) return;
     

@@ -14,10 +14,10 @@
 #include <Eigen/Eigenvalues>
 #include <Eigen/QR>
 #include <Eigen/Core>
-//#include <Spectra/SymEigsSolver.h>
-//#include <Spectra/SymEigsShiftSolver.h>
-//#include <Spectra/GenEigsRealShiftSolver.h>
-//#include <Spectra/GenEigsSolver.h>
+#include <Spectra/SymEigsSolver.h>
+#include <Spectra/SymEigsShiftSolver.h>
+#include <Spectra/GenEigsRealShiftSolver.h>
+#include <Spectra/GenEigsSolver.h>
 // <Spectra/MatOp/DenseSymShiftSolve.h> is implicitly included
 #include <iostream>
 
@@ -27,7 +27,7 @@
 
 using namespace Eigen;
 using namespace std;
-//using namespace Spectra;
+using namespace Spectra;
 
 void Spectral::set_data(double** input_data, int nrows, int  ncols)
 {
@@ -45,6 +45,7 @@ double Spectral::kernel(const VectorXd& a, const VectorXd& b)
     //  gamma : float, default=1.0 (Radial basis function kernel)
     // Kernel coefficient for rbf, poly, sigmoid, laplacian and chi2 kernels. Ignored for
     // affinity='nearest_neighbors
+    // sklearn: gamma = 1.0 / N,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma) / 2.0;
     switch(kernel_type){
         case 1  :
             return(pow(a.dot(b)+constant,order));
@@ -96,63 +97,7 @@ void Spectral::generate_kernel_matrix()
     }
     
     // Normalise kernel matrix
-    VectorXd d = K.rowwise().sum();
-    for(unsigned int i = 0; i < d.rows(); i++){
-        d(i) = 1.0/sqrt(d(i));
-    }
-    MatrixXd l = (K * d.asDiagonal());
-    for(unsigned int i = 0; i < l.rows(); i++){
-        for(unsigned int j = 0; j < l.cols(); j++){
-            l(i,j) = l(i,j) * d(i);
-        }
-    }
-    K = l;
-}
-
-struct CompareDist
-{
-    bool operator()(const pair<int, double>& lhs, const pair<int, double>& rhs) const { return lhs.second > rhs.second;}
-};
-
-void Spectral::generate_knn_matrix()
-{
     /*
-    typedef boost::heap::priority_queue<pair<int, double>, boost::heap::compare<CompareDist> > PriorityQueue;
-    
-    // Fill euclidean dista matrix and filter using KNN
-    K.resize(X.rows(),X.rows());
-    double squared_dist = 0;
-    for (unsigned int i = 0; i < X.rows(); i++){
-        PriorityQueue top_K;
-        for(unsigned int j = i; j < X.rows(); j++){
-            squared_dist =  (X.row(i) - X.row(j)).norm();
-            K(i,j) = K(j,i) = squared_dist;
-            if (i != j) {
-                top_K.push(std::make_pair(j,squared_dist));
-            }
-        }
-        if (top_K.size() > knn) {
-            double min_dist = 0;
-            for (int j=0; j<knn; j++) {
-                std::pair<int, double> item = top_K.top();
-                top_K.pop();
-                min_dist = item.second;
-            }
-            for(unsigned int j = i; j < X.rows(); j++){
-                if (K(j,i) > min_dist) {
-                    K(i,j) = K(j,i) = 0;
-                }
-            }
-            for(unsigned int j = i; j < X.rows(); j++){
-                if (K(j,i) != 0 ) {
-                    K(i,j) = K(j,i) = 1;
-                }
-            }
-        }
-    }
-    //std::cout << K << std::endl;
-    
-    // Normalise kernel matrix
     VectorXd d = K.rowwise().sum();
     for(unsigned int i = 0; i < d.rows(); i++){
         d(i) = 1.0/sqrt(d(i));
@@ -165,11 +110,6 @@ void Spectral::generate_knn_matrix()
     }
     K = l;
      */
-
-    // The following implementation is ported from sklearn
-    // https://github.com/scikit-learn/scikit-learn/blob/fd237278e/sklearn/cluster/_spectral.py#L160
-    MatrixXd A = (K + K.transpose())/2.0;
-
     std::vector<bool> isolated_node_mask(K.size());
 
     // Normalise Laplacian
@@ -189,43 +129,109 @@ void Spectral::generate_knn_matrix()
         L(i, i) = isolated_node_mask[i] ? 0 : 1;
     }
 
-    std::cout << L << std::endl;
-    std::cout << d << std::endl;
+    // get largest eigenvalues for (I - K)
+    //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
+    for (int i=0; i<L.rows(); ++i) {
+        L(i, i) = 1;
+    }
+    for (int i=0; i<L.rows(); ++i) {
+        for (int j=0; j<L.rows(); ++j) {
+            if (L(i,j) != 0)
+                L(i,j) *= -1;
+        }
+    }
+    for (int i=0; i<L.rows(); ++i) {
+        for (int j=i; j<L.rows(); ++j) {
+            if (L(i,j) != L(j,i)) {
+                std::cout << "not sym" << std::endl;
+            }
+        }
+    }
+    K = L;
+}
+
+struct CompareDist
+{
+    bool operator()(const pair<int, double>& lhs, const pair<int, double>& rhs) const { return lhs.second > rhs.second;}
+};
+
+void Spectral::generate_knn_matrix()
+{
+
+
+    // The following implementation is ported from sklearn
+    // https://github.com/scikit-learn/scikit-learn/blob/fd237278e/sklearn/cluster/_spectral.py#L160
+    MatrixXd A = (K + K.transpose())/2.0;
+
+    std::vector<bool> isolated_node_mask(K.size());
+
+    // Normalise Laplacian
+    d = A.rowwise().sum() - A.diagonal();
+    for(unsigned int i = 0; i < d.rows(); i++){
+        if (d(i) == 0) {
+            d(i) = 1;
+            isolated_node_mask[i] = true;
+        } else {
+            d(i) = 1.0/sqrt(d(i));
+            isolated_node_mask[i] = false;
+        }
+    }
+    MatrixXd L = (d.asDiagonal() * A * d.asDiagonal()) * -1;
+
+    for (int i=0; i<L.rows(); ++i) {
+        L(i, i) = isolated_node_mask[i] ? 0 : 1;
+    }
 
     // get largest eigenvalues for (I - K)
     //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
     for (int i=0; i<L.rows(); ++i) {
-        for (int j=0; j<L.rows(); ++j) {
-            L(i,j) *= -1;
-        }
         L(i, i) = 1;
     }
-
+    for (int i=0; i<L.rows(); ++i) {
+        for (int j=0; j<L.rows(); ++j) {
+            if (L(i,j) != 0)
+                L(i,j) *= -1;
+        }
+    }
+    for (int i=0; i<L.rows(); ++i) {
+        for (int j=i; j<L.rows(); ++j) {
+            if (L(i,j) != L(j,i)) {
+                std::cout << "not sym" << std::endl;
+            }
+        }
+    }
     K = L;
 
-    arpack_eigendecomposition();
 }
 
 void Spectral::arpack_eigendecomposition()
 {
-    /*
     //Eigen::MatrixXd A = Eigen::MatrixXd::Random(10, 10);
     //Eigen::MatrixXd M = A + A.transpose();
 
     // Construct matrix operation object using the wrapper class
-    DenseSymMatProd<double> op(K);
+    //DenseSymMatProd<double> op(K);
+    DenseSymShiftSolve<double> op(K);
 
     // Construct eigen solver object with shift 1 (the value of the shift)
     // This will find eigenvalues that are closest to 1
-    SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, centers, 2*centers);
+    //SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, centers, 2*centers);
+    SymEigsShiftSolver< double, LARGEST_MAGN, DenseSymShiftSolve<double> > eigs(&op, centers, 2*centers, 0.0);
 
     eigs.init();
     int nconv =  eigs.compute();
     if(eigs.info() == SUCCESSFUL) {
         Eigen::VectorXd evalues = eigs.eigenvalues();
         eigenvectors = eigs.eigenvectors();
+#ifdef DEBUG
+        std::cout << evalues << std::endl;
+        std::cout << eigenvectors << std::endl;
+#endif
+    } else {
+        // handle no case switch to regular eigen decomposition
+        // try other method than eigen3, e.g. Intel MLK
+        eigendecomposition();
     }
-     */
 }
 
 static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)
@@ -339,13 +345,8 @@ void Spectral::cluster(int affinity_type)
         // KNN
         generate_knn_matrix();
     }
-    
-    if (power_iter>0) {
-        fast_eigendecomposition();
-    } else {
-        // try other method than eigen3, e.g. Intel MLK
-        eigendecomposition();
-    }
+
+    eigendecomposition();
 
     if (affinity_type == 1) {
         // KNN, multiply diagonal. see sklearn _spectral_embedding.py
@@ -396,15 +397,15 @@ void Spectral::kmeans()
 
     // clean memory
     for (int i=0; i<rows; i++) {
-        delete[] input_data[i];
-        delete[] mask[i];
+        if (input_data[i]) delete[] input_data[i];
+        if (mask[i]) delete[] mask[i];
         assignments.push_back(clusterid[i] + 1);
         //clusters_undef.push_back(ifound == -1);
     }
-    delete[] input_data;
-    delete[] weight;
-    delete[] clusterid;
-    delete[] mask;
+    if (input_data) delete[] input_data;
+    if (weight) delete[] weight;
+    if (clusterid) delete[] clusterid;
+    if (mask) delete[] mask;
     
     input_data = NULL;
     weight = NULL;

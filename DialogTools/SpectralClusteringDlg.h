@@ -79,7 +79,8 @@ protected:
     int n_maxiter;
     char dist;
     int affinity_type;
-
+    vector<wxInt64> clusters;
+    
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
     wxChoice* combo_cov;
