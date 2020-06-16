@@ -166,9 +166,7 @@ void Spectral::generate_knn_matrix()
 {
     // The following implementation is ported from sklearn
     // sklearn/cluster/_spectral.py#L160
-    //std::cout << K << std::endl;
     MatrixXd A = (K + K.transpose())/2.0; // Adjacency matrix
-    //std::cout << A << std::endl;
     if (is_mutual) {
         for (int i=0; i<A.rows(); ++i) {
             for (int j=i; j < A.rows(); ++j) {
@@ -205,9 +203,6 @@ void Spectral::arpack_eigendecomposition()
         }
     }
 
-    //Eigen::MatrixXd A = Eigen::MatrixXd::Random(10, 10);
-    //Eigen::MatrixXd M = A + A.transpose();
-
     // Construct matrix operation object using the wrapper class
     //DenseSymMatProd<double> op(K);
     DenseSymShiftSolve<double> op(K);
@@ -222,10 +217,6 @@ void Spectral::arpack_eigendecomposition()
     if(eigs.info() == SUCCESSFUL) {
         Eigen::VectorXd evalues = eigs.eigenvalues();
         eigenvectors = eigs.eigenvectors();
-#ifdef DEBUG
-        //std::cout << evalues << std::endl;
-        //std::cout << eigenvectors << std::endl;
-#endif
         for (int i=0; i<eigenvectors.cols(); ++i) {
             for (int j=0; j<eigenvectors.rows(); ++j) {
                 //eigenvectors(i,j) = eigenvectors(i,j) * d(j);
@@ -245,17 +236,30 @@ static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<doub
 
 void Spectral::eigendecomposition()
 {
-    
+    // get largest eigenvalues for (I - K)
+    //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
+    for (int i=0; i<K.rows(); ++i) {
+        K(i, i) = 1;
+    }
+    for (int i=0; i<K.rows(); ++i) {
+        for (int j=0; j<K.rows(); ++j) {
+            if (K(i,j) != 0)
+                K(i,j) *= -1;
+        }
+    }
+    for (int i=0; i<K.rows(); ++i) {
+        for (int j=i; j<K.rows(); ++j) {
+            if (K(i,j) != K(j,i)) {
+                K(j, i) = K(i, j); // force symmetric, high precision issue
+            }
+        }
+    }
     //Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> edecomp(K, true);
     
     EigenSolver<MatrixXd> edecomp(K);
     eigenvalues = edecomp.eigenvalues().real();
     eigenvectors = edecomp.eigenvectors().real();
-#ifdef DEBUG
-    for(unsigned int i = 0; i < eigenvalues.rows(); i++){
-        cout << "Eigenvalue: " << eigenvalues(i) << endl;
-    }
-#endif
+
     cumulative.resize(eigenvalues.rows());
     vector<pair<double,VectorXd> > eigen_pairs;
     double c = 0.0;
@@ -277,17 +281,7 @@ void Spectral::eigendecomposition()
         cumulative(i) = c;
         eigenvectors.col(i) = eigen_pairs[i].second;
     }
-#ifdef DEBUG
-     cout << "Sorted eigenvalues:" << endl;
-     for(unsigned int i = 0; i < eigenvalues.rows(); i++){
-         if(i<2){
-             cout << "PC " << i+1 << ": Eigenvalue: " << eigenvalues(i);
-             printf("\t(%3.3f of variance, cumulative =  %3.3f)\n",eigenvalues(i)/eigenvalues.sum(),cumulative(i)/eigenvalues.sum());
-             cout << eigenvectors.col(i) << endl;
-         }
-     }
-     cout << endl;
-#endif
+
     MatrixXd tmp = eigenvectors;
     
     // Select top K eigenvectors where K = centers
