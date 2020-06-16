@@ -94,7 +94,7 @@ void Spectral::set_knn(const unsigned int k, bool is_mutual)
 
 void Spectral::affinity_matrix()
 {
-    // Fill Laplacian matrix
+    // deprecated: classic way to fill Laplacian matrix
     K.resize(X.rows(),X.rows());
     for(unsigned int i = 0; i < X.rows(); i++){
         for(unsigned int j = i; j < X.rows(); j++){
@@ -131,15 +131,9 @@ void Spectral::generate_kernel_matrix()
             K(i,j) = K(j,i) = kernel(X.row(i),X.row(j));
         }
     }
-    
     // Normalise kernel matrix
     d = normalize_laplacian(K);
 }
-
-struct CompareDist
-{
-    bool operator()(const pair<int, double>& lhs, const pair<int, double>& rhs) const { return lhs.second > rhs.second;}
-};
 
 VectorXd Spectral::normalize_laplacian(MatrixXd& L)
 {
@@ -254,8 +248,9 @@ void Spectral::eigendecomposition()
             }
         }
     }
+
+    // call classic SVD
     //Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> edecomp(K, true);
-    
     EigenSolver<MatrixXd> edecomp(K);
     eigenvalues = edecomp.eigenvalues().real();
     eigenvectors = edecomp.eigenvectors().real();
@@ -300,7 +295,7 @@ void Spectral::cluster(int affinity_type)
         generate_knn_matrix();
     }
 
-    if (nrows < 50) {
+    if (nrows < 50) { // for some rare cases: spectra arpack doesnt work & crash
         eigendecomposition();
     } else {
         arpack_eigendecomposition();

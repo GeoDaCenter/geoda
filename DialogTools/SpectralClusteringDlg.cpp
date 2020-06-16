@@ -146,7 +146,7 @@ void SpectralClusteringDlg::CreateControls()
 	// Spectral Controls: Kernel
     double suggest_sigma = log((double)num_obs) + 1;
     // sklearn: gamma = 1.0 / N,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma/ 2.0);
-    suggest_sigma = sqrt(num_obs/2.0);
+    // suggest_sigma = sqrt(num_obs/2.0);
     wxString str_sigma;
     str_sigma << suggest_sigma;
     lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
