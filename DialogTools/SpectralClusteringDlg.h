@@ -49,7 +49,6 @@ public:
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
     
-    void OnCheckPowerIteration(wxCommandEvent& event);
     void OnWeightsCheck(wxCommandEvent& event);
     void OnKernelCheck(wxCommandEvent& event);
     void OnKNNCheck(wxCommandEvent& event);
@@ -64,13 +63,10 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
-    void CreateKNN(double** data, int rows, int columns, int k, MatrixXd& KM,
-                   bool is_mutual);
     
 protected:
     int transform;
     int n_cluster;
-    int n_power_iter;
     double value_sigma;
     int knn;
     int mutual_knn;
@@ -80,7 +76,7 @@ protected:
     char dist;
     int affinity_type;
     vector<wxInt64> clusters;
-    
+
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
     wxChoice* combo_cov;
@@ -107,10 +103,6 @@ protected:
     wxStaticText* lbl_weights;
     wxCheckBox* chk_weights;
     wxChoice* combo_weights;
-    
-    wxCheckBox* chk_poweriteration;
-    wxTextCtrl* txt_poweriteration;
-    wxStaticText* lbl_poweriteration;
     
     wxButton* seedButton;
     
