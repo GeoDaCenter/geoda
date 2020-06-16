@@ -295,7 +295,7 @@ void Spectral::cluster(int affinity_type)
         generate_knn_matrix();
     }
 
-    if (nrows < 50) { // for some rare cases: spectra arpack doesnt work & crash
+    if (nrows < 100) { // for some rare cases: spectra arpack doesnt work & crash
         eigendecomposition();
     } else {
         arpack_eigendecomposition();
