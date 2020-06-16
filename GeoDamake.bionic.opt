@@ -25,7 +25,7 @@ LIBS = $(WXLIBS) \
 
 BOOST_HEADER = -I$(GEODA_HOME)/libraries/include/boost 
 
-EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3
+EIGEN_HEADER = -I$(GEODA_HOME)/libraries/include/eigen3 -I$(GEODA_HOME)/temp/spectra/include
 
 GDAL_HEADER = -I$(GEODA_HOME)/libraries/include
 

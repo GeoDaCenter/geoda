@@ -884,8 +884,8 @@ void KMedoidsDlg::CreateControls()
     combo_initmethod = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
                                 wxSize(200,-1), 2, choices16);
     combo_initmethod->SetSelection(1);
-    //txt_initmethod->Hide();
-    //combo_initmethod->Hide();
+    txt_initmethod->Hide();
+    combo_initmethod->Hide();
 
     gbox->Add(txt_initmethod, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(combo_initmethod, 1, wxEXPAND);

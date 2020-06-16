@@ -15,7 +15,7 @@
 #include <map>
 #include <Eigen/Dense>
 #include <Eigen/Eigenvalues>
-#include "DistUtils.h"
+#include "../Weights/DistUtils.h"
 
 using namespace Eigen;
 using namespace std;
