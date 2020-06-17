@@ -62,10 +62,12 @@ private:
     double kernel(const VectorXd& a, const VectorXd& b);
 
     VectorXd normalize_laplacian(MatrixXd& L);
+    bool call_symeigssolver(MatrixXd& L);
+    bool call_symeigshiftssolver(MatrixXd& L);
 
     void generate_knn_matrix();
     
-    void eigendecomposition();
+    void eigendecomposition(bool raw_matrix=true);
     void arpack_eigendecomposition();
     
     void kmeans();

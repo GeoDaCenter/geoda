@@ -316,7 +316,7 @@ double PAM::run(std::vector<int> &medoids, int maxiter) {
                 continue; // This is a medoid
             }
             double hdist = nearest[h]; // Current cost of h.
-            if(hdist <= 0.) {
+            if (hdist <= 0.) {
               continue; // Duplicate of a medoid.
             }
             // Find the best possible swap for h:

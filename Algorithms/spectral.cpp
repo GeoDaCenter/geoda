@@ -10,14 +10,9 @@
 #include <map>
 #include <math.h>
 #include <boost/heap/priority_queue.hpp>
-#include <Eigen/Dense>
-#include <Eigen/Eigenvalues>
-#include <Eigen/QR>
 #include <Eigen/Core>
-#include <Spectra/SymEigsSolver.h>
 #include <Spectra/SymEigsShiftSolver.h>
-#include <Spectra/GenEigsRealShiftSolver.h>
-#include <Spectra/GenEigsSolver.h>
+#include <Spectra/SymEigsSolver.h>
 // <Spectra/MatOp/DenseSymShiftSolve.h> is implicitly included
 #include <iostream>
 
@@ -179,7 +174,7 @@ void Spectral::generate_knn_matrix()
 void Spectral::arpack_eigendecomposition()
 {
     // get largest eigenvalues for (I - K)
-    //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
+    //laplacian = _set_diag(laplacian, 1, norm_laplacian); laplacian *= -1
     for (int i=0; i<K.rows(); ++i) {
         K(i, i) = 1;
     }
@@ -196,31 +191,64 @@ void Spectral::arpack_eigendecomposition()
             }
         }
     }
+    // eigendecomposition
+    try {
+        if(call_symeigshiftssolver(K) == false) {
+            // try other method in arpack library
+            if (call_symeigssolver(K) == false ) {
+                // fall back to classic eigendecomposition
+                eigendecomposition(false);
+            }
+        }
+    } catch(const std::invalid_argument& ia) {
+        //std::cerr << "Invalid argument: " << ia.what() << '\n';
+        // try other method in arpack library
+        if (call_symeigssolver(K) == false ) {
+            // fall back to classic eigendecomposition
+            eigendecomposition(false);
+        }
+    }
 
-    // Construct matrix operation object using the wrapper class
-    //DenseSymMatProd<double> op(K);
-    DenseSymShiftSolve<double> op(K);
+    for (int i=0; i<eigenvectors.cols(); ++i) {
+        for (int j=0; j<eigenvectors.rows(); ++j) {
+            eigenvectors(j,i) = eigenvectors(j,i) * d(j);
+        }
+    }
+    std::cout << eigenvalues << std::endl;
+}
 
-    // Construct eigen solver object with shift 1 (the value of the shift)
-    // This will find eigenvalues that are closest to 1
-    //SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, centers, 2*centers);
-    SymEigsShiftSolver< double, LARGEST_MAGN, DenseSymShiftSolve<double> > eigs(&op, centers, 2*centers, 0.0);
-
+bool Spectral::call_symeigssolver(MatrixXd& L)
+{
+    DenseSymMatProd<double> op(L);
+    SymEigsSolver< double, LARGEST_ALGE, DenseSymMatProd<double> > eigs(&op, centers, 2*centers);
     eigs.init();
     int nconv =  eigs.compute();
     if(eigs.info() == SUCCESSFUL) {
-        Eigen::VectorXd evalues = eigs.eigenvalues();
+        eigenvalues = eigs.eigenvalues();
         eigenvectors = eigs.eigenvectors();
-        for (int i=0; i<eigenvectors.cols(); ++i) {
-            for (int j=0; j<eigenvectors.rows(); ++j) {
-                //eigenvectors(i,j) = eigenvectors(i,j) * d(j);
-            }
-        }
-    } else {
-        // handle no case switch to regular eigen decomposition
-        // try other method in eigen3 library
-        eigendecomposition();
+        return true;
     }
+    return false;
+}
+
+bool Spectral::call_symeigshiftssolver(MatrixXd& L)
+{
+    // Construct matrix operation object using the wrapper class
+    DenseSymShiftSolve<double> op(L);
+
+    // L has eigenvalues between [0,2], so (I - L) has eigenvalues between [-1,1]
+    double shift = 1.0;
+    // Construct eigen solver object with shift 1 (the value of the shift)
+    // This will find eigenvalues that are closest to 1
+    SymEigsShiftSolver< double, LARGEST_MAGN, DenseSymShiftSolve<double> > eigs(&op, centers, 2*centers, shift);
+    eigs.init();
+    int nconv =  eigs.compute();
+    if(eigs.info() == SUCCESSFUL) {
+        eigenvalues = eigs.eigenvalues();
+        eigenvectors = eigs.eigenvectors();
+        return true;
+    }
+    return false;
 }
 
 static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<double,VectorXd>& b)
@@ -228,23 +256,25 @@ static bool inline eigen_greater(const pair<double,VectorXd>& a, const pair<doub
     return a.first > b.first;
 }
 
-void Spectral::eigendecomposition()
+void Spectral::eigendecomposition(bool raw_matrix)
 {
-    // get largest eigenvalues for (I - K)
-    //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
-    for (int i=0; i<K.rows(); ++i) {
-        K(i, i) = 1;
-    }
-    for (int i=0; i<K.rows(); ++i) {
-        for (int j=0; j<K.rows(); ++j) {
-            if (K(i,j) != 0)
-                K(i,j) *= -1;
+    if (raw_matrix) {
+        // get largest eigenvalues for (I - K)
+        //K = MatrixXd::Identity(K.rows(), K.rows()) - K;
+        for (int i=0; i<K.rows(); ++i) {
+            K(i, i) = 1;
         }
-    }
-    for (int i=0; i<K.rows(); ++i) {
-        for (int j=i; j<K.rows(); ++j) {
-            if (K(i,j) != K(j,i)) {
-                K(j, i) = K(i, j); // force symmetric, high precision issue
+        for (int i=0; i<K.rows(); ++i) {
+            for (int j=0; j<K.rows(); ++j) {
+                if (K(i,j) != 0)
+                    K(i,j) *= -1;
+            }
+        }
+        for (int i=0; i<K.rows(); ++i) {
+            for (int j=i; j<K.rows(); ++j) {
+                if (K(i,j) != K(j,i)) {
+                    K(j, i) = K(i, j); // force symmetric, high precision issue
+                }
             }
         }
     }
@@ -295,12 +325,8 @@ void Spectral::cluster(int affinity_type)
         generate_knn_matrix();
     }
 
-    if (nrows < 100) { // for some rare cases: spectra arpack doesnt work & crash
-        eigendecomposition();
-    } else {
-        arpack_eigendecomposition();
-    }
-
+    arpack_eigendecomposition();
+    
     kmeans();
 }
 
