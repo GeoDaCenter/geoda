@@ -63,7 +63,8 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
-    
+    void UpdateGaussian(wxCommandEvent& event);
+
 protected:
     int transform;
     int n_cluster;
@@ -75,7 +76,7 @@ protected:
     int n_maxiter;
     char dist;
     int affinity_type;
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
 
     wxCheckBox* chk_seed;
     wxChoice* combo_method;
@@ -84,7 +85,7 @@ protected:
     wxTextCtrl* m_iterations;
     wxTextCtrl* m_pass;
     
-    wxTextCtrl* m_sigma;
+    wxComboBox* m_sigma;
     wxChoice* combo_kernel;
     wxChoice* m_method;
     wxChoice* m_distance;
@@ -97,8 +98,8 @@ protected:
     wxStaticText* lbl_knn;
     wxStaticText* lbl_neighbors;
     wxStaticText* lbl_m_neighbors;
-    wxTextCtrl* m_knn;
-    wxTextCtrl* m_mknn;
+    wxComboBox* m_knn;
+    wxComboBox* m_mknn;
     
     wxStaticText* lbl_weights;
     wxCheckBox* chk_weights;

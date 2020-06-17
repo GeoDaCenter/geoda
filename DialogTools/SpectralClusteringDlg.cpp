@@ -124,7 +124,12 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer* hbox19 = new wxBoxSizer(wxHORIZONTAL);
     chk_knn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
-    m_knn = new wxTextCtrl(panel, wxID_ANY, str_k, wxDefaultPosition, wxSize(40,-1));
+    m_knn = new wxComboBox(panel, wxID_ANY, str_k, wxDefaultPosition,
+                             wxSize(80,-1), 0, NULL);
+    m_knn->Append(wxString::Format("%d", suggest_k));
+    // ln(n)
+    m_knn->Append(wxString::Format("%d", (int)(ceil(log((double)num_obs)))));
+
     hbox19->Add(chk_knn);
     hbox19->Add(lbl_neighbors);
     hbox19->Add(m_knn);
@@ -136,7 +141,11 @@ void SpectralClusteringDlg::CreateControls()
     wxBoxSizer* hbox20 = new wxBoxSizer(wxHORIZONTAL);
     chk_mknn = new wxCheckBox(panel, wxID_ANY, "");
     lbl_m_neighbors = new wxStaticText(panel, wxID_ANY, _("# Neighors:"));
-    m_mknn = new wxTextCtrl(panel, wxID_ANY, str_k, wxDefaultPosition, wxSize(40,-1));
+    m_mknn = new wxComboBox(panel, wxID_ANY, str_k, wxDefaultPosition,
+                           wxSize(80,-1), 0, NULL);
+    // ln(n)
+    m_mknn->Append(wxString::Format("%d", suggest_k));
+    m_mknn->Append(wxString::Format("%d", (int)(ceil(log((double)num_obs)))));
     hbox20->Add(chk_mknn);
     hbox20->Add(lbl_m_neighbors);
     hbox20->Add(m_mknn);
@@ -144,22 +153,20 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(hbox20, 1, wxEXPAND);
     
 	// Spectral Controls: Kernel
-    double suggest_sigma = log10((double)num_obs) + 1;
-    // sklearn: gamma = 1.0 / NV,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma/ 2.0);
-    // suggest_sigma = sqrt(NV/2.0);
-    wxString str_sigma;
-    str_sigma << suggest_sigma;
     lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
     wxBoxSizer* hbox18 = new wxBoxSizer(wxHORIZONTAL);
     chk_kernel = new wxCheckBox(panel, wxID_ANY, "");
     lbl_sigma = new wxStaticText(panel, wxID_ANY, _(" Sigma:"));
-    m_sigma = new wxTextCtrl(panel, wxID_ANY, str_sigma,
-                             wxDefaultPosition, wxSize(40,-1));
+    m_sigma = new wxComboBox(panel, wxID_ANY, "", wxDefaultPosition,
+                            wxSize(80,-1), 0, NULL);
+
     hbox18->Add(chk_kernel);
     hbox18->Add(lbl_sigma);
     hbox18->Add(m_sigma);
     gbox->Add(lbl_kernel, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox18, 1, wxEXPAND);
+    wxCommandEvent ev;
+    UpdateGaussian(ev);
 
     // Weights (not enabled)
     lbl_weights = new wxStaticText(panel, wxID_ANY, _("Use Weights:"));
@@ -172,7 +179,6 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(lbl_weights, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox22, 1, wxEXPAND);
 
-    
     // Transformation
     AddTransformation(panel, gbox);
     
@@ -326,6 +332,7 @@ void SpectralClusteringDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &SpectralClusteringDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &SpectralClusteringDlg::OnChangeSeed, this);
+    combo_var->Bind(wxEVT_LISTBOX, &SpectralClusteringDlg::UpdateGaussian, this);
 }
 
 void SpectralClusteringDlg::OnWeightsCheck(wxCommandEvent& event)
@@ -333,11 +340,31 @@ void SpectralClusteringDlg::OnWeightsCheck(wxCommandEvent& event)
     
 }
 
+void SpectralClusteringDlg::UpdateGaussian(wxCommandEvent& event)
+{
+    if (m_sigma) {
+        m_sigma->Clear();
+        wxArrayInt selections;
+        combo_var->GetSelections(selections);
+        if (selections.size() > 0) {
+            // sklearn: gamma = 1.0 / NV,  gamma = 1/(2sigma^2) => sigma = sqrt(1/gamma/ 2.0);
+            // suggest_sigma = sqrt(NV/2.0);
+            m_sigma->Append(wxString::Format("%f", sqrt(1/(double)selections.size())));
+        }
+        m_sigma->Append(wxString::Format("%f", log10((double)num_obs)+1));
+        m_sigma->Append(wxString::Format("%f", log((double)num_obs)+1));
+        m_sigma->SetSelection(0);
+    }
+}
 void SpectralClusteringDlg::OnKernelCheck(wxCommandEvent& event)
 {
     bool flag = chk_kernel->IsChecked();
     lbl_sigma->Enable(flag);
     m_sigma->Enable(flag);
+    if (flag) {
+        wxCommandEvent ev;
+        UpdateGaussian(ev);
+    }
 
     chk_knn->SetValue(!flag);
     lbl_neighbors->Enable(!flag);
