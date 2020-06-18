@@ -151,6 +151,7 @@ void SpectralClusteringDlg::CreateControls()
     hbox20->Add(m_mknn);
     gbox->Add(lbl_mknn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(hbox20, 1, wxEXPAND);
+    m_mknn->Enable(false);
     
 	// Spectral Controls: Kernel
     lbl_kernel = new wxStaticText(panel, wxID_ANY, _("        Gaussian:"));
