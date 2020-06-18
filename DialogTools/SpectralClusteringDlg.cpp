@@ -526,9 +526,10 @@ wxString SpectralClusteringDlg::_printConfiguration()
    
     if (chk_kernel->IsChecked())  {
         txt << _("Affinity with Gaussian Kernel:\tSigma=") << m_sigma->GetValue() << "\n";
-    }
-    if (chk_knn->IsChecked()) {
+    } else if (chk_knn->IsChecked()) {
         txt << _("Affinity with K-Nearest Neighbors:\tK=") << m_knn->GetValue() << "\n";
+    } else if (chk_mknn->IsChecked()) {
+        txt << _("Affinity with Mutual K-Nearest Neighbors:\tK=") << m_mknn->GetValue() << "\n";
     }
     txt << _("Transformation:\t") << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     
@@ -577,7 +578,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
         knn = (int)value_knn;
     }
 
-    if (chk_knn->GetValue() && knn >= num_obs) {
+    if (chk_knn->GetValue() && (knn >= num_obs || knn < 1)) {
         wxString err_msg = _("Please enter a valid number of KNN neighbors.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -592,7 +593,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
         mutual_knn = (int)value_mknn;
     }
 
-    if (chk_mknn->GetValue() && mutual_knn >= num_obs) {
+    if (chk_mknn->GetValue() && (mutual_knn >= num_obs || mutual_knn < 1)) {
         wxString err_msg = _("Please enter a valid number of mutual KNN neighbors.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
