@@ -88,11 +88,16 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
                             _("Connectivity Graph"), wxDefaultPosition,
                             wxDefaultSize, wxBU_EXACTFIT);
     intersection_btn = new wxButton(panel, XRCID("ID_INTERSECTION_BTN"),
-                            _("Weights Intersection"), wxDefaultPosition,
+                            _("Intersection"), wxDefaultPosition,
                             wxDefaultSize, wxBU_EXACTFIT);
     union_btn = new wxButton(panel, XRCID("ID_UNION_BTN"),
-                            _("Weights Union"), wxDefaultPosition,
+                            _("Union"), wxDefaultPosition,
                             wxDefaultSize, wxBU_EXACTFIT);
+    symmetric_btn = new wxButton(panel, XRCID("ID_SYMMETRIC_BTN"),
+                             _("Make Symmetric"), wxDefaultPosition,
+                             wxDefaultSize, wxBU_EXACTFIT);
+    mutual_chk = new wxCheckBox(panel, XRCID("ID_MUTUAL_CHK"),
+                                _("mutual"));
 	Connect(XRCID("ID_CREATE_BTN"), wxEVT_BUTTON,
             wxCommandEventHandler(WeightsManFrame::OnCreateBtn));
 	Connect(XRCID("ID_LOAD_BTN"), wxEVT_BUTTON,
@@ -109,6 +114,8 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
             wxCommandEventHandler(WeightsManFrame::OnIntersectionBtn));
     Connect(XRCID("ID_UNION_BTN"), wxEVT_BUTTON,
             wxCommandEventHandler(WeightsManFrame::OnUnionBtn));
+    Connect(XRCID("ID_SYMMETRIC_BTN"), wxEVT_BUTTON,
+            wxCommandEventHandler(WeightsManFrame::OnSymmetricBtn));
 	w_list = new wxListCtrl(panel, XRCID("ID_W_LIST"), wxDefaultPosition,
             wxSize(-1, 100), wxLC_REPORT);
 	// Note: search for "ungrouped_list" for examples of wxListCtrl usage.
@@ -149,6 +156,10 @@ create_btn(0), load_btn(0), remove_btn(0), w_list(0)
     btns_row3_h_szr->AddSpacer(5);
     btns_row3_h_szr->Add(union_btn, 0, wxALIGN_CENTER_VERTICAL);
     btns_row3_h_szr->AddSpacer(5);
+    btns_row3_h_szr->Add(symmetric_btn, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row3_h_szr->Add(mutual_chk, 0, wxALIGN_CENTER_VERTICAL);
+    btns_row3_h_szr->AddSpacer(5);
+
 
 	wxBoxSizer* wghts_list_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	wghts_list_h_szr->Add(w_list);
@@ -315,6 +326,54 @@ void WeightsManFrame::OnIntersectionBtn(wxCommandEvent& ev)
         wxString msg = _("Selected weights are not valid for intersection, e.g. weights have different ID variable. Please select different weights.");
         wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
+    }
+}
+
+void WeightsManFrame::OnSymmetricBtn(wxCommandEvent& ev)
+{
+    wxLogMessage("WeightsManFrame::OnSymmetricBtn()");
+    boost::uuids::uuid w_id = GetHighlightId();
+    if (w_id.is_nil()) return;
+
+    GeoDaWeight* w = w_man_int->GetWeights(w_id);
+
+    if (w) {
+        // construct new symmetric weights:  W + W' or W*W'
+        std::vector<std::set<int> > nbr_dict(w->GetNumObs());
+        bool is_mutual = mutual_chk->GetValue();
+        for (int i=0; i<w->GetNumObs(); ++i) {
+            const std::vector<long>& nbrs = w->GetNeighbors(i);
+            for (int j=0; j<nbrs.size(); ++j) {
+                int nbr = (int)nbrs[j];
+                if (is_mutual) {
+                    if (w->CheckNeighbor(nbr, i)) {
+                        nbr_dict[i].insert(nbr);
+                        nbr_dict[nbr].insert(i);
+                    }
+                } else {
+                    nbr_dict[i].insert(nbr);
+                    nbr_dict[nbr].insert(i);
+                }
+            }
+        }
+        // create actual GAL weights file
+        std::set<int>::iterator it;
+        GalElement* gal = new GalElement[w->GetNumObs()];
+        for (int i=0; i<w->GetNumObs(); ++i) {
+            const std::set<int>& nbrs = nbr_dict[i];
+            gal[i].SetSizeNbrs(nbrs.size());
+            int j=0;
+            for (it = nbrs.begin(); it != nbrs.end(); ++it) {
+                gal[i].SetNbr(j++, *it);
+            }
+        }
+        GalWeight* new_w = new GalWeight();
+        new_w->num_obs = w->GetNumObs();
+        new_w->gal = gal;
+        new_w->is_symmetric = true;
+        new_w->id_field = w->GetIDName();
+        SaveGalWeightsFile(new_w);
+        delete new_w;
     }
 }
 
@@ -971,6 +1030,8 @@ void WeightsManFrame::UpdateButtons()
         int sel_w_cnt = w_list->GetSelectedItemCount();
         if (intersection_btn) intersection_btn->Enable(sel_w_cnt >= 2);
         if (union_btn) union_btn->Enable(sel_w_cnt >= 2);
+        if (symmetric_btn) symmetric_btn->Enable(sel_w_cnt == 1);
+        if (mutual_chk) mutual_chk->Enable(sel_w_cnt == 1);
     }
 }
 

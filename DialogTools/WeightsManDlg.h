@@ -32,6 +32,7 @@
 #include <wx/stattext.h>
 #include <wx/textctrl.h>
 #include <wx/webview.h>
+#include <wx/wx.h>
 #include "../TemplateCanvas.h"
 #include "../TemplateFrame.h"
 #include "../ShapeOperations/WeightsManStateObserver.h"
@@ -70,6 +71,7 @@ public:
     void OnConnectGraphBtn(wxCommandEvent& ev);
     void OnIntersectionBtn(wxCommandEvent& ev);
     void OnUnionBtn(wxCommandEvent& ev);
+    void OnSymmetricBtn(wxCommandEvent& ev);
 	
 	/** Implementation of WeightsManStateObserver interface */
 	virtual void update(WeightsManState* o);
@@ -112,6 +114,8 @@ protected:
 	wxListCtrl* w_list;	// ID_W_LIST
     wxButton* intersection_btn;
     wxButton* union_btn;
+    wxButton* symmetric_btn;
+    wxCheckBox* mutual_chk;
 	static const long TITLE_COL = 0;
 	wxWebView* details_win;
     
