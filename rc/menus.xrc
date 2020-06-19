@@ -419,6 +419,9 @@
         <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_SCATTER_VIEW">
           <label>Scatter Plot</label>
         </object>
+        <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_BOX_VIEW">
+            <label>Box Plot</label>
+        </object>
       </object>
       <label>E&amp;xplore</label>
     </object>
@@ -5030,6 +5033,9 @@
     </object>
     <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_SCATTER_VIEW">
       <label>Scatter Plot</label>
+    </object>
+    <object class="wxMenuItem" name="ID_SHOW_CONDITIONAL_BOX_VIEW">
+        <label>Box Plot</label>
     </object>
   </object>
   <object class="wxMenu" name="ID_CLUSTERING_MENU">

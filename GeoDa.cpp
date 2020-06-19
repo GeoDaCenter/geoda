@@ -145,6 +145,7 @@
 #include "Explore/ConnectivityHistView.h"
 #include "Explore/ConnectivityMapView.h"
 #include "Explore/ConditionalHistogramView.h"
+#include "Explore/ConditionalBoxPlotView.h"
 #include "Explore/CartogramNewView.h"
 #include "Explore/GStatCoordinator.h"
 #include "Explore/MLJCMapNewView.h"
@@ -573,7 +574,8 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), proj_open);
-    
+    GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"), proj_open);
+
     EnableTool(XRCID("ID_CLUSTERING_CHOICES"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_CLUSTERING_MENU"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_PCA"), shp_proj);
@@ -2912,15 +2914,18 @@ void GdaFrame::OnCondPlotChoices(wxCommandEvent& WXUNUSED(event))
 		bool proj_open = (p != 0);
 		bool shp_proj = proj_open && !p->IsTableOnlyProject();
 		
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									   XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
-									   shp_proj);
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									   XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
-									   proj_open);
-		GeneralWxUtils::EnableMenuItem(popupMenu,
-									XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
-									proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"),
+                                       shp_proj);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"),
+                                       proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,
+                                       XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"),
+                                       proj_open);
 		PopupMenu(popupMenu, wxDefaultPosition);
 	}
 }
@@ -2997,6 +3002,28 @@ void GdaFrame::OnShowConditionalHistView(wxCommandEvent& WXUNUSED(event))
 								  dlg.var_info, dlg.col_ids,
 								  _("Conditional Histogram"), wxDefaultPosition,
 								  GdaConst::cond_view_default_size);
+}
+
+void GdaFrame::OnShowConditionalBoxView(wxCommandEvent& WXUNUSED(event))
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    int style = VariableSettingsDlg::ALLOW_STRING_IN_FIRST | VariableSettingsDlg::ALLOW_STRING_IN_SECOND | VariableSettingsDlg::ALLOW_EMPTY_IN_FIRST |  VariableSettingsDlg::ALLOW_EMPTY_IN_SECOND;
+    if (p->GetTableInt()->IsTimeVariant()) style = style | VariableSettingsDlg::SHOW_TIME;
+
+    VariableSettingsDlg dlg(project_p, VariableSettingsDlg::trivariate, style,
+                            _("Conditional Box Plot Variables"),
+                            _("Horizontal Cells"),
+                            _("Vertical Cells"),
+                            _("Box Plot Variable"));
+    if (dlg.ShowModal() != wxID_OK) return;
+
+    ConditionalBoxPlotFrame* subframe =
+    new ConditionalBoxPlotFrame(GdaFrame::gda_frame, project_p,
+                                dlg.var_info, dlg.col_ids,
+                                _("Conditional Box Plot"), wxDefaultPosition,
+                                GdaConst::cond_view_default_size);
 }
 
 void GdaFrame::OnShowConditionalScatterView(wxCommandEvent& WXUNUSED(event))
@@ -6929,6 +6956,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_MAP_VIEW"), GdaFrame::OnShowConditionalMapView)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
+    EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_BOX_VIEW"), GdaFrame::OnShowConditionalBoxView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_SCATTER_VIEW"), GdaFrame::OnShowConditionalScatterView)
     EVT_MENU(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)
     EVT_BUTTON(XRCID("ID_SHOW_CONDITIONAL_HIST_VIEW"), GdaFrame::OnShowConditionalHistView)

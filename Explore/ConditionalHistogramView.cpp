@@ -418,9 +418,7 @@ void ConditionalHistogramCanvas::ResizeSelectableShps(int virtual_scrn_w,
                           scn_h-marg_top);
     background_st.SetMargin(marg_top, marg_bottom, marg_left, marg_right);
     background_st.SetView(vs_w, vs_h);
-    
-    
-    
+
 	int bg_shp_i = 0;
 	for (std::list<GdaShape*>::iterator it=foreground_shps.begin();
 		 bg_shp_i < bg_shp_cnt && it != foreground_shps.end();

@@ -217,6 +217,7 @@ public:
 	void OnShowConditionalMapView(wxCommandEvent& event);
 	void OnShowConditionalScatterView(wxCommandEvent& event);
 	void OnShowConditionalHistView(wxCommandEvent& event);
+    void OnShowConditionalBoxView(wxCommandEvent& event);
 	
 	void OnShowCartogramNewView(wxCommandEvent& event );
 	void OnCartogramImprove1(wxCommandEvent& event);

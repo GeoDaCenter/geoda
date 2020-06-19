@@ -38,6 +38,7 @@
 		A14C496F1D76174000D9831C /* CsvFieldConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A14C496D1D76174000D9831C /* CsvFieldConfDlg.cpp */; };
 		A152ACBE2483551500BFC788 /* pam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152ACBC2483551500BFC788 /* pam.cpp */; };
 		A161939F244CDCE9004269A7 /* AnimatePlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */; };
+		A165BFEF249C113A00D1CC10 /* ConditionalBoxPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
@@ -387,6 +388,8 @@
 		A152ACBD2483551500BFC788 /* pam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pam.h; path = Algorithms/pam.h; sourceTree = "<group>"; };
 		A161939D244CDCE8004269A7 /* AnimatePlotCanvas.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AnimatePlotCanvas.h; sourceTree = "<group>"; };
 		A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatePlotCanvas.cpp; sourceTree = "<group>"; };
+		A165BFED249C112D00D1CC10 /* ConditionalBoxPlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalBoxPlotView.h; sourceTree = "<group>"; };
+		A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalBoxPlotView.cpp; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
@@ -1536,6 +1539,8 @@
 				DDDBF29A163AD2BF0070610C /* ConditionalScatterPlotView.cpp */,
 				DD4E8B84164818A70014F1E7 /* ConnectivityHistView.cpp */,
 				DD4E8B85164818A70014F1E7 /* ConnectivityHistView.h */,
+				A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */,
+				A165BFED249C112D00D1CC10 /* ConditionalBoxPlotView.h */,
 				DD81857A19709B7800228B0A /* ConnectivityMapView.cpp */,
 				DD81857B19709B7800228B0A /* ConnectivityMapView.h */,
 				DD88CF091A4254D000803196 /* CovSpHLStateProxy.cpp */,
@@ -1925,6 +1930,7 @@
 				DDD13F060F2F8BE1009F7F13 /* GenGeomAlgs.cpp in Sources */,
 				A42018031FB3C0AC0029709C /* skater.cpp in Sources */,
 				A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */,
+				A165BFEF249C113A00D1CC10 /* ConditionalBoxPlotView.cpp in Sources */,
 				A186F0A11C16508A00AEBA13 /* GdaCartoDB.cpp in Sources */,
 				A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */,
 				A1EBC88F1CD2B2FD001DCFE9 /* AutoUpdateDlg.cpp in Sources */,
