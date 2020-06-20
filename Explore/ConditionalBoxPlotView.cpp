@@ -34,6 +34,7 @@
 #include "../GenUtils.h"
 #include "../logger.h"
 #include "../GeoDa.h"
+#include "../GenGeomAlgs.h"
 #include "../Project.h"
 
 #include "ConditionalBoxPlotView.h"
@@ -48,12 +49,7 @@ IMPLEMENT_CLASS(ConditionalBoxPlotCanvas, ConditionalNewCanvas)
 END_EVENT_TABLE()
 
 const int ConditionalBoxPlotCanvas::BOX_VAR = 2; // box var
-const int ConditionalBoxPlotCanvas::MAX_BOX_PLOTS = 100; // box var
-const double ConditionalBoxPlotCanvas::left_pad_const = 0;
-const double ConditionalBoxPlotCanvas::right_pad_const = 0;
-const double ConditionalBoxPlotCanvas::plot_height_const = 100;
-const double ConditionalBoxPlotCanvas::plot_width_const = 10;
-const double ConditionalBoxPlotCanvas::plot_gap_const = 20;
+const double ConditionalBoxPlotCanvas::left_pad_const = 20;
 
 ConditionalBoxPlotCanvas::
 ConditionalBoxPlotCanvas(wxWindow *parent,
@@ -66,6 +62,11 @@ ConditionalBoxPlotCanvas(wxWindow *parent,
 					   false, true, pos, size)
 {
     full_map_redraw_needed = true;
+    hinge_15 = true;
+    show_axes = true;
+    // NOTE: define Box Plot defaults
+    selectable_fill_color = GdaConst::boxplot_point_color;
+    highlight_color = GdaConst::highlight_color;
 
     last_scale_trans.SetData(0, 0, 100, 100);
     last_scale_trans.SetMargin(25, 75, 75, 25);
@@ -84,7 +85,7 @@ ConditionalBoxPlotCanvas::~ConditionalBoxPlotCanvas()
 
 void ConditionalBoxPlotCanvas::InitBoxPlot()
 {
-    // Init box plots by rows and columns
+    // Init box plots (data and stats) by rows and columns
     for (int t=0; t<num_time_vals; t++) {
         // get current time step
         int vt = var_info[VERT_VAR].time_min;
@@ -95,7 +96,7 @@ void ConditionalBoxPlotCanvas::InitBoxPlot()
         if (var_info[HOR_VAR].sync_with_global_time) ht += t;
 
         // get number of rows and columns
-        int rows = 1, cols = 1;
+        int rows = 1, cols = 1; // vert_num_cats
         if (!vert_cat_data.categories.empty()) {
             rows = vert_cat_data.categories[vt].cat_vec.size();
         }
@@ -118,7 +119,7 @@ void ConditionalBoxPlotCanvas::InitBoxPlot()
             if (!horiz_cat_data.categories.empty()) {
                 col_idx = horiz_cat_data.categories[ht].id_to_cat[i];
             }
-            cell_data[row_idx*rows + col_idx].push_back(std::make_pair(val,i));
+            cell_data[row_idx*cols + col_idx].push_back(std::make_pair(val,i));
         }
         // undef is full with size = num_obs
         std::vector<bool> undefs(num_obs, false);
@@ -130,17 +131,25 @@ void ConditionalBoxPlotCanvas::InitBoxPlot()
         hinge_stats.resize(rows * cols);
         data_stats.clear();
         data_stats.resize(rows * cols);
+        data_valid.clear();
+        data_valid.resize(rows * cols);
+        data_sorted.clear();
+        data_sorted.resize(rows * cols);
         for (int i=0; i<hinge_stats.size(); ++i) {
-            std::vector<Gda::dbl_int_pair_type> data_valid, data_sorted;
-            data_valid = cell_data[i];
-            data_sorted = cell_data[i];
-            std::sort(data_sorted.begin(), data_sorted.end(), Gda::dbl_int_pair_cmp_less);
-            std::sort(data_valid.begin(), data_valid.end(), Gda::dbl_int_pair_cmp_less);
+            data_valid[i] = cell_data[i];
+            data_sorted[i] = cell_data[i];
+            std::sort(data_sorted[i].begin(), data_sorted[i].end(), Gda::dbl_int_pair_cmp_less);
+            std::sort(data_valid[i].begin(), data_valid[i].end(), Gda::dbl_int_pair_cmp_less);
 
-            hinge_stats[i].CalculateHingeStats(data_sorted);
-            data_stats[i].CalculateFromSample(data_valid, undefs);
+            hinge_stats[i].CalculateHingeStats(data_sorted[i], undefs);
+            data_stats[i].CalculateFromSample(data_valid[i], undefs);
         }
     }
+}
+
+void ConditionalBoxPlotCanvas::UserChangedCellCategories()
+{
+    InitBoxPlot();
 }
 
 void ConditionalBoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
@@ -150,7 +159,7 @@ void ConditionalBoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	((ConditionalBoxPlotFrame*) template_frame)->OnActivate(ae);
 	
 	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COND_HISTOGRAM_VIEW_MENU_OPTIONS");
+		LoadMenu("ID_COND_BOXPLOT_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
 	TemplateCanvas::AppendCustomCategories(optMenu,
 										   project->GetCatClassifManager());
@@ -200,6 +209,7 @@ wxString ConditionalBoxPlotCanvas::GetVariableNames()
     return v;
 }
 
+
 void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                                     int virtual_scrn_h)
 {
@@ -235,7 +245,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	if (pad_h < 1) pad_h = 0;
 	double pad_bump = std::min(pad_w, pad_h);
 	double pad = min_pad + pad_bump;
-	
+
 	double marg_top = last_scale_trans.top_margin;
 	double marg_bottom = last_scale_trans.bottom_margin;
 	double marg_left = last_scale_trans.left_margin;
@@ -279,6 +289,10 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
     BOOST_FOREACH( GdaShape* shp , foreground_shps ) { delete shp; }
     foreground_shps.clear();
+
+    BOOST_FOREACH( GdaShape* shp , selectable_shps ) { delete shp; }
+    selectable_shps.clear();
+    selectable_shps.resize(num_obs);
 
     bool is_vert_number = VERT_VAR_NUM && cat_classif_def_vert.cat_classif_type != CatClassification::unique_values;
     bool is_horz_number = HOR_VAR_NUM && cat_classif_def_horiz.cat_classif_type != CatClassification::unique_values;
@@ -352,7 +366,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		vert_label << GetNameWithTime(VERT_VAR);
 		vert_label << ",   ";
 	}
-	vert_label << _("box var: ") << GetNameWithTime(BOX_VAR);
+	vert_label << _("Box plot var: ") << GetNameWithTime(BOX_VAR);
 	s = new GdaShapeText(vert_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin, bg_ymin+(bg_ymax-bg_ymin)/2.0), 90,
 				   GdaShapeText::h_center, GdaShapeText::bottom, -(label_offset+18), 0);
@@ -391,124 +405,117 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		horiz_label << GetNameWithTime(HOR_VAR);
 		horiz_label << ",   ";
 	}
-	horiz_label << _("box var: ") << GetNameWithTime(BOX_VAR);
+	horiz_label << _("Box plot var: ") << GetNameWithTime(BOX_VAR);
 	s = new GdaShapeText(horiz_label, *GdaConst::small_font,
 				   wxRealPoint(bg_xmin+(bg_xmax-bg_xmin)/2.0, bg_ymin), 0,
 				   GdaShapeText::h_center, GdaShapeText::top, 0, (label_offset+18));
 	foreground_shps.push_back(s);
 
+    // format background shapes: labels etc.
     GdaScaleTrans background_st;
     background_st.SetData(marg_left, marg_bottom, scn_w-marg_right, scn_h-marg_top);
     background_st.SetMargin(marg_top, marg_bottom, marg_left, marg_right);
     background_st.SetView(vs_w, vs_h);
-    
-	BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
-		ms->applyScaleTrans(background_st);
-	}
+
+    BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
+        ms->applyScaleTrans(background_st);
+    }
 
     // draw box plots
     int t = var_info[BOX_VAR].time;
-    double x_min = 0;
-    double x_max = left_pad_const + right_pad_const
-    + plot_width_const * horiz_num_cats +
-    + plot_gap_const * (horiz_num_cats-1);
-
-
 
     // need to scale height data so that y_min and y_max are between 0 and 100
-    double y_min = hinge_stats[0].extreme_lower_val_15;
-    double y_max = hinge_stats[0].extreme_upper_val_15;
+    double y_min = hinge_stats[0].min_val;
+    double y_max = hinge_stats[0].max_val;
     for (int r=0; r<vert_num_cats; r++) {
         for (int c=0; c<horiz_num_cats; c++) {
             int h_idx = r*vert_num_cats + c;
-            double ext_upper = (hinge_15 ? hinge_stats[h_idx].extreme_upper_val_15 :
-                                hinge_stats[h_idx].extreme_upper_val_30);
-            double ext_lower = (hinge_15 ? hinge_stats[h_idx].extreme_lower_val_15 :
-                                hinge_stats[h_idx].extreme_lower_val_30);
+            double ext_upper = hinge_stats[h_idx].max_val;
+            double ext_lower = hinge_stats[h_idx].min_val;
+            if (ext_upper > y_max) y_max = ext_upper;
+            if (ext_lower < y_min) y_min = ext_lower;
+            ext_upper = (hinge_15 ? hinge_stats[h_idx].extreme_upper_val_15 : hinge_stats[h_idx].extreme_upper_val_30);
+            ext_lower = (hinge_15 ? hinge_stats[h_idx].extreme_lower_val_15 : hinge_stats[h_idx].extreme_lower_val_30);
             if (ext_upper > y_max) y_max = ext_upper;
             if (ext_lower < y_min) y_min = ext_lower;
         }
     }
     double scaleY = 100.0 / (y_max-y_min);
+    axis_scale_y = AxisScale(y_min, y_max, 3, axis_display_precision, axis_display_fixed_point);
 
-    axis_scale_y = AxisScale(y_min, y_max, 5, axis_display_precision,
-                       axis_display_fixed_point);
-
-    // get start x position for each boxplot
-    std::vector<double> orig_x_pos(horiz_num_cats);
-    for (int i=0; i< horiz_num_cats; ++i) {
-        orig_x_pos[i] = left_pad_const + plot_width_const/2.0 + i * (plot_width_const + plot_gap_const);
-    }
-
-    last_scale_trans.SetData(x_min, 0, x_max, 100);
-
+    // set box plot in each cell takes half the width
+    double box_width = del_width / 2.0;
     int i=0;
     for (int r=0; r<vert_num_cats; r++) {
         for (int c=0; c<horiz_num_cats; c++) {
+            st[r][c].SetData(0, 0, del_width, 100);
             // create y axis
-            //if (show_axes) {
-                GdaAxis* y_ax = new GdaAxis("", axis_scale_y,
-                                     wxRealPoint(0,0), wxRealPoint(0, 100), -20, 0);
+            if (show_axes) {
+                GdaAxis* y_ax = new GdaAxis("", axis_scale_y, wxRealPoint(0,0), wxRealPoint(0, 100), 20, 0);
                 y_ax->applyScaleTrans(st[r][c]);
                 foreground_shps.push_back(y_ax);
-            //}
+            }
 
-            // add boxplot to selectable_shps
+            // create boxplot in a cell
             int h_idx = r*vert_num_cats + c;
-            double xM = orig_x_pos[c];
-            double x0r = xM - plot_width_const/2.2;
-            double x1r = xM + plot_width_const/2.2;
-            double x0 = xM - plot_width_const/2.0;
-            double y0 = (hinge_15 ? hinge_stats[h_idx].extreme_lower_val_15 :
-                         hinge_stats[h_idx].extreme_lower_val_30);
-            double x1 = xM + plot_width_const/2.0;
-            double y1 = (hinge_15 ? hinge_stats[h_idx].extreme_upper_val_15 :
-                         hinge_stats[h_idx].extreme_upper_val_30);
+            double xM = left_pad_const + box_width; // center of cell
+            double x0r = xM - box_width/2.2;
+            double x1r = xM + box_width/2.2;
+            double x0 = xM - box_width/2.0;
+            double y0 = (hinge_15 ? hinge_stats[h_idx].extreme_lower_val_15 : hinge_stats[h_idx].extreme_lower_val_30);
+            double x1 = xM + box_width/2.0;
+            double y1 = (hinge_15 ? hinge_stats[h_idx].extreme_upper_val_15 : hinge_stats[h_idx].extreme_upper_val_30);
 
-            s = new GdaPolyLine(xM-plot_width_const/3.0, (y0-y_min)*scaleY,
-                                xM+plot_width_const/3.0, (y0-y_min)*scaleY);
+            s = new GdaPolyLine(xM-box_width/3.0, (y0-y_min)*scaleY,
+                                xM+box_width/3.0, (y0-y_min)*scaleY);
             s->applyScaleTrans(st[r][c]);
             foreground_shps.push_back(s);
-            s = new GdaPolyLine(xM-plot_width_const/3.0, (y1-y_min)*scaleY,
-                                xM+plot_width_const/3.0, (y1-y_min)*scaleY);
+            s = new GdaPolyLine(xM-box_width/3.0, (y1-y_min)*scaleY,
+                                xM+box_width/3.0, (y1-y_min)*scaleY);
             s->applyScaleTrans(st[r][c]);
             foreground_shps.push_back(s);
-            s = new GdaPolyLine(orig_x_pos[c], (y0-y_min)*scaleY,
-                                orig_x_pos[c], (y1-y_min)*scaleY);
+            s = new GdaPolyLine(xM, (y0-y_min)*scaleY,
+                                xM, (y1-y_min)*scaleY);
             s->applyScaleTrans(st[r][c]);
             foreground_shps.push_back(s);
-
-            s = new GdaCircle(wxRealPoint(xM, (data_stats[t].mean-y_min)*scaleY),
-                              5.0);
+            // mean circle
+            s = new GdaCircle(wxRealPoint(xM, (data_stats[h_idx].mean-y_min)*scaleY), 5.0);
             s->setPen(selectable_fill_color);
             s->setBrush(GdaConst::boxplot_mean_point_color);
             s->applyScaleTrans(st[r][c]);
             foreground_shps.push_back(s);
-            double y0m = (hinge_stats[t].Q2-y_min)*scaleY - 0.2;
-            double y1m = (hinge_stats[t].Q2-y_min)*scaleY + 0.2;
+
+            double y0m = (hinge_stats[h_idx].Q2-y_min)*scaleY - 0.5;
+            double y1m = (hinge_stats[h_idx].Q2-y_min)*scaleY + 0.5;
             s = new GdaRectangle(wxRealPoint(x0, y0m), wxRealPoint(x1, y1m));
             s->setPen(GdaConst::boxplot_median_color);
             s->setBrush(GdaConst::boxplot_median_color);
             s->applyScaleTrans(st[r][c]);
             foreground_shps.push_back(s);
 
-            // draw points in IQRs
+            // draw details in IQRs
+            for (int i=0; i<data_sorted[h_idx].size(); i++) {
+                double val = data_sorted[h_idx][i].first;
+                int orig_idx = data_sorted[h_idx][i].second;
+                if (val < hinge_stats[h_idx].Q1 || val > hinge_stats[h_idx].Q3) {
+                    s = new GdaPoint(xM, (val-y_min) * scaleY);
+                    s->setPen(selectable_fill_color);
+                    s->setBrush(*wxWHITE_BRUSH);
+                    s->applyScaleTrans(st[r][c]);
+                    selectable_shps[orig_idx] = s;
+                } else {
+                    y0 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][i-1].first)/2.0) - y_min)*scaleY;
+                    y1 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][i+1].first)/2.0) - y_min)*scaleY;
+                    s= new GdaRectangle(wxRealPoint(x0r, y0), wxRealPoint(x1r, y1));
+                    s->setPen(GdaConst::boxplot_q1q2q3_color);
+                    s->setBrush(GdaConst::boxplot_q1q2q3_color);
+                    s->applyScaleTrans(st[r][c]);
+                    selectable_shps[orig_idx] = s;
+                }
+            }
         }
     }
-    // draw individual points
-    int row_c = 0, col_c = 0;
-    for (int i=0; i<num_obs; i++) {
-        int v_time = var_info[VERT_VAR].time;
-        int h_time = var_info[HOR_VAR].time;
-        if (!vert_cat_data.categories.empty()) {
-            row_c = vert_cat_data.categories[v_time].id_to_cat[i];
-        }
-        if (!horiz_cat_data.categories.empty()) {
-            col_c = horiz_cat_data.categories[h_time].id_to_cat[i];
-        }
-        //selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
-    }
-    //isResize = true;
+
 	layer0_valid = false;
 	Refresh();
 	
@@ -518,13 +525,8 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
 void ConditionalBoxPlotCanvas::PopulateCanvas()
 {
-	BOOST_FOREACH( GdaShape* shp, selectable_shps ) { delete shp; }
-	selectable_shps.clear();
-
-
-
-    isResize = true;
 	ResizeSelectableShps();
+    isResize = true;
 }
 
 void ConditionalBoxPlotCanvas::TimeSyncVariableToggle(int var_index)
@@ -622,15 +624,14 @@ void ConditionalBoxPlotFrame::MapMenus()
 {
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	// Map Options Menus
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COND_SCATTER_PLOT_VIEW_MENU_OPTIONS");
-	((ConditionalBoxPlotCanvas*) template_canvas)->
-		AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
-	((ConditionalBoxPlotCanvas*) template_canvas)->SetCheckMarks(optMenu);
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COND_BOXPLOT_VIEW_MENU_OPTIONS");
+	((ConditionalBoxPlotCanvas*)template_canvas)->AddTimeVariantOptionsToMenu(optMenu);
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
+	((ConditionalBoxPlotCanvas*)template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
+    // ID_BOXPLOT_HINGE15
+    // ID_BOXPLOT_HINGE30
 }
 
 void ConditionalBoxPlotFrame::UpdateOptionMenuItems()

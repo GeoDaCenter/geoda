@@ -37,6 +37,7 @@ public:
                              const wxPoint& pos = wxDefaultPosition,
                              const wxSize& size = wxDefaultSize);
 	virtual ~ConditionalBoxPlotCanvas();
+
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual wxString GetCanvasTitle();
 	virtual wxString GetVariableNames();
@@ -44,6 +45,8 @@ public:
     virtual void update(HLStateInt* o);
 	virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
 									  int virtual_scrn_h = 0);
+    //virtual void UpdateSelection(bool shiftdown = false,
+    //                             bool pointsel = false);
 
 	virtual void TimeSyncVariableToggle(int var_index);
 
@@ -54,22 +57,20 @@ public:
 	
 	virtual void UpdateStatusBar();
 
+    virtual void UserChangedCellCategories();
+
 protected:
     virtual void PopulateCanvas();
     void InitBoxPlot();
 
     static const int BOX_VAR; // box variable
     static const double left_pad_const;
-    static const double right_pad_const;
-    static const double plot_height_const;
-    static const double plot_width_const;
-    static const double plot_gap_const;
-    static const int MAX_BOX_PLOTS;
 
     std::vector<HingeStats> hinge_stats;
     std::vector<SampleStatistics> data_stats;
     std::vector<std::vector<Gda::dbl_int_pair_type> > cell_data;
-
+    std::vector<std::vector<Gda::dbl_int_pair_type> > data_valid;
+    std::vector<std::vector<Gda::dbl_int_pair_type> > data_sorted;
     int max_plots; // min of time_steps and MAX_BOX_PLOTS
     // 1 <= cur_num_plots <= max_plots <= MAX_BOX_PLOTS
     int cur_num_plots; // number of plots actually shown

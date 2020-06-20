@@ -466,7 +466,6 @@ void ConditionalScatterPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         }
         selectable_shps[i]->applyScaleTrans(st[row_c][col_c]);
     }
-    isResize = true;
 	layer0_valid = false;
 	Refresh();
 	

@@ -1093,6 +1093,7 @@ void GdaRectangle::paintSelf(wxDC& dc)
     int y = upper_right.y+getYNudge();
     int w = upper_right.x - lower_left.x;
     int h = lower_left.y - upper_right.y;
+    if (h==0) h = 1;
 	dc.DrawRectangle(x,y,w,h);
 }
 
