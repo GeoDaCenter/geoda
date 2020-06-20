@@ -59,8 +59,15 @@ public:
 
     virtual void UserChangedCellCategories();
 
+    void OnShowAxes(wxCommandEvent& evt);
+
+    void OnHinge15(wxCommandEvent& evt);
+
+    void OnHinge30(wxCommandEvent& evt);
+    
 protected:
     virtual void PopulateCanvas();
+    
     void InitBoxPlot();
 
     static const int BOX_VAR; // box variable
@@ -107,6 +114,10 @@ public:
 	virtual void update(TimeState* o);
 
     virtual void OnSaveCanvasImageAs(wxCommandEvent& event);
+
+    void OnShowAxes(wxCommandEvent& evt);
+    void OnHinge15(wxCommandEvent& evt);
+    void OnHinge30(wxCommandEvent& evt);
 
     DECLARE_EVENT_TABLE()
 };

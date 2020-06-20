@@ -2665,13 +2665,15 @@
           </object>
           <label>Horizontal Bins Breaks</label>
       </object>
-      <object class="wxMenuItem" name="ID_BOXPLOT_HINGE">
+      <object class="wxMenu" name="ID_BOXPLOT_HINGE">
           <label>Hinge</label>
           <object class="wxMenuItem" name="ID_BOXPLOT_HINGE15">
               <label>1.5</label>
+              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_BOXPLOT_HINGE30">
               <label>3.0</label>
+              <checkable>1</checkable>
           </object>
       </object>
       <object class="wxMenu" name="ID_COND_SCATTER_VIEW_MENU">
@@ -2682,7 +2684,7 @@
           <object class="wxMenuItem" name="ID_ADJUST_AXIS_PRECISION">
               <label>Set Display Precision on Axes</label>
           </object>
-          <object class="wxMenuItem" name="ID_SHOW_AXES">
+          <object class="wxMenuItem" name="ID_COND_BOXPLOT_SHOW_AXES">
               <label>Show Axes</label>
               <checkable>1</checkable>
               <checked>1</checked>

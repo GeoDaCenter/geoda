@@ -158,11 +158,9 @@ void ConditionalBoxPlotCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	wxActivateEvent ae(wxEVT_NULL, true, 0, wxActivateEvent::Reason_Mouse);
 	((ConditionalBoxPlotFrame*) template_frame)->OnActivate(ae);
 	
-	wxMenu* optMenu = wxXmlResource::Get()->
-		LoadMenu("ID_COND_BOXPLOT_VIEW_MENU_OPTIONS");
+	wxMenu* optMenu = wxXmlResource::Get()->LoadMenu("ID_COND_BOXPLOT_VIEW_MENU_OPTIONS");
 	AddTimeVariantOptionsToMenu(optMenu);
-	TemplateCanvas::AppendCustomCategories(optMenu,
-										   project->GetCatClassifManager());
+	TemplateCanvas::AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
 	
 	template_frame->UpdateContextMenuItems(optMenu);
@@ -176,10 +174,32 @@ void ConditionalBoxPlotCanvas::SetCheckMarks(wxMenu* menu)
 	// following menu items if they were specified for this particular
 	// view in the xrc file.  Items that cannot be enable/disabled,
 	// or are not checkable do not appear.
-	
-	ConditionalNewCanvas::SetCheckMarks(menu);
+    ConditionalNewCanvas::SetCheckMarks(menu);
 
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_SHOW_AXES"), show_axes);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_BOXPLOT_HINGE15"), hinge_15);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_BOXPLOT_HINGE30"), !hinge_15);
+}
+
+void ConditionalBoxPlotCanvas::OnShowAxes(wxCommandEvent& evt)
+{
+    show_axes = !show_axes;
+
+    PopulateCanvas();
+}
+
+void ConditionalBoxPlotCanvas::OnHinge15(wxCommandEvent& evt)
+{
+    hinge_15 = true;
+
+    PopulateCanvas();
+}
+
+void ConditionalBoxPlotCanvas::OnHinge30(wxCommandEvent& evt)
+{
+    hinge_15 = false;
+
+    PopulateCanvas();
 }
 
 /** Override of TemplateCanvas method. */
@@ -188,7 +208,6 @@ void ConditionalBoxPlotCanvas::update(HLStateInt* o)
     ResetBrushing();
 
     layer1_valid = false;
-    //UpdateIvalSelCnts();
     Refresh();
 }
 
@@ -198,7 +217,7 @@ wxString ConditionalBoxPlotCanvas::GetCanvasTitle()
 	v << "Cond. Box Plot - ";
 	v << "x: " << GetNameWithTime(HOR_VAR);
 	v << ", y: " << GetNameWithTime(VERT_VAR);
-	v << ", box plot: " << GetNameWithTime(BOX_VAR);
+	v << ", Box plot: " << GetNameWithTime(BOX_VAR);
 	return v;
 }
 
@@ -208,7 +227,6 @@ wxString ConditionalBoxPlotCanvas::GetVariableNames()
     v <<  GetNameWithTime(BOX_VAR);
     return v;
 }
-
 
 void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
                                                     int virtual_scrn_h)
@@ -263,7 +281,8 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 	double tot_height = scn_h - ((d_rows-1)*pad + marg_top + marg_bottom);
 	double del_width = tot_width / d_cols;
 	double del_height = tot_height / d_rows;
-	
+
+    // calculate extent for each cell
 	bin_extents.resize(boost::extents[vert_num_cats][horiz_num_cats]);
 	for (int row=0; row<vert_num_cats; row++) {
 		double drow = row;
@@ -287,6 +306,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 		}
 	}
 
+    // get ready for foreground shapes and background shapes
     BOOST_FOREACH( GdaShape* shp , foreground_shps ) { delete shp; }
     foreground_shps.clear();
 
@@ -294,6 +314,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     selectable_shps.clear();
     selectable_shps.resize(num_obs);
 
+    // place global verticle and horizontal axes
     bool is_vert_number = VERT_VAR_NUM && cat_classif_def_vert.cat_classif_type != CatClassification::unique_values;
     bool is_horz_number = HOR_VAR_NUM && cat_classif_def_horiz.cat_classif_type != CatClassification::unique_values;
 
@@ -421,7 +442,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
         ms->applyScaleTrans(background_st);
     }
 
-    // draw box plots
+    // draw box plots in each cell
     int t = var_info[BOX_VAR].time;
 
     // need to scale height data so that y_min and y_max are between 0 and 100
@@ -429,7 +450,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
     double y_max = hinge_stats[0].max_val;
     for (int r=0; r<vert_num_cats; r++) {
         for (int c=0; c<horiz_num_cats; c++) {
-            int h_idx = r*vert_num_cats + c;
+            int h_idx = r*horiz_num_cats + c;
             double ext_upper = hinge_stats[h_idx].max_val;
             double ext_lower = hinge_stats[h_idx].min_val;
             if (ext_upper > y_max) y_max = ext_upper;
@@ -457,7 +478,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
             }
 
             // create boxplot in a cell
-            int h_idx = r*vert_num_cats + c;
+            int h_idx = r*horiz_num_cats + c;
             double xM = left_pad_const + box_width; // center of cell
             double x0r = xM - box_width/2.2;
             double x1r = xM + box_width/2.2;
@@ -567,11 +588,28 @@ void ConditionalBoxPlotCanvas::UpdateStatusBar()
     const std::vector<bool>& hl = highlight_state->GetHighlight();
     
     if (highlight_state->GetTotalHighlighted()> 0) {
-
+        int n_total_hl = highlight_state->GetTotalHighlighted();
+        s << _("#selected=") << n_total_hl << "  ";
     }
     
 	if (mousemode == select && selectstate == start) {
-
+        if (total_hover_obs >= 1) {
+            s << _("#hover obs ") << hover_obs[0]+1 << " = ";
+            s << data[BOX_VAR][var_info[BOX_VAR].time][hover_obs[0]];
+        }
+        if (total_hover_obs >= 2) {
+            s << ", ";
+            s << _("obs ") << hover_obs[1]+1 << " = ";
+            s << data[BOX_VAR][var_info[BOX_VAR].time][hover_obs[1]];
+        }
+        if (total_hover_obs >= 3) {
+            s << ", ";
+            s << _("obs ") << hover_obs[2]+1 << " = ";
+            s << data[BOX_VAR][var_info[BOX_VAR].time][hover_obs[2]];
+        }
+        if (total_hover_obs >= 4) {
+            s << ", ...";
+        }
 	}
 	sb->SetStatusText(s);
 }
@@ -630,8 +668,31 @@ void ConditionalBoxPlotFrame::MapMenus()
 	((ConditionalBoxPlotCanvas*)template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
-    // ID_BOXPLOT_HINGE15
-    // ID_BOXPLOT_HINGE30
+
+    // connect menu event handler
+    wxMenuItem* axes_menu = optMenu->FindItem(XRCID("ID_COND_BOXPLOT_SHOW_AXES"));
+    Connect(axes_menu->GetId(), wxEVT_MENU, wxCommandEventHandler(ConditionalBoxPlotFrame::OnShowAxes));
+
+    wxMenuItem* hinge15_menu = optMenu->FindItem(XRCID("ID_BOXPLOT_HINGE15"));
+    Connect(hinge15_menu->GetId(), wxEVT_MENU, wxCommandEventHandler(ConditionalBoxPlotFrame::OnHinge15));
+
+    wxMenuItem* hinge30_menu = optMenu->FindItem(XRCID("ID_BOXPLOT_HINGE30"));
+    Connect(hinge30_menu->GetId(), wxEVT_MENU, wxCommandEventHandler(ConditionalBoxPlotFrame::OnHinge30));
+}
+
+void ConditionalBoxPlotFrame::OnShowAxes(wxCommandEvent& evt)
+{
+    ((ConditionalBoxPlotCanvas*)template_canvas)->OnShowAxes(evt);
+}
+
+void ConditionalBoxPlotFrame::OnHinge15(wxCommandEvent& evt)
+{
+    ((ConditionalBoxPlotCanvas*)template_canvas)->OnHinge15(evt);
+}
+
+void ConditionalBoxPlotFrame::OnHinge30(wxCommandEvent& evt)
+{
+    ((ConditionalBoxPlotCanvas*)template_canvas)->OnHinge30(evt);
 }
 
 void ConditionalBoxPlotFrame::UpdateOptionMenuItems()
@@ -641,8 +702,7 @@ void ConditionalBoxPlotFrame::UpdateOptionMenuItems()
 	int menu = mb->FindMenu(_("Options"));
     if (menu == wxNOT_FOUND) {
 	} else {
-		((ConditionalBoxPlotCanvas*)
-		 template_canvas)->SetCheckMarks(mb->GetMenu(menu));
+		((ConditionalBoxPlotCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }
 
