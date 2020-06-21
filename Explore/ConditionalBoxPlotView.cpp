@@ -70,6 +70,7 @@ ConditionalBoxPlotCanvas(wxWindow *parent,
 
     last_scale_trans.SetData(0, 0, 100, 100);
     last_scale_trans.SetMargin(25, 75, 75, 25);
+    last_scale_trans.SetFixedAspectRatio(false); // stretch with screen
 
     VarInfoAttributeChange();
     InitBoxPlot();
@@ -294,6 +295,7 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 			double mb = marg_bottom + ((d_rows-1)-row)*(pad+del_height);
 		
             GdaScaleTrans& sub_st = st[(vert_num_cats-1)-row][col];
+            sub_st.SetFixedAspectRatio(false);
             sub_st.SetData(shps_orig_xmin, shps_orig_ymin,
                            shps_orig_xmax, shps_orig_ymax);
             sub_st.SetView(vs_w, vs_h);

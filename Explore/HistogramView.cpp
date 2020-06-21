@@ -72,7 +72,7 @@ num_obs(project_s->GetNumRecords()),
 num_time_vals(1),
 x_axis(0), y_axis(0), display_stats(false), show_axes(true),
 scale_x_over_time(false), scale_y_over_time(true),
-custom_classif_state(0), is_custom_category(false)
+custom_classif_state(0), is_custom_category(false), set_uniquevalue(false)
 {
 	using namespace Shapefile;
     
@@ -220,6 +220,71 @@ void HistogramCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	template_frame->UpdateOptionMenuItems();
 }
 
+void HistogramCanvas::OnSetUniqueValue(wxCommandEvent& event)
+{
+    set_uniquevalue = !set_uniquevalue;
+    int col_time_steps = table_int->GetColTimeSteps(col_id);
+
+    if (set_uniquevalue) {
+        for (int t=0; t<col_time_steps; t++) {
+            IS_VAR_STRING[t] = true;
+
+            std::vector<wxString> sel_data;
+            table_int->GetColData(col_id, t, sel_data);
+            s_data_sorted[t].resize(num_obs);
+            std::map<wxString, int> unique_dict;
+            // data_sorted is a pair value {string value: index}
+            VAR_STRING[t].resize(num_obs);
+            for (int i=0; i<num_obs; i++) {
+                s_data_sorted[t][i].first = sel_data[i];
+                s_data_sorted[t][i].second = i;
+                if (unique_dict.find(sel_data[i]) == unique_dict.end()) {
+                    unique_dict[sel_data[i]] = 0;
+                    VAR_STRING[t][i]  = sel_data[i];
+                }
+                unique_dict[sel_data[i]] += 1;
+            }
+            // add current [id] to ival_to_obs_ids
+            max_intervals = unique_dict.size();
+            cur_intervals = unique_dict.size();
+        }
+    } else {
+        // restore
+        for (int t=0; t<col_time_steps; t++) {
+            GdaConst::FieldType f_type = table_int->GetColType(col_id, t);
+            std::vector<bool> sel_undefs;
+            table_int->GetColUndefined(col_id, t, sel_undefs);
+            undef_tms.push_back(sel_undefs);
+            if (f_type != GdaConst::string_type) { // string type has to be string
+                IS_VAR_STRING[t] = false;
+                std::vector<double> sel_data;
+                table_int->GetColData(col_id, t, sel_data);
+                data_sorted[t].resize(num_obs);
+                // data_sorted is a pair value {double value: index}
+                for (int i=0; i<num_obs; i++) {
+                    data_sorted[t][i].first = sel_data[i];
+                    data_sorted[t][i].second = i;
+                }
+                // sort data_sorted by value
+                std::sort(data_sorted[t].begin(), data_sorted[t].end(),
+                          Gda::dbl_int_pair_cmp_less);
+
+                data_stats[t].CalculateFromSample(data_sorted[t], sel_undefs);
+                hinge_stats[t].CalculateHingeStats(data_sorted[t], sel_undefs);
+
+                data_min_over_time = data_stats[t].min;
+                data_max_over_time = data_stats[t].max;
+                max_intervals = std::min(MAX_INTERVALS, num_obs);
+                cur_intervals = std::min(max_intervals, default_intervals);
+            }
+        }
+    }
+    InitIntervals();
+    invalidateBms();
+    PopulateCanvas();
+    Refresh();
+}
+
 void HistogramCanvas::AddTimeVariantOptionsToMenu(wxMenu* menu)
 {
 	if (!var_info[0].is_time_variant) return;
@@ -335,6 +400,9 @@ void HistogramCanvas::SetCheckMarks(wxMenu* menu)
 									  GdaConst::ID_FIX_SCALE_OVER_TIME_VAR1,
 									  var_info[0].fixed_scale);
 	}
+    // set as unique value menuitem
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_VIEW_HISTOGRAM_SET_UNIQUE"),
+                                  set_uniquevalue);
 }
 
 void HistogramCanvas::DetermineMouseHoverObjects(wxPoint pt)
@@ -1286,6 +1354,11 @@ void HistogramFrame::MapMenus()
 	((HistogramCanvas*) template_canvas)->SetCheckMarks(optMenu);
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);	
 	UpdateOptionMenuItems();
+
+    // connect menu item ID_VIEW_HISTOGRAM_SET_UNIQUE
+    wxMenuItem* uniquevalue_menu = optMenu->FindItem(XRCID("ID_VIEW_HISTOGRAM_SET_UNIQUE"));
+    Connect(uniquevalue_menu->GetId(), wxEVT_MENU, wxCommandEventHandler(HistogramFrame::OnSetUniqueValue));
+
 }
 
 void HistogramFrame::UpdateOptionMenuItems()
@@ -1316,7 +1389,10 @@ void HistogramFrame::update(TimeState* o)
 	UpdateTitle();
 }
 
-
+void HistogramFrame::OnSetUniqueValue(wxCommandEvent& event)
+{
+    ((HistogramCanvas*) template_canvas)->OnSetUniqueValue(event);
+}
 
 void HistogramFrame::OnShowAxes(wxCommandEvent& event)
 {
