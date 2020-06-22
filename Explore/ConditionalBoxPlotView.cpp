@@ -481,6 +481,9 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
 
             // create boxplot in a cell
             int h_idx = r*horiz_num_cats + c;
+            if (cell_data[h_idx].empty()) {
+                continue; // empty cell
+            }
             double xM = left_pad_const + box_width; // center of cell
             double x0r = xM - box_width/2.2;
             double x1r = xM + box_width/2.2;
@@ -527,8 +530,10 @@ void ConditionalBoxPlotCanvas::ResizeSelectableShps(int virtual_scrn_w,
                     s->applyScaleTrans(st[r][c]);
                     selectable_shps[orig_idx] = s;
                 } else {
-                    y0 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][i-1].first)/2.0) - y_min)*scaleY;
-                    y1 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][i+1].first)/2.0) - y_min)*scaleY;
+                    int prev = i - 1 < 0 ? i : i -1;
+                    int next = i + 1 < data_sorted[h_idx].size() ? i + 1 : i;
+                    y0 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][prev].first)/2.0) - y_min)*scaleY;
+                    y1 = (((data_sorted[h_idx][i].first + data_sorted[h_idx][next].first)/2.0) - y_min)*scaleY;
                     s= new GdaRectangle(wxRealPoint(x0r, y0), wxRealPoint(x1r, y1));
                     s->setPen(GdaConst::boxplot_q1q2q3_color);
                     s->setBrush(GdaConst::boxplot_q1q2q3_color);
