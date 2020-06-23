@@ -513,6 +513,19 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
     }
 }
 
+void MapTree::OnChangeAssociatelineColor(wxCommandEvent& event)
+{
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    if (ml) {
+        wxColour clr;
+        clr = wxGetColourFromUser(this, ml->GetAssociatePenColour());
+        ml->SetAssociatePenColour(clr);
+        Refresh();
+        canvas->DisplayMapLayers();
+    }
+}
+
 void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -525,6 +538,7 @@ void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
         canvas->DisplayMapLayers();
     }
 }
+
 void MapTree::OnChangePointRadius(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
@@ -755,6 +769,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     popupMenu->Append(XRCID("MAPTREE_SET_LAYER_EXTENT"), menu_name);
     Connect(XRCID("MAPTREE_SET_LAYER_EXTENT"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnSetExtentToLayer));
+    popupMenu->AppendSeparator();
 
     menu_name =  _("Set Highlight Association");
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
@@ -765,7 +780,10 @@ void MapTree::OnRightClick(wxMouseEvent& event)
                       _("Clear Highlight Association"));
     Connect(XRCID("MAPTREE_CLEAR_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnClearAssociateLayer));
-    
+
+    popupMenu->Append(XRCID("MAPTREE_CHANGE_ASSOCIATELINE_COLOR"), _("Change Associate Line Color"));
+    Connect(XRCID("MAPTREE_CHANGE_ASSOCIATELINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnChangeAssociatelineColor));
     if (ml == NULL) {
         // if it's current map, then no other options other than "Set Highlight"
         PopupMenu(popupMenu, event.GetPosition());
@@ -773,18 +791,16 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     }
     
     popupMenu->AppendSeparator();
-    
     popupMenu->Append(XRCID("MAPTREE_CHANGE_FILL_COLOR"), _("Change Fill Color"));
     popupMenu->Append(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), _("Change Outline Color"));
     popupMenu->Append(XRCID("MAPTREE_OUTLINE_VISIBLE"), _("Outline Visible"));
-        
+
     // check menu items
     wxMenuItem* outline = popupMenu->FindItem(XRCID("MAPTREE_OUTLINE_VISIBLE"));
     if (outline) {
         outline->SetCheckable(true);
         if (ml->GetPenSize() > 0) outline->Check();
     }
-    
     Connect(XRCID("MAPTREE_CHANGE_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnChangeFillColor));
     Connect(XRCID("MAPTREE_CHANGE_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,

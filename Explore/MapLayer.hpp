@@ -27,13 +27,14 @@ class AssociateLayerInt
 {
 protected:
     bool is_hide;
-    
+    wxColour associate_pencolor;
+
 public:
     // primary key : AssociateLayer
     map<AssociateLayerInt*, Association> associated_layers;
     map<AssociateLayerInt*, bool> associated_lines;
     
-    AssociateLayerInt() {}
+    AssociateLayerInt() : associate_pencolor(wxColour(192, 192, 192)) {}
     virtual ~AssociateLayerInt() {}
     
     virtual bool IsCurrentMap() = 0;
@@ -63,6 +64,13 @@ public:
     
     virtual void SetHide(bool flag) { is_hide = flag; }
     virtual bool IsHide() { return is_hide; }
+
+    virtual wxColour GetAssociatePenColour() {
+        return associate_pencolor;
+    }
+    virtual void SetAssociatePenColour(wxColour& color) {
+        associate_pencolor = color;
+    }
 };
 
 
@@ -111,7 +119,6 @@ public:
     virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
     virtual int GetHighlightRecords();
     virtual void GetExtent(double &minx, double &miny, double &maxx, double &maxy);
-
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
     BackgroundMapLayer* Clone(bool clone_style=false);
@@ -124,7 +131,7 @@ public:
     
     void SetName(wxString name);
     virtual wxString GetName();
-    
+
     void SetPenColour(wxColour& color);
     wxColour GetPenColour();
     

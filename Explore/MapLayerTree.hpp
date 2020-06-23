@@ -96,6 +96,7 @@ protected:
     void RemoveAssociationRelationship(BackgroundMapLayer* ml);
     void OnEvent(wxMouseEvent& event);
     void OnRightClick(wxMouseEvent& event);
+    void OnChangeAssociatelineColor(wxCommandEvent& event);
     void OnChangeFillColor(wxCommandEvent& event);
     void OnChangeOutlineColor(wxCommandEvent& event);
     void OnChangePointRadius(wxCommandEvent& event);

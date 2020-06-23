@@ -177,7 +177,6 @@ public:
     virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
-    
     void DisplayMapLayers();
     void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
                      bool is_hide = false);

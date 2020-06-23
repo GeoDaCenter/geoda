@@ -79,6 +79,8 @@
 #include "DataViewer/TableState.h"
 #include "DataViewer/TimeState.h"
 #include "DialogTools/DissolveDlg.h"
+#include "DialogTools/CreateGridDlg.h"
+#include "DialogTools/Bnd2ShpDlg.h"
 #include "DialogTools/CreatingWeightDlg.h"
 #include "DialogTools/CatClassifDlg.h"
 #include "DialogTools/PCPDlg.h"
@@ -2226,7 +2228,6 @@ void GdaFrame::OnMapChoices(wxCommandEvent& event)
     }
 }
 
-#include "DialogTools/CreateGridDlg.h"
 void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open CreateGridDlg");
@@ -2235,6 +2236,7 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
     while (node) {
         wxWindow* win = node->GetData();
         if (CreateGridDlg* w = dynamic_cast<CreateGridDlg*>(win)) {
+            w->Update();
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2247,7 +2249,7 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
-#include "DialogTools/Bnd2ShpDlg.h"
+
 void GdaFrame::OnShapePolygonsFromBoundary(wxCommandEvent& WXUNUSED(event) )
 {
     wxLogMessage("Open Bnd2ShpDlg");

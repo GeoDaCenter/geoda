@@ -45,7 +45,7 @@ public:
 				long style = wxCAPTION|wxDEFAULT_DIALOG_STYLE );
 
     void CreateControls();
-
+    void Init();
     void OnClose(wxCloseEvent& event);
     void OnCancelClick( wxCommandEvent& event );
     void OnCReferencefileClick( wxCommandEvent& event );

@@ -80,14 +80,7 @@ CreateGridDlg::CreateGridDlg( wxWindow* parent, Project* project, wxWindowID id,
 	isCreated = false;
 
     Create(parent, id, caption, pos, size, style);
-    if (p_project) {
-        // fill current layers
-        m_layers->Append(p_project->layername);
-        std::vector<wxString> layer_names = p_project->GetLayerNames();
-        for (int i=0; i<layer_names.size(); ++i) {
-            m_layers->Append(layer_names[i]);
-        }
-    }
+    Init();
 	m_check = 1;
 
 
@@ -105,6 +98,19 @@ CreateGridDlg::CreateGridDlg( wxWindow* parent, Project* project, wxWindowID id,
 	s_col =  "2";
 
 	isCreated = true;
+}
+
+void CreateGridDlg::Init()
+{
+    if (p_project) {
+        m_layers->Clear();
+        // fill current layers
+        m_layers->Append(p_project->layername);
+        std::vector<wxString> layer_names = p_project->GetLayerNames();
+        for (int i=0; i<layer_names.size(); ++i) {
+            m_layers->Append(layer_names[i]);
+        }
+    }
 }
 
 bool CreateGridDlg::Create( wxWindow* parent, wxWindowID id,
@@ -135,7 +141,9 @@ void CreateGridDlg::CreateControls()
     m_cols = XRCCTRL(*this, "IDC_EDIT8", wxTextCtrl);
     m_layers = XRCCTRL(*this, "IDC_GRID_LAYERS", wxChoice);
     m_layers->Enable(false);
-
+    if (p_project == NULL) {
+        XRCCTRL(*this, "IDC_RADIO_LAYERS", wxChoice)->Enable(false);
+    }
     if (FindWindow(XRCID("IDC_EDIT1"))) {
         FindWindow(XRCID("IDC_EDIT1"))->
 			SetValidator( wxTextValidator(wxFILTER_NUMERIC, & s_lower_x) );

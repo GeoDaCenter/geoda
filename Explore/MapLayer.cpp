@@ -178,6 +178,9 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
+        // draw lines to associated layer
+        wxPen pen(this->GetAssociatePenColour());
+        dc.SetPen(pen);
         for (int i=0; i<highlight_flags.size(); i++) {
             if (!highlight_flags[i]) {
                 continue;
@@ -246,6 +249,7 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     copy->maxy = maxy;
     
     if (clone_style) {
+        copy->SetAssociatePenColour(associate_pencolor);
         copy->SetPenColour(pen_color);
         copy->SetBrushColour(brush_color);
         copy->SetPointRadius(point_radius);

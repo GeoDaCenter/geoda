@@ -2271,6 +2271,7 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
         }
         associated_layer->DrawHighlight(dc, map_canvas);
+        
         for (int i=0; i<hs.size(); i++) {
             if (!hs[i]) {
                 continue;
@@ -2280,6 +2281,8 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
                 continue;
             }
             vector<wxInt64>& ids = aid_idx[aid];
+            wxPen pen(this->GetAssociatePenColour());
+            dc.SetPen(pen);
             for (int j=0; j<ids.size(); j++) {
                 if (associated_lines[associated_layer] &&
                     !associated_layer->IsHide()) {
