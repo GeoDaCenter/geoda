@@ -22,6 +22,7 @@
 
 class ExportDataDlg;
 class ConnectDatasourceDlg;
+class Project;
 
 class CreateGridDlg: public wxDialog
 {    
@@ -30,7 +31,8 @@ class CreateGridDlg: public wxDialog
 
 public:
     ~CreateGridDlg( );
-    CreateGridDlg( wxWindow* parent, wxWindowID id = wxID_ANY,
+    CreateGridDlg( wxWindow* parent, Project* project = NULL,
+                  wxWindowID id = wxID_ANY,
 				   const wxString& caption = _("Creating Grid"),
 				   const wxPoint& pos = wxDefaultPosition,
 				   const wxSize& size = wxDefaultSize,
@@ -57,7 +59,9 @@ public:
     void OnCRadio1Selected( wxCommandEvent& event );
     void OnCRadio2Selected( wxCommandEvent& event );
     void OnCRadio3Selected( wxCommandEvent& event );
-
+    void OnMapLayerSelected( wxCommandEvent& event );
+    void OnMapLayerChoice( wxCommandEvent& event );
+    
     wxTextCtrl* m_outputfile;
     wxTextCtrl* m_inputfile_ascii;
     wxTextCtrl* m_lower_x;
@@ -67,6 +71,7 @@ public:
     wxTextCtrl* m_inputfileshp;
     wxTextCtrl* m_rows;
     wxTextCtrl* m_cols;
+    wxChoice* m_layers;
     
 	void EnableItems();
 	bool CheckBBox();
@@ -84,6 +89,8 @@ public:
 	wxString s_row, s_col, fn;
 
 	bool isCreated;
+    OGRSpatialReference* spatial_ref;
+    Project* p_project;
 };
 
 #endif

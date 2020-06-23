@@ -774,7 +774,8 @@ OGRLayerProxy::AddFeatures(vector<OGRGeometry*>& geometries,
 {
     export_progress = 0;
     stop_exporting = false;
-    wxCSConv* encoding = table->GetEncoding();
+    wxCSConv* encoding = NULL;
+    if (table) table->GetEncoding();
 
     // Create features in memory first
     for (size_t i=0; i<selected_rows.size();++i) {

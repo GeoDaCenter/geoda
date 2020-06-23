@@ -31,6 +31,7 @@
 #include "../TemplateCanvas.h"
 #include "../ShapeOperations/OGRDatasourceProxy.h"
 #include "../ShapeOperations/OGRLayerProxy.h"
+#include "../Explore/MapLayer.hpp"
 #include "CreateGridDlg.h"
 #include "ExportDataDlg.h"
 #include "ConnectDatasourceDlg.h"
@@ -53,10 +54,15 @@ BEGIN_EVENT_TABLE( CreateGridDlg, wxDialog )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO1"), CreateGridDlg::OnCRadio1Selected )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO2"), CreateGridDlg::OnCRadio2Selected )
     EVT_RADIOBUTTON( XRCID("IDC_RADIO3"), CreateGridDlg::OnCRadio3Selected )
+    EVT_RADIOBUTTON( XRCID("IDC_RADIO_LAYERS"), CreateGridDlg::OnMapLayerSelected )
+    EVT_CHOICE( XRCID("IDC_GRID_LAYERS"), CreateGridDlg::OnMapLayerChoice )
 END_EVENT_TABLE()
 
 CreateGridDlg::~CreateGridDlg( )
 {
+    if (spatial_ref) {
+        delete spatial_ref;
+    }
 }
 
 void CreateGridDlg::OnClose(wxCloseEvent& event)
@@ -66,14 +72,22 @@ void CreateGridDlg::OnClose(wxCloseEvent& event)
     Destroy();
 }
 
-CreateGridDlg::CreateGridDlg( wxWindow* parent, wxWindowID id,
+CreateGridDlg::CreateGridDlg( wxWindow* parent, Project* project, wxWindowID id,
 							   const wxString& caption, const wxPoint& pos,
 							   const wxSize& size, long style )
+: spatial_ref(NULL), p_project(project)
 {
 	isCreated = false;
 
     Create(parent, id, caption, pos, size, style);
-
+    if (p_project) {
+        // fill current layers
+        m_layers->Append(p_project->layername);
+        std::vector<wxString> layer_names = p_project->GetLayerNames();
+        for (int i=0; i<layer_names.size(); ++i) {
+            m_layers->Append(layer_names[i]);
+        }
+    }
 	m_check = 1;
 
 
@@ -119,6 +133,8 @@ void CreateGridDlg::CreateControls()
 	m_inputfileshp->SetMaxLength(0);
     m_rows = XRCCTRL(*this, "IDC_EDIT7", wxTextCtrl);
     m_cols = XRCCTRL(*this, "IDC_EDIT8", wxTextCtrl);
+    m_layers = XRCCTRL(*this, "IDC_GRID_LAYERS", wxChoice);
+    m_layers->Enable(false);
 
     if (FindWindow(XRCID("IDC_EDIT1"))) {
         FindWindow(XRCID("IDC_EDIT1"))->
@@ -264,6 +280,7 @@ void CreateGridDlg::OnCReferencefile2Click( wxCommandEvent& event )
         OGRDatasourceProxy* ogr_ds = new OGRDatasourceProxy(ds_name, ds_type, false);
         OGRLayerProxy* ogr_layer = ogr_ds->GetLayerProxy(layer_name);
         bool validExt = ogr_layer->GetExtent(m_xBot, m_yBot, m_xTop, m_yTop);
+        spatial_ref = ogr_layer->GetSpatialReference()->Clone();
         delete ogr_ds;
         ogr_ds = NULL;
         if ( validExt ) {
@@ -291,7 +308,6 @@ void CreateGridDlg::OnCreateClick( wxCommandEvent& event )
 		wxMessageBox(_("Please fix the grid bounding box."));
 		return;
 	}
-    wxMessageBox(_("Grid file was successfully created."));
 	event.Skip();
 }
 
@@ -316,6 +332,33 @@ void CreateGridDlg::OnCRadio3Selected( wxCommandEvent& event )
 	EnableItems();
 }
 
+void CreateGridDlg::OnMapLayerSelected( wxCommandEvent& event )
+{
+    m_check = 4;
+    EnableItems();
+    OnMapLayerChoice(event); // trigger map layer choice
+}
+
+void CreateGridDlg::OnMapLayerChoice( wxCommandEvent& event )
+{
+    if (p_project) {
+        wxString layer_name = m_layers->GetString(m_layers->GetSelection());
+        BackgroundMapLayer* bg_layer = p_project->GetMapLayer(layer_name);
+        if (bg_layer) {
+            bg_layer->GetExtent(m_xBot, m_yBot, m_xTop, m_yTop);
+        } else {
+            p_project->GetMapExtent(m_xBot, m_yBot, m_xTop, m_yTop);
+        }
+        spatial_ref = p_project->GetSpatialReference()->Clone();
+        m_inputfileshp->SetValue(layer_name);
+        EnableItems();
+
+    } else {
+        wxMessageBox(_("Can't get bounding box information from this datasource. Please try another datasource."));
+    }
+}
+
+
 void CreateGridDlg::EnableItems()
 {
 	FindWindow(XRCID("IDC_EDIT1"))->Enable((m_check == 1));
@@ -324,6 +367,7 @@ void CreateGridDlg::EnableItems()
 	FindWindow(XRCID("IDC_EDIT4"))->Enable((m_check == 1));
 	FindWindow(XRCID("IDC_REFERENCEFILE"))->Enable((m_check == 2));
 	FindWindow(XRCID("IDC_REFERENCEFILE2"))->Enable((m_check == 3));
+    FindWindow(XRCID("IDC_GRID_LAYERS"))->Enable((m_check == 4));
 
 	//wxString m_oSHAPE = m_outputfile->GetValue();
 
@@ -393,8 +437,8 @@ bool CreateGridDlg::CreateGrid()
     }
     
 
-    ExportDataDlg export_dlg(this, grids, Shapefile::POLYGON);
-    
+    ExportDataDlg export_dlg(this, Shapefile::POLYGON, grids, spatial_ref, NULL);
+
     bool result = export_dlg.ShowModal() == wxID_OK;
     
 	m_nCount = nMaxCount;
@@ -403,7 +447,7 @@ bool CreateGridDlg::CreateGrid()
 	FindWindow(XRCID("IDCANCEL"))->Enable(true);
 
     for(size_t i=0; i<grids.size(); i++) {
-        delete grids[i];
+        if (grids[i]) delete grids[i];
     }
 	delete [] x;
 	x = NULL;

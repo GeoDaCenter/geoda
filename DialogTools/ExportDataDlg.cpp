@@ -197,9 +197,21 @@ void ExportDataDlg::CreateControls()
     }
     m_crs_input = XRCCTRL(*this, "IDC_FIELD_CRS", wxTextCtrl);
     if (project_p == NULL || project_p->IsTableOnlyProject()) {
-        // if table only ds, disable CRS controls
-        m_crs_input->Disable();
-        XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
+        if (project_p == NULL && spatial_ref) {
+            // for case of creating grid, a spatial reference could be there
+            // from existing map layer
+            char* tmp = new char[1024];
+            if (spatial_ref->exportToProj4(&tmp) == OGRERR_NONE) {
+                wxString str_prj4 = tmp;
+                m_crs_input->SetValue(str_prj4);
+            }
+            delete[] tmp;
+
+        } else if (spatial_ref){
+            // if table only ds, disable CRS controls
+            m_crs_input->Disable();
+            XRCCTRL(*this, "IDC_OPEN_CRS", wxBitmapButton)->Disable();
+        }
     } else {
         OGRSpatialReference*  sr = project_p->GetSpatialReference();
         if (sr) {
@@ -651,7 +663,7 @@ ExportDataDlg::CreateOGRLayer(wxString& ds_name, bool is_table,
     
     OGRDataAdapter::GetInstance().StopExport(); //here new_layer will be deleted
 
-    if (!is_geometry_only) {
+    if (!is_geometry_only && table_p != NULL) {
         for (size_t i=0; i < geometries.size(); i++) {
 			delete geometries[i];
         }

@@ -2243,7 +2243,7 @@ void GdaFrame::OnShapePolygonsFromGrid(wxCommandEvent& WXUNUSED(event) )
         node = node->GetNext();
     }
     
-    CreateGridDlg* dlg =  new CreateGridDlg(this);
+    CreateGridDlg* dlg =  new CreateGridDlg(this, GetProject());
     dlg->Show(true);
 }
 
