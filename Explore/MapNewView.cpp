@@ -591,17 +591,8 @@ bool MapCanvas::IsExtentChanged()
     }
     return !no_change;
 }
-
-void MapCanvas::ExtentMap()
+void MapCanvas::ExtentTo(double minx, double miny, double maxx, double maxy)
 {
-    double minx, miny, maxx, maxy;
-    if (fg_maps.empty()) {
-        this->GetExtent(minx, miny, maxx, maxy);
-    } else {
-        // if multi layers are loaded, use top layer to extent map
-        BackgroundMapLayer* top_layer = fg_maps[0];
-        top_layer->GetExtent(minx, miny, maxx, maxy);
-    }
     if (basemap) {
         OGRCoordinateTransformation *poCT = NULL;
         if (project->sourceSR != NULL) {
@@ -613,6 +604,29 @@ void MapCanvas::ExtentMap()
         basemap->Extent(maxy, minx, miny, maxx, poCT);
     }
     last_scale_trans.SetData(minx, miny, maxx, maxy);
+}
+
+void MapCanvas::ExtentMap()
+{
+    double minx, miny, maxx, maxy;
+    this->GetExtent(minx, miny, maxx, maxy);
+
+    // if multi layers are loaded above curernt layer, extent to fit all layers
+    if (!fg_maps.empty() || !bg_maps.empty()) {
+        std::vector<BackgroundMapLayer*> all_layers = fg_maps;
+        for (int i=0; i<bg_maps.size(); ++i) {
+            all_layers.push_back(bg_maps[i]);
+        }
+        double x,y,mx,my;
+        for (int i=0; i<all_layers.size(); ++i) {
+            all_layers[i]->GetExtent(x,y,mx,my);
+            if (x < minx) minx = x;
+            if (y < miny) miny = y;
+            if (mx > maxx) maxx = mx;
+            if (my > maxy) maxy = my;
+        }
+    }
+    this->ExtentTo(minx, miny, maxx, maxy);
 }
 
 void MapCanvas::ResetShapes()
@@ -728,6 +742,7 @@ void MapCanvas::AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
             // if already loaded before, just show it
             map_layer->SetHide(false);
         }
+        this->ExtentMap();
         full_map_redraw_needed = true;
         PopulateCanvas();
         Refresh();
@@ -2165,7 +2180,7 @@ void MapCanvas::RemoveLayer(wxString name)
             fg_maps.erase(fg_maps.begin() + del_idx);
         }
     }
-
+    this->ExtentMap();
     maplayer_state->notifyObservers(this);
 }
 

@@ -543,7 +543,6 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
 
 void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
 {
-    vector<AssociateLayerInt*> all_layers;
     wxString map_name = map_titles[new_order[select_id]];
     AssociateLayerInt* ml = GetMapLayer(map_name);
     
@@ -555,6 +554,23 @@ void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
     
     ml->ClearLayerAssociation();
     
+}
+
+void MapTree::OnSetExtentToLayer(wxCommandEvent& event)
+{
+    // set map extent to selected layer
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    double minx, miny, maxx, maxy;
+    if (ml == NULL) {
+        // selected layer is current map
+        canvas->GetExtent(minx, miny, maxx, maxy);
+    } else {
+        // other layer
+        ml->GetExtent(minx, miny, maxx, maxy);
+    }
+    canvas->ExtentTo(minx, miny, maxx, maxy);
+    canvas->DisplayMapLayers();
 }
 
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
@@ -734,8 +750,13 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     
     wxString map_name = map_titles[ new_order[select_id] ];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
-    
-    wxString menu_name =  _("Set Highlight Association");
+
+    wxString menu_name = _("Zoom to Layer");
+    popupMenu->Append(XRCID("MAPTREE_SET_LAYER_EXTENT"), menu_name);
+    Connect(XRCID("MAPTREE_SET_LAYER_EXTENT"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnSetExtentToLayer));
+
+    menu_name =  _("Set Highlight Association");
     popupMenu->Append(XRCID("MAPTREE_SET_FOREIGN_KEY"), menu_name);
     Connect(XRCID("MAPTREE_SET_FOREIGN_KEY"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnSetAssociateLayer));
@@ -1008,7 +1029,15 @@ void MapTree::OnMapLayerChange()
 	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
-    if (!canvas->IsExtentChanged()) canvas->ExtentMap();
+    double minx, miny, maxx, maxy;
+    if (!fg_maps.empty()) {
+        // zoom to top layer
+        fg_maps[0]->GetExtent(minx, miny, maxx, maxy);
+    } else {
+        // selected layer is current map
+        canvas->GetExtent(minx, miny, maxx, maxy);
+    }
+    canvas->ExtentTo(minx, miny, maxx, maxy);
     canvas->DisplayMapLayers();
 }
 

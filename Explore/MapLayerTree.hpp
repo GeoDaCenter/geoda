@@ -110,6 +110,7 @@ protected:
     void AddCategoryColorToMenu(wxMenu* menu, int cat_clicked);
     void OnSetAssociateLayer(wxCommandEvent& event);
     void OnClearAssociateLayer(wxCommandEvent& event);
+    void OnSetExtentToLayer(wxCommandEvent& event);
     void OnMapLayerChange();
     BackgroundMapLayer* GetMapLayer(wxString name);
     void DrawLegend(wxDC& dc, int x, int y, wxString text);
