@@ -266,6 +266,38 @@ void MapCanvas::GetExtent(double &minx, double &miny, double &maxx, double &maxy
     project->GetMapExtent(minx, miny, maxx, maxy);
 }
 
+void MapCanvas::GetExtentOfSelected(double &minx, double &miny, double &maxx, double &maxy)
+{
+    bool has_selected = false;
+    std::vector<bool>& highlight_flags = highlight_state->GetHighlight();
+    int cnt = 0;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            has_selected = true;
+            std::vector<wxFloat64> box = project->GetBBox(i);
+            if (cnt == 0) {
+                minx =box[0];
+                miny =box[2];
+                maxx =box[1];
+                maxy =box[3];
+            } else {
+                if (box[0] < minx) minx = box[0];
+                if (box[2] < miny) miny = box[2];
+                if (box[1] > maxx) maxx = box[1];
+                if (box[3] > maxy) maxy = box[3];
+            }
+            cnt += 1;
+        }
+    }
+    if (has_selected == false) {
+        // fall back to layer extent
+        GetExtent(minx, miny, maxx, maxy);
+    } else {
+        // reset selection
+        ResetBrushing();
+    }
+}
+
 Shapefile::Main& MapCanvas::GetGeometryData()
 {
     return project->main_data;
@@ -3377,7 +3409,7 @@ void MapFrame::SetupToolbar()
     Connect(XRCID("ID_EDIT_LAYER"), wxEVT_COMMAND_TOOL_CLICKED,
             wxCommandEventHandler(MapFrame::OnMapEditLayer));
     if (toolbar) {
-        toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
+        //toolbar->EnableTool(XRCID("ID_EDIT_LAYER"), project->GetMapLayerCount()>0);
     }
 }
 

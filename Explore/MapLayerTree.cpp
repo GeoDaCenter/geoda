@@ -315,7 +315,7 @@ isDragDropAllowed(false)
     leg_pad_x = 10;
     leg_pad_y = 5;
     
-    current_map_title = canvas->GetName() + " (current map)";
+    current_map_title = canvas->GetName() + _(" (current map)");
     
     Init();
 
@@ -494,7 +494,7 @@ void MapTree::OnSpatialJoinCount(wxCommandEvent& event)
         new_data[0].type = GdaConst::long64_type;
         new_data[0].undefined = &undefs;
         SaveToTableDlg dlg(canvas->GetProject(), this, new_data,
-                           "Save Results: Spatial Counts",
+                           _("Save Results: Spatial Counts"),
                            wxDefaultPosition, wxSize(400,400));
         dlg.ShowModal();
     }
@@ -570,7 +570,7 @@ void MapTree::OnClearAssociateLayer(wxCommandEvent& event)
     
 }
 
-void MapTree::OnSetExtentToLayer(wxCommandEvent& event)
+void MapTree::OnZoomToLayer(wxCommandEvent& event)
 {
     // set map extent to selected layer
     wxString map_name = map_titles[new_order[select_id]];
@@ -585,6 +585,24 @@ void MapTree::OnSetExtentToLayer(wxCommandEvent& event)
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
     canvas->DisplayMapLayers();
+}
+
+void MapTree::OnZoomToSelected(wxCommandEvent& event)
+{
+    // set map extent to selected objects in mouse clicked layer
+    wxString map_name = map_titles[new_order[select_id]];
+    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    double minx, miny, maxx, maxy;
+    if (ml == NULL) {
+        // selected layer is current map
+        canvas->GetExtentOfSelected(minx, miny, maxx, maxy);
+    } else {
+        // other layer
+        ml->GetExtentOfSelected(minx, miny, maxx, maxy);
+    }
+    canvas->ExtentTo(minx, miny, maxx, maxy);
+    canvas->DisplayMapLayers();
+    canvas->ResetBrushing();
 }
 
 void MapTree::OnSetAssociateLayer(wxCommandEvent& event)
@@ -768,7 +786,11 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     wxString menu_name = _("Zoom to Layer");
     popupMenu->Append(XRCID("MAPTREE_SET_LAYER_EXTENT"), menu_name);
     Connect(XRCID("MAPTREE_SET_LAYER_EXTENT"), wxEVT_COMMAND_MENU_SELECTED,
-            wxCommandEventHandler(MapTree::OnSetExtentToLayer));
+            wxCommandEventHandler(MapTree::OnZoomToLayer));
+    menu_name = _("Zoom to Selected");
+    popupMenu->Append(XRCID("MAPTREE_ZOOM_TO_SELECTED"), menu_name);
+    Connect(XRCID("MAPTREE_ZOOM_TO_SELECTED"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapTree::OnZoomToSelected));
     popupMenu->AppendSeparator();
 
     menu_name =  _("Set Highlight Association");

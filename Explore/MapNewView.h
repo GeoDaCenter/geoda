@@ -214,6 +214,8 @@ public:
     virtual int GetHighlightRecords();
     virtual void GetExtent(double &minx, double &miny, double &maxx,
                            double &maxy);
+    virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
+                                     double &maxy);
     void UpdateMapTree();
     
     Shapefile::Main& GetGeometryData();

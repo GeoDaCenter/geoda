@@ -126,6 +126,34 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+void BackgroundMapLayer::GetExtentOfSelected(double &_minx, double &_miny, double &_maxx,
+                                             double &_maxy)
+{
+    bool has_selected = false;
+    for (int i=0; i<highlight_flags.size(); i++) {
+        if (highlight_flags[i]) {
+            has_selected = true;
+            OGREnvelope box;
+            geoms[i]->getEnvelope(&box);
+            if (i == 0) {
+                _minx =box.MinX;
+                _miny =box.MinY;
+                _maxx =box.MaxX;
+                _maxy =box.MaxY;
+            } else {
+                if (box.MinX < _minx) _minx = box.MinX;
+                if (box.MinY < _miny) _miny = box.MinY;
+                if (box.MaxX > _maxx) _maxx = box.MaxX;
+                if (box.MaxY > _maxy) _maxy = box.MaxY;
+            }
+        }
+    }
+    if (has_selected == false) {
+        // fall back to layer extent
+        GetExtent(_minx, _miny, _maxx, _maxy);
+    }
+}
+
 int BackgroundMapLayer::GetHighlightRecords()
 {
     int hl_cnt = 0;
@@ -158,7 +186,7 @@ void BackgroundMapLayer::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
         associated_layer->ResetHighlight();
-        
+
         map<wxString, vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
             aid_idx[fid[i]].push_back(i);

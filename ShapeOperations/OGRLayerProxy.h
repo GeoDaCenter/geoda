@@ -122,6 +122,7 @@ public:
     void AddFeatures(vector<OGRGeometry*>& geometries,
                      TableInterface* table,
                      vector<int>& selected_rows);
+    
 	/**
 	 * Read geometries and save to Shapefile::Main data structure.
 	 */

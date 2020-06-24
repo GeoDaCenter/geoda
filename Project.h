@@ -173,7 +173,8 @@ public:
 	const std::vector<GdaShape*>& GetVoronoiPolygons();
     GdaPolygon* GetMapBoundary();
 	void GetMapExtent(double& minx, double& miny, double& maxx, double& maxy);
-    
+    std::vector<wxFloat64> GetBBox(int idx);
+
 	double GetMin1nnDistEuc();
 	double GetMax1nnDistEuc();
 	double GetMaxDistEuc(); // diameter of convex hull

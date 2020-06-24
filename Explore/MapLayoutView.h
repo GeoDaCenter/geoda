@@ -14,8 +14,7 @@
 class MapCanvas;
 class TemplateLegend;
 
-
-
+// Window dialog to save map as high-def image
 class CanvasExportSettingDialog : public wxDialog
 {
     wxTextCtrl *tc1;

@@ -23,6 +23,8 @@ class AssociateLayerInt;
 // my_key, key from other layer
 typedef pair<wxString, wxString> Association;
 
+// Interfaces for map layer setting highlight association to any other map layer
+// It is implemented by: BackgroundMapLayer and MapCanvas
 class AssociateLayerInt
 {
 protected:
@@ -54,6 +56,8 @@ public:
     //virtual vector<GdaShape*> GetShapes() = 0;
     virtual void GetExtent(double &minx, double &miny, double &maxx,
                            double &maxy) = 0;
+    virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
+                                     double &maxy) = 0;
     
     virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
                                      wxString key, bool show_connline=true) = 0;
@@ -73,7 +77,9 @@ public:
     }
 };
 
-
+// BackgroundMapLayer is similar to MapCanvas, but much simpler
+// MapCanvas has vector of BackgroundMapLayers as foreground map layers and
+// background layers, which are rendered as GdaShapeLayer:GdaShape
 class BackgroundMapLayer : public AssociateLayerInt
 {
     int num_obs;
@@ -119,6 +125,8 @@ public:
     virtual void RemoveAssociatedLayer(AssociateLayerInt* layer);
     virtual int GetHighlightRecords();
     virtual void GetExtent(double &minx, double &miny, double &maxx, double &maxy);
+    virtual void GetExtentOfSelected(double &minx, double &miny, double &maxx,
+                                     double &maxy);
     // clone all except shapes and geoms, which are owned by Project* instance;
     // so that different map window can configure the multi-layers
     BackgroundMapLayer* Clone(bool clone_style=false);
@@ -183,15 +191,5 @@ public:
     virtual void projectToBasemap(Gda::Basemap* basemap, double scale_factor = 1.0);
     virtual void paintSelf(wxDC& dc);
     virtual void paintSelf(wxGraphicsContext* gc);
-};
-
-class GdaGridLayer : public GdaShape {
-    wxString name;
-    vector<OGRGeometry*> geoms;
-    
-public:
-    GdaGridLayer(wxString name, int width, int height);
-    ~GdaGridLayer();
-    
 };
 #endif /* MapLayer_hpp */
