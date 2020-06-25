@@ -1055,10 +1055,12 @@ void MapTree::OnMapLayerChange()
             is_fgmap = false;
             continue;
         }
+        BackgroundMapLayer* lyr = GetMapLayer(name);
+        lyr->ResetHighlight();
         if (is_fgmap) {
-            new_fg_maps.push_back(GetMapLayer(name));
+            new_fg_maps.push_back(lyr);
         } else {
-            new_bg_maps.push_back(GetMapLayer(name));
+            new_bg_maps.push_back(lyr);
         }
     }
     

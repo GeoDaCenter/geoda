@@ -1208,7 +1208,8 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         for (size_t i=0; i<bg_maps.size(); ++i) {
             BackgroundMapLayer* ml = bg_maps[i];
             if (ml && ml->IsHide() == false) {
-                ml->DrawHighlight(dc, this);
+                int nhl = ml->GetHighlightRecords();
+                if (nhl > 0) ml->DrawHighlight(dc, this);
             }
         }
     }
@@ -1221,7 +1222,8 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         for (int i=fg_maps.size()-1; i>=0; --i) {
             BackgroundMapLayer* ml = fg_maps[i];
             if (ml && ml->IsHide() == false) {
-                ml->DrawHighlight(dc, this);
+                int nhl = ml->GetHighlightRecords();
+                if (nhl > 0) ml->DrawHighlight(dc, this);
             }
         }
     }
@@ -2282,7 +2284,10 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         }
         vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
-        associated_layer->ResetHighlight();
+        // if background layer
+        if (fg_maps.empty()) {
+            associated_layer->ResetHighlight();
+        }
 
         map<wxString, vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
