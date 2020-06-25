@@ -170,7 +170,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;dep\zlib\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;dep\zlib\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswud;temp\json_spirit_v4.08;temp\eigen3;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;DEBUG;_DEBUG;_WINDOWS;__WXMSW__;__WXDEBUG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -270,7 +270,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Intel\OpenCL\sdk\include;C:\OSGeo4W\include;temp\boost_1_57_0;temp\wxWidgets-3.1.0\include;temp\wxWidgets-3.1.0\lib\vc_x64_dll\mswu;temp\json_spirit_v4.08;temp\eigen3;dep\zlib\include;temp\spectra\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_WINDOWS;__WXMSW__;__NO_VC_CRTDBG__;WXUSINGDLL;UNICODE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
@@ -327,6 +327,7 @@
     <ClCompile Include="..\..\Algorithms\maxp.cpp" />
     <ClCompile Include="..\..\Algorithms\mds.cpp" />
     <ClCompile Include="..\..\Algorithms\misc.c" />
+    <ClCompile Include="..\..\Algorithms\pam.cpp" />
     <ClCompile Include="..\..\Algorithms\pca.cpp" />
     <ClCompile Include="..\..\Algorithms\predict.c" />
     <ClCompile Include="..\..\Algorithms\redcap.cpp" />
@@ -374,6 +375,7 @@
     <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp" />
     <ClCompile Include="..\..\Explore\Basemap.cpp" />
     <ClCompile Include="..\..\Explore\ColocationMapView.cpp" />
+    <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp" />
     <ClCompile Include="..\..\Explore\ConditionalClusterMapView.cpp" />
     <ClCompile Include="..\..\Explore\ConnectivityMapView.cpp" />
     <ClCompile Include="..\..\Explore\CorrelogramAlgs.cpp" />
@@ -467,6 +469,7 @@
     <ClInclude Include="..\..\Algorithms\loess.h" />
     <ClInclude Include="..\..\Algorithms\maxp.h" />
     <ClInclude Include="..\..\Algorithms\mds.h" />
+    <ClInclude Include="..\..\Algorithms\pam.h" />
     <ClInclude Include="..\..\Algorithms\pca.h" />
     <ClInclude Include="..\..\Algorithms\redcap.h" />
     <ClInclude Include="..\..\Algorithms\S.h" />
@@ -538,6 +541,7 @@
     <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h" />
     <ClInclude Include="..\..\Explore\Basemap.h" />
     <ClInclude Include="..\..\Explore\ColocationMapView.h" />
+    <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h" />
     <ClInclude Include="..\..\Explore\ConditionalClusterMapView.h" />
     <ClInclude Include="..\..\Explore\ConnectivityMapView.h" />
     <ClInclude Include="..\..\Explore\CorrelogramAlgs.h" />

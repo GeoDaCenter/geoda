@@ -64,7 +64,13 @@ public:
         return result;
     }
     double nextDouble() {
-        return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
+#ifdef WIN32
+		char tempStr[] = "0x1.0p-53";
+		double nd = std::strtod(tempStr, NULL);
+        return ((unsigned long long)nextLong() >> 11) * nd;
+#else
+		return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
+#endif
     }
     std::vector<int> randomSample(int samplesize, int n)
     {
