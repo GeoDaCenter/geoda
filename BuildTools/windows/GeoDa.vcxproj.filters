@@ -905,6 +905,12 @@
     <ClInclude Include="..\..\Explore\AnimatePlotCanvas.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\pam.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1659,6 +1665,12 @@
       <Filter>Algorithms\smacof</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Explore\AnimatePlotCanvas.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\pam.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp">
       <Filter>Explore</Filter>
     </ClCompile>
   </ItemGroup>

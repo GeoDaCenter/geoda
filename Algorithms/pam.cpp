@@ -30,7 +30,7 @@ std::vector<int> BUILD::run(const std::vector<int>& ids, int k)
     std::set<int> medids_set;
     
     // O(sqrt(n)) sample if k^2 < n.
-    int ssize = 10 + (int)ceil(sqrt(nn));
+    int ssize = 10 + (int)ceil(std::sqrt((double)nn));
     if (ssize < nn) ssize = nn;
     
     // We need three temporary storage arrays:
@@ -137,7 +137,7 @@ std::vector<int> LAB::run(const std::vector<int>& ids, int k)
     std::set<int> medids_set;
     
     // O(sqrt(n)) sample if k^2 < n.
-    int ssize = 10 + (int)ceil(sqrt(nn));
+    int ssize = 10 + (int)ceil(std::sqrt((double)nn));
     if (ssize > nn) ssize = nn;
     
     // We need three temporary storage arrays:
@@ -548,7 +548,7 @@ void FastPAM::computeReassignmentCost(int h, std::vector<double> &cost) {
         // Case 1b: j switches to new medoid, or to the second nearest:
         int pj = assignment[j] & 0x7FFF;
         
-        cost[pj] += fmin(dist_h, distsec) - distcur;
+        cost[pj] += std::min(dist_h, distsec) - distcur;
         if(dist_h < distcur) {
             double delta = dist_h - distcur;
             // Case 1c: j is closer to h than its current medoid
@@ -579,7 +579,7 @@ double FastPAM::computeReassignmentCost(int h, int mnum)
         if((assignment[j] & 0x7FFF) == mnum) {
             // distance(j, o) to second nearest / possible reassignment
             // Case 1b: j switches to new medoid, or to the second nearest:
-            cost += fmin(dist_h, second[j]) - distcur;
+            cost += std::min(dist_h, second[j]) - distcur;
         }
         else if(dist_h < distcur) {
             // Case 1c: j is closer to h than its current medoid
