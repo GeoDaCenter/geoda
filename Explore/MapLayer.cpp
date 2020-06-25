@@ -39,6 +39,7 @@ BackgroundMapLayer::BackgroundMapLayer(wxString name,
 {
     is_hide = false;
     num_obs = layer_proxy->GetNumRecords();
+    shapes.resize(num_obs, 0);
     shape_type = layer_proxy->GetGdaGeometries(shapes, sr);
     // this is for map boundary only
     shape_type = layer_proxy->GetOGRGeometries(geoms, sr);
@@ -126,26 +127,52 @@ GdaShape* BackgroundMapLayer::GetShape(int idx)
     return shapes[idx];
 }
 
+OGRSpatialReference* BackgroundMapLayer::GetSpatialReference()
+{
+    if (layer_proxy) {
+        return layer_proxy->GetSpatialReference();
+    }
+    return NULL;
+}
+
 void BackgroundMapLayer::GetExtentOfSelected(double &_minx, double &_miny, double &_maxx,
                                              double &_maxy)
 {
     bool has_selected = false;
+    int cnt = 0;
     for (int i=0; i<highlight_flags.size(); i++) {
-        if (highlight_flags[i]) {
+        if (highlight_flags[i] && geoms[i]) {
             has_selected = true;
-            OGREnvelope box;
-            geoms[i]->getEnvelope(&box);
-            if (i == 0) {
-                _minx =box.MinX;
-                _miny =box.MinY;
-                _maxx =box.MaxX;
-                _maxy =box.MaxY;
+            OGRwkbGeometryType eType = wkbFlatten(geoms[i]->getGeometryType());
+            if (eType == wkbPoint) {
+                OGRPoint* p = (OGRPoint *) geoms[i];
+                if (cnt == 0) {
+                    _minx = p->getX();
+                    _miny = p->getY();
+                    _maxx = p->getX();
+                    _maxy = p->getY();
+                } else {
+                    if (p->getX() < _minx) _minx = p->getX();
+                    if (p->getY() < _miny) _miny = p->getY();
+                    if (p->getX() > _maxx) _maxx = p->getX();
+                    if (p->getY() > _maxy) _maxy = p->getY();
+                }
             } else {
-                if (box.MinX < _minx) _minx = box.MinX;
-                if (box.MinY < _miny) _miny = box.MinY;
-                if (box.MaxX > _maxx) _maxx = box.MaxX;
-                if (box.MaxY > _maxy) _maxy = box.MaxY;
+                OGREnvelope box;
+                geoms[i]->getEnvelope(&box);
+                if (cnt == 0) {
+                    _minx =box.MinX;
+                    _miny =box.MinY;
+                    _maxx =box.MaxX;
+                    _maxy =box.MaxY;
+                } else {
+                    if (box.MinX < _minx) _minx = box.MinX;
+                    if (box.MinY < _miny) _miny = box.MinY;
+                    if (box.MaxX > _maxx) _maxx = box.MaxX;
+                    if (box.MaxY > _maxy) _maxy = box.MaxY;
+                }
             }
+            cnt += 1;
         }
     }
     if (has_selected == false) {
@@ -538,7 +565,9 @@ void GdaShapeLayer::applyScaleTrans(const GdaScaleTrans &A)
         }
     } else {
         for (int i=0; i<ml->shapes.size(); i++) {
-            ml->shapes[i]->applyScaleTrans(A);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->applyScaleTrans(A);
+            }
         }
     }
 }
@@ -551,7 +580,9 @@ void GdaShapeLayer::projectToBasemap(Gda::Basemap *basemap, double scale_factor)
         }
     } else {
         for (int i=0; i<ml->shapes.size(); i++) {
-            ml->shapes[i]->projectToBasemap(basemap, scale_factor);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->projectToBasemap(basemap, scale_factor);
+            }
         }
     }
 }
@@ -573,12 +604,16 @@ void GdaShapeLayer::paintSelf(wxDC &dc)
         
         for (int i=0; i<ml->shapes.size(); i++) {
             if (ml->GetShapeType() == Shapefile::POINT_TYP) {
-                GdaPoint* pt = (GdaPoint*)ml->shapes[i];
-                pt->radius = ml->GetPointRadius();
+                if (ml->shapes[i]) {
+                    GdaPoint* pt = (GdaPoint*)ml->shapes[i];
+                    pt->radius = ml->GetPointRadius();
+                }
             }
-            ml->shapes[i]->setPen(pen);
-            ml->shapes[i]->setBrush(brush);
-            ml->shapes[i]->paintSelf(dc);
+            if (ml->shapes[i]) {
+                ml->shapes[i]->setPen(pen);
+                ml->shapes[i]->setBrush(brush);
+                ml->shapes[i]->paintSelf(dc);
+            }
         }
     }
 }

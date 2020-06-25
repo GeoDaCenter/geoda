@@ -152,6 +152,7 @@ public:
 	virtual void PanShapes();
     virtual void ExtentMap();
     virtual void ExtentTo(double minx, double miny, double maxx, double maxy);
+    virtual OGRSpatialReference* GetSpatialReference();
     virtual bool IsExtentChanged();
     virtual void ResizeSelectableShps(int virtual_scrn_w = 0,
                                       int virtual_scrn_h = 0);

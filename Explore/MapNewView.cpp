@@ -277,13 +277,13 @@ void MapCanvas::GetExtentOfSelected(double &minx, double &miny, double &maxx, do
             std::vector<wxFloat64> box = project->GetBBox(i);
             if (cnt == 0) {
                 minx =box[0];
-                miny =box[2];
-                maxx =box[1];
+                miny =box[1];
+                maxx =box[2];
                 maxy =box[3];
             } else {
                 if (box[0] < minx) minx = box[0];
-                if (box[2] < miny) miny = box[2];
-                if (box[1] > maxx) maxx = box[1];
+                if (box[1] < miny) miny = box[1];
+                if (box[2] > maxx) maxx = box[2];
                 if (box[3] > maxy) maxy = box[3];
             }
             cnt += 1;
@@ -365,7 +365,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
     }
     if (pointsel) { // a point selection
         for (int i=0; i<nn; i++) {
-            if (shapes[i]->pointWithin(sel1)) {
+            if (geoms[i] && shapes[i]->pointWithin(sel1)) {
                 ml->SetHighlight(i);
             } else {
                 ml->SetUnHighlight(i);
@@ -375,6 +375,9 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
         if (brushtype == rectangle) {
             wxRegion rect(wxRect(sel1, sel2));
             for (int i=0; i<nn; i++) {
+                if (geoms[i]==NULL) {
+                    continue;
+                }
                 bool contains = (rect.Contains(shapes[i]->center) !=
                                  wxOutRegion);
                 if (contains) {
@@ -636,6 +639,14 @@ void MapCanvas::ExtentTo(double minx, double miny, double maxx, double maxy)
         basemap->Extent(maxy, minx, miny, maxx, poCT);
     }
     last_scale_trans.SetData(minx, miny, maxx, maxy);
+}
+
+OGRSpatialReference* MapCanvas::GetSpatialReference()
+{
+    if (project->layer_proxy) {
+        return project->layer_proxy->GetSpatialReference();
+    }
+    return NULL;
 }
 
 void MapCanvas::ExtentMap()
@@ -1214,7 +1225,11 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
 
-
+    if ( !fg_maps.empty() ) {
+        // prepare main layer hights
+        vector<bool>& hs = highlight_state->GetHighlight();
+        for (int i=0; i<hs.size(); ++i) hs[i] =false;
+    }
     DrawHighlight(dc, this);
 
     if ( !fg_maps.empty() ) {

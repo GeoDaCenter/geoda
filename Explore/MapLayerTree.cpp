@@ -599,6 +599,14 @@ void MapTree::OnZoomToSelected(wxCommandEvent& event)
     } else {
         // other layer
         ml->GetExtentOfSelected(minx, miny, maxx, maxy);
+        // re projection if needed
+        OGRSpatialReference* destSR = canvas->GetSpatialReference();
+        OGRSpatialReference* sourceSR = ml->GetSpatialReference();
+        OGRCoordinateTransformation *poCT = OGRCreateCoordinateTransformation(sourceSR, destSR);
+        if (poCT!= NULL) {
+            //poCT->Transform(1, &minx, &miny);
+            //poCT->Transform(1, &maxx, &maxx);
+        }
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
     canvas->DisplayMapLayers();
@@ -728,9 +736,9 @@ void MapTree::OnEvent(wxMouseEvent& event)
         Refresh();
     } else if (event.Dragging()) {
         if (isLeftDown) {
-            isLeftMove = true;
             // moving
             if (select_id > -1 ) {
+                isLeftMove = true;
                 // paint selected label with mouse
                 //int label_id = new_order[select_id];
                 move_pos = event.GetPosition();
@@ -1069,6 +1077,7 @@ void MapTree::OnMapLayerChange()
 	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
+    /*
     double minx, miny, maxx, maxy;
     if (!fg_maps.empty()) {
         // zoom to top layer
@@ -1078,6 +1087,7 @@ void MapTree::OnMapLayerChange()
         canvas->GetExtent(minx, miny, maxx, maxy);
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
+     */
     canvas->DisplayMapLayers();
 }
 

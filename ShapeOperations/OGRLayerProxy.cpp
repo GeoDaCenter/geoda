@@ -619,6 +619,7 @@ Shapefile::ShapeType OGRLayerProxy::GetOGRGeometries(vector<OGRGeometry*>& geoms
 Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                                                 OGRSpatialReference* dest_sr)
 {
+    bool is_geoms_init = !geoms.empty();
     OGRCoordinateTransformation *poCT = NULL;
     if (dest_sr && spatialRef) {
         poCT = OGRCreateCoordinateTransformation(spatialRef, dest_sr);
@@ -642,7 +643,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                 if (poCT) {
                     poCT->Transform(1, &ptX, &ptY);
                 }
-                geoms.push_back(new GdaPoint(ptX, ptY));
+                if (is_geoms_init) {
+                    geoms[row_idx] = new GdaPoint(ptX, ptY);
+                } else {
+                    geoms.push_back(new GdaPoint(ptX, ptY));
+                }
             }
         } else if (eType == wkbMultiPoint) {
             shape_type = Shapefile::POINT_TYP;
@@ -658,7 +663,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                     if (poCT) {
                         poCT->Transform(1, &ptX, &ptY);
                     }
-                    geoms.push_back(new GdaPoint(ptX, ptY));
+                    if (is_geoms_init) {
+                        geoms[row_idx] = new GdaPoint(ptX, ptY);
+                    } else {
+                        geoms.push_back(new GdaPoint(ptX, ptY));
+                    }
                 }
             }
         } else if (eType == wkbPolygon || eType == wkbCurvePolygon ) {
@@ -702,7 +711,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                         }
                 }
             }
-            geoms.push_back(new GdaPolygon(pc));
+            if (is_geoms_init) {
+                geoms[row_idx] = new GdaPolygon(pc);
+            } else {
+                geoms.push_back(new GdaPolygon(pc));
+            }
         } else if (eType == wkbMultiPolygon) {
             Shapefile::PolygonContents* pc = new Shapefile::PolygonContents();
             shape_type = Shapefile::POLYGON;
@@ -758,7 +771,11 @@ Shapefile::ShapeType OGRLayerProxy::GetGdaGeometries(vector<GdaShape*>& geoms,
                     }
                 }
             }
-            geoms.push_back(new GdaPolygon(pc));
+            if (is_geoms_init) {
+                geoms[row_idx] = new GdaPolygon(pc);
+            } else {
+                geoms.push_back(new GdaPolygon(pc));
+            }
         } else {
             wxString msg = _("GeoDa does not support datasource with line data at this time.  Please choose a datasource with either point or polygon data.");
             throw GdaException(msg.mb_str());

@@ -392,8 +392,8 @@ std::vector<wxFloat64> Project::GetBBox(int idx)
     if (main_data.header.shape_type == Shapefile::POINT_TYP) {
         Shapefile::PointContents* pc = (Shapefile::PointContents*)main_data.records[idx].contents_p;
         box[0] = pc->x;
-        box[2] = pc->y;
-        box[1] = pc->x;
+        box[1] = pc->y;
+        box[2] = pc->x;
         box[3] = pc->y;
     } else if (main_data.header.shape_type == Shapefile::POLYGON) {
         Shapefile::PolygonContents* pc = (Shapefile::PolygonContents*)main_data.records[idx].contents_p;
