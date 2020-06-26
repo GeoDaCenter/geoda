@@ -120,6 +120,7 @@ void wxGridCellInt64Editor::BeginEdit(int row, int col, wxGrid* grid)
         }
         DoBeginEdit(value);
     } else {
+        m_value = 0;
         DoBeginEdit("0");
     }
 }

@@ -142,9 +142,11 @@ CountPointsInPolygon::CountPointsInPolygon(BackgroundMapLayer* _ml,
     int n = ml->shapes.size();
     double x, y;
     for (int i=0; i<n; i++) {
-        x = ml->shapes[i]->center_o.x;
-        y = ml->shapes[i]->center_o.y;
-        rtree.insert(std::make_pair(pt_2d(x,y), i));
+        if (ml->shapes[i]) {
+            x = ml->shapes[i]->center_o.x;
+            y = ml->shapes[i]->center_o.y;
+            rtree.insert(std::make_pair(pt_2d(x,y), i));
+        }
     }
 }
 
@@ -169,6 +171,9 @@ void CountPointsInPolygon::sub_run(int start, int end)
             double y = v.first.get<1>();
             OGRPoint ogr_pt(x, y);
             if (ogr_pt.Within(ogr_poly)) {
+                if (i == 12) {
+                    std::cout << pt_idx << std::endl;
+                }
                 spatial_counts[i] += 1;
                 if (join_variable) {
                     mutex.lock();
@@ -192,14 +197,18 @@ AssignPolygonToPoint::AssignPolygonToPoint(BackgroundMapLayer* _ml,
     num_polygons = ml->GetNumRecords();
     // using current map(points) to create rtree
     Shapefile::Main& main_data = project->main_data;
+    OGRLayerProxy* ogr_layer = project->layer_proxy;
     Shapefile::PointContents* pc;
     int n = project->GetNumRecords();
     double x, y;
     for (int i=0; i<n; i++) {
-        pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
-        x = pc->x;
-        y = pc->y;
-        rtree.insert(std::make_pair(pt_2d(x,y), i));
+        OGRGeometry* ogr_pt = ogr_layer->GetGeometry(i);
+        if (ogr_pt) {
+            pc = (Shapefile::PointContents*)main_data.records[i].contents_p;
+            x = pc->x;
+            y = pc->y;
+            rtree.insert(std::make_pair(pt_2d(x,y), i));
+        }
         spatial_counts[i] = -1;
     }
 }
