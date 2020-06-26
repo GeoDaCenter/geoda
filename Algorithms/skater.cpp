@@ -12,7 +12,7 @@
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
 #include <boost/graph/connected_components.hpp>
 
-
+#include "../GdaConst.h"
 #include "../GenUtils.h"
 #include "skater.h"
 
@@ -43,7 +43,8 @@ void Skater::run_threads(vector<E> tree, vector<double>& scores, vector<vector<s
 {
     int n_jobs = tree.size();
     
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = n_jobs / nCPUs;
     int remainder = n_jobs % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;

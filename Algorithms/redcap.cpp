@@ -36,6 +36,7 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../logger.h"
 #include "../GenUtils.h"
+#include "../GdaConst.h"
 #include "cluster.h"
 #include "redcap.h"
 
@@ -251,7 +252,8 @@ void Tree::run_threads(vector<int>& ids,
 {
     int n_jobs = (int)od_array.size();
     
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = n_jobs / nCPUs;
     int remainder = n_jobs % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;

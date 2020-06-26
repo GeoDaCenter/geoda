@@ -62,7 +62,8 @@ vector<wxInt64> SpatialJoinWorker::GetResults()
 void SpatialJoinWorker::Run()
 {
     int initial = num_polygons;
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;

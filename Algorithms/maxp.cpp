@@ -33,6 +33,7 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../logger.h"
 #include "../GenUtils.h"
+#include "../GdaConst.h"
 #include "maxp.h"
 
 using namespace boost;
@@ -154,7 +155,8 @@ void Maxp::run(int a, int b)
 
 void Maxp::run_threaded()
 {
-    int nCPUs = boost::thread::hardware_concurrency();;
+    int nCPUs = boost::thread::hardware_concurrency();
+    if (GdaConst::gda_set_cpu_cores) nCPUs = GdaConst::gda_cpu_cores;
     int quotient = initial / nCPUs;
     int remainder = initial % nCPUs;
     int tot_threads = (quotient > 0) ? nCPUs : remainder;
