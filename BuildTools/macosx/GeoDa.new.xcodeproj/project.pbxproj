@@ -139,6 +139,9 @@
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
 		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
+		A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */; };
+		A4A591F724ABB15500BEA1FF /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A591F524ABB15400BEA1FF /* dbscan.cpp */; };
+		A4A591FA24ABB80900BEA1FF /* DBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A591F924ABB80800BEA1FF /* DBScanDlg.cpp */; };
 		A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A6AD7A207F198E00D29677 /* ShpFile.cpp */; };
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
 		A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B1F992207730FA00905246 /* matlab_mat.cpp */; };
@@ -557,6 +560,12 @@
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
 		A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
 		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
+		A4A591F224A515D900BEA1FF /* ConditionalBoxPlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalBoxPlotView.h; sourceTree = "<group>"; };
+		A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalBoxPlotView.cpp; sourceTree = "<group>"; };
+		A4A591F524ABB15400BEA1FF /* dbscan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dbscan.cpp; path = Algorithms/dbscan.cpp; sourceTree = "<group>"; };
+		A4A591F624ABB15500BEA1FF /* dbscan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dbscan.h; path = Algorithms/dbscan.h; sourceTree = "<group>"; };
+		A4A591F824ABB80800BEA1FF /* DBScanDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBScanDlg.h; sourceTree = "<group>"; };
+		A4A591F924ABB80800BEA1FF /* DBScanDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DBScanDlg.cpp; sourceTree = "<group>"; };
 		A4A6AD79207F198D00D29677 /* ShpFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShpFile.h; sourceTree = "<group>"; };
 		A4A6AD7A207F198E00D29677 /* ShpFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShpFile.cpp; sourceTree = "<group>"; };
 		A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ColocationMapView.cpp; sourceTree = "<group>"; };
@@ -987,6 +996,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4A591F524ABB15400BEA1FF /* dbscan.cpp */,
+				A4A591F624ABB15500BEA1FF /* dbscan.h */,
 				A438249824775CB90001497D /* pam.cpp */,
 				A438249924775CB90001497D /* pam.h */,
 				A4BBAB982444D81300BD4E57 /* smacof */,
@@ -1254,6 +1265,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4A591F924ABB80800BEA1FF /* DBScanDlg.cpp */,
+				A4A591F824ABB80800BEA1FF /* DBScanDlg.h */,
 				A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */,
 				A41C2BB22400442400C341A2 /* nbrMatchDlg.h */,
 				A41C2BB12400442400C341A2 /* tSNEDlg.cpp */,
@@ -1401,6 +1414,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */,
+				A4A591F224A515D900BEA1FF /* ConditionalBoxPlotView.h */,
 				A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */,
 				A45CFF072453A516001F00B9 /* AnimatePlotCanvas.h */,
 				A45CFF062453A516001F00B9 /* wxGLString.cpp */,
@@ -1845,6 +1860,7 @@
 				DD7976C20F1D2CA800496A84 /* SparseMatrix.cpp in Sources */,
 				DD7976C30F1D2CA800496A84 /* SparseRow.cpp in Sources */,
 				A47F792220AA082A000AFE57 /* lisa_kernel.cl in Sources */,
+				A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */,
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */,
@@ -1872,6 +1888,7 @@
 				A41C2BB32400442400C341A2 /* nbrMatchDlg.cpp in Sources */,
 				DDD593B012E9F42100F7A7C4 /* WeightsManager.cpp in Sources */,
 				A194839C2118BAAA009A87A2 /* mfutils.cpp in Sources */,
+				A4A591FA24ABB80900BEA1FF /* DBScanDlg.cpp in Sources */,
 				A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */,
 				A194839A2118BAAA009A87A2 /* lines.cpp in Sources */,
 				DDD593C712E9F90000F7A7C4 /* GalWeight.cpp in Sources */,
@@ -1994,6 +2011,7 @@
 				A43F343C2412C8290096E33B /* LoessPlotCanvas.cpp in Sources */,
 				DD0FEBBC1909B7A000930418 /* NumCategoriesDlg.cpp in Sources */,
 				DD9C1B371910267900C0A427 /* GdaConst.cpp in Sources */,
+				A4A591F724ABB15500BEA1FF /* dbscan.cpp in Sources */,
 				A41C2BAC2400441500C341A2 /* tsne.cpp in Sources */,
 				A4ED7D472097EDE9008685D6 /* kd_tree.cpp in Sources */,
 				DDEA3CBD193CEE5C0028B746 /* GdaFlexValue.cpp in Sources */,
@@ -2192,6 +2210,7 @@
 					"-I/usr/local/include",
 					"-I./libraries/include",
 					"-I./libraries/include/eigen3",
+					"-I./temp/spectra/include",
 					"-D_FILE_OFFSET_BITS=64",
 					"-D__WXMAC__",
 					"-D__WXOSX__",

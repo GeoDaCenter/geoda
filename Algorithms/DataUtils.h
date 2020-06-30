@@ -469,7 +469,6 @@ public:
     static vector<vector<double> > landmarkMatrix(vector<vector<double> >& matrix)
     {
         int k = (int)matrix.size();
-        int n = (int)matrix[0].size();
         
         vector<vector<double> > result(k);
         for (int i=0; i<k; i++) result[i].resize(k);

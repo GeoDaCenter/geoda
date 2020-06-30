@@ -39,24 +39,22 @@
 
 #include "../Explore/MapNewView.h"
 #include "../Project.h"
-#include "../Algorithms/cluster.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
-#include "../Algorithms/DataUtils.h"
-#include "../Algorithms/distmatrix.h"
-
+#include "../Algorithms/dbscan.h"
+#include "../Weights/DistUtils.h"
 #include "SaveToTableDlg.h"
-#include "HDBScanDlg.h"
+#include "DBScanDlg.h"
 
-BEGIN_EVENT_TABLE( HDBScanDlg, wxDialog )
-EVT_CLOSE( HDBScanDlg::OnClose )
+BEGIN_EVENT_TABLE( DBScanDlg, wxDialog )
+EVT_CLOSE( DBScanDlg::OnClose )
 END_EVENT_TABLE()
 
 
-HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s,  _("HDBScan Clustering Settings"))
+DBScanDlg::DBScanDlg(wxFrame* parent_s, Project* project_s)
+: AbstractClusterDlg(parent_s, project_s,  _("DBScan Clustering Settings"))
 {
-    wxLogMessage("Open HDBScanDlg.");
+    wxLogMessage("Open DBScanDlg.");
     parent = parent_s;
     project = project_s;
     
@@ -73,12 +71,12 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
     highlight_state->registerObserver(this);
 }
 
-HDBScanDlg::~HDBScanDlg()
+DBScanDlg::~DBScanDlg()
 {
     highlight_state->removeObserver(this);
 }
 
-void HDBScanDlg::Highlight(int id)
+void DBScanDlg::Highlight(int id)
 {
     vector<bool>& hs = highlight_state->GetHighlight();
     
@@ -89,7 +87,7 @@ void HDBScanDlg::Highlight(int id)
     highlight_state->notifyObservers(this);
 }
 
-void HDBScanDlg::Highlight(vector<int>& ids)
+void DBScanDlg::Highlight(vector<int>& ids)
 {
     vector<bool>& hs = highlight_state->GetHighlight();
     
@@ -100,7 +98,7 @@ void HDBScanDlg::Highlight(vector<int>& ids)
     highlight_state->notifyObservers(this);
 }
 
-bool HDBScanDlg::Init()
+bool DBScanDlg::Init()
 {
     if (project == NULL)
         return false;
@@ -115,7 +113,7 @@ bool HDBScanDlg::Init()
     return true;
 }
 
-void HDBScanDlg::CreateControls()
+void DBScanDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,780), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
@@ -130,7 +128,7 @@ void HDBScanDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
-    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min cluster size:"));
+    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Max distance between samples (eps):"));
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
     wxString valid_chars(".0123456789");
@@ -139,32 +137,14 @@ void HDBScanDlg::CreateControls()
         list.Add(wxString(valid_chars.GetChar(i)));
     }
     validator.SetIncludes(list);
-    m_minpts = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_eps = new wxTextCtrl(panel, wxID_ANY, "0.5", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_minpts, 1, wxEXPAND);
+    gbox->Add(m_eps, 1, wxEXPAND);
     
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"));
-    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
-    
-    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"));
-    m_ctl_alpha = new wxTextCtrl(panel, wxID_ANY, "1.0", wxDefaultPosition, wxSize(120, -1),0,validator);
-    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_ctl_alpha, 1, wxEXPAND);
-    
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of selecting clusters:"));
-    wxString choices16[] = {"Excess of Mass", "Leaf"};
-    m_select_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(138,-1), 2, choices16);
-    m_select_method->SetSelection(0);
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_select_method, 1, wxEXPAND);
-    
-    
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a single cluster:"));
-    chk_allowsinglecluster = new wxCheckBox(panel, wxID_ANY, "");
-    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(chk_allowsinglecluster, 1, wxEXPAND);
     
     // Transformation
     AddTransformation(panel, gbox);
@@ -183,16 +163,6 @@ void HDBScanDlg::CreateControls()
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
 
-    /*
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxDefaultSize);
-    max_n_clusters = num_obs < 60 ? num_obs : 60;
-    m_cluster = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
-    
-    gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox1->Add(m_cluster, 1, wxEXPAND);
-     */
-    
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));
     gbox1->Add(st3, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -203,12 +173,10 @@ void HDBScanDlg::CreateControls()
     
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
-    saveButton = new wxButton(panel, wxID_SAVE, _("Save"), wxDefaultPosition, wxDefaultSize);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
-    hbox2->Add(saveButton, 0, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
@@ -222,7 +190,7 @@ void HDBScanDlg::CreateControls()
     //notebook->AddPage(m_panel, _("Dendrogram"));
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
-    notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HDBScanDlg::OnNotebookChange), NULL, this);
+    notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(DBScanDlg::OnNotebookChange), NULL, this);
 
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
     container->Add(vbox);
@@ -247,61 +215,54 @@ void HDBScanDlg::CreateControls()
     m_textbox = box3;
     m_distance = box13;
     
-    
     // Events
-    okButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnOKClick, this);
-    saveButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnSave, this);
-    closeButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnClickClose, this);
-    //m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HDBScanDlg::OnClusterChoice), NULL, this);
-    
-    saveButton->Disable();
-    //combo_n->Disable();
-    //m_cluster->Disable();
+    okButton->Bind(wxEVT_BUTTON, &DBScanDlg::OnOKClick, this);
+    closeButton->Bind(wxEVT_BUTTON, &DBScanDlg::OnClickClose, this);
+    combo_var->Bind(wxEVT_LISTBOX, &DBScanDlg::OnSelectVars, this);
+    m_distance->Bind(wxEVT_CHOICE, &DBScanDlg::OnSelectVars, this);
+    combo_tranform->Bind(wxEVT_CHOICE, &DBScanDlg::OnSelectVars, this);
 }
 
-void HDBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
+void DBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
 {
     //int tab_idx = event.GetOldSelection();
     //m_panel->SetActive(tab_idx == 1);
 }
 
-void HDBScanDlg::OnSave(wxCommandEvent& event )
+void DBScanDlg::OnSelectVars(wxCommandEvent& event)
 {
-    // save to table
-    int new_col = 3;
+    // when user select variables, update the eps value
+    int transform = combo_tranform->GetSelection();
+    if ( GetInputData(transform,1) == false) return;
+    weight = GetWeights(columns);
+    double** data = input_data;
     
-    std::vector<SaveToTableEntry> new_data(new_col);
-
-    vector<bool> undefs(rows, false);
-
-    new_data[0].d_val = &core_dist;
-    new_data[0].label = "Core Dist";
-    new_data[0].field_default = "HDB_CORE";
-    new_data[0].type = GdaConst::double_type;
-    new_data[0].undefined = &undefs;
+    if (weight) {
+        // add weight to input_data
+        data  = new double*[rows];
+        for (int i=0; i<rows; i++) {
+            data[i] = new double[columns];
+            for (int j=0; j<columns; j++) {
+                data[i][j] = input_data[i][j] * weight[j];
+            }
+        }
+    }
     
-    new_data[1].d_val = &probabilities;
-    new_data[1].label = "Probabilities";
-    new_data[1].field_default = "HDB_PVAL";
-    new_data[1].type = GdaConst::double_type;
-    new_data[1].undefined = &undefs;
-
-    
-    new_data[2].d_val = &outliers;
-    new_data[2].label = "Outliers";
-    new_data[2].field_default = "HDB_OUT";
-    new_data[2].type = GdaConst::double_type;
-    new_data[2].undefined = &undefs;
-
-    wxString ttl = _("Save Results: HDBScan (Core Distances/Probabilities/Outliers)");
-    SaveToTableDlg dlg(project, this, new_data, ttl,
-                       wxDefaultPosition, wxSize(400,400));
-    dlg.ShowModal();
-    
-    event.Skip();
+    dist = 'e';
+    int dist_sel = m_distance->GetSelection();
+    char dist_choices[] = {'e','b'};
+    dist = dist_choices[dist_sel];
+    int metric = dist == 'e' ? ANNuse_euclidean_dist : ANNuse_manhattan_dist;
+    Gda::DistUtils dist_util(data, rows, columns, metric);
+    double m_thres = dist_util.GetMinThreshold();
+    m_eps->SetValue(wxString::Format("%f", m_thres));
+    if (weight) {
+        for (int i=0; i<rows; i++) delete[] data[i];
+        delete[] data;
+    }
 }
 
-void HDBScanDlg::OnClusterChoice(wxCommandEvent& event)
+void DBScanDlg::OnClusterChoice(wxCommandEvent& event)
 {
     //int sel_ncluster = combo_n->GetSelection() + 2;
     wxString tmp_val = m_cluster->GetValue();
@@ -316,7 +277,7 @@ void HDBScanDlg::OnClusterChoice(wxCommandEvent& event)
     }
 }
 
-void HDBScanDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
+void DBScanDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
 {
     //int sel = n - 2;
     //combo_n->SetSelection(sel);
@@ -328,9 +289,9 @@ void HDBScanDlg::UpdateClusterChoice(int n, std::vector<wxInt64>& _clusters)
     }
 }
 
-void HDBScanDlg::InitVariableCombobox(wxListBox* var_box)
+void DBScanDlg::InitVariableCombobox(wxListBox* var_box)
 {
-    wxLogMessage("InitVariableCombobox HDBScanDlg.");
+    wxLogMessage("InitVariableCombobox DBScanDlg.");
 
     wxArrayString items;
     
@@ -361,35 +322,31 @@ void HDBScanDlg::InitVariableCombobox(wxListBox* var_box)
     }
 }
 
-void HDBScanDlg::update(HLStateInt* o)
+void DBScanDlg::update(HLStateInt* o)
 {
 }
 
-void HDBScanDlg::OnClickClose(wxCommandEvent& event )
+void DBScanDlg::OnClickClose(wxCommandEvent& event )
 {
-    wxLogMessage("OnClickClose HDBScanDlg.");
+    wxLogMessage("OnClickClose DBScanDlg.");
     
     event.Skip();
     EndDialog(wxID_CANCEL);
 }
 
-void HDBScanDlg::OnClose(wxCloseEvent& ev)
+void DBScanDlg::OnClose(wxCloseEvent& ev)
 {
-    wxLogMessage("Close HDBScanDlg");
+    wxLogMessage("Close DBScanDlg");
     // Note: it seems that if we don't explictly capture the close event
     //       and call Destory, then the destructor is not called.
     Destroy();
 }
 
-wxString HDBScanDlg::_printConfiguration()
+wxString DBScanDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Minimum cluster size:\t" << m_minpts->GetValue() << "\n";
+    txt << "Maximum distance between samples (eps):\t" << m_eps->GetValue() << "\n";
     txt << "Minimum samples:\t" << m_minsamples->GetValue() << "\n";
-    txt << "Alpha:\t" << m_ctl_alpha->GetValue() << "\n";
-    txt << "Method of selecting cluster:\t" << m_select_method->GetStringSelection() << "\n";
-    wxString single_cluster = chk_allowsinglecluster->IsChecked() ? "Yes" : "No";
-    txt << "Allow a single cluster:\t" << single_cluster << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
@@ -397,39 +354,26 @@ wxString HDBScanDlg::_printConfiguration()
     return txt;
 }
 
-bool HDBScanDlg::CheckAllInputs()
+bool DBScanDlg::CheckAllInputs()
 {
-    m_min_pts = 0;
-    long l_min_pts;
-    if (m_minpts->GetValue().ToLong(&l_min_pts)) {
-        m_min_pts = (int)l_min_pts;
-    }
-    if (m_min_pts<=1) {
-        wxString err_msg = _("Minimum cluster size should be greater than one.");
+    if (m_eps->GetValue().ToDouble(&eps) == false) {
+        wxString err_msg = _("Please input a valid numeric number for eps.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
     }
 
-    m_min_samples = 10;
+    m_min_samples = 1;
     long l_min_samples;
     if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
         m_min_samples = (int)l_min_samples;
     }
-    if (m_min_samples <= 1) {
-        wxString err_msg = _("Minimum samples should be greater than zero.");
+    if (m_min_samples < 1 || m_min_samples > num_obs) {
+        wxString err_msg = _("Minimum samples (self included) should be greater than 1 and less than N.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
     }
-
-    double d_alpha = 1;
-    if (m_ctl_alpha->GetValue().ToDouble(&d_alpha)) {
-        m_alpha = d_alpha;
-    }
-
-    m_cluster_selection_method = m_select_method->GetSelection();
-    m_allow_single_cluster = chk_allowsinglecluster->IsChecked();
 
     int transform = combo_tranform->GetSelection();
     if ( GetInputData(transform,1) == false) return false;
@@ -442,7 +386,7 @@ bool HDBScanDlg::CheckAllInputs()
     return true;
 }
 
-bool HDBScanDlg::Run(vector<wxInt64>& clusters)
+bool DBScanDlg::Run(vector<wxInt64>& clusters)
 {
     cluster_ids.clear();
     clusters.clear();
@@ -452,45 +396,53 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     // get input: weights (auto)
     weight = GetWeights(columns);
     // add weight to input_data
-    double** data  = new double*[rows];
-    for (int i=0; i<rows; i++) {
-        data[i] = new double[columns];
-        for (int j=0; j<columns; j++) {
-            data[i][j] = input_data[i][j] * weight[j];
+    double** data = input_data;
+    if (weight) {
+        data = new double*[rows];
+        for (int i=0; i<rows; i++) {
+            data[i] = new double[columns];
+            for (int j=0; j<columns; j++) {
+                data[i][j] = input_data[i][j] * weight[j];
+            }
         }
     }
-    core_dist = Gda::HDBScan::ComputeCoreDistance(
-                                    data, rows, columns, m_min_samples, dist);
+    
+    int metric = dist == 'e' ? ANNuse_euclidean_dist : ANNuse_manhattan_dist;
 
-    for (int i=0; i<rows; i++) delete[] data[i];
-    delete[] data;
-
-    double** dist_matrix = NULL;
-    if (dist == 'e') {
-        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
-                                         columns, DataUtils::EuclideanDistance);
-    } else {
-        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
-                                         columns,DataUtils::ManhattanDistance);
+    DBSCAN dbscan((unsigned int)m_min_samples, (float)eps,
+                  (const double**)data, (unsigned int)rows,
+                  (unsigned int)columns, (int)metric);
+    
+    std::vector<int> labels = dbscan.getResults();
+    
+    int n_cluster = 1;
+    bool has_noassign = false; // if any obs was not assigned to any cluster
+    for (int i=0; i<labels.size();  ++i) {
+        if (labels[i] > n_cluster) {
+            n_cluster = labels[i];
+        }
+        if (labels[i] < 0) {
+            has_noassign = true;
+        }
+        clusters[i] = labels[i];
+    }
+    if (has_noassign) {
+        for (int i=0; i<clusters.size();  ++i) {
+            clusters[i] = clusters[i] + 1;
+        }
+        n_cluster += 1;
     }
     
-    Gda::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
-                                 m_cluster_selection_method,
-                                 m_allow_single_cluster, rows, columns,
-                                 dist_matrix, core_dist, undefs);
-    cluster_ids = hdb.GetRegions();
-    probabilities = hdb.probabilities;
-    outliers = hdb.outliers;
+    cluster_ids.resize(n_cluster);
 
-    for (int i=0; i<rows; i++) delete[] dist_matrix[i];
-    delete[] dist_matrix;
-
-    int ncluster = (int)cluster_ids.size();
-
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] ].push_back(i);
+    }
+    
     // sort result
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
 
-    for (int i=0; i < ncluster; i++) {
+    for (int i=0; i < n_cluster; i++) {
         int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
@@ -498,12 +450,17 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
         }
     }
 
+    if (weight) {
+        for (int i=0; i<rows; i++) delete[] data[i];
+        delete[] data;
+    }
+    
     return true;
 }
 
-void HDBScanDlg::OnOKClick(wxCommandEvent& event )
+void DBScanDlg::OnOKClick(wxCommandEvent& event )
 {
-    wxLogMessage("Click HDBScanDlg::OnOK");
+    wxLogMessage("Click DBScanDlg::OnOK");
 
     // save to table
     wxString field_name = m_textbox->GetValue();
@@ -585,27 +542,8 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
                                 boost::uuids::nil_uuid(),
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
-    wxString tmp = _("HDBScan Cluster Map (%d clusters)");
+    wxString tmp = _("DBScan Cluster Map (%d clusters)");
     wxString ttl = wxString::Format(tmp, (int)cluster_ids.size());
     nf->SetTitle(ttl);
     if (not_clustered >0) nf->SetLegendLabel(0, _("Not Clustered"));
-    
-    saveButton->Enable();
-    
-    // draw dendrogram
-    // GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff
-    /*double** sltree =hdb.single_linkage_tree;
-    GdaNode* htree = new GdaNode[rows-1];
-    
-    for (int i=0; i<rows-1; i++) {
-        htree[i].left = edges[i].orig;
-        htree[i].right = edges[i].dest;
-        htree[i].distance = edges[i].length;
-    }
-    
-    m_panel->Setup(htree, rows,  not_clustered > 0 ? ncluster +1 : ncluster, clusters, 0);
-    // free(htree); should be freed in m_panel since drawing still needs it's instance
-    */
-    
-    saveButton->Enable();
 }

@@ -10,6 +10,8 @@ DBSCAN::DBSCAN(unsigned int min_samples, float eps, const double** input_data,
     kd_tree = new ANNkd_tree((ANNpointArray)input_data, num_rows, num_cols /*dim*/);
 
     createNearestNeighbors(input_data);
+    
+    run();
 }
 
 DBSCAN::~DBSCAN()
