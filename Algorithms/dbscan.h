@@ -22,6 +22,8 @@ public:
 
     virtual std::vector<int> getResults();
 
+    virtual double getAverageNN();
+    
 protected:
     void run();
 
@@ -57,6 +59,8 @@ protected:
     // core flags
     std::vector<bool> is_core;
 
+    // average number of neighbors
+    double averagen;
 };
 
 #endif

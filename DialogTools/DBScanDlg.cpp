@@ -345,8 +345,8 @@ void DBScanDlg::OnClose(wxCloseEvent& ev)
 wxString DBScanDlg::_printConfiguration()
 {
     wxString txt;
-    txt << "Maximum distance between samples (eps):\t" << m_eps->GetValue() << "\n";
-    txt << "Minimum samples:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Distance Threshold (epsilon):\t" << m_eps->GetValue() << "\n";
+    txt << "Minimum Samples:\t" << m_minsamples->GetValue() << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
@@ -357,7 +357,7 @@ wxString DBScanDlg::_printConfiguration()
 bool DBScanDlg::CheckAllInputs()
 {
     if (m_eps->GetValue().ToDouble(&eps) == false) {
-        wxString err_msg = _("Please input a valid numeric number for eps.");
+        wxString err_msg = _("Please input a valid numeric number for epsilon.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
@@ -369,7 +369,7 @@ bool DBScanDlg::CheckAllInputs()
         m_min_samples = (int)l_min_samples;
     }
     if (m_min_samples < 1 || m_min_samples > num_obs) {
-        wxString err_msg = _("Minimum samples (self included) should be greater than 1 and less than N.");
+        wxString err_msg = _("Min samples (self included) should be greater than 1 and less than N.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
@@ -412,27 +412,32 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
     DBSCAN dbscan((unsigned int)m_min_samples, (float)eps,
                   (const double**)data, (unsigned int)rows,
                   (unsigned int)columns, (int)metric);
-    
+
+    double averagen = dbscan.getAverageNN();
+    // check if epsilon may be too small and large
+    if (averagen < 1 + 0.1 * (m_min_samples - 1)) {
+        wxString err_msg = _("There are very few neighbors found. Epsilon may be too small.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+    if (averagen > 100 * m_min_samples) {
+        wxString err_msg = _("There are very many neighbors found. Epsilon may be too large.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+        dlg.ShowModal();
+        return false;
+    }
+
     std::vector<int> labels = dbscan.getResults();
     
-    int n_cluster = 1;
-    bool has_noassign = false; // if any obs was not assigned to any cluster
+    int n_cluster = 0;
     for (int i=0; i<labels.size();  ++i) {
-        if (labels[i] > n_cluster) {
-            n_cluster = labels[i];
+        clusters[i] = labels[i] + 1;
+        if (clusters[i] > n_cluster) {
+            n_cluster = clusters[i];
         }
-        if (labels[i] < 0) {
-            has_noassign = true;
-        }
-        clusters[i] = labels[i];
     }
-    if (has_noassign) {
-        for (int i=0; i<clusters.size();  ++i) {
-            clusters[i] = clusters[i] + 1;
-        }
-        n_cluster += 1;
-    }
-    
+    n_cluster += 1;
     cluster_ids.resize(n_cluster);
 
     for (int i=0; i < clusters.size(); i++) {
@@ -443,7 +448,7 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
 
     for (int i=0; i < n_cluster; i++) {
-        int c = i + 1;
+        int c = i;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
             clusters[idx] = c;
@@ -543,7 +548,7 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString tmp = _("DBScan Cluster Map (%d clusters)");
-    wxString ttl = wxString::Format(tmp, (int)cluster_ids.size());
+    wxString ttl = wxString::Format(tmp, (int)cluster_ids.size() - 1);
     nf->SetTitle(ttl);
     if (not_clustered >0) nf->SetLegendLabel(0, _("Not Clustered"));
 }

@@ -3,7 +3,8 @@
 
 DBSCAN::DBSCAN(unsigned int min_samples, float eps, const double** input_data,
                unsigned int num_rows, unsigned int num_cols, int distance_metric)
-: eps(eps), min_samples(min_samples), num_rows(num_rows), num_cols(num_cols)
+: eps(eps), min_samples(min_samples), num_rows(num_rows), num_cols(num_cols),
+averagen(0)
 {
     ANN_DIST_TYPE = distance_metric;
     // create a kdtree
@@ -22,6 +23,10 @@ DBSCAN::~DBSCAN()
     ANN_DIST_TYPE = ANNuse_euclidean_dist;
 }
 
+double DBSCAN::getAverageNN()
+{
+    return averagen;
+}
 
 std::vector<int> DBSCAN::getResults()
 {
@@ -82,6 +87,7 @@ void DBSCAN::run()
 
 void DBSCAN::createNearestNeighbors(const double** input_data)
 {
+    int total_nn = 0;
     // This has worst case O(n^2) memory complexity
     double radius = ANN_POW(eps), w;
     nn.resize(num_rows);
@@ -90,6 +96,7 @@ void DBSCAN::createNearestNeighbors(const double** input_data)
         int k = kd_tree->annkFRSearch((ANNpoint)input_data[i], radius, 0, NULL, NULL);
         ANNidxArray nnIdx = new ANNidx[k];
         ANNdistArray dists = new ANNdist[k];
+        total_nn += k;
         kd_tree->annkFRSearch((ANNpoint)input_data[i], radius, k, nnIdx, dists);
         for (size_t j=0; j<k; j++) {
             // iter each neighbor
@@ -103,4 +110,5 @@ void DBSCAN::createNearestNeighbors(const double** input_data)
         delete[] dists;
         nn[i] = nbrs;
     }
+    averagen = total_nn / (double) num_rows;
 }
