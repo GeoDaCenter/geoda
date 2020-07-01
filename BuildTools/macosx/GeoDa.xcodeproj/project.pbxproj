@@ -41,6 +41,7 @@
 		A165BFEF249C113A00D1CC10 /* ConditionalBoxPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A170116C24AAAA4F00844D84 /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116B24AAAA4F00844D84 /* dbscan.cpp */; };
+		A170116F24ABFBA100844D84 /* DBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116D24ABFBA000844D84 /* DBScanDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
@@ -398,6 +399,8 @@
 		A170116924AAA8DB00844D84 /* ANN.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ANN.h; path = ANN/ANN.h; sourceTree = "<group>"; };
 		A170116A24AAA8DB00844D84 /* ANNx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ANNx.h; path = ANN/ANNx.h; sourceTree = "<group>"; };
 		A170116B24AAAA4F00844D84 /* dbscan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dbscan.cpp; path = Algorithms/dbscan.cpp; sourceTree = "<group>"; };
+		A170116D24ABFBA000844D84 /* DBScanDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DBScanDlg.cpp; sourceTree = "<group>"; };
+		A170116E24ABFBA100844D84 /* DBScanDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBScanDlg.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A178F771227381CA00EB9CB7 /* DissolveDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DissolveDlg.h; sourceTree = "<group>"; };
@@ -1353,6 +1356,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A170116D24ABFBA000844D84 /* DBScanDlg.cpp */,
+				A170116E24ABFBA100844D84 /* DBScanDlg.h */,
 				A144201B23FF2EDB00BD6F93 /* nbrMatchDlg.cpp */,
 				A144201C23FF2EDB00BD6F93 /* nbrMatchDlg.h */,
 				A1B18EAA23FDE29100465937 /* tSNEDlg.cpp */,
@@ -2107,6 +2112,7 @@
 				DD8183C81970619800228B0A /* WeightsManDlg.cpp in Sources */,
 				A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */,
 				A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */,
+				A170116F24ABFBA100844D84 /* DBScanDlg.cpp in Sources */,
 				DD81857C19709B7800228B0A /* ConnectivityMapView.cpp in Sources */,
 				DD4DED12197E16FF00FE29E8 /* SelectWeightsDlg.cpp in Sources */,
 				DD5AA73D1982D200009B30C6 /* CalcHelp.cpp in Sources */,

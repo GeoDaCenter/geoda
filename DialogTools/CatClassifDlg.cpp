@@ -719,7 +719,8 @@ preview_var_tm_choice(preview_var_tm_choice_s),
 sync_vars_chk(sync_vars_chk_s),
 unif_dist_mode(true),
 all_init(false),
-useScientificNotation(_useScientificNotation)
+useScientificNotation(_useScientificNotation),
+has_custom_color(false)
 {
 	SetParent(parent);
 	
@@ -769,9 +770,6 @@ useScientificNotation(_useScientificNotation)
 	assoc_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
 
 	preview_var_choice->Clear();
-	//preview_var_choice->Append(unif_dist_txt);
-	//preview_var_choice->SetSelection(0);
-	//preview_var_tm_choice->Show(project->GetTableInt()->IsTimeVariant());
     preview_var_tm_choice->Show(false);
     
 	unif_dist_min_lbl = wxDynamicCast(FindWindow(XRCID("ID_UNIF_DIST_MIN_LBL")),
@@ -1033,13 +1031,31 @@ void CatClassifPanel::OnBreaksChoice(wxCommandEvent& event)
     cc_data.cat_classif_type = cl_type;
 
     int choice = breaks_choice->GetSelection();
-    if (choice == 0 || choice == 2 || choice == 3) {
-        cc_data.color_scheme = CatClassification::sequential_color_scheme;
-    } else if (choice == 1) {
+    if (choice == 1) {
         // for unique values, set automatic_labels to false, so that
         // in MapCanavas it won't create labels using breaks
         cc_data.automatic_labels = false;
         cc_data.color_scheme = CatClassification::qualitative_color_scheme;
+        // disable Categories control
+        num_cats_choice->Enable(false);
+        // hide break radio buttons
+        for (int i=0; i<brk_rad.size(); ++i) {
+            brk_rad[i]->Enable(false);
+            brk_txt[i]->Enable(false);
+        }
+        // hide slider bar
+        brk_slider->Hide();
+    } else {
+        cc_data.color_scheme = CatClassification::sequential_color_scheme;
+        // enable Categories control
+        num_cats_choice->Enable(true);
+        // show break radio buttons
+        for (int i=0; i<brk_rad.size(); ++i) {
+            brk_rad[i]->Enable(true);
+            brk_txt[i]->Enable(true);
+        }
+        // show slider bar
+        brk_slider->Show();
     }
 
 	// Verify that cc data is self-consistent and correct if not.  This
@@ -1064,6 +1080,17 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
     wxLogMessage("CatClassifPanel::OnColorSchemeChoice");
     
 	if (!all_init) return;
+
+    if (has_custom_color) {
+        // check with user if they want to keep custom color
+        wxString msg = _("Customized color was detected. Do you want to appy pre-defined color scheme on breaks?.");
+        wxMessageDialog ed(NULL, msg, _("Information"), wxYES_NO | wxICON_INFORMATION);
+        if (ed.ShowModal() == wxID_NO) {
+            return;
+        }
+    }
+
+    has_custom_color = false; // the following will set pre-defined colors
 	cc_data.color_scheme = GetColorSchemeChoice();
 	if (cc_data.color_scheme != CatClassification::custom_color_scheme) {
 		CatClassification::PickColorSet(cc_data.colors,
@@ -1077,7 +1104,7 @@ void CatClassifPanel::OnColorSchemeChoice(wxCommandEvent& event)
 										cc_data.color_scheme,
 										cc_data.num_cats, false);
 		for (size_t i=0; i<cc_data.colors.size(); i++) {
-			cat_color_button[i]->SetBackgroundColour(cc_data.colors[0]);
+			cat_color_button[i]->SetBackgroundColour(cc_data.colors[i]);
 		}
     }
     cc_data.cat_classif_type = CatClassification::custom;
@@ -1157,8 +1184,9 @@ void CatClassifPanel::OnNumCatsChoice(wxCommandEvent& event)
     cc_data.cat_classif_type = CatClassification::custom;
     // check if breaks have same values
     std::set<double> brks;
-    for (int i=0; i<cc_data.breaks.size(); i++)
+    for (int i=0; i<cc_data.breaks.size(); i++) {
         brks.insert(cc_data.breaks[i]);
+    }
     if (brks.size() < cc_data.breaks.size()) {
         wxString msg = _("Breaks with same values were created. Please choose a smaller categories, or manually edit the break values.");
         wxMessageDialog ed(NULL, msg, _("Error"), wxOK | wxICON_ERROR);
@@ -1605,6 +1633,9 @@ void CatClassifPanel::OnCategoryColorButton(wxMouseEvent& event)
 	UpdateCCState();
 	hist_canvas->ChangeAll(&preview_data, cc_data.break_vals_type,
                            &cc_data.breaks, &cc_data.colors);
+
+    // notify user custom color
+    has_custom_color = true;
 	Refresh();
 }
 
@@ -2558,14 +2589,18 @@ void CatClassifPanel::UpdateCCState()
                 vector<wxString> titles;
                 CatClassifManager* ccm = project->GetCatClassifManager();
                 ccm->GetTitles(titles);
-               
-                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"), _("Create New Custom"), _("Create new custom categories classification."));
+                sm->Append(XRCID("ID_NEW_CUSTOM_CAT_CLASSIF_A"),
+                           _("Create New Custom"),
+                           _("Create new custom categories classification."));
                 sm->AppendSeparator();
-                
                 for (size_t j=0; j<titles.size(); j++) {
                     wxMenuItem* new_mi = sm->Append(GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0+j, titles[j]);
                 }
-                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED, &GdaFrame::OnCustomCategoryClick, GdaFrame::GetGdaFrame(), GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0, GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
+                GdaFrame::GetGdaFrame()->Bind(wxEVT_COMMAND_MENU_SELECTED,
+                                              &GdaFrame::OnCustomCategoryClick,
+                                              GdaFrame::GetGdaFrame(),
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0,
+                                              GdaConst::ID_CUSTOM_CAT_CLASSIF_CHOICE_A0 + titles.size());
             }
         }
     }
@@ -2615,8 +2650,6 @@ CatClassifFrame::CatClassifFrame(wxFrame *parent, Project* project,
 									  wxSize(70, -1));
 	Connect(XRCID("ID_PREVIEW_VAR_TM_CHOICE"), wxEVT_CHOICE,
 			wxCommandEventHandler(CatClassifFrame::OnPreviewVarTmChoice));
-	
-    
     
 	wxBoxSizer* histo_h_szr = new wxBoxSizer(wxHORIZONTAL);
 	histo_h_szr->Add(preview_var_text, 0, wxALIGN_CENTER_VERTICAL);

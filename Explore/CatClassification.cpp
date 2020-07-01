@@ -860,6 +860,23 @@ PopulateCatClassifData(const CatClassifDef& cat_def,
                         cat_data.SetCategoryLabel(t, ival, wxString(ss.str()));
                         cat_data.SetCategoryMinMax(t, ival, cat_min[ival], cat_max[ival]);
                     }
+                } else if (cat_def.break_vals_type == CatClassification::unique_values_break_vals) {
+                    // unique values (custum) should use different labels without > < symbols
+                    for (int ival=0; ival<cat_def.names.size(); ival++) {
+                        wxString unique_v = cat_def.names[ival];
+                        for (int j=0; j<num_obs; j++) {
+                            wxString val;
+                            val << var[t][j].first;
+                            int ind = var[t][j].second;
+                            if (val == unique_v) {
+                                cat_data.AppendIdToCategory(t, ival, ind);
+                            }
+                        }
+                        cat_data.SetCategoryCount(t, ival, cat_data.GetNumObsInCategory(t, ival));
+                        cat_data.SetCategoryLabel(t, ival, unique_v);
+                        cat_data.SetCategoryMinMax(t, ival, cat_min[ival], cat_max[ival]);
+                    }
+
                 } else {
                     // Set default cat_min / cat_max values for when
                     // category size is 0
@@ -2282,7 +2299,7 @@ void CatClassification::PickColorSet(std::vector<wxColour>& color_vec,
                 break;
             default:
                 for (int i = 0; i < num_color; i++) {
-                    color_vec[i] = Color1[colpos[num_color] + num_color - i-1];
+                    color_vec[i] = Color1[colpos[num_color] + i];
                 }
                 break;
         }

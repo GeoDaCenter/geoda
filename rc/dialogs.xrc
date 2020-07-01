@@ -62,9 +62,7 @@
           <object class="spacer">
             <size>-1,8d</size>
           </object>
-
           <!-- Create Custom Breaks -->
-
           <object class="spacer">
             <size>-1,5d</size>
           </object>
@@ -90,7 +88,6 @@
                                       <item/>
                                   </content>
                               </object>
-
                           </object>
                           <object class="sizeritem">
                               <object class="wxChoice" name="ID_ASSOC_VAR_TM">

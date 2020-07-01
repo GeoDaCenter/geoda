@@ -288,7 +288,8 @@ private:
 	
 	bool all_init;
 	bool unif_dist_mode;
-	
+    bool has_custom_color;
+
 	DECLARE_EVENT_TABLE()
 };
 
