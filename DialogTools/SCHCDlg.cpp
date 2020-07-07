@@ -45,21 +45,40 @@ END_EVENT_TABLE()
 
 
 SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
-: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/)
+: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/),
+gw(NULL)
 {
     wxLogMessage("Open SCHCDlg.");
     SetTitle(_("Spatial Constrained Hierarchical Clustering Settings"));
 
     // disable number of cluster control
     combo_n->Disable();
-
+    
     // show SCHC controls
     m_sctxt->Show();
     combo_weights->Show();
+
+    // bind new event
+    saveButton->Bind(wxEVT_BUTTON, &SCHCDlg::OnSave, this);
 }
 
 SCHCDlg::~SCHCDlg()
 {
+}
+
+void SCHCDlg::OnSave(wxCommandEvent& event )
+{
+    HClusterDlg::OnSave(event);
+    // check cluster connectivity
+    wxString user_n = combo_n->GetValue();
+    long int_user_n;
+    if (user_n.ToLong(&int_user_n)) {
+        if (int_user_n < cutoff_n_cluster) {
+            wxString err_msg = _("The clustering result is not spatially constrained. Please adjust the number of clusters.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+        }
+    }
 }
 
 bool SCHCDlg::Run(vector<wxInt64>& clusters)
@@ -79,7 +98,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
         sel = weights_ids.size() - 1;
     }
     boost::uuids::uuid w_id = weights_ids[sel];
-    GalWeight* gw = w_man_int->GetGal(w_id);
+    gw = w_man_int->GetGal(w_id);
 
     if (gw == NULL) {
         wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
@@ -154,21 +173,35 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             if (dist == DBL_MAX) {
                 n_cluster += 1;
             }
-            if (n_cluster == 1) {
-                // check if additional split is needed
-                if (node1 > 0 || node2 > 0) {
-                    n_cluster += 1;
-                } 
-            }
 
             clst_cnt += 1;
             htree[i].distance = clst_cnt;
         }
     }
 
+    CutTree(rows, htree, n_cluster, clusters);
+
+    // check if additional cluster/split is needed
+    if (CheckClusters(gw->gal, clusters)  == false) {
+        n_cluster += 1;
+        CutTree(rows, htree, n_cluster, clusters);
+    }
+
+    cutoff_n_cluster = n_cluster;
+
+    combo_n->Clear();
+    int max_n_clusters = num_obs < 100 ? num_obs : 100;
+    for (int i=n_cluster; i<max_n_clusters+1; i++) {
+        combo_n->Append(wxString::Format("%d", i));
+    }
     combo_n->SetValue(wxString::Format("%d", n_cluster));
     combo_n->Enable();
 
+    return true;
+}
+
+void SCHCDlg::CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt64>& clusters)
+{
     clusters.clear();
     int* clusterid = new int[rows];
     cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
@@ -176,7 +209,34 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
         clusters.push_back(clusterid[i]+1);
     }
     delete[] clusterid;
-    clusterid = NULL;
+}
 
+bool SCHCDlg::CheckClusters(GalElement* w, std::vector<wxInt64>& clusters)
+{
+    std::vector<std::vector<int> > cluster_ids(n_cluster);
+    for (int i=0; i < clusters.size(); i++) {
+        cluster_ids[ clusters[i] - 1 ].push_back(i);
+    }
+
+    for (int i=0; i<cluster_ids.size(); ++i) {
+        std::vector<int>& clst = cluster_ids[i];
+        if (clst.size() == 1) {
+            continue;
+        }
+        bool not_connect = true;
+        for (int j=0; j<clst.size() && not_connect; ++j) {
+            for (int k=j+1; k<clst.size(); ++k) {
+                if (j != k) {
+                    if (w[ clst[j] ].Check( clst[k] )) {
+                        not_connect = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if (not_connect) {
+            return false;
+        }
+    }
     return true;
 }

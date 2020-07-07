@@ -38,9 +38,19 @@ class SCHCDlg : public HClusterDlg
 public:
     SCHCDlg(wxFrame *parent, Project* project);
     virtual ~SCHCDlg();
-    
+
+    void OnSave(wxCommandEvent& event );
+
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
+
+    bool CheckClusters(GalElement* w, std::vector<wxInt64>& clusters);
+
+    void CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt64>& clusters);
+
+    GalWeight* gw;
+
+    int cutoff_n_cluster;
 
     DECLARE_EVENT_TABLE()
 };
