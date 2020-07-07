@@ -60,8 +60,9 @@ EVT_CLOSE( HClusterDlg::OnClose )
 END_EVENT_TABLE()
 
 
-HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s)
-: AbstractClusterDlg(parent_s, project_s,  _("Hierarchical Clustering Settings"))
+HClusterDlg::HClusterDlg(wxFrame* parent_s, Project* project_s, bool show_centroids)
+: AbstractClusterDlg(parent_s, project_s,  _("Hierarchical Clustering Settings")),
+show_centroids(show_centroids)
 {
     wxLogMessage("Open HClusterDlg.");
     htree = NULL;
@@ -137,12 +138,24 @@ void HClusterDlg::CreateControls()
     
     // Input
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    bool show_auto_ctrl = true;
-    AddInputCtrls(panel, vbox, show_auto_ctrl);
+    if (show_centroids) {
+        AddInputCtrls(panel, vbox, true);
+    } else {
+        AddSimpleInputCtrls(panel, vbox);
+    }
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(7,2,5,0);
 
+    // spatial constraint controls (for SCHCDlg class only, not used here)
+    m_sctxt = new wxStaticText(panel, wxID_ANY, _("Spatial Weights:"));
+    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(m_sctxt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(combo_weights, 1, wxEXPAND);
+
+    m_sctxt->Hide();
+    combo_weights->Hide();
+    
     // NumberOfCluster Control
     AddNumberOfClusterCtrl(panel, gbox);
 
@@ -163,24 +176,6 @@ void HClusterDlg::CreateControls()
     box13->SetSelection(0);
     gbox->Add(st13, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(box13, 1, wxEXPAND);
-
-    
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Spatial Constraint:"));
-    chk_contiguity = new wxCheckBox(panel, wxID_ANY, "");
-    gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(chk_contiguity, 1, wxEXPAND);
-    chk_contiguity->Disable();
-    
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, "");
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                 wxSize(200,-1));
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
-    combo_weights->Disable();
-
-    st17->Hide();
-    chk_contiguity->Hide();
-    combo_weights->Hide();
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
@@ -240,7 +235,6 @@ void HClusterDlg::CreateControls()
     
     // Content
     m_textbox = box3;
-    //m_iterations = box11;
     m_method = box12;
     m_distance = box13;
     m_distance->SetSelection(0);
@@ -269,21 +263,9 @@ void HClusterDlg::CreateControls()
     combo_n->Connect(wxEVT_COMMAND_COMBOBOX_SELECTED, wxCommandEventHandler(HClusterDlg::OnClusterChoice), NULL, this);
     m_method->Bind(wxEVT_CHOICE, &HClusterDlg::OnMethodChoice, this);
 
-    chk_contiguity->Bind(wxEVT_CHECKBOX, &HClusterDlg::OnSpatialConstraintCheck, this);
     saveButton->Disable();
 }
 
-void HClusterDlg::OnSpatialConstraintCheck(wxCommandEvent& event)
-{
-    wxLogMessage("On HClusterDlg::OnSpatialConstraintCheck");
-    bool checked = chk_contiguity->GetValue();
-    
-    if (checked) {
-        combo_weights->Enable();
-    } else {
-        combo_weights->Disable();
-    }
-}
 void HClusterDlg::OnNotebookChange(wxBookCtrlEvent& event)
 {
     int tab_idx = event.GetOldSelection();
@@ -512,19 +494,13 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
     // get input: weights (auto)
     weight = GetWeights(columns);
 
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    boost::uuids::uuid w_id = weights_ids[0];
-    GalWeight* gw = w_man_int->GetGal(w_id);
-
     double* pwdist = NULL;
     if (dist == 'e') {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
                                                 columns,
                                                 DataUtils::EuclideanDistance);
     } else {
-        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
+        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
                                                 columns,
                                                 DataUtils::ManhattanDistance);
     }
@@ -553,11 +529,8 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
 
     std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
-    int i=0, clst_cnt=0;
+    int i=0;
     fastcluster::union_find nodes(rows);
-
-    n_cluster = 0;
-    std::vector<double> dist_vect;
     for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
         if (NN) {
             // Find the cluster identifiers for these points.
@@ -570,28 +543,13 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
-
-            double dist = Z2[i]->dist;
-            if (dist == DBL_MAX) {
-                n_cluster += 1;
-            }
-            if (n_cluster == 1) {
-                // check if additional split is needed
-                if (node1 > 0 || node2 > 0) {
-                    n_cluster += 1;
-                } 
-            }
-
-            clst_cnt += 1;
-            htree[i].distance = clst_cnt;
+            htree[i].distance = Z2[i]->dist;
         }
     }
-
-    combo_n->SetValue(wxString::Format("%d", n_cluster));
-
     clusters.clear();
     int* clusterid = new int[rows];
     cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
@@ -617,54 +575,6 @@ void HClusterDlg::OnOKClick(wxCommandEvent& event )
     m_panel->Setup(htree, rows, n_cluster, clusters, cutoffDistance);
 
     saveButton->Enable();
-}
-
-void HClusterDlg::SpatialConstraintClustering()
-{
-    int transpose = 0; // row wise
-    fastcluster::cluster_result Z2(rows-1);
-
-    if              (chk_contiguity->GetValue()) {
-        vector<boost::uuids::uuid> weights_ids;
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        w_man_int->GetIds(weights_ids);
-
-        int sel = combo_weights->GetSelection();
-        if (sel < 0) sel = 0;
-        if (sel >= weights_ids.size()) {
-            sel = weights_ids.size() - 1;
-        }
-        boost::uuids::uuid w_id = weights_ids[sel];
-        GalWeight* gw = w_man_int->GetGal(w_id);
-
-        if (gw == NULL) {
-            wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-            dlg.ShowModal();
-            return;
-        }
-        //GeoDaWeight* weights = w_man_int->GetGal(w_id);
-        // Check connectivity
-        if (!CheckConnectivity(gw)) {
-            wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");
-            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
-            dlg.ShowModal();
-            return;
-        }
-
-        double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-        double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
-        for (int i = 1; i < rows; i++) free(ragged_distances[i]);
-        free(ragged_distances);
-        std::vector<bool> undefs(rows, false);
-        SpanningTreeClustering::AbstractClusterFactory* redcap = new SpanningTreeClustering::FirstOrderSLKRedCap(rows, columns, distances, input_data, undefs, gw->gal, NULL, 0);
-        for (int i=0; i<redcap->ordered_edges.size(); i++) {
-            Z2[i]->node1 = redcap->ordered_edges[i]->orig->id;
-            Z2[i]->node2 = redcap->ordered_edges[i]->dest->id;
-            Z2[i]->dist = redcap->ordered_edges[i]->length;
-        }
-
-        delete redcap;
-    }
 }
 
 IMPLEMENT_ABSTRACT_CLASS(DendrogramPanel, wxPanel)

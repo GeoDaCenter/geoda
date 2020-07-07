@@ -119,6 +119,7 @@
 #include "DialogTools/tSNEDlg.h"
 #include "DialogTools/SpectralClusteringDlg.h"
 #include "DialogTools/HClusterDlg.h"
+#include "DialogTools/SCHCDlg.h"
 #include "DialogTools/DBScanDlg.h"
 #include "DialogTools/HDBScanDlg.h"
 #include "DialogTools/CreateGridDlg.h"
@@ -590,6 +591,7 @@ void GdaFrame::UpdateToolbarAndMenus()
     GeneralWxUtils::EnableMenuItem(mb,XRCID("ID_TOOLS_DATA_HDBSCAN"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MAXP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SKATER"), proj_open);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SCHC"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_SPECTRAL"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_REDCAP"), proj_open);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("ID_TOOLS_DATA_MDS"), proj_open);
@@ -1981,6 +1983,36 @@ void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataSCHC(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = p->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    if (weights_ids.size()==0) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (SCHCDlg* w = dynamic_cast<SCHCDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    SCHCDlg* dlg = new SCHCDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2083,7 +2115,9 @@ void GdaFrame::OnToolsDataHCluster(wxCommandEvent& WXUNUSED(event) )
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
     for (it=observers.begin(); it != observers.end(); ++it) {
-        if (HClusterDlg* w = dynamic_cast<HClusterDlg*>(*it)) {
+        HClusterDlg* w = dynamic_cast<HClusterDlg*>(*it);
+        SCHCDlg* w1 = dynamic_cast<SCHCDlg*>(*it);
+        if (w && !w1) {
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -2977,6 +3011,7 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SPECTRAL"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MAXP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SKATER"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SCHC"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_REDCAP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MDS"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_TSNE"),proj_open);
@@ -6925,6 +6960,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_DBSCAN"), GdaFrame::OnToolsDataDBScan)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SKATER"), GdaFrame::OnToolsDataSkater)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_SCHC"), GdaFrame::OnToolsDataSCHC)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)
     EVT_MENU(XRCID("ID_TOOLS_DATA_REDCAP"), GdaFrame::OnToolsDataRedcap)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MDS"), GdaFrame::OnToolsDataMDS)

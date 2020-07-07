@@ -246,7 +246,7 @@ private:
 class HClusterDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
 public:
-    HClusterDlg(wxFrame *parent, Project* project);
+    HClusterDlg(wxFrame *parent, Project* project, bool show_centroids=true);
     virtual ~HClusterDlg();
     
     void CreateControls();
@@ -259,7 +259,6 @@ public:
     void OnClusterChoice(wxCommandEvent& event);
     void OnNotebookChange(wxBookCtrlEvent& event);
     void InitVariableCombobox(wxListBox* var_box);
-    void OnSpatialConstraintCheck(wxCommandEvent& event);
     void OnMethodChoice(wxCommandEvent& event);
     
     virtual void update(HLStateInt* o);
@@ -276,8 +275,6 @@ protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
 
-    void SpatialConstraintClustering();
-
     GdaNode* htree;
     int n_cluster;
     char dist;
@@ -285,6 +282,7 @@ protected:
 
     double cutoffDistance;
     vector<wxInt64> clusters;
+    bool show_centroids;
     
     wxButton *saveButton;
     wxChoice* combo_cov;
@@ -294,7 +292,7 @@ protected:
     wxChoice* m_distance;
     DendrogramPanel* m_panel;
     wxNotebook* notebook;
-    wxCheckBox* chk_contiguity;
+    wxStaticText* m_sctxt;
     
     DECLARE_EVENT_TABLE()
 };
