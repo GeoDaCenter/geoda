@@ -553,8 +553,9 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
 
     std::stable_sort(Z2[0], Z2[rows-1]);
     t_index node1, node2;
-    int i=0;
+    int i=0, clst_cnt=0;
     fastcluster::union_find nodes(rows);
+
     n_cluster = 0;
     std::vector<double> dist_vect;
     for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
@@ -574,19 +575,23 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             htree[i].right = node2;
 
             double dist = Z2[i]->dist;
-            dist_vect.push_back(dist);
+            if (dist == DBL_MAX) {
+                n_cluster += 1;
+            }
+            if (n_cluster == 1) {
+                // check if additional split is needed
+                if (node1 > 0 || node2 > 0) {
+                    n_cluster += 1;
+                } 
+            }
 
-            htree[i].distance = dist;
+            clst_cnt += 1;
+            htree[i].distance = clst_cnt;
         }
     }
-    for (int i=dist_vect.size() - 1; i >=0; --i) {
-        if (dist_vect[i] == DBL_MAX) {
-            n_cluster += 1;
-        } else {
-            break;
-        }
-    }
-    n_cluster += 1;
+
+    combo_n->SetValue(wxString::Format("%d", n_cluster));
+
     clusters.clear();
     int* clusterid = new int[rows];
     cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
