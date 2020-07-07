@@ -511,14 +511,20 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
     // NOTE input_data should be retrieved first!!
     // get input: weights (auto)
     weight = GetWeights(columns);
-    
+
+    vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+    boost::uuids::uuid w_id = weights_ids[0];
+    GalWeight* gw = w_man_int->GetGal(w_id);
+
     double* pwdist = NULL;
     if (dist == 'e') {
-        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
+        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
                                                 columns,
                                                 DataUtils::EuclideanDistance);
     } else {
-        pwdist = DataUtils::getPairWiseDistance(input_data, weight, rows,
+        pwdist = DataUtils::getContiguityPairWiseDistance(gw->gal, input_data, weight, rows,
                                                 columns,
                                                 DataUtils::ManhattanDistance);
     }
@@ -549,6 +555,8 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
     t_index node1, node2;
     int i=0;
     fastcluster::union_find nodes(rows);
+    n_cluster = 0;
+    std::vector<double> dist_vect;
     for (fastcluster::node const * NN=Z2[0]; NN!=Z2[rows-1]; ++NN, ++i) {
         if (NN) {
             // Find the cluster identifiers for these points.
@@ -561,13 +569,24 @@ bool HClusterDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
-            //cout << i<< ":" << htree[i].left << ", " << htree[i].right << ", " << htree[i].distance <<endl;
+            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
-            htree[i].distance = Z2[i]->dist;
+
+            double dist = Z2[i]->dist;
+            dist_vect.push_back(dist);
+
+            htree[i].distance = dist;
         }
     }
+    for (int i=dist_vect.size() - 1; i >=0; --i) {
+        if (dist_vect[i] == DBL_MAX) {
+            n_cluster += 1;
+        } else {
+            break;
+        }
+    }
+    n_cluster += 1;
     clusters.clear();
     int* clusterid = new int[rows];
     cutoffDistance = cuttree (rows, htree, n_cluster, clusterid);
@@ -600,7 +619,7 @@ void HClusterDlg::SpatialConstraintClustering()
     int transpose = 0; // row wise
     fastcluster::cluster_result Z2(rows-1);
 
-    if (chk_contiguity->GetValue()) {
+    if              (chk_contiguity->GetValue()) {
         vector<boost::uuids::uuid> weights_ids;
         WeightsManInterface* w_man_int = project->GetWManInt();
         w_man_int->GetIds(weights_ids);

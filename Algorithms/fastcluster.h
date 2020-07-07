@@ -1153,14 +1153,23 @@ namespace fastcluster {
                      Characteristic: new distances are never longer than the old distances.
                      */
                     // Update the distance matrix in the range [start, idx1).
-                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i])
-                        f_single(&D_(i, idx2), D_(i, idx1) );
+                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_single(&D_(i, idx2), D_(i, idx1) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx1, idx2).
-                    for (; i<idx2; i=active_nodes.succ[i])
-                        f_single(&D_(i, idx2), D_(idx1, i) );
+                    for (; i<idx2; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_single(&D_(i, idx2), D_(idx1, i) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx2, N).
-                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i])
-                        f_single(&D_(idx2, i), D_(idx1, i) );
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_single(&D_(idx2, i), D_(idx1, i) );
+                        }
+                    }
                     break;
                     
                 case METHOD_METR_COMPLETE:
@@ -1170,14 +1179,23 @@ namespace fastcluster {
                      Characteristic: new distances are never shorter than the old distances.
                      */
                     // Update the distance matrix in the range [start, idx1).
-                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i])
-                        f_complete(&D_(i, idx2), D_(i, idx1) );
+                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_complete(&D_(i, idx2), D_(i, idx1) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx1, idx2).
-                    for (; i<idx2; i=active_nodes.succ[i])
-                        f_complete(&D_(i, idx2), D_(idx1, i) );
+                    for (; i<idx2; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_complete(&D_(i, idx2), D_(i, idx1) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx2, N).
-                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i])
-                        f_complete(&D_(idx2, i), D_(idx1, i) );
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_complete(&D_(i, idx2), D_(i, idx1) );
+                        }
+                    }
                     break;
                     
                 case METHOD_METR_AVERAGE: {
@@ -1189,14 +1207,23 @@ namespace fastcluster {
                     // Update the distance matrix in the range [start, idx1).
                     t_float s = size1/(size1+size2);
                     t_float t = size2/(size1+size2);
-                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i])
-                        f_average(&D_(i, idx2), D_(i, idx1), s, t );
+                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_average(&D_(i, idx2), D_(i, idx1), s, t );
+                        }
+                    }
                     // Update the distance matrix in the range (idx1, idx2).
-                    for (; i<idx2; i=active_nodes.succ[i])
-                        f_average(&D_(i, idx2), D_(idx1, i), s, t );
+                    for (; i<idx2; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_average(&D_(i, idx2), D_(idx1, i), s, t );
+                        }
+                    }
                     // Update the distance matrix in the range (idx2, N).
-                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i])
-                        f_average(&D_(idx2, i), D_(idx1, i), s, t );
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_average(&D_(idx2, i), D_(idx1, i), s, t );
+                        }
+                    }
                     break;
                 }
                     
@@ -1207,14 +1234,23 @@ namespace fastcluster {
                      Shorter and longer distances can occur.
                      */
                     // Update the distance matrix in the range [start, idx1).
-                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i])
-                        f_weighted(&D_(i, idx2), D_(i, idx1) );
+                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_weighted(&D_(i, idx2), D_(i, idx1) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx1, idx2).
-                    for (; i<idx2; i=active_nodes.succ[i])
-                        f_weighted(&D_(i, idx2), D_(idx1, i) );
+                    for (; i<idx2; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_weighted(&D_(i, idx2), D_(idx1, i) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx2, N).
-                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i])
-                        f_weighted(&D_(idx2, i), D_(idx1, i) );
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_weighted(&D_(idx2, i), D_(idx1, i) );
+                        }
+                    }
                     break;
                     
                 case METHOD_METR_WARD:
@@ -1226,17 +1262,26 @@ namespace fastcluster {
                      */
                     // Update the distance matrix in the range [start, idx1).
                     //t_float v = static_cast<t_float>(members[i]);
-                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i])
-                        f_ward(&D_(i, idx2), D_(i, idx1), min,
+                    for (i=active_nodes.start; i<idx1; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
+                            f_ward(&D_(i, idx2), D_(i, idx1), min,
                                size1, size2, static_cast<t_float>(members[i]) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx1, idx2).
-                    for (; i<idx2; i=active_nodes.succ[i])
-                        f_ward(&D_(i, idx2), D_(idx1, i), min,
+                    for (; i<idx2; i=active_nodes.succ[i]) {
+                        if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_ward(&D_(i, idx2), D_(idx1, i), min,
                                size1, size2, static_cast<t_float>(members[i]) );
+                        }
+                    }
                     // Update the distance matrix in the range (idx2, N).
-                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i])
-                        f_ward(&D_(idx2, i), D_(idx1, i), min,
+                    for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
+                        if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_ward(&D_(idx2, i), D_(idx1, i), min,
                                size1, size2, static_cast<t_float>(members[i]) );
+                        }
+                    }
                     break;
                     
                 default:

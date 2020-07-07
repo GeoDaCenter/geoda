@@ -364,7 +364,7 @@ public:
         return result;
     }
     
-    static double* getContiguityPairWiseDistance(GalElement* w, double** matrix, int n, int k, double dist(double* , double* , size_t))
+    static double* getContiguityPairWiseDistance(GalElement* w, double** matrix, double* weight, int n, int k, double dist(double* , double* , size_t, double*))
     {
         unsigned long long _n = n;
         
@@ -374,7 +374,7 @@ public:
         for (int i=0; i<n; i++) {
             for (int j=i+1; j<n; j++) {
                 if (w[i].Check(j)) {
-                    result[cnt++] = dist(matrix[i], matrix[j], k);
+                    result[cnt++] = dist(matrix[i], matrix[j], k, weight);
                 } else {
                     result[cnt++] = DBL_MAX;
                 }
