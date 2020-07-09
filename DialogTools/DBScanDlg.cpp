@@ -128,7 +128,7 @@ void DBScanDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
-    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Max distance between samples (eps):"));
+    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Distance Threshold (epsilon):"));
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
     wxString valid_chars(".0123456789");
@@ -141,7 +141,7 @@ void DBScanDlg::CreateControls()
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_eps, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Samples:"));
     m_minsamples = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
@@ -346,7 +346,7 @@ wxString DBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Distance Threshold (epsilon):\t" << m_eps->GetValue() << "\n";
-    txt << "Minimum Samples:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Min Samples:\t" << m_minsamples->GetValue() << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
