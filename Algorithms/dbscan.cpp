@@ -70,7 +70,7 @@ void DBSCAN::run()
                         v = neighb[j].first;
                         if (labels[v] == -1) {
                             // push v to stack
-                            stack.insert(stack.begin(), v);
+                            stack.push_back(v);
                         }
                     }
                 }
@@ -101,10 +101,10 @@ void DBSCAN::createNearestNeighbors(const double** input_data)
         for (size_t j=0; j<k; j++) {
             // iter each neighbor
             int nbr_id = nnIdx[j];
-            if (nbr_id != i) {
+            //if (nbr_id != i) {
                 w = ANN_ROOT(dists[j]);
                 nbrs.push_back(std::make_pair(nbr_id,w));
-            }
+            //}
         }
         delete[] nnIdx;
         delete[] dists;

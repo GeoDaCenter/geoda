@@ -419,36 +419,37 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
         wxString err_msg = _("There are very few neighbors found. Epsilon may be too small.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
-        return false;
     }
     if (averagen > 100 * m_min_samples) {
         wxString err_msg = _("There are very many neighbors found. Epsilon may be too large.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
-        return false;
     }
 
     std::vector<int> labels = dbscan.getResults();
-    
+
+    // process results  and  sort the clusters
     int n_cluster = 0;
     for (int i=0; i<labels.size();  ++i) {
-        clusters[i] = labels[i] + 1;
-        if (clusters[i] > n_cluster) {
-            n_cluster = clusters[i];
+        if (labels[i] > n_cluster) {
+            //  label = -1 means noise
+            n_cluster = labels[i];
         }
     }
-    n_cluster += 1;
+    n_cluster +=  1;
     cluster_ids.resize(n_cluster);
-
-    for (int i=0; i < clusters.size(); i++) {
-        cluster_ids[ clusters[i] ].push_back(i);
+    // group into clusters
+    for (int i=0; i < labels.size(); i++) {
+        if (labels[i] >= 0) {
+            cluster_ids[ labels[i] ].push_back(i);
+        }
     }
-    
-    // sort result
+    // sort clusters
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
-
+    // reassign labels
+    clusters.resize(rows, 0); // 0 as not clustered
     for (int i=0; i < n_cluster; i++) {
-        int c = i;
+        int c = i+1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
             clusters[idx] = c;
