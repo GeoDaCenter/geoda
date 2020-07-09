@@ -61,11 +61,12 @@ void DBSCAN::run()
         // This is very similar to the classic algorithm for computing connected
         // components, the difference being that we label non-core points as
         // part of a cluster (component), but don't expand their neighborhoods.
+        int k = i;
         while (true) {
-            if (labels[i] ==  -1) {
-                labels[i] = label_num;
-                if ( is_core[i] ) {
-                    std::vector<std::pair<int, double> >& neighb = nn[i];
+            if (labels[k] ==  -1) {
+                labels[k] = label_num;
+                if ( is_core[k] ) {
+                    std::vector<std::pair<int, double> >& neighb = nn[k];
                     for (size_t j=0; j<neighb.size(); ++j) {
                         v = neighb[j].first;
                         if (labels[v] == -1) {
@@ -78,7 +79,7 @@ void DBSCAN::run()
             if ( stack.size() == 0) {
                 break;
             }
-            i = stack.back();
+            k = stack.back();
             stack.pop_back();
         }
         label_num += 1;
