@@ -179,6 +179,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
         }
     }
 
+    if (n_cluster == 0) n_cluster = 2;
     CutTree(rows, htree, n_cluster, clusters);
 
     // check if additional cluster/split is needed
