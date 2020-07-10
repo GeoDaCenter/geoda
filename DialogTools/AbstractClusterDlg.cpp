@@ -916,11 +916,18 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
                                          const vector<int>& isolated,
                                          bool show_print)
 {
+    // get noise data (not clustered)
+    std::vector<bool> noises(num_obs, true);
+    for (int i=0; i<solution.size(); ++i) {
+        for (int j=0; j<solution[i].size(); ++j) {
+            noises[solution[i][j]] = false;
+        }
+    }
     // compute Sum of Squared Differences (from means)
     // mean centers
     vector<vector<double> > mean_centers = _getMeanCenters(solution);
     // totss
-    double totss = _getTotalSumOfSquares();
+    double totss = _getTotalSumOfSquares(noises);
     // withinss
     vector<double> withinss = _getWithinSumOfSquares(solution);
     // tot.withiness
@@ -933,7 +940,7 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     wxString summary;
     summary << "------\n";
     if (isolated.size()>0)
-        summary << _("Number of not clustered observations: ") << isolated.size() << "\n";
+        summary << _("Number of observations not in a cluster: ") << isolated.size() << "\n";
     summary << _printConfiguration();
     
     // auto weighting
@@ -1020,7 +1027,7 @@ vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<
     return result;
 }
 
-double AbstractClusterDlg::_getTotalSumOfSquares()
+double AbstractClusterDlg::_getTotalSumOfSquares(const std::vector<bool>& noises)
 {
     if (columns <= 0 || rows <= 0) return 0;
    
@@ -1030,8 +1037,9 @@ double AbstractClusterDlg::_getTotalSumOfSquares()
             continue;
         vector<double> vals;
         for (int j=0; j<rows; j++) {
-            if (mask[j][i] == 1)
+            if (mask[j][i] == 1 && noises[j] == false) {
                 vals.push_back(input_data[j][i]);
+            }
         }
         double ss = GenUtils::SumOfSquares(vals);
         ssq += ss;

@@ -3283,7 +3283,7 @@ msgid "Number of neighbors"
 msgstr "Número de vecinos"
 
 #contributors:
-msgid "Number of not clustered observations: "
+msgid "Number of observations not in a cluster: "
 msgstr ""
 
 #contributors:

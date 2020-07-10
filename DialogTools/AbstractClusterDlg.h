@@ -178,7 +178,7 @@ protected:
     SimpleReportTextCtrl* m_reportbox;
 	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
 	// -- functions
-    double _getTotalSumOfSquares();
+    double _getTotalSumOfSquares(const std::vector<bool>& noises);
     double _calcSumOfSquares(const vector<int>& cluster_ids);
     virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
     vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);

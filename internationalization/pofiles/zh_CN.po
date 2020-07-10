@@ -3267,7 +3267,7 @@ msgid "Number of neighbors"
 msgstr "邻居数"
 
 # contributors:
-msgid "Number of not clustered observations: "
+msgid "Number of observations not in a cluster: "
 msgstr "无法聚类的对象数："
 
 # contributors:
@@ -5283,7 +5283,7 @@ msgid "Use selected as specified alpha level"
 msgstr "使用上面选中的值为alpha值"
 
 # contributors:
-msgid "Use specified seed:"
+msgid "Use Specified Seed:"
 msgstr "使用指定的种子："
 
 # contributors:

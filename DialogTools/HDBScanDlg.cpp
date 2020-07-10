@@ -124,13 +124,12 @@ void HDBScanDlg::CreateControls()
     
     // Input
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    bool show_auto_ctrl = true;
-    AddInputCtrls(panel, vbox, show_auto_ctrl);
+    AddSimpleInputCtrls(panel, vbox);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
-    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min cluster size:"));
+    wxStaticText* st2 = new wxStaticText(panel, wxID_ANY, _("Min Cluster Size:"));
     wxTextValidator validator(wxFILTER_INCLUDE_CHAR_LIST);
     wxArrayString list;
     wxString valid_chars(".0123456789");
@@ -143,7 +142,7 @@ void HDBScanDlg::CreateControls()
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minpts, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min samples:"));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Points:"));
     m_minsamples = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
@@ -153,7 +152,7 @@ void HDBScanDlg::CreateControls()
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_ctl_alpha, 1, wxEXPAND);
     
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of selecting clusters:"));
+    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of Selecting Clusters:"));
     wxString choices16[] = {"Excess of Mass", "Leaf"};
     m_select_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(138,-1), 2, choices16);
     m_select_method->SetSelection(0);
@@ -161,7 +160,7 @@ void HDBScanDlg::CreateControls()
     gbox->Add(m_select_method, 1, wxEXPAND);
     
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a single cluster:"));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a Single Cluster:"));
     chk_allowsinglecluster = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(chk_allowsinglecluster, 1, wxEXPAND);
@@ -385,7 +384,7 @@ wxString HDBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Minimum cluster size:\t" << m_minpts->GetValue() << "\n";
-    txt << "Minimum samples:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Minimum points:\t" << m_minsamples->GetValue() << "\n";
     txt << "Alpha:\t" << m_ctl_alpha->GetValue() << "\n";
     txt << "Method of selecting cluster:\t" << m_select_method->GetStringSelection() << "\n";
     wxString single_cluster = chk_allowsinglecluster->IsChecked() ? "Yes" : "No";
@@ -417,7 +416,7 @@ bool HDBScanDlg::CheckAllInputs()
         m_min_samples = (int)l_min_samples;
     }
     if (m_min_samples <= 1) {
-        wxString err_msg = _("Minimum samples should be greater than zero.");
+        wxString err_msg = _("Minimum points should be greater than zero.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;

@@ -265,14 +265,14 @@ void PreferenceDlg::Init()
     grid_sizer1->Add(lbl_txt113, 1, wxEXPAND);
     grid_sizer1->Add(cmb113, 0, wxALIGN_RIGHT);
     
-	wxString lbl8 = _("Show Recent/Sample Data panel in Connect Datasource Dialog:");
+	wxString lbl8 = _("Show Recent/Sample data panel in Connect Datasource Dialog:");
 	wxStaticText* lbl_txt8 = new wxStaticText(vis_page, wxID_ANY, lbl8);
 	cbox8 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_RECENT"), "", pos);
 	grid_sizer1->Add(lbl_txt8, 1, wxEXPAND);
 	grid_sizer1->Add(cbox8, 0, wxALIGN_RIGHT);
 	cbox8->Bind(wxEVT_CHECKBOX, &PreferenceDlg::OnShowRecent, this);
 
-	wxString lbl9 = _("Show CSV Configuration in Merge Data Dialog:");
+	wxString lbl9 = _("Show CSV configuration in Merge Data Dialog:");
 	wxStaticText* lbl_txt9 = new wxStaticText(vis_page, wxID_ANY, lbl9);
 	cbox9 = new wxCheckBox(vis_page, XRCID("PREF_SHOW_CSV_IN_MERGE"), "", pos);
 	grid_sizer1->Add(lbl_txt9, 1, wxEXPAND);
@@ -340,7 +340,7 @@ void PreferenceDlg::Init()
 	grid_sizer1->Add(txt_poweriter_eps, 0, wxALIGN_RIGHT);
     txt_poweriter_eps->Bind(wxEVT_COMMAND_TEXT_UPDATED, &PreferenceDlg::OnPowerEpsEnter, this);
     
-    wxString lbl20 = _("Use GPU to Accelerate computation:");
+    wxString lbl20 = _("Use GPU to accelerate computation:");
     wxStaticText* lbl_txt20 = new wxStaticText(vis_page, wxID_ANY, lbl20);
     cbox_gpu = new wxCheckBox(vis_page, XRCID("PREF_USE_GPU"), "", pos);
     grid_sizer1->Add(lbl_txt20, 1, wxEXPAND);

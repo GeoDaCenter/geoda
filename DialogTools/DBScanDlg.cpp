@@ -115,15 +115,14 @@ bool DBScanDlg::Init()
 
 void DBScanDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,680), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
    
     wxPanel *panel = new wxPanel(scrl);
     
     // Input
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    bool show_auto_ctrl = true;
-    AddInputCtrls(panel, vbox, show_auto_ctrl);
+    AddSimpleInputCtrls(panel, vbox);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
@@ -141,7 +140,7 @@ void DBScanDlg::CreateControls()
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_eps, 1, wxEXPAND);
     
-    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Samples:"));
+    wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Points:"));
     m_minsamples = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
@@ -346,7 +345,7 @@ wxString DBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Distance Threshold (epsilon):\t" << m_eps->GetValue() << "\n";
-    txt << "Min Samples:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Min Points:\t" << m_minsamples->GetValue() << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
@@ -369,7 +368,7 @@ bool DBScanDlg::CheckAllInputs()
         m_min_samples = (int)l_min_samples;
     }
     if (m_min_samples < 1 || m_min_samples > num_obs) {
-        wxString err_msg = _("Min samples (self included) should be greater than 1 and less than N.");
+        wxString err_msg = _("Min points (self included) should be greater than 1 and less than N.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
@@ -430,10 +429,14 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
 
     // process results  and  sort the clusters
     int n_cluster = 0;
+    bool has_noise = false;
     for (int i=0; i<labels.size();  ++i) {
         if (labels[i] > n_cluster) {
             //  label = -1 means noise
             n_cluster = labels[i];
+        }
+        if (labels[i] == -1) {
+            has_noise = true;
         }
     }
     n_cluster +=  1;
@@ -456,6 +459,9 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
         }
     }
 
+    if (has_noise) {
+        n_cluster += 1;
+    }
     if (weight) {
         for (int i=0; i<rows; i++) delete[] data[i];
         delete[] data;
@@ -549,7 +555,8 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString tmp = _("DBScan Cluster Map (%d clusters)");
-    wxString ttl = wxString::Format(tmp, (int)cluster_ids.size() - 1);
+    int n_clsts = (int)cluster_ids.size();
+    wxString ttl = wxString::Format(tmp, n_clsts);
     nf->SetTitle(ttl);
     if (not_clustered >0) nf->SetLegendLabel(0, _("Not Clustered"));
 }

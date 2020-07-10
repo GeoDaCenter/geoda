@@ -120,7 +120,7 @@ void SkaterDlg::CreateControls()
 
     AddTransformation(panel, gbox);
     
-    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use specified seed:"));
+    wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
     seedButton = new wxButton(panel, wxID_OK, _("Change Seed"));
