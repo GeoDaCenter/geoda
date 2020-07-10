@@ -294,7 +294,7 @@ void AbstractClusterDlg::OnInputWeights(wxCommandEvent& ev)
     wxString val = m_wc_txt->GetValue();
     double w_val;
     if (val.ToDouble(&w_val)) {
-        m_weight_centroids->SetValue(w_val * 100);
+        m_weight_centroids->SetValue( (int)(w_val * 100));
     }
 }
 
@@ -314,7 +314,7 @@ void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
         m_wc_txt->Enable();
         auto_btn->Enable();
     } else {
-        m_weight_centroids->SetValue(false);
+        m_weight_centroids->SetValue(0);
         m_weight_centroids->Disable();
         m_wc_txt->SetValue("0.00");
         m_wc_txt->Disable();
@@ -341,44 +341,28 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 
     if (GetDefaultContiguity() == false) return false;
 
-    map<int, set<wxInt64> > groups;
-    map<int, set<wxInt64> >::iterator it;
+    map<int, std::vector<int> > groups;
+    map<int, std::vector<int> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
-        if (c == 0) continue; // 0 means not clustered
-        if (groups.find(c)==groups.end()) {
-            set<wxInt64> g;
-            g.insert(i);
-            groups[c] = g;
-        } else {
-            groups[c].insert(i);
+        if (c == 0) {
+            return false; // 0 means not clustered
         }
+        groups[c].push_back(i);
     }
 
-    bool is_cont = true;
-    set<wxInt64>::iterator item_it;
     for (it = groups.begin(); it != groups.end(); it++) {
         // check each group if contiguity
-        set<wxInt64> g = it->second;
-        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
-            int idx = (int)*item_it;
-            const vector<long>& nbrs = gal[idx].GetNbrs();
-            bool not_in_group = true;
-            for (int i=0; i<nbrs.size(); i++ ) {
-                if (g.find(nbrs[i]) != g.end()) {
-                    not_in_group = false;
-                    break;
+        const std::vector<int>& g = it->second;
+        for (int i=0; i<g.size(); ++i) {
+            for (int j=i+1; j < g.size(); ++j) {
+                if (gal[g[i]].Check(g[j]) == false) {
+                    return false;
                 }
             }
-            if (not_in_group) {
-                is_cont = false;
-                break;
-            }
         }
-        if (!is_cont) break;
     }
-
-    return is_cont;
+    return true;
 }
 
 void AbstractClusterDlg::BinarySearch(double left, double right,
@@ -389,9 +373,14 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
     if ( delta < 0.01 ) return;
 
     double mid = left + delta /2.0;
+    double m_ssd = 0;
+
+    if (mid < 0.01) {
+        // the slider (range[0,100]) with tick=1 only has precision of 0.01
+        return;
+    }
 
     // assume left is always not contiguity and right is always contiguity
-    double m_ssd = 0;
     bool m_conti = CheckContiguity(mid, m_ssd);
 
     if ( m_conti ) {
@@ -659,6 +648,7 @@ bool AbstractClusterDlg::IsUseCentroids()
     if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
 
     if (use_centroids && m_weight_centroids) {
+        std::cout << m_weight_centroids->GetValue() << std::endl;
         if (m_weight_centroids->GetValue() == 0) {
             use_centroids =  false;
         }
@@ -696,10 +686,9 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
    
     col_names.clear();
     select_vars.clear();
-    
-    if ((!use_centroids && num_var>0) ||
-            (use_centroids && m_weight_centroids &&
-             m_weight_centroids->GetValue() != 1))
+
+    if ( num_var > 0 ||
+        (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 0))
     {
         col_ids.resize(num_var);
         var_info.resize(num_var);

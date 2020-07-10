@@ -214,7 +214,6 @@ void Spectral::arpack_eigendecomposition()
             eigenvectors(j,i) = eigenvectors(j,i) * d(j);
         }
     }
-    std::cout << eigenvalues << std::endl;
 }
 
 bool Spectral::call_symeigssolver(MatrixXd& L)
