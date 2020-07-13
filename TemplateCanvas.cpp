@@ -1831,7 +1831,7 @@ void TemplateCanvas::UpdateSelection(bool shiftdown, bool pointsel)
         // rectangle
 		UpdateSelectionPoints(shiftdown, pointsel);
 	}
-    
+
     // re-paint highlight layer (layer1_bm)
     layer1_valid = false;
     DrawLayers();

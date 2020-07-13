@@ -23,6 +23,7 @@
 #include <vector>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/nil_generator.hpp>
+#include <boost/unordered_map.hpp>
 #include <wx/slider.h>
 #include <wx/stattext.h>
 #include <wx/dialog.h>
@@ -98,8 +99,8 @@ public:
     
     MapCanvas(wxWindow *parent, TemplateFrame* t_frame,
               Project* project,
-              const vector<GdaVarTools::VarInfo>& var_info,
-              const vector<int>& col_ids,
+              const std::vector<GdaVarTools::VarInfo>& var_info,
+              const std::vector<int>& col_ids,
               CatClassification::CatClassifType theme_type = CatClassification::no_theme,
               SmoothingType smoothing_type = no_smoothing,
               int num_categories = 1,
@@ -114,6 +115,8 @@ public:
 	virtual wxString GetCanvasTitle();
     virtual wxString GetVariableNames();
 	virtual wxString GetNameWithTime(int var);
+    virtual void UpdateSelection(bool shiftdown = false,
+                                 bool pointsel = false);
     virtual void UpdateSelectionPoints(bool shiftdown = false,
                                        bool pointsel = false);
 	virtual void NewCustomCatClassif();
@@ -122,8 +125,8 @@ public:
                                int num_categories,
                                boost::uuids::uuid weights_id,
                                bool use_new_var_info_and_col_ids,
-                               const vector<GdaVarTools::VarInfo>& new_var_info,
-                               const vector<int>& new_col_ids,
+                               const std::vector<GdaVarTools::VarInfo>& new_var_info,
+                               const std::vector<int>& new_col_ids,
                                const wxString& custom_classif_title = wxEmptyString);
 	virtual void update(HLStateInt* o);
 	virtual void update(CatClassifState* o);
@@ -191,21 +194,21 @@ public:
     void SetupColor();
     void SetPredefinedColor(const wxString& lbl, const wxColor& new_color);
     void UpdatePredefinedColor(const wxString& lbl, const wxColor& new_color);
-    vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
+    std::vector<bool> AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc);
     void SetLegendLabel(int cat, wxString label);
    
     // multi-layers:
-    vector<BackgroundMapLayer*> GetBackgroundMayLayers();
-    vector<BackgroundMapLayer*> GetForegroundMayLayers();
-    void SetForegroundMayLayers(vector<BackgroundMapLayer*>& val);
-    void SetBackgroundMayLayers(vector<BackgroundMapLayer*>& val);
-    vector<wxString> GetLayerNames();
+    std::vector<BackgroundMapLayer*> GetBackgroundMayLayers();
+    std::vector<BackgroundMapLayer*> GetForegroundMayLayers();
+    void SetForegroundMayLayers(std::vector<BackgroundMapLayer*>& val);
+    void SetBackgroundMayLayers(std::vector<BackgroundMapLayer*>& val);
+    std::vector<wxString> GetLayerNames();
     void RemoveLayer(wxString name);
     virtual bool IsCurrentMap();
     virtual wxString GetName();
-    virtual vector<wxString> GetKeyNames();
+    virtual std::vector<wxString> GetKeyNames();
     virtual int  GetNumRecords();
-    virtual bool GetKeyColumnData(wxString col_name, vector<wxString>& data);
+    virtual bool GetKeyColumnData(wxString col_name, std::vector<wxString>& data);
     virtual void ResetHighlight();
     virtual void DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas);
     virtual void SetLayerAssociation(wxString my_key, AssociateLayerInt* layer,
@@ -227,7 +230,7 @@ public:
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
-    void UpdateNeighborSelections(vector<bool> new_hs);
+    void UpdateNeighborSelections(std::vector<bool> new_hs);
 
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
@@ -247,15 +250,15 @@ public:
     wxColour neighbor_fill_color;
     int conn_selected_size;
     set<int> ids_of_nbrs;
-    vector<int> ids_wo_nbrs;
-	vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> ids_wo_nbrs;
+	std::vector<GdaVarTools::VarInfo> var_info;
 	int num_obs;
 	bool isDrawBasemap;
     int tran_unhighlighted;
 	bool print_detailed_basemap;
 
-    static vector<int> empty_shps_ids;
-    static map<int, bool> empty_dict;
+    static std::vector<int> empty_shps_ids;
+    static boost::unordered_map<int, bool> empty_dict;
     static bool has_shown_empty_shps_msg;
     static int GetEmptyNumber();
     static void ResetEmptyFlag();
@@ -263,14 +266,15 @@ public:
     Gda::BasemapItem basemap_item;
     
 protected:
-    vector<BackgroundMapLayer*> bg_maps;
-    vector<BackgroundMapLayer*> fg_maps;
+    std::vector<BackgroundMapLayer*> bg_maps;
+    std::vector<BackgroundMapLayer*> fg_maps;
     list<GdaShape*>  background_maps;
     list<GdaShape*>  foreground_maps;
-    
+    int num_select_with_neighbor;
+
     bool layerbase_valid; // if false, then needs to be redrawn
     bool is_updating; // true: if triggered by other window
-    vector<GdaPolyLine*> w_graph;
+    std::vector<GdaPolyLine*> w_graph;
     IDataSource* p_datasource;
     static bool has_thumbnail_saved;
     wxString layer_name;
@@ -282,19 +286,19 @@ protected:
 	
     bool IS_VAR_STRING;
 	int num_time_vals;
-	vector<d_array_type> data;
-    vector<s_array_type> s_data;
-	vector<b_array_type> data_undef;
+	std::vector<d_array_type> data;
+    std::vector<s_array_type> s_data;
+	std::vector<b_array_type> data_undef;
     
-	vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
-    vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
+	std::vector<Gda::dbl_int_pair_vec_type> cat_var_sorted;
+    std::vector<Gda::str_int_pair_vec_type> cat_str_var_sorted;
 	int num_categories; // used for Quantile, Equal Interval and Natural Breaks
 	
 	int ref_var_index;
 	bool is_any_time_variant;
 	bool is_any_sync_with_global_time;
-	vector<bool> map_valid;
-	vector<wxString> map_error_message;
+	std::vector<bool> map_valid;
+	std::vector<wxString> map_error_message;
 	bool full_map_redraw_needed;
 	boost::uuids::uuid weights_id;
    
@@ -332,8 +336,8 @@ class MapFrame : public TemplateFrame, public WeightsManStateObserver
    DECLARE_CLASS(MapFrame)
 public:
     MapFrame(wxFrame *parent, Project* project,
-             const vector<GdaVarTools::VarInfo>& var_info,
-             const vector<int>& col_ids,
+             const std::vector<GdaVarTools::VarInfo>& var_info,
+             const std::vector<int>& col_ids,
              CatClassification::CatClassifType theme_type = CatClassification::no_theme,
              MapCanvas::SmoothingType smoothing_type = MapCanvas::no_smoothing,
              int num_categories = 1,
@@ -398,11 +402,11 @@ public:
     void OnBasemapSelect(wxCommandEvent& event);
     void OnClose(wxCloseEvent& event);
     void CleanBasemap();
-	void GetVizInfo(map<wxString, vector<int> >& colors);
+	void GetVizInfo(map<wxString, std::vector<int> >& colors);
     void GetVizInfo(wxString& shape_type,
                     wxString& field_name,
-                    vector<wxString>& clrs,
-                    vector<double>& bins);
+                    std::vector<wxString>& clrs,
+                    std::vector<double>& bins);
     void OnAddNeighborToSelection(wxCommandEvent& event);
     void OnDisplayWeightsGraph(wxCommandEvent& event);
     void OnDisplayMapWithGraph(wxCommandEvent& event);
@@ -428,8 +432,8 @@ public:
 					   int num_categories,
 					   boost::uuids::uuid weights_id,
 					   bool use_new_var_info_and_col_ids,
-					   const vector<GdaVarTools::VarInfo>& new_var_info,
-					   const vector<int>& new_col_ids,
+					   const std::vector<GdaVarTools::VarInfo>& new_var_info,
+					   const std::vector<int>& new_col_ids,
 					   const wxString& custom_classif_title = wxEmptyString);
     void SetLegendLabel(int cat, wxString label) {
         if (!template_canvas) return;
@@ -441,8 +445,8 @@ public:
     void AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm);
     
 	
-    vector<GdaVarTools::VarInfo> var_info;
-    vector<int> col_ids;
+    std::vector<GdaVarTools::VarInfo> var_info;
+    std::vector<int> col_ids;
     
 protected:
     wxBoxSizer* rbox;
