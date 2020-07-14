@@ -462,6 +462,8 @@ void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
 
     bool hover_changed = old_hover_obs.size() != hover_obs.size();
 
+    select_with_neighbor.clear(); // reset selection in connectivity map/graph
+
     if (hover_changed == false && hover_obs.empty() != true) {
         std::map<int, bool> hover_dict;
         for (size_t i=0; i<old_hover_obs.size(); ++i) {

@@ -246,6 +246,11 @@ void ConnectivityMapCanvas::OnMouseEvent(wxMouseEvent& event)
 // all GdaShape selectable objects.
 void ConnectivityMapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
+    // notify other windows to update
+    is_updating = false;
+    // clean any select_with_neighbor since it's users operation
+    select_with_neighbor.clear();
+    
 	size_t sel_shps_sz = selectable_shps.size();
 	
 	sel_cores.clear();
