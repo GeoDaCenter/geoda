@@ -341,28 +341,44 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 
     if (GetDefaultContiguity() == false) return false;
 
-    map<int, std::vector<int> > groups;
-    map<int, std::vector<int> >::iterator it;
+    map<int, set<wxInt64> > groups;
+    map<int, set<wxInt64> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
-        if (c == 0) {
-            return false; // 0 means not clustered
+        if (c == 0) continue; // 0 means not clustered
+        if (groups.find(c)==groups.end()) {
+            set<wxInt64> g;
+            g.insert(i);
+            groups[c] = g;
+        } else {
+            groups[c].insert(i);
         }
-        groups[c].push_back(i);
     }
 
+    bool is_cont = true;
+    set<wxInt64>::iterator item_it;
     for (it = groups.begin(); it != groups.end(); it++) {
         // check each group if contiguity
-        const std::vector<int>& g = it->second;
-        for (int i=0; i<g.size(); ++i) {
-            for (int j=i+1; j < g.size(); ++j) {
-                if (gal[g[i]].Check(g[j]) == false) {
-                    return false;
+        set<wxInt64> g = it->second;
+        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
+            int idx = (int)*item_it;
+            const vector<long>& nbrs = gal[idx].GetNbrs();
+            bool not_in_group = true;
+            for (int i=0; i<nbrs.size(); i++ ) {
+                if (g.find(nbrs[i]) != g.end()) {
+                    not_in_group = false;
+                    break;
                 }
             }
+            if (not_in_group) {
+                is_cont = false;
+                break;
+            }
         }
+        if (!is_cont) break;
     }
-    return true;
+
+    return is_cont;
 }
 
 void AbstractClusterDlg::BinarySearch(double left, double right,
@@ -426,7 +442,8 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
     double ssd = ssd_pairs[0].second;
 
     for (int i=1; i<ssd_pairs.size(); i++) {
-        if (ssd_pairs[i].second > ssd) {
+        if (ssd_pairs[i].second > ssd ||
+            (ssd_pairs[i].second == ssd && ssd_pairs[i].first < w)) {
             ssd = ssd_pairs[i].second;
             w = ssd_pairs[i].first;
         }
