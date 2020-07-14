@@ -117,7 +117,7 @@ bool HDBScanDlg::Init()
 
 void HDBScanDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,780), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,680), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
    
     wxPanel *panel = new wxPanel(scrl);
@@ -146,11 +146,16 @@ void HDBScanDlg::CreateControls()
     m_minsamples = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
+    // hide Min Points option
+    st14->Hide();
+    m_minsamples->Hide();
     
     wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"));
     m_ctl_alpha = new wxTextCtrl(panel, wxID_ANY, "1.0", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_ctl_alpha, 1, wxEXPAND);
+    st15->Hide();
+    m_ctl_alpha->Hide();
     
     wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Method of Selecting Clusters:"));
     wxString choices16[] = {"Excess of Mass", "Leaf"};
@@ -158,13 +163,16 @@ void HDBScanDlg::CreateControls()
     m_select_method->SetSelection(0);
     gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_select_method, 1, wxEXPAND);
-    
+    st16->Hide();
+    m_select_method->Hide();
     
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Allow a Single Cluster:"));
     chk_allowsinglecluster = new wxCheckBox(panel, wxID_ANY, "");
     gbox->Add(st17, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(chk_allowsinglecluster, 1, wxEXPAND);
-    
+    st17->Hide();
+    chk_allowsinglecluster->Hide();
+
     // Transformation
     AddTransformation(panel, gbox);
     
@@ -384,11 +392,11 @@ wxString HDBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Minimum cluster size:\t" << m_minpts->GetValue() << "\n";
-    txt << "Minimum points:\t" << m_minsamples->GetValue() << "\n";
-    txt << "Alpha:\t" << m_ctl_alpha->GetValue() << "\n";
+    //txt << "Minimum points:\t" << m_minsamples->GetValue() << "\n";
+    //txt << "Alpha:\t" << m_ctl_alpha->GetValue() << "\n";
     txt << "Method of selecting cluster:\t" << m_select_method->GetStringSelection() << "\n";
     wxString single_cluster = chk_allowsinglecluster->IsChecked() ? "Yes" : "No";
-    txt << "Allow a single cluster:\t" << single_cluster << "\n";
+    //txt << "Allow a single cluster:\t" << single_cluster << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
     txt << "Distance function:\t" << m_distance->GetString(m_distance->GetSelection()) << "\n";
     txt << "Number of clusters (output):\t" << cluster_ids.size() << "\n";
@@ -410,7 +418,8 @@ bool HDBScanDlg::CheckAllInputs()
         return false;
     }
 
-    m_min_samples = 10;
+    m_min_samples = m_min_pts;
+    /*
     long l_min_samples;
     if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
         m_min_samples = (int)l_min_samples;
@@ -421,6 +430,7 @@ bool HDBScanDlg::CheckAllInputs()
         dlg.ShowModal();
         return false;
     }
+    */
 
     double d_alpha = 1;
     if (m_ctl_alpha->GetValue().ToDouble(&d_alpha)) {
