@@ -5904,6 +5904,16 @@ void GdaFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     }
 }
 
+void GdaFrame::OnChangeConnSelectedFillColor(wxCommandEvent& event)
+{
+    wxLogMessage("In GdaFrame::OnChangeConnSelectedFillColor()");
+    TemplateFrame* t = TemplateFrame::GetActiveFrame();
+    if (!t) return;
+    if (MapFrame* f = dynamic_cast<MapFrame*>(t)) {
+        f->OnChangeConnSelectedFillColor(event);
+    }
+}
+
 void GdaFrame::OnChangeConnRootSize(wxCommandEvent& event)
 {
     wxLogMessage("In GdaFrame::OnChangeConnRootSize()");
@@ -7144,6 +7154,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_CONN_ROOT_SIZE"), GdaFrame::OnChangeConnRootSize)
     EVT_MENU(XRCID("ID_CONN_ROOT_COLOR"), GdaFrame::OnChangeConnRootColor)
     EVT_MENU(XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"), GdaFrame::OnChangeNeighborFillColor)
+    EVT_MENU(XRCID("ID_CONN_SELECTED_FILL_COLOR"), GdaFrame::OnChangeConnSelectedFillColor)
     EVT_MENU(XRCID("ID_SELECT_NEIGHBORS_OF_CORES"), GdaFrame::OnSelectNeighborsOfCores)
     EVT_MENU(XRCID("ID_SELECT_CORES_AND_NEIGHBORS"), GdaFrame::OnSelectCoresAndNeighbors)
     EVT_MENU(XRCID("ID_MAP_ADDMEANCENTERS"), GdaFrame::OnAddMeanCenters)

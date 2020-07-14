@@ -172,6 +172,7 @@ public:
     virtual void ChangeGraphThickness(int val);
     virtual void ChangeGraphColor();
     virtual void ChangeConnSelectedColor();
+    virtual void ChangeConnSelectedFillColor();
     virtual void ChangeNeighborFillColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
@@ -230,7 +231,6 @@ public:
         MapCanvas::has_thumbnail_saved = false;
     }
     Project* GetProject() { return project; }
-    void UpdateNeighborSelections(std::vector<bool> new_hs);
 
 	CatClassifDef cat_classif_def;
 	SmoothingType smoothing_type;
@@ -247,6 +247,7 @@ public:
     int  weights_graph_thickness;
     wxColour graph_color;
     wxColour conn_selected_color;
+    wxColour conn_selected_fill_color;
     wxColour neighbor_fill_color;
     int conn_selected_size;
     set<int> ids_of_nbrs;
@@ -270,7 +271,7 @@ protected:
     std::vector<BackgroundMapLayer*> fg_maps;
     list<GdaShape*>  background_maps;
     list<GdaShape*>  foreground_maps;
-    int num_select_with_neighbor;
+    std::vector<int> select_with_neighbor; // only works w/ graph/connectivity
 
     bool layerbase_valid; // if false, then needs to be redrawn
     bool is_updating; // true: if triggered by other window
@@ -413,6 +414,7 @@ public:
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
+    void OnChangeConnSelectedFillColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);

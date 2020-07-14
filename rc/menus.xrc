@@ -3298,6 +3298,9 @@
         <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
             <label>Change Outline Color of Selected</label>
         </object>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+            <label>Change Fill Color of Selected</label>
+        </object>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
@@ -3466,6 +3469,9 @@
           <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
               <label>Change Outline Color of Selected</label>
           </object>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+              <label>Change Fill Color of Selected</label>
+          </object>
       </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
@@ -3570,6 +3576,9 @@
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
               <label>Change Outline Color of Selected</label>
+          </object>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+              <label>Change Fill Color of Selected</label>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_CONN_ROOT_SIZE">
@@ -3723,6 +3732,9 @@
           <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
               <label>Change Outline Color of Selected</label>
           </object>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+              <label>Change Fill Color of Selected</label>
+          </object>
       </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_SHAPE_CENTERS_MENU">
@@ -3867,6 +3879,9 @@
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
               <label>Change Outline Color of Selected</label>
+          </object>
+          <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+              <label>Change Fill Color of Selected</label>
           </object>
       </object>
       <object class="separator"/>
@@ -4067,6 +4082,9 @@
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
             <label>Change Outline Color of Selected</label>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+            <label>Change Fill Color of Selected</label>
         </object>
     </object>
     <object class="separator"/>
@@ -4500,6 +4518,9 @@
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_CONN_SELECTED_COLOR">
             <label>Change Outline Color of Selected</label>
+        </object>
+        <object class="wxMenuItem" name="ID_CONN_SELECTED_FILL_COLOR">
+            <label>Change Fill Color of Selected</label>
         </object>
     </object>
     <object class="separator"/>

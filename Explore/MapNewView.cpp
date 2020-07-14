@@ -184,6 +184,7 @@ display_map_with_graph(true),
 display_voronoi_diagram(false),
 graph_color(GdaConst::conn_graph_outline_colour),
 conn_selected_color(GdaConst::conn_select_outline_colour),
+conn_selected_fill_color(GdaConst::conn_select_outline_colour),
 neighbor_fill_color(GdaConst::conn_neighbor_fill_colour),
 weights_graph_thickness(1),
 voronoi_diagram_duplicates_exist(false),
@@ -196,8 +197,7 @@ ref_var_index(-1),
 tran_unhighlighted(GdaConst::transparency_unhighlighted),
 print_detailed_basemap(false),
 maplayer_state(project_s->GetMapLayerState()),
-is_updating(true), // default true to prevent sending notify to other maps when init window
-num_select_with_neighbor(0)
+is_updating(true) // default true to prevent sending notify to other maps when init window
 {
     wxLogMessage("MapCanvas::MapCanvas()");
     is_hide = false;
@@ -350,6 +350,8 @@ void MapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
     // notify other windows to update
     is_updating = false;
+    // clean any select_with_neighbor since it's users operation
+    select_with_neighbor.clear();
 
     TemplateCanvas::UpdateSelection(shiftdown, pointsel);
 }
@@ -516,7 +518,6 @@ void MapCanvas::UpdatePredefinedColor(const wxString& lbl, const wxColor& new_co
 std::vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxMemoryDC &dc)
 {
     std::vector<bool> new_hs(num_obs, false);
-    num_select_with_neighbor = 0;
     if (gal_weights == NULL) return new_hs;
 
     int ts = cat_data.GetCurrentCanvasTmStep();
@@ -526,6 +527,15 @@ std::vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxM
     std::set<int>::iterator it;
     ids_of_nbrs.clear();
     ids_wo_nbrs.clear();
+
+    if (select_with_neighbor.empty() == false) {
+        // if already has neighbor selected
+        for (int i=0; i<h.size(); i++) h[i] = false;
+        for (int i=0; i<select_with_neighbor.size(); ++i) {
+            h[select_with_neighbor[i]] = true;
+        }
+    }
+
     for (int i=0; i<h.size(); i++) {
         if (h[i]) ids_wo_nbrs.push_back(i);
     }
@@ -584,12 +594,17 @@ std::vector<bool> MapCanvas::AddNeighborsToSelection(GalWeight* gal_weights, wxM
         if (conn_selected_color.Alpha() != 0) {
             pen.SetColour(conn_selected_color);
         }
+        wxBrush *brush = NULL;
+        if (conn_selected_fill_color.Alpha() != 0) {
+            brush = new wxBrush(conn_selected_fill_color);
+        }
+        select_with_neighbor.clear();
         for (int i=0; i<gal_weights->num_obs; i++) {
             if (h[i]) {
                 selectable_shps[i]->setPen(pen);
-                selectable_shps[i]->setBrush(*wxTRANSPARENT_BRUSH);
+                selectable_shps[i]->setBrush(brush ? *brush : *wxTRANSPARENT_BRUSH);
                 selectable_shps[i]->paintSelf(dc);
-                num_select_with_neighbor += 1;
+                select_with_neighbor.push_back(i);
             }
         }
     }
@@ -860,6 +875,10 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             }
             BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
                 if (ms) ms->applyScaleTrans(last_scale_trans);
+            }
+            // for points reset the point radius to user selected
+            if (selectable_shps_type == points) {
+                SetPointRadius(point_radius);
             }
         }
         layer0_valid = false;
@@ -1316,24 +1335,12 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
         DrawConnectivityGraph(dc);
     }
 
+    // UpdateNeighborSelections
     if (is_updating == false && (show_graph || display_neighbors)) {
         hs = new_hs; // set highlights to "current+neighbors"
         highlight_state->SetEventType(HLStateInt::delta);
-        highlight_state->notifyObservers(this);
+        highlight_timer->Start(50);
     }
-}
-
-void MapCanvas::UpdateNeighborSelections(std::vector<bool> new_hs)
-{
-    LOG_MSG("UpdateNeighborSelections()");
-    // highlight connectivity objects and graphs
-    std::vector<bool>& hs = highlight_state->GetHighlight();
-    highlight_timer->Stop(); // make linking start immediately
-    std::vector<bool> old_hs = hs;
-    hs = new_hs; // set highlights to "current+neighbors"
-    highlight_state->SetEventType(HLStateInt::delta);
-    highlight_state->notifyObservers(this);
-    //hs = old_hs; // reset highlights to "current"
 }
 
 void MapCanvas::SaveThumbnail()
@@ -1723,6 +1730,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_WEIGHTS_GRAPH_COLOR"),
                                    display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_SELECTED_COLOR"),
+                                   display_neighbors || display_weights_graph);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_SELECTED_FILL_COLOR"),
                                    display_neighbors || display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"),
                                    display_neighbors);
@@ -2982,6 +2991,15 @@ void MapCanvas::ChangeConnSelectedColor()
     }
 }
 
+void MapCanvas::ChangeConnSelectedFillColor()
+{
+    if (display_neighbors || display_weights_graph) {
+        conn_selected_fill_color = GeneralWxUtils::PickColor(this, conn_selected_fill_color);
+        full_map_redraw_needed = true;
+        PopulateCanvas();
+    }
+}
+
 void MapCanvas::ChangeNeighborFillColor()
 {
     if (display_neighbors) {
@@ -3068,7 +3086,10 @@ void MapCanvas::SaveRates()
 
 void MapCanvas::update(HLStateInt* o)
 {
-    is_updating = true;
+    // update selection from other window
+    select_with_neighbor.clear();
+    
+    is_updating = true; // don't trigger other window when syncing this map
     if (layer2_bm) {
         ResetBrushing();
 
@@ -3122,8 +3143,9 @@ void MapCanvas::UpdateStatusBar()
                 selected_idx = i;
             }
         }
-        if (num_select_with_neighbor > 0) {
-            selected_cnt = num_select_with_neighbor;
+        if (select_with_neighbor.empty() ==  false) {
+            // special case for graph/connectivity
+            selected_cnt = select_with_neighbor.size();
         }
         s << _("#selected=") << selected_cnt << "  ";
     }
@@ -3904,6 +3926,15 @@ void MapFrame::OnChangeConnSelectedColor(wxCommandEvent& event)
     if (gal_weights == NULL)
         return;
     ((MapCanvas*) template_canvas)->ChangeConnSelectedColor();
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnChangeConnSelectedFillColor(wxCommandEvent& event)
+{
+    GalWeight* gal_weights = checkWeights();
+    if (gal_weights == NULL)
+        return;
+    ((MapCanvas*) template_canvas)->ChangeConnSelectedFillColor();
     UpdateOptionMenuItems();
 }
 

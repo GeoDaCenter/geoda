@@ -504,6 +504,7 @@ public:
     void OnChangeGraphThickness(wxCommandEvent& event);
     void OnChangeGraphColor(wxCommandEvent& event);
     void OnChangeConnSelectedColor(wxCommandEvent& event);
+    void OnChangeConnSelectedFillColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
 	void OnChangeConnRootSize(wxCommandEvent& event);
     void OnChangeConnRootColor(wxCommandEvent& event);
