@@ -97,7 +97,6 @@ protected:
     
     map<double, vector<wxInt64> > sub_clusters;
     
-    
     DECLARE_EVENT_TABLE()
 };
 
@@ -130,7 +129,8 @@ public:
     
 protected:
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution);
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+                                        double& additional_ratio);
 
     double _calcSumOfSquaresMedian(const vector<int>& cluster_ids);
     
@@ -160,7 +160,8 @@ protected:
     virtual bool CheckAllInputs();
     
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution);
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+                                        double& additional_ratio);
 
     int GetFirstMedoid(double** distmatrix);
     

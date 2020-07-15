@@ -46,6 +46,7 @@ bool GwtElement::alloc(const int sz)
 double GwtElement::SpatialLag(const std::vector<double>& x,
                               const bool std) const
 {
+    // NOTE: not used, please see GalElement::SpatialLag
 	double lag= 0;
 	int cnt = 0;
 	for (cnt= Size() - 1; cnt >= 0; cnt--) {
@@ -57,6 +58,7 @@ double GwtElement::SpatialLag(const std::vector<double>& x,
 }
 
 double GwtElement::SpatialLag(const double *x, const bool std) const  {
+    // NOTE: not used, please see GalElement::SpatialLag
 	double    lag= 0;
 	int cnt = 0;
 	for (cnt= Size() - 1; cnt >= 0; cnt--) {

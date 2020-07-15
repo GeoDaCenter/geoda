@@ -177,6 +177,7 @@ protected:
     wxString mean_center_type;
     SimpleReportTextCtrl* m_reportbox;
 	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
+    bool return_additional_summary;
 	// -- functions
     double _getTotalSumOfSquares(const std::vector<bool>& noises);
     double _calcSumOfSquares(const vector<int>& cluster_ids);
@@ -192,11 +193,17 @@ protected:
                             const wxString& header1 = _("Within cluster S.S."),
                             const wxString& header2 = _("Averages"));
     virtual wxString _printConfiguration()=0;
-    double CreateSummary(const vector<wxInt64>& clusters, bool show_print = true);
-    double CreateSummary(const vector<vector<int> >& solution, const vector<int>& isolated = vector<int>(), bool show_print = true);
+    double CreateSummary(const vector<wxInt64>& clusters,
+                         bool show_print = true,
+                         bool return_additional_summary = false);
+    double CreateSummary(const vector<vector<int> >& solution,
+                         const vector<int>& isolated = vector<int>(),
+                         bool show_print = true,
+                         bool return_additional_summary = false);
     
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution) { return wxEmptyString;}
+    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+                                        double& additional_ratio) { return wxEmptyString;}
 };
 
 #endif

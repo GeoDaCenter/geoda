@@ -634,11 +634,11 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
                 cluster[i] = 3; // undefined value
                 continue;
             }
-            
+            bool is_binary = true;
             for (int v=0; v<num_vars; v++) {
                 int _t = local_t[v];
-                double wx = W[i].SpatialLag(data_vecs[v][_t]);
-                double wx2 = W[i].SpatialLag(data_square_vecs[v][_t]);
+                double wx = W[i].SpatialLag(data_vecs[v][_t], is_binary, i);
+                double wx2 = W[i].SpatialLag(data_square_vecs[v][_t], is_binary, i);
                
                 lags[i] += wx;
                 localGeary[i] += data_square_vecs[v][_t][i] - 2.0 * data_vecs[v][_t][i] * wx +  wx2;
@@ -717,11 +717,11 @@ void LocalGearyCoordinator::CalcLocalGeary()
             
 			double Wdata = 0;
             double Wdata2 = 0;
-            
+            bool is_binary = true;
 			if (isBivariate) {
-				Wdata = W[i].SpatialLag(data2);
+				Wdata = W[i].SpatialLag(data2, is_binary, i);
 			} else {
-				Wdata = W[i].SpatialLag(data1);
+				Wdata = W[i].SpatialLag(data1, is_binary, i);
                 Wdata2 = W[i].SpatialLag(data1_square);
 			}
             

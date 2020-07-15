@@ -619,6 +619,8 @@ KMediansDlg::KMediansDlg(wxFrame *parent, Project* project)
     show_iteration = true;
     cluster_method = "KMedians";
     mean_center_type = " (median)";
+    return_additional_summary = true; // for binary search, using kmedian measure
+
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
     m_distance->Disable();
@@ -747,7 +749,8 @@ double KMediansDlg::_calcSumOfManhattanMedian(const vector<int>& cluster_ids)
     return ssq;
 }
 
-wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
+wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution,
+                                         double& additional_ratio)
 {
     // computing Sum of Square Differences from Medoids
     if (columns <= 0 || rows <= 0) return wxEmptyString;
@@ -813,6 +816,9 @@ wxString KMediansDlg::_additionalSummary(const vector<vector<int> >& solution)
         // ratio
         ratio = totwithiness / totss;
     }
+
+    additional_ratio = 1 - ratio;
+
     summary << _("The total sum of distance:\t") << totss << "\n";
     summary << _printWithinSS(withinss, avgs, _("Within-cluster sum of distances:\n"),
                               _("Within Cluster D"), _("Average"));
@@ -834,6 +840,7 @@ KMedoidsDlg::KMedoidsDlg(wxFrame *parent, Project* project)
     show_iteration = true;
     cluster_method = "KMedoids";
     mean_center_type = " (medoid)";
+    return_additional_summary = true; // for binary search, using kmeoids measure
     
     CreateControls();
     m_distance->SetSelection(1); // set manhattan
@@ -1381,7 +1388,8 @@ double KMedoidsDlg::_calcSumOfManhattanMedoid(const vector<int>& cluster_ids, in
     return ssq;
 }
 
-wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
+wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution,
+                                         double& additional_ratio)
 {
     // computing Sum of Square Differences from Medoids
     if (columns <= 0 || rows <= 0) return wxEmptyString;
@@ -1451,7 +1459,7 @@ wxString KMedoidsDlg::_additionalSummary(const vector<vector<int> >& solution)
     summary << _("The total within-cluster sum of distance:\t") << totwithiness << "\n";
     summary << _("The ratio of total within to total sum of distance: ") << ratio << "\n\n";
 
-
+    additional_ratio = 1 - ratio;
     return summary;
 }
 

@@ -511,10 +511,11 @@ void LisaCoordinator::Calc()
                 Wdata = GenUtils::Median(nbr_data);
 
             } else {
+                bool is_binary = true;
                 if (isBivariate) {
-                    if (data2) Wdata = W[i].SpatialLag(data2);
+                    if (data2) Wdata = W[i].SpatialLag(data2, true, i);
                 } else {
-                    if (data1) Wdata = W[i].SpatialLag(data1);
+                    if (data1) Wdata = W[i].SpatialLag(data1, true, i);
                 }
             }
             

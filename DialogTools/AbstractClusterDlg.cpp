@@ -61,7 +61,8 @@ AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
     input_data(NULL), mask(NULL), weight(NULL), m_use_centroids(NULL),
     m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL),
     combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),
-    slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL)
+    slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL),
+    return_additional_summary(false)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
@@ -337,7 +338,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 
     // not show print
     bool print_result = false;
-    ssd = CreateSummary(clusters, print_result);
+    ssd = CreateSummary(clusters, print_result, return_additional_summary);
 
     if (GetDefaultContiguity() == false) return false;
 
@@ -421,7 +422,11 @@ bool AbstractClusterDlg::CheckAllInputs()
 void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 {
     if (CheckAllInputs() == false) return;
-    
+
+    // start from 1.0 on the far right side
+    m_weight_centroids->SetValue(100);
+    m_wc_txt->SetValue("1.0");
+
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
     // when w = 0 (fully attributes based)
@@ -894,7 +899,8 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 ////////////////////////////////////////////////////////////////
 
 double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
-                                         bool show_print)
+                                         bool show_print,
+                                         bool return_additional_summary)
 {
     vector<vector<int> > solution;
     vector<int> isolated;
@@ -907,12 +913,13 @@ double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
         else
             isolated.push_back(i);
     }
-    return CreateSummary(solution, isolated, show_print);
+    return CreateSummary(solution, isolated, show_print, return_additional_summary);
 }
 
 double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
                                          const vector<int>& isolated,
-                                         bool show_print)
+                                         bool show_print,
+                                         bool return_additional_summary)
 {
     // get noise data (not clustered)
     std::vector<bool> noises(num_obs, true);
@@ -973,8 +980,11 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     summary << _("The ratio of between to total sum of squares:\t") << ratio << "\n\n";
     
     // allow any inherited class to report additional text in summary
-    summary << _additionalSummary(solution);
-    
+    double additional_ratio = 0;
+    summary << _additionalSummary(solution, additional_ratio);
+    if (return_additional_summary) {
+        ratio = additional_ratio;
+    }
     if (m_reportbox && show_print) {
         wxString report = m_reportbox->GetValue();
         report = summary + report;
