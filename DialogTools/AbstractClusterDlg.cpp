@@ -346,13 +346,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
         if (c == 0) continue; // 0 means not clustered
-        if (groups.find(c)==groups.end()) {
-            set<wxInt64> g;
-            g.insert(i);
-            groups[c] = g;
-        } else {
-            groups[c].insert(i);
-        }
+        groups[c].insert(i);
     }
 
     bool is_cont = true;
@@ -371,11 +365,9 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
                 }
             }
             if (not_in_group) {
-                is_cont = false;
-                break;
+                return false;
             }
         }
-        if (!is_cont) break;
     }
 
     return is_cont;

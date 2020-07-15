@@ -1147,6 +1147,11 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
     double cost;
     std::vector<int> clusterid;
 
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    // this function has to be called when use auto-weighting
+    weight = GetWeights(columns);
+    
     // compute distance matrix
     ComputeDistMatrix(dist_sel);
     RawDistMatrix dist_matrix(distmatrix);
