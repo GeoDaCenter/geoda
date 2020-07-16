@@ -644,6 +644,9 @@ bool SpectralClusteringDlg::Run(vector<wxInt64>& clusters)
     }
 
     // NOTE input_data should be retrieved first!! (see CheckAllInput())
+    // get input: weights (auto)
+    // this function has to be called when use auto-weighting
+    weight = GetWeights(columns);
 
     // add weight to input_data
     double** data = new double*[rows];
