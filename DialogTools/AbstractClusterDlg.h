@@ -101,6 +101,7 @@ protected:
     // Utils
     bool IsUseCentroids();
     bool CheckConnectivity(GalWeight* gw);
+    bool CheckConnectivity(GalElement* W);
     
     // Input related
     std::vector<GdaVarTools::VarInfo> var_info;

@@ -153,6 +153,14 @@ bool AbstractClusterDlg::GetDefaultContiguity()
             // assume polygons (no lines)
             gal = PolysToContigWeights(project->main_data, is_queen);
         }
+
+        if (gal) {
+            if (CheckConnectivity(gal) == false) {
+                wxString msg = _("The connectivity of the map is incomplete.");
+                wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+                dlg.ShowModal();
+            }
+        }
     }
     return gal != NULL;
 }
@@ -163,7 +171,14 @@ bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
     
     GalElement* W = gw->gal;
     if (W == NULL) return false;
-    
+
+    return CheckConnectivity(W);
+}
+
+bool AbstractClusterDlg::CheckConnectivity(GalElement* W)
+{
+    if (W == NULL) return false;
+
     // start from first node in W
     if (W[0].Size() == 0) return false;
    
@@ -394,7 +409,7 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
     double mid = left + delta /2.0;
     double m_ssd = 0;
 
-    if (mid < 0.01) {
+    if (mid < 0.01 || mid > 0.99) {
         // the slider (range[0,100]) with tick=1 only has precision of 0.01
         return;
     }
@@ -443,8 +458,11 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
     std::vector<std::pair<double, double> > ssd_pairs;
     BinarySearch(0.0, 1.0, ssd_pairs);
 
-    if (ssd_pairs.empty()) return;
-
+    if (ssd_pairs.empty()) {
+        m_weight_centroids->SetValue(100);
+        m_wc_txt->SetValue("1.0");
+        return;
+    }
     double w = ssd_pairs[0].first;
     double ssd = ssd_pairs[0].second;
 
