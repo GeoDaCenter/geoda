@@ -2323,11 +2323,11 @@ msgid "Hide system table in SQLITE connection:"
 msgstr "在SQLite连接中隐藏系统表："
 
 # contributors:
-msgid "Hierachical Map does not work with Table only datasource."
+msgid "Hierarchical Map does not work with Table only datasource."
 msgstr "表格数据无法创建层次分类地图"
 
 # contributors:
-msgid "Hierachical Map: "
+msgid "Hierarchical Map: "
 msgstr "层次分类地图:"
 
 # contributors:

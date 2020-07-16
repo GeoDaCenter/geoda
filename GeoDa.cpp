@@ -2718,7 +2718,7 @@ void GdaFrame::OnGroupingMap(wxCommandEvent& event)
     
     if (project_p->IsTableOnlyProject()) {
         wxMessageDialog dlg (this,
-                             _("Hierachical Map does not work with Table only datasource."),
+                             _("Hierarchical Map does not work with Table only datasource."),
                              _("Info"), wxOK | wxICON_INFORMATION);
         dlg.ShowModal();
         return;

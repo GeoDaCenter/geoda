@@ -2331,11 +2331,11 @@ msgid "Hide system table in SQLITE connection:"
 msgstr "Скрыть таблицу системы в соединении с SQLITE:"
 
 # contributors:
-msgid "Hierachical Map does not work with Table only datasource."
+msgid "Hierarchical Map does not work with Table only datasource."
 msgstr "Иерархическая карта не работает с исключительно табличным источником данных."
 
 # contributors:
-msgid "Hierachical Map: "
+msgid "Hierarchical Map: "
 msgstr "Иерархическая карта: "
 
 # contributors:

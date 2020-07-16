@@ -4153,7 +4153,7 @@
                                                       </object>
                                                   </object>
                                               </object>
-                                              <label>Adaptive kernel</label>
+                                              <label>Kernel</label>
                                               <flag>wxALL|wxEXPAND</flag>
                                           </object>
                                           <size>480,320</size>
