@@ -342,36 +342,46 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 
     if (GetDefaultContiguity() == false) return false;
 
-    map<int, set<wxInt64> > groups;
-    map<int, set<wxInt64> >::iterator it;
+    map<int, map<wxInt64, bool> > groups;
+    map<int, map<wxInt64, bool> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
         if (c == 0) continue; // 0 means not clustered
-        groups[c].insert(i);
+        groups[c][i] = false;
     }
 
-    bool is_cont = true;
-    set<wxInt64>::iterator item_it;
     for (it = groups.begin(); it != groups.end(); it++) {
         // check each group if contiguity
-        set<wxInt64> g = it->second;
-        for (item_it=g.begin(); item_it!=g.end(); item_it++) {
-            int idx = (int)*item_it;
-            const vector<long>& nbrs = gal[idx].GetNbrs();
-            bool not_in_group = true;
+        // start from 1st object, do BFS and add all objects has c=it->first
+        int cid = it->first;
+        map<wxInt64, bool>& g = it->second;
+        int fid = g.begin()->first;
+
+        std::stack<int> processed_ids;
+        processed_ids.push(fid);
+
+        while (processed_ids.empty() == false) {
+            fid = processed_ids.top();
+            processed_ids.pop();
+            g[fid] = true; // mark fid from current group as processed
+            const vector<long>& nbrs = gal[fid].GetNbrs();
             for (int i=0; i<nbrs.size(); i++ ) {
-                if (g.find(nbrs[i]) != g.end()) {
-                    not_in_group = false;
-                    break;
+                int nid = nbrs[i];
+                if (g.find(nid) != g.end() && g[nid] == false) {
+                    // only processed the neighbor in current group
+                    processed_ids.push(nid);
                 }
             }
-            if (not_in_group) {
+        }
+        map<wxInt64, bool>::iterator item_it;
+        for (item_it = g.begin(); item_it != g.end(); ++item_it) {
+            if (item_it->second == false) {
                 return false;
             }
         }
     }
 
-    return is_cont;
+    return true;
 }
 
 void AbstractClusterDlg::BinarySearch(double left, double right,
@@ -421,11 +431,11 @@ bool AbstractClusterDlg::CheckAllInputs()
 
 void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 {
-    if (CheckAllInputs() == false) return;
-
     // start from 1.0 on the far right side
     m_weight_centroids->SetValue(100);
     m_wc_txt->SetValue("1.0");
+    
+    if (CheckAllInputs() == false) return;
 
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
@@ -662,7 +672,7 @@ bool AbstractClusterDlg::IsUseCentroids()
     if (m_use_centroids) use_centroids = m_use_centroids->GetValue();
 
     if (use_centroids && m_weight_centroids) {
-        std::cout << m_weight_centroids->GetValue() << std::endl;
+        //std::cout << m_weight_centroids->GetValue() << std::endl;
         if (m_weight_centroids->GetValue() == 0) {
             use_centroids =  false;
         }
