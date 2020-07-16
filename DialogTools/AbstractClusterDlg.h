@@ -131,7 +131,7 @@ protected:
 
     bool CheckContiguity(double w, double& ssd);
     void BinarySearch(double left, double right,
-                      std::vector<std::pair<double, double> >& ssd_pairs);
+                      std::vector<double>& w);
     virtual void OnAutoWeightCentroids(wxCommandEvent& event);
    
     // Transformation control

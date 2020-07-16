@@ -400,17 +400,19 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 }
 
 void AbstractClusterDlg::BinarySearch(double left, double right,
-                            std::vector<std::pair<double, double> >& ssd_pairs)
+                            std::vector<double>& w)
 {
     double delta = right - left;
 
     if ( delta < 0.01 ) return;
 
+    // the slider (range[0,100]) with tick=1 only has precision of 0.01
+    delta = (int)(delta * 100) / 100.0;
+
     double mid = left + delta /2.0;
     double m_ssd = 0;
 
     if (mid < 0.01 || mid > 0.99) {
-        // the slider (range[0,100]) with tick=1 only has precision of 0.01
         return;
     }
 
@@ -418,11 +420,11 @@ void AbstractClusterDlg::BinarySearch(double left, double right,
     bool m_conti = CheckContiguity(mid, m_ssd);
 
     if ( m_conti ) {
-        ssd_pairs.push_back( std::make_pair(mid, m_ssd) );
-        return BinarySearch(left, mid, ssd_pairs);
+        w.push_back(mid);
+        return BinarySearch(left, mid, w);
 
     } else {
-        return BinarySearch(mid, right, ssd_pairs);
+        return BinarySearch(mid, right, w);
     }
 }
 
@@ -455,22 +457,21 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
     // when w = 0 (fully attributes based)
-    std::vector<std::pair<double, double> > ssd_pairs;
-    BinarySearch(0.0, 1.0, ssd_pairs);
+    std::vector<double> ws;
+    BinarySearch(0.0, 1.0, ws);
 
-    if (ssd_pairs.empty()) {
+    if (ws.empty()) {
+        // cannot find a good w for spatially contiguous clusters
         m_weight_centroids->SetValue(100);
         m_wc_txt->SetValue("1.0");
         return;
     }
-    double w = ssd_pairs[0].first;
-    double ssd = ssd_pairs[0].second;
-
-    for (int i=1; i<ssd_pairs.size(); i++) {
-        if (ssd_pairs[i].second > ssd ||
-            (ssd_pairs[i].second == ssd && ssd_pairs[i].first < w)) {
-            ssd = ssd_pairs[i].second;
-            w = ssd_pairs[i].first;
+    
+    // find the smallest w that satisfies the contiguity constraint
+    double w = ws[0];
+    for (int i=1; i<ws.size(); i++) {
+        if (ws[i] < w) {
+            w = ws[i];
         }
     }
 
