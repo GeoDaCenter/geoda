@@ -1186,14 +1186,14 @@ namespace fastcluster {
                     }
                     // Update the distance matrix in the range (idx1, idx2).
                     for (; i<idx2; i=active_nodes.succ[i]) {
-                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                            f_complete(&D_(i, idx2), D_(i, idx1) );
+                        if (D_(i, idx2) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_complete(&D_(i, idx2), D_(idx1, i) );
                         }
                     }
                     // Update the distance matrix in the range (idx2, N).
                     for (i=active_nodes.succ[idx2]; i<N; i=active_nodes.succ[i]) {
-                        if (D_(i, idx2) != DBL_MAX && D_(i, idx1) != DBL_MAX) {
-                            f_complete(&D_(i, idx2), D_(i, idx1) );
+                        if (D_(idx2, i) != DBL_MAX && D_(idx1, i) != DBL_MAX) {
+                            f_complete(&D_(idx2, i), D_(idx1, i) );
                         }
                     }
                     break;
