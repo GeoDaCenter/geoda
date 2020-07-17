@@ -517,9 +517,13 @@ void AbstractCoordinator::CalcPseudoP_range(int obs_start, int obs_end,
             w = Gal_vecs[t]->gal;
             if (w[cnt].Size() > numNeighbors) {
                 numNeighbors = w[cnt].Size();
+                if (w[cnt].Check(cnt)) {
+                    // exclude self from neighbors
+                    numNeighbors -= 1;
+                }
             }
             int* _sigCat = sig_cat_vecs[t];
-            if (w[cnt].Size() == 0) {
+            if (numNeighbors == 0) {
                 _sigCat[cnt] = 5;
             }
         }

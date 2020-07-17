@@ -131,7 +131,7 @@ public:
 	std::vector<double> n; // # non-neighborless observations
 
     // a special case Local Join Count
-    bool is_local_joint_count;
+    bool is_local_join_count;
     
 	double x_star_t; // temporary x_star for use in worker threads
 	std::vector<double> x_star; // sum of all x_i // threaded

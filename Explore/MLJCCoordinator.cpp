@@ -344,7 +344,11 @@ void JCCoordinator::CalcMultiLocalJoinCount()
         Gal_vecs_orig[t] = weights;
        
         for (int i=0; i<num_obs; i++) {
-            num_neighbors[t][i] = W[i].Size();
+            int nn = W[i].Size();
+            if (W[i].Check(i)) {
+                nn -= 1; // self-neighbor
+            }
+            num_neighbors[t][i] = nn;
         }
         
         // local join count
@@ -382,7 +386,9 @@ void JCCoordinator::CalcMultiLocalJoinCount()
                 if (zz[i]>0) { // x_j = 1
                     for (int j=0, sz=W[i].Size(); j<sz; j++) {
                         int n_id = W[i][j];
-                        local_jc[i] += zz[n_id];
+                        if (n_id != i) {
+                            local_jc[i] += zz[n_id];
+                        }
                     }
                 }
             }
@@ -413,7 +419,9 @@ void JCCoordinator::CalcMultiLocalJoinCount()
                         // compute the number of neighbors with
                         // x_j.z_j = 1 (zz=1) as a spatial lag
                         int n_id = W[i][j];
-                        local_jc[i] += zz[n_id];
+                        if (n_id != i) {
+                            local_jc[i] += zz[n_id];
+                        }
                     }
                 }
             }
@@ -425,7 +433,9 @@ void JCCoordinator::CalcMultiLocalJoinCount()
                         // compute the number of neighbors with
                         // x_j.z_j = 1 (zz=1) as a spatial lag
                         int n_id = W[i][j];
-                        local_jc[i] += zz[n_id];
+                        if (n_id != i) {
+                            local_jc[i] += zz[n_id];
+                        }
                     }
                 }
             }
@@ -593,8 +603,10 @@ void JCCoordinator::CalcPseudoP_range(int t, int obs_start, int obs_end, uint64_
             pseudo_p[i] = 0;
             continue;
         }
-		const int numNeighsI = W[i].Size();
-        
+        int numNeighsI = W[i].Size();
+        if (W[i].Check(i)) {
+            numNeighsI -= 1; // self-neighbor
+        }
         //only compute for non-isolates
 		if (numNeighsI > 0) {
 			int countLarger = 0;

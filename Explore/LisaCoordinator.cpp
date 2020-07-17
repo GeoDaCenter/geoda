@@ -477,12 +477,10 @@ void LisaCoordinator::Calc()
         has_undefined[t] = has_undef;
        
         // local weights copy
-        GalWeight* gw = NULL;
+        GalWeight* gw = weights;
         if ( has_undef || has_isolate ) {
             gw = new GalWeight(*weights);
             gw->Update(undefs);
-        } else {
-            gw = weights;
         }
         GalElement* W = gw->gal;
         Gal_vecs[t] = gw;
@@ -503,19 +501,26 @@ void LisaCoordinator::Calc()
             
 			double Wdata = 0;
             if (using_median) {
-                std::vector<double> nbr_data(W[i].Size());
+                int nn = W[i].Size();
+                if (W[i].Check(i)) {
+                    // exclude self from neighbors
+                    nn -= 1;
+                }
+                std::vector<double> nbr_data(nn);
                 const std::vector<long>& nbrs = W[i].GetNbrs();
-                for (size_t j=0; j<W[i].Size(); ++j) {
-                    nbr_data[j] = data1[nbrs[j]];
+                for (size_t j=0, k=0; j<nbrs.size(); ++j) {
+                    if (nbrs[j] != i) {
+                        nbr_data[k++] = data1[nbrs[j]];
+                    }
                 }
                 Wdata = GenUtils::Median(nbr_data);
 
             } else {
                 bool is_binary = true;
                 if (isBivariate) {
-                    if (data2) Wdata = W[i].SpatialLag(data2, true, i);
+                    if (data2) Wdata = W[i].SpatialLag(data2, is_binary, i);
                 } else {
-                    if (data1) Wdata = W[i].SpatialLag(data1, true, i);
+                    if (data1) Wdata = W[i].SpatialLag(data1, is_binary, i);
                 }
             }
             

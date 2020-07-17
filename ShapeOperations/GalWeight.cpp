@@ -113,6 +113,25 @@ void GalElement::SetNbr(size_t pos, long n, double w)
     }
 }
 
+// for kernel weights (KWT), self-neighbor could be included in weights file
+// if using KWT in spatial autocorrelation computation (LISA etc.), the
+// self-neighbor should be removed;
+// Note: for smoothing function, self-neighbor should NOT be removed
+void GalElement::RemoveSelfNeighbor(int idx)
+{
+    // check if self-neighbor presents
+    if (Check(idx)) {
+        int pos = nbrLookup[idx];
+        nbr.erase(nbr.begin()+pos);
+        nbrWeight.erase(nbrWeight.begin()+pos);
+        // rebuild lookup dictionary
+        nbrLookup.clear();
+        for (int i=0; i<nbr.size(); ++i) {
+            nbrLookup[nbr[i]] = i;
+        }
+    }
+}
+
 // Update neighbor information on the fly using undefs information
 // NOTE: this has to be used with a copy of weights (keep the original weights!)
 void GalElement::Update(const std::vector<bool>& undefs)

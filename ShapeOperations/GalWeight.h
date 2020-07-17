@@ -46,6 +46,7 @@ public:
 	double SpatialLag(const std::vector<double>& x, const int* perm, int self_id=-1) const;
     double GetRW(int idx);
     bool   Check(long nbrIdx);
+    void RemoveSelfNeighbor(int idx);
    
     bool is_nbrAvgW_empty;
     std::vector<double> nbrAvgW;

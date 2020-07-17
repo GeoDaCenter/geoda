@@ -648,7 +648,11 @@ void LocalGearyCoordinator::CalcMultiLocalGeary()
             localGeary[i] /= num_vars;
             
             // assign the cluster
-            if (W[i].Size() > 0) {
+            int nn = W[i].Size();
+            if (W[i].Check(i)) {
+                nn -= 1; // self-neighbor
+            }
+            if (nn > 0) {
                 cluster[i] = 0; // don't assign cluster in multi-var settings
             } else {
                 has_isolates[t] = true;
@@ -707,7 +711,6 @@ void LocalGearyCoordinator::CalcLocalGeary()
         Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
-            
             if (undefs[i] == true) {
                 lags[i] = 0;
                 localGeary[i] = 0;
@@ -729,7 +732,11 @@ void LocalGearyCoordinator::CalcLocalGeary()
 			localGeary[i] = data1_square[i] - 2.0 * data1[i] * Wdata + Wdata2;
 				
 			// assign the cluster
-			if (W[i].Size() > 0) {
+            int nn = W[i].Size();
+            if (W[i].Check(i)) {
+                nn -= 1; // self-neighbor
+            }
+			if (nn > 0) {
 				if (data1[i] > 0 && Wdata > 0) cluster[i] = 1;
 				else if (data1[i] < 0 && Wdata > 0) cluster[i] = 3;
 				else if (data1[i] < 0 && Wdata < 0) cluster[i] = 2;
@@ -847,6 +854,10 @@ void LocalGearyCoordinator::CalcPseudoP_range(int obs_start, int obs_end, uint64
             w = Gal_vecs[t]->gal;
             if (w[cnt].Size() > numNeighbors) {
                 numNeighbors = w[cnt].Size();
+                if (w[cnt].Check(cnt)) {
+                    // exclude self from neighbors
+                    numNeighbors -= 1;
+                }
             }
         }
         
