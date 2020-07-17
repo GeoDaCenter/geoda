@@ -311,9 +311,9 @@ void RandomizationPanel::CalcMoran()
         
         double Wdata = 0;
         if (is_bivariate) {
-            Wdata = W[i].SpatialLag(raw_data2);
+            Wdata = W[i].SpatialLag(raw_data2, true, i);
         } else {
-            Wdata = W[i].SpatialLag(raw_data1);
+            Wdata = W[i].SpatialLag(raw_data1, true, i);
 		}
         X.push_back(raw_data1[i]);
         Y.push_back(Wdata);
@@ -386,7 +386,7 @@ void RandomizationPanel::RunRandomTrials()
                 if (undefs[perm[i]] || W[i].Size() == 0) {
                     continue;
                 }
-				newMoran += (W[i].SpatialLag(raw_data2, perm)
+				newMoran += (W[i].SpatialLag(raw_data2, perm, i)
 							 * raw_data1[perm[i]]);
 			}
 		} else {
@@ -394,7 +394,7 @@ void RandomizationPanel::RunRandomTrials()
                 if (undefs[perm[i]] || W[i].Size() == 0) {
                     continue;
                 }
-				newMoran += (W[i].SpatialLag(raw_data1, perm)
+				newMoran += (W[i].SpatialLag(raw_data1, perm, i)
 							 * raw_data1[perm[i]]);
 			}
 		}

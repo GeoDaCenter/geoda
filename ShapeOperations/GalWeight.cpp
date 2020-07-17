@@ -258,15 +258,34 @@ double GalElement::SpatialLag(const double *x, bool is_binary, int self_id) cons
         }
     } else {
         double sumW = 0;
-        for (size_t i=0; i<sz; ++i) {
-            sumW += nbrWeight[i];
-        }
-
-        if (sumW == 0)
-            lag = 0;
-        else {
+        if (self_id < 0) {
             for (size_t i=0; i<sz; ++i) {
-                lag += x[nbr[i]] * nbrWeight[i] / sumW;
+                sumW += nbrWeight[i];
+            }
+
+            if (sumW == 0)
+                lag = 0;
+            else {
+                for (size_t i=0; i<sz; ++i) {
+                    lag += x[nbr[i]] * nbrWeight[i] / sumW;
+                }
+            }
+        } else {
+            // for case of using kernel weights with diagonal
+            for (size_t i=0; i<sz; ++i) {
+                if (nbr[i] != self_id) { // exclude self-neighbor
+                    sumW += nbrWeight[i];
+                }
+            }
+
+            if (sumW == 0)
+                lag = 0;
+            else {
+                for (size_t i=0; i<sz; ++i) {
+                    if (nbr[i] != self_id) { // exclude self-neighbor
+                        lag += x[nbr[i]] * nbrWeight[i] / sumW;
+                    }
+                }
             }
         }
     }

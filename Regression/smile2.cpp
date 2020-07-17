@@ -113,7 +113,7 @@ extern double *WhiteTest(int obs, int nvar, double* resid, double** X,
 void Lag(DenseVector &lag, const DenseVector &x, GalElement *g)
 {
     for (int cnt = 0; cnt < x.getSize(); ++cnt)
-        lag.setAt( cnt, g[cnt].SpatialLag(x.getThis(), false) );
+        lag.setAt( cnt, g[cnt].SpatialLag(x.getThis(), false, cnt) );
 }
 
 void MakeFastLookupMat(GalElement *g, int dim,
@@ -226,7 +226,7 @@ void Compute_RSLmLag(GalElement* g,
     DenseVector	lag(dim), re(resid, dim);
     
     for (cnt = 0; cnt < dim; ++cnt) {
-        lag.setAt( cnt, g[cnt].SpatialLag(Y, false) ); // Wy
+        lag.setAt( cnt, g[cnt].SpatialLag(Y, false, cnt) ); // Wy
     }
 
     double RS = geoda_sqr(re.product( lag ) / sigma2); // [e'Wy/sigma2]^2
@@ -275,8 +275,8 @@ void Compute_RSLmLagRobust(GalElement* g,
     DenseVector	Wy(dim), We(dim), e(resid, dim);
     for (cnt = 0; cnt < dim; ++cnt)
     {
-        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false)); // Wy
-        We.setAt( cnt, g[cnt].SpatialLag(resid, false)); // We
+        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false, cnt)); // Wy
+        We.setAt( cnt, g[cnt].SpatialLag(resid, false, cnt)); // We
     }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
@@ -328,7 +328,7 @@ void Compute_MoranI(GalElement* g,
     //double MoranI = re.product( lag ) / ee; // [e'We] / [ee]
     for (int cnt = 0; cnt < dim; ++cnt)
     {
-        lag.setAt( cnt, g[cnt].SpatialLag(resid, false) ); // We
+        lag.setAt( cnt, g[cnt].SpatialLag(resid, false, cnt) ); // We
 		re.setAt(cnt, resid[cnt]);
     }
 
@@ -504,7 +504,7 @@ void Compute_RSLmError(GalElement* g,
     DenseVector	lag(dim), re(dim);
     for (int cnt = 0; cnt < dim; ++cnt)
     {
-        lag.setAt( cnt, g[cnt].SpatialLag(resid, false) ); // We
+        lag.setAt( cnt, g[cnt].SpatialLag(resid, false, cnt) ); // We
 		re.setAt(cnt, resid[cnt]);
     }
 
@@ -537,8 +537,8 @@ void Compute_RSLmErrorRobust(GalElement* g,
 	int cnt = 0;
     DenseVector	Wy(dim), We(dim), e(resid, dim);
     for (cnt = 0; cnt < dim; ++cnt) {
-        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false)); // Wy
-        We.setAt( cnt, g[cnt].SpatialLag(resid, false)); // We
+        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false, cnt)); // Wy
+        We.setAt( cnt, g[cnt].SpatialLag(resid, false, cnt)); // We
     }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
@@ -590,8 +590,8 @@ void Compute_RSLmSarma(GalElement* g,
 	int cnt = 0;
     DenseVector	Wy(dim), We(dim), e(resid, dim);
     for (cnt = 0; cnt < dim; ++cnt) {
-        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false)); // Wy
-        We.setAt( cnt, g[cnt].SpatialLag(resid, false)); // We
+        Wy.setAt( cnt, g[cnt].SpatialLag(Y, false, cnt)); // Wy
+        We.setAt( cnt, g[cnt].SpatialLag(resid, false, cnt)); // We
     }
 
     double RS1 = e.product(Wy) / sigma2;  // e'Wy/sigma2
