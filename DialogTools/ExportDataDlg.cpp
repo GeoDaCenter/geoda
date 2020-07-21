@@ -225,9 +225,6 @@ void ExportDataDlg::CreateControls()
     }
     // Create the rest controls from parent
     DatasourceDlg::CreateControls();
-    
-    m_cartodb_table->Show();
-    m_cartodb_tablename->Show();
 }
 
 void ExportDataDlg::OnOpenCRS( wxCommandEvent& event )
@@ -739,30 +736,6 @@ IDataSource* ExportDataDlg::GetDatasource()
         ds_format = IDataSource::GetDataTypeNameByGdaDSType(ds_type);
         return new DBDataSource(ds_type, dbname,dbhost,dbport,dbuser,dbpwd);
 
-    } else {
-        std::string user(m_cartodb_uname->GetValue().Trim().mb_str());
-        std::string key(m_cartodb_key->GetValue().Trim().mb_str());
-        
-        if (user.empty()) {
-            wxString msg = _("Please input Carto User Name.");
-            throw GdaException(msg.mb_str());
-        }
-        if (key.empty()) {
-            wxString msg = _("Please input Carto App Key.");
-            throw GdaException(msg.mb_str());
-        }
-        
-        CPLSetConfigOption("CARTODB_API_KEY", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_key", key.c_str());
-        OGRDataAdapter::GetInstance().AddEntry("cartodb_user", user.c_str());
-        CartoDBProxy::GetInstance().SetKey(key);
-        CartoDBProxy::GetInstance().SetUserName(user);
-        
-        wxString url = "Carto:" + user;
-        
-        ds_format = IDataSource::GetDataTypeNameByGdaDSType(GdaConst::ds_cartodb);
-        
-        return new WebServiceDataSource(GdaConst::ds_cartodb, url);
     }
     return NULL;
 }
