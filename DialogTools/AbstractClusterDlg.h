@@ -130,8 +130,7 @@ protected:
     void OnInputWeights(wxCommandEvent& event);
 
     bool CheckContiguity(double w, double& ssd);
-    void BinarySearch(double left, double right,
-                      std::vector<double>& w);
+    double BinarySearch(double left, double right);
     virtual void OnAutoWeightCentroids(wxCommandEvent& event);
    
     // Transformation control

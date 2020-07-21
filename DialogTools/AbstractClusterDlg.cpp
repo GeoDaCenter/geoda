@@ -46,6 +46,7 @@
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
+#include "../GdaConst.h"
 
 #include "SaveToTableDlg.h"
 #include "AbstractClusterDlg.h"
@@ -274,7 +275,7 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
     m_weight_centroids->SetRange(0,100);
     m_weight_centroids->SetValue(100);
     m_wc_txt = new wxTextCtrl(panel, wxID_ANY, "1", wxDefaultPosition,
-                              wxSize(40,-1), 0, validator);
+                              wxSize(80,-1), 0, validator);
     wxBoxSizer *hbox_w = new wxBoxSizer(wxHORIZONTAL);
     hbox_w->Add(st_wc, 0, wxLEFT, 20);
     hbox_w->Add(st_w0, 0, wxALIGN_CENTER_VERTICAL|wxLEFT, 5);
@@ -399,33 +400,41 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     return true;
 }
 
-void AbstractClusterDlg::BinarySearch(double left, double right,
-                            std::vector<double>& w)
+double AbstractClusterDlg::BinarySearch(double left, double right)
 {
-    double delta = right - left;
+    double w = 1.0; // init value of w (weighting value)
+    std::stack<std::pair<double, double> > ranges;
+    ranges.push(std::make_pair(left, right));
 
-    if ( delta < 0.01 ) return;
+    while (ranges.empty() == false) {
+        std::pair<double, double>& rng = ranges.top();
+        ranges.pop();
 
-    // the slider (range[0,100]) with tick=1 only has precision of 0.01
-    delta = (int)(delta * 100) / 100.0;
+        left = rng.first;
+        right = rng.second;
 
-    double mid = left + delta /2.0;
-    double m_ssd = 0;
+        double delta = right - left;
+        double mid = left + delta /2.0;
 
-    if (mid < 0.01 || mid > 0.99) {
-        return;
+        if (mid < 0.01 || mid > 0.99) {
+            break;
+        }
+        
+        if ( delta > GdaConst::gda_autoweight_stop ) {
+            double m_ssd = 0;
+            // assume left is always not contiguity and right is always contiguity
+            bool m_conti = CheckContiguity(mid, m_ssd);
+            if (m_conti) {
+                if (mid < w) {
+                    w = mid;
+                }
+                ranges.push(std::make_pair(left,mid));
+            } else {
+                ranges.push(std::make_pair(mid, right));
+            }
+        }
     }
-
-    // assume left is always not contiguity and right is always contiguity
-    bool m_conti = CheckContiguity(mid, m_ssd);
-
-    if ( m_conti ) {
-        w.push_back(mid);
-        return BinarySearch(left, mid, w);
-
-    } else {
-        return BinarySearch(mid, right, w);
-    }
+    return w;
 }
 
 bool AbstractClusterDlg::CheckAllInputs()
@@ -457,24 +466,7 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
     // when w = 0 (fully attributes based)
-    std::vector<double> ws;
-    BinarySearch(0.0, 1.0, ws);
-
-    if (ws.empty()) {
-        // cannot find a good w for spatially contiguous clusters
-        m_weight_centroids->SetValue(100);
-        m_wc_txt->SetValue("1.0");
-        return;
-    }
-    
-    // find the smallest w that satisfies the contiguity constraint
-    double w = ws[0];
-    for (int i=1; i<ws.size(); i++) {
-        if (ws[i] < w) {
-            w = ws[i];
-        }
-    }
-
+    double w = BinarySearch(0.0, 1.0);
     int val = w * 100;
     m_weight_centroids->SetValue(val);
     m_wc_txt->SetValue(wxString::Format("%f", w));

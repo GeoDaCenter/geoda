@@ -102,6 +102,8 @@ protected:
     wxTextCtrl* txt24;
     // displayed decimals
     wxTextCtrl* txt25;
+    // stop criterion for auto-weighting
+    wxTextCtrl* txt26;
     // cpu cores
     wxCheckBox* cbox18;
     wxTextCtrl* txt_cores;
@@ -143,7 +145,8 @@ protected:
     void OnDisplayDecimal(wxCommandEvent& ev);
     void OnUseSpecifiedSeed(wxCommandEvent& ev);
     void OnSeedEnter(wxCommandEvent& ev);
-    
+    void OnAutoWeightStopCriterion(wxCommandEvent& ev);
+
     void OnSetCPUCores(wxCommandEvent& ev);
     void OnCPUCoresEnter(wxCommandEvent& ev);
    

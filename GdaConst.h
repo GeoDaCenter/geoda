@@ -241,6 +241,7 @@ public:
     static const wxString gda_lbl_2sigma;
     
 	// Preferences
+    static double gda_autoweight_stop;
     static bool gda_draw_map_labels;
     static int gda_map_label_font_size;
     static bool gda_create_csvt;
