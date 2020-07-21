@@ -876,7 +876,7 @@ void PreferenceDlg::ReadFromCache()
     vector<wxString> gda_autoweight_stop = ogr_adapt.GetHistory("gda_autoweight_stop");
     if (!gda_autoweight_stop.empty()) {
         double sel_l = 0;
-        wxString sel = gda_disp_decimals[0];
+        wxString sel = gda_autoweight_stop[0];
         if (sel.ToDouble(&sel_l)) {
             GdaConst::gda_autoweight_stop = sel_l;
         }

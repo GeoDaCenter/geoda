@@ -487,60 +487,24 @@ bool OGRLayerProxy::CallCartoDBAPI(wxString url)
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<double> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, vals[rid]);
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, vals[rid]);
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, vals[rid]);
     }
 	return true;
     
 }
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxInt64> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, (GIntBig)vals[rid]);
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, (GIntBig)vals[rid]);
     }
 	return true;
 }
 
 bool OGRLayerProxy::UpdateColumn(int col_idx, vector<wxString> &vals)
 {
-    if (ds_type == GdaConst::ds_cartodb) {
-        // update column using CARTODB_API directly, avoid single UPDATE clause
-        wxString col_name = GetFieldName(col_idx);
-        CartoDBProxy::GetInstance().UpdateColumn(name, col_name, vals);
-        
-        // update memory still
-        for (int rid=0; rid < n_rows; rid++) {
-            data[rid]->SetField(col_idx, vals[rid].mb_str());
-        }
-        
-    } else {
-        for (int rid=0; rid < n_rows; rid++) {
-            SetValueAt(rid, col_idx, vals[rid].mb_str());
-        }
+    for (int rid=0; rid < n_rows; rid++) {
+        SetValueAt(rid, col_idx, vals[rid].mb_str());
     }
 	return true;
 }
