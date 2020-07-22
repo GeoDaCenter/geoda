@@ -291,11 +291,16 @@ public:
 	static const wxColour conn_map_default_fill_colour;
 	static const wxColour conn_map_default_outline_colour;
 	static const wxColour conn_map_default_highlight_colour;
-    
+
+    // Graph Map
     static const wxColour conn_graph_outline_colour;
     static const wxColour conn_select_outline_colour;
     static const wxColour conn_neighbor_fill_colour;
-	
+
+    // Heat Map
+    static const wxColour heatmap_fill_colour;
+    static const wxColour heatmap_outline_colour;
+
 	// Map Movie
 	static const wxColour map_movie_default_fill_colour;
 	static const wxColour map_movie_default_highlight_colour;

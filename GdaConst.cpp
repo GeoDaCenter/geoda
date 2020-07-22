@@ -440,6 +440,9 @@ const wxColour GdaConst::conn_graph_outline_colour(55,55,55,100);
 const wxColour GdaConst::conn_select_outline_colour(55,55,55,0);
 const wxColour GdaConst::conn_neighbor_fill_colour(255,255,255,0);
 
+// Heat Map
+const wxColour GdaConst::heatmap_fill_colour(0, 0, 0, 10);
+const wxColour GdaConst::heatmap_outline_colour(255, 255, 255, 0);
 // HTML Tan
 const wxColour GdaConst::conn_map_default_fill_colour(210, 180, 140);
 const wxColour GdaConst::conn_map_default_outline_colour(0, 0, 0);

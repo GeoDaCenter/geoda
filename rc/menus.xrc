@@ -3078,8 +3078,8 @@
         <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
             <label>Change Outline Color</label>
         </object>
-        <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
-            <label>Choose Color Scheme</label>
+        <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
+            <label>Change Transparency</label>
         </object>
         <label>Heat Map</label>
     </object>
@@ -3676,8 +3676,8 @@
           <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
               <label>Change Outline Color</label>
           </object>
-          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
-              <label>Choose Color Scheme</label>
+          <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
+              <label>Change Transparency</label>
           </object>
           <label>Heat Map</label>
       </object>
@@ -3848,8 +3848,8 @@
           <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
               <label>Change Outline Color</label>
           </object>
-          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
-              <label>Choose Color Scheme</label>
+          <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
+              <label>Change Transparency</label>
           </object>
           <label>Heat Map</label>
       </object>
@@ -4020,8 +4020,8 @@
           <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
               <label>Change Outline Color</label>
           </object>
-          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
-              <label>Choose Color Scheme</label>
+          <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
+              <label>Change Transparency</label>
           </object>
           <label>Heat Map</label>
       </object>
@@ -4683,8 +4683,8 @@
         <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
             <label>Change Outline Color</label>
         </object>
-        <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
-            <label>Choose Color Scheme</label>
+        <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
+            <label>Change Transparency</label>
         </object>
         <label>Heat Map</label>
     </object>

@@ -176,6 +176,8 @@ public:
     virtual void ChangeConnSelectedColor();
     virtual void ChangeConnSelectedFillColor();
     virtual void ChangeNeighborFillColor();
+    virtual void ChangeHeatMapFillColor();
+    virtual void ChangeHeatMapOutlineColor();
 	virtual void DisplayVoronoiDiagram();
 	virtual int GetNumVars();
 	virtual int GetNumCats();
@@ -228,7 +230,6 @@ public:
     
     Shapefile::Main& GetGeometryData();
     OGRLayerProxy*   GetOGRLayerProxy();
-    const wxBitmap*  GetBaseLayer() { return basemap_bm; }
     CatClassification::CatClassifType GetCcType();
     static void ResetThumbnail() {
         MapCanvas::has_thumbnail_saved = false;
@@ -250,11 +251,21 @@ public:
     bool display_neighbor_color;
     bool display_map_with_graph;
     int  weights_graph_thickness;
-    bool display_heat_map;
+
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour conn_selected_fill_color;
     wxColour neighbor_fill_color;
+
+    // heat map: note! this could be stored in a structure
+    bool display_heat_map;
+    bool use_heat_map_fill_color;
+    bool use_heat_map_outline_color;
+    wxColour heatmap_fill_color;
+    wxColour heatmap_outline_color;
+    double heatmap_bandwidth;
+
+    // connectivity
     int conn_selected_size;
     std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
@@ -421,6 +432,8 @@ public:
     void OnChangeConnSelectedColor(wxCommandEvent& event);
     void OnChangeConnSelectedFillColor(wxCommandEvent& event);
     void OnChangeNeighborFillColor(wxCommandEvent& event);
+    void OnChangeHeatMapFillColor(wxCommandEvent& event);
+    void OnChangeHeatMapOutlineColor(wxCommandEvent& event);
     void OnMapSelect(wxCommandEvent& e);
     void OnMapInvertSelect(wxCommandEvent& e);
     void OnMapPan(wxCommandEvent& e);
