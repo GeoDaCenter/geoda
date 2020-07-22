@@ -773,14 +773,12 @@ GdaPoint::GdaPoint()
 }
 
 GdaPoint::GdaPoint(const GdaPoint& s)
-: GdaShape(s), radius(GdaConst::my_point_click_radius)
-
+: GdaShape(s), radius(s.radius)
 {
 }
 
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
 : radius(GdaConst::my_point_click_radius)
-
 {
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
@@ -788,10 +786,16 @@ GdaPoint::GdaPoint(wxRealPoint point_o_s)
 
 GdaPoint::GdaPoint(double x_orig, double y_orig)
 : radius(GdaConst::my_point_click_radius)
-
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
+}
+
+GdaPoint::GdaPoint(double x_orig, double y_orig, double radius)
+: radius(radius)
+{
+    center = wxPoint((int) x_orig, (int) y_orig);
+    center_o = wxRealPoint(x_orig, y_orig);
 }
 
 void GdaPoint::Offset(double dx, double dy)

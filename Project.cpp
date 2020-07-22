@@ -917,8 +917,7 @@ void Project::SaveVoronoiDupsToTable()
 		int head_id = *(dups_iter->begin());
         std::list<int>::iterator iter = dups_iter->begin();
         iter++; // ignore first one
-		for (; iter != dups_iter->end(); iter++)
-        {
+		for (; iter != dups_iter->end(); iter++) {
 			undefined[*iter] = false;
 			dup_ids[*iter] = head_id+1;
 		}			

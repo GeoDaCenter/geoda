@@ -220,11 +220,11 @@ public:
 	GdaPoint(const GdaPoint& s); 
 	GdaPoint(wxRealPoint point_o_s);
 	GdaPoint(double x_orig, double y_orig);
+    GdaPoint(double x_orig, double y_orig, double radius);
 	virtual ~GdaPoint() {}
     
     virtual void Offset(double dx, double dy);
     virtual void Offset(int dx, int dy);
-
     
 	virtual GdaPoint* clone() { return new GdaPoint(*this); }
 	virtual bool pointWithin(const wxPoint& pt);

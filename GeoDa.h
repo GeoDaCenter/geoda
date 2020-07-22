@@ -574,7 +574,6 @@ public:
 	void OnReportBug(wxCommandEvent& event);
 	void OnCheckUpdates(wxCommandEvent& event);
 	void OnCheckTestMode(wxCommandEvent& event);
-    
     void OnTableSetLocale(wxCommandEvent& event);
     void OnEncodingUTF8(wxCommandEvent& event);
 	void OnEncodingUTF16(wxCommandEvent& event);

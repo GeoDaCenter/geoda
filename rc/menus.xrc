@@ -3059,6 +3059,30 @@
       </object>
       <label>Thiessen Polygons</label>
     </object>
+    <object class="wxMenuItem" name="ID_MAP_MST">
+        <label>Minimum Spanning Tree</label>
+    </object>
+    <object class="wxMenu" name="ID_MAP_HEAT">
+        <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
+            <label>Specify Bandwith</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
+            <label>Select Variable of Radius</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
+            <label>Change Fill Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
+            <label>Change Outline Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
+            <label>Choose Color Scheme</label>
+        </object>
+        <label>Heat Map</label>
+    </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">
       <label>Selection Shape</label>
@@ -3116,7 +3140,6 @@
       <checkable>1</checkable>
       <checked>1</checked>
     </object>
-    
     <object class="wxMenuItem" name="ID_SAVE_SELECTED_TO_COLUMN">
       <label>Save Selection</label>
     </object>
@@ -3634,6 +3657,30 @@
           </object>
           <label>Thiessen Polygons</label>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_MST">
+          <label>Minimum Spanning Tree</label>
+      </object>
+      <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
+              <label>Specify Bandwith</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
+              <label>Select Variable of Radius</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
+              <label>Change Fill Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
+              <label>Change Outline Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
+              <label>Choose Color Scheme</label>
+          </object>
+          <label>Heat Map</label>
+      </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Selection Shape</label>
@@ -3782,6 +3829,30 @@
           </object>
           <label>Thiessen Polygons</label>
       </object>
+      <object class="wxMenuItem" name="ID_MAP_MST">
+          <label>Minimum Spanning Tree</label>
+      </object>
+      <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
+              <label>Specify Bandwith</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
+              <label>Select Variable of Radius</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
+              <label>Change Fill Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
+              <label>Change Outline Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
+              <label>Choose Color Scheme</label>
+          </object>
+          <label>Heat Map</label>
+      </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
           <label>Selection Shape</label>
@@ -3929,6 +4000,30 @@
               <enabled>0</enabled>
           </object>
           <label>Thiessen Polygons</label>
+      </object>
+      <object class="wxMenuItem" name="ID_MAP_MST">
+          <label>Minimum Spanning Tree</label>
+      </object>
+      <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
+              <label>Specify Bandwith</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
+              <label>Select Variable of Radius</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
+              <label>Change Fill Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
+              <label>Change Outline Color</label>
+          </object>
+          <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
+              <label>Choose Color Scheme</label>
+          </object>
+          <label>Heat Map</label>
       </object>
       <object class="separator"/>
       <object class="wxMenu" name="ID_MENU">
@@ -4568,6 +4663,30 @@
         <enabled>0</enabled>
       </object>
       <label>Thiessen Polygons</label>
+    </object>
+    <object class="wxMenuItem" name="ID_MAP_MST">
+        <label>Minimum Spanning Tree</label>
+    </object>
+    <object class="wxMenu" name="ID_MAP_HEAT">
+        <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
+            <label>Specify Bandwith</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
+            <label>Select Variable of Radius</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
+            <label>Change Fill Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_OUTLINE_COLOR">
+            <label>Change Outline Color</label>
+        </object>
+        <object class="wxMenuItem" name="ID_HEATMAP_COLOR_SCHEME">
+            <label>Choose Color Scheme</label>
+        </object>
+        <label>Heat Map</label>
     </object>
     <object class="separator"/>
     <object class="wxMenu" name="ID_MENU">

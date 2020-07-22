@@ -110,6 +110,8 @@ public:
     
 	virtual ~MapCanvas();
 
+    virtual void DrawHeatMap(double bandwidth);
+    //virtual void DrawHeatMap(const std::vector<double>& arr_radius);
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
@@ -182,6 +184,7 @@ public:
     virtual void RenderToDC(wxDC &dc, int w, int h);
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
+    
     void DisplayMapLayers();
     void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
                      bool is_hide = false);
@@ -232,8 +235,10 @@ public:
     }
     Project* GetProject() { return project; }
 
-	CatClassifDef cat_classif_def;
-	SmoothingType smoothing_type;
+    int num_obs;
+    bool isDrawBasemap;
+    int tran_unhighlighted;
+    bool print_detailed_basemap;
 	bool is_rate_smoother;
 	bool display_mean_centers;
 	bool display_centroids;
@@ -245,18 +250,18 @@ public:
     bool display_neighbor_color;
     bool display_map_with_graph;
     int  weights_graph_thickness;
+    bool display_heat_map;
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour conn_selected_fill_color;
     wxColour neighbor_fill_color;
     int conn_selected_size;
-    set<int> ids_of_nbrs;
+    std::set<int> ids_of_nbrs;
     std::vector<int> ids_wo_nbrs;
 	std::vector<GdaVarTools::VarInfo> var_info;
-	int num_obs;
-	bool isDrawBasemap;
-    int tran_unhighlighted;
-	bool print_detailed_basemap;
+    std::vector<GdaPoint*> heat_map_pts;
+    CatClassifDef cat_classif_def;
+    SmoothingType smoothing_type;
 
     static std::vector<int> empty_shps_ids;
     static boost::unordered_map<int, bool> empty_dict;
@@ -306,7 +311,7 @@ protected:
     // predefined/user-specified color, each label can be assigned with a color
     // user can specified using:
     // SetPredefinedColor(), UpdatePredifinedColor()
-    map<wxString, wxColour> lbl_color_dict;
+    std::map<wxString, wxColour> lbl_color_dict;
     
 	wxBitmap* basemap_bm;
 	Gda::Basemap* basemap;
@@ -428,6 +433,8 @@ public:
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
+    void OnHeatMapBandwith(wxCommandEvent& event);
+    void OnMapMST(wxCommandEvent& event);
     void UpdateMapTree();
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,

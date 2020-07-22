@@ -6864,9 +6864,6 @@ bool GdaFrame::GetHtmlMenuItemsSqlite()
 int GdaFrame::sqlite3_GetHtmlMenuItemsCB(void *data, int argc,
 										 char **argv, char **azColName)
 {
-	//if (argc != 2) return SQLITE_ERROR;
-	//htmlMenuItems.push_back(MenuItem(argv[0], argv[1]));
-	//return SQLITE_OK;
 	return 0;
 }
 

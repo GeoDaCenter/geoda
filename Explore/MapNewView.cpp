@@ -182,6 +182,7 @@ display_map_boundary(false),
 display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
+display_heat_map(false),
 graph_color(GdaConst::conn_graph_outline_colour),
 conn_selected_color(GdaConst::conn_select_outline_colour),
 conn_selected_fill_color(GdaConst::conn_select_outline_colour),
@@ -234,6 +235,14 @@ is_updating(true) // default true to prevent sending notify to other maps when i
         basemap_item = Gda::GetBasemapSelection(GdaConst::default_basemap_selection,
                                                 GdaConst::gda_basemap_sources);
     }
+
+    // add control to map window
+    wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
+    wxSlider *slider = new wxSlider(this, wxID_ANY, 0, 0, 100,
+                 wxDefaultPosition, wxSize(250, -1), wxSL_HORIZONTAL);
+    vbox->Add(slider, 0, wxEXPAND | wxLEFT | wxRIGHT, 50);
+    SetSizer(vbox);
+    slider->Hide();
 }
 
 MapCanvas::~MapCanvas()
@@ -247,6 +256,10 @@ MapCanvas::~MapCanvas()
         BackgroundMapLayer* ml = fg_maps[i];
         delete ml;
     }
+    for (int i=0; i<heat_map_pts.size(); ++i) {
+        delete heat_map_pts[i];
+    }
+    heat_map_pts.clear();
 
     BOOST_FOREACH( GdaShape* shp, background_maps ) delete shp;
     BOOST_FOREACH( GdaShape* shp, foreground_maps ) delete shp;
@@ -344,6 +357,38 @@ void MapCanvas::ResetEmptyFlag()
 
 void MapCanvas::SetupColor()
 {
+}
+
+void MapCanvas::DrawHeatMap(double bandwidth)
+{
+    wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
+    full_map_redraw_needed = true;
+    display_heat_map = !display_heat_map;
+
+    // set different radius for points dataset
+    if (project->GetShapefileType() == Shapefile::POINT_TYP) {
+        // transform the bandwidth to screen length
+        GdaPoint pt(last_scale_trans.data_x_min,
+                    last_scale_trans.data_y_min);
+        if (isDrawBasemap) {
+            pt.projectToBasemap(basemap);
+        } else {
+            pt.applyScaleTrans(last_scale_trans);
+        }
+        int rad = pt.center.x - last_scale_trans.left_margin;
+
+        // create foreground points with new radius, with no fill color
+        for (int i=0; i<heat_map_pts.size(); ++i) {
+            delete heat_map_pts[i];
+        }
+        heat_map_pts.clear();
+
+        for (int i=0; i<num_obs; ++i) {
+            GdaPoint *pt = (GdaPoint*)selectable_shps[i];
+            heat_map_pts.push_back(new GdaPoint(pt->GetX(), pt->GetY(), rad));
+        }
+        PopulateCanvas();
+    }
 }
 
 void MapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -878,10 +923,6 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
             BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
                 if (ms) ms->applyScaleTrans(last_scale_trans);
             }
-            // for points reset the point radius to user selected
-            if (selectable_shps_type == points) {
-                SetPointRadius(point_radius);
-            }
         }
         layer0_valid = false;
     }
@@ -954,9 +995,6 @@ void MapCanvas::SetNoBasemap()
     }
     layerbase_valid = false;
     layer0_valid = false;
-    //layer1_valid = false;
-    //layer2_valid = false;
-    //ReDraw();
 }
 
 bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
@@ -985,10 +1023,6 @@ bool MapCanvas::DrawBasemap(bool flag, Gda::BasemapItem& _basemap_item)
         }
     }
     layerbase_valid = false;
-    //layer0_valid = false;
-    //layer1_valid = false;
-    //layer2_valid = false;
-    //ReDraw();
     return true;
 }
 
@@ -1106,8 +1140,9 @@ void MapCanvas::DrawLayer1()
 void MapCanvas::DrawLayer2()
 {
     // draw foreground
-    if (layer2_bm == NULL)
+    if (layer2_bm == NULL) {
         return;
+    }
     wxMemoryDC dc;
     dc.SelectObject(*layer2_bm);
     dc.SetBackground(*wxWHITE_BRUSH);
@@ -1416,8 +1451,14 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
 	AddTimeVariantOptionsToMenu(optMenu);
 	f->AppendCustomCategories(optMenu, project->GetCatClassifManager());
 	SetCheckMarks(optMenu);
+    // toggle some menu items
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_SAVE_CATEGORIES"),
                                    GetCcType() != CatClassification::no_theme);
+    GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_MAP_HEAT"),
+                                   project->GetShapefileType() == Shapefile::POINT_TYP);
+    GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_MAP_MST"),
+                                   project->GetShapefileType() == Shapefile::POINT_TYP);
+
 	if (template_frame) {
 		template_frame->UpdateContextMenuItems(optMenu);
 		template_frame->PopupMenu(optMenu, pos + GetPosition());
@@ -2499,8 +2540,7 @@ void MapCanvas::PopulateCanvas()
 			full_map_redraw_needed = false;
 
 			if (selectable_shps_type == polygons &&
-                (display_mean_centers || display_centroids ||
-                 display_weights_graph))
+                (display_mean_centers || display_centroids || display_weights_graph))
             {
 				GdaPoint* p;
 				wxPen cent_pen(wxColour(20, 20, 20));
@@ -2523,16 +2563,25 @@ void MapCanvas::PopulateCanvas()
 						foreground_shps.push_back(p);
 					}
 				}
+			} else if (selectable_shps_type == points) {
+                if (display_voronoi_diagram) {
+                    GdaPolygon* p;
+                    const std::vector<GdaShape*>& polys = project->GetVoronoiPolygons();
+                    for (int i=0, num_polys=polys.size(); i<num_polys; i++) {
+                        p = new GdaPolygon(*(GdaPolygon*)polys[i]);
+                        background_shps.push_back(p);
+                    }
+                } else if (display_heat_map) {
+                    wxBrush brush(wxColour(0, 0, 0, 10));
+                    for (int i=0; i<heat_map_pts.size(); ++i) {
+                        GdaPoint* p = new GdaPoint(*heat_map_pts[i]);
+                        p->setPen(*wxTRANSPARENT_PEN);
+                        p->setBrush(brush);
+                        background_shps.push_back(p);
+                    }
+                }
 			}
 
-			if (selectable_shps_type == points && display_voronoi_diagram) {
-				GdaPolygon* p;
-				const std::vector<GdaShape*>& polys = project->GetVoronoiPolygons();
-				for (int i=0, num_polys=polys.size(); i<num_polys; i++) {
-					p = new GdaPolygon(*(GdaPolygon*)polys[i]);
-					background_shps.push_back(p);
-				}
-			}
             if (display_weights_graph) {
                 // use centroids to draw graph
                 CreateConnectivityGraph();
@@ -3711,6 +3760,23 @@ void MapFrame::MapMenus()
 
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
 	UpdateOptionMenuItems();
+
+    Connect(XRCID("ID_HEATMAP_BANDWITH"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMapBandwith));
+    Connect(XRCID("ID_MAP_MST"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+}
+
+void MapFrame::OnHeatMapBandwith(wxCommandEvent& event)
+{
+    // create heat map for point map
+    ((MapCanvas*)template_canvas)->DrawHeatMap(3.9);
+
+    UpdateOptionMenuItems();
+}
+
+void MapFrame::OnMapMST(wxCommandEvent& event)
+{
 }
 
 void MapFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
