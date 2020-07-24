@@ -3065,11 +3065,9 @@
     <object class="wxMenu" name="ID_MAP_HEAT">
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
             <label>Specify Bandwith</label>
-            <checkable>1</checkable>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
             <label>Select Variable of Radius</label>
-            <checkable>1</checkable>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3080,6 +3078,11 @@
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
             <label>Change Transparency</label>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+            <label>Toggle Heat Map</label>
+            <checkable>1</checkable>
         </object>
         <label>Heat Map</label>
     </object>
@@ -3663,11 +3666,9 @@
       <object class="wxMenu" name="ID_MAP_HEAT">
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Select Variable of Radius</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3678,6 +3679,11 @@
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Toggle Heat Map</label>
+              <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
       </object>
@@ -3835,11 +3841,9 @@
       <object class="wxMenu" name="ID_MAP_HEAT">
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Select Variable of Radius</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3850,6 +3854,11 @@
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Toggle Heat Map</label>
+              <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
       </object>
@@ -4007,11 +4016,9 @@
       <object class="wxMenu" name="ID_MAP_HEAT">
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Select Variable of Radius</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4022,6 +4029,11 @@
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
               <label>Change Transparency</label>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Toggle Heat Map</label>
+              <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
       </object>
@@ -4670,11 +4682,9 @@
     <object class="wxMenu" name="ID_MAP_HEAT">
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
             <label>Specify Bandwith</label>
-            <checkable>1</checkable>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
             <label>Select Variable of Radius</label>
-            <checkable>1</checkable>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4685,6 +4695,11 @@
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_TRANSPARENCY">
             <label>Change Transparency</label>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+            <label>Toggle Heat Map</label>
+            <checkable>1</checkable>
         </object>
         <label>Heat Map</label>
     </object>

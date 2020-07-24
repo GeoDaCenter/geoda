@@ -24,12 +24,7 @@
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/nil_generator.hpp>
 #include <boost/unordered_map.hpp>
-#include <wx/slider.h>
-#include <wx/stattext.h>
-#include <wx/dialog.h>
-#include <wx/textctrl.h>
-#include <wx/window.h>
-#include <wx/dcgraph.h>
+#include <wx/wx.h>
 
 #include "CatClassification.h"
 #include "CatClassifStateObserver.h"
@@ -45,6 +40,7 @@
 #include "../ShapeOperations/GalWeight.h"
 #include "../MapLayerStateObserver.h"
 #include "MapLayer.hpp"
+#include "MapViewHelper.h"
 
 class CatClassifState;
 class MapTreeFrame;
@@ -55,113 +51,10 @@ class TableInterface;
 class WeightsManState;
 class ExportDataDlg;
 class OGRLayerProxy;
-class HeatMapHelper;
 
 typedef boost::multi_array<bool, 2> b_array_type;
 typedef boost::multi_array<double, 2> d_array_type;
 typedef boost::multi_array<wxString, 2> s_array_type;
-
-class HeatMapBandwidthDlg: public wxDialog
-{
-    DECLARE_CLASS( HeatMapBandwidthDlg )
-    DECLARE_EVENT_TABLE()
-public:
-    HeatMapBandwidthDlg();
-    HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
-                        MapCanvas* _canvas,
-                        double min_band, double max_band,
-                        wxWindowID id = wxID_ANY,
-                        const wxString & caption =_("Heat Map Bandwidth Setup Dialog"),
-                        const wxPoint & pos = wxDefaultPosition,
-                        const wxSize & size = wxDefaultSize,
-                        long style = wxDEFAULT_DIALOG_STYLE );
-    virtual ~HeatMapBandwidthDlg();
-    void OnSliderChange(wxCommandEvent& event );
-
-private:
-    MapCanvas* canvas;
-    HeatMapHelper* heatmap;
-    wxSlider* slider;
-    wxStaticText* slider_text;
-    double min_band;
-    double max_band;
-};
-
-class HeatMapHelper
-{
-public:
-    HeatMapHelper();
-    virtual ~HeatMapHelper();
-
-    // Draw a heat map by making points with radius, color and transparency
-    // and saving the points to background_shps, which will be rendered by
-    // MapCanvas;
-    // The color could be defined by CatClassifData in MapCanvas, if user
-    // doesn't specify heat_map_fill_color and heat_map_outline_color;
-    // The heat map can be created by using either bandwidth, or a variable
-    // that contains the values of radius for all points.
-    void Draw(const std::vector<GdaShape*>& selectable_shps,
-              std::list<GdaShape*>& background_shps,
-              CatClassifData& cat_data);
-
-    // Prompt user to set bandwidth value to create a heat map
-    void SetBandwidth(MapCanvas* canvas, Project* project);
-    // Prompt user to select a variable to set radius value for points
-    // in a heat map
-    void SetRadiusVariable(Project* project);
-    // Change property value: bandwidth
-    void UpdateBandwidth(double bandwidth);
-    // Prompt user to select a fill color
-    void ChangeFillColor(MapCanvas* canvas);
-    // Prompt user to select a outline color
-    void ChangeOutlineColor(MapCanvas* canvas);
-    // User select to reset original heat map
-    // not using user specified fill color/outline color
-    void Reset();
-
-protected:
-    // flag if use fill color, false will use current map's fill color
-    bool use_fill_color;
-    // flag if use outline color, false will use TRANSPARENT (no) color
-    bool use_outline_color;
-    // Fill colour (wxBrush)
-    wxColour fill_color;
-    // Outline colour (wxPen)
-    wxColour outline_color;
-    // The bandwidth used to create a heat map
-    double bandwidth;
-    // flag if use bandwidth
-    bool use_bandwidth;
-    // The array contains radius values for point
-    std::vector<double> radius_arr;
-    // flag if use radius variable
-    bool use_radius_variable;
-};
-
-// Transparency SliderBar dialog for Basemap
-class MapTransparencyDlg: public wxDialog
-{
-    DECLARE_CLASS( MapTransparencyDlg )
-    DECLARE_EVENT_TABLE()
-public:
-    MapTransparencyDlg ();
-    MapTransparencyDlg (wxWindow * parent,
-                  MapCanvas* _canvas,
-                  wxWindowID id=wxID_ANY,
-                  const wxString & caption=_("Map Transparency Setup Dialog"),
-                  const wxPoint & pos = wxDefaultPosition,
-                  const wxSize & size = wxDefaultSize,
-                  long style = wxDEFAULT_DIALOG_STYLE );
-    virtual ~MapTransparencyDlg ();
-    
-private:
-    MapCanvas* canvas;
-    wxSlider* slider;
-    wxStaticText* slider_text;
-	void OnSliderChange(wxCommandEvent& event );
-    
-};
-
 
 class MapCanvas : public TemplateCanvas, public CatClassifStateObserver,
                   public MapLayerStateObserver, public AssociateLayerInt
@@ -186,8 +79,11 @@ public:
     
 	virtual ~MapCanvas();
 
-    virtual void OnHeatMapBandwidth();
-    virtual void DrawHeatMap(double r=0);
+    virtual void RedrawMap();
+
+    // functions for heat map
+    virtual void OnHeatMap(int menu_id);
+
     //virtual void DrawHeatMap(const std::vector<double>& arr_radius);
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
@@ -264,7 +160,6 @@ public:
     virtual void UpdateStatusBar();
     virtual wxBitmap* GetPrintLayer();
     
-    void DisplayMapLayers();
     void AddMapLayer(wxString name, BackgroundMapLayer* map_layer,
                      bool is_hide = false);
     void CleanBasemapCache();
@@ -519,8 +414,10 @@ public:
     void OnMapEditLayer(wxCommandEvent& e);
     void OnMapTreeClose(wxWindowDestroyEvent& event);
     void OnShowMapBoundary(wxCommandEvent& event);
-    void OnHeatMapBandwith(wxCommandEvent& event);
+
+    void OnHeatMap(wxCommandEvent& event);
     void OnMapMST(wxCommandEvent& event);
+    
     void UpdateMapTree();
 	bool ChangeMapType(CatClassification::CatClassifType new_map_theme,
 					   MapCanvas::SmoothingType new_map_smoothing,

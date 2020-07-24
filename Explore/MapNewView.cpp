@@ -23,19 +23,8 @@
 #include <set>
 #include <sstream>
 #include <boost/foreach.hpp>
-
 #include <wx/wx.h>
-#include <wx/event.h>
-#include <wx/msgdlg.h>
-#include <wx/splitter.h>
-#include <wx/xrc/xmlres.h>
-#include <wx/dcgraph.h>
-#include <wx/dcsvg.h>
-#include <wx/filename.h>
-#include <wx/time.h>
-#include <wx/dcps.h>
-#include <wx/dcbuffer.h>
-#include <wx/tokenzr.h>
+
 #include "../DataViewer/TableInterface.h"
 #include "../DataViewer/TimeState.h"
 #include "../DialogTools/CatClassifDlg.h"
@@ -62,236 +51,6 @@
 #include "MapLayerTree.hpp"
 #include "Basemap.h"
 #include "MapNewView.h"
-
-IMPLEMENT_CLASS(HeatMapBandwidthDlg, wxDialog)
-BEGIN_EVENT_TABLE(HeatMapBandwidthDlg, wxDialog)
-END_EVENT_TABLE()
-
-HeatMapBandwidthDlg::HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
-                                         MapCanvas* _canvas,
-                                         double min_band, double max_band,
-                                         wxWindowID id,
-                                         const wxString & caption,
-                                         const wxPoint & position,
-                                         const wxSize & size,
-                                         long style)
-: wxDialog(_canvas, id, caption, position, size, style)
-{
-    wxLogMessage("Open HeatMapBandwidthDlg");
-
-    this->canvas = _canvas;
-    this->heatmap = _heatmap;
-    this->min_band = min_band;
-    this->max_band = max_band;
-
-    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
-
-    wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
-    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
-
-    int ticket = (int)(min_band / max_band * 100);
-    slider = new wxSlider(this, wxID_ANY, ticket, 0, 100,
-                          wxDefaultPosition, wxSize(300, -1),
-                          wxSL_HORIZONTAL);
-
-    boxSizer->Add(slider);
-    wxString bandwidth_lbl = wxString::Format(_("Select Bandwidth: %f"), min_band);
-
-    slider_text = new wxStaticText(this, wxID_ANY, bandwidth_lbl,
-                                   wxDefaultPosition, wxSize(100, -1));
-    boxSizer->Add(slider_text, 0, wxGROW|wxALL, 5);
-    boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
-
-    SetSizer(topSizer);
-    topSizer->Fit(this);
-
-    slider->Bind(wxEVT_SLIDER, &HeatMapBandwidthDlg::OnSliderChange, this);
-
-    wxCommandEvent ev;
-    OnSliderChange(ev);
-}
-
-HeatMapBandwidthDlg::~HeatMapBandwidthDlg()
-{
-}
-
-void HeatMapBandwidthDlg::OnSliderChange( wxCommandEvent & event )
-{
-    int val = slider->GetValue();
-    double band = (val / 100.0) * max_band;
-    slider_text->SetLabel(wxString::Format(_("Select Bandwidth: %f"), band));
-    if (canvas && heatmap) {
-        heatmap->UpdateBandwidth(band);
-        canvas->DrawHeatMap();
-    }
-}
-
-
-HeatMapHelper::HeatMapHelper()
-{
-    use_fill_color = false;
-    use_outline_color = false;
-    use_bandwidth = true;
-    use_radius_variable = false;
-}
-
-HeatMapHelper::~HeatMapHelper()
-{
-}
-
-void HeatMapHelper::SetBandwidth(MapCanvas* canvas, Project* project)
-{
-    use_bandwidth = true;
-    use_radius_variable = !use_bandwidth;
-    // prompt user to select a bandwidth from a slider
-    double min_band = project->GetMax1nnDistEuc();
-    double max_band = project->GetMaxDistEuc();
-    HeatMapBandwidthDlg bandDlg(this, canvas, min_band, max_band);
-    bandDlg.ShowModal();
-}
-
-void HeatMapHelper::UpdateBandwidth(double bandwidth)
-{
-    this->bandwidth = bandwidth;
-}
-
-void HeatMapHelper::SetRadiusVariable(Project* project)
-{
-    // prompt user to select a variable for the radius
-    VariableSettingsDlg dlg(project, VariableSettingsDlg::univariate);
-    if (dlg.ShowModal() != wxID_OK) {
-        return;
-    }
-    std::vector<d_array_type> data(1);
-    TableInterface *table_int = project->GetTableInt();
-    table_int->GetColData(dlg.col_ids[0], data[0]);
-
-    int t = 0; // assume the radius is not a time-variable
-    int n = data[0][0].size();
-    radius_arr.clear();
-    radius_arr.resize(n);
-    for (int i=0; i< n; ++i) {
-        radius_arr[i] = data[0][0][i];
-    }
-    use_radius_variable = true;
-    use_bandwidth = !use_radius_variable;
-}
-
-void HeatMapHelper::ChangeFillColor(MapCanvas* canvas)
-{
-    // prompt user color pick dialog
-    fill_color = GeneralWxUtils::PickColor(canvas, fill_color);
-    use_fill_color = true;
-}
-
-void HeatMapHelper::ChangeOutlineColor(MapCanvas* canvas)
-{
-    // prompt user color pick dialog
-    outline_color = GeneralWxUtils::PickColor(canvas, outline_color);
-    use_outline_color = true;
-}
-
-void HeatMapHelper::Draw(const std::vector<GdaShape*>& selectable_shps,
-                         std::list<GdaShape*>& background_shps,
-                         CatClassifData& cat_data)
-{
-    wxPen pen(outline_color);
-    if (use_fill_color) {
-        wxBrush brush(fill_color);
-        for (int i=0; i<selectable_shps.size(); ++i) {
-            GdaPoint *pt = (GdaPoint*)selectable_shps[i];
-            double r = use_bandwidth ? bandwidth : radius_arr[i];
-            GdaPoint* p = new GdaPoint(pt->GetX(), pt->GetY(), r);
-            p->setPen(use_outline_color ? pen : *wxTRANSPARENT_PEN);
-            p->setBrush(brush);
-            background_shps.push_back(p); // memory will be freed by background_shps
-        }
-    } else {
-        int cc_ts = cat_data.curr_canvas_tm_step;
-        int num_cats = cat_data.GetNumCategories(cc_ts);
-        for (int cat=0; cat<num_cats; cat++) {
-            wxColour clr = cat_data.GetCategoryBrushColor(cc_ts, cat);
-            clr.Set(clr.Red(), clr.Green(), clr.Blue(), 100);
-            wxBrush brush(clr);
-            std::vector<int>& ids = cat_data.GetIdsRef(cc_ts, cat);
-            for (size_t i=0, iend=ids.size(); i<iend; i++) {
-                GdaPoint *pt = (GdaPoint*)selectable_shps[ids[i]];
-                double r = use_bandwidth ? bandwidth : radius_arr[ids[i]];
-                GdaPoint* p = new GdaPoint(pt->GetX(), pt->GetY(), r);
-                p->setBrush(brush);
-                p->setPen(use_outline_color ? pen : *wxTRANSPARENT_PEN);
-                background_shps.push_back(p); // memory will be freed by background_shps
-            }
-        }
-    }
-}
-
-IMPLEMENT_CLASS(MapTransparencyDlg, wxDialog)
-BEGIN_EVENT_TABLE(MapTransparencyDlg, wxDialog)
-END_EVENT_TABLE()
-
-MapTransparencyDlg::MapTransparencyDlg(wxWindow * parent,
-                           MapCanvas* _canvas,
-                           wxWindowID id,
-                           const wxString & caption,
-                           const wxPoint & position,
-                           const wxSize & size,
-                           long style )
-: wxDialog( parent, id, caption, position, size, style)
-{
-
-    wxLogMessage("Open MapTransparencyDlg");
-
-    canvas = _canvas;
-
-    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
-    this->SetSizer(topSizer);
-
-    wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
-    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
-
-    // A text control for the user’s name
-    double trasp = (double)canvas->tran_unhighlighted / 255.0;
-    int trasp_scale = 100 * trasp;
-
-	wxBoxSizer* subSizer = new wxBoxSizer(wxHORIZONTAL);
-    slider = new wxSlider(this, wxID_ANY, trasp_scale, 0, 100,
-                          wxDefaultPosition, wxSize(200, -1),
-                          wxSL_HORIZONTAL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"1.0"), 0,
-                  wxALIGN_CENTER_VERTICAL|wxALL);
-    subSizer->Add(slider, 0, wxALIGN_CENTER_VERTICAL|wxALL);
-	subSizer->Add(new wxStaticText(this, wxID_ANY,"0.0"), 0,
-                  wxALIGN_CENTER_VERTICAL|wxALL);
-
-	boxSizer->Add(subSizer);
-    wxString txt_transparency = wxString::Format(_("Current Transparency: %.2f"), 1.0 - trasp);
-
-    slider_text = new wxStaticText(this,
-                                   wxID_ANY,
-                                   txt_transparency,
-                                   wxDefaultPosition,
-                                   wxSize(100, -1));
-    boxSizer->Add(slider_text, 0, wxGROW|wxALL, 5);
-    boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
-
-    topSizer->Fit(this);
-
-    slider->Bind(wxEVT_SLIDER, &MapTransparencyDlg::OnSliderChange, this);
-}
-
-MapTransparencyDlg::~MapTransparencyDlg()
-{
-}
-
-void MapTransparencyDlg::OnSliderChange( wxCommandEvent & event )
-{
-    int val = event.GetInt();
-    double trasp = 1.0 - val / 100.0;
-    slider_text->SetLabel(wxString::Format(_("Current Transparency: %.2f"), trasp));
-    canvas->tran_unhighlighted = (1-trasp) * 255;
-    canvas->ReDraw();
-}
 
 IMPLEMENT_CLASS(MapCanvas, TemplateCanvas)
 BEGIN_EVENT_TABLE(MapCanvas, TemplateCanvas)
@@ -513,20 +272,35 @@ void MapCanvas::SetupColor()
 {
 }
 
-void MapCanvas::OnHeatMapBandwidth()
+// handle menu events for heat map
+void MapCanvas::OnHeatMap(int menu_id)
 {
-    wxLogMessage("MapCanvas::OnHeatMapBandwidth()");
-    display_heat_map = !display_heat_map;
-    if (display_heat_map) {
+    if (menu_id == XRCID("ID_HEATMAP_BANDWITH")) {
+        // show bandwidth setup dialog, and dialog will trigger
+        // map window to refresh
+        display_heat_map = true;
         heat_map.SetBandwidth(this, project);
+    } else if (menu_id == XRCID("ID_HEATMAP_VARIABLE")) {
+        // show variable selection dialog, and dialog will trigger
+        // map window to refresh
+        display_heat_map = true;
+        heat_map.SetRadiusVariable(this, project);
+    } else if (menu_id == XRCID("ID_HEATMAP_TOGGLE")) {
+        display_heat_map = !display_heat_map;
+        RedrawMap();
+    } else if (display_heat_map) {
+        // none of the following menu items will work if
+        // heat map toggle is not checked
+        if (menu_id == XRCID("ID_HEATMAP_FILL_COLOR")) {
+            heat_map.ChangeFillColor(this);
+        } else if (menu_id == XRCID("ID_HEATMAP_OUTLINE_COLOR")) {
+            heat_map.ChangeOutlineColor(this);
+        } else if (menu_id == XRCID("ID_HEATMAP_TRANSPARENCY")) {
+            // show variable selection dialog, and dialog will trigger
+            // map window to refresh
+            heat_map.ChangeTransparency(this);
+        }
     }
-}
-
-void MapCanvas::DrawHeatMap(double r)
-{
-    wxLogMessage("MapCanvas::DrawHeatMap()");
-    full_map_redraw_needed = true;
-    PopulateCanvas();
 }
 
 void MapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
@@ -1847,21 +1621,18 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
         GeneralWxUtils::CheckMenuItem(menu, XRCID(str_xrcid), flag);
     }
 
-    GeneralWxUtils::CheckMenuItem(menu,
-					XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
-					GetCcType() == CatClassification::percentile);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_PERCENTILE"),
+                                  GetCcType() == CatClassification::percentile);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_15"),
-					GetCcType() == CatClassification::hinge_15);
+                                  GetCcType() == CatClassification::hinge_15);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_HINGE_30"),
-					GetCcType() == CatClassification::hinge_30);
-    GeneralWxUtils::CheckMenuItem(menu,
-					XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"),
-					GetCcType() == CatClassification::stddev);
+                                  GetCcType() == CatClassification::hinge_30);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_CHOROPLETH_STDDEV"),
+                                  GetCcType() == CatClassification::stddev);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_UNIQUE_VALUES"),
-					GetCcType() == CatClassification::unique_values);
+                                  GetCcType() == CatClassification::unique_values);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAPANALYSIS_COLOCATION"),
-					GetCcType() == CatClassification::colocation);
-
+                                  GetCcType() == CatClassification::colocation);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SMOOTH_RAWRATE"),
 								  smoothing_type == raw_rate);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_RATES_SMOOTH_EXCESSRISK"),
@@ -1916,11 +1687,11 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_neighbors || display_weights_graph);
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_CONN_NEIGHBOR_FILL_COLOR"),
                                    display_neighbors);
-
     GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
                                   !selectable_outline_visible);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
                                    display_map_boundary);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -2396,7 +2167,6 @@ void MapCanvas::update(MapLayerState* o)
         }
     }
 
-    //DisplayMapLayers();
     if (template_frame) {
         MapFrame* m = dynamic_cast<MapFrame*>(template_frame);
         if (m) m->UpdateMapLayer();
@@ -2690,6 +2460,7 @@ void MapCanvas::PopulateCanvas()
 						foreground_shps.push_back(p);
 					}
 				}
+                // don't use "else if", since voronoi and heatmap can be overlayed
 				if (display_centroids) {
 					const std::vector<GdaPoint*>& c = project->GetCentroids();
 					for (int i=0; i<num_obs; i++) {
@@ -2708,12 +2479,14 @@ void MapCanvas::PopulateCanvas()
                         p = new GdaPolygon(*(GdaPolygon*)polys[i]);
                         background_shps.push_back(p);
                     }
-                } else if (display_heat_map) {
+                }
+                // don't use "else if", since voronoi and heatmap can be overlayed
+                if (display_heat_map) {
                     // draw heat map in background
                     heat_map.Draw(selectable_shps, background_shps, cat_data);
                 }
 			}
-
+            
             if (display_weights_graph) {
                 // use centroids to draw graph
                 CreateConnectivityGraph();
@@ -3075,9 +2848,9 @@ void MapCanvas::TimeSyncVariableToggle(int var_index)
 	PopulateCanvas();
 }
 
-void MapCanvas::DisplayMapLayers()
+void MapCanvas::RedrawMap()
 {
-    wxLogMessage("MapCanvas::DisplayMapLayers()");
+    wxLogMessage("MapCanvas::RedrawMap()");
     full_map_redraw_needed = true;
     PopulateCanvas();
 }
@@ -3085,63 +2858,51 @@ void MapCanvas::DisplayMapLayers()
 void MapCanvas::DisplayMeanCenters()
 {
     wxLogMessage("MapCanvas::DisplayMeanCenters()");
-	full_map_redraw_needed = true;
 	display_mean_centers = !display_mean_centers;
-	PopulateCanvas();
+	RedrawMap();
 }
 
 void MapCanvas::DisplayCentroids()
 {
     wxLogMessage("MapCanvas::DisplayCentroids()");
-	full_map_redraw_needed = true;
 	display_centroids = !display_centroids;
-	PopulateCanvas();
+	RedrawMap();
 }
 
 void MapCanvas::DisplayWeightsGraph()
 {
     wxLogMessage("MapCanvas::DisplayWeightsGraph()");
-    full_map_redraw_needed = true;
     display_weights_graph = !display_weights_graph;
-    if (display_weights_graph) {
-        display_neighbors = false;
-
-    } else {
-        display_map_with_graph = true;
-    }
-    PopulateCanvas();
+    display_neighbors = display_weights_graph ? false : true;
+    RedrawMap();
 }
 
 void MapCanvas::DisplayNeighbors()
 {
     wxLogMessage("MapCanvas::DisplayNeighbors()");
-    full_map_redraw_needed = true;
     display_neighbors = !display_neighbors;
     if (display_neighbors) {
         display_map_with_graph = true;
         display_weights_graph = false;
     } 
-    PopulateCanvas();
+    RedrawMap();
 }
 
 void MapCanvas::DisplayMapWithGraph()
 {
     wxLogMessage("MapCanvas::DisplayMapWithGraph()");
     if (display_weights_graph) {
-        full_map_redraw_needed = true;
         display_map_with_graph = !display_map_with_graph;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
 void MapCanvas::DisplayMapBoundray(bool flag)
 {
     wxLogMessage("MapCanvas::DisplayMapBoundray()");
-
     display_map_boundary = flag;
     if (selectable_outline_visible) display_map_boundary = false;
-    full_map_redraw_needed = true;
-    PopulateCanvas();
+    RedrawMap();
 }
 
 void MapCanvas::ChangeGraphThickness(int val)
@@ -3149,8 +2910,7 @@ void MapCanvas::ChangeGraphThickness(int val)
     wxLogMessage("MapCanvas::ChangeGraphThickness()");
     if (display_weights_graph) {
         weights_graph_thickness = val;
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3158,8 +2918,7 @@ void MapCanvas::ChangeGraphColor()
 {
     if (display_weights_graph) {
         graph_color = GeneralWxUtils::PickColor(this, graph_color);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3167,8 +2926,7 @@ void MapCanvas::ChangeConnSelectedColor()
 {
     if (display_neighbors || display_weights_graph) {
         conn_selected_color = GeneralWxUtils::PickColor(this, conn_selected_color);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3176,8 +2934,7 @@ void MapCanvas::ChangeConnSelectedFillColor()
 {
     if (display_neighbors || display_weights_graph) {
         conn_selected_fill_color = GeneralWxUtils::PickColor(this, conn_selected_fill_color);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3185,8 +2942,7 @@ void MapCanvas::ChangeNeighborFillColor()
 {
     if (display_neighbors) {
         neighbor_fill_color = GeneralWxUtils::PickColor(this, neighbor_fill_color);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3194,8 +2950,7 @@ void MapCanvas::ChangeHeatMapFillColor()
 {
     if (display_heat_map) {
         heat_map.ChangeFillColor(this);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
@@ -3203,17 +2958,15 @@ void MapCanvas::ChangeHeatMapOutlineColor()
 {
     if (display_heat_map) {
         heat_map.ChangeOutlineColor(this);
-        full_map_redraw_needed = true;
-        PopulateCanvas();
+        RedrawMap();
     }
 }
 
 void MapCanvas::DisplayVoronoiDiagram()
 {
     wxLogMessage("MapCanvas::DisplayVoronoiDiagram()");
-	full_map_redraw_needed = true;
 	display_voronoi_diagram = !display_voronoi_diagram;
-	PopulateCanvas();
+	RedrawMap();
 }
 
 int MapCanvas::GetNumVars()
@@ -3908,16 +3661,29 @@ void MapFrame::MapMenus()
 	GeneralWxUtils::ReplaceMenu(mb, _("Options"), optMenu);
 	UpdateOptionMenuItems();
 
+    // setup event handler for menu items
+    Connect(XRCID("ID_HEATMAP_TOGGLE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
     Connect(XRCID("ID_HEATMAP_BANDWITH"), wxEVT_COMMAND_MENU_SELECTED,
-            wxCommandEventHandler(MapFrame::OnHeatMapBandwith));
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+    Connect(XRCID("ID_HEATMAP_VARIABLE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+    Connect(XRCID("ID_HEATMAP_FILL_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+    Connect(XRCID("ID_HEATMAP_OUTLINE_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+    Connect(XRCID("ID_HEATMAP_TRANSPARENCY"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnHeatMap));
+
     Connect(XRCID("ID_MAP_MST"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnMapMST));
 }
 
-void MapFrame::OnHeatMapBandwith(wxCommandEvent& event)
+void MapFrame::OnHeatMap(wxCommandEvent& event)
 {
-    // create heat map for point map
-    ((MapCanvas*)template_canvas)->OnHeatMapBandwidth();
+    // toggle heat map
+    int menu_id = event.GetId();
+    ((MapCanvas*)template_canvas)->OnHeatMap(menu_id);
 
     UpdateOptionMenuItems();
 }
@@ -3986,8 +3752,7 @@ void MapFrame::UpdateOptionMenuItems()
 	TemplateFrame::UpdateOptionMenuItems(); // set common items first
 	wxMenuBar* mb = GdaFrame::GetGdaFrame()->GetMenuBar();
 	int menu = mb->FindMenu(_("Options"));
-    if (menu == wxNOT_FOUND) {
-	} else {
+    if (menu != wxNOT_FOUND) {
 		((MapCanvas*) template_canvas)->SetCheckMarks(mb->GetMenu(menu));
 	}
 }

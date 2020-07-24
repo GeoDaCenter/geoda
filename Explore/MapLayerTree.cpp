@@ -509,7 +509,7 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetBrushColour());
         ml->SetBrushColour(clr);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 
@@ -522,7 +522,7 @@ void MapTree::OnChangeAssociatelineColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetAssociatePenColour());
         ml->SetAssociatePenColour(clr);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 
@@ -535,7 +535,7 @@ void MapTree::OnChangeOutlineColor(wxCommandEvent& event)
         clr = wxGetColourFromUser(this, ml->GetPenColour());
         ml->SetPenColour(clr);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 
@@ -550,7 +550,7 @@ void MapTree::OnChangePointRadius(wxCommandEvent& event)
             int new_radius = dlg.GetRadius();
             ml->SetPointRadius(new_radius);
             Refresh();
-            canvas->DisplayMapLayers();
+            canvas->RedrawMap();
         }
     }
 }
@@ -584,7 +584,7 @@ void MapTree::OnZoomToLayer(wxCommandEvent& event)
         ml->GetExtent(minx, miny, maxx, maxy);
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
-    canvas->DisplayMapLayers();
+    canvas->RedrawMap();
 }
 
 void MapTree::OnZoomToSelected(wxCommandEvent& event)
@@ -609,7 +609,7 @@ void MapTree::OnZoomToSelected(wxCommandEvent& event)
         }
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
-    canvas->DisplayMapLayers();
+    canvas->RedrawMap();
     canvas->ResetBrushing();
 }
 
@@ -703,7 +703,7 @@ void MapTree::OnOutlineVisible(wxCommandEvent& event)
             ml->SetPenSize(1);
         }
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 void MapTree::OnShowMapBoundary(wxCommandEvent& event)
@@ -714,7 +714,7 @@ void MapTree::OnShowMapBoundary(wxCommandEvent& event)
         bool show_bnd = ml->IsShowBoundary();
         ml->ShowBoundary(!show_bnd);
         Refresh();
-        canvas->DisplayMapLayers();
+        canvas->RedrawMap();
     }
 }
 
@@ -1019,7 +1019,7 @@ void MapTree::OnSwitchClick(wxMouseEvent& event)
         
         if (ml_int) {
             ml_int->SetHide(!ml_int->IsHide());
-            canvas->DisplayMapLayers();
+            canvas->RedrawMap();
             Refresh();
         } 
     }
@@ -1088,7 +1088,7 @@ void MapTree::OnMapLayerChange()
     }
     canvas->ExtentTo(minx, miny, maxx, maxy);
      */
-    canvas->DisplayMapLayers();
+    canvas->RedrawMap();
 }
 
 void MapTree::AddCategoryColorToMenu(wxMenu* menu, int cat_clicked)

@@ -67,6 +67,7 @@
 		A19580B1240E15020089C6CE /* predict.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A6240E15010089C6CE /* predict.c */; };
 		A19580B3240E15020089C6CE /* loess.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580A8240E15020089C6CE /* loess.c */; };
 		A19580B6241992CA0089C6CE /* linpack_lite.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580B4241992CA0089C6CE /* linpack_lite.c */; };
+		A19D5A1024CB97AB006425B3 /* MapViewHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
@@ -454,6 +455,8 @@
 		A19580A9240E15020089C6CE /* S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = S.h; path = Algorithms/S.h; sourceTree = "<group>"; };
 		A19580AB240E15020089C6CE /* loess.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = loess.h; path = Algorithms/loess.h; sourceTree = "<group>"; };
 		A19580B4241992CA0089C6CE /* linpack_lite.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = linpack_lite.c; path = Algorithms/linpack_lite.c; sourceTree = "<group>"; };
+		A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapViewHelper.cpp; sourceTree = "<group>"; };
+		A19D5A0F24CB97AB006425B3 /* MapViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewHelper.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
@@ -1510,6 +1513,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */,
+				A19D5A0F24CB97AB006425B3 /* MapViewHelper.h */,
 				A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */,
 				A161939D244CDCE8004269A7 /* AnimatePlotCanvas.h */,
 				A128C5842441367D00EAEDFA /* wxGLString.cpp */,
@@ -2020,6 +2025,7 @@
 				DD2B43421522A95100888E51 /* PCPNewView.cpp in Sources */,
 				A19483952118BAAA009A87A2 /* constrnt.cpp in Sources */,
 				A1F37C8124B4F85C007E98F0 /* SCHCDlg.cpp in Sources */,
+				A19D5A1024CB97AB006425B3 /* MapViewHelper.cpp in Sources */,
 				DDC9DD8515937AA000A0E5BA /* ExportCsvDlg.cpp in Sources */,
 				DDC9DD8A15937B2F00A0E5BA /* CsvFileUtils.cpp in Sources */,
 				DDC9DD9C15937C0200A0E5BA /* ImportCsvDlg.cpp in Sources */,
