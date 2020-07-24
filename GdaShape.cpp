@@ -767,35 +767,37 @@ void GdaShapeAlgs::getBoundingBoxOrig(const GdaPolygon* p, double& xmin,
 //
 ////////////////////////////////////////////////////////////////////////////////
 GdaPoint::GdaPoint()
-: radius(GdaConst::my_point_click_radius)
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
 	null_shape = true;
 }
 
 GdaPoint::GdaPoint(const GdaPoint& s)
-: GdaShape(s), radius(s.radius)
+: GdaShape(s), radius(s.radius), adaptive_radius(false)
 {
 }
 
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
-: radius(GdaConst::my_point_click_radius)
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
 }
 
 GdaPoint::GdaPoint(double x_orig, double y_orig)
-: radius(GdaConst::my_point_click_radius)
+: radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
 	center = wxPoint((int) x_orig, (int) y_orig); 
 	center_o = wxRealPoint(x_orig, y_orig);
 }
 
 GdaPoint::GdaPoint(double x_orig, double y_orig, double radius)
-: radius(radius)
+: radius(GdaConst::my_point_click_radius), radius_o(radius)
 {
     center = wxPoint((int) x_orig, (int) y_orig);
     center_o = wxRealPoint(x_orig, y_orig);
+
+    adaptive_radius = true;
 }
 
 void GdaPoint::Offset(double dx, double dy)
@@ -846,6 +848,14 @@ void GdaPoint::applyScaleTrans(const GdaScaleTrans& A)
 {
 	GdaShape::applyScaleTrans(A); // apply affine transform to base class
 	//A.transform(center_o, &center);
+
+    if (adaptive_radius) {
+        wxRealPoint center_o_offset(center_o);
+        center_o_offset.x += radius_o;
+        wxPoint center_offset;
+        A.transform(center_o_offset, &center_offset);
+        radius = center_offset.x - center.x;
+    }
 }
 
 void GdaPoint::paintSelf(wxDC& dc)

@@ -215,7 +215,9 @@ class GdaPoint: public GdaShape {
 
 public:
     int radius;
-    
+    double radius_o;
+    bool adaptive_radius;
+
 	GdaPoint(); // creates a null shape
 	GdaPoint(const GdaPoint& s); 
 	GdaPoint(wxRealPoint point_o_s);

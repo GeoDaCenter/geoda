@@ -853,8 +853,10 @@ void DendrogramPanel::Setup(GdaNode* _root, int _nelements, int _nclusters,
     
     maxDistance = root[nelements-2].distance;
     minDistance = root[0].distance;
-    
-    init();
+
+    if (clusters.size() > 0) {
+        init();
+    }
 }
 
 void DendrogramPanel::OnSplitLineChange(int x)
@@ -961,7 +963,8 @@ void DendrogramPanel::UpdateCluster(int _nclusters, std::vector<wxInt64>& _clust
     }
 }
 
-void DendrogramPanel::init() {
+void DendrogramPanel::init()
+{
     
     isLayerValid = false;
     
@@ -1026,7 +1029,6 @@ void DendrogramPanel::init() {
 
 DendroColorPoint DendrogramPanel::doDraw(wxDC &dc, int node_idx, int y)
 {
-    
     wxSize sz = this->GetClientSize();
     double ww = sz.x;
     
