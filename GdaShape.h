@@ -389,6 +389,7 @@ public:
 	//wxRegion region;
     int from;
     int to;
+
 };
 
 class GdaSpline: public GdaShape {

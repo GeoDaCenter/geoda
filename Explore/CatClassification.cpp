@@ -2824,6 +2824,30 @@ wxColour CatClassifData::GetCategoryBrushColor(int canvas_tm, int cat)
     return categories[canvas_tm].cat_vec[cat].brush.GetColour();
 }
 
+wxColour CatClassifData::GetCategoryColorById(int canvas_tm, int id)
+{
+    if (canvas_tm >= categories.size())
+        return *wxWHITE;
+
+    const CategoryVec& cv = categories[canvas_tm];
+    if (id >= cv.id_to_cat.size())
+        return *wxWHITE;
+    const int cat = cv.id_to_cat[id];
+    return categories[canvas_tm].cat_vec[cat].brush.GetColour();
+}
+
+wxPen CatClassifData::GetCategoryPenById(int canvas_tm, int id)
+{
+    if (canvas_tm >= categories.size())
+        return *wxWHITE;
+
+    const CategoryVec& cv = categories[canvas_tm];
+    if (id >= cv.id_to_cat.size())
+        return *wxWHITE;
+    const int cat = cv.id_to_cat[id];
+    return categories[canvas_tm].cat_vec[cat].pen;
+}
+
 wxColour CatClassifData::GetCategoryColor(int canvas_tm, int cat)
 {
 	if (cat <0 || cat >= categories[canvas_tm].cat_vec.size())

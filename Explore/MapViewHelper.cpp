@@ -323,3 +323,118 @@ void HeatMapHelper::Draw(const std::vector<GdaShape*>& selectable_shps,
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+//
+// MSTMapHelper
+//
+///////////////////////////////////////////////////////////////////////////////////////////////////////
+MSTMapHelper::MSTMapHelper()
+{
+    use_custom_pen = false;
+    outline_color = *wxBLACK;
+    outline_thickness = 1;
+}
+
+
+MSTMapHelper::~MSTMapHelper()
+{
+}
+
+void MSTMapHelper::CreateDistMatrix(const std::vector<GdaPoint*>& points)
+{
+    if (dist_matrix.empty() == false) return;
+
+    int n = points.size();
+    dist_matrix.resize(n);
+    for (int i=0; i<n; i++) {
+        dist_matrix[i].resize(n-i-1);
+        for (int j=i+1, k=0; j<n; j++, k++) {
+            // euclidean distance between i and j
+            double x1 = points[i]->GetX();
+            double y1 = points[i]->GetY();
+            double x2 = points[j]->GetX();
+            double y2 = points[j]->GetY();
+            double d = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+            dist_matrix[i][k] = sqrt(d);
+        }
+    }
+}
+
+void MSTMapHelper::Create(Project* project)
+{
+    if (project == 0) return;
+    if (mst_edges.empty() == false) return; // already has a MST
+
+    // if no MST, create a MST
+    // use centroids to create MST
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    nodes = project->GetCentroids();
+    CreateDistMatrix(nodes);
+
+    int num_obs = project->GetNumRecords();
+    Graph g(num_obs);
+    for (int i=0; i<num_obs; i++) {
+        for (int j=i+1, k=0; j<num_obs; j++, k++) {
+            boost::add_edge(i, j, dist_matrix[i][k], g);
+        }
+    }
+
+    //https://github.com/vinecopulib/vinecopulib/issues/22
+    std::vector<int> p(num_vertices(g));
+    prim_minimum_spanning_tree(g, p.data());
+
+    for (int source = 0; source < p.size(); ++source) {
+        int target = p[source];
+        if (source != target) {
+            //boost::add_edge(source, p[source], mst);
+            mst_edges.push_back(std::make_pair(source, target));
+        }
+    }
+}
+
+void MSTMapHelper::Draw(std::list<GdaShape*>& foreground_shps,
+                        CatClassifData& cat_data)
+{
+    int n_edges = mst_edges.size();
+    if (n_edges <= 0) return;
+
+    GdaPolyLine* edge;
+    wxPen pen(outline_color, outline_thickness);
+    int cc_ts = cat_data.curr_canvas_tm_step;
+
+    for (int i=0; i < n_edges; ++i) {
+        const std::pair<int, int>& s_t = mst_edges[i];
+        int source = s_t.first;
+        int target = s_t.second;
+        edge = new GdaPolyLine(nodes[source]->GetX(), nodes[source]->GetY(),
+                               nodes[target]->GetX(), nodes[target]->GetY());
+        edge->from = source;
+        edge->to = target;
+        if (!use_custom_pen && cat_data.GetNumCategories(cc_ts) >  1) {
+            pen = cat_data.GetCategoryPenById(cc_ts, source);
+            pen.SetWidth(outline_thickness);
+        }
+        edge->setPen(pen);
+        foreground_shps.push_back(edge);
+    }
+}
+
+void MSTMapHelper::ChangeColor(MapCanvas* canvas)
+{
+    // prompt user color pick dialog
+    outline_color = GeneralWxUtils::PickColor(canvas, outline_color);
+    use_custom_pen = true;
+    canvas->RedrawMap();
+}
+
+void MSTMapHelper::ChangeThickness(MapCanvas* canvas, int thickness)
+{
+    use_custom_pen = true;
+    outline_thickness = thickness;
+    canvas->RedrawMap();
+}
+
+int MSTMapHelper::GetThickness()
+{
+    return outline_thickness;
+}

@@ -84,7 +84,9 @@ public:
     // functions for heat map
     virtual void OnHeatMap(int menu_id);
 
-    //virtual void DrawHeatMap(const std::vector<double>& arr_radius);
+    // function for MST map
+    virtual void OnMSTMap(int menu_id);
+    
 	virtual void DisplayRightClickMenu(const wxPoint& pos);
 	virtual void AddTimeVariantOptionsToMenu(wxMenu* menu);
 	virtual wxString GetCanvasTitle();
@@ -229,9 +231,13 @@ public:
     wxColour conn_selected_fill_color;
     wxColour neighbor_fill_color;
 
-    // heat map: note! this could be stored in a structure
+    // heat map
     bool display_heat_map;
     HeatMapHelper heat_map;
+
+    // mst map
+    bool display_mst;
+    MSTMapHelper mst_map;
 
     // connectivity
     int conn_selected_size;

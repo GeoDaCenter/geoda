@@ -3059,7 +3059,30 @@
       </object>
       <label>Thiessen Polygons</label>
     </object>
-    <object class="wxMenuItem" name="ID_MAP_MST">
+    <object class="wxMenu" name="ID_MAP_MST">
+        <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
+            <label>Toggle Minimum Spanning Tree</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenu" name="ID_MAP_MST_COLOR">
+            <label>Change Edge Thickness</label>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_LIGHT">
+                <label>Light</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_NORM">
+                <label>Normal</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_STRONG">
+                <label>Strong</label>
+                <checkable>1</checkable>
+            </object>
+        </object>
+        <object class="wxMenuItem" name="ID_MAP_MST_COLOR">
+            <label>Change Edge Color</label>
+        </object>
         <label>Minimum Spanning Tree</label>
     </object>
     <object class="wxMenu" name="ID_MAP_HEAT">
@@ -3660,7 +3683,30 @@
           </object>
           <label>Thiessen Polygons</label>
       </object>
-      <object class="wxMenuItem" name="ID_MAP_MST">
+      <object class="wxMenu" name="ID_MAP_MST">
+          <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
+              <label>Toggle Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenu" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Thickness</label>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_LIGHT">
+                  <label>Light</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_NORM">
+                  <label>Normal</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_STRONG">
+                  <label>Strong</label>
+                  <checkable>1</checkable>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Color</label>
+          </object>
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
@@ -3835,7 +3881,30 @@
           </object>
           <label>Thiessen Polygons</label>
       </object>
-      <object class="wxMenuItem" name="ID_MAP_MST">
+      <object class="wxMenu" name="ID_MAP_MST">
+          <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
+              <label>Toggle Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenu" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Thickness</label>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_LIGHT">
+                  <label>Light</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_NORM">
+                  <label>Normal</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_STRONG">
+                  <label>Strong</label>
+                  <checkable>1</checkable>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Color</label>
+          </object>
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
@@ -4010,7 +4079,30 @@
           </object>
           <label>Thiessen Polygons</label>
       </object>
-      <object class="wxMenuItem" name="ID_MAP_MST">
+      <object class="wxMenu" name="ID_MAP_MST">
+          <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
+              <label>Toggle Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
+          <object class="wxMenu" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Thickness</label>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_LIGHT">
+                  <label>Light</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_NORM">
+                  <label>Normal</label>
+                  <checkable>1</checkable>
+              </object>
+              <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_STRONG">
+                  <label>Strong</label>
+                  <checkable>1</checkable>
+              </object>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_COLOR">
+              <label>Change Edge Color</label>
+          </object>
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
@@ -4676,7 +4768,30 @@
       </object>
       <label>Thiessen Polygons</label>
     </object>
-    <object class="wxMenuItem" name="ID_MAP_MST">
+    <object class="wxMenu" name="ID_MAP_MST">
+        <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
+            <label>Toggle Minimum Spanning Tree</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
+        <object class="wxMenu" name="ID_MAP_MST_COLOR">
+            <label>Change Edge Thickness</label>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_LIGHT">
+                <label>Light</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_NORM">
+                <label>Normal</label>
+                <checkable>1</checkable>
+            </object>
+            <object class="wxMenuItem" name="ID_MAP_MST_THICKNESS_STRONG">
+                <label>Strong</label>
+                <checkable>1</checkable>
+            </object>
+        </object>
+        <object class="wxMenuItem" name="ID_MAP_MST_COLOR">
+            <label>Change Edge Color</label>
+        </object>
         <label>Minimum Spanning Tree</label>
     </object>
     <object class="wxMenu" name="ID_MAP_HEAT">

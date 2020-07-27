@@ -23,6 +23,7 @@
 #include <vector>
 #include <list>
 #include <wx/wx.h>
+#include "../Algorithms/skater.h" // for reusing adjacency_list<>Graph
 
 class CatClassifData;
 class MapCanvas;
@@ -183,6 +184,47 @@ protected:
 
     // transparency 0-255
     int transparency;
+};
+
+// Helper class for adding Mimimum Spanning Tree for points map canvas
+class MSTMapHelper
+{
+public:
+    MSTMapHelper();
+    virtual~MSTMapHelper();
+
+    // Create a MST from points, and show it on canvas
+    void Create(Project* project);
+
+    void Draw(std::list<GdaShape*>& foreground_shps,
+              CatClassifData& cat_data);
+
+    // Prompt user to select a line color
+    void ChangeColor(MapCanvas* canvas);
+
+    // Prompt user to select a line thickness
+    void ChangeThickness(MapCanvas* canvas, int thickness);
+
+    // Return line thickness
+    int GetThickness();
+
+protected:
+    void CreateDistMatrix(const std::vector<GdaPoint*>& points);
+
+    std::vector<std::vector<double> > dist_matrix;
+    
+    std::vector<std::pair<int, int> > mst_edges;
+
+    std::vector<GdaPoint*> nodes;
+
+    // Flag to use user specified pen color
+    bool use_custom_pen;
+
+    // Pen thickness (wxBrush)
+    int outline_thickness;
+
+    // Outline colour (wxPen)
+    wxColour outline_color;
 };
 
 #endif

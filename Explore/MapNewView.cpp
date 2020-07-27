@@ -303,6 +303,28 @@ void MapCanvas::OnHeatMap(int menu_id)
     }
 }
 
+// handle menu event fro MST map
+void MapCanvas::OnMSTMap(int menu_id)
+{
+    if (menu_id == XRCID("ID_MAP_MST_TOGGLE")) {
+        display_mst = !display_mst;
+        if (display_mst) {
+            mst_map.Create(project);
+        }
+        RedrawMap();
+    } else if (display_mst) {
+        if (menu_id == XRCID("ID_MAP_MST_COLOR")) {
+            mst_map.ChangeColor(this);
+        } else if (menu_id == XRCID("ID_MAP_MST_THICKNESS_LIGHT")) {
+            mst_map.ChangeThickness(this, 0);
+        } else if (menu_id == XRCID("ID_MAP_MST_THICKNESS_NORM")) {
+            mst_map.ChangeThickness(this, 1);
+        } else if (menu_id == XRCID("ID_MAP_MST_THICKNESS_STRONG")) {
+            mst_map.ChangeThickness(this, 2);
+        } 
+    }
+}
+
 void MapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 {
     // notify other windows to update
@@ -1368,8 +1390,6 @@ void MapCanvas::DisplayRightClickMenu(const wxPoint& pos)
                                    GetCcType() != CatClassification::no_theme);
     GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_MAP_HEAT"),
                                    project->GetShapefileType() == Shapefile::POINT_TYP);
-    GeneralWxUtils::EnableMenuItem(optMenu, XRCID("ID_MAP_MST"),
-                                   project->GetShapefileType() == Shapefile::POINT_TYP);
 
 	if (template_frame) {
 		template_frame->UpdateContextMenuItems(optMenu);
@@ -1691,7 +1711,13 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                   !selectable_outline_visible);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
                                    display_map_boundary);
-    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
+                                  display_mst && mst_map.GetThickness() == 0);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_NORM"),
+                                  display_mst && mst_map.GetThickness() == 1);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_STRONG"),
+                                  display_mst && mst_map.GetThickness() == 2);
 }
 
 wxString MapCanvas::GetCanvasTitle()
@@ -2486,12 +2512,13 @@ void MapCanvas::PopulateCanvas()
                     heat_map.Draw(selectable_shps, background_shps, cat_data);
                 }
 			}
-            
+            // use centroids to draw graph
             if (display_weights_graph) {
-                // use centroids to draw graph
                 CreateConnectivityGraph();
             }
-            
+            if (display_mst) {
+                mst_map.Draw(foreground_shps, cat_data);
+            }
 		}
 	} else {
 		wxRealPoint cntr_ref_pnt = last_scale_trans.GetDataCenter();
@@ -3675,13 +3702,20 @@ void MapFrame::MapMenus()
     Connect(XRCID("ID_HEATMAP_TRANSPARENCY"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnHeatMap));
 
-    Connect(XRCID("ID_MAP_MST"), wxEVT_COMMAND_MENU_SELECTED,
+    Connect(XRCID("ID_MAP_MST_TOGGLE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+    Connect(XRCID("ID_MAP_MST_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+    Connect(XRCID("ID_MAP_MST_THICKNESS_LIGHT"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+    Connect(XRCID("ID_MAP_MST_THICKNESS_NORM"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+    Connect(XRCID("ID_MAP_MST_THICKNESS_STRONG"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnMapMST));
 }
 
 void MapFrame::OnHeatMap(wxCommandEvent& event)
 {
-    // toggle heat map
     int menu_id = event.GetId();
     ((MapCanvas*)template_canvas)->OnHeatMap(menu_id);
 
@@ -3690,6 +3724,10 @@ void MapFrame::OnHeatMap(wxCommandEvent& event)
 
 void MapFrame::OnMapMST(wxCommandEvent& event)
 {
+    int menu_id = event.GetId();
+    ((MapCanvas*)template_canvas)->OnMSTMap(menu_id);
+
+    UpdateOptionMenuItems();
 }
 
 void MapFrame::AppendCustomCategories(wxMenu* menu, CatClassifManager* ccm)
