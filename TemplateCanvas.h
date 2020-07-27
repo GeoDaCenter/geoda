@@ -244,8 +244,8 @@ public:
     /** generic function to create and initialized th*e selectable_shps vector
      based on a passed-in Project pointer and given an initial canvas
      screen size. */
-    static std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
-                                                  Project* project);
+    std::vector<int> CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps,
+                                           Project* project);
     /** Select all observations in a given category for current
      canvas time step. Assumes selectable_shps.size() == num obs */
     void SelectAllInCategory(int category, bool add_to_selection);

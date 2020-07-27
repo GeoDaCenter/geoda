@@ -442,7 +442,7 @@ void TemplateCanvas::SetMouseMode(MouseMode mode)
 	}
 }
 
-std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& selectable_shps, Project* project)
+std::vector<int> TemplateCanvas::CreateSelShpsFromProj(std::vector<GdaShape*>& selectable_shps, Project* project)
 {
 	using namespace Shapefile;
     std::vector<int> empty_shps_ids;
@@ -464,7 +464,7 @@ std::vector<int> TemplateCanvas::CreateSelShpsFromProj(vector<GdaShape*>& select
                 empty_shps_ids.push_back(i);
 				selectable_shps[i] = new GdaPoint();
             } else {
-				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x,pc->y));
+				selectable_shps[i] = new GdaPoint(wxRealPoint(pc->x, pc->y), point_radius);
 			}
 
 		}
@@ -812,6 +812,7 @@ void TemplateCanvas::OnSize(wxSizeEvent& event)
 void TemplateCanvas::SetPointRadius(double r)
 {
     //  update seletable_shps[] with new r
+    point_radius = r;
     GdaPoint* p;
     for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
         if (_IsShpValid(i)) {

@@ -780,6 +780,13 @@ GdaPoint::GdaPoint(const GdaPoint& s)
 GdaPoint::GdaPoint(wxRealPoint point_o_s)
 : radius(GdaConst::my_point_click_radius), adaptive_radius(false)
 {
+    center = wxPoint((int) point_o_s.x, (int) point_o_s.y);
+    center_o = point_o_s;
+}
+
+GdaPoint::GdaPoint(wxRealPoint point_o_s, wxDouble radius)
+: radius(radius), adaptive_radius(false)
+{
 	center = wxPoint((int) point_o_s.x, (int) point_o_s.y); 
 	center_o = point_o_s;
 }
@@ -791,8 +798,8 @@ GdaPoint::GdaPoint(double x_orig, double y_orig)
 	center_o = wxRealPoint(x_orig, y_orig);
 }
 
-GdaPoint::GdaPoint(double x_orig, double y_orig, double radius)
-: radius(GdaConst::my_point_click_radius), radius_o(radius)
+GdaPoint::GdaPoint(double x_orig, double y_orig, double radius_o)
+: radius(GdaConst::my_point_click_radius), radius_o(radius_o)
 {
     center = wxPoint((int) x_orig, (int) y_orig);
     center_o = wxRealPoint(x_orig, y_orig);

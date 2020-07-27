@@ -221,8 +221,9 @@ public:
 	GdaPoint(); // creates a null shape
 	GdaPoint(const GdaPoint& s); 
 	GdaPoint(wxRealPoint point_o_s);
+    GdaPoint(wxRealPoint point_o_s, wxDouble radius);
 	GdaPoint(double x_orig, double y_orig);
-    GdaPoint(double x_orig, double y_orig, double radius);
+    GdaPoint(double x_orig, double y_orig, double radius_o);
 	virtual ~GdaPoint() {}
     
     virtual void Offset(double dx, double dy);
