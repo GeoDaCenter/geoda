@@ -432,6 +432,7 @@ void HClusterDlg::OnClickClose(wxCommandEvent& event )
     
     event.Skip();
     EndDialog(wxID_CANCEL);
+    Destroy();
 }
 
 void HClusterDlg::OnClose(wxCloseEvent& ev)
@@ -764,7 +765,9 @@ void DendrogramPanel::NotifySelection()
         }
         parent = w->GetParent();
     }
-    init();
+    if (!clusters.empty()) {
+        init();
+    }
 }
 
 void DendrogramPanel::OnSize(  wxSizeEvent& event)

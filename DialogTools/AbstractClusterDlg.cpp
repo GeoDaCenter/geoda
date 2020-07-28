@@ -345,7 +345,7 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     m_weight_centroids->SetValue(val);
     m_wc_txt->SetValue(wxString::Format("%f", w));
 
-    vector<wxInt64> clusters;
+    std::vector<wxInt64> clusters;
     if (Run(clusters) == false) {
         m_weight_centroids->SetValue(100);
         m_wc_txt->SetValue("1.0");
@@ -358,6 +358,11 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
 
     if (GetDefaultContiguity() == false) return false;
 
+    return CheckContiguity(gal, clusters);
+}
+
+bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& clusters)
+{
     map<int, map<wxInt64, bool> > groups;
     map<int, map<wxInt64, bool> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {

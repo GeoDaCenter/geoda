@@ -22,9 +22,7 @@
 
 #include <vector>
 #include <map>
-#include <wx/choice.h>
-#include <wx/checklst.h>
-
+#include <wx/wx.h>
 
 #include "../FramesManager.h"
 #include "../VarTools.h"

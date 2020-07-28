@@ -130,6 +130,7 @@ protected:
     void OnInputWeights(wxCommandEvent& event);
 
     bool CheckContiguity(double w, double& ssd);
+    bool CheckContiguity(GalElement* gal, std::vector<wxInt64>& clusters);
     double BinarySearch(double left, double right);
     virtual void OnAutoWeightCentroids(wxCommandEvent& event);
    

@@ -37,12 +37,9 @@
 #include "SaveToTableDlg.h"
 #include "SCHCDlg.h"
 
-
-
 BEGIN_EVENT_TABLE( SCHCDlg, wxDialog )
 EVT_CLOSE( SCHCDlg::OnClose )
 END_EVENT_TABLE()
-
 
 SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
 : HClusterDlg(parent_s, project_s, false /*dont show centroids control*/),
@@ -165,7 +162,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
             node2 = node2 < rows ? node2 : rows-node2-1;
             node1 = node1 < rows ? node1 : rows-node1-1;
             
-            cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
+            //cout << i<< ":" << node2 <<", " <<  node1 << ", " << Z2[i]->dist <<endl;
             htree[i].left = node1;
             htree[i].right = node2;
 
@@ -183,7 +180,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     CutTree(rows, htree, n_cluster, clusters);
 
     // check if additional cluster/split is needed
-    if (CheckClusters(gw->gal, clusters)  == false) {
+    if (CheckContiguity(gw->gal, clusters)  == false) {
         n_cluster += 1;
         CutTree(rows, htree, n_cluster, clusters);
     }
@@ -210,34 +207,4 @@ void SCHCDlg::CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt
         clusters.push_back(clusterid[i]+1);
     }
     delete[] clusterid;
-}
-
-bool SCHCDlg::CheckClusters(GalElement* w, std::vector<wxInt64>& clusters)
-{
-    std::vector<std::vector<int> > cluster_ids(n_cluster);
-    for (int i=0; i < clusters.size(); i++) {
-        cluster_ids[ clusters[i] - 1 ].push_back(i);
-    }
-
-    for (int i=0; i<cluster_ids.size(); ++i) {
-        std::vector<int>& clst = cluster_ids[i];
-        if (clst.size() == 1) {
-            continue;
-        }
-        bool not_connect = true;
-        for (int j=0; j<clst.size() && not_connect; ++j) {
-            for (int k=j+1; k<clst.size(); ++k) {
-                if (j != k) {
-                    if (w[ clst[j] ].Check( clst[k] )) {
-                        not_connect = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if (not_connect) {
-            return false;
-        }
-    }
-    return true;
 }

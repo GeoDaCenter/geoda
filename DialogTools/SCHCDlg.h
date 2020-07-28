@@ -44,8 +44,6 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
 
-    bool CheckClusters(GalElement* w, std::vector<wxInt64>& clusters);
-
     void CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt64>& clusters);
 
     GalWeight* gw;

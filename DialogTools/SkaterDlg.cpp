@@ -189,21 +189,19 @@ void SkaterDlg::CreateControls()
     
     scrl->SetSizer(panelSizer);
 
-    
     wxBoxSizer* sizerAll = new wxBoxSizer(wxVERTICAL);
     sizerAll->Add(scrl, 1, wxEXPAND|wxALL, 0);
     SetSizer(sizerAll);
     SetAutoLayout(true);
     sizerAll->Fit(this);
 
-    
     Centre();
 
     // Content
     InitVariableCombobox(combo_var);
   
     // init weights
-    vector<boost::uuids::uuid> weights_ids;
+    std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     
