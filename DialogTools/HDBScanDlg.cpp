@@ -109,7 +109,7 @@ bool HDBScanDlg::Init()
     if (table_int == NULL)
         return false;
     
-    num_obs = project->GetNumRecords();
+    rows = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -189,16 +189,6 @@ void HDBScanDlg::CreateControls()
     
     // Output
     wxFlexGridSizer* gbox1 = new wxFlexGridSizer(5,2,5,0);
-
-    /*
-    wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"),
-                                         wxDefaultPosition, wxDefaultSize);
-    max_n_clusters = num_obs < 60 ? num_obs : 60;
-    m_cluster = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
-    
-    gbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox1->Add(m_cluster, 1, wxEXPAND);
-     */
     
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
     wxTextCtrl  *box3 = new wxTextCtrl(panel, wxID_ANY, "CL", wxDefaultPosition, wxSize(120,-1));

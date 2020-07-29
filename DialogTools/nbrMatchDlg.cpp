@@ -452,7 +452,7 @@ void NbrMatchDlg::OnOK(wxCommandEvent& event )
     wxString ttl = wxString::Format(tmp, k, var_name);
     
     std::vector<std::vector<int> > groups(k);
-    for (int i=0; i<num_obs; ++i) {
+    for (int i=0; i<rows; ++i) {
         groups[val_cnbrs[i]].push_back(i);
     }
     LocalMatchMapFrame* nf = new LocalMatchMapFrame(parent, project,

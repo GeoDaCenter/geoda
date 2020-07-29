@@ -25,7 +25,6 @@
 #include <wx/choice.h>
 #include <wx/checklst.h>
 
-
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "AbstractClusterDlg.h"
@@ -59,7 +58,6 @@ public:
     
 protected:
     wxChoice* combo_method;
-    wxChoice* combo_weights;
 
     wxTextCtrl* m_max_region;
     
@@ -77,7 +75,6 @@ protected:
     wxCheckBox* chk_save_mst;
     
     SpanningTreeClustering::AbstractClusterFactory* redcap;
-    GeoDaWeight* weights;
     
     DECLARE_EVENT_TABLE()
 };

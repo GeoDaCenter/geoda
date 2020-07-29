@@ -286,7 +286,6 @@ protected:
     
     wxButton *saveButton;
     wxChoice* combo_cov;
-    wxChoice* combo_weights;
     wxTextCtrl* m_textbox;
     wxChoice* m_method;
     wxChoice* m_distance;

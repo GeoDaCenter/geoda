@@ -42,8 +42,7 @@ EVT_CLOSE( SCHCDlg::OnClose )
 END_EVENT_TABLE()
 
 SCHCDlg::SCHCDlg(wxFrame* parent_s, Project* project_s)
-: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/),
-gw(NULL)
+: HClusterDlg(parent_s, project_s, false /*dont show centroids control*/)
 {
     wxLogMessage("Open SCHCDlg.");
     SetTitle(_("Spatial Constrained Hierarchical Clustering Settings"));
@@ -51,10 +50,6 @@ gw(NULL)
     // disable number of cluster control
     combo_n->Disable();
     
-    // show SCHC controls
-    m_sctxt->Show();
-    combo_weights->Show();
-
     // bind new event
     saveButton->Bind(wxEVT_BUTTON, &SCHCDlg::OnSave, this);
 }
@@ -84,22 +79,9 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     // get input: weights (auto)
     weight = GetWeights(columns);
 
-    // get spatial weights
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) {
-        sel = weights_ids.size() - 1;
-    }
-    boost::uuids::uuid w_id = weights_ids[sel];
-    gw = w_man_int->GetGal(w_id);
-
+    // Check weights
+    GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
-        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
         return false;
     }
     // Check connectivity
@@ -188,7 +170,7 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
     cutoff_n_cluster = n_cluster;
 
     combo_n->Clear();
-    int max_n_clusters = num_obs < 100 ? num_obs : 100;
+    int max_n_clusters = rows < 100 ? rows : 100;
     for (int i=n_cluster; i<max_n_clusters+1; i++) {
         combo_n->Append(wxString::Format("%d", i));
     }

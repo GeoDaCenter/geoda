@@ -107,7 +107,7 @@ bool DBScanDlg::Init()
     if (table_int == NULL)
         return false;
     
-    num_obs = project->GetNumRecords();
+    rows = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -367,7 +367,7 @@ bool DBScanDlg::CheckAllInputs()
     if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
         m_min_samples = (int)l_min_samples;
     }
-    if (m_min_samples < 1 || m_min_samples > num_obs) {
+    if (m_min_samples < 1 || m_min_samples > rows) {
         wxString err_msg = _("Min points (self included) should be greater than 1 and less than N.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();

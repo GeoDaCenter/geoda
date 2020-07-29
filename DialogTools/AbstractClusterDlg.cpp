@@ -28,26 +28,17 @@
 
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
-#include <wx/msgdlg.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/statbox.h>
-#include <wx/textctrl.h>
-#include <wx/radiobut.h>
-#include <wx/button.h>
-#include <wx/combobox.h>
-#include <wx/panel.h>
-#include <wx/checkbox.h>
-#include <wx/choice.h>
 
+#include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/VoronoiUtils.h"
+#include "../ShapeOperations/WeightsManState.h"
 #include "../ShapeOperations/PolysToContigWeights.h"
 #include "../Algorithms/texttable.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../GdaConst.h"
-
+#include "../GeoDa.h"
 #include "SaveToTableDlg.h"
 #include "AbstractClusterDlg.h"
 
@@ -56,6 +47,7 @@ AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
                                        wxString title)
   : frames_manager(project_s->GetFramesManager()),
     table_state(project_s->GetTableState()),
+    w_man_state(project_s->GetWManState()),
     wxDialog(NULL, wxID_ANY, title, wxDefaultPosition, wxDefaultSize,
              wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
     validator(wxFILTER_INCLUDE_CHAR_LIST),
@@ -63,12 +55,12 @@ AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
     m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL),
     combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),
     slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL),
-    return_additional_summary(false)
+    return_additional_summary(false), m_spatial_weights(NULL)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
     wxArrayString list;
-    wxString valid_chars(".0123456789");
+    wxString valid_chars(".,0123456789");
     size_t len = valid_chars.Length();
     for (size_t i=0; i<len; i++)
         list.Add(wxString(valid_chars.GetChar(i)));
@@ -90,6 +82,7 @@ AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
     }
     frames_manager->registerObserver(this);
     table_state->registerObserver(this);
+    w_man_state->registerObserver(this);
 }
 
 AbstractClusterDlg::~AbstractClusterDlg()
@@ -97,6 +90,7 @@ AbstractClusterDlg::~AbstractClusterDlg()
     CleanData();
     frames_manager->removeObserver(this);
     table_state->removeObserver(this);
+    w_man_state->removeObserver(this);
 }
 
 void AbstractClusterDlg::CleanData()
@@ -126,7 +120,7 @@ bool AbstractClusterDlg::Init()
     if (table_int == NULL)
         return false;
     
-    num_obs = project->GetNumRecords();
+    rows = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -141,34 +135,17 @@ void AbstractClusterDlg::update(TableState* o)
     InitVariableCombobox(combo_var);
 }
 
-bool AbstractClusterDlg::GetDefaultContiguity()
+void AbstractClusterDlg::update(WeightsManState* o)
 {
-    if (gal== NULL) {
-        bool is_queen = true;
-
-        if (project->IsPointTypeData()) {
-            std::vector<std::set<int> > nbr_map;
-            project->GetVoronoiQueenNeighborMap(nbr_map);
-            gal = Gda::VoronoiUtils::NeighborMapToGal(nbr_map);
-        } else {
-            // assume polygons (no lines)
-            gal = PolysToContigWeights(project->main_data, is_queen);
-        }
-
-        if (gal) {
-            if (CheckConnectivity(gal) == false) {
-                wxString msg = _("The connectivity of the map is incomplete.");
-                wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
-                dlg.ShowModal();
-            }
-        }
+    // Need to refresh weights list
+    if (m_spatial_weights) {
+        InitSpatialWeights(m_spatial_weights);
     }
-    return gal != NULL;
 }
 
 bool AbstractClusterDlg::CheckConnectivity(GalWeight* gw)
 {
-    if (num_obs == 0 || gw == NULL) return false;
+    if (rows == 0 || gw == NULL) return false;
     
     GalElement* W = gw->gal;
     if (W == NULL) return false;
@@ -205,9 +182,9 @@ bool AbstractClusterDlg::CheckConnectivity(GalElement* W)
         }
     }
    
-    if (access_dict.size() < num_obs) {
+    if (access_dict.size() < rows) {
         // check every one that is not connected via BFS,
-        for (int i=0; i<num_obs; i++) {
+        for (int i=0; i<rows; i++) {
             if (access_dict.find(i) == access_dict.end()) {
                 bool rev_conn = false;
                 // then manually check if this one is connected
@@ -229,7 +206,7 @@ bool AbstractClusterDlg::CheckConnectivity(GalElement* W)
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                             bool integer_only)
+                                             bool integer_only, bool show_spatial_weights)
 {
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
     
@@ -242,12 +219,34 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                                    _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    
+
+    // add spatial weights selection control
+    wxBitmap w_bitmap(wxXmlResource::Get()->LoadBitmap("SpatialWeights_Bmp"));
+    weights_btn = new wxBitmapButton(panel, wxID_ANY, w_bitmap, wxDefaultPosition,
+                                     w_bitmap.GetSize(), wxTRANSPARENT_WINDOW | wxBORDER_NONE);
+    st_spatial_w = new wxStaticText(panel, wxID_ANY, _("Select Spatial Weights:"));
+    m_spatial_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1));
+    wxBoxSizer *hbox_spatial_w = new wxBoxSizer(wxHORIZONTAL);
+    hbox_spatial_w->Add(st_spatial_w, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    hbox_spatial_w->Add(m_spatial_weights, 0, wxALIGN_CENTER_VERTICAL| wxRIGHT, 10);
+    hbox_spatial_w->Add(weights_btn,  0, wxALIGN_CENTER_VERTICAL);
+    // init the spatial weights control
+    InitSpatialWeights(m_spatial_weights);
+    hbox0->Add(hbox_spatial_w, 0, wxLEFT | wxRIGHT | wxTOP, 10);
+
+    if (!show_spatial_weights) {
+        st_spatial_w->Hide();
+        m_spatial_weights->Hide();
+        weights_btn->Hide();
+    } else {
+        weights_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnSpatialWeights, this);
+    }
+
     vbox->Add(hbox0, 1,  wxEXPAND | wxTOP | wxLEFT, 10);
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                       bool show_auto_button)
+                                       bool show_auto_button, bool show_spatial_weights)
 {
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
     
@@ -256,12 +255,10 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var);
     
-    m_use_centroids = new wxCheckBox(panel, wxID_ANY,
-                                     _("Use geometric centroids"));
+    m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
     auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));
-    auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids,
-                   this);
-    if (!show_auto_button) auto_btn->Hide();
+    auto_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnAutoWeightCentroids, this);
+
     wxBoxSizer *hbox_c = new wxBoxSizer(wxHORIZONTAL);
     hbox_c->Add(m_use_centroids, 0);
     hbox_c->Add(auto_btn, 0);
@@ -282,14 +279,45 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
     hbox_w->Add(m_weight_centroids, 0, wxEXPAND);
     hbox_w->Add(st_w1, 0, wxALIGN_CENTER_VERTICAL);
     hbox_w->Add(m_wc_txt, 0, wxALIGN_TOP|wxLEFT, 5);
-    
-    
-    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel,
-                                                   _("Input:"));
+
+    // add spatial weights selection control
+    wxBitmap w_bitmap(wxXmlResource::Get()->LoadBitmap("SpatialWeights_Bmp"));
+    weights_btn = new wxBitmapButton(panel, wxID_ANY, w_bitmap, wxDefaultPosition,
+                                     w_bitmap.GetSize(), wxTRANSPARENT_WINDOW | wxBORDER_NONE);
+    st_spatial_w = new wxStaticText(panel, wxID_ANY, _("Select Spatial Weights:"));
+    m_spatial_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1));
+    wxBoxSizer *hbox_spatial_w = new wxBoxSizer(wxHORIZONTAL);
+    hbox_spatial_w->Add(st_spatial_w, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    hbox_spatial_w->Add(m_spatial_weights, 0, wxALIGN_CENTER_VERTICAL| wxRIGHT, 10);
+    hbox_spatial_w->Add(weights_btn,  0, wxALIGN_CENTER_VERTICAL);
+    // init the spatial weights control
+    InitSpatialWeights(m_spatial_weights);
+
+    if (!show_auto_button)  {
+        m_use_centroids->Hide();
+        auto_btn->Hide();
+        st_wc->Hide();
+        st_w0->Hide();
+        st_w1->Hide();
+        m_weight_centroids->Hide();
+        m_wc_txt->Hide();
+    } else {
+        st_spatial_w->Disable();
+        m_spatial_weights->Disable();
+        weights_btn->Disable();
+    }
+    if (!show_spatial_weights) {
+        st_spatial_w->Hide();
+        m_spatial_weights->Hide();
+        weights_btn->Hide();
+    }
+
+    wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel, _("Input:"));
     hbox0->Add(st, 0, wxALIGN_CENTER | wxLEFT | wxRIGHT, 10);
     hbox0->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     hbox0->Add(hbox_c, 0, wxLEFT | wxRIGHT, 10);
     hbox0->Add(hbox_w, 0, wxLEFT | wxRIGHT, 10);
+    hbox0->Add(hbox_spatial_w, 0, wxLEFT | wxRIGHT | wxTOP, 10);
     
     vbox->Add(hbox0, 1,  wxEXPAND | wxALL, 10);
     
@@ -299,11 +327,36 @@ void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
     m_weight_centroids->Disable();
     m_wc_txt->Disable();
     auto_btn->Disable();
-    m_use_centroids->Bind(wxEVT_CHECKBOX,
-                          &AbstractClusterDlg::OnUseCentroids, this);
-	m_weight_centroids->Bind(wxEVT_SLIDER,
-                             &AbstractClusterDlg::OnSlideWeight, this);
+    m_use_centroids->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnUseCentroids, this);
+	m_weight_centroids->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideWeight, this);
     m_wc_txt->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnInputWeights, this);
+    weights_btn->Bind(wxEVT_BUTTON, &AbstractClusterDlg::OnSpatialWeights, this);
+}
+
+void AbstractClusterDlg::InitSpatialWeights(wxChoice* combo_weights)
+{
+    // init spatial weights
+    combo_weights->Clear();
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    w_man_int->GetIds(weights_ids);
+
+    size_t sel_pos=0;
+    for (size_t i=0; i<weights_ids.size(); ++i) {
+        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
+        if (w_man_int->GetDefault() == weights_ids[i]) {
+            sel_pos = i;
+        }
+    }
+    if (weights_ids.size() > 0) {
+        combo_weights->SetSelection(sel_pos);
+    }
+}
+
+void AbstractClusterDlg::OnSpatialWeights(wxCommandEvent& ev)
+{
+    // user click weights manager button
+    GdaFrame::GetGdaFrame()->OnToolsWeightsManager(ev);
 }
 
 void AbstractClusterDlg::OnInputWeights(wxCommandEvent& ev)
@@ -324,22 +377,39 @@ void AbstractClusterDlg::OnSlideWeight(wxCommandEvent& ev)
 
 void AbstractClusterDlg::OnUseCentroids(wxCommandEvent& event)
 {
-    if (m_use_centroids->IsChecked()) {
-        m_weight_centroids->Enable();
-        m_weight_centroids->SetValue(100);
-        m_wc_txt->SetValue("1.00");
-        m_wc_txt->Enable();
-        auto_btn->Enable();
-    } else {
-        m_weight_centroids->SetValue(0);
-        m_weight_centroids->Disable();
-        m_wc_txt->SetValue("0.00");
-        m_wc_txt->Disable();
-        auto_btn->Disable();
-    }
+    bool use_cent = m_use_centroids->IsChecked();
+    m_weight_centroids->Enable(use_cent);
+    m_weight_centroids->SetValue(use_cent ? 100 : 0);
+    m_wc_txt->SetValue(use_cent? "1.00" : "0.00");
+    m_wc_txt->Enable(use_cent);
+    auto_btn->Enable(use_cent);
+    st_spatial_w->Enable(use_cent);
+    m_spatial_weights->Enable(use_cent);
+    weights_btn->Enable(use_cent);
 }
 
-bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
+GalWeight* AbstractClusterDlg::GetInputSpatialWeights()
+{
+    GalWeight* gal = 0;
+    if (m_spatial_weights) {
+        int sel = m_spatial_weights->GetSelection();
+        if (sel >= 0) {
+            std::vector<boost::uuids::uuid> weights_ids;
+            WeightsManInterface* w_man_int = project->GetWManInt();
+            w_man_int->GetIds(weights_ids);
+
+            if (sel >= weights_ids.size()) {
+                sel = weights_ids.size() - 1;
+            }
+
+            boost::uuids::uuid w_id = weights_ids[sel];
+            gal = w_man_int->GetGal(w_id);
+        }
+    }
+    return gal;
+}
+
+bool AbstractClusterDlg::CheckContiguity(GalWeight* weights, double w, double& ssd)
 {
     int val = w * 100;
     m_weight_centroids->SetValue(val);
@@ -356,15 +426,13 @@ bool AbstractClusterDlg::CheckContiguity(double w, double& ssd)
     bool print_result = false;
     ssd = CreateSummary(clusters, print_result, return_additional_summary);
 
-    if (GetDefaultContiguity() == false) return false;
-
-    return CheckContiguity(gal, clusters);
+    return CheckContiguity(weights->gal, clusters);
 }
 
 bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& clusters)
 {
-    map<int, map<wxInt64, bool> > groups;
-    map<int, map<wxInt64, bool> >::iterator it;
+    std::map<int, std::map<wxInt64, bool> > groups;
+    std::map<int, std::map<wxInt64, bool> >::iterator it;
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
         if (c == 0) continue; // 0 means not clustered
@@ -375,7 +443,7 @@ bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& 
         // check each group if contiguity
         // start from 1st object, do BFS and add all objects has c=it->first
         int cid = it->first;
-        map<wxInt64, bool>& g = it->second;
+        std::map<wxInt64, bool>& g = it->second;
         int fid = g.begin()->first;
 
         std::stack<int> processed_ids;
@@ -385,7 +453,7 @@ bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& 
             fid = processed_ids.top();
             processed_ids.pop();
             g[fid] = true; // mark fid from current group as processed
-            const vector<long>& nbrs = gal[fid].GetNbrs();
+            const std::vector<long>& nbrs = gal[fid].GetNbrs();
             for (int i=0; i<nbrs.size(); i++ ) {
                 int nid = nbrs[i];
                 if (g.find(nid) != g.end() && g[nid] == false) {
@@ -394,7 +462,7 @@ bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& 
                 }
             }
         }
-        map<wxInt64, bool>::iterator item_it;
+        std::map<wxInt64, bool>::iterator item_it;
         for (item_it = g.begin(); item_it != g.end(); ++item_it) {
             if (item_it->second == false) {
                 return false;
@@ -405,7 +473,7 @@ bool AbstractClusterDlg::CheckContiguity(GalElement* gal, std::vector<wxInt64>& 
     return true;
 }
 
-double AbstractClusterDlg::BinarySearch(double left, double right)
+double AbstractClusterDlg::BinarySearch(GalWeight* weights, double left, double right)
 {
     double w = 1.0; // init value of w (weighting value)
     std::stack<std::pair<double, double> > ranges;
@@ -428,7 +496,7 @@ double AbstractClusterDlg::BinarySearch(double left, double right)
         if ( delta > GdaConst::gda_autoweight_stop ) {
             double m_ssd = 0;
             // assume left is always not contiguity and right is always contiguity
-            bool m_conti = CheckContiguity(mid, m_ssd);
+            bool m_conti = CheckContiguity(weights, mid, m_ssd);
             if (m_conti) {
                 if (mid < w) {
                     w = mid;
@@ -451,13 +519,23 @@ bool AbstractClusterDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         ncluster = (int)value_ncluster;
     }
-    if (ncluster < 2 || ncluster > num_obs) {
+    if (ncluster < 2 || ncluster > rows) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
     }
     return true;
+}
+
+GalWeight* AbstractClusterDlg::CheckSpatialWeights()
+{
+    GalWeight* weights = GetInputSpatialWeights();
+    if (weights == NULL) {
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+    }
+    return weights;
 }
 
 void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
@@ -468,10 +546,13 @@ void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
     
     if (CheckAllInputs() == false) return;
 
+    GalWeight* weights = CheckSpatialWeights();
+    if (weights == NULL) return;
+
     // apply custom algorithm to find optimal weighting value between 0 and 1
     // when w = 1 (fully geometry based)
     // when w = 0 (fully attributes based)
-    double w = BinarySearch(0.0, 1.0);
+    double w = BinarySearch(weights, 0.0, 1.0);
     int val = w * 100;
     m_weight_centroids->SetValue(val);
     m_wc_txt->SetValue(wxString::Format("%f", w));
@@ -496,7 +577,7 @@ void AbstractClusterDlg::AddNumberOfClusterCtrl(wxPanel *panel,
     wxStaticText* st1 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
     combo_n = new wxComboBox(panel, wxID_ANY, wxEmptyString, wxDefaultPosition,
                              wxSize(200,-1), 0, NULL);
-    max_n_clusters = num_obs < 100 ? num_obs : 100;
+    max_n_clusters = rows < 100 ? rows : 100;
     if (allow_dropdown) {
         for (int i=2; i<max_n_clusters+1; i++) {
             combo_n->Append(wxString::Format("%d", i));
@@ -593,7 +674,7 @@ void AbstractClusterDlg::OnSelMinBound(wxCommandEvent& event)
         slider_floor->Enable();
         txt_floor_pct->Enable();
         
-        vector<double> floor_variable(rows, 1);
+        std::vector<double> floor_variable(rows, 1);
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         int col = table_int->FindColId(nm);
         if (col == wxNOT_FOUND) {
@@ -897,7 +978,7 @@ double* AbstractClusterDlg::GetBoundVals()
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         int col = table_int->FindColId(nm);
         if (col != wxNOT_FOUND) {
-            vector<double> floor_variable(rows, 1);
+            std::vector<double> floor_variable(rows, 1);
             int tm = name_to_tm_id[combo_floor->GetString(idx)];
             table_int->GetColData(col, tm, floor_variable);
             for (int i=0; i<rows; i++) {
@@ -924,12 +1005,12 @@ wxNotebook* AbstractClusterDlg::AddSimpleReportCtrls(wxPanel *panel)
 //
 ////////////////////////////////////////////////////////////////
 
-double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
+double AbstractClusterDlg::CreateSummary(const std::vector<wxInt64>& clusters,
                                          bool show_print,
                                          bool return_additional_summary)
 {
-    vector<vector<int> > solution;
-    vector<int> isolated;
+    std::vector<std::vector<int> > solution;
+    std::vector<int> isolated;
     for (int i=0; i<clusters.size(); i++) {
         int c = (int)clusters[i];
         if (c > solution.size()) solution.resize(c);
@@ -942,13 +1023,13 @@ double AbstractClusterDlg::CreateSummary(const vector<wxInt64>& clusters,
     return CreateSummary(solution, isolated, show_print, return_additional_summary);
 }
 
-double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
-                                         const vector<int>& isolated,
+double AbstractClusterDlg::CreateSummary(const std::vector<std::vector<int> >& solution,
+                                         const std::vector<int>& isolated,
                                          bool show_print,
                                          bool return_additional_summary)
 {
     // get noise data (not clustered)
-    std::vector<bool> noises(num_obs, true);
+    std::vector<bool> noises(rows, true);
     for (int i=0; i<solution.size(); ++i) {
         for (int j=0; j<solution[i].size(); ++j) {
             noises[solution[i][j]] = false;
@@ -956,11 +1037,11 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     }
     // compute Sum of Squared Differences (from means)
     // mean centers
-    vector<vector<double> > mean_centers = _getMeanCenters(solution);
+    std::vector<std::vector<double> > mean_centers = _getMeanCenters(solution);
     // totss
     double totss = _getTotalSumOfSquares(noises);
     // withinss
-    vector<double> withinss = _getWithinSumOfSquares(solution);
+    std::vector<double> withinss = _getWithinSumOfSquares(solution);
     // tot.withiness
     double totwithiness = GenUtils::Sum(withinss);
     // betweenss
@@ -1020,10 +1101,10 @@ double AbstractClusterDlg::CreateSummary(const vector<vector<int> >& solution,
     return ratio;
 }
 
-vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<int> >& solutions)
+std::vector<std::vector<double> > AbstractClusterDlg::_getMeanCenters(const std::vector<std::vector<int> >& solutions)
 {
     int n_clusters = (int)solutions.size();
-    vector<vector<double> > result(n_clusters);
+    std::vector<std::vector<double> > result(n_clusters);
     
     if (columns <= 0 || rows <= 0) return result;
 
@@ -1034,7 +1115,7 @@ vector<vector<double> > AbstractClusterDlg::_getMeanCenters(const vector<vector<
     }
 
     for (int i=0; i<solutions.size(); i++ ) {
-        vector<double> means;
+        std::vector<double> means;
         int end = columns;
         if (IsUseCentroids()) {
             end = columns - 2;
@@ -1069,7 +1150,7 @@ double AbstractClusterDlg::_getTotalSumOfSquares(const std::vector<bool>& noises
     for (int i=0; i<columns; i++) {
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
             continue;
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<rows; j++) {
             if (mask[j][i] == 1 && noises[j] == false) {
                 vals.push_back(input_data[j][i]);
@@ -1081,12 +1162,12 @@ double AbstractClusterDlg::_getTotalSumOfSquares(const std::vector<bool>& noises
     return ssq;
 }
 
-vector<double> AbstractClusterDlg::_getWithinSumOfSquares(const vector<vector<int> >& solution)
+std::vector<double> AbstractClusterDlg::_getWithinSumOfSquares(const std::vector<std::vector<int> >& solution)
 {
     // solution is a list of lists of region ids [[1,7,2],[0,4,3],...] such
     // that the first solution has areas 1,7,2 the second solution 0,4,3 and so
     // on. cluster_ids does not have to be exhaustive
-    vector<double> wss;
+    std::vector<double> wss;
     for (int i=0; i<solution.size(); i++ ) {
         double ss = _calcSumOfSquares(solution[i]);
         wss.push_back(ss);
@@ -1095,7 +1176,7 @@ vector<double> AbstractClusterDlg::_getWithinSumOfSquares(const vector<vector<in
 }
 
 
-double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
+double AbstractClusterDlg::_calcSumOfSquares(const std::vector<int>& cluster_ids)
 {
     if (cluster_ids.empty() || input_data==NULL || mask == NULL)
         return 0;
@@ -1106,7 +1187,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
         if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
         }
-        vector<double> vals;
+        std::vector<double> vals;
         for (int j=0; j<cluster_ids.size(); j++) {
             int r = cluster_ids[j];
             if (mask[r][i] == 1)
@@ -1120,7 +1201,7 @@ double AbstractClusterDlg::_calcSumOfSquares(const vector<int>& cluster_ids)
 }
 
 
-wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& mean_centers)
+wxString AbstractClusterDlg::_printMeanCenters(const std::vector<std::vector<double> >& mean_centers)
 {
     wxString txt;
     txt << _("Cluster centers:") << mean_center_type << "\n";
@@ -1147,7 +1228,7 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
         ss << "C" << i+1;
         t.add(ss.str());
         
-        const vector<double>& vals = mean_centers[i];
+        const std::vector<double>& vals = mean_centers[i];
         for (int j=0; j<vals.size(); j++) {
             if (col_names[j] == "CENTX" || col_names[j] == "CENTY")
                 continue;
@@ -1165,7 +1246,7 @@ wxString AbstractClusterDlg::_printMeanCenters(const vector<vector<double> >& me
     return txt;
 }
 
-wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
+wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss,
                                             const wxString& title, const wxString& header)
 {
     wxString summary;
@@ -1208,8 +1289,8 @@ wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
     return summary;
 }
 
-wxString AbstractClusterDlg::_printWithinSS(const vector<double>& within_ss,
-                                     const vector<double>& avgs,
+wxString AbstractClusterDlg::_printWithinSS(const std::vector<double>& within_ss,
+                                     const std::vector<double>& avgs,
                                      const wxString& title,
                                      const wxString& header1,
                                      const wxString& header2)

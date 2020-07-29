@@ -1927,15 +1927,6 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
     
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
@@ -1956,15 +1947,6 @@ void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
     if (!p) return;
-    
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
     
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
@@ -1987,15 +1969,6 @@ void GdaFrame::OnToolsDataSCHC(wxCommandEvent& WXUNUSED(event) )
     Project* p = GetProject();
     if (!p) return;
 
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
@@ -2016,16 +1989,7 @@ void GdaFrame::OnToolsDataRedcap(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
     if (!p) return;
-    
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = p->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    if (weights_ids.size()==0) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    
+
     FramesManager* fm = p->GetFramesManager();
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;

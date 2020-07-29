@@ -123,7 +123,7 @@ bool HClusterDlg::Init()
     if (table_int == NULL)
         return false;
     
-    num_obs = project->GetNumRecords();
+    rows = project->GetNumRecords();
     table_int->GetTimeStrings(tm_strs);
     
     return true;
@@ -141,20 +141,12 @@ void HClusterDlg::CreateControls()
     if (show_centroids) {
         AddInputCtrls(panel, vbox, true);
     } else {
-        AddSimpleInputCtrls(panel, vbox);
+        // for SCHC, show spatial weights control
+        AddSimpleInputCtrls(panel, vbox, false, true);
     }
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(7,2,5,0);
-
-    // spatial constraint controls (for SCHCDlg class only, not used here)
-    m_sctxt = new wxStaticText(panel, wxID_ANY, _("Spatial Weights:"));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(m_sctxt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
-
-    m_sctxt->Hide();
-    combo_weights->Hide();
     
     // NumberOfCluster Control
     AddNumberOfClusterCtrl(panel, gbox);
@@ -239,22 +231,8 @@ void HClusterDlg::CreateControls()
     m_distance = box13;
     m_distance->SetSelection(0);
     m_distance->Enable(false);
-    
-    // init weights
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-        sel_pos = i;
-    }
-    if (weights_ids.size() > 0) {
-        combo_weights->SetSelection((int)sel_pos);
-    }
     combo_n->SetSelection(0);
+    
     // Events
     okButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HClusterDlg::OnSave, this);
@@ -466,7 +444,7 @@ bool HClusterDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();

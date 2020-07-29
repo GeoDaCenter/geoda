@@ -46,8 +46,6 @@ protected:
 
     void CutTree(int rows, GdaNode* htree, int n_cluster, std::vector<wxInt64>& clusters);
 
-    GalWeight* gw;
-
     int cutoff_n_cluster;
 
     DECLARE_EVENT_TABLE()

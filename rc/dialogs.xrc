@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resource>
+  <object class="wxBitmap" name="SpatialWeights_Bmp">ToolBarBitmaps_3.png</object>
   <object class="wxPanel" name="ID_CAT_CLASSIF" subclass="CatClassifPanel">
     <object class="wxBoxSizer">
       <orient>wxHORIZONTAL</orient>

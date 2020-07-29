@@ -85,7 +85,7 @@ void SkaterDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox);
+    AddSimpleInputCtrls(panel, vbox, false, true/*show spatial weights*/);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
@@ -94,12 +94,6 @@ void SkaterDlg::CreateControls()
     m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
-    
-	// Weights Control
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,  wxSize(200,-1));
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
    
 	// Minimum Bound Control
     AddMinBound(panel, gbox);
@@ -198,20 +192,7 @@ void SkaterDlg::CreateControls()
     Centre();
 
     // Content
-    InitVariableCombobox(combo_var);
-  
-    // init weights
-    std::vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
-    }
-    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
+    //InitVariableCombobox(combo_var);
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &SkaterDlg::OnOK, this);
@@ -234,14 +215,7 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
             return;
         }
         // get info from input weights
-        vector<boost::uuids::uuid> weights_ids;
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        w_man_int->GetIds(weights_ids);
-        int sel = combo_weights->GetSelection();
-        if (sel < 0) sel = 0;
-        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-        boost::uuids::uuid w_id = weights_ids[sel];
-        GalWeight* gw = w_man_int->GetGal(w_id);
+        GalWeight* gw = GetInputSpatialWeights();
         GeoDaWeight* gdw = (GeoDaWeight*)gw;
         wxString id = gdw->GetIDName();
         int col = table_int->FindColId(id);
@@ -295,6 +269,8 @@ void SkaterDlg::OnSaveTree(wxCommandEvent& event )
         file.Close();
         
         // Load the weights file into Weights Manager
+        std::vector<boost::uuids::uuid> weights_ids;
+        WeightsManInterface* w_man_int = project->GetWManInt();
         WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id,
                                   WeightsMetaInfo::WT_tree);
     }
@@ -431,7 +407,7 @@ wxString SkaterDlg::_printConfiguration()
     
     txt << "Number of clusters:\t" << m_max_region->GetValue() << "\n";
     
-    txt << "Weights:\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << "Weights:\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
     
     if (chk_floor && chk_floor->IsChecked()) {
         int idx = combo_floor->GetSelection();
@@ -466,7 +442,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     if (!success) {
         return;
     }
-    
+
     wxString str_initial = m_max_region->GetValue();
     if (str_initial.IsEmpty()) {
         wxString err_msg = _("Please enter number of regions");
@@ -491,17 +467,8 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     dist = dist_choices[dist_sel];
     
     // Weights selection
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-    boost::uuids::uuid w_id = weights_ids[sel];
-    GalWeight* gw = w_man_int->GetGal(w_id);
+    GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
-        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
         return;
     }
     

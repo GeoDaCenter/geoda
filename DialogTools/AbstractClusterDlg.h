@@ -22,28 +22,28 @@
 
 #include <vector>
 #include <map>
-#include <wx/choice.h>
-#include <wx/checklst.h>
+#include <wx/wx.h>
 #include <wx/notebook.h>
 
 #include "../GeneralWxUtils.h"
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../DataViewer/TableStateObserver.h"
+#include "../ShapeOperations/WeightsManStateObserver.h"
 #include "../ShapeOperations/GalWeight.h"
-
-using namespace std;
 
 class Project;
 class TableInterface;
 
+// Abstract class for Cluster Dialog
 class AbstractClusterDlg : public wxDialog, public FramesManagerObserver,
-    public TableStateObserver
+    public TableStateObserver, public WeightsManStateObserver
 {
 public:
     AbstractClusterDlg(wxFrame *parent, Project* project, wxString title);
     virtual ~AbstractClusterDlg();
-   
+
+    // Clean the table data used in Cluster Dialog; Used for refresh the dialog
     void CleanData();
     
     /** Implementation of FramesManagerObserver interface */
@@ -54,26 +54,39 @@ public:
     virtual bool AllowTimelineChanges() { return true; }
     virtual bool AllowGroupModify(const wxString& grp_nm) { return true; }
     virtual bool AllowObservationAddDelete() { return false; }
-    
-    
+
+    /** Implementation of WeightsManStateObserver interface */
+    virtual void update(WeightsManState* o);
+    virtual int numMustCloseToRemove(boost::uuids::uuid id) const { return 0; }
+    virtual void closeObserver(boost::uuids::uuid id) {};
+
 protected:
     wxFrame *parent;
     Project* project;
     TableInterface* table_int;
     FramesManager* frames_manager;
     TableState* table_state;
+    WeightsManState* w_man_state;
     GalElement* gal;
     
-    vector<vector<double> > z;
-    vector<bool> undefs;
+    std::vector<std::vector<double> > z;
+    std::vector<bool> undefs;
+
+    // number of selected variables in table
     int num_vars;
-   
+
+    // number of observations
     int rows;
+
+    // number of columns
     int columns;
-    int num_obs;
-   
-    vector<wxString> col_names;
+
+    // column names
+    std::vector<wxString> col_names;
+
+    // time/group names
     std::vector<wxString> tm_strs;
+    //
     std::map<wxString, wxString> name_to_nm;
     std::map<wxString, int> name_to_tm_id;
     std::map<int, double> idx_sum;
@@ -83,14 +96,12 @@ protected:
 
     wxTextValidator validator;
     wxArrayString var_items;
-  
-    virtual bool GetDefaultContiguity();
-    
+
     virtual bool Init();
 
     virtual bool CheckAllInputs();
     
-    virtual bool Run(vector<wxInt64>& clusters) { return false;}
+    virtual bool Run(std::vector<wxInt64>& clusters) { return false;}
     
     virtual double* GetWeights(int columns);
     
@@ -116,31 +127,37 @@ protected:
     wxButton* auto_btn;
     wxSlider* m_weight_centroids;
     wxTextCtrl* m_wc_txt;
+    wxStaticText* st_spatial_w;
+    wxChoice* m_spatial_weights;
+    wxBitmapButton* weights_btn;
     // -- functions
     virtual void AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                               bool show_auto_button = false);
-    virtual void AddSimpleInputCtrls(wxPanel *panel,
-        wxBoxSizer* vbox,
-        bool integer_only = false);
-    void OnUseCentroids(wxCommandEvent& event);
-    void OnSlideWeight(wxCommandEvent& event);
+                               bool show_auto_button = false,
+                               bool show_spatial_weights = true);
+    virtual void AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
+                                     bool integer_only = false,
+                                     bool show_spatial_weights = false);
+    virtual void OnUseCentroids(wxCommandEvent& event);
+    virtual void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box,
                                       bool integer_only=false);
-    bool GetInputData(int transform, int min_num_var=2);
-    void OnInputWeights(wxCommandEvent& event);
+    virtual bool GetInputData(int transform, int min_num_var=2);
+    virtual void OnInputWeights(wxCommandEvent& event);
 
-    bool CheckContiguity(double w, double& ssd);
-    bool CheckContiguity(GalElement* gal, std::vector<wxInt64>& clusters);
-    double BinarySearch(double left, double right);
+    virtual bool CheckContiguity(GalWeight* weights, double w, double& ssd);
+    virtual bool CheckContiguity(GalElement* gal, std::vector<wxInt64>& clusters);
+    virtual double BinarySearch(GalWeight* weights, double left, double right);
     virtual void OnAutoWeightCentroids(wxCommandEvent& event);
-   
+    virtual void InitSpatialWeights(wxChoice* combo_weights);
+    virtual GalWeight* GetInputSpatialWeights();
+    virtual GalWeight* CheckSpatialWeights();
+    virtual void OnSpatialWeights(wxCommandEvent& event);
+
     // Transformation control
     // -- variables
     wxChoice* combo_tranform;
     // -- functions;
-    virtual void AddTransformation(
-        wxPanel* panel,
-        wxFlexGridSizer* gbox);
+    virtual void AddTransformation(wxPanel* panel, wxFlexGridSizer* gbox);
     
     
     // Minimum Bound related
@@ -151,15 +168,12 @@ protected:
     wxTextCtrl* txt_floor_pct;
     wxSlider* slider_floor;
 	// -- functions
-    virtual void AddMinBound(
-        wxPanel *panel,
-        wxFlexGridSizer* gbox,
-        bool show_checkbox=true);
-    virtual void  OnCheckMinBound(wxCommandEvent& event);
-    virtual void  OnSelMinBound(wxCommandEvent& event);
-    virtual void  OnTypeMinBound(wxCommandEvent& event);
-    virtual void  OnSlideMinBound(wxCommandEvent& event);
-    virtual bool  CheckMinBound();
+    virtual void AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox=true);
+    virtual void OnCheckMinBound(wxCommandEvent& event);
+    virtual void OnSelMinBound(wxCommandEvent& event);
+    virtual void OnTypeMinBound(wxCommandEvent& event);
+    virtual void OnSlideMinBound(wxCommandEvent& event);
+    virtual bool CheckMinBound();
 
     // output controls
     wxComboBox* combo_n;
@@ -180,30 +194,30 @@ protected:
 	wxNotebook* AddSimpleReportCtrls(wxPanel *panel);
     bool return_additional_summary;
 	// -- functions
-    double _getTotalSumOfSquares(const std::vector<bool>& noises);
-    double _calcSumOfSquares(const vector<int>& cluster_ids);
-    virtual vector<vector<double> > _getMeanCenters(const vector<vector<int> >& solution);
-    vector<double> _getWithinSumOfSquares(const vector<vector<int> >& solution);
-    virtual wxString _printMeanCenters(const vector<vector<double> >& mean_centers);
-    wxString _printWithinSS(const vector<double>& within_ss,
+    virtual double _getTotalSumOfSquares(const std::vector<bool>& noises);
+    virtual double _calcSumOfSquares(const std::vector<int>& cluster_ids);
+    virtual std::vector<std::vector<double> > _getMeanCenters(const std::vector<std::vector<int> >& solution);
+    virtual std::vector<double> _getWithinSumOfSquares(const std::vector<std::vector<int> >& solution);
+    virtual wxString _printMeanCenters(const std::vector<std::vector<double> >& mean_centers);
+    virtual wxString _printWithinSS(const std::vector<double>& within_ss,
                             const wxString& title = _("Within-cluster sum of squares:\n"),
                             const wxString& header = _("Within cluster S.S."));
-    wxString _printWithinSS(const vector<double>& within_ss,
-                            const vector<double>& avgs,
+    virtual wxString _printWithinSS(const std::vector<double>& within_ss,
+                            const std::vector<double>& avgs,
                             const wxString& title = _("Within-cluster sum of squares:\n"),
                             const wxString& header1 = _("Within cluster S.S."),
                             const wxString& header2 = _("Averages"));
     virtual wxString _printConfiguration()=0;
-    double CreateSummary(const vector<wxInt64>& clusters,
+    virtual double CreateSummary(const std::vector<wxInt64>& clusters,
                          bool show_print = true,
                          bool return_additional_summary = false);
-    double CreateSummary(const vector<vector<int> >& solution,
-                         const vector<int>& isolated = vector<int>(),
+    virtual double CreateSummary(const std::vector<std::vector<int> >& solution,
+                         const std::vector<int>& isolated = std::vector<int>(),
                          bool show_print = true,
                          bool return_additional_summary = false);
     
     // get addtional content for summary,e.g. medoids (within distance to median)
-    virtual wxString _additionalSummary(const vector<vector<int> >& solution,
+    virtual wxString _additionalSummary(const std::vector<std::vector<int> >& solution,
                                         double& additional_ratio) { return wxEmptyString;}
 };
 

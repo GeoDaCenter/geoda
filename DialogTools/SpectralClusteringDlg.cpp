@@ -117,7 +117,7 @@ void SpectralClusteringDlg::CreateControls()
     gbox->Add(new wxStaticText(panel, wxID_ANY,""), 1, wxEXPAND);
     
     // Spectral controls: KNN
-    int suggest_k = ceil(log10((double)num_obs));
+    int suggest_k = ceil(log10((double)rows));
     wxString str_k;
     str_k << suggest_k;
     lbl_knn = new wxStaticText(panel, wxID_ANY, _("        K-NN:"));
@@ -128,7 +128,7 @@ void SpectralClusteringDlg::CreateControls()
                              wxSize(80,-1), 0, NULL);
     m_knn->Append(wxString::Format("%d", suggest_k));
     // ln(n)
-    m_knn->Append(wxString::Format("%d", (int)(ceil(log((double)num_obs)))));
+    m_knn->Append(wxString::Format("%d", (int)(ceil(log((double)rows)))));
 
     hbox19->Add(chk_knn);
     hbox19->Add(lbl_neighbors);
@@ -145,7 +145,7 @@ void SpectralClusteringDlg::CreateControls()
                            wxSize(80,-1), 0, NULL);
     // ln(n)
     m_mknn->Append(wxString::Format("%d", suggest_k));
-    m_mknn->Append(wxString::Format("%d", (int)(ceil(log((double)num_obs)))));
+    m_mknn->Append(wxString::Format("%d", (int)(ceil(log((double)rows)))));
     hbox20->Add(chk_mknn);
     hbox20->Add(lbl_m_neighbors);
     hbox20->Add(m_mknn);
@@ -352,8 +352,8 @@ void SpectralClusteringDlg::UpdateGaussian(wxCommandEvent& event)
             // suggest_sigma = sqrt(NV/2.0);
             m_sigma->Append(wxString::Format("%f", sqrt(1/(double)selections.size())));
         }
-        m_sigma->Append(wxString::Format("%f", log10((double)num_obs)+1));
-        m_sigma->Append(wxString::Format("%f", log((double)num_obs)+1));
+        m_sigma->Append(wxString::Format("%f", log10((double)rows)+1));
+        m_sigma->Append(wxString::Format("%f", log((double)rows)+1));
         m_sigma->SetSelection(0);
     }
 }
@@ -556,7 +556,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of cluster.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -579,7 +579,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
         knn = (int)value_knn;
     }
 
-    if (chk_knn->GetValue() && (knn >= num_obs || knn < 1)) {
+    if (chk_knn->GetValue() && (knn >= rows || knn < 1)) {
         wxString err_msg = _("Please enter a valid number of KNN neighbors.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -594,7 +594,7 @@ bool SpectralClusteringDlg::CheckAllInputs()
         mutual_knn = (int)value_mknn;
     }
 
-    if (chk_mknn->GetValue() && (mutual_knn >= num_obs || mutual_knn < 1)) {
+    if (chk_mknn->GetValue() && (mutual_knn >= rows || mutual_knn < 1)) {
         wxString err_msg = _("Please enter a valid number of mutual KNN neighbors.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();

@@ -22,21 +22,9 @@
 #include <algorithm>
 #include <limits>
 
-
-#include <wx/textfile.h>
 #include <wx/wx.h>
 #include <wx/xrc/xmlres.h>
-#include <wx/msgdlg.h>
-#include <wx/sizer.h>
-#include <wx/stattext.h>
-#include <wx/statbox.h>
-#include <wx/textctrl.h>
-#include <wx/radiobut.h>
-#include <wx/button.h>
-#include <wx/combobox.h>
-#include <wx/panel.h>
-#include <wx/checkbox.h>
-#include <wx/choice.h>
+#include <wx/textfile.h>
 
 #include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/OGRDataAdapter.h"
@@ -45,9 +33,6 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
-
-
-
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -66,8 +51,7 @@ RedcapDlg::RedcapDlg(wxFrame* parent_s, Project* project_s)
     
     parent = parent_s;
     project = project_s;
-    weights = NULL;
-    
+
     bool init_success = Init();
     
     if (init_success == false) {
@@ -114,17 +98,11 @@ void RedcapDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     
     // Input
-    AddSimpleInputCtrls(panel, vbox);
+    AddSimpleInputCtrls(panel, vbox, false, true/*show spatial weights control*/);
     
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
-    
-    wxStaticText* st16 = new wxStaticText(panel, wxID_ANY, _("Weights:"));
-    combo_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition,
-                                wxSize(200,-1));
-    gbox->Add(st16, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(combo_weights, 1, wxEXPAND);
-    
+
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
@@ -230,22 +208,6 @@ void RedcapDlg::CreateControls()
     
     Centre();
 
-    // Content
-    //InitVariableCombobox(combo_var);
-    
-    // init weights
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-    
-    size_t sel_pos=0;
-    for (size_t i=0; i<weights_ids.size(); ++i) {
-        combo_weights->Append(w_man_int->GetShortDispName(weights_ids[i]));
-        if (w_man_int->GetDefault() == weights_ids[i])
-            sel_pos = i;
-    }
-    if (weights_ids.size() > 0) combo_weights->SetSelection(sel_pos);
-    
     // Events
     okButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnOK, this);
     saveButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnSaveTree, this);
@@ -366,7 +328,7 @@ void RedcapDlg::OnClose(wxCloseEvent& ev)
 wxString RedcapDlg::_printConfiguration()
 {
     wxString txt;
-    txt << _("Weights:") << "\t" << combo_weights->GetString(combo_weights->GetSelection()) << "\n";
+    txt << _("Weights:") << "\t" << m_spatial_weights->GetString(m_spatial_weights->GetSelection()) << "\n";
    
     txt << _("Method:\t") << combo_method->GetString(combo_method->GetSelection()) << "\n";
     
@@ -386,7 +348,7 @@ wxString RedcapDlg::_printConfiguration()
 
 void RedcapDlg::OnSaveTree(wxCommandEvent& event )
 {
-    if (weights && redcap) {
+    if (redcap) {
         wxString filter = "GWT|*.gwt";
         wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"),
                             wxEmptyString,
@@ -395,15 +357,9 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         if (dialog.ShowModal() != wxID_OK) {
             return;
         }
+
         // get info from input weights
-        vector<boost::uuids::uuid> weights_ids;
-        WeightsManInterface* w_man_int = project->GetWManInt();
-        w_man_int->GetIds(weights_ids);
-        int sel = combo_weights->GetSelection();
-        if (sel < 0) sel = 0;
-        if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-        boost::uuids::uuid w_id = weights_ids[sel];
-        GalWeight* gw = w_man_int->GetGal(w_id);
+        GalWeight* gw = GetInputSpatialWeights();
         GeoDaWeight* gdw = (GeoDaWeight*)gw;
         wxString id = gdw->GetIDName();
         int col = table_int->FindColId(id);
@@ -457,6 +413,7 @@ void RedcapDlg::OnSaveTree(wxCommandEvent& event )
         file.Close();
         
         // Load the weights file into Weights Manager
+        WeightsManInterface* w_man_int = project->GetWManInt();
         WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id,
                                   WeightsMetaInfo::WT_tree);
     }
@@ -504,23 +461,11 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     }
     
 	// Get Weights Selection
-    vector<boost::uuids::uuid> weights_ids;
-    WeightsManInterface* w_man_int = project->GetWManInt();
-    w_man_int->GetIds(weights_ids);
-
-    int sel = combo_weights->GetSelection();
-    if (sel < 0) sel = 0;
-    if (sel >= weights_ids.size()) sel = weights_ids.size()-1;
-    
-    boost::uuids::uuid w_id = weights_ids[sel];
-    GalWeight* gw = w_man_int->GetGal(w_id);
-
+    GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
-        wxMessageDialog dlg (this, _("Invalid Weights Information:\n\n The selected weights file is not valid.\n Please choose another weights file, or use Tools > Weights > Weights Manager\n to define a valid weights file."), _("Warning"), wxOK | wxICON_WARNING);
-        dlg.ShowModal();
         return;
     }
-    weights = w_man_int->GetGal(w_id);
+
     // Check connectivity
     if (!CheckConnectivity(gw)) {
         wxString msg = _("The connectivity of selected spatial weights is incomplete, please adjust the spatial weights.");

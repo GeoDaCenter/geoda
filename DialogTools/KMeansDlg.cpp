@@ -348,7 +348,7 @@ bool KClusterDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 2 || n_cluster > num_obs) {
+    if (n_cluster < 2 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -522,7 +522,7 @@ void KClusterDlg::OnOK(wxCommandEvent& event )
     }
     
     if (col > 0) {
-        vector<bool> clusters_undef(num_obs, false);
+        vector<bool> clusters_undef(rows, false);
         table_int->SetColData(col, time, clusters);
         table_int->SetColUndefined(col, time, clusters_undef);
     }
@@ -1053,11 +1053,11 @@ void KMedoidsDlg::OnMethodChoice(wxCommandEvent& evt)
         m_keepmed->Enable(flag);
         m_keepmed->SetValue(true);
 
-        m_numsamples->SetValue(num_obs <= 100 ? "5" : "10");
+        m_numsamples->SetValue(rows <= 100 ? "5" : "10");
         // Larger sample size, used by Schubert and Rousseeuw, 2019
         //  80 + 4. * k
-        int ns = num_obs <= 100 ? 40 + 2*k : 80 + 4*k;
-        if (ns >= num_obs) ns = num_obs;
+        int ns = rows <= 100 ? 40 + 2*k : 80 + 4*k;
+        if (ns >= rows) ns = rows;
         m_sampling->SetValue(wxString::Format("%d", ns));
     } else {
         // FastCLARANS
@@ -1097,7 +1097,7 @@ bool KMedoidsDlg::CheckAllInputs()
     if (str_ncluster.ToLong(&value_ncluster)) {
         n_cluster = (int)value_ncluster;
     }
-    if (n_cluster < 1 || n_cluster > num_obs) {
+    if (n_cluster < 1 || n_cluster > rows) {
         wxString err_msg = _("Please enter a valid number of clusters.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
@@ -1124,10 +1124,10 @@ int KMedoidsDlg::GetFirstMedoid(double** distmatrix)
 {
     int n = 0;
     double min_sum = DBL_MAX, tmp_sum=0;
-    for (size_t i=0; i<num_obs; ++i) {
+    for (size_t i=0; i<rows; ++i) {
         // sum of distance from i to everyone else
         tmp_sum = 0;
-        for (size_t j=0; j<num_obs; ++j) {
+        for (size_t j=0; j<rows; ++j) {
             if (i != j) {
                 tmp_sum += i > j ? distmatrix[i][j] : distmatrix[j][i];
             }
@@ -1183,7 +1183,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             pam_init = new LAB(&dist_matrix, seed);
         }
         if (method == 0) {
-            FastPAM pam(num_obs, &dist_matrix, pam_init, n_cluster, 0,  pam_fasttol);
+            FastPAM pam(rows, &dist_matrix, pam_init, n_cluster, 0,  pam_fasttol);
             cost = pam.run();
             clusterid = pam.getResults();
             medoid_ids = pam.getMedoids();
@@ -1194,14 +1194,14 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             double sample_rate = 0.025;
             m_sampling->GetValue().ToDouble(&sample_rate);
 
-            if (sample_rate <= 1 && sample_rate*num_obs < 3 * n_cluster) {
+            if (sample_rate <= 1 && sample_rate*rows < 3 * n_cluster) {
                 wxString err_msg = _("The sampling rate is set to a small value, please set another value to make sample size larger than 3*k.");
                 wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
                 dlg.ShowModal();
                 return false;
             }
 
-            FastCLARA clara(num_obs, &dist_matrix, pam_init, n_cluster, 0,
+            FastCLARA clara(rows, &dist_matrix, pam_init, n_cluster, 0,
                             pam_fasttol, (int)samples, sample_rate, !keepmed, seed);
             cost = clara.run();
             clusterid = clara.getResults();
@@ -1223,7 +1223,7 @@ bool KMedoidsDlg::Run(vector<wxInt64>& clusters)
             return false;
         }
         
-        FastCLARANS clarans(num_obs, &dist_matrix, n_cluster, (int)samples, sample_rate, seed);
+        FastCLARANS clarans(rows, &dist_matrix, n_cluster, (int)samples, sample_rate, seed);
         cost = clarans.run();
         clusterid = clarans.getResults();
         medoid_ids = clarans.getMedoids();
