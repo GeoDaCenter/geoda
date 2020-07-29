@@ -532,7 +532,7 @@ GalWeight* AbstractClusterDlg::CheckSpatialWeights()
 {
     GalWeight* weights = GetInputSpatialWeights();
     if (weights == NULL) {
-        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify weights in Tools > Weights Manager."), _("No Weights Found"), wxOK | wxICON_ERROR);
+        wxMessageDialog dlg (this, _("GeoDa could not find the required weights file. \nPlease specify a spatial weights."), _("No Weights Found"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
     }
     return weights;
