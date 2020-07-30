@@ -61,6 +61,7 @@ public:
     virtual void closeObserver(boost::uuids::uuid id) {};
 
 protected:
+    static bool check_spatial_ref;
     wxFrame *parent;
     Project* project;
     TableInterface* table_int;

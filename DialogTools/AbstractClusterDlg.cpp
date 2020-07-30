@@ -42,6 +42,7 @@
 #include "SaveToTableDlg.h"
 #include "AbstractClusterDlg.h"
 
+bool AbstractClusterDlg::check_spatial_ref = true;
 
 AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
                                        wxString title)
@@ -540,6 +541,14 @@ GalWeight* AbstractClusterDlg::CheckSpatialWeights()
 
 void AbstractClusterDlg::OnAutoWeightCentroids(wxCommandEvent& event)
 {
+    // check if centroids are not projected
+    if (check_spatial_ref) {
+        bool cont = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont == false) {
+            return;
+        }
+    }
+
     // start from 1.0 on the far right side
     m_weight_centroids->SetValue(100);
     m_wc_txt->SetValue("1.0");
