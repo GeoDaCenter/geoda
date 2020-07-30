@@ -628,7 +628,8 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox,
     
     chk_floor->Bind(wxEVT_CHECKBOX, &AbstractClusterDlg::OnCheckMinBound, this);
     combo_floor->Bind(wxEVT_CHOICE, &AbstractClusterDlg::OnSelMinBound, this);
-    txt_floor->Bind(wxEVT_TEXT, &AbstractClusterDlg::OnTypeMinBound, this);
+    txt_floor->Bind(wxEVT_KEY_DOWN, &AbstractClusterDlg::OnTypeMinBound, this);
+    txt_floor_pct->Bind(wxEVT_KEY_DOWN, &AbstractClusterDlg::OnTypeMinPctBound, this);
 	slider_floor->Bind(wxEVT_SLIDER, &AbstractClusterDlg::OnSlideMinBound, this);
     
     if (!show_checkbox) {
@@ -717,15 +718,67 @@ void AbstractClusterDlg::OnSelMinBound(wxCommandEvent& event)
     }
 }
 
-void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
+void AbstractClusterDlg::OnTypeMinBound(wxKeyEvent& event)
 {
-    wxString tmp_val = txt_floor->GetValue();
-    tmp_val.Trim(false);
-    tmp_val.Trim(true);
-    long input_min_k;
-    bool is_valid = tmp_val.ToLong(&input_min_k);
-    if (is_valid) {
+    if (event.GetKeyCode() == WXK_RETURN) {
+        wxString tmp_val = txt_floor->GetValue();
+        tmp_val.Trim(false);
+        tmp_val.Trim(true);
+
+        double input_val;
+        bool is_valid = tmp_val.ToDouble(&input_val);
+        if (is_valid) {
+            // adjust slider
+            // adjust percentage text ctrl
+            int idx = combo_floor->GetSelection();
+            if (idx >= 0) {
+                if (idx_sum.find(idx) != idx_sum.end()) {
+                    double slide_val = input_val / idx_sum[idx] * 100.0;
+                    if (slide_val < 0) slide_val = 0;
+                    if (slide_val > 100) slide_val = 100;
+                    slider_floor->SetValue(slide_val);
+
+                    wxString t_val = wxString::Format("%f%%", slide_val);
+                    txt_floor_pct->SetValue(t_val);
+                }
+            }
+        }
     }
+    event.Skip();
+}
+
+void AbstractClusterDlg::OnTypeMinPctBound(wxKeyEvent& event)
+{
+    if (event.GetKeyCode() == WXK_RETURN) {
+        // input could be 14% or 0.14
+        wxString tmp_val = txt_floor_pct->GetValue();
+        tmp_val.Trim(false);
+        tmp_val.Trim(true);
+
+        bool has_percentage =  tmp_val.Find('%') > 0;
+        if (has_percentage) {
+            tmp_val = tmp_val.SubString(0, tmp_val.Find('%')-1);
+        }
+        double input_val;
+        bool is_valid = tmp_val.ToDouble(&input_val);
+        if (is_valid) {
+            // adjust bound text ctrl
+            // adjust slider
+            int idx = combo_floor->GetSelection();
+            if (idx >= 0) {
+                if (idx_sum.find(idx) != idx_sum.end()) {
+                    double pct_val = has_percentage ? input_val / 100.0 : input_val;
+                    if (pct_val < 0) pct_val = 0;
+                    if (pct_val > 1) pct_val = 1;
+
+                    double bound_val = pct_val * idx_sum[idx];
+                    txt_floor->SetValue(wxString::Format("%f", bound_val));
+                    slider_floor->SetValue(pct_val * 100);
+                }
+            }
+        }
+    }
+    event.Skip();
 }
 
 bool AbstractClusterDlg::CheckMinBound()

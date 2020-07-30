@@ -160,7 +160,6 @@ protected:
     // -- functions;
     virtual void AddTransformation(wxPanel* panel, wxFlexGridSizer* gbox);
     
-    
     // Minimum Bound related
 	// -- variables
     wxCheckBox* chk_floor;
@@ -172,7 +171,8 @@ protected:
     virtual void AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox, bool show_checkbox=true);
     virtual void OnCheckMinBound(wxCommandEvent& event);
     virtual void OnSelMinBound(wxCommandEvent& event);
-    virtual void OnTypeMinBound(wxCommandEvent& event);
+    virtual void OnTypeMinBound(wxKeyEvent& event);
+    virtual void OnTypeMinPctBound(wxKeyEvent& event);
     virtual void OnSlideMinBound(wxCommandEvent& event);
     virtual bool CheckMinBound();
 
