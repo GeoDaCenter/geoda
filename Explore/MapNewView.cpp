@@ -309,7 +309,9 @@ void MapCanvas::OnMSTMap(int menu_id)
     if (menu_id == XRCID("ID_MAP_MST_TOGGLE")) {
         display_mst = !display_mst;
         if (display_mst) {
-            mst_map.Create(project);
+            if (mst_map.Create(project) == false) {
+                display_mst = false;
+            }
         }
         RedrawMap();
     } else if (display_mst) {

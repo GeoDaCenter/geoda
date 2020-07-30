@@ -184,6 +184,9 @@ protected:
 
     // transparency 0-255
     int transparency;
+
+    // check if lat/lng is used
+    static bool check_spatial_ref;
 };
 
 // Helper class for adding Mimimum Spanning Tree for points map canvas
@@ -194,7 +197,7 @@ public:
     virtual~MSTMapHelper();
 
     // Create a MST from points, and show it on canvas
-    void Create(Project* project);
+    bool Create(Project* project);
 
     void Draw(std::list<GdaShape*>& foreground_shps,
               CatClassifData& cat_data);
@@ -225,6 +228,9 @@ protected:
 
     // Outline colour (wxPen)
     wxColour outline_color;
+
+    // check if lat/lng is used
+    static bool check_spatial_ref;
 };
 
 #endif

@@ -190,6 +190,8 @@ void HeatMapBandwidthDlg::OnSliderChange( wxCommandEvent & event )
 // HeatMapHelper
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+bool HeatMapHelper::check_spatial_ref = true;
+
 HeatMapHelper::HeatMapHelper()
 {
     use_fill_color = false;
@@ -219,6 +221,12 @@ int HeatMapHelper::GetTransparency()
 
 void HeatMapHelper::SetBandwidth(MapCanvas* canvas, Project* project)
 {
+    if (check_spatial_ref) {
+        bool cont = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont == false) {
+            return;
+        }
+    }
     use_bandwidth = true;
     use_radius_variable = !use_bandwidth;
     // prompt user to select a bandwidth from a slider
@@ -328,6 +336,8 @@ void HeatMapHelper::Draw(const std::vector<GdaShape*>& selectable_shps,
 // MSTMapHelper
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
+bool MSTMapHelper::check_spatial_ref = true;
+
 MSTMapHelper::MSTMapHelper()
 {
     use_custom_pen = false;
@@ -360,10 +370,16 @@ void MSTMapHelper::CreateDistMatrix(const std::vector<GdaPoint*>& points)
     }
 }
 
-void MSTMapHelper::Create(Project* project)
+bool MSTMapHelper::Create(Project* project)
 {
-    if (project == 0) return;
-    if (mst_edges.empty() == false) return; // already has a MST
+    if (check_spatial_ref) {
+        bool cont = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont == false) {
+            return false;
+        }
+    }
+    if (project == 0) return false;
+    if (mst_edges.empty() == false) return true; // already has a MST
 
     // if no MST, create a MST
     // use centroids to create MST
@@ -390,6 +406,7 @@ void MSTMapHelper::Create(Project* project)
             mst_edges.push_back(std::make_pair(source, target));
         }
     }
+    return true;
 }
 
 void MSTMapHelper::Draw(std::list<GdaShape*>& foreground_shps,

@@ -146,6 +146,7 @@ public:
     MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
+    bool CheckSpatialProjection(bool& check_again);
     OGRLayerProxy*        GetOGRLayerProxy() {return layer_proxy;}
     /** Save in-memory Table+Geometries to OGR DataSource */
     Shapefile::ShapeType  GetGdaGeometries(vector<GdaShape*>& geometries);
@@ -163,7 +164,7 @@ public:
 	void AddMeanCenters();
 	void AddCentroids();
     void GetSelectedRows(vector<int>& rowids);
-	
+
 	/// centroids by default
 	const std::vector<GdaPoint*>& GetMeanCenters();
 	void GetMeanCenters(std::vector<double>& x, std::vector<double>& y);

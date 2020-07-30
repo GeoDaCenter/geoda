@@ -115,4 +115,20 @@ public:
 	double GetTransparency();
 };
 
+class CheckSpatialRefDialog : public wxDialog
+{
+    wxCheckBox *cb;
+
+public:
+    CheckSpatialRefDialog(wxWindow * parent, const wxString& msg,
+                          wxWindowID id=wxID_ANY,
+                          const wxString & caption="Warning",
+                          const wxPoint & pos = wxDefaultPosition,
+                          const wxSize & size = wxDefaultSize,
+                          long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~CheckSpatialRefDialog() {}
+
+    bool IsCheckAgain();
+};
+
 #endif

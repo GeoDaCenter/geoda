@@ -500,6 +500,31 @@ OGRSpatialReference* Project::GetSpatialReference()
 	return spatial_ref;
 }
 
+bool Project::CheckSpatialProjection(bool& check_again)
+{
+    // Check if latitude and longitude are used in spatial reference
+    bool cont = false;
+    if (sourceSR == NULL) {
+        wxString msg = _("Warning: unknown projection information, distance may be incorrect.\n\nProceed anyway?");
+        CheckSpatialRefDialog dlg(NULL, msg);
+        check_again = dlg.IsCheckAgain();
+        if (dlg.ShowModal() == wxID_OK) {
+            cont = true;
+            check_again = dlg.IsCheckAgain();
+        }
+    } else {
+        if (project_unit.CmpNoCase("degree") == 0) {
+            wxString msg = _("Warning: coordinates are not projected, distance will be incorrect.\n\nProceed anyway?");
+            CheckSpatialRefDialog dlg(NULL, msg);
+            if (dlg.ShowModal() == wxID_OK) {
+                cont = true;
+                check_again = dlg.IsCheckAgain();
+            }
+        }
+    }
+    return cont;
+}
+
 void Project::SaveOGRDataSource()
 {
 	wxLogMessage("Project::SaveOGRDataSource()");

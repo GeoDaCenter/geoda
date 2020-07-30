@@ -602,3 +602,52 @@ double TransparentSettingDialog::GetTransparency()
 {
 	return transparency;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+//
+///////////////////////////////////////////////////////////////////////////////
+
+CheckSpatialRefDialog::CheckSpatialRefDialog(wxWindow * parent,
+                                             const wxString& msg,
+                                             wxWindowID id,
+                                             const wxString & caption,
+                                             const wxPoint & position,
+                                             const wxSize & size,
+                                             long style)
+: wxDialog(parent, id, caption, position, size, style)
+{
+    wxLogMessage("Open TransparentSettingDialog");
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(topSizer);
+
+    wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
+    topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 20);
+
+    wxBitmap bmp = wxArtProvider::GetBitmap(wxART_WARNING);
+    wxStaticBitmap *warning_icon = new wxStaticBitmap(this, wxID_ANY, bmp);
+    wxStaticText* textctrl = new wxStaticText(this, wxID_ANY, msg);
+
+    wxBoxSizer *msgbox = new wxBoxSizer(wxHORIZONTAL);
+    msgbox->Add(warning_icon, 0, wxRIGHT, 10);
+    msgbox->Add(textctrl, 1, wxEXPAND);
+
+    cb = new wxCheckBox(this, wxID_ANY, _("Don't ask again"));
+
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    wxButton *yes_btn = new wxButton(this, wxID_OK, _("Yes"));
+    wxButton *no_btn = new wxButton(this, wxID_CANCEL, _("No"));
+    hbox->Add(yes_btn, 1, wxALL, 5);
+    hbox->Add(no_btn, 1, wxALL, 5);
+    
+    boxSizer->Add(msgbox, 1, wxEXPAND | wxALL, 10);
+    boxSizer->Add(cb, 0, wxALIGN_CENTER | wxTOP, 20);
+    boxSizer->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+    
+    topSizer->Fit(this);
+    no_btn->SetDefault();
+}
+
+bool CheckSpatialRefDialog::IsCheckAgain()
+{
+    return !cb->GetValue();
+}

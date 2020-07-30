@@ -634,6 +634,7 @@ void AbstractClusterDlg::AddMinBound(wxPanel *panel, wxFlexGridSizer* gbox,
     txt_floor_pct->Disable();
     
 }
+
 void AbstractClusterDlg::OnSlideMinBound(wxCommandEvent& event)
 {
     int idx = combo_floor->GetSelection();
@@ -650,6 +651,7 @@ void AbstractClusterDlg::OnSlideMinBound(wxCommandEvent& event)
         }
     }
 }
+
 void AbstractClusterDlg::OnCheckMinBound(wxCommandEvent& event)
 {
     if (chk_floor->IsChecked() ) {
@@ -666,6 +668,7 @@ void AbstractClusterDlg::OnCheckMinBound(wxCommandEvent& event)
         txt_floor->SetValue("");
     }
 }
+
 void AbstractClusterDlg::OnSelMinBound(wxCommandEvent& event)
 {
     int rows = project->GetNumRecords();
@@ -704,6 +707,7 @@ void AbstractClusterDlg::OnSelMinBound(wxCommandEvent& event)
         txt_floor_pct->SetValue("10%");
     }
 }
+
 void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
 {
     wxString tmp_val = txt_floor->GetValue();
@@ -714,6 +718,7 @@ void AbstractClusterDlg::OnTypeMinBound(wxCommandEvent& event)
     if (is_valid) {
     }
 }
+
 bool AbstractClusterDlg::CheckMinBound()
 {
     if (chk_floor->IsChecked()) {

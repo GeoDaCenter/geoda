@@ -224,7 +224,6 @@ wxString wxGridCellDoubleRenderer::GetString(const wxGrid& grid, int row, int co
 
     double val;
     wxString text = table->GetValue(row, col);
-    LOG_MSG(text);
     if ( text.ToDouble(&val) ) {
         long double v;
         sscanf(text.c_str(), "%Lf", &v);
@@ -288,7 +287,7 @@ void wxGridCellDoubleEditor::Create(wxWindow* parent,
     wxGridCellTextEditor::Create(parent, id, evtHandler);
 
 #if wxUSE_VALIDATORS
-    wxString name_chars="-+.0123456789";
+    wxString name_chars="-+.,0123456789";
     wxTextValidator name_validator(wxFILTER_INCLUDE_CHAR_LIST);
     name_validator.SetCharIncludes(name_chars);
     Text()->SetValidator(name_validator);
