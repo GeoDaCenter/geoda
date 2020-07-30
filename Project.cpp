@@ -520,6 +520,10 @@ bool Project::CheckSpatialProjection(bool& check_again)
                 cont_proceed = true;
                 check_again = dlg.IsCheckAgain();
             }
+        } else {
+            // case of already projected coords
+            cont_proceed = true;
+            check_again = false; // no need to check again
         }
     }
     // return if user wants to continue proceeding
