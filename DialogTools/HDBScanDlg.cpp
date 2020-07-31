@@ -432,7 +432,14 @@ bool HDBScanDlg::CheckAllInputs()
 
     int transform = combo_tranform->GetSelection();
     if ( GetInputData(transform,1) == false) return false;
-
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
+    
     dist = 'e';
     int dist_sel = m_distance->GetSelection();
     char dist_choices[] = {'e','b'};

@@ -548,7 +548,14 @@ bool SpectralClusteringDlg::CheckAllInputs()
     // get input: variables and data, and auto weights
     transform = combo_tranform->GetSelection();
     if( GetInputData(transform, 1) == false) return false;
-
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
+    
     // get input: number of cluster
     n_cluster = 0;
     wxString str_ncluster = combo_n->GetValue();

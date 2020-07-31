@@ -358,6 +358,13 @@ bool KClusterDlg::CheckAllInputs()
     transform = combo_tranform->GetSelection();
 
     if (GetInputData(transform,1) == false) return false;
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
 
     if (!CheckMinBound()) return false;
 
@@ -667,6 +674,23 @@ vector<vector<double> > KMediansDlg::_getMeanCenters(const vector<vector<int> >&
     raw_data.resize(col_ids.size());
     for (int i=0; i<var_info.size(); i++) {
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
+    if (has_x_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> xvals(rows);
+        for (int i=0; i< rows; i++) {
+            xvals[i] = cents[i]->GetX();
+        }
+        raw_data.push_back(xvals);
+    }
+    if (has_y_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> yvals(rows);
+        for (int i=0; i< rows; i++) {
+            yvals[i] = cents[i]->GetY();
+        }
+        raw_data.push_back(yvals);
     }
 
     //int start = IsUseCentroids() ? 2 : 0;
@@ -1108,6 +1132,14 @@ bool KMedoidsDlg::CheckAllInputs()
 
     if (GetInputData(transform,1) == false) return false;
 
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
+
     n_maxiter = 10;
     wxString iterations = m_iterations->GetValue();
     long l_maxiter;
@@ -1270,6 +1302,23 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     raw_data.resize(col_ids.size());
     for (int i=0; i<var_info.size(); i++) {
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
+    }
+
+    if (has_x_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> xvals(rows);
+        for (int i=0; i< rows; i++) {
+            xvals[i] = cents[i]->GetX();
+        }
+        raw_data.push_back(xvals);
+    }
+    if (has_y_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> yvals(rows);
+        for (int i=0; i< rows; i++) {
+            yvals[i] = cents[i]->GetY();
+        }
+        raw_data.push_back(yvals);
     }
 
     for (int i=0; i<solutions.size(); i++ ) {

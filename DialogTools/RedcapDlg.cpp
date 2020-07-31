@@ -431,8 +431,13 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     // Get input data
     int transform = combo_tranform->GetSelection();
 	bool success = GetInputData(transform, 1);
-    if (!success) {
-        return;
+    if (!success) return;
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return;
+        }
     }
     
     wxString str_max_region = m_max_region->GetValue();

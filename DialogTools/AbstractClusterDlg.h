@@ -116,6 +116,8 @@ protected:
     bool CheckConnectivity(GalElement* W);
     
     // Input related
+    bool has_x_cent;
+    bool has_y_cent;
     std::vector<GdaVarTools::VarInfo> var_info;
     std::vector<int> col_ids;
     std::vector<wxString> select_vars;

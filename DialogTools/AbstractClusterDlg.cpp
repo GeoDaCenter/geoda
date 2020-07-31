@@ -56,15 +56,17 @@ AbstractClusterDlg::AbstractClusterDlg(wxFrame* parent_s, Project* project_s,
     m_weight_centroids(NULL), m_wc_txt(NULL), chk_floor(NULL),
     combo_floor(NULL), txt_floor(NULL),  txt_floor_pct(NULL),
     slider_floor(NULL), combo_var(NULL), m_reportbox(NULL), gal(NULL),
-    return_additional_summary(false), m_spatial_weights(NULL)
+    return_additional_summary(false), m_spatial_weights(NULL),
+    has_x_cent(false), has_y_cent(false)
 {
     wxLogMessage("Open AbstractClusterDlg.");
    
     wxArrayString list;
     wxString valid_chars(".,0123456789");
     size_t len = valid_chars.Length();
-    for (size_t i=0; i<len; i++)
+    for (size_t i=0; i<len; i++) {
         list.Add(wxString(valid_chars.GetChar(i)));
+    }
     validator.SetIncludes(list);
    
     parent = parent_s;
@@ -526,6 +528,13 @@ bool AbstractClusterDlg::CheckAllInputs()
         dlg.ShowModal();
         return false;
     }
+    // check if X-Centroids selected but not projected
+    if ((has_x_cent || has_y_cent) && check_spatial_ref) {
+        bool cont_process = project->CheckSpatialProjection(check_spatial_ref);
+        if (cont_process == false) {
+            return false;
+        }
+    }
     return true;
 }
 
@@ -821,6 +830,15 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
             var_items.Add(name);
         }
     }
+
+    // Add centroids variable
+    var_items.Add("<X-Centroids>");
+    name_to_nm["<X-Centroids>"] = "<X-Centroids>";
+    name_to_tm_id["<X-Centroids>"] = 0;
+    var_items.Add("<Y-Centroids>");
+    name_to_nm["<Y-Centroids>"] = "<Y-Centroids>";
+    name_to_tm_id["<Y-Centroids>"] = 0;
+
     if (!var_items.IsEmpty()) {
         var_box->InsertItems(var_items,0);
     }
@@ -864,9 +882,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
     
     int num_var = (int)selections.size();
     if (num_var < min_num_var && !use_centroids) {
-        wxString err_msg =
-            wxString::Format(_("Please select at least %d variables."),
-            min_num_var);
+        wxString err_msg = wxString::Format(_("Please select at least %d variables."), min_num_var);
         wxMessageDialog dlg(NULL, err_msg, _("Info"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return false;
@@ -874,49 +890,77 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
    
     col_names.clear();
     select_vars.clear();
+    col_ids.clear();
+    var_info.clear();
 
     if ( num_var > 0 ||
         (use_centroids && m_weight_centroids && m_weight_centroids->GetValue() != 0))
     {
-        col_ids.resize(num_var);
-        var_info.resize(num_var);
-        
+        has_x_cent = false;
+        has_y_cent = false;
+
         for (int i=0; i<num_var; i++) {
             int idx = selections[i];
             wxString sel_str = combo_var->GetString(idx);
             select_vars.push_back(sel_str);
-            wxString nm = name_to_nm[sel_str];
-            int col = table_int->FindColId(nm);
-            if (col == wxNOT_FOUND) {
-                wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
-                wxMessageDialog dlg(NULL, err_msg, _("Error"),
-                                    wxOK | wxICON_ERROR);
-                dlg.ShowModal();
-                return false;
-            }
-            int tm = name_to_tm_id[combo_var->GetString(idx)];
             col_names.push_back(sel_str);
-            col_ids[i] = col;
-            var_info[i].time = tm;
-            // Set Primary GdaVarTools::VarInfo attributes
-            var_info[i].name = nm;
-            var_info[i].is_time_variant = table_int->IsColTimeVariant(nm);
-            // var_info[i].time already set above
-            table_int->GetMinMaxVals(col_ids[i], var_info[i].min, var_info[i].max);
-            var_info[i].sync_with_global_time = var_info[i].is_time_variant;
-            var_info[i].fixed_scale = true;
+            wxString nm = name_to_nm[sel_str];
+            if (nm == "<X-Centroids>") {
+                has_x_cent = true;
+            } else if (nm == "<Y-Centroids>") {
+                has_y_cent = true;
+            } else {
+                int col = table_int->FindColId(nm);
+                if (col == wxNOT_FOUND) {
+                    wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), nm);
+                    wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+                    dlg.ShowModal();
+                    return false;
+                }
+                int tm = name_to_tm_id[combo_var->GetString(idx)];
+
+                GdaVarTools::VarInfo v;
+                v.time = tm;
+                // Set Primary GdaVarTools::VarInfo attributes
+                v.name = nm;
+                v.is_time_variant = table_int->IsColTimeVariant(nm);
+                // v.time already set above
+                table_int->GetMinMaxVals(col, v.min, v.max);
+                v.sync_with_global_time = v.is_time_variant;
+                v.fixed_scale = true;
+                col_ids.push_back(col);
+                var_info.push_back(v);
+            }
         }
         
         // Call function to set all Secondary Attributes based on Primary Attributes
         GdaVarTools::UpdateVarInfoSecondaryAttribs(var_info);
         columns = 0;
         rows = project->GetNumRecords();
-        std::vector<std::vector<double> > data;
-        data.resize(num_var);
+        std::vector<std::vector<double> > data(num_var - has_x_cent - has_y_cent);
         for (int i=0; i<var_info.size(); i++) {
             table_int->GetColData(col_ids[i], var_info[i].time, data[i]);
         }
-        // if use centroids
+
+        // for special table variables: <X-Centroids>, <Y-Centroids>
+        if (has_x_cent) {
+            std::vector<GdaPoint*> cents = project->GetCentroids();
+            std::vector<double> xvals(rows);
+            for (int i=0; i< rows; i++) {
+                xvals[i] = cents[i]->GetX();
+            }
+            data.push_back(xvals);
+        }
+        if (has_y_cent) {
+            std::vector<GdaPoint*> cents = project->GetCentroids();
+            std::vector<double> yvals(rows);
+            for (int i=0; i< rows; i++) {
+                yvals[i] = cents[i]->GetY();
+            }
+            data.push_back(yvals);
+        }
+
+        // if use centroids (checkbox)
         if (use_centroids) {
             columns += 2;
             col_names.insert(col_names.begin(), "CENTY");
@@ -972,7 +1016,7 @@ bool AbstractClusterDlg::GetInputData(int transform, int min_num_var)
             }
             col_ii = 2;
         }
-        for (int i=0; i<col_ids.size(); i++ ){ // col
+        for (int i=0; i<data.size(); i++ ){ // col
             std::vector<double>& vals = data[i];
             if (transform == 5) {
                 GenUtils::RangeStandardize(vals);
@@ -1013,9 +1057,9 @@ double* AbstractClusterDlg::GetWeights(int columns)
             wc = sel_wc / 100.0;
             double n_var_cols = (double)(columns - 2);
             for (int j=0; j<columns; j++){
-                if (j==0 || j==1)
+                if (j==0 || j==1) {
                     _weight[j] = wc * 0.5;
-                else {
+                } else {
                     _weight[j] = (1 - wc) / n_var_cols;
                 }
             }
@@ -1181,6 +1225,23 @@ std::vector<std::vector<double> > AbstractClusterDlg::_getMeanCenters(const std:
         table_int->GetColData(col_ids[i], var_info[i].time, raw_data[i]);
     }
 
+    if (has_x_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> xvals(rows);
+        for (int i=0; i< rows; i++) {
+            xvals[i] = cents[i]->GetX();
+        }
+        raw_data.push_back(xvals);
+    }
+    if (has_y_cent) {
+        std::vector<GdaPoint*> cents = project->GetCentroids();
+        std::vector<double> yvals(rows);
+        for (int i=0; i< rows; i++) {
+            yvals[i] = cents[i]->GetY();
+        }
+        raw_data.push_back(yvals);
+    }
+
     for (int i=0; i<solutions.size(); i++ ) {
         std::vector<double> means;
         int end = columns;
@@ -1215,8 +1276,9 @@ double AbstractClusterDlg::_getTotalSumOfSquares(const std::vector<bool>& noises
    
     double ssq = 0.0;
     for (int i=0; i<columns; i++) {
-        if (col_names[i] == "CENTX" || col_names[i] == "CENTY")
+        if (col_names[i] == "CENTX" || col_names[i] == "CENTY") {
             continue;
+        }
         std::vector<double> vals;
         for (int j=0; j<rows; j++) {
             if (mask[j][i] == 1 && noises[j] == false) {
