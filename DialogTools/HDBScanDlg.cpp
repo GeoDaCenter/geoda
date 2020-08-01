@@ -138,7 +138,10 @@ void HDBScanDlg::CreateControls()
         list.Add(wxString(valid_chars.GetChar(i)));
     }
     validator.SetIncludes(list);
-    m_minpts = new wxTextCtrl(panel, wxID_ANY, "10", wxDefaultPosition, wxSize(120, -1),0,validator);
+    wxString default_minpts;
+    if (rows < 10) default_minpts << rows;
+    else default_minpts = "10";
+    m_minpts = new wxTextCtrl(panel, wxID_ANY, default_minpts, wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minpts, 1, wxEXPAND);
     
@@ -401,8 +404,8 @@ bool HDBScanDlg::CheckAllInputs()
     if (m_minpts->GetValue().ToLong(&l_min_pts)) {
         m_min_pts = (int)l_min_pts;
     }
-    if (m_min_pts<=1) {
-        wxString err_msg = _("Minimum cluster size should be greater than one.");
+    if (m_min_pts<=1 || m_min_pts > rows) {
+        wxString err_msg = _("Minimum cluster size should be greater than one, and less than the number of observations.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return false;
