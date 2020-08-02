@@ -314,6 +314,9 @@ void MapCanvas::OnMSTMap(int menu_id)
             }
         }
         RedrawMap();
+    } else if (menu_id == XRCID("ID_MAP_MST_SAVE")) {
+        // save MST to a weights file
+        mst_map.SaveToWeightsFile(project);
     } else if (display_mst) {
         if (menu_id == XRCID("ID_MAP_MST_COLOR")) {
             mst_map.ChangeColor(this);
@@ -3705,6 +3708,8 @@ void MapFrame::MapMenus()
             wxCommandEventHandler(MapFrame::OnHeatMap));
 
     Connect(XRCID("ID_MAP_MST_TOGGLE"), wxEVT_COMMAND_MENU_SELECTED,
+            wxCommandEventHandler(MapFrame::OnMapMST));
+    Connect(XRCID("ID_MAP_MST_SAVE"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnMapMST));
     Connect(XRCID("ID_MAP_MST_COLOR"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapFrame::OnMapMST));

@@ -17,10 +17,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <wx/wx.h>
+#include <wx/textfile.h>
 
 #include "../DialogTools/VariableSettingsDlg.h"
 #include "../Project.h"
 #include "../GeneralWxUtils.h"
+#include "../ShapeOperations/WeightUtils.h"
 #include "MapNewView.h"
 #include "MapViewHelper.h"
 
@@ -407,6 +409,65 @@ bool MSTMapHelper::Create(Project* project)
         }
     }
     return true;
+}
+
+void MSTMapHelper::SaveToWeightsFile(Project* project)
+{
+    wxString filter = "GWT|*.gwt";
+    wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"),
+                        wxEmptyString, wxEmptyString, filter,
+                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
+    if (dialog.ShowModal() != wxID_OK) {
+        return;
+    }
+    // create MST first if needed
+    if (this->Create(project) == false) {
+        return;
+    }
+
+    // using sequential numbers as row ids
+    wxString id = "ogc_fid"; // means using row ids
+    std::vector<wxString> ids;
+
+    wxFileName fname = wxFileName(dialog.GetPath());
+    wxString new_main_dir = fname.GetPathWithSep();
+    wxString new_main_name = fname.GetName();
+    wxString new_txt = new_main_dir + new_main_name+".gwt";
+    wxTextFile file(new_txt);
+    file.Create(new_txt);
+    file.Open(new_txt);
+    file.Clear();
+
+    wxString header;
+    header << "0 " << project->GetNumRecords() << " ";
+    header << "\"" << project->GetProjectTitle() << "\" ";
+    header <<  id;
+    file.AddLine(header);
+
+    for (int i=0; i<mst_edges.size(); i++) {
+        int f_idx = mst_edges[i].first;
+        int t_idx = mst_edges[i].second;
+
+        if (f_idx == t_idx) {
+            continue;
+        }
+
+        double cost = t_idx > f_idx ? dist_matrix[f_idx][t_idx] : dist_matrix[t_idx][f_idx];
+        wxString line1;
+        line1 << f_idx << " " << t_idx << " " <<  cost;
+        file.AddLine(line1);
+        wxString line2;
+        line2 << t_idx << " " << f_idx << " " <<  cost;
+        file.AddLine(line2);
+    }
+    file.Write();
+    file.Close();
+
+    // Load the weights file into Weights Manager
+    std::vector<boost::uuids::uuid> weights_ids;
+    WeightsManInterface* w_man_int = project->GetWManInt();
+    WeightUtils::LoadGwtInMan(w_man_int, new_txt, project->GetTableInt(), id,
+                              WeightsMetaInfo::WT_tree);
 }
 
 void MSTMapHelper::Draw(std::list<GdaShape*>& foreground_shps,

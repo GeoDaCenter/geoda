@@ -211,6 +211,9 @@ public:
     // Return line thickness
     int GetThickness();
 
+    // Save MST to a spatial weights file *.gwt
+    void SaveToWeightsFile(Project* project);
+
 protected:
     void CreateDistMatrix(const std::vector<GdaPoint*>& points);
 

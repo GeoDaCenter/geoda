@@ -3061,7 +3061,11 @@
     </object>
     <object class="wxMenu" name="ID_MAP_MST">
         <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
-            <label>Toggle Minimum Spanning Tree</label>
+            <label>Display Minimum Spanning Tree</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAP_MST_SAVE">
+            <label>Save Minimum Spanning Tree</label>
             <checkable>1</checkable>
         </object>
         <object class="separator"/>
@@ -3104,7 +3108,7 @@
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
-            <label>Toggle Heat Map</label>
+            <label>Display Heat Map</label>
             <checkable>1</checkable>
         </object>
         <label>Heat Map</label>
@@ -3685,7 +3689,11 @@
       </object>
       <object class="wxMenu" name="ID_MAP_MST">
           <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
-              <label>Toggle Minimum Spanning Tree</label>
+              <label>Display Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_SAVE">
+              <label>Save Minimum Spanning Tree</label>
               <checkable>1</checkable>
           </object>
           <object class="separator"/>
@@ -3728,7 +3736,7 @@
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
-              <label>Toggle Heat Map</label>
+              <label>Display Heat Map</label>
               <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
@@ -3883,7 +3891,11 @@
       </object>
       <object class="wxMenu" name="ID_MAP_MST">
           <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
-              <label>Toggle Minimum Spanning Tree</label>
+              <label>Display Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_SAVE">
+              <label>Save Minimum Spanning Tree</label>
               <checkable>1</checkable>
           </object>
           <object class="separator"/>
@@ -3926,7 +3938,7 @@
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
-              <label>Toggle Heat Map</label>
+              <label>Display Heat Map</label>
               <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
@@ -4081,7 +4093,11 @@
       </object>
       <object class="wxMenu" name="ID_MAP_MST">
           <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
-              <label>Toggle Minimum Spanning Tree</label>
+              <label>Display Minimum Spanning Tree</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="wxMenuItem" name="ID_MAP_MST_SAVE">
+              <label>Save Minimum Spanning Tree</label>
               <checkable>1</checkable>
           </object>
           <object class="separator"/>
@@ -4124,7 +4140,7 @@
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
-              <label>Toggle Heat Map</label>
+              <label>Display Heat Map</label>
               <checkable>1</checkable>
           </object>
           <label>Heat Map</label>
@@ -4770,7 +4786,11 @@
     </object>
     <object class="wxMenu" name="ID_MAP_MST">
         <object class="wxMenuItem" name="ID_MAP_MST_TOGGLE">
-            <label>Toggle Minimum Spanning Tree</label>
+            <label>Display Minimum Spanning Tree</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="wxMenuItem" name="ID_MAP_MST_SAVE">
+            <label>Save Minimum Spanning Tree</label>
             <checkable>1</checkable>
         </object>
         <object class="separator"/>
@@ -4813,7 +4833,7 @@
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
-            <label>Toggle Heat Map</label>
+            <label>Display Heat Map</label>
             <checkable>1</checkable>
         </object>
         <label>Heat Map</label>

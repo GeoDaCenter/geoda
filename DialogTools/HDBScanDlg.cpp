@@ -150,8 +150,8 @@ void HDBScanDlg::CreateControls()
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
     // hide Min Points option
-    st14->Hide();
-    m_minsamples->Hide();
+    //st14->Hide();
+    //m_minsamples->Hide();
     
     wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Alpha:"));
     m_ctl_alpha = new wxTextCtrl(panel, wxID_ANY, "1.0", wxDefaultPosition, wxSize(120, -1),0,validator);
@@ -385,7 +385,7 @@ wxString HDBScanDlg::_printConfiguration()
 {
     wxString txt;
     txt << "Minimum cluster size:\t" << m_minpts->GetValue() << "\n";
-    //txt << "Minimum points:\t" << m_minsamples->GetValue() << "\n";
+    txt << "Minimum points:\t" << m_minsamples->GetValue() << "\n";
     //txt << "Alpha:\t" << m_ctl_alpha->GetValue() << "\n";
     txt << "Method of selecting cluster:\t" << m_select_method->GetStringSelection() << "\n";
     wxString single_cluster = chk_allowsinglecluster->IsChecked() ? "Yes" : "No";
@@ -412,7 +412,7 @@ bool HDBScanDlg::CheckAllInputs()
     }
 
     m_min_samples = m_min_pts;
-    /*
+
     long l_min_samples;
     if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
         m_min_samples = (int)l_min_samples;
@@ -423,7 +423,6 @@ bool HDBScanDlg::CheckAllInputs()
         dlg.ShowModal();
         return false;
     }
-    */
 
     double d_alpha = 1;
     if (m_ctl_alpha->GetValue().ToDouble(&d_alpha)) {
