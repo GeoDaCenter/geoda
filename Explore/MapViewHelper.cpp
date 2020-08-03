@@ -413,6 +413,11 @@ bool MSTMapHelper::Create(Project* project)
 
 void MSTMapHelper::SaveToWeightsFile(Project* project)
 {
+    // create MST first if needed
+    if (this->Create(project) == false) {
+        return;
+    }
+    
     // Get ID variable for spatial weights file
     SelectWeightsIdDialog selid_dlg(NULL, project);
     if (selid_dlg.ShowModal() != wxID_OK) {
@@ -434,10 +439,6 @@ void MSTMapHelper::SaveToWeightsFile(Project* project)
                         wxEmptyString, wxEmptyString, filter,
                         wxFD_SAVE | wxFD_OVERWRITE_PROMPT);
     if (dialog.ShowModal() != wxID_OK) {
-        return;
-    }
-    // create MST first if needed
-    if (this->Create(project) == false) {
         return;
     }
 
