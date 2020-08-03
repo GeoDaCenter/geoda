@@ -27,8 +27,9 @@
 #include <wx/colordlg.h>
 #include <wx/txtstrm.h>
 
+#include "DialogTools/AddIdVariable.h"
 #include "GeneralWxUtils.h"
-
+#include "Project.h"
 ////////////////////////////////////////////////////////////////////////
 //
 //
@@ -650,4 +651,92 @@ CheckSpatialRefDialog::CheckSpatialRefDialog(wxWindow * parent,
 bool CheckSpatialRefDialog::IsCheckAgain()
 {
     return !cb->GetValue();
+}
+////////////////////////////////////////////////////////////////////////
+//
+//
+////////////////////////////////////////////////////////////////////////
+
+SelectWeightsIdDialog::SelectWeightsIdDialog(wxWindow * parent, Project* project,
+                                             wxWindowID id,
+                                             const wxString & caption,
+                                             const wxPoint & position,
+                                             const wxSize & size,
+                                             long style)
+: wxDialog(parent, id, caption, position, size, style),
+project(project)
+{
+    wxBoxSizer* topSizer = new wxBoxSizer(wxVERTICAL);
+    this->SetSizer(topSizer);
+
+    wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* textctrl = new wxStaticText(this, wxID_ANY, _("Select ID Variable"));
+    m_id_field = new wxChoice (this, wxID_ANY, wxDefaultPosition, wxSize(200, -1));
+    InitVariableChoice(); // fill content for id dropdown list
+    wxButton* btn_add_id_var = new wxButton(this, wxID_ANY, _("Add ID Variable..."));
+
+    hbox->Add(textctrl, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 5);
+    hbox->Add(m_id_field, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 15);
+    hbox->Add(btn_add_id_var, 0, wxALIGN_CENTER_VERTICAL);
+
+    wxBoxSizer *btnbox = new wxBoxSizer(wxHORIZONTAL);
+    wxButton *yes_btn = new wxButton(this, wxID_OK, _("OK"));
+    wxButton *no_btn = new wxButton(this, wxID_CANCEL, _("Cancel"));
+    btnbox->Add(yes_btn, 1, wxALL, 5);
+    btnbox->Add(no_btn, 1, wxALL, 5);
+
+    topSizer->Add(hbox, 0, wxEXPAND | wxALL, 20);
+    topSizer->Add(btnbox, 0, wxALIGN_CENTER | wxALL, 10);
+    topSizer->Fit(this);
+
+    //events
+    btn_add_id_var->Bind(wxEVT_BUTTON, &SelectWeightsIdDialog::OnAddIDVariable, this);
+    m_id_field->Bind(wxEVT_CHOICE, &SelectWeightsIdDialog::OnIdVariableSelected, this);
+}
+
+wxString SelectWeightsIdDialog::GetIDVariable()
+{
+    return m_id_field->GetStringSelection();
+}
+
+void SelectWeightsIdDialog::OnAddIDVariable(wxCommandEvent& evt)
+{
+    TableInterface* table_int = project->GetTableInt();
+    AddIdVariable dlg(table_int, this);
+    if (dlg.ShowModal() == wxID_OK) {
+        // We know that the new id has been added to the the table in memory
+        InitVariableChoice();
+        m_id_field->SetSelection(0);
+        OnIdVariableSelected(evt);
+    }
+}
+
+void SelectWeightsIdDialog::InitVariableChoice()
+{
+    TableInterface* table_int = project->GetTableInt();
+    col_id_map.clear();
+    table_int->FillColIdMap(col_id_map);
+
+    m_id_field->Clear();
+    for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+        int col = col_id_map[i];
+        if (table_int->GetColType(col) == GdaConst::long64_type ||
+            table_int->GetColType(col) == GdaConst::string_type) {
+            if (!table_int->IsColTimeVariant(col)) {
+                m_id_field->Append(table_int->GetColName(col));
+            }
+        }
+    }
+    m_id_field->SetSelection(-1);
+}
+
+void SelectWeightsIdDialog::OnIdVariableSelected(wxCommandEvent& evt)
+{
+    if (m_id_field->GetSelection() < 0) return;
+
+    wxString sel_var = m_id_field->GetStringSelection();
+    TableInterface* table_int = project->GetTableInt();
+    if (table_int->CheckID(sel_var) == false) {
+        m_id_field->SetSelection(-1);
+    }
 }

@@ -340,7 +340,10 @@ public:
                              const wxString& val) = 0;
 
     virtual std::map<wxString, wxString> GetMetaData(int col_id) = 0;
-		
+
+    // check the column "id" can be used as an unique ID variable
+    virtual bool CheckID(const wxString& id);
+
 protected:
 	wxString open_err_msg;
     

@@ -413,6 +413,22 @@ bool MSTMapHelper::Create(Project* project)
 
 void MSTMapHelper::SaveToWeightsFile(Project* project)
 {
+    // Get ID variable for spatial weights file
+    SelectWeightsIdDialog selid_dlg(NULL, project);
+    if (selid_dlg.ShowModal() != wxID_OK) {
+        return;
+    }
+    TableInterface* table_int = project->GetTableInt();
+    wxString id = selid_dlg.GetIDVariable();
+    if (id.IsEmpty()) return;
+
+    int col = table_int->FindColId(id);
+    if (col < 0) return;
+
+    std::vector<wxString> ids;
+    table_int->GetColData(col, 0, ids);
+
+    // prompt user to select output file
     wxString filter = "GWT|*.gwt";
     wxFileDialog dialog(NULL, _("Save Spanning Tree to a Weights File"),
                         wxEmptyString, wxEmptyString, filter,
@@ -425,10 +441,7 @@ void MSTMapHelper::SaveToWeightsFile(Project* project)
         return;
     }
 
-    // using sequential numbers as row ids
-    wxString id = "ogc_fid"; // means using row ids
-    std::vector<wxString> ids;
-
+    // create Spatial weights file
     wxFileName fname = wxFileName(dialog.GetPath());
     wxString new_main_dir = fname.GetPathWithSep();
     wxString new_main_name = fname.GetName();
@@ -452,22 +465,21 @@ void MSTMapHelper::SaveToWeightsFile(Project* project)
             continue;
         }
 
-        double cost = t_idx > f_idx ? dist_matrix[f_idx][t_idx] : dist_matrix[t_idx][f_idx];
+        double cost = t_idx > f_idx ? dist_matrix[f_idx][t_idx - f_idx-1] :
+        dist_matrix[t_idx][f_idx - t_idx-1];
         wxString line1;
-        line1 << f_idx << " " << t_idx << " " <<  cost;
+        line1 << ids[f_idx] << " " << ids[t_idx] << " " <<  cost;
         file.AddLine(line1);
         wxString line2;
-        line2 << t_idx << " " << f_idx << " " <<  cost;
+        line2 << ids[t_idx] << " " << ids[f_idx] << " " <<  cost;
         file.AddLine(line2);
     }
     file.Write();
     file.Close();
 
     // Load the weights file into Weights Manager
-    std::vector<boost::uuids::uuid> weights_ids;
     WeightsManInterface* w_man_int = project->GetWManInt();
-    WeightUtils::LoadGwtInMan(w_man_int, new_txt, project->GetTableInt(), id,
-                              WeightsMetaInfo::WT_tree);
+    WeightUtils::LoadGwtInMan(w_man_int, new_txt, table_int, id, WeightsMetaInfo::WT_tree);
 }
 
 void MSTMapHelper::Draw(std::list<GdaShape*>& foreground_shps,

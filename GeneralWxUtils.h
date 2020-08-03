@@ -28,6 +28,8 @@
 
 #include "DialogTools/VariableSettingsDlg.h"
 
+class Project;
+
 class GeneralWxUtils	{
 public:
 	static wxOperatingSystemId GetOsId();
@@ -115,6 +117,9 @@ public:
 	double GetTransparency();
 };
 
+// Prompt user that spatial objects are not projected or with unknown projection
+// The distance computation could be wrong. Ask user to continue proceeding or
+// quit the application
 class CheckSpatialRefDialog : public wxDialog
 {
     wxCheckBox *cb;
@@ -131,4 +136,33 @@ public:
     bool IsCheckAgain();
 };
 
+// Prompt user to select an ID variable for weights creation
+// Allow user to "Add ID variable" in table
+class SelectWeightsIdDialog : public wxDialog
+{
+    Project* project;
+    wxChoice * m_id_field;
+
+    // col_id_map[i] is a map from the i'th numeric item in the
+    // fields drop-down to the actual col_id_map.  Items
+    // in the fields dropdown are in the order displayed
+    // in wxGrid
+    std::vector<int> col_id_map;
+    
+public:
+    SelectWeightsIdDialog(wxWindow * parent, Project* project,
+                          wxWindowID id=wxID_ANY,
+                          const wxString & caption="Select ID Variable Dialog",
+                          const wxPoint & pos = wxDefaultPosition,
+                          const wxSize & size = wxDefaultSize,
+                          long style = wxDEFAULT_DIALOG_STYLE );
+    virtual ~SelectWeightsIdDialog() {}
+
+    wxString GetIDVariable();
+    
+protected:
+    void InitVariableChoice();
+    void OnIdVariableSelected(wxCommandEvent& evt);
+    void OnAddIDVariable(wxCommandEvent& evt);
+};
 #endif
