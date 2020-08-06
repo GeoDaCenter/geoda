@@ -33,10 +33,75 @@
 struct GdaNode;
 class Project;
 class TableInterface;
+class CondensedTree;
 
+/*
+// wxWidgets control of Condensed Tree in HDBScan
+class wxCondensedTree : public wxPanel
+{
+    bool isLeftDown;
+    bool isLeftMove;
+    bool isMovingSelectBox;
+    bool isLayerValid;
+    bool isWindowActive;
+    bool isResize;
+    wxPoint startPos;
+    std::vector<int> hl_ids;
+    std::vector<bool> hs;
+    wxRect* select_box;
+    wxBitmap* layer_bm;
 
+    std::vector<CondensedTree*> condensed_tree;
+
+public:
+    wxCondensedTree(wxWindow* parent, const std::vector<CondensedTree*>& condensed_tree,
+                    wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
+                    const wxSize &size=wxDefaultSize);
+
+    void OnIdle(wxIdleEvent& event);
+    void OnEvent(wxMouseEvent& event );
+    void OnSize(wxSizeEvent& event);
+    virtual void OnPaint(wxPaintEvent& event);
+
+    DECLARE_ABSTRACT_CLASS(wxCondensedTree)
+    DECLARE_EVENT_TABLE()
+};
+*/
+
+// HDBScan Dialog
 class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
 {
+    char     dist;
+    int      m_min_pts;
+    int      m_min_samples;
+    double   m_alpha;
+    int      m_cluster_selection_method;
+    bool     m_allow_single_cluster;
+
+    vector<double> core_dist;
+    vector<double> probabilities;
+    vector<double> outliers;
+    vector<vector<int> > cluster_ids;
+
+    int max_n_clusters;
+
+    double cutoffDistance;
+    vector<wxInt64> clusters;
+
+    wxButton *saveButton;
+    wxChoice* combo_n;
+    wxChoice* combo_cov;
+    wxTextCtrl* m_textbox;
+    wxChoice* m_distance;
+    DendrogramPanel* m_panel;
+    wxTextCtrl* m_minpts;
+    wxTextCtrl* m_minsamples;
+    wxTextCtrl* m_ctl_alpha;
+    wxTextCtrl* m_cluster;
+    wxNotebook* notebook;
+    wxChoice* m_select_method;
+    wxCheckBox* chk_allowsinglecluster;
+
 public:
     HDBScanDlg(wxFrame *parent, Project* project);
     virtual ~HDBScanDlg();
@@ -65,39 +130,6 @@ public:
 protected:
     virtual bool Run(vector<wxInt64>& clusters);
     virtual bool CheckAllInputs();
-
-protected:
-    char     dist;
-    int      m_min_pts;
-    int      m_min_samples;
-    double   m_alpha;
-    int      m_cluster_selection_method;
-    bool     m_allow_single_cluster;
-
-    vector<double> core_dist;
-    vector<double> probabilities;
-    vector<double> outliers;
-    vector<vector<int> > cluster_ids;
-    
-    int max_n_clusters;
-    
-    double cutoffDistance;
-    vector<wxInt64> clusters;
-    
-    wxButton *saveButton;
-    wxChoice* combo_n;
-    wxChoice* combo_cov;
-    wxTextCtrl* m_textbox;
-    wxChoice* m_distance;
-    DendrogramPanel* m_panel;
-    wxTextCtrl* m_minpts;
-    wxTextCtrl* m_minsamples;
-    wxTextCtrl* m_ctl_alpha;
-    wxTextCtrl* m_cluster;
-    wxNotebook* notebook;
-    wxChoice* m_select_method;
-    wxCheckBox* chk_allowsinglecluster;
-
 
     DECLARE_EVENT_TABLE()
 };

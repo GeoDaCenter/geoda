@@ -31,6 +31,8 @@
 
 using namespace SpanningTreeClustering;
 
+class RawDistMatrix;
+
 namespace Gda {
     struct IdxCompare
     {
@@ -192,6 +194,7 @@ namespace Gda {
     /////////////////////////////////////////////////////////////////////////
     class HDBScan
     {
+        vector<vector<double> > mutual_dist;
     public:
         int rows;
         int cols;
@@ -211,8 +214,8 @@ namespace Gda {
                 int cluster_selection_method,
                 bool allow_single_cluster,
                 int rows, int cols,
-                double** _distances,
-                vector<double> _core_dist,
+                RawDistMatrix* mutual_dist,
+                vector<double> core_dist,
                 const vector<bool>& undefs
                 //GalElement * w,
                 //double* controls,
@@ -261,7 +264,7 @@ namespace Gda {
         
         void mst_linkage_core_vector(int num_features,
                                      vector<double>& core_distances,
-                                     double** dist_metric, double alpha);
+                                     vector<vector<double> >& dist_metric, double alpha);
         
         vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
         

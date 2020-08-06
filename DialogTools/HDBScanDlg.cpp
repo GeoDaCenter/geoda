@@ -44,7 +44,7 @@
 #include "../GenUtils.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/distmatrix.h"
-
+#include "../Algorithms/pam.h"
 #include "SaveToTableDlg.h"
 #include "HDBScanDlg.h"
 
@@ -417,7 +417,7 @@ bool HDBScanDlg::CheckAllInputs()
     if (m_minsamples->GetValue().ToLong(&l_min_samples)) {
         m_min_samples = (int)l_min_samples;
     }
-    if (m_min_samples <= 1) {
+    if (m_min_samples < 1) {
         wxString err_msg = _("Minimum points should be greater than zero.");
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
@@ -467,31 +467,28 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
             data[i][j] = input_data[i][j] * weight[j];
         }
     }
-    core_dist = Gda::HDBScan::ComputeCoreDistance(
-                                    data, rows, columns, m_min_samples, dist);
+    core_dist = Gda::HDBScan::ComputeCoreDistance(data, rows, columns, m_min_samples, dist);
+    // compute mutual reachiability distance
+    int transpose = 0; // row wise
+    char dist = 'b'; // city-block
+    if (m_distance->GetSelection()== 0) dist = 'e';
+    double** raw_dist = distancematrix(rows, columns, data,  mask, weight, dist, transpose);
+    RawDistMatrix dist_matrix(raw_dist);
 
     for (int i=0; i<rows; i++) delete[] data[i];
     delete[] data;
-
-    double** dist_matrix = NULL;
-    if (dist == 'e') {
-        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
-                                         columns, DataUtils::EuclideanDistance);
-    } else {
-        dist_matrix = DataUtils::ComputeFullDistMatrix(input_data, weight, rows,
-                                         columns,DataUtils::ManhattanDistance);
-    }
     
     Gda::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
                                  m_cluster_selection_method,
                                  m_allow_single_cluster, rows, columns,
-                                 dist_matrix, core_dist, undefs);
+                                 &dist_matrix, core_dist, undefs);
     cluster_ids = hdb.GetRegions();
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
 
-    for (int i=0; i<rows; i++) delete[] dist_matrix[i];
-    delete[] dist_matrix;
+    // clean raw dist
+    for (int i=1; i<rows; i++) delete[] raw_dist[i];
+    delete[] raw_dist;
 
     int ncluster = (int)cluster_ids.size();
 
@@ -617,3 +614,112 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     saveButton->Enable();
 }
+
+/*
+IMPLEMENT_ABSTRACT_CLASS(wxCondensedTree, wxPanel)
+
+BEGIN_EVENT_TABLE(wxCondensedTree, wxPanel)
+EVT_MOUSE_EVENTS(wxCondensedTree::OnEvent)
+EVT_IDLE(wxCondensedTree::OnIdle)
+EVT_PAINT(wxCondensedTree::OnPaint)
+EVT_SIZE(wxCondensedTree::OnSize)
+END_EVENT_TABLE()
+
+wxCondensedTree::wxCondensedTree(wxWindow *parent, const std::vector<CondensedTree *> &tree,
+                                 wxWindowID id, const wxPoint &pos, const wxSize &size)
+: wxPanel(parent, id, pos, size),
+isLeftDown(false), isLeftMove(false), isMovingSelectBox(false),
+isLayerValid(false), isWindowActive(true),
+isResize(false), condensed_tree(tree)
+{
+    SetBackgroundStyle(wxBG_STYLE_CUSTOM);
+    SetBackgroundColour(*wxWHITE);
+    layer_bm = NULL;
+    select_box = NULL;
+}
+
+void wxCondensedTree::OnIdle(wxIdleEvent &event) { 
+    if (isResize && isWindowActive) {
+        isResize = false;
+
+        wxSize sz = GetClientSize();
+        if (sz.x > 0 && sz.y > 0) {
+            if (layer_bm)  {
+                delete layer_bm;
+                layer_bm = 0;
+            }
+            // for Hdpi painting
+            double scale_factor = GetContentScaleFactor();
+            layer_bm = new wxBitmap;
+            layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
+
+            //if (root) init();
+        }
+    }
+    event.Skip();
+}
+
+void wxCondensedTree::OnEvent(wxMouseEvent &event) { 
+    if (event.LeftDown()) {
+        // mouse left down
+        isLeftDown = true;
+        startPos = event.GetPosition();
+    } else if (event.Dragging()) {
+        if (isLeftDown) {
+            isLeftMove = true;
+        }
+    } else if (event.LeftUp()) {
+        if (isLeftMove) {
+            isLeftMove = false;
+            // stop move
+            //isMovingSplitLine = false;
+        } else {
+            // only left click
+            if (select_box) {
+                delete select_box;
+                select_box = 0;
+                //NotifySelection();
+                Refresh();
+            }
+        }
+        isMovingSelectBox = false;
+        isLeftDown = false;
+    }
+}
+
+void wxCondensedTree::OnSize(wxSizeEvent &event) { 
+    isResize = true;
+    event.Skip();
+}
+
+void wxCondensedTree::OnPaint(wxPaintEvent &event) { 
+    wxSize sz = GetClientSize();
+    if (layer_bm && isLayerValid) {
+        // flush layer_bm to scren
+        wxMemoryDC dc;
+        dc.SelectObject(*layer_bm);
+
+        wxPaintDC paint_dc(this);
+        paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
+
+        // paint selection box
+        if (select_box) {
+            paint_dc.SetPen(*wxBLACK_PEN);
+            paint_dc.SetBrush(*wxTRANSPARENT_BRUSH);
+            paint_dc.DrawRectangle(*select_box);
+        }
+        dc.SelectObject(wxNullBitmap);
+    } else {
+        // draw blank canvas
+        wxAutoBufferedPaintDC dc(this);
+        dc.Clear();
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        wxBrush Brush;
+        Brush.SetColour(GdaConst::canvas_background_color);
+        dc.SetBrush(Brush);
+        dc.DrawRectangle(wxRect(0, 0, sz.x, sz.y));
+    }
+    event.Skip();
+}
+
+*/

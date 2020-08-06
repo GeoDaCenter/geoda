@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include <boost/graph/prim_minimum_spanning_tree.hpp>
+#include "pam.h"
 #include "hdbscan.h"
 
 
@@ -29,10 +30,7 @@ vector<double> HDBScan::ComputeCoreDistance(double** input_data, int n_pts,
     if (dist == 'e') ANN_DIST_TYPE = 2; // euclidean
     else if (dist == 'b') ANN_DIST_TYPE = 1; // manhattan
 
-    // since KNN search will always return the query point itself, so add 1
-    // to make sure returning min_samples number of results
-    //min_samples = min_samples + 1;
-
+    // KNN search will always return the query point itself, (self-included)
     ANNkd_tree* kdTree = new ANNkd_tree(input_data, n_pts, n_dim);
     ANNidxArray nnIdx = new ANNidx[min_samples];
     ANNdistArray dists = new ANNdist[min_samples];
@@ -49,7 +47,7 @@ vector<double> HDBScan::ComputeCoreDistance(double** input_data, int n_pts,
 
 HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
                  int _cluster_selection_method, bool _allow_single_cluster,
-                 int rows, int cols, double** _distances,
+                 int rows, int cols, RawDistMatrix* raw_dist,
                  vector<double> _core_dist,
                  const vector<bool>& _undefs)
 {
@@ -59,9 +57,40 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
     
     // Core distances
     core_dist = _core_dist;
+
+    // mutual distances
+    mutual_dist.resize(rows);
+    for (int i=0; i<rows; ++i) {
+        for (int j=i+1; j<rows; ++j) {
+            // max (core(a), core(b), dist(a,b))
+            double val = 0;
+            if (i != j) {
+                val = std::max(core_dist[i], core_dist[j]);
+                val = std::max(val, sqrt(raw_dist->getDistance(i, j)));
+            }
+            mutual_dist[i].push_back(val);
+        }
+    }
     
     // MST
-    mst_linkage_core_vector(cols, core_dist, _distances, alpha);
+    Graph g(rows);
+    for (int i=0; i<rows; i++) {
+        for (int j=i+1, k=0; j<rows; j++, k++) {
+            boost::add_edge(i, j, mutual_dist[i][k], g);
+        }
+    }
+    std::vector<int> p(num_vertices(g));
+    prim_minimum_spanning_tree(g, p.data());
+    for (int source = 0; source < p.size(); ++source) {
+        int target = p[source];
+        if (source != target) {
+            double cost = source < target ? mutual_dist[source][target - source -1] :
+            mutual_dist[target][source - target -1];
+            mst_edges.push_back(new SimpleEdge(source, target, cost));
+        }
+    }
+
+    //mst_linkage_core_vector(cols, core_dist, mutual_dist, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
     
     // Extract the HDBSCAN hierarchy as a dendrogram from mst
@@ -83,19 +112,18 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
         single_linkage_tree[i][2] = delta;
         single_linkage_tree[i][3] = U.size[aa] + U.size[bb];
         
-        //cout << a << " " << b << " " << delta << endl;
-        //cout << aa << " " << bb << " " << delta << " " <<single_linkage_tree[i][3] << endl;
         U.Union(aa, bb);
     }
-    
-     for (int i=0; i<mst_edges.size(); i++) {
-         delete mst_edges[i];
-     }
+
     // following: _tree_to_labels()
     
     // condensed_tree = condense_tree(single_linkage_tree, min_cluster_size)
     condense_tree(single_linkage_tree, N, min_cluster_size);
-    
+
+    for (int i=0; i<mst_edges.size(); i++) {
+        delete mst_edges[i];
+    }
+
     for (int i=0; i<N-1; i++) {
         delete[] single_linkage_tree[i];
     }
@@ -757,7 +785,7 @@ vector<int> HDBScan::recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int 
 
 void HDBScan::mst_linkage_core_vector(int num_features,
                                       vector<double>& core_distances,
-                                      double** dist_metric,
+                                      vector<vector<double> >& dist_metric,
                                       double alpha)
 {
     int dim = core_distances.size();
@@ -779,7 +807,9 @@ void HDBScan::mst_linkage_core_vector(int num_features,
                 continue;
             }
             double right_value = current_distances[j];
-            double left_value = dist_metric[current_node][j];
+            double left_value = current_node < j ?
+                dist_metric[current_node][j - current_node -  1] :
+                dist_metric[j][current_node - j - 1];
             
             if (alpha!=1.0) {
                 left_value /= alpha;
