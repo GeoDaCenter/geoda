@@ -59,7 +59,7 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
     wxLogMessage("Open HDBScanDlg.");
     parent = parent_s;
     project = project_s;
-    
+    htree = NULL;
     highlight_state = project->GetHighlightState();
                     
     bool init_success = Init();
@@ -218,8 +218,10 @@ void HDBScanDlg::CreateControls()
 
 	// Summary control 
     notebook = new wxNotebook( panel, wxID_ANY);
-    //m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
-    //notebook->AddPage(m_panel, _("Dendrogram"));
+    m_dendrogram = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
+    notebook->AddPage(m_dendrogram, _("Dendrogram"));
+    m_panel = new wxCondensedTree(notebook, wxID_ANY);
+    notebook->AddPage(m_panel, _("Condensed Tree"));
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HDBScanDlg::OnNotebookChange), NULL, this);
@@ -486,6 +488,29 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
 
+    if (htree != NULL) {
+        delete[] htree;
+        htree = NULL;
+    }
+    htree = new GdaNode[rows-1];
+
+    Gda::UnionFind U(rows);
+    for (int i=0; i<hdb.mst_edges.size(); i++) {
+        Gda::SimpleEdge* e = hdb.mst_edges[i];
+        int a = e->orig;
+        int b = e->dest;
+        double delta = e->length;
+
+        int aa = U.fast_find(a);
+        int bb = U.fast_find(b);
+
+        htree[i].left = aa;
+        htree[i].right = bb;
+        htree[i].distance = delta;
+
+        U.Union(aa, bb);
+    }
+
     // clean raw dist
     for (int i=1; i<rows; i++) delete[] raw_dist[i];
     delete[] raw_dist;
@@ -599,23 +624,11 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     // draw dendrogram
     // GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff
-    /*double** sltree =hdb.single_linkage_tree;
-    GdaNode* htree = new GdaNode[rows-1];
-    
-    for (int i=0; i<rows-1; i++) {
-        htree[i].left = edges[i].orig;
-        htree[i].right = edges[i].dest;
-        htree[i].distance = edges[i].length;
-    }
-    
-    m_panel->Setup(htree, rows,  not_clustered > 0 ? ncluster +1 : ncluster, clusters, 0);
-    // free(htree); should be freed in m_panel since drawing still needs it's instance
-    */
-    
+    m_dendrogram->Setup(htree, rows, 2, clusters, 0);
+
     saveButton->Enable();
 }
 
-/*
 IMPLEMENT_ABSTRACT_CLASS(wxCondensedTree, wxPanel)
 
 BEGIN_EVENT_TABLE(wxCondensedTree, wxPanel)
@@ -625,12 +638,14 @@ EVT_PAINT(wxCondensedTree::OnPaint)
 EVT_SIZE(wxCondensedTree::OnSize)
 END_EVENT_TABLE()
 
-wxCondensedTree::wxCondensedTree(wxWindow *parent, const std::vector<CondensedTree *> &tree,
+wxCondensedTree::wxCondensedTree(wxWindow *parent,
+                                 //const std::vector<CondensedTree *> &tree,
                                  wxWindowID id, const wxPoint &pos, const wxSize &size)
 : wxPanel(parent, id, pos, size),
 isLeftDown(false), isLeftMove(false), isMovingSelectBox(false),
 isLayerValid(false), isWindowActive(true),
-isResize(false), condensed_tree(tree)
+isResize(false)
+//condensed_tree(tree)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
@@ -721,5 +736,3 @@ void wxCondensedTree::OnPaint(wxPaintEvent &event) {
     }
     event.Skip();
 }
-
-*/

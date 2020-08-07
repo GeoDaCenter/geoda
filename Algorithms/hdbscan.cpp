@@ -90,6 +90,10 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
         }
     }
     */
+
+    for (int i=0; i<mst_edges.size(); i++) {
+        delete mst_edges[i];
+    }
     // MST
     mst_linkage_core_vector(cols, core_dist, raw_dist, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
@@ -121,10 +125,6 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
     // condensed_tree = condense_tree(single_linkage_tree, min_cluster_size)
     condense_tree(single_linkage_tree, N, min_cluster_size);
 
-    for (int i=0; i<mst_edges.size(); i++) {
-        delete mst_edges[i];
-    }
-
     for (int i=0; i<N-1; i++) {
         delete[] single_linkage_tree[i];
     }
@@ -146,6 +146,9 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
 
 HDBScan::~HDBScan()
 {
+    for (int i=0; i<mst_edges.size(); i++) {
+        delete mst_edges[i];
+    }
 }
 
 vector<vector<int> > HDBScan::GetRegions()

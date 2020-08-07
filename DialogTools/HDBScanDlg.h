@@ -35,7 +35,6 @@ class Project;
 class TableInterface;
 class CondensedTree;
 
-/*
 // wxWidgets control of Condensed Tree in HDBScan
 class wxCondensedTree : public wxPanel
 {
@@ -54,7 +53,8 @@ class wxCondensedTree : public wxPanel
     std::vector<CondensedTree*> condensed_tree;
 
 public:
-    wxCondensedTree(wxWindow* parent, const std::vector<CondensedTree*>& condensed_tree,
+    wxCondensedTree(wxWindow* parent,
+                    //const std::vector<CondensedTree*>& condensed_tree,
                     wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
                     const wxSize &size=wxDefaultSize);
 
@@ -66,7 +66,6 @@ public:
     DECLARE_ABSTRACT_CLASS(wxCondensedTree)
     DECLARE_EVENT_TABLE()
 };
-*/
 
 // HDBScan Dialog
 class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
@@ -87,13 +86,15 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
 
     double cutoffDistance;
     vector<wxInt64> clusters;
+    GdaNode* htree;
 
     wxButton *saveButton;
     wxChoice* combo_n;
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxChoice* m_distance;
-    DendrogramPanel* m_panel;
+    wxCondensedTree* m_panel;
+    DendrogramPanel* m_dendrogram;
     wxTextCtrl* m_minpts;
     wxTextCtrl* m_minsamples;
     wxTextCtrl* m_ctl_alpha;
