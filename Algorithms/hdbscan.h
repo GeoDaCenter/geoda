@@ -194,7 +194,6 @@ namespace Gda {
     /////////////////////////////////////////////////////////////////////////
     class HDBScan
     {
-        vector<vector<double> > mutual_dist;
     public:
         int rows;
         int cols;
@@ -214,7 +213,7 @@ namespace Gda {
                 int cluster_selection_method,
                 bool allow_single_cluster,
                 int rows, int cols,
-                RawDistMatrix* mutual_dist,
+                RawDistMatrix* raw_dist,
                 vector<double> core_dist,
                 const vector<bool>& undefs
                 //GalElement * w,
@@ -264,7 +263,7 @@ namespace Gda {
         
         void mst_linkage_core_vector(int num_features,
                                      vector<double>& core_distances,
-                                     vector<vector<double> >& dist_metric, double alpha);
+                                     RawDistMatrix* dist_metric, double alpha);
         
         vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
         

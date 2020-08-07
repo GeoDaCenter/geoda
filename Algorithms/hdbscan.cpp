@@ -59,6 +59,7 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
     core_dist = _core_dist;
 
     // mutual distances
+    /*
     mutual_dist.resize(rows);
     for (int i=0; i<rows; ++i) {
         for (int j=i+1; j<rows; ++j) {
@@ -71,8 +72,7 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
             mutual_dist[i].push_back(val);
         }
     }
-    
-    // MST
+
     Graph g(rows);
     for (int i=0; i<rows; i++) {
         for (int j=i+1, k=0; j<rows; j++, k++) {
@@ -89,8 +89,9 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
             mst_edges.push_back(new SimpleEdge(source, target, cost));
         }
     }
-
-    //mst_linkage_core_vector(cols, core_dist, mutual_dist, alpha);
+    */
+    // MST
+    mst_linkage_core_vector(cols, core_dist, raw_dist, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
     
     // Extract the HDBSCAN hierarchy as a dendrogram from mst
@@ -785,7 +786,7 @@ vector<int> HDBScan::recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int 
 
 void HDBScan::mst_linkage_core_vector(int num_features,
                                       vector<double>& core_distances,
-                                      vector<vector<double> >& dist_metric,
+                                      RawDistMatrix* dist_metric,
                                       double alpha)
 {
     int dim = core_distances.size();
@@ -794,12 +795,14 @@ void HDBScan::mst_linkage_core_vector(int num_features,
     vector<int> in_tree(dim,0);
     int current_node = 0;
     vector<double> current_distances(dim, DBL_MAX);
+    vector<int> current_sources(dim, 1);
     
     for (int i=1; i<dim; i++) {
         in_tree[current_node] = 1;
         current_node_core_distance = core_distances[current_node];
         
         double new_distance = DBL_MAX;
+        int source_node = 0;
         int new_node = 0;
         
         for (int j=0; j<dim; j++) {
@@ -807,10 +810,10 @@ void HDBScan::mst_linkage_core_vector(int num_features,
                 continue;
             }
             double right_value = current_distances[j];
-            double left_value = current_node < j ?
-                dist_metric[current_node][j - current_node -  1] :
-                dist_metric[j][current_node - j - 1];
-            
+            int right_source = current_sources[j];
+            double left_value = sqrt(dist_metric->getDistance(current_node, j));
+            int left_source = current_node;
+
             if (alpha!=1.0) {
                 left_value /= alpha;
             }
@@ -819,6 +822,7 @@ void HDBScan::mst_linkage_core_vector(int num_features,
             if (current_node_core_distance > right_value || core_value > right_value ||  left_value > right_value) {
                 if (right_value < new_distance) {
                     new_distance = right_value;
+                    source_node = right_source;
                     new_node = j;
                 }
                 continue;
@@ -836,18 +840,21 @@ void HDBScan::mst_linkage_core_vector(int num_features,
             
             if (left_value < right_value) {
                 current_distances[j] = left_value;
+                current_sources[j] = left_source;
                 if (left_value < new_distance) {
                     new_distance = left_value;
+                    source_node = left_source;
                     new_node = j;
                 }
             } else {
                 if (right_value < new_distance) {
                     new_distance = right_value;
+                    source_node = right_source;
                     new_node = j;
                 }
             }
         }
-        mst_edges.push_back(new SimpleEdge(current_node, new_node, new_distance));
+        mst_edges.push_back(new SimpleEdge(source_node, new_node, new_distance));
         
         current_node = new_node;
     }
