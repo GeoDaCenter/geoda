@@ -218,10 +218,10 @@ void HDBScanDlg::CreateControls()
 
 	// Summary control 
     notebook = new wxNotebook( panel, wxID_ANY);
-    m_dendrogram = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
+    m_dendrogram = new wxDendrogram(notebook, wxID_ANY);
     notebook->AddPage(m_dendrogram, _("Dendrogram"));
-    m_panel = new wxCondensedTree(notebook, wxID_ANY);
-    notebook->AddPage(m_panel, _("Condensed Tree"));
+    m_condensedtree = new wxCondensedTree(notebook, wxID_ANY);
+    notebook->AddPage(m_condensedtree, _("Condensed Tree"));
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(HDBScanDlg::OnNotebookChange), NULL, this);
@@ -488,11 +488,14 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
 
+    m_condensedtree->Setup(hdb.condensed_tree);
+
     if (htree != NULL) {
         delete[] htree;
         htree = NULL;
     }
-    htree = new GdaNode[rows-1];
+    //htree = new GdaNode[rows-1];
+    std::vector<TreeNode> tree(rows-1);
 
     Gda::UnionFind U(rows);
     for (int i=0; i<hdb.mst_edges.size(); i++) {
@@ -504,12 +507,14 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
         int aa = U.fast_find(a);
         int bb = U.fast_find(b);
 
-        htree[i].left = aa;
-        htree[i].right = bb;
-        htree[i].distance = delta;
+        tree[i].left = aa;
+        tree[i].right = bb;
+        tree[i].distance = delta;
 
         U.Union(aa, bb);
     }
+
+    m_dendrogram->Setup(tree);
 
     // clean raw dist
     for (int i=1; i<rows; i++) delete[] raw_dist[i];
@@ -624,28 +629,33 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     // draw dendrogram
     // GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff
-    m_dendrogram->Setup(htree, rows, 2, clusters, 0);
+    int clst_sz = cluster_ids.size();
+    for (int i=0; i<clusters.size(); ++i) {
+        if (clusters[i] == 0) {
+            clst_sz += 1;
+            break;
+        }
+    }
+    std::vector<wxInt64> clusters_w_noise = clusters;
+    for (int i=0; i<clusters_w_noise.size(); ++i) clusters_w_noise[i] += 1;
 
     saveButton->Enable();
 }
 
-IMPLEMENT_ABSTRACT_CLASS(wxCondensedTree, wxPanel)
+IMPLEMENT_ABSTRACT_CLASS(wxHTree, wxPanel)
 
-BEGIN_EVENT_TABLE(wxCondensedTree, wxPanel)
-EVT_MOUSE_EVENTS(wxCondensedTree::OnEvent)
-EVT_IDLE(wxCondensedTree::OnIdle)
-EVT_PAINT(wxCondensedTree::OnPaint)
-EVT_SIZE(wxCondensedTree::OnSize)
+BEGIN_EVENT_TABLE(wxHTree, wxPanel)
+EVT_MOUSE_EVENTS(wxHTree::OnEvent)
+EVT_IDLE(wxHTree::OnIdle)
+EVT_PAINT(wxHTree::OnPaint)
+EVT_SIZE(wxHTree::OnSize)
 END_EVENT_TABLE()
 
-wxCondensedTree::wxCondensedTree(wxWindow *parent,
-                                 //const std::vector<CondensedTree *> &tree,
-                                 wxWindowID id, const wxPoint &pos, const wxSize &size)
+wxHTree::wxHTree(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
 : wxPanel(parent, id, pos, size),
 isLeftDown(false), isLeftMove(false), isMovingSelectBox(false),
 isLayerValid(false), isWindowActive(true),
 isResize(false)
-//condensed_tree(tree)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
@@ -653,7 +663,27 @@ isResize(false)
     select_box = NULL;
 }
 
-void wxCondensedTree::OnIdle(wxIdleEvent &event) { 
+wxHTree::~wxHTree()
+{
+    if (layer_bm) {
+        delete layer_bm;
+        layer_bm= NULL;
+    }
+}
+
+void wxHTree::InitCanvas()
+{
+    if (layer_bm == NULL) {
+        wxSize sz = this->GetClientSize();
+        int ww = sz.GetWidth();
+        int hh = sz.GetHeight();
+        double scale_factor = GetContentScaleFactor();
+        layer_bm = new wxBitmap;
+        layer_bm->CreateScaled(ww, hh, 32, scale_factor);
+    }
+}
+
+void wxHTree::OnIdle(wxIdleEvent &event) {
     if (isResize && isWindowActive) {
         isResize = false;
 
@@ -668,13 +698,13 @@ void wxCondensedTree::OnIdle(wxIdleEvent &event) {
             layer_bm = new wxBitmap;
             layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
 
-            //if (root) init();
+            DoDraw();
         }
     }
     event.Skip();
 }
 
-void wxCondensedTree::OnEvent(wxMouseEvent &event) { 
+void wxHTree::OnEvent(wxMouseEvent &event) {
     if (event.LeftDown()) {
         // mouse left down
         isLeftDown = true;
@@ -702,12 +732,12 @@ void wxCondensedTree::OnEvent(wxMouseEvent &event) {
     }
 }
 
-void wxCondensedTree::OnSize(wxSizeEvent &event) { 
+void wxHTree::OnSize(wxSizeEvent &event) {
     isResize = true;
     event.Skip();
 }
 
-void wxCondensedTree::OnPaint(wxPaintEvent &event) { 
+void wxHTree::OnPaint(wxPaintEvent &event) {
     wxSize sz = GetClientSize();
     if (layer_bm && isLayerValid) {
         // flush layer_bm to scren

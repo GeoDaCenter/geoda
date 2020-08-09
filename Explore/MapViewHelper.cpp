@@ -150,8 +150,8 @@ HeatMapBandwidthDlg::HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
     wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
     topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 
-    int ticket = (int)(sel_band / max_band * 100);
-    slider = new wxSlider(this, wxID_ANY, ticket, 0, 100,
+    int ticket = (int)(sel_band / max_band * 1000.0);
+    slider = new wxSlider(this, wxID_ANY, ticket, 0, 1000,
                           wxDefaultPosition, wxSize(300, -1),
                           wxSL_HORIZONTAL);
 
@@ -168,8 +168,12 @@ HeatMapBandwidthDlg::HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
 
     slider->Bind(wxEVT_SLIDER, &HeatMapBandwidthDlg::OnSliderChange, this);
 
-    wxCommandEvent ev;
-    OnSliderChange(ev);
+    //wxCommandEvent ev;
+    //OnSliderChange(ev);
+    if (canvas && heatmap) {
+        heatmap->UpdateBandwidth(sel_band);
+        canvas->RedrawMap();
+    }
 }
 
 HeatMapBandwidthDlg::~HeatMapBandwidthDlg()

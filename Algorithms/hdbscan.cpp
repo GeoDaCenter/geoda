@@ -90,10 +90,11 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
         }
     }
     */
-
+    // clean up mst_edges if needed
     for (int i=0; i<mst_edges.size(); i++) {
         delete mst_edges[i];
     }
+    mst_edges.clear();
     // MST
     mst_linkage_core_vector(cols, core_dist, raw_dist, alpha);
     std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
@@ -120,9 +121,11 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
         U.Union(aa, bb);
     }
 
-    // following: _tree_to_labels()
-    
-    // condensed_tree = condense_tree(single_linkage_tree, min_cluster_size)
+    // clean up condensed_tree if needed
+    for (int i=0; i<condensed_tree.size(); i++) {
+        delete condensed_tree[i];
+    }
+    condensed_tree.clear();
     condense_tree(single_linkage_tree, N, min_cluster_size);
 
     for (int i=0; i<N-1; i++) {
@@ -138,16 +141,15 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
     
     // get outliers
     outliers = outlier_scores(condensed_tree);
-    
-    for (int i=0; i<condensed_tree.size(); i++) {
-        delete condensed_tree[i];
-    }
 }
 
 HDBScan::~HDBScan()
 {
     for (int i=0; i<mst_edges.size(); i++) {
         delete mst_edges[i];
+    }
+    for (int i=0; i<condensed_tree.size(); i++) {
+        delete condensed_tree[i];
     }
 }
 
