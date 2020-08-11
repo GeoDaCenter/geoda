@@ -733,7 +733,9 @@ void HDBScan::get_clusters(vector<CondensedTree*>& tree,
         cluster_map[_clusters[i]] = i;
         reverse_cluster_map[i] = _clusters[i];
     }
-    
+
+    this->clusters = clusters;
+
     // do labeling (tree, clusters, cluster_map, False, False
     out_labels = do_labelling(tree, clusters, cluster_map, allow_single_cluster, match_reference_implementation);
     

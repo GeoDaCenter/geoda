@@ -206,7 +206,8 @@ namespace Gda {
         vector<double> probabilities;
         vector<double> stabilities;
         vector<double> outliers;
-    
+        set<int> clusters;
+        
         HDBScan(int min_points,
                 int min_samples,
                 double alpha,

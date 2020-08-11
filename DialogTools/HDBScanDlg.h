@@ -29,6 +29,7 @@
 #include "HClusterDlg.h"
 #include "AbstractClusterDlg.h"
 #include "../Algorithms/hdbscan.h"
+#include "../GenColor.h"
 
 class Project;
 class TableInterface;
@@ -79,7 +80,7 @@ class wxCondensedTree : public wxHTree
 {
     std::vector<Gda::CondensedTree> tree;
 
-    int margin;
+    int margin_left, margin_right, margin_top, margin_bottom;
     double ratio_w;
     double ratio_h;
     int screen_w;
@@ -91,18 +92,46 @@ class wxCondensedTree : public wxHTree
     double tree_w;
     double tree_t;
     double tree_b;
-    std::map<int, int> cluster_left, cluster_right, cluster_sz;
 
+    int max_cluster_size;
+    std::map<int, int> cluster_left, cluster_right, cluster_sz;
+    std::map<int, double> cluster_birth;
+    std::map<int, bool> cluster_isleft;
+    std::vector<int> cluster_ids;
+    std::map<int, std::vector<int> > cluster_children;
+    std::set<int> clusters;
+    std::map<int, double> cluster_death;
+
+    std::vector<ColorSpace::Rgb> colors;
+    std::map<int, wxBrush*> cluster_brush;
     bool setup;
+
 public:
     wxCondensedTree(wxWindow* parent,
                  wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
                  const wxSize &size=wxDefaultSize)
-    : wxHTree(parent, id, pos, size), margin(10), setup(false) {}
+    : wxHTree(parent, id, pos, size), setup(false) {
+        margin_top = 10;
+        margin_bottom = 10;
+        margin_left = 100;
+        margin_right = 100;
+    }
     virtual ~wxCondensedTree() {}
 
+    ColorSpace::Rgb GetColor(int cluster_size) {
+        int idx = 100 * cluster_size / (double) max_cluster_size;
+        return colors[idx];
+    }
+
     // wxCondensedTree will be drawn only after Setup()
-    void Setup(std::vector<Gda::CondensedTree*>& _tree) {
+    void Setup(std::vector<Gda::CondensedTree*>& _tree,
+               std::set<int> clusters) {
+        this->clusters = clusters;
+
+        // color for number of clusters
+        ColorSpace::Rgb a(8,29,88), b(253,227,32); // BluYl
+        colors = ColorSpace::ColorSpectrumHSV(a, b, 101); // 0-100
+
         // copy tree
         tree.resize(_tree.size());
         for (int i=0; i<tree.size(); ++i) {
@@ -110,6 +139,9 @@ public:
             tree[i].child = _tree[i]->child;
             tree[i].lambda_val = _tree[i]->lambda_val;
             tree[i].child_size = _tree[i]->child_size;
+            if (tree[i].lambda_val == DBL_MAX) {
+                tree[i].lambda_val = 0;
+            }
         }
 
         // get the data range of the tree: width, height, where to draw clusters
@@ -117,23 +149,32 @@ public:
         tree_t = 0;
         tree_b = 0;
 
-
         int n = 0;
         int root = tree[0].parent;
 
         // get max lambda value; and size of each cluster (number of items)
         for (int i=0; i<tree.size(); ++i) {
-            if (tree_b < tree[i].lambda_val) {
-                tree_b = tree[i].lambda_val;
-            }
             int parent = tree[i].parent;
             int child = tree[i].child;
             int child_size = tree[i].child_size;
-            if (parent >= root) {
-                cluster_sz[parent] += child_size;
+            double lambda = tree[i].lambda_val;
+            if (tree_b < lambda ) {
+                tree_b = lambda;
             }
+
+            cluster_sz[parent] += child_size;
+
             if (child < parent){
                 n += 1; // count how many items
+            } else {
+                cluster_children[parent].push_back(child); // record children
+            }
+            // max lambda of each cluster
+            if (cluster_death.find(parent) == cluster_death.end()) {
+                cluster_death[parent] = 0;;
+            }
+            if (cluster_death[parent] < lambda) {
+                cluster_death[parent] = lambda;
             }
         }
 
@@ -141,38 +182,74 @@ public:
         // get position for each cluster [left, right]
         cluster_left[root] = 0;
         cluster_right[root] = n;
+        cluster_birth[root] = 0;
+        cluster_isleft[root] = true;
         tree_left = 0;
         tree_right = n;
 
-        int num_child = 0;
         for (int i=0; i<tree.size(); ++i) {
             int parent = tree[i].parent;
             int child = tree[i].child;
+            double lambda = tree[i].lambda_val;
 
             if (child > parent) {
                 // sub clusters
-                if (num_child == 0) {
+                if (cluster_children[parent][0] == child) {
                     // left child
                     cluster_left[child] = cluster_left[parent] - cluster_sz[parent];
                     cluster_right[child] = cluster_left[child] + cluster_sz[child];
                     if (cluster_left[child] < tree_left) {
                         tree_left = cluster_left[child];
                     }
-                    num_child += 1;
-                } else if (num_child == 1) {
+                    if (cluster_birth[child] < lambda) {
+                        cluster_birth[child] = lambda;
+                    }
+                    cluster_isleft[child] = true;
+                } else {
                     // right child
                     cluster_right[child] = cluster_right[parent] + cluster_sz[parent];
                     cluster_left[child] = cluster_right[parent] - cluster_sz[child];
                     if (cluster_right[child] > tree_right) {
                         tree_right = cluster_right[child];
                     }
-                    num_child = 0;
+                    if (cluster_birth[child] < lambda) {
+                        cluster_birth[child] = lambda;
+                    }
+                    cluster_isleft[child] = false;
                 }
             }
         }
 
         tree_w = tree_right - tree_left;
         tree_h = tree_b - tree_t;
+
+        // setup brush color
+        max_cluster_size = 0;
+        std::map<int, int>::iterator it;
+        for (it = cluster_sz.begin(); it != cluster_sz.end(); ++it) {
+            int sz = it->second;
+            if (max_cluster_size < sz) {
+                max_cluster_size = sz;
+            }
+            ColorSpace::Rgb clr = GetColor(sz);
+            cluster_brush[it->first] = new wxBrush(wxColour(clr.r, clr.g, clr.b));
+        }
+        setup = true;
+    }
+
+    virtual void SetupProjection() {
+        wxSize sz = this->GetClientSize();
+        screen_w = sz.GetWidth();
+        screen_h = sz.GetHeight();
+        if (screen_w <= margin_left + margin_right ||
+            screen_h <= margin_top + margin_bottom) {
+            return;
+        }
+        screen_w = screen_w - margin_left - margin_right;
+        screen_h = screen_h - margin_top - margin_bottom;
+
+        ratio_w = screen_w / tree_w;
+        ratio_h = screen_h / tree_h;
     }
 
     virtual void DoDraw() {
@@ -182,7 +259,7 @@ public:
         InitCanvas();
 
         // project data points to screen
-        //SetupProjection();
+        SetupProjection();
 
         // draw everything on a wxbitmap
         wxMemoryDC dc;
@@ -190,8 +267,10 @@ public:
         dc.Clear();
         dc.SetFont(*GdaConst::extra_small_font);
 
-        double start_y = 0;
-        int root = tree[0].parent;
+        // draw each cluster
+        double w = 1;
+
+        std::map<int, double> cluster_startx;
 
         for (int i=0; i<tree.size(); ++i) {
             int parent = tree[i].parent;
@@ -199,17 +278,196 @@ public:
             int child_size = tree[i].child_size;
             double lambda = tree[i].lambda_val;
 
+            if (cluster_startx.find(parent) == cluster_startx.end()) {
+                cluster_startx[parent] = cluster_isleft[parent] ? cluster_left[parent] : cluster_right[parent];
+            }
+
             // draw a rectangle
-            int start_x = cluster_left[parent];
-            double w = 1;
-            double h = lambda;
-            //dc
+            double end_y = lambda;
+
+            if (child_size == 1) {
+                //continue;
+            }
+            if (cluster_isleft[parent]) {
+                // left branch (draw item from left to right)
+                double start_x = cluster_startx[parent];
+                double end_x = start_x + w * child_size;
+                double start_y = cluster_birth[parent];
+                DrawRect(dc, parent, start_x, start_y, end_x, end_y);
+                cluster_startx[parent] = end_x;
+            } else {
+                // right branch (draw item from right to left)
+                double start_x = cluster_startx[parent];
+                double end_x = start_x - w * child_size;
+                double start_y = cluster_birth[parent];
+                DrawRect(dc, parent, start_x, start_y, end_x, end_y);
+                cluster_startx[parent] = end_x;
+            }
         }
+
+        // draw horizontal line for each cluster
+        std::map<int, double>::iterator it;
+        for (it = cluster_birth.begin(); it != cluster_birth.end(); ++it) {
+            int c = it->first;
+            double x1 = cluster_left[c] - cluster_sz[c];
+            double x2 = cluster_right[c] + cluster_sz[c];
+
+            if (!cluster_children[c].empty()) {
+                // it's children's birth
+                double y2 = cluster_birth[cluster_children[c][0]];
+                // draw horizontal line
+                DrawHLine(dc, x1, x2, y2);
+            }
+            // draw selected ellipse
+            if (clusters.find(c) != clusters.end()) {
+                DrawSelectCluster(dc, c);
+            }
+        }
+
+        // draw legend;
+        DrawLegend(dc);
+        DrawAxis(dc);
 
         // wxbitmap is ready to paint on screen
         dc.SelectObject(wxNullBitmap);
         isLayerValid = true;
         Refresh();
+    }
+
+    virtual void DrawSelectCluster(wxDC&dc, int c) {
+        double w = cluster_sz[c];
+        double x = cluster_isleft[c] ? cluster_left[c] : cluster_right[c] - w;
+        double y = cluster_birth[c];
+        double h = std::abs(cluster_death[c] - cluster_birth[c]);
+
+        double w1 = w / 1.1 * 2;
+        double h1 = h / 1.1 * 2;
+
+        if (h1 == 0) h1 = tree_h / 30.0;
+
+        x = x - (w1 - w)/2.0;
+        y = y - (h1 - h)/2.0;
+
+        int xx = (x - tree_left) * ratio_w + margin_left;
+        int yy = (y - tree_t) * ratio_h + margin_top;
+        int ww = w1 * ratio_w;
+        int hh = h1 * ratio_h;
+        dc.SetBrush(*wxTRANSPARENT_BRUSH);
+        dc.DrawEllipse(xx, yy, ww, hh);
+    }
+
+    virtual void DrawRect(wxDC& dc, int c, double x1, double y1, double x2, double y2) {
+        ColorSpace::Rgb rgb = GetColor(c);
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        dc.SetBrush(*(cluster_brush[c]));
+
+        int xx1 = (x1 - tree_left) * ratio_w + margin_left;
+        int xx2 = (x2 - tree_left) * ratio_w + margin_left;
+        int yy1 = (y1 - tree_t) * ratio_h + margin_top;
+        int yy2 = (y2 - tree_t) * ratio_h + margin_top;
+
+        int start_x = xx1 < xx2 ? xx1 : xx2;
+        int start_y = yy1 < yy2 ? yy1 : yy2;
+
+        int w = std::abs(xx2 - xx1);
+        int h = std::abs(yy2 - yy1);
+
+        dc.DrawRectangle(start_x, start_y, w, h);
+    }
+
+    virtual void DrawHLine(wxDC& dc, double x1, double x2, double y) {
+        int xx1 = (x1 - tree_left) * ratio_w + margin_left;
+        int xx2 = (x2 - tree_left) * ratio_w + margin_left;
+        int yy = (y - tree_t) * ratio_h + margin_top;
+        dc.SetPen(*wxBLACK_PEN);
+        dc.DrawLine(xx1, yy, xx2, yy);
+    }
+
+    virtual void DrawLegend(wxDC& dc) {
+        wxSize sz = this->GetClientSize();
+        int sch = sz.GetHeight() - margin_top*4 - margin_bottom*4;
+        int scw = sz.GetWidth();
+
+        // 0-100 legend
+        double legend_h = 101;
+        double ratio_h = 101 / (double)sch;
+        int w = 20; // legend width
+
+        for (int i=0; i<101; ++i) {
+            ColorSpace::Rgb rgb = colors[100-i];
+            int x = scw - margin_right + 30;
+            int y = i / ratio_h + margin_top*4;
+            int h = 1 / ratio_h + 2;
+
+            dc.SetPen(*wxTRANSPARENT_PEN);
+            dc.SetBrush(wxBrush(wxColour(rgb.r, rgb.g, rgb.b)));
+            dc.DrawRectangle(x, y, w, h);
+
+            if (i % 20 == 0) {
+                int sz = max_cluster_size * (100 - i) / 100.0;
+                wxString sz_lbl;
+                sz_lbl << sz;
+                dc.SetPen(*wxBLACK_PEN);
+                dc.DrawText(sz_lbl, x + w + 5, y);
+            }
+        }
+        wxString legend_lbl = _("Number of Points");
+        wxSize extent(dc.GetTextExtent(legend_lbl));
+        double x = extent.GetWidth();
+        double y = extent.GetHeight();
+        dc.DrawRotatedText(legend_lbl, scw - 10, (sch + x) / 2.0, 90.0);
+    }
+
+    virtual void DrawAxis(wxDC& dc) {
+        wxSize sz = this->GetClientSize();
+        int sch = sz.GetHeight();
+
+        // draw label
+        wxString legend_lbl = _("lambda value");
+        wxSize extent(dc.GetTextExtent(legend_lbl));
+        double lbl_w = extent.GetWidth();
+        double lbl_h = extent.GetHeight();
+        dc.DrawRotatedText(legend_lbl, 5, (sch + lbl_w) / 2.0, 90.0);
+
+        // draw a verticle line
+        int xpad = 40;
+        int x = margin_left - xpad;
+        int y0 = margin_top;
+        int y1 = sch - margin_bottom;
+
+        dc.SetPen(*wxBLACK_PEN);
+        dc.DrawLine(x, y0, x, y1);
+
+        // from tree_top to tree_bottom
+        double range = tree_b - tree_t;
+        double itv = range / 5.0;
+
+        for (int i=0; i<5; i++) {
+            double lambda = itv * i;
+
+            wxString str_lambda;
+            str_lambda << lambda;
+
+            wxSize extent(dc.GetTextExtent(str_lambda));
+            int str_w = extent.GetWidth();
+
+            int x1 = margin_left - xpad - str_w - 10;
+            int y1 = (lambda - tree_t) * ratio_h + margin_top;
+
+            dc.DrawText(str_lambda, x1, y1);
+            dc.DrawLine(margin_left -xpad -5, y1, margin_left-xpad, y1);
+        }
+
+        // last one
+        wxString str_lambda;
+        str_lambda << tree_b;
+        wxSize extent1(dc.GetTextExtent(str_lambda));
+        int str_w = extent1.GetWidth();
+        int x1 = margin_left - xpad - str_w - 10;
+        y1 = (tree_b - tree_t) * ratio_h + margin_top;
+
+        dc.DrawText(str_lambda, x1, y1);
+        dc.DrawLine(margin_left -xpad -5, y1, margin_left-xpad, y1);
     }
 };
 
