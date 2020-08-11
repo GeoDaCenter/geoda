@@ -14,13 +14,8 @@
 #define __XL_PAM_H
 
 #include <vector>
-#if __cplusplus >= 201103
-#include <unordered_map>
-using namespace std;
-#else
 #include <boost/unordered_map.hpp>
 using namespace boost;
-#endif
 
 /**
  * title = "xoroshiro+ / xorshift* / xorshift+ generators and the PRNG shootout", //
@@ -76,8 +71,8 @@ public:
     {
         std::vector<int> samples(samplesize);
         int i=0;
-        unordered_map<int, bool> sample_dict;
-        unordered_map<int, bool>::iterator it;
+        boost::unordered_map<int, bool> sample_dict;
+        boost::unordered_map<int, bool>::iterator it;
         while (sample_dict.size() < samplesize) {
             int rnd = nextInt(n);
             if (sample_dict.find(rnd) == sample_dict.end()) {
@@ -448,7 +443,7 @@ public:
     int num_obs;
     // Distance matrix
     DistMatrix* dist_matrix;
-    unordered_map<int, bool> medoids_dict;
+    boost::unordered_map<int, bool> medoids_dict;
     std::vector<int> medoids;
     std::vector<int> assignment;
     std::vector<double> nearest;

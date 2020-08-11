@@ -1280,7 +1280,7 @@ vector<vector<double> > KMedoidsDlg::_getMeanCenters(
     vector<vector<double> > result(n_clusters);
 
     // update order of medoids using solutions
-    unordered_map<int, int> medoids_dict;
+    boost::unordered_map<int, int> medoids_dict;
     for (int i=0; i<medoid_ids.size(); ++i) {
         medoids_dict[medoid_ids[i]] = 0;
     }

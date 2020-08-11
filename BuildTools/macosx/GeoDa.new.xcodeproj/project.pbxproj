@@ -102,6 +102,8 @@
 		A4404A05208E9E390007753D /* lang in Resources */ = {isa = PBXBuildFile; fileRef = A4404A03208E9E380007753D /* lang */; };
 		A4404A0F209270FB0007753D /* pofiles in Resources */ = {isa = PBXBuildFile; fileRef = A4404A0E209270FB0007753D /* pofiles */; };
 		A4404A12209275550007753D /* hdbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4404A10209275540007753D /* hdbscan.cpp */; };
+		A4502B3524E1F66F001D378F /* MapViewHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4502B3324E1F66F001D378F /* MapViewHelper.cpp */; };
+		A4502B3824E1F67C001D378F /* SCHCDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4502B3724E1F67C001D378F /* SCHCDlg.cpp */; };
 		A4596B4E2033DB8E00C9BCC8 /* AbstractCoordinator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */; };
 		A4596B512033DDFF00C9BCC8 /* AbstractClusterMap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4596B502033DDFF00C9BCC8 /* AbstractClusterMap.cpp */; };
 		A45CFF082453A516001F00B9 /* AnimatePlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */; };
@@ -505,6 +507,10 @@
 		A4404A0E209270FB0007753D /* pofiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = pofiles; sourceTree = "<group>"; };
 		A4404A10209275540007753D /* hdbscan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = hdbscan.cpp; path = Algorithms/hdbscan.cpp; sourceTree = "<group>"; };
 		A4404A11209275550007753D /* hdbscan.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hdbscan.h; path = Algorithms/hdbscan.h; sourceTree = "<group>"; };
+		A4502B3324E1F66F001D378F /* MapViewHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapViewHelper.cpp; sourceTree = "<group>"; };
+		A4502B3424E1F66F001D378F /* MapViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewHelper.h; sourceTree = "<group>"; };
+		A4502B3624E1F67C001D378F /* SCHCDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SCHCDlg.h; sourceTree = "<group>"; };
+		A4502B3724E1F67C001D378F /* SCHCDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SCHCDlg.cpp; sourceTree = "<group>"; };
 		A4596B4C2033D8F600C9BCC8 /* AbstractCoordinator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractCoordinator.h; sourceTree = "<group>"; };
 		A4596B4D2033DB8E00C9BCC8 /* AbstractCoordinator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractCoordinator.cpp; sourceTree = "<group>"; };
 		A4596B4F2033DDFF00C9BCC8 /* AbstractClusterMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractClusterMap.h; sourceTree = "<group>"; };
@@ -1265,6 +1271,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4502B3724E1F67C001D378F /* SCHCDlg.cpp */,
+				A4502B3624E1F67C001D378F /* SCHCDlg.h */,
 				A4A591F924ABB80800BEA1FF /* DBScanDlg.cpp */,
 				A4A591F824ABB80800BEA1FF /* DBScanDlg.h */,
 				A41C2BAF2400442300C341A2 /* nbrMatchDlg.cpp */,
@@ -1414,6 +1422,8 @@
 		DD7975B70F1D2A9000496A84 /* Explore */ = {
 			isa = PBXGroup;
 			children = (
+				A4502B3324E1F66F001D378F /* MapViewHelper.cpp */,
+				A4502B3424E1F66F001D378F /* MapViewHelper.h */,
 				A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */,
 				A4A591F224A515D900BEA1FF /* ConditionalBoxPlotView.h */,
 				A45CFF042453A515001F00B9 /* AnimatePlotCanvas.cpp */,
@@ -1812,11 +1822,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A4502B3824E1F67C001D378F /* SCHCDlg.cpp in Sources */,
 				DD7974C80F1D250A00496A84 /* TemplateCanvas.cpp in Sources */,
 				A4ED7D5B209A6B81008685D6 /* HDBScanDlg.cpp in Sources */,
 				A1EF332F18E35D8300E19375 /* LocaleSetupDlg.cpp in Sources */,
 				DD7975670F1D296F00496A84 /* 3DControlPan.cpp in Sources */,
 				A43D124C1F1DE1D80073D408 /* MaxpDlg.cpp in Sources */,
+				A4502B3524E1F66F001D378F /* MapViewHelper.cpp in Sources */,
 				DD79756D0F1D296F00496A84 /* Bnd2ShpDlg.cpp in Sources */,
 				A4F875771E94123F0079734E /* KMeansDlg.cpp in Sources */,
 				DD7975700F1D296F00496A84 /* CreateGridDlg.cpp in Sources */,
@@ -2204,10 +2216,10 @@
 				MARKETING_VERSION = 1.14;
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
+					"-I/usr/local/opt/gdal/include",
 					"-I./libraries/lib/wx/include/osx_cocoa-unicode-static-3.1",
 					"-I./libraries/include/wx-3.1/",
 					"-I./libraries/include/boost",
-					"-I/usr/local/include",
 					"-I./libraries/include",
 					"-I./libraries/include/eigen3",
 					"-I./temp/spectra/include",
@@ -2220,10 +2232,19 @@
 					"-DEIGEN_NO_DEBUG",
 				);
 				OTHER_LDFLAGS = (
+					"-L/usr/lib",
+					"-liconv",
+					"-L/usr/local/opt/gdal/lib",
+					"-lgdal",
 					./libraries/include/boost/stage/lib/libboost_date_time.a,
 					./libraries/include/boost/stage/lib/libboost_system.a,
 					./libraries/include/boost/stage/lib/libboost_chrono.a,
 					./libraries/include/boost/stage/lib/libboost_thread.a,
+					/Users/xun/Dropbox/json_spirit/lib/libjson_spirit.a,
+					"./temp/CLAPACK-3.2.1/blas.a",
+					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
+					"./temp/CLAPACK-3.2.1/lapack.a",
+					"-L./libraries/lib",
 					"-framework",
 					OpenCL,
 					"-framework",
@@ -2242,41 +2263,33 @@
 					AGL,
 					"-framework",
 					WebKit,
-					/Users/xun/Dropbox/json_spirit/lib/libjson_spirit.a,
-					"./libraries/lib/libwx_osx_cocoau_xrc-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_html-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_qa-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_adv-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_core-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_webview-3.1.a",
-					"./libraries/lib/libwx_baseu_xml-3.1.a",
-					"./libraries/lib/libwx_baseu_net-3.1.a",
-					"./libraries/lib/libwx_baseu-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_gl-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_richtext-3.1.a",
-					"./libraries/lib/libwx_osx_cocoau_aui-3.1.a",
-					"./libraries/lib/libwxpng-3.1.a",
-					"./libraries/lib/libwxjpeg-3.1.a",
-					"./libraries/lib/libwxtiff-3.1.a",
-					"./libraries/lib/libwxregexu-3.1.a",
-					"./libraries/lib/libwxscintilla-3.1.a",
-					./libraries/lib/libpng16.a,
-					"-L/usr/lib",
+					"-lwx_baseu-3.1",
+					"-lwx_osx_cocoau_xrc-3.1",
+					"-lwx_osx_cocoau_html-3.1",
+					"-lwx_osx_cocoau_qa-3.1",
+					"-lwx_osx_cocoau_adv-3.1",
+					"-lwx_osx_cocoau_core-3.1",
+					"-lwx_osx_cocoau_webview-3.1",
+					"-lwx_baseu_xml-3.1",
+					"-lwx_baseu_net-3.1",
+					"-lwx_osx_cocoau_gl-3.1",
+					"-lwx_osx_cocoau_richtext-3.1",
+					"-lwx_osx_cocoau_aui-3.1",
+					"-lwxtiff-3.1",
+					"-lwxjpeg-3.1",
+					"-lwxpng-3.1",
+					"-lwxregexu-3.1",
+					"-lwxscintilla-3.1",
 					"-lexpat",
 					"-lz",
-					"-liconv",
 					"-lpthread",
-					"./temp/CLAPACK-3.2.1/blas.a",
-					"./temp/CLAPACK-3.2.1/F2CLIBS/libf2c.a",
-					"./temp/CLAPACK-3.2.1/lapack.a",
-					"-L/usr/local/lib",
-					"-lgdal",
 					"-lcurl",
 				);
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "";
 			};
 			name = Debug;
@@ -2380,6 +2393,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = edu.uchicago.edu;
 				PRODUCT_NAME = GeoDa;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = macosx;
 				SHARED_PRECOMPS_DIR = "";
 				VALID_ARCHS = x86_64;
 				ZERO_LINK = NO;

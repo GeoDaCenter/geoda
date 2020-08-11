@@ -710,7 +710,7 @@ LatLng* Basemap::XYToLatLng(XYFraction &xy, bool isLL)
     double lat = 180.0 / M_PI * atan(0.5 * (exp(n) - exp(-n)));
     
     if (!isLL && poCT) {
-        poCT->TransformEx(1, &lng, &lat);
+        poCT->Transform(1, &lng, &lat);
     }
     return new LatLng(lat, lng);
 }
