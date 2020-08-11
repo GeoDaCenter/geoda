@@ -249,7 +249,6 @@ void HDBScanDlg::CreateControls()
     m_textbox = box3;
     m_distance = box13;
     
-    
     // Events
     okButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnSave, this);
@@ -488,7 +487,8 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
 
-    m_condensedtree->Setup(hdb.condensed_tree);
+
+    m_condensedtree->Setup(hdb.condensed_tree, hdb.clusters);
 
     if (htree != NULL) {
         delete[] htree;
