@@ -3094,7 +3094,7 @@
             <label>Specify Bandwith</label>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
-            <label>Select Variable of Radius</label>
+            <label>Specify Core Distance</label>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3722,7 +3722,7 @@
               <label>Specify Bandwith</label>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
-              <label>Select Variable of Radius</label>
+              <label>Specify Core Distance</label>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3924,7 +3924,7 @@
               <label>Specify Bandwith</label>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
-              <label>Select Variable of Radius</label>
+              <label>Specify Core Distance</label>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4126,7 +4126,7 @@
               <label>Specify Bandwith</label>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
-              <label>Select Variable of Radius</label>
+              <label>Specify Core Distance</label>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4819,7 +4819,7 @@
             <label>Specify Bandwith</label>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
-            <label>Select Variable of Radius</label>
+            <label>Specify Core Distance</label>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
