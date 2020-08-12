@@ -59,7 +59,6 @@ HDBScanDlg::HDBScanDlg(wxFrame* parent_s, Project* project_s)
     wxLogMessage("Open HDBScanDlg.");
     parent = parent_s;
     project = project_s;
-    htree = NULL;
     highlight_state = project->GetHighlightState();
                     
     bool init_success = Init();
@@ -256,14 +255,13 @@ void HDBScanDlg::CreateControls()
     //m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HDBScanDlg::OnClusterChoice), NULL, this);
     
     saveButton->Disable();
-    //combo_n->Disable();
-    //m_cluster->Disable();
 }
 
 void HDBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
 {
-    //int tab_idx = event.GetOldSelection();
-    //m_panel->SetActive(tab_idx == 1);
+    int tab_idx = event.GetSelection();
+    m_dendrogram->SetActive(tab_idx == 0);
+    m_condensedtree->SetActive(tab_idx == 1);
 }
 
 void HDBScanDlg::OnSave(wxCommandEvent& event )
@@ -468,8 +466,11 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
             data[i][j] = input_data[i][j] * weight[j];
         }
     }
+
+    // compute core distances
     core_dist = Gda::HDBScan::ComputeCoreDistance(data, rows, columns, m_min_samples, dist);
-    // compute mutual reachiability distance
+
+    // compute raw distance matrix: lower triangular part
     int transpose = 0; // row wise
     char dist = 'b'; // city-block
     if (m_distance->GetSelection()== 0) dist = 'e';
@@ -478,23 +479,20 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
 
     for (int i=0; i<rows; i++) delete[] data[i];
     delete[] data;
-    
+
+    // call HDBScan
     Gda::HDBScan hdb(m_min_pts, m_min_samples, m_alpha,
-                                 m_cluster_selection_method,
-                                 m_allow_single_cluster, rows, columns,
-                                 &dist_matrix, core_dist, undefs);
+                     m_cluster_selection_method,
+                     m_allow_single_cluster, rows, columns,
+                     &dist_matrix, core_dist, undefs);
     cluster_ids = hdb.GetRegions();
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
-
-
+    
+    // Setup condensed tree
     m_condensedtree->Setup(hdb.condensed_tree, hdb.clusters);
 
-    if (htree != NULL) {
-        delete[] htree;
-        htree = NULL;
-    }
-    //htree = new GdaNode[rows-1];
+    // Setup dendrogram tree
     std::vector<TreeNode> tree(rows-1);
 
     Gda::UnionFind U(rows);
@@ -515,6 +513,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     }
 
     m_dendrogram->Setup(tree);
+    m_dendrogram->SetActive(true); //  showing dendrogram by default
 
     // clean raw dist
     for (int i=1; i<rows; i++) delete[] raw_dist[i];
@@ -627,18 +626,11 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     
     saveButton->Enable();
     
-    // draw dendrogram
-    // GdaNode* _root, int _nelements, int _nclusters, std::vector<wxInt64>& _clusters, double _cutoff
-    int clst_sz = cluster_ids.size();
-    for (int i=0; i<clusters.size(); ++i) {
-        if (clusters[i] == 0) {
-            clst_sz += 1;
-            break;
-        }
-    }
-    std::vector<wxInt64> clusters_w_noise = clusters;
-    for (int i=0; i<clusters_w_noise.size(); ++i) clusters_w_noise[i] += 1;
-
+    // update dendrogram and consended tree
+    bool has_noise = not_clustered > 0;
+    m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size() + has_noise);
+    m_condensedtree->UpdateColor(has_noise);
+    
     saveButton->Enable();
 }
 
@@ -654,12 +646,11 @@ END_EVENT_TABLE()
 wxHTree::wxHTree(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
 : wxPanel(parent, id, pos, size),
 isLeftDown(false), isLeftMove(false), isMovingSelectBox(false),
-isLayerValid(false), isWindowActive(true),
-isResize(false)
+isLayerValid(false), isWindowActive(false),
+isResize(false) , layer_bm(NULL)
 {
     SetBackgroundStyle(wxBG_STYLE_CUSTOM);
     SetBackgroundColour(*wxWHITE);
-    layer_bm = NULL;
     select_box = NULL;
 }
 
@@ -677,6 +668,8 @@ void wxHTree::InitCanvas()
         wxSize sz = this->GetClientSize();
         int ww = sz.GetWidth();
         int hh = sz.GetHeight();
+
+        // for Hdpi painting
         double scale_factor = GetContentScaleFactor();
         layer_bm = new wxBitmap;
         layer_bm->CreateScaled(ww, hh, 32, scale_factor);
@@ -686,19 +679,15 @@ void wxHTree::InitCanvas()
 void wxHTree::OnIdle(wxIdleEvent &event) {
     if (isResize && isWindowActive) {
         isResize = false;
-
+        isLayerValid = false;
         wxSize sz = GetClientSize();
         if (sz.x > 0 && sz.y > 0) {
             if (layer_bm)  {
                 delete layer_bm;
-                layer_bm = 0;
+                layer_bm = NULL;
             }
-            // for Hdpi painting
-            double scale_factor = GetContentScaleFactor();
-            layer_bm = new wxBitmap;
-            layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
-
-            DoDraw();
+            InitCanvas();
+            isLayerValid = DoDraw();
         }
     }
     event.Skip();
@@ -747,6 +736,8 @@ void wxHTree::OnPaint(wxPaintEvent &event) {
         wxPaintDC paint_dc(this);
         paint_dc.Blit(0, 0, sz.x, sz.y, &dc, 0, 0);
 
+        AfterDraw(paint_dc);
+        
         // paint selection box
         if (select_box) {
             paint_dc.SetPen(*wxBLACK_PEN);

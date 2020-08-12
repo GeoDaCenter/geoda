@@ -167,7 +167,6 @@ vector<vector<int> > HDBScan::GetRegions()
     }
     vector<vector<int> > regions(max_cid + 1);
     
-    int cid = 0;
     for (int i=0; i<labels.size(); i++) {
         if (labels[i] >=0) {
             int cid = labels[i];

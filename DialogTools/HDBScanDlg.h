@@ -35,7 +35,7 @@ class Project;
 class TableInterface;
 
 struct TreeNode{
-    int id;
+    int parent;
     int left;
     int right;
     double distance;
@@ -70,7 +70,12 @@ public:
 
     virtual void InitCanvas();
 
-    virtual void DoDraw() = 0;
+    virtual bool DoDraw() = 0;
+    virtual void AfterDraw(wxDC& dc) {}
+
+    virtual void SetActive(bool flag) {
+        isWindowActive = flag;
+    }
 
     DECLARE_ABSTRACT_CLASS(wxHTree)
     DECLARE_EVENT_TABLE()
@@ -99,11 +104,14 @@ class wxCondensedTree : public wxHTree
     std::map<int, bool> cluster_isleft;
     std::vector<int> cluster_ids;
     std::map<int, std::vector<int> > cluster_children;
-    std::set<int> clusters;
+    std::set<int> select_treeclusters;
     std::map<int, double> cluster_death;
 
     std::vector<ColorSpace::Rgb> colors;
     std::map<int, wxBrush*> cluster_brush;
+
+    std::map<int, wxColour> cluster_colors;
+
     bool setup;
 
 public:
@@ -123,10 +131,28 @@ public:
         return colors[idx];
     }
 
+    void UpdateColor(bool has_noise)
+    {
+        int nclusters = (int)select_treeclusters.size() + has_noise;
+        std::vector<wxColour> colors;
+        CatClassification::PickColorSet(colors, nclusters);
+        
+        int i = 0;
+        std::set<int>::iterator it;
+        for (it = select_treeclusters.begin(); it != select_treeclusters.end(); ++it) {
+            cluster_colors[*it] = colors[i + has_noise];
+            i += 1;
+        }
+        
+        setup = true; // trigger to draw
+    }
+
     // wxCondensedTree will be drawn only after Setup()
+    // the treeclusters<> are the id of clusters in hdbscan's condensed tree
     void Setup(std::vector<Gda::CondensedTree*>& _tree,
-               std::set<int> clusters) {
-        this->clusters = clusters;
+               std::set<int> treeclusters)
+    {
+        this->select_treeclusters = treeclusters;
 
         // color for number of clusters
         ColorSpace::Rgb a(8,29,88), b(253,227,32); // BluYl
@@ -234,7 +260,7 @@ public:
             ColorSpace::Rgb clr = GetColor(sz);
             cluster_brush[it->first] = new wxBrush(wxColour(clr.r, clr.g, clr.b));
         }
-        setup = true;
+
     }
 
     virtual void SetupProjection() {
@@ -252,8 +278,8 @@ public:
         ratio_h = screen_h / tree_h;
     }
 
-    virtual void DoDraw() {
-        if (!setup) return;
+    virtual bool DoDraw() {
+        if (!setup) return false;
 
         // draw on layer_bm
         InitCanvas();
@@ -274,7 +300,6 @@ public:
 
         for (int i=0; i<tree.size(); ++i) {
             int parent = tree[i].parent;
-            int child = tree[i].child;
             int child_size = tree[i].child_size;
             double lambda = tree[i].lambda_val;
 
@@ -319,7 +344,7 @@ public:
                 DrawHLine(dc, x1, x2, y2);
             }
             // draw selected ellipse
-            if (clusters.find(c) != clusters.end()) {
+            if (select_treeclusters.find(c) != select_treeclusters.end()) {
                 DrawSelectCluster(dc, c);
             }
         }
@@ -330,8 +355,9 @@ public:
 
         // wxbitmap is ready to paint on screen
         dc.SelectObject(wxNullBitmap);
-        isLayerValid = true;
         Refresh();
+
+        return true; // set isLayerValid
     }
 
     virtual void DrawSelectCluster(wxDC&dc, int c) {
@@ -340,8 +366,8 @@ public:
         double y = cluster_birth[c];
         double h = std::abs(cluster_death[c] - cluster_birth[c]);
 
-        double w1 = w / 1.1 * 2;
-        double h1 = h / 1.1 * 2;
+        double w1 = w / 1.2 * 2;
+        double h1 = h / 1.2 * 2;
 
         if (h1 == 0) h1 = tree_h / 30.0;
 
@@ -352,6 +378,11 @@ public:
         int yy = (y - tree_t) * ratio_h + margin_top;
         int ww = w1 * ratio_w;
         int hh = h1 * ratio_h;
+        
+        if (cluster_colors.find(c) != cluster_colors.end()) {
+            wxColour color = cluster_colors[c];
+            dc.SetPen(wxPen(color));
+        }
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
         dc.DrawEllipse(xx, yy, ww, hh);
     }
@@ -389,7 +420,6 @@ public:
         int scw = sz.GetWidth();
 
         // 0-100 legend
-        double legend_h = 101;
         double ratio_h = 101 / (double)sch;
         int w = 20; // legend width
 
@@ -414,7 +444,6 @@ public:
         wxString legend_lbl = _("Number of Points");
         wxSize extent(dc.GetTextExtent(legend_lbl));
         double x = extent.GetWidth();
-        double y = extent.GetHeight();
         dc.DrawRotatedText(legend_lbl, scw - 10, (sch + x) / 2.0, 90.0);
     }
 
@@ -426,7 +455,6 @@ public:
         wxString legend_lbl = _("lambda value");
         wxSize extent(dc.GetTextExtent(legend_lbl));
         double lbl_w = extent.GetWidth();
-        double lbl_h = extent.GetHeight();
         dc.DrawRotatedText(legend_lbl, 5, (sch + lbl_w) / 2.0, 90.0);
 
         // draw a verticle line
@@ -483,36 +511,71 @@ class wxDendrogram : public wxHTree
     double elevation_min;
     double elevation_max;
 
-    int margin;
+    int margin_left, margin_right, margin_top, margin_bottom;
     double ratio_w;
     double ratio_h;
     int screen_w;
     int screen_h;
-
+    
+    DendroSplitLine* split_line;
+    
     bool setup;
+    bool isMovingSplitLine;
+    
+    std::vector<wxColour> colors;
+    std::vector<wxInt64> cluster_ids;
 public:
     wxDendrogram(wxWindow* parent,
                  wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
                  const wxSize &size=wxDefaultSize)
-    : wxHTree(parent, id, pos, size), margin(10), setup(false) {}
-    virtual ~wxDendrogram() {}
+    : wxHTree(parent, id, pos, size), margin_left(10),
+    margin_right(10), margin_top(10), margin_bottom(50), setup(false) {
+        split_line = NULL;
+        isMovingSplitLine = false;
+    }
+    virtual ~wxDendrogram() {
+        if (split_line) {
+            delete split_line;
+            split_line = NULL;
+        }
+    }
 
     virtual void SetupProjection() {
         wxSize sz = this->GetClientSize();
         screen_w = sz.GetWidth();
         screen_h = sz.GetHeight();
-        if (screen_w <= 2*margin || screen_h <= 2*margin) {
+        if (screen_w <= margin_left + margin_right ||
+            screen_h <= margin_top + margin_bottom) {
             return;
         }
-        screen_w = screen_w - 2 * margin;
-        screen_h = screen_h - 2 * margin;
+        screen_w = screen_w - margin_left - margin_right;
+        screen_h = screen_h - margin_top - margin_bottom;
 
         ratio_w = screen_w / elevation_max;
         ratio_h = screen_h / position_max;
     }
 
-    virtual void DoDraw() {
-        if (!setup) return;
+    virtual void UpdateColor(std::vector<wxInt64>& _cluster_ids, int nclusters) {
+        this->cluster_ids = _cluster_ids;
+        CatClassification::PickColorSet(colors, nclusters);
+
+        // update color for parent nodes
+        for (int i=0; i<htree.size(); ++i) {
+            int left = htree[i].left;
+            int right = htree[i].right;
+            //int parent = htree[i].parent;
+            if (cluster_ids[left] == cluster_ids[right]) {
+                cluster_ids.push_back(cluster_ids[left]);
+            } else {
+                cluster_ids.push_back(-1);
+            }
+        }
+
+        setup = true;
+    }
+
+    virtual bool DoDraw() {
+        if (!setup) return false;
 
         // draw on layer_bm
         InitCanvas();
@@ -536,18 +599,25 @@ public:
         for (int i=0; i<leaves.size(); ++i) {
             DrawNode(dc, leaves[i]);
         }
+        
+        // draw axis
+        DrawAxis(dc);
 
+        // split line
+        DrawSplitLine();
+        
         // wxbitmap is ready to paint on screen
         dc.SelectObject(wxNullBitmap);
-        isLayerValid = true;
         Refresh();
+
+        return true;
     }
 
     // wxDendrogram will be drawn only after Setup()
     void Setup(const std::vector<TreeNode>& tree) {
         htree = tree;
 
-        int nn = htree.size();
+        int nn = (int)htree.size();
         int n_nodes = nn + 1;
 
         leaves = bfs_htree();
@@ -571,6 +641,7 @@ public:
             int left = htree[i].left;
             int right = htree[i].right;
             double d = htree[i].distance;
+            htree[i].parent = parent_node;
             // parent node: set elevation
             node_elevation[parent_node] = d;
             node_position[parent_node] = (node_position[left] + node_position[right]) / 2.0;
@@ -580,14 +651,13 @@ public:
                 elevation_max = d;
             }
         }
-        setup = true;
     }
 
     void DrawLine(wxDC &dc, double x0, double y0, double x1, double y1) {
-        int xx0 = margin + screen_w - x0 * ratio_w;
-        int xx1 = margin + screen_w - x1 * ratio_w;
-        int yy0 = margin + y0 * ratio_h;
-        int yy1 = margin + y1 * ratio_h;
+        int xx0 = margin_left + screen_w - x0 * ratio_w;
+        int xx1 = margin_left + screen_w - x1 * ratio_w;
+        int yy0 = margin_top + y0 * ratio_h;
+        int yy1 = margin_top + y1 * ratio_h;
         dc.DrawLine(xx0, yy0, xx1, yy1);
     }
 
@@ -602,9 +672,36 @@ public:
         //        |<---elevation[a]
         double x0 = dist, x1 = node_elevation[b], x2 = node_elevation[a];
         double y0 = node_position[b], y1 = node_position[a];
-        DrawLine(dc, x0, y0, x1, y0);
-        DrawLine(dc, x0, y1, x2, y1);
-        DrawLine(dc, dist, y0, dist, y1);
+        
+        if (!cluster_ids.empty()) {
+            dc.SetPen(*wxBLACK_PEN);
+            int cluster_id = (int)cluster_ids[a];
+            if (cluster_id >= 0) {
+                wxColor c = colors[cluster_id];
+                dc.SetPen(wxPen(c));
+            }
+            DrawLine(dc, x0, y1, x2, y1);
+            
+            dc.SetPen(*wxBLACK_PEN);
+            cluster_id = (int)cluster_ids[b];
+            if (cluster_id >= 0) {
+                wxColor c = colors[cluster_ids[b]];
+                dc.SetPen(wxPen(c));
+            }
+            DrawLine(dc, x0, y0, x1, y0);
+            
+            if (cluster_ids[a] != cluster_ids[b]) {
+                dc.SetPen(*wxBLACK_PEN);
+            }
+            DrawLine(dc, dist, y0, dist, y1);
+            
+        } else {
+        
+            dc.SetPen(*wxBLACK_PEN);
+            DrawLine(dc, x0, y0, x1, y0);
+            DrawLine(dc, x0, y1, x2, y1);
+            DrawLine(dc, dist, y0, dist, y1);
+        }
     }
 
     void DrawNode(wxDC &dc, int node) {
@@ -614,14 +711,228 @@ public:
         }
         double position = node_position[node];
         // rectangle
-        int xx = margin + screen_w - elevation * ratio_w;
-        int yy = margin + position * ratio_h;
+        int xx = margin_left + screen_w - elevation * ratio_w;
+        int yy = margin_left + position * ratio_h;
+
+        if (!cluster_ids.empty()) {
+            wxColor c = colors[cluster_ids[node]];
+            dc.SetBrush(wxBrush(c));
+            dc.SetPen(*wxTRANSPARENT_PEN);
+        }
         dc.DrawRectangle(wxRect(xx-4, yy-2, 8, 4));
     }
 
+    void DrawAxis(wxDC& dc) {
+        // elevation_max elevation_min
+        int x1 = margin_left + screen_w - elevation_max * ratio_w;
+        int x2 = margin_left + screen_w - elevation_min * ratio_w;
+        int y = screen_h + margin_top + 10;
+        
+        dc.SetPen(*wxBLACK_PEN);
+        dc.DrawLine(x1, y, x2, y);
+        
+        double range = elevation_max - elevation_min;
+        double itv = range / 5.0;
+        
+        for (int i=0; i< 5; ++i) {
+            double val = elevation_min + (i * itv);
+            int x = margin_left + screen_w - val * ratio_w;
+            int y1 = y + 10;
+            dc.DrawLine(x, y1, x, y);
+            wxString lbl;
+            lbl << val;
+            dc.DrawText(lbl, x, y1);
+        }
+        dc.DrawLine(x1, y+5, x1, y);
+        wxString lbl;
+        lbl << elevation_max;
+        dc.DrawText(lbl, x1  - 2, y + 10);
+        // draw label
+        wxString ttl = _("Mutual Reachability Distance");
+        wxSize extent(dc.GetTextExtent(ttl));
+        double ttl_w = extent.GetWidth();
+        dc.DrawText(ttl, (screen_w -ttl_w) / 2.0 + margin_left, y + 23);
+    }
+        
+    void DrawSplitLine() {
+        // split between elevation_max elevation_min
+        wxSize sz = this->GetClientSize();
+        wxPoint v_p0(margin_left, 0);
+        wxPoint v_p1(margin_left, sz.GetHeight());
+        if (split_line == NULL) {
+            split_line = new DendroSplitLine(v_p0, v_p1);
+        } else {
+            split_line->update(v_p0, v_p1);
+        }
+    }
+    
+    virtual void NotifySelection()
+    {
+        
+    }
+    
+    virtual void OnSplitLineChange(int x)
+    {
+        double cut = elevation_max * (1 - (x - margin_left) / (double)screen_w);
+        std::cout << cut << std::endl;
+        
+        if (cut >= elevation_max || cut <= 0) {
+            return;
+        }
+        
+        // get clusters at cutoff elevation
+        std::vector<std::vector<int> > clusters;
+        std::map<int, bool> visited_nodes;
+        
+        // process from top node
+        int n = (int)htree.size();
+        int n_nodes = n + 1;
+        for (int i= n-1; i>=0; --i) {
+            if (cut < htree[i].distance) {
+                continue;
+            }
+            if (visited_nodes.find(htree[i].left) != visited_nodes.end() &&
+                visited_nodes.find(htree[i].right) != visited_nodes.end()) {
+                continue;
+            }
+            // start extracting clusters
+            // get all children
+            std::vector<int> cluster;
+            std::stack<int> nodes;
+            nodes.push(htree[i].left);
+            nodes.push(htree[i].right);
+            while (!nodes.empty()) {
+                int cur = nodes.top();
+                visited_nodes[cur] = true;
+                nodes.pop();
+                if (cur < n_nodes) {
+                    cluster.push_back(cur);
+                } else {
+                    // process left and right nodes
+                    int next = cur - n_nodes;
+                    int left = htree[next].left;
+                    int right = htree[next].right;
+                    nodes.push(left);
+                    nodes.push(right);
+                }
+            }
+            clusters.push_back(cluster);
+        }
+    }
+    
+    virtual void AfterDraw(wxDC& dc) {
+        if (split_line) {
+            split_line->draw(dc);
+        }
+    }
+    
+    virtual void OnEvent(wxMouseEvent& event)
+    {
+        if (event.LeftDown()) {
+            isLeftDown = true;
+            
+            startPos = event.GetPosition();
+            // test SplitLine
+            if (split_line) {
+                if (split_line->contains(startPos)) {
+                    isMovingSplitLine = true;
+                }
+            }
+            if (!isMovingSplitLine) {
+                // test end_nodes
+                if (select_box == 0) {
+                    select_box = new wxRect(startPos.x, startPos.y, 0, 0);
+                } else {
+                    if (select_box->Contains(startPos))  {
+                        // drag&move select box
+                        isMovingSelectBox = true;
+                    } else {
+                        if ( !event.ShiftDown() && !event.CmdDown() ) {
+                            hl_ids.clear();
+                            for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                        }
+                        isMovingSelectBox = false;
+                        select_box->SetPosition(startPos);
+                        select_box->SetWidth(0);
+                        select_box->SetHeight(0);
+                        /*
+                        for (int i=0;i<end_nodes.size();i++) {
+                            if (end_nodes[i]->contains(startPos)) {
+                                hl_ids.push_back(end_nodes[i]->idx);
+                                hs[end_nodes[i]->idx] = true;
+                            }
+                        }
+                         */
+                    }
+                    NotifySelection();
+                }
+            }
+        } else if (event.Dragging()) {
+            if (isLeftDown) {
+                isLeftMove = true;
+                // moving split line
+                if (isMovingSplitLine && split_line) {
+                    wxPoint pt = event.GetPosition();
+                    wxSize sz = GetClientSize();
+                    
+                    if (sz.GetWidth()> 0 && pt.x > sz.GetWidth() - 10)
+                        pt.x = sz.GetWidth() - 10;
+                    
+                    split_line->move(pt, startPos);
+                    int x = split_line->getX();
+                    Refresh();
+                    OnSplitLineChange(x);
+                    startPos = pt;
+                } else {
+                    // if using select box
+                    if (select_box != 0) {
+                        if ( !event.ShiftDown() && !event.CmdDown() ) {
+                            hl_ids.clear();
+                            for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                        }
+                        
+                        if (isMovingSelectBox) {
+                            select_box->Offset(event.GetPosition() - startPos);
+                        } else {
+                            select_box->SetBottomRight(event.GetPosition());
+                        }
+                        /*
+                        for (int i=0;i<end_nodes.size();i++) {
+                            if (end_nodes[i]->intersects(*select_box)) {
+                                hl_ids.push_back(end_nodes[i]->idx);
+                                hs[end_nodes[i]->idx] = true;
+                            }
+                        }
+                         */
+                        // highlight i selected
+                        NotifySelection();
+                        Refresh();
+                    }
+                    startPos = event.GetPosition();
+                }
+                
+            }
+        } else if (event.LeftUp()) {
+            if (isLeftMove) {
+                isLeftMove = false;
+                // stop move
+                isMovingSplitLine = false;
+            } else {
+                // only left click
+                if (select_box) {
+                    delete select_box;
+                    select_box = 0;
+                    NotifySelection();
+                    Refresh();
+                }
+            }
+            isMovingSelectBox = false;
+            isLeftDown = false;
+        }
+    }
     std::vector<int> bfs_htree() {
         std::vector<int> leaves; // return
-        int nn = htree.size();
+        int nn = (int)htree.size();
         int n_nodes = nn + 1;
         std::stack<int> nodes;
         // process top node
@@ -664,13 +975,13 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     vector<double> core_dist;
     vector<double> probabilities;
     vector<double> outliers;
+    vector<int> hdbscan_clusters;
     vector<vector<int> > cluster_ids;
 
     int max_n_clusters;
 
     double cutoffDistance;
     vector<wxInt64> clusters;
-    GdaNode* htree;
 
     wxButton *saveButton;
     wxChoice* combo_n;
