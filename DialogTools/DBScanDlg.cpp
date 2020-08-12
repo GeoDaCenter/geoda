@@ -141,7 +141,7 @@ void DBScanDlg::CreateControls()
     gbox->Add(m_eps, 1, wxEXPAND);
     
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Points:"));
-    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(120, -1),0,validator);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
     
