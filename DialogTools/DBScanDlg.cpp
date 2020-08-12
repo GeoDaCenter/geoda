@@ -42,6 +42,9 @@
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "../Algorithms/dbscan.h"
+#include "../Algorithms/cluster.h"
+#include "../Algorithms/pam.h"
+#include "../Algorithms/distmatrix.h"
 #include "../Weights/DistUtils.h"
 #include "SaveToTableDlg.h"
 #include "DBScanDlg.h"
@@ -124,6 +127,22 @@ void DBScanDlg::CreateControls()
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     AddSimpleInputCtrls(panel, vbox);
     
+    // Methods
+    wxFlexGridSizer* gbox_method = new wxFlexGridSizer(3,2,5,0);
+    wxStaticText* st_dbscan = new wxStaticText(panel, wxID_ANY, _("DBScan:"));
+    chk_dbscan = new wxCheckBox(panel, wxID_ANY, "");
+    gbox_method->Add(st_dbscan, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_method->Add(chk_dbscan, 1, wxEXPAND);
+    chk_dbscan->SetValue(true);
+    
+    wxStaticText* st_dbscanstar = new wxStaticText(panel, wxID_ANY, _("DBScan*:"));
+    chk_dbscanstar = new wxCheckBox(panel, wxID_ANY, "");
+    gbox_method->Add(st_dbscanstar, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_method->Add(chk_dbscanstar, 1, wxEXPAND);
+
+    wxStaticBoxSizer *hbox_method = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Method:"));
+    hbox_method->Add(gbox_method, 1, wxEXPAND);
+    
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
@@ -172,21 +191,24 @@ void DBScanDlg::CreateControls()
     
     // Buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
+    saveButton = new wxButton(panel, wxID_SAVE, _("Save/Show Map"), wxDefaultPosition, wxDefaultSize);
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(okButton, 0, wxALIGN_CENTER | wxALL, 5);
+    hbox2->Add(saveButton, 0, wxALIGN_CENTER | wxALL, 5);
     hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    vbox->Add(hbox_method, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
 
 	// Summary control 
     notebook = new wxNotebook( panel, wxID_ANY);
-    //m_panel = new DendrogramPanel(max_n_clusters, notebook, wxID_ANY);
-    //notebook->AddPage(m_panel, _("Dendrogram"));
+    m_dendrogram = new wxDBScanDendrogram(notebook, wxID_ANY);
+    notebook->AddPage(m_dendrogram, _("Dendrogram"));
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
     notebook->Connect(wxEVT_NOTEBOOK_PAGE_CHANGING, wxBookCtrlEventHandler(DBScanDlg::OnNotebookChange), NULL, this);
@@ -216,16 +238,46 @@ void DBScanDlg::CreateControls()
     
     // Events
     okButton->Bind(wxEVT_BUTTON, &DBScanDlg::OnOKClick, this);
+    saveButton->Bind(wxEVT_BUTTON, &DBScanDlg::OnSaveClick, this);
     closeButton->Bind(wxEVT_BUTTON, &DBScanDlg::OnClickClose, this);
     combo_var->Bind(wxEVT_LISTBOX, &DBScanDlg::OnSelectVars, this);
     m_distance->Bind(wxEVT_CHOICE, &DBScanDlg::OnSelectVars, this);
     combo_tranform->Bind(wxEVT_CHOICE, &DBScanDlg::OnSelectVars, this);
+    chk_dbscan->Bind(wxEVT_CHECKBOX, &DBScanDlg::OnDBscanCheck, this);
+    chk_dbscanstar->Bind(wxEVT_CHECKBOX, &DBScanDlg::OnDBscanStarCheck, this);
+    
+    saveButton->Disable();
 }
 
 void DBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
 {
-    //int tab_idx = event.GetOldSelection();
-    //m_panel->SetActive(tab_idx == 1);
+    int tab_idx = event.GetOldSelection();
+    m_dendrogram->SetActive(tab_idx == 1 && chk_dbscanstar->GetValue());
+}
+
+void DBScanDlg::OnDBscanCheck(wxCommandEvent& event )
+{
+    if (event.IsChecked()) {
+        chk_dbscanstar->SetValue(false);
+        m_dendrogram->SetBlank(true);
+        saveButton->Disable();
+
+    } else {
+        chk_dbscanstar->SetValue(true);
+        m_dendrogram->SetBlank(false);
+    }
+}
+
+void DBScanDlg::OnDBscanStarCheck(wxCommandEvent& event )
+{
+    if (event.IsChecked()) {
+        chk_dbscan->SetValue(false);
+        m_dendrogram->SetBlank(false);
+    } else {
+        chk_dbscan->SetValue(true);
+        saveButton->Disable();
+        m_dendrogram->SetBlank(true);
+    }
 }
 
 void DBScanDlg::OnSelectVars(wxCommandEvent& event)
@@ -323,6 +375,15 @@ void DBScanDlg::InitVariableCombobox(wxListBox* var_box)
 
 void DBScanDlg::update(HLStateInt* o)
 {
+    std::vector<bool>& hs = o->GetHighlight();
+    std::vector<int> hl_ids;
+    for (size_t i=0; i<hs.size(); ++i) {
+        if (hs[i])
+            hl_ids.push_back(i);
+    }
+    if (m_dendrogram) {
+        m_dendrogram->SetHighlight(hl_ids);
+    }
 }
 
 void DBScanDlg::OnClickClose(wxCommandEvent& event )
@@ -344,6 +405,8 @@ void DBScanDlg::OnClose(wxCloseEvent& ev)
 wxString DBScanDlg::_printConfiguration()
 {
     wxString txt;
+    wxString method = chk_dbscanstar->GetValue() ? "DBScan*" : "DBScan";
+    txt << "Method:\t" << method << "\n";
     txt << "Distance Threshold (epsilon):\t" << m_eps->GetValue() << "\n";
     txt << "Min Points:\t" << m_minsamples->GetValue() << "\n";
     txt << "Transformation:\t" << combo_tranform->GetString(combo_tranform->GetSelection()) << "\n";
@@ -392,6 +455,73 @@ bool DBScanDlg::CheckAllInputs()
     return true;
 }
 
+bool DBScanDlg::RunStar()
+{
+    // DBScan * star
+    // NOTE input_data should be retrieved first!!
+    // get input: weights (auto)
+    weight = GetWeights(columns);
+    // add weight to input_data
+    double** data = input_data;
+    if (weight) {
+        data = new double*[rows];
+        for (int i=0; i<rows; i++) {
+            data[i] = new double[columns];
+            for (int j=0; j<columns; j++) {
+                data[i][j] = input_data[i][j] * weight[j];
+            }
+        }
+    }
+        
+    std::vector<double> core_dist = Gda::HDBScan::ComputeCoreDistance(data, rows, columns, m_min_samples, dist);
+    int transpose = 0; // row wise
+    double** raw_dist = distancematrix(rows, columns, data,  mask, weight, dist, transpose);
+    RawDistMatrix dist_matrix(raw_dist);
+    double alpha = 1.0;
+    std::vector<Gda::SimpleEdge*> mst_edges = Gda::HDBScan::mst_linkage_core_vector(columns, core_dist, &dist_matrix, alpha);
+    std::vector<TreeNode> tree(rows-1);
+    Gda::UnionFind U(rows);
+    for (int i=0; i<mst_edges.size(); i++) {
+        Gda::SimpleEdge* e = mst_edges[i];
+        int a = e->orig;
+        int b = e->dest;
+        double delta = e->length;
+        int aa = U.fast_find(a);
+        int bb = U.fast_find(b);
+        tree[i].left = aa;
+        tree[i].right = bb;
+        tree[i].distance = delta;
+        U.Union(aa, bb);
+    }
+    bool use_split_line = true;
+    m_dendrogram->Setup(tree, use_split_line);
+    GetClusterFromDendrogram(clusters);
+    m_dendrogram->UpdateColor(clusters, cluster_ids.size());
+
+    // update delta value
+    double delta = m_dendrogram->GetCutoff();
+    wxString delta_lbl;
+    delta_lbl << delta;
+    m_eps->SetValue(delta_lbl);
+    
+    if (weight) {
+        for (int i=0; i<rows; i++) delete[] data[i];
+        delete[] data;
+    }
+    return true;
+}
+
+void DBScanDlg::UpdateFromDendrogram(double cutoff, std::vector<wxInt64>& cluster_labels,
+                                     std::vector<std::vector<int> >& cluster_groups)
+{
+    wxString cutoff_lbl;
+    cutoff_lbl << cutoff;
+    m_eps->SetValue(cutoff_lbl);
+
+    clusters = cluster_labels;
+    cluster_ids = cluster_groups;
+}
+
 bool DBScanDlg::Run(vector<wxInt64>& clusters)
 {
     cluster_ids.clear();
@@ -414,11 +544,10 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
     }
     
     int metric = dist == 'e' ? ANNuse_euclidean_dist : ANNuse_manhattan_dist;
-
+    
     DBSCAN dbscan((unsigned int)m_min_samples, (float)eps,
                   (const double**)data, (unsigned int)rows,
                   (unsigned int)columns, (int)metric);
-
     double averagen = dbscan.getAverageNN();
     // check if epsilon may be too small and large
     if (averagen < 1 + 0.1 * (m_min_samples - 1)) {
@@ -431,10 +560,9 @@ bool DBScanDlg::Run(vector<wxInt64>& clusters)
         wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
     }
-
     std::vector<int> labels = dbscan.getResults();
 
-    // process results  and  sort the clusters
+    // process results  and  sort the clusters, label = -1 means noise
     int n_cluster = 0;
     bool has_noise = false;
     for (int i=0; i<labels.size();  ++i) {
@@ -481,6 +609,60 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
 {
     wxLogMessage("Click DBScanDlg::OnOK");
 
+    if (CheckAllInputs() == false) {
+        return;
+    }
+
+    if (chk_dbscan->GetValue()) {
+        // DBScan
+        if (Run(clusters) == false) {
+            return;
+        }
+        saveButton->Disable();
+        wxCommandEvent ev;
+        OnSaveClick(ev);
+        notebook->SetSelection(1); // show summary tab
+    }  else {
+        // DBScan*
+         notebook->SetSelection(0); // show dendrogram tab
+        if (RunStar() == false) {
+            return;
+        }
+        saveButton->Enable(); // allow user to save results
+    }
+}
+
+void DBScanDlg::GetClusterFromDendrogram(vector<wxInt64>& clusters)
+{
+    cluster_ids.clear();
+    clusters.clear();
+    clusters.resize(rows, 0);
+    
+    std::vector<std::vector<int> > groups = m_dendrogram->GetClusters();
+    for (int i=0, cluster_idx=1; i<groups.size(); ++i, ++cluster_idx) {
+        for (int j=0; j<groups[i].size(); ++j) {
+            clusters[ groups[i][j] ] = cluster_idx;
+        }
+    }
+    
+    std::vector<int> noises;
+    for (int i=0; i<clusters.size(); ++i) {
+        if (clusters[i] == 0 ) {
+            noises.push_back(i);
+        }
+    }
+    
+    cluster_ids = groups;
+    cluster_ids.push_back(noises);
+}
+
+void DBScanDlg::OnSaveClick(wxCommandEvent& event )
+{
+    if (chk_dbscanstar->GetValue()) {
+        // Get results from DBScan* and dendrogram
+        GetClusterFromDendrogram(clusters);
+    }
+    
     // save to table
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
@@ -489,10 +671,6 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-
-    if (CheckAllInputs() == false) return;
-
-    if (Run(clusters) == false) return;
     
     // in case not clustered
     int not_clustered =0;
@@ -562,6 +740,9 @@ void DBScanDlg::OnOKClick(wxCommandEvent& event )
                                 wxDefaultPosition,
                                 GdaConst::map_default_size);
     wxString tmp = _("DBScan Cluster Map (%d clusters)");
+    if (chk_dbscanstar->GetValue()) {
+        tmp = _("DBScan* Cluster Map (%d clusters)");
+    }
     int n_clsts = (int)cluster_ids.size();
     wxString ttl = wxString::Format(tmp, n_clsts);
     nf->SetTitle(ttl);

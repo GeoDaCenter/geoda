@@ -987,7 +987,6 @@ void DendrogramPanel::init()
     int start_y = 0;
     accessed_node.clear();
     
-    
     bool draw_node = nelements < 10000;
     if (draw_node) {
         doDraw(dc, -(nelements-2) - 1, start_y);

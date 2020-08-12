@@ -26,10 +26,10 @@
 #include "../FramesManager.h"
 #include "../VarTools.h"
 #include "../logger.h"
-#include "HClusterDlg.h"
-#include "AbstractClusterDlg.h"
 #include "../Algorithms/hdbscan.h"
 #include "../GenColor.h"
+#include "HClusterDlg.h"
+#include "AbstractClusterDlg.h"
 
 class Project;
 class TableInterface;
@@ -41,7 +41,7 @@ struct TreeNode{
     double distance;
 };
 
-// wxWidgets control of Condensed Tree in HDBScan
+// base wxWidgets control of Hierachical Tree
 class wxHTree : public wxPanel
 {
 protected:
@@ -76,13 +76,19 @@ public:
     virtual void SetActive(bool flag) {
         isWindowActive = flag;
     }
+    virtual void SetBlank(bool flag) {
+        isLayerValid = !flag;
+        Refresh();
+    }
 
     DECLARE_ABSTRACT_CLASS(wxHTree)
     DECLARE_EVENT_TABLE()
 };
 
+// wxWidgets control of Condensed Tree in HDBScan
 class wxCondensedTree : public wxHTree
 {
+protected:
     std::vector<Gda::CondensedTree> tree;
 
     int margin_left, margin_right, margin_top, margin_bottom;
@@ -126,12 +132,13 @@ public:
     }
     virtual ~wxCondensedTree() {}
 
-    ColorSpace::Rgb GetColor(int cluster_size) {
+    
+    virtual ColorSpace::Rgb GetColor(int cluster_size) {
         int idx = 100 * cluster_size / (double) max_cluster_size;
         return colors[idx];
     }
 
-    void UpdateColor(bool has_noise)
+    virtual void UpdateColor(bool has_noise)
     {
         int nclusters = (int)select_treeclusters.size() + has_noise;
         std::vector<wxColour> colors;
@@ -149,7 +156,7 @@ public:
 
     // wxCondensedTree will be drawn only after Setup()
     // the treeclusters<> are the id of clusters in hdbscan's condensed tree
-    void Setup(std::vector<Gda::CondensedTree*>& _tree,
+    virtual void Setup(std::vector<Gda::CondensedTree*>& _tree,
                std::set<int> treeclusters)
     {
         this->select_treeclusters = treeclusters;
@@ -499,8 +506,10 @@ public:
     }
 };
 
+// wxWidgets control of Dendrogram
 class wxDendrogram : public wxHTree
 {
+protected:
     std::vector<TreeNode> htree;
     std::map<int, double> node_elevation;
     std::map<int, double> node_position;
@@ -517,27 +526,51 @@ class wxDendrogram : public wxHTree
     int screen_w;
     int screen_h;
     
+    double cutoff;
     DendroSplitLine* split_line;
-    
+    std::vector<RectNode*> end_nodes;
+
     bool setup;
     bool isMovingSplitLine;
-    
+    bool isDrawSplitLine;
     std::vector<wxColour> colors;
     std::vector<wxInt64> cluster_ids;
+    
+    std::vector<std::vector<int> > clusters;
+
+    // for highlight
+    std::vector<int> hl_ids;
+    std::vector<bool> hs;
+
 public:
     wxDendrogram(wxWindow* parent,
                  wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
                  const wxSize &size=wxDefaultSize)
     : wxHTree(parent, id, pos, size), margin_left(10),
-    margin_right(10), margin_top(10), margin_bottom(50), setup(false) {
+    margin_right(10), margin_top(10), margin_bottom(50),
+    setup(false), cutoff(0) {
         split_line = NULL;
         isMovingSplitLine = false;
+        isDrawSplitLine = false;
     }
     virtual ~wxDendrogram() {
         if (split_line) {
             delete split_line;
             split_line = NULL;
         }
+        for (int i=0; i<end_nodes.size(); i++) {
+            delete end_nodes[i];
+        }
+        end_nodes.clear();
+    }
+    virtual double GetCutoff() { return cutoff; }
+
+    virtual std::vector<std::vector<int> > GetClusters()  {
+        if (isDrawSplitLine) {
+            int split_pos = split_line == NULL ? margin_left + 10 : split_line->getX();
+            OnSplitLineChange(split_pos);
+        }
+        return clusters;
     }
 
     virtual void SetupProjection() {
@@ -556,7 +589,10 @@ public:
     }
 
     virtual void UpdateColor(std::vector<wxInt64>& _cluster_ids, int nclusters) {
+        isLayerValid = false;
+
         this->cluster_ids = _cluster_ids;
+        colors.clear();
         CatClassification::PickColorSet(colors, nclusters);
 
         // update color for parent nodes
@@ -572,6 +608,8 @@ public:
         }
 
         setup = true;
+        isLayerValid = DoDraw();
+        Refresh();
     }
 
     virtual bool DoDraw() {
@@ -582,6 +620,12 @@ public:
 
         // project data points to screen
         SetupProjection();
+
+        // end nodes
+        for (int i=0; i<end_nodes.size(); i++) {
+            delete end_nodes[i];
+        }
+        end_nodes.clear();
 
         // draw everything on a wxbitmap
         wxMemoryDC dc;
@@ -604,7 +648,9 @@ public:
         DrawAxis(dc);
 
         // split line
-        DrawSplitLine();
+        if (isDrawSplitLine) {
+            DrawSplitLine();
+        }
         
         // wxbitmap is ready to paint on screen
         dc.SelectObject(wxNullBitmap);
@@ -614,12 +660,21 @@ public:
     }
 
     // wxDendrogram will be drawn only after Setup()
-    void Setup(const std::vector<TreeNode>& tree) {
+    virtual void Setup(const std::vector<TreeNode>& tree, bool use_spllit_line=false) {
         htree = tree;
-
+        isDrawSplitLine = use_spllit_line;
         int nn = (int)htree.size();
         int n_nodes = nn + 1;
 
+        // setup highlight
+        hs.clear();
+        hl_ids.clear();
+        hs.resize(n_nodes, false);
+        for (int i=0; i<n_nodes; ++i) {
+            hl_ids.push_back(i);
+        }
+
+        // get all leaves
         leaves = bfs_htree();
 
         // get position for all nodes (project nodes to same level)
@@ -651,9 +706,11 @@ public:
                 elevation_max = d;
             }
         }
+
+        cutoff = elevation_max;
     }
 
-    void DrawLine(wxDC &dc, double x0, double y0, double x1, double y1) {
+    virtual void DrawLine(wxDC &dc, double x0, double y0, double x1, double y1) {
         int xx0 = margin_left + screen_w - x0 * ratio_w;
         int xx1 = margin_left + screen_w - x1 * ratio_w;
         int yy0 = margin_top + y0 * ratio_h;
@@ -661,7 +718,7 @@ public:
         dc.DrawLine(xx0, yy0, xx1, yy1);
     }
 
-    void DrawBranch(wxDC &dc, int a, int b, double dist) {
+    virtual void DrawBranch(wxDC &dc, int a, int b, double dist) {
         //   ----------- b (node_position[b])
         //  |
         //  |
@@ -674,6 +731,7 @@ public:
         double y0 = node_position[b], y1 = node_position[a];
         
         if (!cluster_ids.empty()) {
+            // draw with color (defined for each cluster)
             dc.SetPen(*wxBLACK_PEN);
             int cluster_id = (int)cluster_ids[a];
             if (cluster_id >= 0) {
@@ -704,7 +762,7 @@ public:
         }
     }
 
-    void DrawNode(wxDC &dc, int node) {
+    virtual void DrawNode(wxDC &dc, int node) {
         double elevation = node_elevation[node];
         if (elevation > 0) {
             return;
@@ -714,15 +772,20 @@ public:
         int xx = margin_left + screen_w - elevation * ratio_w;
         int yy = margin_left + position * ratio_h;
 
+        wxColor c = cluster_ids.empty() ? *wxBLACK : colors[cluster_ids[node]];
+        RectNode* end = new RectNode(node, xx - 8, yy, c);
+        end->draw(dc, hs[node]);
+        end_nodes.push_back(end);
+
         if (!cluster_ids.empty()) {
             wxColor c = colors[cluster_ids[node]];
             dc.SetBrush(wxBrush(c));
             dc.SetPen(*wxTRANSPARENT_PEN);
         }
-        dc.DrawRectangle(wxRect(xx-4, yy-2, 8, 4));
+        //dc.DrawRectangle(wxRect(xx-4, yy-2, 8, 4));
     }
 
-    void DrawAxis(wxDC& dc) {
+    virtual void DrawAxis(wxDC& dc) {
         // elevation_max elevation_min
         int x1 = margin_left + screen_w - elevation_max * ratio_w;
         int x2 = margin_left + screen_w - elevation_min * ratio_w;
@@ -749,16 +812,20 @@ public:
         dc.DrawText(lbl, x1  - 2, y + 10);
         // draw label
         wxString ttl = _("Mutual Reachability Distance");
+        if (clusters.size() > 0 ) {
+            ttl << " (" << clusters.size() << " clusters)";
+        }
         wxSize extent(dc.GetTextExtent(ttl));
         double ttl_w = extent.GetWidth();
         dc.DrawText(ttl, (screen_w -ttl_w) / 2.0 + margin_left, y + 23);
     }
         
-    void DrawSplitLine() {
+    virtual void DrawSplitLine() {
         // split between elevation_max elevation_min
         wxSize sz = this->GetClientSize();
-        wxPoint v_p0(margin_left, 0);
-        wxPoint v_p1(margin_left, sz.GetHeight());
+        int x = (elevation_max - cutoff) / elevation_max * screen_w + margin_left;
+        wxPoint v_p0(x, 0);
+        wxPoint v_p1(x, sz.GetHeight());
         if (split_line == NULL) {
             split_line = new DendroSplitLine(v_p0, v_p1);
         } else {
@@ -766,29 +833,34 @@ public:
         }
     }
     
-    virtual void NotifySelection()
+    virtual void NotifySelection(double cutoff, std::vector<wxInt64>& cluster_labels)
     {
-        
+        // should be implemented by inherited classes
     }
-    
+
+    virtual void UpdateHighlight()
+    {
+        // should be implemented by inherited classes
+    }
     virtual void OnSplitLineChange(int x)
     {
-        double cut = elevation_max * (1 - (x - margin_left) / (double)screen_w);
-        std::cout << cut << std::endl;
-        
-        if (cut >= elevation_max || cut <= 0) {
+        if (screen_w <= 0) return;
+
+        cutoff = elevation_max * (1 - (x - margin_left) / (double)screen_w);
+
+        if (cutoff >= elevation_max || cutoff <= 0) {
             return;
         }
         
         // get clusters at cutoff elevation
-        std::vector<std::vector<int> > clusters;
+        clusters.clear();
         std::map<int, bool> visited_nodes;
         
         // process from top node
         int n = (int)htree.size();
         int n_nodes = n + 1;
         for (int i= n-1; i>=0; --i) {
-            if (cut < htree[i].distance) {
+            if (cutoff < htree[i].distance) {
                 continue;
             }
             if (visited_nodes.find(htree[i].left) != visited_nodes.end() &&
@@ -818,6 +890,14 @@ public:
             }
             clusters.push_back(cluster);
         }
+        std::vector<wxInt64> cluster_labels(n_nodes, 0);
+        for (int i=0; i<clusters.size(); ++i) {
+            for (int j=0; j<clusters[i].size(); ++j) {
+                cluster_labels[ clusters[i][j] ] = i+1;
+            }
+        }
+        UpdateColor(cluster_labels, clusters.size() + 1);
+        NotifySelection(cutoff, cluster_labels);
     }
     
     virtual void AfterDraw(wxDC& dc) {
@@ -855,16 +935,15 @@ public:
                         select_box->SetPosition(startPos);
                         select_box->SetWidth(0);
                         select_box->SetHeight(0);
-                        /*
+                        // highlight objects
                         for (int i=0;i<end_nodes.size();i++) {
                             if (end_nodes[i]->contains(startPos)) {
                                 hl_ids.push_back(end_nodes[i]->idx);
                                 hs[end_nodes[i]->idx] = true;
                             }
                         }
-                         */
+                        UpdateHighlight();
                     }
-                    NotifySelection();
                 }
             }
         } else if (event.Dragging()) {
@@ -896,16 +975,14 @@ public:
                         } else {
                             select_box->SetBottomRight(event.GetPosition());
                         }
-                        /*
+                        // highlight object
                         for (int i=0;i<end_nodes.size();i++) {
                             if (end_nodes[i]->intersects(*select_box)) {
                                 hl_ids.push_back(end_nodes[i]->idx);
                                 hs[end_nodes[i]->idx] = true;
                             }
                         }
-                         */
-                        // highlight i selected
-                        NotifySelection();
+                        UpdateHighlight();
                         Refresh();
                     }
                     startPos = event.GetPosition();
@@ -922,7 +999,6 @@ public:
                 if (select_box) {
                     delete select_box;
                     select_box = 0;
-                    NotifySelection();
                     Refresh();
                 }
             }
@@ -930,7 +1006,22 @@ public:
             isLeftDown = false;
         }
     }
-    std::vector<int> bfs_htree() {
+
+    void SetHighlight(const std::vector<int>& ids)
+    {
+        hl_ids = ids;
+        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+        for (size_t i=0; i<hl_ids.size(); ++i) hs[ hl_ids[i] ] = true;
+
+        if (select_box) {
+            // clean up existing select box
+            delete select_box;
+            select_box = 0;
+        }
+        DoDraw();
+    }
+
+    virtual std::vector<int> bfs_htree() {
         std::vector<int> leaves; // return
         int nn = (int)htree.size();
         int n_nodes = nn + 1;
@@ -961,6 +1052,7 @@ public:
 };
 
 
+class wxHDBScanDendrogram;
 
 // HDBScan Dialog
 class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
@@ -989,7 +1081,7 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     wxTextCtrl* m_textbox;
     wxChoice* m_distance;
     wxCondensedTree* m_condensedtree;
-    wxDendrogram* m_dendrogram;
+    wxHDBScanDendrogram* m_dendrogram;
     wxTextCtrl* m_minpts;
     wxTextCtrl* m_minsamples;
     wxTextCtrl* m_ctl_alpha;
@@ -997,8 +1089,6 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     wxNotebook* notebook;
     wxChoice* m_select_method;
     wxCheckBox* chk_allowsinglecluster;
-    wxCheckBox* chk_dbscanstar;
-    wxCheckBox* chk_hdbscan;
 
 public:
     HDBScanDlg(wxFrame *parent, Project* project);
@@ -1007,7 +1097,6 @@ public:
     void CreateControls();
     virtual bool Init();
     
-    void OnHDBscanCheck(wxCommandEvent& event );
     void OnSave(wxCommandEvent& event );
     void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
@@ -1031,6 +1120,33 @@ protected:
     virtual bool CheckAllInputs();
 
     DECLARE_EVENT_TABLE()
+};
+
+
+class wxHDBScanDendrogram : public wxDendrogram
+{
+public:
+    wxHDBScanDendrogram(wxWindow* parent,
+                       wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
+                       const wxSize &size=wxDefaultSize)
+    : wxDendrogram(parent, id, pos, size) {
+
+    }
+    virtual ~wxHDBScanDendrogram() {}
+
+    virtual void UpdateHighlight()
+    {
+        wxWindow* parent = GetParent();
+        while (parent) {
+            wxWindow* w = parent;
+            HDBScanDlg* dlg = dynamic_cast<HDBScanDlg*>(w);
+            if (dlg) {
+                dlg->Highlight(hl_ids);
+                break;
+            }
+            parent = w->GetParent();
+        }
+    }
 };
 
 #endif
