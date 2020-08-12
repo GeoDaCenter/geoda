@@ -125,6 +125,22 @@ void HDBScanDlg::CreateControls()
 	wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     AddSimpleInputCtrls(panel, vbox);
     
+    // Methods
+    wxFlexGridSizer* gbox_method = new wxFlexGridSizer(3,2,5,0);
+    wxStaticText* st_hdbscan = new wxStaticText(panel, wxID_ANY, _("Use HDBSCAN:"));
+    chk_hdbscan = new wxCheckBox(panel, wxID_ANY, "");
+    gbox_method->Add(st_hdbscan, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_method->Add(chk_hdbscan, 1, wxEXPAND);
+    chk_hdbscan->SetValue(true);
+    
+    wxStaticText* st_dbscanstar = new wxStaticText(panel, wxID_ANY, _("Use DBSCAN*:"));
+    chk_dbscanstar = new wxCheckBox(panel, wxID_ANY, "");
+    gbox_method->Add(st_dbscanstar, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox_method->Add(chk_dbscanstar, 1, wxEXPAND);
+
+    wxStaticBoxSizer *hbox_method = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Method:"));
+    hbox_method->Add(gbox_method, 1, wxEXPAND);
+    
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(10,2,5,0);
 
@@ -211,6 +227,7 @@ void HDBScanDlg::CreateControls()
     hbox2->Add(closeButton, 0, wxALIGN_CENTER | wxALL, 5);
     
     // Container
+    vbox->Add(hbox_method, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox, 0, wxEXPAND | wxALL, 10);
     vbox->Add(hbox1, 0, wxEXPAND | wxTOP | wxLEFT | wxRIGHT, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
@@ -252,6 +269,8 @@ void HDBScanDlg::CreateControls()
     okButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnOKClick, this);
     saveButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnSave, this);
     closeButton->Bind(wxEVT_BUTTON, &HDBScanDlg::OnClickClose, this);
+    chk_hdbscan->Bind(wxEVT_CHECKBOX, &HDBScanDlg::OnHDBscanCheck, this);
+    chk_dbscanstar->Bind(wxEVT_CHECKBOX, &HDBScanDlg::OnHDBscanCheck, this);
     //m_cluster->Connect(wxEVT_TEXT, wxCommandEventHandler(HDBScanDlg::OnClusterChoice), NULL, this);
     
     saveButton->Disable();
@@ -262,6 +281,16 @@ void HDBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)
     int tab_idx = event.GetSelection();
     m_dendrogram->SetActive(tab_idx == 0);
     m_condensedtree->SetActive(tab_idx == 1);
+}
+
+void HDBScanDlg::OnHDBscanCheck(wxCommandEvent& event )
+{
+    if (chk_hdbscan->GetValue()) {
+        chk_dbscanstar->SetValue(false);
+        
+    } else {
+        chk_dbscanstar->SetValue(true);
+    }
 }
 
 void HDBScanDlg::OnSave(wxCommandEvent& event )
@@ -488,9 +517,6 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     cluster_ids = hdb.GetRegions();
     probabilities = hdb.probabilities;
     outliers = hdb.outliers;
-    
-    // Setup condensed tree
-    m_condensedtree->Setup(hdb.condensed_tree, hdb.clusters);
 
     // Setup dendrogram tree
     std::vector<TreeNode> tree(rows-1);
@@ -513,8 +539,10 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     }
 
     m_dendrogram->Setup(tree);
-    m_dendrogram->SetActive(true); //  showing dendrogram by default
-
+    
+    // Setup condensed tree
+    m_condensedtree->Setup(hdb.condensed_tree, hdb.clusters);
+    
     // clean raw dist
     for (int i=1; i<rows; i++) delete[] raw_dist[i];
     delete[] raw_dist;
@@ -630,6 +658,9 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     bool has_noise = not_clustered > 0;
     m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size() + has_noise);
     m_condensedtree->UpdateColor(has_noise);
+    
+    m_dendrogram->SetActive(true); //  showing dendrogram by default
+    m_dendrogram->Refresh();
     
     saveButton->Enable();
 }

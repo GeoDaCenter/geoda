@@ -226,7 +226,13 @@ namespace Gda {
         static vector<double> ComputeCoreDistance(double** input_data, int n_pts,
                                               int n_dim, int min_samples,
                                               char dist);
-
+        static vector<SimpleEdge*> mst_linkage_core_vector(int num_features,
+                                                    vector<double>& core_distances,
+                                                    RawDistMatrix* dist_metric,
+                                                    double alpha);
+        
+        void Run();
+        
         vector<vector<int> > GetRegions();
         
         vector<double> outlier_scores(vector<CondensedTree*>& tree);
@@ -261,10 +267,6 @@ namespace Gda {
                           int cluster_selection_method=0,
                           bool allow_single_cluster= false,
                           bool match_reference_implementation=false);
-        
-        void mst_linkage_core_vector(int num_features,
-                                     vector<double>& core_distances,
-                                     RawDistMatrix* dist_metric, double alpha);
         
         vector<int> get_cluster_tree_leaves(vector<CondensedTree*>& cluster_tree);
         

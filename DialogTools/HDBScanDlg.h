@@ -997,6 +997,8 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     wxNotebook* notebook;
     wxChoice* m_select_method;
     wxCheckBox* chk_allowsinglecluster;
+    wxCheckBox* chk_dbscanstar;
+    wxCheckBox* chk_hdbscan;
 
 public:
     HDBScanDlg(wxFrame *parent, Project* project);
@@ -1005,6 +1007,7 @@ public:
     void CreateControls();
     virtual bool Init();
     
+    void OnHDBscanCheck(wxCommandEvent& event );
     void OnSave(wxCommandEvent& event );
     void OnOKClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );

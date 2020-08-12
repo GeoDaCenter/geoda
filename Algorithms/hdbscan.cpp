@@ -96,8 +96,7 @@ HDBScan::HDBScan(int min_cluster_size, int min_samples, double alpha,
     }
     mst_edges.clear();
     // MST
-    mst_linkage_core_vector(cols, core_dist, raw_dist, alpha);
-    std::sort(mst_edges.begin(), mst_edges.end(), EdgeLess1);
+    mst_edges = mst_linkage_core_vector(cols, core_dist, raw_dist, alpha);
     
     // Extract the HDBSCAN hierarchy as a dendrogram from mst
     int N = rows;
@@ -790,12 +789,13 @@ vector<int> HDBScan::recurse_leaf_dfs(vector<CondensedTree*>& cluster_tree, int 
     }
 }
 
-void HDBScan::mst_linkage_core_vector(int num_features,
+vector<SimpleEdge*> HDBScan::mst_linkage_core_vector(int num_features,
                                       vector<double>& core_distances,
                                       RawDistMatrix* dist_metric,
                                       double alpha)
 {
-    int dim = core_distances.size();
+    vector<SimpleEdge*> rtn_mst_edges;
+    int dim = (int)core_distances.size();
     
     double current_node_core_distance;
     vector<int> in_tree(dim,0);
@@ -860,8 +860,10 @@ void HDBScan::mst_linkage_core_vector(int num_features,
                 }
             }
         }
-        mst_edges.push_back(new SimpleEdge(source_node, new_node, new_distance));
+        rtn_mst_edges.push_back(new SimpleEdge(source_node, new_node, new_distance));
         
         current_node = new_node;
     }
+    std::sort(rtn_mst_edges.begin(), rtn_mst_edges.end(), EdgeLess1);
+    return rtn_mst_edges;
 }
