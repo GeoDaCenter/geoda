@@ -104,11 +104,13 @@ protected:
     double tree_t;
     double tree_b;
 
+    int n_nodes;
     int max_cluster_size;
+    std::map<int, double> node_lambda;
     std::map<int, int> cluster_left, cluster_right, cluster_sz;
     std::map<int, double> cluster_birth;
     std::map<int, bool> cluster_isleft;
-    std::vector<int> cluster_ids;
+    //std::vector<int> cluster_ids;
     std::map<int, std::vector<int> > cluster_children;
     std::set<int> select_treeclusters;
     std::map<int, double> cluster_death;
@@ -129,10 +131,98 @@ public:
         margin_bottom = 10;
         margin_left = 100;
         margin_right = 100;
+        n_nodes = 0;
     }
     virtual ~wxCondensedTree() {}
 
-    
+    virtual std::set<int> GetSelectInBox() {
+        if (select_box == NULL || select_box->GetWidth() <=0 || select_box->GetHeight() == 0)
+            return std::set<int>();
+
+        int x1 = select_box->GetLeft();
+        int x2 = select_box->GetRight();
+        int y1 = select_box->GetTop();
+        int y2 = select_box->GetBottom();
+
+        double x_left = (x1 - margin_left) / ratio_w + tree_left;
+        double x_right = (x2 - margin_left) / ratio_w + tree_left;
+        double y_top = (y1 - margin_top) / ratio_h + tree_t;
+        double y_bottom = (y2 - margin_top) / ratio_h + tree_t;
+
+        // check which clusters are selected
+        std::vector<int> target_clusters;
+        std::map<int, int>::iterator it;
+        for (it = cluster_left.begin(); it != cluster_left.end(); ++it) {
+            int c = it->first;
+            int c_left = it->second;
+            int c_right = cluster_right[c];
+            double c_top = cluster_birth[c];
+            double c_bottom = cluster_death[c];
+
+            if (x_right < c_left || x_left > c_right ||
+                y_top > c_bottom || y_bottom < c_top) {
+                // not intersect with this cluster
+                continue;
+            }
+            target_clusters.push_back(c);
+        }
+
+        std::set<int> select_nodes;
+        // check what leaf nodes in the selecte cluster
+        for (int i=0; i<target_clusters.size(); ++i) {
+            int c = target_clusters[i];
+            int c_left = cluster_left[c];
+            int c_right = cluster_right[c];
+            std::vector<int> leaves = GetLeaves(c);
+            if (cluster_isleft[c]) {
+                for (int j=c_left, k=0; j<c_right && k<leaves.size(); ++j, ++k) {
+                    int node = leaves[k];
+                    double lambda = node_lambda[node];
+                    if ( j > x_left && j < x_right && lambda > y_top ) {
+                        select_nodes.insert(node);
+                    }
+                }
+            } else {
+                for (int j=c_right, k=0; j> c_left && k<leaves.size(); --j, ++k) {
+                    int node = leaves[k];
+                    double lambda = node_lambda[node];
+                    if ( j > x_left && j < x_right && lambda > y_top ) {
+                        select_nodes.insert(node);
+                    }
+                }
+            }
+        }
+
+        return select_nodes;
+    }
+
+    virtual std::vector<int> GetLeaves(int c) {
+        // get subclusters of c
+        std::map<int, bool> all_clusters;
+        std::stack<int> clusters;
+        clusters.push(c);
+        while (!clusters.empty()) {
+            int c = clusters.top();
+            all_clusters[c] = true;
+            clusters.pop();
+            std::vector<int>& children = cluster_children[c];
+            for (int i=0; i<children.size(); ++i) {
+                clusters.push(children[i]);
+            }
+        }
+        std::vector<int> leaves;
+        // get leaf nodes
+        for (int i=0; i<tree.size(); ++i) {
+            int c = tree[i].parent;
+            if (all_clusters.find(c) != all_clusters.end()) {
+                if (tree[i].child < c) {
+                    leaves.push_back(tree[i].child);
+                }
+            }
+        }
+        return leaves;
+    }
+
     virtual ColorSpace::Rgb GetColor(int cluster_size) {
         int idx = 100 * cluster_size / (double) max_cluster_size;
         return colors[idx];
@@ -199,6 +289,7 @@ public:
 
             if (child < parent){
                 n += 1; // count how many items
+                node_lambda[child] = lambda; // leaf:lambda pair
             } else {
                 cluster_children[parent].push_back(child); // record children
             }
@@ -209,6 +300,15 @@ public:
             if (cluster_death[parent] < lambda) {
                 cluster_death[parent] = lambda;
             }
+        }
+
+        n_nodes = n;
+        // setup highlight
+        hs.clear();
+        hl_ids.clear();
+        hs.resize(n, false);
+        for (int i=0; i<n; ++i) {
+            hl_ids.push_back(i);
         }
 
         // process as a binary tree for clusters
@@ -285,6 +385,20 @@ public:
         ratio_h = screen_h / tree_h;
     }
 
+    virtual void SetHighlight(const std::vector<int>& ids)
+    {
+        hl_ids = ids;
+        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+        for (size_t i=0; i<hl_ids.size(); ++i) hs[ hl_ids[i] ] = true;
+
+        if (select_box) {
+            // clean up existing select box
+            delete select_box;
+            select_box = 0;
+        }
+        DoDraw();
+    }
+
     virtual bool DoDraw() {
         if (!setup) return false;
 
@@ -307,6 +421,7 @@ public:
 
         for (int i=0; i<tree.size(); ++i) {
             int parent = tree[i].parent;
+            int child = tree[i].child;
             int child_size = tree[i].child_size;
             double lambda = tree[i].lambda_val;
 
@@ -325,14 +440,14 @@ public:
                 double start_x = cluster_startx[parent];
                 double end_x = start_x + w * child_size;
                 double start_y = cluster_birth[parent];
-                DrawRect(dc, parent, start_x, start_y, end_x, end_y);
+                DrawRect(dc, parent, child, start_x, start_y, end_x, end_y);
                 cluster_startx[parent] = end_x;
             } else {
                 // right branch (draw item from right to left)
                 double start_x = cluster_startx[parent];
                 double end_x = start_x - w * child_size;
                 double start_y = cluster_birth[parent];
-                DrawRect(dc, parent, start_x, start_y, end_x, end_y);
+                DrawRect(dc, parent, child, start_x, start_y, end_x, end_y);
                 cluster_startx[parent] = end_x;
             }
         }
@@ -394,10 +509,14 @@ public:
         dc.DrawEllipse(xx, yy, ww, hh);
     }
 
-    virtual void DrawRect(wxDC& dc, int c, double x1, double y1, double x2, double y2) {
+    virtual void DrawRect(wxDC& dc, int c, int idx, double x1, double y1, double x2, double y2) {
         ColorSpace::Rgb rgb = GetColor(c);
         dc.SetPen(*wxTRANSPARENT_PEN);
         dc.SetBrush(*(cluster_brush[c]));
+
+        if (idx < n_nodes && hs[idx]) {
+            dc.SetBrush(*wxRED_BRUSH);
+        }
 
         int xx1 = (x1 - tree_left) * ratio_w + margin_left;
         int xx2 = (x2 - tree_left) * ratio_w + margin_left;
@@ -503,6 +622,72 @@ public:
 
         dc.DrawText(str_lambda, x1, y1);
         dc.DrawLine(margin_left -xpad -5, y1, margin_left-xpad, y1);
+    }
+
+    virtual void UpdateHighlight()
+    {
+        // should be implemented by inherited classes
+    }
+
+    virtual void OnEvent(wxMouseEvent& event)
+    {
+        if (event.LeftDown()) {
+            isLeftDown = true;
+
+            startPos = event.GetPosition();
+            if (select_box == 0) {
+                select_box = new wxRect(startPos.x, startPos.y, 0, 0);
+            } else {
+                if (select_box->Contains(startPos))  {
+                    // drag&move select box
+                    isMovingSelectBox = true;
+                } else {
+                    if ( !event.ShiftDown() && !event.CmdDown() ) {
+                        hl_ids.clear();
+                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                    }
+                    isMovingSelectBox = false;
+                    select_box->SetPosition(startPos);
+                    select_box->SetWidth(0);
+                    select_box->SetHeight(0);
+                    UpdateHighlight();
+                }
+            }
+        } else if (event.Dragging()) {
+            if (isLeftDown) {
+                isLeftMove = true;
+                // if using select box
+                if (select_box != 0) {
+                    if ( !event.ShiftDown() && !event.CmdDown() ) {
+                        hl_ids.clear();
+                        for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+                    }
+
+                    if (isMovingSelectBox) {
+                        select_box->Offset(event.GetPosition() - startPos);
+                    } else {
+                        select_box->SetBottomRight(event.GetPosition());
+                    }
+                    UpdateHighlight();
+                    Refresh();
+                }
+                startPos = event.GetPosition();
+            }
+        } else if (event.LeftUp()) {
+            if (isLeftMove) {
+                isLeftMove = false;
+                // stop move
+            } else {
+                // only left click
+                if (select_box) {
+                    delete select_box;
+                    select_box = 0;
+                    Refresh();
+                }
+            }
+            isMovingSelectBox = false;
+            isLeftDown = false;
+        }
     }
 };
 
@@ -1053,6 +1238,7 @@ public:
 
 
 class wxHDBScanDendrogram;
+class wxHDBScanCondensedTree;
 
 // HDBScan Dialog
 class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
@@ -1080,7 +1266,7 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     wxChoice* combo_cov;
     wxTextCtrl* m_textbox;
     wxChoice* m_distance;
-    wxCondensedTree* m_condensedtree;
+    wxHDBScanCondensedTree* m_condensedtree;
     wxHDBScanDendrogram* m_dendrogram;
     wxTextCtrl* m_minpts;
     wxTextCtrl* m_minsamples;
@@ -1136,6 +1322,41 @@ public:
 
     virtual void UpdateHighlight()
     {
+        wxWindow* parent = GetParent();
+        while (parent) {
+            wxWindow* w = parent;
+            HDBScanDlg* dlg = dynamic_cast<HDBScanDlg*>(w);
+            if (dlg) {
+                dlg->Highlight(hl_ids);
+                break;
+            }
+            parent = w->GetParent();
+        }
+    }
+};
+
+class wxHDBScanCondensedTree : public wxCondensedTree
+{
+public:
+    wxHDBScanCondensedTree(wxWindow* parent,
+                        wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
+                        const wxSize &size=wxDefaultSize)
+    : wxCondensedTree(parent, id, pos, size) {
+
+    }
+    virtual ~wxHDBScanCondensedTree() {}
+
+    virtual void UpdateHighlight()
+    {
+        // should be implemented by inherited classes
+        std::set<int> select_ids = GetSelectInBox();
+        std::set<int>::iterator it;
+        for (it = select_ids.begin(); it != select_ids.end(); ++it) {
+            int sel_id = *it;
+            hl_ids.push_back(sel_id);
+            hs[sel_id] = true;
+        }
+
         wxWindow* parent = GetParent();
         while (parent) {
             wxWindow* w = parent;

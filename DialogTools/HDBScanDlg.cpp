@@ -219,7 +219,7 @@ void HDBScanDlg::CreateControls()
     notebook = new wxNotebook( panel, wxID_ANY);
     m_dendrogram = new wxHDBScanDendrogram(notebook, wxID_ANY);
     notebook->AddPage(m_dendrogram, _("Dendrogram"));
-    m_condensedtree = new wxCondensedTree(notebook, wxID_ANY);
+    m_condensedtree = new wxHDBScanCondensedTree(notebook, wxID_ANY);
     notebook->AddPage(m_condensedtree, _("Condensed Tree"));
     m_reportbox = new SimpleReportTextCtrl(notebook, wxID_ANY, "");
     notebook->AddPage(m_reportbox, _("Summary"));
@@ -370,6 +370,9 @@ void HDBScanDlg::update(HLStateInt* o)
     }
     if (m_dendrogram) {
         m_dendrogram->SetHighlight(hl_ids);
+    }
+    if (m_condensedtree) {
+        m_condensedtree->SetHighlight(hl_ids);
     }
 }
 
