@@ -142,7 +142,7 @@ void CreateGridDlg::CreateControls()
     m_layers = XRCCTRL(*this, "IDC_GRID_LAYERS", wxChoice);
     m_layers->Enable(false);
     if (p_project == NULL) {
-        XRCCTRL(*this, "IDC_RADIO_LAYERS", wxChoice)->Enable(false);
+        XRCCTRL(*this, "IDC_RADIO_LAYERS", wxRadioButton)->Enable(false);
     }
     if (FindWindow(XRCID("IDC_EDIT1"))) {
         FindWindow(XRCID("IDC_EDIT1"))->
