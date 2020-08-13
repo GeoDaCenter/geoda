@@ -387,6 +387,9 @@ public:
 
     virtual void SetHighlight(const std::vector<int>& ids)
     {
+        if (setup == false) {
+            return;
+        }
         hl_ids = ids;
         for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
         for (size_t i=0; i<hl_ids.size(); ++i) hs[ hl_ids[i] ] = true;
@@ -1194,6 +1197,9 @@ public:
 
     void SetHighlight(const std::vector<int>& ids)
     {
+        if (setup == false) {
+            return;
+        }
         hl_ids = ids;
         for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
         for (size_t i=0; i<hl_ids.size(); ++i) hs[ hl_ids[i] ] = true;

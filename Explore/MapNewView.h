@@ -233,6 +233,8 @@ public:
 
     // heat map
     bool display_heat_map;
+    bool heat_map_bandwidth;
+    bool heat_map_variable;
     HeatMapHelper heat_map;
 
     // mst map

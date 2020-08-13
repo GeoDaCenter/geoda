@@ -99,7 +99,8 @@ display_map_boundary(false),
 display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
-display_heat_map(false),
+heat_map_bandwidth(false),
+heat_map_variable(false),
 graph_color(GdaConst::conn_graph_outline_colour),
 conn_selected_color(GdaConst::conn_select_outline_colour),
 conn_selected_fill_color(GdaConst::conn_select_outline_colour),
@@ -278,17 +279,27 @@ void MapCanvas::OnHeatMap(int menu_id)
     if (menu_id == XRCID("ID_HEATMAP_BANDWITH")) {
         // show bandwidth setup dialog, and dialog will trigger
         // map window to refresh
-        display_heat_map = true;
-        heat_map.SetBandwidth(this, project);
+        heat_map_bandwidth = !heat_map_bandwidth;
+        if (!heat_map_bandwidth) {
+            RedrawMap();
+        } else {
+            heat_map_variable = false;
+            heat_map.SetBandwidth(this, project);
+        }
     } else if (menu_id == XRCID("ID_HEATMAP_VARIABLE")) {
         // show variable selection dialog, and dialog will trigger
         // map window to refresh
-        display_heat_map = true;
-        heat_map.SetRadiusVariable(this, project);
+        heat_map_variable = !heat_map_variable;
+        if (!heat_map_variable) {
+            RedrawMap();
+        } else {
+            heat_map_bandwidth = false;
+            heat_map.SetRadiusVariable(this, project);
+        }
     } else if (menu_id == XRCID("ID_HEATMAP_TOGGLE")) {
         display_heat_map = !display_heat_map;
         RedrawMap();
-    } else if (display_heat_map) {
+    } else if (heat_map_bandwidth || heat_map_variable) {
         // none of the following menu items will work if
         // heat map toggle is not checked
         if (menu_id == XRCID("ID_HEATMAP_FILL_COLOR")) {
@@ -1717,6 +1728,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_SHOW_MAP_CONTOUR"),
                                    display_map_boundary);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_BANDWITH"), heat_map_bandwidth);
+    GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_VARIABLE"), heat_map_variable);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
                                   display_mst && mst_map.GetThickness() == 0);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_NORM"),
@@ -2512,7 +2525,7 @@ void MapCanvas::PopulateCanvas()
                     }
                 }
                 // don't use "else if", since voronoi and heatmap can be overlayed
-                if (display_heat_map) {
+                if (heat_map_bandwidth || heat_map_variable) {
                     // draw heat map in background
                     heat_map.Draw(selectable_shps, background_shps, cat_data);
                 }
@@ -2980,7 +2993,7 @@ void MapCanvas::ChangeNeighborFillColor()
 
 void MapCanvas::ChangeHeatMapFillColor()
 {
-    if (display_heat_map) {
+    if (heat_map_bandwidth || heat_map_variable) {
         heat_map.ChangeFillColor(this);
         RedrawMap();
     }
@@ -2988,7 +3001,7 @@ void MapCanvas::ChangeHeatMapFillColor()
 
 void MapCanvas::ChangeHeatMapOutlineColor()
 {
-    if (display_heat_map) {
+    if (heat_map_bandwidth || heat_map_variable) {
         heat_map.ChangeOutlineColor(this);
         RedrawMap();
     }
