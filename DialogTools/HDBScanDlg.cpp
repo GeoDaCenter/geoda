@@ -365,8 +365,9 @@ void HDBScanDlg::update(HLStateInt* o)
     std::vector<bool>& hs = o->GetHighlight();
     std::vector<int> hl_ids;
     for (size_t i=0; i<hs.size(); ++i) {
-        if (hs[i])
-            hl_ids.push_back(i);
+        if (hs[i]) {
+            hl_ids.push_back((int)i);
+        }
     }
     if (m_dendrogram) {
         m_dendrogram->SetHighlight(hl_ids);
@@ -642,8 +643,15 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size() + has_noise);
     m_condensedtree->UpdateColor(has_noise);
     
-    m_dendrogram->SetActive(true); //  showing dendrogram by default
-    m_dendrogram->Refresh();
+    if (notebook->GetSelection()==0) {
+        m_dendrogram->SetActive(true);
+        m_condensedtree->SetActive(false);
+        m_dendrogram->Refresh();
+    } else if (notebook->GetSelection()==1) {
+        m_dendrogram->SetActive(false);
+        m_condensedtree->SetActive(true);
+        m_condensedtree->Refresh();
+    }
     
     saveButton->Enable();
 }

@@ -49,6 +49,7 @@ public:
     void OnSaveClick( wxCommandEvent& event );
     void OnClickClose( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
+    void OnEpsInput(wxCommandEvent& ev);
     void OnClusterChoice(wxCommandEvent& event);
     void OnSelectVars(wxCommandEvent& event);
     void OnNotebookChange(wxBookCtrlEvent& event);

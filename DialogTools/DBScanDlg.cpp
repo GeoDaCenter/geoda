@@ -155,7 +155,7 @@ void DBScanDlg::CreateControls()
         list.Add(wxString(valid_chars.GetChar(i)));
     }
     validator.SetIncludes(list);
-    m_eps = new wxTextCtrl(panel, wxID_ANY, "0.5", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_eps = new wxTextCtrl(panel, wxID_ANY, "0.5", wxDefaultPosition, wxSize(120, -1),wxTE_PROCESS_ENTER,validator);
     gbox->Add(st2, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_eps, 1, wxEXPAND);
     
@@ -245,8 +245,20 @@ void DBScanDlg::CreateControls()
     combo_tranform->Bind(wxEVT_CHOICE, &DBScanDlg::OnSelectVars, this);
     chk_dbscan->Bind(wxEVT_CHECKBOX, &DBScanDlg::OnDBscanCheck, this);
     chk_dbscanstar->Bind(wxEVT_CHECKBOX, &DBScanDlg::OnDBscanStarCheck, this);
-    
+    m_eps->Bind(wxEVT_TEXT, &DBScanDlg::OnEpsInput, this);
+
     saveButton->Disable();
+}
+
+void DBScanDlg::OnEpsInput(wxCommandEvent& ev)
+{
+    if (chk_dbscanstar->GetValue()) {
+        wxString val = m_eps->GetValue();
+        double eps_val;
+        if (val.ToDouble(&eps_val)) {
+            m_dendrogram->SetSplitLine(eps_val);
+        }
+    }
 }
 
 void DBScanDlg::OnNotebookChange(wxBookCtrlEvent& event)

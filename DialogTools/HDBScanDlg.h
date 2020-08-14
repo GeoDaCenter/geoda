@@ -241,16 +241,31 @@ public:
             i += 1;
         }
         
-        setup = true; // trigger to draw
+        setup = true; 
+        isLayerValid = DoDraw();
+        Refresh();
     }
 
     // wxCondensedTree will be drawn only after Setup()
     // the treeclusters<> are the id of clusters in hdbscan's condensed tree
     virtual void Setup(std::vector<Gda::CondensedTree*>& _tree,
-               std::set<int> treeclusters)
+                       std::set<int> treeclusters)
     {
+        // clean up
+        node_lambda.clear();
+        cluster_left.clear();
+        cluster_right.clear();
+        cluster_sz.clear();
+        cluster_birth.clear();
+        cluster_death.clear();
+        cluster_children.clear();
+        select_treeclusters.clear();
+        cluster_brush.clear();
+        cluster_colors.clear();
+        tree.clear();
+        
         this->select_treeclusters = treeclusters;
-
+        
         // color for number of clusters
         ColorSpace::Rgb a(8,29,88), b(253,227,32); // BluYl
         colors = ColorSpace::ColorSpectrumHSV(a, b, 101); // 0-100
@@ -685,9 +700,12 @@ public:
                 if (select_box) {
                     delete select_box;
                     select_box = 0;
-                    Refresh();
                 }
             }
+            hl_ids.clear();
+            for (size_t i=0; i<hs.size(); ++i) hs[i] = false;
+            DoDraw();
+            Refresh();
             isMovingSelectBox = false;
             isLeftDown = false;
         }
@@ -755,8 +773,10 @@ public:
 
     virtual std::vector<std::vector<int> > GetClusters()  {
         if (isDrawSplitLine) {
-            int split_pos = split_line == NULL ? margin_left + 10 : split_line->getX();
-            OnSplitLineChange(split_pos);
+            if (clusters.empty()) {
+                int split_pos = split_line == NULL ? margin_left + 10 : split_line->getX();
+                OnSplitLineChange(split_pos);
+            }
         }
         return clusters;
     }
@@ -849,6 +869,13 @@ public:
 
     // wxDendrogram will be drawn only after Setup()
     virtual void Setup(const std::vector<TreeNode>& tree, bool use_spllit_line=false) {
+        setup = false;  // anytime this function is called, don't draw/update
+        
+        // clean up if this function is for updating
+        leaves.clear();
+        node_position.clear();
+        node_elevation.clear();
+        
         htree = tree;
         isDrawSplitLine = use_spllit_line;
         int nn = (int)htree.size();
@@ -1030,14 +1057,23 @@ public:
     {
         // should be implemented by inherited classes
     }
-    virtual void OnSplitLineChange(int x)
+
+    virtual void SetSplitLine(double c)
+    {
+        int x = screen_w - (c / elevation_max) * screen_w + margin_left;
+        OnSplitLineChange(x, false);
+    }
+
+    virtual void OnSplitLineChange(int x, bool notify_change = true)
     {
         if (screen_w <= 0) return;
 
         cutoff = elevation_max * (1 - (x - margin_left) / (double)screen_w);
 
-        if (cutoff >= elevation_max || cutoff <= 0) {
-            return;
+        if (cutoff >= elevation_max) {
+            cutoff = elevation_max;
+        } else if (cutoff <= 0) {
+            cutoff = 0;
         }
         
         // get clusters at cutoff elevation
@@ -1084,8 +1120,10 @@ public:
                 cluster_labels[ clusters[i][j] ] = i+1;
             }
         }
-        UpdateColor(cluster_labels, clusters.size() + 1);
-        NotifySelection(cutoff, cluster_labels);
+        UpdateColor(cluster_labels, (int)clusters.size() + 1);
+        if (notify_change) {
+            NotifySelection(cutoff, cluster_labels);
+        }
     }
     
     virtual void AfterDraw(wxDC& dc) {
