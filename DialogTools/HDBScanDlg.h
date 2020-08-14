@@ -774,8 +774,7 @@ public:
     virtual std::vector<std::vector<int> > GetClusters()  {
         if (isDrawSplitLine) {
             if (clusters.empty()) {
-                int split_pos = split_line == NULL ? margin_left + 10 : split_line->getX();
-                OnSplitLineChange(split_pos);
+                OnSplitLineChange(cutoff);
             }
         }
         return clusters;
@@ -868,7 +867,9 @@ public:
     }
 
     // wxDendrogram will be drawn only after Setup()
-    virtual void Setup(const std::vector<TreeNode>& tree, bool use_spllit_line=false) {
+    virtual void Setup(const std::vector<TreeNode>& tree,
+                       double in_cutoff = 0,
+                       bool use_spllit_line=false) {
         setup = false;  // anytime this function is called, don't draw/update
         
         // clean up if this function is for updating
@@ -922,7 +923,12 @@ public:
             }
         }
 
-        cutoff = elevation_max;
+        this->cutoff = in_cutoff;
+        if (cutoff > elevation_max ) {
+            cutoff = elevation_max;
+        } else if (cutoff < 0) {
+            cutoff = 0;
+        }
     }
 
     virtual void DrawLine(wxDC &dc, double x0, double y0, double x1, double y1) {
@@ -1058,17 +1064,14 @@ public:
         // should be implemented by inherited classes
     }
 
-    virtual void SetSplitLine(double c)
-    {
-        int x = screen_w - (c / elevation_max) * screen_w + margin_left;
-        OnSplitLineChange(x, false);
+    virtual double GetCurrentCutoff(int x) {
+        double val = elevation_max * (1 - (x - margin_left) / (double)screen_w);
+        return val;
     }
 
-    virtual void OnSplitLineChange(int x, bool notify_change = true)
+    virtual void OnSplitLineChange(double in_cutoff, bool notify_change = true)
     {
-        if (screen_w <= 0) return;
-
-        cutoff = elevation_max * (1 - (x - margin_left) / (double)screen_w);
+        cutoff = in_cutoff;
 
         if (cutoff >= elevation_max) {
             cutoff = elevation_max;
@@ -1114,13 +1117,28 @@ public:
             }
             clusters.push_back(cluster);
         }
+
+        // sort cluster by size
+        std::sort(clusters.begin(), clusters.end(), GenUtils::less_vectors);
+
+        // assign cluster label (0 means noise) for each item
         std::vector<wxInt64> cluster_labels(n_nodes, 0);
-        for (int i=0; i<clusters.size(); ++i) {
-            for (int j=0; j<clusters[i].size(); ++j) {
-                cluster_labels[ clusters[i][j] ] = i+1;
+
+        if (clusters.size() == 1 && clusters[0].size() == n_nodes) {
+            // single cluster
+            clusters.clear();
+        } else {
+            for (int i=0; i<clusters.size(); ++i) {
+                for (int j=0; j<clusters[i].size(); ++j) {
+                    cluster_labels[ clusters[i][j] ] = i+1;
+                }
             }
         }
-        UpdateColor(cluster_labels, (int)clusters.size() + 1);
+
+        // Update color for each cluster
+        UpdateColor(cluster_labels, (int)clusters.size() + 1 /*for noise*/ + 1);
+
+        // notify UI if needed
         if (notify_change) {
             NotifySelection(cutoff, cluster_labels);
         }
@@ -1185,9 +1203,9 @@ public:
                     
                     split_line->move(pt, startPos);
                     int x = split_line->getX();
-                    Refresh();
-                    OnSplitLineChange(x);
+                    OnSplitLineChange(GetCurrentCutoff(x));
                     startPos = pt;
+                    Refresh();
                 } else {
                     // if using select box
                     if (select_box != 0) {

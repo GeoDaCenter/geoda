@@ -256,7 +256,7 @@ void DBScanDlg::OnEpsInput(wxCommandEvent& ev)
         wxString val = m_eps->GetValue();
         double eps_val;
         if (val.ToDouble(&eps_val)) {
-            m_dendrogram->SetSplitLine(eps_val);
+            m_dendrogram->OnSplitLineChange(eps_val, false /* dont respond*/);
         }
     }
 }
@@ -506,15 +506,15 @@ bool DBScanDlg::RunStar()
         U.Union(aa, bb);
     }
     bool use_split_line = true;
-    m_dendrogram->Setup(tree, use_split_line);
-    GetClusterFromDendrogram(clusters);
-    m_dendrogram->UpdateColor(clusters, cluster_ids.size());
+    m_dendrogram->Setup(tree, eps, use_split_line);
+    m_dendrogram->OnSplitLineChange(eps);
 
-    // update delta value
-    double delta = m_dendrogram->GetCutoff();
-    wxString delta_lbl;
-    delta_lbl << delta;
-    m_eps->SetValue(delta_lbl);
+    // update delta value if needed
+    if (eps != m_dendrogram->GetCutoff()) {
+        wxString delta_lbl;
+        delta_lbl << m_dendrogram->GetCutoff();
+        m_eps->SetValue(delta_lbl);
+    }
     
     if (weight) {
         for (int i=0; i<rows; i++) delete[] data[i];
@@ -650,22 +650,14 @@ void DBScanDlg::GetClusterFromDendrogram(vector<wxInt64>& clusters)
     clusters.clear();
     clusters.resize(rows, 0);
     
-    std::vector<std::vector<int> > groups = m_dendrogram->GetClusters();
-    for (int i=0, cluster_idx=1; i<groups.size(); ++i, ++cluster_idx) {
-        for (int j=0; j<groups[i].size(); ++j) {
-            clusters[ groups[i][j] ] = cluster_idx;
+    cluster_ids = m_dendrogram->GetClusters();
+
+    // re-assign cluster lables
+    for (int i=0, cluster_idx=1; i<cluster_ids.size(); ++i, ++cluster_idx) {
+        for (int j=0; j<cluster_ids[i].size(); ++j) {
+            clusters[ cluster_ids[i][j] ] = cluster_idx;
         }
     }
-    
-    std::vector<int> noises;
-    for (int i=0; i<clusters.size(); ++i) {
-        if (clusters[i] == 0 ) {
-            noises.push_back(i);
-        }
-    }
-    
-    cluster_ids = groups;
-    cluster_ids.push_back(noises);
 }
 
 void DBScanDlg::OnSaveClick(wxCommandEvent& event )
