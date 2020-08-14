@@ -1497,6 +1497,17 @@ void CreatingWeightDlg::CreateWeights()
     } else {
         dist_values = WeightsMetaInfo::DV_vars;
     }
+
+    // check if using unprojected points in distance weights
+    if (m_nb_weights_type->GetSelection() > 0 &&
+        dist_metric == WeightsMetaInfo::DM_euclidean &&
+        (m_X->GetSelection() <= 1 || m_Y->GetSelection() <=1))
+    {
+        bool cont_proceed = project->CheckSpatialProjection(check_projection);
+        if (cont_proceed == false) {
+            return;
+        }
+    }
     
     bool m_check1 = m_include_lower->GetValue();
 

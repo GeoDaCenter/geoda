@@ -110,6 +110,7 @@ private:
     // maximum bandwidth
     double max_band;
 
+    // max tick for slider
     int max_tick;
 };
 
