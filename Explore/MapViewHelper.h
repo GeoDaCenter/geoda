@@ -54,7 +54,7 @@ protected:
     // UI: slider (no MEM mgnt)
     wxSlider* slider;
 
-    // UI: text label under slider (no MEM mgnt)
+    // UI: text input control under slider (no MEM mgnt)
     wxStaticText* slider_text;
 };
 
@@ -89,6 +89,8 @@ public:
 
     void OnSliderChange(wxCommandEvent& event );
 
+    void OnTextChange(wxCommandEvent& event );
+
 private:
     // reference to MapCanvas (no MEM mgnt)
     MapCanvas* canvas;
@@ -100,13 +102,15 @@ private:
     wxSlider* slider;
 
     // UI: text label under slider (no MEM mgnt)
-    wxStaticText* slider_text;
+    wxTextCtrl* slider_text;
 
     // selected bandwidth
     double sel_band;
 
     // maximum bandwidth
     double max_band;
+
+    int max_tick;
 };
 
 // Helper class for drawing heat map on MapCanvas

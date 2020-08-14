@@ -136,7 +136,8 @@ HeatMapBandwidthDlg::HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
                                          const wxPoint & position,
                                          const wxSize & size,
                                          long style)
-: wxDialog(_canvas, id, caption, position, size, style)
+: wxDialog(_canvas, id, caption, position, size, style),
+max_tick(1000)
 {
     wxLogMessage("Open HeatMapBandwidthDlg");
 
@@ -150,24 +151,30 @@ HeatMapBandwidthDlg::HeatMapBandwidthDlg(HeatMapHelper* _heatmap,
     wxBoxSizer* boxSizer = new wxBoxSizer(wxVERTICAL);
     topSizer->Add(boxSizer, 0, wxALIGN_CENTER_HORIZONTAL|wxALL, 5);
 
-    int ticket = (int)(sel_band / max_band * 1000.0);
-    slider = new wxSlider(this, wxID_ANY, ticket, 0, 1000,
-                          wxDefaultPosition, wxSize(300, -1),
+    int ticket = (int)(sel_band / max_band * max_tick);
+    slider = new wxSlider(this, wxID_ANY, ticket, 0, max_tick, wxDefaultPosition, wxSize(300, -1),
                           wxSL_HORIZONTAL);
 
     boxSizer->Add(slider);
-    wxString bandwidth_lbl = wxString::Format(_("Bandwidth: %f"), sel_band);
+    wxString bandwidth_lbl = _("Bandwidth:");
+    wxStaticText* band_text = new wxStaticText(this, wxID_ANY, bandwidth_lbl);
 
-    slider_text = new wxStaticText(this, wxID_ANY, bandwidth_lbl,
-                                   wxDefaultPosition, wxSize(100, -1));
-    boxSizer->Add(slider_text, 0, wxGROW|wxALL, 5);
+    wxString band_txt;
+    band_txt << sel_band;
+    slider_text = new wxTextCtrl(this, wxID_ANY, band_txt, wxDefaultPosition, wxSize(200, -1));
+
+    wxBoxSizer* labelSizer = new wxBoxSizer(wxHORIZONTAL);
+    labelSizer->Add(band_text, 0, wxALIGN_CENTER_VERTICAL);
+    labelSizer->Add(slider_text, 0, wxALIGN_CENTER_VERTICAL);
+
+    boxSizer->Add(labelSizer, 0, wxGROW|wxALL, 5);
     boxSizer->Add(new wxButton(this, wxID_CANCEL, _("Close")), 0, wxALIGN_CENTER|wxALL, 10);
 
     SetSizer(topSizer);
     topSizer->Fit(this);
 
     slider->Bind(wxEVT_SLIDER, &HeatMapBandwidthDlg::OnSliderChange, this);
-
+    slider_text->Bind(wxEVT_TEXT, &HeatMapBandwidthDlg::OnTextChange, this);
     //wxCommandEvent ev;
     //OnSliderChange(ev);
     if (canvas && heatmap) {
@@ -183,11 +190,39 @@ HeatMapBandwidthDlg::~HeatMapBandwidthDlg()
 void HeatMapBandwidthDlg::OnSliderChange( wxCommandEvent & event )
 {
     int val = slider->GetValue();
-    double band = (val / 100.0) * max_band;
-    slider_text->SetLabel(wxString::Format(_("Bandwidth: %f"), band));
+    double band = (val / (double)max_tick) * max_band;
+
+    wxString band_txt;
+    band_txt << band;
+
+    slider_text->SetValue(band_txt);
     if (canvas && heatmap) {
         heatmap->UpdateBandwidth(band);
         canvas->RedrawMap();
+    }
+}
+
+void HeatMapBandwidthDlg::OnTextChange( wxCommandEvent & event )
+{
+    wxString input_val = slider_text->GetValue();
+    input_val.Trim();
+    double input_band;
+    if (input_val.ToDouble(&input_band)) {
+        int tick = (input_band / max_band) * max_tick;
+        if (tick <0) {
+            tick = 0;
+            input_band = 0;
+        } else if (tick > max_tick) {
+            tick = max_tick;
+            input_band = max_band;
+        }
+
+        slider->SetValue(tick);
+
+        if (canvas && heatmap) {
+            heatmap->UpdateBandwidth(input_band);
+            canvas->RedrawMap();
+        }
     }
 }
 
@@ -241,7 +276,7 @@ void HeatMapHelper::SetBandwidth(MapCanvas* canvas, Project* project)
     if (bandwidth == 0) {
         bandwidth = min_band;
     }
-    HeatMapBandwidthDlg bandDlg(this, canvas, bandwidth, max_band);
+    HeatMapBandwidthDlg bandDlg(this, canvas, bandwidth, bandwidth*2);
     bandDlg.ShowModal();
 }
 
