@@ -378,6 +378,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
                 ml->SetUnHighlight(i);
             }
         }
+        selection_changed = true;
     } else { // determine which obs intersect the selection region.
         if (brushtype == rectangle) {
             wxRegion rect(wxRect(sel1, sel2));
@@ -395,6 +396,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
                         ml->SetUnHighlight(i);
                 }
             }
+            selection_changed = true;
 
         } else if (brushtype == circle) {
             // using quad-tree to do pre-selection
@@ -1245,20 +1247,17 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
 
-    if ( !fg_maps.empty() ) {
-        // prepare main layer hights
-        std::vector<bool>& hs = highlight_state->GetHighlight();
-        for (int i=0; i<hs.size(); ++i) hs[i] =false;
-    }
-    DrawHighlight(dc, this);
-
-    if ( !fg_maps.empty() ) {
-        // multi-layer highlight: using top layer
-        for (int i=fg_maps.size()-1; i>=0; --i) {
-            BackgroundMapLayer* ml = fg_maps[i];
-            if (ml && ml->IsHide() == false) {
-                int nhl = ml->GetHighlightRecords();
-                if (nhl > 0) ml->DrawHighlight(dc, this);
+    if (fg_maps.empty()) {
+        // if current layer is top layer, just draw highlight
+        DrawHighlight(dc, this);
+    } else {
+        // if current layer is not the first layer, do NOT draw highlight on current layer
+        // instead, drawing multi-layer highlight: using top layer
+        BackgroundMapLayer* ml = fg_maps[fg_maps.size()-1];
+        if (ml && ml->IsHide() == false) {
+            int nhl = ml->GetHighlightRecords();
+            if (nhl >= 0) {
+                ml->DrawHighlight(dc, this);
             }
         }
     }
@@ -3084,8 +3083,25 @@ void MapCanvas::update(HLStateInt* o)
 {
     // update selection from other window
     select_with_neighbor.clear();
-    
-    is_updating = true; // don't trigger other window when syncing this map
+
+    // if there is any existing highlighted objects in backgroun/foregreound
+    // layers, reset them to avoid highligh conflict since this function is
+    // called to highlight current layer instead of background/foreground
+    for (size_t i=0; i<bg_maps.size(); ++i) {
+        BackgroundMapLayer* ml = bg_maps[i];
+        if (ml && ml->IsHide() == false) {
+            ml->ResetHighlight();
+        }
+    }
+    for (size_t i=0; i<fg_maps.size(); ++i) {
+        BackgroundMapLayer* ml = fg_maps[i];
+        if (ml && ml->IsHide() == false) {
+            ml->ResetHighlight();
+        }
+    }
+
+    // don't trigger other window when syncing this map
+    is_updating = true;
     if (layer2_bm) {
         ResetBrushing();
 

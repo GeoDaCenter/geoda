@@ -516,7 +516,10 @@ void MapTree::OnChangeFillColor(wxCommandEvent& event)
 void MapTree::OnChangeAssociatelineColor(wxCommandEvent& event)
 {
     wxString map_name = map_titles[new_order[select_id]];
-    BackgroundMapLayer* ml = GetMapLayer(map_name);
+    AssociateLayerInt* ml = GetMapLayer(map_name);
+    if (ml == NULL) {
+        ml = canvas;
+    }
     if (ml) {
         wxColour clr;
         clr = wxGetColourFromUser(this, ml->GetAssociatePenColour());

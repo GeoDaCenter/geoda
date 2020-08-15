@@ -65,6 +65,7 @@ public:
     virtual bool IsAssociatedWith(AssociateLayerInt* layer) = 0;
     virtual void ClearLayerAssociation() {
         associated_layers.clear();
+        ResetHighlight();
     }
     
     virtual void SetHide(bool flag) { is_hide = flag; }
