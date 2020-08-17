@@ -61,15 +61,15 @@ SCHCDlg::~SCHCDlg()
 void SCHCDlg::OnSave(wxCommandEvent& event )
 {
     HClusterDlg::OnSave(event);
+
     // check cluster connectivity
-    wxString user_n = combo_n->GetValue();
-    long int_user_n;
-    if (user_n.ToLong(&int_user_n)) {
-        if (int_user_n < cutoff_n_cluster) {
-            wxString err_msg = _("The clustering result is not spatially constrained. Please adjust the number of clusters.");
-            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-            dlg.ShowModal();
-        }
+    GalWeight* gw = CheckSpatialWeights();
+    if (gw == NULL) return ;
+
+    if (CheckContiguity(gw->gal, clusters)  == false) {
+        wxString err_msg = _("The clustering result is not spatially constrained. Please adjust the number of clusters.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
     }
 }
 
@@ -169,11 +169,6 @@ bool SCHCDlg::Run(vector<wxInt64>& clusters)
 
     cutoff_n_cluster = n_cluster;
 
-    combo_n->Clear();
-    int max_n_clusters = rows < 100 ? rows : 100;
-    for (int i=n_cluster; i<max_n_clusters+1; i++) {
-        combo_n->Append(wxString::Format("%d", i));
-    }
     combo_n->SetValue(wxString::Format("%d", n_cluster));
     combo_n->Enable();
 
