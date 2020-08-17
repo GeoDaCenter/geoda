@@ -128,8 +128,8 @@ public:
                  const wxSize &size=wxDefaultSize)
     : wxHTree(parent, id, pos, size), setup(false) {
         margin_top = 10;
-        margin_bottom = 10;
-        margin_left = 100;
+        margin_bottom = 50;
+        margin_left = 120;
         margin_right = 100;
         n_nodes = 0;
     }
@@ -506,10 +506,11 @@ public:
         double y = cluster_birth[c];
         double h = std::abs(cluster_death[c] - cluster_birth[c]);
 
-        double w1 = w / 1.2 * 2;
-        double h1 = h / 1.2 * 2;
+        // minimium ellipse contains rectangle
+        double w1 = w * sqrt(2.0);
+        double h1 = h * sqrt(2.0);
 
-        if (h1 == 0) h1 = tree_h / 30.0;
+       // if (h1 <tree_h / 40.0) h1 = tree_h / 40.0;
 
         x = x - (w1 - w)/2.0;
         y = y - (h1 - h)/2.0;
@@ -518,7 +519,13 @@ public:
         int yy = (y - tree_t) * ratio_h + margin_top;
         int ww = w1 * ratio_w;
         int hh = h1 * ratio_h;
-        
+
+        if (hh < 5) {
+            // for some cases that all bins have 0 height
+            hh = 10;
+            yy = yy - 5;
+        }
+
         if (cluster_colors.find(c) != cluster_colors.end()) {
             wxColour color = cluster_colors[c];
             dc.SetPen(wxPen(color));
