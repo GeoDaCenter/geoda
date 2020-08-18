@@ -295,7 +295,7 @@ void CreatingWeightDlg::UpdateThresholdValuesMultiVars()
 
     wxArrayInt selections;
     m_Vars->GetSelections(selections);
-    int num_var = selections.size();
+    int num_var = (int)selections.size();
     if (num_var <= 0) {
         return;
     }
@@ -346,7 +346,7 @@ void CreatingWeightDlg::OnDistanceWeightsInputUpdate( wxBookCtrlEvent& event )
     } else {
         wxArrayInt selections;
         m_Vars->GetSelections(selections);
-        int n_sel = selections.GetCount();
+        int n_sel = (int)selections.GetCount();
         if (n_sel <= 0 || m_dist_choice_vars->GetSelection() == 0) {
             m_thres_val_valid = false;
             m_threshold->ChangeValue("0");
@@ -378,7 +378,6 @@ void CreatingWeightDlg::OnCreateNewIdClick( wxCommandEvent& event )
     	table_int->FillColIdMap(col_id_map);
     	InitFields();
 		m_id_field->SetSelection(0);
-        bool valid = m_id_field->GetSelection() != wxNOT_FOUND;
 		UpdateCreateButtonState();
         OnIdVariableSelected(event);
 	} else {
@@ -799,7 +798,7 @@ void CreatingWeightDlg::InitFields()
     
 	ResetThresXandYCombo();
 	
-	for (int i=0, iend=col_id_map.size(); i<iend; i++) {
+	for (int i=0, iend=(int)col_id_map.size(); i<iend; i++) {
 		int col = col_id_map[i];
 		
         wxString name = table_int->GetColName(col);
@@ -828,7 +827,7 @@ void CreatingWeightDlg::InitFields()
 	if (table_int->IsTimeVariant()) {
 		std::vector<wxString> tm_strs;
 		table_int->GetTimeStrings(tm_strs);
-		for (int t=0, sz=tm_strs.size(); t<sz; ++t) {
+		for (int t=0, sz=(int)tm_strs.size(); t<sz; ++t) {
 			m_X_time->Append(tm_strs[t]);
 			m_Y_time->Append(tm_strs[t]);
 		}
@@ -861,7 +860,7 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
         wxRegEx regex;
         regex.Compile("^[0-9a-zA-Z_]+$");
         
-        for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
+        for (int i=0, iend=(int)str_id_vec.size(); i<iend; i++) {
             wxString item  = str_id_vec[i];
             if (regex.Matches(item)) {
                 str_id_vec[i] = item;
@@ -878,7 +877,7 @@ bool CreatingWeightDlg::CheckID(const wxString& id)
 	std::set<wxString> id_set;
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
     
-	for (int i=0, iend=str_id_vec.size(); i<iend; i++) {
+	for (int i=0, iend=(int)str_id_vec.size(); i<iend; i++) {
         wxString str_id = str_id_vec[i];
         if (id_set.find(str_id) == id_set.end()) {
             id_set.insert(str_id);
@@ -1313,13 +1312,13 @@ void CreatingWeightDlg::CreateWeightsFromTable(wxString id, wxString outputfile,
     
     // save to file
     GwtWeight* Wp = new GwtWeight;
-    Wp->num_obs = w.size();
+    Wp->num_obs = (int)w.size();
     Wp->is_symmetric = false;
     Wp->symmetry_checked = true;
     Wp->gwt = new GwtElement[Wp->num_obs];
     for (size_t i=0; i<w.size(); i++) {
         GwtElement& e = Wp->gwt[i];
-        e.alloc(w[i].size());
+        e.alloc((int)w[i].size());
         for (size_t j=0; j<w[i].size(); j++) {
             GwtNeighbor neigh;
             neigh.nbx = w[i][j].first;
@@ -1479,7 +1478,7 @@ void CreatingWeightDlg::CreateWeights()
     int m_ooC = m_spincont->GetValue();
     int m_kNN = m_spinneigh->GetValue();
     int m_kernel_kNN = m_spinn_kernel->GetValue();
-    int m_alpha = 1;
+    //int m_alpha = 1;
     bool done = false;
     
     wxString str_X = m_X->GetString(m_X->GetSelection());
@@ -1499,11 +1498,11 @@ void CreatingWeightDlg::CreateWeights()
     }
 
     // check if using unprojected points in distance weights
-    if (m_nb_weights_type->GetSelection() > 0 &&
-        dist_metric == WeightsMetaInfo::DM_euclidean &&
-        (m_X->GetSelection() <= 1 || m_Y->GetSelection() <=1))
+    if (m_nb_weights_type->GetSelection() > 0 && // for distance weights only
+        (m_X->GetSelection() <= 1 || m_Y->GetSelection() <=1)) // for centroids
     {
-        bool cont_proceed = project->CheckSpatialProjection(check_projection);
+        bool is_arc = (dist_metric == WeightsMetaInfo::DM_arc);
+        bool cont_proceed = project->CheckSpatialProjection(check_projection, is_arc);
         if (cont_proceed == false) {
             return;
         }

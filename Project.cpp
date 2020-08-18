@@ -500,7 +500,7 @@ OGRSpatialReference* Project::GetSpatialReference()
 	return spatial_ref;
 }
 
-bool Project::CheckSpatialProjection(bool& check_again)
+bool Project::CheckSpatialProjection(bool& check_again, bool is_arc)
 {
     // Check if latitude and longitude are used in spatial reference
     bool cont_proceed = false;
@@ -513,17 +513,30 @@ bool Project::CheckSpatialProjection(bool& check_again)
             check_again = dlg.IsCheckAgain();
         }
     } else {
-        if (project_unit.CmpNoCase("degree") == 0) {
+        bool is_euclidean = !is_arc;
+        if (is_euclidean && project_unit.CmpNoCase("degree") == 0) {
             wxString msg = _("Warning: coordinates are not projected, distance will be incorrect.\n\nProceed anyway?");
             CheckSpatialRefDialog dlg(NULL, msg);
             if (dlg.ShowModal() == wxID_OK) {
                 cont_proceed = true;
                 check_again = dlg.IsCheckAgain();
             }
-        } else {
-            // case of already projected coords
-            cont_proceed = true;
-            check_again = false; // no need to check again
+        } else  {
+    
+            if (is_arc && project_unit.CmpNoCase("degree") != 0) {
+                //if the data are projected and one tries to
+                // create an arc distance, same warning.
+                wxString msg = _("Warning: coordinates are projected, arc distance will be incorrect.\n\nProceed anyway?");
+                CheckSpatialRefDialog dlg(NULL, msg);
+                if (dlg.ShowModal() == wxID_OK) {
+                    cont_proceed = true;
+                    check_again = dlg.IsCheckAgain();
+                }
+            }  else {
+                // GOOD! 
+                cont_proceed = true;
+                check_again = false; // no need to check again
+            }
         }
     }
     // return if user wants to continue proceeding

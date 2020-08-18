@@ -146,7 +146,7 @@ public:
     MapLayerState*      GetMapLayerState(){ return maplayer_state; }
     ProjectConfiguration* GetProjectConf() { return project_conf; }
 	OGRSpatialReference*  GetSpatialReference();
-    bool CheckSpatialProjection(bool& check_again);
+    bool CheckSpatialProjection(bool& check_again, bool is_arc=false);
     OGRLayerProxy*        GetOGRLayerProxy() {return layer_proxy;}
     /** Save in-memory Table+Geometries to OGR DataSource */
     Shapefile::ShapeType  GetGdaGeometries(vector<GdaShape*>& geometries);
