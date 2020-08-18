@@ -457,7 +457,10 @@ namespace GenUtils {
     wxString GetUserSamplesDir();
     wxString GetBasemapDir();
     wxString GetCachePath();
+
     bool less_vectors(const vector<int>& a,const vector<int>& b);
+    bool smaller_pair(const std::pair<int, int>& a,
+                      const std::pair<int, int>& b);
     
     // Act like matlab's [Y,I] = SORT(X)
     // Input:

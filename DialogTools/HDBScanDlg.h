@@ -237,17 +237,16 @@ public:
         return colors[idx];
     }
 
-    virtual void UpdateColor(bool has_noise)
+    virtual void UpdateColor(std::vector<std::pair<int, int> >& ordered_cids)
     {
-        int nclusters = (int)select_treeclusters.size() + has_noise;
+        int nclusters = (int)select_treeclusters.size();
         std::vector<wxColour> colors;
-        CatClassification::PickColorSet(colors, nclusters);
         
-        int i = 0;
-        std::set<int>::iterator it;
-        for (it = select_treeclusters.begin(); it != select_treeclusters.end(); ++it) {
-            cluster_colors[*it] = colors[i + has_noise];
-            i += 1;
+        CatClassification::PickColorSet(colors, CatClassification::unique_color_scheme, nclusters, false/*reversed*/);
+        
+        for (int i=0; i<ordered_cids.size(); ++i)  {
+            int c = ordered_cids[i].first;
+            cluster_colors[c]  = colors[i];
         }
         
         setup = true; 
@@ -381,6 +380,11 @@ public:
             }
         }
 
+        // make some buffer zone
+        int buffer = (tree_right - tree_left) * 0.05;
+        tree_left = tree_left - buffer;
+        tree_right = tree_right + buffer;
+        
         tree_w = tree_right - tree_left;
         tree_h = tree_b - tree_t;
 
@@ -861,7 +865,8 @@ public:
 
         this->cluster_ids = _cluster_ids;
         colors.clear();
-        CatClassification::PickColorSet(colors, nclusters);
+        
+        CatClassification::PickColorSet(colors, CatClassification::unique_color_scheme, nclusters, false/*reversed*/);
 
         // update color for parent nodes
         for (int i=0; i<htree.size(); ++i) {
@@ -1380,7 +1385,7 @@ class HDBScanDlg : public AbstractClusterDlg, public HighlightStateObserver
     vector<double> outliers;
     vector<int> hdbscan_clusters;
     vector<vector<int> > cluster_ids;
-
+    
     int max_n_clusters;
 
     double cutoffDistance;

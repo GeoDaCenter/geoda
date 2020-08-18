@@ -533,17 +533,29 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
 
     int ncluster = (int)cluster_ids.size();
 
-    // sort result
+    // sort cluster ids by size
+    std::vector<std::pair<int, int> > ordered_cids;
+    for (int i=0; i<cluster_ids.size(); ++i) {
+        int sz = (int)cluster_ids[i].size();
+        int c = hdb.reverse_cluster_map[i];
+        ordered_cids.push_back(std::make_pair(c, sz));
+    }
+    std::sort(ordered_cids.begin(), ordered_cids.end(), GenUtils::smaller_pair);
+    // sort clusters by size
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
 
     for (int i=0; i < ncluster; i++) {
-        int c = i + 1;
+        int c = i;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
             clusters[idx] = c;
         }
     }
 
+    // update dendrogram and consended tree
+    m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size());
+    m_condensedtree->UpdateColor(ordered_cids);
+    
     return true;
 }
 
@@ -639,10 +651,6 @@ void HDBScanDlg::OnOKClick(wxCommandEvent& event )
     saveButton->Enable();
     
     // update dendrogram and consended tree
-    bool has_noise = not_clustered > 0;
-    m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size() + has_noise);
-    m_condensedtree->UpdateColor(has_noise);
-    
     if (notebook->GetSelection()==0) {
         m_dendrogram->SetActive(true);
         m_condensedtree->SetActive(false);

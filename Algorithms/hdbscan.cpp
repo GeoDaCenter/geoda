@@ -172,7 +172,7 @@ vector<vector<int> > HDBScan::GetRegions()
             regions[cid].push_back(i);
         }
     }
-    
+        
     return regions;
 }
 
@@ -726,7 +726,8 @@ void HDBScan::get_clusters(vector<CondensedTree*>& tree,
     
     std::sort(_clusters.begin(), _clusters.end());
     
-    boost::unordered_map<int, int> cluster_map, reverse_cluster_map;
+    cluster_map.clear();
+    reverse_cluster_map.clear();
     for (int i=0; i<_clusters.size(); i++) {
         cluster_map[_clusters[i]] = i;
         reverse_cluster_map[i] = _clusters[i];

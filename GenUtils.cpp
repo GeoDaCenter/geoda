@@ -2297,6 +2297,11 @@ bool GenUtils::less_vectors(const std::vector<int>& a,const std::vector<int>& b)
     return a.size() > b.size();
 }
 
+bool GenUtils::smaller_pair(const std::pair<int, int>& a,
+                            const std::pair<int, int>& b) {
+    return a.second > b.second;
+}
+
 wxString GenUtils::WrapText(wxWindow *win, const wxString& text, int widthMax)
 {
 	class HardBreakWrapper : public wxTextWrapper

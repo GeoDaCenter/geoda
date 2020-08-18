@@ -207,6 +207,7 @@ namespace Gda {
         vector<double> stabilities;
         vector<double> outliers;
         set<int> clusters;
+        boost::unordered_map<int, int> cluster_map, reverse_cluster_map;
         
         HDBScan(int min_points,
                 int min_samples,
