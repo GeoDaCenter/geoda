@@ -745,6 +745,11 @@ void wxHTree::OnEvent(wxMouseEvent &event) {
 
 void wxHTree::OnSize(wxSizeEvent &event) {
     isResize = true;
+    wxSize sz = this->GetClientSize();
+    screen_w = sz.GetWidth();
+    screen_h = sz.GetHeight();
+    virtual_screen_w = screen_w;
+    virtual_screen_h = screen_h;
     event.Skip();
 }
 

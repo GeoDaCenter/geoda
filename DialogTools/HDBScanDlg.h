@@ -57,6 +57,11 @@ protected:
     wxRect* select_box;
     wxBitmap* layer_bm;
 
+    int screen_w;
+    int screen_h;
+    int virtual_screen_w;
+    int virtual_screen_h;
+
 public:
     wxHTree(wxWindow* parent,
             wxWindowID id=wxID_ANY, const wxPoint &pos=wxDefaultPosition,
@@ -94,8 +99,10 @@ protected:
     int margin_left, margin_right, margin_top, margin_bottom;
     double ratio_w;
     double ratio_h;
-    int screen_w;
-    int screen_h;
+    double offset_x;
+    double offset_y;
+    wxPoint zoomPos;
+    double zoom;
 
     double tree_left;
     double tree_right;
@@ -132,6 +139,8 @@ public:
         margin_left = 120;
         margin_right = 100;
         n_nodes = 0;
+        offset_x = 0;
+        offset_y = 0;
     }
     virtual ~wxCondensedTree() {}
 
@@ -144,10 +153,10 @@ public:
         int y1 = select_box->GetTop();
         int y2 = select_box->GetBottom();
 
-        double x_left = (x1 - margin_left) / ratio_w + tree_left;
-        double x_right = (x2 - margin_left) / ratio_w + tree_left;
-        double y_top = (y1 - margin_top) / ratio_h + tree_t;
-        double y_bottom = (y2 - margin_top) / ratio_h + tree_t;
+        double x_left = (x1 - margin_left - offset_x) / ratio_w + tree_left;
+        double x_right = (x2 - margin_left - offset_x) / ratio_w + tree_left;
+        double y_top = (y1 - margin_top - offset_y) / ratio_h + tree_t;
+        double y_bottom = (y2 - margin_top - offset_y) / ratio_h + tree_t;
 
         // check which clusters are selected
         std::vector<int> target_clusters;
@@ -265,7 +274,11 @@ public:
         tree.clear();
         
         this->select_treeclusters = treeclusters;
-        
+
+        offset_x = 0;
+        offset_y = 0;
+        zoom = 1.0;
+
         // color for number of clusters
         ColorSpace::Rgb a(8,29,88), b(253,227,32); // BluYl
         colors = ColorSpace::ColorSpectrumHSV(a, b, 101); // 0-100
@@ -382,22 +395,30 @@ public:
             ColorSpace::Rgb clr = GetColor(sz);
             cluster_brush[it->first] = new wxBrush(wxColour(clr.r, clr.g, clr.b));
         }
-
     }
 
     virtual void SetupProjection() {
-        wxSize sz = this->GetClientSize();
-        screen_w = sz.GetWidth();
-        screen_h = sz.GetHeight();
         if (screen_w <= margin_left + margin_right ||
             screen_h <= margin_top + margin_bottom) {
             return;
         }
-        screen_w = screen_w - margin_left - margin_right;
-        screen_h = screen_h - margin_top - margin_bottom;
+        // available screen width and height
+        double av_screen_w = screen_w - margin_left - margin_right;
+        double av_screen_h = screen_h - margin_top - margin_bottom;
 
-        ratio_w = screen_w / tree_w;
-        ratio_h = screen_h / tree_h;
+        // original mouse position in data space
+        double x0 = (zoomPos.x - margin_left - offset_x) / ratio_w + tree_left;
+        double y0 = (zoomPos.y - margin_top - offset_y) / ratio_h + tree_t;
+
+        // get ratio of screen to data
+        ratio_w = av_screen_w * zoom / tree_w;
+        ratio_h = av_screen_h * zoom / tree_h;
+
+        if (zoom != 1) {
+            // get offset of screen
+            offset_x = (zoomPos.x - margin_left) - (x0 - tree_left) / tree_w * (av_screen_w * zoom);
+            offset_y = (zoomPos.y - margin_top) - (y0 - tree_t) / tree_h * (av_screen_h * zoom);
+        }
     }
 
     virtual void SetHighlight(const std::vector<int>& ids)
@@ -508,27 +529,33 @@ public:
 
         // minimium ellipse contains rectangle
         double w1 = w * sqrt(2.0);
-        double h1 = h * sqrt(2.0);
+        double h1 = h * 1.1; //sqrt(2.0);
 
        // if (h1 <tree_h / 40.0) h1 = tree_h / 40.0;
 
         x = x - (w1 - w)/2.0;
         y = y - (h1 - h)/2.0;
 
-        int xx = (x - tree_left) * ratio_w + margin_left;
-        int yy = (y - tree_t) * ratio_h + margin_top;
+        int xx = (x - tree_left) * ratio_w + margin_left + offset_x;
+        int yy = (y - tree_t) * ratio_h + margin_top + offset_y;
         int ww = w1 * ratio_w;
         int hh = h1 * ratio_h;
 
         if (hh < 5) {
             // for some cases that all bins have 0 height
-            hh = 10;
-            yy = yy - 5;
+            hh = 8;
+            yy = yy - 4;
+        }
+
+        if (ww < 5) {
+            // for some cases that all bins have 0 height
+            ww = 8;
+            xx = xx - 4;
         }
 
         if (cluster_colors.find(c) != cluster_colors.end()) {
             wxColour color = cluster_colors[c];
-            dc.SetPen(wxPen(color));
+            dc.SetPen(wxPen(color, 2));
         }
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
         dc.DrawEllipse(xx, yy, ww, hh);
@@ -543,10 +570,10 @@ public:
             dc.SetBrush(*wxRED_BRUSH);
         }
 
-        int xx1 = (x1 - tree_left) * ratio_w + margin_left;
-        int xx2 = (x2 - tree_left) * ratio_w + margin_left;
-        int yy1 = (y1 - tree_t) * ratio_h + margin_top;
-        int yy2 = (y2 - tree_t) * ratio_h + margin_top;
+        int xx1 = (x1 - tree_left) * ratio_w + margin_left + offset_x;
+        int xx2 = (x2 - tree_left) * ratio_w + margin_left + offset_x;
+        int yy1 = (y1 - tree_t) * ratio_h + margin_top + offset_y;
+        int yy2 = (y2 - tree_t) * ratio_h + margin_top  + offset_y;
 
         int start_x = xx1 < xx2 ? xx1 : xx2;
         int start_y = yy1 < yy2 ? yy1 : yy2;
@@ -558,9 +585,9 @@ public:
     }
 
     virtual void DrawHLine(wxDC& dc, double x1, double x2, double y) {
-        int xx1 = (x1 - tree_left) * ratio_w + margin_left;
-        int xx2 = (x2 - tree_left) * ratio_w + margin_left;
-        int yy = (y - tree_t) * ratio_h + margin_top;
+        int xx1 = (x1 - tree_left) * ratio_w + margin_left + offset_x;
+        int xx2 = (x2 - tree_left) * ratio_w + margin_left + offset_x;
+        int yy = (y - tree_t) * ratio_h + margin_top + offset_y;
         dc.SetPen(*wxBLACK_PEN);
         dc.DrawLine(xx1, yy, xx2, yy);
     }
@@ -569,6 +596,11 @@ public:
         wxSize sz = this->GetClientSize();
         int sch = sz.GetHeight() - margin_top*4 - margin_bottom*4;
         int scw = sz.GetWidth();
+
+        // draw white background
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        dc.SetBrush(*wxWHITE_BRUSH);
+        dc.DrawRectangle(sz.GetWidth() - margin_right, 0, margin_right, sz.GetHeight());
 
         // 0-100 legend
         double ratio_h = 101 / (double)sch;
@@ -580,7 +612,6 @@ public:
             int y = i / ratio_h + margin_top*4;
             int h = 1 / ratio_h + 2;
 
-            dc.SetPen(*wxTRANSPARENT_PEN);
             dc.SetBrush(wxBrush(wxColour(rgb.r, rgb.g, rgb.b)));
             dc.DrawRectangle(x, y, w, h);
 
@@ -589,6 +620,7 @@ public:
                 wxString sz_lbl;
                 sz_lbl << sz;
                 dc.SetPen(*wxBLACK_PEN);
+                dc.SetPen(*wxTRANSPARENT_PEN);
                 dc.DrawText(sz_lbl, x + w + 5, y);
             }
         }
@@ -601,6 +633,11 @@ public:
     virtual void DrawAxis(wxDC& dc) {
         wxSize sz = this->GetClientSize();
         int sch = sz.GetHeight();
+
+        // draw white background
+        dc.SetPen(*wxTRANSPARENT_PEN);
+        dc.SetBrush(*wxWHITE_BRUSH);
+        dc.DrawRectangle(0, 0, margin_left, sz.GetHeight());
 
         // draw label
         wxString legend_lbl = _("lambda value");
@@ -631,7 +668,7 @@ public:
             int str_w = extent.GetWidth();
 
             int x1 = margin_left - xpad - str_w - 10;
-            int y1 = (lambda - tree_t) * ratio_h + margin_top;
+            int y1 = (lambda - tree_t) * ratio_h + margin_top + offset_y;
 
             dc.DrawText(str_lambda, x1, y1);
             dc.DrawLine(margin_left -xpad -5, y1, margin_left-xpad, y1);
@@ -643,7 +680,7 @@ public:
         wxSize extent1(dc.GetTextExtent(str_lambda));
         int str_w = extent1.GetWidth();
         int x1 = margin_left - xpad - str_w - 10;
-        y1 = (tree_b - tree_t) * ratio_h + margin_top;
+        y1 = (tree_b - tree_t) * ratio_h + margin_top + offset_y;
 
         dc.DrawText(str_lambda, x1, y1);
         dc.DrawLine(margin_left -xpad -5, y1, margin_left-xpad, y1);
@@ -715,6 +752,26 @@ public:
             Refresh();
             isMovingSelectBox = false;
             isLeftDown = false;
+        } else if (event.RightUp()) {
+            // reset view if zoomed
+            zoom = 1.0;
+            offset_x = 0;
+            offset_y = 0;
+            virtual_screen_h = screen_h;
+
+            DoDraw();
+            Refresh();
+
+        } else if (event.GetWheelRotation() != 0) {
+            // mouse wheel for zoom in/out
+            zoomPos = event.GetPosition();
+
+            int lines = event.GetWheelRotation();
+            virtual_screen_h = virtual_screen_h + lines;
+            zoom = virtual_screen_h / (double)screen_h;
+
+            DoDraw();
+            Refresh();
         }
     }
 };
@@ -736,8 +793,6 @@ protected:
     int margin_left, margin_right, margin_top, margin_bottom;
     double ratio_w;
     double ratio_h;
-    int screen_w;
-    int screen_h;
     
     double cutoff;
     DendroSplitLine* split_line;
@@ -788,9 +843,6 @@ public:
     }
 
     virtual void SetupProjection() {
-        wxSize sz = this->GetClientSize();
-        screen_w = sz.GetWidth();
-        screen_h = sz.GetHeight();
         if (screen_w <= margin_left + margin_right ||
             screen_h <= margin_top + margin_bottom) {
             return;
