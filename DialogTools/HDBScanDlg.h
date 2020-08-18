@@ -847,11 +847,13 @@ public:
             screen_h <= margin_top + margin_bottom) {
             return;
         }
-        screen_w = screen_w - margin_left - margin_right;
-        screen_h = screen_h - margin_top - margin_bottom;
 
-        ratio_w = screen_w / elevation_max;
-        ratio_h = screen_h / position_max;
+        // available screen width and height
+        double av_screen_w = screen_w - margin_left - margin_right;
+        double av_screen_h = screen_h - margin_top - margin_bottom;
+
+        ratio_w = av_screen_w / elevation_max;
+        ratio_h = av_screen_h / position_max;
     }
 
     virtual void UpdateColor(std::vector<wxInt64>& _cluster_ids, int nclusters) {
@@ -991,8 +993,8 @@ public:
     }
 
     virtual void DrawLine(wxDC &dc, double x0, double y0, double x1, double y1) {
-        int xx0 = margin_left + screen_w - x0 * ratio_w;
-        int xx1 = margin_left + screen_w - x1 * ratio_w;
+        int xx0 = -margin_right + screen_w - x0 * ratio_w;
+        int xx1 = -margin_right + screen_w - x1 * ratio_w;
         int yy0 = margin_top + y0 * ratio_h;
         int yy1 = margin_top + y1 * ratio_h;
         dc.DrawLine(xx0, yy0, xx1, yy1);
@@ -1049,7 +1051,7 @@ public:
         }
         double position = node_position[node];
         // rectangle
-        int xx = margin_left + screen_w - elevation * ratio_w;
+        int xx = -margin_right + screen_w - elevation * ratio_w;
         int yy = margin_left + position * ratio_h;
 
         wxColor c = cluster_ids.empty() ? *wxBLACK : colors[cluster_ids[node]];
@@ -1067,9 +1069,9 @@ public:
 
     virtual void DrawAxis(wxDC& dc) {
         // elevation_max elevation_min
-        int x1 = margin_left + screen_w - elevation_max * ratio_w;
-        int x2 = margin_left + screen_w - elevation_min * ratio_w;
-        int y = screen_h + margin_top + 10;
+        int x1 = -margin_right + screen_w - elevation_max * ratio_w;
+        int x2 = -margin_right + screen_w - elevation_min * ratio_w;
+        int y = screen_h - margin_bottom + 10;
         
         dc.SetPen(*wxBLACK_PEN);
         dc.DrawLine(x1, y, x2, y);
@@ -1079,7 +1081,7 @@ public:
         
         for (int i=0; i< 5; ++i) {
             double val = elevation_min + (i * itv);
-            int x = margin_left + screen_w - val * ratio_w;
+            int x = -margin_right + screen_w - val * ratio_w;
             int y1 = y + 10;
             dc.DrawLine(x, y1, x, y);
             wxString lbl;
@@ -1097,13 +1099,13 @@ public:
         }
         wxSize extent(dc.GetTextExtent(ttl));
         double ttl_w = extent.GetWidth();
-        dc.DrawText(ttl, (screen_w -ttl_w) / 2.0 + margin_left, y + 23);
+        dc.DrawText(ttl, (screen_w - margin_right - margin_right -ttl_w) / 2.0 + margin_left, y + 23);
     }
         
     virtual void DrawSplitLine() {
         // split between elevation_max elevation_min
         wxSize sz = this->GetClientSize();
-        int x = (elevation_max - cutoff) / elevation_max * screen_w + margin_left;
+        int x = (elevation_max - cutoff) / elevation_max * (screen_w-margin_right-margin_left) + margin_left;
         wxPoint v_p0(x, 0);
         wxPoint v_p1(x, sz.GetHeight());
         if (split_line == NULL) {
@@ -1124,7 +1126,7 @@ public:
     }
 
     virtual double GetCurrentCutoff(int x) {
-        double val = elevation_max * (1 - (x - margin_left) / (double)screen_w);
+        double val = elevation_max * (1 - (x - margin_left) / (double)(screen_w-margin_right-margin_left));
         return val;
     }
 
