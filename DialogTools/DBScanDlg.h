@@ -78,6 +78,7 @@ protected:
 protected:
     char     dist;
     int      m_min_samples;
+    int      m_min_pts;
     double   eps;
     
     vector<vector<int> > cluster_ids;
@@ -91,6 +92,7 @@ protected:
     wxChoice* m_distance;
     wxTextCtrl* m_eps;
     wxTextCtrl* m_minsamples;
+    wxTextCtrl* m_minpts;
     wxTextCtrl* m_cluster;
     wxNotebook* notebook;
     wxCheckBox* chk_dbscanstar;

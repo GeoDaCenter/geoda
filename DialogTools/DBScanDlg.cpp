@@ -118,7 +118,7 @@ bool DBScanDlg::Init()
 
 void DBScanDlg::CreateControls()
 {
-    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,680), wxHSCROLL|wxVSCROLL );
+    wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY, wxDefaultPosition, wxSize(880,720), wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
    
     wxPanel *panel = new wxPanel(scrl);
@@ -160,9 +160,15 @@ void DBScanDlg::CreateControls()
     gbox->Add(m_eps, 1, wxEXPAND);
     
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Min Points:"));
-    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(120, -1),0,validator);
+    m_minsamples = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition, wxSize(120, -1),0);
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_minsamples, 1, wxEXPAND);
+    
+    wxStaticText* st15 = new wxStaticText(panel, wxID_ANY, _("Min Cluster Size:"));
+    m_minpts = new wxTextCtrl(panel, wxID_ANY, "4", wxDefaultPosition,wxSize(120, -1),0);
+    gbox->Add(st15, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_minpts, 1, wxEXPAND);
+    m_minpts->Disable();
     
     // Transformation
     AddTransformation(panel, gbox);
@@ -256,7 +262,7 @@ void DBScanDlg::OnEpsInput(wxCommandEvent& ev)
         wxString val = m_eps->GetValue();
         double eps_val;
         if (val.ToDouble(&eps_val)) {
-            m_dendrogram->OnSplitLineChange(eps_val, false /* dont respond*/);
+            m_dendrogram->OnSplitLineChange(eps_val, m_min_pts, false /* dont respond*/);
         }
     }
 }
@@ -273,10 +279,11 @@ void DBScanDlg::OnDBscanCheck(wxCommandEvent& event )
         chk_dbscanstar->SetValue(false);
         m_dendrogram->SetBlank(true);
         saveButton->Disable();
-
+        m_minpts->Disable();
     } else {
         chk_dbscanstar->SetValue(true);
         m_dendrogram->SetBlank(false);
+        m_minpts->Enable();
     }
 }
 
@@ -285,10 +292,12 @@ void DBScanDlg::OnDBscanStarCheck(wxCommandEvent& event )
     if (event.IsChecked()) {
         chk_dbscan->SetValue(false);
         m_dendrogram->SetBlank(false);
+        m_minpts->Enable();
     } else {
         chk_dbscan->SetValue(true);
         saveButton->Disable();
         m_dendrogram->SetBlank(true);
+        m_minpts->Disable();
     }
 }
 
@@ -389,7 +398,7 @@ void DBScanDlg::update(HLStateInt* o)
 {
     std::vector<bool>& hs = o->GetHighlight();
     std::vector<int> hl_ids;
-    for (size_t i=0; i<hs.size(); ++i) {
+    for (int i=0; i<hs.size(); ++i) {
         if (hs[i])
             hl_ids.push_back(i);
     }
@@ -449,6 +458,20 @@ bool DBScanDlg::CheckAllInputs()
         return false;
     }
 
+    if (chk_dbscanstar->GetValue()) {
+        m_min_pts = 0;
+        long l_min_pts;
+        if (m_minpts->GetValue().ToLong(&l_min_pts)) {
+            m_min_pts = (int)l_min_pts;
+        }
+        if (m_min_pts<=1 || m_min_pts > rows) {
+            wxString err_msg = _("Minimum cluster size should be greater than one, and less than the number of observations.");
+            wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
+            dlg.ShowModal();
+            return false;
+        }
+    }
+    
     int transform = combo_tranform->GetSelection();
     if ( GetInputData(transform,1) == false) return false;
     // check if X-Centroids selected but not projected
@@ -507,7 +530,7 @@ bool DBScanDlg::RunStar()
     }
     bool use_split_line = true;
     m_dendrogram->Setup(tree, eps, use_split_line);
-    m_dendrogram->OnSplitLineChange(eps);
+    m_dendrogram->OnSplitLineChange(eps, m_min_pts);
 
     // update delta value if needed
     if (eps != m_dendrogram->GetCutoff()) {
@@ -650,7 +673,7 @@ void DBScanDlg::GetClusterFromDendrogram(vector<wxInt64>& clusters)
     clusters.clear();
     clusters.resize(rows, 0);
     
-    cluster_ids = m_dendrogram->GetClusters();
+    cluster_ids = m_dendrogram->GetClusters(m_min_pts);
 
     // re-assign cluster lables
     for (int i=0, cluster_idx=1; i<cluster_ids.size(); ++i, ++cluster_idx) {

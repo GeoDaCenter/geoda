@@ -833,10 +833,10 @@ public:
     }
     virtual double GetCutoff() { return cutoff; }
 
-    virtual std::vector<std::vector<int> > GetClusters()  {
+    virtual std::vector<std::vector<int> > GetClusters(int min_pts)  {
         if (isDrawSplitLine) {
             if (clusters.empty()) {
-                OnSplitLineChange(cutoff);
+                OnSplitLineChange(cutoff, min_pts);
             }
         }
         return clusters;
@@ -1130,7 +1130,7 @@ public:
         return val;
     }
 
-    virtual void OnSplitLineChange(double in_cutoff, bool notify_change = true)
+    virtual void OnSplitLineChange(double in_cutoff, int min_pts = 0, bool notify_change = true)
     {
         cutoff = in_cutoff;
 
@@ -1176,7 +1176,9 @@ public:
                     nodes.push(right);
                 }
             }
-            clusters.push_back(cluster);
+            if (cluster.size() >= min_pts) {
+                clusters.push_back(cluster);
+            }
         }
 
         // sort cluster by size
