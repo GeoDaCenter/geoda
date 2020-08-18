@@ -3090,13 +3090,16 @@
         <label>Minimum Spanning Tree</label>
     </object>
     <object class="wxMenu" name="ID_MAP_HEAT">
+        <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+            <label>Display Heat Map</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
             <label>Specify Bandwith</label>
-            <checkable>1</checkable>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
             <label>Specify Core Distance</label>
-            <checkable>1</checkable>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3715,13 +3718,16 @@
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Display Heat Map</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Specify Core Distance</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -3914,13 +3920,16 @@
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Display Heat Map</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Specify Core Distance</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4113,13 +4122,16 @@
           <label>Minimum Spanning Tree</label>
       </object>
       <object class="wxMenu" name="ID_MAP_HEAT">
+          <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+              <label>Display Heat Map</label>
+              <checkable>1</checkable>
+          </object>
+          <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
               <label>Specify Bandwith</label>
-              <checkable>1</checkable>
           </object>
           <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
               <label>Specify Core Distance</label>
-              <checkable>1</checkable>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
@@ -4803,13 +4815,16 @@
         <label>Minimum Spanning Tree</label>
     </object>
     <object class="wxMenu" name="ID_MAP_HEAT">
+        <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
+            <label>Display Heat Map</label>
+            <checkable>1</checkable>
+        </object>
+        <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
             <label>Specify Bandwith</label>
-            <checkable>1</checkable>
         </object>
         <object class="wxMenuItem" name="ID_HEATMAP_VARIABLE">
             <label>Specify Core Distance</label>
-            <checkable>1</checkable>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_FILL_COLOR">
