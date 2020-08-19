@@ -545,7 +545,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     std::sort(cluster_ids.begin(), cluster_ids.end(), GenUtils::less_vectors);
 
     for (int i=0; i < ncluster; i++) {
-        int c = i;
+        int c = i + 1;
         for (int j=0; j<cluster_ids[i].size(); j++) {
             int idx = cluster_ids[i][j];
             clusters[idx] = c;
@@ -553,7 +553,7 @@ bool HDBScanDlg::Run(vector<wxInt64>& clusters)
     }
 
     // update dendrogram and consended tree
-    m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size());
+    m_dendrogram->UpdateColor(clusters, (int)cluster_ids.size() + 1);
     m_condensedtree->UpdateColor(ordered_cids);
     
     return true;
