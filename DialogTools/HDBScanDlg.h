@@ -242,11 +242,11 @@ public:
         int nclusters = (int)select_treeclusters.size();
         std::vector<wxColour> colors;
         
-        CatClassification::PickColorSet(colors, CatClassification::unique_color_scheme, nclusters, false/*reversed*/);
+        CatClassification::PickColorSet(colors, CatClassification::unique_color_scheme, nclusters+1, false/*reversed*/);
         
         for (int i=0; i<ordered_cids.size(); ++i)  {
             int c = ordered_cids[i].first;
-            cluster_colors[c]  = colors[i];
+            cluster_colors[c]  = colors[i + 1];
         }
         
         setup = true; 
