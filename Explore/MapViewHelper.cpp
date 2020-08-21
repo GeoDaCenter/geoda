@@ -437,7 +437,7 @@ bool MSTMapHelper::Create(Project* project)
     CreateDistMatrix(nodes);
 
     int num_obs = project->GetNumRecords();
-    Graph g(num_obs);
+    BGraph g(num_obs);
     for (int i=0; i<num_obs; i++) {
         for (int j=i+1, k=0; j<num_obs; j++, k++) {
             boost::add_edge(i, j, dist_matrix[i][k], g);

@@ -19,7 +19,7 @@
 Skater::Skater(int _num_obs, int _num_vars, int _num_clusters, double** _data, vector<vector<double> >& dist_matrix, bool _check_floor, double _floor, double* _floor_variable)
 : num_obs(_num_obs), num_vars(_num_vars), num_clusters(_num_clusters),data(_data), check_floor(_check_floor), floor(_floor), floor_variable(_floor_variable)
 {
-    Graph g(num_obs);
+    BGraph g(num_obs);
     for (int i=0; i<num_obs; i++) {
         for (int j=i; j<num_obs; j++) {
             // note: this distance matrix is created using weights
@@ -225,7 +225,7 @@ void Skater::prunecost(vector<E> tree, int start, int end, vector<double>& score
     }
 }
 
-void Skater::get_MST(const Graph &in)
+void Skater::get_MST(const BGraph &in)
 {
     //https://github.com/vinecopulib/vinecopulib/issues/22
     std::vector<int> p(num_vertices(in));

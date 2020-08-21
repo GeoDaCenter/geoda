@@ -313,6 +313,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
+    <ClCompile Include="..\..\Algorithms\dbscan.cpp" />
     <ClCompile Include="..\..\Algorithms\distanceplot.cpp" />
     <ClCompile Include="..\..\Algorithms\distmatrix.cpp" />
     <ClCompile Include="..\..\Algorithms\fastcluster.cpp" />
@@ -347,6 +348,7 @@
     <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\DBScanDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\DissolveDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\FieldNewCalcDateTimeDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\GdaChoice.cpp" />
@@ -363,6 +365,7 @@
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\SCHCDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SelectWeightsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SkaterDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SpatialJoinDlg.cpp" />
@@ -398,6 +401,7 @@
     <ClCompile Include="..\..\Explore\MapLayer.cpp" />
     <ClCompile Include="..\..\Explore\MapLayerTree.cpp" />
     <ClCompile Include="..\..\Explore\MapLayoutView.cpp" />
+    <ClCompile Include="..\..\Explore\MapViewHelper.cpp" />
     <ClCompile Include="..\..\Explore\MLJCCoordinator.cpp" />
     <ClCompile Include="..\..\Explore\MLJCMapNewView.cpp" />
     <ClCompile Include="..\..\Explore\ScatterPlotMatView.cpp" />
@@ -461,6 +465,7 @@
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
+    <ClInclude Include="..\..\Algorithms\dbscan.h" />
     <ClInclude Include="..\..\Algorithms\distanceplot.h" />
     <ClInclude Include="..\..\Algorithms\distmatrix.h" />
     <ClInclude Include="..\..\Algorithms\fastcluster.h" />
@@ -505,6 +510,7 @@
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
     <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\DatasourceDlg.h" />
+    <ClInclude Include="..\..\DialogTools\DBScanDlg.h" />
     <ClInclude Include="..\..\DialogTools\DissolveDlg.h" />
     <ClInclude Include="..\..\DialogTools\ExportDataDlg.h" />
     <ClInclude Include="..\..\DialogTools\FieldNameCorrectionDlg.h" />
@@ -527,6 +533,7 @@
     <ClInclude Include="..\..\DialogTools\RedcapDlg.h" />
     <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
+    <ClInclude Include="..\..\DialogTools\SCHCDlg.h" />
     <ClInclude Include="..\..\DialogTools\SelectWeightsDlg.h" />
     <ClInclude Include="..\..\DialogTools\SkaterDlg.h" />
     <ClInclude Include="..\..\DialogTools\SpatialJoinDlg.h" />
@@ -567,6 +574,7 @@
     <ClInclude Include="..\..\Explore\MapLayer.hpp" />
     <ClInclude Include="..\..\Explore\MapLayerTree.hpp" />
     <ClInclude Include="..\..\Explore\MapLayoutView.h" />
+    <ClInclude Include="..\..\Explore\MapViewHelper.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinator.h" />
     <ClInclude Include="..\..\Explore\MLJCCoordinatorObserver.h" />
     <ClInclude Include="..\..\Explore\MLJCMapNewView.h" />

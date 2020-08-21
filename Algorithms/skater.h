@@ -33,7 +33,7 @@ typedef adjacency_list <
     undirectedS,
     boost::no_property,         //VertexProperties
     property < edge_weight_t, double>   //EdgeProperties
-    > Graph;
+    > BGraph;
 
 typedef std::vector<std::vector<E> > ClusterPair;
 typedef std::pair<double, std::vector<E> > ClusterEl;
@@ -60,7 +60,7 @@ protected:
     
     heap::priority_queue<ClusterEl, heap::compare<CompareCluster> > solution;
     
-    void get_MST(const Graph &in);
+    void get_MST(const BGraph &in);
     
     void run();
     

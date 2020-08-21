@@ -911,6 +911,18 @@
     <ClInclude Include="..\..\Explore\ConditionalBoxPlotView.h">
       <Filter>Explore</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Algorithms\dbscan.h">
+      <Filter>Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\DBScanDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Explore\MapViewHelper.h">
+      <Filter>Explore</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\DialogTools\SCHCDlg.h">
+      <Filter>DialogTools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\rc\GdaAppResources.cpp">
@@ -1672,6 +1684,18 @@
     </ClCompile>
     <ClCompile Include="..\..\Explore\ConditionalBoxPlotView.cpp">
       <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Algorithms\dbscan.cpp">
+      <Filter>Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\DBScanDlg.cpp">
+      <Filter>DialogTools</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Explore\MapViewHelper.cpp">
+      <Filter>Explore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\DialogTools\SCHCDlg.cpp">
+      <Filter>DialogTools</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
