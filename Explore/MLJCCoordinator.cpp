@@ -342,7 +342,14 @@ void JCCoordinator::CalcMultiLocalJoinCount()
         GalElement* W = gw->gal;
         Gal_vecs[t] = gw;
         Gal_vecs_orig[t] = weights;
-       
+
+        for (int i=0; i<num_obs; i++) {
+            if (W[i].Size() == 0) {
+                has_isolates[t] = true;
+                break;
+            }
+        }
+
         for (int i=0; i<num_obs; i++) {
             int nn = W[i].Size();
             if (W[i].Check(i)) {

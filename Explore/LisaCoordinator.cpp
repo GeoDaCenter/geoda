@@ -487,15 +487,15 @@ void LisaCoordinator::Calc()
         Gal_vecs_orig[t] = weights;
 	
 		for (int i=0; i<num_obs; i++) {
+            lags[i] = 0;
+            localMoran[i] = 0;
+
             if (undefs[i] == true) {
-                lags[i] = 0;
-                localMoran[i] = 0;
                 cluster[i] = 6; // undefined value
-                
-                if (W[i].Size() == 0) {
-                    has_isolates[t] = true;
-                    cluster[i] = 5; // neighborless
-                }
+                continue;
+            } else if (W[i].Size() == 0) {
+                has_isolates[t] = true;
+                cluster[i] = 5; // neighborless
                 continue;
             }
             
