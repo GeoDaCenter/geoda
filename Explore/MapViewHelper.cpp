@@ -235,6 +235,7 @@ bool HeatMapHelper::check_spatial_ref = true;
 
 HeatMapHelper::HeatMapHelper()
 {
+    has_init = false;
     use_fill_color = false;
     use_outline_color = false;
     use_bandwidth = true;
@@ -245,6 +246,11 @@ HeatMapHelper::HeatMapHelper()
 
 HeatMapHelper::~HeatMapHelper()
 {
+}
+
+bool HeatMapHelper::HasInitialized()
+{
+    return has_init;
 }
 
 void HeatMapHelper::Reset()
@@ -268,6 +274,7 @@ void HeatMapHelper::SetBandwidth(MapCanvas* canvas, Project* project)
             return;
         }
     }
+    has_init = true;
     use_bandwidth = true;
     use_radius_variable = !use_bandwidth;
     // prompt user to select a bandwidth from a slider
@@ -303,6 +310,7 @@ void HeatMapHelper::SetRadiusVariable(MapCanvas* canvas, Project* project)
     for (int i=0; i< n; ++i) {
         radius_arr[i] = data[0][0][i];
     }
+    has_init = true;
     use_radius_variable = true;
     use_bandwidth = !use_radius_variable;
     canvas->RedrawMap();

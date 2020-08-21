@@ -3093,6 +3093,7 @@
         <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
             <label>Display Heat Map</label>
             <checkable>1</checkable>
+            <enabled>0</enabled>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
@@ -3721,6 +3722,7 @@
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
               <label>Display Heat Map</label>
               <checkable>1</checkable>
+              <enabled>0</enabled>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
@@ -3923,6 +3925,7 @@
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
               <label>Display Heat Map</label>
               <checkable>1</checkable>
+              <enabled>0</enabled>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
@@ -4125,6 +4128,7 @@
           <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
               <label>Display Heat Map</label>
               <checkable>1</checkable>
+              <enabled>0</enabled>
           </object>
           <object class="separator"/>
           <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">
@@ -4818,6 +4822,7 @@
         <object class="wxMenuItem" name="ID_HEATMAP_TOGGLE">
             <label>Display Heat Map</label>
             <checkable>1</checkable>
+            <enabled>0</enabled>
         </object>
         <object class="separator"/>
         <object class="wxMenuItem" name="ID_HEATMAP_BANDWITH">

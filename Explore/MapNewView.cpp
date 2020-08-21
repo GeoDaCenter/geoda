@@ -1717,6 +1717,8 @@ void MapCanvas::SetCheckMarks(wxMenu* menu)
                                    display_map_boundary);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_TOGGLE"), display_mst);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), display_heat_map);
+    GeneralWxUtils::EnableMenuItem(menu, XRCID("ID_HEATMAP_TOGGLE"), heat_map.HasInitialized());
+
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_LIGHT"),
                                   display_mst && mst_map.GetThickness() == 0);
     GeneralWxUtils::CheckMenuItem(menu, XRCID("ID_MAP_MST_THICKNESS_NORM"),
@@ -2514,7 +2516,7 @@ void MapCanvas::PopulateCanvas()
                 // don't use "else if", since voronoi and heatmap can be overlayed
                 if (display_heat_map) {
                     // draw heat map in background
-                    heat_map.Draw(selectable_shps, background_shps, cat_data);
+                    heat_map.Draw(selectable_shps, foreground_shps, cat_data);
                 }
 			}
             // use centroids to draw graph

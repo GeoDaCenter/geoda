@@ -162,7 +162,12 @@ public:
     // Get current transparency
     int GetTransparency();
 
+    // If HeatMapHelper has been initialized
+    bool HasInitialized();
+
 protected:
+    bool has_init;
+
     // flag if use fill color, false will use current map's fill color
     bool use_fill_color;
 

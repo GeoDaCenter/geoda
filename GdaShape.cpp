@@ -865,6 +865,23 @@ void GdaPoint::applyScaleTrans(const GdaScaleTrans& A)
     }
 }
 
+void GdaPoint::projectToBasemap(Gda::Basemap* basemap, double scale_factor)
+{
+    basemap->LatLngToXY(center_o.x, center_o.y, center.x, center.y);
+    if (scale_factor != 1) {
+        center.x = center.x * scale_factor;
+        center.y = center.y * scale_factor;
+    }
+    if (adaptive_radius) {
+        wxRealPoint center_o_offset(center_o);
+        center_o_offset.x += radius_o;
+        wxPoint center_offset;
+        basemap->LatLngToXY(center_o_offset.x, center_o_offset.y,
+                            center_offset.x, center_offset.y);
+        radius = center_offset.x - center.x;
+    }
+}
+
 void GdaPoint::paintSelf(wxDC& dc)
 {
 	if (null_shape) return;
