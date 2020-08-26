@@ -15,6 +15,81 @@
 #include "../ShapeOperations/GalWeight.h"
 using namespace std;
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// DistMatrix
+/// 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+class DistMatrix
+{
+protected:
+    std::vector<int> ids;
+    bool has_ids;
+public:
+    DistMatrix(const std::vector<int>& _ids=std::vector<int>())
+    : ids(_ids), has_ids(!_ids.empty()) {}
+    virtual ~DistMatrix() {}
+    // Get distance between i-th and j-th object
+    // if ids vector is provided, the distance (i,j) -> distance(ids[i], ids[j])
+    virtual double getDistance(int i, int j) = 0;
+    virtual void setIds(const std::vector<int>& _ids) {
+        ids = _ids;
+        has_ids = !ids.empty();
+    }
+};
+
+class RawDistMatrix : public DistMatrix
+{
+    double** dist;
+public:
+    RawDistMatrix(double** dist, const std::vector<int>& _ids=std::vector<int>())
+    : DistMatrix(_ids), dist(dist) {}
+    virtual ~RawDistMatrix() {}
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        return dist[r][c];
+    }
+};
+
+class RDistMatrix : public DistMatrix
+{
+    int num_obs;
+    int n;
+    const std::vector<double>& dist;
+public:
+    RDistMatrix(int num_obs, const std::vector<double>& dist, const std::vector<int>& _ids=std::vector<int>())
+    : DistMatrix(_ids), num_obs(num_obs), dist(dist) {
+        n = (num_obs - 1) * num_obs / 2;
+    }
+    virtual ~RDistMatrix() {}
+
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle, store column wise
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        int idx = n - (num_obs - c - 1) * (num_obs - c) / 2 + (r -c) -1 ;
+        return dist[idx];
+    }
+};
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+/// DataUtils
+///
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 class DataUtils {
 public:
     static double ManhattanDistance(const std::vector<std::vector<double> >& col_data, int p, int q)

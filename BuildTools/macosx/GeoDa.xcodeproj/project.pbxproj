@@ -42,6 +42,7 @@
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A170116C24AAAA4F00844D84 /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116B24AAAA4F00844D84 /* dbscan.cpp */; };
 		A170116F24ABFBA100844D84 /* DBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116D24ABFBA000844D84 /* DBScanDlg.cpp */; };
+		A1717C1524F611FE003B898C /* azp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1717C1324F611FD003B898C /* azp.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
@@ -403,6 +404,9 @@
 		A170116B24AAAA4F00844D84 /* dbscan.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dbscan.cpp; path = Algorithms/dbscan.cpp; sourceTree = "<group>"; };
 		A170116D24ABFBA000844D84 /* DBScanDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DBScanDlg.cpp; sourceTree = "<group>"; };
 		A170116E24ABFBA100844D84 /* DBScanDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DBScanDlg.h; sourceTree = "<group>"; };
+		A1717C1324F611FD003B898C /* azp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = azp.cpp; path = Algorithms/azp.cpp; sourceTree = "<group>"; };
+		A1717C1424F611FE003B898C /* azp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = azp.h; path = Algorithms/azp.h; sourceTree = "<group>"; };
+		A1717C1624F61584003B898C /* rng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = rng.h; path = Algorithms/rng.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
 		A178F771227381CA00EB9CB7 /* DissolveDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DissolveDlg.h; sourceTree = "<group>"; };
@@ -1116,6 +1120,8 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A1717C1324F611FD003B898C /* azp.cpp */,
+				A1717C1424F611FE003B898C /* azp.h */,
 				A152ACBC2483551500BFC788 /* pam.cpp */,
 				A152ACBD2483551500BFC788 /* pam.h */,
 				A1A97FCD2437F91F00636483 /* smacof */,
@@ -1157,6 +1163,7 @@
 				A1B18E9E23F474B700465937 /* threadpool.h */,
 				A170116324AA6F4000844D84 /* dbscan.h */,
 				A170116B24AAAA4F00844D84 /* dbscan.cpp */,
+				A1717C1624F61584003B898C /* rng.h */,
 			);
 			name = Algorithms;
 			sourceTree = "<group>";
@@ -2078,6 +2085,7 @@
 				A14735B821A65F1800CA69B2 /* kd_fix_rad_search.cpp in Sources */,
 				A10EF2F021273E7E00564FE1 /* AbstractCanvas.cpp in Sources */,
 				A194839B2118BAAA009A87A2 /* basic2.cpp in Sources */,
+				A1717C1524F611FE003B898C /* azp.cpp in Sources */,
 				A1E77FDC17889BE200CC1037 /* OGRTable.cpp in Sources */,
 				A14735AA21A5F72D00CA69B2 /* DistUtils.cpp in Sources */,
 				A19580B3240E15020089C6CE /* loess.c in Sources */,
