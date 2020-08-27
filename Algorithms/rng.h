@@ -25,6 +25,8 @@
 #ifndef __GEODA_CENTER_RNG_H__
 #define __GEODA_CENTER_RNG_H__
 
+#include <boost/unordered_map.hpp>
+
 class Xoroshiro128Random
 {
     long long s0;
@@ -44,13 +46,16 @@ public:
         xor64 ^= (unsigned long long)xor64 >> 27; // c
         s1 = xor64 * 2685821657736338717L;
     }
+
     virtual ~Xoroshiro128Random() {}
+
     int nextInt(int n) {
         if (n <=0) return 0;
         int r =  (int)((n & -n) == n ? nextLong() & n - 1 // power of two
                        : (unsigned long long)(((unsigned long long)nextLong() >> 32) * n) >> 32);
         return r;
     }
+
     long long nextLong() {
         long long t0 = s0, t1 = s1;
         long long result = t0 + t1;
@@ -61,6 +66,7 @@ public:
         s1 = (t1 << 36) | ((unsigned long long)t1 >> (64 -36));
         return result;
     }
+
     double nextDouble() {
 #ifdef WIN32
         char tempStr[] = "0x1.0p-53";
@@ -70,6 +76,7 @@ public:
         return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
 #endif
     }
+    
     std::vector<int> randomSample(int samplesize, int n)
     {
         std::vector<int> samples(samplesize);

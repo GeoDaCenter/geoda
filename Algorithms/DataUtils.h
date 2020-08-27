@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>    // std::max
 
+#include "rng.h"
 #include "../GdaConst.h"
 #include "../ShapeOperations/GalWeight.h"
 using namespace std;
@@ -92,6 +93,16 @@ public:
 
 class DataUtils {
 public:
+    static void Shuffle(std::vector<int>& arry, Xoroshiro128Random& rng)
+    {
+        //random_shuffle
+        for (int i=arry.size()-1; i>=1; --i) {
+            int k = rng.nextInt(i+1);
+            while (k>=i) k = rng.nextInt(i+1);
+            if (k != i) std::iter_swap(arry.begin() + k, arry.begin()+i);
+        }
+    }
+
     static double ManhattanDistance(const std::vector<std::vector<double> >& col_data, int p, int q)
     {
         double d =0;
