@@ -147,6 +147,7 @@
 		A4A6AD7B207F198E00D29677 /* ShpFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A6AD7A207F198E00D29677 /* ShpFile.cpp */; };
 		A4A763F41F69FB3B00EE79DD /* ColocationMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A763F21F69FB3B00EE79DD /* ColocationMapView.cpp */; };
 		A4B1F994207730FA00905246 /* matlab_mat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B1F992207730FA00905246 /* matlab_mat.cpp */; };
+		A4B85A7324F6FF9D00748B92 /* azp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4B85A7024F6FF9C00748B92 /* azp.cpp */; };
 		A4BBAB9E2444D82B00BD4E57 /* lapacke.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB992444D82B00BD4E57 /* lapacke.c */; };
 		A4BBAB9F2444D82B00BD4E57 /* jacobi.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9A2444D82B00BD4E57 /* jacobi.c */; };
 		A4BBABA02444D82B00BD4E57 /* smacof_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9B2444D82B00BD4E57 /* smacof_utils.c */; };
@@ -579,6 +580,9 @@
 		A4B1F992207730FA00905246 /* matlab_mat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matlab_mat.cpp; path = io/matlab_mat.cpp; sourceTree = "<group>"; };
 		A4B1F9952077311F00905246 /* matlab_mat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matlab_mat.h; path = io/matlab_mat.h; sourceTree = "<group>"; };
 		A4B1F99620783CC100905246 /* weights_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = weights_interface.h; path = io/weights_interface.h; sourceTree = "<group>"; };
+		A4B85A7024F6FF9C00748B92 /* azp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = azp.cpp; path = Algorithms/azp.cpp; sourceTree = "<group>"; };
+		A4B85A7124F6FF9C00748B92 /* azp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = azp.h; path = Algorithms/azp.h; sourceTree = "<group>"; };
+		A4B85A7224F6FF9D00748B92 /* rng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rng.h; path = Algorithms/rng.h; sourceTree = "<group>"; };
 		A4BBAB992444D82B00BD4E57 /* lapacke.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lapacke.c; path = Algorithms/lapacke.c; sourceTree = "<group>"; };
 		A4BBAB9A2444D82B00BD4E57 /* jacobi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jacobi.c; path = Algorithms/jacobi.c; sourceTree = "<group>"; };
 		A4BBAB9B2444D82B00BD4E57 /* smacof_utils.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = smacof_utils.c; path = Algorithms/smacof_utils.c; sourceTree = "<group>"; };
@@ -1002,6 +1006,9 @@
 		A45DBDEF1EDDDD2600C2AA8A /* Algorithms */ = {
 			isa = PBXGroup;
 			children = (
+				A4B85A7024F6FF9C00748B92 /* azp.cpp */,
+				A4B85A7124F6FF9C00748B92 /* azp.h */,
+				A4B85A7224F6FF9D00748B92 /* rng.h */,
 				A4A591F524ABB15400BEA1FF /* dbscan.cpp */,
 				A4A591F624ABB15500BEA1FF /* dbscan.h */,
 				A438249824775CB90001497D /* pam.cpp */,
@@ -2041,6 +2048,7 @@
 				DD8183C3197054CA00228B0A /* WeightsMapCanvas.cpp in Sources */,
 				A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */,
 				DD8183C81970619800228B0A /* WeightsManDlg.cpp in Sources */,
+				A4B85A7324F6FF9D00748B92 /* azp.cpp in Sources */,
 				A47614AE20759EAD00D9F3BE /* arcgis_swm.cpp in Sources */,
 				A14735BC21A65F1800CA69B2 /* brute.cpp in Sources */,
 				A41C2BB72400443000C341A2 /* DistancePlotView.cpp in Sources */,

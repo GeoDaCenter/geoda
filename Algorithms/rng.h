@@ -66,7 +66,7 @@ public:
         s1 = (t1 << 36) | ((unsigned long long)t1 >> (64 -36));
         return result;
     }
-
+    // return a uniform distributed double value between [0, 1]
     double nextDouble() {
 #ifdef WIN32
         char tempStr[] = "0x1.0p-53";

@@ -4,6 +4,8 @@
 #include <vector>
 #include <typeinfo>
 
+// source code from: https://github.com/berendeanicolae/ColorSpace
+
 namespace ColorSpace {
     struct Rgb;
     struct Xyz;
