@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>    // std::max
 
+#include "threadpool.h"
 #include "rng.h"
 #include "../GdaConst.h"
 #include "../ShapeOperations/GalWeight.h"
@@ -38,6 +39,61 @@ public:
         has_ids = !ids.empty();
     }
 };
+
+/*
+class ComputeDistMatrix : public DistMatrix
+{
+    double** dist;
+    char dist_method;
+    int num_vars;
+    int num_rows;
+    const std::vector<std::vector<double> >& data;
+public:
+    ComputeDistMatrix(const std::vector<std::vector<double> >& _data,
+                      const std::vector<int>& _ids=std::vector<int>())
+    : data(_data), DistMatrix(_ids)
+    {
+        thread_pool pool;
+        for (size_t i=0; i<num_rows; ++i) {
+            pool.enqueue(boost::bind(&ComputeDistMatrix::compute_dist, this, i));
+        }
+    }
+    virtual ~ComputeDistMatrix() {}
+
+    virtual double getDistance(int i, int j) {
+        if (i == j) return 0;
+        if (has_ids) {
+            i = ids[i];
+            j = ids[j];
+        }
+        // lower part triangle, store column wise
+        int r = i > j ? i : j;
+        int c = i < j ? i : j;
+        int idx = n - (num_obs - c - 1) * (num_obs - c) / 2 + (r -c) -1 ;
+        return dist[idx];
+    }
+
+    void compute_dist(size_t i)
+    {
+        for (size_t j=i+1; j < num_rows; ++j) {
+            double val = 0, var_dist = 0;
+            if (dist_method == 'm') {
+                for (size_t v=0; v < num_vars; ++v) {
+                    val += fabs(data[v][i] - data[v][j]);
+                }
+                var_dist = sqrt(val);
+            } else {
+                // euclidean as default 'e'
+                for (size_t v=0; v < num_vars; ++v) {
+                    val = data[v][i] - data[v][j];
+                    var_dist += val * val;
+                }
+                var_dist = sqrt(var_dist);
+            }
+        }
+    }
+};
+*/
 
 class RawDistMatrix : public DistMatrix
 {
@@ -159,7 +215,11 @@ public:
         double d =0,tmp=0;
         for (size_t i =0; i<size; i++ ) {
             tmp = (x1[i] - x2[i]);
-            d += tmp * tmp * weight[i];
+            if (weight) {
+                d += tmp * tmp * weight[i];
+            } else {
+                d += tmp * tmp;
+            }
         }
         return d;
     }

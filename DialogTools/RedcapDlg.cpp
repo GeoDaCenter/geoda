@@ -33,6 +33,7 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
+#include "../Algorithms/azp.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -502,6 +503,18 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
  
     int transpose = 0; // row wise
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
+
+    // try azp
+    /*
+    RawDistMatrix dm(ragged_distances);
+    AZP rm(9, gw->gal, input_data, &dm, rows, columns);
+    std::vector<int> init_sol = rm.returnRegions();
+    rm.LocalImproving();
+    rm.calcObj();
+    std::vector<int> fin_sol = rm.returnRegions();
+    double sol = rm.calcObj();
+     */
+    
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);

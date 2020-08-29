@@ -1,31 +1,32 @@
 #include <algorithm>
+#include <queue>
+#include <limits>
+#include <iterator>
+
+#include "DataUtils.h"
 #include "azp.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /// ZoneControl
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-ZoneControl<T>::ZoneControl(const std::vector<T>& in_data)
+ZoneControl::ZoneControl(const std::vector<double>& in_data)
 : data(in_data)
 {
 }
 
-template <typename T>
-ZoneControl<T>::~ZoneControl()
+ZoneControl::~ZoneControl()
 {
 }
 
-template <typename T>
-void ZoneControl<T>::AddControl(Operation op, Comparator cmp, const T& val)
+void ZoneControl::AddControl(Operation op, Comparator cmp, const double& val)
 {
     operations.push_back(op);
     comparators.push_back(cmp);
     comp_values.push_back(val);
 }
 
-template <typename T>
-bool ZoneControl<T>::CheckZone(const std::vector<int>& candidates)
+bool ZoneControl::CheckZone(const std::vector<int>& candidates)
 {
     bool is_valid = true; // default true since no check will yield good cands
 
@@ -81,58 +82,63 @@ bool ZoneControl<T>::CheckZone(const std::vector<int>& candidates)
 /// AreaManager
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename T>
-AreaManager<T>::AreaManager(int in_n, GalElement* const in_w, DistMatrix* const _dist_matrix)
-: n(in_n), w(in_w), dist_matrix(_dist_matrix)
+AreaManager::AreaManager(int in_n, GalElement* const in_w, double** _data, DistMatrix* const _dist_matrix)
+: n(in_n), w(in_w), data(_data), dist_matrix(_dist_matrix)
 {
 }
 
-template <typename T>
-double AreaManager<T>::returnDistance2Area(int i, int j)
+double AreaManager::returnDistance2Area(int i, int j)
 {
     return dist_matrix->getDistance(i, j);
 }
 
-template <typename T>
-std::vector<double> AreaManager<T>::getDataAverage(const std::vector<int>& areaList)
+std::vector<double> AreaManager::getDataAverage(const std::vector<int>& areaList)
 {
     return std::vector<double>();
 }
 
-template <typename T>
-double AreaManager<T>::getDistance2Region(int area, const std::set<int>& areaList)
+double AreaManager::getDistance2Region(int area, const std::set<int>& areaList)
 {
     // get centroid from a areaList (region)
-    std::vector<double> centroidRegion(m, 0);
+    double* centroidRegion = new double[m];
     std::set<int>::iterator it;
     for (it = areaList.begin(); it != areaList.end(); ++it) {
         int area_id = *it;
         for (int j=0; j<m; ++j) {
-            centroidRegion[j] += data[area_id];
+            centroidRegion[j] += data[area_id][j];
         }
     }
     for (int j=0; j<m; ++j) {
         centroidRegion[j] /= (double)areaList.size();
     }
     // get distance between area and region
-    double dist = DataUtils::EuclideanDistance(data[area], centroidRegion);
+    double dist = DataUtils::EuclideanDistance(data[area], centroidRegion, m, NULL);
 
+    delete[] centroidRegion;
     return dist;
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/// RegionMaker
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-RegionMaker::RegionMaker()
+////////////////////////////////////////////////////////////////////////////////
+////// RegionMaker
+////////////////////////////////////////////////////////////////////////////////
+RegionMaker::RegionMaker(int _p, GalElement* const _w,
+                         double** _data, // row-wise
+                         RawDistMatrix* _dist_matrix,
+                         int _n, int _m)
+: p(_p), w(_w), data(_data), dist_matrix(_dist_matrix), n(_n), m(_m),
+am(_n, _w, _data, _dist_matrix)
 {
-    std::vector<int>  seeds = this->kmeansInit();
+    // get p start areas using k-means
+    std::vector<int> seeds = this->kmeansInit();
+    // process all neighbors of p start areas
     this->setSeeds(seeds);
-    int c = 0;
+    // for any other unassigned areas, assign region
     while (unassignedAreas.size() != 0) {
-        constructRegions();
-        c += 1;
+        this->constructRegions();
     }
+    //  Gets the intrabordering areas
+    this->getIntraBorderingAreas();
 }
 
 void RegionMaker::AssignAreasNoNeighs()
@@ -141,10 +147,10 @@ void RegionMaker::AssignAreasNoNeighs()
     for (int i=0; i<n; ++i) {
         if (w[i].Size() == 0) {
             areaNoNeighbor[i] = true;
-            assignedAreas.push_back(i);
+            assignedAreas[i] = true;
         } else {
             areaNoNeighbor[i] = false;
-            unassignedAreas.push_back(i);
+            unassignedAreas[i] = true;
         }
     }
 }
@@ -152,7 +158,7 @@ void RegionMaker::AssignAreasNoNeighs()
 std::vector<int> RegionMaker::kmeansInit()
 {
     //Initial p starting observations using K-Means
-    std::vector<double> probabilities(n, p);
+    std::vector<double> probabilities(n, 0);
     std::vector<double> distances(n, 1);
     double total = n;
     for (int j=0; j<n; ++j) {
@@ -163,7 +169,8 @@ std::vector<int> RegionMaker::kmeansInit()
     for (int i=0; i < p; ++i) {
         double random = rng.nextDouble();
         bool find = false;
-        int acum = 0, cont = 0;
+        double acum = 0;
+        int cont = 0;
         while (find == false) {
             double inf = acum;
             double sup = acum + probabilities[cont];
@@ -198,9 +205,10 @@ std::vector<int> RegionMaker::kmeansInit()
 
 void RegionMaker::setSeeds(const std::vector<int>& seeds)
 {
+    // Sets the initial seeds for clustering
     this->seeds.clear();
 
-    int ns = seeds.size() < p ? seeds.size() : p;
+    int ns = seeds.size() < p ? (int)seeds.size() : p;
 
     for (int i=0; i<ns; ++i) {
         this->seeds.push_back(seeds[i]);
@@ -241,49 +249,487 @@ void RegionMaker::setSeeds(const std::vector<int>& seeds)
 
 void RegionMaker::assignSeeds(int areaID, int regionID)
 {
+    // Assign an area to a region and updates potential regions for the neighs
+    // parameters
     assignAreaStep1(areaID, regionID);
 
-    // check neighbors of areaID
+    // check neighbors of areaID that are not been assigned yet
+    // and assign neighbor to potential regions
     const std::vector<long>& nbrs = w[areaID].GetNbrs();
     for (int i=0; i<nbrs.size(); ++i) {
-        int neigh = nbrs[i];
-        potentialRegions4Area[neigh].insert(regionID);
+        int neigh = (int)nbrs[i];
+        if (assignedAreas[neigh] == false) {
+            potentialRegions4Area[neigh].insert(regionID);
+        }
     }
 
-    // remove self from potentialRegions4Area
+    // remove areaID from potentialRegions4Area, since it's processed
     potentialRegions4Area.erase(areaID);
 
     //self.changedRegion = 'null'
     //self.newExternal = self.potentialRegions4Area.keys()
+    this->changedRegion = -1;
+    std::map<int, std::set<int> >::iterator it;
+    for (it = potentialRegions4Area.begin(); it != potentialRegions4Area.end(); ++it) {
+        this->newExternal[it->first] = true;
+    }
 }
 
 void RegionMaker::assignAreaStep1(int areaID, int regionID)
 {
+    //  Assgin an area to a region
     region2Area[regionID].insert(areaID);
+
+    // attach region with area
     area2Region[areaID] = regionID;
 
-    unassignedAreas.erase(std::find(unassignedAreas.begin(), unassignedAreas.end(), areaID));
-    assignedAreas.push_back(areaID);
+    // remove areaID from unassignedAreas
+    unassignedAreas.erase(areaID);
+
+    // add areaID to assignedAreas
+    assignedAreas[areaID] = true;
+
+    //self.oldExternal = self.externalNeighs;
+    //self.externalNeighs = (self.externalNeighs | setNeighs) - setAssigned
+    //self.newExternal = self.externalNeighs - self.oldExternal
+    this->oldExternal = externalNeighs;
+    std::vector<long> neighs = this->w[areaID].GetNbrs();
+    for (int i=0; i< neighs.size(); ++i) {
+        int nn = (int)neighs[i];
+        if (assignedAreas[nn] == false) {
+            // for not yet assigned neighbor
+            this->externalNeighs[nn] = true;
+        }
+    }
+    this->newExternal = this->externalNeighs;
+    std::map<int, bool>::iterator it;
+    for (it = oldExternal.begin(); it != oldExternal.end(); ++it) {
+        this->newExternal.erase(it->first);
+    }
 }
 
 void RegionMaker::constructRegions()
 {
+    // Construct potential regions per area (not assigned)
     int lastRegion = 0;
     std::map<int, std::set<int> >::iterator it;
     std::set<int>::iterator rit, ait;
 
+    // Process the most feasible area that has shortest distance to a region
+    double min_region_distance = std::numeric_limits<double>::max();
+    
     for (it=potentialRegions4Area.begin(); it != potentialRegions4Area.end(); ++it) {
         int areaID = it->first;
-        // compute distance from areaID to different regions
         std::set<int> regionIDs = it->second;
+        // compute distance from areaID to different regions
         for (rit = regionIDs.begin(); rit != regionIDs.end(); ++rit) {
             int region = *rit;
-            std::set<int> areasIdsIn = region2Area[region];
-            double regionDistance = am.getDistance2Region(areaID, areasIdsIn);
-            this->candidateInfo[std::make_pair(areaID, region)] = regionDistance;
+            if (newExternal[areaID] == false && region != changedRegion) {
+                // there is no need to recompute the distance since there is
+                // no change in the region
+                lastRegion = region;
+            } else {
+                std::pair<int, int> a_r = std::make_pair(areaID, region);
+                //if (candidateInfo.find(a_r) == candidateInfo.end()) {
+                std::set<int>& areasIdsIn = region2Area[region];
+                double regionDistance = am.getDistance2Region(areaID, areasIdsIn);
+                // (areaID, region): distance
+                this->candidateInfo[a_r] = regionDistance;
+                if (regionDistance < min_region_distance)  {
+                    min_region_distance = regionDistance;
+                }
+            }
         }
     }
 
-    //Select and assign the nearest area to a region
+    if (candidateInfo.empty())  {
+        this->changedRegion = lastRegion;
+
+    } else {
+
+        // Select and assign the nearest area to a region
+        // minimumSelection(RegionMaker)
+        // if there are more than one (area, region) pair
+        // random select from cands
+
+        std::vector<std::pair<int, int> > cands;
+        std::map<std::pair<int, int>, double>::iterator cit;
+        for (cit = candidateInfo.begin(); cit != candidateInfo.end(); ++cit) {
+            if (cit->second == min_region_distance) {
+                cands.push_back(cit->first);
+            }
+        }
+        int rnd_sel = cands.size() == 1? 0 : rng.nextInt((int)cands.size());
+        std::pair<int, int> sel_area_region = cands[rnd_sel];
+        int aid = sel_area_region.first;
+        int rid = sel_area_region.second;
+        // assign area to a region, and process area's neighbor in
+        // potentialRegions4Area
+        this->assignArea(aid, rid);
+
+        // remove from candidateInfo with areaID=aid
+        std::vector<std::pair<int, int> > removed_cands;
+        for (cit = candidateInfo.begin(); cit != candidateInfo.end(); ++cit) {
+            if (cit->first.first == aid) {
+                removed_cands.push_back(cit->first);
+            }
+        }
+        for (int i=0; i<removed_cands.size(); ++i) {
+            candidateInfo.erase(removed_cands[i]);
+        }
+
+        // assign select areaID to regionID, and process the neighbors of areaID
+        this->assignArea(aid, rid);
+    }
+}
+
+void RegionMaker::assignArea(int areaID, int regionID)
+{
+    //Assign an area to a region and updates potential regions for neighs
+
+    this->changedRegion = regionID; // mark this region has been changed
+    this->addedArea = areaID;
+
+    this->assignAreaStep1(areaID, regionID);
+
+    //for neigh in self.neighsMinusAssigned:
+    // assign regionID as a potential region for neigh
+    std::vector<long> neighs = this->w[areaID].GetNbrs();
+    for (int i=0; i< neighs.size(); ++i) {
+        int nn = (int)neighs[i];
+        if (assignedAreas[nn] == false) {
+            // for not yet assigned neighbor
+            //self.potentialRegions4Area[neigh] = self.potentialRegions4Area[neigh]|set([regionID])
+            potentialRegions4Area[nn].insert(regionID);
+        }
+    }
+    // remove areaID since its processed
+    potentialRegions4Area.erase(areaID);
+}
+
+double RegionMaker::getObj()
+{
+    //Return the value of the objective function
+    if (this->objInfo < 0) {
+        this->objInfo = this->calcObj(this->region2Area);
+    }
+    return this->objInfo;
+}
+
+double RegionMaker::calcObj()
+{
+    return calcObj(region2Area);
+}
+
+std::vector<int> RegionMaker::returnRegions()
+{
+    std::vector<int> results;
+    std::map<int, int>::iterator it;
+    // area2Region is already sorted by key
+    for (it = area2Region.begin(); it != area2Region.end(); ++it) {
+        results.push_back( area2Region[it->second] );
+    }
+    return results;
+}
+
+double RegionMaker::calcObj(std::map<int, std::set<int> >& region2AreaDict)
+{
+    // Calculate the value of the objective function
+    // self.objInfo = self.getObjective(self.region2Area)
+    // Return the value of the objective function from regions to area dictionary
+    // Sum of squares from each area to the region's centroid
+    std::map<int, double> objDist;
+
+    std::map<int, std::set<int> >::iterator it;
+    std::set<int>::iterator sit;
+
+    for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
+        int region = it->first;
+        std::set<int>& areasIdsIn = it->second;
+        // compute centroid of this set of areas
+        double* dataAvg = new double[m];
+
+        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+            int idx = *sit;
+            for (int j=0; j<m; ++j) {
+                dataAvg[j] += data[idx][j];
+            }
+        }
+        double n_areas = (double)areasIdsIn.size();
+        for (int j=0; j<m; ++j) {
+            dataAvg[j] /= n_areas;
+        }
+
+        // distance from area in this region to centroid
+        objDist[region]  = 0.0;
+        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+            int idx = *sit;
+            double dist = DataUtils::EuclideanDistance(data[idx], dataAvg, m, NULL);
+            objDist[region] += dist;
+        }
+
+        delete[] dataAvg;
+    }
+
+    double ss = 0;
+    std::map<int, double>::iterator mid;
+    for (mid = objDist.begin(); mid != objDist.end(); ++mid) {
+        ss += mid->second;
+    }
+    return ss;
+}
+
+void RegionMaker::getIntraBorderingAreas()
+{
+    std::set<int>::iterator it;
+    for (int rid=0; rid<p; ++rid) {
+        const std::set<int>& areas2Evl = this->region2Area[rid];
+        // get neighbors of areas2Eval
+        std::map<int, bool> neighsNoRegion;
+        for (it = areas2Evl.begin(); it !=areas2Evl.end(); ++it) {
+            int area = *it;
+            const std::vector<long>& nn = w[area].GetNbrs();
+            for (int j=0; j<nn.size(); ++j) {
+                neighsNoRegion[nn[j]] = true;
+            }
+        }
+        // remove areas in region
+        for (it = areas2Evl.begin(); it !=areas2Evl.end(); ++it) {
+            int area = *it;
+            neighsNoRegion[area] = false;
+        }
+        // save
+        std::map<int, bool>::iterator mit;
+        for (mit = neighsNoRegion.begin(); mit != neighsNoRegion.end(); ++mit) {
+            int neigh = mit->first;
+            if (mit->second == true) {
+                this->intraBorderingAreas[neigh].insert(rid);
+            }
+        }
+    }
+}
+
+std::set<int> RegionMaker::returnRegion2Area(int regionID)
+{
+    return region2Area[regionID];
+}
+
+std::set<int> RegionMaker::returnBorderingAreas(int regionID)
+{
+    std::set<int> areas2Eval = this->returnRegion2Area(regionID);
+    std::set<int> borderingAreas;
+    std::set<int>::iterator it;
+    for (it = areas2Eval.begin(); it != areas2Eval.end(); ++it) {
+        int area = *it;
+        if (intraBorderingAreas[area].empty() == false) {
+            borderingAreas.insert(area);
+        }
+    }
+    return borderingAreas;
+}
+
+
+std::set<int> RegionMaker::getNeighbors(int areaID)
+{
+    std::set<int> nbrs;
+    const std::vector<long>& nn = w[areaID].GetNbrs();
+    for (int i=0; i<nn.size(); ++i)  {
+        nbrs.insert((int)nn[i]);
+    }
+    return nbrs;
+}
+
+std::set<int> RegionMaker::unions(const std::set<int>& s1, const std::set<int>& s2)
+{
+    std::set<int> s_all;
+    std::set<int>::iterator it;
+    for (it = s1.begin(); it != s1.end(); ++it) {
+        s_all.insert(*it);
+    }
+    for (it = s2.begin(); it != s2.end(); ++it) {
+        s_all.insert(*it);
+    }
+    return s_all;
+}
+
+std::set<int> RegionMaker::intersects(const std::set<int>& s1, const std::set<int>& s2)
+{
+    std::set<int> s_inter;
+    std::set_intersection(s1.begin(), s1.end(), s2.begin(), s2.end(),
+                          std::inserter(s_inter, s_inter.begin()));
+    return s_inter;
+}
+
+std::set<int> RegionMaker::removes(const std::set<int>& s1, const std::set<int>& s2)
+{
+    std::set<int> s_res =  s1;
+    std::set<int>::iterator it;
+    for (it = s2.begin(); it != s2.end(); ++it) {
+        s_res.erase(*it);
+    }
+    return s_res;
+}
+
+int RegionMaker::checkFeasibility(int regionID, int areaID, std::map<int, std::set<int> > region2AreaDict)
+{
+    int feasible = 0;
     
+    // Check feasibility from a change region (remove an area from a region)
+    std::set<int> areas2Eval = region2AreaDict[regionID];
+    areas2Eval.erase(areaID);
+    int seedArea = *areas2Eval.begin();
+    // newRegion = (set([seedArea]) | set(self.areas[seedArea].neighs)) & set(areas2Eval)
+    std::set<int> seedAndNeighs, newRegion, newAdded, newNeighs;
+    
+    seedAndNeighs = this->getNeighbors(seedArea);
+    seedAndNeighs.insert(seedArea);
+    
+    newRegion = intersects(seedAndNeighs, areas2Eval);
+    
+    areas2Eval.erase(seedArea);
+    int flag = 1;
+    // newAdded = newRegion - set([seedArea])
+    newAdded = newRegion;
+    newAdded.erase(seedArea);
+    std::set<int>::iterator it;
+    while (flag == 1) {
+        // for area in newAdded:
+        for (it = newAdded.begin(); it != newAdded.end(); ++it) {
+            int area = *it;
+            // newNeighs = newNeighs | (((set(self.areas[area].neighs) &set(region2AreaDict[regionID])) - set([areaID])) - newRegion)
+            std::set<int> ar = intersects(getNeighbors(area), region2AreaDict[regionID]);
+            ar.erase(areaID);
+            ar = removes(ar, newRegion);
+            newNeighs = unions(newNeighs, ar);
+            areas2Eval.erase(area);
+        }
+        newNeighs = removes(newNeighs, newAdded);
+        newAdded = newNeighs;
+        newRegion = unions(newRegion, newAdded);
+        if (areas2Eval.empty()) {
+            feasible = 1;
+            flag = 0;
+            break;
+        } else if (newNeighs.empty() && areas2Eval.size() > 0) {
+            feasible = 0;
+            flag = 0;
+            break;
+        }
+    }
+    return feasible;
+}
+
+void RegionMaker::swapArea(int area, int newRegion, std::map<int, std::set<int> >& region2AreaDict, std::map<int, int>& area2RegionDict)
+{
+    // Removed an area from a region and appended it to another one
+    int oldRegion = area2RegionDict[area];
+    
+    region2AreaDict[oldRegion].erase(area);
+    region2AreaDict[newRegion].insert(area);
+    
+    area2RegionDict[area] = newRegion;
+}
+
+void RegionMaker::moveArea(int areaID, int regionID)
+{
+    // Move an area to a region
+    int oldRegion = this->area2Region[areaID];
+    this->region2Area[oldRegion].erase(areaID);
+    this->region2Area[regionID].insert(areaID);
+    this->area2Region[areaID] = regionID;
+    std::set<int> toUpdate = this->getNeighbors(areaID);
+    toUpdate.insert(areaID);
+    
+    std::set<int>::iterator it;
+    for (it = toUpdate.begin(); it != toUpdate.end(); ++it) {
+        int area = *it;
+        int regionIn = this->area2Region[area];
+        std::set<int> areasIdsIn = this->region2Area[regionIn];
+        std::set<int> aNeighs = this->getNeighbors(area);
+        std::set<int> neighsInOther = removes(aNeighs, areasIdsIn);
+        // if len(neighsInOther) == 0 and area in self.intraBorderingAreas:
+        if (neighsInOther.empty() &&
+            intraBorderingAreas.find(area) != intraBorderingAreas.end()) {
+            intraBorderingAreas.erase(area);
+        } else {
+            std::set<int> borderRegions;
+            std::set<int>::iterator bit;
+            for (bit = neighsInOther.begin(); bit != neighsInOther.end(); ++bit) {
+                int neigh = *bit;
+                borderRegions.insert(area2Region[neigh]);
+            }
+            if (intraBorderingAreas.find(area) != intraBorderingAreas.end()) {
+                intraBorderingAreas.erase(area);
+            }
+            intraBorderingAreas[area] = borderRegions;
+        }
+    }
+    this->calcObj(region2Area);
+}
+
+void AZP::LocalImproving()
+{
+    int improve = 1;
+    std::set<int>::iterator it;
+
+    while (improve == 1) {
+        std::vector<int> regions(p, 0);
+        while (regions.empty() == false) {
+            // step 3
+            int randomRegion = 0;
+            if (regions.size() > 1) {
+                randomRegion = rng.nextInt((int)regions.size());
+            }
+            int region = regions[randomRegion];
+            regions.erase(std::find(regions.begin(), regions.end(), region));
+
+            // step 4
+            //borderingAreas = list(set(self.returnBorderingAreas(region)) & set(self.returnRegion2Area(region)))
+            const std::set<int>& ba = this->returnBorderingAreas(region);
+            const std::set<int>& aa = this->returnRegion2Area(region);
+            std::set<int> borderingAreas = this->intersects(ba, aa);
+
+            improve = 0;
+            while (borderingAreas.empty() == false) {
+                // step 5
+                int randomArea = rng.nextInt((int)borderingAreas.size());
+                it = borderingAreas.begin();
+                std::advance(it, randomArea);
+                int area = *it;
+                borderingAreas.erase(area);
+                std::set<int> posibleMove = intraBorderingAreas[area];
+
+                int f = 0;
+                if (this->region2Area[region].size() >= 2)  {
+                    f = this->checkFeasibility(region, area, region2Area);
+                }
+                if (f == 1) {
+                    for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
+                        int move = *it;
+                        this->swapArea(area, move, region2Area, area2Region);
+                        double obj = this->calcObj(region2Area);
+                        this->swapArea(area, region, region2Area, area2Region);
+                        if (obj <= this->objInfo) {
+                            this->moveArea(area, move);
+                            improve = 1;
+                            //borderingAreas = list(set(self.returnBorderingAreas(region)) & set(self.returnRegion2Area(region)))
+                            borderingAreas = intersects(returnBorderingAreas(region),
+                                                        returnRegion2Area(region));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void AZPSA::LocalImproving()
+{
+
+}
+
+void AZPTabu::LocalImproving()
+{
+
 }
