@@ -101,7 +101,7 @@ public:
 class AreaManager
 {
 public:
-    AreaManager(int n, GalElement* const w, double** data, DistMatrix* const dist_matrix);
+    AreaManager(int n, int m, GalElement* const w, double** data, DistMatrix* const dist_matrix);
 
     virtual ~AreaManager() {}
     

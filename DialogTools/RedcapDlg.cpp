@@ -505,7 +505,6 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
 
     // try azp
-    /*
     RawDistMatrix dm(ragged_distances);
     AZP rm(9, gw->gal, input_data, &dm, rows, columns);
     std::vector<int> init_sol = rm.returnRegions();
@@ -513,7 +512,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     rm.calcObj();
     std::vector<int> fin_sol = rm.returnRegions();
     double sol = rm.calcObj();
-     */
+    
     
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
