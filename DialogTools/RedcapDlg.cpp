@@ -33,7 +33,6 @@
 #include "../Project.h"
 #include "../Algorithms/DataUtils.h"
 #include "../Algorithms/cluster.h"
-#include "../Algorithms/azp.h"
 #include "../GeneralWxUtils.h"
 #include "../GenUtils.h"
 #include "SaveToTableDlg.h"
@@ -115,7 +114,7 @@ void RedcapDlg::CreateControls()
     // Minimum Bound Control
     AddMinBound(panel, gbox);
 
-	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"));
+	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of Regions:"));
     m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
@@ -503,14 +502,6 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
  
     int transpose = 0; // row wise
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
-
-    // try azp
-    RawDistMatrix dm(ragged_distances);
-    //AZP rm(9, gw->gal, input_data, &dm, rows, columns);
-    //AZPTabu rm(9, gw->gal, input_data, &dm, rows, columns, 10, 10);
-    AZPSA azp(9, gw->gal, input_data, &dm, rows, columns, 0.85, 1);
-    std::vector<int> fin_sol = azp.GetResults();
-    
     double** distances = DataUtils::fullRaggedMatrix(ragged_distances, rows, rows);
     for (int i = 1; i < rows; i++) free(ragged_distances[i]);
     free(ragged_distances);

@@ -147,22 +147,25 @@ public:
 
     // Sets the initial seeds for clustering
     void setSeeds(const std::vector<int>& seeds);
-
-    // Return the areas of a region
-    std::set<int> returnRegion2Area(int regionID);
-
-
-    // return regions created
-    std::vector<int> returnRegions();
-
-    //
-    void calcObj();
     
     virtual void LocalImproving() = 0;
     
     virtual std::vector<int> GetResults() = 0;
-    
+
+    virtual double GetInitObjectiveFunction() = 0;
+
+    virtual double GetFinalObjectiveFunction() = 0;
+
 protected:
+    // Return the areas of a region
+    std::set<int> returnRegion2Area(int regionID);
+
+    // return regions created
+    std::vector<int> returnRegions();
+
+    // calculate the objective function
+    void calcObj();
+
     // Assign to the region "-1" for the areas without neighbours
     void AssignAreasNoNeighs();
 
@@ -259,7 +262,7 @@ protected:
 
     std::map<std::pair<int, int>, double> candidateInfo;
 
-    // mark which region has been changed
+    // mark which region has just been changed
     int changedRegion;
 
     // mark which area has just been added
@@ -286,7 +289,11 @@ protected:
 class AZP : public RegionMaker
 {
     std::vector<int> final_solution;
-    
+
+    double initial_objectivefunction;
+
+    double final_objectivefunction;
+
 public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
@@ -294,10 +301,11 @@ public:
         int n, int m)
     : RegionMaker(p,w,data,dist_matrix,n,m)
     {
-        //std::vector<int> init_sol = this->returnRegions();
+        initial_objectivefunction = this->objInfo;
         this->LocalImproving();
         this->calcObj();
         final_solution = this->returnRegions();
+        final_objectivefunction = this->objInfo;
     }
 
     virtual ~AZP() {}
@@ -306,6 +314,14 @@ public:
     
     virtual std::vector<int> GetResults() {
         return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
     }
 };
 
@@ -337,7 +353,8 @@ public:
 class AZPSA : public RegionMaker
 {
     std::vector<int> final_solution;
-    
+    double initial_objectivefunction;
+    double final_objectivefunction;
 public:
     AZPSA(int p, GalElement* const w,
         double** data, // row-wise
@@ -346,7 +363,8 @@ public:
     : RegionMaker(p,w,data,dist_matrix,n,m), temperature(1.0), alpha(_alpha), max_iter(_max_iter)
     {
         std::vector<int> init_sol = this->returnRegions();
-        
+        initial_objectivefunction = this->objInfo;
+
         // local search
         BasicMemory basicMemory, localBasicMemory;
         
@@ -381,7 +399,7 @@ public:
         
         
         final_solution = basicMemory.regions;
-        //Of = basicMemory.objInfo
+        final_objectivefunction = basicMemory.objInfo;
     }
 
     virtual ~AZPSA() {}
@@ -390,6 +408,14 @@ public:
     
     virtual std::vector<int> GetResults() {
         return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
     }
 
 protected:
@@ -406,6 +432,8 @@ protected:
 class AZPTabu : public RegionMaker
 {
     std::vector<int> final_solution;
+    double initial_objectivefunction;
+    double final_objectivefunction;
     
 public:
     AZPTabu(int p, GalElement* const w,
@@ -420,10 +448,14 @@ public:
         if (convTabu <= 0) {
             convTabu = 10;
         }
-        //std::vector<int> init_sol = this->returnRegions();
+        initial_objectivefunction = this->objInfo;
+        std::vector<int> init_sol = this->returnRegions();
+
         this->LocalImproving();
+
         this->calcObj();
         final_solution = this->returnRegions();
+        final_objectivefunction = this->objInfo;
     }
 
     virtual ~AZPTabu() {}
@@ -432,6 +464,14 @@ public:
 
     virtual std::vector<int> GetResults() {
         return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
     }
     
     // Select neighboring solutions.

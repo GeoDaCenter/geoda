@@ -164,6 +164,7 @@ public:
     void OnToolsDataDBScan(wxCommandEvent& event);
     void OnToolsDataHDBScan(wxCommandEvent& event);
     void OnToolsDataMaxP(wxCommandEvent& event);
+    void OnToolsDataAZP(wxCommandEvent& event);
     void OnToolsDataSkater(wxCommandEvent& event);
     void OnToolsDataSCHC(wxCommandEvent& event);
     void OnToolsDataSpectral(wxCommandEvent& event);

@@ -39,6 +39,7 @@
 		A152ACBE2483551500BFC788 /* pam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A152ACBC2483551500BFC788 /* pam.cpp */; };
 		A161939F244CDCE9004269A7 /* AnimatePlotCanvas.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */; };
 		A165BFEF249C113A00D1CC10 /* ConditionalBoxPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */; };
+		A166C58524FEA8B600D4EBA6 /* AZPDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A166C58324FEA8B600D4EBA6 /* AZPDlg.cpp */; };
 		A16BA470183D626200D3B7DA /* DatasourceDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */; };
 		A170116C24AAAA4F00844D84 /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116B24AAAA4F00844D84 /* dbscan.cpp */; };
 		A170116F24ABFBA100844D84 /* DBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116D24ABFBA000844D84 /* DBScanDlg.cpp */; };
@@ -395,6 +396,8 @@
 		A161939E244CDCE8004269A7 /* AnimatePlotCanvas.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AnimatePlotCanvas.cpp; sourceTree = "<group>"; };
 		A165BFED249C112D00D1CC10 /* ConditionalBoxPlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalBoxPlotView.h; sourceTree = "<group>"; };
 		A165BFEE249C113A00D1CC10 /* ConditionalBoxPlotView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConditionalBoxPlotView.cpp; sourceTree = "<group>"; };
+		A166C58324FEA8B600D4EBA6 /* AZPDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AZPDlg.cpp; sourceTree = "<group>"; };
+		A166C58424FEA8B600D4EBA6 /* AZPDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZPDlg.h; sourceTree = "<group>"; };
 		A16BA46E183D626200D3B7DA /* DatasourceDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DatasourceDlg.cpp; sourceTree = "<group>"; };
 		A16BA46F183D626200D3B7DA /* DatasourceDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatasourceDlg.h; sourceTree = "<group>"; };
 		A170116324AA6F4000844D84 /* dbscan.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = dbscan.h; path = Algorithms/dbscan.h; sourceTree = "<group>"; };
@@ -1369,6 +1372,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A166C58324FEA8B600D4EBA6 /* AZPDlg.cpp */,
+				A166C58424FEA8B600D4EBA6 /* AZPDlg.h */,
 				A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */,
 				A1F37C8024B4F85B007E98F0 /* SCHCDlg.h */,
 				A170116D24ABFBA000844D84 /* DBScanDlg.cpp */,
@@ -2010,6 +2015,7 @@
 				DDB252B513BBFD6700A7CE26 /* MergeTableDlg.cpp in Sources */,
 				DD0DC4BA13CBA7B10022B65A /* RangeSelectionDlg.cpp in Sources */,
 				DD89C87413D86BC7006C068D /* FieldNewCalcBinDlg.cpp in Sources */,
+				A166C58524FEA8B600D4EBA6 /* AZPDlg.cpp in Sources */,
 				DD89C87513D86BC7006C068D /* FieldNewCalcLagDlg.cpp in Sources */,
 				A45DBDF41EDDEDAD00C2AA8A /* pca.cpp in Sources */,
 				DD89C87613D86BC7006C068D /* FieldNewCalcRateDlg.cpp in Sources */,

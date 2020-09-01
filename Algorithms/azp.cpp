@@ -137,8 +137,8 @@ am(_n, _m, _w, _data, _dist_matrix), objInfo(-1)
     // get p start areas using k-means
     std::vector<int> seeds = this->kmeansInit();
     // [31, 38, 37, 28, 20, 29, 17, 50, 55]
-    seeds[0] = 31; seeds[1] = 38; seeds[2] = 37; seeds[3]=28; seeds[4]=20;
-    seeds[5] = 29; seeds[6] = 17; seeds[7] = 50; seeds[8] = 55;
+    //seeds[0] = 31; seeds[1] = 38; seeds[2] = 37; seeds[3]=28; seeds[4]=20;
+    //seeds[5] = 29; seeds[6] = 17; seeds[7] = 50; seeds[8] = 55;
     // process all neighbors of p start areas
     this->setSeeds(seeds);
     // for any other unassigned areas, assign region
@@ -288,7 +288,7 @@ void RegionMaker::assignSeeds(int areaID, int regionID)
 
 void RegionMaker::assignAreaStep1(int areaID, int regionID)
 {
-    std::cout << "region:" << regionID <<" area:" << areaID << std::endl;
+    //std::cout << "region:" << regionID <<" area:" << areaID << std::endl;
     //  Assgin an area to a region
     region2Area[regionID].insert(areaID);
 
@@ -769,8 +769,8 @@ void AZP::LocalImproving()
 {
     int improve = 1;
     std::set<int>::iterator it;
-    std::vector<int> rand_test = {7,4,3,5,3,3,1,1,0,3,3,2,3,4,2,0,0,0};
-    std::vector<int> rand_test1 = {57, 56, 52, 24, 16, 10, 3, 24, 51, 57, 22, 57, 46, 11, 46, 52, 50, 46, 10, 52, 24, 57, 3, 51, 7, 5, 20, 30, 28, 8, 26, 39, 43, 18, 55, 41, 36, 29, 17, 0, 56, 33, 35, 1, 23, 9, 32, 22, 2, 49, 15, 11, 48, 14, 16, 50, 34, 12, 42, 40, 31, 45, 44, 31, 30, 28, 8, 20, 40, 42, 17, 41, 18, 26, 55, 43, 39, 29, 36, 44, 31, 14, 11, 16, 2, 48, 0, 1, 15, 35, 50, 12, 23, 9, 49, 33, 32, 34, 56, 22, 24, 7, 45, 57, 10, 51, 5, 3, 46, 52};
+    //std::vector<int> rand_test = {7,4,3,5,3,3,1,1,0,3,3,2,3,4,2,0,0,0};
+    //std::vector<int> rand_test1 = {57, 56, 52, 24, 16, 10, 3, 24, 51, 57, 22, 57, 46, 11, 46, 52, 50, 46, 10, 52, 24, 57, 3, 51, 7, 5, 20, 30, 28, 8, 26, 39, 43, 18, 55, 41, 36, 29, 17, 0, 56, 33, 35, 1, 23, 9, 32, 22, 2, 49, 15, 11, 48, 14, 16, 50, 34, 12, 42, 40, 31, 45, 44, 31, 30, 28, 8, 20, 40, 42, 17, 41, 18, 26, 55, 43, 39, 29, 36, 44, 31, 14, 11, 16, 2, 48, 0, 1, 15, 35, 50, 12, 23, 9, 49, 33, 32, 34, 56, 22, 24, 7, 45, 57, 10, 51, 5, 3, 46, 52};
     int rr = 0, rr1 = 0;
     while (improve == 1) {
         std::vector<int> regions(p);
@@ -780,9 +780,9 @@ void AZP::LocalImproving()
             // step 3
             int randomRegion = 0;
             if (regions.size() > 1) {
-                //randomRegion = rng.nextInt((int)regions.size());
+                randomRegion = rng.nextInt((int)regions.size());
             }
-            randomRegion = rand_test[rr++];
+            //randomRegion = rand_test[rr++];
             int region = regions[randomRegion];
             regions.erase(std::find(regions.begin(), regions.end(), region));
 
@@ -799,7 +799,7 @@ void AZP::LocalImproving()
                 it = borderingAreas.begin();
                 std::advance(it, randomArea);
                 int area = *it;
-                area = rand_test1[rr1++];
+                //area = rand_test1[rr1++];
                 borderingAreas.erase(area);
                 std::set<int> posibleMove = intraBorderingAreas[area];
 

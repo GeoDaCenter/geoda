@@ -116,6 +116,7 @@
 #include "DialogTools/SaveToTableDlg.h"
 #include "DialogTools/KMeansDlg.h"
 #include "DialogTools/MaxpDlg.h"
+#include "DialogTools/AZPDlg.h"
 #include "DialogTools/tSNEDlg.h"
 #include "DialogTools/SpectralClusteringDlg.h"
 #include "DialogTools/HClusterDlg.h"
@@ -1943,6 +1944,27 @@ void GdaFrame::OnToolsDataMaxP(wxCommandEvent& WXUNUSED(event) )
     dlg->Show(true);
 }
 
+void GdaFrame::OnToolsDataAZP(wxCommandEvent& WXUNUSED(event) )
+{
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (AZPDlg* w = dynamic_cast<AZPDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    AZPDlg* dlg = new AZPDlg(this, p);
+    dlg->Show(true);
+}
+
 void GdaFrame::OnToolsDataSkater(wxCommandEvent& WXUNUSED(event) )
 {
     Project* p = GetProject();
@@ -2973,6 +2995,7 @@ void GdaFrame::OnClusteringChoices(wxCommandEvent& WXUNUSED(event))
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_HDBSCAN"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SPECTRAL"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_MAXP"),proj_open);
+        GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_AZP"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SKATER"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_SCHC"),proj_open);
         GeneralWxUtils::EnableMenuItem(popupMenu,XRCID("ID_TOOLS_DATA_REDCAP"),proj_open);
@@ -6929,6 +6952,7 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
     EVT_MENU(XRCID("ID_TOOLS_DATA_HDBSCAN"), GdaFrame::OnToolsDataHDBScan)
     EVT_MENU(XRCID("ID_TOOLS_DATA_DBSCAN"), GdaFrame::OnToolsDataDBScan)
     EVT_MENU(XRCID("ID_TOOLS_DATA_MAXP"), GdaFrame::OnToolsDataMaxP)
+    EVT_MENU(XRCID("ID_TOOLS_DATA_AZP"), GdaFrame::OnToolsDataAZP)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SKATER"), GdaFrame::OnToolsDataSkater)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SCHC"), GdaFrame::OnToolsDataSCHC)
     EVT_MENU(XRCID("ID_TOOLS_DATA_SPECTRAL"), GdaFrame::OnToolsDataSpectral)

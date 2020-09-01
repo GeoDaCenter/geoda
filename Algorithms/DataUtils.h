@@ -41,7 +41,7 @@ public:
 };
 
 /*
-class ComputeDistMatrix : public DistMatrix
+class RowWiseDistMatrix : public DistMatrix
 {
     double** dist;
     char dist_method;
@@ -49,7 +49,7 @@ class ComputeDistMatrix : public DistMatrix
     int num_rows;
     const std::vector<std::vector<double> >& data;
 public:
-    ComputeDistMatrix(const std::vector<std::vector<double> >& _data,
+    RowWiseDistMatrix(const double** const input_data,
                       const std::vector<int>& _ids=std::vector<int>())
     : data(_data), DistMatrix(_ids)
     {
