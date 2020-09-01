@@ -109,7 +109,7 @@ public:
     double returnDistance2Area(int i, int j);
 
     // Returns the attribute centroid of a set of areas
-    std::vector<double> getDataAverage(const std::vector<int>& areaList);
+    std::vector<double> getDataAverage(const std::set<int>& areaList);
 
     // Returns the distance from an area to a region (centroid)
     double getDistance2Region(int area, const std::set<int>& areaList);
@@ -149,8 +149,6 @@ public:
     // Return the areas of a region
     std::set<int> returnRegion2Area(int regionID);
 
-    // calculate objective function
-    double calcObj();
 
     // return regions created
     std::vector<int> returnRegions();
@@ -183,7 +181,16 @@ protected:
 
     // Return the value of the objective function
     double getObj();
-    double calcObj(std::map<int, std::set<int> >& region2Area);
+    void calcObj();
+    // Re-calculate the value of the objective function
+    double recalcObj(std::map<int, std::set<int> >& region2AreaDict);
+    double recalcObj(std::map<int, std::set<int> >& region2AreaDict,
+                     std::pair<int, int>& modifiedRegions);
+    // Return the value of the objective function from regions to area dictionary
+    double getObjective(std::map<int, std::set<int> >& region2AreaDict);
+    // Return the value of the objective function from regions to area dictionary
+    double getObjectiveFast(std::map<int, std::set<int> >& region2AreaDict,
+                            std::pair<int, int>& modifiedRegions);
 
     // Returns bordering areas of a region
     std::set<int> returnBorderingAreas(int regionID);
@@ -261,6 +268,9 @@ protected:
     // object function value
     double objInfo;
 
+    // cache object value
+    std::map<int, double> objDict;
+
     Xoroshiro128Random rng;
 };
 
@@ -302,6 +312,9 @@ public:
     virtual ~AZPSA() {}
 
     virtual void LocalImproving();
+
+protected:
+    double temperature;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -322,5 +335,65 @@ public:
     virtual ~AZPTabu() {}
 
     virtual void LocalImproving();
+
+    // Select neighboring solutions.
+    void allCandidates();
+
+    // constructs a dictionary with the objective function per region
+    std::map<int, double> makeObjDict();
+
+    // Add a new value to the tabu list.
+    std::vector<std::pair<int, int> > updateTabuList(int area, int region, std::vector<std::pair<int, int> >& aList,
+                   int endInd);
+
+    std::pair<int, int> find_notabu_move(const std::map<std::pair<int, int>, double>& s1,
+                                         const std::vector<std::pair<int, int> >& s2)
+    {
+        std::pair<int, int> move(-1, -1);
+        double minval;
+        int cnt = 0;
+        std::map<std::pair<int, int>, double> s = s1;
+        for (int i=0; i < s2.size(); ++i) {
+            s.erase(s2[i]);
+        }
+        std::map<std::pair<int, int>, double>::iterator it;
+        for (it = s.begin(); it != s.end(); ++it) {
+            if (cnt == 0 || it->second < minval) {
+                minval = it->second;
+                move = it->first;
+            }
+            cnt += 1;
+        }
+        return move;
+    }
+
+    std::pair<int, int> find_tabu_move(const std::map<std::pair<int, int>, double>& s1,
+                                  const std::vector<std::pair<int, int> >& s2)
+    {
+        std::pair<int, int> move(-1, -1);
+        double minval;
+        int cnt = 0;
+        std::map<std::pair<int, int>, double> s = s1;
+        for (int i=0; i < s2.size(); ++i) {
+            if (s.find(s2[i]) != s.end()) {
+                if (cnt == 0 || s[s2[i]] < minval) {
+                    minval = s[s2[i]];
+                    move = s2[i];
+                }
+                cnt += 1;
+            }
+        }
+        return move;
+    }
+protected:
+    int tabuLength; //5
+
+    int convTabu; // 5:  230*numpy.sqrt(pRegions)
+
+    std::map<std::pair<int, int>, double> neighSolutions;
+
+    std::vector<int> regions;
+
+
 };
 #endif

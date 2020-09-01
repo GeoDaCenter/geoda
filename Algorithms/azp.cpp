@@ -92,7 +92,7 @@ double AreaManager::returnDistance2Area(int i, int j)
     return dist_matrix->getDistance(i, j);
 }
 
-std::vector<double> AreaManager::getDataAverage(const std::vector<int>& areaList)
+std::vector<double> AreaManager::getDataAverage(const std::set<int>& areaList)
 {
     return std::vector<double>();
 }
@@ -427,20 +427,6 @@ void RegionMaker::assignArea(int areaID, int regionID)
     potentialRegions4Area.erase(areaID);
 }
 
-double RegionMaker::getObj()
-{
-    //Return the value of the objective function
-    if (this->objInfo < 0) {
-        this->objInfo = this->calcObj(this->region2Area);
-    }
-    return this->objInfo;
-}
-
-double RegionMaker::calcObj()
-{
-    return calcObj(region2Area);
-}
-
 std::vector<int> RegionMaker::returnRegions()
 {
     std::vector<int> results;
@@ -452,13 +438,62 @@ std::vector<int> RegionMaker::returnRegions()
     return results;
 }
 
-double RegionMaker::calcObj(std::map<int, std::set<int> >& region2AreaDict)
+
+double RegionMaker::getObj()
+{
+    //Return the value of the objective function
+    if (this->objInfo < 0) {
+        this->calcObj();
+    }
+    return this->objInfo;
+}
+
+void RegionMaker::calcObj()
+{
+    // Calculate the value of the objective function,
+    this->objInfo = this->getObjective(this->region2Area);
+}
+
+double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict)
+{
+    // Re-calculate the value of the objective function
+    // could use memory cached results
+    double obj = 0.0;
+    if (objDict.empty()) {
+        obj = this->getObjective(region2AreaDict);
+
+    } else {
+        //obj = this->getObjectiveFast(region2AreaDict);
+        obj = 0.0;
+        std::map<int, std::set<int> >::iterator it;
+        for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
+            int region = it->first;
+            obj += objDict[region];
+        }
+    }
+    return obj;
+}
+
+double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, std::pair<int, int>& modifiedRegions)
+{
+    // Re-calculate the value of the objective function
+    double obj;
+    if (objDict.empty()) {
+        obj = this->getObjective(region2AreaDict);
+    } else {
+        obj = this->getObjectiveFast(region2AreaDict, modifiedRegions);
+    }
+    return obj;
+}
+
+double RegionMaker::getObjective(std::map<int, std::set<int> >& region2AreaDict)
 {
     // Calculate the value of the objective function
     // self.objInfo = self.getObjective(self.region2Area)
     // Return the value of the objective function from regions to area dictionary
     // Sum of squares from each area to the region's centroid
-    std::map<int, double> objDist;
+    //std::map<int, double> objDist;
+    objDict.clear(); // clean cache since recalcuation
 
     std::map<int, std::set<int> >::iterator it;
     std::set<int>::iterator sit;
@@ -481,11 +516,11 @@ double RegionMaker::calcObj(std::map<int, std::set<int> >& region2AreaDict)
         }
 
         // distance from area in this region to centroid
-        objDist[region]  = 0.0;
+        objDict[region]  = 0.0;
         for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
             int idx = *sit;
             double dist = DataUtils::EuclideanDistance(data[idx], dataAvg, m, NULL);
-            objDist[region] += dist;
+            objDict[region] += dist;
         }
 
         delete[] dataAvg;
@@ -493,10 +528,53 @@ double RegionMaker::calcObj(std::map<int, std::set<int> >& region2AreaDict)
 
     double ss = 0;
     std::map<int, double>::iterator mid;
-    for (mid = objDist.begin(); mid != objDist.end(); ++mid) {
+    for (mid = objDict.begin(); mid != objDict.end(); ++mid) {
         ss += mid->second;
     }
     return ss;
+}
+
+
+double RegionMaker::getObjectiveFast(std::map<int, std::set<int> >& region2AreaDict,
+                                     std::pair<int, int>& modifiedRegions)
+{
+    //Return the value of the objective function from regions to area dictionary
+    double obj = 0.0;
+    std::map<int, std::set<int> >::iterator it;
+    std::set<int>::iterator sit;
+
+    for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
+        int region = it->first;
+        if (region == modifiedRegions.first || region == modifiedRegions.second) {
+            double valRegion = 0.0;
+            const std::set<int>& areasIdsIn = region2AreaDict[region];
+            // compute centroid of this set of areas
+            double* dataAvg = new double[m];
+
+            for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+                int idx = *sit;
+                for (int j=0; j<m; ++j) {
+                    dataAvg[j] += data[idx][j];
+                }
+            }
+            double n_areas = (double)areasIdsIn.size();
+            for (int j=0; j<m; ++j) {
+                dataAvg[j] /= n_areas;
+            }
+
+            // distance from area in this region to centroid
+            for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+                int idx = *sit;
+                double dist = DataUtils::EuclideanDistance(data[idx], dataAvg, m, NULL);
+                valRegion += dist;
+            }
+            obj += valRegion;
+        } else {
+            obj += objDict[region];
+        }
+    }
+
+    return obj;
 }
 
 void RegionMaker::getIntraBorderingAreas()
@@ -685,7 +763,7 @@ void RegionMaker::moveArea(int areaID, int regionID)
             intraBorderingAreas[area] = borderRegions;
         }
     }
-    this->objInfo = this->calcObj(region2Area);
+    this->calcObj();
 }
 
 void AZP::LocalImproving()
@@ -699,7 +777,7 @@ void AZP::LocalImproving()
         std::vector<int> regions(p);
         for (int i=0; i<p; ++i) regions[i] = i;
         
-        while (regions.empty() == false) {
+        while (regions.size() > 0) {
             // step 3
             int randomRegion = 0;
             if (regions.size() > 1) {
@@ -716,7 +794,7 @@ void AZP::LocalImproving()
             std::set<int> borderingAreas = this->intersects(ba, aa);
 
             improve = 0;
-            while (borderingAreas.empty() == false) {
+            while (borderingAreas.size() > 0) {
                 // step 5
                 int randomArea = rng.nextInt((int)borderingAreas.size());
                 it = borderingAreas.begin();
@@ -734,7 +812,7 @@ void AZP::LocalImproving()
                     for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
                         int move = *it;
                         this->swapArea(area, move, region2Area, area2Region);
-                        double obj = this->calcObj(region2Area);
+                        double obj = this->recalcObj(region2Area);
                         this->swapArea(area, region, region2Area, area2Region);
                         if (obj <= this->objInfo) {
                             this->moveArea(area, move);
@@ -753,10 +831,260 @@ void AZP::LocalImproving()
 
 void AZPSA::LocalImproving()
 {
+    // Openshaw's Simulated Annealing for AZP algorithm
+    int totalMoves = 0;
+    int acceptedMoves = 0;
+    double bestOBJ = this->objInfo;
+    double currentOBJ = this->objInfo;
+    std::vector<int> bestRegions = this->returnRegions();
+    std::vector<int> currentRegions = this->returnRegions();
+    std::map<int, std::set<int> > region2AreaBest = this->region2Area;
+    std::map<int, int> area2RegionBest = this->area2Region;
+    std::set<int>::iterator it;
+    int improve = 1;
+    while (improve == 1) {
+        std::vector<int> regions(p);
+        for (int i=0; i<p; ++i) regions[i] = i;
 
+        while (regions.size() > 0) {
+            // step 3
+            int randomRegion = 0;
+            if (regions.size() > 1) {
+                randomRegion = rng.nextInt((int)regions.size());
+            }
+            int region = regions[randomRegion];
+            regions.erase(std::find(regions.begin(), regions.end(), region));
+
+            // step 4
+            const std::set<int>& ba = this->returnBorderingAreas(region);
+            const std::set<int>& aa = this->returnRegion2Area(region);
+            std::set<int> borderingAreas = this->intersects(ba, aa);
+
+            improve = 0;
+            while (borderingAreas.size() > 0) {
+                // step 5
+                int randomArea = rng.nextInt((int)borderingAreas.size());
+                it = borderingAreas.begin();
+                std::advance(it, randomArea);
+                int area = *it;
+                borderingAreas.erase(area);
+                std::set<int> posibleMove = intraBorderingAreas[area];
+
+                int f = 0;
+                if (this->region2Area[region].size() >= 2)  {
+                    f = this->checkFeasibility(region, area, region2Area);
+                }
+                if (f == 1) {
+                    for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
+                        int move = *it;
+                        this->swapArea(area, move, region2Area, area2Region);
+                        double obj = this->recalcObj(region2Area);
+                        this->swapArea(area, region, region2Area, area2Region);
+                        if (obj <= bestOBJ) {
+                            this->moveArea(area, move);
+                            improve = 1;
+                            this->objInfo = obj;
+                            bestOBJ = obj;
+                            bestRegions = this->returnRegions();
+                            currentRegions = this->returnRegions();
+                            region2AreaBest = this->region2Area;
+                            area2RegionBest = this->area2Region;
+
+                            // std::cout << "--- Local improvement (area, region)" << area << "," << move << std::endl;
+                            // std::cout << "--- New Objective Function value: " << obj << std::endl;
+                            // step 4
+
+                            borderingAreas = intersects(returnBorderingAreas(region),
+                                                        returnRegion2Area(region));
+                            break;
+                        } else {
+                            double random = rng.nextDouble();
+                            totalMoves += 1;
+                            double sa = std::exp(-(obj - currentOBJ) / (currentOBJ * temperature));
+                            if (sa > random) {
+                                acceptedMoves += 1;
+                                this->moveArea(area, move);
+                                this->objInfo = obj;
+                                currentOBJ = obj;
+                                currentRegions = this->returnRegions();
+
+                                // std::cout << "--- NON-Local improvement (area, region)" << area << "," << move << std::endl;
+                                // std::cout << "--- New Objective Function value: " << obj << std::endl;
+                                // step 4
+
+                                borderingAreas = intersects(returnBorderingAreas(region),
+                                                            returnRegion2Area(region));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    this->objInfo = bestOBJ;
+    this->region2Area = region2AreaBest;
+    this->area2Region = area2RegionBest;
 }
 
 void AZPTabu::LocalImproving()
 {
+    // Tabu search algorithm for Openshaws AZP-tabu (1995)
+    double aspireOBJ = this->objInfo;
+    double currentOBJ = this->objInfo;
+    std::vector<int> aspireRegions = this->returnRegions();
+    std::map<int, std::set<int> > region2AreaAspire = this->region2Area;
+    std::map<int, int> area2RegionAspire = this->area2Region;
+    std::vector<int> currentRegions = aspireRegions;
+    std::vector<std::pair<int, int> > tabuList(tabuLength);
 
+    int c = 1;
+    double epsilon = 1e-10;
+
+    std::map<std::pair<int, int>, double>::iterator mit;
+    double minval;
+    std::pair<int, int> move;
+
+    while (c < convTabu) {
+        // std::cout << "regions: ";
+        this->objDict = this->makeObjDict();
+        this->allCandidates();
+        if (this->neighSolutions.size() == 0) {
+            c += convTabu;
+        } else {
+            std::pair<int, int> moveNoTabu;
+            int minFound = 0;
+            std::map<std::pair<int, int>, double> neighSolutionsCopy = neighSolutions;
+            c += 1;
+            move = find_notabu_move(neighSolutionsCopy, tabuList);
+            if (move.first >= 0) {
+                double obj4Move = this->neighSolutions[move];
+                moveNoTabu = move;
+                if (currentOBJ - obj4Move >= epsilon) {
+                    minFound = 1;
+                } else {
+                    move = find_tabu_move(neighSolutionsCopy, tabuList);
+                    if (move.first >= 0) {
+                        double obj4Move = this->neighSolutions[move];
+                        if  (aspireOBJ - obj4Move > epsilon) {
+                            minFound = 1;
+                        }
+                    }
+                }
+            }
+            if (minFound == 1) {
+                int area = move.first;
+                int region = move.second;
+                double obj4Move = this->neighSolutions[move];
+                int oldRegion = this->area2Region[area];
+                this->updateTabuList(area, oldRegion, tabuList, tabuLength);
+                this->moveArea(area, region);
+                this->objInfo = obj4Move;
+                if (aspireOBJ - obj4Move > epsilon) {
+                    aspireOBJ = obj4Move;
+                    aspireRegions = this->returnRegions();
+                    region2AreaAspire = this->region2Area;
+                    area2RegionAspire = this->area2Region;
+                    c = 1;
+                }
+                currentOBJ = obj4Move;
+                currentRegions = this->returnRegions();
+            } else {
+                move = moveNoTabu;
+                int area = move.first;
+                int region = move.second;
+                double obj4Move = this->neighSolutions[move];
+                int oldRegion = this->area2Region[area];
+                this->updateTabuList(area, oldRegion, tabuList, tabuLength);
+                this->moveArea(area, region);
+                this->objInfo = obj4Move;
+                currentOBJ = obj4Move;
+                currentRegions = this->returnRegions();
+            }
+        }
+    }
+    this->objInfo = aspireOBJ;
+    this->regions = aspireRegions;
+    this->region2Area = region2AreaAspire;
+    this->area2Region = area2RegionAspire;
+}
+
+std::vector<std::pair<int, int> > AZPTabu::updateTabuList(int area, int region, std::vector<std::pair<int, int> >& aList, int endInd)
+{
+    // Add a new value to the tabu list.
+    // always added to the front and remove the last one
+    aList.insert(aList.begin(), std::make_pair(area, region));
+    aList.pop_back();
+
+    return aList;
+}
+
+std::map<int, double> AZPTabu::makeObjDict()
+{
+    // constructs a dictionary with the objective function per region
+    std::map<int, double> objDict;
+
+    std::map<int, std::set<int> >::iterator it;
+    std::set<int>::iterator sit;
+
+    for (it = region2Area.begin(); it != region2Area.end(); ++it) {
+        int region = it->first;
+
+        const std::set<int>& areasIdsIn = region2Area[region];
+        // compute centroid of this set of areas
+        double* dataAvg = new double[m];
+
+        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+            int idx = *sit;
+            for (int j=0; j<m; ++j) {
+                dataAvg[j] += data[idx][j];
+            }
+        }
+        double n_areas = (double)areasIdsIn.size();
+        for (int j=0; j<m; ++j) {
+            dataAvg[j] /= n_areas;
+        }
+
+        // distance from area in this region to centroid
+        objDict[region]  = 0.0;
+        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
+            int idx = *sit;
+            double dist = DataUtils::EuclideanDistance(data[idx], dataAvg, m, NULL);
+            objDict[region] += dist;
+        }
+
+        delete[] dataAvg;
+    }
+    return objDict;
+}
+
+void AZPTabu::allCandidates()
+{
+    // Select neighboring solutions.
+    std::map<int, std::set<int> > intraCopy = intraBorderingAreas;
+    std::map<int, std::set<int> > region2AreaCopy = region2Area;
+    std::map<int, int> area2RegionCopy = area2Region;
+
+    neighSolutions.clear();
+    std::set<int>::iterator rit;
+    std::map<int, std::set<int> >::iterator it;
+
+    for (it = intraCopy.begin(); it!= intraCopy.end(); ++it) {
+        int area = it->first;
+        int regionIn = this->area2Region[area];
+        std::set<int> regions4Move = this->intraBorderingAreas[area];
+        if (this->region2Area[regionIn].size() > 1) {
+            for (rit = regions4Move.begin(); rit != regions4Move.end(); ++rit) {
+                int region = *rit;
+                int f = this->checkFeasibility(regionIn, area, this->region2Area);
+                if (f == 1) {
+                    this->swapArea(area, region, region2AreaCopy, area2RegionCopy);
+                    std::pair<int, int> modifiedRegions = std::make_pair(region, regionIn);
+                    double obj = this->recalcObj(region2AreaCopy, modifiedRegions);
+                    this->neighSolutions[modifiedRegions] = obj;
+                    this->swapArea(area, regionIn, region2AreaCopy, area2RegionCopy);
+                }
+            }
+        }
+    }
 }
