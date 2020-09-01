@@ -82,7 +82,7 @@ void AZPDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Maximum # of regions:"));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -379,7 +379,7 @@ wxString AZPDlg::_printConfiguration()
 
     //txt << _("# iterations:\t") << m_iterations->GetValue() << "\n";
 
-    txt << _("Region size:\t") << txt_minregions->GetValue() << "\n";
+    txt << _("Number of Clusters:\t") << txt_minregions->GetValue() << "\n";
 
     int local_search_method = m_localsearch->GetSelection();
     if (local_search_method == 0) {
