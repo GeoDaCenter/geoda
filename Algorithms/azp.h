@@ -22,7 +22,9 @@
 #ifndef __GEODA_CENTER_AZP_H__
 #define __GEODA_CENTER_AZP_H__
 
+#include <algorithm>
 #include <vector>
+#include <limits>
 
 //#include <tr1/type_traits>
 
@@ -154,7 +156,11 @@ public:
     std::vector<int> returnRegions();
 
     //
+    void calcObj();
+    
     virtual void LocalImproving() = 0;
+    
+    virtual std::vector<int> GetResults() = 0;
     
 protected:
     // Assign to the region "-1" for the areas without neighbours
@@ -181,9 +187,9 @@ protected:
 
     // Return the value of the objective function
     double getObj();
-    void calcObj();
+    
     // Re-calculate the value of the objective function
-    double recalcObj(std::map<int, std::set<int> >& region2AreaDict);
+    double recalcObj(std::map<int, std::set<int> >& region2AreaDict, bool use_cache=true);
     double recalcObj(std::map<int, std::set<int> >& region2AreaDict,
                      std::pair<int, int>& modifiedRegions);
     // Return the value of the objective function from regions to area dictionary
@@ -279,6 +285,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 class AZP : public RegionMaker
 {
+    std::vector<int> final_solution;
+    
 public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
@@ -286,35 +294,110 @@ public:
         int n, int m)
     : RegionMaker(p,w,data,dist_matrix,n,m)
     {
-
+        //std::vector<int> init_sol = this->returnRegions();
+        this->LocalImproving();
+        this->calcObj();
+        final_solution = this->returnRegions();
     }
 
     virtual ~AZP() {}
 
     virtual void LocalImproving();
+    
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// AZP Simulated Annealing
 ////////////////////////////////////////////////////////////////////////////////
+
+// Keeps the minimum amount of information about a given solution. It keeps the
+// Objective function value (self.objInfo) and the region each area has been assigned to
+// (self.regions)
+class BasicMemory
+{
+public:
+    BasicMemory() {
+        objInfo = std::numeric_limits<double>::max();
+    }
+    virtual ~BasicMemory() {}
+    
+    void updateBasicMemory(double val, const std::vector<int>& rgn) {
+        // Updates BasicMemory when a solution is modified.
+        objInfo = val;
+        regions = rgn;
+    }
+    
+    double objInfo;
+    std::vector<int> regions;
+};
+
 class AZPSA : public RegionMaker
 {
+    std::vector<int> final_solution;
+    
 public:
     AZPSA(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m)
-    : RegionMaker(p,w,data,dist_matrix,n,m)
+        int n, int m, double _alpha = 0.85, int _max_iter= 1)
+    : RegionMaker(p,w,data,dist_matrix,n,m), temperature(1.0), alpha(_alpha), max_iter(_max_iter)
     {
-
+        std::vector<int> init_sol = this->returnRegions();
+        
+        // local search
+        BasicMemory basicMemory, localBasicMemory;
+        
+        // step a
+        double T = temperature;
+        int k = 0;
+        while (k < 3) {
+            int improved = 0;
+            for (int i=0; i<max_iter; ++i) {
+                localBasicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
+                // step b: modified step 5
+                this->LocalImproving();
+                
+                if (this->objInfo < localBasicMemory.objInfo) {
+                    improved = 1;
+                }
+                if (this->objInfo < basicMemory.objInfo) {
+                    // print "Best solution so far: ", rm.returnRegions()
+                    //  print "Best O.F. so far: ", rm.objInfo
+                    basicMemory.updateBasicMemory(this->objInfo, this->returnRegions());
+                }
+            }
+            // step c
+            T *= alpha;
+            if (improved == 1) {
+                k = 0;
+            } else {
+                k += 1;
+            }
+            // step d: repeat b and c
+        }
+        
+        
+        final_solution = basicMemory.regions;
+        //Of = basicMemory.objInfo
     }
 
     virtual ~AZPSA() {}
 
     virtual void LocalImproving();
+    
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
 
 protected:
     double temperature;
+    
+    double alpha;
+    
+    int max_iter;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -322,20 +405,35 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 class AZPTabu : public RegionMaker
 {
+    std::vector<int> final_solution;
+    
 public:
     AZPTabu(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m)
-    : RegionMaker(p,w,data,dist_matrix,n,m)
+        int n, int m, int tabu_length=10, int _convTabu=0)
+    : RegionMaker(p,w,data,dist_matrix,n,m), tabuLength(tabu_length), convTabu(_convTabu)
     {
-
+        if (tabuLength <= 0) {
+            tabuLength = 10;
+        }
+        if (convTabu <= 0) {
+            convTabu = 10;
+        }
+        //std::vector<int> init_sol = this->returnRegions();
+        this->LocalImproving();
+        this->calcObj();
+        final_solution = this->returnRegions();
     }
 
     virtual ~AZPTabu() {}
 
     virtual void LocalImproving();
 
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
+    
     // Select neighboring solutions.
     void allCandidates();
 

@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <queue>
-#include <limits>
 #include <iterator>
 
 #include "DataUtils.h"
@@ -454,12 +453,12 @@ void RegionMaker::calcObj()
     this->objInfo = this->getObjective(this->region2Area);
 }
 
-double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict)
+double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, bool use_cache)
 {
     // Re-calculate the value of the objective function
     // could use memory cached results
     double obj = 0.0;
-    if (objDict.empty()) {
+    if (objDict.empty() || use_cache==false) {
         obj = this->getObjective(region2AreaDict);
 
     } else {
@@ -812,7 +811,7 @@ void AZP::LocalImproving()
                     for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
                         int move = *it;
                         this->swapArea(area, move, region2Area, area2Region);
-                        double obj = this->recalcObj(region2Area);
+                        double obj = this->recalcObj(region2Area, false);
                         this->swapArea(area, region, region2Area, area2Region);
                         if (obj <= this->objInfo) {
                             this->moveArea(area, move);
@@ -841,6 +840,7 @@ void AZPSA::LocalImproving()
     std::map<int, std::set<int> > region2AreaBest = this->region2Area;
     std::map<int, int> area2RegionBest = this->area2Region;
     std::set<int>::iterator it;
+    
     int improve = 1;
     while (improve == 1) {
         std::vector<int> regions(p);
@@ -852,6 +852,7 @@ void AZPSA::LocalImproving()
             if (regions.size() > 1) {
                 randomRegion = rng.nextInt((int)regions.size());
             }
+            //randomRegion = rand_test[rr++];
             int region = regions[randomRegion];
             regions.erase(std::find(regions.begin(), regions.end(), region));
 
@@ -867,6 +868,7 @@ void AZPSA::LocalImproving()
                 it = borderingAreas.begin();
                 std::advance(it, randomArea);
                 int area = *it;
+                //area = rand_test1[rr1++];
                 borderingAreas.erase(area);
                 std::set<int> posibleMove = intraBorderingAreas[area];
 
@@ -878,7 +880,7 @@ void AZPSA::LocalImproving()
                     for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
                         int move = *it;
                         this->swapArea(area, move, region2Area, area2Region);
-                        double obj = this->recalcObj(region2Area);
+                        double obj = this->recalcObj(region2Area, false);
                         this->swapArea(area, region, region2Area, area2Region);
                         if (obj <= bestOBJ) {
                             this->moveArea(area, move);
@@ -936,7 +938,7 @@ void AZPTabu::LocalImproving()
     std::map<int, std::set<int> > region2AreaAspire = this->region2Area;
     std::map<int, int> area2RegionAspire = this->area2Region;
     std::vector<int> currentRegions = aspireRegions;
-    std::vector<std::pair<int, int> > tabuList(tabuLength);
+    std::vector<std::pair<int, int> > tabuList(tabuLength, std::make_pair(-1,-1));
 
     int c = 1;
     double epsilon = 1e-10;
@@ -1081,7 +1083,7 @@ void AZPTabu::allCandidates()
                     this->swapArea(area, region, region2AreaCopy, area2RegionCopy);
                     std::pair<int, int> modifiedRegions = std::make_pair(region, regionIn);
                     double obj = this->recalcObj(region2AreaCopy, modifiedRegions);
-                    this->neighSolutions[modifiedRegions] = obj;
+                    this->neighSolutions[std::make_pair(area, region)] = obj;
                     this->swapArea(area, regionIn, region2AreaCopy, area2RegionCopy);
                 }
             }
