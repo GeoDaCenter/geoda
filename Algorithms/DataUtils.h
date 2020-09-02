@@ -210,6 +210,18 @@ public:
         return d; // squared
     }
 
+    static double EuclideanDistance(double* x1, const std::vector<double>& x2)
+    {
+        double d =0,tmp=0;
+        size_t size = x2.size();
+
+        for (size_t i =0; i<size; i++ ) {
+            tmp = (x1[i] - x2[i]);
+            d += tmp * tmp;
+        }
+        return d; // squared
+    }
+
     static double EuclideanDistance(double* x1, double* x2, size_t size, double* weight)
     {
         double d =0,tmp=0;
