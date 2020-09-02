@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <vector>
 #include <limits>
+#include <boost/unordered_map.hpp>
 
 //#include <tr1/type_traits>
 
@@ -130,6 +131,8 @@ protected:
     DistMatrix* dist_matrix;
 
     double** data;
+
+    boost::unordered_map<std::set<int>, std::vector<double> > cache_cent;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -192,13 +195,13 @@ protected:
     double getObj();
     
     // Re-calculate the value of the objective function
-    double recalcObj(std::map<int, std::set<int> >& region2AreaDict, bool use_cache=true);
-    double recalcObj(std::map<int, std::set<int> >& region2AreaDict,
+    double recalcObj(boost::unordered_map<int, std::set<int> >& region2AreaDict, bool use_cache=true);
+    double recalcObj(boost::unordered_map<int, std::set<int> >& region2AreaDict,
                      std::pair<int, int>& modifiedRegions);
     // Return the value of the objective function from regions to area dictionary
-    double getObjective(std::map<int, std::set<int> >& region2AreaDict);
+    double getObjective(boost::unordered_map<int, std::set<int> >& region2AreaDict);
     // Return the value of the objective function from regions to area dictionary
-    double getObjectiveFast(std::map<int, std::set<int> >& region2AreaDict,
+    double getObjectiveFast(boost::unordered_map<int, std::set<int> >& region2AreaDict,
                             std::pair<int, int>& modifiedRegions);
 
     // Returns bordering areas of a region
@@ -206,15 +209,12 @@ protected:
     
     // Check feasibility from a change region (remove an area from a region)
     int checkFeasibility(int regionID, int areaID,
-                        std::map<int, std::set<int> > region2AreaDict);
-    
-    // Get neighbors in a set
-    std::set<int> getNeighbors(int areaID);
+                         boost::unordered_map<int, std::set<int> >& region2AreaDict);
     
     // Removed an area from a region and appended it to another one
     void swapArea(int area, int newRegion,
-                  std::map<int, std::set<int> >& region2AreaDict,
-                  std::map<int, int>& area2RegionDict);
+                  boost::unordered_map<int, std::set<int> >& region2AreaDict,
+                  boost::unordered_map<int, int>& area2RegionDict);
     
     // Move an area to a region
     void moveArea(int area, int move);
@@ -246,21 +246,24 @@ protected:
 
     std::vector<int> seeds;
 
-    std::map<int, bool> unassignedAreas;
+    boost::unordered_map<int, bool> unassignedAreas;
 
-    std::map<int, bool> assignedAreas;
+    boost::unordered_map<int, bool> assignedAreas;
     
-    std::map<int, bool> areaNoNeighbor;
+    boost::unordered_map<int, bool> areaNoNeighbor;
 
-    std::map<int, int> area2Region;
+    boost::unordered_map<int, int> area2Region;
 
-    std::map<int, std::set<int> > region2Area;
+    boost::unordered_map<int, std::set<int> > region2Area;
 
-    std::map<int, std::set<int> > potentialRegions4Area;
+    // area that could be assigned to which regions
+    boost::unordered_map<int, std::set<int> > potentialRegions4Area;
 
-    std::map<int, std::set<int> > intraBorderingAreas;
+    // area on border, could belongs to which regions
+    boost::unordered_map<int, std::set<int> > intraBorderingAreas;
 
-    std::map<std::pair<int, int>, double> candidateInfo;
+    // area --(assign to)--region : distance
+    boost::unordered_map<std::pair<int, int>, double> candidateInfo;
 
     // mark which region has just been changed
     int changedRegion;
@@ -268,17 +271,19 @@ protected:
     // mark which area has just been added
     int addedArea;
 
-    std::map<int, bool> externalNeighs;
+    boost::unordered_map<int, bool> externalNeighs;
 
-    std::map<int, bool> oldExternal;
+    boost::unordered_map<int, bool> oldExternal;
 
-    std::map<int, bool> newExternal;
+    boost::unordered_map<int, bool> newExternal;
 
     // object function value
     double objInfo;
 
     // cache object value
-    std::map<int, double> objDict;
+    boost::unordered_map<int, double> objDict;
+
+    std::vector<std::set<int> > nbrSet;
 
     Xoroshiro128Random rng;
 };
@@ -434,7 +439,7 @@ class AZPTabu : public RegionMaker
     std::vector<int> final_solution;
     double initial_objectivefunction;
     double final_objectivefunction;
-    
+
 public:
     AZPTabu(int p, GalElement* const w,
         double** data, // row-wise
@@ -478,23 +483,23 @@ public:
     void allCandidates();
 
     // constructs a dictionary with the objective function per region
-    std::map<int, double> makeObjDict();
+    boost::unordered_map<int, double> makeObjDict();
 
     // Add a new value to the tabu list.
     std::vector<std::pair<int, int> > updateTabuList(int area, int region, std::vector<std::pair<int, int> >& aList,
                    int endInd);
 
-    std::pair<int, int> find_notabu_move(const std::map<std::pair<int, int>, double>& s1,
+    std::pair<int, int> find_notabu_move(const boost::unordered_map<std::pair<int, int>, double>& s1,
                                          const std::vector<std::pair<int, int> >& s2)
     {
         std::pair<int, int> move(-1, -1);
         double minval;
         int cnt = 0;
-        std::map<std::pair<int, int>, double> s = s1;
+        boost::unordered_map<std::pair<int, int>, double> s = s1;
         for (int i=0; i < s2.size(); ++i) {
             s.erase(s2[i]);
         }
-        std::map<std::pair<int, int>, double>::iterator it;
+        boost::unordered_map<std::pair<int, int>, double>::iterator it;
         for (it = s.begin(); it != s.end(); ++it) {
             if (cnt == 0 || it->second < minval) {
                 minval = it->second;
@@ -505,13 +510,13 @@ public:
         return move;
     }
 
-    std::pair<int, int> find_tabu_move(const std::map<std::pair<int, int>, double>& s1,
+    std::pair<int, int> find_tabu_move(const boost::unordered_map<std::pair<int, int>, double>& s1,
                                   const std::vector<std::pair<int, int> >& s2)
     {
         std::pair<int, int> move(-1, -1);
         double minval;
         int cnt = 0;
-        std::map<std::pair<int, int>, double> s = s1;
+        boost::unordered_map<std::pair<int, int>, double> s = s1;
         for (int i=0; i < s2.size(); ++i) {
             if (s.find(s2[i]) != s.end()) {
                 if (cnt == 0 || s[s2[i]] < minval) {
@@ -528,7 +533,7 @@ protected:
 
     int convTabu; // 5:  230*numpy.sqrt(pRegions)
 
-    std::map<std::pair<int, int>, double> neighSolutions;
+    boost::unordered_map<std::pair<int, int>, double> neighSolutions;
 
     std::vector<int> regions;
 

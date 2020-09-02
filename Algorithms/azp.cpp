@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <queue>
 #include <iterator>
+#include <stack>
 
 #include "DataUtils.h"
 #include "azp.h"
@@ -98,22 +99,32 @@ std::vector<double> AreaManager::getDataAverage(const std::set<int>& areaList)
 
 double AreaManager::getDistance2Region(int area, const std::set<int>& areaList)
 {
-    // get centroid from a areaList (region)
-    double* centroidRegion = new double[m];
-    std::set<int>::iterator it;
-    for (it = areaList.begin(); it != areaList.end(); ++it) {
-        int area_id = *it;
-        for (int j=0; j<m; ++j) {
-            centroidRegion[j] += data[area_id][j];
-        }
-    }
-    for (int j=0; j<m; ++j) {
-        centroidRegion[j] /= (double)areaList.size();
-    }
-    // get distance between area and region
-    double dist = DataUtils::EuclideanDistance(data[area], centroidRegion, m, NULL);
+    std::vector<double> d(m,0);
+    for (int i=0; i<m; ++i) d[i] = data[area][i];
+    double dist;
 
-    delete[] centroidRegion;
+    // get centroid from a areaList (region)
+    if (cache_cent.find(areaList) != cache_cent.end()) {
+        dist = DataUtils::EuclideanDistance(d, cache_cent[areaList]);
+    } else {
+        std::vector<double> centroidRegion(m, 0);
+        std::set<int>::iterator it;
+        for (it = areaList.begin(); it != areaList.end(); ++it) {
+            int area_id = *it;
+            for (int j=0; j<m; ++j) {
+                centroidRegion[j] += data[area_id][j];
+            }
+        }
+        for (int j=0; j<m; ++j) {
+            centroidRegion[j] /= (double)areaList.size();
+        }
+
+        // get distance between area and region
+        dist = DataUtils::EuclideanDistance(d, centroidRegion);
+
+        // cache it
+        cache_cent[areaList] = centroidRegion;
+    }
     return dist;
 }
 
@@ -131,22 +142,35 @@ am(_n, _m, _w, _data, _dist_matrix), objInfo(-1)
     // init unassigned areas
     for (int i=0; i<n; ++i) {
         unassignedAreas[i] = true;
+        std::set<int> nbrs;
+        const std::vector<long>& nn = w[i].GetNbrs();
+        for (int i=0; i<nn.size(); ++i)  {
+            nbrs.insert((int)nn[i]);
+        }
+        nbrSet.push_back(nbrs);
     }
     // mark neighborless as
     
     // get p start areas using k-means
     std::vector<int> seeds = this->kmeansInit();
+    // for replicate clusterpy: CA_polygons
+    // calif.cluster('azp', ['PCR2002'], 9, wType='rook', dissolve=1)
     // [31, 38, 37, 28, 20, 29, 17, 50, 55]
     //seeds[0] = 31; seeds[1] = 38; seeds[2] = 37; seeds[3]=28; seeds[4]=20;
     //seeds[5] = 29; seeds[6] = 17; seeds[7] = 50; seeds[8] = 55;
-    // process all neighbors of p start areas
+
+    // process and assign the neighbors of p starting areas
     this->setSeeds(seeds);
-    // for any other unassigned areas, assign region
+
+    // for any other unassigned areas, assign region? parallel?
     while (unassignedAreas.size() != 0) {
         this->constructRegions();
     }
+
+    // compute objective function
     objInfo = this->getObj();
-    //  Gets the intrabordering areas
+
+    //  Gets the intrabordering areas for local improvement later
     this->getIntraBorderingAreas();
 }
 
@@ -177,7 +201,7 @@ std::vector<int> RegionMaker::kmeansInit()
     std::vector<int> seeds;
     for (int i=0; i < p; ++i) {
         double random = rng.nextDouble();
-        std::cout << random << std::endl;
+        //std::cout << random << std::endl;
         bool find = false;
         double acum = 0;
         int cont = 0;
@@ -280,7 +304,7 @@ void RegionMaker::assignSeeds(int areaID, int regionID)
     //self.newExternal = self.potentialRegions4Area.keys()
     this->changedRegion = -1;
     this->newExternal.clear();
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
     for (it = potentialRegions4Area.begin(); it != potentialRegions4Area.end(); ++it) {
         this->newExternal[it->first] = true;
     }
@@ -288,7 +312,6 @@ void RegionMaker::assignSeeds(int areaID, int regionID)
 
 void RegionMaker::assignAreaStep1(int areaID, int regionID)
 {
-    //std::cout << "region:" << regionID <<" area:" << areaID << std::endl;
     //  Assgin an area to a region
     region2Area[regionID].insert(areaID);
 
@@ -301,18 +324,22 @@ void RegionMaker::assignAreaStep1(int areaID, int regionID)
     // add areaID to assignedAreas
     assignedAreas[areaID] = true;
 
-    //self.oldExternal = self.externalNeighs;
+    // update current externalNeighs by adding neighbors of current area
+    // remove any assigned area (to a region) from externalNeighs
     this->oldExternal = this->externalNeighs;
+
     //self.externalNeighs = (self.externalNeighs | setNeighs) - setAssigned
     std::vector<long> neighs = this->w[areaID].GetNbrs();
     for (int i=0; i< neighs.size(); ++i) {
         int nn = (int)neighs[i];
         this->externalNeighs[nn] = true;
     }
-    std::map<int, bool>::iterator it;
+    boost::unordered_map<int, bool>::iterator it;
     for (it = assignedAreas.begin(); it != assignedAreas.end(); ++it){
         this->externalNeighs.erase(it->first);
     }
+
+    // mark which are new ones in externalNeighs
     //self.newExternal = self.externalNeighs - self.oldExternal
     this->newExternal = this->externalNeighs;
     for (it = oldExternal.begin(); it != oldExternal.end(); ++it) {
@@ -324,30 +351,35 @@ void RegionMaker::constructRegions()
 {
     // Construct potential regions per area (not assigned)
     int lastRegion = 0;
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
     std::set<int>::iterator rit, ait;
 
     // Process the most feasible area that has shortest distance to a region
-    
+
     for (it=potentialRegions4Area.begin(); it != potentialRegions4Area.end(); ++it) {
         int areaID = it->first;
         std::set<int> regionIDs = it->second;
-        // compute distance from areaID to different regions
-        for (rit = regionIDs.begin(); rit != regionIDs.end(); ++rit) {
-            int region = *rit;
-            if (newExternal.find(areaID) == newExternal.end() && region != changedRegion) {
-                // there is no need to recompute the distance since there is
-                // no change in the region
-                lastRegion = region;
-            } else {
-                std::pair<int, int> a_r = std::make_pair(areaID, region);
-                //if (candidateInfo.find(a_r) == candidateInfo.end()) {
-                std::set<int>& areasIdsIn = region2Area[region];
-                double regionDistance = am.getDistance2Region(areaID, areasIdsIn);
-                // (areaID, region): distance
-                this->candidateInfo[a_r] = regionDistance;
+        //if (regionIDs.size() == 1) {
+            // there is no need to compute distance since its only one option(region)
+        //    int region = *regionIDs.begin();
+        //    candidateInfo[std::make_pair(areaID, region)] = 0;
+        //} else {
+            // compute distance from areaID to different regions
+            for (rit = regionIDs.begin(); rit != regionIDs.end(); ++rit) {
+                int region = *rit;
+                if (region != changedRegion && newExternal.find(areaID) == newExternal.end()) {
+                    // there is no need to recompute the distance since there is
+                    // no change in the region
+                    lastRegion = region;
+                } else {
+                    std::pair<int, int> a_r = std::make_pair(areaID, region);
+                    std::set<int>& areasIdsIn = region2Area[region];
+                    double regionDistance = am.getDistance2Region(areaID, areasIdsIn);
+                    // (areaID, region): distance
+                    candidateInfo[a_r] = regionDistance;
+                }
             }
-        }
+        //}
     }
 
     if (candidateInfo.empty())  {
@@ -361,7 +393,7 @@ void RegionMaker::constructRegions()
         // random select from cands
 
         std::vector<std::pair<int, int> > cands;
-        std::map<std::pair<int, int>, double>::iterator cit;
+        boost::unordered_map<std::pair<int, int>, double>::iterator cit;
         
         // get min dist
         double min_region_distance = std::numeric_limits<double>::max();
@@ -376,15 +408,12 @@ void RegionMaker::constructRegions()
                 cands.push_back(cit->first);
             }
         }
-        // random select from pairs
+
+        // if random select candidate from pairs is needed
         int rnd_sel = cands.size() == 1? 0 : rng.nextInt((int)cands.size());
-        std::pair<int, int> sel_area_region = cands[rnd_sel];
+        std::pair<int, int>& sel_area_region = cands[rnd_sel];
         int aid = sel_area_region.first;
         int rid = sel_area_region.second;
-        
-        // assign area to a region, and process area's neighbor in
-        // potentialRegions4Area
-        //this->assignArea(aid, rid);
 
         // remove from candidateInfo with areaID=aid
         std::vector<std::pair<int, int> > removed_cands;
@@ -404,7 +433,7 @@ void RegionMaker::constructRegions()
 
 void RegionMaker::assignArea(int areaID, int regionID)
 {
-    //Assign an area to a region and updates potential regions for neighs
+    //Assign an area to a region and updates potential regions for its neighs
 
     this->changedRegion = regionID; // mark this region has been changed
     this->addedArea = areaID;
@@ -413,7 +442,7 @@ void RegionMaker::assignArea(int areaID, int regionID)
 
     //for neigh in self.neighsMinusAssigned:
     // assign regionID as a potential region for neigh
-    std::vector<long> neighs = this->w[areaID].GetNbrs();
+    const std::vector<long>& neighs = this->w[areaID].GetNbrs();
     for (int i=0; i< neighs.size(); ++i) {
         int nn = (int)neighs[i];
         if (assignedAreas.find(nn) == assignedAreas.end()) {
@@ -428,11 +457,15 @@ void RegionMaker::assignArea(int areaID, int regionID)
 
 std::vector<int> RegionMaker::returnRegions()
 {
-    std::vector<int> results;
-    std::map<int, int>::iterator it;
+    std::vector<int> areasId, results;
+    boost::unordered_map<int, int>::iterator it;
     // area2Region is already sorted by key
     for (it = area2Region.begin(); it != area2Region.end(); ++it) {
-        results.push_back( it->second );
+        areasId.push_back( it->first );
+    }
+    std::sort(areasId.begin(), areasId.end());
+    for (int i=0; i<areasId.size(); ++i) {
+        results.push_back( area2Region[areasId[i] ]);
     }
     return results;
 }
@@ -453,7 +486,7 @@ void RegionMaker::calcObj()
     this->objInfo = this->getObjective(this->region2Area);
 }
 
-double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, bool use_cache)
+double RegionMaker::recalcObj(boost::unordered_map<int, std::set<int> >& region2AreaDict, bool use_cache)
 {
     // Re-calculate the value of the objective function
     // could use memory cached results
@@ -464,7 +497,7 @@ double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, bo
     } else {
         //obj = this->getObjectiveFast(region2AreaDict);
         obj = 0.0;
-        std::map<int, std::set<int> >::iterator it;
+        boost::unordered_map<int, std::set<int> >::iterator it;
         for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
             int region = it->first;
             obj += objDict[region];
@@ -473,7 +506,7 @@ double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, bo
     return obj;
 }
 
-double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, std::pair<int, int>& modifiedRegions)
+double RegionMaker::recalcObj(boost::unordered_map<int, std::set<int> >& region2AreaDict, std::pair<int, int>& modifiedRegions)
 {
     // Re-calculate the value of the objective function
     double obj;
@@ -485,16 +518,16 @@ double RegionMaker::recalcObj(std::map<int, std::set<int> >& region2AreaDict, st
     return obj;
 }
 
-double RegionMaker::getObjective(std::map<int, std::set<int> >& region2AreaDict)
+double RegionMaker::getObjective(boost::unordered_map<int, std::set<int> >& region2AreaDict)
 {
     // Calculate the value of the objective function
     // self.objInfo = self.getObjective(self.region2Area)
     // Return the value of the objective function from regions to area dictionary
     // Sum of squares from each area to the region's centroid
-    //std::map<int, double> objDist;
+    //boost::unordered_map<int, double> objDist;
     objDict.clear(); // clean cache since recalcuation
 
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
     std::set<int>::iterator sit;
 
     for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
@@ -526,7 +559,7 @@ double RegionMaker::getObjective(std::map<int, std::set<int> >& region2AreaDict)
     }
 
     double ss = 0;
-    std::map<int, double>::iterator mid;
+    boost::unordered_map<int, double>::iterator mid;
     for (mid = objDict.begin(); mid != objDict.end(); ++mid) {
         ss += mid->second;
     }
@@ -534,12 +567,12 @@ double RegionMaker::getObjective(std::map<int, std::set<int> >& region2AreaDict)
 }
 
 
-double RegionMaker::getObjectiveFast(std::map<int, std::set<int> >& region2AreaDict,
+double RegionMaker::getObjectiveFast(boost::unordered_map<int, std::set<int> >& region2AreaDict,
                                      std::pair<int, int>& modifiedRegions)
 {
     //Return the value of the objective function from regions to area dictionary
     double obj = 0.0;
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
     std::set<int>::iterator sit;
 
     for (it = region2AreaDict.begin(); it != region2AreaDict.end(); ++it) {
@@ -580,9 +613,10 @@ void RegionMaker::getIntraBorderingAreas()
 {
     std::set<int>::iterator it;
     for (int rid=0; rid<p; ++rid) {
+        // for each region, get all areas
         const std::set<int>& areas2Evl = this->region2Area[rid];
-        // get neighbors of areas2Eval
-        std::map<int, bool> neighsNoRegion;
+        // then get all neighbors of areas2Eval
+        boost::unordered_map<int, bool> neighsNoRegion;
         for (it = areas2Evl.begin(); it !=areas2Evl.end(); ++it) {
             int area = *it;
             const std::vector<long>& nn = w[area].GetNbrs();
@@ -590,13 +624,13 @@ void RegionMaker::getIntraBorderingAreas()
                 neighsNoRegion[nn[j]] = true;
             }
         }
-        // remove areas in region
+        // remove(mark) areas already in region
         for (it = areas2Evl.begin(); it !=areas2Evl.end(); ++it) {
             int area = *it;
             neighsNoRegion[area] = false;
         }
         // save
-        std::map<int, bool>::iterator mit;
+        boost::unordered_map<int, bool>::iterator mit;
         for (mit = neighsNoRegion.begin(); mit != neighsNoRegion.end(); ++mit) {
             int neigh = mit->first;
             if (mit->second == true) {
@@ -613,6 +647,7 @@ std::set<int> RegionMaker::returnRegion2Area(int regionID)
 
 std::set<int> RegionMaker::returnBorderingAreas(int regionID)
 {
+    // slow
     std::set<int> areas2Eval = this->returnRegion2Area(regionID);
     std::set<int> borderingAreas;
     std::set<int>::iterator it;
@@ -624,17 +659,6 @@ std::set<int> RegionMaker::returnBorderingAreas(int regionID)
         }
     }
     return borderingAreas;
-}
-
-
-std::set<int> RegionMaker::getNeighbors(int areaID)
-{
-    std::set<int> nbrs;
-    const std::vector<long>& nn = w[areaID].GetNbrs();
-    for (int i=0; i<nn.size(); ++i)  {
-        nbrs.insert((int)nn[i]);
-    }
-    return nbrs;
 }
 
 std::set<int> RegionMaker::unions(const std::set<int>& s1, const std::set<int>& s2)
@@ -668,18 +692,41 @@ std::set<int> RegionMaker::removes(const std::set<int>& s1, const std::set<int>&
     return s_res;
 }
 
-int RegionMaker::checkFeasibility(int regionID, int areaID, std::map<int, std::set<int> > region2AreaDict)
+int RegionMaker::checkFeasibility(int regionID, int areaID,
+                                  boost::unordered_map<int, std::set<int> >& region2AreaDict)
 {
-    int feasible = 0;
-    
     // Check feasibility from a change region (remove an area from a region)
     std::set<int> areas2Eval = region2AreaDict[regionID];
     areas2Eval.erase(areaID);
+
+    // remove the area first
     int seedArea = *areas2Eval.begin();
+    // then, start from 1st object, do BFS
+    std::stack<int> processed_ids;
+    processed_ids.push(seedArea);
+    while (processed_ids.empty() == false) {
+        int fid = processed_ids.top();
+        processed_ids.pop();
+        areas2Eval.erase(fid); // remove area from current group as processed
+        const std::vector<long>& nbrs = w[fid].GetNbrs();
+        for (int i=0; i<nbrs.size(); i++ ) {
+            int nid = nbrs[i];
+            if (areas2Eval.find(nid) != areas2Eval.end()) {
+                // only processed the neighbor in current group
+                processed_ids.push(nid);
+            }
+        }
+    }
+    // all should be removed if all connected
+    return areas2Eval.empty();
+    /*
+    int feasible = 0;
+
+
     // newRegion = (set([seedArea]) | set(self.areas[seedArea].neighs)) & set(areas2Eval)
     std::set<int> seedAndNeighs, newRegion, newAdded, newNeighs;
     
-    seedAndNeighs = this->getNeighbors(seedArea);
+    seedAndNeighs = this->nbrSet[seedArea];
     seedAndNeighs.insert(seedArea);
     
     newRegion = intersects(seedAndNeighs, areas2Eval);
@@ -695,7 +742,7 @@ int RegionMaker::checkFeasibility(int regionID, int areaID, std::map<int, std::s
         for (it = newAdded.begin(); it != newAdded.end(); ++it) {
             int area = *it;
             // newNeighs = newNeighs | (((set(self.areas[area].neighs) &set(region2AreaDict[regionID])) - set([areaID])) - newRegion)
-            std::set<int> ar = intersects(getNeighbors(area), region2AreaDict[regionID]);
+            std::set<int> ar = intersects(nbrSet[area], region2AreaDict[regionID]);
             ar.erase(areaID);
             ar = removes(ar, newRegion);
             newNeighs = unions(newNeighs, ar);
@@ -715,9 +762,10 @@ int RegionMaker::checkFeasibility(int regionID, int areaID, std::map<int, std::s
         }
     }
     return feasible;
+     */
 }
 
-void RegionMaker::swapArea(int area, int newRegion, std::map<int, std::set<int> >& region2AreaDict, std::map<int, int>& area2RegionDict)
+void RegionMaker::swapArea(int area, int newRegion, boost::unordered_map<int, std::set<int> >& region2AreaDict, boost::unordered_map<int, int>& area2RegionDict)
 {
     // Removed an area from a region and appended it to another one
     int oldRegion = area2RegionDict[area];
@@ -735,15 +783,17 @@ void RegionMaker::moveArea(int areaID, int regionID)
     this->region2Area[oldRegion].erase(areaID);
     this->region2Area[regionID].insert(areaID);
     this->area2Region[areaID] = regionID;
-    std::set<int> toUpdate = this->getNeighbors(areaID);
+
+    // update intraBorderingAreas: slow
+    std::set<int> toUpdate = this->nbrSet[areaID];
     toUpdate.insert(areaID);
     
     std::set<int>::iterator it;
     for (it = toUpdate.begin(); it != toUpdate.end(); ++it) {
         int area = *it;
         int regionIn = this->area2Region[area];
-        std::set<int> areasIdsIn = this->region2Area[regionIn];
-        std::set<int> aNeighs = this->getNeighbors(area);
+        const std::set<int>& areasIdsIn = this->region2Area[regionIn];
+        const std::set<int>& aNeighs = this->nbrSet[area];
         std::set<int> neighsInOther = removes(aNeighs, areasIdsIn);
         // if len(neighsInOther) == 0 and area in self.intraBorderingAreas:
         if (neighsInOther.empty() &&
@@ -762,7 +812,7 @@ void RegionMaker::moveArea(int areaID, int regionID)
             intraBorderingAreas[area] = borderRegions;
         }
     }
-    this->calcObj();
+    //this->calcObj();
 }
 
 void AZP::LocalImproving()
@@ -801,7 +851,11 @@ void AZP::LocalImproving()
                 int area = *it;
                 //area = rand_test1[rr1++];
                 borderingAreas.erase(area);
-                std::set<int> posibleMove = intraBorderingAreas[area];
+                const std::set<int>& posibleMove = intraBorderingAreas[area];
+
+                // todo: get possible move: nbrsNotInRegion
+
+                // check obj change before contiguity check
 
                 int f = 0;
                 if (this->region2Area[region].size() >= 2)  {
@@ -815,8 +869,8 @@ void AZP::LocalImproving()
                         this->swapArea(area, region, region2Area, area2Region);
                         if (obj <= this->objInfo) {
                             this->moveArea(area, move);
+                            this->objInfo = obj;
                             improve = 1;
-                            //borderingAreas = list(set(self.returnBorderingAreas(region)) & set(self.returnRegion2Area(region)))
                             borderingAreas = intersects(returnBorderingAreas(region),
                                                         returnRegion2Area(region));
                             break;
@@ -828,6 +882,11 @@ void AZP::LocalImproving()
     }
 }
 
+void getBorderingAreas()
+{
+    // check every area, and return who has neighbors out of the region
+}
+
 void AZPSA::LocalImproving()
 {
     // Openshaw's Simulated Annealing for AZP algorithm
@@ -837,8 +896,8 @@ void AZPSA::LocalImproving()
     double currentOBJ = this->objInfo;
     std::vector<int> bestRegions = this->returnRegions();
     std::vector<int> currentRegions = this->returnRegions();
-    std::map<int, std::set<int> > region2AreaBest = this->region2Area;
-    std::map<int, int> area2RegionBest = this->area2Region;
+    boost::unordered_map<int, std::set<int> > region2AreaBest = this->region2Area;
+    boost::unordered_map<int, int> area2RegionBest = this->area2Region;
     std::set<int>::iterator it;
     
     int improve = 1;
@@ -935,15 +994,15 @@ void AZPTabu::LocalImproving()
     double aspireOBJ = this->objInfo;
     double currentOBJ = this->objInfo;
     std::vector<int> aspireRegions = this->returnRegions();
-    std::map<int, std::set<int> > region2AreaAspire = this->region2Area;
-    std::map<int, int> area2RegionAspire = this->area2Region;
+    boost::unordered_map<int, std::set<int> > region2AreaAspire = this->region2Area;
+    boost::unordered_map<int, int> area2RegionAspire = this->area2Region;
     std::vector<int> currentRegions = aspireRegions;
     std::vector<std::pair<int, int> > tabuList(tabuLength, std::make_pair(-1,-1));
 
     int c = 1;
     double epsilon = 1e-10;
 
-    std::map<std::pair<int, int>, double>::iterator mit;
+    boost::unordered_map<std::pair<int, int>, double>::iterator mit;
     double minval;
     std::pair<int, int> move;
 
@@ -956,7 +1015,7 @@ void AZPTabu::LocalImproving()
         } else {
             std::pair<int, int> moveNoTabu;
             int minFound = 0;
-            std::map<std::pair<int, int>, double> neighSolutionsCopy = neighSolutions;
+            boost::unordered_map<std::pair<int, int>, double> neighSolutionsCopy = neighSolutions;
             c += 1;
             move = find_notabu_move(neighSolutionsCopy, tabuList);
             if (move.first >= 0) {
@@ -1021,12 +1080,12 @@ std::vector<std::pair<int, int> > AZPTabu::updateTabuList(int area, int region, 
     return aList;
 }
 
-std::map<int, double> AZPTabu::makeObjDict()
+boost::unordered_map<int, double> AZPTabu::makeObjDict()
 {
     // constructs a dictionary with the objective function per region
-    std::map<int, double> objDict;
+    boost::unordered_map<int, double> objDict;
 
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
     std::set<int>::iterator sit;
 
     for (it = region2Area.begin(); it != region2Area.end(); ++it) {
@@ -1063,13 +1122,13 @@ std::map<int, double> AZPTabu::makeObjDict()
 void AZPTabu::allCandidates()
 {
     // Select neighboring solutions.
-    std::map<int, std::set<int> > intraCopy = intraBorderingAreas;
-    std::map<int, std::set<int> > region2AreaCopy = region2Area;
-    std::map<int, int> area2RegionCopy = area2Region;
+    boost::unordered_map<int, std::set<int> > intraCopy = intraBorderingAreas;
+    boost::unordered_map<int, std::set<int> > region2AreaCopy = region2Area;
+    boost::unordered_map<int, int> area2RegionCopy = area2Region;
 
     neighSolutions.clear();
     std::set<int>::iterator rit;
-    std::map<int, std::set<int> >::iterator it;
+    boost::unordered_map<int, std::set<int> >::iterator it;
 
     for (it = intraCopy.begin(); it!= intraCopy.end(); ++it) {
         int area = it->first;
