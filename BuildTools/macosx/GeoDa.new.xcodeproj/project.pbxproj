@@ -140,6 +140,7 @@
 		A496C9C11E6A440A008F87DD /* SIDSNC.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C01E6A440A008F87DD /* SIDSNC.png */; };
 		A496C9C31E6A4417008F87DD /* USHomicides.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C21E6A4417008F87DD /* USHomicides.png */; };
 		A496C9C51E6A441D008F87DD /* watermark-20.png in Resources */ = {isa = PBXBuildFile; fileRef = A496C9C41E6A441D008F87DD /* watermark-20.png */; };
+		A499564924FED58300BB5CB1 /* AZPDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A499564724FED58300BB5CB1 /* AZPDlg.cpp */; };
 		A49F56DD1E956FCC000309CE /* HClusterDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */; };
 		A4A591F424A515DA00BEA1FF /* ConditionalBoxPlotView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A591F324A515D900BEA1FF /* ConditionalBoxPlotView.cpp */; };
 		A4A591F724ABB15500BEA1FF /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4A591F524ABB15400BEA1FF /* dbscan.cpp */; };
@@ -565,6 +566,8 @@
 		A496C9C01E6A440A008F87DD /* SIDSNC.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = SIDSNC.png; path = BuildTools/CommonDistFiles/web_plugins/SIDSNC.png; sourceTree = "<group>"; };
 		A496C9C21E6A4417008F87DD /* USHomicides.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = USHomicides.png; path = BuildTools/CommonDistFiles/web_plugins/USHomicides.png; sourceTree = "<group>"; };
 		A496C9C41E6A441D008F87DD /* watermark-20.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "watermark-20.png"; path = "BuildTools/CommonDistFiles/web_plugins/watermark-20.png"; sourceTree = "<group>"; };
+		A499564724FED58300BB5CB1 /* AZPDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AZPDlg.cpp; sourceTree = "<group>"; };
+		A499564824FED58300BB5CB1 /* AZPDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZPDlg.h; sourceTree = "<group>"; };
 		A49F56DB1E956FCC000309CE /* HClusterDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HClusterDlg.cpp; sourceTree = "<group>"; };
 		A49F56DC1E956FCC000309CE /* HClusterDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HClusterDlg.h; sourceTree = "<group>"; };
 		A4A591F224A515D900BEA1FF /* ConditionalBoxPlotView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConditionalBoxPlotView.h; sourceTree = "<group>"; };
@@ -1278,6 +1281,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A499564724FED58300BB5CB1 /* AZPDlg.cpp */,
+				A499564824FED58300BB5CB1 /* AZPDlg.h */,
 				A4502B3724E1F67C001D378F /* SCHCDlg.cpp */,
 				A4502B3624E1F67C001D378F /* SCHCDlg.h */,
 				A4A591F924ABB80800BEA1FF /* DBScanDlg.cpp */,
@@ -2021,6 +2026,7 @@
 				A4ED7D572097F114008685D6 /* kd_util.cpp in Sources */,
 				DD92853D17F5FE2E00B9481A /* VarGroup.cpp in Sources */,
 				A1FD8C19186908B800C35C41 /* CustomClassifPtree.cpp in Sources */,
+				A499564924FED58300BB5CB1 /* AZPDlg.cpp in Sources */,
 				DD40B083181894F20084173C /* VarGroupingEditorDlg.cpp in Sources */,
 				DD7B2A9D185273FF00727A91 /* SaveButtonManager.cpp in Sources */,
 				A4596B512033DDFF00C9BCC8 /* AbstractClusterMap.cpp in Sources */,

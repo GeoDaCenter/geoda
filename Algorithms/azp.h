@@ -65,8 +65,7 @@ public:
     void AddControl(Operation op, Comparator cmp, const double& val);
 
     // Check if a candidate zone satisfies the restrictions
-    bool CheckCandidate(int area, boost::unordered_map<int, bool>& candidates,
-                        bool upperbound_only = false);
+    bool SatisfyLowerBound(boost::unordered_map<int, bool>& candidates);
 
     bool CheckRemove(int area, boost::unordered_map<int, bool>& candidates);
 
@@ -324,6 +323,8 @@ protected:
     // Get possible move of an area (should be a bordering area)
     std::set<int> getPossibleMove(int area);
 
+    bool growRegion();
+    
 protected:
     double** data;
 
@@ -362,9 +363,10 @@ protected:
 
     // For initial regions
     // area that could be assigned to which regions
-    boost::unordered_map<int, std::set<int> > potentialRegions4Area;
+    std::map<int, std::set<int> > potentialRegions4Area;
+    
     // area --(assign to)--region : distance
-    boost::unordered_map<std::pair<int, int>, double> candidateInfo;
+    std::map<std::pair<int, int>, double> candidateInfo;
 
 
     // object function value
