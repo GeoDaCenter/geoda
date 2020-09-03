@@ -557,7 +557,13 @@ void AZPDlg::OnOK(wxCommandEvent& event )
 	// Get random seed
     int rnd_seed = -1;
     if (chk_seed->GetValue()) rnd_seed = GdaConst::gda_user_seed;
-    
+
+    // zonecontrls
+    ZoneControl zc(rows, bound_vals);
+    zc.AddControl(ZoneControl::Operation::SUM, ZoneControl::Comparator::MORE_THAN, 5);
+    std::vector<ZoneControl> controllers;
+    controllers.push_back(zc);
+
     //azp
     int transpose = 0; // row wise
     double** ragged_distances = distancematrix(rows, columns, input_data,  mask, weight, dist, transpose);
@@ -566,14 +572,14 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     std::vector<int> final_solution;
     RegionMaker* azp;
     if ( local_search_method == 0) {
-        azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns);
+        azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns, controllers);
 
     } else if ( local_search_method == 1) {
         int convergence_criteria = std::max(10, rows / p); // vs 230 * sqrt(p)
-        azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns, tabu_length, convergence_criteria);
+        azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns, controllers, tabu_length, convergence_criteria);
     } else {
         int max_iter = 1;
-        azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns, cool_rate, max_iter);
+        azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns, controllers, cool_rate, max_iter);
     }
     final_solution = azp->GetResults();
     initial_of = azp->GetInitObjectiveFunction();

@@ -43,6 +43,12 @@ public:
     // A ZoneControl is for one variable (e.g. population), and it contains
     // the values of the variable
     ZoneControl(const std::vector<double>& in_data);
+    ZoneControl(int n, double* in_data) {
+        for (int i=0; i<n; ++i) {
+            data.push_back(in_data[i]);
+        }
+    }
+
     virtual ~ZoneControl();
 
     enum Operation {SUM, MEAN, MAX, MIN};
@@ -59,7 +65,12 @@ public:
     void AddControl(Operation op, Comparator cmp, const double& val);
 
     // Check if a candidate zone satisfies the restrictions
-    bool CheckZone(const std::vector<int>& candidates);
+    bool CheckCandidate(int area, boost::unordered_map<int, bool>& candidates,
+                        bool upperbound_only = false);
+
+    bool CheckRemove(int area, boost::unordered_map<int, bool>& candidates);
+
+    bool CheckAdd(int area, boost::unordered_map<int, bool>& candidates);
 
 protected:
     std::vector<double> data;
@@ -69,31 +80,6 @@ protected:
     std::vector<Comparator> comparators;
 
     std::vector<double> comp_values;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-////// Area
-////////////////////////////////////////////////////////////////////////////////
-// Area Class for Regional Clustering.
-class Area
-{
-    int id;
-    std::vector<double> data;
-    DistMatrix* dist_matrix;
-    GalElement*  const w;
-public:
-    Area(int _id, GalElement* const _w, const std::vector<double>& _data,
-         DistMatrix* const _dist_matrix)
-    : id(_id), w(_w), data(_data), dist_matrix(_dist_matrix) {}
-
-    virtual ~Area() {}
-
-    // Return the distance between the area and other area
-    double returnDistance2Area(Area& otherArea) {
-        return dist_matrix->getDistance(id, otherArea.GetId());
-    }
-
-    int GetId() { return id;}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,9 +203,10 @@ public:
             if (checkFeasibility(from_region, area)) {
                 region_of[from_region] = ss_from;
                 region_of[to_region] = ss_to;
-                // confirm swap
+                // confirm swap, lock
                 regions[from_region] = from_areas;
                 regions[to_region] = to_areas;
+                // unlock
                 return true;
             }
         }
@@ -285,7 +272,7 @@ public:
     RegionMaker(int p, GalElement* const w,
                 double** data, // row-wise
                 RawDistMatrix* dist_matrix,
-                int n, int m);
+                int n, int m, const std::vector<ZoneControl>& c);
 
     virtual ~RegionMaker();
 
@@ -327,7 +314,9 @@ protected:
     void constructRegions();
 
     // Assign an area to a region and updates potential regions for neighs
-    void assignArea(int areaID, int regionID);
+    bool assignArea(int areaID, int regionID);
+
+    std::set<int> getBufferingAreas(int regionID);
 
     // Get bordering areas of a region
     void getBorderingAreas(int regionID);
@@ -362,7 +351,8 @@ protected:
     boost::unordered_map<int, bool> unassignedAreas;
 
     boost::unordered_map<int, bool> assignedAreas;
-    
+
+    // area without neighbor (islands)
     boost::unordered_map<int, bool> areaNoNeighbor;
 
     boost::unordered_map<int, int> area2Region;
@@ -370,34 +360,17 @@ protected:
     // REGION region2Area
     boost::unordered_map<int, boost::unordered_map<int, bool> > region2Area;
 
+    // For initial regions
     // area that could be assigned to which regions
     boost::unordered_map<int, std::set<int> > potentialRegions4Area;
-
-    // area on border, could belongs to which regions
-    boost::unordered_map<int, std::set<int> > intraBorderingAreas;
-
     // area --(assign to)--region : distance
     boost::unordered_map<std::pair<int, int>, double> candidateInfo;
 
-    // mark which region has just been changed
-    int changedRegion;
-
-    // mark which area has just been added
-    int addedArea;
-
-    boost::unordered_map<int, bool> externalNeighs;
-
-    boost::unordered_map<int, bool> oldExternal;
-
-    boost::unordered_map<int, bool> newExternal;
 
     // object function value
     double objInfo;
 
-    // cache object value
-    boost::unordered_map<int, double> objDict;
-
-    std::vector<std::set<int> > nbrSet;
+    std::vector<ZoneControl> controls;
 
     Xoroshiro128Random rng;
 };
@@ -417,8 +390,8 @@ public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m)
-    : RegionMaker(p,w,data,dist_matrix,n,m)
+        int n, int m, const std::vector<ZoneControl>& c)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c)
     {
         initial_objectivefunction = this->objInfo;
         this->LocalImproving();
@@ -476,10 +449,11 @@ class AZPSA : public RegionMaker
     double final_objectivefunction;
 public:
     AZPSA(int p, GalElement* const w,
-        double** data, // row-wise
-        RawDistMatrix* dist_matrix,
-        int n, int m, double _alpha = 0.85, int _max_iter= 1)
-    : RegionMaker(p,w,data,dist_matrix,n,m), temperature(1.0), alpha(_alpha), max_iter(_max_iter)
+          double** data, // row-wise
+          RawDistMatrix* dist_matrix,
+          int n, int m, const std::vector<ZoneControl>& c,
+          double _alpha = 0.85, int _max_iter= 1)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c), temperature(1.0), alpha(_alpha), max_iter(_max_iter)
     {
         std::vector<int> init_sol = this->returnRegions();
         initial_objectivefunction = this->objInfo;
@@ -556,10 +530,11 @@ class AZPTabu : public RegionMaker
 
 public:
     AZPTabu(int p, GalElement* const w,
-        double** data, // row-wise
-        RawDistMatrix* dist_matrix,
-        int n, int m, int tabu_length=10, int _convTabu=0)
-    : RegionMaker(p,w,data,dist_matrix,n,m), tabuLength(tabu_length), convTabu(_convTabu)
+            double** data, // row-wise
+            RawDistMatrix* dist_matrix,
+            int n, int m, const std::vector<ZoneControl>& c,
+            int tabu_length=10, int _convTabu=0)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c), tabuLength(tabu_length), convTabu(_convTabu)
     {
         if (tabuLength <= 0) {
             tabuLength = 10;
