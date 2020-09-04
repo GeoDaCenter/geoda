@@ -252,30 +252,63 @@ void AreaManager::updateRegionCentroids(int region, REGION_AREAS& regions)
 RegionMaker::RegionMaker(int _p, GalElement* const _w,
                          double** _data, // row-wise
                          RawDistMatrix* _dist_matrix,
-                         int _n, int _m, const std::vector<ZoneControl>& c)
+                         int _n, int _m, const std::vector<ZoneControl>& c,
+                         const std::vector<int>& _init_regions,
+                         long long seed)
 : p(_p), w(_w), data(_data), dist_matrix(_dist_matrix), n(_n), m(_m), controls(c),
-am(_n, _m, _w, _data, _dist_matrix), objInfo(-1)
+am(_n, _m, _w, _data, _dist_matrix), objInfo(-1), init_regions(_init_regions),
+rng(seed), is_control_satisfied(true)
 {
     // init unassigned areas
     for (int i=0; i<n; ++i) {
         unassignedAreas[i] = true;
     }
-    // mark neighborless as
-    
+
+    // mark neighborless areas
+    AssignAreasNoNeighs();
+
     // get p start areas using k-means
-    std::vector<int> seeds = this->kmeansInit();
-    // for replicate clusterpy: CA_polygons
-    // calif.cluster('azp', ['PCR2002'], 9, wType='rook', dissolve=1)
-    // [31, 38, 37, 28, 20, 29, 17, 50, 55]
-    //seeds[0] = 31; seeds[1] = 38; seeds[2] = 37; seeds[3]=28; seeds[4]=20;
-    //seeds[5] = 29; seeds[6] = 17; seeds[7] = 50; seeds[8] = 55;
+    if (init_regions.empty()) {
+        std::vector<int> seeds = this->kmeansInit();
 
-    // process and assign the neighbors of p starting areas
-    this->setSeeds(seeds);
+        // for replicate clusterpy: CA_polygons
+        // calif.cluster('azp', ['PCR2002'], 9, wType='rook', dissolve=1)
+        // [31, 38, 37, 28, 20, 29, 17, 50, 55]
+        //seeds[0] = 31; seeds[1] = 38; seeds[2] = 37; seeds[3]=28; seeds[4]=20;
+        //seeds[5] = 29; seeds[6] = 17; seeds[7] = 50; seeds[8] = 55;
 
-    // for any other unassigned areas, assign region? parallel?
-    while (unassignedAreas.size() != 0) {
-        this->constructRegions();
+        // process and assign the neighbors of p starting areas
+        this->setSeeds(seeds);
+
+        // for any other unassigned areas, assign to a region
+        while (unassignedAreas.size() != 0) {
+            this->constructRegions();
+        }
+
+    } else {
+        // check init regions, index start from 1
+        for (int i=0; i<init_regions.size(); ++i) {
+            if (init_regions[i] > 0 && init_regions[i] <= p) {
+                int areaID = i;
+                int regionID = init_regions[i] - 1;
+                assignAreaStep1(areaID, regionID);
+            }
+        }
+        // for any unassigned areas, create potentialRegions4Area
+        for (int r=0; r<p; ++r) {
+            std::set<int> buffer_areas = getBufferingAreas(r);
+            std::set<int>::iterator it;
+            for (it = buffer_areas.begin(); it != buffer_areas.end(); ++it) {
+                int areaID = *it;
+                if (unassignedAreas.find(areaID) != unassignedAreas.end()) {
+                    potentialRegions4Area[areaID].insert(r);
+                }
+            }
+        }
+        // for any other unassigned areas, assign to a region
+        while (unassignedAreas.size() != 0) {
+            this->constructRegions();
+        }
     }
 
     //  create objectiveFunction object for local improvement
@@ -353,18 +386,10 @@ std::vector<int> RegionMaker::kmeansInit()
     return seeds;
 }
 
-void RegionMaker::setSeeds(const std::vector<int>& seeds)
+void RegionMaker::setSeeds(std::vector<int> seeds)
 {
     // Sets the initial seeds for clustering
-    this->seeds.clear();
-
-    int ns = seeds.size() < p ? (int)seeds.size() : p;
-
-    for (int i=0; i<ns; ++i) {
-        this->seeds.push_back(seeds[i]);
-    }
-
-    if (this->seeds.size() < p) {
+    if (seeds.size() < p) {
         // pick more to fill up seeds
         std::vector<int> didx(n, true);
         // remove seeds, and neighborless observations
@@ -384,15 +409,15 @@ void RegionMaker::setSeeds(const std::vector<int>& seeds)
         }
         DataUtils::Shuffle(cands, rng);
 
-        for (int i=0; i<p - this->seeds.size(); ++i) {
-            this->seeds.push_back(cands[i]);
+        for (int i=0; i< (p -seeds.size()); ++i) {
+            seeds.push_back(cands[i]);
         }
     }
 
     // assign each seed with a new region
     int c = 0;
-    for (int i=0; i<this->seeds.size(); ++i) {
-        assignAreaStep1(this->seeds[i], c);
+    for (int i=0; i< seeds.size(); ++i) {
+        assignAreaStep1(seeds[i], c);
         c += 1;
     }
     
@@ -402,6 +427,7 @@ void RegionMaker::setSeeds(const std::vector<int>& seeds)
        
        if (grow_flag == false) {
            // raise exception
+           is_control_satisfied = false;
        }
     }
     

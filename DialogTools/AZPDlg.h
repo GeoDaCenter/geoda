@@ -48,10 +48,10 @@ public:
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
+    
+    virtual void update(TableState* o);
     virtual void OnCheckMinBound(wxCommandEvent& event);
-    
     virtual void InitLISACombobox();
-    
     virtual wxString _printConfiguration();
     
 private:
@@ -67,6 +67,7 @@ private:
     
     wxStaticText* st_minregions;
     wxTextCtrl* txt_minregions;
+    wxTextCtrl* txt_regions;
     wxTextCtrl* m_tabulength;
     wxTextCtrl* m_coolrate;
     wxButton* seedButton;

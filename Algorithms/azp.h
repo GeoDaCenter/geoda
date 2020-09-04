@@ -357,12 +357,14 @@ public:
     RegionMaker(int p, GalElement* const w,
                 double** data, // row-wise
                 RawDistMatrix* dist_matrix,
-                int n, int m, const std::vector<ZoneControl>& c);
+                int n, int m, const std::vector<ZoneControl>& c,
+                const std::vector<int>& init_regions=std::vector<int>(),
+                long long seed=123456789);
 
     virtual ~RegionMaker();
 
     // Sets the initial seeds for clustering
-    void setSeeds(const std::vector<int>& seeds);
+    void setSeeds(std::vector<int> seeds);
     
     virtual void LocalImproving() = 0;
     
@@ -372,8 +374,8 @@ public:
 
     virtual double GetFinalObjectiveFunction() = 0;
 
-    // Check feasibility from a change region (remove an area from a region)
-    //bool checkFeasibility(int regionID, int areaID);
+    // Check is_control_satisfied
+    bool IsControlSatisfied() { return is_control_satisfied;}
 
 protected:
     // Return the areas of a region
@@ -433,7 +435,7 @@ protected:
 
     ObjectiveFunction* objective_function;
 
-    std::vector<int> seeds;
+    std::vector<int> init_regions;
 
     boost::unordered_map<int, bool> unassignedAreas;
 
@@ -461,6 +463,8 @@ protected:
     std::vector<ZoneControl> controls;
 
     Xoroshiro128Random rng;
+    
+    bool is_control_satisfied;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -478,17 +482,19 @@ public:
     AZP(int p, GalElement* const w,
         double** data, // row-wise
         RawDistMatrix* dist_matrix,
-        int n, int m, const std::vector<ZoneControl>& c)
-    : RegionMaker(p,w,data,dist_matrix,n,m,c)
+        int n, int m, const std::vector<ZoneControl>& c,
+        const std::vector<int>& init_regions=std::vector<int>(),
+        long long seed=123456789)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed)
     {
         initial_objectivefunction = this->objInfo;
         double best_score = this->objInfo;
         bool improvement = true;
-        while (improvement) {
+        //while (improvement) {
             this->LocalImproving();
             improvement = this->objInfo < best_score;
             best_score = this->objInfo;
-        }
+        //}
 
         final_solution = this->returnRegions();
         final_objectivefunction = this->objInfo;
@@ -546,8 +552,11 @@ public:
           double** data, // row-wise
           RawDistMatrix* dist_matrix,
           int n, int m, const std::vector<ZoneControl>& c,
-          double _alpha = 0.85, int _max_iter= 1)
-    : RegionMaker(p,w,data,dist_matrix,n,m,c), temperature(1.0), alpha(_alpha), max_iter(_max_iter)
+          double _alpha = 0.85, int _max_iter= 1,
+          const std::vector<int>& init_regions=std::vector<int>(),
+          long long seed=123456789)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions,seed), temperature(1.0),
+    alpha(_alpha), max_iter(_max_iter)
     {
         std::vector<int> init_sol = this->returnRegions();
         initial_objectivefunction = this->objInfo;
@@ -615,19 +624,6 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////// AZP Tabu
 ////////////////////////////////////////////////////////////////////////////////
-class TabuMove
-{
-public:
-    TabuMove(int a=-1, int f=-1, int t=-1, double o=0)
-    : area(a), from_region(f), to_region(t), object(o) {}
-    virtual ~TabuMove(){}
-
-    int area;
-    int from_region;
-    int to_region;
-    double object;
-};
-
 struct CompareTabuMove
 {
 public:
@@ -649,8 +645,11 @@ public:
             double** data, // row-wise
             RawDistMatrix* dist_matrix,
             int n, int m, const std::vector<ZoneControl>& c,
-            int tabu_length=10, int _convTabu=0)
-    : RegionMaker(p,w,data,dist_matrix,n,m,c), tabuLength(tabu_length), convTabu(_convTabu)
+            int tabu_length=10, int _convTabu=0,
+            const std::vector<int>& init_regions=std::vector<int>(),
+            long long seed=123456789)
+    : RegionMaker(p,w,data,dist_matrix,n,m,c,init_regions, seed),
+    tabuLength(tabu_length), convTabu(_convTabu)
     {
         if (tabuLength <= 0) {
             tabuLength = 10;
@@ -691,10 +690,7 @@ public:
 protected:
     int tabuLength; //5
 
-    int convTabu; // 5:  230*numpy.sqrt(pRegions)
-
-    //boost::heap::priority_queue<TabuMove*, boost::heap::compare<CompareTabuMove> > neighSolutions;
-    //std::vector<TabuMove*> neighSolutions;
+    int convTabu; // 5:  230*numpy.sqrt(pRegions)?ß
 
     boost::unordered_map<std::pair<int, int>, double> neighSolutions;
 
