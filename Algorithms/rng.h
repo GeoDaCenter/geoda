@@ -33,6 +33,12 @@ class Xoroshiro128Random
     long long s1;
 public:
     Xoroshiro128Random(long long xor64 = 123456789) {
+        SetSeed(xor64);
+    }
+
+    virtual ~Xoroshiro128Random() {}
+
+    void SetSeed(long long xor64 = 123456789) {
         // set seed
         // XorShift64* generator to seed:
         if (xor64 == 0)
@@ -46,9 +52,6 @@ public:
         xor64 ^= (unsigned long long)xor64 >> 27; // c
         s1 = xor64 * 2685821657736338717L;
     }
-
-    virtual ~Xoroshiro128Random() {}
-
     int nextInt(int n) {
         if (n <=0) return 0;
         int r =  (int)((n & -n) == n ? nextLong() & n - 1 // power of two

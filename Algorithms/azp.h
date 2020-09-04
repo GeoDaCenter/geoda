@@ -26,6 +26,7 @@
 #include <vector>
 #include <limits>
 #include <boost/unordered_map.hpp>
+#include <boost/heap/priority_queue.hpp>
 
 //#include <tr1/type_traits>
 
@@ -156,8 +157,26 @@ public:
         return ss;
     }
 
+    virtual void UpdateRegions() {
+        // region changes, update it's
+        REGION_AREAS::iterator it;
+        for (it = regions.begin(); it != regions.end(); ++it) {
+            int region = it->first;
+            double obj = getObjectiveValue(regions[region]);
+            region_of[region] = obj;
+        }
+    }
+
     virtual void UpdateRegion(int region) {
         // region changes, update it's
+        REGION_AREAS::iterator it;
+        for (it = regions.begin(); it != regions.end(); ++it) {
+            int r = it->first;
+            if (r == region) {
+                double obj = getObjectiveValue(regions[region]);
+                region_of[region] = obj;
+            }
+        }
     }
 
     virtual double getObjectiveValue(boost::unordered_map<int, bool>& areas) {
@@ -185,7 +204,7 @@ public:
         return obj;
     }
 
-    virtual double TrySwap(int area, int from_region, int to_region) {
+    virtual double TabuSwap(int area, int from_region, int to_region) {
         // try to swap area to region, compute the value of objective function
         // no phyical swap happens
         boost::unordered_map<int, bool> from_areas = regions[from_region];
@@ -196,20 +215,87 @@ public:
         double ss_from = getObjectiveValue(from_areas);
         double ss_to = getObjectiveValue(to_areas);
 
+        double ss = GetValue();
         double delta = ss_from + ss_to - region_of[from_region] - region_of[to_region];
-        if (delta < 0) {
+        double new_ss = ss + delta;
+
+        return new_ss;
+    }
+
+    virtual std::pair<double, bool> TrySwap(int area, int from_region, int to_region) {
+        // try to swap area to region, compute the value of objective function
+        // phyical swap could happen if contiguity check is passed
+        boost::unordered_map<int, bool> from_areas = regions[from_region];
+        boost::unordered_map<int, bool> to_areas = regions[to_region];
+        from_areas.erase(area);
+        to_areas[area] = false;
+
+        double ss_from = getObjectiveValue(from_areas);
+        double ss_to = getObjectiveValue(to_areas);
+
+        double delta = ss_from + ss_to - region_of[from_region] - region_of[to_region];
+        if (delta <= 0) {
             // improved
             if (checkFeasibility(from_region, area)) {
                 region_of[from_region] = ss_from;
                 region_of[to_region] = ss_to;
                 // confirm swap, lock
+                // update values for two changed regions
                 regions[from_region] = from_areas;
                 regions[to_region] = to_areas;
-                // unlock
-                return true;
+                return std::make_pair(delta, true);
             }
         }
-        return false;
+        return std::make_pair(delta, false);
+    }
+
+    virtual std::pair<double, bool> TrySwapSA(int area, int from_region, int to_region, double best_of) {
+        // try to swap area to region, compute the value of objective function
+        // phyical swap could happen if contiguity check is passed
+        boost::unordered_map<int, bool> from_areas = regions[from_region];
+        boost::unordered_map<int, bool> to_areas = regions[to_region];
+        from_areas.erase(area);
+        to_areas[area] = false;
+
+        double ss_from = getObjectiveValue(from_areas);
+        double ss_to = getObjectiveValue(to_areas);
+
+        double ss = GetValue();
+        double delta = ss_from + ss_to - region_of[from_region] - region_of[to_region];
+        double new_ss = ss + delta;
+
+        if (new_ss <= best_of) {
+            // improved
+            if (checkFeasibility(from_region, area)) {
+                region_of[from_region] = ss_from;
+                region_of[to_region] = ss_to;
+                // confirm swap, lock
+                // update values for two changed regions
+                regions[from_region] = from_areas;
+                regions[to_region] = to_areas;
+                return std::make_pair(new_ss, true);
+            }
+        }
+        return std::make_pair(new_ss, false);
+    }
+
+    virtual double MakeMove(int area, int from_region, int to_region) {
+        // use reference here to make actual change
+        boost::unordered_map<int, bool>& from_areas = regions[from_region];
+        boost::unordered_map<int, bool>& to_areas = regions[to_region];
+        from_areas.erase(area);
+        to_areas[area] = false;
+
+        double ss_from = getObjectiveValue(from_areas);
+        double ss_to = getObjectiveValue(to_areas);
+
+        region_of[from_region] = ss_from;
+        region_of[to_region] = ss_to;
+        // update values for two changed regions
+        regions[from_region] = from_areas;
+        regions[to_region] = to_areas;
+
+        return GetValue();
     }
 
     bool checkFeasibility(int regionID, int areaID)
@@ -396,7 +482,13 @@ public:
     : RegionMaker(p,w,data,dist_matrix,n,m,c)
     {
         initial_objectivefunction = this->objInfo;
-        this->LocalImproving();
+        double best_score = this->objInfo;
+        bool improvement = true;
+        while (improvement) {
+            this->LocalImproving();
+            improvement = this->objInfo < best_score;
+            best_score = this->objInfo;
+        }
 
         final_solution = this->returnRegions();
         final_objectivefunction = this->objInfo;
@@ -464,7 +556,6 @@ public:
         BasicMemory basicMemory, localBasicMemory;
         
         // step a
-        double T = temperature;
         int k = 0;
         while (k < 3) {
             int improved = 0;
@@ -483,7 +574,7 @@ public:
                 }
             }
             // step c
-            T *= alpha;
+            temperature *= alpha; // annealing
             if (improved == 1) {
                 k = 0;
             } else {
@@ -524,6 +615,29 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 ////// AZP Tabu
 ////////////////////////////////////////////////////////////////////////////////
+class TabuMove
+{
+public:
+    TabuMove(int a=-1, int f=-1, int t=-1, double o=0)
+    : area(a), from_region(f), to_region(t), object(o) {}
+    virtual ~TabuMove(){}
+
+    int area;
+    int from_region;
+    int to_region;
+    double object;
+};
+
+struct CompareTabuMove
+{
+public:
+    bool operator() (const double& lhs,
+                     const double& rhs) const
+    {
+        return lhs > rhs;
+    }
+};
+
 class AZPTabu : public RegionMaker
 {
     std::vector<int> final_solution;
@@ -572,58 +686,19 @@ public:
     // Select neighboring solutions.
     void allCandidates();
 
-    // constructs a dictionary with the objective function per region
-    boost::unordered_map<int, double> makeObjDict();
+    void updateNeighSolution(int area, int from, int to);
 
-    // Add a new value to the tabu list.
-    std::vector<std::pair<int, int> > updateTabuList(int area, int region, std::vector<std::pair<int, int> >& aList,
-                   int endInd);
-
-    std::pair<int, int> find_notabu_move(const boost::unordered_map<std::pair<int, int>, double>& s1,
-                                         const std::vector<std::pair<int, int> >& s2)
-    {
-        std::pair<int, int> move(-1, -1);
-        double minval;
-        int cnt = 0;
-        boost::unordered_map<std::pair<int, int>, double> s = s1;
-        for (int i=0; i < s2.size(); ++i) {
-            s.erase(s2[i]);
-        }
-        boost::unordered_map<std::pair<int, int>, double>::iterator it;
-        for (it = s.begin(); it != s.end(); ++it) {
-            if (cnt == 0 || it->second < minval) {
-                minval = it->second;
-                move = it->first;
-            }
-            cnt += 1;
-        }
-        return move;
-    }
-
-    std::pair<int, int> find_tabu_move(const boost::unordered_map<std::pair<int, int>, double>& s1,
-                                  const std::vector<std::pair<int, int> >& s2)
-    {
-        std::pair<int, int> move(-1, -1);
-        double minval;
-        int cnt = 0;
-        boost::unordered_map<std::pair<int, int>, double> s = s1;
-        for (int i=0; i < s2.size(); ++i) {
-            if (s.find(s2[i]) != s.end()) {
-                if (cnt == 0 || s[s2[i]] < minval) {
-                    minval = s[s2[i]];
-                    move = s2[i];
-                }
-                cnt += 1;
-            }
-        }
-        return move;
-    }
 protected:
     int tabuLength; //5
 
     int convTabu; // 5:  230*numpy.sqrt(pRegions)
 
+    //boost::heap::priority_queue<TabuMove*, boost::heap::compare<CompareTabuMove> > neighSolutions;
+    //std::vector<TabuMove*> neighSolutions;
+
     boost::unordered_map<std::pair<int, int>, double> neighSolutions;
+
+    boost::heap::priority_queue<double, boost::heap::compare<CompareTabuMove> > neighSolObjs;
 
     std::vector<int> regions;
 

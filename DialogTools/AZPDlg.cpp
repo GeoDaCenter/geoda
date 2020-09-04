@@ -562,7 +562,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     ZoneControl zc(rows, bound_vals);
     zc.AddControl(ZoneControl::Operation::SUM, ZoneControl::Comparator::MORE_THAN, 5);
     std::vector<ZoneControl> controllers;
-    controllers.push_back(zc);
+    //controllers.push_back(zc);
 
     //azp
     int transpose = 0; // row wise
@@ -575,7 +575,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns, controllers);
 
     } else if ( local_search_method == 1) {
-        int convergence_criteria = std::max(10, rows / p); // vs 230 * sqrt(p)
+        int convergence_criteria = std::max(20, rows / p); // vs 230 * sqrt(p)
         azp = new AZPTabu(p, gw->gal, input_data, &dm, rows, columns, controllers, tabu_length, convergence_criteria);
     } else {
         int max_iter = 1;

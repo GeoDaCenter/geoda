@@ -389,12 +389,14 @@ void RegionMaker::setSeeds(const std::vector<int>& seeds)
         }
     }
 
+    // assign each seed with a new region
     int c = 0;
     for (int i=0; i<this->seeds.size(); ++i) {
         assignAreaStep1(this->seeds[i], c);
         c += 1;
     }
     
+    // grow the region if needed
     if (controls.size() > 0) {
        bool grow_flag = growRegion();
        
@@ -689,7 +691,9 @@ std::set<int> RegionMaker::getPossibleMove(int area)
     }
     return moves;
 }
-
+////////////////////////////////////////////////////////////////////////////////
+////// AZP
+////////////////////////////////////////////////////////////////////////////////
 void AZP::LocalImproving()
 {
     // NOTE: this could be parallelized: when one thread update region A
@@ -698,7 +702,6 @@ void AZP::LocalImproving()
     // regions C,D,E... However, the mutex lock should be carefully designed...
 
     int improve = 1;
-    std::set<int>::iterator it;
     //std::vector<int> rand_test = {7,4,3,5,3,3,1,1,0,3,3,2,3,4,2,0,0,0};
     //std::vector<int> rand_test1 = {57, 56, 52, 24, 16, 10, 3, 24, 51, 57, 22, 57, 46, 11, 46, 52, 50, 46, 10, 52, 24, 57, 3, 51, 7, 5, 20, 30, 28, 8, 26, 39, 43, 18, 55, 41, 36, 29, 17, 0, 56, 33, 35, 1, 23, 9, 32, 22, 2, 49, 15, 11, 48, 14, 16, 50, 34, 12, 42, 40, 31, 45, 44, 31, 30, 28, 8, 20, 40, 42, 17, 41, 18, 26, 55, 43, 39, 29, 36, 44, 31, 14, 11, 16, 2, 48, 0, 1, 15, 35, 50, 12, 23, 9, 49, 33, 32, 34, 56, 22, 24, 7, 45, 57, 10, 51, 5, 3, 46, 52};
     //int rr = 0, rr1 = 0;
@@ -728,8 +731,9 @@ void AZP::LocalImproving()
             while (areas.size() > 1) {
                 // step 5
                 bool nothing_can_do = true;
-                for (area_it = areas.begin(); area_it != areas.end(); ++area_it) {
-                    if (area_it->second == true) {
+                bool moved = false;
+                for (area_it = areas.begin(); !moved && area_it != areas.end(); ++area_it) {
+                    if (area_it->second == true) { // only procee the bordering area
                         nothing_can_do = false;
                         // pick a random bordering area, mark it as processed
                         int randomArea = area_it->first;
@@ -737,21 +741,36 @@ void AZP::LocalImproving()
                         // get possible move of this randomArea
                         std::set<int> possibleMove = getPossibleMove(randomArea);
                         // check obj change before contiguity check
-                        for (move_it = possibleMove.begin(); move_it != possibleMove.end(); ++move_it) {
+                        for (move_it = possibleMove.begin();
+                             !moved && move_it != possibleMove.end();
+                             ++move_it)
+                        {
                             int move = *move_it;
                             // request lock for region[move], pause threads[move]
-                            bool valid = objective_function->TrySwap(randomArea, region, move);
-                            if (valid) {
-                                this->area2Region[randomArea] = move;
-                                this->objInfo = objective_function->GetValue();
+                            //std::pair<double, bool> swap = objective_function->TrySwap(randomArea, region, move);
+                            //double delta = swap.first;
+                            //bool swapped = swap.second;
+                            //if (swapped) {
+                            std::pair<double, bool> swap = objective_function->TrySwapSA(randomArea, region, move, this->objInfo);
+                            double obj = swap.first;
+                            bool contiguous = swap.second;
+                            if (obj <= this->objInfo && contiguous) {
                                 improve = 1;
+                                moved = true;
+
+                                this->area2Region[randomArea] = move;
+                                this->objInfo = obj;
+
                                 // move happens, update bordering area
                                 getBorderingAreas(region);
-                                break;
+                                //getBorderingAreas(move);
+
+                                //std::cout << "--- Local improvement (area, region)" << randomArea << "," << move << std::endl;
+                                //std::cout << "--- New Objective Function value: " << this->objInfo << std::endl;
+
                             }
                             // release lock for region[move], awake threads[move]
                         }
-                        break; // don't continue;
                     }
                 }
                 if (nothing_can_do) {
@@ -763,10 +782,11 @@ void AZP::LocalImproving()
 }
 
 
-
+////////////////////////////////////////////////////////////////////////////////
+////// AZP Simulated Annealing
+////////////////////////////////////////////////////////////////////////////////
 void AZPSA::LocalImproving()
 {
-    /*
     // Openshaw's Simulated Annealing for AZP algorithm
     int totalMoves = 0;
     int acceptedMoves = 0;
@@ -774,7 +794,7 @@ void AZPSA::LocalImproving()
     double currentOBJ = this->objInfo;
     std::vector<int> bestRegions = this->returnRegions();
     std::vector<int> currentRegions = this->returnRegions();
-    boost::unordered_map<int, std::set<int> > region2AreaBest = this->region2Area;
+    REGION_AREAS region2AreaBest = this->region2Area;
     boost::unordered_map<int, int> area2RegionBest = this->area2Region;
     std::set<int>::iterator it;
     
@@ -794,69 +814,89 @@ void AZPSA::LocalImproving()
             regions.erase(std::find(regions.begin(), regions.end(), region));
 
             // step 4
-            const std::set<int>& ba = this->returnBorderingAreas(region);
-            const std::set<int>& aa = this->returnRegion2Area(region);
-            std::set<int> borderingAreas = this->intersects(ba, aa);
+            // get bordering areas in region
+            getBorderingAreas(region);
 
+            boost::unordered_map<int, bool>& areas = region2Area[region];
+            boost::unordered_map<int, bool>::iterator area_it;
+            std::set<int>::iterator move_it;
             improve = 0;
-            while (borderingAreas.size() > 0) {
+
+            while (areas.size() > 1) {
                 // step 5
-                int randomArea = rng.nextInt((int)borderingAreas.size());
-                it = borderingAreas.begin();
-                std::advance(it, randomArea);
-                int area = *it;
-                //area = rand_test1[rr1++];
-                borderingAreas.erase(area);
-                std::set<int> posibleMove = intraBorderingAreas[area];
-
-                int f = 0;
-                if (this->region2Area[region].size() >= 2)  {
-                    f = this->checkFeasibility(region, area, region2Area);
-                }
-                if (f == 1) {
-                    for (it = posibleMove.begin(); it != posibleMove.end(); ++it) {
-                        int move = *it;
-                        this->swapArea(area, move, region2Area, area2Region);
-                        double obj = this->recalcObj(region2Area, false);
-                        this->swapArea(area, region, region2Area, area2Region);
-                        if (obj <= bestOBJ) {
-                            this->moveArea(area, move);
-                            improve = 1;
-                            this->objInfo = obj;
-                            bestOBJ = obj;
-                            bestRegions = this->returnRegions();
-                            currentRegions = this->returnRegions();
-                            region2AreaBest = this->region2Area;
-                            area2RegionBest = this->area2Region;
-
-                            // std::cout << "--- Local improvement (area, region)" << area << "," << move << std::endl;
-                            // std::cout << "--- New Objective Function value: " << obj << std::endl;
-                            // step 4
-
-                            borderingAreas = intersects(returnBorderingAreas(region),
-                                                        returnRegion2Area(region));
-                            break;
-                        } else {
-                            double random = rng.nextDouble();
-                            totalMoves += 1;
-                            double sa = std::exp(-(obj - currentOBJ) / (currentOBJ * temperature));
-                            if (sa > random) {
-                                acceptedMoves += 1;
-                                this->moveArea(area, move);
+                bool nothing_can_do = true;
+                bool moved = false;
+                for (area_it = areas.begin(); !moved && area_it != areas.end(); ++area_it) {
+                    if (area_it->second == true) { // only procee the bordering area
+                        nothing_can_do = false;
+                        // pick a random bordering area, mark it as processed
+                        int randomArea = area_it->first;
+                        areas[randomArea] = false;
+                        // get possible move of this randomArea
+                        std::set<int> possibleMove = getPossibleMove(randomArea);
+                        // check obj change before contiguity check
+                        for (move_it = possibleMove.begin();
+                             !moved && move_it != possibleMove.end();
+                             ++move_it)
+                        {
+                            int move = *move_it;
+                            // request lock for region[move], pause threads[move]
+                            std::pair<double, bool> swap = objective_function->TrySwapSA(randomArea, region, move, bestOBJ);
+                            double obj = swap.first;
+                            bool contiguous = swap.second;
+                            if (obj <= bestOBJ && contiguous) { // means swapped
+                                improve = 1;
+                                moved = true;
+                                this->area2Region[randomArea] = move;
                                 this->objInfo = obj;
+
+                                // update SA variables
+                                bestOBJ= obj;
                                 currentOBJ = obj;
-                                currentRegions = this->returnRegions();
+                                bestRegions = this->returnRegions();
+                                region2AreaBest = this->region2Area;
+                                area2RegionBest = this->area2Region;
 
-                                // std::cout << "--- NON-Local improvement (area, region)" << area << "," << move << std::endl;
-                                // std::cout << "--- New Objective Function value: " << obj << std::endl;
+                                // move happens, update bordering area
+                                getBorderingAreas(region);
+                                //getBorderingAreas(move);
+
+                                //std::cout << "--- Local improvement (area, region)" << randomArea << "," << move << std::endl;
+                                //std::cout << "--- New Objective Function value: " << this->objInfo << std::endl;
                                 // step 4
-
-                                borderingAreas = intersects(returnBorderingAreas(region),
-                                                            returnRegion2Area(region));
-                                break;
                             }
+                            else if (!(obj <= bestOBJ && contiguous==false)) { // not consider NON-contiguous
+                                contiguous = objective_function->checkFeasibility(region, randomArea);
+                                if (contiguous) {
+                                    double random = rng.nextDouble();
+                                    totalMoves += 1;
+                                    double sa = std::exp(-(obj - currentOBJ) * n / (currentOBJ * temperature));
+                                    if (sa > random) {
+                                        objective_function->MakeMove(randomArea, region, move);
+                                        moved = true;
+                                        this->area2Region[randomArea] = move;
+                                        this->objInfo = obj;
+
+                                        // update SA variables
+                                        acceptedMoves += 1;
+                                        currentOBJ = obj;
+
+                                        // move happens, update bordering area
+                                        getBorderingAreas(region);
+                                        //getBorderingAreas(move);
+
+                                        //std::cout << "--- NON-Local improvement (area, region)" << randomArea << "," << move << std::endl;
+                                        //std::cout << "--- New Objective Function value: " << currentOBJ << std::endl;
+                                        // step 4
+                                    }
+                                }
+                            }
+                            // release lock for region[move], awake threads[move]
                         }
                     }
+                }
+                if (nothing_can_do) {
+                    break;
                 }
             }
         }
@@ -864,62 +904,101 @@ void AZPSA::LocalImproving()
     this->objInfo = bestOBJ;
     this->region2Area = region2AreaBest;
     this->area2Region = area2RegionBest;
-     */
 }
+
+////////////////////////////////////////////////////////////////////////////////
+////// AZP Tabu
+////////////////////////////////////////////////////////////////////////////////
 
 void AZPTabu::LocalImproving()
 {
-    /*
     // Tabu search algorithm for Openshaws AZP-tabu (1995)
     double aspireOBJ = this->objInfo;
     double currentOBJ = this->objInfo;
     std::vector<int> aspireRegions = this->returnRegions();
-    boost::unordered_map<int, std::set<int> > region2AreaAspire = this->region2Area;
+    REGION_AREAS region2AreaAspire = this->region2Area;
     boost::unordered_map<int, int> area2RegionAspire = this->area2Region;
     std::vector<int> currentRegions = aspireRegions;
-    std::vector<std::pair<int, int> > tabuList(tabuLength, std::make_pair(-1,-1));
+
+    std::vector<std::pair<std::pair<int, int>, double> > tabuList;
+    boost::unordered_map<std::pair<int, int>, double>::iterator it;
 
     int c = 1;
     double epsilon = 1e-10;
 
-    boost::unordered_map<std::pair<int, int>, double>::iterator mit;
-    double minval;
-    std::pair<int, int> move;
+    this->allCandidates();
 
     while (c < convTabu) {
-        // std::cout << "regions: ";
-        this->objDict = this->makeObjDict();
-        this->allCandidates();
+
         if (this->neighSolutions.size() == 0) {
             c += convTabu;
         } else {
-            std::pair<int, int> moveNoTabu;
             int minFound = 0;
-            boost::unordered_map<std::pair<int, int>, double> neighSolutionsCopy = neighSolutions;
             c += 1;
-            move = find_notabu_move(neighSolutionsCopy, tabuList);
-            if (move.first >= 0) {
-                double obj4Move = this->neighSolutions[move];
-                moveNoTabu = move;
-                if (currentOBJ - obj4Move >= epsilon) {
-                    minFound = 1;
-                } else {
-                    move = find_tabu_move(neighSolutionsCopy, tabuList);
-                    if (move.first >= 0) {
-                        double obj4Move = this->neighSolutions[move];
-                        if  (aspireOBJ - obj4Move > epsilon) {
-                            minFound = 1;
+
+            // find global best move
+            bool find_global = false;
+            std::pair<int, int> move;
+            double obj4Move;
+
+            while (!find_global) {
+                double minObj = neighSolObjs.top();
+                neighSolObjs.pop();
+                for (it = neighSolutions.begin(); it != neighSolutions.end(); ++it) {
+                    if (it->second == minObj) {
+                        // check connectivity
+                        int a = it->first.first;
+                        int r = it->first.second;
+                        if (objective_function->checkFeasibility(r, a)) {
+                            find_global = true;
+                            move = it->first;
+                            obj4Move = minObj;
+                            break;
                         }
                     }
                 }
             }
+
+            if (currentOBJ - obj4Move >= epsilon) {
+                minFound = 1;
+
+            } else if (tabuList.size() > 0){
+                // get from tabu list
+                double min_obj;
+                for (int i=0; i<tabuList.size(); ++i) {
+                    std::pair<std::pair<int, int>, double>& m = tabuList[i];
+                    if (i==0 || m.second < min_obj) {
+                        min_obj = m.second;
+                        move = m.first;
+                    }
+                }
+                obj4Move = min_obj;
+                if (aspireOBJ - obj4Move >= epsilon) {
+                    minFound = 1;
+                }
+            }
+
+            int area = move.first;
+            int oldRegion = area2Region[area];
+            int region = move.second;
+
+            // Add a new value to the tabu list.
+            // always added to the front and remove the last one
+            std::pair<int, int> add_tabu(area, region);
+            tabuList.insert(tabuList.begin(), std::make_pair(add_tabu, obj4Move));
+            if (tabuList.size() > tabuLength) tabuList.pop_back();
+
+            // move
+            region2Area[oldRegion].erase(area);
+            region2Area[region].insert(std::make_pair(area, true));
+            area2Region[area] = region;
+
+            // update
+            objective_function->UpdateRegion(region);
+            objective_function->UpdateRegion(oldRegion);
+            updateNeighSolution(area, region, oldRegion);
+
             if (minFound == 1) {
-                int area = move.first;
-                int region = move.second;
-                double obj4Move = this->neighSolutions[move];
-                int oldRegion = this->area2Region[area];
-                this->updateTabuList(area, oldRegion, tabuList, tabuLength);
-                this->moveArea(area, region);
                 this->objInfo = obj4Move;
                 if (aspireOBJ - obj4Move > epsilon) {
                     aspireOBJ = obj4Move;
@@ -930,14 +1009,9 @@ void AZPTabu::LocalImproving()
                 }
                 currentOBJ = obj4Move;
                 currentRegions = this->returnRegions();
+
             } else {
-                move = moveNoTabu;
-                int area = move.first;
-                int region = move.second;
-                double obj4Move = this->neighSolutions[move];
-                int oldRegion = this->area2Region[area];
-                this->updateTabuList(area, oldRegion, tabuList, tabuLength);
-                this->moveArea(area, region);
+
                 this->objInfo = obj4Move;
                 currentOBJ = obj4Move;
                 currentRegions = this->returnRegions();
@@ -948,89 +1022,76 @@ void AZPTabu::LocalImproving()
     this->regions = aspireRegions;
     this->region2Area = region2AreaAspire;
     this->area2Region = area2RegionAspire;
-     */
 }
 
-std::vector<std::pair<int, int> > AZPTabu::updateTabuList(int area, int region, std::vector<std::pair<int, int> >& aList, int endInd)
-{
-    // Add a new value to the tabu list.
-    // always added to the front and remove the last one
-    aList.insert(aList.begin(), std::make_pair(area, region));
-    aList.pop_back();
-
-    return aList;
-}
-
-boost::unordered_map<int, double> AZPTabu::makeObjDict()
-{
-    // constructs a dictionary with the objective function per region
-    boost::unordered_map<int, double> objDict;
-
-    /*
-    boost::unordered_map<int, std::set<int> >::iterator it;
-    std::set<int>::iterator sit;
-
-    for (it = region2Area.begin(); it != region2Area.end(); ++it) {
-        int region = it->first;
-
-        const std::set<int>& areasIdsIn = region2Area[region];
-        // compute centroid of this set of areas
-        double* dataAvg = new double[m];
-
-        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
-            int idx = *sit;
-            for (int j=0; j<m; ++j) {
-                dataAvg[j] += data[idx][j];
-            }
-        }
-        double n_areas = (double)areasIdsIn.size();
-        for (int j=0; j<m; ++j) {
-            dataAvg[j] /= n_areas;
-        }
-
-        // distance from area in this region to centroid
-        objDict[region]  = 0.0;
-        for (sit = areasIdsIn.begin(); sit != areasIdsIn.end(); ++sit) {
-            int idx = *sit;
-            double dist = DataUtils::EuclideanDistance(data[idx], dataAvg, m, NULL);
-            objDict[region] += dist;
-        }
-
-        delete[] dataAvg;
-    }
-     */
-    return objDict;
-}
 
 void AZPTabu::allCandidates()
 {
-    /*
     // Select neighboring solutions.
-    boost::unordered_map<int, std::set<int> > intraCopy = intraBorderingAreas;
-    boost::unordered_map<int, std::set<int> > region2AreaCopy = region2Area;
-    boost::unordered_map<int, int> area2RegionCopy = area2Region;
+    boost::unordered_map<int, bool>::iterator it;
+    std::set<int>::iterator moves_it;
 
-    neighSolutions.clear();
-    std::set<int>::iterator rit;
-    boost::unordered_map<int, std::set<int> >::iterator it;
-
-    for (it = intraCopy.begin(); it!= intraCopy.end(); ++it) {
-        int area = it->first;
-        int regionIn = this->area2Region[area];
-        std::set<int> regions4Move = this->intraBorderingAreas[area];
-        if (this->region2Area[regionIn].size() > 1) {
-            for (rit = regions4Move.begin(); rit != regions4Move.end(); ++rit) {
-                int region = *rit;
-                int f = this->checkFeasibility(regionIn, area, this->region2Area);
-                if (f == 1) {
-                    this->swapArea(area, region, region2AreaCopy, area2RegionCopy);
-                    std::pair<int, int> modifiedRegions = std::make_pair(region, regionIn);
-                    double obj = this->recalcObj(region2AreaCopy, modifiedRegions);
-                    this->neighSolutions[std::make_pair(area, region)] = obj;
-                    this->swapArea(area, regionIn, region2AreaCopy, area2RegionCopy);
+    for (int r=0; r<p; ++r) {
+        getBorderingAreas(r);
+        boost::unordered_map<int, bool>& areas = region2Area[r];
+        for (it = areas.begin(); it != areas.end(); ++it) {
+            int a = it->first;
+            if (it->second == true) { // boarding area
+                std::set<int> moves = getPossibleMove(a);
+                for (moves_it = moves.begin(); moves_it != moves.end(); ++moves_it) {
+                    int move = *moves_it;
+                    double obj = objective_function->TabuSwap(a, r, move);
+                    neighSolutions[std::make_pair(a, move)] = obj;
+                    neighSolObjs.push(obj);
                 }
             }
         }
     }
-     */
+
+}
+
+void AZPTabu::updateNeighSolution(int area, int from, int to)
+{
+    // rebuild  neighSolutions that related to region "from" and "to"
+    std::vector<std::pair<int, int> > removed_keys;
+
+    boost::unordered_map<std::pair<int, int>, double>::iterator it;
+    for (it = neighSolutions.begin(); it != neighSolutions.end(); ++it) {
+        if (it->first.second == from || it ->first.second == to) {
+            removed_keys.push_back(it->first);
+        }
+    }
+
+    for (int i=0; i<removed_keys.size(); ++i) {
+        neighSolutions.erase(removed_keys[i]);
+    }
+
+    boost::unordered_map<int, bool>::iterator ait;
+    std::set<int>::iterator moves_it;
+
+    std::vector<int> rr;
+    rr.push_back(from);
+    rr.push_back(to);
+
+    for (int i=0; i<rr.size(); ++i) {
+        int r = rr[i];
+        getBorderingAreas(r);
+        boost::unordered_map<int, bool>& areas = region2Area[r];
+        for (ait = areas.begin(); ait != areas.end(); ++ait) {
+            int a = ait->first;
+            if (ait->second == true) { // boarding area
+                std::set<int> moves = getPossibleMove(a);
+                for (moves_it = moves.begin(); moves_it != moves.end(); ++moves_it) {
+                    int move = *moves_it;
+                    double obj = objective_function->TabuSwap(a, r, move);
+                    neighSolutions[std::make_pair(a, move)] = obj;
+                }
+            }
+        }
+    }
+
+    neighSolObjs.clear();
+    for (it = neighSolutions.begin(); it != neighSolutions.end(); ++it) {
+        neighSolObjs.push(it->second);
+    }
 }
