@@ -140,6 +140,44 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
     return is_valid;
 }
 
+double ZoneControl::getZoneValue(int i, boost::unordered_map<int, bool>& candidates)
+{
+    // get zone value for comparison
+    double zone_val = 0;
+    boost::unordered_map<int, bool>::iterator it;
+    if (operations[i] == Operation::SUM) {
+        double sum = 0;
+        for (it=candidates.begin(); it!=candidates.end(); ++it) {
+            sum += data[ it->first ];
+        }
+        zone_val = sum;
+    } else if (operations[i] == Operation::MEAN) {
+        double sum = 0;
+        for (it=candidates.begin(); it!=candidates.end(); ++it) {
+            sum += data[it->first];
+        }
+        double mean = sum / (double) candidates.size();
+        zone_val = mean;
+    } else if (operations[i] == Operation::MAX) {
+        double max = data[candidates[0]];
+        for (it=candidates.begin(); it!=candidates.end(); ++it) {
+            if (max < data[it->first]) {
+                max = data[it->first];
+            }
+        }
+        zone_val = max;
+    } else if (operations[i] == Operation::MIN) {
+        double min = data[candidates[0]];
+        for (it=candidates.begin(); it!=candidates.end(); ++it) {
+            if (min > data[it->first]) {
+                min = data[it->first];
+            }
+        }
+        zone_val = min;
+    }
+    return zone_val;
+}
+
 bool ZoneControl::SatisfyLowerBound(boost::unordered_map<int, bool>& candidates)
 {
     bool is_valid = true; // default true since no check will yield good cands
@@ -151,41 +189,34 @@ bool ZoneControl::SatisfyLowerBound(boost::unordered_map<int, bool>& candidates)
         }
 
         // get zone value for comparison
-        double zone_val = 0;
-        if (operations[i] == Operation::SUM) {
-            double sum = 0;
-            for (it=candidates.begin(); it!=candidates.end(); ++it) {
-                sum += data[ it->first ];
+        double zone_val = getZoneValue(i, candidates);
+        // compare zone value
+        if (comparators[i] == Comparator::MORE_THAN) {
+            if (zone_val < comp_values[i]) {
+                return false; // not yet satisfy lower bound
             }
-            zone_val = sum;
-        } else if (operations[i] == Operation::MEAN) {
-            double sum = 0;
-            for (it=candidates.begin(); it!=candidates.end(); ++it) {
-                sum += data[it->first];
-            }
-            double mean = sum / (double) candidates.size();
-            zone_val = mean;
-        } else if (operations[i] == Operation::MAX) {
-            double max = data[candidates[0]];
-            for (it=candidates.begin(); it!=candidates.end(); ++it) {
-                if (max < data[it->first]) {
-                    max = data[it->first];
-                }
-            }
-            zone_val = max;
-        } else if (operations[i] == Operation::MIN) {
-            double min = data[candidates[0]];
-            for (it=candidates.begin(); it!=candidates.end(); ++it) {
-                if (min > data[it->first]) {
-                    min = data[it->first];
-                }
-            }
-            zone_val = min;
         }
+    }
+    return is_valid;
+}
+
+bool ZoneControl::CheckBound(boost::unordered_map<int, bool>& candidates)
+{
+    bool is_valid = true; // default true since no check will yield good cands
+    boost::unordered_map<int, bool>::iterator it;
+
+    for (size_t i=0;  i< comparators.size(); ++i) {
+
+        // get zone value for comparison
+        double zone_val = getZoneValue(i, candidates);
 
         // compare zone value
         if (comparators[i] == Comparator::MORE_THAN) {
             if (zone_val < comp_values[i]) {
+                return false; // not yet satisfy lower bound
+            }
+        } else if (comparators[i] == Comparator::LESS_THAN) {
+            if (zone_val > comp_values[i]) {
                 return false; // not yet satisfy lower bound
             }
         }
@@ -386,6 +417,19 @@ std::vector<int> RegionMaker::kmeansInit()
     return seeds;
 }
 
+bool RegionMaker::IsSatisfyControls()
+{
+    bool satisfy = true;
+    REGION_AREAS::iterator it;
+    for (it = region2Area.begin(); it != region2Area.end(); ++it) {
+        for (int i=0;  i<controls.size(); ++i) {
+            if (controls[i].CheckBound(it->second)  == false) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
 void RegionMaker::setSeeds(std::vector<int> seeds)
 {
     // Sets the initial seeds for clustering
@@ -936,6 +980,14 @@ void AZPSA::LocalImproving()
 ////// AZP Tabu
 ////////////////////////////////////////////////////////////////////////////////
 
+// Compares two intervals according to staring times.
+bool CompareTabu(std::pair<std::pair<int, int>, double> i1,
+                 std::pair<std::pair<int, int>, double> i2)
+{
+    return (i1.second < i2.second);
+}
+
+
 void AZPTabu::LocalImproving()
 {
     // Tabu search algorithm for Openshaws AZP-tabu (1995)
@@ -952,9 +1004,8 @@ void AZPTabu::LocalImproving()
     int c = 1;
     double epsilon = 1e-10;
 
-    this->allCandidates();
-
     while (c < convTabu) {
+        this->allCandidates();
 
         if (this->neighSolutions.size() == 0) {
             c += convTabu;
@@ -967,15 +1018,16 @@ void AZPTabu::LocalImproving()
             std::pair<int, int> move;
             double obj4Move;
 
-            while (!find_global) {
+            while (!find_global && !neighSolObjs.empty()) {
                 double minObj = neighSolObjs.top();
                 neighSolObjs.pop();
                 for (it = neighSolutions.begin(); it != neighSolutions.end(); ++it) {
                     if (it->second == minObj) {
                         // check connectivity
                         int a = it->first.first;
-                        int r = it->first.second;
-                        if (objective_function->checkFeasibility(r, a)) {
+                        int from = area2Region[a];
+                        // move "a" to region "r"
+                        if (objective_function->checkFeasibility(from, a)) {
                             find_global = true;
                             move = it->first;
                             obj4Move = minObj;
@@ -990,12 +1042,24 @@ void AZPTabu::LocalImproving()
 
             } else if (tabuList.size() > 0){
                 // get from tabu list
-                double min_obj;
-                for (int i=0; i<tabuList.size(); ++i) {
-                    std::pair<std::pair<int, int>, double>& m = tabuList[i];
-                    if (i==0 || m.second < min_obj) {
+                std::vector<std::pair<std::pair<int, int>, double> > tabuListCopy = tabuList;
+                std::sort(tabuListCopy.begin(), tabuListCopy.end(), CompareTabu);
+
+                double min_obj = obj4Move;
+                for (int i=0; i<tabuListCopy.size(); ++i) {
+                    std::pair<std::pair<int, int>, double>& m = tabuListCopy[i];
+                    int a = m.first.first;
+                    int to = m.first.second;
+                    int from = area2Region[a];
+                    // note: since tabuList is a old record, so area "a"
+                    // may no longer be the "boarding" area, and moving "a" to
+                    // region "to" could 1) breaks "a"'s region, and 2)
+                    // breaks the region "from"
+                    if (objective_function->checkFeasibility(from, a) &&
+                        objective_function->checkFeasibility(to, a, false)) {
                         min_obj = m.second;
                         move = m.first;
+                        break;
                     }
                 }
                 obj4Move = min_obj;
@@ -1010,7 +1074,7 @@ void AZPTabu::LocalImproving()
 
             // Add a new value to the tabu list.
             // always added to the front and remove the last one
-            std::pair<int, int> add_tabu(area, region);
+            std::pair<int, int> add_tabu(area, oldRegion);
             tabuList.insert(tabuList.begin(), std::make_pair(add_tabu, obj4Move));
             if (tabuList.size() > tabuLength) tabuList.pop_back();
 
@@ -1022,7 +1086,6 @@ void AZPTabu::LocalImproving()
             // update
             objective_function->UpdateRegion(region);
             objective_function->UpdateRegion(oldRegion);
-            updateNeighSolution(area, region, oldRegion);
 
             if (minFound == 1) {
                 this->objInfo = obj4Move;
@@ -1057,12 +1120,17 @@ void AZPTabu::allCandidates()
     boost::unordered_map<int, bool>::iterator it;
     std::set<int>::iterator moves_it;
 
+    neighSolutions.clear();
+    neighSolObjs.clear();
+
     for (int r=0; r<p; ++r) {
+        // get bordering area in each region "r"
         getBorderingAreas(r);
         boost::unordered_map<int, bool>& areas = region2Area[r];
         for (it = areas.begin(); it != areas.end(); ++it) {
             int a = it->first;
-            if (it->second == true) { // boarding area
+            if (it->second == true) {
+                // processing boarding area, find possible moves
                 std::set<int> moves = getPossibleMove(a);
                 for (moves_it = moves.begin(); moves_it != moves.end(); ++moves_it) {
                     int move = *moves_it;
@@ -1109,8 +1177,10 @@ void AZPTabu::updateNeighSolution(int area, int from, int to)
                 std::set<int> moves = getPossibleMove(a);
                 for (moves_it = moves.begin(); moves_it != moves.end(); ++moves_it) {
                     int move = *moves_it;
-                    double obj = objective_function->TabuSwap(a, r, move);
-                    neighSolutions[std::make_pair(a, move)] = obj;
+                    if (a != area) { // ignore already just moved area
+                        double obj = objective_function->TabuSwap(a, r, move);
+                        neighSolutions[std::make_pair(a, move)] = obj;
+                    }
                 }
             }
         }

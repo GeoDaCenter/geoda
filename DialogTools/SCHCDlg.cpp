@@ -60,6 +60,17 @@ SCHCDlg::~SCHCDlg()
 
 void SCHCDlg::OnSave(wxCommandEvent& event )
 {
+    long user_select_n;
+    combo_n->GetValue().ToLong(&user_select_n);
+    if (user_select_n < cutoff_n_cluster) {
+        wxString msg = _("The selected number of clusters is %d. It is less than the minimum number of clusters (%d) that guarantees spatially constrained results.\n\nDo you want to continue?");
+        wxMessageDialog dlg(NULL, wxString::Format(msg, (int)user_select_n, cutoff_n_cluster),
+                            _("Warning"), wxYES_NO | wxNO_DEFAULT | wxICON_WARNING);
+        if (dlg.ShowModal() == wxID_NO) {
+            return;
+        }
+    }
+
     HClusterDlg::OnSave(event);
 
     // check cluster connectivity

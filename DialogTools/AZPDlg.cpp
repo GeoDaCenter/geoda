@@ -82,7 +82,7 @@ void AZPDlg::CreateControls()
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
     // Number of Regions
-    wxStaticText* st_region = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
+    wxStaticText* st_region = new wxStaticText(panel, wxID_ANY, _("Number of Regions:"));
     txt_regions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_regions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_region, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
@@ -247,10 +247,10 @@ void AZPDlg::OnCheckMinBound(wxCommandEvent& event)
     AbstractClusterDlg::OnCheckMinBound(event);
    
     if (chk_floor->IsChecked()) {
-        st_minregions->Disable();
+        //st_minregions->Disable();
         txt_minregions->Disable();
     } else {
-        st_minregions->Enable();
+        //st_minregions->Enable();
         txt_minregions->Enable();
     }
 }
@@ -620,7 +620,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         azp = new AZPSA(p, gw->gal, input_data, &dm, rows, columns,
                         controllers, cool_rate, max_iter, init_regions, rnd_seed);
     }
-    if (azp->IsControlSatisfied() == false) {
+    if (azp->IsSatisfyControls() == false) {
         wxString msg = _("The clustering results violate the requirement of minimum bound  or minimum number per region. Please adjust the input and try again.");
         wxMessageDialog dlg(NULL, msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();

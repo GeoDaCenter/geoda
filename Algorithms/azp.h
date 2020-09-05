@@ -68,9 +68,13 @@ public:
     // Check if a candidate zone satisfies the restrictions
     bool SatisfyLowerBound(boost::unordered_map<int, bool>& candidates);
 
+    bool CheckBound(boost::unordered_map<int, bool>& candidates);
+
     bool CheckRemove(int area, boost::unordered_map<int, bool>& candidates);
 
     bool CheckAdd(int area, boost::unordered_map<int, bool>& candidates);
+
+    double getZoneValue(int i, boost::unordered_map<int, bool>& candidates);
 
 protected:
     std::vector<double> data;
@@ -298,11 +302,18 @@ public:
         return GetValue();
     }
 
-    bool checkFeasibility(int regionID, int areaID)
+    bool checkFeasibility(int regionID, int areaID, bool is_remove = true)
     {
-        // Check feasibility from a change region (remove an area from a region)
+        // Check feasibility from a change region
         boost::unordered_map<int, bool> areas2Eval = regions[regionID];
-        areas2Eval.erase(areaID);
+
+        if (is_remove) {
+            // removing an area from a region
+            areas2Eval.erase(areaID);
+        } else {
+            // adding an area from a region)
+            areas2Eval[areaID] = true;
+        }
 
         // remove the area first
         int seedArea = areas2Eval.begin()->first;
@@ -375,7 +386,7 @@ public:
     virtual double GetFinalObjectiveFunction() = 0;
 
     // Check is_control_satisfied
-    bool IsControlSatisfied() { return is_control_satisfied;}
+    bool IsSatisfyControls();
 
 protected:
     // Return the areas of a region
