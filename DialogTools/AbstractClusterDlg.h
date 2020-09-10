@@ -136,14 +136,18 @@ protected:
     // -- functions
     virtual void AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                bool show_auto_button = false,
-                               bool show_spatial_weights = true);
+                               bool show_spatial_weights = true,
+                               bool single_variable = false,
+                               bool add_centroids = true);
     virtual void AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
                                      bool integer_only = false,
-                                     bool show_spatial_weights = false);
+                                     bool show_spatial_weights = false,
+                                     bool add_centroids = true);
     virtual void OnUseCentroids(wxCommandEvent& event);
     virtual void OnSlideWeight(wxCommandEvent& event);
     virtual void InitVariableCombobox(wxListBox* var_box,
-                                      bool integer_only=false);
+                                      bool integer_only=false,
+                                      bool add_centroids=true);
     virtual bool GetInputData(int transform, int min_num_var=2);
     virtual void OnInputWeights(wxCommandEvent& event);
 

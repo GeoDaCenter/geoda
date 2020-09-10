@@ -264,7 +264,8 @@ public:
 	void OnOpenMultiLocalGeary(wxCommandEvent& event);
 	void OnOpenBivariateLJC(wxCommandEvent& event);
     void OnOpenMultiLJC(wxCommandEvent& event);
-
+    void OnOpenQuantileLisa(wxCommandEvent& event);
+    void OnOpenMultiQuantileLisa(wxCommandEvent& event);
     void OnOpenLocalMatch(wxCommandEvent& event);
 
 	void OnNewCustomCatClassifA(wxCommandEvent& event);

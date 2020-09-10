@@ -419,7 +419,6 @@ std::vector<int> RegionMaker::kmeansInit()
 
 bool RegionMaker::IsSatisfyControls()
 {
-    bool satisfy = true;
     REGION_AREAS::iterator it;
     for (it = region2Area.begin(); it != region2Area.end(); ++it) {
         for (int i=0;  i<controls.size(); ++i) {

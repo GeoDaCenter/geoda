@@ -133,6 +133,7 @@
 #include "DialogTools/SpatialJoinDlg.h"
 #include "DialogTools/MultiVarSettingsDlg.h"
 #include "DialogTools/nbrMatchDlg.h"
+#include "DialogTools/quantileLisaDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"
@@ -657,6 +658,9 @@ void GdaFrame::UpdateToolbarAndMenus()
     EnableTool(XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_LOCAL_GEARY"), shp_proj);
 
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_QUANTILE_LISA"), shp_proj);
+    GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_MUL_QUANTILE_LISA"), shp_proj);
+    
     EnableTool(XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
     GeneralWxUtils::EnableMenuItem(mb, XRCID("IDM_UNI_LOCAL_MATCH"), shp_proj);
 	
@@ -3717,6 +3721,52 @@ void GdaFrame::OnOpenLocalMatch(wxCommandEvent& event)
     }
 
     NbrMatchDlg* dlg = new NbrMatchDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnOpenQuantileLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenMultiQuantileLisa.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (QuantileLisaDlg* w = dynamic_cast<QuantileLisaDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    QuantileLisaDlg* dlg = new QuantileLisaDlg(this, p);
+    dlg->Show(true);
+}
+
+void GdaFrame::OnOpenMultiQuantileLisa(wxCommandEvent& event)
+{
+    wxLogMessage("Open OnOpenMultiQuantileLisa.");
+
+    Project* p = GetProject();
+    if (!p) return;
+
+    FramesManager* fm = p->GetFramesManager();
+    std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
+    std::list<FramesManagerObserver*>::iterator it;
+    for (it=observers.begin(); it != observers.end(); ++it) {
+        if (QuantileLisaDlg* w = dynamic_cast<QuantileLisaDlg*>(*it)) {
+            w->Show(true);
+            w->Maximize(false);
+            w->Raise();
+            return;
+        }
+    }
+
+    QuantileLisaDlg* dlg = new QuantileLisaDlg(this, p);
     dlg->Show(true);
 }
 
@@ -7093,6 +7143,9 @@ BEGIN_EVENT_TABLE(GdaFrame, wxFrame)
 
     EVT_MENU(XRCID("IDM_UNI_LOCAL_GEARY"), GdaFrame::OnOpenUniLocalGeary)
     EVT_MENU(XRCID("IDM_MUL_LOCAL_GEARY"), GdaFrame::OnOpenMultiLocalGeary)
+
+    EVT_MENU(XRCID("IDM_UNI_QUANTILE_LISA"), GdaFrame::OnOpenQuantileLisa)
+    EVT_MENU(XRCID("IDM_MUL_QUANTILE_LISA"), GdaFrame::OnOpenMultiQuantileLisa)
 
     EVT_MENU(XRCID("IDM_UNI_LOCAL_MATCH"), GdaFrame::OnOpenLocalMatch)
 

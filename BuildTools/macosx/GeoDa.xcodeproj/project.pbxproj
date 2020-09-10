@@ -71,6 +71,7 @@
 		A19580B6241992CA0089C6CE /* linpack_lite.c in Sources */ = {isa = PBXBuildFile; fileRef = A19580B4241992CA0089C6CE /* linpack_lite.c */; };
 		A19D5A1024CB97AB006425B3 /* MapViewHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */; };
 		A19F51501756A11E006E31B4 /* plugins in Resources */ = {isa = PBXBuildFile; fileRef = A19F514D1756A11E006E31B4 /* plugins */; };
+		A1AAF2912509E70F00578A90 /* quantileLisaDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AAF28F2509E70F00578A90 /* quantileLisaDlg.cpp */; };
 		A1AC05BF1C8645F300B6FE5F /* AdjustYAxisDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */; };
 		A1B04ADD1B1921710045AA6F /* basemap_cache in CopyFiles */ = {isa = PBXBuildFile; fileRef = A1B04ADC1B1921710045AA6F /* basemap_cache */; };
 		A1B13EE31C3EDFF90064AD87 /* BasemapConfDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1B13EE21C3EDFF90064AD87 /* BasemapConfDlg.cpp */; };
@@ -465,6 +466,8 @@
 		A19D5A0E24CB97AB006425B3 /* MapViewHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapViewHelper.cpp; sourceTree = "<group>"; };
 		A19D5A0F24CB97AB006425B3 /* MapViewHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapViewHelper.h; sourceTree = "<group>"; };
 		A19F514D1756A11E006E31B4 /* plugins */ = {isa = PBXFileReference; lastKnownFileType = folder; name = plugins; path = BuildTools/macosx/plugins; sourceTree = "<group>"; };
+		A1AAF28F2509E70F00578A90 /* quantileLisaDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = quantileLisaDlg.cpp; sourceTree = "<group>"; };
+		A1AAF2902509E70F00578A90 /* quantileLisaDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantileLisaDlg.h; sourceTree = "<group>"; };
 		A1AC05BD1C8645F300B6FE5F /* AdjustYAxisDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AdjustYAxisDlg.cpp; sourceTree = "<group>"; };
 		A1AC05BE1C8645F300B6FE5F /* AdjustYAxisDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AdjustYAxisDlg.h; sourceTree = "<group>"; };
 		A1B04ADC1B1921710045AA6F /* basemap_cache */ = {isa = PBXFileReference; lastKnownFileType = folder; name = basemap_cache; path = BuildTools/CommonDistFiles/basemap_cache; sourceTree = "<group>"; };
@@ -1372,6 +1375,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A1AAF28F2509E70F00578A90 /* quantileLisaDlg.cpp */,
+				A1AAF2902509E70F00578A90 /* quantileLisaDlg.h */,
 				A166C58324FEA8B600D4EBA6 /* AZPDlg.cpp */,
 				A166C58424FEA8B600D4EBA6 /* AZPDlg.h */,
 				A1F37C7F24B4F85B007E98F0 /* SCHCDlg.cpp */,
@@ -2081,6 +2086,7 @@
 				A1D82DEF174D3EB6003DE20A /* ConnectDatasourceDlg.cpp in Sources */,
 				A1BE9E51174DD85F007B9C64 /* GdaAppResources.cpp in Sources */,
 				DDFE0E2A175034EC0099FFEC /* TimeState.cpp in Sources */,
+				A1AAF2912509E70F00578A90 /* quantileLisaDlg.cpp in Sources */,
 				A14735B921A65F1800CA69B2 /* bd_search.cpp in Sources */,
 				A4404A02208E65DD0007753D /* wxTranslationHelper.cpp in Sources */,
 				A19483962118BAAA009A87A2 /* oglmisc.cpp in Sources */,
