@@ -134,6 +134,7 @@
 #include "DialogTools/MultiVarSettingsDlg.h"
 #include "DialogTools/nbrMatchDlg.h"
 #include "DialogTools/quantileLisaDlg.h"
+#include "DialogTools/MultiQuantileLisaDlg.h"
 #include "Explore/CatClassification.h"
 #include "Explore/CovSpView.h"
 #include "Explore/CorrelParamsDlg.h"
@@ -3758,7 +3759,7 @@ void GdaFrame::OnOpenMultiQuantileLisa(wxCommandEvent& event)
     std::list<FramesManagerObserver*> observers(fm->getCopyObservers());
     std::list<FramesManagerObserver*>::iterator it;
     for (it=observers.begin(); it != observers.end(); ++it) {
-        if (QuantileLisaDlg* w = dynamic_cast<QuantileLisaDlg*>(*it)) {
+        if (MultiQuantileLisaDlg* w = dynamic_cast<MultiQuantileLisaDlg*>(*it)) {
             w->Show(true);
             w->Maximize(false);
             w->Raise();
@@ -3766,7 +3767,7 @@ void GdaFrame::OnOpenMultiQuantileLisa(wxCommandEvent& event)
         }
     }
 
-    QuantileLisaDlg* dlg = new QuantileLisaDlg(this, p);
+    MultiQuantileLisaDlg* dlg = new MultiQuantileLisaDlg(this, p);
     dlg->Show(true);
 }
 

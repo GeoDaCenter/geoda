@@ -44,6 +44,7 @@
 		A170116C24AAAA4F00844D84 /* dbscan.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116B24AAAA4F00844D84 /* dbscan.cpp */; };
 		A170116F24ABFBA100844D84 /* DBScanDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A170116D24ABFBA000844D84 /* DBScanDlg.cpp */; };
 		A1717C1524F611FE003B898C /* azp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1717C1324F611FD003B898C /* azp.cpp */; };
+		A177E6F1250A9A0B0086F734 /* MultiQuantileLisaDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A177E6F0250A9A0B0086F734 /* MultiQuantileLisaDlg.cpp */; };
 		A178F773227381CB00EB9CB7 /* DissolveDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */; };
 		A178F776227772FD00EB9CB7 /* GdaListBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F774227772FC00EB9CB7 /* GdaListBox.cpp */; };
 		A178F779227773C500EB9CB7 /* GdaChoice.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A178F777227773C500EB9CB7 /* GdaChoice.cpp */; };
@@ -413,6 +414,8 @@
 		A1717C1624F61584003B898C /* rng.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = rng.h; path = Algorithms/rng.h; sourceTree = "<group>"; };
 		A171FBFE1792332A000DD5A0 /* GdaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GdaException.h; sourceTree = "<group>"; };
 		A17336821C06917B00579354 /* WeightsManInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WeightsManInterface.h; path = VarCalc/WeightsManInterface.h; sourceTree = "<group>"; };
+		A177E6EF250A9A0B0086F734 /* MultiQuantileLisaDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiQuantileLisaDlg.h; sourceTree = "<group>"; };
+		A177E6F0250A9A0B0086F734 /* MultiQuantileLisaDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiQuantileLisaDlg.cpp; sourceTree = "<group>"; };
 		A178F771227381CA00EB9CB7 /* DissolveDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DissolveDlg.h; sourceTree = "<group>"; };
 		A178F772227381CB00EB9CB7 /* DissolveDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DissolveDlg.cpp; sourceTree = "<group>"; };
 		A178F774227772FC00EB9CB7 /* GdaListBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GdaListBox.cpp; sourceTree = "<group>"; };
@@ -1375,6 +1378,8 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A177E6F0250A9A0B0086F734 /* MultiQuantileLisaDlg.cpp */,
+				A177E6EF250A9A0B0086F734 /* MultiQuantileLisaDlg.h */,
 				A1AAF28F2509E70F00578A90 /* quantileLisaDlg.cpp */,
 				A1AAF2902509E70F00578A90 /* quantileLisaDlg.h */,
 				A166C58324FEA8B600D4EBA6 /* AZPDlg.cpp */,
@@ -1974,6 +1979,7 @@
 				DD7976C40F1D2CA800496A84 /* SparseVector.cpp in Sources */,
 				DD7976C50F1D2CA800496A84 /* Weights.cpp in Sources */,
 				DD7976F30F1D2D3100496A84 /* Randik.cpp in Sources */,
+				A177E6F1250A9A0B0086F734 /* MultiQuantileLisaDlg.cpp in Sources */,
 				DD64A2880F20FE06006B1E6D /* GeneralWxUtils.cpp in Sources */,
 				A195809D2409A8760089C6CE /* LoessPlotCanvas.cpp in Sources */,
 				DD64A5580F2910D2006B1E6D /* logger.cpp in Sources */,
