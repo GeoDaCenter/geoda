@@ -794,7 +794,7 @@ void MapTree::OnRightClick(wxMouseEvent& event)
     wxString map_name = map_titles[ new_order[select_id] ];
     BackgroundMapLayer* ml = GetMapLayer(map_name);
 
-    wxString menu_name = _("Zoom to Layer");
+    wxString menu_name = _("Layer Full Extent");
     popupMenu->Append(XRCID("MAPTREE_SET_LAYER_EXTENT"), menu_name);
     Connect(XRCID("MAPTREE_SET_LAYER_EXTENT"), wxEVT_COMMAND_MENU_SELECTED,
             wxCommandEventHandler(MapTree::OnZoomToLayer));
@@ -883,7 +883,12 @@ void MapTree::OnDraw(wxDC& dc)
     for (int i=0; i<new_order.size(); i++) {
         int idx = new_order[i];
         wxString map_name = map_titles[idx];
-        
+        if (i == 0) {
+            dc.SetTextForeground(*wxBLACK);
+        } else {
+            wxColour color(80,80,80);
+            dc.SetTextForeground(color);
+        }
         if (select_name != map_name) {
             int y =  py + (leg_h + leg_pad_y) * i;
             DrawLegend(dc, px_switch, y, map_name);
@@ -920,10 +925,6 @@ void MapTree::DrawLegend(wxDC& dc, int x, int y, wxString text)
     }
     
     x = x + leg_w + leg_pad_x;
-    dc.SetTextForeground(*wxBLACK);
-    if (text == current_map_title) {
-        dc.SetTextForeground(*wxLIGHT_GREY);
-    }
     
     // add highlight/all
     AssociateLayerInt* ml_int;
@@ -1080,17 +1081,13 @@ void MapTree::OnMapLayerChange()
 	is_resize = true;
     canvas->SetForegroundMayLayers(fg_maps);
     canvas->SetBackgroundMayLayers(bg_maps);
-    /*
-    double minx, miny, maxx, maxy;
-    if (!fg_maps.empty()) {
-        // zoom to top layer
-        fg_maps[0]->GetExtent(minx, miny, maxx, maxy);
-    } else {
-        // selected layer is current map
-        canvas->GetExtent(minx, miny, maxx, maxy);
+
+    // update selection if selection box is made
+    if (fg_maps.empty() == false) {
+        canvas->UpdateSelectionPoints();
     }
-    canvas->ExtentTo(minx, miny, maxx, maxy);
-     */
+    
+    // update the canvas
     canvas->RedrawMap();
 }
 

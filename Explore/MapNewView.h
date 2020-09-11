@@ -225,7 +225,7 @@ public:
     bool display_neighbor_color;
     bool display_map_with_graph;
     int  weights_graph_thickness;
-
+    bool draw_highlight_in_multilayers;
     wxColour graph_color;
     wxColour conn_selected_color;
     wxColour conn_selected_fill_color;
