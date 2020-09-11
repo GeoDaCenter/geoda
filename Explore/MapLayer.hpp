@@ -36,7 +36,7 @@ public:
     map<AssociateLayerInt*, Association> associated_layers;
     map<AssociateLayerInt*, bool> associated_lines;
     
-    AssociateLayerInt() : associate_pencolor(wxColour(192, 192, 192)) {}
+    AssociateLayerInt() : associate_pencolor(wxColour(50, 50, 50)) {}
     virtual ~AssociateLayerInt() {}
     
     virtual bool IsCurrentMap() = 0;

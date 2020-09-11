@@ -344,13 +344,13 @@ void MapCanvas::UpdateSelection(bool shiftdown, bool pointsel)
 
 void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
 {
-    // if top layer is not current map
-    if ( fg_maps.empty() ) {
+    // if top layer is current map
+    //if ( fg_maps.empty() ) {
         TemplateCanvas::UpdateSelectionPoints(shiftdown, pointsel);
         UpdateMapTree();
         return;
-    }
-
+    //}
+    /*
     // apply selection on top layer
     BackgroundMapLayer* ml = fg_maps[0];
     int nn = ml->GetNumRecords();
@@ -440,6 +440,7 @@ void MapCanvas::UpdateSelectionPoints(bool shiftdown, bool pointsel)
         highlight_timer->Start(50);
     }
     UpdateMapTree();
+     */
 }
 
 void MapCanvas::DetermineMouseHoverObjects(wxPoint pointsel)
@@ -834,6 +835,7 @@ void MapCanvas::ResizeSelectableShps(int virtual_scrn_w,
         BOOST_FOREACH( GdaShape* ms, selectable_shps ) {
             if (ms) ms->projectToBasemap(basemap);
         }
+
         if (!w_graph.empty() && display_weights_graph &&
             boost::uuids::nil_uuid() != weights_id) {
             // this is for resizing window with basemap + connectivity graph
@@ -1239,11 +1241,7 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
 
-    if (fg_maps.size() + bg_maps.size() < 3) {
-        // if current layer is not the first layer, do NOT draw highlight on
-        // current layer if the number of layers is more than 2
-        DrawHighlight(dc, this);
-    }
+    DrawHighlight(dc, this);
 
     if (fg_maps.empty() == false) {
         // drawing multi-layer highlight: using top layer
@@ -1295,7 +1293,7 @@ void MapCanvas::DrawHighlighted(wxMemoryDC &dc, bool revert)
                                     GdaConst::use_cross_hatching);
 
         } else {
-            for (int i=0, iend=selectable_shps.size(); i<iend; i++) {
+            for (int i=0; i<selectable_shps.size(); i++) {
                 if (hs[i] == !revert && _IsShpValid(i)) {
                     selectable_shps[i]->paintSelf(dc);
                 }
@@ -1495,6 +1493,7 @@ void MapCanvas::RenderToDC(wxDC &dc, int w, int h)
             BOOST_FOREACH( GdaShape* ms, foreground_shps ) {
                 if (ms) ms->projectToBasemap(basemap, basemap_scale);
             }
+
             if (!w_graph.empty() && display_weights_graph &&
                 boost::uuids::nil_uuid() != weights_id) {
                 for (int i=0; i<w_graph.size(); i++) {
@@ -2292,8 +2291,12 @@ void MapCanvas::ResetHighlight()
 
 void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
-    std::vector<bool>& hs = highlight_state->GetHighlight();
+    if (IsHide() == false) {
+        this->DrawHighlighted(dc, false);
+    }
 
+    std::vector<bool>& hs = highlight_state->GetHighlight();
+    
     // draw any connected layers
     std::map<AssociateLayerInt*, Association>::iterator it;
     for (it=associated_layers.begin(); it!=associated_layers.end();it++) {
@@ -2312,10 +2315,7 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
         }
         std::vector<wxString> fid; // e.g. 2 2 1 1 3 5 4 4
         associated_layer->GetKeyColumnData(associated_key, fid);
-        // if background layer
-        if (fg_maps.empty()) {
-            associated_layer->ResetHighlight();
-        }
+        associated_layer->ResetHighlight();
 
         std::map<wxString, std::vector<wxInt64> > aid_idx;
         for (int i=0; i<fid.size(); i++) {
@@ -2335,6 +2335,7 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
                 associated_layer->SetHighlight( ids[j] );
             }
         }
+        draw_highlight_in_multilayers = false;
         associated_layer->DrawHighlight(dc, map_canvas);
         
         for (int i=0; i<hs.size(); i++) {
@@ -2357,9 +2358,7 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
         }
     }
-    if (IsHide() == false) {
-        this->DrawHighlighted(dc, false);
-    }
+
 }
 
 GdaShape* MapCanvas::GetShape(int i)
@@ -2409,16 +2408,22 @@ void MapCanvas::PopulateCanvas()
         BackgroundMapLayer* ml = NULL;
         for (int i=bg_maps.size()-1; i>=0; i--) {
             ml = bg_maps[i];
-            GdaShapeLayer* bg_map = new GdaShapeLayer(ml->GetName(), ml);
-            background_maps.push_back(bg_map);
+            if (!ml->IsHide()) {
+                // make a copy since it will be deleted
+                GdaShapeLayer* bg_map = new GdaShapeLayer(ml->GetName(), ml);
+                background_maps.push_back(bg_map);
+            }
         }
         // Foreground map layers
         BOOST_FOREACH( GdaShape* map, foreground_maps ) { delete map; }
         foreground_maps.clear();
         for (int i=fg_maps.size()-1; i>=0; i--) {
             ml = fg_maps[i];
-            GdaShapeLayer* fg_map = new GdaShapeLayer(ml->GetName(), ml);
-            foreground_maps.push_back(fg_map);
+            if (!ml->IsHide()) {
+                // make a copy since it will be deleted
+                GdaShapeLayer* fg_map = new GdaShapeLayer(ml->GetName(), ml);
+                foreground_maps.push_back(fg_map);
+            }
         }
 	}
 
@@ -2568,13 +2573,12 @@ void MapCanvas::CreateConnectivityGraph()
     WeightsManInterface* w_man_int = project->GetWManInt();
     GalWeight* gal_weights = w_man_int->GetGal(weights_id);
     const std::vector<GdaPoint*>& c = project->GetCentroids();
-    std::vector<bool>& hs = highlight_state->GetHighlight();
     GdaPolyLine* edge;
     std::set<int> w_nodes;
     wxPen pen(graph_color, weights_graph_thickness);
     for (int i=0; gal_weights && i<gal_weights->num_obs; i++) {
         GalElement& e = gal_weights->gal[i];
-        for (int j=0, jend=e.Size(); j<jend; j++) {
+        for (int j=0; j<e.Size(); j++) {
             int nbr = e[j];
             if (i!=nbr) {
                 // connect i<->nbr

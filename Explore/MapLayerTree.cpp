@@ -1083,9 +1083,9 @@ void MapTree::OnMapLayerChange()
     canvas->SetBackgroundMayLayers(bg_maps);
 
     // update selection if selection box is made
-    if (fg_maps.empty() == false) {
-        canvas->UpdateSelectionPoints();
-    }
+    //if (fg_maps.empty() == false) {
+    //    canvas->UpdateSelectionPoints();
+    //}
     
     // update the canvas
     canvas->RedrawMap();

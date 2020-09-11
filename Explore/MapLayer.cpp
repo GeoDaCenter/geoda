@@ -57,6 +57,9 @@ BackgroundMapLayer::~BackgroundMapLayer()
     if (map_boundary) {
         delete map_boundary;
     }
+    for (int i=0; i<shapes.size(); ++i) {
+        delete shapes[i];
+    }
 }
 
 void BackgroundMapLayer::GetExtent(double &_minx, double &_miny, double &_maxx,
@@ -72,7 +75,6 @@ void BackgroundMapLayer::CleanMemory()
 {
     // shapes and geoms will be not deleted until the map destroyed 
     for (int i=0; i<shapes.size(); i++) {
-        delete shapes[i];
         delete geoms[i];
     }
 }
@@ -318,8 +320,10 @@ BackgroundMapLayer* BackgroundMapLayer::Clone(bool clone_style)
     if (map_boundary) {
         copy->map_boundary = map_boundary->clone();
     }
-    // not deep copy 
-    copy->shapes = shapes;
+    for (int i=0; i<shapes.size(); ++i) {
+        copy->shapes.push_back(shapes[i]->clone());
+    }
+    // not deep copy
     copy->geoms = geoms;
     copy->layer_proxy = layer_proxy;
     copy->highlight_flags = highlight_flags;
