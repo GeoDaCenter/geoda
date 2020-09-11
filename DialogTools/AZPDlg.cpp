@@ -542,8 +542,8 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     if  (l_min_region  > 0) {
         std::vector<double> ids(rows, 1);
         ZoneControl zc(ids);
-        zc.AddControl(ZoneControl::Operation::SUM,
-                      ZoneControl::Comparator::MORE_THAN, l_min_region);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, l_min_region);
         controllers.push_back(zc);
     }
     
@@ -559,8 +559,8 @@ void AZPDlg::OnOK(wxCommandEvent& event )
         }
         select_floor = combo_floor->GetString(combo_floor->GetSelection());
         ZoneControl zc(rows, bound_vals);
-        zc.AddControl(ZoneControl::Operation::SUM,
-                      ZoneControl::Comparator::MORE_THAN, min_bound);
+        zc.AddControl(ZoneControl::SUM,
+                      ZoneControl::MORE_THAN, min_bound);
         controllers.push_back(zc);
         delete[] bound_vals;
     }

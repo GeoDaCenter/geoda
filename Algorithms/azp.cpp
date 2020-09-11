@@ -31,20 +31,20 @@ bool ZoneControl::CheckRemove(int area, boost::unordered_map<int, bool>& candida
     bool is_valid = true; // default true since no check will yield good cands
     boost::unordered_map<int, bool>::iterator it;
     for (size_t i=0;  i< comparators.size(); ++i) {
-        if (comparators[i] != Comparator::MORE_THAN) {
+        if (comparators[i] != MORE_THAN) {
             continue;
         }
         
         // get zone value for comparison
         double zone_val = 0;
-        if (operations[i] == Operation::SUM) {
+        if (operations[i] == SUM) {
             double sum = 0;
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 sum += data[ it->first ];
             }
             sum -= data[area];
             zone_val = sum;
-        } else if (operations[i] == Operation::MEAN) {
+        } else if (operations[i] == MEAN) {
             double sum = 0;
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 sum += data[it->first];
@@ -52,7 +52,7 @@ bool ZoneControl::CheckRemove(int area, boost::unordered_map<int, bool>& candida
             sum -= data[area];
             double mean = sum / (double) (candidates.size() - 1);
             zone_val = mean;
-        } else if (operations[i] == Operation::MAX) {
+        } else if (operations[i] == MAX) {
             double max = data[candidates[0]];
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 if (max < data[it->first] && it->first != area) {
@@ -60,7 +60,7 @@ bool ZoneControl::CheckRemove(int area, boost::unordered_map<int, bool>& candida
                 }
             }
             zone_val = max;
-        } else if (operations[i] == Operation::MIN) {
+        } else if (operations[i] == MIN) {
             double min = data[candidates[0]];
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 if (min > data[it->first] && it->first != area) {
@@ -71,7 +71,7 @@ bool ZoneControl::CheckRemove(int area, boost::unordered_map<int, bool>& candida
         }
 
         // compare zone value
-        if (comparators[i] == Comparator::MORE_THAN) {
+        if (comparators[i] == MORE_THAN) {
             if (zone_val <= comp_values[i]) {
                 return false;
             }
@@ -85,20 +85,20 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
     bool is_valid = true; // default true since no check will yield good cands
     boost::unordered_map<int, bool>::iterator it;
     for (size_t i=0;  i< comparators.size(); ++i) {
-        if (comparators[i] != Comparator::LESS_THAN) {
+        if (comparators[i] != LESS_THAN) {
             continue;
         }
         
         // get zone value for comparison
         double zone_val = 0;
-        if (operations[i] == Operation::SUM) {
+        if (operations[i] == SUM) {
             double sum = 0;
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 sum += data[ it->first ];
             }
             sum += data[area];
             zone_val = sum;
-        } else if (operations[i] == Operation::MEAN) {
+        } else if (operations[i] == MEAN) {
             double sum = 0;
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 sum += data[it->first];
@@ -106,7 +106,7 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
             sum += data[area];
             double mean = sum / (double) (candidates.size() + 1);
             zone_val = mean;
-        } else if (operations[i] == Operation::MAX) {
+        } else if (operations[i] == MAX) {
             double max = data[candidates[0]];
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 if (max < data[it->first]) {
@@ -117,7 +117,7 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
                 max = data[area];
             }
             zone_val = max;
-        } else if (operations[i] == Operation::MIN) {
+        } else if (operations[i] == MIN) {
             double min = data[candidates[0]];
             for (it=candidates.begin(); it!=candidates.end(); ++it) {
                 if (min > data[it->first]) {
@@ -131,7 +131,7 @@ bool ZoneControl::CheckAdd(int area, boost::unordered_map<int, bool>& candidates
         }
 
         // compare zone value
-        if (comparators[i] == Comparator::LESS_THAN) {
+        if (comparators[i] == LESS_THAN) {
             if (zone_val >= comp_values[i]) {
                 return false;
             }
@@ -145,20 +145,20 @@ double ZoneControl::getZoneValue(int i, boost::unordered_map<int, bool>& candida
     // get zone value for comparison
     double zone_val = 0;
     boost::unordered_map<int, bool>::iterator it;
-    if (operations[i] == Operation::SUM) {
+    if (operations[i] == SUM) {
         double sum = 0;
         for (it=candidates.begin(); it!=candidates.end(); ++it) {
             sum += data[ it->first ];
         }
         zone_val = sum;
-    } else if (operations[i] == Operation::MEAN) {
+    } else if (operations[i] == MEAN) {
         double sum = 0;
         for (it=candidates.begin(); it!=candidates.end(); ++it) {
             sum += data[it->first];
         }
         double mean = sum / (double) candidates.size();
         zone_val = mean;
-    } else if (operations[i] == Operation::MAX) {
+    } else if (operations[i] == MAX) {
         double max = data[candidates[0]];
         for (it=candidates.begin(); it!=candidates.end(); ++it) {
             if (max < data[it->first]) {
@@ -166,7 +166,7 @@ double ZoneControl::getZoneValue(int i, boost::unordered_map<int, bool>& candida
             }
         }
         zone_val = max;
-    } else if (operations[i] == Operation::MIN) {
+    } else if (operations[i] == MIN) {
         double min = data[candidates[0]];
         for (it=candidates.begin(); it!=candidates.end(); ++it) {
             if (min > data[it->first]) {
@@ -184,14 +184,14 @@ bool ZoneControl::SatisfyLowerBound(boost::unordered_map<int, bool>& candidates)
     boost::unordered_map<int, bool>::iterator it;
 
     for (size_t i=0;  i< comparators.size(); ++i) {
-        if (comparators[i] != Comparator::MORE_THAN) {
+        if (comparators[i] != MORE_THAN) {
             continue;
         }
 
         // get zone value for comparison
         double zone_val = getZoneValue(i, candidates);
         // compare zone value
-        if (comparators[i] == Comparator::MORE_THAN) {
+        if (comparators[i] == MORE_THAN) {
             if (zone_val < comp_values[i]) {
                 return false; // not yet satisfy lower bound
             }
@@ -211,11 +211,11 @@ bool ZoneControl::CheckBound(boost::unordered_map<int, bool>& candidates)
         double zone_val = getZoneValue(i, candidates);
 
         // compare zone value
-        if (comparators[i] == Comparator::MORE_THAN) {
+        if (comparators[i] == MORE_THAN) {
             if (zone_val < comp_values[i]) {
                 return false; // not yet satisfy lower bound
             }
-        } else if (comparators[i] == Comparator::LESS_THAN) {
+        } else if (comparators[i] == LESS_THAN) {
             if (zone_val > comp_values[i]) {
                 return false; // not yet satisfy lower bound
             }
