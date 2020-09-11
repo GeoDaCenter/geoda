@@ -533,6 +533,13 @@
           <label>Multivariate Local Geary</label>
       </object>
       <object class="separator"/>
+      <object class="wxMenuItem" name="IDM_UNI_QUANTILE_LISA">
+          <label>Univariate Quantile LISA</label>
+      </object>
+      <object class="wxMenuItem" name="IDM_MUL_QUANTILE_LISA">
+          <label>Multivariate Quantile LISA</label>
+      </object>
+      <object class="separator"/>
       <object class="wxMenuItem" name="IDM_UNI_LOCAL_MATCH">
           <label>Local Neighbor Match Test</label>
       </object>
@@ -6196,6 +6203,13 @@
     </object>
     <object class="wxMenuItem" name="IDM_MUL_LOCAL_GEARY">
         <label>Multivariate Local Geary</label>
+    </object>
+    <object class="separator"/>
+    <object class="wxMenuItem" name="IDM_UNI_QUANTILE_LISA">
+        <label>Univariate Quantile LISA</label>
+    </object>
+    <object class="wxMenuItem" name="IDM_MUL_QUANTILE_LISA">
+        <label>Multivariate Quantile LISA</label>
     </object>
     <object class="separator"/>
     <object class="wxMenuItem" name="IDM_UNI_LOCAL_MATCH">

@@ -100,6 +100,7 @@ display_neighbors(false),
 display_map_with_graph(true),
 display_voronoi_diagram(false),
 display_heat_map(false),
+draw_highlight_in_multilayers(false),
 graph_color(GdaConst::conn_graph_outline_colour),
 conn_selected_color(GdaConst::conn_select_outline_colour),
 conn_selected_fill_color(GdaConst::conn_select_outline_colour),
@@ -254,6 +255,7 @@ std::vector<BackgroundMapLayer*> MapCanvas::GetForegroundMayLayers()
 void MapCanvas::SetForegroundMayLayers(std::vector<BackgroundMapLayer*>& val)
 {
     fg_maps = val;
+    draw_highlight_in_multilayers = !fg_maps.empty();
 }
 
 int MapCanvas::GetEmptyNumber()
@@ -1161,7 +1163,7 @@ void MapCanvas::TranslucentLayer0(wxMemoryDC& dc)
         }
         int hl_alpha_value = revert ? tran_unhighlighted : GdaConst::transparency_highlighted;
         if ( draw_highlight ) {
-            if ( hl_alpha_value == 255 || GdaConst::use_cross_hatching) {
+            if ( !draw_highlight_in_multilayers && (hl_alpha_value == 255 || GdaConst::use_cross_hatching)) {
                 DrawHighlightedShapes(dc, revert);
             } else {
                 // draw a highlight with transparency
@@ -1192,7 +1194,8 @@ void MapCanvas::TranslucentLayer0(wxMemoryDC& dc)
                     {
                         alpha_vals[i] = 0;
                     } else {
-                        if (alpha_vals[i] !=0) alpha_vals[i] = hl_alpha_value;
+                        if (alpha_vals[i] !=0)
+                            alpha_vals[i] = draw_highlight_in_multilayers ? 100: hl_alpha_value;
                     }
                 }
                 wxBitmap bm(image);
@@ -1236,12 +1239,14 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
         }
     }
 
-    if (fg_maps.empty()) {
-        // if current layer is top layer, just draw highlight
+    if (fg_maps.size() + bg_maps.size() < 3) {
+        // if current layer is not the first layer, do NOT draw highlight on
+        // current layer if the number of layers is more than 2
         DrawHighlight(dc, this);
-    } else {
-        // if current layer is not the first layer, do NOT draw highlight on current layer
-        // instead, drawing multi-layer highlight: using top layer
+    }
+
+    if (fg_maps.empty() == false) {
+        // drawing multi-layer highlight: using top layer
         BackgroundMapLayer* ml = fg_maps[fg_maps.size()-1];
         if (ml && ml->IsHide() == false) {
             int nhl = ml->GetHighlightRecords();
@@ -1250,6 +1255,8 @@ void MapCanvas::DrawHighlightedShapes(wxMemoryDC &dc, bool revert)
             }
         }
     }
+
+
 }
 
 void MapCanvas::SetHighlight(int idx)

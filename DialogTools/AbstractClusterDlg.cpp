@@ -209,14 +209,14 @@ bool AbstractClusterDlg::CheckConnectivity(GalElement* W)
 }
 
 void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                             bool integer_only, bool show_spatial_weights)
+             bool integer_only, bool show_spatial_weights, bool add_centroids)
 {
     wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
     
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(250,250), 0, NULL,
                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    InitVariableCombobox(combo_var, integer_only);
+    InitVariableCombobox(combo_var, integer_only, add_centroids);
     
     wxStaticBoxSizer *hbox0 = new wxStaticBoxSizer(wxVERTICAL, panel,
                                                    _("Input:"));
@@ -249,14 +249,18 @@ void AbstractClusterDlg::AddSimpleInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
 }
 
 void AbstractClusterDlg::AddInputCtrls(wxPanel *panel, wxBoxSizer* vbox,
-                                       bool show_auto_button, bool show_spatial_weights)
+                                       bool show_auto_button, bool show_spatial_weights,
+                                       bool single_variable, bool add_centroids)
 {
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Select Variables"));
-    
+    wxString ttl = single_variable ? _("Select a Variable") : _("Select Variables");
+    wxStaticText* st = new wxStaticText (panel, wxID_ANY, ttl);
+
+    long style =  wxLB_HSCROLL| wxLB_NEEDED_SB;
+    if (!single_variable) style = style | wxLB_MULTIPLE;
+
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                              wxSize(250,250), 0, NULL,
-                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
-    InitVariableCombobox(combo_var);
+                              wxSize(250,250), 0, NULL, style);
+    InitVariableCombobox(combo_var, add_centroids);
     
     m_use_centroids = new wxCheckBox(panel, wxID_ANY, _("Use geometric centroids"));
     auto_btn = new wxButton(panel, wxID_OK, _("Auto Weighting"));
@@ -805,7 +809,7 @@ bool AbstractClusterDlg::CheckMinBound()
 }
 
 void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
-                                              bool integer_only)
+                                              bool integer_only, bool add_centroids)
 {
     combo_var->Clear();
     var_items.Clear();
@@ -831,13 +835,15 @@ void AbstractClusterDlg::InitVariableCombobox(wxListBox* var_box,
         }
     }
 
-    // Add centroids variable
-    var_items.Add("<X-Centroids>");
-    name_to_nm["<X-Centroids>"] = "<X-Centroids>";
-    name_to_tm_id["<X-Centroids>"] = 0;
-    var_items.Add("<Y-Centroids>");
-    name_to_nm["<Y-Centroids>"] = "<Y-Centroids>";
-    name_to_tm_id["<Y-Centroids>"] = 0;
+    if (add_centroids) {
+        // Add centroids variable
+        var_items.Add("<X-Centroids>");
+        name_to_nm["<X-Centroids>"] = "<X-Centroids>";
+        name_to_tm_id["<X-Centroids>"] = 0;
+        var_items.Add("<Y-Centroids>");
+        name_to_nm["<Y-Centroids>"] = "<Y-Centroids>";
+        name_to_tm_id["<Y-Centroids>"] = 0;
+    }
 
     if (!var_items.IsEmpty()) {
         var_box->InsertItems(var_items,0);
