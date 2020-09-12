@@ -65,16 +65,15 @@ void MultiQuantileLisaDlg::CreateControls()
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
    
     // Input
-    wxBoxSizer* hbox_quantile = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticBoxSizer *hbox_quantile = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Add a Variable for Quantile LISA:"));
     wxBoxSizer* left_box = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* middle_box = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* right_box = new wxBoxSizer(wxVERTICAL);
 
 
     // variable list
-    wxStaticText* st = new wxStaticText (panel, wxID_ANY, _("Add a Variable for Quantile LISA:"));
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                              wxSize(200,250), 0, NULL,
+                              wxSize(280,250), 0, NULL,
                               wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var, false, false);
     // parameters
@@ -104,26 +103,25 @@ void MultiQuantileLisaDlg::CreateControls()
     gbox->Add(txt_output_field, 1, wxEXPAND);
 
     wxBoxSizer* var_box = new wxBoxSizer(wxVERTICAL);
-    var_box->Add(st, 0, wxALL, 10);
-    var_box->Add(combo_var, 1,  wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    var_box->Add(combo_var, 1,  wxEXPAND | wxALL, 10);
     var_box->Add(gbox, 0,  wxEXPAND);
 
     // list contrl
-    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(350,-1), wxLC_REPORT);
+    lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 180), wxLC_REPORT);
     lst_quantile->AppendColumn(_("Variable"));
     lst_quantile->SetColumnWidth(0, 80);
     lst_quantile->AppendColumn(_("Number of Quantiles"));
-    lst_quantile->SetColumnWidth(1, 100);
+    lst_quantile->SetColumnWidth(1, 120);
     lst_quantile->AppendColumn(_("Select Quantile"));
-    lst_quantile->SetColumnWidth(1, 30);
+    lst_quantile->SetColumnWidth(2, 120);
     lst_quantile->AppendColumn(_("New Field"));
-    lst_quantile->SetColumnWidth(1, 80);
+    lst_quantile->SetColumnWidth(3, 80);
 
     // move buttons
     move_left = new wxButton(panel, wxID_ANY, "<", wxDefaultPosition, wxSize(25,25));
     move_right = new wxButton(panel, wxID_ANY, ">", wxDefaultPosition, wxSize(25,25));
-    middle_box->Add(move_left, 0, wxTOP, 100);
     middle_box->Add(move_right, 0, wxTOP, 10);
+    middle_box->Add(move_left, 0, wxTOP, 100);
 
     left_box->Add(var_box);
     right_box->Add(lst_quantile, 1, wxALL|wxEXPAND, 5);
@@ -131,7 +129,20 @@ void MultiQuantileLisaDlg::CreateControls()
     hbox_quantile->Add(left_box);
     hbox_quantile->Add(middle_box);
     hbox_quantile->Add(right_box, 1, wxALL|wxEXPAND);
-    
+
+    // add spatial weights selection control
+    wxBitmap w_bitmap(wxXmlResource::Get()->LoadBitmap("SpatialWeights_Bmp"));
+    weights_btn = new wxBitmapButton(panel, wxID_ANY, w_bitmap, wxDefaultPosition,
+                                     w_bitmap.GetSize(), wxTRANSPARENT_WINDOW | wxBORDER_NONE);
+    st_spatial_w = new wxStaticText(panel, wxID_ANY, _("Select Spatial Weights:"));
+    m_spatial_weights = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(150,-1));
+    wxBoxSizer *hbox_spatial_w = new wxBoxSizer(wxHORIZONTAL);
+    hbox_spatial_w->Add(st_spatial_w, 0, wxALIGN_CENTER_VERTICAL | wxLEFT| wxRIGHT, 10);
+    hbox_spatial_w->Add(m_spatial_weights, 0, wxALIGN_CENTER_VERTICAL| wxRIGHT, 10);
+    hbox_spatial_w->Add(weights_btn,  0, wxALIGN_CENTER_VERTICAL);
+    // init the spatial weights control
+    InitSpatialWeights(m_spatial_weights);
+
     // buttons
     wxButton *okButton = new wxButton(panel, wxID_OK, _("Run"), wxDefaultPosition, wxSize(70, 30));
     wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"), wxDefaultPosition, wxSize(70, 30));
@@ -140,11 +151,12 @@ void MultiQuantileLisaDlg::CreateControls()
     hbox2->Add(closeButton, 1, wxALIGN_CENTER | wxALL, 5);
     
     // Container
-    vbox->Add(hbox_quantile, 0, wxALIGN_CENTER | wxALL, 10);
+    vbox->Add(hbox_quantile, 1, wxEXPAND | wxALL, 10);
+    vbox->Add(hbox_spatial_w, 0, wxALIGN_LEFT | wxALL, 10);
     vbox->Add(hbox2, 0, wxALIGN_CENTER | wxALL, 10);
     
     wxBoxSizer *container = new wxBoxSizer(wxHORIZONTAL);
-    container->Add(vbox);
+    container->Add(vbox, 1, wxEXPAND);
     
     panel->SetSizer(container);
    

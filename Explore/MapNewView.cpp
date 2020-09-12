@@ -2291,10 +2291,6 @@ void MapCanvas::ResetHighlight()
 
 void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
 {
-    if (IsHide() == false) {
-        this->DrawHighlighted(dc, false);
-    }
-
     std::vector<bool>& hs = highlight_state->GetHighlight();
     
     // draw any connected layers
@@ -2358,7 +2354,9 @@ void MapCanvas::DrawHighlight(wxMemoryDC& dc, MapCanvas* map_canvas)
             }
         }
     }
-
+    if (IsHide() == false) {
+        this->DrawHighlighted(dc, false);
+    }
 }
 
 GdaShape* MapCanvas::GetShape(int i)
