@@ -97,7 +97,7 @@ void MultiQuantileLisaDlg::CreateControls()
 
     // Quantiles
     wxStaticText* st14 = new wxStaticText(panel, wxID_ANY, _("Save Quantile Selection in Field:"));
-    txt_output_field = new wxTextCtrl(panel, wxID_ANY, "QT",wxDefaultPosition, wxSize(70,-1));
+    txt_output_field = new wxTextCtrl(panel, wxID_ANY, "QT1",wxDefaultPosition, wxSize(70,-1));
 
     gbox->Add(st14, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_output_field, 1, wxEXPAND);
@@ -110,18 +110,19 @@ void MultiQuantileLisaDlg::CreateControls()
     lst_quantile = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(400, 180), wxLC_REPORT);
     lst_quantile->AppendColumn(_("Variable"));
     lst_quantile->SetColumnWidth(0, 80);
-    lst_quantile->AppendColumn(_("Number of Quantiles"));
+    lst_quantile->AppendColumn(_("Number of Quantiles"), wxLIST_FORMAT_RIGHT);
     lst_quantile->SetColumnWidth(1, 120);
-    lst_quantile->AppendColumn(_("Select Quantile"));
+    lst_quantile->AppendColumn(_("Select Quantile"), wxLIST_FORMAT_RIGHT);
     lst_quantile->SetColumnWidth(2, 120);
     lst_quantile->AppendColumn(_("New Field"));
     lst_quantile->SetColumnWidth(3, 80);
+    
 
     // move buttons
     move_left = new wxButton(panel, wxID_ANY, "<", wxDefaultPosition, wxSize(25,25));
     move_right = new wxButton(panel, wxID_ANY, ">", wxDefaultPosition, wxSize(25,25));
-    middle_box->Add(move_right, 0, wxTOP, 10);
-    middle_box->Add(move_left, 0, wxTOP, 100);
+    middle_box->Add(move_right, 0, wxTOP, 100);
+    middle_box->Add(move_left, 0, wxTOP, 10);
 
     left_box->Add(var_box);
     right_box->Add(lst_quantile, 1, wxALL|wxEXPAND, 5);
@@ -175,9 +176,91 @@ void MultiQuantileLisaDlg::CreateControls()
     
     // Events
     txt_quantiles->Bind(wxEVT_KEY_UP, &MultiQuantileLisaDlg::OnChangeQuantiles, this);
+    move_left->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnRemoveRow, this);
+    move_right->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnAddRow, this);
+
+    weights_btn->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnSpatialWeights, this);
     okButton->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnOK, this);
     closeButton->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnCloseClick, this);
 }
+
+void MultiQuantileLisaDlg::OnRemoveRow(wxCommandEvent& event)
+{
+    long item = -1;
+    for ( ;; ) {
+        item = lst_quantile->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if ( item == -1 )  break;
+        // this item is selected - do whatever is needed with it
+        //wxLogMessage("Item %ld is selected.", item);
+        wxString field_name = lst_quantile->GetItemText(item, 3);
+        new_fields.erase(field_name);
+        lst_quantile->DeleteItem(item);
+    }
+}
+
+void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
+{
+    // check if inputs are valid
+    if (project == NULL) return;
+
+    // get selected variable
+    int sel_var = combo_var->GetSelection();
+    if (sel_var < 0) {
+        wxString err_msg = _("Please select a variable for Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    wxString var_name = combo_var->GetString(sel_var);
+    wxString col_name = name_to_nm[var_name];
+
+    int col = table_int->FindColId(col_name);
+    if (col == wxNOT_FOUND) {
+        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), col_name);
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+
+    // get num quantiles
+    long l_quantiles = 0;
+    wxString tmp_quantiles = txt_quantiles->GetValue();
+    if (tmp_quantiles.ToLong(&l_quantiles) == false) {
+        wxString err_msg = _("The input value for the number of quantiles is not valid.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    int n_quantiles = (int)l_quantiles;
+
+    // get select quantile
+    int sel_quantile = cho_quantile->GetSelection() + 1;
+
+    // save the binary data in table
+    wxString field_name = txt_output_field->GetValue();
+    if (field_name.IsEmpty() || new_fields.find(field_name) != new_fields.end()) {
+        wxString err_msg = _("Please enter a valid and non-duplicated field name for saving the quantile selection as binary data in table.");
+        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        dlg.ShowModal();
+        return;
+    }
+    
+    // add as a new row to listctrol
+    int new_row = lst_quantile->GetItemCount();
+    lst_quantile->InsertItem(new_row, var_name);
+    lst_quantile->SetItem(new_row, 1, tmp_quantiles);
+    lst_quantile->SetItem(new_row, 2, wxString::Format("%d", sel_quantile));
+    lst_quantile->SetItem(new_row, 3, field_name);
+
+    // save for detect duplicates
+    new_fields.insert(field_name);
+
+    // update the suggested field name
+    wxString suggest_field_nm = "QT";
+    suggest_field_nm << lst_quantile->GetItemCount()+1;
+    txt_output_field->SetValue(suggest_field_nm);
+}
+
 
 void MultiQuantileLisaDlg::update(TableState* o)
 {
@@ -197,6 +280,7 @@ void MultiQuantileLisaDlg::OnChangeQuantiles(wxKeyEvent& event)
         wxString err_msg = _("The input value for the number of quantiles is not valid. Please enter an integer number greater than 1.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
+        txt_quantiles->SetValue("5");
         return;
     }
     // change dropdown list items in cho_quantiles
@@ -231,101 +315,108 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
 
     if (project == NULL) return;
 
-    // get selected variable
-    int sel_var = combo_var->GetSelection();
-    if (sel_var < 0) {
-        wxString err_msg = _("Please select a variable for Quantile LISA.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    wxString var_name = combo_var->GetString(sel_var);
-    wxString col_name = name_to_nm[var_name];
-
-    int col = table_int->FindColId(col_name);
-    if (col == wxNOT_FOUND) {
-        wxString err_msg = wxString::Format(_("Variable %s is no longer in the Table.  Please close and reopen this dialog to synchronize with Table data."), col_name);
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    int tm = name_to_tm_id[var_name];
-    std::vector<double> data;
-    table_int->GetColData(col, tm, data);
-
     // Weights selection
     GalWeight* gw = CheckSpatialWeights();
     if (gw == NULL) {
         return;
     }
 
-    // get num quantiles
-    long l_quantiles = 0;
-    wxString tmp_quantiles = txt_quantiles->GetValue();
-    if (tmp_quantiles.ToLong(&l_quantiles) == false) {
-        wxString err_msg = _("The input value for the number of quantiles is not valid.");
+    // get selected variable
+    int num_vars = lst_quantile->GetItemCount();
+
+    if (num_vars < 2) {
+        wxString err_msg = _("Please add at least two variable for Multivarite Quantile LISA.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
     }
-    int n_quantiles = l_quantiles;
 
-    // get select quantile
-    int sel_quantile = cho_quantile->GetSelection() + 1;
+    std::vector<int> col_ids(num_vars);
+    std::vector<GdaVarTools::VarInfo> var_info(num_vars);
+    wxString var_details;
 
-    // compute quantile of selected variable
-    std::vector<double> breaks(n_quantiles - 1);
-    std::vector<double> sort_data = data;
-    std::sort(sort_data.begin(), sort_data.end());
-    for (int i=0; i < breaks.size(); ++i) {
-        breaks[i] = Gda::percentile(((i+1.0)*100.0)/((double) n_quantiles), sort_data);
-    }
-    breaks.insert(breaks.begin(), std::numeric_limits<double>::min());
-    breaks.push_back(std::numeric_limits<double>::max());
+    for (int i=0; i<num_vars; ++i) {
+        wxString var_name = lst_quantile->GetItemText(i, 0);
+        wxString col_name = name_to_nm[var_name];
+        int tm = name_to_tm_id[var_name];
+        int col = table_int->FindColId(col_name);
+        std::vector<double> data;
+        table_int->GetColData(col, tm, data);
 
-    // create a binary data for selected quantile
-    std::vector<wxInt64> bin_data(rows, 0);
-    double lower_bound = breaks[sel_quantile-1];
-    double upper_bound = breaks[sel_quantile];
+        wxString tmp_quantiles = lst_quantile->GetItemText(i, 1);
+        long l_quantiles = 0;
+        tmp_quantiles.ToLong(&l_quantiles);
+        int n_quantiles = l_quantiles;
 
-    for (int i=0; i < data.size(); ++i) {
-        if (lower_bound < data[i] && data[i] <= upper_bound) {
-            bin_data[i] = 1;
-        }
-    }
+        wxString tmp_selquantile = lst_quantile->GetItemText(i, 2);
+        long l_selquantile = 0;
+        tmp_selquantile.ToLong(&l_selquantile);
+        int sel_quantile = l_selquantile;
 
-    // save the binary data in table
-    wxString field_name = txt_output_field->GetValue();
-    if (field_name.IsEmpty()) {
-        wxString err_msg = _("Please enter a field name for saving the quantile selection as binary data in table.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
-    int time=0;
-    int new_col = table_int->FindColId(field_name);
-    if ( new_col == wxNOT_FOUND) {
-        int col_insert_pos = table_int->GetNumberCols();
-        int time_steps = 1;
-        int m_length_val = GdaConst::default_dbf_long_len;
-        int m_decimals_val = 0;
-        new_col = table_int->InsertCol(GdaConst::long64_type, field_name,
-                                   col_insert_pos, time_steps,
-                                   m_length_val, m_decimals_val);
-    } else {
-        // detect if column is integer field, if not raise a warning
-        if (table_int->GetColType(new_col) != GdaConst::long64_type ) {
-            wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
-            wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+        wxString field_name = lst_quantile->GetItemText(i, 3);
+        if (field_name.IsEmpty()) {
+            wxString err_msg = _("Please enter a field name for saving the quantile selection as binary data in table.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
             dlg.ShowModal();
             return;
         }
-    }
 
-    if (new_col > 0) {
-        vector<bool> clusters_undef(rows, false);
-        table_int->SetColData(new_col, time, bin_data);
-        table_int->SetColUndefined(col, time, clusters_undef);
+        var_details << var_name << "/" << sel_quantile << "/" << n_quantiles;
+        if (i < num_vars-1) var_details << ",";
+
+        // compute quantile of selected variable
+        std::vector<double> breaks(n_quantiles - 1);
+        std::vector<double> sort_data = data;
+        std::sort(sort_data.begin(), sort_data.end());
+        for (int i=0; i < breaks.size(); ++i) {
+            breaks[i] = Gda::percentile(((i+1.0)*100.0)/((double) n_quantiles), sort_data);
+        }
+        breaks.insert(breaks.begin(), std::numeric_limits<double>::min());
+        breaks.push_back(std::numeric_limits<double>::max());
+
+        // create a binary data for selected quantile
+        std::vector<wxInt64> bin_data(rows, 0);
+        double lower_bound = breaks[sel_quantile-1];
+        double upper_bound = breaks[sel_quantile];
+
+        for (int i=0; i < data.size(); ++i) {
+            if (lower_bound < data[i] && data[i] <= upper_bound) {
+                bin_data[i] = 1;
+            }
+        }
+        int time=0;
+        int new_col = table_int->FindColId(field_name);
+        if ( new_col == wxNOT_FOUND) {
+            int col_insert_pos = table_int->GetNumberCols();
+            int time_steps = 1;
+            int m_length_val = GdaConst::default_dbf_long_len;
+            int m_decimals_val = 0;
+            new_col = table_int->InsertCol(GdaConst::long64_type, field_name,
+                                           col_insert_pos, time_steps,
+                                           m_length_val, m_decimals_val);
+        } else {
+            // detect if column is integer field, if not raise a warning
+            if (table_int->GetColType(new_col) != GdaConst::long64_type ) {
+                wxString msg = _("This field name already exists (non-integer type). Please input a unique name.");
+                wxMessageDialog dlg(this, msg, _("Warning"), wxOK | wxICON_WARNING );
+                dlg.ShowModal();
+                return;
+            }
+        }
+
+        if (new_col > 0) {
+            std::vector<bool> clusters_undef(rows, false);
+            table_int->SetColData(new_col, time, bin_data);
+            table_int->SetColUndefined(col, time, clusters_undef);
+        }
+
+        col_ids[i] = new_col;
+        var_info[i].time = 0;
+        var_info[i].name = field_name;
+        var_info[i].is_time_variant = false;
+        table_int->GetMinMaxVals(new_col, var_info[i].min, var_info[i].max);
+        var_info[i].sync_with_global_time = false;
+        var_info[i].fixed_scale = true;
     }
 
     // compute binary local Join count
@@ -334,26 +425,14 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
     WeightsManInterface* w_man_int = project->GetWManInt();
     w_man_int->GetIds(weights_ids);
     if (sel >= weights_ids.size()) {
-        sel = weights_ids.size() - 1;
+        sel = (int)weights_ids.size() - 1;
     }
     boost::uuids::uuid w_id = weights_ids[sel];
-
-    std::vector<int> col_ids;
-    col_ids.push_back(new_col);
-
-    std::vector<GdaVarTools::VarInfo> var_info;
-    var_info.resize(1);
-    var_info[0].time = 0;
-    var_info[0].name = field_name;
-    var_info[0].is_time_variant = false;
-    table_int->GetMinMaxVals(new_col, var_info[0].min, var_info[0].max);
-    var_info[0].sync_with_global_time = false;
-    var_info[0].fixed_scale = true;
 
     JCCoordinator* lc = new JCCoordinator(w_id, project, var_info, col_ids);
     MLJCMapFrame *sf = new MLJCMapFrame(parent, project, lc, false);
 
-    wxString ttl = _("Multivariate Quantile LISA Map (%s, # of quantiles=%d, select quantile=%d)");
-    ttl = wxString::Format(ttl, var_name, n_quantiles, sel_quantile);
+    wxString ttl = _("Multivariate Quantile LISA Map (%s)");
+    ttl = wxString::Format(ttl, var_details);
     sf->SetTitle(ttl);
 }

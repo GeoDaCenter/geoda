@@ -44,6 +44,8 @@ public:
     void OnChangeQuantiles(wxKeyEvent& event);
     void OnCloseClick( wxCommandEvent& event );
     void OnClose(wxCloseEvent& ev);
+    void OnRemoveRow(wxCommandEvent& event);
+    void OnAddRow(wxCommandEvent& event);
 
     virtual wxString _printConfiguration() {return wxEmptyString;}
     virtual void update(TableState* o);
@@ -55,6 +57,9 @@ protected:
     wxListCtrl* lst_quantile;
     wxButton* move_left;
     wxButton* move_right;
+
+    std::set<wxString> new_fields;
+
     DECLARE_EVENT_TABLE()
 };
 
