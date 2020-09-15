@@ -325,7 +325,7 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
     int num_vars = lst_quantile->GetItemCount();
 
     if (num_vars < 2) {
-        wxString err_msg = _("Please add at least two variable for Multivarite Quantile LISA.");
+        wxString err_msg = _("Please add more than one variable for Multivarite Quantile LISA.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
