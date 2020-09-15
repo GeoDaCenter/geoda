@@ -70,8 +70,8 @@ MergeTableDlg::MergeTableDlg(wxWindow* parent, Project* _project_s,
 	SetParent(parent);
 
     m_wx_encoding = NULL;
-    table_int = project_s->GetTableInt(),
-    frames_manager = project_s->GetFramesManager(),
+    table_int = project_s->GetTableInt();
+    frames_manager = project_s->GetFramesManager();
     
 	CreateControls();
 	Init();
@@ -173,12 +173,12 @@ void MergeTableDlg::Init()
     std::set<wxString> field_name_set;
     std::vector<int> col_id_map;
     table_int->FillColIdMap(col_id_map);
-    for (size_t i=0; i<col_id_map.size(); i++) {
+    for (int i=0; i<col_id_map.size(); i++) {
         int id = col_id_map[i];
         wxString group_name = table_int->GetColName(id);
         table_fnames.insert(group_name);
         int tms = table_int->IsColTimeVariant(id) ? table_int->GetColTimeSteps(id) : 1;
-        for (size_t t=0; t<tms; t++) {
+        for (int t=0; t<tms; t++) {
             GdaConst::FieldType field_type = table_int->GetColType(id, i);
             wxString field_name = table_int->GetColName(id, i);
             // only String, Integer can be keys for merging
@@ -255,7 +255,7 @@ void MergeTableDlg::OnOpenClick( wxCommandEvent& ev )
         m_include_list->Clear();
         m_exclude_list->Clear();
         
-        for (size_t i=0; i < merge_layer_proxy->GetNumFields(); i++) {
+        for (int i=0; i < merge_layer_proxy->GetNumFields(); i++) {
             GdaConst::FieldType field_type = merge_layer_proxy->GetFieldType(i);
             wxString name = merge_layer_proxy->GetFieldName(i);
             wxString dedup_name = name;
@@ -349,7 +349,7 @@ bool MergeTableDlg::CheckKeys(wxString key_name, vector<wxString>& key_vec,
 {
     std::map<wxString, std::vector<int> > dup_dict; // value:[]
 	
-    for (int i=0, iend=key_vec.size(); i<iend; i++) {
+    for (int i=0; i<key_vec.size(); i++) {
         wxString tmpK = key_vec[i];
         tmpK.Trim(false);
         tmpK.Trim(true);
@@ -442,7 +442,7 @@ void MergeTableDlg::OnMergeClick( wxCommandEvent& ev )
         }
         OuterJoinMerge();
     }
-    Init();
+    //Init();
 	ev.Skip();
 }
 
@@ -567,7 +567,7 @@ void MergeTableDlg::OuterJoinMerge()
             return;
         
         int n_rows = table_int->GetNumberRows();
-        int n_merge_field = merged_field_names.size();
+        //int n_merge_field = (int)merged_field_names.size();
         
         map<int, int> rowid_map;
         
@@ -671,7 +671,7 @@ void MergeTableDlg::OuterJoinMerge()
         std::vector<GdaShape*> new_geoms = geoms;
         vector<wxString> new_key_vec = key1_vec;
         map<int, int> idx2_dict;
-        int idx2 = key1_vec.size();
+        int idx2 = (int)key1_vec.size();
         for (int i=0; i<key2_vec.size(); i++) {
             wxString tmp = key2_vec[i];
             if (key1_map.find(tmp) == key1_map.end()) {
@@ -686,7 +686,7 @@ void MergeTableDlg::OuterJoinMerge()
         }
         
         // Create a new in-memory geometries&table for merging
-        int new_rows = new_key_vec.size();
+        int new_rows = (int)new_key_vec.size();
         OGRTable* mem_table = new OGRTable(new_rows);
         vector<bool> undefs(new_rows, true);
         
@@ -710,7 +710,7 @@ void MergeTableDlg::OuterJoinMerge()
             }
         }
         // all columns from datasource
-        int in_cols = merged_field_names.size();
+        int in_cols = (int)merged_field_names.size();
         bool overwrite_field = m_overwrite_field->IsChecked();
         
         for (int i=0; i<in_cols; i++) {
@@ -786,7 +786,7 @@ void MergeTableDlg::LeftJoinMerge()
             return;
         
         int n_rows = table_int->GetNumberRows();
-        int n_merge_field = merged_field_names.size();
+        int n_merge_field = (int)merged_field_names.size();
        
         map<int, int> rowid_map;
         if (m_key_val_rb->GetValue()==1) { // check merge by key/record order

@@ -30,8 +30,8 @@ public:
     void points_in_polygons(int start, int end);
     void polygon_at_point(int start, int end);
     bool JoinVariable();
-    vector<wxInt64> GetResults();
-    vector<double> GetJoinResults();
+    std::vector<wxInt64> GetResults();
+    std::vector<std::vector<double> > GetJoinResults();
     virtual void sub_run(int start, int end) = 0;
 
 protected:
@@ -44,13 +44,15 @@ protected:
     bool duplicate_count;
 
     // results
-    vector<wxInt64> spatial_counts;
-    vector<double> spatial_joins;
+    std::vector<wxInt64> spatial_counts;
+    std::vector<std::vector<double> > spatial_joins;
 
     // for join variable
     bool join_variable;
-    std::vector<double> join_values;
-    Operation join_operation;
+    
+    std::vector<std::vector<double>  > join_values;
+    std::vector<Operation> join_operation;
+    
     std::vector<std::vector<wxInt64> > join_ids;
 };
 
@@ -58,7 +60,8 @@ class CountPointsInPolygon : public SpatialJoinWorker
 {
 public:
     CountPointsInPolygon(BackgroundMapLayer* ml, Project* project,
-                         wxString join_variable_nm, Operation op);
+                         std::vector<wxString> join_variable_nm,
+                         std::vector<Operation> op);
     virtual void sub_run(int start, int end);
 protected:
     rtree_pt_2d_t rtree;
@@ -68,7 +71,8 @@ class CountLinesInPolygon : public SpatialJoinWorker
 {
 public:
     CountLinesInPolygon(BackgroundMapLayer* ml, Project* project,
-                        wxString join_variable_nm, Operation op);
+                        std::vector<wxString> join_variable_nm,
+                        std::vector<Operation> op);
     virtual void sub_run(int start, int end);
 protected:
     rtree_box_2d_t rtree;
@@ -80,7 +84,8 @@ protected:
     rtree_box_2d_t rtree;
 public:
     CountPolygonInPolygon(BackgroundMapLayer* ml, Project* project,
-                          wxString join_variable_nm, Operation op);
+                          std::vector<wxString> join_variable_nm,
+                          std::vector<Operation> op);
     virtual void sub_run(int start, int end);
 };
 
@@ -110,7 +115,7 @@ class SpatialJoinDlg : public wxDialog
 {
     Project* project;
     wxChoice* map_list;
-    wxChoice* join_var_list;
+    wxListBox* join_var_list;
     wxChoice* join_op_list;
     wxChoice* field_list;
     wxStaticText* field_st;
@@ -119,6 +124,13 @@ class SpatialJoinDlg : public wxDialog
     wxBoxSizer* vbox;
     wxBoxSizer* cbox;
     wxPanel* panel;
+    wxListCtrl* lst_join;
+    wxButton* move_left;
+    wxButton* move_right;
+    wxRadioButton* rb_spatial_count;
+    wxRadioButton* rb_spatial_join;
+    
+    std::set<std::pair<wxString, wxString> > var_set;
     
     void UpdateFieldList(wxString name);
 
@@ -128,6 +140,8 @@ public:
     void OnOK(wxCommandEvent& e);
     void OnLayerSelect(wxCommandEvent& e);
     void OnJoinVariableSel(wxCommandEvent& e);
+    void OnRemoveRow(wxCommandEvent& e);
+    void OnAddRow(wxCommandEvent& e);
     void InitMapList();
 };
 

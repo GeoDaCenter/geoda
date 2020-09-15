@@ -231,7 +231,6 @@ void MultiQuantileLisaDlg::OnAddRow(wxCommandEvent& event)
         dlg.ShowModal();
         return;
     }
-    int n_quantiles = (int)l_quantiles;
 
     // get select quantile
     int sel_quantile = cho_quantile->GetSelection() + 1;
