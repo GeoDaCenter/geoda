@@ -155,6 +155,8 @@
 		A4BBABA12444D82B00BD4E57 /* smacof.c in Sources */ = {isa = PBXBuildFile; fileRef = A4BBAB9C2444D82B00BD4E57 /* smacof.c */; };
 		A4C4ABFB1F97DA2D00085D47 /* MLJCMapNewView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C4ABF91F97DA2D00085D47 /* MLJCMapNewView.cpp */; };
 		A4C76B0E225BC4BB00A0729A /* GroupingMapView.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */; };
+		A4CFBCB8250AE02C00246D81 /* quantileLisaDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4CFBCB7250AE02C00246D81 /* quantileLisaDlg.cpp */; };
+		A4CFBCBB250BE8E800246D81 /* MultiQuantileLisaDlg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4CFBCBA250BE8E800246D81 /* MultiQuantileLisaDlg.cpp */; };
 		A4D5423D1F45037B00572878 /* redcap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A4D5423B1F45037B00572878 /* redcap.cpp */; };
 		A4D9A31F1E4D5F3800EF584C /* gdaldata in Resources */ = {isa = PBXBuildFile; fileRef = A4D9A31E1E4D5F3800EF584C /* gdaldata */; };
 		A4DB2CBC1EEA3A3E00BD4A54 /* Guerry.png in Resources */ = {isa = PBXBuildFile; fileRef = A4DB2CBB1EEA3A3E00BD4A54 /* Guerry.png */; };
@@ -595,6 +597,10 @@
 		A4C4ABFA1F97DA2D00085D47 /* MLJCMapNewView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLJCMapNewView.h; sourceTree = "<group>"; };
 		A4C76B0C225BC4BA00A0729A /* GroupingMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GroupingMapView.h; sourceTree = "<group>"; };
 		A4C76B0D225BC4BB00A0729A /* GroupingMapView.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GroupingMapView.cpp; sourceTree = "<group>"; };
+		A4CFBCB6250AE02B00246D81 /* quantileLisaDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quantileLisaDlg.h; sourceTree = "<group>"; };
+		A4CFBCB7250AE02C00246D81 /* quantileLisaDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = quantileLisaDlg.cpp; sourceTree = "<group>"; };
+		A4CFBCB9250BE8E700246D81 /* MultiQuantileLisaDlg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MultiQuantileLisaDlg.h; sourceTree = "<group>"; };
+		A4CFBCBA250BE8E800246D81 /* MultiQuantileLisaDlg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MultiQuantileLisaDlg.cpp; sourceTree = "<group>"; };
 		A4D5423B1F45037B00572878 /* redcap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = redcap.cpp; path = Algorithms/redcap.cpp; sourceTree = "<group>"; };
 		A4D5423C1F45037B00572878 /* redcap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = redcap.h; path = Algorithms/redcap.h; sourceTree = "<group>"; };
 		A4D9A31E1E4D5F3800EF584C /* gdaldata */ = {isa = PBXFileReference; lastKnownFileType = folder; name = gdaldata; path = BuildTools/CommonDistFiles/gdaldata; sourceTree = "<group>"; };
@@ -1281,6 +1287,10 @@
 		DD7974FE0F1D296F00496A84 /* DialogTools */ = {
 			isa = PBXGroup;
 			children = (
+				A4CFBCBA250BE8E800246D81 /* MultiQuantileLisaDlg.cpp */,
+				A4CFBCB9250BE8E700246D81 /* MultiQuantileLisaDlg.h */,
+				A4CFBCB7250AE02C00246D81 /* quantileLisaDlg.cpp */,
+				A4CFBCB6250AE02B00246D81 /* quantileLisaDlg.h */,
 				A499564724FED58300BB5CB1 /* AZPDlg.cpp */,
 				A499564824FED58300BB5CB1 /* AZPDlg.h */,
 				A4502B3724E1F67C001D378F /* SCHCDlg.cpp */,
@@ -2069,12 +2079,14 @@
 				DD30798E19ED80E0001E5E89 /* Lowess.cpp in Sources */,
 				DD3079C719ED9F61001E5E89 /* LowessParamObservable.cpp in Sources */,
 				A14735B521A65F1800CA69B2 /* bd_tree.cpp in Sources */,
+				A4CFBCB8250AE02C00246D81 /* quantileLisaDlg.cpp in Sources */,
 				DD3079E319EDAE6C001E5E89 /* LowessParamDlg.cpp in Sources */,
 				DD307DB919F0483B001E5E89 /* SmoothingUtils.cpp in Sources */,
 				DD3082B319F709BB001E5E89 /* WebViewHelpWin.cpp in Sources */,
 				DD409DFB19FF099E00C21A2B /* ScatterPlotMatView.cpp in Sources */,
 				DD409E4C19FFD43000C21A2B /* VarTools.cpp in Sources */,
 				DD6C9EB61A03FD0C00F124F1 /* VarsChooserDlg.cpp in Sources */,
+				A4CFBCBB250BE8E800246D81 /* MultiQuantileLisaDlg.cpp in Sources */,
 				DD6C9EB71A03FD0C00F124F1 /* VarsChooserObservable.cpp in Sources */,
 				DDC906921A129CFF002334D2 /* SimpleAxisCanvas.cpp in Sources */,
 				DDC906931A129CFF002334D2 /* SimpleHistCanvas.cpp in Sources */,
