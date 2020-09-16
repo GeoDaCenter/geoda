@@ -10,6 +10,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 #include "../Project.h"
 #include "../MapLayerStateObserver.h"
@@ -100,10 +101,14 @@ void SpatialJoinWorker::Run()
     // join variable if needed
     if (join_variable) {
         int n_vars = (int)join_values.size();
+        spatial_joins.resize(n_vars);
+        for (size_t k=0; k<n_vars; ++k) {
+            spatial_joins[k].resize(n_joins);
+        }
         for (size_t i=0; i<n_joins; ++i) {
             size_t cnt = join_ids[i].size();
             
-            for (size_t k=0; k<n_vars; ++i) {
+            for (size_t k=0; k<n_vars; ++k) {
                 std::vector<double> vals(cnt, 0);
                 
                 for (size_t j=0; j<cnt; ++j) {
@@ -119,7 +124,7 @@ void SpatialJoinWorker::Run()
                     spatial_joins[k][i] = sum;
                 } else if (join_operation[k] == MEAN) {
                     double sum = GenUtils::Sum(vals);
-                    spatial_joins[k][i] = sum / cnt;
+                    spatial_joins[k][i] = cnt == 0? 0 : sum / cnt;
                 } else if (join_operation[k] == MEDIAN) {
                     double median = GenUtils::Median(vals);
                     spatial_joins[k][i] = median;
@@ -418,9 +423,10 @@ void CountPolygonInPolygon::sub_run(int start, int end)
 }
 
 SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
-: wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxDefaultSize)
+: wxDialog(parent, wxID_ANY, "Spatial Join", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
     project = _project;
+
     panel = new wxPanel(this, -1);
 
     wxString info = _("Please select a map layer to apply "
@@ -445,14 +451,14 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     
     join_var_st = new wxStaticText(panel, wxID_ANY, _("Join Variable:"));
     join_var_list = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
-                                  wxSize(160,-1), 0, NULL,
+                                  wxSize(160, 110), 0, NULL,
                                   wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     wxBoxSizer* join_box = new wxBoxSizer(wxHORIZONTAL);
     join_box->Add(join_var_st, 0, wxALIGN_LEFT | wxALL, 0);
     join_box->Add(join_var_list, 0, wxALIGN_LEFT | wxLEFT, 12);
 
     join_op_st = new wxStaticText(panel, wxID_ANY, _("Join Operation:"));
-    join_op_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,140));
+    join_op_list = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(160,-1));
     wxBoxSizer* join_op_box = new wxBoxSizer(wxHORIZONTAL);
     join_op_box->Add(join_op_st, 0, wxALIGN_LEFT | wxTOP, 5);
     join_op_box->Add(join_op_list, 0, wxALIGN_LEFT | wxTOP, 5);
@@ -462,8 +468,8 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     left_box->Add(join_op_box, 0, wxALIGN_LEFT | wxLEFT, 10);
     
     // list contrl
-    lst_join = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(320, 160), wxLC_REPORT);
-    lst_join->AppendColumn(_("Variable"));
+    lst_join = new wxListCtrl(panel, wxID_ANY, wxDefaultPosition, wxSize(320, 140), wxLC_REPORT);
+    lst_join->AppendColumn(_("Variable"), wxLIST_FORMAT_RIGHT);
     lst_join->SetColumnWidth(0, 120);
     lst_join->AppendColumn(_("Join Operation"), wxLIST_FORMAT_RIGHT);
     lst_join->SetColumnWidth(1, 120);
@@ -477,8 +483,8 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     
     wxBoxSizer* main_box = new wxBoxSizer(wxHORIZONTAL);
     main_box->Add(left_box);
-    main_box->Add(middle_box);
-    main_box->Add(lst_join, 1, wxALL, 5);
+    main_box->Add(middle_box, 0, wxALL, 5);
+    main_box->Add(lst_join, 1, wxALL, 0);
     
     cbox = new wxBoxSizer(wxVERTICAL);
     cbox->Add(st, 0, wxALIGN_CENTER | wxALL, 15);
@@ -500,28 +506,43 @@ SpatialJoinDlg::SpatialJoinDlg(wxWindow* parent, Project* _project)
     wxBoxSizer *container = new wxBoxSizer(wxVERTICAL);
     container->Add(cbox, 0, wxALIGN_CENTER | wxALL, 10);
     container->Add(hbox, 0, wxALIGN_CENTER | wxALL, 10);
+
+    panel->SetSizer(container);
+    wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
+    panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
      
-     panel->SetSizer(container);
-    
-     wxBoxSizer* panelSizer = new wxBoxSizer(wxVERTICAL);
-     panelSizer->Add(panel, 1, wxEXPAND|wxALL, 0);
-     
-     SetSizer(panelSizer);
-     SetAutoLayout(true);
-     panelSizer->Fit(this);
-    
-    Center();
 
     map_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnLayerSelect, this);
     ok_btn->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnOK, this);
     join_var_list->Bind(wxEVT_CHOICE, &SpatialJoinDlg::OnJoinVariableSel, this);
     move_left->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnRemoveRow, this);
     move_right->Bind(wxEVT_BUTTON, &SpatialJoinDlg::OnAddRow, this);
-    
-    //InitMapList();
+    rb_spatial_count->Bind(wxEVT_RADIOBUTTON, &SpatialJoinDlg::OnRadioButton, this);
+    rb_spatial_join->Bind(wxEVT_RADIOBUTTON, &SpatialJoinDlg::OnRadioButton, this);
+
+    InitMapList();
     
     wxCommandEvent e;
     OnLayerSelect(e);
+    OnRadioButton(e);
+
+    SetSizer(panelSizer);
+    SetAutoLayout(true);
+    panelSizer->Fit(this);
+
+    Center();
+}
+
+void SpatialJoinDlg::OnRadioButton(wxCommandEvent& e)
+{
+    bool flag = !rb_spatial_count->GetValue();
+    join_var_st->Enable(flag);
+    join_op_st->Enable(flag);
+    join_var_list->Enable(flag);
+    join_op_list->Enable(flag);
+    move_left->Enable(flag);
+    move_right->Enable(flag);
+    lst_join->Enable(flag);
 }
 
 void SpatialJoinDlg::OnAddRow(wxCommandEvent& e)
@@ -566,18 +587,33 @@ void SpatialJoinDlg::OnAddRow(wxCommandEvent& e)
     }
 }
 
-void SpatialJoinDlg::OnRemoveRow(wxCommandEvent& e)
+std::list<int> SpatialJoinDlg::GetListSel(wxListCtrl* lc)
 {
+    std::list<int> l;
+    if (!lc) return l;
     long item = -1;
     for ( ;; ) {
-        item = lst_join->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-        if ( item == -1 )  break;
-        //wxLogMessage("Item %ld is selected.", item);
-        wxString var_name = lst_join->GetItemText(item, 0);
-        wxString join_op = lst_join->GetItemText(item, 1);
-        var_set.erase(std::make_pair(var_name, join_op));
-        lst_join->DeleteItem(item);
+        item = lc->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if ( item == -1 ) break;
+        l.push_back(item);
     }
+    return l;
+}
+
+void SpatialJoinDlg::OnRemoveRow(wxCommandEvent& e)
+{
+    std::list<int> sels = GetListSel(lst_join);
+    sels.sort();
+    sels.reverse();
+    if (!sels.empty()) {
+        BOOST_FOREACH(int i, sels) {
+            wxString var_name = lst_join->GetItemText(i, 0);
+            wxString join_op = lst_join->GetItemText(i, 1);
+            var_set.erase(std::make_pair(var_name, join_op));
+            lst_join->DeleteItem(i);
+        }
+    }
+    e.Skip();
 }
 
 void SpatialJoinDlg::InitMapList()
@@ -624,8 +660,7 @@ void SpatialJoinDlg::UpdateFieldList(wxString name)
             rb_spatial_count->Hide();
             rb_spatial_join->Hide();
             lst_join->Hide();
-            lst_join->SetSize(-1,-1);
-            join_var_list->SetSize(-1,-1);
+
             move_left->Hide();
             move_right->Hide();
         } else {
@@ -723,17 +758,15 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
 
         } else {
             // working layer is Polygon: spatial count
+            label = "Spatial Join";
+            field_name = rb_spatial_count->GetValue() ? "SC" : "SJ";
+
             int join_list_sel = lst_join->GetItemCount();
-            bool join_variable = join_list_sel > 0;
-            if (join_variable) {
-                label = "Spatial Join";
-                field_name = "SJ";
-                if (join_op_list->GetSelection() == 0) {
-                    wxMessageDialog dlg (this, _("Please select at least one Join Operation with Join Variable."),
-                                         _("Warning"), wxOK | wxICON_INFORMATION);
-                    dlg.ShowModal();
-                    return;
-                }
+            if (rb_spatial_join->GetValue() && join_list_sel == 0) {
+                wxMessageDialog dlg (this, _("Please select at least one Join Operation with Join Variable."),
+                                     _("Warning"), wxOK | wxICON_INFORMATION);
+                dlg.ShowModal();
+                return;
             }
             
             std::vector<wxString> join_var_nms;
@@ -789,7 +822,7 @@ void SpatialJoinDlg::OnOK(wxCommandEvent& e)
             vector<bool> undefs(project->GetNumRecords(), false);
             for (int i=0; i<new_col; ++i) {
                 new_data[i].d_val = &spatial_joins[i];
-                new_data[i].label = label;
+                new_data[i].label = label + " " + field_name;
                 new_data[i].field_default = field_name;
                 new_data[i].field_default << "_" << i+1;
                 new_data[i].type = GdaConst::double_type;

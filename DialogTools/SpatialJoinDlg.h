@@ -133,6 +133,7 @@ class SpatialJoinDlg : public wxDialog
     std::set<std::pair<wxString, wxString> > var_set;
     
     void UpdateFieldList(wxString name);
+    std::list<int> GetListSel(wxListCtrl* lc);
 
 public:
     SpatialJoinDlg(wxWindow* parent, Project* project);
@@ -142,6 +143,7 @@ public:
     void OnJoinVariableSel(wxCommandEvent& e);
     void OnRemoveRow(wxCommandEvent& e);
     void OnAddRow(wxCommandEvent& e);
+    void OnRadioButton(wxCommandEvent& e);
     void InitMapList();
 };
 

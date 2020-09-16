@@ -26,6 +26,7 @@
 #include <wx/dialog.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/tokenzr.h>
+#include <boost/foreach.hpp>
 
 #include "../VarCalc/WeightsManInterface.h"
 #include "../ShapeOperations/WeightsManager.h"
@@ -184,17 +185,30 @@ void MultiQuantileLisaDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &MultiQuantileLisaDlg::OnCloseClick, this);
 }
 
-void MultiQuantileLisaDlg::OnRemoveRow(wxCommandEvent& event)
+std::list<int> MultiQuantileLisaDlg::GetListSel(wxListCtrl* lc)
 {
+    std::list<int> l;
+    if (!lc) return l;
     long item = -1;
     for ( ;; ) {
-        item = lst_quantile->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
-        if ( item == -1 )  break;
-        // this item is selected - do whatever is needed with it
-        //wxLogMessage("Item %ld is selected.", item);
-        wxString field_name = lst_quantile->GetItemText(item, 3);
-        new_fields.erase(field_name);
-        lst_quantile->DeleteItem(item);
+        item = lc->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+        if ( item == -1 ) break;
+        l.push_back(item);
+    }
+    return l;
+}
+
+void MultiQuantileLisaDlg::OnRemoveRow(wxCommandEvent& event)
+{
+    std::list<int> sels = GetListSel(lst_quantile);
+    sels.sort();
+    sels.reverse();
+    if (!sels.empty()) {
+        BOOST_FOREACH(int i, sels) {
+            wxString field_name = lst_quantile->GetItemText(i, 3);
+            new_fields.erase(field_name);
+            lst_quantile->DeleteItem(i);
+        }
     }
 }
 

@@ -46,6 +46,7 @@ public:
     void OnClose(wxCloseEvent& ev);
     void OnRemoveRow(wxCommandEvent& event);
     void OnAddRow(wxCommandEvent& event);
+    std::list<int> GetListSel(wxListCtrl* lc);
 
     virtual wxString _printConfiguration() {return wxEmptyString;}
     virtual void update(TableState* o);
