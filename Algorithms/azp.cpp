@@ -290,6 +290,11 @@ RegionMaker::RegionMaker(int _p, GalElement* const _w,
 am(_n, _m, _w, _data, _dist_matrix), objInfo(-1), init_regions(_init_regions),
 rng(seed), is_control_satisfied(true)
 {
+    if (p < 0) {
+        is_control_satisfied = false;
+        return;
+    }
+
     // init unassigned areas
     for (int i=0; i<n; ++i) {
         unassignedAreas[i] = true;
@@ -316,18 +321,40 @@ rng(seed), is_control_satisfied(true)
             this->constructRegions();
         }
 
+        //  create objectiveFunction object for local improvement
+        objective_function = new ObjectiveFunction(n, m, data, w, region2Area);
+
+        // get objective function value
+        this->objInfo = objective_function->GetValue();
+
     } else {
-        // check init regions, index start from 1
-        for (int i=0; i<init_regions.size(); ++i) {
-            if (init_regions[i] > 0 && init_regions[i] <= p) {
-                int areaID = i;
-                int regionID = init_regions[i] - 1;
-                assignAreaStep1(areaID, regionID);
-            }
+        // // get p start areas using init_regions from input
+        InitFromRegion(init_regions);
+    }
+}
+
+
+RegionMaker::~RegionMaker()
+{
+    if (objective_function) {
+        delete objective_function;
+    }
+}
+
+void RegionMaker::InitFromRegion(std::vector<int>& init_regions)
+{
+    // check init regions, index start from 1
+    for (int i=0; i<init_regions.size(); ++i) {
+        if (init_regions[i] > 0 && init_regions[i] <= p) {
+            int areaID = i;
+            int regionID = init_regions[i] - 1;
+            assignAreaStep1(areaID, regionID);
         }
-        // for any unassigned areas, create potentialRegions4Area
+    }
+    // for any unassigned areas, create potentialRegions4Area
+    if (unassignedAreas.size() != 0) {
         for (int r=0; r<p; ++r) {
-            std::set<int> buffer_areas = getBufferingAreas(r);
+            std::set<int> buffer_areas = getBufferingAreas(region2Area[r]);
             std::set<int>::iterator it;
             for (it = buffer_areas.begin(); it != buffer_areas.end(); ++it) {
                 int areaID = *it;
@@ -336,10 +363,11 @@ rng(seed), is_control_satisfied(true)
                 }
             }
         }
-        // for any other unassigned areas, assign to a region
-        while (unassignedAreas.size() != 0) {
-            this->constructRegions();
-        }
+    }
+
+    // for any other unassigned areas, assign to a region
+    while (unassignedAreas.size() != 0) {
+        this->constructRegions();
     }
 
     //  create objectiveFunction object for local improvement
@@ -347,11 +375,6 @@ rng(seed), is_control_satisfied(true)
 
     // get objective function value
     this->objInfo = objective_function->GetValue();
-}
-
-RegionMaker::~RegionMaker()
-{
-    delete objective_function;
 }
 
 void RegionMaker::AssignAreasNoNeighs()
@@ -429,6 +452,7 @@ bool RegionMaker::IsSatisfyControls()
     }
     return true;
 }
+
 void RegionMaker::setSeeds(std::vector<int> seeds)
 {
     // Sets the initial seeds for clustering
@@ -478,7 +502,7 @@ void RegionMaker::setSeeds(std::vector<int> seeds)
     for (int i=0; i<p; ++i) {
         // check neighbors of areaID that are not been assigned yet
         // and assign neighbor to potential regions
-        std::set<int> buffer_areas = getBufferingAreas(i);
+        std::set<int> buffer_areas = getBufferingAreas(region2Area[i]);
         std::set<int>::iterator it;
         
         for (it = buffer_areas.begin(); it != buffer_areas.end(); ++it) {
@@ -511,7 +535,7 @@ bool RegionMaker::growRegion()
             // each time, grow just one area, to avoid dominant grow
             // if two seeds are next to each other
             bool has_assign = false;
-            std::set<int> buffer_areas = getBufferingAreas(i);
+            std::set<int> buffer_areas = getBufferingAreas(region2Area[i]);
             for (it = buffer_areas.begin(); !has_assign && it != buffer_areas.end(); ++it){
                 int nn = *it;
                 if (assignedAreas.find(nn) == assignedAreas.end()) {
@@ -693,11 +717,11 @@ std::vector<int> RegionMaker::returnRegions()
     return results;
 }
 
-std::set<int> RegionMaker::getBufferingAreas(int regionID)
+std::set<int> RegionMaker::getBufferingAreas(boost::unordered_map<int, bool>& areas)
 {
     std::set<int> buffering_areas;
 
-    boost::unordered_map<int, bool>& areas  = region2Area[regionID];
+    //boost::unordered_map<int, bool>& areas  = region2Area[regionID];
     boost::unordered_map<int, bool>::iterator it;
     for (it = areas.begin(); it != areas.end(); ++it) {
         int area = it->first;
@@ -850,6 +874,214 @@ void AZP::LocalImproving()
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+////// MaxpRegionMaker
+////////////////////////////////////////////////////////////////////////////////
+MaxpRegionMaker::MaxpRegionMaker(GalElement* const _w,
+                                 double** _data, // row-wise
+                                 RawDistMatrix* _dist_matrix,
+                                 int _n, int _m, const std::vector<ZoneControl>& c,
+                                 const std::vector<int>& _init_areas,
+                                 long long seed)
+: RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), seed),
+init_areas(_init_areas)
+{
+    InitSolution();
+}
+
+void MaxpRegionMaker::InitSolution()
+{
+    // init unassigned areas
+    for (int i=0; i<n; ++i) {
+        unassignedAreas[i] = true;
+    }
+
+    // mark neighborless areas
+    AssignAreasNoNeighs();
+
+    // get max-p regions
+    // get starting position: either from init_areas or randomly selected
+    std::set<int> start_areas;
+    for (int i=0; i<init_areas.size(); ++i) {
+        start_areas.insert(init_areas[i]);
+    }
+    std::vector<int> _candidates;
+    for (int i=0; i < n; i++) {
+        if (start_areas.empty() || start_areas.find(i) == start_areas.end()) {
+            _candidates.push_back(i);
+        }
+    }
+    DataUtils::Shuffle(_candidates, rng);
+    for (int i=0; i<init_areas.size(); ++i) {
+        _candidates.insert(_candidates.begin(), init_areas[i]);
+    }
+    std::list<int> candidates;
+    boost::unordered_map<int, bool> candidates_dict;
+    for (int i=0; i<n;i++) {
+        candidates.push_back( _candidates[i] );
+        candidates_dict[ _candidates[i] ] = false;
+    }
+
+    // grow p regions using the starting positions above
+    int r = 0;
+    bool satisfy_lower_bound = true;
+
+    while (!candidates.empty()) {
+        int seed = candidates.front();
+        candidates.pop_front();
+
+        // try to grow it till threshold constraint is satisfied
+        bool is_growing = true;
+        bool reach_ub = false;
+        bool reach_lb = false;
+        std::set<int>::iterator it;
+
+        // assign this seed with a new region
+        boost::unordered_map<int, bool> region;
+        region[seed] = true;
+        candidates_dict[seed] = true;
+
+        while (is_growing && !reach_ub && !reach_lb) {
+            // each time, grow just one area, to avoid dominant grow
+            // if two seeds are next to each other
+            bool has_assign = false;
+            std::set<int> buffer_areas = getBufferingAreas(region);
+            for (it = buffer_areas.begin(); !has_assign && it != buffer_areas.end(); ++it) {
+                int nn = *it;
+                if (candidates_dict[nn] == false) { // not processed
+                    // check upper bound if adding this area to region
+                    for (int j=0; !reach_ub && j<controls.size(); ++j) {
+                        if (controls[j].CheckAdd(nn, region)  == false) {
+                            // reach upper bound, no need to grow anymore
+                            reach_ub = true;
+                            is_growing = false;
+                        }
+                    }
+                    if (!reach_ub) {
+                        region[nn] = true;
+                        candidates.remove(nn);
+                        candidates_dict[nn] = true; // processed
+                        has_assign = true;
+                    }
+                }
+            }
+            // check if this region satisfy the low bounds
+            bool satisfy = true;
+            for (int j=0; satisfy && j<controls.size(); ++j) {
+                if (controls[j].SatisfyLowerBound(region)  == false) {
+                    satisfy = false;
+                }
+            }
+            // check infinite loop
+            if (satisfy == false && has_assign == false) {
+                // can't grow region to satisfy controls
+                is_growing = false;
+            }
+            reach_lb = satisfy;
+        }
+
+        // the region will be valid only if reaches the lower bound
+        if (reach_lb) {
+            boost::unordered_map<int, bool>::iterator rit;
+            for (rit = region.begin(); rit != region.end(); ++rit) {
+                assignAreaStep1(rit->first, r);
+            }
+            r = r + 1; // create another region
+        }
+    }
+    std::cout << r << std::endl;
+    // find potential
+    if (unassignedAreas.size() > 0) {
+        for (int i=0; i<region2Area.size(); ++i) {
+            // check neighbors of areaID that are not been assigned yet
+            // and assign neighbor to potential regions
+            std::set<int> buffer_areas = getBufferingAreas(region2Area[i]);
+            std::set<int>::iterator it;
+
+            for (it = buffer_areas.begin(); it != buffer_areas.end(); ++it) {
+                int neigh = *it;
+                if (assignedAreas.find(neigh) == assignedAreas.end()) {
+                    potentialRegions4Area[neigh].insert(i);
+                }
+            }
+        }
+    }
+
+    // for any other unassigned areas (enclaves), assign to a region
+    while (unassignedAreas.size() != 0) {
+        this->constructRegions();
+    }
+
+    // now we have p regions
+    p = (int)region2Area.size();
+
+    //  create objectiveFunction object for local improvement
+    objective_function = new ObjectiveFunction(n, m, data, w, region2Area);
+
+    // get objective function value
+    this->objInfo = objective_function->GetValue();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+////// MaxpRegion
+////////////////////////////////////////////////////////////////////////////////
+MaxpRegion::MaxpRegion(int _max_attemps, GalElement* const _w,
+                       double** _data, // row-wise
+                       RawDistMatrix* _dist_matrix,
+                       int _n, int _m, const std::vector<ZoneControl>& c,
+                       const std::vector<int>& _init_areas,
+                       long long seed)
+: RegionMaker(-1, _w, _data, _dist_matrix, _n, _m, c, std::vector<int>(), seed),
+init_areas(_init_areas), max_attemps(_max_attemps)
+{
+    objective_function = 0;
+
+    // try to grow max-p regions
+    MaxpRegionMaker rm(w, data, dist_matrix, n, m, c, init_areas, seed++);
+    std::vector<int> best_results = rm.GetResults();
+    double best_of = rm.GetFinalObjectiveFunction();
+    p = rm.GetPRegions();
+    
+    initial_objectivefunction = best_of;
+    final_objectivefunction = best_of;
+    final_solution = best_results;
+
+    for (int iter=0; iter< 99; ++iter) {
+        bool solving = true; // if it is improving // just need to be better than first initial solution
+        int attemps = 0;
+        std::vector<int> solution;
+
+        while (solving && attemps < max_attemps) {
+            MaxpRegionMaker rm_local(w, data, dist_matrix, n, m, c, init_areas, seed++);
+            std::vector<int> results = rm_local.GetResults();
+            double of = rm_local.GetFinalObjectiveFunction();
+            if (of < initial_objectivefunction) {
+                solving = false;
+                solution = results;
+                p = rm_local.GetPRegions();
+            }
+            attemps += 1;
+        }
+
+        if (solving == false) {
+            // try local improvement
+            for (int i=0; i<solution.size(); ++i) {
+                solution[i] += 1; // index starts from 1 not 0
+            }
+            AZP azp(p, w, data, dist_matrix, n, m, c, solution, seed);
+            std::vector<int> results = azp.GetResults();
+            double init_of = azp.GetInitObjectiveFunction();
+            double of = azp.GetFinalObjectiveFunction();
+            if (of < best_of) {
+                best_results = results;
+                best_of = of; // update best_of
+            }
+        }
+    }
+
+    final_objectivefunction = best_of;
+    final_solution = best_results;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 ////// AZP Simulated Annealing

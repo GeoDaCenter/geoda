@@ -607,7 +607,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     std::vector<int> final_solution;
     RegionMaker* azp;
     if ( local_search_method == 0) {
-        azp =  new AZP(p, gw->gal, input_data, &dm, rows, columns,
+        azp =  new MaxpRegion(100, gw->gal, input_data, &dm, rows, columns,
                        controllers, init_regions, rnd_seed);
 
     } else if ( local_search_method == 1) {

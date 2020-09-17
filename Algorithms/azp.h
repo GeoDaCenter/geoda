@@ -72,6 +72,7 @@ public:
 
     bool CheckRemove(int area, boost::unordered_map<int, bool>& candidates);
 
+    // Check if a candidate zone satisfies upper bound when adding a area
     bool CheckAdd(int area, boost::unordered_map<int, bool>& candidates);
 
     double getZoneValue(int i, boost::unordered_map<int, bool>& candidates);
@@ -365,6 +366,7 @@ protected:
 class RegionMaker
 {
 public:
+    // for p-region problem
     RegionMaker(int p, GalElement* const w,
                 double** data, // row-wise
                 RawDistMatrix* dist_matrix,
@@ -387,6 +389,8 @@ public:
 
     // Check is_control_satisfied
     bool IsSatisfyControls();
+
+    int GetPRegions() { return region2Area.size();}
 
 protected:
     // Return the areas of a region
@@ -414,7 +418,7 @@ protected:
     // Assign an area to a region and updates potential regions for neighs
     bool assignArea(int areaID, int regionID);
 
-    std::set<int> getBufferingAreas(int regionID);
+    std::set<int> getBufferingAreas(boost::unordered_map<int, bool>& areas);
 
     // Get bordering areas of a region
     void getBorderingAreas(int regionID);
@@ -423,6 +427,8 @@ protected:
     std::set<int> getPossibleMove(int area);
 
     bool growRegion();
+
+    void InitFromRegion(std::vector<int>& init_regions);
     
 protected:
     double** data;
@@ -479,6 +485,92 @@ protected:
 };
 
 ////////////////////////////////////////////////////////////////////////////////
+////// MaxpRegionMaker
+////////////////////////////////////////////////////////////////////////////////
+class MaxpRegionMaker : public RegionMaker
+{
+public:
+    // for max-p problem
+    // the init_regions is different than RegionMaker's init_regions
+    // e.g. it could be LISA's core objects, and they are used to
+    // grow the potential regions
+    MaxpRegionMaker(GalElement* const w,
+                double** data, // row-wise
+                RawDistMatrix* dist_matrix,
+                int n, int m, const std::vector<ZoneControl>& c,
+                const std::vector<int>& init_areas=std::vector<int>(),
+                long long seed=123456789);
+
+    virtual ~MaxpRegionMaker() {
+        if (objective_function) {
+            delete objective_function;
+            objective_function = 0;
+        }
+    }
+
+    virtual void LocalImproving() {}
+
+    virtual std::vector<int> GetResults() {
+        return this->returnRegions();
+    }
+
+    virtual double GetInitObjectiveFunction() {
+         return this->objInfo;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return this->objInfo;
+    }
+
+protected:
+    void InitSolution();
+
+protected:
+    std::vector<int> init_areas;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+////// MaxpRegion
+////////////////////////////////////////////////////////////////////////////////
+class MaxpRegion : public RegionMaker
+{
+    std::vector<int> final_solution;
+
+    double initial_objectivefunction;
+
+    double final_objectivefunction;
+
+public:
+    MaxpRegion(int max_attemps, GalElement* const w,
+               double** data, // row-wise
+               RawDistMatrix* dist_matrix,
+               int n, int m, const std::vector<ZoneControl>& c,
+               const std::vector<int>& init_areas=std::vector<int>(),
+               long long seed=123456789);
+
+    virtual ~MaxpRegion() {}
+
+    virtual void LocalImproving() {}
+
+    virtual std::vector<int> GetResults() {
+        return final_solution;
+    }
+
+    virtual double GetInitObjectiveFunction() {
+        return initial_objectivefunction;
+    }
+
+    virtual double GetFinalObjectiveFunction() {
+        return final_objectivefunction;
+    }
+
+protected:
+    std::vector<int> init_areas;
+
+    int max_attemps;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 ////// AZP
 ////////////////////////////////////////////////////////////////////////////////
 class AZP : public RegionMaker
@@ -501,11 +593,11 @@ public:
         initial_objectivefunction = this->objInfo;
         double best_score = this->objInfo;
         bool improvement = true;
-        //while (improvement) {
+        while (improvement) {
             this->LocalImproving();
             improvement = this->objInfo < best_score;
             best_score = this->objInfo;
-        //}
+        }
 
         final_solution = this->returnRegions();
         final_objectivefunction = this->objInfo;
