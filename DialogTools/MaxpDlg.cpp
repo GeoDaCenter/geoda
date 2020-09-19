@@ -352,6 +352,12 @@ void MaxpDlg::InitLISACombobox()
     combo_lisa->SetStringSelection(select_lisa);
 }
 
+void MaxpDlg::update(TableState* o)
+{
+    InitVariableCombobox(combo_var);
+    InitLISACombobox();
+}
+
 void MaxpDlg::OnClickClose(wxCommandEvent& event )
 {
     wxLogMessage("OnClickClose MaxpDlg.");
@@ -567,7 +573,8 @@ void MaxpDlg::OnOK(wxCommandEvent& event )
 		}
 		z.push_back(vals);
 	}
-    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds, local_search_method, tabu_length, cool_rate, rnd_seed, dist);
+    Maxp maxp(gw->gal, z, min_bound, bound_vals, initial, seeds,
+              local_search_method, tabu_length, cool_rate, rnd_seed, dist);
 
     if (bound_vals) delete[] bound_vals;
 

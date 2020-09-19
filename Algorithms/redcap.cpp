@@ -542,7 +542,7 @@ void AbstractClusterFactory::Partitioning(int k)
             sub_trees.push(right_tree);
         }
         
-        //delete tmp_tree;
+        delete tmp_tree;
     }
   
     cluster_ids.clear();

@@ -49,7 +49,7 @@ public:
     void OnChangeSeed(wxCommandEvent& event);
     void OnLISACheck(wxCommandEvent& event);
     virtual void OnCheckMinBound(wxCommandEvent& event);
-    
+    virtual void update(TableState* o);
     virtual void InitLISACombobox();
     
     virtual wxString _printConfiguration();

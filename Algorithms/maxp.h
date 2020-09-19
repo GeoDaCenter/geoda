@@ -287,9 +287,7 @@ protected:
      \return boolean
      */
     bool check_contiguity(const GalElement* w, vector<int>& block, int neighbor);
-    
-    bool is_component(const GalElement* w, const vector<int>& ids);
-   
+       
     void shuffle(vector<int>& arry, uint64_t& seed);
     
     bool test;

@@ -25,6 +25,7 @@
 #include <map>
 #include <float.h>
 #include <list>
+#include <iterator>
 #include <cstdlib>
 #include <boost/unordered_map.hpp>
 #include <boost/thread.hpp>
@@ -105,7 +106,7 @@ Maxp::Maxp(const GalElement* _w,  const vector<vector<double> >& _z, double _flo
             boost::unordered_map<int, int>& current_area2region = area2region_group[i];
             
             //print_regions(current_regions);
-            LOG_MSG(initial_wss[i]);
+            //LOG_MSG(initial_wss[i]);
             
             if (p_group[i] > 0) {
                 double val = initial_wss[i];
@@ -199,11 +200,11 @@ void Maxp::init_solution(int solution_idx)
         list<int> enclaves;
         list<int> candidates;
         boost::unordered_map<int, bool> candidates_dict;
-        
+
         if (seeds.empty()) {
             vector<int> _candidates(num_obs);
             for (int i=0; i<num_obs;i++) _candidates[i] = i;
-            
+
             //random_shuffle (_candidates.begin(), _candidates.end());
             for (int i=num_obs-1; i>=1; --i) {
                 int k = Gda::ThomasWangHashDouble(seed_local++) * (i+1);
@@ -233,11 +234,11 @@ void Maxp::init_solution(int solution_idx)
         
         list<int>::iterator iter;
         vector<int>::iterator vector_iter;
-        
+
         while (!candidates.empty()) {
             int seed = candidates.front();
             candidates.pop_front();
-            
+
             // try to grow it till threshold constraint is satisfied
             vector<int> region;
             region.push_back(seed);
@@ -357,7 +358,7 @@ void Maxp::init_solution(int solution_idx)
         }
         attempts += 1;
     }
-    
+    //LOG_MSG(attempts);
     if (solution_idx >=0) {
         if (_regions.empty()) {
             p_group[solution_idx] = 0;
@@ -790,6 +791,7 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
     vector<int> changed_regions(nr, 1);
     
     // nr = range(k)
+    //while (swapping ) {
     while (swapping && total_move<10000) {
         int moves_made = 0;
         
@@ -855,9 +857,11 @@ void Maxp::swap(vector<vector<int> >& init_regions, boost::unordered_map<int, in
                     vector<int>& current_outter = init_regions[init_area2region[area]];
                     double change = objective_function_change(area, current_internal, current_outter);
                     if (change <= cv) {
-                        best = area;
-                        cv = change;
-                        best_found = true;
+                        //if (check_contiguity(w, current_internal, area)) {
+                            best = area;
+                            cv = change;
+                            best_found = true;
+                        //}
                     }
                 }
                 candidates.clear();
@@ -1046,44 +1050,6 @@ double Maxp::objective_function_change(int area, vector<int>& current_internal, 
     double new_val = objective_function(current_outter, area, current_internal, area);
     double change = new_val - current;
     return change;
-}
-
-bool Maxp::is_component(const GalElement *w, const vector<int> &ids)
-{
-    //Check if the set of ids form a single connected component
-    int components = 0;
-    boost::unordered_map<int, int> marks;
-    for (int i=0; i<ids.size(); i++) marks[ids[i]] = 0;
-    
-    list<int> q;
-    list<int>::iterator iter;
-    for (int i=0; i<ids.size(); i++)
-    {
-        int node = ids[i];
-        if (marks[node] == 0) {
-            components += 1;
-            q.push_back(node);
-            if (components > 1)
-                return false;
-        }
-        while (!q.empty()) {
-            node = q.back();
-            q.pop_back();
-            marks[node] = components;
-            for (int n=0; n<w[node].Size(); n++) {
-                int nbr = w[node][n];
-                if (marks.find(nbr) != marks.end()) {
-                    if (marks[nbr] == 0 ) {
-                        iter = find(q.begin(), q.end(), nbr);
-                        if (iter == q.end()) {
-                            q.push_back(nbr);
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return true;
 }
 
 bool Maxp::check_contiguity(const GalElement* w, vector<int>& ids, int leaver)
