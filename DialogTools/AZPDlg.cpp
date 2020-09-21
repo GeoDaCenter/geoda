@@ -109,16 +109,16 @@ void AZPDlg::CreateControls()
     vbox19->Add(hbox19_2, 1, wxEXPAND);
     gbox->Add(st19, 0, wxALIGN_TOP | wxRIGHT | wxLEFT, 10);
     gbox->Add(vbox19, 1, wxEXPAND);
+    
+    // Minimum Bound Control
+    AddMinBound(panel, gbox);
 
     // Min regions
-    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min # per Region:"));
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"));
     txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
     txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
     gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(txt_minregions, 1, wxEXPAND);
-    
-    // Minimum Bound Control
-    AddMinBound(panel, gbox);
     
     // Initial Regions
     wxStaticText* st18 = new wxStaticText(panel, wxID_ANY, _("Initial Regions:"));
@@ -534,7 +534,7 @@ void AZPDlg::OnOK(wxCommandEvent& event )
     wxString str_min_region = txt_minregions->GetValue();
     long l_min_region  = 0;
     if (!str_min_region.IsEmpty() && str_min_region.ToLong(&l_min_region) == false) {
-        wxString err_msg = _("Please enter a valid number for Min # per Region.");
+        wxString err_msg = _("Please enter a valid number for Min Region Size.");
         wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
         dlg.ShowModal();
         return;
