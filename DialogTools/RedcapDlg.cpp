@@ -103,6 +103,11 @@ void RedcapDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(11,2,5,0);
 
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Regions:"));
+    m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
+    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(m_max_region, 1, wxEXPAND);
+
     wxStaticText* st20 = new wxStaticText(panel, wxID_ANY, _("Method:"));
     wxString choices20[] = {"FirstOrder-SingleLinkage", "FullOrder-CompleteLinkage", "FullOrder-AverageLinkage", "FullOrder-SingleLinkage"};
     combo_method = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 4, choices20);
@@ -114,12 +119,14 @@ void RedcapDlg::CreateControls()
     // Minimum Bound Control
     AddMinBound(panel, gbox);
 
-	wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Maximum # of Regions:"));
-    m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
-    gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
-    gbox->Add(m_max_region, 1, wxEXPAND);
-    
-	 wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
+    // Min regions
+    st_minregions = new wxStaticText(panel, wxID_ANY, _("Min Region Size:"));
+    txt_minregions = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(200,-1));
+    txt_minregions->SetValidator(wxTextValidator(wxFILTER_NUMERIC));
+    gbox->Add(st_minregions, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
+    gbox->Add(txt_minregions, 1, wxEXPAND);
+
+    wxStaticText* st13 = new wxStaticText(panel, wxID_ANY, _("Distance Function:"));
     wxString choices13[] = {"Euclidean", "Manhattan"};
     m_distance = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(200,-1), 2, choices13);
     m_distance->SetSelection(0);
@@ -128,7 +135,7 @@ void RedcapDlg::CreateControls()
 
     // Transformation
     AddTransformation(panel, gbox);
-    
+
     wxStaticText* st17 = new wxStaticText(panel, wxID_ANY, _("Use Specified Seed:"));
     wxBoxSizer *hbox17 = new wxBoxSizer(wxHORIZONTAL);
     chk_seed = new wxCheckBox(panel, wxID_ANY, "");
@@ -147,7 +154,6 @@ void RedcapDlg::CreateControls()
     
     wxStaticBoxSizer *hbox = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Parameters:"));
     hbox->Add(gbox, 1, wxEXPAND);
-    
     
     // Output
     wxStaticText* st3 = new wxStaticText (panel, wxID_ANY, _("Save Cluster in Field:"));
@@ -214,6 +220,20 @@ void RedcapDlg::CreateControls()
     closeButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnClickClose, this);
     chk_seed->Bind(wxEVT_CHECKBOX, &RedcapDlg::OnSeedCheck, this);
     seedButton->Bind(wxEVT_BUTTON, &RedcapDlg::OnChangeSeed, this);
+}
+
+void RedcapDlg::OnCheckMinBound(wxCommandEvent& event)
+{
+    wxLogMessage("On SkaterDlg::OnLISACheck");
+    AbstractClusterDlg::OnCheckMinBound(event);
+
+    if (chk_floor->IsChecked()) {
+        st_minregions->Disable();
+        txt_minregions->Disable();
+    } else {
+        st_minregions->Enable();
+        txt_minregions->Enable();
+    }
 }
 
 void RedcapDlg::OnSeedCheck(wxCommandEvent& event)
@@ -336,6 +356,8 @@ wxString RedcapDlg::_printConfiguration()
         int idx = combo_floor->GetSelection();
         wxString nm = name_to_nm[combo_floor->GetString(idx)];
         txt << _("Minimum bound:\t") << txt_floor->GetValue() << "(" << nm << ")" << "\n";
+    } else {
+        txt << "Minimum region size:\t" << txt_minregions->GetValue() << "\n";
     }
     
     txt << _("Minimum region size:\t") << m_textbox->GetValue() << "\n";
@@ -439,14 +461,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             return;
         }
     }
-    
-    wxString str_max_region = m_max_region->GetValue();
-    if (str_max_region.IsEmpty()) {
-        wxString err_msg = _("Please enter maximum number of regions.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
+    bool check_floor = false;
     if (chk_floor->IsChecked()) {
         wxString str_floor = txt_floor->GetValue();
         if (str_floor.IsEmpty() || combo_floor->GetSelection() < 0) {
@@ -455,6 +470,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
             dlg.ShowModal();
             return;
         }
+        check_floor = true;
     }
 
     wxString field_name = m_textbox->GetValue();
@@ -478,11 +494,44 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
         dlg.ShowModal();
         return;
     }
-    
+
+    wxString str_max_region = m_max_region->GetValue();
+    if (str_max_region.IsEmpty()) {
+        if (txt_minregions->GetValue().IsEmpty() && check_floor == false) {
+            wxString err_msg = _("Please enter number of regions, or minimum bound value, or minimum region size.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+
     // Get Bounds
     double min_bound = GetMinBound();
+    if (chk_floor->IsChecked()) {
+        wxString str_floor = txt_floor->GetValue();
+        if (str_floor.IsEmpty()) {
+            wxString err_msg = _("Please enter minimum bound value");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+        check_floor = true;
+    }
+
     double* bound_vals = GetBoundVals();
-   
+
+    if (bound_vals == NULL) {
+        wxString str_min_regions = txt_minregions->GetValue();
+        long val_min_regions;
+        if (str_min_regions.ToLong(&val_min_regions)) {
+            min_bound = val_min_regions;
+            check_floor = true;
+        }
+        bound_vals = new double[rows];
+        for (int i=0; i<rows; i++)
+            bound_vals[i] = 1;
+    }
+
 	// Get Distance Selection
     char dist = 'e'; // euclidean
     int dist_sel = m_distance->GetSelection();
@@ -490,7 +539,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     dist = dist_choices[dist_sel];
 
     // Get number of regions
-    int n_regions = 0;
+    int n_regions = std::numeric_limits<int>::max();
     long value_n_region;
     if(str_max_region.ToLong(&value_n_region)) {
         n_regions = value_n_region;
@@ -540,7 +589,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
     
     int ncluster = cluster_ids.size();
     
-    if (ncluster < n_regions) {
+    if (n_regions != std::numeric_limits<int>::max() && ncluster < n_regions) {
         // show message dialog to user
         wxString warn_str = _("The number of identified clusters is less than ");
         warn_str << n_regions;
@@ -630,7 +679,7 @@ void RedcapDlg::OnOK(wxCommandEvent& event )
                                 GdaConst::map_default_size);
     wxString ttl;
     ttl << "REDCAP " << _("Cluster Map ") << "(";
-    ttl << n_regions;
+    ttl << ncluster;
     ttl << " clusters)";
     nf->SetTitle(ttl);
     

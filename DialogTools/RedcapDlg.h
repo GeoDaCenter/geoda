@@ -51,6 +51,7 @@ public:
     
     void OnSeedCheck(wxCommandEvent& event);
     void OnChangeSeed(wxCommandEvent& event);
+    void OnCheckMinBound(wxCommandEvent& event);
     
     void InitVariableCombobox(wxListBox* var_box);
     
@@ -66,9 +67,11 @@ protected:
     wxTextCtrl* m_textbox;
 
     wxChoice* m_method;
-
 	wxChoice* m_distance;
-    
+
+    wxStaticText* st_minregions;
+    wxTextCtrl* txt_minregions;
+
     wxButton* seedButton;
     wxButton* saveButton;
 

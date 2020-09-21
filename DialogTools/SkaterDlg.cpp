@@ -90,7 +90,7 @@ void SkaterDlg::CreateControls()
     // Parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(9,2,5,0);
 
-    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Clusters:"));
+    wxStaticText* st11 = new wxStaticText(panel, wxID_ANY, _("Number of Regions:"));
     m_max_region = new wxTextCtrl(panel, wxID_ANY, "5", wxDefaultPosition, wxSize(200,-1));
     gbox->Add(st11, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT | wxLEFT, 10);
     gbox->Add(m_max_region, 1, wxEXPAND);
@@ -447,14 +447,6 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             return;
         }
     }
-
-    wxString str_initial = m_max_region->GetValue();
-    if (str_initial.IsEmpty()) {
-        wxString err_msg = _("Please enter number of regions");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
-        dlg.ShowModal();
-        return;
-    }
     
     wxString field_name = m_textbox->GetValue();
     if (field_name.IsEmpty()) {
@@ -512,8 +504,19 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
             bound_vals[i] = 1;
     }
     
+    wxString str_initial = m_max_region->GetValue();
+    if (str_initial.IsEmpty()) {
+        // check if
+        if (txt_minregions->GetValue().IsEmpty() && check_floor == false) {
+            wxString err_msg = _("Please enter number of regions, or minimum bound value, or minimum region size.");
+            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            dlg.ShowModal();
+            return;
+        }
+    }
+    
 	// Get region numbers
-    int n_regions = 0;
+    int n_regions = std::numeric_limits<int>::max(); // user can ignore region numbers
     long value_initial;
     if(str_initial.ToLong(&value_initial)) {
         n_regions = value_initial;
@@ -581,7 +584,7 @@ void SkaterDlg::OnOK(wxCommandEvent& event )
     
     int ncluster = cluster_ids.size();
     
-    if (ncluster < n_regions) {
+    if (n_regions != std::numeric_limits<int>::max() && ncluster < n_regions) {
         // show message dialog to user
         wxString warn_str = _("The number of identified clusters is less than ");
         warn_str << n_regions;
