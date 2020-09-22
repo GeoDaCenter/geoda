@@ -312,6 +312,7 @@
     <ResourceCompile Include="..\..\GeoDa.rc" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\Algorithms\azp.cpp" />
     <ClCompile Include="..\..\Algorithms\cluster.cpp" />
     <ClCompile Include="..\..\Algorithms\dbscan.cpp" />
     <ClCompile Include="..\..\Algorithms\distanceplot.cpp" />
@@ -346,6 +347,7 @@
     <ClCompile Include="..\..\DialogTools\AdjustYAxisDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AggregateDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\AutoUpdateDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\AZPDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\BasemapConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\CsvFieldConfDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\DBScanDlg.cpp" />
@@ -358,11 +360,13 @@
     <ClCompile Include="..\..\DialogTools\KMeansDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MaxpDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MDSDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\MultiQuantileLisaDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\MultiVarSettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\nbrMatchDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PCASettingsDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PreferenceDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\PublishDlg.cpp" />
+    <ClCompile Include="..\..\DialogTools\quantileLisaDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\RedcapDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\ReportBugDlg.cpp" />
     <ClCompile Include="..\..\DialogTools\SCHCDlg.cpp" />
@@ -463,6 +467,7 @@
     <ClCompile Include="..\..\VarTools.cpp" />
     <ClCompile Include="..\..\Weights\DistUtils.cpp" />
     <ClCompile Include="..\..\wxTranslationHelper.cpp" />
+    <ClInclude Include="..\..\Algorithms\azp.h" />
     <ClInclude Include="..\..\Algorithms\cluster.h" />
     <ClInclude Include="..\..\Algorithms\DataUtils.h" />
     <ClInclude Include="..\..\Algorithms\dbscan.h" />
@@ -506,6 +511,7 @@
     <ClInclude Include="..\..\DialogTools\AggregateDlg.h" />
     <ClInclude Include="..\..\DialogTools\AutoCompTextCtrl.h" />
     <ClInclude Include="..\..\DialogTools\AutoUpdateDlg.h" />
+    <ClInclude Include="..\..\DialogTools\AZPDlg.h" />
     <ClInclude Include="..\..\DialogTools\BasemapConfDlg.h" />
     <ClInclude Include="..\..\DialogTools\CalculatorDlg.h" />
     <ClInclude Include="..\..\DialogTools\CsvFieldConfDlg.h" />
@@ -523,6 +529,7 @@
     <ClInclude Include="..\..\DialogTools\LocaleSetupDlg.h" />
     <ClInclude Include="..\..\DialogTools\MaxpDlg.h" />
     <ClInclude Include="..\..\DialogTools\MDSDlg.h" />
+    <ClInclude Include="..\..\DialogTools\MultiQuantileLisaDlg.h" />
     <ClInclude Include="..\..\DialogTools\MultiVarSettingsDlg.h" />
     <ClInclude Include="..\..\DialogTools\nbrMatchDlg.h" />
     <ClInclude Include="..\..\DialogTools\NumCategoriesDlg.h" />
@@ -530,6 +537,7 @@
     <ClInclude Include="..\..\DialogTools\PreferenceDlg.h" />
     <ClInclude Include="..\..\DialogTools\ProjectInfoDlg.h" />
     <ClInclude Include="..\..\DialogTools\PublishDlg.h" />
+    <ClInclude Include="..\..\DialogTools\quantileLisaDlg.h" />
     <ClInclude Include="..\..\DialogTools\RedcapDlg.h" />
     <ClInclude Include="..\..\DialogTools\ReportBugDlg.h" />
     <ClInclude Include="..\..\DialogTools\SaveAsDlg.h" />
