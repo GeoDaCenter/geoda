@@ -1552,7 +1552,8 @@ All Rights Reserved</label>
                                       <object class="wxStaticText">
                                           <label>Select datasource</label>
                                       </object>
-                                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                      <flag>wxALIGN_CENTRE_VERTICAL | wxALL</flag>
+                                      <border>5</border>
                                   </object>
                                   <object class="spacer">
                                       <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
@@ -1564,7 +1565,8 @@ All Rights Reserved</label>
                                           <size>135,-1d</size>
                                           <style>wxTE_READONLY</style>
                                       </object>
-                                      <flag>wxALIGN_CENTRE_VERTICAL</flag>
+                                      <flag>wxALIGN_CENTRE_VERTICAL|wxALL</flag>
+                                      <border>5</border>
                                   </object>
                                   <object class="spacer">
                                       <flag>wxALIGN_CENTER_HORIZONTAL|wxALIGN_CENTER_VERTICAL|wxALL</flag>
@@ -1576,8 +1578,8 @@ All Rights Reserved</label>
                                           <bitmap>open-folder.png</bitmap>
                                           <style>wxNO_BORDER|wxBU_EXACTFIT</style>
                                       </object>
-                                      <flag>wxRIGHT|wxALIGN_CENTRE_VERTICAL</flag>
-                                      <border>3</border>
+                                      <flag>wxALL|wxALIGN_CENTRE_VERTICAL</flag>
+                                      <border>5</border>
                                   </object>
                                   <orient>wxHORIZONTAL</orient>
                               </object>
@@ -1587,7 +1589,7 @@ All Rights Reserved</label>
                           <orient>wxVERTICAL</orient>
                       </object>
                       <flag>wxEXPAND|wxALL</flag>
-                      <border>0</border>
+                      <border>5</border>
                   </object>
                   
                   <object class="sizeritem">
@@ -1608,13 +1610,15 @@ All Rights Reserved</label>
                                   </object>
                                   <orient>wxHORIZONTAL</orient>
                               </object>
+                              <flag>wxALL</flag>
+                              <border>5</border>
                           </object>
                           
                           <label>Method</label>
                           <orient>wxVERTICAL</orient>
                       </object>
                       <flag>wxEXPAND|wxALL</flag>
-                      <border></border>
+                      <border>5</border>
                   </object>
                   
                   <object class="sizeritem">
@@ -2083,6 +2087,8 @@ All Rights Reserved</label>
                                       </object>
                                       <orient>wxHORIZONTAL</orient>
                                   </object>
+                                  <flag>wxEXPAND|wxALL</flag>
+                                  <border>5</border>
                               </object>
                               <label>Method</label>
                               <orient>wxVERTICAL</orient>

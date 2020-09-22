@@ -5533,7 +5533,6 @@
                   </object>
                   <object class="sizeritem">
                     <object class="wxChoice" name="IDC_UNARY_OPERATOR">
-                      <size>80,-1d</size>
                     </object>
                     <flag>wxALL|wxALIGN_CENTER</flag>
                     <border>3</border>
