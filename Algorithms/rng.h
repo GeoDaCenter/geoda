@@ -71,12 +71,12 @@ public:
     }
     // return a uniform distributed double value between [0, 1]
     double nextDouble() {
-#ifdef WIN32
+#ifdef __WXOSX__
+        return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
+#else
         char tempStr[] = "0x1.0p-53";
         double nd = std::strtod(tempStr, NULL);
         return ((unsigned long long)nextLong() >> 11) * nd;
-#else
-        return ((unsigned long long)nextLong() >> 11) * 0x1.0p-53;
 #endif
     }
     
