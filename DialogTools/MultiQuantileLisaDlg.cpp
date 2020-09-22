@@ -75,7 +75,7 @@ void MultiQuantileLisaDlg::CreateControls()
     // variable list
     combo_var = new wxListBox(panel, wxID_ANY, wxDefaultPosition,
                               wxSize(280,250), 0, NULL,
-                              wxLB_MULTIPLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
+                              wxLB_SINGLE | wxLB_HSCROLL| wxLB_NEEDED_SB);
     InitVariableCombobox(combo_var, false, false);
     // parameters
     wxFlexGridSizer* gbox = new wxFlexGridSizer(15,2,10,0);
@@ -338,8 +338,8 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
     int num_vars = lst_quantile->GetItemCount();
 
     if (num_vars < 2) {
-        wxString err_msg = _("Please add more than one variable for Multivarite Quantile LISA.");
-        wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+        wxString err_msg = _("Please use the > button to specify more than one variable for Multivarite Quantile LISA.");
+        wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
         dlg.ShowModal();
         return;
     }
@@ -369,7 +369,7 @@ void MultiQuantileLisaDlg::OnOK(wxCommandEvent& event )
         wxString field_name = lst_quantile->GetItemText(i, 3);
         if (field_name.IsEmpty()) {
             wxString err_msg = _("Please enter a field name for saving the quantile selection as binary data in table.");
-            wxMessageDialog dlg(NULL, err_msg, _("Error"), wxOK | wxICON_ERROR);
+            wxMessageDialog dlg(NULL, err_msg, _("Warning"), wxOK | wxICON_WARNING);
             dlg.ShowModal();
             return;
         }
