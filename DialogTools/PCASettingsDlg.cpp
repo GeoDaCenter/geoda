@@ -90,8 +90,8 @@ void PCASettingsDlg::CreateControls()
     combo_n = new wxChoice(panel, wxID_ANY, wxDefaultPosition, wxSize(120,-1), 0, NULL);
     
     wxStaticBoxSizer *hbox1 = new wxStaticBoxSizer(wxHORIZONTAL, panel, _("Output:"));
-    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL);
-    hbox1->Add(combo_n, 1, wxEXPAND);
+    hbox1->Add(st1, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    hbox1->Add(combo_n, 1, wxEXPAND | wxALL, 5);
     
     
     // buttons
