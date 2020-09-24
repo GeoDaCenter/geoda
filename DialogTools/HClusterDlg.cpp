@@ -773,7 +773,10 @@ void DendrogramPanel::OnIdle(wxIdleEvent& event)
                 layer_bm = 0;
             }
 
-            double scale_factor = GetContentScaleFactor();
+            double scale_factor = 1.0;
+            if (GdaConst::enable_high_dpi_support) {
+                scale_factor = GetContentScaleFactor();
+            }
             layer_bm = new wxBitmap;
             layer_bm->CreateScaled(sz.x, sz.y, 32, scale_factor);
 
@@ -967,7 +970,10 @@ void DendrogramPanel::init()
     
     
     if (layer_bm == NULL) {
-        double scale_factor = GetContentScaleFactor();
+        double scale_factor = 1.0;
+        if (GdaConst::enable_high_dpi_support) {
+            scale_factor = GetContentScaleFactor();
+        }
         layer_bm = new wxBitmap;
         layer_bm->CreateScaled(ww, hh, 32, scale_factor);
     }

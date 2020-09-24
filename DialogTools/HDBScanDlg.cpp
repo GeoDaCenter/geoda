@@ -700,7 +700,10 @@ void wxHTree::InitCanvas()
         int hh = sz.GetHeight();
 
         // for Hdpi painting
-        double scale_factor = GetContentScaleFactor();
+        double scale_factor = 1.0;
+        if (GdaConst::enable_high_dpi_support) {
+            scale_factor = GetContentScaleFactor();
+        }
         layer_bm = new wxBitmap;
         layer_bm->CreateScaled(ww, hh, 32, scale_factor);
     }
