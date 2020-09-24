@@ -94,7 +94,7 @@ void SpectralClusteringDlg::CreateControls()
 {
     wxScrolledWindow* scrl = new wxScrolledWindow(this, wxID_ANY,
                                                   wxDefaultPosition,
-                                                  wxSize(820,880),
+                                                  wxSize(820,900),
                                                   wxHSCROLL|wxVSCROLL );
     scrl->SetScrollRate( 5, 5 );
     
