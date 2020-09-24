@@ -90,6 +90,8 @@ protected:
     wxButton* playButton;
     wxButton* pauseButton;
     wxButton* stopButton;
+    wxButton *closeButton;
+    
     wxSlider* m_slider;
     wxSlider* m_speed_slider;
 
@@ -111,6 +113,7 @@ protected:
     wxButton* seedButton;
 
     wxStaticText* lbl_poweriteration;
+    bool is_thread_created;
     DECLARE_EVENT_TABLE()
     
 };
