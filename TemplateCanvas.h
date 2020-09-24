@@ -63,7 +63,7 @@ public:
                    const wxSize& size,
                    bool fixed_aspect_ratio_mode = false,
                    bool fit_to_window_mode = true,
-                   bool enable_high_dpi_support = true); // always try hdpi except maps
+                   bool enable_high_dpi_support = GdaConst::enable_high_dpi_support); // always try hdpi except maps
 	virtual ~TemplateCanvas();
 
 public:
