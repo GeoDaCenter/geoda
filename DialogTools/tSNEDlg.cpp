@@ -55,7 +55,7 @@ END_EVENT_TABLE()
 TSNEDlg::TSNEDlg(wxFrame *parent_s, Project* project_s)
 : AbstractClusterDlg(parent_s, project_s, _("t-SNE Settings")),
 data(0), Y(0), ragged_distances(0), tsne(0), tsne_job(0),
-old_report(""), dist('e')
+old_report(""), dist('e'), is_thread_created(false)
 {
     wxLogMessage("Open tSNE Dialog.");
     CreateControls();
@@ -63,12 +63,7 @@ old_report(""), dist('e')
     this->Connect(myEVT_THREAD_UPDATE, wxThreadEventHandler(TSNEDlg::OnThreadUpdate ) );
     this->Connect(myEVT_THREAD_DONE, wxThreadEventHandler(TSNEDlg::OnThreadDone ) );
 
-    // we want to start a long task, but we don't want our GUI to block
-    // while it's executed, so we use a thread to do it.
-    if (CreateThread(wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR)  {
-        wxLogError("Could not create the worker thread!");
-        return;
-    }
+
 }
 
 TSNEDlg::~TSNEDlg()
@@ -92,16 +87,18 @@ void TSNEDlg::OnClose(wxCloseEvent& ev)
         tsne->set_paused(false);
         tsne->stop();
     }
-    
-    GetThread()->Kill();
-    // Note: it seems that if we don't explictly capture the close event
-    //       and call Destory, then the destructor is not called.
-    // important: before terminating, we _must_ wait for our joinable
-    // thread to end, if it's running; in fact it uses variables of this
-    // instance and posts events to *this event handler
-    if (GetThread() &&      // DoStartALongTask() may have not been called
-        GetThread()->IsRunning()) {
-        GetThread()->Wait();
+
+    if (is_thread_created) {
+        GetThread()->Kill();
+        // Note: it seems that if we don't explictly capture the close event
+        //       and call Destory, then the destructor is not called.
+        // important: before terminating, we _must_ wait for our joinable
+        // thread to end, if it's running; in fact it uses variables of this
+        // instance and posts events to *this event handler
+        if (GetThread() &&      // DoStartALongTask() may have not been called
+            GetThread()->IsRunning()) {
+            GetThread()->Wait();
+        }
     }
     Destroy();
 }
@@ -266,7 +263,7 @@ void TSNEDlg::CreateControls()
                                       wxSize(70, 30));
     saveButton->Enable(false);
     stopButton->Enable(false);
-    wxButton *closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
+    closeButton = new wxButton(panel, wxID_EXIT, _("Close"),
                                          wxDefaultPosition, wxSize(70, 30));
     wxBoxSizer *hbox2 = new wxBoxSizer(wxHORIZONTAL);
     hbox2->Add(runButton, 1, wxALIGN_CENTER | wxALL, 5);
@@ -491,6 +488,7 @@ void TSNEDlg::OnPlay(wxCommandEvent& event )
         playButton->Enable(false);
         pauseButton->Enable(true);
         stopButton->Enable(true);
+        closeButton->Enable(false);
     }
 }
 
@@ -501,6 +499,7 @@ void TSNEDlg::OnPause(wxCommandEvent& event )
         playButton->Enable(true);
         pauseButton->Enable(false);
         stopButton->Enable(true);
+        closeButton->Enable(true);
     }
 }
 
@@ -512,6 +511,7 @@ void TSNEDlg::OnStop(wxCommandEvent& event )
         playButton->Enable(false);
         pauseButton->Enable(false);
         stopButton->Enable(false);
+        closeButton->Enable(true);
         tsne->stop();
     }
 }
@@ -717,6 +717,16 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     tsne_job = new boost::thread(&TSNE::run, tsne, boost::ref(tsne_queue),
                                  boost::ref(tsne_log), boost::ref(tsne_results));
 
+    // we want to start a long task, but we don't want our GUI to block
+    // while it's executed, so we use a thread to do it.
+    if (is_thread_created == false) {
+        is_thread_created = true;
+        if (CreateThread(wxTHREAD_JOINABLE) != wxTHREAD_NO_ERROR)  {
+            wxLogError("Could not create the worker thread!");
+            return;
+        }
+    }
+
     // start ui thread to listen to changes in tsne
     if (GetThread()->IsRunning() == false) {
         if (GetThread()->Run() != wxTHREAD_NO_ERROR) {
@@ -726,6 +736,7 @@ void TSNEDlg::OnOK(wxCommandEvent& event )
     }
 
     pauseButton->Enable(true);
+    closeButton->Enable(false);
 }
 
 void TSNEDlg::OnThreadUpdate(wxThreadEvent& evt)
@@ -758,7 +769,7 @@ void TSNEDlg::OnThreadDone(wxThreadEvent& evt)
     playButton->Enable(false);
     pauseButton->Enable(false);
     stopButton->Enable(false);
-
+    closeButton->Enable(true);
     m_slider->Enable(true);
     m_speed_slider->Enable(true);
 
